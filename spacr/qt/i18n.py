@@ -85,6 +85,10 @@ def _row(*values: str) -> tuple[str, ...]:
 
 
 _ROWS: Dict[str, tuple[str, ...]] = {
+    "High contrast": _row(
+        "Hög kontrast", "Hoher Kontrast", "Alto contraste", "高对比度",
+        "Alto contraste", "उच्च कंट्रास्ट", "고대비", "Mikil birtuskil",
+        "Contraste élevé"),
     "Candida spp.": _row(
         "Candida spp.", "Candida spp.", "Candida spp.", "Candida spp.",
         "Candida spp.", "Candida spp.", "Candida spp.", "Candida spp.",

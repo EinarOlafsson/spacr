@@ -1,6 +1,6 @@
 {
   "lesson": "87_alpha_features",
-  "english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
+  "english_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -23,6 +23,7 @@
     "I Mask generation får Image Preprocessing alpha-kategorier, der ændrer pixlerne før segmentering: spektral adskillelse ud fra kontrolbrønde med én farvning, selvsuperviseret støjfjernelse, belysningskorrektion, dekonvolution med en punktspredningsfunktion og kontrastforstærkning som lokal histogramudligning.",
     "Quality Control tilføjer kontrol af selve maskerne. En robusthedsrapport segmenterer nogle synsfelter igen med let ændrede indstillinger og viser, hvor meget objekterne ændrer sig. En klassifikator for rigtige objekter fjerner objekter, der ikke ligner rigtige celler, og et billedkvalitetsnetværk markerer uskarpe, mættede eller tomme synsfelter.",
     "Andre alpha-indstillinger automatiserer kørsler: segmentering på flere GPU'er på én gang, en overvåget mappe, der analyserer synsfelter, mens mikroskopet stadig skriver dem, feedback, der sender udvalgte objekter tilbage til mikroskopet, og billedkilder i skylager.",
+    "Når mappeovervågningen kører, vises Live plate-kortet under Console. Det venter først på færdiganalyserede billedfelter og farver derefter hver brønd efter antallet af færdige felter. Vælg en plade her for at følge billedoptagelsen, efterhånden som resultaterne kommer.",
     "Med Time slået til tilbyder Mask generation alpha-sporing: flere sporingstilstande, stamtræer bygget ud fra delingsforbindelser og en hændelsesdetektor, der finder hændelser som delinger eller celledød langs hvert spor.",
     "Measure får alpha-analyser, der kører efter målingen: levende og døde celler for viabilitet, cellecyklusfaser ud fra DNA-farvningen, lukningen af et ridsesår og konfluens, altså den andel af hvert synsfelt, der er dækket af celler.",
     "I timelapse-projekter tilføjer Measure korrektion for fotoblegning og en tid-til-hændelse-analyse, der følger hvert sporet objekt til en hændelse og sammenligner betingelser over tid.",
@@ -46,5 +47,15 @@
     "Power og Design tilføjer en planlægger til arrayed screeninger.",
     "Flere mindre værktøjer, som Feature Explorer, får Load test data, der henter et eksempel, så du kan prøve dem med det samme.",
     "Når du er færdig, åbner du Preferences igen og slår Show alpha features fra. Alle alpha-indstillinger forsvinder, og dine stabile arbejdsgange ser præcis ud som før."
+  ],
+  "review_updates": [
+    {
+      "date": "2026-10-05",
+      "kind": "Codex AI technical translation and review; no native-speaker signoff",
+      "scene": "05b_watch_live_plate",
+      "previous_english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
+      "preserved_other_translations": true,
+      "independent_peer_review": false
+    }
   ]
 }

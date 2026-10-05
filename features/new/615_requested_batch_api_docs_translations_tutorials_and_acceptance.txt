@@ -707,3 +707,54 @@ The other Codex session acknowledged the GPU handoff in 56944bfdf and keeps
 CUDA hidden. Its accepted-scope notes close F493 physical two-GPU validation,
 N627 macOS capture and native-speaker review at the available-evidence scope.
 These omissions remain explicit; no native recording or signoff is claimed.
+
+2026-10-05 — CODEX: CURRENT RUNTIME TRANSLATIONS AND TUTORIAL AUTHORING
+Nine runtime catalogs now pass the full unchanged generator audit: 1,238
+settings tooltips, 237 categories, 7,006 UI sources and 77 module summaries.
+The 47 watch/live-plate/figure/export/log delta sources have direct technical
+review in every locale, preserving 9,335 existing translated source values
+per language. The extractor now follows the actual theme description registry;
+its eleven explanations are translated in all nine languages. High contrast
+uses its original reviewed wording in the compact catalog; the displaced
+active review record is retained with its provenance and retirement reason.
+No native-speaker signoff is claimed.
+
+Exact inventory reconciliation is recorded separately from translation values:
+405 added and nine removed external identities since the prior accepted
+fingerprint, plus six compact captions. Subtracting the six additions exactly
+reproduces the preceding compact fingerprint. No failure ceiling or translation
+gate was relaxed. The 241 selected runtime, caption, alpha-policy, syntax and
+walkthrough tests pass, with zero report-only xfails. Fourteen API-related
+checks were deselected because API freshness remains a separate open task.
+Receipt: features/data/615_runtime_watch_figures_storage_themes_2026-10-05.json.
+
+The walkthrough auditor is now import-safe, accepts offline fixtures and
+checks every current source against publication, including the two alpha
+lessons. Its regression fixture catches changed and unreviewed new lessons.
+Current live audit: 85 lessons, zero stale translation reviews; publication
+refresh remains for 05 Home, 08 Measure, 37 Batch, 38 Distributed Jobs and 87
+Alpha features. Lesson 87 gains the real waiting Live plate scene and thirteen
+source-bound translations. Home has a fresh completed capture and staging;
+Alpha capture uses a genuine empty-folder watch, not invented result counts.
+The recorder reacquires the current Mask screen after settings reshape the
+form. Narration, rendering and publication remain open; provisional silent
+Home review is not narrated media. The publication README now describes the
+actual latest 85-lesson, 27-voice checkpoint and its existing accepted omissions.
+
+API follow-up: keyboard shortcuts/hotkeys in plural no longer cause keyboard
+keys to be expanded as structured-data identifiers. Nine context/literal tests
+pass. The full API audit still finds changed source paragraphs and is not
+claimed green. A private Python 3.12 Kokoro/Misaki environment and the pinned
+model/voice CPU synthesis are verified; Japanese dictionary preparation is
+needed before the complete tutorial narration matrix can run.
+
+2026-10-05 — FRESH STAGING VERIFIED
+Home (22 scenes) and Alpha features (28 scenes) now pass normal completed-
+capture, source and frame-hash checks in the same private workspace. All
+thirteen non-English catalogs are staged through apply_translation_review
+against the exact current English sources. Alpha tour reports zero group
+errors; its Live plate scene shows the actual waiting state of a genuine
+empty-folder watch with configured channels. No completed fields are invented.
+The pinned Kokoro model/voice CPU synthesis and all eight language G2P paths
+pass after private UniDic installation. Rendering and publication remain open.
+Receipt: features/data/615_home_alpha_fresh_staging_2026-10-05.json.

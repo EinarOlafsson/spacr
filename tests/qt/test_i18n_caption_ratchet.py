@@ -89,9 +89,12 @@ ROOT = Path(__file__).resolve().parents[2]
 # spp.", "Toxoplasma", "Host–Pathogen Analysis" and the rewritten issue-filing
 # privacy note. Retired (4): "Demos menu", its one-click demo blurb,
 # "Settings recipes" and the old privacy note. Their `_ROWS` rows stay.
-COMPACT_CAPTION_COUNT = 243
+# 615, 2026-10-05: exact reviewed additions/removals and preservation proof
+# are in features/data/615_runtime_watch_figures_storage_themes_2026-10-05.json.
+# Compact +6/-0 reproduces the prior fingerprint by exact subtraction.
+COMPACT_CAPTION_COUNT = 249
 COMPACT_CAPTION_SHA256 = (
-    "6ad2ef9e9b4495a569d1011d594d21fa93f12c8ff161b4a0776369819db42618"
+    "cd4742746b892c275bd038b82e518889efde6b22e81f9fe8f258e2bb694d06f8"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are
@@ -393,6 +396,9 @@ COMPACT_CAPTION_SHA256 = (
 # replaces "Input channels > channel to predict:"), +1 SETTING_LABELS and
 # +1 SETTING_TOOLTIPS for counterfactual_condition; then item 631's RAM
 # guard: +12 UI and ram_guard's label and tooltip.
+# 615, 2026-10-05: exact reviewed additions/removals and preservation proof
+# are in features/data/615_runtime_watch_figures_storage_themes_2026-10-05.json.
+# Compact +6/-0 reproduces the prior fingerprint by exact subtraction.
 EXTERNAL_SOURCE_COUNTS = {
     # 2026-09-15, the old OPS engine deleted (372): -116 / +0 by SET
     # DIFFERENCE of the identities against the tree before the deletion,
@@ -403,8 +409,8 @@ EXTERNAL_SOURCE_COUNTS = {
     # to the fingerprint below.
     # `recursive` keeps its row: its English now comes from
     # spacr.external_masks, which reads it, so its identity is unchanged.
-    "SETTING_LABELS": 1211,
-    "SETTING_TOOLTIPS": 1233,
+    "SETTING_LABELS": 1216,
+    "SETTING_TOOLTIPS": 1238,
     # 192 -> 201 on 2026-09-08, +9/-0: the nine OPS section headings that
     # fold onto Align & Stitch. Each needed a curated CATEGORY_TOOLTIPS
     # entry or its panel drew the generic fallback -- a heading whose
@@ -526,8 +532,8 @@ EXTERNAL_SOURCE_COUNTS = {
     # "Prepare compatible Python": two arrivals, one retirement, net +1.
     # F538: two reviewed opt-in unmixed Measure display captions, no removals.
     # N615 2026-10-03: +62/-1 alpha-batch captions and +12 for 631, named above.
-    "UI": 6625,
-    "MODULE_SUMMARIES": 72,
+    "UI": 7006,
+    "MODULE_SUMMARIES": 77,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
 # invented-negatives notice replaced "{n} outstanding suggestions thrown away
@@ -648,7 +654,7 @@ EXTERNAL_SOURCE_KEY_SHA256 = (
     # N615 2026-10-03: the +78/-1 identities (alpha batch and 631) named over
     # EXTERNAL_SOURCE_COUNTS; removing them and restoring the retired
     # prompt reproduces 70748cfb...181c60.
-    'd977d86f57aefba253bfda05ac300bdbb306c75ec6a46230c570cdd28dd2da39'
+    'e56629ade85e736f654227561c3c0422287b6c1ce08e21697c9e167491add4e5'
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
@@ -1278,60 +1284,7 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 655, 2026-10-04: Preferences > Appearance > Theme's High contrast entry
 # and its tooltip sentence.
 # 643/644/646, 2026-10-04: Preferences > Storage's "Measure sizes" button.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
-    "Live plate",
-    "Colour shows completed fields per well.",
-    "Waiting for completed fields",
-    "{count} completed fields on {plate}",
-    "{count} fields have no plate well",
-    "Automatic (chosen from the data)",
-    "Change graph type",
-    "Edit figure…",
-    "Multiple-comparison correction",
-    "No data is attached to this figure",
-    "One zip: the image in the default formats, the data as CSV, every "
-    "statistical test in one CSV with a text summary, the plotting recipe "
-    "as JSON and a Python script that re-creates the figure.",
-    "Paired / repeated measures",
-    "Save figure (zip)",
-    "Save figure (zip)…",
-    "Show on the plot",
-    "Statistics…",
-    "Subject column",
-    "Titles, axis labels, limits and scales, fonts, colours, legend, size "
-    "and DPI, applied live.",
-    "Zip archive (*.zip)",
-    "One zip: the picture in the default formats, the arrays it shows as "
-    "TIFF and its metadata as JSON.",
-    'Text size of legend entries and legend titles, in points. Default 9.',
-    'Colour map for heat maps, images and density plots. viridis and cividis stay readable with colour-blindness and in greyscale. Default viridis.',
-    'Width of a new figure in inches. The page shape sets the height, or Figure height does when the page shape is custom. Default 6.4.',
-    'Height of a new figure in inches, used when the page shape is custom. Default 4.8.',
-    "Moves the axis lines this many points away from the data, as seaborn's despine does. 0 leaves them touching. Default 0.",
-    'Writes a second copy of every saved figure in this format beside the first, for example a PNG next to a PDF. Default none.',
-    'Keeps text editable in PDF and SVG files instead of turning it into outlines. Default on.',
-    'What error bars show on bar graphs: standard error (sem), standard deviation (sd), a confidence interval at the CI level (ci), a 95% interval (ci95) or nothing. Default sem.',
-    'Confidence level, in percent, of the ci error bars. Default 95.',
-    'Width of the caps at the ends of error bars, in points. Default 5.',
-    "How far overlaid points spread sideways, as a fraction of one category's width. Default 0.4.",
-    'Opacity of overlaid points, from 0 (invisible) to 1 (solid). Default 0.6.',
-    'Draws the individual points over bar and box graphs. Default on.',
-    "Giardia duodenalis",
-    "White text and outlines on black with a yellow accent, for low vision "
-    "and bright rooms.",
-    "Leishmania spp.",
-    "Mammalian cells",
-    "Trypanosoma spp.",
-    "Virus infection",
-    "Clear all logs",
-    "Clear all logs…",
-    "Deleted {count} file(s) and emptied {emptied}, freeing {size}.",
-    "List every daily, run, crash and verbose log with its count and size, then ask before deleting them. Logs this session has open are emptied instead. Default nothing cleared.",
-    "Log files",
-    "There are no logs to clear.",
-    "{count} file(s) this session has open are emptied, not deleted.",
-    "{label}: {count} file(s), {size}",
-})
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
 
 
 

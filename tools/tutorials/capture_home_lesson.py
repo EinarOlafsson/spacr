@@ -13,6 +13,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -35,15 +36,37 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--stage', required=True, type=Path)
     parser.add_argument('--capture-child', action='store_true', help=argparse.SUPPRESS)
+    parser.add_argument('--reuse-capture', action='store_true',
+                        help='Stage an existing completed capture; do not record again')
     args = parser.parse_args()
     stage = args.stage.resolve()
-    if not args.capture_child:
+    if not args.capture_child and not args.reuse_capture:
         stage.mkdir(parents=True, exist_ok=False)
     config = stage / 'config/home'
     for folder in ('config/home', 'state/home', 'cache', 'example_data', 'runs', 'app-state', 'logs', 'mpl', 'tmp'):
         (stage / folder).mkdir(parents=True, exist_ok=True)
+    if not args.capture_child and not args.reuse_capture:
+        # Disposable old folders make the genuine prune confirmation reachable.
+        fixtures = []
+        for number in (1, 2):
+            folder = stage / 'app-state/runs' / f'tutorial-prune-example-{number}'
+            folder.mkdir(parents=True)
+            note = folder / 'README.txt'
+            note.write_text('Disposable Storage prune demonstration; no analysis results.\n')
+            old = time.time() - 30 * 86400
+            os.utime(note, (old, old))
+            os.utime(folder, (old, old))
+            fixtures.append({'path': str(folder), 'sha256': digest(note),
+                             'modified': old, 'analysis_results': False})
+        write(stage / 'storage-demo-fixtures.json', fixtures)
     os.environ.update(XDG_CONFIG_HOME=str(config), XDG_STATE_HOME=str(stage / 'state/home'),
                       XDG_CACHE_HOME=str(stage / 'cache'), SPACR_LOG_DIR=str(stage / 'logs'),
+                      SPACR_HOME=str(stage / 'app-state'),
+                      CELLPOSE_LOCAL_MODELS_PATH=str(stage / 'cache/cellpose'),
+                      HF_HOME=str(stage / 'cache/huggingface'),
+                      TORCH_HOME=str(stage / 'cache/torch'),
+                      SPACR_BACKENDS_DIR=str(stage / 'cache/backends'),
+                      SPACR_NEWS_CACHE=str(stage / 'cache/news'),
                       MPLCONFIGDIR=str(stage / 'mpl'), TMPDIR=str(stage / 'tmp'), QT_QPA_PLATFORM='offscreen',
                       SPACR_LANGUAGE='en', CUDA_VISIBLE_DEVICES='', OMP_NUM_THREADS='1',
                       OPENBLAS_NUM_THREADS='1', SPACR_TUTORIAL_CACHE_ISOLATED='1')
@@ -60,12 +83,13 @@ def main():
                     '--stage', str(stage), '--platform', 'offscreen']
         return capture_refresh.main()
     # Keep the ordinary HOME value; isolate only the application's actual paths.
-    subprocess.run(['bwrap', '--die-with-parent', '--unshare-net', '--ro-bind', '/', '/',
-                    '--dev-bind', '/dev', '/dev', '--bind', str(stage), str(stage),
-                    '--bind', str(stage / 'app-state'), str(Path.home() / '.spacr'),
-                    '--bind', str(stage / 'example_data'), str(Path.home() / '.cache/spacr/example_data'),
-                    '--', sys.executable, str(Path(__file__).resolve()), '--stage', str(stage),
-                    '--capture-child'], check=True, timeout=180)
+    if not args.reuse_capture:
+        subprocess.run(['bwrap', '--die-with-parent', '--unshare-net', '--ro-bind', '/', '/',
+                        '--dev-bind', '/dev', '/dev', '--bind', str(stage), str(stage),
+                        '--bind', str(stage / 'app-state'), str(Path.home() / '.spacr'),
+                        '--bind', str(stage / 'example_data'), str(Path.home() / '.cache/spacr/example_data'),
+                        '--', sys.executable, str(Path(__file__).resolve()), '--stage', str(stage),
+                        '--capture-child'], check=True, timeout=180)
     from stage_lesson import stage_lesson
     lesson_path = REPO / 'tools/tutorials/lessons/05_home.json'
     lesson = json.loads(lesson_path.read_text())
@@ -73,12 +97,17 @@ def main():
     focus = {scene['visual']: None for scene in lesson['scenes']}
     # The prior fragment used a larger standalone dialog. Bind this capture's
     # actual dialog bounds rather than cropping it with the old fixed rectangle.
-    for name in ('09_performance', '10_appearance_categories',
-                 '11_appearance_theme', '12_appearance_animation'):
+    for name in {scene['visual'] for scene in lesson['scenes']
+                 if scene['visual'].startswith('13')}:
         dialogs = [item for item in frames[name]['dialogs'] if item['rect']]
-        if len(dialogs) != 1:
-            raise RuntimeError(f'Expected one actual Preferences dialog in {name}')
-        focus[name] = dialogs[0]['rect']
+        if not dialogs:
+            raise RuntimeError(f'Expected an actual dialog in {name}')
+        # Prune has both Preferences and its confirmation; include their union.
+        left = min(item['rect'][0] for item in dialogs)
+        top = min(item['rect'][1] for item in dialogs)
+        right = max(item['rect'][0] + item['rect'][2] for item in dialogs)
+        bottom = max(item['rect'][1] + item['rect'][3] for item in dialogs)
+        focus[name] = [left, top, right - left, bottom - top]
     focus_path = stage / 'home-focus.json'
     write(focus_path, {'english_sha256': hashlib.sha256(json.dumps(
         lesson, sort_keys=True, ensure_ascii=False).encode()).hexdigest(), 'scenes': focus,

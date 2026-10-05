@@ -17483,3 +17483,27 @@ api-source-delta.json. Run only through tools/gpu_turn.sh and run_capped.sh
 64G, batch 4, beams 4, two CPU threads, local OPUS/M2M checkpoints. Output
 is scratch drafts; catalogs publish only after technical review, source and
 literal validation. No training or live_cell/cellposeTIME process is touched.
+
+2026-10-05 — CODEX: RUNTIME ACCEPTANCE AND NEXT GPU WORK
+The workstation translation-draft turn finished successfully and left no GPU
+job running. Nine source-current runtime catalogs now pass the strict audit
+and 241 focused tests, preserving prior translations; details and exact
+inventory evidence are in item 615 and its dated receipt. The context expander
+now recognizes plural keyboard shortcuts/hotkeys. API source drift is still
+being repaired, not waived. The other session should continue reporting new
+UI/docstring changes through nightly commits.
+
+Home and alpha-feature refreshes are being prepared privately with the normal
+capture/staging tools; 87 adds the actual alpha Live plate card. Narration will
+use the pinned Kokoro snapshot and the existing published 27-voice selection,
+with GPU turns only through the shared queue. No narration GPU job is queued
+until the complete language preflight and source-bound staging pass.
+
+F557 candidate: official CTC Fluo-N2DH-GOWT1 downloaded and isolated CAREamics
+0.3.4 installed. Gold SEG is often partial; the downloaded labels are checked
+against every gold tracking marker before a frame may enter full-frame F1.
+Four sequence-01 frames currently have complete distinct-marker coverage.
+Sequence-02 requires further field-of-interest inspection. No GPU training or
+improvement claim yet; silver truth is not independent human validation.
+All other pending spaCR GPU acceptance belongs to this workstation session;
+do not launch duplicate turns. live_cell/cellposeTIME ownership stays separate.

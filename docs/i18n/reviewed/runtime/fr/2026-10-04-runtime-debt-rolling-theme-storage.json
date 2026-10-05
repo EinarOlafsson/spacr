@@ -6,17 +6,23 @@
   "records": [
     {
       "table": "ui",
-      "key": "High contrast",
-      "source": "High contrast",
-      "source_sha256": "415a8336713e6a3bb61660818c7ae7691e2246b94bcbc61a3f92dd33408d5488",
-      "translation": "Contraste élevé"
-    },
-    {
-      "table": "ui",
       "key": "Measure sizes",
       "source": "Measure sizes",
       "source_sha256": "6f98afb07bbf1e4ff526b943d97fe5325ca4f2e9c7c579f9bbe05d8e19cb6a3c",
       "translation": "Mesurer les tailles"
+    }
+  ],
+  "retired_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "High contrast",
+        "source": "High contrast",
+        "source_sha256": "415a8336713e6a3bb61660818c7ae7691e2246b94bcbc61a3f92dd33408d5488",
+        "translation": "Contraste élevé"
+      },
+      "date": "2026-10-05",
+      "reason": "Moved to the compact i18n._ROWS owner; its original reviewed translation is preserved exactly there."
     }
   ]
 }

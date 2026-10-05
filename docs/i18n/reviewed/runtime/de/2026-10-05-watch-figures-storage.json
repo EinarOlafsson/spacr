@@ -1,0 +1,338 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "Codex AI technical translation and review; no native-speaker signoff",
+  "date": "2026-10-05",
+  "note": "Current watch acquisition, Live plate, figure statistics/export and storage log text. GPU OPUS/M2M drafts were inspected and replaced where they changed technical meaning, identifiers, defaults or placeholders. This is direct AI technical review; no independent peer or native-speaker review is claimed. Existing valid review records and catalogs are preserved.",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "watch_classify_settings",
+      "source": "Watch classify settings",
+      "source_sha256": "cb0c503fffc7b192cd8b50b1b093ef26d4d675ca7729e4eff4afd80bfc116a08",
+      "translation": "Classify-Einstellungen für die Ordnerüberwachung"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "microscope_feedback",
+      "source": "With a measured watch pipeline, send objects matching microscope_event_query back to the microscope for re-imaging, for example at higher resolution or as a short timelapse. Stage positions come from microscope_positions and microscope_stage_transform; every event and its images are recorded in watch_ledger.json and the images saved in src/spacr_watch/reimaged. Default False.",
+      "source_sha256": "527932fafa45b1b89d3430ca63239363618f0182013ec74be9d735fecc28e080",
+      "translation": "Bei einer Ordnerüberwachung mit Messung werden Objekte, die microscope_event_query entsprechen, erneut am Mikroskop aufgenommen, etwa mit höherer Auflösung oder als kurzer Zeitraffer. Die Tischpositionen stammen aus microscope_positions und microscope_stage_transform; jedes Ereignis und seine Bilder werden in watch_ledger.json erfasst, die Bilder in src/spacr_watch/reimaged gespeichert. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_classify_settings",
+      "source": "A saved Classify settings file for the mask_measure_classify watch pipeline. It must select CV inference from an existing model_path, with crop_source merged, apply_model_to_dataset on, and train, test and generate_training_dataset off. The model is copied once for the watch, and predicted classes and scores join the combined measurements database. Default blank.",
+      "source_sha256": "9cad976a6aca13e480c626bdea85baceea4de9241f93d16bd4e74e8ca99e4427",
+      "translation": "Eine gespeicherte Classify-Einstellungsdatei für mask_measure_classify. Sie muss CV-Inferenz mit einem vorhandenen model_path wählen: crop_source merged, apply_model_to_dataset an, train, test und generate_training_dataset aus. Das Modell wird einmal für die Überwachung kopiert; vorhergesagte Klassen und Scores werden der gemeinsamen Messdatenbank hinzugefügt. Standard leer."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_folder",
+      "source": "Watch src and analyse each field as its images arrive. A file must stop changing for watch_settle_seconds and read whole. A fixed conversion_map.csv requires every declared companion. Without a map, known numeric filename conventions require every channel from the documented first ID through the highest selected position; custom or named channels need a fixed map. Each field runs alone, like batch_size 1, and results collect in src/spacr_watch; its ledger skips completed fields on restart. Not for timelapse, z_stack or t_stack. Default False.",
+      "source_sha256": "8de419885fe9e0d61b202e4cd21ddacb49c6f7004061e867ef564c02e80ecefd",
+      "translation": "Überwacht src und analysiert jedes Bildfeld beim Eintreffen seiner Bilder. Dateien müssen für watch_settle_seconds unverändert und vollständig lesbar sein. Eine feste conversion_map.csv verlangt alle angegebenen Begleitdateien. Ohne Zuordnung brauchen bekannte numerische Dateinamenskonventionen alle Kanäle von der dokumentierten ersten ID bis zur höchsten gewählten Position; benannte oder eigene Kanäle brauchen eine feste Zuordnung. Jedes Feld läuft einzeln wie batch_size 1; Ergebnisse liegen in src/spacr_watch. Beim Neustart werden fertige Felder übersprungen. Nicht für timelapse, z_stack oder t_stack. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_measure_settings",
+      "source": "A Measure settings file (.csv or .json, as the Measure screen saves them) used by watch_pipeline 'mask_measure' and 'mask_measure_classify' for every field. Blank uses Measure's defaults with this run's channels. Default blank.",
+      "source_sha256": "1f4d894d03c35cda37cbb2e12585e949d34360f8b51cc2b336c8d5502f77f5fd",
+      "translation": "Eine Measure-Einstellungsdatei (.csv oder .json, wie von Measure gespeichert), die watch_pipeline 'mask_measure' und 'mask_measure_classify' für jedes Bildfeld verwendet. Leer verwendet die Measure-Standardwerte mit den Kanälen dieses Laufs. Standard leer."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "watch_pipeline",
+      "source": "What watch_folder runs on each arriving field. 'mask' runs Make Masks; 'mask_measure' adds Measure; 'mask_measure_classify' also applies a saved CV model to measured objects. Results gather in src/spacr_watch/measurements/measurements.db. Default 'mask'.",
+      "source_sha256": "c42a77dce693cffebc3c92975b47ad293d06543563a7bc03f3db9fd207f0372d",
+      "translation": "Legt fest, was watch_folder für jedes eintreffende Bildfeld ausführt. 'mask' startet Make Masks; 'mask_measure' ergänzt Measure; 'mask_measure_classify' wendet zusätzlich ein gespeichertes CV-Modell auf gemessene Objekte an. Ergebnisse stehen in src/spacr_watch/measurements/measurements.db. Standard 'mask'."
+    },
+    {
+      "table": "ui",
+      "key": "Automatic (chosen from the data)",
+      "source": "Automatic (chosen from the data)",
+      "source_sha256": "c5cda355fa7d12c49f493b7d405c075a3b937ca04973fedfa500df1f198372fc",
+      "translation": "Automatisch (aus den Daten gewählt)"
+    },
+    {
+      "table": "ui",
+      "key": "Change graph type",
+      "source": "Change graph type",
+      "source_sha256": "9dada106e1ee1aa5c0dcf8b7f7f4e444399c964d93cb2b899d0f72f5b6f369cd",
+      "translation": "Diagrammtyp ändern"
+    },
+    {
+      "table": "ui",
+      "key": "Clear all logs",
+      "source": "Clear all logs",
+      "source_sha256": "98e6d9aa93986f2f21801db04a7bd4d4c690c24251e788598c0460b2af07deb5",
+      "translation": "Alle Protokolle leeren"
+    },
+    {
+      "table": "ui",
+      "key": "Clear all logs…",
+      "source": "Clear all logs…",
+      "source_sha256": "722dc434a251e5362c147545f503597e3a97ceeaa5cc2ec2ea5fae1d7de92866",
+      "translation": "Alle Protokolle leeren…"
+    },
+    {
+      "table": "ui",
+      "key": "Colour map for heat maps, images and density plots. viridis and cividis stay readable with colour-blindness and in greyscale. Default viridis.",
+      "source": "Colour map for heat maps, images and density plots. viridis and cividis stay readable with colour-blindness and in greyscale. Default viridis.",
+      "source_sha256": "a1686ad19c30665195bbed05c0bfb61e00e7acf47fe4c38e66d98de17ce03b9c",
+      "translation": "Farbskala für Heatmaps, Bilder und Dichtediagramme. viridis und cividis bleiben bei Farbsehschwäche und in Graustufen lesbar. Standard viridis."
+    },
+    {
+      "table": "ui",
+      "key": "Colour shows completed fields per well.",
+      "source": "Colour shows completed fields per well.",
+      "source_sha256": "9fda8aabff7ab5284910e3427dacc499eecaef4445ccfa59c1fe54afd4c5dc7b",
+      "translation": "Die Farbe zeigt die Anzahl fertig analysierter Bildfelder pro Well."
+    },
+    {
+      "table": "ui",
+      "key": "Confidence level, in percent, of the ci error bars. Default 95.",
+      "source": "Confidence level, in percent, of the ci error bars. Default 95.",
+      "source_sha256": "d1fe5d1842fa05939e7a741c17d7d872b914a4d80daf8d62e3f581107f1f325b",
+      "translation": "Konfidenzniveau der ci-Fehlerbalken in Prozent. Standard 95."
+    },
+    {
+      "table": "ui",
+      "key": "Deleted {count} file(s) and emptied {emptied}, freeing {size}.",
+      "source": "Deleted {count} file(s) and emptied {emptied}, freeing {size}.",
+      "source_sha256": "a27f806c26000a26fadc0719f5421e7a7437d2da4d8107e141f3a3fc22c7387a",
+      "translation": "{count} Datei(en) gelöscht und {emptied} geleert; {size} freigegeben."
+    },
+    {
+      "table": "ui",
+      "key": "Draws the individual points over bar and box graphs. Default on.",
+      "source": "Draws the individual points over bar and box graphs. Default on.",
+      "source_sha256": "c03a257439010cfa8bcc2622519e45e14886980e69783d00d29aafec6e0d7b84",
+      "translation": "Zeichnet einzelne Datenpunkte über Balken- und Boxdiagramme. Standard an."
+    },
+    {
+      "table": "ui",
+      "key": "Edit figure…",
+      "source": "Edit figure…",
+      "source_sha256": "af7ee8f40379d495628f58957061b0a360bcbba095749b6fdaa43006790bcc26",
+      "translation": "Abbildung bearbeiten…"
+    },
+    {
+      "table": "ui",
+      "key": "Height of a new figure in inches, used when the page shape is custom. Default 4.8.",
+      "source": "Height of a new figure in inches, used when the page shape is custom. Default 4.8.",
+      "source_sha256": "bba61c7e6bbb1e429fadc032e64d36db0b8ea444b229ce5837ede706b61f6898",
+      "translation": "Höhe einer neuen Abbildung in Zoll bei benutzerdefinierter Seitenform. Standard 4.8."
+    },
+    {
+      "table": "ui",
+      "key": "How far overlaid points spread sideways, as a fraction of one category's width. Default 0.4.",
+      "source": "How far overlaid points spread sideways, as a fraction of one category's width. Default 0.4.",
+      "source_sha256": "5d9c99452f78fff79d9b1b5effd7d2644a60b41fb0a71c7517d530de4acef548",
+      "translation": "Seitliche Streuung überlagerter Punkte als Anteil der Breite einer Kategorie. Standard 0.4."
+    },
+    {
+      "table": "ui",
+      "key": "Keeps text editable in PDF and SVG files instead of turning it into outlines. Default on.",
+      "source": "Keeps text editable in PDF and SVG files instead of turning it into outlines. Default on.",
+      "source_sha256": "d8ffd622ba2cbe9607687de710ca4558fd6f1f54eba0fa7546d790abc04a2893",
+      "translation": "Erhält Text in PDF- und SVG-Dateien bearbeitbar, statt ihn in Pfadkonturen umzuwandeln. Standard an."
+    },
+    {
+      "table": "ui",
+      "key": "List every daily, run, crash and verbose log with its count and size, then ask before deleting them. Logs this session has open are emptied instead. Default nothing cleared.",
+      "source": "List every daily, run, crash and verbose log with its count and size, then ask before deleting them. Logs this session has open are emptied instead. Default nothing cleared.",
+      "source_sha256": "05747281d8f3a8bb9596c7990374c842137c25d98eeddf3a04b0599184655130",
+      "translation": "Listet Tages-, Lauf-, Absturz- und ausführliche Protokolle mit Anzahl und Größe auf und fragt vor dem Löschen. In dieser Sitzung offene Protokolle werden stattdessen geleert. Standard nichts geleert."
+    },
+    {
+      "table": "ui",
+      "key": "Live plate",
+      "source": "Live plate",
+      "source_sha256": "e02d84331aa70e6f3d7977e1491ae94fd4d9a82b1ba2b0fd2f50a56549e033a4",
+      "translation": "Platte in Echtzeit"
+    },
+    {
+      "table": "ui",
+      "key": "Log files",
+      "source": "Log files",
+      "source_sha256": "40986ada6a700082595d0a7dc5480c42e96b389a9875b900a3a8e0934336ebc0",
+      "translation": "Protokolldateien"
+    },
+    {
+      "table": "ui",
+      "key": "Moves the axis lines this many points away from the data, as seaborn's despine does. 0 leaves them touching. Default 0.",
+      "source": "Moves the axis lines this many points away from the data, as seaborn's despine does. 0 leaves them touching. Default 0.",
+      "source_sha256": "bef14e3bf0e6fc59aa1e0f3d8efcfe8714d0f08e55037d6dda329c9222972ed5",
+      "translation": "Verschiebt die Achsenlinien um diese Anzahl Punkte von den Daten weg, wie seaborn despine. 0 lässt sie anliegen. Standard 0."
+    },
+    {
+      "table": "ui",
+      "key": "Multiple-comparison correction",
+      "source": "Multiple-comparison correction",
+      "source_sha256": "7b4108dcb8270dc5e113e2c0ec7a00eff66de024a3c14bb69c32ccb1a374516e",
+      "translation": "Korrektur für multiple Vergleiche"
+    },
+    {
+      "table": "ui",
+      "key": "No data is attached to this figure",
+      "source": "No data is attached to this figure",
+      "source_sha256": "b22ad97cbea5798bd22a362751c62395b43bc9c845ee86d1a2642484f60039af",
+      "translation": "Dieser Abbildung sind keine Daten zugeordnet"
+    },
+    {
+      "table": "ui",
+      "key": "One zip: the image in the default formats, the data as CSV, every statistical test in one CSV with a text summary, the plotting recipe as JSON and a Python script that re-creates the figure.",
+      "source": "One zip: the image in the default formats, the data as CSV, every statistical test in one CSV with a text summary, the plotting recipe as JSON and a Python script that re-creates the figure.",
+      "source_sha256": "2a838df984b443a728fb3420b9f839c7502175508d07d7b7594a8c894d20954e",
+      "translation": "Ein ZIP-Archiv: die Abbildung in den Standardformaten, die Daten als CSV, alle statistischen Tests in einer CSV mit Textzusammenfassung, die Diagrammvorlage als JSON und ein Python-Skript zum erneuten Erzeugen der Abbildung."
+    },
+    {
+      "table": "ui",
+      "key": "One zip: the picture in the default formats, the arrays it shows as TIFF and its metadata as JSON.",
+      "source": "One zip: the picture in the default formats, the arrays it shows as TIFF and its metadata as JSON.",
+      "source_sha256": "116065e558a08daa19dbb299d0be8d1014f1025f3a42cc52a067045e2fc9866d",
+      "translation": "Ein ZIP-Archiv: das Bild in den Standardformaten, seine dargestellten Arrays als TIFF und die Metadaten als JSON."
+    },
+    {
+      "table": "ui",
+      "key": "Opacity of overlaid points, from 0 (invisible) to 1 (solid). Default 0.6.",
+      "source": "Opacity of overlaid points, from 0 (invisible) to 1 (solid). Default 0.6.",
+      "source_sha256": "2cb0da70bc470321c4f099ce159f85b1c5bf0b3684508793756e950ffc9f9815",
+      "translation": "Deckkraft überlagerter Punkte von 0 (unsichtbar) bis 1 (vollständig deckend). Standard 0.6."
+    },
+    {
+      "table": "ui",
+      "key": "Paired / repeated measures",
+      "source": "Paired / repeated measures",
+      "source_sha256": "89bb707790cd4032e4ff199ba68228417015092ef14152b1e38b5f542dd28360",
+      "translation": "Gepaarte Daten / Messwiederholungen"
+    },
+    {
+      "table": "ui",
+      "key": "Save figure (zip)",
+      "source": "Save figure (zip)",
+      "source_sha256": "37e0ac74d6263200bce6223708c23ec0d0bf8c9ff929057b9235ace49bc8fe99",
+      "translation": "Abbildung speichern (zip)"
+    },
+    {
+      "table": "ui",
+      "key": "Save figure (zip)…",
+      "source": "Save figure (zip)…",
+      "source_sha256": "e93c6326b6dac0ba83f709f2d1ec31f0ff5ebb9af4f3579869388cbdd5c701f0",
+      "translation": "Abbildung speichern (zip)…"
+    },
+    {
+      "table": "ui",
+      "key": "Show on the plot",
+      "source": "Show on the plot",
+      "source_sha256": "095ae75913b365fec3e88b3a27255d8a1acb06d2d22925c25b701f9d0b8e4ab2",
+      "translation": "Im Diagramm anzeigen"
+    },
+    {
+      "table": "ui",
+      "key": "Statistics…",
+      "source": "Statistics…",
+      "source_sha256": "507088447d56e36d8b074a245741324734d31ef66a64c9681fa0f231ff278179",
+      "translation": "Statistik…"
+    },
+    {
+      "table": "ui",
+      "key": "Subject column",
+      "source": "Subject column",
+      "source_sha256": "d1c953d8dff73c4372d54b29e6bbe05235fbdb37f00f80144cda962d469d4b0e",
+      "translation": "Spalte für Versuchseinheiten"
+    },
+    {
+      "table": "ui",
+      "key": "Text size of legend entries and legend titles, in points. Default 9.",
+      "source": "Text size of legend entries and legend titles, in points. Default 9.",
+      "source_sha256": "eeb32fda12c3da9733d30d8055423c7c4096d2497d00761bdeafb01e313966b0",
+      "translation": "Schriftgröße der Legendeneinträge und Legendentitel in Punkten. Standard 9."
+    },
+    {
+      "table": "ui",
+      "key": "There are no logs to clear.",
+      "source": "There are no logs to clear.",
+      "source_sha256": "41ff3682dc4c35f8dfc2832431f573b3f93367f92f7bfe7f9dff48cd237481c3",
+      "translation": "Es gibt keine Protokolle zu leeren."
+    },
+    {
+      "table": "ui",
+      "key": "Titles, axis labels, limits and scales, fonts, colours, legend, size and DPI, applied live.",
+      "source": "Titles, axis labels, limits and scales, fonts, colours, legend, size and DPI, applied live.",
+      "source_sha256": "427db2bada9a68607d45429a87745185d5ec78ac6db0fdcec8a889c51cb503a9",
+      "translation": "Titel, Achsenbeschriftungen, Grenzen und Skalen, Schriften, Farben, Legende, Größe und DPI werden sofort angewendet."
+    },
+    {
+      "table": "ui",
+      "key": "Waiting for completed fields",
+      "source": "Waiting for completed fields",
+      "source_sha256": "14e00ca72e9180907bad881123e6e5450686670a0f9ed63b3547431c1d79e611",
+      "translation": "Warten auf fertig analysierte Bildfelder"
+    },
+    {
+      "table": "ui",
+      "key": "What error bars show on bar graphs: standard error (sem), standard deviation (sd), a confidence interval at the CI level (ci), a 95% interval (ci95) or nothing. Default sem.",
+      "source": "What error bars show on bar graphs: standard error (sem), standard deviation (sd), a confidence interval at the CI level (ci), a 95% interval (ci95) or nothing. Default sem.",
+      "source_sha256": "6c78882245e07b0ab06098a4f0f3686c560ca9e82b24f04f596e98e40d9db19f",
+      "translation": "Fehlerbalken in Balkendiagrammen: Standardfehler (sem), Standardabweichung (sd), Konfidenzintervall zum CI-Niveau (ci), 95%-Intervall (ci95) oder keine. Standard sem."
+    },
+    {
+      "table": "ui",
+      "key": "Width of a new figure in inches. The page shape sets the height, or Figure height does when the page shape is custom. Default 6.4.",
+      "source": "Width of a new figure in inches. The page shape sets the height, or Figure height does when the page shape is custom. Default 6.4.",
+      "source_sha256": "dfe482baa66bc8e572f82acf46e4e50cf13e003383c12c18f3a1cd0f8094df64",
+      "translation": "Breite einer neuen Abbildung in Zoll. Die Seitenform legt die Höhe fest; bei benutzerdefinierter Seitenform übernimmt dies die Abbildungshöhe. Standard 6.4."
+    },
+    {
+      "table": "ui",
+      "key": "Width of the caps at the ends of error bars, in points. Default 5.",
+      "source": "Width of the caps at the ends of error bars, in points. Default 5.",
+      "source_sha256": "bfcf0a8f9ef667d903f3f7f7ca0561da69fe53cbaa909849187abee2fa63b80c",
+      "translation": "Breite der Querstriche an den Enden der Fehlerbalken in Punkten. Standard 5."
+    },
+    {
+      "table": "ui",
+      "key": "Writes a second copy of every saved figure in this format beside the first, for example a PNG next to a PDF. Default none.",
+      "source": "Writes a second copy of every saved figure in this format beside the first, for example a PNG next to a PDF. Default none.",
+      "source_sha256": "2cf99bf2ff10604094c2e61f97f8a09fdb308e1e7bea976917bf0c6233c8ea03",
+      "translation": "Schreibt eine zweite Kopie jeder gespeicherten Abbildung in diesem Format neben die erste, etwa eine PNG neben einer PDF. Standard keine."
+    },
+    {
+      "table": "ui",
+      "key": "Zip archive (*.zip)",
+      "source": "Zip archive (*.zip)",
+      "source_sha256": "988e2af823804e9ff59adfb83e1efc575ac6d7b9644b02637daf937221f5c909",
+      "translation": "ZIP-Archiv (*.zip)"
+    },
+    {
+      "table": "ui",
+      "key": "{count} completed fields on {plate}",
+      "source": "{count} completed fields on {plate}",
+      "source_sha256": "055d5d2700960b318035ca49378982e58bbf211270a11a1b3c5cc4dc8a47c290",
+      "translation": "{count} fertig analysierte Bildfelder auf {plate}"
+    },
+    {
+      "table": "ui",
+      "key": "{count} fields have no plate well",
+      "source": "{count} fields have no plate well",
+      "source_sha256": "40cf39787b41d61f95e8ce3e3c013838af041f1dd000cf5d395a586ace30f7d2",
+      "translation": "{count} Bildfelder sind keinem Platten-Well zugeordnet"
+    },
+    {
+      "table": "ui",
+      "key": "{count} file(s) this session has open are emptied, not deleted.",
+      "source": "{count} file(s) this session has open are emptied, not deleted.",
+      "source_sha256": "68c664e3e054644a54e084e78641418642b4e05debbee2e8ae88b78d1b9b44d7",
+      "translation": "{count} in dieser Sitzung offene Datei(en) werden geleert, nicht gelöscht."
+    },
+    {
+      "table": "ui",
+      "key": "{label}: {count} file(s), {size}",
+      "source": "{label}: {count} file(s), {size}",
+      "source_sha256": "87daa784322cc092c3d6dc64b94812bfab0ae2cb8ca35d553861a9e9ccf4400a",
+      "translation": "{label}: {count} Datei(en), {size}"
+    }
+  ]
+}

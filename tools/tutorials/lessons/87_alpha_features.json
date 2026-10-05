@@ -53,6 +53,11 @@
       ]
     },
     {
+      "visual": "05b_watch_live_plate",
+      "narration": "When a folder watch runs, the Live plate card appears below Console. It starts by waiting for completed fields, then colours each well by how many fields have finished. Choose a plate here to follow acquisition as results arrive.",
+      "hold_after": 0.7
+    },
+    {
       "visual": "06_timelapse",
       "narration": "With Time on, Mask generation offers alpha tracking: further tracking modes, lineage trees built from division links, and an event detector that finds events such as divisions or deaths along each track.",
       "hold_after": 0.7,

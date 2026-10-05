@@ -61,7 +61,10 @@ AUTHORING_ROOT = Path(__file__).resolve().parents[1]
 ROOT = Path(os.environ.get("SPACR_TUTORIAL_WORKSPACE", AUTHORING_ROOT)).resolve()
 CATALOG = ROOT / "catalog"
 PRODUCTION = ROOT / "production"
-MODEL_CACHE = AUTHORING_ROOT / "project" / "kokoro_models"
+MODEL_CACHE = Path(os.environ.get(
+    "SPACR_TUTORIAL_MODEL_CACHE",
+    AUTHORING_ROOT / "project" / "kokoro_models",
+)).expanduser().resolve()
 SNAPSHOT = (
     MODEL_CACHE
     / "hub"

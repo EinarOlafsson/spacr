@@ -1306,6 +1306,21 @@ def test_api_translation_source_preserves_finite_mapping_key_verbs():
         assert builder._api_translation_source(source) == expected
 
 
+def test_api_translation_source_keeps_keyboard_keys_in_plural_shortcut_prose():
+    """A shortcut configuration still describes input keys, not data names."""
+    import build_documentation_i18n as builder
+
+    for source in (
+        "Global shortcuts reserve a window-wide key; settings can override it.",
+        "Hotkeys use the configured key, with labels from the settings table.",
+    ):
+        expanded = builder._api_translation_source(source)
+        assert "structured-data name" not in expanded
+        assert " key" in expanded
+    assert builder._api_translation_source("Return the mapping keys.") == (
+        "Return the structured-data names.")
+
+
 def test_api_translation_source_preserves_plane_and_queue_grammar():
     import build_documentation_i18n as builder
 

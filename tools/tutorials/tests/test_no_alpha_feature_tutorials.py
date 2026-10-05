@@ -89,6 +89,8 @@ WIDGET_LABELS = {
     "MakeMasksRoisButton": ("ROIs", "QuPath GeoJSON", "ImageJ RoiSet",
                             "ImageJ RoiSets", "COCO JSON"),
     "WatchFolderProgress": ("watch folder",),
+    "WatchLivePlate": ("Live plate", "Waiting for completed fields",
+                       "Colour shows completed fields per well."),
     "ControlChartHitPanel": ("Score hits", "SSMD", "B-score", "robust z",
                              "Call hits by", "Hit threshold"),
     "ControlChartHitsSection": (),

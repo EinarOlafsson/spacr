@@ -1081,7 +1081,7 @@ _MAPPING_KEY_SOURCE = (
     r"databases?|tables?|rows?|records?|schemas?|fields?|columns?|identifiers?|identity|"
     r"lookup|cache|metadata|payload|entries|values?|namespace|parameters?|"
     r"kwargs)\b)"
-    r"(?!.*(?:\b(?:keyboard|keypress|key press|key event|shortcut|hotkey|"
+    r"(?!.*(?:\b(?:keyboard|keypress|key press|key event|shortcuts?|hotkeys?|"
     r"Backspace|Escape|arrow keys?|modifier keys?|keystroke|Qt key)\b|"
     r"\bpress(?:ed|ing)?(?:\s+\w+){0,3}\s+keys?\b|"
     r"\bkeys?(?:\s+\w+){0,3}\s+press(?:ed|ing)?\b))"
@@ -3806,7 +3806,9 @@ def _indirect_runtime_ui_sources() -> set[str]:
         MODE_NOTES,
         MODE_WARNINGS,
         PREFERENCE_TIPS,
+        theme_description,
     )
+    from spacr.qt.night_themes import NIGHT_THEMES
     from spacr.qt.preview_registry import PREVIEWS
     from spacr.qt import cpu_modes, organelle_modes
     from spacr.qt.organisms import ORGANISMS
@@ -3884,6 +3886,10 @@ def _indirect_runtime_ui_sources() -> set[str]:
     from spacr.qt.screens.map_barcodes import _SPATIAL_MASKS
 
     found: set[str] = set(PREFERENCE_TIPS)
+    found.update(
+        description for token in (*NIGHT_THEMES, "high_contrast")
+        if (description := theme_description(token)).strip()
+    )
     presentation_sources = {info["label"] for info in _FOUNDATION_MODELS.values()}
     presentation_sources.update(label for _key, label in _SPATIAL_MASKS)
     spatial_tree = ast.parse(

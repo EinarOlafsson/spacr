@@ -1,6 +1,6 @@
 {
   "lesson": "87_alpha_features",
-  "english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
+  "english_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -23,6 +23,7 @@
     "I Mask generation får Image Preprocessing alpha-kategorier som ändrar pixlarna före segmenteringen: spektral separation utifrån kontrollbrunnar med en enda färgning, självövervakad brusreducering, belysningskorrigering, dekonvolution med en punktspridningsfunktion och kontrastförstärkning som lokal histogramutjämning.",
     "Quality Control lägger till kontroller av själva maskerna. En robusthetsrapport segmenterar några synfält igen med lätt ändrade inställningar och visar hur mycket objekten ändras. En klassificerare för verkliga objekt tar bort objekt som inte ser ut som riktiga celler, och ett bildkvalitetsnätverk markerar suddiga, mättade eller tomma synfält.",
     "Andra alpha-inställningar automatiserar körningar: segmentering på flera GPU:er samtidigt, en bevakad mapp som analyserar synfält medan mikroskopet fortfarande skriver dem, återkoppling som skickar utvalda objekt tillbaka till mikroskopet och bildkällor i molnlagring.",
+    "När mappövervakningen körs visas kortet Live plate under Console. Först väntar det på färdiganalyserade bildfält och färgar sedan varje brunn efter hur många fält som är klara. Välj en platta här för att följa bildtagningen när resultaten kommer.",
     "Med Time påslaget erbjuder Mask generation alpha-spårning: fler spårningslägen, släktträd byggda utifrån delningskopplingar och en händelsedetektor som hittar händelser som delningar eller celldöd längs varje spår.",
     "Measure får alpha-analyser som körs efter mätningen: levande och döda celler för viabilitet, cellcykelfaser utifrån DNA-färgningen, läkningen av ett skrapsår och konfluens, alltså den andel av varje synfält som täcks av celler.",
     "För timelapse-projekt lägger Measure till korrigering för fotoblekning och en tid-till-händelse-analys som följer varje spårat objekt fram till en händelse och jämför förhållanden över tid.",
@@ -46,5 +47,15 @@
     "Power och Design lägger till en planerare för arrayade screeningar.",
     "Flera mindre verktyg, som Feature Explorer, får Load test data, som hämtar ett exempel så att du kan prova dem direkt.",
     "När du är klar öppnar du Preferences igen och slår av Show alpha features. Alla alpha-inställningar försvinner, och dina stabila arbetsflöden ser ut precis som förut."
+  ],
+  "review_updates": [
+    {
+      "date": "2026-10-05",
+      "kind": "Codex AI technical translation and review; no native-speaker signoff",
+      "scene": "05b_watch_live_plate",
+      "previous_english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
+      "preserved_other_translations": true,
+      "independent_peer_review": false
+    }
   ]
 }

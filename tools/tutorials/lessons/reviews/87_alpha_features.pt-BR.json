@@ -1,6 +1,6 @@
 {
   "lesson": "87_alpha_features",
-  "english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
+  "english_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -23,6 +23,7 @@
     "No Mask generation, Image Preprocessing ganha categorias alpha que alteram os pixels antes da segmentação: separação espectral a partir de poços controle com uma só marcação, remoção de ruído autossupervisionada, correção de iluminação, deconvolução com uma função de espalhamento de ponto e realce de contraste, como a equalização local do histograma.",
     "Quality Control acrescenta verificações das próprias máscaras. Um relatório de robustez segmenta de novo alguns campos com ajustes um pouco diferentes e mostra o quanto os objetos mudam. Um classificador de objetos reais remove o que não parece célula de verdade, e uma rede de qualidade de imagem sinaliza campos desfocados, saturados ou vazios.",
     "Outros ajustes alpha automatizam as execuções: segmentar em várias GPUs ao mesmo tempo, uma pasta monitorada que analisa os campos enquanto o microscópio ainda os grava, um retorno que envia objetos escolhidos de volta ao microscópio e fontes de imagens em armazenamento na nuvem.",
+    "Quando o monitoramento de uma pasta está em execução, o cartão Live plate aparece abaixo de Console. Primeiro ele aguarda os campos concluídos e depois colore cada poço conforme o número de campos cuja análise terminou. Escolha uma placa aqui para acompanhar a aquisição à medida que os resultados chegam.",
     "Com Time ativado, o Mask generation oferece rastreamento alpha: mais modos de rastreamento, árvores de linhagem montadas a partir das divisões e um detector de eventos que encontra eventos como divisões ou mortes ao longo de cada trajetória.",
     "O Measure ganha ensaios alpha que rodam depois da medição: células vivas e mortas para a viabilidade, fases do ciclo celular a partir da marcação do DNA, o fechamento de uma ferida por arranhão e a confluência, ou seja, a fração de cada campo coberta por células.",
     "Em projetos de time-lapse, o Measure acrescenta correção de fotobranqueamento e uma análise de tempo até o evento, que acompanha cada objeto rastreado até um evento e compara condições ao longo do tempo.",
@@ -46,5 +47,15 @@
     "Power e Design acrescenta um planejador para triagens em formato arrayed.",
     "Várias ferramentas menores, como o Feature Explorer, ganham Load test data, que baixa um exemplo para você testá-las na hora.",
     "Quando terminar, abra Preferences de novo e desative Show alpha features. Todos os controles alpha somem, e seus fluxos de trabalho estáveis ficam exatamente como antes."
+  ],
+  "review_updates": [
+    {
+      "date": "2026-10-05",
+      "kind": "Codex AI technical translation and review; no native-speaker signoff",
+      "scene": "05b_watch_live_plate",
+      "previous_english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
+      "preserved_other_translations": true,
+      "independent_peer_review": false
+    }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "lesson": "87_alpha_features",
-  "english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
+  "english_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -23,6 +23,7 @@
     "In Mask generation erhält Image Preprocessing Alpha-Kategorien, die die Pixel vor der Segmentierung verändern: spektrale Entmischung anhand von Einzelfärbungs-Kontrollwells, selbstüberwachtes Entrauschen, Beleuchtungskorrektur, Dekonvolution mit einer Punktspreizfunktion und Kontrastverstärkung wie lokale Histogrammangleichung.",
     "Quality Control ergänzt Prüfungen der Masken selbst. Ein Robustheitsbericht segmentiert einige Bildfelder mit leicht veränderten Einstellungen erneut und zeigt, wie stark sich die Objekte verändern. Ein Klassifikator für echte Objekte entfernt Objekte, die nicht wie echte Zellen aussehen, und ein Bildqualitätsnetz markiert unscharfe, übersättigte oder leere Bildfelder.",
     "Weitere Alpha-Einstellungen automatisieren Läufe: Segmentierung auf mehreren GPUs gleichzeitig, ein überwachter Ordner, der Bildfelder analysiert, während das Mikroskop sie noch schreibt, eine Rückmeldung, die ausgewählte Objekte zurück an das Mikroskop schickt, und Bildquellen im Cloud-Speicher.",
+    "Wenn die Ordnerüberwachung läuft, erscheint die Karte Live plate unter Console. Zunächst wartet sie auf abgeschlossene Bildfelder und färbt dann jedes Well entsprechend der Anzahl fertig analysierter Bildfelder ein. Wählen Sie hier eine Platte, um die Aufnahme zu verfolgen, während Ergebnisse eintreffen.",
     "Mit eingeschaltetem Time bietet Mask generation Alpha-Tracking: weitere Tracking-Modi, Stammbäume aus Teilungsverknüpfungen und einen Ereignisdetektor, der Ereignisse wie Teilungen oder Zelltod entlang jeder Spur findet.",
     "Measure erhält Alpha-Assays, die nach dem Messen laufen: lebend und tot für die Viabilität, Zellzyklusphasen aus der DNA-Färbung, das Schließen einer Kratzwunde und die Konfluenz, also den Anteil jedes Bildfelds, der von Zellen bedeckt ist.",
     "Für Zeitraffer-Projekte ergänzt Measure eine Photobleichungs-Korrektur und eine Time-to-Event-Analyse, die jedes verfolgte Objekt bis zu einem Ereignis begleitet und Bedingungen über die Zeit vergleicht.",
@@ -46,5 +47,15 @@
     "Power und Design ergänzt einen Planer für Arrayed Screens.",
     "Mehrere kleinere Werkzeuge wie Feature Explorer erhalten Load test data, das ein Beispiel herunterlädt, damit Sie sie sofort ausprobieren können.",
     "Wenn Sie fertig sind, öffnen Sie die Preferences erneut und schalten Show alpha features aus. Alle Alpha-Einstellungen verschwinden, und Ihre stabilen Arbeitsabläufe sehen genauso aus wie vorher."
+  ],
+  "review_updates": [
+    {
+      "date": "2026-10-05",
+      "kind": "Codex AI technical translation and review; no native-speaker signoff",
+      "scene": "05b_watch_live_plate",
+      "previous_english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
+      "preserved_other_translations": true,
+      "independent_peer_review": false
+    }
   ]
 }

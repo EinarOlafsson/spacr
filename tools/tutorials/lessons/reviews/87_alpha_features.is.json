@@ -1,6 +1,6 @@
 {
   "lesson": "87_alpha_features",
-  "english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
+  "english_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -23,6 +23,7 @@
     "Í Mask generation bætast við Image Preprocessing alpha-flokkar sem breyta dílunum fyrir sundurgreiningu: litrófsaðgreining út frá viðmiðunarholum með einni litun, sjálfstýrð suðhreinsun, birtuleiðrétting, afröndun með punktdreififalli og aukning birtuskila, til dæmis staðbundin jöfnun stuðlarits.",
     "Quality Control bætir við athugunum á grímunum sjálfum. Áreiðanleikaskýrsla sundurgreinir nokkur sjónsvið aftur með örlítið breyttum stillingum og sýnir hve mikið hlutirnir breytast. Flokkari fyrir raunverulega hluti fjarlægir hluti sem líkjast ekki raunverulegum frumum, og myndgæðanet merkir óskýr, mettuð eða tóm sjónsvið.",
     "Aðrar alpha-stillingar sjálfvirknivæða keyrslur: sundurgreiningu á mörgum GPU í einu, vaktaða möppu sem greinir sjónsvið meðan smásjáin er enn að skrifa þau, endurgjöf sem sendir valda hluti aftur til smásjárinnar, og myndheimildir í skýjageymslu.",
+    "Þegar möppuvöktun er í gangi birtist Live plate spjaldið fyrir neðan Console. Fyrst bíður það eftir fullgreindum myndsviðum og litar síðan hvern brunn eftir því hversu mörg myndsvið hafa verið greind. Veldu plötu hér til að fylgjast með myndatökunni þegar niðurstöður berast.",
     "Þegar kveikt er á Time býður Mask generation upp á alpha-rakningu: fleiri rakningarhami, ættartré byggð á skiptingartengslum og atburðanema sem finnur atburði eins og skiptingar eða frumudauða eftir hverri slóð.",
     "Measure fær alpha-greiningar sem keyra eftir mælingu: lifandi og dauðar frumur fyrir lífvænleika, stig frumuhringsins út frá DNA-litun, lokun rispusárs og þekju, það er hlutfall hvers sjónsviðs sem frumur hylja.",
     "Fyrir tímaraðaverkefni bætir Measure við leiðréttingu á ljósbleikingu og greiningu á tíma að atburði, sem fylgir hverjum röktum hlut að atburði og ber saman aðstæður yfir tíma.",
@@ -46,5 +47,15 @@
     "Power og Design bætir við skipuleggjanda fyrir skimanir í raðformi.",
     "Nokkur smærri tól, eins og Feature Explorer, fá Load test data, sem sækir dæmi svo þú getir prófað þau strax.",
     "Þegar þú ert búin(n) opnarðu Preferences aftur og slekkur á Show alpha features. Allar alpha-stillingar hverfa og stöðugu verkflæðin þín líta nákvæmlega eins út og áður."
+  ],
+  "review_updates": [
+    {
+      "date": "2026-10-05",
+      "kind": "Codex AI technical translation and review; no native-speaker signoff",
+      "scene": "05b_watch_live_plate",
+      "previous_english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
+      "preserved_other_translations": true,
+      "independent_peer_review": false
+    }
   ]
 }

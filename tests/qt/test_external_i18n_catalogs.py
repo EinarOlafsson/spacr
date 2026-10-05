@@ -313,6 +313,30 @@ def test_dynamic_text_templates_enter_the_runtime_source_inventory():
     assert "Feature Dictionary…" in sources
 
 
+def test_theme_descriptions_have_source_bound_translations():
+    """Descriptions returned by the theme registry must survive extraction."""
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.remove(str(ROOT / "tools"))
+    from spacr.qt.night_themes import NIGHT_THEMES
+    from spacr.qt.preferences import theme_description
+    from spacr.qt.i18n_catalogs import en
+
+    sources = set(builder.extract_static_ui_sources())
+    descriptions = {theme_description(token)
+                    for token in (*NIGHT_THEMES, "high_contrast")}
+    assert descriptions and "" not in descriptions
+    for source in descriptions:
+        assert source in sources and source in en.UI_SOURCES
+        for language in LANGUAGES:
+            catalog = import_module(f"spacr.qt.i18n_catalogs.{language}")
+            assert catalog.SOURCE_HASHES[("UI", source)] == hashlib.sha256(
+                source.encode("utf-8")).hexdigest()
+            assert catalog.UI[source] != source
+
+
 def test_structured_gene_tile_text_enters_the_runtime_source_inventory():
     tools_dir = str(ROOT / "tools")
     sys.path.insert(0, tools_dir)

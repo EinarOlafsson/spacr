@@ -1,6 +1,6 @@
 {
   "lesson": "87_alpha_features",
-  "english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
+  "english_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -23,6 +23,7 @@
     "En Mask generation, Image Preprocessing gana categorías alpha que modifican los píxeles antes de segmentar: separación espectral a partir de pocillos control con una sola tinción, eliminación de ruido autosupervisada, corrección de iluminación, deconvolución con una función de dispersión de punto y realce de contraste como la ecualización local del histograma.",
     "Quality Control añade comprobaciones de las propias máscaras. Un informe de robustez vuelve a segmentar algunos campos con ajustes ligeramente distintos e indica cuánto cambian los objetos. Un clasificador de objetos reales elimina los que no parecen células reales, y una red de calidad de imagen marca campos desenfocados, saturados o vacíos.",
     "Otros ajustes alpha automatizan las ejecuciones: segmentar en varias GPU a la vez, una carpeta vigilada que analiza los campos mientras el microscopio aún los escribe, una retroalimentación que devuelve objetos seleccionados al microscopio y fuentes de imágenes en almacenamiento en la nube.",
+    "Cuando se ejecuta la vigilancia de una carpeta, la tarjeta Live plate aparece debajo de Console. Primero espera los campos terminados y después colorea cada pocillo según cuántos campos hayan finalizado. Elija aquí una placa para seguir la adquisición a medida que llegan los resultados.",
     "Con Time activado, Mask generation ofrece seguimiento alpha: más modos de seguimiento, árboles de linaje construidos a partir de las divisiones y un detector de eventos que encuentra eventos como divisiones o muertes a lo largo de cada trayectoria.",
     "Measure gana ensayos alpha que se ejecutan tras medir: células vivas y muertas para la viabilidad, fases del ciclo celular a partir de la tinción del ADN, el cierre de una herida por raspado y la confluencia, es decir, la fracción de cada campo cubierta por células.",
     "En proyectos de lapso de tiempo, Measure añade corrección del fotoblanqueo y un análisis de tiempo hasta el evento que sigue cada objeto hasta un evento y compara condiciones a lo largo del tiempo.",
@@ -46,5 +47,15 @@
     "Power y Design añade un planificador para cribados en formato arrayed.",
     "Varias herramientas más pequeñas, como Feature Explorer, ganan Load test data, que descarga un ejemplo para que puedas probarlas enseguida.",
     "Cuando termines, vuelve a abrir Preferences y desactiva Show alpha features. Todos los controles alpha desaparecen y tus flujos de trabajo estables quedan exactamente como antes."
+  ],
+  "review_updates": [
+    {
+      "date": "2026-10-05",
+      "kind": "Codex AI technical translation and review; no native-speaker signoff",
+      "scene": "05b_watch_live_plate",
+      "previous_english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
+      "preserved_other_translations": true,
+      "independent_peer_review": false
+    }
   ]
 }

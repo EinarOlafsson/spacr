@@ -1,6 +1,6 @@
 {
   "lesson": "87_alpha_features",
-  "english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
+  "english_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -23,6 +23,7 @@
     "在Mask generation中，Image Preprocessing增加了在分割之前改变像素的alpha类别：利用单染色对照孔的光谱解混、自监督去噪、照明校正、基于点扩散函数的反卷积，以及局部直方图均衡化等对比度增强。",
     "Quality Control增加了对掩膜本身的检查。稳健性报告会用稍作改变的设置重新分割几个视野，并报告物体变化的程度。真实物体分类器会去除看起来不像真实细胞的物体，图像质量网络会标记模糊、饱和或空白的视野。",
     "其他alpha设置可以让运行自动化：同时在多块GPU上分割，监视文件夹在显微镜仍在写入时分析视野，反馈功能将选中的物体发回显微镜，以及云存储中的图像来源。",
+    "文件夹监视运行时，Live plate 卡片会出现在 Console 下方。它先等待处理完成的视野，然后根据已完成的视野数量为每个孔着色。在这里选择一个板，即可随着结果陆续到达而查看图像采集进度。",
     "打开Time后，Mask generation提供alpha追踪：更多追踪模式、根据分裂关系构建的谱系树，以及沿每条轨迹寻找分裂或死亡等事件的事件检测器。",
     "Measure增加了在测量之后运行的alpha检测：用于活力的活细胞与死细胞判定、基于DNA染色的细胞周期时相、划痕伤口的闭合，以及汇合度，即每个视野被细胞覆盖的比例。",
     "对于延时项目，Measure增加了光漂白校正，以及事件发生时间分析，它追踪每个物体直到发生事件，并随时间比较各条件。",
@@ -46,5 +47,15 @@
     "Power和Design增加了用于阵列式筛选的规划器。",
     "Feature Explorer等几个较小的工具增加了Load test data，它会下载一个示例，让您立刻试用。",
     "完成后，再次打开Preferences并关闭Show alpha features。所有alpha控件都会消失，您稳定的工作流程与之前完全一样。"
+  ],
+  "review_updates": [
+    {
+      "date": "2026-10-05",
+      "kind": "Codex AI technical translation and review; no native-speaker signoff",
+      "scene": "05b_watch_live_plate",
+      "previous_english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
+      "preserved_other_translations": true,
+      "independent_peer_review": false
+    }
   ]
 }

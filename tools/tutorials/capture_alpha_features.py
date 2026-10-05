@@ -217,6 +217,63 @@ def record_alpha_features(app, window, stage, captures, capture, settle, write_j
             settings_group(frame, module, keys, widgets)
         except Exception as error:  # report and keep touring
             report['groups'].setdefault(frame, {})['error'] = repr(error)
+    # A genuine empty-folder watch exposes the card without inventing results.
+    frame = '05b_watch_live_plate'
+    watching = None
+    try:
+        watching = open_module('mask')
+        source = stage / 'alpha_watch_empty'
+        source.mkdir(exist_ok=False)
+        before = watching._settings_model.collect()
+        watching.apply_settings_dict({
+            **before, 'src': str(source), 'watch_folder': True,
+            'watch_pipeline': 'mask', 'watch_poll_seconds': 0.1,
+            'watch_settle_seconds': 0.1, 'watch_idle_minutes': 0.2,
+            'metadata_type': 'cellvoyager', 'channels': [0, 1, 2],
+            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,
+            'batch_size': 1, 'n_jobs': 1,
+            'timelapse': False, 'z_stack': False, 't_stack': False,
+            'microscope_feedback': False, 'plot': False,
+        })
+        settle(0.5)
+        watching = window._screens['mask']
+        applied = watching._settings_model.collect()
+        if (not applied.get('watch_folder') or applied.get('src') != str(source)
+                or applied.get('cell_channel') != 0):
+            raise RuntimeError('The current Mask form did not accept the watch settings')
+        QTest.mouseClick(watching._btn_run, Qt.LeftButton)
+        ledger = source / 'spacr_watch/watch_ledger.json'
+        deadline = time.monotonic() + 30
+        while not ledger.exists() and watching._worker_thread_is_running():
+            if time.monotonic() > deadline:
+                raise TimeoutError('The empty-folder watch did not start')
+            settle(0.1)
+        if not ledger.exists() or not watching._watch_live_plate.isVisible():
+            raise RuntimeError('The real watch did not expose its Live plate card')
+        settle(0.5)
+        report['groups'][frame] = {
+            'card': rect_of(watching._watch_live_plate),
+            'empty_acquisition_folder': True,
+            'summary': watching._watch_live_plate._summary.text(),
+            'ledger': str(ledger),
+        }
+        capture(frame)
+        while watching._worker_thread_is_running():
+            if time.monotonic() > deadline:
+                raise TimeoutError('The empty-folder watch did not finish')
+            settle(0.1)
+        watching.apply_settings_dict(before)
+        watching = None
+    except Exception as error:
+        report['groups'].setdefault(frame, {})['error'] = repr(error)
+    finally:
+        if watching is not None and watching._worker_thread_is_running():
+            watching._request_cooperative_stop()
+            deadline = time.monotonic() + 30
+            while watching._worker_thread_is_running():
+                if time.monotonic() > deadline:
+                    raise TimeoutError('The private watch did not stop')
+                settle(0.1)
     for frame, module, names in WIDGET_GROUPS:
         try:
             widget_group(frame, module, names)

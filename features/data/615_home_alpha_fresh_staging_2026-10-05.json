@@ -1,0 +1,260 @@
+{
+  "schema": 1,
+  "date": "2026-10-05",
+  "review_kind": "AI technical verification; no new human/listening/native-speaker signoff",
+  "stage": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-home-r3",
+  "lessons": [
+    {
+      "lesson": "05_home",
+      "scene_count": 22,
+      "english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+      "capture_module": "home",
+      "capture_provenance": {
+        "commit": "a6798d83440e76e8cf112a2575223bd16531a85b",
+        "version": "1.5.1.3",
+        "module": "home",
+        "download_requested": false,
+        "dataset_cache": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-home-r3/example_data",
+        "app_source_modified": false,
+        "cache_isolated_with_bind_mount": true,
+        "completed_capture": true
+      },
+      "frame_sha256": {
+        "00_home": "0c9495bd16ac62c8cadae74a2234f94db30a21e80743959fd695060c7b956348",
+        "01_core  (6)": "1ca1c8ffb9ba4e9479298c21dba3095ccd64bb8fb9f8efaa5c56848d7be4ae5e",
+        "02_data  (7)": "5e1387bd7bff8869d8048fb9cdfc2c35bdff4a86e6fc7d9aea382750a0f75e54",
+        "03_tools  (5)": "50a0e813e9c98da466f06dacdb595b1dbd821d7417b64eb290bef99c5bea2eab",
+        "04_assays  (1)": "bf708942982c880cab62c61e9b9646271d307e88786892fc532932178eedaf26",
+        "05_classify_host": "13f2a40ba1ba68037409b669f82bd126a6075554c214f834646826df0f4cec43",
+        "06_mask_host": "8ca2940b26ee1a0dde6af27293e6f976b5822569e0db145aeab917a243dab910",
+        "14_resize_panels": "f9f4b038bb2e9995e18fb318b11c951cdba64d449691f8204ce5de54b24806aa",
+        "10_home_column": "40705cd0fdb747fa23d85aadc919c12dbcb7390acb7c91eb89a071f89bd2d157",
+        "11_column_folded": "f7b50c41935091fd89fcbc8e8572525c62bc04043bc5c1064f6fe80d96cfaaef",
+        "08_help_search": "d0139568462f373cddba42704b9c8e9c0a152eb5b87ee40803f8fcccd180a2b3",
+        "12_command_palette": "1a76303724ea777f799a3783696b76bddeef6ed7bb61d41f66986b7bbb69a22e",
+        "09_performance": "f0a0b3af280af55bd47a6c8875018e4b6945d3fab4eeda70d0b694e2406a16b8",
+        "13_preferences_general": "4333b9c6f1467623fce78e52fce6bc89828b783080578ae03ffc4222f946a9bd",
+        "13b_preferences_appearance": "c9fc364a669501f1d1ce6d4b6eb168cec3b153206581d34f9a7dc14271e2f8af",
+        "13c_appearance_theme": "7d6a960a8ee887bcd7d95348e8118dc497d417df75f0d9b93e73b9f1ec568adc",
+        "13d_appearance_animation": "625e99a70ca3019e9cce46e101124f90a0ba520b1fbfa67052b7420ff0d574bd",
+        "13e_session_updates": "cfd55881e80a640dba108348409e68c42d5d12e525137b007a9660701bf353ae",
+        "13f_storage": "38378688dfc49f32feefb61c072c3b322bbb5b3c1adea5ab37a84f1ba1c504c2",
+        "13g_storage_prune": "65c7a2d78daf0f9b6f0a271b99ace3fc1bc0492b8deaee9bfe03d78803bcb8e7"
+      },
+      "focus_map_sha256": "d581a592c7d422f978a782d92736670246cf0e1c134d94ee28b56bcf4efde676",
+      "translated_reviews": {
+        "da": {
+          "source_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+          "review_file_sha256": "f3abe320e03d39ad05d31e75658e80b0efde3ac632ac58475f5cf8091d61110b",
+          "scene_count": 22
+        },
+        "de": {
+          "source_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+          "review_file_sha256": "4b9cf73ffcc6c42f4fd1777ef510725bc11b07db5a111098114e309355cd6911",
+          "scene_count": 22
+        },
+        "es": {
+          "source_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+          "review_file_sha256": "87cc3b243631c734a8db33a97249cd4650baa1aa3ed9ec0bb6f4a56a12078d97",
+          "scene_count": 22
+        },
+        "fr": {
+          "source_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+          "review_file_sha256": "42319fd3f23b78ab1bafeeb93ead18fa58e97d64cf5f1546cc355d0e67a40128",
+          "scene_count": 22
+        },
+        "hi": {
+          "source_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+          "review_file_sha256": "444ff872b6320001a20025b3aae833756abea9496bff59b3e15d559fbb67d934",
+          "scene_count": 22
+        },
+        "is": {
+          "source_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+          "review_file_sha256": "62a62a7fae3417dd9b3d16e71b419e90a753503b3186005a2206eba9f1ee745a",
+          "scene_count": 22
+        },
+        "it": {
+          "source_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+          "review_file_sha256": "b8c0470f6316f0d48d009abc08fc32d25dc84cefb9fbf5d3451a93375246ef43",
+          "scene_count": 22
+        },
+        "ja": {
+          "source_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+          "review_file_sha256": "2374317e734917de0d9d5b63e9f31263c12704c783a28db294027d7865e3100a",
+          "scene_count": 22
+        },
+        "ko": {
+          "source_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+          "review_file_sha256": "4ce7a6a29d821f31db5d5931c627a82d5cdd9a4e74500a3b0ad082db52634acd",
+          "scene_count": 22
+        },
+        "nb": {
+          "source_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+          "review_file_sha256": "8ba9bb38369dcc1a1934e393483586644d8425b3a43c52c82a5066d1c2fac9c5",
+          "scene_count": 22
+        },
+        "pt-BR": {
+          "source_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+          "review_file_sha256": "d04838e178b711be085b7d6d61ee6d4f16192f7b5208f39e071845914950795e",
+          "scene_count": 22
+        },
+        "sv": {
+          "source_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+          "review_file_sha256": "ff6f19be532f9fa4e4ba4585f20dd391b8c13d25a6e30586f2423ced625bf704",
+          "scene_count": 22
+        },
+        "zh-CN": {
+          "source_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+          "review_file_sha256": "5cf1d129ca0d1a6f7a22ac895e8ab0d37b2c39b9677341cbf7cbdbf10adcebf4",
+          "scene_count": 22
+        }
+      }
+    },
+    {
+      "lesson": "87_alpha_features",
+      "scene_count": 28,
+      "english_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
+      "capture_module": "alpha_features_20261005_r4",
+      "capture_provenance": {
+        "commit": "a6798d83440e76e8cf112a2575223bd16531a85b",
+        "version": "1.5.1.3",
+        "module": "home",
+        "download_requested": false,
+        "dataset_cache": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-alpha-r4/example_data",
+        "app_source_modified": false,
+        "cache_isolated_with_bind_mount": true,
+        "completed_capture": true
+      },
+      "frame_sha256": {
+        "01_prefs_alpha_on": "64b1e3c6178ee854749260af55fea8f04ded2ff80254d3bc565ef158005e860b",
+        "02_mask_preprocessing": "7d5c546a3bd7a20c6a86c0832a4e6f11c57ab986d49d6421c95e2410baa2f09a",
+        "04_mask_quality": "6190e5b1f8c783d9bac8e54321f56fae86f8a19bd04532dc18bbfd58b0dc93e0",
+        "05_mask_automation": "50b1ffbd6bba768788bb25ec506deacfa3ee10ba94d813f76bd2c911b72e868a",
+        "05b_watch_live_plate": "d4d267f4e4c75522707dbb8f1d8cc3c1ae37153b9591c65cc36cdc19bf73826b",
+        "06_timelapse": "5ac00de03f04f7f12fe285bd119bbbbd78b6ad08a4ddb588de0a3b27a9367b69",
+        "07_measure_assays": "456682cfdb1a146ac7cc928d949272b2cee04c999895a5a70234bf3c5fb14531",
+        "07b_measure_time": "2aa5494cb03a11b7651155bcbda59a59067970db38d6b2343379779a9469e9e0",
+        "08_measure_outputs": "6b7d85f51a124745f06dc7d818c1def95d9b721389d695007f1470f94d1e7040",
+        "08b_anndata_format": "f9c6822396dadb0bf764e5eac2814cc96431cedda8449de41ce433c6fff69323",
+        "09_make_masks_tools": "e20773088f5c149193e77482dc4220beac5b47eda23d213bedda9fa7a8ee54b4",
+        "09b_model_zoo_alpha_models": "92075bf834bd969d084c1d2689a040f94adc621ca67f9b0559208359d780de40",
+        "10_workbench_virtual_stain": "fc0c6599b6f578b603d2e625e17e60a4dc5e7f3ffe8d2b72ef166eb30f779894",
+        "11_annotate_tools": "fc5dba094f61a688beef5f455a4ad73fce53e5d1e5ce1a343cb08e8283d731d8",
+        "12_plaque_growth": "7df5cd511ae68855c5d547caecd949baa144a3d198e695a0eeee4ed9d1d48b3f",
+        "13_activation_counterfactuals": "bdc5ba975faaa09e57b763847879e5624b5115029bba3c82b8e327a6c6b5624a",
+        "14_embeddings_tools": "c7c69bc403fc8ed091dafc7f9e485c6e73f875a220d28f4caffec432f627042b",
+        "15_control_chart": "2857c3cb037c46fd04f23d4a1e8f679f1a560d33903e8eae33e0bf2e16cb8537",
+        "16_report_archive": "1bbb7a8f95d4f1af1a19cfa7b5a94ff10ebf617d33410f10dc4d7de29065dcc1",
+        "17_run_history_export": "a133f3853a21b6fc504f9ba6c429382080e773df837ea15ab7a08391c92fdb25",
+        "18_prefs_notifications": "f7c3ec53d8f78b544bd988336423dffd5fecc8525f5ef1addbba622b147a9469",
+        "18b_prefs_plugins": "c8b44e1ddf20e4f281ae13a72dbcbe21440946ba5357074f0e6cac5eff3f9867",
+        "19_ops_spot_detectors": "ffe8a51afb39f7d8856bd19d2aa150a8927eef969a0ff3a515b991cf42f8448f",
+        "19b_map_barcodes_spatial": "e298344a4ffbc8426f5eef31e8d04a8b9ef680a798e365fe0336fd9e97ecc43a",
+        "20_convert_barcodes": "071c73672e90c243300c082a62bb4ace605069c3f1dba08a29df9856c5c3f468",
+        "20b_power_arrayed": "372e959490e54c320e683a0eeae116f4faf385ddfcdf1cadb5c8baf9043024a7",
+        "21_test_data": "520a474a1bb44c2f5aae81135bf3783b77cb9917bf63612f965bbb0e18834a81",
+        "22_prefs_alpha_off": "3d89864c332854b2da2503f514f2ad1564ecf4686784db147653a4614f09a015"
+      },
+      "focus_map_sha256": "77ce03fe7ab96dd3a1eb16ccf33ce27e23ebaf820a49a6f49daa7a8ebaa4498c",
+      "translated_reviews": {
+        "da": {
+          "source_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
+          "review_file_sha256": "6bfc96a7f2d5ddc3581a1fc2fc79f64770de998fa00c7af037e638b9eca262fc",
+          "scene_count": 28
+        },
+        "de": {
+          "source_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
+          "review_file_sha256": "18edc029a8d3e4ee6803c9e4c6b7d5effe2082fd3e1cfa5951fad439eaba8a44",
+          "scene_count": 28
+        },
+        "es": {
+          "source_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
+          "review_file_sha256": "6dc9900c12b64788f8603629f6989fec72b77af0ba4a4f5aa31f2582abdf2d1f",
+          "scene_count": 28
+        },
+        "fr": {
+          "source_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
+          "review_file_sha256": "092a6e82146b9b4935a3805d3d309de768e914b8599898485d6037f7d4d2fc32",
+          "scene_count": 28
+        },
+        "hi": {
+          "source_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
+          "review_file_sha256": "5214d20d2d9404399d1d36479848d81ee41259a6ff6c14610be3996cadaab11c",
+          "scene_count": 28
+        },
+        "is": {
+          "source_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
+          "review_file_sha256": "a47e72f673d36c74179e0481cb3b5ba7d6c7ca9825b940212bfbca2bbc4d76cb",
+          "scene_count": 28
+        },
+        "it": {
+          "source_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
+          "review_file_sha256": "ec36b8ffeb13e7693bc8249cd24ac2b40251c25f5bd29849a99c4ecc583e52dd",
+          "scene_count": 28
+        },
+        "ja": {
+          "source_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
+          "review_file_sha256": "afdd81874f92df256a089200f23fbfeed73dd27d4e750ed36624e8db1de762ba",
+          "scene_count": 28
+        },
+        "ko": {
+          "source_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
+          "review_file_sha256": "2012cf5ad5182244a8abdf38caa1144143def8b2f83ddfdadef3b6ccb1d684fe",
+          "scene_count": 28
+        },
+        "nb": {
+          "source_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
+          "review_file_sha256": "ae5f43d947599ce55274764eee649753922d52199fbaae9807c97d4b967b7c53",
+          "scene_count": 28
+        },
+        "pt-BR": {
+          "source_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
+          "review_file_sha256": "f77e9f384d239d61d0c4fceac81a60d4328d58c25723f834dd251b480fc51093",
+          "scene_count": 28
+        },
+        "sv": {
+          "source_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
+          "review_file_sha256": "584c64edcbd600cb39887af636ec3b77e028cc21c312940c3bcee3cddc823fa5",
+          "scene_count": 28
+        },
+        "zh-CN": {
+          "source_sha256": "b37a68d38f3ae3906e83f9facebd58741b536ce98e28261a12ffb424992058c5",
+          "review_file_sha256": "30d882b69a933d313ab6efc2fcd9f3a3aa811bcd9706fe4110b69a3684bbbea6",
+          "scene_count": 28
+        }
+      },
+      "actual_live_plate_scene": {
+        "card": [
+          1301,
+          880,
+          2523,
+          709
+        ],
+        "empty_acquisition_folder": true,
+        "summary": "Waiting for completed fields",
+        "ledger": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-alpha-r4/alpha_watch_empty/spacr_watch/watch_ledger.json"
+      },
+      "limitation": "Waiting state from a genuine empty-folder watch; no completed field, acquisition hardware or GPU inference acceptance is claimed."
+    }
+  ],
+  "staging": "Normal stage_lesson source, completed capture, 4K geometry and frame-hash checks passed; normal apply_translation_review promoted all 13 source-bound non-English catalogs.",
+  "rendering": "Not yet rendered or published; the Home silent reading-time review is provisional.",
+  "narration_environment": {
+    "python": "3.12.14",
+    "kokoro": "0.9.4",
+    "misaki": "0.9.4",
+    "pinned_snapshot": "f3ff3571791e39611d31c381e3a41a3af07b4987",
+    "cpu_model_voice_synthesis": "passed",
+    "language_g2p_preflight": [
+      "en",
+      "es",
+      "fr",
+      "hi",
+      "it",
+      "pt-BR",
+      "ja",
+      "zh-CN"
+    ],
+    "japanese_dictionary": "UniDic 3.1.0+2021-08-31 installed privately"
+  }
+}

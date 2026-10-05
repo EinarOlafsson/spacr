@@ -1,117 +1,102 @@
-# Tutorial release candidate — updated 15 September 2026
+# Tutorial publication checkpoint — 5 October 2026
 
-This checkpoint is **candidate `release-candidate-8738b_pd`, approved for
-publication on 15 September 2026** (see "Release hold" below). Its media revision
-is uploaded and read back, and its Pages tree is staged in
-`docs/source/_extra/tutorials`. The live site changes only when that tree is
-merged to `main`. `checkpoint.json` identifies the complete on-disk package;
-`release-manifest.json` records every web/media file and its SHA-256 hash.
+The latest published checkpoint is **`release-candidate-append-ake_bqpd`**,
+released in wave 4 on 4 October 2026. Its media is pinned to the Hugging Face
+dataset commit **`2785b7b9d91b42145e1a324aac00cd87686f5e2b`**. The
+[publication receipt](publication-receipt.json) records the upload and full
+byte readback; the [wave 4 evidence](../evidence/2026-10-04-rerecord-wave4-publication.json)
+records local and hosted playback checks.
 
-| Contents | Count |
+| Published contents | Count |
 | --- | ---: |
-| Fully produced tutorial packages | 76 |
-| Coming soon screens | 1 (Investigate Hit) |
-| Total navigable entries | 77 |
+| Ready lessons and navigation routes | 85 |
+| English scenes | 1,187 |
 | Catalog languages | 14 |
-| Narration languages / voices per ready lesson | 8 / 50 |
-| Verified narration tracks, including retained tracks | 3,800 |
+| Spoken languages | 8 |
+| Published voices per lesson | 27 |
+| Published narration tracks | 2,295 |
 
-The historical notes below describe earlier candidates. Since then Map Barcodes,
-Model Compare, Model Zoo, OPS and Embeddings have been promoted to full lessons.
+The renderer supports 50 voices. This checkpoint publishes the verified
+27-voice selection, including one English voice; it does not contain 50
+tracks for each lesson. Voices are offered only for source-bound, AI-reviewed
+translations. Other catalog languages use English audio. The maintainer's
+voice and phone sign-offs and native-speaker-review waiver are recorded in
+item 358; AI technical review does not imply native-speaker listening review.
 
-The five unavailable workflows are Map Barcodes, Model Compare, Model Zoo,
-Investigate Hit and OPS. They remain reachable through the correct Main modules
-or parent-grouped Submodules navigation, but do not load old media, claim a
-successful run, offer completion, or inflate the available count. The underlying
-application/data issues remain for their owners; the user approved these screens
-instead of waiting for those fixes.
+Wave 4 refreshed Mask, Import, and Import Images and added the two permitted
+alpha lessons: **86, Alpha: organism modules**, and **87, Alpha: experimental
+features**. Lessons 83 and 84 were withdrawn before this checkpoint. All other
+lessons record with both alpha preferences off. Every GUI recording starts
+fresh without restored sessions or drafts; the policy is in
+[capture_policy.py](../capture_policy.py).
 
-Embeddings now has a real eleven-scene tutorial: its current GUI introduction
-followed by a supported Python API example with actual downloaded images,
-two channel policies, verified saved vectors and exploratory figures. The
-lesson explicitly discloses that the standalone screen has no crop loader;
-it does not claim that GUI workflow has been repaired. Its shared recording,
-all 50 voices and fourteen catalogs are included.
+The deployed tutorial tree is
+[`docs/source/_extra/tutorials`](../../../docs/source/_extra/tutorials).
+Nightly and main documentation publish independently; a nightly push updates
+the nightly site, while main changes at promotion. The player pins an
+immutable media revision, rather than following the dataset's `main` branch.
+Previously published revisions remain available for rollback.
 
-All original held recordings and catalogs are preserved. Moving unchanged
-lessons between navigation sections does not regenerate their media. Complete text sources, scripts,
-catalogs and evidence are in Git. At the maintainer's request the web videos,
-posters, fonts and example downloads are also committed; the narration
-and 4K package remains in the original workspace and separately copied candidate,
-indexed by the committed hashes, pending media-host upload approval.
+## Current refresh work
 
-## Verification and preview
+The source-current audit on 5 October identifies newer authoring content for
+Home, Measure, Batch Runner, Distributed Jobs, and Alpha features. Those
+changes require the normal capture, staging, narration, caption, rendering,
+and playback checks before they replace published media. Lesson 87 also
+needs the newly added Live plate scene. The existing source-bound translations
+are preserved, and the new scene has translations in all 13 non-English
+catalog languages. Authoring changes alone are not publication evidence.
 
-Use the existing isolated tutorial environment, not a new application install:
+Run the audit from this checkout, using the existing spaCR Python environment:
 
 ```bash
-/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/.venv/bin/python \
-  tools/tutorials/verify_release_candidate.py \
-  /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/release-candidate-rlxbqjl1
+CUDA_VISIBLE_DEVICES='' tools/run_capped.sh 8G python \
+  tools/tutorials/audit_user_walkthroughs.py
 ```
 
-For an interactive local preview, add `--serve`. It binds only to localhost,
-prints the URL, supports media seeking and serves the complete candidate.
-Stop it with Ctrl-C. Git contains the web media, but the complete narration and
-4K files are still required from the local candidate or a verified media host.
+The auditor compares every authored lesson with deployed nightly and main
+catalogs, including the alpha lessons and newly numbered lessons. Its report
+is [the walkthrough evidence](../evidence/2026-09-23-user-walkthrough-review.json).
+That report detects text drift; it cannot establish capture quality or audio
+synchronization. `--output` can place a diagnostic report in scratch.
 
-This rebuilt package includes the narration-paired caption fix and native
-caption-track reload fix. Its exact files passed 72 English playback cases
-(audio hashes, requested seek positions, video synchronization, paired
-transcript and two native caption reloads each), plus 70 Coming soon cases
-across all fourteen languages. Both deliberate placeholder-player mutations
-failed, with the unchanged player passing before and after. These are browser
-checks, not a new native-GUI or listening review. The refreshed Platform
-Installers Heart track additionally passed native-caption checks at all
-36 sentence midpoints, including both CUDA mentions. Embeddings Heart also
-passed every native sentence cue; its separately recorded final matrix verifies
-all 50 tracks and fourteen language/caption playback cases.
+The macOS updater scene was omitted at the maintainer's accepted scope because
+no native capture host was available. It was not recorded or published. The
+[installer guide](../../../docs/source/installer_guide.rst) remains its
+available documentation.
 
-`source-verification-summary.json` records the frozen preservation baseline:
-catalogs extracted from Git commit `d2d4c189b`, before the public Coming soon
-conversion. Rebuilding now needs `build_release_candidate.py --baseline` pointed
-at that extracted catalog directory. Byte-exact retained-lesson checks remain
-in force; comparing against today's already-converted public catalogs would
-test the wrong baseline. The earlier private candidate is preserved unchanged.
+## Validate and publish a later candidate
 
-The separately published Heart pronunciation repair belongs to the older live
-Platform Installers recording, not this refreshed recording's different script.
-This candidate now has its own first-CUDA correction, produced through the
-normal renderer and checked in `audio_repairs/platform-heart-refreshed-20260912`.
-All 49 other installer voice pairs and the shared movie remain byte-identical.
-Do not overwrite the older live repair with this different narration. Technical
-phoneme and playback checks are not human pronunciation/listening acceptance.
+`checkpoint.json` identifies the publication and its manifest hashes. Its
+`private_candidate` is the original producer's filesystem location, not a
+portable path or a promise that the complete candidate exists on this host.
+A complete candidate includes `web/`, `media_host/`, and its release manifest;
+this Git directory preserves the publication metadata and web checkpoint.
 
-## Release hold — lifted 15 September 2026 (item 358)
+1. Capture the current application into an isolated workspace. Stage each
+   changed lesson with `stage_lesson.py`; retain unrelated published lessons.
+2. Generate only source-bound reviewed language tracks. Run the audio,
+   caption, visual, and complete-candidate checks against the actual artifacts.
+3. Verify the complete candidate with `verify_release_candidate.py`. The
+   existing Python environment must include Playwright and its Chromium
+   browser. `--serve` offers a local preview without publishing.
+4. Use `publish_release_candidate.py upload` with a new versioned branch and
+   tag. Read back all uploaded bytes, then stage Pages with the verified
+   immutable commit. Publish the deployment catalogs, media roots, navigation,
+   bundled tutorial index, and cache keys together.
+5. Verify the exact staged and deployed player, including chapter seeking,
+   native captions, language changes, and audio/video synchronization. Update
+   the receipt and this checkpoint after those checks pass.
 
-The maintainer approved publication of candidate `release-candidate-8738b_pd`
-("Publish now"). `publication-receipt.json` records the media revision: the
-dataset, a new branch (never `main`), its tag and the pinned 40-character commit.
-It also records the read-back of every uploaded file's bytes.
-`published-media-browser-checks.json` plays the Pages tree against that commit.
-`checkpoint.json` carries `release_hold: false`. `release-manifest.json` stays
-exactly as built, still held, because the browser evidence hashes it. Pages
-deploys only when `docs/source/_extra/tutorials` reaches `main`.
-`tools/tutorials/publish_release_candidate.py` (upload, readback, pages, record)
-performs these steps for any later candidate.
+Example validation, with the actual complete candidate path substituted:
 
-The candidate index itself still deliberately uses local relative media roots.
-The steps that apply to every publication:
+```bash
+CUDA_VISIBLE_DEVICES='' tools/run_capped.sh 8G python \
+  tools/tutorials/verify_release_candidate.py /path/to/complete-candidate
+```
 
-1. Recheck the manifest and confirm the intended app version still matches
-   the recordings. Check the current GUI route inventory again.
-2. Upload the candidate's `media_host/` to a new versioned media location,
-   preserving the currently live files. Verify all uploaded bytes and pin the
-   deployed player to that exact media revision; do not use stale legacy audio.
-3. Stage this candidate's `web/` as the tutorial docs payload, replace its two
-   local media roots with the verified hosted roots, and update the deployment
-   catalog/cache/inventory pins and bundled tutorial index together. Retain
-   unrelated tracked historical assets unless separately authorized to remove
-   them; measure the actual documentation build, not only this payload.
-4. Run the exact deployment's tutorial tests and live verifier before declaring
-   it published. Keep the previous media revision available for rollback.
-
-The currently separate public-source route test still includes six Coming soon screens, but
-that does not prove Pages deployed them. Passing candidate checks is not a claim
-that the live site or all GitHub CI is green. Technical validation also does not constitute native-speaker listening
-approval or repair the application defects disclosed in the tutorials.
+The publisher's `upload`, `readback`, `pages`, `record`, and `resume-receipt`
+subcommands separate these checkpoints. Inspect `--help` for the selected
+subcommand before use. Never replace a published media pin with unverified
+staging output. Historical acceptance remains evidence for its named revision;
+a green source test alone does not prove that newer media has been published.
