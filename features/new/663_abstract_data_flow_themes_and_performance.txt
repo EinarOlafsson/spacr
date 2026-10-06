@@ -444,3 +444,24 @@ INTEGRATED USER MENU/GRAVITY/NEW RENDERERS (2026-10-06, partial)
     GUI QTimer cyclic GC within app.exec; idle ambient worker is not proof
     of a renderer cause. Native4K frame-budget limits remain OPEN. Latest
     labels/slider/source API require workstation normal multilingual refresh.
+
+2026-10-06 — Home CPU: finite local gravity and still paper source
+The DataArt engine now defaults its shorter-edge mouse influence radius to
+zero; finite values clamp to [0,1], and NaN/Inf disable influence. Zero ignores
+pointer movement and clicks without stopping the autonomous field, waves or
+flow. Enabled mouse gravity has smooth compact support, with no displacement
+outside its chosen radius. Lens click/movement wakes remain bounded to 24
+entries/five seconds, store only the finite participating lattice region,
+and are cleared with cached wake fields when radius changes. Atlas culling
+includes the maximum local gravity displacement; native uncropped-grid
+comparisons at five pointer extrema preserve every visible perimeter grain.
+Paper facets retain seeded crisp topology, stop autonomous vibration, and
+lift/displace locally under enabled mouse influence, returning to the exact
+original scene when influence is disabled. Explicit legacy pointer/click tests
+now opt into gravity instead of contradicting the new disabled default.
+The focused actual CPU/Qt cohort passes 127 cases under 4 GiB, CUDA hidden;
+73 added executable source statements and 21 touching arcs have no gaps.
+Source-bound reproduction/trace evidence is in scratch theme-refinement-
+20261006/visual-revision/ (radius source SHA 5ab81a3ec1e31944faaea00eb66cc47e
+6428d8cee1a7e280008e2c3c4426057e). Satin/advection revision and native 4K
+24-FPS acceptance are separate pending work. No native Save-crash fix claimed.

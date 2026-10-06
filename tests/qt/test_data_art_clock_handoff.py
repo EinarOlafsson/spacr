@@ -18,7 +18,8 @@ def _widget(qtbot, family="impulse_lens"):
     widget = ambient.AmbientWidget(theme=f"data_art_{family}", palette="spacr",
                                    background="#101418", fps=60, seed=42,
                                    blur=0, speed=1, size=1, resolution=1,
-                                   density=1, direction=ambient.DEFAULT_DRIFT_DIRECTION)
+                                   density=1, direction=ambient.DEFAULT_DRIFT_DIRECTION,
+                                   gravity_radius=0.5)
     qtbot.addWidget(widget)
     widget.resize(320, 200)
     return widget
@@ -31,7 +32,8 @@ def test_overrunning_real_shader_keeps_clock_pointer_and_clicks_moving(qtbot, mo
     backdrop = ambient.AmbientWidget(host, theme="data_art_impulse_lens",
                                      palette="spacr", background="#101418", fps=60,
                                      seed=42, blur=0, speed=1, size=1, resolution=1,
-                                     density=1, direction=ambient.DEFAULT_DRIFT_DIRECTION)
+                                     density=1, direction=ambient.DEFAULT_DRIFT_DIRECTION,
+                                     gravity_radius=0.5)
     backdrop.setGeometry(host.rect())
     button = QPushButton("Run", host)
     button.setGeometry(120, 80, 80, 40)
@@ -82,6 +84,7 @@ def test_overrunning_real_shader_keeps_clock_pointer_and_clicks_moving(qtbot, mo
 
 def test_cumulative_input_is_applied_once_and_only_latest_pointer_survives():
     engine = ambient.make_engine("data_art_impulse_lens", "spacr", "#101418", seed=42)
+    engine.set_gravity_radius(0.5)
     queued = ambient._QueuedArtInput()
     queued._consume(engine)
     assert engine.time == 0
@@ -106,6 +109,7 @@ def test_cumulative_input_is_applied_once_and_only_latest_pointer_survives():
 
 def test_click_snapshot_is_bounded_and_can_be_discarded_on_pause():
     engine = ambient.make_engine("data_art_impulse_lens", "spacr", "#101418", seed=42)
+    engine.set_gravity_radius(0.5)
     queued = ambient._QueuedArtInput()
     for index in range(40):
         queued._offer(0.01, None, ((index / 40, 0.5),))
