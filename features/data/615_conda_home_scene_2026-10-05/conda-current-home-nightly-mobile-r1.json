@@ -1,0 +1,57 @@
+{
+  "scope": "Live Pages playback at a 390x844 phone viewport (touch, 3x DPR) against the deployed index and its pinned hosted media; not a listening review",
+  "url": "https://einarolafsson.github.io/spacr/nightly/tutorials/",
+  "index_sha256": "f6a6ae6b5c99d90fcbd391bdadfdde7297b6608c6bfccec642a0443c60a99350",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/bf1cca988e0fa91683a2ca96d3acabe8cf39c60a",
+  "synthetic_tap_timeout_ms": 90000,
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "is_mobile": true,
+    "has_touch": true,
+    "device_scale_factor": 3
+  },
+  "hosted_requests": 4,
+  "hosted_hosts": [
+    "huggingface.co",
+    "us.aws.cdn.hf.co"
+  ],
+  "cases": [
+    {
+      "lesson": "02_conda_install",
+      "audio_sha256": "c8f975ada4b0548db84197230bb8e4e9e88176a682bda11120f71df5e43376b9",
+      "narration_url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/bf1cca988e0fa91683a2ca96d3acabe8cf39c60a/02_conda_install/audio/en/af_heart.m4a",
+      "start": "video.play() after the tap did not start playback",
+      "playing_after_start": {
+        "audio": 1.0037,
+        "video": 1.108746,
+        "expected": 1.0037,
+        "video_paused": false
+      },
+      "clocks_after_seek": {
+        "audio": 24.152603,
+        "video": 24.300697,
+        "expected": 24.152603,
+        "width": 2560,
+        "height": 1440,
+        "error": null,
+        "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/bf1cca988e0fa91683a2ca96d3acabe8cf39c60a/02_conda_install/web/02_conda_install_silent.mp4",
+        "requested_audio_time": 22.855,
+        "seek_elapsed_seconds": 1.504347742011305
+      },
+      "layout": {
+        "scroll_width": 390,
+        "inner_width": 390,
+        "video_box": [
+          17,
+          358.71875,
+          356,
+          200.25
+        ],
+        "player_visible": true
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}

@@ -1,0 +1,7 @@
+{
+  "accepted": true,
+  "url": "https://einarolafsson.github.io/spacr/nightly/tutorials/",
+  "immutable_media_revision": "bf1cca988e0fa91683a2ca96d3acabe8cf39c60a",
+  "index_sha256": "f6a6ae6b5c99d90fcbd391bdadfdde7297b6608c6bfccec642a0443c60a99350",
+  "scope": "Actual deployed index contains exact immutable Conda media revision; playback/frame checks remain separate"
+}

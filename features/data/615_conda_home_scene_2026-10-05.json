@@ -8,7 +8,7 @@
   "hosted_routes": 85,
   "native_home_tile_count": 19,
   "fresh_conda_installation_claimed": false,
-  "nightly_deployment_verified": false,
+  "nightly_deployment_verified": true,
   "mask_tutorial_changed": false,
   "home_and_measure_user_followup": "Separate current-UI rebuild remains open. User says Mask is correct; leave it unchanged.",
   "artifacts": {
@@ -99,6 +99,33 @@
       "sha256": "2ad5844c6de7f6542e94f39e5409e7e6c9d588714e4000a163851c272738bc02",
       "bytes": 17222,
       "uncompressed_sha256": "70aef29c993c14ae6b6aceaa2c24ac0e1a6c8288885d85daf5c066adb066482c"
+    },
+    "features/data/615_conda_home_scene_2026-10-05/conda-current-home-nightly-mobile-r1.json": {
+      "sha256": "1cc69768d210b8d5ec9a2b7de789ecdccabf94b1891c48b7365f5f9bc1630865",
+      "bytes": 1983
+    },
+    "features/data/615_conda_home_scene_2026-10-05/conda-current-home-nightly-index.json": {
+      "sha256": "a16bf5cb1161163813a574fef047a6ba5d9ef5d70bbdc58d0ea399dc20e70e0b",
+      "bytes": 373
+    },
+    "features/data/615_conda_home_scene_2026-10-05/conda-current-home-nightly-frame.json": {
+      "sha256": "ff865b7d4ea4f3d7efc3313274fbc0d0bc7a5021fd9a3236eeeaaf661f559811",
+      "bytes": 620
+    },
+    "features/data/615_conda_home_scene_2026-10-05/conda-current-home-nightly-frame.png": {
+      "sha256": "057cdc267579ea7d37cb9f8e273e186f6787d5b8d5c0eb59f5c9cfc5727b3fbb",
+      "bytes": 535899
     }
+  },
+  "nightly_deployed_acceptance": {
+    "workflow": 37394633702,
+    "workflow_source": "5c569925ae933858069327e03366f3ebd2b586ae",
+    "workflow_conclusion": "success",
+    "url": "https://einarolafsson.github.io/spacr/nightly/tutorials/",
+    "exact_media_revision": "bf1cca988e0fa91683a2ca96d3acabe8cf39c60a",
+    "mobile_playback": true,
+    "complete_deployed_video_hash_matches_verified_replacement": true,
+    "actual_deployed_frame_reviewed_seconds": 89.4,
+    "current_home_nineteen_tiles": true
   }
 }
