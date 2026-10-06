@@ -1,0 +1,51 @@
+2026-10-06 — FOLLOW-UP USER THEME FEEDBACK FOR HOME
+Owner: Home CPU/Qt/theme session. Workstation retains API/documentation/
+translation/tutorial updates and all GPU tasks. New request, not acceptance.
+
+User's exact message:
+"the spacr Thore theme the rain needs to flow more smoothely and the lightning needs to be lighter and vertical and horizontal sometimes
+for the spacr field and probably the rest, there is no difference between 1% and 10% and 50% the only distinction is between on and off but there should be a scale effect!
+the floor to density needs to be lower
+the spaCR growth should look like a this https://commons.wikimedia.org/wiki/File:Mycelium_growth_simulation.gif"
+Follow-up: "or growth like that".
+
+Implementation requests:
+- spaCR Thore: continuous smoother rain motion. Lighter lightning; include
+  both vertical and occasional horizontal strikes/branches. Preserve the
+  previously requested restrained overall screen illumination.
+- spaCR field and other applicable backgrounds: sliders must produce a
+  gradual visible scale effect at 1%, 10% and 50%, not merely enabled versus
+  disabled. Mouse gravity radius is the likely referenced slider, but the
+  user did not name it. Clarification is pending; check both gravity radius
+  and animation density rather than assigning the ambiguity as a fact.
+  Zero must still disable mouse gravity and remain the default.
+- Lower the animation-density minimum and ensure the engine's element-count
+  floors do not defeat the lower slider values.
+- spaCR growth: use the linked mycelium animation as the visual reference.
+  Workstation inspected actual original GIF frames30/90/150/220: fine,
+  irregular filaments branch progressively from a common origin, with many
+  bright advancing tips and dimmer established branches. This is a visual
+  observation, not a request to copy its assets or code. Keep the previously
+  requested fading trail and at-most25% visible screen occupancy; this new
+  example specifies the branching appearance, not a waiver of that bound.
+
+Reference provenance:
+Page: https://commons.wikimedia.org/wiki/File:Mycelium_growth_simulation.gif
+Original: https://upload.wikimedia.org/wikipedia/commons/d/d4/Mycelium_growth_simulation.gif
+Author: Rafal Szczerski; page credits processing/JBox2D and
+https://github.com/rszczers/mycelium . Wikimedia labels the GIF CC BY-SA4.0.
+Original bytes read:492x360,225frames, SHA256
+f6629c40931fbadaebcfb0f840dba3f553f7bf0b33dedd6a8a5d43b165385ea4.
+Only links/observations are relayed; no third-party image is bundled.
+
+Home's b77916cc9 CPU source/evidence has been seen. Workstation's normal
+source-bound refresh is currently processing the frozen preceding source;
+newer source and these refinements still need subsequent integration. Native
+Save crash remains open; do not claim its fix from a nonreproducing probe.
+Protect the other session's livecell/cellposeTIME and hosted Qt jobs.
+
+Read-only local checkout observation: user shared repo HEAD is1f3e4a240
+with no local changes in ambient.py/preferences.py. New Home9ad69bab29
+renderer refinements are newer than those installed source files. This does
+not establish the revision loaded by an already running app process. No
+shared checkout or running app was changed by this relay.
