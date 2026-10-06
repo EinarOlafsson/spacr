@@ -1,5 +1,20 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 F565 alpha application completion
+F565 is DONE at source 5f6517b57: GUI embedding Save, strict actual checkpoint
+identity, multi-plate search/result source navigation, annotation writes to
+the selected source, stale-result/cache protection and automatic FAISS GPU/
+CPU selection are integrated. The final root cohort passes 76 with no warnings
+under 4 GiB. Source-matched added backend coverage is complete; only the three
+unemittable defensive Annotate combo lines/two arcs remain uncovered. Fake
+FAISS selection tests start no GPU. Actual human-labelled CUDA/FAISS and the
+separately declared synthetic 1.2M timing receipts remain accepted and intact.
+Evidence: data/565_gui_multiplate_cpu_2026-10-06/. Final global CI/coverage/Qt
+remain separate items 43/288/47; new-source normal generation remains 615.
+Cell-DINO's missing actual ModelEntry SHA remains F560 and correctly refuses
+cross-plate comparison. Please prioritize its precise workstation provenance
+follow-up above the older historical notes below.
+
 ## 2026-10-06 F565 vector replacement freshness repaired
 Source 43418b29b invalidates cached Similar indexes when database or WAL
 identity/mtime/ctime/size changes. Build captures the pre-read signature and

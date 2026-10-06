@@ -18553,3 +18553,17 @@ Eleven exact private rendered additions are pinned separately in the new
 source contract without increasing historical inventory counts. Item 560
 remains OPEN. Final retained renderer cohort passes 102; twelve real live
 probes show approximately 24 FPS at 1080p and 20–24 at native 4K.
+
+2026-10-06 CPU F565 COMPLETE (alpha): source 5f6517b57 and final root
+76-pass/no-warning capped cohort close storage, multi-plate source navigation,
+actual checkpoint compatibility, stale-result/cache boundaries and automatic
+FAISS selection. All added backend lines/arcs are exercised; three defensive
+Annotate lines/two arcs cannot be emitted by normal populated selections.
+The raw source-matched coverage and receipt are in
+data/565_gui_multiplate_cpu_2026-10-06/. Preserve accepted human-labelled
+CUDA/FAISS and declared synthetic million timing evidence. New captions and
+private API refresh are workstation-owned; global CI/coverage/serial Qt remain
+OPEN in 43/288/47. F560 Cell-DINO actual provenance still needs your declared
+checkpoint path/digest resolver, and unknown SHA correctly refuses multi-plate
+use meanwhile. CPU agents continue finite pooled acquisition normalization
+and batch-first native T>1 Mask ingest without GPU or fabricated vendor markers.

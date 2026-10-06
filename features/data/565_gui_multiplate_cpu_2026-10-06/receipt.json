@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-06",
+  "root_source_commit": "5f6517b57",
+  "source_matches_coverage_agent_commit": "884868f84893bf727e17819803d6abf3b295d73b",
+  "source_identical": {
+    "spacr/active_learning.py": true,
+    "spacr/qt/screens/annotate.py": true
+  },
+  "source_sha256": {
+    "spacr/active_learning.py": "3b1d458cb7cbf60d665271b7277cc595137e74763626cf78f859590883ebf77d",
+    "spacr/qt/screens/annotate.py": "0775060bdeeee795aedfc197f1c3f39408bb29dbe935b5b56f3cf3f53fdf8337"
+  },
+  "root_focused_tests": {
+    "passed": 76,
+    "failed": 0,
+    "warnings": 0,
+    "elapsed_seconds": 23.89
+  },
+  "agent_focused_tests": {
+    "passed": 74,
+    "failed": 0
+  },
+  "added_backend_executable_lines_and_arcs": "all exercised",
+  "defensive_annotate_added_lines_uncovered": [
+    5068,
+    5070,
+    5071
+  ],
+  "defensive_annotate_added_arcs_uncovered": [
+    [
+      5067,
+      5068
+    ],
+    [
+      5069,
+      5070
+    ]
+  ],
+  "defensive_scope": "Missing combo item-data and already-open reselect; normal populated combo does not emit these transitions.",
+  "memory_cap": "4 GiB",
+  "cuda_visible_devices": "",
+  "qt_platform": "offscreen",
+  "root_gpu_process_started": false,
+  "faiss_selection_test": "Fake FAISS verifies auto GPU/CPU and explicit NumPy without launching CUDA.",
+  "actual_scientific_gpu_receipt": "565_human_label_FAISS_GPU_acceptance_2026-10-06.json (workstation-owned accepted original cohort and separately labelled synthetic 1.2M timing)",
+  "feature_state": "DONE alpha: GUI vector persistence, strict source/model identity, multi-plate selection and navigation, freshness and automatic backend selection.",
+  "separate_open_scopes": [
+    "N43/F288 final-source GitHub green/coverage",
+    "N47 hosted uninterrupted serial Qt",
+    "F615 normal source-current documentation/runtime translation generation",
+    "F560 newly added Cell-DINO provenance and official pretrained acceptance"
+  ]
+}

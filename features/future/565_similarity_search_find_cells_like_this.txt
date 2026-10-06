@@ -1,7 +1,7 @@
 GPU SIMILARITY SEARCH: "FIND CELLS LIKE THIS" OVER MILLIONS OF CROPS
 
-Status: OPEN 2026-10-06 — integrated alpha storage and multi-plate search;
-        final added-branch and cached-index freshness checks remain.
+Status: DONE (alpha) 2026-10-06 — GUI storage, multi-plate navigation,
+        strict checkpoint identity, cache freshness and automatic FAISS selection.
 Previous status: DONE (alpha) 2026-09-27 (evidence f8ba5d412)
 VERIFIED 2026-10-04: test_similarity_search, qt find-similar gate + similarity options pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
@@ -188,3 +188,25 @@ A real GUI test replaces same-model stored vectors and proves the next
 query rebuilds with the new vector. Agent 72 focused cases pass, with every
 added backend line/arc exercised. The remaining Annotate lifecycle/failure
 coverage audit is ongoing. No ratchet, cap or provenance requirement moves.
+
+2026-10-06 — REMAINING APPLICATION SCOPE COMPLETE (ALPHA)
+Source 5f6517b57 completes source-bound GUI Save, compatible same-plate
+merge/replacement, strict source-qualified multi-plate indexes, hit navigation
+and original-source annotations, stale worker/cache protection and automatic
+FAISS selection. Actual expert-labelled retrieval and genuine FAISS-GPU
+acceptance already appear in the preserved workstation receipts; the 1.2M
+timing matrix remains explicitly synthetic, not a million acquired cells.
+The final root seven-file cohort passes 76 with no warnings under 4 GiB,
+CUDA hidden and Qt offscreen. Fake FAISS proves auto GPU/CPU selection and
+explicit NumPy behavior without running any root GPU process. Every added
+backend executable line/arc is exercised. Annotate retains three uncovered
+lines/two arcs only for missing combo data or reselecting the already-open
+source; normal populated combo transitions cannot emit those defenses.
+Exact source hashes, raw bounded coverage and reproduction are archived in
+data/565_gui_multiplate_cpu_2026-10-06/. No guard or ratchet is weakened.
+
+Item 565 is DONE as alpha. Final global GitHub/coverage/serial Qt acceptance
+stays in 43/288/47, and normal new-source API/runtime/docs generation stays
+workstation-owned in 615. The newly added Cell-DINO's unknown ModelEntry SHA
+correctly refuses cross-plate comparison; its checkpoint/provenance acceptance
+is the explicit remaining F560 scope, not an unverified similarity fallback.
