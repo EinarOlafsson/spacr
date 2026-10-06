@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+from itertools import pairwise
 
 import numpy as np
 import pytest
@@ -139,21 +140,45 @@ def test_arbitrary_hour_later_clock_is_seeded_and_history_stays_bounded():
     assert _digest(_frame(other, 384, 216)) != expected
 
 
-def test_one_origin_and_block_boundary_join_without_a_new_root():
-    """Every front step joins the prior tip, even across cache blocks."""
+def test_each_colony_has_a_common_origin_and_progressive_connected_forks():
+    """Every branch starts at its parent's completed tip and grows from it."""
     engine = _engine()
     width, height = 640, 360
     first = engine._lineage(0, width, height)
     second = engine._lineage(1, width, height)
-    trunks = [edge for edge in first + second if edge[-1] == 0]
-    assert len(trunks) == 32
-    assert trunks[0][1:3] == engine._apex(0, width, height)
-    assert all(before[5:7] == after[1:3]
-               for before, after in zip(trunks, trunks[1:]))
+    assert first[0][1:3] == (engine._origin[0] * width, engine._origin[1] * height)
+    assert first[0][1:3] != second[0][1:3]
+    for colony in (first, second):
+        assert len(colony) == 240 * 6
+        for index in range(240):
+            branch = colony[index * 6:(index + 1) * 6]
+            assert all(edge[0] == index for edge in branch)
+            assert all(before[5:7] == after[1:3]
+                       for before, after in pairwise(branch))
+            if index:
+                parent = colony[((index - 1) // 2) * 6 + 5]
+                assert branch[0][1:3] == parent[5:7]
+                assert branch[0][7] > parent[7] + parent[8]
     engine.set_time(3600.33)
     visible = engine.geometry(width, height)
     assert visible
     assert len(engine._lineage_cache) <= 8
+
+
+def test_live_tips_are_brighter_than_established_branches_and_density_adds_forks():
+    engine = _engine()
+    engine.set_time(18.0)
+    edges = engine.geometry(1920, 1080)
+    active = [edge[7] for edge in edges if edge[6] < 1 and edge[6] > .2]
+    established = [edge[7] for edge in edges if edge[6] == 1]
+    assert active and established
+    assert max(active) > min(established) * 1.5
+    engine.set_time(80.0)
+    counts = []
+    for density in (.01, .10, .50):
+        engine.set_density(density)
+        counts.append(len(engine.geometry(1920, 1080)))
+    assert 0 < counts[0] < counts[1] < counts[2]
 
 
 def test_density_size_speed_and_palette_change_the_actual_frame():
