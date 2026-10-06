@@ -1,0 +1,39 @@
+{
+  "item": 615,
+  "completed_workflow_and_actual_live_nightly_source_exact": true,
+  "explicit_cardinality_source_frozen_terminal_probe": "r2",
+  "prior_initial_probe_preserved_not_used_for_source_frozen_cardinality_acceptance": true,
+  "all_ten_current_API_and_fourteen_tutorial_catalog_bytes_exact": true,
+  "unchanged_accepted_media_root_exact": true,
+  "no_new_full_video_native_capture_or_speaker_claim": true,
+  "artifacts": {
+    "features/data/615_scorecard_current_deployment_2026-10-06/scorecard-current-deployment-r1.json": {
+      "sha256": "7c7619aa1b213dba49a551dce9875dcaa0ba2766527f6a44d05c2439afec0e63",
+      "bytes": 6181
+    },
+    "features/data/615_scorecard_current_deployment_2026-10-06/scorecard-current-deployment-r1.log.gz": {
+      "sha256": "f43602e552cdb20b48e1bff7a64afca4b6620624d1e5e5e18206d05045da0a50",
+      "bytes": 193
+    },
+    "features/data/615_scorecard_current_deployment_2026-10-06/scorecard-current-deployment-r2.json": {
+      "sha256": "68b414e84e6d1fd09bf6410f4d54bde134ca0f0ff7910b90886b0eb855fa7f29",
+      "bytes": 6181
+    },
+    "features/data/615_scorecard_current_deployment_2026-10-06/scorecard-current-deployment-r2.log.gz": {
+      "sha256": "f43602e552cdb20b48e1bff7a64afca4b6620624d1e5e5e18206d05045da0a50",
+      "bytes": 193
+    },
+    "features/data/615_scorecard_current_deployment_2026-10-06/scorecard-current-deployment-workflow-r2.json": {
+      "sha256": "1682e91b4239ef5abe3611480ed3919fc5f36db720c829935c7b9d5c46913b93",
+      "bytes": 9965
+    },
+    "features/data/615_scorecard_current_deployment_2026-10-06/verify_scorecard_current_deployment_r1.py": {
+      "sha256": "0ad2de23270b4c0cd5909c529d5b8b2f842315ca712c4f42d2c85622f39338ff",
+      "bytes": 3006
+    },
+    "features/data/615_scorecard_current_deployment_2026-10-06/verify_scorecard_current_deployment_r2.py": {
+      "sha256": "3d4493ae28e52fe35046fd4da59b687403784e11b79453fc490a91704137c6ef",
+      "bytes": 3006
+    }
+  }
+}
