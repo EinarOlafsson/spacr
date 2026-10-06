@@ -84,6 +84,7 @@ jobs:
             "OMP_NUM_THREADS=1" "MKL_NUM_THREADS=1" \
             "OPENBLAS_NUM_THREADS=1" "SPACR_TEST_MEMORY_GB=10.8" \
             "SPACR_QT_SERIAL_RSS_JOURNAL=$evidence/file-rss.jsonl" \
+            "SPACR_QT_SERIAL_FAULT_LOG=$evidence/fatal-python.log" \
             bash "$GITHUB_WORKSPACE/tools/run_qt_serial_acceptance.sh" \
             2>&1 | tee "$evidence/pytest.log"
 

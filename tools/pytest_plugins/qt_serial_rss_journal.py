@@ -1,26 +1,41 @@
-"""Durable file-boundary RSS and failure evidence for a serial Qt run.
+"""Durable file-boundary RSS, assertion, and native-fault evidence for Qt.
 
 Load explicitly with ``-p tools.pytest_plugins.qt_serial_rss_journal`` and set
 ``SPACR_QT_SERIAL_RSS_JOURNAL`` to a new JSONL path. Every record is written
 and synced before pytest continues, so a later memory-guard ``os._exit`` does
 not discard the boundaries or reported failures it already crossed. The
 observer neither touches Qt objects nor changes test order, garbage collection,
-or event processing.
+or event processing. ``SPACR_QT_SERIAL_FAULT_LOG`` optionally names a separate
+owned file descriptor for native stacks; it is rearmed after test teardown
+because in-process application launches can redirect Python's fatal handler.
 """
 
 from __future__ import annotations
 
+import faulthandler
 import hashlib
 import json
 import os
+import sys
 import time
 from pathlib import Path
+from typing import TextIO
 
 import pytest
 
 _journal: Path | None = None
 _active_file: str | None = None
 _completed_files = 0
+_fault_file: TextIO | None = None
+_prior_fault_enabled: bool | None = None
+_real_enable = faulthandler.enable
+_real_disable = faulthandler.disable
+
+
+def _arm_fault_log() -> None:
+    """Bind Python fatal signals to the descriptor this plugin keeps open."""
+    if _fault_file is not None:
+        _real_enable(file=_fault_file, all_threads=True)
 
 
 def _rss_sample() -> dict[str, int | None]:
@@ -60,9 +75,11 @@ def _write(event: str, **details: object) -> None:
         os.close(fd)
 
 
+@pytest.hookimpl(trylast=True)
 def pytest_configure(config: pytest.Config) -> None:
     """Create a fresh journal so separate acceptance attempts cannot mix."""
     global _journal, _active_file, _completed_files
+    global _fault_file, _prior_fault_enabled
     name = os.environ.get("SPACR_QT_SERIAL_RSS_JOURNAL")
     if not name:
         raise pytest.UsageError("SPACR_QT_SERIAL_RSS_JOURNAL is required")
@@ -81,7 +98,24 @@ def pytest_configure(config: pytest.Config) -> None:
         source_sha=os.environ.get("GITHUB_SHA"),
         root=str(config.rootpath),
         guard_gb=os.environ.get("SPACR_TEST_MEMORY_GB"),
+        fault_log=os.environ.get("SPACR_QT_SERIAL_FAULT_LOG"),
     )
+    fault_name = os.environ.get("SPACR_QT_SERIAL_FAULT_LOG")
+    if fault_name:
+        path = Path(fault_name).expanduser().absolute()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+        except OSError as error:
+            raise pytest.UsageError(f"cannot create serial fault log: {path}") from error
+        _fault_file = os.fdopen(fd, "w", encoding="utf-8")
+        _prior_fault_enabled = faulthandler.is_enabled()
+        try:
+            _arm_fault_log()
+        except (OSError, ValueError) as error:
+            _fault_file.close()
+            _fault_file = None
+            raise pytest.UsageError(f"cannot arm serial fault log: {path}") from error
 
 
 def pytest_collection_finish(session: pytest.Session) -> None:
@@ -104,6 +138,7 @@ def pytest_collection_finish(session: pytest.Session) -> None:
         ordered_nodeids_sha256=nodes.hexdigest(),
         ordered_files_sha256=files.hexdigest(),
     )
+    _arm_fault_log()
 
 
 @pytest.hookimpl(tryfirst=True)
@@ -123,18 +158,19 @@ def pytest_runtest_setup(item: pytest.Item) -> None:
 @pytest.hookimpl(tryfirst=True)
 def pytest_runtest_logreport(report: pytest.TestReport) -> None:
     """Sync failure details before a later native crash skips pytest's summary."""
-    if not report.failed:
-        return
-    detail = report.longreprtext
-    limit = 65536
-    _write(
-        "test_failure",
-        nodeid=report.nodeid,
-        when=report.when,
-        detail=detail[:limit],
-        detail_chars=len(detail),
-        detail_truncated=len(detail) > limit,
-    )
+    if report.failed:
+        detail = report.longreprtext
+        limit = 65536
+        _write(
+            "test_failure",
+            nodeid=report.nodeid,
+            when=report.when,
+            detail=detail[:limit],
+            detail_chars=len(detail),
+            detail_truncated=len(detail) > limit,
+        )
+    if report.when == "teardown":
+        _arm_fault_log()
 
 
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
@@ -147,3 +183,22 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     _write(
         "session_finish", exitstatus=int(exitstatus), completed_files=_completed_files
     )
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_unconfigure(config: pytest.Config) -> None:
+    """Keep the descriptor valid through teardown, then restore fatal signals."""
+    global _fault_file, _prior_fault_enabled
+    if _fault_file is None:
+        return
+    try:
+        if _prior_fault_enabled:
+            stream = sys.__stderr__ or sys.stderr
+            _real_enable(file=stream, all_threads=True)
+        else:
+            _real_disable()
+    except (OSError, ValueError):
+        return
+    _fault_file.close()
+    _fault_file = None
+    _prior_fault_enabled = None
