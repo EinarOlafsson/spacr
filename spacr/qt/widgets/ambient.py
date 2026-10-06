@@ -5375,32 +5375,42 @@ class _ThoreEngine(_BufferedEngine):
             del self._bolt_cache[next(iter(self._bolt_cache))]
         return result
 
+    def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """Colour-independent rain positions and the active lightning tree."""
+        if width <= 0 or height <= 0:
+            return ()
+        amount = min(len(self._rain), max(24, round(105 * self.density)))
+        length = min(width, height) * 0.025 * self.size
+        slant = length * 0.24
+        drops = tuple((x0 * width,
+                       ((phase + self.time * (0.085 + 0.040 * fall)) % 1.12)
+                       * (height + length) - length,
+                       slant, length, (0.14 + 0.10 * span)
+                       * self.alpha_scale(), hue)
+                      for x0, phase, fall, span, hue in self._rain[:amount])
+        index = math.floor(self.time / self._event_interval)
+        age = self.time - index * self._event_interval
+        flash = ((math.sin(math.pi * age / 0.34) ** 2, *self._bolt(index))
+                 if 0.0 <= age < 0.34 else ())
+        return drops, flash
+
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
         """Draw independently falling lines and a short, low-energy flash."""
         painter.setRenderHint(QPainter.Antialiasing, True)
         palette = self.paint_colors
-        amount = min(len(self._rain), max(24, round(105 * self.density)))
-        length = min(width, height) * 0.025 * self.size
-        slant = length * 0.24
-        for x0, phase, fall, span, hue in self._rain[:amount]:
-            x = x0 * width
-            y = ((phase + self.time * (0.085 + 0.040 * fall)
-                  * self.speed) % 1.12) * (height + length) - length
-            alpha = (0.14 + 0.10 * span) * self.alpha_scale()
+        drops, flash = self.geometry(width, height)
+        for x, y, slant, length, alpha, hue in drops:
             painter.setPen(QPen(_with_alpha(palette[hue % len(palette)], alpha),
                                 max(0.55, 0.72 * self.size), Qt.SolidLine,
                                 Qt.RoundCap))
             painter.drawLine(QPointF(x, y), QPointF(x + slant, y + length))
-        index = math.floor(self.time / self._event_interval)
-        age = self.time - index * self._event_interval
-        if 0.0 <= age < 0.34:
-            pulse = math.sin(math.pi * age / 0.34) ** 2
+        if flash:
+            pulse, trunk, forks = flash
             wash = QLinearGradient(0.0, 0.0, 0.0, float(height))
             wash.setColorAt(0.0, _with_alpha(palette[0], 0.035 * pulse))
             wash.setColorAt(1.0, _with_alpha(palette[0], 0.0))
             painter.setPen(Qt.NoPen)
             painter.fillRect(0, 0, width, height, wash)
-            trunk, forks = self._bolt(index)
             for points, fine in ((trunk, False),
                                  *((branch, True) for branch in forks)):
                 path = QPainterPath(QPointF(points[0][0] * width,

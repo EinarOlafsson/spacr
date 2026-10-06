@@ -85,6 +85,16 @@ def test_seeded_bolts_and_rain_survive_arbitrary_clock_seek_with_bounded_cache()
                           3600.17)) != expected
 
 
+def test_empty_canvas_has_no_rain_or_bolt_state():
+    """A temporarily zero-sized widget cannot create stale bolt geometry."""
+    engine = _engine()
+    engine.set_time(0.17)
+    assert engine.geometry(0, 360) == ()
+    assert engine.geometry(640, 0) == ()
+    assert engine.shade(0, 360) is None
+    assert not engine._bolt_cache
+
+
 def test_controls_change_density_geometry_clock_and_native_detail():
     """The four user controls have an observable effect on the actual field."""
     engine = _engine()
