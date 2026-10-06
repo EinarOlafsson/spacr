@@ -686,3 +686,27 @@ theme-specific count floors, including Thore rain. Save/restore 1% and verify
 graded visual counts/spacing at 1%, 10% and 50%. Mouse gravity separately
 keeps its 0/off default. Exact quote and source observations are appended to
 data/663_advection_point_gravity_request_2026-10-06.txt. Requested, not accepted.
+2026-10-06 CPU controls/Thore/compiler source checkpoints:
+Density9e9b27f366 removes coarse low-density plateaus for offered blobs, Aurora,
+paper, satin and rain. Aurora's bounded ray/surge cache keys now bind peak alpha;
+fractional weighting applies only below one coarse element.88 focused cases pass;
+all ten offered actual1%/10%/50% rasters differ;30 native dark/light .5/1/2-density
+fresh-engine comparisons preserve all prior pixels. Native point/flow radius
+already grades strongly without a rewrite. Paper's centre-sampled1% region can
+miss tile centres (0 changed pixels at cursor.5,.5), explicitly still OPEN.
+Thore7fd53aeff5 tapers rain along continuous wind/fade and draws narrower pale
+connected horizontal/vertical branching lightning.39 focused cases pass; actual
+native4K software-Xvfb before/after published23.962/23.997FPS, shade p9514.304/
+18.923ms,120 distinct clocks in each run. Publication p9548.33/51.23ms remains
+over41.67ms; this is no universal smoothness or user-aesthetic acceptance claim.
+Compiler9aefdd563a adds private application begin/complete gates to both lazy
+CPU helpers, including worker-entry race resets and six missing private callable
+docstrings. Fresh1920 lens/satin frames import neither NumBa nor SciPy until
+explicit release; compiled/fallback bytes then match, warmup1.021s. Root owns the
+separate actual Home post-paint app/timing integration and installed/hosted checks.
+Renderer evidence alone does not close Home startup, GitHub green or Save SIGSEGV.
+Exact renderer checkpoints, compact sources, tests, portable capped CPU probes,
+original native density/radius and live Thore receipts, and four lossless frames
+are archived at data/663_theme_controls_thore_startup_cpu_2026-10-06/.
+Mycelium appearance, random colors, inward field gravity and final acceptance
+remain active separate work; reported crash/all-theme24FPS stay OPEN.
