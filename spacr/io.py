@@ -3630,12 +3630,15 @@ def _preprocess_mapped_volume_series(settings):
                                 raise ValueError(f'Native T-by-Z input changed: {name}')
                             planes.append(plane)
                         volumes.append(np.stack(planes))
+                        del planes, plane
                     frame = np.stack(volumes, axis=-1)
+                    del volumes
                     filename = _escaped_field_stem(*field, time) + '.npy'
                     output = os.path.join(stage_stack, filename)
                     _save_array_atomic(output, frame)
                     stacks[filename] = _volume_file_hash(output)
                     frames.append(frame)
+                    del frame
                     filenames.append(filename)
                 raw = np.stack(frames)
                 del frames
