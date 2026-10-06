@@ -486,3 +486,22 @@ improved active native4K advection from 20.11 to 21.95 published FPS at radius
 wave-flow-worker/worker_gui_perf.json. Satin still belongs to a separate
 pending revision. The radius test helper now retains its QImage while copying
 bits; a temporary diagnostic-image lifetime error is not a Save-crash fix.
+
+2026-10-06 — Home CPU: radius-aware conservative terrain pool
+The atlas pool now uses its actual slope/crest bounds instead of retired
+whole-plane yaw/tilt bounds. Disabled mouse gravity needs no additional
+pointer margin; positive radius adds the proven maximum0.055 shorter-edge
+local displacement. Radius changes rebuild the seeded bounded pool. Grain
+spacing, seed, raster resolution, density and every visible pixel stay exact.
+The native uncropped-grid cohort passes86 under4GiB, including radius0/1,
+five pointer extrema, three clocks and four size/density/detail settings;
+72 additional paired complete4K frames match the previous wider pool.
+All six added executable statements and five touching arcs are covered at
+source SHA9da8a9dc346a887ad3e13307a8115e37f09d7f0ce73ae87927a6c10358f8d11c.
+Default4K cached coordinates fall from267288 to218994; positive reach uses
+250400. An order-balanced48-sample whole-shade comparison measured25.62ms
+before and26.34ms after, with stamp/allocation variation dominating, so this
+is reduced unnecessary terrain math rather than claimed end-to-end speedup.
+Receipts: scratch theme-refinement-20261006/visual-revision/,
+culling-new-source-coverage.json, atlas-radius-culling-perf.json and
+atlas-culling-order-balanced.json. Native24FPS acceptance remains OPEN.

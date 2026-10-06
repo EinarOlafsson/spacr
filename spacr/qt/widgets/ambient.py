@@ -4742,9 +4742,11 @@ class _DataArtEngine(_BufferedEngine):
         self._gravity_impulses.clear()
         self._pointer_impulse_time = -math.inf
         self._pointer_impulse_origin = None
-        for key, material in self._material_cache.items():
+        for key, material in tuple(self._material_cache.items()):
             if key[0] == "impulse_lens":
                 material[2].clear()
+            elif key[0] == "point_atlas":
+                del self._material_cache[key]
 
     def _pointer_field(self, x, y, width, height):
         """Return compact smooth reach and shorter-edge pointer distances."""
@@ -4862,10 +4864,9 @@ class _DataArtEngine(_BufferedEngine):
             xx = xx.ravel() + jitter[0] / columns
             zz = zz.ravel() + jitter[1] / rows
             shorter = max(1, min(width, height))
-            margin_x = (0.07 * np.abs(zz - 0.5) + 0.047074 + 1.0 / width
-                        + 0.055 * shorter / width)
-            margin_z = (0.05 * np.abs(xx - 0.5) + 0.161001 + 1.0 / height
-                        + 0.055 * shorter / height)
+            reach = 0.055 if self.gravity_radius > 0.0 else 0.0
+            margin_x = 0.047074 + 1.0 / width + reach * shorter / width
+            margin_z = 0.161001 + 1.0 / height + reach * shorter / height
             visible = ((xx >= -margin_x) & (xx <= 1.0 + margin_x)
                        & (zz >= -margin_z) & (zz <= 1.0 + margin_z))
             xx, zz = xx[visible], zz[visible]

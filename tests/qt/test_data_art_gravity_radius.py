@@ -69,8 +69,8 @@ def test_pointer_only_changes_coordinates_inside_shorter_edge_radius(
         family, width, height, monkeypatch):
     engine = _engine(family)
     engine.set_time(8)
-    idle = _coordinates(engine, monkeypatch, width, height)
     engine.set_gravity_radius(.23)
+    idle = _coordinates(engine, monkeypatch, width, height)
     engine.set_pointer((.5, .5))
     bent = _coordinates(engine, monkeypatch, width, height)
     distance = np.hypot(idle[0] - width / 2, idle[1] - height / 2)
@@ -118,6 +118,21 @@ def test_enabled_paper_lifts_locally_and_returns_to_exact_still_geometry():
     assert next(iter(engine._material_cache.values())) is material
     engine.set_gravity_radius(0)
     assert _frame(engine) == baseline
+
+
+def test_radius_rebuilds_atlas_visible_pool_and_restores_exact_default(monkeypatch):
+    engine = _engine('point_atlas')
+    engine.set_time(8)
+    engine.set_pointer((0, 0))
+    baseline = _coordinates(engine, monkeypatch, 960, 540)
+    engine.set_gravity_radius(1)
+    assert not engine._material_cache
+    expanded = _coordinates(engine, monkeypatch, 960, 540)
+    assert len(expanded[0]) > len(baseline[0])
+    engine.set_gravity_radius(0)
+    assert not engine._material_cache
+    restored = _coordinates(engine, monkeypatch, 960, 540)
+    assert all(np.array_equal(first, second) for first, second in zip(baseline, restored))
 
 
 @pytest.mark.parametrize('family', ['point_atlas', 'genetic_advection', 'impulse_lens'])

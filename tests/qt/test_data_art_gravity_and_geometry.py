@@ -77,7 +77,9 @@ def _uncropped_atlas_coordinates(engine, width, height):
 @pytest.mark.parametrize("pointer", [None, (0, 0), (1, 1), (0, 1), (1, 0)])
 @pytest.mark.parametrize("size,density,resolution", [(1, 1, 1), (0.25, 3, 1),
                                                     (2.5, 0.25, 1), (1, 3, 2)])
-def test_atlas_culling_keeps_exact_native_4k_pixels(pointer, size, density, resolution):
+@pytest.mark.parametrize("gravity_radius", [0, 1])
+def test_atlas_culling_keeps_exact_native_4k_pixels(
+        pointer, size, density, resolution, gravity_radius):
     optimized = _engine("point_atlas", size=size, density=density,
                         resolution=resolution)
     full_region = _engine("point_atlas", size=size, density=density,
@@ -88,7 +90,7 @@ def test_atlas_culling_keeps_exact_native_4k_pixels(pointer, size, density, reso
     full_region._material_cache[key] = original
     for engine in (optimized, full_region):
         engine.set_max_pixels(width * height)
-        engine.set_gravity_radius(1)
+        engine.set_gravity_radius(gravity_radius)
         engine.set_pointer(pointer)
     full_region._material_cache[key] = original
     for stamp in (0.0, 19.0, 241.0):
