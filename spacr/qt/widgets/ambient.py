@@ -1499,11 +1499,13 @@ class _BufferedEngine(AmbientEngine):
         """
         buf = self._ensure_buffer(width, height)
         inner = QPainter(buf)
-        inner.fillRect(buf.rect(), self.identity)
-        inner.setCompositionMode(self.mode)
-        inner.setPen(Qt.NoPen)
-        self._paint_field(inner, buf.width(), buf.height())
-        inner.end()
+        try:
+            inner.fillRect(buf.rect(), self.identity)
+            inner.setCompositionMode(self.mode)
+            inner.setPen(Qt.NoPen)
+            self._paint_field(inner, buf.width(), buf.height())
+        finally:
+            inner.end()
         return self._soften(buf, width, height)
 
     def shade(self, width: int, height: int) -> Optional[QImage]:
@@ -4771,35 +4773,39 @@ class _DataArtEngine(_BufferedEngine):
             material.fill(self.identity)
             inner = QPainter(material)
             inner.setRenderHint(QPainter.Antialiasing, True)
-            inner.setCompositionMode(self.mode)
+            inner.setCompositionMode(QPainter.CompositionMode_SourceOver)
             rng = random.Random(self._art_seed)
-            columns, rows = 19, 11
+            columns, rows = 40, 24
             cell_width = width / columns
             cell_height = height / rows
             count = self.element_count(columns * rows, columns * rows)
             for cell in range(count):
                 row, column = divmod(cell, columns)
                 cx = (column + 0.5 * (row % 2) + 0.15
-                      + rng.uniform(-0.12, 0.12)) * cell_width
-                cy = (row + 0.45 + rng.uniform(-0.12, 0.12)) * cell_height
-                rx = cell_width * rng.uniform(0.47, 0.65) * self.size
-                ry = cell_height * rng.uniform(0.48, 0.69) * self.size
+                      + rng.uniform(-0.23, 0.23)) * cell_width
+                cy = (row + 0.45 + rng.uniform(-0.23, 0.23)) * cell_height
+                cluster = 0.86 + 0.22 * math.sin(
+                    column * 0.64 + row * 0.52 + self._anchors[0][0] * 6.0)
+                rx = cell_width * rng.uniform(0.52, 0.74) * cluster * self.size
+                ry = cell_height * rng.uniform(0.54, 0.76) * cluster * self.size
                 peak = rng.uniform(0.20, 0.55)
+                height_scale = min(rx, ry)
                 corners = []
-                for side in range(11):
-                    angle = math.tau * side / 11 + 0.12 * (row % 2)
-                    reach = rng.uniform(0.83, 1.12)
+                sides = rng.randrange(6, 11)
+                for side in range(sides):
+                    angle = math.tau * side / sides + 0.12 * (row % 2)
+                    reach = rng.uniform(0.76, 1.20)
                     corners.append((cx + math.cos(angle) * rx * reach,
                                     cy + math.sin(angle) * ry * reach,
-                                    rng.uniform(-0.05, 0.09)))
-                centre = (cx + rx * rng.uniform(-0.12, 0.12),
-                          cy + ry * rng.uniform(-0.12, 0.12)
-                          - peak * ry * 0.42, peak)
+                                    rng.uniform(-0.05, 0.09) * height_scale))
+                centre = (cx + rx * rng.uniform(-0.29, 0.29),
+                          cy + ry * rng.uniform(-0.29, 0.29)
+                          - peak * ry * 0.42, peak * height_scale * 1.4)
                 for side in range(len(corners)):
                     a = corners[side]
                     b = corners[(side + 1) % len(corners)]
-                    vx, vy, vz = a[0] - centre[0], a[1] - centre[1], a[2] - peak
-                    wx, wy, wz = b[0] - centre[0], b[1] - centre[1], b[2] - peak
+                    vx, vy, vz = a[0] - centre[0], a[1] - centre[1], a[2] - centre[2]
+                    wx, wy, wz = b[0] - centre[0], b[1] - centre[1], b[2] - centre[2]
                     nx, ny, nz = (vy * wz - vz * wy,
                                   vz * wx - vx * wz,
                                   vx * wy - vy * wx)
@@ -4807,18 +4813,19 @@ class _DataArtEngine(_BufferedEngine):
                     light = max(0.0, min(1.0,
                                          0.49 + (0.43 * nx - 0.49 * ny
                                                  + 0.73 * nz) / norm * 0.46))
-                    tone = 1 if (cell % 13 == 0 or side == 1) else 0
+                    tone = 1 if cell % 7 == 0 else 0
                     inner.setPen(Qt.NoPen)
-                    inner.setBrush(self._ink(tone, 0.20 + 0.62 * light))
+                    inner.setBrush(_mix(self.identity, self.paint_colors[tone],
+                                        0.025 + 0.53 * light ** 3))
                     inner.drawPolygon(QPolygonF((QPointF(centre[0], centre[1]),
                                                   QPointF(a[0], a[1]),
                                                   QPointF(b[0], b[1]))))
-                    if light > 0.67 and side % 3 == 0:
-                        inner.setPen(QPen(self._ink(1, 0.52), 0.6))
+                    if light > 0.74 and side % 5 == 0:
+                        inner.setPen(QPen(self._ink(1, 0.28), 0.45))
                         inner.drawLine(QPointF(centre[0], centre[1]),
                                        QPointF(a[0], a[1]))
                 inner.setBrush(Qt.NoBrush)
-                inner.setPen(QPen(self._ink(0, 0.13), 0.7))
+                inner.setPen(QPen(self._ink(0, 0.16), 0.45))
                 inner.drawPolygon(QPolygonF([QPointF(x, y)
                                               for x, y, _ in corners]))
             inner.end()
@@ -4839,6 +4846,7 @@ class _DataArtEngine(_BufferedEngine):
         """Stack filled perspective terrain slices with engraved rims."""
         count = self.element_count(38, 114)
         painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+        seed_phase = self._anchors[1][0] * math.tau
         for layer in range(count):
             depth = layer / max(1, count - 1)
             world_z = -1.0 + 2.0 * depth
@@ -4847,9 +4855,11 @@ class _DataArtEngine(_BufferedEngine):
             for step in range(97):
                 world_x = -1.0 + 2.0 * step / 96.0
                 elevation = (0.19 * math.sin(5.2 * world_x + 2.5 * world_z
+                                             + seed_phase
                                              + self.time * 0.035)
                              + 0.09 * math.cos(11.0 * world_x
-                                               - 3.0 * world_z)) * self.size
+                                               - 3.0 * world_z
+                                               + seed_phase * 0.7)) * self.size
                 camera_x = (world_x * math.cos(0.18)
                             - world_z * math.sin(0.18))
                 camera_z = (world_x * math.sin(0.18)
@@ -4939,6 +4949,7 @@ class _DataArtEngine(_BufferedEngine):
                                 height: int) -> None:
         """Fold broad satin surfaces and etch fine fibres along each fold."""
         count = self.element_count(7, 15)
+        seed_phase = self._anchors[1][0] * math.tau
         for ribbon in range(count):
             centre = height * (0.16 + 0.115 * ribbon)
             thickness = height * (0.042 + 0.013 * (ribbon % 3)) * self.size
@@ -4948,9 +4959,10 @@ class _DataArtEngine(_BufferedEngine):
             for step in range(82):
                 along = step / 81.0
                 x = width * along
-                wave = (math.sin(7.0 * along + ribbon * 1.19
+                wave = (math.sin(7.0 * along + ribbon * 1.19 + seed_phase
                                  + self.time * 0.045)
                         + 0.47 * math.sin(19.0 * along - ribbon * 0.66
+                                          + seed_phase * 0.71
                                           - self.time * 0.026))
                 y = centre + slope * (along - 0.5) + height * 0.058 * wave
                 fold = thickness * (0.55 + 0.45 * math.cos(
@@ -4995,71 +5007,82 @@ class _DataArtEngine(_BufferedEngine):
         return QImage(packed.data, width, height, int(packed.strides[0]),
                       QImage.Format_RGB32).copy()
 
-    def _paint_sequence_matrix(self, painter: QPainter, width: int,
-                                height: int) -> None:
-        """Arrange encoded genes into nested wafer panels and readout lanes."""
+    def _paint_sequence_matrix(self, painter, width, height):
+        """Encode fine sequence bars inside a nonuniform architectural wafer."""
         np = _numpy()
-        key = ("sequence_matrix", width, height, self.size, self.density)
-        image = self._material_cache.get(key)
-        if image is None:
-            pitch = max(5, int(8 * self.size))
-            rows, columns = height // pitch + 1, width // pitch + 1
-            panel_width, panel_height = 32, 18
-            rng = np.random.default_rng(self._art_seed)
-            codes = rng.integers(0, 8, size=(rows, columns), dtype=np.uint8)
-            panel_tone = rng.integers(0, 2,
-                                      size=(rows // panel_height + 1,
-                                            columns // panel_width + 1),
-                                      dtype=np.uint8)
-            lane_length = rng.integers(7, panel_width - 2,
-                                       size=(rows, columns // panel_width + 1),
-                                       dtype=np.uint8)
-            tile_y = np.arange(height) // pitch
-            tile_x = np.arange(width) // pitch
-            panel_x = tile_x // panel_width
-            panel_y = tile_y // panel_height
-            local_x = tile_x % panel_width
-            local_y = tile_y % panel_height
-            symbol = codes[tile_y[:, None], tile_x[None, :]]
-            tones = panel_tone[panel_y[:, None], panel_x[None, :]]
-            length = lane_length[tile_y[:, None], panel_x[None, :]]
-            inside = ((local_x > 1)[None, :]
-                      & (local_y > 1)[:, None]
-                      & (local_x < panel_width - 1)[None, :]
-                      & (local_y < panel_height - 1)[:, None])
-            rail = ((local_y % 5 == 2)[:, None]
-                    & (local_x > 2)[None, :]
-                    & (local_x < panel_width - 3)[None, :])
-            active = inside & ((local_x[None, :] < length)
-                               | rail)
-            occupancy = min(0.94, 0.72 * self.effective_density())
-            active &= (symbol < occupancy * 8) | rail
-            inset = (((np.arange(height) % pitch)[:, None] > 1)
-                     & ((np.arange(width) % pitch)[None, :] > 1))
-            fine = ((np.arange(height) % pitch)[:, None] <= 2)
-            strength = (active * inset * (0.15 + 0.024 * symbol)
-                        + rail * fine * inside * 0.19).astype(np.float32)
-            colors = self.paint_colors
-            channels = []
-            for channel in ("red", "green", "blue"):
-                first = getattr(colors[0], channel)()
-                second = getattr(colors[min(1, len(colors) - 1)], channel)()
-                tint = np.where(tones == 0, first, second)
-                value = (tint * strength if self.dark else
-                         255.0 - (255.0 - tint) * strength)
-                channels.append(np.clip(value, 0, 255).astype(np.uint8))
-            image = self._pixel_image(*channels)
-            self._material_cache[key] = image
+        key = ("genome_wafer", width, height, self.size, self.density)
+        material = self._material_cache.get(key)
+        if material is None:
+            rng = random.Random(self._art_seed)
+            pixel_rng = np.random.default_rng(self._art_seed)
+            red = np.zeros((height, width), dtype=np.uint8)
+            green = np.zeros_like(red)
+            blue = np.zeros_like(red)
+            leaves = []
+            gutter = max(3, int(6 * self.size))
+            margin = min(gutter * 2, width // 4, height // 4)
+            pending = [(margin, margin, width - margin,
+                        height - margin, 0, 0)]
+            while pending:
+                left, top, right, bottom, depth, hue = pending.pop()
+                w, h = right - left, bottom - top
+                if depth < 6 and min(w, h) > 42 * self.size:
+                    horizontal = h > w * rng.uniform(0.65, 1.45)
+                    ratio = rng.uniform(0.30, 0.70)
+                    if horizontal:
+                        split = int(top + ratio * h)
+                        pending.extend(((left, top, right, split - gutter,
+                                         depth + 1, hue),
+                                        (left, split, right, bottom,
+                                         depth + 1, hue + 1)))
+                    else:
+                        split = int(left + ratio * w)
+                        pending.extend(((left, top, split - gutter, bottom,
+                                         depth + 1, hue),
+                                        (split, top, right, bottom,
+                                         depth + 1, hue + 1)))
+                else:
+                    leaves.append((left, top, right, bottom, hue))
+            pitch = max(3, int(5 * self.size / math.sqrt(self.effective_density())))
+            for left, top, right, bottom, hue in leaves:
+                w, h = right - left, bottom - top
+                yy, xx = np.ogrid[:h, :w]
+                rows, columns = h // pitch + 1, w // pitch + 1
+                code = pixel_rng.random((rows, columns), dtype=np.float32)
+                rr, cc = yy // pitch, xx // pitch
+                bars = ((xx % pitch < pitch - 1)
+                        & (yy % pitch < max(1, pitch - 2)))
+                expression = (0.16 + 0.84 * code[rr, cc])
+                bands = 0.36 + 0.40 * np.sin(yy / max(1, h) * 11 + hue * 0.4) ** 2
+                runs = np.sin(xx / max(1, w) * 8 + yy / max(1, h) * 4 + hue)
+                silenced = code[rr, cc] < 0.13 + 0.19 * (runs > 0.45)
+                light = expression * bands * bars * (~silenced)
+                edge = np.minimum(np.minimum(xx, w - 1 - xx),
+                                  np.minimum(yy, h - 1 - yy))
+                frame = np.where(edge < 1, 0.42, 0.0)
+                line = np.where((yy % (pitch * 8) == 0), 0.12, 0.0)
+                light = np.maximum(light, np.maximum(frame, line)) * self.alpha_scale()
+                tint = self.paint_colors[hue % len(self.paint_colors)]
+                for canvas, channel in ((red, "red"), (green, "green"), (blue, "blue")):
+                    value = (0.15 * 255 + 0.85 * getattr(tint, channel)()) * light
+                    canvas[top:bottom, left:right] = np.clip(value, 0, 230).astype(np.uint8)
+            if not self.dark:
+                red, green, blue = 255 - red, 255 - green, 255 - blue
+            material = (self._pixel_image(red, green, blue), leaves)
+            self._material_cache[key] = material
+        image, leaves = material
         painter.drawImage(0, 0, image)
-        sweep = width * ((self.time * 0.012 + self._anchors[0][0]) % 1.0)
-        gradient = QLinearGradient(sweep - width * 0.08, 0,
-                                   sweep + width * 0.08, 0)
-        gradient.setColorAt(0.0, self._ink(0, 0.0))
-        gradient.setColorAt(0.5, self._ink(0, 0.09))
-        gradient.setColorAt(1.0, self._ink(0, 0.0))
-        painter.setPen(Qt.NoPen)
-        painter.setBrush(QBrush(gradient))
-        painter.drawRect(0, 0, width, height)
+        for index, (left, top, right, bottom, hue) in enumerate(leaves):
+            if index % 4:
+                continue
+            position = (self.time * 0.025 + index * 0.113) % 1.0
+            scan_y = top + position * (bottom - top)
+            painter.setPen(QPen(self._ink(hue, 0.18), 0.8))
+            painter.drawLine(QPointF(left, scan_y),
+                             QPointF(right, scan_y))
+            painter.setPen(QPen(self._ink(hue, 0.62), 1.0))
+            painter.drawLine(QPointF(left, scan_y),
+                             QPointF(left + min(9, right - left), scan_y))
 
     def _paint_transcript_rain(self, painter: QPainter, width: int,
                                height: int) -> None:
@@ -5127,85 +5150,96 @@ class _DataArtEngine(_BufferedEngine):
 
     def _paint_regulatory_circuit(self, painter: QPainter, width: int,
                                   height: int) -> None:
-        """Etch orthogonal copper paths, occupied pads and moving signals."""
-        key = ("regulatory_circuit", width, height)
-        routes = self._material_cache.get(key)
-        if routes is None:
+        """Etch fine routed copper traces around ported control islands."""
+        key = ("regulatory_circuit", width, height, self.size, self.density)
+        material = self._material_cache.get(key)
+        if material is None:
             rng = random.Random(self._art_seed)
             routes = []
-            columns, rows = 28, 17
-            for _ in range(430):
+            columns, rows = 72, 42
+            for _ in range(1050):
                 x0 = rng.randrange(columns) * width / columns
                 y0 = rng.randrange(rows) * height / rows
-                dx = rng.choice((-1, 1)) * rng.randrange(1, 6)
-                dy = rng.choice((-1, 1)) * rng.randrange(1, 5)
+                dx = rng.choice((-1, 1)) * rng.randrange(1, 9)
+                dy = rng.choice((-1, 1)) * rng.randrange(1, 7)
                 x1 = max(0.0, min(float(width), x0 + dx * width / columns))
                 y1 = max(0.0, min(float(height), y0 + dy * height / rows))
                 path = QPainterPath(QPointF(x0, y0))
                 path.lineTo(x1, y0)
                 path.lineTo(x1, y1)
-                routes.append((path, QPointF(x0, y0), QPointF(x1, y1)))
-            self._material_cache[key] = routes
-        painter.setBrush(Qt.NoBrush)
-        painter.setPen(QPen(self._ink(0, 0.055), 0.45))
-        for column in range(1, 28):
-            x = column * width / 28
-            painter.drawLine(QPointF(x, 0), QPointF(x, height))
-        for row in range(1, 17):
-            y = row * height / 17
-            painter.drawLine(QPointF(0, y), QPointF(width, y))
-        count = self.element_count(340, len(routes))
-        for index, (path, start, end) in enumerate(routes[:count]):
-            painter.setPen(QPen(self._ink(index, 0.10),
-                                3.4 * self.size, Qt.SolidLine, Qt.SquareCap,
-                                Qt.MiterJoin))
-            painter.drawPath(path)
-            painter.setPen(QPen(self._ink(index + 1, 0.33),
-                                max(0.6, 0.82 * self.size)))
-            painter.drawPath(path)
-            if index % 4 == 0:
-                painter.setPen(Qt.NoPen)
-                painter.setBrush(self._ink(index + 2, 0.42))
-                painter.drawRect(QRectF(start.x() - 2.5, start.y() - 2.5,
-                                        5.0 * self.size, 5.0 * self.size))
-                painter.setBrush(Qt.NoBrush)
-            if index % 5 == 0:
-                signal = path.pointAtPercent((self.time * 0.025
-                                              + index * 0.067) % 1.0)
-                painter.setPen(Qt.NoPen)
-                painter.setBrush(self._ink(index + 2, 0.68))
-                painter.drawEllipse(signal, 1.8 * self.size, 1.8 * self.size)
-                painter.setBrush(Qt.NoBrush)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
-        for chip in range(9):
-            anchor = self._anchors[chip + 4]
-            x = width * (0.05 + 0.77 * anchor[0])
-            y = height * (0.07 + 0.73 * anchor[1])
-            chip_width = width * (0.052 + 0.022 * anchor[2])
-            chip_height = height * (0.060 + 0.018 * anchor[0])
-            rect = QRectF(x, y, chip_width, chip_height)
-            painter.setPen(QPen(self._ink(chip, 0.50), 0.8))
-            painter.setBrush(_mix(self.identity, self.paint_colors[chip %
-                                                          len(self.paint_colors)],
-                                  0.09))
-            painter.drawRect(rect)
-            painter.setPen(QPen(self._ink(chip + 1, 0.33), 0.62))
-            for pin in range(1, 9):
-                offset = pin / 9.0
-                top = x + chip_width * offset
-                side = y + chip_height * offset
-                painter.drawLine(QPointF(top, y - 3.0), QPointF(top, y + 2.0))
-                painter.drawLine(QPointF(top, y + chip_height - 2.0),
-                                 QPointF(top, y + chip_height + 3.0))
-                painter.drawLine(QPointF(x - 3.0, side), QPointF(x + 2.0, side))
-                painter.drawLine(QPointF(x + chip_width - 2.0, side),
-                                 QPointF(x + chip_width + 3.0, side))
-            painter.setPen(QPen(self._ink(chip + 2, 0.21), 0.55))
-            for trace in range(3):
-                yy = y + chip_height * (trace + 1) / 4
-                painter.drawLine(QPointF(x + 5.0, yy),
-                                 QPointF(x + chip_width - 5.0, yy))
-        painter.setCompositionMode(self.mode)
+                routes.append((path, QPointF(x0, y0)))
+            image = QImage(width, height, QImage.Format_RGB32)
+            image.fill(self.identity)
+            inner = QPainter(image)
+            inner.setRenderHint(QPainter.Antialiasing, True)
+            inner.setCompositionMode(self.mode)
+            inner.setBrush(Qt.NoBrush)
+            inner.setPen(QPen(self._ink(0, 0.035), 0.42))
+            for column in range(1, columns):
+                x = column * width / columns
+                inner.drawLine(QPointF(x, 0), QPointF(x, height))
+            for row in range(1, rows):
+                y = row * height / rows
+                inner.drawLine(QPointF(0, y), QPointF(width, y))
+            count = self.element_count(870, len(routes))
+            for index, (path, start) in enumerate(routes[:count]):
+                inner.setPen(QPen(self._ink(index, 0.075),
+                                  2.6 * self.size, Qt.SolidLine,
+                                  Qt.SquareCap, Qt.MiterJoin))
+                inner.drawPath(path)
+                inner.setPen(QPen(self._ink(index + 1, 0.30),
+                                  max(0.48, 0.66 * self.size)))
+                inner.drawPath(path)
+                if index % 4 == 0:
+                    inner.setPen(Qt.NoPen)
+                    inner.setBrush(self._ink(index + 2, 0.41))
+                    inner.drawEllipse(start, 1.5 * self.size,
+                                      1.5 * self.size)
+                    inner.setBrush(Qt.NoBrush)
+            inner.setCompositionMode(QPainter.CompositionMode_SourceOver)
+            for chip in range(17):
+                anchor = self._anchors[chip + 4]
+                x = width * (0.04 + 0.82 * anchor[0])
+                y = height * (0.06 + 0.77 * anchor[1])
+                chip_width = width * (0.026 + 0.016 * anchor[2])
+                chip_height = height * (0.034 + 0.017 * anchor[0])
+                rect = QRectF(x, y, chip_width, chip_height)
+                inner.setPen(QPen(self._ink(chip, 0.54), 0.72))
+                inner.setBrush(_mix(self.identity,
+                                    self.paint_colors[chip % len(self.paint_colors)],
+                                    0.085))
+                inner.drawRect(rect)
+                inner.setPen(QPen(self._ink(chip + 1, 0.37), 0.54))
+                for pin in range(1, 9):
+                    offset = pin / 9.0
+                    top = x + chip_width * offset
+                    side = y + chip_height * offset
+                    inner.drawLine(QPointF(top, y - 2.4),
+                                   QPointF(top, y + 1.8))
+                    inner.drawLine(QPointF(top, y + chip_height - 1.8),
+                                   QPointF(top, y + chip_height + 2.4))
+                    inner.drawLine(QPointF(x - 2.4, side),
+                                   QPointF(x + 1.8, side))
+                    inner.drawLine(QPointF(x + chip_width - 1.8, side),
+                                   QPointF(x + chip_width + 2.4, side))
+                inner.setPen(QPen(self._ink(chip + 2, 0.24), 0.45))
+                for trace in range(3):
+                    yy = y + chip_height * (trace + 1) / 4
+                    inner.drawLine(QPointF(x + 3.0, yy),
+                                   QPointF(x + chip_width - 3.0, yy))
+            inner.end()
+            material = (image, routes[:count])
+            self._material_cache[key] = material
+        image, routes = material
+        painter.drawImage(0, 0, image)
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(self._ink(1, 0.68))
+        for index in range(0, len(routes), 19):
+            path, _ = routes[index]
+            position = path.pointAtPercent((self.time * 0.026
+                                            + index * 0.063) % 1.0)
+            painter.drawEllipse(position, 1.5 * self.size,
+                                1.5 * self.size)
 
     def _paint_genetic_advection(self, painter, width, height):
         """Advect dense tapered grain trails through a continuously curled field."""
@@ -5300,8 +5334,10 @@ class _DataArtEngine(_BufferedEngine):
             field = (np.sin(frequency * radius + 1.4 * np.sin(3.0 * y))
                      + 0.69 * np.sin(frequency * 0.84 * other)
                      + 0.26 * np.sin(17.0 * x - 13.0 * y))
-            gy, gx = np.gradient(field, 2.0 / max(1, height - 1),
-                                 3.5 / max(1, width - 1))
+            gy = (np.gradient(field, 2.0 / (height - 1), axis=0)
+                  if height > 1 else np.zeros_like(field))
+            gx = (np.gradient(field, 3.5 / (width - 1), axis=1)
+                  if width > 1 else np.zeros_like(field))
             scale = np.float32(0.078)
             norm = np.sqrt(1.0 + (gx * scale) ** 2 + (gy * scale) ** 2)
             surface = (x, y, field, gx * scale / norm, gy * scale / norm,
@@ -5345,8 +5381,10 @@ class _DataArtEngine(_BufferedEngine):
                 field += np.sin(frequency * (math.cos(angle) * wx
                                             + math.sin(angle) * wy)
                                 + float(rng.uniform(0.0, math.tau))) / 3.1
-            gy, gx = np.gradient(field, 2.0 / max(1, height - 1),
-                                 3.56 / max(1, width - 1))
+            gy = (np.gradient(field, 2.0 / (height - 1), axis=0)
+                  if height > 1 else np.zeros_like(field))
+            gx = (np.gradient(field, 3.56 / (width - 1), axis=1)
+                  if width > 1 else np.zeros_like(field))
             surface = (field, gx, gy, x, y)
             self._material_cache[key] = surface
         field, gx, gy, x, y = surface
