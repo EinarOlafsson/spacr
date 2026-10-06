@@ -1,0 +1,12 @@
+{
+  "plan_sha256": "18ea45a2f8bf852741a8ca9949192d7b2d5ee2c82823bf22e9185b63bafa2a95",
+  "benchmark_sha256": "dcf1a55510d41df720cbf4e8a62e04972f5b5e9c0d2b4e32991b13b56d43d9c0",
+  "cpsam_path": "/home/carruthers/.cellpose/models/cpsam",
+  "cpsam_sha256": "e1440429eb384f95afe32bcba6510f90d518eaedc917ede549bed6804004abe2",
+  "resolved_training_defaults": {
+    "batch_size": 16,
+    "lr": 0.001,
+    "model_type": "unet"
+  },
+  "normal_turn_label": "558-jump-virtual-stain-cuda-20261006-r1"
+}
