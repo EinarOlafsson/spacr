@@ -1,6 +1,9 @@
 FOUNDATION-MODEL EMBEDDINGS: SubCell, OpenPhenom, ChAda-ViT, Cell-DINO
 
-Status: DONE (alpha) 2026-09-27 (evidence d8f7deeda)
+Status: OPEN (alpha) 2026-10-06 — supported-backbone human-label comparisons
+are verified; coordinated chance/provenance repairs, official Cell-DINO
+loading and four-channel integration remain. See dated trailing notes.
+Previous status: DONE (alpha) 2026-09-27 (evidence d8f7deeda)
 VERIFIED 2026-10-04: test_foundation_model_embeddings, qt foundation-picker and embedding use-for gates pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 

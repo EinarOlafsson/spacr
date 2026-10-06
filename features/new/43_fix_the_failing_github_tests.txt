@@ -2711,3 +2711,15 @@ after the run started; unconfirmed on CI.
   is lifted. Final exact-source GitHub green remains OPEN. Item 47 gets a
   separate opt-in hosted original-order serial run with durable memory
   boundaries; no full local Qt or full local test suite is executed.
+
+2026-10-06 — PYTHON 3.9 LOCAL-REPLAY LAUNCH REPAIRED
+  MinDeps0 job112215760021 exposed two further genuine failures before its
+  test child started: Python 3.9's importlib.metadata.entry_points rejects
+  the group keyword, so the replay manifest/result and child-start marker
+  never appeared. The existing replay helper now selects pytest11 from
+  either the legacy grouped dict or the modern selectable result. Actual
+  plugin records are retained. The complete focused replay file passes all
+  15 cases under 4 GiB, including both metadata shapes, unchanged real
+  failing-child exit/log/manifest and separate-session SIGINT assertions.
+  No local Python 3.9 is installed; its fresh hosted MinDeps verdict remains
+  required. This repair does not waive either observed failure mode.
