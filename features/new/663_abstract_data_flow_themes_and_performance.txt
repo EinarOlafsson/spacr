@@ -1,19 +1,18 @@
 ABSTRACT DATA FLOW THEMES AND BACKDROP PERFORMANCE
-Status: DONE 2026-10-05 — twelve distinct replacements implemented and CPU reviewed.
+Status: OPEN 2026-10-06 — requested six-theme refinement; final live motion checks pending.
 Requested: 2026-10-05 by the maintainer: performance-optimize themes and add
 10–20 abstract high-resolution continuously flowing backgrounds, including
 weather-like wind, mouse-influenced flows, biology, spatial data, DNA and space.
 Owner: CPU feature/CI session; generated API/docs/translations/tutorials and
 every GPU process remain with the workstation session.
 
-Replace the rejected set with twelve regular Appearance artworks. Each must
-have a distinct rendering medium, material, composition and motion:
-spatial point atlas, tissue facets, spatial strata, molecular helix,
-chromatin satin, genome mosaic, transcript rain, regulatory circuit,
-genetic advection, perturbation interference, morphogenesis and perturbation
-lens. Stable identifiers use data_art_ plus the family names from the source
-catalog. Pointer response is an interaction within selected artworks and
-does not count as an additional style. The sixteen flow_* keys are retired.
+Current maintainer direction retains five replacements: Spatial point atlas,
+Tissue facets, Chromatin satin, Genetic advection and Perturbation lens, and
+adds continuous branching Fungal growth. Remove the other seven replacement
+presets and Bokeh/Resonance from selectable themes and animations. Stable
+identifiers use data_art_ plus the family names from the source catalog.
+Pointer response is an interaction within selected artworks and does not
+count as an additional style. The sixteen rejected flow_* keys stay retired.
 The existing ten night themes and their sounds stay compatible. New art
 presets may select an existing fitting sound set but never turn sound on.
 
@@ -29,10 +28,11 @@ allocate a full-display simulation grid per frame or accumulate frame
 queues. GUI paints use ready frames; hidden/minimized/disabled backgrounds
 stop timers and retire render workers. Keep the existing memory/work/CI
 ceilings. Verify both moving output and all lifecycle failure boundaries.
-The replacement's normal 2048 edge request uses the existing ceiling;
-1080p must shade natively and default 4K must shade 1920x1080, four times
-the rejected frame's sampled pixels. Geometry and raster material details
-must visibly use the added resolution rather than enlarging sparse strokes.
+Full detail now shades actual physical display pixels, including native 4K
+and HiDPI, within the measured screen-pixel budget. Lower Detail may reduce
+sampling explicitly. Existing classic-engine caps remain unchanged. Geometry
+and raster material details must visibly use the added resolution rather
+than enlarging sparse strokes. Appearance offers two custom user colours.
 
 2026-10-05 — ORIGINAL IMPLEMENTATION; VISUAL ACCEPTANCE WITHDRAWN
 Appearance > Theme offers the eight families and their Pointer variants;
@@ -205,3 +205,56 @@ artistic presets and renderer composition are unchanged. Current artwork
 translations were accepted by the workstation; the earlier missing-string
 note is historical. This follow-up does not claim maintainer aesthetic
 approval, whole-suite memory acceptance or final-source GitHub green.
+
+2026-10-06 — MAINTAINER RETAINS FIVE STYLES AND REQUESTS FUNGAL GROWTH
+The current request supersedes the twelve-style completion scope above.
+Only Point atlas, Tissue facets, Chromatin satin, Genetic advection and
+Perturbation lens remain, plus the new continuously branching Fungal growth.
+Seven other replacement presets/private renderers are removed. Bokeh and
+Resonance are unavailable through themes, animations and the engine factory;
+their public classes remain for existing Python callers. Ten night presets
+retain their sounds, with Lantern/Aphelion using retained backgrounds.
+
+Native display sampling replaces the former scaled-4K artwork path. Full
+Detail uses physical display pixels and devicePixelRatioF, within actual
+screen area; switching artwork preserves that area budget. Lower Detail is
+an explicit sampling reduction. Classic buffer constants are unchanged.
+The new two-colour custom palette is saved only when Preferences is saved;
+colour-picker or Preferences cancellation preserves the stored pair. Round
+nine-pixel antialiased grains replace cross-shaped atlas/lens marks.
+
+Lens gravity bends toward the pointer, movement leaves a decaying wake,
+and a click makes a stronger gravity burst and outward ripple. A bounded
+application event filter observes real controls without consuming clicks,
+and is retired on hide, pause, theme change and close. Wakes deliberately
+continue for five animation seconds after the pointer leaves. Atlas waves
+overscan the viewport with no finite sheet boundary; analytic invisible-point
+culling retains the original spacing/seed and byte-identical visible output
+across sixty native-4K control frames. Facet cells translate independently;
+Chromatin retains its folded woven material with cached native ribbons and
+continuous subpixel movement. Fungal tips grow through randomly branching
+quadratic skeletons while older eras fade; sampled stress renders remain
+below 30% visible ink coverage, including long timelines and extreme controls.
+
+The initial root integrated eight-file cohort passes 506 cases with one
+stale lens restoration assertion. That test expected pointer removal to
+erase the newly requested ripple immediately; its corrected case checks
+both continued wake and later expiry, rather than removing the assertion.
+Independent corrected source-exact cohort passes 143 cases. Before the final
+clock handoff repair, added-code coverage reaches every one of 428 ambient
+and 54 preference executable lines; the only uncovered ambient branch is
+an already-dead weak QApplication reference during defensive filter removal.
+Seven added preference/filter/native-sampling cases pass independently.
+
+Actual-source render review and profiling are under
+/mnt/wd4tb/scratch/theme-refinement-20261006/final, frozen to cc6336a17.
+The source-bound receipt records full- and lower-detail samples separately;
+its full-detail 1080p atlas p95 is 47.2 ms, already above a 24 fps frame
+budget. Uniform 24 fps at native 4K is NOT established either.
+The real worker/GUI probe additionally exposed lock starvation: a slow
+renderer can publish many identical-clock frames while the GUI remains
+responsive. This is being repaired through bounded queued tick handoff;
+final source-bound live motion, lifecycle and coverage must be repeated.
+Item 663 remains OPEN pending that acceptance and the requested smoothness.
+Offline 24 fps previews alone are not evidence of actual publication cadence.
+No GPU, new spacr module, dependency, sound asset or guard allowance is added.

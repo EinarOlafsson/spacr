@@ -1,5 +1,56 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 retained themes and embedding-storage CPU checkpoint
+The maintainer now retains only Point atlas, Tissue facets, Chromatin satin,
+Genetic advection and Perturbation lens, adds Fungal growth, and removes
+the other seven replacement presets plus selectable Bokeh/Resonance. The
+current CPU source implements that catalog, round atlas/lens grains,
+native physical-display Detail sampling including 4K/HiDPI, two editable
+custom colours, moving facets and pointer gravity/click/movement ripples.
+Existing public Bokeh/Resonance classes remain compatible for Python callers;
+the factory and menus cannot select them. Night sounds remain unchanged.
+Fungal branching overlaps fading eras and sampled stress images stay below
+30% visible ink occupancy. This is sampled evidence, not a universal seed proof.
+
+Renderer checkpoint cc6336a17 plus test checkpoint ba8392bfd is locally
+reviewed; item663 is reopened for the latest request. Real worker profiling
+found clock starvation when native-4K shading overruns its beat: repeated
+publications can all use one clock while the GUI still responds. A reused
+CPU agent is fixing the bounded GUI-to-producer tick handoff before source
+acceptance. Never infer live frame rate from offline 24fps previews or
+publication counts alone. Uniform 24fps at native4K remains unproven; keep
+the failed clock/cadence evidence and source-bound before/after measurements.
+Current real gallery/profiles: /mnt/wd4tb/scratch/theme-refinement-20261006/final.
+No caps, coverage ratchets, GPU lane or whole-local-suite rule are relaxed.
+
+F565 storage source b290b734d, followed by ce8b24e31's stale-error/ambiguous-key
+guards, adds the alpha literal EmbeddingsSaveForSimilarity. Real Load/Embed/
+Save writes full vectors to the original loaded database/object identities;
+controls cannot redirect the save. Late result/errors from replaced crops
+are ignored. Specified rows carry EmbeddingSpec/fingerprint; different specs
+replace even same-width tables and metadata is excluded from search. Initial
+46 bounded loader/GUI/alpha/search checks and 15 focused error/refusal checks
+pass under4GiB; additional source-binding boundary checks are in progress.
+This establishes specification identity, not yet identity of changed weight
+bytes at the same checkpoint path. Another reused CPU agent owns the explicit
+multi-plate source index/navigation and provenance guards; item565 stays OPEN.
+Leave _retrieval_scorecard, _weights_on_disk and encoder_entry unchanged for
+the workstation's coordinated API provenance/chance-AP repair.
+
+Workstation priority: repair README prose/checkout size, retire stale omit-Qt
+reviewed installation text, and regenerate Help search for all four published
+YOLO symbols normally. Exact237 coverage shard7 SIGSEGVs at puncta [False]
+after1054passes; hosted serial recovery passes that file. Exact-source capped
+1065-case replay and near-parity11-case cohort also pass that puncta case;
+no preceding live widgets or justified CPU source defect is demonstrated.
+Preserve the required passed-shard condition and the crash evidence. Exact237
+tests37457998554 and uninterrupted Qt37457998285 remain active; exact3ce
+tests37463041710 is pending at13:50UTC. These older source runs cannot certify
+this new source. Normal runtime/API/docs generation must include the retained
+six labels, changed night descriptions, custom-colour controls, gravity text
+and new embedding Save captions/storage contract. Preserve all accepted GPU,
+translations/tutorials, original human-labelled cohorts and media receipts.
+
 ## 2026-10-06 CPU SubCell four-channel source checkpoint and live Qt acceptance
 Source checkpoint becca7932ba7ece25713381de347b748f95799b3 adds the distinct
 alpha subcell_rybg encoder and explicit microtubules/ER/DNA/protein channel
