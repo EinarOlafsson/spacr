@@ -63,3 +63,28 @@ An offered menu item alone is not visual acceptance. Preserve finite pixel
 values, owned images/lifecycle and CPU/native frame-budget evidence. Home
 owns the palette source and native validation; workstation will regenerate
 source-bound API/runtime/guide translations after receiving that source.
+
+2026-10-06 — EXACT DENSITY MINIMUM FROM USER
+Exact user message: "the density floor should be 1 %"
+
+Set Animation density's supported lower bound to 1% (normalized 0.01),
+through the shared range, UI slider, preference getter/setter and renderer.
+Preserve its existing default and upper bound. This is the density minimum;
+mouse gravity retains its separate 0/off default and minimum.
+
+Read-only source observation at f5f5bf9ee:
+ambient.DENSITY_RANGE is currently (0.25, 3.0), and engine/widget density
+setters clamp to it. Thus requested densities 0.01 and 0.10 both become 0.25
+at that source. Update the shared bound normally rather than changing only
+the slider display. In _paint_thore, rain amount also has a max(24, ...)
+floor; review that and other theme-specific minima so low densities have a
+real visual effect. Preserve any minimum needed for a valid primitive, but
+do not silently make 1%, 10% and 50% look identical. The existing work-budget
+upper guard stays intact.
+
+Home should prove exact 0.01 persistence and effective renderer density,
+graded counts/spacing at 1%, 10% and 50%, valid low-density painting and
+unchanged outside-radius/zero-gravity behavior. Update source-bound API
+range documentation normally; workstation will refresh all derived API,
+runtime, guide and Help artifacts after integration. This explicit 1% floor
+supersedes the earlier unspecific request to lower the density minimum.

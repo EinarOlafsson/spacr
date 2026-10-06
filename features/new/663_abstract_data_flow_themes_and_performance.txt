@@ -637,3 +637,11 @@ flicker. Exact quote, existing palette integration points and requested Save/
 visual validation: data/663_advection_point_gravity_request_2026-10-06.txt.
 Home owns source/native work; workstation retains source-bound API/runtime/
 guide translations and all GPU work. This request is not yet acceptance.
+
+2026-10-06 user fixes the requested Animation density minimum at exactly 1%
+(normalized 0.01). Current shared DENSITY_RANGE floor 0.25 clamps 1% and 10%
+to the same actual value; Home must change the shared range and examine
+theme-specific count floors, including Thore rain. Save/restore 1% and verify
+graded visual counts/spacing at 1%, 10% and 50%. Mouse gravity separately
+keeps its 0/off default. Exact quote and source observations are appended to
+data/663_advection_point_gravity_request_2026-10-06.txt. Requested, not accepted.

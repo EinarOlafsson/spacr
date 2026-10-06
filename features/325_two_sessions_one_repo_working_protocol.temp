@@ -18821,3 +18821,11 @@ are the working interpretation to avoid frame flicker. Exact user quote:
 data/663_advection_point_gravity_request_2026-10-06.txt. Home owns renderer/
 preferences/native evidence, workstation owns subsequent API/docs/runtime/
 guide translations and all GPU work. Requested behavior is not acceptance.
+
+2026-10-06 exact density-floor clarification for Home: Animation density must
+support 1% (0.01) end to end. Current DENSITY_RANGE floor 0.25 collapses both
+1% and 10%; update the shared bound and theme-specific floors, and prove
+persistence plus actual graded low-density rendering. Keep mouse gravity
+0/off separate. Full quote/source cues:
+data/663_advection_point_gravity_request_2026-10-06.txt. Home owns source and
+native evidence; workstation regenerates the derived API/docs/translations.

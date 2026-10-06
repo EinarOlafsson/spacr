@@ -1,6 +1,12 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
 ## 2026-10-06 user advection gravity and random-colors palette for Home
+The user's latest density requirement is exact: minimum 1% (0.01), not the
+current shared DENSITY_RANGE floor 0.25. Change the actual shared bound and
+engine-specific floors, with saved 1% and graded low-density effects. Mouse
+gravity still separately permits/defaults to 0. Exact quote and source cues
+are appended to data/663_advection_point_gravity_request_2026-10-06.txt.
+
 The user wants spaCR advection particles pulled toward the cursor, strongest
 near its center and smoothly fading to zero at the selected radius. The
 current pointer-local rotation looks like a distortion field to the user.
