@@ -381,6 +381,9 @@ class PaletteSpec(NamedTuple):
 #: different alpha from a 400 px blob), which is why the alphas live in the
 #: engines and not here.
 PALETTE_SETS: Dict[str, PaletteSpec] = {
+    "custom": PaletteSpec(
+        "Custom colours", ("#3b82f6", "#ff00ff"),
+        "Your chosen primary and accent colours."),
     "spacr": PaletteSpec(
         "spaCR",
         ("#3B82F6", "#FF00FF", "#00CEC8"),
@@ -690,7 +693,11 @@ def palette_colors(theme: str, palette: str) -> Tuple[str, ...]:
     :param palette: a palette ``theme`` offers; an unknown theme, or a
         palette the theme does not offer, raises :class:`ValueError`.
     """
-    return PALETTE_SETS[_require_palette(theme, palette)].colors
+    selected = _require_palette(theme, palette)
+    if selected == "custom":
+        from ..preferences import _ambient_custom_colors
+        return _ambient_custom_colors()
+    return PALETTE_SETS[selected].colors
 
 
 def coerce_palette(theme: str, palette: str) -> str:
@@ -4648,6 +4655,18 @@ class _DataArtEngine(_BufferedEngine):
         super()._reresolve()
         self._material_cache.clear()
 
+    def buffer_size(self, width: int, height: int) -> Tuple[int, int]:
+        """Sample native display pixels within the actual screen budget."""
+        detail = min(1.0, self.resolution)
+        bw, bh = max(1, int(width * detail)), max(1, int(height * detail))
+        scale = min(1.0, math.sqrt(self.max_pixels / (bw * bh)))
+        return max(1, int(bw * scale)), max(1, int(bh * scale))
+
+    def buffer_scale(self, width: int, height: int) -> float:
+        """Report the native art sampling ratio for explicit blur controls."""
+        bw, bh = self.buffer_size(width, height)
+        return max(1.0, width / bw, height / bh)
+
     def _ensure_buffer(self, width: int, height: int) -> QImage:
         """Release old-size material grids when the canvas is resized."""
         previous = self._buffer
@@ -4699,33 +4718,39 @@ class _DataArtEngine(_BufferedEngine):
 
     def _point_material(self, width: int, height: int, x, y, light,
                         spread: bool = False) -> QImage:
-        """Scatter lit material grains into a bounded native raster."""
+        """Stamp circular antialiased grains without a full-size float field."""
         np = _numpy()
         px = np.asarray(x, dtype=np.int32)
         py = np.asarray(y, dtype=np.int32)
-        values = np.asarray(light, dtype=np.float32)
+        values = np.clip(np.asarray(light, dtype=np.float32)
+                         * self.alpha_scale(), 0.0, 1.0)
         inside = ((px >= 0) & (px < width) & (py >= 0) & (py < height))
         px, py, values = px[inside], py[inside], values[inside]
-        field = np.zeros((height, width), dtype=np.float32)
-        np.maximum.at(field, (py, px), values)
+        levels = np.arange(256, dtype=np.float32) / 255.0
+        palette = self.paint_colors
+        lookup = np.full(256, np.uint32(0xFF000000), dtype=np.uint32)
+        for channel, shift in (("red", 16), ("green", 8), ("blue", 0)):
+            primary = getattr(palette[0], channel)()
+            accent = getattr(palette[min(1, len(palette) - 1)], channel)()
+            ink = 0.78 * primary + 0.22 * accent
+            value = ink * levels if self.dark else 255.0 - (255.0 - ink) * levels
+            lookup |= np.asarray(value, dtype=np.uint32) << shift
+        frame = np.full((height, width), lookup[0], dtype=np.uint32)
+        combine = np.maximum.at if self.dark else np.minimum.at
+        combine(frame, (py, px), lookup[np.rint(values * 255).astype(np.uint8)])
         if spread:
-            for shift_y, shift_x in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+            for shift_y, shift_x in ((-1, -1), (-1, 0), (-1, 1),
+                                    (0, -1), (0, 1),
+                                    (1, -1), (1, 0), (1, 1)):
                 shifted_x = px + shift_x
                 shifted_y = py + shift_y
                 valid = ((shifted_x >= 0) & (shifted_x < width)
                          & (shifted_y >= 0) & (shifted_y < height))
-                np.maximum.at(field, (shifted_y[valid], shifted_x[valid]),
-                              values[valid] * 0.48)
-        field *= self.alpha_scale()
-        colors = self.paint_colors
-        channels = []
-        for channel in ("red", "green", "blue"):
-            primary = getattr(colors[0], channel)()
-            accent = getattr(colors[min(1, len(colors) - 1)], channel)()
-            ink = 0.78 * primary + 0.22 * accent
-            value = ink * field if self.dark else 255.0 - (255.0 - ink) * field
-            channels.append(np.clip(value, 0, 255).astype(np.uint8))
-        return self._pixel_image(*channels)
+                coverage = 0.24 if shift_x and shift_y else 0.68
+                intensity = np.rint(values[valid] * coverage * 255).astype(np.uint8)
+                combine(frame, (shifted_y[valid], shifted_x[valid]), lookup[intensity])
+        return QImage(frame.data, width, height, int(frame.strides[0]),
+                      QImage.Format_RGB32).copy()
 
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
         """Dispatch to one material painter without crossing into the GUI."""
@@ -4970,8 +4995,9 @@ class _DataArtEngine(_BufferedEngine):
             slope = height * (0.19 * ((ribbon % 3) - 1))
             upper = []
             lower = []
-            for step in range(82):
-                along = step / 81.0
+            samples = max(128, min(640, int(width / 5)))
+            for step in range(samples):
+                along = step / (samples - 1)
                 x = width * along
                 wave = (math.sin(7.0 * along + ribbon * 1.19 + seed_phase
                                  + self.time * 0.045)
@@ -5003,8 +5029,9 @@ class _DataArtEngine(_BufferedEngine):
             painter.setPen(QPen(self._ink(ribbon + 2, 0.51),
                                 max(0.5, self.size * 0.75)))
             painter.drawPolyline(QPolygonF(upper))
-            for fibre in range(1, 13):
-                ratio = fibre / 13.0
+            fibres = max(20, int(28 * self.resolution))
+            for fibre in range(1, fibres):
+                ratio = fibre / fibres
                 painter.setPen(QPen(self._ink(ribbon + fibre, 0.11), 0.55))
                 painter.drawPolyline(QPolygonF([
                     QPointF(a.x(), a.y() * (1.0 - ratio) + b.y() * ratio)
@@ -5289,8 +5316,7 @@ class _DataArtEngine(_BufferedEngine):
         u, v, depth = u[:count], v[:count], depth[:count]
         q = u + self.time * (0.013 + 0.009 * depth)
         phase = self._anchors[0][0] * math.tau
-        brightness = np.zeros(width * height, dtype=np.float32)
-        colour_index = np.zeros(width * height, dtype=np.uint8)
+        dots_x, dots_y, levels = [], [], []
         for trail in range(12):
             t = q - trail * (0.0015 + 0.0012 * depth) * self.size
             x = t % 1.0
@@ -5306,22 +5332,13 @@ class _DataArtEngine(_BufferedEngine):
                 y = self.pointer[1] + dx * sine + dy * cosine
             columns = np.clip((x * width).astype(np.int32), 0, width - 1)
             rows = np.clip((y * height).astype(np.int32), 0, height - 1)
-            locations = rows * width + columns
             intensity = (0.25 + 0.60 * depth) * ((12 - trail) / 12) ** 1.3
-            np.maximum.at(brightness, locations, intensity)
-            colour_index[locations] = np.minimum((depth * 3).astype(np.uint8), 2)
-        first = self.paint_colors[0]
-        second = self.paint_colors[min(1, len(self.paint_colors) - 1)]
-        channels = []
-        highlight = colour_index.reshape(height, width) / 2.0
-        brightness = brightness.reshape(height, width) * self.alpha_scale()
-        for channel in ("red", "green", "blue"):
-            a, b = getattr(first, channel)(), getattr(second, channel)()
-            ink = (a * (1.0 - highlight) + b * highlight)
-            value = (ink * brightness if self.dark else
-                     255.0 - (255.0 - ink) * brightness)
-            channels.append(np.clip(value, 0, 255).astype(np.uint8))
-        painter.drawImage(0, 0, self._pixel_image(*channels))
+            dots_x.append(columns)
+            dots_y.append(rows)
+            levels.append(intensity)
+        painter.drawImage(0, 0, self._point_material(
+            width, height, np.concatenate(dots_x), np.concatenate(dots_y),
+            np.concatenate(levels)))
 
     def _relief_image(self, tone, light, highlight):
         """Pack a palette-derived relief material at the full shaded resolution."""
@@ -5843,6 +5860,8 @@ class AmbientWidget(QWidget):
         #: Clock time a tick could not apply because the shading thread had
         #: the engine, carried to the next tick. See :meth:`_on_tick`.
         self._pending_dt = 0.0
+        self._pending_art_impulses: List[Tuple[float, float]] = []
+        self._interaction_app = None
         box = self._producer_box
         self.destroyed.connect(lambda *_: _retire_producer(box))
 
@@ -5890,10 +5909,11 @@ class AmbientWidget(QWidget):
         #: running and drawing something invisible.
         self.frames_painted = 0
         self._fps = _clamp_int(fps, MIN_FPS, MAX_FPS)
+        self._auto_art_fps = False
         self._run_paced = False
         self._clock = QElapsedTimer()
         self._timer = QTimer(self)
-        self._timer.setTimerType(Qt.CoarseTimer)
+        self._timer.setTimerType(Qt.PreciseTimer)
         self._timer.setInterval(max(1, 1000 // self._fps))
         self._timer.timeout.connect(self._on_tick)
         self._watched: Optional[weakref.ReferenceType] = None
@@ -5965,7 +5985,7 @@ class AmbientWidget(QWidget):
         """
         name = dressed(self._theme, name)[1]
         name = _require_palette(self._theme, name)
-        if name == self._palette:
+        if name == self._palette and name != "custom":
             return
         self._palette = name
         self._mutate_engine(
@@ -6034,9 +6054,15 @@ class AmbientWidget(QWidget):
                              density=self._density,
                              direction=self._direction)
         with self._engine_lock:
+            engine.set_max_pixels(self._engine.max_pixels)
             engine.set_time(self._engine.time)
             self._engine = engine
         self._last_frame = None
+        self._pending_art_impulses.clear()
+        self._sync_interaction_filter()
+        if self._auto_art_fps:
+            self._fps = DEFAULT_FPS if self._theme.startswith("data_art_") else _INSTALLED_FPS
+            self._apply_rate()
         if running:
             self._start_producer()
         self.update()
@@ -6218,6 +6244,7 @@ class AmbientWidget(QWidget):
         :param fps: frames per second, converted with ``int`` and clamped to
             :data:`MIN_FPS` to :data:`MAX_FPS`.
         """
+        self._auto_art_fps = False
         self._fps = _clamp_int(fps, MIN_FPS, MAX_FPS)
         self._apply_rate()
 
@@ -6321,7 +6348,7 @@ class AmbientWidget(QWidget):
         engine = self._engine
         if not isinstance(engine, _BufferedEngine):
             return
-        size = (max(0, self.width()), max(0, self.height()))
+        size = self._art_render_size(self.width(), self.height())
         producer = _FrameProducer(engine, self._engine_lock, self._rate(),
                                   size)
         if size[0] > 0 and size[1] > 0:
@@ -6374,6 +6401,27 @@ class AmbientWidget(QWidget):
             self.start()
         else:
             self.stop()
+        self._sync_interaction_filter()
+
+    def _art_render_size(self, width: int, height: int) -> Tuple[int, int]:
+        """Keep procedural art sharp on displays with fractional or high DPI."""
+        ratio = self.devicePixelRatioF() if self._theme.startswith("data_art_") else 1.0
+        return max(0, round(width * ratio)), max(0, round(height * ratio))
+
+    def _sync_interaction_filter(self) -> None:
+        """Observe clicks only while the visible gravitational field runs."""
+        app = QApplication.instance()
+        wanted = (self._theme == "data_art_impulse_lens" and self._should_run()
+                  and self._timer.isActive())
+        if wanted and self._interaction_app is None and app is not None:
+            app.installEventFilter(self)
+            self._interaction_app = weakref.ref(app)
+        elif not wanted and self._interaction_app is not None:
+            observed = self._interaction_app()
+            if observed is not None:
+                observed.removeEventFilter(self)
+            self._interaction_app = None
+            self._pending_art_impulses.clear()
 
     def showEvent(self, event):
         """Start animating, and follow the window this widget belongs to.
@@ -6423,6 +6471,7 @@ class AmbientWidget(QWidget):
         super().hideEvent(event)
         if getattr(self, "_timer", None) is not None:
             self.stop()
+            self._sync_interaction_filter()
 
     def eventFilter(self, obj, event):
         """Follow the parent's size; pause when the window is minimised.
@@ -6436,7 +6485,15 @@ class AmbientWidget(QWidget):
         etype = event.type()
         ref = getattr(self, "_watched", None)
         watched = ref() if ref is not None else None
-        if etype == QEvent.Resize and obj is self.parent():
+        if (etype == QEvent.MouseButtonPress and self._interaction_app is not None
+                and isinstance(obj, QWidget) and obj.window() is self.window()
+                and self._should_run() and event.button() == Qt.LeftButton):
+            local = self.mapFromGlobal(event.globalPosition().toPoint())
+            if self.rect().contains(local):
+                point = ((local.x() + 0.5) / max(1, self.width()),
+                         (local.y() + 0.5) / max(1, self.height()))
+                self._pending_art_impulses = (self._pending_art_impulses + [point])[-16:]
+        elif etype == QEvent.Resize and obj is self.parent():
             self.setGeometry(obj.rect())
         elif watched is not None and obj is watched and etype in (
                 QEvent.WindowStateChange, QEvent.Hide, QEvent.Show):
@@ -6504,6 +6561,10 @@ class AmbientWidget(QWidget):
                 if isinstance(self._engine, _DataArtEngine) and self._engine.interactive:
                     self._engine.set_pointer(pointer)
                 self._engine.advance(self._pending_dt)
+                if self._engine.name == "data_art_impulse_lens":
+                    for point in self._pending_art_impulses:
+                        self._engine._add_impulse(point, strength=1.0)
+                    self._pending_art_impulses.clear()
                 self._pending_dt = 0.0
             finally:
                 self._engine_lock.release()
@@ -6632,7 +6693,7 @@ class AmbientWidget(QWidget):
             self._engine.paint(painter, width, height)
             return
 
-        producer.size = (width, height)
+        producer.size = self._art_render_size(width, height)
         whole = event.rect().contains(rect)
         fresh = producer.latest() if whole else None
         if fresh is not None and fresh is not self._last_frame:
@@ -7039,10 +7100,12 @@ def install_ambient(host: QWidget, layout=None, *,
     if replacement is not None:
         return replacement
 
-    kwargs.setdefault("fps", _INSTALLED_FPS)
+    auto_art_fps = "fps" not in kwargs
+    kwargs.setdefault("fps", DEFAULT_FPS if theme.startswith("data_art_") else _INSTALLED_FPS)
     widget = AmbientWidget(host, theme=theme, palette=palette,
                            backdrop=backdrop, corner_radius=corner_radius,
                            **kwargs)
+    widget._auto_art_fps = auto_art_fps
     widget.follow_parent()
     widget.show()
     return widget
