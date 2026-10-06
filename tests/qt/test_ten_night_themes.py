@@ -208,8 +208,10 @@ class TestEveryThemeHasItsOwnBackdrop:
 
     def test_the_backdrops_reuse_the_producers_that_were_there(self):
         """"reuse and parameterise the existing producers" -- so no new
-        engine was added for this, and the count is the check."""
-        assert len(ambient.AMBIENT_THEMES) == 7
+        engine was added for the ten night themes."""
+        assert ambient.AMBIENT_THEMES[:7] == (
+            "blobs", "aurora", "ripple", "drift", "bokeh", "cells",
+            "resonance")
 
     @pytest.mark.parametrize("key", night.NIGHT_THEME_KEYS)
     def test_the_backdrop_builds_and_paints(self, key, qapp):

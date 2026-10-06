@@ -3,7 +3,8 @@
 Use :func:`active_palette` for colors shown by a live widget and
 :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains
 the selectable palettes ``"dark"``, ``"light"``, ``"cell"``, ``"glass"``,
-``"high_contrast"`` and the ten night themes of :mod:`spacr.qt.night_themes`; the ``"system"``
+``"high_contrast"`` and the night and data-art presets of
+:mod:`spacr.qt.night_themes`; the ``"system"``
 preference resolves to dark or light before palette lookup. A legacy
 ``"space"`` palette can still be read from persisted settings but is not
 selectable.
@@ -41,7 +42,7 @@ from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import QApplication
 
-from .night_themes import NIGHT_THEME_KEYS
+from .night_themes import DATA_ART_THEMES, DATA_ART_THEME_KEYS, NIGHT_THEME_KEYS
 from .night_themes import palettes as night_palettes
 
 LOG = logging.getLogger(__name__)
@@ -208,7 +209,8 @@ HIGH_CONTRAST_PALETTE = {
 #: colour through :func:`palette_for` reach them without a branch. They are
 #: flat themes, not :data:`IMAGE_THEMES`, so no scrim is solved for them and
 #: nothing is composited over a wallpaper.
-THEMES = ("dark", "light", "cell", "glass", "high_contrast") + NIGHT_THEME_KEYS
+THEMES = (("dark", "light", "cell", "glass", "high_contrast")
+          + NIGHT_THEME_KEYS + DATA_ART_THEME_KEYS)
 
 _PALETTES = {
     "dark": DARK_PALETTE,
@@ -219,6 +221,7 @@ _PALETTES = {
     "high_contrast": HIGH_CONTRAST_PALETTE,
 }
 _PALETTES.update(night_palettes())
+_PALETTES.update({key: dict(theme.palette) for key, theme in DATA_ART_THEMES.items()})
 
 #: Themes whose window background is an image or depth gradient rather than
 #: a flat colour. They share one treatment — a transparent ``QWidget``
