@@ -1,0 +1,113 @@
+{
+  "item": 560,
+  "normal_full_expert_labelled_DINOv2_baseline_encoder_scorecard_complete_on_one_CPU_thread": true,
+  "original_unique_unambiguous_cells": 17074,
+  "dimensions": 384,
+  "normal_kNN_mAP_precision_chance": {
+    "knn_accuracy": 0.9279020733278669,
+    "map": 0.4630365058482782,
+    "precision_at_k": 0.8568876654562493,
+    "chance_map": 0.14397477263482286,
+    "chance_precision": 0.14397477263482286,
+    "n": 17074.0,
+    "classes": 8.0
+  },
+  "independent_complete_blocked_rank_AP_and_vote_replay_exact": true,
+  "normal_model_zoo_entry_with_actual_cached_weight_SHA256": {
+    "key": "encoder:vit_small_patch14_dinov2.lvd142m/project",
+    "name": "vit_small_patch14_dinov2.lvd142m (project)",
+    "kind": "encoder",
+    "source": "local",
+    "path": "/home/carruthers/.cache/huggingface/hub/models--timm--vit_small_patch14_dinov2.lvd142m/snapshots/4610ca143709d58a633b6397a74412c2c3842454/model.safetensors",
+    "uri": "timm:vit_small_patch14_dinov2.lvd142m",
+    "version": "1",
+    "sha256": "04d27f3400d059fc0cfd7d17dd1909a75bf3ea8fb3eeb48b97cb99e57ee20081",
+    "size_bytes": 88240510,
+    "trained_on": "unknown",
+    "trained_by": "timm / vit_small_patch14_dinov2.lvd142m pretrained weights",
+    "metrics": {
+      "knn_accuracy": 0.9279020733278669,
+      "map": 0.4630365058482782,
+      "precision_at_k": 0.8568876654562493,
+      "chance_map": 0.14397477263482286,
+      "chance_precision": 0.14397477263482286,
+      "n": 17074.0,
+      "classes": 8.0
+    },
+    "notes": [
+      "Channel policy: project. Dimensions from one policy are not comparable with the other's."
+    ],
+    "verified": false,
+    "settings_path": "",
+    "licence": ""
+  },
+  "normal_five_stratified_crop_fold_linear_classifier_diagnostic": {
+    "accuracy": 0.9681974918537998,
+    "accuracy_sd": 0.0034559488664303163,
+    "chance": 0.19491624692514936,
+    "n": 17074.0,
+    "classes": 8.0,
+    "folds": 5.0
+  },
+  "no_patient_well_plate_held_out_or_clinical_accuracy_claim": true,
+  "original_full_cohort_not_reduced_or_resampled": true,
+  "earlier_two_thread_private_scorecard_runs_terminal_rc139_retained": true,
+  "same_size_bare_numpy_product_two_threads_rc139_one_thread_rc0": true,
+  "actual_local_numpy_version": "2.4.3",
+  "local_OpenBLAS_0_3_31_dev_build_configuration_archived": true,
+  "one_thread_workaround_not_a_claim_of_two_thread_problem_resolved": true,
+  "Home_CPU_source_environment_owner_should_investigate_dense_scorecard_BLAS_failure_before_broad_acceptance": true,
+  "all_source_inputs_GPU_feature_and_model_hashes_exact": true,
+  "no_new_GPU_inference_application_source_or_production_environment_change": true,
+  "foundation_model_comparisons_Cell_DINO_and_GUI_pipeline_screen_integration_remain_separate": true,
+  "artifacts": {
+    "features/data/560_human_labelled_DINOv2_baseline_scorecard_2026-10-06/acceptance.json": {
+      "sha256": "9b0251c7ca5f092cabd368e1c3e1f649388ca6c65dbf0ad76c4de580160f7e6b",
+      "bytes": 4101
+    },
+    "features/data/560_human_labelled_DINOv2_baseline_scorecard_2026-10-06/all-human-retrieval-AP-and-precision.npz": {
+      "sha256": "b235a8314a622dac03abdc2302b3e9c2e5450ddaaf29761647e2d5185ab2841f",
+      "bytes": 230101
+    },
+    "features/data/560_human_labelled_DINOv2_baseline_scorecard_2026-10-06/archive_pbc_normal_encoder_scorecard_r1.py": {
+      "sha256": "97c481400ec9b16f76dbfcb31ae6d082eb7175668108b2f12414a70e59b3fffa",
+      "bytes": 7211
+    },
+    "features/data/560_human_labelled_DINOv2_baseline_scorecard_2026-10-06/measure_pbc_normal_encoder_scorecard_r1.py": {
+      "sha256": "8d8d79063e75c183e5b09bda1a5799d48a8e5c05a1d3ed129ee91c18c1bf15a2",
+      "bytes": 6501
+    },
+    "features/data/560_human_labelled_DINOv2_baseline_scorecard_2026-10-06/measure_pbc_normal_encoder_scorecard_r2.py": {
+      "sha256": "3df5bdf841eaa19d6596f02d79942c4b903aa8438411fe7809d0c64315364f36",
+      "bytes": 6598
+    },
+    "features/data/560_human_labelled_DINOv2_baseline_scorecard_2026-10-06/measure_pbc_normal_encoder_scorecard_r3.py": {
+      "sha256": "f21b06243739521c1e7646dd12a6f89256ad39d3b7cd22048eefc0d02787f504",
+      "bytes": 6817
+    },
+    "features/data/560_human_labelled_DINOv2_baseline_scorecard_2026-10-06/pbc-full-matrix-BLAS-one-thread-r1.log.gz": {
+      "sha256": "91a7a6f91fe4b5e159ef74df435c020589987d970adfbf08fbdfb78fce64761a",
+      "bytes": 691
+    },
+    "features/data/560_human_labelled_DINOv2_baseline_scorecard_2026-10-06/pbc-full-matrix-BLAS-two-thread-r1.log.gz": {
+      "sha256": "6526e64bad18cb7bbde7b8aa186018ced80bbd2e0ab9dc258e32a77d2f93abd5",
+      "bytes": 846
+    },
+    "features/data/560_human_labelled_DINOv2_baseline_scorecard_2026-10-06/pbc-normal-encoder-scorecard-r1.log.gz": {
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "bytes": 20
+    },
+    "features/data/560_human_labelled_DINOv2_baseline_scorecard_2026-10-06/pbc-normal-encoder-scorecard-r2.log.gz": {
+      "sha256": "fb1d62e9f8169af76c50e55cf46e45060ef56756f98822e04a37d8c0d63db7e2",
+      "bytes": 696
+    },
+    "features/data/560_human_labelled_DINOv2_baseline_scorecard_2026-10-06/pbc-normal-encoder-scorecard-r3.log.gz": {
+      "sha256": "9bebc2f7bd12efc3a3c9146208dfa4857ab07d242477720a1ef7565786228dec",
+      "bytes": 463
+    },
+    "features/data/560_human_labelled_DINOv2_baseline_scorecard_2026-10-06/probe_pbc_full_matrix_BLAS_r1.py": {
+      "sha256": "28882a44a6aed9e00d8b5f3ff8a60d2d314f8090ea828ac8953ff5a7cea59b20",
+      "bytes": 630
+    }
+  }
+}

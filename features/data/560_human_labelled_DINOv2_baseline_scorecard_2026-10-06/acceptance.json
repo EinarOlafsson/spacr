@@ -1,0 +1,86 @@
+{
+  "item": 560,
+  "normal_full_human_labelled_DINOv2_baseline_scorecard_and_model_zoo_entry_complete": true,
+  "dataset_DOI": "10.17632/snkd93bnjr.1",
+  "all_unique_unambiguous_expert_labelled_cells": 17074,
+  "normal_retrieval_scorecard": {
+    "knn_accuracy": 0.9279020733278669,
+    "map": 0.4630365058482782,
+    "precision_at_k": 0.8568876654562493,
+    "chance_map": 0.14397477263482286,
+    "chance_precision": 0.14397477263482286,
+    "n": 17074.0,
+    "classes": 8.0
+  },
+  "independent_complete_blocked_rank_AP_and_vote_replay_exact": {
+    "knn_accuracy": 0.9279020733278669,
+    "map": 0.4630365058482782,
+    "precision_at_k": 0.8568876654562493,
+    "chance_map": 0.14397477263482286,
+    "chance_precision": 0.14397477263482286,
+    "n": 17074.0,
+    "classes": 8.0
+  },
+  "normal_model_zoo_encoder_entry": {
+    "key": "encoder:vit_small_patch14_dinov2.lvd142m/project",
+    "name": "vit_small_patch14_dinov2.lvd142m (project)",
+    "kind": "encoder",
+    "source": "local",
+    "path": "/home/carruthers/.cache/huggingface/hub/models--timm--vit_small_patch14_dinov2.lvd142m/snapshots/4610ca143709d58a633b6397a74412c2c3842454/model.safetensors",
+    "uri": "timm:vit_small_patch14_dinov2.lvd142m",
+    "version": "1",
+    "sha256": "04d27f3400d059fc0cfd7d17dd1909a75bf3ea8fb3eeb48b97cb99e57ee20081",
+    "size_bytes": 88240510,
+    "trained_on": "unknown",
+    "trained_by": "timm / vit_small_patch14_dinov2.lvd142m pretrained weights",
+    "metrics": {
+      "knn_accuracy": 0.9279020733278669,
+      "map": 0.4630365058482782,
+      "precision_at_k": 0.8568876654562493,
+      "chance_map": 0.14397477263482286,
+      "chance_precision": 0.14397477263482286,
+      "n": 17074.0,
+      "classes": 8.0
+    },
+    "notes": [
+      "Channel policy: project. Dimensions from one policy are not comparable with the other's."
+    ],
+    "verified": false,
+    "settings_path": "",
+    "licence": ""
+  },
+  "normal_linear_classifier_scorecard": {
+    "accuracy": 0.9681974918537998,
+    "accuracy_sd": 0.0034559488664303163,
+    "chance": 0.19491624692514936,
+    "n": 17074.0,
+    "classes": 8.0,
+    "folds": 5.0
+  },
+  "classifier_scope": "Five stratified crop folds, seed zero, StandardScaler and default LogisticRegression fitted only inside each training fold. Original dataset has no patient identifiers; this is a within-cohort diagnostic, not patient/plate/well held-out accuracy.",
+  "retrieval_scope": "Leave-self-out transductive crop retrieval; all exact pixel duplicates and cross-label identical groups were removed before encoding under the existing frozen input policy. No backbone or metric parameter is selected using these labels.",
+  "no_new_GPU_inference_or_application_source_change": true,
+  "actual_GPU_feature_acceptance_sha256": "7824036a6140bcf7bfb22874b4c866dad2ac9d91a66d9cfc3586c4a8874a8ca4",
+  "independent_FAISS_acceptance_sha256": "75934c1bbd526702594c7da0d057a255b4e0b8e1fca52eb829d13cdf0f0a5a3e",
+  "source_sha256": {
+    "spacr/active_learning.py": "35dd9381516b716452a90c6f4efdbb868194694b4465517d3c5b5ba143d495a8",
+    "spacr/embeddings.py": "563d49e5a21d21b710c6597a6b9925cec0ce06adc97e8f6b7867a35e71d334d5",
+    "spacr/schema.py": "871286bfe67b903a9704894435e45d90203de8e819997a2c896aa7bf903801f5",
+    "spacr/agreement.py": "08759db61daa1b610c37e1c5f073b7adaf789c75d61fdfceea13880a663e89a0"
+  },
+  "normal_scorecard_seconds": 39.13355650496669,
+  "script_sha256": "f21b06243739521c1e7646dd12a6f89256ad39d3b7cd22048eefc0d02787f504",
+  "foundation_backbone_comparisons_Cell_DINO_and_screen_integration_remain_separate": true,
+  "CPU_thread_settings": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1"
+  },
+  "earlier_two_thread_full_matrix_segmentation_faults_retained_and_not_claimed_resolved": true,
+  "artifacts": {
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/565-pbc-retrieval-r4/normal-human-label-encoder-scorecard-r3/all-human-retrieval-AP-and-precision.npz": {
+      "sha256": "b235a8314a622dac03abdc2302b3e9c2e5450ddaaf29761647e2d5185ab2841f",
+      "bytes": 230101
+    }
+  }
+}
