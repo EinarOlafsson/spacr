@@ -1,0 +1,98 @@
+2026-10-05T20:33:25-04:00 [615-home-measure-ui-narration-20261005-r1] queued (pid 2647493, /media/carruthers/mnt3/codex/spacr-worktrees/home-measure-ui-20261005)
+2026-10-05T20:33:25-04:00 [615-home-measure-ui-narration-20261005-r1] holds the queue; waiting for 360s idle and 600s since the last turn
+2026-10-05T20:39:26-04:00 [615-home-measure-ui-narration-20261005-r1] START: tools/run_capped.sh 8G env SPACR_TUTORIAL_WORKSPACE=/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-home-measure-ui-current-r1 SPACR_TUTORIAL_MODEL_CACHE=/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/project/kokoro_models OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python tools/tutorials/authoring/tools/render_all_voices.py --languages en,es,fr,hi,it,pt-BR,ja,zh-CN --lessons 5,8 --voices all --threads 2 --device cuda
+/home/carruthers/anaconda3/envs/spacr12/lib/python3.12/site-packages/torch/nn/modules/rnn.py:1011: UserWarning: dropout option adds dropout after all but last recurrent layer, so non-zero dropout expects num_layers greater than 1, but got dropout=0.2 and num_layers=1
+  super().__init__("LSTM", *args, **kwargs)
+/home/carruthers/anaconda3/envs/spacr12/lib/python3.12/site-packages/torch/nn/utils/weight_norm.py:144: FutureWarning: `torch.nn.utils.weight_norm` is deprecated in favor of `torch.nn.utils.parametrizations.weight_norm`.
+  WeightNorm.apply(module, name, dim)
+en/af_heart/05_home 402.1s rendered=1 elapsed=0.2m
+en/af_heart/08_measure 293.7s rendered=2 elapsed=0.3m
+en/af_aoede/05_home 395.0s rendered=3 elapsed=0.5m
+en/af_aoede/08_measure 291.7s rendered=4 elapsed=0.6m
+en/af_bella/05_home 406.8s rendered=5 elapsed=0.8m
+en/af_bella/08_measure 297.3s rendered=6 elapsed=0.9m
+en/af_jessica/05_home 394.6s rendered=7 elapsed=1.1m
+en/af_jessica/08_measure 282.0s rendered=8 elapsed=1.2m
+en/af_river/05_home 397.4s rendered=9 elapsed=1.3m
+en/af_river/08_measure 284.5s rendered=10 elapsed=1.5m
+en/af_sarah/05_home 402.3s rendered=11 elapsed=1.6m
+en/af_sarah/08_measure 294.8s rendered=12 elapsed=1.7m
+en/af_sky/05_home 409.4s rendered=13 elapsed=1.9m
+en/af_sky/08_measure 296.5s rendered=14 elapsed=2.0m
+en/am_adam/05_home 398.3s rendered=15 elapsed=2.2m
+en/am_adam/08_measure 293.2s rendered=16 elapsed=2.3m
+en/am_echo/05_home 419.1s rendered=17 elapsed=2.5m
+en/am_echo/08_measure 299.4s rendered=18 elapsed=2.6m
+en/am_eric/05_home 394.0s rendered=19 elapsed=2.8m
+en/am_eric/08_measure 284.1s rendered=20 elapsed=2.9m
+en/am_fenrir/05_home 398.3s rendered=21 elapsed=3.1m
+en/am_fenrir/08_measure 297.1s rendered=22 elapsed=3.2m
+en/am_liam/05_home 404.7s rendered=23 elapsed=3.3m
+en/am_liam/08_measure 293.4s rendered=24 elapsed=3.5m
+en/am_michael/05_home 429.2s rendered=25 elapsed=3.6m
+en/am_michael/08_measure 314.9s rendered=26 elapsed=3.8m
+en/am_onyx/05_home 435.0s rendered=27 elapsed=3.9m
+en/am_onyx/08_measure 305.8s rendered=28 elapsed=4.0m
+en/am_puck/05_home 403.3s rendered=29 elapsed=4.2m
+en/am_puck/08_measure 298.3s rendered=30 elapsed=4.3m
+en/am_santa/05_home 439.0s rendered=31 elapsed=4.5m
+en/am_santa/08_measure 317.2s rendered=32 elapsed=4.6m
+en/bf_alice/05_home 417.9s rendered=33 elapsed=4.8m
+en/bf_alice/08_measure 301.0s rendered=34 elapsed=4.9m
+en/bf_emma/05_home 404.2s rendered=35 elapsed=5.1m
+en/bf_emma/08_measure 291.6s rendered=36 elapsed=5.2m
+en/bf_isabella/05_home 414.3s rendered=37 elapsed=5.4m
+en/bf_isabella/08_measure 295.7s rendered=38 elapsed=5.5m
+en/bf_lily/05_home 421.6s rendered=39 elapsed=5.7m
+en/bf_lily/08_measure 300.4s rendered=40 elapsed=5.8m
+en/bm_daniel/05_home 414.9s rendered=41 elapsed=6.0m
+en/bm_daniel/08_measure 295.4s rendered=42 elapsed=6.1m
+en/bm_fable/05_home 442.2s rendered=43 elapsed=6.3m
+en/bm_fable/08_measure 308.1s rendered=44 elapsed=6.5m
+en/bm_george/05_home 450.9s rendered=45 elapsed=6.6m
+en/bm_george/08_measure 321.4s rendered=46 elapsed=6.8m
+en/bm_lewis/05_home 432.4s rendered=47 elapsed=7.0m
+en/bm_lewis/08_measure 309.8s rendered=48 elapsed=7.1m
+es/ef_dora/05_home 438.2s rendered=49 elapsed=7.2m
+es/ef_dora/08_measure 314.2s rendered=50 elapsed=7.3m
+es/em_alex/05_home 438.7s rendered=51 elapsed=7.5m
+es/em_alex/08_measure 314.9s rendered=52 elapsed=7.6m
+es/em_santa/05_home 438.0s rendered=53 elapsed=7.8m
+es/em_santa/08_measure 316.2s rendered=54 elapsed=7.9m
+fr/ff_siwis/05_home 428.6s rendered=55 elapsed=8.0m
+fr/ff_siwis/08_measure 308.1s rendered=56 elapsed=8.1m
+hi/hf_alpha/05_home 450.6s rendered=57 elapsed=8.3m
+hi/hf_alpha/08_measure 322.5s rendered=58 elapsed=8.4m
+hi/hf_beta/05_home 390.6s rendered=59 elapsed=8.6m
+hi/hf_beta/08_measure 280.4s rendered=60 elapsed=8.7m
+hi/hm_omega/05_home 461.7s rendered=61 elapsed=8.8m
+hi/hm_omega/08_measure 331.5s rendered=62 elapsed=9.0m
+hi/hm_psi/05_home 466.3s rendered=63 elapsed=9.1m
+hi/hm_psi/08_measure 334.1s rendered=64 elapsed=9.2m
+it/if_sara/05_home 422.1s rendered=65 elapsed=9.4m
+it/if_sara/08_measure 309.8s rendered=66 elapsed=9.5m
+it/im_nicola/05_home 472.8s rendered=67 elapsed=9.7m
+it/im_nicola/08_measure 348.2s rendered=68 elapsed=9.8m
+pt-BR/pf_dora/05_home 419.8s rendered=69 elapsed=9.9m
+pt-BR/pf_dora/08_measure 303.7s rendered=70 elapsed=10.0m
+pt-BR/pm_alex/05_home 420.4s rendered=71 elapsed=10.2m
+pt-BR/pm_alex/08_measure 304.9s rendered=72 elapsed=10.3m
+pt-BR/pm_santa/05_home 422.4s rendered=73 elapsed=10.5m
+pt-BR/pm_santa/08_measure 307.3s rendered=74 elapsed=10.6m
+Traceback (most recent call last):
+  File "/media/carruthers/mnt3/codex/spacr-worktrees/home-measure-ui-20261005/tools/tutorials/authoring/tools/render_all_voices.py", line 1053, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/media/carruthers/mnt3/codex/spacr-worktrees/home-measure-ui-20261005/tools/tutorials/authoring/tools/render_all_voices.py", line 1013, in main
+    duration = render_track(
+               ^^^^^^^^^^^^^
+  File "/media/carruthers/mnt3/codex/spacr-worktrees/home-measure-ui-20261005/tools/tutorials/authoring/tools/render_all_voices.py", line 626, in render_track
+    scene_plans = prepare_scene_plans(lesson, language, dialect, speed, voice=voice)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/carruthers/mnt3/codex/spacr-worktrees/home-measure-ui-20261005/tools/tutorials/authoring/tools/render_all_voices.py", line 422, in prepare_scene_plans
+    speech_text = track_speech_text(
+                  ^^^^^^^^^^^^^^^^^^
+  File "/media/carruthers/mnt3/codex/spacr-worktrees/home-measure-ui-20261005/tools/tutorials/authoring/tools/render_all_voices.py", line 318, in track_speech_text
+    raise ValueError("Unreviewed Latin text in Home Japanese/Chinese narration")
+ValueError: Unreviewed Latin text in Home Japanese/Chinese narration
+2026-10-05T20:50:07-04:00 [615-home-measure-ui-narration-20261005-r1] FINISH rc=1

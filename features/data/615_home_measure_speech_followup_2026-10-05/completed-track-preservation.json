@@ -1,0 +1,450 @@
+{
+  "passed": true,
+  "all_74_completed_fingerprints_preserved": [
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "af_heart",
+      "render_fingerprint": "8d4c092d01bd340fe6bf370c828151056006a8480aa1adf1ccee780024cdc1d4"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "af_aoede",
+      "render_fingerprint": "9d02d155e3485530ec9440df31cb495daf30edaeca5e496ca1dac28ba83d6319"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "af_bella",
+      "render_fingerprint": "4582a99b6c2dc25387464f5bcf353e24dc6c955a663c26326f6ea804b83d8fda"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "af_jessica",
+      "render_fingerprint": "cc92a37e586654a23322a65bdb9004a59dac2288d1bc05fa3164eb73d6f0dc2a"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "af_river",
+      "render_fingerprint": "080173d5e9aded456ab733f74aa92ee17116afb26697845b3c300701a39f537b"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "af_sarah",
+      "render_fingerprint": "d0a673501f624188488f4befb0acba90fc0004e99646f64bcdaa144e66277198"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "af_sky",
+      "render_fingerprint": "d251e5338f7907bc936c32649a79a2205f32dcd402be411d400958a8144f7e26"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "am_adam",
+      "render_fingerprint": "e8f5a77f5708cb0470687730ebd4dcff2ee7fe527dbe8970aec0f184959dd23f"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "am_echo",
+      "render_fingerprint": "98b81194aed1712c7d2fb7a2f544050bcc30bbb43d6fb4e62f1aa18a62549f9a"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "am_eric",
+      "render_fingerprint": "51b87ead373aac2946b498ada8600257235054c1de7d39574fa4313ee682fd62"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "am_fenrir",
+      "render_fingerprint": "1c238f78ee7c36e988cf367c2c153be484609be3d94a9555e861a3fdc8cd97a8"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "am_liam",
+      "render_fingerprint": "bcfe492d534931fdaf15aecc6b50b42fb82f59121c4f672db62bb0445febbe8a"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "am_michael",
+      "render_fingerprint": "60c170bb8103130db8ae3f8ec69dd28a85c2c645c5dce3a992fa8d43b792935e"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "am_onyx",
+      "render_fingerprint": "43836bab0ceca603dd7ca05b951ed850a56cb1ecc4183c275e1d457990178343"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "am_puck",
+      "render_fingerprint": "2cd8f224f909c880072abf32b77d1449d5d9b2004d5302aa53bb8d20053fd97f"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "am_santa",
+      "render_fingerprint": "c94f15bd89327726dd8bf3fe9e94ab1e87de7be9469072b908d928a38b47ce37"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "bf_alice",
+      "render_fingerprint": "556198a63549492d003570995d7bc6450ed3a243a8eaf5f2ba827e57099b7b13"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "bf_emma",
+      "render_fingerprint": "03388d6c4bf237e7919afd327531e8f3a7919ab6d8ef6ca9073f13dc9980f3d3"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "bf_isabella",
+      "render_fingerprint": "ea2e3edc4d776c3c12a009bca78b78cf7e9e9d55461ba6b695fdd252f16845a7"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "bf_lily",
+      "render_fingerprint": "51ddf45e47c76ee4ba4771d6c1a1255c20acf6320c6a81fda8ea9d87dc40e4e9"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "bm_daniel",
+      "render_fingerprint": "92435a2d67f3c1bd93c3876a0215f63c58abc290c81a2479153bf54bcd1b1bb6"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "bm_fable",
+      "render_fingerprint": "4ea2c9bd690c9e67fb428c14db4b22e4c0affb2013d6ed0685a0b1e73d510ce6"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "bm_george",
+      "render_fingerprint": "e2102eca606cd1a91ffeeb68a46a3ec67ddfb10185fa6ac35b955906bac73070"
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "bm_lewis",
+      "render_fingerprint": "4aeeecd2917249a3f0a872c6ae5f81eb8fc7e5b341383c11b19054cb949db3a9"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "af_heart",
+      "render_fingerprint": "8b2d303d1862abca4f59272a46cea1a5ddfb001ba01f25e88614ff35ea05a0be"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "af_aoede",
+      "render_fingerprint": "a8f60006560542c1961d095014d789c0af1d532b6fc770031ed876f1a8bc5c2f"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "af_bella",
+      "render_fingerprint": "5c67eb1ad94bbb43c7c7488ea3dfe057edf852712cefb5565230beebdb737e98"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "af_jessica",
+      "render_fingerprint": "913fdfaa4dbadfd984d1386fef2c85744eb0ea784e0e98dd51861dd5cf0cd15e"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "af_river",
+      "render_fingerprint": "5b74ea8d0f8ee16652a12a14c971cb247f3b5a1e135fd177e235d128b9a95058"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "af_sarah",
+      "render_fingerprint": "9e7f26f9658718319cdbbae493c42e8b9a08a79dc7c5632461945d2591fea468"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "af_sky",
+      "render_fingerprint": "8743a061c771866954aa47f4bff2e69e4ba2cc922e5ad07b08a52f6fb62179bc"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "am_adam",
+      "render_fingerprint": "49eecda5897eda0e2db2a7ecc3adf58dbcf158f58be53345c1eb7667a142d9e8"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "am_echo",
+      "render_fingerprint": "8bcededb618214972f98d877b5133515b2d5290a7daf38b1ebf3c94baa86c442"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "am_eric",
+      "render_fingerprint": "b64c343ed3c444db308b51a94120bff03989e1fd936ea797937923690c79a078"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "am_fenrir",
+      "render_fingerprint": "e65a30f0cae517e42ddb061f93ed34df219f0c779e2b0766085145d8c5a94bdd"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "am_liam",
+      "render_fingerprint": "2260fe582990cb1d7d2c71a577f687410ec20098aa33cd061d502f122322007b"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "am_michael",
+      "render_fingerprint": "889af5f32bb75b1c1ac0c6ddd1a3a6b3df8540f9655268bf42a49c88397a54d9"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "am_onyx",
+      "render_fingerprint": "fe95ddd5123bea6e7cb5bb101059621ae2cefef2150f0a2baacc5e2eafd96fb7"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "am_puck",
+      "render_fingerprint": "a8c15389041e69ea756ec66e568415009526f28d0e7448ca4317a1e93bc399c1"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "am_santa",
+      "render_fingerprint": "10d658fff6fca8e083ab620ba3042fd279d945a66f523d326743d43f7644b80c"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "bf_alice",
+      "render_fingerprint": "f32fdeadc68d50596e0a97f667006c382ecec764de1c2bbbf808f2a7c3edf5ac"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "bf_emma",
+      "render_fingerprint": "441fe0ba3624e7765fad7ed0e97c5e0fd6d6a3c356d7dd13424c9dbbfcc7036a"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "bf_isabella",
+      "render_fingerprint": "36036fd8baa7782bceb438e4871d0725ee55876bd852d1de684c04764139e2a2"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "bf_lily",
+      "render_fingerprint": "0b6522f3409058ff3f3cd940fa611f697813287194718b6917593a5bd8d8d7aa"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "bm_daniel",
+      "render_fingerprint": "808d4aa998259a26f6ca47d0027b026857de6872b7c214c0050d5550311becee"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "bm_fable",
+      "render_fingerprint": "8f050896f0bbdb79f3508bd83dda03c51acc63884688612122b46261274c1bbd"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "bm_george",
+      "render_fingerprint": "c432a5666ee56788e8b358ca5c982016bdb685764ec44cdcf198482c52846b99"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "en",
+      "voice": "bm_lewis",
+      "render_fingerprint": "d2eb4af6feabe7999b386ac8648e77831aca0e108d6120009f688cf682fbcf7f"
+    },
+    {
+      "lesson": "05_home",
+      "language": "es",
+      "voice": "ef_dora",
+      "render_fingerprint": "24910f71b2f232c3d1a5e9dffd8a7b8390cb30f605e6b84ecbf4c62a8946f1e7"
+    },
+    {
+      "lesson": "05_home",
+      "language": "es",
+      "voice": "em_alex",
+      "render_fingerprint": "33657e78cbdbb7c90465553cc1b74448a7c1a69f9b41cabe997fed913182e585"
+    },
+    {
+      "lesson": "05_home",
+      "language": "es",
+      "voice": "em_santa",
+      "render_fingerprint": "1d78dcb8f3957534ec6158e76df41f9417cf2f666d96ad46c88d24cee1bd8805"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "es",
+      "voice": "ef_dora",
+      "render_fingerprint": "a6d2d4d37dab4912d774d7a7efaf4d8827042e4b363b57c82b8b8a2e54f8f8eb"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "es",
+      "voice": "em_alex",
+      "render_fingerprint": "418433858d06666300260c3c0ed95281f554c3369976596c4e3a19115e9eb98f"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "es",
+      "voice": "em_santa",
+      "render_fingerprint": "e007bb2fc3be9ddaaa6ce116e385953ee9f03e22a6ddcac617d13af87482d05a"
+    },
+    {
+      "lesson": "05_home",
+      "language": "fr",
+      "voice": "ff_siwis",
+      "render_fingerprint": "a7d147e16ed7f270db1169c33819bdd010e5c18f7b2ea573e93480d4392dfbf9"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "fr",
+      "voice": "ff_siwis",
+      "render_fingerprint": "5e1e9c35c388a507669e56625bbd8381fc140ea9517522b32b22f934afe0a538"
+    },
+    {
+      "lesson": "05_home",
+      "language": "hi",
+      "voice": "hf_alpha",
+      "render_fingerprint": "fc145cc7939098b67c92836e6179de47bdc2a19ca57aadd59117c09db135eaf1"
+    },
+    {
+      "lesson": "05_home",
+      "language": "hi",
+      "voice": "hf_beta",
+      "render_fingerprint": "ebe026129efd89088c821d37476e7ef8cf769b7458f1ec0eae7e28df2c925e11"
+    },
+    {
+      "lesson": "05_home",
+      "language": "hi",
+      "voice": "hm_omega",
+      "render_fingerprint": "421f7349fc1dc346cc24c7853d3b6ba807b24c5e4911854c8b1cb84649b6b018"
+    },
+    {
+      "lesson": "05_home",
+      "language": "hi",
+      "voice": "hm_psi",
+      "render_fingerprint": "d5ed116d895b4b40dc425ed3ce3f7aa97fbb554ea1cc8c0b443602dc9dd0faf0"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "hi",
+      "voice": "hf_alpha",
+      "render_fingerprint": "fd5b5a5cf83393f8c34c0715dd1ada2fccb58eaf7dab4b1d862b81809003d404"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "hi",
+      "voice": "hf_beta",
+      "render_fingerprint": "f605db73c81bb2d2c5ad176e6f5e2463473529f32e7aea46206255e427f36f52"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "hi",
+      "voice": "hm_omega",
+      "render_fingerprint": "226e0886a1488b99c14d8828e758169fe7e4f6a9de03b64c09dbd6560a2b77da"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "hi",
+      "voice": "hm_psi",
+      "render_fingerprint": "5e964af3e4e25707cc059be8ae2b793b81d186a4d4980af794f65634fcaa9a9e"
+    },
+    {
+      "lesson": "05_home",
+      "language": "it",
+      "voice": "if_sara",
+      "render_fingerprint": "cc1a31c7c0c50fdd95ffd45083744048ffe51ff10d0d7ccd9c51ee4b121c1806"
+    },
+    {
+      "lesson": "05_home",
+      "language": "it",
+      "voice": "im_nicola",
+      "render_fingerprint": "b98473f3ace1cf7ef72dd1218eb329603a61e2406b97415c2fe582bd64542245"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "it",
+      "voice": "if_sara",
+      "render_fingerprint": "fa464fb6fe0a0e1d564cc7d5fa3d012040e9caceaeb01c562e6a68fb4a473dd1"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "it",
+      "voice": "im_nicola",
+      "render_fingerprint": "e059f5b654c7627abcf7417d0ea90787f5c60d9bc57a888ce4832448600cf3ff"
+    },
+    {
+      "lesson": "05_home",
+      "language": "pt-BR",
+      "voice": "pf_dora",
+      "render_fingerprint": "72078528fedd45ac2984cc2d463090749046a3fd9d1bc47fcee26d46e90f0ac8"
+    },
+    {
+      "lesson": "05_home",
+      "language": "pt-BR",
+      "voice": "pm_alex",
+      "render_fingerprint": "1af5d8e4bad61e5552b9510b6fa79f95a7e7bf15faf414db98c0dd2b2fdfa4af"
+    },
+    {
+      "lesson": "05_home",
+      "language": "pt-BR",
+      "voice": "pm_santa",
+      "render_fingerprint": "62ee473bab20e76c9dbd0c55d495d30a7dd988c8249074a3e74b29cf88c73b12"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "pt-BR",
+      "voice": "pf_dora",
+      "render_fingerprint": "862667d0d0a060bfe9a45a316ea2a0db732b36be7e112eaba9d663c8bc35f08a"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "pt-BR",
+      "voice": "pm_alex",
+      "render_fingerprint": "fa13efdd8cea52da95bb0030195a08f4e55ec3bf93862fcc9f19ffc45432e45b"
+    },
+    {
+      "lesson": "08_measure",
+      "language": "pt-BR",
+      "voice": "pm_santa",
+      "render_fingerprint": "f06d7c7e6d632b777a925c23a5cdbabae873f00eff9b6bc158817450fbc67393"
+    }
+  ],
+  "runtime_identity_revalidation": "Separate full verify_tracks gate follows final rendering."
+}
