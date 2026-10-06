@@ -1,0 +1,63 @@
+{
+  "item": 615,
+  "corrects_receipt": "features/data/615_current_installation_stage_2026-10-06.json",
+  "prior_no_21_tile_public_home_pixels_claim_retracted": true,
+  "reason": "The old public Home and alpha assay cards were visible behind its privacy dialog",
+  "original_private_r1_04_video_rejected_for_publication": true,
+  "replacement_is_original_native_recorded_all_off_consent_profile": true,
+  "replacement_source_sha256": "73d08e6d0976be6aaac96356531ae96ef7ca6d9d351095da242df604c05d1cf9",
+  "no_mock_dialog_or_pixel_repainting": true,
+  "terminal_GPU_narration_returncode": 0,
+  "all_150_source_bound_audio_tracks_verified": true,
+  "all_14_catalogs_39_reviews_and_audio_caption_bytes_preserved": true,
+  "01_and_03_production_bytes_preserved": true,
+  "r2_four_k_web_video_browser_candidate_publication_pending": true,
+  "Mask_07_Conda_02_Home_05_Measure_08_unchanged": true,
+  "next_normal_GPU_turn_planned": "552-instanseg-brightfield-cuda-20261006-r1",
+  "artifacts": {
+    "features/data/615_installation_privacy_correction_2026-10-06/archive_installation_privacy_correction.py": {
+      "sha256": "dd69db9e91d579e724b027158b21ec37e8f0e66f33066c5404b18713de9618b8",
+      "bytes": 5573
+    },
+    "features/data/615_installation_privacy_correction_2026-10-06/installation-audio-verification-r1.log.gz": {
+      "sha256": "f00547fbc18d0919001f881de9e7844e83f74d4b7c54ba327a956c22c9bb359d",
+      "bytes": 147
+    },
+    "features/data/615_installation_privacy_correction_2026-10-06/installation-current-narration-r1.log.gz": {
+      "sha256": "bca4cd0663fa3007c3f8f4f5c3ba3c2c5028289c3f20c4fd4208850fddf13444",
+      "bytes": 2375
+    },
+    "features/data/615_installation_privacy_correction_2026-10-06/installation-installer-video-r1.log.gz": {
+      "sha256": "da42c53d4f1eb702e42def6c258243e9ff3924e30fbcaf63d846de3ce0ad4975",
+      "bytes": 257
+    },
+    "features/data/615_installation_privacy_correction_2026-10-06/installation-privacy-restage-r2.log.gz": {
+      "sha256": "898a6106ab1c34133e4c3f1cd20764a5e0a7c5e46c7877be3de1d9e9daf4c159",
+      "bytes": 200
+    },
+    "features/data/615_installation_privacy_correction_2026-10-06/original-and-corrected-native-privacy-proof.zip": {
+      "sha256": "26267a188d77029b181157c801c97b57adcf9115361948f120446a99df5d6244",
+      "bytes": 679722
+    },
+    "features/data/615_installation_privacy_correction_2026-10-06/r1-complete-audio-acceptance.json": {
+      "sha256": "0ef0f5234926dfcfdc19a891946834b921066b319f53535f2799e9617ff18119",
+      "bytes": 44816
+    },
+    "features/data/615_installation_privacy_correction_2026-10-06/r2-privacy-preservation.json": {
+      "sha256": "b37593c624dc7fe661a9f75ef0b8c02022eb222155733e9a4033d5f00a588755",
+      "bytes": 32031
+    },
+    "features/data/615_installation_privacy_correction_2026-10-06/restage_installation_privacy_r2.py": {
+      "sha256": "014168edda467004f87826ab36cd305149d93aeab2505bba1df70e813ac7657f",
+      "bytes": 4116
+    },
+    "features/data/615_installation_privacy_correction_2026-10-06/run_installation_narration.py": {
+      "sha256": "60f0b5fadd1d0ac6ec9a7c237f4d77eb73cc3ed7944c7e73902c963aa2cf8b9a",
+      "bytes": 780
+    },
+    "features/data/615_installation_privacy_correction_2026-10-06/verify_installation_audio.py": {
+      "sha256": "cccdd6f823c1c4937480f1373f392fd291bcbeac35448ad08495b3e8411d8d57",
+      "bytes": 1348
+    }
+  }
+}
