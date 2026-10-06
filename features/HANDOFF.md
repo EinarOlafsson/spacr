@@ -1,5 +1,35 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 final exact packed Random source and owner freeze update
+Latest Home renderer is ambientac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20;
+app5fc990e6, Preferences733f9af0 and io6ef38e31 remain unchanged.
+This supersedes the a324 renderer freeze below. Temporary intensity occupies
+the private owned word, with alphaFF restored before return/publication;
+there is no separate8MiB native rank plane, and palette tables are96KiB.
+Default/custom/Random native pixels remain exact. Warmed balanced measurements
+support modest shader savings, while fresh-process live pairs are mixed;
+hard24FPS remains OPEN. Root122palette/safe/help and final7doc/default/budget
+guards pass, fatal Ruff passes, and normal profiling-off actualHome is ready
+2.091s before firstSciPy2.123s with zero readiness reports. Exact logs/hashes:
+data/43_packed_source_final_checkpoint_2026-10-06/.
+
+Final clean9ed actual4K display Home/Mask/Measure/Annotate and three modal
+PrefsSaves200->100->200/random->spacr->random/radius0->65%->0 pass. Both
+checked producer frames have every alpha byteFF, seven naturalGUI-thread GC
+events complete, and close/deferred deletes leave0widgets/0ambient/0workers.
+Peak1323672KiB and aftercloseanonymous1026144KiB are retained, not a whole-RSS
+improvement claim. Original viewport sizes and log/script are in
+data/663_random_palette_save_gc_2026-10-06/RANDOM_ALPHA_FINAL.md.
+SaveSIGSEGV remains unreproduced/OPEN. All29packed proof manifest blobs verify.
+
+Workstation: consume this latest renderer for the normal owner regeneration;
+only one existing private scatter docstring changes in this follow-up, with
+no runtime caption/default/signature changes. Broader pending new Random/IO/
+Prefs/Safe/mask/template owner relay below still applies. Protected b779 and
+queued45fserial are untouched; neither is final ac146 source acceptance.
+Do not overwrite local Cell-DINO provenance helpers or event annotation GUI.
+AllGPU/API/docs/translations/tutorials remain workstation-owned.
+
 ## 2026-10-06 source45f actual platform success and immediate test-only repair
 Current45f compat37521372368 is terminalSUCCESS: all17jobs, including all8
 mandatory wheel/sdist platform cells. Native Windows37521372558 alsoSUCCESS.
