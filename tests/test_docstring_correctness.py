@@ -1972,9 +1972,31 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert theme.accepted_documented_parameters == theme.parameters
     callables = [
         replace(item, parameters=item.parameters - {"sound_key"},
-                accepted_documented_parameters=(
-                    item.accepted_documented_parameters - {"sound_key"}))
+                    accepted_documented_parameters=(
+                        item.accepted_documented_parameters - {"sound_key"}))
         if item.symbol == theme_symbol else item for item in callables
+    ]
+    by_symbol = {item.symbol: item for item in callables}
+
+    cell_dino_fields = {
+        "cell_dino_factory", "checkpoint_path", "checkpoint_sha256",
+    }
+    spec_symbol = "spacr.embeddings.EmbeddingSpec"
+    spec = by_symbol[spec_symbol]
+    assert spec.category == "dataclass_constructor"
+    assert spec.exposure == "autoapi"
+    assert spec.variant_count == 1 and spec.docless_variant_count == 0
+    assert spec.parameters == {
+        "backbone", "channel_policy", "channels", "batch_size", "device",
+        "normalize", "channel_scale",
+    } | cell_dino_fields
+    assert spec.required_parameters == set()
+    assert cell_dino_fields <= spec.accepted_documented_parameters
+    callables = [
+        replace(item, parameters=item.parameters - cell_dino_fields,
+                accepted_documented_parameters=(
+                    item.accepted_documented_parameters - cell_dino_fields))
+        if item.symbol == spec_symbol else item for item in callables
     ]
     by_symbol = {item.symbol: item for item in callables}
 

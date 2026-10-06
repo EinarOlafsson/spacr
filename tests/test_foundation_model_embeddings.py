@@ -3,7 +3,7 @@
 The models themselves are downloaded weights, so these tests pin the wiring
 around them with injected encoders: how many planes a channel-adaptive or
 fixed-width encoder is handed under each channel policy, which loader a
-backbone name reaches, the refusal for unsupported checkpoints, and the kNN
+backbone name reaches, the refusal for a missing local checkpoint, and the kNN
 accuracy / mAP scorecard that compares backbones on a labelled set.
 """
 from __future__ import annotations
@@ -85,9 +85,9 @@ def test_a_backbone_name_reaches_its_loader(monkeypatch):
         "openphenom", "chada_vit", "subcell", "subcell_rybg", "cell_dino"}
 
 
-def test_cell_dino_is_refused_with_a_reason_before_any_download():
+def test_cell_dino_requires_a_local_checkpoint_before_any_download():
     pytest.importorskip("torch")
-    with pytest.raises(emb.EmbeddingError, match="not yet supported"):
+    with pytest.raises(emb.EmbeddingError, match="local official Cell-DINO checkpoint"):
         emb._foundation_encoder(emb.EmbeddingSpec(backbone="cell_dino"))
 
 

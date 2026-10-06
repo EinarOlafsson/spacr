@@ -43,6 +43,8 @@ from __future__ import annotations
 import hashlib
 import logging
 import os
+import re
+import stat
 from dataclasses import dataclass, replace
 from typing import (Any, Callable, Dict, List, Mapping, MutableMapping,
                     Optional, Sequence, Tuple)
@@ -116,6 +118,9 @@ class EmbeddingSpec:
         object's embedding does not depend on which crops share its batch.
         ``None`` lets :func:`embed_array` estimate it from the crops it is
         given.
+    :param cell_dino_factory: pinned official Cell-DINO hub factory.
+    :param checkpoint_path: local official Cell-DINO weights file.
+    :param checkpoint_sha256: expected SHA-256 of those weights.
     """
 
     backbone: str = DEFAULT_BACKBONE
@@ -125,6 +130,9 @@ class EmbeddingSpec:
     device: Optional[str] = None
     normalize: bool = True
     channel_scale: Optional[Tuple[float, ...]] = None
+    cell_dino_factory: Optional[str] = None
+    checkpoint_path: Optional[str] = None
+    checkpoint_sha256: Optional[str] = None
 
     def __post_init__(self) -> None:
         """Reject a specification that could not produce a matrix.
@@ -162,6 +170,12 @@ class EmbeddingSpec:
             str(self.normalize)]
         if self.channel_scale is not None:
             fields.append(",".join(repr(v) for v in self.channel_scale))
+        if self.backbone == "cell_dino":
+            fields.extend((self.cell_dino_factory or "",
+                           os.path.realpath(os.path.expanduser(
+                               self.checkpoint_path or "")),
+                           (self.checkpoint_sha256 or "").lower(),
+                           _CELL_DINO_REVISION))
         payload = "|".join(fields)
         return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
 
@@ -298,6 +312,8 @@ def _prepare(crops: np.ndarray, spec: EmbeddingSpec
 
 def _encoded_channels(available: int, spec: EmbeddingSpec) -> Tuple[int, ...]:
     """The channel indices ``spec`` encodes from crops with ``available``."""
+    if spec.backbone == "cell_dino":
+        _cell_dino_spec(spec)
     channels = (tuple(range(available)) if spec.channels is None
                 else tuple(spec.channels))
     if spec.backbone == "subcell_rybg":
@@ -308,7 +324,7 @@ def _encoded_channels(available: int, spec: EmbeddingSpec) -> Tuple[int, ...]:
                 f"channel {channel} is not in the crops, which have "
                 f"{available}")
     multichannel = (
-        spec.backbone == "subcell_rybg"
+        spec.backbone in ("subcell_rybg", "cell_dino")
         or spec.backbone.startswith(_DINO_PREFIX)
         or (spec.backbone in _FOUNDATION_MODELS
             and _FOUNDATION_MODELS[spec.backbone]["in_channels"] is None))
@@ -345,6 +361,41 @@ def _subcell_rybg_spatial_size(height: int, width: int) -> None:
         raise EmbeddingError(
             "subcell_rybg needs crops at least 16 pixels high "
             "and wide for its ViT-B/16 patch embedding")
+
+
+_CELL_DINO_REVISION = "7764ea0f912e53c92e82eb78a2a1631e92725fc8"
+_CELL_DINO_FACTORIES = {
+    "cell_dino_hpa_vitl16": (4, 224),
+    "cell_dino_hpa_vitl14": (4, 518),
+    "cell_dino_cp_vits8": (5, 128),
+}
+
+
+def _cell_dino_spec(spec: EmbeddingSpec) -> tuple[int, int]:
+    """Require an official factory, local digest and ordered source planes."""
+    if not spec.checkpoint_path:
+        raise EmbeddingError(
+            "Choose a local official Cell-DINO checkpoint before embedding; "
+            "Meta provides weights through its download request")
+    if not isinstance(spec.checkpoint_sha256, str) or not re.fullmatch(
+            r"[0-9a-fA-F]{64}", spec.checkpoint_sha256):
+        raise EmbeddingError("Enter the Cell-DINO checkpoint's SHA-256 digest")
+    factory = spec.cell_dino_factory
+    if not isinstance(factory, str) or factory not in _CELL_DINO_FACTORIES:
+        raise EmbeddingError("Choose an official Cell-DINO factory before embedding")
+    width, size = _CELL_DINO_FACTORIES[factory]
+    channels = spec.channels
+    if (spec.channel_policy != CHANNEL_PROJECT
+            or not isinstance(channels, (tuple, list))
+            or len(channels) != width
+            or any(isinstance(channel, (bool, np.bool_))
+                   or not isinstance(channel, (int, np.integer))
+                   or channel < 0 for channel in channels)
+            or len(set(channels)) != width):
+        raise EmbeddingError(
+            f"{factory} needs {width} distinct, explicit crop channel "
+            "indices in the declared model-input order")
+    return width, size
 
 
 def _scaled(plane: np.ndarray, scale: Optional[float]) -> np.ndarray:
@@ -473,6 +524,8 @@ def _embed_plate(crops: Any, spec: Optional[EmbeddingSpec] = None, *,
                 f"got shape {shape}")
         if spec.backbone == "subcell_rybg":
             _subcell_rybg_spatial_size(int(shape[1]), int(shape[2]))
+        if spec.backbone == "cell_dino":
+            _cell_dino_spec(spec)
         channels = _encoded_channels(int(shape[3]), spec)
         recorded = None if record is None else record.get("channel_scale")
         if recorded is None:
@@ -546,6 +599,9 @@ def embed_array(crops: np.ndarray, spec: Optional[EmbeddingSpec] = None, *,
         raise EmbeddingError(
             "subcell_rybg encoder must accept exactly four planes in "
             "r, y, b, g order")
+    if spec.backbone == "cell_dino" and width != _cell_dino_spec(spec)[0]:
+        raise EmbeddingError(
+            "Cell-DINO encoder input width differs from the declared factory")
 
     if spec.channel_policy == CHANNEL_PROJECT:
         planes = [_scaled(array[..., c], s) for c, s in zip(channels, scales)]
@@ -675,8 +731,8 @@ def _foundation_names() -> Tuple[str, ...]:
     They are offered beside the ``timm`` backbones. OpenPhenom and ChAda-ViT
     are channel-adaptive and take any number of channels. ``subcell`` takes
     DNA and the stain of interest; ``subcell_rybg`` takes four explicitly
-    mapped microtubule, ER, DNA and protein planes. Cell-DINO is listed so a
-    request for it gets a reason rather than an unknown-name error.
+    mapped microtubule, ER, DNA and protein planes. Cell-DINO requires a
+    declared local official checkpoint and explicit channel mapping.
     """
     return tuple(_FOUNDATION_MODELS)
 
@@ -699,30 +755,50 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
     :func:`embed_array` how many planes ``k`` it wants, ``None`` meaning any.
     Other foundation crops are resized to the model's training size. SubCell
     R/Y/B/G keeps its native crop geometry and interpolates position tokens.
-    Weights are downloaded once, at a pinned revision, into the Hugging Face
-    or torch hub cache.
+    Other weights are downloaded once into the Hugging Face or torch hub
+    cache. Cell-DINO uses a declared local checkpoint and the pinned official
+    DINOv2 source; no gated weights are fetched.
 
-    :raises EmbeddingError: when torch or transformers is missing, or the
-        model is not supported by this version.
+    :raises EmbeddingError: when dependencies, mapping or verified local
+        Cell-DINO weights are unavailable.
     """
     if spec.backbone == "subcell_rybg":
         _subcell_rybg_channels(spec)
+    if spec.backbone == "cell_dino":
+        _cell_dino_spec(spec)
     try:
         import torch
     except ImportError as exc:
         raise EmbeddingError(
             "foundation-model embeddings need torch; install the "
             "`spacr[embeddings]` extra") from exc
+    if spec.backbone == "cell_dino":
+        width, size = _cell_dino_spec(spec)
+        info = dict(_FOUNDATION_MODELS["cell_dino"],
+                    in_channels=width, size=size)
+        model, forward = _cell_dino_model(spec, torch)
+        device = spec.device or ("cuda" if torch.cuda.is_available() else "cpu")
+        model.eval().to(device)
+
+        def run(stack: np.ndarray) -> np.ndarray:
+            """Encode declared Cell-DINO planes at the official crop size."""
+            out: List[np.ndarray] = []
+            with torch.no_grad():
+                for start in range(0, stack.shape[0], spec.batch_size):
+                    chunk = torch.from_numpy(np.ascontiguousarray(
+                        stack[start:start + spec.batch_size].transpose(0, 3, 1, 2)
+                    )).float().to(device)
+                    if chunk.shape[-2:] != (size, size):
+                        chunk = torch.nn.functional.interpolate(
+                            chunk, size=(size, size), mode="bilinear",
+                            align_corners=False)
+                    out.append(forward(model, chunk).detach().float().cpu().numpy())
+            return np.concatenate(out, axis=0)
+
+        run.in_channels = info["in_channels"]
+        return run
     info = _FOUNDATION_MODELS[spec.backbone]
     device = spec.device or ("cuda" if torch.cuda.is_available() else "cpu")
-    if spec.backbone == "cell_dino":
-        raise EmbeddingError(
-            "Cell-DINO checkpoints are not yet supported by this version. "
-            "Official weights are available through Meta's download request "
-            "at https://ai.meta.com/resources/models-and-libraries/cell-dino-downloads/. "
-            "Choose openphenom, "
-            "chada_vit or subcell, or a timm DINOv2 backbone such as "
-            "vit_small_patch14_dinov2.lvd142m.")
     if spec.backbone in ("subcell", "subcell_rybg"):
         model, forward = _subcell_model(info, torch)
     else:
@@ -755,6 +831,60 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
 
     run.in_channels = info["in_channels"]
     return run
+
+
+def _cell_dino_model(spec: EmbeddingSpec, torch: Any):
+    """Load only a digest-matched local state into the pinned official hub."""
+    width, _ = _cell_dino_spec(spec)
+    path = os.path.realpath(os.path.expanduser(spec.checkpoint_path or ""))
+    try:
+        descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NONBLOCK", 0))
+        before = os.fstat(descriptor)
+        if not stat.S_ISREG(before.st_mode):
+            os.close(descriptor)
+            raise EmbeddingError("Cell-DINO checkpoint must be a regular file")
+        with os.fdopen(descriptor, "rb") as handle:
+            digest = hashlib.sha256()
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+            if digest.hexdigest() != spec.checkpoint_sha256.lower():
+                raise EmbeddingError("Cell-DINO checkpoint SHA-256 does not match")
+            handle.seek(0)
+            state = torch.load(handle, map_location="cpu", weights_only=True)
+            after = os.fstat(handle.fileno())
+            if (before.st_size, before.st_mtime_ns) != (
+                    after.st_size, after.st_mtime_ns):
+                raise EmbeddingError("Cell-DINO checkpoint changed during loading")
+    except OSError as exc:
+        raise EmbeddingError(f"Cannot read Cell-DINO checkpoint: {exc}") from exc
+    if not isinstance(state, dict) or not state or not all(
+            isinstance(key, str) and isinstance(value, torch.Tensor)
+            for key, value in state.items()):
+        raise EmbeddingError("Cell-DINO checkpoint is not a plain model state")
+    try:
+        model = torch.hub.load(
+            "facebookresearch/dinov2:" + _CELL_DINO_REVISION,
+            spec.cell_dino_factory, pretrained=False, trust_repo=True)
+    except Exception as exc:
+        raise EmbeddingError(
+            "Cell-DINO needs the pinned official dinov2 source at "
+            f"{_CELL_DINO_REVISION}: {exc}") from exc
+    try:
+        model.load_state_dict(state, strict=True)
+    except Exception as exc:
+        raise EmbeddingError(
+            f"Cell-DINO official {spec.cell_dino_factory} state cannot be "
+            f"loaded strictly: {exc}") from exc
+    patch_embed = getattr(model, "patch_embed", None)
+    projection = getattr(patch_embed, "proj", None)
+    if getattr(projection, "in_channels", None) != width:
+        raise EmbeddingError("Cell-DINO factory has an unexpected input width")
+
+    def forward(net, x):
+        """Return the official DINOv2 head output for each declared crop."""
+        return net(x)
+
+    return model, forward
 
 
 def _hub_model(name: str, info: Mapping[str, Any], torch: Any):
