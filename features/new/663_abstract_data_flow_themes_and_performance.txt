@@ -620,3 +620,33 @@ pending; audit both radius and density. Prior default-zero mouse influence,
 fading trails and25% growth occupancy remain requirements. These are new
 requests, not completed acceptance. Home owns CPU/theme refinement and native
 Save investigation; workstation retains all GPU/API/docs/translations/tutorials.
+
+2026-10-06 — exact independently owned growth and rain frame publication
+Source 9b9e2ffea7, integrated as 1f6c799e96, shades growth/Thore with the
+same native RGB32 painter, composition, colors and blur into an image the
+caller already owns. This removes the redundant publication copy and
+33,177,600 retained engine bytes at 4K. Five frames allocate five owned
+images rather than one retained buffer plus five deep copies; published
+pixel dimensions and memory limits are unchanged. Existing buffer-identity
+tests now check actual owned output memory; they do not waive the ceiling.
+Eighty-five affected tests pass. All 22 added executable statements are
+covered; no new touching branch arcs. Ninety-six scratch complete native
+pairs and 40 production buffered-reference pairs preserve dark/light,
+custom colors, blur, seeded clocks/rewinds and frame memory independence.
+Errors end their painter and cannot mutate a previously published frame.
+Production source SHA256 is
+22166400010e43fbc4c6774c5cbfc062ebdf73b76e160dbb60751cab7608d2f9.
+Its full executable AST equals the measured prototype; only two new shader
+docstrings differ. Mature growth publication improves 22.84 to 23.80 FPS,
+shade median 36.88 to 19.83 ms, p95 50.62 to 31.73 ms. Thore publication
+improves 23.36 to 23.99 FPS, shade median 31.39 to 5.95 ms, p95 44.05 to
+14.35 ms; actual lightning max falls 62.97 to 16.18 ms. All workers stop
+immediately on hide. Growth peak RSS falls 359.75 to 329.26 MiB, steady RSS
+is unchanged near 299.5 MiB; Thore peak falls 360.54 to 296.79 MiB, steady
+RSS 299.43 to 236.54 MiB. Actual publication/clock/paint/repeat counts remain
+explicit: one growth after window repeats 18 painted objects versus 10
+before, so this is not proof of universal displayed 24 FPS. New density
+and visual follow-up changes remain separate. Portable before/after source,
+proof, live worker/allocation and coverage evidence is archived at
+ data/663_owned_native_branch_frames_cpu_2026-10-06/.
+No Save crash fix or user aesthetic acceptance is claimed.

@@ -1,0 +1,43 @@
+Exact owned native growth/Thore publication checkpoint, separate from later
+visual/density changes. Source9b9e2ffea7 integrated as1f6c799e96.
+production_owned_receipt.json binds the final221664... source to measured
+prototype57d5...: complete executable module AST is identical; only two
+new shader docstrings describe production rather than scratch ownership.
+Original reusable-buffer baseline is9ad source4de9fc...
+
+From a complete installed repo, CUDA hidden and capped4GiB:
+
+TMPDIR=/mnt/wd4tb/scratch CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen \
+ tools/run_capped.sh 4G python \
+ features/data/663_owned_native_branch_frames_cpu_2026-10-06/reproduce.py exact
+
+Repeat that command with mode worker or allocation for actual live CPU GUI
+comparison or separate visible frame-image allocation instrumentation.
+Worker replay uses four fresh Python processes and software-only Xvfb4K,
+requested24FPS/native data-art area/detail2/default size/speed/density,
+blur0/radius0. Inner QT_QPA_PLATFORM=xcb is necessary for actual Xvfb GUI;
+QT_OPENGL=software/LIBGL_ALWAYS_SOFTWARE=1/CUDA_VISIBLE_DEVICES='' remain.
+No source file under spacr/ is overwritten; frozen source expands into a
+new scratch output directory. --repo can point at a complete installed
+checkout when this archive lives in a sparse metadata worktree.
+
+Exact proof covers96 fullnative pairs: both themes, dark/light, custom
+orange/cyan colors, two seeds, blur0/.6, six clocks including rewind.
+Production14 focused tests include40 additional fullnative reference pairs,
+independent frame memory after caller mutation/resize/reset and paint-error
+recovery/finally-painter-end, and synchronous blur/blit equivalence. The85
+case source-current acceptance log and22-statement/no-gap coverage receipt,
+full JSON/SQLite trace, source diff and actual changed tests are lossless.
+Existing lifecycle/native memory-ceiling tests now inspect actual owned
+images instead of demanding an unused retained buffer. All pixel/occupancy/
+RAM ceilings remain enforced.
+
+Allocation replay counts Python-visible QImage constructors and deep copy
+calls, not every hidden Qt allocation. It runs separately from live timings.
+The actual worker receipts preserve publication, distinct clock, paint,
+repeat, heartbeat, native area/controls/load and RSS/hide counts. Publication
+FPS is not identical to displayed distinct motion; the growth after sample
+has18 repeated painted objects versus10 before, despite improved publication
+and distinct clock counts. No universal24FPS or native Save-crash fix claim.
+Live end-grab images are not included as visual parity because their clocks
+differ; exact fixed-clock comparisons are authoritative.
