@@ -1696,11 +1696,26 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
     Returns:
         numpy.ndarray: The normalized stack.
     """
+    normalized_stack = np.zeros_like(stack, dtype=np.float32)
+    return _normalize_img_channels(
+        normalized_stack, channels, save_dtype, settings,
+        lambda channel: stack[..., channel])
+
+
+def _normalize_img_channels(normalized_stack, channels, save_dtype, settings,
+                            load_channel):
+    """Fill a float32 output from mutable channels in their source order.
+
+    :param normalized_stack: zero-filled destination with the full source shape.
+    :param channels: source channel indices to normalize.
+    :param save_dtype: requested output dtype.
+    :param settings: object-specific background and percentile settings.
+    :param load_channel: callable returning one mutable source channel.
+    :returns: normalized output converted to ``save_dtype``.
+    """
     from .utils import print_progress
 
     channels = [int(c) for c in channels]
-
-    normalized_stack = np.zeros_like(stack, dtype=np.float32)
 
     from .organelle_types import _background_switch_key
 
@@ -1746,7 +1761,7 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
             if role_remove_background is not None:
                 remove_background = role_remove_background
 
-        single_channel = stack[..., channel]
+        single_channel = load_channel(channel)
 
         print(f'Processing channel {channel}: background={background}, signal_threshold={signal_threshold}, remove_background={remove_background}')
 
@@ -3598,7 +3613,7 @@ def _preprocess_mapped_volume_series(settings):
             os.mkdir(stage_masks)
             stacks, archives = {}, {}
             for field, times in sorted(fields.items()):
-                frames, filenames, shape, dtype = [], [], None, None
+                filenames, shape, dtype, frame_shape = [], None, None, None
                 for time, channels in sorted(times.items()):
                     volumes = []
                     for channel in channel_ids:
@@ -3638,17 +3653,40 @@ def _preprocess_mapped_volume_series(settings):
                         del planes, plane
                     frame = np.stack(volumes, axis=-1)
                     del volumes
+                    if frame_shape is None:
+                        frame_shape = frame.shape
                     filename = _escaped_field_stem(*field, time) + '.npy'
                     output = os.path.join(stage_stack, filename)
                     _save_array_atomic(output, frame)
                     stacks[filename] = _volume_file_hash(output)
-                    frames.append(frame)
                     del frame
                     filenames.append(filename)
-                raw = np.stack(frames)
-                del frames
-                normalized = _normalize_img_batch(raw, selected, np.float32, settings)
-                del raw
+                staged_paths = [os.path.join(stage_stack, name) for name in filenames]
+                for name, path in zip(filenames, staged_paths):
+                    checkpoint()
+                    if os.path.islink(path) or _volume_file_hash(path) != stacks[name]:
+                        raise ValueError(f'Native T-by-Z staged stack changed: {name}')
+                output_shape = (len(filenames), *frame_shape)
+                normalized = np.zeros(output_shape, dtype=np.float32)
+
+                def load_channel(channel):
+                    """Read one private source channel from verified staged stacks."""
+                    values = np.empty(output_shape[:-1], dtype=np.dtype(dtype))
+                    for index, path in enumerate(staged_paths):
+                        checkpoint()
+                        mapped = np.load(path, mmap_mode='r', allow_pickle=False)
+                        if mapped.shape != frame_shape or mapped.dtype.str != dtype:
+                            raise ValueError('Native T-by-Z staged stack shape or dtype changed.')
+                        values[index] = mapped[..., channel]
+                        del mapped
+                    return values
+
+                normalized = _normalize_img_channels(
+                    normalized, selected, np.float32, settings, load_channel)
+                for name, path in zip(filenames, staged_paths):
+                    checkpoint()
+                    if os.path.islink(path) or _volume_file_hash(path) != stacks[name]:
+                        raise ValueError(f'Native T-by-Z staged stack changed: {name}')
                 if selected != list(range(len(channel_ids))):
                     normalized = normalized[..., selected]
                 archive_name = _escaped_field_stem(*field, '') + 'norm_timelapse.npz'
