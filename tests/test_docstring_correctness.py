@@ -1956,6 +1956,28 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = [item for item in callables if item.symbol not in yolo_symbols]
     by_symbol = {item.symbol: item for item in callables}
 
+    # NightTheme adds only optional sound_key. Its complete source contract
+    # is checked before reconstructing the original six-field boundary row.
+    # The full inverse digest is archived in the 2026-10-06 API receipt.
+    theme_symbol = "spacr.qt.night_themes.NightTheme"
+    theme = by_symbol[theme_symbol]
+    required_theme_fields = {
+        "ambient", "ambient_palette", "description", "key", "label", "palette",
+    }
+    assert theme.category == "dataclass_constructor"
+    assert theme.exposure == "autoapi"
+    assert theme.variant_count == 1 and theme.docless_variant_count == 0
+    assert theme.parameters == required_theme_fields | {"sound_key"}
+    assert theme.required_parameters == required_theme_fields
+    assert theme.accepted_documented_parameters == theme.parameters
+    callables = [
+        replace(item, parameters=item.parameters - {"sound_key"},
+                accepted_documented_parameters=(
+                    item.accepted_documented_parameters - {"sound_key"}))
+        if item.symbol == theme_symbol else item for item in callables
+    ]
+    by_symbol = {item.symbol: item for item in callables}
+
     # 8,453 -> 8,462 on 2026-09-07, +9/-0, and the tree was FROZEN at that
     # number by agreement while the localization catalogs regenerated. The
     # nine are the other session's spacr/infection.py (5 public functions)

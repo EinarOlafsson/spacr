@@ -1,0 +1,11 @@
+{
+  "normal_complete_boundary_passed": true,
+  "all_five_independent_contract_mutations_rejected": [
+    "missing_sound_key",
+    "sound_key_required",
+    "sound_key_undocumented",
+    "extra_unexplained_optional_parameter",
+    "arbitrary_keywords_changed"
+  ],
+  "original_count_digest_required_docless_and_coverage_pins_unchanged": true
+}
