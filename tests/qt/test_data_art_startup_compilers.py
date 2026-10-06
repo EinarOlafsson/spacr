@@ -12,6 +12,8 @@ def cold_compilers(monkeypatch):
     monkeypatch.setattr(ambient, '_PACKED_SCATTER', None)
     monkeypatch.setattr(ambient, '_PACKED_SCATTER_STARTED', False)
     monkeypatch.setattr(ambient, '_PACKED_SCATTER_FAILED', False)
+    monkeypatch.setattr(ambient, '_COLORED_SCATTER', None)
+    monkeypatch.setattr(ambient, '_COLORED_SCATTER_FAILED', False)
     compiler = ambient._SatinCompiler()
     monkeypatch.setattr(ambient, '_SATIN_COMPILER', compiler)
     threads = []
@@ -110,3 +112,20 @@ def test_existing_kernels_are_reusable_without_new_imports(cold_compilers, monke
     assert ambient._ready_packed_scatter() is kernel
     assert compiler.ready() is kernel
     assert not threads
+
+
+def test_random_palette_starts_no_compiler_before_actual_readiness(qapp, cold_compilers):
+    _, threads = cold_compilers
+    ambient._begin_ambient_startup()
+    engine = ambient.make_engine('data_art_impulse_lens', 'random', '#101418', seed=42)
+    image = engine.shade(960, 540)
+    assert not image.isNull()
+    assert not threads
+    assert not ambient._PACKED_SCATTER_STARTED
+    assert ambient._ready_colored_scatter() is None
+    ambient._complete_ambient_startup()
+    assert ambient._ready_colored_scatter() is None
+    assert [thread.name for thread in threads] == ['spacr-grain-compile']
+    for _ in range(5):
+        ambient._ready_colored_scatter()
+    assert len(threads) == 1
