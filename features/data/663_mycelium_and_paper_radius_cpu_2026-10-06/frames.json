@@ -1,0 +1,154 @@
+{
+  "source_sha256": "bb0dc363259a186db869846094cbbc7b067215dd0fc43035ad37f33c51ef4318",
+  "scope": "Actual CPU native3840x2160 deterministic frames, no aesthetic acceptance claim",
+  "frames": [
+    {
+      "background": "#101418",
+      "clock": 5.0,
+      "file": "dark-5.0.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "occupied_fraction": 2.4594907407407408e-05,
+      "edges": 4,
+      "advancing_tips": 1,
+      "pixel_sha256": "e167724f35e0aca81238ea42b1b44bfc834ced8ccc37ba4d66acfc00942bd7d2"
+    },
+    {
+      "background": "#101418",
+      "clock": 18.0,
+      "file": "dark-18.0.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "occupied_fraction": 0.00012514467592592593,
+      "edges": 21,
+      "advancing_tips": 3,
+      "pixel_sha256": "372b8e7cae22024dba190a815895e2f90451de0791ce50ce5ca342343b74054e"
+    },
+    {
+      "background": "#101418",
+      "clock": 47.0,
+      "file": "dark-47.0.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "occupied_fraction": 0.0016770351080246913,
+      "edges": 277,
+      "advancing_tips": 34,
+      "pixel_sha256": "64e15c3d1a9a7b7a2f8e9bb8cc58b2dc17ed43051d47d8b0c6e5ad7f96c99540"
+    },
+    {
+      "background": "#101418",
+      "clock": 97.0,
+      "file": "dark-97.0.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "occupied_fraction": 0.007590784143518519,
+      "edges": 1203,
+      "advancing_tips": 17,
+      "pixel_sha256": "f75aef219a82bba8ae12088a2a32eb32a98c82d12bd59c6a1c112a6b4d7c0bd0"
+    },
+    {
+      "background": "#101418",
+      "clock": 3600.33,
+      "file": "dark-3600.33.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "occupied_fraction": 0.0070047260802469135,
+      "edges": 1119,
+      "advancing_tips": 36,
+      "pixel_sha256": "37ba09398bd97af9e6dff4cf0a318bd756ed2bf56a0e0983c4951f80a565915a"
+    },
+    {
+      "background": "#f6f7f9",
+      "clock": 5.0,
+      "file": "light-5.0.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "occupied_fraction": 2.423321759259259e-05,
+      "edges": 4,
+      "advancing_tips": 1,
+      "pixel_sha256": "3156b7909b208ddd54d986c26a2325c45ed2c6722d154170034f3ffadfea02bb"
+    },
+    {
+      "background": "#f6f7f9",
+      "clock": 18.0,
+      "file": "light-18.0.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "occupied_fraction": 0.00012405960648148148,
+      "edges": 21,
+      "advancing_tips": 3,
+      "pixel_sha256": "95d2176e7a21831e9ae54bd32f7f91a20f0e072e73896d918fe546ca79a9036e"
+    },
+    {
+      "background": "#f6f7f9",
+      "clock": 47.0,
+      "file": "light-47.0.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "occupied_fraction": 0.0016436390817901234,
+      "edges": 277,
+      "advancing_tips": 34,
+      "pixel_sha256": "f2f40dc4cbd022f0d876274a8ef251cf1fd873c6913a982cf21b14a4d7b1af4f"
+    },
+    {
+      "background": "#f6f7f9",
+      "clock": 97.0,
+      "file": "light-97.0.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "occupied_fraction": 0.007237413194444445,
+      "edges": 1203,
+      "advancing_tips": 17,
+      "pixel_sha256": "888dd0d7117280a3e0050df17ad52fd36050a7fd9074397f5073f91fdf7c96b8"
+    },
+    {
+      "background": "#f6f7f9",
+      "clock": 3600.33,
+      "file": "light-3600.33.png",
+      "size": [
+        3840,
+        2160
+      ],
+      "occupied_fraction": 0.006781804591049383,
+      "edges": 1119,
+      "advancing_tips": 36,
+      "pixel_sha256": "ac11ff9845fe1b11f616dd2e944b293ff3a91964e0bf827e53ef1dd22c9ac402"
+    }
+  ],
+  "density": [
+    {
+      "density": 0.01,
+      "edges": 18,
+      "pixel_sha256": "426d08f137566177f5f648964ff716986e9fd486cf26ec3c8df73dbe3ba80b61"
+    },
+    {
+      "density": 0.1,
+      "edges": 136,
+      "pixel_sha256": "6cdd2b4c3846ee743c75911d2496809af1d9b72a89d690e139cbb0d6647849e9"
+    },
+    {
+      "density": 0.5,
+      "edges": 550,
+      "pixel_sha256": "6f4057b2fd3cca0422df817512ff3370e6130d3951ea8a413b0239345372bae6"
+    }
+  ],
+  "peak_rss_kib": 939528
+}

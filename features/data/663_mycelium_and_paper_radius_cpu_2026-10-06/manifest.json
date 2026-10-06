@@ -1,0 +1,94 @@
+{
+  "sources": {
+    "before": {
+      "commit": "9aefdd563a",
+      "source_sha256": "ca7cc348dc4e99e0413b2954839e309a6795c12f4ff9450af298b04baeadba8c"
+    },
+    "after": {
+      "commit": "204f819938",
+      "source_sha256": "bb0dc363259a186db869846094cbbc7b067215dd0fc43035ad37f33c51ef4318"
+    }
+  },
+  "files": {
+    "README.txt": {
+      "bytes": 3501,
+      "sha256": "5ed7ca592c9d252973f4c7a44239172287847a8e97568353d75b2410aaa9799e"
+    },
+    "after.py.gz": {
+      "bytes": 97776,
+      "sha256": "d1f2a15d95be54234d8aa8c2fcc0b805915ea1a343a3f8264ed05b3fc56f1d1d"
+    },
+    "before.py.gz": {
+      "bytes": 97919,
+      "sha256": "02135eed3170de736b7ecac9bdfe4ea1d38a0ac9349f5a83e11ed8ba675e846c"
+    },
+    "coverage.json": {
+      "bytes": 284247,
+      "sha256": "556529be4faa8220394a163bfb830ba5ee6dad8e923e9ec244844096eb239bce"
+    },
+    "dark-47.0.png": {
+      "bytes": 91809,
+      "sha256": "adb0fa862c1880e59a54df2e1ecb2830e8f898712a9b8c144b36eec062b81cc9"
+    },
+    "dark-97.0.png": {
+      "bytes": 246373,
+      "sha256": "41de74a67fce85b1e197ded2743f2d9de1117aee3c12ab42f91a347d778b8e82"
+    },
+    "data_art_fungal_growth-after.json": {
+      "bytes": 3377,
+      "sha256": "3a3ab71b1f324540973bcb49626920774581d282cc8a3285443538ccb54a5b48"
+    },
+    "data_art_fungal_growth-before.json": {
+      "bytes": 3377,
+      "sha256": "1a5c39f31fa9a5e9621fbc2aab8f21c72b83a15b67fbfd05d0d30e4f7f9e79f0"
+    },
+    "frames.json": {
+      "bytes": 4035,
+      "sha256": "9d1148fb11c0c6c730676f1a7b0d790bc66ee5074e4f9f75a81ae7d7ce4fb598"
+    },
+    "light-97.0.png": {
+      "bytes": 185054,
+      "sha256": "4b4465aface72436e09a605814bf378a2e60d6b5b6e004442d05a245d58efe5b"
+    },
+    "native-origin-crop.png": {
+      "bytes": 7992,
+      "sha256": "9708ff94f7007e89d495d00d69da56d19a3781d6dfa87728d02bbdc456ff4f63"
+    },
+    "paper_center_probe.py": {
+      "bytes": 2329,
+      "sha256": "6be736c9bf9fc9a6e3757dff3ab288325bcacee001879a155917f43a3fa895e4"
+    },
+    "paper_center_receipt.json": {
+      "bytes": 502,
+      "sha256": "4a16d1705cdf5280788b4a74f1d31c3b4577246f664f09a1b9168983b77a1297"
+    },
+    "render.py": {
+      "bytes": 3048,
+      "sha256": "acf1fa84d3d8b1d8dc4bfc127026467a3a7f91fdf939faab331fd851e8ffc564"
+    },
+    "reproduce.py": {
+      "bytes": 2044,
+      "sha256": "bc18c100cf03a157c4423a62f2a75da66ce26ff7a19b1d2f2d14edb610c9d5fa"
+    },
+    "source.diff": {
+      "bytes": 9725,
+      "sha256": "377671a00dac03bc1d2ed7e58096ef519f954806fa1b4232ea714be5bab63f06"
+    },
+    "source_coverage.json": {
+      "bytes": 248,
+      "sha256": "bbec4888901c1a34a5708fa0c50ee22759710f7223bce0252bec020e5af07daf"
+    },
+    "test_data_art_graded_density.py": {
+      "bytes": 5772,
+      "sha256": "d0d63bed1238e7c593632cb0cc2694264837cc5de6356cec9ae450019a1aa0d3"
+    },
+    "test_fungal_growth_engine.py": {
+      "bytes": 7959,
+      "sha256": "3580abe76dd1434e2b1fb9a62473fe97ece0ebc1e8b8440f338750761106a21c"
+    },
+    "worker_probe.py": {
+      "bytes": 8755,
+      "sha256": "f5416de32b17209b9e8f53b43dba46be0b6e197217f4a77f45e8533fb58c9ec7"
+    }
+  }
+}

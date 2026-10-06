@@ -710,3 +710,55 @@ original native density/radius and live Thore receipts, and four lossless frames
 are archived at data/663_theme_controls_thore_startup_cpu_2026-10-06/.
 Mycelium appearance, random colors, inward field gravity and final acceptance
 remain active separate work; reported crash/all-theme24FPS stay OPEN.
+2026-10-06 connected mycelium and primitive-centre radius checkpoints:
+Renderer204f819938 replaces the travelling vine with fine connected common-origin
+fans: progressive irregular forks, dim established filaments, bright advancing
+tips, and overlapping110-second colony fade without full-frame resets. Density
+selects ancestor-first prefixes from finite240-branch trees; only8 colonies are
+cached, and arbitrary two-hour seeks remain deterministic.53 focused cases pass;
+all51 added executable statements and26 touching arcs are covered, zero gaps.
+Real dark/light25% ink bounds at control extremes, native ownership/lifecycle and
+fractional growth/birth continuity are preserved. Actual4K default sampled ink
+at97s is0.007591;80s1%/10%/50% populations are18/136/550 visible edges. Native
+frames were inspected, with appearance acceptance remaining the user's.
+Fresh software-Xvfb4K before/after publishes23.997/23.779FPS; shader medians
+21.500/16.784ms, p9534.471/26.569ms, all120/119 publication clocks distinct.
+Publication p9564.211/50.985ms and earlier shared-load p9546.62ms prevent a
+universal24FPS claim. Default density/native detail were not reduced.
+Tests-only0fb0c875a3 closes the paper radius audit under its explicit primitive-
+centre model: native1% physical21.6px reach aimed at a seeded tile centre affects
+exactly1 primitive and5452 pixels; clearing pointer restores exact resting bytes.
+Between-centre1% regions may legitimately target zero, retained as a limitation;
+no expanded radius, minimum or new physics was introduced. The audit is complete
+under that contract, not an assurance of nonempty response at every cursor.
+Compact immutable sources,53-case branch trace, actual worker/frames/radius
+receipts, four lossless stills/crops and portable capped CPU probes live in
+ data/663_mycelium_and_paper_radius_cpu_2026-10-06/.
+Random colors, inward advection point gravity, final installed/hosted acceptance,
+all-theme smoothness and the reported Save SIGSEGV remain separate active items.
+
+2026-10-06 — bounded advection cursor-gravity implementation
+Commit bf4a965280 replaces the prior pointer-local advection rotation with
+smooth inward attraction computed from three recent moving trail samples.
+The effect is strongest near the center and exactly zero outside radius;
+the radius-zero default remains exact, and 1%, 10% and 50% reach have
+measured graduated influence. This is a finite trail-history approximation,
+not a physical integrator or a guarantee that background wind cannot give
+some particles an outward total velocity. Ninety-two focused Qt cases pass
+under 4 GiB. Actual native4K AmbientWidget/FrameProducer probes published
+23.81 FPS at 25% and 23.94 FPS at 50% on this machine, with 75 distinct
+clocks and worker shutdown on hide. Exact source hashes, radius counts,
+portable replay scripts, source-bound worker JSON and full-dimension
+review stills are in data/663_advection_gravity_cpu_2026-10-06/. User
+aesthetic acceptance, reported Save SIGSEGV and remaining N663 work stay
+open.
+
+2026-10-06 — integrated user revisions accepted; broader performance OPEN
+    Common-origin mycelial fans and inward-history advection are implemented
+    and verified in their exact source-bound archives, closing those children
+    at100%. Paper1%radius audit is complete: cursor on real native4Ktile
+    changes5452pixels, restoring pointer returns original bytes; between
+    tile centers it may legitimately affect no tile. Root56density/radius/
+    Preferences cases pass. Parent663still retains Random colors, universal
+    high-detail/max-density frame-budget limitations and unreproducedSave
+    SIGSEGV. Paired live native timings are averages, not hard24FPS promises.

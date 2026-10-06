@@ -2007,6 +2007,27 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     ]
     by_symbol = {item.symbol: item for item in callables}
 
+    # Startup readiness adds one optional callback without changing the
+    # previous watch_interactive signature or any other public callable.
+    readiness_symbol = "spacr.qt.timing.watch_interactive"
+    readiness = by_symbol[readiness_symbol]
+    previous_readiness_fields = {
+        "widget", "name", "detail", "started_at", "budget_s",
+    }
+    assert readiness.category == "function"
+    assert readiness.exposure == "autoapi"
+    assert readiness.variant_count == 1 and readiness.docless_variant_count == 0
+    assert readiness.parameters == previous_readiness_fields | {"on_ready"}
+    assert readiness.required_parameters == {"widget", "name"}
+    assert readiness.accepted_documented_parameters == readiness.parameters
+    callables = [
+        replace(item, parameters=item.parameters - {"on_ready"},
+                accepted_documented_parameters=(
+                    item.accepted_documented_parameters - {"on_ready"}))
+        if item.symbol == readiness_symbol else item for item in callables
+    ]
+    by_symbol = {item.symbol: item for item in callables}
+
     cell_dino_fields = {
         "cell_dino_factory", "checkpoint_path", "checkpoint_sha256",
     }

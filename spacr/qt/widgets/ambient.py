@@ -5324,7 +5324,7 @@ class _DataArtEngine(_BufferedEngine):
         painter.drawImage(0, 0, self._frame_genetic_advection(width, height))
 
     def _frame_genetic_advection(self, width, height) -> QImage:
-        """Advect fine trails through changing filaments and migrating vortices."""
+        """Advect trails through vortices and short cursor-attracted histories."""
         np = _numpy()
         key = ("wind_grains", width, height, self.size, self.density)
         grains = self._material_cache.get(key)
@@ -5382,11 +5382,15 @@ class _DataArtEngine(_BufferedEngine):
         x, y = positions
         if self.pointer is not None and self.gravity_radius > 0.0:
             dx, dy, _, weight = self._pointer_field(x, y, width, height)
-            rotation = 1.5 * weight
-            cosine, sine = np.cos(rotation), np.sin(rotation)
+            exposure = weight.copy()
+            exposure[:-3] += weight[3:]
+            exposure[-3:] += weight[-1]
+            exposure[:-6] += weight[6:]
+            exposure[-6:] += weight[-1]
+            pull = 0.72 * np.sqrt(weight * exposure / 3.0)
             shorter = max(1, min(width, height))
-            x += (dx * (cosine - 1.0) - dy * sine) * shorter / width
-            y += (dx * sine + dy * (cosine - 1.0)) * shorter / height
+            x -= dx * pull * shorter / width
+            y -= dy * pull * shorter / height
         columns = np.clip((x * width).astype(np.int32), 0, width - 1)
         rows = np.clip((y * height).astype(np.int32), 0, height - 1)
         intensity = (0.25 + 0.60 * depth) * ((12 - trails) / 12) ** 1.3
@@ -5471,18 +5475,18 @@ class _DataArtEngine(_BufferedEngine):
 
 
 class _FungalGrowthEngine(_BufferedEngine):
-    """One seeded apex advances forever while its old hyphae recede.
+    """Fine connected mycelial fans branch from common origins continuously.
 
-    Every trunk segment joins the preceding one, starting at one origin.
-    Forks attach only to that trunk. A finite window around the requested
-    clock is reconstructed from indexed seeds, so seeking hours ahead never
-    accumulates geometry or restarts the colony.
+    Bright tips advance along irregular filaments and fork progressively.
+    Older connected colonies recede as new origins start, without a full
+    frame reset. Indexed finite trees make arbitrary clock seeks reproducible
+    without accumulating a simulation history.
     """
 
     name = "data_art_fungal_growth"
     base_edge = 2048
-    _interval = 1.35
-    _edge_lifetime = 70.0
+    _interval = 30.0
+    _edge_lifetime = 110.0
 
     def _shade(self, width: int, height: int) -> QImage:
         """Render the unchanged native field into a freshly owned image."""
@@ -5499,10 +5503,9 @@ class _FungalGrowthEngine(_BufferedEngine):
         return self._soften(image, width, height)
 
     def _configure(self, rng: random.Random) -> None:
-        """Roll one origin and phases for the entire unbounded clock."""
+        """Roll the first common origin and a seed for all indexed colonies."""
         self._fungal_seed = rng.randrange(2 ** 63)
-        self._origin = (rng.uniform(0.46, 0.54), rng.uniform(0.46, 0.54))
-        self._phases = tuple(rng.uniform(-math.pi, math.pi) for _ in range(4))
+        self._origin = (rng.uniform(0.46, 0.54), rng.uniform(0.85, 0.95))
         self._lineage_cache: Dict[tuple, tuple] = {}
 
     def _resize(self) -> None:
@@ -5522,22 +5525,10 @@ class _FungalGrowthEngine(_BufferedEngine):
         """Allow a little softness without turning filaments into a wash."""
         return min(1.3, super().blur_scale(width, height))
 
-    def _apex(self, index: int, width: int, height: int) -> tuple:
-        """Position of the one continuous, looping growth front."""
-        a, b, c, d = self._phases
-        x = self._origin[0] + 0.26 * (
-            math.sin(a + index * 0.113) - math.sin(a)) + 0.09 * (
-                math.sin(b + index * 0.037) - math.sin(b))
-        y = self._origin[1] + 0.23 * (
-            math.sin(c + index * 0.089) - math.sin(c)) + 0.10 * (
-                math.sin(d + index * 0.029) - math.sin(d))
-        return (width * max(0.045, min(0.955, x)),
-                height * max(0.045, min(0.955, y)))
-
     def _step(self, rng: random.Random, x: float, y: float,
               angle: float, width: int, height: int) -> tuple:
-        """Bend one short fork while keeping its tip on the canvas."""
-        length = min(width, height) * self.size * rng.uniform(0.025, 0.062)
+        """Bend one fine irregular filament step while retaining its live tip."""
+        length = min(width, height) * self.size * rng.uniform(0.009, 0.019)
         dx, dy = length * math.cos(angle), length * math.sin(angle)
         margin = max(2.0, min(width, height) * 0.025)
         if x + dx < margin or x + dx > width - margin:
@@ -5553,41 +5544,35 @@ class _FungalGrowthEngine(_BufferedEngine):
             end_y - y, end_x - x)
 
     def _lineage(self, block: int, width: int, height: int) -> tuple:
-        """Build 16 indexed front steps; retain at most eight such blocks."""
+        """Build one finite connected tree; retain at most eight colonies."""
         key = (block, width, height, self.size)
         cached = self._lineage_cache.get(key)
         if cached is not None:
             return cached
+        seed = (self._fungal_seed ^ (block * 0xD1B54A32D192ED03)) & (2 ** 128 - 1)
+        rng = random.Random(seed)
+        origin = self._origin if block == 0 else (
+            rng.uniform(0.25, 0.75), rng.uniform(0.85, 0.95))
+        branches = [(origin[0] * width, origin[1] * height,
+                     -math.pi / 2 + rng.uniform(-0.18, 0.18),
+                     block * self._interval - 0.55, 0)]
         edges = []
-        for index in range(max(0, block * 16), (block + 1) * 16):
-            rng = random.Random((self._fungal_seed ^
-                                 (index * 0x9E3779B97F4A7C15))
-                                & (2 ** 128 - 1))
-            x, y = self._apex(index, width, height)
-            end_x, end_y = self._apex(index + 1, width, height)
-            bend = rng.uniform(-0.15, 0.15)
-            cx = (x + end_x) * 0.5 - (end_y - y) * bend
-            cy = (y + end_y) * 0.5 + (end_x - x) * bend
-            born = index * self._interval - 0.55
-            direction = math.atan2(end_y - y, end_x - x)
-            edges.append((index, x, y, cx, cy, end_x, end_y,
-                          born, self._interval, index, 0))
-            for fork in range(3):
-                if rng.random() > (0.95 if fork == 0 else
-                                   0.88 if fork == 1 else 0.75):
-                    continue
-                angle = direction + rng.choice((-1.0, 1.0)) * rng.uniform(
-                    0.65, 1.35)
-                bx, by = end_x, end_y
-                began = born + self._interval + fork * 0.12
-                for _ in range(3):
-                    tip_x, tip_y, fx, fy, angle = self._step(
-                        rng, bx, by, angle, width, height)
-                    edges.append((index, bx, by, fx, fy, tip_x, tip_y,
-                                  began, 1.45, index + fork, 1))
-                    began += 1.45
-                    bx, by = tip_x, tip_y
-                    angle += rng.uniform(-0.34, 0.34)
+        for index in range(240):
+            x, y, angle, born, depth = branches[index]
+            rng = random.Random(seed ^ (index * 0x9E3779B97F4A7C15))
+            hue = rng.randrange(5)
+            for _ in range(6):
+                angle += rng.uniform(-0.23, 0.23)
+                end_x, end_y, cx, cy, angle = self._step(
+                    rng, x, y, angle, width, height)
+                duration = rng.uniform(1.25, 1.7)
+                edges.append((index, x, y, cx, cy, end_x, end_y,
+                              born, duration, hue, depth))
+                born += duration
+                x, y = end_x, end_y
+            for direction in (-1, 1):
+                branches.append((x, y, angle + direction * rng.uniform(0.32, 0.72),
+                                 born + rng.uniform(0.10, 0.35), depth + 1))
         result = tuple(edges)
         self._lineage_cache[key] = result
         if len(self._lineage_cache) > 8:
@@ -5607,31 +5592,31 @@ class _FungalGrowthEngine(_BufferedEngine):
             return ()
         width, height = int(width), int(height)
         latest = max(0, math.floor((self.time + 0.55) / self._interval))
-        earliest = max(0, math.floor((self.time - self._edge_lifetime - 3.0)
+        earliest = max(0, math.floor((self.time - self._edge_lifetime)
                                      / self._interval))
-        stroke = max(0.55, min(2.4, (0.70 + 0.32 * self.size)
+        stroke = max(0.45, min(1.7, 0.66 * self.size
                               * (min(width, height) / 1080.0) ** 0.35))
+        branch_count = self.element_count(90, 240)
         candidates = []
-        for block in range(earliest // 16, latest // 16 + 1):
+        for block in range(earliest, latest + 1):
+            colony_age = self.time - (block * self._interval - 0.55)
+            colony_fade = min(1.0, (self._edge_lifetime - colony_age) / 35.0)
+            if colony_fade <= 0.0:
+                continue
             for (index, x0, y0, cx, cy, x1, y1, born, duration,
                  hue, depth) in self._lineage(block, width, height):
-                if index < earliest or index > latest:
+                if index >= branch_count:
                     continue
                 age = self.time - born
-                if age <= 0.0 or age >= self._edge_lifetime:
-                    continue
-                if depth and ((index * 37 + hue * 19) % 100) >= \
-                        min(99, round(75 * self.density)):
+                if age <= 0.0:
                     continue
                 progress = min(1.0, age / duration)
-                fade = min(1.0, age / 0.35,
-                           (self._edge_lifetime - age) / 30.0)
-                alpha = (0.72 if depth == 0 else 0.50) * fade \
-                    * self.alpha_scale()
+                fade = min(1.0, age / 0.35) * colony_fade
+                alpha = (0.20 + 0.38 * max(0.0, 1.0 - max(0.0, age - duration) / 9.0)) \
+                    * fade * self._fractional_alpha_scale(90)
                 if alpha >= 0.006:
                     candidates.append((x0, y0, cx, cy, x1, y1, progress,
-                                       alpha, stroke * (1.0 if depth == 0
-                                                       else 0.72), hue))
+                                       alpha, max(0.4, stroke * 0.93 ** depth), hue))
         budget = width * height * 0.18
         selected = []
         for edge in reversed(candidates):
@@ -5661,6 +5646,8 @@ class _FungalGrowthEngine(_BufferedEngine):
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setBrush(Qt.NoBrush)
         colors = self.paint_colors
+        paths = {}
+        tips = []
         for (x0, y0, cx, cy, x1, y1, progress,
              alpha, stroke, hue) in self.geometry(width, height):
             control_x = x0 + progress * (cx - x0)
@@ -5671,19 +5658,27 @@ class _FungalGrowthEngine(_BufferedEngine):
             end_y = ((1.0 - progress) ** 2 * y0
                      + 2.0 * (1.0 - progress) * progress * cy
                      + progress ** 2 * y1)
-            path = QPainterPath(QPointF(x0, y0))
+            key = (hue % len(colors), stroke, alpha)
+            path = paths.get(key)
+            if path is None:
+                path = QPainterPath()
+                paths[key] = path
+            path.moveTo(QPointF(x0, y0))
             path.quadTo(QPointF(control_x, control_y), QPointF(end_x, end_y))
-            color = _with_alpha(colors[hue % len(colors)], alpha)
+            if progress < 1.0:
+                tips.append((end_x, end_y, stroke, hue, alpha))
+        for (hue, stroke, alpha), path in paths.items():
+            color = _with_alpha(colors[hue], alpha)
             painter.setPen(QPen(color, stroke, Qt.SolidLine,
                                 Qt.RoundCap, Qt.RoundJoin))
             painter.drawPath(path)
-            if progress < 1.0:
-                painter.setPen(Qt.NoPen)
-                painter.setBrush(_with_alpha(colors[(hue + 1) % len(colors)],
-                                             min(0.75, alpha * 1.8)))
-                radius = max(0.45, stroke * 0.8)
-                painter.drawEllipse(QPointF(end_x, end_y), radius, radius)
-                painter.setBrush(Qt.NoBrush)
+        painter.setPen(Qt.NoPen)
+        for end_x, end_y, stroke, hue, alpha in tips:
+            painter.setBrush(_with_alpha(colors[(hue + 1) % len(colors)],
+                                         min(0.85, alpha * 1.8)))
+            radius = max(0.45, stroke * 0.8)
+            painter.drawEllipse(QPointF(end_x, end_y), radius, radius)
+        painter.setBrush(Qt.NoBrush)
 
 
 class _ThoreEngine(_BufferedEngine):

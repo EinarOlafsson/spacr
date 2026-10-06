@@ -1,0 +1,62 @@
+[
+  {
+    "radius": 0.01,
+    "time": 2.0,
+    "inside_samples": 24,
+    "changed_samples": 19,
+    "outside_samples": 407951,
+    "outside_identical": true,
+    "inside_inward_fraction": 0.7083333333333334,
+    "inside_mean_inward_pixels": 0.7367278263938665
+  },
+  {
+    "radius": 0.01,
+    "time": 2.2,
+    "inside_samples": 33,
+    "changed_samples": 24,
+    "outside_samples": 407946,
+    "outside_identical": true,
+    "inside_inward_fraction": 0.6666666666666666,
+    "inside_mean_inward_pixels": 0.7450628260890853
+  },
+  {
+    "radius": 0.1,
+    "time": 2.0,
+    "inside_samples": 2803,
+    "changed_samples": 3684,
+    "outside_samples": 403374,
+    "outside_identical": true,
+    "inside_inward_fraction": 1.0,
+    "inside_mean_inward_pixels": 11.187718632103502
+  },
+  {
+    "radius": 0.1,
+    "time": 2.2,
+    "inside_samples": 2797,
+    "changed_samples": 3693,
+    "outside_samples": 403388,
+    "outside_identical": true,
+    "inside_inward_fraction": 1.0,
+    "inside_mean_inward_pixels": 11.120360912871263
+  },
+  {
+    "radius": 0.5,
+    "time": 2.0,
+    "inside_samples": 97992,
+    "changed_samples": 155062,
+    "outside_samples": 230609,
+    "outside_identical": true,
+    "inside_inward_fraction": 1.0,
+    "inside_mean_inward_pixels": 55.792429284463864
+  },
+  {
+    "radius": 0.5,
+    "time": 2.2,
+    "inside_samples": 98236,
+    "changed_samples": 155753,
+    "outside_samples": 230345,
+    "outside_identical": true,
+    "inside_inward_fraction": 1.0,
+    "inside_mean_inward_pixels": 55.793455852082914
+  }
+]

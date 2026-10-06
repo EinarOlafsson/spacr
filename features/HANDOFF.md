@@ -23,6 +23,55 @@ event validation; no microscopy accuracy is claimed and no dataset files
 will be mirrored or committed. Public scientific non-CTC use requires the
 organizer permission stated at https://celltrackingchallenge.net/datasets/.
 
+
+## 2026-10-06 Home annotation, mycelium, advection and hosted import acceptance
+Home completes the alpha tracked-field annotation GUI: root126affected cases
+pass, source-bound420editor lines/148arcs and26detector lines/14arcs are hit.
+Conflicting observation labels, tracker digest/backend mismatches, changes
+during annotations parsing/Save, and target aliases are refused before writes
+or fitting. Parent567 scientific/GPU acceptance remains OPEN; preserve this
+GUI while integrating your VideoMAE encoder/checkpoint/channel/device rows.
+
+Mycelium now grows fine connected fans from common origins, with advancing
+bright tips and fading overlapping old colonies, without reset and at most25%
+ink. Advection now pulls trails inward through their finite sampled history,
+with stationary mouse influence, smooth finite radius and exact unaffected
+outside/radius-zero behavior. Local native producer measurements remain near24
+average FPS; hard every-frame24FPS is NOT guaranteed. Paper's1%radius can
+move an actual tile center (5452native4Kpixels), but a cursor between centers
+may correctly reach no primitive. These implementation/audit children close;
+Random colors and stronger native memory workspace remain in progress.
+
+Exact hosted3ca compat37511791550 passed ALL8 deciding wheel/sdist startup
+and packaging-smoke platform cells. Parent concluded CANCELLED because your
+new5ce push activated existing compatibility concurrency while two
+informational full sweeps were active; this is not an all-green CI verdict.
+Native Windows startup contrast37511791573 on3ca is terminal SUCCESS.
+Current3ca ordinary27jobs have no failure yet at this checkpoint; protected
+b779serial37503577012 remains live and untouched. Old1f3 ordinary run had21
+failed jobs; root saved its pre-cancel state and cancelled only the obsolete
+already-failed run to release ordinary test concurrency. Never credit it green.
+
+CPU guard repairs: official Cellpose4.0.7 pads1native channel to3with zeros;
+test now proves rawvolume shape,axes,originalpixels and zero padding, rather
+than rejecting that valid library layout. Actual floor/current paired targets
+pass and root47nativebatch cases pass. Resource-bar opacity now compares
+identical animated pixel locations with tracks present/hidden, preserving
+geometry and both original thresholds. Lens/waves/blobs checks pass10,
+including injected doubled RAM fill rejection. No UI opacity defect claimed.
+Exact receipts are in data/43_cpu_acceptance_checkpoint_2026-10-06/.
+
+Workstation regeneration relay: app/timing's optional on_ready changes exactly
+one public inventory variant; its explicit semantic projection preserves all
+historical pins. Preferences _sync_custom_colors correctly documents SEVEN
+accepted data-art scenes, but reviewed private-helper arrival manifest
+663_565_560_private_api_arrivals_2026-10-06.json still pins SIX. Update that
+specific reviewed record normally; do not revert truthful source or weaken the
+callable-boundary guard. Regenerate current event GUI, normalization helpers,
+new growth/advection/radius and Preferences/runtime/Help/API/settings-flow
+records normally, preserving foundation-model provenance helpers. Random
+palette/new native workspace will be relayed after final CPU acceptance.
+
 ## 2026-10-06 workstation mask save/reopen repair and event backend checkpoint
 Workstation owns and repairs the new Make Masks report: old same-extension
 PNG/TIFF masks shadowed canonical edited .tif outputs on reopen. Saved TIFF
