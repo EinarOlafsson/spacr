@@ -1,32 +1,43 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
+  "english_sha256": "a1b6c2bf8690e1fbc9d7d545d5e5ac3a0a838a5f61421728f14fcadb2a347ed4",
   "review": {
     "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "translator": "Prior forty-five reviewed scene translations retained; Codex directly translated and technically reviewed thirteen YOLO additions",
     "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "scope": "Separate class-labelled boxes, native editing/history, independent image-relative XYWH export and empty-file demonstration without biological ground-truth claims",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-30",
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+      "date": "2026-10-05",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
-      "listening_review": false
+      "listening_review": false,
+      "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
     },
-    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
+    "previous_english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a"
   },
   "language": "it",
   "title": "Make Masks: modificare le etichette e preparare immagini di addestramento",
-  "description": "Apri coppie immagine-maschera, correggi gli oggetti, registra i verdetti, organizza immagini e maschere per Measure e crea ritagli appaiati per l’addestramento.",
+  "description": "Apri coppie immagine-maschera, correggi gli oggetti, registra i verdetti, organizza immagini e maschere per Measure e crea ritagli appaiati per l’addestramento. Disegna, modifica ed esporta riquadri YOLO separati con le relative classi senza cambiare l’immagine o la maschera di segmentazione.",
   "objectives": [
     "Aprire immagini con le relative maschere di istanza ed esaminare gli oggetti con la lente.",
     "Correggere le etichette con Undo, disegno, divisione e filtri sugli oggetti.",
     "Salvare le maschere revisionate, registrare i verdetti Keep o Discard e creare ritagli immagine-maschera per l’addestramento.",
-    "Organizzare immagini e maschere per Measure e condividere coppie revisionate con Upload data."
+    "Organizzare immagini e maschere per Measure e condividere coppie revisionate con Upload data.",
+    "Disegnare e modificare riquadri separati con le relative classi, salvare il progetto ed esportare etichette YOLO normalizzate."
   ],
   "prerequisite": "Prepara una cartella di immagini bidimensionali con i TIFF di etichette di istanza corrispondenti in una sottocartella masks. Ogni maschera usa il nome base del file immagine. Lavora su una copia quando ti eserciti con modifiche e ritagli. L’esempio usa immagini di ER e maschere cellulari dal progetto di microscopia scaricabile di Measure.",
   "scenes": [
@@ -45,6 +56,19 @@
     "Per rimuovere oggetti in base a dimensione o forma, scegli una proprietà nella categoria Filter e fai clic su Add a filter. Qualsiasi regionprop misurata da scikit-image può diventare un filtro, come area, solidità o intensità media. Qui una riga di area con un minimo nasconde le cellule più piccole; premi Filter per applicare di nuovo l’elenco. Il registro qui sotto indica ogni oggetto nascosto dai filtri.",
     "Rimuovi una riga per far tornare gli oggetti che nascondeva. I filtri si applicano mentre li modifichi e di nuovo ogni volta che si apre un campo, quindi rimuovi le righe che non ti servono più prima di proseguire. Anche Undo annulla un passaggio di filtro.",
     "Dopo aver rivisto le modifiche, fai clic su Save mask nella barra degli strumenti. Conserva le immagini di origine insieme alle maschere salvate e al loro registro di revisione.",
+    "Scegli Box accanto a Draw per annotare riquadri di delimitazione YOLO separati. Questi riquadri hanno classi e cronologia proprie; non sostituiscono la maschera di segmentazione né cambiano l’immagine acquisita. Qui i riquadri illustrano l’interazione, non costituiscono un riferimento biologico per l’addestramento.",
+    "Fai clic su Add class e inserisci un nome di classe. Questo esempio usa demonstration. Seleziona la classe desiderata prima di disegnare; mantieni coerenti nomi di classe e identificatori numerici nell’intero dataset di addestramento.",
+    "Trascina sull’immagine per disegnare un riquadro. Il contorno e l’etichetta della classe mostrano la nuova annotazione. Per dati reali di addestramento, racchiudi accuratamente l’oggetto bersaglio; questo rettangolo di prova illustra solo il gesto.",
+    "Trascina all’interno di un riquadro esistente per spostarlo. Il riquadro mantiene la classe mentre cambiano le sue coordinate nell’immagine. Controlla la posizione prima di salvare.",
+    "Trascina un angolo del riquadro per ridimensionarlo. Posiziona i bordi attorno all’oggetto desiderato e verifica che il rettangolo rimanga dentro l’immagine.",
+    "Tieni premuto Control mentre trascini per disegnare un altro riquadro dentro uno esistente. Questo crea un’annotazione separata invece di spostare il riquadro esterno. Entrambi mantengono coordinate e classe proprie.",
+    "Fai clic con il pulsante destro su un riquadro per eliminarlo. Controlla quale contorno scompare, soprattutto quando i riquadri si sovrappongono. Rimuovere un riquadro non cancella pixel dalla maschera di segmentazione.",
+    "Fai clic su Undo per ripristinare il riquadro eliminato. Tornano le due annotazioni indipendenti. Usa la cronologia per correggere una modifica accidentale prima di salvare.",
+    "Redo applica nuovamente l’eliminazione. Annulla ancora una volta per conservare entrambi i riquadri dimostrativi per l’esportazione. Controlla le annotazioni finali prima di scriverle su disco.",
+    "Fai clic su Save boxes per memorizzare le annotazioni nel file di progetto accanto alle immagini. Coordinate e classi dei riquadri vengono salvate separatamente dalla maschera. Conserva il file di progetto con le immagini sorgente corrispondenti.",
+    "Fai clic su Export YOLO labels e scegli la destinazione del file di testo. Ogni riga contiene un identificatore di classe e i valori normalizzati di centro X, centro Y, larghezza e altezza rispetto all’intera immagine. Il file associato con i nomi delle classi conserva la corrispondenza degli identificatori.",
+    "Un campo senza riquadri annotati esporta un file di etichette vuoto. Questo secondo campo di microscopia illustra il formato del file, non un negativo biologico. Usa esempi negativi di addestramento solo dopo aver verificato l’assenza di oggetti bersaglio.",
+    "Torna alla prima immagine. I riquadri salvati vengono ricaricati con le stesse classi e coordinate, mentre l’immagine acquisita e la maschera di segmentazione restano invariate. Conserva insieme etichette YOLO, corrispondenza delle classi e immagini sorgente per l’addestramento.",
     "Le icone in alto a destra aprono il resto degli strumenti per le maschere. Cellpose Workbench addestra un modello su coppie revisionate e lo applica a una cartella, e l’icona successiva esegue il rilevamento su ogni campo della cartella aperta.",
     "Model Compare mette due serie di maschere una accanto all’altra e Model Zoo trova e prova i pesi. Quando altri esempi vanno corretti, Curate e Napari Bridge ti riportano alla modifica.",
     "Scegli Recrop e trascina un riquadro intorno agli oggetti che vuoi in un campo di addestramento più piccolo. Vengono scritte una nuova immagine e la maschera corrispondente. Gli oggetti tagliati dal bordo vengono scartati, quindi lascia spazio intorno agli oggetti completi ed esamina il ritaglio.",

@@ -6,12 +6,13 @@
   "series": 1,
   "app_key": "make_masks",
   "section": "Tools",
-  "description": "Open image-mask pairs, correct objects, record verdicts, organize images and masks for Measure and create paired training crops.",
+  "description": "Open image-mask pairs, correct objects, record verdicts, organize images and masks for Measure and create paired training crops. Draw, edit and export separate class-labelled YOLO boxes without changing the image or segmentation mask.",
   "objectives": [
     "Open images with matching instance masks and inspect objects in the magnifier.",
     "Correct labels with Undo, drawing, division and object filters.",
     "Save curated masks, record Keep or Discard verdicts and create image-mask crops for training.",
-    "Organize images and masks for Measure, and share curated pairs with Upload data."
+    "Organize images and masks for Measure, and share curated pairs with Upload data.",
+    "Draw and edit separate class-labelled boxes, save their project and export normalized YOLO labels."
   ],
   "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
   "scenes": [
@@ -107,6 +108,143 @@
       "visual": "11_saved_restored_mask",
       "narration": "After reviewing the edits, click Save mask in the toolbar. Keep the source images together with the saved masks and their curation record.",
       "hold_after": 0.7
+    },
+    {
+      "visual": "yolo_04_box_controls",
+      "narration": "Choose Box beside Draw to annotate separate YOLO bounding boxes. These boxes have their own classes and history; they do not replace the segmentation mask or change the acquired image. Here the boxes demonstrate interaction, not biological training truth.",
+      "hold_after": 0.7,
+      "focus": [
+        1060,
+        150,
+        820,
+        130
+      ]
+    },
+    {
+      "visual": "yolo_05_add_class",
+      "narration": "Click Add class and enter a class name. This example uses demonstration. Select the intended class before drawing; keep class names and their numeric identifiers consistent across your training dataset.",
+      "hold_after": 0.7,
+      "focus": [
+        1786,
+        972,
+        248,
+        136
+      ]
+    },
+    {
+      "visual": "yolo_06_drawn_box",
+      "narration": "Drag across the image to draw a box. The outline and class label show the new annotation. For real training data, enclose the target object accurately; this practice rectangle is only a gesture example.",
+      "hold_after": 0.7,
+      "focus": [
+        2030,
+        760,
+        1050,
+        880
+      ]
+    },
+    {
+      "visual": "yolo_07_moved_box",
+      "narration": "Drag inside an existing box to move it. The box keeps its class while its image coordinates change. Inspect its position before saving.",
+      "hold_after": 0.7,
+      "focus": [
+        2030,
+        760,
+        1050,
+        880
+      ]
+    },
+    {
+      "visual": "yolo_08_resized_box",
+      "narration": "Drag a corner of the box to resize it. Place the edges around the intended object and check that the rectangle remains inside the image.",
+      "hold_after": 0.7,
+      "focus": [
+        2030,
+        760,
+        1050,
+        880
+      ]
+    },
+    {
+      "visual": "yolo_09_contained_box",
+      "narration": "Hold Control while dragging to draw another box inside an existing one. This creates a separate annotation rather than moving the outer box. Both boxes keep their own coordinates and class.",
+      "hold_after": 0.7,
+      "focus": [
+        2030,
+        760,
+        1050,
+        880
+      ]
+    },
+    {
+      "visual": "yolo_10_deleted_box",
+      "narration": "Right-click a box to delete it. Check which outline disappears, especially when boxes overlap. Removing a box does not erase pixels from the segmentation mask.",
+      "hold_after": 0.7,
+      "focus": [
+        2030,
+        760,
+        1050,
+        880
+      ]
+    },
+    {
+      "visual": "yolo_11_undo_boxes",
+      "narration": "Click Undo to restore the deleted box. The two independent annotations return. Use history to recover a mistaken edit before saving.",
+      "hold_after": 0.7,
+      "focus": [
+        2030,
+        760,
+        1050,
+        880
+      ]
+    },
+    {
+      "visual": "yolo_12_redo_boxes",
+      "narration": "Redo applies the deletion again. Undo once more to keep both demonstration boxes for the export. Review the final annotations before writing them to disk.",
+      "hold_after": 0.7,
+      "focus": [
+        2030,
+        760,
+        1050,
+        880
+      ]
+    },
+    {
+      "visual": "yolo_13_saved_boxes",
+      "narration": "Click Save boxes to store the annotations in the project file beside the images. This saves box coordinates and classes separately from the mask. Keep the project file with its corresponding source images.",
+      "hold_after": 0.7,
+      "focus": [
+        2030,
+        760,
+        1050,
+        880
+      ]
+    },
+    {
+      "visual": "yolo_14_export_picker",
+      "narration": "Click Export YOLO labels and choose the text-file destination. Each row contains a class identifier and normalized center X, center Y, width and height relative to the full image. The class-name companion preserves the identifier mapping.",
+      "hold_after": 0.7,
+      "focus": [
+        1389,
+        812,
+        1300,
+        950
+      ]
+    },
+    {
+      "visual": "yolo_17_negative_exported",
+      "narration": "A field with no annotated boxes exports an empty label file. This second microscopy field illustrates that file format, not a biological negative. Use negative training examples only after checking that no target objects are present.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "yolo_18_reloaded_boxes",
+      "narration": "Return to the first image. The saved boxes reload with the same classes and coordinates, while the acquired image and segmentation mask remain unchanged. Keep the YOLO labels, class mapping and source images together for training.",
+      "hold_after": 0.7,
+      "focus": [
+        2030,
+        760,
+        1050,
+        880
+      ]
     },
     {
       "visual": "09_fold_train_cellpose",

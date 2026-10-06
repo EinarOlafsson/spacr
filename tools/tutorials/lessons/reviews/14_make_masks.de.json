@@ -1,32 +1,43 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
+  "english_sha256": "a1b6c2bf8690e1fbc9d7d545d5e5ac3a0a838a5f61421728f14fcadb2a347ed4",
   "review": {
     "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "translator": "Prior forty-five reviewed scene translations retained; Codex directly translated and technically reviewed thirteen YOLO additions",
     "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "scope": "Separate class-labelled boxes, native editing/history, independent image-relative XYWH export and empty-file demonstration without biological ground-truth claims",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-30",
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+      "date": "2026-10-05",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
-      "listening_review": false
+      "listening_review": false,
+      "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
     },
-    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
+    "previous_english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a"
   },
   "language": "de",
   "title": "Make Masks: Labels bearbeiten und Trainingsbilder vorbereiten",
-  "description": "Öffnen Sie Bild-Masken-Paare, korrigieren Sie Objekte, halten Sie Urteile fest, organisieren Sie Bilder und Masken für Measure und erstellen Sie gepaarte Trainingsausschnitte.",
+  "description": "Öffnen Sie Bild-Masken-Paare, korrigieren Sie Objekte, halten Sie Urteile fest, organisieren Sie Bilder und Masken für Measure und erstellen Sie gepaarte Trainingsausschnitte. Separate YOLO-Boxen mit Klassenbezeichnungen zeichnen, bearbeiten und exportieren, ohne das Bild oder die Segmentierungsmaske zu verändern.",
   "objectives": [
     "Bilder mit passenden Instanzmasken öffnen und Objekte in der Lupe prüfen.",
     "Labels mit Undo, Zeichnen, Teilen und Objektfiltern korrigieren.",
     "Kuratierte Masken speichern, Keep- oder Discard-Urteile festhalten und Bild-Masken-Ausschnitte für das Training erstellen.",
-    "Bilder und Masken für Measure organisieren und kuratierte Paare mit Upload data teilen."
+    "Bilder und Masken für Measure organisieren und kuratierte Paare mit Upload data teilen.",
+    "Separate Boxen mit Klassenbezeichnungen zeichnen und bearbeiten, ihr Projekt speichern und normalisierte YOLO-Labels exportieren."
   ],
   "prerequisite": "Bereiten Sie einen Ordner mit zweidimensionalen Bildern und passenden Instanz-Label-TIFFs in einem Unterordner masks vor. Jede Maske trägt den Dateinamenstamm des Bildes. Arbeiten Sie beim Üben von Bearbeitungen und Neuzuschnitten mit einer Kopie. Das Beispiel verwendet ER-Bilder und Zellmasken aus dem herunterladbaren Mikroskopieprojekt von Measure.",
   "scenes": [
@@ -45,6 +56,19 @@
     "Um Objekte nach Größe oder Form zu entfernen, wählen Sie eine Eigenschaft in der Kategorie Filter und klicken auf Add a filter. Jede regionprop, die scikit-image misst, kann als Filter dienen, etwa Fläche, Solidität oder mittlere Intensität. Hier blendet eine Flächenzeile mit einem Minimum die kleineren Zellen aus; drücken Sie Filter, um die Liste erneut anzuwenden. Das Protokoll darunter nennt jedes Objekt, das die Filter ausgeblendet haben.",
     "Entfernen Sie eine Zeile, um die von ihr ausgeblendeten Objekte zurückzuholen. Die Filter wirken, während Sie sie bearbeiten, und erneut bei jedem Öffnen eines Bildfelds; entfernen Sie also nicht mehr gewünschte Zeilen, bevor Sie weitermachen. Undo macht auch einen Filterschritt rückgängig.",
     "Klicken Sie nach dem Prüfen der Änderungen in der Werkzeugleiste auf Save mask. Bewahren Sie die Quellbilder zusammen mit den gespeicherten Masken und ihrem Kurationsprotokoll auf.",
+    "Wählen Sie Box neben Draw, um separate YOLO-Begrenzungsrahmen zu annotieren. Diese Boxen haben eigene Klassen und einen eigenen Verlauf; sie ersetzen weder die Segmentierungsmaske noch verändern sie das aufgenommene Bild. Hier dienen die Boxen als Bedienungsbeispiele, nicht als biologische Trainingsreferenz.",
+    "Klicken Sie auf Add class und geben Sie einen Klassennamen ein. Dieses Beispiel verwendet demonstration. Wählen Sie vor dem Zeichnen die gewünschte Klasse; halten Sie Klassennamen und numerische Kennungen im gesamten Trainingsdatensatz konsistent.",
+    "Ziehen Sie über das Bild, um eine Box zu zeichnen. Umriss und Klassenbezeichnung zeigen die neue Annotation. Für echte Trainingsdaten umschließen Sie das Zielobjekt genau; dieses Übungsrechteck demonstriert nur die Geste.",
+    "Ziehen Sie innerhalb einer vorhandenen Box, um sie zu verschieben. Die Box behält ihre Klasse, während sich ihre Bildkoordinaten ändern. Prüfen Sie die Position vor dem Speichern.",
+    "Ziehen Sie eine Ecke der Box, um ihre Größe zu ändern. Legen Sie die Ränder um das gewünschte Objekt und prüfen Sie, dass das Rechteck innerhalb des Bildes bleibt.",
+    "Halten Sie Control beim Ziehen gedrückt, um eine weitere Box innerhalb einer vorhandenen zu zeichnen. Dadurch entsteht eine separate Annotation, statt die äußere Box zu verschieben. Beide Boxen behalten eigene Koordinaten und Klassen.",
+    "Klicken Sie mit der rechten Maustaste auf eine Box, um sie zu löschen. Prüfen Sie, welcher Umriss verschwindet, besonders bei überlappenden Boxen. Das Entfernen einer Box löscht keine Pixel aus der Segmentierungsmaske.",
+    "Klicken Sie auf Undo, um die gelöschte Box wiederherzustellen. Die beiden unabhängigen Annotationen kehren zurück. Nutzen Sie den Verlauf, um eine versehentliche Bearbeitung vor dem Speichern rückgängig zu machen.",
+    "Redo führt die Löschung erneut aus. Machen Sie sie noch einmal rückgängig, um beide Beispielboxen für den Export zu behalten. Prüfen Sie die endgültigen Annotationen, bevor Sie sie auf die Festplatte schreiben.",
+    "Klicken Sie auf Save boxes, um die Annotationen in der Projektdatei neben den Bildern zu speichern. Boxkoordinaten und Klassen werden getrennt von der Maske gespeichert. Bewahren Sie die Projektdatei zusammen mit den zugehörigen Quellbildern auf.",
+    "Klicken Sie auf Export YOLO labels und wählen Sie das Ziel für die Textdatei. Jede Zeile enthält eine Klassenkennung und normalisierte Werte für Mittelpunkt X, Mittelpunkt Y, Breite und Höhe relativ zum gesamten Bild. Die zugehörige Klassennamendatei bewahrt die Kennungszuordnung.",
+    "Ein Bildfeld ohne annotierte Boxen exportiert eine leere Labeldatei. Dieses zweite Mikroskopiebild zeigt das Dateiformat und ist kein biologisches Negativbeispiel. Verwenden Sie negative Trainingsbeispiele erst, nachdem Sie geprüft haben, dass keine Zielobjekte vorhanden sind.",
+    "Kehren Sie zum ersten Bild zurück. Die gespeicherten Boxen werden mit denselben Klassen und Koordinaten geladen, während aufgenommenes Bild und Segmentierungsmaske unverändert bleiben. Bewahren Sie YOLO-Labels, Klassenzuordnung und Quellbilder für das Training zusammen auf.",
     "Die Symbole oben rechts öffnen die übrigen Maskenwerkzeuge. Cellpose Workbench trainiert ein Modell mit kuratierten Paaren und wendet es auf einen Ordner an, und das nächste Symbol führt die Erkennung für jedes Bildfeld des geöffneten Ordners aus.",
     "Model Compare stellt zwei Maskensätze nebeneinander, und Model Zoo findet und testet Gewichte. Wenn weitere Beispiele korrigiert werden müssen, führen Curate und Napari Bridge Sie zurück zur Bearbeitung.",
     "Wählen Sie Recrop und ziehen Sie einen Rahmen um die Objekte, die Sie in einem kleineren Trainingsfeld haben möchten. Dabei werden ein neues Bild und die passende Maske geschrieben. Vom Rand angeschnittene Objekte werden verworfen; lassen Sie daher Platz um vollständige Objekte und prüfen Sie den Ausschnitt.",

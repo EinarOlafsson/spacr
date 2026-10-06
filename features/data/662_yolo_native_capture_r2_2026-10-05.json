@@ -1,0 +1,161 @@
+{
+  "accepted_native_capture": true,
+  "capture": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-yolo-r2-current/captures/make_masks_yolo_662_r2",
+  "native_acceptance": {
+    "accepted": true,
+    "demonstration_boxes_are_not_biological_ground_truth": true,
+    "source_images_and_masks_unchanged": true,
+    "inputs": [
+      {
+        "source": "/tmp/spacr-tutorials/example_data/plate1/merged/plate1_E01_10_1.npy",
+        "source_sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+        "image": "/tmp/spacr-tutorials/make_masks_runs/example-0kjr_8ag/plate1_E01_10_1_ER.tif",
+        "image_sha256": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67",
+        "mask": "/tmp/spacr-tutorials/make_masks_runs/example-0kjr_8ag/masks/plate1_E01_10_1_ER.tif",
+        "mask_sha256": "8f6e99d963b58f483ff88de44270ab45a3d265a71891a8f3be2b1d8e6914df29",
+        "image_plane": 1,
+        "cell_mask_plane": 4,
+        "objects": 63,
+        "shape": [
+          1994,
+          1994
+        ]
+      },
+      {
+        "source": "/tmp/spacr-tutorials/example_data/plate1/merged/plate1_E01_11_1.npy",
+        "source_sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+        "image": "/tmp/spacr-tutorials/make_masks_runs/example-0kjr_8ag/plate1_E01_11_1_ER.tif",
+        "image_sha256": "0ce34c658d93ada05d738e542dbac82225aafe09d99b83056a1b9eb15e3daead",
+        "mask": "/tmp/spacr-tutorials/make_masks_runs/example-0kjr_8ag/masks/plate1_E01_11_1_ER.tif",
+        "mask_sha256": "4790aac50a70c17c9f5e3241c871b76a0c994d45d23078ebe346f47660163e1b",
+        "image_plane": 1,
+        "cell_mask_plane": 4,
+        "objects": 51,
+        "shape": [
+          1994,
+          1994
+        ]
+      }
+    ],
+    "classes": [
+      "object",
+      "demonstration"
+    ],
+    "boxes": [
+      [
+        1,
+        795,
+        795,
+        1275,
+        1275
+      ],
+      [
+        1,
+        914,
+        914,
+        1059,
+        1059
+      ]
+    ],
+    "drawn": [
+      1,
+      696,
+      696,
+      1097,
+      1097
+    ],
+    "moved": [
+      1,
+      795,
+      795,
+      1196,
+      1196
+    ],
+    "resized": [
+      1,
+      795,
+      795,
+      1275,
+      1275
+    ],
+    "independent_xywh_export_check": true,
+    "undo_redo_and_reload_exact": true,
+    "project": "/tmp/spacr-tutorials/make_masks_runs/example-0kjr_8ag/.spacr_yolo_annotations.json",
+    "project_sha256": "4872232ca42b8aa9b1c82eb5d66a222e10e8b78533b86673b98bcc30635ba311",
+    "labels": "/tmp/spacr-tutorials/make_masks_runs/example-0kjr_8ag/plate1_E01_10_1_ER.txt",
+    "labels_sha256": "7d0c119122cbc70037ac0d5df4433b26b83ab9697ef5e188a148edafcbbb3265",
+    "class_names": "/tmp/spacr-tutorials/make_masks_runs/example-0kjr_8ag/.classes.json",
+    "class_names_sha256": "cb3f06beac341f566511a342f1779d17b6fe5f3456651fa162228525c660daad",
+    "negative_labels": "/tmp/spacr-tutorials/make_masks_runs/example-0kjr_8ag/plate1_E01_11_1_ER.txt",
+    "negative_labels_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "native_capture_source_commit": "9cfc803c9e9bb6382f7468db004dbf6db7139e90",
+  "independent_current_application_sha256": {
+    "spacr/qt/screens/make_masks.py": "c62def2851142e58ce764c22638643cf5f96591e1e86ae5b88a216caf316488a",
+    "spacr/qt/mask_engine.py": "9b25edcc8870b999677066c1bc3c743c2946549c271c30b0cc90ce6fbb1c136c",
+    "spacr/qt/cpu_modes.py": "09989fe347ed7edf9d6ba36006dde942b39e7a5040acb1ec9fe8cfc9427f5a0e",
+    "spacr/qt/detect_chain.py": "4d4a499c949fe01d563f634c6de4abf7538a42c7774b2c26af6439891a931770",
+    "spacr/_segmentation_backends.py": "0bf668bfd65b8b429dadcca73d61fef91a80f61afc00ec6914bace43b9ce0e47",
+    "spacr/point_spread.py": "ae8a73268b6dd9c50c560056ca2641f1b78f6a69238e141325803c1b1e7f7f0a"
+  },
+  "all_original_image_and_mask_bytes_exact": true,
+  "full_image_normalized_XYWH_and_class_map_independently_verified": true,
+  "ten_full_resolution_annotation_states_have_every_expected_box_edge": true,
+  "visual_findings": "Thin native two-pixel outlines are present in the original capture; resized previews obscured some. Desktop/repaint experiments are private diagnostics only and no recorder or application change remains.",
+  "native_speaker_signoff": false,
+  "narration_video_publication_complete": false,
+  "artifacts": {
+    "features/data/662_yolo_native_capture_r2_2026-10-05/.classes.json": {
+      "sha256": "cb3f06beac341f566511a342f1779d17b6fe5f3456651fa162228525c660daad",
+      "bytes": 57
+    },
+    "features/data/662_yolo_native_capture_r2_2026-10-05/.spacr_yolo_annotations.json": {
+      "sha256": "4872232ca42b8aa9b1c82eb5d66a222e10e8b78533b86673b98bcc30635ba311",
+      "bytes": 705
+    },
+    "features/data/662_yolo_native_capture_r2_2026-10-05/archive_yolo_r2_native.py": {
+      "sha256": "7ff45ec80f59dc94980a18dac7d0c6c51a788e7f3dce433ead8c089a29a172d0",
+      "bytes": 5551
+    },
+    "features/data/662_yolo_native_capture_r2_2026-10-05/check_yolo_full_resolution.py": {
+      "sha256": "fbaeb9348d0070a6e586eef0880947e795f8cbf063eef1c8c88ed74aad75511d",
+      "bytes": 2753
+    },
+    "features/data/662_yolo_native_capture_r2_2026-10-05/frames.json": {
+      "sha256": "5538beeca130523f56c954f04c7b6a20a2ffd7f40d1e480f56d63e1ee0418f94",
+      "bytes": 500540
+    },
+    "features/data/662_yolo_native_capture_r2_2026-10-05/native-frames.zip": {
+      "sha256": "5513cb6fb08ef5bd0c6620589571b9490cf94a18718c96ea998f97ed2f7a052b",
+      "bytes": 29337161
+    },
+    "features/data/662_yolo_native_capture_r2_2026-10-05/plate1_E01_10_1_ER.txt": {
+      "sha256": "7d0c119122cbc70037ac0d5df4433b26b83ab9697ef5e188a148edafcbbb3265",
+      "bytes": 166
+    },
+    "features/data/662_yolo_native_capture_r2_2026-10-05/plate1_E01_11_1_ER.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "features/data/662_yolo_native_capture_r2_2026-10-05/provenance.json": {
+      "sha256": "774135d91241a32f0510f0ae1e01de367fd100e83e0aade7b4c3ddbac8b61e1b",
+      "bytes": 299
+    },
+    "features/data/662_yolo_native_capture_r2_2026-10-05/yolo-full-resolution-proof.json": {
+      "sha256": "8297325cd2c1251b8888909c326ee62d758d26e8c81bcafe9bb9e90069dd569f",
+      "bytes": 6732
+    },
+    "features/data/662_yolo_native_capture_r2_2026-10-05/yolo-full-resolution-r1.log": {
+      "sha256": "878c976a75c6c7c3b21f5b999510a8e5cc6eedf06e5d2f95f0e5c2fc2386317b",
+      "bytes": 2737
+    },
+    "features/data/662_yolo_native_capture_r2_2026-10-05/yolo_acceptance.json": {
+      "sha256": "cf1aa6603aac1bc677961be7549112ef6321a4e76a411e2fae3acddc9d20b5d4",
+      "bytes": 2744
+    },
+    "features/data/662_yolo_native_capture_r2_2026-10-05/yolo_inputs.json": {
+      "sha256": "ed9b0b2381f79f067f76b9f91c328947451d4f4f5c874f52db7f80867acf0c94",
+      "bytes": 1323
+    }
+  }
+}

@@ -1,32 +1,43 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
+  "english_sha256": "a1b6c2bf8690e1fbc9d7d545d5e5ac3a0a838a5f61421728f14fcadb2a347ed4",
   "review": {
     "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "translator": "Prior forty-five reviewed scene translations retained; Codex directly translated and technically reviewed thirteen YOLO additions",
     "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "scope": "Separate class-labelled boxes, native editing/history, independent image-relative XYWH export and empty-file demonstration without biological ground-truth claims",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-30",
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+      "date": "2026-10-05",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
-      "listening_review": false
+      "listening_review": false,
+      "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
     },
-    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
+    "previous_english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a"
   },
   "language": "sv",
   "title": "Make Masks: redigera etiketter och förbered träningsbilder",
-  "description": "Öppna bild- och maskpar, rätta objekt, registrera omdömen, organisera bilder och masker för Measure och skapa parade träningsutsnitt.",
+  "description": "Öppna bild- och maskpar, rätta objekt, registrera omdömen, organisera bilder och masker för Measure och skapa parade träningsutsnitt. Rita, redigera och exportera separata klassmärkta YOLO-rutor utan att ändra bilden eller segmenteringsmasken.",
   "objectives": [
     "Öppna bilder med matchande instansmasker och granska objekt i förstoringsglaset.",
     "Rätta etiketter med Undo, ritning, delning och objektfilter.",
     "Spara granskade masker, registrera Keep- eller Discard-omdömen och skapa bild- och maskutsnitt för träning.",
-    "Organisera bilder och masker för Measure och dela granskade par med Upload data."
+    "Organisera bilder och masker för Measure och dela granskade par med Upload data.",
+    "Rita och redigera separata klassmärkta rutor, spara deras projekt och exportera normaliserade YOLO-etiketter."
   ],
   "prerequisite": "Förbered en mapp med tvådimensionella bilder och matchande TIFF-filer med instansetiketter i en undermapp som heter masks. Varje mask använder bildfilens namnstam. Arbeta på en kopia när du övar redigering och omskärning. Exemplet använder ER-bilder och cellmasker från Measures nedladdningsbara mikroskopiprojekt.",
   "scenes": [
@@ -45,6 +56,19 @@
     "För att ta bort objekt efter storlek eller form väljer du en egenskap i kategorin Filter och klickar på Add a filter. Varje regionprop som scikit-image mäter kan bli ett filter, till exempel area, soliditet eller medelintensitet. Här döljer en arearad med ett minimum de mindre cellerna; tryck på Filter för att tillämpa listan igen. Förteckningen nedanför namnger varje objekt som filtren dolde.",
     "Ta bort en rad för att få tillbaka objekten den dolde. Filtren tillämpas medan du redigerar dem och igen varje gång ett synfält öppnas, så ta bort de rader du inte längre vill ha innan du går vidare. Undo ångrar också ett filtersteg.",
     "När du har granskat ändringarna klickar du på Save mask i verktygsfältet. Håll källbilderna tillsammans med de sparade maskerna och deras granskningspost.",
+    "Välj Box bredvid Draw för att annotera separata YOLO-avgränsningsrutor. Rutorna har egna klasser och egen historik; de ersätter inte segmenteringsmasken och ändrar inte den förvärvade bilden. Här demonstrerar rutorna interaktionen och är inte biologiska träningsfacit.",
+    "Klicka på Add class och ange ett klassnamn. Det här exemplet använder demonstration. Välj rätt klass innan du ritar; håll klassnamn och deras numeriska identifierare konsekventa i hela träningsdatamängden.",
+    "Dra över bilden för att rita en ruta. Konturen och klassnamnet visar den nya annoteringen. För riktiga träningsdata ska målobjektet omslutas noggrant; övningsrektangeln visar bara gesten.",
+    "Dra inuti en befintlig ruta för att flytta den. Rutan behåller sin klass medan bildkoordinaterna ändras. Kontrollera placeringen innan du sparar.",
+    "Dra i ett hörn för att ändra rutans storlek. Placera kanterna runt det avsedda objektet och kontrollera att rektangeln håller sig inom bilden.",
+    "Håll Control nedtryckt medan du drar för att rita en ny ruta inuti en befintlig. Det skapar en separat annotering i stället för att flytta den yttre rutan. Båda rutorna behåller egna koordinater och egen klass.",
+    "Högerklicka på en ruta för att ta bort den. Kontrollera vilken kontur som försvinner, särskilt när rutorna överlappar. Att ta bort en ruta raderar inga pixlar i segmenteringsmasken.",
+    "Klicka på Undo för att återställa den borttagna rutan. De två oberoende annoteringarna kommer tillbaka. Använd historiken för att återställa en felaktig ändring innan du sparar.",
+    "Redo tillämpar borttagningen igen. Ångra en gång till för att behålla båda demonstrationsrutorna inför exporten. Granska de slutliga annoteringarna innan du skriver dem till disk.",
+    "Klicka på Save boxes för att lagra annoteringarna i projektfilen bredvid bilderna. Rutornas koordinater och klasser sparas separat från masken. Håll projektfilen tillsammans med motsvarande källbilder.",
+    "Klicka på Export YOLO labels och välj textfilens målplats. Varje rad innehåller en klassidentifierare och normaliserade värden för centrum X, centrum Y, bredd och höjd relativt hela bilden. Den tillhörande klassnamnsfilen bevarar identifierarmappningen.",
+    "Ett synfält utan annoterade rutor exporterar en tom etikettfil. Det andra mikroskopisynfältet visar filformatet och är inte ett biologiskt negativt exempel. Använd negativa träningsexempel först efter att ha kontrollerat att inga målobjekt finns.",
+    "Gå tillbaka till den första bilden. De sparade rutorna läses in med samma klasser och koordinater, medan den förvärvade bilden och segmenteringsmasken är oförändrade. Håll YOLO-etiketter, klassmappning och källbilder tillsammans för träning.",
     "Ikonerna uppe till höger öppnar resten av maskverktygen. Cellpose Workbench tränar en modell på granskade par och tillämpar den på en mapp, och nästa ikon kör detektion på alla synfält i den öppna mappen.",
     "Model Compare ställer två maskuppsättningar sida vid sida och Model Zoo hittar och testar vikter. När fler exempel behöver rättas tar Curate och Napari Bridge dig tillbaka till redigeringen.",
     "Välj Recrop och dra en ruta runt de objekt du vill ha i ett mindre träningsfält. Det skriver en ny bild och matchande mask. Objekt som skärs av kanten tas bort, så lämna utrymme runt hela objekt och granska utsnittet.",

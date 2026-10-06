@@ -1,32 +1,43 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
+  "english_sha256": "a1b6c2bf8690e1fbc9d7d545d5e5ac3a0a838a5f61421728f14fcadb2a347ed4",
   "review": {
     "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "translator": "Prior forty-five reviewed scene translations retained; Codex directly translated and technically reviewed thirteen YOLO additions",
     "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "scope": "Separate class-labelled boxes, native editing/history, independent image-relative XYWH export and empty-file demonstration without biological ground-truth claims",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-30",
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+      "date": "2026-10-05",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
-      "listening_review": false
+      "listening_review": false,
+      "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
     },
-    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
+    "previous_english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a"
   },
   "language": "is",
   "title": "Make Masks: breyttu merkingum og undirbúðu þjálfunarmyndir",
-  "description": "Opnaðu pör af myndum og grímum, leiðréttu hluti, skráðu úrskurði, skipulegðu myndir og grímur fyrir Measure og búðu til pöruð þjálfunarúrklipp.",
+  "description": "Opnaðu pör af myndum og grímum, leiðréttu hluti, skráðu úrskurði, skipulegðu myndir og grímur fyrir Measure og búðu til pöruð þjálfunarúrklipp. Teiknaðu, breyttu og fluttu út aðskilda YOLO-ramma með flokkum án þess að breyta myndinni eða hlutunarmaskannum.",
   "objectives": [
     "Opna myndir með samsvarandi tilvikagrímum og skoða hluti í stækkunarglerinu.",
     "Leiðrétta merkingar með Undo, teikningu, skiptingu og hlutasíum.",
     "Vista yfirfarnar grímur, skrá Keep- eða Discard-úrskurði og búa til úrklipp af myndum og grímum til þjálfunar.",
-    "Skipuleggja myndir og grímur fyrir Measure og deila yfirförnum pörum með Upload data."
+    "Skipuleggja myndir og grímur fyrir Measure og deila yfirförnum pörum með Upload data.",
+    "Teikna og breyta aðskildum römmum með flokkum, vista verkefni þeirra og flytja út staðlaðar YOLO-merkingar."
   ],
   "prerequisite": "Útbúðu möppu með tvívíðum myndum og samsvarandi TIFF-skrám með tilvikamerkingum í undirmöppu sem heitir masks. Hver gríma notar sama nafnstofn og myndskráin. Vinndu í afriti þegar þú æfir breytingar og nýja skurði. Dæmið notar ER-myndir og frumugrímur úr niðurhalanlegu smásjárverkefni Measure.",
   "scenes": [
@@ -45,6 +56,19 @@
     "Til að fjarlægja hluti eftir stærð eða lögun velurðu eiginleika í flokknum Filter og smellir á Add a filter. Hvaða regionprop sem scikit-image mælir getur orðið sía, til dæmis flatarmál, þéttleiki eða meðalstyrkur. Hér felur flatarmálslína með lágmarki minni frumurnar; ýttu á Filter til að beita listanum aftur. Skráin fyrir neðan nefnir hvern hlut sem síurnar földu.",
     "Fjarlægðu línu til að fá aftur hlutina sem hún faldi. Síurnar virka á meðan þú breytir þeim og aftur í hvert sinn sem sjónsvið opnast, svo fjarlægðu línurnar sem þú vilt ekki lengur áður en þú heldur áfram. Undo afturkallar líka síuskref.",
     "Þegar þú hefur farið yfir breytingarnar smellirðu á Save mask á tækjastikunni. Geymdu upprunamyndirnar með vistuðu grímunum og yfirferðarskrá þeirra.",
+    "Veldu Box við hlið Draw til að merkja aðskilda YOLO-afmörkunarramma. Rammarnir hafa eigin flokka og feril; þeir koma ekki í stað hlutunarmaskans og breyta ekki upprunalegu myndinni. Hér sýna rammarnir notkunina, ekki líffræðilegt þjálfunarviðmið.",
+    "Smelltu á Add class og sláðu inn flokksheiti. Þetta dæmi notar demonstration. Veldu réttan flokk áður en þú teiknar; hafðu flokksheiti og töluleg auðkenni þeirra samræmd í öllu þjálfunargagnasafninu.",
+    "Dragðu yfir myndina til að teikna ramma. Útlínan og flokksheitið sýna nýju merkinguna. Fyrir raunveruleg þjálfunargögn skaltu afmarka markhlutinn nákvæmlega; þessi æfingarétthyrningur sýnir aðeins hreyfinguna.",
+    "Dragðu innan fyrirliggjandi ramma til að færa hann. Ramminn heldur flokki sínum en myndhnitin breytast. Skoðaðu staðsetninguna áður en þú vistar.",
+    "Dragðu horn rammans til að breyta stærð hans. Settu brúnirnar utan um tilætlaðan hlut og athugaðu að rétthyrningurinn haldist innan myndarinnar.",
+    "Haltu Control niðri meðan þú dregur til að teikna annan ramma innan fyrirliggjandi ramma. Þá verður til aðskilin merking í stað þess að ytri ramminn færist. Báðir rammar halda eigin hnitum og flokki.",
+    "Hægrismelltu á ramma til að eyða honum. Athugaðu hvaða útlína hverfur, einkum þegar rammar skarast. Að fjarlægja ramma eyðir ekki pixlum úr hlutunarmaskanum.",
+    "Smelltu á Undo til að endurheimta eydda rammann. Báðar sjálfstæðu merkingarnar birtast aftur. Notaðu ferilinn til að afturkalla ranga breytingu áður en þú vistar.",
+    "Redo framkvæmir eyðinguna aftur. Afturkallaðu enn einu sinni til að halda báðum sýnirömmunum fyrir útflutninginn. Skoðaðu endanlegar merkingar áður en þú skrifar þær á disk.",
+    "Smelltu á Save boxes til að geyma merkingarnar í verkefnisskránni við hlið myndanna. Hnit og flokkar rammanna eru vistuð aðskilin frá maskanum. Geymdu verkefnisskrána með samsvarandi upprunamyndum.",
+    "Smelltu á Export YOLO labels og veldu áfangastað textaskrárinnar. Hver lína inniheldur flokksauðkenni og stöðluð gildi fyrir miðju X, miðju Y, breidd og hæð miðað við alla myndina. Fylgiskrá flokksheita varðveitir vörpun auðkennanna.",
+    "Myndsvið án merktra ramma flytur út tóma merkingaskrá. Þetta annað smásjármyndsvið sýnir skráarsniðið, ekki líffræðilegt neikvætt dæmi. Notaðu neikvæð þjálfunardæmi aðeins eftir að hafa athugað að engir markhlutir séu til staðar.",
+    "Farðu aftur í fyrstu myndina. Vistaðir rammar hlaðast með sömu flokkum og hnitum, en upprunalega myndin og hlutunarmaskinn eru óbreytt. Geymdu YOLO-merkingar, flokksvörpun og upprunamyndir saman fyrir þjálfun.",
     "Táknin efst til hægri opna restina af grímutólunum. Cellpose Workbench þjálfar líkan á yfirförnum pörum og beitir því á möppu, og næsta tákn keyrir greiningu á hverju sjónsviði í opnu möppunni.",
     "Model Compare setur tvö grímusett hlið við hlið og Model Zoo finnur og prófar vigtir. Þegar fleiri dæmi þarf að laga fara Curate og Napari Bridge með þig aftur í breytingar.",
     "Veldu Recrop og dragðu kassa utan um hlutina sem þú vilt hafa í minna þjálfunarsviði. Þá er skrifuð ný mynd og samsvarandi gríma. Hlutum sem jaðarinn sker er sleppt, svo skildu eftir pláss í kringum heila hluti og skoðaðu úrklippið.",

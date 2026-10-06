@@ -1,32 +1,43 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
+  "english_sha256": "a1b6c2bf8690e1fbc9d7d545d5e5ac3a0a838a5f61421728f14fcadb2a347ed4",
   "review": {
     "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "translator": "Prior forty-five reviewed scene translations retained; Codex directly translated and technically reviewed thirteen YOLO additions",
     "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "scope": "Separate class-labelled boxes, native editing/history, independent image-relative XYWH export and empty-file demonstration without biological ground-truth claims",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-30",
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+      "date": "2026-10-05",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
-      "listening_review": false
+      "listening_review": false,
+      "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
     },
-    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
+    "previous_english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a"
   },
   "language": "ja",
   "title": "Make Masks：ラベルを編集し、学習用画像を準備する",
-  "description": "画像とマスクのペアを開き、物体を修正し、判定を記録し、Measure用に画像とマスクを整理して、学習用のペア切り出しを作成します。",
+  "description": "画像とマスクのペアを開き、物体を修正し、判定を記録し、Measure用に画像とマスクを整理して、学習用のペア切り出しを作成します。 画像やセグメンテーションマスクを変更せず、クラスラベルを持つ独立した YOLO ボックスを描画、編集、エクスポートします。",
   "objectives": [
     "対応するインスタンスマスクとともに画像を開き、拡大表示で物体を確認する。",
     "Undo、描画、分割、物体フィルターでラベルを修正する。",
     "修正したマスクを保存し、KeepまたはDiscardの判定を記録して、学習用の画像とマスクの切り出しを作成する。",
-    "Measure用に画像とマスクを整理し、修正済みのペアをUpload dataで共有する。"
+    "Measure用に画像とマスクを整理し、修正済みのペアをUpload dataで共有する。",
+    "クラスラベルを持つ独立したボックスを描画・編集し、プロジェクトを保存して正規化された YOLO ラベルをエクスポートする。"
   ],
   "prerequisite": "二次元画像のフォルダーを用意し、masksサブフォルダーに対応するインスタンスラベルのTIFFを置きます。各マスクは画像ファイルと同じ基本名を使います。編集や切り直しを練習するときはコピーを使ってください。この例では、Measureでダウンロードできる顕微鏡プロジェクトのERの画像と細胞マスクを使います。",
   "scenes": [
@@ -45,6 +56,19 @@
     "大きさや形で物体を除くには、Filterカテゴリーで特性を選び、Add a filterをクリックします。scikit-imageが測定するregionpropなら何でもフィルターにでき、たとえば面積、ソリディティ、平均強度などです。ここでは最小値を設定した面積の行が小さい細胞を隠しています。リストを再び適用するにはFilterを押します。下の一覧には、フィルターで隠されたすべての物体が表示されます。",
     "行を削除すると、その行が隠していた物体が戻ります。フィルターは編集中に適用され、フィールドを開くたびにも再び適用されるので、先に進む前に不要な行を削除しておきます。Undoでもフィルターの操作を元に戻せます。",
     "編集を確認したら、ツールバーのSave maskをクリックします。元の画像は、保存したマスクとその修正記録と一緒に保管します。",
+    "Draw の横にある Box を選び、独立した YOLO バウンディングボックスをアノテーションします。ボックスには独自のクラスと履歴があり、セグメンテーションマスクを置き換えたり、取得した画像を変更したりしません。ここでは操作を示しており、生物学的な学習用正解データではありません。",
+    "Add class をクリックし、クラス名を入力します。この例では demonstration を使います。描画前に目的のクラスを選び、学習データセット全体でクラス名と数値識別子の対応を統一してください。",
+    "画像上をドラッグしてボックスを描画します。輪郭とクラスラベルが新しいアノテーションを示します。実際の学習データでは対象物を正確に囲んでください。この練習用の矩形は操作だけを示しています。",
+    "既存のボックスの内側をドラッグして移動します。画像座標は変わりますが、クラスは保持されます。保存前に位置を確認してください。",
+    "ボックスの角をドラッグしてサイズを変更します。目的の対象物の周囲に辺を配置し、矩形が画像内に収まっていることを確認してください。",
+    "Control を押しながらドラッグすると、既存のボックスの内側に別のボックスを描画できます。外側のボックスを移動する代わりに、独立したアノテーションが作成されます。両方のボックスがそれぞれの座標とクラスを保持します。",
+    "ボックスを右クリックして削除します。特に重なっている場合は、どの輪郭が消えたか確認してください。ボックスを削除しても、セグメンテーションマスクの画素は消去されません。",
+    "Undo をクリックして削除したボックスを復元します。二つの独立したアノテーションが戻ります。保存前に履歴を使って誤った編集を取り消せます。",
+    "Redo は削除を再適用します。もう一度取り消して、二つのデモ用ボックスをエクスポート用に残します。ディスクに書き込む前に最終的なアノテーションを確認してください。",
+    "Save boxes をクリックし、画像と同じ場所にあるプロジェクトファイルにアノテーションを保存します。ボックスの座標とクラスはマスクとは別に保存されます。プロジェクトファイルは対応する元画像と一緒に保管してください。",
+    "Export YOLO labels をクリックし、テキストファイルの保存先を選びます。各行にはクラス識別子と、画像全体に対して正規化された中心 X、中心 Y、幅、高さが含まれます。付属のクラス名ファイルが識別子の対応を保持します。",
+    "ボックスがアノテーションされていない視野は空のラベルファイルを出力します。この二番目の顕微鏡視野はファイル形式を示す例であり、生物学的な陰性例ではありません。対象物が存在しないと確認してから、学習用の負例として使ってください。",
+    "最初の画像に戻ります。保存したボックスが同じクラスと座標で再読み込みされ、取得画像とセグメンテーションマスクは変更されません。学習用に YOLO ラベル、クラスの対応表、元画像を一緒に保管してください。",
     "右上のアイコンから、マスク用のほかのツールを開けます。Cellpose Workbenchは修正済みのペアでモデルを学習させてフォルダーに適用し、その隣のアイコンは開いているフォルダーのすべてのフィールドで検出を実行します。",
     "Model Compareは二組のマスクを並べて表示し、Model Zooは重みを探してテストします。さらに修正が必要な例があるときは、CurateとNapari Bridgeで編集に戻れます。",
     "Recropを選び、小さな学習用フィールドに入れたい物体を囲むようにボックスをドラッグします。これで新しい画像と対応するマスクが書き出されます。境界で切れた物体は除かれるので、完全な物体の周りに余白を残し、切り出しを確認します。",

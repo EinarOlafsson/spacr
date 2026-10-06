@@ -1,0 +1,287 @@
+{
+  "id": "14_make_masks",
+  "number": 14,
+  "slug": "make_masks",
+  "title": "Make Masks: edit labels and prepare training images",
+  "series": 1,
+  "app_key": "make_masks",
+  "section": "Tools",
+  "description": "Open image-mask pairs, correct objects, record verdicts, organize images and masks for Measure and create paired training crops.",
+  "objectives": [
+    "Open images with matching instance masks and inspect objects in the magnifier.",
+    "Correct labels with Undo, drawing, division and object filters.",
+    "Save curated masks, record Keep or Discard verdicts and create image-mask crops for training.",
+    "Organize images and masks for Measure, and share curated pairs with Upload data."
+  ],
+  "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
+  "scenes": [
+    {
+      "visual": "01_module",
+      "narration": "From Home, open Make Masks in Tools. The buttons along the bottom left bring images in: Open folder, Organize for Measure and Load test data. On the right, Discard, Keep, Skip and Upload data decide what happens to each field once it is edited.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "07_mask"
+      ]
+    },
+    {
+      "visual": "01b_test_data_menu",
+      "narration": "Load test data opens ten example Toxoplasma images. Its arrow also offers a sample of each training dataset a published model learned from, with its masks, so you can see what good training pairs look like.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_folder_picker",
+      "narration": "Click Open folder and select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure"
+      ]
+    },
+    {
+      "visual": "03_real_labels",
+      "narration": "The editor loads the image and its matching mask from the masks subfolder. Coloured labels identify individual objects. Check that the outlines follow the image boundaries. If a companion mask is missing, start with an empty mask and draw the objects you need.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "readouts_04_otsu_magnifier_settings",
+      "narration": "Open the Live magnifier settings and keep Segment on Region under the mouse. The method comes from the Detection method category, here Otsu, which runs on the CPU. Choose a model-based method when thresholding does not separate your objects well.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "readouts_05_live_otsu_magnifier",
+      "narration": "Turn on Magnifier and hover over an object to preview its outline. The readout at the top left gives the pixel position and intensity, and the label and area of the object under the cursor. Click to add outlined objects when they look correct, or switch Magnifier off to continue editing.",
+      "hold_after": 0.7,
+      "focus": [
+        1370,
+        280,
+        2200,
+        1775
+      ]
+    },
+    {
+      "visual": "03_real_labels",
+      "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
+      "hold_after": 0.7,
+      "focus": [
+        345,
+        195,
+        2500,
+        65
+      ]
+    },
+    {
+      "visual": "04_erase_one_object",
+      "narration": "Choose Erase object and click inside the object you want to remove. Check the updated outline and object count. Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_redo",
+      "narration": "Click Undo to restore the deletion. Redo applies it again. Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_draw_demo_not_annotation",
+      "narration": "Select Draw and trace a closed boundary around a missing object. The editor fills it with a new label. In this practice step the outline is in the background, so undo it before saving. For training data, trace the actual object boundary.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_divide_demo",
+      "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08b_contrast_only",
+      "narration": "Adjust Display percentiles to make dim structures easier to inspect. These controls change the image view while preserving raw intensity values and labels. Return to a consistent display when comparing fields.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08c_filter_edits_labels",
+      "narration": "To remove objects by size or shape, choose a property in the Filter category and click Add a filter. Any regionprop that scikit-image measures can be a filter, such as area, solidity or mean intensity. Here an area row with a minimum hides the smaller cells; press Filter to apply the list again. The ledger below names every object the filters hid.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08d_filter_removed",
+      "narration": "Remove a row to bring back the objects it hid. The filters apply as you edit them and again whenever a field opens, so remove the rows you no longer want before moving on. Undo also reverses a filter step.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_saved_restored_mask",
+      "narration": "After reviewing the edits, click Save mask in the toolbar. Keep the source images together with the saved masks and their curation record.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_fold_train_cellpose",
+      "narration": "The icons at the top right open the rest of the mask toolkit. Cellpose Workbench trains a model on curated pairs and applies it to a folder, and the next icon runs detection on every field of the open folder.",
+      "hold_after": 0.7,
+      "focus_buttons": "FoldButton",
+      "related_lessons": [
+        "19_train_cellpose",
+        "20_cellpose_masks"
+      ]
+    },
+    {
+      "visual": "09_fold_model_zoo",
+      "narration": "Model Compare puts two sets of masks side by side and Model Zoo finds and tests weights. When more examples need fixing, Curate and Napari Bridge take you back into editing.",
+      "hold_after": 0.7,
+      "focus_buttons": "FoldButton",
+      "related_lessons": [
+        "21_model_compare",
+        "22_model_zoo",
+        "42_curate",
+        "46_napari_bridge"
+      ]
+    },
+    {
+      "visual": "12_recrop_written",
+      "narration": "Choose Recrop and drag a box around the objects you want in a smaller training field. This writes a new image and matching mask. Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "13_child_and_recovery_archive",
+      "narration": "Click Next image in the toolbar to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "09_annotate"
+      ]
+    },
+    {
+      "visual": "restoration_01_restoration_row",
+      "narration": "Image enhancement ends with Deep image enhancement. It restores the selected channel with a Cellpose 3 model in its own environment; the image on disk is never changed.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "restoration_02_denoise_settings",
+      "narration": "Choose Denoise, Deblur or One-click restoration, then open Restoration model settings. Pick weights for cells or nuclei and set the typical object diameter in pixels.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "restoration_03_model_ready",
+      "narration": "Load the model. On the CPU a whole field takes tens of seconds; the original intensities are kept for measurements.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "restoration_04_compare",
+      "narration": "Compare raw and enhanced shows both pictures side by side. The restored picture is model output, not new structure: check it before trusting masks drawn on it.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "restoration_05_apply",
+      "narration": "Apply uses the restored picture for display and detection only. Measurements still read the original pixels.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_cellpose_settings",
+      "narration": "To detect objects with a model, choose Cellpose in the Detection method category and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "15_cellpose_detected",
+      "narration": "Click Object detection. The model runs in the background, and the result replaces the labels when it arrives. Compare the new outlines with the image, and undo a result that does not follow the object boundaries before adjusting the settings.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "16_cell_probability",
+      "narration": "Open Cell probability to inspect the foreground score map. Use it to see which regions the model supports. Change the foreground threshold when useful, then run detection again to produce a new result.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17_flows",
+      "narration": "Open Flows to inspect the directional view. The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check. Compare the final masks after each setting change.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_detection_undone",
+      "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, and inspect each field's result before including it in training.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "puncta_01_raw_input",
+      "narration": "To detect faint puncta inside cysts, open the original single-channel image and keep the cyst instance masks in a separate folder with matching filenames. These punctum masks represent centre pixels, not complete object boundaries.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "puncta_02_parent_and_settings",
+      "narration": "Choose Centre-pixel puncta within parent masks. Set the primary class to cyst and the secondary class to punctum, choose the parent-mask folder and press Reload. Review spot scales, the noise threshold, centre pixels, corrected intensity, peak spacing and edge margin.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "puncta_03_detected_centres",
+      "narration": "Choose replace in Object operations, then click Object detection to process the whole image. This field yields 150 candidates and 46 included puncta. Detection uses original intensities; display normalization and enhancement do not alter this mode.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "puncta_04_saved_mask_and_measurements",
+      "narration": "Save mask writes the label TIFF and a puncta CSV beside it. center20 is the mean of twenty centre pixels; local_bg records local background and center_corrected subtracts it from the configured centre mean. Inspect included and mask_pixels: shared pixels have one label owner, so a mask can contain fewer pixels. Original images and parent masks remain unchanged.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "20_curate_keep",
+      "narration": "While you work through a folder, Keep and Discard record a verdict for each field and move on to the next. Nothing is deleted: the verdict goes to keep_discard.csv in the folder's csv subfolder, with the image, its mask and its current object count.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "21_curate_discard",
+      "narration": "Discard marks a field you do not want in a training set. Skip belongs to curation sessions started from the terminal with spacr-make-masks: it marks a field that cannot be curated, so the next session does not offer it again.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "22_upload_data",
+      "narration": "When your curated pairs could help others, click Upload data. Choose the field on screen, every curated image with its saved mask, or an images folder and a masks folder, then name the dataset. The link shows the Hugging Face dataset it will join. Nothing is sent until you press Upload and agree to share.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "23_consolidate_offer",
+      "narration": "Microscopes often save images in nested folders. When you open a folder whose images sit in subfolders, Make Masks offers to copy them into one new folder, each named after the folders it was in. The originals are not touched, and No opens the folder as it is.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "24_consolidated_opened",
+      "narration": "The copies open in the editor, and a rename manifest records where each one came from. A field without a mask starts with an empty mask, ready for drawing or detection.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "25_organize_open",
+      "narration": "To measure your fields, click Organize for Measure. Measure reads each field as one merged array that holds every channel and its masks. Give a source folder here, or drop files and folders into the table below. If Consolidate subfolders is on and a copy fails, the popup says how many files failed and where the manifest is, and stops without changing the source or the table.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure"
+      ]
+    },
+    {
+      "visual": "26_organize_table",
+      "narration": "Drop each channel folder into the table: every folder becomes a column, and every row is one field. Add a mask column, set its role, here the cell masks of channel two, and drop the masks folder onto it. Files are matched across the columns by name.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "27_detect_sets_check",
+      "narration": "Detect sets matches the images by name, order and size, then shows three example sets. Confirm them only when every set really belongs together; otherwise fix the regex or the columns first.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "28_organize_images",
+      "narration": "Set Show to Image plus text and Thumbnail quality to High to check the rows by eye; the quality changes only the display, never the masks or measurements. A cell that nothing matched stays empty and is flagged, and Apply waits until every row is complete.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "29_move_and_merge",
+      "narration": "Click Apply. The summary says what will happen: images and masks move into Yokogawa-named channel folders and are merged into merged. Files are moved, not copied, and every move is written to a manifest.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "30_organized_for_measure",
+      "narration": "When sorting finishes, Make Masks opens the first channel folder, and the console notes that the result is first in Measure's recent sources. Open Measure and use it as the source to extract object features.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure"
+      ]
+    },
+    {
+      "visual": "03_real_labels",
+      "narration": "Keep curated images and their same-stem masks together. Use Cellpose Workbench to train on those pairs, or Organize for Measure and then Measure to extract measurements. The related tutorials show each next step.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api",
+        "19_train_cellpose"
+      ]
+    }
+  ]
+}

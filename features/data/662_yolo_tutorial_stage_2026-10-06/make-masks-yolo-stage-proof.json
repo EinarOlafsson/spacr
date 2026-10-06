@@ -1,0 +1,70 @@
+{
+  "accepted": true,
+  "scope": "Normal four-root native composition and all source-bound reviews staged; no narration/video/publication acceptance",
+  "native_visuals": 56,
+  "scenes": 58,
+  "new_yolo_scenes": 13,
+  "all_previous_scene_objects_preserved": 45,
+  "reviewed_languages": 13,
+  "catalog_preservation": [
+    {
+      "catalog": "captions_da.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "captions_de.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "captions_is.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "captions_ko.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "captions_nb.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "captions_sv.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "lessons_en.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "lessons_es.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "lessons_fr.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "lessons_hi.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "lessons_it.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "lessons_ja.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "lessons_pt-BR.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    },
+    {
+      "catalog": "lessons_zh-CN.json",
+      "complete_unselected_lesson_objects_preserved": 84
+    }
+  ],
+  "Mask_07_unchanged": true,
+  "english_sha256": "a1b6c2bf8690e1fbc9d7d545d5e5ac3a0a838a5f61421728f14fcadb2a347ed4",
+  "narration_video_publication_complete": false
+}

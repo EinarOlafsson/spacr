@@ -1,32 +1,43 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
+  "english_sha256": "a1b6c2bf8690e1fbc9d7d545d5e5ac3a0a838a5f61421728f14fcadb2a347ed4",
   "review": {
     "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "translator": "Prior forty-five reviewed scene translations retained; Codex directly translated and technically reviewed thirteen YOLO additions",
     "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "scope": "Separate class-labelled boxes, native editing/history, independent image-relative XYWH export and empty-file demonstration without biological ground-truth claims",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-30",
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+      "date": "2026-10-05",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
-      "listening_review": false
+      "listening_review": false,
+      "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
     },
-    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
+    "previous_english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a"
   },
   "language": "nb",
   "title": "Make Masks: rediger merkelapper og forbered treningsbilder",
-  "description": "Åpne bilde- og maskepar, rett objekter, registrer vurderinger, organiser bilder og masker for Measure og lag parede treningsutsnitt.",
+  "description": "Åpne bilde- og maskepar, rett objekter, registrer vurderinger, organiser bilder og masker for Measure og lag parede treningsutsnitt. Tegn, rediger og eksporter separate YOLO-bokser med klasser uten å endre bildet eller segmenteringsmasken.",
   "objectives": [
     "Åpne bilder med tilhørende instansmasker og undersøke objekter i forstørrelsesglasset.",
     "Rette merkelapper med Undo, tegning, deling og objektfiltre.",
     "Lagre kuraterte masker, registrere Keep- eller Discard-vurderinger og lage bilde- og maskeutsnitt for trening.",
-    "Organisere bilder og masker for Measure og dele kuraterte par med Upload data."
+    "Organisere bilder og masker for Measure og dele kuraterte par med Upload data.",
+    "Tegn og rediger separate bokser med klasser, lagre prosjektet og eksporter normaliserte YOLO-etiketter."
   ],
   "prerequisite": "Klargjør en mappe med todimensjonale bilder og tilhørende TIFF-filer med instansmerkelapper i en undermappe kalt masks. Hver maske bruker filnavnstammen til bildet. Arbeid på en kopi når du øver på redigering og ny beskjæring. Eksemplet bruker ER-bilder og cellemasker fra det nedlastbare mikroskopiprosjektet i Measure.",
   "scenes": [
@@ -45,6 +56,19 @@
     "For å fjerne objekter etter størrelse eller form velger du en egenskap i kategorien Filter og klikker på Add a filter. Alle regionprops som scikit-image måler, kan brukes som filter, for eksempel areal, soliditet eller gjennomsnittsintensitet. Her skjuler en arealrad med et minimum de mindre cellene; trykk på Filter for å bruke listen på nytt. Oversikten nedenfor navngir hvert objekt filtrene skjulte.",
     "Fjern en rad for å få tilbake objektene den skjulte. Filtrene brukes mens du redigerer dem, og på nytt hver gang et synsfelt åpnes, så fjern radene du ikke lenger vil ha, før du går videre. Undo angrer også et filtertrinn.",
     "Når du har gått gjennom endringene, klikker du på Save mask i verktøylinjen. Behold kildebildene sammen med de lagrede maskene og kurasjonsposten deres.",
+    "Velg Box ved siden av Draw for å annotere separate YOLO-avgrensningsbokser. Boksene har egne klasser og egen historikk; de erstatter ikke segmenteringsmasken og endrer ikke det innsamlede bildet. Her demonstrerer boksene betjeningen og er ikke en biologisk treningsfasit.",
+    "Klikk på Add class og skriv inn et klassenavn. Dette eksemplet bruker demonstration. Velg den tiltenkte klassen før du tegner; hold klassenavn og numeriske identifikatorer konsistente i hele treningsdatasettet.",
+    "Dra over bildet for å tegne en boks. Omrisset og klasseetiketten viser den nye annoteringen. For virkelige treningsdata skal målobjektet avgrenses nøyaktig; dette øvelsesrektangelet viser bare bevegelsen.",
+    "Dra inne i en eksisterende boks for å flytte den. Boksen beholder klassen mens bildekoordinatene endres. Kontroller plasseringen før du lagrer.",
+    "Dra et hjørne av boksen for å endre størrelsen. Plasser kantene rundt det tiltenkte objektet og kontroller at rektangelet holder seg innenfor bildet.",
+    "Hold Control mens du drar for å tegne en ny boks inne i en eksisterende. Dette oppretter en separat annotering i stedet for å flytte den ytre boksen. Begge boksene beholder egne koordinater og egen klasse.",
+    "Høyreklikk på en boks for å slette den. Kontroller hvilket omriss som forsvinner, særlig når boksene overlapper. Å fjerne en boks sletter ingen piksler fra segmenteringsmasken.",
+    "Klikk på Undo for å gjenopprette den slettede boksen. De to uavhengige annoteringene kommer tilbake. Bruk historikken til å rette en feilaktig redigering før du lagrer.",
+    "Redo utfører slettingen på nytt. Angre én gang til for å beholde begge demonstrasjonsboksene til eksporten. Gå gjennom de endelige annoteringene før du skriver dem til disk.",
+    "Klikk på Save boxes for å lagre annoteringene i prosjektfilen ved siden av bildene. Bokskoordinater og klasser lagres separat fra masken. Oppbevar prosjektfilen sammen med de tilhørende kildebildene.",
+    "Klikk på Export YOLO labels og velg hvor tekstfilen skal lagres. Hver rad inneholder en klasseidentifikator og normaliserte verdier for sentrum X, sentrum Y, bredde og høyde i forhold til hele bildet. Den tilhørende filen med klassenavn bevarer koblingen mellom identifikatorer og navn.",
+    "Et bildefelt uten annoterte bokser eksporterer en tom etikettfil. Dette andre mikroskopifeltet illustrerer filformatet og er ikke et biologisk negativt eksempel. Bruk negative treningseksempler bare etter å ha kontrollert at ingen målobjekter finnes.",
+    "Gå tilbake til det første bildet. De lagrede boksene lastes inn med de samme klassene og koordinatene, mens det innsamlede bildet og segmenteringsmasken er uendret. Oppbevar YOLO-etiketter, klassekobling og kildebilder samlet til trening.",
     "Ikonene øverst til høyre åpner resten av maskeverktøyene. Cellpose Workbench trener en modell på kuraterte par og bruker den på en mappe, og neste ikon kjører deteksjon på alle synsfelt i den åpne mappen.",
     "Model Compare setter to maskesett side om side, og Model Zoo finner og tester vekter. Når flere eksempler må rettes, tar Curate og Napari Bridge deg tilbake til redigeringen.",
     "Velg Recrop og dra en boks rundt objektene du vil ha i et mindre treningsfelt. Dette skriver et nytt bilde og en tilhørende maske. Objekter som kuttes av kanten, forkastes, så la det være plass rundt hele objekter og undersøk utsnittet.",

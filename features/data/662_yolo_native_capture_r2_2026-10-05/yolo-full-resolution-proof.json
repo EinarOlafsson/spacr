@@ -1,0 +1,342 @@
+{
+  "accepted": true,
+  "captures": {
+    "make_masks_yolo_662_r2": {
+      "yolo_06_drawn_box": {
+        "expected_boxes": 1,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_07_moved_box": {
+        "expected_boxes": 1,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_08_resized_box": {
+        "expected_boxes": 1,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_09_contained_box": {
+        "expected_boxes": 2,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_10_deleted_box": {
+        "expected_boxes": 1,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_11_undo_boxes": {
+        "expected_boxes": 2,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_12_redo_boxes": {
+        "expected_boxes": 1,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_13_saved_boxes": {
+        "expected_boxes": 2,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_15_exported": {
+        "expected_boxes": 2,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_18_reloaded_boxes": {
+        "expected_boxes": 2,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "make_masks_yolo_662_r5_desktop": {
+      "yolo_06_drawn_box": {
+        "expected_boxes": 1,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_07_moved_box": {
+        "expected_boxes": 1,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_08_resized_box": {
+        "expected_boxes": 1,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_09_contained_box": {
+        "expected_boxes": 2,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_10_deleted_box": {
+        "expected_boxes": 1,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_11_undo_boxes": {
+        "expected_boxes": 2,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_12_redo_boxes": {
+        "expected_boxes": 1,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_13_saved_boxes": {
+        "expected_boxes": 2,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_15_exported": {
+        "expected_boxes": 2,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_18_reloaded_boxes": {
+        "expected_boxes": 2,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "make_masks_yolo_662_r6_desktop_repaint": {
+      "yolo_06_drawn_box": {
+        "expected_boxes": 1,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_07_moved_box": {
+        "expected_boxes": 1,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_08_resized_box": {
+        "expected_boxes": 1,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_09_contained_box": {
+        "expected_boxes": 2,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_10_deleted_box": {
+        "expected_boxes": 1,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_11_undo_boxes": {
+        "expected_boxes": 2,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_12_redo_boxes": {
+        "expected_boxes": 1,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_13_saved_boxes": {
+        "expected_boxes": 2,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_15_exported": {
+        "expected_boxes": 2,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "yolo_18_reloaded_boxes": {
+        "expected_boxes": 2,
+        "full_native_edge_blue_coverage": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    }
+  },
+  "finding": "Thin native two-pixel outlines are present. The resized image previews obscured some outlines; no application or recorder defect is proved. Recording procedure changes have been removed."
+}

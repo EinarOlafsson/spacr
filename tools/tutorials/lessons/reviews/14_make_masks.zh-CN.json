@@ -1,32 +1,43 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
+  "english_sha256": "a1b6c2bf8690e1fbc9d7d545d5e5ac3a0a838a5f61421728f14fcadb2a347ed4",
   "review": {
     "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "translator": "Prior forty-five reviewed scene translations retained; Codex directly translated and technically reviewed thirteen YOLO additions",
     "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "scope": "Separate class-labelled boxes, native editing/history, independent image-relative XYWH export and empty-file demonstration without biological ground-truth claims",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-30",
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+      "date": "2026-10-05",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
-      "listening_review": false
+      "listening_review": false,
+      "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
     },
-    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
+    "previous_english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a"
   },
   "language": "zh-CN",
   "title": "Make Masks：编辑标签并准备训练图像",
-  "description": "打开图像与掩膜对，修正对象，记录判定，为Measure组织图像和掩膜，并创建成对的训练裁剪图。",
+  "description": "打开图像与掩膜对，修正对象，记录判定，为Measure组织图像和掩膜，并创建成对的训练裁剪图。 绘制、编辑并导出带类别标签的独立 YOLO 框，不改变图像或分割掩膜。",
   "objectives": [
     "打开带有对应实例掩膜的图像，并在放大镜中检查对象。",
     "用Undo、绘制、分割和对象过滤修正标签。",
     "保存整理好的掩膜，记录Keep或Discard判定，并创建用于训练的图像与掩膜裁剪图。",
-    "为Measure组织图像和掩膜，并用Upload data共享整理好的图像对。"
+    "为Measure组织图像和掩膜，并用Upload data共享整理好的图像对。",
+    "绘制并编辑带类别标签的独立框，保存其项目，并导出归一化的 YOLO 标签。"
   ],
   "prerequisite": "准备一个二维图像文件夹，并在masks子文件夹中放入对应的实例标签TIFF。每个掩膜使用图像文件的基本名。练习编辑和重新裁剪时请使用副本。示例使用Measure可下载显微项目中的ER图像和细胞掩膜。",
   "scenes": [
@@ -45,6 +56,19 @@
     "要按大小或形状删除对象，请在Filter类别中选择一个属性，然后点击Add a filter。scikit-image测量的任何regionprop都可以作为过滤条件，例如面积、实心度或平均强度。这里一行设有最小值的面积条件隐藏了较小的细胞；按Filter可重新应用整个列表。下方的记录列出了被过滤隐藏的每个对象。",
     "删除一行即可恢复它所隐藏的对象。过滤条件在编辑时即时生效，每次打开视野时也会再次应用，因此在继续之前，请删除不再需要的行。Undo也可以撤销一次过滤操作。",
     "检查完编辑后，点击工具栏中的Save mask。将源图像与保存的掩膜及其整理记录放在一起。",
+    "选择 Draw 旁边的 Box，标注独立的 YOLO 边界框。这些框有各自的类别和历史记录，不会替代分割掩膜或改变采集的图像。这里的框用于演示交互操作，并非用于训练的生物学真值。",
+    "点击 Add class，输入类别名称。本例使用 demonstration。绘制前选择所需类别；在整个训练数据集中保持类别名称及其数字标识一致。",
+    "在图像上拖动以绘制框。轮廓和类别标签显示新的标注。对真实训练数据，应准确框住目标对象；此练习矩形仅演示操作手势。",
+    "在已有框内部拖动以移动它。框的类别保持不变，图像坐标随之改变。保存前检查其位置。",
+    "拖动框的一个角以调整大小。将边缘放置在所需对象周围，并检查矩形仍位于图像内部。",
+    "按住 Control 拖动，可在已有框内部绘制另一个框。这会创建独立标注，而非移动外框。两个框分别保留各自的坐标和类别。",
+    "右键点击框以删除它。检查哪个轮廓消失，尤其是在框重叠时。删除框不会擦除分割掩膜中的像素。",
+    "点击 Undo，恢复已删除的框。两个独立标注重新出现。保存前可用历史记录恢复误操作。",
+    "Redo 会再次执行删除。再撤销一次，以保留两个演示框用于导出。写入磁盘前检查最终标注。",
+    "点击 Save boxes，将标注存储到图像旁的项目文件。框的坐标和类别与掩膜分开保存。将项目文件与对应的源图像保存在一起。",
+    "点击 Export YOLO labels，选择文本文件的目标位置。每行包含一个类别标识，以及相对于完整图像归一化的中心 X、中心 Y、宽度和高度。附带的类别名称文件保留标识对应关系。",
+    "没有标注框的视野会导出空标签文件。这里的第二个显微视野用于说明该文件格式，并非生物学阴性样本。只有确认不存在目标对象后，才将样本用作训练负例。",
+    "返回第一张图像。已保存的框会重新加载，类别和坐标保持一致，采集的图像及分割掩膜保持不变。将 YOLO 标签、类别映射和源图像一起保留用于训练。",
     "右上角的图标可打开其余的掩膜工具。Cellpose Workbench用整理好的图像对训练模型并将其应用到文件夹，旁边的图标则对已打开文件夹中的每个视野运行检测。",
     "Model Compare把两组掩膜并排比较，Model Zoo用于查找和测试权重。还有更多示例需要修正时，Curate和Napari Bridge会带您回到编辑。",
     "选择Recrop，拖出一个方框，框住您想放进较小训练视野中的对象。这会写出一张新图像和对应的掩膜。被边界切到的对象会被丢弃，所以请在完整对象周围留出空间，并检查裁剪结果。",
