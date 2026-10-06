@@ -4,6 +4,8 @@
     {
       "context": "Ten night palettes and twelve separate data-art presets.",
       "label": "spacr.qt.night_themes#0",
+      "retired": true,
+      "retired_reason": "2026-10-06 Home Cell-DINO/Save/theme source replaces this exact English block; original complete review is archived byte-exact.",
       "source": "Ten night palettes and twelve separate data-art presets.",
       "source_sha256": "a75dbf0f3d2da88ace6b93626d9c1138dffeb27eac5a51999f3e3a1d11bbbd56",
       "translation": "열 가지 야간 팔레트와 별도의 데이터 아트 프리셋 열두 가지."
@@ -11,6 +13,8 @@
     {
       "context": "The data-art catalog appends twelve independent palette presets. Its keys select distinct ambient producers and existing sound sets without changing the ten original night identities. Its explicit colour overrides retain the night palettes' stable status hues and are checked by the same contrast and page-separation rules.",
       "label": "spacr.qt.night_themes#7",
+      "retired": true,
+      "retired_reason": "2026-10-06 Home Cell-DINO/Save/theme source replaces this exact English block; original complete review is archived byte-exact.",
       "source": "The data-art catalog appends twelve independent palette presets. Its keys select distinct ambient producers and existing sound sets without changing the ten original night identities. Its explicit colour overrides retain the night palettes' stable status hues and are checked by the same contrast and page-separation rules.",
       "source_sha256": "4dda2672e61347f828d85de9998b88c9122d2e766dfca1b74ef9e4a969f9d141",
       "translation": "데이터 아트 카탈로그는 독립적인 팔레트 프리셋 열두 가지를 추가합니다. 각 키는 서로 다른 동적 배경 생성기와 기존 사운드 세트를 선택하며 원래 야간 테마 열 가지의 식별자를 바꾸지 않습니다. 명시적인 색상 재정의는 야간 팔레트의 안정적인 상태 색상을 유지하며 동일한 대비 및 페이지 구분 규칙으로 검사됩니다."
@@ -67,6 +71,8 @@
     {
       "context": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | the twelve data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night or data-art preset also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
       "label": "spacr.qt.preferences#7",
+      "retired": true,
+      "retired_reason": "2026-10-06 Home Cell-DINO/Save/theme source replaces this exact English block; original complete review is archived byte-exact.",
       "source": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | the twelve data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night or data-art preset also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
       "source_sha256": "310ce5591c3270eda11665fc69b36c06f9f9324a288f0e5f60f9ed3af0f3a3d3",
       "translation": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` 의 야간 테마 열 가지 중 하나 | :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` 의 데이터 아트 프리셋 열두 가지 | ``\"system\"`` (기본값 ``\"dark\"``). ``\"system\"`` 은 운영 체제의 색상 구성을 따르지만 사용자가 선택한 이후에만 적용됩니다. 어두운 테마가 기본값이 되기 전(2026-09-21)에 저장된 ``\"system\"`` 은 사용자의 선택이 아닌 이전 기본값이므로 ``\"dark\"`` 로 읽습니다. :func:`get_theme` 을 참조하세요. ``\"cell\"`` 은 형광 이미지를 사용하고 ``\"glass\"`` 는 내장된 라이트 필드 위에 중립적인 다층 재질을 사용합니다. 야간 또는 데이터 아트 프리셋은 배경과 사운드 세트도 포함하며 선택 시 :func:`apply_night_theme` 이 이를 저장합니다. Space는 선택할 수 있는 테마가 아닙니다. 폐기된 ``space_variant`` 및 ``space_seed`` 값은 테마를 처음 읽을 때 이전 저장 설정에서 제거됩니다. :func:`get_theme` 을 참조하세요."

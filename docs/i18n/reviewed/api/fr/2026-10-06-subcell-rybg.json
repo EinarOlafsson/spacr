@@ -17,14 +17,14 @@
     },
     {
       "context": "Encode ``(n, h, w, k)`` extracted image regions in model-appropriate batches.",
-      "label": "spacr.embeddings._foundation_encoder.run#0",
+      "label": "spacr.embeddings._foundation_encoder.run#1",
       "source": "Encode ``(n, h, w, k)`` crops in model-appropriate batches.",
       "source_sha256": "47a247456a4b73e2ecedf7e56e310fdd568f09cf4ac3bb2a161042c7ab87b540",
       "translation": "Encoder les recadrages de forme ``(n, h, w, k)`` par lots adaptés au modèle."
     },
     {
       "context": "float32 extracted image regions, image-channel-last. SubCell R/Y/B/G uses native intensity values; other foundations expect [0, 1].",
-      "label": "spacr.embeddings._foundation_encoder.run#1",
+      "label": "spacr.embeddings._foundation_encoder.run#2",
       "source": "float32 crops, channels last. SubCell R/Y/B/G uses native intensity values; other foundations expect [0, 1].",
       "source_sha256": "3db3fd3ac8dd6e0bbf0d17a24bb0a435b27f30364dab3e652fd106ad0b915b72",
       "translation": "Recadrages float32 avec les canaux dans la dernière dimension. SubCell R/Y/B/G utilise les valeurs d’intensité originales ; les autres modèles de fondation attendent [0, 1]."

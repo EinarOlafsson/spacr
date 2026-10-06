@@ -1,0 +1,118 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "Ten night palettes and twelve separate data-art presets.",
+      "label": "spacr.qt.night_themes#0",
+      "source": "Ten night palettes and twelve separate data-art presets.",
+      "source_sha256": "a75dbf0f3d2da88ace6b93626d9c1138dffeb27eac5a51999f3e3a1d11bbbd56",
+      "translation": "दस रात्रि पैलेट और डेटा कला के बारह अलग प्रीसेट।"
+    },
+    {
+      "context": "The data-art catalog appends twelve independent palette presets. Its keys select distinct ambient producers and existing sound sets without changing the ten original night identities. Its explicit colour overrides retain the night palettes' stable status hues and are checked by the same contrast and page-separation rules.",
+      "label": "spacr.qt.night_themes#7",
+      "source": "The data-art catalog appends twelve independent palette presets. Its keys select distinct ambient producers and existing sound sets without changing the ten original night identities. Its explicit colour overrides retain the night palettes' stable status hues and are checked by the same contrast and page-separation rules.",
+      "source_sha256": "4dda2672e61347f828d85de9998b88c9122d2e766dfca1b74ef9e4a969f9d141",
+      "translation": "डेटा कला कैटलॉग बारह स्वतंत्र पैलेट प्रीसेट जोड़ता है। इसकी कुंजियाँ अलग-अलग गतिशील पृष्ठभूमि जनरेटर और मौजूदा ध्वनि सेट चुनती हैं, बिना मूल दस रात्रि थीम की पहचान बदले। इसके स्पष्ट रंग ओवरराइड रात्रि पैलेट के स्थिर स्थिति रंग बनाए रखते हैं और उन्हीं कंट्रास्ट तथा पृष्ठ पृथक्करण नियमों से जाँचे जाते हैं।"
+    },
+    {
+      "context": "One palette preset: its label, colours, backdrop and sound set.",
+      "label": "spacr.qt.night_themes.NightTheme#0",
+      "source": "One palette preset: its label, colours, backdrop and sound set.",
+      "source_sha256": "1c2ef8f9986d2e9322b18cb7dfb3db66dc00c40d640c711236e2cd87550d464a",
+      "translation": "एक पैलेट प्रीसेट: उसका लेबल, रंग, पृष्ठभूमि और ध्वनि सेट।"
+    },
+    {
+      "context": "stable identifier in the theme preference and palette map.",
+      "label": "spacr.qt.night_themes.NightTheme#1",
+      "source": "stable identifier in the theme preference and palette map.",
+      "source_sha256": "0046349464d284760af5d7913fd6c60cd79f485c1a324b1cbc811a0acdc0b748",
+      "translation": "थीम वरीयता और पैलेट मैप में स्थिर पहचानकर्ता।"
+    },
+    {
+      "context": "existing sound-set key for data-art presets; ``None`` retains the original night theme's matching sound key.",
+      "label": "spacr.qt.night_themes.NightTheme#7",
+      "source": "existing sound-set key for data-art presets; ``None`` retains the original night theme's matching sound key.",
+      "source_sha256": "2b3ed305dc872fc45a5a57bf346aa7d093c3b693d156dd1f551cca9aed43bac8",
+      "translation": "डेटा कला प्रीसेट के लिए मौजूदा ध्वनि सेट की कुंजी; ``None`` मूल रात्रि थीम की संबंधित ध्वनि कुंजी बनाए रखता है।"
+    },
+    {
+      "context": "Key of an existing sound set; night presets keep their own.",
+      "label": "spacr.qt.night_themes.NightTheme.sound#0",
+      "source": "Key of an existing sound set; night presets keep their own.",
+      "source_sha256": "162c7d3c8b281f765a574e9682002884dc0edda5172bdf85a9e322a605c71eba",
+      "translation": "मौजूदा ध्वनि सेट की कुंजी; रात्रि प्रीसेट अपनी कुंजी बनाए रखते हैं।"
+    },
+    {
+      "context": "one of :data:`NIGHT_THEME_KEYS` or :data:`DATA_ART_THEME_KEYS`.",
+      "label": "spacr.qt.night_themes.ambient_for#1",
+      "source": "one of :data:`NIGHT_THEME_KEYS` or :data:`DATA_ART_THEME_KEYS`.",
+      "source_sha256": "3e489fb1201417ea6f069beb414062178b602647e0ee9037ee9afab486afd896",
+      "translation": ":data:`NIGHT_THEME_KEYS` या :data:`DATA_ART_THEME_KEYS` की कोई एक कुंजी।"
+    },
+    {
+      "context": "if ``name`` is unknown.",
+      "label": "spacr.qt.night_themes.ambient_for#3",
+      "source": "if ``name`` is unknown.",
+      "source_sha256": "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef",
+      "translation": "यदि ``name`` अज्ञात है।"
+    },
+    {
+      "context": "The night or data-art palette preset called ``name``.",
+      "label": "spacr.qt.night_themes.theme_for#0",
+      "source": "The night or data-art palette preset called ``name``.",
+      "source_sha256": "65c18e3f567ad212679dcddc8693d35a9cbe5796e4b65df593a851052110b6b4",
+      "translation": "``name`` नाम वाला रात्रि या डेटा कला पैलेट प्रीसेट।"
+    },
+    {
+      "context": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | the twelve data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night or data-art preset also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+      "label": "spacr.qt.preferences#7",
+      "source": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | the twelve data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night or data-art preset also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+      "source_sha256": "310ce5591c3270eda11665fc69b36c06f9f9324a288f0e5f60f9ed3af0f3a3d3",
+      "translation": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` की दस रात्रि थीम में से एक | :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` के बारह डेटा कला प्रीसेट | ``\"system\"`` (डिफ़ॉल्ट ``\"dark\"``)। ``\"system\"`` ऑपरेटिंग सिस्टम की रंग योजना का अनुसरण करता है, लेकिन केवल किसी के इसे चुनने के बाद: डार्क के डिफ़ॉल्ट बनने से पहले (2026-09-21) सहेजा गया ``\"system\"`` पुराना डिफ़ॉल्ट था, चयन नहीं, और उसे ``\"dark\"`` के रूप में पढ़ा जाता है; :func:`get_theme` देखें। ``\"cell\"`` प्रतिदीप्ति छवियों का उपयोग करता है और ``\"glass\"`` अंतर्निहित प्रकाश क्षेत्र के ऊपर तटस्थ परतदार सामग्री का उपयोग करता है। रात्रि या डेटा कला प्रीसेट में पृष्ठभूमि और ध्वनि सेट भी होते हैं, जिन्हें चयन के समय :func:`apply_night_theme` लिखता है। Space चयन योग्य थीम नहीं है। हटाए गए ``space_variant`` और ``space_seed`` मान थीम को पहली बार पढ़ते समय पुराने सहेजे गए सेटिंग भंडार से निकाल दिए जाते हैं; :func:`get_theme` देखें।"
+    },
+    {
+      "context": "Write the backdrop and sound set a night or data-art preset brings.",
+      "label": "spacr.qt.preferences.apply_night_theme#0",
+      "source": "Write the backdrop and sound set a night or data-art preset brings.",
+      "source_sha256": "f9ac0d80836638ce394ab684cd6a9f49d323994be1a22210b246b3cd6aaf3317",
+      "translation": "रात्रि या डेटा कला प्रीसेट के साथ आने वाली पृष्ठभूमि और ध्वनि सेट लिखें।"
+    },
+    {
+      "context": "a night or data-art preset key.",
+      "label": "spacr.qt.preferences.apply_night_theme#5",
+      "source": "a night or data-art preset key.",
+      "source_sha256": "cc315c65931748f6d2e96327957ee98642123b99d3632b13a06543de84e7c559",
+      "translation": "रात्रि या डेटा कला प्रीसेट की कुंजी।"
+    },
+    {
+      "context": "Choosing a night or data-art preset also writes its backdrop and its sound set — see :func:`apply_night_theme`, which is where the reasoning for doing so lives.",
+      "label": "spacr.qt.preferences.set_theme_choice#1",
+      "source": "Choosing a night or data-art preset also writes its backdrop and its sound set — see :func:`apply_night_theme`, which is where the reasoning for doing so lives.",
+      "source_sha256": "0fb2bea1e3cdaadaaab1b466d0c0ef18c6dbccd054a25c5cb5aaaf3c76ca59f4",
+      "translation": "रात्रि या डेटा कला प्रीसेट चुनने पर उसकी पृष्ठभूमि और ध्वनि सेट भी लिखे जाते हैं — :func:`apply_night_theme` देखें, जहाँ ऐसा करने के कारण बताए गए हैं।"
+    },
+    {
+      "context": "The ten night themes follow the older palettes, in :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the application has always had stay where a returning user looks for them and read as one family. Twelve data-art presets follow them in a separate block. Their tokens are plain keys with no variant, so there is nothing to compose into the token the way Cell does.",
+      "label": "spacr.qt.preferences.theme_choices#2",
+      "source": "The ten night themes follow the older palettes, in :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the application has always had stay where a returning user looks for them and read as one family. Twelve data-art presets follow them in a separate block. Their tokens are plain keys with no variant, so there is nothing to compose into the token the way Cell does.",
+      "source_sha256": "365b4e26992b3354102dadcd9219e23f0aa009e36ea36e44078d3b71e19acab1",
+      "translation": "दस रात्रि थीम पुराने पैलेट के बाद :data:`spacr.qt.night_themes.NIGHT_THEMES` के क्रम में आती हैं, ताकि ऐप में हमेशा से मौजूद चार पैलेट परिचित उपयोगकर्ता की अपेक्षित जगह पर बने रहें और एक समूह के रूप में दिखें। उनके बाद बारह डेटा कला प्रीसेट एक अलग खंड में आते हैं। उनके टोकन बिना किसी वैरिएंट वाली साधारण कुंजियाँ हैं, इसलिए Cell की तरह टोकन बनाने के लिए कोई घटक जोड़ना नहीं पड़ता।"
+    },
+    {
+      "context": "Night and data-art themes each carry a sentence saying what colours, backdrop and sound set come with them; that sentence is what the Theme control shows as the entry's tooltip, the way the Sound set control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`.",
+      "label": "spacr.qt.preferences.theme_description#1",
+      "source": "Night and data-art themes each carry a sentence saying what colours, backdrop and sound set come with them; that sentence is what the Theme control shows as the entry's tooltip, the way the Sound set control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`.",
+      "source_sha256": "8e48a03ac72820259a4703a7ca1d6ad0103661a926ad4451b4220ee09282599e",
+      "translation": "रात्रि और डेटा कला थीम में प्रत्येक के साथ एक वाक्य होता है जो बताता है कि कौन से रंग, पृष्ठभूमि और ध्वनि सेट शामिल हैं; थीम नियंत्रण इस वाक्य को प्रविष्टि के टूलटिप के रूप में दिखाता है, जैसे ध्वनि सेट नियंत्रण :attr:`spacr.qt.sound_synth.SoundTheme.description` दिखाता है।"
+    },
+    {
+      "context": "Use :func:`active_palette` for colors shown by a live widget and :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains the selectable palettes ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` and the night and data-art presets of :mod:`spacr.qt.night_themes`; the ``\"system\"`` preference resolves to dark or light before palette lookup. A legacy ``\"space\"`` palette can still be read from persisted settings but is not selectable.",
+      "label": "spacr.qt.theme#1",
+      "source": "Use :func:`active_palette` for colors shown by a live widget and :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains the selectable palettes ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` and the night and data-art presets of :mod:`spacr.qt.night_themes`; the ``\"system\"`` preference resolves to dark or light before palette lookup. A legacy ``\"space\"`` palette can still be read from persisted settings but is not selectable.",
+      "source_sha256": "cca1167c2d2f6771567cd1e1b7e025b791ffd4126698b8c18cc4a409f61c1812",
+      "translation": "सक्रिय विजेट में दिखने वाले रंगों के लिए :func:`active_palette` और ऐप की स्टाइलशीट के लिए :func:`stylesheet` का उपयोग करें। :data:`THEMES` में चयन योग्य पैलेट ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` तथा :mod:`spacr.qt.night_themes` के रात्रि और डेटा कला प्रीसेट शामिल हैं; पैलेट खोजने से पहले ``\"system\"`` वरीयता डार्क या लाइट में हल होती है। पुराना ``\"space\"`` पैलेट अब भी स्थायी रूप से सहेजी गई सेटिंग से पढ़ा जा सकता है, लेकिन चुना नहीं जा सकता।"
+    }
+  ],
+  "schema": 1
+}

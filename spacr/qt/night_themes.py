@@ -1,4 +1,4 @@
-"""Ten night palettes and twelve separate data-art presets.
+"""Ten night palettes and six separate data-art presets.
 
 A night theme is one choice that moves three things at once: the colours
 the interface is painted in (:data:`spacr.qt.theme.THEMES` grows by ten

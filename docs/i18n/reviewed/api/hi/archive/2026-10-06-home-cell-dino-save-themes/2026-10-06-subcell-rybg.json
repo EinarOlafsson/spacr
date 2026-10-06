@@ -1,0 +1,63 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "For ``subcell_rybg``, choose :data:`CHANNEL_PROJECT`, supply four explicit, distinct ``channels`` in microtubules (R), ER (Y), DNA (B), protein (G) order, and set ``normalize=False``. Extracted image regions must be at least 16 pixels in each spatial dimension. Native dimensions are preserved; the encoder applies the authors' whole-extracted image region min-max normalization.",
+      "label": "spacr.embeddings.EmbeddingSpec#1",
+      "source": "For ``subcell_rybg``, choose :data:`CHANNEL_PROJECT`, supply four explicit, distinct ``channels`` in microtubules (R), ER (Y), DNA (B), protein (G) order, and set ``normalize=False``. Crops must be at least 16 pixels in each spatial dimension. Native dimensions are preserved; the encoder applies the authors' whole-crop min-max normalization.",
+      "source_sha256": "3f998fedd8b65104d670625a22b252810820df4082091259ee527bce7118c5db",
+      "translation": "``subcell_rybg`` के लिए :data:`CHANNEL_PROJECT` चुनें, माइक्रोट्यूब्यूल (R), ER (Y), DNA (B), प्रोटीन (G) के क्रम में चार स्पष्ट और अलग ``channels`` दें, और ``normalize=False`` सेट करें। क्रॉप की प्रत्येक स्थानिक विमा कम से कम 16 पिक्सेल होनी चाहिए। मूल आकार बनाए रखे जाते हैं; एन्कोडर पूरे क्रॉप पर लेखकों का न्यूनतम-अधिकतम सामान्यीकरण लागू करता है।"
+    },
+    {
+      "context": "Name of a timm or registered foundation encoder.",
+      "label": "spacr.embeddings.EmbeddingSpec#2",
+      "source": "Name of a timm or registered foundation encoder.",
+      "source_sha256": "acbddedc3672c8d4558036b8daf7b46584ba077ce7b5919381a7ff4e246b1537",
+      "translation": "timm एन्कोडर या पंजीकृत फ़ाउंडेशन एन्कोडर का नाम।"
+    },
+    {
+      "context": "Encode ``(n, h, w, k)`` extracted image regions in model-appropriate batches.",
+      "label": "spacr.embeddings._foundation_encoder.run#0",
+      "source": "Encode ``(n, h, w, k)`` crops in model-appropriate batches.",
+      "source_sha256": "47a247456a4b73e2ecedf7e56e310fdd568f09cf4ac3bb2a161042c7ab87b540",
+      "translation": "``(n, h, w, k)`` आकार के क्रॉप को मॉडल के अनुकूल बैचों में एन्कोड करें।"
+    },
+    {
+      "context": "float32 extracted image regions, image-channel-last. SubCell R/Y/B/G uses native intensity values; other foundations expect [0, 1].",
+      "label": "spacr.embeddings._foundation_encoder.run#1",
+      "source": "float32 crops, channels last. SubCell R/Y/B/G uses native intensity values; other foundations expect [0, 1].",
+      "source_sha256": "3db3fd3ac8dd6e0bbf0d17a24bb0a435b27f30364dab3e652fd106ad0b915b72",
+      "translation": "float32 क्रॉप, जिनमें चैनल अंतिम विमा में हैं। SubCell R/Y/B/G मूल तीव्रता मान उपयोग करता है; अन्य फ़ाउंडेशन मॉडल [0, 1] की अपेक्षा करते हैं।"
+    },
+    {
+      "context": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#0",
+      "source": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.",
+      "source_sha256": "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+      "translation": "``(n, k, h, w)`` से ``(n, 1536)`` तक, दोनों हेड के आउटपुट जोड़कर।"
+    },
+    {
+      "context": "The checkpoint determines whether ``k`` is two or four channels.",
+      "label": "spacr.embeddings._subcell_model.Pooled.forward#1",
+      "source": "The checkpoint determines whether ``k`` is two or four channels.",
+      "source_sha256": "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4",
+      "translation": "चेकपॉइंट निर्धारित करता है कि ``k`` दो चैनल हैं या चार।"
+    },
+    {
+      "context": "Min-max scale the expected model image layers, then encode.",
+      "label": "spacr.embeddings._subcell_model.forward#0",
+      "source": "Min-max scale the expected model planes, then encode.",
+      "source_sha256": "82f232bd11178b82ce5736e669713c5ef37142ea414745ac3aa937f512d5abdd",
+      "translation": "मॉडल के अपेक्षित इमेज प्लेन का न्यूनतम-अधिकतम सामान्यीकरण करें, फिर एन्कोड करें।"
+    },
+    {
+      "context": "Store only a complete four-index choice, then close.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping#0",
+      "source": "Store only a complete four-index choice, then close.",
+      "source_sha256": "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec",
+      "translation": "केवल चार सूचकांकों का पूरा चयन सहेजें, फिर बंद करें।"
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review of native four-plane mapping, spatial minimum, original intensities and normalization; no native-speaker signoff.",
+  "schema": 1
+}

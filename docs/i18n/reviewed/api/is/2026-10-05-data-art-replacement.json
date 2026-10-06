@@ -4,6 +4,8 @@
     {
       "context": "Ten night palettes and twelve separate data-art presets.",
       "label": "spacr.qt.night_themes#0",
+      "retired": true,
+      "retired_reason": "2026-10-06 Home Cell-DINO/Save/theme source replaces this exact English block; original complete review is archived byte-exact.",
       "source": "Ten night palettes and twelve separate data-art presets.",
       "source_sha256": "a75dbf0f3d2da88ace6b93626d9c1138dffeb27eac5a51999f3e3a1d11bbbd56",
       "translation": "Tíu næturlitapallettur og tólf aðskildar forstillingar fyrir gagnalist."
@@ -11,6 +13,8 @@
     {
       "context": "The data-art catalog appends twelve independent palette presets. Its keys select distinct ambient producers and existing sound sets without changing the ten original night identities. Its explicit colour overrides retain the night palettes' stable status hues and are checked by the same contrast and page-separation rules.",
       "label": "spacr.qt.night_themes#7",
+      "retired": true,
+      "retired_reason": "2026-10-06 Home Cell-DINO/Save/theme source replaces this exact English block; original complete review is archived byte-exact.",
       "source": "The data-art catalog appends twelve independent palette presets. Its keys select distinct ambient producers and existing sound sets without changing the ten original night identities. Its explicit colour overrides retain the night palettes' stable status hues and are checked by the same contrast and page-separation rules.",
       "source_sha256": "4dda2672e61347f828d85de9998b88c9122d2e766dfca1b74ef9e4a969f9d141",
       "translation": "Gagnalistasafnið bætir við tólf sjálfstæðum litapallettuforstillingum. Lyklar þess velja ólíka bakgrunnsframleiðendur og fyrirliggjandi hljóðasett án þess að breyta auðkennum upphaflegu tíu næturþemanna. Sérstakar litaútfærslur þess varðveita stöðuga stöðuliti næturlitapallettanna og eru prófaðar með sömu reglum um birtuskil og aðgreiningu síðna."
@@ -67,6 +71,8 @@
     {
       "context": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | the twelve data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night or data-art preset also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
       "label": "spacr.qt.preferences#7",
+      "retired": true,
+      "retired_reason": "2026-10-06 Home Cell-DINO/Save/theme source replaces this exact English block; original complete review is archived byte-exact.",
       "source": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | the twelve data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night or data-art preset also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
       "source_sha256": "310ce5591c3270eda11665fc69b36c06f9f9324a288f0e5f60f9ed3af0f3a3d3",
       "translation": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | eitt af tíu næturþemunum í :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | tólf gagnalistarforstillingarnar í :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (sjálfgefið ``\"dark\"``). ``\"system\"`` fylgir litaskema stýrikerfisins, en aðeins eftir að einhver hefur valið það: vistað ``\"system\"`` sem var skrifað áður en dökkt varð sjálfgefið (2026-09-21) var gamla sjálfgefna gildið, ekki val, og er lesið sem ``\"dark\"``; sjá :func:`get_theme`. ``\"cell\"`` notar flúrljómunarmyndir og ``\"glass\"`` notar hlutlaus lagskipt efni yfir innbyggðu ljóssviði. Nætur- eða gagnalistarforstilling inniheldur einnig bakgrunn og hljóðasett sem :func:`apply_night_theme` skrifar þegar hún er valin. Space er ekki valanlegt þema. Úreltu gildin ``space_variant`` og ``space_seed`` eru fjarlægð úr eldri vistuðum stillingum þegar þemað er fyrst lesið; sjá :func:`get_theme`."

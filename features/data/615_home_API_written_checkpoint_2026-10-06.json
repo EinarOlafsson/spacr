@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "scope": "All ten normally written frozen Home API catalogs pass complete-record preservation and exact reviewed-block readback while the full normal semantic audit remains live. This is not final API-audit or publication acceptance.",
+  "archive_parent_commit": "e9ff32d7c7402a5043104c54a2d8d0675b8d6c03",
+  "symbols_per_catalog": 13193,
+  "complete_unchanged_records_per_catalog": 13175,
+  "changed_existing_symbol_records": 7,
+  "added_symbol_records": 11,
+  "removed_symbol_records": 0,
+  "new_reviewed_API_blocks_exact": 225,
+  "all_original_complete_API_review_files_preserved": 1087,
+  "all_original_complete_runtime_review_files_preserved": 1990,
+  "accepted_tutorial_files_unchanged_to_6caf72d8a": 629,
+  "all_nine_writer_lines_generated_unresolved_decoded_history_unproven": 0,
+  "full_normal_API_generator_status": "Live handle 61808, actual PID 3078568 confirmed running; do not restart on observation timeout. All nine locales and English are written; final semantic audit is pending.",
+  "limits": "Older six-theme/Cell-DINO/Save source only. Latest Home 1f3e4a240, Help/settings/workflow/guide refresh, Sphinx/browser/publication and GPU/native crash acceptance remain separate. Broader N615 stays OPEN.",
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff.",
+  "script_scope": "Original executed checkers retain their historical scratch-baseline paths; no portable replay claimed.",
+  "artifacts": {
+    "features/data/615_home_API_written_checkpoint_2026-10-06/Home-current-API-preservation-all-written-during-audit-r1.log.gz": {
+      "stored_sha256": "b222bce35a73d4cc763d0488e0af32b84398fda206c9c8b6ce79ee4ea5be11a3",
+      "original_sha256": "c580874551f46b2c8f7afa8153d064d2beebf6099238da09f77f17ba89df5651",
+      "original_bytes": 955
+    },
+    "features/data/615_home_API_written_checkpoint_2026-10-06/Home-current-API-preservation-partial-r2.json.gz": {
+      "stored_sha256": "f7251d9555347c0a83e52ed789007643c280916166c689d11185aba7ec54d82d",
+      "original_sha256": "a9e2cf3338654b430fe30947ddf196bd7adca6b046daa19c9db046a35d1d0893",
+      "original_bytes": 17775
+    },
+    "features/data/615_home_API_written_checkpoint_2026-10-06/Home-current-API-reviewed-admission-r1.json.gz": {
+      "stored_sha256": "dbeacdeb5252f88c09605954486b16a74679e2b59e74c64730c881f3ca62c813",
+      "original_sha256": "d9e4646291a99d1f3b96bd00eb13eeffd07d7ea0742df40232d8e99582f7d601",
+      "original_bytes": 43406
+    },
+    "features/data/615_home_API_written_checkpoint_2026-10-06/Home-core-API-reviewed-inputs-r1.json.gz": {
+      "stored_sha256": "a254b90d2c360bd3888464c2dec6896db459d9a5e3b90017a67626de61a5d8de",
+      "original_sha256": "879e1fdd9ee34600a4c8e10707536e1de0a2811d60c261ec5a1e55b9f5a6060f",
+      "original_bytes": 105575
+    },
+    "features/data/615_home_API_written_checkpoint_2026-10-06/Home-theme-API-reviewed-inputs-r2.json.gz": {
+      "stored_sha256": "381aaaad5692db052c2d4212fecac67e93f4b2beaf87c450ad5dc3d2d846dd43",
+      "original_sha256": "7b5472e0efc0bfd3927b923940db10857f6195bccca02a0ebfd3a69252b811f8",
+      "original_bytes": 116987
+    },
+    "features/data/615_home_API_written_checkpoint_2026-10-06/check_Home_current_API_preservation_r2.py.gz": {
+      "stored_sha256": "b4377d27b1ba27519c9ff7187f906ce76e4bab3a039dfe315d63056c337ac0d6",
+      "original_sha256": "1a2c5b58ae2f2f483d78df85eeaa499c734e082d4cc3f99b12ed2ed7c689db36",
+      "original_bytes": 5133
+    },
+    "features/data/615_home_API_written_checkpoint_2026-10-06/prepare_Home_API_block_delta_r2.py.gz": {
+      "stored_sha256": "5deca228e641e1add815720c214d4ee75d1f6ce4db3a252cb539916bae899a15",
+      "original_sha256": "1382907903c46c889c448c8b598c5cc564ad731d4a6a418afefb80d41104442c",
+      "original_bytes": 1121
+    },
+    "features/data/615_home_API_written_checkpoint_2026-10-06/review_Home_core_API_inputs_r1.py.gz": {
+      "stored_sha256": "6d0f931db5b1525bac01fc10a5ed6e2d7943a72f971265f4d41a285f63317f9a",
+      "original_sha256": "bd682ce096045b1031be2899e165f6d72c55e938273363eb9b6cbdad613930b7",
+      "original_bytes": 23828
+    },
+    "features/data/615_home_API_written_checkpoint_2026-10-06/review_Home_theme_API_inputs_r2.py.gz": {
+      "stored_sha256": "eba83b14be5650d9977fc14ca606336ec9b0055badd8b770697f0ee35b9bc26d",
+      "original_sha256": "3e3347b7900be67b734fd01448d2ac4fb992799ead857ab672fcea133ea92bee",
+      "original_bytes": 13614
+    }
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "context": "Ten night palettes and twelve separate data-art presets.",
+      "label": "spacr.qt.night_themes#0",
+      "source": "Ten night palettes and twelve separate data-art presets.",
+      "source_sha256": "a75dbf0f3d2da88ace6b93626d9c1138dffeb27eac5a51999f3e3a1d11bbbd56",
+      "translation": "Tio nattpaletter och tolv separata förinställningar med datakonst."
+    },
+    {
+      "context": "The data-art catalog appends twelve independent palette presets. Its keys select distinct ambient producers and existing sound sets without changing the ten original night identities. Its explicit colour overrides retain the night palettes' stable status hues and are checked by the same contrast and page-separation rules.",
+      "label": "spacr.qt.night_themes#7",
+      "source": "The data-art catalog appends twelve independent palette presets. Its keys select distinct ambient producers and existing sound sets without changing the ten original night identities. Its explicit colour overrides retain the night palettes' stable status hues and are checked by the same contrast and page-separation rules.",
+      "source_sha256": "4dda2672e61347f828d85de9998b88c9122d2e766dfca1b74ef9e4a969f9d141",
+      "translation": "Datakonstkatalogen lägger till tolv fristående palettförinställningar. Dess nycklar väljer olika bakgrundsgeneratorer och befintliga ljuduppsättningar utan att ändra de tio ursprungliga nattemanas identiteter. Dess uttryckliga färgöverstyrningar behåller nattpaletternas stabila statusfärger och kontrolleras med samma regler för kontrast och åtskillnad mellan sidor."
+    },
+    {
+      "context": "One palette preset: its label, colours, backdrop and sound set.",
+      "label": "spacr.qt.night_themes.NightTheme#0",
+      "source": "One palette preset: its label, colours, backdrop and sound set.",
+      "source_sha256": "1c2ef8f9986d2e9322b18cb7dfb3db66dc00c40d640c711236e2cd87550d464a",
+      "translation": "En palettförinställning: dess etikett, färger, bakgrund och ljuduppsättning."
+    },
+    {
+      "context": "stable identifier in the theme preference and palette map.",
+      "label": "spacr.qt.night_themes.NightTheme#1",
+      "source": "stable identifier in the theme preference and palette map.",
+      "source_sha256": "0046349464d284760af5d7913fd6c60cd79f485c1a324b1cbc811a0acdc0b748",
+      "translation": "stabil identifierare i temainställningen och palettmappningen."
+    },
+    {
+      "context": "existing sound-set key for data-art presets; ``None`` retains the original night theme's matching sound key.",
+      "label": "spacr.qt.night_themes.NightTheme#7",
+      "source": "existing sound-set key for data-art presets; ``None`` retains the original night theme's matching sound key.",
+      "source_sha256": "2b3ed305dc872fc45a5a57bf346aa7d093c3b693d156dd1f551cca9aed43bac8",
+      "translation": "nyckel till en befintlig ljuduppsättning för förinställningar med datakonst; ``None`` behåller det ursprungliga nattemats motsvarande ljudnyckel."
+    },
+    {
+      "context": "Key of an existing sound set; night presets keep their own.",
+      "label": "spacr.qt.night_themes.NightTheme.sound#0",
+      "source": "Key of an existing sound set; night presets keep their own.",
+      "source_sha256": "162c7d3c8b281f765a574e9682002884dc0edda5172bdf85a9e322a605c71eba",
+      "translation": "Nyckel till en befintlig ljuduppsättning; nattförinställningar behåller sin egen."
+    },
+    {
+      "context": "one of :data:`NIGHT_THEME_KEYS` or :data:`DATA_ART_THEME_KEYS`.",
+      "label": "spacr.qt.night_themes.ambient_for#1",
+      "source": "one of :data:`NIGHT_THEME_KEYS` or :data:`DATA_ART_THEME_KEYS`.",
+      "source_sha256": "3e489fb1201417ea6f069beb414062178b602647e0ee9037ee9afab486afd896",
+      "translation": "en av :data:`NIGHT_THEME_KEYS` eller :data:`DATA_ART_THEME_KEYS`."
+    },
+    {
+      "context": "if ``name`` is unknown.",
+      "label": "spacr.qt.night_themes.ambient_for#3",
+      "source": "if ``name`` is unknown.",
+      "source_sha256": "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef",
+      "translation": "om ``name`` är okänt."
+    },
+    {
+      "context": "The night or data-art palette preset called ``name``.",
+      "label": "spacr.qt.night_themes.theme_for#0",
+      "source": "The night or data-art palette preset called ``name``.",
+      "source_sha256": "65c18e3f567ad212679dcddc8693d35a9cbe5796e4b65df593a851052110b6b4",
+      "translation": "Natt- eller datakonstförinställningen för paletten som heter ``name``."
+    },
+    {
+      "context": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | the twelve data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night or data-art preset also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+      "label": "spacr.qt.preferences#7",
+      "source": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | the twelve data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night or data-art preset also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+      "source_sha256": "310ce5591c3270eda11665fc69b36c06f9f9324a288f0e5f60f9ed3af0f3a3d3",
+      "translation": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | ett av de tio nattemana i :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | de tolv förinställningarna med datakonst i :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (standard ``\"dark\"``). ``\"system\"`` följer operativsystemets färgschema, men bara efter att någon har valt det: ett lagrat ``\"system\"`` som skrevs innan mörkt blev standard (2026-09-21) var det gamla standardvärdet, inte ett aktivt val, och läses som ``\"dark\"``; se :func:`get_theme`. ``\"cell\"`` använder fluorescensbilder och ``\"glass\"`` använder neutrala skiktade material över ett inbyggt ljusfält. En natt- eller datakonstförinställning innehåller också en bakgrund och en ljuduppsättning, som skrivs av :func:`apply_night_theme` när den väljs. Space är inget valbart tema. De utfasade värdena ``space_variant`` och ``space_seed`` tas bort från äldre lagrade inställningar första gången temat läses; se :func:`get_theme`."
+    },
+    {
+      "context": "Write the backdrop and sound set a night or data-art preset brings.",
+      "label": "spacr.qt.preferences.apply_night_theme#0",
+      "source": "Write the backdrop and sound set a night or data-art preset brings.",
+      "source_sha256": "f9ac0d80836638ce394ab684cd6a9f49d323994be1a22210b246b3cd6aaf3317",
+      "translation": "Skriv bakgrunden och ljuduppsättningen som hör till en natt- eller datakonstförinställning."
+    },
+    {
+      "context": "a night or data-art preset key.",
+      "label": "spacr.qt.preferences.apply_night_theme#5",
+      "source": "a night or data-art preset key.",
+      "source_sha256": "cc315c65931748f6d2e96327957ee98642123b99d3632b13a06543de84e7c559",
+      "translation": "nyckel till en natt- eller datakonstförinställning."
+    },
+    {
+      "context": "Choosing a night or data-art preset also writes its backdrop and its sound set — see :func:`apply_night_theme`, which is where the reasoning for doing so lives.",
+      "label": "spacr.qt.preferences.set_theme_choice#1",
+      "source": "Choosing a night or data-art preset also writes its backdrop and its sound set — see :func:`apply_night_theme`, which is where the reasoning for doing so lives.",
+      "source_sha256": "0fb2bea1e3cdaadaaab1b466d0c0ef18c6dbccd054a25c5cb5aaaf3c76ca59f4",
+      "translation": "När en natt- eller datakonstförinställning väljs skrivs också dess bakgrund och ljuduppsättning — se :func:`apply_night_theme`, där skälen till detta förklaras."
+    },
+    {
+      "context": "The ten night themes follow the older palettes, in :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the application has always had stay where a returning user looks for them and read as one family. Twelve data-art presets follow them in a separate block. Their tokens are plain keys with no variant, so there is nothing to compose into the token the way Cell does.",
+      "label": "spacr.qt.preferences.theme_choices#2",
+      "source": "The ten night themes follow the older palettes, in :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the application has always had stay where a returning user looks for them and read as one family. Twelve data-art presets follow them in a separate block. Their tokens are plain keys with no variant, so there is nothing to compose into the token the way Cell does.",
+      "source_sha256": "365b4e26992b3354102dadcd9219e23f0aa009e36ea36e44078d3b71e19acab1",
+      "translation": "De tio nattemana följer efter de äldre paletterna, i ordningen från :data:`spacr.qt.night_themes.NIGHT_THEMES`, så att de fyra paletter som programmet alltid har haft ligger kvar där en återkommande användare söker dem och framstår som en familj. Tolv förinställningar med datakonst följer i ett separat block. Deras tokenvärden är enkla nycklar utan variant, så inga delar behöver sättas samman till tokenvärdet som för Cell."
+    },
+    {
+      "context": "Night and data-art themes each carry a sentence saying what colours, backdrop and sound set come with them; that sentence is what the Theme control shows as the entry's tooltip, the way the Sound set control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`.",
+      "label": "spacr.qt.preferences.theme_description#1",
+      "source": "Night and data-art themes each carry a sentence saying what colours, backdrop and sound set come with them; that sentence is what the Theme control shows as the entry's tooltip, the way the Sound set control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`.",
+      "source_sha256": "8e48a03ac72820259a4703a7ca1d6ad0103661a926ad4451b4220ee09282599e",
+      "translation": "Natt- och datakonstteman har varsin mening som anger vilka färger, vilken bakgrund och vilken ljuduppsättning som ingår; det är den meningen som Tema-kontrollen visar i postens verktygstips, på samma sätt som kontrollen för ljuduppsättning visar :attr:`spacr.qt.sound_synth.SoundTheme.description`."
+    },
+    {
+      "context": "Use :func:`active_palette` for colors shown by a live widget and :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains the selectable palettes ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` and the night and data-art presets of :mod:`spacr.qt.night_themes`; the ``\"system\"`` preference resolves to dark or light before palette lookup. A legacy ``\"space\"`` palette can still be read from persisted settings but is not selectable.",
+      "label": "spacr.qt.theme#1",
+      "source": "Use :func:`active_palette` for colors shown by a live widget and :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains the selectable palettes ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` and the night and data-art presets of :mod:`spacr.qt.night_themes`; the ``\"system\"`` preference resolves to dark or light before palette lookup. A legacy ``\"space\"`` palette can still be read from persisted settings but is not selectable.",
+      "source_sha256": "cca1167c2d2f6771567cd1e1b7e025b791ffd4126698b8c18cc4a409f61c1812",
+      "translation": "Använd :func:`active_palette` för färger som visas av en aktiv widget och :func:`stylesheet` för programmets stilmall. :data:`THEMES` innehåller de valbara paletterna ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` samt natt- och datakonstförinställningarna i :mod:`spacr.qt.night_themes`; inställningen ``\"system\"`` omvandlas till mörkt eller ljust före palettuppslagningen. En äldre ``\"space\"``-palett kan fortfarande läsas från sparade inställningar men kan inte väljas."
+    }
+  ],
+  "schema": 1
+}
