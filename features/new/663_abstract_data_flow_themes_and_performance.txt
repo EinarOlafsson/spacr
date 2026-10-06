@@ -361,6 +361,54 @@ through nightly. New labels, descriptions, sliders and factory changes need
 normal source-bound multilingual generation by the workstation after source
 integration; do not hand-edit generated catalogs or relax rendering/CI guards.
 
+EXACT CPU ROUND-GRAIN SCATTER (2026-10-06, partial)
+    Spread=True atlas/lens materials now optionally use an exact integer-only
+    Numba CPU kernel. It preserves duplicate-safe packed max/min composition,
+    every centre/axial/diagonal sample, original coverage rounding, palettes
+    and native resolution. Advection's spread=False path remains NumPy; the
+    prototype measured no useful improvement there. No dependency, public
+    API, application module, producer or widget lifecycle change is added.
+    Existing mandatory/platform-capped Numba is imported and compiled once
+    by a daemon using tiny owned NumPy arrays, with nogil=True/cache=False
+    and no fastmath. No Qt or app object is touched during warmup. Until
+    a nopython CPU signature is ready, the exact existing NumPy renderer
+    continues; missing imports, compiler/thread errors or NUMBA_DISABLE_JIT
+    permanently retain that fallback rather than retrying each frame or
+    running the Python loop over a full image. The startup lock never waits.
+
+    Actual production renders match all 36 frozen-bfd77 native 4K frames
+    byte-for-byte across atlas/lens/advection, dark/light/custom palettes,
+    detail 1/2 and two clocks. Duplicate/border/all-intensity tests also
+    compare real compiled, Python and independent ufunc rasters. Native4K
+    hide during a pending compiled shade preserves owned image memory and
+    allows the old worker to finish. The focused renderer/geometry/cache/
+    lifecycle cohort passes 96; expanded compiler tests pass 17. All 62
+    added executable statements and 26 touching branch arcs are exercised,
+    without omissions. Tests run CUDA-hidden under 4 GiB; no GPU is used.
+
+    In the actual production worker/GUI sample, native 4K atlas improves
+    from 19.54 to 21.96 FPS and active 24-wake lens from 16.46 to 20.05 FPS.
+    Lens median/p95 shade is 45.94/62.79 ms after versus 58.26/81.70 before;
+    it still does not meet the requested 24 FPS. Shared-host load and GUI
+    paints are included. Direct paired shading separately improves atlas
+    median 37.11 to 30.80 ms and lens 49.17 to 34.22 ms. The cold production
+    worker compiles in 1.05 s while retaining NumPy frames; GUI heartbeat
+    p95/max is 18.64/32.45 ms in that run. The earlier scratch startup had
+    a 61.88 ms maximum, retained as a separate receipt. Compiler import
+    phases can hold the GIL; these measurements are not a no-stall claim.
+    Full production worker sampling peaks at 806.5 MiB under the hard cap.
+
+    Source-bound production proof, real worker/GUI timings, scripts and
+    final new-line/arc traces are in
+    /mnt/wd4tb/scratch/theme-refinement-20261006/numba-integration/.
+    Scratch-only prototype measurements remain separately archived under
+    numba_scatter/. New private helpers are _scatter_packed_grains,
+    _warm_packed_scatter and _ready_packed_scatter; the workstation owns
+    normal private API/documentation regeneration after integration.
+    N663 remains OPEN for the latest requested visual/interaction revisions,
+    active native-4K frame-budget limits and the separately reported Save
+    crash investigation. This CPU optimization is not a crash-fix claim or
+    final protected GitHub acceptance.
 2026-10-06 workstation found an existing real native crash trace:
 A byte-exact excerpt from the user's local spacr-crash.log records PID
 3063654 dying with Fatal Python error: Segmentation fault. The current
@@ -374,3 +422,25 @@ Home: use this as additional native-lifetime evidence; identify the crashed
 revision and reproduce the user's actual preference-save path first.
 No cause, fix or native reproduction is claimed; no live job was touched.
 All requested behavior and exact menu order remain in the previous relay.
+
+INTEGRATED USER MENU/GRAVITY/NEW RENDERERS (2026-10-06, partial)
+    Source16d073c21b uses spaCR field(default), advection, growth, Thore,
+    waves, Blobs, then the remaining offered scenes. Ripples/Cells are
+    removed from choices/factory; direct legacy public renderers retain
+    their numerical/pixel guards. Seven distinct data-art palette materials
+    remain. Night presets previously using removed scenes select waves or
+    paper facets instead. Mouse-radius preference defaults0, persists only
+    Save, and is clamped/finite at both store and widget boundaries. New
+    engine radius physics/paper/satin/advection revisions remain IN PROGRESS.
+    Source627af/b3d provides never-resetting single-front fungal growth,
+    three-front forks/fading trails and conservative final ink bound25%;
+    restrained rain/branch lightning and improved folded Aurora are added.
+    Thore3c670 fixes double speed scaling and makes geometry color-independent.
+    Root488 affected cases,134 source contracts and17 radius cases pass.
+    Exact CPU scatter and growth/Thore frozen sources/coverage/receipts/media:
+    data/663_cpu_scatter_growth_thore_2026-10-06/. Gallery previews precede
+    the Thore motion fix; offline clip cadence is not live FPS acceptance.
+    The reported Save SIGSEGV is OPEN. Recorded PID3063654 crashed during
+    GUI QTimer cyclic GC within app.exec; idle ambient worker is not proof
+    of a renderer cause. Native4K frame-budget limits remain OPEN. Latest
+    labels/slider/source API require workstation normal multilingual refresh.

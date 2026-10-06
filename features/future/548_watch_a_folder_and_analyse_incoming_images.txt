@@ -1,11 +1,12 @@
 WATCH A FOLDER AND ANALYSE IMAGES AS THEY ARRIVE
 
-Status: OPEN 2026-10-05 — vendor acquisition completion, raw timelapse/native
-        volume series and pooled normalisation remain. Projected Z fields
-        and complete timelapse series from a fixed Convert map,
-        source-aware raw channel readiness, pretrained CV
-        inference and the live plate view are available as alpha; per-field
-        fitting is unsupported.
+Status: OPEN 2026-10-06 — raw/vendor acquisition completion and general native
+        series remain. Closed static fixed-map pooled normalization and native
+        T>1 fixed-map Mask batch ingest are locally accepted alpha subsets;
+        native T>1 fixed-map Mask watch is locally accepted. Projected Z, fixed-map
+        timelapse, native T1 watch, source-aware channels, pretrained CV
+        inference and live plate view are available. Per-field fitting is
+        unsupported. Final-source GitHub acceptance remains separate.
         First version built as alpha 2026-09-26.
 
 Previous status (superseded 2026-10-04): ALPHA, built 2026-09-26. First version on Make Masks, hidden unless
@@ -684,3 +685,153 @@ NATIVE T1 SUBSET IN COMBINED CPU CANDIDATE (2026-10-05, partial)
 2026-10-06 workstation real timelapse GPU preparation: four genuinely acquired CTC Fluo-N2DH-GOWT1 frames t021-t024 are stacked into an explicitly derived TYX TIFF and converted normally into a fixed four-timepoint CellVoyager map. Every acquired/derived/converted pixel matches. The real watcher with only three arrivals waits with zero analysis or database output. Current nucleus-only batch_size=1 Mask/Measure and IoU tracking recipes and a source-bound CUDA benchmark are prepared. The benchmark will compare actual CUDA batch/watch outputs, complete nucleus rows and flat track CSVs, then verify interrupted collection and completed restart without repeating inference. Receipt 548_gowt1_gpu_preparation_2026-10-06.json archives original inputs, map, recipes, completed CPU preparation and the unexecuted benchmark. This does not claim CUDA acceptance, native vendor T>1, raw/vendor completion or pooled parity. All GPU processes remain workstation-owned; protected livecell/cellposeTIME jobs remain untouched. Current reference narration turn 662-yolo-narration-reference-20261006-r1 is running; the scientific benchmark is not queued yet.
 
 2026-10-06 workstation real GPU watch acceptance: the acquired CTC GOWT1 four-frame fixed-map benchmark completes normally, rc=0, with actual CPSAM CUDA kernels in both batch and watch analysis. All four merged frames, every available scientific nucleus column across 91 rows and all 91 flat track rows match exactly. The three-arrival no-analysis wait, real-analysis/injected-I/O interruption, normal collection resume and completed restart pass; both resume/restart have zero CUDA events and staged scientific hashes/mtimes remain exact. Optional Mahotas is unavailable, so Zernike columns are explicitly absent in both runs. Independent normal IoU scoring is recorded on t021 only, with its 24 gold objects and the CTC 50-pixel field-of-interest policy; it is not tracking-accuracy or four-replicate acceptance. Receipt 548_gowt1_gpu_acceptance_2026-10-06.json archives exact paired arrays, databases, tracks, source/model hashes, positive CUDA profiles, gold scoring and completed raw turn log. Native vendor T>1, raw/vendor completion and pooled batch_size>1 remain OPEN. Home retains their implementation/CPU ownership; all remaining GPU work stays workstation-owned. No protected livecell/cellposeTIME job was touched.
+
+CLOSED FIXED-MAP POOLED NORMALIZATION (2026-10-06, alpha subset)
+    watch_normalization_pool is a new alpha Make Masks setting with choices
+    per_field (unchanged default) and fixed_map. The fixed_map choice waits
+    for every field/channel/Z companion declared by one finite Convert map,
+    then snapshots the entire static projected acquisition and runs the
+    unchanged v1 Mask or Mask/Measure batch pipeline once. It requires an
+    explicit randomize=False and integer batch_size>1. Canonical legacy
+    stack filenames and sorted stack order are recorded using the existing
+    ingest parser, including numeric zero-padding normalization and escaped
+    plate names. Colliding or ambiguous stack identities are refused.
+    Shared background/percentile normalization, unlike-image padding and
+    the final short batch retain ordinary batch semantics. This supersedes
+    the pooled-parity gap for this closed static subset; it does not claim
+    exact pooled normalization for an unbounded stream of unseen arrivals.
+
+    Waiting is explicit in the progress line and ledger; idle timeouts and
+    Stop never release a partial cohort. Every original input digest and
+    regular-file identity, full map membership, deterministic order and
+    Mask/Measure recipe hash bind one cohort checkpoint. Scientific field
+    identities remain separate ledger entries. Missing fields, unexpected
+    or duplicate inputs, changed inputs during analysis, incomplete merged
+    outputs and changed checkpoint provenance are refused before cohort
+    publication. An interrupted collection resumes its immutable artifacts
+    without repeating analysis or appending another field transaction.
+    Stop before publication safely restarts from all original images.
+    The default immediate per-field path and its existing native T1 and
+    mapped timelapse support are unchanged. The new fixed_map mode refuses
+    native Z, timelapse, v2, Classify and feedback; it does not silently use
+    a different scientific recipe for those modes.
+
+    Real original-pixel batch/watch checks cover three fields, batch_size=2,
+    both equal and unequal spatial dimensions, exact normalized archives,
+    merged masks and every available scientific cell/nucleus Measure column,
+    including pathogen relationships. File_name/path_name location columns
+    are excluded because batch and watch use different private directories. Only
+    model inference is doubled; conversion, normalization, padding, Measure,
+    publication and interrupted recovery execute normally. Real DB-append
+    I/O and Stop interruptions resume with zero extra analysis and unchanged
+    staged artifact bytes/mtimes; completed restarts also do no analysis.
+    The broader watch/native-T1/timelapse/checkpoint cohort passes 176.
+    Final-source cohort/default-watch/alpha GUI checks pass 53, and expanded
+    cohort guards pass 37. Source hygiene, alpha registry and restored
+    settings-type checks pass 54. All run CUDA-hidden under 4 GiB. Final
+    branch tracing executes all 128 added core statements and 70 touching
+    branch arcs with no missing new lines/arcs. Source-bound logs and trace
+    receipt are in /mnt/wd4tb/scratch/f548-closed-pool-20261006/.
+
+    The setting is registered in ALPHA_FEATURES[548], its Advanced form,
+    expected types, tooltip and combo specification. Existing literal
+    WatchFolderProgress and WatchLivePlate object names remain the alpha
+    widget gates. The workstation should regenerate API, settings-flow,
+    consumer-map, help and translation artifacts normally after integration;
+    this CPU change does not hand-edit generated assets. F548 remains OPEN
+    for general native/vendor series and raw acquisition completion. This
+    is local CPU acceptance of the closed normalization subset, not final
+    protected GitHub or new GPU acceptance. All GPU processes remain owned
+    by the workstation session.
+
+NATIVE T>1 MASK BATCH AND ROOT INTEGRATION (2026-10-06, alpha subset)
+    Source 0ee2f0053 adds a separate complete fixed-map native TZYXC Mask
+    ingest, preserving each original YX plane and source identity/digest.
+    It requires declared TZYX axes, frame interval and physical volumetric
+    Z spacing, at least two times and Z planes per channel, and a dense
+    CellVoyager Convert map. Explicit selected channels index the real
+    sorted mapped channel identities. No biological channel identity is
+    guessed. Each time produces a native ZYXC stack; the whole field's
+    normalized TZYXC archive feeds the existing independent 3-D Mask path.
+    Output is staged, source/map rechecked, then published without replacing
+    existing files; cooperative exceptions roll back incomplete publication. A receipt
+    binds the map, original sources, recipe and exact stack/archive hashes.
+    Completed resume verifies every binding and output inventory. Unsafe
+    links, incomplete maps, changed inputs and incompatible existing outputs
+    are refused. Measure/tracking/Classify/feedback, guessed axes, 2-D plot/
+    cell adjustments and unsupported preprocessing refuse before output.
+
+    Root's five-file integrated native/T1/timelapse/raw-volume/wiring cohort
+    passes 146 cases. The combined pooled/native/default-watch/alpha/source
+    cohort passes 98 before the test-only scientific-column follow-up.
+    All are CPU-only, CUDA-hidden and bounded to 4 GiB. Existing Python
+    multithreaded fork deprecations are recorded separately from correctness.
+    Frozen native-batch coverage exercises 157 added executable statements
+    and all 84 touching arcs; closed-pool coverage exercises 128/70. Compact
+    losslessly archived traces, source hashes, exact diffs, original-pixel
+    parity and coverage reproducers are committed under
+    data/548_closed_pool_native_batch_cpu_2026-10-06/.
+
+    This supersedes pooled-normalization incompleteness only for the explicit
+    closed static subset. Native T>1 watcher support is still being integrated;
+    this batch receipt does not certify it. Vendor acquisition-completion
+    signals and unsupported scientific series remain OPEN. The workstation
+    must normally regenerate API/runtime/settings-flow/consumer-map/Help and
+    translations for the new pool setting and ingest/source docstrings. All
+    GPU operation stays workstation-owned; existing real GOWT1 acceptance is
+    preserved. F548 remains OPEN overall and no global CI guard is relaxed.
+
+INDEPENDENT NATIVE-BATCH LIMIT REVIEW (2026-10-06)
+    Read-only review finds no demonstrated scientific parity error or mutation
+    of acquired planes in these subsets. Completed batch resume is verified,
+    and catchable publication exceptions roll back. An abrupt kill or power
+    loss during standalone batch publication can leave partial output folders
+    which correctly refuse in-place reuse; a fresh output folder is required.
+    This is fail-closed rather than arbitrary hard-crash rollback. The watcher
+    uses a separate private stage and recovery contract being tested next.
+    Native normalization currently materializes the whole field several times.
+    Large T-by-Z acquisitions can exceed available RAM; these small real-TIFF
+    CPU fixtures do not certify arbitrary large-volume scalability. Reducing
+    unnecessary copies is underway without changing normalization semantics.
+
+NATIVE T>1 MASK WATCHER ACCEPTANCE (2026-10-06, alpha subset)
+    Source593886b686 integrates native T>1 Mask-only watching. Read-only
+    preflight accepts a complete declared C/Z/T map even while planes are
+    still arriving. It waits for every settled member of a field; no native
+    stage or analysis begins with only T1. Original YX planes and exact
+    field-scoped map bytes are snapshotted before the ordinary native batch
+    route. Map, planes, ingest receipt, raw stacks, normalized archive and
+    exact per-time merged outputs bind the existing collection checkpoint.
+    Interrupted collection resumes without repeating inference. An abrupt
+    private ingest interruption before that checkpoint leaves a running entry;
+    restart removes only its owned private stage and re-snapshots originals.
+    A real fault/restart case verifies both recovered times and no inference
+    on the incomplete attempt. Unsupported modes/calibration/maps refuse
+    before the watcher workspace is created. Existing T1/projected/default
+    and closed pooled routes remain unchanged.
+
+    Root integrated cohort passes119 tests and both exact source contracts
+    pass under4GiB with CUDA hidden. Added native watcher source tracing hits
+    106/106 executable statements, 58/58 added-origin arcs and63/63 touching
+    arcs. Frozen source/diff/trace, root logs and reproducer are in
+    data/548_native_t_series_watch_cpu_2026-10-06/. Actual acquired GPU
+    validation is not claimed for this new native path. Whole-field memory
+    and standalone batch hard-publication recovery limits remain explicit.
+    Native Measure/tracking/Classify/feedback, raw/vendor completion and
+    broader unsupported series keep F548 OPEN. Workstation must regenerate
+    the new _watch_native_series_plan documentation and changed private
+    collection signatures normally, preserving all accepted GOWT1 receipts.
+
+LOWER-COPY NATIVE NORMALIZATION (2026-10-06, bounded CPU acceptance)
+    Source9292a43d69 drops transient per-time frames after raw stacks are
+    saved, releases the assembled raw field after normalization, and avoids
+    an advanced-index copy when all channels are already ordered. Reversed
+    and subset-channel guards pass40 cases. A real 2T/2Z/2C/2048-square TIFF
+    ingest reduces peak RSS1874.06 to1789.71MiB (84.35MiB); both per-time NPY
+    stacks and normalized NPZ match byte-for-byte. Frozen sources/logs/trace
+    and exact output hashes: data/548_native_memory_cpu_2026-10-06/. This
+    does not qualify arbitrary large native series: whole-field RAM remains
+    proportional to acquisition size, and standalone batch hard-publication
+    failure still refuses partial folders. Native watcher stages recover
+    separately; uncheckpointed completed inference can necessarily repeat.
+    ParentF548 stays OPEN for raw/vendor and unsupported scientific modes.

@@ -209,6 +209,7 @@ _KEY_AMBIENT_SPEED   = "prefs/ambient_speed"
 _KEY_AMBIENT_SIZE    = "prefs/ambient_size"
 _KEY_AMBIENT_RESOLUTION = "prefs/ambient_resolution"
 _KEY_AMBIENT_DENSITY = "prefs/ambient_density"
+_KEY_AMBIENT_GRAVITY_RADIUS = "prefs/ambient_gravity_radius"
 _KEY_AMBIENT_DRIFT_DIR = "prefs/ambient_drift_direction"
 #: Which generation of the motion keys the store was last written by. Only
 #: ``ambient_blur`` has ever changed meaning, and this is how a value written
@@ -2193,6 +2194,32 @@ def _set_ambient_custom_colors(colors):
     settings.sync()
 
 
+def _ambient_gravity_radius() -> float:
+    """Read a finite viewport-relative mouse radius; zero disables influence."""
+    import math
+
+    try:
+        value = float(_settings().value(_KEY_AMBIENT_GRAVITY_RADIUS, 0.0))
+    except (TypeError, ValueError):
+        return 0.0
+    return max(0.0, min(1.0, value)) if math.isfinite(value) else 0.0
+
+
+def _set_ambient_gravity_radius(value: float) -> None:
+    """Persist the bounded radius, using the disabled default for invalid input."""
+    import math
+
+    try:
+        radius = float(value)
+    except (TypeError, ValueError):
+        radius = 0.0
+    if not math.isfinite(radius):
+        radius = 0.0
+    settings = _settings()
+    settings.setValue(_KEY_AMBIENT_GRAVITY_RADIUS, max(0.0, min(1.0, radius)))
+    settings.sync()
+
+
 def _ambient_ranges():
     """``(blur, speed, size, resolution, density)`` ranges and defaults, from
     the widget module.
@@ -2518,6 +2545,7 @@ def apply_ambient_preferences(app=None) -> None:
                 widget.set_resolution(resolution)
                 widget.set_density(density)
                 widget.set_direction(direction)
+                widget.set_gravity_radius(_ambient_gravity_radius())
             except Exception:
                 LOG.debug("could not restyle an ambient backdrop",
                           exc_info=True)
@@ -8122,6 +8150,13 @@ class PreferencesDialog:
             "one cost budget, so asking for the most of both trims the "
             "density rather than dropping frames.")
 
+        gravity_slider = _percent_row(
+            "AmbientGravityRadius", "Mouse gravity radius",
+            0.0, 1.0, _ambient_gravity_radius(),
+            tr("How far mouse gravity reaches, as a percentage of the shorter "
+               "screen edge. Zero disables mouse influence. Applies to "
+               "backgrounds that respond to the mouse."), designed=0.0)
+
         def _sync_ambient_enabled(*_args):
             """Grey out the shaping controls when there is nothing to paint.
 
@@ -8139,6 +8174,7 @@ class PreferencesDialog:
             speed_slider.setEnabled(on)
             size_slider.setEnabled(on)
             density_slider.setEnabled(on)
+            gravity_slider.setEnabled(on)
 
         ambient_theme_combo.currentIndexChanged.connect(_sync_ambient_enabled)
         _sync_ambient_enabled()
@@ -9621,6 +9657,8 @@ class PreferencesDialog:
                 size_slider.setValue(int(round(get_ambient_size() * 100)))
                 density_slider.setValue(
                     int(round(get_ambient_density() * 100)))
+                gravity_slider.setValue(
+                    int(round(_ambient_gravity_radius() * 100)))
                 spinner_slider.setValue(
                     int(round(get_spinner_delay() * 10)))
                 scale_slider.setValue(int(round(get_font_scale() * 100)))
@@ -9694,6 +9732,7 @@ class PreferencesDialog:
             set_ambient_size(size_slider.value() / 100.0)
             set_ambient_resolution(resolution_slider.value() / 100.0)
             set_ambient_density(density_slider.value() / 100.0)
+            _set_ambient_gravity_radius(gravity_slider.value() / 100.0)
             direction_choice = ambient_dir_combo.currentData()
             if direction_choice is not None:
                 set_ambient_drift_direction(direction_choice)
@@ -10385,8 +10424,7 @@ def set_rim_period(seconds) -> float:
 #: here at the same time as there.
 _KEY_POPUP_BACKDROP = "rim/popup_backdrop"
 POPUP_BACKDROPS = ("off",) + tuple(sorted(
-    ("aurora", "blobs", "cells", "drift", "ripple")
-    + DATA_ART_THEME_KEYS
+    ("aurora", "blobs", "drift") + DATA_ART_THEME_KEYS
 ))
 #: NO MOVING BACKDROP BEHIND A SETTINGS WINDOW unless the user asks for
 #: one. The card and the rim stay either way -- 'off' drops only the

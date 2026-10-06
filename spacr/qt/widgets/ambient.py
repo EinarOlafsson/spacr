@@ -239,15 +239,18 @@ __all__ = [
 #: Every theme, in the order a menu should list them.
 #:
 #: These are the *paintable* ones — every name here has an engine behind it.
-#: The menu the user sees is :data:`ANIMATION_CHOICES`, which is this list
-#: with "no animation at all" in front of it; keeping the two apart is what
-#: lets ``make_engine``, ``_require_theme`` and every engine test go on
-#: meaning "a thing that can be drawn".
-AMBIENT_THEMES: Tuple[str, ...] = ("blobs", "aurora", "ripple", "drift", "cells",
-                                   "data_art_point_atlas", "data_art_tissue_facets",
-                                   "data_art_chromatin_ribbon",
-                                   "data_art_genetic_advection", "data_art_impulse_lens",
-                                   "data_art_fungal_growth")
+AMBIENT_THEMES: Tuple[str, ...] = (
+    "data_art_impulse_lens",
+    "data_art_genetic_advection",
+    "data_art_fungal_growth",
+    "data_art_thore",
+    "data_art_point_atlas",
+    "blobs",
+    "aurora",
+    "drift",
+    "data_art_tissue_facets",
+    "data_art_chromatin_ribbon",
+)
 
 #: The animation the ``spaceout`` entry point paints, and the palette it
 #: paints it in.
@@ -275,10 +278,10 @@ SPACEOUT_PALETTE = "rainbow"
 #: of zero worth claiming.
 NO_ANIMATION = "none"
 
-ANIMATION_CHOICES: Tuple[str, ...] = (NO_ANIMATION,) + AMBIENT_THEMES
+ANIMATION_CHOICES: Tuple[str, ...] = AMBIENT_THEMES + (NO_ANIMATION,)
 
 #: Default ambient animation theme.
-DEFAULT_THEME = "blobs"
+DEFAULT_THEME = "data_art_impulse_lens"
 
 #: spaCR's own colours, likewise.
 DEFAULT_PALETTE = "spacr"
@@ -286,39 +289,28 @@ DEFAULT_PALETTE = "spacr"
 _THEME_LABELS = {
     "blobs": "Blobs",
     "aurora": "Aurora",
-    "ripple": "Ripples",
     "drift": "Starfield",
-    "cells": "Cells",
-    "data_art_point_atlas": "Spatial point atlas",
+    "data_art_impulse_lens": "spaCR field",
+    "data_art_genetic_advection": "spaCR advection",
+    "data_art_fungal_growth": "spaCR growth",
+    "data_art_thore": "spaCR Thore",
+    "data_art_point_atlas": "spaCR waves",
     "data_art_tissue_facets": "Tissue facets",
     "data_art_chromatin_ribbon": "Chromatin satin",
-    "data_art_genetic_advection": "Genetic advection",
-    "data_art_impulse_lens": "Perturbation lens",
-    "data_art_fungal_growth": "Fungal growth",
     SPACEOUT_THEME: "Fractals",
 }
 
 _THEME_NOTES = {
-    "blobs": ("Soft colour blobs, large and small, drifting and slowly "
-              "changing size."),
-    "aurora": ("Folded curtains of vertical rays, rippling along their own "
-               "length the way the northern lights do."),
-    "ripple": "Rings spreading out from a few points and fading as they grow.",
-    "drift": "A slow starfield in three layers of depth.",
-    "cells": ("Cells drifting through the field — soft bodies with a "
-              "brighter nucleus, turning slowly as they go."),
-    "data_art_point_atlas": ("A finely sampled three-dimensional point "
-                             "landscape with depth and cursor-driven parallax."),
-    "data_art_tissue_facets": ("A crystalline tissue mosaic of shaded geometric "
-                               "facets, with slowly changing local relief."),
-    "data_art_chromatin_ribbon": ("Folded satin-like chromatin ribbons carry fine "
-                                  "fibres through soft, interwoven surfaces."),
-    "data_art_genetic_advection": ("Thousands of fine genetic-flow particles move "
-                                    "through a continuous wind-like field that bends near the cursor."),
-    "data_art_impulse_lens": ("A precision dot lattice bends around moving "
-                              "impulses and the cursor, revealing local perturbation."),
-    "data_art_fungal_growth": ("Fine fungal branches extend continuously across "
-                               "at most 30% of the backdrop, leaving the field clear."),
+    "blobs": 'Soft colour blobs, large and small, drifting and slowly changing size.',
+    "aurora": 'Fine curtains of northern light ripple through softly layered folds.',
+    "drift": 'A slow starfield in three layers of depth.',
+    "data_art_impulse_lens": 'A crisp gravitational dot field with optional local mouse influence and expanding ripples.',
+    "data_art_genetic_advection": 'Fine particles form evolving vortices and branching currents, with optional mouse gravity.',
+    "data_art_fungal_growth": 'A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.',
+    "data_art_thore": 'Fine background rain and branching lightning briefly illuminate the scene.',
+    "data_art_point_atlas": 'An edge-free landscape of round points carries wide travelling waves.',
+    "data_art_tissue_facets": 'Fine paper facets move gently and respond locally to the mouse.',
+    "data_art_chromatin_ribbon": 'Fine chromatin fibres undulate in travelling waves across folded ribbons.',
     SPACEOUT_THEME: ("A Julia set that morphs, turns and cycles colour — "
                      "the backdrop the spaceout launcher dresses the "
                      "application in."),
@@ -428,7 +420,7 @@ _THEME_PALETTES: Dict[str, Tuple[str, ...]] = {
               "lowsun", "deepwater"),
     SPACEOUT_THEME: (SPACEOUT_PALETTE,),
 }
-for _data_art_key in AMBIENT_THEMES[5:]:
+for _data_art_key in (key for key in AMBIENT_THEMES if key.startswith("data_art_")):
     _THEME_PALETTES[_data_art_key] = tuple(
         palette for palette in PALETTE_SETS
         if palette != SPACEOUT_PALETTE)
@@ -2387,6 +2379,26 @@ class AuroraEngine(_BufferedEngine):
             painter.drawPath(self._sheet(
                 columns, zero - ray * (AURORA_PULSE_HEIGHT
                                        + AURORA_PULSE_PAD)))
+            roles = self.ramp_colors(curtain, quantised=True)
+            for offset, weight, strength, role in (
+                    (0.105, 1.8, 0.23, "main"),
+                    (0.255, 1.1, 0.11, "blend")):
+                contour = QPainterPath(QPointF(
+                    columns[0][0], columns[0][1] - ray * offset))
+                for x, y, _height, _bright in columns[1:]:
+                    contour.lineTo(x, y - ray * offset)
+                fade = QLinearGradient(left, 0.0, right, 0.0)
+                fade.setColorAt(0.0, _with_alpha(roles[role], 0.0))
+                fade.setColorAt(0.18, _with_alpha(
+                    roles[role], peak * strength))
+                fade.setColorAt(0.76, _with_alpha(
+                    roles[role], peak * strength * 0.75))
+                fade.setColorAt(1.0, _with_alpha(roles[role], 0.0))
+                painter.setBrush(Qt.NoBrush)
+                painter.setPen(QPen(QBrush(fade), max(0.7, weight * self.size),
+                                    Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+                painter.drawPath(contour)
+                painter.setPen(Qt.NoPen)
         painter.setRenderHint(QPainter.Antialiasing, False)
 
     @staticmethod
@@ -4519,6 +4531,94 @@ class ResonanceEngine(_BufferedEngine):
                                        QImage.Format_RGB32))
 
 
+_PACKED_SCATTER = None
+_PACKED_SCATTER_STARTED = False
+_PACKED_SCATTER_FAILED = False
+_PACKED_SCATTER_LOCK = threading.Lock()
+
+
+def _scatter_packed_grains(flat, px, py, intensities, lookup, axial, diagonal,
+                           width, height, dark):
+    """Combine nine round-grain samples with duplicate-safe integer max/min.
+
+    Centres have already been clipped by the material adapter. Every offset
+    retains its original palette/coverage lookup; max/min is commutative, so
+    point-major traversal preserves the NumPy scatter's exact packed pixels.
+    """
+    for i in range(px.size):
+        x, y = px[i], py[i]
+        level = intensities[i]
+        destination = y * width + x
+        color = lookup[level]
+        if (dark and color > flat[destination]) or (not dark and color < flat[destination]):
+            flat[destination] = color
+        for sy in range(-1, 2):
+            ny = y + sy
+            if ny < 0 or ny >= height:
+                continue
+            for sx in range(-1, 2):
+                if sx == 0 and sy == 0:
+                    continue
+                nx = x + sx
+                if nx < 0 or nx >= width:
+                    continue
+                color = diagonal[level] if sx and sy else axial[level]
+                destination = ny * width + nx
+                if ((dark and color > flat[destination])
+                        or (not dark and color < flat[destination])):
+                    flat[destination] = color
+
+
+def _warm_packed_scatter():
+    """Compile once using tiny owned CPU arrays, without Qt or package writes.
+
+    The renderer continues using its exact NumPy path while this daemon works.
+    Import/compiler errors and NUMBA_DISABLE_JIT leave that path active. Some
+    import/compiler phases hold the GIL briefly; this is not a no-stall claim.
+    """
+    global _PACKED_SCATTER, _PACKED_SCATTER_FAILED
+    try:
+        from numba import njit
+
+        np = _numpy()
+        flat = np.zeros(1, dtype=np.uint32)
+        coordinates = np.zeros(1, dtype=np.int32)
+        intensity = np.zeros(1, dtype=np.uint8)
+        lookup = np.arange(256, dtype=np.uint32)
+        kernel = njit(nogil=True, cache=False)(_scatter_packed_grains)
+        kernel(flat, coordinates, coordinates, intensity, lookup, lookup, lookup,
+               1, 1, True)
+        if not getattr(kernel, 'nopython_signatures', ()):
+            raise RuntimeError('Packed grain compiler did not produce a CPU kernel')
+        with _PACKED_SCATTER_LOCK:
+            _PACKED_SCATTER = kernel
+    except Exception:
+        with _PACKED_SCATTER_LOCK:
+            _PACKED_SCATTER_FAILED = True
+
+
+def _ready_packed_scatter():
+    """Offer an already-compiled kernel, starting at most one CPU warmup thread.
+
+    A first frame may be shaded synchronously on the GUI thread. No import or
+    compilation occurs here, and a contended startup lock returns immediately.
+    """
+    global _PACKED_SCATTER_STARTED, _PACKED_SCATTER_FAILED
+    if (_PACKED_SCATTER is None and not _PACKED_SCATTER_STARTED
+            and not _PACKED_SCATTER_FAILED and _PACKED_SCATTER_LOCK.acquire(blocking=False)):
+        try:
+            if not _PACKED_SCATTER_STARTED and not _PACKED_SCATTER_FAILED:
+                _PACKED_SCATTER_STARTED = True
+                try:
+                    threading.Thread(target=_warm_packed_scatter,
+                                     name='spacr-grain-compile', daemon=True).start()
+                except Exception:
+                    _PACKED_SCATTER_FAILED = True
+        finally:
+            _PACKED_SCATTER_LOCK.release()
+    return _PACKED_SCATTER
+
+
 class _DataArtEngine(_BufferedEngine):
     """Retained crisp procedural materials with native display sampling.
 
@@ -4674,6 +4774,15 @@ class _DataArtEngine(_BufferedEngine):
         flat = np.frombuffer(image.bits(), dtype=np.uint32,
                              count=width * height)
         flat.fill(lookup[0])
+        if spread:
+            kernel = _ready_packed_scatter()
+            if kernel is not None:
+                level_ids = np.arange(256, dtype=np.uint8)
+                axial = np.rint(level_ids * 0.68).astype(np.uint8)
+                diagonal = np.rint(level_ids * 0.24).astype(np.uint8)
+                kernel(flat, px, py, intensities, lookup, lookup[axial], lookup[diagonal],
+                       width, height, self.dark)
+                return image
         combine = np.maximum.at if self.dark else np.minimum.at
         combine(flat, py * width + px, lookup[intensities])
         if spread:
@@ -5011,24 +5120,24 @@ class _DataArtEngine(_BufferedEngine):
 
 
 class _FungalGrowthEngine(_BufferedEngine):
-    """Seeded hyphal trees grow while old filaments thin and recede.
+    """One seeded apex advances forever while its old hyphae recede.
 
-    A lineage is rolled once per clock interval and buffer size. Its edges
-    keep their parent endpoints and birth times; shading only reveals a
-    continuous prefix of each curved edge. Overlapping lineages make a new
-    root arrive before its predecessors have faded, with no reset frame.
+    Every trunk segment joins the preceding one, starting at one origin.
+    Forks attach only to that trunk. A finite window around the requested
+    clock is reconstructed from indexed seeds, so seeking hours ahead never
+    accumulates geometry or restarts the colony.
     """
 
     name = "data_art_fungal_growth"
     base_edge = 2048
-    _interval = 30.0
-    _edge_lifetime = 58.0
-    _anchors = ((0.14, 0.18), (0.72, 0.76), (0.83, 0.16),
-                (0.28, 0.79), (0.50, 0.42), (0.10, 0.59))
+    _interval = 1.35
+    _edge_lifetime = 70.0
 
     def _configure(self, rng: random.Random) -> None:
-        """Keep a bounded cache of independently seeded lineage geometry."""
+        """Roll one origin and phases for the entire unbounded clock."""
         self._fungal_seed = rng.randrange(2 ** 63)
+        self._origin = (rng.uniform(0.46, 0.54), rng.uniform(0.46, 0.54))
+        self._phases = tuple(rng.uniform(-math.pi, math.pi) for _ in range(4))
         self._lineage_cache: Dict[tuple, tuple] = {}
 
     def _resize(self) -> None:
@@ -5048,10 +5157,22 @@ class _FungalGrowthEngine(_BufferedEngine):
         """Allow a little softness without turning filaments into a wash."""
         return min(1.3, super().blur_scale(width, height))
 
+    def _apex(self, index: int, width: int, height: int) -> tuple:
+        """Position of the one continuous, looping growth front."""
+        a, b, c, d = self._phases
+        x = self._origin[0] + 0.26 * (
+            math.sin(a + index * 0.113) - math.sin(a)) + 0.09 * (
+                math.sin(b + index * 0.037) - math.sin(b))
+        y = self._origin[1] + 0.23 * (
+            math.sin(c + index * 0.089) - math.sin(c)) + 0.10 * (
+                math.sin(d + index * 0.029) - math.sin(d))
+        return (width * max(0.045, min(0.955, x)),
+                height * max(0.045, min(0.955, y)))
+
     def _step(self, rng: random.Random, x: float, y: float,
               angle: float, width: int, height: int) -> tuple:
-        """Bend one short hypha while keeping its tip on the canvas."""
-        length = min(width, height) * self.size * rng.uniform(0.026, 0.044)
+        """Bend one short fork while keeping its tip on the canvas."""
+        length = min(width, height) * self.size * rng.uniform(0.025, 0.062)
         dx, dy = length * math.cos(angle), length * math.sin(angle)
         margin = max(2.0, min(width, height) * 0.025)
         if x + dx < margin or x + dx > width - margin:
@@ -5066,48 +5187,42 @@ class _FungalGrowthEngine(_BufferedEngine):
         return end_x, end_y, control_x, control_y, math.atan2(
             end_y - y, end_x - x)
 
-    def _lineage(self, cycle: int, width: int, height: int) -> tuple:
-        """Return one cached forest with a fixed-size six-root seed pool."""
-        key = (cycle, width, height)
+    def _lineage(self, block: int, width: int, height: int) -> tuple:
+        """Build 16 indexed front steps; retain at most eight such blocks."""
+        key = (block, width, height, self.size)
         cached = self._lineage_cache.get(key)
         if cached is not None:
             return cached
-        rng = random.Random((self._fungal_seed ^
-                             (cycle * 0x9E3779B97F4A7C15)) & (2 ** 128 - 1))
         edges = []
-        for root in range(len(self._anchors)):
-            anchor_x, anchor_y = self._anchors[(root + cycle) % len(self._anchors)]
-            x = width * max(0.05, min(0.95, anchor_x + rng.uniform(-0.07, 0.07)))
-            y = height * max(0.05, min(0.95, anchor_y + rng.uniform(-0.07, 0.07)))
-            angle = rng.uniform(-math.pi, math.pi)
-            birth = rng.uniform(0.0, 5.0)
-            branches = []
-            shortest = min(width, height)
-            trunk_steps = 10 if shortest < 120 else 13
-            forks = () if shortest < 120 else (
-                (5,) if shortest < 240 else (3, 7, 10))
-            for step in range(trunk_steps):
-                end_x, end_y, cx, cy, angle = self._step(
-                    rng, x, y, angle, width, height)
-                duration = rng.uniform(1.35, 1.85)
-                edges.append((root, x, y, cx, cy, end_x, end_y,
-                              birth, duration, root, 0))
-                birth += duration
-                if step in forks:
-                    branches.append((end_x, end_y, angle, birth, step))
-                x, y = end_x, end_y
-                angle += rng.uniform(-0.25, 0.25)
-            for bx, by, direction, began, fork in branches:
-                direction += rng.choice((-1.0, 1.0)) * rng.uniform(0.65, 1.1)
-                for branch_step in range(5 + rng.randrange(3)):
-                    end_x, end_y, cx, cy, direction = self._step(
-                        rng, bx, by, direction, width, height)
-                    duration = rng.uniform(1.25, 1.75)
-                    edges.append((root, bx, by, cx, cy, end_x, end_y,
-                                  began, duration, root + fork, 1))
-                    began += duration
-                    bx, by = end_x, end_y
-                    direction += rng.uniform(-0.31, 0.31)
+        for index in range(max(0, block * 16), (block + 1) * 16):
+            rng = random.Random((self._fungal_seed ^
+                                 (index * 0x9E3779B97F4A7C15))
+                                & (2 ** 128 - 1))
+            x, y = self._apex(index, width, height)
+            end_x, end_y = self._apex(index + 1, width, height)
+            bend = rng.uniform(-0.15, 0.15)
+            cx = (x + end_x) * 0.5 - (end_y - y) * bend
+            cy = (y + end_y) * 0.5 + (end_x - x) * bend
+            born = index * self._interval - 0.55
+            direction = math.atan2(end_y - y, end_x - x)
+            edges.append((index, x, y, cx, cy, end_x, end_y,
+                          born, self._interval, index, 0))
+            for fork in range(3):
+                if rng.random() > (0.95 if fork == 0 else
+                                   0.88 if fork == 1 else 0.75):
+                    continue
+                angle = direction + rng.choice((-1.0, 1.0)) * rng.uniform(
+                    0.65, 1.35)
+                bx, by = end_x, end_y
+                began = born + self._interval + fork * 0.12
+                for _ in range(3):
+                    tip_x, tip_y, fx, fy, angle = self._step(
+                        rng, bx, by, angle, width, height)
+                    edges.append((index, bx, by, fx, fy, tip_x, tip_y,
+                                  began, 1.45, index + fork, 1))
+                    began += 1.45
+                    bx, by = tip_x, tip_y
+                    angle += rng.uniform(-0.34, 0.34)
         result = tuple(edges)
         self._lineage_cache[key] = result
         if len(self._lineage_cache) > 8:
@@ -5115,38 +5230,66 @@ class _FungalGrowthEngine(_BufferedEngine):
         return result
 
     def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
-        """Visible curved edges as pixel controls, progress and fading ink."""
+        """Visible front-first edges below a conservative 18 percent footprint.
+
+        The bound sums Bézier control-polygon lengths, round caps and live
+        tips. Five extra buffer pixels cover raster antialiasing, the
+        at-most-1.3 area-averaging blur, smooth-blit support and a final
+        output pixel square. The 18 percent budget leaves seven percentage
+        points beneath the screen's 25 percent ink limit.
+        """
         if width <= 0 or height <= 0:
             return ()
         width, height = int(width), int(height)
-        cycle = math.floor(self.time / self._interval)
-        roots = max(1, min(6, round(3.0 * self.density),
-                           min(width, height) // 60,
-                           round(6.0 * min(1.0, self.resolution))))
+        latest = max(0, math.floor((self.time + 0.55) / self._interval))
+        earliest = max(0, math.floor((self.time - self._edge_lifetime - 3.0)
+                                     / self._interval))
         stroke = max(0.55, min(2.4, (0.70 + 0.32 * self.size)
                               * (min(width, height) / 1080.0) ** 0.35))
-        visible = []
-        for era in range(cycle - 3, cycle + 1):
-            elapsed = self.time - era * self._interval
-            if elapsed < 0.0 or elapsed > 100.0:
-                continue
-            for (root, x0, y0, cx, cy, x1, y1, born, duration,
-                 hue, depth) in self._lineage(era, width, height):
-                if root >= roots:
+        candidates = []
+        for block in range(earliest // 16, latest // 16 + 1):
+            for (index, x0, y0, cx, cy, x1, y1, born, duration,
+                 hue, depth) in self._lineage(block, width, height):
+                if index < earliest or index > latest:
                     continue
-                age = elapsed - born
+                age = self.time - born
                 if age <= 0.0 or age >= self._edge_lifetime:
+                    continue
+                if depth and ((index * 37 + hue * 19) % 100) >= \
+                        min(99, round(75 * self.density)):
                     continue
                 progress = min(1.0, age / duration)
                 fade = min(1.0, age / 0.35,
-                           (self._edge_lifetime - age) / 24.0)
-                alpha = (0.68 if depth == 0 else 0.48) * fade \
+                           (self._edge_lifetime - age) / 30.0)
+                alpha = (0.72 if depth == 0 else 0.50) * fade \
                     * self.alpha_scale()
                 if alpha >= 0.006:
-                    visible.append((x0, y0, cx, cy, x1, y1, progress,
-                                    alpha, stroke * (1.0 if depth == 0
-                                                    else 0.74), hue))
-        return tuple(visible)
+                    candidates.append((x0, y0, cx, cy, x1, y1, progress,
+                                       alpha, stroke * (1.0 if depth == 0
+                                                       else 0.72), hue))
+        budget = width * height * 0.18
+        selected = []
+        for edge in reversed(candidates):
+            x0, y0, cx, cy, x1, y1, progress, _, thick, _ = edge
+            control_x = x0 + progress * (cx - x0)
+            control_y = y0 + progress * (cy - y0)
+            end_x = ((1.0 - progress) ** 2 * x0
+                     + 2.0 * (1.0 - progress) * progress * cx
+                     + progress ** 2 * x1)
+            end_y = ((1.0 - progress) ** 2 * y0
+                     + 2.0 * (1.0 - progress) * progress * cy
+                     + progress ** 2 * y1)
+            length = math.hypot(control_x - x0, control_y - y0) \
+                + math.hypot(end_x - control_x, end_y - control_y)
+            radius = thick * 0.5 + 5.0
+            footprint = 2.0 * radius * length + math.pi * radius ** 2
+            if progress < 1.0:
+                footprint += math.pi * (thick * 0.8 + 5.0) ** 2
+            if footprint > budget:
+                continue
+            selected.append(edge)
+            budget -= footprint
+        return tuple(reversed(selected))
 
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
         """Trace antialiased partial Béziers and their live growing tips."""
@@ -5178,6 +5321,111 @@ class _FungalGrowthEngine(_BufferedEngine):
                 painter.setBrush(Qt.NoBrush)
 
 
+class _ThoreEngine(_BufferedEngine):
+    """A cool rain field with occasional branching, restrained lightning.
+
+    Drops wrap independently, while each bolt is generated from its indexed
+    event seed. Neither the rain nor the sky has a frame-wide reset.
+    """
+
+    name = "data_art_thore"
+    base_edge = 2048
+    _event_interval = 8.4
+
+    def _configure(self, rng: random.Random) -> None:
+        """Keep immutable rain particles and one seed for indexed bolts."""
+        self._thore_seed = rng.randrange(2 ** 63)
+        self._rain = tuple((rng.random(), rng.random(),
+                            rng.uniform(0.65, 1.45),
+                            rng.uniform(0.65, 1.5), rng.randrange(5))
+                           for _ in range(340))
+        self._bolt_cache: Dict[int, tuple] = {}
+
+    def buffer_scale(self, width: int, height: int) -> int:
+        """Retain distinct streaks and fine bolt forks at native detail."""
+        return _FungalGrowthEngine.buffer_scale(self, width, height)
+
+    def _bolt(self, index: int) -> tuple:
+        """One compact deterministic lightning tree, cached four events."""
+        cached = self._bolt_cache.get(index)
+        if cached is not None:
+            return cached
+        rng = random.Random((self._thore_seed ^
+                             (index * 0xD1B54A32D192ED03)) & (2 ** 128 - 1))
+        x = rng.uniform(0.21, 0.79)
+        y = -0.035
+        trunk = [(x, y)]
+        forks = []
+        for step in range(11):
+            x = max(0.04, min(0.96, x + rng.uniform(-0.042, 0.042)))
+            y += rng.uniform(0.050, 0.078)
+            trunk.append((x, y))
+            if step in (3, 6, 8):
+                direction = rng.choice((-1, 1))
+                bx, by = x, y
+                branch = [(bx, by)]
+                for _ in range(3):
+                    bx += direction * rng.uniform(0.025, 0.065)
+                    by += rng.uniform(0.035, 0.065)
+                    branch.append((bx, by))
+                forks.append(tuple(branch))
+        result = (tuple(trunk), tuple(forks))
+        self._bolt_cache[index] = result
+        if len(self._bolt_cache) > 4:
+            del self._bolt_cache[next(iter(self._bolt_cache))]
+        return result
+
+    def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """Colour-independent rain positions and the active lightning tree."""
+        if width <= 0 or height <= 0:
+            return ()
+        amount = min(len(self._rain), max(24, round(105 * self.density)))
+        length = min(width, height) * 0.025 * self.size
+        slant = length * 0.24
+        drops = tuple((x0 * width,
+                       ((phase + self.time * (0.085 + 0.040 * fall)) % 1.12)
+                       * (height + length) - length,
+                       slant, length, (0.14 + 0.10 * span)
+                       * self.alpha_scale(), hue)
+                      for x0, phase, fall, span, hue in self._rain[:amount])
+        index = math.floor(self.time / self._event_interval)
+        age = self.time - index * self._event_interval
+        flash = ((math.sin(math.pi * age / 0.34) ** 2, *self._bolt(index))
+                 if 0.0 <= age < 0.34 else ())
+        return drops, flash
+
+    def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+        """Draw independently falling lines and a short, low-energy flash."""
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        palette = self.paint_colors
+        drops, flash = self.geometry(width, height)
+        for x, y, slant, length, alpha, hue in drops:
+            painter.setPen(QPen(_with_alpha(palette[hue % len(palette)], alpha),
+                                max(0.55, 0.72 * self.size), Qt.SolidLine,
+                                Qt.RoundCap))
+            painter.drawLine(QPointF(x, y), QPointF(x + slant, y + length))
+        if flash:
+            pulse, trunk, forks = flash
+            wash = QLinearGradient(0.0, 0.0, 0.0, float(height))
+            wash.setColorAt(0.0, _with_alpha(palette[0], 0.035 * pulse))
+            wash.setColorAt(1.0, _with_alpha(palette[0], 0.0))
+            painter.setPen(Qt.NoPen)
+            painter.fillRect(0, 0, width, height, wash)
+            for points, fine in ((trunk, False),
+                                 *((branch, True) for branch in forks)):
+                path = QPainterPath(QPointF(points[0][0] * width,
+                                            points[0][1] * height))
+                for px, py in points[1:]:
+                    path.lineTo(px * width, py * height)
+                painter.setPen(QPen(_with_alpha(palette[0],
+                                               (0.23 if fine else 0.42)
+                                               * pulse * self.alpha_scale()),
+                                    (1.2 if fine else 2.7) * self.size,
+                                    Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+                painter.drawPath(path)
+        painter.setRenderHint(QPainter.Antialiasing, False)
+
+
 _ENGINES = {
     "blobs": BlobsEngine,
     "aurora": AuroraEngine,
@@ -5190,6 +5438,7 @@ _ENGINES = {
     "data_art_genetic_advection": partial(_DataArtEngine, family="genetic_advection"),
     "data_art_impulse_lens": partial(_DataArtEngine, family="impulse_lens"),
     "data_art_fungal_growth": _FungalGrowthEngine,
+    "data_art_thore": _ThoreEngine,
     SPACEOUT_THEME: FractalEngine,
 }
 
@@ -5264,6 +5513,16 @@ def preferred_motion() -> Motion:
                       get_ambient_density(), get_ambient_drift_direction())
     except Exception:
         return fallback
+
+
+def _preferred_gravity_radius() -> float:
+    """Read the optional pointer radius without requiring Preferences at import."""
+    try:
+        from ..preferences import _ambient_gravity_radius
+
+        return _clamp(_ambient_gravity_radius(), 0.0, 1.0)
+    except Exception:
+        return 0.0
 
 
 
@@ -5540,6 +5799,8 @@ class AmbientWidget(QWidget):
         theme's own buffer; ``None`` reads Preferences.
     :param density: how many elements are drawn, as a multiplier on the
         theme's own count; ``None`` reads Preferences.
+    :param gravity_radius: pointer influence radius, as a fraction of the
+        shorter screen edge; zero disables it. ``None`` reads Preferences.
     :param direction: which way the starfield travels, one of
         :data:`DRIFT_DIRECTIONS`; ``None`` reads Preferences. Meaningless to
         the other themes, and kept anyway so switching away and back does
@@ -5563,6 +5824,7 @@ class AmbientWidget(QWidget):
                  size: Optional[float] = None,
                  resolution: Optional[float] = None,
                  density: Optional[float] = None,
+                 gravity_radius: Optional[float] = None,
                  direction: Optional[str] = None,
                  corner_radius: int = 0):
         """Build the widget and start its engine.
@@ -5618,6 +5880,10 @@ class AmbientWidget(QWidget):
             *RESOLUTION_RANGE)
         self._density = _clamp(
             stored.density if density is None else density, *DENSITY_RANGE)
+        radius = float(_preferred_gravity_radius()
+                       if gravity_radius is None else gravity_radius)
+        self._gravity_radius = _clamp(
+            radius if math.isfinite(radius) else 0.0, 0.0, 1.0)
         wanted = stored.direction if direction is None else direction
         self._direction = wanted if is_valid_drift_direction(wanted) \
             else DEFAULT_DRIFT_DIRECTION
@@ -5637,6 +5903,9 @@ class AmbientWidget(QWidget):
                                    resolution=self._resolution,
                                    density=self._density,
                                    direction=self._direction)
+        radius_setter = getattr(self._engine, "set_gravity_radius", None)
+        if radius_setter is not None:
+            radius_setter(self._gravity_radius)
 
         if self._theme.startswith("data_art_"):
             self._art_input = _QueuedArtInput()
@@ -5798,6 +6067,9 @@ class AmbientWidget(QWidget):
                              resolution=self._resolution,
                              density=self._density,
                              direction=self._direction)
+        radius_setter = getattr(engine, "set_gravity_radius", None)
+        if radius_setter is not None:
+            radius_setter(self._gravity_radius)
         with self._engine_lock:
             engine.set_max_pixels(self._engine.max_pixels)
             engine.set_time(self._engine.time)
@@ -5843,6 +6115,35 @@ class AmbientWidget(QWidget):
     def density(self) -> float:
         """How many elements are drawn; 1.0 is each theme's own count."""
         return self._density
+
+    def gravity_radius(self) -> float:
+        """The normalized reach of local pointer gravity; zero disables it."""
+        return self._gravity_radius
+
+    def set_gravity_radius(self, value: float) -> None:
+        """Apply local pointer reach while excluding a concurrent shade pass.
+
+        :param value: fraction of the shorter screen edge, clamped to [0, 1];
+            zero disables mouse influence.
+        """
+        radius = float(value)
+        radius = _clamp(radius if math.isfinite(radius) else 0.0, 0.0, 1.0)
+        if radius == self._gravity_radius:
+            return
+        self._gravity_radius = radius
+        if radius == 0.0:
+            self._pending_art_impulses.clear()
+        with self._engine_lock:
+            if self._art_input is not None:
+                self._art_input._consume(self._engine, discard_clicks=radius == 0.0)
+            radius_setter = getattr(self._engine, "set_gravity_radius", None)
+            if radius_setter is not None:
+                radius_setter(radius)
+            if radius == 0.0 and isinstance(self._engine, _DataArtEngine):
+                self._engine.set_pointer(None)
+            self._republish()
+        self._sync_interaction_filter()
+        self.update()
 
     def set_density(self, value: float) -> None:
         """Set the element-count multiplier. Clamped to
@@ -6170,7 +6471,8 @@ class AmbientWidget(QWidget):
     def _sync_interaction_filter(self) -> None:
         """Observe clicks only while the visible gravitational field runs."""
         app = QApplication.instance()
-        wanted = (self._theme == "data_art_impulse_lens" and self._should_run()
+        wanted = (self._theme == "data_art_impulse_lens" and self._gravity_radius > 0.0
+                  and self._should_run()
                   and self._timer.isActive())
         if wanted and self._interaction_app is None and app is not None:
             app.installEventFilter(self)
@@ -6313,7 +6615,7 @@ class AmbientWidget(QWidget):
         advance_spaceout_drift(step)
         pointer = (self._data_art_pointer_for_tick()
                    if isinstance(self._engine, _DataArtEngine)
-                   and self._engine.interactive else None)
+                   and self._engine.interactive and self._gravity_radius > 0.0 else None)
         if self._art_input is not None:
             self._art_input._offer(step, pointer, tuple(self._pending_art_impulses))
             self._pending_art_impulses.clear()

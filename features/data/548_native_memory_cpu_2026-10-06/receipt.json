@@ -1,0 +1,67 @@
+{
+  "sources": {
+    "baseline": {
+      "commit": "df7cb31225^",
+      "path": "spacr/io.py",
+      "sha256": "993c6161391e28f6239360bae16bdeac9b1f068cd99c24d42083d610699bc970"
+    },
+    "optimized": {
+      "commit": "df7cb31225",
+      "path": "spacr/io.py",
+      "sha256": "decd4f8ddd29a2de4c23dc330edecaad96a9e79b2cd055d56ea82bd22f156fa1"
+    }
+  },
+  "fixture": {
+    "T": 2,
+    "Z": 2,
+    "C": 2,
+    "YX": [
+      2048,
+      2048
+    ],
+    "dtype": "uint16"
+  },
+  "measurements": {
+    "baseline": {
+      "source": "/mnt/wd4tb/scratch/f548-native-memory-20261006/baseline",
+      "returned": "/mnt/wd4tb/scratch/f548-native-memory-20261006/baseline",
+      "seconds": 3.102,
+      "peak_rss_mib": 1874.06,
+      "channels": [
+        0,
+        1
+      ]
+    },
+    "optimized": {
+      "source": "/mnt/wd4tb/scratch/f548-native-memory-20261006/optimized",
+      "returned": "/mnt/wd4tb/scratch/f548-native-memory-20261006/optimized",
+      "seconds": 3.695,
+      "peak_rss_mib": 1789.71,
+      "channels": [
+        0,
+        1
+      ]
+    }
+  },
+  "identical_output_sha256": {
+    "stack/plate1_A01_1_1.npy": "2f778ebf93b5b3e624112c650992a09d9fa3738bc0bf6e8d15774232acab3d7d",
+    "stack/plate1_A01_1_2.npy": "be03ccd5409ecef6569eb8be3da811536d71510baff3d96b8db198804aa93d5e",
+    "masks/plate1_A01_1_norm_timelapse.npz": "ae16d1ed6ed7cc5341e43daf467814f0379f70b6109d190527baf10f2c6c932c"
+  },
+  "peak_rss_reduction_mib": 84.35,
+  "scope": "CUDA-hidden CPU ingest; inference not exercised",
+  "limits": [
+    "Whole-field normalization still scales with T/Z/Y/X/C.",
+    "This fixture does not qualify arbitrary large acquisitions.",
+    "Shared-host wall times are not a speed improvement claim."
+  ],
+  "root_integration": {
+    "source": "6939c174a8",
+    "passed": 66,
+    "seconds": 33.01,
+    "cases": [
+      "native_tzyx_batch_f548",
+      "watch_native_t_series_f548"
+    ]
+  }
+}

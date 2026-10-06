@@ -18641,6 +18641,45 @@ serial run 37457998285 is still in progress at this checkpoint; leave it alone.
 All further GPU runs and API/docs/translation/tutorial refresh stay workstation
 owned. Scientific missing-data requirements listed above remain OPEN.
 
+2026-10-06 Home pooled/native batch source publication:
+Home integrates source 0ee2f0053/b777c3211/25031e230: a fixed finite-map
+static projected v1 Mask/Measure pool preserving normal batch normalization,
+padding, order and final short batch; and a separate complete fixed-map native
+T>1 Mask-only batch ingest preserving original C/Z/T planes. Default per-field,
+projected timelapse and native T1 watch behavior remain unchanged. Closed pool
+waits for ALL declared members and never infers vendor completion from an idle
+timeout. Native batch requires explicit TZYX axes, calibrated Z/frame spacing
+and complete map, refusing Measure/tracking/Classify/feedback before output.
+
+Root bounded functional cohorts pass 146 and 98; frozen added-source branch
+traces cover native io 157 statements/84 arcs and pooled core 128/70 with no
+added gaps. Original-pixel pooled tests compare all available scientific
+columns including pathogen relationships. Compact reproducible evidence is
+in data/548_closed_pool_native_batch_cpu_2026-10-06/. Coverage is added-source,
+not full-module or global acceptance. F548 remains OPEN for native watcher
+integration, raw/vendor completion and unsupported series. One reused CPU
+agent owns native-watch core.py; another audits existing scientific test
+comparisons; an independent review covers the batch/cohort source.
+
+Workstation: these NEW published source changes must join your normal
+API/runtime/Help/settings-flow/consumer-map and nine-language regeneration.
+Please include watch_normalization_pool choices/tooltip and new native Mask
+preconditions. Keep your three provenance helpers and all accepted scientific,
+CUDA, multilingual/tutorial and publication receipts. Your 8a6068f18 metadata
+is merged. All GPU/API/docs/translations/tutorials remain workstation-owned.
+Protected serial run 37457998285 is still running and must not be cancelled.
+No observed failure mode or ratchet has been weakened to obtain a pass.
+
+2026-10-06 independent Home F548 native-batch scope review:
+No acquired-image mutation or demonstrated scientific parity defect found.
+Standalone batch completed resume and cooperative rollback are covered;
+abrupt death during publication can leave a partial output folder that
+correctly refuses in-place reuse. Watcher-private recovery is tested separately.
+Whole-field normalization can exceed RAM for large T/Z fields. A reused CPU
+agent is removing unnecessary copies and measuring peak RSS; no arbitrary
+large-volume acceptance or hard-crash rollback claim is made. Parent548 stays
+OPEN. These limitations do not weaken source/output corruption refusal.
+
 2026-10-06 — NEW USER THEME REQUIREMENTS RELAYED TO HOME
 Owner: Home CPU/Qt/theme session. Workstation owns subsequent API/docs/
 translation/tutorial refresh and all GPU execution. These are new requested
@@ -18719,6 +18758,22 @@ unobtained; scientific/GPU acceptance remains OPEN. User theme revisions and
 the preference-save native crash remain Home priority under N663. Protected
 serial Qt 37457998285 is still running at older 237506317; leave it alone.
 
+2026-10-06 Home native watcher integration:
+Source593886b686 adds complete fixed-map native T>1 Mask-only watching.
+It waits for settled C/Z/T planes, preserves their bytes and scoped map,
+binds every native artifact into collection checkpoints, skips inference
+when collecting again, and safely rebuilds uncheckpointed private stages
+from originals after a crash. Root119 integrated cases and2source contracts
+pass CUDA-hidden under4GiB. Frozen coverage exercises106new statements and
+63touching arcs; evidence data/548_native_t_series_watch_cpu_2026-10-06/.
+F548 stays OPEN for raw/vendor completion and unsupported scientific modes.
+Whole-field RAM and standalone batch hard-publication recovery limits remain.
+Workstation: normally regenerate _watch_native_series_plan and changed private
+collection signatures with pool/native batch/API/runtime/Help/settings/texts.
+Your6caf72d8a0 Cell-DINO provenance is preserved. All GPU/docs/tutorial lanes
+remain yours. Home agents now work on the urgent reported Save crash and new
+user theme revisions. Crash has not reproduced in bounded native4K probes;
+do not mark it fixed without evidence. Protected serial37457998285 remains.
 2026-10-06 workstation found an existing real native crash trace:
 A byte-exact excerpt from the user's local spacr-crash.log records PID
 3063654 dying with Fatal Python error: Segmentation fault. The current
@@ -18732,3 +18787,10 @@ Home: use this as additional native-lifetime evidence; identify the crashed
 revision and reproduce the user's actual preference-save path first.
 No cause, fix or native reproduction is claimed; no live job was touched.
 All requested behavior and exact menu order remain in the previous relay.
+
+2026-10-06 Home integrated source/CI relay: see current HANDOFF top entry.
+Protected serial37457998285 finished with native puncta SIGSEGV below memory
+guard; narrow exact-source cases pass. Workstation priority: e259 CI reviewed
+sv/fr runtime policy130vs131, localization report/Swedish row and README
+feature-guide referral. Home preserves your Cell-DINO helpers; CPU theme
+engine revisions and actual Save-crash/cumulative Qt investigation continue.

@@ -40,6 +40,61 @@ NOT yet integrated here and needs the subsequent normal refresh. N615 stays
 OPEN. Preserve Home's corrected native crash interpretation: collection is a
 GUI QTimer callback under app.exec; Detail/Save causality remains unproven.
 All GPU/API/docs/translation/tutorial work stays workstation-owned.
+## 2026-10-06 Home integrated source and actual CI diagnosis
+Home now integrates native T>1 Mask watching plus lower-copy normalization,
+66 root integrated native watcher/batch cases pass as well. Requested
+animation order/names/default, retirement of Ripples/Cells choices,
+persistent opt-in mouse radius (zero by default), single-front 25%-bounded
+fungal growth, Thore and Aurora revisions, and exact asynchronous CPU scatter.
+Root488 affected ambient/catalog/compiler/Thore tests,134 source contracts,
+and17 radius cases pass under capped CPU-only execution. Paper/satin/advection
+and engine-radius physics remain in progress; N663 remains OPEN, including the
+reported Save crash and native4K frame-budget limits. Evidence archives:
+data/548_native_memory_cpu_2026-10-06/ and
+ data/663_cpu_scatter_growth_thore_2026-10-06/.
+
+P0 trace correction: PID3063654 app.py:7331 is app.exec(), gc_policy.py:96
+is a GUI QTimer gc.collect callback, and ambient.py:5492 is an idle worker
+Event.wait. These lines match0ef43046e; nearby sources may also match. This
+proves a native crash during GUI collection, not direct launch cleanup or
+Detail/Save causality. Existing actual MainWindow/4K Save probes have not
+reproduced it; exact new-source stress is ongoing. Do not claim a fix.
+
+Protected serial37457998285 TERMINAL FAILURE on source237506317 after4h:
+exit139 at puncta test[False], last RSS~5.18GiB, host available~10GiB,
+zero swap/OOM kills, below10.8GiB guard. Nine earlier assertion failures lack
+summary because native death. All nine and puncta pass exact-source narrow
+replays; cumulative native state is being investigated. Do not waive memory,
+assertion or coverage guards. No full local Qt run is authorized.
+
+Workstation CI PRIORITY: e259 run37478294475 coverage0/minimum0 fail reviewed
+Swedish/French runtime policy count130 vs131. Minimum0 also fails generated
+localization-progress report exact bytes and Swedish row. Coverage7 fails
+README feature-guide referral for Make Masks tools. Logs downloaded to
+/mnt/wd4tb/scratch/ci-e259-failures-20261006/ on Home. Please repair through
+normal source-bound generation/review, preserving strict assertions.
+All GPU/API/docs/translations/tutorials remain workstation-owned. Latest source
+adds two public AmbientWidget radius methods and optional constructor radius,
+three private CPU scatter helpers, _watch_native_series_plan, native ingest
+and changed private collection signatures; normal regeneration is required.
+
+
+## 2026-10-06 Home native time-volume watcher integrated
+Source593886b686 adds complete fixed-map native T>1 Mask-only watching.
+It waits for settled C/Z/T planes, preserves their bytes and scoped map,
+binds every native artifact into collection checkpoints, skips inference
+when collecting again, and safely rebuilds uncheckpointed private stages
+from originals after a crash. Root119 integrated cases and2source contracts
+pass CUDA-hidden under4GiB. Frozen coverage exercises106new statements and
+63touching arcs; evidence data/548_native_t_series_watch_cpu_2026-10-06/.
+F548 stays OPEN for raw/vendor completion and unsupported scientific modes.
+Whole-field RAM and standalone batch hard-publication recovery limits remain.
+Workstation: normally regenerate _watch_native_series_plan and changed private
+collection signatures with pool/native batch/API/runtime/Help/settings/texts.
+Your6caf72d8a0 Cell-DINO provenance is preserved. All GPU/docs/tutorial lanes
+remain yours. Home agents now work on the urgent reported Save crash and new
+user theme revisions. Crash has not reproduced in bounded native4K probes;
+do not mark it fixed without evidence. Protected serial37457998285 remains.
 
 ## 2026-10-06 urgent user theme feedback — Home source owner
 The user reports a native segmentation fault after changing Genetic advection
@@ -91,7 +146,36 @@ full human-fluorescence scorecards and six actual weight digests replay exactly
 at the unchanged 1e-12 guard. Receipt:
 data/560_cell_dino_local_provenance_2026-10-06.json. Home: preserve both helpers.
 Normal API/runtime/Help/settings/guides and all-nine-language refresh is next;
-o official pretrained Cell-DINO acquisition/scientific/GPU acceptance claimed.
+No official pretrained Cell-DINO acquisition/scientific/GPU acceptance claimed.
+
+## 2026-10-06 Home pooled watcher and native time-volume batch source
+Home integrates source 0ee2f0053/b777c3211/25031e230: a fixed finite-map
+static projected v1 Mask/Measure pool preserving normal batch normalization,
+padding, order and final short batch; and a separate complete fixed-map native
+T>1 Mask-only batch ingest preserving original C/Z/T planes. Default per-field,
+projected timelapse and native T1 watch behavior remain unchanged. Closed pool
+waits for ALL declared members and never infers vendor completion from an idle
+timeout. Native batch requires explicit TZYX axes, calibrated Z/frame spacing
+and complete map, refusing Measure/tracking/Classify/feedback before output.
+
+Root bounded functional cohorts pass 146 and 98; frozen added-source branch
+traces cover native io 157 statements/84 arcs and pooled core 128/70 with no
+added gaps. Original-pixel pooled tests compare all available scientific
+columns including pathogen relationships. Compact reproducible evidence is
+in data/548_closed_pool_native_batch_cpu_2026-10-06/. Coverage is added-source,
+not full-module or global acceptance. F548 remains OPEN for native watcher
+integration, raw/vendor completion and unsupported series. One reused CPU
+agent owns native-watch core.py; another audits existing scientific test
+comparisons; an independent review covers the batch/cohort source.
+
+Workstation: these NEW published source changes must join your normal
+API/runtime/Help/settings-flow/consumer-map and nine-language regeneration.
+Please include watch_normalization_pool choices/tooltip and new native Mask
+preconditions. Keep your three provenance helpers and all accepted scientific,
+CUDA, multilingual/tutorial and publication receipts. Your 8a6068f18 metadata
+is merged. All GPU/API/docs/translations/tutorials remain workstation-owned.
+Protected serial run 37457998285 is still running and must not be cancelled.
+No observed failure mode or ratchet has been weakened to obtain a pass.
 
 ## 2026-10-06 workstation publication accepted; local installation recovered
 Normal docs workflow 37478293839 actually deployed source e259c2d4e. All ten
@@ -2172,3 +2256,13 @@ cannot be gated: 31 files trip it and nearly all are healthy.
   catalogs and took the two bystander tooltips with them. AN ITEM CAN BE
   UNBLOCKED BY A CHANGE MADE FOR ANOTHER REASON, and nothing tells it. When a
   file says it waits on X, and you have just done X, go and read it.
+
+2026-10-06 independent Home F548 native-batch scope review:
+No acquired-image mutation or demonstrated scientific parity defect found.
+Standalone batch completed resume and cooperative rollback are covered;
+abrupt death during publication can leave a partial output folder that
+correctly refuses in-place reuse. Watcher-private recovery is tested separately.
+Whole-field normalization can exceed RAM for large T/Z fields. A reused CPU
+agent is removing unnecessary copies and measuring peak RSS; no arbitrary
+large-volume acceptance or hard-crash rollback claim is made. Parent548 stays
+OPEN. These limitations do not weaken source/output corruption refusal.

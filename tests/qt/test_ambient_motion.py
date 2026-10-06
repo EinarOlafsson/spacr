@@ -58,7 +58,8 @@ LIGHT = "#f6f7f9"
 
 def make_engine(theme, palette, background, *args, **kwargs):
     """Keep retired public renderer regressions separate from selectable themes."""
-    legacy = {"bokeh": amb.BokehEngine, "resonance": amb.ResonanceEngine}
+    legacy = {"bokeh": amb.BokehEngine, "resonance": amb.ResonanceEngine,
+              "ripple": amb.RippleEngine, "cells": amb.CellsEngine}
     if theme in legacy:
         return legacy[theme](amb.PALETTE_SETS[palette].colors, background, *args, **kwargs)
     return _make_engine(theme, palette, background, *args, **kwargs)
@@ -709,7 +710,7 @@ def test_absurd_values_are_clamped_not_obeyed(control, limits, value, end):
 
 
 def test_the_widget_exposes_them_all_and_they_reach_the_engine(qtbot):
-    widget = AmbientWidget(theme="ripple", palette="ocean", background=DARK,
+    widget = AmbientWidget(theme="blobs", palette="ocean", background=DARK,
                            seed=2, blur=0.0, speed=1.0, size=1.0,
                            resolution=1.0, density=1.0, direction="up")
     qtbot.addWidget(widget)
@@ -1360,12 +1361,9 @@ def test_the_borealis_palette_is_the_real_emission_lines():
 
 
 def test_borealis_is_offered_where_the_animation_reads_as_sky():
-    """Aurora, blobs and the starfield: all three are a sky. Ripple is rain
-    on water, and a set named after the northern lights would be decoration
-    there rather than a colour choice."""
+    """Aurora, blobs and the starfield retain their northern-light palette."""
     for theme in ("aurora", "blobs", "drift"):
         assert "borealis" in palettes_for(theme), theme
-    assert "borealis" not in palettes_for("ripple")
 
 
 def test_the_borealis_palette_reaches_the_curtain():
@@ -1552,7 +1550,7 @@ def test_the_direction_row_is_only_there_for_the_starfield(prefs, qtbot,
     keys = [theme_combo.itemData(i) for i in range(theme_combo.count())]
     theme_combo.setCurrentIndex(keys.index("drift"))
     assert combo.isVisible()
-    theme_combo.setCurrentIndex(keys.index("ripple"))
+    theme_combo.setCurrentIndex(keys.index("aurora"))
     assert not combo.isVisible()
 
 

@@ -274,6 +274,7 @@ def convert_settings_dict_for_gui(settings):
         'plaque_mode': ('combo', ['plaque', 'figure'], 'plaque'),
         'watch_pipeline': ('combo', ['mask', 'mask_measure',
                                      'mask_measure_classify'], 'mask'),
+        'watch_normalization_pool': ('combo', ['per_field', 'fixed_map'], 'per_field'),
         'microscope_driver': ('combo', ['simulated', 'pycromanager'], 'simulated'),
         'anndata_format': ('combo', ['h5ad', 'parquet', 'r', 'all'], 'h5ad'),
         'channels': ('combo', chan_list, '[0,1,2,3]'),

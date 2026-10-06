@@ -3447,6 +3447,245 @@ def _preprocess_volume_tiffs(settings):
     return settings, src
 
 
+def _preprocess_mapped_volume_series(settings):
+    """Build one native TZYXC Mask archive per fixed-map field series.
+
+    The Convert map names every acquired YX plane. This route preserves those
+    files and assembles ZYXC stacks for each timepoint before normalizing the
+    complete TZYXC field. It deliberately performs independent 3-D Mask
+    segmentation only; timelapse tracking and Measure are separate contracts.
+
+    :param settings: raw Mask settings with explicit TZYX axes and native Z.
+    :returns: normalized settings and the unchanged source directory.
+    :raises ValueError: for unsupported recipes, incomplete maps, changed
+        sources, ambiguous axes or incompatible planes.
+    """
+    import csv
+    import hashlib
+    import io as standard_io
+
+    from . import core
+    from .cancellation import checkpoint
+    from .psf_pipeline import processing_requested
+    from .settings import set_default_settings_preprocess_generate_masks
+    from .zstack import plan_4d_from_settings
+
+    settings = set_default_settings_preprocess_generate_masks(settings)
+    src = os.fspath(settings['src'])
+    if (settings.get('timelapse') or settings.get('microscope_feedback')
+            or settings.get('watch_pipeline') not in (None, '', 'mask')
+            or settings.get('apply_model_to_dataset')
+            or settings.get('generate_training_dataset')
+            or settings.get('real_object_classifier')):
+        raise ValueError('Native T-by-Z batch ingest supports Mask only; '
+                         'Measure, tracking, Classify and feedback need a '
+                         'separate 3-D-over-time contract.')
+    if (settings.get('test_mode') or settings.get('illumination_correction')
+            or processing_requested(settings)):
+        raise ValueError('Native T-by-Z batch ingest does not support test-mode '
+                         'sampling, illumination or PSF preprocessing.')
+    if (settings.get('plot') or settings.get('adjust_cells')
+            or settings.get('segmentation_backend', 'cellpose') != 'cellpose'):
+        raise ValueError('Native T-by-Z Mask supports Cellpose without 2-D '
+                         'plots or cell-adjustment operations.')
+    if (settings.get('metadata_type') != 'cellvoyager'
+            or settings.get('custom_regex') not in (None, '', 'None')):
+        raise ValueError('Native T-by-Z batch ingest requires a fixed Convert '
+                         'map and its CellVoyager target names.')
+    plan = plan_4d_from_settings(settings)
+    if (plan is None or plan.t_axis != 0 or plan.z_axis != 1
+            or plan.z_mode != 'volumetric' or plan.frame_interval_s is None):
+        raise ValueError('Native T-by-Z batch ingest requires explicit TZYX '
+                         'axes, frame interval and volumetric Z spacing.')
+    map_settings = dict(settings, timelapse=True)
+    manifest, map_sha256 = core._watch_map_manifest(src, map_settings)
+    if manifest is None:
+        raise ValueError('Native T-by-Z batch ingest requires a complete fixed '
+                         'conversion_map.csv before processing.')
+    data = core._watch_map_bytes(src)
+    if hashlib.sha256(data).hexdigest() != map_sha256:
+        raise ValueError('Native T-by-Z conversion map changed during preflight.')
+    names = {name for members in manifest.values() for name in members}
+    if set(_raw_image_names(src)) != names:
+        raise ValueError('Native T-by-Z source images differ from the exact '
+                         'conversion-map targets.')
+
+    fields = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
+    for row in csv.DictReader(standard_io.StringIO(data.decode('utf-8-sig'))):
+        field = (row['plate'], row['well'], int(row['field']))
+        fields[field][int(row['t'])][int(row['channel'])][int(row['z'])] = row['target']
+    if any(len(times) < 2 or any(len(planes) < 2
+           for channels in times.values() for planes in channels.values())
+           for times in fields.values()):
+        raise ValueError('Native T-by-Z batch ingest requires at least two '
+                         'timepoints and two Z planes per mapped channel.')
+
+    channel_ids = sorted({channel for times in fields.values()
+                          for channels in times.values() for channel in channels})
+    channel_keys = ['nucleus_channel', 'cell_channel', 'pathogen_channel',
+                    *(f'{role}_channel' for role in ORGANELLE_ROLES)]
+    selected = list(dict.fromkeys(settings[key] for key in channel_keys
+                                  if settings.get(key) is not None))
+    if (not selected or any(type(value) is not int or value < 0
+                            or value >= len(channel_ids) for value in selected)):
+        raise ValueError('Native T-by-Z object channels must index the fixed '
+                         'mapped channel list.')
+
+    recipe = json.loads(json.dumps({key: value for key, value in settings.items()
+                                    if key != 'src'}, default=str, sort_keys=True))
+    inputs = {}
+    for name in sorted(names):
+        path = os.path.join(src, name)
+        identity = core._watch_file_identity(path)
+        if identity is None:
+            raise ValueError(f'Native T-by-Z input is missing or unsafe: {name}')
+        inputs[name] = {'identity': identity,
+                        'sha256': core._watch_artifact_sha256(path)}
+        if core._watch_file_identity(path) != identity:
+            raise ValueError(f'Native T-by-Z input changed during preflight: {name}')
+
+    stack_path = os.path.join(src, 'stack')
+    masks_path = os.path.join(src, 'masks')
+    receipt_path = os.path.join(stack_path, '.spacr_volume_series_ingest.json')
+    expected_stack_names = {
+        _escaped_field_stem(*field, time) + '.npy'
+        for field, times in fields.items() for time in times}
+    expected_archive_names = {
+        _escaped_field_stem(*field, '') + 'norm_timelapse.npz'
+        for field in fields}
+    if os.path.isfile(receipt_path):
+        if (os.path.islink(stack_path) or os.path.islink(masks_path)
+                or os.path.islink(receipt_path)):
+            raise ValueError('Native T-by-Z outputs or receipt cannot be links.')
+        with open(receipt_path, encoding='utf8') as handle:
+            content = handle.read(16 * 1024 * 1024 + 1)
+        if len(content) > 16 * 1024 * 1024:
+            raise ValueError('Native T-by-Z source receipt exceeds 16 MiB.')
+        receipt = json.loads(content)
+        if (receipt.get('version') != 1 or receipt.get('axes') != 'TZYXC'
+                or receipt.get('map_sha256') != map_sha256
+                or receipt.get('inputs') != inputs or receipt.get('recipe') != recipe
+                or set(receipt.get('stacks', {})) != expected_stack_names
+                or set(receipt.get('archives', {})) != expected_archive_names):
+            raise ValueError('Native T-by-Z source, map or processing recipe '
+                             'differs from its completed receipt; use a fresh folder.')
+        if ({name for name in os.listdir(stack_path) if name.endswith('.npy')}
+                != expected_stack_names or
+                {name for name in os.listdir(masks_path)
+                 if name.endswith('_norm_timelapse.npz')}
+                != expected_archive_names):
+            raise ValueError('Native T-by-Z output inventory differs from '
+                             'its completed receipt; use a fresh folder.')
+        for folder, key in ((stack_path, 'stacks'), (masks_path, 'archives')):
+            for name, digest in receipt[key].items():
+                if core._watch_file_identity(os.path.join(folder, name)) is None or (
+                        _volume_file_hash(os.path.join(folder, name)) != digest):
+                    raise ValueError(f'Native T-by-Z output changed: {name}')
+    elif any(os.path.lexists(path) for path in (stack_path, masks_path,
+                                               os.path.join(src, 'merged'))):
+        raise ValueError('Existing outputs have no native T-by-Z source receipt; '
+                         'use a fresh output folder.')
+    else:
+        with tempfile.TemporaryDirectory(prefix='.spacr-volume-series-', dir=src) as stage:
+            stage_stack = os.path.join(stage, 'stack')
+            stage_masks = os.path.join(stage, 'masks')
+            os.mkdir(stage_stack)
+            os.mkdir(stage_masks)
+            stacks, archives = {}, {}
+            for field, times in sorted(fields.items()):
+                frames, filenames, shape, dtype = [], [], None, None
+                for time, channels in sorted(times.items()):
+                    volumes = []
+                    for channel in channel_ids:
+                        planes = []
+                        for z, name in sorted(channels[channel].items()):
+                            checkpoint()
+                            path = os.path.join(src, name)
+                            flags = (os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0)
+                                     | getattr(os, 'O_NONBLOCK', 0))
+                            with os.fdopen(os.open(path, flags), 'rb') as handle:
+                                info = os.fstat(handle.fileno())
+                                opened = [info.st_dev, info.st_ino, info.st_size,
+                                          info.st_mtime_ns, info.st_ctime_ns]
+                                if opened != inputs[name]['identity']:
+                                    raise ValueError(f'Native T-by-Z input changed: {name}')
+                                with tifffile.TiffFile(handle, name=path) as image:
+                                    if len(image.series) != 1 or image.series[0].axes != 'YX':
+                                        raise ValueError(f'Native T-by-Z input must be one YX plane: {name}')
+                                    plane = image.series[0].asarray()
+                                info = os.fstat(handle.fileno())
+                                if [info.st_dev, info.st_ino, info.st_size,
+                                    info.st_mtime_ns, info.st_ctime_ns] != opened:
+                                    raise ValueError(f'Native T-by-Z input changed: {name}')
+                            if (plane.ndim != 2 or plane.dtype.kind not in 'uif'
+                                    or not np.isfinite(plane).all()):
+                                raise ValueError(f'Native T-by-Z input has invalid intensities: {name}')
+                            if shape is None:
+                                shape, dtype = plane.shape, plane.dtype.str
+                            if plane.shape != shape or plane.dtype.str != dtype:
+                                raise ValueError('Native T-by-Z planes differ in shape or dtype.')
+                            if (core._watch_file_identity(path) != inputs[name]['identity']
+                                    or core._watch_artifact_sha256(path)
+                                    != inputs[name]['sha256']):
+                                raise ValueError(f'Native T-by-Z input changed: {name}')
+                            planes.append(plane)
+                        volumes.append(np.stack(planes))
+                    frame = np.stack(volumes, axis=-1)
+                    filename = _escaped_field_stem(*field, time) + '.npy'
+                    output = os.path.join(stage_stack, filename)
+                    _save_array_atomic(output, frame)
+                    stacks[filename] = _volume_file_hash(output)
+                    frames.append(frame)
+                    filenames.append(filename)
+                raw = np.stack(frames)
+                del frames
+                normalized = _normalize_img_batch(raw, selected, np.float32, settings)
+                del raw
+                if selected != list(range(len(channel_ids))):
+                    normalized = normalized[..., selected]
+                archive_name = _escaped_field_stem(*field, '') + 'norm_timelapse.npz'
+                archive = os.path.join(stage_masks, archive_name)
+                _save_npz_atomic(archive, data=normalized, filenames=filenames)
+                archives[archive_name] = _volume_file_hash(archive)
+                del normalized
+            if (hashlib.sha256(core._watch_map_bytes(src)).hexdigest() != map_sha256
+                    or any(core._watch_file_identity(os.path.join(src, name))
+                           != row['identity'] or core._watch_artifact_sha256(os.path.join(src, name))
+                           != row['sha256'] for name, row in inputs.items())):
+                raise ValueError('Native T-by-Z inputs or map changed before publication.')
+            with open(os.path.join(stage_stack, '.spacr_volume_series_ingest.json'),
+                      'w', encoding='utf8') as handle:
+                json.dump(dict(version=1, axes='TZYXC', map_sha256=map_sha256,
+                               inputs=inputs, recipe=recipe, stacks=stacks,
+                               archives=archives), handle, indent=2)
+                handle.write('\n')
+            published = []
+            try:
+                os.mkdir(stack_path)
+                published.append(stack_path)
+                os.mkdir(masks_path)
+                published.append(masks_path)
+                for folder, stage_folder, names_to_link in (
+                        (stack_path, stage_stack, [*stacks, '.spacr_volume_series_ingest.json']),
+                        (masks_path, stage_masks, archives)):
+                    for name in names_to_link:
+                        destination = os.path.join(folder, name)
+                        os.link(os.path.join(stage_folder, name), destination)
+                        published.append(destination)
+            except BaseException:
+                for path in reversed(published):
+                    if os.path.isdir(path):
+                        os.rmdir(path)
+                    else:
+                        os.unlink(path)
+                raise
+    for key in channel_keys:
+        if settings.get(key) is not None:
+            settings[f'cellpose_{key}'] = selected.index(settings[key])
+    settings['channels'] = list(range(len(channel_ids)))
+    return settings, src
+
+
 def preprocess_img_data(settings):
     """Convert raw microscopy images into normalized, channel-merged ``.npy`` stacks ready for mask generation.
 
@@ -3470,6 +3709,13 @@ def preprocess_img_data(settings):
     be reused as a volume. Individual slice-file layouts, time-series,
     test-mode sampling and illumination or PSF preprocessing are not
     supported by this raw volumetric route.
+
+    A separate Mask-only route accepts a fixed Convert map with every
+    explicitly labelled YX plane in a dense channel-by-Z-by-time grid when
+    ``z_stack`` and ``t_stack`` are both on. It builds native TZYXC archives
+    for the existing 4-D segmenter; physical Z and frame spacing and TZYX
+    axis order must be declared. The planar sources remain unchanged.
+    Timelapse tracking, Measure and Classify are not enabled by this route.
 
     Running it again on a plate folder it has already processed resumes
     rather than starting over. Raw images an earlier run moved into
@@ -3527,6 +3773,9 @@ def preprocess_img_data(settings):
         :func:`spacr.core.preprocess_generate_masks` — full pipeline
         wrapper that calls this then generates masks.
     """
+    if (settings.get('z_stack') and settings.get('t_stack')
+            and settings.get('z_segmentation_mode') == 'volumetric'):
+        return _preprocess_mapped_volume_series(settings)
     if settings.get('z_stack') and settings.get('z_segmentation_mode') == 'volumetric':
         return _preprocess_volume_tiffs(settings)
     src = settings['src']

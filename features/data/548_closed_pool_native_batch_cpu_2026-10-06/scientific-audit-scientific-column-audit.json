@@ -1,0 +1,239 @@
+{
+  "base": "25031e230fe21eb12f80bdf3ebae49e080b1eadc",
+  "test_commit": "f17f233486e37d28c53b32c536708e79d21f59df",
+  "test_source_sha256": "558c57e623cd6a89e5c9de178eae611c277ffc1e6cd7551879663755d4b9a3d5",
+  "app_source_changes": [],
+  "cuda_visible_devices": "",
+  "test_memory_cap_gib": 4,
+  "initial_broad_tests": {
+    "passed": 97,
+    "failed_expected_png_directory_metadata": 1
+  },
+  "affected_final_tests": {
+    "passed": 2
+  },
+  "true_scientific_mismatches": [],
+  "metadata_exclusions": [
+    "file_name",
+    "path_name",
+    "png_path"
+  ],
+  "pairs": [
+    {
+      "mode": "per_field",
+      "artifact_root": "pytest-01/test_files_copied_in_one_by_on0",
+      "table": "cell",
+      "rows": 6,
+      "scientific_columns": 138,
+      "pathogen_columns_checked": [
+        "cell_centre_to_pathogen_surface",
+        "cell_surface_to_pathogen_surface",
+        "cell_centre_to_nearest_pathogen_centre",
+        "cell_pathogen_overlap_fraction",
+        "cell_channel_0_maxima_to_pathogen_surface_min",
+        "cell_channel_0_maxima_to_pathogen_surface_mean",
+        "cell_channel_1_maxima_to_pathogen_surface_min",
+        "cell_channel_1_maxima_to_pathogen_surface_mean",
+        "cell_channel_0_distance_to_pathogen",
+        "cell_channel_1_distance_to_pathogen"
+      ],
+      "excluded_metadata": [
+        "file_name",
+        "path_name"
+      ],
+      "all_scientific_columns_and_rows_equal": true,
+      "batch_db_sha256": "1cb03a109654e24f16c94e3a82e425b76c3728da055ef2dd636e20d185bef668",
+      "watch_db_sha256": "6f4ed29db7c777a00d5ab5d2ac777b3209d629508916ac08a9cabf83bfa16a59"
+    },
+    {
+      "mode": "per_field",
+      "artifact_root": "pytest-01/test_files_copied_in_one_by_on0",
+      "table": "nucleus",
+      "rows": 6,
+      "scientific_columns": 153,
+      "pathogen_columns_checked": [
+        "nucleus_centre_to_pathogen_surface",
+        "nucleus_surface_to_pathogen_surface",
+        "nucleus_centre_to_nearest_pathogen_centre",
+        "nucleus_pathogen_overlap_fraction",
+        "nucleus_channel_0_maxima_to_pathogen_surface_min",
+        "nucleus_channel_0_maxima_to_pathogen_surface_mean",
+        "nucleus_channel_1_maxima_to_pathogen_surface_min",
+        "nucleus_channel_1_maxima_to_pathogen_surface_mean"
+      ],
+      "excluded_metadata": [
+        "file_name",
+        "path_name"
+      ],
+      "all_scientific_columns_and_rows_equal": true,
+      "batch_db_sha256": "1cb03a109654e24f16c94e3a82e425b76c3728da055ef2dd636e20d185bef668",
+      "watch_db_sha256": "6f4ed29db7c777a00d5ab5d2ac777b3209d629508916ac08a9cabf83bfa16a59"
+    },
+    {
+      "mode": "projected_z",
+      "artifact_root": "pytest-01/test_projected_z_watch_matches0",
+      "table": "cell",
+      "rows": 4,
+      "scientific_columns": 138,
+      "pathogen_columns_checked": [
+        "cell_centre_to_pathogen_surface",
+        "cell_surface_to_pathogen_surface",
+        "cell_centre_to_nearest_pathogen_centre",
+        "cell_pathogen_overlap_fraction",
+        "cell_channel_0_maxima_to_pathogen_surface_min",
+        "cell_channel_0_maxima_to_pathogen_surface_mean",
+        "cell_channel_1_maxima_to_pathogen_surface_min",
+        "cell_channel_1_maxima_to_pathogen_surface_mean",
+        "cell_channel_0_distance_to_pathogen",
+        "cell_channel_1_distance_to_pathogen"
+      ],
+      "excluded_metadata": [
+        "file_name",
+        "path_name"
+      ],
+      "all_scientific_columns_and_rows_equal": true,
+      "batch_db_sha256": "a5674a87572e705df165ed782e4b7217ce1a37ef1bf004ae69772eb85dc23ecb",
+      "watch_db_sha256": "6cde96e6b60e432eb8f7a6968ce1e593a7bf775cb99a410eab71394b246a61c1"
+    },
+    {
+      "mode": "projected_z",
+      "artifact_root": "pytest-01/test_projected_z_watch_matches0",
+      "table": "nucleus",
+      "rows": 4,
+      "scientific_columns": 153,
+      "pathogen_columns_checked": [
+        "nucleus_centre_to_pathogen_surface",
+        "nucleus_surface_to_pathogen_surface",
+        "nucleus_centre_to_nearest_pathogen_centre",
+        "nucleus_pathogen_overlap_fraction",
+        "nucleus_channel_0_maxima_to_pathogen_surface_min",
+        "nucleus_channel_0_maxima_to_pathogen_surface_mean",
+        "nucleus_channel_1_maxima_to_pathogen_surface_min",
+        "nucleus_channel_1_maxima_to_pathogen_surface_mean"
+      ],
+      "excluded_metadata": [
+        "file_name",
+        "path_name"
+      ],
+      "all_scientific_columns_and_rows_equal": true,
+      "batch_db_sha256": "a5674a87572e705df165ed782e4b7217ce1a37ef1bf004ae69772eb85dc23ecb",
+      "watch_db_sha256": "6cde96e6b60e432eb8f7a6968ce1e593a7bf775cb99a410eab71394b246a61c1"
+    },
+    {
+      "mode": "native_T1",
+      "artifact_root": "pytest-01/test_native_z_t1_matches_raw_v0",
+      "table": "cell",
+      "rows": 2,
+      "scientific_columns": 141,
+      "pathogen_columns_checked": [
+        "cell_centre_to_pathogen_surface",
+        "cell_surface_to_pathogen_surface",
+        "cell_centre_to_nearest_pathogen_centre",
+        "cell_pathogen_overlap_fraction",
+        "cell_channel_0_maxima_to_pathogen_surface_min",
+        "cell_channel_0_maxima_to_pathogen_surface_mean",
+        "cell_channel_1_maxima_to_pathogen_surface_min",
+        "cell_channel_1_maxima_to_pathogen_surface_mean",
+        "cell_channel_0_distance_to_pathogen",
+        "cell_channel_1_distance_to_pathogen"
+      ],
+      "excluded_metadata": [
+        "file_name",
+        "path_name"
+      ],
+      "all_scientific_columns_and_rows_equal": true,
+      "batch_db_sha256": "484842c191eb4c817e2444ffe5a4bc1d6f2c3a4b7ec59b1787e540ee12465b37",
+      "watch_db_sha256": "e4a081556a9cc65ff866e0223f257188df4c0b3169763c55ff754ad4754e0932"
+    },
+    {
+      "mode": "native_T1",
+      "artifact_root": "pytest-01/test_native_z_t1_matches_raw_v0",
+      "table": "nucleus",
+      "rows": 2,
+      "scientific_columns": 156,
+      "pathogen_columns_checked": [
+        "nucleus_centre_to_pathogen_surface",
+        "nucleus_surface_to_pathogen_surface",
+        "nucleus_centre_to_nearest_pathogen_centre",
+        "nucleus_pathogen_overlap_fraction",
+        "nucleus_channel_0_maxima_to_pathogen_surface_min",
+        "nucleus_channel_0_maxima_to_pathogen_surface_mean",
+        "nucleus_channel_1_maxima_to_pathogen_surface_min",
+        "nucleus_channel_1_maxima_to_pathogen_surface_mean"
+      ],
+      "excluded_metadata": [
+        "file_name",
+        "path_name"
+      ],
+      "all_scientific_columns_and_rows_equal": true,
+      "batch_db_sha256": "484842c191eb4c817e2444ffe5a4bc1d6f2c3a4b7ec59b1787e540ee12465b37",
+      "watch_db_sha256": "e4a081556a9cc65ff866e0223f257188df4c0b3169763c55ff754ad4754e0932"
+    },
+    {
+      "mode": "mapped_timelapse",
+      "artifact_root": "pytest-01/test_mapped_series_waits_for_f0",
+      "table": "cell",
+      "rows": 4,
+      "scientific_columns": 139,
+      "pathogen_columns_checked": [
+        "cell_centre_to_pathogen_surface",
+        "cell_surface_to_pathogen_surface",
+        "cell_centre_to_nearest_pathogen_centre",
+        "cell_pathogen_overlap_fraction",
+        "cell_channel_0_maxima_to_pathogen_surface_min",
+        "cell_channel_0_maxima_to_pathogen_surface_mean",
+        "cell_channel_1_maxima_to_pathogen_surface_min",
+        "cell_channel_1_maxima_to_pathogen_surface_mean",
+        "cell_channel_0_distance_to_pathogen",
+        "cell_channel_1_distance_to_pathogen"
+      ],
+      "excluded_metadata": [
+        "file_name",
+        "path_name"
+      ],
+      "all_scientific_columns_and_rows_equal": true,
+      "batch_db_sha256": "ad2f7aedb2d86c8513b7dcc7f03713aef987782edd35566fd16bccee405e94d8",
+      "watch_db_sha256": "a24f213a8b3cc9b0915f0702f97b59b4a6fe160c3e38be15dddba1687d8d335a"
+    },
+    {
+      "mode": "mapped_timelapse",
+      "artifact_root": "pytest-01/test_mapped_series_waits_for_f0",
+      "table": "nucleus",
+      "rows": 4,
+      "scientific_columns": 154,
+      "pathogen_columns_checked": [
+        "nucleus_centre_to_pathogen_surface",
+        "nucleus_surface_to_pathogen_surface",
+        "nucleus_centre_to_nearest_pathogen_centre",
+        "nucleus_pathogen_overlap_fraction",
+        "nucleus_channel_0_maxima_to_pathogen_surface_min",
+        "nucleus_channel_0_maxima_to_pathogen_surface_mean",
+        "nucleus_channel_1_maxima_to_pathogen_surface_min",
+        "nucleus_channel_1_maxima_to_pathogen_surface_mean"
+      ],
+      "excluded_metadata": [
+        "file_name",
+        "path_name"
+      ],
+      "all_scientific_columns_and_rows_equal": true,
+      "batch_db_sha256": "ad2f7aedb2d86c8513b7dcc7f03713aef987782edd35566fd16bccee405e94d8",
+      "watch_db_sha256": "a24f213a8b3cc9b0915f0702f97b59b4a6fe160c3e38be15dddba1687d8d335a"
+    },
+    {
+      "mode": "saved_CV",
+      "artifact_root": "pytest-02/test_real_mask_and_measure_pre0",
+      "table": "png_list",
+      "rows": 4,
+      "scientific_columns": 8,
+      "pathogen_columns_checked": [],
+      "excluded_metadata": [
+        "png_path",
+        "file_name"
+      ],
+      "all_scientific_columns_and_rows_equal": true,
+      "batch_db_sha256": "3f34be00e149fbce854200dad79d095925a8e077e215308ce1e57c8234c15f94",
+      "watch_db_sha256": "e28bdc4032a57120f44124a89126241f599c9fe157657d297ab76b856df54a27"
+    }
+  ],
+  "inference_acceptance": "CPU fixture doubles; actual normalization, Measure and collection"
+}

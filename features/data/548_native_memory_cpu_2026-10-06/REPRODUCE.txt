@@ -1,0 +1,7 @@
+Frozen source and actual paired measurement logs are included.
+The prepare script regenerates the original scratch fixture and replaces
+its baseline/optimized directories; run it only in a dedicated scratch copy.
+Use worktrees at the two recorded source commits and PYTHONPATH=. when
+running measure.py, CUDA_VISIBLE_DEVICES='', QT_QPA_PLATFORM=offscreen,
+tools/run_capped.sh 4G python. Compare the three recorded output SHA256s.
+Run tests/test_native_tzyx_batch_f548.py for channel-subset regressions.

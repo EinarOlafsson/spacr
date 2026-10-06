@@ -1,7 +1,7 @@
 """The folder watch on Make Masks is an alpha feature.
 
 Everything built from the future-features list is hidden until Preferences ->
-Show alpha features is turned on. For the folder watch that is its six
+Show alpha features is turned on. For the folder watch that is its
 settings on the Make Masks form and the progress line beside the Run button;
 a watch value saved while hidden still reaches the run.
 """
@@ -18,7 +18,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtCore import QSettings                              # noqa: E402
 
-WATCH_SETTINGS = ("watch_folder", "watch_pipeline", "watch_measure_settings",
+WATCH_SETTINGS = ("watch_folder", "watch_pipeline", "watch_normalization_pool", "watch_measure_settings",
                   "watch_classify_settings",
                   "watch_settle_seconds", "watch_poll_seconds",
                   "watch_idle_minutes")

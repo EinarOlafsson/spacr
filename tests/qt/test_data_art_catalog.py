@@ -1,4 +1,4 @@
-"""Six independent data-art presets keep their visual and settings contract."""
+"""Seven independent data-art presets keep their visual and settings contract."""
 
 from __future__ import annotations
 
@@ -16,46 +16,17 @@ from spacr.qt.preferences_navigation import row_field
 from spacr.qt.widgets import ambient
 
 SPEC = (
-    (
-        "data_art_point_atlas",
-        "Spatial point atlas",
-        "A finely sampled three-dimensional point landscape with depth and cursor-driven parallax.",
-        "midnight",
-    ),
-    (
-        "data_art_tissue_facets",
-        "Tissue facets",
-        "A crystalline tissue mosaic of shaded geometric facets, with slowly changing local relief.",
-        "lowsun",
-    ),
-    (
-        "data_art_chromatin_ribbon",
-        "Chromatin satin",
-        "Folded satin-like chromatin ribbons carry fine fibres through soft, interwoven surfaces.",
-        "dusk",
-    ),
-    (
-        "data_art_genetic_advection",
-        "Genetic advection",
-        "Thousands of fine genetic-flow particles move through a continuous wind-like field that bends near the cursor.",
-        "ocean",
-    ),
-    (
-        "data_art_impulse_lens",
-        "Perturbation lens",
-        "A precision dot lattice bends around moving impulses and the cursor, revealing local perturbation.",
-        "mono",
-    ),
-    (
-        "data_art_fungal_growth",
-        "Fungal growth",
-        "Fine fungal branches extend continuously across at most 30% of the backdrop, leaving the field clear.",
-        "deepwater",
-    ),
+    ('data_art_impulse_lens', 'spaCR field', 'A crisp gravitational dot field with optional local mouse influence and expanding ripples.', 'mono'),
+    ('data_art_genetic_advection', 'spaCR advection', 'Fine particles form evolving vortices and branching currents, with optional mouse gravity.', 'ocean'),
+    ('data_art_fungal_growth', 'spaCR growth', 'A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.', 'deepwater'),
+    ('data_art_thore', 'spaCR Thore', 'Fine background rain and branching lightning briefly illuminate the scene.', 'midnight'),
+    ('data_art_point_atlas', 'spaCR waves', 'An edge-free landscape of round points carries wide travelling waves.', 'midnight'),
+    ('data_art_tissue_facets', 'Tissue facets', 'Fine paper facets move gently and respond locally to the mouse.', 'lowsun'),
+    ('data_art_chromatin_ribbon', 'Chromatin satin', 'Fine chromatin fibres undulate in travelling waves across folded ribbons.', 'dusk'),
 )
 
 RETIRED = (
-    "bokeh", "resonance", "data_art_spatial_strata",
+    "bokeh", "resonance", "ripple", "cells", "data_art_spatial_strata",
     "data_art_molecular_helix", "data_art_sequence_matrix",
     "data_art_transcript_rain", "data_art_regulatory_circuit",
     "data_art_interference", "data_art_morphogenesis",
@@ -69,7 +40,7 @@ def private_store(monkeypatch, tmp_path):
     return prefs
 
 
-def test_six_data_art_choices_are_separate_from_ten_night_themes():
+def test_seven_data_art_choices_are_separate_from_ten_night_themes():
     expected = tuple(row[0] for row in SPEC)
     assert catalog.DATA_ART_THEME_KEYS == expected
     assert len(catalog.NIGHT_THEME_KEYS) == 10
@@ -77,8 +48,8 @@ def test_six_data_art_choices_are_separate_from_ten_night_themes():
     assert not any(key.startswith("flow_") for key in theme.THEMES)
     assert tuple(theme.THEMES) == tuple(prefs.PALETTE_THEMES)
     assert {token for _label, token in prefs.theme_choices()} >= set(expected)
-    assert len({theme.palette_for(key)["page"] for key in expected}) == 6
-    assert len({theme.palette_for(key)["accent"] for key in expected}) == 6
+    assert len({theme.palette_for(key)["page"] for key in expected}) == 7
+    assert len({theme.palette_for(key)["accent"] for key in expected}) == 7
 
 
 @pytest.mark.parametrize("key", RETIRED)
@@ -239,3 +210,21 @@ def test_unknown_data_art_key_is_rejected_without_changing_a_choice(private_stor
     assert private_store.get_theme_choice() == "data_art_point_atlas"
     with pytest.raises(KeyError):
         catalog.theme_for("data_art_not_an_engine")
+
+
+def test_requested_animation_order_and_default_reach_the_actual_dialog(
+    private_store, qtbot, qt_theme_applied,
+):
+    labels = ("spaCR field", "spaCR advection", "spaCR growth", "spaCR Thore",
+              "spaCR waves", "Blobs")
+    assert tuple(ambient.animation_label(key) for key in ambient.AMBIENT_THEMES[:6]) == labels
+    assert ambient.DEFAULT_THEME == "data_art_impulse_lens"
+    assert not private_store._settings().contains(private_store._KEY_AMBIENT_THEME)
+    assert private_store.get_ambient_animation() == "data_art_impulse_lens"
+    dialog = private_store.PreferencesDialog()
+    qtbot.addWidget(dialog)
+    combo = dialog.findChild(QComboBox, "AmbientTheme")
+    assert tuple(combo.itemText(index) for index in range(6)) == labels
+    assert combo.currentData() == "data_art_impulse_lens"
+    assert combo.itemData(combo.count() - 1) == "none"
+    assert private_store._ambient_gravity_radius() == 0

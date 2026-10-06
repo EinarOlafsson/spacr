@@ -28,7 +28,7 @@ from spacr.qt.widgets.ambient import (AMBIENT_THEMES, AmbientWidget,
                                       coerce_palette, default_palette_for,
                                       install_ambient, is_dark_background,
                                       is_valid_palette, is_valid_theme,
-                                      make_engine, palette_colors,
+                                      make_engine as _make_engine, palette_colors,
                                       palette_label, palette_note,
                                       palettes_for, theme_label, theme_note)
 
@@ -36,6 +36,16 @@ DT = 1.0 / 24.0
 DARK = "#101418"
 LIGHT = "#f6f7f9"
 LEGACY_THEMES = ("blobs", "aurora", "ripple", "drift", "cells")
+RENDERED_THEMES = AMBIENT_THEMES + ("ripple", "cells")
+
+
+def make_engine(theme, palette, background, *args, **kwargs):
+    """Exercise retired public renderers without reoffering their menu keys."""
+    direct = {"ripple": amb.RippleEngine, "cells": amb.CellsEngine}
+    if theme in direct:
+        return direct[theme](PALETTE_SETS[palette].colors, background,
+                             *args, **kwargs)
+    return _make_engine(theme, palette, background, *args, **kwargs)
 
 
 def render(engine, width=320, height=200, background=DARK) -> QImage:
@@ -69,7 +79,7 @@ def make_widget(qtbot, **kwargs) -> AmbientWidget:
 # ---------------------------------------------------------------------------
 
 def test_defaults_are_the_feature_that_was_asked_for():
-    assert DEFAULT_THEME == "blobs"
+    assert DEFAULT_THEME == "data_art_impulse_lens"
     assert DEFAULT_PALETTE == "spacr"
     assert DEFAULT_THEME in AMBIENT_THEMES
     assert DEFAULT_PALETTE in palettes_for(DEFAULT_THEME)
@@ -91,7 +101,7 @@ def test_every_theme_offers_palettes_that_resolve_to_real_colours(theme):
     assert len(set(offered)) == len(offered), "duplicate palette listed"
     for name in offered:
         colours = palette_colors(theme, name)
-        assert len(colours) >= 3, (theme, name)
+        assert len(colours) >= (2 if name == "custom" else 3), (theme, name)
         for hexcode in colours:
             colour = QColor(hexcode)
             assert colour.isValid(), (theme, name, hexcode)
@@ -170,7 +180,6 @@ def test_pastel_is_withheld_from_the_themes_it_would_be_invisible_in():
     assert "pastel" in palettes_for("blobs")
     assert "pastel" in palettes_for("aurora")
     assert "pastel" not in palettes_for("drift")
-    assert "pastel" not in palettes_for("ripple")
 
 
 # ---------------------------------------------------------------------------
@@ -271,7 +280,7 @@ def test_default_palette_is_always_one_the_theme_offers(theme):
 # Determinism
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("theme", AMBIENT_THEMES)
+@pytest.mark.parametrize("theme", RENDERED_THEMES)
 def test_same_seed_gives_the_same_first_frame(theme):
     a = make_engine(theme, "spacr", DARK, seed=99)
     b = make_engine(theme, "spacr", DARK, seed=99)
@@ -280,7 +289,7 @@ def test_same_seed_gives_the_same_first_frame(theme):
         assert a.geometry(320, 200) == b.geometry(320, 200)
 
 
-@pytest.mark.parametrize("theme", AMBIENT_THEMES)
+@pytest.mark.parametrize("theme", RENDERED_THEMES)
 def test_different_seeds_give_different_frames(theme):
     a = make_engine(theme, "spacr", DARK, seed=1)
     b = make_engine(theme, "spacr", DARK, seed=2)
@@ -290,7 +299,7 @@ def test_different_seeds_give_different_frames(theme):
         assert render(a) != render(b), theme
 
 
-@pytest.mark.parametrize("theme", AMBIENT_THEMES)
+@pytest.mark.parametrize("theme", RENDERED_THEMES)
 def test_the_clock_alone_decides_the_frame(theme):
     """Stepping in twelve small steps and jumping straight to the same time
     must land on the same frame — that is what makes ``set_time`` legitimate
@@ -341,7 +350,8 @@ MIN_PAINTED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.003,
                "data_art_chromatin_ribbon": 0.19,
                "data_art_genetic_advection": 0.46,
                "data_art_impulse_lens": 0.02,
-               "data_art_fungal_growth": 0.009}
+               "data_art_fungal_growth": 0.009,
+               "data_art_thore": 0.009}
 MIN_CHANGED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.006,
                "cells": 0.11,
                "data_art_point_atlas": 0.17,
@@ -349,7 +359,8 @@ MIN_CHANGED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.006,
                "data_art_chromatin_ribbon": 0.21,
                "data_art_genetic_advection": 0.47,
                "data_art_impulse_lens": 0.02,
-               "data_art_fungal_growth": 0.006}
+               "data_art_fungal_growth": 0.006,
+               "data_art_thore": 0.019}
 
 
 def all_pixels(image: QImage):
@@ -359,7 +370,7 @@ def all_pixels(image: QImage):
 
 
 @pytest.mark.parametrize("background", [DARK, LIGHT])
-@pytest.mark.parametrize("theme", AMBIENT_THEMES)
+@pytest.mark.parametrize("theme", RENDERED_THEMES)
 def test_a_frame_is_not_just_the_background(theme, background):
     """Both pages, because a blob set tuned for dark reads as nothing at all
     on light — which is a bug you cannot see in a construction test."""
@@ -373,7 +384,7 @@ def test_a_frame_is_not_just_the_background(theme, background):
 
 
 @pytest.mark.parametrize("background", [DARK, LIGHT])
-@pytest.mark.parametrize("theme", AMBIENT_THEMES)
+@pytest.mark.parametrize("theme", RENDERED_THEMES)
 def test_the_frame_changes_between_two_animation_times(theme, background):
     engine = make_engine(theme, "spacr", background, seed=7)
     engine.set_time(2.0)
@@ -385,7 +396,7 @@ def test_the_frame_changes_between_two_animation_times(theme, background):
         f"{theme} moved only {differing} of {len(first)} px in seven seconds"
 
 
-@pytest.mark.parametrize("theme", AMBIENT_THEMES)
+@pytest.mark.parametrize("theme", RENDERED_THEMES)
 def test_the_palette_reaches_the_painted_pixels(theme):
     """Two palettes, same seed, same clock: only the colours differ, so the
     frames must differ. This is what catches a palette that is accepted,
@@ -409,7 +420,7 @@ def test_setting_the_palette_live_recolours_without_moving_anything(qtbot):
     assert render(engine) != first
 
 
-@pytest.mark.parametrize("theme", AMBIENT_THEMES)
+@pytest.mark.parametrize("theme", RENDERED_THEMES)
 def test_dark_and_light_pages_get_different_treatments(theme):
     """Additive on dark, multiply on light. If both used the same mode one of
     the two would be invisible, and the shipped app has both."""
@@ -566,7 +577,7 @@ def test_the_buffer_is_reallocated_only_when_the_canvas_changes():
 
 
 @pytest.mark.parametrize("size", [(1, 1), (3, 400), (1920, 1080), (0, 0)])
-@pytest.mark.parametrize("theme", AMBIENT_THEMES)
+@pytest.mark.parametrize("theme", RENDERED_THEMES)
 def test_absurd_canvases_still_paint_without_raising(theme, size):
     """A degenerate canvas is survivable, and survivable means two things.
 
@@ -866,7 +877,7 @@ def test_backdrop_is_centred_on_the_window_like_the_stylesheet(qtbot):
 # ---------------------------------------------------------------------------
 
 def test_switching_theme_swaps_the_engine_and_keeps_the_clock(qtbot):
-    widget = make_widget(qtbot)
+    widget = make_widget(qtbot, theme="blobs")
     widget.advance_frame(2.0)
     first = widget.engine
     assert first.name == "blobs"
@@ -880,7 +891,7 @@ def test_switching_theme_swaps_the_engine_and_keeps_the_clock(qtbot):
 def test_switching_theme_does_not_leak_the_old_engine(qtbot):
     widget = make_widget(qtbot)
     dead = weakref.ref(widget.engine)
-    widget.set_theme("ripple")
+    widget.set_theme("aurora")
     gc.collect()
     assert dead() is None, "the old engine outlived the switch"
 

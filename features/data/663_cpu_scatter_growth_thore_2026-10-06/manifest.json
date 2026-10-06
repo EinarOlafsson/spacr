@@ -1,0 +1,33 @@
+{
+  "sha256": {
+    "REPRODUCE.txt": "c124ed79fe75f127f7a2ea32b1cec265b772fa578564cef98b37144d3a0deb42",
+    "archive.py": "570a7a78a85aa7941feb773c5bc7b63f02745b5e30cbb0395bd08f5f97306201",
+    "aurora-early-4k.png": "013de675714c41aa743672d904bfe0c164d8c534afe981d486c99b34431b8538",
+    "aurora-late-4k.png": "9c4401f6a081208ebc051fc360549d122f8573e99bf7698fc2480de95378e389",
+    "coverage-ambient.json": "23fc3696c51acf36bfc15e7c10aae18480a4eef9b4d8131a86dfd4734f5b4a68",
+    "fungal-early-4k.png": "ef87df9464cf26c546c16b01e1feb589b705a222d07e4935e51222ea0b8d3642",
+    "fungal-late-4k.png": "7860706ae7344060cbc9f75836d96b6b37897d813d663a6f57d93ada2e2082cc",
+    "fungal-preview.mp4": "2dcfe7ca9297b1419e858844075dc612eb3f5b4fdcf007f272d9bbca07a0feff",
+    "growth-coverage.json.gz": "f8ef591217524cdad80f22f4df7e99ca6058ee263f98d9f5759eb4f8c17318a0",
+    "growth-footprint.py.gz": "a9bdbaebbb10b6b945893273d8954e41c4423806506f9e994c066d85e5b2cfc3",
+    "live-widget-catalog.py.gz": "f4dc6f546f44fa5860fe808d98ab6dc4582871c17f0072b51c2480c5e35f2dfd",
+    "live_widget_probe.py": "c011afdc4dd5120d94016027ff532cda53ede2520711091b06862dde9ccb14db",
+    "new-source-coverage.json": "bb61bba2a8193bec32fe80d897bb71ff0a95f0ba92c8760ff24634148759af5d",
+    "parity_perf.json": "8a655252c2988f286366d3f153093979a04d3dd40e4909dec9ee27ede2833e88",
+    "parity_perf.py": "cf95b8539ea736340d7e61327348e50e00a6e9c9dedcccd15bb97ff6dec79e4a",
+    "pytest-01.log.gz": "2b0be9355acfbd15669ffba14ec958e82654f0a6f811a19471d693303ee9f5f3",
+    "pytest-04.log.gz": "c6b4f7f0d51540891b028db2450c0facac3cae80fab39d5df77d3eecd887b5fc",
+    "receipt.json": "a1cc7b6595ce7359450cda465c1dafa0c02be543a43a76a441fce8956fb38614",
+    "root-integrated-488-tests.log.gz": "ab22e3bb0beb56b2841d20c80a411e9e028b229f6a7a25378a3a8e33842695da",
+    "scatter-baseline.py.gz": "7dd3a558a625b325a69aa253ae2a197c50a0a9f42c26ec05f5d3fe6b43507b14",
+    "scatter-production.py.gz": "f9e47135f80e3081d2ba6272c72db9ddc4411f2f637008be5bb5c25bc26ccdb6",
+    "thore-early-4k.png": "00d169c20b44a5a5ccc3a81edd838becdbcb95336f877e10367f1ba61ccceafe",
+    "thore-fix-coverage.json.gz": "06e2cc5231638bb4486b2c0bcd18ab94b2f1963a02865254927eebaa37e13506",
+    "thore-fix.py.gz": "fbee64644bf5dd0cfa5a4e67363501af74ff6e343a0e93feac761bc664307be8",
+    "thore-late-4k.png": "264b2359004d92fb4829888b9f89ed59a480a99eeb36a5a581f2d1819f6c4e38",
+    "thore-preview.mp4": "a533e1ab866721a4a91d87fdb37513557734a57e0ea788dedb403591279f58ef",
+    "worker_gui_perf.json": "5f8ca04137e79e484f96e5f4bf244fcecd987c25cdbf412cf12d47fbab39cfb4",
+    "worker_perf.log.gz": "c112d6eb4a99045e07ada12238a75200777e5f5ab622a2a0263237669c59b78e",
+    "worker_perf.py": "330af736935eb27ee6ae0d8ec855853978857f446d6e012d4f216192984ae5a6"
+  }
+}

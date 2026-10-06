@@ -1,0 +1,685 @@
+{
+  "renderer_sha256": "bfd77a38ac5eac7de9f2cdde1880367e2fb42d5a320a79bb21f935d28e1ea1a3",
+  "production_renderer_sha256": "e00d4027e243e400525983dd12d8d32e57468074655ad1e94b8d85594aec39b8",
+  "cold_compiler": {
+    "compile_thread": "scatter-compile",
+    "kernel_ready": true,
+    "wall_ms": 684.7475360118551,
+    "rss_before_kib": 96288,
+    "rss_after_kib": 236076
+  },
+  "primitive": [
+    {
+      "backdrop": "#101418",
+      "colors": null,
+      "spread": false,
+      "inputs": 6300,
+      "byte_identical": true
+    },
+    {
+      "backdrop": "#101418",
+      "colors": null,
+      "spread": true,
+      "inputs": 6300,
+      "byte_identical": true
+    },
+    {
+      "backdrop": "#fafafa",
+      "colors": [
+        "#172adb",
+        "#db792b"
+      ],
+      "spread": false,
+      "inputs": 6300,
+      "byte_identical": true
+    },
+    {
+      "backdrop": "#fafafa",
+      "colors": [
+        "#172adb",
+        "#db792b"
+      ],
+      "spread": true,
+      "inputs": 6300,
+      "byte_identical": true
+    },
+    {
+      "backdrop": "#101418",
+      "colors": [
+        "#ff0000",
+        "#00ffff"
+      ],
+      "spread": false,
+      "inputs": 6300,
+      "byte_identical": true
+    },
+    {
+      "backdrop": "#101418",
+      "colors": [
+        "#ff0000",
+        "#00ffff"
+      ],
+      "spread": true,
+      "inputs": 6300,
+      "byte_identical": true
+    }
+  ],
+  "native_frame_parity": [
+    {
+      "family": "point_atlas",
+      "backdrop": "#101418",
+      "colors": null,
+      "detail": 1.0,
+      "clock": 8.0,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "060b55a09c84d1ae6ab81ef6b8f272a2f372ea38187f75600b9e6de751ba3642"
+    },
+    {
+      "family": "point_atlas",
+      "backdrop": "#101418",
+      "colors": null,
+      "detail": 1.0,
+      "clock": 11.5,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "903197ea27f551b0780d4991527e03bcdb062728551c45a130ca6b5019b7c8a5"
+    },
+    {
+      "family": "point_atlas",
+      "backdrop": "#101418",
+      "colors": null,
+      "detail": 2.0,
+      "clock": 8.0,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "060b55a09c84d1ae6ab81ef6b8f272a2f372ea38187f75600b9e6de751ba3642"
+    },
+    {
+      "family": "point_atlas",
+      "backdrop": "#101418",
+      "colors": null,
+      "detail": 2.0,
+      "clock": 11.5,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "903197ea27f551b0780d4991527e03bcdb062728551c45a130ca6b5019b7c8a5"
+    },
+    {
+      "family": "point_atlas",
+      "backdrop": "#fafafa",
+      "colors": [
+        "#172adb",
+        "#db792b"
+      ],
+      "detail": 1.0,
+      "clock": 8.0,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "f99e201931fcaeaf0cd66154fd96927d9d2bf02b8283370fd32569e942646225"
+    },
+    {
+      "family": "point_atlas",
+      "backdrop": "#fafafa",
+      "colors": [
+        "#172adb",
+        "#db792b"
+      ],
+      "detail": 1.0,
+      "clock": 11.5,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "a2ca26e29e4bb6bd8dcfba52161b6f59458064b9fa296844bf118f0ab97fd602"
+    },
+    {
+      "family": "point_atlas",
+      "backdrop": "#fafafa",
+      "colors": [
+        "#172adb",
+        "#db792b"
+      ],
+      "detail": 2.0,
+      "clock": 8.0,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "f99e201931fcaeaf0cd66154fd96927d9d2bf02b8283370fd32569e942646225"
+    },
+    {
+      "family": "point_atlas",
+      "backdrop": "#fafafa",
+      "colors": [
+        "#172adb",
+        "#db792b"
+      ],
+      "detail": 2.0,
+      "clock": 11.5,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "a2ca26e29e4bb6bd8dcfba52161b6f59458064b9fa296844bf118f0ab97fd602"
+    },
+    {
+      "family": "point_atlas",
+      "backdrop": "#101418",
+      "colors": [
+        "#ff0000",
+        "#00ffff"
+      ],
+      "detail": 1.0,
+      "clock": 8.0,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "1e52dba8c72ef70aedab164f7c88c5c468859ef119b2b7144dced1b07c26b2f3"
+    },
+    {
+      "family": "point_atlas",
+      "backdrop": "#101418",
+      "colors": [
+        "#ff0000",
+        "#00ffff"
+      ],
+      "detail": 1.0,
+      "clock": 11.5,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "897819555580ad80a20c23968444a05392253030d86e23622364a41f152fc7bf"
+    },
+    {
+      "family": "point_atlas",
+      "backdrop": "#101418",
+      "colors": [
+        "#ff0000",
+        "#00ffff"
+      ],
+      "detail": 2.0,
+      "clock": 8.0,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "1e52dba8c72ef70aedab164f7c88c5c468859ef119b2b7144dced1b07c26b2f3"
+    },
+    {
+      "family": "point_atlas",
+      "backdrop": "#101418",
+      "colors": [
+        "#ff0000",
+        "#00ffff"
+      ],
+      "detail": 2.0,
+      "clock": 11.5,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "897819555580ad80a20c23968444a05392253030d86e23622364a41f152fc7bf"
+    },
+    {
+      "family": "impulse_lens",
+      "backdrop": "#101418",
+      "colors": null,
+      "detail": 1.0,
+      "clock": 8.0,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "3d500c558fe84f76ed68f6431b8c7e8fa2ded4bb8c58e3d267f26ebef1ed83e8"
+    },
+    {
+      "family": "impulse_lens",
+      "backdrop": "#101418",
+      "colors": null,
+      "detail": 1.0,
+      "clock": 11.5,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "c35029a9dcd68cf40f2b7bf779d288f47a97abc8c0034cc4f520d9324009012e"
+    },
+    {
+      "family": "impulse_lens",
+      "backdrop": "#101418",
+      "colors": null,
+      "detail": 2.0,
+      "clock": 8.0,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "3d500c558fe84f76ed68f6431b8c7e8fa2ded4bb8c58e3d267f26ebef1ed83e8"
+    },
+    {
+      "family": "impulse_lens",
+      "backdrop": "#101418",
+      "colors": null,
+      "detail": 2.0,
+      "clock": 11.5,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "c35029a9dcd68cf40f2b7bf779d288f47a97abc8c0034cc4f520d9324009012e"
+    },
+    {
+      "family": "impulse_lens",
+      "backdrop": "#fafafa",
+      "colors": [
+        "#172adb",
+        "#db792b"
+      ],
+      "detail": 1.0,
+      "clock": 8.0,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "0b01225454f7e598ddd9deee0aa34aad6d5a468bbe9893c4413d67335b5d48be"
+    },
+    {
+      "family": "impulse_lens",
+      "backdrop": "#fafafa",
+      "colors": [
+        "#172adb",
+        "#db792b"
+      ],
+      "detail": 1.0,
+      "clock": 11.5,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "246029e8b0cb95e381211e6c75fccd610abdf68b192b6d2ab2d90a95195fbde9"
+    },
+    {
+      "family": "impulse_lens",
+      "backdrop": "#fafafa",
+      "colors": [
+        "#172adb",
+        "#db792b"
+      ],
+      "detail": 2.0,
+      "clock": 8.0,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "0b01225454f7e598ddd9deee0aa34aad6d5a468bbe9893c4413d67335b5d48be"
+    },
+    {
+      "family": "impulse_lens",
+      "backdrop": "#fafafa",
+      "colors": [
+        "#172adb",
+        "#db792b"
+      ],
+      "detail": 2.0,
+      "clock": 11.5,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "246029e8b0cb95e381211e6c75fccd610abdf68b192b6d2ab2d90a95195fbde9"
+    },
+    {
+      "family": "impulse_lens",
+      "backdrop": "#101418",
+      "colors": [
+        "#ff0000",
+        "#00ffff"
+      ],
+      "detail": 1.0,
+      "clock": 8.0,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "4a9d871ab4f5b9d59495d3289856d66bcb89ae50827c8c39f4487dfbe10ab837"
+    },
+    {
+      "family": "impulse_lens",
+      "backdrop": "#101418",
+      "colors": [
+        "#ff0000",
+        "#00ffff"
+      ],
+      "detail": 1.0,
+      "clock": 11.5,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "d7cef056e3f52685ebcb2e7e9b8cf053f44dfdc96d3b447669df5ae210c9f400"
+    },
+    {
+      "family": "impulse_lens",
+      "backdrop": "#101418",
+      "colors": [
+        "#ff0000",
+        "#00ffff"
+      ],
+      "detail": 2.0,
+      "clock": 8.0,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "4a9d871ab4f5b9d59495d3289856d66bcb89ae50827c8c39f4487dfbe10ab837"
+    },
+    {
+      "family": "impulse_lens",
+      "backdrop": "#101418",
+      "colors": [
+        "#ff0000",
+        "#00ffff"
+      ],
+      "detail": 2.0,
+      "clock": 11.5,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "d7cef056e3f52685ebcb2e7e9b8cf053f44dfdc96d3b447669df5ae210c9f400"
+    },
+    {
+      "family": "genetic_advection",
+      "backdrop": "#101418",
+      "colors": null,
+      "detail": 1.0,
+      "clock": 8.0,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "ea1ac6d002776c7b42288c02a14c35a224b0d2a497b4a0b056c217e3320b38cb"
+    },
+    {
+      "family": "genetic_advection",
+      "backdrop": "#101418",
+      "colors": null,
+      "detail": 1.0,
+      "clock": 11.5,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "1208032c528c0b2fe2d77bcc0e56050131c1e310b8c846b5487e012c95b69c59"
+    },
+    {
+      "family": "genetic_advection",
+      "backdrop": "#101418",
+      "colors": null,
+      "detail": 2.0,
+      "clock": 8.0,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "ea1ac6d002776c7b42288c02a14c35a224b0d2a497b4a0b056c217e3320b38cb"
+    },
+    {
+      "family": "genetic_advection",
+      "backdrop": "#101418",
+      "colors": null,
+      "detail": 2.0,
+      "clock": 11.5,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "1208032c528c0b2fe2d77bcc0e56050131c1e310b8c846b5487e012c95b69c59"
+    },
+    {
+      "family": "genetic_advection",
+      "backdrop": "#fafafa",
+      "colors": [
+        "#172adb",
+        "#db792b"
+      ],
+      "detail": 1.0,
+      "clock": 8.0,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "7a0317bd33d5445b83c2f2da0bc86dc07beb9a84037a659eb78c0c7c76b82804"
+    },
+    {
+      "family": "genetic_advection",
+      "backdrop": "#fafafa",
+      "colors": [
+        "#172adb",
+        "#db792b"
+      ],
+      "detail": 1.0,
+      "clock": 11.5,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "a017333a9cc214908dcba51470b1059f6269773ab0aefbf6698fb66a03296b16"
+    },
+    {
+      "family": "genetic_advection",
+      "backdrop": "#fafafa",
+      "colors": [
+        "#172adb",
+        "#db792b"
+      ],
+      "detail": 2.0,
+      "clock": 8.0,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "7a0317bd33d5445b83c2f2da0bc86dc07beb9a84037a659eb78c0c7c76b82804"
+    },
+    {
+      "family": "genetic_advection",
+      "backdrop": "#fafafa",
+      "colors": [
+        "#172adb",
+        "#db792b"
+      ],
+      "detail": 2.0,
+      "clock": 11.5,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "a017333a9cc214908dcba51470b1059f6269773ab0aefbf6698fb66a03296b16"
+    },
+    {
+      "family": "genetic_advection",
+      "backdrop": "#101418",
+      "colors": [
+        "#ff0000",
+        "#00ffff"
+      ],
+      "detail": 1.0,
+      "clock": 8.0,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "8a201e3acac908a9a9480b0916c2a17bb2edaa46c04ce122028aefeec2fcf477"
+    },
+    {
+      "family": "genetic_advection",
+      "backdrop": "#101418",
+      "colors": [
+        "#ff0000",
+        "#00ffff"
+      ],
+      "detail": 1.0,
+      "clock": 11.5,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "e1962abffe2ffef9925abd0554e7893b4e8ad1d96266fa9b7a8b0afd780694f3"
+    },
+    {
+      "family": "genetic_advection",
+      "backdrop": "#101418",
+      "colors": [
+        "#ff0000",
+        "#00ffff"
+      ],
+      "detail": 2.0,
+      "clock": 8.0,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "8a201e3acac908a9a9480b0916c2a17bb2edaa46c04ce122028aefeec2fcf477"
+    },
+    {
+      "family": "genetic_advection",
+      "backdrop": "#101418",
+      "colors": [
+        "#ff0000",
+        "#00ffff"
+      ],
+      "detail": 2.0,
+      "clock": 11.5,
+      "display": [
+        3840,
+        2160
+      ],
+      "byte_identical": true,
+      "pixel_sha256": "e1962abffe2ffef9925abd0554e7893b4e8ad1d96266fa9b7a8b0afd780694f3"
+    }
+  ],
+  "paired_warm_performance": [
+    {
+      "family": "point_atlas",
+      "display": [
+        3840,
+        2160
+      ],
+      "inputs": 233453,
+      "shade_median_ms": [
+        37.114021499291994,
+        30.804816997260787
+      ],
+      "shade_p95_ms": [
+        51.909572997828946,
+        41.09196100034751
+      ],
+      "point_material_median_ms": [
+        18.54189400182804,
+        11.65053249860648
+      ],
+      "point_material_p95_ms": [
+        29.504493009881116,
+        16.857711991178803
+      ]
+    },
+    {
+      "family": "impulse_lens",
+      "display": [
+        3840,
+        2160
+      ],
+      "inputs": 131104,
+      "shade_median_ms": [
+        49.16741249326151,
+        34.22098950250074
+      ],
+      "shade_p95_ms": [
+        72.07527999707963,
+        57.993672002339736
+      ],
+      "point_material_median_ms": [
+        16.266386504867114,
+        7.702483002503868
+      ],
+      "point_material_p95_ms": [
+        31.06762700190302,
+        18.536044008214958
+      ]
+    },
+    {
+      "family": "genetic_advection",
+      "display": [
+        3840,
+        2160
+      ],
+      "inputs": 408000,
+      "shade_median_ms": [
+        21.753600500233006,
+        21.184270008234307
+      ],
+      "shade_p95_ms": [
+        33.59918500063941,
+        33.01225400355179
+      ],
+      "point_material_median_ms": [
+        8.041422493988648,
+        8.133270501275547
+      ],
+      "point_material_p95_ms": [
+        14.152086005196907,
+        11.959971991018392
+      ]
+    }
+  ],
+  "max_rss_kib": 645584,
+  "scope": "exact CPU uint32 scatter; same samples, lookups, kernels, resolution; no fastmath"
+}

@@ -1163,6 +1163,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('mask_gpu_indices', '')
     settings.setdefault('watch_folder', False)
     settings.setdefault('watch_pipeline', 'mask')
+    settings.setdefault('watch_normalization_pool', 'per_field')
     settings.setdefault('watch_measure_settings', '')
     settings.setdefault('watch_classify_settings', '')
     settings.setdefault('watch_settle_seconds', 10.0)
@@ -3464,6 +3465,7 @@ expected_types = {
     "mask_gpu_indices": str,
     "watch_folder": bool,
     "watch_pipeline": str,
+    "watch_normalization_pool": str,
     "watch_measure_settings": str,
     "watch_classify_settings": str,
     "watch_settle_seconds": float,
@@ -4749,6 +4751,7 @@ tooltips = {
     "mask_gpu_indices": "(str) - GPUs used when mask_parallel is on, as comma-separated numbers such as 0,1. Blank uses every GPU the process can see, which on a cluster means the GPUs allocated to the job; with fewer than two the run uses one device. Default blank.",
     "watch_folder": "(bool) - Watch src and analyse each field as its images arrive. A file must stop changing for watch_settle_seconds and read whole. A fixed conversion_map.csv requires every declared companion. Without a map, known numeric filename conventions require every channel from the documented first ID through the highest selected position; custom or named channels need a fixed map. Each field runs alone, like batch_size 1, and results collect in src/spacr_watch; its ledger skips completed fields on restart. Not for timelapse, z_stack or t_stack. Default False.",
     "watch_pipeline": "(str) - What watch_folder runs on each arriving field. 'mask' runs Make Masks; 'mask_measure' adds Measure; 'mask_measure_classify' also applies a saved CV model to measured objects. Results gather in src/spacr_watch/measurements/measurements.db. Default 'mask'.",
+    "watch_normalization_pool": "(str) - 'per_field' analyses arriving fields independently. 'fixed_map' waits for every image declared in conversion_map.csv, then runs the ordinary static projected v1 Mask or Mask/Measure batch pipeline with shared legacy percentile normalization and padding. Requires randomize False and batch_size greater than 1. Incomplete cohorts remain waiting; timeouts never release partial pools. Membership, recipes and original input hashes bind one restart-safe checkpoint. Default 'per_field'.",
     "watch_measure_settings": "(str) - A Measure settings file (.csv or .json, as the Measure screen saves them) used by watch_pipeline 'mask_measure' and 'mask_measure_classify' for every field. Blank uses Measure's defaults with this run's channels. Default blank.",
     "watch_classify_settings": "(str) - A saved Classify settings file for the mask_measure_classify watch pipeline. It must select CV inference from an existing model_path, with crop_source merged, apply_model_to_dataset on, and train, test and generate_training_dataset off. The model is copied once for the watch, and predicted classes and scores join the combined measurements database. Default blank.",
     "watch_settle_seconds": "(float) - How long an image must keep the same size and modification time before watch_folder reads it, so a file the microscope is still writing is not taken half-written. Raise it for slow network shares. Default 10.",
@@ -5666,7 +5669,7 @@ categories = {
         "qc_plot_max_panels",
     ],
 
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "watch_folder", "watch_pipeline", "watch_measure_settings", "watch_classify_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "microscope_feedback", "microscope_driver", "microscope_simulated_folder", "microscope_positions", "microscope_stage_transform", "microscope_event_table", "microscope_event_query", "microscope_max_events", "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "ram_guard", "gpu", "mask_parallel", "mask_gpu_indices", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "watch_folder", "watch_pipeline", "watch_normalization_pool", "watch_measure_settings", "watch_classify_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "microscope_feedback", "microscope_driver", "microscope_simulated_folder", "microscope_positions", "microscope_stage_transform", "microscope_event_table", "microscope_event_query", "microscope_max_events", "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "ram_guard", "gpu", "mask_parallel", "mask_gpu_indices", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
 
     "3D Settings (Beta)": [
         "z_stack", "z_segmentation_mode", "z_axis", "z_projection",
@@ -7393,7 +7396,7 @@ ALPHA_FEATURES = {
                      'profiling_phenotype_column', 'profiling_databases'),
     },
     548: {
-        'settings': ('watch_folder', 'watch_pipeline', 'watch_measure_settings',
+        'settings': ('watch_folder', 'watch_pipeline', 'watch_normalization_pool', 'watch_measure_settings',
                      'watch_classify_settings',
                      'watch_settle_seconds', 'watch_poll_seconds',
                      'watch_idle_minutes'),

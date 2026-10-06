@@ -208,7 +208,9 @@ def preprocess_generate_masks(settings):
           ``watch_measure_settings``, ``watch_settle_seconds``,
           ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather
           in ``src/spacr_watch``, and a record there lets a restarted watch
-          skip the fields already analysed.
+          skip the fields already analysed. ``watch_normalization_pool='fixed_map'``
+          instead waits for the entire declared static acquisition and retains
+          the ordinary batch recipe's shared normalization and padding.
         - ``microscope_feedback`` — during a ``watch_folder`` run with
           ``watch_pipeline='mask_measure'``, send the objects matching
           ``microscope_event_query`` back to the microscope named by
@@ -1143,6 +1145,62 @@ def _watch_volume_plan(src, settings, manifest, map_sha256):
     return result
 
 
+def _watch_native_series_plan(src, settings, manifest, map_sha256):
+    """Scope a complete fixed Convert time-volume map to independent fields.
+
+    :param src: watched acquisition directory containing the immutable map.
+    :param settings: explicit native TZYX Mask settings.
+    :param manifest: validated whole-series field-to-target inventory.
+    :param map_sha256: SHA256 of the complete acquisition map.
+    :returns: per-field map bytes and exact source, stack and output names.
+    :raises ValueError: for changed maps or incomplete native volume series.
+    """
+    import csv
+    import hashlib
+    import io
+
+    from .io import _escaped_field_stem
+    from .object_roles import ORGANELLE_ROLES
+
+    data = _watch_map_bytes(src)
+    if data is None or hashlib.sha256(data).hexdigest() != map_sha256:
+        raise ValueError('watch_folder: conversion_map.csv changed during native series preflight.')
+    reader = csv.DictReader(io.StringIO(data.decode('utf-8-sig')))
+    rows = list(reader)
+    plan = {}
+    for key, names in manifest.items():
+        selected = [row for row in rows if row['target'] in names]
+        times = {int(row['t']) for row in selected}
+        planes = {int(row['z']) for row in selected}
+        channels = {int(row['channel']) for row in selected}
+        roles = ('nucleus_channel', 'cell_channel', 'pathogen_channel',
+                 *(f'{role}_channel' for role in ORGANELLE_ROLES))
+        selected_channels = [settings.get(role) for role in roles
+                             if settings.get(role) is not None]
+        if (not selected_channels or any(type(index) is not int or index < 0
+                or index >= len(channels) for index in selected_channels)):
+            raise ValueError('watch_folder: native series object channels must '
+                             'index the complete mapped channel list.')
+        if len(times) < 2 or len(planes) < 2:
+            raise ValueError('watch_folder: native series needs at least two mapped '
+                             'timepoints and Z planes per field.')
+        field = selected[0]
+        identity = (field['plate'], field['well'], int(field['field']))
+        output = io.StringIO(newline='')
+        writer = csv.DictWriter(output, fieldnames=reader.fieldnames, lineterminator='\n')
+        writer.writeheader()
+        writer.writerows(selected)
+        scoped = output.getvalue().encode('utf-8')
+        stem = _escaped_field_stem(*identity, '')
+        plan[key] = {
+            'names': sorted(names), 'map_bytes': scoped,
+            'map_sha256': hashlib.sha256(scoped).hexdigest(),
+            'stacks': sorted(_escaped_field_stem(*identity, t) + '.npy' for t in times),
+            'archive': stem + 'norm_timelapse.npz',
+        }
+    return plan
+
+
 def _watch_stage_volumes(field_dir, plan):
     """Assemble checked planar snapshots into explicit ZYX TIFF inputs.
 
@@ -1357,6 +1415,8 @@ def _watch_analyse_field(field_dir, settings):
     run = {key: value for key, value in settings.items()
            if not str(key).startswith('watch_')}
     run.update(src=field_dir, consolidate=False, dry_run=False, test_mode=False)
+    if _watch_truthy(run.get('t_stack', False)):
+        run.update(keep_intermediate=True, delete_intermediate=False)
     preprocess_generate_masks(run)
     merged = os.path.join(field_dir, 'merged')
     if not os.path.isdir(merged) or not _overlay_candidates(merged):
@@ -1437,6 +1497,8 @@ def _watch_mask_recipe(settings):
     recipe = {key: value for key, value in settings.items()
               if not str(key).startswith('watch_') and key != 'src'}
     recipe.update(consolidate=False, dry_run=False, test_mode=False)
+    if _watch_truthy(settings.get('t_stack', False)):
+        recipe.update(keep_intermediate=True, delete_intermediate=False)
     recipe = deepcopy(recipe)
     try:
         encoded = json.dumps(recipe, sort_keys=True, separators=(',', ':'),
@@ -1676,13 +1738,15 @@ def _watch_artifact_sha256(path):
 
 
 def _watch_collection_artifacts(field_dir, *, volume_plan=None,
-                                snapshots=None, derived=None):
+                                snapshots=None, derived=None,
+                                native_series_plan=None):
     """Fingerprint outputs and native-volume inputs at the collection boundary.
 
     :param field_dir: completed field staging directory.
     :param volume_plan: expected source and derived names for a native Z field.
     :param snapshots: source-plane SHA256 values recorded before analysis.
     :param derived: assembled-volume SHA256 values recorded before analysis.
+    :param native_series_plan: exact native T-by-Z source and output inventory.
     :returns: relative artifact paths mapped to SHA256 values.
     :raises ValueError: when no usable outputs exist or an output is unsafe.
     """
@@ -1715,12 +1779,69 @@ def _watch_collection_artifacts(field_dir, *, volume_plan=None,
         if source_hashes != expected_snapshots or volume_hashes != derived:
             raise ValueError('Collection native Z inputs changed after the '
                              'field snapshot or volume assembly.')
+    if native_series_plan is not None:
+        import json
+
+        names = set(native_series_plan['names'])
+        sources = {name for name in os.listdir(field_dir)
+                   if name.lower().endswith(('.tif', '.tiff'))}
+        if sources != names:
+            raise ValueError('Collection native series planes differ from the fixed map.')
+        for name in sorted(names):
+            artifacts[name] = _watch_artifact_sha256(os.path.join(field_dir, name))
+        if {name: artifacts[name] for name in names} != snapshots:
+            raise ValueError('Collection native series planes changed after snapshot.')
+        artifacts['conversion_map.csv'] = _watch_artifact_sha256(
+            os.path.join(field_dir, 'conversion_map.csv'))
+        if artifacts['conversion_map.csv'] != native_series_plan['map_sha256']:
+            raise ValueError('Collection native series scoped map changed.')
+        for folder, expected in (('stack', set(native_series_plan['stacks'])),
+                                 ('masks', {native_series_plan['archive']})):
+            directory = os.path.join(field_dir, folder)
+            if os.path.islink(directory) or not os.path.isdir(directory):
+                raise ValueError(f'Collection native series {folder} is unsafe or missing.')
+            suffix = '.npy' if folder == 'stack' else '.npz'
+            if {name for name in os.listdir(directory) if name.endswith(suffix)} != expected:
+                raise ValueError(f'Collection native series {folder} inventory changed.')
+            for root, directories, files in os.walk(directory, followlinks=False):
+                if any(os.path.islink(os.path.join(root, name))
+                       for name in directories):
+                    raise ValueError(f'Collection native series {folder} contains a linked directory.')
+                for name in sorted(files):
+                    path = os.path.join(root, name)
+                    relative = os.path.relpath(path, field_dir)
+                    artifacts[relative] = _watch_artifact_sha256(path)
+        receipt_path = os.path.join(field_dir, 'stack',
+                                    '.spacr_volume_series_ingest.json')
+        with open(receipt_path, encoding='utf-8') as handle:
+            content = handle.read(16 * 1024 * 1024 + 1)
+        if len(content) > 16 * 1024 * 1024:
+            raise ValueError('Collection native series receipt exceeds 16 MiB.')
+        receipt = json.loads(content)
+        if (receipt.get('version') != 1 or receipt.get('axes') != 'TZYXC'
+                or receipt.get('map_sha256') != native_series_plan['map_sha256']
+                or set(receipt.get('inputs', {})) != names
+                or any(receipt['inputs'][name].get('sha256') != snapshots[name]
+                       for name in names)
+                or set(receipt.get('stacks', {})) != set(native_series_plan['stacks'])
+                or set(receipt.get('archives', {})) != {native_series_plan['archive']}):
+            raise ValueError('Collection native series receipt disagrees with field inputs.')
+        if any(receipt['stacks'][name] != artifacts[os.path.join('stack', name)]
+               for name in native_series_plan['stacks']) or (
+                receipt['archives'][native_series_plan['archive']]
+                != artifacts[os.path.join('masks', native_series_plan['archive'])]):
+            raise ValueError('Collection native series receipt outputs changed.')
     input_count = len(artifacts)
     merged = os.path.join(field_dir, 'merged')
     if os.path.isdir(merged):
         for name in sorted(os.listdir(merged)):
             relative = os.path.join('merged', name)
             artifacts[relative] = _watch_artifact_sha256(os.path.join(field_dir, relative))
+    if native_series_plan is not None and {
+            os.path.basename(name) for name in artifacts
+            if os.path.dirname(name) == 'merged' and name.endswith('.npy')
+            } != set(native_series_plan['stacks']):
+        raise ValueError('Collection native series per-time merged inventory is incomplete.')
     tracks = os.path.join(field_dir, 'tracks')
     if os.path.lexists(tracks) and (os.path.islink(tracks) or not os.path.isdir(tracks)):
         raise ValueError('Collection tracks output must be a regular directory.')
@@ -1787,7 +1908,8 @@ def _watch_snapshot_database(field_dir):
 
 
 def _watch_validate_collection(field_dir, work, saved, *, verify_staged,
-                               volume_plan=None, snapshots=None, derived=None):
+                               volume_plan=None, snapshots=None, derived=None,
+                               native_series_plan=None):
     """Refuse altered checkpoints or conflicting combined files before writes.
 
     :param field_dir: completed field staging directory.
@@ -1797,12 +1919,13 @@ def _watch_validate_collection(field_dir, work, saved, *, verify_staged,
     :param volume_plan: fixed native Z source-to-volume plan, when enabled.
     :param snapshots: original mapped plane hashes bound before analysis.
     :param derived: derived volume hashes bound before analysis.
+    :param native_series_plan: exact native T-by-Z source/output inventory.
     :returns: None when collection can safely continue.
     :raises ValueError: for missing/changed outputs or conflicting combined files.
     """
     if verify_staged and _watch_collection_artifacts(
             field_dir, volume_plan=volume_plan, snapshots=snapshots,
-            derived=derived) != saved:
+            derived=derived, native_series_plan=native_series_plan) != saved:
         raise ValueError('Collection checkpoint artifacts changed; preserved outputs '
                          'must be recovered before resuming this workspace.')
     tracks_target = os.path.join(work, 'tracks')
@@ -1836,8 +1959,8 @@ def _watch_check_settings(settings):
     :param settings: the watch run settings.
     :returns: ``(src, pipeline, settle seconds, poll seconds, idle seconds)``.
     :raises ValueError: for a list of folders, a missing folder, an unknown
-        ``watch_pipeline``, a bad number, t-stack or unsupported Z recipe.
-        Timelapse and native Z require a complete fixed Convert map later.
+        ``watch_pipeline``, a bad number or an unsupported T/Z recipe.
+        Timelapse and native volumes require a complete fixed Convert map later.
     """
     from .utils import normalize_src_path
 
@@ -1850,12 +1973,15 @@ def _watch_check_settings(settings):
     src = os.path.abspath(os.path.expanduser(str(src)))
     if not os.path.isdir(src):
         raise ValueError(f'watch_folder: the folder {src} does not exist.')
-    if _watch_truthy(settings.get('t_stack', False)):
-        raise ValueError('watch_folder does not support t_stack runs.')
+    native_series = _watch_truthy(settings.get('t_stack', False))
+    if native_series and (not _watch_truthy(settings.get('z_stack', False))
+                          or _watch_truthy(settings.get('timelapse', False))):
+        raise ValueError('watch_folder t_stack native T volumes require z_stack=True and '
+                         'timelapse=False; projected tracking is a separate mode.')
     if _watch_truthy(settings.get('z_stack', False)):
         if (_watch_truthy(settings.get('timelapse', False))
                 or settings.get('z_segmentation_mode') != 'volumetric'
-                or settings.get('z_axis', 0) not in (None, 0)):
+                or (not native_series and settings.get('z_axis', 0) not in (None, 0))):
             raise ValueError('watch_folder z_stack requires a T1 volumetric '
                              'recipe with z_axis=0.')
     pipeline = str(settings.get('watch_pipeline') or 'mask')
@@ -1966,7 +2092,7 @@ def _watch_defer_snapshot(key, members, field_dir, context):
         if name in context['seen']:
             context['seen'][name].update(signature=None, identity=None,
                                          changed=now, readable=False)
-    context['ledger']['fields'][key].update(
+    context.get('analysis_entries', context['ledger']['fields'])[key].update(
         status='waiting', finished=now,
         error='Source files changed while preparing the field snapshot; waiting again.')
     _watch_save_ledger(context['ledger_path'], context['ledger'])
@@ -1992,7 +2118,7 @@ def _watch_run_field(key, members, signature, context):
     _watch_check_map(context)
     seen, ledger = context['seen'], context['ledger']
     arrived = max(seen[name]['changed'] for name, _channel in members)
-    entry = ledger['fields'].setdefault(key, {})
+    entry = context.get('analysis_entries', ledger['fields']).setdefault(key, {})
     saved_collection = entry.get('collection_checkpoint')
     if saved_collection is None:
         entry.pop('snapshot_sha256', None)
@@ -2007,6 +2133,8 @@ def _watch_run_field(key, members, signature, context):
     _watch_save_ledger(context['ledger_path'], ledger)
     field_dir = os.path.join(context['work'], 'fields', key)
     volume_plan = context.get('volume_plan')
+    native_series_plan = context.get('native_series_plan')
+    series_field = native_series_plan[key] if native_series_plan is not None else None
     try:
         identities = {name: seen[name].get('identity') for name, _channel in members}
         if saved_collection is not None:
@@ -2037,6 +2165,14 @@ def _watch_run_field(key, members, signature, context):
                 _watch_defer_snapshot(key, members, field_dir, context)
                 return
             _watch_check_map(context)
+            if series_field is not None:
+                from .convert import MAP_FILENAME
+
+                with open(os.path.join(field_dir, MAP_FILENAME), 'xb') as handle:
+                    handle.write(series_field['map_bytes'])
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                _watch_check_map(context)
             derived = (_watch_stage_volumes(field_dir, volume_plan[key])
                        if volume_plan is not None else None)
             entry.update(snapshot_sha256=snapshots, source_identity=identities)
@@ -2048,7 +2184,8 @@ def _watch_run_field(key, members, signature, context):
             entry['collection_checkpoint'] = {
                 'artifacts': _watch_collection_artifacts(
                     field_dir, volume_plan=volume_plan[key] if volume_plan else None,
-                    snapshots=snapshots, derived=derived),
+                    snapshots=snapshots, derived=derived,
+                    native_series_plan=series_field),
                 'analysis_seconds': time.time() - entry['started']}
             _watch_save_ledger(context['ledger_path'], ledger)
         collection_started = time.time()
@@ -2057,7 +2194,8 @@ def _watch_run_field(key, members, signature, context):
             verify_staged=saved_collection is not None,
             volume_plan=volume_plan[key] if volume_plan else None,
             snapshots=entry.get('snapshot_sha256'),
-            derived=entry.get('derived_sha256'))
+            derived=entry.get('derived_sha256'),
+            native_series_plan=series_field)
         _watch_check_map(context)
         database_relative = os.path.join('.watch_collection', 'measurements.db')
         database_snapshot = (os.path.join(field_dir, database_relative)
@@ -2672,6 +2810,175 @@ def _microscope_feedback(key, field_dir, context):
               f'{type(exc).__name__}: {exc}')
 
 
+def _watch_closed_pool_spec(settings, manifest, map_sha256, mask_sha256, measure_sha256=None):
+    """Bind one finite acquisition to the unchanged legacy batch pipeline.
+
+    A closed pool waits for the entire fixed Convert map. It never estimates
+    future members or releases a partial percentile pool at an idle timeout.
+    Randomized order and streaming/native/time-series recipes are outside
+    this static projected v1 subset; their ordinary watch paths remain intact.
+    """
+    import hashlib
+    import json
+
+    mode = str(settings.get('watch_normalization_pool') or 'per_field')
+    if mode == 'per_field':
+        return None
+    if mode != 'fixed_map':
+        raise ValueError('watch_normalization_pool must be per_field or fixed_map.')
+    if manifest is None:
+        raise ValueError('watch_folder: fixed_map normalization needs a finite '
+                         'conversion_map.csv; an open-ended pool is not supported.')
+    if (any(_watch_truthy(settings.get(key, False))
+            for key in ('timelapse', 'z_stack', 'microscope_feedback'))
+            or str(settings.get('pipeline_style') or 'v1') != 'v1'
+            or settings.get('watch_pipeline', 'mask') not in ('mask', 'mask_measure')):
+        raise ValueError('watch_folder: fixed_map normalization supports static '
+                         'projected v1 Mask or Mask/Measure without feedback.')
+    if settings.get('randomize') is not False:
+        raise ValueError('watch_folder: fixed_map normalization requires explicit '
+                         'randomize=False for deterministic legacy batch order.')
+    batch_size = settings.get('batch_size', 50)
+    if type(batch_size) is not int or batch_size <= 1:
+        raise ValueError('watch_folder: fixed_map normalization requires an integer '
+                         'batch_size greater than one.')
+    from .io import _escaped_field_stem
+    from .utils import _extract_filename_metadata
+
+    merged_filenames, patterns = {}, {}
+    for field, names in sorted(manifest.items()):
+        stems = set()
+        for name in sorted(names):
+            pattern = _watch_pattern(settings, os.path.splitext(name)[1].lstrip('.'), patterns)
+            if pattern is None or 'plateID' not in pattern.groupindex:
+                raise ValueError('watch_folder: fixed_map normalization requires '
+                                 'filenames declaring their plate identity.')
+            parsed = _extract_filename_metadata(
+                [name], settings['src'], pattern, settings.get('metadata_type', 'cellvoyager'))
+            if sum(map(len, parsed.values())) != 1:
+                raise ValueError('watch_folder: fixed_map normalization cannot '
+                                 'identify every declared legacy batch stack.')
+            stems.update(_escaped_field_stem(key[0], key[1], key[2], key[4])
+                         for key in parsed)
+        if len(stems) != 1:
+            raise ValueError('watch_folder: each mapped field must identify exactly '
+                             'one legacy batch stack for fixed_map normalization.')
+        merged_filenames[field] = stems.pop() + '.npy'
+    if len(set(merged_filenames.values())) != len(merged_filenames):
+        raise ValueError('watch_folder: declared fields collide after legacy '
+                         'batch filename canonicalization.')
+    spec = {'mode': mode, 'field_order': sorted(manifest),
+            'companions': {key: sorted(manifest[key]) for key in sorted(manifest)},
+            'merged_filenames': merged_filenames,
+            'stack_order': sorted(merged_filenames.values()),
+            'batch_size': batch_size, 'conversion_map_sha256': map_sha256,
+            'mask_settings_sha256': mask_sha256,
+            'pipeline': settings.get('watch_pipeline', 'mask'),
+            'measure_settings_sha256': measure_sha256}
+    encoded = json.dumps(spec, sort_keys=True, separators=(',', ':')).encode('utf-8')
+    return {**spec, 'id': 'closed_pool_' + hashlib.sha256(encoded).hexdigest()}
+
+
+def _watch_closed_pool_inputs(src, spec):
+    """Refuse inputs outside the declared cohort instead of silently pooling them."""
+    expected = {name for names in spec['companions'].values() for name in names}
+    observed = _watch_images(src)
+    basenames = [os.path.basename(name) for name in observed]
+    if len(basenames) != len(set(basenames)) or not set(basenames) <= expected:
+        raise ValueError('watch_folder: fixed normalization pool has unexpected or '
+                         'duplicate inputs outside its exact fixed map.')
+
+
+def _watch_closed_pool_resume(context):
+    """Verify complete cohort input and output provenance before resuming writes."""
+    spec = context['normalization_pool']
+    entry = context['ledger'].get('normalization_cohorts', {}).get(spec['id'], {})
+    if entry.get('collection_checkpoint') is None:
+        if (entry.get('status') == 'done'
+                or any(context['ledger']['fields'].get(field, {}).get('status') == 'done'
+                       for field in spec['field_order'])):
+            raise ValueError('watch_folder: completed normalization cohort lacks '
+                             'its collection checkpoint; provenance is unknown.')
+        return
+    expected = {name for names in spec['companions'].values() for name in names}
+    snapshots = entry.get('snapshot_sha256', {})
+    if ({os.path.basename(name) for name in snapshots} != expected
+            or len(snapshots) != len(expected)):
+        raise ValueError('watch_folder: normalization cohort input hashes are '
+                         'incomplete; preserved results cannot be resumed.')
+    observed = set(_watch_images(context['src']))
+    for name, digest in snapshots.items():
+        path = os.path.join(context['src'], name)
+        if (name not in observed
+                or _watch_file_identity(path) != entry.get('source_identity', {}).get(name)
+                or _watch_artifact_sha256(path) != digest):
+            raise ValueError('watch_folder: normalization cohort inputs changed; '
+                             'use a separate workspace. Existing results are preserved.')
+    _watch_validate_collection(
+        os.path.join(context['work'], 'fields', spec['id']), context['work'],
+        entry['collection_checkpoint']['artifacts'], verify_staged=True)
+
+
+def _watch_closed_pool_ready(context, ready):
+    """Release the complete declared cohort once; never release a partial window."""
+    spec = context['normalization_pool']
+    _watch_closed_pool_inputs(context['src'], spec)
+    by_field = {key: (first, members, signature)
+                for first, key, members, signature in ready}
+    if set(by_field) != set(spec['field_order']):
+        return []
+    members = [member for key in spec['field_order'] for member in by_field[key][1]]
+    signature = {name: value for key in spec['field_order']
+                 for name, value in by_field[key][2].items()}
+    if (spec['id'], repr(sorted(signature.items()))) in context['tried']:
+        return []
+    return [(min(value[0] for value in by_field.values()), spec['id'], members, signature)]
+
+
+def _watch_run_closed_pool(key, members, signature, context):
+    """Collect one whole-pool checkpoint while retaining scientific field identities."""
+    spec, ledger = context['normalization_pool'], context['ledger']
+    callback = context['analyse']
+
+    def analyse_pool(directory, settings):
+        from .cancellation import checkpoint
+
+        checkpoint()
+        callback(directory, settings)
+        checkpoint()
+        _watch_closed_pool_inputs(context['src'], spec)
+        identities = ledger['normalization_cohorts'][key]['source_identity']
+        if any(_watch_file_identity(os.path.join(context['src'], name)) != identity
+               for name, identity in identities.items()):
+            raise ValueError('Closed normalization cohort inputs changed during '
+                             'analysis; outputs are not published.')
+        expected = set(spec['merged_filenames'].values())
+        merged = os.path.join(directory, 'merged')
+        if not os.path.isdir(merged) or set(_overlay_candidates(merged)) != expected:
+            raise RuntimeError('Closed normalization cohort did not produce every '
+                               'declared merged field; partial outputs are not published.')
+
+    pooled = {**context, 'analysis_entries': ledger['normalization_cohorts'],
+              'analyse': analyse_pool}
+    try:
+        _watch_run_field(key, members, signature, pooled)
+    finally:
+        unit = ledger['normalization_cohorts'][key]
+        for field in spec['field_order']:
+            names = {name for name, _channel in members
+                     if os.path.basename(name) in spec['companions'][field]}
+            entry = ledger['fields'].setdefault(field, {})
+            entry.update(normalization_cohort=key,
+                         status=unit.get('status', 'waiting'), error=unit.get('error'),
+                         files={name: signature[name] for name in names},
+                         source_identity={name: unit.get('source_identity', {}).get(name)
+                                          for name in names})
+            for timing in ('first_seen', 'stable_since', 'started', 'finished', 'seconds', 'waited'):
+                if timing in unit:
+                    entry[timing] = unit[timing]
+        _watch_save_ledger(context['ledger_path'], ledger)
+
+
 def _watch_folder_and_analyse(settings, analyse=None):
     """Watch an acquisition folder and analyse each field as it arrives.
 
@@ -2694,9 +3001,14 @@ def _watch_folder_and_analyse(settings, analyse=None):
     ``src/spacr_watch/measurements/measurements.db``. The
     ``'mask_measure_classify'`` pipeline also applies a saved CV model and
     collects its per-object predictions in that database. A mapped timelapse
-    also collects its flat track CSVs under ``src/spacr_watch/tracks``. Every field is
-    preprocessed alone, so the result equals a batch run of the same plate
-    with ``batch_size=1``.
+    also collects its flat track CSVs under ``src/spacr_watch/tracks``. Native T-by-Z
+    Mask waits for all mapped planes. Default ``watch_normalization_pool='per_field'``
+    preprocesses fields alone, matching batch size 1. The opt-in ``'fixed_map'``
+    waits for every declared companion before running one static projected v1
+    Mask or Mask/Measure cohort with its unchanged legacy batch size, sorted
+    stack order, shared percentiles and padding. Randomization must be off;
+    idle timeouts never release an incomplete normalization pool. One cohort
+    checkpoint binds its membership, recipes and original input hashes.
 
     ``src/spacr_watch/watch_ledger.json`` records every field with its files,
     when it arrived, started and finished, and whether it succeeded. It is
@@ -2738,11 +3050,39 @@ def _watch_folder_and_analyse(settings, analyse=None):
 
     settings = deepcopy(dict(settings))
     _, mask_sha256 = _watch_mask_recipe(settings)
-    manifest, map_sha256 = _watch_map_manifest(src, settings)
-    series = _watch_truthy(settings.get('timelapse', False))
+    native_series = _watch_truthy(settings.get('t_stack', False))
+    series = _watch_truthy(settings.get('timelapse', False)) or native_series
+    manifest, map_sha256 = _watch_map_manifest(
+        src, {**settings, 'timelapse': True} if native_series else settings)
     native_volume = _watch_truthy(settings.get('z_stack', False))
-    volume_plan = None
-    if native_volume:
+    volume_plan, native_series_plan = None, None
+    if native_series:
+        from .psf_pipeline import processing_requested
+        from .zstack import plan_4d_from_settings
+
+        if (manifest is None or str(settings.get('metadata_type', 'cellvoyager')).lower()
+                != 'cellvoyager' or settings.get('custom_regex') not in (None, '', 'None')):
+            raise ValueError('watch_folder: native T-by-Z requires a fixed Convert '
+                             'map and CellVoyager target names.')
+        if (pipeline != 'mask' or _watch_truthy(settings.get('microscope_feedback', False))
+                or _watch_truthy(settings.get('apply_model_to_dataset', False))
+                or _watch_truthy(settings.get('generate_training_dataset', False))
+                or _watch_truthy(settings.get('real_object_classifier', False))):
+            raise ValueError('watch_folder: native T-by-Z supports Mask only, without '
+                             'Measure, tracking, Classify or feedback.')
+        if (settings.get('test_mode') or settings.get('illumination_correction')
+                or processing_requested(settings) or settings.get('plot')
+                or settings.get('adjust_cells')
+                or settings.get('segmentation_backend', 'cellpose') != 'cellpose'):
+            raise ValueError('watch_folder: native T-by-Z requires plain Cellpose '
+                             'Mask without sampling, plots, adjustment, illumination or PSF.')
+        plan = plan_4d_from_settings(settings)
+        if (plan is None or plan.t_axis != 0 or plan.z_axis != 1
+                or plan.z_mode != 'volumetric' or plan.frame_interval_s is None):
+            raise ValueError('watch_folder: native T-by-Z needs explicit TZYX axes, '
+                             'frame interval and volumetric Z spacing.')
+        native_series_plan = _watch_native_series_plan(src, settings, manifest, map_sha256)
+    if native_volume and not native_series:
         if manifest is None:
             raise ValueError('watch_folder: z_stack requires a fixed Convert '
                              'conversion_map.csv declaring every T1 C x Z plane.')
@@ -2797,10 +3137,17 @@ def _watch_folder_and_analyse(settings, analyse=None):
     if pipeline == 'mask_measure_classify':
         classify_recipe, classify_sha256, classify_model_sha256 = (
             _watch_classify_recipe(settings))
+    normalization_pool = _watch_closed_pool_spec(
+        settings, manifest, map_sha256, mask_sha256, measure_sha256)
+    if normalization_pool is not None:
+        _watch_closed_pool_inputs(src, normalization_pool)
     work = os.path.join(src, _WATCH_DIR)
     os.makedirs(work, exist_ok=True)
     ledger_path = os.path.join(work, _WATCH_LEDGER)
     ledger = _watch_load_ledger(ledger_path, src)
+    if ledger['fields'] and ledger.get('normalization_pool') != normalization_pool:
+        raise ValueError('watch_folder: normalization pool differs or its provenance '
+                         'is unknown; use a separate watch workspace.')
     if ledger['fields'] and ledger.get('pipeline') != pipeline:
         raise ValueError(
             'watch_folder: the saved pipeline differs or is unknown; use a '
@@ -2836,10 +3183,18 @@ def _watch_folder_and_analyse(settings, analyse=None):
     ledger['mask_settings_sha256'] = mask_sha256
     ledger['conversion_map_sha256'] = map_sha256
     ledger['pipeline'] = pipeline
+    if normalization_pool is not None:
+        ledger['normalization_pool'] = normalization_pool
+        cohorts = ledger.setdefault('normalization_cohorts', {})
+        if set(cohorts) - {normalization_pool['id']}:
+            raise ValueError('watch_folder: saved normalization cohort membership is unknown.')
+        cohorts.setdefault(normalization_pool['id'], {'status': 'waiting'})
+        for field in normalization_pool['field_order']:
+            ledger['fields'].setdefault(field, {'status': 'waiting',
+                                               'normalization_cohort': normalization_pool['id']})
     for entry in ledger['fields'].values():
         if entry.get('status') == 'running':
             entry['status'] = 'interrupted'
-    _watch_save_ledger(ledger_path, ledger)
     context = {'src': src, 'work': work, 'ledger': ledger,
                'ledger_path': ledger_path, 'settings': settings,
                'analyse': analyse or _watch_analyse_field, 'settle': settle,
@@ -2849,8 +3204,13 @@ def _watch_folder_and_analyse(settings, analyse=None):
                'patterns': {}, 'tried': set(), 'warned': set(),
                'manifest': manifest, 'map_sha256': map_sha256,
                'volume_plan': volume_plan,
+               'native_series_plan': native_series_plan,
                'series': series,
+               'normalization_pool': normalization_pool,
                'microscope': None}
+    if normalization_pool is not None:
+        _watch_closed_pool_resume(context)
+    _watch_save_ledger(ledger_path, ledger)
     if _watch_truthy(settings.get('microscope_feedback', False)):
         context.update(positions=_microscope_positions(settings),
                        matrix=_microscope_matrix(settings))
@@ -2874,12 +3234,24 @@ def _watch_folder_and_analyse(settings, analyse=None):
                 last_change = now
             ready, waiting = _watch_ready_fields(context, now)
             line = _watch_status_line(ledger, waiting)
+            if normalization_pool is not None:
+                ready_count = len(ready)
+                ready = _watch_closed_pool_ready(context, ready)
+                total = len(normalization_pool['field_order'])
+                if ledger['normalization_cohorts'][normalization_pool['id']].get('status') == 'done':
+                    line += f'; closed normalization cohort complete: {total}/{total} fields'
+                else:
+                    line += (f'; closed normalization cohort: {ready_count}/{total} '
+                             'fields ready; all declared fields are required before analysis')
             if line != last_line:
                 print(line)
                 last_line = line
             for _first, key, members, signature in ready:
                 checkpoint()
-                _watch_run_field(key, members, signature, context)
+                if normalization_pool is None:
+                    _watch_run_field(key, members, signature, context)
+                else:
+                    _watch_run_closed_pool(key, members, signature, context)
                 last_change = time.time()
             if ready:
                 continue

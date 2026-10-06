@@ -1,0 +1,21 @@
+{
+  "base": "9e023dd6f8ccdaff8ae3a42cce7dd41c1d385046",
+  "source_sha256": "5c7bb2ea4072381cb06132ee79ca46bd043ec504104044086d5db26606607625",
+  "trace_inputs": [
+    "coverage-final.json: frozen-source 53 cases",
+    "coverage-core-final.json: same-source 37 cases"
+  ],
+  "new_executable_statements": 128,
+  "new_executed_statements": 128,
+  "missing_added_lines": [],
+  "executed_touching_branch_arcs": 70,
+  "missing_touching_branch_arcs": [],
+  "tests": {
+    "broader_watch_native_T1_timelapse_checkpoint": 176,
+    "final_cohort_default_alpha": 53,
+    "additional_final_cohort": 37,
+    "source_hygiene_alpha_registry_settings_types": 54
+  },
+  "cuda_visible_devices": "",
+  "memory_cap_gib": 4
+}

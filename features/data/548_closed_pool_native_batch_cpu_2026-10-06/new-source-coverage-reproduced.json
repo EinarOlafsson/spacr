@@ -1,0 +1,15 @@
+{
+  "source_commit": "8409ff7c30a4f35ab5e92a83dee9c90e250d925e",
+  "source_sha256": "5c7bb2ea4072381cb06132ee79ca46bd043ec504104044086d5db26606607625",
+  "source_artifact": "core-source-8409ff7c3.py.gz",
+  "diff_artifact": "core-diff-8409ff7c3.patch.gz",
+  "trace_inputs_sha256": {
+    "coverage-final.json": "f4ad831b3e11722a674c327f4e1d47dea13cb4e71a55f6bb66f23985b06fb9ba",
+    "coverage-core-final.json": "9d746937df63efab9a9510d88f15b14780a409849a70d83e89b3e24e31c3594d"
+  },
+  "new_executable_statements": 128,
+  "new_executed_statements": 128,
+  "missing_added_lines": [],
+  "executed_touching_branch_arcs": 70,
+  "missing_touching_branch_arcs": []
+}
