@@ -21,6 +21,19 @@ from PySide6.QtCore import QSettings                              # noqa: E402
 KEYS = ("timelapse_events", "timelapse_events_annotations",
         "timelapse_events_model", "timelapse_events_window",
         "timelapse_events_threshold", "timelapse_events_conditions")
+WIDGETS = ("TimelapseEventAnnotationButton",
+           "TimelapseEventAnnotationDialog",
+           "TimelapseEventTracksPath", "TimelapseEventSequencePath",
+           "TimelapseEventOutputPath", "TimelapseEventOpenField",
+           "TimelapseEventConfirmField", "TimelapseEventFramePreview",
+           "TimelapseEventTrack", "TimelapseEventFrame",
+           "TimelapseEventChannel", "TimelapseEventName",
+           "TimelapseEventRows", "TimelapseEventAdd",
+           "TimelapseEventRemove", "TimelapseEventSave",
+           "TimelapseEventBrowseTracks",
+           "TimelapseEventBrowseSequence",
+           "TimelapseEventBrowseFolder",
+           "TimelapseEventBrowseOutput", "TimelapseEventClose")
 
 
 @pytest.fixture
@@ -37,7 +50,7 @@ def prefs(tmp_path, monkeypatch):
 def test_the_settings_are_registered_under_their_item():
     from spacr.settings import ALPHA_FEATURES, _is_alpha, timelapse_settings
 
-    assert ALPHA_FEATURES[567] == {"settings": KEYS}
+    assert ALPHA_FEATURES[567] == {"settings": KEYS, "widgets": WIDGETS}
     assert set(KEYS) <= set(timelapse_settings)
     assert all(_is_alpha("settings", key) for key in KEYS)
 
