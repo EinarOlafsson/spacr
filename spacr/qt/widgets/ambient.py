@@ -5300,6 +5300,55 @@ def total_frames_painted() -> int:
 PRODUCER_JOIN_S = 2.0
 
 
+class _QueuedArtInput:
+    """Publish bounded immutable GUI input for consumption between frames.
+
+    Only the GUI offers snapshots. The cumulative elapsed counter and latest
+    pointer share one immutable tuple with at most sixteen numbered clicks.
+    A consumer holds the engine lock, whether it is the GUI or the producer;
+    its applied serials prevent advancing the same tick or click twice.
+    """
+
+    def __init__(self):
+        self._serial = 0
+        self._elapsed = 0.0
+        self._click_serial = 0
+        self._clicks = ()
+        self._snapshot = (0, 0.0, None, ())
+        self._applied_serial = 0
+        self._applied_elapsed = 0.0
+        self._applied_click_serial = 0
+
+    def _offer(self, step, pointer, clicks) -> None:
+        """Publish one GUI tick without taking or waiting for an engine lock."""
+        self._elapsed += step
+        for point in clicks:
+            self._click_serial += 1
+            self._clicks = (self._clicks + ((self._click_serial, point),))[-16:]
+        self._serial += 1
+        self._snapshot = (self._serial, self._elapsed, pointer, self._clicks)
+
+    def _consume(self, engine, *, discard_clicks=False) -> None:
+        """Apply newly offered GUI input while the caller owns the engine lock."""
+        serial, elapsed, pointer, clicks = self._snapshot
+        if serial <= self._applied_serial:
+            return
+        if (isinstance(engine, _DataArtEngine) and engine.interactive
+                and not discard_clicks):
+            engine.set_pointer(pointer)
+        delta = elapsed - self._applied_elapsed
+        if delta > 0:
+            engine.advance(delta)
+        for click_serial, point in clicks:
+            if (click_serial > self._applied_click_serial and not discard_clicks
+                    and engine.name == "data_art_impulse_lens"):
+                engine._add_impulse(point, strength=1.0)
+        if clicks:
+            self._applied_click_serial = clicks[-1][0]
+        self._applied_elapsed = elapsed
+        self._applied_serial = serial
+
+
 class _FrameProducer:
     """The shading thread: turns ``(engine, size)`` into finished frames.
 
@@ -5310,16 +5359,14 @@ class _FrameProducer:
     the GUI thread is undefined behaviour, and a ``QImage`` painted off it is
     supported and is the whole reason this works.
 
-    **The clock is not moved here.** Stepping it costs two attribute stores,
-    so there is nothing to gain by moving it and a contract to lose:
-    :meth:`AmbientWidget.time` means seconds of animation, several tests
-    assert the clock is exactly what was asked for, and a clock advanced from
-    two threads is neither. The GUI thread advances it between frames (see
-    :meth:`AmbientWidget._on_tick`, which takes the same lock without ever
-    waiting on it) and this thread only ever *reads* it — so a frame remains
-    a pure function of ``(seed, clock, size)`` even while it is shaded on
-    another thread, and the animation keeps its real-time pace when frames
-    are being dropped instead of slowing down with the thread.
+    The GUI owns elapsed time and input. Data art publishes bounded immutable
+    tick snapshots, which either the GUI or this producer consumes under the
+    engine lock before shading. Numbered cumulative counters prevent double
+    advancement. Consuming on the producer lets the clock and pointer keep
+    changing even when every shade exceeds the frame interval; a nonblocking
+    GUI lock attempt alone can otherwise lose every opportunity to advance.
+    No wall clock, widget or application is queried by this thread. Explicit
+    clock changes and controls flush offered input under the same lock.
 
     A plain :class:`threading.Thread` and not a ``QThread``: it owns no
     object with Qt thread affinity, it emits no signals, and
@@ -5341,13 +5388,15 @@ class _FrameProducer:
         frame.
     :param fps: frame-rate cap, matching the widget's timer.
     :param size: ``(width, height)`` of the canvas.
+    :param queued_input: optional immutable GUI tick handoff for data art.
     """
 
     def __init__(self, engine: "_BufferedEngine", engine_lock,
-                 fps: int, size: Tuple[int, int]):
+                 fps: int, size: Tuple[int, int], queued_input=None):
         """Prepare the shading thread: engine, lock, beat and size."""
         self._engine = engine
         self._engine_lock = engine_lock
+        self._queued_input = queued_input
         self._interval = 1.0 / max(1, int(fps))
         #: Canvas size, written by the GUI thread and read by this one.
         #: A plain attribute holding an immutable tuple, deliberately: the
@@ -5433,6 +5482,8 @@ class _FrameProducer:
             image = None
             if width > 0 and height > 0:
                 with self._engine_lock:
+                    if self._queued_input is not None:
+                        self._queued_input._consume(self._engine)
                     image = self._engine.shade(width, height)
             if image is not None:
                 self.publish(image)
@@ -5545,6 +5596,7 @@ class AmbientWidget(QWidget):
         #: Clock time a tick could not apply because the shading thread had
         #: the engine, carried to the next tick. See :meth:`_on_tick`.
         self._pending_dt = 0.0
+        self._art_input = None
         self._pending_art_impulses: List[Tuple[float, float]] = []
         self._interaction_app = None
         box = self._producer_box
@@ -5585,6 +5637,9 @@ class AmbientWidget(QWidget):
                                    resolution=self._resolution,
                                    density=self._density,
                                    direction=self._direction)
+
+        if self._theme.startswith("data_art_"):
+            self._art_input = _QueuedArtInput()
 
         self._animating = True
         #: Frames this backdrop has actually painted. The activity spinner
@@ -5701,6 +5756,8 @@ class AmbientWidget(QWidget):
         path — see :meth:`_on_tick`.
         """
         with self._engine_lock:
+            if self._art_input is not None:
+                self._art_input._consume(self._engine)
             change()
             self._republish()
         self.update()
@@ -5732,6 +5789,9 @@ class AmbientWidget(QWidget):
         """
         running = self._producer_box[0] is not None
         _retire_producer(self._producer_box)
+        with self._engine_lock:
+            if self._art_input is not None:
+                self._art_input._consume(self._engine, discard_clicks=True)
         engine = make_engine(self._theme, self._palette, self._background,
                              seed=self._seed, blur=self._blur,
                              speed=self._speed, size=self._size,
@@ -5742,6 +5802,9 @@ class AmbientWidget(QWidget):
             engine.set_max_pixels(self._engine.max_pixels)
             engine.set_time(self._engine.time)
             self._engine = engine
+            self._art_input = (_QueuedArtInput()
+                               if self._theme.startswith("data_art_") else None)
+            self._pending_dt = 0.0
         self._last_frame = None
         self._pending_art_impulses.clear()
         self._sync_interaction_filter()
@@ -5818,6 +5881,8 @@ class AmbientWidget(QWidget):
         """
         self._speed = _clamp(value, *SPEED_RANGE)
         with self._engine_lock:
+            if self._art_input is not None:
+                self._art_input._consume(self._engine)
             self._engine.set_speed(self._speed)
 
     def size_scale(self) -> float:
@@ -6012,6 +6077,13 @@ class AmbientWidget(QWidget):
         self._timer.stop()
         self._sync_interaction_filter()
         _retire_producer(self._producer_box)
+        if self._art_input is not None:
+            if self._engine_lock.acquire(blocking=False):
+                try:
+                    self._art_input._consume(self._engine, discard_clicks=True)
+                finally:
+                    self._engine_lock.release()
+            self._art_input = _QueuedArtInput()
         self._last_frame = None
 
     def _start_producer(self) -> None:
@@ -6037,7 +6109,7 @@ class AmbientWidget(QWidget):
             return
         size = self._art_render_size(self.width(), self.height())
         producer = _FrameProducer(engine, self._engine_lock, self._rate(),
-                                  size)
+                                  size, queued_input=self._art_input)
         if size[0] > 0 and size[1] > 0:
             with self._engine_lock:
                 first = engine.shade(*size)
@@ -6228,34 +6300,36 @@ class AmbientWidget(QWidget):
         leaves the shading to the thread, where ``advance_frame`` shades
         synchronously for the callers that need the frame back immediately.
 
-        The lock is taken **without blocking**. A shading pass takes 0.24 ms
-        idle and up to 26 ms for ``cells`` under a Python worker, and waiting
-        even that once a frame is the bug this change exists to remove — so a
-        tick that finds the lock busy carries its ``dt`` into the next one
-        rather than losing it. The clock therefore only ever moves *between*
-        shading passes, which is what keeps a frame a pure function of the
-        clock even though two threads are involved.
+        The lock is taken without blocking. Data art first offers cumulative
+        elapsed time, the latest pointer and bounded numbered clicks as one
+        immutable snapshot. The GUI consumes it immediately when it can;
+        otherwise the producer consumes it before its next frame, so slow
+        shading cannot starve clock advancement or mouse feedback. Legacy
+        engines retain their existing pending-time path.
         """
         self._follow_the_run()
         dt = self._clock.restart() / 1000.0
         step = min(MAX_DT, dt) if dt > 0 else 1.0 / self._rate()
-        self._pending_dt += step
         advance_spaceout_drift(step)
         pointer = (self._data_art_pointer_for_tick()
                    if isinstance(self._engine, _DataArtEngine)
                    and self._engine.interactive else None)
-        if self._engine_lock.acquire(blocking=False):
-            try:
-                if isinstance(self._engine, _DataArtEngine) and self._engine.interactive:
-                    self._engine.set_pointer(pointer)
-                self._engine.advance(self._pending_dt)
-                if self._engine.name == "data_art_impulse_lens":
-                    for point in self._pending_art_impulses:
-                        self._engine._add_impulse(point, strength=1.0)
-                    self._pending_art_impulses.clear()
-                self._pending_dt = 0.0
-            finally:
-                self._engine_lock.release()
+        if self._art_input is not None:
+            self._art_input._offer(step, pointer, tuple(self._pending_art_impulses))
+            self._pending_art_impulses.clear()
+            if self._engine_lock.acquire(blocking=False):
+                try:
+                    self._art_input._consume(self._engine)
+                finally:
+                    self._engine_lock.release()
+        else:
+            self._pending_dt += step
+            if self._engine_lock.acquire(blocking=False):
+                try:
+                    self._engine.advance(self._pending_dt)
+                    self._pending_dt = 0.0
+                finally:
+                    self._engine_lock.release()
         self.update()
 
     def advance_frame(self, dt: float) -> None:
