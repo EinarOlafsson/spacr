@@ -1,5 +1,46 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 Home coherent final CPU/theme source ready for hosted acceptance
+Final renderer source is9ad69bab29 with ambient SHA256
+4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5;
+io SHA256a0f47b365f5153e6a2ee27604ce6eefe00bf712ddde117c6855e915b80ce742c.
+Native point frames publish independently owned images without redundant
+composition/copies. Satin adds exact native waves, cropped frame-local targets,
+0.36MiB retained wave metadata, a bounded joined pure-CPU helper, and exact
+NumPy fallback after runtime failure. Finite default-zero gravity, mouse facets,
+evolving advection, conservative atlas culling, growth/Thore/Aurora and catalog
+are integrated. Three further transient releases plus scalar percentile scratch
+reuse reduce the same bounded native TIFF ingest1792.76 to1666.16MiB; all three
+outputs remain byte-identical. Whole-field scalability remains OPEN.
+
+Root affected theme cohort944 pass/3 obsolete Cells/Ripple subject failures;
+4154ab5713 repairs those subjects without changing any timing or ownership guard,
+and all22 affected-file cases pass. Final source contracts140 and integrated
+normalization/native/pool196 pass. Independent31 integrated native ownership/
+queue/parity/clock/hide cases pass and accepted helper ASTs remain exact.
+Actual frozen native4K MainWindow modal Detail2->1->2/radius0->.65->0 Saves
+persist correctly. Nine natural GUI-GC callbacks run; close/deferred-delete
+leaves zero widgets/ambient workers. Reported Save SIGSEGV has NOT reproduced:
+no cause/fix claimed. All-theme hard native24FPS acceptance remains OPEN.
+
+Portable exact satin proofs, real point-widget timings, full failure diagnosis
+and frozen MainWindow evidence are in the new663_*_cpu/663_mainwindow_save_gc
+archives. Earlier rejected398MiB/14FPS satin drafts are retained as rejected
+experiments. Actual accepted satin4K23.87FPS/p9536.10ms is typical performance,
+not every-frame guarantee. No full local Qt or GPU task was run.
+
+Workstation retains ALL GPU/API/docs/translations/tutorials. Please regenerate
+all source-bound API/runtime/Help/settings-flow/consumer-map and nine-language
+records normally for this checkpoint, including new private wave/point helpers
+and prior watcher/public radius changes. Preserve your6caf provenance helpers.
+Older e259 ordinary CI README Make Masks feature-guide referral and sv/fr
+reviewed-policy130vs131/localization-report failures remain yours. Home repaired
+the actual1f3 nightlydocs ambient introduction formatting error at546bf/c665.
+Current1f3 ordinary jobs are active (top-level API status can still say queued).
+New hosted serial will start from the upcoming workflow-file push with durable
+failed-report/fatal-Python/native-text diagnostics and unchanged10.8GiB guard.
+Frozen run SHAs must be recorded separately from later metadata publication.
+
 ## 2026-10-06 Home next-source checkpoint and workstation CI relay
 Local Home source now includes bounded radius physics, still facets with local
 mouse response, evolving advection vortices, exact radius-aware terrain culling,
