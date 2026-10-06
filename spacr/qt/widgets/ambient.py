@@ -4928,29 +4928,24 @@ class _DataArtEngine(_BufferedEngine):
         u, v, depth = u[:count], v[:count], depth[:count]
         q = u + self.time * (0.013 + 0.009 * depth)
         phase = self._anchors[0][0] * math.tau
-        dots_x, dots_y, levels = [], [], []
-        for trail in range(12):
-            t = q - trail * (0.0015 + 0.0012 * depth) * self.size
-            x = t % 1.0
-            y = (v + 0.135 * np.sin(math.tau * x + 7.0 * v + phase)
-                 + 0.07 * np.sin(2.0 * math.tau * x - 5.0 * v + phase * 0.7)
-                 + 0.023 * np.sin(5.0 * math.tau * x + 11.0 * v)) % 1.0
-            if self.pointer is not None:
-                dx, dy = x - self.pointer[0], y - self.pointer[1]
-                falloff = np.exp(-(dx * dx + dy * dy) / 0.035)
-                rotation = 1.5 * falloff
-                cosine, sine = np.cos(rotation), np.sin(rotation)
-                x = self.pointer[0] + dx * cosine - dy * sine
-                y = self.pointer[1] + dx * sine + dy * cosine
-            columns = np.clip((x * width).astype(np.int32), 0, width - 1)
-            rows = np.clip((y * height).astype(np.int32), 0, height - 1)
-            intensity = (0.25 + 0.60 * depth) * ((12 - trail) / 12) ** 1.3
-            dots_x.append(columns)
-            dots_y.append(rows)
-            levels.append(intensity)
+        trails = np.arange(12, dtype=np.float32)[:, None]
+        t = q[None, :] - trails * (0.0015 + 0.0012 * depth) * self.size
+        x = t - np.floor(t)
+        y = (v + 0.135 * np.sin(math.tau * x + 7.0 * v + phase)
+             + 0.07 * np.sin(2.0 * math.tau * x - 5.0 * v + phase * 0.7)
+             + 0.023 * np.sin(5.0 * math.tau * x + 11.0 * v))
+        y -= np.floor(y)
+        if self.pointer is not None:
+            dx, dy = x - self.pointer[0], y - self.pointer[1]
+            rotation = 1.5 * np.exp(-(dx * dx + dy * dy) / 0.035)
+            cosine, sine = np.cos(rotation), np.sin(rotation)
+            x = self.pointer[0] + dx * cosine - dy * sine
+            y = self.pointer[1] + dx * sine + dy * cosine
+        columns = np.clip((x * width).astype(np.int32), 0, width - 1)
+        rows = np.clip((y * height).astype(np.int32), 0, height - 1)
+        intensity = (0.25 + 0.60 * depth) * ((12 - trails) / 12) ** 1.3
         painter.drawImage(0, 0, self._point_material(
-            width, height, np.concatenate(dots_x), np.concatenate(dots_y),
-            np.concatenate(levels)))
+            width, height, columns.ravel(), rows.ravel(), intensity.ravel()))
 
 
 
@@ -5016,6 +5011,7 @@ class _FungalGrowthEngine(_BufferedEngine):
     """
 
     name = "data_art_fungal_growth"
+    base_edge = 2048
     _interval = 30.0
     _edge_lifetime = 58.0
     _anchors = ((0.14, 0.18), (0.72, 0.76), (0.83, 0.16),
@@ -5992,6 +5988,7 @@ class AmbientWidget(QWidget):
             self._clock.restart()
             self._timer.start()
         self._start_producer()
+        self._sync_interaction_filter()
 
     def stop(self) -> None:
         """Stop ticking and retire the shading thread. Costs exactly nothing
@@ -6004,6 +6001,7 @@ class AmbientWidget(QWidget):
         starts the thread, so there is nothing to show for it.
         """
         self._timer.stop()
+        self._sync_interaction_filter()
         _retire_producer(self._producer_box)
         self._last_frame = None
 
