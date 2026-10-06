@@ -296,7 +296,7 @@ def test_leaving_extra_performance_gives_back_what_it_took():
 
 def test_re_entering_extra_performance_does_not_stash_the_minimums():
     """Otherwise leaving it would "restore" the minimums it just wrote."""
-    prefs.set_ambient_animation("bokeh")
+    prefs.set_ambient_animation("cells")
     wanted = prefs._visual_snapshot()
     prefs.set_spacr_mode("extra_performance")
     prefs.set_spacr_mode("extra_performance")

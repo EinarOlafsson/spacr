@@ -209,9 +209,8 @@ class TestEveryThemeHasItsOwnBackdrop:
     def test_the_backdrops_reuse_the_producers_that_were_there(self):
         """"reuse and parameterise the existing producers" -- so no new
         engine was added for the ten night themes."""
-        assert ambient.AMBIENT_THEMES[:7] == (
-            "blobs", "aurora", "ripple", "drift", "bokeh", "cells",
-            "resonance")
+        assert ambient.AMBIENT_THEMES[:5] == (
+            "blobs", "aurora", "ripple", "drift", "cells")
 
     @pytest.mark.parametrize("key", night.NIGHT_THEME_KEYS)
     def test_the_backdrop_builds_and_paints(self, key, qapp):
@@ -390,7 +389,7 @@ class TestTheDialogMovesTheOtherThreeControls:
         palette = dialog.findChild(QComboBox, "AmbientPalette")
         sound = dialog.findChild(QComboBox, "SoundTheme")
         theme.setCurrentIndex(theme.findData("aphelion"))
-        assert animation.currentData() == "resonance"
+        assert animation.currentData() == "ripple"
         assert palette.currentData() == "midnight"
         assert sound.currentData() == "aphelion"
 
@@ -457,11 +456,11 @@ class TestTheDialogMovesTheOtherThreeControls:
         theme = _theme_combo(dialog)
         animation = dialog.findChild(QComboBox, "AmbientTheme")
         theme.setCurrentIndex(theme.findData("nocturne"))
-        animation.setCurrentIndex(animation.findData("bokeh"))
+        animation.setCurrentIndex(animation.findData("cells"))
         dialog.findChild(QDialogButtonBox).button(
             QDialogButtonBox.Save).click()
         assert store.get_theme() == "nocturne"
-        assert store.get_ambient_animation() == "bokeh"
+        assert store.get_ambient_animation() == "cells"
 
 
 class TestTheSpaceoutDressingStaysCheapAndStaysTheSame:

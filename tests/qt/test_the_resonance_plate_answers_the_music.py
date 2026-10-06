@@ -49,6 +49,12 @@ DARK = "#101418"
 SR = ss.SAMPLE_RATE
 
 
+def _plate(**controls):
+    """Exercise the retained plate engine without registering a menu choice."""
+    return amb.ResonanceEngine(amb.PALETTE_SETS["spacr"].colors, DARK,
+                               **controls)
+
+
 @pytest.fixture(autouse=True)
 def _nothing_is_playing_afterwards():
     """No test leaves a record behind for the next one to be driven by."""
@@ -355,19 +361,17 @@ def test_no_audio_input_is_ever_opened():
 # The engine: idle, driven, and still a pure function of the clock
 # ---------------------------------------------------------------------------
 
-def test_resonance_is_an_animation_the_preferences_offer():
-    assert "resonance" in amb.AMBIENT_THEMES
-    assert "resonance" in amb.ANIMATION_CHOICES
-    assert amb.theme_label("resonance") == "Resonance"
-    assert amb.theme_note("resonance").endswith(".")
-    assert "okabe" in amb.palettes_for("resonance")
-    assert "pastel" not in amb.palettes_for("resonance"), \
-        "a pale low-contrast hue at one pixel is indistinguishable from the page"
+def test_resonance_engine_remains_directly_available_but_not_offered():
+    assert "resonance" not in amb.AMBIENT_THEMES
+    assert "resonance" not in amb.ANIMATION_CHOICES
+    with pytest.raises(ValueError):
+        amb.make_engine("resonance", "spacr", DARK)
+    assert _plate(seed=7).name == "resonance"
 
 
 def test_it_idles_beautifully_in_silence(qapp):
     """Nothing playing still has to be worth looking at, and to move."""
-    engine = amb.make_engine("resonance", "spacr", DARK, seed=7)
+    engine = _plate(seed=7)
     engine.set_time(4.0)
     assert engine.drive == rs.silence()
     assert engine.energy() > 0.2, "the plate went out"
@@ -383,7 +387,7 @@ def test_the_music_reaches_the_picture(qapp, tmp_path):
     """The whole point, and the thing a mocked test would never catch."""
     source = _tone(tmp_path / "loud.wav", 2.0, [60.0, 500.0, 5000.0], 0.9)
     analysis = rs.ensure_analysis(source)
-    engine = amb.make_engine("resonance", "spacr", DARK, seed=7)
+    engine = _plate(seed=7)
     engine.set_time(6.0)
     engine.advance(0.0)
     silent = bytes(_render(engine).constBits())
@@ -398,7 +402,7 @@ def test_the_music_reaches_the_picture(qapp, tmp_path):
 
 def test_the_beat_throws_the_sand_off_the_lines(qapp):
     """The bounce the request asks for, measured on the positions."""
-    engine = amb.make_engine("resonance", "spacr", DARK, seed=7)
+    engine = _plate(seed=7)
     engine.set_time(5.0)
     still = engine.drive._replace(level=0.8, bands=(0.8, 0.8, 0.8, 0.8))
     engine.drive = still
@@ -426,8 +430,8 @@ def test_the_speed_setting_reaches_the_music_and_not_only_the_clock(qapp,
     rs.set_now_playing(rs.NowPlaying(str(analysis), 0.0, 1.5, True))
 
     share = amb.SPEED_RANGE[0]
-    full = amb.make_engine("resonance", "spacr", DARK, seed=7, speed=1.0)
-    slow = amb.make_engine("resonance", "spacr", DARK, seed=7, speed=share)
+    full = _plate(seed=7, speed=1.0)
+    slow = _plate(seed=7, speed=share)
     for engine in (full, slow):
         engine.set_time(5.0)
         engine.advance(0.0)
@@ -446,7 +450,7 @@ def test_the_speed_setting_reaches_the_music_and_not_only_the_clock(qapp,
     assert damped.bands == pytest.approx(
         tuple(band * share for band in beat.bands))
 
-    quick = amb.make_engine("resonance", "spacr", DARK, seed=7,
+    quick = _plate(seed=7,
                             speed=amb.SPEED_RANGE[1])
     assert quick.answering(beat) == beat, "nothing to give above full"
 
@@ -472,7 +476,7 @@ def test_the_real_time_signal_enters_in_advance_and_nowhere_else(qapp,
     """
     source = _tone(tmp_path / "loud.wav", 1.5, [70.0, 700.0, 6000.0], 0.9)
     analysis = rs.ensure_analysis(source)
-    engine = amb.make_engine("resonance", "spacr", DARK, seed=7)
+    engine = _plate(seed=7)
     engine.set_time(8.0)
     first = engine.shade(320, 200).copy()
 
@@ -487,7 +491,7 @@ def test_the_real_time_signal_enters_in_advance_and_nowhere_else(qapp,
 
 
 def test_the_same_clock_shades_the_same_bytes_on_another_thread(qapp):
-    engine = amb.make_engine("resonance", "spacr", DARK, seed=99)
+    engine = _plate(seed=99)
     engine.set_time(12.5)
     here = engine.shade(480, 300)
     box = {}
@@ -500,17 +504,17 @@ def test_the_same_clock_shades_the_same_bytes_on_another_thread(qapp):
 
 
 def test_the_density_and_size_controls_reach_the_plate(qapp):
-    engine = amb.make_engine("resonance", "spacr", DARK, seed=7, density=0.25)
+    engine = _plate(seed=7, density=0.25)
     assert len(engine.geometry(320, 200)) < amb.RESONANCE_PARTICLES
-    wide = amb.make_engine("resonance", "spacr", DARK, seed=7, size=2.5)
-    narrow = amb.make_engine("resonance", "spacr", DARK, seed=7, size=0.25)
+    wide = _plate(seed=7, size=2.5)
+    narrow = _plate(seed=7, size=0.25)
     assert wide.plate(320, 200)[2] > narrow.plate(320, 200)[2]
     assert narrow.plate(320, 200)[2] > 0
 
 
-def test_a_hidden_backdrop_costs_nothing_and_this_one_is_no_different(qtbot):
-    """The whole performance story, for the new theme as for the six."""
-    widget = amb.AmbientWidget(theme="resonance", palette="spacr",
+def test_a_hidden_backdrop_costs_nothing_with_the_retained_ripple(qtbot):
+    """The worker still retires when a selected backdrop is hidden."""
+    widget = amb.AmbientWidget(theme="ripple", palette="spacr",
                                background=DARK, seed=7)
     qtbot.addWidget(widget)
     widget.resize(480, 320)

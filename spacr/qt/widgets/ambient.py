@@ -5,8 +5,8 @@ the ATGC cascade). This is the one for *everything else*: a slow, diffuse
 animation that sits behind the settings form and the console, takes no focus
 and no mouse events, and can be switched off entirely in Preferences.
 
-Seven themes, chosen so each reads as a different kind of movement rather
-than as a re-skin of the same one:
+Five classic themes remain in the menu alongside six data-art materials,
+each chosen to read as a different kind of movement:
 
 ``blobs``   (default)
     Big and small colour blobs drifting over the page, each pulsing in size on
@@ -26,24 +26,14 @@ than as a re-skin of the same one:
     A slow starfield in three parallax layers: small, dim, slow ones behind;
     bigger, brighter, faster ones in front. The one crisp theme. It travels
     up, down, or every which way — see :data:`DRIFT_DIRECTIONS`.
-``bokeh``
-    Out-of-focus points of light, the way a fluorescence field looks off the
-    focal plane: an aperture image is a *disc with a bright rim*, not a
-    Gaussian smudge, and the ones further out of focus are larger and flatter.
 ``cells``
     Cells drifting through the field, turning as they go — a soft body, a
     slightly brighter membrane where the edge is seen nearly edge-on, and a
     distinctly brighter nucleus set off centre.
-``resonance``
-    Sand on a vibrating plate, gathering along the lines that do not move.
-    The only theme with an input other than the clock: while the music bed
-    is playing it is driven by the bed's own precomputed envelope and
-    spectrum (:mod:`spacr.qt.resonance`), and in silence — which is almost
-    everybody, because sound is off on a fresh install — it breathes on its
-    own. See :class:`ResonanceEngine` for why that input is read in
-    :meth:`ResonanceEngine.advance` and nowhere else.
+The older :class:`BokehEngine` and :class:`ResonanceEngine` remain importable
+for direct callers, but are no longer menu choices or factory entries.
 
-There is an eighth engine, ``fractal``, and it is not one of the seven: it is
+There is also a private ``fractal`` engine: it is
 not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it,
 and the only way to see it is to start the application with the ``spaceout``
 command instead of ``spacr``. See :data:`SPACEOUT_THEME` and
@@ -64,7 +54,7 @@ for red–green colour deficiency (see its note).
 
 Both dark and light
 -------------------
-spaCR ships seven themes, and a blob set tuned only for a near-black page turns
+spaCR ships several themes, and a blob set tuned only for a near-black page turns
 to mud on a white one. So the *composition mode follows the background*:
 
 * dark page  -> ``CompositionMode_Plus``. Overlapping blobs add up and glow,
@@ -253,14 +243,11 @@ __all__ = [
 #: with "no animation at all" in front of it; keeping the two apart is what
 #: lets ``make_engine``, ``_require_theme`` and every engine test go on
 #: meaning "a thing that can be drawn".
-AMBIENT_THEMES: Tuple[str, ...] = ("blobs", "aurora", "ripple", "drift",
-                                   "bokeh", "cells", "resonance",
+AMBIENT_THEMES: Tuple[str, ...] = ("blobs", "aurora", "ripple", "drift", "cells",
                                    "data_art_point_atlas", "data_art_tissue_facets",
-                                   "data_art_spatial_strata", "data_art_molecular_helix",
-                                   "data_art_chromatin_ribbon", "data_art_sequence_matrix",
-                                   "data_art_transcript_rain", "data_art_regulatory_circuit",
-                                   "data_art_genetic_advection", "data_art_interference",
-                                   "data_art_morphogenesis", "data_art_impulse_lens")
+                                   "data_art_chromatin_ribbon",
+                                   "data_art_genetic_advection", "data_art_impulse_lens",
+                                   "data_art_fungal_growth")
 
 #: The animation the ``spaceout`` entry point paints, and the palette it
 #: paints it in.
@@ -288,8 +275,6 @@ SPACEOUT_PALETTE = "rainbow"
 #: of zero worth claiming.
 NO_ANIMATION = "none"
 
-#: What the Animation preference offers, in menu order: nothing, then the
-#: seven animations.
 ANIMATION_CHOICES: Tuple[str, ...] = (NO_ANIMATION,) + AMBIENT_THEMES
 
 #: Default ambient animation theme.
@@ -303,21 +288,13 @@ _THEME_LABELS = {
     "aurora": "Aurora",
     "ripple": "Ripples",
     "drift": "Starfield",
-    "bokeh": "Bokeh",
     "cells": "Cells",
-    "resonance": "Resonance",
     "data_art_point_atlas": "Spatial point atlas",
     "data_art_tissue_facets": "Tissue facets",
-    "data_art_spatial_strata": "Spatial strata",
-    "data_art_molecular_helix": "Molecular helix",
     "data_art_chromatin_ribbon": "Chromatin satin",
-    "data_art_sequence_matrix": "Genome mosaic",
-    "data_art_transcript_rain": "Transcript rain",
-    "data_art_regulatory_circuit": "Regulatory circuit",
     "data_art_genetic_advection": "Genetic advection",
-    "data_art_interference": "Perturbation interference",
-    "data_art_morphogenesis": "Morphogenesis",
     "data_art_impulse_lens": "Perturbation lens",
+    "data_art_fungal_growth": "Fungal growth",
     SPACEOUT_THEME: "Fractals",
 }
 
@@ -328,38 +305,20 @@ _THEME_NOTES = {
                "length the way the northern lights do."),
     "ripple": "Rings spreading out from a few points and fading as they grow.",
     "drift": "A slow starfield in three layers of depth.",
-    "bokeh": ("Out-of-focus points of light, the way a fluorescence field "
-              "looks off the focal plane: bright rims, flat centres."),
     "cells": ("Cells drifting through the field — soft bodies with a "
               "brighter nucleus, turning slowly as they go."),
-    "resonance": ("Sand on a vibrating plate, gathering along the lines "
-                  "that do not move — a Chladni figure that changes with "
-                  "the music bed when one is playing, and breathes on its "
-                  "own when nothing is."),
     "data_art_point_atlas": ("A finely sampled three-dimensional point "
                              "landscape with depth and cursor-driven parallax."),
     "data_art_tissue_facets": ("A crystalline tissue mosaic of shaded geometric "
                                "facets, with slowly changing local relief."),
-    "data_art_spatial_strata": ("Fine stacked topographic layers form a moving "
-                                "spatial relief with precise depth and contour detail."),
-    "data_art_molecular_helix": ("A rotating molecular helix of shaded beads "
-                                 "and paired bases, with perspective and depth."),
     "data_art_chromatin_ribbon": ("Folded satin-like chromatin ribbons carry fine "
                                   "fibres through soft, interwoven surfaces."),
-    "data_art_sequence_matrix": ("A layered genome mosaic of tiny encoded tiles "
-                                 "shifts through an architectural sequence field."),
-    "data_art_transcript_rain": ("Fine falling transcription marks stream through "
-                                 "a layered field of genetic information."),
-    "data_art_regulatory_circuit": ("An etched regulatory circuit routes pulses "
-                                    "through precise orthogonal paths and small control nodes."),
     "data_art_genetic_advection": ("Thousands of fine genetic-flow particles move "
                                     "through a continuous wind-like field that bends near the cursor."),
-    "data_art_interference": ("Smooth interference waves form a changing "
-                              "pearlescent field, distorted locally by the cursor."),
-    "data_art_morphogenesis": ("A fine organic pattern of changing spots and "
-                              "labyrinths evokes the emergence of biological structure."),
     "data_art_impulse_lens": ("A precision dot lattice bends around moving "
                               "impulses and the cursor, revealing local perturbation."),
+    "data_art_fungal_growth": ("Fine fungal branches extend continuously across "
+                               "at most 30% of the backdrop, leaving the field clear."),
     SPACEOUT_THEME: ("A Julia set that morphs, turns and cycles colour — "
                      "the backdrop the spaceout launcher dresses the "
                      "application in."),
@@ -455,75 +414,25 @@ PALETTE_SETS: Dict[str, PaletteSpec] = {
         "colour left when everything warm has been absorbed."),
 }
 
-#: Which palettes each theme offers, and why the excluded ones are excluded.
-#:
-#: ``ripple`` and ``drift`` drop ``pastel``: a starfield is 1-4 px dots and a
-#: ripple is a halo at a fifth of the alpha a blob gets, and a pale
-#: low-contrast hue at either scale is indistinguishable from the page.
-#: Offering it would be offering a setting that does nothing.
-#:
-#: ``borealis`` is offered wherever the animation reads as *sky* — the
-#: curtains it was built for, the diffuse fields of ``blobs`` (a quiet
-#: aurora is exactly that: 557.7 nm green low down with 630.0 nm red above
-#: it), and the ``drift`` starfield. It is withheld from ``ripple`` alone,
-#: whose motion is rain on water: a set named after the northern lights on
-#: a pond would be decoration, not a colour choice.
-#:
-#: ``fluor`` is the mirror of that rule: it is offered where the animation
-#: reads as something seen down a microscope — ``bokeh`` and ``cells``, which
-#: were built for it, and ``blobs``, whose merged fields are what a
-#: badly-focused multichannel overlay looks like. It is withheld from the
-#: aurora and the ripples for the same reason ``borealis`` is withheld from
-#: the ripples.
-#: The four night sets added for the ten night themes follow the same rule
-#: the two above do — a set is offered where the animation reads as the
-#: thing the set is named after, and withheld where it would be decoration:
-#:
-#: ``midnight`` is a night SKY, so it goes where ``borealis`` goes and for
-#: the same reason: the curtains, the nebula fields of ``blobs``, the
-#: ``drift`` starfield, and the ``resonance`` plate, which is lit from
-#: above by whatever sky is behind it.
-#:
-#: ``dusk`` is the sky an hour earlier. It is offered on the two sky
-#: animations and on ``bokeh``, because out-of-focus warm points of light
-#: are exactly what a dusk looks like through a lens.
-#:
-#: ``lowsun`` is a sun seen THROUGH something — haze, a cell, a lens — so
-#: it goes on ``blobs``, ``cells`` and ``bokeh`` and not on the two sky
-#: animations, where a low sun and a night sky are different pictures.
-#:
-#: ``deepwater`` is the mirror of ``lowsun``: it goes where the motion is
-#: water or a body suspended in it — ``ripple``, ``cells``, ``blobs``.
 _THEME_PALETTES: Dict[str, Tuple[str, ...]] = {
     "blobs": ("spacr", "ember", "ocean", "pastel", "mono", "okabe",
               "borealis", "fluor", "midnight", "dusk", "lowsun",
               "deepwater"),
     "aurora": ("spacr", "ember", "ocean", "pastel", "mono", "okabe",
                "borealis", "midnight", "dusk"),
-    "ripple": ("spacr", "ember", "ocean", "mono", "okabe", "deepwater"),
+    "ripple": ("spacr", "ember", "ocean", "mono", "okabe", "deepwater",
+               "midnight"),
     "drift": ("spacr", "ember", "ocean", "mono", "okabe", "borealis",
               "fluor", "midnight"),
-    "bokeh": ("spacr", "ember", "ocean", "pastel", "mono", "okabe", "fluor",
-              "dusk", "lowsun"),
     "cells": ("spacr", "ember", "ocean", "pastel", "mono", "okabe", "fluor",
               "lowsun", "deepwater"),
-    "resonance": ("spacr", "ember", "ocean", "mono", "okabe", "borealis",
-                  "fluor", "midnight"),
     SPACEOUT_THEME: (SPACEOUT_PALETTE,),
 }
-for _data_art_key in AMBIENT_THEMES[7:]:
+for _data_art_key in AMBIENT_THEMES[5:]:
     _THEME_PALETTES[_data_art_key] = tuple(
         palette for palette in PALETTE_SETS
         if palette != SPACEOUT_PALETTE)
 
-#: Every theme that has an engine behind it — the seven a menu offers, plus
-#: the one the ``spaceout`` entry point dresses the application in.
-#:
-#: The split from :data:`AMBIENT_THEMES` is the point. This is what
-#: ``make_engine`` and the validators mean by "a thing that can be drawn";
-#: that one is what a menu, a stored preference and :func:`is_valid_theme`
-#: mean by "a thing that can be chosen". Keeping them apart is what lets the
-#: fractal be painted without ever being offered.
 _PAINTABLE_THEMES: Tuple[str, ...] = AMBIENT_THEMES + (SPACEOUT_THEME,)
 
 
@@ -5259,21 +5168,13 @@ _ENGINES = {
     "aurora": AuroraEngine,
     "ripple": RippleEngine,
     "drift": DriftEngine,
-    "bokeh": BokehEngine,
     "cells": CellsEngine,
-    "resonance": ResonanceEngine,
     "data_art_point_atlas": partial(_DataArtEngine, family="point_atlas"),
     "data_art_tissue_facets": partial(_DataArtEngine, family="tissue_facets"),
-    "data_art_spatial_strata": partial(_DataArtEngine, family="spatial_strata"),
-    "data_art_molecular_helix": partial(_DataArtEngine, family="molecular_helix"),
     "data_art_chromatin_ribbon": partial(_DataArtEngine, family="chromatin_ribbon"),
-    "data_art_sequence_matrix": partial(_DataArtEngine, family="sequence_matrix"),
-    "data_art_transcript_rain": partial(_DataArtEngine, family="transcript_rain"),
-    "data_art_regulatory_circuit": partial(_DataArtEngine, family="regulatory_circuit"),
     "data_art_genetic_advection": partial(_DataArtEngine, family="genetic_advection"),
-    "data_art_interference": partial(_DataArtEngine, family="interference"),
-    "data_art_morphogenesis": partial(_DataArtEngine, family="morphogenesis"),
     "data_art_impulse_lens": partial(_DataArtEngine, family="impulse_lens"),
+    "data_art_fungal_growth": _FungalGrowthEngine,
     SPACEOUT_THEME: FractalEngine,
 }
 

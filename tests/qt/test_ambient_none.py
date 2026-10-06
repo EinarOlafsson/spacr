@@ -56,18 +56,14 @@ def _screen(qtbot, app_key="measure"):
 def test_none_is_offered_alongside_every_animation():
     """The list is pinned because the ORDER is the menu's order.
 
-    The original seven stay in order and the twelve data-art styles append.
-    Stored preferences use names, so existing choices remain valid.
+    The five retained classics stay in order and six data-art styles append.
+    Stored preferences use names, so retained choices remain valid.
     """
     ambient = _ambient()
-    original = ("blobs", "aurora", "ripple", "drift", "bokeh", "cells",
-                "resonance")
+    original = ("blobs", "aurora", "ripple", "drift", "cells")
     data_art = ("data_art_point_atlas", "data_art_tissue_facets",
-                "data_art_spatial_strata", "data_art_molecular_helix",
-                "data_art_chromatin_ribbon", "data_art_sequence_matrix",
-                "data_art_transcript_rain", "data_art_regulatory_circuit",
-                "data_art_genetic_advection", "data_art_interference",
-                "data_art_morphogenesis", "data_art_impulse_lens")
+                "data_art_chromatin_ribbon", "data_art_genetic_advection",
+                "data_art_impulse_lens", "data_art_fungal_growth")
     assert ambient.NO_ANIMATION == "none"
     assert ambient.ANIMATION_CHOICES == (ambient.NO_ANIMATION,) + \
         original + data_art
@@ -117,10 +113,10 @@ def test_the_preference_round_trips_none():
 def test_choosing_none_does_not_lose_the_animation_you_had():
     from spacr.qt import preferences as prefs
     ambient = _ambient()
-    prefs.set_ambient_animation("bokeh")
+    prefs.set_ambient_animation("cells")
     palette = prefs.get_ambient_palette()
     prefs.set_ambient_animation(ambient.NO_ANIMATION)
-    prefs.set_ambient_animation("bokeh")
+    prefs.set_ambient_animation("cells")
     assert prefs.get_ambient_palette() == palette
 
 

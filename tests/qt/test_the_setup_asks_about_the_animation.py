@@ -176,10 +176,10 @@ class TestItIsWrittenThroughTheOneSeam:
 
     def test_choosing_one_stores_it(self, slides, prefs, qapp):
         box = slides._animation
-        box.setCurrentIndex(box.findData("bokeh"))
+        box.setCurrentIndex(box.findData("cells"))
         qapp.processEvents()
 
-        assert prefs.get_ambient_animation() == "bokeh"
+        assert prefs.get_ambient_animation() == "cells"
 
     def test_choosing_one_turns_the_backdrop_on(self, slides, prefs, ambient,
                                                 qapp):

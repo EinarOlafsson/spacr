@@ -1,4 +1,4 @@
-"""Twelve independent data-art presets keep their visual and settings contract."""
+"""Six independent data-art presets keep their visual and settings contract."""
 
 from __future__ import annotations
 
@@ -29,40 +29,10 @@ SPEC = (
         "lowsun",
     ),
     (
-        "data_art_spatial_strata",
-        "Spatial strata",
-        "Fine stacked topographic layers form a moving spatial relief with precise depth and contour detail.",
-        "mono",
-    ),
-    (
-        "data_art_molecular_helix",
-        "Molecular helix",
-        "A rotating molecular helix of shaded beads and paired bases, with perspective and depth.",
-        "ocean",
-    ),
-    (
         "data_art_chromatin_ribbon",
         "Chromatin satin",
         "Folded satin-like chromatin ribbons carry fine fibres through soft, interwoven surfaces.",
         "dusk",
-    ),
-    (
-        "data_art_sequence_matrix",
-        "Genome mosaic",
-        "A layered genome mosaic of tiny encoded tiles shifts through an architectural sequence field.",
-        "fluor",
-    ),
-    (
-        "data_art_transcript_rain",
-        "Transcript rain",
-        "Fine falling transcription marks stream through a layered field of genetic information.",
-        "deepwater",
-    ),
-    (
-        "data_art_regulatory_circuit",
-        "Regulatory circuit",
-        "An etched regulatory circuit routes pulses through precise orthogonal paths and small control nodes.",
-        "ember",
     ),
     (
         "data_art_genetic_advection",
@@ -71,23 +41,24 @@ SPEC = (
         "ocean",
     ),
     (
-        "data_art_interference",
-        "Perturbation interference",
-        "Smooth interference waves form a changing pearlescent field, distorted locally by the cursor.",
-        "pastel",
-    ),
-    (
-        "data_art_morphogenesis",
-        "Morphogenesis",
-        "A fine organic pattern of changing spots and labyrinths evokes the emergence of biological structure.",
-        "borealis",
-    ),
-    (
         "data_art_impulse_lens",
         "Perturbation lens",
         "A precision dot lattice bends around moving impulses and the cursor, revealing local perturbation.",
         "mono",
     ),
+    (
+        "data_art_fungal_growth",
+        "Fungal growth",
+        "Fine fungal branches extend continuously across at most 30% of the backdrop, leaving the field clear.",
+        "deepwater",
+    ),
+)
+
+RETIRED = (
+    "bokeh", "resonance", "data_art_spatial_strata",
+    "data_art_molecular_helix", "data_art_sequence_matrix",
+    "data_art_transcript_rain", "data_art_regulatory_circuit",
+    "data_art_interference", "data_art_morphogenesis",
 )
 
 
@@ -98,7 +69,7 @@ def private_store(monkeypatch, tmp_path):
     return prefs
 
 
-def test_twelve_data_art_choices_are_separate_from_ten_night_themes():
+def test_six_data_art_choices_are_separate_from_ten_night_themes():
     expected = tuple(row[0] for row in SPEC)
     assert catalog.DATA_ART_THEME_KEYS == expected
     assert len(catalog.NIGHT_THEME_KEYS) == 10
@@ -106,8 +77,33 @@ def test_twelve_data_art_choices_are_separate_from_ten_night_themes():
     assert not any(key.startswith("flow_") for key in theme.THEMES)
     assert tuple(theme.THEMES) == tuple(prefs.PALETTE_THEMES)
     assert {token for _label, token in prefs.theme_choices()} >= set(expected)
-    assert len({theme.palette_for(key)["page"] for key in expected}) == 12
-    assert len({theme.palette_for(key)["accent"] for key in expected}) == 12
+    assert len({theme.palette_for(key)["page"] for key in expected}) == 6
+    assert len({theme.palette_for(key)["accent"] for key in expected}) == 6
+
+
+@pytest.mark.parametrize("key", RETIRED)
+def test_retired_art_and_classics_cannot_reenter_user_choices(private_store, key):
+    assert key not in ambient.AMBIENT_THEMES
+    assert key not in prefs.POPUP_BACKDROPS
+    assert key not in prefs.PALETTE_THEMES
+    with pytest.raises(ValueError):
+        private_store.set_ambient_animation(key)
+    with pytest.raises(ValueError):
+        ambient.make_engine(key, "spacr", "#101418")
+    settings = private_store._settings()
+    settings.setValue(private_store._KEY_AMBIENT_THEME, key)
+    settings.setValue(private_store._KEY_POPUP_BACKDROP, key)
+    settings.sync()
+    assert private_store.get_ambient_theme() == ambient.DEFAULT_THEME
+    assert private_store.get_popup_backdrop() == "off"
+    if key.startswith("data_art_"):
+        with pytest.raises(ValueError):
+            private_store.set_theme_choice(key)
+        with pytest.raises(KeyError):
+            catalog.theme_for(key)
+        settings.setValue(private_store._KEY_THEME, key)
+        settings.sync()
+        assert private_store.get_theme() == private_store.DEFAULT_THEME
 
 
 @pytest.mark.parametrize("key,label,note,palette", SPEC)
@@ -172,13 +168,13 @@ def test_motion_off_and_crash_suppression_do_not_rewrite_one_another(private_sto
     assert private_store.get_ambient_enabled() is False
     private_store.set_ambient_animation("blobs")
     private_store.set_ambient_enabled(False)
-    private_store.set_theme_choice("data_art_interference")
+    private_store.set_theme_choice("data_art_impulse_lens")
     assert private_store.get_ambient_animation() == "blobs"
     assert private_store.get_ambient_enabled() is False
     private_store.set_ambient_enabled(True)
     monkeypatch.setenv("SPACR_NO_BACKDROP", "1")
-    private_store.set_theme_choice("data_art_molecular_helix")
-    assert private_store.get_ambient_animation() == "data_art_molecular_helix"
+    private_store.set_theme_choice("data_art_chromatin_ribbon")
+    assert private_store.get_ambient_animation() == "data_art_chromatin_ribbon"
     assert private_store.get_ambient_enabled() is False
     monkeypatch.delenv("SPACR_NO_BACKDROP")
     assert private_store.get_ambient_enabled() is True
@@ -188,8 +184,8 @@ def test_motion_off_and_crash_suppression_do_not_rewrite_one_another(private_sto
 def test_extra_performance_keeps_a_new_preset_static(private_store):
     private_store.set_spacr_mode("extra_performance")
     assert private_store.get_ambient_animation() == "none"
-    private_store.set_theme_choice("data_art_transcript_rain")
-    assert private_store.get_theme_choice() == "data_art_transcript_rain"
+    private_store.set_theme_choice("data_art_fungal_growth")
+    assert private_store.get_theme_choice() == "data_art_fungal_growth"
     assert private_store.get_ambient_animation() == "none"
     assert private_store.get_ambient_enabled() is False
     assert private_store.get_sound_enabled() is False

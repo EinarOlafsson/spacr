@@ -58,7 +58,7 @@ Values:
 * ``theme``: ``"dark"`` | ``"light"`` | ``"cell"`` | ``"glass"`` |
   ``"high_contrast"`` | one of
   the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` |
-  the twelve data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` |
+  the six data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` |
   ``"system"`` (default ``"dark"``). ``"system"`` follows the operating
   system color scheme, and only once somebody has picked it: a stored
   ``"system"`` written before dark became the default (2026-09-21) was
@@ -8118,7 +8118,7 @@ class PreferencesDialog:
             "AmbientDensity", "Animation density",
             den_lo, den_hi, get_ambient_density(),
             "How many things there are: blobs, aurora curtains, ripple "
-            "sources, stars, bokeh discs, cells. Density and detail share "
+            "sources, stars and cells. Density and detail share "
             "one cost budget, so asking for the most of both trims the "
             "density rather than dropping frames.")
 
@@ -10385,7 +10385,7 @@ def set_rim_period(seconds) -> float:
 #: here at the same time as there.
 _KEY_POPUP_BACKDROP = "rim/popup_backdrop"
 POPUP_BACKDROPS = ("off",) + tuple(sorted(
-    ("aurora", "blobs", "bokeh", "cells", "drift", "resonance", "ripple")
+    ("aurora", "blobs", "cells", "drift", "ripple")
     + DATA_ART_THEME_KEYS
 ))
 #: NO MOVING BACKDROP BEHIND A SETTINGS WINDOW unless the user asks for
