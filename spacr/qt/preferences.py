@@ -58,7 +58,7 @@ Values:
 * ``theme``: ``"dark"`` | ``"light"`` | ``"cell"`` | ``"glass"`` |
   ``"high_contrast"`` | one of
   the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` |
-  the twelve data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` |
+  the six data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` |
   ``"system"`` (default ``"dark"``). ``"system"`` follows the operating
   system color scheme, and only once somebody has picked it: a stored
   ``"system"`` written before dark became the default (2026-09-21) was
@@ -2163,6 +2163,34 @@ def set_ambient_palette(name: str) -> None:
     settings.setValue(_KEY_AMBIENT_PALETTE, name)
     settings.sync()
 
+
+
+def _ambient_custom_colors():
+    """Read two validated opaque colours without changing the settings store."""
+    from PySide6.QtGui import QColor
+
+    settings = _settings()
+    colors = []
+    for key, fallback in (("prefs/ambient_primary", "#3b82f6"),
+                          ("prefs/ambient_accent", "#ff00ff")):
+        value = QColor(str(settings.value(key, fallback)))
+        colors.append(value.name() if value.isValid() else fallback)
+    return tuple(colors)
+
+
+def _set_ambient_custom_colors(colors):
+    """Persist a complete validated pair of user-chosen animation colours."""
+    from PySide6.QtGui import QColor
+
+    if len(colors) != 2:
+        raise ValueError("two animation colours are required")
+    values = [QColor(color) for color in colors]
+    if not all(value.isValid() for value in values):
+        raise ValueError("invalid animation colour")
+    settings = _settings()
+    for key, value in zip(("prefs/ambient_primary", "prefs/ambient_accent"), values):
+        settings.setValue(key, value.name())
+    settings.sync()
 
 
 def _ambient_ranges():
@@ -7940,6 +7968,51 @@ class PreferencesDialog:
         )
         animation.addRow(tr("Animation palette"), ambient_palette_combo)
 
+        from PySide6.QtGui import QColor
+        from PySide6.QtWidgets import QColorDialog
+
+        custom_colors = list(_ambient_custom_colors())
+        primary_color_button = QPushButton()
+        primary_color_button.setObjectName("AmbientPrimaryColor")
+        accent_color_button = QPushButton()
+        accent_color_button.setObjectName("AmbientAccentColor")
+        color_buttons = (primary_color_button, accent_color_button)
+
+        def _refresh_custom_colors():
+            """Show the pending colour pair while preserving dialog cancellation."""
+            for index, button in enumerate(color_buttons):
+                label = tr("Primary") if index == 0 else tr("Accent")
+                button.setText(f"{label} · {custom_colors[index]}")
+                button.setToolTip(tr("Choose a crisp data-art animation colour."))
+
+        def _pick_ambient_color(index):
+            """Select a local colour and activate the custom palette on save."""
+            color = QColorDialog.getColor(QColor(custom_colors[index]), dlg,
+                                          tr("Animation colour"))
+            if color.isValid():
+                custom_colors[index] = color.name()
+                _refresh_custom_colors()
+                ambient_palette_combo.setCurrentIndex(
+                    ambient_palette_combo.findData("custom"))
+
+        primary_color_button.clicked.connect(lambda: _pick_ambient_color(0))
+        accent_color_button.clicked.connect(lambda: _pick_ambient_color(1))
+        _refresh_custom_colors()
+        color_row = QHBoxLayout()
+        color_row.addWidget(primary_color_button)
+        color_row.addWidget(accent_color_button)
+        animation.addRow(tr("Animation colours"), _hbox_wrap(color_row))
+
+        def _sync_custom_colors(*_args):
+            """Offer custom colours for the six procedural data-art scenes."""
+            available = "custom" in palettes_for(ambient_theme_combo.currentData()) \
+                if ambient_theme_combo.currentData() != NO_ANIMATION else False
+            for button in color_buttons:
+                button.setEnabled(available)
+
+        ambient_theme_combo.currentIndexChanged.connect(_sync_custom_colors)
+        _sync_custom_colors()
+
         ambient_dir_combo = QComboBox()
         ambient_dir_combo.setObjectName("AmbientDriftDirection")
         try:
@@ -8045,7 +8118,7 @@ class PreferencesDialog:
             "AmbientDensity", "Animation density",
             den_lo, den_hi, get_ambient_density(),
             "How many things there are: blobs, aurora curtains, ripple "
-            "sources, stars, bokeh discs, cells. Density and detail share "
+            "sources, stars and cells. Density and detail share "
             "one cost budget, so asking for the most of both trims the "
             "density rather than dropping frames.")
 
@@ -9526,6 +9599,8 @@ class PreferencesDialog:
                 _select(theme_combo, get_theme_choice())
                 _select(ambient_theme_combo, get_ambient_animation())
                 _select(ambient_palette_combo, get_ambient_palette())
+                custom_colors[:] = _ambient_custom_colors()
+                _refresh_custom_colors()
                 _select(ambient_dir_combo, get_ambient_drift_direction())
                 _select(dock_combo, get_dock_mode())
                 _select(cb_combo, get_color_blind_mode())
@@ -9613,6 +9688,7 @@ class PreferencesDialog:
             palette_choice = ambient_palette_combo.currentData()
             if palette_choice is not None:
                 set_ambient_palette(palette_choice)
+            _set_ambient_custom_colors(custom_colors)
             set_ambient_blur(blur_slider.value() / 100.0)
             set_ambient_speed(speed_slider.value() / 100.0)
             set_ambient_size(size_slider.value() / 100.0)
@@ -10309,7 +10385,7 @@ def set_rim_period(seconds) -> float:
 #: here at the same time as there.
 _KEY_POPUP_BACKDROP = "rim/popup_backdrop"
 POPUP_BACKDROPS = ("off",) + tuple(sorted(
-    ("aurora", "blobs", "bokeh", "cells", "drift", "resonance", "ripple")
+    ("aurora", "blobs", "cells", "drift", "ripple")
     + DATA_ART_THEME_KEYS
 ))
 #: NO MOVING BACKDROP BEHIND A SETTINGS WINDOW unless the user asks for

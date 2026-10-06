@@ -843,6 +843,20 @@ class _RetrainWorker(QThread):
             pass
 
 
+def _similarity_source_stamp(paths):
+    """Identify database and WAL changes that make a cached index stale."""
+    stamp = []
+    for path in paths:
+        for name in (str(path), f"{path}-wal"):
+            try:
+                stat = os.stat(name)
+                stamp.append((name, stat.st_dev, stat.st_ino,
+                              stat.st_mtime_ns, stat.st_ctime_ns, stat.st_size))
+            except FileNotFoundError:
+                stamp.append((name, None, None, None, None, None))
+    return tuple(stamp)
+
+
 class _SimilarityWorker(QThread):
     """Find the crops most like one crop, off the GUI thread.
 
@@ -858,7 +872,8 @@ class _SimilarityWorker(QThread):
     def __init__(self, db_path: str, image_type: Optional[str], key: str,
                  index: Any = None, k: int = 100, parent=None, *,
                  unlabelled_only: bool = False, annotation_column: str = "annotate",
-                 png_table: str = "png_list", pending_labels=None, writer=None):
+                 png_table: str = "png_list", pending_labels=None, writer=None,
+                 db_paths=None, feature_kind: str = "auto"):
         """Carry one search's inputs onto a worker thread.
 
         :param db_path: the database whose crops are searched.
@@ -873,6 +888,8 @@ class _SimilarityWorker(QThread):
         :param png_table: crop table currently selected in Annotate.
         :param pending_labels: unsaved local labels overriding stored values.
         :param writer: existing save worker whose submitted batches must settle before reading.
+        :param db_paths: the open database and explicitly added plates.
+        :param feature_kind: auto, stored embeddings, or measurements.
         """
         super().__init__(parent)
         self._db_path = db_path
@@ -885,6 +902,9 @@ class _SimilarityWorker(QThread):
         self._png_table = png_table
         self._pending_labels = dict(pending_labels or {})
         self._writer = writer
+        self._db_paths = tuple(dict.fromkeys(
+            os.path.abspath(str(path)) for path in (db_paths or (db_path,))))
+        self._feature_kind = feature_kind
 
     def _excluded_labels(self, index):
         """Read fresh human-label state without caching it with the feature index.
@@ -893,6 +913,7 @@ class _SimilarityWorker(QThread):
         proposals above SUGGESTION_OFFSET; none of these is a human answer.
         """
         import sqlite3
+        from urllib.parse import quote
 
         if not self._unlabelled_only:
             return None
@@ -909,29 +930,63 @@ class _SimilarityWorker(QThread):
             raise ValueError("Labels could not be saved; resolve the save error before searching unlabelled crops.")
         table = '"' + self._png_table.replace('"', '""') + '"'
         column = '"' + self._annotation_column.replace('"', '""') + '"'
-        with sqlite3.connect(f"file:{self._db_path}?mode=ro", uri=True, timeout=30) as db:
-            fields = {row[1] for row in db.execute(f'PRAGMA table_info({table})')}
-            value = column if self._annotation_column in fields else 'NULL'
-            labels = dict(db.execute(f'SELECT png_path, {value} FROM {table}'))
-        labels.update(self._pending_labels)
-        return {str(key) for key in index.keys if str(key) not in labels or
-                (labels[str(key)] is not None and int(labels[str(key)]) != 0
-                 and int(labels[str(key)]) <= SUGGESTION_OFFSET)}
+        excluded = set()
+        multi = hasattr(index, "sources")
+        for path in self._db_paths if multi else (self._db_path,):
+            uri = f"file:{quote(os.path.abspath(path), safe='/')}?mode=ro"
+            with sqlite3.connect(uri, uri=True, timeout=30) as db:
+                fields = {row[1] for row in db.execute(f'PRAGMA table_info({table})')}
+                value = column if self._annotation_column in fields else 'NULL'
+                labels = dict(db.execute(f'SELECT png_path, {value} FROM {table}'))
+            if os.path.abspath(path) == os.path.abspath(self._db_path):
+                labels.update(self._pending_labels)
+            keys = (key for source, key in index.keys if source == path) if multi else index.keys
+            for key in keys:
+                value = labels.get(str(key))
+                if (str(key) not in labels or
+                        value is not None and int(value) != 0
+                        and int(value) <= SUGGESTION_OFFSET):
+                    excluded.add((path, str(key)) if multi else str(key))
+        return excluded
 
     def run(self):
         """Build the index if needed, search it, and hand back the hits."""
         try:
             from ... import active_learning as al
+            initial_stamp = _similarity_source_stamp(self._db_paths)
             index = self._index
             if index is None:
-                index = al._similarity_index(self._db_path,
-                                             image_type=self._image_type)
+                if len(self._db_paths) > 1:
+                    index = al._multi_similarity_index(
+                        self._db_paths, image_type=self._image_type,
+                        feature_kind=self._feature_kind)
+                elif self._feature_kind == "measurements":
+                    measured = al.round_features(self._db_path)
+                    measured = measured[al._similarity_columns(measured.columns)]
+                    index = al._similarity_index(
+                        self._db_path, features=measured,
+                        image_type=self._image_type)
+                elif self._feature_kind == "embeddings":
+                    stored = al._stored_embeddings(self._db_path)
+                    if stored is None:
+                        raise ValueError("No stored crop embeddings were found in this source.")
+                    index = al._similarity_index(
+                        self._db_path, features=stored,
+                        image_type=self._image_type)
+                else:
+                    index = al._similarity_index(
+                        self._db_path, image_type=self._image_type)
             started = time.perf_counter()
             excluded = self._excluded_labels(index)
             if self.isInterruptionRequested():
                 return
-            hits = index.like(self._key, self._k, exclude=excluded)
+            hits = (index.like(self._db_path, self._key, self._k,
+                               exclude=excluded) if len(self._db_paths) > 1
+                    else index.like(self._key, self._k, exclude=excluded))
             seconds = time.perf_counter() - started
+            source_stamp = _similarity_source_stamp(self._db_paths)
+            if source_stamp != initial_stamp:
+                source_stamp = initial_stamp
         except Exception as exc:
             try:
                 self.failed.emit(f"{type(exc).__name__}: {exc}")
@@ -943,6 +998,9 @@ class _SimilarityWorker(QThread):
                 return
             self.done.emit({"index": index, "hits": hits, "key": self._key,
                             "db_path": self._db_path,
+                            "db_paths": self._db_paths,
+                            "source_stamp": source_stamp,
+                            "feature_kind": self._feature_kind,
                             "image_type": self._image_type,
                             "annotation_column": self._annotation_column,
                             "png_table": self._png_table,
@@ -3324,8 +3382,10 @@ class AnnotateScreen(QWidget):
         self._round_index = 0
         self._retrain_worker: Optional[_RetrainWorker] = None
         self._similar_worker: Optional[_SimilarityWorker] = None
-        self._similar_cache: Optional[Tuple[str, Any, Any]] = None
+        self._similar_cache: Optional[Tuple[Any, ...]] = None
         self._similar_notice_until = 0.0
+        self._similar_sources: List[str] = []
+        self._similar_navigation: Optional[Dict[str, Any]] = None
         #: The Suggest run, kept separate from the retrain above so
         #: one can be running while the other is retired. They fit
         #: the same kind of model and must not be the same slot.
@@ -4638,10 +4698,13 @@ class AnnotateScreen(QWidget):
             return
         self._open_source(d)
 
-    def _open_source(self, src: str):
+    def _open_source(self, src: str, *, then=None,
+                     preserve_similarity: bool = False):
         """Open a project and load its first page of crops.
 
         :param src: the project folder.
+        :param then: optional callback after its population count is ready.
+        :param preserve_similarity: retain cross-plate results during navigation.
         """
         db_path = os.path.join(src, "measurements", "measurements.db")
         if not os.path.isfile(db_path):
@@ -4677,11 +4740,14 @@ class AnnotateScreen(QWidget):
         self.setFocus(Qt.OtherFocusReason)
         self._object_request = None
         self._object_rows = None
-        self._similar_cache = None
         self._similar_notice_until = 0.0
+        if not preserve_similarity:
+            self._similar_cache = None
+            self._similar_navigation = None
+            self._similar_result_plate.clear()
         self._last_round = None
         self._refresh_round_state()
-        self._refresh_total(then=self._rebuild_and_load)
+        self._refresh_total(then=then or self._rebuild_and_load)
 
     def _rebuild_and_load(self):
         """Rebuild the grid against the (now realized) viewport, then load."""
@@ -4807,8 +4873,74 @@ class AnnotateScreen(QWidget):
             "Cleared labels (blank or 0) and unanswered model suggestions remain eligible. "
             "The selected reference crop stays visible even when labelled."))
         layout.addWidget(self._similar_unlabelled)
+        self._similar_feature_kind = QComboBox(panel)
+        self._similar_feature_kind.setObjectName("AnnotateSimilarFeatureKind")
+        self._similar_feature_kind.addItem(tr("Auto features"), "auto")
+        self._similar_feature_kind.addItem(tr("Embeddings"), "embeddings")
+        self._similar_feature_kind.addItem(tr("Measurements"), "measurements")
+        self._similar_feature_kind.setToolTip(tr(
+            "All selected plates must use the same feature columns. Stored "
+            "embeddings must also have the same model settings and weight checksum."))
+        layout.addWidget(self._similar_feature_kind)
+        self._btn_similar_add_plate = QPushButton(tr("Add plate…"), panel)
+        self._btn_similar_add_plate.setObjectName("AnnotateSimilarAddPlate")
+        self._btn_similar_add_plate.setToolTip(tr(
+            "Choose another measurements.db to include in the next similarity search."))
+        self._btn_similar_add_plate.clicked.connect(self._on_add_similarity_plate)
+        layout.addWidget(self._btn_similar_add_plate)
+        self._btn_similar_clear_plates = QPushButton(tr("Clear plates"), panel)
+        self._btn_similar_clear_plates.setObjectName("AnnotateSimilarClearPlates")
+        self._btn_similar_clear_plates.clicked.connect(self._on_clear_similarity_plates)
+        layout.addWidget(self._btn_similar_clear_plates)
+        self._similar_result_plate = QComboBox(panel)
+        self._similar_result_plate.setObjectName("AnnotateSimilarResultPlate")
+        self._similar_result_plate.setPlaceholderText(tr("Results by plate"))
+        self._similar_result_plate.setMinimumWidth(90)
+        self._similar_result_plate.setToolTip(tr(
+            "Open matching crops from this plate in Annotate before assigning labels."))
+        self._similar_result_plate.currentIndexChanged.connect(
+            self._on_similar_result_plate)
+        layout.addWidget(self._similar_result_plate)
         _apply_alpha_widgets(panel)
         return panel
+
+    def _on_add_similarity_plate(self, path=None) -> bool:
+        """Add an explicit database; the worker validates its feature space."""
+        if isinstance(path, bool):
+            path = None
+        if path is None:
+            path, _ = QFileDialog.getOpenFileName(
+                self, tr("Choose another plate database"),
+                self._starting_folder(), tr("SQLite databases (*.db)"))
+        if not path:
+            return False
+        path = os.path.abspath(str(path))
+        if (os.path.basename(path) != "measurements.db" or
+                os.path.basename(os.path.dirname(path)) != "measurements"):
+            self._status_label.setText(tr(
+                "Choose a plate's measurements/measurements.db file."))
+            return False
+        if path not in self._similar_sources and path != os.path.abspath(
+                self._settings.db_path or ""):
+            self._similar_sources.append(path)
+        self._similar_cache = None
+        self._status_label.setText(tr(
+            "{n} additional plate(s) selected for the next search.",
+            n=len(self._similar_sources)))
+        return True
+
+    def _on_clear_similarity_plates(self) -> None:
+        """Return subsequent searches to the open source alone."""
+        self._similar_sources.clear()
+        self._similar_cache = None
+        self._similar_navigation = None
+        self._similar_result_plate.clear()
+        self._status_label.setText(tr("Similarity search will use the open source."))
+
+    def _similar_paths(self) -> Tuple[str, ...]:
+        """The open database followed by each distinct explicitly added plate."""
+        return tuple(dict.fromkeys([os.path.abspath(self._settings.db_path),
+                                    *self._similar_sources]))
 
     def _similar_query_key(self) -> Optional[str]:
         """The ``png_path`` of the selected crop, ``None`` on an empty page."""
@@ -4831,11 +4963,18 @@ class AnnotateScreen(QWidget):
         if key is None:
             self._status_label.setText(tr("No crop is selected to match."))
             return
+        paths = self._similar_paths()
+        feature_kind = self._similar_feature_kind.currentData()
+        if len(paths) > 1 and self._blind is not None:
+            self._status_label.setText(tr(
+                "Leave blind mode before searching across plates."))
+            return
         cache = self._similar_cache
         self._similar_notice_until = 0.0
         index = None
-        if cache is not None and cache[:2] == (self._settings.db_path,
-                                               self._settings.image_type):
+        if (cache is not None and cache[:2] == (frozenset(paths), self._settings.image_type)
+                and cache[3] == feature_kind
+                and cache[4] == _similarity_source_stamp(paths)):
             index = cache[2]
         self._btn_similar.setEnabled(False)
         self._status_label.setText(
@@ -4847,7 +4986,8 @@ class AnnotateScreen(QWidget):
                                    unlabelled_only=self._similar_unlabelled.isChecked(),
                                    annotation_column=self._settings.annotation_column,
                                    png_table=self._settings.png_table,
-                                   pending_labels=self._pending_updates, writer=self._worker)
+                                   pending_labels=self._pending_updates, writer=self._worker,
+                                   db_paths=paths, feature_kind=feature_kind)
         worker.done.connect(self._on_similar_done)
         worker.failed.connect(self._on_similar_failed)
         worker.finished.connect(self._on_similar_finished)
@@ -4860,13 +5000,36 @@ class AnnotateScreen(QWidget):
         from ...selection import ObjectRequest
 
         if (result["db_path"] != self._settings.db_path or
+                tuple(result.get("db_paths", (os.path.abspath(result["db_path"]),))) != self._similar_paths() or
+                result.get("feature_kind", self._similar_feature_kind.currentData()) != self._similar_feature_kind.currentData() or
                 result.get("image_type", self._settings.image_type) != self._settings.image_type or
                 result.get("annotation_column", self._settings.annotation_column) != self._settings.annotation_column or
                 result.get("png_table", self._settings.png_table) != self._settings.png_table):
             return
-        self._similar_cache = (result["db_path"], result["image_type"],
-                               result["index"])
+        current_stamp = _similarity_source_stamp(self._similar_paths())
+        self._similar_cache = (frozenset(self._similar_paths()), result["image_type"],
+                               result["index"], result.get("feature_kind", "auto"),
+                               result.get("source_stamp", current_stamp))
         hits = result["hits"]
+        if "db_path" in hits.columns:
+            self._similar_navigation = result
+            self._similar_result_plate.blockSignals(True)
+            self._similar_result_plate.clear()
+            for path in self._similar_paths():
+                count = int(hits["db_path"].eq(path).sum())
+                if path == os.path.abspath(result["db_path"]) or count:
+                    src = os.path.dirname(os.path.dirname(path))
+                    self._similar_result_plate.addItem(
+                        tr("{name} · {n} matches", name=os.path.basename(src),
+                           n=count), path)
+                    self._similar_result_plate.setItemData(
+                        self._similar_result_plate.count() - 1, path, Qt.ToolTipRole)
+            self._similar_result_plate.setCurrentIndex(0)
+            self._similar_result_plate.blockSignals(False)
+            self._present_similarity_source(os.path.abspath(result["db_path"]))
+            return
+        self._similar_navigation = None
+        self._similar_result_plate.clear()
         keys = [result["key"]] + [str(k) for k in hits["key"]]
         name = os.path.basename(result["key"])
         request = ObjectRequest(
@@ -4885,6 +5048,75 @@ class AnnotateScreen(QWidget):
         if result.get("unlabelled_only"):
             self._status_label.setText(self._status_label.text() + " " +
                 tr("{n} unlabelled matches; selected reference kept separately.", n=len(hits)))
+        self._similar_notice_until = time.monotonic() + 3.0
+
+    def _on_similar_result_plate(self, index: int) -> None:
+        """Open a matching plate before showing crops that its writer owns."""
+        if index < 0 or self._similar_navigation is None:
+            return
+        result = self._similar_navigation
+        if (self._blind is not None or
+                result["image_type"] != self._settings.image_type or
+                result["annotation_column"] != self._settings.annotation_column or
+                result["png_table"] != self._settings.png_table or
+                result["feature_kind"] != self._similar_feature_kind.currentData()):
+            self._status_label.setText(tr(
+                "Search settings changed; run Like this again before opening another plate."))
+            return
+        path = self._similar_result_plate.itemData(index)
+        if not path:
+            return
+        if path == os.path.abspath(self._settings.db_path):
+            self._present_similarity_source(path)
+            return
+        if not os.path.isfile(path):
+            self._status_label.setText(tr("The selected plate database is no longer available."))
+            return
+        previous = os.path.abspath(self._settings.db_path)
+        if previous not in self._similar_sources:
+            self._similar_sources.append(previous)
+        source = os.path.dirname(os.path.dirname(path))
+
+        def show_source_hits():
+            """Rebuild the new plate's grid before presenting its matches."""
+            self._rebuild_grid()
+            self._present_similarity_source(path)
+
+        self._open_source(source, preserve_similarity=True,
+                          then=show_source_hits)
+
+    def _present_similarity_source(self, path: str) -> None:
+        """Pin only this database's result rows in its own annotation grid."""
+        from ...selection import ObjectRequest
+
+        result = self._similar_navigation
+        if result is None or os.path.abspath(self._settings.db_path) != path:
+            return
+        hits = result["hits"]
+        local = hits.loc[hits["db_path"].eq(path)]
+        keys = [str(key) for key in local["key"]]
+        if path == os.path.abspath(result["db_path"]):
+            keys.insert(0, result["key"])
+        source = os.path.basename(os.path.dirname(os.path.dirname(path)))
+        request = ObjectRequest(
+            keys=keys,
+            reason=tr("{n} similar crops in {source}; results stay with their source database.",
+                      n=len(keys), source=source),
+            source="similarity",
+            context={"similarity": dict(zip(local["key"], local["similarity"])),
+                     "source_db": path,
+                     "query_db": result["db_path"],
+                     "unlabelled_only": result.get("unlabelled_only", False),
+                     "requested_k": result.get("requested_k", 100)})
+        self.open_object_request(request)
+        self._status_label.setText(tr(
+            "Searched {n} crops across {plates} plates in {ms} ms.",
+            n=f"{len(result['index']):,}", plates=len(result["db_paths"]),
+            ms=f"{result['seconds'] * 1000:.0f}"))
+        if result.get("unlabelled_only"):
+            self._status_label.setText(self._status_label.text() + " " +
+                tr("{n} unlabelled matches; selected reference kept separately.",
+                   n=len(hits)))
         self._similar_notice_until = time.monotonic() + 3.0
 
     @Slot(str)

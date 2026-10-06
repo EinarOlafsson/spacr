@@ -1,7 +1,8 @@
 """Embeddings — a label-free vector for every object, beside the measured panel.
 
-A SCREEN, NOT A SCRIPT. Cell-DINO, OpenPhenom and SubCell are all Python or
-command line. No graphical platform exposes any of them.
+A SCREEN, NOT A SCRIPT. The upstream Cell-DINO, OpenPhenom and SubCell models
+expose Python interfaces. This screen also accepts an explicitly mapped,
+digest-verified local official Cell-DINO checkpoint.
 
 The engine serves this lab. The screen offers that embedding without any
 Python.
@@ -30,10 +31,11 @@ named ``emb_c<channel>_<dimension>`` under the per-channel policy and
 them -- backbone, policy and the checksum of the weights on this machine.
 Two runs' dimension 17 are the same number and not the same thing unless
 all three match, which is why the entry is part of the result rather than
-a log line. THE MATRIX LIVES IN THE SCREEN AND IS NOT YET WRITTEN
-ANYWHERE: the table below shows the first few dimensions of the first
-fifty objects, and there is no export button. Reaching the whole matrix
-means :func:`spacr.embeddings.embed_array` from Python for now.
+a log line. The preview shows the first few dimensions of the first fifty
+objects. The alpha Save for Similar crops action stores the complete matrix
+in the database that supplied the loaded objects, so Annotate can search
+those vectors. Folder and programmatically supplied crops have no database
+object identity and cannot use this action.
 
 **What to do next.** Treat the columns as a feature source, not as a
 result. They are consumed exactly as the measured panel is -- a reduction
@@ -225,6 +227,10 @@ class EmbeddingsScreen(QWidget):
         self.setObjectName("EmbeddingsScreen")
         self._frame: Optional[pd.DataFrame] = None
         self._result = None
+        self._result_encoder = None
+        self._crop_identity = None
+        self._result_identity = None
+        self._crop_generation = 0
         self._scale_record: dict = {}
         self._crop_record: Dict[str, Any] = {}
         self._plan = None
@@ -232,6 +238,10 @@ class EmbeddingsScreen(QWidget):
         self._loading = False
         self._read_path = ""
         self._subcell_channels: Optional[tuple[int, int, int, int]] = None
+        self._cell_dino_factory = ""
+        self._cell_dino_channels: Optional[tuple[int, ...]] = None
+        self._cell_dino_checkpoint = ""
+        self._cell_dino_digest = ""
         self._policy_before_subcell: Optional[str] = None
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_job_failed)
@@ -387,6 +397,18 @@ class EmbeddingsScreen(QWidget):
         self._add_use_for_pickers(controls)
         outer.addLayout(controls)
 
+        self._save_similar = QPushButton(tr("Save for Similar crops"), self)
+        self._save_similar.setObjectName("EmbeddingsSaveForSimilarity")
+        self._save_similar.setToolTip(tr(
+            "Save these vectors in their source database for Annotate's "
+            "Like this search. Load crops from a database first."))
+        self._save_similar.setEnabled(False)
+        self._save_similar.clicked.connect(self._save_for_similarity)
+        outer.addWidget(self._save_similar)
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(self._save_similar)
+
         self._table = install_sorting(QTableWidget(0, 0, self))
         self._table.setObjectName("EmbeddingsPreviewTable")
         self._table.setAlternatingRowColors(True)
@@ -443,8 +465,9 @@ class EmbeddingsScreen(QWidget):
             "OpenPhenom and ChAda-ViT take any number of stains. SubCell's "
             "two-plane model takes DNA then protein; its four-plane model "
             "needs explicit microtubules, ER, DNA and protein mapping. "
-            "Weights download once. Cell-DINO needs "
-            "an official checkpoint and is not yet supported by this version. "
+            "Other weights download once. Cell-DINO requires a local "
+            "official checkpoint, declared SHA-256 and explicit model-plane "
+            "mapping. "
             "Default None (use the "
             "backbone)."))
         controls.addWidget(self._foundation)
@@ -455,6 +478,10 @@ class EmbeddingsScreen(QWidget):
             "before running SubCell's four-plane model."))
         self._subcell_button.clicked.connect(self._choose_subcell_channels)
         controls.addWidget(self._subcell_button)
+        self._cell_dino_button = QPushButton(tr("Checkpoint and channels…"), self)
+        self._cell_dino_button.setObjectName("EmbeddingsCellDinoConfigButton")
+        self._cell_dino_button.clicked.connect(self._choose_cell_dino)
+        controls.addWidget(self._cell_dino_button)
         self._foundation.currentIndexChanged.connect(
             self._sync_subcell_controls)
         self._sync_subcell_controls()
@@ -466,13 +493,15 @@ class EmbeddingsScreen(QWidget):
         from ..preferences import _get_show_alpha_features
 
         selected = self._foundation.currentData() == "subcell_rybg"
+        cell_dino = self._foundation.currentData() == "cell_dino"
         project = self._policy.findData("project")
-        if selected:
+        if selected or cell_dino:
             if self._policy_before_subcell is None:
                 self._policy_before_subcell = str(self._policy.currentData())
             self._policy.setCurrentIndex(project)
             self._policy.setItemText(
-                project, tr("Four mapped planes (one pass)"))
+                project, tr("Four mapped planes (one pass)") if selected else
+                tr("Mapped model planes (one pass)"))
             self._policy.setEnabled(False)
         else:
             self._policy.setItemText(
@@ -497,6 +526,10 @@ class EmbeddingsScreen(QWidget):
         self._subcell_button.setVisible(selected and alpha_on)
         self._subcell_button.setProperty(
             "_spacr_alpha_hid", bool(selected and not alpha_on))
+        self._cell_dino_button.setEnabled(cell_dino and count >= 4)
+        self._cell_dino_button.setVisible(cell_dino and alpha_on)
+        self._cell_dino_button.setProperty(
+            "_spacr_alpha_hid", bool(cell_dino and not alpha_on))
 
     def _subcell_mapping_error(
             self, channels: tuple[object, ...] | None,
@@ -583,6 +616,158 @@ class EmbeddingsScreen(QWidget):
     def _choose_subcell_channels(self) -> None:
         """Open the mapping form without retaining its Qt wrappers."""
         dialog = self._subcell_channels_dialog()
+        try:
+            dialog.exec()
+        finally:
+            dialog.deleteLater()
+
+    def _cell_dino_mapping_error(
+            self, factory: str, channels: tuple[object, ...] | None,
+            available: int, path: str, digest: str) -> str:
+        """Explain a missing checkpoint or ambiguous model-input order."""
+        from ...embeddings import _CELL_DINO_FACTORIES
+
+        if factory not in _CELL_DINO_FACTORIES:
+            return tr("Choose an official Cell-DINO model factory.")
+        width = _CELL_DINO_FACTORIES[factory][0]
+        if (not isinstance(channels, tuple) or len(channels) != width
+                or any(not isinstance(channel, int)
+                       or isinstance(channel, bool) for channel in channels)):
+            return tr("Choose a crop channel for every Cell-DINO input plane.")
+        if len(set(channels)) != width:
+            return tr("Choose different crop channels for every Cell-DINO plane.")
+        if any(channel < 0 or channel >= available for channel in channels):
+            return tr("A Cell-DINO channel is outside the loaded crops. "
+                      "Reopen the mapping and choose valid planes.")
+        if not path or not os.path.isfile(os.path.expanduser(path)):
+            return tr("Choose a local official Cell-DINO checkpoint file.")
+        import re
+
+        if not re.fullmatch(r"[0-9a-fA-F]{64}", digest):
+            return tr("Enter the checkpoint's 64-character SHA-256 digest.")
+        return ""
+
+    def _cell_dino_dialog(self) -> QDialog:
+        """Configure a pinned official factory, local weights and input order."""
+        from ...embeddings import _CELL_DINO_FACTORIES
+
+        crops = getattr(self, "_crops", None)
+        available = 0 if crops is None else int(crops.shape[-1])
+        dialog = QDialog(self)
+        dialog.setObjectName("EmbeddingsCellDinoDialog")
+        dialog.setWindowTitle(tr("Cell-DINO checkpoint and model planes"))
+        layout = QVBoxLayout(dialog)
+        guidance = QLabel(tr(
+            "Use an official checkpoint obtained from Meta. Choose its exact "
+            "factory and SHA-256, then map crop channels in model-input "
+            "order. No stain identity is inferred."), dialog)
+        guidance.setWordWrap(True)
+        layout.addWidget(guidance)
+        form = QFormLayout()
+        factory = QComboBox(dialog)
+        factory.setObjectName("EmbeddingsCellDinoFactory")
+        factory.addItem(tr("Choose model…"), "")
+        factory.addItem(tr("HPA ViT-L/16 · four planes · 224 pixels"),
+                        "cell_dino_hpa_vitl16")
+        factory.addItem(tr("HPA ViT-L/14 · four planes · 518 pixels"),
+                        "cell_dino_hpa_vitl14")
+        factory.addItem(tr("Cell Painting ViT-S/8 · five planes · 128 pixels"),
+                        "cell_dino_cp_vits8")
+        factory.setCurrentIndex(max(factory.findData(self._cell_dino_factory), 0))
+        form.addRow(tr("Official model"), factory)
+        path = QLineEdit(dialog)
+        path.setObjectName("EmbeddingsCellDinoCheckpointPath")
+        path.setText(self._cell_dino_checkpoint)
+        browse = QPushButton(tr("Browse…"), dialog)
+        browse.setObjectName("EmbeddingsCellDinoBrowse")
+
+        def choose_file() -> None:
+            """Choose local weights without downloading or accepting terms."""
+            chosen, _ = QFileDialog.getOpenFileName(
+                dialog, tr("Choose official Cell-DINO checkpoint"),
+                path.text(), tr("PyTorch checkpoints (*.pth *.pt);;All files (*)"))
+            if chosen:
+                path.setText(chosen)
+
+        browse.clicked.connect(choose_file)
+        path_row = QHBoxLayout()
+        path_row.addWidget(path)
+        path_row.addWidget(browse)
+        form.addRow(tr("Local checkpoint"), path_row)
+        digest = QLineEdit(dialog)
+        digest.setObjectName("EmbeddingsCellDinoDigest")
+        digest.setText(self._cell_dino_digest)
+        form.addRow(tr("Expected SHA-256"), digest)
+        planes = []
+        plane1 = QComboBox(dialog)
+        plane1.setObjectName("EmbeddingsCellDinoPlane1")
+        plane2 = QComboBox(dialog)
+        plane2.setObjectName("EmbeddingsCellDinoPlane2")
+        plane3 = QComboBox(dialog)
+        plane3.setObjectName("EmbeddingsCellDinoPlane3")
+        plane4 = QComboBox(dialog)
+        plane4.setObjectName("EmbeddingsCellDinoPlane4")
+        plane5 = QComboBox(dialog)
+        plane5.setObjectName("EmbeddingsCellDinoPlane5")
+        planes.extend((plane1, plane2, plane3, plane4, plane5))
+        for index, selector in enumerate(planes):
+            selector.addItem(tr("Choose channel…"), None)
+            for channel in range(available):
+                selector.addItem(tr("Channel {position} (index {index})").format(
+                    position=channel + 1, index=channel), channel)
+            if self._cell_dino_channels is not None and (
+                    index < len(self._cell_dino_channels)):
+                selector.setCurrentIndex(max(selector.findData(
+                    self._cell_dino_channels[index]), 0))
+            form.addRow(tr("Input plane {number}").format(number=index + 1),
+                        selector)
+
+        def sync_width() -> None:
+            """The fifth plane belongs only to the Cell Painting factory."""
+            visible = factory.currentData() == "cell_dino_cp_vits8"
+            form.labelForField(plane5).setVisible(visible)
+            plane5.setVisible(visible)
+
+        factory.currentIndexChanged.connect(sync_width)
+        sync_width()
+        layout.addLayout(form)
+        problem = QLabel("", dialog)
+        problem.setObjectName("EmbeddingsCellDinoProblem")
+        problem.setWordWrap(True)
+        layout.addWidget(problem)
+        actions = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel, dialog)
+        layout.addWidget(actions)
+
+        def accept_mapping() -> None:
+            """Keep only plain configuration values after the form closes."""
+            selected = str(factory.currentData() or "")
+            width = _CELL_DINO_FACTORIES.get(selected, (0, 0))[0]
+            chosen = tuple(plane.currentData() for plane in planes[:width])
+            current = getattr(self, "_crops", None)
+            count = 0 if current is None else int(current.shape[-1])
+            reason = self._cell_dino_mapping_error(
+                selected, chosen, count, path.text().strip(),
+                digest.text().strip())
+            if reason:
+                problem.setText(reason)
+                return
+            self._cell_dino_factory = selected
+            self._cell_dino_channels = chosen
+            self._cell_dino_checkpoint = path.text().strip()
+            self._cell_dino_digest = digest.text().strip().lower()
+            self._status.setText(tr(
+                "Cell-DINO checkpoint and input-plane order saved. "
+                "The file digest will be checked before model loading."))
+            dialog.accept()
+
+        actions.accepted.connect(accept_mapping)
+        actions.rejected.connect(dialog.reject)
+        return dialog
+
+    def _choose_cell_dino(self) -> None:
+        """Open the Cell-DINO form and dispose its widgets on close."""
+        dialog = self._cell_dino_dialog()
         try:
             dialog.exec()
         finally:
@@ -1261,6 +1446,9 @@ class EmbeddingsScreen(QWidget):
             widget.setEnabled(not loading)
         self._run.setEnabled(
             False if loading else getattr(self, "_crops", None) is not None)
+        self._save_similar.setEnabled(
+            not loading and self._result_identity is not None
+            and self._result is not None)
         if not loading:
             self._on_source_changed()
 
@@ -1314,6 +1502,17 @@ class EmbeddingsScreen(QWidget):
         self._crop_record = dict(record)
         self._set_loading(False)
         self.set_crops(crops, label=self._loaded_label(record))
+        plan = self._plan
+        if plan is not None and plan.query.source == CROP_SOURCE_DATABASE:
+            rows = plan.rows[:int(crops.shape[0])]
+            keys = tuple(row.get("prcfo") for row in rows)
+            if (len(keys) == len(crops) and all(
+                    key is not None and not pd.isna(key)
+                    and str(key).strip() for key in keys)
+                    and len(set(map(str, keys))) == len(keys)):
+                self._crop_identity = (
+                    os.path.abspath(os.path.expanduser(plan.query.path)),
+                    tuple(str(key) for key in keys))
         self._status.setText(self._loaded_sentence(record))
         self.crops_loaded.emit(int(crops.shape[0]))
 
@@ -1407,6 +1606,12 @@ class EmbeddingsScreen(QWidget):
                 f"{crops.shape}. spacr.crops produces this stack, and "
                 f"spacr.embeddings.embed_array expects channels last.")
         self._crops = crops
+        self._crop_generation += 1
+        self._crop_identity = None
+        self._result_identity = None
+        self._result = None
+        self._result_encoder = None
+        self._save_similar.setEnabled(False)
         self._scale_record = {}
         self._source.setText(
             label or f"{crops.shape[0]} objects x {crops.shape[-1]} channels")
@@ -1417,6 +1622,13 @@ class EmbeddingsScreen(QWidget):
             self._status.setText(tr(
                 "The new crops have fewer channels. Reopen Channels… to "
                 "map SubCell's four planes."))
+        if (self._cell_dino_channels is not None
+                and any(channel >= int(crops.shape[-1])
+                        for channel in self._cell_dino_channels)):
+            self._cell_dino_channels = None
+            self._status.setText(tr(
+                "The new crops have fewer channels. Reopen Cell-DINO "
+                "checkpoint and channels to map its input planes."))
         self._sync_subcell_controls()
         self._run.setEnabled(True)
         self._run.setToolTip("Encode every object")
@@ -1444,6 +1656,23 @@ class EmbeddingsScreen(QWidget):
                 batch_size=int(self._batch.value()),
                 normalize=False,
             )
+        if foundation == "cell_dino":
+            crops = getattr(self, "_crops", None)
+            count = 0 if crops is None else int(crops.shape[-1])
+            reason = self._cell_dino_mapping_error(
+                self._cell_dino_factory, self._cell_dino_channels,
+                count, self._cell_dino_checkpoint, self._cell_dino_digest)
+            if reason:
+                raise EmbeddingError(reason)
+            return EmbeddingSpec(
+                backbone=foundation,
+                channel_policy=CHANNEL_PROJECT,
+                channels=self._cell_dino_channels,
+                batch_size=int(self._batch.value()),
+                cell_dino_factory=self._cell_dino_factory,
+                checkpoint_path=self._cell_dino_checkpoint,
+                checkpoint_sha256=self._cell_dino_digest,
+            )
         return EmbeddingSpec(
             backbone=foundation or str(self._backbone.currentText()).strip(),
             channel_policy=str(self._policy.currentData()),
@@ -1467,8 +1696,18 @@ class EmbeddingsScreen(QWidget):
             if reason:
                 self._status.setText(reason)
                 return
+        if self._foundation.currentData() == "cell_dino":
+            reason = self._cell_dino_mapping_error(
+                self._cell_dino_factory, self._cell_dino_channels,
+                int(crops.shape[-1]), self._cell_dino_checkpoint,
+                self._cell_dino_digest)
+            if reason:
+                self._status.setText(reason)
+                return
         spec = self.spec()
         record = self._scale_record
+        generation = self._crop_generation
+        identity = self._crop_identity
         self._status.setText(f"Embedding {crops.shape[0]} objects…")
 
         def work():
@@ -1478,29 +1717,90 @@ class EmbeddingsScreen(QWidget):
             opens this screen should not pay for it, and a user who does
             should pay for it once, here, rather than at launch.
             """
-            from ...embeddings import _embed_plate
+            from ...embeddings import _embed_plate, encoder_entry
 
-            return _embed_plate(crops, spec, record=record)
+            try:
+                result = _embed_plate(crops, spec, record=record)
+                entry = encoder_entry(getattr(result, "spec", None) or spec)
+                return result, entry, ""
+            except Exception as exc:
+                return None, None, f"{type(exc).__name__}: {exc}"
 
-        self._jobs.submit(work, self._on_embedded)
+        def finished(answer):
+            """Publish only to the crop selection that produced the vectors."""
+            if generation != self._crop_generation:
+                return
+            result, entry, error = answer
+            if error:
+                if not self._loading:
+                    self._status.setText(error)
+                return
+            self._result_identity = identity
+            self._on_embedded(result, entry=entry)
 
-    def _on_embedded(self, result) -> None:
+        self._jobs.submit(work, finished)
+
+    def _on_embedded(self, result, *, entry=None) -> None:
         """Fill the preview and say which encoder produced it."""
         self._result = result
+        self._result_encoder = entry
+        self._save_similar.setEnabled(
+            not self._loading and self._result_identity is not None)
         frame = pd.DataFrame(np.asarray(result.values),
                              columns=list(result.columns))
         self._frame = frame
+        if self._loading:
+            return
         self._fill_preview(frame)
 
         from ...embeddings import encoder_entry
 
-        entry = encoder_entry(getattr(result, "spec", None) or self.spec())
+        if entry is None:
+            entry = encoder_entry(getattr(result, "spec", None) or self.spec())
+        self._result_encoder = entry
         digest = entry.sha256[:12] + "…" if entry.sha256 else "no checksum"
         self._status.setText(
             f"{len(frame)} objects x {len(frame.columns)} dimensions. "
             f"Encoder {entry.name}, weights {digest}.")
         if self._labels and len(self._labels) == len(frame):
             self._show_scorecard()
+
+    def _save_for_similarity(self) -> None:
+        """Write the actual result against its frozen source object keys."""
+        identity, result = self._result_identity, self._result
+        if identity is None or result is None:
+            self._status.setText(tr(
+                "Load database crops and embed them before saving vectors."))
+            return
+        database, keys = identity
+        entry = self._result_encoder
+        self._save_similar.setEnabled(False)
+        self._status.setText(tr("Saving crop embeddings…"))
+
+        def work():
+            """Persist vectors without blocking the graphical thread."""
+            from ...active_learning import _store_crop_embeddings
+
+            try:
+                _store_crop_embeddings(database, keys, result,
+                                       encoder_entry=entry)
+                return len(keys), ""
+            except Exception as exc:
+                return 0, f"{type(exc).__name__}: {exc}"
+
+        def finished(answer):
+            """A newer crop selection keeps its own status and controls."""
+            if self._result is result and not self._loading:
+                count, error = answer
+                self._save_similar.setEnabled(True)
+                if error:
+                    self._status.setText(error)
+                    return
+                self._status.setText(tr(
+                    "Saved {count} crop embeddings. Open this database in "
+                    "Annotate and use Like this.").format(count=count))
+
+        self._jobs.submit(work, finished)
 
     def _fill_preview(self, frame: pd.DataFrame) -> None:
         """Show the first few dimensions, and only the first few.
@@ -1550,6 +1850,8 @@ class EmbeddingsScreen(QWidget):
             self._refuse("Crops could not be loaded", text)
         else:
             self._status.setText(text)
+            self._save_similar.setEnabled(
+                self._result_identity is not None and self._result is not None)
         LOG.warning("embeddings job ended: %s", text)
 
     def _stopped(self, detail: str) -> None:

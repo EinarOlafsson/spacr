@@ -12,7 +12,7 @@ existing conda environment without dependency upgrades. Actual installed Qt
 Home launch/clean exit passes offscreen; no native-desktop claim. Receipt:
 data/615_local_editable_install_2026-10-06.json.
 
-Next workstation work is precise: integrate the newer Home source, make
+The newer Home source is integrated. Next workstation work is precise: make
 encoder_entry verify Cell-DINO's actual checkpoint_path/checkpoint_sha256,
 then normally refresh API/runtime/Help/settings/guides and all nine languages
 for the new Cell-DINO/Save/multi-plate/theme contracts. Preserve every existing
@@ -20,6 +20,145 @@ scientific/tutorial receipt. Home owns F548 source, F663 native-4K smoothness
 and final-source CI/coverage/Qt. Protected serial 37457998285 remains live.
 All GPU/API/docs/translation/tutorial work remains workstation-owned; broader
 615/560 goal remains OPEN for new source and genuine missing data.
+
+## 2026-10-06 F565 alpha application completion
+F565 is DONE at source 5f6517b57: GUI embedding Save, strict actual checkpoint
+identity, multi-plate search/result source navigation, annotation writes to
+the selected source, stale-result/cache protection and automatic FAISS GPU/
+CPU selection are integrated. The final root cohort passes 76 with no warnings
+under 4 GiB. Source-matched added backend coverage is complete; only the three
+unemittable defensive Annotate combo lines/two arcs remain uncovered. Fake
+FAISS selection tests start no GPU. Actual human-labelled CUDA/FAISS and the
+separately declared synthetic 1.2M timing receipts remain accepted and intact.
+Evidence: data/565_gui_multiplate_cpu_2026-10-06/. Final global CI/coverage/Qt
+remain separate items 43/288/47; new-source normal generation remains 615.
+Cell-DINO's missing actual ModelEntry SHA remains F560 and correctly refuses
+cross-plate comparison. Please prioritize its precise workstation provenance
+follow-up above the older historical notes below.
+
+## 2026-10-06 F565 vector replacement freshness repaired
+Source 43418b29b invalidates cached Similar indexes when database or WAL
+identity/mtime/ctime/size changes. Build captures the pre-read signature and
+compares it afterwards; a database changed during construction retains the
+old token, ensuring the next query rebuilds without refusing the current
+result. A real GUI regression replaces same-model vectors and verifies the
+next query sees them. The near-parity bounded agent cohort passes 72 cases;
+all added backend lines/arcs are exercised. Remaining Annotate failure and
+lifecycle branch coverage is being completed without ratchet edits. Item 565
+remains OPEN until that final boundary audit and root integration finish.
+
+Two reused CPU agents now own F548: an explicit closed finite-map pooled
+normalization mode preserving legacy batch quantiles/order, and a batch-first
+native T>1 Mask-only ingest contract preserving T/Z/channel pixels. Neither
+claims vendor completion from observed filenames or starts a GPU process.
+F543 current implementation needs no further CPU change: its 43 focused cases
+pass; real foreground/background Harmony pairs and actual embedded vendor
+shading references remain external data gaps, not synthetic acceptance.
+
+## 2026-10-06 Cell-DINO CPU source and exact documentation-owner follow-up
+CPU source 4e352e79f adds local official Cell-DINO checkpoint loading with
+an explicit HPA L16, HPA L14 or Cell Painting S8 factory, ordered four/five
+source channels and a declared SHA-256. The regular file is hashed before
+weights-only loading; state loading is strict and the official source is
+pinned to 7764ea0f912e53c92e82eb78a2a1631e92725fc8. Alpha controls have literal
+registrations. Three optional EmbeddingSpec fields carry factory/path/digest
+and participate in Cell-DINO fingerprints; all existing model fingerprints
+remain unchanged. Exact constructor-contract assertions retain every previous
+public-inventory count/digest. Eleven named private rendered helpers are
+pinned separately without increasing the 13,182-entry historical inventory.
+
+The agent's 71 focused CPU/Qt checks pass and exercise every added executable
+statement and branch. The root integrated cohort passed 198 behavior/source
+cases before two source-contract checks exposed a sparse conf.py and the eleven
+legitimate private arrivals; conf.py is now materialized and all three affected
+source/inventory checks pass. No application failure is waived. Current source
+and bounded coverage evidence are in data/560_cell_dino_cpu_2026-10-06/.
+An official factory strictly loads a synthetic state and produces finite CPU
+features; actual official pretrained weights remain unobtained. Item 560 stays
+OPEN. Do not claim pretrained scientific or GPU acceptance for this source.
+
+Workstation follow-up is precise: encoder_entry presently calls
+_weights_on_disk(spec.backbone), which cannot resolve the declared Cell-DINO
+path. Extend your owned provenance path to use spec.checkpoint_path and verify
+actual bytes against spec.checkpoint_sha256 before reporting a local ModelEntry.
+The frozen entry used by F565 otherwise has an empty SHA and cross-plate search
+correctly refuses it. All three workstation-owned functions are byte-identical
+to e259c2d4e in this CPU source. Normal API/runtime/documentation/translation
+refresh must include the new constructor fields, mapping errors and alpha form.
+The eleven rendered private arrivals are listed exactly in
+tests/data/release_contracts/663_565_560_private_api_arrivals_2026-10-06.json.
+Preserve all accepted scientific scorecards, CUDA parity and tutorial bytes.
+
+## 2026-10-06 CPU retained-theme and multi-plate integration checkpoint
+The current catalog retains Point atlas, Tissue facets, Chromatin satin,
+Genetic advection and Perturbation lens, plus continuous Fungal growth.
+The other seven new presets and selectable Bokeh/Resonance are removed.
+Public Bokeh/Resonance classes remain callable for Python compatibility.
+Full Detail uses native physical display pixels, including HiDPI and 4K.
+Atlas/lens dots are round; atlas waves overscan the viewport. Facet cells
+move independently. Users can save two custom colours. Lens movement
+leaves ripples and clicks produce gravity bursts. Old fungal growth fades
+as new branches arrive; sampled stress images remain below 30% ink coverage.
+
+The queued GUI-input repair prevents slow renderers from starving animation
+clocks. Sparse packed-pixel stamping preserves all tested output bytes while
+removing a dense intermediate field. Stationary lens fields are cached only
+for active origins, at most 24, and released on expiry or material invalidation.
+The retained renderer SHA256 is
+bfd77a38ac5eac7de9f2cdde1880367e2fb42d5a320a79bb21f935d28e1ea1a3.
+A sequential real native-4K lens probe improves 16.54 to 20.28 FPS: all 64
+published frames have distinct animation clocks, mouse/click input works,
+and the producer stops on hide. GUI paint p95 is 8.89 ms. This does not prove
+24 FPS at native 4K. The Gaussian-tail experiment was reverted because its
+actual live performance was worse despite raster parity. Preserve that failed
+measurement. Item 663 remains OPEN for the remaining smoothness requirement.
+
+The earlier bounded ten-file theme cohort passed 523 cases. The latest focused
+clock/cache/crisp/geometry/renderer cohort passed 106 cases under 4 GiB before
+the discarded Gaussian experiment was reverted; the retained agent clock/cache
+cohort passes 29. Exact sparse stamping matches 48 complete native-4K frames;
+the retained lens cache separately matches 24 actual frames. Compact source,
+measurement and reproducibility receipts are in
+features/data/663_theme_refinement_2026-10-06/.
+Six actual offline motion previews and native stills are at
+/mnt/wd4tb/scratch/theme-refinement-20261006/final/review/index.html.
+Offline preview frame rates are not live playback measurements.
+
+F565 now has the alpha EmbeddingsSaveForSimilarity action and explicit
+multi-plate search/navigation in Annotate. Save binds vectors to the actual
+loaded database/object identities, freezes the successful ModelEntry off the
+GUI thread, rejects ambiguous keys and ignores stale inference/save results.
+Different specifications or actual checkpoint digests replace incompatible
+stored vectors. Cross-plate embedding search requires matching feature columns,
+spec fingerprints and nonempty matching actual checkpoint/encoder provenance.
+Explicit Measurements search remains available for compatible measurement
+columns. Duplicate database aliases and mixed feature schemas are refused.
+Hits carry their own source identities; navigating and annotating a hit writes
+to that source database and can return to the original query plate. Blind mode
+refuses cross-plate search. The integrated seven-file cohort passes 61 cases,
+including after the workstation provenance merge. Focused branch coverage and
+cached-index freshness review remain underway; item 565 is still OPEN.
+
+Workstation e259c2d4e is integrated. Its accepted exact chance-AP/checkpoint
+provenance helpers and four-channel SubCell CPU/CUDA, API/runtime/documentation
+receipts are preserved. Do not redo or overwrite _retrieval_scorecard,
+_weights_on_disk or encoder_entry. The workstation retains every GPU/API/docs/
+translation/tutorial task. Normal source-current generation is now needed for
+the six retained theme labels/descriptions, custom-colour controls, Save action,
+multi-plate captions and new private storage/search contracts. Cell-DINO CPU
+loading is being implemented separately; actual official pretrained weights
+have not been obtained, so no pretrained acceptance is claimed.
+
+GitHub readback at this checkpoint: docs and compat-matrix on 3ce39ac7b passed;
+its ordinary tests were cancelled by the subsequent nightly push. New tests
+37478294475 are pending at workstation e259c2d4e; docs/compat are running.
+Older exact-237 tests 37457998554 and uninterrupted serial Qt 37457998285 are
+still running. Completed ordinary/coverage failures identify only the already
+repaired README size/prose, obsolete omit-Qt text and generated Help inventory,
+plus the previously documented native Qt crash. Never mistake those older runs
+for acceptance of this new source. Preserve required passed-shard checks and
+all RAM/coverage guards; do not cancel the active serial diagnostic or run the
+full suite locally. Items 43/288/47 remain OPEN.
 
 ## 2026-10-06 workstation four-channel GPU and multilingual local acceptance
 Home 3ce39ac7b is integrated with the workstation provenance/exact chance-AP

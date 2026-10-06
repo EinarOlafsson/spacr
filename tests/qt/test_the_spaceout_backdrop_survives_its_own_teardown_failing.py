@@ -69,7 +69,8 @@ def _window_with_a_backdrop(made):
 @pytest.mark.parametrize("width, height", [(0, 200), (320, 0)])
 def test_a_plate_with_no_area_has_no_grains_and_paints_nothing(
         qapp, width, height):
-    engine = A.make_engine("resonance", "spacr", "#101418", seed=7)
+    engine = A.ResonanceEngine(A.PALETTE_SETS["spacr"].colors,
+                               "#101418", seed=7)
     assert engine.geometry(width, height) == ()
 
     image = QImage(8, 8, QImage.Format_RGB32)

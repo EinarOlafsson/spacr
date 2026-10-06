@@ -106,6 +106,8 @@ def test_a_search_while_hidden_still_pins_the_grid_to_the_matches(
     assert all(area[p] == area[query] for p in first_matches)
     assert annotate._object_request.source == "similarity"
     assert annotate._similar_cache is not None
+    annotate._on_find_similar()
+    qtbot.waitUntil(lambda: annotate._similar_worker is None, timeout=20000)
     cached = annotate._similar_cache[2]
     annotate._on_find_similar()
     qtbot.waitUntil(lambda: annotate._similar_worker is None, timeout=20000)

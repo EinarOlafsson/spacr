@@ -1,0 +1,9 @@
+Use an isolated checkout containing 4e352e79f and the source-current inventory
+contract. CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh
+4G python -m pytest -q tests/test_cell_dino_checkpoint_cpu.py
+tests/qt/test_cell_dino_checkpoint_mapping.py tests/test_foundation_model_embeddings.py
+This bounded loader/Qt cohort uses declared synthetic model states, not official
+pretrained weights. No GPU or whole-suite run is required or claimed. Agent
+coverage evidence binds its 81d911db1 source; root differs by integrating the
+workstation-owned provenance/chance-AP helpers and preserving SubCell RYBG prose.
+Do not infer full-module coverage from added-statement/branch coverage.

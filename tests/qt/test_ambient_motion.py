@@ -49,11 +49,19 @@ from spacr.qt.widgets.ambient import (AMBIENT_THEMES,           # noqa: E402
                                       DEFAULT_SPEED, DENSITY_RANGE,
                                       DRIFT_DIRECTIONS, RESOLUTION_RANGE,
                                       SIZE_RANGE, SPEED_RANGE, AmbientWidget,
-                                      make_engine, palette_colors,
+                                      make_engine as _make_engine, palette_colors,
                                       palettes_for)
 
 DARK = "#101418"
 LIGHT = "#f6f7f9"
+
+
+def make_engine(theme, palette, background, *args, **kwargs):
+    """Keep retired public renderer regressions separate from selectable themes."""
+    legacy = {"bokeh": amb.BokehEngine, "resonance": amb.ResonanceEngine}
+    if theme in legacy:
+        return legacy[theme](amb.PALETTE_SETS[palette].colors, background, *args, **kwargs)
+    return _make_engine(theme, palette, background, *args, **kwargs)
 
 #: Big enough that the buffer is genuinely upscaled (which is what the blur
 #: control acts on) and small enough to render a few dozen frames per test.

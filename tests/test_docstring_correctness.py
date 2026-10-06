@@ -1972,9 +1972,31 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert theme.accepted_documented_parameters == theme.parameters
     callables = [
         replace(item, parameters=item.parameters - {"sound_key"},
-                accepted_documented_parameters=(
-                    item.accepted_documented_parameters - {"sound_key"}))
+                    accepted_documented_parameters=(
+                        item.accepted_documented_parameters - {"sound_key"}))
         if item.symbol == theme_symbol else item for item in callables
+    ]
+    by_symbol = {item.symbol: item for item in callables}
+
+    cell_dino_fields = {
+        "cell_dino_factory", "checkpoint_path", "checkpoint_sha256",
+    }
+    spec_symbol = "spacr.embeddings.EmbeddingSpec"
+    spec = by_symbol[spec_symbol]
+    assert spec.category == "dataclass_constructor"
+    assert spec.exposure == "autoapi"
+    assert spec.variant_count == 1 and spec.docless_variant_count == 0
+    assert spec.parameters == {
+        "backbone", "channel_policy", "channels", "batch_size", "device",
+        "normalize", "channel_scale",
+    } | cell_dino_fields
+    assert spec.required_parameters == set()
+    assert cell_dino_fields <= spec.accepted_documented_parameters
+    callables = [
+        replace(item, parameters=item.parameters - cell_dino_fields,
+                accepted_documented_parameters=(
+                    item.accepted_documented_parameters - cell_dino_fields))
+        if item.symbol == spec_symbol else item for item in callables
     ]
     by_symbol = {item.symbol: item for item in callables}
 
@@ -3505,7 +3527,17 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         "_subcell_channels_dialog.accept_mapping"
     ] == "Store only a complete four-index choice, then close."
     # 2026-10-06 560: +1/-0, EmbeddingsScreen._subcell_channels_dialog.accept_mapping.
-    assert len(docs) == 13182
+    additions_path = (
+        pathlib.Path(__file__).resolve().parent / "data" / "release_contracts"
+        / "663_565_560_private_api_arrivals_2026-10-06.json"
+    )
+    import json
+
+    private_additions = json.loads(additions_path.read_text())
+    assert len(private_additions) == 11
+    assert {key: docs[key] for key in private_additions} == private_additions
+    assert not private_additions.keys() & rendered_documented_callables.keys()
+    assert len(docs.keys() - private_additions.keys()) == 13182
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every

@@ -2661,13 +2661,15 @@ _EMBEDDING_TABLE = "crop_embedding"
 
 
 def _store_crop_embeddings(db_path: str, prcfo: Sequence[Any],
-                           embedding: Any) -> int:
+                           embedding: Any, *, encoder_entry=None) -> int:
     """Save crop embeddings in ``measurements.db``, one row per object.
 
     The table is keyed by ``prcfo``, so it joins to the crop table the same
     way the measurements do. Rows for the same ``prcfo`` are replaced; a
-    new embedding with different columns replaces the whole table, so the
-    table always holds one encoder's vectors.
+    new embedding with different columns or a different specification
+    replaces the whole table. A specified result keeps its fingerprint and
+    complete specification beside each row; unspecified vectors cannot be
+    merged into that table because their encoder identity is unknown.
 
     :param db_path: path to ``measurements.db``.
     :param prcfo: one object key per row of ``embedding``.
@@ -2677,6 +2679,9 @@ def _store_crop_embeddings(db_path: str, prcfo: Sequence[Any],
     :raises ValueError: when the keys and rows do not match in number.
     """
     from . import tabular
+    from dataclasses import asdict
+    import json
+
     columns = getattr(embedding, "columns", None)
     values = getattr(embedding, "values", embedding)
     if isinstance(embedding, pd.DataFrame):
@@ -2692,10 +2697,36 @@ def _store_crop_embeddings(db_path: str, prcfo: Sequence[Any],
     frame = pd.DataFrame(values, columns=[str(c) for c in columns])
     frame.insert(0, "prcfo", keys)
     frame = frame.drop_duplicates("prcfo", keep="last")
+    spec = getattr(embedding, "spec", None)
+    fingerprint = None if spec is None else spec.fingerprint()
+    if fingerprint is not None:
+        frame["_embedding_fingerprint"] = fingerprint
+        frame["_embedding_spec"] = json.dumps(asdict(spec), sort_keys=True)
+    if encoder_entry is not None:
+        frame["_embedding_weights_sha256"] = str(
+            getattr(encoder_entry, "sha256", "") or "").lower()
+        frame["_embedding_encoder_key"] = str(
+            getattr(encoder_entry, "key", "") or "")
+        frame["_embedding_encoder_source"] = str(
+            getattr(encoder_entry, "source", "") or "")
+        frame["_embedding_encoder_backbone"] = str(
+            getattr(spec, "backbone", "") or "")
     existing = _stored_embedding_frame(db_path)
-    if existing is not None and list(existing.columns) == list(frame.columns):
+    compatible = (existing is not None
+                  and list(existing.columns) == list(frame.columns))
+    if compatible and fingerprint is not None:
+        compatible = bool(existing["_embedding_fingerprint"].eq(
+            fingerprint).all())
+    if compatible and encoder_entry is not None:
+        for column in ("_embedding_weights_sha256", "_embedding_encoder_key",
+                       "_embedding_encoder_source", "_embedding_encoder_backbone"):
+            if not existing[column].eq(frame[column].iloc[0]).all():
+                compatible = False
+                break
+    if compatible:
         existing = existing[~existing["prcfo"].isin(frame["prcfo"])]
-        frame = pd.concat([existing, frame], ignore_index=True)
+        if not existing.empty:
+            frame = pd.concat([existing, frame], ignore_index=True)
     tabular.write_database(frame, db_path, _EMBEDDING_TABLE,
                            if_exists="replace", canonicalise=False)
     return len(frame)
@@ -2741,7 +2772,9 @@ def _stored_embeddings(db_path: str, table: str = PNG_TABLE,
     joined = crops.merge(stored, on="prcfo", how="inner")
     if joined.empty:
         return None
-    return joined.drop(columns=["prcfo"]).set_index(key)
+    metadata = [column for column in joined.columns
+                if str(column).startswith("_embedding_")]
+    return joined.drop(columns=["prcfo", *metadata]).set_index(key)
 
 
 def _similarity_index(db_path: str, *, features: Optional[pd.DataFrame] = None,
@@ -2770,6 +2803,133 @@ def _similarity_index(db_path: str, *, features: Optional[pd.DataFrame] = None,
                                                        regex=False)
         features = features.loc[keep]
     return _SimilarityIndex(features, backend=backend)
+
+
+class _MultiSimilarityIndex:
+    """Search compatible crops across databases without losing source identity."""
+
+    def __init__(self, frames: Sequence[Tuple[str, pd.DataFrame]], *,
+                 backend: str = "auto"):
+        """Give every crop a private index key and retain its database and key."""
+        sources = {}
+        indexed = []
+        offset = 0
+        for db_path, features in frames:
+            unique = features.loc[~features.index.duplicated()].copy(deep=False)
+            identifiers = [str(i) for i in range(offset, offset + len(unique))]
+            sources.update(zip(identifiers,
+                               ((db_path, str(key)) for key in unique.index)))
+            unique.index = identifiers
+            indexed.append(unique)
+            offset += len(unique)
+        combined = pd.concat(indexed, copy=False)
+        self._index = _SimilarityIndex(combined, backend=backend)
+        self.sources = sources
+        self._identifiers = {source: identifier
+                             for identifier, source in sources.items()}
+        self.keys = tuple(sources[identifier] for identifier in self._index.keys)
+        self.columns = self._index.columns
+        self.backend = self._index.backend
+
+    def __len__(self) -> int:
+        """Return the number of source-qualified crops."""
+        return len(self._index)
+
+    def like(self, db_path: str, key: Any, k: int = _SIMILAR_K, *,
+             exclude: Optional[Iterable[Tuple[str, Any]]] = None) -> pd.DataFrame:
+        """Find neighbours while excluding only the exact queried source row."""
+        source = (os.path.abspath(str(db_path)), str(key))
+        identifier = self._identifiers.get(source)
+        if identifier is None:
+            raise KeyError(f"{key!r} has no compatible features in {db_path!r}")
+        excluded = [self._identifiers[item] for item in (exclude or ())
+                    if item in self._identifiers]
+        hits = self._index.like(identifier, k, exclude=excluded)
+        hits.insert(0, "db_path", [self.sources[row][0] for row in hits["key"]])
+        hits["key"] = [self.sources[row][1] for row in hits["key"]]
+        return hits
+
+
+def _multi_similarity_index(db_paths: Sequence[str], *,
+                            image_type: Optional[str] = None,
+                            backend: str = "auto",
+                            feature_kind: str = "auto") -> _MultiSimilarityIndex:
+    """Build one CPU index only when every plate has the same feature space.
+
+    Stored embeddings must carry the same nonempty specification fingerprint
+    on every row of every plate. Measurement matrices must have the same
+    feature names. Mixing these two feature kinds is refused rather than
+    filling missing or incompatible dimensions with zeroes.
+    """
+    paths = list(dict.fromkeys(os.path.abspath(str(path)) for path in db_paths))
+    if len(paths) < 2 or len({os.path.realpath(path) for path in paths}) < len(paths):
+        raise ValueError("Choose at least two different plate databases.")
+    if feature_kind not in ("auto", "embeddings", "measurements"):
+        raise ValueError("Choose embeddings or measurements as the feature kind.")
+    kind = fingerprint = provenance = columns = None
+    frames = []
+    for path in paths:
+        if not os.path.isfile(path):
+            raise ValueError(f"Plate database does not exist: {path}")
+        stored = (_stored_embedding_frame(path)
+                  if feature_kind != "measurements" else None)
+        if stored is not None:
+            current_kind = "embedding"
+            if stored.empty or "_embedding_fingerprint" not in stored:
+                raise ValueError(f"Stored embeddings lack a model fingerprint: {path}")
+            fingerprints = stored["_embedding_fingerprint"].dropna().unique()
+            if (len(fingerprints) != 1 or not str(fingerprints[0]).strip()
+                    or stored["_embedding_fingerprint"].isna().any()):
+                raise ValueError(f"Stored embeddings have mixed or missing model fingerprints: {path}")
+            current_fingerprint = str(fingerprints[0])
+            fields = ("_embedding_weights_sha256", "_embedding_encoder_key",
+                      "_embedding_encoder_source", "_embedding_encoder_backbone")
+            if any(field not in stored for field in fields):
+                raise ValueError(f"Stored embeddings lack actual encoder provenance: {path}")
+            values = []
+            for field in fields:
+                unique = stored[field].dropna().astype(str).unique()
+                if (len(unique) != 1 or not unique[0].strip()
+                        or stored[field].isna().any()):
+                    raise ValueError(f"Stored embeddings have mixed or missing encoder provenance: {path}")
+                values.append(unique[0])
+            current_provenance = tuple(values)
+            digest = current_provenance[0]
+            if len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
+                raise ValueError(f"Stored embeddings lack a verified weights SHA-256: {path}")
+            features = _stored_embeddings(path)
+            if features is None:
+                raise ValueError(f"No stored embeddings join crop rows in {path}")
+        else:
+            if feature_kind == "embeddings":
+                raise ValueError(f"No stored embeddings were found in {path}")
+            current_kind = "measurement"
+            current_fingerprint = None
+            current_provenance = None
+            features = round_features(path)
+            features = features[_similarity_columns(features.columns)]
+        if image_type:
+            keep = features.index.astype(str).str.contains(str(image_type),
+                                                           regex=False)
+            features = features.loc[keep]
+        features = features.select_dtypes(include=[np.number])
+        if features.empty:
+            raise ValueError(f"No compatible crops were found in {path}")
+        current_columns = list(features.columns)
+        if kind is None:
+            kind, fingerprint, provenance, columns = (
+                current_kind, current_fingerprint, current_provenance,
+                current_columns)
+        elif current_kind != kind:
+            raise ValueError("Cannot compare stored embeddings with measurement features.")
+        elif current_fingerprint != fingerprint:
+            raise ValueError("Plate embeddings were made by different models or settings.")
+        elif current_provenance != provenance:
+            raise ValueError("Plate embeddings have different encoder weights or provenance.")
+        elif set(current_columns) != set(columns) or len(current_columns) != len(columns):
+            raise ValueError("Plate feature columns differ; measure or embed them consistently.")
+        frames.append((path, features.loc[:, columns]))
+    return _MultiSimilarityIndex(frames, backend=backend)
 
 
 def _similarity_agreement(index: _SimilarityIndex, labels: Mapping[Any, Any],

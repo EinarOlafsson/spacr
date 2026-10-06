@@ -1,0 +1,176 @@
+{
+  "before_sha256": "f71d253586ad9959d678214ee416bd4162e2f1d51172fb857be29ddc513b1e97",
+  "after_sha256": "bfd77a38ac5eac7de9f2cdde1880367e2fb42d5a320a79bb21f935d28e1ea1a3",
+  "all_pairs_byte_identical": true,
+  "pairs": 24,
+  "records": [
+    {
+      "display": [
+        320,
+        200
+      ],
+      "size": 1.5,
+      "density": 0.25,
+      "frame_parity": [
+        {
+          "age": 0.0,
+          "byte_identical": true
+        },
+        {
+          "age": 0.06,
+          "byte_identical": true
+        },
+        {
+          "age": 0.25,
+          "byte_identical": true
+        },
+        {
+          "age": 0.8,
+          "byte_identical": true
+        },
+        {
+          "age": 2.4,
+          "byte_identical": true
+        },
+        {
+          "age": 5.2,
+          "byte_identical": true
+        }
+      ],
+      "shade_median_ms": [
+        null,
+        null
+      ],
+      "shade_p95_ms": [
+        null,
+        null
+      ]
+    },
+    {
+      "display": [
+        1920,
+        1080
+      ],
+      "size": 1.0,
+      "density": 1.0,
+      "frame_parity": [
+        {
+          "age": 0.0,
+          "byte_identical": true
+        },
+        {
+          "age": 0.06,
+          "byte_identical": true
+        },
+        {
+          "age": 0.25,
+          "byte_identical": true
+        },
+        {
+          "age": 0.8,
+          "byte_identical": true
+        },
+        {
+          "age": 2.4,
+          "byte_identical": true
+        },
+        {
+          "age": 5.2,
+          "byte_identical": true
+        }
+      ],
+      "shade_median_ms": [
+        null,
+        null
+      ],
+      "shade_p95_ms": [
+        null,
+        null
+      ]
+    },
+    {
+      "display": [
+        3840,
+        2160
+      ],
+      "size": 1.0,
+      "density": 1.0,
+      "frame_parity": [
+        {
+          "age": 0.0,
+          "byte_identical": true
+        },
+        {
+          "age": 0.06,
+          "byte_identical": true
+        },
+        {
+          "age": 0.25,
+          "byte_identical": true
+        },
+        {
+          "age": 0.8,
+          "byte_identical": true
+        },
+        {
+          "age": 2.4,
+          "byte_identical": true
+        },
+        {
+          "age": 5.2,
+          "byte_identical": true
+        }
+      ],
+      "shade_median_ms": [
+        null,
+        null
+      ],
+      "shade_p95_ms": [
+        null,
+        null
+      ]
+    },
+    {
+      "display": [
+        3840,
+        2160
+      ],
+      "size": 0.5,
+      "density": 3.0,
+      "frame_parity": [
+        {
+          "age": 0.0,
+          "byte_identical": true
+        },
+        {
+          "age": 0.06,
+          "byte_identical": true
+        },
+        {
+          "age": 0.25,
+          "byte_identical": true
+        },
+        {
+          "age": 0.8,
+          "byte_identical": true
+        },
+        {
+          "age": 2.4,
+          "byte_identical": true
+        },
+        {
+          "age": 5.2,
+          "byte_identical": true
+        }
+      ],
+      "shade_median_ms": [
+        null,
+        null
+      ],
+      "shade_p95_ms": [
+        null,
+        null
+      ]
+    }
+  ]
+}

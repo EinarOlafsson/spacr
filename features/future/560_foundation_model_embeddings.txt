@@ -255,3 +255,26 @@ exact pushed-source deployment/readback remains separate. Official Cell-DINO,
 four-stain expert biological accuracy and final hosted CI remain unclaimed.
 
 2026-10-06 workstation private four-channel integration: published Home source 3ce39ac7b is now merged. Both branches complete dated notes are preserved, and all three accepted workstation-owned functions are source-text identical to 58df6f5b9; every other embedding callable/class is source-text identical to Home 3ce39ac7b. Normal API/runtime/Help/settings documentation refresh and four-channel CUDA acceptance are now workstation-owned next actions. Earlier six-model receipts retain their exact source scope. No four-channel GPU, final CI or current-source publication acceptance is claimed yet.
+
+2026-10-06 — LOCAL CELL-DINO CPU LOADER AND ALPHA MAPPING IMPLEMENTED
+Integrated source 4e352e79f uses official source pin
+7764ea0f912e53c92e82eb78a2a1631e92725fc8 and explicit HPA L16/HPA L14/
+Cell Painting S8 factories. Users supply a regular checkpoint, SHA-256
+and ordered four/five distinct channel indices. Bytes are verified before
+weights-only loading; model state and actual projection width are strict.
+Three optional EmbeddingSpec fields enter Cell-DINO fingerprints only; prior
+model fingerprints remain unchanged. Literal alpha widgets expose the form.
+Agent 71 focused CPU/Qt cases pass; every added executable line and branch
+is exercised. Root integration passes the behavior checks, with exact
+constructor/private-arrival source contracts preserving old inventory pins.
+Receipt and bounded coverage are in data/560_cell_dino_cpu_2026-10-06/.
+
+An official Cell Painting factory loads a synthetic state and returns finite
+features. No official pretrained checkpoint has been obtained, so pretrained
+scientific acceptance remains OPEN. Workstation-owned encoder_entry must
+resolve the declared local Cell-DINO path and verify its actual digest; the
+current empty SHA correctly prevents cross-plate similarity acceptance.
+Normal source-current API/runtime/docs/translation generation remains
+workstation-owned. Its three provenance/chance-AP helpers are unchanged from
+e259c2d4e, and all original scientific/CUDA/tutorial receipts are preserved.
+Item 560 remains OPEN for those precise remaining scopes.

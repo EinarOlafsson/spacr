@@ -1,0 +1,11 @@
+On an isolated source checkout containing 5f6517b57, run:
+CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G python -m pytest -q
+tests/test_multi_plate_similarity.py tests/test_similarity_search.py
+tests/qt/test_multi_plate_similarity_f565.py tests/qt/test_find_similar_alpha_gate.py
+tests/qt/test_similarity_options_f565.py tests/qt/test_embedding_similarity_storage.py
+tests/qt/test_embedding_similarity_source_boundaries.py
+Use one command with these seven paths; never substitute the whole suite.
+The tests use actual temporary SQLite databases and actual Qt load/save/search/
+navigation controls, with model inference and FAISS hardware mocked where stated.
+Actual pretrained/GPU/human-label acceptance belongs to the referenced existing
+workstation receipts, not these CPU integration tests.

@@ -1,0 +1,13 @@
+{
+  "spacr.embeddings._cell_dino_model.forward": "Return the official DINOv2 head output for each declared crop.",
+  "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_color": "Select a local colour and activate the custom palette on save.",
+  "spacr.qt.preferences.PreferencesDialog._build_the_dialog._refresh_custom_colors": "Show the pending colour pair while preserving dialog cancellation.",
+  "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors": "Offer custom colours for the six procedural data-art scenes.",
+  "spacr.qt.screens.annotate.AnnotateScreen._on_similar_result_plate.show_source_hits": "Rebuild the new plate's grid before presenting its matches.",
+  "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.accept_mapping": "Keep only plain configuration values after the form closes.",
+  "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.choose_file": "Choose local weights without downloading or accepting terms.",
+  "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width": "The fifth plane belongs only to the Cell Painting factory.",
+  "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.finished": "A newer crop selection keeps its own status and controls.",
+  "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.work": "Persist vectors without blocking the graphical thread.",
+  "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.finished": "Publish only to the crop selection that produced the vectors."
+}

@@ -1,4 +1,4 @@
-"""Image and pointer contracts for the twelve native-detail data-art materials."""
+"""Image and pointer contracts for the six offered data-art materials."""
 
 from __future__ import annotations
 
@@ -16,13 +16,11 @@ from spacr.qt.widgets import ambient
 
 
 FAMILIES = (
-    "point_atlas", "tissue_facets", "spatial_strata", "molecular_helix",
-    "chromatin_ribbon", "sequence_matrix", "transcript_rain",
-    "regulatory_circuit", "genetic_advection", "interference",
-    "morphogenesis", "impulse_lens",
+    "point_atlas", "tissue_facets", "chromatin_ribbon",
+    "genetic_advection", "impulse_lens", "fungal_growth",
 )
 INTERACTIVE = frozenset(("point_atlas", "genetic_advection",
-                         "interference", "impulse_lens"))
+                         "impulse_lens"))
 BACKGROUND = "#101418"
 
 
@@ -47,17 +45,18 @@ def _digest(image: QImage) -> str:
     return hashlib.sha256(image.bits().tobytes()).hexdigest()
 
 
-def test_data_art_registry_has_twelve_distinct_named_materials():
-    """The catalog exposes twelve families without pointer duplicates."""
+def test_data_art_registry_has_six_distinct_named_materials():
+    """The catalog exposes six families without pointer duplicates."""
     keys = {theme for theme in ambient.AMBIENT_THEMES
             if theme.startswith("data_art_")}
     assert keys == {f"data_art_{family}" for family in FAMILIES}
     for family in FAMILIES:
         key = f"data_art_{family}"
         engine = _engine(family)
-        assert engine.family == family
+        if family != "fungal_growth":
+            assert engine.family == family
         assert engine.name == key
-        assert engine.interactive is (family in INTERACTIVE)
+        assert getattr(engine, "interactive", False) is (family in INTERACTIVE)
         assert ambient.animation_label(key) != key
         assert ambient.animation_note(key).endswith(".")
         assert set(ambient.palettes_for(key)) == (
@@ -90,8 +89,8 @@ def test_material_keys_produce_unique_full_frame_hashes():
 
 
 @pytest.mark.parametrize("family", tuple(sorted(INTERACTIVE)))
-def test_pointer_bends_only_the_four_interactive_materials(family):
-    """A fixed clock responds to a local pointer and restores the idle view."""
+def test_pointer_bends_interactive_materials_and_lens_wake_expires(family):
+    """The gravity lens keeps a brief wake; other pointers clear at once."""
     engine = _engine(family, seed=17)
     engine.set_time(6.0)
     idle = _digest(_frame(engine))
@@ -99,7 +98,14 @@ def test_pointer_bends_only_the_four_interactive_materials(family):
     assert engine.pointer == (0.22, 0.68)
     assert _digest(_frame(engine)) != idle
     engine.set_pointer(None)
-    assert _digest(_frame(engine)) == idle
+    if family == "impulse_lens":
+        assert _digest(_frame(engine)) != idle
+        engine.set_time(11.1)
+        reference = _engine(family, seed=17)
+        reference.set_time(11.1)
+        assert _digest(_frame(engine)) == _digest(_frame(reference))
+    else:
+        assert _digest(_frame(engine)) == idle
 
 
 def test_pointer_rejects_nonfinite_values_and_static_material_ignores_it():
@@ -109,7 +115,7 @@ def test_pointer_rejects_nonfinite_values_and_static_material_ignores_it():
     assert moving.pointer is None
     moving.set_pointer((-1.0, 2.0))
     assert moving.pointer == (0.0, 1.0)
-    static = _engine("molecular_helix")
+    static = _engine("tissue_facets")
     baseline = _digest(_frame(static))
     static.set_pointer((0.2, 0.8))
     assert static.pointer is None
@@ -140,7 +146,7 @@ def test_material_cache_follows_size_density_and_resolution_controls():
     assert not engine._material_cache
 
 
-@pytest.mark.parametrize("family", ("tissue_facets", "interference"))
+@pytest.mark.parametrize("family", ("tissue_facets",))
 def test_canvas_resizes_release_previous_material_images_and_grids(family):
     """Repeated window sizes cannot accumulate old full-resolution rasters."""
     engine = _engine(family)
@@ -168,26 +174,6 @@ def test_density_changes_grain_population_and_restores_default_frame(family):
     assert _digest(_frame(engine)) == default
 
 
-@pytest.mark.parametrize("background", (BACKGROUND, "#f6f7f9"))
-def test_genome_panels_move_real_encoded_rows_with_fixed_borders(background):
-    """Panel content scrolls visibly without moving the wafer boundaries."""
-    engine = ambient.make_engine("data_art_sequence_matrix", "spacr",
-                                 background, seed=7)
-    frames = []
-    for stamp in (2.0, 9.0):
-        engine.set_time(stamp)
-        image = QImage(320, 200, QImage.Format_RGB32)
-        image.fill(QColor(background))
-        painter = QPainter(image)
-        engine.paint(painter, 320, 200)
-        painter.end()
-        frames.append(image)
-    first, second = frames
-    changed = sum(first.pixel(x, y) != second.pixel(x, y)
-                  for x in range(320) for y in range(200))
-    assert changed > 0.11 * 320 * 200
-
-
 def test_geometry_and_isolated_grain_material_have_bounded_edges():
     """Empty canvases stay empty and an isolated grain clips at the edge."""
     engine = _engine("point_atlas")
@@ -204,7 +190,7 @@ def test_geometry_and_isolated_grain_material_have_bounded_edges():
     assert core_only.pixelColor(7, 4) == QColor("#000000")
 
 
-@pytest.mark.parametrize("family", ("sequence_matrix", "interference"))
+@pytest.mark.parametrize("family", ("tissue_facets", "chromatin_ribbon"))
 def test_light_page_material_preserves_multiplicative_identity(family):
     """A material remains visible while its light buffer stays page-safe."""
     engine = ambient.make_engine(f"data_art_{family}", "mono", "#f6f7f9",
@@ -226,8 +212,7 @@ def test_unknown_private_material_family_is_rejected_before_configuration():
         ambient._DataArtEngine(["#ffffff"], BACKGROUND, family="unknown")
 
 
-@pytest.mark.parametrize("family", ("interference", "morphogenesis",
-                                     "sequence_matrix"))
+@pytest.mark.parametrize("family", ("tissue_facets", "chromatin_ribbon"))
 def test_raster_materials_survive_tiny_and_narrow_canvases(family):
     """A transient 1-pixel or narrow resize cannot poison the next frame."""
     engine = _engine(family)
@@ -239,7 +224,7 @@ def test_raster_materials_survive_tiny_and_narrow_canvases(family):
 
 def test_a_failed_worker_shade_releases_its_qpainter(monkeypatch):
     """A rendering exception leaves the reusable QImage safe to repaint."""
-    engine = _engine("interference")
+    engine = _engine("tissue_facets")
 
     def fail_field(painter, width, height):
         """Simulate one failed material calculation inside an active painter."""
@@ -294,8 +279,8 @@ def test_pointer_poll_is_limited_to_active_window_and_widget(qtbot, monkeypatch)
 
 def test_static_material_tick_never_polls_cursor(qtbot, monkeypatch):
     """A noninteractive material advances without cursor or window work."""
-    widget = ambient.AmbientWidget(theme="data_art_molecular_helix",
-                                   palette="ocean", background=BACKGROUND)
+    widget = ambient.AmbientWidget(theme="data_art_tissue_facets",
+                                   palette="lowsun", background=BACKGROUND)
     qtbot.addWidget(widget)
     widget.stop()
     monkeypatch.setattr(widget, "_follow_the_run", lambda: None)
