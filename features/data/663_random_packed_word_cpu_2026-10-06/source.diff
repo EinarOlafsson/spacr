@@ -1,0 +1,60 @@
+diff --git a/spacr/qt/widgets/ambient.py b/spacr/qt/widgets/ambient.py
+index 5906704016..77503f34c3 100644
+--- a/spacr/qt/widgets/ambient.py
++++ b/spacr/qt/widgets/ambient.py
+@@ -4602 +4602 @@ def _scatter_colored_grains(flat, ranks, px, py, indices, lookup, axial, diagona
+-    """Keep the strongest grain across hues with a deterministic packed tie."""
++    """Keep exact intensity/colour ordering in a private packed working word."""
+@@ -4607,9 +4607,2 @@ def _scatter_colored_grains(flat, ranks, px, py, indices, lookup, axial, diagona
+-        encoded = lookup[level]
+-        score = encoded >> 32 if dark else 255 - (encoded >> 32)
+-        color = encoded & 0xffffffff
+-        if score > ranks[destination]:
+-            ranks[destination] = score
+-            flat[destination] = color
+-        elif score == ranks[destination] and (
+-                (dark and color > flat[destination])
+-                or (not dark and color < flat[destination])):
++        color = lookup[level]
++        if (dark and color > flat[destination]) or (not dark and color < flat[destination]):
+@@ -4629,3 +4622 @@ def _scatter_colored_grains(flat, ranks, px, py, indices, lookup, axial, diagona
+-                encoded = diagonal[level] if dx and dy else axial[level]
+-                score = encoded >> 32 if dark else 255 - (encoded >> 32)
+-                color = encoded & 0xffffffff
++                color = diagonal[level] if dx and dy else axial[level]
+@@ -4633,5 +4624 @@ def _scatter_colored_grains(flat, ranks, px, py, indices, lookup, axial, diagona
+-                if score > ranks[destination]:
+-                    ranks[destination] = score
+-                    flat[destination] = color
+-                elif score == ranks[destination] and (
+-                        (dark and color > flat[destination])
++                if ((dark and color > flat[destination])
+@@ -4672 +4659 @@ def _warm_packed_scatter():
+-            table = lookup.astype(np.uint64)
++            table = lookup
+@@ -5122,5 +5109,5 @@ class _DataArtEngine(_BufferedEngine):
+-            channels = channels.astype(np.uint64)
+-            table = (np.uint64(0xff000000) | channels[:, :, 0] << np.uint64(16)
+-                     | channels[:, :, 1] << np.uint64(8) | channels[:, :, 2])
+-            ranks = np.arange(256, dtype=np.uint64)
+-            table |= (ranks if self.dark else 255 - ranks)[None, :] << np.uint64(32)
++            channels = channels.astype(np.uint32)
++            table = (channels[:, :, 0] << np.uint32(16)
++                     | channels[:, :, 1] << np.uint32(8) | channels[:, :, 2])
++            ranks = np.arange(256, dtype=np.uint32)
++            table |= (ranks if self.dark else 255 - ranks)[None, :] << np.uint32(24)
+@@ -5136 +5123 @@ class _DataArtEngine(_BufferedEngine):
+-        output.fill(self.identity.rgba())
++        output.fill(table[0])
+@@ -5139 +5126 @@ class _DataArtEngine(_BufferedEngine):
+-            ranks = np.zeros(width * height, dtype=np.uint8)
++            ranks = np.empty(0, dtype=np.uint8)
+@@ -5142,0 +5130 @@ class _DataArtEngine(_BufferedEngine):
++                np.bitwise_or(output, np.uint32(0xff000000), out=output)
+@@ -5147 +5135,2 @@ class _DataArtEngine(_BufferedEngine):
+-        packed = np.full(width * height, table[0], dtype=np.uint64)
++        output.fill(table[0])
++        packed = output
+@@ -5157 +5146 @@ class _DataArtEngine(_BufferedEngine):
+-        np.copyto(output, packed, casting='unsafe')
++        np.bitwise_or(output, np.uint32(0xff000000), out=output)

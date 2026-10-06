@@ -819,3 +819,27 @@ pairs against exact7a35→a324sources, peak586660KiB; receipt is archived in
     24FPS/max-detail smoothness and reported installedSaveSIGSEGV remain OPEN.
     Final source hashes and bounded root logs are in
     data/43_final_cpu_source_checkpoint_2026-10-06/.
+
+2026-10-06 — exact Random private packed-word review checkpoint
+Source bc170e097f compares frozen parental45f3cb1ec0 ambienta324d395... with
+ac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20.
+Rank temporarily uses the private owned RGB32 working word's alpha byte;
+every byte is restored toFF before image return/publication, including full
+recovery after partial compiler failure. RGB/intensity tie ordering is exact.
+No style/geometry/samples/detail/density/native-resolution changes. Tables are
+96KiB and the separate native8,294,400-byte rank plane is eliminated; fallback
+also avoids its native66,355,200-byte uint64 accumulator.95 focused cases pass;
+all15 added statements/9 touching arcs are covered.40 default/custom pairs,
+24 Random compiled/fallback and24 old/new native pairs, plus96 alternating
+native frames match exactly. All256 ranks and98,304 clipped duplicate points
+per primitive case retain exact ordering. Blocked real producer publication,
+fresh deferred startup and native hide/delete/GC ownership checks pass.
+Fresh live native pairs are mixed:22.60→23.39FPS and23.20→22.20FPS; both raw
+receipts remain. Warmed actual ABBA before23.60/23.40FPS versus candidate
+23.79/23.60FPS supports only a modest improvement. Balanced dark/light shader
+medians20.53→19.24ms and23.38→21.56ms retain exact pixels. Hard native24FPS
+remains OPEN, along with unverified aesthetic acceptance and unreproducedSave
+SIGSEGV; no whole-process RSS improvement or crash fix is claimed. Source and
+test commit is locally integrated as9ed9688b0b; hosted acceptance remains pending.
+Compact immutable source/test/coverage/probe receipts and two lossless stills:
+ data/663_random_packed_word_cpu_2026-10-06/.

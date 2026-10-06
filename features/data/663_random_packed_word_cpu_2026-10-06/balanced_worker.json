@@ -1,0 +1,174 @@
+{
+  "source_sha256": {
+    "before": "a324d395c4029fdeb1e307595fcc4d2353cb4fd7f15589f51e456c67f19b417a",
+    "after": "ac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20"
+  },
+  "scope": "actual warmed 3840x2160 software Xvfb GUI/producer, ABBA, 24 cap",
+  "native_size": [
+    3840,
+    2160
+  ],
+  "records": [
+    {
+      "index": 0,
+      "variant": "before",
+      "steady_seconds": 5.000325676999637,
+      "published_fps": 23.598462904681032,
+      "published_frames": 118,
+      "distinct_clocks": 118,
+      "painted_fps": 24.398410799754966,
+      "clock_advance": 4.9409999999999705,
+      "worker_shade": {
+        "samples": 118,
+        "median_ms": 27.17930599465035,
+        "p95_ms": 43.81469600775745,
+        "max_ms": 73.66521398944315
+      },
+      "gui_paint": {
+        "samples": 122,
+        "median_ms": 6.577392501640134,
+        "p95_ms": 11.384672005078755,
+        "max_ms": 18.410484000924043
+      },
+      "publication_intervals": {
+        "samples": 117,
+        "median_ms": 42.06098300346639,
+        "p95_ms": 59.570180004811846,
+        "max_ms": 78.70295300381258
+      },
+      "heartbeat_10ms": {
+        "samples": 493,
+        "median_ms": 10.070509000797756,
+        "p95_ms": 15.662040008464828,
+        "max_ms": 28.157459004432894
+      },
+      "load_average": [
+        1.80419921875,
+        2.4453125,
+        2.591796875
+      ],
+      "worker_stopped_on_hide": true
+    },
+    {
+      "index": 1,
+      "variant": "after",
+      "steady_seconds": 5.001076026004739,
+      "published_fps": 23.79487921823631,
+      "published_frames": 119,
+      "distinct_clocks": 119,
+      "painted_fps": 24.39475012289773,
+      "clock_advance": 4.939999999999973,
+      "worker_shade": {
+        "samples": 119,
+        "median_ms": 25.0214080006117,
+        "p95_ms": 40.89649100205861,
+        "max_ms": 46.92075299681164
+      },
+      "gui_paint": {
+        "samples": 122,
+        "median_ms": 6.391398004780058,
+        "p95_ms": 10.16929499746766,
+        "max_ms": 13.75769599690102
+      },
+      "publication_intervals": {
+        "samples": 118,
+        "median_ms": 42.03158599557355,
+        "p95_ms": 54.593210996245034,
+        "max_ms": 63.5148239962291
+      },
+      "heartbeat_10ms": {
+        "samples": 496,
+        "median_ms": 10.085539994179271,
+        "p95_ms": 14.954097990994342,
+        "max_ms": 22.50809100223705
+      },
+      "load_average": [
+        1.73974609375,
+        2.4208984375,
+        2.5830078125
+      ],
+      "worker_stopped_on_hide": true
+    },
+    {
+      "index": 2,
+      "variant": "after",
+      "steady_seconds": 5.00086584300152,
+      "published_fps": 23.595913928612088,
+      "published_frames": 118,
+      "distinct_clocks": 118,
+      "painted_fps": 24.39577541771758,
+      "clock_advance": 4.937999999999976,
+      "worker_shade": {
+        "samples": 118,
+        "median_ms": 27.5781870004721,
+        "p95_ms": 46.43131401098799,
+        "max_ms": 61.51865699212067
+      },
+      "gui_paint": {
+        "samples": 122,
+        "median_ms": 7.233542506583035,
+        "p95_ms": 13.144990007276647,
+        "max_ms": 16.0994329926325
+      },
+      "publication_intervals": {
+        "samples": 117,
+        "median_ms": 40.955191987450235,
+        "p95_ms": 63.16147500183433,
+        "max_ms": 69.7979490068974
+      },
+      "heartbeat_10ms": {
+        "samples": 488,
+        "median_ms": 10.083916000439785,
+        "p95_ms": 15.9352629998466,
+        "max_ms": 23.67754800070543
+      },
+      "load_average": [
+        1.93408203125,
+        2.4404296875,
+        2.587890625
+      ],
+      "worker_stopped_on_hide": true
+    },
+    {
+      "index": 3,
+      "variant": "before",
+      "steady_seconds": 5.000846595998155,
+      "published_fps": 23.396038601469463,
+      "published_frames": 117,
+      "distinct_clocks": 117,
+      "painted_fps": 24.39586931093397,
+      "clock_advance": 4.940999999999985,
+      "worker_shade": {
+        "samples": 117,
+        "median_ms": 32.89847000269219,
+        "p95_ms": 50.39860800025053,
+        "max_ms": 76.6815340030007
+      },
+      "gui_paint": {
+        "samples": 122,
+        "median_ms": 7.052642497001216,
+        "p95_ms": 11.213157005840912,
+        "max_ms": 15.492648002691567
+      },
+      "publication_intervals": {
+        "samples": 116,
+        "median_ms": 41.54317299980903,
+        "p95_ms": 61.51821100502275,
+        "max_ms": 92.25098699971568
+      },
+      "heartbeat_10ms": {
+        "samples": 489,
+        "median_ms": 10.08237300266046,
+        "p95_ms": 17.12738499918487,
+        "max_ms": 22.103651994257234
+      },
+      "load_average": [
+        1.796875,
+        2.39306640625,
+        2.5703125
+      ],
+      "worker_stopped_on_hide": true
+    }
+  ],
+  "peak_rss_kib": 479640
+}
