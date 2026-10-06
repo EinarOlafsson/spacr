@@ -43,9 +43,6 @@ import sys
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
-from coverage import CoverageData
-from coverage.exceptions import CoverageException
-
 NO_TESTS_COLLECTED = 5
 
 
@@ -141,6 +138,9 @@ def _batches(items: Sequence[Path], size: int) -> list[list[Path]]:
 
 def _unreadable(path: Path) -> str | None:
     """Why a coverage data file cannot be read, or None when it can."""
+    from coverage import CoverageData
+    from coverage.exceptions import CoverageException
+
     try:
         CoverageData(basename=str(path)).read()
     except CoverageException as exc:

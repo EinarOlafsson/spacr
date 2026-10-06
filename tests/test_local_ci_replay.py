@@ -65,18 +65,20 @@ def test_coverage_hashes_relative_paths_before_making_batches(tmp_path):
     assert all(len(batch) == 7 for batch in actual[:-1])
 
 
-def test_coverage_planner_loads_source_functions_without_installed_coverage():
-    """Listing a coverage shard must work in a bare Python interpreter."""
+def test_coverage_runner_imports_and_plans_without_installed_coverage():
+    """The complete coverage runner imports and plans without coverage.py."""
     result = subprocess.run([
         sys.executable, "-S", "-c",
         "from pathlib import Path; from tools import replay_ci_batch as replay; "
         "runner = replay._load_runner(Path.cwd(), True); "
+        "print(Path(runner.__file__).name, hasattr(runner, '_run_batch')); "
         "print(runner._shard(Path.cwd() / 'tests/test_local_ci_replay.py', "
         "Path.cwd(), 12)); print(runner.build_parser().parse_args("
         "['tests', '--marker', 'not gui', '--shard-index', '4', "
         "'--shard-count', '12', '--data-dir', '/tmp']).shard_count)",
     ], cwd=ROOT, capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
+    assert result.stdout.splitlines()[0] == "run_coverage_batches.py True"
     assert result.stdout.splitlines()[-1] == "12"
 
 

@@ -673,6 +673,8 @@ def test_coverage_batches_use_unique_data_files_and_argument_lists(
 def test_coverage_batches_discard_an_incomplete_child_database(
     tmp_path, monkeypatch, capsys,
 ):
+    from coverage import CoverageData
+
     coverage_runner = _load_coverage_runner()
     project = tmp_path / "project"
     tests = project / "tests"
@@ -686,7 +688,7 @@ def test_coverage_batches_discard_an_incomplete_child_database(
     def fake_run(command, *, env, check):
         basename = Path(env["COVERAGE_FILE"])
         readable = basename.with_name(f"{basename.name}.readable")
-        data = coverage_runner.CoverageData(basename=str(readable))
+        data = CoverageData(basename=str(readable))
         data.add_lines({"spacr/example.py": {1}})
         data.write()
         incomplete = basename.with_name(f"{basename.name}.incomplete")
