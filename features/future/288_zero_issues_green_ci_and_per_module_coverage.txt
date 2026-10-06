@@ -5706,3 +5706,13 @@ Item 288 remains OPEN.
     CUDA hidden. This local Linux receipt does not establish the hosted
     eight-platform matrix, its dependency resolver or CLI step, nor an
     all-green final-source CI run. Item 288 remains OPEN.
+2026-10-06 — current hosted compatibility recheck for Home
+Actual run 37508438542 on f02cb6583 is terminal failure. All eight installed
+platform cells fail the unchanged startup import boundary with ['scipy'];
+metadata, wheel-availability and Fractal construction cells pass. c37 lazy
+magnifier repair is already in this source, so its successful isolated local
+probe cannot be promoted to current hosted acceptance. Complete original
+failed logs, source SHA and exact eight-cell summary:
+data/288_current_compat_failure_2026-10-06.json. Home owns the remaining
+installed import diagnosis; no guard is waived or cause/fix inferred.
+Protected serial 37503577012 on b779 remains live and untouched.
