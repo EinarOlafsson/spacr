@@ -58,13 +58,12 @@ Values:
 * ``theme``: ``"dark"`` | ``"light"`` | ``"cell"`` | ``"glass"`` |
   ``"high_contrast"`` | one of
   the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` |
-  the sixteen flow choices in :data:`spacr.qt.night_themes.FLOW_THEME_KEYS` |
   ``"system"`` (default ``"dark"``). ``"system"`` follows the operating
   system color scheme, and only once somebody has picked it: a stored
   ``"system"`` written before dark became the default (2026-09-21) was
   the old default, not a choice, and reads as ``"dark"``; see
   :func:`get_theme`. ``"cell"`` uses fluorescence imagery and ``"glass"``
-  uses neutral layered materials over a built-in light field. A night or flow
+  uses neutral layered materials over a built-in light field. A night
   theme also carries a backdrop and a sound set, written by
   :func:`apply_night_theme` when it is chosen. Space is not a selectable
   theme. The retired ``space_variant`` and ``space_seed`` values are
@@ -165,8 +164,7 @@ import threading
 
 from PySide6.QtCore import QSettings, Qt
 
-from .night_themes import (FLOW_THEMES, FLOW_THEME_KEYS, NIGHT_THEME_KEYS,
-                           is_night_theme, theme_for)
+from .night_themes import NIGHT_THEME_KEYS, is_night_theme, theme_for
 from .prefs import _store_args
 
 LOG = logging.getLogger(__name__)
@@ -542,12 +540,12 @@ _KEY_MODE_VISUAL_STASH = "prefs/mode_visual_stash"
 #: :data:`spacr.qt.theme.THEMES`, restated here so importing this module
 #: does not pull in QtGui/QtWidgets.
 #:
-#: The night and flow themes are appended from :mod:`spacr.qt.night_themes`
+#: The ten night themes are appended from :mod:`spacr.qt.night_themes`
 #: rather than written out again, because that module is Qt-free for
 #: exactly this reason: it can be imported here without QtGui, and it
 #: cannot then drift from what :data:`spacr.qt.theme.THEMES` holds.
 PALETTE_THEMES = ("dark", "light", "cell", "glass",
-                  "high_contrast") + NIGHT_THEME_KEYS + FLOW_THEME_KEYS
+                  "high_contrast") + NIGHT_THEME_KEYS
 
 #: Persisted values. An existing install has ``prefs/theme`` set to one
 #: of dark/light/system/space; those keep resolving exactly as before,
@@ -1680,9 +1678,12 @@ def theme_choices() -> tuple:
     Image variants are represented as composite tokens in the UI while the
     persisted keys remain backward compatible.
 
-    Night themes retain their order after the older themes. The flow family
-    follows them, with each geometry beside its pointer-responsive variant.
-    Their tokens are plain stable keys; only Cell composes a variant token.
+    The ten night themes come last, in
+    :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the
+    application has always had stay where a returning user looks for them
+    and the new family reads as one block down the bottom of the list.
+    Their tokens are their plain keys: a night theme has no variant, so
+    there is nothing to compose into the token the way Cell does.
     """
     from .imagery import CELL_VARIANTS, title_for
     from .night_themes import NIGHT_THEMES
@@ -1700,15 +1701,14 @@ def theme_choices() -> tuple:
         for key in CELL_VARIANTS
     )
     choices.extend((theme.label, key) for key, theme in NIGHT_THEMES.items())
-    choices.extend((tr(theme.label), key) for key, theme in FLOW_THEMES.items())
     return tuple(choices)
 
 
 def theme_description(token: str) -> str:
     """Return the one-sentence explanation of a :func:`theme_choices` token.
 
-    Night and flow themes each carry a sentence saying what colours and
-    backdrop come with them; that sentence is what the
+    The ten night themes each carry a sentence saying what colours,
+    backdrop and sound set come with them; that sentence is what the
     Theme control shows as the entry's tooltip, the way the Sound set
     control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`.
 
@@ -1723,7 +1723,7 @@ def theme_description(token: str) -> str:
     if token == "high_contrast":
         return ("White text and outlines on black with a yellow accent, "
                 "for low vision and bright rooms.")
-    theme = NIGHT_THEMES.get(token) or FLOW_THEMES.get(token)
+    theme = NIGHT_THEMES.get(token)
     return theme.description if theme is not None else ""
 
 
@@ -1738,7 +1738,7 @@ def get_theme_choice() -> str:
 def set_theme_choice(choice: str) -> None:
     """Persist one token from :func:`theme_choices`.
 
-    Choosing a night or flow theme also writes that theme's
+    Choosing one of the ten night themes also writes that theme's
     backdrop and its sound set — see :func:`apply_night_theme`, which is
     where the reasoning for doing so lives.
 
@@ -1755,14 +1755,14 @@ def set_theme_choice(choice: str) -> None:
         set_theme("cell")
     else:
         set_theme(choice)
-        if is_night_theme(choice) or choice in FLOW_THEMES:
+        if is_night_theme(choice):
             apply_night_theme(choice)
 
 
 def apply_night_theme(name: str) -> None:
-    """Write the backdrop and sound set a night or flow theme brings.
+    """Write the backdrop and the sound set a night theme comes with.
 
-    A preset is one choice that moves three things: the colours, the
+    A night theme is one choice that moves three things: the colours, the
     animation behind them and the set of sounds spaCR would play. So this
     writes the ambient animation, the ambient palette and the sound set
     that go with the colours.
@@ -1795,8 +1795,8 @@ def apply_night_theme(name: str) -> None:
     gets the animation they had before, not the one this theme would have
     brought, and they can pick it on the same control they just used.
 
-    :param name: a night or flow theme key.
-    :raises KeyError: if ``name`` is unknown.
+    :param name: one of :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS`.
+    :raises KeyError: if ``name`` is not one of the ten.
     """
     theme = theme_for(name)
     settings = _settings()
@@ -9447,7 +9447,7 @@ class PreferencesDialog:
             WHICH sounds would play and not WHETHER any do.
             """
             choice = theme_combo.currentData()
-            if not (is_night_theme(choice) or choice in FLOW_THEMES):
+            if not is_night_theme(choice):
                 return
             night = theme_for(choice)
             if ambient_theme_combo.currentData() == NO_ANIMATION:

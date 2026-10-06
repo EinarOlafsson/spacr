@@ -396,7 +396,7 @@ def test_the_default_multipliers_are_the_identity(theme):
         assert all(left - 1 <= x <= left + side + 1
                    and top - 1 <= y <= top + side + 1
                    for x, y, _b in grains)
-    elif theme == "aurora":
+    else:
         assert max(h for _x, _y, h, _b in engine.geometry(W, H)) \
             <= max(amb.AURORA_THICKNESS) * H * 1.5
 

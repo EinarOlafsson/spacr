@@ -336,16 +336,6 @@ MIN_PAINTED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.003,
                "bokeh": 0.28, "cells": 0.08, "resonance": 0.22}
 MIN_CHANGED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.006,
                "bokeh": 0.30, "cells": 0.11, "resonance": 0.03}
-FLOW_MIN_PAINTED = {"cytoplasm": 0.15, "synapse": 0.08, "wind": 0.27,
-                    "atlas": 0.24, "helix": 0.08, "chromatin": 0.10,
-                    "nebula": 0.17, "silk": 0.25}
-FLOW_MIN_CHANGED = {"cytoplasm": 0.21, "synapse": 0.07, "wind": 0.36,
-                    "atlas": 0.23, "helix": 0.11, "chromatin": 0.09,
-                    "nebula": 0.25, "silk": 0.30}
-for _name in FLOW_MIN_PAINTED:
-    for _suffix in ("", "_mouse"):
-        MIN_PAINTED[f"flow_{_name}{_suffix}"] = FLOW_MIN_PAINTED[_name]
-        MIN_CHANGED[f"flow_{_name}{_suffix}"] = FLOW_MIN_CHANGED[_name]
 
 
 def all_pixels(image: QImage):

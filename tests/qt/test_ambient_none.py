@@ -54,20 +54,21 @@ def _screen(qtbot, app_key="measure"):
 # ---------------------------------------------------------------------------
 
 def test_none_is_offered_alongside_every_animation():
-    """Keep the shipped menu order and offer every flow beside None."""
+    """The list is pinned because the ORDER is the menu's order.
+
+    ``resonance`` joined it on 2026-09-19 (instruction 427 part B) and is
+    last for the reason a new animation always will be: the stored
+    preference is a name, so inserting one in the middle would renumber
+    nothing and reorder everybody's menu for no reason.
+    """
     ambient = _ambient()
-    legacy = ("blobs", "aurora", "ripple", "drift", "bokeh", "cells",
-              "resonance")
-    flows = ("cytoplasm", "synapse", "wind", "atlas", "helix",
-             "chromatin", "nebula", "silk")
-    new = {f"flow_{name}" for name in flows}
-    new.update(f"flow_{name}_mouse" for name in flows)
     assert ambient.NO_ANIMATION == "none"
-    assert ambient.AMBIENT_THEMES[:len(legacy)] == legacy
-    assert len(ambient.AMBIENT_THEMES) == len(legacy) + len(new)
-    assert set(ambient.AMBIENT_THEMES[len(legacy):]) == new
     assert ambient.ANIMATION_CHOICES == (ambient.NO_ANIMATION,) + \
-        ambient.AMBIENT_THEMES
+        ("blobs", "aurora", "ripple", "drift", "bokeh", "cells", "resonance")
+    assert ambient.AMBIENT_THEMES == ("blobs", "aurora", "ripple", "drift",
+                                      "bokeh", "cells", "resonance"), (
+        "None must not join the paintable themes: make_engine, "
+        "_require_theme and every engine test mean 'can be drawn' by it")
 
 
 def test_none_has_a_label_and_a_note_that_states_the_cost():

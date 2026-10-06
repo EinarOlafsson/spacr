@@ -211,16 +211,15 @@ import threading
 import time
 import weakref
 from dataclasses import dataclass
-from functools import partial
 from typing import (Callable, Dict, List, NamedTuple, Optional, Sequence,
                     Tuple, Union)
 
 from PySide6.QtCore import (QElapsedTimer, QEvent, QObject, QPoint, QPointF,
                             QRect, QRectF, Qt, QTimer)
-from PySide6.QtGui import (QBrush, QColor, QCursor, QImage, QLinearGradient, QPainter,
+from PySide6.QtGui import (QBrush, QColor, QImage, QLinearGradient, QPainter,
                            QPainterPath, QPen, QPixmap, QRadialGradient,
                            QTransform)
-from PySide6.QtWidgets import QApplication, QSizePolicy, QWidget
+from PySide6.QtWidgets import QSizePolicy, QWidget
 
 from ..theme import (advance_spaceout_drift, page_colour, palette_for,
                      relative_luminance, spaceout_enabled)
@@ -254,14 +253,7 @@ __all__ = [
 #: lets ``make_engine``, ``_require_theme`` and every engine test go on
 #: meaning "a thing that can be drawn".
 AMBIENT_THEMES: Tuple[str, ...] = ("blobs", "aurora", "ripple", "drift",
-                                   "bokeh", "cells", "resonance",
-                                   "flow_cytoplasm", "flow_synapse",
-                                   "flow_wind", "flow_atlas", "flow_helix",
-                                   "flow_chromatin", "flow_nebula", "flow_silk",
-                                   "flow_cytoplasm_mouse", "flow_synapse_mouse",
-                                   "flow_wind_mouse", "flow_atlas_mouse",
-                                   "flow_helix_mouse", "flow_chromatin_mouse",
-                                   "flow_nebula_mouse", "flow_silk_mouse")
+                                   "bokeh", "cells", "resonance")
 
 #: The animation the ``spaceout`` entry point paints, and the palette it
 #: paints it in.
@@ -307,22 +299,6 @@ _THEME_LABELS = {
     "bokeh": "Bokeh",
     "cells": "Cells",
     "resonance": "Resonance",
-    "flow_cytoplasm": "Cytoplasm flow",
-    "flow_synapse": "Synapse flow",
-    "flow_wind": "Wind flow",
-    "flow_atlas": "Atlas contours",
-    "flow_helix": "DNA helix",
-    "flow_chromatin": "Chromatin loops",
-    "flow_nebula": "Nebula streams",
-    "flow_silk": "Silk weave",
-    "flow_cytoplasm_mouse": "Cytoplasm flow · cursor",
-    "flow_synapse_mouse": "Synapse flow · cursor",
-    "flow_wind_mouse": "Wind flow · cursor",
-    "flow_atlas_mouse": "Atlas contours · cursor",
-    "flow_helix_mouse": "DNA helix · cursor",
-    "flow_chromatin_mouse": "Chromatin loops · cursor",
-    "flow_nebula_mouse": "Nebula streams · cursor",
-    "flow_silk_mouse": "Silk weave · cursor",
     SPACEOUT_THEME: "Fractals",
 }
 
@@ -341,22 +317,6 @@ _THEME_NOTES = {
                   "that do not move — a Chladni figure that changes with "
                   "the music bed when one is playing, and breathes on its "
                   "own when nothing is."),
-    "flow_cytoplasm": "Branching cytoplasmic currents carry small pulses along soft filaments.",
-    "flow_synapse": "Signals travel between softly glowing nodes along curved connections.",
-    "flow_wind": "Layered wind currents carry luminous traces across the field.",
-    "flow_atlas": "Topographic contour lines drift around a changing spatial map.",
-    "flow_helix": "Two DNA strands and their rungs carry moving points of light.",
-    "flow_chromatin": "Nested chromatin loops turn gently around clustered centres.",
-    "flow_nebula": "Long nebula wisps spiral outward through a quiet field of colour.",
-    "flow_silk": "Fine crossing fibres weave a slowly shifting luminous mesh.",
-    "flow_cytoplasm_mouse": "Cytoplasmic currents curve around the cursor without taking input focus.",
-    "flow_synapse_mouse": "Synapse connections curve near the cursor without taking input focus.",
-    "flow_wind_mouse": "Wind currents bend near the cursor without taking input focus.",
-    "flow_atlas_mouse": "Spatial contour lines bend near the cursor without taking input focus.",
-    "flow_helix_mouse": "DNA strands and rungs bend near the cursor without taking input focus.",
-    "flow_chromatin_mouse": "Chromatin loops bend near the cursor without taking input focus.",
-    "flow_nebula_mouse": "Nebula wisps bend near the cursor without taking input focus.",
-    "flow_silk_mouse": "Silk fibres bend near the cursor without taking input focus.",
     SPACEOUT_THEME: ("A Julia set that morphs, turns and cycles colour — "
                      "the backdrop the spaceout launcher dresses the "
                      "application in."),
@@ -505,9 +465,6 @@ _THEME_PALETTES: Dict[str, Tuple[str, ...]] = {
                   "fluor", "midnight"),
     SPACEOUT_THEME: (SPACEOUT_PALETTE,),
 }
-
-for _flow_theme in AMBIENT_THEMES[7:]:
-    _THEME_PALETTES[_flow_theme] = tuple(PALETTE_SETS)
 
 #: Every theme that has an engine behind it — the seven a menu offers, plus
 #: the one the ``spaceout`` entry point dresses the application in.
@@ -4598,298 +4555,6 @@ class ResonanceEngine(_BufferedEngine):
                                        QImage.Format_RGB32))
 
 
-class _FlowSeed(NamedTuple):
-    """One stable filament origin, phase, bend, span and colour selection."""
-
-    u: float
-    v: float
-    phase: float
-    bend: float
-    span: float
-
-
-class _FlowEngine(_BufferedEngine):
-    """Bounded glowing data filaments for eight distinct geometric families.
-
-    Paths are built from at most 96 seeds and 49 points each, then painted
-    into the existing buffered shading thread. Mouse variants share the
-    geometry with their base theme and bend it around one immutable pointer.
-    No QWidget or cursor is read from this engine or its shading thread.
-
-    :param family: one of the eight flow geometry names.
-    :param mouse_enabled: whether a pointer may bend the paths.
-    """
-
-    base_edge = 960
-    _steps = 49
-    _counts = {"cytoplasm": 24, "synapse": 30, "wind": 30,
-               "atlas": 16, "helix": 24, "chromatin": 24,
-               "nebula": 24, "silk": 32}
-
-    def __init__(self, *args, family: str, mouse_enabled: bool = False,
-                 **kwargs):
-        """Bind one family and its optional cursor response before seeding."""
-        if family not in self._counts:
-            raise ValueError(f"unknown flow family {family!r}")
-        self.family = family
-        self.mouse_enabled = bool(mouse_enabled)
-        self.name = f"flow_{family}{'_mouse' if mouse_enabled else ''}"
-        self.pointer: Optional[Tuple[float, float]] = None
-        super().__init__(*args, **kwargs)
-
-    def _configure(self, rng: random.Random) -> None:
-        """Roll a fixed pool and hub set once, independent of frame rate."""
-        self._seeds = tuple(_FlowSeed(rng.random(), rng.random(), rng.random(),
-                                      rng.random(), 0.75 + 0.5 * rng.random())
-                            for _ in range(96))
-        self._hubs = tuple((0.11 + 0.26 * column + 0.045 * rng.random(),
-                            0.13 + 0.34 * row + 0.045 * rng.random())
-                           for row in range(3) for column in range(4))
-
-    def _restyle(self) -> None:
-        """Cache colour and width variants outside the per-frame path loop."""
-        super()._restyle()
-        self._build_pens()
-
-    def _redensify(self) -> None:
-        """Rebalance line alpha when density divides the light."""
-        self._build_pens()
-
-    def _resize(self) -> None:
-        """Rebuild cached widths when the size control changes."""
-        self._build_pens()
-
-    def _build_pens(self) -> None:
-        """Prepare subdued filaments with soft, travelling local glow."""
-        scale = self.alpha_scale()
-        self._pens = []
-        for color in self.paint_colors:
-            halo = QPen(_with_alpha(color, 0.15 * scale),
-                        5.0 * self.size, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
-            glow = QPen(_with_alpha(color, 0.13 * scale),
-                        8.0 * self.size, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
-            trace = QPen(_with_alpha(color, 0.48 * scale),
-                         2.3 * self.size, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
-            self._pens.append((halo, glow, trace))
-
-    def set_pointer(self, point: Optional[Tuple[float, float]]) -> None:
-        """Set an immutable normalized cursor target for a mouse variant.
-
-        :param point: ``(x, y)`` inside the backdrop or ``None`` when absent.
-        """
-        if not self.mouse_enabled:
-            return
-        if point is None:
-            self.pointer = None
-            return
-        x, y = point
-        if not (math.isfinite(x) and math.isfinite(y)):
-            self.pointer = None
-            return
-        self.pointer = (max(0.0, min(1.0, float(x))),
-                        max(0.0, min(1.0, float(y))))
-
-    def _bend_at_pointer(self, x: float, y: float) -> Tuple[float, float]:
-        """Curl a point only near the cursor, leaving remote fibres stable."""
-        pointer = self.pointer
-        if pointer is None:
-            return x, y
-        dx, dy = x - pointer[0], y - pointer[1]
-        weight = math.exp(-(dx * dx + dy * dy) / 0.045)
-        return (x + (0.07 - 0.38 * dy) * weight,
-                y + (0.03 + 0.38 * dx) * weight)
-
-    def _path_cytoplasm(self, seed: _FlowSeed, index: int, q: float,
-                        count: int) -> Tuple[float, float]:
-        """Make branching, locally curled cytoplasmic transport paths."""
-        phase = 2.0 * math.pi * seed.phase
-        branch = (index % 3 - 1) * 0.035 * q
-        x = seed.u + (q - 0.5) * 0.62 * seed.span
-        y = (seed.v + branch + 0.07 * seed.bend
-             * math.sin(2.0 * math.pi * (1.4 * q - 0.028 * self.time) + phase)
-             + 0.018 * math.sin(2.0 * math.pi * 3.1 * q + phase))
-        return x, y
-
-    def _path_synapse(self, seed: _FlowSeed, index: int, q: float,
-                      count: int) -> Tuple[float, float]:
-        """Connect fixed neuron-like hubs with curved signal routes."""
-        start = self._hubs[index % len(self._hubs)]
-        end = self._hubs[(index * 5 + 3) % len(self._hubs)]
-        dx, dy = end[0] - start[0], end[1] - start[1]
-        curve = (math.sin(math.pi * q) * (0.12 + 0.17 * seed.bend)
-                 * (1 if index % 2 else -1))
-        sway = 0.016 * math.sin(self.time * 0.11 + seed.phase * 6.0)
-        return (start[0] + dx * q - dy * (curve + sway),
-                start[1] + dy * q + dx * (curve + sway))
-
-    def _path_wind(self, seed: _FlowSeed, index: int, q: float,
-                   count: int) -> Tuple[float, float]:
-        """Sweep coherent weather-like currents across the whole field."""
-        phase = 2.0 * math.pi * seed.phase
-        x = -0.12 + 1.24 * q
-        y = (seed.v + 0.12 * (q - 0.5)
-             + 0.075 * math.sin(2.0 * math.pi
-                               * (0.7 * q - 0.045 * self.time) + phase)
-             + 0.018 * math.sin(2.0 * math.pi * 2.2 * q + phase))
-        return x, y
-
-    def _path_atlas(self, seed: _FlowSeed, index: int, q: float,
-                    count: int) -> Tuple[float, float]:
-        """Trace a distinct closed elevation contour for each level."""
-        theta = 2.0 * math.pi * q
-        level = (index + 1) / max(1, count + 1)
-        radius = 0.48 * level * (1.0 + 0.10 * math.sin(
-            5.0 * theta + self.time * 0.06 + seed.phase * 6.0))
-        return (0.50 + 1.12 * radius * math.cos(theta),
-                0.50 + 0.88 * radius * math.sin(theta))
-
-    def _path_helix(self, seed: _FlowSeed, index: int, q: float,
-                    count: int) -> Tuple[float, float]:
-        """Draw two oscillating DNA rails and separate connecting rungs."""
-        phase = self._seeds[0].phase
-        if index < 2:
-            x = -0.10 + 1.20 * q
-            wave = math.sin(2.0 * math.pi
-                            * (3.0 * q - 0.035 * self.time + phase))
-            return x, 0.50 + (1 if index else -1) * 0.19 * wave
-        along = (index - 1) / max(2, count - 1)
-        wave = math.sin(2.0 * math.pi
-                        * (3.0 * along - 0.035 * self.time + phase))
-        return (-0.10 + 1.20 * along + 0.014 * math.sin(math.pi * q),
-                0.50 + (2.0 * q - 1.0) * 0.19 * wave)
-
-    def _path_chromatin(self, seed: _FlowSeed, index: int, q: float,
-                        count: int) -> Tuple[float, float]:
-        """Wind compact multi-turn loops around six spatial clusters."""
-        centre = self._hubs[(0, 2, 4, 7, 9, 11)[index % 6]]
-        theta = 2.0 * math.pi * (2.2 * q + seed.phase)
-        radius = 0.018 + 0.12 * q * seed.span
-        drift = 0.020 * math.sin(self.time * 0.07 + seed.phase * 6.0)
-        return (centre[0] + (radius + drift) * math.cos(theta),
-                centre[1] + 0.80 * radius * math.sin(theta))
-
-    def _path_nebula(self, seed: _FlowSeed, index: int, q: float,
-                     count: int) -> Tuple[float, float]:
-        """Send long rotating wisps outward from an offset nebula core."""
-        theta = (2.0 * math.pi * seed.phase + 2.5 * q
-                 + 0.055 * self.time)
-        radius = (0.055 + 0.53 * q) * seed.span
-        return (0.48 + 1.07 * radius * math.cos(theta),
-                0.50 + 0.72 * radius * math.sin(theta))
-
-    def _path_silk(self, seed: _FlowSeed, index: int, q: float,
-                   count: int) -> Tuple[float, float]:
-        """Cross fine horizontal weft with vertical warp fibres."""
-        phase = 2.0 * math.pi * seed.phase
-        if index % 2:
-            return (seed.u + 0.022 * math.sin(2.0 * math.pi *
-                                            (2.0 * q + 0.022 * self.time)
-                                            + phase), -0.08 + 1.16 * q)
-        return (-0.08 + 1.16 * q,
-                seed.v + 0.022 * math.sin(2.0 * math.pi *
-                                         (2.0 * q - 0.022 * self.time)
-                                         + phase))
-
-    def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
-        """Return each filament as a flat tuple of pixel coordinate pairs.
-
-        :param width: destination width in pixels.
-        :param height: destination height in pixels.
-        :returns: deterministic finite paths in seed order.
-        """
-        if width <= 0 or height <= 0:
-            return ()
-        count = self.element_count(self._counts[self.family], len(self._seeds))
-        path_at = getattr(self, f"_path_{self.family}")
-        pointer = self.pointer if self.mouse_enabled else None
-        steps = 25 if self.family in ("wind", "silk") else self._steps
-        paths = []
-        for index, seed in enumerate(self._seeds[:count]):
-            points = []
-            for step in range(steps):
-                x, y = path_at(seed, index, step / (steps - 1), count)
-                if pointer is not None:
-                    x, y = self._bend_at_pointer(x, y)
-                points.extend((x * width, y * height))
-            paths.append(tuple(points))
-        return tuple(paths)
-
-    @staticmethod
-    def _trace_path(points: tuple, start: float, stop: float) -> tuple:
-        """Interpolate the sampled vertices of one travelling segment."""
-        last = len(points) // 2 - 1
-
-        def sample(fraction: float) -> QPointF:
-            """Interpolate a normalized location between adjacent vertices."""
-            position = min(last, max(0.0, fraction * last))
-            left = min(last - 1, int(position))
-            amount = position - left
-            offset = 2 * left
-            return QPointF(points[offset] * (1.0 - amount)
-                           + points[offset + 2] * amount,
-                           points[offset + 1] * (1.0 - amount)
-                           + points[offset + 3] * amount)
-
-        trace = [sample(start)]
-        first = int(start * last) + 1
-        final = int(stop * last)
-        for vertex in range(first, final + 1):
-            trace.append(QPointF(points[2 * vertex], points[2 * vertex + 1]))
-        trace.append(sample(stop))
-        return tuple(value for point in trace for value in (point.x(), point.y()))
-
-    @staticmethod
-    def _smooth_path(points: tuple) -> QPainterPath:
-        """Join sampled points with bounded quadratic arcs, not sharp chords."""
-        path = QPainterPath(QPointF(points[0], points[1]))
-        count = len(points) // 2
-        for vertex in range(1, count - 1):
-            offset = 2 * vertex
-            path.quadTo(points[offset], points[offset + 1],
-                        (points[offset] + points[offset + 2]) * 0.5,
-                        (points[offset + 1] + points[offset + 3]) * 0.5)
-        path.lineTo(points[-2], points[-1])
-        return path
-
-    @classmethod
-    def _smooth_path_segment(cls, points: tuple, start: float,
-                             stop: float) -> QPainterPath:
-        """Give a travelling highlight the same curvature as its filament."""
-        return cls._smooth_path(cls._trace_path(points, start, stop))
-
-    def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
-        """Layer a quiet glow, full filament and travelling bright segment."""
-        painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setBrush(Qt.NoBrush)
-        for index, points in enumerate(self.geometry(width, height)):
-            path = self._smooth_path(points)
-            halo, glow, trace = self._pens[index % len(self._pens)]
-            painter.setPen(halo)
-            painter.drawPath(path)
-            phase = (self.time * (0.045 + 0.012 * (index % 3))
-                     + self._seeds[index].phase) % 1.0
-            end = phase + 0.17
-            segment = self._smooth_path_segment(points, phase, min(1.0, end))
-            painter.setPen(glow)
-            painter.drawPath(segment)
-            painter.setPen(trace)
-            painter.drawPath(segment)
-            if end > 1.0:
-                wrapped = self._smooth_path_segment(points, 0.0, end - 1.0)
-                painter.setPen(glow)
-                painter.drawPath(wrapped)
-                painter.setPen(trace)
-                painter.drawPath(wrapped)
-            if self.family == "synapse" and index % 3 == 0:
-                painter.setPen(Qt.NoPen)
-                painter.setBrush(_with_alpha(
-                    self.paint_colors[index % len(self.paint_colors)],
-                    0.26 * self.alpha_scale()))
-                painter.drawEllipse(QPointF(points[0], points[1]),
-                                    3.2 * self.size, 3.2 * self.size)
-                painter.setBrush(Qt.NoBrush)
-
-
 _ENGINES = {
     "blobs": BlobsEngine,
     "aurora": AuroraEngine,
@@ -4898,22 +4563,6 @@ _ENGINES = {
     "bokeh": BokehEngine,
     "cells": CellsEngine,
     "resonance": ResonanceEngine,
-    "flow_cytoplasm": partial(_FlowEngine, family="cytoplasm"),
-    "flow_synapse": partial(_FlowEngine, family="synapse"),
-    "flow_wind": partial(_FlowEngine, family="wind"),
-    "flow_atlas": partial(_FlowEngine, family="atlas"),
-    "flow_helix": partial(_FlowEngine, family="helix"),
-    "flow_chromatin": partial(_FlowEngine, family="chromatin"),
-    "flow_nebula": partial(_FlowEngine, family="nebula"),
-    "flow_silk": partial(_FlowEngine, family="silk"),
-    "flow_cytoplasm_mouse": partial(_FlowEngine, family="cytoplasm", mouse_enabled=True),
-    "flow_synapse_mouse": partial(_FlowEngine, family="synapse", mouse_enabled=True),
-    "flow_wind_mouse": partial(_FlowEngine, family="wind", mouse_enabled=True),
-    "flow_atlas_mouse": partial(_FlowEngine, family="atlas", mouse_enabled=True),
-    "flow_helix_mouse": partial(_FlowEngine, family="helix", mouse_enabled=True),
-    "flow_chromatin_mouse": partial(_FlowEngine, family="chromatin", mouse_enabled=True),
-    "flow_nebula_mouse": partial(_FlowEngine, family="nebula", mouse_enabled=True),
-    "flow_silk_mouse": partial(_FlowEngine, family="silk", mouse_enabled=True),
     SPACEOUT_THEME: FractalEngine,
 }
 
@@ -5880,32 +5529,6 @@ class AmbientWidget(QWidget):
             self.setGeometry(parent.rect())
         self.lower()
 
-    def _flow_pointer_for_tick(self) -> Optional[Tuple[float, float]]:
-        """Poll a local pointer only when this backdrop owns the active view.
-
-        The widget stays transparent to input. A different active dialog or
-        top-level widget under the cursor cannot steer this animation.
-
-        :returns: an immutable normalized point, or ``None`` outside its view.
-        """
-        try:
-            if not self._animating or not self.isVisible():
-                return None
-            window = self.window()
-            if window.isMinimized() or QApplication.activeWindow() is not window:
-                return None
-            cursor = QCursor.pos()
-            hovered = QApplication.widgetAt(cursor)
-            if hovered is None or hovered.window() is not window:
-                return None
-            local = self.mapFromGlobal(cursor)
-            if not self.rect().contains(local):
-                return None
-            return ((local.x() + 0.5) / max(1, self.width()),
-                    (local.y() + 0.5) / max(1, self.height()))
-        except RuntimeError:
-            return None
-
     def _on_tick(self) -> None:
         """One beat: step the clock, ask for a repaint. Never waits.
 
@@ -5928,13 +5551,8 @@ class AmbientWidget(QWidget):
         step = min(MAX_DT, dt) if dt > 0 else 1.0 / self._rate()
         self._pending_dt += step
         advance_spaceout_drift(step)
-        pointer = (self._flow_pointer_for_tick()
-                   if isinstance(self._engine, _FlowEngine)
-                   and self._engine.mouse_enabled else None)
         if self._engine_lock.acquire(blocking=False):
             try:
-                if isinstance(self._engine, _FlowEngine) and self._engine.mouse_enabled:
-                    self._engine.set_pointer(pointer)
                 self._engine.advance(self._pending_dt)
                 self._pending_dt = 0.0
             finally:
