@@ -762,3 +762,40 @@ open.
     Preferences cases pass. Parent663still retains Random colors, universal
     high-detail/max-density frame-budget limitations and unreproducedSave
     SIGSEGV. Paired live native timings are averages, not hard24FPS promises.
+
+2026-10-06 — optional stable Random colours CPU source checkpoint
+Renderer9ee363637f (integrated34ecf4d71a) offers Random colours on all10themes.
+Seeded per-element hues remain stable during motion, with one hue per complete
+advection trail. The same gated CPU compiler warms exact round and center-only
+ranked grains; unavailable/disabled/partial-failure kernels restore full NumPy
+output. Rank storage is frame-local8MiB at4K; retained palette tables192KiB.
+194 unique affected cases pass across the192-case cohort and4-case extension;
+all99 added executable statements/33 touching arcs are covered, zero gaps.
+40 full-display existing default/custom pairs and24 native new compiled/fallback
+pairs match exactly. Three real random preview frames import neither NumBa nor
+SciPy before gate release; after release complete bytes match,1.329s warmup.
+An actual fresh integratedb2aed source7a35 native4K active-radius25% advection
+pair publishes23.995FPS Spacr versus19.798FPS Random, shader19.431/47.783ms
+median and28.815/66.656p95.120/99 clocks are distinct; all producers stop on
+hide. Random cold GUI heartbeat max65.67ms is explicitly retained. Prior faster
+individual shader measurements are labelled by their different source checkpoint.
+Random implementation and save/reopen verification close that child; native
+optional-palette frame-budget performance remains OPEN, alongside universal24FPS
+and unreproducedSaveSIGSEGV. No aesthetic acceptance or crash-resolution claim.
+Compact immutable sources, branch trace, tests, portable capped CPU probes,
+original cold/steady and integrated worker receipts and lossless native frames:
+ data/663_random_palette_cpu_2026-10-06/.
+
+2026-10-06 — exact Random grain CPU performance follow-up
+Renderer482de7d422 adds a single replaceable per-particle hue cache and an exact
+center-first compiled scatter.106 affected cases pass;25 new statements/17arcs
+are covered with zero gaps. Against the current inward-gravity source,40default/
+custom full-display pairs and24compiled/fallback plus24before/optimized Random
+native frames match all pixels. The initial19.798FPS active Random configuration
+is superseded: actual optimized repeats23.396/22.196FPS, shader34.710/38.793ms
+median and50.737/60.529p95.117/111 clocks are distinct. Repeat2 original cold/
+steady/hide JSON is archived; repeat1 steady is explicitly transcript-reported.
+The exact source optimization closes; native hard24FPS remains OPEN. No native
+resolution/density/grain reduction or aesthetics/crash claim. Separate immutable
+initial/optimized individual/integrated sources and portable proof files remain
+in data/663_random_palette_cpu_2026-10-06/.

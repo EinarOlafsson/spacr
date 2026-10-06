@@ -1,0 +1,14 @@
+{
+  "source_commit": "9ee363637fab8137c2fc3104a76cb178234b4d34",
+  "source_sha256": "e0dcbaf47cf0ecdca9aefb32a1bfd85810da20cd7f405d0461b6cad37cfc041b",
+  "baseline_commit": "0fb0c875a3",
+  "focused_cases": 192,
+  "additional_center_round_cases": 4,
+  "unique_affected_cases": 194,
+  "native_existing_pair_count": 40,
+  "native_random_compiled_pair_count": 24,
+  "retained_palette_table_bytes": 196608,
+  "ephemeral_native_compiled_rank_bytes": 8294400,
+  "scratch_not_integrated_gravity_source": true,
+  "source_bound_scope": "Individual palette source checkpoint, not latest integrated root renderer. The baseline advection function precedes bf4 inward-history gravity; only its 2D material return-call changes here. Parent preserves current gravity function when cherry-picking."
+}

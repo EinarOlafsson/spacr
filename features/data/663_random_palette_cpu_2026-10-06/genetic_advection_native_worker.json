@@ -1,0 +1,144 @@
+{
+  "source_commit": "candidate-on-0fb0c875a3",
+  "source_sha256": "e0dcbaf47cf0ecdca9aefb32a1bfd85810da20cd7f405d0461b6cad37cfc041b",
+  "source_path": "/mnt/wd4tb/scratch/theme-refinement-20261006/random-palette-final/after.py",
+  "variant": "after",
+  "theme": "data_art_genetic_advection",
+  "label": "spaCR advection",
+  "viewport": [
+    3840,
+    2160
+  ],
+  "screen_pixels": 8294400,
+  "buffer": [
+    3840,
+    2160
+  ],
+  "max_pixels": 8294400,
+  "controls": {
+    "fps": 24,
+    "active_rate_cap": 24,
+    "resolution": 2.0,
+    "density": 1.0,
+    "size": 1.0,
+    "speed": 1.0,
+    "blur": 0.0,
+    "gravity_radius": 0,
+    "seed": 42,
+    "background": "#101418",
+    "palette": "random",
+    "colors": [
+      "#e17247",
+      "#46e29e",
+      "#cb45e3",
+      "#cfe445",
+      "#44a2e5",
+      "#e64474",
+      "#46e743",
+      "#6f42e8",
+      "#e99e42",
+      "#41eace",
+      "#eb41d7",
+      "#a7ec40",
+      "#3f76ed",
+      "#ee3f44",
+      "#3eef6a",
+      "#9d3df0",
+      "#f1d03c",
+      "#3ce0f2",
+      "#f33bac",
+      "#78f43a",
+      "#3a43f5",
+      "#f66539",
+      "#38f79b",
+      "#d137f8",
+      "#e9f937",
+      "#36b2fa",
+      "#fb357a",
+      "#42fc34",
+      "#5f34fd",
+      "#fe9833",
+      "#2ce1ba",
+      "#e22bd6"
+    ]
+  },
+  "qt_platform": "xcb",
+  "scope": "actual software Xvfb native4K AmbientWidget/FrameProducer/QTimer; fresh Python process per theme; no inference or GPU; end grabs outside steady timing; requested controls unchanged",
+  "cold": {
+    "current_rss_kib": 445704,
+    "widget_show_ms": 171.98238900164142,
+    "post_show_seconds": 2.001071498991223,
+    "post_show_published_frames": 30,
+    "post_show_published_fps": 14.99196806067327,
+    "worker_shade": {
+      "median_ms": 47.31236999941757,
+      "p95_ms": 162.90736899827607,
+      "max_ms": 189.29824999941047,
+      "samples": 30
+    },
+    "heartbeat_10ms": {
+      "median_ms": 10.091078496770933,
+      "p95_ms": 19.456947993603535,
+      "max_ms": 52.83029099518899,
+      "samples": 180
+    },
+    "compile_ready": true,
+    "compile_failed": false,
+    "colored_compile_ready": true,
+    "colored_compile_failed": false,
+    "rss_peak_kib": 502356
+  },
+  "records": [
+    {
+      "repeat": 1,
+      "steady_seconds": 5.001179888000479,
+      "published_frames": 109,
+      "published_fps": 21.79485690197384,
+      "distinct_published_clocks": 109,
+      "first_clock": 10.248999999999995,
+      "clock_advance": 4.90199999999998,
+      "painted_fps": 24.394243504961548,
+      "repeated_frame_objects": 13,
+      "worker_shade": {
+        "median_ms": 42.19762700085994,
+        "p95_ms": 58.51922799774911,
+        "max_ms": 67.24360700172838,
+        "samples": 109
+      },
+      "gui_paint": {
+        "median_ms": 7.197829996584915,
+        "p95_ms": 12.071798992110416,
+        "max_ms": 15.682039986131713,
+        "samples": 122
+      },
+      "heartbeat_10ms": {
+        "median_ms": 10.087747999932617,
+        "p95_ms": 15.680270007578656,
+        "max_ms": 25.358590006362647,
+        "samples": 495
+      },
+      "publication_intervals": {
+        "median_ms": 45.40380600519711,
+        "p95_ms": 60.19393799942918,
+        "max_ms": 67.27491600031499,
+        "samples": 108
+      },
+      "lightning_worker_shades": null,
+      "load_average": [
+        3.18115234375,
+        3.30615234375,
+        2.994140625
+      ],
+      "current_rss_kib": 445744
+    }
+  ],
+  "frame_sha256": "00c86b1bb188f4944d3abee568fd4b3f71e0323bc57e935abc15ef2ea8e397f2",
+  "worker_stopped_immediately_after_hide": true,
+  "worker_stopped_200ms_after_hide": true,
+  "peak_rss_kib": 506672,
+  "dependency_source_sha256": {
+    "spacr/qt/theme.py": "85e4d7ab5dd1853f3d8c1b60b8dba965202cdaa0c61e9bc170c445758b3aadb9",
+    "spacr/qt/preferences.py": "1f0fbab1888823a643fb7b1e60eae82e17ec3a4b1aa674c163c0a69bc2a8c5f0",
+    "spacr/qt/gil_priority.py": "40c6fb95f75009cc223771385eb1c283b161a905e04b9c64ecdab035d817c3b2"
+  }
+}
