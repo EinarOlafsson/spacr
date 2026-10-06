@@ -106,7 +106,19 @@
     "console-cluster-mask-settings.csv": {
       "uncompressed_sha256": "38023a22a18d43dcf5078f02e3add88358661f80ff128e3f548e9b4082145282",
       "archive_sha256": "cacefd0c492ee2ab69f757f552a95613b620e46f44ac303465898d512cf851ea"
+    },
+    "issue-137-current-nightly-integration-r1.log": {
+      "uncompressed_sha256": "b166754bf898139b54bfa699c7441854057e161af5f43efdeaccbbc2deac93a8",
+      "archive_sha256": "6d05e49d9de20cb750864a9064276bc9b816bad33860d3e339214ed926335366"
     }
   },
-  "followup": "New guide paragraph needs normal source-current nine-language refresh; API docstrings/signatures and runtime captions unchanged."
+  "followup": "New guide paragraph needs normal source-current nine-language refresh; API docstrings/signatures and runtime captions unchanged.",
+  "current_nightly_integration": {
+    "merged_source": "e8949fbc2",
+    "local_merge": "0121e31a49ca3fd8845f81f0979a2552cdf94d1e",
+    "exit_code": 0,
+    "passed": 358,
+    "seconds": 9.88,
+    "preserved": "Incoming Bio-Rad SCN source retained; final full affected CLI/loader cohort passes."
+  }
 }
