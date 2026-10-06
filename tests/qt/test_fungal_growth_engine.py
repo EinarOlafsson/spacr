@@ -81,8 +81,9 @@ def test_native_4k_uses_the_physical_pixel_budget_and_remains_sparse():
         engine.set_time(second)
         image = _frame(engine, width, height)
         assert _occupancy(image, "#f0f1ed") <= 0.25
-    assert engine._buffer.bytesPerLine() * engine._buffer.height() <= \
-        width * height * 4
+    assert engine._buffer is None
+    owned = engine.shade(width, height)
+    assert owned.bytesPerLine() * owned.height() <= width * height * 4
     engine.set_resolution(0.5)
     assert engine.buffer_size(width, height) == (width // 2, height // 2)
     capped = _engine()

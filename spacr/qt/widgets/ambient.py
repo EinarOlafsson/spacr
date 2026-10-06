@@ -5443,6 +5443,20 @@ class _FungalGrowthEngine(_BufferedEngine):
     _interval = 1.35
     _edge_lifetime = 70.0
 
+    def _shade(self, width: int, height: int) -> QImage:
+        """Render the unchanged native field into a freshly owned image."""
+        bw, bh = self.buffer_size(width, height)
+        image = QImage(bw, bh, QImage.Format_RGB32)
+        painter = QPainter(image)
+        try:
+            painter.fillRect(image.rect(), self.identity)
+            painter.setCompositionMode(self.mode)
+            painter.setPen(Qt.NoPen)
+            self._paint_field(painter, bw, bh)
+        finally:
+            painter.end()
+        return self._soften(image, width, height)
+
     def _configure(self, rng: random.Random) -> None:
         """Roll one origin and phases for the entire unbounded clock."""
         self._fungal_seed = rng.randrange(2 ** 63)
@@ -5641,6 +5655,20 @@ class _ThoreEngine(_BufferedEngine):
     name = "data_art_thore"
     base_edge = 2048
     _event_interval = 8.4
+
+    def _shade(self, width: int, height: int) -> QImage:
+        """Render the unchanged native field into a freshly owned image."""
+        bw, bh = self.buffer_size(width, height)
+        image = QImage(bw, bh, QImage.Format_RGB32)
+        painter = QPainter(image)
+        try:
+            painter.fillRect(image.rect(), self.identity)
+            painter.setCompositionMode(self.mode)
+            painter.setPen(Qt.NoPen)
+            self._paint_field(painter, bw, bh)
+        finally:
+            painter.end()
+        return self._soften(image, width, height)
 
     def _configure(self, rng: random.Random) -> None:
         """Keep immutable rain particles and one seed for indexed bolts."""
