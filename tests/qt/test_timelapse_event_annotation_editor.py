@@ -206,7 +206,8 @@ def test_later_tracked_frame_is_available_without_loading_the_whole_movie(
 ])
 def test_invalid_or_nonunique_track_observations_are_refused(tmp_path, bad_rows):
     sequence, tracks, target = _field_files(tmp_path)
-    write_table(pd.DataFrame(bad_rows), tracks, canonicalise=False)
+    write_table(pd.DataFrame([{**row, "x": 10, "y": 9} for row in bad_rows]),
+                tracks, canonicalise=False)
     with pytest.raises(ValueError):
         _annotation_field_payload(str(tracks), str(sequence), str(target))
     assert not target.exists()
