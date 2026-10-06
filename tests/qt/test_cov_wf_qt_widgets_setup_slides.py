@@ -396,23 +396,25 @@ def test_the_animation_row_opens_on_something(slides, monkeypatch,
     to the application's own default -- and if that is not on offer either, to
     the first entry, because a negative index draws an empty combo on the row
     that is supposed to say what the backdrop is."""
+    from spacr.qt.widgets import ambient
+
     _label, box = slides._animation_row()
     assert box.itemData(0, Qt.ToolTipRole)
     monkeypatch.setattr("spacr.qt.preferences.get_ambient_animation", _boom)
     monkeypatch.setattr("spacr.qt.widgets.ambient.animation_note", _boom)
     _label, box = slides._animation_row()
-    assert box.currentData() == "blobs"
+    assert box.currentData() == ambient.DEFAULT_THEME
     assert box.itemData(0, Qt.ToolTipRole) is None
     assert "the stored animation could not be read" in debug_log.text
     monkeypatch.setattr("spacr.qt.preferences.get_ambient_animation",
                         lambda: "supernova")
     _label, box = slides._animation_row()
-    assert box.currentData() == "blobs"
+    assert box.currentData() == ambient.DEFAULT_THEME
     monkeypatch.setattr("spacr.qt.widgets.ambient.ANIMATION_CHOICES",
-                        ("aurora", "ripple"))
+                        ("aurora", "drift"))
     _label, box = slides._animation_row()
     assert (box.currentIndex(), box.currentData()) == (0, "aurora")
-    assert "no blobs among the animations offered" in debug_log.text
+    assert f"no {ambient.DEFAULT_THEME} among the animations offered" in debug_log.text
 
 
 def test_the_backdrop_is_stored_only_when_one_is_named(slides, monkeypatch):
