@@ -5143,9 +5143,11 @@ class _FungalGrowthEngine(_BufferedEngine):
     def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
         """Visible front-first edges below a conservative 18 percent footprint.
 
-        The upper bound sums expanded Bézier control-polygon lengths, round
-        caps, live tips, antialiasing and the at-most-1.3 blur. Smooth blit
-        enlargement preserves the fractional area after this expansion.
+        The bound sums Bézier control-polygon lengths, round caps and live
+        tips. Five extra buffer pixels cover raster antialiasing, the
+        at-most-1.3 area-averaging blur, smooth-blit support and a final
+        output pixel square. The 18 percent budget leaves seven percentage
+        points beneath the screen's 25 percent ink limit.
         """
         if width <= 0 or height <= 0:
             return ()
@@ -5190,10 +5192,10 @@ class _FungalGrowthEngine(_BufferedEngine):
                      + progress ** 2 * y1)
             length = math.hypot(control_x - x0, control_y - y0) \
                 + math.hypot(end_x - control_x, end_y - control_y)
-            radius = thick * 0.5 + 3.0
+            radius = thick * 0.5 + 5.0
             footprint = 2.0 * radius * length + math.pi * radius ** 2
             if progress < 1.0:
-                footprint += math.pi * (thick * 0.8 + 3.0) ** 2
+                footprint += math.pi * (thick * 0.8 + 5.0) ** 2
             if footprint > budget:
                 continue
             selected.append(edge)
