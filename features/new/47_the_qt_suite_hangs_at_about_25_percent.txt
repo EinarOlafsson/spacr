@@ -1814,3 +1814,13 @@ and attempts bounded failure-only native GDB text when a real ELF core exists.
 It changes no memory/assertion guard, Qt ownership, GC or order. Archive:
 data/47_serial_native_failure_2026-10-06/. Next coherent source push deliberately
 restarts hosted acceptance through the workflow-file trigger. Item stays OPEN.
+
+2026-10-06 — final native4K Save/close source replay
+    Actual final930app/renderer/Preferences source, fresh settings, three real
+    modal Saves200->100->200detail/random->spacr->random, pointer reach0->65%
+    ->0, all four primary screens and six natural GUI-thread GC events complete
+    under4GiB. Close/deferred deletes leave0widgets/0ambient/0workers; peak
+    1182180KiB, remaining anonymous819008KiB is retained honestly. This bounded
+    probe does not resolve the reported installedSaveSIGSEGV or substitute
+    for full original-order hosted Qt. Exact final log/source hashes are in
+    data/663_random_palette_save_gc_2026-10-06/. Parent47 stays OPEN.

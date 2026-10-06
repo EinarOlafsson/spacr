@@ -809,3 +809,13 @@ A real portable restored-source optimized native replay passes40existing pairs,
 24compiled/fallback Random pairs and24before/optimized active-pointer native
 pairs against exact7a35→a324sources, peak586660KiB; receipt is archived in
  data/663_random_palette_cpu_2026-10-06/portable_optimized_native_replay_receipt.json.
+
+2026-10-06 — Random colours and actual Preferences Help children100%
+    Final bounded implementation persists Random across all10offered themes;
+    real Preferences Save/reopen/theme-change/Cancel integration passes. Root
+    117affected palette/safe/help cases pass and final native4K Save/close probe
+    leaves no widgets/workers. Both new row labels have actual HintBar help.
+    Compiled/fallback and before/optimized native pixels remain exact; hard
+    24FPS/max-detail smoothness and reported installedSaveSIGSEGV remain OPEN.
+    Final source hashes and bounded root logs are in
+    data/43_final_cpu_source_checkpoint_2026-10-06/.

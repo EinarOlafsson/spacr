@@ -875,3 +875,18 @@ Evidence: data/548_native_stream_channels_cpu_2026-10-06/ and
 data/548_native_selected_channels_cpu_2026-10-06/. Differentfixture savings
 are not summed. Full selected float32 field remains resident; large-volume
 and parent548 scientific/external-data acceptance remainOPEN.
+
+2026-10-06 — native disk-backed normalization workspace child100%
+    Final io6ef38e31 uses selected float32 output and one channel/nonzero
+    quantile scratch map, reserving physical bytes before writes. Disk budget
+    includes output/quantile/channel and compressed archive headroom; portable
+    fallback reserves in checkpointed1MiB writes. Cancel/ENOSPC closes maps
+    before unlink, with legacy normalization and channel order preserved.
+    Actual2T2Z4C1280TIFF selecting[3,1] reduces peakRSS1342432->1265096KiB
+    and anonymous878900->726508KiB. Compressed NPZ31779821bytes SHA
+    37be3fd9789580363ea0116a638b259cdf1f5d847d4341f53f46a9631a14b0fa
+    is identical. Root115final native/closed-pool cases pass. Separate broader
+    237normalization/native cases passed before the last fallback checkpoint.
+    Exact proof: data/548_native_mapped_workspace_cpu_2026-10-06/. Raw staging
+    and downstream full-NPZ load still scale with acquisition; vendor/large
+    volume/scientific parent548 remains OPEN. No additive memory claim.

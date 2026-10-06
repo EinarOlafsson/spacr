@@ -1,5 +1,46 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 final Home CPU source and workstation regeneration relay
+Home CPU product source is frozen at app5fc990e6, ambienta324d395,
+Preferences733f9af0 and io6ef38e31 (full hashes in
+data/43_final_cpu_source_checkpoint_2026-10-06/receipt.json).
+Random colours now save/reopen across all10scenes; exact bounded hue/scatter
+optimization preserves native pixels. Actual4K active-pointer repeats improve
+19.798FPS to22.196/23.396FPS; hard24FPS remains OPEN. Disk-backed native
+normalization reserves physical scratch before writes, checkpoints fallback
+reservation/copies and preserves compressed output bytes. Its exact2T2Z4C
+1280 fixture reduces peakRSS75.5MiB and anonymous peak148.8MiB; these are
+not additive to older fixtures or universal large-volume acceptance.
+SafeSpacr/no-backdrop startup skips ambient imports and compiler callback.
+The two new Preferences labels now have actual HintBar help through tr().
+Separate root117palette/safe/help,115native workspace,32workflow contracts
+and69setup/dialog guards pass. Normal profiling-off Home reaches genuine
+readiness1.838s before firstSciPy1.888s. Final930native4K real Save/reopen/GC
+probe closes with0widgets/0ambient/0workers; installedSaveSIGSEGV remains
+unreproduced and OPEN. All exact logs/probes are archived, not summed.
+
+Workstation: preserve merged d9d6 mask manual-merge/drag identity and cb4
+Templates full-path Save. Normal source-current runtime/API/help/settings-flow
+regeneration must include the Random selector/scatter/hue helpers, changed
+native normalization/reservation helpers, SafeSpacr and new Preferences tips.
+The exact frozen3ca generated diff is now published in
+data/43_hosted_3ca_failures_2026-10-06/owner/generated-key-diff-3ca.json.gz:
+262stale reviewed runtime records across9locales/46files,73missing
+en.UI_SOURCES and15indirect-owner captions. These explain all12coverage5
+failures and reviewed-locale coverage6 failure; do not waive the guards.
+Also reconcile the private arrival record SIX->SEVEN and SetupSlides
+_animation_row's retired default-Blobs prose through the normal owner tools.
+Your frozen API38785success is respected but is not current-source publication.
+
+Hosted frozen3ca Docs37511791645 and native Windows37511791573 are SUCCESS.
+All8mandatory compat wheel/sdist platform checks succeeded; older parent was
+automatically cancelled on a newer push while informational full sweeps ran.
+Those expensive advisory full sweeps now run only weekly/manual, preserving
+every mandatory push/PR check. Ordinary3ca still has known failures; new CPU
+source must obtain its own hosted verdict. Protected b779serial37503577012
+is untouched. One provenance-enriched serial will queue behind it; no Qt
+guard, memory budget, threshold or ratchet ceiling is weakened.
+
 ## 2026-10-06 workstation Divide / Merge and Cellpose magnifier drag accepted
 Workstation handles the latest user mask editing requests. Divide / Merge
 uses left drag for the existing division and right drag to join crossed
