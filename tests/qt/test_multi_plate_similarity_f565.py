@@ -24,12 +24,14 @@ def test_external_plate_results_switch_source_before_a_label_is_saved(
     query_db = os.path.abspath(annotate._settings.db_path)
     assert annotate._similar_paths() == (query_db, str(other_db))
     annotate._set_focus_slot(0)
+    annotate._similar_unlabelled.setChecked(True)
     annotate._similar_k.setValue(6)
     annotate._on_find_similar()
     qtbot.waitUntil(lambda: annotate._similar_worker is None and
                     annotate._similar_navigation is not None, timeout=20000)
     hits = annotate._similar_navigation["hits"]
     assert str(other_db) in set(hits.db_path)
+    assert "unlabelled matches" in annotate._status_label.text()
     assert annotate._similar_result_plate.count() == 2
     annotate._similar_result_plate.setCurrentIndex(
         annotate._similar_result_plate.findData(str(other_db)))
@@ -71,6 +73,19 @@ def test_external_plate_results_switch_source_before_a_label_is_saved(
         assert "no longer available" in annotate._status_label.text()
     finally:
         unavailable.rename(other_db)
+    current_request = annotate._object_request
+    annotate._present_similarity_source(str(other_db))
+    assert annotate._object_request is current_request
+    no_matches = dict(annotate._similar_navigation)
+    no_matches["hits"] = hits.iloc[:0]
+    no_matches["unlabelled_only"] = False
+    annotate._on_similar_done(no_matches)
+    assert annotate._similar_result_plate.count() == 1
+    assert annotate._similar_result_plate.itemData(0) == query_db
+    assert list(annotate._object_request.keys) == [no_matches["key"]]
+    annotate._on_clear_similarity_plates()
+    assert annotate._similar_navigation is None
+    assert annotate._settings.db_path == query_db
 
 
 def test_unlabelled_filter_uses_each_source_labels_and_current_pending_edits(
@@ -125,6 +140,45 @@ def test_worker_honours_an_explicit_measurement_choice_without_saved_vectors(
     embedded.run()
     assert len(failures) == 1
     assert "No stored crop embeddings" in failures[0]
+
+
+def test_worker_builds_each_available_feature_kind_and_source_scope(
+        plate, tmp_path):  # noqa: F811
+    from spacr import active_learning as al
+    from spacr.embeddings import EmbeddingSpec
+    from spacr.qt.screens.annotate import _SimilarityWorker
+
+    first = str(plate / "measurements" / "measurements.db")
+    with sqlite3.connect(first) as db:
+        rows = db.execute("SELECT png_path, prcfo FROM png_list").fetchall()
+    query = rows[0][0]
+
+    def search(*, feature_kind="auto", db_paths=None):
+        """Run the real CPU worker and return its source-qualified response."""
+        answers = []
+        worker = _SimilarityWorker(first, None, query,
+                                   k=40 if db_paths is not None else 4,
+                                   feature_kind=feature_kind, db_paths=db_paths)
+        worker.done.connect(answers.append)
+        worker.run()
+        assert len(answers) == 1
+        return answers[0]
+
+    assert "db_path" not in search()["hits"]
+    values = np.asarray([[index + 1., index % 3 + 1.]
+                         for index in range(len(rows))], np.float32)
+    result = SimpleNamespace(values=values, columns=("emb_0", "emb_1"),
+                             spec=EmbeddingSpec(backbone="resnet18"))
+    encoder = SimpleNamespace(sha256="a" * 64, key="test-encoder", source="local")
+    al._store_crop_embeddings(first, [key for _, key in rows], result,
+                              encoder_entry=encoder)
+    assert "db_path" not in search(feature_kind="embeddings")["hits"]
+
+    other = tmp_path / "plate2"
+    shutil.copytree(plate, other)
+    second = str(other / "measurements" / "measurements.db")
+    combined = search(feature_kind="embeddings", db_paths=[first, second])
+    assert set(combined["hits"].db_path) == {first, second}
 
 
 def test_an_unavailable_extra_plate_reports_failure_without_switching_source(
