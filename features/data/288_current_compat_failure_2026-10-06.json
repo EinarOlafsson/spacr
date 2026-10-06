@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "run_id": 37508438542,
+  "source_sha": "f02cb658373320d2a2f68d765b92c05f34808929",
+  "run_conclusion": "failure",
+  "failed_grid_cells": [
+    "Linux ARM64 / py3.11",
+    "Linux x86-64 / py3.10",
+    "Linux x86-64 / py3.12 (control)",
+    "Linux x86-64 / py3.13",
+    "Linux x86-64 / py3.14",
+    "Linux x86-64 / py3.9 (floor)",
+    "Windows x86-64 / py3.11",
+    "macOS arm64 / py3.11"
+  ],
+  "exact_failure": "installed Home crossed an operation-only import boundary: ['scipy']",
+  "limits": "Current hosted failure after c37 local source repair. No cause/fix inferred; strict guard unchanged. Protected serial 37503577012 on b779 remains in progress and was not touched.",
+  "owner": "Home CPU/CI/install session",
+  "artifacts": {
+    "features/data/288_current_compat_failure_2026-10-06/compat-f02cb6583-failed-20261006-r1.log.gz": {
+      "stored_sha256": "5e1ee736fd71760422fe795eea8065e8eb3e16c831df9d9dc400a11fbe48b88c",
+      "original_sha256": "ded21d2166ec7c23c8f306fe1581020881fad79aa92ac9d5841bbf8d1a00077f"
+    },
+    "features/data/288_current_compat_failure_2026-10-06/compat-f02cb6583-summary-20261006-r1.json.gz": {
+      "stored_sha256": "ca950fe04ae37ea2fc42dae49688aaef88db55991e3b678589e042a69e3409ce",
+      "original_sha256": "5770942f1f802206e7d04692e513b612136a4e69f1076ff8f5685cc46ee7a9d0"
+    }
+  }
+}

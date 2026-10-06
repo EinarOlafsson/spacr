@@ -52,6 +52,25 @@ The old job's reviewed translations, English UI source hashes, Help API
 index, settings-flow source sections and locale runtime rows require the
 workstation's normal generated-artifact refresh. These historical job logs
 cannot establish green status for the current source. Item 43 remains OPEN.
+## 2026-10-06 current hosted compatibility failure and workstation checkpoint
+Current compat run 37508438542 on f02cb6583 is TERMINAL FAILURE: all eight
+installed platform cells still report operation-only import boundary ['scipy'].
+Packaging metadata, wheel availability and Fractal renderer cells pass.
+This source already contains c37's lazy magnifier import repair; its local
+Linux evidence does not prove hosted acceptance. Exact complete failed logs,
+eight-cell summary and source SHA are retained in
+data/288_current_compat_failure_2026-10-06.json and its lossless archive.
+Home owns tracing the remaining installed startup import path. Keep the strict
+guard. Protected serial run 37503577012 on b779 remains live and untouched.
+
+Workstation local checkpoint 4d007329e now accepts normal nine-language
+runtime generation/audit (9,922 entries each) and complete strict guides
+(2,991 messages each), preserving all old reviews/targets. Historical sv/fr
+assertions pass unchanged, 12 semantic cases and seven generated-documentation
+contracts pass. API normal rebuild is still live as handle 38785, with first
+locale written. That local checkpoint is not yet pushed or latest-source
+website acceptance. Newer Home source/refinements remain to integrate.
+
 ## 2026-10-06 user advection gravity and random-colors palette for Home
 The user's latest density requirement is exact: minimum 1% (0.01), not the
 current shared DENSITY_RANGE floor 0.25. Change the actual shared bound and
