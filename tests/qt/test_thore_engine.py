@@ -13,7 +13,6 @@ from PySide6.QtGui import QImage, QPainter
 
 from spacr.qt.widgets.ambient import _ThoreEngine
 
-
 PALETTE = ("#93bce8", "#a8d9ee", "#d7e2f2")
 
 
@@ -113,3 +112,50 @@ def test_controls_change_density_geometry_clock_and_native_detail():
     engine.set_speed(2.0)
     engine.advance(1.25)
     assert engine.time == 2.5
+
+
+def test_bolts_include_vertical_and_horizontal_connected_branches():
+    engine = _engine()
+    for index, horizontal in [(0, False), (1, True), (2, False), (4, True)]:
+        trunk, forks = engine._bolt(index)
+        dx = abs(trunk[-1][0] - trunk[0][0])
+        dy = abs(trunk[-1][1] - trunk[0][1])
+        assert (dx > 2 * dy) if horizontal else (dy > 2 * dx)
+        assert len(forks) == 3
+        for branch in forks:
+            assert branch[0] in trunk
+            bx = abs(branch[-1][0] - branch[0][0])
+            by = abs(branch[-1][1] - branch[0][1])
+            assert bx > .03 and by > .03
+
+
+def test_rain_advects_continuously_and_wraps_only_beyond_visible_edges():
+    engine = _engine()
+    engine.set_time(17)
+    earlier = engine.geometry(3840, 2160)[0]
+    engine.set_time(17 + 1 / 240)
+    later = engine.geometry(3840, 2160)[0]
+    horizontal_motion = []
+    for first, second in zip(earlier, later):
+        horizontal_motion.append(abs(second[0] - first[0]))
+        if 0 < first[1] < 2100:
+            assert 0 < second[1] - first[1] < 2
+            assert abs(second[0] - first[0]) < 1
+    assert max(horizontal_motion) > 0
+
+
+def test_one_drop_has_a_fainter_tail_and_brighter_advancing_head():
+    engine = _engine(density=.01)
+    engine.set_max_pixels(1920 * 1080)
+    engine.set_time(1)
+    x, y, slant, length, _, _ = engine.geometry(1920, 1080)[0][0]
+    image = engine.shade(1920, 1080)
+    pixels = _pixels(image)
+
+    def brightness(fraction):
+        px = round(x + slant * fraction)
+        py = round(y + length * fraction)
+        return int(pixels[py - 1:py + 2, px - 1:px + 2].sum())
+
+    assert brightness(.2) > 0
+    assert brightness(.8) > brightness(.2) * 2

@@ -5702,21 +5702,28 @@ class _ThoreEngine(_BufferedEngine):
             return cached
         rng = random.Random((self._thore_seed ^
                              (index * 0xD1B54A32D192ED03)) & (2 ** 128 - 1))
-        x = rng.uniform(0.21, 0.79)
-        y = -0.035
+        horizontal = index % 3 == 1
+        along = (1.0, 0.0) if horizontal else (0.0, 1.0)
+        across = (0.0, 1.0) if horizontal else (1.0, 0.0)
+        x = -0.035 if horizontal else rng.uniform(0.21, 0.79)
+        y = rng.uniform(0.21, 0.79) if horizontal else -0.035
         trunk = [(x, y)]
         forks = []
-        for step in range(11):
-            x = max(0.04, min(0.96, x + rng.uniform(-0.042, 0.042)))
-            y += rng.uniform(0.050, 0.078)
+        for step in range(32):
+            stride = rng.uniform(0.018, 0.027)
+            zigzag = rng.uniform(-0.025, 0.025)
+            x += along[0] * stride + across[0] * zigzag
+            y += along[1] * stride + across[1] * zigzag
             trunk.append((x, y))
-            if step in (3, 6, 8):
+            if step in (9, 17, 24):
                 direction = rng.choice((-1, 1))
                 bx, by = x, y
                 branch = [(bx, by)]
-                for _ in range(3):
-                    bx += direction * rng.uniform(0.025, 0.065)
-                    by += rng.uniform(0.035, 0.065)
+                for _ in range(7):
+                    stride = rng.uniform(0.007, 0.018)
+                    fork = direction * rng.uniform(0.010, 0.038)
+                    bx += along[0] * stride + across[0] * fork
+                    by += along[1] * stride + across[1] * fork
                     branch.append((bx, by))
                 forks.append(tuple(branch))
         result = (tuple(trunk), tuple(forks))
@@ -5731,33 +5738,42 @@ class _ThoreEngine(_BufferedEngine):
             return ()
         amount = min(len(self._rain), max(1, round(105 * self.density)))
         length = min(width, height) * 0.025 * self.size
-        slant = length * 0.24
-        drops = tuple((x0 * width,
-                       ((phase + self.time * (0.085 + 0.040 * fall)) % 1.12)
-                       * (height + length) - length,
-                       slant, length, (0.14 + 0.10 * span)
-                       * self.alpha_scale(), hue)
-                      for x0, phase, fall, span, hue in self._rain[:amount])
+        drops = []
+        for x0, phase, fall, span, hue in self._rain[:amount]:
+            progress = (phase + self.time * (0.085 + 0.040 * fall)) % 1.0
+            wind = (0.012 * math.sin(self.time * 0.23 + fall * math.tau)
+                    + 0.006 * math.sin(progress * math.tau + x0 * 9.0))
+            x = (x0 + wind) * width
+            y = progress * (height + 2.0 * length) - length
+            slant = length * (0.15 + 0.12 * math.sin(
+                self.time * 0.23 + fall * math.tau))
+            fade = min(1.0, progress / 0.018, (1.0 - progress) / 0.018)
+            drops.append((x, y, slant, length, (0.14 + 0.10 * span)
+                          * self.alpha_scale() * fade, hue))
         index = math.floor(self.time / self._event_interval)
         age = self.time - index * self._event_interval
         flash = ((math.sin(math.pi * age / 0.34) ** 2, *self._bolt(index))
                  if 0.0 <= age < 0.34 else ())
-        return drops, flash
+        return tuple(drops), flash
 
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
-        """Draw independently falling lines and a short, low-energy flash."""
+        """Draw tapered advected rain and narrow, pale branching lightning."""
         painter.setRenderHint(QPainter.Antialiasing, True)
         palette = self.paint_colors
         drops, flash = self.geometry(width, height)
         for x, y, slant, length, alpha, hue in drops:
-            painter.setPen(QPen(_with_alpha(palette[hue % len(palette)], alpha),
-                                max(0.55, 0.72 * self.size), Qt.SolidLine,
+            color = palette[hue % len(palette)]
+            taper = QLinearGradient(x, y, x + slant, y + length)
+            taper.setColorAt(0.0, _with_alpha(color, 0.0))
+            taper.setColorAt(0.55, _with_alpha(color, alpha * 0.34))
+            taper.setColorAt(1.0, _with_alpha(color, alpha))
+            painter.setPen(QPen(QBrush(taper), max(0.55, 0.72 * self.size), Qt.SolidLine,
                                 Qt.RoundCap))
             painter.drawLine(QPointF(x, y), QPointF(x + slant, y + length))
         if flash:
             pulse, trunk, forks = flash
             wash = QLinearGradient(0.0, 0.0, 0.0, float(height))
-            wash.setColorAt(0.0, _with_alpha(palette[0], 0.035 * pulse))
+            wash.setColorAt(0.0, _with_alpha(palette[0], 0.018 * pulse))
             wash.setColorAt(1.0, _with_alpha(palette[0], 0.0))
             painter.setPen(Qt.NoPen)
             painter.fillRect(0, 0, width, height, wash)
@@ -5767,10 +5783,12 @@ class _ThoreEngine(_BufferedEngine):
                                             points[0][1] * height))
                 for px, py in points[1:]:
                     path.lineTo(px * width, py * height)
-                painter.setPen(QPen(_with_alpha(palette[0],
-                                               (0.23 if fine else 0.42)
+                bolt_color = _mix(palette[0], QColor("#ffffff"),
+                                  0.48 if self.dark else 0.0)
+                painter.setPen(QPen(_with_alpha(bolt_color,
+                                               (0.29 if fine else 0.49)
                                                * pulse * self.alpha_scale()),
-                                    (1.2 if fine else 2.7) * self.size,
+                                    (0.70 if fine else 1.35) * self.size,
                                     Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
                 painter.drawPath(path)
         painter.setRenderHint(QPainter.Antialiasing, False)
