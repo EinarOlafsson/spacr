@@ -1539,10 +1539,13 @@ class EmbeddingsScreen(QWidget):
     def _on_embedded(self, result) -> None:
         """Fill the preview and say which encoder produced it."""
         self._result = result
-        self._save_similar.setEnabled(self._result_identity is not None)
+        self._save_similar.setEnabled(
+            not self._loading and self._result_identity is not None)
         frame = pd.DataFrame(np.asarray(result.values),
                              columns=list(result.columns))
         self._frame = frame
+        if self._loading:
+            return
         self._fill_preview(frame)
 
         from ...embeddings import encoder_entry
