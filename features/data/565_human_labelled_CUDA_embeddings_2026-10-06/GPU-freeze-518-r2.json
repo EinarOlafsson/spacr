@@ -1,0 +1,15 @@
+{
+  "files_sha256": {
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/565-pbc-retrieval-r4/plan-518-r2.json": "9f525358ea5f6ca371a538dc93b3821a6a45bb3e7a9a4bcfab36568f988d4e64",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/benchmark_pbc_embeddings_gpu_r2.py": "6583281402f4a1dfacbf7006ee0a7345b419ed6cef7e615e8324ca5952b81d60",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/565-retrieval-encoder-preparation.json": "a7ab91ff677e78d405f67730f84cbf94604697ca5dc3de1908a588abccb45b18",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/565-pretrained-input-size-CPU-verification-r2.json": "3e49c1124abf514f8bbaad4028d69e43eed8a02e6dd082bd0bb11ea5959d5dd9"
+  },
+  "source_sha256": {
+    "spacr/active_learning.py": "35dd9381516b716452a90c6f4efdbb868194694b4465517d3c5b5ba143d495a8",
+    "spacr/embeddings.py": "563d49e5a21d21b710c6597a6b9925cec0ce06adc97e8f6b7867a35e71d334d5",
+    "spacr/schema.py": "871286bfe67b903a9704894435e45d90203de8e819997a2c896aa7bf903801f5",
+    "spacr/agreement.py": "08759db61daa1b610c37e1c5f073b7adaf789c75d61fdfceea13880a663e89a0"
+  },
+  "real_GPU_embedding_execution_pending": true
+}

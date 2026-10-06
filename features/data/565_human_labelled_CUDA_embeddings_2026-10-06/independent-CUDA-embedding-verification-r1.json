@@ -1,0 +1,39 @@
+{
+  "independent_originals_rows_labels_full_preprocessing_and_CUDA_evidence_verified": true,
+  "all_original_images": 17092,
+  "unique_unambiguous_human_labelled_cells": 17074,
+  "label_counts": {
+    "basophil": 1212,
+    "eosinophil": 3110,
+    "erythroblast": 1551,
+    "ig": 2892,
+    "lymphocyte": 1214,
+    "monocyte": 1419,
+    "neutrophil": 3328,
+    "platelet": 2348
+  },
+  "dimensions": 384,
+  "normal_forward_batches": 534,
+  "all_forward_inputs_and_model_parameters_CUDA": true,
+  "all_independently_recomputed_whole_RGB_preprocessing_hashes_exact": true,
+  "all_source_pretrained_model_plan_and_array_hashes_exact": true,
+  "full_first_and_last_actual_CUDA_profiles": [
+    {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/565-pbc-retrieval-r4/cuda-embeddings-r2/batch-00000-profile.json",
+      "sha256": "5befc9fa26a0b141c4621091af67c182628ac53d73254507f25ae7651c0e3175",
+      "bytes": 510166,
+      "actual_CUDA_kernel_trace_events": 151,
+      "reported_profiler_CUDA_events": 154
+    },
+    {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/565-pbc-retrieval-r4/cuda-embeddings-r2/batch-17056-profile.json",
+      "sha256": "5ac26eef31b5f01074d7cacfadc63e85022e446e7e3ef820fe5f357218afd092",
+      "bytes": 461682,
+      "actual_CUDA_kernel_trace_events": 136,
+      "reported_profiler_CUDA_events": 148
+    }
+  ],
+  "acceptance_sha256": "7824036a6140bcf7bfb22874b4c866dad2ac9d91a66d9cfc3586c4a8874a8ca4",
+  "verifier_sha256": "b4c5922e3cc531b963461025333a8aa943e1949339511373b62e426b4d491a9e",
+  "FAISS_class_agreement_and_million_scale_acceptance_remain_separate": true
+}
