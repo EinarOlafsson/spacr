@@ -328,15 +328,37 @@ MEASURE = {"timelapse": False, "channels": [0, 1], "cell_min_size": 0,
 
 
 def _rows(db, table):
-    """A table's rows without the columns that name where files live."""
+    """Keep scientific columns, excluding the explicitly named file-location fields."""
     with sqlite3.connect(db) as connection:
         columns = [row[1] for row in connection.execute(
             f'PRAGMA table_info("{table}")')]
         kept = [column for column in columns
-                if "path" not in column.lower() and column != "file_name"]
+                if column not in ("file_name", "path_name", "png_path")]
         listed = ", ".join(f'"{column}"' for column in kept)
         rows = connection.execute(f'SELECT {listed} FROM "{table}"').fetchall()
     return kept, sorted(rows, key=repr)
+
+
+def test_batch_watch_row_comparison_keeps_pathogen_measurements(tmp_path):
+    databases = [tmp_path / "batch.db", tmp_path / "watch.db"]
+    for index, path in enumerate(databases):
+        with sqlite3.connect(path) as connection:
+            connection.execute(
+                "CREATE TABLE cell (plateID TEXT, file_name TEXT, path_name TEXT, "
+                "png_path TEXT, "
+                "cell_centre_to_pathogen_surface REAL, "
+                "cell_channel_0_distance_to_pathogen REAL)")
+            connection.execute("INSERT INTO cell VALUES (?, ?, ?, ?, ?, ?)",
+                               ("plate1", f"location{index}.npy", str(path),
+                                f"crop{index}.png", 1.25, 2.5))
+    columns, rows = _rows(databases[0], "cell")
+    assert columns == ["plateID", "cell_centre_to_pathogen_surface",
+                       "cell_channel_0_distance_to_pathogen"]
+    assert rows == [("plate1", 1.25, 2.5)]
+    assert _rows(databases[0], "cell") == _rows(databases[1], "cell")
+    with sqlite3.connect(databases[1]) as connection:
+        connection.execute("UPDATE cell SET cell_channel_0_distance_to_pathogen = 7.5")
+    assert _rows(databases[0], "cell") != _rows(databases[1], "cell")
 
 
 @pytest.fixture
