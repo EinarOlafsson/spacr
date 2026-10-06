@@ -4875,6 +4875,8 @@ class AnnotateScreen(QWidget):
         layout.addWidget(self._btn_similar_clear_plates)
         self._similar_result_plate = QComboBox(panel)
         self._similar_result_plate.setObjectName("AnnotateSimilarResultPlate")
+        self._similar_result_plate.setPlaceholderText(tr("Results by plate"))
+        self._similar_result_plate.setMinimumWidth(90)
         self._similar_result_plate.setToolTip(tr(
             "Open matching crops from this plate in Annotate before assigning labels."))
         self._similar_result_plate.currentIndexChanged.connect(
