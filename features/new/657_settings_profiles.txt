@@ -23,3 +23,14 @@ DONE 2026-10-04
   Reached from the settings strip button and Ctrl+Shift+R.
   Tests: tests/qt/test_rebindable_shortcuts_and_settings_profiles.py.
   Left: a user-docs page and translations of the new captions.
+
+2026-10-06 — USER-REQUESTED SAVED SETTINGS LOCATION
+  Templates -> Save now selects the template that was written and displays
+  its full absolute JSON path beneath the list, including when a different
+  template sorts first. The path is selectable plain text for copying.
+  The actual97 template, dialog, profile and shortcut cases pass; fatal Ruff
+  and whitespace checks pass. Lossless complete log/source identity:
+  data/657_template_saved_full_path_2026-10-06.json. This is Linux offscreen
+  Qt acceptance, not a native cross-platform recording. Saved to: {path}
+  and the two changed RecipeDialog docstrings await the normal source-current
+  multilingual/API refresh. This receipt does not close that remaining work.

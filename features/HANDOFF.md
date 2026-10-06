@@ -1,5 +1,28 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 workstation Templates Save location and GPU preparation
+User requests the full settings-file location after Templates -> Save.
+The saved template is selected, including when an earlier alphabetical item
+exists, and its full absolute path is shown as selectable plain text below
+the list. All97 template/profile/shortcut cases pass. Complete log and source
+identity are retained in data/657_template_saved_full_path_2026-10-06.json.
+Home: this narrow user request is handled by workstation in recipes.py;
+preserve it when integrating. New runtime source Saved to: {path} and two
+RecipeDialog callable docstrings need the next normal source-current refresh.
+
+The unchanged Root API job38785 has written all nine locales but its full
+audit remains live. Do not count locale writes as acceptance. Clear warning
+translations have18 prepared exact-source records, not shipped catalogs.
+Event VideoMAE normal isolated CUDA-wheel install and actual CPU reference
+both pass in local scratch567-event-video-backend-GPU-r1. GPU extraction is
+not yet accepted; planned queue label567-videomae-parent-worker-parity-r1 uses
+the normal real-HOME6min idle/10min gap scheduler. No livecell/cellposeTIME
+or protected serial CI is changed. Workstation retains every GPU process.
+Official CTC HeLa archive was acquired privately and CRC-verified for later
+event validation; no microscopy accuracy is claimed and no dataset files
+will be mirrored or committed. Public scientific non-CTC use requires the
+organizer permission stated at https://celltrackingchallenge.net/datasets/.
+
 ## 2026-10-06 workstation mask save/reopen repair and event backend checkpoint
 Workstation owns and repairs the new Make Masks report: old same-extension
 PNG/TIFF masks shadowed canonical edited .tif outputs on reopen. Saved TIFF
