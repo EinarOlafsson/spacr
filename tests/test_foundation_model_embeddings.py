@@ -82,7 +82,7 @@ def test_a_backbone_name_reaches_its_loader(monkeypatch):
     assert calls == [("foundation", n) for n in emb._foundation_names()] + [
         ("timm", "resnet18")]
     assert set(emb._foundation_names()) == {
-        "openphenom", "chada_vit", "subcell", "cell_dino"}
+        "openphenom", "chada_vit", "subcell", "subcell_rybg", "cell_dino"}
 
 
 def test_cell_dino_is_refused_with_a_reason_before_any_download():
@@ -93,7 +93,7 @@ def test_cell_dino_is_refused_with_a_reason_before_any_download():
 
 def test_every_foundation_model_says_how_many_channels_it_takes():
     for info in emb._FOUNDATION_MODELS.values():
-        assert info["in_channels"] in (None, 2)
+        assert info["in_channels"] in (None, 2, 4)
         assert info["size"] > 0 and info["label"]
 
 

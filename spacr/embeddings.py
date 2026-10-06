@@ -292,16 +292,20 @@ def _encoded_channels(available: int, spec: EmbeddingSpec) -> Tuple[int, ...]:
     """The channel indices ``spec`` encodes from crops with ``available``."""
     channels = (tuple(range(available)) if spec.channels is None
                 else tuple(spec.channels))
+    if spec.backbone == "subcell_rybg":
+        _subcell_rybg_channels(spec)
     for channel in channels:
         if not 0 <= channel < available:
             raise EmbeddingError(
                 f"channel {channel} is not in the crops, which have "
                 f"{available}")
-    adaptive = spec.backbone.startswith(_DINO_PREFIX) or (
-        spec.backbone in _FOUNDATION_MODELS
-        and _FOUNDATION_MODELS[spec.backbone]["in_channels"] is None)
+    multichannel = (
+        spec.backbone == "subcell_rybg"
+        or spec.backbone.startswith(_DINO_PREFIX)
+        or (spec.backbone in _FOUNDATION_MODELS
+            and _FOUNDATION_MODELS[spec.backbone]["in_channels"] is None))
     if (spec.channel_policy == CHANNEL_PROJECT and len(channels) > 3
-            and not adaptive):
+            and not multichannel):
         raise EmbeddingError(
             f"{len(channels)} channels cannot be projected onto three "
             "without choosing which to drop; name three in "
@@ -311,6 +315,20 @@ def _encoded_channels(available: int, spec: EmbeddingSpec) -> Tuple[int, ...]:
         raise EmbeddingError(_scale_length_message(len(spec.channel_scale),
                                                    len(channels)))
     return channels
+
+
+def _subcell_rybg_channels(spec: EmbeddingSpec) -> None:
+    """Require four unambiguous R/Y/B/G positions before loading SubCell."""
+    channels = spec.channels
+    if (spec.channel_policy != CHANNEL_PROJECT or channels is None
+            or len(channels) != 4
+            or any(isinstance(channel, (bool, np.bool_))
+                   or not isinstance(channel, (int, np.integer))
+                   or channel < 0 for channel in channels)
+            or len(set(channels)) != 4):
+        raise EmbeddingError(
+            "subcell_rybg needs the projection policy and four explicit, "
+            "distinct channel indices in r, y, b, g order")
 
 
 def _scaled(plane: np.ndarray, scale: Optional[float]) -> np.ndarray:
@@ -612,6 +630,14 @@ _FOUNDATION_MODELS: Dict[str, Dict[str, Any]] = {
         "size": 448,
         "license": "MIT",
     },
+    "subcell_rybg": {
+        "label": "SubCell (CZI / Lundberg lab ViT-B/16, R/Y/B/G)",
+        "url": ("https://czi-subcell-public.s3.amazonaws.com/models/"
+                "all_channels_ViT-ProtS-Pool.pth"),
+        "in_channels": 4,
+        "size": 448,
+        "license": "MIT",
+    },
     "cell_dino": {
         "label": "Cell-DINO (Meta FAIR DINOv2 on the Human Protein Atlas)",
         "in_channels": None,
@@ -655,6 +681,8 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
     :raises EmbeddingError: when torch or transformers is missing, or the
         model is not supported by this version.
     """
+    if spec.backbone == "subcell_rybg":
+        _subcell_rybg_channels(spec)
     try:
         import torch
     except ImportError as exc:
@@ -671,7 +699,7 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
             "Choose openphenom, "
             "chada_vit or subcell, or a timm DINOv2 backbone such as "
             "vit_small_patch14_dinov2.lvd142m.")
-    if spec.backbone == "subcell":
+    if spec.backbone in ("subcell", "subcell_rybg"):
         model, forward = _subcell_model(info, torch)
     else:
         model, forward = _hub_model(spec.backbone, info, torch)
@@ -735,12 +763,13 @@ def _hub_model(name: str, info: Mapping[str, Any], torch: Any):
 
 
 def _subcell_model(info: Mapping[str, Any], torch: Any):
-    """SubCell's DNA + protein ViT encoder with its gated attention pooling.
+    """SubCell's fixed-channel ViT encoder with gated attention pooling.
 
     The published checkpoint holds a Hugging Face ViT under ``encoder.`` and
     a two-head gated attention pooler under ``pool_model.``; both are loaded
     strictly, so a changed checkpoint is refused rather than half-loaded.
-    Each crop channel is min-max scaled, as SubCell's own loader does.
+    The four-plane R/Y/B/G model scales each whole crop as its own loader
+    does; the existing two-plane model retains its per-channel scaling.
     """
     try:
         from transformers import ViTConfig, ViTModel
@@ -760,7 +789,7 @@ def _subcell_model(info: Mapping[str, Any], torch: Any):
                        hidden_dropout_prob=0.0,
                        attention_probs_dropout_prob=0.0,
                        layer_norm_eps=1e-12, image_size=448, patch_size=16,
-                       num_channels=2, qkv_bias=True)
+                       num_channels=int(info["in_channels"]), qkv_bias=True)
 
     class Pooled(nn.Module):
         """The ViT's tokens pooled by two gated attention heads."""
@@ -788,7 +817,11 @@ def _subcell_model(info: Mapping[str, Any], torch: Any):
         .replace("_u.1.", "_u.0."): v for k, v in state.items()})
 
     def forward(net, x):
-        """Min-max scale each crop channel, then encode."""
+        """Min-max scale the expected model planes, then encode."""
+        if info["in_channels"] == 4:
+            low = x.amin(dim=(1, 2, 3), keepdim=True)
+            high = x.amax(dim=(1, 2, 3), keepdim=True)
+            return net((x - low) / (high - low + 1e-8))
         low = x.amin(dim=(2, 3), keepdim=True)
         high = x.amax(dim=(2, 3), keepdim=True)
         return net((x - low) / (high - low).clamp_min(1e-6))

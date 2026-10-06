@@ -143,6 +143,98 @@ def test_subcell_is_downloaded_once_renamed_and_min_max_scaled(
     assert len(downloads) == 1
 
 
+@pytest.mark.parametrize("policy,channels", [
+    (emb.CHANNEL_PROJECT, None),
+    (emb.CHANNEL_PROJECT, (0, 1, 2)),
+    (emb.CHANNEL_PROJECT, (0, 1, 2, 2)),
+    (emb.CHANNEL_PROJECT, (0, 1, 2, 4)),
+    (emb.CHANNEL_PROJECT, (0, 1, 2, -1)),
+    (emb.CHANNEL_PROJECT, (0, 1, 2, True)),
+    (emb.CHANNEL_PROJECT, (0, 1, 2, 3.0)),
+    (emb.CHANNEL_PROJECT, (0, 1, 2, "3")),
+    (emb.CHANNEL_PER_CHANNEL, (0, 1, 2, 3)),
+])
+def test_subcell_rybg_refuses_ambiguous_planes_before_model_load(
+        monkeypatch, policy, channels):
+    def unexpected_model_load(_spec):
+        raise AssertionError("model load must not begin")
+
+    monkeypatch.setattr(emb, "_backbone_encoder", unexpected_model_load)
+    spec = emb.EmbeddingSpec(backbone="subcell_rybg", channel_policy=policy,
+                             channels=channels, normalize=False)
+    with pytest.raises(emb.EmbeddingError, match="subcell_rybg|channel 4"):
+        emb.embed_array(np.zeros((1, 8, 8, 4), dtype=np.float32), spec)
+
+
+def test_subcell_rybg_uses_explicit_plane_order_and_whole_crop_scale(
+        monkeypatch, tmp_path):
+    seen = []
+    configurations = []
+
+    class RecordingViT(_ViT):
+        """Capture the actual model input after SubCell normalization."""
+
+        def __init__(self, config, add_pooling_layer):
+            super().__init__(config, add_pooling_layer)
+            configurations.append(config.num_channels)
+
+        def forward(self, x, interpolate_pos_encoding):
+            seen.append(x.detach().cpu().numpy().copy())
+            return super().forward(x, interpolate_pos_encoding)
+
+    _transformers(monkeypatch, vit=RecordingViT)
+    downloads = []
+
+    def download(url, target):
+        downloads.append((url, target))
+        torch.save(_subcell_checkpoint(), target)
+
+    monkeypatch.setattr(torch.hub, "get_dir", lambda: str(tmp_path / "hub"))
+    monkeypatch.setattr(torch.hub, "download_url_to_file", download)
+    crops = np.broadcast_to(np.array([1.0, 3.0, 0.0, 2.0], dtype=np.float32),
+                            (2, 9, 11, 4)).copy()
+    spec = emb.EmbeddingSpec(
+        backbone="subcell_rybg", channel_policy=emb.CHANNEL_PROJECT,
+        channels=(2, 0, 3, 1), normalize=False, device="cpu", batch_size=1)
+    result = emb.embed_array(crops, spec)
+    assert result.values.shape == (2, 1536)
+    assert result.n_channels == 4 and configurations == [4]
+    assert len(downloads) == 1
+    assert downloads[0][0] == emb._FOUNDATION_MODELS["subcell_rybg"]["url"]
+    assert downloads[0][1].endswith("all_channels_ViT-ProtS-Pool.pth")
+    assert len(seen) == 2 and all(x.shape == (1, 4, 448, 448) for x in seen)
+    np.testing.assert_allclose(seen[0].mean(axis=(2, 3))[0],
+                               [0.0, 1 / 3, 2 / 3, 1.0], atol=1e-6)
+    assert result.spec.fingerprint() != emb.EmbeddingSpec(
+        backbone="subcell_rybg", channel_policy=emb.CHANNEL_PROJECT,
+        channels=(0, 1, 2, 3), normalize=False).fingerprint()
+
+
+def test_subcell_rybg_refuses_a_two_plane_checkpoint(
+        monkeypatch, tmp_path):
+    class PatchViT(_ViT):
+        """Carry a real channel-dependent parameter for strict loading."""
+
+        def __init__(self, config, add_pooling_layer):
+            super().__init__(config, add_pooling_layer)
+            self.patch = torch.nn.Conv2d(config.num_channels, 1, 1)
+
+    _transformers(monkeypatch, vit=PatchViT)
+    monkeypatch.setattr(torch.hub, "get_dir", lambda: str(tmp_path / "hub"))
+
+    def wrong_checkpoint(_url, target):
+        state = _subcell_checkpoint()
+        state["encoder.patch.weight"] = torch.zeros((1, 2, 1, 1))
+        state["encoder.patch.bias"] = torch.zeros(1)
+        torch.save(state, target)
+
+    monkeypatch.setattr(torch.hub, "download_url_to_file", wrong_checkpoint)
+    with pytest.raises(RuntimeError, match="size mismatch for encoder.patch.weight"):
+        emb._foundation_encoder(emb.EmbeddingSpec(
+            backbone="subcell_rybg", channel_policy=emb.CHANNEL_PROJECT,
+            channels=(0, 1, 2, 3), device="cpu"))
+
+
 @pytest.mark.parametrize("backbone", ["openphenom", "subcell"])
 def test_a_missing_transformers_package_is_named(monkeypatch, backbone):
     monkeypatch.setitem(sys.modules, "transformers", None)
