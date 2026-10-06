@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "accepted": true,
+  "scope": "User-requested single Home scene replacement in Install spaCR with conda. Both 4K and 1440p preserve every decoded frame outside [2532,2832), all frame timestamps, 27 narration tracks, timings, poster and fourteen catalog files.",
+  "lesson": "02_conda_install",
+  "media_commit": "bf1cca988e0fa91683a2ca96d3acabe8cf39c60a",
+  "hosted_media_browser_checks_passed": true,
+  "hosted_routes": 85,
+  "native_home_tile_count": 19,
+  "fresh_conda_installation_claimed": false,
+  "nightly_deployment_verified": false,
+  "mask_tutorial_changed": false,
+  "home_and_measure_user_followup": "Separate current-UI rebuild remains open. User says Mask is correct; leave it unchanged.",
+  "artifacts": {
+    "features/data/615_conda_home_scene_2026-10-05/single-scene-refresh.json": {
+      "sha256": "729d8cdeba1a546be29acc5cc9fcb069d25a939220a07b0e1a604a7f565caaf4",
+      "bytes": 25017
+    },
+    "features/data/615_conda_home_scene_2026-10-05/publication-receipt.json": {
+      "sha256": "14bdcf8937928c73ba0f9bf29e446426e94c442717836beac322320bb9e51473",
+      "bytes": 158626
+    },
+    "features/data/615_conda_home_scene_2026-10-05/candidate-browser-checks.json": {
+      "sha256": "365accb42af0fadb78804d82b26bc208a33fae5430e19c7a50f5f79767c48954",
+      "bytes": 124157
+    },
+    "features/data/615_conda_home_scene_2026-10-05/published-media-browser-checks.json": {
+      "sha256": "29eaf76bb7d60e4a2625cb2dc6fcf944d883856193555358f337baf36b8369b7",
+      "bytes": 131143
+    },
+    "features/data/615_conda_home_scene_2026-10-05/placeholder-mutation-checks.json": {
+      "sha256": "4f6c6c5b06fca0ddff03ecf20fb5663550295a8e088d8b81d54c8f7b17c61bb8",
+      "bytes": 510
+    },
+    "features/data/615_conda_home_scene_2026-10-05/conda-home-candidate-preservation.json": {
+      "sha256": "f9fdd22566ea280ab0c855982bde84c9ac211d4b647b09390c19203887ed8ba5",
+      "bytes": 787
+    },
+    "features/data/615_conda_home_scene_2026-10-05/refresh_conda_home.py": {
+      "sha256": "5c5c2bf20b533af7d867039e228df22f6f892e3c84287316edfcbe990ec06b46",
+      "bytes": 10806
+    },
+    "features/data/615_conda_home_scene_2026-10-05/check_conda_home_browser.py": {
+      "sha256": "980b24090e985fb69c4fbb67a42603f3733ee457d23816d2c61ec5505b8420c4",
+      "bytes": 2810
+    },
+    "features/data/615_conda_home_scene_2026-10-05/conda-home-current-rendered.png": {
+      "sha256": "e9c9374a1b1377ff8ab93e3dc0db43b4f03dba8ee2696183cb65dfef03b9ffdf",
+      "bytes": 1004468
+    },
+    "features/data/615_conda_home_scene_2026-10-05/conda-home-frame-refresh-r3.log": {
+      "sha256": "6b76c4194ed8329d3fc02986d9cdc59b6fac11ee6a0fdef669283a2c2979e26b",
+      "bytes": 850
+    },
+    "features/data/615_conda_home_scene_2026-10-05/conda-home-frame-refresh-r4.log": {
+      "sha256": "a3dadeb79c0620340389e8ece9735cff951915990d22194f1ce4cd06ca3219e8",
+      "bytes": 258
+    },
+    "features/data/615_conda_home_scene_2026-10-05/conda-home-browser-r1.log": {
+      "sha256": "71a82e601adc41eb80e2dd5f83f9674b5510a34ba2d629c6f99c8e2995222bc0",
+      "bytes": 21622
+    },
+    "features/data/615_conda_home_scene_2026-10-05/conda-home-candidate-build-r1.log": {
+      "sha256": "ca4790bd4604716b9609e1c080b7705f7835e763bbb29c5e68f2112e4e46f2ca",
+      "bytes": 204
+    },
+    "features/data/615_conda_home_scene_2026-10-05/conda-home-candidate-browser-r1.log": {
+      "sha256": "ec60588148f1aabe3389bb2200c0fa806e0209cb37aa8fb57f6848bdbf03ecaa",
+      "bytes": 3378
+    },
+    "features/data/615_conda_home_scene_2026-10-05/conda-home-upload-r1.log": {
+      "sha256": "67611ec0304239e3f9bee2f86505704eac9afa4a33d4875a7e63b6c7af8f6030",
+      "bytes": 16481
+    },
+    "features/data/615_conda_home_scene_2026-10-05/conda-home-hosted-browser-r1.log": {
+      "sha256": "ec60588148f1aabe3389bb2200c0fa806e0209cb37aa8fb57f6848bdbf03ecaa",
+      "bytes": 3378
+    },
+    "features/data/615_conda_home_scene_2026-10-05/00_home.png": {
+      "sha256": "77f8ed24879eec8418a0d15779128a7aa8da91e3a2c29b4fd47372a14296f5cd",
+      "bytes": 427644
+    },
+    "features/data/615_conda_home_scene_2026-10-05/web-after.framemd5.gz": {
+      "sha256": "574c70eb2e7c50d44eb648757d05a0e4dded0a88a18f7ace8bd2a4b7599a071c",
+      "bytes": 18516,
+      "uncompressed_sha256": "cd022e59618b320f35044bc97516c922c2480df7f4c4f1d6d850172154e95a77"
+    },
+    "features/data/615_conda_home_scene_2026-10-05/web-before.framemd5.gz": {
+      "sha256": "0adae4ee23593e100b9151bccce84744eb2e8598e99b592e1e42422a0c5d2a71",
+      "bytes": 18603,
+      "uncompressed_sha256": "a2372abfe193dc7a463c3aeaba3d87483dcac4fcbbed60e56510b5d75b1f6b5b"
+    },
+    "features/data/615_conda_home_scene_2026-10-05/video-after.framemd5.gz": {
+      "sha256": "c456de69efb05c6c8d4ed1244ea0e28f0de8ebceb6a5beb3c48336c5e058cc15",
+      "bytes": 17393,
+      "uncompressed_sha256": "9f880526e5dde22779fc8200b3e11203e9b387ce41a4619ad2baf1505f0f4781"
+    },
+    "features/data/615_conda_home_scene_2026-10-05/video-before.framemd5.gz": {
+      "sha256": "2ad5844c6de7f6542e94f39e5409e7e6c9d588714e4000a163851c272738bc02",
+      "bytes": 17222,
+      "uncompressed_sha256": "70aef29c993c14ae6b6aceaa2c24ac0e1a6c8288885d85daf5c066adb066482c"
+    }
+  }
+}

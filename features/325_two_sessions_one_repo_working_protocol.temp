@@ -18223,3 +18223,5 @@ last three remain with the workstation's normal source-current refresh;
 this records the actual failures rather than inventing a runtime or coverage
 regression. One hosted Qt shard is green; the other two were still active
 at this receipt. No protected run was cancelled or duplicated.
+
+2026-10-05 workstation tutorial correction: the user-requested Conda Home scene now uses the actual current 19-tile Home. Both video sizes preserve every decoded frame and timestamp outside scene 8; all 27 audio tracks and fourteen catalog bytes are retained. Immutable media bf1cca988e0fa91683a2ca96d3acabe8cf39c60a passed all 4,760 hosted byte hashes and all 85 hosted browser routes. The normal Pages tree/checkpoint is ready for nightly; deployed readback remains open. Receipt: features/data/615_conda_home_scene_2026-10-05.json. New user priority: rewrite Home rows left to right including Embeddings, Power / Design and Dose-Response, and remake Measure’s opening without the empty-source card. User confirmed Mask is already correct: do not rebuild Mask. Workstation owns this follow-up, all other tutorial/docs/API/translation/GPU work; CPU/Home lane ownership is preserved.

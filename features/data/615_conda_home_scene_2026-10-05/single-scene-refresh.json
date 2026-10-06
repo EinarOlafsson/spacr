@@ -1,0 +1,834 @@
+{
+  "accepted": true,
+  "lesson": "02_conda_install",
+  "scope": "Only scene 8 Home image; original Conda installation evidence, narration, captions, timings and all other video pixels preserved.",
+  "baseline_media_commit": "d8d275cc932a01d78185ba5cb6e41d586876aa75",
+  "baseline_manifest_sha256": "8edca98f414e5e9e4808f1c28c25cd397cca39a98b3c6bcfb70d76aada78bbd3",
+  "scene_index": 7,
+  "first_frame": 2532,
+  "end_frame_exclusive": 2832,
+  "native_frame": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-yolo-current/captures/make_masks_yolo_662_r1/00_home.png",
+  "native_frame_sha256": "77f8ed24879eec8418a0d15779128a7aa8da91e3a2c29b4fd47372a14296f5cd",
+  "native_provenance": {
+    "commit": "017fe98ba8a87b2ce8cea8817e65c32ddc0d60b7",
+    "version": "1.5.1.3",
+    "module": "make_masks",
+    "download_requested": false,
+    "dataset_cache": "/tmp/spacr-tutorials/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "native_frame_metadata": {
+    "image": "00_home.png",
+    "appearance": {
+      "theme": "dark",
+      "backdrop": "blobs",
+      "painted_frames": 27
+    },
+    "hidden_decorative_backdrops": [],
+    "capture_surface": "application_window",
+    "sha256": "77f8ed24879eec8418a0d15779128a7aa8da91e3a2c29b4fd47372a14296f5cd",
+    "buttons": [
+      {
+        "text": "",
+        "name": "MinimiseWindow",
+        "tooltip": "Minimise",
+        "rect": [
+          3732,
+          4,
+          30,
+          30
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "FullScreenToggle",
+        "tooltip": "Full screen (F11). The window has no title bar; drag the menu bar to move it.",
+        "rect": [
+          3764,
+          4,
+          30,
+          30
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "CloseWindow",
+        "tooltip": "Quit spaCR",
+        "rect": [
+          3796,
+          4,
+          30,
+          30
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Home",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          7,
+          115,
+          316,
+          42
+        ],
+        "enabled": true,
+        "nav_key": "__home__",
+        "module_key": "__home__"
+      },
+      {
+        "text": "Mask",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          7,
+          190,
+          316,
+          42
+        ],
+        "enabled": true,
+        "nav_key": "mask",
+        "module_key": "mask"
+      },
+      {
+        "text": "Measure",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          7,
+          232,
+          316,
+          42
+        ],
+        "enabled": true,
+        "nav_key": "measure",
+        "module_key": "measure"
+      },
+      {
+        "text": "Annotate",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          7,
+          274,
+          316,
+          42
+        ],
+        "enabled": true,
+        "nav_key": "annotate",
+        "module_key": "annotate"
+      },
+      {
+        "text": "Classify",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          7,
+          316,
+          316,
+          42
+        ],
+        "enabled": true,
+        "nav_key": "classify_merged",
+        "module_key": "classify_merged"
+      },
+      {
+        "text": "Map Barcodes",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          7,
+          358,
+          316,
+          42
+        ],
+        "enabled": true,
+        "nav_key": "map_barcodes",
+        "module_key": "map_barcodes"
+      },
+      {
+        "text": "Regression",
+        "name": "SidebarItem",
+        "tooltip": "",
+        "rect": [
+          7,
+          400,
+          316,
+          42
+        ],
+        "enabled": true,
+        "nav_key": "regression",
+        "module_key": "regression"
+      },
+      {
+        "text": "Pipeline overviews",
+        "name": "PrimaryButton",
+        "tooltip": "Explore pipeline flowcharts, their modules, inputs and outputs, and optionally start with example data.",
+        "rect": [
+          3250,
+          202,
+          566,
+          42
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Clear",
+        "name": "HomePanelAction",
+        "tooltip": "Hide the runs listed here. The run journal and Run History keep them.",
+        "rect": [
+          3766,
+          256,
+          50,
+          22
+        ],
+        "enabled": false,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Reset",
+        "name": "HomePanelAction",
+        "tooltip": "Start these counts from now. The run journal and Run History keep every run.",
+        "rect": [
+          3763,
+          336,
+          53,
+          22
+        ],
+        "enabled": false,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "Refresh",
+        "name": "HomePanelAction",
+        "tooltip": "Re-read GPU, VRAM and disk now.",
+        "rect": [
+          3743,
+          488,
+          73,
+          22
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": null
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          378,
+          278,
+          283,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "mask"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          665,
+          278,
+          283,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "measure"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          952,
+          278,
+          282,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "annotate"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          1238,
+          278,
+          283,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "classify_merged"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          1525,
+          278,
+          283,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "map_barcodes"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          1812,
+          278,
+          283,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "regression"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          378,
+          501,
+          282,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "foreign"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          664,
+          501,
+          283,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "embeddings"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          951,
+          501,
+          282,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "run_compare"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          1237,
+          501,
+          283,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "experiment_design"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          1524,
+          501,
+          282,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "power"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          1810,
+          501,
+          282,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "dose_response"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          2096,
+          501,
+          283,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "qc_dashboard"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          378,
+          724,
+          283,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "make_masks"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          665,
+          724,
+          283,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "align"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          952,
+          724,
+          284,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "umap"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          1240,
+          724,
+          283,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "gate_editor"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          1527,
+          724,
+          283,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "graph_builder"
+      },
+      {
+        "text": "",
+        "name": "AppTile",
+        "tooltip": "",
+        "rect": [
+          378,
+          947,
+          285,
+          186
+        ],
+        "enabled": true,
+        "nav_key": null,
+        "module_key": "toxoplasma"
+      }
+    ],
+    "dialogs": []
+  },
+  "fresh_conda_installation_claimed": false,
+  "catalogs_preserved": {
+    "captions_da.json": "3c240a8c7f7b7cabb7e6d36888e697b01d692885e0fc2d98678b57bc77d3748a",
+    "captions_de.json": "360bd9d4fe11fd52e8dfb6f33dc5700c68eb5c17269607bb709bf2dcaa82c5e7",
+    "captions_is.json": "a9f168e288ed19848abe4635f72982b84b3733214e44ab136883fe8179134cbf",
+    "captions_ko.json": "38b445ff111d5547ea3a206ef7816b709207418198f7862113be927122edb60e",
+    "captions_nb.json": "5884444c7409f4138cc34dcabf920d0e340c916151d5f3d2962d0d82f076ee26",
+    "captions_sv.json": "85252c33256a531655d908a4c3c0806f65f02875edaf87bd4ca5e8b57f784a5a",
+    "lessons_en.json": "8652d6520d624b93f4b0a59dd5defaee7ae0d2401f067d1099398b3df3e41f6d",
+    "lessons_es.json": "c94135bcb048511ff9d3822ba7e8a0cf21772524567dccba6d344527261bb100",
+    "lessons_fr.json": "2dd046ec2122efdabd409595ac33d9bfc79ee3351e1aa731d304afceb49f9738",
+    "lessons_hi.json": "bcfad78f8b2d765b8bb81f3cedaa7043408555d3cf14207a0cd272c699ea24d7",
+    "lessons_it.json": "174420c026d50accc15419b7a6015b20b6a1cb096f156179a192e3323a802da3",
+    "lessons_ja.json": "04b1676ceb6564a6942b0c9963477a5a04e2c33ff8f710899c478fdae096dda2",
+    "lessons_pt-BR.json": "2a55b93999d5fbd1872a01b45e5a6b374599b59f3b34e3a11202a92e29c04f73",
+    "lessons_zh-CN.json": "6c3f20de718db06333799f96c7af6e8805edbd0e1040bc83123e0e6441657c3c"
+  },
+  "retained_audio_timings_poster": [
+    {
+      "path": "production/02_conda_install/audio/en/af_heart.json",
+      "sha256": "da1e518cbbe536b5feaf94ff4a3e7d4f2609f89ce47d1f0839e08da7de868e3b"
+    },
+    {
+      "path": "production/02_conda_install/audio/en/af_heart.m4a",
+      "sha256": "c8f975ada4b0548db84197230bb8e4e9e88176a682bda11120f71df5e43376b9"
+    },
+    {
+      "path": "production/02_conda_install/audio/es/ef_dora.json",
+      "sha256": "fadc1d871c1baf989c35157273932bc629635f6f3063bc7de6e4889ab40e340a"
+    },
+    {
+      "path": "production/02_conda_install/audio/es/ef_dora.m4a",
+      "sha256": "5dfaa490713cdaea13adc920e2354dd308635acbe85cae793e50370a1b1eff90"
+    },
+    {
+      "path": "production/02_conda_install/audio/es/em_alex.json",
+      "sha256": "e7bae56bf9dd910a547570676b819a3962be7b6acda902c3637fcb89916ea50a"
+    },
+    {
+      "path": "production/02_conda_install/audio/es/em_alex.m4a",
+      "sha256": "7921c27fac68eb299dd6f8ab1a40698f544cac2a966e214b294940c392e39cad"
+    },
+    {
+      "path": "production/02_conda_install/audio/es/em_santa.json",
+      "sha256": "e4e4cce66c902c72a2237f04d41caa098e038da46b7c6fc835478d71e87211fc"
+    },
+    {
+      "path": "production/02_conda_install/audio/es/em_santa.m4a",
+      "sha256": "1770bb2e40cd7dfe7f3e34adee54f9913eff7cbaab4a6ebf12b300382a135109"
+    },
+    {
+      "path": "production/02_conda_install/audio/fr/ff_siwis.json",
+      "sha256": "4f8955eccf2322451f3bd9a81b05f559f79510665e05b49b2f1755e843f9bce1"
+    },
+    {
+      "path": "production/02_conda_install/audio/fr/ff_siwis.m4a",
+      "sha256": "8af89015c4b17501bcc8edf8877c94bacea78576796f3d789d1912cc845d5dc6"
+    },
+    {
+      "path": "production/02_conda_install/audio/hi/hf_alpha.json",
+      "sha256": "dc4d01ce7b7a6eb9ad6257483b05f5b57b7b3cb1194adcc342b67a208f1105ed"
+    },
+    {
+      "path": "production/02_conda_install/audio/hi/hf_alpha.m4a",
+      "sha256": "d42ec892f9c53ee3e2461fa3c808cde2ccd1f7ca38786497b64877131f1356cf"
+    },
+    {
+      "path": "production/02_conda_install/audio/hi/hf_beta.json",
+      "sha256": "cc2e38417dafed3a0c02a91b24ccf4c7e4681f3ef1f03b4c15c1ea57609d197a"
+    },
+    {
+      "path": "production/02_conda_install/audio/hi/hf_beta.m4a",
+      "sha256": "ae4d9bc53adc7830dda03d2a8ac28a96a9d737315ccea85c78eca368a43d9beb"
+    },
+    {
+      "path": "production/02_conda_install/audio/hi/hm_omega.json",
+      "sha256": "6d1eb90918e48597fabb740d08d9dcf5a131230e772f9d16df30047938136410"
+    },
+    {
+      "path": "production/02_conda_install/audio/hi/hm_omega.m4a",
+      "sha256": "96cc013e4e8818b47ea344666eb08f93828827b4cc0d500da7ee5982c7b13e4a"
+    },
+    {
+      "path": "production/02_conda_install/audio/hi/hm_psi.json",
+      "sha256": "61e665fa0e38887c3d2f3dba1d49afcd642dbe8b8d76b337b08090d2721dc611"
+    },
+    {
+      "path": "production/02_conda_install/audio/hi/hm_psi.m4a",
+      "sha256": "b41c44e587e2b111af16eaf2ccd91c42d37d679c0090e48f9f7293eab5665a27"
+    },
+    {
+      "path": "production/02_conda_install/audio/it/if_sara.json",
+      "sha256": "e20392f0fed5aaed8b59b4c70c56b112494e3b8fc1f2c76bae5fc730f389d377"
+    },
+    {
+      "path": "production/02_conda_install/audio/it/if_sara.m4a",
+      "sha256": "7695bfb4e020eed9d78f16949090e9d72d5271e326737332edcbca95f7d960cc"
+    },
+    {
+      "path": "production/02_conda_install/audio/it/im_nicola.json",
+      "sha256": "e233c597bcdd951a36bfde84784471efb68d558629535ff9fab622619e0a2209"
+    },
+    {
+      "path": "production/02_conda_install/audio/it/im_nicola.m4a",
+      "sha256": "22ef99a9d589707f14131208f6d9b2ca097e0f116fadcbdead95aab29466c5e5"
+    },
+    {
+      "path": "production/02_conda_install/audio/ja/jf_alpha.json",
+      "sha256": "604f2631183aa021730e9cb6a1babb0c3d654deff755ef31f23a5ad356ece5da"
+    },
+    {
+      "path": "production/02_conda_install/audio/ja/jf_alpha.m4a",
+      "sha256": "214ecc63076a0b609fe3996d759c951c6cc80e08214634745a077fa7852871fa"
+    },
+    {
+      "path": "production/02_conda_install/audio/ja/jf_gongitsune.json",
+      "sha256": "731b7c48b0526fb17425b0b7b6ffe7ecf914dc6aa99090922d0dbd5236f51626"
+    },
+    {
+      "path": "production/02_conda_install/audio/ja/jf_gongitsune.m4a",
+      "sha256": "80d6f17b1e9483563281c76c49f3c2526f93baca2ec8aae814b71d2757d89f27"
+    },
+    {
+      "path": "production/02_conda_install/audio/ja/jf_nezumi.json",
+      "sha256": "aac59393a9783dc8ae8e22063647d8e13fedd19193cf47abcb181e0f286fad87"
+    },
+    {
+      "path": "production/02_conda_install/audio/ja/jf_nezumi.m4a",
+      "sha256": "b2701157012f42af8accce52ba06320b2639acfb28ee8677aceb880bf3ef06d3"
+    },
+    {
+      "path": "production/02_conda_install/audio/ja/jf_tebukuro.json",
+      "sha256": "c39a444ddec15d224fee4e29394f4cdcba5f4203a44df3aaa162fce6f6e9f3eb"
+    },
+    {
+      "path": "production/02_conda_install/audio/ja/jf_tebukuro.m4a",
+      "sha256": "9c57a89a16316d1ba53d636542eacf56a21441ccf841b351b8277d69e5116a53"
+    },
+    {
+      "path": "production/02_conda_install/audio/ja/jm_kumo.json",
+      "sha256": "0c128d27dcf1defec87368f0d8b3bfb8456e2d5aefd59160b4d3781f55df8a85"
+    },
+    {
+      "path": "production/02_conda_install/audio/ja/jm_kumo.m4a",
+      "sha256": "505c59446b6bc280aba882b90068212d83aa8b8c9658650c2847d5ebdb6d9c06"
+    },
+    {
+      "path": "production/02_conda_install/audio/pt-BR/pf_dora.json",
+      "sha256": "2a79d940ecd5c452524981913dbfe88af339d47753f21e853dbd760d1b02b501"
+    },
+    {
+      "path": "production/02_conda_install/audio/pt-BR/pf_dora.m4a",
+      "sha256": "884191076f5ba7f47db68a46c3fa190b2721830eb1a1ead14bd42a44696f4fbf"
+    },
+    {
+      "path": "production/02_conda_install/audio/pt-BR/pm_alex.json",
+      "sha256": "2c9476e2c94b7cbba2049398fb6c626279881d9ecd57ce1372e9a324005ec83e"
+    },
+    {
+      "path": "production/02_conda_install/audio/pt-BR/pm_alex.m4a",
+      "sha256": "6b9c22fde6412c094f73117dc2a58698dfe7035769e222fe878ee07ba1f50362"
+    },
+    {
+      "path": "production/02_conda_install/audio/pt-BR/pm_santa.json",
+      "sha256": "62c26346642d360f25e0a026728f221a6d831f8940efa9ce592ed79884082ae1"
+    },
+    {
+      "path": "production/02_conda_install/audio/pt-BR/pm_santa.m4a",
+      "sha256": "c99afa9da783f6c7a2f0329c963034c5707c3dc7c8912dfbb91538ae637a8519"
+    },
+    {
+      "path": "production/02_conda_install/audio/zh-CN/zf_xiaobei.json",
+      "sha256": "7bc03666c0cd32f778fe3f86f219a974689285cfc68b9c1cd30e32e0fa53e2a5"
+    },
+    {
+      "path": "production/02_conda_install/audio/zh-CN/zf_xiaobei.m4a",
+      "sha256": "0d020880dd6013db4e09c6f012e76604c704860f87f87a14742a1354c87eeb4f"
+    },
+    {
+      "path": "production/02_conda_install/audio/zh-CN/zf_xiaoni.json",
+      "sha256": "749e200129b16732691d4874a06330055c6e3a9580f440b391dd5ec8471f874f"
+    },
+    {
+      "path": "production/02_conda_install/audio/zh-CN/zf_xiaoni.m4a",
+      "sha256": "6c291f3609ddd075f867c8893e8d0e01e2bdab9754ce1d7fb1613136d36be7a5"
+    },
+    {
+      "path": "production/02_conda_install/audio/zh-CN/zf_xiaoxiao.json",
+      "sha256": "12af73a325395bd040352f86984017d34ec73f89c3cb8ac9e7b054dee71d4d62"
+    },
+    {
+      "path": "production/02_conda_install/audio/zh-CN/zf_xiaoxiao.m4a",
+      "sha256": "48c7e8fff079ce553a3f81f8c9a47bbee6c69fa375e51397156e1bfb3327e54f"
+    },
+    {
+      "path": "production/02_conda_install/audio/zh-CN/zf_xiaoyi.json",
+      "sha256": "925a75989bbaccc4da13a259948dc5510a4abc205822343c3279647076d30ed6"
+    },
+    {
+      "path": "production/02_conda_install/audio/zh-CN/zf_xiaoyi.m4a",
+      "sha256": "afbd75b8def68bd215ad6525aa3934185b5a9cfccc12f6b4a7517defe78ff5d1"
+    },
+    {
+      "path": "production/02_conda_install/audio/zh-CN/zm_yunjian.json",
+      "sha256": "cdfa9c4e7c53c1c54ee2d101fbf6f1828290b236f11544573d85d6f05fc9bf33"
+    },
+    {
+      "path": "production/02_conda_install/audio/zh-CN/zm_yunjian.m4a",
+      "sha256": "9d02b4a5a31bc809e679cb103c118448f78af81f5aa9d9f3ec620c75732c909c"
+    },
+    {
+      "path": "production/02_conda_install/audio/zh-CN/zm_yunxi.json",
+      "sha256": "e36ada2f74333421af78c10d04a30b652edf1d85b687b5f14dea9fadb8fefe9d"
+    },
+    {
+      "path": "production/02_conda_install/audio/zh-CN/zm_yunxi.m4a",
+      "sha256": "08ffa61c93f05a401918e7483400305b99a0a38593eb2b5ebdd029fadcdbfc06"
+    },
+    {
+      "path": "production/02_conda_install/audio/zh-CN/zm_yunxia.json",
+      "sha256": "4a14ee91ad0bb33a3d878795999c23c03595395c0f2b2c28d20286b96b949745"
+    },
+    {
+      "path": "production/02_conda_install/audio/zh-CN/zm_yunxia.m4a",
+      "sha256": "66f9851e7400faefdbc91a19166dc01f042baf132c4195340dfa07ceadbbf56c"
+    },
+    {
+      "path": "production/02_conda_install/audio/zh-CN/zm_yunyang.json",
+      "sha256": "8d32aa0968fef21e034096595a5c11881875003e3cdfd277ad875c776b965662"
+    },
+    {
+      "path": "production/02_conda_install/audio/zh-CN/zm_yunyang.m4a",
+      "sha256": "8766349ffd5fb4222cc84b9676ad9682fea4f229adf643c4c64e68df4b4fd6c5"
+    },
+    {
+      "path": "production/02_conda_install/poster.jpg",
+      "sha256": "340f04e4cf50b5c4efe6d0bdd4f2a8dcaa45400e5b7d4403ad176e4baec705ec"
+    }
+  ],
+  "video": {
+    "video": {
+      "all_unchanged_decoded_frames_identical": true,
+      "unchanged_frames_verified": 3102,
+      "replacement_frames": 300,
+      "frame_presentation_times_preserved": true,
+      "full_decode_passed": true,
+      "source_sha256": "9b134f7dc08c76367e96d6555608aea4bf31b56f90c74dd54ebadb92a523eb9a",
+      "replacement_sha256": "96eab4de3edeafbeb51e62b1a194902d8a4267a2e1a12ac79ff48aa5c67bc551",
+      "frames": 3402
+    },
+    "web": {
+      "all_unchanged_decoded_frames_identical": true,
+      "unchanged_frames_verified": 3102,
+      "replacement_frames": 300,
+      "frame_presentation_times_preserved": true,
+      "full_decode_passed": true,
+      "source_sha256": "5d6267673812668d6afa8c431a8c76752ce6e48fb7433842498ca274050a63fd",
+      "replacement_sha256": "4e72bac1e17e1fb2c7d0ac9579ddfe73652c3c2b23eb862c969a505fc40a313f",
+      "frames": 3402
+    }
+  },
+  "new_narration_generated": false,
+  "published": false,
+  "browser_verified": true,
+  "browser_checks": [
+    {
+      "case": "en-af_heart-sentence-cues",
+      "sha256": "139c2540b64214f1e1c29970dda68c25de2431b1ceb892edcdb2ca9064c09123",
+      "path": "browser-web/02_conda_install/en-af_heart-sentence-cues/playback-checks.json"
+    },
+    {
+      "case": "es-ef_dora",
+      "sha256": "4b10063badb4c5d2ecc9595c76ef964bd0b4580323cc37574b5938c65540df9a",
+      "path": "browser-web/02_conda_install/es-ef_dora/playback-checks.json"
+    },
+    {
+      "case": "fr-ff_siwis",
+      "sha256": "825d4aec603757a3257cb95515395c14c34c5d9f483b9993a21433c4df092e6f",
+      "path": "browser-web/02_conda_install/fr-ff_siwis/playback-checks.json"
+    },
+    {
+      "case": "hi-hf_alpha",
+      "sha256": "440c5808af716c6003e026233d2911cfd25cb44c694dc7c6160465b66671eb3f",
+      "path": "browser-web/02_conda_install/hi-hf_alpha/playback-checks.json"
+    },
+    {
+      "case": "it-if_sara",
+      "sha256": "cddb9d27ba8ec6e131776ab09c554628a946ea9a6d0c4c3e702dd08d570baf91",
+      "path": "browser-web/02_conda_install/it-if_sara/playback-checks.json"
+    },
+    {
+      "case": "ja-jf_alpha",
+      "sha256": "cf219f0fa593a9d5ab92f435cae59326c512fc2b95e8299c719edce5614a404e",
+      "path": "browser-web/02_conda_install/ja-jf_alpha/playback-checks.json"
+    },
+    {
+      "case": "pt-BR-pf_dora",
+      "sha256": "0420d65374bbdc06328aead832625d765e21bb349e33f24c7f2d1686634b96e2",
+      "path": "browser-web/02_conda_install/pt-BR-pf_dora/playback-checks.json"
+    },
+    {
+      "case": "zh-CN-zf_xiaobei",
+      "sha256": "6dd1dfd55054298b07814f42fc28b9b1e82d0ca1f969a4aa842fff05e3845d28",
+      "path": "browser-web/02_conda_install/zh-CN-zf_xiaobei/playback-checks.json"
+    },
+    {
+      "case": "en-af_heart-captions-da",
+      "sha256": "ce8f25eba7098101821014e094c1ecd924280f1911b6852c26431a1127350917",
+      "path": "browser-web/02_conda_install/en-af_heart-captions-da/playback-checks.json"
+    },
+    {
+      "case": "en-af_heart-captions-de",
+      "sha256": "28757b92993bf871e88d9d31b67d4c81d7bac920a9d8545c043ba6b1f97f5edf",
+      "path": "browser-web/02_conda_install/en-af_heart-captions-de/playback-checks.json"
+    },
+    {
+      "case": "en-af_heart-captions-is",
+      "sha256": "8907fd0aa209f1e7ad00078e2b605eef2b2864aa63b8061f5c0888b201f3107b",
+      "path": "browser-web/02_conda_install/en-af_heart-captions-is/playback-checks.json"
+    },
+    {
+      "case": "en-af_heart-captions-ko",
+      "sha256": "3c5a57634f4bcf25c2d64c8870afa1844dc62ea4a257e875a2916175f74e6335",
+      "path": "browser-web/02_conda_install/en-af_heart-captions-ko/playback-checks.json"
+    },
+    {
+      "case": "en-af_heart-captions-nb",
+      "sha256": "63afd36e3a7bf8c925f2df422054815fd026d2daeda119074e321325c9dd1b81",
+      "path": "browser-web/02_conda_install/en-af_heart-captions-nb/playback-checks.json"
+    },
+    {
+      "case": "en-af_heart-captions-sv",
+      "sha256": "b946d40cc6dcabc4d8ae18f10d8899fb7c67500d7fd8977d70470ed1cf4eed30",
+      "path": "browser-web/02_conda_install/en-af_heart-captions-sv/playback-checks.json"
+    }
+  ]
+}
