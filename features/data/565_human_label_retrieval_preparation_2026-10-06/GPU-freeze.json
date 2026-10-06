@@ -1,0 +1,14 @@
+{
+  "files_sha256": {
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/565-pbc-retrieval-r4/plan.json": "e49e77b3ce20aaac559354a3778a75697dc58b9787054642914cfb029134f0dc",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/benchmark_pbc_embeddings_gpu_r1.py": "940267540f0aff11cffe8e8b0dd10c50e700f18bcbe4a47536bec8c06c72fe43",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/565-retrieval-encoder-preparation.json": "a7ab91ff677e78d405f67730f84cbf94604697ca5dc3de1908a588abccb45b18"
+  },
+  "source_sha256": {
+    "spacr/active_learning.py": "35dd9381516b716452a90c6f4efdbb868194694b4465517d3c5b5ba143d495a8",
+    "spacr/embeddings.py": "563d49e5a21d21b710c6597a6b9925cec0ce06adc97e8f6b7867a35e71d334d5",
+    "spacr/schema.py": "871286bfe67b903a9704894435e45d90203de8e819997a2c896aa7bf903801f5",
+    "spacr/agreement.py": "08759db61daa1b610c37e1c5f073b7adaf789c75d61fdfceea13880a663e89a0"
+  },
+  "real_GPU_embedding_execution_pending": true
+}

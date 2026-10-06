@@ -1,0 +1,199 @@
+{
+  "original_archive_sha256": "6c50b82d1ab499b0b5a6beda0d0f75e6013df4a7233f116da354351ac10ca4f8",
+  "original_class_counts": {
+    "basophil": 1218,
+    "neutrophil": 3329,
+    "ig": 2895,
+    "monocyte": 1420,
+    "eosinophil": 3117,
+    "erythroblast": 1551,
+    "lymphocyte": 1214,
+    "platelet": 2348
+  },
+  "original_geometries_width_height": {
+    "(360, 363)": 16639,
+    "(366, 369)": 250,
+    "(360, 360)": 198,
+    "(360, 361)": 2,
+    "(361, 360)": 1,
+    "(359, 360)": 1,
+    "(362, 360)": 1
+  },
+  "all_original_images": 17092,
+  "cross_label_pixel_conflicts": {
+    "52a23e50d270309559db5d7a9dfc3c5dea858fdbb3b6b7e102e8be0e3535326b": [
+      {
+        "label": "neutrophil",
+        "archive_member": "PBC_dataset_normal_DIB/neutrophil/BNE_191112.jpg"
+      },
+      {
+        "label": "eosinophil",
+        "archive_member": "PBC_dataset_normal_DIB/eosinophil/EO_225902.jpg"
+      }
+    ]
+  },
+  "within_label_pixel_duplicates": {
+    "d8db113165f62f4858b6b2794e0e6581ad47d07c35c315eec043074522a294c7": [
+      {
+        "label": "basophil",
+        "archive_member": "PBC_dataset_normal_DIB/basophil/BA_988506.jpg"
+      },
+      {
+        "label": "basophil",
+        "archive_member": "PBC_dataset_normal_DIB/basophil/BA_251042.jpg"
+      }
+    ],
+    "ef39a2398d6129b76ad6b500afab116be4823097c2490f63efb74bcd32fb47ef": [
+      {
+        "label": "basophil",
+        "archive_member": "PBC_dataset_normal_DIB/basophil/BA_381452.jpg"
+      },
+      {
+        "label": "basophil",
+        "archive_member": "PBC_dataset_normal_DIB/basophil/BA_80990.jpg"
+      }
+    ],
+    "9d6adbe07831458060d41ef01f96fbd2b28abc503babe17b75e90f74f41aceeb": [
+      {
+        "label": "basophil",
+        "archive_member": "PBC_dataset_normal_DIB/basophil/BA_546746.jpg"
+      },
+      {
+        "label": "basophil",
+        "archive_member": "PBC_dataset_normal_DIB/basophil/BA_685720.jpg"
+      }
+    ],
+    "13bef6d6822fbd149eb6090179e09e8761fb83805caeaaed815eaeac476b6d3e": [
+      {
+        "label": "basophil",
+        "archive_member": "PBC_dataset_normal_DIB/basophil/BA_20201.jpg"
+      },
+      {
+        "label": "basophil",
+        "archive_member": "PBC_dataset_normal_DIB/basophil/BA_809918.jpg"
+      }
+    ],
+    "b64210e06abc8ac904ee81819f36aa8f5217b21f4a410292269af89169a498f5": [
+      {
+        "label": "basophil",
+        "archive_member": "PBC_dataset_normal_DIB/basophil/BA_435917.jpg"
+      },
+      {
+        "label": "basophil",
+        "archive_member": "PBC_dataset_normal_DIB/basophil/BA_858229.jpg"
+      }
+    ],
+    "1c1507e3c37a24701b69327d473c449b92310da405abdd9a85c649e179a6d427": [
+      {
+        "label": "basophil",
+        "archive_member": "PBC_dataset_normal_DIB/basophil/BA_786369.jpg"
+      },
+      {
+        "label": "basophil",
+        "archive_member": "PBC_dataset_normal_DIB/basophil/BA_225540.jpg"
+      }
+    ],
+    "b2aad3717f0a87e689f0c464cf44dda27123c34363f35c5a9a969eb3f1f9dcee": [
+      {
+        "label": "ig",
+        "archive_member": "PBC_dataset_normal_DIB/ig/PMY_753076.jpg"
+      },
+      {
+        "label": "ig",
+        "archive_member": "PBC_dataset_normal_DIB/ig/PMY_538541.jpg"
+      }
+    ],
+    "2c25fdc23b8e395c628848c3966013657ce4faf014d0299887460b162f79fd86": [
+      {
+        "label": "ig",
+        "archive_member": "PBC_dataset_normal_DIB/ig/PMY_225787.jpg"
+      },
+      {
+        "label": "ig",
+        "archive_member": "PBC_dataset_normal_DIB/ig/PMY_187173.jpg"
+      }
+    ],
+    "2a46aa756b98a4d899ba1507c91402761a84620cb7b6c4c79388bae206fb397b": [
+      {
+        "label": "ig",
+        "archive_member": "PBC_dataset_normal_DIB/ig/PMY_497134.jpg"
+      },
+      {
+        "label": "ig",
+        "archive_member": "PBC_dataset_normal_DIB/ig/PMY_586364.jpg"
+      }
+    ],
+    "84ea0d39fe6d4e882c17a583823f1614360ef78768d5ebb1923ec32a8346e1ed": [
+      {
+        "label": "monocyte",
+        "archive_member": "PBC_dataset_normal_DIB/monocyte/MO_997225.jpg"
+      },
+      {
+        "label": "monocyte",
+        "archive_member": "PBC_dataset_normal_DIB/monocyte/MO_145357.jpg"
+      }
+    ],
+    "2afad8807a95fd07b3fa71143e29a88e31079b2e7e443abb80be76790fa3d334": [
+      {
+        "label": "eosinophil",
+        "archive_member": "PBC_dataset_normal_DIB/eosinophil/EO_728356.jpg"
+      },
+      {
+        "label": "eosinophil",
+        "archive_member": "PBC_dataset_normal_DIB/eosinophil/EO_621854.jpg"
+      }
+    ],
+    "701a427b6496e80f7a42b0b2b0ce49edc979cd5b8b96bd2aefd982e97e109b2d": [
+      {
+        "label": "eosinophil",
+        "archive_member": "PBC_dataset_normal_DIB/eosinophil/EO_890163.jpg"
+      },
+      {
+        "label": "eosinophil",
+        "archive_member": "PBC_dataset_normal_DIB/eosinophil/EO_918881.jpg"
+      }
+    ],
+    "103a72fc8729ce3a98d20d841936b9c1a3cdb05c5694bb642da0416b83dd5c73": [
+      {
+        "label": "eosinophil",
+        "archive_member": "PBC_dataset_normal_DIB/eosinophil/EO_941266.jpg"
+      },
+      {
+        "label": "eosinophil",
+        "archive_member": "PBC_dataset_normal_DIB/eosinophil/EO_994040.jpg"
+      }
+    ],
+    "d38f1327f08a0bda123f943d200e43a5aa74960ef4ac43a6d9f807bbb90dd6fc": [
+      {
+        "label": "eosinophil",
+        "archive_member": "PBC_dataset_normal_DIB/eosinophil/EO_738445.jpg"
+      },
+      {
+        "label": "eosinophil",
+        "archive_member": "PBC_dataset_normal_DIB/eosinophil/EO_284748.jpg"
+      }
+    ],
+    "37a728b05dc98139d1f0cfbe8bda60183007236d0c4edc9ad13e57d47acb9fc3": [
+      {
+        "label": "eosinophil",
+        "archive_member": "PBC_dataset_normal_DIB/eosinophil/EO_433229.jpg"
+      },
+      {
+        "label": "eosinophil",
+        "archive_member": "PBC_dataset_normal_DIB/eosinophil/EO_220125.jpg"
+      }
+    ],
+    "a8f5187339000d00933da40fed78b64581e336d9b886df3acf5735b4fad0e0ba": [
+      {
+        "label": "eosinophil",
+        "archive_member": "PBC_dataset_normal_DIB/eosinophil/EO_873756.jpg"
+      },
+      {
+        "label": "eosinophil",
+        "archive_member": "PBC_dataset_normal_DIB/eosinophil/EO_65638.jpg"
+      }
+    ]
+  },
+  "conflicting_original_images": 2,
+  "same_label_extra_original_images": 16
+}

@@ -1,0 +1,21 @@
+{
+  "CPU_weight_preparation_complete": true,
+  "no_GPU_embedding_or_retrieval_run": true,
+  "model": "vit_small_patch14_dinov2.lvd142m",
+  "model_repository": "timm/vit_small_patch14_dinov2.lvd142m",
+  "current_primary_revision": "4610ca143709d58a633b6397a74412c2c3842454",
+  "normal_timm_pretrained_state_sha256": "da01dc066b2a6aea10165a09242353c4c9178032d76f9a5494e880cf5864dd92",
+  "files": {
+    "/home/carruthers/.cache/huggingface/hub/models--timm--vit_small_patch14_dinov2.lvd142m/snapshots/4610ca143709d58a633b6397a74412c2c3842454/model.safetensors": {
+      "sha256": "04d27f3400d059fc0cfd7d17dd1909a75bf3ea8fb3eeb48b97cb99e57ee20081",
+      "bytes": 88240510
+    }
+  },
+  "packages": {
+    "torch": "2.10.0",
+    "torchvision": "0.25.0",
+    "timm": "1.0.30",
+    "huggingface_hub": "0.36.2"
+  },
+  "script_sha256": "475bf2a392b51b9d559b4a09421c71f29de7e0b906c758d16b2e67f441214540"
+}
