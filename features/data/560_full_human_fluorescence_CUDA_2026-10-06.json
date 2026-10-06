@@ -1,0 +1,334 @@
+{
+  "item": 560,
+  "all_twelve_real_normal_CUDA_encoder_comparisons_completed_on_all_original_eligible_expert_crops": true,
+  "six_normal_backbones": [
+    "resnet18",
+    "resnet50",
+    "vit_small_patch14_dinov2.lvd142m",
+    "openphenom",
+    "chada_vit",
+    "subcell"
+  ],
+  "cohort_sizes": {
+    "HEp2-expert-DAPI": 10000,
+    "CycleNET-expert-native": 10499
+  },
+  "actual_normal_GPU_turn_terminal_rc": 0,
+  "normal_GPU_idle_and_handoff_rules_preserved": true,
+  "actual_GPU": "NVIDIA GeForce RTX 3090 Ti",
+  "frozen_plan_sha256": "cf7321646d184fb475c243349c87066cb2ec16bb244242d7700288964e409746",
+  "application_source_sha256": "19e04a7a686adbbe78ad1d173b466ff4d44a08fcfbc9e47a01989df97d253945",
+  "all_actual_loaded_model_states_and_checkpoint_bytes_match_CPU_freeze": true,
+  "actual_first_and_last_CUDA_kernel_profiles": 24,
+  "all_original_feature_keys_labels_full_matrices_and_traces_losslessly_preserved": true,
+  "original_full_feature_files": {
+    "resnet18-HEp2-expert-DAPI-features.npy": {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/560-human-fluorescence-primary-r1/full-fluorescence-foundation-CUDA-r1/resnet18-HEp2-expert-DAPI-features.npy",
+      "bytes": 20480128,
+      "sha256": "9d099c32a302e94c5d052393632ab1c5c06bac09273a31d67dcf5581a5122001"
+    },
+    "resnet18-CycleNET-expert-native-features.npy": {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/560-human-fluorescence-primary-r1/full-fluorescence-foundation-CUDA-r1/resnet18-CycleNET-expert-native-features.npy",
+      "bytes": 21502080,
+      "sha256": "8638fcae6dadeda563b758445abc80dda3a7cc93f30cedd289a4668ef7ca7eaf"
+    },
+    "resnet50-HEp2-expert-DAPI-features.npy": {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/560-human-fluorescence-primary-r1/full-fluorescence-foundation-CUDA-r1/resnet50-HEp2-expert-DAPI-features.npy",
+      "bytes": 81920128,
+      "sha256": "c627a966e63e347f23dcdcd42ab930db0b135cfc016ce628508baaa7dbbbc3f6"
+    },
+    "resnet50-CycleNET-expert-native-features.npy": {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/560-human-fluorescence-primary-r1/full-fluorescence-foundation-CUDA-r1/resnet50-CycleNET-expert-native-features.npy",
+      "bytes": 86007936,
+      "sha256": "26c0c3dcb3aa856af1214ba922b05dce5718121f78d4f625958478480c3a3a01"
+    },
+    "vit_small_patch14_dinov2.lvd142m-HEp2-expert-DAPI-features.npy": {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/560-human-fluorescence-primary-r1/full-fluorescence-foundation-CUDA-r1/vit_small_patch14_dinov2.lvd142m-HEp2-expert-DAPI-features.npy",
+      "bytes": 15360128,
+      "sha256": "72db1ed7d9dea943409d52bc2b2400ab90989862babcb281aad8abc2a6d24cb4"
+    },
+    "vit_small_patch14_dinov2.lvd142m-CycleNET-expert-native-features.npy": {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/560-human-fluorescence-primary-r1/full-fluorescence-foundation-CUDA-r1/vit_small_patch14_dinov2.lvd142m-CycleNET-expert-native-features.npy",
+      "bytes": 16126592,
+      "sha256": "41dfa16f59fd08980849b4f59e41e30148da746bf8b829445a8d6617c901acd8"
+    },
+    "openphenom-HEp2-expert-DAPI-features.npy": {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/560-human-fluorescence-primary-r1/full-fluorescence-foundation-CUDA-r1/openphenom-HEp2-expert-DAPI-features.npy",
+      "bytes": 15360128,
+      "sha256": "2ff2af06d289a7c903d6def6288b70d64a1859964a3bee767040f7c0612b2cb0"
+    },
+    "openphenom-CycleNET-expert-native-features.npy": {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/560-human-fluorescence-primary-r1/full-fluorescence-foundation-CUDA-r1/openphenom-CycleNET-expert-native-features.npy",
+      "bytes": 16126592,
+      "sha256": "88b88e4dd84242af0e5b64cc56d9640db2dda3469871e170b9bf67faa3f5ae08"
+    },
+    "chada_vit-HEp2-expert-DAPI-features.npy": {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/560-human-fluorescence-primary-r1/full-fluorescence-foundation-CUDA-r1/chada_vit-HEp2-expert-DAPI-features.npy",
+      "bytes": 7680128,
+      "sha256": "ad937e685cc134f428056066f8bd42916796ee89cbcce506faf53ec745f7ae4c"
+    },
+    "chada_vit-CycleNET-expert-native-features.npy": {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/560-human-fluorescence-primary-r1/full-fluorescence-foundation-CUDA-r1/chada_vit-CycleNET-expert-native-features.npy",
+      "bytes": 8063360,
+      "sha256": "23de3bac9a78c0f7f25473f2961274ddb356e8a2488f14e3e1ca1b945db2985c"
+    },
+    "subcell-HEp2-expert-DAPI-features.npy": {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/560-human-fluorescence-primary-r1/full-fluorescence-foundation-CUDA-r1/subcell-HEp2-expert-DAPI-features.npy",
+      "bytes": 61440128,
+      "sha256": "b67bcc496ce7487b8c6c393c32468556cde6b2580b98735c32386ea362fa3599"
+    },
+    "subcell-CycleNET-expert-native-features.npy": {
+      "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/560-human-fluorescence-primary-r1/full-fluorescence-foundation-CUDA-r1/subcell-CycleNET-expert-native-features.npy",
+      "bytes": 64505984,
+      "sha256": "4c4369f3297ffacf76241ae71f3d810e373fb3b1cc8261d22e31d388e511f2b4"
+    }
+  },
+  "SubCell_DAPI_is_DNA_only_zero_protein_ablation": true,
+  "SubCell_yeast_uses_genuine_nuclear_reference_and_GFP_planes": true,
+  "CPU_full_normal_scorecards_classifiers_and_independent_rank_AP_replay_pending": true,
+  "Model_Zoo_provenance_and_exact_random_AP_chance_API_repairs_remain_open": true,
+  "no_Cell_DINO_four_channel_SubCell_clinical_plate_holdout_or_manual_mask_accuracy_claim": true,
+  "no_application_source_change_or_protected_job_touched": true,
+  "artifacts": {
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/archive_full_fluorescence_foundation_CUDA_r1.py": {
+      "sha256": "719581ae1cede5b7cdaa08fdb55ddff0838de575d8ac0cc71b3179f7f0a13132",
+      "bytes": 5746
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/chada_vit-CycleNET-expert-native-execution.json.gz": {
+      "sha256": "f5145a3c13ca4e487bd53f956c3f53322f9f1cf8e249cea642b391227a5e3488",
+      "bytes": 144099
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/chada_vit-CycleNET-expert-native-features.npy.gz": {
+      "sha256": "b0e7f6d66b461566999275fe5fb9ea2abfe42eade2cece9166c21c1f98d1c81f",
+      "bytes": 7434439
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/chada_vit-CycleNET-expert-native-first-CUDA-trace.json.gz": {
+      "sha256": "dc25be11f5d6b067a97251049034f569c393292e39c2cba26165c2c0cba3e4d4",
+      "bytes": 74075
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/chada_vit-CycleNET-expert-native-last-CUDA-trace.json.gz": {
+      "sha256": "cf1753ce79512679e4130e50f591e8ad25423ba2c748a4edea5d77ca316c54c4",
+      "bytes": 69317
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/chada_vit-HEp2-expert-DAPI-execution.json.gz": {
+      "sha256": "91aff32ccba18b100c97171dc92be543d3db97f3c82b6cea1bcb577ecd3d6440",
+      "bytes": 61312
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/chada_vit-HEp2-expert-DAPI-features.npy.gz": {
+      "sha256": "1d4694b86025e125e205c04482429c3c9a773e13961bf669d15f498e437e8702",
+      "bytes": 7095362
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/chada_vit-HEp2-expert-DAPI-first-CUDA-trace.json.gz": {
+      "sha256": "9a2aad3198edd26200348c8548e2b198361079420dc3da355701c926ac109ec0",
+      "bytes": 77738
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/chada_vit-HEp2-expert-DAPI-last-CUDA-trace.json.gz": {
+      "sha256": "6620b26c136d3a312b9094c05eafabe7b3d1db3641d1a16209a1c58a4d6b8c85",
+      "bytes": 72391
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/complete-execution.json.gz": {
+      "sha256": "7d2bc2bacbc5c554515003140c8111d7aec122a4f48f15fd23fb02d2961815d1",
+      "bytes": 1275203
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/exact-normal-GPU-turn-lifecycle.json": {
+      "sha256": "96c592959548e130034aa1a8dc347f4eed8440e14f364f8c821493564777755d",
+      "bytes": 990
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/frozen-full-fluorescence-foundation-plan-r1.json.gz": {
+      "sha256": "65161e3313ecd31f049d6f1650ff5c7e1f9926863845ba6240f5cd797f99f66a",
+      "bytes": 210078
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/full-fluorescence-foundation-CUDA-r1.log.gz": {
+      "sha256": "ceca781e0720555fe520424c34ffa92c40211297442523c4824b0d511ab2bdb1",
+      "bytes": 2158
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/openphenom-CycleNET-expert-native-execution.json.gz": {
+      "sha256": "15e0f840e4abbeae854754ef2e3f94139d0c1c6de4e062d141a2034332b5995a",
+      "bytes": 144512
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/openphenom-CycleNET-expert-native-features.npy.gz": {
+      "sha256": "94dd1e6d9d8c72f2d21d04d19155024f6ac4912b918050c3c4a2b171ffe45652",
+      "bytes": 14962153
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/openphenom-CycleNET-expert-native-first-CUDA-trace.json.gz": {
+      "sha256": "f6cd279ab7d4247bcd79032bcd4ea67c5fec9f989759e34b779888d8ed1f7093",
+      "bytes": 52147
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/openphenom-CycleNET-expert-native-last-CUDA-trace.json.gz": {
+      "sha256": "2ecf1d0189f45eb39cd6dc161f2acad24cb19e797150c35926bae3ce01c3f17a",
+      "bytes": 52960
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/openphenom-HEp2-expert-DAPI-execution.json.gz": {
+      "sha256": "e6a9c865742a9c9936be77eda926c36af83c3188a9e1297df4e7f4ec1e073565",
+      "bytes": 61977
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/openphenom-HEp2-expert-DAPI-features.npy.gz": {
+      "sha256": "04efee9dd9627e7a7294eec146a5ed3790185b92d1196163237bcda1e48cd5f8",
+      "bytes": 14257236
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/openphenom-HEp2-expert-DAPI-first-CUDA-trace.json.gz": {
+      "sha256": "11f80688a7c44196919eabe966167f64381ed71339c440df0c6b5da6e690d0d3",
+      "bytes": 52864
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/openphenom-HEp2-expert-DAPI-last-CUDA-trace.json.gz": {
+      "sha256": "0a2ee29f4b7c0f0a9b0335feec7f009c0d8635eb926e0a8b051580bb2c419bc2",
+      "bytes": 50625
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/resnet18-CycleNET-expert-native-execution.json.gz": {
+      "sha256": "07ee4471dc8d031dd984a8e45da0c05ece5ef49dd362bdce9710a24f2ed7bb39",
+      "bytes": 144888
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/resnet18-CycleNET-expert-native-features.npy.gz": {
+      "sha256": "fa45be5246e83b4cf1269216ede73b267bd59aea53e0287d04bcc01ea9cf4e93",
+      "bytes": 16059475
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/resnet18-CycleNET-expert-native-first-CUDA-trace.json.gz": {
+      "sha256": "506db14aa4d1f384a4a08a1e67abcdf933d168ddf005e619416a141c3d7a2322",
+      "bytes": 20977
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/resnet18-CycleNET-expert-native-last-CUDA-trace.json.gz": {
+      "sha256": "53c73f139a36474ac685e777a57e4c9df18478d23b8757f2e9c64ba7cbe07863",
+      "bytes": 51943
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/resnet18-HEp2-expert-DAPI-execution.json.gz": {
+      "sha256": "914e5051e8b72efa839d1d7bc01d38b3239f6d20019d54f16febab62906ee1e4",
+      "bytes": 62372
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/resnet18-HEp2-expert-DAPI-features.npy.gz": {
+      "sha256": "d1596b65d480d18833e3243e98ea0a3934a1cba9ee3b23b986294738ce2094ae",
+      "bytes": 14691629
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/resnet18-HEp2-expert-DAPI-first-CUDA-trace.json.gz": {
+      "sha256": "00bf47a831e98efc183cf7e5a44d76234916564196ecc76e0bc28e99cdc0df69",
+      "bytes": 54368
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/resnet18-HEp2-expert-DAPI-last-CUDA-trace.json.gz": {
+      "sha256": "94080f06c711bf5d1a09907c9acd6874e51740e3d0cb18bdba8ce58f64f83a64",
+      "bytes": 21013
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/resnet50-CycleNET-expert-native-execution.json.gz": {
+      "sha256": "57b1d988285ed253fbc635ec6b5f6a6a38316d89721d161cada8a02df7a9b351",
+      "bytes": 149413
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/resnet50-CycleNET-expert-native-features.npy.gz": {
+      "sha256": "2474460c75db77214e230c92acdd4e41e95ba4ff1afb7d193eedc9ce2474f5c9",
+      "bytes": 27845265
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/resnet50-CycleNET-expert-native-first-CUDA-trace.json.gz": {
+      "sha256": "d9eb81f5ede9c6fb05d64c21456767ac39ed89888d28bb721a4fc30ac54d5384",
+      "bytes": 41492
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/resnet50-CycleNET-expert-native-last-CUDA-trace.json.gz": {
+      "sha256": "1de839b6b5164b0b42f545502197e33d54666e50fa274ea9b00d6022c54285d8",
+      "bytes": 99260
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/resnet50-HEp2-expert-DAPI-execution.json.gz": {
+      "sha256": "9f21ee57651cdb649906484eb86ab1def5a1d225df5e3ba6c6c86d0e0dad8dd9",
+      "bytes": 67010
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/resnet50-HEp2-expert-DAPI-features.npy.gz": {
+      "sha256": "ee4b502017581e11bc1ac713c4380cdc7689c7ca10f1b223ed0802efc26392a6",
+      "bytes": 39314497
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/resnet50-HEp2-expert-DAPI-first-CUDA-trace.json.gz": {
+      "sha256": "94a9a7d1a5c2f318512bf41918a6b4bff5a311ac07275e44d5a094d7934e8dff",
+      "bytes": 100558
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/resnet50-HEp2-expert-DAPI-last-CUDA-trace.json.gz": {
+      "sha256": "72f74b6cf283a4244a26287adb8b78dfedf3db01f4b2422795e2e9d4a6b176ac",
+      "bytes": 41533
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/run_full_fluorescence_foundation_CUDA_r1.py": {
+      "sha256": "0c29c3021eb5fe47230bff32ef0d81f33bc8401d3bcfbe328ea76e37f07eb0e4",
+      "bytes": 9676
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/subcell-CycleNET-expert-native-execution.json.gz": {
+      "sha256": "5d00247c818b9afd36958611b02fd560417f5eec29d7d087b78630261d4e16d2",
+      "bytes": 147881
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/subcell-CycleNET-expert-native-features.npy.gz": {
+      "sha256": "222305e6f230ad1de6124a267f70aed989cf660f3cb2fce51b48f42b07d8aae3",
+      "bytes": 60168538
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/subcell-CycleNET-expert-native-first-CUDA-trace.json.gz": {
+      "sha256": "e7a382955c44ddcc7079ea4f26a8784f0c622213704aebc45b8080220ab51a3c",
+      "bytes": 41873
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/subcell-CycleNET-expert-native-last-CUDA-trace.json.gz": {
+      "sha256": "d50c6af10c708123b8464fc192b7143071e74214e03c515d7b6165b8ebb8ac1a",
+      "bytes": 47997
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/subcell-HEp2-expert-DAPI-execution.json.gz": {
+      "sha256": "557114fec1a24fa59d429cb99756ac26fd99cd776e9c9ddcd8f87c4e34438328",
+      "bytes": 65736
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/subcell-HEp2-expert-DAPI-features.npy.gz": {
+      "sha256": "f75b123b621bd29f9fba94ca7fa96ac1a1b723eb57ef84a40a9c1164df11bdf3",
+      "bytes": 57282512
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/subcell-HEp2-expert-DAPI-first-CUDA-trace.json.gz": {
+      "sha256": "173a547861599bf6708d893acf9dfc41ed6cdb194f86bf4acc9c3aadcd5781ce",
+      "bytes": 45030
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/subcell-HEp2-expert-DAPI-last-CUDA-trace.json.gz": {
+      "sha256": "a972eeda1fb0ae9124703d790d84b8aae200d74fb4492ac2703183600a1ee9a7",
+      "bytes": 41827
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/vit_small_patch14_dinov2.lvd142m-CycleNET-expert-native-execution.json.gz": {
+      "sha256": "c23e5a055361ef64780fef902dcf6fa7b0692c5a40a20d3cb786b2a4cd390732",
+      "bytes": 144532
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/vit_small_patch14_dinov2.lvd142m-CycleNET-expert-native-features.npy.gz": {
+      "sha256": "68f17d1145bba01d68a3b9ff98492177797c57a63a05ee07494329667054084f",
+      "bytes": 14951107
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/vit_small_patch14_dinov2.lvd142m-CycleNET-expert-native-first-CUDA-trace.json.gz": {
+      "sha256": "7e1a3a9611cfe211f81f7fe53db8eea12fc0dc2840222da9865ef5e4c1f0a873",
+      "bytes": 42981
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/vit_small_patch14_dinov2.lvd142m-CycleNET-expert-native-last-CUDA-trace.json.gz": {
+      "sha256": "36d3d5b69f68b57afe26b182866e1eac78bc83adf3165a8a9e56aaeaa19bf19e",
+      "bytes": 44032
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/vit_small_patch14_dinov2.lvd142m-HEp2-expert-DAPI-execution.json.gz": {
+      "sha256": "2b8b58c4c52e3eaf9ae02ed936d87b8c38373fce0baca1af341639a5497ecc5a",
+      "bytes": 62020
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/vit_small_patch14_dinov2.lvd142m-HEp2-expert-DAPI-features.npy.gz": {
+      "sha256": "92679470ae84cee93d36b2c3fa99d5124fa0a32bda26259655e31e3bf27613d6",
+      "bytes": 14258077
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/vit_small_patch14_dinov2.lvd142m-HEp2-expert-DAPI-first-CUDA-trace.json.gz": {
+      "sha256": "0379096c817058707b24a6b33a408d1d2dce02dd5cbdc2a25d238b3cb50c2264",
+      "bytes": 46484
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/vit_small_patch14_dinov2.lvd142m-HEp2-expert-DAPI-last-CUDA-trace.json.gz": {
+      "sha256": "214b76fc3854abd673846634e811c19328c1c8bf52916fa07442e887271ad1a3",
+      "bytes": 43110
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/full-fluorescence-foundation-CUDA-archive-r1.log.gz": {
+      "sha256": "96dd4fcf0538302e5bcaca3a1011842badea32af1b65b8ec260f2cbba500d4ff",
+      "bytes": 823
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/full-fluorescence-foundation-CPU-scorecards-r1.log.gz": {
+      "sha256": "01e8c448f5f6b73ea891447725086681f10c40529511dbcb39e78fe4857f58e0",
+      "bytes": 726
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/independent-replay-memory-order-diagnostic-r2.json": {
+      "sha256": "dd3fbcc18c0628dbf525f6db33bedd98175e7c806fc0a38e9ebbfafde5cc412b",
+      "bytes": 800
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/score_full_fluorescence_foundations_CPU_r2.py": {
+      "sha256": "3aad9534c23d8c874883197791c218b27bbc2aa3771940629f3c02cc6b9389c3",
+      "bytes": 10720
+    },
+    "features/data/560_full_human_fluorescence_CUDA_2026-10-06/plot_full_fluorescence_foundation_scorecards_r2.py": {
+      "sha256": "1bdda7decd7050a292c5a19ce20a86202c90d060989b41de3381a8590ce614dc",
+      "bytes": 3925
+    }
+  },
+  "original_CPU_r1_terminal_return_code": 1,
+  "original_CPU_r1_full_rank_replay_map_difference": 6.27748889e-08,
+  "replay_memory_layout_diagnostic_reproduces_normal_matrix_bitwise": true,
+  "corrected_CPU_r2_running_with_original_1e_minus12_metric_guard": true
+}
