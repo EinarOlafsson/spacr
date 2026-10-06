@@ -1377,9 +1377,9 @@ def load_settings(csv_file_path, show=False, setting_key='setting_key', setting_
         if not isinstance(value, str):
             return value
 
-        if value == 'True':
+        if value.strip().lower() == 'true':
             return True
-        if value == 'False':
+        if value.strip().lower() == 'false':
             return False
 
         if value.startswith(('(', '[', '{')):

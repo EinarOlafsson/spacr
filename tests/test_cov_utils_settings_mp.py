@@ -134,6 +134,25 @@ def test_load_settings_parses_every_literal_type(tmp_path):
     assert out["broken_literal"] == "[1, 2"
 
 
+def test_load_settings_matches_cli_for_spreadsheet_booleans(tmp_path):
+    from spacr import cli
+    from spacr.utils import load_settings
+
+    path = tmp_path / 'spreadsheet.csv'
+    rows = [('src', '/data'), ('preprocess', 'TRUE'), ('masks', 'true'),
+            ('unmix', 'FALSE'), ('plot', 'false'), ('save', ' TrUe '),
+            ('normalize', ' FaLsE '), ('nested', "{'enabled': 'TRUE', 'off': 'FALSE'}"),
+            ('experiment', 'TRUE-control'), ('custom_model', ' FALSE checkpoint '),
+            ('one', '1'), ('zero', '0'), ('channels', '[0, 1, 2]')]
+    pd.DataFrame(rows, columns=['Key', 'Value']).to_csv(path, index=False)
+    expected = {'src': '/data', 'preprocess': True, 'masks': True, 'unmix': False,
+                'plot': False, 'save': True, 'normalize': False,
+                'nested': {'enabled': True, 'off': False}, 'experiment': 'TRUE-control',
+                'custom_model': ' FALSE checkpoint ', 'one': 1, 'zero': 0,
+                'channels': [0, 1, 2]}
+    assert load_settings(str(path)) == cli.load_settings_file(str(path)) == expected
+
+
 def test_load_settings_show_true_uses_display(tmp_path, monkeypatch):
     """``show=True`` routes the DataFrame through ``display`` exactly once."""
     import spacr.utils as U

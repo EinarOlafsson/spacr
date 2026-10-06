@@ -913,9 +913,9 @@ def _parse_csv_value(value: Any) -> Any:
         return None
     if not isinstance(value, str):
         return value
-    if value == "True":
+    if value.strip().lower() == "true":
         return True
-    if value == "False":
+    if value.strip().lower() == "false":
         return False
     if value.startswith(("(", "[", "{")):
         try:

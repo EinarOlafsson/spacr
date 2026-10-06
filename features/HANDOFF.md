@@ -1,5 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 workstation owns GitHub issue137 CSV boolean repair
+The user explicitly requested the newly posted GitHub issue be fixed:
+https://github.com/EinarOlafsson/spacr/issues/137.
+Workstation handles it; Home must preserve this fix and need not duplicate it.
+Both cli._parse_csv_value and utils.load_settings now read true/false
+case-insensitively, including surrounding whitespace. Numbers, list literals,
+paths and unrelated strings retain their previous meaning. The validator is
+unchanged; the real Mask CLI dry run accepts all exported boolean defaults
+with valid acquisition inputs and a declared channel. All358 affected CLI,
+loader, registry and reproducibility checks pass, including cold import
+guards; all10 original failures and the corrected missing-input/channel test
+fixture are retained distinctly in data/615_GitHub_issue137_2026-10-06.json.
+No cluster model inference or actual Slurm job is claimed by the dry run.
+New English guide prose belongs to the workstation's next normal all-nine
+guide refresh; runtime captions and API signatures/docstrings are unchanged.
+
+GPU precision diagnosis also completed through the normal queue: unchanged
+source reproduces373RGB/590monochrome mismatches; disabling convolution TF32
+passes both clips at the original tolerance, with maximum errors1.13e-6 and
+1.24e-6. This is diagnosis, not product GPU acceptance. Workstation retains
+the worker repair and queued final acceptance; no tolerance is widened.
+Fresh current-Wand editor recording completes with real161pixel add/remove,
+exact Undo and unchanged acquired image; all13 updated61scene reviews pass
+normal source/pronunciation checks. Remaining native companions/audio/video/
+publication and frozen runtime/API jobs remain workstation-owned.
+
 ## 2026-10-06 workstation single Wand button and progress relay
 The latest user mask request is workstation-owned and accepted: one Wand
 button adds by default; Ctrl+left removes the bounded intensity region using

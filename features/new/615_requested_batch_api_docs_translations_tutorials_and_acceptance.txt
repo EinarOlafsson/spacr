@@ -1431,3 +1431,20 @@ refresh is next. Actual official pretrained Cell-DINO weights are still
 unobtained; scientific/GPU acceptance remains OPEN. User theme revisions and
 the preference-save native crash remain Home priority under N663. Protected
 serial Qt 37457998285 is still running at older 237506317; leave it alone.
+
+2026-10-06 workstation GitHub issue137 accepted:
+https://github.com/EinarOlafsson/spacr/issues/137 reports that uppercase
+spreadsheet TRUE/FALSE cells fail Mask CLI preflight as strings. Both CSV
+loaders now recognize true/false case-insensitively with surrounding padding;
+other text, paths, numeric values and lists retain their previous meaning.
+All358 affected CLI/loader/registry/reproducibility cases pass. The actual
+installed spacr-run console script, using the isolated repaired source,
+accepts65 uppercase Mask flags and four valid acquisition-channel files;
+preflight is clean and dry-run exits0 without importing torch or a GUI.
+No validator is bypassed and no cluster model inference is claimed. Complete
+original report, ten before-fix failures, corrected input/channel fixture,
+accepted logs, source identities and console proof are retained in
+data/615_GitHub_issue137_2026-10-06.json. Home must preserve this workstation
+repair rather than duplicating it. New English guide prose awaits the normal
+all-nine source-current guide refresh; API signatures/docstrings and runtime
+captions are unchanged by this fix.

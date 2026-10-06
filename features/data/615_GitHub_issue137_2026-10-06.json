@@ -1,0 +1,112 @@
+{
+  "item": 615,
+  "issue": 137,
+  "issue_url": "https://github.com/EinarOlafsson/spacr/issues/137",
+  "base_commit": "df4e4ab3659898fd6ad990907c04331d401e9200",
+  "passed": true,
+  "scope": "Case-insensitive true/false and surrounding whitespace in headless and ordinary settings CSV loaders; no pipeline/GPU/Slurm acceptance claim",
+  "final_exit_code": 0,
+  "final_test_count": 358,
+  "actual_console": {
+    "passed": true,
+    "scope": "Actual installed spacr-run console script executed with this isolated source; Mask preflight and dry-run only, no model or GPU inference.",
+    "source": "/media/carruthers/mnt3/codex/spacr-worktrees/issue-137-csv-booleans-20261006",
+    "console": "/home/carruthers/anaconda3/envs/spacr/bin/spacr-run",
+    "uppercase_boolean_rows": 65,
+    "exit_code": 0,
+    "settings": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/issue137-actual-console-r1/cluster-mask-settings.csv",
+    "no_heavy_pipeline_imports": true
+  },
+  "failure_history": {
+    "before_fix": "10 genuine parsing/resolution failures with newly added regressions on unchanged app source",
+    "affected_r1": "357 passed, 1 fixture failure: real Mask dry-run correctly refused absent images and all-None segmentation channels",
+    "affected_r2": "358 passed after providing four real TIFF acquisition files and a declared channel; unchanged validators"
+  },
+  "invariants": [
+    "FALSE decodes to False, not Python truthiness",
+    "Numbers retain numeric types",
+    "Nonboolean text/path bytes unchanged",
+    "List and dictionary parsing retained",
+    "No heavy CLI import introduced",
+    "Preflight validation remains enabled"
+  ],
+  "artifacts": {
+    "issue-137-original-report-r1.json": {
+      "uncompressed_sha256": "60550b8a1efe6c6787f1736aff53a2620c713460433821eae9dcbbb832a3be3c",
+      "archive_sha256": "69b3b086699424f3010c76488013da7e918651d94b4263f7316091d9a5f20d5a"
+    },
+    "issue-137-csv-before-fix-r1.log": {
+      "uncompressed_sha256": "513b1b59fd68d045d5455917f67f36fc76e4b4c3f22d506b76b644390efc2cf8",
+      "archive_sha256": "2fa32734963ff5946c928f35a14563df9e71fd9f2062dfc418d29b8bef8afe30"
+    },
+    "issue-137-csv-affected-tests-r1.log": {
+      "uncompressed_sha256": "2a88e99f8963c577c37c1cb070a86cab63d5960762c791eb23e2408f7e438413",
+      "archive_sha256": "9c789e37115957a6cee32a5b6c52b91eaaaeedfce0924b778d23bdfc4f670170"
+    },
+    "issue-137-csv-affected-tests-r2.log": {
+      "uncompressed_sha256": "45a51d8bdc16161191b769688a350f302dc601994f0dd6307ef7947298467ef3",
+      "archive_sha256": "3db566ada3c1ded735ed99ab62af34d76b4c315af4a93ea25504dddb4d4819dd"
+    },
+    "issue-137-fatal-ruff-r1.log": {
+      "uncompressed_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "archive_sha256": "f3af4d142827f5aad2eb0c72d556d325488a57fb6219aac10afeb51085667d53"
+    },
+    "issue-137-actual-console-r1.log": {
+      "uncompressed_sha256": "4acf7d227a5fe2e6400b7ac81214f159910f4444d5f982651756815ece298916",
+      "archive_sha256": "661c41c588df827b653ac4c21b6c30ad4b4440c13c806bdb4d5b6bfdfc949f1c"
+    },
+    "verify_issue137_console_r1.py": {
+      "uncompressed_sha256": "c0024dbdd9951acb94b2027ecae1b7c96432ea4286150ca03dd96a87dd7b7c69",
+      "archive_sha256": "82ec01b4c3479a2e430766721c3a7cd53ab9542ce120c046ef67aebb0c9091db"
+    },
+    "accepted-spacr__cli.py": {
+      "uncompressed_sha256": "965e10508b9fa5fc4bf319ab319f8781126b8ba36edf825d514aecee7711aa25",
+      "archive_sha256": "e53dd210f374ec54d28d6a9c2f4ffe7fb9d9f772dfb44abe80f3ee3b68593c51"
+    },
+    "original-spacr__cli.py": {
+      "uncompressed_sha256": "a2d810c55588a325705a3de1f2cb3352fa88f5c449ccc563747111a4094c0b4d",
+      "archive_sha256": "1f792ac0e7b3bd3635f0ac65e85cca0bfc1475dcefc5741a39cfcc7b6e14c0ae"
+    },
+    "accepted-spacr__utils.py": {
+      "uncompressed_sha256": "01919bb86258f8b93a173aad846f500fe00ae010996aad8dd8e207ab26c0fac5",
+      "archive_sha256": "c9d34d3fa8d92b7d29192126d1bae64e45410290fd1caf24e36ab085e15cdfb6"
+    },
+    "original-spacr__utils.py": {
+      "uncompressed_sha256": "2fad5d4550b23e99f2067c81f5a8adb5f66536430f182b7314fba67aa58f6a8c",
+      "archive_sha256": "86d5121f640b2dae7eace68b0cfb5413fa6be33140d78741d3175f2a626deb3e"
+    },
+    "accepted-tests__test_cli.py": {
+      "uncompressed_sha256": "d53bd8499d36bb45f6c2a13b18711a07faf764dbff8a08b59c0d86944d221807",
+      "archive_sha256": "2f7c9cdf203f646151533481e86b368e1c72702ca9755e971332d1ba502d6c78"
+    },
+    "original-tests__test_cli.py": {
+      "uncompressed_sha256": "f98c6a04d800abd7945012b44210a33e8dcbbc55df42823f507f2e9010e8ce09",
+      "archive_sha256": "499301dace138e7438f2bfab05ff89e148887172ae041c6fd8a7a88132e8d4e2"
+    },
+    "accepted-tests__test_cov_utils_settings_mp.py": {
+      "uncompressed_sha256": "6d3ae12e67490901d58340d4a154e3a1ba878d6e33f92d4a0c6146f422315a20",
+      "archive_sha256": "00bb6a369fc9e1611d1c6824e5b5d2b7e98027b07e1c2ab7bec80c09e4fc89bd"
+    },
+    "original-tests__test_cov_utils_settings_mp.py": {
+      "uncompressed_sha256": "3af776cba0e1ce56dc38946acd8dd7339fec8a3b858d7d0c101d583f391f323c",
+      "archive_sha256": "f39a1fabf2277746c269c15141c68200bdea5d98a3eafa6d0400ca27ec610e54"
+    },
+    "accepted-docs__source__python_api.rst": {
+      "uncompressed_sha256": "07a13cd64cd9aeb1e50165d1a12b64bf0f480366899662000a86e8ac6cee8bda",
+      "archive_sha256": "9cae54509063ec1111d2c7c0e2baa08a8c2125d724b7d21ebf03b5bc5f77cb2e"
+    },
+    "original-docs__source__python_api.rst": {
+      "uncompressed_sha256": "34b58bb9178f5f7a69833eef7b5d3d9a82a03c98ec9752b235c5c66d0a7b6f19",
+      "archive_sha256": "35f1922a33af4109c8d22e2e1595b4f4d3a375ddfd7d95d62f7979eba548e330"
+    },
+    "console-acceptance.json": {
+      "uncompressed_sha256": "1e293bac3a271ad04f548c644125f421482aaeb4a56bcdea18e222df275a2aff",
+      "archive_sha256": "fa77e6ebb125167a3dccf797f98f95bd32c4b7c14eb06e8e86aac553390d765c"
+    },
+    "console-cluster-mask-settings.csv": {
+      "uncompressed_sha256": "38023a22a18d43dcf5078f02e3add88358661f80ff128e3f548e9b4082145282",
+      "archive_sha256": "cacefd0c492ee2ab69f757f552a95613b620e46f44ac303465898d512cf851ea"
+    }
+  },
+  "followup": "New guide paragraph needs normal source-current nine-language refresh; API docstrings/signatures and runtime captions unchanged."
+}
