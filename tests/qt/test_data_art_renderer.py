@@ -139,6 +139,54 @@ def test_material_cache_follows_size_density_and_resolution_controls():
     assert not engine._material_cache
 
 
+@pytest.mark.parametrize("family", ("tissue_facets", "interference"))
+def test_canvas_resizes_release_previous_material_images_and_grids(family):
+    """Repeated window sizes cannot accumulate old full-resolution rasters."""
+    engine = _engine(family)
+    for width, height in ((384, 216), (512, 288), (640, 360), (384, 216)):
+        engine.shade(width, height)
+        assert engine._material_cache
+        sizes = {(key[1], key[2]) for key in engine._material_cache
+                 if isinstance(key, tuple) and len(key) >= 3
+                 and isinstance(key[1], int) and isinstance(key[2], int)}
+        assert sizes == {engine.buffer_size(width, height)}
+
+
+@pytest.mark.parametrize("family", ("point_atlas", "impulse_lens"))
+def test_density_changes_grain_population_and_restores_default_frame(family):
+    """Density adds actual points and can return to its seeded composition."""
+    engine = _engine(family, seed=11, palette="mono")
+    engine.set_time(7.0)
+    default = _digest(_frame(engine))
+    engine.set_density(0.25)
+    sparse = _digest(_frame(engine))
+    engine.set_density(3.0)
+    dense = _digest(_frame(engine))
+    assert len({sparse, default, dense}) == 3
+    engine.set_density(1.0)
+    assert _digest(_frame(engine)) == default
+
+
+@pytest.mark.parametrize("background", (BACKGROUND, "#f6f7f9"))
+def test_genome_panels_move_real_encoded_rows_with_fixed_borders(background):
+    """Panel content scrolls visibly without moving the wafer boundaries."""
+    engine = ambient.make_engine("data_art_sequence_matrix", "spacr",
+                                 background, seed=7)
+    frames = []
+    for stamp in (2.0, 9.0):
+        engine.set_time(stamp)
+        image = QImage(320, 200, QImage.Format_RGB32)
+        image.fill(QColor(background))
+        painter = QPainter(image)
+        engine.paint(painter, 320, 200)
+        painter.end()
+        frames.append(image)
+    first, second = frames
+    changed = sum(first.pixel(x, y) != second.pixel(x, y)
+                  for x in range(320) for y in range(200))
+    assert changed > 0.11 * 320 * 200
+
+
 def test_geometry_and_isolated_grain_material_have_bounded_edges():
     """Empty canvases stay empty and an isolated grain clips at the edge."""
     engine = _engine("point_atlas")

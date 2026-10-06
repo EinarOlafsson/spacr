@@ -4646,6 +4646,14 @@ class _DataArtEngine(_BufferedEngine):
         super()._reresolve()
         self._material_cache.clear()
 
+    def _ensure_buffer(self, width: int, height: int) -> QImage:
+        """Release old-size material grids when the canvas is resized."""
+        previous = self._buffer
+        buffer = super()._ensure_buffer(width, height)
+        if buffer is not previous:
+            self._material_cache.clear()
+        return buffer
+
     def _redensify(self) -> None:
         """Rebuild material density without rerolling its seed."""
         self._material_cache.clear()
@@ -4730,13 +4738,16 @@ class _DataArtEngine(_BufferedEngine):
         points = self._material_cache.get(key)
         if points is None:
             rng = np.random.default_rng(self._art_seed)
-            side = 252
-            xx, zz = np.meshgrid(np.linspace(-1.0, 1.0, side, dtype=np.float32),
-                                 np.linspace(-1.0, 1.0, 148, dtype=np.float32))
+            xx, zz = np.meshgrid(np.linspace(-1.0, 1.0, 300, dtype=np.float32),
+                                 np.linspace(-1.0, 1.0, 180, dtype=np.float32))
             points = (xx.ravel() + rng.normal(0.0, 0.003, xx.size),
-                      zz.ravel() + rng.normal(0.0, 0.003, zz.size))
+                      zz.ravel() + rng.normal(0.0, 0.003, zz.size),
+                      rng.permutation(xx.size))
             self._material_cache[key] = points
-        xx, zz = points
+        xx, zz, order = points
+        count = self.element_count(37296, len(xx))
+        chosen = order[:count]
+        xx, zz = xx[chosen], zz[chosen]
         phase_a = 4.5 * xx + 2.8 * zz + self.time * 0.08
         phase_b = 7.2 * zz - 2.2 * xx - self.time * 0.035
         mound = np.exp(-5.0 * ((xx - 0.2) ** 2 + (zz + 0.1) ** 2))
@@ -4760,8 +4771,9 @@ class _DataArtEngine(_BufferedEngine):
         sy = height * (0.57 - 0.48 * camera_y * perspective)
         light = np.clip(0.25 + 0.76 * illumination
                         + 0.18 * (distance + 1.0) * 0.5, 0.16, 1.0)
+        gain = max(1.0, self.effective_density()) / max(1.0, count / 37296)
         painter.drawImage(0, 0, self._point_material(width, height, sx, sy,
-                                                      light, spread=True))
+                                                      light * gain, spread=True))
 
     def _paint_tissue_facets(self, painter: QPainter, width: int,
                              height: int) -> None:
@@ -4831,11 +4843,11 @@ class _DataArtEngine(_BufferedEngine):
             inner.end()
             self._material_cache[key] = material
         painter.drawImage(0, 0, material)
-        travel = width * ((self.time * 0.009 + self._anchors[0][0]) % 1.0)
+        travel = width * ((self.time * 0.072 + self._anchors[0][0]) % 1.0)
         sheen = QLinearGradient(travel - width * 0.18, 0,
                                 travel + width * 0.18, 0)
         sheen.setColorAt(0.0, self._ink(1, 0.0))
-        sheen.setColorAt(0.5, self._ink(1, 0.045))
+        sheen.setColorAt(0.5, self._ink(1, 0.13))
         sheen.setColorAt(1.0, self._ink(1, 0.0))
         painter.setPen(Qt.NoPen)
         painter.setBrush(QBrush(sheen))
@@ -5072,15 +5084,33 @@ class _DataArtEngine(_BufferedEngine):
             self._material_cache[key] = material
         image, leaves = material
         painter.drawImage(0, 0, image)
+        painter.setCompositionMode(QPainter.CompositionMode_Source)
         for index, (left, top, right, bottom, hue) in enumerate(leaves):
-            if index % 4:
+            inner_left, inner_top = left + 1, top + 1
+            inner_width = right - left - 2
+            inner_height = bottom - top - 2
+            if inner_width <= 0 or inner_height <= 0:
                 continue
-            position = (self.time * 0.025 + index * 0.113) % 1.0
+            shift = (self.time * (3.5 + index % 4) + index * 5.0) % inner_height
+            if shift > 0.0:
+                painter.drawImage(QRectF(inner_left, inner_top,
+                                         inner_width, shift), image,
+                                  QRectF(inner_left,
+                                         inner_top + inner_height - shift,
+                                         inner_width, shift))
+            painter.drawImage(QRectF(inner_left, inner_top + shift,
+                                     inner_width, inner_height - shift), image,
+                              QRectF(inner_left, inner_top, inner_width,
+                                     inner_height - shift))
+        painter.setCompositionMode(self.mode)
+        for index, (left, top, right, bottom, hue) in enumerate(leaves):
+            if index % 3:
+                continue
+            position = (self.time * 0.18 + index * 0.113) % 1.0
             scan_y = top + position * (bottom - top)
-            painter.setPen(QPen(self._ink(hue, 0.18), 0.8))
-            painter.drawLine(QPointF(left, scan_y),
-                             QPointF(right, scan_y))
-            painter.setPen(QPen(self._ink(hue, 0.62), 1.0))
+            painter.setPen(QPen(self._ink(hue, 0.31), 0.8))
+            painter.drawLine(QPointF(left, scan_y), QPointF(right, scan_y))
+            painter.setPen(QPen(self._ink(hue, 0.70), 1.0))
             painter.drawLine(QPointF(left, scan_y),
                              QPointF(left + min(9, right - left), scan_y))
 
@@ -5134,7 +5164,7 @@ class _DataArtEngine(_BufferedEngine):
                     if int(depth * 4) != depth_band:
                         continue
                     head = (offset * 46 + self.time
-                            * (0.27 + 0.47 * depth)) % 46
+                            * (3.1 + 4.0 * depth)) % 46
                     x = width * (column + 0.5) / 104
                     scale = (4.0 + 3.0 * depth) * self.size
                     for row, letter in marks:
@@ -5234,12 +5264,12 @@ class _DataArtEngine(_BufferedEngine):
         painter.drawImage(0, 0, image)
         painter.setPen(Qt.NoPen)
         painter.setBrush(self._ink(1, 0.68))
-        for index in range(0, len(routes), 19):
+        for index in range(0, len(routes), 9):
             path, _ = routes[index]
-            position = path.pointAtPercent((self.time * 0.026
+            position = path.pointAtPercent((self.time * 0.19
                                             + index * 0.063) % 1.0)
-            painter.drawEllipse(position, 1.5 * self.size,
-                                1.5 * self.size)
+            painter.drawEllipse(position, 2.0 * self.size,
+                                2.0 * self.size)
 
     def _paint_genetic_advection(self, painter, width, height):
         """Advect dense tapered grain trails through a continuously curled field."""
@@ -5388,8 +5418,8 @@ class _DataArtEngine(_BufferedEngine):
             surface = (field, gx, gy, x, y)
             self._material_cache[key] = surface
         field, gx, gy, x, y = surface
-        phase = self.time * 0.045
-        shifted = field + 0.12 * math.sin(phase)
+        phase = self.time * 0.20
+        shifted = field + 0.20 * math.sin(phase)
         membrane = np.exp(-(shifted / 0.25) ** 2)
         derivative = -2.0 * shifted * membrane / (0.25 ** 2)
         nx, ny = gx * derivative * 0.012, gy * derivative * 0.012
@@ -5408,7 +5438,8 @@ class _DataArtEngine(_BufferedEngine):
         key = ("impulse_lens", width, height)
         lattice = self._material_cache.get(key)
         if lattice is None:
-            side = max(7, int(11 * self.size))
+            side = max(7, int(11 * self.size
+                              / math.sqrt(self.effective_density())))
             xx, yy = np.meshgrid(np.arange(side // 2, width, side,
                                            dtype=np.float32),
                                  np.arange(side // 2, height, side,
@@ -5429,8 +5460,10 @@ class _DataArtEngine(_BufferedEngine):
         py = (y + dy * shift) * height
         brilliance = np.clip(0.62 + 0.40 * envelope * (1.0 + wave) * 0.5,
                              0.56, 1.0)
+        baseline = max(1, (width // 11) * (height // 11))
+        gain = max(1.0, self.effective_density()) / max(1.0, len(x) / baseline)
         painter.drawImage(0, 0, self._point_material(
-            width, height, px, py, brilliance, spread=True))
+            width, height, px, py, brilliance * gain, spread=True))
 
 
 _ENGINES = {
