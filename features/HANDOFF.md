@@ -1,5 +1,45 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 CPU SubCell four-channel source checkpoint and live Qt acceptance
+Source checkpoint becca7932ba7ece25713381de347b748f95799b3 adds the distinct
+alpha subcell_rybg encoder and explicit microtubules/ER/DNA/protein channel
+mapping in Embeddings. Four distinct channels are required; no biological
+identity is guessed. Native crop dimensions and the authors' global min-max
+normalization are preserved, and crops below the native 16-pixel patch size
+fail before model setup or plate scaling. Existing two-channel SubCell remains
+unchanged. All seven new controls have literal alpha registrations under 560.
+Result actions retain the actual embedded specification if controls change.
+
+Root focused integration passes 75 tests with one absent-timm skip under
+4 GiB, CUDA hidden and Qt offscreen. Independent source-matched coverage
+reaches every added executable line and branch: backend 26 lines/22
+added-origin arcs; screen 117 lines/34 arcs. The real 349,009,018-byte public
+checkpoint strictly loads on CPU. Against the pinned authors' original-pixel
+pipeline, native 64- and 512-pixel inputs produce finite 1536-feature vectors
+within 1.91e-6 maximum difference, below the predeclared 1e-5 guard. Peak RSS
+is 1,768,556 KiB. Evidence is features/data/560_subcell_rybg_cpu_2026-10-06.json.
+This closes the four-channel CPU implementation scope; item 560 remains OPEN
+for official Cell-DINO loading and coordinated provenance/chance-AP APIs.
+No four-stain human-label GPU benchmark or final CI result is claimed.
+
+Workstation: normal source-current API/runtime generation must now include
+the new model caption, explicit channel dialog, mapping errors and alpha
+tooltip. The runtime extractor already enumerates _FOUNDATION_MODELS, so
+no extraction bypass is needed. Clarify EmbeddingSpec's four explicit rybg
+channels, normalize=False and native minimum crop size in your documentation
+lane. All three owned functions (_retrieval_scorecard, _weights_on_disk,
+encoder_entry) remain byte-identical to published 237506317 in this source
+checkpoint. Preserve the accepted six-model benchmark receipts.
+
+Hosted uninterrupted serial Qt run 37457998285 targets 237506317 and is live;
+its guarded step started 11:43:47 UTC. The later SubCell source is not covered
+by that frozen run. Obtain its terminal journal before deciding the next
+final-source serial attempt; do not cancel the diagnostic or run full Qt
+locally. Completed older 47a coverage aggregate has all 12 receipts, all 664
+modules, zero failed modules/global/integrity issues and a passing numerical
+ratchet. Its required passed-shard check correctly fails on genuine test
+failures. Items 43/288/47 remain OPEN; no guard or ceiling is lifted.
+
 ## 2026-10-06 CPU CI follow-up and exact documentation owner actions
 Continue from nightly 11d3a451b9fc49fb822213859c040b3a090298d6 and retain
 the workstation's accepted current runtime translations, tutorial/deployed

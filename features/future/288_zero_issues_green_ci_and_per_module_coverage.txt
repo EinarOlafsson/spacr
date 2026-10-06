@@ -5657,3 +5657,13 @@ Item 288 remains OPEN.
   workstation and preserve its coordinated scorecard/provenance functions.
   No ceiling, inventory pin, README allowance or passed-shard check changes.
   This item stays OPEN until all final-source shards and aggregate pass.
+
+2026-10-06 completed 47a numerical aggregate readback
+  Older tests37438733806 has all twelve coverage receipts. Aggregate job
+  112250064073 reports every664module passing, zero module/global/integrity
+  issues, no recovered shard or stale exemption, and a passing numerical
+  ratchet. It correctly fails the final required passed-shard check because
+  genuine tests fail. The retained receipt is scratch/codex-coverage-20261006/
+  current-aggregate/module-coverage-ratchet.json. This supersedes that run's
+  pending coverage notes, not its overall CI failure or final-source verdict.
+  Item remains OPEN. No passed-shard condition or ceiling is lifted.

@@ -1,0 +1,30 @@
+CPU parity evidence for SubCell R/Y/B/G, 2026-10-06
+
+The committed JSON/log/script are archival evidence. They do not include
+downloaded model weights or upstream implementation files. The original
+complete runnable directory is /mnt/wd4tb/scratch/subcell-rybg-20261006.
+Copy verify_native.py to a scratch directory containing the inputs below
+before running it from the source checkout under tools/run_capped.sh 4G,
+CUDA_VISIBLE_DEVICES='', OMP_NUM_THREADS=1 and TORCH_HOME=<scratch>/torch.
+Do not run the archived script in place without supplying those inputs.
+
+Pinned upstream repository: https://github.com/CellProfiling/SubCellPortable
+Commit: c4e0a9106ecffdd2ad91fbbd60bda6dc9fc74009
+Preserve the upstream licence and model terms when acquiring these inputs.
+
+Required local names and original sources:
+vit_model.py:
+https://raw.githubusercontent.com/CellProfiling/SubCellPortable/c4e0a9106ecffdd2ad91fbbd60bda6dc9fc74009/vit_model.py
+upstream_dataset.py:
+https://raw.githubusercontent.com/CellProfiling/SubCellPortable/c4e0a9106ecffdd2ad91fbbd60bda6dc9fc74009/dataset.py
+model_config.yaml:
+https://raw.githubusercontent.com/CellProfiling/SubCellPortable/c4e0a9106ecffdd2ad91fbbd60bda6dc9fc74009/models/rybg/vit_supcon_model/model_config.yaml
+torch/hub/checkpoints/all_channels_ViT-ProtS-Pool.pth:
+https://czi-subcell-public.s3.amazonaws.com/models/all_channels_ViT-ProtS-Pool.pth
+
+Verify each file against the SHA256 in native_parity.json before executing.
+The recorded reference run used CPU float32 inference, native 64/512-pixel
+inputs, single-threaded Torch and the unchanged maximum-difference guard
+1e-5. This is model implementation parity, not a biological accuracy claim.
+archive_integrated.py additionally requires the two raw coverage JSON files
+at their declared scratch paths. Those are not contained in this archive.

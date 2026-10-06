@@ -1787,3 +1787,14 @@ serial Qt acceptance remains open as recorded above.
   reduced matching-boundary RSS by about 110.6 MiB but did not reduce the
   sampled peak; no unsupported whole-suite memory improvement is claimed.
   This item remains OPEN until a complete source-bound serial summary passes.
+
+2026-10-06 hosted original-order attempt is live
+  Run37457998285, job112250232405 targets23750631790924590490e356144c8da72ac805af.
+  Dependency steps succeeded and guarded serial step began11:43:47UTC. It
+  remains in progress at this checkpoint; live job logs are unavailable from
+  the API until terminal. Do not infer the complete preflight or journal from
+  elapsed runtime. The later four-channel SubCell source is outside that
+  frozen run. Preserve its terminal evidence and then arrange a deliberate
+  final-source attempt; ordinary source/metadata pushes do not trigger the
+  serial workflow. Never cancel this diagnostic or run the full suite locally.
+  Item remains OPEN; no acceptance from focused cohorts or reduced file RSS.

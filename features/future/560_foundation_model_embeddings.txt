@@ -174,3 +174,35 @@ scratch receipt directory. No GPU process or new checkpoint is used. This
 private-helper repair leaves the workstation-owned _retrieval_scorecard,
 _weights_on_disk and encoder_entry unchanged and does not close official
 Cell-DINO checkpoint loading, four-channel or remaining pipeline integration.
+
+2026-10-06 CPU four-channel SubCell implementation accepted (scoped)
+Source becca7932ba7ece25713381de347b748f95799b3 implements alpha subcell_rybg
+with its real public four-channel checkpoint and explicit GUI mapping of
+microtubules/ER/DNA/protein. The model requires CHANNEL_PROJECT, four distinct
+valid integer indices, native crops at least 16x16, and no plate prescaling.
+Native geometry and the authors' global min-max preprocessing are retained;
+the prior two-channel loader and preprocessing remain intact. Missing,
+duplicate, boolean or invalid mappings and undersized crops fail before
+model setup/scaling. The seven literal alpha controls follow item560's gate.
+Use-for/scorecard actions retain the actual result specification.
+
+Root integrated CPU/Qt/contract cohort: 75 passed, one main-environment timm
+skip, 4GiB/CUDA-hidden/offscreen. Source-matched added coverage: backend
+26/26 statements and 22/22 added-origin arcs; screen117/117 and34/34.
+The strict-loaded public checkpoint has 349009018 bytes and SHA256
+6a2d117bcacaa0697034d06d6922580ca7cd996564f270529ec97e6502559845.
+Independent original-pixel comparisons against pinned official source
+c4e0a9106ecffdd2ad91fbbd60bda6dc9fc74009 yield finite 1x1536 outputs at
+64x64 and512x512, maximum difference1.91e-6 below unchanged1e-5; peakRSS
+1768556KiB. Archived receipt: data/560_subcell_rybg_cpu_2026-10-06.json.
+The downloaded weights/raw upstream sources and full coverage receipts stay
+in the declared scratch directories, not duplicated into the repository.
+
+This closes four-channel CPU source/GUI/checkpoint parity, superseding the
+earlier skipped four-channel notes. The accepted human-label six-backbone
+comparisons remain separate; this does not establish four-stain GPU accuracy.
+Item560 remains OPEN for official obtained-checkpoint Cell-DINO integration
+and workstation-owned provenance/exact random-AP APIs and normal generated
+source-current docs/runtime refresh. The three workstation-owned functions
+remain unchanged relative to237506317. Final GitHub/serialQt acceptance stays
+with43/288/47; no numerical guard or coverage ceiling is raised.
