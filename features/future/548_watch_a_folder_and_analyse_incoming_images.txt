@@ -1,11 +1,12 @@
 WATCH A FOLDER AND ANALYSE IMAGES AS THEY ARRIVE
 
-Status: OPEN 2026-10-05 — vendor acquisition completion, raw timelapse/native
-        volume series and pooled normalisation remain. Projected Z fields
-        and complete timelapse series from a fixed Convert map,
-        source-aware raw channel readiness, pretrained CV
-        inference and the live plate view are available as alpha; per-field
-        fitting is unsupported.
+Status: OPEN 2026-10-06 — raw/vendor acquisition completion and general native
+        series remain. Closed static fixed-map pooled normalization and native
+        T>1 fixed-map Mask batch ingest are locally accepted alpha subsets;
+        native T>1 watch integration is underway. Projected Z, fixed-map
+        timelapse, native T1 watch, source-aware channels, pretrained CV
+        inference and live plate view are available. Per-field fitting is
+        unsupported. Final-source GitHub acceptance remains separate.
         First version built as alpha 2026-09-26.
 
 Previous status (superseded 2026-10-04): ALPHA, built 2026-09-26. First version on Make Masks, hidden unless
@@ -742,3 +743,53 @@ CLOSED FIXED-MAP POOLED NORMALIZATION (2026-10-06, alpha subset)
     is local CPU acceptance of the closed normalization subset, not final
     protected GitHub or new GPU acceptance. All GPU processes remain owned
     by the workstation session.
+
+NATIVE T>1 MASK BATCH AND ROOT INTEGRATION (2026-10-06, alpha subset)
+    Source 0ee2f0053 adds a separate complete fixed-map native TZYXC Mask
+    ingest, preserving each original YX plane and source identity/digest.
+    It requires declared TZYX axes, frame interval and physical volumetric
+    Z spacing, at least two times and Z planes per channel, and a dense
+    CellVoyager Convert map. Explicit selected channels index the real
+    sorted mapped channel identities. No biological channel identity is
+    guessed. Each time produces a native ZYXC stack; the whole field's
+    normalized TZYXC archive feeds the existing independent 3-D Mask path.
+    Output is staged, source/map rechecked, then published without replacing
+    existing files; cooperative exceptions roll back incomplete publication. A receipt
+    binds the map, original sources, recipe and exact stack/archive hashes.
+    Completed resume verifies every binding and output inventory. Unsafe
+    links, incomplete maps, changed inputs and incompatible existing outputs
+    are refused. Measure/tracking/Classify/feedback, guessed axes, 2-D plot/
+    cell adjustments and unsupported preprocessing refuse before output.
+
+    Root's five-file integrated native/T1/timelapse/raw-volume/wiring cohort
+    passes 146 cases. The combined pooled/native/default-watch/alpha/source
+    cohort passes 98 before the test-only scientific-column follow-up.
+    All are CPU-only, CUDA-hidden and bounded to 4 GiB. Existing Python
+    multithreaded fork deprecations are recorded separately from correctness.
+    Frozen native-batch coverage exercises 157 added executable statements
+    and all 84 touching arcs; closed-pool coverage exercises 128/70. Compact
+    losslessly archived traces, source hashes, exact diffs, original-pixel
+    parity and coverage reproducers are committed under
+    data/548_closed_pool_native_batch_cpu_2026-10-06/.
+
+    This supersedes pooled-normalization incompleteness only for the explicit
+    closed static subset. Native T>1 watcher support is still being integrated;
+    this batch receipt does not certify it. Vendor acquisition-completion
+    signals and unsupported scientific series remain OPEN. The workstation
+    must normally regenerate API/runtime/settings-flow/consumer-map/Help and
+    translations for the new pool setting and ingest/source docstrings. All
+    GPU operation stays workstation-owned; existing real GOWT1 acceptance is
+    preserved. F548 remains OPEN overall and no global CI guard is relaxed.
+
+INDEPENDENT NATIVE-BATCH LIMIT REVIEW (2026-10-06)
+    Read-only review finds no demonstrated scientific parity error or mutation
+    of acquired planes in these subsets. Completed batch resume is verified,
+    and catchable publication exceptions roll back. An abrupt kill or power
+    loss during standalone batch publication can leave partial output folders
+    which correctly refuse in-place reuse; a fresh output folder is required.
+    This is fail-closed rather than arbitrary hard-crash rollback. The watcher
+    uses a separate private stage and recovery contract being tested next.
+    Native normalization currently materializes the whole field several times.
+    Large T-by-Z acquisitions can exceed available RAM; these small real-TIFF
+    CPU fixtures do not certify arbitrary large-volume scalability. Reducing
+    unnecessary copies is underway without changing normalization semantics.

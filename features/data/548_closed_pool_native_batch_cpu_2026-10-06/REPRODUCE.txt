@@ -1,0 +1,47 @@
+Source-bound CPU acceptance of two F548 alpha subsets (2026-10-06).
+
+Pooled watcher: production core.py is byte-identical to 8409ff7c3 at root
+b777c3211/25031e230. The recorded 53-case and 37-case final-source branch
+traces exercise all 128 added executable statements and 70 touching arcs.
+The earlier 176-case trace is excluded from final-source coverage. JSON
+traces are gzip-compressed losslessly; reproduced digests refer to the
+original uncompressed reports. Original-pixel parity includes every available
+scientific cell/nucleus column, including pathogen relationships; only exact
+file_name/path_name directory metadata is excluded. Inference alone is doubled.
+
+Native batch: io.py is byte-identical to agent 1efb302a1/root 0ee2f0053.
+The archived union trace exercises all 157 added executable statements and
+84 touching arcs. Its 40-case cohort is agent-reported; no standalone command
+transcript was retained. Root separately ran 146 passing integrated cases
+(native TZYX batch, raw volumes F551, native T1 watch, mapped timelapse watch,
+object T-stack wiring). Root then ran 98 passing combined cases (new pooled
+watcher, native batch, default watch, alpha GUI and two source contracts) before
+the scientific-column test-only follow-up. These root runs were visible tool
+results, not archived standalone logs. Existing fork deprecation warnings were
+present; no application failures or skipped correctness conditions are waived.
+
+Reproduce the frozen-source coverage arithmetic, without running inference:
+CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 2G python features/data/548_closed_pool_native_batch_cpu_2026-10-06/reproduce_pool_coverage.py
+CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 2G python features/data/548_closed_pool_native_batch_cpu_2026-10-06/reproduce_native_batch_coverage.py
+
+Re-run the new behavior cases from a worktree root, under the normal cap:
+CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G python -m pytest tests/test_watch_closed_normalization_pool_f548.py tests/test_native_tzyx_batch_f548.py
+
+Coverage applies to added source only, not whole-module/global coverage.
+The closed finite-map pool is static projected v1 Mask/Measure; it cannot
+prove exact shared normalization for an unbounded acquisition. Native T>1
+batch is complete fixed-map Mask-only, with explicit T/Z/spatial calibration;
+no Measure, tracking, Classify, real GPU or vendor-completion acceptance is
+claimed. Native watcher support is a separate forthcoming source checkpoint.
+F548 remains OPEN overall. All API/docs/translations/tutorials/GPU remain
+workstation-owned. No generated artifact is hand-edited by this source change.
+
+Independent read-only scope review: standalone batch hard death during
+publication can leave partial folders requiring a fresh output folder;
+catchable exceptions roll back and completed resume verifies provenance.
+Whole-field normalization uses multiple copies; arbitrary large T/Z data
+is not memory-qualified by these fixtures. Native watcher private-stage
+recovery and a bounded memory improvement are subsequent checkpoints.
+Scientific-column audit retains nine matched actual output table pairs;
+original scratch DBs are not committed. The audit script reproduces against
+those private scratch fixtures and records their exact source identities.

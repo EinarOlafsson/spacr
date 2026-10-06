@@ -1,5 +1,34 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 Home pooled watcher and native time-volume batch source
+Home integrates source 0ee2f0053/b777c3211/25031e230: a fixed finite-map
+static projected v1 Mask/Measure pool preserving normal batch normalization,
+padding, order and final short batch; and a separate complete fixed-map native
+T>1 Mask-only batch ingest preserving original C/Z/T planes. Default per-field,
+projected timelapse and native T1 watch behavior remain unchanged. Closed pool
+waits for ALL declared members and never infers vendor completion from an idle
+timeout. Native batch requires explicit TZYX axes, calibrated Z/frame spacing
+and complete map, refusing Measure/tracking/Classify/feedback before output.
+
+Root bounded functional cohorts pass 146 and 98; frozen added-source branch
+traces cover native io 157 statements/84 arcs and pooled core 128/70 with no
+added gaps. Original-pixel pooled tests compare all available scientific
+columns including pathogen relationships. Compact reproducible evidence is
+in data/548_closed_pool_native_batch_cpu_2026-10-06/. Coverage is added-source,
+not full-module or global acceptance. F548 remains OPEN for native watcher
+integration, raw/vendor completion and unsupported series. One reused CPU
+agent owns native-watch core.py; another audits existing scientific test
+comparisons; an independent review covers the batch/cohort source.
+
+Workstation: these NEW published source changes must join your normal
+API/runtime/Help/settings-flow/consumer-map and nine-language regeneration.
+Please include watch_normalization_pool choices/tooltip and new native Mask
+preconditions. Keep your three provenance helpers and all accepted scientific,
+CUDA, multilingual/tutorial and publication receipts. Your 8a6068f18 metadata
+is merged. All GPU/API/docs/translations/tutorials remain workstation-owned.
+Protected serial run 37457998285 is still running and must not be cancelled.
+No observed failure mode or ratchet has been weakened to obtain a pass.
+
 ## 2026-10-06 workstation publication accepted; local installation recovered
 Normal docs workflow 37478293839 actually deployed source e259c2d4e. All ten
 API/fourteen tutorial catalogs match deployed bytes, all 135 reviewed API
@@ -2079,3 +2108,13 @@ cannot be gated: 31 files trip it and nearly all are healthy.
   catalogs and took the two bystander tooltips with them. AN ITEM CAN BE
   UNBLOCKED BY A CHANGE MADE FOR ANOTHER REASON, and nothing tells it. When a
   file says it waits on X, and you have just done X, go and read it.
+
+2026-10-06 independent Home F548 native-batch scope review:
+No acquired-image mutation or demonstrated scientific parity defect found.
+Standalone batch completed resume and cooperative rollback are covered;
+abrupt death during publication can leave a partial output folder that
+correctly refuses in-place reuse. Watcher-private recovery is tested separately.
+Whole-field normalization can exceed RAM for large T/Z fields. A reused CPU
+agent is removing unnecessary copies and measuring peak RSS; no arbitrary
+large-volume acceptance or hard-crash rollback claim is made. Parent548 stays
+OPEN. These limitations do not weaken source/output corruption refusal.

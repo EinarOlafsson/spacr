@@ -1,0 +1,286 @@
+{
+  "commit": "8409ff7c30a4f35ab5e92a83dee9c90e250d925e",
+  "source_hashes": {
+    "spacr/core.py": "5c7bb2ea4072381cb06132ee79ca46bd043ec504104044086d5db26606607625",
+    "spacr/io.py": "b1f36655cbacca19a0156059b5a67e784581fb8582281de83345d4e8e486ae08",
+    "spacr/settings.py": "f475a3cf17f42def33e5ca574334f40331a0b66dc7744e87dd879397666bebcb",
+    "tests/test_watch_closed_normalization_pool_f548.py": "d3dcaf948b48ba3a4d428941112474750bf261682f1248e60850bb38178f3802"
+  },
+  "test_model_inference": "label painting double; actual conversion/normalization/padding/Measure/checkpoints/collection",
+  "gpu_used": false,
+  "cases": [
+    {
+      "case": "test_original_pixel_batch_norm0",
+      "cohort": {
+        "batch_size": 2,
+        "companions": {
+          "plate1_A01_0001_001": [
+            "plate1_A01_T0001F001L01A01Z01C01.tif",
+            "plate1_A01_T0001F001L01A01Z01C02.tif"
+          ],
+          "plate1_A02_0001_001": [
+            "plate1_A02_T0001F001L01A01Z01C01.tif",
+            "plate1_A02_T0001F001L01A01Z01C02.tif"
+          ],
+          "plate1_A03_0001_001": [
+            "plate1_A03_T0001F001L01A01Z01C01.tif",
+            "plate1_A03_T0001F001L01A01Z01C02.tif"
+          ]
+        },
+        "conversion_map_sha256": "b9ef83ea4dce1cc97ff4794065232f221f1f1f820dfb6e3f970455d7e2754e69",
+        "field_order": [
+          "plate1_A01_0001_001",
+          "plate1_A02_0001_001",
+          "plate1_A03_0001_001"
+        ],
+        "id": "closed_pool_243b0c84ce1cf15fddf359b1c632c5fae36280e3050450f24d0209460c19be7b",
+        "mask_settings_sha256": "cb2b784ecaa68b65a7bdae91072ce3a72af04033eddacc2872fc0658f39b6c28",
+        "measure_settings_sha256": "28ec9dc499281dc837265cc736529b2575b11855f97c5f4e7cf1746ad8eaeffa",
+        "merged_filenames": {
+          "plate1_A01_0001_001": "plate1_A01_1_1.npy",
+          "plate1_A02_0001_001": "plate1_A02_1_1.npy",
+          "plate1_A03_0001_001": "plate1_A03_1_1.npy"
+        },
+        "mode": "fixed_map",
+        "pipeline": "mask_measure",
+        "stack_order": [
+          "plate1_A01_1_1.npy",
+          "plate1_A02_1_1.npy",
+          "plate1_A03_1_1.npy"
+        ]
+      },
+      "snapshot_digests": {
+        "plate1_A01_T0001F001L01A01Z01C01.tif": "9fa80bc3d0efebf3561c00b6c8cafb8f44689282db706cbdd94aaefe9278a027",
+        "plate1_A01_T0001F001L01A01Z01C02.tif": "2a0072c33073185d7354d1f22b069792d04561cb45ac68ab1cbdbefc8c180b3c",
+        "plate1_A02_T0001F001L01A01Z01C01.tif": "86fe06b75df5903288bf6362ae04a2e3a4596ba30cea0414eba844f669cdd035",
+        "plate1_A02_T0001F001L01A01Z01C02.tif": "1ed7c7fd500a05e4e784fc387e6d66e2e5b56f3a135958b66822e136dc4a9994",
+        "plate1_A03_T0001F001L01A01Z01C01.tif": "2b6395c3d63b9b698830ad56714c5a252a4ad558a916c27f36620724108c1a0a",
+        "plate1_A03_T0001F001L01A01Z01C02.tif": "245630bfa50d67e364014c5b3e4e101870989abb03f2106107287752aa130840"
+      },
+      "merged": [
+        {
+          "filename": "plate1_A01_1_1.npy",
+          "shape": [
+            64,
+            64,
+            4
+          ],
+          "dtype": "uint16",
+          "equal": true,
+          "batch_sha256": "9a9618b5121b7ae90ceafff4e1fd61de81945119a085c42c4b2e12d2c508efe9",
+          "watch_sha256": "9a9618b5121b7ae90ceafff4e1fd61de81945119a085c42c4b2e12d2c508efe9"
+        },
+        {
+          "filename": "plate1_A02_1_1.npy",
+          "shape": [
+            64,
+            64,
+            4
+          ],
+          "dtype": "uint16",
+          "equal": true,
+          "batch_sha256": "d57bac3809b5cc69440024c8bc2d6c97ec3cda5b534300ba32d981e266ef7881",
+          "watch_sha256": "d57bac3809b5cc69440024c8bc2d6c97ec3cda5b534300ba32d981e266ef7881"
+        },
+        {
+          "filename": "plate1_A03_1_1.npy",
+          "shape": [
+            64,
+            64,
+            4
+          ],
+          "dtype": "uint16",
+          "equal": true,
+          "batch_sha256": "ce8166915fb554cb702629de7248d9c44c5970ae9ea29dd0bbbf82a1b37e23cc",
+          "watch_sha256": "ce8166915fb554cb702629de7248d9c44c5970ae9ea29dd0bbbf82a1b37e23cc"
+        }
+      ],
+      "normalized_archives": [
+        {
+          "filename": "stack_0_norm.npz",
+          "shape": [
+            2,
+            64,
+            64,
+            2
+          ],
+          "data_equal": true,
+          "filenames_equal": true
+        },
+        {
+          "filename": "stack_1_norm.npz",
+          "shape": [
+            1,
+            64,
+            64,
+            2
+          ],
+          "data_equal": true,
+          "filenames_equal": true
+        }
+      ],
+      "measurements": [
+        {
+          "table": "cell",
+          "rows": 4,
+          "scientific_columns": 138,
+          "excluded_file_location_columns": [
+            "file_name",
+            "path_name"
+          ],
+          "scientific_columns_equal": true,
+          "scientific_rows_equal": true
+        },
+        {
+          "table": "nucleus",
+          "rows": 6,
+          "scientific_columns": 153,
+          "excluded_file_location_columns": [
+            "file_name",
+            "path_name"
+          ],
+          "scientific_columns_equal": true,
+          "scientific_rows_equal": true
+        }
+      ]
+    },
+    {
+      "case": "test_original_pixel_batch_norm1",
+      "cohort": {
+        "batch_size": 2,
+        "companions": {
+          "plate1_A01_0001_001": [
+            "plate1_A01_T0001F001L01A01Z01C01.tif",
+            "plate1_A01_T0001F001L01A01Z01C02.tif"
+          ],
+          "plate1_A02_0001_001": [
+            "plate1_A02_T0001F001L01A01Z01C01.tif",
+            "plate1_A02_T0001F001L01A01Z01C02.tif"
+          ],
+          "plate1_A03_0001_001": [
+            "plate1_A03_T0001F001L01A01Z01C01.tif",
+            "plate1_A03_T0001F001L01A01Z01C02.tif"
+          ]
+        },
+        "conversion_map_sha256": "ddce3b55d43e0442b050bf1f1b9b1b0ad1d5710279e45e2c474493749b3016f3",
+        "field_order": [
+          "plate1_A01_0001_001",
+          "plate1_A02_0001_001",
+          "plate1_A03_0001_001"
+        ],
+        "id": "closed_pool_2b1ccfb02ee66c3f40f64e6223a83afba104c166363cccc1c3898ab372984bd8",
+        "mask_settings_sha256": "cb2b784ecaa68b65a7bdae91072ce3a72af04033eddacc2872fc0658f39b6c28",
+        "measure_settings_sha256": "28ec9dc499281dc837265cc736529b2575b11855f97c5f4e7cf1746ad8eaeffa",
+        "merged_filenames": {
+          "plate1_A01_0001_001": "plate1_A01_1_1.npy",
+          "plate1_A02_0001_001": "plate1_A02_1_1.npy",
+          "plate1_A03_0001_001": "plate1_A03_1_1.npy"
+        },
+        "mode": "fixed_map",
+        "pipeline": "mask_measure",
+        "stack_order": [
+          "plate1_A01_1_1.npy",
+          "plate1_A02_1_1.npy",
+          "plate1_A03_1_1.npy"
+        ]
+      },
+      "snapshot_digests": {
+        "plate1_A01_T0001F001L01A01Z01C01.tif": "9fa80bc3d0efebf3561c00b6c8cafb8f44689282db706cbdd94aaefe9278a027",
+        "plate1_A01_T0001F001L01A01Z01C02.tif": "2a0072c33073185d7354d1f22b069792d04561cb45ac68ab1cbdbefc8c180b3c",
+        "plate1_A02_T0001F001L01A01Z01C01.tif": "2a1e2c50dc0031da12f501c767c328e19eafdb0b235c17a90d7d35eb0a94f801",
+        "plate1_A02_T0001F001L01A01Z01C02.tif": "cc083b9ca5d7764a36a1dd9b568c0e9cdd7ce9a8c29d180adf252a63f51b82a5",
+        "plate1_A03_T0001F001L01A01Z01C01.tif": "9424f2a0b64b5d0593326a1b73d4357271bc7684cd57bc68cb11027295e21346",
+        "plate1_A03_T0001F001L01A01Z01C02.tif": "7fc68cd37f610d1e13231db10ffab4e7bddb377ef73c8f2ad120affaf1163d13"
+      },
+      "merged": [
+        {
+          "filename": "plate1_A01_1_1.npy",
+          "shape": [
+            68,
+            67,
+            4
+          ],
+          "dtype": "uint16",
+          "equal": true,
+          "batch_sha256": "65d6296a27295d53656139be5b00bea47162247d945a4e947a4d679e772c1d76",
+          "watch_sha256": "65d6296a27295d53656139be5b00bea47162247d945a4e947a4d679e772c1d76"
+        },
+        {
+          "filename": "plate1_A02_1_1.npy",
+          "shape": [
+            68,
+            67,
+            4
+          ],
+          "dtype": "uint16",
+          "equal": true,
+          "batch_sha256": "b4816365ae50084ea2c8cfaf32a39b5469cc1a9de265635e06cffdf1414937ff",
+          "watch_sha256": "b4816365ae50084ea2c8cfaf32a39b5469cc1a9de265635e06cffdf1414937ff"
+        },
+        {
+          "filename": "plate1_A03_1_1.npy",
+          "shape": [
+            72,
+            70,
+            4
+          ],
+          "dtype": "uint16",
+          "equal": true,
+          "batch_sha256": "a1a95376f236b1c8854d428988fcfb849a6107fae7be041bcda02df9a52e2e0e",
+          "watch_sha256": "a1a95376f236b1c8854d428988fcfb849a6107fae7be041bcda02df9a52e2e0e"
+        }
+      ],
+      "normalized_archives": [
+        {
+          "filename": "stack_0_norm.npz",
+          "shape": [
+            2,
+            68,
+            67,
+            2
+          ],
+          "data_equal": true,
+          "filenames_equal": true
+        },
+        {
+          "filename": "stack_1_norm.npz",
+          "shape": [
+            1,
+            72,
+            70,
+            2
+          ],
+          "data_equal": true,
+          "filenames_equal": true
+        }
+      ],
+      "measurements": [
+        {
+          "table": "cell",
+          "rows": 4,
+          "scientific_columns": 138,
+          "excluded_file_location_columns": [
+            "file_name",
+            "path_name"
+          ],
+          "scientific_columns_equal": true,
+          "scientific_rows_equal": true
+        },
+        {
+          "table": "nucleus",
+          "rows": 6,
+          "scientific_columns": 153,
+          "excluded_file_location_columns": [
+            "file_name",
+            "path_name"
+          ],
+          "scientific_columns_equal": true,
+          "scientific_rows_equal": true
+        }
+      ]
+    }
+  ],
+  "scientific_column_followup_commit": "65e5999d12d43ebd67469e0f4b4a2cc7d35b633b",
+  "followup_test_source_sha256": "067ec2211539bf714f31172e86036196e595068dc43f1e4c5e91ea15e668f622",
+  "followup_measurement_artifact_root": "pytest-06"
+}

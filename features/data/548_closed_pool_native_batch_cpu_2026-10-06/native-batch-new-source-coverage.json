@@ -1,0 +1,12 @@
+{
+  "source_commit": "0ee2f0053268a2a0bda0caab52af7cf1ebe6eb62",
+  "source_sha256": "993c6161391e28f6239360bae16bdeac9b1f068cd99c24d42083d610699bc970",
+  "trace_sha256": "48a61d54ebb7cf9efec14a44208adcf8ccfdc69f5d0ec0dc631345cf7d0ffcbb",
+  "new_executable_statements": 157,
+  "new_executed_statements": 157,
+  "missing_added_lines": [],
+  "executed_touching_branch_arcs": 84,
+  "missing_touching_branch_arcs": [],
+  "scope": "Added native batch source only; no full-module coverage claim.",
+  "trace_cohort": "Agent-reported 40 passing bounded CPU cases. Standalone command transcript not retained."
+}
