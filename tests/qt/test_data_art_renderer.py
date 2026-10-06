@@ -1,4 +1,4 @@
-"""Image and pointer contracts for the six offered data-art materials."""
+"""Image and pointer contracts for the seven offered data-art materials."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ from spacr.qt.widgets import ambient
 
 FAMILIES = (
     "point_atlas", "tissue_facets", "chromatin_ribbon",
-    "genetic_advection", "impulse_lens", "fungal_growth",
+    "genetic_advection", "impulse_lens", "fungal_growth", "thore",
 )
 INTERACTIVE = frozenset(("point_atlas", "tissue_facets", "genetic_advection",
                          "impulse_lens"))
@@ -45,16 +45,18 @@ def _digest(image: QImage) -> str:
     return hashlib.sha256(image.bits().tobytes()).hexdigest()
 
 
-def test_data_art_registry_has_six_distinct_named_materials():
-    """The catalog exposes six families without pointer duplicates."""
+def test_data_art_registry_has_seven_distinct_named_materials():
+    """The catalog exposes seven families without pointer duplicates."""
     keys = {theme for theme in ambient.AMBIENT_THEMES
             if theme.startswith("data_art_")}
     assert keys == {f"data_art_{family}" for family in FAMILIES}
     for family in FAMILIES:
         key = f"data_art_{family}"
         engine = _engine(family)
-        if family != "fungal_growth":
+        if family not in ("fungal_growth", "thore"):
             assert engine.family == family
+        elif family == "thore":
+            assert isinstance(engine, ambient._ThoreEngine)
         assert engine.name == key
         assert getattr(engine, "interactive", False) is (family in INTERACTIVE)
         assert ambient.animation_label(key) != key
