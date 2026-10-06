@@ -23056,24 +23056,24 @@
     },
     "spacr.embeddings.encoder_entry": {
       "source_blocks_sha256": [
-        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
-        "287307899b8054aba3778d18c5f4bb00687943fecc1b27bac4ba854253633484",
-        "fa7b9bdc8f7c1d08cfaa81508efa8331f8700ea4f941c6ec54e72fef1eb4a458",
-        "cbae75c8399079cd49b93dad3c22254b6f724794204e44c4b7a45f3decbba443",
-        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
-        "d1684cd2486ccc2ffe8149a5f24d94323f4d5c9b3e442d0a5621242fea2e8ee7",
-        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+        "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+        "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+        "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+        "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+        "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+        "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+        "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813"
       ],
-      "source_sha256": "27cec465dec2129bb455cb0ef6326427e8a4a9cf38dc82177c1d28c27269dbc8",
-      "text": "Cet encodeur est un :class:`spacr.model_zoo.ModelEntry`.\n\nUn encodeur est un modèle publié comme n'importe quel autre, donc il appartient au zoo avec son somme de contrôle et sa carte de pointage. Un encastrement qui expédie sans un est une boîte noire deux fois plus: opaque dans ce qu'il encode, et non mesuré dans la façon dont il le fait.\n\nCe qu'est en fait la provenance d'un encodeur. Il n'a pas de point de contrôle spaCR -- les poids sont ImageNet ou une exécution publique auto-supervisée, résolue par ``timm`` et mise en cache par HuggingFace. Ainsi, l'entrée enregistre l'épine dorsale, la politique de canal, et le digest des poids comme ils sont assis sur cette machine. C'est la chose qu'une exécution ultérieure doit correspondre, et il est contrôlable ici sans appel réseau.\n\nLorsque les poids ne sont pas mis en cache, l'entrée existe toujours et le dit dans ses notes, avec un digest vide -- qui :func:`spacr.model_zoo.fetch` traite déjà comme un refus plutôt qu'un laissez-passer. Une entrée qui a discrètement réclamé un somme de contrôle qu'elle n'avait pas calculé serait pire que celle qui l'admet ne peut pas encore.\n\n:param spec: la configuration à décrire; la spécification par défaut lorsqu'elle est omise.\n:param scorecard: nombres de récupération de la 386 \"comment savoir qu'il a fonctionné\" -- précision kNN sur l'identité du gène, encastrements par rapport au panneau mesuré. Attaché comme :attr:`ModelEntry.metrics`, qui est d'où 370 de ``scorecard_lines`` les lit.\n:returns: a ``ModelEntry`` du type ``'encoder'``.",
+      "source_sha256": "421b7f5656605f6520ad4e210c88a2a32c84261a377c949e7e959cd6523c1056",
+      "text": "Décrivez cet encodeur comme une :class:`spacr.model_zoo.ModelEntry`.\n\nL’entrée réunit la configuration de l’encodeur, les informations disponibles sur la provenance du point de contrôle et des métriques de recherche facultatives. Comparez uniquement les entrées dont les politiques de canaux sont compatibles.\n\nL’entrée enregistre le réseau de base, la politique des canaux et l’empreinte des octets lisibles du point de contrôle local, sans télécharger ni charger de modèle. Les réseaux de base publics utilisent les métadonnées du cache de timm ; OpenPhenom et ChAda-ViT utilisent des révisions fixées de Hugging Face ; SubCell utilise son point de contrôle officiel de torch hub ; un encodeur DINO local utilise le chemin de point de contrôle configuré. Les entrées des modèles de fondation indiquent le fournisseur d’origine et l’URL du point de contrôle. Une somme de contrôle ne suffit pas à vérifier un modèle ni à établir la provenance de ses données d’entraînement.\n\nSi aucun point de contrôle local lisible n’est trouvé, l’entrée conserve une empreinte vide et l’explique dans ses notes. :func:`spacr.model_zoo.fetch` refuse les entrées sans empreinte.\n\n:param spec: Configuration de l’encodeur ; utilise ``EmbeddingSpec()`` si elle est omise.\n:param scorecard: Métriques de recherche facultatives mesurées avec des témoins étiquetés et enregistrées dans :attr:`ModelEntry.metrics` pour être affichées par ``scorecard_lines``.\n:returns: Une ``ModelEntry`` de type ``'encoder'``.",
       "translation_source_blocks_sha256": [
-        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
-        "dcef17b50e9db4df3490a7d22dac90240e267ba685e2372196478c658cec5c3b",
-        "529ec96d6993086fcf130931258b1b67effd233c1cd09cdaa449191f30dbad53",
-        "277b64bf6391e6e08d2799c8b460fdc75057b00b5d34b8dcd023b3746476abb6",
-        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
-        "51fd59a24157c2d9c6893e3e0c013607a655827b034a63ad331f117cb518b70a",
-        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+        "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+        "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+        "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+        "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+        "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+        "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+        "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813"
       ]
     },
     "spacr.embeddings.encoder_key": {

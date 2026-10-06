@@ -1,0 +1,94 @@
+{
+  "api_changed": [
+    "spacr.embeddings.encoder_entry"
+  ],
+  "api_blocks": {
+    "0": [
+      "This encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+      "AN ENCODER IS A PUBLISHED MODEL like any other, so it belongs in the zoo with its checksum and its scorecard. An embedding that ships without one is a black box twice over: opaque in what it encodes, and unmeasured in how well it does it.",
+      "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+      "When no readable checkpoint can be resolved locally, the entry still exists and says so in its notes, with an empty digest -- which :func:`spacr.model_zoo.fetch` already treats as a refusal rather than a pass. An entry that quietly claimed a checksum it had not computed would be worse than one that admits it cannot yet.",
+      "the configuration to describe; the default spec when omitted.",
+      "retrieval numbers from 386's \"HOW TO KNOW IT WORKED\" -- kNN accuracy on gene identity, embeddings versus the measured panel. Attached as :attr:`ModelEntry.metrics`, which is where 370's ``scorecard_lines`` reads them from.",
+      "a ``ModelEntry`` of kind ``'encoder'``."
+    ],
+    "1": [
+      [
+        "translated",
+        [
+          0
+        ]
+      ],
+      [
+        "raw",
+        ""
+      ],
+      [
+        "translated",
+        [
+          1
+        ]
+      ],
+      [
+        "raw",
+        ""
+      ],
+      [
+        "translated",
+        [
+          2
+        ]
+      ],
+      [
+        "raw",
+        ""
+      ],
+      [
+        "translated",
+        [
+          3
+        ]
+      ],
+      [
+        "raw",
+        ""
+      ],
+      [
+        "translated_prefixed",
+        [
+          ":param spec:",
+          [
+            4
+          ]
+        ]
+      ],
+      [
+        "translated_prefixed",
+        [
+          ":param scorecard:",
+          [
+            5
+          ]
+        ]
+      ],
+      [
+        "translated_prefixed",
+        [
+          ":returns:",
+          [
+            6
+          ]
+        ]
+      ]
+    ]
+  },
+  "runtime_added": [
+    "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+    "No checksum: no readable local checkpoint could be resolved in this environment.",
+    "No scorecard. Measure retrieval against labelled phenotype controls and attach the results."
+  ],
+  "runtime_retired": [],
+  "only_three_existing_functions_changed": true,
+  "all_other_inference_functions_AST_exact": true,
+  "source_sha256": "16d92c1c113941590deffa95f3d98aeb97bb6da2789075a2d8cc16dd15ced884"
+}

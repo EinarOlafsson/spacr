@@ -2,6 +2,20 @@
   "language": "de",
   "records": [
     {
+      "context": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+      "label": "spacr.embeddings.encoder_entry#0",
+      "source": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+      "source_sha256": "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+      "translation": "Beschreiben Sie diesen Encoder als :class:`spacr.model_zoo.ModelEntry`."
+    },
+    {
+      "context": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+      "label": "spacr.embeddings.encoder_entry#1",
+      "source": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+      "source_sha256": "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+      "translation": "Der Eintrag vereint die Encoder-Konfiguration, verfügbare Angaben zur Herkunft des Checkpoints und optionale Suchmetriken. Vergleichen Sie nur Einträge mit kompatiblen Kanalrichtlinien."
+    },
+    {
       "context": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
       "label": "spacr.embeddings.encoder_entry#2",
       "source": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
@@ -9,11 +23,32 @@
       "translation": "Der Eintrag erfasst das Backbone, die Kanalrichtlinie und den Hash lesbarer lokaler Checkpoint-Dateien, ohne ein Modell herunterzuladen oder zu laden. Öffentliche Backbones verwenden Cache-Metadaten von timm; OpenPhenom und ChAda-ViT verwenden festgelegte Hugging Face-Revisionen; SubCell verwendet seinen offiziellen Checkpoint im torch hub; ein lokaler DINO-Encoder verwendet seinen konfigurierten Checkpoint-Pfad. Einträge für Grundlagenmodelle nennen den ursprünglichen Anbieter und die Checkpoint-URL. Eine Prüfsumme allein verifiziert kein Modell und belegt nicht die Herkunft seiner Trainingsdaten."
     },
     {
-      "context": "When no readable checkpoint can be resolved locally, the entry still exists and says so in its notes, with an empty digest -- which :func:`spacr.model_zoo.fetch` already treats as a refusal rather than a pass. An entry that quietly claimed a checksum it had not computed would be worse than one that admits it cannot yet.",
+      "context": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
       "label": "spacr.embeddings.encoder_entry#3",
-      "source": "When no readable checkpoint can be resolved locally, the entry still exists and says so in its notes, with an empty digest -- which :func:`spacr.model_zoo.fetch` already treats as a refusal rather than a pass. An entry that quietly claimed a checksum it had not computed would be worse than one that admits it cannot yet.",
-      "source_sha256": "7c61a86a6f251bb980621cf48c4c956680a18a3c7613867423d3d387626c86c4",
-      "translation": "Wenn lokal kein lesbarer Checkpoint ermittelt werden kann, bleibt der Eintrag bestehen und weist in seinen Hinweisen mit einem leeren Hash darauf hin -- was :func:`spacr.model_zoo.fetch` bereits als Ablehnung statt als Freigabe behandelt. Ein Eintrag, der stillschweigend eine nicht berechnete Prüfsumme behauptet, wäre schlechter als einer, der zugibt, sie noch nicht berechnen zu können."
+      "source": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+      "source_sha256": "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+      "translation": "Wenn kein lesbarer lokaler Checkpoint gefunden wird, behält der Eintrag einen leeren Hash und erläutert dies in seinen Hinweisen. :func:`spacr.model_zoo.fetch` lehnt Einträge ohne Hash ab."
+    },
+    {
+      "context": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+      "label": "spacr.embeddings.encoder_entry#4",
+      "source": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+      "source_sha256": "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+      "translation": "Encoder-Konfiguration; verwendet ``EmbeddingSpec()``, wenn sie nicht angegeben wird."
+    },
+    {
+      "context": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+      "label": "spacr.embeddings.encoder_entry#5",
+      "source": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+      "source_sha256": "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+      "translation": "Optionale Suchmetriken, die anhand beschrifteter Kontrollen gemessen und in :attr:`ModelEntry.metrics` zur Anzeige durch ``scorecard_lines`` gespeichert werden."
+    },
+    {
+      "context": "A ``ModelEntry`` with kind ``'encoder'``.",
+      "label": "spacr.embeddings.encoder_entry#6",
+      "source": "A ``ModelEntry`` with kind ``'encoder'``.",
+      "source_sha256": "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813",
+      "translation": "Ein ``ModelEntry`` mit dem Typ ``'encoder'``."
     }
   ],
   "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff",

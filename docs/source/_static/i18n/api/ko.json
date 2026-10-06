@@ -23056,24 +23056,24 @@
     },
     "spacr.embeddings.encoder_entry": {
       "source_blocks_sha256": [
-        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
-        "287307899b8054aba3778d18c5f4bb00687943fecc1b27bac4ba854253633484",
-        "fa7b9bdc8f7c1d08cfaa81508efa8331f8700ea4f941c6ec54e72fef1eb4a458",
-        "cbae75c8399079cd49b93dad3c22254b6f724794204e44c4b7a45f3decbba443",
-        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
-        "d1684cd2486ccc2ffe8149a5f24d94323f4d5c9b3e442d0a5621242fea2e8ee7",
-        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+        "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+        "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+        "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+        "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+        "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+        "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+        "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813"
       ],
-      "source_sha256": "27cec465dec2129bb455cb0ef6326427e8a4a9cf38dc82177c1d28c27269dbc8",
-      "text": "이 코딩은 :class:`spacr.model_zoo.ModelEntry`로 표시됩니다.\n\n암호화기는 다른 어떤 모델과 마찬가지로 출판된 모델이므로, 그것은 그것의 체크 룸과 그것의 스코어 카드와 함께 동물원에 속합니다. 하나가없는 배를 삽입하는 것은 검은 상자 두 번 위에있다 : 그것이 암호하는 것에 눈에 띄지 않고, 그것이 얼마나 잘하는지 측정되지 않습니다.\n\n코더의 출처는 실제로 무엇입니까. 그것은 spaCR 체크 포인트가 없습니다 - 무게는 ImageNet 또는 공공 자체 통제 실행, ``timm``에 의해 해결 및 HuggingFace에 의해 암호화됩니다. 그래서 입력은 뒷면, 채널 정책, 그리고 그들이이 기계에 앉아있는 무게의 소화를 기록합니다.\n\n무게가 숨겨져 있지 않을 때 입력은 여전히 존재하고 그것의 노트에서 그렇게 말하고, 빈 소화와 함께 - :func:`spacr.model_zoo.fetch` 이미 거부 대신 통과로 취급됩니다.\n\n:param spec: 설명해야 할 구성; 놓친 경우 기본 스펙.\n:param scorecard: 386의 \"그것이 작동하는 방법을 알 수있는 방법\"에서 수신 숫자 - kNN 유전자 정체성에 대한 정확성, 측정 패널에 대한 삽입. :attr:`ModelEntry.metrics`로 첨부, 이것은 370의 ``scorecard_lines``에서 그들을 읽는 곳입니다.\n:returns: ``ModelEntry`` 유형의 ``'encoder'``.",
+      "source_sha256": "421b7f5656605f6520ad4e210c88a2a32c84261a377c949e7e959cd6523c1056",
+      "text": "이 인코더를 :class:`spacr.model_zoo.ModelEntry`로 설명합니다.\n\n항목은 인코더 구성, 사용 가능한 체크포인트 출처 정보 및 선택적 검색 지표를 결합합니다. 채널 정책이 호환되는 항목만 비교하세요.\n\n이 항목은 모델을 다운로드하거나 로드하지 않고 백본, 채널 정책 및 읽을 수 있는 로컬 체크포인트 바이트의 해시를 기록합니다. 공개 백본은 timm 캐시 메타데이터를 사용하고, OpenPhenom과 ChAda-ViT는 고정된 Hugging Face 리비전을 사용하며, SubCell은 공식 torch hub 체크포인트를 사용합니다. 로컬 DINO 인코더는 설정된 체크포인트 경로를 사용합니다. 파운데이션 모델 항목에는 원래 제공자와 체크포인트 URL이 표시됩니다. 체크섬만으로는 모델이 검증되지 않으며 학습 데이터의 출처도 입증되지 않습니다.\n\n읽을 수 있는 로컬 체크포인트를 찾지 못하면 항목은 빈 해시를 유지하고 메모에 이를 설명합니다. :func:`spacr.model_zoo.fetch`는 해시가 없는 항목을 거부합니다.\n\n:param spec: 인코더 구성; 생략하면 ``EmbeddingSpec()``를 사용합니다.\n:param scorecard: 라벨이 있는 대조군에서 측정한 선택적 검색 지표로, :attr:`ModelEntry.metrics`에 저장되어 ``scorecard_lines``에 표시됩니다.\n:returns: ``ModelEntry``이며 종류는 ``'encoder'``입니다.",
       "translation_source_blocks_sha256": [
-        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
-        "dcef17b50e9db4df3490a7d22dac90240e267ba685e2372196478c658cec5c3b",
-        "529ec96d6993086fcf130931258b1b67effd233c1cd09cdaa449191f30dbad53",
-        "277b64bf6391e6e08d2799c8b460fdc75057b00b5d34b8dcd023b3746476abb6",
-        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
-        "51fd59a24157c2d9c6893e3e0c013607a655827b034a63ad331f117cb518b70a",
-        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+        "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+        "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+        "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+        "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+        "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+        "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+        "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813"
       ]
     },
     "spacr.embeddings.encoder_key": {

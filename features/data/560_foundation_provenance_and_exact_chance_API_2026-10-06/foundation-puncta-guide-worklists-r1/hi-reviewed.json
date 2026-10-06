@@ -1,0 +1,86 @@
+[
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_sigmas`` — default ``(1.5, 2.0, 3.0, 4.0, 6.0)``",
+    "hint": "``ridge_sigmas`` — डिफ़ॉल्ट ``(1.0, 2.0, 3.0)``",
+    "ui": {},
+    "msgstr": "``puncta_sigmas`` — डिफ़ॉल्ट ``(1.5, 2.0, 3.0, 4.0, 6.0)``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "scale-normalised LoG widths in image pixels.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "छवि पिक्सेल में पैमाना-सामान्यीकृत LoG चौड़ाइयाँ।"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_k`` — default ``2.5``",
+    "hint": "``local_k`` — डिफ़ॉल्ट ``0.2``",
+    "ui": {},
+    "msgstr": "``puncta_k`` — डिफ़ॉल्ट ``2.5``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "candidate response threshold in propagated pixel-noise units.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "प्रसारित पिक्सेल शोर की इकाइयों में संभावित बिंदु की प्रतिक्रिया सीमा।"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_center_pixels`` — default ``20``",
+    "hint": "``psf_iterations`` — डिफ़ॉल्ट ``20``",
+    "ui": {},
+    "msgstr": "``puncta_center_pixels`` — डिफ़ॉल्ट ``20``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "number of pixels nearest each subpixel centre, from 1 to 81 in the nine-by-nine measurement window.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "नौ गुणा नौ पिक्सेल की मापन खिड़की में प्रत्येक उपपिक्सेल केंद्र के निकटतम पिक्सेल की संख्या, 1 से 81 तक।"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_min_corrected`` — default ``3.0``",
+    "hint": "``unet_threshold`` — डिफ़ॉल्ट ``0.5``",
+    "ui": {},
+    "msgstr": "``puncta_min_corrected`` — डिफ़ॉल्ट ``3.0``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "minimum centre mean minus local annulus median, in native intensity units. Equality is retained.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "केंद्र के औसत घटा स्थानीय वलय के मध्यक का न्यूनतम मान, मूल तीव्रता इकाइयों में। बराबरी होने पर भी बिंदु रखा जाता है।"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_min_distance`` — default ``2``",
+    "hint": "``propagate_min_distance`` — डिफ़ॉल्ट ``10``",
+    "ui": {},
+    "msgstr": "``puncta_min_distance`` — डिफ़ॉल्ट ``2``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "peak-local-maximum neighbourhood in pixels; scale-dependent nonmaximum suppression follows it.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "पिक्सेल में शिखर के स्थानीय अधिकतम का पड़ोस; इसके बाद पैमाने पर निर्भर गैर-अधिकतम दमन लागू होता है।"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_edge_margin`` — default ``3.0``",
+    "hint": "``dog_sigma_high`` — डिफ़ॉल्ट ``3.0``",
+    "ui": {},
+    "msgstr": "``puncta_edge_margin`` — डिफ़ॉल्ट ``3.0``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "minimum distance from the parent boundary in pixels.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "मूल ऑब्जेक्ट की सीमा से न्यूनतम दूरी, पिक्सेल में।"
+  }
+]

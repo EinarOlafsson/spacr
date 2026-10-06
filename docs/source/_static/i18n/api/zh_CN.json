@@ -23057,24 +23057,24 @@
     },
     "spacr.embeddings.encoder_entry": {
       "source_blocks_sha256": [
-        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
-        "287307899b8054aba3778d18c5f4bb00687943fecc1b27bac4ba854253633484",
+        "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+        "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
         "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
-        "7c61a86a6f251bb980621cf48c4c956680a18a3c7613867423d3d387626c86c4",
-        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
-        "d1684cd2486ccc2ffe8149a5f24d94323f4d5c9b3e442d0a5621242fea2e8ee7",
-        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+        "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+        "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+        "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+        "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813"
       ],
-      "source_sha256": "3017516e78ce52a7c7d144bc04a85c9bb50a847430b22506205751ed036feb90",
-      "text": "此编码为 :class:`spacr.model_zoo.ModelEntry`。\n\n编码器是一款像其他任何人一样发布的模型,所以它属于动物园,其检查室和记录。 一个没有一个的船舶的包装是一个黑盒子两次:它编码的内容是模糊的,并且不衡量它是多么好。\n\n此条目记录骨干网络、通道策略和可读取的本地检查点字节的摘要，不下载或加载模型。公开的骨干网络使用 timm 缓存元数据；OpenPhenom 和 ChAda-ViT 使用固定的 Hugging Face 修订版本；SubCell 使用其官方 torch hub 检查点；本地 DINO 编码器使用其配置的检查点路径。基础模型条目注明原始提供者及检查点 URL。仅有校验和并不能验证模型，也不能确定其训练数据的来源。\n\n如果无法在本地找到可读取的检查点，条目仍然存在，并在备注中说明这一点，同时将摘要留空 -- :func:`spacr.model_zoo.fetch` 已将这种情况视为拒绝，而非通过。一个默默声称拥有未经计算的校验和的条目，比承认目前尚无法计算校验和的条目更糟。\n\n:param spec: 要描述的配置;默认的 spec 当被忽略时。\n:param scorecard: 386的“如何知道它工作” - kNN 基因身份的准确性,嵌入式对测量面板。 加入为 :attr:`ModelEntry.metrics`,这就是370的``scorecard_lines``从那里阅读它们。\n:returns: 以 ``ModelEntry`` 的类型 ``'encoder'``。",
+      "source_sha256": "421b7f5656605f6520ad4e210c88a2a32c84261a377c949e7e959cd6523c1056",
+      "text": "将此编码器描述为 :class:`spacr.model_zoo.ModelEntry`。\n\n该条目汇总编码器配置、可用的检查点来源信息和可选的检索指标。仅比较通道策略兼容的条目。\n\n此条目记录骨干网络、通道策略和可读取的本地检查点字节的摘要，不下载或加载模型。公开的骨干网络使用 timm 缓存元数据；OpenPhenom 和 ChAda-ViT 使用固定的 Hugging Face 修订版本；SubCell 使用其官方 torch hub 检查点；本地 DINO 编码器使用其配置的检查点路径。基础模型条目注明原始提供者及检查点 URL。仅有校验和并不能验证模型，也不能确定其训练数据的来源。\n\n如果未找到可读的本地检查点，条目会保留空摘要，并在备注中说明。:func:`spacr.model_zoo.fetch` 会拒绝没有摘要的条目。\n\n:param spec: 编码器配置；省略时使用 ``EmbeddingSpec()``。\n:param scorecard: 使用已标注对照测得的可选检索指标，存储在 :attr:`ModelEntry.metrics` 中，由 ``scorecard_lines`` 显示。\n:returns: 一个 ``ModelEntry``，其类型为 ``'encoder'``。",
       "translation_source_blocks_sha256": [
-        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
-        "dcef17b50e9db4df3490a7d22dac90240e267ba685e2372196478c658cec5c3b",
+        "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+        "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
         "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
-        "7c61a86a6f251bb980621cf48c4c956680a18a3c7613867423d3d387626c86c4",
-        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
-        "51fd59a24157c2d9c6893e3e0c013607a655827b034a63ad331f117cb518b70a",
-        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+        "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+        "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+        "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+        "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813"
       ]
     },
     "spacr.embeddings.encoder_key": {

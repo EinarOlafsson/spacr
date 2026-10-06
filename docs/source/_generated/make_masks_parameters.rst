@@ -37,6 +37,24 @@ or restore values from the current session.
 ``secondary_growth`` — default ``'intensity'``
     ``intensity`` or ``distance`` watershed for secondary objects; maxima detection ignores this setting.
 
+``puncta_sigmas`` — default ``(1.5, 2.0, 3.0, 4.0, 6.0)``
+    scale-normalised LoG widths in image pixels.
+
+``puncta_k`` — default ``2.5``
+    candidate response threshold in propagated pixel-noise units.
+
+``puncta_center_pixels`` — default ``20``
+    number of pixels nearest each subpixel centre, from 1 to 81 in the nine-by-nine measurement window.
+
+``puncta_min_corrected`` — default ``3.0``
+    minimum centre mean minus local annulus median, in native intensity units. Equality is retained.
+
+``puncta_min_distance`` — default ``2``
+    peak-local-maximum neighbourhood in pixels; scale-dependent nonmaximum suppression follows it.
+
+``puncta_edge_margin`` — default ``3.0``
+    minimum distance from the parent boundary in pixels.
+
 Organelle detectors
 ~~~~~~~~~~~~~~~~~~~
 

@@ -172,8 +172,6 @@ Los instaladores agrupan sus propios Python. No se requiere Conda.
 
 .. spacr-installer-links-end
 
-Los tres primeros iconos descargan la versión actual. El icono spaCR abre el archivo completo del instalador. Los enlaces al instalador y los nombres de archivos versionados se actualizan por el flujo de trabajo de la versión; los instaladores anteriores permanecen en el mismo archivo de lanzamiento.
-
 En Linux, marque el archivo descargado como ejecutable y ejecútelo:
 
 .. code-block:: bash
@@ -200,7 +198,7 @@ Para la versión de PyPI, instale spaCR con pip dentro de un entorno Conda. Pyth
 
 spaCR admite Python **3.9 through 3.14**, salvo Python 3.14.1, que torchvision excluye. Se recomienda Linux para los flujos de trabajo CUDA y ROCm más exigentes; macOS y Windows también son compatibles, y ambos usan sus GPU — macOS mediante Metal, que cubre Apple Silicon y las tarjetas AMD de los Mac con Intel, y Windows mediante CUDA o DirectML.
 
-La instalación estándar incluye la interfaz de escritorio Qt. Para un servidor, clúster o corredor CI, ejecute las flujos de trabajo de la línea de comandos sin abrirlo:
+La instalación estándar incluye la interfaz de escritorio Qt. En un servidor, clúster o ejecutor de CI, ejecute los flujos de trabajo de línea de comandos sin abrirla:
 
 .. code-block:: bash
 
@@ -274,7 +272,7 @@ Quien contribuye necesita el historial; para solo ejecutar spaCR, elija una de e
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-En la medición del 2026-09-15, el clon completo descargó 5,8 GB. Añadir ``--filter=blob:none`` al clon superficial no redujo su descarga medida. Los archivos versionados de nightly ocupan 1029 MB en la copia de trabajo (medidos el 2026-10-05), sin el historial de Git. El tamaño y el tiempo de descarga varían según la rama.
+En la medición del 2026-09-15, el clon completo descargó 5,8 GB. Añadir ``--filter=blob:none`` al clon superficial no redujo su descarga medida. Los archivos versionados de nightly ocupan 1710 MB en la copia de trabajo (medidos el 2026-10-06), sin el historial de Git. El tamaño y el tiempo de descarga varían según la rama.
 
 
 Comandos de línea de comandos
@@ -426,8 +424,6 @@ Quantitative readouts for biological assays.
 .. spacr-workflow-end
 
 Todos los módulos con una tarjeta en la pantalla de inicio, en el orden de esa pantalla: primero los seis módulos de la secuencia de procesamiento y después los demás. Seleccione una tarjeta para abrir la página de API del módulo.
-
-Consulte la `guía de funciones <../../source/features.rst>`_ para conocer cada herramienta.
 
 Otros recursos
 ~~~~~~~~~~~~~~~

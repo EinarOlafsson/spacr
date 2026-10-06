@@ -3608,11 +3608,15 @@ def _load_reviewed_readme_evidence() -> dict[str, dict[str, str]]:
 
 
 REVIEWED_README_EVIDENCE_BLOCKS = _load_reviewed_readme_evidence()
-_CURRENT_README_PROSE = re.sub(r"\s+", " ", (ROOT / "README.rst").read_text(encoding="utf-8"))
+_CURRENT_README_TEXT = (ROOT / "README.rst").read_text(encoding="utf-8")
+_CURRENT_README_PROSE = re.sub(r"\s+", " ", _CURRENT_README_TEXT)
 RETIRED_README_EVIDENCE_BLOCKS = {
     source: translations
     for source, translations in REVIEWED_README_EVIDENCE_BLOCKS.items()
-    if source not in _CURRENT_README_PROSE
+    if source not in _CURRENT_README_PROSE or (
+        source == "Make Masks"
+        and not re.search(r"(?m)^Make Masks\n[~=-]{3,}\s*$", _CURRENT_README_TEXT)
+    )
 }
 REVIEWED_README_EVIDENCE_BLOCKS = {
     source: translations
@@ -7282,6 +7286,10 @@ REVIEWED_README_BLOCKS_ARCHIVE.update({
     source: REVIEWED_README_BLOCKS.pop(source)
     for source in _SUPERSEDED_README_BLOCKS_2026_09_23
     if source in REVIEWED_README_BLOCKS
+})
+
+REVIEWED_README_BLOCKS_ARCHIVE.update({
+    _HEADLESS_INSTALL_SOURCE: REVIEWED_README_BLOCKS.pop(_HEADLESS_INSTALL_SOURCE),
 })
 
 _CURRENT_TUTORIAL_LIBRARY_SOURCE = (

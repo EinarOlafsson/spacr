@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_method": "Direct Codex AI numeric review against all current tracked file sizes, retaining the original dated download measurements, and technical review of standard Qt installation versus headless execution. No native-speaker signoff.",
+  "records": [
+    {
+      "label": "dated-clone-and-current-checkout-size",
+      "source": "On 2026-09-15, the full clone downloaded 5.8 GB. Adding ``--filter=blob:none`` to the shallow clone did not reduce its measured download. The nightly tracked tree is a 1710 MB checkout (measured 2026-10-06), excluding Git history. Download sizes and times vary with the branch.",
+      "source_sha256": "586cb07b47cda3c5a4cb369e9ad5fba28c8638190470a3a23f957ba05898c939",
+      "translation": "在 2026-09-15 的测量中，完整克隆下载了 5.8 GB。向浅克隆添加 ``--filter=blob:none`` 没有减少其测得的下载量。nightly 中受 Git 跟踪的文件检出后共占 1710 MB（2026-10-06 测量），不含 Git 历史。下载大小和耗时随分支而变化。"
+    },
+    {
+      "label": "standard-Qt-installation-headless-command-line-use",
+      "source": "The standard installation includes the Qt desktop interface. For a server, cluster or CI runner, run the command-line pipelines without opening it:",
+      "source_sha256": "ef361e3da0eb00540c9a56603825d58a35edd3923990b57f59716192e4872942",
+      "translation": "标准安装包含 Qt 桌面界面。在服务器、集群或 CI 运行器上，可运行命令行流程而不打开该界面："
+    }
+  ]
+}

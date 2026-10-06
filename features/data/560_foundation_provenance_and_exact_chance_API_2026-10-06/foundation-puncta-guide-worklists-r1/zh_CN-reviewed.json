@@ -1,0 +1,86 @@
+[
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_sigmas`` — default ``(1.5, 2.0, 3.0, 4.0, 6.0)``",
+    "hint": "``ridge_sigmas`` — 默认值 ``(1.0, 2.0, 3.0)``",
+    "ui": {},
+    "msgstr": "``puncta_sigmas`` — 默认值 ``(1.5, 2.0, 3.0, 4.0, 6.0)``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "scale-normalised LoG widths in image pixels.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "以图像像素为单位、经过尺度归一化的 LoG 宽度。"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_k`` — default ``2.5``",
+    "hint": "``local_k`` — 默认值 ``0.2``",
+    "ui": {},
+    "msgstr": "``puncta_k`` — 默认值 ``2.5``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "candidate response threshold in propagated pixel-noise units.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "以传播后的像素噪声为单位的候选响应阈值。"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_center_pixels`` — default ``20``",
+    "hint": "``psf_iterations`` — 默认值 ``20``",
+    "ui": {},
+    "msgstr": "``puncta_center_pixels`` — 默认值 ``20``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "number of pixels nearest each subpixel centre, from 1 to 81 in the nine-by-nine measurement window.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "九乘九像素测量窗口内最靠近各亚像素中心的像素数，范围为 1 至 81。"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_min_corrected`` — default ``3.0``",
+    "hint": "``unet_threshold`` — 默认值 ``0.5``",
+    "ui": {},
+    "msgstr": "``puncta_min_corrected`` — 默认值 ``3.0``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "minimum centre mean minus local annulus median, in native intensity units. Equality is retained.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "中心均值减去局部背景环中位数的最小值，以原始强度为单位。等于阈值时也保留。"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_min_distance`` — default ``2``",
+    "hint": "``propagate_min_distance`` — 默认值 ``10``",
+    "ui": {},
+    "msgstr": "``puncta_min_distance`` — 默认值 ``2``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "peak-local-maximum neighbourhood in pixels; scale-dependent nonmaximum suppression follows it.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "以像素为单位的峰值局部极大值邻域；随后进行随尺度变化的非极大值抑制。"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "``puncta_edge_margin`` — default ``3.0``",
+    "hint": "``dog_sigma_high`` — 默认值 ``3.0``",
+    "ui": {},
+    "msgstr": "``puncta_edge_margin`` — 默认值 ``3.0``"
+  },
+  {
+    "domain": "make_masks",
+    "msgid": "minimum distance from the parent boundary in pixels.",
+    "hint": "",
+    "ui": {},
+    "msgstr": "到父级对象边界的最小距离，以像素为单位。"
+  }
+]

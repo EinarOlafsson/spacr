@@ -172,8 +172,6 @@ Installatörerna buntar ihop sina egna Python. Conda krävs inte.
 
 .. spacr-installer-links-end
 
-De tre första ikonerna laddar ner den aktuella utgåvan. Ikonen spaCR öppnar hela installationsprogrammets arkiv. Installerlänkar och versionerade filnamn uppdateras av utgivningsarbetsflödet; tidigare installatörer finns kvar i samma utgivningsarkiv.
-
 Gör den hämtade filen körbar i Linux och kör den:
 
 .. code-block:: bash
@@ -200,7 +198,7 @@ För PyPI-utgåvan installerar du spaCR med pip i en Conda-miljö. Python 3.12 g
 
 spaCR stöder Python **3.9 through 3.14**, utom Python 3.14.1, som torchvision utesluter. Linux rekommenderas för de tyngsta CUDA- och ROCm-arbetsflödena; macOS och Windows stöds också, och båda använder sina GPU:er — macOS via Metal, som täcker Apple Silicon och AMD-korten i Intel-Mac-datorer, och Windows via CUDA eller DirectML.
 
-Standardinstallationen inkluderar desktop-gränssnittet Qt. För en server, kluster eller CI löpare, kör kommandoradsrörledningarna utan att öppna den:
+Standardinstallationen innehåller Qt-gränssnittet för skrivbordet. På en server, ett kluster eller en CI-körmiljö kan du köra kommandoradspipelines utan att öppna det:
 
 .. code-block:: bash
 
@@ -274,7 +272,7 @@ Den som bidrar behöver historiken; för att bara köra spaCR räcker ett av des
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Vid mätningen 2026-09-15 laddade den fullständiga klonen ner 5,8 GB. För den grunda klonen minskade ``--filter=blob:none`` inte den uppmätta nedladdningen. De versionshanterade filerna i nightly ger en utcheckning på 1029 MB (uppmätt 2026-10-05), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen.
+Vid mätningen 2026-09-15 laddade den fullständiga klonen ner 5,8 GB. För den grunda klonen minskade ``--filter=blob:none`` inte den uppmätta nedladdningen. De versionshanterade filerna i nightly ger en utcheckning på 1710 MB (uppmätt 2026-10-06), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen.
 
 
 Kommandoradskommandon
@@ -426,8 +424,6 @@ Quantitative readouts for biological assays.
 .. spacr-workflow-end
 
 Alla moduler med en ruta på startskärmen, i startskärmens ordning: först de sex pipelinemodulerna, sedan resten. Välj en ruta för att öppna modulens API-sida.
-
-Se `funktionsguiden <../../source/features.rst>`_ för varje verktyg.
 
 Övriga resurser
 ~~~~~~~~~~~~~~~

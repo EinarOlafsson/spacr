@@ -172,8 +172,6 @@ spaCR 설치
 
 .. spacr-installer-links-end
 
-첫 번째 세 개의 아이콘이 현재 버전을 다운로드합니다. spaCR 아이콘은 전체 설치기 아카이브를 열어줍니다. 설치기 링크와 버전 된 파일 이름은 버전 작업 흐름에 의해 업데이트됩니다; 이전 설치기는 동일한 버전기록에 남아 있습니다.
-
 Linux에서는 다운로드한 파일에 실행 권한을 부여한 후 실행합니다:
 
 .. code-block:: bash
@@ -200,7 +198,7 @@ PyPI 릴리스는 Conda 환경 안에서 pip로 spaCR를 설치하세요. Python
 
 spaCR는 Python **3.9 through 3.14** 버전을 지원하며, torchvision이 제외하는 Python 3.14.1은 예외입니다. 가장 부하가 큰 CUDA 및 ROCm 워크플로에는 Linux를 권장합니다. macOS와 Windows도 지원되며, 두 플랫폼 모두 GPU를 사용합니다 — macOS는 Apple Silicon과 Intel Mac의 AMD 카드를 모두 포괄하는 Metal을 통해, Windows는 CUDA 또는 DirectML을 통해 GPU를 사용합니다.
 
-표준 설치에는 Qt 데스크톱 인터페이스가 포함되어 있습니다. 서버, 클러스터 또는 CI 라운더의 경우, 그것을 열지 않고 명령 라인 파이프 라인을 실행하십시오.
+표준 설치에는 Qt 데스크톱 인터페이스가 포함됩니다. 서버, 클러스터 또는 CI 실행기에서는 인터페이스를 열지 않고 명령줄 파이프라인을 실행하세요:
 
 .. code-block:: bash
 
@@ -274,7 +272,7 @@ Docker로 설치
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-2026-09-15 측정에서 전체 클론은 5.8 GB를 다운로드했습니다. 얕은 클론에 ``--filter=blob:none``을 추가해도 측정된 다운로드 크기는 줄지 않았습니다. nightly의 Git 추적 파일은 체크아웃에서 1029 MB를 차지합니다(2026-10-05 측정). Git 이력은 제외한 크기이며, 다운로드 크기와 시간은 브랜치에 따라 달라집니다.
+2026-09-15 측정에서 전체 클론은 5.8 GB를 다운로드했습니다. 얕은 클론에 ``--filter=blob:none``을 추가해도 측정된 다운로드 크기는 줄지 않았습니다. nightly의 Git 추적 파일은 체크아웃에서 1710 MB를 차지합니다(2026-10-06 측정). Git 이력은 제외한 크기이며, 다운로드 크기와 시간은 브랜치에 따라 달라집니다.
 
 
 명령줄 진입점
@@ -426,8 +424,6 @@ Quantitative readouts for biological assays.
 .. spacr-workflow-end
 
 홈 화면에 타일이 있는 모든 모듈을 홈 화면 순서대로 표시합니다. 먼저 여섯 파이프라인 모듈이 나오고 나머지 모듈이 이어집니다. 타일을 선택하면 해당 모듈의 API 페이지가 열립니다.
-
-각 도구에 대한 설명은 `기능 가이드 <../../source/features.rst>`_ 문서를 참조하십시오.
 
 다른 자원
 ~~~~~~~~~~~~~~~

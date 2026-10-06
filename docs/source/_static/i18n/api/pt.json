@@ -23056,24 +23056,24 @@
     },
     "spacr.embeddings.encoder_entry": {
       "source_blocks_sha256": [
-        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
-        "287307899b8054aba3778d18c5f4bb00687943fecc1b27bac4ba854253633484",
+        "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+        "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
         "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
-        "7c61a86a6f251bb980621cf48c4c956680a18a3c7613867423d3d387626c86c4",
-        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
-        "d1684cd2486ccc2ffe8149a5f24d94323f4d5c9b3e442d0a5621242fea2e8ee7",
-        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+        "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+        "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+        "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+        "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813"
       ],
-      "source_sha256": "3017516e78ce52a7c7d144bc04a85c9bb50a847430b22506205751ed036feb90",
-      "text": "Este codificador como um :class:`spacr.model_zoo.ModelEntry`.\n\nUm codificador é um modelo publicado como qualquer outro, por isso pertence ao zoológico com sua soma de verificação e seu scorecard. Uma incorporação que é enviada sem um é uma caixa preta duas vezes: opaca no que codifica e não medida em quão bem ele faz.\n\nA entrada regista a rede base, a política de canais e o resumo dos bytes legíveis do checkpoint local, sem transferir nem carregar um modelo. As redes base públicas usam os metadados de cache do timm; OpenPhenom e ChAda-ViT usam revisões fixadas do Hugging Face; SubCell usa o seu checkpoint oficial do torch hub; um codificador DINO local usa o caminho de checkpoint configurado. As entradas de modelos fundacionais indicam o fornecedor original e a URL do checkpoint. Uma soma de verificação, por si só, não verifica um modelo nem estabelece a proveniência dos seus dados de treino.\n\nQuando não é possível localizar um checkpoint legível localmente, a entrada continua a existir e indica-o nas notas, com um resumo vazio -- que :func:`spacr.model_zoo.fetch` já trata como recusa e não como aprovação. Uma entrada que afirmasse silenciosamente ter uma soma de verificação que não calculou seria pior do que uma que admite ainda não a poder calcular.\n\n:param spec: a configuração a descrever; a especificação padrão quando omitida.\n:param scorecard: números de recuperação de 386 \"como saber que funcionou\" - kNN precisão na identidade genética, incorporações versus o painel medido. Anexado como :attr:`ModelEntry.metrics`, que é onde 370  ``scorecard_lines`` lê-los a partir de.\n:returns: a ``ModelEntry`` do tipo  ``'encoder'``.",
+      "source_sha256": "421b7f5656605f6520ad4e210c88a2a32c84261a377c949e7e959cd6523c1056",
+      "text": "Descreva este codificador como uma :class:`spacr.model_zoo.ModelEntry`.\n\nA entrada combina a configuração do codificador, as informações disponíveis sobre a procedência do ponto de controle e métricas opcionais de recuperação. Compare apenas entradas com políticas de canais compatíveis.\n\nA entrada regista a rede base, a política de canais e o resumo dos bytes legíveis do checkpoint local, sem transferir nem carregar um modelo. As redes base públicas usam os metadados de cache do timm; OpenPhenom e ChAda-ViT usam revisões fixadas do Hugging Face; SubCell usa o seu checkpoint oficial do torch hub; um codificador DINO local usa o caminho de checkpoint configurado. As entradas de modelos fundacionais indicam o fornecedor original e a URL do checkpoint. Uma soma de verificação, por si só, não verifica um modelo nem estabelece a proveniência dos seus dados de treino.\n\nSe nenhum ponto de controle local legível for encontrado, a entrada mantém um resumo criptográfico vazio e explica isso nas notas. :func:`spacr.model_zoo.fetch` recusa entradas sem resumo criptográfico.\n\n:param spec: Configuração do codificador; usa ``EmbeddingSpec()`` quando omitida.\n:param scorecard: Métricas opcionais de recuperação medidas com controles rotulados e armazenadas em :attr:`ModelEntry.metrics` para exibição por ``scorecard_lines``.\n:returns: Uma ``ModelEntry`` do tipo ``'encoder'``.",
       "translation_source_blocks_sha256": [
-        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
-        "dcef17b50e9db4df3490a7d22dac90240e267ba685e2372196478c658cec5c3b",
+        "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+        "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
         "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
-        "7c61a86a6f251bb980621cf48c4c956680a18a3c7613867423d3d387626c86c4",
-        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
-        "51fd59a24157c2d9c6893e3e0c013607a655827b034a63ad331f117cb518b70a",
-        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+        "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+        "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+        "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+        "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813"
       ]
     },
     "spacr.embeddings.encoder_key": {

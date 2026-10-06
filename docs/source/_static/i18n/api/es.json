@@ -23056,24 +23056,24 @@
     },
     "spacr.embeddings.encoder_entry": {
       "source_blocks_sha256": [
-        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
-        "287307899b8054aba3778d18c5f4bb00687943fecc1b27bac4ba854253633484",
+        "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+        "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
         "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
-        "7c61a86a6f251bb980621cf48c4c956680a18a3c7613867423d3d387626c86c4",
-        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
-        "d1684cd2486ccc2ffe8149a5f24d94323f4d5c9b3e442d0a5621242fea2e8ee7",
-        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+        "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+        "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+        "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+        "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813"
       ],
-      "source_sha256": "3017516e78ce52a7c7d144bc04a85c9bb50a847430b22506205751ed036feb90",
-      "text": "Este codificador como un :class:`spacr.model_zoo.ModelEntry`.\n\nUn codificador es un modelo publicado como cualquier otro, por lo que pertenece al zoológico con su suma de verificación y su marcador. Una incrustación que se envía sin uno es una caja negra dos veces más: opaca en lo que codifica, y no medida en lo bien que lo hace.\n\nLa entrada registra la red base, la política de canales y el resumen criptográfico de los bytes legibles del punto de control local, sin descargar ni cargar un modelo. Las redes base públicas usan los metadatos de caché de timm; OpenPhenom y ChAda-ViT usan revisiones fijadas de Hugging Face; SubCell usa su punto de control oficial de torch hub; un codificador DINO local usa la ruta de punto de control configurada. Las entradas de modelos fundacionales indican el proveedor original y la URL del punto de control. Una suma de comprobación por sí sola no verifica un modelo ni establece la procedencia de sus datos de entrenamiento.\n\nCuando no se puede localizar un punto de control legible localmente, la entrada sigue existiendo y lo indica en sus notas, con un resumen vacío -- que :func:`spacr.model_zoo.fetch` ya trata como un rechazo y no como una aprobación. Una entrada que afirmara silenciosamente tener una suma de comprobación que no ha calculado sería peor que una que admite que aún no puede calcularla.\n\n:param spec: la configuración a describir; la especificación predeterminada cuando se omite.\n:param scorecard: números de recuperación de 386 \"cómo saber que funcionó\" -- precisión de kNN en la identidad genética, incrustaciones versus el panel medido. Agregado como :attr:`ModelEntry.metrics`, que es donde 370 ``scorecard_lines`` los lee.\n:returns: a ``ModelEntry`` de tipo ``'encoder'``.",
+      "source_sha256": "421b7f5656605f6520ad4e210c88a2a32c84261a377c949e7e959cd6523c1056",
+      "text": "Describa este codificador como una :class:`spacr.model_zoo.ModelEntry`.\n\nLa entrada combina la configuración del codificador, la procedencia disponible del punto de control y métricas opcionales de recuperación. Compare únicamente entradas con políticas de canales compatibles.\n\nLa entrada registra la red base, la política de canales y el resumen criptográfico de los bytes legibles del punto de control local, sin descargar ni cargar un modelo. Las redes base públicas usan los metadatos de caché de timm; OpenPhenom y ChAda-ViT usan revisiones fijadas de Hugging Face; SubCell usa su punto de control oficial de torch hub; un codificador DINO local usa la ruta de punto de control configurada. Las entradas de modelos fundacionales indican el proveedor original y la URL del punto de control. Una suma de comprobación por sí sola no verifica un modelo ni establece la procedencia de sus datos de entrenamiento.\n\nSi no se encuentra un punto de control local legible, la entrada conserva un resumen criptográfico vacío y lo explica en sus notas. :func:`spacr.model_zoo.fetch` rechaza las entradas sin resumen criptográfico.\n\n:param spec: Configuración del codificador; utiliza ``EmbeddingSpec()`` si se omite.\n:param scorecard: Métricas opcionales de recuperación medidas con controles etiquetados y almacenadas en :attr:`ModelEntry.metrics` para su visualización mediante ``scorecard_lines``.\n:returns: Una ``ModelEntry`` de tipo ``'encoder'``.",
       "translation_source_blocks_sha256": [
-        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
-        "dcef17b50e9db4df3490a7d22dac90240e267ba685e2372196478c658cec5c3b",
+        "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+        "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
         "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
-        "7c61a86a6f251bb980621cf48c4c956680a18a3c7613867423d3d387626c86c4",
-        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
-        "51fd59a24157c2d9c6893e3e0c013607a655827b034a63ad331f117cb518b70a",
-        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+        "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+        "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+        "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+        "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813"
       ]
     },
     "spacr.embeddings.encoder_key": {

@@ -1765,12 +1765,11 @@ def _weights_on_disk(backbone: str) -> Tuple[str, str, int]:
 
 def encoder_entry(spec: Optional["EmbeddingSpec"] = None, *,
                   scorecard: Optional[Mapping[str, Any]] = None):
-    """This encoder as a :class:`spacr.model_zoo.ModelEntry`.
+    """Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.
 
-    AN ENCODER IS A PUBLISHED MODEL like any other, so it belongs in the zoo
-    with its checksum and its scorecard. An embedding that ships without one
-    is a black box twice over: opaque in what it encodes, and unmeasured in
-    how well it does it.
+    The entry combines encoder configuration, available checkpoint provenance
+    and optional retrieval metrics. Compare entries only when their channel
+    policies are compatible.
 
     The entry records the backbone, channel policy and digest of readable
     local checkpoint bytes without downloading or loading a model. Public
@@ -1780,18 +1779,14 @@ def encoder_entry(spec: Optional["EmbeddingSpec"] = None, *,
     entries name the original provider and checkpoint URL. A checksum alone
     does not verify a model or establish its training-data provenance.
 
-    When no readable checkpoint can be resolved locally, the entry still
-    exists and says so in its notes, with an empty digest -- which
-    :func:`spacr.model_zoo.fetch` already treats as a refusal rather than a
-    pass. An entry that quietly claimed a checksum it had not computed would
-    be worse than one that admits it cannot yet.
+    If no readable local checkpoint is found, the entry keeps an empty digest
+    and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses
+    entries without a digest.
 
-    :param spec: the configuration to describe; the default spec when omitted.
-    :param scorecard: retrieval numbers from 386's "HOW TO KNOW IT WORKED" --
-        kNN accuracy on gene identity, embeddings versus the measured panel.
-        Attached as :attr:`ModelEntry.metrics`, which is where 370's
-        ``scorecard_lines`` reads them from.
-    :returns: a ``ModelEntry`` of kind ``'encoder'``.
+    :param spec: Encoder configuration; uses ``EmbeddingSpec()`` when omitted.
+    :param scorecard: Optional retrieval metrics measured on labelled controls,
+        stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.
+    :returns: A ``ModelEntry`` with kind ``'encoder'``.
     """
     from .model_zoo import UNKNOWN, ModelEntry
     from .qt.i18n import tr

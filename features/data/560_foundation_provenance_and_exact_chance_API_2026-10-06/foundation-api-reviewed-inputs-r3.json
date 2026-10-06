@@ -1,0 +1,692 @@
+{
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff",
+  "languages": {
+    "sv": {
+      "API": [
+        {
+          "context": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+          "label": "spacr.embeddings.encoder_entry#0",
+          "source": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+          "source_sha256": "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+          "translation": "Beskriv denna kodare som en :class:`spacr.model_zoo.ModelEntry`."
+        },
+        {
+          "context": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+          "label": "spacr.embeddings.encoder_entry#1",
+          "source": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+          "source_sha256": "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+          "translation": "Posten förenar kodarens konfiguration, tillgängliga uppgifter om kontrollpunktens ursprung och valfria mått på sökprestanda. Jämför endast poster vars kanalpolicyer är förenliga."
+        },
+        {
+          "context": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+          "label": "spacr.embeddings.encoder_entry#2",
+          "source": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+          "source_sha256": "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+          "translation": "Posten registrerar ryggraden, kanalpolicyn och kontrollsumman för läsbara lokala kontrollpunktsfiler utan att ladda ned eller läsa in en modell. Offentliga ryggrader använder cachemetadata från timm; OpenPhenom och ChAda-ViT använder låsta Hugging Face-revisioner; SubCell använder sin officiella kontrollpunkt i torch hub; en lokal DINO-kodare använder sin konfigurerade kontrollpunktssökväg. Poster för grundmodeller anger den ursprungliga leverantören och kontrollpunktens URL. En kontrollsumma ensam verifierar inte en modell och fastställer inte ursprunget för dess träningsdata."
+        },
+        {
+          "context": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+          "label": "spacr.embeddings.encoder_entry#3",
+          "source": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+          "source_sha256": "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+          "translation": "Om ingen läsbar lokal kontrollpunkt hittas behåller posten en tom kontrollsumma och förklarar detta i sina anteckningar. :func:`spacr.model_zoo.fetch` avvisar poster utan kontrollsumma."
+        },
+        {
+          "context": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+          "label": "spacr.embeddings.encoder_entry#4",
+          "source": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+          "source_sha256": "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+          "translation": "Kodarens konfiguration; använder ``EmbeddingSpec()`` om den utelämnas."
+        },
+        {
+          "context": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+          "label": "spacr.embeddings.encoder_entry#5",
+          "source": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+          "source_sha256": "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+          "translation": "Valfria mått på sökprestanda, uppmätta med märkta kontroller och lagrade i :attr:`ModelEntry.metrics` för visning med ``scorecard_lines``."
+        },
+        {
+          "context": "A ``ModelEntry`` with kind ``'encoder'``.",
+          "label": "spacr.embeddings.encoder_entry#6",
+          "source": "A ``ModelEntry`` with kind ``'encoder'``.",
+          "source_sha256": "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813",
+          "translation": "En ``ModelEntry`` av typen ``'encoder'``."
+        }
+      ],
+      "runtime": [
+        {
+          "key": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+          "source": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+          "source_sha256": "14b8c3fbaae6be33d14464212289691f15123aff1748ce95472252ad04c7b982",
+          "table": "ui",
+          "translation": "Kanalpolicy: {policy}. Dimensioner från olika policyer är inte jämförbara."
+        },
+        {
+          "key": "No checksum: no readable local checkpoint could be resolved in this environment.",
+          "source": "No checksum: no readable local checkpoint could be resolved in this environment.",
+          "source_sha256": "257ea7ff175817e04ec7aa66640d5acf0404b7957eeda8b1a7d4fd628b3624f8",
+          "table": "ui",
+          "translation": "Ingen kontrollsumma: ingen läsbar lokal kontrollpunkt kunde hittas i denna miljö."
+        },
+        {
+          "key": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+          "source": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+          "source_sha256": "f67de6367f729f3a47269b46a604f7152fac3d17ab8cb0c9fd534a72cf37d769",
+          "table": "ui",
+          "translation": "Inget utvärderingskort. Mät sökprestanda mot märkta fenotypkontroller och bifoga resultaten."
+        }
+      ]
+    },
+    "de": {
+      "API": [
+        {
+          "context": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+          "label": "spacr.embeddings.encoder_entry#0",
+          "source": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+          "source_sha256": "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+          "translation": "Beschreiben Sie diesen Encoder als :class:`spacr.model_zoo.ModelEntry`."
+        },
+        {
+          "context": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+          "label": "spacr.embeddings.encoder_entry#1",
+          "source": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+          "source_sha256": "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+          "translation": "Der Eintrag vereint die Encoder-Konfiguration, verfügbare Angaben zur Herkunft des Checkpoints und optionale Suchmetriken. Vergleichen Sie nur Einträge mit kompatiblen Kanalrichtlinien."
+        },
+        {
+          "context": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+          "label": "spacr.embeddings.encoder_entry#2",
+          "source": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+          "source_sha256": "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+          "translation": "Der Eintrag erfasst das Backbone, die Kanalrichtlinie und den Hash lesbarer lokaler Checkpoint-Dateien, ohne ein Modell herunterzuladen oder zu laden. Öffentliche Backbones verwenden Cache-Metadaten von timm; OpenPhenom und ChAda-ViT verwenden festgelegte Hugging Face-Revisionen; SubCell verwendet seinen offiziellen Checkpoint im torch hub; ein lokaler DINO-Encoder verwendet seinen konfigurierten Checkpoint-Pfad. Einträge für Grundlagenmodelle nennen den ursprünglichen Anbieter und die Checkpoint-URL. Eine Prüfsumme allein verifiziert kein Modell und belegt nicht die Herkunft seiner Trainingsdaten."
+        },
+        {
+          "context": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+          "label": "spacr.embeddings.encoder_entry#3",
+          "source": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+          "source_sha256": "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+          "translation": "Wenn kein lesbarer lokaler Checkpoint gefunden wird, behält der Eintrag einen leeren Hash und erläutert dies in seinen Hinweisen. :func:`spacr.model_zoo.fetch` lehnt Einträge ohne Hash ab."
+        },
+        {
+          "context": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+          "label": "spacr.embeddings.encoder_entry#4",
+          "source": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+          "source_sha256": "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+          "translation": "Encoder-Konfiguration; verwendet ``EmbeddingSpec()``, wenn sie nicht angegeben wird."
+        },
+        {
+          "context": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+          "label": "spacr.embeddings.encoder_entry#5",
+          "source": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+          "source_sha256": "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+          "translation": "Optionale Suchmetriken, die anhand beschrifteter Kontrollen gemessen und in :attr:`ModelEntry.metrics` zur Anzeige durch ``scorecard_lines`` gespeichert werden."
+        },
+        {
+          "context": "A ``ModelEntry`` with kind ``'encoder'``.",
+          "label": "spacr.embeddings.encoder_entry#6",
+          "source": "A ``ModelEntry`` with kind ``'encoder'``.",
+          "source_sha256": "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813",
+          "translation": "Ein ``ModelEntry`` mit dem Typ ``'encoder'``."
+        }
+      ],
+      "runtime": [
+        {
+          "key": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+          "source": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+          "source_sha256": "14b8c3fbaae6be33d14464212289691f15123aff1748ce95472252ad04c7b982",
+          "table": "ui",
+          "translation": "Kanalrichtlinie: {policy}. Dimensionen aus unterschiedlichen Richtlinien sind nicht vergleichbar."
+        },
+        {
+          "key": "No checksum: no readable local checkpoint could be resolved in this environment.",
+          "source": "No checksum: no readable local checkpoint could be resolved in this environment.",
+          "source_sha256": "257ea7ff175817e04ec7aa66640d5acf0404b7957eeda8b1a7d4fd628b3624f8",
+          "table": "ui",
+          "translation": "Keine Prüfsumme: In dieser Umgebung konnte kein lesbarer lokaler Checkpoint ermittelt werden."
+        },
+        {
+          "key": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+          "source": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+          "source_sha256": "f67de6367f729f3a47269b46a604f7152fac3d17ab8cb0c9fd534a72cf37d769",
+          "table": "ui",
+          "translation": "Keine Bewertung. Messen Sie die Suche anhand beschrifteter Phänotypkontrollen und fügen Sie die Ergebnisse hinzu."
+        }
+      ]
+    },
+    "es": {
+      "API": [
+        {
+          "context": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+          "label": "spacr.embeddings.encoder_entry#0",
+          "source": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+          "source_sha256": "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+          "translation": "Describa este codificador como una :class:`spacr.model_zoo.ModelEntry`."
+        },
+        {
+          "context": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+          "label": "spacr.embeddings.encoder_entry#1",
+          "source": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+          "source_sha256": "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+          "translation": "La entrada combina la configuración del codificador, la procedencia disponible del punto de control y métricas opcionales de recuperación. Compare únicamente entradas con políticas de canales compatibles."
+        },
+        {
+          "context": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+          "label": "spacr.embeddings.encoder_entry#2",
+          "source": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+          "source_sha256": "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+          "translation": "La entrada registra la red base, la política de canales y el resumen criptográfico de los bytes legibles del punto de control local, sin descargar ni cargar un modelo. Las redes base públicas usan los metadatos de caché de timm; OpenPhenom y ChAda-ViT usan revisiones fijadas de Hugging Face; SubCell usa su punto de control oficial de torch hub; un codificador DINO local usa la ruta de punto de control configurada. Las entradas de modelos fundacionales indican el proveedor original y la URL del punto de control. Una suma de comprobación por sí sola no verifica un modelo ni establece la procedencia de sus datos de entrenamiento."
+        },
+        {
+          "context": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+          "label": "spacr.embeddings.encoder_entry#3",
+          "source": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+          "source_sha256": "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+          "translation": "Si no se encuentra un punto de control local legible, la entrada conserva un resumen criptográfico vacío y lo explica en sus notas. :func:`spacr.model_zoo.fetch` rechaza las entradas sin resumen criptográfico."
+        },
+        {
+          "context": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+          "label": "spacr.embeddings.encoder_entry#4",
+          "source": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+          "source_sha256": "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+          "translation": "Configuración del codificador; utiliza ``EmbeddingSpec()`` si se omite."
+        },
+        {
+          "context": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+          "label": "spacr.embeddings.encoder_entry#5",
+          "source": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+          "source_sha256": "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+          "translation": "Métricas opcionales de recuperación medidas con controles etiquetados y almacenadas en :attr:`ModelEntry.metrics` para su visualización mediante ``scorecard_lines``."
+        },
+        {
+          "context": "A ``ModelEntry`` with kind ``'encoder'``.",
+          "label": "spacr.embeddings.encoder_entry#6",
+          "source": "A ``ModelEntry`` with kind ``'encoder'``.",
+          "source_sha256": "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813",
+          "translation": "Una ``ModelEntry`` de tipo ``'encoder'``."
+        }
+      ],
+      "runtime": [
+        {
+          "key": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+          "source": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+          "source_sha256": "14b8c3fbaae6be33d14464212289691f15123aff1748ce95472252ad04c7b982",
+          "table": "ui",
+          "translation": "Política de canales: {policy}. Las dimensiones de distintas políticas no son comparables."
+        },
+        {
+          "key": "No checksum: no readable local checkpoint could be resolved in this environment.",
+          "source": "No checksum: no readable local checkpoint could be resolved in this environment.",
+          "source_sha256": "257ea7ff175817e04ec7aa66640d5acf0404b7957eeda8b1a7d4fd628b3624f8",
+          "table": "ui",
+          "translation": "Sin suma de comprobación: no se pudo localizar un punto de control local legible en este entorno."
+        },
+        {
+          "key": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+          "source": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+          "source_sha256": "f67de6367f729f3a47269b46a604f7152fac3d17ab8cb0c9fd534a72cf37d769",
+          "table": "ui",
+          "translation": "Sin evaluación. Mida la recuperación frente a controles de fenotipo etiquetados y adjunte los resultados."
+        }
+      ]
+    },
+    "zh_CN": {
+      "API": [
+        {
+          "context": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+          "label": "spacr.embeddings.encoder_entry#0",
+          "source": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+          "source_sha256": "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+          "translation": "将此编码器描述为 :class:`spacr.model_zoo.ModelEntry`。"
+        },
+        {
+          "context": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+          "label": "spacr.embeddings.encoder_entry#1",
+          "source": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+          "source_sha256": "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+          "translation": "该条目汇总编码器配置、可用的检查点来源信息和可选的检索指标。仅比较通道策略兼容的条目。"
+        },
+        {
+          "context": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+          "label": "spacr.embeddings.encoder_entry#2",
+          "source": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+          "source_sha256": "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+          "translation": "此条目记录骨干网络、通道策略和可读取的本地检查点字节的摘要，不下载或加载模型。公开的骨干网络使用 timm 缓存元数据；OpenPhenom 和 ChAda-ViT 使用固定的 Hugging Face 修订版本；SubCell 使用其官方 torch hub 检查点；本地 DINO 编码器使用其配置的检查点路径。基础模型条目注明原始提供者及检查点 URL。仅有校验和并不能验证模型，也不能确定其训练数据的来源。"
+        },
+        {
+          "context": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+          "label": "spacr.embeddings.encoder_entry#3",
+          "source": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+          "source_sha256": "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+          "translation": "如果未找到可读的本地检查点，条目会保留空摘要，并在备注中说明。:func:`spacr.model_zoo.fetch` 会拒绝没有摘要的条目。"
+        },
+        {
+          "context": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+          "label": "spacr.embeddings.encoder_entry#4",
+          "source": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+          "source_sha256": "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+          "translation": "编码器配置；省略时使用 ``EmbeddingSpec()``。"
+        },
+        {
+          "context": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+          "label": "spacr.embeddings.encoder_entry#5",
+          "source": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+          "source_sha256": "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+          "translation": "使用已标注对照测得的可选检索指标，存储在 :attr:`ModelEntry.metrics` 中，由 ``scorecard_lines`` 显示。"
+        },
+        {
+          "context": "A ``ModelEntry`` with kind ``'encoder'``.",
+          "label": "spacr.embeddings.encoder_entry#6",
+          "source": "A ``ModelEntry`` with kind ``'encoder'``.",
+          "source_sha256": "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813",
+          "translation": "一个 ``ModelEntry``，其类型为 ``'encoder'``。"
+        }
+      ],
+      "runtime": [
+        {
+          "key": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+          "source": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+          "source_sha256": "14b8c3fbaae6be33d14464212289691f15123aff1748ce95472252ad04c7b982",
+          "table": "ui",
+          "translation": "通道策略：{policy}。不同策略的维度不可比较。"
+        },
+        {
+          "key": "No checksum: no readable local checkpoint could be resolved in this environment.",
+          "source": "No checksum: no readable local checkpoint could be resolved in this environment.",
+          "source_sha256": "257ea7ff175817e04ec7aa66640d5acf0404b7957eeda8b1a7d4fd628b3624f8",
+          "table": "ui",
+          "translation": "无校验和：在此环境中无法找到可读取的本地检查点。"
+        },
+        {
+          "key": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+          "source": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+          "source_sha256": "f67de6367f729f3a47269b46a604f7152fac3d17ab8cb0c9fd534a72cf37d769",
+          "table": "ui",
+          "translation": "无评估结果。请针对带有标签的表型对照测量检索性能，并附上结果。"
+        }
+      ]
+    },
+    "pt": {
+      "API": [
+        {
+          "context": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+          "label": "spacr.embeddings.encoder_entry#0",
+          "source": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+          "source_sha256": "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+          "translation": "Descreva este codificador como uma :class:`spacr.model_zoo.ModelEntry`."
+        },
+        {
+          "context": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+          "label": "spacr.embeddings.encoder_entry#1",
+          "source": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+          "source_sha256": "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+          "translation": "A entrada combina a configuração do codificador, as informações disponíveis sobre a procedência do ponto de controle e métricas opcionais de recuperação. Compare apenas entradas com políticas de canais compatíveis."
+        },
+        {
+          "context": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+          "label": "spacr.embeddings.encoder_entry#2",
+          "source": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+          "source_sha256": "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+          "translation": "A entrada regista a rede base, a política de canais e o resumo dos bytes legíveis do checkpoint local, sem transferir nem carregar um modelo. As redes base públicas usam os metadados de cache do timm; OpenPhenom e ChAda-ViT usam revisões fixadas do Hugging Face; SubCell usa o seu checkpoint oficial do torch hub; um codificador DINO local usa o caminho de checkpoint configurado. As entradas de modelos fundacionais indicam o fornecedor original e a URL do checkpoint. Uma soma de verificação, por si só, não verifica um modelo nem estabelece a proveniência dos seus dados de treino."
+        },
+        {
+          "context": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+          "label": "spacr.embeddings.encoder_entry#3",
+          "source": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+          "source_sha256": "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+          "translation": "Se nenhum ponto de controle local legível for encontrado, a entrada mantém um resumo criptográfico vazio e explica isso nas notas. :func:`spacr.model_zoo.fetch` recusa entradas sem resumo criptográfico."
+        },
+        {
+          "context": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+          "label": "spacr.embeddings.encoder_entry#4",
+          "source": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+          "source_sha256": "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+          "translation": "Configuração do codificador; usa ``EmbeddingSpec()`` quando omitida."
+        },
+        {
+          "context": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+          "label": "spacr.embeddings.encoder_entry#5",
+          "source": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+          "source_sha256": "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+          "translation": "Métricas opcionais de recuperação medidas com controles rotulados e armazenadas em :attr:`ModelEntry.metrics` para exibição por ``scorecard_lines``."
+        },
+        {
+          "context": "A ``ModelEntry`` with kind ``'encoder'``.",
+          "label": "spacr.embeddings.encoder_entry#6",
+          "source": "A ``ModelEntry`` with kind ``'encoder'``.",
+          "source_sha256": "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813",
+          "translation": "Uma ``ModelEntry`` do tipo ``'encoder'``."
+        }
+      ],
+      "runtime": [
+        {
+          "key": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+          "source": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+          "source_sha256": "14b8c3fbaae6be33d14464212289691f15123aff1748ce95472252ad04c7b982",
+          "table": "ui",
+          "translation": "Política de canais: {policy}. As dimensões de políticas diferentes não são comparáveis."
+        },
+        {
+          "key": "No checksum: no readable local checkpoint could be resolved in this environment.",
+          "source": "No checksum: no readable local checkpoint could be resolved in this environment.",
+          "source_sha256": "257ea7ff175817e04ec7aa66640d5acf0404b7957eeda8b1a7d4fd628b3624f8",
+          "table": "ui",
+          "translation": "Sem soma de verificação: não foi possível localizar um checkpoint local legível neste ambiente."
+        },
+        {
+          "key": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+          "source": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+          "source_sha256": "f67de6367f729f3a47269b46a604f7152fac3d17ab8cb0c9fd534a72cf37d769",
+          "table": "ui",
+          "translation": "Sem avaliação. Meça a recuperação com controlos de fenótipo rotulados e anexe os resultados."
+        }
+      ]
+    },
+    "hi": {
+      "API": [
+        {
+          "context": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+          "label": "spacr.embeddings.encoder_entry#0",
+          "source": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+          "source_sha256": "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+          "translation": "इस एन्कोडर का वर्णन :class:`spacr.model_zoo.ModelEntry` के रूप में करें।"
+        },
+        {
+          "context": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+          "label": "spacr.embeddings.encoder_entry#1",
+          "source": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+          "source_sha256": "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+          "translation": "यह प्रविष्टि एन्कोडर कॉन्फ़िगरेशन, चेकपॉइंट की उपलब्ध स्रोत जानकारी और वैकल्पिक पुनर्प्राप्ति मेट्रिक्स को जोड़ती है। केवल संगत चैनल नीतियों वाली प्रविष्टियों की तुलना करें।"
+        },
+        {
+          "context": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+          "label": "spacr.embeddings.encoder_entry#2",
+          "source": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+          "source_sha256": "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+          "translation": "यह प्रविष्टि मॉडल को डाउनलोड या लोड किए बिना बैकबोन, चैनल नीति और पढ़े जा सकने वाले स्थानीय चेकपॉइंट के बाइट का हैश दर्ज करती है। सार्वजनिक बैकबोन timm का कैश मेटाडेटा उपयोग करते हैं; OpenPhenom और ChAda-ViT निश्चित Hugging Face संशोधनों का उपयोग करते हैं; SubCell अपने आधिकारिक torch hub चेकपॉइंट का उपयोग करता है; स्थानीय DINO एन्कोडर अपने कॉन्फ़िगर किए गए चेकपॉइंट पथ का उपयोग करता है। फ़ाउंडेशन मॉडल की प्रविष्टियाँ मूल प्रदाता और चेकपॉइंट URL बताती हैं। केवल चेकसम से मॉडल सत्यापित नहीं होता और उसके प्रशिक्षण डेटा की उत्पत्ति स्थापित नहीं होती।"
+        },
+        {
+          "context": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+          "label": "spacr.embeddings.encoder_entry#3",
+          "source": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+          "source_sha256": "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+          "translation": "यदि पढ़ने योग्य स्थानीय चेकपॉइंट नहीं मिलता है, तो प्रविष्टि खाली हैश रखती है और अपने नोट्स में इसका कारण बताती है। :func:`spacr.model_zoo.fetch` बिना हैश वाली प्रविष्टियों को अस्वीकार करता है।"
+        },
+        {
+          "context": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+          "label": "spacr.embeddings.encoder_entry#4",
+          "source": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+          "source_sha256": "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+          "translation": "एन्कोडर कॉन्फ़िगरेशन; छोड़ने पर ``EmbeddingSpec()`` का उपयोग करता है।"
+        },
+        {
+          "context": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+          "label": "spacr.embeddings.encoder_entry#5",
+          "source": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+          "source_sha256": "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+          "translation": "लेबल वाले नियंत्रणों पर मापे गए वैकल्पिक पुनर्प्राप्ति मेट्रिक्स, जिन्हें :attr:`ModelEntry.metrics` में संग्रहीत किया जाता है और ``scorecard_lines`` द्वारा दिखाया जाता है।"
+        },
+        {
+          "context": "A ``ModelEntry`` with kind ``'encoder'``.",
+          "label": "spacr.embeddings.encoder_entry#6",
+          "source": "A ``ModelEntry`` with kind ``'encoder'``.",
+          "source_sha256": "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813",
+          "translation": "एक ``ModelEntry`` जिसका प्रकार ``'encoder'`` है।"
+        }
+      ],
+      "runtime": [
+        {
+          "key": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+          "source": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+          "source_sha256": "14b8c3fbaae6be33d14464212289691f15123aff1748ce95472252ad04c7b982",
+          "table": "ui",
+          "translation": "चैनल नीति: {policy}। अलग-अलग नीतियों के आयाम तुलनीय नहीं हैं।"
+        },
+        {
+          "key": "No checksum: no readable local checkpoint could be resolved in this environment.",
+          "source": "No checksum: no readable local checkpoint could be resolved in this environment.",
+          "source_sha256": "257ea7ff175817e04ec7aa66640d5acf0404b7957eeda8b1a7d4fd628b3624f8",
+          "table": "ui",
+          "translation": "कोई चेकसम नहीं: इस परिवेश में पढ़ने योग्य स्थानीय चेकपॉइंट नहीं मिल सका।"
+        },
+        {
+          "key": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+          "source": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+          "source_sha256": "f67de6367f729f3a47269b46a604f7152fac3d17ab8cb0c9fd534a72cf37d769",
+          "table": "ui",
+          "translation": "कोई मूल्यांकन नहीं। लेबल किए गए फ़ीनोटाइप नियंत्रणों के विरुद्ध पुनर्प्राप्ति मापें और परिणाम संलग्न करें।"
+        }
+      ]
+    },
+    "ko": {
+      "API": [
+        {
+          "context": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+          "label": "spacr.embeddings.encoder_entry#0",
+          "source": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+          "source_sha256": "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+          "translation": "이 인코더를 :class:`spacr.model_zoo.ModelEntry`로 설명합니다."
+        },
+        {
+          "context": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+          "label": "spacr.embeddings.encoder_entry#1",
+          "source": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+          "source_sha256": "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+          "translation": "항목은 인코더 구성, 사용 가능한 체크포인트 출처 정보 및 선택적 검색 지표를 결합합니다. 채널 정책이 호환되는 항목만 비교하세요."
+        },
+        {
+          "context": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+          "label": "spacr.embeddings.encoder_entry#2",
+          "source": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+          "source_sha256": "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+          "translation": "이 항목은 모델을 다운로드하거나 로드하지 않고 백본, 채널 정책 및 읽을 수 있는 로컬 체크포인트 바이트의 해시를 기록합니다. 공개 백본은 timm 캐시 메타데이터를 사용하고, OpenPhenom과 ChAda-ViT는 고정된 Hugging Face 리비전을 사용하며, SubCell은 공식 torch hub 체크포인트를 사용합니다. 로컬 DINO 인코더는 설정된 체크포인트 경로를 사용합니다. 파운데이션 모델 항목에는 원래 제공자와 체크포인트 URL이 표시됩니다. 체크섬만으로는 모델이 검증되지 않으며 학습 데이터의 출처도 입증되지 않습니다."
+        },
+        {
+          "context": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+          "label": "spacr.embeddings.encoder_entry#3",
+          "source": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+          "source_sha256": "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+          "translation": "읽을 수 있는 로컬 체크포인트를 찾지 못하면 항목은 빈 해시를 유지하고 메모에 이를 설명합니다. :func:`spacr.model_zoo.fetch`는 해시가 없는 항목을 거부합니다."
+        },
+        {
+          "context": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+          "label": "spacr.embeddings.encoder_entry#4",
+          "source": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+          "source_sha256": "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+          "translation": "인코더 구성; 생략하면 ``EmbeddingSpec()``를 사용합니다."
+        },
+        {
+          "context": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+          "label": "spacr.embeddings.encoder_entry#5",
+          "source": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+          "source_sha256": "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+          "translation": "라벨이 있는 대조군에서 측정한 선택적 검색 지표로, :attr:`ModelEntry.metrics`에 저장되어 ``scorecard_lines``에 표시됩니다."
+        },
+        {
+          "context": "A ``ModelEntry`` with kind ``'encoder'``.",
+          "label": "spacr.embeddings.encoder_entry#6",
+          "source": "A ``ModelEntry`` with kind ``'encoder'``.",
+          "source_sha256": "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813",
+          "translation": "``ModelEntry``이며 종류는 ``'encoder'``입니다."
+        }
+      ],
+      "runtime": [
+        {
+          "key": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+          "source": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+          "source_sha256": "14b8c3fbaae6be33d14464212289691f15123aff1748ce95472252ad04c7b982",
+          "table": "ui",
+          "translation": "채널 정책: {policy}. 서로 다른 정책의 차원은 비교할 수 없습니다."
+        },
+        {
+          "key": "No checksum: no readable local checkpoint could be resolved in this environment.",
+          "source": "No checksum: no readable local checkpoint could be resolved in this environment.",
+          "source_sha256": "257ea7ff175817e04ec7aa66640d5acf0404b7957eeda8b1a7d4fd628b3624f8",
+          "table": "ui",
+          "translation": "체크섬 없음: 이 환경에서 읽을 수 있는 로컬 체크포인트를 찾을 수 없습니다."
+        },
+        {
+          "key": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+          "source": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+          "source_sha256": "f67de6367f729f3a47269b46a604f7152fac3d17ab8cb0c9fd534a72cf37d769",
+          "table": "ui",
+          "translation": "평가 결과 없음. 라벨이 있는 표현형 대조군을 대상으로 검색 성능을 측정하고 결과를 첨부하세요."
+        }
+      ]
+    },
+    "is": {
+      "API": [
+        {
+          "context": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+          "label": "spacr.embeddings.encoder_entry#0",
+          "source": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+          "source_sha256": "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+          "translation": "Lýsið þessum kóðara sem :class:`spacr.model_zoo.ModelEntry`."
+        },
+        {
+          "context": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+          "label": "spacr.embeddings.encoder_entry#1",
+          "source": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+          "source_sha256": "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+          "translation": "Færslan sameinar stillingar kóðarans, tiltækar upplýsingar um uppruna vistunar líkansins og valfrjálsa mælikvarða á endurheimt. Berið aðeins saman færslur með samrýmanlegar rásastefnur."
+        },
+        {
+          "context": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+          "label": "spacr.embeddings.encoder_entry#2",
+          "source": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+          "source_sha256": "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+          "translation": "Færslan skráir grunnnetið, rásastefnuna og tætigildi læsilegra bæta í staðbundinni vistun líkansins án þess að sækja eða hlaða líkani. Opinber grunnnet nota lýsigögn úr skyndiminni timm; OpenPhenom og ChAda-ViT nota fastákveðnar Hugging Face-útgáfur; SubCell notar opinbera vistun sína í torch hub; staðbundinn DINO-kóðari notar stillta slóð að vistun líkansins. Færslur grunnlíkana tilgreina upprunalega veitandann og URL vistunarinnar. Gátsumma ein og sér staðfestir hvorki líkan né uppruna þjálfunargagna þess."
+        },
+        {
+          "context": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+          "label": "spacr.embeddings.encoder_entry#3",
+          "source": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+          "source_sha256": "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+          "translation": "Ef engin læsileg staðbundin vistun líkans finnst heldur færslan tómu tætigildi og skýrir það í athugasemdum sínum. :func:`spacr.model_zoo.fetch` hafnar færslum án tætigildis."
+        },
+        {
+          "context": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+          "label": "spacr.embeddings.encoder_entry#4",
+          "source": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+          "source_sha256": "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+          "translation": "Stillingar kóðarans; notar ``EmbeddingSpec()`` ef þeim er sleppt."
+        },
+        {
+          "context": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+          "label": "spacr.embeddings.encoder_entry#5",
+          "source": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+          "source_sha256": "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+          "translation": "Valfrjálsir mælikvarðar á endurheimt, mældir með merktum viðmiðum og vistaðir í :attr:`ModelEntry.metrics` til birtingar með ``scorecard_lines``."
+        },
+        {
+          "context": "A ``ModelEntry`` with kind ``'encoder'``.",
+          "label": "spacr.embeddings.encoder_entry#6",
+          "source": "A ``ModelEntry`` with kind ``'encoder'``.",
+          "source_sha256": "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813",
+          "translation": "``ModelEntry`` af gerðinni ``'encoder'``."
+        }
+      ],
+      "runtime": [
+        {
+          "key": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+          "source": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+          "source_sha256": "14b8c3fbaae6be33d14464212289691f15123aff1748ce95472252ad04c7b982",
+          "table": "ui",
+          "translation": "Rásastefna: {policy}. Víddir úr ólíkum stefnum eru ekki samanburðarhæfar."
+        },
+        {
+          "key": "No checksum: no readable local checkpoint could be resolved in this environment.",
+          "source": "No checksum: no readable local checkpoint could be resolved in this environment.",
+          "source_sha256": "257ea7ff175817e04ec7aa66640d5acf0404b7957eeda8b1a7d4fd628b3624f8",
+          "table": "ui",
+          "translation": "Engin gátsumma: engin læsileg staðbundin vistun líkans fannst í þessu umhverfi."
+        },
+        {
+          "key": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+          "source": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+          "source_sha256": "f67de6367f729f3a47269b46a604f7152fac3d17ab8cb0c9fd534a72cf37d769",
+          "table": "ui",
+          "translation": "Ekkert mat. Mælið endurheimt með merktum svipgerðarviðmiðum og bætið niðurstöðunum við."
+        }
+      ]
+    },
+    "fr": {
+      "API": [
+        {
+          "context": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+          "label": "spacr.embeddings.encoder_entry#0",
+          "source": "Describe this encoder as a :class:`spacr.model_zoo.ModelEntry`.",
+          "source_sha256": "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+          "translation": "Décrivez cet encodeur comme une :class:`spacr.model_zoo.ModelEntry`."
+        },
+        {
+          "context": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+          "label": "spacr.embeddings.encoder_entry#1",
+          "source": "The entry combines encoder configuration, available checkpoint provenance and optional retrieval metrics. Compare entries only when their channel policies are compatible.",
+          "source_sha256": "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+          "translation": "L’entrée réunit la configuration de l’encodeur, les informations disponibles sur la provenance du point de contrôle et des métriques de recherche facultatives. Comparez uniquement les entrées dont les politiques de canaux sont compatibles."
+        },
+        {
+          "context": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+          "label": "spacr.embeddings.encoder_entry#2",
+          "source": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+          "source_sha256": "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+          "translation": "L’entrée enregistre le réseau de base, la politique des canaux et l’empreinte des octets lisibles du point de contrôle local, sans télécharger ni charger de modèle. Les réseaux de base publics utilisent les métadonnées du cache de timm ; OpenPhenom et ChAda-ViT utilisent des révisions fixées de Hugging Face ; SubCell utilise son point de contrôle officiel de torch hub ; un encodeur DINO local utilise le chemin de point de contrôle configuré. Les entrées des modèles de fondation indiquent le fournisseur d’origine et l’URL du point de contrôle. Une somme de contrôle ne suffit pas à vérifier un modèle ni à établir la provenance de ses données d’entraînement."
+        },
+        {
+          "context": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+          "label": "spacr.embeddings.encoder_entry#3",
+          "source": "If no readable local checkpoint is found, the entry keeps an empty digest and explains this in its notes. :func:`spacr.model_zoo.fetch` refuses entries without a digest.",
+          "source_sha256": "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+          "translation": "Si aucun point de contrôle local lisible n’est trouvé, l’entrée conserve une empreinte vide et l’explique dans ses notes. :func:`spacr.model_zoo.fetch` refuse les entrées sans empreinte."
+        },
+        {
+          "context": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+          "label": "spacr.embeddings.encoder_entry#4",
+          "source": "Encoder configuration; uses ``EmbeddingSpec()`` when omitted.",
+          "source_sha256": "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+          "translation": "Configuration de l’encodeur ; utilise ``EmbeddingSpec()`` si elle est omise."
+        },
+        {
+          "context": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+          "label": "spacr.embeddings.encoder_entry#5",
+          "source": "Optional retrieval metrics measured on labelled controls, stored in :attr:`ModelEntry.metrics` for display by ``scorecard_lines``.",
+          "source_sha256": "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+          "translation": "Métriques de recherche facultatives mesurées avec des témoins étiquetés et enregistrées dans :attr:`ModelEntry.metrics` pour être affichées par ``scorecard_lines``."
+        },
+        {
+          "context": "A ``ModelEntry`` with kind ``'encoder'``.",
+          "label": "spacr.embeddings.encoder_entry#6",
+          "source": "A ``ModelEntry`` with kind ``'encoder'``.",
+          "source_sha256": "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813",
+          "translation": "Une ``ModelEntry`` de type ``'encoder'``."
+        }
+      ],
+      "runtime": [
+        {
+          "key": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+          "source": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+          "source_sha256": "14b8c3fbaae6be33d14464212289691f15123aff1748ce95472252ad04c7b982",
+          "table": "ui",
+          "translation": "Politique des canaux : {policy}. Les dimensions issues de politiques différentes ne sont pas comparables."
+        },
+        {
+          "key": "No checksum: no readable local checkpoint could be resolved in this environment.",
+          "source": "No checksum: no readable local checkpoint could be resolved in this environment.",
+          "source_sha256": "257ea7ff175817e04ec7aa66640d5acf0404b7957eeda8b1a7d4fd628b3624f8",
+          "table": "ui",
+          "translation": "Aucune somme de contrôle : aucun point de contrôle local lisible n’a pu être trouvé dans cet environnement."
+        },
+        {
+          "key": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+          "source": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+          "source_sha256": "f67de6367f729f3a47269b46a604f7152fac3d17ab8cb0c9fd534a72cf37d769",
+          "table": "ui",
+          "translation": "Aucune évaluation. Mesurez la recherche à partir de témoins phénotypiques étiquetés et joignez les résultats."
+        }
+      ]
+    }
+  },
+  "Swedish_retrieval_technical_sense_refined_before_generation": true,
+  "all_seven_API_blocks_technically_reviewed_after_actual_browser_review": true,
+  "no_native_speaker_signoff": true
+}

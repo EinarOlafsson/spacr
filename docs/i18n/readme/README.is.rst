@@ -172,8 +172,6 @@ Skjáborðsforrit
 
 .. spacr-installer-links-end
 
-Fyrstu þremur tákn leyfja núverandi útgáfu. spaCR táknin opnar fullkomið installer arkívu. Installer tengsl og verslun filnames eru uppfærdur af útgáfur vinnuflu; fyrri installerir eru enn í sama útgáfa arkíva.
-
 Í Linux skaltu gera skrána sem var sótt keyranlega og keyra hana:
 
 .. code-block:: bash
@@ -200,7 +198,7 @@ Fyrir útgáfuna á PyPI skaltu setja spaCR upp með pip inni í Conda-umhverfi.
 
 spaCR styður Python **3.9 til 3.14**, nema Python 3.14.1, sem torchvision útilokar. Mælt er með Linux fyrir þyngstu CUDA- og ROCm-verkflæðin; macOS og Windows eru einnig studd og nýta bæði GPU sín — macOS í gegnum Metal, sem nær yfir Apple Silicon og AMD-kortin í Intel-Mac-tölvum, og Windows í gegnum CUDA eða DirectML.
 
-Standað uppsetningu inniheldur Qt skrifstofu samskipti. Fyrir þjónustuna, klúster eða CI runner, hlaða beiti stefnu án að opna það:
+Hefðbundin uppsetning inniheldur Qt-skjáborðsviðmótið. Á þjóni, reikniklasa eða CI-keyrsluumhverfi má keyra skipanalínuverkflæðin án þess að opna það:
 
 .. code-block:: bash
 
@@ -274,7 +272,7 @@ Uppsetning frá frumkóða (létt)
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Í mælingunni 2026-09-15 sótti fullt klón 5,8 GB. Í grunna klóninu minnkaði ``--filter=blob:none`` ekki mælt niðurhal. Skrárnar sem Git fylgist með í nightly taka 1029 MB í vinnutrénu (mælt 2026-10-05), án Git-ferilsins. Stærð niðurhals og tími fara eftir greininni.
+Í mælingunni 2026-09-15 sótti fullt klón 5,8 GB. Í grunna klóninu minnkaði ``--filter=blob:none`` ekki mælt niðurhal. Skrárnar sem Git fylgist með í nightly taka 1710 MB í vinnutrénu (mælt 2026-10-06), án Git-ferilsins. Stærð niðurhals og tími fara eftir greininni.
 
 
 Skipanalínuskipanir
@@ -426,8 +424,6 @@ Quantitative readouts for biological assays.
 .. spacr-workflow-end
 
 Allar einingar sem eiga reit á upphafsskjánum, í sömu röð og þar: fyrst sex einingar vinnslukeðjunnar, síðan hinar. Veldu reit til að opna API-síðu einingarinnar.
-
-Hvert verkfæri er útskýrt í `eiginleikahandbókinni <../../source/features.rst>`_.
 
 Öll aðrar auðlindir
 ~~~~~~~~~~~~~~~~~~~

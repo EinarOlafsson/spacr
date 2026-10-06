@@ -1,0 +1,62 @@
+{
+  "en": {
+    "all_previous_complete_rows_and_source_hashes_identical": 9857,
+    "new_source_bound_notes_exact": 3,
+    "current_complete_rows": 9860,
+    "catalog_sha256": "2c36a54b2dfd7a3cf82dd81383bfe92a6ad046999eb40e44c296a47186bbf3e1"
+  },
+  "sv": {
+    "all_previous_complete_rows_and_source_hashes_identical": 9857,
+    "new_source_bound_notes_exact": 3,
+    "current_complete_rows": 9860,
+    "catalog_sha256": "7ba9f266dab07a661700130056db078a317d7c472e4b99a739484dc68a1f6b78"
+  },
+  "de": {
+    "all_previous_complete_rows_and_source_hashes_identical": 9857,
+    "new_source_bound_notes_exact": 3,
+    "current_complete_rows": 9860,
+    "catalog_sha256": "04c6279b795147b4e66ab13661d03f132755ca21f9dfe474bc6296bdcce612bf"
+  },
+  "es": {
+    "all_previous_complete_rows_and_source_hashes_identical": 9857,
+    "new_source_bound_notes_exact": 3,
+    "current_complete_rows": 9860,
+    "catalog_sha256": "bd3faaa0468a68f9175f2147bc948b0532d8454bdc22872c3f16a660f55f291f"
+  },
+  "zh_CN": {
+    "all_previous_complete_rows_and_source_hashes_identical": 9857,
+    "new_source_bound_notes_exact": 3,
+    "current_complete_rows": 9860,
+    "catalog_sha256": "3a11ded090b57e655e2939422d1a44171c017b8de2176b9d670f89077bd2ea89"
+  },
+  "pt": {
+    "all_previous_complete_rows_and_source_hashes_identical": 9857,
+    "new_source_bound_notes_exact": 3,
+    "current_complete_rows": 9860,
+    "catalog_sha256": "b2c8bbed9904a943eb96837cf1c6534dda85dff794cd679a8ee0667174fb6421"
+  },
+  "hi": {
+    "all_previous_complete_rows_and_source_hashes_identical": 9857,
+    "new_source_bound_notes_exact": 3,
+    "current_complete_rows": 9860,
+    "catalog_sha256": "ccbd2a282f3057e70f085baf297296420c44fd635546e620a7f764d01d1aacf9"
+  },
+  "ko": {
+    "all_previous_complete_rows_and_source_hashes_identical": 9857,
+    "new_source_bound_notes_exact": 3,
+    "current_complete_rows": 9860,
+    "catalog_sha256": "8d1d176cc426311d3709c1b2927a9899f506427c37c853977fb4e96d1f8a5361"
+  },
+  "is": {
+    "all_previous_complete_rows_and_source_hashes_identical": 9857,
+    "new_source_bound_notes_exact": 3,
+    "current_complete_rows": 9860,
+    "catalog_sha256": "55224093aec51d27576c80bd81c7d0583bef34611a07b607e82ca915972d6957"
+  },
+  "fr": {
+    "all_previous_complete_rows_and_source_hashes_identical": 9857,
+    "new_source_bound_notes_exact": 3,
+    "current_complete_rows": 9860,
+    "catalog_sha256": "c8709c85f9ba86bc5059ef9161041bc71cc73840d7477271a06d62b4a1fa2b94"
+  }
+}

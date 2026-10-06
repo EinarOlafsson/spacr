@@ -172,8 +172,6 @@ Les installateurs regroupent leur propre Python. Conda n'est pas nécessaire.
 
 .. spacr-installer-links-end
 
-Les trois premières icônes téléchargent la version actuelle. L'icône spaCR ouvre l'archive complète de l'installateur. Les liens d'installation et les noms de fichiers en version sont mis à jour par le flux de travail de la version; les installateurs précédents restent dans la même archive de version.
-
 Sous Linux, rendez le fichier téléchargé exécutable, puis exécutez-le :
 
 .. code-block:: bash
@@ -200,7 +198,7 @@ Pour la version publiée sur PyPI, installez spaCR avec pip dans un environnemen
 
 spaCR prend en charge Python **3.9 à 3.14**, à l'exception de Python 3.14.1, que torchvision exclut. Linux est recommandé pour les flux de travail CUDA et ROCm les plus lourds; macOS et Windows sont également pris en charge, et tous deux utilisent leurs GPUs — macOS via Metal, qui couvre Apple Silicon et les cartes AMD des Mac Intel, et Windows via CUDA ou DirectML.
 
-L'installation standard comprend l'interface de bureau Qt. Pour un serveur, un cluster ou un coureur CI, exécutez les pipelines en ligne de commande sans l'ouvrir :
+L’installation standard inclut l’interface de bureau Qt. Sur un serveur, un cluster ou un exécuteur CI, lancez les pipelines en ligne de commande sans l’ouvrir :
 
 .. code-block:: bash
 
@@ -274,7 +272,7 @@ Les contributeurs ont besoin de l’historique ; pour simplement exécuter spaCR
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Lors de la mesure du 2026-09-15, le clone complet a téléchargé 5,8 Go. Pour le clone limité à un commit, ``--filter=blob:none`` n’a pas réduit le téléchargement mesuré. Les fichiers suivis de nightly occupent 1029 Mo dans la copie de travail (mesure du 2026-10-05), hors historique Git. La taille et la durée du téléchargement varient selon la branche.
+Lors de la mesure du 2026-09-15, le clone complet a téléchargé 5,8 Go. Pour le clone limité à un commit, ``--filter=blob:none`` n’a pas réduit le téléchargement mesuré. Les fichiers suivis de nightly occupent 1710 Mo dans la copie de travail (mesure du 2026-10-06), hors historique Git. La taille et la durée du téléchargement varient selon la branche.
 
 
 Points d’entrée en ligne de commande
@@ -426,8 +424,6 @@ Quantitative readouts for biological assays.
 .. spacr-workflow-end
 
 Tous les modules ayant une tuile sur l’écran d’accueil, dans l’ordre de cet écran : d’abord les six modules du pipeline, puis les autres. Sélectionnez une tuile pour ouvrir la page API du module.
-
-Chaque outil est décrit dans le `guide des fonctionnalités <../../source/features.rst>`_.
 
 Autres ressources
 ~~~~~~~~~~~~~~~~~
