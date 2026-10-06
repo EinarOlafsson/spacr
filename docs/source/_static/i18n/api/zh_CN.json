@@ -15118,7 +15118,7 @@
         "2daed458812e607f041e55b4d5f2e02a55059df2ed7f124c73170578959ae7cf",
         "c17527dde2936037401da9b251bee988446fcbc033796dbfea243442c461ae63",
         "3939d488f8884ad019e6dfaa1991e3012947f976103941f59d9425efe8000acd",
-        "ed450006c63699d0e2641322bd90b0a56b7bf0fed50bac75f796462f9763ee5b",
+        "d19c2b26ae444add2167122faa9c49c4ddd0bbc38185634a91286afc6f89d1e7",
         "61226e080db4eced080f864b14c884ba5fd2cc8684078ebdb574905b217c9522",
         "106d9e026f2d2681cdb69ef5ad5963ed96667ed9f801164f389bd4aad03ab78c",
         "4f9a9dd2a177bcf90eaf317e829c883bb3f9e42425bc29e5ee62034ef0cd8054",
@@ -15128,8 +15128,8 @@
         "df0cbfc8461e60b6d422e6a304b7cc5c2df95262a05d3556c59f572dd13e7818",
         "b4d2e02a01115d08de9990768b9d3068de6df3925887365d6c5e57f7dcb7f703"
       ],
-      "source_sha256": "5e7bae4cbe79501ac806ac881eb1ac588dc1b212e610f7853b65322d8b5bf7df",
-      "text": "显微镜图像文件夹转换为每个图像数据通道 Cellpose 掩码,可用于 :func:`spacr.measure.measure_crop`。\n\n给定包含多图像数据通道图像的源文件夹 ``src``，该工作流会：(1) 可选地合并嵌套文件夹中的输入；(2) 将文件重命名为下游使用的 Yokogawa 布局；(3) 逐图像数据通道预处理数组；(4) 通过 Cellpose（SAM 变体）为细胞 / 细胞核 / 病原体 / 细胞器图像数据通道生成掩模；(5) 可选地依据细胞核和病原体叠加结果校正细胞掩模；以及 (6) 写出叠加图，并在输出旁保存 ``gen_mask_settings.csv``。\n\n:param settings: 设置关键值地图; 通过 :func:`spacr.settings.set_default_settings_preprocess_generate_masks` 可通化. 必须包含 ``src`` 和至少其中一个 ``cell_channel``, ``nucleus_channel``、 ``pathogen_channel`` 或 ``organelle_channel``. 结构数据输入函数阅读:\n\n    - ``src``(str 或 str 列表) — 图像文件夹(s)处理。\n    - ``metadata_type`` — ``'cellvoyager'`` 或 ``'auto'`` (在设置时使用 ``custom_regex``)。\n    - ``cell_channel`` / ``nucleus_channel`` /``pathogen_channel``/ ``organelle_channel`` — 基于 0 的频道指数; ``None`` 滑板。\n    - ``cell_diameter`` / ``nucleus_diameter``/ ``pathogen_diameter`` — Cellpose 对象直径在像素中。\n    - ``pathogen_model`` 走向A的路 Cellpose-SAM 检查点到分区病原体与,而不是库存 ``cpsam``此前的...SAM ``toxo_pv_lumen`` / ``toxo_cyto`` 命名已消失,决定 ``cpsam``; a PATH 到一个精致的色彩是荣誉的,而一个不存在的路径停止运行而不是沉默地使用库存重量。\n    - ``consolidate`` - 在处理之前将粘贴图像复制到 ``src/consolidated``。\n    - ``preprocess`` / ``masks`` - 将工作流的两半分。\n    - ``adjust_cells`` - 和解细胞掩膜对核 + 病原体。\n    - ``timelapse`` — 允许 trackpy 连接; 力量 ``randomize=False``。\n    - ``motility_analysis`` —— 启用时间序列时，对每个板的已完成合并帧分析一次，并根据当前掩膜重新构建测量结果，而不是复用较旧的检测实验表。\n    - ``robustness_report`` — 掩膜生成后，在一个由直径、阈值和对比度增强设置组成的小型参数网格上重新分割若干抽样视野，将各对象的稳定性报告写入 ``qc/segmentation_robustness_<object>.csv``，并标记结果对哪些设置较为敏感。\n    - ``dry_run`` - 只验证:检查输入文件夹,打印预标报告和计划和返回,没有写任何东西或加载模型。\n    - ``watch_folder`` — 持续监视 ``src``，每个视野的文件到齐且不再变化时即分析该视野，使用 ``watch_pipeline``、``watch_measure_settings``、``watch_settle_seconds``、``watch_poll_seconds`` 和 ``watch_idle_minutes``。结果汇集在 ``src/spacr_watch`` 中，其中的记录让重新启动的监视跳过已分析的视野。\n    - ``microscope_feedback`` — 在 ``watch_folder`` 运行期间，采用 ``watch_pipeline='mask_measure'`` 时，将符合 ``microscope_event_query`` 的对象发送回 ``microscope_driver`` 指定的显微镜，以便在根据 ``microscope_positions`` 和 ``microscope_stage_transform`` 计算出的载物台位置重新成像。\n    - ``src`` 也可以是云地址 (``s3://``、``gs://``、``az://``、``https://``). 对于其中的 OME-Zarr 微孔板，只会把 ``cloud_wells``、``cloud_fields`` 和 ``cloud_level`` 指定的孔、视野和金字塔层级以 TIFFs 形式下载到 ``cloud_cache`` 下的文件夹中，处理过程随后分析该文件夹；云端的图像文件夹则改为镜像到那里。凭据来自标准位置，由 ``cloud_anonymous``、``cloud_profile`` 和 ``cloud_endpoint`` 选择，``cloud_results`` 会把测量文件夹复制回云存储。\n    - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.\n\n:returns: 正常处理时返回 ``None``，此时已将掩膜、叠加图、``measurements.db`` 计数和设置 CSVs 写入 ``src`` 的子文件夹。设置了 ``dry_run`` 时，改为返回 :func:`spacr.validate.run_preflight` 给出的问题列表。设置了 ``watch_folder`` 时，返回一个字典，列出监视结束时已分析、失败和从未完成的视野。\n:raises ValueError: 如果 ``src`` 缺席或错误的类型,或者没有分区频道被定义。\n\n示例：\n    .. code-block:: python\n\n        from spacr.core import preprocess_generate_masks\n        settings = {\n            'src': '/data/plate01',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'cell_diameter': 60, 'nucleus_diameter': 20, 'pathogen_diameter': 8,\n            'magnification': 20, 'save': True, 'plot': True,\n        }\n        preprocess_generate_masks(settings)\n\n此外,请参见: :func:`spacr.io.preprocess_img_data` — 仅预处理的一半. :func:`spacr.measure.measure_crop` — 下流功能提取。\n\nMask 将对象之间的包含关系写入 measurements.db 中的独立表。该表由 Measure 的对象表构建，因此在运行 Measure 之前这些表尚不存在，这并不是失败。",
+      "source_sha256": "91f183d1cf013315decd69da15d0d433789f6705b557edf3008f7240c9ade37d",
+      "text": "显微镜图像文件夹转换为每个图像数据通道 Cellpose 掩码,可用于 :func:`spacr.measure.measure_crop`。\n\n给定包含多图像数据通道图像的源文件夹 ``src``，该工作流会：(1) 可选地合并嵌套文件夹中的输入；(2) 将文件重命名为下游使用的 Yokogawa 布局；(3) 逐图像数据通道预处理数组；(4) 通过 Cellpose（SAM 变体）为细胞 / 细胞核 / 病原体 / 细胞器图像数据通道生成掩模；(5) 可选地依据细胞核和病原体叠加结果校正细胞掩模；以及 (6) 写出叠加图，并在输出旁保存 ``gen_mask_settings.csv``。\n\n:param settings: 设置关键值地图; 通过 :func:`spacr.settings.set_default_settings_preprocess_generate_masks` 可通化. 必须包含 ``src`` 和至少其中一个 ``cell_channel``, ``nucleus_channel``、 ``pathogen_channel`` 或 ``organelle_channel``. 结构数据输入函数阅读:\n\n    - ``src``(str 或 str 列表) — 图像文件夹(s)处理。\n    - ``metadata_type`` — ``'cellvoyager'`` 或 ``'auto'`` (在设置时使用 ``custom_regex``)。\n    - ``cell_channel`` / ``nucleus_channel`` /``pathogen_channel``/ ``organelle_channel`` — 基于 0 的频道指数; ``None`` 滑板。\n    - ``cell_diameter`` / ``nucleus_diameter``/ ``pathogen_diameter`` — Cellpose 对象直径在像素中。\n    - ``pathogen_model`` 走向A的路 Cellpose-SAM 检查点到分区病原体与,而不是库存 ``cpsam``此前的...SAM ``toxo_pv_lumen`` / ``toxo_cyto`` 命名已消失,决定 ``cpsam``; a PATH 到一个精致的色彩是荣誉的,而一个不存在的路径停止运行而不是沉默地使用库存重量。\n    - ``consolidate`` - 在处理之前将粘贴图像复制到 ``src/consolidated``。\n    - ``preprocess`` / ``masks`` - 将工作流的两半分。\n    - ``adjust_cells`` - 和解细胞掩膜对核 + 病原体。\n    - ``timelapse`` — 允许 trackpy 连接; 力量 ``randomize=False``。\n    - ``motility_analysis`` —— 启用时间序列时，对每个板的已完成合并帧分析一次，并根据当前掩膜重新构建测量结果，而不是复用较旧的检测实验表。\n    - ``robustness_report`` — 掩膜生成后，在一个由直径、阈值和对比度增强设置组成的小型参数网格上重新分割若干抽样视野，将各对象的稳定性报告写入 ``qc/segmentation_robustness_<object>.csv``，并标记结果对哪些设置较为敏感。\n    - ``dry_run`` - 只验证:检查输入文件夹,打印预标报告和计划和返回,没有写任何东西或加载模型。\n    - ``watch_folder`` — 持续监视 ``src``，每个视野的文件到齐且不再变化时即分析该视野，使用 ``watch_pipeline``、``watch_measure_settings``、``watch_settle_seconds``、``watch_poll_seconds`` 和 ``watch_idle_minutes``。结果汇集在 ``src/spacr_watch`` 中，其中的记录让重新启动的监视跳过已分析的视野。 ``watch_normalization_pool='fixed_map'`` 则等待声明的整组静态采集完成，并保留常规批处理流程共享的归一化和填充方式。\n    - ``microscope_feedback`` — 在 ``watch_folder`` 运行期间，采用 ``watch_pipeline='mask_measure'`` 时，将符合 ``microscope_event_query`` 的对象发送回 ``microscope_driver`` 指定的显微镜，以便在根据 ``microscope_positions`` 和 ``microscope_stage_transform`` 计算出的载物台位置重新成像。\n    - ``src`` 也可以是云地址 (``s3://``、``gs://``、``az://``、``https://``). 对于其中的 OME-Zarr 微孔板，只会把 ``cloud_wells``、``cloud_fields`` 和 ``cloud_level`` 指定的孔、视野和金字塔层级以 TIFFs 形式下载到 ``cloud_cache`` 下的文件夹中，处理过程随后分析该文件夹；云端的图像文件夹则改为镜像到那里。凭据来自标准位置，由 ``cloud_anonymous``、``cloud_profile`` 和 ``cloud_endpoint`` 选择，``cloud_results`` 会把测量文件夹复制回云存储。\n    - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.\n\n:returns: 正常处理时返回 ``None``，此时已将掩膜、叠加图、``measurements.db`` 计数和设置 CSVs 写入 ``src`` 的子文件夹。设置了 ``dry_run`` 时，改为返回 :func:`spacr.validate.run_preflight` 给出的问题列表。设置了 ``watch_folder`` 时，返回一个字典，列出监视结束时已分析、失败和从未完成的视野。\n:raises ValueError: 如果 ``src`` 缺席或错误的类型,或者没有分区频道被定义。\n\n示例：\n    .. code-block:: python\n\n        from spacr.core import preprocess_generate_masks\n        settings = {\n            'src': '/data/plate01',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'cell_diameter': 60, 'nucleus_diameter': 20, 'pathogen_diameter': 8,\n            'magnification': 20, 'save': True, 'plot': True,\n        }\n        preprocess_generate_masks(settings)\n\n此外,请参见: :func:`spacr.io.preprocess_img_data` — 仅预处理的一半. :func:`spacr.measure.measure_crop` — 下流功能提取。\n\nMask 将对象之间的包含关系写入 measurements.db 中的独立表。该表由 Measure 的对象表构建，因此在运行 Measure 之前这些表尚不存在，这并不是失败。",
       "translation_source_blocks_sha256": [
         "366be24510440a273cbaba7959fe628cb0f26e8c20215e13824a60d0ef5f95e0",
         "5afca811e741b3d6db1bbf2850514b3ac5b11f100ceed1f08a8e759717d5dc42",
@@ -15146,7 +15146,7 @@
         "c10a21efe1c5646a99df8af5c5a50310835dc1607e8b473d383745baba35ad0b",
         "acdcaa0951b6aab6a3821d2f70809475a0ecaa6d5589e985a3d86728186de4a9",
         "3939d488f8884ad019e6dfaa1991e3012947f976103941f59d9425efe8000acd",
-        "ed450006c63699d0e2641322bd90b0a56b7bf0fed50bac75f796462f9763ee5b",
+        "772248a411fc8c43aab760f3767e7b66e98027ca28fd96dfb1fc2e6cd5cbb698",
         "61226e080db4eced080f864b14c884ba5fd2cc8684078ebdb574905b217c9522",
         "4e19fb433627a512a93086d2361ab750a67bd1c8cfc4a75c429ac63159c593b6",
         "4f9a9dd2a177bcf90eaf317e829c883bb3f9e42425bc29e5ee62034ef0cd8054",
@@ -39752,6 +39752,7 @@
         "3b06776bbfb34bb3a589790c3f49acc4eaaee973ee05131b656875888a8366ce",
         "5ff2f96dd29fcebdc9e171a5ac2ad0117d6e7b0882e65621a13b3895ff5bf5d0",
         "752807844ac418ff55cfa383ec1a2190c279d287b9ced37e767630f6844add35",
+        "e9f3a0c5b85e99d5e66b48382b6ae032dcbdd984011e7e0d474b0d1bc52bca16",
         "e0b4f88c95f256c5431b20b0ae14c186ab132a4d8d0491a1d63535a9828b9031",
         "82a7443a521f22d0db1efbef111005193ec33029a94f36fb95cd53315789be28",
         "340c36cf1289b5b38407c3a9a9a6f43c511b691e9a9a7ede69db5e8f48acee4b",
@@ -39766,12 +39767,13 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "5d5edbec44cd72e43ff860526e1ed2f6c29c8e9bcf9f661009474779072cfbee"
       ],
-      "source_sha256": "943da9a7ef5dc1626f4b464aa397e2201ba868db19437f230207deaeb665f953",
-      "text": "显微镜图像转换为标准化、图像数据通道合并的``.npy``堆栈,可随时生成遮罩。\n\n通常由 :func:`spacr.core.preprocess_generate_masks` 在内部调用，但当您只需要预处理这一半时也可以直接调用。默认情况下，它将 z 堆栈转换为 MIP，将文件重命名为 Yokogawa/spacr 布局，将各通道文件夹合并为堆叠的 ``.npy`` 数组（可选背景扣除和百分位归一化），并（在 ``test_mode`` 中）输出示例图。\n\n当 ``z_stack=True`` 且 ``z_segmentation_mode='volumetric'`` 时，一条单独的原始 TIFF 路径会保留 Z。每个视野和通道必须是一个明确标记为 ``ZYX`` 的完整 TIFF 序列。文件名元数据用于识别视野和通道；在写入任何堆栈之前，模糊的轴、重复的通道和缺失的配套文件都会被拒绝。即使 ``save_original_images`` 为假，此路径也会保留原始文件，发布带有完成记录的规范 ``ZYXC`` 堆栈，并一次归一化一个视野。复用时会验证源文件和堆栈的哈希以及相关的处理设置。旧的投影堆栈不能作为体数据复用。此原始体积路径不支持单切片文件布局、时间序列、测试模式抽样以及照明或 PSF 预处理。\n\n对已经处理过的板文件夹再次运行时，会继续之前的进度，而不是从头开始。之前的运行移入 ``orig/`` 的原始图像会从那里读取，并且只构建 ``stack/`` 中缺少的视野。之前运行留下的每个 ``stack/*.npy`` 和 ``masks/*.npz`` 在复用前都会被检查：被截断的文件会重命名为 ``<name>.damaged``，在日志中列出，并重新构建——视野堆栈根据原始图像或通道文件夹重建，归档则根据 ``stack/`` 重建。没有任何可用于构建的来源的视野堆栈会被记录为失败，因此运行会以不完整状态结束，而不是悄悄地缺少该视野；没有任何可用于构建的来源的归档会使运行停止，并给出指明该归档的错误。完全无法构建任何视野时，错误信息会说明该文件夹实际包含的内容。在 ``test_mode`` 下，原始图像已不存在的板会改为从其 ``stack/`` 中抽样。\n\n:param settings: 预处理设置 关键值地图,通过 :func:`spacr.settings.set_default_settings_preprocess_img_data` 可通化。\n\n    - ``src`` — 原始图像文件夹(``.tif/.nd2/.czi/.lif``等)。\n    - ``metadata_type`` — ``'cellvoyager'`` / ``'auto'``;驱动器名称 regex。\n    - ``custom_regex`` - 超越内置的 regex。\n    - ``cell_channel``, ``nucleus_channel``, ``pathogen_channel``, ``organelle_channel``, ``channels`` 频道选择。\n    - ``z_stack`` 和 ``z_segmentation_mode`` 选择上文所述的显式体积 TIFF 路径。其他原始布局保留现有的按视野和通道投影的行为。\n    - ``remove_background_cell`` / ``_nucleus`` / ``_pathogen`` / ``_organelle``，以及每个对象的 ``*_background`` 和 ``*_signal_to_noise`` 值。运行中启用的每个细胞器槽位都使用自己的一对值，例如 ``organelleb_background``。\n    - ``normalize``, ``lower_percentile``, ``save_dtype``.\n    - ``batch_size``, ``randomize``, ``test_mode``, ``test_images``, ``plot``, ``cmap``, ``figuresize``.\n\n:returns: 双 ``(settings, src)`` - ``settings`` 与默认应用和 ``src`` 指向包含所产生的 ``stack/`` / ``channel_stack/`` 输出文件夹(下流掩膜阶段从这里阅读)。\n\n示例：\n    .. code-block:: python\n\n        from spacr.io import preprocess_img_data\n        settings = {\n            'src': '/data/plate01',\n            'metadata_type': 'cellvoyager',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'channels': [0, 1, 2, 3], 'normalize': True,\n        }\n        settings, src = preprocess_img_data(settings)\n\n看也: :func:`spacr.core.preprocess_generate_masks` — 全工作流插槽称之为此,然后产生掩膜。",
+      "source_sha256": "621121f40c5d708fbf8bb1c543c205be1a616f8dfc37496bbd4960c80a1e96e7",
+      "text": "显微镜图像转换为标准化、图像数据通道合并的``.npy``堆栈,可随时生成遮罩。\n\n通常由 :func:`spacr.core.preprocess_generate_masks` 在内部调用，但当您只需要预处理这一半时也可以直接调用。默认情况下，它将 z 堆栈转换为 MIP，将文件重命名为 Yokogawa/spacr 布局，将各通道文件夹合并为堆叠的 ``.npy`` 数组（可选背景扣除和百分位归一化），并（在 ``test_mode`` 中）输出示例图。\n\n当 ``z_stack=True`` 且 ``z_segmentation_mode='volumetric'`` 时，一条单独的原始 TIFF 路径会保留 Z。每个视野和通道必须是一个明确标记为 ``ZYX`` 的完整 TIFF 序列。文件名元数据用于识别视野和通道；在写入任何堆栈之前，模糊的轴、重复的通道和缺失的配套文件都会被拒绝。即使 ``save_original_images`` 为假，此路径也会保留原始文件，发布带有完成记录的规范 ``ZYXC`` 堆栈，并一次归一化一个视野。复用时会验证源文件和堆栈的哈希以及相关的处理设置。旧的投影堆栈不能作为体数据复用。此原始体积路径不支持单切片文件布局、时间序列、测试模式抽样以及照明或 PSF 预处理。\n\n另一条仅用于 Mask 的流程在 ``z_stack`` 和 ``t_stack`` 均开启时，接受固定的 Convert 映射；通道、Z 和时间组成的完整网格中，每个 YX 平面都必须明确标注。该流程为现有的 4-D 分割器生成原生 TZYXC 存档；必须声明物理 Z 间距、帧间隔和 TZYX 轴顺序。源平面保持不变。该流程不启用时间序列跟踪、Measure 或 Classify。\n\n对已经处理过的板文件夹再次运行时，会继续之前的进度，而不是从头开始。之前的运行移入 ``orig/`` 的原始图像会从那里读取，并且只构建 ``stack/`` 中缺少的视野。之前运行留下的每个 ``stack/*.npy`` 和 ``masks/*.npz`` 在复用前都会被检查：被截断的文件会重命名为 ``<name>.damaged``，在日志中列出，并重新构建——视野堆栈根据原始图像或通道文件夹重建，归档则根据 ``stack/`` 重建。没有任何可用于构建的来源的视野堆栈会被记录为失败，因此运行会以不完整状态结束，而不是悄悄地缺少该视野；没有任何可用于构建的来源的归档会使运行停止，并给出指明该归档的错误。完全无法构建任何视野时，错误信息会说明该文件夹实际包含的内容。在 ``test_mode`` 下，原始图像已不存在的板会改为从其 ``stack/`` 中抽样。\n\n:param settings: 预处理设置 关键值地图,通过 :func:`spacr.settings.set_default_settings_preprocess_img_data` 可通化。\n\n    - ``src`` — 原始图像文件夹(``.tif/.nd2/.czi/.lif``等)。\n    - ``metadata_type`` — ``'cellvoyager'`` / ``'auto'``;驱动器名称 regex。\n    - ``custom_regex`` - 超越内置的 regex。\n    - ``cell_channel``, ``nucleus_channel``, ``pathogen_channel``, ``organelle_channel``, ``channels`` 频道选择。\n    - ``z_stack`` 和 ``z_segmentation_mode`` 选择上文所述的显式体积 TIFF 路径。其他原始布局保留现有的按视野和通道投影的行为。\n    - ``remove_background_cell`` / ``_nucleus`` / ``_pathogen`` / ``_organelle``，以及每个对象的 ``*_background`` 和 ``*_signal_to_noise`` 值。运行中启用的每个细胞器槽位都使用自己的一对值，例如 ``organelleb_background``。\n    - ``normalize``, ``lower_percentile``, ``save_dtype``.\n    - ``batch_size``, ``randomize``, ``test_mode``, ``test_images``, ``plot``, ``cmap``, ``figuresize``.\n\n:returns: 双 ``(settings, src)`` - ``settings`` 与默认应用和 ``src`` 指向包含所产生的 ``stack/`` / ``channel_stack/`` 输出文件夹(下流掩膜阶段从这里阅读)。\n\n示例：\n    .. code-block:: python\n\n        from spacr.io import preprocess_img_data\n        settings = {\n            'src': '/data/plate01',\n            'metadata_type': 'cellvoyager',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'channels': [0, 1, 2, 3], 'normalize': True,\n        }\n        settings, src = preprocess_img_data(settings)\n\n看也: :func:`spacr.core.preprocess_generate_masks` — 全工作流插槽称之为此,然后产生掩膜。",
       "translation_source_blocks_sha256": [
         "29074d25b4de61f84b9da910a77b5a61a9653e661848262f92271a0fdbd3b127",
         "042f9846bcefde87aada383075cb164b4e2b122e4b569f35b3df4b58601a2ad2",
         "a9e769313965732d1eeebe52dc7add98f9b9680eb27fff1f1d4995d57336208e",
+        "be4024adbf16ada600bdb3fcfa06379665b1bd21041e7636e1a0b1b7e445e2d3",
         "31136f01dd5786ca9e51386c20af7d9ae5bb4f26ef9493b898fbedbf8059add1",
         "1a0ec09de83e6025fcdb54e72a33d3b22a5a8c40d81aa0b8bac1ad4e7d377954",
         "340c36cf1289b5b38407c3a9a9a6f43c511b691e9a9a7ede69db5e8f48acee4b",
@@ -86277,7 +86279,7 @@
     },
     "spacr.qt.night_themes": {
       "source_blocks_sha256": [
-        "6a3c505fd2f2c4c4dc8ecd8bbf827ae5dcba1a9d17f440d47a480cf1889d35eb",
+        "3b717ab1b4ff3670f7e576b318990b7236a59a2eee7ebfe8546aad1131f28dc4",
         "49ce420028c6eb5eaf9d09cfb9403595e41462862cce337273428410717c1611",
         "e2ae18a447fd3e2c22c635ff634345d154df191d541e9a9e492ce13478ac7d00",
         "9e416ff9a6db162726dfb91a00e8b61ff0fa6476d05142c39c4c7ba3da2c3633",
@@ -86286,10 +86288,10 @@
         "a36a6ba9d297a7db56d4b926e15ad78a98d1f438aa96723f15517149a8ed2555",
         "09a39a86949b19824039f60e3527119b3a05dcbc42c6ca0a9dd37d9c9e7ba1e5"
       ],
-      "source_sha256": "4113ad29bc8e1564ef953861d52a493d581b27c3df06783fadb5c7d5ee176495",
-      "text": "十种夜间配色和六种独立的数据艺术预设。\n\n夜间主题是一次同时改变三样东西的选择：界面的配色（:data:`spacr.qt.theme.THEMES` 因本模块而增加了十个）、在其背后运行哪种环境动画以及使用哪些颜色（:mod:`spacr.qt.widgets.ambient`），以及如果用户曾经开启过声音，spaCR 会播放哪一组音效（:mod:`spacr.qt.sound_synth`）。因此，在偏好设置中选择一个夜间主题，会改变 spaCR 的外观*以及*声音，这正是这一系列主题的全部意义。\n\n本模块有意不依赖 Qt，与 :mod:`spacr.qt.sound_synth` 一样：:mod:`spacr.qt.preferences` 会导入它来验证已存储的主题名称，而在此过程中不能引入 QtGui 或 QtWidgets。它只包含数据和三个查找函数，并且不从 spaCR 的其他部分导入任何内容，因此 :mod:`spacr.qt.theme`、:mod:`spacr.qt.widgets.ambient` 和 :mod:`spacr.qt.sound_synth` 都可以从中读取而不会产生循环依赖。\n\n调色板是字面值而不是生成规则。每套调色板都是根据一个色相和一个饱和度，在共享的亮度梯度上生成的，然后经过 :func:`spacr.qt.theme.contrast_failures` 和 :func:`spacr.qt.theme.page_separation_failures` 检查并写下来。在这里保存数值而不是生成规则，意味着发布的颜色就是经过审阅的颜色，导入时不需要运行任何求解器，而 ``tests/qt/test_ten_night_themes.py`` 评判的正是实际发布的内容。\n\n有三种颜色是根据测量结果偏离生成规则的，而且只有这三种。Nocturne 和 Aphelion 的 ``accent_lo`` 在未加修饰时，``bg`` 与 ``accent_lo`` 之间的对比度未达到 4.5:1——深蓝和深紫在生成规则的亮度下实在太暗——而 Vesper 在 ``spaceout`` 修饰可以达到的六十个色相偏移之一处为 4.49:1，同样未达标。这三种颜色都被调亮到通过为止，其他任何内容都没有改动。参见 ``docs/notes/spacr/qt/night_themes.md``。\n\n有三个角色在所有十个主题中都相同，这是有意为之：``success``、``warning`` 和 ``error``。表示*此次运行失败*的红色不能变成主题决定的事情，因此状态色相不会随着调色板在色轮上转动。``fg`` 在所有十个主题中都是白色，原因与夜间调色板需要白色相同：这里的每个表面都是深色的。\n\n:data:`NIGHT_THEMES` 按色相排序，从暖色到冷色，再绕回玫瑰色，因此 Theme 菜单读起来是一个系列，而不是十个互不相关的条目。\n\n数据艺术目录增加了六种独立的配色预设。其键用于选择不同的动态背景生成器和已有声音集，不改变原有十种夜间主题的标识。其显式颜色覆盖保留了夜间配色稳定的状态颜色，并接受相同的对比度与页面区分规则检查。",
+      "source_sha256": "742e28626ca4ed69ed9da91c29bd52e6a91a15e20bc00edc91e424ce4e5f8979",
+      "text": "十套夜间配色和七种独立的数据艺术预设。\n\n夜间主题是一次同时改变三样东西的选择：界面的配色（:data:`spacr.qt.theme.THEMES` 因本模块而增加了十个）、在其背后运行哪种环境动画以及使用哪些颜色（:mod:`spacr.qt.widgets.ambient`），以及如果用户曾经开启过声音，spaCR 会播放哪一组音效（:mod:`spacr.qt.sound_synth`）。因此，在偏好设置中选择一个夜间主题，会改变 spaCR 的外观*以及*声音，这正是这一系列主题的全部意义。\n\n本模块有意不依赖 Qt，与 :mod:`spacr.qt.sound_synth` 一样：:mod:`spacr.qt.preferences` 会导入它来验证已存储的主题名称，而在此过程中不能引入 QtGui 或 QtWidgets。它只包含数据和三个查找函数，并且不从 spaCR 的其他部分导入任何内容，因此 :mod:`spacr.qt.theme`、:mod:`spacr.qt.widgets.ambient` 和 :mod:`spacr.qt.sound_synth` 都可以从中读取而不会产生循环依赖。\n\n调色板是字面值而不是生成规则。每套调色板都是根据一个色相和一个饱和度，在共享的亮度梯度上生成的，然后经过 :func:`spacr.qt.theme.contrast_failures` 和 :func:`spacr.qt.theme.page_separation_failures` 检查并写下来。在这里保存数值而不是生成规则，意味着发布的颜色就是经过审阅的颜色，导入时不需要运行任何求解器，而 ``tests/qt/test_ten_night_themes.py`` 评判的正是实际发布的内容。\n\n有三种颜色是根据测量结果偏离生成规则的，而且只有这三种。Nocturne 和 Aphelion 的 ``accent_lo`` 在未加修饰时，``bg`` 与 ``accent_lo`` 之间的对比度未达到 4.5:1——深蓝和深紫在生成规则的亮度下实在太暗——而 Vesper 在 ``spaceout`` 修饰可以达到的六十个色相偏移之一处为 4.49:1，同样未达标。这三种颜色都被调亮到通过为止，其他任何内容都没有改动。参见 ``docs/notes/spacr/qt/night_themes.md``。\n\n有三个角色在所有十个主题中都相同，这是有意为之：``success``、``warning`` 和 ``error``。表示*此次运行失败*的红色不能变成主题决定的事情，因此状态色相不会随着调色板在色轮上转动。``fg`` 在所有十个主题中都是白色，原因与夜间调色板需要白色相同：这里的每个表面都是深色的。\n\n:data:`NIGHT_THEMES` 按色相排序，从暖色到冷色，再绕回玫瑰色，因此 Theme 菜单读起来是一个系列，而不是十个互不相关的条目。\n\n数据艺术目录增加了六种独立的配色预设。其键用于选择不同的动态背景生成器和已有声音集，不改变原有十种夜间主题的标识。其显式颜色覆盖保留了夜间配色稳定的状态颜色，并接受相同的对比度与页面区分规则检查。",
       "translation_source_blocks_sha256": [
-        "6a3c505fd2f2c4c4dc8ecd8bbf827ae5dcba1a9d17f440d47a480cf1889d35eb",
+        "3b717ab1b4ff3670f7e576b318990b7236a59a2eee7ebfe8546aad1131f28dc4",
         "49ce420028c6eb5eaf9d09cfb9403595e41462862cce337273428410717c1611",
         "e2ae18a447fd3e2c22c635ff634345d154df191d541e9a9e492ce13478ac7d00",
         "a0c6becab15df4f7908c877535c9fe83bc36e51b647772925eed25075d324f76",
@@ -121255,13 +121257,14 @@
         "0cef3b36e6d08d961e8486542fcd614d3abedfb044b1f8c6a05256faa1e004a5",
         "580223628aa3fcd8efc7e5386ac7cf28a96a05cb0f9366f435f21792d9692c1f",
         "d190b022b3395a6814985c8e77b5c4f67f397a9fab1b5955295bcc03e5cc221d",
+        "3ed52cc085e01b8552746e1341c3d51eb7c1bfe1bbbfa11d0fb6105f031044b4",
         "a0a5d68e444c2333dad8b51f0b06b0b2e9bb775a66e0a9ab9e6403b3a24a1142",
         "ba825fb2ba3ffe475481edde4670e089e625c6292b75cfe805d2cb137cfb3d9d",
         "e3308d2b706272c5c0e7b9d59bb06d7b6cee728a9e6d3ccfd3f9671c539d7b9c",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
       ],
-      "source_sha256": "62e6a09b333d992029a2f71ce48261f80b4a85ed7eefe745b865fecfed8387d2",
-      "text": "直播背景:以 capped 率绘制 :class:`AmbientEngine`。\n\n应用程序视图内容坐在前面,所以它从来没有注意到,是透明的鼠标事件,并将自己降到下方的兄弟排序。 它是完全模糊的 - 它绘制页面颜色(或主题壁纸)本身和动画在顶部 - 所以它覆盖的 widget 没有什么可绘制的下方。\n\n:param parent: 父母 widget; :meth:`follow_parent` 将其大小到此。\n:param theme: 是“:data:`AMBIENT_THEMES`”的。\n:param palette: 这个主题的:func:`palettes_for`。 一个存在但不是由主题提供的板块被下载到主题的默认(钢偏好不应该打破筛选); 一个未知的名字升起。\n:param background: 动画下方的平面颜色;默认到当前主题的页面的颜色。\n:param backdrop: 在动画下绘画的图像,而不是平面颜色 - 一个路径,一个 ``QPixmap``/``QImage``,或 ``None``. 给它空间/细胞壁纸和动画组合在图像上而不是取代它。\n:param fps: 格拉姆率CAP。\n:param seed: RNG 种子,为可重复的动画。\n:param blur: 完成的图像是多么软化; ``None`` 阅读偏好。\n:param speed: 动作加倍器; ``None`` 阅读偏好。\n:param size: 元素尺寸复制器; ``None`` 阅读偏好。\n:param resolution: 有多少细节被阴影,作为主题本身的泡沫上的加倍器; ``None`` 阅读偏好。\n:param density: 有多少元素被拖动,作为主题本身的数数的加倍; ``None`` 阅读偏好。\n:param direction: 星球行走的方式,其中一个是 :data:`DRIFT_DIRECTIONS`; ``None`` 阅读偏好. 对其他主题毫无意义,并保持在任何情况下,转向和回不失去它。\n:param corner_radius: 周围背部的自己的角落,通过这个很多 px; ``0`` 放下它平面。 CLIPPED,不掩膜 - 掩膜区域给楼梯的角落反对卡的反粘膜 - 并应用在基础填充之前,以便平面页面颜色与动画圆,而不是显示在其背后的角落。\n创建 widget 并启动其发动机。\n\n:param parent: 父控件。",
+      "source_sha256": "20fa58f839470344716678293571a6962bafce7393951f7353918548caf87bda",
+      "text": "直播背景:以 capped 率绘制 :class:`AmbientEngine`。\n\n应用程序视图内容坐在前面,所以它从来没有注意到,是透明的鼠标事件,并将自己降到下方的兄弟排序。 它是完全模糊的 - 它绘制页面颜色(或主题壁纸)本身和动画在顶部 - 所以它覆盖的 widget 没有什么可绘制的下方。\n\n:param parent: 父母 widget; :meth:`follow_parent` 将其大小到此。\n:param theme: 是“:data:`AMBIENT_THEMES`”的。\n:param palette: 这个主题的:func:`palettes_for`。 一个存在但不是由主题提供的板块被下载到主题的默认(钢偏好不应该打破筛选); 一个未知的名字升起。\n:param background: 动画下方的平面颜色;默认到当前主题的页面的颜色。\n:param backdrop: 在动画下绘画的图像,而不是平面颜色 - 一个路径,一个 ``QPixmap``/``QImage``,或 ``None``. 给它空间/细胞壁纸和动画组合在图像上而不是取代它。\n:param fps: 格拉姆率CAP。\n:param seed: RNG 种子,为可重复的动画。\n:param blur: 完成的图像是多么软化; ``None`` 阅读偏好。\n:param speed: 动作加倍器; ``None`` 阅读偏好。\n:param size: 元素尺寸复制器; ``None`` 阅读偏好。\n:param resolution: 有多少细节被阴影,作为主题本身的泡沫上的加倍器; ``None`` 阅读偏好。\n:param density: 有多少元素被拖动,作为主题本身的数数的加倍; ``None`` 阅读偏好。\n:param gravity_radius: 指针影响半径，以屏幕较短边的比例表示；零表示禁用。``None`` 从偏好设置中读取。\n:param direction: 星球行走的方式,其中一个是 :data:`DRIFT_DIRECTIONS`; ``None`` 阅读偏好. 对其他主题毫无意义,并保持在任何情况下,转向和回不失去它。\n:param corner_radius: 周围背部的自己的角落,通过这个很多 px; ``0`` 放下它平面。 CLIPPED,不掩膜 - 掩膜区域给楼梯的角落反对卡的反粘膜 - 并应用在基础填充之前,以便平面页面颜色与动画圆,而不是显示在其背后的角落。\n创建 widget 并启动其发动机。\n\n:param parent: 父控件。",
       "translation_source_blocks_sha256": [
         "6b2405a57ba40dda2ade8349d89d37b6808755a8bbd7659f9af91f1aed884b3d",
         "c3db299601a29e434ee8a94f92e7f18e5064a7087ab12773187194126c313e4e",
@@ -121277,6 +121280,7 @@
         "0cef3b36e6d08d961e8486542fcd614d3abedfb044b1f8c6a05256faa1e004a5",
         "580223628aa3fcd8efc7e5386ac7cf28a96a05cb0f9366f435f21792d9692c1f",
         "d190b022b3395a6814985c8e77b5c4f67f397a9fab1b5955295bcc03e5cc221d",
+        "3436310acc80e652bf805eb4117bb4201ad6a428ae8286eb940ba2b4739e07ea",
         "a0a5d68e444c2333dad8b51f0b06b0b2e9bb775a66e0a9ab9e6403b3a24a1142",
         "ba825fb2ba3ffe475481edde4670e089e625c6292b75cfe805d2cb137cfb3d9d",
         "e3308d2b706272c5c0e7b9d59bb06d7b6cee728a9e6d3ccfd3f9671c539d7b9c",
@@ -121437,6 +121441,16 @@
         "0c9a9cdb8d4a0b8b5579b75f5a93d0380ff2406d7faa269c0f1e590381a2584c"
       ]
     },
+    "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius": {
+      "source_blocks_sha256": [
+        "4d99bc4a6f77ddc14ea5c784e7edd4e6d01be1bbec6f33a140f5f0a7832fb338"
+      ],
+      "source_sha256": "4d99bc4a6f77ddc14ea5c784e7edd4e6d01be1bbec6f33a140f5f0a7832fb338",
+      "text": "局部指针引力的归一化作用范围；零表示禁用。",
+      "translation_source_blocks_sha256": [
+        "4d99bc4a6f77ddc14ea5c784e7edd4e6d01be1bbec6f33a140f5f0a7832fb338"
+      ]
+    },
     "spacr.qt.widgets.ambient.AmbientWidget.hideEvent": {
       "source_blocks_sha256": [
         "9a96ba9d3483134ab987cc5989f9c32fd63ff884dab4a7ae7abd508b7ce2f56c",
@@ -121591,6 +121605,18 @@
       "translation_source_blocks_sha256": [
         "880ead64afe1114fbf89f252f04aed307027fd8e0d3455b82f348271e30c3062",
         "bc71fb10ea14d3a145da870b5b90de829102c29ec8d38fe3b4f7da36f76cc4bd"
+      ]
+    },
+    "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius": {
+      "source_blocks_sha256": [
+        "b560c667834411b99831f78c33d36fbe5dc69937966474bc941c172276dd3ffd",
+        "89bda7c32d295da522bff3c65db2b29515436a4cdd570f7e2fa1bade22b6c8c7"
+      ],
+      "source_sha256": "31a03572c8dcc26fd44cfdf09ccb3c4a01c67799c37183a45933e27fdfaaab1e",
+      "text": "应用局部指针作用范围，同时阻止着色过程并发执行。\n\n:param value: 屏幕较短边的比例，限制在 [0, 1] 内；零表示禁用鼠标影响。",
+      "translation_source_blocks_sha256": [
+        "b560c667834411b99831f78c33d36fbe5dc69937966474bc941c172276dd3ffd",
+        "42bcf42edf201965a9bc3f246af69e65531c211ad7ece3b5a9160c79b47dd155"
       ]
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_palette": {

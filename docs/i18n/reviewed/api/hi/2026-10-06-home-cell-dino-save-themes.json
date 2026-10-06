@@ -46,6 +46,8 @@
     {
       "context": "Ten night palettes and six separate data-art presets.",
       "label": "spacr.qt.night_themes#0",
+      "retired": true,
+      "retired_reason": "2026-10-06 Home radius/native-watch source replaces this exact block; complete original review is archived byte-exact.",
       "source": "Ten night palettes and six separate data-art presets.",
       "source_sha256": "6a3c505fd2f2c4c4dc8ecd8bbf827ae5dcba1a9d17f440d47a480cf1889d35eb",
       "translation": "दस रात्रि पैलेट और डेटा कला के छह अलग प्रीसेट।"

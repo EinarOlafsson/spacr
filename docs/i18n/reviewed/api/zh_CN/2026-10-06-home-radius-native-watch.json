@@ -1,0 +1,56 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "``watch_folder`` — keep watching ``src`` and analyse each microscope field of view as its files arrive and stop changing, with ``watch_pipeline``, ``watch_measure_settings``, ``watch_settle_seconds``, ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather in ``src/spacr_watch``, and a record there lets a restarted watch skip the microscope fields of view already analysed. ``watch_normalization_pool='fixed_map'`` instead waits for the entire declared static acquisition and retains the ordinary batch recipe's shared normalization and padding.",
+      "label": "spacr.core.preprocess_generate_masks#15",
+      "source": "``watch_folder`` — keep watching ``src`` and analyse each field as its files arrive and stop changing, with ``watch_pipeline``, ``watch_measure_settings``, ``watch_settle_seconds``, ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather in ``src/spacr_watch``, and a record there lets a restarted watch skip the fields already analysed. ``watch_normalization_pool='fixed_map'`` instead waits for the entire declared static acquisition and retains the ordinary batch recipe's shared normalization and padding.",
+      "source_sha256": "d19c2b26ae444add2167122faa9c49c4ddd0bbc38185634a91286afc6f89d1e7",
+      "translation": "``watch_folder`` — 持续监视 ``src``，每个视野的文件到齐且不再变化时即分析该视野，使用 ``watch_pipeline``、``watch_measure_settings``、``watch_settle_seconds``、``watch_poll_seconds`` 和 ``watch_idle_minutes``。结果汇集在 ``src/spacr_watch`` 中，其中的记录让重新启动的监视跳过已分析的视野。 ``watch_normalization_pool='fixed_map'`` 则等待声明的整组静态采集完成，并保留常规批处理流程共享的归一化和填充方式。"
+    },
+    {
+      "context": "A separate Mask-only route accepts a fixed Convert map with every explicitly labelled YX image layer in a dense image data channel-by-Z-by-time grid when ``z_stack`` and ``t_stack`` are both on. It builds native TZYXC archives for the existing 4-D segmenter; physical Z and frame spacing and TZYX axis order must be declared. The planar sources remain unchanged. Timelapse tracking, Measure and Classify are not enabled by this route.",
+      "label": "spacr.io.preprocess_img_data#3",
+      "source": "A separate Mask-only route accepts a fixed Convert map with every explicitly labelled YX plane in a dense channel-by-Z-by-time grid when ``z_stack`` and ``t_stack`` are both on. It builds native TZYXC archives for the existing 4-D segmenter; physical Z and frame spacing and TZYX axis order must be declared. The planar sources remain unchanged. Timelapse tracking, Measure and Classify are not enabled by this route.",
+      "source_sha256": "e9f3a0c5b85e99d5e66b48382b6ae032dcbdd984011e7e0d474b0d1bc52bca16",
+      "translation": "另一条仅用于 Mask 的流程在 ``z_stack`` 和 ``t_stack`` 均开启时，接受固定的 Convert 映射；通道、Z 和时间组成的完整网格中，每个 YX 平面都必须明确标注。该流程为现有的 4-D 分割器生成原生 TZYXC 存档；必须声明物理 Z 间距、帧间隔和 TZYX 轴顺序。源平面保持不变。该流程不启用时间序列跟踪、Measure 或 Classify。"
+    },
+    {
+      "context": "Ten night palettes and seven separate data-art presets.",
+      "label": "spacr.qt.night_themes#0",
+      "source": "Ten night palettes and seven separate data-art presets.",
+      "source_sha256": "3b717ab1b4ff3670f7e576b318990b7236a59a2eee7ebfe8546aad1131f28dc4",
+      "translation": "十套夜间配色和七种独立的数据艺术预设。"
+    },
+    {
+      "context": "pointer influence radius, as a fraction of the shorter application view edge; zero disables it. ``None`` reads Preferences.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget#14",
+      "source": "pointer influence radius, as a fraction of the shorter screen edge; zero disables it. ``None`` reads Preferences.",
+      "source_sha256": "3ed52cc085e01b8552746e1341c3d51eb7c1bfe1bbbfa11d0fb6105f031044b4",
+      "translation": "指针影响半径，以屏幕较短边的比例表示；零表示禁用。``None`` 从偏好设置中读取。"
+    },
+    {
+      "context": "The normalized reach of local pointer gravity; zero disables it.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius#0",
+      "source": "The normalized reach of local pointer gravity; zero disables it.",
+      "source_sha256": "4d99bc4a6f77ddc14ea5c784e7edd4e6d01be1bbec6f33a140f5f0a7832fb338",
+      "translation": "局部指针引力的归一化作用范围；零表示禁用。"
+    },
+    {
+      "context": "Apply local pointer reach while excluding a concurrent shade pass.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius#0",
+      "source": "Apply local pointer reach while excluding a concurrent shade pass.",
+      "source_sha256": "b560c667834411b99831f78c33d36fbe5dc69937966474bc941c172276dd3ffd",
+      "translation": "应用局部指针作用范围，同时阻止着色过程并发执行。"
+    },
+    {
+      "context": "fraction of the shorter application view edge, clamped to [0, 1]; zero disables mouse influence.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius#1",
+      "source": "fraction of the shorter screen edge, clamped to [0, 1]; zero disables mouse influence.",
+      "source_sha256": "89bda7c32d295da522bff3c65db2b29515436a4cdd570f7e2fa1bade22b6c8c7",
+      "translation": "屏幕较短边的比例，限制在 [0, 1] 内；零表示禁用鼠标影响。"
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff.",
+  "schema": 1
+}

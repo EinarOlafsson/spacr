@@ -1,0 +1,56 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "``watch_folder`` — keep watching ``src`` and analyse each microscope field of view as its files arrive and stop changing, with ``watch_pipeline``, ``watch_measure_settings``, ``watch_settle_seconds``, ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather in ``src/spacr_watch``, and a record there lets a restarted watch skip the microscope fields of view already analysed. ``watch_normalization_pool='fixed_map'`` instead waits for the entire declared static acquisition and retains the ordinary batch recipe's shared normalization and padding.",
+      "label": "spacr.core.preprocess_generate_masks#15",
+      "source": "``watch_folder`` — keep watching ``src`` and analyse each field as its files arrive and stop changing, with ``watch_pipeline``, ``watch_measure_settings``, ``watch_settle_seconds``, ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather in ``src/spacr_watch``, and a record there lets a restarted watch skip the fields already analysed. ``watch_normalization_pool='fixed_map'`` instead waits for the entire declared static acquisition and retains the ordinary batch recipe's shared normalization and padding.",
+      "source_sha256": "d19c2b26ae444add2167122faa9c49c4ddd0bbc38185634a91286afc6f89d1e7",
+      "translation": "``watch_folder`` — ``src`` 를 계속 감시하면서 각 시야의 파일이 도착해 더 이상 바뀌지 않으면 그 시야를 분석하며, ``watch_pipeline``, ``watch_measure_settings``, ``watch_settle_seconds``, ``watch_poll_seconds``, ``watch_idle_minutes`` 를 사용합니다. 결과는 ``src/spacr_watch`` 에 모이고, 그곳의 기록 덕분에 다시 시작한 감시는 이미 분석한 시야를 건너뜁니다. ``watch_normalization_pool='fixed_map'``는 대신 선언된 정적 이미지 획득 전체가 완료될 때까지 기다리고 일반 배치 처리의 공유 정규화와 패딩을 유지합니다."
+    },
+    {
+      "context": "A separate Mask-only route accepts a fixed Convert map with every explicitly labelled YX image layer in a dense image data channel-by-Z-by-time grid when ``z_stack`` and ``t_stack`` are both on. It builds native TZYXC archives for the existing 4-D segmenter; physical Z and frame spacing and TZYX axis order must be declared. The planar sources remain unchanged. Timelapse tracking, Measure and Classify are not enabled by this route.",
+      "label": "spacr.io.preprocess_img_data#3",
+      "source": "A separate Mask-only route accepts a fixed Convert map with every explicitly labelled YX plane in a dense channel-by-Z-by-time grid when ``z_stack`` and ``t_stack`` are both on. It builds native TZYXC archives for the existing 4-D segmenter; physical Z and frame spacing and TZYX axis order must be declared. The planar sources remain unchanged. Timelapse tracking, Measure and Classify are not enabled by this route.",
+      "source_sha256": "e9f3a0c5b85e99d5e66b48382b6ae032dcbdd984011e7e0d474b0d1bc52bca16",
+      "translation": "``z_stack``과 ``t_stack``이 모두 켜져 있을 때 별도의 Mask 전용 경로는 채널, Z, 시간으로 구성된 완전한 격자의 모든 YX 평면에 명시적인 라벨이 있는 고정 Convert 매핑을 받습니다. 기존 4-D 분할기를 위한 원본 TZYXC 아카이브를 만들며, 물리적 Z 간격, 프레임 간격 및 TZYX 축 순서를 선언해야 합니다. 원본 평면은 변경되지 않습니다. 이 경로는 타임랩스 추적, Measure 또는 Classify를 활성화하지 않습니다."
+    },
+    {
+      "context": "Ten night palettes and seven separate data-art presets.",
+      "label": "spacr.qt.night_themes#0",
+      "source": "Ten night palettes and seven separate data-art presets.",
+      "source_sha256": "3b717ab1b4ff3670f7e576b318990b7236a59a2eee7ebfe8546aad1131f28dc4",
+      "translation": "열 가지 야간 팔레트와 일곱 가지 별도의 데이터 아트 프리셋입니다."
+    },
+    {
+      "context": "pointer influence radius, as a fraction of the shorter application view edge; zero disables it. ``None`` reads Preferences.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget#14",
+      "source": "pointer influence radius, as a fraction of the shorter screen edge; zero disables it. ``None`` reads Preferences.",
+      "source_sha256": "3ed52cc085e01b8552746e1341c3d51eb7c1bfe1bbbfa11d0fb6105f031044b4",
+      "translation": "화면의 짧은 변에 대한 비율로 나타낸 포인터 영향 반경이며, 0은 비활성화합니다. ``None``은 환경설정에서 읽습니다."
+    },
+    {
+      "context": "The normalized reach of local pointer gravity; zero disables it.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius#0",
+      "source": "The normalized reach of local pointer gravity; zero disables it.",
+      "source_sha256": "4d99bc4a6f77ddc14ea5c784e7edd4e6d01be1bbec6f33a140f5f0a7832fb338",
+      "translation": "국소 포인터 중력의 정규화된 작용 범위이며, 0은 비활성화합니다."
+    },
+    {
+      "context": "Apply local pointer reach while excluding a concurrent shade pass.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius#0",
+      "source": "Apply local pointer reach while excluding a concurrent shade pass.",
+      "source_sha256": "b560c667834411b99831f78c33d36fbe5dc69937966474bc941c172276dd3ffd",
+      "translation": "동시에 음영 처리 단계가 실행되지 않도록 하면서 국소 포인터 범위를 적용합니다."
+    },
+    {
+      "context": "fraction of the shorter application view edge, clamped to [0, 1]; zero disables mouse influence.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius#1",
+      "source": "fraction of the shorter screen edge, clamped to [0, 1]; zero disables mouse influence.",
+      "source_sha256": "89bda7c32d295da522bff3c65db2b29515436a4cdd570f7e2fa1bade22b6c8c7",
+      "translation": "화면의 짧은 변에 대한 비율로 [0, 1] 범위로 제한되며, 0은 마우스 영향을 비활성화합니다."
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff.",
+  "schema": 1
+}

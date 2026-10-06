@@ -1,0 +1,56 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "``watch_folder`` — keep watching ``src`` and analyse each microscope field of view as its files arrive and stop changing, with ``watch_pipeline``, ``watch_measure_settings``, ``watch_settle_seconds``, ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather in ``src/spacr_watch``, and a record there lets a restarted watch skip the microscope fields of view already analysed. ``watch_normalization_pool='fixed_map'`` instead waits for the entire declared static acquisition and retains the ordinary batch recipe's shared normalization and padding.",
+      "label": "spacr.core.preprocess_generate_masks#15",
+      "source": "``watch_folder`` — keep watching ``src`` and analyse each field as its files arrive and stop changing, with ``watch_pipeline``, ``watch_measure_settings``, ``watch_settle_seconds``, ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather in ``src/spacr_watch``, and a record there lets a restarted watch skip the fields already analysed. ``watch_normalization_pool='fixed_map'`` instead waits for the entire declared static acquisition and retains the ordinary batch recipe's shared normalization and padding.",
+      "source_sha256": "d19c2b26ae444add2167122faa9c49c4ddd0bbc38185634a91286afc6f89d1e7",
+      "translation": "``watch_folder`` — ``src`` weiter überwachen und jedes Sichtfeld analysieren, sobald seine Dateien eingetroffen sind und sich nicht mehr ändern, mit ``watch_pipeline``, ``watch_measure_settings``, ``watch_settle_seconds``, ``watch_poll_seconds`` und ``watch_idle_minutes``. Die Ergebnisse sammeln sich in ``src/spacr_watch``, und ein dortiger Eintrag lässt eine neu gestartete Überwachung die bereits analysierten Sichtfelder überspringen. ``watch_normalization_pool='fixed_map'`` wartet stattdessen auf die gesamte deklarierte statische Aufnahme und behält die gemeinsame Normalisierung und das Auffüllen des üblichen Stapelverfahrens bei."
+    },
+    {
+      "context": "A separate Mask-only route accepts a fixed Convert map with every explicitly labelled YX image layer in a dense image data channel-by-Z-by-time grid when ``z_stack`` and ``t_stack`` are both on. It builds native TZYXC archives for the existing 4-D segmenter; physical Z and frame spacing and TZYX axis order must be declared. The planar sources remain unchanged. Timelapse tracking, Measure and Classify are not enabled by this route.",
+      "label": "spacr.io.preprocess_img_data#3",
+      "source": "A separate Mask-only route accepts a fixed Convert map with every explicitly labelled YX plane in a dense channel-by-Z-by-time grid when ``z_stack`` and ``t_stack`` are both on. It builds native TZYXC archives for the existing 4-D segmenter; physical Z and frame spacing and TZYX axis order must be declared. The planar sources remain unchanged. Timelapse tracking, Measure and Classify are not enabled by this route.",
+      "source_sha256": "e9f3a0c5b85e99d5e66b48382b6ae032dcbdd984011e7e0d474b0d1bc52bca16",
+      "translation": "Ein separater Ablauf nur für Mask akzeptiert eine feste Convert-Zuordnung mit jeder ausdrücklich bezeichneten YX-Ebene in einem vollständigen Raster aus Kanal, Z und Zeit, wenn ``z_stack`` und ``t_stack`` eingeschaltet sind. Er erstellt native TZYXC-Archive für den vorhandenen 4-D-Segmentierer; physikalischer Z-Abstand, Bildintervall und TZYX-Achsenreihenfolge müssen angegeben werden. Die ebenen Quelldaten bleiben unverändert. Dieser Ablauf aktiviert weder Zeitreihenverfolgung noch Measure oder Classify."
+    },
+    {
+      "context": "Ten night palettes and seven separate data-art presets.",
+      "label": "spacr.qt.night_themes#0",
+      "source": "Ten night palettes and seven separate data-art presets.",
+      "source_sha256": "3b717ab1b4ff3670f7e576b318990b7236a59a2eee7ebfe8546aad1131f28dc4",
+      "translation": "Zehn Nachtpaletten und sieben separate Voreinstellungen für Datenkunst."
+    },
+    {
+      "context": "pointer influence radius, as a fraction of the shorter application view edge; zero disables it. ``None`` reads Preferences.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget#14",
+      "source": "pointer influence radius, as a fraction of the shorter screen edge; zero disables it. ``None`` reads Preferences.",
+      "source_sha256": "3ed52cc085e01b8552746e1341c3d51eb7c1bfe1bbbfa11d0fb6105f031044b4",
+      "translation": "Einflussradius des Zeigers als Anteil der kürzeren Bildschirmkante; null deaktiviert ihn. ``None`` liest die Einstellungen."
+    },
+    {
+      "context": "The normalized reach of local pointer gravity; zero disables it.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius#0",
+      "source": "The normalized reach of local pointer gravity; zero disables it.",
+      "source_sha256": "4d99bc4a6f77ddc14ea5c784e7edd4e6d01be1bbec6f33a140f5f0a7832fb338",
+      "translation": "Die normalisierte Reichweite der lokalen Zeigergravitation; null deaktiviert sie."
+    },
+    {
+      "context": "Apply local pointer reach while excluding a concurrent shade pass.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius#0",
+      "source": "Apply local pointer reach while excluding a concurrent shade pass.",
+      "source_sha256": "b560c667834411b99831f78c33d36fbe5dc69937966474bc941c172276dd3ffd",
+      "translation": "Die lokale Zeigerreichweite einstellen und dabei einen gleichzeitigen Schattierungsschritt ausschließen."
+    },
+    {
+      "context": "fraction of the shorter application view edge, clamped to [0, 1]; zero disables mouse influence.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius#1",
+      "source": "fraction of the shorter screen edge, clamped to [0, 1]; zero disables mouse influence.",
+      "source_sha256": "89bda7c32d295da522bff3c65db2b29515436a4cdd570f7e2fa1bade22b6c8c7",
+      "translation": "Anteil der kürzeren Bildschirmkante, auf [0, 1] begrenzt; null deaktiviert den Mauseinfluss."
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff.",
+  "schema": 1
+}

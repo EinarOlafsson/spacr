@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "Accepted catalog translation carried forward for unchanged source blocks; AI technical review, no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.io.preprocess_img_data#0",
+      "source": "Convert raw microscopy images into normalized, channel-merged ``.npy`` stacks ready for mask generation.",
+      "source_sha256": "3b06776bbfb34bb3a589790c3f49acc4eaaee973ee05131b656875888a8366ce",
+      "context": "Convert raw microscopy images into normalized, image data channel-merged ``.npy`` stacks ready for mask generation.",
+      "translation": "Konvertir rauðmikroskópi myndum í normalized, mynd gögn kanna-merkt ``.npy`` stacks tilbúinn fyrir maska framleiðslu.",
+      "review_basis": "Carried verbatim from the accepted, audited catalog entry for this unchanged source block; AI technical review only, no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#4",
+      "source": "Preprocessing settings dict, canonicalized via :func:`spacr.settings.set_default_settings_preprocess_img_data`. Key entries:",
+      "source_sha256": "82a7443a521f22d0db1efbef111005193ec33029a94f36fb95cd53315789be28",
+      "context": "Preprocessing settings key-value mapping, canonicalized via :func:`spacr.settings.set_default_settings_preprocess_img_data`. Structured-data entries:",
+      "translation": "Fráframleiðslu settingar key-value mapping, kanonicalized með :func:`spacr.settings.set_default_settings_preprocess_img_data`.",
+      "review_basis": "Carried verbatim from the accepted, audited catalog entry for this unchanged source block; AI technical review only, no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#5",
+      "source": "``src`` — folder of raw images (``.tif/.nd2/.czi/.lif`` etc.).",
+      "source_sha256": "340c36cf1289b5b38407c3a9a9a6f43c511b691e9a9a7ede69db5e8f48acee4b",
+      "context": "``src`` — folder of raw images (``.tif/.nd2/.czi/.lif`` etc.).",
+      "translation": "``src`` — skáld af rauðmyndum (``.tif/.nd2/.czi/.lif``, etc.)",
+      "review_basis": "Carried verbatim from the accepted, audited catalog entry for this unchanged source block; AI technical review only, no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#6",
+      "source": "``metadata_type`` — ``'cellvoyager'`` / ``'auto'``; drives filename regex.",
+      "source_sha256": "6b3a051f3b59d057f3ca118adfb628f6bf235e9d2311247cc3178744631fc603",
+      "context": "``metadata_type`` — ``'cellvoyager'`` / ``'auto'``; drives filename regex.",
+      "translation": "``metadata_type`` — ``'cellvoyager'`` / ``'auto'``; dreifir filenám regex.",
+      "review_basis": "Carried verbatim from the accepted, audited catalog entry for this unchanged source block; AI technical review only, no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#7",
+      "source": "``custom_regex`` — override the built-in regex.",
+      "source_sha256": "3207a085ee8822704e20bd63ced3ca2b47332b6d54e9a1ca4de170009f36807e",
+      "context": "``custom_regex`` — override the built-in regex.",
+      "translation": "``custom_regex`` — yfirrita innbyggðri regjeks.",
+      "review_basis": "Carried verbatim from the accepted, audited catalog entry for this unchanged source block; AI technical review only, no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#8",
+      "source": "``cell_channel``, ``nucleus_channel``, ``pathogen_channel``, ``organelle_channel``, ``channels`` — channel selection.",
+      "source_sha256": "56edd9d16e46c33f077f13ce3455e67369d51009b3cf22dd34f6f80b74946344",
+      "context": "``cell_channel``, ``nucleus_channel``, ``pathogen_channel``, ``organelle_channel``, ``channels`` — channel selection.",
+      "translation": "``cell_channel``, ``nucleus_channel``, ``pathogen_channel``, ``organelle_channel``, ``channels`` — útval kanna.",
+      "review_basis": "Carried verbatim from the accepted, audited catalog entry for this unchanged source block; AI technical review only, no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#11",
+      "source": "``normalize``, ``lower_percentile``, ``save_dtype``.",
+      "source_sha256": "957eec1d2e6e629ab2aad949436067bb55702dcfcc1736fa327ae4a9b971a9ef",
+      "context": "``normalize``, ``lower_percentile``, ``save_dtype``.",
+      "translation": "``normalize``, ``lower_percentile``, ``save_dtype``.",
+      "review_basis": "Carried verbatim from the accepted, audited catalog entry for this unchanged source block; AI technical review only, no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#12",
+      "source": "``batch_size``, ``randomize``, ``test_mode``, ``test_images``, ``plot``, ``cmap``, ``figuresize``.",
+      "source_sha256": "1f364cbdcb9750dcf7d4a5509934ea653a748d79f485a694676f75ffc1c40b64",
+      "context": "``batch_size``, ``randomize``, ``test_mode``, ``test_images``, ``plot``, ``cmap``, ``figuresize``.",
+      "translation": "``batch_size``, ``randomize``, ``test_mode``, ``test_images``, ``plot``, ``cmap``, ``figuresize``.",
+      "review_basis": "Carried verbatim from the accepted, audited catalog entry for this unchanged source block; AI technical review only, no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#13",
+      "source": "Tuple ``(settings, src)`` — ``settings`` with defaults applied and ``src`` pointing at the folder containing the generated ``stack/`` / ``channel_stack/`` outputs (the downstream mask stage reads from here).",
+      "source_sha256": "1f93f2d6aa2e43e0bdc2c66cd3a80ff04f4dff553a6f4965c20f5de9cd39a713",
+      "context": "Tuple ``(settings, src)`` — ``settings`` with defaults applied and ``src`` pointing at the folder containing the generated ``stack/`` / ``channel_stack/`` outputs (the downstream mask stage reads from here).",
+      "translation": "Tólf ``(settings, src)`` — ``settings`` með fyrirvalda notað og ``src`` að sýna á skáldinu sem inniheldur ``stack/`` / ``channel_stack/`` útgangar (þrýst niðurhæð maska staður lesa hér).",
+      "review_basis": "Carried verbatim from the accepted, audited catalog entry for this unchanged source block; AI technical review only, no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#14",
+      "source": "Example:",
+      "source_sha256": "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
+      "context": "Example:",
+      "translation": "Dæmi:",
+      "review_basis": "Carried verbatim from the accepted, audited catalog entry for this unchanged source block; AI technical review only, no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#15",
+      "source": "See Also: :func:`spacr.core.preprocess_generate_masks` — full pipeline wrapper that calls this then generates masks.",
+      "source_sha256": "5d5edbec44cd72e43ff860526e1ed2f6c29c8e9bcf9f661009474779072cfbee",
+      "context": "See Also: :func:`spacr.core.preprocess_generate_masks` — full workflow wrapper that calls this then generates masks.",
+      "translation": "Sjá einnig: :func:`spacr.core.preprocess_generate_masks` — fullur vinnu flutning wrapper sem kalla þetta þá framleiðir maskar.",
+      "review_basis": "Carried verbatim from the accepted, audited catalog entry for this unchanged source block; AI technical review only, no native-speaker signoff."
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "``watch_folder`` — keep watching ``src`` and analyse each microscope field of view as its files arrive and stop changing, with ``watch_pipeline``, ``watch_measure_settings``, ``watch_settle_seconds``, ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather in ``src/spacr_watch``, and a record there lets a restarted watch skip the microscope fields of view already analysed. ``watch_normalization_pool='fixed_map'`` instead waits for the entire declared static acquisition and retains the ordinary batch recipe's shared normalization and padding.",
+      "label": "spacr.core.preprocess_generate_masks#15",
+      "source": "``watch_folder`` — keep watching ``src`` and analyse each field as its files arrive and stop changing, with ``watch_pipeline``, ``watch_measure_settings``, ``watch_settle_seconds``, ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather in ``src/spacr_watch``, and a record there lets a restarted watch skip the fields already analysed. ``watch_normalization_pool='fixed_map'`` instead waits for the entire declared static acquisition and retains the ordinary batch recipe's shared normalization and padding.",
+      "source_sha256": "d19c2b26ae444add2167122faa9c49c4ddd0bbc38185634a91286afc6f89d1e7",
+      "translation": "``watch_folder`` — continue de surveiller ``src`` et analyse chaque champ de vue dès que ses fichiers sont arrivés et ne changent plus, avec ``watch_pipeline``, ``watch_measure_settings``, ``watch_settle_seconds``, ``watch_poll_seconds`` et ``watch_idle_minutes``. Les résultats sont regroupés dans ``src/spacr_watch``, et un enregistrement à cet endroit permet à une surveillance redémarrée d’ignorer les champs déjà analysés. ``watch_normalization_pool='fixed_map'`` attend au contraire toute l’acquisition statique déclarée et conserve la normalisation et le remplissage partagés de la procédure habituelle par lots."
+    },
+    {
+      "context": "A separate Mask-only route accepts a fixed Convert map with every explicitly labelled YX image layer in a dense image data channel-by-Z-by-time grid when ``z_stack`` and ``t_stack`` are both on. It builds native TZYXC archives for the existing 4-D segmenter; physical Z and frame spacing and TZYX axis order must be declared. The planar sources remain unchanged. Timelapse tracking, Measure and Classify are not enabled by this route.",
+      "label": "spacr.io.preprocess_img_data#3",
+      "source": "A separate Mask-only route accepts a fixed Convert map with every explicitly labelled YX plane in a dense channel-by-Z-by-time grid when ``z_stack`` and ``t_stack`` are both on. It builds native TZYXC archives for the existing 4-D segmenter; physical Z and frame spacing and TZYX axis order must be declared. The planar sources remain unchanged. Timelapse tracking, Measure and Classify are not enabled by this route.",
+      "source_sha256": "e9f3a0c5b85e99d5e66b48382b6ae032dcbdd984011e7e0d474b0d1bc52bca16",
+      "translation": "Une voie distincte réservée à Mask accepte un plan fixe de Convert dont chaque plan YX est explicitement étiqueté dans une grille complète de canaux, Z et temps lorsque ``z_stack`` et ``t_stack`` sont activés. Elle crée des archives TZYXC natives pour le segmentateur 4-D existant ; l’espacement physique en Z, l’intervalle entre images et l’ordre des axes TZYX doivent être déclarés. Les plans sources restent inchangés. Cette voie n’active ni le suivi temporel, ni Measure, ni Classify."
+    },
+    {
+      "context": "Ten night palettes and seven separate data-art presets.",
+      "label": "spacr.qt.night_themes#0",
+      "source": "Ten night palettes and seven separate data-art presets.",
+      "source_sha256": "3b717ab1b4ff3670f7e576b318990b7236a59a2eee7ebfe8546aad1131f28dc4",
+      "translation": "Dix palettes nocturnes et sept préréglages distincts d’art de données."
+    },
+    {
+      "context": "pointer influence radius, as a fraction of the shorter application view edge; zero disables it. ``None`` reads Preferences.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget#14",
+      "source": "pointer influence radius, as a fraction of the shorter screen edge; zero disables it. ``None`` reads Preferences.",
+      "source_sha256": "3ed52cc085e01b8552746e1341c3d51eb7c1bfe1bbbfa11d0fb6105f031044b4",
+      "translation": "rayon d’influence du pointeur, exprimé en fraction du côté le plus court de l’écran ; zéro le désactive. ``None`` lit les préférences."
+    },
+    {
+      "context": "The normalized reach of local pointer gravity; zero disables it.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius#0",
+      "source": "The normalized reach of local pointer gravity; zero disables it.",
+      "source_sha256": "4d99bc4a6f77ddc14ea5c784e7edd4e6d01be1bbec6f33a140f5f0a7832fb338",
+      "translation": "Portée normalisée de la gravité locale du pointeur ; zéro la désactive."
+    },
+    {
+      "context": "Apply local pointer reach while excluding a concurrent shade pass.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius#0",
+      "source": "Apply local pointer reach while excluding a concurrent shade pass.",
+      "source_sha256": "b560c667834411b99831f78c33d36fbe5dc69937966474bc941c172276dd3ffd",
+      "translation": "Applique la portée locale du pointeur en empêchant une passe d’ombrage simultanée."
+    },
+    {
+      "context": "fraction of the shorter application view edge, clamped to [0, 1]; zero disables mouse influence.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius#1",
+      "source": "fraction of the shorter screen edge, clamped to [0, 1]; zero disables mouse influence.",
+      "source_sha256": "89bda7c32d295da522bff3c65db2b29515436a4cdd570f7e2fa1bade22b6c8c7",
+      "translation": "fraction du côté le plus court de l’écran, limitée à [0, 1] ; zéro désactive l’influence de la souris."
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff.",
+  "schema": 1
+}

@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.io.preprocess_img_data#1",
+      "source": "Usually invoked internally by :func:`spacr.core.preprocess_generate_masks`, but callable directly when you only want the preprocessing half. By default it converts z-stacks to MIPs, renames files into the Yokogawa/spacr layout, merges per-channel folders into stacked ``.npy`` arrays with optional background subtraction and percentile normalization, and (in ``test_mode``) emits example plots.",
+      "source_sha256": "5ff2f96dd29fcebdc9e171a5ac2ad0117d6e7b0882e65621a13b3895ff5bf5d0",
+      "context": "Usually invoked internally by :func:`spacr.core.preprocess_generate_masks`, but callable directly when you only want the preprocessing half. By default it converts z-stacks to MIPs, renames files into the Yokogawa/spacr layout, merges per-image data channel folders into stacked ``.npy`` arrays with optional background subtraction and percentile normalization, and (in ``test_mode``) emits example plots.",
+      "translation": "Anropas vanligtvis internt av :func:`spacr.core.preprocess_generate_masks`, men kan anropas direkt när du bara vill ha förbehandlingshalvan. Som standard omvandlar den z-stackar till MIP:er, byter namn på filer till Yokogawa/spacr-layouten, slår samman mappar per kanal till staplade ``.npy``-arrayer med valfri bakgrundssubtraktion och percentilnormalisering, och (i ``test_mode``) skapar exempeldiagram.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#2",
+      "source": "With ``z_stack=True`` and ``z_segmentation_mode='volumetric'``, a separate raw TIFF route preserves Z. Each field/channel must be one complete TIFF series explicitly labelled ``ZYX``. Filename metadata identifies the field and channel; ambiguous axes, duplicate channels and missing companions are refused before any stack is written. This route retains the original files even if ``save_original_images`` is false, publishes canonical ``ZYXC`` stacks with a completion record, and normalises one field at a time. Reuse verifies source and stack hashes and relevant processing settings. An old projected stack cannot be reused as a volume. Individual slice-file layouts, time-series, test-mode sampling and illumination or PSF preprocessing are not supported by this raw volumetric route.",
+      "source_sha256": "752807844ac418ff55cfa383ec1a2190c279d287b9ced37e767630f6844add35",
+      "context": "With ``z_stack=True`` and ``z_segmentation_mode='volumetric'``, a separate raw TIFF route preserves Z. Each microscope field of view/image data channel must be one complete TIFF series explicitly labelled ``ZYX``. Filename metadata identifies the microscope field of view and image data channel; ambiguous axes, duplicate image data channels and missing companions are refused before any stack is written. This route retains the original files even if ``save_original_images`` is false, publishes canonical ``ZYXC`` stacks with a completion record, and normalises one microscope field of view at a time. Reuse verifies source and stack hashes and relevant processing settings. An old projected stack cannot be reused as a volume. Individual slice-file layouts, time-series, test-mode sampling and illumination or PSF preprocessing are not supported by this raw volumetric route.",
+      "translation": "Med ``z_stack=True`` och ``z_segmentation_mode='volumetric'`` bevarar en separat väg för råa TIFF-filer Z. Varje fält och kanal måste vara en fullständig TIFF-serie som uttryckligen är märkt ``ZYX``. Metadata i filnamnet anger fält och kanal; tvetydiga axlar, dubblerade kanaler och saknade motsvarigheter avvisas innan någon stack skrivs. Den här vägen behåller originalfilerna även om ``save_original_images`` är falskt, publicerar kanoniska ``ZYXC``-stackar med en slutförandepost och normaliserar ett fält i taget. Vid återanvändning kontrolleras hashvärden för källa och stack samt relevanta bearbetningsinställningar. En gammal projicerad stack kan inte återanvändas som volym. Layouter med enskilda snittfiler, tidsserier, sampling i testläge samt belysnings- eller PSF-förbehandling stöds inte av den här råa volymetriska vägen.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#9",
+      "source": "``z_stack`` and ``z_segmentation_mode`` select the explicit volumetric TIFF route described above. Other raw layouts retain the existing per-field/channel projection behavior.",
+      "source_sha256": "4482e2824d99fb361e767cfbc3bfaf8e2dab751d99920f89e95931613ad6c318",
+      "context": "``z_stack`` and ``z_segmentation_mode`` select the explicit volumetric TIFF route described above. Other raw layouts retain the existing per-microscope field of view/image data channel projection behavior.",
+      "translation": "``z_stack`` och ``z_segmentation_mode`` väljer den uttryckliga volymetriska TIFF-vägen som beskrivs ovan. Andra råa layouter behåller den befintliga projektionen per fält och kanal.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

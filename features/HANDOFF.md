@@ -1,5 +1,18 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 workstation latest frozen API checkpoint accepted
+Normal API generator38785 has reached terminal exit0, with nine locales and
+13,195symbols. Independent full preservation checker43493 also exits0:
+13,189 unrelated complete API records per catalog remain exact; all63 new
+reviewed targets and every complete original runtime/API review are preserved.
+All628 unrelated accepted tutorial artifacts are byte-identical; the sole
+Embeddings ZIP change retains its earlier accepted hash. Complete logs,
+checker, admission evidence and hashes are in
+data/615_latest_home_API_2026-10-06.json. Newer Home, the user-requested mask
+editing fixes and event VideoMAE backend still need normal integration and
+source-current refresh. This is local acceptance, not website publication.
+Item615 and the entire user goal remain OPEN.
+
 ## 2026-10-06 workstation seven-theme runtime and guide checkpoint
 The integrated seven-theme/radius/native-watch source now passes normal
 runtime generation and full audit for all nine locales: 9,922 entries each.

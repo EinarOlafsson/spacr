@@ -1520,3 +1520,12 @@ Receipt: data/615_latest_home_runtime_guides_2026-10-06.json. API normal
 refresh handle 38785 is live, not accepted. Newer Home source/refinements,
 strict Sphinx/browser/publication and remaining GPU acceptance still remain.
 N615 and the full goal stay OPEN; no native Save-crash fix is claimed.
+
+2026-10-06 latest frozen API acceptance completed:
+Normal nine-language regeneration38785 and complete preservation43493 both
+exit0:13,195symbols per catalog,13,189 unchanged complete original records
+per catalog,63 exact reviewed targets, complete original review history and
+628 unchanged accepted tutorial artifacts. Full evidence and source boundary
+are in data/615_latest_home_API_2026-10-06.json. Newer Home/mask/event source
+integration, source-current generation, Sphinx/browser/publication and
+remaining GPU science are still OPEN. No broad completion claim is made.
