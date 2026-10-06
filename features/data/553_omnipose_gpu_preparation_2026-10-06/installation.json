@@ -1,0 +1,33 @@
+{
+  "normal_isolated_installation_complete": true,
+  "torch_index": "https://download.pytorch.org/whl/cu128",
+  "backend": "omnipose",
+  "environment": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/553-omnipose-gpu-r1/backends/omnipose",
+  "record": {
+    "backend": "omnipose",
+    "device": "cpu",
+    "installed": "2026-10-06 01:25:57",
+    "interpreter": [
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python3.12"
+    ],
+    "licence": "Omnipose NonCommercial License (University of Washington)",
+    "packages": {
+      "numpy": "2.5.2",
+      "omnipose": "1.1.4",
+      "torch": "2.11.0+cu128"
+    },
+    "protocol": 1,
+    "python": "3.12.14",
+    "requirements": [
+      "omnipose==1.1.4",
+      "ncolor==1.5.3"
+    ],
+    "torch": [
+      "torch",
+      "torchvision"
+    ],
+    "torch_index": "https://download.pytorch.org/whl/cu128"
+  },
+  "cuda_inference_acceptance": false,
+  "scope": "Normal isolated installer with CUDA hidden; actual inference remains separate."
+}
