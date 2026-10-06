@@ -854,3 +854,17 @@ Compact immutable source/test/coverage/probe receipts and two lossless stills:
     and balanced shader improvement close this exact optimization child; hard
     24FPS/all-settings smoothness and installedSaveSIGSEGV remain OPEN.
     Source-bound root logs: data/43_packed_source_final_checkpoint_2026-10-06/.
+
+2026-10-06 — unchanged Preferences rendering child100%
+    Six widget setters now preserve the ready frame when both widget and
+    engine motion values are unchanged. Changed controls and externally
+    changed engines still receive the requested state and immediate pixels.
+    No shader, geometry, native detail, palette, runtime string, signature or
+    docstring changes. Broader321 and final17focused cases pass (overlapping);
+    all22added statements/13touching arcs are reached. Exact six old setters
+    versus current source08815be8 on actual4K maximum controls: unchanged
+    background-update ABBA599/587ms ->0.145/0.096ms and5->0GUIshades. This is
+    not whole-dialog Save latency. ActualMainWindow three modalSaves preserve
+    alphaFF, nine naturalGUI-thread GC callbacks and0widgets/0ambient/0workers
+    after close. No whole-RSS/crash fix/hard24FPS/aesthetic acceptance claim.
+    Exact sources/probes/logs: data/663_unchanged_preferences_cpu_2026-10-06/.

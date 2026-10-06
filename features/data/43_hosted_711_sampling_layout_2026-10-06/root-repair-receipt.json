@@ -1,0 +1,13 @@
+{
+  "failed_source_sha": "711999b77d1da51ca189fdf43f470021d1048037",
+  "run_id": 37525318185,
+  "job_id": 112485364813,
+  "log_sha256": "5e0acd52f1e730a2e35613056145faff4e28a547ae9239c8aed7b8a858651e01",
+  "repair_commit": "f69b2ead76518d8489ac9b44af82e6ef2b2725a8",
+  "integrated_commit": "c6dad9e9a66479927b85cdb5843505221a322652",
+  "changed_tests": {
+    "tests/qt/test_600_popup_layout_and_selection.py": "5214d3cf58804d66d27f6cc167bae594bc9c905f94ff7d30309f045aee049998",
+    "tests/qt/test_preview_set_sampling.py": "d6f9b9a5e931a3a1d57f5df98d9b82ef0f91e4b221c3ff8376f9c9d0a742eaf4"
+  },
+  "validation": "44 affected tests pass; real merged.npy first read is explicitly counted; all toolbar alignment checks remain."
+}

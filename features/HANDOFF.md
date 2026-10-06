@@ -1,5 +1,36 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 unchanged Preferences rendering and exact hosted711 repair
+Home renderer now freezes at
+08815be8f5e01de4ae87517290197d3c1747eff65b4e39afbd5f2f0e1d3b8a28,
+superseding ac146 only in six widget control setters. Unchanged motion skips
+redundant shading; both widget and engine values must match, so an externally
+changed engine still gets repaired. No shader, palette, geometry, pixel/detail,
+runtime caption, signature or docstring changes. Broader321 and final17focused
+cases pass; all22added statements/13touching arcs are reached. Native4K maximum
+controls exact-six-setter ABBA599/587ms ->0.145/0.096ms,5->0GUIshades, measures
+only apply_ambient_preferences. Actual MainWindow three modalSaves/alphaFF/
+nine GUI-threadGC callbacks pass with0widgets/0ambient/0workers after close.
+Whole-RSS, hard24FPS and installedSaveSIGSEGV remain OPEN. Complete immutable
+sources/receipts: data/663_unchanged_preferences_cpu_2026-10-06/.
+
+Exact711 compat37525317682 is terminalSUCCESS, all17jobs/all8mandatory
+platform cells; hostedLint/types/complexity is alsoSUCCESS. Ordinary711
+coverage11 found two stale test assertions: Clear-all absent from the curation
+order, and preview counter counting scikit-image's internal lookup NPYs.
+f69/c6dad fixes both while preserving toolbar alignment and every experiment
+image read, including an explicit actual mergedNPY read. All44affectedcases
+pass. Fullfailedlog/platformstates: data/43_hosted_711_sampling_layout_2026-10-06/.
+This is not ordinary/Qt acceptance; their new-source verdict remains required.
+
+Workstation: consume this renderer for normal source-current owner regeneration;
+it adds no translated source or callable boundary. All pending broader Random/
+IO/Prefs/Safe/mask/template/catalogue actions below still apply. Protected live
+b779serial37503577012 and pending45f37521372347 remain untouched, and neither
+accepts this final renderer. Native downstream archive-memory work is isolated,
+not published or accepted yet; do not claim whole-pipeline/scientific closure.
+EveryGPU/API/docs/translations/tutorial remains workstation-owned.
+
 ## 2026-10-06 final exact packed Random source and owner freeze update
 Latest Home renderer is ambientac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20;
 app5fc990e6, Preferences733f9af0 and io6ef38e31 remain unchanged.

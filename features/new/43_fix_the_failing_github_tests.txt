@@ -2807,3 +2807,15 @@ Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
     and station mask source. Complete source-bound receipts:
     data/43_45f_platform_and_complexity_2026-10-06/. Source-current overall
     GitHub/coverage/serial acceptance remains OPEN; protected runs untouched.
+
+2026-10-06 — exact711 platform acceptance and two local test repairs
+    All17compatibilityjobs/all8mandatory wheel/source platform cells pass on
+    711999b77d, as does hosted lint/types/complexity. Ordinary coverage11 then
+    fails two old test assumptions: Clear-all missing from the exact action
+    order, and lazy scikit-image lookup NPY files counted as preview sources.
+    f69/c6dad repairs only these assertions, preserving all layout alignment
+    checks and every actual experiment image read; an actual mergedNPY read
+    is explicitly counted. Both full affected files pass44cases under4GiB,
+    CUDAhidden/offscreen. No guard/ceiling or required CI condition is lifted.
+    Full failedlog/current platform states/source receipts:
+    data/43_hosted_711_sampling_layout_2026-10-06/. Parent43/288/47remainOPEN.
