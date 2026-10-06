@@ -258,3 +258,30 @@ final source-bound live motion, lifecycle and coverage must be repeated.
 Item 663 remains OPEN pending that acceptance and the requested smoothness.
 Offline 24 fps previews alone are not evidence of actual publication cadence.
 No GPU, new spacr module, dependency, sound asset or guard allowance is added.
+
+2026-10-06 — REAL CLOCK STARVATION REPAIRED; LIVE NATIVE ACCEPTANCE MEASURED
+Source063c066e7 applies a bounded immutable GUI input snapshot: cumulative
+elapsed time, latest pointer and at most sixteen serial-tagged click events.
+Either the GUI (only when its lock attempt succeeds) or the producer consumes
+new input exactly once under the engine lock before a frame. Slow rendering
+therefore cannot monopolize clock advancement. Explicit time/speed controls
+flush earlier offered ticks first; pause/theme changes retire old input.
+The worker never queries a widget, application or autonomous wall clock.
+All eleven focused slow-shader/control/clock cases pass; independent coverage
+hits all67added executable lines and branches. Six legacy cases also pass.
+
+Root exact integrated ten-file cohort passes523cases under4GiB. Actual-source
+before/after worker receipts preserve the original failure: 51 native4K atlas
+publications shared one clock before, versus59distinct clocks for59publications
+after; native4K lens was68publications/11clocks, then50/50. All six artworks
+have distinct clocks on every sampled1080/native4K publication, and every
+worker retires on hide. The sampled1080 cadence is23.85-24.21fps. Native4K
+is19.05atlas/24.06facets/24.00chromatin/20.64advection/15.85lens/23.85fungal fps,
+so remaining active-lens optimization is still open and no blanket24fps claim
+is made. The native shaders' ASTs are unchanged by the clock repair; gallery
+media retain their explicitly frozen earlier source. Six actual1080 videos,
+native1080/4Kstills and18verified links are in final/review/index.html.
+Compact immutable evidence/probes are in
+features/data/663_theme_refinement_2026-10-06/.
+Item663 remains OPEN for smoothness acceptance; source/menu/clock repairs
+are tested without relaxing caps or hiding the slower4K cases.

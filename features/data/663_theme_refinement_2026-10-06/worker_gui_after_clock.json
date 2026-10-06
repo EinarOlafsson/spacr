@@ -1,0 +1,645 @@
+{
+  "renderer_sha256": "dfa2ef65f69598560b5d9a9e8aa6a334d5dfc55c9e7708c2ca2834b22733cf97",
+  "imported_renderer": "/mnt/wd4tb/scratch/theme-refinement-20261006/after_clock/ambient.py",
+  "qt_platform": "offscreen",
+  "scope": "real AmbientWidget timer + FrameProducer + offscreen QWidget paints; source unchanged; synthetic local pointer and QTest click",
+  "screen_budget_override": "Offscreen QScreen size replaced by explicit native viewport pixel area only for this measurement",
+  "records": [
+    {
+      "family": "point_atlas",
+      "display": [
+        1920,
+        1080
+      ],
+      "buffer": [
+        1920,
+        1080
+      ],
+      "max_pixels": 2073600,
+      "requested_fps": 24,
+      "actual_widget_rate_cap": 24,
+      "elapsed_seconds": 2.9667547830031253,
+      "published_frames": 71,
+      "published_fps": 23.931873441905967,
+      "distinct_published_animation_clocks": 71,
+      "painted_frames": 73,
+      "painted_fps": 24.60601072195966,
+      "repeated_frame_objects": 3,
+      "worker_shade_copy": {
+        "median_ms": 19.000629996298812,
+        "p95_ms": 30.996733010397293,
+        "max_ms": 32.904719992075115,
+        "samples": 71
+      },
+      "gui_paint": {
+        "median_ms": 1.2516679998952895,
+        "p95_ms": 2.8311360074440017,
+        "max_ms": 6.357778998790309,
+        "samples": 73
+      },
+      "gui_10ms_heartbeat": {
+        "median_ms": 10.075586003949866,
+        "p95_ms": 11.345973995048553,
+        "max_ms": 15.520614993874915,
+        "samples": 295
+      },
+      "publication_intervals": {
+        "median_ms": 41.683638002723455,
+        "p95_ms": 50.216974996146746,
+        "max_ms": 53.742458010674454,
+        "samples": 70
+      },
+      "load_average": [
+        2.97216796875,
+        3.00146484375,
+        3.40380859375
+      ],
+      "lens_pending_clicks_at_end": 0,
+      "lens_active_impulses_at_end": 0,
+      "worker_stopped_after_hide": true
+    },
+    {
+      "family": "point_atlas",
+      "display": [
+        3840,
+        2160
+      ],
+      "buffer": [
+        3840,
+        2160
+      ],
+      "max_pixels": 8294400,
+      "requested_fps": 24,
+      "actual_widget_rate_cap": 24,
+      "elapsed_seconds": 3.096669530001236,
+      "published_frames": 59,
+      "published_fps": 19.05272726986029,
+      "distinct_published_animation_clocks": 59,
+      "painted_frames": 75,
+      "painted_fps": 24.219568563381724,
+      "repeated_frame_objects": 17,
+      "worker_shade_copy": {
+        "median_ms": 48.70480501267593,
+        "p95_ms": 79.23188399581704,
+        "max_ms": 95.41949800041039,
+        "samples": 59
+      },
+      "gui_paint": {
+        "median_ms": 6.26986198767554,
+        "p95_ms": 9.158765999018215,
+        "max_ms": 11.936923998291604,
+        "samples": 75
+      },
+      "gui_10ms_heartbeat": {
+        "median_ms": 10.09097600763198,
+        "p95_ms": 16.782453007181175,
+        "max_ms": 28.49512499233242,
+        "samples": 302
+      },
+      "publication_intervals": {
+        "median_ms": 48.86431100021582,
+        "p95_ms": 79.33100099035073,
+        "max_ms": 95.46201600460336,
+        "samples": 58
+      },
+      "load_average": [
+        2.974609375,
+        3.0009765625,
+        3.4013671875
+      ],
+      "lens_pending_clicks_at_end": 0,
+      "lens_active_impulses_at_end": 0,
+      "worker_stopped_after_hide": true
+    },
+    {
+      "family": "tissue_facets",
+      "display": [
+        1920,
+        1080
+      ],
+      "buffer": [
+        1920,
+        1080
+      ],
+      "max_pixels": 2073600,
+      "requested_fps": 24,
+      "actual_widget_rate_cap": 24,
+      "elapsed_seconds": 3.1442162200110033,
+      "published_frames": 75,
+      "published_fps": 23.853321385046964,
+      "distinct_published_animation_clocks": 75,
+      "painted_frames": 77,
+      "painted_fps": 24.489409955314883,
+      "repeated_frame_objects": 1,
+      "worker_shade_copy": {
+        "median_ms": 5.481537999003194,
+        "p95_ms": 9.180855005979538,
+        "max_ms": 12.147817993536592,
+        "samples": 75
+      },
+      "gui_paint": {
+        "median_ms": 1.256788003956899,
+        "p95_ms": 2.0141730055911466,
+        "max_ms": 3.1121969950618222,
+        "samples": 77
+      },
+      "gui_10ms_heartbeat": {
+        "median_ms": 10.06906600377988,
+        "p95_ms": 10.616087995003909,
+        "max_ms": 13.74530399334617,
+        "samples": 313
+      },
+      "publication_intervals": {
+        "median_ms": 41.857618001813535,
+        "p95_ms": 43.844716987223364,
+        "max_ms": 48.48119299276732,
+        "samples": 74
+      },
+      "load_average": [
+        2.974609375,
+        3.0009765625,
+        3.4013671875
+      ],
+      "lens_pending_clicks_at_end": 0,
+      "lens_active_impulses_at_end": 0,
+      "worker_stopped_after_hide": true
+    },
+    {
+      "family": "tissue_facets",
+      "display": [
+        3840,
+        2160
+      ],
+      "buffer": [
+        3840,
+        2160
+      ],
+      "max_pixels": 8294400,
+      "requested_fps": 24,
+      "actual_widget_rate_cap": 24,
+      "elapsed_seconds": 2.950952426996082,
+      "published_frames": 71,
+      "published_fps": 24.060028670904178,
+      "distinct_published_animation_clocks": 71,
+      "painted_frames": 72,
+      "painted_fps": 24.39890231415635,
+      "repeated_frame_objects": 8,
+      "worker_shade_copy": {
+        "median_ms": 28.603811995708384,
+        "p95_ms": 38.2112240040442,
+        "max_ms": 41.11487900081556,
+        "samples": 71
+      },
+      "gui_paint": {
+        "median_ms": 6.446865991165396,
+        "p95_ms": 13.382646997342817,
+        "max_ms": 27.564286996494047,
+        "samples": 72
+      },
+      "gui_10ms_heartbeat": {
+        "median_ms": 10.101006002514623,
+        "p95_ms": 31.50896599981934,
+        "max_ms": 37.826006999239326,
+        "samples": 231
+      },
+      "publication_intervals": {
+        "median_ms": 41.2343990028603,
+        "p95_ms": 49.882518011145294,
+        "max_ms": 54.070059006335214,
+        "samples": 70
+      },
+      "load_average": [
+        3.13720703125,
+        3.0341796875,
+        3.41015625
+      ],
+      "lens_pending_clicks_at_end": 0,
+      "lens_active_impulses_at_end": 0,
+      "worker_stopped_after_hide": true
+    },
+    {
+      "family": "chromatin_ribbon",
+      "display": [
+        1920,
+        1080
+      ],
+      "buffer": [
+        1920,
+        1080
+      ],
+      "max_pixels": 2073600,
+      "requested_fps": 24,
+      "actual_widget_rate_cap": 24,
+      "elapsed_seconds": 2.8500344379863236,
+      "published_frames": 69,
+      "published_fps": 24.210233771333506,
+      "distinct_published_animation_clocks": 69,
+      "painted_frames": 70,
+      "painted_fps": 24.561106724541236,
+      "repeated_frame_objects": 1,
+      "worker_shade_copy": {
+        "median_ms": 2.655392003362067,
+        "p95_ms": 4.404003993840888,
+        "max_ms": 4.954685995471664,
+        "samples": 69
+      },
+      "gui_paint": {
+        "median_ms": 1.2385989975882694,
+        "p95_ms": 1.940475995070301,
+        "max_ms": 3.0934980022720993,
+        "samples": 70
+      },
+      "gui_10ms_heartbeat": {
+        "median_ms": 10.069981501146685,
+        "p95_ms": 10.772184003144503,
+        "max_ms": 13.854381002602167,
+        "samples": 284
+      },
+      "publication_intervals": {
+        "median_ms": 41.77897200133884,
+        "p95_ms": 42.80078300507739,
+        "max_ms": 43.39057399192825,
+        "samples": 68
+      },
+      "load_average": [
+        3.0458984375,
+        3.0166015625,
+        3.40234375
+      ],
+      "lens_pending_clicks_at_end": 0,
+      "lens_active_impulses_at_end": 0,
+      "worker_stopped_after_hide": true
+    },
+    {
+      "family": "chromatin_ribbon",
+      "display": [
+        3840,
+        2160
+      ],
+      "buffer": [
+        3840,
+        2160
+      ],
+      "max_pixels": 8294400,
+      "requested_fps": 24,
+      "actual_widget_rate_cap": 24,
+      "elapsed_seconds": 3.000006394999218,
+      "published_frames": 72,
+      "published_fps": 23.99994884011531,
+      "distinct_published_animation_clocks": 72,
+      "painted_frames": 73,
+      "painted_fps": 24.33328146289469,
+      "repeated_frame_objects": 1,
+      "worker_shade_copy": {
+        "median_ms": 11.303950996079948,
+        "p95_ms": 16.22098300140351,
+        "max_ms": 20.98994499829132,
+        "samples": 72
+      },
+      "gui_paint": {
+        "median_ms": 6.306990995653905,
+        "p95_ms": 10.166103995288722,
+        "max_ms": 17.735033005010337,
+        "samples": 73
+      },
+      "gui_10ms_heartbeat": {
+        "median_ms": 10.064367001177743,
+        "p95_ms": 20.539019998977892,
+        "max_ms": 26.31238898902666,
+        "samples": 293
+      },
+      "publication_intervals": {
+        "median_ms": 41.94062099850271,
+        "p95_ms": 47.00187500566244,
+        "max_ms": 47.90203498851042,
+        "samples": 71
+      },
+      "load_average": [
+        3.20263671875,
+        3.0498046875,
+        3.4111328125
+      ],
+      "lens_pending_clicks_at_end": 0,
+      "lens_active_impulses_at_end": 0,
+      "worker_stopped_after_hide": true
+    },
+    {
+      "family": "genetic_advection",
+      "display": [
+        1920,
+        1080
+      ],
+      "buffer": [
+        1920,
+        1080
+      ],
+      "max_pixels": 2073600,
+      "requested_fps": 24,
+      "actual_widget_rate_cap": 24,
+      "elapsed_seconds": 2.857148900991888,
+      "published_frames": 69,
+      "published_fps": 24.14994891447413,
+      "distinct_published_animation_clocks": 69,
+      "painted_frames": 70,
+      "painted_fps": 24.49994817410419,
+      "repeated_frame_objects": 3,
+      "worker_shade_copy": {
+        "median_ms": 14.74401199084241,
+        "p95_ms": 23.156933995778672,
+        "max_ms": 29.467685002600774,
+        "samples": 69
+      },
+      "gui_paint": {
+        "median_ms": 1.2697879938059486,
+        "p95_ms": 2.3110540059860796,
+        "max_ms": 3.4800150024238974,
+        "samples": 70
+      },
+      "gui_10ms_heartbeat": {
+        "median_ms": 10.076751495944336,
+        "p95_ms": 10.684127002605237,
+        "max_ms": 11.93542500550393,
+        "samples": 284
+      },
+      "publication_intervals": {
+        "median_ms": 41.94163699867204,
+        "p95_ms": 45.04667900619097,
+        "max_ms": 52.74838399782311,
+        "samples": 68
+      },
+      "load_average": [
+        3.20263671875,
+        3.0498046875,
+        3.4111328125
+      ],
+      "lens_pending_clicks_at_end": 0,
+      "lens_active_impulses_at_end": 0,
+      "worker_stopped_after_hide": true
+    },
+    {
+      "family": "genetic_advection",
+      "display": [
+        3840,
+        2160
+      ],
+      "buffer": [
+        3840,
+        2160
+      ],
+      "max_pixels": 8294400,
+      "requested_fps": 24,
+      "actual_widget_rate_cap": 24,
+      "elapsed_seconds": 3.1497940219996963,
+      "published_frames": 65,
+      "published_fps": 20.63627003734477,
+      "distinct_published_animation_clocks": 65,
+      "painted_frames": 76,
+      "painted_fps": 24.1285618898185,
+      "repeated_frame_objects": 11,
+      "worker_shade_copy": {
+        "median_ms": 41.34704299212899,
+        "p95_ms": 67.52153699926566,
+        "max_ms": 78.21997300197836,
+        "samples": 65
+      },
+      "gui_paint": {
+        "median_ms": 6.7165774962631986,
+        "p95_ms": 15.362172009190544,
+        "max_ms": 18.143350011087023,
+        "samples": 76
+      },
+      "gui_10ms_heartbeat": {
+        "median_ms": 10.0884660059819,
+        "p95_ms": 18.949292993056588,
+        "max_ms": 25.39614999841433,
+        "samples": 298
+      },
+      "publication_intervals": {
+        "median_ms": 45.15236150473356,
+        "p95_ms": 67.55092499952298,
+        "max_ms": 78.25569099804852,
+        "samples": 64
+      },
+      "load_average": [
+        3.2666015625,
+        3.06591796875,
+        3.41455078125
+      ],
+      "lens_pending_clicks_at_end": 0,
+      "lens_active_impulses_at_end": 0,
+      "worker_stopped_after_hide": true
+    },
+    {
+      "family": "impulse_lens",
+      "display": [
+        1920,
+        1080
+      ],
+      "buffer": [
+        1920,
+        1080
+      ],
+      "max_pixels": 2073600,
+      "requested_fps": 24,
+      "actual_widget_rate_cap": 24,
+      "elapsed_seconds": 2.8498774809995666,
+      "published_frames": 68,
+      "published_fps": 23.86067487229299,
+      "distinct_published_animation_clocks": 68,
+      "painted_frames": 69,
+      "painted_fps": 24.21156714982671,
+      "repeated_frame_objects": 3,
+      "worker_shade_copy": {
+        "median_ms": 12.491921494074631,
+        "p95_ms": 16.071449004812166,
+        "max_ms": 19.26853299664799,
+        "samples": 68
+      },
+      "gui_paint": {
+        "median_ms": 1.1695419962052256,
+        "p95_ms": 1.8276299961144105,
+        "max_ms": 2.7870179910678416,
+        "samples": 69
+      },
+      "gui_10ms_heartbeat": {
+        "median_ms": 10.096145997522399,
+        "p95_ms": 10.725475003710017,
+        "max_ms": 13.544581990572624,
+        "samples": 284
+      },
+      "publication_intervals": {
+        "median_ms": 41.782158994465135,
+        "p95_ms": 43.858239994733594,
+        "max_ms": 48.538294999161735,
+        "samples": 67
+      },
+      "load_average": [
+        3.1650390625,
+        3.0478515625,
+        3.40673828125
+      ],
+      "lens_pending_clicks_at_end": 0,
+      "lens_active_impulses_at_end": 24,
+      "worker_stopped_after_hide": true
+    },
+    {
+      "family": "impulse_lens",
+      "display": [
+        3840,
+        2160
+      ],
+      "buffer": [
+        3840,
+        2160
+      ],
+      "max_pixels": 8294400,
+      "requested_fps": 24,
+      "actual_widget_rate_cap": 24,
+      "elapsed_seconds": 3.1552001570089487,
+      "published_frames": 50,
+      "published_fps": 15.846855195202183,
+      "distinct_published_animation_clocks": 50,
+      "painted_frames": 77,
+      "painted_fps": 24.40415700061136,
+      "repeated_frame_objects": 27,
+      "worker_shade_copy": {
+        "median_ms": 61.607648502103984,
+        "p95_ms": 83.78545999585185,
+        "max_ms": 98.33480899396818,
+        "samples": 50
+      },
+      "gui_paint": {
+        "median_ms": 6.439018005039543,
+        "p95_ms": 9.36036100029014,
+        "max_ms": 10.162783990381286,
+        "samples": 77
+      },
+      "gui_10ms_heartbeat": {
+        "median_ms": 10.124644999450538,
+        "p95_ms": 16.9280800037086,
+        "max_ms": 25.62442299677059,
+        "samples": 310
+      },
+      "publication_intervals": {
+        "median_ms": 62.06900799588766,
+        "p95_ms": 83.84853799361736,
+        "max_ms": 98.36940800596494,
+        "samples": 49
+      },
+      "load_average": [
+        3.23193359375,
+        3.06396484375,
+        3.41015625
+      ],
+      "lens_pending_clicks_at_end": 0,
+      "lens_active_impulses_at_end": 24,
+      "worker_stopped_after_hide": true
+    },
+    {
+      "family": "fungal_growth",
+      "display": [
+        1920,
+        1080
+      ],
+      "buffer": [
+        1920,
+        1080
+      ],
+      "max_pixels": 2073600,
+      "requested_fps": 24,
+      "actual_widget_rate_cap": 24,
+      "elapsed_seconds": 2.899948263002443,
+      "published_frames": 70,
+      "published_fps": 24.138361671158208,
+      "distinct_published_animation_clocks": 70,
+      "painted_frames": 71,
+      "painted_fps": 24.483195409317613,
+      "repeated_frame_objects": 1,
+      "worker_shade_copy": {
+        "median_ms": 4.886728995188605,
+        "p95_ms": 7.217330989078619,
+        "max_ms": 8.407892004470341,
+        "samples": 70
+      },
+      "gui_paint": {
+        "median_ms": 1.089983998099342,
+        "p95_ms": 2.0827010011998937,
+        "max_ms": 3.3894389925990254,
+        "samples": 71
+      },
+      "gui_10ms_heartbeat": {
+        "median_ms": 10.070536998682655,
+        "p95_ms": 10.640318010700867,
+        "max_ms": 11.817550010164268,
+        "samples": 289
+      },
+      "publication_intervals": {
+        "median_ms": 41.768390001379885,
+        "p95_ms": 43.85007100063376,
+        "max_ms": 44.16653999942355,
+        "samples": 69
+      },
+      "load_average": [
+        3.23193359375,
+        3.06396484375,
+        3.41015625
+      ],
+      "lens_pending_clicks_at_end": 0,
+      "lens_active_impulses_at_end": 0,
+      "worker_stopped_after_hide": true
+    },
+    {
+      "family": "fungal_growth",
+      "display": [
+        3840,
+        2160
+      ],
+      "buffer": [
+        3840,
+        2160
+      ],
+      "max_pixels": 8294400,
+      "requested_fps": 24,
+      "actual_widget_rate_cap": 24,
+      "elapsed_seconds": 2.850836643992807,
+      "published_frames": 68,
+      "published_fps": 23.85264695656535,
+      "distinct_published_animation_clocks": 68,
+      "painted_frames": 69,
+      "painted_fps": 24.20342117651484,
+      "repeated_frame_objects": 3,
+      "worker_shade_copy": {
+        "median_ms": 11.225358495721593,
+        "p95_ms": 18.398411993985064,
+        "max_ms": 22.944222000660375,
+        "samples": 68
+      },
+      "gui_paint": {
+        "median_ms": 5.718590007745661,
+        "p95_ms": 8.369193004909903,
+        "max_ms": 10.97505800134968,
+        "samples": 69
+      },
+      "gui_10ms_heartbeat": {
+        "median_ms": 10.067876995890401,
+        "p95_ms": 14.753693001694046,
+        "max_ms": 18.78158000181429,
+        "samples": 283
+      },
+      "publication_intervals": {
+        "median_ms": 41.73678100050893,
+        "p95_ms": 45.136219006963074,
+        "max_ms": 51.364212995395064,
+        "samples": 67
+      },
+      "load_average": [
+        3.37353515625,
+        3.09619140625,
+        3.4189453125
+      ],
+      "lens_pending_clicks_at_end": 0,
+      "lens_active_impulses_at_end": 0,
+      "worker_stopped_after_hide": true
+    }
+  ]
+}

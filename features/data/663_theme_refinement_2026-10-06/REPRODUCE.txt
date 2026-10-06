@@ -1,0 +1,38 @@
+The JSON receipts are immutable measurements from the source revisions and
+source hashes recorded in each file. The Python probes are the exact scripts
+used for those measurements; their original scratch/worktree paths are kept
+for provenance. Do not run them against the existing evidence directory.
+
+To repeat safely, copy a probe to a NEW directory under /mnt/wd4tb/scratch,
+set its ROOT/REPO constants in that copy to new dedicated scratch/worktree
+paths, and select the source revision recorded in the corresponding receipt
+in an isolated worktree. Read features/HANDOFF.md first. final_render.py
+copies its source files into its new ROOT. The worker probes expect an
+ambient.py snapshot in their own ROOT: materialize the recorded revision's
+spacr/qt/widgets/ambient.py there with git show. Keep PySide6, Qt, hardware,
+load and OS differences in the new receipt rather than overwriting originals.
+
+Run probes with CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen
+PYTHONPATH=<isolated-worktree> and tools/run_capped.sh 4G using the normal
+spaCR Python environment. No GPU or full test suite is required. The native
+worker probe explicitly substitutes the requested viewport pixel budget for
+the small offscreen QScreen; its JSON declares that measurement condition.
+
+The local offline gallery is
+/mnt/wd4tb/scratch/theme-refinement-20261006/final/review/index.html.
+Its six full-1080p H.264 clips have actual 24fps encoding and 72 frames each,
+except the overlapping-era fungal clip's 144 frames. All eighteen media links
+are verified and their exact SHA256/size/dimensions are in media_manifest.json.
+These offline clocks do not establish live application cadence. Large PNG/
+video assets remain in scratch; this compact repository bundle retains their
+hashes and the real native sampling, live clock, GUI heartbeat and lifecycle
+receipts. Shader ASTs are unchanged by the clock handoff repair. New lens
+optimization will require a separate source-specific receipt.
+
+The final root ten-file theme cohort at source 0469caa09 passes 523 tests in
+141.25 seconds under4GiB, CUDA hidden/offscreen; it is not whole Qt. The root
+six-file embedding storage/source/alpha/loader/search cohort at 28766ac3c
+passes65tests in28.77seconds under4GiB. Focused storage follow-up20cases and
+all eleven queued-clock cases pass independently. Final GitHub green and
+uninterrupted serial Qt acceptance remain OPEN, as does uniform native4K
+24fps under active pointer/impulse load.

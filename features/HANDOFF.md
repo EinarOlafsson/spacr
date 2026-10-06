@@ -12,28 +12,36 @@ the factory and menus cannot select them. Night sounds remain unchanged.
 Fungal branching overlaps fading eras and sampled stress images stay below
 30% visible ink occupancy. This is sampled evidence, not a universal seed proof.
 
-Renderer checkpoint cc6336a17 plus test checkpoint ba8392bfd is locally
-reviewed; item663 is reopened for the latest request. Real worker profiling
-found clock starvation when native-4K shading overruns its beat: repeated
-publications can all use one clock while the GUI still responds. A reused
-CPU agent is fixing the bounded GUI-to-producer tick handoff before source
-acceptance. Never infer live frame rate from offline 24fps previews or
-publication counts alone. Uniform 24fps at native4K remains unproven; keep
-the failed clock/cadence evidence and source-bound before/after measurements.
-Current real gallery/profiles: /mnt/wd4tb/scratch/theme-refinement-20261006/final.
+Renderer063c066e7 repairs the discovered native4K clock starvation with
+bounded immutable cumulative GUI ticks, latest pointer and serial-tagged
+clicks consumed exactly once by the GUI or producer under the engine lock.
+Explicit clock/control changes flush offered input first. The root ten-file
+theme cohort passes523cases under4GiB, and all67added clock executable lines
+and branches are independently exercised. Actual native4K atlas goes from
+51publications/1clock to59/59, lens68/11 to50/50; every sampled publication
+now advances a distinct clock, and all workers stop on hide. No widget/app
+calls are introduced in the producer. Never infer live frame rate from
+offline previews or publication counts alone. Actual1080cadence is about24fps;
+native4K ranges15.85-24.06fps, so active-lens optimization continues and
+uniform24fps is unproven. Item663 stays OPEN for the latest smoothness request.
+Current six-video/native-still gallery:
+/mnt/wd4tb/scratch/theme-refinement-20261006/final/review/index.html.
+Before/after receipts are in features/data/663_theme_refinement_2026-10-06/.
 No caps, coverage ratchets, GPU lane or whole-local-suite rule are relaxed.
 
 F565 storage source b290b734d, followed by ce8b24e31's stale-error/ambiguous-key
-guards, adds the alpha literal EmbeddingsSaveForSimilarity. Real Load/Embed/
+guards and actual frozen ModelEntry hook28766ac3c add the alpha literal
+EmbeddingsSaveForSimilarity. Real Load/Embed/
 Save writes full vectors to the original loaded database/object identities;
 controls cannot redirect the save. Late result/errors from replaced crops
 are ignored. Specified rows carry EmbeddingSpec/fingerprint; different specs
-replace even same-width tables and metadata is excluded from search. Initial
-46 bounded loader/GUI/alpha/search checks and 15 focused error/refusal checks
-pass under4GiB; additional source-binding boundary checks are in progress.
-This establishes specification identity, not yet identity of changed weight
-bytes at the same checkpoint path. Another reused CPU agent owns the explicit
-multi-plate source index/navigation and provenance guards; item565 stays OPEN.
+replace even same-width tables and metadata is excluded from search. Actual
+encoder key/source/backbone/weightsSHA is frozen at worker completion and
+passed to storage. The root six-file cohort passes65cases under4GiB; twenty
+independent focused storage-boundary cases also pass. Pending new loads keep
+Save disabled and stale success/errors cannot change their status. Another
+reused CPU agent owns the explicit multi-plate source index/navigation and
+the stronger checkpoint-byte merge guard; item565 stays OPEN.
 Leave _retrieval_scorecard, _weights_on_disk and encoder_entry unchanged for
 the workstation's coordinated API provenance/chance-AP repair.
 

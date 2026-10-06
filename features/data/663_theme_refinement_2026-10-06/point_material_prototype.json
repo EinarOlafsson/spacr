@@ -1,0 +1,146 @@
+[
+  {
+    "size": [
+      1920,
+      1080
+    ],
+    "dark": true,
+    "spread": false,
+    "samples": {
+      "before": {
+        "median_ms": 5.878501004190184,
+        "p95_ms": 8.066474998486228
+      },
+      "prototype": {
+        "median_ms": 0.4450315027497709,
+        "p95_ms": 2.3955604920047335
+      }
+    }
+  },
+  {
+    "size": [
+      1920,
+      1080
+    ],
+    "dark": true,
+    "spread": true,
+    "samples": {
+      "before": {
+        "median_ms": 3.731155004061293,
+        "p95_ms": 4.899308994936291
+      },
+      "prototype": {
+        "median_ms": 2.146740509488154,
+        "p95_ms": 2.635400254803244
+      }
+    }
+  },
+  {
+    "size": [
+      1920,
+      1080
+    ],
+    "dark": false,
+    "spread": false,
+    "samples": {
+      "before": {
+        "median_ms": 8.611642500909511,
+        "p95_ms": 10.87548999930732
+      },
+      "prototype": {
+        "median_ms": 0.5183634930290282,
+        "p95_ms": 2.393102491623722
+      }
+    }
+  },
+  {
+    "size": [
+      1920,
+      1080
+    ],
+    "dark": false,
+    "spread": true,
+    "samples": {
+      "before": {
+        "median_ms": 3.521168495353777,
+        "p95_ms": 5.600369746389333
+      },
+      "prototype": {
+        "median_ms": 2.5810125007410534,
+        "p95_ms": 3.9390187557728495
+      }
+    }
+  },
+  {
+    "size": [
+      3840,
+      2160
+    ],
+    "dark": true,
+    "spread": false,
+    "samples": {
+      "before": {
+        "median_ms": 25.904542504576966,
+        "p95_ms": 37.63790949960821
+      },
+      "prototype": {
+        "median_ms": 4.3495739955687895,
+        "p95_ms": 9.802184995351126
+      }
+    }
+  },
+  {
+    "size": [
+      3840,
+      2160
+    ],
+    "dark": true,
+    "spread": true,
+    "samples": {
+      "before": {
+        "median_ms": 26.897342009760905,
+        "p95_ms": 30.634570503025316
+      },
+      "prototype": {
+        "median_ms": 18.294149500434287,
+        "p95_ms": 25.076522502786247
+      }
+    }
+  },
+  {
+    "size": [
+      3840,
+      2160
+    ],
+    "dark": false,
+    "spread": false,
+    "samples": {
+      "before": {
+        "median_ms": 26.199145991995465,
+        "p95_ms": 36.21236474646139
+      },
+      "prototype": {
+        "median_ms": 4.028067989565898,
+        "p95_ms": 7.462839494110085
+      }
+    }
+  },
+  {
+    "size": [
+      3840,
+      2160
+    ],
+    "dark": false,
+    "spread": true,
+    "samples": {
+      "before": {
+        "median_ms": 22.09683699766174,
+        "p95_ms": 23.805995744623942
+      },
+      "prototype": {
+        "median_ms": 17.4907780092326,
+        "p95_ms": 22.97074525267817
+      }
+    }
+  }
+]

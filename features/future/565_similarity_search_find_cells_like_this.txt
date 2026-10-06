@@ -145,3 +145,19 @@ Item 565 remains OPEN for the explicit multi-plate/screen-wide source search
 and cross-database hit navigation/annotation, now assigned to a reused CPU
 agent. Workstation owns normal source-current API/runtime/docs translation
 refresh for the new captions and storage docstring.
+
+2026-10-06 — STORAGE RACES AND ACTUAL ENCODER PROVENANCE FOLLOW-UP
+Root65-case integrated cohort passes at28766ac3c. Sixteen independent real
+SQLite/source boundary cases also pass, followed by twenty focused cases
+including folder sources and pending new loads. Missing/NULL/blank/NaN or
+repeated object keys cannot enable Save. Old successful or failed inference/
+save completions cannot overwrite a newer crop selection or enable Save
+while its load is pending; save failures keep the original result retryable.
+The actual successful ModelEntry is frozen off the GUI thread immediately
+after inference, using the result's actual specification, and passed to
+_store_crop_embeddings(..., encoder_entry=entry). Storage records its actual
+weightsSHA, key, source and backbone alongside each object; an unavailable
+checksum stays empty. No workstation-owned provenance helper is modified.
+The reused multi-plate agent is strengthening same-database byte-identity
+merge checks and requires nonempty matching actual digests across databases.
+That remaining integration is not yet accepted; item565 remains OPEN.

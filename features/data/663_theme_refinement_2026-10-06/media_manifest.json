@@ -1,0 +1,168 @@
+{
+  "source_commit": "cc6336a171b01a5e9cdf91dfd8409abff0372960",
+  "preview_scope": "offline explicit animation clock samples; no live-cadence claim",
+  "records": [
+    {
+      "family": "point_atlas",
+      "video": {
+        "width": 1920,
+        "height": 1080,
+        "avg_frame_rate": "24/1",
+        "duration": "3.000000",
+        "nb_frames": "72"
+      },
+      "media": [
+        {
+          "path": "point_atlas/preview.mp4",
+          "bytes": 20023737,
+          "sha256": "d62386f5825cdf57ca940e3e09d30b811b5c4bc49b95a64a8409690fb6154895"
+        },
+        {
+          "path": "point_atlas/still-1920x1080.png",
+          "bytes": 1126805,
+          "sha256": "5eed728c3dd4a015ea401a3208349a94a544f2b5b06542a96c4a43f0b4ef62dc"
+        },
+        {
+          "path": "point_atlas/still-3840x2160.png",
+          "bytes": 2534233,
+          "sha256": "c93a3a5eb5cc2db16532e2cd8a6d59e7c3e842a5901c50e1443c1b7543d6b8e2"
+        }
+      ]
+    },
+    {
+      "family": "tissue_facets",
+      "video": {
+        "width": 1920,
+        "height": 1080,
+        "avg_frame_rate": "24/1",
+        "duration": "3.000000",
+        "nb_frames": "72"
+      },
+      "media": [
+        {
+          "path": "tissue_facets/preview.mp4",
+          "bytes": 1141817,
+          "sha256": "45126853fa8d952302dd6186bcb09b171c2f5eaefca83ef5fc998a8b9ded8840"
+        },
+        {
+          "path": "tissue_facets/still-1920x1080.png",
+          "bytes": 1260704,
+          "sha256": "afa2c509dd7aaa756f033ebe039f990fc9833b5836c4be323a2f34887493c792"
+        },
+        {
+          "path": "tissue_facets/still-3840x2160.png",
+          "bytes": 2764424,
+          "sha256": "1b3fadf34dbc32c9a1dbb8bcb988a3777eebc2fa51a6cd32d4854e88f778219d"
+        }
+      ]
+    },
+    {
+      "family": "chromatin_ribbon",
+      "video": {
+        "width": 1920,
+        "height": 1080,
+        "avg_frame_rate": "24/1",
+        "duration": "3.000000",
+        "nb_frames": "72"
+      },
+      "media": [
+        {
+          "path": "chromatin_ribbon/preview.mp4",
+          "bytes": 455974,
+          "sha256": "65fa17d6ee031247c447422967d3d82229e9c4361af9df1f50aec13c2c00e039"
+        },
+        {
+          "path": "chromatin_ribbon/still-1920x1080.png",
+          "bytes": 924903,
+          "sha256": "479ccf688578bcfa974a8f3d45bc521ed0a2a666bef19add73579413317e6bce"
+        },
+        {
+          "path": "chromatin_ribbon/still-3840x2160.png",
+          "bytes": 2570354,
+          "sha256": "7a9f0d9c8486a8967fbdefd54b47804020490ed1f74c0a097bcf235e3f621503"
+        }
+      ]
+    },
+    {
+      "family": "genetic_advection",
+      "video": {
+        "width": 1920,
+        "height": 1080,
+        "avg_frame_rate": "24/1",
+        "duration": "3.000000",
+        "nb_frames": "72"
+      },
+      "media": [
+        {
+          "path": "genetic_advection/preview.mp4",
+          "bytes": 25107335,
+          "sha256": "7494bc3cc1770ddf55e2b3a5f513bab439713116ae2e3087c82f9766fc8330ab"
+        },
+        {
+          "path": "genetic_advection/still-1920x1080.png",
+          "bytes": 1537121,
+          "sha256": "4bd94e5844a80eb53aa01c4ad40b8fb159eb5de7a70b66f990ef188e40cac6fc"
+        },
+        {
+          "path": "genetic_advection/still-3840x2160.png",
+          "bytes": 2172314,
+          "sha256": "34958266e235e3757ab25c768eb562b7d9187716cc6e86f4802504c3063019ec"
+        }
+      ]
+    },
+    {
+      "family": "impulse_lens",
+      "video": {
+        "width": 1920,
+        "height": 1080,
+        "avg_frame_rate": "24/1",
+        "duration": "3.000000",
+        "nb_frames": "72"
+      },
+      "media": [
+        {
+          "path": "impulse_lens/preview.mp4",
+          "bytes": 6002347,
+          "sha256": "b1ea92013e2046521d606d0610c6982dcc536440020a11a44ffcba95be3e2d7f"
+        },
+        {
+          "path": "impulse_lens/still-1920x1080.png",
+          "bytes": 339680,
+          "sha256": "ebeb7817c89c18f664b52d4827e7ff7ebb7ce84f1e8781f1e3ad322474c0431a"
+        },
+        {
+          "path": "impulse_lens/still-3840x2160.png",
+          "bytes": 1159028,
+          "sha256": "0fcceadd6655202d06bc6ad8d61f5e1e295993c3ff90ddfdd9c6b01ddf379844"
+        }
+      ]
+    },
+    {
+      "family": "fungal_growth",
+      "video": {
+        "width": 1920,
+        "height": 1080,
+        "avg_frame_rate": "24/1",
+        "duration": "6.000000",
+        "nb_frames": "144"
+      },
+      "media": [
+        {
+          "path": "fungal_growth/preview.mp4",
+          "bytes": 62206,
+          "sha256": "8ddf52ab36e8966382474be6995d627f809e20a79284306cbb895f906d61c0a7"
+        },
+        {
+          "path": "fungal_growth/still-1920x1080.png",
+          "bytes": 63094,
+          "sha256": "a269aba876ef16749466423edcaf0f29cc8eeea7cf54eabe3e04d919e8169bc5"
+        },
+        {
+          "path": "fungal_growth/still-3840x2160.png",
+          "bytes": 147233,
+          "sha256": "3d02aa797d52edba059ca14b0c2d197308031e8cf2d62ac9ef036286fddad6ff"
+        }
+      ]
+    }
+  ]
+}
