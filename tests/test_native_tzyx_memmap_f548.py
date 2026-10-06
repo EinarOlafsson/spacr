@@ -31,6 +31,49 @@ def test_native_private_map_reservation_falls_back_without_changing_npy_header(
         np.arange(24, dtype=np.float32).reshape(2, 3, 4))
 
 
+@pytest.mark.skipif(not hasattr(os, 'posix_fallocate') or not hasattr(os, 'pwrite'),
+                    reason='POSIX reservation and positional writes are unavailable')
+@pytest.mark.parametrize('failure', ['cancel', 'disk_full'])
+def test_native_fallback_reservation_stops_between_chunks_and_closes_map(
+        tmp_path, monkeypatch, failure):
+    path = tmp_path / 'selected.npy'
+    mapped = np.lib.format.open_memmap(
+        path, mode='w+', dtype=np.float32, shape=(1024, 1024))
+    token = cancellation.CancellationToken()
+    original_write = io.os.pwrite
+    writes = 0
+
+    def unsupported(*_args):
+        raise OSError(errno.EOPNOTSUPP, 'filesystem cannot preallocate')
+
+    def interrupted_write(*args):
+        nonlocal writes
+        writes += 1
+        if writes == 2 and failure == 'disk_full':
+            raise OSError(errno.ENOSPC, 'disk full during reservation')
+        result = original_write(*args)
+        if writes == 1 and failure == 'cancel':
+            token.cancel()
+        return result
+
+    monkeypatch.setattr(io.os, 'posix_fallocate', unsupported)
+    monkeypatch.setattr(io.os, 'pwrite', interrupted_write)
+    try:
+        with cancellation.installed_token(token):
+            if failure == 'cancel':
+                with pytest.raises(cancellation.PipelineCancelled):
+                    io._reserve_private_memmap(mapped)
+            else:
+                with pytest.raises(OSError) as error:
+                    io._reserve_private_memmap(mapped)
+                assert error.value.errno == errno.ENOSPC
+    finally:
+        io._close_private_memmap(mapped)
+        path.unlink()
+    assert writes == (1 if failure == 'cancel' else 2)
+    assert not path.exists()
+
+
 def _settings():
     return dict(background=100, Signal_to_noise=10,
                 remove_background=False, lower_percentile=17,

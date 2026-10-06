@@ -1884,6 +1884,8 @@ def _reserve_private_memmap(mapped):
     """Allocate a new private map's file before any mapped data writes."""
     import errno
 
+    from .cancellation import checkpoint
+
     descriptor = os.open(mapped.filename, os.O_RDWR)
     try:
         size = os.fstat(descriptor).st_size
@@ -1897,6 +1899,7 @@ def _reserve_private_memmap(mapped):
         offset = mapped.offset
         block = bytes(1024 * 1024)
         while offset < size:
+            checkpoint()
             chunk = block[:min(len(block), size - offset)]
             if hasattr(os, 'pwrite'):
                 written = os.pwrite(descriptor, chunk, offset)
