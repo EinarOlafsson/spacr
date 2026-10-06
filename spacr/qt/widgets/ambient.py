@@ -4599,20 +4599,13 @@ def _scatter_packed_grains(flat, px, py, intensities, lookup, axial, diagonal,
 
 def _scatter_colored_grains(flat, ranks, px, py, indices, lookup, axial, diagonal,
                             width, height, dark, spread):
-    """Keep the strongest grain across hues with a deterministic packed tie."""
+    """Keep exact intensity/colour ordering in a private packed working word."""
     for i in range(px.size):
         x, y = px[i], py[i]
         level = indices[i]
         destination = y * width + x
-        encoded = lookup[level]
-        score = encoded >> 32 if dark else 255 - (encoded >> 32)
-        color = encoded & 0xffffffff
-        if score > ranks[destination]:
-            ranks[destination] = score
-            flat[destination] = color
-        elif score == ranks[destination] and (
-                (dark and color > flat[destination])
-                or (not dark and color < flat[destination])):
+        color = lookup[level]
+        if (dark and color > flat[destination]) or (not dark and color < flat[destination]):
             flat[destination] = color
         if not spread:
             continue
@@ -4626,15 +4619,9 @@ def _scatter_colored_grains(flat, ranks, px, py, indices, lookup, axial, diagona
                 nx = x + dx
                 if nx < 0 or nx >= width:
                     continue
-                encoded = diagonal[level] if dx and dy else axial[level]
-                score = encoded >> 32 if dark else 255 - (encoded >> 32)
-                color = encoded & 0xffffffff
+                color = diagonal[level] if dx and dy else axial[level]
                 destination = ny * width + nx
-                if score > ranks[destination]:
-                    ranks[destination] = score
-                    flat[destination] = color
-                elif score == ranks[destination] and (
-                        (dark and color > flat[destination])
+                if ((dark and color > flat[destination])
                         or (not dark and color < flat[destination])):
                     flat[destination] = color
 
@@ -4669,7 +4656,7 @@ def _warm_packed_scatter():
             _PACKED_SCATTER = kernel
         try:
             colored = njit(nogil=True, cache=False)(_scatter_colored_grains)
-            table = lookup.astype(np.uint64)
+            table = lookup
             colored(flat, np.zeros(1, dtype=np.uint8), coordinates, coordinates,
                     np.zeros(1, dtype=np.uint16), table, table, table, 1, 1, True, True)
             if getattr(colored, 'nopython_signatures', ()):
@@ -5119,11 +5106,11 @@ class _DataArtEngine(_BufferedEngine):
             levels = np.arange(256, dtype=np.float32) / 255.0
             channels = colors[:, None, :] * levels[None, :, None] if self.dark else (
                 255.0 - (255.0 - colors[:, None, :]) * levels[None, :, None])
-            channels = channels.astype(np.uint64)
-            table = (np.uint64(0xff000000) | channels[:, :, 0] << np.uint64(16)
-                     | channels[:, :, 1] << np.uint64(8) | channels[:, :, 2])
-            ranks = np.arange(256, dtype=np.uint64)
-            table |= (ranks if self.dark else 255 - ranks)[None, :] << np.uint64(32)
+            channels = channels.astype(np.uint32)
+            table = (channels[:, :, 0] << np.uint32(16)
+                     | channels[:, :, 1] << np.uint32(8) | channels[:, :, 2])
+            ranks = np.arange(256, dtype=np.uint32)
+            table |= (ranks if self.dark else 255 - ranks)[None, :] << np.uint32(24)
             table = table.ravel()
             slots = np.arange(len(colors), dtype=np.uint16)[:, None] * np.uint16(256)
             axial = table[(slots + np.rint(ranks * .68).astype(np.uint16)).ravel()]
@@ -5133,18 +5120,20 @@ class _DataArtEngine(_BufferedEngine):
         table, axial, diagonal = tables
         image = QImage(width, height, QImage.Format_RGB32)
         output = np.frombuffer(image.bits(), np.uint32, count=width * height)
-        output.fill(self.identity.rgba())
+        output.fill(table[0])
         kernel = _ready_colored_scatter()
         if kernel is not None:
-            ranks = np.zeros(width * height, dtype=np.uint8)
+            ranks = np.empty(0, dtype=np.uint8)
             try:
                 kernel(output, ranks, px, py, indices, table, axial, diagonal,
                        width, height, self.dark, spread)
+                np.bitwise_or(output, np.uint32(0xff000000), out=output)
                 return image
             except Exception:
                 _COLORED_SCATTER = None
                 _COLORED_SCATTER_FAILED = True
-        packed = np.full(width * height, table[0], dtype=np.uint64)
+        output.fill(table[0])
+        packed = output
         combine = np.maximum.at if self.dark else np.minimum.at
         combine(packed, py * width + px, table[indices])
         if spread:
@@ -5154,7 +5143,7 @@ class _DataArtEngine(_BufferedEngine):
                 valid = (nx >= 0) & (nx < width) & (ny >= 0) & (ny < height)
                 selected = diagonal if dx and dy else axial
                 combine(packed, ny[valid] * width + nx[valid], selected[indices[valid]])
-        np.copyto(output, packed, casting='unsafe')
+        np.bitwise_or(output, np.uint32(0xff000000), out=output)
         return image
 
     def _shade(self, width: int, height: int) -> QImage:

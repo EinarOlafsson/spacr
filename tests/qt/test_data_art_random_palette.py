@@ -2,6 +2,7 @@
 
 import gc
 import sys
+import threading
 import weakref
 from types import SimpleNamespace
 
@@ -26,7 +27,7 @@ def colored_kernel():
 
     kernel = njit(nogil=True, cache=False)(ambient._scatter_colored_grains)
     coordinates = np.zeros(1, np.int32)
-    table = np.zeros(256, np.uint64)
+    table = np.zeros(256, np.uint32)
     kernel(np.zeros(1, np.uint32), np.zeros(1, np.uint8), coordinates,
            coordinates, np.zeros(1, np.uint16), table, table, table, 1, 1, True, True)
     assert kernel.nopython_signatures
@@ -133,7 +134,8 @@ def test_duplicate_grains_keep_strongest_intensity_across_hues(
     hues = mixed % 32
     for point in [1, 2]:
         slot = int(hues[point]) * 256 + round(float(light[point]) * 255)
-        assert image.pixel(int(x[point]), int(y[point])) == int(table[slot] & np.uint64(0xffffffff))
+        expected = (int(table[slot]) & 0xffffff) | 0xff000000
+        assert image.pixel(int(x[point]), int(y[point])) == expected
     monkeypatch.setattr(ambient, '_COLORED_SCATTER', colored_kernel)
     compiled = engine._point_material(16, 9, x, y, light, spread=True)
     assert compiled.bits().tobytes() == reference
@@ -189,12 +191,13 @@ def test_partial_compiler_failure_restores_whole_frame_and_disables_fast_path(
     assert len(calls) == 1
 
 
-def test_rank_plane_is_frame_local_and_palette_cache_is_bounded(
+def test_rank_uses_private_working_word_and_palette_cache_is_bounded(
         qapp, numpy_colors, monkeypatch):
     engine = ambient.make_engine('data_art_impulse_lens', 'random', '#101418', seed=42)
     references = []
 
     def capture(flat, ranks, *arguments):
+        assert ranks.size == 0
         references.append(weakref.ref(ranks))
         ambient._scatter_colored_grains(flat, ranks, *arguments)
 
@@ -204,8 +207,82 @@ def test_rank_plane_is_frame_local_and_palette_cache_is_bounded(
     gc.collect()
     assert references and all(reference() is None for reference in references)
     tables = engine._material_cache[('random_grain_palette', engine.dark)]
-    assert sum(table.nbytes for table in tables) == 32 * 256 * 8 * 3
+    assert sum(table.nbytes for table in tables) == 32 * 256 * 4 * 3
     assert all(table.ndim == 1 for table in tables)
+    assert np.all(np.frombuffer(image.constBits(), np.uint32) >> 24 == 255)
+
+
+@pytest.mark.parametrize('background', ['#101418', '#f6f7f9'])
+@pytest.mark.parametrize('spread', [False, True])
+def test_all_intensity_ranks_duplicates_and_clipping_preserve_packed_order(
+        background, spread, qapp, numpy_colors, colored_kernel, monkeypatch):
+    engine = ambient.make_engine('data_art_impulse_lens', 'random', background, seed=42)
+    rng = np.random.default_rng(93)
+    x = rng.integers(-1, 18, (12, 8192)).astype(np.float32)
+    y = rng.integers(-1, 11, x.shape).astype(np.float32)
+    light = np.broadcast_to(np.arange(8192, dtype=np.float32) % 256 / 255, x.shape)
+    reference = engine._point_material(17, 10, x, y, light, spread=spread)
+    tables = engine._material_cache[('random_grain_palette', engine.dark)]
+    for table in tables:
+        old = ((table.astype(np.uint64) >> 24) << 32) | np.uint64(0xff000000)
+        old |= table.astype(np.uint64) & np.uint64(0xffffff)
+        assert np.array_equal(np.argsort(old, kind='stable'),
+                              np.argsort(table, kind='stable'))
+    monkeypatch.setattr(ambient, '_COLORED_SCATTER', colored_kernel)
+    actual = engine._point_material(17, 10, x, y, light, spread=spread)
+    assert actual.bits().tobytes() == reference.bits().tobytes()
+    assert np.all(np.frombuffer(actual.constBits(), np.uint32) >> 24 == 255)
+
+
+def test_producer_keeps_previous_owned_frame_until_packed_alpha_is_restored(
+        qapp, numpy_colors, monkeypatch):
+    engine = ambient.make_engine('data_art_impulse_lens', 'random', '#101418',
+                                 seed=42, density=.01)
+    initial = frame(engine, 320, 180)
+    original = initial.bits().tobytes()
+    entered, release, published = threading.Event(), threading.Event(), threading.Event()
+    calls, working_alpha, published_alpha = [], [], []
+
+    def blocked(flat, ranks, *arguments):
+        ambient._scatter_colored_grains(flat, ranks, *arguments)
+        working_alpha.append(bool(np.any(flat >> 24 != 255)))
+        if not calls:
+            calls.append(True)
+            entered.set()
+            if not release.wait(2):
+                raise RuntimeError('test did not release private packed frame')
+
+    monkeypatch.setattr(ambient, '_COLORED_SCATTER', blocked)
+    producer = ambient._FrameProducer(engine, threading.Lock(), 24, (320, 180))
+    producer.publish(initial)
+    original_publish = producer.publish
+
+    def publish(image):
+        published_alpha.append(bool(np.all(np.frombuffer(image.constBits(), np.uint32)
+                                          >> 24 == 255)))
+        original_publish(image)
+        published.set()
+
+    monkeypatch.setattr(producer, 'publish', publish)
+    producer.start()
+    try:
+        assert entered.wait(2)
+        assert producer.latest() is initial
+        assert engine._buffer is initial
+        assert initial.bits().tobytes() == original
+        assert not published.is_set()
+        release.set()
+        assert published.wait(2)
+        complete = producer.latest()
+        assert complete is not initial
+        assert complete.bits().tobytes() == original
+        assert initial.bits().tobytes() == original
+    finally:
+        release.set()
+        producer.stop()
+    assert not producer.is_alive()
+    assert working_alpha and all(working_alpha)
+    assert published_alpha and all(published_alpha)
 
 
 def test_one_identity_cache_reuses_particle_hues_and_replaces_changed_count(
@@ -263,6 +340,7 @@ def test_random_palette_survives_all_theme_changes_save_and_fresh_dialog(
         qtbot, tmp_path, monkeypatch):
     from PySide6.QtCore import QSettings
     from PySide6.QtWidgets import QComboBox, QDialogButtonBox
+
     from spacr.qt import preferences
 
     settings_path = tmp_path / 'random-colors.ini'
