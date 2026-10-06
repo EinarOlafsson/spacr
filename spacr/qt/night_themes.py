@@ -668,7 +668,7 @@ def ambient_for(name: str) -> Tuple[str, str]:
     :returns: ``(animation, palette)`` — an
         :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` name and a
         :data:`spacr.qt.widgets.ambient.PALETTE_SETS` key.
-    :raises KeyError: if ``name`` is not one of the ten.
+    :raises KeyError: if ``name`` is unknown.
     """
     theme = theme_for(name)
     return theme.ambient, theme.ambient_palette
@@ -679,6 +679,6 @@ def sound_for(name: str) -> str:
 
     :param name: one of :data:`NIGHT_THEME_KEYS` or :data:`DATA_ART_THEME_KEYS`.
     :returns: a key of :data:`spacr.qt.sound_synth.SOUND_THEMES`.
-    :raises KeyError: if ``name`` is not one of the ten.
+    :raises KeyError: if ``name`` is unknown.
     """
     return theme_for(name).sound

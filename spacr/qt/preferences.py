@@ -1703,7 +1703,7 @@ def theme_choices() -> tuple:
         for key in CELL_VARIANTS
     )
     choices.extend((theme.label, key) for key, theme in NIGHT_THEMES.items())
-    choices.extend((tr(theme.label), key) for key, theme in DATA_ART_THEMES.items())
+    choices.extend((theme.label, key) for key, theme in DATA_ART_THEMES.items())
     return tuple(choices)
 
 
