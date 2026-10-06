@@ -2941,6 +2941,11 @@ def _watch_run_closed_pool(key, members, signature, context):
     callback = context['analyse']
 
     def analyse_pool(directory, settings):
+        """Analyse the closed cohort and verify its original inputs and outputs.
+
+        :param directory: staged directory for this cohort's batch run.
+        :param settings: the settings supplied to the cohort analysis callback.
+        """
         from .cancellation import checkpoint
 
         checkpoint()
