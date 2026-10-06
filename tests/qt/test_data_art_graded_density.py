@@ -118,3 +118,29 @@ def test_satin_fractional_opacity_is_restored_after_draw_failure(qapp, monkeypat
         engine._paint_chromatin_ribbon(painter, 320, 180)
     assert painter.draw_opacity == pytest.approx(.6 * .07)
     assert painter.opacity() == .6
+
+
+def test_one_percent_paper_radius_affects_a_seeded_primitive_center(qapp):
+    engine = ambient.make_engine('data_art_tissue_facets', 'spacr', '#101418',
+                                 seed=42, resolution=2)
+    width, height = 1920, 1080
+    engine.set_max_pixels(width * height)
+    engine.set_gravity_radius(.01)
+    image = engine.shade(width, height)
+    resting = image.bits().tobytes()
+    cells = next(value for key, value in engine._material_cache.items()
+                 if key[0] == 'tissue_facets')
+    selected = min(cells, key=lambda cell: (cell[0] - width * .5) ** 2
+                   + (cell[1] - height * .5) ** 2)
+    x, y = selected[:2]
+    reach = min(width, height) * .01
+    affected_centers = [(cx, cy) for cx, cy, *_ in cells
+                        if (cx - x) ** 2 + (cy - y) ** 2 < reach ** 2]
+    assert affected_centers == [(x, y)]
+    engine.set_pointer((x / width, y / height))
+    image = engine.shade(width, height)
+    lifted = image.bits().tobytes()
+    assert lifted != resting
+    engine.set_pointer(None)
+    image = engine.shade(width, height)
+    assert image.bits().tobytes() == resting
