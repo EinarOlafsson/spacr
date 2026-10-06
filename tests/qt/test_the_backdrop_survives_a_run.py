@@ -182,6 +182,9 @@ def test_the_shading_thread_draws_exactly_what_the_gui_thread_would(theme):
     """
     engine = make_engine(theme, default_palette_for(theme), DARK, seed=99)
     engine.set_time(12.5)
+    if theme == "data_art_tissue_facets":
+        engine.set_gravity_radius(0.5)
+        engine.set_pointer((0.2, 0.3))
     here = engine.shade(W, H)
 
     box = {}
@@ -200,8 +203,11 @@ def test_the_shading_thread_draws_exactly_what_the_gui_thread_would(theme):
         f"{theme} shades differently off the GUI thread"
 
     # The comparison has to be capable of failing, or it asserts nothing: the
-    # same engine at a different clock is a different picture.
+    # same engine at a different clock is a different picture. The paper
+    # facets respond to the pointer rather than moving on their own.
     engine.set_time(40.0)
+    if theme == "data_art_tissue_facets":
+        engine.set_pointer((0.8, 0.7))
     later = engine.shade(W, H)
     assert bytes(later.constBits()) != bytes(here.constBits())
 
