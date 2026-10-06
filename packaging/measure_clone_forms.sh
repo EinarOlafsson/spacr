@@ -103,19 +103,21 @@ else
 fi
 
 # `git` reports progress on stderr and rewrites the line with \r. Summing
-# every "Receiving objects: 100% ..., <n> <unit>" is what makes a partial
+# every completed "Receiving objects: 100% ..., <n> <unit>" is what makes a partial
 # clone's SECOND fetch visible: its first fetch is a few hundred KiB of
 # trees and looks like a triumph until the checkout goes back for the
 # blobs.
+# Count only final lines: Git may print 100% before the transfer has ended.
+# Floating-point formatting avoids awk's 32-bit integer limit on full clones.
 received_bytes() {
     tr '\r' '\n' < "$1" \
-    | sed -n 's/.*Receiving objects: 100% ([0-9/]*), \([0-9.]*\) \([KMG]*\)iB .*/\1 \2/p' \
+    | sed -n 's/.*Receiving objects: 100% ([0-9/]*), \([0-9.]*\) \([KMG]*\)iB .*done\.$/\1 \2/p' \
     | awk '{ mult = 1
              if ($2 == "K") mult = 1024
              if ($2 == "M") mult = 1048576
              if ($2 == "G") mult = 1073741824
              total += $1 * mult }
-           END { printf "%d", total + 0 }'
+           END { printf "%.0f", total + 0 }'
 }
 
 human() { awk -v b="$1" 'BEGIN { printf "%.1f MB", b / 1048576 }'; }
@@ -126,8 +128,14 @@ human() { awk -v b="$1" 'BEGIN { printf "%.1f MB", b / 1048576 }'; }
 # say". Print `n/a` there and let the .git column answer instead; on the
 # forms that DO report, the two agree to within a per cent (595 MiB
 # received against a 596 MiB .git), so .git is a fair stand-in.
+# Filtered checkouts perform quiet lazy fetches, so their initial tree fetch
+# cannot establish a complete download total. Their .git size remains visible.
 downloaded_column() {
-    if [ "${1:-0}" -eq 0 ] 2>/dev/null; then echo "n/a"; else human "$1"; fi
+    if [ "${1:-0}" -eq 0 ] 2>/dev/null || [ "${2:-}" = depth1-filter ]; then
+        echo "n/a"
+    else
+        human "$1"
+    fi
 }
 
 printf '%-14s %10s %12s %12s %12s\n' form seconds downloaded .git worktree
@@ -146,7 +154,7 @@ for form in $FORM_LIST; do
     gitb=$(du -sb "$dest/.git" 2>/dev/null | cut -f1)
     treeb=$(du -sb --exclude=.git "$dest" 2>/dev/null | cut -f1)
     printf '%-14s %10s %12s %12s %12s\n' \
-        "$form" "$seconds" "$(downloaded_column "${got:-0}")" "$(human "${gitb:-0}")" "$(human "${treeb:-0}")"
+        "$form" "$seconds" "$(downloaded_column "${got:-0}" "$form")" "$(human "${gitb:-0}")" "$(human "${treeb:-0}")"
     if [ "$KEEP" = 0 ]; then rm -rf "$dest"; fi
 done
 

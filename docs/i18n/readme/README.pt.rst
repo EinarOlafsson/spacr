@@ -267,14 +267,14 @@ Quem contribui precisa do histórico; para apenas executar o spaCR, use uma dest
     cd spacr && pip install -e .
 
     # Only the files spaCR runs from: 81 MB on disk, 39 s. No history
-    # either, and no docs, tests, tools or example data.
+    # either, and no docs, tests, tools, features or example data.
     # --with-docs, --with-tests and --with-translations put those back;
     # --dir, --branch, --no-install and --help do the obvious things.
     # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Na medição de 2026-09-15, o clone completo baixou 5,8 GB. No clone raso, ``--filter=blob:none`` não reduziu o download medido. Os arquivos versionados de nightly ocupam 821 MB na cópia de trabalho (medidos em 2026-09-26), sem o histórico do Git. O tamanho e o tempo de download variam conforme a ramificação.
+Na medição de 2026-09-15, o clone completo baixou 5,8 GB. No clone raso, ``--filter=blob:none`` não reduziu o download medido. Os arquivos versionados de nightly ocupam 1029 MB na cópia de trabalho (medidos em 2026-10-05), sem o histórico do Git. O tamanho e o tempo de download variam conforme a ramificação.
 
 
 Comandos de linha de comando

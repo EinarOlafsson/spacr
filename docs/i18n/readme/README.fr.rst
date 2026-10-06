@@ -267,14 +267,14 @@ Les contributeurs ont besoin de l’historique ; pour simplement exécuter spaCR
     cd spacr && pip install -e .
 
     # Only the files spaCR runs from: 81 MB on disk, 39 s. No history
-    # either, and no docs, tests, tools or example data.
+    # either, and no docs, tests, tools, features or example data.
     # --with-docs, --with-tests and --with-translations put those back;
     # --dir, --branch, --no-install and --help do the obvious things.
     # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Lors de la mesure du 2026-09-15, le clone complet a téléchargé 5,8 Go. Pour le clone limité à un commit, ``--filter=blob:none`` n’a pas réduit le téléchargement mesuré. Les fichiers suivis de nightly occupent 821 Mo dans la copie de travail (mesure du 2026-09-26), hors historique Git. La taille et la durée du téléchargement varient selon la branche.
+Lors de la mesure du 2026-09-15, le clone complet a téléchargé 5,8 Go. Pour le clone limité à un commit, ``--filter=blob:none`` n’a pas réduit le téléchargement mesuré. Les fichiers suivis de nightly occupent 1029 Mo dans la copie de travail (mesure du 2026-10-05), hors historique Git. La taille et la durée du téléchargement varient selon la branche.
 
 
 Points d’entrée en ligne de commande

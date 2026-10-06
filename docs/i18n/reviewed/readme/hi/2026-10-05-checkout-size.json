@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_method": "Direct Codex AI numeric review against current tracked files and actual nightly clone measurements; prior reviewed wording preserved. No native-speaker signoff.",
+  "records": [
+    {
+      "label": "dated-clone-and-current-checkout-size",
+      "source": "On 2026-09-15, the full clone downloaded 5.8 GB. Adding ``--filter=blob:none`` to the shallow clone did not reduce its measured download. The nightly tracked tree is a 1029 MB checkout (measured 2026-10-05), excluding Git history. Download sizes and times vary with the branch.",
+      "source_sha256": "e688c0e257dc18f9c6d9054542d98459981f9e8b76888883db6bcb652101de48",
+      "translation": "2026-09-15 के मापन में पूरे क्लोन ने 5.8 GB डाउनलोड किया। एक कमिट वाले क्लोन में ``--filter=blob:none`` जोड़ने से उसके मापे गए डाउनलोड में कमी नहीं आई। nightly की ट्रैक की गई फ़ाइलों का चेकआउट 1029 MB है (मापन: 2026-10-05), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और समय शाखा के अनुसार बदलते हैं।"
+    }
+  ]
+}

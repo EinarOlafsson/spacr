@@ -267,14 +267,14 @@ Uppsetning frá frumkóða (létt)
     cd spacr && pip install -e .
 
     # Only the files spaCR runs from: 81 MB on disk, 39 s. No history
-    # either, and no docs, tests, tools or example data.
+    # either, and no docs, tests, tools, features or example data.
     # --with-docs, --with-tests and --with-translations put those back;
     # --dir, --branch, --no-install and --help do the obvious things.
     # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Í mælingunni 2026-09-15 sótti fullt klón 5,8 GB. Í grunna klóninu minnkaði ``--filter=blob:none`` ekki mælt niðurhal. Skrárnar sem Git fylgist með í nightly taka 821 MB í vinnutrénu (mælt 2026-09-26), án Git-ferilsins. Stærð niðurhals og tími fara eftir greininni.
+Í mælingunni 2026-09-15 sótti fullt klón 5,8 GB. Í grunna klóninu minnkaði ``--filter=blob:none`` ekki mælt niðurhal. Skrárnar sem Git fylgist með í nightly taka 1029 MB í vinnutrénu (mælt 2026-10-05), án Git-ferilsins. Stærð niðurhals og tími fara eftir greininni.
 
 
 Skipanalínuskipanir

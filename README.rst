@@ -309,7 +309,7 @@ measured 2026-09-15 by ``packaging/measure_clone_forms.sh``::
     cd spacr && pip install -e .
 
     # Only the files spaCR runs from: 81 MB on disk, 39 s. No history
-    # either, and no docs, tests, tools or example data.
+    # either, and no docs, tests, tools, features or example data.
     # --with-docs, --with-tests and --with-translations put those back;
     # --dir, --branch, --no-install and --help do the obvious things.
     # packaging/source_install_excludes.txt lists every skipped path.
@@ -318,7 +318,7 @@ measured 2026-09-15 by ``packaging/measure_clone_forms.sh``::
 
 On 2026-09-15, the full clone downloaded 5.8 GB. Adding
 ``--filter=blob:none`` to the shallow clone did not reduce its measured download.
-The nightly tracked tree is a 821 MB checkout (measured 2026-09-26),
+The nightly tracked tree is a 1029 MB checkout (measured 2026-10-05),
 excluding Git history. Download sizes and times vary with the branch.
 
 
