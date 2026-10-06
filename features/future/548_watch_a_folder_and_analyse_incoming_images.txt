@@ -890,3 +890,31 @@ and parent548 scientific/external-data acceptance remainOPEN.
     Exact proof: data/548_native_mapped_workspace_cpu_2026-10-06/. Raw staging
     and downstream full-NPZ load still scale with acquisition; vendor/large
     volume/scientific parent548 remains OPEN. No additive memory claim.
+
+2026-10-06 — native Mask archive memory and borrowed-view safety child100%
+    Source e0ea321342 PLUS 7f90125469 streams only native non-timelapse
+    NPZ numeric members into physically reserved private read-only NPY maps
+    under the existing writable mask output folder. Batch cardinality, channel
+    order, original normalization and complete saved outputs remain exact;
+    ordinary/legacy movie paths stay eager. Optional source-page eviction
+    happens only after the original np.take owns its writable batch.
+    Actual CPU model-double generator/SQLite/save comparison on128MiB input
+    reduces peakRSS high-water1391.75->1258.86MiB for T and1380.57->1250.56
+    for Z. All model inputs, mask-file bytes, DB rows, callbacks and stdout
+    match at batch_size2. This is not actual Cellpose/GPU or speed acceptance;
+    total cgroup memory did not materially fall because clean file pages
+    remain charged/reclaimable. No Windows RSS or arbitrary-volume promise.
+    A rejected direct-close checkpoint reproduced exit139 when validation
+    traceback locals retained source pixels. The final owner finalizer keeps
+    borrowed ndarray/T views and full diagnostics safe, closes before unlink
+    only after the last owner dies, and normal collection follows scope exit.
+    Watch ignores only reserved regular mask scratch directories after its
+    symlink rejection; real interrupted/resume tests also prove prefixed
+    symlinks rejected and unrelated hidden outputs still inventory-bound.
+    Final71 focused cases and255 callable/nested guards pass; a preceding
+    overlapping269 native/watch cohort passed. Final private helper coverage
+    is96/96statements,28/28branch destinations, not full-module coverage.
+    Frozen sources, unsafe/safe lifetime proof, portable capped reproduction,
+    exact output/memory receipts: data/548_native_mask_archive_cpu_2026-10-06/.
+    Disk reservation and full selected batches/masks still scale with fields.
+    ParentF548 vendor/large-volume/scientific acceptance remains OPEN.

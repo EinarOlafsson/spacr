@@ -1,0 +1,1107 @@
+{
+  "mode": "after",
+  "plan": "t",
+  "batch_size": 2,
+  "model": "deterministic CPU substitute; no actual Cellpose compute/memory claim",
+  "source_repo": "/mnt/wd4tb/spacr-worktrees/codex-native-mask-map-20261006",
+  "source_sha256": "5ad3bc52b1da94945ad128495836ea0f76eca044c4b1e7490819c2af4fa9126e",
+  "archive_sha256": "6e15f063316935d3c920ec12bc0f73ce5f2eef7702a21433ab6ed51c06f12ce3",
+  "pipeline_seconds": 2.5187216860067565,
+  "vmhwm_kib": 1289068,
+  "stages": [
+    {
+      "stage": "baseline_after_imports",
+      "residency_kib": {
+        "Rss": 1188132,
+        "Pss": 866869,
+        "Pss_Dirty": 709056,
+        "Pss_Anon": 709056,
+        "Pss_File": 157813,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 464020,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15056,
+        "Private_Dirty": 709056,
+        "Referenced": 1188132,
+        "Anonymous": 709056,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 0,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 738861056,
+        "anon": 726077440,
+        "file": 929792,
+        "kernel": 8896512,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "prepared_owned_batch",
+      "residency_kib": {
+        "Rss": 1244032,
+        "Pss": 920760,
+        "Pss_Dirty": 761252,
+        "Pss_Anon": 761252,
+        "Pss_File": 159508,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467708,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15072,
+        "Private_Dirty": 761252,
+        "Referenced": 1244032,
+        "Anonymous": 761252,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 43008,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 931250176,
+        "anon": 779522048,
+        "file": 135155712,
+        "kernel": 12812288,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "model_eval",
+      "residency_kib": {
+        "Rss": 1244032,
+        "Pss": 920760,
+        "Pss_Dirty": 761252,
+        "Pss_Anon": 761252,
+        "Pss_File": 159508,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467708,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15072,
+        "Private_Dirty": 761252,
+        "Referenced": 1244032,
+        "Anonymous": 761252,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 43008,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 931250176,
+        "anon": 779522048,
+        "file": 135155712,
+        "kernel": 12812288,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "model_eval",
+      "residency_kib": {
+        "Rss": 1244104,
+        "Pss": 920776,
+        "Pss_Dirty": 761252,
+        "Pss_Anon": 761252,
+        "Pss_File": 159524,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467780,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15072,
+        "Private_Dirty": 761252,
+        "Referenced": 1244104,
+        "Anonymous": 761252,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 43008,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 931504128,
+        "anon": 779522048,
+        "file": 135155712,
+        "kernel": 12812288,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "saved_mask",
+      "residency_kib": {
+        "Rss": 1258588,
+        "Pss": 935171,
+        "Pss_Dirty": 775592,
+        "Pss_Anon": 775592,
+        "Pss_File": 159579,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467920,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 775592,
+        "Referenced": 1258588,
+        "Anonymous": 775592,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 51200,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 950292480,
+        "anon": 794206208,
+        "file": 139362304,
+        "kernel": 12959744,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "saved_mask",
+      "residency_kib": {
+        "Rss": 1258588,
+        "Pss": 935171,
+        "Pss_Dirty": 775592,
+        "Pss_Anon": 775592,
+        "Pss_File": 159579,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467920,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 775592,
+        "Referenced": 1258588,
+        "Anonymous": 775592,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 51200,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 954482688,
+        "anon": 794206208,
+        "file": 143560704,
+        "kernel": 13082624,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "prepared_owned_batch",
+      "residency_kib": {
+        "Rss": 1258588,
+        "Pss": 935171,
+        "Pss_Dirty": 775592,
+        "Pss_Anon": 775592,
+        "Pss_File": 159579,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467920,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 775592,
+        "Referenced": 1258588,
+        "Anonymous": 775592,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 51200,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 954470400,
+        "anon": 794206208,
+        "file": 143560704,
+        "kernel": 13144064,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "model_eval",
+      "residency_kib": {
+        "Rss": 1258588,
+        "Pss": 935171,
+        "Pss_Dirty": 775592,
+        "Pss_Anon": 775592,
+        "Pss_File": 159579,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467920,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 775592,
+        "Referenced": 1258588,
+        "Anonymous": 775592,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 51200,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 954470400,
+        "anon": 794206208,
+        "file": 143560704,
+        "kernel": 13144064,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "model_eval",
+      "residency_kib": {
+        "Rss": 1258592,
+        "Pss": 935175,
+        "Pss_Dirty": 775596,
+        "Pss_Anon": 775596,
+        "Pss_File": 159579,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467920,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 775596,
+        "Referenced": 1258592,
+        "Anonymous": 775596,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 51200,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 954720256,
+        "anon": 794206208,
+        "file": 143560704,
+        "kernel": 13144064,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "saved_mask",
+      "residency_kib": {
+        "Rss": 1258600,
+        "Pss": 935183,
+        "Pss_Dirty": 775604,
+        "Pss_Anon": 775604,
+        "Pss_File": 159579,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467920,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 775604,
+        "Referenced": 1258600,
+        "Anonymous": 775604,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 51200,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 959135744,
+        "anon": 794218496,
+        "file": 147759104,
+        "kernel": 13189120,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "saved_mask",
+      "residency_kib": {
+        "Rss": 1258604,
+        "Pss": 935187,
+        "Pss_Dirty": 775608,
+        "Pss_Anon": 775608,
+        "Pss_File": 159579,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467920,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 775608,
+        "Referenced": 1258604,
+        "Anonymous": 775608,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 51200,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 963588096,
+        "anon": 794222592,
+        "file": 151957504,
+        "kernel": 13299712,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "prepared_owned_batch",
+      "residency_kib": {
+        "Rss": 1258604,
+        "Pss": 935187,
+        "Pss_Dirty": 775608,
+        "Pss_Anon": 775608,
+        "Pss_File": 159579,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467920,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 775608,
+        "Referenced": 1258604,
+        "Anonymous": 775608,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 51200,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 963895296,
+        "anon": 794222592,
+        "file": 151957504,
+        "kernel": 13373440,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "model_eval",
+      "residency_kib": {
+        "Rss": 1258608,
+        "Pss": 935191,
+        "Pss_Dirty": 775612,
+        "Pss_Anon": 775612,
+        "Pss_File": 159579,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467920,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 775612,
+        "Referenced": 1258608,
+        "Anonymous": 775612,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 51200,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 963862528,
+        "anon": 794222592,
+        "file": 151957504,
+        "kernel": 13373440,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "model_eval",
+      "residency_kib": {
+        "Rss": 1258612,
+        "Pss": 935195,
+        "Pss_Dirty": 775616,
+        "Pss_Anon": 775616,
+        "Pss_File": 159579,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467920,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 775616,
+        "Referenced": 1258612,
+        "Anonymous": 775616,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 51200,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 963645440,
+        "anon": 794222592,
+        "file": 151957504,
+        "kernel": 13373440,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "saved_mask",
+      "residency_kib": {
+        "Rss": 1258624,
+        "Pss": 935207,
+        "Pss_Dirty": 775628,
+        "Pss_Anon": 775628,
+        "Pss_File": 159579,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467920,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 775628,
+        "Referenced": 1258624,
+        "Anonymous": 775628,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 51200,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 967827456,
+        "anon": 794238976,
+        "file": 156155904,
+        "kernel": 13430784,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "saved_mask",
+      "residency_kib": {
+        "Rss": 1258624,
+        "Pss": 935207,
+        "Pss_Dirty": 775628,
+        "Pss_Anon": 775628,
+        "Pss_File": 159579,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467920,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 775628,
+        "Referenced": 1258624,
+        "Anonymous": 775628,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 51200,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 972279808,
+        "anon": 794243072,
+        "file": 160354304,
+        "kernel": 13537280,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "prepared_owned_batch",
+      "residency_kib": {
+        "Rss": 1258624,
+        "Pss": 935207,
+        "Pss_Dirty": 775628,
+        "Pss_Anon": 775628,
+        "Pss_File": 159579,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467920,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 775628,
+        "Referenced": 1258624,
+        "Anonymous": 775628,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 51200,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 973037568,
+        "anon": 794243072,
+        "file": 160354304,
+        "kernel": 13553664,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "model_eval",
+      "residency_kib": {
+        "Rss": 1258628,
+        "Pss": 935211,
+        "Pss_Dirty": 775632,
+        "Pss_Anon": 775632,
+        "Pss_File": 159579,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467920,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 775632,
+        "Referenced": 1258628,
+        "Anonymous": 775632,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 51200,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 972951552,
+        "anon": 794243072,
+        "file": 160354304,
+        "kernel": 13553664,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "model_eval",
+      "residency_kib": {
+        "Rss": 1258636,
+        "Pss": 935219,
+        "Pss_Dirty": 775640,
+        "Pss_Anon": 775640,
+        "Pss_File": 159579,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467920,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 775640,
+        "Referenced": 1258636,
+        "Anonymous": 775640,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 51200,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 972947456,
+        "anon": 794243072,
+        "file": 160354304,
+        "kernel": 13553664,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "saved_mask",
+      "residency_kib": {
+        "Rss": 1258640,
+        "Pss": 935223,
+        "Pss_Dirty": 775644,
+        "Pss_Anon": 775644,
+        "Pss_File": 159579,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467920,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 775644,
+        "Referenced": 1258640,
+        "Anonymous": 775644,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 51200,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 977387520,
+        "anon": 794259456,
+        "file": 164552704,
+        "kernel": 13672448,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "saved_mask",
+      "residency_kib": {
+        "Rss": 1258640,
+        "Pss": 935223,
+        "Pss_Dirty": 775644,
+        "Pss_Anon": 775644,
+        "Pss_File": 159579,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467920,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 775644,
+        "Referenced": 1258640,
+        "Anonymous": 775644,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 51200,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 981581824,
+        "anon": 794259456,
+        "file": 168751104,
+        "kernel": 13787136,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "archive_completed_callback",
+      "residency_kib": {
+        "Rss": 1225872,
+        "Pss": 902455,
+        "Pss_Dirty": 742876,
+        "Pss_Anon": 742876,
+        "Pss_File": 159579,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467920,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 742876,
+        "Referenced": 1225872,
+        "Anonymous": 742876,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 18432,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 809820160,
+        "anon": 760705024,
+        "file": 34529280,
+        "kernel": 10039296,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "after_generator",
+      "residency_kib": {
+        "Rss": 1225932,
+        "Pss": 902452,
+        "Pss_Dirty": 742872,
+        "Pss_Anon": 742872,
+        "Pss_File": 159580,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467984,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 742872,
+        "Referenced": 1225932,
+        "Anonymous": 742872,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 18432,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 809816064,
+        "anon": 760705024,
+        "file": 34529280,
+        "kernel": 10039296,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    },
+    {
+      "stage": "after_gc",
+      "residency_kib": {
+        "Rss": 1225932,
+        "Pss": 902452,
+        "Pss_Dirty": 742872,
+        "Pss_Anon": 742872,
+        "Pss_File": 159580,
+        "Pss_Shmem": 0,
+        "Shared_Clean": 467984,
+        "Shared_Dirty": 0,
+        "Private_Clean": 15076,
+        "Private_Dirty": 742872,
+        "Referenced": 1225932,
+        "Anonymous": 742872,
+        "KSM": 0,
+        "LazyFree": 0,
+        "AnonHugePages": 18432,
+        "ShmemPmdMapped": 0,
+        "FilePmdMapped": 0,
+        "Shared_Hugetlb": 0,
+        "Private_Hugetlb": 0,
+        "Swap": 0,
+        "SwapPss": 0,
+        "Locked": 0
+      },
+      "cgroup_bytes": {
+        "current": 809865216,
+        "anon": 760700928,
+        "file": 34529280,
+        "kernel": 9990144,
+        "file_mapped": 0,
+        "file_dirty": 786432
+      }
+    }
+  ],
+  "sampled_peak_rss_kib": 1258640,
+  "sampled_peak_anon_kib": 775644,
+  "sampled_peak_cgroup_current_bytes": 981581824,
+  "evaluations": [
+    {
+      "shape": [
+        8,
+        512,
+        512,
+        2
+      ],
+      "dtype": "<f4",
+      "input_sha256": "f76518b9ec41dfd90e94359671d51107b94b34248ec431c746240080a7c26829",
+      "kwargs": {
+        "batch_size": 1,
+        "normalize": false,
+        "channel_axis": -1,
+        "min_size": 0,
+        "progress": true,
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0,
+        "resample": true,
+        "do_3D": true,
+        "anisotropy": 2.0,
+        "z_axis": 0
+      }
+    },
+    {
+      "shape": [
+        8,
+        512,
+        512,
+        2
+      ],
+      "dtype": "<f4",
+      "input_sha256": "98bcdc2e84f1a2833df77a02a73502758f351aebdfec85365ea05fde7949e3f6",
+      "kwargs": {
+        "batch_size": 1,
+        "normalize": false,
+        "channel_axis": -1,
+        "min_size": 0,
+        "progress": true,
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0,
+        "resample": true,
+        "do_3D": true,
+        "anisotropy": 2.0,
+        "z_axis": 0
+      }
+    },
+    {
+      "shape": [
+        8,
+        512,
+        512,
+        2
+      ],
+      "dtype": "<f4",
+      "input_sha256": "66a8c0a05227bf132eb78a9bdc0e2e59284b5a3670daed44dbaf31e8be0bb16a",
+      "kwargs": {
+        "batch_size": 1,
+        "normalize": false,
+        "channel_axis": -1,
+        "min_size": 0,
+        "progress": true,
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0,
+        "resample": true,
+        "do_3D": true,
+        "anisotropy": 2.0,
+        "z_axis": 0
+      }
+    },
+    {
+      "shape": [
+        8,
+        512,
+        512,
+        2
+      ],
+      "dtype": "<f4",
+      "input_sha256": "3c86d8d3bb7f6c9060d04baedc4299edfe6615780c1b7c38c9f2de3259a38c2f",
+      "kwargs": {
+        "batch_size": 1,
+        "normalize": false,
+        "channel_axis": -1,
+        "min_size": 0,
+        "progress": true,
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0,
+        "resample": true,
+        "do_3D": true,
+        "anisotropy": 2.0,
+        "z_axis": 0
+      }
+    },
+    {
+      "shape": [
+        8,
+        512,
+        512,
+        2
+      ],
+      "dtype": "<f4",
+      "input_sha256": "95c4df467dd86722d652bec4ac0a48ff40735d4453105320396223a0d3671215",
+      "kwargs": {
+        "batch_size": 1,
+        "normalize": false,
+        "channel_axis": -1,
+        "min_size": 0,
+        "progress": true,
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0,
+        "resample": true,
+        "do_3D": true,
+        "anisotropy": 2.0,
+        "z_axis": 0
+      }
+    },
+    {
+      "shape": [
+        8,
+        512,
+        512,
+        2
+      ],
+      "dtype": "<f4",
+      "input_sha256": "e0458c0c4757ddbe361297cb8e8705fdfb2b5c0dc60312512c99c16fab96585c",
+      "kwargs": {
+        "batch_size": 1,
+        "normalize": false,
+        "channel_axis": -1,
+        "min_size": 0,
+        "progress": true,
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0,
+        "resample": true,
+        "do_3D": true,
+        "anisotropy": 2.0,
+        "z_axis": 0
+      }
+    },
+    {
+      "shape": [
+        8,
+        512,
+        512,
+        2
+      ],
+      "dtype": "<f4",
+      "input_sha256": "0ba898a6331e106cc12114e57e772d988161969dd3d397d17878e6e6a03c9e8b",
+      "kwargs": {
+        "batch_size": 1,
+        "normalize": false,
+        "channel_axis": -1,
+        "min_size": 0,
+        "progress": true,
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0,
+        "resample": true,
+        "do_3D": true,
+        "anisotropy": 2.0,
+        "z_axis": 0
+      }
+    },
+    {
+      "shape": [
+        8,
+        512,
+        512,
+        2
+      ],
+      "dtype": "<f4",
+      "input_sha256": "642a5ab0733db493d5f74eb00d25e72ac8a4e27ff8f2c2ae0366db656654fe35",
+      "kwargs": {
+        "batch_size": 1,
+        "normalize": false,
+        "channel_axis": -1,
+        "min_size": 0,
+        "progress": true,
+        "diameter": null,
+        "flow_threshold": 0.4,
+        "cellprob_threshold": 0,
+        "resample": true,
+        "do_3D": true,
+        "anisotropy": 2.0,
+        "z_axis": 0
+      }
+    }
+  ],
+  "mask_file_sha256": {
+    "t000.npy": "4b28a5fd41cc075f36b1c5a1d520cca38a08a4e9c3a56e48baace75ca3c58a36",
+    "t001.npy": "4b28a5fd41cc075f36b1c5a1d520cca38a08a4e9c3a56e48baace75ca3c58a36",
+    "t002.npy": "4b28a5fd41cc075f36b1c5a1d520cca38a08a4e9c3a56e48baace75ca3c58a36",
+    "t003.npy": "4b28a5fd41cc075f36b1c5a1d520cca38a08a4e9c3a56e48baace75ca3c58a36",
+    "t004.npy": "72923c7e17b3b5da00009d88ec59765ef730754237b54b71b434d11ef609f0d8",
+    "t005.npy": "72923c7e17b3b5da00009d88ec59765ef730754237b54b71b434d11ef609f0d8",
+    "t006.npy": "72923c7e17b3b5da00009d88ec59765ef730754237b54b71b434d11ef609f0d8",
+    "t007.npy": "72923c7e17b3b5da00009d88ec59765ef730754237b54b71b434d11ef609f0d8"
+  },
+  "database_rows": [
+    [
+      "t000.npy",
+      "cell_before_filtration",
+      1
+    ],
+    [
+      "t001.npy",
+      "cell_before_filtration",
+      1
+    ],
+    [
+      "t002.npy",
+      "cell_before_filtration",
+      1
+    ],
+    [
+      "t003.npy",
+      "cell_before_filtration",
+      1
+    ],
+    [
+      "t004.npy",
+      "cell_before_filtration",
+      1
+    ],
+    [
+      "t005.npy",
+      "cell_before_filtration",
+      1
+    ],
+    [
+      "t006.npy",
+      "cell_before_filtration",
+      1
+    ],
+    [
+      "t007.npy",
+      "cell_before_filtration",
+      1
+    ]
+  ],
+  "completion": [
+    "large.npz"
+  ],
+  "pipeline_stdout": "Torch CUDA is not available, using CPU\nmerge_split_filter_masks(cell): skipped \u2014 the perimeter and area operations are 2-D only and would be applied per z plane, breaking the 3-D labels that z_segmentation_mode='volumetric' just produced\nsaving to DB\nFound 1.0 cell/FOV. average size: 946176.000 px2\nmerge_split_filter_masks(cell): skipped \u2014 the perimeter and area operations are 2-D only and would be applied per z plane, breaking the 3-D labels that z_segmentation_mode='volumetric' just produced\nsaving to DB\nFound 1.0 cell/FOV. average size: 946176.000 px2\nmerge_split_filter_masks(cell): skipped \u2014 the perimeter and area operations are 2-D only and would be applied per z plane, breaking the 3-D labels that z_segmentation_mode='volumetric' just produced\nsaving to DB\nFound 1.0 cell/FOV. average size: 947541.333 px2\nmerge_split_filter_masks(cell): skipped \u2014 the perimeter and area operations are 2-D only and would be applied per z plane, breaking the 3-D labels that z_segmentation_mode='volumetric' just produced\nsaving to DB\nFound 1.0 cell/FOV. average size: 948224.000 px2\n",
+  "private_workspace_clean": true
+}
