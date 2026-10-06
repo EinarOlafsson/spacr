@@ -23,6 +23,18 @@ source's compatibility, ordinary tests and aggregate gates finish green.
 The newer b779 protected runs were dispatched before this source fix; do not
 credit them with c37 without an exact SHA match.
 
+## 2026-10-06 urgent user theme follow-up
+2026-10-06 new user follow-up relayed to Home:
+Smoother Thore rain; lighter lightning with vertical and occasional horizontal
+branches; visible graded slider effects at1%/10%/50% rather than only on/off;
+lower density floor; spaCR growth branching like the supplied mycelium GIF.
+Exact request, reference provenance and observed branching are in
+ data/663_user_theme_followup_2026-10-06.txt. Slider identity clarification is
+pending; audit both radius and density. Prior default-zero mouse influence,
+fading trails and25% growth occupancy remain requirements. These are new
+requests, not completed acceptance. Home owns CPU/theme refinement and native
+Save investigation; workstation retains all GPU/API/docs/translations/tutorials.
+
 ## 2026-10-06 Home coherent final CPU/theme source ready for hosted acceptance
 Final renderer source is9ad69bab29 with ambient SHA256
 4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5;
