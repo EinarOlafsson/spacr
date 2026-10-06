@@ -1233,9 +1233,12 @@ def _annotation_field_payload(tracks_path: str, sequence_path: str,
     track_file = Path(tracks_path).expanduser().resolve(strict=True)
     sequence_file = Path(sequence_path).expanduser().resolve(strict=True)
     target = Path(annotations_path).expanduser().resolve()
+    if target == track_file or target == sequence_file:
+        raise ValueError(tr("Choose an annotation CSV separate from the tracker and image source."))
     backend, object_type, field_name = _annotation_track_identity(track_file)
     sequence = FrameSequence.open(sequence_file, max_frames=2_147_483_647)
     track_digest = _annotation_digest(track_file)
+    annotation_digest = _annotation_digest(target)
     tracks = read_table(
         str(track_file), canonicalise=False, report=None,
         usecols=lambda name: name in ("frame", "track_id", "x", "y"))
@@ -1317,11 +1320,13 @@ def _annotation_field_payload(tracks_path: str, sequence_path: str,
                                  if column not in columns}})
     if _annotation_digest(track_file) != track_digest:
         raise ValueError(tr("The tracks CSV changed while it was being read."))
+    if _annotation_digest(target) != annotation_digest:
+        raise ValueError(tr("Annotations changed while they were being read."))
     return {"sequence": sequence, "tracks": tracks, "observed": observed,
             "events": events, "other": existing[~selected].copy(),
             "field": field_name, "object": object_type, "backend": backend,
             "channels": channels, "target": target, "legacy_rows": legacy_rows,
-            "digest": _annotation_digest(target),
+            "digest": annotation_digest,
             "track_digest": track_digest,
             "track_path": track_file, "sequence_path": sequence_file}
 
