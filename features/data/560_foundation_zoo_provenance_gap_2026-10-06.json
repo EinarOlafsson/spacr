@@ -1,0 +1,12 @@
+{
+  "item": 560,
+  "actual_CPU_normal_encoder_entry_gap_reproduced_for_all_three_foundation_encoders": true,
+  "source_fix_not_yet_started": true,
+  "source_sha256": "19e04a7a686adbbe78ad1d173b466ff4d44a08fcfbc9e47a01989df97d253945",
+  "artifacts": {
+    "features/data/560_foundation_zoo_provenance_gap_2026-10-06/normal-foundation-model-zoo-provenance-gap-r1.json": {
+      "sha256": "05ad022c100eb6d06becfd9e28c1ce0babf8193d403ec06d7697bc816bebcb6f",
+      "bytes": 7313
+    }
+  }
+}
