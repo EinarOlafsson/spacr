@@ -6,7 +6,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QSettings
+from PySide6.QtCore import QSettings, Qt
 from PySide6.QtWidgets import QComboBox
 
 from spacr.qt import night_themes as catalog
@@ -145,8 +145,7 @@ def test_data_art_palettes_remain_readable_through_spaceout_drift():
                         (key, drift, failure) for failure in theme.contrast_failures(key)
                     )
                     failures.extend(
-                        (key, drift, failure)
-                        for failure in theme.page_separation_failures(key)
+                        (key, drift, failure) for failure in theme.page_separation_failures(key)
                     )
     finally:
         theme.disable_spaceout()
@@ -186,17 +185,36 @@ def test_motion_off_and_crash_suppression_do_not_rewrite_one_another(private_sto
     assert private_store.get_sound_enabled() is False
 
 
-def test_dialog_shows_data_art_preset_and_respects_no_animation(private_store, qtbot):
+def test_extra_performance_keeps_a_new_preset_static(private_store):
+    private_store.set_spacr_mode("extra_performance")
+    assert private_store.get_ambient_animation() == "none"
+    private_store.set_theme_choice("data_art_transcript_rain")
+    assert private_store.get_theme_choice() == "data_art_transcript_rain"
+    assert private_store.get_ambient_animation() == "none"
+    assert private_store.get_ambient_enabled() is False
+    assert private_store.get_sound_enabled() is False
+
+
+def test_dialog_shows_data_art_preset_and_respects_no_animation(
+    private_store, qtbot, qt_theme_applied, monkeypatch
+):
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
     dialog = private_store.PreferencesDialog()
     qtbot.addWidget(dialog)
     choice = row_field(dialog, "Theme")
     animation = dialog.findChild(QComboBox, "AmbientTheme")
     palette = dialog.findChild(QComboBox, "AmbientPalette")
-    assert choice is not None and animation is not None and palette is not None
+    sound = dialog.findChild(QComboBox, "SoundTheme")
+    assert all(widget is not None for widget in (choice, animation, palette, sound))
     assert {choice.itemData(index) for index in range(choice.count())} >= {row[0] for row in SPEC}
     choice.setCurrentIndex(choice.findData("data_art_tissue_facets"))
     assert animation.currentData() == "data_art_tissue_facets"
     assert palette.currentData() == "lowsun"
+    assert sound.currentData() == "halcyon"
+    assert (
+        choice.itemData(choice.currentIndex(), Qt.ItemDataRole.ToolTipRole)
+        == catalog.DATA_ART_THEMES["data_art_tissue_facets"].description
+    )
     animation.setCurrentIndex(animation.findData("none"))
     choice.setCurrentIndex(choice.findData("data_art_impulse_lens"))
     assert animation.currentData() == "none"
