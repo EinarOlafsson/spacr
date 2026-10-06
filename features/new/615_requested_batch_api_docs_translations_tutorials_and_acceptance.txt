@@ -1328,3 +1328,76 @@ Items560/615 and the broader task stay OPEN; no native-speaker or platform
 capture, official Cell-DINO, four-stain biological accuracy or global CI
 completion is claimed. Home retains CPU/model/Qt/CI; workstation retains
 every GPU/API/docs/translation/tutorial task.
+
+2026-10-06 workstation remaining-owner audit and live publication handoff:
+Normal hosted documentation workflow 37478293839 is live for event/source
+e259c2d4ecfa34b8228a8e8eab4520ff06edcf04. Its actual downloaded nightly
+translation-compatibility artifact independently names that exact source;
+English and all nine API/runtime source contracts have zero reported issues.
+This is the hosted source-contract/placeholder report, not a replacement for
+the separately accepted complete local technical audits or deployed readback.
+A source-frozen workstation worker watches that same actual run; after normal
+terminal success it downloads both normal branch artifacts, assembles them
+with the ordinary publisher, checks actual resolved/deployed source and every
+API/tutorial catalog, reads all 135 reviewed API blocks in nine actual browser
+languages including the screen callback, and reads all 108 new puncta-guide
+messages. No workflow is restarted, cancelled or claimed published early.
+
+Home next source responsibilities remain concrete: obtained official
+Cell-DINO checkpoint loading, item565 embedding pipeline/multi-plate index
+integration, and item567 event annotation/pretrained-video source integration.
+The workstation retains all GPU execution and API/runtime/docs/translation/
+tutorial refreshes after those source checkpoints; please coordinate through
+nightly commits. Earlier item552 brightfield/multiplex and item565 real-label
+FAISS/million-timing GPU gaps are closed by their later dated receipts, even
+where earlier preparation paragraphs still say pending. InstanSeg counts and
+pixels are not bit-identical between CPU/CUDA; FAISS's 1.2M timing fixture is
+synthetic and its separate 17,074-cell class cohort has genuine expert labels.
+
+Scientific acceptance still needs the actual missing inputs: item557 second
+calibrated low-light acquisition with matching manual masks; item554 original
+OPS tiles/database/pool10 for strict historical replay; item559 real labelled
+nonblur QC defects and a real pretrained-weight distribution decision; item567
+annotated Toxoplasma egress/invasion movies. These scopes are not closed by
+existing synthetic fixtures or by the completed GPU execution checks. The
+new four-channel SubCell parity uses explicitly synthetic fixtures and does
+not establish an expert-labelled four-stain accuracy benchmark. Public HPA
+image-level labels or model predictions must not be renamed single-cell human
+labels. Home serial Qt 37457998285 remains live at older 237506317 and is not
+acceptance for e259; preserve it and the livecell/cellposeTIME processes.
+The overall API/tutorial/documentation/translation/GPU goal remains OPEN.
+
+2026-10-06 workstation actual deployed documentation and local install closure:
+Normal hosted documentation workflow 37478293839 completed successfully and
+actually deployed e259c2d4ecfa34b8228a8e8eab4520ff06edcf04. Both normal branch
+artifacts were downloaded and assembled with the standard publisher. All ten
+API and fourteen tutorial catalogs match deployed bytes; all 135 reviewed
+API blocks and 108 new puncta-guide messages are visible across all nine
+translated browser languages. Six actual screenshots were visually inspected.
+All three immutable accepted tutorial media roots remain exact. Receipt:
+data/615_subcell_actual_publication_2026-10-06.json. This supersedes the pending
+publication notes above, without claiming native-speaker review.
+
+The user's local checkout is safely advanced to Home 0ef43046e. All three
+older local tracked puncta edits and the original untracked implementation /
+tests are copied and hashed in the private preservation folder; the exact
+saved patch was reverse-applied only after verification, then Git fast-forward
+succeeded. Claude files/worktrees and untracked originals remain untouched.
+Actual pip install -e . in the existing spacr conda environment succeeded;
+only the editable spacr package changed, with no dependency upgrade. The
+actual installed console entry creates the current visible Qt Home and exits
+cleanly under offscreen inspection. The original failed inspection wrapper
+and corrected successful run are both retained; no native-desktop claim.
+Receipt: data/615_local_editable_install_2026-10-06.json.
+
+Current Home source adds strict local Cell-DINO factories, three EmbeddingSpec
+fields, alpha Save/multi-plate actions and six retained themes. The workstation
+next owns verified checkpoint_path/checkpoint_sha256 provenance in encoder_entry,
+then normal source-current API/runtime/settings/Help/guide generation and all
+nine language reviews. F565's qualified application acceptance is complete;
+its actual expert-labelled and synthetic million-row GPU receipts stay intact.
+Home owns outstanding F548 native T>1/pooled CPU source, F663 native-4K
+smoothness and F43/F47/F288 final-source CI/coverage/serial Qt. The protected
+serial run 37457998285 is still in progress at this checkpoint; leave it alone.
+All further GPU runs and API/docs/translation/tutorial refresh stay workstation
+owned. Scientific missing-data requirements listed above remain OPEN.

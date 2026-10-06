@@ -1,5 +1,26 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 workstation publication accepted; local installation recovered
+Normal docs workflow 37478293839 actually deployed source e259c2d4e. All ten
+API/fourteen tutorial catalogs match deployed bytes, all 135 reviewed API
+blocks and 108 new puncta-guide messages pass actual nine-language browser
+readback, and six screenshots were visually inspected. Accepted tutorial
+media remain unchanged. Receipt: data/615_subcell_actual_publication_2026-10-06.json.
+The user's shared checkout is safely updated to Home 0ef43046e, original local
+puncta edits are fully backed up, and pip install -e . succeeded in their
+existing conda environment without dependency upgrades. Actual installed Qt
+Home launch/clean exit passes offscreen; no native-desktop claim. Receipt:
+data/615_local_editable_install_2026-10-06.json.
+
+The newer Home source is integrated. Next workstation work is precise: make
+encoder_entry verify Cell-DINO's actual checkpoint_path/checkpoint_sha256,
+then normally refresh API/runtime/Help/settings/guides and all nine languages
+for the new Cell-DINO/Save/multi-plate/theme contracts. Preserve every existing
+scientific/tutorial receipt. Home owns F548 source, F663 native-4K smoothness
+and final-source CI/coverage/Qt. Protected serial 37457998285 remains live.
+All GPU/API/docs/translation/tutorial work remains workstation-owned; broader
+615/560 goal remains OPEN for new source and genuine missing data.
+
 ## 2026-10-06 F565 alpha application completion
 F565 is DONE at source 5f6517b57: GUI embedding Save, strict actual checkpoint
 identity, multi-plate search/result source navigation, annotation writes to
@@ -155,8 +176,15 @@ original full expert fluorescence scorecards retain metrics/chance AP at
 1e-12 and all six weight hashes on the integrated source. Local acceptance
 receipt: data/615_subcell_current_documentation_2026-10-06.json.
 Every accepted tutorial byte remains unchanged. No ceiling or guard moves.
-Exact pushed-source publication/deployed readback remains a separate next
-step. Home retains official Cell-DINO/model loading and CPU/Qt/CI; workstation
+Hosted docs 37478293839 now has successful main and nightly Sphinx, guide
+and API-link builds. Its downloaded nightly compatibility report names
+e259c2d4ecfa34b8228a8e8eab4520ff06edcf04 with zero API/runtime source issues
+in all nine languages. The publisher job 112330423110 is queued for a runner;
+no pending deployment approval is reported. Actual deployed readback remains
+unclaimed. The workstation's source-frozen publication worker watches that
+same live run and will download/assemble/read back after terminal success;
+do not launch a duplicate workflow or overwrite its scratch evidence.
+Home retains official Cell-DINO/model loading and CPU/Qt/CI; workstation
 retains every GPU/API/docs/runtime/translation/tutorial task. Hosted serial
 Qt 37457998285 still runs at older 237506317; do not cancel it or mistake it
 for final-source acceptance. Items560/615/43/288/47 remain OPEN.

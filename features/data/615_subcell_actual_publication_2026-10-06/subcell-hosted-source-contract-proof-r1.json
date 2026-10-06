@@ -1,0 +1,7 @@
+{
+  "actual_downloaded_workflow": 37478293839,
+  "actual_artifact_name": "translation-compatibility-nightly",
+  "actual_resolved_source": "e259c2d4ecfa34b8228a8e8eab4520ff06edcf04",
+  "nine_API_and_nine_runtime_source_contracts_compatible": true,
+  "scope": "Hosted source-contract and runtime-placeholder report; full local technical audit has separate evidence. Publication remains pending."
+}

@@ -1,0 +1,83 @@
+[
+  {
+    "stage": "Download normal main artifact",
+    "started_UTC": "2026-10-06T14:57:59.726226+00:00",
+    "finished_UTC": "2026-10-06T14:58:07.751867+00:00",
+    "command": [
+      "gh",
+      "run",
+      "download",
+      "37478293839",
+      "-n",
+      "docs-channel-main",
+      "-D",
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/subcell-docs-37478293839/docs-channel-main"
+    ],
+    "exit_code": 0
+  },
+  {
+    "stage": "Download normal nightly artifact",
+    "started_UTC": "2026-10-06T14:58:07.752350+00:00",
+    "finished_UTC": "2026-10-06T14:58:19.935204+00:00",
+    "command": [
+      "gh",
+      "run",
+      "download",
+      "37478293839",
+      "-n",
+      "docs-channel-nightly",
+      "-D",
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/subcell-docs-37478293839/docs-channel-nightly"
+    ],
+    "exit_code": 0
+  },
+  {
+    "stage": "Assemble with normal publisher",
+    "started_UTC": "2026-10-06T14:58:19.935533+00:00",
+    "finished_UTC": "2026-10-06T14:58:22.159293+00:00",
+    "command": [
+      "/home/carruthers/anaconda3/envs/spacr/bin/python",
+      "tools/publish_docs_channels.py",
+      "assemble",
+      "--main",
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/subcell-docs-37478293839/docs-channel-main",
+      "--nightly",
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/subcell-docs-37478293839/docs-channel-nightly",
+      "--output",
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/subcell-docs-37478293839/assembled",
+      "--base-path",
+      "/spacr"
+    ],
+    "exit_code": 0
+  },
+  {
+    "stage": "Actual deployed catalog/player roots",
+    "started_UTC": "2026-10-06T14:58:22.275481+00:00",
+    "finished_UTC": "2026-10-06T14:58:31.077583+00:00",
+    "command": [
+      "/home/carruthers/anaconda3/envs/spacr/bin/python",
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/verify_subcell_current_deployment_r1.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "stage": "Actual all-nine API browser readback",
+    "started_UTC": "2026-10-06T14:58:31.077878+00:00",
+    "finished_UTC": "2026-10-06T14:59:38.343770+00:00",
+    "command": [
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python",
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/verify_subcell_deployed_API_browser_r1.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "stage": "Actual all-nine puncta guide readback",
+    "started_UTC": "2026-10-06T14:59:38.344153+00:00",
+    "finished_UTC": "2026-10-06T14:59:49.570612+00:00",
+    "command": [
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python",
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/verify_subcell_deployed_puncta_guides_r1.py"
+    ],
+    "exit_code": 0
+  }
+]
