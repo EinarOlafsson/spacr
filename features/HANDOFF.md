@@ -1,5 +1,39 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 Cell-DINO CPU source and exact documentation-owner follow-up
+CPU source 4e352e79f adds local official Cell-DINO checkpoint loading with
+an explicit HPA L16, HPA L14 or Cell Painting S8 factory, ordered four/five
+source channels and a declared SHA-256. The regular file is hashed before
+weights-only loading; state loading is strict and the official source is
+pinned to 7764ea0f912e53c92e82eb78a2a1631e92725fc8. Alpha controls have literal
+registrations. Three optional EmbeddingSpec fields carry factory/path/digest
+and participate in Cell-DINO fingerprints; all existing model fingerprints
+remain unchanged. Exact constructor-contract assertions retain every previous
+public-inventory count/digest. Eleven named private rendered helpers are
+pinned separately without increasing the 13,182-entry historical inventory.
+
+The agent's 71 focused CPU/Qt checks pass and exercise every added executable
+statement and branch. The root integrated cohort passed 198 behavior/source
+cases before two source-contract checks exposed a sparse conf.py and the eleven
+legitimate private arrivals; conf.py is now materialized and all three affected
+source/inventory checks pass. No application failure is waived. Current source
+and bounded coverage evidence are in data/560_cell_dino_cpu_2026-10-06/.
+An official factory strictly loads a synthetic state and produces finite CPU
+features; actual official pretrained weights remain unobtained. Item 560 stays
+OPEN. Do not claim pretrained scientific or GPU acceptance for this source.
+
+Workstation follow-up is precise: encoder_entry presently calls
+_weights_on_disk(spec.backbone), which cannot resolve the declared Cell-DINO
+path. Extend your owned provenance path to use spec.checkpoint_path and verify
+actual bytes against spec.checkpoint_sha256 before reporting a local ModelEntry.
+The frozen entry used by F565 otherwise has an empty SHA and cross-plate search
+correctly refuses it. All three workstation-owned functions are byte-identical
+to e259c2d4e in this CPU source. Normal API/runtime/documentation/translation
+refresh must include the new constructor fields, mapping errors and alpha form.
+The eleven rendered private arrivals are listed exactly in
+tests/data/release_contracts/663_565_560_private_api_arrivals_2026-10-06.json.
+Preserve all accepted scientific scorecards, CUDA parity and tutorial bytes.
+
 ## 2026-10-06 CPU retained-theme and multi-plate integration checkpoint
 The current catalog retains Point atlas, Tissue facets, Chromatin satin,
 Genetic advection and Perturbation lens, plus continuous Fungal growth.

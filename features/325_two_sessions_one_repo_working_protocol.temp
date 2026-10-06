@@ -18537,3 +18537,19 @@ pretrained-weight acceptance unclaimed. Every GPU process stays workstation
 owned. Hosted serial 37457998285 remains running and protected at old 237.
 Docs/compat at 3ce passed; new ordinary tests 37478294475 wait at e259.
 No cap, coverage ceiling, passed-shard rule or scientific guard is relaxed.
+
+2026-10-06 CPU Cell-DINO source follow-up: 4e352e79f integrates the explicit
+local checkpoint/factory/ordered channel loader and alpha dialog. Official
+source is pinned; declared bytes are verified and state loading is strict.
+Agent 71 focused cases and every added executable line/branch pass; root
+retains all current SubCell and accepted workstation helper bodies. No
+official pretrained weights or new GPU acceptance are claimed. Workstation
+encoder_entry must now use the declared spec checkpoint path and verify its
+actual bytes/digest; its present backbone-only resolver produces empty SHA
+for this new model, so multi-plate search properly refuses it. All three
+owned helper functions are source-identical to e259c2d4e. Normal generation
+for three optional fields and all new model/theme/F565 captions is yours.
+Eleven exact private rendered additions are pinned separately in the new
+source contract without increasing historical inventory counts. Item 560
+remains OPEN. Final retained renderer cohort passes 102; twelve real live
+probes show approximately 24 FPS at 1080p and 20–24 at native 4K.

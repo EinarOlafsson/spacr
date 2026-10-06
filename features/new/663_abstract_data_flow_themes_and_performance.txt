@@ -300,3 +300,15 @@ live cadence regressed despite matching raster pixels. The final focused
 root cohort passed 106 before that discarded experiment was reverted; the
 retained agent clock/cache cohort passes 29. This is a measured improvement,
 not universal 24 FPS native-4K acceptance; item 663 remains OPEN.
+
+2026-10-06 — FINAL RETAINED SOURCE LIVE PLAYBACK READBACK
+All twelve final real timer/producer/widget samples use retained source SHA
+bfd77a38ac5eac7de9f2cdde1880367e2fb42d5a320a79bb21f935d28e1ea1a3.
+1080p rates: atlas 23.90, facets 24.00, chromatin 24.12, advection 23.86,
+lens 23.79, fungal 23.81 FPS. Native-4K rates: atlas 21.02, facets 22.98,
+chromatin 23.91, advection 23.80, lens 20.35, fungal 23.80 FPS. Every worker
+stops on hide. All published clocks are distinct except one repeat among
+68 native-4K facet publications; no sustained frozen-clock stream occurs.
+The final retained focused root cohort passes 102 cases under 4 GiB.
+Receipt worker_gui_retained_final.json and its frozen probe are archived.
+The native-4K smoothness limitation remains explicit; item 663 stays OPEN.

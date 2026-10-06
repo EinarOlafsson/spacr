@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-06",
+  "source_commit": "4e352e79f",
+  "agent_commit": "81d911db12206e8139a708f4ac9c0a3f957cbc33",
+  "official_source_pin": "7764ea0f912e53c92e82eb78a2a1631e92725fc8",
+  "official_pretrained_checkpoint_obtained": false,
+  "pretrained_numerical_acceptance": false,
+  "scope": "Explicit local checkpoint factory/channel mapping, regular file and actual digest checks, weights-only strict load, alpha Qt controls; synthetic official factory state is not pretrained acceptance.",
+  "agent_focused_passes": 71,
+  "agent_added_coverage": {
+    "backend_statements": [
+      86,
+      86
+    ],
+    "backend_added_origin_arcs": [
+      36,
+      36
+    ],
+    "screen_statements": [
+      139,
+      139
+    ],
+    "screen_added_origin_arcs": [
+      34,
+      34
+    ]
+  },
+  "root_source_hashes": {
+    "spacr/embeddings.py": "0b6db0a54ea46dffb36bf7b733dab9ca6f78e4c3f01d528931dfae438b63e24d",
+    "spacr/qt/screens/embeddings.py": "41b05ac8c5e3afbcab098b5e5d44748b6a0b96c11db40b93cf7c14680053a3e7",
+    "spacr/settings.py": "fb9ec5e7c4c10da1b689e1934feb52746d305b7a880c9aeb2785e8ea5992e1b9"
+  },
+  "workstation_owned_functions_source_identical_to_e259c2d4e": [
+    "_retrieval_scorecard",
+    "_weights_on_disk",
+    "encoder_entry"
+  ],
+  "remaining": [
+    "Official pretrained checkpoint validation",
+    "Workstation encoder_entry must resolve declared Cell-DINO checkpoint and actual SHA",
+    "Normal source-current API/runtime/docs/translation generation"
+  ],
+  "resources": {
+    "memory_cap": "4 GiB",
+    "cuda_visible_devices": "",
+    "qt_platform": "offscreen",
+    "full_suite": false
+  }
+}
