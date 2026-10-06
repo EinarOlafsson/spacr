@@ -469,7 +469,7 @@ def event_loop_started() -> None:
     this function proves that the loop has begun dispatching events.
     """
     global _EVENT_LOOP_STARTED_AT
-    if not ENABLED or _EVENT_LOOP_STARTED_AT is not None:
+    if (not ENABLED and not _ACTIVE_PROBES) or _EVENT_LOOP_STARTED_AT is not None:
         return
     _EVENT_LOOP_STARTED_AT = time.perf_counter()
     mark("event loop began")
@@ -532,6 +532,7 @@ def watch_interactive(
     *,
     started_at: Optional[float] = None,
     budget_s: Optional[float] = None,
+    on_ready: Optional[Callable[[], None]] = None,
 ):
     """Observe when ``widget`` is genuinely painted and operable.
 
@@ -545,14 +546,17 @@ def watch_interactive(
     The observer is installed after construction but before the new page can
     paint.  It removes itself at the first valid state and is parented to the
     observed widget, so neither a report nor a failed screen keeps a window
-    alive.  PySide6 is imported only while timing is explicitly enabled.
+    alive. PySide6 is imported only when timing or an explicit readiness
+    callback is requested. A callback without timing creates no report.
 
     :param widget: the screen to observe; it and its input controls get the
         paint filter, and ``None`` records nothing.
     :param name: the readiness record's label; an unfinished probe with the
         same name and detail is retired first.
+    :param on_ready: optional callback after the real post-paint checkpoint
+        and any enabled timing observers, including when timing is disabled.
     """
-    if not ENABLED or widget is None:
+    if (not ENABLED and on_ready is None) or widget is None:
         return None
 
     cancel_interactive(name=str(name), detail=str(detail))
@@ -686,6 +690,12 @@ def watch_interactive(
             if not root_usable or not painted_usable:
                 return
 
+            if not ENABLED:
+                self._retire()
+                if on_ready is not None:
+                    on_ready()
+                return
+
             now = time.perf_counter()
             origin = _START if started_at is None else started_at
             effective_budget = budget_s
@@ -727,6 +737,8 @@ def watch_interactive(
                     callback(dict(entry))
                 except Exception:                            # noqa: BLE001
                     continue
+            if on_ready is not None:
+                on_ready()
 
         def _retire(self) -> None:
             """Stop watching. Idempotent, so a second call costs nothing."""
