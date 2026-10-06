@@ -650,3 +650,14 @@ and visual follow-up changes remain separate. Portable before/after source,
 proof, live worker/allocation and coverage evidence is archived at
  data/663_owned_native_branch_frames_cpu_2026-10-06/.
 No Save crash fix or user aesthetic acceptance is claimed.
+
+2026-10-06 — one-percent Preferences controls and dynamic Help strip
+Animation density now supports and saves exactly1% as requested. Both density
+and mouse radius preserve1/10/50% with one-percent keyboard steps; the separate
+radius default/off remains0. Custom colors use the existing safe picker;
+Cancel does not save, and Save applies the complete selected pair. Theme and
+color changes preserve Help-strip explanations and accessible descriptions
+without restoring popup tooltips. All114 affected checks pass; exact default
+claim inventory additionally passes after naming its one new Watch-pool pair.
+Receipts: data/663_preferences_density_help_cpu_2026-10-06/. Renderer density
+refinement, newer gravity/palette/mycelium requests and Save crash stay open.

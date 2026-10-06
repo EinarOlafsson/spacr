@@ -432,6 +432,37 @@ def _ambient():
     return ambient
 
 
+@pytest.mark.parametrize("percent", [1, 10, 50])
+def test_low_ambient_density_survives_missing_widget_ranges(fake_ambient, percent):
+    from spacr.qt import preferences
+
+    preferences.set_ambient_density(percent / 100)
+    assert preferences.get_ambient_density() == pytest.approx(percent / 100)
+
+
+@pytest.mark.parametrize("percent", [1, 10, 50])
+def test_dialog_saves_low_density_and_gravity_with_one_percent_steps(
+    qtbot, qt_theme_applied, percent,
+):
+    from PySide6.QtWidgets import QAbstractSlider, QDialogButtonBox, QSlider
+    from spacr.qt import preferences
+
+    dialog = preferences.PreferencesDialog()
+    qtbot.addWidget(dialog)
+    density = dialog.findChild(QSlider, "AmbientDensity")
+    gravity = dialog.findChild(QSlider, "AmbientGravityRadius")
+    assert density.minimum() == 1
+    for slider in (density, gravity):
+        slider.setValue(percent)
+        slider.triggerAction(QAbstractSlider.SliderSingleStepAdd)
+        assert slider.value() == percent + 1
+        slider.triggerAction(QAbstractSlider.SliderSingleStepSub)
+        assert slider.value() == percent
+    dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+    assert preferences.get_ambient_density() == pytest.approx(percent / 100)
+    assert preferences._ambient_gravity_radius() == pytest.approx(percent / 100)
+
+
 @pytest.fixture
 def fake_ambient(monkeypatch):
     """A controlled stand-in for :mod:`spacr.qt.widgets.ambient`.
@@ -511,15 +542,15 @@ def fake_ambient(monkeypatch):
 
 
 def test_ambient_defaults(qt_theme_applied):
-    """Out of the box: on, blobs, spaCR's own colours."""
+    """Out of the box: on, spaCR field, spaCR's own colours."""
     from spacr.qt.preferences import (
         get_ambient_enabled, get_ambient_palette, get_ambient_theme,
     )
     ambient = _ambient()
-    assert ambient.DEFAULT_THEME == "blobs"
+    assert ambient.DEFAULT_THEME == "data_art_impulse_lens"
     assert ambient.DEFAULT_PALETTE == "spacr"
     assert get_ambient_enabled() is True
-    assert get_ambient_theme() == "blobs"
+    assert get_ambient_theme() == "data_art_impulse_lens"
     assert get_ambient_palette() == "spacr"
 
 
@@ -1006,8 +1037,9 @@ def test_dialog_offers_the_ambient_controls(qtbot, qt_theme_applied):
 
     keys = [theme_combo.itemData(i) for i in range(theme_combo.count())]
     assert keys == list(ambient.ANIMATION_CHOICES)
-    assert keys[0] == ambient.NO_ANIMATION, "None is offered first"
-    assert keys[1:] == list(ambient.AMBIENT_THEMES)
+    assert keys[0] == ambient.DEFAULT_THEME, "spaCR field is offered first"
+    assert keys[-1] == ambient.NO_ANIMATION, "None is offered last"
+    assert keys[:-1] == list(ambient.AMBIENT_THEMES)
     # Human labels, not raw keys.
     labels = [theme_combo.itemText(i) for i in range(theme_combo.count())]
     assert labels == [tr(ambient.animation_label(k)) for k in keys]
@@ -1050,8 +1082,13 @@ def test_dialog_palette_list_follows_the_selected_theme(qtbot,
             assert palette_combo.isEnabled()
         # The picker also says what the animation looks like.
         from spacr.qt.i18n import tr
-        assert theme_combo.toolTip() == tr(ambient.animation_note(theme))
-        assert theme_combo.toolTip()
+        from spacr.qt.widgets.hint_bar import HintBar
+
+        assert theme_combo.toolTip() == ""
+        assert dlg.findChild(HintBar).explains(theme_combo) == \
+            tr(ambient.animation_note(theme))
+        assert theme_combo.accessibleDescription() == tr(ambient.animation_note(theme))
+        assert dlg.findChild(HintBar).explains(theme_combo)
 
 
 def test_dialog_disables_the_pickers_when_the_animation_is_off(
@@ -1103,7 +1140,7 @@ def test_dialog_saves_the_ambient_choices(qtbot, qt_theme_applied):
     theme_combo = dlg.findChild(QComboBox, "AmbientTheme")
     palette_combo = dlg.findChild(QComboBox, "AmbientPalette")
 
-    theme_combo.setCurrentIndex(theme_combo.count() - 1)
+    theme_combo.setCurrentIndex(theme_combo.count() - 2)
     wanted_theme = theme_combo.currentData()
     palette_combo.setCurrentIndex(palette_combo.count() - 1)
     wanted_palette = palette_combo.currentData()

@@ -2743,3 +2743,15 @@ after the run started; unconfirmed on CI.
   source issue; it does not refute the installed-wheel local c37 receipt.
   No coverage bar, locale policy, timeout or performance budget changed.
   Item 43 stays OPEN for an exact current-source hosted green verdict.
+
+2026-10-06 — Preferences guard and exact default-claim inventory repaired
+Safe custom-color dialogs and dynamic Help-strip hints now follow the same
+existing product contracts after edits. Obsolete Preferences expectations
+now use the actual field-first/None-last catalog. All114 affected tests pass.
+Exact claim inventory gains only mask/watch_normalization_pool,919->920;
+all old pairs and recorded variants are identical. Its named arithmetic
+checksum passes separately; no mismatch or coverage allowance was raised.
+Receipts: data/663_preferences_density_help_cpu_2026-10-06/. Item43 stays
+OPEN: fresh209 installed Home still imports SciPy via the NumBa grain daemon
+before genuine post-paint readiness. A confirmed trace, not a guard waiver,
+drives the separate compiler-startup repair now being validated.
