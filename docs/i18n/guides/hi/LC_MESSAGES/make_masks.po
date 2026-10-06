@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 23:05-0400\n"
+"POT-Creation-Date: 2026-10-06 07:48-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -560,6 +560,54 @@ msgstr "``secondary_growth`` — डिफ़ॉल्ट ``'intensity'``"
 
 msgid "``intensity`` or ``distance`` watershed for secondary objects; maxima detection ignores this setting."
 msgstr "द्वितीयक ऑब्जेक्ट के लिए ``intensity`` या ``distance`` वॉटरशेड; मैक्सिमा पहचान इस सेटिंग को अनदेखा करती है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_sigmas`` — default ``(1.5, 2.0, 3.0, 4.0, 6.0)``"
+msgstr "``puncta_sigmas`` — डिफ़ॉल्ट ``(1.5, 2.0, 3.0, 4.0, 6.0)``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "scale-normalised LoG widths in image pixels."
+msgstr "छवि पिक्सेल में पैमाना-सामान्यीकृत LoG चौड़ाइयाँ।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_k`` — default ``2.5``"
+msgstr "``puncta_k`` — डिफ़ॉल्ट ``2.5``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "candidate response threshold in propagated pixel-noise units."
+msgstr "प्रसारित पिक्सेल शोर की इकाइयों में संभावित बिंदु की प्रतिक्रिया सीमा।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_center_pixels`` — default ``20``"
+msgstr "``puncta_center_pixels`` — डिफ़ॉल्ट ``20``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "number of pixels nearest each subpixel centre, from 1 to 81 in the nine-by-nine measurement window."
+msgstr "नौ गुणा नौ पिक्सेल की मापन खिड़की में प्रत्येक उपपिक्सेल केंद्र के निकटतम पिक्सेल की संख्या, 1 से 81 तक।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_min_corrected`` — default ``3.0``"
+msgstr "``puncta_min_corrected`` — डिफ़ॉल्ट ``3.0``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "minimum centre mean minus local annulus median, in native intensity units. Equality is retained."
+msgstr "केंद्र के औसत घटा स्थानीय वलय के मध्यक का न्यूनतम मान, मूल तीव्रता इकाइयों में। बराबरी होने पर भी बिंदु रखा जाता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_min_distance`` — default ``2``"
+msgstr "``puncta_min_distance`` — डिफ़ॉल्ट ``2``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "peak-local-maximum neighbourhood in pixels; scale-dependent nonmaximum suppression follows it."
+msgstr "पिक्सेल में शिखर के स्थानीय अधिकतम का पड़ोस; इसके बाद पैमाने पर निर्भर गैर-अधिकतम दमन लागू होता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_edge_margin`` — default ``3.0``"
+msgstr "``puncta_edge_margin`` — डिफ़ॉल्ट ``3.0``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "minimum distance from the parent boundary in pixels."
+msgstr "मूल ऑब्जेक्ट की सीमा से न्यूनतम दूरी, पिक्सेल में।"
 
 msgid "Organelle detectors"
 msgstr "कोशिकांग डिटेक्टर"

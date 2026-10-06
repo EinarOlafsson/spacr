@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 23:05-0400\n"
+"POT-Creation-Date: 2026-10-06 07:48-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -560,6 +560,54 @@ msgstr "``secondary_growth`` — standard ``'intensity'``"
 
 msgid "``intensity`` or ``distance`` watershed for secondary objects; maxima detection ignores this setting."
 msgstr "vattendelning av typen ``intensity`` eller ``distance`` för sekundära objekt; detektion av maxima ignorerar denna inställning."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_sigmas`` — default ``(1.5, 2.0, 3.0, 4.0, 6.0)``"
+msgstr "``puncta_sigmas`` — standard ``(1.5, 2.0, 3.0, 4.0, 6.0)``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "scale-normalised LoG widths in image pixels."
+msgstr "skalnormaliserade LoG-bredder i bildpixlar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_k`` — default ``2.5``"
+msgstr "``puncta_k`` — standard ``2.5``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "candidate response threshold in propagated pixel-noise units."
+msgstr "tröskel för kandidatrespons i enheter av fortplantat pixelbrus."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_center_pixels`` — default ``20``"
+msgstr "``puncta_center_pixels`` — standard ``20``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "number of pixels nearest each subpixel centre, from 1 to 81 in the nine-by-nine measurement window."
+msgstr "antal pixlar närmast varje subpixelcentrum, från 1 till 81 i mätfönstret på nio gånger nio pixlar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_min_corrected`` — default ``3.0``"
+msgstr "``puncta_min_corrected`` — standard ``3.0``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "minimum centre mean minus local annulus median, in native intensity units. Equality is retained."
+msgstr "minsta centrummedelvärde minus medianen i den lokala bakgrundsringen, i ursprungliga intensitetsenheter. Likhet behålls."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_min_distance`` — default ``2``"
+msgstr "``puncta_min_distance`` — standard ``2``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "peak-local-maximum neighbourhood in pixels; scale-dependent nonmaximum suppression follows it."
+msgstr "grannskap för lokala toppmaxima i pixlar; därefter följer skalberoende undertryckning av svagare närliggande maxima."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_edge_margin`` — default ``3.0``"
+msgstr "``puncta_edge_margin`` — standard ``3.0``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "minimum distance from the parent boundary in pixels."
+msgstr "minsta avstånd från förälderns gräns i pixlar."
 
 msgid "Organelle detectors"
 msgstr "Organelldetektorer"

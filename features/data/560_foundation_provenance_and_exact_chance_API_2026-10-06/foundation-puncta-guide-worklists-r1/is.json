@@ -1,0 +1,86 @@
+[
+ {
+  "domain": "make_masks",
+  "msgid": "``puncta_sigmas`` — default ``(1.5, 2.0, 3.0, 4.0, 6.0)``",
+  "hint": "``ridge_sigmas`` — sjálfgildi ``(1.0, 2.0, 3.0)``",
+  "ui": {},
+  "msgstr": ""
+ },
+ {
+  "domain": "make_masks",
+  "msgid": "scale-normalised LoG widths in image pixels.",
+  "hint": "",
+  "ui": {},
+  "msgstr": ""
+ },
+ {
+  "domain": "make_masks",
+  "msgid": "``puncta_k`` — default ``2.5``",
+  "hint": "``local_k`` — sjálfgildi ``0.2``",
+  "ui": {},
+  "msgstr": ""
+ },
+ {
+  "domain": "make_masks",
+  "msgid": "candidate response threshold in propagated pixel-noise units.",
+  "hint": "",
+  "ui": {},
+  "msgstr": ""
+ },
+ {
+  "domain": "make_masks",
+  "msgid": "``puncta_center_pixels`` — default ``20``",
+  "hint": "``psf_iterations`` — sjálfgildi ``20``",
+  "ui": {},
+  "msgstr": ""
+ },
+ {
+  "domain": "make_masks",
+  "msgid": "number of pixels nearest each subpixel centre, from 1 to 81 in the nine-by-nine measurement window.",
+  "hint": "",
+  "ui": {},
+  "msgstr": ""
+ },
+ {
+  "domain": "make_masks",
+  "msgid": "``puncta_min_corrected`` — default ``3.0``",
+  "hint": "``unet_threshold`` — sjálfgildi ``0.5``",
+  "ui": {},
+  "msgstr": ""
+ },
+ {
+  "domain": "make_masks",
+  "msgid": "minimum centre mean minus local annulus median, in native intensity units. Equality is retained.",
+  "hint": "",
+  "ui": {},
+  "msgstr": ""
+ },
+ {
+  "domain": "make_masks",
+  "msgid": "``puncta_min_distance`` — default ``2``",
+  "hint": "``propagate_min_distance`` — sjálfgildi ``10``",
+  "ui": {},
+  "msgstr": ""
+ },
+ {
+  "domain": "make_masks",
+  "msgid": "peak-local-maximum neighbourhood in pixels; scale-dependent nonmaximum suppression follows it.",
+  "hint": "",
+  "ui": {},
+  "msgstr": ""
+ },
+ {
+  "domain": "make_masks",
+  "msgid": "``puncta_edge_margin`` — default ``3.0``",
+  "hint": "``dog_sigma_high`` — sjálfgildi ``3.0``",
+  "ui": {},
+  "msgstr": ""
+ },
+ {
+  "domain": "make_masks",
+  "msgid": "minimum distance from the parent boundary in pixels.",
+  "hint": "",
+  "ui": {},
+  "msgstr": ""
+ }
+]

@@ -1,0 +1,30 @@
+{
+  "item": 560,
+  "acquired_utc": "2026-10-06T12:33:42.993082+00:00",
+  "files": {
+    "vit_model.py": {
+      "sha256": "2b18c329d0f1b6d959b900b01c354ebb5dd4b2b2f6f9968ce77875fba3199267",
+      "bytes": 14616,
+      "original_url": "https://raw.githubusercontent.com/CellProfiling/SubCellPortable/c4e0a9106ecffdd2ad91fbbd60bda6dc9fc74009/vit_model.py"
+    },
+    "upstream_dataset.py": {
+      "sha256": "c3eaaa5df1b44b38c8cfeafe1cb0e9c1c83a9dceb5b4d255518094550b4a1c3c",
+      "bytes": 4076,
+      "original_url": "https://raw.githubusercontent.com/CellProfiling/SubCellPortable/c4e0a9106ecffdd2ad91fbbd60bda6dc9fc74009/dataset.py"
+    },
+    "model_config.yaml": {
+      "sha256": "4af4ce5fd3cfee73c70435e9c62d73e19fd55b64ecb72f95bd9a9f8c148bdf5d",
+      "bytes": 593,
+      "original_url": "https://raw.githubusercontent.com/CellProfiling/SubCellPortable/c4e0a9106ecffdd2ad91fbbd60bda6dc9fc74009/models/rybg/vit_supcon_model/model_config.yaml"
+    },
+    "torch/hub/checkpoints/all_channels_ViT-ProtS-Pool.pth": {
+      "sha256": "6a2d117bcacaa0697034d06d6922580ca7cd996564f270529ec97e6502559845",
+      "bytes": 349009018,
+      "original_url": "https://czi-subcell-public.s3.amazonaws.com/models/all_channels_ViT-ProtS-Pool.pth"
+    }
+  },
+  "all_four_original_hashes_exact_to_published_Home_CPU_receipt": true,
+  "upstream_commit": "c4e0a9106ecffdd2ad91fbbd60bda6dc9fc74009",
+  "Home_source_checkpoint_pending_integration": "3ce39ac7bde621dffc34c82f18779ce1a21a61e0",
+  "no_GPU_run_or_biological_benchmark_claim": true
+}

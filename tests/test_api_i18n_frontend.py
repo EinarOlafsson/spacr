@@ -173,7 +173,8 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # spacr.measure._pin_cupy_cudart_headers._pinned; all 13,175 prior unchanged.
 # Item 662: +4 public mask_engine YOLO helpers, no removals.
 # All 13,177 prior English records preserved; 662_yolo_support receipt.
-REAL_SYMBOL_COUNT = 13_181
+# 2026-10-06 560: +1/-0, EmbeddingsScreen._subcell_channels_dialog.accept_mapping.
+REAL_SYMBOL_COUNT = 13_182
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

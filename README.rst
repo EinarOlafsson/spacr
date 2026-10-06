@@ -182,11 +182,6 @@ The installers bundle their own Python. Conda is not required.
 
 .. spacr-installer-links-end
 
-The first three icons download the current release. The spaCR icon opens the
-complete installer archive. Installer links and versioned filenames are
-updated by the release workflow; earlier installers remain in the same
-release archive.
-
 On Linux, make the downloaded file executable and run it:
 
 .. code-block:: bash
@@ -318,7 +313,7 @@ measured 2026-09-15 by ``packaging/measure_clone_forms.sh``::
 
 On 2026-09-15, the full clone downloaded 5.8 GB. Adding
 ``--filter=blob:none`` to the shallow clone did not reduce its measured download.
-The nightly tracked tree is a 1029 MB checkout (measured 2026-10-05),
+The nightly tracked tree is a 1710 MB checkout (measured 2026-10-06),
 excluding Git history. Download sizes and times vary with the branch.
 
 
@@ -479,8 +474,6 @@ Quantitative readouts for biological assays.
 Every module with a Home tile, in Home's order: the six pipeline modules
 first, then the rest. Select a tile to open that
 module's API page.
-
-See the `feature guide <docs/source/features.rst>`_ for each tool.
 
 Other resources
 ~~~~~~~~~~~~~~~

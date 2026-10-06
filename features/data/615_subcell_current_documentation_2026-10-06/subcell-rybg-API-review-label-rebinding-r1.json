@@ -1,0 +1,452 @@
+{
+  "sv": [
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-15-embedding-plate-scale.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/sv/archive/2026-10-06-subcell-rybg/2026-09-15-embedding-plate-scale.json",
+      "complete_original_sha256": "962f6c536e7628b490d6c019300363d172bcd09109b14d2819d739cbcccf950e",
+      "moves": [
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#6",
+          "current_label": "spacr.embeddings.EmbeddingSpec#7",
+          "canonical_source_hash_context_translation_exact": true
+        },
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#7",
+          "current_label": "spacr.embeddings.EmbeddingSpec#8",
+          "canonical_source_hash_context_translation_exact": true
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-000.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/sv/archive/2026-10-06-subcell-rybg/2026-09-25-api-debt-000.json",
+      "complete_original_sha256": "07a519843b4ee0fbbad8401109a7aeb50995e23491ee4a7f53b7eea3286864cd",
+      "moves": [
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#2",
+          "current_label": "spacr.embeddings.EmbeddingSpec#3",
+          "canonical_source_hash_context_translation_exact": true
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/api/sv/2026-10-03-nested-batch9.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/sv/archive/2026-10-06-subcell-rybg/2026-10-03-nested-batch9.json",
+      "complete_original_sha256": "193b4b6ff322798461f650af94384a049a9dbd181bc818415e33c22c8fbc7dca",
+      "moves": [
+        {
+          "retired_label": "spacr.embeddings._foundation_encoder.run#0",
+          "source_sha256": "6232df384397cd204ba3032485fc4b4bc3156636b10bcdadfb52e0d3172884df"
+        },
+        {
+          "retired_label": "spacr.embeddings._foundation_encoder.run#1",
+          "source_sha256": "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427"
+        },
+        {
+          "retired_label": "spacr.embeddings._subcell_model.forward#0",
+          "source_sha256": "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754"
+        }
+      ]
+    }
+  ],
+  "de": [
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-15-embedding-plate-scale.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/de/archive/2026-10-06-subcell-rybg/2026-09-15-embedding-plate-scale.json",
+      "complete_original_sha256": "3600c8e326cae3fb14ec6abfe3d5c9545a133c378171c2323be107712698e155",
+      "moves": [
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#6",
+          "current_label": "spacr.embeddings.EmbeddingSpec#7",
+          "canonical_source_hash_context_translation_exact": true
+        },
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#7",
+          "current_label": "spacr.embeddings.EmbeddingSpec#8",
+          "canonical_source_hash_context_translation_exact": true
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-000.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/de/archive/2026-10-06-subcell-rybg/2026-09-25-api-debt-000.json",
+      "complete_original_sha256": "8e6d487bf0fb80dc8e01eae53a8c7ba72d19103af5a6e67c61068648336134eb",
+      "moves": [
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#2",
+          "current_label": "spacr.embeddings.EmbeddingSpec#3",
+          "canonical_source_hash_context_translation_exact": true
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/api/de/2026-10-03-nested-batch9.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/de/archive/2026-10-06-subcell-rybg/2026-10-03-nested-batch9.json",
+      "complete_original_sha256": "59a4ade7bb436e62e7cc24c661d991158b9e97139c004c9bb266844d89cf5f25",
+      "moves": [
+        {
+          "retired_label": "spacr.embeddings._foundation_encoder.run#0",
+          "source_sha256": "6232df384397cd204ba3032485fc4b4bc3156636b10bcdadfb52e0d3172884df"
+        },
+        {
+          "retired_label": "spacr.embeddings._foundation_encoder.run#1",
+          "source_sha256": "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427"
+        },
+        {
+          "retired_label": "spacr.embeddings._subcell_model.forward#0",
+          "source_sha256": "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754"
+        }
+      ]
+    }
+  ],
+  "es": [
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-15-embedding-plate-scale.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/es/archive/2026-10-06-subcell-rybg/2026-09-15-embedding-plate-scale.json",
+      "complete_original_sha256": "13efdd662c6b11847089abf3afa2e97b37ebc0f0853c427d1e6b67104ff0dd1b",
+      "moves": [
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#6",
+          "current_label": "spacr.embeddings.EmbeddingSpec#7",
+          "canonical_source_hash_context_translation_exact": true
+        },
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#7",
+          "current_label": "spacr.embeddings.EmbeddingSpec#8",
+          "canonical_source_hash_context_translation_exact": true
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-000.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/es/archive/2026-10-06-subcell-rybg/2026-09-25-api-debt-000.json",
+      "complete_original_sha256": "9bb0005a9ec6b4b9189d7d2a95a3bf1aabf4f1473e0bf050017e9a5c87fa6a18",
+      "moves": [
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#2",
+          "current_label": "spacr.embeddings.EmbeddingSpec#3",
+          "canonical_source_hash_context_translation_exact": true
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/api/es/2026-10-03-nested-batch9.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/es/archive/2026-10-06-subcell-rybg/2026-10-03-nested-batch9.json",
+      "complete_original_sha256": "49b33e6efc7b2bec2a07317e74ee013dd06e8938a1552f9c5d46f7e3f5457aea",
+      "moves": [
+        {
+          "retired_label": "spacr.embeddings._foundation_encoder.run#0",
+          "source_sha256": "6232df384397cd204ba3032485fc4b4bc3156636b10bcdadfb52e0d3172884df"
+        },
+        {
+          "retired_label": "spacr.embeddings._foundation_encoder.run#1",
+          "source_sha256": "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427"
+        },
+        {
+          "retired_label": "spacr.embeddings._subcell_model.forward#0",
+          "source_sha256": "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754"
+        }
+      ]
+    }
+  ],
+  "zh_CN": [
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-15-embedding-plate-scale.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/zh_CN/archive/2026-10-06-subcell-rybg/2026-09-15-embedding-plate-scale.json",
+      "complete_original_sha256": "dfc4bf35c14af7c2c0c86197df778c8558ed914d23e10e2c05ed7cbab40c7714",
+      "moves": [
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#6",
+          "current_label": "spacr.embeddings.EmbeddingSpec#7",
+          "canonical_source_hash_context_translation_exact": true
+        },
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#7",
+          "current_label": "spacr.embeddings.EmbeddingSpec#8",
+          "canonical_source_hash_context_translation_exact": true
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-000.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/zh_CN/archive/2026-10-06-subcell-rybg/2026-09-25-api-debt-000.json",
+      "complete_original_sha256": "73aeb64019d488309643dd84b5f131c9dd30f6b30cb9cb3376a0597f35777ba4",
+      "moves": [
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#2",
+          "current_label": "spacr.embeddings.EmbeddingSpec#3",
+          "canonical_source_hash_context_translation_exact": true
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-10-03-nested-batch9.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/zh_CN/archive/2026-10-06-subcell-rybg/2026-10-03-nested-batch9.json",
+      "complete_original_sha256": "76b735b868c1f9b45769a2b3cced5240c1c6db0446aba9f2a91f6738c4a5f510",
+      "moves": [
+        {
+          "retired_label": "spacr.embeddings._foundation_encoder.run#0",
+          "source_sha256": "6232df384397cd204ba3032485fc4b4bc3156636b10bcdadfb52e0d3172884df"
+        },
+        {
+          "retired_label": "spacr.embeddings._foundation_encoder.run#1",
+          "source_sha256": "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427"
+        },
+        {
+          "retired_label": "spacr.embeddings._subcell_model.forward#0",
+          "source_sha256": "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754"
+        }
+      ]
+    }
+  ],
+  "pt": [
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-15-embedding-plate-scale.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/pt/archive/2026-10-06-subcell-rybg/2026-09-15-embedding-plate-scale.json",
+      "complete_original_sha256": "72349baf5898dd31f0d67a714a961b666641c2675346892de14998219b090a03",
+      "moves": [
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#6",
+          "current_label": "spacr.embeddings.EmbeddingSpec#7",
+          "canonical_source_hash_context_translation_exact": true
+        },
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#7",
+          "current_label": "spacr.embeddings.EmbeddingSpec#8",
+          "canonical_source_hash_context_translation_exact": true
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-000.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/pt/archive/2026-10-06-subcell-rybg/2026-09-25-api-debt-000.json",
+      "complete_original_sha256": "ee55d3f64c248550a3fec00cd4a7150696457c751e586820a4306890941ca0dc",
+      "moves": [
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#2",
+          "current_label": "spacr.embeddings.EmbeddingSpec#3",
+          "canonical_source_hash_context_translation_exact": true
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/api/pt/2026-10-03-nested-batch9.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/pt/archive/2026-10-06-subcell-rybg/2026-10-03-nested-batch9.json",
+      "complete_original_sha256": "36b8f167ea403e6f035030a34082b66c2366117996029cfcf4cf5e4ced400aba",
+      "moves": [
+        {
+          "retired_label": "spacr.embeddings._foundation_encoder.run#0",
+          "source_sha256": "6232df384397cd204ba3032485fc4b4bc3156636b10bcdadfb52e0d3172884df"
+        },
+        {
+          "retired_label": "spacr.embeddings._foundation_encoder.run#1",
+          "source_sha256": "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427"
+        },
+        {
+          "retired_label": "spacr.embeddings._subcell_model.forward#0",
+          "source_sha256": "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754"
+        }
+      ]
+    }
+  ],
+  "hi": [
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-15-embedding-plate-scale.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/hi/archive/2026-10-06-subcell-rybg/2026-09-15-embedding-plate-scale.json",
+      "complete_original_sha256": "a0d74ae9e7fbd0b22e083fa5a0fbeb03140daef2c4b08ca1c4f2207304e54ba0",
+      "moves": [
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#6",
+          "current_label": "spacr.embeddings.EmbeddingSpec#7",
+          "canonical_source_hash_context_translation_exact": true
+        },
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#7",
+          "current_label": "spacr.embeddings.EmbeddingSpec#8",
+          "canonical_source_hash_context_translation_exact": true
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-000.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/hi/archive/2026-10-06-subcell-rybg/2026-09-25-api-debt-000.json",
+      "complete_original_sha256": "3f9cc3c7370547a40ad6b4f6fe559552a6068e1910a2b1baa99a24645c9293c1",
+      "moves": [
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#2",
+          "current_label": "spacr.embeddings.EmbeddingSpec#3",
+          "canonical_source_hash_context_translation_exact": true
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/api/hi/2026-10-03-nested-batch9.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/hi/archive/2026-10-06-subcell-rybg/2026-10-03-nested-batch9.json",
+      "complete_original_sha256": "e6875909b07857500c5e0021a1093d0da9be6ce4a54bbab7be55d177c3ecf46d",
+      "moves": [
+        {
+          "retired_label": "spacr.embeddings._foundation_encoder.run#0",
+          "source_sha256": "6232df384397cd204ba3032485fc4b4bc3156636b10bcdadfb52e0d3172884df"
+        },
+        {
+          "retired_label": "spacr.embeddings._foundation_encoder.run#1",
+          "source_sha256": "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427"
+        },
+        {
+          "retired_label": "spacr.embeddings._subcell_model.forward#0",
+          "source_sha256": "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754"
+        }
+      ]
+    }
+  ],
+  "ko": [
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-15-embedding-plate-scale.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/ko/archive/2026-10-06-subcell-rybg/2026-09-15-embedding-plate-scale.json",
+      "complete_original_sha256": "f81d4569b43c6c70cfb74a0a43fa1d474bb60766f2e360dff12f6a3b6a36557e",
+      "moves": [
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#6",
+          "current_label": "spacr.embeddings.EmbeddingSpec#7",
+          "canonical_source_hash_context_translation_exact": true
+        },
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#7",
+          "current_label": "spacr.embeddings.EmbeddingSpec#8",
+          "canonical_source_hash_context_translation_exact": true
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-000.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/ko/archive/2026-10-06-subcell-rybg/2026-09-25-api-debt-000.json",
+      "complete_original_sha256": "84a946f0578c19071292462d98ede2adb864b3af57d03252f67bf82a6da9ab2e",
+      "moves": [
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#2",
+          "current_label": "spacr.embeddings.EmbeddingSpec#3",
+          "canonical_source_hash_context_translation_exact": true
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/api/ko/2026-10-03-nested-batch9.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/ko/archive/2026-10-06-subcell-rybg/2026-10-03-nested-batch9.json",
+      "complete_original_sha256": "1b49e45ce2e0233bcd85bb6fb891881190ee16eb797fd4568120347cb816cbc8",
+      "moves": [
+        {
+          "retired_label": "spacr.embeddings._foundation_encoder.run#0",
+          "source_sha256": "6232df384397cd204ba3032485fc4b4bc3156636b10bcdadfb52e0d3172884df"
+        },
+        {
+          "retired_label": "spacr.embeddings._foundation_encoder.run#1",
+          "source_sha256": "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427"
+        },
+        {
+          "retired_label": "spacr.embeddings._subcell_model.forward#0",
+          "source_sha256": "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754"
+        }
+      ]
+    }
+  ],
+  "is": [
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-15-embedding-plate-scale.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/is/archive/2026-10-06-subcell-rybg/2026-09-15-embedding-plate-scale.json",
+      "complete_original_sha256": "2a4d85ac15a1656bb185190cc0a94a752cc81263a50bc708558c592d78e23cf1",
+      "moves": [
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#6",
+          "current_label": "spacr.embeddings.EmbeddingSpec#7",
+          "canonical_source_hash_context_translation_exact": true
+        },
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#7",
+          "current_label": "spacr.embeddings.EmbeddingSpec#8",
+          "canonical_source_hash_context_translation_exact": true
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-000.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/is/archive/2026-10-06-subcell-rybg/2026-09-25-api-debt-000.json",
+      "complete_original_sha256": "5ead7540c6fcd6b067fba98d391b6400adcb47defc8b2fc7347beb82200dbad1",
+      "moves": [
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#2",
+          "current_label": "spacr.embeddings.EmbeddingSpec#3",
+          "canonical_source_hash_context_translation_exact": true
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/api/is/2026-10-03-nested-batch9.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/is/archive/2026-10-06-subcell-rybg/2026-10-03-nested-batch9.json",
+      "complete_original_sha256": "8e7557ed3f9e68de7286dc2a42adad4f1f20b66f6802c12569b8c32fa46b63df",
+      "moves": [
+        {
+          "retired_label": "spacr.embeddings._foundation_encoder.run#0",
+          "source_sha256": "6232df384397cd204ba3032485fc4b4bc3156636b10bcdadfb52e0d3172884df"
+        },
+        {
+          "retired_label": "spacr.embeddings._foundation_encoder.run#1",
+          "source_sha256": "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427"
+        },
+        {
+          "retired_label": "spacr.embeddings._subcell_model.forward#0",
+          "source_sha256": "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754"
+        }
+      ]
+    }
+  ],
+  "fr": [
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-15-embedding-plate-scale.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/fr/archive/2026-10-06-subcell-rybg/2026-09-15-embedding-plate-scale.json",
+      "complete_original_sha256": "615d0fdc20ec0f51c53191b6623a34317fc5f8b7373704c9d3fe7faa93588f2d",
+      "moves": [
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#6",
+          "current_label": "spacr.embeddings.EmbeddingSpec#7",
+          "canonical_source_hash_context_translation_exact": true
+        },
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#7",
+          "current_label": "spacr.embeddings.EmbeddingSpec#8",
+          "canonical_source_hash_context_translation_exact": true
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-000.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/fr/archive/2026-10-06-subcell-rybg/2026-09-25-api-debt-000.json",
+      "complete_original_sha256": "0db53e20325cc696e63d711f41298ddd1d8507632b92472c75ac317b5ca54881",
+      "moves": [
+        {
+          "old_label": "spacr.embeddings.EmbeddingSpec#2",
+          "current_label": "spacr.embeddings.EmbeddingSpec#3",
+          "canonical_source_hash_context_translation_exact": true
+        }
+      ]
+    },
+    {
+      "path": "docs/i18n/reviewed/api/fr/2026-10-03-nested-batch9.json",
+      "complete_original_archive": "docs/i18n/reviewed/api/fr/archive/2026-10-06-subcell-rybg/2026-10-03-nested-batch9.json",
+      "complete_original_sha256": "7d874afc0db41e24a7051e68b9828849940329d2622bad79b45f4c8798485889",
+      "moves": [
+        {
+          "retired_label": "spacr.embeddings._foundation_encoder.run#0",
+          "source_sha256": "6232df384397cd204ba3032485fc4b4bc3156636b10bcdadfb52e0d3172884df"
+        },
+        {
+          "retired_label": "spacr.embeddings._foundation_encoder.run#1",
+          "source_sha256": "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427"
+        },
+        {
+          "retired_label": "spacr.embeddings._subcell_model.forward#0",
+          "source_sha256": "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754"
+        }
+      ]
+    }
+  ]
+}

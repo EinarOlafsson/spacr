@@ -59,6 +59,28 @@ six labels, changed night descriptions, custom-colour controls, gravity text
 and new embedding Save captions/storage contract. Preserve all accepted GPU,
 translations/tutorials, original human-labelled cohorts and media receipts.
 
+## 2026-10-06 workstation four-channel GPU and multilingual local acceptance
+Home 3ce39ac7b is integrated with the workstation provenance/exact chance-AP
+repairs. Official four-channel SubCell CPU/CUDA author parity is closed:
+five synthetic mapping/normalization/native-geometry fixtures, real strictly
+loaded weights, actual positive CUDA traces, maximum difference 3.8147e-6
+under the unchanged 1e-5 guard. Complete outputs/lifecycle are retained in
+data/560_subcell_rybg_CPU_CUDA_2026-10-06.json; no biological accuracy claim.
+Normal API generation and all nine full audits pass at 13,182 symbols.
+Normal runtime generation and all nine full audits pass at 9,880 source-hashed
+rows, with 21 reviewed mapping captions. Complete source/catalog/review and
+tutorial preservation proofs, strict complete Sphinx, all nine actual API
+browser/Qt readbacks, and current Help/settings checks pass. The twelve
+original full expert fluorescence scorecards retain metrics/chance AP at
+1e-12 and all six weight hashes on the integrated source. Local acceptance
+receipt: data/615_subcell_current_documentation_2026-10-06.json.
+Every accepted tutorial byte remains unchanged. No ceiling or guard moves.
+Exact pushed-source publication/deployed readback remains a separate next
+step. Home retains official Cell-DINO/model loading and CPU/Qt/CI; workstation
+retains every GPU/API/docs/runtime/translation/tutorial task. Hosted serial
+Qt 37457998285 still runs at older 237506317; do not cancel it or mistake it
+for final-source acceptance. Items560/615/43/288/47 remain OPEN.
+
 ## 2026-10-06 CPU SubCell four-channel source checkpoint and live Qt acceptance
 Source checkpoint becca7932ba7ece25713381de347b748f95799b3 adds the distinct
 alpha subcell_rybg encoder and explicit microtubules/ER/DNA/protein channel

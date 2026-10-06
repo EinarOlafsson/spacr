@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 23:05-0400\n"
+"POT-Creation-Date: 2026-10-06 07:48-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -560,6 +560,54 @@ msgstr "``secondary_growth`` — par défaut ``'intensity'``"
 
 msgid "``intensity`` or ``distance`` watershed for secondary objects; maxima detection ignores this setting."
 msgstr "ligne de partage des eaux ``intensity`` ou ``distance`` pour les objets secondaires ; la détection des maxima ignore ce paramètre."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_sigmas`` — default ``(1.5, 2.0, 3.0, 4.0, 6.0)``"
+msgstr "``puncta_sigmas`` — par défaut ``(1.5, 2.0, 3.0, 4.0, 6.0)``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "scale-normalised LoG widths in image pixels."
+msgstr "largeurs LoG normalisées par l’échelle, en pixels d’image."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_k`` — default ``2.5``"
+msgstr "``puncta_k`` — par défaut ``2.5``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "candidate response threshold in propagated pixel-noise units."
+msgstr "seuil de réponse des candidats en unités de bruit de pixel propagé."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_center_pixels`` — default ``20``"
+msgstr "``puncta_center_pixels`` — par défaut ``20``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "number of pixels nearest each subpixel centre, from 1 to 81 in the nine-by-nine measurement window."
+msgstr "nombre de pixels les plus proches de chaque centre subpixel, de 1 à 81 dans la fenêtre de mesure de neuf par neuf pixels."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_min_corrected`` — default ``3.0``"
+msgstr "``puncta_min_corrected`` — par défaut ``3.0``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "minimum centre mean minus local annulus median, in native intensity units. Equality is retained."
+msgstr "minimum de la moyenne centrale moins la médiane de l’anneau local, en unités d’intensité originales. L’égalité est conservée."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_min_distance`` — default ``2``"
+msgstr "``puncta_min_distance`` — par défaut ``2``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "peak-local-maximum neighbourhood in pixels; scale-dependent nonmaximum suppression follows it."
+msgstr "voisinage du maximum local du pic en pixels ; une suppression des maxima dépendante de l’échelle est ensuite appliquée."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_edge_margin`` — default ``3.0``"
+msgstr "``puncta_edge_margin`` — par défaut ``3.0``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "minimum distance from the parent boundary in pixels."
+msgstr "distance minimale à la limite de l’objet parent, en pixels."
 
 msgid "Organelle detectors"
 msgstr "Détecteurs d’organites"

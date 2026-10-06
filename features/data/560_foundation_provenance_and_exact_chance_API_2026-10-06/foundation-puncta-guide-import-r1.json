@@ -1,0 +1,65 @@
+{
+  "sv": {
+    "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/foundation-puncta-guide-worklists-r1/sv-reviewed.json",
+    "API_review_source_path": "docs/i18n/reviewed/api/sv/2026-10-05-center-pixel-puncta.json",
+    "API_review_source_sha256": "72953094beb69365d8b440c89fb59db9883b912954e9cb7798b9f6d3f92d1e59",
+    "six_descriptions_exact_to_prior_source_bound_Codex_API_reviews": true,
+    "six_literal_headers_use_existing_reviewed_guide_default_term": "standard"
+  },
+  "de": {
+    "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/foundation-puncta-guide-worklists-r1/de-reviewed.json",
+    "API_review_source_path": "docs/i18n/reviewed/api/de/2026-10-05-center-pixel-puncta.json",
+    "API_review_source_sha256": "52feb9a2f243d9a5643e6bd6bf763c2d28dce66cbb207de42d746485fa31932a",
+    "six_descriptions_exact_to_prior_source_bound_Codex_API_reviews": true,
+    "six_literal_headers_use_existing_reviewed_guide_default_term": "Voreinstellung"
+  },
+  "es": {
+    "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/foundation-puncta-guide-worklists-r1/es-reviewed.json",
+    "API_review_source_path": "docs/i18n/reviewed/api/es/2026-10-05-center-pixel-puncta.json",
+    "API_review_source_sha256": "f7efc787b52feb80290bdaa17ef02de9575881003b50e56169c964b2ee90f02b",
+    "six_descriptions_exact_to_prior_source_bound_Codex_API_reviews": true,
+    "six_literal_headers_use_existing_reviewed_guide_default_term": "predeterminado"
+  },
+  "pt": {
+    "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/foundation-puncta-guide-worklists-r1/pt-reviewed.json",
+    "API_review_source_path": "docs/i18n/reviewed/api/pt/2026-10-05-center-pixel-puncta.json",
+    "API_review_source_sha256": "3a1112ae5fa83022e7041cc0691cd6c203a6fe35f4a1234cf9b70d4382d3fdbc",
+    "six_descriptions_exact_to_prior_source_bound_Codex_API_reviews": true,
+    "six_literal_headers_use_existing_reviewed_guide_default_term": "padrão"
+  },
+  "fr": {
+    "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/foundation-puncta-guide-worklists-r1/fr-reviewed.json",
+    "API_review_source_path": "docs/i18n/reviewed/api/fr/2026-10-05-center-pixel-puncta.json",
+    "API_review_source_sha256": "2f3e63d791febbbd3462d6932056e7ef20a21e9afa99ade182a27aa82a77c1c4",
+    "six_descriptions_exact_to_prior_source_bound_Codex_API_reviews": true,
+    "six_literal_headers_use_existing_reviewed_guide_default_term": "par défaut"
+  },
+  "is": {
+    "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/foundation-puncta-guide-worklists-r1/is-reviewed.json",
+    "API_review_source_path": "docs/i18n/reviewed/api/is/2026-10-05-center-pixel-puncta.json",
+    "API_review_source_sha256": "f0a664b6f59db08cd4417b50a1d97c110eb621c8a27d43de51c7c88daea0b14b",
+    "six_descriptions_exact_to_prior_source_bound_Codex_API_reviews": true,
+    "six_literal_headers_use_existing_reviewed_guide_default_term": "sjálfgildi"
+  },
+  "zh_CN": {
+    "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/foundation-puncta-guide-worklists-r1/zh_CN-reviewed.json",
+    "API_review_source_path": "docs/i18n/reviewed/api/zh_CN/2026-10-05-center-pixel-puncta.json",
+    "API_review_source_sha256": "d6f327cb4e89fd590246d436280764824bfec97461c10e66ec3f35d2ac1aee5c",
+    "six_descriptions_exact_to_prior_source_bound_Codex_API_reviews": true,
+    "six_literal_headers_use_existing_reviewed_guide_default_term": "默认值"
+  },
+  "ko": {
+    "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/foundation-puncta-guide-worklists-r1/ko-reviewed.json",
+    "API_review_source_path": "docs/i18n/reviewed/api/ko/2026-10-05-center-pixel-puncta.json",
+    "API_review_source_sha256": "4a159e78f287a7825835abde7e7136f4e589561f1010494cd91b1a5981c30aef",
+    "six_descriptions_exact_to_prior_source_bound_Codex_API_reviews": true,
+    "six_literal_headers_use_existing_reviewed_guide_default_term": "기본값"
+  },
+  "hi": {
+    "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/foundation-puncta-guide-worklists-r1/hi-reviewed.json",
+    "API_review_source_path": "docs/i18n/reviewed/api/hi/2026-10-05-center-pixel-puncta.json",
+    "API_review_source_sha256": "2c440b794b2655869eab7926066222c68e401d9d43a9e4ec9fd47ed6a3dd9333",
+    "six_descriptions_exact_to_prior_source_bound_Codex_API_reviews": true,
+    "six_literal_headers_use_existing_reviewed_guide_default_term": "डिफ़ॉल्ट"
+  }
+}

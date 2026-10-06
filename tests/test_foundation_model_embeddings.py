@@ -114,7 +114,10 @@ def test_the_scorecard_is_perfect_on_separated_classes():
     assert card["map"] == pytest.approx(1.0)
     assert card["precision_at_k"] == 1.0
     assert card["n"] == 60 and card["classes"] == 3
-    assert card["chance_map"] == pytest.approx(19 / 59)
+    harmonic = sum(1 / rank for rank in range(1, 60))
+    assert card["chance_map"] == pytest.approx(
+        19 / 59 + 40 * (harmonic - 1) / (59 * 58))
+    assert card["chance_precision"] == pytest.approx(19 / 59)
 
 
 def test_the_scorecard_is_near_chance_on_noise():
@@ -143,5 +146,7 @@ def test_all_cells_are_scored_and_singletons_do_not_lower_average_precision():
     assert card["knn_accuracy"] == pytest.approx(520 / 521)
     assert card["map"] == pytest.approx(1.0)
     assert card["precision_at_k"] == pytest.approx(520 * 259 / (521 * 300))
-    assert card["chance_map"] == pytest.approx(259 / 520)
+    harmonic = sum(1 / rank for rank in range(1, 521))
+    assert card["chance_map"] == pytest.approx(
+        259 / 520 + 261 * (harmonic - 1) / (520 * 519))
     assert card["chance_precision"] == pytest.approx(259 / 521)

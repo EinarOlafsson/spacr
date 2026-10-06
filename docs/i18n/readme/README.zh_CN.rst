@@ -172,8 +172,6 @@ Make Masks 修正分割掩膜，并使用 **Box** 工具标注带类别标签的
 
 .. spacr-installer-links-end
 
-第一三个图标下载当前版本. spaCR 图标打开完整的安装档案. 安装链接和版本的文件名由发布工作流更新; 以前的安装者仍然在同一发布档案中。
-
 在 Linux 上，将下载的文件设为可执行文件并运行：
 
 .. code-block:: bash
@@ -200,7 +198,7 @@ Make Masks 修正分割掩膜，并使用 **Box** 工具标注带类别标签的
 
 spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvision 不包含该版本。最繁重的 CUDA 和 ROCm 工作流程建议使用 Linux；macOS 和 Windows 也受支持，两者都会使用各自的 GPU — macOS 通过 Metal，它涵盖 Apple Silicon 和 Intel Mac 中的 AMD 显卡，Windows 则通过 CUDA 或 DirectML。
 
-默认安装包括桌面接口 Qt. 对于服务器、集群或 CI 运行器,运行命令线流程而不打开它:
+标准安装包含 Qt 桌面界面。在服务器、集群或 CI 运行器上，可运行命令行流程而不打开该界面：
 
 .. code-block:: bash
 
@@ -274,7 +272,7 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-在 2026-09-15 的测量中，完整克隆下载了 5.8 GB。向浅克隆添加 ``--filter=blob:none`` 没有减少其测得的下载量。nightly 中受 Git 跟踪的文件检出后共占 1029 MB（2026-10-05 测量），不含 Git 历史。下载大小和耗时随分支而变化。
+在 2026-09-15 的测量中，完整克隆下载了 5.8 GB。向浅克隆添加 ``--filter=blob:none`` 没有减少其测得的下载量。nightly 中受 Git 跟踪的文件检出后共占 1710 MB（2026-10-06 测量），不含 Git 历史。下载大小和耗时随分支而变化。
 
 
 命令行入口
@@ -426,8 +424,6 @@ Quantitative readouts for biological assays.
 .. spacr-workflow-end
 
 这里列出所有在主界面上有入口卡片的模块，顺序与主界面一致：先是六个流程模块，然后是其余模块。选择卡片可打开对应模块的 API 页面。
-
-各工具的说明见 `功能指南 <../../source/features.rst>`_。
 
 其他资源
 ~~~~~~~~~~~~~~~

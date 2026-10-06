@@ -1354,7 +1354,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # spacr.measure._pin_cupy_cudart_headers._pinned; all 13,175 prior unchanged.
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    expected = 13_181
+    assert docs[
+        "spacr.qt.screens.embeddings.EmbeddingsScreen."
+        "_subcell_channels_dialog.accept_mapping"
+    ] == "Store only a complete four-index choice, then close."
+    # 2026-10-06 560: +1/-0, EmbeddingsScreen._subcell_channels_dialog.accept_mapping.
+    expected = 13_182
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1403,7 +1408,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 13_181
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 13_182
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

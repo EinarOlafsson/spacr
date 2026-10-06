@@ -58,6 +58,13 @@ DELIBERATELY_UNTRANSLATED = {
     # in these locales; Bokeh is also the upstream visualization product name.
     "Blobs": {"de"},
     "Bokeh": {"de", "es", "fr", "is", "pt", "sv"},
+    # Existing night-preset titles retain these native scientific/cloud
+    # names and the musical loanword Nocturne in the reviewed locales.
+    "Cirrus": {"fr"},
+    "Meridian": {"de", "sv"},
+    "Nocturne": {"de", "fr"},
+    "Pulsar": {"de", "fr", "pt", "sv"},
+    "Solstice": {"fr"},
     "Console": {"fr", "pt"},
     "Data": {"sv"},
     "Design": {"sv"},

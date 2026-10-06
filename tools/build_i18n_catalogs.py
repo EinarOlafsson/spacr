@@ -293,7 +293,7 @@ _IDENTITY_TEXT = {
     "Leishmania spp.", "NCBI Virus", "TriTrypDB", "Trypanosoma spp.", "ViralZone",
     "BEI Resources", "BEI Resources / MR4", "Candida Genome Database",
     "NCBI Taxonomy", "Ctrl+S", "Ctrl+Z / Ctrl+Y", "Esc", "ER 2",
-    "ER", "IMC", "CC BY 4.0",
+    "ER", "ER (Y)", "DNA (B)", "IMC", "CC BY 4.0",
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
     "CSV", "Cellpose-SAM", "DINOCell", "FlowView", "JSON", "MIP", "ML",
     "NaN", "PDF", "SAMCell", "Cellpose 3", "SpotNet (DeepCell)",
@@ -4069,6 +4069,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     found: set[str] = set()
     paths = set((ROOT / "spacr" / "qt").rglob("*.py"))
     paths.add(ROOT / "spacr" / "model_compare.py")
+    paths.add(ROOT / "spacr" / "embeddings.py")
     for path in sorted(paths):
         if "i18n_catalogs" in path.parts:
             continue

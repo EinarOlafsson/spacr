@@ -1,0 +1,154 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains. SubCell's two-plane model takes DNA then protein; its four-plane model needs explicit microtubules, ER, DNA and protein mapping. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+      "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains. SubCell's two-plane model takes DNA then protein; its four-plane model needs explicit microtubules, ER, DNA and protein mapping. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+      "source_sha256": "cc9ae20efdf28de8254e631fc3c587cfca5a8ff7337128cf47efbca274214c58",
+      "table": "ui",
+      "translation": "साधारण फ़ोटोग्राफ़ के बजाय माइक्रोस्कोपी इमेज पर प्रशिक्षित मॉडल। OpenPhenom और ChAda-ViT कितने भी स्टेन चैनल स्वीकार करते हैं। SubCell का दो-प्लेन मॉडल पहले DNA, फिर प्रोटीन लेता है; चार-प्लेन मॉडल में माइक्रोट्यूब्यूल, ER, DNA और प्रोटीन की स्पष्ट मैपिंग आवश्यक है। वेट एक बार डाउनलोड होते हैं। Cell-DINO को आधिकारिक चेकपॉइंट चाहिए और यह संस्करण अभी उसे समर्थन नहीं देता। डिफ़ॉल्ट: None (बैकबोन नेटवर्क का उपयोग करें)।"
+    },
+    {
+      "key": "A selected SubCell channel is outside the loaded crops. Open Channels… and map the four planes again.",
+      "source": "A selected SubCell channel is outside the loaded crops. Open Channels… and map the four planes again.",
+      "source_sha256": "aacf67f543d79b938c33e5e42d3f898f791b3d22a8708c41e53618118ecded0a",
+      "table": "ui",
+      "translation": "चुना गया SubCell चैनल लोड किए गए क्रॉप में नहीं है। चैनल… खोलें और चारों इमेज प्लेन फिर से मैप करें।"
+    },
+    {
+      "key": "Assign four different crop channels in SubCell's official order. No stain identity is guessed from channel position.",
+      "source": "Assign four different crop channels in SubCell's official order. No stain identity is guessed from channel position.",
+      "source_sha256": "254e443153bc15e730a355c982351d445ecccc905660ed0c65352a881e0d2a8e",
+      "table": "ui",
+      "translation": "SubCell के आधिकारिक क्रम में क्रॉप के चार अलग चैनल निर्धारित करें। चैनल की स्थिति से स्टेन की पहचान का अनुमान नहीं लगाया जाता।"
+    },
+    {
+      "key": "Channel {position} (index {index})",
+      "source": "Channel {position} (index {index})",
+      "source_sha256": "4bf31a4f3b106e62b2e66f07a4ad07dcc72fd3d689c6821d785c96fdfbd4ec5a",
+      "table": "ui",
+      "translation": "चैनल {position} (सूचकांक {index})"
+    },
+    {
+      "key": "Channels…",
+      "source": "Channels…",
+      "source_sha256": "5c5fffe79ba55bf09c467589a93cf69aa7216e00af5add85a5d7b32995442a00",
+      "table": "ui",
+      "translation": "चैनल…"
+    },
+    {
+      "key": "Choose a crop channel for each SubCell plane: microtubules, ER, DNA and protein.",
+      "source": "Choose a crop channel for each SubCell plane: microtubules, ER, DNA and protein.",
+      "source_sha256": "7bd72e86ff9878cf7a253273ecd85aa4331e909d6ca1d84907a6dbec7ef61f08",
+      "table": "ui",
+      "translation": "प्रत्येक SubCell इमेज प्लेन के लिए क्रॉप चैनल चुनें: माइक्रोट्यूब्यूल, ER, DNA और प्रोटीन।"
+    },
+    {
+      "key": "Choose channel…",
+      "source": "Choose channel…",
+      "source_sha256": "2628e79725e97ed03ce0aa050e102bc6ea681cf2ee54a07d15c334c523f11e6f",
+      "table": "ui",
+      "translation": "चैनल चुनें…"
+    },
+    {
+      "key": "Choose four different crop channels for SubCell.",
+      "source": "Choose four different crop channels for SubCell.",
+      "source_sha256": "84e8fdeb01d7da4cf590dd7ec7dd27b5e5fc4bded4020dbb4bc83387370994d4",
+      "table": "ui",
+      "translation": "SubCell के लिए क्रॉप के चार अलग चैनल चुनें।"
+    },
+    {
+      "key": "Choose four distinct crop channels before running SubCell's four-plane model.",
+      "source": "Choose four distinct crop channels before running SubCell's four-plane model.",
+      "source_sha256": "3e218ec522abe8661cc77ad5bb0bfe9da83481418510902e8265f24511b0c1b7",
+      "table": "ui",
+      "translation": "SubCell का चार-प्लेन मॉडल चलाने से पहले क्रॉप के चार अलग चैनल चुनें।"
+    },
+    {
+      "key": "DNA (B)",
+      "source": "DNA (B)",
+      "source_sha256": "6d205c6996b05e3f400dc81b2d13742d4f273329ea818ba6d7ee4c4a55132730",
+      "table": "ui",
+      "translation": "DNA (B)"
+    },
+    {
+      "key": "ER (Y)",
+      "source": "ER (Y)",
+      "source_sha256": "17c675b2d57aa167b421f8d2a07fcfdc818c6349db760df9d3f35d1eb5bb70f9",
+      "table": "ui",
+      "translation": "ER (Y)"
+    },
+    {
+      "key": "Four mapped planes (one pass)",
+      "source": "Four mapped planes (one pass)",
+      "source_sha256": "f4069431015e5f3c2646b13a59b91ee89039283899441d15f2be9e54af10d132",
+      "table": "ui",
+      "translation": "चार मैप किए गए प्लेन (एक पास)"
+    },
+    {
+      "key": "Load crops with at least four channels before mapping SubCell's microtubules, ER, DNA and protein planes.",
+      "source": "Load crops with at least four channels before mapping SubCell's microtubules, ER, DNA and protein planes.",
+      "source_sha256": "1498d373271f6b2fead7abdad98a1f46b50eadb061774e48839c442d8c14b689",
+      "table": "ui",
+      "translation": "SubCell के माइक्रोट्यूब्यूल, ER, DNA और प्रोटीन प्लेन मैप करने से पहले कम से कम चार चैनल वाले क्रॉप लोड करें।"
+    },
+    {
+      "key": "Map four crop channels to microtubules, ER, DNA and protein before running SubCell's four-plane model.",
+      "source": "Map four crop channels to microtubules, ER, DNA and protein before running SubCell's four-plane model.",
+      "source_sha256": "3e0638cc0428ecd5c1b27cbf6571acf51788b90cb7f91e5b108d7006aabd4ac8",
+      "table": "ui",
+      "translation": "SubCell का चार-प्लेन मॉडल चलाने से पहले क्रॉप के चार चैनल माइक्रोट्यूब्यूल, ER, DNA और प्रोटीन पर मैप करें।"
+    },
+    {
+      "key": "Microtubules (R)",
+      "source": "Microtubules (R)",
+      "source_sha256": "627cb9333e8fb9cbc4ba35f4db75fd06890f206cfa0969b7f2a3de1b7a7e8da5",
+      "table": "ui",
+      "translation": "माइक्रोट्यूब्यूल (R)"
+    },
+    {
+      "key": "Protein (G)",
+      "source": "Protein (G)",
+      "source_sha256": "572c556c07e2302e3be58a4597d4fbe6abb21aad66471d618a9164cbeddeb1c6",
+      "table": "ui",
+      "translation": "प्रोटीन (G)"
+    },
+    {
+      "key": "SubCell (CZI / Lundberg lab ViT-B/16, R/Y/B/G)",
+      "source": "SubCell (CZI / Lundberg lab ViT-B/16, R/Y/B/G)",
+      "source_sha256": "969a3f008e0fc2e26dcec324877f15126932f1e13e965f516f448015a0fe51c3",
+      "table": "ui",
+      "translation": "SubCell (CZI / Lundberg प्रयोगशाला ViT-B/16, R/Y/B/G)"
+    },
+    {
+      "key": "SubCell channel mapping saved in microtubules, ER, DNA, protein order.",
+      "source": "SubCell channel mapping saved in microtubules, ER, DNA, protein order.",
+      "source_sha256": "9d49eb36c81862bf3c846d7a662d136adcb02329595e49561ed37b7ee4257447",
+      "table": "ui",
+      "translation": "SubCell चैनल मैपिंग माइक्रोट्यूब्यूल, ER, DNA, प्रोटीन के क्रम में सहेजी गई।"
+    },
+    {
+      "key": "SubCell four-plane channels",
+      "source": "SubCell four-plane channels",
+      "source_sha256": "c53ba646493319cbd0cc9486c123f31da3ea916762e90fa3d132efbc2062d69f",
+      "table": "ui",
+      "translation": "SubCell के चार-प्लेन चैनल"
+    },
+    {
+      "key": "SubCell's four-plane model needs crops with at least four channels. Load a suitable crop source first.",
+      "source": "SubCell's four-plane model needs crops with at least four channels. Load a suitable crop source first.",
+      "source_sha256": "ed449605525005bca9b4cbce5b7144ddc4145b80c12cf6ccd02b1c8cb551835b",
+      "table": "ui",
+      "translation": "SubCell के चार-प्लेन मॉडल को कम से कम चार चैनल वाले क्रॉप चाहिए। पहले उपयुक्त क्रॉप स्रोत लोड करें।"
+    },
+    {
+      "key": "The new crops have fewer channels. Reopen Channels… to map SubCell's four planes.",
+      "source": "The new crops have fewer channels. Reopen Channels… to map SubCell's four planes.",
+      "source_sha256": "adf1f955718cfe4edf15ac7019995f8880906d2ba61e8ff07300e9848b2178f3",
+      "table": "ui",
+      "translation": "नए क्रॉप में कम चैनल हैं। SubCell के चार प्लेन मैप करने के लिए चैनल… फिर से खोलें।"
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review of all 21 new channel-mapping captions, preserving official R/Y/B/G markers, image-plane/crop/network meanings and source-bound format fields; no native-speaker signoff.",
+  "schema": 1
+}

@@ -1,0 +1,109 @@
+{
+  "passed": true,
+  "local_complete_Sphinx_output": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/foundation-api-docs-all-r1",
+  "source_current_API_panels": [
+    {
+      "language": "sv",
+      "visible_translation_sha256": "d768691d4ef86dfa7a8624679baa33f76dc88f61b2503b7c4b69b3cf2d4456e3",
+      "catalog_sha256": "c34e60bf62276dbc2cc9381a087d5b64fb00cd4390a2b4633d16e2ded1ae08e0",
+      "all_seven_reviewed_encoder_description_blocks_visible_exact": true
+    },
+    {
+      "language": "de",
+      "visible_translation_sha256": "21e91c0d5c83473d352306cf5599d4045218d27526eec0bcbf51cb21f253d66e",
+      "catalog_sha256": "45bc0a4682603646144b0b34048e9ab6ad9caa8369b48765df88a58499425a25",
+      "all_seven_reviewed_encoder_description_blocks_visible_exact": true
+    },
+    {
+      "language": "es",
+      "visible_translation_sha256": "1135e350c3dfa398b0e872583af1e182038c7cc62761b57d5e090808c120b0fa",
+      "catalog_sha256": "de456cdd80921811b3090dd700741606ed32e831059b67c25b6a3adb44c72f08",
+      "all_seven_reviewed_encoder_description_blocks_visible_exact": true
+    },
+    {
+      "language": "zh_CN",
+      "visible_translation_sha256": "1dcfc428f5a4761f219e07f994a3830c49f171f61f29ca3548c320a6a8d5ffe6",
+      "catalog_sha256": "2f60ea930993bbee13eac133bae7e0eb0edfbfbae14ab12d998509ef22f72a57",
+      "all_seven_reviewed_encoder_description_blocks_visible_exact": true
+    },
+    {
+      "language": "pt",
+      "visible_translation_sha256": "bbe808b675baea634e6c683b1ba31eb573bc67190a29d8253bc104302cf7f09b",
+      "catalog_sha256": "4264e00261bb81fc64d4714c745802954173e3aec9693bb443b0a6b7ae0a4351",
+      "all_seven_reviewed_encoder_description_blocks_visible_exact": true
+    },
+    {
+      "language": "hi",
+      "visible_translation_sha256": "a9dbe1775f3c2f6f209b1dc144671daf4f2deecf7c1416b8ab44cf54c9b005c4",
+      "catalog_sha256": "87b20017a8825113d7385d6fa47a0a5a949feb6e3e9172a3d518dbdcda78fc24",
+      "all_seven_reviewed_encoder_description_blocks_visible_exact": true
+    },
+    {
+      "language": "ko",
+      "visible_translation_sha256": "164eeb4afbf54b1f75a52c86ce2d683f3511d4527eb1bb484ac1ca83c022dc7d",
+      "catalog_sha256": "305f78f068891d34b64f984d5c24c187207896ab5d5eaee2467f77dc2c88aa4e",
+      "all_seven_reviewed_encoder_description_blocks_visible_exact": true
+    },
+    {
+      "language": "is",
+      "visible_translation_sha256": "1b844222840c691cb15666f8f6966e45229363c9c6d7a9d390a9e44fdfae8a0c",
+      "catalog_sha256": "6015339fa346ae4a58f60e6f2a7506411dd38d89f0814ef35fac2f6708acfae3",
+      "all_seven_reviewed_encoder_description_blocks_visible_exact": true
+    },
+    {
+      "language": "fr",
+      "visible_translation_sha256": "4e39fa132aa7ca9b88b2f349f4e5ca2d486ded05749958c9e254ba8cb1265f52",
+      "catalog_sha256": "4ae861aee8a846ee75554cde0e3312ff56612ba4704ce5605acbe14e644798a5",
+      "all_seven_reviewed_encoder_description_blocks_visible_exact": true
+    }
+  ],
+  "source_current_puncta_guide_pages": [
+    {
+      "language": "sv",
+      "all_twelve_reviewed_puncta_reference_messages_visible_exact": true,
+      "rendered_body_sha256": "7489872755447373470d9bc9a2e4e091dba9fcd6ee6b2a9e61cbc6bb2784b087"
+    },
+    {
+      "language": "de",
+      "all_twelve_reviewed_puncta_reference_messages_visible_exact": true,
+      "rendered_body_sha256": "c66784b5d7548e5f803fade18be617ea233d131a87d67c3926cd801966194e5c"
+    },
+    {
+      "language": "es",
+      "all_twelve_reviewed_puncta_reference_messages_visible_exact": true,
+      "rendered_body_sha256": "bffaa0455dc496ceb8f200b1d6eef2406f2535c2d73a49bb14589654eeed9de0"
+    },
+    {
+      "language": "zh_CN",
+      "all_twelve_reviewed_puncta_reference_messages_visible_exact": true,
+      "rendered_body_sha256": "a23a2f295bfae8ab9127caf720bed04535f3f948c625aba49bdf0c3676357c89"
+    },
+    {
+      "language": "pt",
+      "all_twelve_reviewed_puncta_reference_messages_visible_exact": true,
+      "rendered_body_sha256": "dc94b1b669c964a27022d2915e48dfbcdf6e82720a84242ae94eb88f709d2bb2"
+    },
+    {
+      "language": "hi",
+      "all_twelve_reviewed_puncta_reference_messages_visible_exact": true,
+      "rendered_body_sha256": "59bcecbf9039ff618d283613966b6cd7f7381f942554df3eec22c594f3cedb7c"
+    },
+    {
+      "language": "ko",
+      "all_twelve_reviewed_puncta_reference_messages_visible_exact": true,
+      "rendered_body_sha256": "39e260168c0e1a0ba6e27e238ec756b4a106e1620af11583d55a3b5470e7d298"
+    },
+    {
+      "language": "is",
+      "all_twelve_reviewed_puncta_reference_messages_visible_exact": true,
+      "rendered_body_sha256": "36c53ea4e6bfbb7524ce589af28184885fa453ac8a42b2efb7f9e375bd9119dc"
+    },
+    {
+      "language": "fr",
+      "all_twelve_reviewed_puncta_reference_messages_visible_exact": true,
+      "rendered_body_sha256": "7d813834ec280d758686e8aba9b4de0e08f4619f7fdf33f20dcc3994704b6378"
+    }
+  ],
+  "no_actual_deployment_claim": true,
+  "script_sha256": "1d7822f1e22f50228a2f2755251b024706a8746aaf02f7f1ef57a01a3fdfc934"
+}

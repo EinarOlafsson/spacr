@@ -60,7 +60,7 @@ def test_a_missing_scorecard_is_said_out_loud():
     """370's rule, applied: silence would make it a black box twice over."""
     entry = encoder_entry()
     assert entry.metrics == {}
-    assert any("black box twice over" in note for note in entry.notes)
+    assert any("No scorecard" in note for note in entry.notes)
 
 
 def test_a_scorecard_is_carried_where_370_reads_it():
@@ -70,7 +70,7 @@ def test_a_scorecard_is_carried_where_370_reads_it():
     entry = encoder_entry(scorecard=numbers)
 
     assert entry.metrics == numbers
-    assert not any("black box twice over" in note for note in entry.notes)
+    assert not any("No scorecard" in note for note in entry.notes)
 
 
 def test_the_checksum_is_of_the_bytes_on_this_machine():

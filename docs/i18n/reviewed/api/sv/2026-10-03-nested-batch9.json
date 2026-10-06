@@ -153,7 +153,9 @@
       "source_sha256": "6232df384397cd204ba3032485fc4b4bc3156636b10bcdadfb52e0d3172884df",
       "context": "Encode ``(n, h, w, k)`` extracted image regions in batches, resized to the model's size.",
       "translation": "Kodar ``(n, h, w, k)``-utsnitt i batchar, omskalade till modellens storlek.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-06 SubCell four-plane documentation replaces this exact source; complete original review evidence is retained in the adjacent archive."
     },
     {
       "label": "spacr.embeddings._foundation_encoder.run#1",
@@ -161,7 +163,9 @@
       "source_sha256": "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427",
       "context": "float32 in [0, 1], channels last.",
       "translation": "float32 i [0, 1], kanaler sist.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-06 SubCell four-plane documentation replaces this exact source; complete original review evidence is retained in the adjacent archive."
     },
     {
       "label": "spacr.embeddings._foundation_encoder.run#2",
@@ -217,7 +221,9 @@
       "source_sha256": "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2",
       "context": "``(n, 2, h, w)`` to ``(n, 1536)``, the two heads joined.",
       "translation": "``(n, 2, h, w)`` till ``(n, 1536)``, de två huvudena sammanfogade.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-06 SubCell four-plane documentation replaces this exact source; complete original review evidence is retained in the adjacent archive."
     },
     {
       "label": "spacr.embeddings._subcell_model.forward#0",
@@ -225,7 +231,9 @@
       "source_sha256": "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754",
       "context": "Min-max scale each extracted image region channel, then encode.",
       "translation": "Min-max-skalar varje utsnittskanal och kodar sedan.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-06 SubCell four-plane documentation replaces this exact source; complete original review evidence is retained in the adjacent archive."
     },
     {
       "label": "spacr.embeddings._timm_encoder.run#0",

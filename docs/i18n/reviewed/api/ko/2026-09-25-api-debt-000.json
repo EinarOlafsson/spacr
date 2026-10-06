@@ -2325,7 +2325,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.embeddings.EmbeddingSpec#2",
+      "label": "spacr.embeddings.EmbeddingSpec#3",
       "source": ":data:`CHANNEL_PER_CHANNEL` or :data:`CHANNEL_PROJECT`.",
       "source_sha256": "76ecb25e1c2dcdbc2fc0fce5276c32a0dfe60ec81781ce5df3e2027195e2f7f8",
       "context": ":data:`CHANNEL_PER_CHANNEL` or :data:`CHANNEL_PROJECT`.",

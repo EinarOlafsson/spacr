@@ -3500,7 +3500,12 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 2026-10-05: cpu_modes.puncta is the sole rendered arrival (item 661).
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    assert len(docs) == 13181
+    assert docs[
+        "spacr.qt.screens.embeddings.EmbeddingsScreen."
+        "_subcell_channels_dialog.accept_mapping"
+    ] == "Store only a complete four-index choice, then close."
+    # 2026-10-06 560: +1/-0, EmbeddingsScreen._subcell_channels_dialog.accept_mapping.
+    assert len(docs) == 13182
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every

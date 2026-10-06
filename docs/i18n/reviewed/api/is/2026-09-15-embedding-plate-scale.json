@@ -3,14 +3,14 @@
   "records": [
     {
       "context": "divide each image data channel by a fixed scale before encoding, clipped to [0, 1]. Microscopy dynamic range varies by orders of magnitude between stains, and an encoder trained on photographs will otherwise see one image data channel as noise.",
-      "label": "spacr.embeddings.EmbeddingSpec#6",
+      "label": "spacr.embeddings.EmbeddingSpec#7",
       "source": "divide each channel by a fixed scale before encoding, clipped to [0, 1]. Microscopy dynamic range varies by orders of magnitude between stains, and an encoder trained on photographs will otherwise see one channel as noise.",
       "source_sha256": "7a9147ade2bc7db9741e11b018d6ea84bdaf4cb9799b1c76eb0d88ec86ff1aa9",
       "translation": "deila hverri rás með föstum kvarða fyrir kóðun, klippt við [0, 1]. Kvikt svið í smásjármyndum er breytilegt um margar stærðargráður milli litana, og kóðari sem þjálfaður er á ljósmyndum sæi annars eina rás sem suð."
     },
     {
       "context": "that scale, one value per encoded channel in encoding order -- normally each channel's 99th percentile over a random sample of the laboratory microplate. The same numbers for every extracted image region mean an object's embedding does not depend on which extracted image regions share its batch. ``None`` lets :func:`embed_array` estimate it from the extracted image regions it is given.",
-      "label": "spacr.embeddings.EmbeddingSpec#7",
+      "label": "spacr.embeddings.EmbeddingSpec#8",
       "source": "that scale, one value per encoded channel in encoding order -- normally each channel's 99th percentile over a random sample of the plate. The same numbers for every crop mean an object's embedding does not depend on which crops share its batch. ``None`` lets :func:`embed_array` estimate it from the crops it is given.",
       "source_sha256": "09679f71d5c829d26b1a41b763ef5334751652ca757fb25cac59a45b25ae9aed",
       "translation": "sá kvarði, eitt gildi fyrir hverja kóðaða rás í kóðunarröð -- venjulega 99. hundraðshlutamark hverrar rásar yfir slembiúrtak af plötunni. Sömu tölur fyrir hverja úrklippu þýða að greyping hlutar ræðst ekki af því hvaða úrklippur lenda í sömu lotu. ``None`` lætur :func:`embed_array` meta hann út frá úrklippunum sem það fær."

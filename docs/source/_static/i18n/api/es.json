@@ -22815,7 +22815,8 @@
     "spacr.embeddings.EmbeddingSpec": {
       "source_blocks_sha256": [
         "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
-        "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
+        "3f998fedd8b65104d670625a22b252810820df4082091259ee527bce7118c5db",
+        "acbddedc3672c8d4558036b8daf7b46584ba077ce7b5919381a7ff4e246b1537",
         "76ecb25e1c2dcdbc2fc0fce5276c32a0dfe60ec81781ce5df3e2027195e2f7f8",
         "ce0baf6a226da2e3e0541e2fa5ca51bdd937bcb4050ee2787f2e09ed9c77ab97",
         "8b054ffb4a5c5e7138f8c0f923f4ab0471f779df69409ed80a25ee905a72ce33",
@@ -22823,11 +22824,12 @@
         "7a9147ade2bc7db9741e11b018d6ea84bdaf4cb9799b1c76eb0d88ec86ff1aa9",
         "09679f71d5c829d26b1a41b763ef5334751652ca757fb25cac59a45b25ae9aed"
       ],
-      "source_sha256": "d4dcdff695ff190579a75136fa594617ac50e248969cb867b0314248ad6e639e",
-      "text": "Cómo incrustar, grabado para que una matriz puede decir de dónde vino.\n\n:param backbone: nombre del codificador, resuelto a través de timm.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` o :data:`CHANNEL_PROJECT`.\n:param channels: ``None`` significa cada canal de datos de imagen que tiene el array.\n:param batch_size: regiones de imagen extraídas por pase delantero.\n:param device: Cadena de dispositivo torch, o ``None`` para elegir una.\n:param normalize: dividir cada canal por una escala fija antes de codificar, recortado a [0, 1]. El rango dinámico en microscopía varía en órdenes de magnitud entre tinciones, y un codificador entrenado con fotografías vería de otro modo un canal como ruido.\n:param channel_scale: esa escala, un valor por canal codificado en el orden de codificación -- normalmente el percentil 99 de cada canal sobre una muestra aleatoria de la placa. Usar los mismos números para cada recorte hace que la incrustación de un objeto no dependa de qué recortes comparten su lote. ``None`` permite que :func:`embed_array` la estime a partir de los recortes que recibe.",
+      "source_sha256": "acbdc58e4f35cb0e6c07b42d821da70a3acdda9edb06609462253b7ca3ecd9ee",
+      "text": "Cómo incrustar, grabado para que una matriz puede decir de dónde vino.\n\nPara ``subcell_rybg``, elija :data:`CHANNEL_PROJECT`, indique cuatro ``channels`` explícitos y distintos en el orden microtúbulos (R), ER (Y), DNA (B), proteína (G), y establezca ``normalize=False``. Los recortes deben tener al menos 16 píxeles en cada dimensión espacial. Se conservan las dimensiones originales; el codificador aplica la normalización mínimo-máximo de los autores sobre todo el recorte.\n\n:param backbone: Nombre de un codificador timm o de un codificador de modelo fundacional registrado.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` o :data:`CHANNEL_PROJECT`.\n:param channels: ``None`` significa cada canal de datos de imagen que tiene el array.\n:param batch_size: regiones de imagen extraídas por pase delantero.\n:param device: Cadena de dispositivo torch, o ``None`` para elegir una.\n:param normalize: dividir cada canal por una escala fija antes de codificar, recortado a [0, 1]. El rango dinámico en microscopía varía en órdenes de magnitud entre tinciones, y un codificador entrenado con fotografías vería de otro modo un canal como ruido.\n:param channel_scale: esa escala, un valor por canal codificado en el orden de codificación -- normalmente el percentil 99 de cada canal sobre una muestra aleatoria de la placa. Usar los mismos números para cada recorte hace que la incrustación de un objeto no dependa de qué recortes comparten su lote. ``None`` permite que :func:`embed_array` la estime a partir de los recortes que recibe.",
       "translation_source_blocks_sha256": [
         "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
-        "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
+        "ab10feb59a6a84532d10db83fd653894ce10767756d261caa7744f26e2c94907",
+        "acbddedc3672c8d4558036b8daf7b46584ba077ce7b5919381a7ff4e246b1537",
         "76ecb25e1c2dcdbc2fc0fce5276c32a0dfe60ec81781ce5df3e2027195e2f7f8",
         "bfceff41558220573fedc999b4fbdbf09e3949963ee7cbab02d6bd18bb30812c",
         "ffa122dd219abf4f2be9e2ec816cef63c6495a3dc89241110d7f4bbfab37465a",
@@ -22908,15 +22910,15 @@
     },
     "spacr.embeddings._foundation_encoder.run": {
       "source_blocks_sha256": [
-        "6232df384397cd204ba3032485fc4b4bc3156636b10bcdadfb52e0d3172884df",
-        "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427",
+        "47a247456a4b73e2ecedf7e56e310fdd568f09cf4ac3bb2a161042c7ab87b540",
+        "3db3fd3ac8dd6e0bbf0d17a24bb0a435b27f30364dab3e652fd106ad0b915b72",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
       ],
-      "source_sha256": "8d5bc9a747a252bf07d552909f6ad88a66a4a105e6826b9b84dbaf8aff1f77a9",
-      "text": "Codifica recortes ``(n, h, w, k)`` por batches, redimensionados al tamaño del modelo.\n\n:param stack: float32 en [0, 1], canales al final.\n:returns: Características ``(n, dims)`` en float32.",
+      "source_sha256": "9980c29acff6fbdf4cd33fd1213bd106dfea8da696d9b7b69f9bda7499c40cd5",
+      "text": "Codificar recortes de forma ``(n, h, w, k)`` en lotes adecuados para el modelo.\n\n:param stack: Recortes float32 con los canales en la última dimensión. SubCell R/Y/B/G utiliza valores de intensidad originales; los demás modelos fundacionales esperan [0, 1].\n:returns: Características ``(n, dims)`` en float32.",
       "translation_source_blocks_sha256": [
-        "47ab868d3ea6b488c8b2c369f2628ef1f3887d2d8e37cd3389331046d5ec63f1",
-        "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427",
+        "86f8f60a4408c7c0e96e45bb8367896783379428c07842bcb7f92de65a32ed11",
+        "09758f250f052b2dd8d43917b56484d97cf847b5e91074bb17f7b88e51d979be",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
       ]
     },
@@ -22964,22 +22966,24 @@
     },
     "spacr.embeddings._subcell_model.Pooled.forward": {
       "source_blocks_sha256": [
-        "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+        "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+        "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4"
       ],
-      "source_sha256": "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2",
-      "text": "``(n, 2, h, w)`` a ``(n, 1536)``, con las dos cabezas unidas.",
+      "source_sha256": "79d57ddc5b85cd1e40dcea855422dbb0eae191de7b8b6c2ef251c5d5444e581f",
+      "text": "De ``(n, k, h, w)`` a ``(n, 1536)``, concatenando las dos cabezas.\n\nEl punto de control determina si ``k`` corresponde a dos o cuatro canales.",
       "translation_source_blocks_sha256": [
-        "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+        "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+        "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4"
       ]
     },
     "spacr.embeddings._subcell_model.forward": {
       "source_blocks_sha256": [
-        "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754"
+        "82f232bd11178b82ce5736e669713c5ef37142ea414745ac3aa937f512d5abdd"
       ],
-      "source_sha256": "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754",
-      "text": "Escala por mín-máx cada canal del recorte y después codifica.",
+      "source_sha256": "82f232bd11178b82ce5736e669713c5ef37142ea414745ac3aa937f512d5abdd",
+      "text": "Normalizar por mínimo y máximo los planos que espera el modelo y después codificarlos.",
       "translation_source_blocks_sha256": [
-        "d4373d9db887a8de9e89adfd0a501d396544fa58940d7b447b584537154ef5c9"
+        "f5695e9558de1fdbdd03f8860df9e5545486f3286a377256aee7c99a817a960c"
       ]
     },
     "spacr.embeddings._timm_encoder.run": {
@@ -23056,24 +23060,24 @@
     },
     "spacr.embeddings.encoder_entry": {
       "source_blocks_sha256": [
-        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
-        "287307899b8054aba3778d18c5f4bb00687943fecc1b27bac4ba854253633484",
-        "fa7b9bdc8f7c1d08cfaa81508efa8331f8700ea4f941c6ec54e72fef1eb4a458",
-        "cbae75c8399079cd49b93dad3c22254b6f724794204e44c4b7a45f3decbba443",
-        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
-        "d1684cd2486ccc2ffe8149a5f24d94323f4d5c9b3e442d0a5621242fea2e8ee7",
-        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+        "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+        "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+        "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+        "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+        "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+        "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+        "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813"
       ],
-      "source_sha256": "27cec465dec2129bb455cb0ef6326427e8a4a9cf38dc82177c1d28c27269dbc8",
-      "text": "Este codificador como un :class:`spacr.model_zoo.ModelEntry`.\n\nUn codificador es un modelo publicado como cualquier otro, por lo que pertenece al zoológico con su suma de verificación y su marcador. Una incrustación que se envía sin uno es una caja negra dos veces más: opaca en lo que codifica, y no medida en lo bien que lo hace.\n\nLo que realmente es la procedencia de un codificador. No tiene un control spaCR -- los pesos son ImageNet o una ejecución auto-supervisada pública, resuelta por ``timm`` y en caché por HuggingFace. Así que la entrada registra la columna vertebral, la política del canal y la digestión de los pesos mientras se sientan en esta máquina. Eso es lo que una ejecución posterior tiene que coincidir, y se puede comprobar aquí sin una llamada de red.\n\nCuando los pesos no están en caché la entrada todavía existe y lo dice en sus notas, con un digest vacío -- que :func:`spacr.model_zoo.fetch` ya trata como una denegación en lugar de un pase. Una entrada que silenciosamente reclamaba una suma de cheques que no había calculado sería peor que una que admite que no puede todavía.\n\n:param spec: la configuración a describir; la especificación predeterminada cuando se omite.\n:param scorecard: números de recuperación de 386 \"cómo saber que funcionó\" -- precisión de kNN en la identidad genética, incrustaciones versus el panel medido. Agregado como :attr:`ModelEntry.metrics`, que es donde 370 ``scorecard_lines`` los lee.\n:returns: a ``ModelEntry`` de tipo ``'encoder'``.",
+      "source_sha256": "421b7f5656605f6520ad4e210c88a2a32c84261a377c949e7e959cd6523c1056",
+      "text": "Describa este codificador como una :class:`spacr.model_zoo.ModelEntry`.\n\nLa entrada combina la configuración del codificador, la procedencia disponible del punto de control y métricas opcionales de recuperación. Compare únicamente entradas con políticas de canales compatibles.\n\nLa entrada registra la red base, la política de canales y el resumen criptográfico de los bytes legibles del punto de control local, sin descargar ni cargar un modelo. Las redes base públicas usan los metadatos de caché de timm; OpenPhenom y ChAda-ViT usan revisiones fijadas de Hugging Face; SubCell usa su punto de control oficial de torch hub; un codificador DINO local usa la ruta de punto de control configurada. Las entradas de modelos fundacionales indican el proveedor original y la URL del punto de control. Una suma de comprobación por sí sola no verifica un modelo ni establece la procedencia de sus datos de entrenamiento.\n\nSi no se encuentra un punto de control local legible, la entrada conserva un resumen criptográfico vacío y lo explica en sus notas. :func:`spacr.model_zoo.fetch` rechaza las entradas sin resumen criptográfico.\n\n:param spec: Configuración del codificador; utiliza ``EmbeddingSpec()`` si se omite.\n:param scorecard: Métricas opcionales de recuperación medidas con controles etiquetados y almacenadas en :attr:`ModelEntry.metrics` para su visualización mediante ``scorecard_lines``.\n:returns: Una ``ModelEntry`` de tipo ``'encoder'``.",
       "translation_source_blocks_sha256": [
-        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
-        "dcef17b50e9db4df3490a7d22dac90240e267ba685e2372196478c658cec5c3b",
-        "529ec96d6993086fcf130931258b1b67effd233c1cd09cdaa449191f30dbad53",
-        "277b64bf6391e6e08d2799c8b460fdc75057b00b5d34b8dcd023b3746476abb6",
-        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
-        "51fd59a24157c2d9c6893e3e0c013607a655827b034a63ad331f117cb518b70a",
-        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+        "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+        "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+        "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+        "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+        "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+        "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+        "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813"
       ]
     },
     "spacr.embeddings.encoder_key": {
@@ -99622,6 +99626,16 @@
       "translation_source_blocks_sha256": [
         "ef54a96509237954a086aef555dd5f344751d6b9a8e1bf1f608a947a594c55d6",
         "61d2992be70109d1c24826f9a1f8a844580ae5fb00d0f9afa4a1228830995547"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping": {
+      "source_blocks_sha256": [
+        "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec"
+      ],
+      "source_sha256": "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec",
+      "text": "Guardar únicamente una selección completa de cuatro índices y cerrar después.",
+      "translation_source_blocks_sha256": [
+        "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._use_embeddings.work": {

@@ -172,8 +172,6 @@ Die Installateure bündeln ihre eigenen Python. Conda ist nicht erforderlich.
 
 .. spacr-installer-links-end
 
-Die ersten drei Icons laden die aktuelle Version herunter. Das spaCR-Symbol öffnet das komplette Installationsarchiv. Installer-Links und versionierte Dateinamen werden durch den Release-Workflow aktualisiert; frühere Installationsdateien verbleiben im gleichen Release-Archiv.
-
 Machen Sie die heruntergeladene Datei unter Linux ausführbar und führen Sie sie aus:
 
 .. code-block:: bash
@@ -200,7 +198,7 @@ Installieren Sie die PyPI-Veröffentlichung von spaCR mit pip in einer Conda-Umg
 
 spaCR unterstützt Python **3.9 through 3.14**, außer Python 3.14.1, das von torchvision ausgeschlossen wird. Linux wird für die anspruchsvollsten CUDA- und ROCm-Workflows empfohlen; macOS und Windows werden ebenfalls unterstützt und nutzen beide ihre GPUs — macOS über Metal, das Apple Silicon und die AMD-Karten in Intel Macs abdeckt, und Windows über CUDA oder DirectML.
 
-Die Standardinstallation enthält die Desktop-Schnittstelle Qt. Für einen Server, Cluster oder CI-Läufer führen Sie die Kommandozeilen-Pipelines aus, ohne sie zu öffnen:
+Die Standardinstallation enthält die Qt-Desktopoberfläche. Auf einem Server, Cluster oder CI-Runner können Sie die Befehlszeilen-Pipelines ausführen, ohne sie zu öffnen:
 
 .. code-block:: bash
 
@@ -274,7 +272,7 @@ Wer zu spaCR beiträgt, braucht den Verlauf; wer spaCR nur ausführen will, nimm
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Bei der Messung am 2026-09-15 lud der vollständige Klon 5,8 GB herunter. Beim flachen Klon verringerte ``--filter=blob:none`` die gemessene Downloadmenge nicht. Die versionierten Dateien von nightly ergeben ein Arbeitsverzeichnis von 1029 MB (gemessen am 2026-10-05), ohne Git-Verlauf. Downloadmenge und Dauer hängen vom Branch ab.
+Bei der Messung am 2026-09-15 lud der vollständige Klon 5,8 GB herunter. Beim flachen Klon verringerte ``--filter=blob:none`` die gemessene Downloadmenge nicht. Die versionierten Dateien von nightly ergeben ein Arbeitsverzeichnis von 1710 MB (gemessen am 2026-10-06), ohne Git-Verlauf. Downloadmenge und Dauer hängen vom Branch ab.
 
 
 Befehle für die Kommandozeile
@@ -426,8 +424,6 @@ Quantitative readouts for biological assays.
 .. spacr-workflow-end
 
 Alle Module mit einer Kachel auf der Startseite, in deren Reihenfolge: zuerst die sechs Pipeline-Module, dann die übrigen. Wählen Sie eine Kachel, um die API-Seite des Moduls zu öffnen.
-
-Einzelheiten zu jedem Werkzeug stehen im `Funktionsleitfaden <../../source/features.rst>`_.
 
 Sonstige Mittel
 ~~~~~~~~~~~~~~~

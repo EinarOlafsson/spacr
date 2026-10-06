@@ -1,0 +1,422 @@
+{
+  "application_source_sha256": "10f792e55641d29b4aa5a401d9b550a213f16711874461aafaa463368cbdd40e",
+  "API": {
+    "en": {
+      "preserved_complete_records": 13177,
+      "changed_existing_records": [
+        "spacr.embeddings.EmbeddingSpec",
+        "spacr.embeddings._foundation_encoder.run",
+        "spacr.embeddings._subcell_model.Pooled.forward",
+        "spacr.embeddings._subcell_model.forward"
+      ],
+      "added": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping"
+      ],
+      "catalog_sha256": "ca2995b5c7434e2016700ab96c13caf6df461dd6f94133ddace8fd99af75d78b"
+    },
+    "sv": {
+      "preserved_complete_records": 13177,
+      "changed_existing_records": [
+        "spacr.embeddings.EmbeddingSpec",
+        "spacr.embeddings._foundation_encoder.run",
+        "spacr.embeddings._subcell_model.Pooled.forward",
+        "spacr.embeddings._subcell_model.forward"
+      ],
+      "added": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping"
+      ],
+      "catalog_sha256": "0d5e663425eb49810504a13e5ce4aa0da826c29f4937813bbbb20e3845916b6a"
+    },
+    "de": {
+      "preserved_complete_records": 13177,
+      "changed_existing_records": [
+        "spacr.embeddings.EmbeddingSpec",
+        "spacr.embeddings._foundation_encoder.run",
+        "spacr.embeddings._subcell_model.Pooled.forward",
+        "spacr.embeddings._subcell_model.forward"
+      ],
+      "added": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping"
+      ],
+      "catalog_sha256": "08587465b8990052cb8293ef3ec1eb7b7deadf94f007626c582ba4b43e94f434"
+    },
+    "es": {
+      "preserved_complete_records": 13177,
+      "changed_existing_records": [
+        "spacr.embeddings.EmbeddingSpec",
+        "spacr.embeddings._foundation_encoder.run",
+        "spacr.embeddings._subcell_model.Pooled.forward",
+        "spacr.embeddings._subcell_model.forward"
+      ],
+      "added": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping"
+      ],
+      "catalog_sha256": "cef35141d88dbe5e21ecdf1eaea57f59b1bee9e7b41a6360e3e106b3ccf7d333"
+    },
+    "zh_CN": {
+      "preserved_complete_records": 13177,
+      "changed_existing_records": [
+        "spacr.embeddings.EmbeddingSpec",
+        "spacr.embeddings._foundation_encoder.run",
+        "spacr.embeddings._subcell_model.Pooled.forward",
+        "spacr.embeddings._subcell_model.forward"
+      ],
+      "added": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping"
+      ],
+      "catalog_sha256": "83af4988c1b2bd26ef72aa2ff6e0650afa36dc5599c464a1fe7df69b376176c2"
+    },
+    "pt": {
+      "preserved_complete_records": 13177,
+      "changed_existing_records": [
+        "spacr.embeddings.EmbeddingSpec",
+        "spacr.embeddings._foundation_encoder.run",
+        "spacr.embeddings._subcell_model.Pooled.forward",
+        "spacr.embeddings._subcell_model.forward"
+      ],
+      "added": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping"
+      ],
+      "catalog_sha256": "d0a86c57e95480636758d7acda9b57271d65740cef8cf031d9d2fa8fc119f078"
+    },
+    "hi": {
+      "preserved_complete_records": 13177,
+      "changed_existing_records": [
+        "spacr.embeddings.EmbeddingSpec",
+        "spacr.embeddings._foundation_encoder.run",
+        "spacr.embeddings._subcell_model.Pooled.forward",
+        "spacr.embeddings._subcell_model.forward"
+      ],
+      "added": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping"
+      ],
+      "catalog_sha256": "4eb4fa505ff8ad834cf6910e048a23cfd1fc4485e1e2840b8344881d165cdb9f"
+    },
+    "ko": {
+      "preserved_complete_records": 13177,
+      "changed_existing_records": [
+        "spacr.embeddings.EmbeddingSpec",
+        "spacr.embeddings._foundation_encoder.run",
+        "spacr.embeddings._subcell_model.Pooled.forward",
+        "spacr.embeddings._subcell_model.forward"
+      ],
+      "added": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping"
+      ],
+      "catalog_sha256": "a52eb153ac9b049b05e2a1f5f73c334d7cf38bf4129179e8851f324d534db468"
+    },
+    "is": {
+      "preserved_complete_records": 13177,
+      "changed_existing_records": [
+        "spacr.embeddings.EmbeddingSpec",
+        "spacr.embeddings._foundation_encoder.run",
+        "spacr.embeddings._subcell_model.Pooled.forward",
+        "spacr.embeddings._subcell_model.forward"
+      ],
+      "added": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping"
+      ],
+      "catalog_sha256": "1afc93127da89e2517a9220b3b6fd45631f26f44f302807c00ea17f89eba2d2c"
+    },
+    "fr": {
+      "preserved_complete_records": 13177,
+      "changed_existing_records": [
+        "spacr.embeddings.EmbeddingSpec",
+        "spacr.embeddings._foundation_encoder.run",
+        "spacr.embeddings._subcell_model.Pooled.forward",
+        "spacr.embeddings._subcell_model.forward"
+      ],
+      "added": [
+        "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping"
+      ],
+      "catalog_sha256": "485152cd6004ead4f96c4de488fb57dc234234137b92deffa44edbe8e72c5ea6"
+    }
+  },
+  "runtime": {
+    "en": {
+      "all_prior_unchanged_complete_rows": 9859,
+      "new_reviewed_messages": 21,
+      "retired": [
+        "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone)."
+      ],
+      "current_rows": 9880,
+      "catalog_sha256": "9b62c02165ffa1fa82e35660264684b5125946ffb21b3a7a2f9e321095ef144c"
+    },
+    "sv": {
+      "all_prior_unchanged_complete_rows": 9859,
+      "new_reviewed_messages": 21,
+      "retired": [
+        "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone)."
+      ],
+      "current_rows": 9880,
+      "catalog_sha256": "c257f21f286743edfabda130af9207f6ea1ac8208e6f96b510f023c5454c01e7"
+    },
+    "de": {
+      "all_prior_unchanged_complete_rows": 9859,
+      "new_reviewed_messages": 21,
+      "retired": [
+        "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone)."
+      ],
+      "current_rows": 9880,
+      "catalog_sha256": "74dcda2404399701b63e25afc93e5b236857a88699141e50c9cbc5e9cf76c769"
+    },
+    "es": {
+      "all_prior_unchanged_complete_rows": 9859,
+      "new_reviewed_messages": 21,
+      "retired": [
+        "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone)."
+      ],
+      "current_rows": 9880,
+      "catalog_sha256": "e1fd10b165edba11906817bba683f45fcbf65c747f119671c286c06f3d880e91"
+    },
+    "zh_CN": {
+      "all_prior_unchanged_complete_rows": 9859,
+      "new_reviewed_messages": 21,
+      "retired": [
+        "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone)."
+      ],
+      "current_rows": 9880,
+      "catalog_sha256": "916c53c01b7026a7f6b7c9b6d3a65032ee89b65a655092de87620ed5df3c7928"
+    },
+    "pt": {
+      "all_prior_unchanged_complete_rows": 9859,
+      "new_reviewed_messages": 21,
+      "retired": [
+        "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone)."
+      ],
+      "current_rows": 9880,
+      "catalog_sha256": "ee35f5c33fff13de71f4f6be6f9de6c4ab3c714b7a103310ff0457c37b8f0976"
+    },
+    "hi": {
+      "all_prior_unchanged_complete_rows": 9859,
+      "new_reviewed_messages": 21,
+      "retired": [
+        "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone)."
+      ],
+      "current_rows": 9880,
+      "catalog_sha256": "45809997f4ba82228ce0f0e234d413d7a1b8d147820652167fa5bab6461fb6f2"
+    },
+    "ko": {
+      "all_prior_unchanged_complete_rows": 9859,
+      "new_reviewed_messages": 21,
+      "retired": [
+        "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone)."
+      ],
+      "current_rows": 9880,
+      "catalog_sha256": "3e177a02507fa49b075eb5022a0c20f27aa05f3a17807935144c91e287872638"
+    },
+    "is": {
+      "all_prior_unchanged_complete_rows": 9859,
+      "new_reviewed_messages": 21,
+      "retired": [
+        "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone)."
+      ],
+      "current_rows": 9880,
+      "catalog_sha256": "c12854e45ec9d03612066e0ce32dbdaa610ff5a673e82b45da09b5adc4ff6a9c"
+    },
+    "fr": {
+      "all_prior_unchanged_complete_rows": 9859,
+      "new_reviewed_messages": 21,
+      "retired": [
+        "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone)."
+      ],
+      "current_rows": 9880,
+      "catalog_sha256": "60a20c22da15b48162e676089ec5dbc2cb3dad993a9d4ce8c99785e7e62320cc"
+    }
+  },
+  "reviewed_files": {
+    "api": {
+      "all_complete_original_files_retained_byte_exact": 1042,
+      "active_source_based_changes": [
+        {
+          "active": "de/2026-09-15-embedding-plate-scale.json",
+          "exact_complete_original_archive": "de/archive/2026-10-06-subcell-rybg/2026-09-15-embedding-plate-scale.json",
+          "original_sha256": "3600c8e326cae3fb14ec6abfe3d5c9545a133c378171c2323be107712698e155"
+        },
+        {
+          "active": "de/2026-09-25-api-debt-000.json",
+          "exact_complete_original_archive": "de/archive/2026-10-06-subcell-rybg/2026-09-25-api-debt-000.json",
+          "original_sha256": "8e6d487bf0fb80dc8e01eae53a8c7ba72d19103af5a6e67c61068648336134eb"
+        },
+        {
+          "active": "de/2026-10-03-nested-batch9.json",
+          "exact_complete_original_archive": "de/archive/2026-10-06-subcell-rybg/2026-10-03-nested-batch9.json",
+          "original_sha256": "59a4ade7bb436e62e7cc24c661d991158b9e97139c004c9bb266844d89cf5f25"
+        },
+        {
+          "active": "es/2026-09-15-embedding-plate-scale.json",
+          "exact_complete_original_archive": "es/archive/2026-10-06-subcell-rybg/2026-09-15-embedding-plate-scale.json",
+          "original_sha256": "13efdd662c6b11847089abf3afa2e97b37ebc0f0853c427d1e6b67104ff0dd1b"
+        },
+        {
+          "active": "es/2026-09-25-api-debt-000.json",
+          "exact_complete_original_archive": "es/archive/2026-10-06-subcell-rybg/2026-09-25-api-debt-000.json",
+          "original_sha256": "9bb0005a9ec6b4b9189d7d2a95a3bf1aabf4f1473e0bf050017e9a5c87fa6a18"
+        },
+        {
+          "active": "es/2026-10-03-nested-batch9.json",
+          "exact_complete_original_archive": "es/archive/2026-10-06-subcell-rybg/2026-10-03-nested-batch9.json",
+          "original_sha256": "49b33e6efc7b2bec2a07317e74ee013dd06e8938a1552f9c5d46f7e3f5457aea"
+        },
+        {
+          "active": "fr/2026-09-15-embedding-plate-scale.json",
+          "exact_complete_original_archive": "fr/archive/2026-10-06-subcell-rybg/2026-09-15-embedding-plate-scale.json",
+          "original_sha256": "615d0fdc20ec0f51c53191b6623a34317fc5f8b7373704c9d3fe7faa93588f2d"
+        },
+        {
+          "active": "fr/2026-09-25-api-debt-000.json",
+          "exact_complete_original_archive": "fr/archive/2026-10-06-subcell-rybg/2026-09-25-api-debt-000.json",
+          "original_sha256": "0db53e20325cc696e63d711f41298ddd1d8507632b92472c75ac317b5ca54881"
+        },
+        {
+          "active": "fr/2026-10-03-nested-batch9.json",
+          "exact_complete_original_archive": "fr/archive/2026-10-06-subcell-rybg/2026-10-03-nested-batch9.json",
+          "original_sha256": "7d874afc0db41e24a7051e68b9828849940329d2622bad79b45f4c8798485889"
+        },
+        {
+          "active": "hi/2026-09-15-embedding-plate-scale.json",
+          "exact_complete_original_archive": "hi/archive/2026-10-06-subcell-rybg/2026-09-15-embedding-plate-scale.json",
+          "original_sha256": "a0d74ae9e7fbd0b22e083fa5a0fbeb03140daef2c4b08ca1c4f2207304e54ba0"
+        },
+        {
+          "active": "hi/2026-09-25-api-debt-000.json",
+          "exact_complete_original_archive": "hi/archive/2026-10-06-subcell-rybg/2026-09-25-api-debt-000.json",
+          "original_sha256": "3f9cc3c7370547a40ad6b4f6fe559552a6068e1910a2b1baa99a24645c9293c1"
+        },
+        {
+          "active": "hi/2026-10-03-nested-batch9.json",
+          "exact_complete_original_archive": "hi/archive/2026-10-06-subcell-rybg/2026-10-03-nested-batch9.json",
+          "original_sha256": "e6875909b07857500c5e0021a1093d0da9be6ce4a54bbab7be55d177c3ecf46d"
+        },
+        {
+          "active": "is/2026-09-15-embedding-plate-scale.json",
+          "exact_complete_original_archive": "is/archive/2026-10-06-subcell-rybg/2026-09-15-embedding-plate-scale.json",
+          "original_sha256": "2a4d85ac15a1656bb185190cc0a94a752cc81263a50bc708558c592d78e23cf1"
+        },
+        {
+          "active": "is/2026-09-25-api-debt-000.json",
+          "exact_complete_original_archive": "is/archive/2026-10-06-subcell-rybg/2026-09-25-api-debt-000.json",
+          "original_sha256": "5ead7540c6fcd6b067fba98d391b6400adcb47defc8b2fc7347beb82200dbad1"
+        },
+        {
+          "active": "is/2026-10-03-nested-batch9.json",
+          "exact_complete_original_archive": "is/archive/2026-10-06-subcell-rybg/2026-10-03-nested-batch9.json",
+          "original_sha256": "8e7557ed3f9e68de7286dc2a42adad4f1f20b66f6802c12569b8c32fa46b63df"
+        },
+        {
+          "active": "ko/2026-09-15-embedding-plate-scale.json",
+          "exact_complete_original_archive": "ko/archive/2026-10-06-subcell-rybg/2026-09-15-embedding-plate-scale.json",
+          "original_sha256": "f81d4569b43c6c70cfb74a0a43fa1d474bb60766f2e360dff12f6a3b6a36557e"
+        },
+        {
+          "active": "ko/2026-09-25-api-debt-000.json",
+          "exact_complete_original_archive": "ko/archive/2026-10-06-subcell-rybg/2026-09-25-api-debt-000.json",
+          "original_sha256": "84a946f0578c19071292462d98ede2adb864b3af57d03252f67bf82a6da9ab2e"
+        },
+        {
+          "active": "ko/2026-10-03-nested-batch9.json",
+          "exact_complete_original_archive": "ko/archive/2026-10-06-subcell-rybg/2026-10-03-nested-batch9.json",
+          "original_sha256": "1b49e45ce2e0233bcd85bb6fb891881190ee16eb797fd4568120347cb816cbc8"
+        },
+        {
+          "active": "pt/2026-09-15-embedding-plate-scale.json",
+          "exact_complete_original_archive": "pt/archive/2026-10-06-subcell-rybg/2026-09-15-embedding-plate-scale.json",
+          "original_sha256": "72349baf5898dd31f0d67a714a961b666641c2675346892de14998219b090a03"
+        },
+        {
+          "active": "pt/2026-09-25-api-debt-000.json",
+          "exact_complete_original_archive": "pt/archive/2026-10-06-subcell-rybg/2026-09-25-api-debt-000.json",
+          "original_sha256": "ee55d3f64c248550a3fec00cd4a7150696457c751e586820a4306890941ca0dc"
+        },
+        {
+          "active": "pt/2026-10-03-nested-batch9.json",
+          "exact_complete_original_archive": "pt/archive/2026-10-06-subcell-rybg/2026-10-03-nested-batch9.json",
+          "original_sha256": "36b8f167ea403e6f035030a34082b66c2366117996029cfcf4cf5e4ced400aba"
+        },
+        {
+          "active": "sv/2026-09-15-embedding-plate-scale.json",
+          "exact_complete_original_archive": "sv/archive/2026-10-06-subcell-rybg/2026-09-15-embedding-plate-scale.json",
+          "original_sha256": "962f6c536e7628b490d6c019300363d172bcd09109b14d2819d739cbcccf950e"
+        },
+        {
+          "active": "sv/2026-09-25-api-debt-000.json",
+          "exact_complete_original_archive": "sv/archive/2026-10-06-subcell-rybg/2026-09-25-api-debt-000.json",
+          "original_sha256": "07a519843b4ee0fbbad8401109a7aeb50995e23491ee4a7f53b7eea3286864cd"
+        },
+        {
+          "active": "sv/2026-10-03-nested-batch9.json",
+          "exact_complete_original_archive": "sv/archive/2026-10-06-subcell-rybg/2026-10-03-nested-batch9.json",
+          "original_sha256": "193b4b6ff322798461f650af94384a049a9dbd181bc818415e33c22c8fbc7dca"
+        },
+        {
+          "active": "zh_CN/2026-09-15-embedding-plate-scale.json",
+          "exact_complete_original_archive": "zh_CN/archive/2026-10-06-subcell-rybg/2026-09-15-embedding-plate-scale.json",
+          "original_sha256": "dfc4bf35c14af7c2c0c86197df778c8558ed914d23e10e2c05ed7cbab40c7714"
+        },
+        {
+          "active": "zh_CN/2026-09-25-api-debt-000.json",
+          "exact_complete_original_archive": "zh_CN/archive/2026-10-06-subcell-rybg/2026-09-25-api-debt-000.json",
+          "original_sha256": "73aeb64019d488309643dd84b5f131c9dd30f6b30cb9cb3376a0597f35777ba4"
+        },
+        {
+          "active": "zh_CN/2026-10-03-nested-batch9.json",
+          "exact_complete_original_archive": "zh_CN/archive/2026-10-06-subcell-rybg/2026-10-03-nested-batch9.json",
+          "original_sha256": "76b735b868c1f9b45769a2b3cced5240c1c6db0446aba9f2a91f6738c4a5f510"
+        }
+      ]
+    },
+    "runtime": {
+      "all_complete_original_files_retained_byte_exact": 1972,
+      "active_source_based_changes": [
+        {
+          "active": "de/2026-09-27-runtime-codex-delta.json",
+          "exact_complete_original_archive": "de/archive/2026-10-06-subcell-rybg/2026-09-27-runtime-codex-delta.json",
+          "original_sha256": "fbad1b413610df61dd532d86a8d34dfe2537b90ccf6ae82daa32661ad8b559e4"
+        },
+        {
+          "active": "es/2026-09-27-runtime-codex-delta.json",
+          "exact_complete_original_archive": "es/archive/2026-10-06-subcell-rybg/2026-09-27-runtime-codex-delta.json",
+          "original_sha256": "bcf5ca7f531727f64c9648c04a8eb9853abd10d5393654005a935c5477bd333b"
+        },
+        {
+          "active": "fr/2026-09-27-runtime-codex-delta.json",
+          "exact_complete_original_archive": "fr/archive/2026-10-06-subcell-rybg/2026-09-27-runtime-codex-delta.json",
+          "original_sha256": "48d47082089861bee1660ecb352bcc493869524b490b2250ae0ef77523751ced"
+        },
+        {
+          "active": "hi/2026-09-27-runtime-codex-delta.json",
+          "exact_complete_original_archive": "hi/archive/2026-10-06-subcell-rybg/2026-09-27-runtime-codex-delta.json",
+          "original_sha256": "fdb3c56bba1be612ab083c66633281726787c36559f52b0185621e8830d76ec0"
+        },
+        {
+          "active": "is/2026-09-27-runtime-codex-delta.json",
+          "exact_complete_original_archive": "is/archive/2026-10-06-subcell-rybg/2026-09-27-runtime-codex-delta.json",
+          "original_sha256": "845c2e4c24c4999bc845f225bcc626ef0cd04282d68824ef295a70ae70cb925e"
+        },
+        {
+          "active": "ko/2026-09-27-runtime-codex-delta.json",
+          "exact_complete_original_archive": "ko/archive/2026-10-06-subcell-rybg/2026-09-27-runtime-codex-delta.json",
+          "original_sha256": "bd55fcc192c1fb8fc22e1c9393179742d943f01c2a8c0892468c58bf14eeca4f"
+        },
+        {
+          "active": "pt/2026-09-27-runtime-codex-delta.json",
+          "exact_complete_original_archive": "pt/archive/2026-10-06-subcell-rybg/2026-09-27-runtime-codex-delta.json",
+          "original_sha256": "3f908de6d780b293cec93dbe42d9cd8331e7f3ad40f12feac65658d7cbf0626c"
+        },
+        {
+          "active": "sv/2026-09-27-runtime-codex-delta.json",
+          "exact_complete_original_archive": "sv/archive/2026-10-06-subcell-rybg/2026-09-27-runtime-codex-delta.json",
+          "original_sha256": "8f172c2a22603f59bc21c39efb2aa55f819bbc2e9b36ee276461c832fcabe87f"
+        },
+        {
+          "active": "zh_CN/2026-09-27-runtime-codex-delta.json",
+          "exact_complete_original_archive": "zh_CN/archive/2026-10-06-subcell-rybg/2026-09-27-runtime-codex-delta.json",
+          "original_sha256": "961b1786f80313869005d466acc33d2f89713166b2814d9f9551ef836c6acf16"
+        }
+      ]
+    }
+  },
+  "all_Home_inference_code_preserved_excluding_documentation_and_three_exact_Root_owned_functions": true,
+  "all_tutorial_source_and_media_byte_preserved": true,
+  "passed": true
+}

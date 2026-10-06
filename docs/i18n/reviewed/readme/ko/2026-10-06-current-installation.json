@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_method": "Direct Codex AI numeric review against all current tracked file sizes, retaining the original dated download measurements, and technical review of standard Qt installation versus headless execution. No native-speaker signoff.",
+  "records": [
+    {
+      "label": "dated-clone-and-current-checkout-size",
+      "source": "On 2026-09-15, the full clone downloaded 5.8 GB. Adding ``--filter=blob:none`` to the shallow clone did not reduce its measured download. The nightly tracked tree is a 1710 MB checkout (measured 2026-10-06), excluding Git history. Download sizes and times vary with the branch.",
+      "source_sha256": "586cb07b47cda3c5a4cb369e9ad5fba28c8638190470a3a23f957ba05898c939",
+      "translation": "2026-09-15 측정에서 전체 클론은 5.8 GB를 다운로드했습니다. 얕은 클론에 ``--filter=blob:none``을 추가해도 측정된 다운로드 크기는 줄지 않았습니다. nightly의 Git 추적 파일은 체크아웃에서 1710 MB를 차지합니다(2026-10-06 측정). Git 이력은 제외한 크기이며, 다운로드 크기와 시간은 브랜치에 따라 달라집니다."
+    },
+    {
+      "label": "standard-Qt-installation-headless-command-line-use",
+      "source": "The standard installation includes the Qt desktop interface. For a server, cluster or CI runner, run the command-line pipelines without opening it:",
+      "source_sha256": "ef361e3da0eb00540c9a56603825d58a35edd3923990b57f59716192e4872942",
+      "translation": "표준 설치에는 Qt 데스크톱 인터페이스가 포함됩니다. 서버, 클러스터 또는 CI 실행기에서는 인터페이스를 열지 않고 명령줄 파이프라인을 실행하세요:"
+    }
+  ]
+}

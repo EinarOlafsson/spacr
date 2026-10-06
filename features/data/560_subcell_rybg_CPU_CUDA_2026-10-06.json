@@ -1,0 +1,245 @@
+{
+  "scope": "Real strict-loaded official four-channel SubCell CPU and CUDA mapping/normalization/native-geometry parity against pinned original authors model on five deterministic synthetic fixtures.",
+  "passed": true,
+  "application_source_sha256": "10f792e55641d29b4aa5a401d9b550a213f16711874461aafaa463368cbdd40e",
+  "integrated_Home_commit": "3ce39ac7b",
+  "normal_gpu_turn_closed_rc": 0,
+  "normal_idle_seconds": 360,
+  "normal_gap_seconds": 600,
+  "all_five_inputs_and_ordered_model_state_identical_between_CPU_and_CUDA": true,
+  "checkpoint_sha256": "6a2d117bcacaa0697034d06d6922580ca7cd996564f270529ec97e6502559845",
+  "checkpoint_bytes": 349009018,
+  "predeclared_maximum_absolute_difference_guard": 1e-05,
+  "reports": {
+    "CPU-mapping-parity-r2": {
+      "receipt": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CPU-mapping-parity-r2/acceptance.json",
+      "raw_files_losslessly_retained": {
+        "16x16-authors-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "352175adf7c197bd4955fea61a75ac36294932bcd043b99f9de7d50f1a0e0797",
+          "packed_sha256": "2ed6a30b96e1368b55d7b7c12430345e63d69c8e7ed430ca04adb825ee34249b",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CPU-mapping-parity-r2/16x16-authors-features.npy.gz"
+        },
+        "16x16-original.npy": {
+          "original_bytes": 5248,
+          "original_sha256": "a712671050326ba370d6636779bab6f01a96f81a5d96859266bb0f2f089608c2",
+          "packed_sha256": "a53038289a7664dc5df9968d67e7849db7a22ca587d3ab0ffb13d025b88f4974",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CPU-mapping-parity-r2/16x16-original.npy.gz"
+        },
+        "16x16-spacr-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "6846700f3376ff06d02daa1b17903316d07b4d576dfaa899d485aecd0a583be1",
+          "packed_sha256": "f2bbb240c0ba5a7c0bf213a1af36d4a9ce6ed4549b7b72984054eb3baffedeaa",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CPU-mapping-parity-r2/16x16-spacr-features.npy.gz"
+        },
+        "48x64-authors-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "86d215f10ec71defae2a3297934ee3b8615653b24a592b18daf1b9fd9977b30c",
+          "packed_sha256": "8d7918af81bea8d657e0d72938909e67bb560a8d3d3d1d99dafa9e128eec2d60",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CPU-mapping-parity-r2/48x64-authors-features.npy.gz"
+        },
+        "48x64-original.npy": {
+          "original_bytes": 61568,
+          "original_sha256": "d85f9158cd7499e051a493661a5d340c31c4c32f7ecbd0aeeb26b0071634725e",
+          "packed_sha256": "bacdb0ae7049e6eb7859156697f9a810742b80e04f55ab47933418646964e132",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CPU-mapping-parity-r2/48x64-original.npy.gz"
+        },
+        "48x64-spacr-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "19de0afca97f4f1c1a43085e39432cd52f2af1d570aecf0a509f334704236410",
+          "packed_sha256": "b12be82653bd5c14e715a49b2fa36ef42749ce0605d7a8e7681f168d47fe6be8",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CPU-mapping-parity-r2/48x64-spacr-features.npy.gz"
+        },
+        "512x512-authors-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "3a19e73a6f4908f84a3d5bcc05ec6d52fe978152d6ec7b143973f456e3bd0af9",
+          "packed_sha256": "d628777a9197e2dd994e3d7243dc43cbe9e7491564160fd1c61485f4b82d5d26",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CPU-mapping-parity-r2/512x512-authors-features.npy.gz"
+        },
+        "512x512-original.npy": {
+          "original_bytes": 5243008,
+          "original_sha256": "718a2d950180a094801a0046fd2f1fd3020cd01fae075028da56bae9b3572fa0",
+          "packed_sha256": "a01cb71d70d06c4cecc19060d10b91ac1e0b9320764575793dad0eca3e7b8ad1",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CPU-mapping-parity-r2/512x512-original.npy.gz"
+        },
+        "512x512-spacr-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "12fa4ab5f0417ffe4606ec5acb7f1c238fdfe519615ae32b2fae0aaef2f72ada",
+          "packed_sha256": "76b02f99cbe0e716577764ecf5840cab15cd93ab1b9331974567871aae59f8ee",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CPU-mapping-parity-r2/512x512-spacr-features.npy.gz"
+        },
+        "64x64-authors-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "3300db598badbe0d414b220a692ceaaf87d81be029ea3cb4ca8e92d8f213d867",
+          "packed_sha256": "3568cbf77f19188357597f0c5d009efdf2b26feaceef37cfaeb3ad158105c584",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CPU-mapping-parity-r2/64x64-authors-features.npy.gz"
+        },
+        "64x64-original.npy": {
+          "original_bytes": 82048,
+          "original_sha256": "e0dff75d786959a54a3d8f8bac223b4eb96990691f395d9a5dc2e529ecdcab76",
+          "packed_sha256": "e10b4eb397a593408a7987e0848aebe43b1b523ae7602a859fa7229142d08518",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CPU-mapping-parity-r2/64x64-original.npy.gz"
+        },
+        "64x64-spacr-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "1aa7c549547c26d517896f713ec6841815cb95d8f137fc2a517fb89a9a6ee86a",
+          "packed_sha256": "ab0b61c5afd0979ff1174492a274ca5bcf2c490cd9ece981cab2be751b3a3762",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CPU-mapping-parity-r2/64x64-spacr-features.npy.gz"
+        },
+        "constant-64x64-authors-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "e3d21be98ee087e8de7da806979ee520171d6c72d61d8ec767bd052a53480788",
+          "packed_sha256": "7c55c18ead9eb6ec9fcf249d16372e71683383e8de59ff8df41d244557e11c51",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CPU-mapping-parity-r2/constant-64x64-authors-features.npy.gz"
+        },
+        "constant-64x64-original.npy": {
+          "original_bytes": 82048,
+          "original_sha256": "f5d8d0e844d5289fe65e45274a0596fb081131eafc540dc4bbbc23754bc7983e",
+          "packed_sha256": "c3d2da378516d450149090e39b2b4025ccb1d0b5d0b1fd59787c2ab9cc495a77",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CPU-mapping-parity-r2/constant-64x64-original.npy.gz"
+        },
+        "constant-64x64-spacr-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "26648517d62f94fad16c7a27dae3d4012c77910ae79221183c46eb0965791373",
+          "packed_sha256": "2b9e6d91b3018e6da6a9df28d060237733dc55be67940f8b18b8c4bad67c61e6",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CPU-mapping-parity-r2/constant-64x64-spacr-features.npy.gz"
+        }
+      },
+      "maximum_author_difference": 3.814697265625e-06
+    },
+    "CUDA-mapping-parity-r1": {
+      "receipt": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/acceptance.json",
+      "raw_files_losslessly_retained": {
+        "16x16-CUDA-trace.json": {
+          "original_bytes": 565519,
+          "original_sha256": "5eeae0965db0c0331d80606a1103eda1ad349482da419ac83fa4372df4262c56",
+          "packed_sha256": "5e3bfe87865faa19ec7f793855102c56bc7966da255c8a631c9a6d96f470a233",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/16x16-CUDA-trace.json.gz"
+        },
+        "16x16-authors-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "bc2d52044909541fbf14b30a6effcb17515d986e10d90f71dae7bcd535485281",
+          "packed_sha256": "aca5655e9977c6fdb068c51da2522f70258c61e2f69dfdc1469e57dfec5f66e6",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/16x16-authors-features.npy.gz"
+        },
+        "16x16-original.npy": {
+          "original_bytes": 5248,
+          "original_sha256": "a712671050326ba370d6636779bab6f01a96f81a5d96859266bb0f2f089608c2",
+          "packed_sha256": "a53038289a7664dc5df9968d67e7849db7a22ca587d3ab0ffb13d025b88f4974",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/16x16-original.npy.gz"
+        },
+        "16x16-spacr-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "6829b5dd23627c4af2a0bbbdf541917c4956a7f6584b180e70c8fd2082205ca6",
+          "packed_sha256": "58206aa70b5da6c0cf68c963373bf03ab8f5aa77906deb7d8c3bc5422a318fd2",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/16x16-spacr-features.npy.gz"
+        },
+        "48x64-CUDA-trace.json": {
+          "original_bytes": 609873,
+          "original_sha256": "a5c17580b8eb24bc2dd02d53aee4d35075417c90f1ae121c642fe057e4120731",
+          "packed_sha256": "396364a0ce4c61058662507e67aeb32d870157734ab2239129678e1d91f7b3a8",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/48x64-CUDA-trace.json.gz"
+        },
+        "48x64-authors-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "4a43d13a53430ffdeb3079616beba4f49ceb3b6d24807bde45b6fb6a4054dbc0",
+          "packed_sha256": "1c0027a31d3e7de1f020ee7ec43a00d8d98f620931cb70901ca572ef75b1b9ca",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/48x64-authors-features.npy.gz"
+        },
+        "48x64-original.npy": {
+          "original_bytes": 61568,
+          "original_sha256": "d85f9158cd7499e051a493661a5d340c31c4c32f7ecbd0aeeb26b0071634725e",
+          "packed_sha256": "bacdb0ae7049e6eb7859156697f9a810742b80e04f55ab47933418646964e132",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/48x64-original.npy.gz"
+        },
+        "48x64-spacr-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "c13a7c5adc2db4dbbde2ade231b62e82343964550e0bcae8d40edcbfedfede58",
+          "packed_sha256": "306409f8c5b464bd772ced0d9745a25c63d19b3b453af1ee0ad3453095202aa9",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/48x64-spacr-features.npy.gz"
+        },
+        "512x512-CUDA-trace.json": {
+          "original_bytes": 588889,
+          "original_sha256": "4a03c842c0e697752802904d2343cad4fbce1a9b5750fb3d41665231d7333670",
+          "packed_sha256": "459048b8b2549fbaf4c7389dc4ba618802e4717e59aa16a7b624267511a9bac7",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/512x512-CUDA-trace.json.gz"
+        },
+        "512x512-authors-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "0e2e6be43d1034a28a478be8d96f905e5c653fa8c8b0a573383c95b4391bf9ec",
+          "packed_sha256": "ceee347e07c8b44d85847e74e63a2f0d8f5d369c2a531b6af228e47054d17fa2",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/512x512-authors-features.npy.gz"
+        },
+        "512x512-original.npy": {
+          "original_bytes": 5243008,
+          "original_sha256": "718a2d950180a094801a0046fd2f1fd3020cd01fae075028da56bae9b3572fa0",
+          "packed_sha256": "a01cb71d70d06c4cecc19060d10b91ac1e0b9320764575793dad0eca3e7b8ad1",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/512x512-original.npy.gz"
+        },
+        "512x512-spacr-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "cbb0d2c8125c4c25b3f326e3d7ea2915ca7bd8c2f84170c218e2d97afc73687f",
+          "packed_sha256": "67ab2f44638e09e82fb4c2528fe78226cfb49af87f3ca2ccadb57a7703fbd02b",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/512x512-spacr-features.npy.gz"
+        },
+        "64x64-CUDA-trace.json": {
+          "original_bytes": 621159,
+          "original_sha256": "f5c0dcd493f6d11d7dc1fa6622c63d00149519a7dedafc52b807d74922b103ab",
+          "packed_sha256": "dc33f0b0edaa3ef9d00a9c637d44637db999238ab32de632c22a046df8e4f153",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/64x64-CUDA-trace.json.gz"
+        },
+        "64x64-authors-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "bfbdb74266fbb42e2bd8e01486dfa675839b90842472d9987cfcd8efc02118df",
+          "packed_sha256": "17c05f0e7929f5cfbed5b825b541bad2201383705642a6548e2af358b7b17394",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/64x64-authors-features.npy.gz"
+        },
+        "64x64-original.npy": {
+          "original_bytes": 82048,
+          "original_sha256": "e0dff75d786959a54a3d8f8bac223b4eb96990691f395d9a5dc2e529ecdcab76",
+          "packed_sha256": "e10b4eb397a593408a7987e0848aebe43b1b523ae7602a859fa7229142d08518",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/64x64-original.npy.gz"
+        },
+        "64x64-spacr-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "c769b1e1c510c6b6c6cb2dc204ebf1a1b71eea8db2e0c937c332f7c80cf3f7a1",
+          "packed_sha256": "eb2782004a38fac9142c80de700ca5cfb8bd01b5c71e593dbe9dee0caed05692",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/64x64-spacr-features.npy.gz"
+        },
+        "constant-64x64-CUDA-trace.json": {
+          "original_bytes": 589871,
+          "original_sha256": "97afa0dfcae6a46f8731d0c7ffcbbfefcce9d0042b51cb65338685e273d5f891",
+          "packed_sha256": "ed638ca736308007e4aad1189bcc47699569dce91e6182c7fe5042958a25a868",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/constant-64x64-CUDA-trace.json.gz"
+        },
+        "constant-64x64-authors-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "60a9e475615c4a3713f7e0276510e5d184669c3ca429109dc2a4f5be3ab103ff",
+          "packed_sha256": "a6295ad977877d07f5f254647db32c07bbfbc6524280ed7e7321233f5ce6403c",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/constant-64x64-authors-features.npy.gz"
+        },
+        "constant-64x64-original.npy": {
+          "original_bytes": 82048,
+          "original_sha256": "f5d8d0e844d5289fe65e45274a0596fb081131eafc540dc4bbbc23754bc7983e",
+          "packed_sha256": "c3d2da378516d450149090e39b2b4025ccb1d0b5d0b1fd59787c2ab9cc495a77",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/constant-64x64-original.npy.gz"
+        },
+        "constant-64x64-spacr-features.npy": {
+          "original_bytes": 6272,
+          "original_sha256": "5db26c4bce1ffcf68b19a77ffba3438e4fedbe0d967246a69568425d352709d0",
+          "packed_sha256": "39f5f7ebaebed005f10fa25786d8b416c661b19ba788d4147a42148303b1e4f4",
+          "retained": "features/data/560_subcell_rybg_CPU_CUDA_2026-10-06/CUDA-mapping-parity-r1/constant-64x64-spacr-features.npy.gz"
+        }
+      },
+      "maximum_author_difference": 3.814697265625e-06
+    }
+  },
+  "retained_failed_CPU_r1": "Verification failed after app features were produced: private verifier used uppercase UNKNOWN instead of model_zoo.UNKNOWN. CPU r2 also corrects NumPy reference channel indexing before author parity. Application inference code was unchanged. The wrapper log excludes the uncaught traceback after finally; it is not reconstructed as a raw log.",
+  "not_claimed": [
+    "Four-stain expert human-label biological accuracy",
+    "Official Cell-DINO loading",
+    "Whole item 560 completion",
+    "Final CI or deployed documentation acceptance"
+  ],
+  "archive_script_sha256": "d5ddc99b9eb5996e541c7c5bbdc6e83f5e522335712d1b70655898e2383dca6b"
+}

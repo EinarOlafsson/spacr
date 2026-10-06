@@ -1,0 +1,74 @@
+{
+  "sv": {
+    "prior_complete_messages_exact": 2979,
+    "new_puncta_messages": 12,
+    "current_total": 2991,
+    "catalog_files": 34,
+    "all_prior_user_and_auto_comments_flags_context_and_locations_exact": true,
+    "make_masks_sha256": "b914fb5ed4d362e7b51a8212bb08a5ea2cbde7584deff0e363455c592304d2f5"
+  },
+  "de": {
+    "prior_complete_messages_exact": 2979,
+    "new_puncta_messages": 12,
+    "current_total": 2991,
+    "catalog_files": 34,
+    "all_prior_user_and_auto_comments_flags_context_and_locations_exact": true,
+    "make_masks_sha256": "14acec1b5f10e570924f33e3208533d16db264b78f25210069e1aabfd9c5d5a9"
+  },
+  "es": {
+    "prior_complete_messages_exact": 2979,
+    "new_puncta_messages": 12,
+    "current_total": 2991,
+    "catalog_files": 34,
+    "all_prior_user_and_auto_comments_flags_context_and_locations_exact": true,
+    "make_masks_sha256": "1adabc5184de7049b0bf4c5efeb3793b7b096f3e5b34b5618cb06b0fc0ccee99"
+  },
+  "pt": {
+    "prior_complete_messages_exact": 2979,
+    "new_puncta_messages": 12,
+    "current_total": 2991,
+    "catalog_files": 34,
+    "all_prior_user_and_auto_comments_flags_context_and_locations_exact": true,
+    "make_masks_sha256": "b98093774e9cfbfa5c262e83d2fda9c05bd1b5bc24e44e0e3ef7426bdd39467e"
+  },
+  "fr": {
+    "prior_complete_messages_exact": 2979,
+    "new_puncta_messages": 12,
+    "current_total": 2991,
+    "catalog_files": 34,
+    "all_prior_user_and_auto_comments_flags_context_and_locations_exact": true,
+    "make_masks_sha256": "5f02083a7c16a9fd15d855bfeeedc7ee00b2091bc54eede92c07cc674272b38e"
+  },
+  "is": {
+    "prior_complete_messages_exact": 2979,
+    "new_puncta_messages": 12,
+    "current_total": 2991,
+    "catalog_files": 34,
+    "all_prior_user_and_auto_comments_flags_context_and_locations_exact": true,
+    "make_masks_sha256": "20472a913e75c94db55b8d6bb5f8f847df9bbe261ee07555be3232e20c585c88"
+  },
+  "zh_CN": {
+    "prior_complete_messages_exact": 2979,
+    "new_puncta_messages": 12,
+    "current_total": 2991,
+    "catalog_files": 34,
+    "all_prior_user_and_auto_comments_flags_context_and_locations_exact": true,
+    "make_masks_sha256": "227375c74517c4ece4154bc24d994ed55485297f0e34be7da6e27f3662d645d5"
+  },
+  "ko": {
+    "prior_complete_messages_exact": 2979,
+    "new_puncta_messages": 12,
+    "current_total": 2991,
+    "catalog_files": 34,
+    "all_prior_user_and_auto_comments_flags_context_and_locations_exact": true,
+    "make_masks_sha256": "031f4de1a55b692ab3b3b78cb82506cba70c6f61c3ae8a6c5b66f17fcf3bd459"
+  },
+  "hi": {
+    "prior_complete_messages_exact": 2979,
+    "new_puncta_messages": 12,
+    "current_total": 2991,
+    "catalog_files": 34,
+    "all_prior_user_and_auto_comments_flags_context_and_locations_exact": true,
+    "make_masks_sha256": "2d85396ebbb26a699e6a7f463bba0454fa6dc706c2d4c049a3bb8e084167aec3"
+  }
+}

@@ -22815,7 +22815,8 @@
     "spacr.embeddings.EmbeddingSpec": {
       "source_blocks_sha256": [
         "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
-        "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
+        "3f998fedd8b65104d670625a22b252810820df4082091259ee527bce7118c5db",
+        "acbddedc3672c8d4558036b8daf7b46584ba077ce7b5919381a7ff4e246b1537",
         "76ecb25e1c2dcdbc2fc0fce5276c32a0dfe60ec81781ce5df3e2027195e2f7f8",
         "ce0baf6a226da2e3e0541e2fa5ca51bdd937bcb4050ee2787f2e09ed9c77ab97",
         "8b054ffb4a5c5e7138f8c0f923f4ab0471f779df69409ed80a25ee905a72ce33",
@@ -22823,11 +22824,12 @@
         "7a9147ade2bc7db9741e11b018d6ea84bdaf4cb9799b1c76eb0d88ec86ff1aa9",
         "09679f71d5c829d26b1a41b763ef5334751652ca757fb25cac59a45b25ae9aed"
       ],
-      "source_sha256": "d4dcdff695ff190579a75136fa594617ac50e248969cb867b0314248ad6e639e",
-      "text": "Hvernig á að fylgjast, skráð þannig að matrix getur sagt hvar það kom frá.\n\n:param backbone: Kódernafn, löst í klukkustundum.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` eða :data:`CHANNEL_PROJECT`.\n:param channels: sem mynd gögn kanna sýningar til að skrá, í röð. ``None`` þýðir hvert mynd gögnin kanna sem áætlun hefur.\n:param batch_size: Myndin er notað á svæðum á framtíðinni.\n:param device: torch tæki rita, eða ``None`` til að velja einn.\n:param normalize: deila hverri rás með föstum kvarða fyrir kóðun, klippt við [0, 1]. Kvikt svið í smásjármyndum er breytilegt um margar stærðargráður milli litana, og kóðari sem þjálfaður er á ljósmyndum sæi annars eina rás sem suð.\n:param channel_scale: sá kvarði, eitt gildi fyrir hverja kóðaða rás í kóðunarröð -- venjulega 99. hundraðshlutamark hverrar rásar yfir slembiúrtak af plötunni. Sömu tölur fyrir hverja úrklippu þýða að greyping hlutar ræðst ekki af því hvaða úrklippur lenda í sömu lotu. ``None`` lætur :func:`embed_array` meta hann út frá úrklippunum sem það fær.",
+      "source_sha256": "acbdc58e4f35cb0e6c07b42d821da70a3acdda9edb06609462253b7ca3ecd9ee",
+      "text": "Hvernig á að fylgjast, skráð þannig að matrix getur sagt hvar það kom frá.\n\nFyrir ``subcell_rybg`` skal velja :data:`CHANNEL_PROJECT`, tilgreina fjögur aðskilin ``channels`` sérstaklega í röðinni örpíplur (R), ER (Y), DNA (B), prótein (G), og stilla ``normalize=False``. Hver rúmvídd skurðar verður að vera að minnsta kosti 16 pixlar. Upprunalegum víddum er haldið; kóðarinn beitir lágmarks-hámarksstöðlun höfunda á allan skurðinn.\n\n:param backbone: Heiti timm-kóðara eða skráðs grunnlíkanakóðara.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` eða :data:`CHANNEL_PROJECT`.\n:param channels: sem mynd gögn kanna sýningar til að skrá, í röð. ``None`` þýðir hvert mynd gögnin kanna sem áætlun hefur.\n:param batch_size: Myndin er notað á svæðum á framtíðinni.\n:param device: torch tæki rita, eða ``None`` til að velja einn.\n:param normalize: deila hverri rás með föstum kvarða fyrir kóðun, klippt við [0, 1]. Kvikt svið í smásjármyndum er breytilegt um margar stærðargráður milli litana, og kóðari sem þjálfaður er á ljósmyndum sæi annars eina rás sem suð.\n:param channel_scale: sá kvarði, eitt gildi fyrir hverja kóðaða rás í kóðunarröð -- venjulega 99. hundraðshlutamark hverrar rásar yfir slembiúrtak af plötunni. Sömu tölur fyrir hverja úrklippu þýða að greyping hlutar ræðst ekki af því hvaða úrklippur lenda í sömu lotu. ``None`` lætur :func:`embed_array` meta hann út frá úrklippunum sem það fær.",
       "translation_source_blocks_sha256": [
         "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
-        "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
+        "ab10feb59a6a84532d10db83fd653894ce10767756d261caa7744f26e2c94907",
+        "acbddedc3672c8d4558036b8daf7b46584ba077ce7b5919381a7ff4e246b1537",
         "76ecb25e1c2dcdbc2fc0fce5276c32a0dfe60ec81781ce5df3e2027195e2f7f8",
         "bfceff41558220573fedc999b4fbdbf09e3949963ee7cbab02d6bd18bb30812c",
         "ffa122dd219abf4f2be9e2ec816cef63c6495a3dc89241110d7f4bbfab37465a",
@@ -22908,15 +22910,15 @@
     },
     "spacr.embeddings._foundation_encoder.run": {
       "source_blocks_sha256": [
-        "6232df384397cd204ba3032485fc4b4bc3156636b10bcdadfb52e0d3172884df",
-        "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427",
+        "47a247456a4b73e2ecedf7e56e310fdd568f09cf4ac3bb2a161042c7ab87b540",
+        "3db3fd3ac8dd6e0bbf0d17a24bb0a435b27f30364dab3e652fd106ad0b915b72",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
       ],
-      "source_sha256": "8d5bc9a747a252bf07d552909f6ad88a66a4a105e6826b9b84dbaf8aff1f77a9",
-      "text": "Kóðar ``(n, h, w, k)``-útklippur í runum, skalaðar í stærð líkansins.\n\n:param stack: float32 á bilinu [0, 1], rásir síðast.\n:returns: ``(n, dims)``-einkenni í float32.",
+      "source_sha256": "9980c29acff6fbdf4cd33fd1213bd106dfea8da696d9b7b69f9bda7499c40cd5",
+      "text": "Kóða skurði með lögunina ``(n, h, w, k)`` í lotum sem henta líkaninu.\n\n:param stack: float32-skurðir með rásir í síðustu vídd. SubCell R/Y/B/G notar upprunaleg styrkgildi; önnur grunnlíkön búast við [0, 1].\n:returns: ``(n, dims)``-einkenni í float32.",
       "translation_source_blocks_sha256": [
-        "47ab868d3ea6b488c8b2c369f2628ef1f3887d2d8e37cd3389331046d5ec63f1",
-        "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427",
+        "86f8f60a4408c7c0e96e45bb8367896783379428c07842bcb7f92de65a32ed11",
+        "09758f250f052b2dd8d43917b56484d97cf847b5e91074bb17f7b88e51d979be",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
       ]
     },
@@ -22964,22 +22966,24 @@
     },
     "spacr.embeddings._subcell_model.Pooled.forward": {
       "source_blocks_sha256": [
-        "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+        "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+        "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4"
       ],
-      "source_sha256": "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2",
-      "text": "``(n, 2, h, w)`` í ``(n, 1536)``, höfuðin tvö sameinuð.",
+      "source_sha256": "79d57ddc5b85cd1e40dcea855422dbb0eae191de7b8b6c2ef251c5d5444e581f",
+      "text": "Úr ``(n, k, h, w)`` í ``(n, 1536)``, með hausana tvo samtengda.\n\nVistun líkansins ákvarðar hvort ``k`` táknar tvær eða fjórar rásir.",
       "translation_source_blocks_sha256": [
-        "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+        "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+        "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4"
       ]
     },
     "spacr.embeddings._subcell_model.forward": {
       "source_blocks_sha256": [
-        "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754"
+        "82f232bd11178b82ce5736e669713c5ef37142ea414745ac3aa937f512d5abdd"
       ],
-      "source_sha256": "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754",
-      "text": "Lágmarks-hámarkskvarðar hverja rás útklippu og kóðar síðan.",
+      "source_sha256": "82f232bd11178b82ce5736e669713c5ef37142ea414745ac3aa937f512d5abdd",
+      "text": "Lágmarks-hámarksstaðla myndplönin sem líkanið gerir ráð fyrir og kóða síðan.",
       "translation_source_blocks_sha256": [
-        "d4373d9db887a8de9e89adfd0a501d396544fa58940d7b447b584537154ef5c9"
+        "f5695e9558de1fdbdd03f8860df9e5545486f3286a377256aee7c99a817a960c"
       ]
     },
     "spacr.embeddings._timm_encoder.run": {
@@ -23056,24 +23060,24 @@
     },
     "spacr.embeddings.encoder_entry": {
       "source_blocks_sha256": [
-        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
-        "287307899b8054aba3778d18c5f4bb00687943fecc1b27bac4ba854253633484",
-        "fa7b9bdc8f7c1d08cfaa81508efa8331f8700ea4f941c6ec54e72fef1eb4a458",
-        "cbae75c8399079cd49b93dad3c22254b6f724794204e44c4b7a45f3decbba443",
-        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
-        "d1684cd2486ccc2ffe8149a5f24d94323f4d5c9b3e442d0a5621242fea2e8ee7",
-        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+        "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+        "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+        "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+        "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+        "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+        "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+        "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813"
       ],
-      "source_sha256": "27cec465dec2129bb455cb0ef6326427e8a4a9cf38dc82177c1d28c27269dbc8",
-      "text": "Þetta er að skrá eins og :class:`spacr.model_zoo.ModelEntry`.\n\nA encoder er opinbera myndavél eins og einhver annar, þannig að það er í gæludýrinum með skákum sínum og skóreikardum sínum. A innbygging sem skipur án einu er svarta boksi tvö sinnum: óþægilegt í því sem það encoder, og ómeðri í því hversu vel það gerir það.\n\nÞað hefur engin spaCR athygli - þyngd eru ImageNet eða opinbera sjálfsögðu hlaup, leyft af ``timm`` og cached af HuggingFace. Þannig að inntali rekja bakgrunni, kanna stefnu, og þreytingu svæði þar sem þeir sitja á þessari vél. Það er það sem síðar hlaup hefur að passa, og það er athyglislegt hér án netinu hring.\n\nÞegar þyngdarnir eru ekki dæmdir, er innfanginn enn til og segir svo í notum sínum, með leytum þreytingu - sem :func:`spacr.model_zoo.fetch` er þegar meðhöndlað sem nefnd en ekki pass.\n\n:param spec: áætlunin til að lýsa; upphafi spekkur þegar yfirgefið.\n:param scorecard: „Hvernig á að vita að það virkar“ 386 - nákvæmni kNN á gênum einkenni, innbyggingu versus mættanum. Það er :attr:`ModelEntry.metrics`, sem er þar sem 370s ``scorecard_lines`` lesa þá frá.\n:returns: a ``ModelEntry`` af tegundum ``'encoder'``.",
+      "source_sha256": "421b7f5656605f6520ad4e210c88a2a32c84261a377c949e7e959cd6523c1056",
+      "text": "Lýsið þessum kóðara sem :class:`spacr.model_zoo.ModelEntry`.\n\nFærslan sameinar stillingar kóðarans, tiltækar upplýsingar um uppruna vistunar líkansins og valfrjálsa mælikvarða á endurheimt. Berið aðeins saman færslur með samrýmanlegar rásastefnur.\n\nFærslan skráir grunnnetið, rásastefnuna og tætigildi læsilegra bæta í staðbundinni vistun líkansins án þess að sækja eða hlaða líkani. Opinber grunnnet nota lýsigögn úr skyndiminni timm; OpenPhenom og ChAda-ViT nota fastákveðnar Hugging Face-útgáfur; SubCell notar opinbera vistun sína í torch hub; staðbundinn DINO-kóðari notar stillta slóð að vistun líkansins. Færslur grunnlíkana tilgreina upprunalega veitandann og URL vistunarinnar. Gátsumma ein og sér staðfestir hvorki líkan né uppruna þjálfunargagna þess.\n\nEf engin læsileg staðbundin vistun líkans finnst heldur færslan tómu tætigildi og skýrir það í athugasemdum sínum. :func:`spacr.model_zoo.fetch` hafnar færslum án tætigildis.\n\n:param spec: Stillingar kóðarans; notar ``EmbeddingSpec()`` ef þeim er sleppt.\n:param scorecard: Valfrjálsir mælikvarðar á endurheimt, mældir með merktum viðmiðum og vistaðir í :attr:`ModelEntry.metrics` til birtingar með ``scorecard_lines``.\n:returns: ``ModelEntry`` af gerðinni ``'encoder'``.",
       "translation_source_blocks_sha256": [
-        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
-        "dcef17b50e9db4df3490a7d22dac90240e267ba685e2372196478c658cec5c3b",
-        "529ec96d6993086fcf130931258b1b67effd233c1cd09cdaa449191f30dbad53",
-        "277b64bf6391e6e08d2799c8b460fdc75057b00b5d34b8dcd023b3746476abb6",
-        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
-        "51fd59a24157c2d9c6893e3e0c013607a655827b034a63ad331f117cb518b70a",
-        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+        "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+        "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+        "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+        "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+        "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+        "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+        "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813"
       ]
     },
     "spacr.embeddings.encoder_key": {
@@ -99622,6 +99626,16 @@
       "translation_source_blocks_sha256": [
         "ef54a96509237954a086aef555dd5f344751d6b9a8e1bf1f608a947a594c55d6",
         "61d2992be70109d1c24826f9a1f8a844580ae5fb00d0f9afa4a1228830995547"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping": {
+      "source_blocks_sha256": [
+        "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec"
+      ],
+      "source_sha256": "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec",
+      "text": "Vista aðeins fullbúið val fjögurra vísitalna og loka síðan.",
+      "translation_source_blocks_sha256": [
+        "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._use_embeddings.work": {

@@ -1,0 +1,34 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "context": "divide each image data channel by a fixed scale before encoding, clipped to [0, 1]. Microscopy dynamic range varies by orders of magnitude between stains, and an encoder trained on photographs will otherwise see one image data channel as noise.",
+      "label": "spacr.embeddings.EmbeddingSpec#6",
+      "source": "divide each channel by a fixed scale before encoding, clipped to [0, 1]. Microscopy dynamic range varies by orders of magnitude between stains, and an encoder trained on photographs will otherwise see one channel as noise.",
+      "source_sha256": "7a9147ade2bc7db9741e11b018d6ea84bdaf4cb9799b1c76eb0d88ec86ff1aa9",
+      "translation": "dividera varje kanal med en fast skala före kodningen, begränsat till [0, 1]. Mikroskopins dynamiska omfång skiljer sig med flera storleksordningar mellan färgningar, och en kodare som tränats på fotografier ser annars en kanal som brus."
+    },
+    {
+      "context": "that scale, one value per encoded channel in encoding order -- normally each channel's 99th percentile over a random sample of the laboratory microplate. The same numbers for every extracted image region mean an object's embedding does not depend on which extracted image regions share its batch. ``None`` lets :func:`embed_array` estimate it from the extracted image regions it is given.",
+      "label": "spacr.embeddings.EmbeddingSpec#7",
+      "source": "that scale, one value per encoded channel in encoding order -- normally each channel's 99th percentile over a random sample of the plate. The same numbers for every crop mean an object's embedding does not depend on which crops share its batch. ``None`` lets :func:`embed_array` estimate it from the crops it is given.",
+      "source_sha256": "09679f71d5c829d26b1a41b763ef5334751652ca757fb25cac59a45b25ae9aed",
+      "translation": "den skalan, ett värde per kodad kanal i kodningsordning -- normalt varje kanals 99:e percentil över ett slumpmässigt urval av plattan. Samma tal för varje utsnitt gör att ett objekts inbäddning inte beror på vilka utsnitt som hamnar i samma omgång. ``None`` låter :func:`embed_array` uppskatta den från de utsnitt den får."
+    },
+    {
+      "context": "when ``channel_policy`` is not one of :data:`CHANNEL_POLICIES`, ``batch_size`` is below one, or ``channel_scale`` is set without ``normalize``, holds a negative or non-finite value, or does not give one value per channel in ``channels``.",
+      "label": "spacr.embeddings.EmbeddingSpec.__post_init__#2",
+      "source": "when ``channel_policy`` is not one of :data:`CHANNEL_POLICIES`, ``batch_size`` is below one, or ``channel_scale`` is set without ``normalize``, holds a negative or non-finite value, or does not give one value per channel in ``channels``.",
+      "source_sha256": "de43488e84d0e2eae96fa2f268e973224bb3fe65a4f12de8a8524334d3bdb4e7",
+      "translation": "när ``channel_policy`` inte är en av :data:`CHANNEL_POLICIES`, ``batch_size`` är mindre än ett, eller ``channel_scale`` är satt utan ``normalize``, innehåller ett negativt eller icke-ändligt värde, eller inte anger ett värde per kanal i ``channels``."
+    },
+    {
+      "context": "Every extracted image region is divided by the same per-channel scale, ``spec.channel_scale``, so an extracted image region's embedding does not depend on the other extracted image regions in ``crops``. When the spec carries none, one is estimated from a random sample of ``crops`` -- the stack is treated as the whole laboratory microplate -- and a warning is logged. To embed one laboratory microplate in several calls, pass the same scale to each: the returned ``spec`` carries it.",
+      "label": "spacr.embeddings.embed_array#1",
+      "source": "Every crop is divided by the same per-channel scale, ``spec.channel_scale``, so a crop's embedding does not depend on the other crops in ``crops``. When the spec carries none, one is estimated from a random sample of ``crops`` -- the stack is treated as the whole plate -- and a warning is logged. To embed one plate in several calls, pass the same scale to each: the returned ``spec`` carries it.",
+      "source_sha256": "327457c3cb011cac25d4b9ef6ca31a55d0c811e35b1ff3b12eb3512f9998a5ed",
+      "translation": "Varje utsnitt divideras med samma skala per kanal, ``spec.channel_scale``, så ett utsnitts inbäddning beror inte på de andra utsnitten i ``crops``. Saknar specifikationen en skala uppskattas den från ett slumpmässigt urval av ``crops`` -- stapeln behandlas som hela plattan -- och en varning loggas. För att bädda in en platta i flera anrop, skicka samma skala till vart och ett: den returnerade ``spec`` bär den."
+    }
+  ],
+  "schema": 1
+}

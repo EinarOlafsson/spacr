@@ -1,0 +1,28 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+      "source": "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+      "source_sha256": "14b8c3fbaae6be33d14464212289691f15123aff1748ce95472252ad04c7b982",
+      "table": "ui",
+      "translation": "चैनल नीति: {policy}। अलग-अलग नीतियों के आयाम तुलनीय नहीं हैं।"
+    },
+    {
+      "key": "No checksum: no readable local checkpoint could be resolved in this environment.",
+      "source": "No checksum: no readable local checkpoint could be resolved in this environment.",
+      "source_sha256": "257ea7ff175817e04ec7aa66640d5acf0404b7957eeda8b1a7d4fd628b3624f8",
+      "table": "ui",
+      "translation": "कोई चेकसम नहीं: इस परिवेश में पढ़ने योग्य स्थानीय चेकपॉइंट नहीं मिल सका।"
+    },
+    {
+      "key": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+      "source": "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+      "source_sha256": "f67de6367f729f3a47269b46a604f7152fac3d17ab8cb0c9fd534a72cf37d769",
+      "table": "ui",
+      "translation": "कोई मूल्यांकन नहीं। लेबल किए गए फ़ीनोटाइप नियंत्रणों के विरुद्ध पुनर्प्राप्ति मापें और परिणाम संलग्न करें।"
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff",
+  "schema": 1
+}

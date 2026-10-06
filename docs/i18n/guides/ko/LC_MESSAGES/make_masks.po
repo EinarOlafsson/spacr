@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 23:05-0400\n"
+"POT-Creation-Date: 2026-10-06 07:48-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -560,6 +560,54 @@ msgstr "``secondary_growth`` — 기본값 ``'intensity'``"
 
 msgid "``intensity`` or ``distance`` watershed for secondary objects; maxima detection ignores this setting."
 msgstr "2차 객체를 위한 ``intensity`` 또는 ``distance`` 워터셰드입니다. 극대값 검출은 이 설정을 무시합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_sigmas`` — default ``(1.5, 2.0, 3.0, 4.0, 6.0)``"
+msgstr "``puncta_sigmas`` — 기본값 ``(1.5, 2.0, 3.0, 4.0, 6.0)``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "scale-normalised LoG widths in image pixels."
+msgstr "이미지 픽셀 단위의 스케일 정규화 LoG 폭."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_k`` — default ``2.5``"
+msgstr "``puncta_k`` — 기본값 ``2.5``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "candidate response threshold in propagated pixel-noise units."
+msgstr "전파된 픽셀 노이즈 단위의 후보 응답 임계값."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_center_pixels`` — default ``20``"
+msgstr "``puncta_center_pixels`` — 기본값 ``20``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "number of pixels nearest each subpixel centre, from 1 to 81 in the nine-by-nine measurement window."
+msgstr "가로세로 아홉 픽셀인 측정 창에서 각 서브픽셀 중심에 가장 가까운 픽셀 수로, 범위는 1부터 81까지입니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_min_corrected`` — default ``3.0``"
+msgstr "``puncta_min_corrected`` — 기본값 ``3.0``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "minimum centre mean minus local annulus median, in native intensity units. Equality is retained."
+msgstr "중심 평균에서 국소 배경 고리의 중앙값을 뺀 값의 최솟값이며 원래 강도 단위를 사용합니다. 임계값과 같아도 유지됩니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_min_distance`` — default ``2``"
+msgstr "``puncta_min_distance`` — 기본값 ``2``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "peak-local-maximum neighbourhood in pixels; scale-dependent nonmaximum suppression follows it."
+msgstr "픽셀 단위의 피크 국소 최댓값 이웃 영역으로, 이후 스케일에 따른 비최대 억제를 적용합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "``puncta_edge_margin`` — default ``3.0``"
+msgstr "``puncta_edge_margin`` — 기본값 ``3.0``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "minimum distance from the parent boundary in pixels."
+msgstr "픽셀 단위의 부모 객체 경계까지 최소 거리."
 
 msgid "Organelle detectors"
 msgstr "세포소기관 검출기"

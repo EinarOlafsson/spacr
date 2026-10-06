@@ -22816,7 +22816,8 @@
     "spacr.embeddings.EmbeddingSpec": {
       "source_blocks_sha256": [
         "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
-        "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
+        "3f998fedd8b65104d670625a22b252810820df4082091259ee527bce7118c5db",
+        "acbddedc3672c8d4558036b8daf7b46584ba077ce7b5919381a7ff4e246b1537",
         "76ecb25e1c2dcdbc2fc0fce5276c32a0dfe60ec81781ce5df3e2027195e2f7f8",
         "ce0baf6a226da2e3e0541e2fa5ca51bdd937bcb4050ee2787f2e09ed9c77ab97",
         "8b054ffb4a5c5e7138f8c0f923f4ab0471f779df69409ed80a25ee905a72ce33",
@@ -22824,11 +22825,12 @@
         "7a9147ade2bc7db9741e11b018d6ea84bdaf4cb9799b1c76eb0d88ec86ff1aa9",
         "09679f71d5c829d26b1a41b763ef5334751652ca757fb25cac59a45b25ae9aed"
       ],
-      "source_sha256": "d4dcdff695ff190579a75136fa594617ac50e248969cb867b0314248ad6e639e",
-      "text": "如何嵌入,记录,这样一个矩阵可以说它从哪里来。\n\n:param backbone: 编码名称,通过时间解决。\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` 或 :data:`CHANNEL_PROJECT`。\n:param channels: 指定要编码的图像数据通道索引。  ``None`` 表示数组中的每个图像数据通道。\n:param batch_size: 提取图像区域以前进通道。\n:param device: torch 设备行,或 ``None`` 选择一个。\n:param normalize: 编码前将每个通道除以固定的缩放值，并截断到 [0, 1]。不同染色之间显微图像的动态范围相差几个数量级，否则在照片上训练的编码器会把某个通道当作噪声。\n:param channel_scale: 该缩放值，按编码顺序为每个编码通道各给一个值 -- 通常是每个通道在板的随机样本上的第 99 百分位数。每个裁剪图都使用相同的数值，因此一个对象的嵌入不取决于哪些裁剪图与它同批处理。``None`` 让 :func:`embed_array` 从传入的裁剪图中估计该值。",
+      "source_sha256": "acbdc58e4f35cb0e6c07b42d821da70a3acdda9edb06609462253b7ca3ecd9ee",
+      "text": "如何嵌入,记录,这样一个矩阵可以说它从哪里来。\n\n对于 ``subcell_rybg``，请选择 :data:`CHANNEL_PROJECT`，按微管 (R)、ER (Y)、DNA (B)、蛋白质 (G) 的顺序明确指定四个互不相同的 ``channels``，并设置 ``normalize=False``。裁剪图像的每个空间维度至少为 16 像素。保留原始尺寸；编码器对整个裁剪图像应用作者的最小值-最大值归一化方法。\n\n:param backbone: timm 编码器或已注册基础模型编码器的名称。\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` 或 :data:`CHANNEL_PROJECT`。\n:param channels: 指定要编码的图像数据通道索引。  ``None`` 表示数组中的每个图像数据通道。\n:param batch_size: 提取图像区域以前进通道。\n:param device: torch 设备行,或 ``None`` 选择一个。\n:param normalize: 编码前将每个通道除以固定的缩放值，并截断到 [0, 1]。不同染色之间显微图像的动态范围相差几个数量级，否则在照片上训练的编码器会把某个通道当作噪声。\n:param channel_scale: 该缩放值，按编码顺序为每个编码通道各给一个值 -- 通常是每个通道在板的随机样本上的第 99 百分位数。每个裁剪图都使用相同的数值，因此一个对象的嵌入不取决于哪些裁剪图与它同批处理。``None`` 让 :func:`embed_array` 从传入的裁剪图中估计该值。",
       "translation_source_blocks_sha256": [
         "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
-        "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
+        "ab10feb59a6a84532d10db83fd653894ce10767756d261caa7744f26e2c94907",
+        "acbddedc3672c8d4558036b8daf7b46584ba077ce7b5919381a7ff4e246b1537",
         "76ecb25e1c2dcdbc2fc0fce5276c32a0dfe60ec81781ce5df3e2027195e2f7f8",
         "bfceff41558220573fedc999b4fbdbf09e3949963ee7cbab02d6bd18bb30812c",
         "ffa122dd219abf4f2be9e2ec816cef63c6495a3dc89241110d7f4bbfab37465a",
@@ -22909,15 +22911,15 @@
     },
     "spacr.embeddings._foundation_encoder.run": {
       "source_blocks_sha256": [
-        "6232df384397cd204ba3032485fc4b4bc3156636b10bcdadfb52e0d3172884df",
-        "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427",
+        "47a247456a4b73e2ecedf7e56e310fdd568f09cf4ac3bb2a161042c7ab87b540",
+        "3db3fd3ac8dd6e0bbf0d17a24bb0a435b27f30364dab3e652fd106ad0b915b72",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
       ],
-      "source_sha256": "8d5bc9a747a252bf07d552909f6ad88a66a4a105e6826b9b84dbaf8aff1f77a9",
-      "text": "分批编码 ``(n, h, w, k)`` 裁剪图，并调整到模型的尺寸。\n\n:param stack: [0, 1] 范围内的 float32，通道在最后。\n:returns: ``(n, dims)`` float32 特征。",
+      "source_sha256": "9980c29acff6fbdf4cd33fd1213bd106dfea8da696d9b7b69f9bda7499c40cd5",
+      "text": "以适合模型的批次编码形状为 ``(n, h, w, k)`` 的裁剪图像。\n\n:param stack: float32 裁剪图像，通道位于最后一个维度。SubCell R/Y/B/G 使用原始强度值；其他基础模型要求数值位于 [0, 1]。\n:returns: ``(n, dims)`` float32 特征。",
       "translation_source_blocks_sha256": [
-        "47ab868d3ea6b488c8b2c369f2628ef1f3887d2d8e37cd3389331046d5ec63f1",
-        "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427",
+        "86f8f60a4408c7c0e96e45bb8367896783379428c07842bcb7f92de65a32ed11",
+        "09758f250f052b2dd8d43917b56484d97cf847b5e91074bb17f7b88e51d979be",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
       ]
     },
@@ -22965,22 +22967,24 @@
     },
     "spacr.embeddings._subcell_model.Pooled.forward": {
       "source_blocks_sha256": [
-        "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+        "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+        "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4"
       ],
-      "source_sha256": "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2",
-      "text": "把 ``(n, 2, h, w)`` 转换为 ``(n, 1536)``，两个头拼接在一起。",
+      "source_sha256": "79d57ddc5b85cd1e40dcea855422dbb0eae191de7b8b6c2ef251c5d5444e581f",
+      "text": "从 ``(n, k, h, w)`` 转换为 ``(n, 1536)``，拼接两个头的输出。\n\n检查点决定 ``k`` 是两个通道还是四个通道。",
       "translation_source_blocks_sha256": [
-        "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+        "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+        "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4"
       ]
     },
     "spacr.embeddings._subcell_model.forward": {
       "source_blocks_sha256": [
-        "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754"
+        "82f232bd11178b82ce5736e669713c5ef37142ea414745ac3aa937f512d5abdd"
       ],
-      "source_sha256": "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754",
-      "text": "对每个裁剪图通道做最小-最大缩放，然后编码。",
+      "source_sha256": "82f232bd11178b82ce5736e669713c5ef37142ea414745ac3aa937f512d5abdd",
+      "text": "对模型所需的图像平面进行最小值-最大值归一化，然后编码。",
       "translation_source_blocks_sha256": [
-        "d4373d9db887a8de9e89adfd0a501d396544fa58940d7b447b584537154ef5c9"
+        "f5695e9558de1fdbdd03f8860df9e5545486f3286a377256aee7c99a817a960c"
       ]
     },
     "spacr.embeddings._timm_encoder.run": {
@@ -23057,24 +23061,24 @@
     },
     "spacr.embeddings.encoder_entry": {
       "source_blocks_sha256": [
-        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
-        "287307899b8054aba3778d18c5f4bb00687943fecc1b27bac4ba854253633484",
-        "fa7b9bdc8f7c1d08cfaa81508efa8331f8700ea4f941c6ec54e72fef1eb4a458",
-        "cbae75c8399079cd49b93dad3c22254b6f724794204e44c4b7a45f3decbba443",
-        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
-        "d1684cd2486ccc2ffe8149a5f24d94323f4d5c9b3e442d0a5621242fea2e8ee7",
-        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+        "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+        "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+        "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+        "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+        "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+        "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+        "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813"
       ],
-      "source_sha256": "27cec465dec2129bb455cb0ef6326427e8a4a9cf38dc82177c1d28c27269dbc8",
-      "text": "此编码为 :class:`spacr.model_zoo.ModelEntry`。\n\n编码器是一款像其他任何人一样发布的模型,所以它属于动物园,其检查室和记录。 一个没有一个的船舶的包装是一个黑盒子两次:它编码的内容是模糊的,并且不衡量它是多么好。\n\n编码器的起源实际上是什么? 它没有 spaCR 检查点 - 重量是 ImageNet 或一个公共自我控制的运行,由 ``timm`` 解决并由 HuggingFace 隐藏。\n\n当重量不被隐藏时,输入仍然存在,并在其笔记中这样说,有一个空虚的消化 - 已经被:func:`spacr.model_zoo.fetch`视为拒绝而不是过渡。\n\n:param spec: 要描述的配置;默认的 spec 当被忽略时。\n:param scorecard: 386的“如何知道它工作” - kNN 基因身份的准确性,嵌入式对测量面板。 加入为 :attr:`ModelEntry.metrics`,这就是370的``scorecard_lines``从那里阅读它们。\n:returns: 以 ``ModelEntry`` 的类型 ``'encoder'``。",
+      "source_sha256": "421b7f5656605f6520ad4e210c88a2a32c84261a377c949e7e959cd6523c1056",
+      "text": "将此编码器描述为 :class:`spacr.model_zoo.ModelEntry`。\n\n该条目汇总编码器配置、可用的检查点来源信息和可选的检索指标。仅比较通道策略兼容的条目。\n\n此条目记录骨干网络、通道策略和可读取的本地检查点字节的摘要，不下载或加载模型。公开的骨干网络使用 timm 缓存元数据；OpenPhenom 和 ChAda-ViT 使用固定的 Hugging Face 修订版本；SubCell 使用其官方 torch hub 检查点；本地 DINO 编码器使用其配置的检查点路径。基础模型条目注明原始提供者及检查点 URL。仅有校验和并不能验证模型，也不能确定其训练数据的来源。\n\n如果未找到可读的本地检查点，条目会保留空摘要，并在备注中说明。:func:`spacr.model_zoo.fetch` 会拒绝没有摘要的条目。\n\n:param spec: 编码器配置；省略时使用 ``EmbeddingSpec()``。\n:param scorecard: 使用已标注对照测得的可选检索指标，存储在 :attr:`ModelEntry.metrics` 中，由 ``scorecard_lines`` 显示。\n:returns: 一个 ``ModelEntry``，其类型为 ``'encoder'``。",
       "translation_source_blocks_sha256": [
-        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
-        "dcef17b50e9db4df3490a7d22dac90240e267ba685e2372196478c658cec5c3b",
-        "529ec96d6993086fcf130931258b1b67effd233c1cd09cdaa449191f30dbad53",
-        "277b64bf6391e6e08d2799c8b460fdc75057b00b5d34b8dcd023b3746476abb6",
-        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
-        "51fd59a24157c2d9c6893e3e0c013607a655827b034a63ad331f117cb518b70a",
-        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+        "5a006fca4294c6457e84f9de8c812d6246359fb0d4da850f807c1bd35255aa49",
+        "2f98f11b8944dcd19f30e684335717fd913fb233147e67f12779ce090dfe2e27",
+        "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+        "67689bc75c95a90871877bee4ed0151b000e4ba25ba17713498cd524d6fb9f84",
+        "71bdabed6471f8bcd9e27f62bd1adbe502d36cd5c16265eb2629590a8faea5b5",
+        "a2ceadc34185865ac69ec9cd246c3fde47d58e6bd3a6985c44c78ea326fe8c14",
+        "89fcd999cdffea9215d1f45b04c105d64c527cc830f2f50d0268413ecd131813"
       ]
     },
     "spacr.embeddings.encoder_key": {
@@ -99623,6 +99627,16 @@
       "translation_source_blocks_sha256": [
         "ef54a96509237954a086aef555dd5f344751d6b9a8e1bf1f608a947a594c55d6",
         "61d2992be70109d1c24826f9a1f8a844580ae5fb00d0f9afa4a1228830995547"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping": {
+      "source_blocks_sha256": [
+        "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec"
+      ],
+      "source_sha256": "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec",
+      "text": "仅保存完整的四个索引选择，然后关闭。",
+      "translation_source_blocks_sha256": [
+        "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._use_embeddings.work": {
