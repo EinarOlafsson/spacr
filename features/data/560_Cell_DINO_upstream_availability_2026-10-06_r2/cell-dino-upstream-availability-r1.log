@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/verify_cell_dino_upstream_availability_r1.py", line 18, in <module>
+    response.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/site-packages/requests/models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/facebookresearch/dinov2/7764ea0f912e53c92e82eb78a2a1631e92725fc8/LICENSE_CELL_DINO_CODE_WEIGHTS
