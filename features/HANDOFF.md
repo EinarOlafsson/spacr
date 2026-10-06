@@ -1,5 +1,34 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 final catalog resource recovery and narration handoff
+The normal final runtime GPU r1 exited137: the kernel confirmed an8GiB
+cgroup OOM while loading its fallback. Its original failure is preserved;
+three written locales are a checkpoint, not all-nine acceptance. The unchanged
+normal owner is queued again as615-final-runtime-catalogs-20261006-r2 with24GiB.
+Final API6994 is ahead of it; both retain real360s idle/600s queue gaps.
+The older frozen CPU runtime7712 had a confirmed8GiB reclaim bottleneck;
+only its owned live scope limit was raised to36GiB, without restarting it,
+changing source or exposing CUDA. It now advances beyond Chinese. Total host
+RAM remains below the110GiB rule. API45424 remains untouched.
+
+Final native tutorial packaging now byte-copies all59 original PNGs through
+an optional normal composer flag into its private stage. All61 scene paths
+are contained, all original focus/pointer/source hashes and scientific proofs
+match, and all84 unrelated lessons in14 catalogs remain unchanged. All13
+caption reviews are normally repromoted; no new or edited pixels are claimed.
+Normal final guides preserve the previous full checkpoint and now contain
+2999 messages per locale,2983 translated and16 pending. Strict technical
+admission of those final messages waits for the successful all-nine runtime.
+
+CPU50-voice28564 continues while GPU narration
+615-final-missing-voices-20261006-r1 waits behind both catalog owners. That
+wrapper may interrupt only the exact owned CPU writer, and only after actual
+pinned Kokoro CUDA synthesis succeeds. It preserves the complete CPU terminal
+checkpoint and copies only complete hash/source-verified tracks, then normally
+renders missing voices. Full50 decoding,61-frame video fidelity, browser/media
+publication and current-source deployment remain required. Home: preserve the
+combined source freeze; workstation owns these GPU/API/docs/tutorial tasks.
+
 ## 2026-10-06 final combined source owner refresh queued
 Workstation has merged the complete Home22413aa native IO/object/core freeze
 into its isolated final integration d326d20a0, retaining the accepted event
