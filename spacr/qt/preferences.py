@@ -10308,8 +10308,10 @@ def set_rim_period(seconds) -> float:
 #: the other would be a difference nobody decided on, so a new theme is added
 #: here at the same time as there.
 _KEY_POPUP_BACKDROP = "rim/popup_backdrop"
-POPUP_BACKDROPS = ("off", "aurora", "blobs", "bokeh", "cells", "drift",
-                   "resonance", "ripple")
+POPUP_BACKDROPS = ("off",) + tuple(sorted(
+    ("aurora", "blobs", "bokeh", "cells", "drift", "resonance", "ripple")
+    + DATA_ART_THEME_KEYS
+))
 #: NO MOVING BACKDROP BEHIND A SETTINGS WINDOW unless the user asks for
 #: one. The card and the rim stay either way -- 'off' drops only the
 #: movement, which is what is distracting behind a form you are reading

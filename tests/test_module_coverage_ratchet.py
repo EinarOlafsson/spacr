@@ -673,7 +673,7 @@ def test_coverage_batches_use_unique_data_files_and_argument_lists(
 def test_coverage_batches_discard_an_incomplete_child_database(
     tmp_path, monkeypatch, capsys,
 ):
-    from coverage import CoverageData
+    CoverageData = pytest.importorskip("coverage").CoverageData
 
     coverage_runner = _load_coverage_runner()
     project = tmp_path / "project"

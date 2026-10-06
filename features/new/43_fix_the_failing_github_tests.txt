@@ -2,7 +2,11 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 ================================================================================
 
-Status:    OPEN 2026-10-04 — the coverage gate is red: 11 modules below the
+Status:    OPEN 2026-10-06 — CPU registry/dependency/inventory repairs are
+           locally verified; current hosted tests and owner documentation
+           corrections remain outstanding. See the dated trailing notes.
+
+Previous status (superseded 2026-10-06): OPEN 2026-10-04 — the coverage gate is red: 11 modules below the
            90% floor and 57 below their 2026-09-15 covered-line baseline need
            tests (see the 2026-10-04 gh-green note, 96e33781f/b73de21c9).
 
@@ -2679,3 +2683,31 @@ after the run started; unconfirmed on CI.
   relaxed. Lift the self-imposed source freeze after the confirmed failure,
   preserve the old protected runs, and require a fresh exact-source GitHub
   run after integration. Item 43 remains OPEN.
+
+2026-10-06 — EXACT FAILURE REPAIRS; FINAL HOSTED VERDICT STILL OPEN
+  Starting from 11d3a451b, the CPU lane repairs the settings popup's missing
+  twelve data-art choices, excludes Spaceout's rainbow from ordinary data-art
+  palette choices, and makes the optional-coverage-only fixture skip only
+  when coverage is absent. Focused integrated choice/fixture checks pass
+  62 cases under 4 GiB, CUDA hidden and Qt offscreen. The new NightTheme
+  optional sound_key contract is verified separately while preserving every
+  old whole-inventory pin; b39c55531 independently publishes that repair.
+  Keep one accepted normalization. A separate strict-timm fix resizes only
+  mismatched batches to the loaded PatchEmbed image dimensions, addressing
+  DINOv2's real fixed input requirement. Root's embedding/inventory cohort
+  passes 23 cases with one timm-absent skip; the actual timm environment's
+  three focused CPU cases pass, including genuine rectangular PatchEmbed,
+  exact bilinear pixels, batching and unchanged dynamic/matched dimensions.
+  Every new timm executable line and branch is covered in the focused receipt
+  /mnt/wd4tb/scratch/data-art-redesign-20261005/embedding-timm.json.
+
+  Run 37438733806 still targets older 47a19ab6. Its remaining documentation
+  failures belong to the workstation: the published load_yolo_boxes must be
+  regenerated into Help's API index; checkout size must be remeasured (1029
+  MB claimed versus 1414 MB measured); README prose is 1792 words against
+  the unchanged <1750 bound; the obsolete reviewed omit-Qt installation
+  block must be retired or updated through normal localized generation.
+  No test allowance, memory cap, coverage ceiling or passed-shard requirement
+  is lifted. Final exact-source GitHub green remains OPEN. Item 47 gets a
+  separate opt-in hosted original-order serial run with durable memory
+  boundaries; no full local Qt or full local test suite is executed.

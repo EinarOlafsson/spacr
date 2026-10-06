@@ -98,6 +98,73 @@ def test_cpu_adapter_batches_real_tensors_in_eval_mode_without_gradients(monkeyp
     create.assert_called_once_with('test-encoder', pretrained=True, num_classes=0)
 
 
+def test_strict_timm_patch_embed_resizes_rectangular_crops_before_each_batch(monkeypatch):
+    torch = pytest.importorskip('torch')
+    timm = pytest.importorskip('timm')
+    from timm.layers import PatchEmbed
+
+    class StrictPatchEncoder(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.patch_embed = PatchEmbed(img_size=(28, 42), patch_size=14,
+                                          in_chans=3, embed_dim=6)
+            self.seen = []
+
+        def forward(self, tensor):
+            self.seen.append(tensor.detach().clone())
+            return self.patch_embed(tensor).mean(dim=1)
+
+    model = StrictPatchEncoder()
+    create = Mock(return_value=model)
+    monkeypatch.setattr(timm, 'create_model', create)
+    crops = np.linspace(0, 1, 5 * 7 * 11 * 3, dtype=np.float32).reshape(5, 7, 11, 3)
+    with pytest.raises(AssertionError, match='Input height'):
+        model.patch_embed(torch.from_numpy(crops[:1].transpose(0, 3, 1, 2)))
+
+    run = emb._timm_encoder(emb.EmbeddingSpec(
+        backbone='strict-patch', batch_size=2, device='cpu'))
+    values = run(crops)
+    expected = torch.nn.functional.interpolate(
+        torch.from_numpy(crops.transpose(0, 3, 1, 2).copy()),
+        size=(28, 42), mode='bilinear', align_corners=False)
+    assert values.shape == (5, 6)
+    assert [tuple(tensor.shape) for tensor in model.seen] == [
+        (2, 3, 28, 42), (2, 3, 28, 42), (1, 3, 28, 42)]
+    torch.testing.assert_close(torch.cat(model.seen), expected)
+    create.assert_called_once_with('strict-patch', pretrained=True, num_classes=0)
+
+    model.seen.clear()
+    interpolate = Mock(wraps=torch.nn.functional.interpolate)
+    monkeypatch.setattr(torch.nn.functional, 'interpolate', interpolate)
+    matching = np.linspace(0, 1, 2 * 28 * 42 * 3, dtype=np.float32).reshape(2, 28, 42, 3)
+    run(matching)
+    interpolate.assert_not_called()
+    np.testing.assert_array_equal(
+        model.seen[0].numpy(), matching.transpose(0, 3, 1, 2))
+
+
+def test_dynamic_timm_patch_embed_keeps_the_original_crop_shape(monkeypatch):
+    torch = pytest.importorskip('torch')
+    seen = []
+
+    class DynamicPatchEncoder(torch.nn.Module):
+        patch_embed = SimpleNamespace(img_size=(28, 42), strict_img_size=False)
+
+        def forward(self, tensor):
+            seen.append(tensor.detach().clone())
+            return tensor.mean(dim=(2, 3))
+
+    monkeypatch.setitem(sys.modules, 'timm', SimpleNamespace(
+        create_model=Mock(return_value=DynamicPatchEncoder())))
+    crops = np.linspace(0, 1, 3 * 7 * 11 * 3, dtype=np.float32).reshape(3, 7, 11, 3)
+    run = emb._timm_encoder(emb.EmbeddingSpec(
+        backbone='dynamic-patch', batch_size=2, device='cpu'))
+    values = run(crops)
+    assert [tuple(tensor.shape) for tensor in seen] == [
+        (2, 3, 7, 11), (1, 3, 7, 11)]
+    np.testing.assert_allclose(values, crops.mean(axis=(1, 2)), rtol=1e-6)
+
+
 @pytest.mark.parametrize('filename', [None, 'weights.bin'])
 def test_weight_provenance_hashes_actual_cached_bytes(tmp_path, monkeypatch, filename):
     path = tmp_path/'cached-weights'
