@@ -26,13 +26,21 @@ existing indirect runtime extractor already sees all twelve exact labels,
 animation notes and preset descriptions. The historical request below to
 add FLOW_THEMES to the extractor is obsolete; that registry was removed.
 Preserve complete reviewed records and all guards; do not hand-edit artifacts.
-The plain-spacr pyqtgraph repair caption still lacks en.UI_SOURCES freshness
-in b200 run 37398419321. That run also exposes README light-install facts:
+The plain-spacr pyqtgraph repair caption failed en.UI_SOURCES freshness
+in b200 run 37398419321, and is repaired in the integrated workstation 9cfc
+catalogs. That earlier run also exposes README light-install facts:
 821 MB claimed versus 1027 MB measured, and omitted excluded features/ at
-125 MiB. Re-measure normally before updating prose. These two owner scopes
-persist through 9cfc803c9; its Box README prose fix is preserved. Final hosted
-tests/coverage and uninterrupted serial Qt remain items 43/288/47, OPEN.
+125 MiB. Re-measure normally before updating prose. These README facts
+persist through 9cfc803c9; its Box prose and catalog fixes are preserved.
+The source-current replacement art refresh is the remaining catalog scope.
+Final hosted tests/coverage and uninterrupted serial Qt remain items
+43/288/47, OPEN.
 Protocol 325 holds exact failing tests/jobs and the source-owner readback.
+Reachable rebased source checkpoint: aeb3fffdd6f1928089b879af06adca327991afd9
+(implementation blobs match the captured source). A bounded candidate-hash
+replay now fails only on 24 replacement strings: twelve names and twelve
+shared notes/descriptions. The old plain-spacr notice no longer fails.
+All 9cfc API, runtime, installation and Home/Measure media changes are retained.
 
 ## 2026-10-05 maintainer correction — item 663 REOPENED
 The maintainer rejected all sixteen newly added flow themes: their shared

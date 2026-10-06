@@ -180,3 +180,17 @@ already sees all twelve exact replacement labels and descriptions; do not
 restore FLOW_THEMES or edit generated catalogs by hand. Final hosted GitHub
 tests and the complete coverage/serial Qt verdict remain items 43/288/47,
 not a completion claim from this scoped renderer work.
+
+2026-10-05 — REBASED SOURCE AND EXACT REMAINING CATALOG SCOPE
+Current reachable source checkpoint is aeb3fffdd6f1928089b879af06adca327991afd9,
+rebased onto workstation 9cfc803c9. The four implementation file blobs are
+identical to the captured/tested source; all workstation API, installation,
+Home/Measure media and publication changes are preserved. The earlier
+plain-spacr pyqtgraph caption/source hash is now present in ten catalogs.
+A bounded exact-candidate freshness replay fails only for this replacement's
+24 new strings (twelve names and twelve shared notes/descriptions). Those
+remain the workstation's normal reviewed source-current refresh; no missing
+candidate allowance was added. README's two size/exclusion facts also still
+need owner correction. All twelve instruction-index checks pass. The UI
+catalog replay is recorded as a failure, separate from the 689 passing
+artwork/lifecycle cases.

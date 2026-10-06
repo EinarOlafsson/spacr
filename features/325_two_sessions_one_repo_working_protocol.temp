@@ -18341,7 +18341,7 @@ records and generated guards. No extractor patch or setting was added here.
 Read-only CI audit at 2026-10-06 02:12 UTC inspected remote 9cfc803c9e9bb6382f7468db004dbf6db7139e90:
 tests 37402885043 and docs 37402884844 were pending; compatibility 37402884814
 was queued. These do not establish green. Earlier b200 tests 37398419321
-was still running, with two precise remaining workstation-owned failures:
+was still running, with the following workstation-owned failures:
 
 1. Coverage shard 6 job 112064049792 failed two light-install README guards:
 tests/test_the_light_install_numbers_are_honest.py::test_the_checkout_size_in_the_readme_matches_the_tree
@@ -18354,9 +18354,14 @@ with packaging/measure_clone_forms.sh, date the number and preserve guards.
 2. Coverage shard 5 job 112064049801 failed
 tests/qt/test_i18n_caption_ratchet.py::test_every_generated_catalog_candidate_has_a_source_hash.
 en.UI_SOURCES lacks the current candidate beginning "Interactive plots need
-pyqtgraph." and instructing "python -m pip install spacr". No runtime catalog
-change occurred from b200 to 9cfc. Regenerate/review normally, retaining all
-complete translated records; do not waive source-hash freshness.
+pyqtgraph." and instructing "python -m pip install spacr" on b200. The
+integrated 9cfc workstation refresh does repair this exact caption in all
+ten runtime catalogs; its English source hash is
+2352735cfdd52e8dc466f404e2fce718a83ef7f787834f491f73563fd5d625c6.
+This correction supersedes the initial read-only audit's mistaken claim
+that no catalog change occurred. The remaining source-current catalog
+scope is the twelve replacement artworks. Regenerate/review normally,
+retaining all complete records; do not waive source-hash freshness.
 
 Older protected 8d21 run 37379945325 is now terminal failure. Its old replay
 optional-coverage/child-fixture failures were repaired by 55f5b70e0 and
@@ -18366,3 +18371,12 @@ identified three real coverage regressions already repaired through tests.
 These source repairs still need final exact-source hosted verification.
 Items 43/288/47 remain OPEN. No protected workflow was manually cancelled,
 no duplicate full workflow was dispatched, and no owner artifacts were edited.
+
+Rebased reachable replacement source: aeb3fffdd6f1928089b879af06adca327991afd9
+on workstation 9cfc803c9, preserving all owner media/API/catalog changes.
+Implementation blobs still match gallery and 689-case evidence. Exact local
+candidate-hash replay now fails only on 24 replacement-art strings: twelve
+names and twelve shared descriptions/notes. The old plain-spacr pyqtgraph
+notice is repaired. Owner refresh should cover these 24 actual candidates;
+no inventory/exclusion allowance has been changed. README's two light-install
+facts remain separate owner work. Instruction-index cohort: 12/12 pass.
