@@ -138,6 +138,7 @@ def _save_mapping(screen, channels):
 
 def test_four_plane_mapping_starts_without_a_guessed_stain(screen, alpha):
     from PySide6.QtWidgets import QDialogButtonBox, QLabel
+    from spacr.embeddings import EmbeddingError
     from spacr.settings import ALPHA_FEATURES
 
     screen.set_crops(np.zeros((2, 8, 8, 5), dtype=np.float32))
@@ -147,6 +148,8 @@ def test_four_plane_mapping_starts_without_a_guessed_stain(screen, alpha):
     assert screen._policy.currentData() == "project"
     assert "four" in screen._policy.currentText().lower()
     assert not screen._policy.isEnabled()
+    with pytest.raises(EmbeddingError, match="Choose four distinct"):
+        screen.spec()
 
     dialog, selectors = _mapping_form(screen)
     try:
