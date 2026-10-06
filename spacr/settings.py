@@ -7445,7 +7445,8 @@ ALPHA_FEATURES = {
         'widgets': ('MakeMasksSam2Button',),
     },
     565: {
-        'widgets': ('AnnotateFindSimilar', 'AnnotateSimilarityOptions'),
+        'widgets': ('AnnotateFindSimilar', 'AnnotateSimilarityOptions',
+                    'EmbeddingsSaveForSimilarity'),
     },
     560: {
         'widgets': ('EmbeddingsFoundationLabel', 'EmbeddingsFoundationPicker',

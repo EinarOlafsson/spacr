@@ -2666,8 +2666,10 @@ def _store_crop_embeddings(db_path: str, prcfo: Sequence[Any],
 
     The table is keyed by ``prcfo``, so it joins to the crop table the same
     way the measurements do. Rows for the same ``prcfo`` are replaced; a
-    new embedding with different columns replaces the whole table, so the
-    table always holds one encoder's vectors.
+    new embedding with different columns or a different specification
+    replaces the whole table. A specified result keeps its fingerprint and
+    complete specification beside each row; unspecified vectors cannot be
+    merged into that table because their encoder identity is unknown.
 
     :param db_path: path to ``measurements.db``.
     :param prcfo: one object key per row of ``embedding``.
@@ -2677,6 +2679,9 @@ def _store_crop_embeddings(db_path: str, prcfo: Sequence[Any],
     :raises ValueError: when the keys and rows do not match in number.
     """
     from . import tabular
+    from dataclasses import asdict
+    import json
+
     columns = getattr(embedding, "columns", None)
     values = getattr(embedding, "values", embedding)
     if isinstance(embedding, pd.DataFrame):
@@ -2692,8 +2697,18 @@ def _store_crop_embeddings(db_path: str, prcfo: Sequence[Any],
     frame = pd.DataFrame(values, columns=[str(c) for c in columns])
     frame.insert(0, "prcfo", keys)
     frame = frame.drop_duplicates("prcfo", keep="last")
+    spec = getattr(embedding, "spec", None)
+    fingerprint = None if spec is None else spec.fingerprint()
+    if fingerprint is not None:
+        frame["_embedding_fingerprint"] = fingerprint
+        frame["_embedding_spec"] = json.dumps(asdict(spec), sort_keys=True)
     existing = _stored_embedding_frame(db_path)
-    if existing is not None and list(existing.columns) == list(frame.columns):
+    compatible = (existing is not None
+                  and list(existing.columns) == list(frame.columns))
+    if compatible and fingerprint is not None:
+        compatible = bool(existing["_embedding_fingerprint"].eq(
+            fingerprint).all())
+    if compatible:
         existing = existing[~existing["prcfo"].isin(frame["prcfo"])]
         frame = pd.concat([existing, frame], ignore_index=True)
     tabular.write_database(frame, db_path, _EMBEDDING_TABLE,
@@ -2741,7 +2756,9 @@ def _stored_embeddings(db_path: str, table: str = PNG_TABLE,
     joined = crops.merge(stored, on="prcfo", how="inner")
     if joined.empty:
         return None
-    return joined.drop(columns=["prcfo"]).set_index(key)
+    metadata = [column for column in joined.columns
+                if str(column).startswith("_embedding_")]
+    return joined.drop(columns=["prcfo", *metadata]).set_index(key)
 
 
 def _similarity_index(db_path: str, *, features: Optional[pd.DataFrame] = None,

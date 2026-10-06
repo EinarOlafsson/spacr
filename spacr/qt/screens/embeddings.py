@@ -30,10 +30,11 @@ named ``emb_c<channel>_<dimension>`` under the per-channel policy and
 them -- backbone, policy and the checksum of the weights on this machine.
 Two runs' dimension 17 are the same number and not the same thing unless
 all three match, which is why the entry is part of the result rather than
-a log line. THE MATRIX LIVES IN THE SCREEN AND IS NOT YET WRITTEN
-ANYWHERE: the table below shows the first few dimensions of the first
-fifty objects, and there is no export button. Reaching the whole matrix
-means :func:`spacr.embeddings.embed_array` from Python for now.
+a log line. The preview shows the first few dimensions of the first fifty
+objects. The alpha Save for Similar crops action stores the complete matrix
+in the database that supplied the loaded objects, so Annotate can search
+those vectors. Folder and programmatically supplied crops have no database
+object identity and cannot use this action.
 
 **What to do next.** Treat the columns as a feature source, not as a
 result. They are consumed exactly as the measured panel is -- a reduction
@@ -225,6 +226,9 @@ class EmbeddingsScreen(QWidget):
         self.setObjectName("EmbeddingsScreen")
         self._frame: Optional[pd.DataFrame] = None
         self._result = None
+        self._crop_identity = None
+        self._result_identity = None
+        self._crop_generation = 0
         self._scale_record: dict = {}
         self._crop_record: Dict[str, Any] = {}
         self._plan = None
@@ -386,6 +390,18 @@ class EmbeddingsScreen(QWidget):
         self._add_dino_button(controls)
         self._add_use_for_pickers(controls)
         outer.addLayout(controls)
+
+        self._save_similar = QPushButton(tr("Save for Similar crops"), self)
+        self._save_similar.setObjectName("EmbeddingsSaveForSimilarity")
+        self._save_similar.setToolTip(tr(
+            "Save these vectors in their source database for Annotate's "
+            "Like this search. Load crops from a database first."))
+        self._save_similar.setEnabled(False)
+        self._save_similar.clicked.connect(self._save_for_similarity)
+        outer.addWidget(self._save_similar)
+        from ..preferences import _apply_alpha_widgets
+
+        _apply_alpha_widgets(self._save_similar)
 
         self._table = install_sorting(QTableWidget(0, 0, self))
         self._table.setObjectName("EmbeddingsPreviewTable")
@@ -1314,6 +1330,16 @@ class EmbeddingsScreen(QWidget):
         self._crop_record = dict(record)
         self._set_loading(False)
         self.set_crops(crops, label=self._loaded_label(record))
+        plan = self._plan
+        if plan is not None and plan.query.source == CROP_SOURCE_DATABASE:
+            rows = plan.rows[:int(crops.shape[0])]
+            keys = tuple(row.get("prcfo") for row in rows)
+            if len(keys) == len(crops) and all(
+                    key is not None and not pd.isna(key)
+                    and str(key).strip() for key in keys):
+                self._crop_identity = (
+                    os.path.abspath(os.path.expanduser(plan.query.path)),
+                    tuple(str(key) for key in keys))
         self._status.setText(self._loaded_sentence(record))
         self.crops_loaded.emit(int(crops.shape[0]))
 
@@ -1407,6 +1433,11 @@ class EmbeddingsScreen(QWidget):
                 f"{crops.shape}. spacr.crops produces this stack, and "
                 f"spacr.embeddings.embed_array expects channels last.")
         self._crops = crops
+        self._crop_generation += 1
+        self._crop_identity = None
+        self._result_identity = None
+        self._result = None
+        self._save_similar.setEnabled(False)
         self._scale_record = {}
         self._source.setText(
             label or f"{crops.shape[0]} objects x {crops.shape[-1]} channels")
@@ -1469,6 +1500,8 @@ class EmbeddingsScreen(QWidget):
                 return
         spec = self.spec()
         record = self._scale_record
+        generation = self._crop_generation
+        identity = self._crop_identity
         self._status.setText(f"Embedding {crops.shape[0]} objects…")
 
         def work():
@@ -1482,11 +1515,19 @@ class EmbeddingsScreen(QWidget):
 
             return _embed_plate(crops, spec, record=record)
 
-        self._jobs.submit(work, self._on_embedded)
+        def finished(result):
+            """Publish only to the crop selection that produced the vectors."""
+            if generation != self._crop_generation:
+                return
+            self._result_identity = identity
+            self._on_embedded(result)
+
+        self._jobs.submit(work, finished)
 
     def _on_embedded(self, result) -> None:
         """Fill the preview and say which encoder produced it."""
         self._result = result
+        self._save_similar.setEnabled(self._result_identity is not None)
         frame = pd.DataFrame(np.asarray(result.values),
                              columns=list(result.columns))
         self._frame = frame
@@ -1501,6 +1542,34 @@ class EmbeddingsScreen(QWidget):
             f"Encoder {entry.name}, weights {digest}.")
         if self._labels and len(self._labels) == len(frame):
             self._show_scorecard()
+
+    def _save_for_similarity(self) -> None:
+        """Write the actual result against its frozen source object keys."""
+        identity, result = self._result_identity, self._result
+        if identity is None or result is None:
+            self._status.setText(tr(
+                "Load database crops and embed them before saving vectors."))
+            return
+        database, keys = identity
+        self._save_similar.setEnabled(False)
+        self._status.setText(tr("Saving crop embeddings…"))
+
+        def work():
+            """Persist vectors without blocking the graphical thread."""
+            from ...active_learning import _store_crop_embeddings
+
+            _store_crop_embeddings(database, keys, result)
+            return len(keys)
+
+        def finished(count):
+            """A newer crop selection keeps its own status and controls."""
+            if self._result is result:
+                self._save_similar.setEnabled(True)
+                self._status.setText(tr(
+                    "Saved {count} crop embeddings. Open this database in "
+                    "Annotate and use Like this.").format(count=count))
+
+        self._jobs.submit(work, finished)
 
     def _fill_preview(self, frame: pd.DataFrame) -> None:
         """Show the first few dimensions, and only the first few.
@@ -1550,6 +1619,8 @@ class EmbeddingsScreen(QWidget):
             self._refuse("Crops could not be loaded", text)
         else:
             self._status.setText(text)
+            self._save_similar.setEnabled(
+                self._result_identity is not None and self._result is not None)
         LOG.warning("embeddings job ended: %s", text)
 
     def _stopped(self, detail: str) -> None:
