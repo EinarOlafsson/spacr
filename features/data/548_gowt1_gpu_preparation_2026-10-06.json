@@ -1,0 +1,56 @@
+{
+  "item": 548,
+  "accepted_preparation": true,
+  "application_source_commit": "b19fcb0414809f448ea58df2a78358639d284aaa",
+  "actual_acquired_frames": 4,
+  "exact_pixel_conversion_passed": true,
+  "three_arrivals_wait_with_no_analysis_or_database": true,
+  "fixed_map_timepoints": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "input_policy": "Exact acquired t021-t024 pixels, stacked into a derived TYX TIFF; no native vendor T>1 claim.",
+  "normal_mask_and_measure_recipes_prepared": true,
+  "GPU_benchmark_prepared_only": true,
+  "GPU_inference_complete": false,
+  "batch_watch_parity_complete": false,
+  "raw_vendor_completion_complete": false,
+  "native_vendor_T_gt_1": false,
+  "pooled_batch_size_gt_1": false,
+  "artifacts": {
+    "features/data/548_gowt1_gpu_preparation_2026-10-06/acquired-and-converted-inputs.zip": {
+      "sha256": "eeb06507f3b9e94805d36a23cb2d5488f6dbfeb3f8ccad1dc6cfa97b5ebcce30",
+      "bytes": 3483098
+    },
+    "features/data/548_gowt1_gpu_preparation_2026-10-06/benchmark_gowt1_watch.py": {
+      "sha256": "cc931d9c67ec266f5b622cd5fc5ab814967976dc11b5aedfd54e9f620d830969",
+      "bytes": 9213
+    },
+    "features/data/548_gowt1_gpu_preparation_2026-10-06/conversion_map.csv": {
+      "sha256": "e7cef301cc42ca6c130d5a1af01b5bddc78ddf2f3d2ea2c7d6e97267175e55ad",
+      "bytes": 2505
+    },
+    "features/data/548_gowt1_gpu_preparation_2026-10-06/gowt1-watch-preparation-r1.log.gz": {
+      "sha256": "c52c7252b7547011b844b68babd97b4fb34329c32c05ff9b609a2adf4783921c",
+      "bytes": 580
+    },
+    "features/data/548_gowt1_gpu_preparation_2026-10-06/measure.json": {
+      "sha256": "206e8d86994924f905a402b28615fef0e24d42a17cacc958d9be2f42f85a368c",
+      "bytes": 566
+    },
+    "features/data/548_gowt1_gpu_preparation_2026-10-06/plan.json": {
+      "sha256": "f5f2b51bfa55391217a6c32b2400523b9d896dd7db855c26a17202508de49dd1",
+      "bytes": 9962
+    },
+    "features/data/548_gowt1_gpu_preparation_2026-10-06/prepare_gowt1_watch.py": {
+      "sha256": "0d1c8747cfac0f22ccbbb5629b5c6f366413229555b0a3313f0ad57ab98cb7a3",
+      "bytes": 7190
+    },
+    "features/data/548_gowt1_gpu_preparation_2026-10-06/watch_ledger.json": {
+      "sha256": "60c665139318d51e9ed524b2e1273d4de272279d963833fa644a8cf32ae05180",
+      "bytes": 435
+    }
+  }
+}

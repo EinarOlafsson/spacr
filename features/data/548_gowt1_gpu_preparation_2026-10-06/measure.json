@@ -1,0 +1,26 @@
+{
+  "timelapse": true,
+  "channels": [
+    0
+  ],
+  "nucleus_chann_dim": 0,
+  "nucleus_mask_dim": 1,
+  "cell_mask_dim": null,
+  "pathogen_mask_dim": null,
+  "organelle_mask_dim": null,
+  "cell_chann_dim": null,
+  "pathogen_chann_dim": null,
+  "organelle_chann_dim": null,
+  "nucleus_min_size": 0,
+  "save_png": false,
+  "save_arrays": false,
+  "plot": false,
+  "save_measurements": true,
+  "n_jobs": 1,
+  "verbose": false,
+  "radial_dist": false,
+  "homogeneity": false,
+  "calculate_correlation": false,
+  "experiment": "GOWT1-live-watch",
+  "measure_gpu": false
+}
