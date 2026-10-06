@@ -283,6 +283,27 @@ def test_runtime_source_inventory_is_stable_after_runctx_import():
     assert "on_error" in sources["setting_tooltips"]
 
 
+def test_encoder_provenance_notes_reach_the_runtime_catalog():
+    tools_dir = str(ROOT / "tools")
+    sys.path.insert(0, tools_dir)
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.remove(tools_dir)
+    sources = {
+        "Channel policy: {policy}. Dimensions from different policies are not comparable.",
+        "No checksum: no readable local checkpoint could be resolved in this environment.",
+        "No scorecard. Measure retrieval against labelled phenotype controls and attach the results.",
+    }
+    assert sources <= set(builder.extract_static_ui_sources())
+    from spacr.qt.i18n import tr
+    for language in LANGUAGES:
+        for source in sources:
+            translated = tr(source, language=language)
+            assert translated != source, (language, source)
+            assert _format_fields(translated) == _format_fields(source)
+
+
 def test_dynamic_text_templates_enter_the_runtime_source_inventory():
     """Explicitly translatable status text must not bypass catalog building."""
     tools_dir = str(ROOT / "tools")

@@ -4069,6 +4069,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     found: set[str] = set()
     paths = set((ROOT / "spacr" / "qt").rglob("*.py"))
     paths.add(ROOT / "spacr" / "model_compare.py")
+    paths.add(ROOT / "spacr" / "embeddings.py")
     for path in sorted(paths):
         if "i18n_catalogs" in path.parts:
             continue

@@ -804,6 +804,11 @@ def _retrieval_scorecard(features: Any, labels: Mapping[Any, Any],
     pairwise similarity matrix, so tens of thousands of crops remain
     practical.
 
+    ``chance_map`` is the exact expected average precision of a uniformly
+    random full ranking, averaged over queries with another same-label crop.
+    ``chance_precision`` is the prevalence among candidates, including
+    singleton queries; it is not the random average-precision baseline.
+
     :param features: numeric frame indexed by crop key, such as
         :meth:`EmbeddingResult.to_frame` or the measured features.
     :param labels: crop key to class; blanks are dropped.
@@ -850,11 +855,18 @@ def _retrieval_scorecard(features: Any, labels: Mapping[Any, Any],
     freq = {c: float(np.mean(classes == c)) for c in set(classes)}
     chance = np.asarray([(freq[c] * len(pairs) - 1) / (len(pairs) - 1)
                          for c in classes])
+    candidates = len(pairs) - 1
+    harmonic = np.sum(1.0 / ranks)
+    chance_ap = positives[kept] / candidates
+    if candidates > 1:
+        chance_ap = chance_ap + ((candidates - positives[kept])
+                                * (harmonic - 1)
+                                / (candidates * (candidates - 1)))
     return {
         "knn_accuracy": float(correct / len(pairs)),
         "map": float(ap[kept].mean()),
         "precision_at_k": float(hits.mean()),
-        "chance_map": float(chance[kept].mean()),
+        "chance_map": float(chance_ap.mean()),
         "chance_precision": float(chance.mean()),
         "n": float(len(pairs)),
         "classes": float(len(freq)),
@@ -1676,44 +1688,67 @@ def encoder_key(spec: "EmbeddingSpec") -> str:
 
 
 def _weights_on_disk(backbone: str) -> Tuple[str, str, int]:
-    """Find the cached weights ``timm`` resolved, and hash them.
+    """Find the encoder's existing checkpoint and hash its actual bytes.
 
     :returns: ``(path, sha256, size_bytes)``; the path is ``''`` and the
-        digest ``''`` when the weights are not on this machine.
+        digest ``''`` when no readable local checkpoint can be resolved.
 
-    HASHES WHAT IS ACTUALLY THERE rather than trusting a published digest,
-    which is the same rule :class:`spacr.model_zoo.ModelEntry` states for a
-    downloaded model: "for a downloaded model this is the digest of the bytes
-    that were actually written". A pretrained encoder arrives through the
-    HuggingFace cache, so the bytes on this machine are the only thing that
-    can be checked here.
+    Foundation Hugging Face caches use the loader's pinned revision;
+    SubCell uses the existing torch hub checkpoint directory; local DINO
+    uses its configured path. Other backbones use timm's cache metadata.
+    No checkpoint is downloaded or loaded, and torch is not imported.
     """
-    import hashlib
+    import sys
 
     try:
-        import timm
-        from huggingface_hub import try_to_load_from_cache
-    except Exception:
-        return "", "", 0
+        if backbone.startswith(_DINO_PREFIX):
+            path = backbone[len(_DINO_PREFIX):]
+        elif backbone in _FOUNDATION_MODELS:
+            info = _FOUNDATION_MODELS[backbone]
+            if "repo" in info:
+                from huggingface_hub import try_to_load_from_cache
 
-    try:
-        config = timm.get_pretrained_cfg(backbone)
-        repo = getattr(config, "hf_hub_id", None)
-        filename = getattr(config, "hf_hub_filename", None) or "model.safetensors"
-        if not repo:
+                path = None
+                for filename in ("model.safetensors", "pytorch_model.bin"):
+                    candidate = try_to_load_from_cache(
+                        info["repo"], filename, revision=info["revision"])
+                    if isinstance(candidate, str) and os.path.isfile(candidate):
+                        path = candidate
+                        break
+            elif "url" in info:
+                hub = sys.modules.get("torch.hub")
+                cache_home = os.getenv("XDG_CACHE_HOME", "~/.cache")
+                torch_home = os.path.expanduser(os.getenv(
+                    "TORCH_HOME", os.path.join(cache_home, "torch")))
+                directory = (hub.get_dir() if hub is not None else
+                             os.path.join(torch_home, "hub"))
+                path = os.path.join(directory, "checkpoints",
+                                    info["url"].rsplit("/", 1)[-1])
+            else:
+                return "", "", 0
+        else:
+            import timm
+            from huggingface_hub import try_to_load_from_cache
+
+            config = timm.get_pretrained_cfg(backbone)
+            repo = getattr(config, "hf_hub_id", None)
+            filename = (getattr(config, "hf_hub_filename", None)
+                        or "model.safetensors")
+            if not repo:
+                return "", "", 0
+            path = try_to_load_from_cache(repo, filename)
+        if not isinstance(path, str) or not os.path.isfile(path):
             return "", "", 0
-        path = try_to_load_from_cache(repo, filename)
+        digest = hashlib.sha256()
+        size = 0
+        with open(path, "rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
+                size += len(chunk)
     except Exception:
         return "", "", 0
 
-    if not path or not isinstance(path, str) or not os.path.exists(path):
-        return "", "", 0
-
-    digest = hashlib.sha256()
-    with open(path, "rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return path, digest.hexdigest(), os.path.getsize(path)
+    return path, digest.hexdigest(), size
 
 
 def encoder_entry(spec: Optional["EmbeddingSpec"] = None, *,
@@ -1725,15 +1760,16 @@ def encoder_entry(spec: Optional["EmbeddingSpec"] = None, *,
     is a black box twice over: opaque in what it encodes, and unmeasured in
     how well it does it.
 
-    WHAT AN ENCODER'S PROVENANCE ACTUALLY IS. It has no spaCR checkpoint --
-    the weights are ImageNet or a public self-supervised run, resolved by
-    ``timm`` and cached by HuggingFace. So the entry records the backbone, the
-    channel policy, and the digest of the weights AS THEY SIT ON THIS MACHINE.
-    That is the thing a later run has to match, and it is checkable here
-    without a network call.
+    The entry records the backbone, channel policy and digest of readable
+    local checkpoint bytes without downloading or loading a model. Public
+    backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned
+    Hugging Face revisions; SubCell uses its official torch hub checkpoint;
+    a local DINO encoder uses its configured checkpoint path. Foundation
+    entries name the original provider and checkpoint URL. A checksum alone
+    does not verify a model or establish its training-data provenance.
 
-    WHEN THE WEIGHTS ARE NOT CACHED the entry still exists and says so in its
-    notes, with an empty digest -- which
+    When no readable checkpoint can be resolved locally, the entry still
+    exists and says so in its notes, with an empty digest -- which
     :func:`spacr.model_zoo.fetch` already treats as a refusal rather than a
     pass. An entry that quietly claimed a checksum it had not computed would
     be worse than one that admits it cannot yet.
@@ -1746,24 +1782,42 @@ def encoder_entry(spec: Optional["EmbeddingSpec"] = None, *,
     :returns: a ``ModelEntry`` of kind ``'encoder'``.
     """
     from .model_zoo import UNKNOWN, ModelEntry
+    from .qt.i18n import tr
 
     spec = spec if spec is not None else EmbeddingSpec()
     path, digest, size = _weights_on_disk(spec.backbone)
 
     notes = [
-        f"Channel policy: {spec.channel_policy}. Dimensions from one policy "
-        f"are not comparable with the other's.",
+        tr("Channel policy: {policy}. Dimensions from different policies "
+           "are not comparable.").format(policy=spec.channel_policy),
     ]
     if not digest:
         notes.append(
-            "No checksum: the pretrained weights are not in this machine's "
-            "HuggingFace cache, so there are no bytes to hash yet. Run an "
-            "embedding once and re-read this entry.")
+            tr("No checksum: no readable local checkpoint could be resolved "
+               "in this environment."))
     if scorecard is None:
         notes.append(
-            "No scorecard. 386: an embedding that ships without one is a "
-            "black box twice over. Measure retrieval -- kNN accuracy on gene "
-            "identity against a known-phenotype control -- and attach it.")
+            tr("No scorecard. Measure retrieval against labelled phenotype "
+               "controls and attach the results."))
+
+    info = _FOUNDATION_MODELS.get(spec.backbone, {})
+    uri = f"timm:{spec.backbone}"
+    trained_by = f"timm / {spec.backbone} pretrained weights"
+    if "repo" in info:
+        filename = ("pytorch_model.bin" if path.endswith("pytorch_model.bin")
+                    else "model.safetensors")
+        uri = (f"https://huggingface.co/{info['repo']}/resolve/"
+               f"{info['revision']}/{filename}")
+        trained_by = info["repo"]
+    elif "url" in info:
+        uri = info["url"]
+        trained_by = info["label"]
+    elif info:
+        uri = ""
+        trained_by = UNKNOWN
+    elif spec.backbone.startswith(_DINO_PREFIX):
+        uri = spec.backbone[len(_DINO_PREFIX):]
+        trained_by = UNKNOWN
 
     return ModelEntry(
         key=encoder_key(spec),
@@ -1771,12 +1825,12 @@ def encoder_entry(spec: Optional["EmbeddingSpec"] = None, *,
         kind="encoder",
         source="local" if path else "remote",
         path=path,
-        uri=f"timm:{spec.backbone}",
+        uri=uri,
         version="1",
         sha256=digest,
         size_bytes=size,
         trained_on=UNKNOWN,
-        trained_by=f"timm / {spec.backbone} pretrained weights",
+        trained_by=trained_by,
         metrics=dict(scorecard or {}),
         notes=tuple(notes),
         verified=False,

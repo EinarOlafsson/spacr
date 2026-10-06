@@ -23058,19 +23058,19 @@
       "source_blocks_sha256": [
         "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
         "287307899b8054aba3778d18c5f4bb00687943fecc1b27bac4ba854253633484",
-        "fa7b9bdc8f7c1d08cfaa81508efa8331f8700ea4f941c6ec54e72fef1eb4a458",
-        "cbae75c8399079cd49b93dad3c22254b6f724794204e44c4b7a45f3decbba443",
+        "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+        "7c61a86a6f251bb980621cf48c4c956680a18a3c7613867423d3d387626c86c4",
         "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
         "d1684cd2486ccc2ffe8149a5f24d94323f4d5c9b3e442d0a5621242fea2e8ee7",
         "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
       ],
-      "source_sha256": "27cec465dec2129bb455cb0ef6326427e8a4a9cf38dc82177c1d28c27269dbc8",
-      "text": "Denna kodare som en :class:`spacr.model_zoo.ModelEntry`.\n\nEn kodare är en publicerad modell som alla andra, så den hör hemma i djurparken med sitt checksumma och sitt poängkort. En inbäddning att fartyg utan en är en svart låda två gånger över: ogenomskinlig i vad den kodar, och omätt i hur väl det gör det.\n\nVad en kodares härkomst faktiskt är. Den har ingen spaCR kontrollpunkt – vikterna är ImageNet eller en offentlig självövervakad körning, löst med ``timm`` och cachad av HuggingFace. Så posten registrerar ryggraden, kanalpolicyn och nedbrytningen av vikterna när de sitter på denna maskin. Det är det som en senare körning måste matcha, och det går att kontrollera här utan ett nätverkssamtal.\n\nNär vikterna inte är cachad finns posten fortfarande och säger så i sina anteckningar, med en tom smältdegel -- som :func:`spacr.model_zoo.fetch` redan behandlar som en vägran snarare än ett pass. En post som tyst hävdade en checksumma som den inte hade beräknat skulle vara värre än en som medger att den inte kan ännu.\n\n:param spec: konfigurationen att beskriva; standardspec när den utelämnas.\n:param scorecard: hämtningsnummer från 386 s \"hur man vet att det fungerade\" -- kNN noggrannhet på genidentitet, inbäddningar jämfört med den uppmätta panelen. Bifogas som :attr:`ModelEntry.metrics`, vilket är där 370's ``scorecard_lines`` läser dem från.\n:returns: a ``ModelEntry`` av slag ``'encoder'``.",
+      "source_sha256": "3017516e78ce52a7c7d144bc04a85c9bb50a847430b22506205751ed036feb90",
+      "text": "Denna kodare som en :class:`spacr.model_zoo.ModelEntry`.\n\nEn kodare är en publicerad modell som alla andra, så den hör hemma i djurparken med sitt checksumma och sitt poängkort. En inbäddning att fartyg utan en är en svart låda två gånger över: ogenomskinlig i vad den kodar, och omätt i hur väl det gör det.\n\nPosten registrerar ryggraden, kanalpolicyn och kontrollsumman för läsbara lokala kontrollpunktsfiler utan att ladda ned eller läsa in en modell. Offentliga ryggrader använder cachemetadata från timm; OpenPhenom och ChAda-ViT använder låsta Hugging Face-revisioner; SubCell använder sin officiella kontrollpunkt i torch hub; en lokal DINO-kodare använder sin konfigurerade kontrollpunktssökväg. Poster för grundmodeller anger den ursprungliga leverantören och kontrollpunktens URL. En kontrollsumma ensam verifierar inte en modell och fastställer inte ursprunget för dess träningsdata.\n\nNär ingen läsbar kontrollpunkt kan hittas lokalt finns posten ändå och anger detta i sina anteckningar, med en tom kontrollsumma -- vilket :func:`spacr.model_zoo.fetch` redan behandlar som ett avslag, inte ett godkännande. En post som tyst påstod sig ha en kontrollsumma den inte hade beräknat vore sämre än en som medger att den ännu inte kan göra det.\n\n:param spec: konfigurationen att beskriva; standardspec när den utelämnas.\n:param scorecard: hämtningsnummer från 386 s \"hur man vet att det fungerade\" -- kNN noggrannhet på genidentitet, inbäddningar jämfört med den uppmätta panelen. Bifogas som :attr:`ModelEntry.metrics`, vilket är där 370's ``scorecard_lines`` läser dem från.\n:returns: a ``ModelEntry`` av slag ``'encoder'``.",
       "translation_source_blocks_sha256": [
         "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
         "dcef17b50e9db4df3490a7d22dac90240e267ba685e2372196478c658cec5c3b",
-        "529ec96d6993086fcf130931258b1b67effd233c1cd09cdaa449191f30dbad53",
-        "277b64bf6391e6e08d2799c8b460fdc75057b00b5d34b8dcd023b3746476abb6",
+        "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+        "7c61a86a6f251bb980621cf48c4c956680a18a3c7613867423d3d387626c86c4",
         "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
         "51fd59a24157c2d9c6893e3e0c013607a655827b034a63ad331f117cb518b70a",
         "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"

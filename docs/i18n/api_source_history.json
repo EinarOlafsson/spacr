@@ -1,4 +1,18 @@
 {
   "schema": 1,
-  "sources": {}
+  "sources": {
+    "27cec465dec2129bb455cb0ef6326427e8a4a9cf38dc82177c1d28c27269dbc8": {
+      "source_blocks_sha256": [
+        "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
+        "287307899b8054aba3778d18c5f4bb00687943fecc1b27bac4ba854253633484",
+        "fa7b9bdc8f7c1d08cfaa81508efa8331f8700ea4f941c6ec54e72fef1eb4a458",
+        "cbae75c8399079cd49b93dad3c22254b6f724794204e44c4b7a45f3decbba443",
+        "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
+        "d1684cd2486ccc2ffe8149a5f24d94323f4d5c9b3e442d0a5621242fea2e8ee7",
+        "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
+      ],
+      "source_sha256": "27cec465dec2129bb455cb0ef6326427e8a4a9cf38dc82177c1d28c27269dbc8",
+      "text": "This encoder as a :class:`spacr.model_zoo.ModelEntry`.\n\nAN ENCODER IS A PUBLISHED MODEL like any other, so it belongs in the zoo\nwith its checksum and its scorecard. An embedding that ships without one\nis a black box twice over: opaque in what it encodes, and unmeasured in\nhow well it does it.\n\nWHAT AN ENCODER'S PROVENANCE ACTUALLY IS. It has no spaCR checkpoint --\nthe weights are ImageNet or a public self-supervised run, resolved by\n``timm`` and cached by HuggingFace. So the entry records the backbone, the\nchannel policy, and the digest of the weights AS THEY SIT ON THIS MACHINE.\nThat is the thing a later run has to match, and it is checkable here\nwithout a network call.\n\nWHEN THE WEIGHTS ARE NOT CACHED the entry still exists and says so in its\nnotes, with an empty digest -- which\n:func:`spacr.model_zoo.fetch` already treats as a refusal rather than a\npass. An entry that quietly claimed a checksum it had not computed would\nbe worse than one that admits it cannot yet.\n\n:param spec: the configuration to describe; the default spec when omitted.\n:param scorecard: retrieval numbers from 386's \"HOW TO KNOW IT WORKED\" --\n    kNN accuracy on gene identity, embeddings versus the measured panel.\n    Attached as :attr:`ModelEntry.metrics`, which is where 370's\n    ``scorecard_lines`` reads them from.\n:returns: a ``ModelEntry`` of kind ``'encoder'``."
+    }
+  }
 }

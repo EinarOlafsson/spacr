@@ -1,0 +1,21 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "context": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+      "label": "spacr.embeddings.encoder_entry#2",
+      "source": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+      "source_sha256": "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+      "translation": "Posten registrerar ryggraden, kanalpolicyn och kontrollsumman för läsbara lokala kontrollpunktsfiler utan att ladda ned eller läsa in en modell. Offentliga ryggrader använder cachemetadata från timm; OpenPhenom och ChAda-ViT använder låsta Hugging Face-revisioner; SubCell använder sin officiella kontrollpunkt i torch hub; en lokal DINO-kodare använder sin konfigurerade kontrollpunktssökväg. Poster för grundmodeller anger den ursprungliga leverantören och kontrollpunktens URL. En kontrollsumma ensam verifierar inte en modell och fastställer inte ursprunget för dess träningsdata."
+    },
+    {
+      "context": "When no readable checkpoint can be resolved locally, the entry still exists and says so in its notes, with an empty digest -- which :func:`spacr.model_zoo.fetch` already treats as a refusal rather than a pass. An entry that quietly claimed a checksum it had not computed would be worse than one that admits it cannot yet.",
+      "label": "spacr.embeddings.encoder_entry#3",
+      "source": "When no readable checkpoint can be resolved locally, the entry still exists and says so in its notes, with an empty digest -- which :func:`spacr.model_zoo.fetch` already treats as a refusal rather than a pass. An entry that quietly claimed a checksum it had not computed would be worse than one that admits it cannot yet.",
+      "source_sha256": "7c61a86a6f251bb980621cf48c4c956680a18a3c7613867423d3d387626c86c4",
+      "translation": "När ingen läsbar kontrollpunkt kan hittas lokalt finns posten ändå och anger detta i sina anteckningar, med en tom kontrollsumma -- vilket :func:`spacr.model_zoo.fetch` redan behandlar som ett avslag, inte ett godkännande. En post som tyst påstod sig ha en kontrollsumma den inte hade beräknat vore sämre än en som medger att den ännu inte kan göra det."
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff",
+  "schema": 1
+}

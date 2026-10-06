@@ -23058,19 +23058,19 @@
       "source_blocks_sha256": [
         "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
         "287307899b8054aba3778d18c5f4bb00687943fecc1b27bac4ba854253633484",
-        "fa7b9bdc8f7c1d08cfaa81508efa8331f8700ea4f941c6ec54e72fef1eb4a458",
-        "cbae75c8399079cd49b93dad3c22254b6f724794204e44c4b7a45f3decbba443",
+        "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+        "7c61a86a6f251bb980621cf48c4c956680a18a3c7613867423d3d387626c86c4",
         "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
         "d1684cd2486ccc2ffe8149a5f24d94323f4d5c9b3e442d0a5621242fea2e8ee7",
         "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
       ],
-      "source_sha256": "27cec465dec2129bb455cb0ef6326427e8a4a9cf38dc82177c1d28c27269dbc8",
-      "text": "Dieser Encoder als :class:`spacr.model_zoo.ModelEntry`.\n\nEin Encoder ist ein veröffentlichtes Modell wie jedes andere, also gehört er mit seiner Checksumme und seiner Scorecard in den Zoo. Eine Einbettung, die Schiffe ohne eine schwarze Box zweimal über ist: undurchsichtig in dem, was er kodiert, und ungemessen in, wie gut es tut.\n\nWas eigentlich die Provenienz eines Encoders ist. Es hat keinen spaCR Kontrollpunkt -- die Gewichte sind ImageNet oder ein öffentlicher selbstüberwachter Lauf, der durch ``timm`` aufgelöst und von HuggingFace zwischengespeichert wurde. Der Eintrag zeichnet also das Rückgrat, die Kanalrichtlinie und den Verdau der Gewichte auf dieser Maschine auf. Das ist die Sache, die ein späterer Lauf passen muss, und es ist hier ohne Netzwerkanruf kontrollierbar.\n\nWenn die Gewichte nicht zwischengespeichert werden, existiert der Eintrag noch und sagt so in seinen Notizen, mit einem leeren Verdau -- der :func:`spacr.model_zoo.fetch` bereits als Ablehnung behandelt, anstatt als Pass. Ein Eintrag, der leise behauptete, eine Checksumme, die er nicht berechnet hatte, wäre schlimmer als einer, der es noch nicht zugibt.\n\n:param spec: die zu beschreibende Konfiguration; die Standard-Spezifikation, wenn sie weggelassen wird.\n:param scorecard: Retrieval-Nummern aus 386s \"wie es funktionierte\" -- kNN Genauigkeit auf Gen-Identität, Einbettungen gegenüber dem gemessenen Panel. Angehängt als :attr:`ModelEntry.metrics`, wo 370s ``scorecard_lines`` sie liest.\n:returns: a ``ModelEntry`` der Art ``'encoder'``.",
+      "source_sha256": "3017516e78ce52a7c7d144bc04a85c9bb50a847430b22506205751ed036feb90",
+      "text": "Dieser Encoder als :class:`spacr.model_zoo.ModelEntry`.\n\nEin Encoder ist ein veröffentlichtes Modell wie jedes andere, also gehört er mit seiner Checksumme und seiner Scorecard in den Zoo. Eine Einbettung, die Schiffe ohne eine schwarze Box zweimal über ist: undurchsichtig in dem, was er kodiert, und ungemessen in, wie gut es tut.\n\nDer Eintrag erfasst das Backbone, die Kanalrichtlinie und den Hash lesbarer lokaler Checkpoint-Dateien, ohne ein Modell herunterzuladen oder zu laden. Öffentliche Backbones verwenden Cache-Metadaten von timm; OpenPhenom und ChAda-ViT verwenden festgelegte Hugging Face-Revisionen; SubCell verwendet seinen offiziellen Checkpoint im torch hub; ein lokaler DINO-Encoder verwendet seinen konfigurierten Checkpoint-Pfad. Einträge für Grundlagenmodelle nennen den ursprünglichen Anbieter und die Checkpoint-URL. Eine Prüfsumme allein verifiziert kein Modell und belegt nicht die Herkunft seiner Trainingsdaten.\n\nWenn lokal kein lesbarer Checkpoint ermittelt werden kann, bleibt der Eintrag bestehen und weist in seinen Hinweisen mit einem leeren Hash darauf hin -- was :func:`spacr.model_zoo.fetch` bereits als Ablehnung statt als Freigabe behandelt. Ein Eintrag, der stillschweigend eine nicht berechnete Prüfsumme behauptet, wäre schlechter als einer, der zugibt, sie noch nicht berechnen zu können.\n\n:param spec: die zu beschreibende Konfiguration; die Standard-Spezifikation, wenn sie weggelassen wird.\n:param scorecard: Retrieval-Nummern aus 386s \"wie es funktionierte\" -- kNN Genauigkeit auf Gen-Identität, Einbettungen gegenüber dem gemessenen Panel. Angehängt als :attr:`ModelEntry.metrics`, wo 370s ``scorecard_lines`` sie liest.\n:returns: a ``ModelEntry`` der Art ``'encoder'``.",
       "translation_source_blocks_sha256": [
         "01776d1053aece461b25737fb152752cb3ebb1e46249037183606799dadbd611",
         "dcef17b50e9db4df3490a7d22dac90240e267ba685e2372196478c658cec5c3b",
-        "529ec96d6993086fcf130931258b1b67effd233c1cd09cdaa449191f30dbad53",
-        "277b64bf6391e6e08d2799c8b460fdc75057b00b5d34b8dcd023b3746476abb6",
+        "9ddcb6ae6a382d7d996341d44349d0f6294c084d9cebb26b83c30d0c73fc14f8",
+        "7c61a86a6f251bb980621cf48c4c956680a18a3c7613867423d3d387626c86c4",
         "510d5adee8e5abe06b53ce349318284c37617b7f91cf57015e1916a0d1fcd761",
         "51fd59a24157c2d9c6893e3e0c013607a655827b034a63ad331f117cb518b70a",
         "73443ad0644f3bd3802ead4e7647c1b60eb8890f91fdd343f832289c815b6a30"
