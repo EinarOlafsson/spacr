@@ -4947,21 +4947,6 @@ class _DataArtEngine(_BufferedEngine):
 
 
 
-    def _lens_wave_packet(self, front):
-        """Keep visible Gaussian waves out of slow subnormal arithmetic.
-
-        Twenty-four maximum-strength tails below exp(-60) contribute less
-        than 1e-20 pixels of displacement at native 4K and 2e-25 normalized
-        energy. These tails cannot affect raster grains or their brightness.
-        Clamping before exponentiation and then zeroing them avoids creating
-        subnormal values in the exponential and subsequent wave products.
-        """
-        np = _numpy()
-        argument = -(front / 0.075) ** 2
-        packet = np.exp(np.maximum(argument, -60.0))
-        packet[argument < -60.0] = 0.0
-        return packet
-
     def _paint_impulse_lens(self, painter: QPainter, width: int,
                             height: int) -> None:
         """Bend a round-dot gravity field with cursor wakes and burst waves."""
@@ -5012,7 +4997,7 @@ class _DataArtEngine(_BufferedEngine):
             burst = (-0.12 * decay * math.exp(-age * 3.0)
                      * burst_envelope / burst_softening)
             front = distance - age * 0.26
-            packet = self._lens_wave_packet(front)
+            packet = np.exp(-(front / 0.075) ** 2)
             ripple = 0.045 * decay * packet * np.sin(front * 58.0)
             displacement = burst + ripple / np.maximum(distance, 0.055)
             px += ex * displacement
