@@ -151,3 +151,23 @@ shared machine; no GPU turn; scripts in /mnt/wd4tb/scratch/571/scripts)
     invasion (a parasite glides in and stays), decoys (a passing parasite,
     a host ending empty); held-out P and R >= 0.8, timing error <= 1 frame.
     Still left: a real annotated Toxoplasma egress/invasion movie.
+
+2026-10-06 — ACTUAL PRETRAINED VIDEO MODEL CPU PREPARATION
+    Workstation acquired the ungated official MCG-NJU VideoMAE Kinetics
+    checkpoint at immutable revision 488eb9a0565f257b32866000305c8178965eb9f6.
+    All original files match primary blob/LFS identities; actual weights are
+    346161616 bytes, SHA-256
+    065cfde56f97671da4d196e1a3a6d3cf9304dcad92eb671e3632a6c6cdd04f73.
+    The isolated Python 3.13 environment inherits the unchanged shared Torch
+    and pins Transformers 4.48.3. Real pretrained CPU loading is strict with
+    zero missing/unexpected/mismatched/error entries. A declared synthetic
+    16-frame RGB clip produces finite 1x768 pooled features and 1x400 logits;
+    the real model pool/norm/classifier reconstructs its logits bit-exactly.
+    The weights are CC-BY-NC-4.0; do not treat them as unrestricted commercial
+    assets. Receipt and byte-exact original output/script/metadata/stdout:
+    data/567_pretrained_video_preparation_2026-10-06.json and matching folder.
+    No backend integration, microscopy event accuracy, GPU use or training
+    is claimed. The actual original files and outputs were rehashed at
+    archival; the model run was not repeated. F567 remains OPEN for the
+    application backend, real annotated Toxo events, GPU acceptance and the
+    GUI annotation work. Workstation retains GPU ownership.
