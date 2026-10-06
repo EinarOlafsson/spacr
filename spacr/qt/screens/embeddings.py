@@ -499,10 +499,13 @@ class EmbeddingsScreen(QWidget):
         self._subcell_button.setProperty(
             "_spacr_alpha_hid", bool(selected and not alpha_on))
 
-    def _subcell_mapping_error(self, channels, available: int) -> str:
+    def _subcell_mapping_error(
+            self, channels: tuple[object, ...] | None,
+            available: int) -> str:
         """Explain an incomplete, repeated or stale four-plane mapping."""
-        if channels is None or len(channels) != 4 or any(
-                not isinstance(channel, int) for channel in channels):
+        if not isinstance(channels, tuple) or len(channels) != 4 or any(
+                not isinstance(channel, int) or isinstance(channel, bool)
+                for channel in channels):
             return tr("Choose a crop channel for each SubCell plane: "
                       "microtubules, ER, DNA and protein.")
         if len(set(channels)) != 4:
@@ -527,26 +530,30 @@ class EmbeddingsScreen(QWidget):
         guidance.setWordWrap(True)
         layout.addWidget(guidance)
         form = QFormLayout()
-        selectors = []
-        for label, name in (
-            (tr("Microtubules (R)"), "EmbeddingsSubCellMicrotubulesChannel"),
-            (tr("ER (Y)"), "EmbeddingsSubCellErChannel"),
-            (tr("DNA (B)"), "EmbeddingsSubCellDnaChannel"),
-            (tr("Protein (G)"), "EmbeddingsSubCellProteinChannel"),
-        ):
-            selector = QComboBox(dialog)
-            selector.setObjectName(name)
+        microtubules = QComboBox(dialog)
+        microtubules.setObjectName("EmbeddingsSubCellMicrotubulesChannel")
+        er = QComboBox(dialog)
+        er.setObjectName("EmbeddingsSubCellErChannel")
+        dna = QComboBox(dialog)
+        dna.setObjectName("EmbeddingsSubCellDnaChannel")
+        protein = QComboBox(dialog)
+        protein.setObjectName("EmbeddingsSubCellProteinChannel")
+        selectors = (microtubules, er, dna, protein)
+        for role, (label, selector) in enumerate((
+            (tr("Microtubules (R)"), microtubules),
+            (tr("ER (Y)"), er),
+            (tr("DNA (B)"), dna),
+            (tr("Protein (G)"), protein),
+        )):
             selector.addItem(tr("Choose channel…"), None)
             for index in range(available):
                 selector.addItem(tr("Channel {position} (index {index})").format(
                     position=index + 1, index=index), index)
             if self._subcell_channels is not None:
-                role = len(selectors)
                 matching = selector.findData(self._subcell_channels[role])
                 if matching >= 0:
                     selector.setCurrentIndex(matching)
             form.addRow(label, selector)
-            selectors.append(selector)
         layout.addLayout(form)
         problem = QLabel("", dialog)
         problem.setObjectName("EmbeddingsSubCellChannelsProblem")
@@ -660,7 +667,8 @@ class EmbeddingsScreen(QWidget):
         """Measure the encoder's retrieval scorecard on the labels."""
         from ...embeddings import _scored_encoder_entry
 
-        entry = _scored_encoder_entry(self.spec(), self._frame, self._labels)
+        spec = getattr(self._result, "spec", None) or self.spec()
+        entry = _scored_encoder_entry(spec, self._frame, self._labels)
         self._entry = entry
         card = entry.metrics
         if not card:
@@ -702,18 +710,19 @@ class EmbeddingsScreen(QWidget):
     def _on_used(self, result) -> None:
         """Show the UMAP coordinates or the classifier scorecard."""
         use, answer = result
+        spec = getattr(self._result, "spec", None) or self.spec()
         if use == "umap":
             self._umap = answer
             self._fill_preview(answer)
             self._status.setText(tr(
                 "Image UMAP of {n} crops from {name}.").format(
-                    n=len(answer), name=self.spec().backbone))
+                    n=len(answer), name=spec.backbone))
             return
         self._status.setText(tr(
             "Classifier on {name}: accuracy {acc:.2f} ± {sd:.2f} over "
             "{folds} folds (chance {chance:.2f}), {n} crops in {classes} "
             "classes.").format(
-                name=self.spec().backbone, acc=answer["accuracy"],
+                name=spec.backbone, acc=answer["accuracy"],
                 sd=answer["accuracy_sd"], folds=int(answer["folds"]),
                 chance=answer["chance"], n=int(answer["n"]),
                 classes=int(answer["classes"])))
@@ -1450,6 +1459,11 @@ class EmbeddingsScreen(QWidget):
             self._status.setText("Load crops first.")
             return
         if self._foundation.currentData() == "subcell_rybg":
+            if crops.shape[-1] < 4:
+                self._status.setText(tr(
+                    "SubCell's four-plane model needs crops with at least "
+                    "four channels. Load a suitable crop source first."))
+                return
             reason = self._subcell_mapping_error(
                 self._subcell_channels, int(crops.shape[-1]))
             if reason:
@@ -1487,7 +1501,7 @@ class EmbeddingsScreen(QWidget):
 
         from ...embeddings import encoder_entry
 
-        entry = encoder_entry(result.spec)
+        entry = encoder_entry(getattr(result, "spec", None) or self.spec())
         digest = entry.sha256[:12] + "…" if entry.sha256 else "no checksum"
         self._status.setText(
             f"{len(frame)} objects x {len(frame.columns)} dimensions. "
