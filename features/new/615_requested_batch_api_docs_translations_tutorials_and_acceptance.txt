@@ -1485,3 +1485,12 @@ inventory adds two public radius methods, changes four symbol documents,
 adds a watch-normalization setting and 19 UI sources while retiring 17.
 The old twelve-theme overview needs correction to seven after integration;
 that count block is explicitly excluded from the 54 drafts. Broader N615 OPEN.
+
+2026-10-06 — INITIAL API AUDIT TERMINAL; STABLE-SOURCE RECHECK STARTED
+Handle 61808 actually ended 1 on sv/README: RST link targets changed. The
+localized README rebuild overlapped the audit; all completed READMEs now pass
+exact preservation and existing URL/markup contracts. This does not waive the
+full audit. A fresh normal --audit against stable source checkpoint 0d4d0acdc
+is live as handle 49565. The initial terminal log and actual follow-up ledger
+are archived under data/615_home_API_written_checkpoint_2026-10-06/.
+No final API acceptance claimed. Do not restart on an observation timeout.

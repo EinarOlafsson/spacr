@@ -18,7 +18,11 @@ English referral contract pass. Receipt: data/615_readme_referral_2026-10-06.jso
 The older frozen API generator has written all ten 13,193-symbol catalogs;
 all 225 new reviewed blocks and 13,175 unchanged complete records per catalog
 are exact, with all 1,087 original API/1,990 runtime review files preserved.
-Its full normal API audit remains live and is not yet accepted. Coverage and
+Its initial full audit ended 1 on sv/README link targets during a concurrent
+README rebuild. The fresh stable-source all-nine --audit is live as handle
+49565; final acceptance remains unproven. Original terminal log and follow-up
+are in data/615_home_API_written_checkpoint_2026-10-06/. Do not restart it
+after an observation timeout. Coverage and
 review-scope reports have been normally regenerated; both existing exact
 report checks pass. Receipt: data/615_localization_reports_2026-10-06.json. Home 1f3e4a240's seven-theme/radius/native-watcher source is
 NOT yet integrated here and needs the subsequent normal refresh. N615 stays
