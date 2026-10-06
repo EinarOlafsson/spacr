@@ -1,5 +1,34 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 preceding all-nine catalog recovery accepted
+The preceding frozen Root source now passes both unchanged normal all-nine
+runtime and API terminal audits after exactly two source-bound technical
+records repaired Swedish canonical mask-saving prose and the Hindi VideoMAE
+encoder tip. Scope is 13,196 API symbols, 1,243 settings, 237 categories,
+7,224 UI captions and 77 external modules. It is not the newer final source.
+The complete original failed catalog/review/history checkpoint contains 3,372
+files; the complete accepted catalog/review/history/source checkpoint contains
+4,039 files. Both ZIPs are preserved as bounded byte-exact parts, alongside
+full original failures, strict repair logs and source/code/input provenance in
+615_preceding_terminal_catalogs_2026-10-06.json,
+615_preceding_catalog_recovery_2026-10-06_r2.json and
+615_final_catalog_context_2026-10-06_r2.json. Concatenate each numbered ZIP
+part in order to recover its exact original archive. No historical catalogs
+were copied over the newer final integration.
+
+The final 13,199-symbol API GPU owner still runs on the frozen combined Home
+source. Exact prepared 18 SCN API and nine encoder runtime targets will be
+normally admitted only after both original owners terminate and their complete
+checkpoints are preserved. A guarded continuation then requires all-nine
+runtime/API audits, normal guide admission, five generated owners, strict
+Sphinx/all-nine guides and actual API/guide browser verification. Current
+narration has written 26 of 50 tracks; full decoding, native61-frame rendered
+fidelity, browser matrices and all85 candidate routes remain pending. Normal
+immutable upload/full hosted-byte readback is queued only after those gates.
+All GPU turns retain the real queue and source freeze. Home continues CPU,
+native and CI ownership; workstation retains GPU/API/docs/translations/
+tutorials. Final app/media deployment and Home crash closure are not claimed.
+
 ## 2026-10-06 contained native tutorial composer published
 The optional normal --copy-frames composer is now independently accepted:
 all59 native frame bytes and61 stage-contained scene paths match, all84

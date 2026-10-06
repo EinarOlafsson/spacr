@@ -1,0 +1,73 @@
+{
+  "scope": "Complete historical frozen-source catalog/review/source checkpoint after exact two-record normal repair and both normal all-nine terminal audits. Original failed runs and complete originals are retained separately. This accepts the preceding 13,196-symbol source, not the later 13,199-symbol final integration or its deployment.",
+  "preceding_source_commit": "50de2fdb0bb48554be8bd8d6e83ef55668f81e78",
+  "all9_preceding_API_and_runtime_audits_passed": true,
+  "preceding_API_symbols": 13196,
+  "original_failed_checkpoint_receipt": "features/data/615_preceding_terminal_catalogs_2026-10-06.json",
+  "original_failure_and_draft_context_receipt": "features/data/615_final_catalog_context_2026-10-06_r2.json",
+  "accepted_archive_files": 4039,
+  "accepted_archive_bytes": 116003415,
+  "accepted_archive_sha256": "272bdde949c423f1c1e99ce8c45e4ddbf3dc6ec0f1bb754c43b60f6bcd386e79",
+  "parts": [
+    {
+      "path": "features/data/615_preceding_catalog_recovery_2026-10-06_r2/accepted-complete-checkpoint.zip.part00",
+      "bytes": 33554432,
+      "sha256": "864d4d22658a0932c9553cc6396ab4eafa6f2f17eccc92d64238724bc013a11c"
+    },
+    {
+      "path": "features/data/615_preceding_catalog_recovery_2026-10-06_r2/accepted-complete-checkpoint.zip.part01",
+      "bytes": 33554432,
+      "sha256": "934fe13e5887d419bb3f8660642102c76f7d6a630b6956eac5f6b7a6a3e0627b"
+    },
+    {
+      "path": "features/data/615_preceding_catalog_recovery_2026-10-06_r2/accepted-complete-checkpoint.zip.part02",
+      "bytes": 33554432,
+      "sha256": "c210fe581f0745c3d9fb71084028ee09c95b411ea83f55287cb1de90d11a3708"
+    },
+    {
+      "path": "features/data/615_preceding_catalog_recovery_2026-10-06_r2/accepted-complete-checkpoint.zip.part03",
+      "bytes": 15340119,
+      "sha256": "83507e1ed48a7a5a46a69d4c5b2ef8a363fdb78b28538f71546512128d127ba0"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "features/data/615_preceding_catalog_recovery_2026-10-06_r2/preceding-terminal-catalog-recovery-r1.json.gz",
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/preceding-terminal-catalog-recovery-r1.json",
+      "original_bytes": 1291,
+      "original_sha256": "fa5e34395f7d2c58358be223160cc9ca5d69aec58dcea3b76880af7722c6d97b",
+      "archive_sha256": "bcc72fdddf6278e55471df7ee3f9dc4cd72e7d1efbc94a1e2df3f108b364d4cb"
+    },
+    {
+      "path": "features/data/615_preceding_catalog_recovery_2026-10-06_r2/preceding-terminal-catalog-recovery-r1.log.gz",
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/preceding-terminal-catalog-recovery-r1.log",
+      "original_bytes": 1634,
+      "original_sha256": "d2ca0fd32c049926158a9fb5b6e29f30c568500199dd2ae948464d10a2ff98ca",
+      "archive_sha256": "cba8b966ee86588d294240d16b05c2eb74114082e45d37046936bc04e741937c"
+    },
+    {
+      "path": "features/data/615_preceding_catalog_recovery_2026-10-06_r2/repair_preceding_terminal_catalog_checkpoint_r1.py.gz",
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/repair_preceding_terminal_catalog_checkpoint_r1.py",
+      "original_bytes": 4706,
+      "original_sha256": "1eeec49d5487b88e67d93bb027769d5f660f549d01e76f28958e600472d06e6f",
+      "archive_sha256": "0e20c9b4a64f96f6f284834410fd43621d53e0e53102f4740f810a0ae8e967b7"
+    },
+    {
+      "path": "features/data/615_preceding_catalog_recovery_2026-10-06_r2/archive_preceding_catalog_recovery_r1.py.gz",
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/archive_preceding_catalog_recovery_r1.py",
+      "original_bytes": 4686,
+      "original_sha256": "8cfeb485509630361d432ca488a56501c50097639a85d5a1e3fed0354300aafc",
+      "archive_sha256": "5d113236e9ff3469d7ec3b778c465b60a3ee98d75db432b1b6ff0371353f6a99"
+    },
+    {
+      "path": "features/data/615_preceding_catalog_recovery_2026-10-06_r2/archive_preceding_catalog_recovery_r2.py.gz",
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/archive_preceding_catalog_recovery_r2.py",
+      "original_bytes": 4780,
+      "original_sha256": "0337d89ad229a8cb61211b3b7c845531148069bfa9ad6cb4f0451c60f8e6eb82",
+      "archive_sha256": "3fa3b163705692137f3aedf8359e0fc4a5e5db35ed11882ce9e02914d71a40f5"
+    }
+  ],
+  "current_final_source_acceptance": false,
+  "native_speaker_signoff": false,
+  "published": false
+}
