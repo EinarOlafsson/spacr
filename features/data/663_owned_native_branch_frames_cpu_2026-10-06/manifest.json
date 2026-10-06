@@ -1,0 +1,145 @@
+{
+  "archive": "Exact owned growth/Thore frame checkpoint, independent of later appearance changes",
+  "files": [
+    {
+      "file": "REPRODUCE.txt",
+      "size_bytes": 2682,
+      "sha256": "ffa34d91296e198b2871489818eacb22d85a4815f877529c513ef5cc26981443"
+    },
+    {
+      "file": "after.py.gz",
+      "size_bytes": 97078,
+      "sha256": "97ed57d7cd35d8ea7c57becc6206c95d4c60593b36276a05b162d4f0d397cdb6"
+    },
+    {
+      "file": "allocation_probe.py.gz",
+      "size_bytes": 966,
+      "sha256": "6247f65f867a5f33d9d9f31474b7c57c5efa1d5dafe838ae85347c0c864aba19"
+    },
+    {
+      "file": "allocation_receipt.json",
+      "size_bytes": 1107,
+      "sha256": "d520b4d6d5300e7dee423dc510d32dac65b45042785a61d77fe47f050806e4b6"
+    },
+    {
+      "file": "before.py.gz",
+      "size_bytes": 96967,
+      "sha256": "726bdb1f73a4d42213e2b0d1d2c1402e0f6e31c2a69def0b161215ddbd9111af"
+    },
+    {
+      "file": "coverage-owned-final.gz",
+      "size_bytes": 725596,
+      "sha256": "ffc858bb33e3d90cc050bc5756dab53713f7b0d8a2dc7d34c17ff49e0d6d36b6"
+    },
+    {
+      "file": "coverage-owned-final.json.gz",
+      "size_bytes": 40682,
+      "sha256": "37ab01f3cd4621c42a054e490d90a2f37a501b40c0298df15fa2ebd4766083bf"
+    },
+    {
+      "file": "data_art_fungal_growth-after.json",
+      "size_bytes": 3385,
+      "sha256": "4186e79c4bffde0765dac13d3b045d01391584b9fe40a53cc7cc7cef1aa34963"
+    },
+    {
+      "file": "data_art_fungal_growth-after.log.gz",
+      "size_bytes": 668,
+      "sha256": "2e6836604eead5ac252df304d2c2d33914f4731b117033e4bba7c3d493b11a74"
+    },
+    {
+      "file": "data_art_fungal_growth-before.json",
+      "size_bytes": 3389,
+      "sha256": "f758cbefc3d379e67f692f3c8e8ec5d4deb9e55b2992d5fe0f15b1648f408e66"
+    },
+    {
+      "file": "data_art_fungal_growth-before.log.gz",
+      "size_bytes": 678,
+      "sha256": "ff593bc20fb5d24c448efe9e64d9317c5710358755ff5f10b93b3a43dbdf6b29"
+    },
+    {
+      "file": "data_art_thore-after.json",
+      "size_bytes": 3505,
+      "sha256": "0df0202c8c326fcc31d0b50a3bc2b985a4d4cd9f1ae76a6f10584834e2bf3fe2"
+    },
+    {
+      "file": "data_art_thore-after.log.gz",
+      "size_bytes": 694,
+      "sha256": "5cabec5f3865a58449d38d2f5795615e5a26b7ac2ea59e2eb76705b9820a9d96"
+    },
+    {
+      "file": "data_art_thore-before.json",
+      "size_bytes": 3511,
+      "sha256": "63027d6d3206e9bb0339355d0555085ca0815719f5a38ffd65bab2c3d6821eca"
+    },
+    {
+      "file": "data_art_thore-before.log.gz",
+      "size_bytes": 686,
+      "sha256": "705f032bc32da193fddb9e71d6859560f46610a42cf2ff2db35e9f62efbe6292"
+    },
+    {
+      "file": "exact_parity.json",
+      "size_bytes": 26659,
+      "sha256": "47b3d84f4313257ed90e47df25552a660ba78fe75e197c58874cb1094dc7daec"
+    },
+    {
+      "file": "exact_proof.py.gz",
+      "size_bytes": 1215,
+      "sha256": "91cc070ce5e3934b0abd1b84ade51d1ca226f4e031e1753b82973e16860cdc5c"
+    },
+    {
+      "file": "production_after.py.gz",
+      "size_bytes": 97069,
+      "sha256": "b6f0b59d586e5809a9ff7da21322851bab3ad244f987f80940f9813156b53b48"
+    },
+    {
+      "file": "production_owned_receipt.json",
+      "size_bytes": 573,
+      "sha256": "0012b3d4c74b536b25282a9b90bb9ad840fb243c696404377c1e840f1bfb3ea6"
+    },
+    {
+      "file": "production_source.diff.gz",
+      "size_bytes": 451,
+      "sha256": "17ade52a30c30855ac6d4be9050b2e0e29be66b24a8081128039fa6fdaf36246"
+    },
+    {
+      "file": "pytest-owned-final-cohort.log.gz",
+      "size_bytes": 329,
+      "sha256": "b3eda33ab1babdbaba46156e1591d15dc46050d391b7ea87816b1703b5082fd4"
+    },
+    {
+      "file": "reproduce.py",
+      "size_bytes": 1770,
+      "sha256": "af13b63a4ead8f4e4c567b69e2d3323ee27bada0e644cf91a09c2536dcd25a46"
+    },
+    {
+      "file": "run_workers.py.gz",
+      "size_bytes": 533,
+      "sha256": "858c44ff52f2da31cf6d010c2ac84d34b79525330859a38d50034ace92088cfa"
+    },
+    {
+      "file": "summary.json",
+      "size_bytes": 2471,
+      "sha256": "1cfc35f7ecd5dfdd5ce5d3e54e7937cd2740e1549a1bf8dc4e92f4ee548c38a7"
+    },
+    {
+      "file": "test_data_art_lifecycle.py.gz",
+      "size_bytes": 1199,
+      "sha256": "fb75a939e2a8835f3f64b5d021763f78438735b3af61b91a0938cf16e39f830f"
+    },
+    {
+      "file": "test_data_art_owned_branch_frames.py.gz",
+      "size_bytes": 1209,
+      "sha256": "42290351388369b735ae204e521d1d2deb26d33afc899676cfd49118d67d1d2b"
+    },
+    {
+      "file": "test_fungal_growth_engine.py.gz",
+      "size_bytes": 2369,
+      "sha256": "04eb29f621eed768b713a2b1f266da90bfabff895b8920fd557b13fa05c733af"
+    },
+    {
+      "file": "worker_probe.py.gz",
+      "size_bytes": 3110,
+      "sha256": "b52beaea6e9e74a61d7b0072e9f1b36c13f65614042c9adc3da97f4036c939ef"
+    }
+  ]
+}

@@ -171,3 +171,41 @@ shared machine; no GPU turn; scripts in /mnt/wd4tb/scratch/571/scripts)
     archival; the model run was not repeated. F567 remains OPEN for the
     application backend, real annotated Toxo events, GPU acceptance and the
     GUI annotation work. Workstation retains GPU ownership.
+
+2026-10-06 — ALPHA TRACKED-FIELD EVENT ANNOTATION GUI (CPU)
+    The Timelapse preview now offers an alpha event annotation editor for an
+    existing spaCR tracker CSV and its explicitly confirmed image sequence.
+    It labels actual track IDs at zero-based observed frames, checks finite
+    x/y positions so tracks are visible, reads movie frames lazily with a
+    six-frame cache, and stages add/edit/remove actions without writing on
+    Cancel. Save preserves other fields and objects, validates the staged
+    table with _event_read_annotations, and atomically replaces the CSV only
+    when its loaded annotation and tracker identities still match. The
+    settings callback receives the saved timelapse_events_annotations path.
+    One observation cannot receive two event classes: existing, staged and
+    detector-reader rows all reject that order-dependent input. GUI-written
+    rows bind to the exact tracker prefix and CSV SHA-256; event fitting
+    refuses wrong or changed sources before model setup, while legacy
+    manually supplied annotation CSVs retain their old behavior. Existing
+    unbound rows can be upgraded only after an explicit confirmation of the
+    current tracker. Annotation load binds the before-read file digest and
+    rejects an external edit made during parsing; output paths cannot alias
+    the input tracker or image sequence. Source-exact bounded CPU/offscreen
+    tests: 112 passed,
+    including real TIFF reader roundtrip, alpha switch, invalid inputs and
+    interrupted edits; 420/420 added editor lines and 148/148 branches plus
+    26/26 added detector lines and 14/14 branches hit.
+    Reproducer and frozen source/test receipt are in
+    data/567_event_annotation_editor_2026-10-06/. This closes the GUI work
+    identified on October 2. F567 remains OPEN for pretrained application
+    backend, real annotated Toxoplasma events and GPU acceptance; synthetic
+    GUI table acceptance is not scientific event detection acceptance.
+
+2026-10-06 — ROOT GUI INTEGRATION ACCEPTED (GUI CHILD100%)
+    Seven affected GUI/event files pass126under4GiB/offscreen/CUDAhidden,
+    after all alias/read-race/tracker/conflicting-observation protections.
+    Terminal source-bound root receipt:
+    data/43_cpu_acceptance_checkpoint_2026-10-06/f567-root-integration.log.gz.
+    This closes the requested annotation GUI only. Parent567still requires
+    pretrained backend integration and real annotated Toxoplasma/GPU evidence;
+    workstation's VideoMAE checkpoint remains separately owned.

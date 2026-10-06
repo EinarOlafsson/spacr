@@ -346,7 +346,8 @@ def test_no_two_apps_render_the_same_picture_by_accident(qapp):
     for key, name, *_rest in APPS:
         icon = _icon_for_app(key)
         assert icon is not None and not icon.isNull(), f"{name} has no icon"
-        blob = bytes(icon.pixmap(48, 48).toImage().constBits())
+        image = icon.pixmap(48, 48).toImage()
+        blob = bytes(image.constBits())
         by_pixels.setdefault(blob, []).append(name)
     shared = {frozenset(v) for v in by_pixels.values() if len(v) > 1}
     # Every REGISTERED app, not just the tiled ones. A module folded into

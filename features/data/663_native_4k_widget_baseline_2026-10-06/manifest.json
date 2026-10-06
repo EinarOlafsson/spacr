@@ -1,0 +1,42 @@
+{
+  "source_commit": "fac1d5ef28",
+  "ambient_sha256": "873602649bf67b9251d388dd04348445c4494faa5770f33d8dd0b19a233c48a0",
+  "scope": "Real AmbientWidget/FrameProducer/GUI heartbeat and Xvfb 3840x2160, CUDA hidden, 4GiB capped",
+  "limitations": [
+    "Checkpoint baseline precedes final advection, culling and satin integration.",
+    "Not all-theme native24FPS acceptance.",
+    "Light paper varies with shared host load; both sequence and isolated result retained.",
+    "Original probe scripts assert their exact frozen worktree path; archived originals are evidence, not portable current-HEAD acceptance.",
+    "No reproduction or fix for the reported native Save crash."
+  ],
+  "files": {
+    "fac1-ambient.py.gz": {
+      "sha256": "aedc22d3f87e5e0f9393bbe4f739e3f5fcf535569c2813c6563d28b763f4df76",
+      "bytes": 94325
+    },
+    "live_4k_light_paper_repeat.json": {
+      "sha256": "a5662aa552777a189e4584f4d50e60a88260dad762e26d0bf9e8438cf1dbe657",
+      "bytes": 1702
+    },
+    "live_4k_light_paper_repeat.log.gz": {
+      "sha256": "3c3d26b090b21f6467b074462c0ed61aba6b2733d7fd53092116ecfc64d56886",
+      "bytes": 679
+    },
+    "live_4k_light_paper_repeat.py": {
+      "sha256": "4c383c740230f656c07e1f147147159ee9f23e640c433b50f791509dd0279b1d",
+      "bytes": 866
+    },
+    "live_4k_probe.log.gz": {
+      "sha256": "145763dbb6d8352989903ada01d4f53ad3781bbd4e570da657c53eb6622b0a0c",
+      "bytes": 2547
+    },
+    "live_4k_probe.py": {
+      "sha256": "7fc040778fb74fce0912c975bb58a603349d06534293439a544bcbee9d292119",
+      "bytes": 7944
+    },
+    "live_4k_result.json": {
+      "sha256": "9cc9535f79ec541320c8a9a8537be7cb07a5458e98bfdabf45d473f8e0877b59",
+      "bytes": 11987
+    }
+  }
+}

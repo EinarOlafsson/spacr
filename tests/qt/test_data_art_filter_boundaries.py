@@ -15,7 +15,8 @@ def test_manual_stop_releases_gravity_click_filter_until_restart(qtbot):
     host = QWidget()
     qtbot.addWidget(host)
     host.resize(360, 240)
-    backdrop = ambient.install_ambient(host, theme="data_art_impulse_lens", seed=7)
+    backdrop = ambient.install_ambient(host, theme="data_art_impulse_lens", seed=7,
+                                       gravity_radius=0.5)
     button = QPushButton("Run", host)
     button.setGeometry(140, 90, 80, 40)
     clicks = []
@@ -52,7 +53,8 @@ def test_gravity_filter_ignores_outside_clicks_and_deduplicates_one_point(qtbot)
     host = QWidget()
     qtbot.addWidget(host)
     host.resize(360, 240)
-    backdrop = ambient.install_ambient(host, theme="data_art_impulse_lens", seed=7)
+    backdrop = ambient.install_ambient(host, theme="data_art_impulse_lens", seed=7,
+                                       gravity_radius=0.5)
     inside = QPushButton("Inside", host)
     inside.setGeometry(20, 20, 60, 30)
     outside = QPushButton("Outside", host)

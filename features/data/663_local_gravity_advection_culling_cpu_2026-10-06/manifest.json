@@ -1,0 +1,100 @@
+{
+  "date": "2026-10-06",
+  "scope": "CPU local gravity, evolving vortices and exact conservative culling",
+  "limitations": [
+    "Native 24 FPS all themes remains OPEN.",
+    "No Save-crash cause or fix demonstrated.",
+    "Full source files are the individual agent checkpoints; integrated renderer source differs by catalog/widget changes.",
+    "Satin wave prototypes are not accepted by this archive."
+  ],
+  "files": {
+    "advection-ambient.py.gz": {
+      "sha256": "6df65dc14ce8857adfd2ecb7fab117b923049fbf7ee14e43aa6f02a70bcb6d8d",
+      "bytes": 93158
+    },
+    "advection-change.diff": {
+      "sha256": "5a18231c3f5cd0d64fd61584a1e0a08e16597db3cf4bc9994de5ca3119995b80",
+      "bytes": 3703
+    },
+    "advection-new-source-coverage.json.gz": {
+      "sha256": "7ba11716cb9b1851e2d5dc3547fefe5adf79f6958b14160b79603c3326bec9e8",
+      "bytes": 206
+    },
+    "advection-worker_gui_perf.json": {
+      "sha256": "01e7c20b11592e416b5cb31228ceca965748c386b092b178572ca64723ae9b85",
+      "bytes": 12939
+    },
+    "advection-worker_perf.py": {
+      "sha256": "2a80ac798f7e85d5bc98dfe709df49e1b61731008b0287c4ce32ecf6db612e21",
+      "bytes": 8505
+    },
+    "atlas-culling-order-balanced.json": {
+      "sha256": "70259ffc1cba6c5ff4a640aacd77cb55de7eeab302f389b3ef292875c4eb4382",
+      "bytes": 239
+    },
+    "atlas-radius-culling-perf.json": {
+      "sha256": "5f9b679a4e233f99d856362f84aa81553b44140a845a3b76bdae9e57fd0966dd",
+      "bytes": 1173
+    },
+    "coverage-advection.json.gz": {
+      "sha256": "5084acc230ea2a55fc982cdd8467784a315388aed14df40cacffac1579357b16",
+      "bytes": 37102
+    },
+    "coverage-culling.json.gz": {
+      "sha256": "e2ffbb32855508713e8b40f0cc79eaf9edc18068dd5456be3015a65834883714",
+      "bytes": 35768
+    },
+    "coverage-radius.json.gz": {
+      "sha256": "c28494d97aa9f44055b7d9a253244c6e800a3e97e7bd71c98558e5c442eda40c",
+      "bytes": 36573
+    },
+    "culling-ambient.py.gz": {
+      "sha256": "aad559d035d492e5467e5b42ed05e43e70767d1306c3ad6175ca580cd9cb7b02",
+      "bytes": 93170
+    },
+    "culling-change.diff": {
+      "sha256": "1f5cd110d9759657325d6614419cfe9525d6d64dea9820de0e43f655bc69dbb0",
+      "bytes": 1661
+    },
+    "culling-new-source-coverage.json.gz": {
+      "sha256": "55ed3eacad3340d9b2ff82d1bc8a5d13055886f3a4d89462be9deb9fa59f826a",
+      "bytes": 206
+    },
+    "pytest-advection-01.log.gz": {
+      "sha256": "dbe5614ad1c7f47041d7f1b43dade8defd1bf01966d0c016b9dbfc80ba52551c",
+      "bytes": 53
+    },
+    "pytest-culling-01.log.gz": {
+      "sha256": "66f813e568e49ec8283af117e3b80e610be34fa17d9fad40d6fcfe4524ad497e",
+      "bytes": 692
+    },
+    "pytest-radius-01.log.gz": {
+      "sha256": "11ed111dbd24413083de25cbfcc30a2d1fcb3379facf4cde6667dcaf6c5e8972",
+      "bytes": 568
+    },
+    "radius-ambient.py.gz": {
+      "sha256": "0627bd1c8e31a5a879f088892ce8e18deee963d911f369c92522cf3236da8504",
+      "bytes": 92754
+    },
+    "radius-change.diff": {
+      "sha256": "9b7c0a0b4fc0d53fc602d67434312e822c8f6c1b19ca5386854a50603ab07b1d",
+      "bytes": 12491
+    },
+    "radius-new-source-coverage.json.gz": {
+      "sha256": "097dc31c2d2ccc0c114419c61a2ee57e6b33a1e336f0da29054a2c4752b5740a",
+      "bytes": 205
+    },
+    "source_trace_receipt.py": {
+      "sha256": "f33c40820d33a08bb908b577b8586f62246d8a543db1b23ed3eee276d3545a3b",
+      "bytes": 1446
+    },
+    "test_data_art_advection_evolution.py": {
+      "sha256": "658619a97af3a22af71517fde764dbaa66bbfdeb2e0355cbc347f0548076e80b",
+      "bytes": 1122
+    },
+    "test_data_art_gravity_and_geometry.py": {
+      "sha256": "1616b37e9d57e91a258cfc6bf043e25ab928b7ee28878c28b4accf934fafbd80",
+      "bytes": 10479
+    }
+  }
+}

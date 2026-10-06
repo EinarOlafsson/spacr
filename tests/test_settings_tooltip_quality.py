@@ -997,7 +997,9 @@ def test_real_default_claims_have_no_unrecorded_drift():
                              for app in ("measure", "external_masks")}
     assert item_537_min_division <= compared_pairs
     assert ("mask", "watch_classify_settings") in compared_pairs
-    assert comparisons == 919
+    item_548_pool = {("mask", "watch_normalization_pool")}
+    assert item_548_pool <= compared_pairs
+    assert comparisons == 920
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -1046,6 +1048,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
             + len(item_631_all)
             + len(item_470)
             + len(item_537_min_division)
+            + len(item_548_pool)
             == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs

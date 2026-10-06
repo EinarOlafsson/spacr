@@ -1192,3 +1192,36 @@ WHAT IS LEFT: the maintainer's own look on a real display. Translations stay
 with future/411; no new user-visible string was added.
 
 VERIFIED 2026-10-04: 18 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
+2026-10-06 new workstation-owned user follow-up, OPEN:
+Requested: "move the clear masks button to the left of discard" and clear
+every mask in the current image only after a warning popup. The user also
+reports that Draw/other mask edits disappear after Save, Next, quit/reopen,
+while Box annotations persist. Investigate actual save/reload persistence;
+preserve acquired pixels, undo and separate box annotation history. Prior
+right-click request remains pending clarification of boxes versus mask labels.
+
+2026-10-06 workstation save/reopen and Clear placement repair accepted:
+Real Draw and Brush mouse edits reproduce the reported disappearing-mask
+behavior when a same-extension PNG/TIFF draft shadows the saved canonical
+.tif. The loader now prefers the file save_mask actually writes. Save, Next,
+close and a fresh screen restore exact saved labels for .tif/.tiff/.png;
+acquired image bytes remain unchanged. Clear all objects now sits immediately
+left of Discard, asks with the existing confirmation popup before removing
+every segmentation label, and preserves exact cancellation/undo behavior.
+Existing Box annotations and their right-click deletion remain independent.
+All146 affected screen/box/persistence checks and61 engine/recovery checks pass
+CUDA-hidden under8GiB. Original four failures and accepted evidence:
+data/419_mask_save_reopen_2026-10-06.json and its folder. Two popup source
+strings use tr and await the workstation's normal all-nine refresh with the
+next integrated Home source; no current multilingual/publication claim.
+
+2026-10-06 workstation Divide / Merge follow-up accepted:
+The toolbar now says Divide / Merge. Left-button drag retains division;
+right-button drag merges all crossed labels into the first crossed identity,
+without painting background or touching unrelated objects. No-op lines do
+not delete objects or add history. Undo/redo, later Brush/Wand edits, Save,
+Next and fresh-screen reopening preserve exact manually grouped IDs. The
+final268 affected checks pass, including32 independent Box cases. Complete
+before/after logs and source identities are retained in
+data/419_417_manual_merge_drag_2026-10-06.json. Normal multilingual source
+refresh and current tutorial recording remain workstation follow-up work.

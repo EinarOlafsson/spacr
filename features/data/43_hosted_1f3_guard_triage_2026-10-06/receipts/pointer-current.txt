@@ -1,0 +1,4 @@
+Source base: d139ffe70c, with two local test/guard commits 8f4cbe1 and 8b81a05.
+Command: CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G /mnt/wd4tb/scratch/item47-memory-codex-20261005/ci-near-parity-venv/bin/python -m pytest -q -p no:randomly tests/qt/test_data_art_renderer.py::test_pointer_poll_is_limited_to_active_window_and_widget
+Result: 1 passed in 1.53s; process exit 0.
+This single-node replay does not establish original-shard/order stability.

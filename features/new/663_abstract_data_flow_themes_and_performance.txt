@@ -444,3 +444,321 @@ INTEGRATED USER MENU/GRAVITY/NEW RENDERERS (2026-10-06, partial)
     GUI QTimer cyclic GC within app.exec; idle ambient worker is not proof
     of a renderer cause. Native4K frame-budget limits remain OPEN. Latest
     labels/slider/source API require workstation normal multilingual refresh.
+
+2026-10-06 — Home CPU: finite local gravity and still paper source
+The DataArt engine now defaults its shorter-edge mouse influence radius to
+zero; finite values clamp to [0,1], and NaN/Inf disable influence. Zero ignores
+pointer movement and clicks without stopping the autonomous field, waves or
+flow. Enabled mouse gravity has smooth compact support, with no displacement
+outside its chosen radius. Lens click/movement wakes remain bounded to 24
+entries/five seconds, store only the finite participating lattice region,
+and are cleared with cached wake fields when radius changes. Atlas culling
+includes the maximum local gravity displacement; native uncropped-grid
+comparisons at five pointer extrema preserve every visible perimeter grain.
+Paper facets retain seeded crisp topology, stop autonomous vibration, and
+lift/displace locally under enabled mouse influence, returning to the exact
+original scene when influence is disabled. Explicit legacy pointer/click tests
+now opt into gravity instead of contradicting the new disabled default.
+The focused actual CPU/Qt cohort passes 127 cases under 4 GiB, CUDA hidden;
+73 added executable source statements and 21 touching arcs have no gaps.
+Source-bound reproduction/trace evidence is in scratch theme-refinement-
+20261006/visual-revision/ (radius source SHA 5ab81a3ec1e31944faaea00eb66cc47e
+6428d8cee1a7e280008e2c3c4426057e). Satin/advection revision and native 4K
+24-FPS acceptance are separate pending work. No native Save-crash fix claimed.
+
+2026-10-06 — Home CPU: changing advection structures, separate from satin
+The deterministic advection painter now varies its local speed, filament
+shape and three seeded migrating whirlwinds continuously in animation time.
+Twelve tapered native grain samples remain for each actual spawned particle;
+a bounded three-sample trajectory/tangent/curvature construction avoids
+repeating every vortex calculation twelve times. Existing density, size,
+speed, palette, native raster and disabled-by-default local gravity contracts
+remain intact. Resetting the clock restores the same scientific-style scene;
+actual sampled flow velocities differ across time rather than staying fixed.
+The isolated flow/radius/renderer/clock cohort passes 60 under 4 GiB; all
+31 added executable source statements and four touching arcs are exercised.
+Source SHA: 2f9f777c6a71479c3a9158bcf27cb78f61559f003d4bb7aeb146ae203fba8602.
+The source-matched painter in the archived combined wave/flow worker probe
+improved active native4K advection from 20.11 to 21.95 published FPS at radius
+1.0; worker shade p95 remains 60.06 ms, so native24FPS remains OPEN. Both
+1080 paths were about23.71 FPS. Evidence is scratch theme-refinement-
+20261006/visual-revision/, including advection-new-source-coverage.json and
+wave-flow-worker/worker_gui_perf.json. Satin still belongs to a separate
+pending revision. The radius test helper now retains its QImage while copying
+bits; a temporary diagnostic-image lifetime error is not a Save-crash fix.
+
+2026-10-06 — Home CPU: radius-aware conservative terrain pool
+The atlas pool now uses its actual slope/crest bounds instead of retired
+whole-plane yaw/tilt bounds. Disabled mouse gravity needs no additional
+pointer margin; positive radius adds the proven maximum0.055 shorter-edge
+local displacement. Radius changes rebuild the seeded bounded pool. Grain
+spacing, seed, raster resolution, density and every visible pixel stay exact.
+The native uncropped-grid cohort passes86 under4GiB, including radius0/1,
+five pointer extrema, three clocks and four size/density/detail settings;
+72 additional paired complete4K frames match the previous wider pool.
+All six added executable statements and five touching arcs are covered at
+source SHA9da8a9dc346a887ad3e13307a8115e37f09d7f0ce73ae87927a6c10358f8d11c.
+Default4K cached coordinates fall from267288 to218994; positive reach uses
+250400. An order-balanced48-sample whole-shade comparison measured25.62ms
+before and26.34ms after, with stamp/allocation variation dominating, so this
+is reduced unnecessary terrain math rather than claimed end-to-end speedup.
+Receipts: scratch theme-refinement-20261006/visual-revision/,
+culling-new-source-coverage.json, atlas-radius-culling-perf.json and
+atlas-culling-order-balanced.json. Native24FPS acceptance remains OPEN.
+
+2026-10-06 — portable source-bound refinement evidence
+The local-radius, evolving-advection and conservative-culling checkpoints
+are now archived losslessly at
+data/663_local_gravity_advection_culling_cpu_2026-10-06/. The source files,
+diffs, coverage receipts, actual tests and measured comparisons retain their
+individual checkpoint identities. Satin wave prototypes are excluded.
+Integrated native4K frame-budget and reported Save-crash acceptance remain
+OPEN; reduced terrain work does not claim an end-to-end speed improvement.
+
+2026-10-06 — independently owned native point frames
+Source ea51dd4419 bypasses redundant native composition/copy for field,
+waves and advection, publishing each already-fresh owned QImage directly.
+Blur and synchronous composition remain exact; later shade/resize/caller
+mutation cannot change an earlier published image. 133 affected cases pass,
+including 12 full-native dark/light/blur parity cases and three ownership
+cases. A scratch pre-change prototype also compared18 full4K images exactly.
+Actual frozen Xvfb4K nine-case widget/producer/heartbeat probe exits normally,
+all workers stop on hide, peak RSS728.34MiB. Delivered field23.71FPS default,
+23.46 with cursor/clicks; waves21.95 default/23.80 cursor; advection23.91
+default/23.68 cursor. Light pointer cases23.99/23.92/23.77 respectively.
+These are shared-host observations, not all-theme24FPS acceptance. Archive:
+data/663_owned_native_point_frames_cpu_2026-10-06/. Satin and reported Save
+crash remain separate; no native crash fix claimed.
+
+2026-10-06 — accepted native satin waves and integrated ownership review
+Satin now transports the original native premultiplied fibres as smooth
+column waves through crisp filled folds, without interpolation or reducing
+resolution. Exact NumPy remains active during unavailable/disabled/failed
+CPU compilation. One shared bounded daemon copy queue adds at most one pure
+CPU helper; its owner joins every submitted batch before Qt draws anything.
+A runtime partial-copy failure joins first, restores every layer exactly
+with NumPy, then disables the optimization without per-frame retries.
+Only source views and374724bytes of geometry persist at default native4K;
+all cropped strip targets are frame-local and released after drawing. The
+rejected398MiB persistent draft and14FPS full-target revision are separate
+failed evidence, not accepted performance. The accepted strip revision
+publishes23.87FPS at native4K, shade median30.13/p9536.10/max45.33ms, with
+six repeated frames. Native1080 publishes24.11FPS in its finite probe.
+Cold compilation1.14s/cold heartbeat max64.56ms and first native show528.25ms
+are explicit costs; no no-stall or all-theme24FPS acceptance is claimed.
+Source4160916fa6/renderer9ea17982 passes152 focused tests; all145 added
+statements and41 touching arcs are covered. Thirty-two complete native4K
+NumPy/compiled pairs and16 complete-layer/cropped-strip oracle pairs match
+byte-for-byte, including light/dark/custom colors and fractional origins.
+Root9ad69bab29/renderer4de9fc51 integrates the owned point-frame dispatch.
+Read-only AST comparison confirms six satin helper/painter nodes and six
+point dispatch/frame/stamping nodes exactly preserve accepted source.
+Thirty-one integrated native parity/ownership/blur/clock/queue/hide cases
+pass under4GiB, CUDA hidden. Independent review confirms source lifetime,
+small retained geometry, failure fallback and join-before-paint ownership.
+Portable lossless source/test/coverage/diff and actual worker/proof receipts:
+data/663_satin_waves_cpu_2026-10-06/. Individual9ea source and integrated4de
+source are distinct frozen checkpoints. Offline sampled24Hz media is not
+live cadence. The reported Save SIGSEGV and all-theme native4K smoothness
+remain OPEN; narrow lifecycle success does not reproduce or fix that crash.
+
+2026-10-06 — frozen actual MainWindow native-4K Save and GUI-GC probe
+Source 9ad69bab29d9a4f1b2188dbe823cc52860793adf has ambient SHA-256
+4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5.
+Five isolated, 4-GiB-capped, CUDA-hidden Xvfb 3840×2160 application probes
+exited zero. The final run used real Home, Make Masks, Measure and Annotate
+screens with an active 3840×2114 ambient backdrop, then three modal
+Preferences Saves: Detail 2→1→2 and gravity radius 0→0.65→0. Each saved
+value was read back and asserted. Nine naturally scheduled cyclic-GC
+callbacks ran on the GUI thread; no forced collection was used. After
+MainWindow close and delivery of queued Qt DeferredDelete events, zero
+QWidgets, AmbientWidgets and shading workers remained. The complete scripts,
+logs, source identities and reproduction command are archived at
+`data/663_mainwindow_save_gc_2026-10-06/`. This bounded local probe did not
+reproduce the user's native Save SIGSEGV, identify its cause or prove all-theme
+native-4K smoothness. Both acceptance questions remain OPEN.
+
+2026-10-06 — frozen source native remaining-theme CPU audit
+Frozen 9ad69bab29 is measured in fresh capped 4 GiB CPU-only Python
+processes on software Xvfb at 3840 x 2160. Its ambient source SHA256 is
+4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5.
+Requested 24 FPS, detail 2, density 1, size 1, speed 1, blur 0, radius 0,
+seed 42 and custom blue/magenta stay unchanged. Data-art buffers are native
+3840 x 2160. Classic Aurora retains its existing 1920 x 1080 internal
+buffer, resampled onto the 4K display; native internal resolution is not
+claimed. After 2.2 seconds warmup, mature growth at 97 seconds publishes
+22.96 FPS: shade median 35.09 ms, p95 50.85 ms, max 65.03 ms; heartbeat
+p95 33.47 ms, max 47.21 ms. Thore publishes 23.39 FPS: shade median 31.35
+ms, p95 40.76 ms, max 61.83 ms; seven actual lightning shades have median
+43.30 ms and max 61.83 ms. Its heartbeat p95 is 40.79 ms, max 57.92 ms.
+Aurora publishes 23.99 FPS: shade median 9.83 ms, p95 13.94 ms, max 18.05
+ms; heartbeat p95 15.02 ms, max 23.81 ms. Three fresh dark waves/atlas
+steady five-second windows publish 23.79, 23.99 and 23.79 FPS, with shade
+medians 17.04, 16.25 and 20.33 ms and p95 30.50, 23.84 and 32.38 ms.
+The earlier shared-load 21.95 FPS waves sample does not reproduce here;
+this is not a universal 24 FPS guarantee. Distinct clock counts are
+explicit, including 110 growth clocks across 115 publications. Every
+worker stops immediately on hide. Cold first shows cost 86.61 ms for
+growth, 92.82 ms Thore, 54.72 ms Aurora and 186.45 ms waves. The first two
+seconds of cold waves publish 17.99 FPS with shade p95 126.58 ms, max
+166.35 ms during CPU compilation. Cold behavior is separate from steady
+acceptance. The original native stills show fine branch/rain/dot strokes,
+restrained dark contrast and smooth classic Aurora bands. Aesthetic
+acceptance remains the user's; growth placement depends on seed/time.
+Receipts, probes and five lossless 4K stills are archived at
+ data/663_native_remaining_theme_audit_cpu_2026-10-06/.
+Growth/Thore late frames, all-theme smoothness and the reported Save
+SIGSEGV remain OPEN. This audit changes no app source or crash diagnosis.
+
+2026-10-06 new user follow-up relayed to Home:
+Smoother Thore rain; lighter lightning with vertical and occasional horizontal
+branches; visible graded slider effects at1%/10%/50% rather than only on/off;
+lower density floor; spaCR growth branching like the supplied mycelium GIF.
+Exact request, reference provenance and observed branching are in
+ data/663_user_theme_followup_2026-10-06.txt. Slider identity clarification is
+pending; audit both radius and density. Prior default-zero mouse influence,
+fading trails and25% growth occupancy remain requirements. These are new
+requests, not completed acceptance. Home owns CPU/theme refinement and native
+Save investigation; workstation retains all GPU/API/docs/translations/tutorials.
+
+2026-10-06 — exact independently owned growth and rain frame publication
+Source 9b9e2ffea7, integrated as 1f6c799e96, shades growth/Thore with the
+same native RGB32 painter, composition, colors and blur into an image the
+caller already owns. This removes the redundant publication copy and
+33,177,600 retained engine bytes at 4K. Five frames allocate five owned
+images rather than one retained buffer plus five deep copies; published
+pixel dimensions and memory limits are unchanged. Existing buffer-identity
+tests now check actual owned output memory; they do not waive the ceiling.
+Eighty-five affected tests pass. All 22 added executable statements are
+covered; no new touching branch arcs. Ninety-six scratch complete native
+pairs and 40 production buffered-reference pairs preserve dark/light,
+custom colors, blur, seeded clocks/rewinds and frame memory independence.
+Errors end their painter and cannot mutate a previously published frame.
+Production source SHA256 is
+22166400010e43fbc4c6774c5cbfc062ebdf73b76e160dbb60751cab7608d2f9.
+Its full executable AST equals the measured prototype; only two new shader
+docstrings differ. Mature growth publication improves 22.84 to 23.80 FPS,
+shade median 36.88 to 19.83 ms, p95 50.62 to 31.73 ms. Thore publication
+improves 23.36 to 23.99 FPS, shade median 31.39 to 5.95 ms, p95 44.05 to
+14.35 ms; actual lightning max falls 62.97 to 16.18 ms. All workers stop
+immediately on hide. Growth peak RSS falls 359.75 to 329.26 MiB, steady RSS
+is unchanged near 299.5 MiB; Thore peak falls 360.54 to 296.79 MiB, steady
+RSS 299.43 to 236.54 MiB. Actual publication/clock/paint/repeat counts remain
+explicit: one growth after window repeats 18 painted objects versus 10
+before, so this is not proof of universal displayed 24 FPS. New density
+and visual follow-up changes remain separate. Portable before/after source,
+proof, live worker/allocation and coverage evidence is archived at
+ data/663_owned_native_branch_frames_cpu_2026-10-06/.
+No Save crash fix or user aesthetic acceptance is claimed.
+
+2026-10-06 — one-percent Preferences controls and dynamic Help strip
+Animation density now supports and saves exactly1% as requested. Both density
+and mouse radius preserve1/10/50% with one-percent keyboard steps; the separate
+radius default/off remains0. Custom colors use the existing safe picker;
+Cancel does not save, and Save applies the complete selected pair. Theme and
+color changes preserve Help-strip explanations and accessible descriptions
+without restoring popup tooltips. All114 affected checks pass; exact default
+claim inventory additionally passes after naming its one new Watch-pool pair.
+Receipts: data/663_preferences_density_help_cpu_2026-10-06/. Renderer density
+refinement, newer gravity/palette/mycelium requests and Save crash stay open.
+2026-10-06 user clarification relayed to Home: spaCR advection should pull
+particles toward the cursor as an attractive point, strongest near the center
+with smooth falloff to zero at the selected radius. Default radius 0 remains;
+graduated reach and outside-radius evolving flow remain requirements. Exact
+quote and current pointer-rotation source observation:
+data/663_advection_point_gravity_request_2026-10-06.txt. This is a new request,
+not acceptance. Home owns renderer/native validation; workstation retains all
+GPU/API/docs/translations/tutorials. Earlier Thore/density/mycelium feedback
+and reported Save SIGSEGV remain open.
+
+2026-10-06 additional user request relayed to Home: an optional Random colors
+animation palette with many varied colors across the themes' elements.
+Stable element colors are the implementation interpretation to avoid frame
+flicker. Exact quote, existing palette integration points and requested Save/
+visual validation: data/663_advection_point_gravity_request_2026-10-06.txt.
+Home owns source/native work; workstation retains source-bound API/runtime/
+guide translations and all GPU work. This request is not yet acceptance.
+
+2026-10-06 user fixes the requested Animation density minimum at exactly 1%
+(normalized 0.01). Current shared DENSITY_RANGE floor 0.25 clamps 1% and 10%
+to the same actual value; Home must change the shared range and examine
+theme-specific count floors, including Thore rain. Save/restore 1% and verify
+graded visual counts/spacing at 1%, 10% and 50%. Mouse gravity separately
+keeps its 0/off default. Exact quote and source observations are appended to
+data/663_advection_point_gravity_request_2026-10-06.txt. Requested, not accepted.
+2026-10-06 CPU controls/Thore/compiler source checkpoints:
+Density9e9b27f366 removes coarse low-density plateaus for offered blobs, Aurora,
+paper, satin and rain. Aurora's bounded ray/surge cache keys now bind peak alpha;
+fractional weighting applies only below one coarse element.88 focused cases pass;
+all ten offered actual1%/10%/50% rasters differ;30 native dark/light .5/1/2-density
+fresh-engine comparisons preserve all prior pixels. Native point/flow radius
+already grades strongly without a rewrite. Paper's centre-sampled1% region can
+miss tile centres (0 changed pixels at cursor.5,.5), explicitly still OPEN.
+Thore7fd53aeff5 tapers rain along continuous wind/fade and draws narrower pale
+connected horizontal/vertical branching lightning.39 focused cases pass; actual
+native4K software-Xvfb before/after published23.962/23.997FPS, shade p9514.304/
+18.923ms,120 distinct clocks in each run. Publication p9548.33/51.23ms remains
+over41.67ms; this is no universal smoothness or user-aesthetic acceptance claim.
+Compiler9aefdd563a adds private application begin/complete gates to both lazy
+CPU helpers, including worker-entry race resets and six missing private callable
+docstrings. Fresh1920 lens/satin frames import neither NumBa nor SciPy until
+explicit release; compiled/fallback bytes then match, warmup1.021s. Root owns the
+separate actual Home post-paint app/timing integration and installed/hosted checks.
+Renderer evidence alone does not close Home startup, GitHub green or Save SIGSEGV.
+Exact renderer checkpoints, compact sources, tests, portable capped CPU probes,
+original native density/radius and live Thore receipts, and four lossless frames
+are archived at data/663_theme_controls_thore_startup_cpu_2026-10-06/.
+Mycelium appearance, random colors, inward field gravity and final acceptance
+remain active separate work; reported crash/all-theme24FPS stay OPEN.
+2026-10-06 connected mycelium and primitive-centre radius checkpoints:
+Renderer204f819938 replaces the travelling vine with fine connected common-origin
+fans: progressive irregular forks, dim established filaments, bright advancing
+tips, and overlapping110-second colony fade without full-frame resets. Density
+selects ancestor-first prefixes from finite240-branch trees; only8 colonies are
+cached, and arbitrary two-hour seeks remain deterministic.53 focused cases pass;
+all51 added executable statements and26 touching arcs are covered, zero gaps.
+Real dark/light25% ink bounds at control extremes, native ownership/lifecycle and
+fractional growth/birth continuity are preserved. Actual4K default sampled ink
+at97s is0.007591;80s1%/10%/50% populations are18/136/550 visible edges. Native
+frames were inspected, with appearance acceptance remaining the user's.
+Fresh software-Xvfb4K before/after publishes23.997/23.779FPS; shader medians
+21.500/16.784ms, p9534.471/26.569ms, all120/119 publication clocks distinct.
+Publication p9564.211/50.985ms and earlier shared-load p9546.62ms prevent a
+universal24FPS claim. Default density/native detail were not reduced.
+Tests-only0fb0c875a3 closes the paper radius audit under its explicit primitive-
+centre model: native1% physical21.6px reach aimed at a seeded tile centre affects
+exactly1 primitive and5452 pixels; clearing pointer restores exact resting bytes.
+Between-centre1% regions may legitimately target zero, retained as a limitation;
+no expanded radius, minimum or new physics was introduced. The audit is complete
+under that contract, not an assurance of nonempty response at every cursor.
+Compact immutable sources,53-case branch trace, actual worker/frames/radius
+receipts, four lossless stills/crops and portable capped CPU probes live in
+ data/663_mycelium_and_paper_radius_cpu_2026-10-06/.
+Random colors, inward advection point gravity, final installed/hosted acceptance,
+all-theme smoothness and the reported Save SIGSEGV remain separate active items.
+
+2026-10-06 — bounded advection cursor-gravity implementation
+Commit bf4a965280 replaces the prior pointer-local advection rotation with
+smooth inward attraction computed from three recent moving trail samples.
+The effect is strongest near the center and exactly zero outside radius;
+the radius-zero default remains exact, and 1%, 10% and 50% reach have
+measured graduated influence. This is a finite trail-history approximation,
+not a physical integrator or a guarantee that background wind cannot give
+some particles an outward total velocity. Ninety-two focused Qt cases pass
+under 4 GiB. Actual native4K AmbientWidget/FrameProducer probes published
+23.81 FPS at 25% and 23.94 FPS at 50% on this machine, with 75 distinct
+clocks and worker shutdown on hide. Exact source hashes, radius counts,
+portable replay scripts, source-bound worker JSON and full-dimension
+review stills are in data/663_advection_gravity_cpu_2026-10-06/. User
+aesthetic acceptance, reported Save SIGSEGV and remaining N663 work stay
+open.
+
+2026-10-06 — integrated user revisions accepted; broader performance OPEN
+    Common-origin mycelial fans and inward-history advection are implemented
+    and verified in their exact source-bound archives, closing those children
+    at100%. Paper1%radius audit is complete: cursor on real native4Ktile
+    changes5452pixels, restoring pointer returns original bytes; between
+    tile centers it may legitimately affect no tile. Root56density/radius/
+    Preferences cases pass. Parent663still retains Random colors, universal
+    high-detail/max-density frame-budget limitations and unreproducedSave
+    SIGSEGV. Paired live native timings are averages, not hard24FPS promises.

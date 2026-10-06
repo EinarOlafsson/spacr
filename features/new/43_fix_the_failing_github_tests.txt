@@ -2723,3 +2723,61 @@ after the run started; unconfirmed on CI.
   failing-child exit/log/manifest and separate-session SIGINT assertions.
   No local Python 3.9 is installed; its fresh hosted MinDeps verdict remains
   required. This repair does not waive either observed failure mode.
+
+2026-10-06 — OLDER 1F3 HOSTED FAILURES CLASSIFIED; CURRENT VERDICT OPEN
+  Exact old tests run 37494090176 failed in seven coverage/slow jobs. The
+  unedited logs, SHA-256 manifest, source patch and bounded local receipts
+  are archived in features/data/43_hosted_1f3_guard_triage_2026-10-06/.
+  The current Home source repairs obsolete retired-theme test subjects while
+  retaining meaningful abort and measured performance assertions, places
+  watch_normalization_pool in the Mask workflow form, and documents the
+  nested closed-cohort function. Focused checks pass 82 category/docstring,
+  36 visual, 2 expected-abort and 3 retained performance cases under 4 GiB.
+  The old colour-picker failure exposes one current direct Qt dialog call in
+  Preferences; its owner must route it through the existing safe helper.
+  One pointer-poll assertion failed in the old shard but passes in a bounded
+  one-node current-source replay; no unproven source fix is claimed.
+  Translation review, English UI source hashes, Help API index and generated
+  settings-flow freshness remain workstation-owned normal regeneration.
+  Newer b779 compatibility macOS failure has the same pre-c37 scipy-at-Home
+  source issue; it does not refute the installed-wheel local c37 receipt.
+  No coverage bar, locale policy, timeout or performance budget changed.
+  Item 43 stays OPEN for an exact current-source hosted green verdict.
+
+2026-10-06 — Preferences guard and exact default-claim inventory repaired
+Safe custom-color dialogs and dynamic Help-strip hints now follow the same
+existing product contracts after edits. Obsolete Preferences expectations
+now use the actual field-first/None-last catalog. All114 affected tests pass.
+Exact claim inventory gains only mask/watch_normalization_pool,919->920;
+all old pairs and recorded variants are identical. Its named arithmetic
+checksum passes separately; no mismatch or coverage allowance was raised.
+Receipts: data/663_preferences_density_help_cpu_2026-10-06/. Item43 stays
+OPEN: fresh209 installed Home still imports SciPy via the NumBa grain daemon
+before genuine post-paint readiness. A confirmed trace, not a guard waiver,
+drives the separate compiler-startup repair now being validated.
+
+2026-10-06 — confirmed second Home import path deferred correctly
+Fresh209 hosted Home probes still failSciPy. The independent actualpublic
+trace proves NumBa dependency checking in spacr-grain-compile importsSciPy
+before realHomeReady; the magnifier repair alone could not prevent this.
+Both themecompiler helpers now defer until the actual post-paint usable
+checkpoint, also when profiling is off. Normal-mode and profiled launches
+show noSciPy atready; later compilation remains available. Strict unchanged
+installed-wheel andsdist Home probes pass with16painted controls andzero
+heavy imports. Source-matched64renderer,83callback/timing and87docstring
+cases pass. Receipts: data/43_home_compiler_boundary_cpu_2026-10-06/.
+Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
+
+2026-10-06 — source-bound current hosted startup and CPU guard checkpoint
+    ALL8 deciding installed wheel/sdist and packaging smoke platform steps
+    succeed on3ca2bff536 in37511791550. Parent CANCELLED on newer nightly push
+    during two informational full sweeps; no terminal green verdict claimed.
+    Native Windows startup contrast37511791573 is terminal SUCCESS on3ca.
+    Current27ordinary jobs are active; protected b779serial remains untouched.
+    Official Cellpose4.0.7's one-to-three-channel zero padding is now accepted
+    only with rawZYXC/axes/originalpixel/zeropadding checks; root47cases pass.
+    Resource opacity uses exact same animated pixels and retained layout,
+    keeps0.85dimming/0.15equality budgets, and detects injected doubledRAM
+    fill.10cases pass across lens/waves/blobs; no product opacity bug claimed.
+    Exact local logs/current compat/pre-cancel obsolete ordinary state:
+    data/43_cpu_acceptance_checkpoint_2026-10-06/. Parent43 remains OPEN.

@@ -1,0 +1,18 @@
+{
+  "artifacts": {
+    "spacr-1.5.1.3-py3-none-any.whl": {
+      "bytes": 43006107,
+      "sha256": "d037a66f78d45c546a42cdddcf81a725d46aea3d8539f3ba3e30337873a28060"
+    },
+    "spacr-1.5.1.3.tar.gz": {
+      "bytes": 49995584,
+      "sha256": "16206fdb796749c47d4b00d3bb80fc6c5731b2b9c57a7a456e12eeb5227901d3"
+    }
+  },
+  "modules": {
+    "spacr/qt/app.py": "991dcaaa4cbf331b76216d6fb816e57340b055b541e838dfbd0bc0e625e4be82",
+    "spacr/qt/timing.py": "21de43993d1f34469df0971771823f58dd0b74b747e37537539fcc3e35a5d426",
+    "spacr/qt/widgets/ambient.py": "ca7cc348dc4e99e0413b2954839e309a6795c12f4ff9450af298b04baeadba8c"
+  },
+  "source_revision": "1b8ac874c8"
+}

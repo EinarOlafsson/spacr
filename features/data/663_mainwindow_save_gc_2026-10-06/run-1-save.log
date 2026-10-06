@@ -1,0 +1,19 @@
+source /mnt/wd4tb/spacr-worktrees/codex-theme-final-save-probe-20261006/spacr/qt/widgets/ambient.py 4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5
+qt.text.font.db: OpenType support missing for "Ubuntu Sans", script 11
+home 453
+screen mask 1363 3
+screen measure 1859 4
+screen annotate 1996 5
+qt.text.font.db: OpenType support missing for "Ubuntu Sans", script 11
+save start 0 200 0
+qt.text.font.db: OpenType support missing for "Open Sans", script 11
+qt.text.font.db: OpenType support missing for "Open Sans", script 11
+qt.text.font.db: OpenType support missing for "Open Sans", script 11
+save done 0 {"widgets": 3247, "ambient": 3, "workers": 2, "gravity": 0.0}
+qt.text.font.db: OpenType support missing for "Open Sans", script 11
+qt.text.font.db: OpenType support missing for "Open Sans", script 11
+save start 1 100 65
+save done 1 {"widgets": 4214, "ambient": 3, "workers": 1, "gravity": 0.65}
+save start 2 200 0
+save done 2 {"widgets": 5216, "ambient": 3, "workers": 1, "gravity": 0.0}
+done

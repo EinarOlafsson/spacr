@@ -1,0 +1,7 @@
+Processing /mnt/wd4tb/scratch/compat-37494089502-coverage-lane/installed/dist/spacr-1.5.1.3-py3-none-any.whl
+Installing collected packages: spacr
+  Attempting uninstall: spacr
+    Found existing installation: spacr 1.5.1.3
+    Not uninstalling spacr at /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages, outside environment /mnt/wd4tb/scratch/compat-37494089502-coverage-lane/installed/venv
+    Can't uninstall 'spacr'. No files were found to uninstall.
+Successfully installed spacr-1.5.1.3

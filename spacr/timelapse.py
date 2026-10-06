@@ -1,6 +1,6 @@
 """Time-series tracking, motility analysis, and trajectory utilities."""
 
-import cv2, os, re, glob, random, sqlite3
+import cv2, os, re, glob, random, sqlite3, hashlib
 import numpy as np
 import pandas as pd
 from collections import defaultdict
@@ -2175,11 +2175,12 @@ def _event_read_annotations(path):
     """Read an annotated events table.
 
     :param path: a table with ``field``, ``track_id``, ``frame`` and
-        ``event`` columns, and optionally ``object``.
+        ``event`` columns, optionally ``object`` and tracker provenance.
     :returns: the table with the event names stripped and lower-cased.
-    :raises ValueError: a missing column.
+    :raises ValueError: a missing column or repeated track frame.
     """
     from .tabular import read_table
+    from .qt.i18n import tr
 
     ann = read_table(path, canonicalise=False, report=None)
     if 'field' not in ann.columns and 'fieldID' in ann.columns:
@@ -2193,7 +2194,22 @@ def _event_read_annotations(path):
     ann['track_id'] = ann['track_id'].astype(int)
     ann['frame'] = ann['frame'].astype(int)
     ann['event'] = ann['event'].astype(str).str.strip().str.lower()
-    return ann[ann['event'] != _EVENT_BACKGROUND].reset_index(drop=True)
+    ann = ann[ann['event'] != _EVENT_BACKGROUND].reset_index(drop=True)
+    keys = ann[['field', 'track_id', 'frame']].copy()
+    keys['object'] = (ann['object'].fillna('').astype(str)
+                      if 'object' in ann else '')
+    if keys.duplicated().any():
+        raise ValueError(tr('An annotation table labels one track frame more than once.'))
+    return ann
+
+
+def _event_source_hash(path):
+    """Hash one tracker export without holding its whole table in memory."""
+    digest = hashlib.sha256()
+    with open(path, 'rb') as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b''):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def _event_fields(tracks_dir, object_type, prefix):
@@ -2470,6 +2486,8 @@ def _event_detection(tracks_dir, object_type, prefix, *, annotations=None,
     under ``events/lineage``. The time to each kind of event is compared
     across conditions with Kaplan-Meier curves and log-rank tests
     (``events/event_timing_<event>_*.csv`` and figure).
+    GUI-authored annotations bind each field to its exact tracker CSV;
+    an incompatible backend or changed tracker is refused before fitting.
 
     :param tracks_dir: the run's ``tracks`` folder.
     :param object_type: the tracked object.
@@ -2481,6 +2499,7 @@ def _event_detection(tracks_dir, object_type, prefix, *, annotations=None,
     :raises ValueError: neither annotations nor a model.
     """
     import torch
+    from .qt.i18n import tr
     from .measure import _time_to_event_figure, _time_to_event_statistics
     from .tabular import write_table
 
@@ -2501,6 +2520,19 @@ def _event_detection(tracks_dir, object_type, prefix, *, annotations=None,
         if ann.empty:
             raise ValueError(f"Setting: timelapse_events_annotations names no "
                              f"event on the {object_type} tracks of this run.")
+        provenance = {'tracker_backend', 'track_source_sha256'}
+        if provenance & set(ann.columns):
+            if not provenance.issubset(ann.columns):
+                raise ValueError(tr('Event annotations have incomplete tracker provenance.'))
+            for field, rows in ann.groupby('field'):
+                backend = rows['tracker_backend'].fillna('').astype(str)
+                digest = rows['track_source_sha256'].fillna('').astype(str)
+                if backend.ne('').any() or digest.ne('').any():
+                    expected = _event_source_hash(fields[field])
+                    if not (backend.eq(prefix) & digest.eq(expected)).all():
+                        raise ValueError(tr(
+                            'Event annotations for {field} belong to another tracker CSV.',
+                            field=field))
         annotated = {f: inputs[f] for f in pd.unique(ann['field'])}
         scores, _ = _event_cross_validate(annotated, ann, window=window,
                                           threshold=threshold, tolerance=tolerance,

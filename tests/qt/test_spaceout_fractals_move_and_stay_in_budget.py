@@ -270,8 +270,9 @@ def test_the_same_clock_paints_the_same_frame(dressed):
                           seed=11)
     one.set_time(23.0)
     two.set_time(23.0)
-    assert bytes(paint(one, page).constBits()) == \
-        bytes(paint(two, page).constBits())
+    first = paint(one, page)
+    second = paint(two, page)
+    assert bytes(first.constBits()) == bytes(second.constBits())
 
 
 def test_shading_off_the_gui_thread_gives_the_identical_frame(dressed):

@@ -1,4 +1,7 @@
 import hashlib
+import argparse
+import gzip
+import importlib.util
 import json
 import resource
 import statistics
@@ -7,17 +10,32 @@ import time
 from pathlib import Path
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication
-from spacr.qt.widgets import ambient
+import spacr.qt.widgets
 
-name = sys.argv[1]
+parser = argparse.ArgumentParser(description='Probe a verified frozen renderer.')
+parser.add_argument('theme', choices=('fungal', 'thore', 'aurora'))
+parser.add_argument('--renderer', type=Path, required=True)
+parser.add_argument('--source-sha256', required=True)
+parser.add_argument('--output-dir', type=Path, required=True)
+args = parser.parse_args()
+payload = args.renderer.read_bytes()
+if args.renderer.suffix == '.gz':
+    payload = gzip.decompress(payload)
+if hashlib.sha256(payload).hexdigest() != args.source_sha256:
+    parser.error('renderer source does not match the required frozen SHA256')
+ambient = importlib.util.module_from_spec(importlib.util.spec_from_loader(
+    'spacr.qt.widgets._frozen_native_probe', loader=None))
+sys.modules[ambient.__name__] = ambient
+ambient.__file__ = str(args.renderer.resolve())
+exec(compile(payload, ambient.__file__, 'exec'), ambient.__dict__)
+args.output_dir.mkdir(parents=True, exist_ok=True)
+name = args.theme
 choices = {
     'fungal': ('data_art_fungal_growth', 'deepwater'),
     'thore': ('data_art_thore', 'midnight'),
     'aurora': ('aurora', 'borealis'),
 }
 theme, palette = choices[name]
-expected = Path('/mnt/wd4tb/spacr-worktrees/codex-cpu-final-20261006/spacr/qt/widgets/ambient.py')
-assert Path(ambient.__file__).resolve() == expected.resolve(), ambient.__file__
 app = QApplication([])
 ambient.screen_pixels = lambda _widget=None: 3840 * 2160
 paint_times = []
@@ -55,7 +73,7 @@ def capture(tag):
     grab_ms = (time.monotonic() - at) * 1000
     digest = hashlib.sha256(image.bits().tobytes()).hexdigest()
     if tag == 'high':
-        image.save(f'/mnt/wd4tb/scratch/theme-growth-thore-20261006/{name}-widget-4k.png')
+        image.save(str(args.output_dir / f'{name}-widget-4k.png'))
     captures.append({'phase': tag, 'elapsed_s': round(now-start,3),
                      'clock_s': round(tick,3), 'shaded': shaded,
                      'painted': painted, 'grab_ms': round(grab_ms,2),
@@ -70,6 +88,7 @@ def finish():
     capture('high')
     producer = widget._producer_box[0]
     result = {'theme':name,'source':ambient.__file__,
+              'source_sha256': args.source_sha256,
               'size':[widget.width(),widget.height()],
               'buffer_size':list(widget.engine.buffer_size(3840,2160)),
               'frames_painted':widget.frames_painted,

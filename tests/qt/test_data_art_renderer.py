@@ -1,4 +1,4 @@
-"""Image and pointer contracts for the six offered data-art materials."""
+"""Image and pointer contracts for the seven offered data-art materials."""
 
 from __future__ import annotations
 
@@ -17,9 +17,9 @@ from spacr.qt.widgets import ambient
 
 FAMILIES = (
     "point_atlas", "tissue_facets", "chromatin_ribbon",
-    "genetic_advection", "impulse_lens", "fungal_growth",
+    "genetic_advection", "impulse_lens", "fungal_growth", "thore",
 )
-INTERACTIVE = frozenset(("point_atlas", "genetic_advection",
+INTERACTIVE = frozenset(("point_atlas", "tissue_facets", "genetic_advection",
                          "impulse_lens"))
 BACKGROUND = "#101418"
 
@@ -45,16 +45,18 @@ def _digest(image: QImage) -> str:
     return hashlib.sha256(image.bits().tobytes()).hexdigest()
 
 
-def test_data_art_registry_has_six_distinct_named_materials():
-    """The catalog exposes six families without pointer duplicates."""
+def test_data_art_registry_has_seven_distinct_named_materials():
+    """The catalog exposes seven families without pointer duplicates."""
     keys = {theme for theme in ambient.AMBIENT_THEMES
             if theme.startswith("data_art_")}
     assert keys == {f"data_art_{family}" for family in FAMILIES}
     for family in FAMILIES:
         key = f"data_art_{family}"
         engine = _engine(family)
-        if family != "fungal_growth":
+        if family not in ("fungal_growth", "thore"):
             assert engine.family == family
+        elif family == "thore":
+            assert isinstance(engine, ambient._ThoreEngine)
         assert engine.name == key
         assert getattr(engine, "interactive", False) is (family in INTERACTIVE)
         assert ambient.animation_label(key) != key
@@ -75,6 +77,10 @@ def test_every_material_is_seeded_clocked_and_reproducible(family):
     assert _digest(_frame(same)) == image
     assert _digest(_frame(other)) != image
     first.set_time(17.0)
+    if family == "tissue_facets":
+        assert _digest(_frame(first)) == image
+        first.set_gravity_radius(0.5)
+        first.set_pointer((0.5, 0.5))
     assert _digest(_frame(first)) != image
 
 
@@ -92,6 +98,7 @@ def test_material_keys_produce_unique_full_frame_hashes():
 def test_pointer_bends_interactive_materials_and_lens_wake_expires(family):
     """The gravity lens keeps a brief wake; other pointers clear at once."""
     engine = _engine(family, seed=17)
+    engine.set_gravity_radius(0.5)
     engine.set_time(6.0)
     idle = _digest(_frame(engine))
     engine.set_pointer((0.22, 0.68))
@@ -115,7 +122,7 @@ def test_pointer_rejects_nonfinite_values_and_static_material_ignores_it():
     assert moving.pointer is None
     moving.set_pointer((-1.0, 2.0))
     assert moving.pointer == (0.0, 1.0)
-    static = _engine("tissue_facets")
+    static = _engine("chromatin_ribbon")
     baseline = _digest(_frame(static))
     static.set_pointer((0.2, 0.8))
     assert static.pointer is None
@@ -244,7 +251,8 @@ def test_pointer_poll_is_limited_to_active_window_and_widget(qtbot, monkeypatch)
     qtbot.addWidget(host)
     host.resize(320, 200)
     widget = ambient.AmbientWidget(host, theme="data_art_point_atlas",
-                                   palette="midnight", background=BACKGROUND)
+                                   palette="midnight", background=BACKGROUND,
+                                   gravity_radius=0.5)
     widget.setGeometry(host.rect())
     host.show()
     QApplication.processEvents()
@@ -279,7 +287,7 @@ def test_pointer_poll_is_limited_to_active_window_and_widget(qtbot, monkeypatch)
 
 def test_static_material_tick_never_polls_cursor(qtbot, monkeypatch):
     """A noninteractive material advances without cursor or window work."""
-    widget = ambient.AmbientWidget(theme="data_art_tissue_facets",
+    widget = ambient.AmbientWidget(theme="data_art_chromatin_ribbon",
                                    palette="lowsun", background=BACKGROUND)
     qtbot.addWidget(widget)
     widget.stop()

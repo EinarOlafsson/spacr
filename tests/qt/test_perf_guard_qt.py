@@ -9,7 +9,6 @@ what is guarded                        documented  measured   loaded   ceiling
 DNA rain, one frame at 1920x1080         0.53 ms    0.56 ms   2.53 ms   4.0 ms
 ambient ``blobs`` frame at 1920x1080     1.21 ms    1.65 ms   3.80 ms   7.0 ms
 ambient ``aurora`` frame at 1920x1080    1.40 ms    3.36 ms   7.91 ms  14.0 ms
-ambient ``ripple`` frame at 1920x1080    1.31 ms    1.81 ms   3.40 ms   7.0 ms
 ambient ``drift`` frame at 1920x1080     0.66 ms    0.64 ms   1.21 ms   3.0 ms
 console, one appended line               0.05 ms    0.036 ms  0.065 ms  0.25 ms
 console, 3000 lines in one burst         (9.56 s)   0.11 s    0.17 s    1.50 s
@@ -31,13 +30,13 @@ DNA rain's two rejected drawing paths, 1233 ms for the field change.
 Two entries deserve their story told, because a guard whose number is not
 understood gets "fixed" by raising it:
 
-*The three buffered ambient themes read higher than their table.* ``drift``
+*The buffered ambient themes read higher than their table.* ``drift``
 (no buffer) and the DNA rain (no buffer) land within 5 % of their documented
 figures, so the machine is comparable; the gap is confined to the themes whose
 frame is bound by blitting a small image up to 2 000 000 pixels, which is the
 part a busy machine's memory bandwidth slows down. An A/B of the committed
 engines against the working tree in one process, alternating runs, showed
-``blobs`` and ``ripple`` unchanged (1.00x / 0.98x), so nothing regressed —
+``blobs`` unchanged (1.00x), so nothing regressed —
 they simply do not reproduce their table on a loaded box. ``aurora`` did move,
 1.64x, and deliberately: it now shades into a 960 px buffer rather than a
 256 px one (:data:`~spacr.qt.widgets.ambient.AURORA_BUFFER_EDGE`), which its
@@ -123,7 +122,7 @@ def raster_calibration_ms() -> float:
     """Cost of one full-page ``fillRect`` at 1920x1080, measured here and now.
 
     The frame ceilings below were absolute, and an absolute wall clock on a
-    shared machine is a coin flip: the ``ripple`` guard failed at 7.0 ms in a
+    shared machine is a coin flip: an earlier frame guard failed at 7.0 ms in a
     batch on a box running the suite beside several agents, having passed on
     its own minutes earlier. A guard that flakes gets deleted, and these are
     worth keeping.
@@ -133,7 +132,7 @@ def raster_calibration_ms() -> float:
     the machine is doing to the frame it is doing to the fill, so the ratio
     survives a loaded box while still moving the moment the painting itself
     gets more expensive. Measured on this tree at load average 30: fill
-    0.141 ms, blobs 29x, aurora 59x, ripple 31x, drift 8.6x, and the same
+    0.141 ms, blobs 29x, aurora 59x, drift 8.6x, and the same
     ratios within a few percent on a quiet one.
 
     :returns: milliseconds for one fill, best of :func:`best_ms`'s repeats.
@@ -218,7 +217,6 @@ def test_one_dna_rain_frame_costs_under_four_milliseconds(qtbot):
 @pytest.mark.parametrize("theme, ceiling_ms, ceiling_ratio, documented, measured", [
     ("blobs", 40.0, 120.0, 1.21, 1.65),
     ("aurora", 80.0, 240.0, 1.40, 3.36),
-    ("ripple", 40.0, 120.0, 1.31, 1.81),
     ("drift", 20.0, 40.0, 0.66, 0.64),
 ])
 def test_one_ambient_frame_costs_what_the_module_says_it_does(
@@ -232,24 +230,22 @@ def test_one_ambient_frame_costs_what_the_module_says_it_does(
     The headroom is 4x, and that number is measured rather than chosen. The
     ratio is far steadier than the wall clock but it is not constant: the fill
     is memory-bandwidth-bound and the engines are compute-bound, so contention
-    moves them apart. Measured on this tree: ripple 31x quiet, 35x at load
+    moves them apart. The retired ripple measured 31x quiet, 35x at load
     average 30, 65x in a batch with 65 pytest processes on the box. A ceiling
     at 2x the quiet number fails there; at 4x it does not, and it still fails
     the moment painting gets four times more expensive -- which is well under
     the regressions this exists for. The two drawing paths this design
     rejected are 10x and 27x the current cost.
 
-    Quiet ratios: blobs 29x, aurora 59x, ripple 31x, drift 8.6x.
+    Quiet ratios: blobs 29x, aurora 59x, drift 8.6x.
 
     The protocol is the module's own: 1920x1080, offscreen raster, 120 frames,
     the full-page background fill included in every one of them, best of up to
     eight runs.
 
-    Only the four themes that have a published number are guarded. ``bokeh``
-    and ``cells`` are listed in ``AMBIENT_THEMES`` but have no engine in
-    ``_ENGINES`` yet, so ``make_engine`` raises ``KeyError`` for them — there
-    is nothing to measure and a ceiling would be invented rather than
-    measured.
+    Only the three offered themes with a published measurement in this
+    protocol are guarded. Retired themes have no current engine to time;
+    inventing a ceiling for a new material would not preserve this guard.
     """
     engine = make_engine(theme, default_palette_for(theme), DARK, seed=7)
     canvas = QImage(FRAME_W, FRAME_H, QImage.Format_RGB32)

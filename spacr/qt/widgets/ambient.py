@@ -5,10 +5,12 @@ the ATGC cascade). This is the one for *everything else*: a slow, diffuse
 animation that sits behind the settings form and the console, takes no focus
 and no mouse events, and can be switched off entirely in Preferences.
 
-Five classic themes remain in the menu alongside six data-art materials,
-each chosen to read as a different kind of movement:
+Seven data-art materials and three classic themes remain in the menu.
+The default is ``data_art_impulse_lens`` (spaCR field). The other data-art choices
+are advection, growth, Thore, waves, tissue facets and chromatin satin.
+The classic choices provide softer motion:
 
-``blobs``   (default)
+``blobs``
     Big and small colour blobs drifting over the page, each pulsing in size on
     its own period. They overlap and blend, so the result reads as soft colour
     *fields* rather than as a bag of circles.
@@ -19,19 +21,14 @@ each chosen to read as a different kind of movement:
     schedule, a sharp lower edge, a diffuse top, and the real thing's
     vertical colour order: green through the body, red high up, a violet
     fringe underneath.
-``ripple``
-    Concentric rings expanding out of three fixed sources and fading as they
-    grow, like rain on water. Soft-edged, so it never reads as line work.
 ``drift``
     A slow starfield in three parallax layers: small, dim, slow ones behind;
     bigger, brighter, faster ones in front. The one crisp theme. It travels
     up, down, or every which way — see :data:`DRIFT_DIRECTIONS`.
-``cells``
-    Cells drifting through the field, turning as they go — a soft body, a
-    slightly brighter membrane where the edge is seen nearly edge-on, and a
-    distinctly brighter nucleus set off centre.
-The older :class:`BokehEngine` and :class:`ResonanceEngine` remain importable
-for direct callers, but are no longer menu choices or factory entries.
+
+The older :class:`RippleEngine`, :class:`CellsEngine`, :class:`BokehEngine`
+and :class:`ResonanceEngine` remain importable for direct callers, but are
+no longer menu choices or factory entries.
 
 There is also a private ``fractal`` engine: it is
 not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it,
@@ -752,7 +749,7 @@ DEFAULT_SIZE = 1.0
 #: for the top of this range once, at construction, and then paints a prefix
 #: of it — so turning the slider never re-rolls the field and never makes the
 #: animation jump.
-DENSITY_RANGE = (0.25, 3.0)
+DENSITY_RANGE = (0.01, 3.0)
 DEFAULT_DENSITY = 1.0
 
 #: The shared account resolution and density both draw on, as a multiple of
@@ -1012,7 +1009,7 @@ class AmbientEngine:
     :param resolution: scale of the buffer painted through, 0.25 to 2.0.
         Below 1.0 paints fewer pixels and scales them up, which is the lever
         that makes the backdrop affordable on a weak GPU.
-    :param density: how many shapes are rolled, 0.25 to 3.0.
+    :param density: how many shapes are rolled, 0.01 to 3.0.
     :param direction: which way the animation drifts. An unrecognised name
         falls back to the default rather than raising, for the same reason
         the numbers are clamped.
@@ -1218,6 +1215,10 @@ class AmbientEngine:
         """
         return 1.0 / max(1.0, self.effective_density())
 
+    def _fractional_alpha_scale(self, base: int) -> float:
+        """Represent a fractional population when a coarse scene keeps one shape."""
+        return self.alpha_scale() * min(1.0, base * self.effective_density())
+
     def set_max_pixels(self, pixels: int) -> None:
         """Set the display-pixel ceiling used to size the render buffer."""
         pixels = max(BUFFER_MIN_EDGE ** 2, int(pixels))
@@ -1391,10 +1392,11 @@ class _BufferedEngine(AmbientEngine):
     def paint(self, painter: QPainter, width: int, height: int) -> None:
         """Shade a frame and put it on the canvas, both here and now.
 
-        Exactly :meth:`shade` followed by :meth:`blit`, minus the copy — the
-        buffer goes straight to the canvas, so this path still allocates once
-        on resize and never per frame. That is what a widget with no shading
-        thread does, and it is what every engine test measures.
+        This calls :meth:`_shade` followed by :meth:`blit` directly. The
+        default buffered path reuses its image until the canvas size changes.
+        Native point, growth and rain subclasses return a freshly owned
+        image each frame. Both paths can draw synchronously without an
+        additional publication copy.
         """
         if width <= 0 or height <= 0:
             return
@@ -1403,9 +1405,10 @@ class _BufferedEngine(AmbientEngine):
     def _shade(self, width: int, height: int) -> QImage:
         """The finished field, in the engine's *own* buffer.
 
-        Returns the buffer itself when the blur is off (which is the
-        default), so the result is only valid until the next call. Callers
-        that keep it want :meth:`shade`.
+        The default implementation returns its reusable buffer when blur is
+        off, so that result is only valid until the next call. Native point,
+        growth and rain overrides return freshly owned images. Callers that
+        keep a frame use :meth:`shade`, which handles either ownership path.
         """
         buf = self._ensure_buffer(width, height)
         inner = QPainter(buf)
@@ -1435,9 +1438,10 @@ class _BufferedEngine(AmbientEngine):
         ``test_the_backdrop_survives_a_run.py`` asserts for every buffered
         theme rather than trusting this paragraph.
 
-        Returns ``None`` for an empty canvas. The copy is what makes the
-        image the caller's: the producer publishes it and immediately starts
-        shading the next frame into the buffer underneath. It costs 0.003 ms
+        Returns ``None`` for an empty canvas. A reusable buffer is copied
+        before publication so a later shade cannot change the caller's frame.
+        A freshly owned subclass image is returned directly. On the default
+        buffered path, the copy costs 0.003 ms
         for ``blobs``, 0.035 ms for the aurora's 2 MiB buffer — 2 % of the
         shading pass it protects.
         """
@@ -1631,7 +1635,7 @@ class BlobsEngine(_BufferedEngine):
         :param height: its height in pixels.
         """
         peak = (BLOB_ALPHA_DARK if self.dark else BLOB_ALPHA_LIGHT) \
-            * self.alpha_scale()
+            * self._fractional_alpha_scale(BLOB_COUNT)
         colors = self.paint_colors
         for blob, (cx, cy, radius) in zip(self.blobs,
                                           self.geometry(width, height)):
@@ -2179,7 +2183,7 @@ class AuroraEngine(_BufferedEngine):
         """
         step = int(round(self.hue_phase(curtain) * (AURORA_HUE_STEPS - 1)))
         lengths = self.ray_lengths(curtain)
-        key = (curtain.depth, step, width, height, lengths)
+        key = (curtain.depth, step, width, height, lengths, peak)
         tile = self._tiles.get(key)
         if tile is not None:
             return tile
@@ -2292,7 +2296,7 @@ class AuroraEngine(_BufferedEngine):
         step = int(round(phase % (2 * math.pi)
                          / (2 * math.pi) * AURORA_PULSE_STEPS))
         hue = int(round(self.hue_phase(curtain) * (AURORA_HUE_STEPS - 1)))
-        key = (curtain.depth, step % AURORA_PULSE_STEPS, hue)
+        key = (curtain.depth, step % AURORA_PULSE_STEPS, hue, peak)
         image = self._surges.get(key)
         if image is not None:
             return image
@@ -2337,7 +2341,7 @@ class AuroraEngine(_BufferedEngine):
         :param height: its height in pixels.
         """
         peak = (AURORA_ALPHA_DARK if self.dark else AURORA_ALPHA_LIGHT) \
-            * self.alpha_scale()
+            * self._fractional_alpha_scale(AURORA_CURTAINS)
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
         samples = self.geometry(width, height)
@@ -4535,6 +4539,18 @@ _PACKED_SCATTER = None
 _PACKED_SCATTER_STARTED = False
 _PACKED_SCATTER_FAILED = False
 _PACKED_SCATTER_LOCK = threading.Lock()
+_AMBIENT_STARTUP_READY = threading.Event()
+_AMBIENT_STARTUP_READY.set()
+
+
+def _begin_ambient_startup() -> None:
+    """Defer optional compiler imports until the application's first paint."""
+    _AMBIENT_STARTUP_READY.clear()
+
+
+def _complete_ambient_startup() -> None:
+    """Permit lazy CPU compilation after the actual interactive checkpoint."""
+    _AMBIENT_STARTUP_READY.set()
 
 
 def _scatter_packed_grains(flat, px, py, intensities, lookup, axial, diagonal,
@@ -4576,7 +4592,11 @@ def _warm_packed_scatter():
     Import/compiler errors and NUMBA_DISABLE_JIT leave that path active. Some
     import/compiler phases hold the GIL briefly; this is not a no-stall claim.
     """
-    global _PACKED_SCATTER, _PACKED_SCATTER_FAILED
+    global _PACKED_SCATTER, _PACKED_SCATTER_FAILED, _PACKED_SCATTER_STARTED
+    if not _AMBIENT_STARTUP_READY.is_set():
+        with _PACKED_SCATTER_LOCK:
+            _PACKED_SCATTER_STARTED = False
+        return
     try:
         from numba import njit
 
@@ -4604,6 +4624,8 @@ def _ready_packed_scatter():
     compilation occurs here, and a contended startup lock returns immediately.
     """
     global _PACKED_SCATTER_STARTED, _PACKED_SCATTER_FAILED
+    if not _AMBIENT_STARTUP_READY.is_set():
+        return _PACKED_SCATTER
     if (_PACKED_SCATTER is None and not _PACKED_SCATTER_STARTED
             and not _PACKED_SCATTER_FAILED and _PACKED_SCATTER_LOCK.acquire(blocking=False)):
         try:
@@ -4619,6 +4641,158 @@ def _ready_packed_scatter():
     return _PACKED_SCATTER
 
 
+def _warp_satin_columns(source, target, shifts, tops, bottoms, padding):
+    """Move native premultiplied pixels along each column without filtering."""
+    height, width = target.shape
+    for start in range(0, width, 32):
+        end = min(width, start + 32)
+        lower, upper = height, 0
+        for column in range(start, end):
+            lower = min(lower, tops[column] + shifts[column] + padding)
+            upper = max(upper, bottoms[column] + shifts[column] + padding)
+        for row in range(max(0, lower), min(height, upper)):
+            for column in range(start, end):
+                source_row = row - shifts[column] - padding
+                if tops[column] <= source_row < bottoms[column]:
+                    target[row, column] = source[source_row, column]
+
+
+def _numpy_satin_columns(source, target, shifts, padding):
+    """Restore the complete native wave layer using exact indexed CPU pixels."""
+    np = _numpy()
+    rows = (np.arange(target.shape[0], dtype=np.int32)[:, None]
+            - shifts[None, :] - padding)
+    inside = (rows >= 0) & (rows < source.shape[0])
+    np.clip(rows, 0, source.shape[0] - 1, out=rows)
+    rows *= source.shape[1]
+    rows += np.arange(source.shape[1], dtype=np.int32)[None, :]
+    np.take(source.ravel(), rows, out=target, mode="clip")
+    target[~inside] = 0
+
+
+def _copy_wave_batch(kernel, tasks):
+    """Finish a finite immutable group of independently owned pixel arrays."""
+    for arguments in tasks:
+        kernel(*arguments)
+
+
+class _WaveCopyWorker:
+    """Own one bounded CPU queue without retaining completed scene arrays."""
+
+    def __init__(self):
+        """Start one bounded daemon without importing any compiler packages."""
+        from concurrent.futures import Future
+        from queue import Queue
+
+        self._future_type = Future
+        self._pending = Queue(maxsize=1)
+        threading.Thread(target=self._run, name="spacr-satin-copy",
+                         daemon=True).start()
+
+    def submit(self, function, *arguments):
+        """Offer one pure CPU job and return its completion ownership fence."""
+        future = self._future_type()
+        self._pending.put_nowait((function, arguments, future))
+        return future
+
+    def _run(self):
+        """Complete or cancel each CPU job and release all submitted arrays."""
+        while True:
+            function, arguments, future = self._pending.get()
+            try:
+                if future.set_running_or_notify_cancel():
+                    try:
+                        future.set_result(function(*arguments))
+                    except BaseException as error:
+                        future.set_exception(error)
+            finally:
+                self._pending.task_done()
+                del function, arguments, future
+
+
+class _SatinCompiler:
+    """Compile one CPU wave-copy signature once away from the GUI thread."""
+
+    def __init__(self):
+        """Keep one lazy compilation attempt and a shared bounded copy worker."""
+        self.kernel = None
+        self.started = False
+        self.failed = False
+        self.lock = threading.Lock()
+        self.copy_gate = threading.Lock()
+        self.pool = None
+
+    def _warm(self):
+        """Compile owned tiny arrays only after application readiness permits it."""
+        if not _AMBIENT_STARTUP_READY.is_set():
+            with self.lock:
+                self.started = False
+            return
+        try:
+            from numba import njit
+
+            np = _numpy()
+            kernel = njit(nogil=True, cache=False)(_warp_satin_columns)
+            source = np.zeros((1, 1), dtype=np.uint32)
+            coordinates = np.zeros(1, dtype=np.int32)
+            kernel(source, source.copy(), coordinates, coordinates, coordinates + 1, 0)
+            strided = np.zeros((2, 2), dtype=np.uint32)[:, :1]
+            kernel(strided, np.zeros((2, 1), dtype=np.uint32), coordinates,
+                   coordinates, coordinates + 2, 0)
+            if not getattr(kernel, 'nopython_signatures', ()):
+                raise RuntimeError("native wave compiler is disabled")
+            self.pool = _WaveCopyWorker()
+            self.kernel = kernel
+        except Exception:
+            self.failed = True
+
+    def ready(self):
+        """Offer the exact fallback while startup defers compiler imports."""
+        if not _AMBIENT_STARTUP_READY.is_set():
+            return self.kernel
+        if self.kernel is not None or self.started or self.failed:
+            return self.kernel
+        if not self.lock.acquire(blocking=False):
+            return None
+        try:
+            if not self.started and not self.failed:
+                self.started = True
+                try:
+                    threading.Thread(target=self._warm, name="spacr-satin-compile",
+                                     daemon=True).start()
+                except Exception:
+                    self.failed = True
+        finally:
+            self.lock.release()
+        return self.kernel
+
+    def copy_waves(self, kernel, tasks):
+        """Join at most one shared CPU batch before any Qt painter sees it.
+
+        One nonblocking gate bounds the global executor queue to one job.
+        Other producers use their synchronous kernel instead of queueing.
+        Both paths finish their owned arrays under the existing engine lock.
+        """
+        if self.pool is None or len(tasks) < 2 or not self.copy_gate.acquire(blocking=False):
+            _copy_wave_batch(kernel, tasks)
+            return
+        try:
+            try:
+                future = self.pool.submit(_copy_wave_batch, kernel, tasks[::2])
+            except RuntimeError:
+                _copy_wave_batch(kernel, tasks)
+            else:
+                try:
+                    _copy_wave_batch(kernel, tasks[1::2])
+                finally:
+                    future.result()
+        finally:
+            self.copy_gate.release()
+
+
+_SATIN_COMPILER = _SatinCompiler()
+
+
 class _DataArtEngine(_BufferedEngine):
     """Retained crisp procedural materials with native display sampling.
 
@@ -4632,7 +4806,7 @@ class _DataArtEngine(_BufferedEngine):
     base_edge = 2048
     _families = ("point_atlas", "tissue_facets", "chromatin_ribbon",
                  "genetic_advection", "impulse_lens")
-    _interactive = frozenset(("point_atlas", "genetic_advection",
+    _interactive = frozenset(("point_atlas", "tissue_facets", "genetic_advection",
                               "impulse_lens"))
 
     def __init__(self, *args, family: str, **kwargs):
@@ -4643,6 +4817,7 @@ class _DataArtEngine(_BufferedEngine):
         self.name = f"data_art_{family}"
         self.interactive = family in self._interactive
         self.pointer: Optional[Tuple[float, float]] = None
+        self.gravity_radius = 0.0
         super().__init__(*args, **kwargs)
 
     def _configure(self, rng: random.Random) -> None:
@@ -4704,7 +4879,8 @@ class _DataArtEngine(_BufferedEngine):
         self.pointer = (max(0.0, min(1.0, float(x))),
                         max(0.0, min(1.0, float(y)))) if (
                             math.isfinite(x) and math.isfinite(y)) else None
-        if self.family == "impulse_lens" and self.pointer is not None:
+        if (self.gravity_radius > 0.0 and self.family == "impulse_lens"
+                and self.pointer is not None):
             previous = self._pointer_impulse_origin
             moved = previous is None or math.hypot(
                 self.pointer[0] - previous[0], self.pointer[1] - previous[1]) > 0.006
@@ -4715,7 +4891,8 @@ class _DataArtEngine(_BufferedEngine):
 
     def _add_impulse(self, point, strength: float = 1.0) -> None:
         """Remember a bounded, finite gravity burst in animation time."""
-        if self.family != "impulse_lens" or point is None:
+        if (self.gravity_radius <= 0.0 or self.family != "impulse_lens"
+                or point is None):
             return
         x, y = point
         if not all(math.isfinite(value) for value in (x, y, strength)):
@@ -4728,6 +4905,43 @@ class _DataArtEngine(_BufferedEngine):
         recent = [event for event in self._gravity_impulses
                   if 0.0 <= self.time - event[0] < 5.0]
         self._gravity_impulses = (recent + [(self.time, point, strength)])[-24:]
+
+    def set_gravity_radius(self, radius: float) -> None:
+        """Set finite mouse reach in fractions of the shorter screen edge."""
+        radius = float(radius)
+        radius = max(0.0, min(1.0, radius)) if math.isfinite(radius) else 0.0
+        if radius == self.gravity_radius:
+            return
+        self.gravity_radius = radius
+        self._gravity_impulses.clear()
+        self._pointer_impulse_time = -math.inf
+        self._pointer_impulse_origin = None
+        for key, material in tuple(self._material_cache.items()):
+            if key[0] == "impulse_lens":
+                material[2].clear()
+            elif key[0] == "point_atlas":
+                del self._material_cache[key]
+
+    def _pointer_field(self, x, y, width, height):
+        """Return compact smooth reach and shorter-edge pointer distances."""
+        np = _numpy()
+        shorter = max(1, min(width, height))
+        dx = (x - self.pointer[0]) * width / shorter
+        dy = (y - self.pointer[1]) * height / shorter
+        squared = dx * dx + dy * dy
+        weight = np.maximum(0.0, 1.0 - squared / self.gravity_radius ** 2) ** 3
+        return dx, dy, squared, weight
+
+    def _bend_pointer(self, x, y, width, height):
+        """Apply local gravity without changing any sample outside its reach."""
+        if self.pointer is None or self.gravity_radius <= 0.0:
+            return x, y
+        np = _numpy()
+        dx, dy, squared, weight = self._pointer_field(x, y, width, height)
+        strength = -0.055 * weight / np.sqrt(squared + 0.013)
+        shorter = max(1, min(width, height))
+        return (x + dx * strength * shorter / width,
+                y + dy * strength * shorter / height)
 
     def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
         """Return deterministic sampled material anchors for the engine API.
@@ -4799,13 +5013,38 @@ class _DataArtEngine(_BufferedEngine):
                 combine(flat, destinations, lookup[intensity])
         return image
 
+    def _shade(self, width: int, height: int) -> QImage:
+        """Publish a fresh native point image without redundant raster copies."""
+        if self.family not in ("point_atlas", "impulse_lens", "genetic_advection"):
+            return super()._shade(width, height)
+        bw, bh = self.buffer_size(width, height)
+        previous = self._buffer
+        if previous is None or previous.width() != bw or previous.height() != bh:
+            self._material_cache.clear()
+        image = getattr(self, f"_frame_{self.family}")(bw, bh)
+        self._buffer = image
+        return self._soften(image, width, height)
+
+    def shade(self, width: int, height: int) -> Optional[QImage]:
+        """Return an independently owned point frame or the buffered material."""
+        if self.family not in ("point_atlas", "impulse_lens", "genetic_advection"):
+            return super().shade(width, height)
+        if width <= 0 or height <= 0:
+            return None
+        return self._shade(width, height)
+
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
         """Dispatch to one material painter without crossing into the GUI."""
         painter.setRenderHint(QPainter.Antialiasing, True)
         getattr(self, f"_paint_{self.family}")(painter, width, height)
 
     def _paint_point_atlas(self, painter: QPainter, width: int,
-                           height: int) -> None:
+                              height: int) -> None:
+        """Blit the owned point frame for synchronous material callers."""
+        painter.drawImage(0, 0, self._frame_point_atlas(width, height))
+
+    def _frame_point_atlas(self, width: int,
+                           height: int) -> QImage:
         """Light an unbounded waving terrain of densely sampled round grains."""
         np = _numpy()
         key = ("point_atlas", width, height, self.size, self.density)
@@ -4823,8 +5062,10 @@ class _DataArtEngine(_BufferedEngine):
             jitter = rng.uniform(-0.17, 0.17, size=(2, xx.size)).astype(np.float32)
             xx = xx.ravel() + jitter[0] / columns
             zz = zz.ravel() + jitter[1] / rows
-            margin_x = 0.07 * np.abs(zz - 0.5) + 0.047074 + 1.0 / width
-            margin_z = 0.05 * np.abs(xx - 0.5) + 0.161001 + 1.0 / height
+            shorter = max(1, min(width, height))
+            reach = 0.055 if self.gravity_radius > 0.0 else 0.0
+            margin_x = 0.047074 + 1.0 / width + reach * shorter / width
+            margin_z = 0.161001 + 1.0 / height + reach * shorter / height
             visible = ((xx >= -margin_x) & (xx <= 1.0 + margin_x)
                        & (zz >= -margin_z) & (zz <= 1.0 + margin_z))
             xx, zz = xx[visible], zz[visible]
@@ -4833,9 +5074,6 @@ class _DataArtEngine(_BufferedEngine):
                       18.0 * xx + 8.0 * zz + self._anchors[0][0] * math.tau)
             self._material_cache[key] = points
         xx, zz, base_a, base_b, base_c = points
-        pointer = self.pointer or (0.5, 0.5)
-        yaw = (pointer[0] - 0.5) * 0.14
-        tilt = (pointer[1] - 0.5) * 0.10
         phase_a = base_a + self.time * 0.25
         phase_b = base_b - self.time * 0.17
         phase_c = base_c + self.time * 0.12
@@ -4849,22 +5087,23 @@ class _DataArtEngine(_BufferedEngine):
         normal = (0.90 - 0.30 * slope_x - 0.48 * slope_z) / np.sqrt(
             1.0 + slope_x * slope_x + slope_z * slope_z)
         light = np.clip(0.30 + 0.62 * normal, 0.20, 0.95)
-        sx = width * (xx + yaw * (zz - 0.5) + 0.034 * slope_z)
-        sy = height * (zz + crest + tilt * (xx - 0.5))
+        sx, sy = self._bend_pointer(xx + 0.034 * slope_z, zz + crest,
+                                   width, height)
+        sx, sy = sx * width, sy * height
         gain = max(1.0, self.effective_density())
-        painter.drawImage(0, 0, self._point_material(
-            width, height, sx, sy, light * gain, spread=True))
+        return self._point_material(
+            width, height, sx, sy, light * gain, spread=True)
 
     def _paint_tissue_facets(self, painter: QPainter, width: int,
                              height: int) -> None:
-        """Move seeded faceted tissue cells with continuous local breathing."""
+        """Keep crisp paper relief still until local mouse gravity lifts it."""
         key = ("tissue_facets", width, height, self.size, self.density)
         material = self._material_cache.get(key)
         if material is None:
             rng = random.Random(self._art_seed)
             scale = math.sqrt(self.effective_density()) / self.size
-            columns = max(12, min(66, round(38 * scale)))
-            rows = max(8, min(42, round(columns * height / width)))
+            columns = max(3, min(66, round(38 * scale)))
+            rows = max(2, min(42, round(columns * height / width)))
             cell_width = width / columns
             cell_height = height / rows
             cells = []
@@ -4929,9 +5168,17 @@ class _DataArtEngine(_BufferedEngine):
             material = tuple(cells)
             self._material_cache[key] = material
         for cx, cy, rx, ry, phase, tile, extent_x, extent_y in material:
-            drift = self.time * 0.30 + phase
-            dx = rx * 0.23 * math.sin(drift + cy / max(1, height) * 3.0)
-            dy = ry * 0.21 * math.cos(drift * 0.83 + cx / max(1, width) * 4.0)
+            dx = dy = 0.0
+            if self.pointer is not None and self.gravity_radius > 0.0:
+                shorter = max(1, min(width, height))
+                distance_x = (cx - self.pointer[0] * width) / shorter
+                distance_y = (cy - self.pointer[1] * height) / shorter
+                squared = distance_x ** 2 + distance_y ** 2
+                reach = max(0.0, 1.0 - squared / self.gravity_radius ** 2) ** 3
+                if reach > 0.0:
+                    lift = reach * (0.55 + 0.15 * math.sin(phase))
+                    dx = -distance_x * rx * lift
+                    dy = -distance_y * ry * lift - ry * 0.28 * reach
             painter.drawImage(QPointF(cx + dx - extent_x,
                                       cy + dy - extent_y), tile)
 
@@ -4939,7 +5186,7 @@ class _DataArtEngine(_BufferedEngine):
 
     def _paint_chromatin_ribbon(self, painter: QPainter, width: int,
                                 height: int) -> None:
-        """Glide native satin folds with cached fine antialiased fibres."""
+        """Deform fine native satin fibres into travelling transverse waves."""
         np = _numpy()
         key = ("chromatin_native_folds", width, height, self.resolution,
                self.size, self.density)
@@ -5003,23 +5250,81 @@ class _DataArtEngine(_BufferedEngine):
                                 picture, origin_x, origin_y))
             ribbons = tuple(ribbons)
             self._material_cache[key] = ribbons
-        painter.save()
-        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
-        for centre, phase, picture, origin_x, origin_y in ribbons:
-            drift = self.time * 0.15
-            dx = width * 0.018 * math.sin(drift * 0.71 + phase)
-            dy = height * 0.017 * math.sin(drift + phase * 0.63)
-            painter.save()
-            painter.translate(dx, centre + dy)
-            painter.drawImage(QPointF(origin_x, origin_y), picture)
-            painter.restore()
-        painter.restore()
+        warp_key = ("chromatin_native_waves", width, height, self.resolution,
+                    self.size, self.density)
+        warps = self._material_cache.get(warp_key)
+        if warps is None:
+            warps = []
+            padding = math.ceil(height * 0.035) + 2
+            for _, _, picture, origin_x, _ in ribbons:
+                source = np.frombuffer(picture.bits(), dtype=np.uint32).reshape(
+                    picture.height(), picture.width())
+                along = (np.arange(source.shape[1], dtype=np.float32)
+                         + origin_x) / width
+                occupied = source != 0
+                present = np.any(occupied, axis=0)
+                tops = np.where(present, np.argmax(occupied, axis=0),
+                                source.shape[0]).astype(np.int32)
+                bottoms = np.where(present, source.shape[0] - np.argmax(
+                    occupied[::-1], axis=0), 0).astype(np.int32)
+                warps.append((source, along, tops, bottoms, padding))
+            self._material_cache[warp_key] = warps
+        kernel = _SATIN_COMPILER.ready()
+        tasks = []
+        images = []
+        for ribbon, warp in zip(ribbons, warps):
+            centre, phase, picture, origin_x, origin_y = ribbon
+            source, along, tops, bottoms, padding = warp
+            travel = height * 0.024 * (
+                np.sin(math.tau * along * 1.1 - self.time * 0.55 + phase)
+                + 0.35 * np.sin(math.tau * along * 2.6
+                                + self.time * 0.31 + phase * 0.63))
+            shifts = np.rint(travel).astype(np.int32)
+            for start in range(0, source.shape[1], 128):
+                end = min(source.shape[1], start + 128)
+                strip_shifts = shifts[start:end]
+                strip_tops, strip_bottoms = tops[start:end], bottoms[start:end]
+                lower = max(0, int(np.min(strip_tops + strip_shifts + padding)))
+                upper = min(source.shape[0] + 2 * padding,
+                            int(np.max(strip_bottoms + strip_shifts + padding)))
+                target = np.zeros((max(1, upper - lower), end - start), dtype=np.uint32)
+                image = QImage(target.data, target.shape[1], target.shape[0],
+                               target.strides[0], QImage.Format_ARGB32_Premultiplied)
+                images.append((target, image, origin_x + start,
+                               centre + origin_y - padding + lower))
+                strip_source = source[:, start:end]
+                strip_padding = padding - lower
+                if kernel is not None:
+                    tasks.append((strip_source, target, strip_shifts, strip_tops,
+                                  strip_bottoms, strip_padding))
+                else:
+                    _numpy_satin_columns(strip_source, target, strip_shifts, strip_padding)
+        if kernel is not None:
+            try:
+                _SATIN_COMPILER.copy_waves(kernel, tuple(tasks))
+            except Exception:
+                _SATIN_COMPILER.kernel = None
+                _SATIN_COMPILER.failed = True
+                for source, target, shifts, _, _, padding in tasks:
+                    _numpy_satin_columns(source, target, shifts, padding)
+        opacity = painter.opacity()
+        painter.setOpacity(opacity * min(1.0, 7 * self.effective_density()))
+        try:
+            for _target, image, origin_x, origin_y in images:
+                painter.drawImage(QPointF(origin_x, origin_y), image)
+        finally:
+            painter.setOpacity(opacity)
 
 
 
 
-    def _paint_genetic_advection(self, painter, width, height):
-        """Advect dense tapered grain trails through a continuously curled field."""
+    def _paint_genetic_advection(self, painter: QPainter, width: int,
+                              height: int) -> None:
+        """Blit the owned point frame for synchronous material callers."""
+        painter.drawImage(0, 0, self._frame_genetic_advection(width, height))
+
+    def _frame_genetic_advection(self, width, height) -> QImage:
+        """Advect trails through vortices and short cursor-attracted histories."""
         np = _numpy()
         key = ("wind_grains", width, height, self.size, self.density)
         grains = self._material_cache.get(key)
@@ -5032,32 +5337,76 @@ class _DataArtEngine(_BufferedEngine):
         u, v, depth = grains
         count = self.element_count(34000, len(u))
         u, v, depth = u[:count], v[:count], depth[:count]
-        q = u + self.time * (0.013 + 0.009 * depth)
         phase = self._anchors[0][0] * math.tau
-        trails = np.arange(12, dtype=np.float32)[:, None]
-        t = q[None, :] - trails * (0.0015 + 0.0012 * depth) * self.size
+        travel = (self.time * (0.013 + 0.009 * depth)
+                  + 0.046 * (np.sin(self.time * 0.23 + 4.0 * depth + phase)
+                             - np.sin(4.0 * depth + phase)))
+        q = u + travel
+        samples = np.arange(3, dtype=np.float32)[:, None]
+        t = q[None, :] - samples * (0.0015 + 0.0012 * depth) * self.size
         x = t - np.floor(t)
-        y = (v + 0.135 * np.sin(math.tau * x + 7.0 * v + phase)
-             + 0.07 * np.sin(2.0 * math.tau * x - 5.0 * v + phase * 0.7)
-             + 0.023 * np.sin(5.0 * math.tau * x + 11.0 * v))
+        breathing = self.time * 0.11
+        y = (v + (0.10 + 0.045 * math.sin(breathing)) * np.sin(
+            math.tau * x + 7.0 * v + phase + breathing)
+             + 0.07 * np.sin(2.0 * math.tau * x - 5.0 * v
+                            + phase * 0.7 - breathing * 0.83)
+             + 0.035 * np.sin(5.0 * math.tau * x + 11.0 * v
+                             + breathing * 1.31))
         y -= np.floor(y)
-        if self.pointer is not None:
-            dx, dy = x - self.pointer[0], y - self.pointer[1]
-            rotation = 1.5 * np.exp(-(dx * dx + dy * dy) / 0.035)
+        for vortex, (anchor_x, anchor_y, spin) in enumerate(self._anchors[2:5]):
+            cx = anchor_x + 0.12 * math.sin(self.time * 0.071 + spin * math.tau)
+            cy = anchor_y + 0.12 * math.cos(self.time * 0.063 + spin * math.tau)
+            dx, dy = x - cx, y - cy
+            dx -= np.rint(dx)
+            dy -= np.rint(dy)
+            reach = 0.15 + 0.025 * math.sin(self.time * 0.14 + vortex)
+            weight = np.maximum(0.0, 1.0 - (dx * dx + dy * dy) / reach ** 2) ** 2
+            rotation = weight * (2.7 + 1.4 * math.sin(
+                self.time * 0.19 + spin * math.tau)) * (1 if vortex % 2 else -1)
             cosine, sine = np.cos(rotation), np.sin(rotation)
-            x = self.pointer[0] + dx * cosine - dy * sine
-            y = self.pointer[1] + dx * sine + dy * cosine
+            x = cx + dx * cosine - dy * sine
+            y = cy + dx * sine + dy * cosine
+            x -= np.floor(x)
+            y -= np.floor(y)
+        trails = np.arange(12, dtype=np.float32)[:, None]
+        positions = []
+        for coordinates in (x, y):
+            tangent = coordinates[0] - coordinates[1]
+            tangent -= np.rint(tangent)
+            previous = coordinates[1] - coordinates[2]
+            previous -= np.rint(previous)
+            curvature = np.clip(tangent - previous, -0.0003, 0.0003)
+            curve = (coordinates[0][None, :] - trails * tangent[None, :]
+                     + 0.5 * trails * (trails - 1.0) * curvature[None, :])
+            positions.append(curve - np.floor(curve))
+        x, y = positions
+        if self.pointer is not None and self.gravity_radius > 0.0:
+            dx, dy, _, weight = self._pointer_field(x, y, width, height)
+            exposure = weight.copy()
+            exposure[:-3] += weight[3:]
+            exposure[-3:] += weight[-1]
+            exposure[:-6] += weight[6:]
+            exposure[-6:] += weight[-1]
+            pull = 0.72 * np.sqrt(weight * exposure / 3.0)
+            shorter = max(1, min(width, height))
+            x -= dx * pull * shorter / width
+            y -= dy * pull * shorter / height
         columns = np.clip((x * width).astype(np.int32), 0, width - 1)
         rows = np.clip((y * height).astype(np.int32), 0, height - 1)
         intensity = (0.25 + 0.60 * depth) * ((12 - trails) / 12) ** 1.3
-        painter.drawImage(0, 0, self._point_material(
-            width, height, columns.ravel(), rows.ravel(), intensity.ravel()))
+        return self._point_material(
+            width, height, columns.ravel(), rows.ravel(), intensity.ravel())
 
 
 
 
     def _paint_impulse_lens(self, painter: QPainter, width: int,
-                            height: int) -> None:
+                              height: int) -> None:
+        """Blit the owned point frame for synchronous material callers."""
+        painter.drawImage(0, 0, self._frame_impulse_lens(width, height))
+
+    def _frame_impulse_lens(self, width: int,
+                            height: int) -> QImage:
         """Bend a round-dot gravity field with cursor wakes and burst waves."""
         np = _numpy()
         key = ("impulse_lens", width, height, self.size, self.density)
@@ -5072,17 +5421,19 @@ class _DataArtEngine(_BufferedEngine):
             lattice = (xx.ravel() / width, yy.ravel() / height, {})
             self._material_cache[key] = lattice
         x, y, impulse_fields = lattice
-        aspect = width / max(1, height)
-        cx = self.pointer[0] if self.pointer else 0.5 + 0.20 * math.sin(
+        shorter = max(1, min(width, height))
+        aspect_x, aspect_y = width / shorter, height / shorter
+        cx = 0.5 + 0.20 * math.sin(
             self.time * 0.10 + self._anchors[0][0])
-        cy = self.pointer[1] if self.pointer else 0.5 + 0.18 * math.cos(
+        cy = 0.5 + 0.18 * math.cos(
             self.time * 0.083 + self._anchors[0][1])
-        dx, dy = (x - cx) * aspect, y - cy
+        dx, dy = (x - cx) * aspect_x, (y - cy) * aspect_y
         radius = np.sqrt(dx * dx + dy * dy + 1e-6)
         envelope = np.exp(-(radius / 0.34) ** 2)
         gravity = -0.052 * envelope / np.sqrt(radius * radius + 0.013)
-        px = x + dx / aspect * gravity
-        py = y + dy * gravity
+        px = x + dx / aspect_x * gravity
+        py = y + dy / aspect_y * gravity
+        px, py = self._bend_pointer(px, py, width, height)
         energy = envelope * 0.12
         active_origins = {origin for started, origin, _ in self._gravity_impulses
                           if 0.0 <= self.time - started < 5.0}
@@ -5095,49 +5446,66 @@ class _DataArtEngine(_BufferedEngine):
                 continue
             field = impulse_fields.get(origin)
             if field is None:
-                ex, ey = (x - origin[0]) * aspect, y - origin[1]
+                ex = (x - origin[0]) * aspect_x
+                ey = (y - origin[1]) * aspect_y
                 distance = np.sqrt(ex * ex + ey * ey + 1e-6)
-                field = (ex / aspect, ey, distance,
-                         np.exp(-(distance / 0.32) ** 2),
-                         np.sqrt(distance * distance + 0.02))
+                selected = np.flatnonzero(distance < self.gravity_radius)
+                distance = distance[selected]
+                reach = np.maximum(0.0, 1.0 - (distance / self.gravity_radius) ** 2) ** 3
+                field = (selected, ex[selected] / aspect_x, ey[selected] / aspect_y,
+                         distance, reach * np.exp(-(distance / 0.32) ** 2),
+                         np.sqrt(distance * distance + 0.02), reach)
                 impulse_fields[origin] = field
-            ex, ey, distance, burst_envelope, burst_softening = field
+            selected, ex, ey, distance, burst_envelope, burst_softening, reach = field
             decay = math.exp(-age * 0.90) * strength
             burst = (-0.12 * decay * math.exp(-age * 3.0)
                      * burst_envelope / burst_softening)
             front = distance - age * 0.26
-            packet = np.exp(-(front / 0.075) ** 2)
+            packet = np.exp(-(front / 0.075) ** 2) * reach
             ripple = 0.045 * decay * packet * np.sin(front * 58.0)
             displacement = burst + ripple / np.maximum(distance, 0.055)
-            px += ex * displacement
-            py += ey * displacement
-            energy += decay * packet * 0.40
+            px[selected] += ex * displacement
+            py[selected] += ey * displacement
+            energy[selected] += decay * packet * 0.40
         brilliance = np.clip(0.57 + energy, 0.48, 1.0)
         gain = max(1.0, self.effective_density())
-        painter.drawImage(0, 0, self._point_material(
+        return self._point_material(
             width, height, px * width, py * height, brilliance * gain,
-            spread=True))
+            spread=True)
 
 
 class _FungalGrowthEngine(_BufferedEngine):
-    """One seeded apex advances forever while its old hyphae recede.
+    """Fine connected mycelial fans branch from common origins continuously.
 
-    Every trunk segment joins the preceding one, starting at one origin.
-    Forks attach only to that trunk. A finite window around the requested
-    clock is reconstructed from indexed seeds, so seeking hours ahead never
-    accumulates geometry or restarts the colony.
+    Bright tips advance along irregular filaments and fork progressively.
+    Older connected colonies recede as new origins start, without a full
+    frame reset. Indexed finite trees make arbitrary clock seeks reproducible
+    without accumulating a simulation history.
     """
 
     name = "data_art_fungal_growth"
     base_edge = 2048
-    _interval = 1.35
-    _edge_lifetime = 70.0
+    _interval = 30.0
+    _edge_lifetime = 110.0
+
+    def _shade(self, width: int, height: int) -> QImage:
+        """Render the unchanged native field into a freshly owned image."""
+        bw, bh = self.buffer_size(width, height)
+        image = QImage(bw, bh, QImage.Format_RGB32)
+        painter = QPainter(image)
+        try:
+            painter.fillRect(image.rect(), self.identity)
+            painter.setCompositionMode(self.mode)
+            painter.setPen(Qt.NoPen)
+            self._paint_field(painter, bw, bh)
+        finally:
+            painter.end()
+        return self._soften(image, width, height)
 
     def _configure(self, rng: random.Random) -> None:
-        """Roll one origin and phases for the entire unbounded clock."""
+        """Roll the first common origin and a seed for all indexed colonies."""
         self._fungal_seed = rng.randrange(2 ** 63)
-        self._origin = (rng.uniform(0.46, 0.54), rng.uniform(0.46, 0.54))
-        self._phases = tuple(rng.uniform(-math.pi, math.pi) for _ in range(4))
+        self._origin = (rng.uniform(0.46, 0.54), rng.uniform(0.85, 0.95))
         self._lineage_cache: Dict[tuple, tuple] = {}
 
     def _resize(self) -> None:
@@ -5157,22 +5525,10 @@ class _FungalGrowthEngine(_BufferedEngine):
         """Allow a little softness without turning filaments into a wash."""
         return min(1.3, super().blur_scale(width, height))
 
-    def _apex(self, index: int, width: int, height: int) -> tuple:
-        """Position of the one continuous, looping growth front."""
-        a, b, c, d = self._phases
-        x = self._origin[0] + 0.26 * (
-            math.sin(a + index * 0.113) - math.sin(a)) + 0.09 * (
-                math.sin(b + index * 0.037) - math.sin(b))
-        y = self._origin[1] + 0.23 * (
-            math.sin(c + index * 0.089) - math.sin(c)) + 0.10 * (
-                math.sin(d + index * 0.029) - math.sin(d))
-        return (width * max(0.045, min(0.955, x)),
-                height * max(0.045, min(0.955, y)))
-
     def _step(self, rng: random.Random, x: float, y: float,
               angle: float, width: int, height: int) -> tuple:
-        """Bend one short fork while keeping its tip on the canvas."""
-        length = min(width, height) * self.size * rng.uniform(0.025, 0.062)
+        """Bend one fine irregular filament step while retaining its live tip."""
+        length = min(width, height) * self.size * rng.uniform(0.009, 0.019)
         dx, dy = length * math.cos(angle), length * math.sin(angle)
         margin = max(2.0, min(width, height) * 0.025)
         if x + dx < margin or x + dx > width - margin:
@@ -5188,41 +5544,35 @@ class _FungalGrowthEngine(_BufferedEngine):
             end_y - y, end_x - x)
 
     def _lineage(self, block: int, width: int, height: int) -> tuple:
-        """Build 16 indexed front steps; retain at most eight such blocks."""
+        """Build one finite connected tree; retain at most eight colonies."""
         key = (block, width, height, self.size)
         cached = self._lineage_cache.get(key)
         if cached is not None:
             return cached
+        seed = (self._fungal_seed ^ (block * 0xD1B54A32D192ED03)) & (2 ** 128 - 1)
+        rng = random.Random(seed)
+        origin = self._origin if block == 0 else (
+            rng.uniform(0.25, 0.75), rng.uniform(0.85, 0.95))
+        branches = [(origin[0] * width, origin[1] * height,
+                     -math.pi / 2 + rng.uniform(-0.18, 0.18),
+                     block * self._interval - 0.55, 0)]
         edges = []
-        for index in range(max(0, block * 16), (block + 1) * 16):
-            rng = random.Random((self._fungal_seed ^
-                                 (index * 0x9E3779B97F4A7C15))
-                                & (2 ** 128 - 1))
-            x, y = self._apex(index, width, height)
-            end_x, end_y = self._apex(index + 1, width, height)
-            bend = rng.uniform(-0.15, 0.15)
-            cx = (x + end_x) * 0.5 - (end_y - y) * bend
-            cy = (y + end_y) * 0.5 + (end_x - x) * bend
-            born = index * self._interval - 0.55
-            direction = math.atan2(end_y - y, end_x - x)
-            edges.append((index, x, y, cx, cy, end_x, end_y,
-                          born, self._interval, index, 0))
-            for fork in range(3):
-                if rng.random() > (0.95 if fork == 0 else
-                                   0.88 if fork == 1 else 0.75):
-                    continue
-                angle = direction + rng.choice((-1.0, 1.0)) * rng.uniform(
-                    0.65, 1.35)
-                bx, by = end_x, end_y
-                began = born + self._interval + fork * 0.12
-                for _ in range(3):
-                    tip_x, tip_y, fx, fy, angle = self._step(
-                        rng, bx, by, angle, width, height)
-                    edges.append((index, bx, by, fx, fy, tip_x, tip_y,
-                                  began, 1.45, index + fork, 1))
-                    began += 1.45
-                    bx, by = tip_x, tip_y
-                    angle += rng.uniform(-0.34, 0.34)
+        for index in range(240):
+            x, y, angle, born, depth = branches[index]
+            rng = random.Random(seed ^ (index * 0x9E3779B97F4A7C15))
+            hue = rng.randrange(5)
+            for _ in range(6):
+                angle += rng.uniform(-0.23, 0.23)
+                end_x, end_y, cx, cy, angle = self._step(
+                    rng, x, y, angle, width, height)
+                duration = rng.uniform(1.25, 1.7)
+                edges.append((index, x, y, cx, cy, end_x, end_y,
+                              born, duration, hue, depth))
+                born += duration
+                x, y = end_x, end_y
+            for direction in (-1, 1):
+                branches.append((x, y, angle + direction * rng.uniform(0.32, 0.72),
+                                 born + rng.uniform(0.10, 0.35), depth + 1))
         result = tuple(edges)
         self._lineage_cache[key] = result
         if len(self._lineage_cache) > 8:
@@ -5242,31 +5592,31 @@ class _FungalGrowthEngine(_BufferedEngine):
             return ()
         width, height = int(width), int(height)
         latest = max(0, math.floor((self.time + 0.55) / self._interval))
-        earliest = max(0, math.floor((self.time - self._edge_lifetime - 3.0)
+        earliest = max(0, math.floor((self.time - self._edge_lifetime)
                                      / self._interval))
-        stroke = max(0.55, min(2.4, (0.70 + 0.32 * self.size)
+        stroke = max(0.45, min(1.7, 0.66 * self.size
                               * (min(width, height) / 1080.0) ** 0.35))
+        branch_count = self.element_count(90, 240)
         candidates = []
-        for block in range(earliest // 16, latest // 16 + 1):
+        for block in range(earliest, latest + 1):
+            colony_age = self.time - (block * self._interval - 0.55)
+            colony_fade = min(1.0, (self._edge_lifetime - colony_age) / 35.0)
+            if colony_fade <= 0.0:
+                continue
             for (index, x0, y0, cx, cy, x1, y1, born, duration,
                  hue, depth) in self._lineage(block, width, height):
-                if index < earliest or index > latest:
+                if index >= branch_count:
                     continue
                 age = self.time - born
-                if age <= 0.0 or age >= self._edge_lifetime:
-                    continue
-                if depth and ((index * 37 + hue * 19) % 100) >= \
-                        min(99, round(75 * self.density)):
+                if age <= 0.0:
                     continue
                 progress = min(1.0, age / duration)
-                fade = min(1.0, age / 0.35,
-                           (self._edge_lifetime - age) / 30.0)
-                alpha = (0.72 if depth == 0 else 0.50) * fade \
-                    * self.alpha_scale()
+                fade = min(1.0, age / 0.35) * colony_fade
+                alpha = (0.20 + 0.38 * max(0.0, 1.0 - max(0.0, age - duration) / 9.0)) \
+                    * fade * self._fractional_alpha_scale(90)
                 if alpha >= 0.006:
                     candidates.append((x0, y0, cx, cy, x1, y1, progress,
-                                       alpha, stroke * (1.0 if depth == 0
-                                                       else 0.72), hue))
+                                       alpha, max(0.4, stroke * 0.93 ** depth), hue))
         budget = width * height * 0.18
         selected = []
         for edge in reversed(candidates):
@@ -5296,6 +5646,8 @@ class _FungalGrowthEngine(_BufferedEngine):
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setBrush(Qt.NoBrush)
         colors = self.paint_colors
+        paths = {}
+        tips = []
         for (x0, y0, cx, cy, x1, y1, progress,
              alpha, stroke, hue) in self.geometry(width, height):
             control_x = x0 + progress * (cx - x0)
@@ -5306,19 +5658,27 @@ class _FungalGrowthEngine(_BufferedEngine):
             end_y = ((1.0 - progress) ** 2 * y0
                      + 2.0 * (1.0 - progress) * progress * cy
                      + progress ** 2 * y1)
-            path = QPainterPath(QPointF(x0, y0))
+            key = (hue % len(colors), stroke, alpha)
+            path = paths.get(key)
+            if path is None:
+                path = QPainterPath()
+                paths[key] = path
+            path.moveTo(QPointF(x0, y0))
             path.quadTo(QPointF(control_x, control_y), QPointF(end_x, end_y))
-            color = _with_alpha(colors[hue % len(colors)], alpha)
+            if progress < 1.0:
+                tips.append((end_x, end_y, stroke, hue, alpha))
+        for (hue, stroke, alpha), path in paths.items():
+            color = _with_alpha(colors[hue], alpha)
             painter.setPen(QPen(color, stroke, Qt.SolidLine,
                                 Qt.RoundCap, Qt.RoundJoin))
             painter.drawPath(path)
-            if progress < 1.0:
-                painter.setPen(Qt.NoPen)
-                painter.setBrush(_with_alpha(colors[(hue + 1) % len(colors)],
-                                             min(0.75, alpha * 1.8)))
-                radius = max(0.45, stroke * 0.8)
-                painter.drawEllipse(QPointF(end_x, end_y), radius, radius)
-                painter.setBrush(Qt.NoBrush)
+        painter.setPen(Qt.NoPen)
+        for end_x, end_y, stroke, hue, alpha in tips:
+            painter.setBrush(_with_alpha(colors[(hue + 1) % len(colors)],
+                                         min(0.85, alpha * 1.8)))
+            radius = max(0.45, stroke * 0.8)
+            painter.drawEllipse(QPointF(end_x, end_y), radius, radius)
+        painter.setBrush(Qt.NoBrush)
 
 
 class _ThoreEngine(_BufferedEngine):
@@ -5331,6 +5691,20 @@ class _ThoreEngine(_BufferedEngine):
     name = "data_art_thore"
     base_edge = 2048
     _event_interval = 8.4
+
+    def _shade(self, width: int, height: int) -> QImage:
+        """Render the unchanged native field into a freshly owned image."""
+        bw, bh = self.buffer_size(width, height)
+        image = QImage(bw, bh, QImage.Format_RGB32)
+        painter = QPainter(image)
+        try:
+            painter.fillRect(image.rect(), self.identity)
+            painter.setCompositionMode(self.mode)
+            painter.setPen(Qt.NoPen)
+            self._paint_field(painter, bw, bh)
+        finally:
+            painter.end()
+        return self._soften(image, width, height)
 
     def _configure(self, rng: random.Random) -> None:
         """Keep immutable rain particles and one seed for indexed bolts."""
@@ -5352,21 +5726,28 @@ class _ThoreEngine(_BufferedEngine):
             return cached
         rng = random.Random((self._thore_seed ^
                              (index * 0xD1B54A32D192ED03)) & (2 ** 128 - 1))
-        x = rng.uniform(0.21, 0.79)
-        y = -0.035
+        horizontal = index % 3 == 1
+        along = (1.0, 0.0) if horizontal else (0.0, 1.0)
+        across = (0.0, 1.0) if horizontal else (1.0, 0.0)
+        x = -0.035 if horizontal else rng.uniform(0.21, 0.79)
+        y = rng.uniform(0.21, 0.79) if horizontal else -0.035
         trunk = [(x, y)]
         forks = []
-        for step in range(11):
-            x = max(0.04, min(0.96, x + rng.uniform(-0.042, 0.042)))
-            y += rng.uniform(0.050, 0.078)
+        for step in range(32):
+            stride = rng.uniform(0.018, 0.027)
+            zigzag = rng.uniform(-0.025, 0.025)
+            x += along[0] * stride + across[0] * zigzag
+            y += along[1] * stride + across[1] * zigzag
             trunk.append((x, y))
-            if step in (3, 6, 8):
+            if step in (9, 17, 24):
                 direction = rng.choice((-1, 1))
                 bx, by = x, y
                 branch = [(bx, by)]
-                for _ in range(3):
-                    bx += direction * rng.uniform(0.025, 0.065)
-                    by += rng.uniform(0.035, 0.065)
+                for _ in range(7):
+                    stride = rng.uniform(0.007, 0.018)
+                    fork = direction * rng.uniform(0.010, 0.038)
+                    bx += along[0] * stride + across[0] * fork
+                    by += along[1] * stride + across[1] * fork
                     branch.append((bx, by))
                 forks.append(tuple(branch))
         result = (tuple(trunk), tuple(forks))
@@ -5379,35 +5760,44 @@ class _ThoreEngine(_BufferedEngine):
         """Colour-independent rain positions and the active lightning tree."""
         if width <= 0 or height <= 0:
             return ()
-        amount = min(len(self._rain), max(24, round(105 * self.density)))
+        amount = min(len(self._rain), max(1, round(105 * self.density)))
         length = min(width, height) * 0.025 * self.size
-        slant = length * 0.24
-        drops = tuple((x0 * width,
-                       ((phase + self.time * (0.085 + 0.040 * fall)) % 1.12)
-                       * (height + length) - length,
-                       slant, length, (0.14 + 0.10 * span)
-                       * self.alpha_scale(), hue)
-                      for x0, phase, fall, span, hue in self._rain[:amount])
+        drops = []
+        for x0, phase, fall, span, hue in self._rain[:amount]:
+            progress = (phase + self.time * (0.085 + 0.040 * fall)) % 1.0
+            wind = (0.012 * math.sin(self.time * 0.23 + fall * math.tau)
+                    + 0.006 * math.sin(progress * math.tau + x0 * 9.0))
+            x = (x0 + wind) * width
+            y = progress * (height + 2.0 * length) - length
+            slant = length * (0.15 + 0.12 * math.sin(
+                self.time * 0.23 + fall * math.tau))
+            fade = min(1.0, progress / 0.018, (1.0 - progress) / 0.018)
+            drops.append((x, y, slant, length, (0.14 + 0.10 * span)
+                          * self.alpha_scale() * fade, hue))
         index = math.floor(self.time / self._event_interval)
         age = self.time - index * self._event_interval
         flash = ((math.sin(math.pi * age / 0.34) ** 2, *self._bolt(index))
                  if 0.0 <= age < 0.34 else ())
-        return drops, flash
+        return tuple(drops), flash
 
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
-        """Draw independently falling lines and a short, low-energy flash."""
+        """Draw tapered advected rain and narrow, pale branching lightning."""
         painter.setRenderHint(QPainter.Antialiasing, True)
         palette = self.paint_colors
         drops, flash = self.geometry(width, height)
         for x, y, slant, length, alpha, hue in drops:
-            painter.setPen(QPen(_with_alpha(palette[hue % len(palette)], alpha),
-                                max(0.55, 0.72 * self.size), Qt.SolidLine,
+            color = palette[hue % len(palette)]
+            taper = QLinearGradient(x, y, x + slant, y + length)
+            taper.setColorAt(0.0, _with_alpha(color, 0.0))
+            taper.setColorAt(0.55, _with_alpha(color, alpha * 0.34))
+            taper.setColorAt(1.0, _with_alpha(color, alpha))
+            painter.setPen(QPen(QBrush(taper), max(0.55, 0.72 * self.size), Qt.SolidLine,
                                 Qt.RoundCap))
             painter.drawLine(QPointF(x, y), QPointF(x + slant, y + length))
         if flash:
             pulse, trunk, forks = flash
             wash = QLinearGradient(0.0, 0.0, 0.0, float(height))
-            wash.setColorAt(0.0, _with_alpha(palette[0], 0.035 * pulse))
+            wash.setColorAt(0.0, _with_alpha(palette[0], 0.018 * pulse))
             wash.setColorAt(1.0, _with_alpha(palette[0], 0.0))
             painter.setPen(Qt.NoPen)
             painter.fillRect(0, 0, width, height, wash)
@@ -5417,10 +5807,12 @@ class _ThoreEngine(_BufferedEngine):
                                             points[0][1] * height))
                 for px, py in points[1:]:
                     path.lineTo(px * width, py * height)
-                painter.setPen(QPen(_with_alpha(palette[0],
-                                               (0.23 if fine else 0.42)
+                bolt_color = _mix(palette[0], QColor("#ffffff"),
+                                  0.48 if self.dark else 0.0)
+                painter.setPen(QPen(_with_alpha(bolt_color,
+                                               (0.29 if fine else 0.49)
                                                * pulse * self.alpha_scale()),
-                                    (1.2 if fine else 2.7) * self.size,
+                                    (0.70 if fine else 1.35) * self.size,
                                     Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
                 painter.drawPath(path)
         painter.setRenderHint(QPainter.Antialiasing, False)
@@ -5569,6 +5961,7 @@ class _QueuedArtInput:
     """
 
     def __init__(self):
+        """Initialize bounded cumulative tick and click ownership counters."""
         self._serial = 0
         self._elapsed = 0.0
         self._click_serial = 0

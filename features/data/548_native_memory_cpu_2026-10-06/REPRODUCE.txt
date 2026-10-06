@@ -1,7 +1,12 @@
 Frozen source and actual paired measurement logs are included.
-The prepare script regenerates the original scratch fixture and replaces
-its baseline/optimized directories; run it only in a dedicated scratch copy.
+The prepare script requires --artifact-root pointing to an empty dedicated
+scratch directory. It refuses existing evidence and never removes outputs.
 Use worktrees at the two recorded source commits and PYTHONPATH=. when
 running measure.py, CUDA_VISIBLE_DEVICES='', QT_QPA_PLATFORM=offscreen,
 tools/run_capped.sh 4G python. Compare the three recorded output SHA256s.
 Run tests/test_native_tzyx_batch_f548.py for channel-subset regressions.
+
+measure.py requires --source-sha256 from receipt.json for the selected
+frozen io source and refuses an installed package from another checkout.
+The repaired helper was replayed on a fresh regenerated fixture with the
+optimized frozen source; all three original output hashes remained equal.

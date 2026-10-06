@@ -44,6 +44,7 @@ if (( host_total_kib < 14 * 1024 * 1024 || host_available_kib < 12 * 1024 * 1024
 fi
 unset SPACR_PYTEST_FILE_SHARD_INDEX SPACR_PYTEST_FILE_SHARD_COUNT PYTEST_ADDOPTS
 echo "N47 serial source=$source_sha host.MemTotal=${host_total_kib}KiB host.MemAvailable=${host_available_kib}KiB cgroup=$cgroup memory.max=$memory_max memory.swap.max=$swap_max guard=${SPACR_TEST_MEMORY_GB}GiB"
+echo "N47 native core_pattern=$(</proc/sys/kernel/core_pattern) core_limit_blocks=$(ulimit -c) python_command=$(command -v python)"
 exec python -m pytest tests/qt -v --tb=short -p no:randomly \
     -p tools.pytest_plugins.qt_serial_rss_journal \
     -o faulthandler_timeout=900 --timeout=1200 --timeout-method=thread

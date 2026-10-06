@@ -1,0 +1,48 @@
+{
+  "recorded_utc": "2026-10-06T19:08:02.781365+00:00",
+  "checkpoint": "a13caf0e860c96fab83960614f770029849a99f2",
+  "receipts": [
+    {
+      "log": "f567-root-integration.log.gz",
+      "source_commit": "2432021e9d8f6cf0506573495aff64ed80c544d2",
+      "passed": 126,
+      "original_sha256": "32ea3e1507aafdebec36f0bfaea17a9368a831f92f8903acc8156a983255424c"
+    },
+    {
+      "log": "integrated-cellpose-layout.log.gz",
+      "source_commit": "19d190e3f230fe9d20e4b7d507475ee1891266d2",
+      "passed": 47,
+      "original_sha256": "4d59490dc5983a5aa95f6cf9c0f580cbd3e94c773b672a2d07d0b665577a0389"
+    },
+    {
+      "log": "system-panel-same-pixel.log.gz",
+      "source_commit": "a13caf0e860c96fab83960614f770029849a99f2",
+      "passed": 10,
+      "original_sha256": "bc07cc20379f4f52179a51c8a05510228ad09c85b3eb057e61f391bb89efe00f"
+    },
+    {
+      "log": "integrated-readiness-inventory.log.gz",
+      "source_commit": "624f6552847e25de5ee7b2aaec1249d45d5ad316",
+      "passed": 1,
+      "original_sha256": "3b0627dd97ff3dc69f85b204d4a773c540008209497ec6e0dcf68ff631e2914a"
+    },
+    {
+      "log": "integrated-paper-radius.log.gz",
+      "source_commit": "e728aa0f82d4e95c009dded573b5fa50d0299c90",
+      "passed": 56,
+      "original_sha256": "b5aefb5521ac9425115fe78498a47de5b0375eb7ecd6584afb512a3bf8cb04ca"
+    }
+  ],
+  "current_source_sha256": {
+    "spacr/qt/widgets/timelapse_preview.py": "3b5186d03b9abe97a928cc166e603a71e46694b02a62fa675806313ee3b1e284",
+    "spacr/timelapse.py": "a69aba816dd3b95c5d849c471fe971e3824114493d20b5e585084813dddb970a",
+    "tests/qt/test_system_panel_opacity.py": "e10c2e1475d4aef3fe29656bb98f7a41e74ceb7ffa473920a025a314f1bd7779",
+    "tests/test_native_tzyx_batch_f548.py": "80aa41c97c5c7d337460461e39e6df99d713def40a21e20e772a258ee28c9d94",
+    "tests/test_docstring_correctness.py": "0bc175c417761fda4e0bdcb4be04efb5a75a0fc7d45d78688f8bfbd8ac2dce72",
+    "spacr/qt/widgets/ambient.py": "6f2955975aeefdacac3abd39608ce46a1d2b5b7e487cb104707b942e97b11d27"
+  },
+  "compat_source": "3ca2bff5366ac30fdabb783698a3e2664b35423e",
+  "compat_parent_conclusion": "cancelled",
+  "compat_deciding_platform_cells_passed": 8,
+  "compat_cancel_reason": "New nightly push5ce3e72b8b activates existing compat cancel-in-progress; two informational full-suite steps were still active. No green parent conclusion claimed."
+}

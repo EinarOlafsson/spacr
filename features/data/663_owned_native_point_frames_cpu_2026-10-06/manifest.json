@@ -1,0 +1,51 @@
+{
+  "source_commit": "ea51dd4419",
+  "source_sha256": "2017f255047a9c7d29a766d98df3d2f50b2a5225348ab7d667dbb13b9be20cbe",
+  "tests": "133 passed",
+  "native_full_frame_pairs": 18,
+  "scope": "Fresh native QImages replace redundant buffer composite/copy for point materials; retained image ownership tested",
+  "limitations": [
+    "Native widget nine intervals measured on shared host, not all-theme24FPS acceptance.",
+    "Prototype shader timings are separate from actual widget FPS.",
+    "Reported Save crash remains OPEN.",
+    "Archived original scripts retain explicit frozen paths; never treat mutable current source as their checkpoint."
+  ],
+  "files": {
+    "ambient.py.gz": {
+      "sha256": "54bd17818735d0e1affee7ee212438687e81f32d0709f9122efe3446ebee4af1",
+      "bytes": 94937
+    },
+    "change.diff": {
+      "sha256": "83540a1d8496563e639cc1840b5b0e1e7ab11f79e79a9d89bf7d17c01b404ba6",
+      "bytes": 5065
+    },
+    "integrated-tests.log.gz": {
+      "sha256": "95ca4b394c70cbe1aeda0cd362f2958281a43f1277c9741a1645c99a0f58b6a2",
+      "bytes": 63
+    },
+    "native-widget-probe.py": {
+      "sha256": "86fa085fd89f436685d17430ac066375f31a31f163b9b6720ea6d10d4682e4ad",
+      "bytes": 8523
+    },
+    "native-widget-result.json": {
+      "sha256": "99cbc7616f2aadc86f1028a0749970e87b6d36fb67184d84b6c457647a813457",
+      "bytes": 15389
+    },
+    "native-widget.log.gz": {
+      "sha256": "e8f69e88db43673e37cd399a1fae4afd972bd13814629024457461a4658bbaf9",
+      "bytes": 3022
+    },
+    "ownership-tests.py": {
+      "sha256": "65e62a6b47b2864e94cb7542982cd80a1e46f555e454dc94b4ce9a7fdd736751",
+      "bytes": 2362
+    },
+    "prototype-pairs.log.gz": {
+      "sha256": "3a64fd9dc8b0f4dd051141f880b7f72d91be41d3354f01c8239f7780f8f4a716",
+      "bytes": 461
+    },
+    "prototype.py": {
+      "sha256": "435e1d613a4b439cf62c2cd6afd4c5286deb066ce2dfdde9a99b596081804288",
+      "bytes": 2432
+    }
+  }
+}

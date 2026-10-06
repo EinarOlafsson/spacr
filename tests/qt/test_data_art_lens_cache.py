@@ -17,6 +17,7 @@ def test_stationary_wake_fields_survive_ticks_and_expire_without_cache_growth():
     engine = ambient.make_engine("data_art_impulse_lens", "spacr", "#101418",
                                  seed=42, resolution=2, blur=0)
     engine.set_max_pixels(640 * 360)
+    engine.set_gravity_radius(0.5)
     for index in range(37):
         engine.set_time(index / 10)
         engine._add_impulse((index / 40, 0.5))
@@ -46,6 +47,7 @@ def test_duplicate_origin_wakes_share_geometry_without_merging_bursts():
     engine = ambient.make_engine("data_art_impulse_lens", "spacr", "#101418",
                                  seed=42, resolution=2, blur=0)
     engine.set_time(1)
+    engine.set_gravity_radius(0.5)
     engine._add_impulse((0.5, 0.5))
     one_burst = _hash(engine.shade(640, 360))
     engine._add_impulse((0.5, 0.5))

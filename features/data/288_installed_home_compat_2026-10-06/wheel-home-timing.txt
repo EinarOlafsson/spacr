@@ -1,0 +1,27 @@
+==============================================================================
+spaCR timing report -- real process, not a proxy
+total wall clock: 2.24s
+==============================================================================
+
+GUI THREAD STALLS  (a 16 ms timer reporting how late it was)
+  2 stalls; total frozen 0.44s
+    at    2.24s   froze      369 ms  [event-loop watchdog]
+    at    1.87s   froze       70 ms  [event-loop watchdog]
+
+INTERACTIVE READINESS  (after event-loop + screen/control paint)
+     1.98s    1980.7 ms  interactive Home  [__home__]  9 painted control(s)  OK
+
+SPANS  (nested, in the order they finished)
+     0.45s      26.4 ms  fonts
+     0.47s      45.5 ms  fonts  [glyph font]
+     1.79s      29.1 ms  background warm  [settings screens]  <spacr-prewarm>
+     1.88s       0.9 ms  paint  [ambient]
+
+IMPORTS over 5 ms  (0 of them, 0.00s total)
+
+MARKS
+     0.00s  timing started  timing module import
+     0.54s  MainWindow
+     1.80s  entering the event loop
+     1.87s  event loop began
+     1.98s  interactive Home  __home__

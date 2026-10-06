@@ -685,8 +685,8 @@ class TestViewModes:
             pixmap = item.pixmap()
             assert not pixmap.isNull()
             assert (pixmap.width(), pixmap.height()) == (32, 32)
-            return bytes(pixmap.toImage()
-                         .convertToFormat(QImage.Format_RGB32).constBits())
+            image = pixmap.toImage().convertToFormat(QImage.Format_RGB32)
+            return bytes(image.constBits())
 
         masks_view, source_view = {}, {}
         for mode in ("Overlay", "Masks", "Flows"):

@@ -28,9 +28,12 @@ def test_4k_data_art_shades_inside_the_existing_pixel_ceiling(key):
     assert (image.width(), image.height()) == (1920, 1080)
     assert image.width() * image.height() <= ambient.BUFFER_MAX_PIXELS
     assert image.width() < 3840 and image.height() < 2160
-    assert engine._buffer is not None
-    assert engine._buffer.bytesPerLine() * engine._buffer.height() <= \
-        ambient.BUFFER_MAX_PIXELS * 4
+    assert image.bytesPerLine() * image.height() <= ambient.BUFFER_MAX_PIXELS * 4
+    if engine._buffer is not None:
+        assert engine._buffer.bytesPerLine() * engine._buffer.height() <= \
+            ambient.BUFFER_MAX_PIXELS * 4
+    else:
+        assert key == "data_art_fungal_growth"
 
 
 @pytest.mark.parametrize("key", ART_KEYS)

@@ -7107,6 +7107,14 @@ def _start_icon_prewarm() -> Optional[threading.Thread]:
     return thread
 
 
+def _queue_ambient_compilation() -> None:
+    """Permit CPU compiler imports one loop turn after interactive readiness."""
+    from PySide6.QtCore import QTimer
+    from .widgets.ambient import _complete_ambient_startup
+
+    QTimer.singleShot(0, _complete_ambient_startup)
+
+
 def launch(argv: Optional[list[str]] = None) -> int:
     """Bootstrap QApplication and show the main window."""
     _timing.begin()
@@ -7226,6 +7234,9 @@ def launch(argv: Optional[list[str]] = None) -> int:
     setup_logging()
 
     from .preferences import apply_preferences_to_app
+    from .widgets.ambient import _begin_ambient_startup
+
+    _begin_ambient_startup()
     apply_preferences_to_app(app)
     try:
         from .preferences import _install_run_notifier
@@ -7270,6 +7281,12 @@ def launch(argv: Optional[list[str]] = None) -> int:
             win._startup, "interactive Home", "__home__",
             started_at=_timing.process_started_at(),
             budget_s=_timing.HOME_BUDGET_S,
+            on_ready=_queue_ambient_compilation,
+        )
+    else:
+        _timing.watch_interactive(
+            win._stack.currentWidget(), "ambient startup", "__ambient_startup__",
+            on_ready=_queue_ambient_compilation,
         )
     win._startup_benchmark_controller = benchmark_controller
     _open_at_the_measured_width(win)

@@ -1,0 +1,64 @@
+{
+  "source_sha256": "873602649bf67b9251d388dd04348445c4494faa5770f33d8dd0b19a233c48a0",
+  "peak_rss_mib": 398.81640625,
+  "record": {
+    "theme": "data_art_tissue_facets",
+    "background": "#f6f7f9",
+    "radius": 0.25,
+    "moving_pointer": true,
+    "clicking": false,
+    "viewport": [
+      3840,
+      2160
+    ],
+    "screen_pixels": 8294400,
+    "buffer": [
+      3840,
+      2160
+    ],
+    "max_pixels": 8294400,
+    "requested_fps": 24,
+    "active_rate_cap": 24,
+    "steady_seconds": 3.4917947209905833,
+    "published_frames": 79,
+    "published_fps": 22.624468593499845,
+    "distinct_published_clocks": 78,
+    "clock_advance": 3.406999999999993,
+    "painted_frames": 83,
+    "painted_fps": 23.770011307094773,
+    "repeated_frame_objects": 12,
+    "worker_shade": {
+      "median_ms": 29.588064004201442,
+      "p95_ms": 59.715733004850335,
+      "max_ms": 63.19653500395361,
+      "samples": 79
+    },
+    "gui_paint": {
+      "median_ms": 6.775121000828221,
+      "p95_ms": 16.284047000226565,
+      "max_ms": 37.2017849877011,
+      "samples": 83
+    },
+    "heartbeat_10ms": {
+      "median_ms": 11.216680504730903,
+      "p95_ms": 38.93489598704036,
+      "max_ms": 88.94097100710496,
+      "samples": 228
+    },
+    "publication_intervals": {
+      "median_ms": 41.762590502912644,
+      "p95_ms": 64.1972660087049,
+      "max_ms": 66.46043898945209,
+      "samples": 78
+    },
+    "click_events": 0,
+    "last_local_pointer": [
+      0.35455729166666666,
+      0.4900462962962963
+    ],
+    "active_impulses": 0,
+    "pending_clicks": 0,
+    "final_grab_sha256": "cc4839f1eac68a4f564bac80715ceec501d060daf0e6c4cf42dc0c5e98acf7b9",
+    "worker_stopped_after_hide": true
+  }
+}

@@ -5667,3 +5667,52 @@ Item 288 remains OPEN.
   current-aggregate/module-coverage-ratchet.json. This supersedes that run's
   pending coverage notes, not its overall CI failure or final-source verdict.
   Item remains OPEN. No passed-shard condition or ceiling is lifted.
+
+2026-10-06 — final Home source checks and unchanged GitHub gates
+    Root9ad69bab29 integrates the reviewed native point/satin paths and scalar
+    normalization scratch reduction. A bounded affected-theme cohort passes
+    944; three failures are retired Cells/Ripple choices in responsiveness
+    tests. Source4154ab5713 switches their subjects to currently offered
+    advection/waves while preserving every timing/ownership assertion; the
+    complete affected file then passes22. Final source contracts pass140;
+    normalization/native/pool CPU cohort passes196. Evidence:
+    data/663_final_integrated_cpu_checks_2026-10-06/. Actual frozen4K
+    MainWindow Save/GC/close stress also exits normally, with no widgets or
+    workers after queued deletion drains. This does not repair the unreproduced
+    user native crash or qualify whole serial Qt. Hosted1f3 test jobs are
+    active. Older e259 ordinary tests remain red for workstation-owned
+    README/translation generation defects. Source546bf33e8 repairs the actual
+    nightly docs module-introduction formatting error. Source-bound hosted
+    tests/coverage/serial summaries still required; no guard was weakened.
+
+2026-10-06 — installed Home compatibility import boundary
+    Historical compatibility run 37494089502 at 1f3e4a2403 failed all eight
+    platform cells at the installed-wheel Home probe: scipy was imported
+    before Home's interactive readiness record. The first-import trace led
+    through Make Masks prewarm to Live Magnifier's startup timer importing
+    _PREVIEW_MS from _magnifier_drag, whose module imported scipy.ndimage at
+    import time. Integrated source c37b7f7d69 defers that import until a
+    stroke frame is delivered; no Home smoke assertion was relaxed.
+    The complete old job logs and source patch are archived at
+    data/288_installed_home_compat_2026-10-06/.
+
+    From a full isolated c37 worktree, local Python 3.12.13 built both the
+    actual wheel and sdist, installed each into a fresh scratch venv, and ran
+    the existing packaging tool's child Home probe with python -I from a
+    scratch directory. Both verified the installed distribution's PEP 610
+    artifact origin, painted usable Home controls, and an empty heavy-module
+    list at readiness; both separate core/AppScreen probes passed. The
+    integrated 26-case magnifier regression cohort passed under 4 GiB with
+    CUDA hidden. This local Linux receipt does not establish the hosted
+    eight-platform matrix, its dependency resolver or CLI step, nor an
+    all-green final-source CI run. Item 288 remains OPEN.
+2026-10-06 — current hosted compatibility recheck for Home
+Actual run 37508438542 on f02cb6583 is terminal failure. All eight installed
+platform cells fail the unchanged startup import boundary with ['scipy'];
+metadata, wheel-availability and Fractal construction cells pass. c37 lazy
+magnifier repair is already in this source, so its successful isolated local
+probe cannot be promoted to current hosted acceptance. Complete original
+failed logs, source SHA and exact eight-cell summary:
+data/288_current_compat_failure_2026-10-06.json. Home owns the remaining
+installed import diagnosis; no guard is waived or cause/fix inferred.
+Protected serial 37503577012 on b779 remains live and untouched.

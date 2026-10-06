@@ -77,7 +77,9 @@ def _uncropped_atlas_coordinates(engine, width, height):
 @pytest.mark.parametrize("pointer", [None, (0, 0), (1, 1), (0, 1), (1, 0)])
 @pytest.mark.parametrize("size,density,resolution", [(1, 1, 1), (0.25, 3, 1),
                                                     (2.5, 0.25, 1), (1, 3, 2)])
-def test_atlas_culling_keeps_exact_native_4k_pixels(pointer, size, density, resolution):
+@pytest.mark.parametrize("gravity_radius", [0, 1])
+def test_atlas_culling_keeps_exact_native_4k_pixels(
+        pointer, size, density, resolution, gravity_radius):
     optimized = _engine("point_atlas", size=size, density=density,
                         resolution=resolution)
     full_region = _engine("point_atlas", size=size, density=density,
@@ -88,6 +90,7 @@ def test_atlas_culling_keeps_exact_native_4k_pixels(pointer, size, density, reso
     full_region._material_cache[key] = original
     for engine in (optimized, full_region):
         engine.set_max_pixels(width * height)
+        engine.set_gravity_radius(gravity_radius)
         engine.set_pointer(pointer)
     full_region._material_cache[key] = original
     for stamp in (0.0, 19.0, 241.0):
@@ -115,7 +118,7 @@ def test_atlas_culling_preserves_truncated_perimeter_grains(width, height):
             _digest(_render(full_region, width, height)))
 
 
-def test_facets_move_cached_polygon_geometry_without_rerolling():
+def test_facets_stay_still_then_mouse_moves_cached_paper_without_rerolling():
     engine = _engine("tissue_facets")
     engine.set_time(2.0)
     first = _digest(_render(engine))
@@ -123,8 +126,12 @@ def test_facets_move_cached_polygon_geometry_without_rerolling():
     assert isinstance(geometry, tuple)
     assert len(geometry) > 400
     engine.set_time(2.15)
-    assert _digest(_render(engine)) != first
+    assert _digest(_render(engine)) == first
     assert next(iter(engine._material_cache.values())) is geometry
+    engine.set_gravity_radius(0.5)
+    engine.set_pointer((0.5, 0.5))
+    assert _digest(_render(engine)) != first
+    engine.set_pointer(None)
     engine.set_time(2.0)
     assert _digest(_render(engine)) == first
     other = _engine("tissue_facets")
@@ -134,6 +141,7 @@ def test_facets_move_cached_polygon_geometry_without_rerolling():
 
 def test_lens_click_strengthens_gravity_then_propagates_and_expires(monkeypatch):
     engine = _engine("impulse_lens")
+    engine.set_gravity_radius(1.0)
     engine.set_time(8.0)
     engine.set_pointer((0.5, 0.5))
     engine._gravity_impulses.clear()
@@ -150,12 +158,19 @@ def test_lens_click_strengthens_gravity_then_propagates_and_expires(monkeypatch)
     assert np.count_nonzero(moved > 0.03) > 100
     engine.set_time(13.1)
     expired = _points(engine, monkeypatch)
-    assert np.array_equal(expired[0], idle[0])
-    assert np.array_equal(expired[1], idle[1])
+    fresh = _engine("impulse_lens")
+    fresh.set_gravity_radius(1.0)
+    fresh.set_time(13.1)
+    fresh.set_pointer((0.5, 0.5))
+    fresh._gravity_impulses.clear()
+    reference = _points(fresh, monkeypatch)
+    assert np.array_equal(expired[0], reference[0])
+    assert np.array_equal(expired[1], reference[1])
 
 
 def test_mouse_movement_wakes_are_rate_limited_and_remain_after_leaving():
     engine = _engine("impulse_lens")
+    engine.set_gravity_radius(0.5)
     engine.set_time(1.0)
     engine.set_pointer((0.2, 0.3))
     assert len(engine._gravity_impulses) == 1
@@ -184,6 +199,7 @@ def test_mouse_movement_wakes_are_rate_limited_and_remain_after_leaving():
                                           ((0.3, 0.2), 0), ((0.3, 0.2), -1)])
 def test_invalid_gravity_events_do_not_change_pixels(point, strength):
     engine = _engine("impulse_lens")
+    engine.set_gravity_radius(0.5)
     before = _digest(_render(engine))
     engine._add_impulse(point, strength)
     assert engine._gravity_impulses == []
@@ -195,10 +211,12 @@ def test_non_gravity_material_ignores_clicks_and_future_events():
     atlas._add_impulse((0.2, 0.3))
     assert atlas._gravity_impulses == []
     lens = _engine("impulse_lens")
+    lens.set_gravity_radius(0.5)
     lens.set_time(5.0)
     lens._add_impulse((0.3, 0.4))
     lens.set_time(2.0)
     fresh = _engine("impulse_lens")
+    fresh.set_gravity_radius(0.5)
     fresh.set_time(2.0)
     assert _digest(_render(lens)) == _digest(_render(fresh))
 
@@ -217,7 +235,7 @@ def test_geometry_controls_remain_reproducible_and_cache_is_bounded(family):
     assert _digest(_render(engine)) != before
     engine.set_density(3.0)
     assert _digest(_render(engine)) != before
-    assert len(engine._material_cache) == 1
+    assert len(engine._material_cache) == (2 if family == "chromatin_ribbon" else 1)
 
 
 @pytest.mark.parametrize("background", ["#101418", "#f6f7f9"])

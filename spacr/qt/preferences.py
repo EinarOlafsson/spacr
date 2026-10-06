@@ -2240,7 +2240,7 @@ def _ambient_ranges():
                 (DENSITY_RANGE, DEFAULT_DENSITY))
     except Exception:
         return (((0.0, 3.0), 0.0), ((0.1, 4.0), 1.0), ((0.25, 2.5), 1.0),
-                ((0.25, 2.0), 1.0), ((0.25, 3.0), 1.0))
+                ((0.25, 2.0), 1.0), ((0.01, 3.0), 1.0))
 
 
 def _migrate_ambient_motion() -> None:
@@ -7958,6 +7958,7 @@ class PreferencesDialog:
 
         ambient_palette_combo = QComboBox()
         ambient_palette_combo.setObjectName("AmbientPalette")
+        hints = None
 
         def _reload_ambient_palettes(preferred=None):
             """Refill the palette list for the selected animation.
@@ -7985,6 +7986,14 @@ class PreferencesDialog:
             ambient_theme_combo.setToolTip(
                 tr(animation_note(theme_key))
                 if animation_note is not None else "")
+            ambient_theme_combo.setAccessibleDescription(
+                ambient_theme_combo.toolTip())
+            if hints is not None:
+                note = ambient_theme_combo.toolTip()
+                hints.explain(ambient_theme_combo, note)
+                label = animation.labelForField(ambient_theme_combo)
+                label.setAccessibleDescription(note)
+                hints.explain(label, note)
 
         ambient_theme_combo.currentIndexChanged.connect(
             lambda _index: _reload_ambient_palettes(
@@ -7996,8 +8005,7 @@ class PreferencesDialog:
         )
         animation.addRow(tr("Animation palette"), ambient_palette_combo)
 
-        from PySide6.QtGui import QColor
-        from PySide6.QtWidgets import QColorDialog
+        from .widgets.colour_picker import pick_colour
 
         custom_colors = list(_ambient_custom_colors())
         primary_color_button = QPushButton()
@@ -8012,11 +8020,13 @@ class PreferencesDialog:
                 label = tr("Primary") if index == 0 else tr("Accent")
                 button.setText(f"{label} · {custom_colors[index]}")
                 button.setToolTip(tr("Choose a crisp data-art animation colour."))
+                if hints is not None:
+                    hints.explain(button)
 
         def _pick_ambient_color(index):
             """Select a local colour and activate the custom palette on save."""
-            color = QColorDialog.getColor(QColor(custom_colors[index]), dlg,
-                                          tr("Animation colour"))
+            color = pick_colour(dlg, custom_colors[index],
+                                tr("Animation colour"))
             if color.isValid():
                 custom_colors[index] = color.name()
                 _refresh_custom_colors()
@@ -8032,7 +8042,7 @@ class PreferencesDialog:
         animation.addRow(tr("Animation colours"), _hbox_wrap(color_row))
 
         def _sync_custom_colors(*_args):
-            """Offer custom colours for the six procedural data-art scenes."""
+            """Offer custom colours for the seven procedural data-art scenes."""
             available = "custom" in palettes_for(ambient_theme_combo.currentData()) \
                 if ambient_theme_combo.currentData() != NO_ANIMATION else False
             for button in color_buttons:
@@ -8084,7 +8094,7 @@ class PreferencesDialog:
             slider = QSlider(Qt.Horizontal)
             slider.setObjectName(name)
             slider.setRange(int(round(low * 100)), int(round(high * 100)))
-            slider.setSingleStep(5)
+            slider.setSingleStep(1)
             slider.setPageStep(25)
             slider.setTickInterval(50)
             slider.setValue(int(round(current * 100)))
@@ -9886,6 +9896,7 @@ class PreferencesDialog:
             layout.addWidget(hints)
         explain_every_row(dlg)
         _everything_explains_itself_in_the_strip(dlg, hints)
+        _reload_ambient_palettes(ambient_palette_combo.currentData())
         dlg._show_only_the_open_page_at_first(tabs)
         return dlg
 

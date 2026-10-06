@@ -1,0 +1,4 @@
+Replay output: /mnt/wd4tb/scratch/satin-archive-replay-20261006
+native4K exact wave pairs 32
+{'family': 'chromatin_ribbon', 'viewport': [1920, 1080], 'buffer': [1920, 1080], 'median_ms': 6.289033000939526, 'p95_ms': 7.982131995959207, 'max_ms': 8.208241997635923}
+{'family': 'chromatin_ribbon', 'viewport': [3840, 2160], 'buffer': [3840, 2160], 'median_ms': 36.656515490903985, 'p95_ms': 63.45862400485203, 'max_ms': 71.23766400036402}

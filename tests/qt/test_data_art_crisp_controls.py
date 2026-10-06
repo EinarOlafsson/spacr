@@ -209,6 +209,7 @@ def test_color_dialog_cancel_preserves_store_and_save_applies_complete_pair(
     monkeypatch.setattr(QColorDialog, "getColor", lambda *_args: QColor("#1199aa"))
     primary.click()
     assert "#1199aa" in primary.text()
+    assert primary.toolTip() == ""
     assert palette.currentData() == "custom"
     assert preferences._ambient_custom_colors() == original
     dialog.reject()

@@ -1,0 +1,38 @@
+{
+  "scope": "actual native output PNGs inspected from frozen9ad/4de, not user aesthetics acceptance",
+  "source_sha256": "4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5",
+  "observations": {
+    "growth": "Fine continuous sparse stem and branching trail; no blur evident in full-output raster. Current seed/time concentrates trail near upper viewport; broad coverage is not claimed.",
+    "Thore": "Native fine rain strokes and restrained branching bolt, deliberately dark/low contrast in supplied custom blue/magenta palette.",
+    "Aurora": "Smooth folded bands and vertical rays; existing1920x1080 internal raster resamples to4K display. Native internal resolution is not claimed for this classic engine.",
+    "waves": "Dense crisp circular point grains; continuous terrain spans viewport with no visible finite-plane perimeter."
+  },
+  "stills": [
+    {
+      "file": "aurora-3840.png",
+      "size_bytes": 445870,
+      "sha256": "a569dbee8ffb9e8b8c755195bd52ae3508eb3ea5e62adad05ebb509ac2750f20"
+    },
+    {
+      "file": "data_art_fungal_growth-3840.png",
+      "size_bytes": 251377,
+      "sha256": "c1aa3e70c10ae44edfef0b278db8354b874f782709c22badb45997822d9c8963"
+    },
+    {
+      "file": "data_art_point_atlas-3840.png",
+      "size_bytes": 2636722,
+      "sha256": "af4fe2b08e4e7a63ac011e3b1084b9b14b41e28ceeb901c8c2ee00bf9da6e5ab"
+    },
+    {
+      "file": "data_art_thore-3840.png",
+      "size_bytes": 64429,
+      "sha256": "1ecd7898e7a37533131a617a7416c8aa4be4d304774a6b8308b4e6a909deb12f"
+    },
+    {
+      "file": "data_art_thore-lightning-3840.png",
+      "size_bytes": 122122,
+      "sha256": "b77d62b03bfc1a0af9ec6c12889367709b323f1fa2fabbfac6876f2cf6e62ce4"
+    }
+  ],
+  "media_storage": "The five original lossless native PNGs are archived in stills/; their exact hashes and size remain in this receipt."
+}

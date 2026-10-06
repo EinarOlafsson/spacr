@@ -511,6 +511,9 @@ class RecipeDialog(QDialog):
 
         self._detail = QLabel("", self)
         self._detail.setObjectName("RecipeDetail")
+        self._detail.setTextFormat(Qt.PlainText)
+        self._detail.setTextInteractionFlags(
+            Qt.TextSelectableByMouse | Qt.TextSelectableByKeyboard)
         self._detail.setWordWrap(True)
         column.addWidget(self._detail)
 
@@ -591,7 +594,8 @@ class RecipeDialog(QDialog):
 
         The description states the setting count and date, then any note about
         the spaCR version it was written under and any settings this module no
-        longer has -- both before the user applies it rather than after.
+        longer has -- both before the user applies it rather than after. The
+        full saved file path is visible and can be copied.
 
         :param _row: the newly selected row; the recipe is re-read from the
             list, so it is not used.
@@ -612,14 +616,19 @@ class RecipeDialog(QDialog):
                 parts.append(gap)
         if recipe.notes:
             parts.append(recipe.notes)
-        self._detail.setText(" ".join(parts))
+        detail = " ".join(parts)
+        if recipe.path:
+            detail += "\n" + tr("Saved to: {path}",
+                                 path=os.path.abspath(recipe.path))
+        self._detail.setText(detail)
         self._refresh_buttons()
 
     def _on_save(self) -> None:
         """Ask for a name and save the screen's current settings under it.
 
         A failure is reported in a dialog rather than raised: a recipe that
-        cannot be written is a normal condition, not a crash.
+        cannot be written is a normal condition, not a crash. The saved
+        template is selected so its full file path is immediately visible.
         """
         name, ok = QInputDialog.getText(
             self, tr("Save template"),
@@ -629,11 +638,15 @@ class RecipeDialog(QDialog):
             return
         try:
             recipe = capture_recipe(self._screen, str(name).strip())
-            save_recipe(recipe)
+            saved_path = os.path.abspath(save_recipe(recipe))
         except Exception as exc:
             QMessageBox.warning(self, tr("Could not save template"), str(exc))
             return
         self.reload()
+        for row, saved in enumerate(self._recipes):
+            if os.path.abspath(saved.path) == saved_path:
+                self._list.setCurrentRow(row)
+                break
 
     def _on_apply(self) -> None:
         """Apply the selected recipe to the screen, confirming first if it may not fit.

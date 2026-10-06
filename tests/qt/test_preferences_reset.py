@@ -1,7 +1,7 @@
 """Reset to defaults, and what "default" means.
 
 Two things, and the second is the one that bit: a fresh install already
-resolved to Follow system / blobs / spaCR, but a config that had drifted
+resolved to Follow system / Impulse Lens / spaCR, but a config that had drifted
 away from them had no way back short of deleting the file. The button is
 the way back.
 """
@@ -45,12 +45,12 @@ def test_a_fresh_install_is_dark(private_store, qapp):
     assert preferences.get_theme() == "dark"
 
 
-def test_a_fresh_install_animates_blobs_in_the_spacr_palette(private_store,
-                                                             qapp):
+def test_a_fresh_install_animates_impulse_lens_in_the_spacr_palette(
+        private_store, qapp):
     from spacr.qt import preferences
 
     assert preferences.get_ambient_enabled() is True
-    assert preferences.get_ambient_animation() == "blobs"
+    assert preferences.get_ambient_animation() == "data_art_impulse_lens"
     assert preferences.get_ambient_palette() == "spacr"
 
 
@@ -104,7 +104,8 @@ def test_reset_restores_the_three_the_user_named(private_store, qtbot):
                        if combo.findData("glass") >= 0)
     assert theme_combo.currentData() == "dark", (
         "the theme did not go back to Dark")
-    assert "blobs" in chosen, "the animation did not go back to blobs"
+    assert "data_art_impulse_lens" in chosen, (
+        "the animation did not go back to Impulse Lens")
     assert "spacr" in chosen, "the palette did not go back to spaCR"
     assert "aurora" not in chosen and "ocean" not in chosen
 

@@ -1,0 +1,20 @@
+{
+  "base_commit": "209651b7bf53088c635107692e38ee5c9c2730ae",
+  "production_commit": "9b9e2ffea7",
+  "integration_commit": "1f6c799e96",
+  "baseline_renderer_sha256": "4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5",
+  "measured_prototype_sha256": "57d5ca7a09595649567d28f038cb2c0c1bdfee3310fd5e7e538b2e32b1a70e6c",
+  "production_renderer_sha256": "22166400010e43fbc4c6774c5cbfc062ebdf73b76e160dbb60751cab7608d2f9",
+  "provenance": "Complete module executable AST equals measured prototype; two new shader docstrings alone differ. Density/appearance revisions are separate later checkpoints.",
+  "source_coverage": "22 added statements, zero missing, zero new touching branch arcs;85 affected cases pass.",
+  "exact_native_parity": "96 complete native4K pairs across two seeds, dark/light/custom colors, blur0/.6, times0/1.1/16.97/97/180/rewind;40 production full-native buffered reference pairs plus published-frame mutation/resize/clock/blur/error recovery tests.",
+  "performance_scope": "Fresh capped4GiB CPU-only Python process per before/after theme on software Xvfb4K; five-second steady windows, mature growth and actual Thore lightning; balanced family order; requested24FPS and unchanged native buffer/control/palette settings.",
+  "allocation": "Visible QImage constructor/copy instrumentation is separate from live timings and not a census of all internal native allocations.5 frames before=one retained RGB32 constructor+5 publication deep copies; after=5 owned image constructors+zero copies. Removes33,177,600 retained engine bytes.",
+  "limitations": [
+    "No crash fix or universal24FPS/displayed motion guarantee.",
+    "Mature growth published22.84\u219223.80FPS and distinct clocks98/115\u2192119/119; one short after window shows18 repeated painted objects versus10 before. Unique frame-object paint rate20.80 vs22.25FPS does not prove improved displayed cadence; publication/clock/paint counters remain explicit.",
+    "Thore publication23.36\u219223.99FPS and repeats10\u21925; fresh shader/lightning cost improves but longer device/host histories require acceptance.",
+    "Growth peak RSS359.75\u2192329.26MiB, steadyRSS~299.5MiB unchanged. Thore peak360.54\u2192296.79MiB and steadyRSS299.43\u2192236.54MiB. End-grab memory is outside timing.",
+    "Prototype before/after last-frame stills are excluded because their final animation clocks differ. Exact parity evidence compares identical clocks, not live end grabs."
+  ]
+}

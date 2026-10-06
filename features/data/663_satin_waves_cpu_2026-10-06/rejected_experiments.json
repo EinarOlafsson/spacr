@@ -1,0 +1,15 @@
+{
+  "scope": "rejected experiments; not accepted performance",
+  "full_target_frame_local": {
+    "renderer_sha256": "793c2e8d (full hash retained in rejected worker receipt)",
+    "native4k_published_fps": 14.009104529583077,
+    "shade_median_ms": 71.43503600673284,
+    "reason": "allocating seven full targets made live native rendering too expensive; final active-row strips preserve pixels and restore cadence"
+  },
+  "persistent_full_targets": {
+    "retained_wave_numpy_bytes": 417121344,
+    "retained_mib": 397.79791259765625,
+    "reason": "per-engine source/target/base/index grids survived hide; final only small metadata plus views remain",
+    "source_receipt": "independent coverage_gate review, prior scratch prototype preserved outside accepted archive"
+  }
+}

@@ -26,10 +26,9 @@ pixels. Two backdrops are used, for two different jobs:
     the card's 0.70 at a requested 30 %.
 
 ``the real ambient animation, on and then off``
-    the plain form of the same idea, and the one that catches a region that
-    has gone fully opaque. It cannot see a doubled alpha — a half-transparent
-    slab still changes when the animation behind it changes — which is
-    exactly why the first measurement exists as well.
+    compares each track with the bare card at the exact same pixel locations.
+    A second translucent fill reduces that ratio; an injected bad RAM fill
+    proves detection without confusing high-frequency texture with opacity.
 """
 from __future__ import annotations
 
@@ -281,50 +280,69 @@ def test_the_bars_do_not_dim_the_card_they_sit_in(qtbot, app_theme_restored):
 # The same claim against the real animation
 # ---------------------------------------------------------------------------
 
+@pytest.mark.parametrize("animation", ["data_art_impulse_lens",
+                                       "data_art_point_atlas", "blobs"])
+@pytest.mark.parametrize("doubled_track", [False, True])
 def test_the_ambient_animation_reaches_all_four_bars_alike(
-        qtbot, app_theme_restored):
-    """Render the page with the animation on and again with it off, and diff.
+        qtbot, app_theme_restored, doubled_track, animation):
+    """Compare each animated track with bare card at the exact same pixels.
 
-    The comparison is made *inside each row*: how much the animation moves the
-    bar's track, against how much it moves the bare card surface a few pixels
-    above it, same columns. That controls for the thing a plain count cannot —
-    the backdrop is an animation, its contrast against the flat page differs
-    from one band of the screen to the next, and a blob happening to sit
-    behind the CPU row would otherwise read as "the CPU bar is more
-    transparent". The blobs are laid out from an unseeded RNG, so that is not
-    hypothetical; measured across repeated builds the per-row ratio stays in
-    0.92-1.04 when the bars are right and 0.68-0.71 for RAM, GPU and VRAM when
-    they are not, while the CPU bar sits at 1.0 either way.
-
-    Three animation times are accumulated so an unlucky flat patch behind one
-    row cannot leave the ratio to be decided by rounding noise.
+    Fine grain and point themes differ between adjacent scanlines. Comparing
+    a track to the strip above it confounds texture with transmission. Hiding
+    only the bar, while retaining its layout space, measures the same animated
+    pixels with and without the track. The injected RAM fill proves that the
+    probe still rejects the original doubled-translucency defect.
     """
-    win_on, screen_on = _screen(qtbot, OPACITY, ambient=True)
-    if getattr(screen_on, "_ambient", None) is None:
+    prefs.set_ambient_theme(animation)
+    _window, screen = _screen(qtbot, OPACITY, ambient=True)
+    ambient = getattr(screen, "_ambient", None)
+    if ambient is None:
         pytest.skip("no ambient backdrop available in this environment")
+    ambient.set_animating(False)
+    bars = [getattr(screen, attr)._bar for _, attr in BARS]
+    for bar in bars:
+        policy = bar.sizePolicy()
+        policy.setRetainSizeWhenHidden(True)
+        bar.setSizePolicy(policy)
+    if doubled_track:
+        screen._usage_ram._bar.setStyleSheet(
+            "QProgressBar { background: rgba(48, 48, 48, 77); }")
+    regions = {name: _rect(screen, getattr(screen, attr)._bar)
+               for name, attr in BARS}
 
-    # Grab every animated frame BEFORE the second screen exists: building it
-    # runs `apply_preferences_to_app`, and a screen that is still open when
-    # the preference goes off takes the backdrop away — correctly, but it
-    # would leave this test grabbing an un-animated page and calling it one.
+    def pair():
+        """Render identical page geometry with tracks present and absent."""
+        QApplication.processEvents()
+        with_tracks = screen.grab().toImage()
+        for bar in bars:
+            bar.hide()
+        QApplication.processEvents()
+        without_tracks = screen.grab().toImage()
+        for bar in bars:
+            bar.show()
+        QApplication.processEvents()
+        assert regions == {name: _rect(screen, getattr(screen, attr)._bar)
+                           for name, attr in BARS}
+        return with_tracks, without_tracks
+
+    ambient.hide()
+    off_tracks, off_bare = pair()
+    ambient.show()
     frames = []
     for moment in (2.0, 6.0, 11.0):
-        screen_on._ambient.set_time(moment)
-        QApplication.processEvents()
-        frames.append(screen_on.grab().toImage())
+        ambient.set_time(moment)
+        frames.append(pair())
 
-    win_off, screen_off = _screen(qtbot, OPACITY, ambient=False)
-    off = screen_off.grab().toImage()
-    assert all(frame.size() == off.size() for frame in frames)
-
-    def movement(rect):
-        """Mean per-channel change the animation makes over ``rect``."""
+    def movement(rect, index, baseline):
+        """Mean animation-induced change over exactly one fixed region."""
         total = 0.0
         count = 0
-        for frame in frames:
+        for pair_images in frames:
+            frame = pair_images[index]
             for y in range(rect.top(), rect.bottom() + 1):
                 for x in range(rect.left(), rect.right() + 1):
-                    a, b = QColor(frame.pixel(x, y)), QColor(off.pixel(x, y))
+                    a = QColor(frame.pixel(x, y))
+                    b = QColor(baseline.pixel(x, y))
                     total += (abs(a.red() - b.red())
                               + abs(a.green() - b.green())
                               + abs(a.blue() - b.blue())) / 3.0
@@ -332,31 +350,35 @@ def test_the_ambient_animation_reaches_all_four_bars_alike(
         return total / count
 
     ratios = {}
-    for name, attr in BARS:
-        row = getattr(screen_on, attr)
-        track = _rect(screen_on, row._bar)
-        # Bare card surface in the same row, directly above the track.
-        row_rect = _rect(screen_on, row)
-        surface = QRect(track.left(), row_rect.top() + 1, track.width(),
-                        max(1, track.top() - row_rect.top() - 2))
-        reference = movement(surface)
+    for name, _attr in BARS:
+        reference = movement(regions[name], 1, off_bare)
         assert reference > 1.0, (
             f"the animation barely moves the card behind the {name} row "
             f"({reference:.2f}/255), so nothing here can be concluded")
-        ratios[name] = movement(track) / reference
+        ratios[name] = movement(regions[name], 0, off_tracks) / reference
 
-    dull = {name: value for name, value in ratios.items() if value < 0.85}
-    assert not dull, (
-        "the animation reaches the card surface in these rows but not the "
-        f"bar track on it: {dull} (all four ratios: {ratios})")
+    def assert_transmission():
+        """Retain both original dimming and inter-bar equality budgets."""
+        dull = {name: value for name, value in ratios.items() if value < 0.85}
+        assert not dull, (
+            "the animation reaches the card surface in these rows but not "
+            f"the bar track on it: {dull} (all four ratios: {ratios})")
+        cpu = ratios["CPU"]
+        off_by = {name: value for name, value in ratios.items()
+                  if name != "CPU" and abs(value - cpu) > 0.15}
+        assert not off_by, (
+            f"the CPU track is influenced at {cpu:.2f} of its own row's card "
+            f"surface but {off_by} are not — the bug is a bar painting a second "
+            "translucent surface over the one already there")
 
-    cpu = ratios["CPU"]
-    off_by = {name: value for name, value in ratios.items()
-              if name != "CPU" and abs(value - cpu) > 0.15}
-    assert not off_by, (
-        f"the CPU track is influenced at {cpu:.2f} of its own row's card "
-        f"surface but {off_by} are not — the bug is a bar painting a second "
-        "translucent surface over the one already there")
+    if doubled_track:
+        with pytest.raises(AssertionError, match="bar track on it"):
+            assert_transmission()
+        assert ratios["RAM"] < 0.85
+        assert all(abs(ratios[name] - 1.0) <= TOLERANCE
+                   for name in ("CPU", "GPU", "VRAM"))
+    else:
+        assert_transmission()
 
 
 def test_at_full_opacity_the_bars_match_the_card_as_well(

@@ -1798,3 +1798,19 @@ serial Qt acceptance remains open as recorded above.
   final-source attempt; ordinary source/metadata pushes do not trigger the
   serial workflow. Never cancel this diagnostic or run the full suite locally.
   Item remains OPEN; no acceptance from focused cohorts or reduced file RSS.
+
+2026-10-06 — hosted terminal native failure and preserved original order
+Run37457998285 on237506317 ended with exit139 in puncta[False] after about
+four hours. Last completed-file RSS5432274944 bytes is5.059GiB (HWM5.179),
+below the unchanged10.8GiB guard. Nine earlier failed nodes lack assertion
+detail because the terminal summary was lost. All nine pass exact-source
+narrow replay; puncta passes both its isolated node and whole three-case file.
+Two bounded original-order17-file contexts pass268 and159 cases. These do
+not reproduce or resolve cumulative native death. Application crash-dump
+installation can redirect faulthandler outside the old artifact; actual fatal
+subprocess evidence proves this. New passive diagnostic code preserves failed
+reports immediately, retains an owned fatal stream through app redirection,
+and attempts bounded failure-only native GDB text when a real ELF core exists.
+It changes no memory/assertion guard, Qt ownership, GC or order. Archive:
+data/47_serial_native_failure_2026-10-06/. Next coherent source push deliberately
+restarts hosted acceptance through the workflow-file trigger. Item stays OPEN.

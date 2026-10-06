@@ -68,6 +68,52 @@ def test_fixed_map_tzyx_preserves_every_original_plane_and_frame(tmp_path):
     assert _digest(archive) == before
 
 
+@pytest.mark.parametrize('channel_count, selected', [
+    (3, [2, 0, 1]), (4, [3, 1])])
+def test_native_three_time_three_z_archive_matches_scalar_stack(
+        tmp_path, channel_count, selected):
+    """The app's float32 archive keeps full-field quantiles and channel order."""
+    from spacr import convert
+
+    source = tmp_path / 'raw' / 'A01'
+    source.mkdir(parents=True)
+    ramp = np.arange(64 * 64, dtype=np.uint16).reshape(64, 64)
+    for channel in range(channel_count):
+        frames = np.stack([
+            np.stack([
+                ((ramp + 37 * time + 53 * z + 71 * channel) % 3000).astype(np.uint16)
+                for z in range(3)])
+            for time in range(3)])
+        tifffile.imwrite(source / f'field01_C{channel + 1}.tif', frames,
+                         metadata={'axes': 'TZYX'}, photometric='minisblack')
+    converted = tmp_path / 'converted'
+    assert convert.convert_folder(dict(src=str(tmp_path / 'raw'),
+                                       dst=str(converted), z_handling='keep',
+                                       preview_rows=0)).is_complete
+    settings, returned = io.preprocess_img_data(_settings(
+        converted, nucleus_channel=selected[0], cell_channel=selected[1],
+        pathogen_channel=selected[2] if len(selected) > 2 else None,
+        pathogen_background=300, pathogen_signal_to_noise=2,
+        remove_background_pathogen=True, lower_percentile=17))
+    assert returned == str(converted)
+    staged = sorted((converted / 'stack').glob('*.npy'))
+    assert len(staged) == 3
+    raw = np.stack([np.load(path, allow_pickle=False) for path in staged])
+    expected = io._normalize_img_batch(
+        raw, selected, np.float32, settings)[..., selected]
+    archive = converted / 'masks/plate1_A01_1_norm_timelapse.npz'
+    with np.load(archive, allow_pickle=False) as content:
+        actual = content['data']
+        assert content['filenames'].tolist() == [path.name for path in staged]
+    assert actual.shape == (3, 3, 64, 64, len(selected))
+    assert actual.dtype == np.float32
+    assert actual.tobytes() == expected.tobytes()
+    reference = tmp_path / 'reference.npz'
+    io._save_npz_atomic(reference, data=expected,
+                        filenames=[path.name for path in staged])
+    assert _digest(archive) == _digest(reference)
+
+
 def test_two_mapped_native_series_keep_their_timepoints_separate(tmp_path):
     source, rows = _converted_series(tmp_path, wells=('A01', 'A02'))
     io.preprocess_img_data(_settings(source))
@@ -161,18 +207,123 @@ def test_native_tzyx_source_change_during_normalization_never_publishes(
         tmp_path, monkeypatch):
     source, rows = _converted_series(tmp_path)
     target = source / rows[0]['target']
-    original = io._normalize_img_batch
+    original = io._normalize_img_channels
 
     def change_source(*args, **kwargs):
         normalized = original(*args, **kwargs)
         tifffile.imwrite(target, np.full((64, 64), 40, np.uint16))
         return normalized
 
-    monkeypatch.setattr(io, '_normalize_img_batch', change_source)
+    monkeypatch.setattr(io, '_normalize_img_channels', change_source)
     with pytest.raises(ValueError, match='changed before publication'):
         io.preprocess_img_data(_settings(source))
     assert not (source / 'stack').exists()
     assert not (source / 'masks').exists()
+
+
+def test_native_tzyx_staged_stack_change_during_normalization_never_publishes(
+        tmp_path, monkeypatch):
+    """A re-read staged stack must still match its pre-normalization hash."""
+    source, _rows = _converted_series(tmp_path)
+    original = io._normalize_img_channels
+
+    def change_staged_stack(*args, **kwargs):
+        normalized = original(*args, **kwargs)
+        staged = sorted(source.glob('.spacr-volume-series-*/stack/*.npy'))
+        assert len(staged) == 2
+        values = np.load(staged[0], allow_pickle=False)
+        values[0, 0, 0, 0] += 1
+        np.save(staged[0], values)
+        return normalized
+
+    monkeypatch.setattr(io, '_normalize_img_channels', change_staged_stack)
+    with pytest.raises(ValueError, match='staged stack changed'):
+        io.preprocess_img_data(_settings(source))
+    assert not (source / 'stack').exists()
+    assert not (source / 'masks').exists()
+    assert not list(source.glob('.spacr-volume-series-*'))
+
+
+def test_native_tzyx_staged_stack_change_before_normalization_never_publishes(
+        tmp_path, monkeypatch):
+    """A changed first timepoint cannot seed an archive after staging ends."""
+    source, _rows = _converted_series(tmp_path)
+    original = io._save_array_atomic
+    staged = []
+
+    def change_first_stack(path, values):
+        result = original(path, values)
+        if '.spacr-volume-series-' in str(path) and str(path).endswith('.npy'):
+            staged.append(path)
+            if len(staged) == 2:
+                first = np.load(staged[0], allow_pickle=False)
+                first[0, 0, 0, 0] += 1
+                np.save(staged[0], first)
+        return result
+
+    monkeypatch.setattr(io, '_save_array_atomic', change_first_stack)
+    with pytest.raises(ValueError, match='staged stack changed'):
+        io.preprocess_img_data(_settings(source))
+    assert not (source / 'stack').exists()
+    assert not (source / 'masks').exists()
+    assert not list(source.glob('.spacr-volume-series-*'))
+
+
+def test_native_tzyx_staged_stack_shape_change_during_read_never_publishes(
+        tmp_path, monkeypatch):
+    """A damaged private stack cannot enter the channel-wise normalization."""
+    source, _rows = _converted_series(tmp_path)
+    original = io.np.load
+    damaged = False
+
+    def change_mapped_stack(path, *args, **kwargs):
+        nonlocal damaged
+        if (not damaged and kwargs.get('mmap_mode') == 'r'
+                and '.spacr-volume-series-' in str(path)):
+            damaged = True
+            values = original(path, allow_pickle=False)
+            np.save(path, values[..., :1])
+        return original(path, *args, **kwargs)
+
+    monkeypatch.setattr(io.np, 'load', change_mapped_stack)
+    with pytest.raises(ValueError, match='staged stack shape or dtype changed'):
+        io.preprocess_img_data(_settings(source))
+    assert damaged
+    assert not (source / 'stack').exists()
+    assert not (source / 'masks').exists()
+    assert not list(source.glob('.spacr-volume-series-*'))
+
+
+def test_native_tzyx_cancel_during_staged_channel_read_discards_private_stage(
+        tmp_path, monkeypatch):
+    """A cancellation between channel reads leaves no publishable output."""
+    from spacr.cancellation import (CancellationToken, PipelineCancelled,
+                                    installed_token)
+
+    source, _rows = _converted_series(tmp_path)
+    token = CancellationToken()
+    original = io._normalize_img_channels
+
+    def cancel_second_channel(output, channels, dtype, settings, load_channel,
+                              **kwargs):
+        reads = 0
+
+        def cancellable_load(channel):
+            nonlocal reads
+            reads += 1
+            if reads == 2:
+                token.cancel()
+            return load_channel(channel)
+
+        return original(output, channels, dtype, settings, cancellable_load,
+                        **kwargs)
+
+    monkeypatch.setattr(io, '_normalize_img_channels', cancel_second_channel)
+    with installed_token(token), pytest.raises(PipelineCancelled):
+        io.preprocess_img_data(_settings(source))
+    assert not (source / 'stack').exists()
+    assert not (source / 'masks').exists()
+    assert not list(source.glob('.spacr-volume-series-*'))
 
 
 @pytest.mark.parametrize('case', [
@@ -346,9 +497,24 @@ def test_native_tzyx_refuses_unproved_modes_before_outputs(tmp_path, change):
     assert not (source / 'masks').exists()
 
 
+@pytest.mark.parametrize('conversion', ['installed', 'three_channels'])
 def test_real_mask_pipeline_receives_each_native_volume_with_z_axis(
-        tmp_path, fake_model, monkeypatch):
+        tmp_path, fake_model, monkeypatch, conversion):
+    """Cellpose 4.0.7 pads one native channel to three without changing it."""
+    from cellpose import transforms
     import spacr.object as spacr_object
+
+    if conversion == 'three_channels':
+        installed_convert = transforms.convert_image
+
+        def padded_conversion(*args, **kwargs):
+            """Exercise Cellpose's supported three-channel converted layout."""
+            converted = installed_convert(*args, **kwargs)
+            first = converted[..., :1]
+            return np.concatenate((first, np.zeros_like(first),
+                                   np.zeros_like(first)), axis=-1)
+
+        monkeypatch.setattr(transforms, 'convert_image', padded_conversion)
 
     source, rows = _converted_series(tmp_path)
     seen = []
@@ -362,11 +528,18 @@ def test_real_mask_pipeline_receives_each_native_volume_with_z_axis(
                     min_size=15, max_size_fraction=0.4, niter=None,
                     augment=False, tile_overlap=0.1, bsize=256,
                     compute_masks=True, progress=None):
+        native = np.asarray(x)
         converted = check_cellpose_eval_call(
             x, channel_axis, z_axis=z_axis, do_3D=do_3D)
         assert do_3D and z_axis == 0 and channel_axis == -1
         assert anisotropy == 2 and len(converted) == 1
-        assert converted[0].shape == (2, 64, 64, 1)
+        assert native.shape == (2, 64, 64, 1)
+        assert converted[0].shape in ((2, 64, 64, 1), (2, 64, 64, 3))
+        if conversion == 'three_channels':
+            assert converted[0].shape[-1] == 3
+        np.testing.assert_array_equal(converted[0][..., 0], native[..., 0])
+        if converted[0].shape[-1] == 3:
+            assert not np.any(converted[0][..., 1:])
         seen.append(converted[0].copy())
         labels = np.zeros((2, 64, 64), np.uint16)
         labels[:, 5:17, 5:17] = 1
@@ -375,12 +548,11 @@ def test_real_mask_pipeline_receives_each_native_volume_with_z_axis(
     monkeypatch.setattr(model_class, 'eval', volume_eval)
     core.preprocess_generate_masks(_settings(source, cell_channel=None))
     assert len(seen) == 2
-    for time, frame in enumerate(seen, start=1):
-        assert frame.shape == (2, 64, 64, 1)
+    for time, converted in enumerate(seen, start=1):
         raw_first = tifffile.imread(source / next(
             row['target'] for row in rows if int(row['t']) == time
             and int(row['z']) == 1 and int(row['channel']) == 1))
-        assert np.array_equal(frame[0, :, :, 0] > frame[0, :, :, 0].min(),
+        assert np.array_equal(converted[0, :, :, 0] > converted[0, :, :, 0].min(),
                               raw_first > raw_first.min())
         merged = np.load(source / f'merged/plate1_A01_1_{time}.npy')
         assert merged.shape == (2, 64, 64, 3)

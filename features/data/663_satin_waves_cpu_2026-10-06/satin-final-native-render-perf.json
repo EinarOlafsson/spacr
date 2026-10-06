@@ -1,0 +1,35 @@
+{
+  "source_sha256": "9ea17982c07bcb3bbea6dd141da13f48e3cba67d1b8e26388754533edf258752",
+  "scope": "direct native shade; clips sampled offline at24Hz, not live FPS",
+  "records": [
+    {
+      "family": "chromatin_ribbon",
+      "viewport": [
+        1920,
+        1080
+      ],
+      "buffer": [
+        1920,
+        1080
+      ],
+      "median_ms": 9.883026999887079,
+      "p95_ms": 16.504931001691148,
+      "max_ms": 17.87363000039477
+    },
+    {
+      "family": "chromatin_ribbon",
+      "viewport": [
+        3840,
+        2160
+      ],
+      "buffer": [
+        3840,
+        2160
+      ],
+      "median_ms": 27.405113498389255,
+      "p95_ms": 31.970420997822657,
+      "max_ms": 32.59690299455542
+    }
+  ],
+  "rss_kib": 679956
+}

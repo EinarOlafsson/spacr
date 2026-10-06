@@ -81,6 +81,326 @@ NOT yet integrated here and needs the subsequent normal refresh. N615 stays
 OPEN. Preserve Home's corrected native crash interpretation: collection is a
 GUI QTimer callback under app.exec; Detail/Save causality remains unproven.
 All GPU/API/docs/translation/tutorial work stays workstation-owned.
+## 2026-10-06 workstation Divide / Merge and Cellpose magnifier drag accepted
+Workstation handles the latest user mask editing requests. Divide / Merge
+uses left drag for the existing division and right drag to join crossed
+objects under the first touched ID. No background bridge or acquired-image
+pixel is changed. Magnifier drags now extend the object where the stroke
+started; detections along the path share its ID even when separated. Starting
+on background allocates one new ID. The shared paste path covers Cellpose
+and Otsu; unrelated detections and overlap/min-area policies remain intact.
+Exact deliberate groups survive Save, Next, close and a fresh screen. One
+undo step restores both labels and manual identity policy. All268 affected
+Qt tests pass, including32 Box neighbors. Three genuine before-fix failures
+and two test-fixture correction runs are retained separately, with complete
+logs and source hashes in data/419_417_manual_merge_drag_2026-10-06.json.
+Home: preserve these mask_engine.py/make_masks.py changes. No duplicate mask
+work is needed. Neural accuracy/GPU inference is not claimed by stubbed
+detector regressions. New tr sources and callable documentation need the
+normal source-current all-nine refresh and current Make Masks tutorial.
+
+The frozen Root API job38785 is now terminal SUCCESS:9languages/13,195symbols.
+Independent complete preservation checking also passes, including628 tutorial
+files. This is a local checkpoint, not current-source website publication.
+Combined63 runtime review preparation was refused by an old ui/Divide source
+review; no bypass or generated-catalog edit was made. Normal review migration
+and integration remain workstation-owned. GPU queue567 waits for genuine
+idle; the user's live Make Masks app is not terminated or bypassed.
+
+## 2026-10-06 workstation Templates Save location and GPU preparation
+User requests the full settings-file location after Templates -> Save.
+The saved template is selected, including when an earlier alphabetical item
+exists, and its full absolute path is shown as selectable plain text below
+the list. All97 template/profile/shortcut cases pass. Complete log and source
+identity are retained in data/657_template_saved_full_path_2026-10-06.json.
+Home: this narrow user request is handled by workstation in recipes.py;
+preserve it when integrating. New runtime source Saved to: {path} and two
+RecipeDialog callable docstrings need the next normal source-current refresh.
+
+The unchanged Root API job38785 has written all nine locales but its full
+audit remains live. Do not count locale writes as acceptance. Clear warning
+translations have18 prepared exact-source records, not shipped catalogs.
+Event VideoMAE normal isolated CUDA-wheel install and actual CPU reference
+both pass in local scratch567-event-video-backend-GPU-r1. GPU extraction is
+not yet accepted; planned queue label567-videomae-parent-worker-parity-r1 uses
+the normal real-HOME6min idle/10min gap scheduler. No livecell/cellposeTIME
+or protected serial CI is changed. Workstation retains every GPU process.
+Official CTC HeLa archive was acquired privately and CRC-verified for later
+event validation; no microscopy accuracy is claimed and no dataset files
+will be mirrored or committed. Public scientific non-CTC use requires the
+organizer permission stated at https://celltrackingchallenge.net/datasets/.
+
+
+## 2026-10-06 Home annotation, mycelium, advection and hosted import acceptance
+Home completes the alpha tracked-field annotation GUI: root126affected cases
+pass, source-bound420editor lines/148arcs and26detector lines/14arcs are hit.
+Conflicting observation labels, tracker digest/backend mismatches, changes
+during annotations parsing/Save, and target aliases are refused before writes
+or fitting. Parent567 scientific/GPU acceptance remains OPEN; preserve this
+GUI while integrating your VideoMAE encoder/checkpoint/channel/device rows.
+
+Mycelium now grows fine connected fans from common origins, with advancing
+bright tips and fading overlapping old colonies, without reset and at most25%
+ink. Advection now pulls trails inward through their finite sampled history,
+with stationary mouse influence, smooth finite radius and exact unaffected
+outside/radius-zero behavior. Local native producer measurements remain near24
+average FPS; hard every-frame24FPS is NOT guaranteed. Paper's1%radius can
+move an actual tile center (5452native4Kpixels), but a cursor between centers
+may correctly reach no primitive. These implementation/audit children close;
+Random colors and stronger native memory workspace remain in progress.
+
+Exact hosted3ca compat37511791550 passed ALL8 deciding wheel/sdist startup
+and packaging-smoke platform cells. Parent concluded CANCELLED because your
+new5ce push activated existing compatibility concurrency while two
+informational full sweeps were active; this is not an all-green CI verdict.
+Native Windows startup contrast37511791573 on3ca is terminal SUCCESS.
+Current3ca ordinary27jobs have no failure yet at this checkpoint; protected
+b779serial37503577012 remains live and untouched. Old1f3 ordinary run had21
+failed jobs; root saved its pre-cancel state and cancelled only the obsolete
+already-failed run to release ordinary test concurrency. Never credit it green.
+
+CPU guard repairs: official Cellpose4.0.7 pads1native channel to3with zeros;
+test now proves rawvolume shape,axes,originalpixels and zero padding, rather
+than rejecting that valid library layout. Actual floor/current paired targets
+pass and root47nativebatch cases pass. Resource-bar opacity now compares
+identical animated pixel locations with tracks present/hidden, preserving
+geometry and both original thresholds. Lens/waves/blobs checks pass10,
+including injected doubled RAM fill rejection. No UI opacity defect claimed.
+Exact receipts are in data/43_cpu_acceptance_checkpoint_2026-10-06/.
+
+Workstation regeneration relay: app/timing's optional on_ready changes exactly
+one public inventory variant; its explicit semantic projection preserves all
+historical pins. Preferences _sync_custom_colors correctly documents SEVEN
+accepted data-art scenes, but reviewed private-helper arrival manifest
+663_565_560_private_api_arrivals_2026-10-06.json still pins SIX. Update that
+specific reviewed record normally; do not revert truthful source or weaken the
+callable-boundary guard. Regenerate current event GUI, normalization helpers,
+new growth/advection/radius and Preferences/runtime/Help/API/settings-flow
+records normally, preserving foundation-model provenance helpers. Random
+palette/new native workspace will be relayed after final CPU acceptance.
+
+## 2026-10-06 workstation mask save/reopen repair and event backend checkpoint
+Workstation owns and repairs the new Make Masks report: old same-extension
+PNG/TIFF masks shadowed canonical edited .tif outputs on reopen. Saved TIFF
+now has priority. Actual Draw/Brush Save/Next/close/fresh-screen checks preserve
+all labels and source pixels. Clear all objects moves immediately left of
+Discard with confirmation/cancel/undo retained. Root146 screen/box cases and
+61 engine/recovery cases pass; receipt data/419_mask_save_reopen_2026-10-06.json.
+Two popup translation sources await the next normal all-nine refresh; do not
+claim current multilingual artifacts. Existing right-click Box deletion passes;
+the user's intended underlying-mask behavior remains awaiting clarification.
+
+Local workstation event checkpoint61b551d7f connects an alpha optional
+VideoMAE environment/model row to the existing Timelapse classifier. Actual
+normal isolated installation, strict pinned weights, 768 pretrained features,
+synthetic held-out/train/save/reload replay and231 contracts pass on CPU.
+It is not yet pushed/integrated; GPU/biological acceptance remains OPEN.
+Home: preserve your annotation GUI work; backend settings are encoder,
+video_checkpoint, video_channels and video_device under timelapse_events_*.
+No duplicate annotation GUI work is started here. Workstation will merge this
+checkpoint after the still-live frozen API job38785 finishes. That job has
+written five of nine locales and is not accepted. Keep protected serial CI,
+livecell and cellposeTIME untouched. All GPU/API/docs/translations/tutorials
+stay workstation-owned; theme/native/annotation GUI remain Home-owned.
+
+
+## 2026-10-06 CPU startup, Preferences, native memory and owner regeneration
+Fresh209 hosted Home SciPy failures now have a confirmed second import path:
+the default grain compiler imports NumBa, which imports SciPy before Home is
+actually usable. App/ambient/timing gate optional compilation until the genuine
+post-paint readiness checkpoint, including profiling-off launches. Unchanged
+installed-wheel AND sdist Python-I Home guards pass, with16painted controls and
+zero heavy imports;83callback/timing,64affected renderer and87docstring checks
+pass. Source/archive identity and three unchanged hosted failure logs are in
+data/43_home_compiler_boundary_cpu_2026-10-06/. Current hosted green is pending.
+Preferences safe color pickers/dynamic Help hints and exact saved1%density are
+complete; all114affected tests pass. Default claim inventory increases only
+mask/watch_normalization_pool919->920, all prior pairs/variants identical;
+its named arithmetic checksum passes. No ratchet or mismatch ceiling is lifted.
+Native ingest retains one source channel and only selected output channels;
+paired full TIFF ingests save32.47MiB and71.88MiB respectively, with exact
+raw/normalized compressed bytes. Root161affected cases pass. Full normalized
+selected field still resides in memory, so arbitrary large-volume acceptance
+is not claimed. Source-bound archives are in item548's dated notes.
+
+Workstation: regenerate normally against this checkpoint, including new
+ambient controls/Thore/compiler docstrings, app/timing optional readiness
+callback, safe Preferences Help behavior, Watch pool form placement and private
+normalization-helper output mapping. Prior exact1f3 failures additionally need
+normal notebook-settings regeneration, Help API/settings-flow/runtime source
+hashes and reviewed translations. Preserve your three foundation-model helpers.
+No GPU/API/docs/translations/tutorial work is started by Home. User's mycelium,
+inward stationary-cursor advection and spatially varied Random colors requests
+remain actively owned here; new source will be relayed once accepted locally.
+Event annotation GUI is undergoing duplicate-label and tracker-provenance
+safety validation before integration; parent567 science/backend acceptance
+stays separate. Protected b779 serial37503577012 remains untouched/live;
+it cannot validate this later source. Items43/288/47 and reportedSaveSIGSEGV
+remain OPEN until actual terminal current-source acceptance.
+
+## 2026-10-06 older 1f3 ordinary CI failures and generated-artifact relay
+The exact seven failed coverage/slow logs from tests run 37494090176 and
+one newer pre-fix compatibility log are archived with SHA-256 manifest,
+source patch, focused receipts and job-by-job classification in
+features/data/43_hosted_1f3_guard_triage_2026-10-06/. Home repairs the
+retired Cells/Ripple/blobs test subjects without relaxing abort, theme or
+performance budgets; watch_normalization_pool now appears in the Mask
+workflow form, not Additional Settings, and the closed-pool nested callable
+is documented. The focused 82 category/docstring, 36 visual, 2 expected-abort
+and 3 retained performance cases pass under 4 GiB/CUDA hidden. A direct
+QColorDialog.getColor call for custom animation colours in Preferences remains
+a real picker-guard failure for its owner. The old pointer-poll assertion
+passes one bounded current-source replay; no ambient source fix is claimed.
+The old job's reviewed translations, English UI source hashes, Help API
+index, settings-flow source sections and locale runtime rows require the
+workstation's normal generated-artifact refresh. These historical job logs
+cannot establish green status for the current source. Item 43 remains OPEN.
+## 2026-10-06 current hosted compatibility failure and workstation checkpoint
+Current compat run 37508438542 on f02cb6583 is TERMINAL FAILURE: all eight
+installed platform cells still report operation-only import boundary ['scipy'].
+Packaging metadata, wheel availability and Fractal renderer cells pass.
+This source already contains c37's lazy magnifier import repair; its local
+Linux evidence does not prove hosted acceptance. Exact complete failed logs,
+eight-cell summary and source SHA are retained in
+data/288_current_compat_failure_2026-10-06.json and its lossless archive.
+Home owns tracing the remaining installed startup import path. Keep the strict
+guard. Protected serial run 37503577012 on b779 remains live and untouched.
+
+Workstation local checkpoint 4d007329e now accepts normal nine-language
+runtime generation/audit (9,922 entries each) and complete strict guides
+(2,991 messages each), preserving all old reviews/targets. Historical sv/fr
+assertions pass unchanged, 12 semantic cases and seven generated-documentation
+contracts pass. API normal rebuild is still live as handle 38785, with first
+locale written. That local checkpoint is not yet pushed or latest-source
+website acceptance. Newer Home source/refinements remain to integrate.
+
+## 2026-10-06 user advection gravity and random-colors palette for Home
+The user's latest density requirement is exact: minimum 1% (0.01), not the
+current shared DENSITY_RANGE floor 0.25. Change the actual shared bound and
+engine-specific floors, with saved 1% and graded low-density effects. Mouse
+gravity still separately permits/defaults to 0. Exact quote and source cues
+are appended to data/663_advection_point_gravity_request_2026-10-06.txt.
+
+The user wants spaCR advection particles pulled toward the cursor, strongest
+near its center and smoothly fading to zero at the selected radius. The
+current pointer-local rotation looks like a distortion field to the user.
+Exact quote, source observation and requested checks are in
+data/663_advection_point_gravity_request_2026-10-06.txt. Keep default radius
+0, graduated reach and existing outside-radius flow. Home owns this renderer
+change; workstation retains all GPU/API/docs/translations/tutorials. This is
+new feedback, not implemented or accepted behavior. The user also requests
+a palette with random colors everywhere: add an optional Random colors
+animation palette with spatially varied colors and saved selection. Stable
+per-element colors are the working interpretation to avoid frame flicker.
+Both exact quotes and palette integration points are in the same receipt.
+Prior Thore/density/mycelium-growth feedback and Save investigation stay open.
+
+## 2026-10-06 installed Home compatibility repair, local archive smoke
+Historical compat run 37494089502 (source 1f3e4a2403) failed all eight
+platform cells at the same strict installed-wheel Home boundary: scipy was
+already loaded at interactive readiness. Make Masks prewarm constructed Live
+Magnifier; its startup timer imported _PREVIEW_MS from _magnifier_drag, which
+eagerly imported scipy.ndimage. Integrated source c37b7f7d69 moves that
+import into actual stroke-frame delivery and adds a fresh-process test for
+both sides of the boundary. No operation-only import guard was changed.
+
+The exact eight old logs, source patch, build/install receipts, focused test
+log, SHA manifest and installed-probe/timing JSON are in
+features/data/288_installed_home_compat_2026-10-06/. A full isolated c37
+worktree built both wheel and sdist; each was installed in a fresh scratch
+venv, then the existing packaging child Home probe ran under python -I from
+a scratch directory. Both reported origin_verified=true, painted usable Home
+and heavy_modules_at_ready=[]; both separate core/measure-AppScreen probes
+passed. The integrated magnifier cohort passes 26 under 4 GiB/CUDA hidden.
+This is local Linux Python 3.12.13/PySide6 6.11.2 evidence, not an eight-cell
+hosted verdict or full resolver/CLI replay. Keep F288 OPEN until the current
+source's compatibility, ordinary tests and aggregate gates finish green.
+The newer b779 protected runs were dispatched before this source fix; do not
+credit them with c37 without an exact SHA match.
+
+## 2026-10-06 urgent user theme follow-up
+2026-10-06 new user follow-up relayed to Home:
+Smoother Thore rain; lighter lightning with vertical and occasional horizontal
+branches; visible graded slider effects at1%/10%/50% rather than only on/off;
+lower density floor; spaCR growth branching like the supplied mycelium GIF.
+Exact request, reference provenance and observed branching are in
+ data/663_user_theme_followup_2026-10-06.txt. Slider identity clarification is
+pending; audit both radius and density. Prior default-zero mouse influence,
+fading trails and25% growth occupancy remain requirements. These are new
+requests, not completed acceptance. Home owns CPU/theme refinement and native
+Save investigation; workstation retains all GPU/API/docs/translations/tutorials.
+
+## 2026-10-06 Home coherent final CPU/theme source ready for hosted acceptance
+Final renderer source is9ad69bab29 with ambient SHA256
+4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5;
+io SHA256a0f47b365f5153e6a2ee27604ce6eefe00bf712ddde117c6855e915b80ce742c.
+Native point frames publish independently owned images without redundant
+composition/copies. Satin adds exact native waves, cropped frame-local targets,
+0.36MiB retained wave metadata, a bounded joined pure-CPU helper, and exact
+NumPy fallback after runtime failure. Finite default-zero gravity, mouse facets,
+evolving advection, conservative atlas culling, growth/Thore/Aurora and catalog
+are integrated. Three further transient releases plus scalar percentile scratch
+reuse reduce the same bounded native TIFF ingest1792.76 to1666.16MiB; all three
+outputs remain byte-identical. Whole-field scalability remains OPEN.
+
+Root affected theme cohort944 pass/3 obsolete Cells/Ripple subject failures;
+4154ab5713 repairs those subjects without changing any timing or ownership guard,
+and all22 affected-file cases pass. Final source contracts140 and integrated
+normalization/native/pool196 pass. Independent31 integrated native ownership/
+queue/parity/clock/hide cases pass and accepted helper ASTs remain exact.
+Actual frozen native4K MainWindow modal Detail2->1->2/radius0->.65->0 Saves
+persist correctly. Nine natural GUI-GC callbacks run; close/deferred-delete
+leaves zero widgets/ambient workers. Reported Save SIGSEGV has NOT reproduced:
+no cause/fix claimed. All-theme hard native24FPS acceptance remains OPEN.
+
+Portable exact satin proofs, real point-widget timings, full failure diagnosis
+and frozen MainWindow evidence are in the new663_*_cpu/663_mainwindow_save_gc
+archives. Earlier rejected398MiB/14FPS satin drafts are retained as rejected
+experiments. Actual accepted satin4K23.87FPS/p9536.10ms is typical performance,
+not every-frame guarantee. No full local Qt or GPU task was run.
+
+Workstation retains ALL GPU/API/docs/translations/tutorials. Please regenerate
+all source-bound API/runtime/Help/settings-flow/consumer-map and nine-language
+records normally for this checkpoint, including new private wave/point helpers
+and prior watcher/public radius changes. Preserve your6caf provenance helpers.
+Older e259 ordinary CI README Make Masks feature-guide referral and sv/fr
+reviewed-policy130vs131/localization-report failures remain yours. Home repaired
+the actual1f3 nightlydocs ambient introduction formatting error at546bf/c665.
+Current1f3 ordinary jobs are active (top-level API status can still say queued).
+New hosted serial will start from the upcoming workflow-file push with durable
+failed-report/fatal-Python/native-text diagnostics and unchanged10.8GiB guard.
+Frozen run SHAs must be recorded separately from later metadata publication.
+
+## 2026-10-06 Home next-source checkpoint and workstation CI relay
+Local Home source now includes bounded radius physics, still facets with local
+mouse response, evolving advection vortices, exact radius-aware terrain culling,
+and three more safe native ingest buffer releases. Paired real TIFF ingest
+reduces RSS1792.76 to1698.21MiB with all three outputs byte-identical; native
+batch/watch66 cases pass. Evidence is in the new 548_native_memory_followup
+and 663_local_gravity_advection_culling_cpu archives. Satin integration still
+awaits its retained-buffer/runtime-fallback review and exact final MainWindow
+Save/Detail/radius stress. Reported native Save crash stays OPEN.
+
+Actual docs37494089527 nightly job112377763420 on1f3 failed solely at ambient
+module introduction: Definition list ends without blank line/unexpected
+unindent. Source546bf33e8 fixes that formatting and stale catalog/default prose.
+140 docstring/field/source contracts pass; full RST sweep skipped because Home
+lacks Sphinx. Direct docutils parse of the changed actual module confirms no
+structural error. Final source still needs workstation normal generated API,
+runtime/Help/settings-flow/consumer-map, translations and deployment refresh.
+
+Older e259 tests37478294475 are now terminal FAILURE. Fast shards0/1 and
+minimum shards0/1 confirm the previously relayed Swedish/French reviewed-policy
+130vs131, localization-progress exact bytes, and missing README Make Masks
+feature-guide referral. These remain workstation-owned; do not weaken strict
+source-bound assertions. Logs in /mnt/wd4tb/scratch/root-evidence-20261006/
+and /mnt/wd4tb/scratch/ci-e259-failures-20261006/; please repair normally.
+Current1f3 tests37494090176 are queued, not green. No source fix for old full
+serial exit139 is claimed. New workflow captures fsynced failed reports and an
+owned fatal Python stream, plus bounded failure-only native core text if
+available. The next coherent workflow-file push starts a new full hosted Qt
+attempt. Keep the 10.8GiB guard and no full local Qt execution.
+
 ## 2026-10-06 Home integrated source and actual CI diagnosis
 Home now integrates native T>1 Mask watching plus lower-copy normalization,
 66 root integrated native watcher/batch cases pass as well. Requested
@@ -102,7 +422,7 @@ Detail/Save causality. Existing actual MainWindow/4K Save probes have not
 reproduced it; exact new-source stress is ongoing. Do not claim a fix.
 
 Protected serial37457998285 TERMINAL FAILURE on source237506317 after4h:
-exit139 at puncta test[False], last RSS~5.18GiB, host available~10GiB,
+exit139 at puncta test[False], last RSS~5.06GiB, host available~10GiB,
 zero swap/OOM kills, below10.8GiB guard. Nine earlier assertion failures lack
 summary because native death. All nine and puncta pass exact-source narrow
 replays; cumulative native state is being investigated. Do not waive memory,

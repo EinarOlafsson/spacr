@@ -835,3 +835,43 @@ LOWER-COPY NATIVE NORMALIZATION (2026-10-06, bounded CPU acceptance)
     failure still refuses partial folders. Native watcher stages recover
     separately; uncheckpointed completed inference can necessarily repeat.
     ParentF548 stays OPEN for raw/vendor and unsupported scientific modes.
+
+2026-10-06 — further transient release, bounded CPU follow-up
+    Source cb33158ba9 releases per-channel plane buffers after channel stacking,
+    channel volumes after frame stacking, and the local frame after appending
+    it. The same real 2T/2Z/2C/2048-square TIFF fixture measured 1792.76 MiB
+    before versus 1698.21 MiB after (94.55 MiB less). Both raw NPY stacks and
+    normalized NPZ remain byte-identical; all 66 native batch/watch cases pass
+    under 4 GiB CPU-only. Frozen sources, exact output identities and paired
+    logs: data/548_native_memory_followup_cpu_2026-10-06/. Shared-load timings
+    are not speed acceptance. Whole-field arrays still grow with acquisition
+    size; arbitrary large native series and parent F548 remain OPEN.
+
+2026-10-06 — scalar percentile scratch reuse with exact normalization
+    Source06b1b3474f lets each original scalar percentile call partition only
+    the already-private boolean-selected nonzero channel copy, then releases
+    it before rescaling. All original threshold choices and scalar/nonfinite
+    semantics remain. A batched vector quantile prototype was rejected because
+    float32+Inf differs numerically. Complete normalization parity covers
+    ordered roles, threshold branches, arbitrary lower percentiles, background,
+    output dtypes, zero/NaN/Inf. Root196 integrated cases pass under4GiB.
+    The same native TIFF fixture peaks1666.16MiB versus1698.21 previously
+    (32.05MiB less); all three output files remain byte-identical. Frozen
+    sources, tests, logs and hashes:
+    data/548_native_percentile_scratch_cpu_2026-10-06/. Whole-field scaling
+    and broader parentF548 acceptance remain OPEN.
+
+2026-10-06 — staged-channel loading and selected-output allocation
+Native TZYX normalization now loads only one original staged channel at a
+time, preserving complete-field scalar quantiles and private-stage hashes.
+Full2T/2Z/2C2048TIFF ingest peaks1668.24->1635.77MiB,32.47MiB less;
+rawNPY andnormalized compressedNPZ bytes match. Separate selected-output
+allocation avoids unselected source channels and the final advanced-index
+copy: real2T/2Z/4C1536TIFF selecting[3,1] peaks1534.62->1462.74MiB,
+71.88MiB less. Every output SHA matches;36scratch role/dtype/percentile
+cases preserve completearrays/NPZ bytes. Root161integratednative/watch/
+normalization cases pass; agent191relevant cases andallnewIObranches pass.
+Evidence: data/548_native_stream_channels_cpu_2026-10-06/ and
+data/548_native_selected_channels_cpu_2026-10-06/. Differentfixture savings
+are not summed. Full selected float32 field remains resident; large-volume
+and parent548 scientific/external-data acceptance remainOPEN.
