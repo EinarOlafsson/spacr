@@ -517,9 +517,9 @@ def test_the_density_and_size_controls_reach_the_plate(qapp):
     assert narrow.plate(320, 200)[2] > 0
 
 
-def test_a_hidden_backdrop_costs_nothing_with_the_retained_ripple(qtbot):
+def test_a_hidden_backdrop_costs_nothing_with_the_retained_aurora(qtbot):
     """The worker still retires when a selected backdrop is hidden."""
-    widget = amb.AmbientWidget(theme="ripple", palette="spacr",
+    widget = amb.AmbientWidget(theme="aurora", palette="spacr",
                                background=DARK, seed=7)
     qtbot.addWidget(widget)
     widget.resize(480, 320)

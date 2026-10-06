@@ -229,11 +229,11 @@ print({sentinel!r} + json.dumps(
 #: `AMBIENT_THEMES` except the default would do; the default cannot, because
 #: then a store with nothing written in it would die too, and 296 asks for a
 #: start that a WRITTEN value breaks.
-POISONED_ANIMATION = "cells"
+POISONED_ANIMATION = "aurora"
 
 #: What safe mode saves in its place: the default, a real backdrop, so the
 #: repaired ordinary start is seen to build one rather than to skip it.
-REPAIRED_ANIMATION = "blobs"
+REPAIRED_ANIMATION = "data_art_impulse_lens"
 
 #: Preferences the user set and never touches in safe mode, one of each kind
 #: of control the dialog writes them from: a slider, a text dropdown, a
