@@ -110,7 +110,7 @@ def test_late_save_completion_keeps_new_crop_status_and_original_source(
     monkeypatch.setattr(screen._jobs, "submit",
                         lambda work, done: pending.append((work, done)) or True)
     if save_fails:
-        monkeypatch.setattr(al, "_store_crop_embeddings", lambda *_args: (
+        monkeypatch.setattr(al, "_store_crop_embeddings", lambda *_args, **_kwargs: (
             _ for _ in ()).throw(OSError("old database is read-only")))
     screen._save_similar.click()
     work, done = pending.pop()

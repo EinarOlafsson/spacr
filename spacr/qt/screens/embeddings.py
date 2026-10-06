@@ -226,6 +226,7 @@ class EmbeddingsScreen(QWidget):
         self.setObjectName("EmbeddingsScreen")
         self._frame: Optional[pd.DataFrame] = None
         self._result = None
+        self._result_encoder = None
         self._crop_identity = None
         self._result_identity = None
         self._crop_generation = 0
@@ -1441,6 +1442,7 @@ class EmbeddingsScreen(QWidget):
         self._crop_identity = None
         self._result_identity = None
         self._result = None
+        self._result_encoder = None
         self._save_similar.setEnabled(False)
         self._scale_record = {}
         self._source.setText(
@@ -1515,30 +1517,33 @@ class EmbeddingsScreen(QWidget):
             opens this screen should not pay for it, and a user who does
             should pay for it once, here, rather than at launch.
             """
-            from ...embeddings import _embed_plate
+            from ...embeddings import _embed_plate, encoder_entry
 
             try:
-                return _embed_plate(crops, spec, record=record), ""
+                result = _embed_plate(crops, spec, record=record)
+                entry = encoder_entry(getattr(result, "spec", None) or spec)
+                return result, entry, ""
             except Exception as exc:
-                return None, f"{type(exc).__name__}: {exc}"
+                return None, None, f"{type(exc).__name__}: {exc}"
 
         def finished(answer):
             """Publish only to the crop selection that produced the vectors."""
             if generation != self._crop_generation:
                 return
-            result, error = answer
+            result, entry, error = answer
             if error:
                 if not self._loading:
                     self._status.setText(error)
                 return
             self._result_identity = identity
-            self._on_embedded(result)
+            self._on_embedded(result, entry=entry)
 
         self._jobs.submit(work, finished)
 
-    def _on_embedded(self, result) -> None:
+    def _on_embedded(self, result, *, entry=None) -> None:
         """Fill the preview and say which encoder produced it."""
         self._result = result
+        self._result_encoder = entry
         self._save_similar.setEnabled(
             not self._loading and self._result_identity is not None)
         frame = pd.DataFrame(np.asarray(result.values),
@@ -1550,7 +1555,9 @@ class EmbeddingsScreen(QWidget):
 
         from ...embeddings import encoder_entry
 
-        entry = encoder_entry(getattr(result, "spec", None) or self.spec())
+        if entry is None:
+            entry = encoder_entry(getattr(result, "spec", None) or self.spec())
+        self._result_encoder = entry
         digest = entry.sha256[:12] + "…" if entry.sha256 else "no checksum"
         self._status.setText(
             f"{len(frame)} objects x {len(frame.columns)} dimensions. "
@@ -1566,6 +1573,7 @@ class EmbeddingsScreen(QWidget):
                 "Load database crops and embed them before saving vectors."))
             return
         database, keys = identity
+        entry = self._result_encoder
         self._save_similar.setEnabled(False)
         self._status.setText(tr("Saving crop embeddings…"))
 
@@ -1574,7 +1582,8 @@ class EmbeddingsScreen(QWidget):
             from ...active_learning import _store_crop_embeddings
 
             try:
-                _store_crop_embeddings(database, keys, result)
+                _store_crop_embeddings(database, keys, result,
+                                       encoder_entry=entry)
                 return len(keys), ""
             except Exception as exc:
                 return 0, f"{type(exc).__name__}: {exc}"

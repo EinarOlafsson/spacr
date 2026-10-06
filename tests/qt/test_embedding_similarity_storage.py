@@ -105,7 +105,7 @@ def test_save_failure_keeps_result_available_for_retry(screen, plate, monkeypatc
     _load(screen, plate[0])
     screen.embed()
     original = al._store_crop_embeddings
-    monkeypatch.setattr(al, "_store_crop_embeddings", lambda *_args: (_ for _ in ()).throw(
+    monkeypatch.setattr(al, "_store_crop_embeddings", lambda *_args, **_kwargs: (_ for _ in ()).throw(
         OSError("database is read-only")))
     screen._save_similar.click()
     assert "read-only" in screen._status.text()
