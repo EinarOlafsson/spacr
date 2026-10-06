@@ -1,5 +1,5 @@
 ABSTRACT DATA FLOW THEMES AND BACKDROP PERFORMANCE
-Status: OPEN — implementation and visual/performance verification in progress.
+Status: DONE 2026-10-05 — 16 bounded animated flow presets, CPU verified.
 Requested: 2026-10-05 by the maintainer: performance-optimize themes and add
 10–20 abstract high-resolution continuously flowing backgrounds, including
 weather-like wind, mouse-influenced flows, biology, spatial data, DNA and space.
@@ -27,8 +27,53 @@ queues. GUI paints use ready frames; hidden/minimized/disabled backgrounds
 stop timers and retire render workers. Keep the existing memory/work/CI
 ceilings. Verify both moving output and all lifecycle failure boundaries.
 
-2026-10-05 — ACCEPTANCE WORK IN PROGRESS
-Three reused agents split renderer/mouse integration, catalog/preset state
-and contrast, and independent profiling/lifecycle tests. Root reviews actual
-rendered 1080p/4K output and publishes source-current workstation handoff.
-No GPU work or new module under spacr is authorized by this feature.
+2026-10-05 — IMPLEMENTED AND VERIFIED
+Appearance > Theme offers the eight families and their Pointer variants;
+Animation can also select the individual flow behind another visual theme.
+Continuously travelling highlights follow smoothed curves, with localized
+cursor bending in the eight mouse variants. Seeded layouts reproduce their
+frames; synapse hubs and chromatin clusters cover the field. Existing theme,
+palette, animation speed/size/density/resolution and sound controls remain
+compatible. Selecting a preset respects disabled animation and sound.
+
+The new renderer shades in the existing one-worker publication path with
+cached pens, at most 96 seeds and 49 points per path. Normal 1080p, 4K and
+HiDPI frames shade a 960x540 buffer and scale the ready frame for display:
+4,147,200 bytes for two shaded images, with no per-frame 4K simulation grid.
+Hidden, minimized, paused and closed widgets retire their worker; switching
+all sixteen themes leaves one timer and no prior workers. GUI timer ticks
+never wait for shading; ordinary variants do not poll the cursor. The mouse
+poll accepts only the active window's in-bounds location and takes no input.
+
+The final scoped ambient/catalog/lifecycle cohort passes 774 cases under
+4 GiB with CUDA hidden. Focused branch receipts cover every added executable
+line and touching arc in the renderer and catalog/preferences integration.
+The final focused renderer/catalog/lifecycle receipt passes 98 cases:
+197 added ambient executable lines and 46 touching arcs are exercised, with
+no new missing line or arc. The unchanged catalog integration receipt covers
+all 25 added executable lines and its seven touching branch arcs.
+All sixteen palettes pass contrast/page-separation checks; the eight base
+palettes also pass sixty Spaceout drift offsets. Root reviewed all sixteen
+actual 3840x2160 frames, the refined helix/chromatin output and styled QWidget
+dark/light previews. Real cursor polling reached all eight mouse variants.
+
+Independent local CPU/offscreen profiling after final smoothing/glow:
+1080p shade medians 6.5-16.7 ms, 4K 7.3-18.6 ms, DPR2 8.0-19.9 ms;
+4K ready-frame blits 4.6-7.8 ms. Benchmark process high-water RSS was
+185.0 MiB across 23 themes and two resolutions, and 181.6 MiB at DPR2.
+Those are development measurements, not a hosted timing guarantee or a
+whole-Qt memory result. Existing seven themes, buffer/work ceilings, launch
+recovery, Extra Performance and No Animation rules remain in place.
+With a CPU worker and 200 console messages, all sixteen backdrops render
+all messages; local 16 ms heartbeat medians are 15.87-16.02 ms and p95 is
+20.97-24.09 ms. The corresponding no-backdrop sample is 15.98/17.98 ms.
+
+Reused agents owned renderer, catalog and independent performance review.
+No GPU, audio asset, new spacr module or coverage allowance was added.
+Evidence is in tests/qt/test_ambient_flow_renderer.py, test_flow_theme_catalog.py
+and test_ambient_flow_lifecycle.py. Local visual/profiling receipts are in
+/mnt/wd4tb/scratch/ambient-perf-20261006 and n663-theme-preview-final.
+Source-derived API, documentation, translations and tutorials are a separate
+workstation lane, handed off in protocol 325. Final hosted GitHub verdict
+remains item 43; this feature's scoped acceptance does not close items 43,
+288, 47 or the broader release-performance item 284.

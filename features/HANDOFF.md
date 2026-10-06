@@ -1,5 +1,32 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-05)
 
+## 2026-10-05 CPU session — animated flow themes (item 663)
+Sixteen regular Appearance presets are implemented and CPU verified: eight
+biology/spatial/DNA/space flow families, each with a mouse-responsive variant.
+The existing buffered worker renders bounded smooth luminous filaments;
+4K and HiDPI output retain a 960x540 shaded buffer at normal resolution.
+All sixteen palettes pass readability checks and the final scoped ambient
+cohort passes 774 cases under 4 GiB. Item 663 records the visual, lifecycle,
+branch-coverage and independent performance receipts. Existing seven ambient
+engines and ten night presets remain compatible; no GPU work was started.
+
+The workstation's next normal source-current refresh must include the
+ambient, night_themes, theme and preferences inventories/docstrings and new
+flow captions/descriptions. The runtime extractor's dynamic theme registry
+must include FLOW_THEMES labels/descriptions, in addition to its existing
+NIGHT_THEMES and ambient-animation inventory. The changed plain-spacr
+fast_plots repair caption still needs a source hash. Keep all prior complete
+catalog records and refresh through the normal tools. API/docs/translations/
+tutorials and every GPU process remain workstation-owned.
+
+Protected 8d21 GitHub run 37379945325 remains evidence for older source.
+Its complete twelve-shard aggregate identified three genuine absolute-count
+coverage regressions in plot, mask_engine and Make Masks. Focused tests now
+exercise tampered prior figure exports, invalid/native puncta inputs,
+source-file replacement races and cancellation, meeting those prior limits
+without changing a guard. Final exact-source CI and full serial Qt acceptance
+remain open. Protocol 325 holds the current failure/owner readback.
+
 ## 2026-10-05 CPU session — Make Masks YOLO boxes (item 662)
 The maintainer requested a regular Box tool beside Draw for general YOLO
 annotation. Implementation is in the existing Make Masks canvas and

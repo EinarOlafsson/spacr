@@ -18229,3 +18229,59 @@ at this receipt. No protected run was cancelled or duplicated.
 2026-10-05 workstation Home/Measure user correction checkpoint: Home describes Core, Data and Tools from left to right, including the previously omitted Embeddings, Power / Design and Dose-Response. Measure opens on actual loaded Source controls rather than the empty-source card. User repeated that Mask is already correct; Mask and the Conda script stay unchanged. Fresh native Home and Measure-preview captures, unchanged sixteen-field scientific results, all 39 authored scenes and all 26 source-bound translated reviews pass staging; eighty-three other complete lesson objects are retained in each catalog. Receipt: features/data/615_home_measure_ui_stage_2026-10-05.json. The Home recorder now cancels the actual No-role Storage confirmation correctly; its first terminated capture remains failed. Next GPU turn is 615-home-measure-ui-narration-20261005-r1, exactly lessons 05_home and 08_measure, eight languages and 27 voices per lesson; tools/gpu_turn.sh enforces the normal six-minute idle and ten-minute handoff gaps. No other GPU job or livecell/cellposeTIME process is touched. Publication and deployed acceptance remain open.
 
 2026-10-05 workstation generated checkpoint: all nine reviewed API languages now pass normal strict generation/audit with 13,181 symbols; each of all ten catalogs preserves every complete old 13,177 record and adds exactly the four named YOLO helpers. Full source/docstring guards pass 134 cases; strict all-language Sphinx succeeds; runtime checks pass 17 and all seven YOLO guide passages render in all nine languages. Receipt: features/data/662_api_docs_translation_2026-10-05.json. This is frozen to f4d6e8df3 before Home’s standard-install prose/runtime and central X-shortcut updates; normal source-current follow-up after integration is explicitly pending. YOLO scene authoring/video/deck/publication remain open. Home/Measure tutorial narration has a separately announced bounded GPU turn; do not start duplicate GPU work or touch livecell/cellposeTIME.
+
+2026-10-05 — HOME FLOW SOURCE FREEZE AND CURRENT CI FOLLOW-UP
+Item 663's sixteen regular flow presets are CPU accepted. Final renderer
+source is the 7776a3d refinement, integrated after the helix seed repair;
+catalog source is a5090e858. All eight families have smoothed, continuously
+moving highlights, and each has a cursor variant. Root reviewed the final
+4K frames and actual styled dark/light QWidget output. The scoped ambient
+cohort passes 774 under 4 GiB; no full Qt or full local suite was run.
+Independent final measurements and lifecycle/branch receipts are recorded
+in item 663. GPU and generated artifacts remain exclusively workstation-owned.
+
+Workstation: please begin the normal source-current theme API/guide/runtime
+refresh after this checkpoint. Changed modules: spacr/qt/widgets/ambient.py,
+night_themes.py, theme.py and preferences.py. Preserve the original seven
+ambient engines and ten night records. Stable flow keys are documented in
+item 663. Include labels and descriptions from FLOW_THEMES in the explicit
+indirect runtime inventory in tools/build_i18n_catalogs.py (it currently
+imports/iterates only NIGHT_THEMES for descriptions; several flow labels
+and all sampled descriptions are absent even from the candidate inventory).
+The complete canonical/compact-source union misses thirteen of sixteen
+flow labels and all sixteen preset descriptions on this frozen source.
+Existing animation label/note iteration already sees the new animations.
+Refresh via normal tools and reviewed translations, preserving old records;
+do not merely waive missing-candidate/source-hash guards. No setting was added.
+
+The older protected 8d21 run 37379945325 produced all twelve coverage inputs
+and all 664 modules. The absolute-count ratchet failed three genuine modules:
+plot one prior-export hash path, mask_engine native puncta edges, and
+Make Masks old source/cancel/provenance boundaries. New focused tests close
+the missing plot line/arc and leave mask_engine 9 missing lines/11 arcs
+(baseline 11/11) and Make Masks 11 lines/28 arcs (baseline 59/28), with their
+source blobs unchanged. This union proof is not a fresh complete CI verdict.
+
+Hosted Qt2 failed on the 26 older uncatalogued Box captions (189 passed,
+1 xfailed in that batch). The workstation's 3d9 refresh closes those old
+strings, but a single exact-current replay still misses the plain-spacr
+pyqtgraph repair caption from fast_plots.py. Include that caption/source hash
+in the installation refresh. Fast/MinDeps also fail the old API inventories,
+nested-helper metadata and README's required Box mention; those prose and
+generated guards remain workstation-owned. The nine API languages accepted
+at f4d6e8df3 are retained, with current-source refresh explicitly separate.
+
+Home additionally owns the newly observed replay tool failures: Fast has
+two coverage-profile planning tests importing optional coverage too early;
+MinDeps also exposes diagnostic child startup failures. The repaired replay
+imports the actual complete coverage runner for planning; that runner now
+loads coverage data classes only when it reads data. Execution still refuses
+a missing coverage dependency before creating evidence. A bare python -S
+probe and the real-child failure/interrupt fixtures verify the boundary.
+All fourteen replay cases and two coverage integrity cases pass under 4 GiB.
+Only synthetic fixture jobs omit per-test plugin limits; they retain their
+60-second batch limit. Production CI selection, caps, timeouts, integrity
+guards and failure exits are unchanged. Final source-current
+hosted tests/coverage and uninterrupted serial Qt remain OPEN. Protected
+running jobs were not cancelled; GitHub itself superseded older pending
+push runs. No duplicate manual full dispatch was created.
