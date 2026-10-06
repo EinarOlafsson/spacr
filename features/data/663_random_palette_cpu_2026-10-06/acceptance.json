@@ -1,0 +1,34 @@
+{
+  "source_commit": "9ee363637fab8137c2fc3104a76cb178234b4d34",
+  "source_sha256": "e0dcbaf47cf0ecdca9aefb32a1bfd85810da20cd7f405d0461b6cad37cfc041b",
+  "baseline_commit": "0fb0c875a3",
+  "focused_cases": 192,
+  "additional_center_round_cases": 4,
+  "native_existing_pair_count": 40,
+  "native_random_compiled_pair_count": 24,
+  "retained_palette_table_bytes": 196608,
+  "ephemeral_native_compiled_rank_bytes": 8294400,
+  "scratch_not_integrated_gravity_source": true,
+  "source_bound_scope": "Individual palette source checkpoint, not latest integrated root renderer. The baseline advection function precedes bf4 inward-history gravity; only its 2D material return-call changes here. Parent preserves current gravity function when cherry-picking.",
+  "validation_phases": [
+    {
+      "source_sha256": "e0dcbaf47cf0ecdca9aefb32a1bfd85810da20cd7f405d0461b6cad37cfc041b",
+      "scope": "Nine affected test files before extending center/round parametrization",
+      "passed": 192,
+      "elapsed_seconds": 34.68
+    },
+    {
+      "source_sha256": "e0dcbaf47cf0ecdca9aefb32a1bfd85810da20cd7f405d0461b6cad37cfc041b",
+      "scope": "Center/round primitive extension; overlaps two previous scenarios, no execution-union count asserted",
+      "passed": 4,
+      "elapsed_seconds": 3.75
+    },
+    {
+      "source_sha256": "4401c58b579214ac3d6a20ec908981c4ebd8e556e6aa0f670d6d6969b1a929ac",
+      "scope": "Five affected test files on exact optimization, including bounded identity cache",
+      "passed": 106,
+      "elapsed_seconds": 19.28
+    }
+  ],
+  "phase_overlap": "Runs overlap; counts are individual executions, not a unique union. Root Preferences Save/reopen/all-theme/Cancel test is a separate one-case run outside this archive."
+}

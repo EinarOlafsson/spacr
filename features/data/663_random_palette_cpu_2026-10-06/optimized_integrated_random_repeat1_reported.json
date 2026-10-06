@@ -1,0 +1,16 @@
+{
+  "reported_scope": "First optimized integrated native4K actualwidget steady record captured in tool transcript; full cold JSON was overwritten by repeat2, so not claimed archived here. Same explicit frozen optimized source, controls and probe as repeat2.",
+  "source_sha256": "a324d395c4029fdeb1e307595fcc4d2353cb4fd7f15589f51e456c67f19b417a",
+  "published_fps": 23.396163557904107,
+  "published_frames": 117,
+  "distinct_clocks": 117,
+  "shader_median_ms": 34.710495005128905,
+  "shader_p95_ms": 50.73660700873006,
+  "publication_p95_ms": 57.24032600119244,
+  "heartbeat_max_ms": 23.675602991716005,
+  "load_average": [
+    3.0048828125,
+    2.8662109375,
+    2.93115234375
+  ]
+}

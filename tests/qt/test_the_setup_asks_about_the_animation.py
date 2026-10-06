@@ -1,7 +1,5 @@
 """The setup screen asks which backdrop to run, under the theme it belongs to.
 
-"in the startup, under theme should be annimation, degault to blobs."
-
 The backdrop is part of what spaCR looks like, so it is decided where the
 look is decided -- immediately under the theme, on the same slide, rather
 than found later in Preferences by somebody the motion is bothering.
@@ -10,7 +8,7 @@ Three things are load-bearing:
 
 * EVERY CHOICE, ``None`` included, because "turn it off" is one of the
   answers and a question that cannot be answered "no" is not a question;
-* THE DEFAULT IS THE APPLICATION'S OWN. Blobs is what
+* THE DEFAULT IS THE APPLICATION'S OWN. The current default is what
   ``preferences.get_ambient_animation`` falls back to, so the slide opens
   on what is already true instead of offering a second opinion about it;
 * IT IS WRITTEN THROUGH ONE SEAM. ``set_ambient_animation`` both stores the
@@ -144,10 +142,11 @@ class TestItOffersEveryAnswer:
                 ambient.animation_label(key)
 
 
-class TestItDefaultsToBlobs:
+class TestItDefaultsToTheApplicationTheme:
 
-    def test_a_fresh_profile_opens_on_blobs(self, slides, ambient):
-        assert slides.animation_choice() == "blobs"
+    def test_a_fresh_profile_opens_on_the_current_default(self, slides, ambient):
+        assert ambient.DEFAULT_THEME == "data_art_impulse_lens"
+        assert slides.animation_choice() == "data_art_impulse_lens"
         assert slides.animation_choice() == ambient.DEFAULT_THEME
 
     def test_that_is_what_the_application_already_answers(self, slides,
@@ -157,11 +156,11 @@ class TestItDefaultsToBlobs:
 
     def test_a_profile_that_chose_something_opens_on_that(self, prefs,
                                                           qtbot):
-        prefs.set_ambient_animation("ripple")
+        prefs.set_ambient_animation("data_art_genetic_advection")
         made = SetupSlides()
         qtbot.addWidget(made)
 
-        assert made.animation_choice() == "ripple"
+        assert made.animation_choice() == "data_art_genetic_advection"
 
     def test_a_profile_that_turned_it_off_opens_on_none(self, prefs, ambient,
                                                         qtbot):
@@ -176,10 +175,12 @@ class TestItIsWrittenThroughTheOneSeam:
 
     def test_choosing_one_stores_it(self, slides, prefs, qapp):
         box = slides._animation
-        box.setCurrentIndex(box.findData("cells"))
+        choice = box.findData("data_art_point_atlas")
+        assert choice >= 0
+        box.setCurrentIndex(choice)
         qapp.processEvents()
 
-        assert prefs.get_ambient_animation() == "cells"
+        assert prefs.get_ambient_animation() == "data_art_point_atlas"
 
     def test_choosing_one_turns_the_backdrop_on(self, slides, prefs, ambient,
                                                 qapp):

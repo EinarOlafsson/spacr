@@ -1,0 +1,138 @@
+{
+  "failed_jobs": {
+    "112445207950": {
+      "failed_nodes": 12,
+      "name": "Coverage shard 5 of 12"
+    },
+    "112445208093": {
+      "failed_nodes": 7,
+      "name": "Coverage shard 6 of 12"
+    },
+    "112445208135": {
+      "failed_nodes": 1,
+      "name": "Slow"
+    }
+  },
+  "files": {
+    "README.md": {
+      "raw_sha256": "d95078a075c585b2c4a9d16a8bb11826b1f5659c4cda3bc512046e7e49ce47e5",
+      "raw_size": 4300,
+      "stored_sha256": "d95078a075c585b2c4a9d16a8bb11826b1f5659c4cda3bc512046e7e49ce47e5",
+      "stored_size": 4300
+    },
+    "VERIFY.py": {
+      "raw_sha256": "a11e2cce7ea7e35057bfade019488601b53e0859c2b5e226d64648155de42146",
+      "raw_size": 848,
+      "stored_sha256": "a11e2cce7ea7e35057bfade019488601b53e0859c2b5e226d64648155de42146",
+      "stored_size": 848
+    },
+    "logs/112445207950.log.gz": {
+      "raw_sha256": "1d9f831625e7260c9acb09fc3d663211a6d0f008703fa5d6bd88131d35ce3f97",
+      "raw_size": 2176817,
+      "stored_sha256": "605528c5664a0e47c1ca113c71f9b06b4710d4aff22714cf2905933527cc1a63",
+      "stored_size": 294763
+    },
+    "logs/112445208093.log.gz": {
+      "raw_sha256": "a19831e48c5b064539e5b77c0494be01ffc56001580329cb38601a91f3fe4fe7",
+      "raw_size": 2141289,
+      "stored_sha256": "4a261562530d024b7e9e596a21486a5ecd7c61dc6ce73f34e004531fa58c65c3",
+      "stored_size": 288889
+    },
+    "logs/112445208135.log.gz": {
+      "raw_sha256": "68146248cc8e1dc8d28731d8f44e0f746ad32eec5af88d02fcbf267dba8b1af2",
+      "raw_size": 229850,
+      "stored_sha256": "298c56a114a9de962e3aebba0bbadf1daac8cdb4d17a2c848967f0562fab4180",
+      "stored_size": 46400
+    },
+    "owner/generated-key-diff-3ca.json.gz": {
+      "raw_sha256": "b115e68e193b178550b2d72b353cb7e2ce306f3621f1953905b4242ad29bf02c",
+      "raw_size": 74825,
+      "stored_sha256": "35570a97589871ba60d3d4cae967e91cb40ffc740f401eede842bcdcd19f33c0",
+      "stored_size": 5163
+    },
+    "owner/reviewed-runtime-reporter-3ca.log.gz": {
+      "raw_sha256": "13e53789e6d262eec45d98e3a897dad3977d7c254dda31a071e83bdace6e9696",
+      "raw_size": 39673,
+      "stored_sha256": "51ee1ba920356e5c74a42b04cded43ac052181aa9acce94c0a7fe77e41b11de9",
+      "stored_size": 2989
+    },
+    "proof/import-hook-ordered-after.log.gz": {
+      "raw_sha256": "4ed0fa40d4c3d28f678d2f234f1d7e0f95ae2ecb3765e5b7b0cbd941f083b1ab",
+      "raw_size": 98,
+      "stored_sha256": "ef5b8240963deb11ffbfb44e790258e52d222b621e65fadb9ac5c2601776521e",
+      "stored_size": 51
+    },
+    "proof/readiness-after.log.gz": {
+      "raw_sha256": "dfe1eb96aeb5e8ed457e8927f288aca275ccd6785bbea7d57b5a3d45dc0bcf4a",
+      "raw_size": 99,
+      "stored_sha256": "68484463ffefaf2fdd8cbd27e53813d5f4e079297bd5a9896fddf9862813234a",
+      "stored_size": 52
+    },
+    "proof/retired-theme-four-after.log.gz": {
+      "raw_sha256": "89b77ce84984ed9477617312208ecc1b45440ced524dd24555b911589fcb6177",
+      "raw_size": 738,
+      "stored_sha256": "84df3fca50878d825d5dd0555dac4b0b8f49c6b0142133e33e33f9acc33fbffd",
+      "stored_size": 417
+    },
+    "proof/safe-neighbors-after.log.gz": {
+      "raw_sha256": "268b8f74d107994509d28cf7b09019230d40ad3379c2e7fb81c39ee7880e4e98",
+      "raw_size": 99,
+      "stored_sha256": "2b082d58739e4c36e53caad7b092b4b151b93066d71942452e5af116fb4300d5",
+      "stored_size": 51
+    },
+    "proof/safespacr-after.log.gz": {
+      "raw_sha256": "cf65ac5aa4b7ef15ddb7516892d15fc539ba68a0408debb96153461cbcd0db1a",
+      "raw_size": 99,
+      "stored_sha256": "4a72169b3cf9ce875081035657aa2237453c2d80e16426630a7df2e149bf4416",
+      "stored_size": 50
+    },
+    "proof/safespacr-before.log.gz": {
+      "raw_sha256": "2ecfe011a41fe9209cd65f79aba21ad0e464cf9c4451c1eb72fe64937df3dac5",
+      "raw_size": 758,
+      "stored_sha256": "da56f0915b19202e9202851f4ab27fb99c26efdc70d211df8a2823f5d7c68255",
+      "stored_size": 279
+    },
+    "proof/theme-setup-file-after.log.gz": {
+      "raw_sha256": "a1d67b7803049ec78dfc02c7a252e458af87f6fc66c713be2f6d605e3e69559f",
+      "raw_size": 717,
+      "stored_sha256": "c90a7b051a28508bb08ff630275ac3268d980ee1867ad00abee0702b125e5894",
+      "stored_size": 407
+    }
+  },
+  "local_repair_commits": [
+    "053b1b0a5ef44a8517823805024a955afe1fd381",
+    "047f5db9a72b0511de9e0fc64bfccfc41d30374f",
+    "400afd347f974d48223997a5062acdf21e3da30d"
+  ],
+  "repaired_checkpoint_sha": "930455861c7b6f9fbac9820c8edfe44e496c40cc",
+  "run_attempt": 1,
+  "run_id": 37511792034,
+  "schema": 1,
+  "source_blobs": {
+    "3ca2bff5366ac30fdabb783698a3e2664b35423e": {
+      "packaging/i18n/en.json": "1ac276d28664b37e327b4d10196001464bc954b4",
+      "spacr/qt/app.py": "09366a06ebc26f6f75b84b0eec7406781ebb2b17",
+      "spacr/qt/preferences.py": "368c25e3afd5063aa734f15a0d4598e7a84c74fb",
+      "spacr/qt/screens/embeddings.py": "943c6534cabf15434902e73489e6bf2c26fd8691",
+      "spacr/qt/widgets/ambient.py": "bbbb07a4194cd614cec09c0b78ea41c7f979942f",
+      "tests/qt/test_every_preference_says_what_it_is.py": "6d737887f91e53cebdb7385139b2acd999d8f090",
+      "tests/qt/test_safespacr_gets_in_when_a_preference_breaks_it.py": "ab0211d3fa4bf348debfea28f124ce1107c5f3f6",
+      "tests/qt/test_the_setup_asks_about_the_animation.py": "55174ebf4968a9bb8ffee21ce0f523eca6c81165",
+      "tools/build_i18n_catalogs.py": "d90322162d61e43db6072da38ea167aa2c129883",
+      "tools/check_reviewed_runtime_evidence.py": "e6d58e8c76d014f8af92473d1f66e370d98dd08b"
+    },
+    "930455861c7b6f9fbac9820c8edfe44e496c40cc": {
+      "packaging/i18n/en.json": "1ac276d28664b37e327b4d10196001464bc954b4",
+      "spacr/qt/app.py": "fdd746cc509bb7475679b9fbfe63c7cc88af847b",
+      "spacr/qt/preferences.py": "f8ab3779f4663fd6abb14ea129ef92f947ff717e",
+      "spacr/qt/screens/embeddings.py": "943c6534cabf15434902e73489e6bf2c26fd8691",
+      "spacr/qt/widgets/ambient.py": "5906704016aaf862214ed481f7838394e33fd1d6",
+      "tests/qt/test_every_preference_says_what_it_is.py": "6d737887f91e53cebdb7385139b2acd999d8f090",
+      "tests/qt/test_safespacr_gets_in_when_a_preference_breaks_it.py": "ab0211d3fa4bf348debfea28f124ce1107c5f3f6",
+      "tests/qt/test_the_setup_asks_about_the_animation.py": "56b6a804c42a64a8329a50ae808bd599855f2519",
+      "tools/build_i18n_catalogs.py": "d90322162d61e43db6072da38ea167aa2c129883",
+      "tools/check_reviewed_runtime_evidence.py": "e6d58e8c76d014f8af92473d1f66e370d98dd08b"
+    }
+  },
+  "source_sha": "3ca2bff5366ac30fdabb783698a3e2664b35423e"
+}

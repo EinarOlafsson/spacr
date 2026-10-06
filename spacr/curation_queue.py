@@ -164,7 +164,8 @@ LAYOUTS: Tuple[str, ...] = (LAYOUT_NESTED, LAYOUT_SIBLING, LAYOUT_SEG)
 #: literal here rather than imported because that module pulls in numpy and
 #: imageio at import time and this one is deliberately stdlib-only;
 #: ``test_a_curation_session_resumes_where_it_stopped`` holds the two equal.
-IMAGE_EXTS: Tuple[str, ...] = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp")
+IMAGE_EXTS: Tuple[str, ...] = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp",
+                               ".scn")
 
 #: How Cellpose names the pickle that holds an image and its draft masks.
 SEG_SUFFIX = "_seg.npy"
@@ -505,7 +506,7 @@ def _find_mask(masks_dir: Path, stem: str) -> Optional[Path]:
     :param stem: the field's stem.
     :returns: the draft mask path, or ``None`` when there is no draft.
     """
-    for ext in (".tif", ".tiff") + IMAGE_EXTS + (".npy",):
+    for ext in (".tif", ".tiff") + tuple(e for e in IMAGE_EXTS if e != ".scn") + (".npy",):
         candidate = masks_dir / f"{stem}{ext}"
         if candidate.is_file():
             return candidate

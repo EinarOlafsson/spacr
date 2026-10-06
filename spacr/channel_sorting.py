@@ -52,7 +52,7 @@ from typing import Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 import numpy as np
 
 #: Image extensions listed from a folder -- Make Masks' own list.
-IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp")
+IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".scn")
 
 #: The mask roles a channel's masks can take, in the pipeline's plane order.
 MASK_ROLES = ("cell", "nucleus", "pathogen", "organelle")
@@ -186,9 +186,12 @@ def _convert_plane(array: np.ndarray, kind: str) -> np.ndarray:
     the original dtype; a z-stack becomes its maximum projection.
 
     :param array: the image's pixels, singleton axes already squeezed.
-    :param kind: ``"rgb"`` or ``"zstack"``.
+    :param kind: ``"rgb"``, ``"zstack"``, or ``"scn"`` for a Bio-Rad
+        ``.scn`` plane that is already 2-D and is only rewritten as a TIFF.
     :returns: a 2-D array.
     """
+    if kind == "scn":
+        return array
     if kind == "rgb":
         colours = array[..., :3].astype(np.float64).mean(axis=-1)
         if np.issubdtype(array.dtype, np.integer):
@@ -208,7 +211,11 @@ def image_shape(path: str) -> Optional[Tuple[int, ...]]:
     """
     shape = None
     try:
-        if path.lower().endswith((".tif", ".tiff")):
+        if path.lower().endswith(".scn"):
+            from .convert import read_scn
+
+            shape = tuple(int(n) for n in read_scn(path)[0].shape)
+        elif path.lower().endswith((".tif", ".tiff")):
             import tifffile
 
             with tifffile.TiffFile(path) as handle:
@@ -233,10 +240,15 @@ def thumbnail(path: str, size: int = 96) -> Optional[np.ndarray]:
     :returns: a 2-D ``uint8`` array, or None when it cannot be read.
     """
     try:
-        from PIL import Image
+        if path.lower().endswith(".scn"):
+            from .convert import read_scn
 
-        with Image.open(path) as image:
-            array = np.asarray(image)
+            array = read_scn(path)[0]
+        else:
+            from PIL import Image
+
+            with Image.open(path) as image:
+                array = np.asarray(image)
     except Exception:
         try:
             import tifffile
@@ -1127,7 +1139,8 @@ class PlanRow:
     :ivar target_mask: where the mask goes, or None.
     :ivar source_ledger: the mask's ``.curation.json``, or None.
     :ivar target_ledger: where the ledger goes, or None.
-    :ivar convert: ``"rgb"`` or ``"zstack"`` when the image is written as one
+    :ivar convert: ``"scn"`` for a Bio-Rad ``.scn`` rewritten as a TIFF, or
+        ``"rgb"`` or ``"zstack"`` when the image is written as one
         converted 2-D plane (the original is kept under ``originals/``).
     """
 
@@ -1407,10 +1420,13 @@ def build_plan(folder: str, sets: Dict[SetKey, Dict[int, str]], *,
         set_shapes = {}
         for channel, image in sorted(members.items()):
             source = os.path.join(folder, image)
-            ext = split_extension(image)[1] or ".tif"
+            is_scn = image.lower().endswith(".scn")
+            ext = ".tif" if is_scn else (split_extension(image)[1] or ".tif")
             channel_dir = os.path.join(plan.dest, f"C{channel:02d}")
             target = os.path.join(channel_dir, yokogawa_name(place, channel, ext))
             row = PlanRow(channel, place, key, source, target)
+            if is_scn:
+                row.convert = "scn"
             mask = _plan_mask(folder, image, masks_dir, masks)
             if mask:
                 row.source_mask = mask
@@ -1496,7 +1512,11 @@ def _write_converted(source: str, target: str, kind: str, dest: str) -> None:
     from .tiff_io import write_tiff
 
     try:
-        if source.lower().endswith((".tif", ".tiff")):
+        if source.lower().endswith(".scn"):
+            from .convert import read_scn
+
+            array = read_scn(source)[0]
+        elif source.lower().endswith((".tif", ".tiff")):
             import tifffile
 
             array = tifffile.imread(source)

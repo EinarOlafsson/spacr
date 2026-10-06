@@ -62,6 +62,49 @@ jobs:
           python -m pip list --format=freeze | grep -Ei \
             '^(numpy|scipy|torch|torchvision|cellpose|mahotas|PySide6|pandas|pytest|pytest-timeout)=' || true
 
+      - name: Record serial source and dependency provenance
+        run: |
+          python - <<'PY'
+          import hashlib
+          import importlib.metadata
+          import json
+          import os
+          import pathlib
+          import platform
+          import subprocess
+          import sys
+
+          root = pathlib.Path(os.environ['GITHUB_WORKSPACE'])
+          evidence = pathlib.Path(os.environ['RUNNER_TEMP']) / 'spacr-qt-serial'
+          evidence.mkdir(parents=True, exist_ok=True)
+          revision = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          assert revision == os.environ['GITHUB_SHA']
+          paths = set(root.glob('spacr/**/*.py')) | set(root.glob('tests/qt/**/*.py'))
+          paths.update(root / name for name in (
+              'conftest.py', 'tests/conftest.py',
+              'tools/run_qt_serial_acceptance.sh',
+              'tools/pytest_plugins/qt_serial_rss_journal.py',
+              '.github/workflows/qt-serial-acceptance.yml') if (root / name).is_file())
+          versions = {}
+          for name in ('PySide6', 'numpy', 'scipy', 'pandas', 'numba', 'torch',
+                       'pytest', 'pytest-timeout', 'pytest-qt', 'pytest-xdist',
+                       'btrack', 'cellpose'):
+              try:
+                  versions[name] = importlib.metadata.version(name)
+              except importlib.metadata.PackageNotFoundError:
+                  versions[name] = None
+          record = {
+              'source_revision': revision, 'python': sys.version,
+              'platform': platform.platform(), 'package_versions': versions,
+              'tracked_changes': subprocess.check_output(
+                  ['git', 'status', '--porcelain', '--untracked-files=no'], text=True),
+              'source_sha256': {str(path.relative_to(root)): hashlib.sha256(
+                  path.read_bytes()).hexdigest() for path in sorted(paths)},
+          }
+          (evidence / 'source-provenance.json').write_text(
+              json.dumps(record, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          PY
+
       - name: Run one guarded, original-order Qt process
         shell: bash
         run: |
@@ -105,5 +148,6 @@ jobs:
             ${{ runner.temp }}/spacr-qt-serial/file-rss.jsonl
             ${{ runner.temp }}/spacr-qt-serial/fatal-python.log
             ${{ runner.temp }}/spacr-qt-serial/native-core-backtrace.txt
+            ${{ runner.temp }}/spacr-qt-serial/source-provenance.json
           if-no-files-found: warn
           retention-days: 7

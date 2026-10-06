@@ -1,0 +1,144 @@
+{
+  "source_commit": "candidate-on-0fb0c875a3",
+  "source_sha256": "e0dcbaf47cf0ecdca9aefb32a1bfd85810da20cd7f405d0461b6cad37cfc041b",
+  "source_path": "/mnt/wd4tb/scratch/theme-refinement-20261006/random-palette-final/after.py",
+  "variant": "after",
+  "theme": "data_art_impulse_lens",
+  "label": "spaCR field",
+  "viewport": [
+    3840,
+    2160
+  ],
+  "screen_pixels": 8294400,
+  "buffer": [
+    3840,
+    2160
+  ],
+  "max_pixels": 8294400,
+  "controls": {
+    "fps": 24,
+    "active_rate_cap": 24,
+    "resolution": 2.0,
+    "density": 1.0,
+    "size": 1.0,
+    "speed": 1.0,
+    "blur": 0.0,
+    "gravity_radius": 0,
+    "seed": 42,
+    "background": "#101418",
+    "palette": "random",
+    "colors": [
+      "#e17247",
+      "#46e29e",
+      "#cb45e3",
+      "#cfe445",
+      "#44a2e5",
+      "#e64474",
+      "#46e743",
+      "#6f42e8",
+      "#e99e42",
+      "#41eace",
+      "#eb41d7",
+      "#a7ec40",
+      "#3f76ed",
+      "#ee3f44",
+      "#3eef6a",
+      "#9d3df0",
+      "#f1d03c",
+      "#3ce0f2",
+      "#f33bac",
+      "#78f43a",
+      "#3a43f5",
+      "#f66539",
+      "#38f79b",
+      "#d137f8",
+      "#e9f937",
+      "#36b2fa",
+      "#fb357a",
+      "#42fc34",
+      "#5f34fd",
+      "#fe9833",
+      "#2ce1ba",
+      "#e22bd6"
+    ]
+  },
+  "qt_platform": "xcb",
+  "scope": "actual software Xvfb native4K AmbientWidget/FrameProducer/QTimer; fresh Python process per theme; no inference or GPU; end grabs outside steady timing; requested controls unchanged",
+  "cold": {
+    "current_rss_kib": 404856,
+    "widget_show_ms": 173.2762809988344,
+    "post_show_seconds": 2.000574435995077,
+    "post_show_published_frames": 27,
+    "post_show_published_fps": 13.496123670384861,
+    "worker_shade": {
+      "median_ms": 30.080384996836074,
+      "p95_ms": 181.0410820035031,
+      "max_ms": 306.1440540041076,
+      "samples": 27
+    },
+    "heartbeat_10ms": {
+      "median_ms": 10.091834999911953,
+      "p95_ms": 23.099759011529386,
+      "max_ms": 57.44291299197357,
+      "samples": 174
+    },
+    "compile_ready": true,
+    "compile_failed": false,
+    "colored_compile_ready": true,
+    "colored_compile_failed": false,
+    "rss_peak_kib": 492640
+  },
+  "records": [
+    {
+      "repeat": 1,
+      "steady_seconds": 5.000432216998888,
+      "published_frames": 120,
+      "published_fps": 23.997925537728907,
+      "distinct_published_clocks": 120,
+      "first_clock": 10.187999999999988,
+      "clock_advance": 4.936999999999969,
+      "painted_fps": 24.397890963357725,
+      "repeated_frame_objects": 4,
+      "worker_shade": {
+        "median_ms": 13.76077150052879,
+        "p95_ms": 27.462144993478432,
+        "max_ms": 34.986453989404254,
+        "samples": 120
+      },
+      "gui_paint": {
+        "median_ms": 6.2154539991752245,
+        "p95_ms": 10.80341701162979,
+        "max_ms": 13.233113000751473,
+        "samples": 122
+      },
+      "heartbeat_10ms": {
+        "median_ms": 10.075289508677088,
+        "p95_ms": 14.272500993683934,
+        "max_ms": 20.192267998936586,
+        "samples": 498
+      },
+      "publication_intervals": {
+        "median_ms": 41.67146699910518,
+        "p95_ms": 51.3149809994502,
+        "max_ms": 57.3295960057294,
+        "samples": 119
+      },
+      "lightning_worker_shades": null,
+      "load_average": [
+        3.16943359375,
+        3.037109375,
+        2.9296875
+      ],
+      "current_rss_kib": 405408
+    }
+  ],
+  "frame_sha256": "8ad7cc3a547e8ec6c4a2d366a87496e8ddc6e43baed22347602bb75b1bddd396",
+  "worker_stopped_immediately_after_hide": true,
+  "worker_stopped_200ms_after_hide": true,
+  "peak_rss_kib": 498084,
+  "dependency_source_sha256": {
+    "spacr/qt/theme.py": "85e4d7ab5dd1853f3d8c1b60b8dba965202cdaa0c61e9bc170c445758b3aadb9",
+    "spacr/qt/preferences.py": "1f0fbab1888823a643fb7b1e60eae82e17ec3a4b1aa674c163c0a69bc2a8c5f0",
+    "spacr/qt/gil_priority.py": "40c6fb95f75009cc223771385eb1c283b161a905e04b9c64ecdab035d817c3b2"
+  }
+}

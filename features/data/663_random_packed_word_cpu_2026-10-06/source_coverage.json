@@ -1,0 +1,8 @@
+{
+  "scope": "95 focused cases; changed source additions only",
+  "source_sha256": "ac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20",
+  "added_executable_statements": 15,
+  "missing_added_statements": [],
+  "touching_branch_arcs": 9,
+  "missing_touching_arcs": []
+}

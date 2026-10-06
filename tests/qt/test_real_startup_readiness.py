@@ -165,6 +165,33 @@ def test_readiness_callback_without_profiling_waits_for_usable_post_loop_paint(
     assert reported == timing._READINESS == timing._MARKS == []
 
 
+@pytest.mark.parametrize("safe_mode,no_backdrop", [(True, False), (False, True)])
+def test_disabled_backdrop_never_queues_ambient_compilation(
+        monkeypatch, safe_mode, no_backdrop):
+    """The readiness callback cannot import ambient after a safe launch."""
+    import builtins
+
+    from spacr.qt import app as app_module, preferences
+
+    monkeypatch.setattr(preferences, "_SAFE_MODE", safe_mode)
+    if no_backdrop:
+        monkeypatch.setenv("SPACR_NO_BACKDROP", "1")
+    else:
+        monkeypatch.delenv("SPACR_NO_BACKDROP", raising=False)
+    actual_import = builtins.__import__
+    imported = []
+
+    def observe(name, globals=None, locals=None, fromlist=(), level=0):
+        if "widgets.ambient" in name:
+            imported.append(name)
+        return actual_import(name, globals, locals, fromlist, level)
+
+    with monkeypatch.context() as scoped:
+        scoped.setattr(builtins, "__import__", observe)
+        app_module._queue_ambient_compilation()
+    assert imported == []
+
+
 def test_compiler_gate_opens_after_readiness_observers_and_the_next_loop_turn(
         qtbot, enabled_timing):
     from spacr.qt.app import _queue_ambient_compilation

@@ -6,6 +6,7 @@ from pathlib import Path
 import imageio.v2 as imageio
 import numpy as np
 import pytest
+from PySide6.QtCore import Qt
 
 from spacr.qt.screens.make_masks import (
     MODE_BRUSH,
@@ -54,6 +55,54 @@ def test_wand_tolerance_syncs_to_canvas(qtbot, qt_theme_applied):
     qtbot.addWidget(screen)
     screen._wand_tol.setValue(750.0)
     assert screen._canvas.wand_tolerance == 750.0
+
+
+def test_single_wand_ctrl_edit_undo_redo_save_next_and_reopen(qtbot, qt_theme_applied, tmp_path):
+    folder = tmp_path / 'wand-modifier'
+    folder.mkdir()
+    (folder / 'masks').mkdir()
+    image = np.zeros((64, 64), dtype=np.uint16)
+    image[20:40, 20:40] = 30000
+    original_mask = np.full((64, 64), 77, dtype=np.uint16)
+    for name in ('a.tif', 'b.tif'):
+        imageio.imwrite(folder / name, image)
+        imageio.imwrite(folder / 'masks' / name, original_mask)
+    screen = MakeMasksScreen()
+    qtbot.addWidget(screen)
+    screen.resize(1500, 900)
+    screen.show()
+    assert screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not screen._loading)
+    screen._set_mode(MODE_WAND_ADD)
+    screen._canvas.wand_tolerance = 100.0
+    screen._canvas.wand_max_pixels = 10000
+    expected = original_mask.copy()
+    expected[20:40, 20:40] = 0
+    position = screen._canvas._image_to_canvas(30, 30)
+    qtbot.mouseClick(screen._canvas, Qt.LeftButton, Qt.ControlModifier, pos=position)
+    np.testing.assert_array_equal(screen._canvas.mask, expected)
+    assert screen._log.edits[-1].kind == 'wand'
+    assert screen._log.edits[-1].detail['action'] == 'erase'
+    screen._on_undo()
+    np.testing.assert_array_equal(screen._canvas.mask, original_mask)
+    screen._on_redo()
+    np.testing.assert_array_equal(screen._canvas.mask, expected)
+    screen._on_save()
+    screen._on_next()
+    screen.close()
+    reopened = MakeMasksScreen()
+    qtbot.addWidget(reopened)
+    assert reopened._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not reopened._loading)
+    np.testing.assert_array_equal(reopened._canvas.mask > 0, expected > 0)
+    np.testing.assert_array_equal(imageio.imread(folder / 'a.tif'), image)
+    reopened._set_mode(MODE_WAND_ADD)
+    reopened._canvas.wand_tolerance = 100.0
+    reopened._canvas.wand_max_pixels = 10000
+    position = reopened._canvas._image_to_canvas(30, 30)
+    qtbot.mouseClick(reopened._canvas, Qt.LeftButton, pos=position)
+    assert np.all(reopened._canvas.mask > 0)
+    reopened.close()
 
 
 def test_history_undo_reverts_object_op(qtbot, qt_theme_applied,

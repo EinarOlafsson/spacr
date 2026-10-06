@@ -193,9 +193,10 @@ Canvas tools and navigation
      - Remove pixels under the brush.
    * - Erase object
      - Remove the complete label clicked.
-   * - Wand + / Wand −
+   * - Wand
      - Flood from the clicked pixel within the chosen intensity tolerance;
-       add or remove the resulting region.
+       add the resulting region by default. Hold Ctrl while clicking to
+       remove that region.
    * - Draw
      - Trace an outline and fill its interior as one object.
    * - Divide

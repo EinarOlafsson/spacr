@@ -7109,6 +7109,10 @@ def _start_icon_prewarm() -> Optional[threading.Thread]:
 
 def _queue_ambient_compilation() -> None:
     """Permit CPU compiler imports one loop turn after interactive readiness."""
+    from .preferences import in_safe_mode
+
+    if in_safe_mode() or os.environ.get("SPACR_NO_BACKDROP"):
+        return
     from PySide6.QtCore import QTimer
     from .widgets.ambient import _complete_ambient_startup
 
@@ -7233,10 +7237,14 @@ def launch(argv: Optional[list[str]] = None) -> int:
     from .logging_util import setup_logging
     setup_logging()
 
-    from .preferences import apply_preferences_to_app
-    from .widgets.ambient import _begin_ambient_startup
+    from .preferences import apply_preferences_to_app, in_safe_mode
 
-    _begin_ambient_startup()
+    ambient_startup_enabled = not (
+        in_safe_mode() or os.environ.get("SPACR_NO_BACKDROP"))
+    if ambient_startup_enabled:
+        from .widgets.ambient import _begin_ambient_startup
+
+        _begin_ambient_startup()
     apply_preferences_to_app(app)
     try:
         from .preferences import _install_run_notifier
@@ -7276,17 +7284,19 @@ def launch(argv: Optional[list[str]] = None) -> int:
 
         benchmark_controller = _maybe_start_benchmark(app, win)
 
+    ambient_on_ready = (_queue_ambient_compilation
+                        if ambient_startup_enabled else None)
     if win._stack.currentWidget() is win._startup:
         _timing.watch_interactive(
             win._startup, "interactive Home", "__home__",
             started_at=_timing.process_started_at(),
             budget_s=_timing.HOME_BUDGET_S,
-            on_ready=_queue_ambient_compilation,
+            on_ready=ambient_on_ready,
         )
     else:
         _timing.watch_interactive(
             win._stack.currentWidget(), "ambient startup", "__ambient_startup__",
-            on_ready=_queue_ambient_compilation,
+            on_ready=ambient_on_ready,
         )
     win._startup_benchmark_controller = benchmark_controller
     _open_at_the_measured_width(win)

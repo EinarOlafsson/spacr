@@ -438,6 +438,52 @@ def test_settings_csv_round_trip_setting_key_columns(tmp_path):
     assert cli.load_settings_file(path) == ROUND_TRIP
 
 
+@pytest.mark.parametrize('text, expected', [
+    ('TRUE', True), ('FALSE', False), ('true', True), ('false', False),
+    ('TrUe', True), ('FaLsE', False), ('  TRUE  ', True), ('\tFALSE\t', False),
+])
+def test_settings_csv_accepts_boolean_case_and_padding(tmp_path, text, expected):
+    path = _write_csv(tmp_path / 'spreadsheet.csv', [('src', '/data'), ('verbose', text)])
+    loaded = cli.load_settings_file(path)
+    assert loaded['verbose'] is expected
+    assert loaded['src'] == '/data'
+
+
+def test_settings_csv_boolean_parsing_preserves_other_values(tmp_path):
+    payload = {'experiment': 'TRUE-control', 'src': '/FALSE/plate',
+               'custom_model': ' FALSE checkpoint ', 'one': 1, 'zero': 0,
+               'normalize': [1, 99], 'labels': ['TRUE', 'FALSE'], 'unknown': 'perhaps'}
+    path = _write_csv(tmp_path / 'non_booleans.csv', payload.items())
+    loaded = cli.load_settings_file(path)
+    assert loaded == payload
+    assert type(loaded['one']) is int and type(loaded['zero']) is int
+
+
+def test_cluster_mask_dry_run_accepts_spreadsheet_boolean_settings(tmp_path, capsys):
+    import numpy as np
+    import tifffile
+
+    module = cli.resolve_module('mask')
+    defaults = cli.module_defaults(module)
+    source = tmp_path / 'plate'
+    source.mkdir()
+    for channel in range(1, 5):
+        tifffile.imwrite(source / f'plate1_A01_T0001F001L01A01Z01C{channel:02d}.tif',
+                         np.zeros((16, 16), dtype=np.uint16))
+    flags = {key: value for key, value in defaults.items() if type(value) is bool}
+    assert {'preprocess', 'masks', 'save', 'normalize', 'ram_guard'} <= flags.keys()
+    rows = [('src', str(source)), ('cell_channel', 0)] + [
+        (key, str(value).upper()) for key, value in flags.items()]
+    path = _write_csv(tmp_path / 'cluster_mask_settings.csv', rows)
+    resolved = cli.resolve_settings(module, path)
+    assert all(resolved[key] is value for key, value in flags.items())
+    rc = cli.main(['mask', '--settings', path, '--dry-run'])
+    output = capsys.readouterr().out
+    assert rc == cli.EXIT_OK, output
+    assert 'nothing was executed' in output
+    assert 'is a str, but bool' not in output
+
+
 def test_settings_json_round_trip(tmp_path):
     """A run journal's settings.json is a valid input too."""
     path = tmp_path / "settings.json"

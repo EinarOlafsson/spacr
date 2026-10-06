@@ -332,6 +332,12 @@ PALETTE_SETS: Dict[str, PaletteSpec] = {
     "custom": PaletteSpec(
         "Custom colours", ("#3b82f6", "#ff00ff"),
         "Your chosen primary and accent colours."),
+    "random": PaletteSpec(
+        "Random colours", tuple(QColor.fromHsv((index * 137 + 17) % 360,
+                                               175 + index % 45,
+                                               225 + index % 30).name()
+                                for index in range(32)),
+        "Stable varied colours for individual elements."),
     "spacr": PaletteSpec(
         "spaCR",
         ("#3B82F6", "#FF00FF", "#00CEC8"),
@@ -421,6 +427,8 @@ for _data_art_key in (key for key in AMBIENT_THEMES if key.startswith("data_art_
     _THEME_PALETTES[_data_art_key] = tuple(
         palette for palette in PALETTE_SETS
         if palette != SPACEOUT_PALETTE)
+for _classic_key in ("blobs", "aurora", "drift"):
+    _THEME_PALETTES[_classic_key] += ("random",)
 
 _PAINTABLE_THEMES: Tuple[str, ...] = AMBIENT_THEMES + (SPACEOUT_THEME,)
 
@@ -1068,6 +1076,8 @@ class AmbientEngine:
         #: :attr:`mode` — 0 adds nothing, white multiplies to identity.
         self.identity = QColor(0, 0, 0) if self.dark else QColor(255, 255, 255)
         self.paint_colors = [self._tint(c) for c in self._colors]
+        self._random_palette = tuple(c.name() for c in self._colors) \
+            == PALETTE_SETS["random"].colors
 
     def _tint(self, color: QColor) -> QColor:
         """The colour as actually painted, given the background."""
@@ -4536,6 +4546,8 @@ class ResonanceEngine(_BufferedEngine):
 
 
 _PACKED_SCATTER = None
+_COLORED_SCATTER = None
+_COLORED_SCATTER_FAILED = False
 _PACKED_SCATTER_STARTED = False
 _PACKED_SCATTER_FAILED = False
 _PACKED_SCATTER_LOCK = threading.Lock()
@@ -4585,6 +4597,35 @@ def _scatter_packed_grains(flat, px, py, intensities, lookup, axial, diagonal,
                     flat[destination] = color
 
 
+def _scatter_colored_grains(flat, ranks, px, py, indices, lookup, axial, diagonal,
+                            width, height, dark, spread):
+    """Keep exact intensity/colour ordering in a private packed working word."""
+    for i in range(px.size):
+        x, y = px[i], py[i]
+        level = indices[i]
+        destination = y * width + x
+        color = lookup[level]
+        if (dark and color > flat[destination]) or (not dark and color < flat[destination]):
+            flat[destination] = color
+        if not spread:
+            continue
+        for dy in range(-1, 2):
+            ny = y + dy
+            if ny < 0 or ny >= height:
+                continue
+            for dx in range(-1, 2):
+                if dx == 0 and dy == 0:
+                    continue
+                nx = x + dx
+                if nx < 0 or nx >= width:
+                    continue
+                color = diagonal[level] if dx and dy else axial[level]
+                destination = ny * width + nx
+                if ((dark and color > flat[destination])
+                        or (not dark and color < flat[destination])):
+                    flat[destination] = color
+
+
 def _warm_packed_scatter():
     """Compile once using tiny owned CPU arrays, without Qt or package writes.
 
@@ -4593,6 +4634,7 @@ def _warm_packed_scatter():
     import/compiler phases hold the GIL briefly; this is not a no-stall claim.
     """
     global _PACKED_SCATTER, _PACKED_SCATTER_FAILED, _PACKED_SCATTER_STARTED
+    global _COLORED_SCATTER, _COLORED_SCATTER_FAILED
     if not _AMBIENT_STARTUP_READY.is_set():
         with _PACKED_SCATTER_LOCK:
             _PACKED_SCATTER_STARTED = False
@@ -4612,6 +4654,19 @@ def _warm_packed_scatter():
             raise RuntimeError('Packed grain compiler did not produce a CPU kernel')
         with _PACKED_SCATTER_LOCK:
             _PACKED_SCATTER = kernel
+        try:
+            colored = njit(nogil=True, cache=False)(_scatter_colored_grains)
+            table = lookup
+            colored(flat, np.zeros(1, dtype=np.uint8), coordinates, coordinates,
+                    np.zeros(1, dtype=np.uint16), table, table, table, 1, 1, True, True)
+            if getattr(colored, 'nopython_signatures', ()):
+                with _PACKED_SCATTER_LOCK:
+                    _COLORED_SCATTER = colored
+            else:
+                _COLORED_SCATTER_FAILED = True
+        except Exception:
+            _COLORED_SCATTER_FAILED = True
+            return
     except Exception:
         with _PACKED_SCATTER_LOCK:
             _PACKED_SCATTER_FAILED = True
@@ -4639,6 +4694,15 @@ def _ready_packed_scatter():
         finally:
             _PACKED_SCATTER_LOCK.release()
     return _PACKED_SCATTER
+
+
+def _ready_colored_scatter():
+    """Reuse the same gated warmup for the optional multi-hue CPU kernel."""
+    if _COLORED_SCATTER_FAILED:
+        return None
+    if _COLORED_SCATTER is None:
+        _ready_packed_scatter()
+    return _COLORED_SCATTER
 
 
 def _warp_satin_columns(source, target, shifts, tops, bottoms, padding):
@@ -4967,6 +5031,8 @@ class _DataArtEngine(_BufferedEngine):
     def _point_material(self, width: int, height: int, x, y, light,
                         spread: bool = False) -> QImage:
         """Stamp circular antialiased grains without a full-size float field."""
+        if self._random_palette:
+            return self._colored_point_material(width, height, x, y, light, spread)
         np = _numpy()
         px = np.asarray(x, dtype=np.int32)
         py = np.asarray(y, dtype=np.int32)
@@ -5011,6 +5077,73 @@ class _DataArtEngine(_BufferedEngine):
                 intensity = np.rint(intensities[valid] * coverage).astype(np.uint8)
                 destinations = shifted_y[valid] * width + shifted_x[valid]
                 combine(flat, destinations, lookup[intensity])
+        return image
+
+    def _colored_point_material(self, width, height, x, y, light, spread):
+        """Colour stable grain identities with exact intensity-ranked overlap."""
+        global _COLORED_SCATTER, _COLORED_SCATTER_FAILED
+        np = _numpy()
+        px, py = np.asarray(x, np.int32), np.asarray(y, np.int32)
+        count = px.shape[-1]
+        identity_cache = self._material_cache.get("random_grain_identities")
+        if identity_cache is None or identity_cache[0] != count:
+            identities = np.arange(count, dtype=np.uint32)
+            mixed = identities * np.uint32(0x9e3779b1) + np.uint32(self._art_seed & 0xffffffff)
+            mixed ^= mixed >> 16
+            identity_cache = count, (mixed % len(self.paint_colors)).astype(np.uint16)
+            self._material_cache["random_grain_identities"] = identity_cache
+        values = np.clip(np.asarray(light, np.float32) * self.alpha_scale(), 0.0, 1.0)
+        inside = (px >= 0) & (px < width) & (py >= 0) & (py < height)
+        px, py = px[inside], py[inside]
+        hues = np.broadcast_to(identity_cache[1], inside.shape)[inside]
+        intensities = np.rint(values[inside] * 255).astype(np.uint16)
+        indices = hues * np.uint16(256) + intensities
+        key = ("random_grain_palette", self.dark)
+        tables = self._material_cache.get(key)
+        if tables is None:
+            colors = np.asarray([[color.red(), color.green(), color.blue()]
+                                 for color in self.paint_colors], np.float32)
+            levels = np.arange(256, dtype=np.float32) / 255.0
+            channels = colors[:, None, :] * levels[None, :, None] if self.dark else (
+                255.0 - (255.0 - colors[:, None, :]) * levels[None, :, None])
+            channels = channels.astype(np.uint32)
+            table = (channels[:, :, 0] << np.uint32(16)
+                     | channels[:, :, 1] << np.uint32(8) | channels[:, :, 2])
+            ranks = np.arange(256, dtype=np.uint32)
+            table |= (ranks if self.dark else 255 - ranks)[None, :] << np.uint32(24)
+            table = table.ravel()
+            slots = np.arange(len(colors), dtype=np.uint16)[:, None] * np.uint16(256)
+            axial = table[(slots + np.rint(ranks * .68).astype(np.uint16)).ravel()]
+            diagonal = table[(slots + np.rint(ranks * .24).astype(np.uint16)).ravel()]
+            tables = table, axial, diagonal
+            self._material_cache[key] = tables
+        table, axial, diagonal = tables
+        image = QImage(width, height, QImage.Format_RGB32)
+        output = np.frombuffer(image.bits(), np.uint32, count=width * height)
+        output.fill(table[0])
+        kernel = _ready_colored_scatter()
+        if kernel is not None:
+            ranks = np.empty(0, dtype=np.uint8)
+            try:
+                kernel(output, ranks, px, py, indices, table, axial, diagonal,
+                       width, height, self.dark, spread)
+                np.bitwise_or(output, np.uint32(0xff000000), out=output)
+                return image
+            except Exception:
+                _COLORED_SCATTER = None
+                _COLORED_SCATTER_FAILED = True
+        output.fill(table[0])
+        packed = output
+        combine = np.maximum.at if self.dark else np.minimum.at
+        combine(packed, py * width + px, table[indices])
+        if spread:
+            for dy, dx in ((-1, -1), (-1, 0), (-1, 1), (0, -1),
+                           (0, 1), (1, -1), (1, 0), (1, 1)):
+                nx, ny = px + dx, py + dy
+                valid = (nx >= 0) & (nx < width) & (ny >= 0) & (ny < height)
+                selected = diagonal if dx and dy else axial
+                combine(packed, ny[valid] * width + nx[valid], selected[indices[valid]])
+        np.bitwise_or(output, np.uint32(0xff000000), out=output)
         return image
 
     def _shade(self, width: int, height: int) -> QImage:
@@ -5139,7 +5272,9 @@ class _DataArtEngine(_BufferedEngine):
                         light = max(0.0, min(1.0,
                                              0.49 + (0.43 * nx - 0.49 * ny
                                                      + 0.73 * nz) / norm * 0.46))
-                        tone = 1 if (row * columns + column) % 7 == 0 else 0
+                        tone = ((row * columns + column) * 37 + self._art_seed) \
+                            % len(self.paint_colors) if self._random_palette else (
+                                1 if (row * columns + column) % 7 == 0 else 0)
                         color = _mix(self.identity, self.paint_colors[tone],
                                      0.040 + 0.64 * light ** 3)
                         triangle = QPolygonF((QPointF(*centre[:2]),
@@ -5395,7 +5530,7 @@ class _DataArtEngine(_BufferedEngine):
         rows = np.clip((y * height).astype(np.int32), 0, height - 1)
         intensity = (0.25 + 0.60 * depth) * ((12 - trails) / 12) ** 1.3
         return self._point_material(
-            width, height, columns.ravel(), rows.ravel(), intensity.ravel())
+            width, height, columns, rows, intensity)
 
 
 
@@ -6489,7 +6624,10 @@ class AmbientWidget(QWidget):
 
         :param value: the blur amount, converted with ``float``.
         """
-        self._blur = _clamp(value, *BLUR_RANGE)
+        value = _clamp(value, *BLUR_RANGE)
+        if value == self._blur and value == self._engine.blur:
+            return
+        self._blur = value
         self._mutate_engine(lambda: self._engine.set_blur(self._blur))
 
     def resolution(self) -> float:
@@ -6501,7 +6639,10 @@ class AmbientWidget(QWidget):
 
         :param value: the resolution multiplier, converted with ``float``.
         """
-        self._resolution = _clamp(value, *RESOLUTION_RANGE)
+        value = _clamp(value, *RESOLUTION_RANGE)
+        if value == self._resolution and value == self._engine.resolution:
+            return
+        self._resolution = value
         self._mutate_engine(
             lambda: self._engine.set_resolution(self._resolution))
 
@@ -6544,7 +6685,10 @@ class AmbientWidget(QWidget):
 
         :param value: the density multiplier, converted with ``float``.
         """
-        self._density = _clamp(value, *DENSITY_RANGE)
+        value = _clamp(value, *DENSITY_RANGE)
+        if value == self._density and value == self._engine.density:
+            return
+        self._density = value
         self._mutate_engine(lambda: self._engine.set_density(self._density))
 
     def direction(self) -> str:
@@ -6558,6 +6702,8 @@ class AmbientWidget(QWidget):
         :param name: one of :data:`DRIFT_DIRECTIONS`.
         """
         if not is_valid_drift_direction(name):
+            return
+        if name == self._direction and name == self._engine.direction:
             return
         self._direction = name
         self._mutate_engine(lambda: self._engine.set_direction(name))
@@ -6573,7 +6719,10 @@ class AmbientWidget(QWidget):
 
         :param value: the speed multiplier, converted with ``float``.
         """
-        self._speed = _clamp(value, *SPEED_RANGE)
+        value = _clamp(value, *SPEED_RANGE)
+        if value == self._speed and value == self._engine.speed:
+            return
+        self._speed = value
         with self._engine_lock:
             if self._art_input is not None:
                 self._art_input._consume(self._engine)
@@ -6592,7 +6741,10 @@ class AmbientWidget(QWidget):
 
         :param value: the size multiplier, converted with ``float``.
         """
-        self._size = _clamp(value, *SIZE_RANGE)
+        value = _clamp(value, *SIZE_RANGE)
+        if value == self._size and value == self._engine.size:
+            return
+        self._size = value
         self._mutate_engine(lambda: self._engine.set_size(self._size))
 
     def background_color(self) -> QColor:

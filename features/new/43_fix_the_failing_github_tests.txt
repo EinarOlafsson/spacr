@@ -2781,3 +2781,41 @@ Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
     fill.10cases pass across lens/waves/blobs; no product opacity bug claimed.
     Exact local logs/current compat/pre-cancel obsolete ordinary state:
     data/43_cpu_acceptance_checkpoint_2026-10-06/. Parent43 remains OPEN.
+
+2026-10-06 — final CPU fixes and exact hosted owner relay
+    SafeSpacr skips ambient imports and warmup callbacks when disabled; actual
+    strict recovery launch passes. Preferences Animation colours/Mouse gravity
+    radius labels now have meaningful HintBar help. Current default setup and
+    scoped global-import-hook guards are fixed without lowering assertions.
+    Root117palette/safe/help,69setup/dialog and32workflow contracts pass.
+    Mandatory8platform compat checks remain unchanged; expensive informational
+    full sweeps now run weekly/manual for faster deciding push/PR feedback.
+    Frozen3ca Docs and native Windows runs succeeded, but ordinary3ca failed.
+    Complete3failed-job evidence and262stale reviewed runtime records/73missing
+    en.UI_SOURCES/15indirect captions are archived for normal workstation
+    regeneration. Numerical coverage/current-source all-green remain OPEN.
+    Exact receipts: data/43_final_cpu_source_checkpoint_2026-10-06/ and
+    data/43_hosted_3ca_failures_2026-10-06/. Protected serial is untouched.
+
+2026-10-06 — actual45f all-platform success, test-only Xenon repair
+    Compat37521372368 is terminalSUCCESS across all17jobs, including every
+    mandatory8platform wheel/sdist cell. NativeWindows37521372558 also passes.
+    Ordinary45f remains failed: newly-added routing test had Xenon rankC.
+    d130 splits independent invariants/event cases, preserving all assertions
+    and thresholds;21classification cases and exact6target Xenon/Ruff pass.
+    Final7source parameter/default/nested-budget guards pass on integrated IO
+    and station mask source. Complete source-bound receipts:
+    data/43_45f_platform_and_complexity_2026-10-06/. Source-current overall
+    GitHub/coverage/serial acceptance remains OPEN; protected runs untouched.
+
+2026-10-06 — exact711 platform acceptance and two local test repairs
+    All17compatibilityjobs/all8mandatory wheel/source platform cells pass on
+    711999b77d, as does hosted lint/types/complexity. Ordinary coverage11 then
+    fails two old test assumptions: Clear-all missing from the exact action
+    order, and lazy scikit-image lookup NPY files counted as preview sources.
+    f69/c6dad repairs only these assertions, preserving all layout alignment
+    checks and every actual experiment image read; an actual mergedNPY read
+    is explicitly counted. Both full affected files pass44cases under4GiB,
+    CUDAhidden/offscreen. No guard/ceiling or required CI condition is lifted.
+    Full failedlog/current platform states/source receipts:
+    data/43_hosted_711_sampling_layout_2026-10-06/. Parent43/288/47remainOPEN.

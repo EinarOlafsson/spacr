@@ -631,6 +631,7 @@ def test_a_card_module_that_will_not_import_tells_nobody(store, monkeypatch):
             raise ImportError("no setup card in this build")
         return real_import(name, globals, locals, fromlist, level)
 
-    monkeypatch.setattr(builtins, "__import__", _no_setup_card)
-
-    assert prefs._tell_the_cards_the_rim_changed() == 0
+    with monkeypatch.context() as scoped:
+        scoped.setattr(builtins, "__import__", _no_setup_card)
+        assert prefs._tell_the_cards_the_rim_changed() == 0
+    assert builtins.__import__ is real_import

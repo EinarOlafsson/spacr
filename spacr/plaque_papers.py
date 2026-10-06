@@ -115,8 +115,9 @@ EPMC = "https://www.ebi.ac.uk/europepmc/webservices/rest"
 USER_AGENT = {"User-Agent": "spacr-plaque-papers/1.0 "
                             "(https://github.com/EinarOlafsson/spacr)"}
 
-IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".gif", ".bmp", ".webp"}
-FORMAT_RANK = {".tiff": 0, ".tif": 0, ".png": 1, ".webp": 2, ".jpg": 2,
+IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".gif", ".bmp", ".webp",
+                  ".scn"}
+FORMAT_RANK = {".scn": 0, ".tiff": 0, ".tif": 0, ".png": 1, ".webp": 2, ".jpg": 2,
                ".jpeg": 2, ".gif": 3, ".bmp": 3}
 
 DEFAULT_DETECTOR = "toxoplasma_well_detector_v2"
@@ -1630,7 +1631,8 @@ class _Scale:
     :param source: ``'scale bar'`` (read in or under this image),
         ``'scale bar, same panel'`` (read on another image of the same size
         in the same grid), ``'scale bar, length from legend'``,
-        ``'well: <format> (settings)'``, ``'well: <format> (legend)'`` or
+        ``'well: <format> (settings)'``, ``'well: <format> (legend)'``,
+        ``'image metadata'`` (the pixel size the image file records) or
         ``'none'``.
     :param detail: what was measured, e.g. ``'1 mm bar = 120 px'``.
     :param magnification: a magnification the legend states, recorded and
@@ -1816,10 +1818,13 @@ def _scales_for_regions(image: np.ndarray, regions: Sequence[Region],
                        words: Sequence[Word], *, caption: str = "",
                        annotations: Optional[Sequence[Annotation]] = None,
                        plate_format: Optional[str] = None,
-                       pixels_per_um: Optional[float] = None) -> List[_Scale]:
+                       pixels_per_um: Optional[float] = None,
+                       image_pixels_per_um: Optional[float] = None) -> List[_Scale]:
     """The ruler, if any, for every plaque image in one figure.
 
     Manual per-annotation ``pixels_per_um`` overrides the global value,
+    which overrides the scale the image file itself records
+    (``image_pixels_per_um``, e.g. a Bio-Rad ``.scn``'s known field size),
     which overrides automatic rulers. Values must be finite and positive.
     In order of preference among automatic rulers:
 
@@ -1850,9 +1855,13 @@ def _scales_for_regions(image: np.ndarray, regions: Sequence[Region],
         the panel's passage.
     :param plate_format: a key of :data:`spacr.plaque.WELL_DIAMETERS_MM`
         from the settings; it wins over the legend.
+    :param image_pixels_per_um: the pixel scale recorded by the instrument in
+        the image file, used when no manual or settings scale is given.
     :returns: one :class:`_Scale` per region.
     """
     pixels_per_um = calibration_number(pixels_per_um, name='pixels_per_um')
+    image_pixels_per_um = calibration_number(image_pixels_per_um,
+                                             name='image_pixels_per_um')
     whole = _legend_scale_facts(caption)
     if annotations:
         passages = [_legend_scale_facts(a.legend_text) if a.legend_text else {}
@@ -1898,6 +1907,10 @@ def _scales_for_regions(image: np.ndarray, regions: Sequence[Region],
             value = manual if manual is not None else pixels_per_um
             out.append(_Scale(value * 1000.0, 'manual annotation' if manual is not None else 'settings',
                               f'{value:g} px/µm', magnification))
+            continue
+        if image_pixels_per_um is not None:
+            out.append(_Scale(image_pixels_per_um * 1000.0, 'image metadata',
+                              f'{image_pixels_per_um:g} px/µm', magnification))
             continue
         if index in own:
             out.append(replace(own[index], magnification=magnification))
@@ -2266,13 +2279,39 @@ def _record_duplicate(connection: sqlite3.Connection, paper: Paper,
 def _load_image(path: Path) -> np.ndarray:
     """A figure as an ``H x W x 3`` uint8 RGB array.
 
+    A Bio-Rad Image Lab ``.scn`` is read by :func:`spacr.convert.read_scn`
+    and rendered linearly to its scanner ceiling
+    (:func:`spacr.convert.scn_to_rgb8`).
+
     :param path: the image file.
     :returns: the pixels.
     """
+    if Path(path).suffix.lower() == ".scn":
+        from .convert import read_scn, scn_to_rgb8
+
+        return scn_to_rgb8(*read_scn(path))
     from PIL import Image
 
     with Image.open(path) as handle:
         return np.asarray(handle.convert("RGB"))
+
+
+def _image_pixels_per_um(path: Any) -> Optional[float]:
+    """The pixel scale an image file records about itself, or None.
+
+    Only a Bio-Rad Image Lab ``.scn`` with a known physical size records one.
+
+    :param path: the image file.
+    :returns: pixels per micrometre.
+    """
+    if Path(str(path)).suffix.lower() != ".scn":
+        return None
+    from .convert import read_scn
+
+    try:
+        return read_scn(path)[1].get("pixels_per_um")
+    except (OSError, ValueError, IndexError):
+        return None
 
 
 def _zoo_path(key: str, cache: Path) -> Tuple[str, str]:
@@ -2699,7 +2738,8 @@ def _measure_figure(connection: sqlite3.Connection, paper: Paper,
     scales = _scales_for_regions(image, regions, words, caption=figure.caption,
                                 annotations=annotations,
                                 plate_format=kw["plate_format"],
-                                pixels_per_um=kw.get("pixels_per_um"))
+                                pixels_per_um=kw.get("pixels_per_um"),
+                                image_pixels_per_um=_image_pixels_per_um(figure.path))
     crops.mkdir(parents=True, exist_ok=True)
     measured: List[Tuple[int, Annotation, List[Dict[str, Any]], str, _Scale]] = []
     for index, a in enumerate(annotations, start=1):

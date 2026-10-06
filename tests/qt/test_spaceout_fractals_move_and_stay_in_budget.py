@@ -209,9 +209,9 @@ def test_an_ordinary_start_gets_the_animation_the_user_chose(qtbot):
     try:
         host = QWidget()
         qtbot.addWidget(host)
-        widget = amb.install_ambient(host, theme="ripple", palette="ocean",
+        widget = amb.install_ambient(host, theme="data_art_point_atlas", palette="ocean",
                                      seed=1)
-        assert widget.theme() == "ripple"
+        assert widget.theme() == "data_art_point_atlas"
         assert widget.palette_name() == "ocean"
         assert not isinstance(widget.engine, amb.FractalEngine)
     finally:

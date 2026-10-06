@@ -14,8 +14,9 @@ name: compat-matrix
 # run the 45-minute suite on every platform (tests.yml owns that on Linux);
 # it runs the cheap, decisive part — does it install, does `import spacr`
 # succeed, is the packaging metadata self-consistent — and then runs the full
-# suite on the non-Linux platforms as an *informational* step that reports
-# but never decides.
+# suite on the non-Linux platforms on scheduled/manual audits as an
+# *informational* step that reports but never decides. Push/PR feedback ends
+# when the same decisive installed-artifact checks finish.
 #
 # Honesty rules for this file:
 #   * A cell whose failure is already understood is marked
@@ -862,7 +863,11 @@ jobs:
         # compat-matrix concluded "cancelled" every time with every deciding
         # step green. A STEP timeout fails the step instead -- which
         # continue-on-error does honour -- and leaves the job its margin.
-        if: runner.os != 'Linux'
+        # Push3ca passed all eight deciding cells but its parent was cancelled
+        # by the next nightly push while only these sweeps remained. Retain
+        # full cross-platform audits weekly and on explicit dispatch; a normal
+        # source push must not wait seventy minutes for non-deciding work.
+        if: runner.os != 'Linux' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         continue-on-error: true
         timeout-minutes: 70
         shell: bash

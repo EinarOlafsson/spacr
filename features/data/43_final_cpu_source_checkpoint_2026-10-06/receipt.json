@@ -1,0 +1,57 @@
+{
+  "checkpoint_revision": "b10bfedc5e7319bddc9fce5246aed5616d59f400",
+  "limits": [
+    "Separate 117/115/32/69 test cohorts overlap; counts are not a unique union.",
+    "243 passed/1 failed docs cohort predates last IO helpers; owner private-arrival record still says six scenes, truthful source says seven. Workstation owns normal regeneration.",
+    "Hard 24 FPS, reported installed Save SIGSEGV, large-volume/vendor scientific acceptance and current-source hosted CI remain OPEN."
+  ],
+  "reports": {
+    "compat-feedback-contracts.log.gz": {
+      "raw_sha256": "55ccbeb74943c913bcf1dbcb3614613005a86013a437cd5b542ddde1dfa62b35",
+      "stored_sha256": "2a0776fed03782cf62b4e61155eac001454d5a40e910176a41171934d2130f85"
+    },
+    "docs-final.json.gz": {
+      "conclusion": "success",
+      "raw_sha256": "8cca3009bbf855f1ce4ec2936d82942efb30eddd004a7a0e3f4a4bb8a12641d2",
+      "run_id": 37511791645,
+      "source_revision": "3ca2bff5366ac30fdabb783698a3e2664b35423e",
+      "stored_sha256": "27127ad3e7503f3be6c644a5f49cc6b1848784216cc57577c9ae939ba68c10b4"
+    },
+    "final-normal-home.log.gz": {
+      "raw_sha256": "715326e4ea67142f397f5d11e5873eec3bd196c8d50655f8406bcdb63f19387e",
+      "stored_sha256": "80eba4628ef56aa6a8dd7f147b64ab5b3647e0942eb32a816afa0430bc6cbe4f"
+    },
+    "final-palette-safe-help.log.gz": {
+      "raw_sha256": "f582ece4901c8b33fceb498b94b568f2786603571ec75f256cf64d3004797b19",
+      "stored_sha256": "1dbc670605f5ecf8c80d38cc8ccbf1ddbeca5ac5fbc00c80f7834cbdf0c951e4"
+    },
+    "final-setup-guard-cohort.log.gz": {
+      "raw_sha256": "f6e11120826813ad1b6b2c567f4d5d32a5b8e1035853b3cf340c086f7821c7ae",
+      "stored_sha256": "db996be04a2dfe405ca987cff7b1e8894717a3bde2ce184d1c49b2fdc9d87033"
+    },
+    "integrated-final-native-workspace.log.gz": {
+      "raw_sha256": "75a07b237db202838001c973ad05745bb96a28e0faee4f7f37b1d2202ccbc06c",
+      "stored_sha256": "12e75f2b57b163882b1213c2e0ef6a7750dadabb326c464c1300339f2cc0b242"
+    },
+    "latest-random-docstrings.log.gz": {
+      "raw_sha256": "6066424f96216542bbc8014aa3d66daa12b5d570751e89d8cd56f3c1700198b6",
+      "stored_sha256": "4fa05d8827927779e58a5f1878f806bd26e0ce33da70f766afd47cdccba8b9e1"
+    },
+    "windows-final.json.gz": {
+      "conclusion": "success",
+      "raw_sha256": "b173dd8a40e60df0dcf76c3245beed0fc4ea71a711b410f8279ca911e3a58024",
+      "run_id": 37511791573,
+      "source_revision": "3ca2bff5366ac30fdabb783698a3e2664b35423e",
+      "stored_sha256": "e09019c47c4e49f89c76f9d60d63a2fb9c6199bf74068cd3db8721d7bfd8444f"
+    }
+  },
+  "sources": {
+    ".github/workflows/compat-matrix.yml": "57e4cf71ecfaad7bf0a9670f5813542833b19c6607374938e62fdc82784f9c18",
+    "spacr/io.py": "6ef38e31d93111a805626da5d31516d1544967ab045269f85a15b0aafe560a76",
+    "spacr/qt/app.py": "5fc990e6904525432af3e6fb2b419342af2dabd2776cc371e0cd55ed3dc543f7",
+    "spacr/qt/preferences.py": "733f9af071745b2d170ed743fe96130b6b346d5f101c8a87d0e3b3b758ff21ee",
+    "spacr/qt/widgets/ambient.py": "a324d395c4029fdeb1e307595fcc4d2353cb4fd7f15589f51e456c67f19b417a",
+    "tests/qt/test_cov_wf_qt_widgets_setup_slides.py": "cd11fd5554768839d7daf86b5f1c522d4fefd290921a265a203deabf57e20d24",
+    "tests/qt/test_data_art_random_palette.py": "b0c777d4b5f0c4221bda51b21e8e910f6815d5129552531e27bf4f36b9295215"
+  }
+}

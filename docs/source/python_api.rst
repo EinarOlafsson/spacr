@@ -108,6 +108,10 @@ names and values before importing the heavy pipeline stack.
    spacr-run validate --module mask --settings mask_settings.csv
    spacr-run mask --settings mask_settings.csv
 
+Boolean values in settings CSV files are case-insensitive. ``TRUE`` and
+``FALSE``, including surrounding whitespace, load as Python booleans, so
+spreadsheet-exported settings can pass the same preflight checks on a cluster.
+
 Command-line overrides are applied after the file:
 
 .. code-block:: bash

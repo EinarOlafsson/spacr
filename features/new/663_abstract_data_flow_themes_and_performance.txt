@@ -762,3 +762,109 @@ open.
     Preferences cases pass. Parent663still retains Random colors, universal
     high-detail/max-density frame-budget limitations and unreproducedSave
     SIGSEGV. Paired live native timings are averages, not hard24FPS promises.
+
+2026-10-06 — optional stable Random colours CPU source checkpoint
+Renderer9ee363637f (integrated34ecf4d71a) offers Random colours on all10themes.
+Seeded per-element hues remain stable during motion, with one hue per complete
+advection trail. The same gated CPU compiler warms exact round and center-only
+ranked grains; unavailable/disabled/partial-failure kernels restore full NumPy
+output. Rank storage is frame-local8MiB at4K; retained palette tables192KiB.
+192 affected cases and a separate4-case center/round extension pass;
+all99 added executable statements/33 touching arcs are covered, zero gaps.
+40 full-display existing default/custom pairs and24 native new compiled/fallback
+pairs match exactly. Three real random preview frames import neither NumBa nor
+SciPy before gate release; after release complete bytes match,1.329s warmup.
+An actual fresh integratedb2aed source7a35 native4K active-radius25% advection
+pair publishes23.995FPS Spacr versus19.798FPS Random, shader19.431/47.783ms
+median and28.815/66.656p95.120/99 clocks are distinct; all producers stop on
+hide. Random cold GUI heartbeat max65.67ms is explicitly retained. Prior faster
+individual shader measurements are labelled by their different source checkpoint.
+Random implementation and save/reopen verification close that child; native
+optional-palette frame-budget performance remains OPEN, alongside universal24FPS
+and unreproducedSaveSIGSEGV. No aesthetic acceptance or crash-resolution claim.
+Compact immutable sources, branch trace, tests, portable capped CPU probes,
+original cold/steady and integrated worker receipts and lossless native frames:
+ data/663_random_palette_cpu_2026-10-06/.
+
+2026-10-06 — exact Random grain CPU performance follow-up
+Renderer482de7d422 adds a single replaceable per-particle hue cache and an exact
+center-first compiled scatter.106 affected cases pass;25 new statements/17arcs
+are covered with zero gaps. Against the current inward-gravity source,40default/
+custom full-display pairs and24compiled/fallback plus24before/optimized Random
+native frames match all pixels. The initial19.798FPS active Random configuration
+is superseded: actual optimized repeats23.396/22.196FPS, shader34.710/38.793ms
+median and50.737/60.529p95.117/111 clocks are distinct. Repeat2 original cold/
+steady/hide JSON is archived; repeat1 steady is explicitly transcript-reported.
+The exact source optimization closes; native hard24FPS remains OPEN. No native
+resolution/density/grain reduction or aesthetics/crash claim. Separate immutable
+initial/optimized individual/integrated sources and portable proof files remain
+in data/663_random_palette_cpu_2026-10-06/.
+
+2026-10-06 — Random evidence count clarification and portable replay
+Validation phases are192affected cases, a separate4-case center/round extension,
+and106cases after the exact optimization; they overlap and use the recorded
+source checkpoints. No194/195unique passed-case union is asserted. Root's one
+Preferences Save/reopen/theme/Cancel integration case is separately reported.
+A real portable restored-source optimized native replay passes40existing pairs,
+24compiled/fallback Random pairs and24before/optimized active-pointer native
+pairs against exact7a35→a324sources, peak586660KiB; receipt is archived in
+ data/663_random_palette_cpu_2026-10-06/portable_optimized_native_replay_receipt.json.
+
+2026-10-06 — Random colours and actual Preferences Help children100%
+    Final bounded implementation persists Random across all10offered themes;
+    real Preferences Save/reopen/theme-change/Cancel integration passes. Root
+    117affected palette/safe/help cases pass and final native4K Save/close probe
+    leaves no widgets/workers. Both new row labels have actual HintBar help.
+    Compiled/fallback and before/optimized native pixels remain exact; hard
+    24FPS/max-detail smoothness and reported installedSaveSIGSEGV remain OPEN.
+    Final source hashes and bounded root logs are in
+    data/43_final_cpu_source_checkpoint_2026-10-06/.
+
+2026-10-06 — exact Random private packed-word review checkpoint
+Source bc170e097f compares frozen parental45f3cb1ec0 ambienta324d395... with
+ac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20.
+Rank temporarily uses the private owned RGB32 working word's alpha byte;
+every byte is restored toFF before image return/publication, including full
+recovery after partial compiler failure. RGB/intensity tie ordering is exact.
+No style/geometry/samples/detail/density/native-resolution changes. Tables are
+96KiB and the separate native8,294,400-byte rank plane is eliminated; fallback
+also avoids its native66,355,200-byte uint64 accumulator.95 focused cases pass;
+all15 added statements/9 touching arcs are covered.40 default/custom pairs,
+24 Random compiled/fallback and24 old/new native pairs, plus96 alternating
+native frames match exactly. All256 ranks and98,304 clipped duplicate points
+per primitive case retain exact ordering. Blocked real producer publication,
+fresh deferred startup and native hide/delete/GC ownership checks pass.
+Fresh live native pairs are mixed:22.60→23.39FPS and23.20→22.20FPS; both raw
+receipts remain. Warmed actual ABBA before23.60/23.40FPS versus candidate
+23.79/23.60FPS supports only a modest improvement. Balanced dark/light shader
+medians20.53→19.24ms and23.38→21.56ms retain exact pixels. Hard native24FPS
+remains OPEN, along with unverified aesthetic acceptance and unreproducedSave
+SIGSEGV; no whole-process RSS improvement or crash fix is claimed. Source and
+test commit is locally integrated as9ed9688b0b; hosted acceptance remains pending.
+Compact immutable source/test/coverage/probe receipts and two lossless stills:
+ data/663_random_packed_word_cpu_2026-10-06/.
+
+2026-10-06 — integrated exact packed-word child100%
+    Root122palette/safe/help and7final source doc/default/budget guards pass on
+    ambientac146; fatal Ruff passes. Actual profiling-off Home reaches genuine
+    readiness before firstSciPy. Final real4K-display three modal Save probe
+    confirms alphaFF in checked owned producer frames,7natural GUI-thread GC
+    callbacks and0widgets/0ambient/0workers after close. Wholeprocess peak and
+    retained anonymous RSS are not claimed lower. Packed rank/table allocation
+    and balanced shader improvement close this exact optimization child; hard
+    24FPS/all-settings smoothness and installedSaveSIGSEGV remain OPEN.
+    Source-bound root logs: data/43_packed_source_final_checkpoint_2026-10-06/.
+
+2026-10-06 — unchanged Preferences rendering child100%
+    Six widget setters now preserve the ready frame when both widget and
+    engine motion values are unchanged. Changed controls and externally
+    changed engines still receive the requested state and immediate pixels.
+    No shader, geometry, native detail, palette, runtime string, signature or
+    docstring changes. Broader321 and final17focused cases pass (overlapping);
+    all22added statements/13touching arcs are reached. Exact six old setters
+    versus current source08815be8 on actual4K maximum controls: unchanged
+    background-update ABBA599/587ms ->0.145/0.096ms and5->0GUIshades. This is
+    not whole-dialog Save latency. ActualMainWindow three modalSaves preserve
+    alphaFF, nine naturalGUI-thread GC callbacks and0widgets/0ambient/0workers
+    after close. No whole-RSS/crash fix/hard24FPS/aesthetic acceptance claim.
+    Exact sources/probes/logs: data/663_unchanged_preferences_cpu_2026-10-06/.

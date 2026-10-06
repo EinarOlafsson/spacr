@@ -1,0 +1,296 @@
+{
+  "archive_kind": "obsolete-hosted-failures",
+  "cellpose_test_commit": "270c7ff4562ebcefb48ab5f0412c094eda257b21",
+  "date": "2026-10-06",
+  "failed_job_count": 21,
+  "files": [
+    {
+      "bytes": 4429,
+      "file": "pre-cancel-snapshot.json.gz",
+      "sha256": "4a9dee5e0c545253aa4f30aa56d4f8e19c0bd0df64529e34efb3c5bb7e3a5742",
+      "uncompressed_bytes": 66036,
+      "uncompressed_sha256": "66633a4f72f3b4b2b0d56fac7634e4f1fcdc9f296cab724a5005b1457aa56b60"
+    },
+    {
+      "bytes": 837306,
+      "failed_node_count": 11,
+      "file": "logs/112391876927.log.gz",
+      "job_id": 112391876927,
+      "job_name": "Minimum dependencies (ubuntu-24.04, py3.9) shard 0 of 3",
+      "sha256": "8b2e193db673c8153803658c9023508e389983866c055c22abb8d4d35175eb18",
+      "uncompressed_bytes": 6977626,
+      "uncompressed_sha256": "ba3eabbac2754db1290d715033a09f080963abb59bb75d796e1a8f1d045d457e"
+    },
+    {
+      "bytes": 894978,
+      "failed_node_count": 44,
+      "file": "logs/112391877141.log.gz",
+      "job_id": 112391877141,
+      "job_name": "Minimum dependencies (ubuntu-24.04, py3.9) shard 1 of 3",
+      "sha256": "25907701ed7f802ab3b9beee46a576d78ed05308621a1c1dd544510d7c2617b8",
+      "uncompressed_bytes": 6990696,
+      "uncompressed_sha256": "50a74d9af0107b3f0e15a052df610f9074f4eff57f4bcd4bf1bb8e02840e8ec3"
+    },
+    {
+      "bytes": 682410,
+      "failed_node_count": 40,
+      "file": "logs/112391877151.log.gz",
+      "job_id": 112391877151,
+      "job_name": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+      "sha256": "6adef52e00d1b5fd0b1407d37aa496e367e9ced0e6eb55d2c2996368125f0394",
+      "uncompressed_bytes": 5409429,
+      "uncompressed_sha256": "47b9688ae11adf67bc057700e96f20c2f83437134437561a1c842e27587965f8"
+    },
+    {
+      "bytes": 511398,
+      "failed_node_count": 6,
+      "file": "logs/112391877159.log.gz",
+      "job_id": 112391877159,
+      "job_name": "Qt (0) / Qt shard 0 of 3 (ubuntu-24.04, py3.12)",
+      "sha256": "70ae0da21b8b5a198a2a3f543358623d6deb65f043bd6e68e7a1506addd805e7",
+      "uncompressed_bytes": 3696273,
+      "uncompressed_sha256": "b2271103ebc6f2bbe23c3ff5a365fda86475407bf3ff8816cb2d8a5e17511f15"
+    },
+    {
+      "bytes": 806704,
+      "failed_node_count": 11,
+      "file": "logs/112391877174.log.gz",
+      "job_id": 112391877174,
+      "job_name": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 0 of 3",
+      "sha256": "dd0076b621c68059dbb480e48745d938854d272d6f34b028a46a9693905a77e2",
+      "uncompressed_bytes": 6734928,
+      "uncompressed_sha256": "fb130cd1ed628e3766501dca058ce114ce5e6f6cffc346389e471fccd0eb8af2"
+    },
+    {
+      "bytes": 715786,
+      "failed_node_count": 41,
+      "file": "logs/112391877201.log.gz",
+      "job_id": 112391877201,
+      "job_name": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+      "sha256": "050b30b5371234e7216ec4d31adc50fbb73ba2f5af5e4f31cd97998f756d5698",
+      "uncompressed_bytes": 5688401,
+      "uncompressed_sha256": "d9b15fe19f22bc83ae4e53b73f0a2f96db223803199d3a92748d9c854462174c"
+    },
+    {
+      "bytes": 47569,
+      "failed_node_count": 3,
+      "file": "logs/112391877231.log.gz",
+      "job_id": 112391877231,
+      "job_name": "Slow / Slow (ubuntu-24.04, py3.12)",
+      "sha256": "fe7f81110f2ce2f0d8790fd170c3a4d65534deb6f92038587813f2c773e06c24",
+      "uncompressed_bytes": 233802,
+      "uncompressed_sha256": "ee18ce539b0ae7f74e57285267b267dac1a32c4b73f422b17f0f6a6032532227"
+    },
+    {
+      "bytes": 630108,
+      "failed_node_count": 14,
+      "file": "logs/112391877252.log.gz",
+      "job_id": 112391877252,
+      "job_name": "Qt (1) / Qt shard 1 of 3 (ubuntu-24.04, py3.12)",
+      "sha256": "66cb580a84fc2c23c7e644fbb0d771eb4735a6b4556a9346a8d63784ab7910dd",
+      "uncompressed_bytes": 4491258,
+      "uncompressed_sha256": "b534d78173143aff10d731d393d59babab9f908532fa848f0f066a0cef41896c"
+    },
+    {
+      "bytes": 531907,
+      "failed_node_count": 13,
+      "file": "logs/112391877259.log.gz",
+      "job_id": 112391877259,
+      "job_name": "Qt (2) / Qt shard 2 of 3 (ubuntu-24.04, py3.12)",
+      "sha256": "b90a09b2e0680d1a6dbbcb756cff123c34af2e30e26cd3ab896dcce622181124",
+      "uncompressed_bytes": 3688037,
+      "uncompressed_sha256": "38734ebbe242cc759624db9c7fe1e99aaff89a161cb969137c036950d029a048"
+    },
+    {
+      "bytes": 294078,
+      "failed_node_count": 12,
+      "file": "logs/112391877324.log.gz",
+      "job_id": 112391877324,
+      "job_name": "Coverage shard 5 of 12",
+      "sha256": "ff3e4ff86921f3cdb84eb49558e8d40a63f6ca1bbabf72650aa22985c7364db8",
+      "uncompressed_bytes": 2168641,
+      "uncompressed_sha256": "a0f511800367c5e380e47ea671d95920a33bff063aea0b7c61e27871aec0d0fa"
+    },
+    {
+      "bytes": 376858,
+      "failed_node_count": 4,
+      "file": "logs/112391877369.log.gz",
+      "job_id": 112391877369,
+      "job_name": "Coverage shard 0 of 12",
+      "sha256": "da06642d805065b043a796f831a054ba0843d70b6044a1747f1a0253f9e52820",
+      "uncompressed_bytes": 3453781,
+      "uncompressed_sha256": "27554c461dc93296f91d1460e3cd4d04522b9348b01a95834a7fcdcede4ea61c"
+    },
+    {
+      "bytes": 339881,
+      "failed_node_count": 5,
+      "file": "logs/112391877399.log.gz",
+      "job_id": 112391877399,
+      "job_name": "Coverage shard 9 of 12",
+      "sha256": "c283cebf50f93b6594ccd2662e9bb4958b674bf23e301d7ac89a7462db3735bf",
+      "uncompressed_bytes": 2388909,
+      "uncompressed_sha256": "54d7042b13af2d19b2df5b4211744ff6fdde7805dc13b64eb042be5c8e97dbc0"
+    },
+    {
+      "bytes": 260920,
+      "failed_node_count": 7,
+      "file": "logs/112391877404.log.gz",
+      "job_id": 112391877404,
+      "job_name": "Coverage shard 11 of 12",
+      "sha256": "ff896d374dc6ff069a328be843a73be9bf4845d5b79e63489549f6b20e1c5350",
+      "uncompressed_bytes": 1824872,
+      "uncompressed_sha256": "f48297d92758dacfbc997f3be1721410a17d73db19e2635cd08a57d4e15d2092"
+    },
+    {
+      "bytes": 341004,
+      "failed_node_count": 32,
+      "file": "logs/112391877412.log.gz",
+      "job_id": 112391877412,
+      "job_name": "Coverage shard 8 of 12",
+      "sha256": "8052931d202edf16a329d7b49d0c7b6519445c8d6f19ed9d9a74aa8f23a5fe94",
+      "uncompressed_bytes": 2818347,
+      "uncompressed_sha256": "7f5b1ad85101e39db7168c342f970c8fa379b4a8272943360b7a9a5d39fef55b"
+    },
+    {
+      "bytes": 290003,
+      "failed_node_count": 5,
+      "file": "logs/112391877458.log.gz",
+      "job_id": 112391877458,
+      "job_name": "Coverage shard 2 of 12",
+      "sha256": "d1cbf8103cd25690f2cbd3b215dc40c4fc57c6708f443fdde8b8773cd431ef64",
+      "uncompressed_bytes": 2111546,
+      "uncompressed_sha256": "616a31c911ea0282e65093982cc1475590fe3fcde4bd1988b51a8b7d9490d6f5"
+    },
+    {
+      "bytes": 589360,
+      "failed_node_count": 25,
+      "file": "logs/112391877520.log.gz",
+      "job_id": 112391877520,
+      "job_name": "Coverage shard 4 of 12",
+      "sha256": "418530a5ff08d5bd39a8f9da62cd2be12534efe82ac5dd5fda16df1a36697357",
+      "uncompressed_bytes": 4397817,
+      "uncompressed_sha256": "44ba9eb177602f32bd771efd84fbe9254d7674be6933efd6c26e44e7356dc3d9"
+    },
+    {
+      "bytes": 289255,
+      "failed_node_count": 4,
+      "file": "logs/112391877527.log.gz",
+      "job_id": 112391877527,
+      "job_name": "Coverage shard 1 of 12",
+      "sha256": "0a226b98021558ad45603571ec3f0ccece98ae38ed52ca0730a2787b7a0b160f",
+      "uncompressed_bytes": 2069940,
+      "uncompressed_sha256": "90f4233f4e8941cbac66b81fb8152da49fea45b1c8d2ff001d005ca203bd4b81"
+    },
+    {
+      "bytes": 290226,
+      "failed_node_count": 11,
+      "file": "logs/112391877543.log.gz",
+      "job_id": 112391877543,
+      "job_name": "Coverage shard 6 of 12",
+      "sha256": "378df96ae732948a98f04b0af9212072ec4a478a0cb138e4a1dc46a6f88fafad",
+      "uncompressed_bytes": 2151590,
+      "uncompressed_sha256": "ffd863ddc2ac7c70d466f9561ce838dad6f69be89e625be2d495979b749c5d3d"
+    },
+    {
+      "bytes": 318166,
+      "failed_node_count": 27,
+      "file": "logs/112391878394.log.gz",
+      "job_id": 112391878394,
+      "job_name": "Coverage shard 7 of 12",
+      "sha256": "3f67490d61b92753590674978be588e2584bbfc5ab2f3f7f65a5495666c8b55e",
+      "uncompressed_bytes": 2548803,
+      "uncompressed_sha256": "9cfc1db7c2726c9f42307edd23ed8b1c5751c38c81c2d6bad680564386c62bfd"
+    },
+    {
+      "bytes": 294621,
+      "failed_node_count": 5,
+      "file": "logs/112391878542.log.gz",
+      "job_id": 112391878542,
+      "job_name": "Coverage shard 10 of 12",
+      "sha256": "d87dd46184724934386d2d588cbb887737da29e80451af6633dba19f014cb56b",
+      "uncompressed_bytes": 2184648,
+      "uncompressed_sha256": "acf919f84124d3fc4912c2016b6ae8e73159563094a0499140251498a4f3b73a"
+    },
+    {
+      "bytes": 38444,
+      "failed_node_count": 0,
+      "file": "logs/112432977583.log.gz",
+      "job_id": 112432977583,
+      "job_name": "Coverage / every module at 90% and none loses coverage",
+      "sha256": "c0bef5fe8103ecda6e20d04af63a9e7d738143b455d7a90a0f61622eb5893859",
+      "uncompressed_bytes": 174936,
+      "uncompressed_sha256": "89bf167b0138f6638f91cdf3b2260c753884e0a7f033a9d6c3f457ad89efa87c"
+    },
+    {
+      "bytes": 6878,
+      "file": "failed-node-index.json.gz",
+      "sha256": "adadb36d64aef633a11670330ea5c3dbdb9db9b02754d011a5c1e25828f979f8",
+      "uncompressed_bytes": 48936,
+      "uncompressed_sha256": "8e240285f876ac50705f727f65e056432dc6a237cff5497b87bc803813e9db9d"
+    },
+    {
+      "bytes": 340,
+      "file": "proofs/native-installed-4211.log.gz",
+      "sha256": "95f5dfd2357a4b37b21ae1227f7f5d89cac337fd18dc5db12e48a0fa23d17d62",
+      "uncompressed_bytes": 689,
+      "uncompressed_sha256": "a45dea2170f8248279e0e24f4993fd35dcd262d2d9717958df2fe6548f359001"
+    },
+    {
+      "bytes": 340,
+      "file": "proofs/native-overlay-407.log.gz",
+      "sha256": "d0f82df64fbfe63cb3c59b565f417b9ad84b8a75f2bb9bc3f3b31b3ff714c7f2",
+      "uncompressed_bytes": 689,
+      "uncompressed_sha256": "3be3ca0fe8b24d3979ac8c7257e040c456801b2190ed253c0af0cc2c4d634bdf"
+    },
+    {
+      "bytes": 345,
+      "file": "proofs/native-file-current.log.gz",
+      "sha256": "383c431fdd194b8fc9ce8ec824aa900446823a99da14d16086d4065c2374b979",
+      "uncompressed_bytes": 690,
+      "uncompressed_sha256": "e4010ea5dc1aeb6005b1cb6c65863293b7d0ba9696f8df4efa7e8e9889428f22"
+    },
+    {
+      "bytes": 1299,
+      "file": "proofs/native-cellpose-test.patch.gz",
+      "sha256": "47ba66292b18e8915a4604a24cbb1c593e3905396e411a692a64e6799bb4f65d",
+      "uncompressed_bytes": 3447,
+      "uncompressed_sha256": "428f6cfa0913386d10bc788ba037683cd0fe924e1ff04cf26824fd02808bf533"
+    },
+    {
+      "bytes": 212365,
+      "file": "proofs/cellpose-4.0.7-py3-none-any.whl",
+      "sha256": "1cab108744ab95c6df1928b8624e527d1c1822a85e643771edd336f1bad1b2dd"
+    },
+    {
+      "bytes": 2906,
+      "file": "README.txt",
+      "sha256": "3aa31e7a02ba6e64cd876431e2fb6c861c13395c53d326a344a34c7063ff7f85"
+    },
+    {
+      "bytes": 1118,
+      "file": "REPRODUCE.sh",
+      "sha256": "6d81d0340ade7558c33d3b3c04ea5ec9b2b24db44f9f54ba88b537af88506840"
+    },
+    {
+      "bytes": 1191,
+      "file": "VERIFY.py",
+      "sha256": "5bf6581b9ff1283342caedf5f1ac09b06300ea30529d693295d36047af2f37f5"
+    },
+    {
+      "bytes": 4495,
+      "file": "failure-triage.md",
+      "sha256": "f0d20da8984ab7ecec1ab9d43682ec002b506ad81a5c762730f32c5d7e06aa14"
+    },
+    {
+      "bytes": 420,
+      "file": "proofs/archive-reproduce.log.gz",
+      "sha256": "29706ff1c2de58d6989cec20bfffc94be63edeb0397e1eaab99eb8e93f67bbef",
+      "uncompressed_bytes": 2448,
+      "uncompressed_sha256": "2d287e347a1082d8ed5bc18aab9e8f4b363615ea8474ee7c5579647e85c8a70d"
+    }
+  ],
+  "run_id": 37494090176,
+  "snapshot_conclusion": "",
+  "snapshot_status": "in_progress",
+  "source_sha": "1f3e4a240339ebc88993d72c49b39ab5716e3904"
+}

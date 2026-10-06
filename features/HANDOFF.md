@@ -1,5 +1,186 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 workstation owns GitHub issue137 CSV boolean repair
+The user explicitly requested the newly posted GitHub issue be fixed:
+https://github.com/EinarOlafsson/spacr/issues/137.
+Workstation handles it; Home must preserve this fix and need not duplicate it.
+Both cli._parse_csv_value and utils.load_settings now read true/false
+case-insensitively, including surrounding whitespace. Numbers, list literals,
+paths and unrelated strings retain their previous meaning. The validator is
+unchanged; the real Mask CLI dry run accepts all exported boolean defaults
+with valid acquisition inputs and a declared channel. All358 affected CLI,
+loader, registry and reproducibility checks pass, including cold import
+guards; all10 original failures and the corrected missing-input/channel test
+fixture are retained distinctly in data/615_GitHub_issue137_2026-10-06.json.
+No cluster model inference or actual Slurm job is claimed by the dry run.
+New English guide prose belongs to the workstation's next normal all-nine
+guide refresh; runtime captions and API signatures/docstrings are unchanged.
+
+GPU precision diagnosis also completed through the normal queue: unchanged
+source reproduces373RGB/590monochrome mismatches; disabling convolution TF32
+passes both clips at the original tolerance, with maximum errors1.13e-6 and
+1.24e-6. This is diagnosis, not product GPU acceptance. Workstation retains
+the worker repair and queued final acceptance; no tolerance is widened.
+Fresh current-Wand editor recording completes with real161pixel add/remove,
+exact Undo and unchanged acquired image; all13 updated61scene reviews pass
+normal source/pronunciation checks. Remaining native companions/audio/video/
+publication and frozen runtime/API jobs remain workstation-owned.
+
+## 2026-10-06 unchanged Preferences rendering and exact hosted711 repair
+Home renderer now freezes at
+08815be8f5e01de4ae87517290197d3c1747eff65b4e39afbd5f2f0e1d3b8a28,
+superseding ac146 only in six widget control setters. Unchanged motion skips
+redundant shading; both widget and engine values must match, so an externally
+changed engine still gets repaired. No shader, palette, geometry, pixel/detail,
+runtime caption, signature or docstring changes. Broader321 and final17focused
+cases pass; all22added statements/13touching arcs are reached. Native4K maximum
+controls exact-six-setter ABBA599/587ms ->0.145/0.096ms,5->0GUIshades, measures
+only apply_ambient_preferences. Actual MainWindow three modalSaves/alphaFF/
+nine GUI-threadGC callbacks pass with0widgets/0ambient/0workers after close.
+Whole-RSS, hard24FPS and installedSaveSIGSEGV remain OPEN. Complete immutable
+sources/receipts: data/663_unchanged_preferences_cpu_2026-10-06/.
+
+Exact711 compat37525317682 is terminalSUCCESS, all17jobs/all8mandatory
+platform cells; hostedLint/types/complexity is alsoSUCCESS. Ordinary711
+coverage11 found two stale test assertions: Clear-all absent from the curation
+order, and preview counter counting scikit-image's internal lookup NPYs.
+f69/c6dad fixes both while preserving toolbar alignment and every experiment
+image read, including an explicit actual mergedNPY read. All44affectedcases
+pass. Fullfailedlog/platformstates: data/43_hosted_711_sampling_layout_2026-10-06/.
+This is not ordinary/Qt acceptance; their new-source verdict remains required.
+
+Workstation: consume this renderer for normal source-current owner regeneration;
+it adds no translated source or callable boundary. All pending broader Random/
+IO/Prefs/Safe/mask/template/catalogue actions below still apply. Protected live
+b779serial37503577012 and pending45f37521372347 remain untouched, and neither
+accepts this final renderer. Native downstream archive-memory work is isolated,
+not published or accepted yet; do not claim whole-pipeline/scientific closure.
+EveryGPU/API/docs/translations/tutorial remains workstation-owned.
+
+## 2026-10-06 workstation single Wand button and progress relay
+The latest user mask request is workstation-owned and accepted: one Wand
+button adds by default; Ctrl+left removes the bounded intensity region using
+the same tolerance and rescue settings. The shortcut panel follows the
+selected tool. All269 affected Qt checks pass, including actual Undo/Redo,
+Save, Next, close and fresh-screen reopening; fatal Ruff also passes.
+Three before-fix failures on unchanged711999b77 are retained separately from
+two corrected test assumptions and the initial wrong-checkout guard refusal.
+Complete evidence: data/419_single_wand_ctrl_2026-10-06.json.
+Home: preserve make_masks.py and the prior Draw/Brush persistence, Clear,
+Box deletion, Divide / Merge, magnifier drag and Templates full-path changes.
+No duplicate mask work is needed. Continue CPU/native/CI work; workstation
+owns all GPU/API/docs/translations/tutorials. New tr sources and the named
+private _wand_edit_at callable need normal owner regeneration without
+raising a ratchet ceiling, plus current Make Masks tutorial recording.
+
+Workstation prepared reviews were admitted in all9locales; all5 generated
+artifact owners ran normally and498 affected checks pass. The native Mask
+editor/readouts, restoration, puncta and Box stages pass independent checks;
+57 exact native visuals cover all59 lesson scenes. This checkpoint precedes
+the single-Wand change: captions/media and publication remain OPEN. Do not
+call this current-Wand publication. Current runtime7712 and API45424 jobs
+remain live on frozen50de2fdb0; latest Home Random/IO/Prefs/Safe plus this Wand
+change require the subsequent source-current refresh, not a timeout restart.
+
+GPU567 acquired its normal idle turn and ran, but CPU/CUDA parity failed
+the unchanged tolerance (373/768 values; maximum violating error0.00031522).
+Normal scheduler receipt: data/567_event_video_GPU_parity_failure_2026-10-06.json,
+terminal rc1. Workstation will diagnose this; no GPU success or microscopy accuracy
+is claimed. User app and protected livecell/cellposeTIME jobs were untouched.
+
+## 2026-10-06 final exact packed Random source and owner freeze update
+Latest Home renderer is ambientac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20;
+app5fc990e6, Preferences733f9af0 and io6ef38e31 remain unchanged.
+This supersedes the a324 renderer freeze below. Temporary intensity occupies
+the private owned word, with alphaFF restored before return/publication;
+there is no separate8MiB native rank plane, and palette tables are96KiB.
+Default/custom/Random native pixels remain exact. Warmed balanced measurements
+support modest shader savings, while fresh-process live pairs are mixed;
+hard24FPS remains OPEN. Root122palette/safe/help and final7doc/default/budget
+guards pass, fatal Ruff passes, and normal profiling-off actualHome is ready
+2.091s before firstSciPy2.123s with zero readiness reports. Exact logs/hashes:
+data/43_packed_source_final_checkpoint_2026-10-06/.
+
+Final clean9ed actual4K display Home/Mask/Measure/Annotate and three modal
+PrefsSaves200->100->200/random->spacr->random/radius0->65%->0 pass. Both
+checked producer frames have every alpha byteFF, seven naturalGUI-thread GC
+events complete, and close/deferred deletes leave0widgets/0ambient/0workers.
+Peak1323672KiB and aftercloseanonymous1026144KiB are retained, not a whole-RSS
+improvement claim. Original viewport sizes and log/script are in
+data/663_random_palette_save_gc_2026-10-06/RANDOM_ALPHA_FINAL.md.
+SaveSIGSEGV remains unreproduced/OPEN. All29packed proof manifest blobs verify.
+
+Workstation: consume this latest renderer for the normal owner regeneration;
+only one existing private scatter docstring changes in this follow-up, with
+no runtime caption/default/signature changes. Broader pending new Random/IO/
+Prefs/Safe/mask/template owner relay below still applies. Protected b779 and
+queued45fserial are untouched; neither is final ac146 source acceptance.
+Do not overwrite local Cell-DINO provenance helpers or event annotation GUI.
+AllGPU/API/docs/translations/tutorials remain workstation-owned.
+
+## 2026-10-06 source45f actual platform success and immediate test-only repair
+Current45f compat37521372368 is terminalSUCCESS: all17jobs, including all8
+mandatory wheel/sdist platform cells. Native Windows37521372558 alsoSUCCESS.
+Ordinary37521372698 started27jobs and exposed one test-only Xenon rankC in
+the new compatibility routing guard; Ruff/mypy passed first. d130f0daa3 splits
+the independent invariants and event/platform checks without dropping any
+assertion or changing thresholds. All21classification cases plus exact6target
+Xenon/Ruff pass; root also passes final7source doc/parameter/default/budget
+guards after current IO and station mask integration. Immutable complete
+receipts: data/43_45f_platform_and_complexity_2026-10-06/.
+
+Obsolete3ca ordinary37511792034 is now terminalCANCELLED after preserving
+its3knownfailed jobs/full states, releasing current ordinary concurrency.
+Normal cancellation first returned500/502; accepted normal/force requests
+are archived honestly. No cancellation is green. Protected b779serial
+37503577012 remains live; source45f serial37521372347 is queued and untouched.
+This next test-only push changes no app/ambient/Preferences/IO source and does
+not touch the serial workflow. The exact product freeze below remains valid.
+Random packed-word candidate stays isolated because live repeats are mixed;
+no performance claim or integration from one favorable measurement.
+
+## 2026-10-06 final Home CPU source and workstation regeneration relay
+Home CPU product source is frozen at app5fc990e6, ambienta324d395,
+Preferences733f9af0 and io6ef38e31 (full hashes in
+data/43_final_cpu_source_checkpoint_2026-10-06/receipt.json).
+Random colours now save/reopen across all10scenes; exact bounded hue/scatter
+optimization preserves native pixels. Actual4K active-pointer repeats improve
+19.798FPS to22.196/23.396FPS; hard24FPS remains OPEN. Disk-backed native
+normalization reserves physical scratch before writes, checkpoints fallback
+reservation/copies and preserves compressed output bytes. Its exact2T2Z4C
+1280 fixture reduces peakRSS75.5MiB and anonymous peak148.8MiB; these are
+not additive to older fixtures or universal large-volume acceptance.
+SafeSpacr/no-backdrop startup skips ambient imports and compiler callback.
+The two new Preferences labels now have actual HintBar help through tr().
+Separate root117palette/safe/help,115native workspace,32workflow contracts
+and69setup/dialog guards pass. Normal profiling-off Home reaches genuine
+readiness1.838s before firstSciPy1.888s. Final930native4K real Save/reopen/GC
+probe closes with0widgets/0ambient/0workers; installedSaveSIGSEGV remains
+unreproduced and OPEN. All exact logs/probes are archived, not summed.
+
+Workstation: preserve merged d9d6 mask manual-merge/drag identity and cb4
+Templates full-path Save. Normal source-current runtime/API/help/settings-flow
+regeneration must include the Random selector/scatter/hue helpers, changed
+native normalization/reservation helpers, SafeSpacr and new Preferences tips.
+The exact frozen3ca generated diff is now published in
+data/43_hosted_3ca_failures_2026-10-06/owner/generated-key-diff-3ca.json.gz:
+262stale reviewed runtime records across9locales/46files,73missing
+en.UI_SOURCES and15indirect-owner captions. These explain all12coverage5
+failures and reviewed-locale coverage6 failure; do not waive the guards.
+Also reconcile the private arrival record SIX->SEVEN and SetupSlides
+_animation_row's retired default-Blobs prose through the normal owner tools.
+Your frozen API38785success is respected but is not current-source publication.
+
+Hosted frozen3ca Docs37511791645 and native Windows37511791573 are SUCCESS.
+All8mandatory compat wheel/sdist platform checks succeeded; older parent was
+automatically cancelled on a newer push while informational full sweeps ran.
+Those expensive advisory full sweeps now run only weekly/manual, preserving
+every mandatory push/PR check. Ordinary3ca still has known failures; new CPU
+source must obtain its own hosted verdict. Protected b779serial37503577012
+is untouched. One provenance-enriched serial will queue behind it; no Qt
+guard, memory budget, threshold or ratchet ceiling is weakened.
+
+
 ## 2026-10-06 workstation latest frozen API checkpoint accepted
 Normal API generator38785 has reached terminal exit0, with nine locales and
 13,195symbols. Independent full preservation checker43493 also exits0:
