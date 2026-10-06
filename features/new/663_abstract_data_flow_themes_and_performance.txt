@@ -1,17 +1,20 @@
 ABSTRACT DATA FLOW THEMES AND BACKDROP PERFORMANCE
-Status: OPEN 2026-10-05 — maintainer rejected all sixteen original themes.
+Status: DONE 2026-10-05 — twelve distinct replacements implemented and CPU reviewed.
 Requested: 2026-10-05 by the maintainer: performance-optimize themes and add
 10–20 abstract high-resolution continuously flowing backgrounds, including
 weather-like wind, mouse-influenced flows, biology, spatial data, DNA and space.
 Owner: CPU feature/CI session; generated API/docs/translations/tutorials and
 every GPU process remain with the workstation session.
 
-Deliver 16 regular Appearance themes: eight distinct continuously animated
-flow families, each paired with a mouse-responsive counterpart. Families:
-cytoplasm, synapse, wind, atlas, helix, chromatin, nebula and cosmic silk.
-Stable identifiers are flow_cytoplasm, flow_synapse, flow_wind, flow_atlas,
-flow_helix, flow_chromatin, flow_nebula, flow_silk and their _mouse variants.
-The existing ten night themes and their sounds stay compatible. New flow
+Replace the rejected set with twelve regular Appearance artworks. Each must
+have a distinct rendering medium, material, composition and motion:
+spatial point atlas, tissue facets, spatial strata, molecular helix,
+chromatin satin, genome mosaic, transcript rain, regulatory circuit,
+genetic advection, perturbation interference, morphogenesis and perturbation
+lens. Stable identifiers use data_art_ plus the family names from the source
+catalog. Pointer response is an interaction within selected artworks and
+does not count as an additional style. The sixteen flow_* keys are retired.
+The existing ten night themes and their sounds stay compatible. New art
 presets may select an existing fitting sound set but never turn sound on.
 
 Flows remain decorative, not scientific output. Preserve readable text and
@@ -26,6 +29,10 @@ allocate a full-display simulation grid per frame or accumulate frame
 queues. GUI paints use ready frames; hidden/minimized/disabled backgrounds
 stop timers and retire render workers. Keep the existing memory/work/CI
 ceilings. Verify both moving output and all lifecycle failure boundaries.
+The replacement's normal 2048 edge request uses the existing ceiling;
+1080p must shade natively and default 4K must shade 1920x1080, four times
+the rejected frame's sampled pixels. Geometry and raster material details
+must visibly use the added resolution rather than enlarging sparse strokes.
 
 2026-10-05 — ORIGINAL IMPLEMENTATION; VISUAL ACCEPTANCE WITHDRAWN
 Appearance > Theme offers the eight families and their Pointer variants;
@@ -93,3 +100,83 @@ not count as separate artworks. CPU-safe bounded rendering and UI lifecycle
 rules still apply. Real renderer previews precede completion claims. Item
 663 is reopened; generated API/docs/translations/tutorials and GPU work
 remain workstation-owned. Do not regenerate captions for removed flow keys.
+
+2026-10-05 — TWELVE DISTINCT REPLACEMENT ARTWORKS, SCOPED CPU COMPLETION
+All sixteen rejected flow_* presets and their renderer are removed. The
+replacement is twelve independent visual families, available in regular
+Appearance and Animation: Spatial point atlas (projected lidar-like relief),
+Tissue facets (dense crystalline cells), Spatial strata (layered topographic
+paper), Molecular helix (depth-sorted glossy atoms and bonds), Chromatin
+satin (folded woven ribbons), Genome mosaic (hierarchical encoded panels),
+Transcript rain (layered ACGU typography), Regulatory circuit (etched routes
+and travelling signals), Genetic advection (dense coherent particle trails),
+Perturbation interference (pearlescent wave relief), Morphogenesis (organic
+cell membranes) and Perturbation lens (a displaced precision dot lattice).
+Point atlas, advection, interference and lens respond to the local cursor;
+those interactions do not inflate the style count. The root and independent
+reviewer inspected actual renders and the completed twelve-card gallery.
+This records implementation and local visual review, not maintainer approval
+of the replacement art. The original visual acceptance remains withdrawn.
+
+Normal 1080p shades at 1920x1080; default 4K also shades at 1920x1080 and
+scales the completed frame to 3840x2160. This is four times the rejected
+set's sampled pixels, not native-4K simulation. The existing 2048 edge cap,
+1920x1080 pixel limit and work budget are unchanged. Material tables and
+geometry are bounded/cached and retired on actual buffer resize. The single
+publication worker retains only the latest frame; GUI ticks never wait for
+shading. Existing seven ambient engines, ten night presets, disabled
+animation, Extra Performance, launch recovery and sound-off behavior remain.
+
+Review caught and repaired actual failures rather than relaxing checks:
+encoded rows now flow within Genome mosaic's panels; point/lens density
+changes geometry; Chromatin satin follows its seed; single-sample axes use
+valid derivatives; inner QPainter always ends on shade exceptions; resizing
+retires the old material cache. Tissue normals use physical cell units,
+and fine membrane, wind, circuit and typography details use the higher shade
+resolution. Worker switching, hidden/minimized widgets, dialogs, shutdown,
+cursor bounds and palette/contrast behavior retain executable checks.
+
+Final renderer/catalog source checkpoint: 5fd4e783e3473bf0e1517cbc2bf2fdb21563d500;
+integrated test checkpoint: 68cf4d077. The bounded six-file ambient/catalog/
+renderer/lifecycle cohort passes 689/689 under 4 GiB, CUDA hidden, offscreen.
+It is not a full local or full Qt suite. Independent branch-receipt audits
+cover all 681 added renderer executable statements and 158 added-origin
+branch arcs; the catalog/theme/preferences receipt covers all 18 added
+executable statements and all seven arcs touching added code. No added-code
+gap or coverage allowance was introduced. Forty-eight dark/light Mono and
+Okabe renders complete with non-flat output. Fatal Ruff and diff checks pass.
+
+Local artist-preset CPU profiling: 24-row warm shade medians are 1.94-79.49 ms
+at 1080p and 1.93-54.44 ms for a logical 4K canvas; 4K ready-frame blits are
+3.53-4.80 ms. The benchmark process peaks at 300.1 MiB. Two benchmark images
+occupy 16,588,800 bytes; this is not a claim that the entire application
+retains only two images. Sustained twenty-frame Morphogenesis shade medians
+are 55.46/56.35 ms at 1080p/4K, with a 4K maximum 86.01 ms. These measurements
+do not guarantee 12 fps on every host. With a CPU worker and 200 console
+messages every style renders all messages; 16 ms heartbeat medians are
+15.82-16.11 ms and p95 20.14-23.86 ms, versus 15.90/18.80 ms with no backdrop.
+Four twelve-style switch cycles hold RSS 130.9 -> 131.7 -> 126.6 -> 126.6 MiB
+without forced GC; the active thread count drops by one and no render worker
+remains after close. This is a bounded observation, not whole-Qt acceptance.
+Final source-matched styled QWidget captures cover all twelve artworks.
+Fresh-process active-window cursor polling reaches all four interactive
+styles; the probe permits up to three seconds for a nonblocking worker tick.
+The capture and cursor receipts are capture_widget_preset_efb.jsonl and
+cursor_widget_final_efb.jsonl in the validation directory below.
+
+Review gallery: /mnt/wd4tb/scratch/data-art-redesign-20261005/review/index.html.
+Each of its twelve verified previews is a four-second, 48-frame, 12 fps
+960x540 H.264 excerpt rendered from the native 1920x1080 shade. Each links a
+3840x2160 still; all sixty local media links resolve. Preview excerpt loops
+do not reset the running application's animation clock. Manifest and motion
+comparison are in the same review directory. Final profiling, GUI and switch
+receipts are under /mnt/wd4tb/scratch/data-art-validation-20261005; focused
+coverage receipts are under /mnt/wd4tb/scratch/data-art-redesign-20261005.
+
+No GPU process, new spacr module, dependency or sound asset was added.
+The workstation owns the separate normal current-source API/documentation/
+translation/tutorial refresh. Its existing ambient indirect extractor
+already sees all twelve exact replacement labels and descriptions; do not
+restore FLOW_THEMES or edit generated catalogs by hand. Final hosted GitHub
+tests and the complete coverage/serial Qt verdict remain items 43/288/47,
+not a completion claim from this scoped renderer work.

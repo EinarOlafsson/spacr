@@ -1,5 +1,39 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-05)
 
+## 2026-10-05 CPU replacement checkpoint — twelve distinct data-art themes
+All sixteen rejected flow_* styles remain removed. Item 663 now implements
+twelve distinct materials/compositions for spatial, genetics, genetic flow
+and perturbation: projected point relief, crystalline facets, topographic
+strata, molecular beads, satin chromatin, encoded genome panels, transcript
+typography, etched circuits, coherent particle advection, pearlescent waves,
+organic membranes and an optical dot lattice. Four have cursor interaction;
+these are not duplicate counted styles. Existing seven ambient engines and
+ten night themes remain. Root/independent actual-render review and the bounded
+689-case ambient cohort pass; item 663 records source, coverage, lifecycle,
+performance and gallery evidence. This is scoped implementation completion,
+not a statement that the maintainer has approved the new visual direction.
+
+Renderer/catalog source freeze: 5fd4e783e3473bf0e1517cbc2bf2fdb21563d500;
+integrated test checkpoint 68cf4d077. The normal shaded frame is 1920x1080
+at 1080p and logical 4K, using existing caps; 4K output is scaled, not a
+native-4K simulation. Review all twelve real motion excerpts and full-size
+stills at /mnt/wd4tb/scratch/data-art-redesign-20261005/review/index.html.
+No GPU process, dependency, sound asset or new spacr module was introduced.
+
+Workstation: perform the normal source-current API/runtime/docs/translation/
+tutorial refresh for ambient, night_themes, theme and preferences. The
+existing indirect runtime extractor already sees all twelve exact labels,
+animation notes and preset descriptions. The historical request below to
+add FLOW_THEMES to the extractor is obsolete; that registry was removed.
+Preserve complete reviewed records and all guards; do not hand-edit artifacts.
+The plain-spacr pyqtgraph repair caption still lacks en.UI_SOURCES freshness
+in b200 run 37398419321. That run also exposes README light-install facts:
+821 MB claimed versus 1027 MB measured, and omitted excluded features/ at
+125 MiB. Re-measure normally before updating prose. These two owner scopes
+persist through 9cfc803c9; its Box README prose fix is preserved. Final hosted
+tests/coverage and uninterrupted serial Qt remain items 43/288/47, OPEN.
+Protocol 325 holds exact failing tests/jobs and the source-owner readback.
+
 ## 2026-10-05 maintainer correction — item 663 REOPENED
 The maintainer rejected all sixteen newly added flow themes: their shared
 thin-filament look does not meet the request. They are removed, including

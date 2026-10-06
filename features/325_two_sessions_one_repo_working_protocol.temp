@@ -18312,3 +18312,57 @@ tutorial and GPU ownership remains unchanged. No GPU process is scheduled.
 
 2026-10-05 workstation Home/Measure hosted publication: normal immutable upload and complete byte readback pass for all 4,852 files. All 85 hosted player routes pass against the exact pinned revision; all 26 translated Home/Measure entries are source-bound reviews. Normal Pages/checkpoint publication is ready for nightly. Mask 07, other 83 lessons and the accepted Conda scene are retained. Actual nightly deployment and mobile/video readback remain separate and pending. Receipt 615_home_measure_ui_publication_2026-10-05.json.
 2026-10-05 workstation standard-install generated acceptance: all nine languages pass normal strict API generation/audit at 13,181 symbols. Exactly three GUI-install public records changed in each of ten catalogs; all other 13,178 complete records remain identical. Current all-language full Sphinx build, 12 API catalog tests, six docstring tests, 35 runtime tests and 80 README/install tests pass. All nine guides strictly build and render six current installation/Box passages; all other accepted guide translations are retained. The current plain-spacr plot repair notice is reviewed in all nine languages and preserves all other 9,832 runtime rows and source hashes. Receipts 615_standard_installation_api/runtime/guides_2026-10-05.json. Removed flow-theme keys were not added; replacement API/docs/runtime work waits for Home source. PIP/platform tutorial installation follow-up and Make Masks YOLO authoring remain separate; Conda stays limited to its approved single Home scene.
+
+2026-10-05 — DISTINCT REPLACEMENT DATA-ART SOURCE AND CURRENT OWNER FAILURES
+Item 663 now contains twelve separate artwork families, not colour/pointer
+copies of a shared line renderer. Root and independent review inspected the
+completed actual-render gallery and high-resolution stills. All sixteen
+rejected flow_* presets remain removed. Final renderer/catalog source freeze
+is 5fd4e783e3473bf0e1517cbc2bf2fdb21563d500; integrated test checkpoint is
+68cf4d077. The scoped six-file ambient cohort passes 689/689 under 4 GiB,
+CUDA hidden and Qt offscreen. Independent coverage audits cover all 681 new
+renderer executable statements/158 added-origin arcs and all 18 catalog/
+theme/preferences statements/seven touching arcs. Item 663 holds precise
+performance, memory, motion, lifecycle and preview receipts. No full local
+or full Qt suite ran; no ratchet or memory/work ceiling was weakened.
+
+The normal 1920x1080 shaded frame has four times the rejected set's sampled
+pixels; 3840x2160 stills scale this frame rather than implying native-4K
+simulation. The original seven ambient engines/ten night themes remain.
+GPU/API/docs/translation/tutorial ownership stays with the workstation.
+Please begin normal source-current refresh for widgets/ambient.py,
+night_themes.py, theme.py and preferences.py after integrating this source.
+All twelve exact labels, notes and preset descriptions already occur in
+_indirect_runtime_ui_sources(): the ANIMATION_CHOICES inventory covers them.
+The historical instruction to add FLOW_THEMES is explicitly superseded;
+that registry and the flow_* presets no longer exist. Preserve complete old
+records and generated guards. No extractor patch or setting was added here.
+
+Read-only CI audit at 2026-10-06 02:12 UTC inspected remote 9cfc803c9e9bb6382f7468db004dbf6db7139e90:
+tests 37402885043 and docs 37402884844 were pending; compatibility 37402884814
+was queued. These do not establish green. Earlier b200 tests 37398419321
+was still running, with two precise remaining workstation-owned failures:
+
+1. Coverage shard 6 job 112064049792 failed two light-install README guards:
+tests/test_the_light_install_numbers_are_honest.py::test_the_checkout_size_in_the_readme_matches_the_tree
+(821 MB stated versus 1027 MB tracked) and
+::test_the_readme_names_every_large_thing_the_light_install_drops
+(excluded features/ is 125 MiB but absent from the light-install prose).
+The 9cfc README change adds Box only; it does not fix these facts. Re-measure
+with packaging/measure_clone_forms.sh, date the number and preserve guards.
+
+2. Coverage shard 5 job 112064049801 failed
+tests/qt/test_i18n_caption_ratchet.py::test_every_generated_catalog_candidate_has_a_source_hash.
+en.UI_SOURCES lacks the current candidate beginning "Interactive plots need
+pyqtgraph." and instructing "python -m pip install spacr". No runtime catalog
+change occurred from b200 to 9cfc. Regenerate/review normally, retaining all
+complete translated records; do not waive source-hash freshness.
+
+Older protected 8d21 run 37379945325 is now terminal failure. Its old replay
+optional-coverage/child-fixture failures were repaired by 55f5b70e0 and
+07f577534; the Box shortcut by d42aeb665; Box README by 9cfc803c9; YOLO API
+inventories were published in 3d9f02fe3. Its complete twelve-input aggregate
+identified three real coverage regressions already repaired through tests.
+These source repairs still need final exact-source hosted verification.
+Items 43/288/47 remain OPEN. No protected workflow was manually cancelled,
+no duplicate full workflow was dispatched, and no owner artifacts were edited.
