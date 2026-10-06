@@ -56,18 +56,17 @@ def _screen(qtbot, app_key="measure"):
 def test_none_is_offered_alongside_every_animation():
     """The list is pinned because the ORDER is the menu's order.
 
-    The five retained classics stay in order and six data-art styles append.
-    Stored preferences use names, so retained choices remain valid.
+    The preferred scenes lead, followed by the remaining offered animations.
+    Retired Ripples and Cells remain direct Python renderers, not menu choices.
     """
     ambient = _ambient()
-    original = ("blobs", "aurora", "ripple", "drift", "cells")
-    data_art = ("data_art_point_atlas", "data_art_tissue_facets",
-                "data_art_chromatin_ribbon", "data_art_genetic_advection",
-                "data_art_impulse_lens", "data_art_fungal_growth")
+    offered = ("data_art_impulse_lens", "data_art_genetic_advection",
+               "data_art_fungal_growth", "data_art_thore",
+               "data_art_point_atlas", "blobs", "aurora", "drift",
+               "data_art_tissue_facets", "data_art_chromatin_ribbon")
     assert ambient.NO_ANIMATION == "none"
-    assert ambient.ANIMATION_CHOICES == (ambient.NO_ANIMATION,) + \
-        original + data_art
-    assert ambient.AMBIENT_THEMES == original + data_art, (
+    assert ambient.ANIMATION_CHOICES == offered + (ambient.NO_ANIMATION,)
+    assert ambient.AMBIENT_THEMES == offered, (
         "None must not join the paintable themes: make_engine, "
         "_require_theme and every engine test mean 'can be drawn' by it")
 
@@ -94,8 +93,8 @@ def test_the_preference_round_trips_none():
     from spacr.qt import preferences as prefs
     ambient = _ambient()
 
-    prefs.set_ambient_animation("cells")
-    assert prefs.get_ambient_animation() == "cells"
+    prefs.set_ambient_animation("aurora")
+    assert prefs.get_ambient_animation() == "aurora"
     assert prefs.get_ambient_enabled() is True
 
     prefs.set_ambient_animation(ambient.NO_ANIMATION)
@@ -106,17 +105,17 @@ def test_the_preference_round_trips_none():
     # safe rather than raising deep inside a widget constructor.
     assert prefs.get_ambient_theme() in ambient.AMBIENT_THEMES
 
-    prefs.set_ambient_animation("cells")
+    prefs.set_ambient_animation("aurora")
     assert prefs.get_ambient_enabled() is True
 
 
 def test_choosing_none_does_not_lose_the_animation_you_had():
     from spacr.qt import preferences as prefs
     ambient = _ambient()
-    prefs.set_ambient_animation("cells")
+    prefs.set_ambient_animation("aurora")
     palette = prefs.get_ambient_palette()
     prefs.set_ambient_animation(ambient.NO_ANIMATION)
-    prefs.set_ambient_animation("cells")
+    prefs.set_ambient_animation("aurora")
     assert prefs.get_ambient_palette() == palette
 
 
@@ -124,6 +123,19 @@ def test_an_unknown_animation_is_refused_rather_than_stored():
     from spacr.qt import preferences as prefs
     with pytest.raises(ValueError):
         prefs.set_ambient_animation("nonexistent")
+
+
+@pytest.mark.parametrize("retired", ("ripple", "cells"))
+def test_retired_animation_keys_are_not_selectable_or_restored(retired):
+    from spacr.qt import preferences as prefs
+    ambient = _ambient()
+
+    assert retired not in ambient.ANIMATION_CHOICES
+    assert not ambient.is_valid_theme(retired)
+    with pytest.raises(ValueError):
+        prefs.set_ambient_animation(retired)
+    with pytest.raises(ValueError):
+        ambient.make_engine(retired, "spacr", "#101418")
 
 
 # ---------------------------------------------------------------------------
@@ -224,7 +236,7 @@ def test_turning_it_back_on_gives_the_backdrop_back(qtbot):
     qtbot.waitExposed(screen)
     assert screen._ambient is None
 
-    prefs.set_ambient_animation("ripple")
+    prefs.set_ambient_animation("blobs")
     screen.refresh_ambient_background()
     qtbot.wait(120)
     assert isinstance(screen._ambient, ambient.AmbientWidget)
