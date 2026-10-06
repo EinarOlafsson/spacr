@@ -205,13 +205,6 @@
       "translation": "चलने वाले तत्व कितने बड़े हैं: ब्लॉब की चौड़ाई, पर्दे की ऊंचाई, लहरों के बीच की दूरी, तारे का आकार, कोशिका का व्यास। हर एनीमेशन की अपनी सीमा के अनुसार स्केल किया जाता है, इसलिए एक ही सेटिंग का अर्थ सभी में एक जैसा होता है।"
     },
     {
-      "key": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
-      "source": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
-      "source_sha256": "ecf8d5190cb2844a1a90174e483138118389e7e9f0d67c99282adfb7f09203e1",
-      "table": "ui",
-      "translation": "कितनी चीज़ें हैं: ब्लॉब, aurora पर्दे, लहर स्रोत, तारे, bokeh डिस्क, कोशिकाएँ। घनत्व और विवरण एक ही लागत बजट साझा करते हैं, इसलिए दोनों का अधिकतम मांगने पर फ्रेम छोड़ने के बजाय घनत्व कम किया जाता है।"
-    },
-    {
       "key": "How much detail the animation is drawn with. This is the one that decides whether it looks pixelated: it sets how many pixels the picture is worked out in before it is stretched to fill the page. Costs roughly the square of what it says — 200 % is four times the work — so turn it down on a machine that is busy.",
       "source": "How much detail the animation is drawn with. This is the one that decides whether it looks pixelated: it sets how many pixels the picture is worked out in before it is stretched to fill the page. Costs roughly the square of what it says — 200 % is four times the work — so turn it down on a machine that is busy.",
       "source_sha256": "0f5cf9774f5be9f62e5f91817baaa8005779eb4f31b5d6b876f103d51f0da7bd",

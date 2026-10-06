@@ -1,0 +1,149 @@
+{
+  "schema": 1,
+  "scope": "Restore the Make Masks feature-guide referral in English and all nine localized READMEs through normal generation, reusing the original 2026-09-19 reviewed translations. Every other localized byte and original review file is unchanged.",
+  "english_README_sha256": "4805339d0ef0f9fb3cfb623ab3baf1e24be7f72babb7695f7f26f09dac6028b3",
+  "languages": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "normal_readme_generator_observed_exit_code": 0,
+  "exact_preservation_verifier_observed_exit_code": 0,
+  "existing_README_contracts_passed": 3,
+  "English_Make_Masks_referral_contract_passed": 1,
+  "reviews": "Original source-bound evidence reused without edits. New duplicate draft candidates were correctly rejected by the conflict gate and removed; original evidence was never replaced. No native-speaker claim.",
+  "limits": "This is a source/localized README acceptance, not website publication, native Qt acceptance or a completed API audit. Broader N615 stays OPEN.",
+  "artifacts": {
+    "features/data/615_readme_referral_2026-10-06/README-feature-referral-normal-refresh-r2.log.gz": {
+      "stored_sha256": "e40efefdc1b40af1a1882ae07f774fcd4f5f3f019920a0c8a010bedb6a14eb9a",
+      "original_sha256": "a4b66c8619f077d60abd5858fd4bee35254e3bdecf3c80c58cefcac2357946f3",
+      "original_bytes": 1000
+    },
+    "features/data/615_readme_referral_2026-10-06/README-feature-referral-preservation-r1.log.gz": {
+      "stored_sha256": "092ff562a6bc9b32237296c45a34173dc8ebdaf155177dd9b30a62acd5861da1",
+      "original_sha256": "d12c93360890761cb198840c58a60ceaaaa42b75d1420c2523f184d8e7bc18b1",
+      "original_bytes": 1006
+    },
+    "features/data/615_readme_referral_2026-10-06/README-feature-referral-preservation-r1.json.gz": {
+      "stored_sha256": "66e6d3e623fecbaf1e9377cd3d921bdb64566517c46658887dc702a747105839",
+      "original_sha256": "2eef8a34cd18198baff710de2f62320004164f697401a30ee108eb884460bdff",
+      "original_bytes": 3783
+    },
+    "features/data/615_readme_referral_2026-10-06/README-feature-referral-original-review-reuse-r1.json.gz": {
+      "stored_sha256": "7d4822f874665b5c6eb1795c1c49bb111348dfa9dccb87d8ea4e5627e9d700bf",
+      "original_sha256": "e540d59168d10e408b8b5e9c6e67642d28c25b1697d792129c71f0cd5e9bb402",
+      "original_bytes": 6180
+    },
+    "features/data/615_readme_referral_2026-10-06/README-feature-referral-existing-contracts-r1.log.gz": {
+      "stored_sha256": "7d06b0148b267efdf702831bcce13a9a5b21b6092478db1038965a5b97e10be0",
+      "original_sha256": "34c24eceba0beb075698da65ab0d0ca1b1209bac53f5253123a8151956d04000",
+      "original_bytes": 210
+    },
+    "features/data/615_readme_referral_2026-10-06/README-feature-referral-r1.log.gz": {
+      "stored_sha256": "c65a8e50f8a4c3bd5cb765f66ebffdd917a6e24e927e3c738f819df7d6440f22",
+      "original_sha256": "83e89cbc61e30d22ac3a3e8633ddc27a883c02e6ea753643e6f6c3d60d68bbcb",
+      "original_bytes": 210
+    },
+    "features/data/615_readme_referral_2026-10-06/check_readme_feature_referral_r1.py.gz": {
+      "stored_sha256": "be53d1fb04600a9021e5658e68f290eff9c833bacbe1a2b303e22198db170686",
+      "original_sha256": "185c432aafb99c515eb67f9dd7e37e1657b210abfe15e2e3aa68005f21ba26be",
+      "original_bytes": 1939
+    },
+    "features/data/615_readme_referral_2026-10-06/README.sv.rst.before.gz": {
+      "stored_sha256": "3c2e8ba1aa39bc4a4a6cf0f0dd8553c62592ec0340f1a11fe15b8faba4f07b23",
+      "original_sha256": "7bd785b5a7c1348311989b605b5a500a0e1178eecbc0cf6e21790d2db9eff7fe",
+      "original_bytes": 38356
+    },
+    "features/data/615_readme_referral_2026-10-06/sv-original-source-bound-review.json.gz": {
+      "stored_sha256": "de2063d1e55d171ab6fc9ef2d73f62eacc8bed1a592b129a2121be111a46fda3",
+      "original_sha256": "2ca1852fa1d119e1dcfb54093948abebfea9b32b8737fbd97a2910284d3e5b0d",
+      "original_bytes": 909
+    },
+    "features/data/615_readme_referral_2026-10-06/README.de.rst.before.gz": {
+      "stored_sha256": "265da4fc1e6cd9610daf612f979d493f0273cdb5cfeaa3bfbba8f5ab3f3a1178",
+      "original_sha256": "aa2a7feb9c006f1cadd3be8200f5e62a8093766fa91a3ced0f2786b808b8abe8",
+      "original_bytes": 39156
+    },
+    "features/data/615_readme_referral_2026-10-06/de-original-source-bound-review.json.gz": {
+      "stored_sha256": "a1422bd8ff459d6ce8462f5d6a67a360e05e6c2f335b447a4b92aa4ea99e4f5a",
+      "original_sha256": "d0db4efb628fc314439c89c0ac38d74a6e69259b7c521ced16b80bb4541bcd4c",
+      "original_bytes": 950
+    },
+    "features/data/615_readme_referral_2026-10-06/README.es.rst.before.gz": {
+      "stored_sha256": "f9ab1ec48c30e054d2fd33a3f1153cc50f011630d30eaab07ce8853e60fb4aea",
+      "original_sha256": "b22cbd0117438fa3cb47d0b86c8cb28b1719e09eefe6b5392ba03266dacd9831",
+      "original_bytes": 39279
+    },
+    "features/data/615_readme_referral_2026-10-06/es-original-source-bound-review.json.gz": {
+      "stored_sha256": "4461467f8b1b785c568833d74ccd715cb5dbf7cd31c830d126d45b1dbb46510d",
+      "original_sha256": "f36ec96e045f90ac607f8a6856d52c62de83204cc24b4eb3124cadc159bdb61e",
+      "original_bytes": 1003
+    },
+    "features/data/615_readme_referral_2026-10-06/README.zh_CN.rst.before.gz": {
+      "stored_sha256": "bd186cfbb44ed015f781956757bd35853e601e6deb201f5d9b6602c7619a186d",
+      "original_sha256": "f1a0126e189baf067e990e00607c17a0d1f9b0602c7a46e9ef7006ee25d05882",
+      "original_bytes": 35788
+    },
+    "features/data/615_readme_referral_2026-10-06/zh_CN-original-source-bound-review.json.gz": {
+      "stored_sha256": "2484a51c789c139ad85630035347e33a0cb30300a41e939c2114ed94850054ca",
+      "original_sha256": "ac532f32108a7781a9a784b658e9548168dd80f8b5ef18e4cab6d127e47c1b89",
+      "original_bytes": 919
+    },
+    "features/data/615_readme_referral_2026-10-06/README.pt.rst.before.gz": {
+      "stored_sha256": "a0d9f89a07277d0fbd5d66536ea3f84867a9f2be7fa2d80704d7e8d7f36ad55c",
+      "original_sha256": "1927ef93ba70160f5ae904b42a6a34dbfbcce8966f1419b3381835ad44ea773b",
+      "original_bytes": 38915
+    },
+    "features/data/615_readme_referral_2026-10-06/pt-original-source-bound-review.json.gz": {
+      "stored_sha256": "0cea2402b8c6db962d44ba13ac13d46f348e7374959b8807752c7f0e6c73663f",
+      "original_sha256": "4614ed0a4d97515ab3c216795c6971775e4b51020a41ccab5fde5fc8eed9f3c4",
+      "original_bytes": 974
+    },
+    "features/data/615_readme_referral_2026-10-06/README.hi.rst.before.gz": {
+      "stored_sha256": "5be5a952a50155e8de2c362c2faed6f799abf368a9842c92c9b7e4cfe9a0d603",
+      "original_sha256": "1b2c156befdd787949b1032724205ce04a1b3dd63f9e9f5484c156a10c756c44",
+      "original_bytes": 54875
+    },
+    "features/data/615_readme_referral_2026-10-06/hi-original-source-bound-review.json.gz": {
+      "stored_sha256": "a35044199fb43910038a2cc4a44b39e7cfb1f2e8ffacb108330a9ff2e8e94b7d",
+      "original_sha256": "361a4e9174cf6317ae74e830f6b531ba7edcce9482b126ed5f369f23ff4929d1",
+      "original_bytes": 1246
+    },
+    "features/data/615_readme_referral_2026-10-06/README.ko.rst.before.gz": {
+      "stored_sha256": "1cdc95e0ef3fc7715e850464140140e6cbc249d2360c5b42a62d27ef7d14499a",
+      "original_sha256": "534385fad8e9d5d01c8704d256d2e0ccf8eea63be028dac6e37c298d768c8991",
+      "original_bytes": 39494
+    },
+    "features/data/615_readme_referral_2026-10-06/ko-original-source-bound-review.json.gz": {
+      "stored_sha256": "da1803de4c5724aa39c9616a1857822fa7f00ed0a27f7b6cd4bc79f34ed78c48",
+      "original_sha256": "2568e13462c50a164e1c6723a625a0c78441126e87c5264362ef869c5dddd34b",
+      "original_bytes": 1020
+    },
+    "features/data/615_readme_referral_2026-10-06/README.is.rst.before.gz": {
+      "stored_sha256": "ef61ea9864ebbe9e7893b20a9e80ad4073b77708107e3a59966e62177ad3c8ac",
+      "original_sha256": "3d64b6dce1ea9a992cf0daa921ac30e87ef4b6f83abbbdf40e6026df4a30c43b",
+      "original_bytes": 37647
+    },
+    "features/data/615_readme_referral_2026-10-06/is-original-source-bound-review.json.gz": {
+      "stored_sha256": "3ea25ee5aecad0c68ce95d94364a6dc5e9f47eb0fa914128e3d8bf7eef4c901a",
+      "original_sha256": "4ee791f3435a9d561fe8ac2c0e98b1598912da6ab7c666c7b637886b6977cf66",
+      "original_bytes": 935
+    },
+    "features/data/615_readme_referral_2026-10-06/README.fr.rst.before.gz": {
+      "stored_sha256": "a3a940db4224baa65bc3ce27aa2df385f72ca8c065747f885cffcdb177d68f82",
+      "original_sha256": "99f000c68cece3f37d3ff384c0d8561df6984ca9a5491ffdf58056b32858c047",
+      "original_bytes": 39928
+    },
+    "features/data/615_readme_referral_2026-10-06/fr-original-source-bound-review.json.gz": {
+      "stored_sha256": "cfcb48c20b0ca03ffe71463f1689607395f4e494747d30a6c3fa91b8db5acc69",
+      "original_sha256": "ebc3193783a0cdc9d24ab8b5b446697ae6d99b3d90ee2b8fe6cca12bafba8e55",
+      "original_bytes": 954
+    }
+  }
+}

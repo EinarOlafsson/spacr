@@ -82,6 +82,8 @@ Les modules de segmentation, de mesure, d'annotation et de classification foncti
 
 Make Masks corrige les masques de segmentation et annote des rectangles indépendants avec des étiquettes de classe grâce à l’outil **Box** pour l’export YOLO. Les rectangles conservent leurs propres étiquettes et leur historique sans modifier les images ni les masques sources.
 
+Chaque outil est décrit dans le `guide des fonctionnalités <../../source/features.rst>`_.
+
 Les images, masques, vignettes, mesures, annotations, prédictions, codes-barres et identifiants de puits résident dans un seul projet SQLite.
 
 Fonctionne comme une application de bureau ou sans interface graphique sur un poste de travail, un serveur ou un cluster.

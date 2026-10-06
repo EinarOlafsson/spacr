@@ -149,13 +149,6 @@
       "translation": "Hur snabbt animeringen rör sig, i förhållande till den hastighet varje animering utformades för. Den gäller för alla sorters rörelser i den valda animeringen på en gång, och att ändra den får aldrig det som redan visas på skärmen att hoppa."
     },
     {
-      "key": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
-      "source": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
-      "source_sha256": "ecf8d5190cb2844a1a90174e483138118389e7e9f0d67c99282adfb7f09203e1",
-      "table": "ui",
-      "translation": "Hur många saker det finns: klickar, norrskensridåer, krusningskällor, stjärnor, bokeh-skivor, celler. Täthet och detaljnivå delar en gemensam kostnadsbudget, så om du begär maximalt av båda minskas tätheten i stället för att bildrutor tappas."
-    },
-    {
       "key": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
       "source": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
       "source_sha256": "ab388434f351b32a1a3bd22c13c65396a1c054d164983bd5fc2683dc718f85a4",

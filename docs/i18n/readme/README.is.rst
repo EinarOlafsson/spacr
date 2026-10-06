@@ -82,6 +82,8 @@ Segmingu, mæling, notkun og flokksmiðju mótmælur virkar einnig án sekkunara
 
 Make Masks leiðréttir skiptingargrímur og merkir sjálfstæða rétthyrninga með flokkamerkjum með **Box** verkfærinu fyrir YOLO-útflutning. Rammarnir halda eigin merkjum og sögu án þess að breyta upprunamyndum eða grímum.
 
+Hvert verkfæri er útskýrt í `eiginleikahandbókinni <../../source/features.rst>`_.
+
 Myndir, grímur, myndúrklippur, mælingar, merkingar, spár, strikamerki og auðkenni brunna eru geymd í einu SQLite-verkefni.
 
 Keyrist sem skjáborðsforrit eða án grafísks viðmóts á vinnustöð, þjóni eða reikniklasa.

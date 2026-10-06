@@ -196,6 +196,29 @@ _RETIRED_BY_600B = {
 }
 
 
+def _theme_cohort_retirements(language, filename):
+    """Prove the two source retirements without changing historical pins."""
+    hashes = {
+        "2026-09-15-integration-review.json":
+            "ecf8d5190cb2844a1a90174e483138118389e7e9f0d67c99282adfb7f09203e1",
+        "2026-09-21-runtime-ui-refresh.json":
+            "87207bbab69e5a41953bdd89ebdac39d93f4c990e26a5b7ca8a0a715c58bbcf1",
+        "2026-09-21-runtime-third-slice.json":
+            "87207bbab69e5a41953bdd89ebdac39d93f4c990e26a5b7ca8a0a715c58bbcf1",
+    }
+    if filename not in hashes:
+        return set()
+    folder = ROOT / "docs/i18n/reviewed/runtime" / language
+    original = json.loads((folder / "archive/2026-10-06-home-cell-dino-save-themes"
+                           / filename).read_text())["records"]
+    current = json.loads((folder / filename).read_text())["records"]
+    retired = [row for row in original if row["source_sha256"] == hashes[filename]]
+    assert len(retired) == 1
+    assert hashlib.sha256(retired[0]["source"].encode()).hexdigest() == hashes[filename]
+    assert current == [row for row in original if row not in retired]
+    return {row["source"] for row in retired}
+
+
 def _with_training_sample_replacements(document, language, filename):
     archive = ROOT / "features/data/450_451_retired_runtime_review_2026-09-27" / language / filename
     if not archive.exists():
@@ -209,6 +232,8 @@ def _with_training_sample_replacements(document, language, filename):
                 if json.loads(row)["source"] in _RETIRED_BY_600B}
     features = [json.loads(row) for row in features]
     original = [row for row in original if row not in features]
+    theme_retired = _theme_cohort_retirements(language, filename)
+    original = [row for row in original if row["source"] not in theme_retired]
     retired = [row for row in original if row not in retained]
     assert len(retired) == (2 if filename == "2026-09-21-runtime-ui-refresh.json" else 1)
     replacements = {
@@ -334,7 +359,23 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     # tooltip gained its cuCIM sentence, so its record moved to
     # retired_records; the current wording is in the alpha-batch file.
     # 2026-10-05: the watch_folder microscope-feedback tooltip was rewritten.
-    assert len(seventh) == len(latest7) == (166 if language == "hi" else 131)
+    original = json.loads((folder / "archive/2026-10-06-subcell-rybg/"
+                           "2026-09-27-runtime-codex-delta.json").read_text())["records"]
+    retired = [record for record in original if record["source_sha256"] ==
+               "d25bb244df4fcf08909bd1d860d55646aa14346420a9fc0dcace7c696cbce162"]
+    assert len(retired) == 1
+    assert seventh == [record for record in original if record not in retired]
+    assert len(original) == len({record["source"] for record in original}) == (
+        166 if language == "hi" else 131)
+    assert len(seventh) == len(latest7) == len(original) - len(retired)
+    assert retired[0]["source"] not in reviewed
+    replacements = json.loads((folder / "2026-10-06-home-cell-dino-save-themes.json"
+                               ).read_text())["records"]
+    replacement = [record for record in replacements if record["source"].startswith(
+        "A model trained on microscopy rather than photographs.")]
+    assert len(replacement) == 1
+    assert "local official checkpoint, declared SHA-256" in replacement[0]["source"]
+    assert reviewed[replacement[0]["source"]] == replacement[0]["translation"]
     assert not latest7 & sources
     sources |= latest7
     discovery = json.loads((folder / "2026-09-27-gpu-discovery.json").read_text())["records"]
@@ -440,6 +481,11 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     )
 
     reviewed = reviewed_runtime_translations("sv")
+    base_retired = _theme_cohort_retirements("sv", "2026-09-15-integration-review.json")
+    refresh_retired = _theme_cohort_retirements("sv", "2026-09-21-runtime-ui-refresh.json")
+    cohort_retired = base_retired | refresh_retired
+    assert len(base_retired) == len(refresh_retired) == 1
+    assert not cohort_retired & reviewed.keys()
     # +269 distinct UI/category sources, with three OPS descriptions shared
     # between both tables (272 records). The detection-panel consolidation
     # retired five source captions, preserving their records in the archive.
@@ -454,8 +500,8 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # moved to _ROWS (kept under retired_records): 259 -> 242, 256 -> 239.
     # 600b, 2026-09-29: the Features button's tooltip was retired (Make
     # Masks' button removed): 242 -> 241, 239 -> 238.
-    assert len(ui_refresh["records"]) == 241  # Three old threshold/histogram reviews archived.
-    assert len(ui_sources) == 238
+    assert len(ui_refresh["records"]) + len(refresh_retired) == 241  # Three old threshold/histogram reviews archived.
+    assert len(ui_sources) + len(refresh_retired) == 238
     assert ui_sources <= reviewed.keys()
     all_reviewed = reviewed
     examples = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
@@ -654,23 +700,23 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # the seven sv records of their labels and tooltips were deleted from
     # 2026-09-15-mask-mean-bounds.json (the English is gone).
     # 2026-10-05: Bar alpha left the UI, so its reviewed source was retired.
-    assert len(older_sources - added_sources - background_sources) == 304  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(older_sources - added_sources - background_sources) + len(base_retired) == 304  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
     # +8/-0: four source-bound background labels and four scientific tooltips.
-    assert len(older_sources - background_sources) == 311  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
-    assert len(older_sources) == 319  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
-    assert len(reviewed.keys() - sample_sources) == 358  # +39 scientific sources. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
-    assert len(reviewed) == 361  # Features, Controls and Quality use compact rows. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(older_sources - background_sources) + len(base_retired) == 311  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(older_sources) + len(base_retired) == 319  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(reviewed.keys() - sample_sources) + len(base_retired) == 358  # +39 scientific sources. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(reviewed) + len(base_retired) == 361  # Features, Controls and Quality use compact rows. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
     # The new panel cohort also reuses the earlier whole-field model tooltip.
     # 316 (71071b6c6) retired 17 setup and sign-in captions to _ROWS: -17 below;
     # the total also loses its sign-in-status record and a superseded psf-help record.
-    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 598  # 600b (2026-09-29): -1, the Features tooltip retired.  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
-    assert len(older_all_sources - preview_sources - normalized_sources) == 605  # 600b (2026-09-29): -1, the Features tooltip retired.  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
-    assert len(older_all_sources - normalized_sources) == 610  # 600b (2026-09-29): -1, the Features tooltip retired.  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).  # 600b (2026-09-29): -1, the Features tooltip retired.
-    assert len(older_all_sources) == 615  # 600b (2026-09-29): -1, the Features tooltip retired.  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) + len(cohort_retired) == 598  # 600b (2026-09-29): -1, the Features tooltip retired.  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(older_all_sources - preview_sources - normalized_sources) + len(cohort_retired) == 605  # 600b (2026-09-29): -1, the Features tooltip retired.  # Item 511 retired four filter captions. Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).
+    assert len(older_all_sources - normalized_sources) + len(cohort_retired) == 610  # 600b (2026-09-29): -1, the Features tooltip retired.  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(older_all_sources) + len(cohort_retired) == 615  # 600b (2026-09-29): -1, the Features tooltip retired.  # Item 511 retirement (2026-09-25): -7.  # 316 fourth pass (2026-09-26): -1, the percentiles tooltip record left 2026-08-14-exact-final.json (its English changed).  # 600b (2026-09-29): -1, the Features tooltip retired.
     # Item463 retired one superseded download tooltip; its full old evidence
     # and exact set difference are checked by _new_download_sources above.
-    assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) == 625  # 600b (2026-09-29): -1, the Features tooltip retired.
-    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1679  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) + len(cohort_retired) == 625  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) + len(cohort_retired) == 1679  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -690,6 +736,11 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     )
 
     all_reviewed = reviewed_runtime_translations("fr")
+    base_retired = _theme_cohort_retirements("fr", "2026-09-15-integration-review.json")
+    refresh_retired = _theme_cohort_retirements("fr", "2026-09-21-runtime-third-slice.json")
+    cohort_retired = base_retired | refresh_retired
+    assert len(base_retired) == len(refresh_retired) == 1
+    assert not cohort_retired & all_reviewed.keys()
     refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-runtime-first-slice.json").read_text())
     refresh_sources = {record["source"] for record in refresh["records"]}
@@ -718,11 +769,13 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
         document = _with_training_sample_replacements(
             document, "fr", f"2026-09-21-runtime-{filename}-slice.json")
         added = {record["source"] for record in document["records"]}
-        assert len(document["records"]) == len(added) == expected
+        retired_slice = _theme_cohort_retirements(
+            "fr", f"2026-09-21-runtime-{filename}-slice.json")
+        assert len(document["records"]) + len(retired_slice) == len(added) + len(retired_slice) == expected
         assert added <= all_reviewed.keys()
         assert not added & refresh_sources
         refresh_sources |= added
-    assert len(refresh_sources) == 277  # 600b (2026-09-29): -1, the Features tooltip retired.  # Three superseded threshold/histogram sources.
+    assert len(refresh_sources) + len(refresh_retired) == 277  # 600b (2026-09-29): -1, the Features tooltip retired.  # Three superseded threshold/histogram sources.
     actions = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-action-labels.json").read_text())
     action_sources = {record["source"] for record in actions["records"]}
@@ -911,19 +964,19 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # 305 -> 293 on 2026-09-25, item 511: the twelve fr records of the
     # retired cell, nucleus and pathogen mean bounds were deleted from
     # 2026-09-15-mask-mean-bounds.json (the English is gone).
-    assert len(reviewed.keys() - added_sources - background_sources - sample_sources) == 293
+    assert len(reviewed.keys() - added_sources - background_sources - sample_sources) + len(base_retired) == 293
     # +8/-0: four source-bound background labels and four scientific tooltips.
-    assert len(reviewed.keys() - background_sources - sample_sources) == 300  # Item 511 retirement (2026-09-25): -12.
-    assert len(reviewed.keys() - sample_sources) == 308  # Item 511 retirement (2026-09-25): -12.
-    assert len(reviewed) == 311  # Features, Controls and Quality use compact rows. Item 511 retirement (2026-09-25): -12.
-    assert len(older_all_sources - preview_sources - normalized_sources) == 318  # Item 511 retirement (2026-09-25): -12.
-    assert len(older_all_sources - normalized_sources) == 323  # Item 511 retirement (2026-09-25): -12.
-    assert len(older_all_sources) == 328  # Item 511 retirement (2026-09-25): -12.
+    assert len(reviewed.keys() - background_sources - sample_sources) + len(base_retired) == 300  # Item 511 retirement (2026-09-25): -12.
+    assert len(reviewed.keys() - sample_sources) + len(base_retired) == 308  # Item 511 retirement (2026-09-25): -12.
+    assert len(reviewed) + len(base_retired) == 311  # Features, Controls and Quality use compact rows. Item 511 retirement (2026-09-25): -12.
+    assert len(older_all_sources - preview_sources - normalized_sources) + len(base_retired) == 318  # Item 511 retirement (2026-09-25): -12.
+    assert len(older_all_sources - normalized_sources) + len(base_retired) == 323  # Item 511 retirement (2026-09-25): -12.
+    assert len(older_all_sources) + len(base_retired) == 328  # Item 511 retirement (2026-09-25): -12.
     # Item463 retired the one superseded download tooltip, proven above.
-    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources - inherited_sources) == 338
+    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources - inherited_sources) + len(base_retired) == 338
     # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
-    assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) == 619  # 600b (2026-09-29): -1, the Features tooltip retired.
-    assert len(all_reviewed.keys() - debt_sources - inherited_sources) == 1672  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) + len(cohort_retired) == 619  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) + len(cohort_retired) == 1672  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

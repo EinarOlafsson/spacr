@@ -163,13 +163,6 @@
       "translation": "Wie schnell sich die Animation bewegt, gemessen an der Geschwindigkeit, für die jede Animation entworfen wurde. Sie gilt für alle Bewegungsarten der gewählten Animation zugleich, und eine Änderung lässt das, was bereits auf dem Bildschirm ist, nie springen."
     },
     {
-      "key": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
-      "source": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
-      "source_sha256": "ecf8d5190cb2844a1a90174e483138118389e7e9f0d67c99282adfb7f09203e1",
-      "table": "ui",
-      "translation": "Wie viele Elemente es gibt: Blobs, Polarlichtvorhänge, Wellenquellen, Sterne, Bokeh-Scheiben, Zellen. Dichte und Detail teilen sich ein Kostenbudget, daher wird bei maximalen Werten für beide die Dichte reduziert, statt Bilder auszulassen."
-    },
-    {
       "key": "How much detail the animation is drawn with. This is the one that decides whether it looks pixelated: it sets how many pixels the picture is worked out in before it is stretched to fill the page. Costs roughly the square of what it says — 200 % is four times the work — so turn it down on a machine that is busy.",
       "source": "How much detail the animation is drawn with. This is the one that decides whether it looks pixelated: it sets how many pixels the picture is worked out in before it is stretched to fill the page. Costs roughly the square of what it says — 200 % is four times the work — so turn it down on a machine that is busy.",
       "source_sha256": "0f5cf9774f5be9f62e5f91817baaa8005779eb4f31b5d6b876f103d51f0da7bd",

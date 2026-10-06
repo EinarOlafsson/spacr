@@ -240,13 +240,6 @@
       "translation": "움직이는 요소의 크기입니다: 블롭 너비, 커튼 높이, 물결 사이 간격, 별 크기, 세포 지름. 각 애니메이션 고유의 범위를 기준으로 조정되므로 같은 설정값은 모든 애니메이션에서 같은 의미입니다."
     },
     {
-      "key": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
-      "source": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
-      "source_sha256": "ecf8d5190cb2844a1a90174e483138118389e7e9f0d67c99282adfb7f09203e1",
-      "table": "ui",
-      "translation": "요소의 개수입니다: 블롭, 오로라 커튼, 물결 발생원, 별, bokeh 원판, 세포. 밀도와 디테일은 하나의 비용 예산을 공유하므로 둘 다 최대로 요청하면 프레임을 건너뛰는 대신 밀도를 줄입니다."
-    },
-    {
       "key": "How much detail the animation is drawn with. This is the one that decides whether it looks pixelated: it sets how many pixels the picture is worked out in before it is stretched to fill the page. Costs roughly the square of what it says — 200 % is four times the work — so turn it down on a machine that is busy.",
       "source": "How much detail the animation is drawn with. This is the one that decides whether it looks pixelated: it sets how many pixels the picture is worked out in before it is stretched to fill the page. Costs roughly the square of what it says — 200 % is four times the work — so turn it down on a machine that is busy.",
       "source_sha256": "0f5cf9774f5be9f62e5f91817baaa8005779eb4f31b5d6b876f103d51f0da7bd",

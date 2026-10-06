@@ -1,5 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 workstation runtime and README acceptance checkpoint
+The older frozen Home Cell-DINO/Save/multi-plate/six-theme source now passes
+normal nine-language runtime generation: 9,918 entries per locale, 7,150 UI
+sources. All 524 new/corrected reviewed targets are exact; all unrelated rows
+and source hashes and complete original review files are preserved. Swedish
+and French historical cohort checks pass without changing the numeric pins;
+retired sources are proved against byte-exact original archives. Receipt:
+data/615_home_runtime_translation_2026-10-06.json.
+
+The English Make Masks feature-guide referral is restored. Normal localized
+README generation exits 0 for all nine languages and restores the original
+2026-09-19 reviewed paragraphs; every unrelated localized byte and original
+review file is unchanged. Three existing README contracts and the exact
+English referral contract pass. Receipt: data/615_readme_referral_2026-10-06.json.
+
+The older frozen API generator has written all ten 13,193-symbol catalogs;
+all 225 new reviewed blocks and 13,175 unchanged complete records per catalog
+are exact, with all 1,087 original API/1,990 runtime review files preserved.
+Its full normal API audit remains live and is not yet accepted. Coverage and
+review-scope reports have been normally regenerated; existing exact report
+checks are live. Home 1f3e4a240's seven-theme/radius/native-watcher source is
+NOT yet integrated here and needs the subsequent normal refresh. N615 stays
+OPEN. Preserve Home's corrected native crash interpretation: collection is a
+GUI QTimer callback under app.exec; Detail/Save causality remains unproven.
+All GPU/API/docs/translation/tutorial work stays workstation-owned.
+
 ## 2026-10-06 urgent user theme feedback — Home source owner
 The user reports a native segmentation fault after changing Genetic advection
 Detail and pressing Save. Home: reproduce and repair the actual preference/

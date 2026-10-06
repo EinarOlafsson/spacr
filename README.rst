@@ -89,6 +89,8 @@ Make Masks corrects segmentation masks and annotates independent,
 class-labelled rectangles with the **Box** tool for YOLO export. Boxes keep
 their own labels and history without changing source images or masks.
 
+See the `feature guide <docs/source/features.rst>`_ for each tool.
+
 Images, masks, crops, measurements, annotations, predictions, barcodes and
 well identifiers live in one SQLite project.
 

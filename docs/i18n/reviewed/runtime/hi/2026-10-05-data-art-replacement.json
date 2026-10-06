@@ -1,177 +1,79 @@
 {
-  "schema": 1,
   "language": "hi",
-  "source_commit": "3053b081512d6f598a1aba76dac2393de31ba48a",
-  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff",
   "note": "Twelve distinct data-art labels and descriptions from the actual replacement registry. These describe decorative artwork, not measurements or biological simulation. Four descriptions retain cursor interaction. The removed flow registry is not reintroduced; all earlier complete catalog records are preserved.",
   "records": [
     {
-      "table": "ui",
       "key": "Spatial point atlas",
       "source": "Spatial point atlas",
       "source_sha256": "43074da4fced7c9693a6c7c9d37d7df66e8715feee38ef05feaf194cfa705cdf",
+      "table": "ui",
       "translation": "स्थानिक बिंदु मानचित्र"
     },
     {
-      "table": "ui",
       "key": "A finely sampled three-dimensional point landscape with depth and cursor-driven parallax.",
       "source": "A finely sampled three-dimensional point landscape with depth and cursor-driven parallax.",
       "source_sha256": "9c0cc11bb3ff966c9c4f0126cb9db80e9b9bbea718f5cf2db4d782305fde5022",
+      "table": "ui",
       "translation": "बारीकी से नमूनाकृत त्रिविमीय बिंदु परिदृश्य, जिसमें गहराई और कर्सर से नियंत्रित लंबन है।"
     },
     {
-      "table": "ui",
       "key": "Tissue facets",
       "source": "Tissue facets",
       "source_sha256": "3b5391060739ab881bebb8e4133802b832804c6f50f18459ce7f1c4051750981",
+      "table": "ui",
       "translation": "ऊतक फलक"
     },
     {
-      "table": "ui",
       "key": "A crystalline tissue mosaic of shaded geometric facets, with slowly changing local relief.",
       "source": "A crystalline tissue mosaic of shaded geometric facets, with slowly changing local relief.",
       "source_sha256": "2bf26a61ca87131d044173b91e5aa60ec01049f6e73768f466abf129a84a5e0f",
+      "table": "ui",
       "translation": "छायांकित ज्यामितीय फलकों से बना स्फटिक जैसा ऊतक मोज़ेक, जिसकी स्थानीय ऊँचाई-निचाई धीरे बदलती है।"
     },
     {
-      "table": "ui",
-      "key": "Spatial strata",
-      "source": "Spatial strata",
-      "source_sha256": "359306147db1ee61fe052424c3af4d978f29858e5daed076e7a10cacb10472dd",
-      "translation": "स्थानिक परतें"
-    },
-    {
-      "table": "ui",
-      "key": "Fine stacked topographic layers form a moving spatial relief with precise depth and contour detail.",
-      "source": "Fine stacked topographic layers form a moving spatial relief with precise depth and contour detail.",
-      "source_sha256": "2d3ec9628162fff433bb4df727fa11ce0c523d3b5a7576b3c4d1a4851df031f6",
-      "translation": "बारीक, एक के ऊपर एक रखी स्थलाकृतिक परतें गतिशील स्थानिक उभार बनाती हैं, जिसमें गहराई और समोच्च का सटीक विवरण है।"
-    },
-    {
-      "table": "ui",
-      "key": "Molecular helix",
-      "source": "Molecular helix",
-      "source_sha256": "4e5b35d940f6d742cccd73822544671d9baef4c709be769dbb7507ff8b172ae5",
-      "translation": "आणविक कुंडलिनी"
-    },
-    {
-      "table": "ui",
-      "key": "A rotating molecular helix of shaded beads and paired bases, with perspective and depth.",
-      "source": "A rotating molecular helix of shaded beads and paired bases, with perspective and depth.",
-      "source_sha256": "a3ccbf21cc1075bac402eae5d1823c0b5bc831c647273e9d30cce79968bd68ac",
-      "translation": "छायांकित मोतियों और युग्मित क्षारकों से बनी घूमती आणविक कुंडलिनी, जिसमें परिप्रेक्ष्य और गहराई है।"
-    },
-    {
-      "table": "ui",
       "key": "Chromatin satin",
       "source": "Chromatin satin",
       "source_sha256": "50034da660d85c393f7cdb76309c64679d1204c636b436fd373fcfe5b4608f80",
+      "table": "ui",
       "translation": "क्रोमैटिन साटन"
     },
     {
-      "table": "ui",
       "key": "Folded satin-like chromatin ribbons carry fine fibres through soft, interwoven surfaces.",
       "source": "Folded satin-like chromatin ribbons carry fine fibres through soft, interwoven surfaces.",
       "source_sha256": "b040a24580220534339179c6ddf337deacbbaef6cd80c3381999bc76bd9746dd",
+      "table": "ui",
       "translation": "मुड़े हुए साटन जैसे क्रोमैटिन रिबन बारीक तंतुओं को कोमल, आपस में बुनी सतहों से गुज़ारते हैं।"
     },
     {
-      "table": "ui",
-      "key": "Genome mosaic",
-      "source": "Genome mosaic",
-      "source_sha256": "083ef96d735910bece0c4ccac2c002be5763db1c6bf0b729b297121e89e0a8ba",
-      "translation": "जीनोम मोज़ेक"
-    },
-    {
-      "table": "ui",
-      "key": "A layered genome mosaic of tiny encoded tiles shifts through an architectural sequence field.",
-      "source": "A layered genome mosaic of tiny encoded tiles shifts through an architectural sequence field.",
-      "source_sha256": "b2caa5955ae7a75bf1ae0cbf1db8d156adae1e40b26437121234ea115d4b753d",
-      "translation": "छोटी कूटबद्ध टाइलों से बना परतदार जीनोम मोज़ेक एक स्थापत्य-जैसे अनुक्रम क्षेत्र में खिसकता है।"
-    },
-    {
-      "table": "ui",
-      "key": "Transcript rain",
-      "source": "Transcript rain",
-      "source_sha256": "c78ac6cf8b002da6e5de841c9d3a7ece1833c0ca7ba54c69fd87e5f557ef03a0",
-      "translation": "ट्रांसक्रिप्ट वर्षा"
-    },
-    {
-      "table": "ui",
-      "key": "Fine falling transcription marks stream through a layered field of genetic information.",
-      "source": "Fine falling transcription marks stream through a layered field of genetic information.",
-      "source_sha256": "5df69ad10fea35ef21ab75c64589736a00aabd3a2b02325c5589d8b804d7902f",
-      "translation": "गिरते हुए बारीक प्रतिलेखन चिह्न आनुवंशिक सूचना के परतदार क्षेत्र में बहते हैं।"
-    },
-    {
-      "table": "ui",
-      "key": "Regulatory circuit",
-      "source": "Regulatory circuit",
-      "source_sha256": "c457f60d4c191d700d756997151e66d9e2474c395cebd346312081736904ffc5",
-      "translation": "नियामक परिपथ"
-    },
-    {
-      "table": "ui",
-      "key": "An etched regulatory circuit routes pulses through precise orthogonal paths and small control nodes.",
-      "source": "An etched regulatory circuit routes pulses through precise orthogonal paths and small control nodes.",
-      "source_sha256": "930c49a79f0dc7a2a1e16b7b346e885bded4c49bd6f4e788a497c2e49babd4ce",
-      "translation": "एक उकेरा हुआ नियामक परिपथ सटीक समकोणीय पथों और छोटे नियंत्रण नोडों से स्पंदों को भेजता है।"
-    },
-    {
-      "table": "ui",
       "key": "Genetic advection",
       "source": "Genetic advection",
       "source_sha256": "747c0cbb173381175ed4590248a89d35b6fea72b4e67d43b60b300eb2d960920",
+      "table": "ui",
       "translation": "आनुवंशिक अभिवहन"
     },
     {
-      "table": "ui",
       "key": "Thousands of fine genetic-flow particles move through a continuous wind-like field that bends near the cursor.",
       "source": "Thousands of fine genetic-flow particles move through a continuous wind-like field that bends near the cursor.",
       "source_sha256": "047c6e042cc4d4ef0e123f571d3f55839d787eb8343acbaff46c235d84537191",
+      "table": "ui",
       "translation": "आनुवंशिक प्रवाह के हज़ारों बारीक कण हवा जैसे एक सतत क्षेत्र में चलते हैं, जो कर्सर के पास मुड़ता है।"
     },
     {
-      "table": "ui",
-      "key": "Perturbation interference",
-      "source": "Perturbation interference",
-      "source_sha256": "09a7ed8fffbe54b5c705715b631145fe3e2a4d774cb8e2a36e5c9269b10f1dfb",
-      "translation": "विक्षोभ व्यतिकरण"
-    },
-    {
-      "table": "ui",
-      "key": "Smooth interference waves form a changing pearlescent field, distorted locally by the cursor.",
-      "source": "Smooth interference waves form a changing pearlescent field, distorted locally by the cursor.",
-      "source_sha256": "a62f9f39f71f5fb959bc9ea6b2f5f6b845259fd87907f4e1e593d1bbb86e582a",
-      "translation": "चिकनी व्यतिकरण तरंगें बदलता हुआ मोती जैसा चमकीला क्षेत्र बनाती हैं, जिसे कर्सर स्थानीय रूप से विकृत करता है।"
-    },
-    {
-      "table": "ui",
-      "key": "Morphogenesis",
-      "source": "Morphogenesis",
-      "source_sha256": "0458851d08a040bb5981440ebb021d062f89aa670915ad86aa6920d7fdb8de36",
-      "translation": "आकारजनन"
-    },
-    {
-      "table": "ui",
-      "key": "A fine organic pattern of changing spots and labyrinths evokes the emergence of biological structure.",
-      "source": "A fine organic pattern of changing spots and labyrinths evokes the emergence of biological structure.",
-      "source_sha256": "82d40363f1ea9c40f2ee44220a602ad87ffa40ac541b334a52607fc9403f28db",
-      "translation": "बदलते धब्बों और भूलभुलैयों का बारीक जैविक पैटर्न जैविक संरचना के उभरने की याद दिलाता है।"
-    },
-    {
-      "table": "ui",
       "key": "Perturbation lens",
       "source": "Perturbation lens",
       "source_sha256": "0d9c32b7ad9ab4df3cb4975593c05c147a5d31b35434a89f9ad07690cb523d55",
+      "table": "ui",
       "translation": "विक्षोभ लेंस"
     },
     {
-      "table": "ui",
       "key": "A precision dot lattice bends around moving impulses and the cursor, revealing local perturbation.",
       "source": "A precision dot lattice bends around moving impulses and the cursor, revealing local perturbation.",
       "source_sha256": "965edd9947feb7412f8b7590b23a79a54c2b4e6a24c3af3b1c74af19b3979b1f",
+      "table": "ui",
       "translation": "एक सटीक बिंदु जाल गतिमान स्पंदों और कर्सर के आसपास मुड़कर स्थानीय विक्षोभ दिखाता है।"
     }
-  ]
+  ],
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff",
+  "schema": 1,
+  "source_commit": "3053b081512d6f598a1aba76dac2393de31ba48a"
 }

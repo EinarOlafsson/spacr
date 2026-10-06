@@ -1,0 +1,414 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "A Cell-DINO channel is outside the loaded crops. Reopen the mapping and choose valid planes.",
+      "source": "A Cell-DINO channel is outside the loaded crops. Reopen the mapping and choose valid planes.",
+      "source_sha256": "eb3c0c43da77619f300f80c528195b3edc39d30f4331d3595d7102d4c32a0027",
+      "table": "ui",
+      "translation": "加载的裁剪图像中不存在某个 Cell-DINO 通道。请重新打开映射并选择有效的图像平面。"
+    },
+    {
+      "key": "A lit window in the dark: warm orange on near-black, crisp cells drifting behind it, and a sound set in G minor at 118 BPM.",
+      "source": "A lit window in the dark: warm orange on near-black, crisp cells drifting behind it, and a sound set in G minor at 118 BPM.",
+      "source_sha256": "aef0600fd914c66f87b97be875d7798f4ca4a2263dfbd2141e063af31f6a83bf",
+      "table": "ui",
+      "translation": "黑暗中亮着的窗口：近黑背景上的暖橙色，清晰的细胞在后方漂移，配以 G 小调、118 BPM 的声音组合。"
+    },
+    {
+      "key": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains. SubCell's two-plane model takes DNA then protein; its four-plane model needs explicit microtubules, ER, DNA and protein mapping. Other weights download once. Cell-DINO requires a local official checkpoint, declared SHA-256 and explicit model-plane mapping. Default None (use the backbone).",
+      "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains. SubCell's two-plane model takes DNA then protein; its four-plane model needs explicit microtubules, ER, DNA and protein mapping. Other weights download once. Cell-DINO requires a local official checkpoint, declared SHA-256 and explicit model-plane mapping. Default None (use the backbone).",
+      "source_sha256": "f56f8ca9fc07e6461b525f0b74eece2a38a93b32d6147da646a6abecdc143498",
+      "table": "ui",
+      "translation": "以显微镜图像而非照片训练的模型。OpenPhenom 和 ChAda-ViT 可接受任意数量的染色通道。SubCell 的双平面模型按 DNA、蛋白质的顺序输入；四平面模型需要明确映射微管、ER、DNA 和蛋白质。其他权重仅下载一次。Cell-DINO 需要本地官方检查点、声明的 SHA-256 以及明确的模型平面映射。默认 None（使用骨干网络）。"
+    },
+    {
+      "key": "Accent",
+      "source": "Accent",
+      "source_sha256": "a5c6fb18c9af89b22a791ba484c9cbc622ffa2af4267d0067883cf6a78d685ac",
+      "table": "ui",
+      "translation": "强调色"
+    },
+    {
+      "key": "Add plate…",
+      "source": "Add plate…",
+      "source_sha256": "e6fb1fe39db55951a12842da5b04e5e308902125d4c814a36ef389ee8393868f",
+      "table": "ui",
+      "translation": "添加板…"
+    },
+    {
+      "key": "All selected plates must use the same feature columns. Stored embeddings must also have the same model settings and weight checksum.",
+      "source": "All selected plates must use the same feature columns. Stored embeddings must also have the same model settings and weight checksum.",
+      "source_sha256": "b5d68801527aef0bb2606580d508e90139d84921c980648a45c965897ce4c1b7",
+      "table": "ui",
+      "translation": "所选板必须使用相同的特征列。存储的嵌入也必须具有相同的模型设置和权重校验和。"
+    },
+    {
+      "key": "Animation colour",
+      "source": "Animation colour",
+      "source_sha256": "ff2c488510dc5eb76b098a62d715aae39f1c6af4bf38e7ae5a061eb836b0d72f",
+      "table": "ui",
+      "translation": "动画颜色"
+    },
+    {
+      "key": "Animation colours",
+      "source": "Animation colours",
+      "source_sha256": "13b95c9f950f86f643e79079de0e75bfca71e8a24fa3c7fce420c6410e0fd3a4",
+      "table": "ui",
+      "translation": "动画颜色组合"
+    },
+    {
+      "key": "Auto features",
+      "source": "Auto features",
+      "source_sha256": "84b46b4e080c79cc9072a1eea6b1debf027fdb09e31e28babefa043438a5abd7",
+      "table": "ui",
+      "translation": "自动特征"
+    },
+    {
+      "key": "Cell Painting ViT-S/8 · five planes · 128 pixels",
+      "source": "Cell Painting ViT-S/8 · five planes · 128 pixels",
+      "source_sha256": "18668a11840f4eec76b413e8d33b025b8fff6232c2779ecb9cff0a19d5661b5a",
+      "table": "ui",
+      "translation": "Cell Painting ViT-S/8 · 五个平面 · 128 像素"
+    },
+    {
+      "key": "Cell-DINO checkpoint and input-plane order saved. The file digest will be checked before model loading.",
+      "source": "Cell-DINO checkpoint and input-plane order saved. The file digest will be checked before model loading.",
+      "source_sha256": "07bfa131a7e31784b02b050fe97143118b976d85be61c66d13a3c4678a2c5cd1",
+      "table": "ui",
+      "translation": "已保存 Cell-DINO 检查点和输入平面顺序。加载模型前将检查文件摘要。"
+    },
+    {
+      "key": "Cell-DINO checkpoint and model planes",
+      "source": "Cell-DINO checkpoint and model planes",
+      "source_sha256": "8001229712f7cbb5fb7689ee4036549bb3a491a95b9ead62d1f9f147609b387b",
+      "table": "ui",
+      "translation": "Cell-DINO 检查点和模型平面"
+    },
+    {
+      "key": "Checkpoint and channels…",
+      "source": "Checkpoint and channels…",
+      "source_sha256": "d00218b6fdda8af6a06ab4694453233078e6274e6373772e640050529ced02cd",
+      "table": "ui",
+      "translation": "检查点和通道…"
+    },
+    {
+      "key": "Choose a crisp data-art animation colour.",
+      "source": "Choose a crisp data-art animation colour.",
+      "source_sha256": "c8116cd7bac66b416b6e6036fbdbffbf6b5f3e693b7dd8624b272070ed8b2fbf",
+      "table": "ui",
+      "translation": "选择清晰的数据艺术动画颜色。"
+    },
+    {
+      "key": "Choose a crop channel for every Cell-DINO input plane.",
+      "source": "Choose a crop channel for every Cell-DINO input plane.",
+      "source_sha256": "f3417d648593fa8c4a4f192c779dc633ac4efb43b71e5be33e8adcd131a3ac9d",
+      "table": "ui",
+      "translation": "为每个 Cell-DINO 输入平面选择一个裁剪图像通道。"
+    },
+    {
+      "key": "Choose a local official Cell-DINO checkpoint file.",
+      "source": "Choose a local official Cell-DINO checkpoint file.",
+      "source_sha256": "6d611c1a6503200a0163da826871f1649d4784f9da1f79f2d9fa896250e1e9c6",
+      "table": "ui",
+      "translation": "选择本地的官方 Cell-DINO 检查点文件。"
+    },
+    {
+      "key": "Choose a plate's measurements/measurements.db file.",
+      "source": "Choose a plate's measurements/measurements.db file.",
+      "source_sha256": "c360257bd9aa175918c54ecc065260ec8582a4cd2e9aaf048a015e4c28c115c8",
+      "table": "ui",
+      "translation": "选择板的 measurements/measurements.db 文件。"
+    },
+    {
+      "key": "Choose an official Cell-DINO model factory.",
+      "source": "Choose an official Cell-DINO model factory.",
+      "source_sha256": "019e10652a3a025cd644ba75b9ac5525dd0f5bf5a7e67afc68865112ec49cba5",
+      "table": "ui",
+      "translation": "选择官方 Cell-DINO 模型构建函数。"
+    },
+    {
+      "key": "Choose another measurements.db to include in the next similarity search.",
+      "source": "Choose another measurements.db to include in the next similarity search.",
+      "source_sha256": "fdf4d886202129ceb1ccd354c66b47a20ef4ed11f0c191bc936234787799e9d2",
+      "table": "ui",
+      "translation": "选择另一个 measurements.db，将其包含在下次相似性搜索中。"
+    },
+    {
+      "key": "Choose another plate database",
+      "source": "Choose another plate database",
+      "source_sha256": "cd5d30a830a5bec2409e58df9b5d95fdcdb51e9a336896cbb4ef9d98febc211f",
+      "table": "ui",
+      "translation": "选择另一个板数据库"
+    },
+    {
+      "key": "Choose different crop channels for every Cell-DINO plane.",
+      "source": "Choose different crop channels for every Cell-DINO plane.",
+      "source_sha256": "0a046b8664a7b9a629fda45732f5034f5e62fd10c70302a5ce82e044daa6dbce",
+      "table": "ui",
+      "translation": "为每个 Cell-DINO 平面选择不同的裁剪图像通道。"
+    },
+    {
+      "key": "Choose model…",
+      "source": "Choose model…",
+      "source_sha256": "7c78d5e5a647ad23d03de8b3a3818ecc5d0a3c4021104bbcdc684b776e52ab0a",
+      "table": "ui",
+      "translation": "选择模型…"
+    },
+    {
+      "key": "Choose official Cell-DINO checkpoint",
+      "source": "Choose official Cell-DINO checkpoint",
+      "source_sha256": "afee858e3db81b7eb0cec25b28eda5486aaa9704040f71b0e0aff5b7f5acf01e",
+      "table": "ui",
+      "translation": "选择官方 Cell-DINO 检查点"
+    },
+    {
+      "key": "Clear plates",
+      "source": "Clear plates",
+      "source_sha256": "6d299773969c9c40862ef2519c9b85ce56a934b07a0e51fde7678cc8c1bf1a9f",
+      "table": "ui",
+      "translation": "清空板选择"
+    },
+    {
+      "key": "Custom colours",
+      "source": "Custom colours",
+      "source_sha256": "f239a4870e32f77fc46b1e9336e022614b21c7f51f14975e0510cdbe69c440f0",
+      "table": "ui",
+      "translation": "自定义颜色"
+    },
+    {
+      "key": "Enter the checkpoint's 64-character SHA-256 digest.",
+      "source": "Enter the checkpoint's 64-character SHA-256 digest.",
+      "source_sha256": "f3e2e42fe9eef07986e7dee78e0027fb2a3c882bdc07fe1da8eec52b938b3853",
+      "table": "ui",
+      "translation": "输入检查点的 64 字符 SHA-256 摘要。"
+    },
+    {
+      "key": "Expected SHA-256",
+      "source": "Expected SHA-256",
+      "source_sha256": "ab3fab52492acd28d5bca729dd9453f0216cb11530401ff3722073030a62be4d",
+      "table": "ui",
+      "translation": "预期 SHA-256"
+    },
+    {
+      "key": "Fine fungal branches extend continuously across at most 30% of the backdrop, leaving the field clear.",
+      "source": "Fine fungal branches extend continuously across at most 30% of the backdrop, leaving the field clear.",
+      "source_sha256": "4340ff03673a8a39b6fc2e813d56b9bb35c14d687f6c6c801bcd444666da24a3",
+      "table": "ui",
+      "translation": "细密的真菌分枝持续伸展，最多覆盖背景的 30%，保持其余区域清晰。"
+    },
+    {
+      "key": "Fungal growth",
+      "source": "Fungal growth",
+      "source_sha256": "e26f0952f30f921ce84610339202f480b1b9d77b5ea9bc16ddb8f5f51d7c505f",
+      "table": "ui",
+      "translation": "真菌生长"
+    },
+    {
+      "key": "Furthest from the sun: cold violet, rings spreading through the dark, and a tense sound set in D harmonic minor at 128 BPM.",
+      "source": "Furthest from the sun: cold violet, rings spreading through the dark, and a tense sound set in D harmonic minor at 128 BPM.",
+      "source_sha256": "f452c6f271e4dce975cc7b761e6bc1074f28ce8fb2dab2c3be3e850365e850ca",
+      "table": "ui",
+      "translation": "距太阳最远：冷紫色，环形波纹在黑暗中扩散，配以 D 和声小调、128 BPM 的紧张声音组合。"
+    },
+    {
+      "key": "HPA ViT-L/14 · four planes · 518 pixels",
+      "source": "HPA ViT-L/14 · four planes · 518 pixels",
+      "source_sha256": "552bcc910232837ce05cc6c35a88181008a53728f9b90963214d6560636b9974",
+      "table": "ui",
+      "translation": "HPA ViT-L/14 · 四个平面 · 518 像素"
+    },
+    {
+      "key": "HPA ViT-L/16 · four planes · 224 pixels",
+      "source": "HPA ViT-L/16 · four planes · 224 pixels",
+      "source_sha256": "4bc07165685851ff22956be6d3cfba9c1444e6342f8e268893a72b89803f2510",
+      "table": "ui",
+      "translation": "HPA ViT-L/16 · 四个平面 · 224 像素"
+    },
+    {
+      "key": "How many things there are: blobs, aurora curtains, ripple sources, stars and cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
+      "source": "How many things there are: blobs, aurora curtains, ripple sources, stars and cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
+      "source_sha256": "c01a61297df226345fbe0874de09cbb7f0a02452367938f9eacbecb26c9c27ea",
+      "table": "ui",
+      "translation": "元素数量：色块、极光帘幕、波纹源、星点和细胞。密度和细节共享一个计算成本预算，因此两者都设为最大时会降低密度，而不会丢帧。"
+    },
+    {
+      "key": "Input plane {number}",
+      "source": "Input plane {number}",
+      "source_sha256": "a4e459ad29a076b4c98d053f9ca8a4a9d48ce3db753fd93f8c6e3a4dc0716511",
+      "table": "ui",
+      "translation": "输入平面 {number}"
+    },
+    {
+      "key": "Leave blind mode before searching across plates.",
+      "source": "Leave blind mode before searching across plates.",
+      "source_sha256": "40a38aeb08eada2e7c6cdb2c4e29c0d26b337bed0869d6fcfc756d4ab1cb29be",
+      "table": "ui",
+      "translation": "跨板搜索前请退出盲模式。"
+    },
+    {
+      "key": "Load database crops and embed them before saving vectors.",
+      "source": "Load database crops and embed them before saving vectors.",
+      "source_sha256": "a8bf596491b84a04dad531dbcd1057441d66997791c10e49697e85c286cb0dcd",
+      "table": "ui",
+      "translation": "保存向量前，请加载数据库裁剪图像并计算其嵌入。"
+    },
+    {
+      "key": "Local checkpoint",
+      "source": "Local checkpoint",
+      "source_sha256": "f4bf8783b54bf3f6910cce284646ff403158e3e6aa056cfb1873e9b1e0bd75fb",
+      "table": "ui",
+      "translation": "本地检查点"
+    },
+    {
+      "key": "Mapped model planes (one pass)",
+      "source": "Mapped model planes (one pass)",
+      "source_sha256": "eddc67f81a46b9cc20c7d4a99741330bb7cc04c78d788d5bd5fc33d2218625e1",
+      "table": "ui",
+      "translation": "已映射的模型平面（单次处理）"
+    },
+    {
+      "key": "Official model",
+      "source": "Official model",
+      "source_sha256": "a761fa1e6530acc7245e6741606cc18e637bcc1b38aae134825c9b9fea6ee0a5",
+      "table": "ui",
+      "translation": "官方模型"
+    },
+    {
+      "key": "Open matching crops from this plate in Annotate before assigning labels.",
+      "source": "Open matching crops from this plate in Annotate before assigning labels.",
+      "source_sha256": "0cf1b32438713f89065a1023d44c7c797b8e7be1ca5278474740b04b8993af09",
+      "table": "ui",
+      "translation": "分配标签前，请在 Annotate 中打开此板的匹配裁剪图像。"
+    },
+    {
+      "key": "Primary",
+      "source": "Primary",
+      "source_sha256": "efe10c80ec8a9f38624cbb47103010a8cf32488a503e4b4bfe4f92307a9cefa7",
+      "table": "ui",
+      "translation": "主色"
+    },
+    {
+      "key": "PyTorch checkpoints (*.pth *.pt);;All files (*)",
+      "source": "PyTorch checkpoints (*.pth *.pt);;All files (*)",
+      "source_sha256": "7b449981e6f83d92c56061482e88463594e2e90d33072099eb9883a58579b6d8",
+      "table": "ui",
+      "translation": "PyTorch 检查点 (*.pth *.pt);;所有文件 (*)"
+    },
+    {
+      "key": "Results by plate",
+      "source": "Results by plate",
+      "source_sha256": "f76e1d4d6d0501846dfed5442e10ed6069a3b2cf6084850997e23ce1548b75b7",
+      "table": "ui",
+      "translation": "按板显示结果"
+    },
+    {
+      "key": "SQLite databases (*.db)",
+      "source": "SQLite databases (*.db)",
+      "source_sha256": "948360c38f60134e3fc70a8401f95d7ade866e6d61b8e9205f42bd62392b1a19",
+      "table": "ui",
+      "translation": "SQLite 数据库 (*.db)"
+    },
+    {
+      "key": "Save for Similar crops",
+      "source": "Save for Similar crops",
+      "source_sha256": "fdd58dd12165cc9dc87e797fedff32601a3066a13c83918d58966b4d7a5b5775",
+      "table": "ui",
+      "translation": "保存以搜索相似裁剪图像"
+    },
+    {
+      "key": "Save these vectors in their source database for Annotate's Like this search. Load crops from a database first.",
+      "source": "Save these vectors in their source database for Annotate's Like this search. Load crops from a database first.",
+      "source_sha256": "742dcf02396f8ac9aad31da2dc9efc8b366f31403b91713d604c054f7b191a8a",
+      "table": "ui",
+      "translation": "将这些向量存入其源数据库，以供 Annotate 的“相似”搜索使用。请先从数据库加载裁剪图像。"
+    },
+    {
+      "key": "Saved {count} crop embeddings. Open this database in Annotate and use Like this.",
+      "source": "Saved {count} crop embeddings. Open this database in Annotate and use Like this.",
+      "source_sha256": "68f21585109446995cd6ebed8c0773366a032c6aa16c133e2dc0aba9f9b61910",
+      "table": "ui",
+      "translation": "已保存 {count} 个裁剪图像嵌入。在 Annotate 中打开此数据库并使用“相似”。"
+    },
+    {
+      "key": "Saving crop embeddings…",
+      "source": "Saving crop embeddings…",
+      "source_sha256": "b2498375244499b29fad8ea13e1b9f5b56718ab5708cb4090f4ac5b3aae47bd7",
+      "table": "ui",
+      "translation": "正在保存裁剪图像嵌入…"
+    },
+    {
+      "key": "Search settings changed; run Like this again before opening another plate.",
+      "source": "Search settings changed; run Like this again before opening another plate.",
+      "source_sha256": "a8d409372556d1bdc843168e53c04bcc2178c70551024e1d726162d8ac0e146e",
+      "table": "ui",
+      "translation": "搜索设置已更改；打开另一个板前，请重新运行“相似”。"
+    },
+    {
+      "key": "Searched {n} crops across {plates} plates in {ms} ms.",
+      "source": "Searched {n} crops across {plates} plates in {ms} ms.",
+      "source_sha256": "35b196f6cd14957c78a7b301096f18ff89a0e3261ee733f440abc8325d46ca29",
+      "table": "ui",
+      "translation": "搜索了 {n} 个裁剪图像，覆盖 {plates} 个板，耗时 {ms} ms。"
+    },
+    {
+      "key": "Similarity search will use the open source.",
+      "source": "Similarity search will use the open source.",
+      "source_sha256": "7d75c0b41a1fd010f71fa0da4d2e0f33959c7fc679540c1d0956b03aae2a44da",
+      "table": "ui",
+      "translation": "相似性搜索将使用已打开的数据源。"
+    },
+    {
+      "key": "The new crops have fewer channels. Reopen Cell-DINO checkpoint and channels to map its input planes.",
+      "source": "The new crops have fewer channels. Reopen Cell-DINO checkpoint and channels to map its input planes.",
+      "source_sha256": "93044980f1d511edb4afa9d4a458d70d2d6bbab27ac7652a8f6b0eb65569dac9",
+      "table": "ui",
+      "translation": "新的裁剪图像通道更少。请重新打开 Cell-DINO 检查点和通道，以映射其输入平面。"
+    },
+    {
+      "key": "The selected plate database is no longer available.",
+      "source": "The selected plate database is no longer available.",
+      "source_sha256": "ad24ac6acb5383b842c957693f9b9a0d00319a85abae46c6f43429d5bbccb36f",
+      "table": "ui",
+      "translation": "所选板数据库已不可用。"
+    },
+    {
+      "key": "Use an official checkpoint obtained from Meta. Choose its exact factory and SHA-256, then map crop channels in model-input order. No stain identity is inferred.",
+      "source": "Use an official checkpoint obtained from Meta. Choose its exact factory and SHA-256, then map crop channels in model-input order. No stain identity is inferred.",
+      "source_sha256": "a51d075268444dfe1c31c701f8f6a7691d08030b8ea6df8efd81dfa335d5bbd9",
+      "table": "ui",
+      "translation": "使用从 Meta 获得的官方检查点。选择其确切的构建函数和 SHA-256，然后按模型输入顺序映射裁剪图像通道。不会推断染色身份。"
+    },
+    {
+      "key": "Your chosen primary and accent colours.",
+      "source": "Your chosen primary and accent colours.",
+      "source_sha256": "8dddf1833c5a847c4ea4b422499400c268bf4175dc57deec7fe43a12a4d9bdee",
+      "table": "ui",
+      "translation": "您选择的主色和强调色。"
+    },
+    {
+      "key": "{name} · {n} matches",
+      "source": "{name} · {n} matches",
+      "source_sha256": "fe9037d58744baeeea2e7d173593a301ef392bde1050293e8a525927a2430ad1",
+      "table": "ui",
+      "translation": "{name} · {n} 个匹配项"
+    },
+    {
+      "key": "{n} additional plate(s) selected for the next search.",
+      "source": "{n} additional plate(s) selected for the next search.",
+      "source_sha256": "3329670c4900cad00ff93d3aaf8bc451ed24fcc35a6248959a4fda39ec70b531",
+      "table": "ui",
+      "translation": "已为下次搜索额外选择 {n} 个板。"
+    },
+    {
+      "key": "{n} similar crops in {source}; results stay with their source database.",
+      "source": "{n} similar crops in {source}; results stay with their source database.",
+      "source_sha256": "8b02030b6214883ffdc4491fca9a962a20c88ffcdeca86e3ec9dd096ccdbbf54",
+      "table": "ui",
+      "translation": "{n} 个相似裁剪图像位于 {source}；结果仍关联其源数据库。"
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff",
+  "schema": 1,
+  "source_reviewed_input_sha256": "4da212731304cf33df1e2664a33eb36b376447cbb7f804f2b091e7d7f3067a25"
+}

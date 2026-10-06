@@ -82,6 +82,8 @@ Segmenterings-, mät-, annoterings- och klassificeringsmodulerna körs även uta
 
 Make Masks korrigerar segmenteringsmasker och annoterar oberoende, klassmärkta rektanglar med verktyget **Box** för YOLO-export. Rutorna har egna etiketter och egen historik utan att ändra källbilder eller masker.
 
+Se `funktionsguiden <../../source/features.rst>`_ för varje verktyg.
+
 Bilder, masker, bildutsnitt, mätningar, annoteringar, förutsägelser, streckkoder och brunnsidentifierare ligger i ett och samma SQLite-projekt.
 
 Körs som ett skrivbordsprogram eller utan grafiskt gränssnitt på en arbetsstation, server eller kluster.

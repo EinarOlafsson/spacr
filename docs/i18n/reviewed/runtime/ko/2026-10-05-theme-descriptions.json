@@ -1,86 +1,72 @@
 {
-  "schema": 1,
-  "language": "ko",
   "date": "2026-10-05",
-  "review_kind": "Codex AI technical translation and review; no native-speaker signoff",
+  "language": "ko",
   "note": "The actual theme registry descriptions, including musical keys, modes, tempo, colours, animations and accessibility intent. Direct translations; the extractor now reads the registry instead of losing returned prose. Existing translations and prior review attribution are preserved.",
   "records": [
     {
-      "table": "ui",
-      "key": "A lit window in the dark: warm orange on near-black, out-of-focus lights drifting behind it, and a sound set in G minor at 118 BPM.",
-      "source": "A lit window in the dark: warm orange on near-black, out-of-focus lights drifting behind it, and a sound set in G minor at 118 BPM.",
-      "source_sha256": "b231f713c9ad5f662d24fa317064b16f61493c2504ba1a0677a9bc3f77ad06b1",
-      "translation": "어둠 속의 밝은 창: 거의 검은 바탕에 따뜻한 주황색, 뒤에서 흐르는 초점이 흐릿한 불빛, G 단조의 118 BPM 사운드 세트입니다."
-    },
-    {
-      "table": "ui",
       "key": "Gold haze over a brown-black room, nebula fields moving slowly through it, and a sound set in F Dorian at 120 BPM.",
       "source": "Gold haze over a brown-black room, nebula fields moving slowly through it, and a sound set in F Dorian at 120 BPM.",
       "source_sha256": "89322a59f61e7f14fc537ad268f7e439530a1186eca3d0c3d2ee277cb0466654",
+      "table": "ui",
       "translation": "갈색과 검은색의 방을 채우는 황금빛 안개, 천천히 움직이는 성운 영역, F 도리안 모드의 120 BPM 사운드 세트입니다."
     },
     {
-      "table": "ui",
       "key": "The long low light of a year's turn: olive and pale gold, cells drifting through it, and a sound set in G Lydian at 112 BPM.",
       "source": "The long low light of a year's turn: olive and pale gold, cells drifting through it, and a sound set in G Lydian at 112 BPM.",
       "source_sha256": "50af288600ad0541aacdcdc69505c858165ac107f1f92c47f9402a9bb076fe9f",
+      "table": "ui",
       "translation": "한 해가 바뀔 때의 길고 낮은 빛: 올리브색과 옅은 금색, 떠다니는 세포, G 리디안 모드의 112 BPM 사운드 세트입니다."
     },
     {
-      "table": "ui",
       "key": "Deep water, green-black and slow: rings spreading and fading, and a sound set in E minor at 116 BPM with the heaviest sub of the ten.",
       "source": "Deep water, green-black and slow: rings spreading and fading, and a sound set in E minor at 116 BPM with the heaviest sub of the ten.",
       "source_sha256": "a3153b50f328cdb5c1dfab71c664151e6cd16338f36b0f112a9bc015582d3263",
+      "table": "ui",
       "translation": "깊고 느린 녹색과 검은색의 물: 퍼졌다 사라지는 고리, 열 가지 중 가장 강한 서브 베이스를 갖춘 E 단조의 116 BPM 사운드 세트입니다."
     },
     {
-      "table": "ui",
       "key": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
       "source": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
       "source_sha256": "528943df3a5f1e1d91937a6f745e21c9e9652a96fe9096ef3d3c6feb880393bf",
+      "table": "ui",
       "translation": "청록색 수평선 위로 접히는 빛의 커튼과 A 도리안 모드의 124 BPM 사운드 세트입니다."
     },
     {
-      "table": "ui",
       "key": "Thin high cloud: pale ice blue, barely coloured, a starfield behind it, and the most open sound set of the ten, in B minor at 126 BPM.",
       "source": "Thin high cloud: pale ice blue, barely coloured, a starfield behind it, and the most open sound set of the ten, in B minor at 126 BPM.",
       "source_sha256": "b26ec35a00d4dd7fc05650a7e69760e24575ba0e6482f39049485ea050581729",
+      "table": "ui",
       "translation": "얇고 높은 구름: 거의 색이 없는 옅은 얼음빛 파랑, 뒤쪽의 별밭, 열 가지 중 가장 공간감 있는 B 단조의 126 BPM 사운드 세트입니다."
     },
     {
-      "table": "ui",
       "key": "Indigo, a starfield and the slowest sound set of the ten — C sharp minor at 108 BPM, long decays and almost no drum.",
       "source": "Indigo, a starfield and the slowest sound set of the ten — C sharp minor at 108 BPM, long decays and almost no drum.",
       "source_sha256": "063e969412f94b89a1dbb287c420abbe169b6718342e802d181343fac2fe3f72",
+      "table": "ui",
       "translation": "남색, 별밭, 열 가지 중 가장 느린 사운드 세트: C 샤프 단조, 108 BPM, 긴 잔향과 거의 없는 드럼 소리입니다."
     },
     {
-      "table": "ui",
-      "key": "Furthest from the sun: cold violet, sand settling on a vibrating plate, and a tense sound set in D harmonic minor at 128 BPM.",
-      "source": "Furthest from the sun: cold violet, sand settling on a vibrating plate, and a tense sound set in D harmonic minor at 128 BPM.",
-      "source_sha256": "4e95ed2eb6e6e8404e62485da204b971cea3ef50f8adfb3022aed9312cf53371",
-      "translation": "태양에서 가장 먼 곳: 차가운 보라색, 진동판 위에 가라앉는 모래, 긴장감 있는 D 화성 단조의 128 BPM 사운드 세트입니다."
-    },
-    {
-      "table": "ui",
       "key": "Magenta on black with nebula fields turning through it, and the hardest-pumping sound set of the ten, in F sharp minor at 128 BPM.",
       "source": "Magenta on black with nebula fields turning through it, and the hardest-pumping sound set of the ten, in F sharp minor at 128 BPM.",
       "source_sha256": "c31728ecb6c996e5e9bdec00e5dd5a95b5824e903feb186d8b19b8f5c9f20f25",
+      "table": "ui",
       "translation": "검은 바탕에 자홍색과 회전하는 성운 영역, 열 가지 중 가장 강하게 고동치는 F 샤프 단조의 128 BPM 사운드 세트입니다."
     },
     {
-      "table": "ui",
       "key": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
       "source": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
       "source_sha256": "f32e9d844d2ff92dcfadf473b5bc56f5f91c40bfd708a2b7204428917a2dd3db",
+      "table": "ui",
       "translation": "하늘의 마지막 색: 자두색과 탁한 장미색, 머리 위로 접히는 빛의 커튼, 부드러운 E 플랫 단조의 114 BPM 사운드 세트입니다."
     },
     {
-      "table": "ui",
       "key": "White text and outlines on black with a yellow accent, for low vision and bright rooms.",
       "source": "White text and outlines on black with a yellow accent, for low vision and bright rooms.",
       "source_sha256": "938eb05af4d8d606b38813dca057f662572d04403b6f3a42ae260dc4ebd7c20e",
+      "table": "ui",
       "translation": "저시력 사용자와 밝은 공간을 위해 검은 바탕에 흰색 글자와 윤곽선, 노란색 강조를 사용합니다."
     }
-  ]
+  ],
+  "review_kind": "Codex AI technical translation and review; no native-speaker signoff",
+  "schema": 1
 }

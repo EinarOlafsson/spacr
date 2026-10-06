@@ -1,0 +1,391 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "key": "Advisory only — this never stops Measure from running.",
+      "source": "Advisory only — this never stops Measure from running.",
+      "source_sha256": "fd24cb67a6e395d7727a58e0203580ae3cccabaeb50c439fb7fd12ef54d5001c",
+      "table": "ui",
+      "translation": "Endast rådgivande – detta hindrar aldrig Measure från att köras."
+    },
+    {
+      "key": "Background of an exported figure ('none' leaves the page showing through)",
+      "source": "Background of an exported figure ('none' leaves the page showing through)",
+      "source_sha256": "81be1d0355fbf3296682dd73939525860a4957a6cb261c4a9bd8821227e7ae94",
+      "table": "ui",
+      "translation": "Bakgrund för en exporterad figur ('none' låter sidan synas igenom)"
+    },
+    {
+      "key": "Build the digest first.",
+      "source": "Build the digest first.",
+      "source_sha256": "071bfce0a4e37d56ccd0a3587c48bffd58adacb214b80780e161be988bea161f",
+      "table": "ui",
+      "translation": "Bygg sammanställningen först."
+    },
+    {
+      "key": "Cellpose 4 rescales every image by 30/diameter before it segments, so a diameter two-fold off moves your objects out of the size cpsam works at. This reads a few fields of your own data and measures it — Cellpose is not loaded.",
+      "source": "Cellpose 4 rescales every image by 30/diameter before it segments, so a diameter two-fold off moves your objects out of the size cpsam works at. This reads a few fields of your own data and measures it — Cellpose is not loaded.",
+      "source_sha256": "6e87588f0d1532cecbad8dfe8bf788361b7cc6bf7c50eb354c37245946aff269",
+      "table": "ui",
+      "translation": "Cellpose 4 skalar om varje bild med 30/diameter innan den segmenterar, så en diameter som är fel med en faktor två flyttar dina objekt bort från den storlek som cpsam fungerar vid. Detta läser några fält ur dina egna data och mäter dem — Cellpose läses inte in."
+    },
+    {
+      "key": "Choose a spaCR project folder to list the runs it recorded.",
+      "source": "Choose a spaCR project folder to list the runs it recorded.",
+      "source_sha256": "75bbf970f0a87bb30599d4dc6e6f7b6f51f6b982b83f2b00d659070bf4eb1504",
+      "table": "ui",
+      "translation": "Välj en spaCR-projektmapp för att lista de körningar den har registrerat."
+    },
+    {
+      "key": "Cleared.",
+      "source": "Cleared.",
+      "source_sha256": "aa8dbf3c9d7e35b6dae44f99537e7998f6215ca1369ba1814cd9932d9b078f28",
+      "table": "ui",
+      "translation": "Rensat."
+    },
+    {
+      "key": "Colour by a column…",
+      "source": "Colour by a column…",
+      "source_sha256": "f70587ad394019eaeb62e2d63e979f5159e7f14e9a063c008f546e768b894005",
+      "table": "ui",
+      "translation": "Färglägg efter en kolumn…"
+    },
+    {
+      "key": "Colour of non-significant points",
+      "source": "Colour of non-significant points",
+      "source_sha256": "34fd31cff92074c3dda6d4820552d17a101a5abbf95f0d9996c0f2357d4e1571",
+      "table": "ui",
+      "translation": "Färg på icke-signifikanta punkter"
+    },
+    {
+      "key": "Colour of the axis lines, the ticks and the text",
+      "source": "Colour of the axis lines, the ticks and the text",
+      "source_sha256": "3154a8539a5461fe51d2d8fbeb264030ef555282ddeec63cf41531ca7f8809bc",
+      "table": "ui",
+      "translation": "Färg på axellinjerna, skalstrecken och texten"
+    },
+    {
+      "key": "Column holding point names",
+      "source": "Column holding point names",
+      "source_sha256": "a40e916b1f2ec6d84f3a995d78302fbd93d78c8cd23cad13ca2f41cc04685b8c",
+      "table": "ui",
+      "translation": "Kolumn med punktnamn"
+    },
+    {
+      "key": "Column naming each row's gene, for the compartment lookup",
+      "source": "Column naming each row's gene, for the compartment lookup",
+      "source_sha256": "db0ce15eb390e498bfbbc3bf684c5887e0b8cb907bfb26bf489830854633a55f",
+      "table": "ui",
+      "translation": "Kolumn som anger varje rads gen, för uppslagning av kompartment"
+    },
+    {
+      "key": "Distance cut",
+      "source": "Distance cut",
+      "source_sha256": "9cbd6a9efc80024bfd885651647f0e6824f48a2985a2e389105bad6e2ec0cefa",
+      "table": "ui",
+      "translation": "Avståndsgräns"
+    },
+    {
+      "key": "Drafting…",
+      "source": "Drafting…",
+      "source_sha256": "bafe3bfa6db69fc878ee68858880fcbb984032c0ffbf7267fa464731dc5d5017",
+      "table": "ui",
+      "translation": "Skriver utkast…"
+    },
+    {
+      "key": "Draw the significance line",
+      "source": "Draw the significance line",
+      "source_sha256": "5622f63f2e57a67d38ca97715652772b5bc31d11a2ae5a41a69b78b0b157660f",
+      "table": "ui",
+      "translation": "Rita signifikanslinjen"
+    },
+    {
+      "key": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source": "Every line in the file: the plotted curves, the reference lines, the axis spines and the tick marks. The numbers beside the ticks are text and follow the text colour.",
+      "source_sha256": "8d0d775ecb20bc5c338a5999a5ab009eebbc708d27dd60f6732895ac953a638b",
+      "table": "ui",
+      "translation": "Varje linje i filen: de ritade kurvorna, referenslinjerna, axellinjerna och skalstrecken. Siffrorna bredvid skalstrecken är text och följer textfärgen."
+    },
+    {
+      "key": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source": "Every piece of text in the file: the title, the axis labels, the numbers beside the ticks and the legend.",
+      "source_sha256": "8f9108d0acb7994423e04af9b8058bfa92eb76b6d570e3b2e842df3b9160db3d",
+      "table": "ui",
+      "translation": "All text i filen: titeln, axeletiketterna, siffrorna bredvid skalstrecken och teckenförklaringen."
+    },
+    {
+      "key": "Exact resolved settings",
+      "source": "Exact resolved settings",
+      "source_sha256": "2fc0e5a579e1690fafb3bd4c7d1755cb936787a18030fdec5500349552e4a176",
+      "table": "ui",
+      "translation": "Exakta slutgiltiga inställningar"
+    },
+    {
+      "key": "Figure height (in)",
+      "source": "Figure height (in)",
+      "source_sha256": "e4c10c7b9116b4d5511a19b579fbd88e384f4e442d3080d27458940cd72501ce",
+      "table": "ui",
+      "translation": "Figurhöjd (tum)"
+    },
+    {
+      "key": "Figure width (in)",
+      "source": "Figure width (in)",
+      "source_sha256": "98db45d5b3ffe4e965a952f9104a241fac590beefbafb9b75d385bd220fe20eb",
+      "table": "ui",
+      "translation": "Figurbredd (tum)"
+    },
+    {
+      "key": "Hide top/right spines",
+      "source": "Hide top/right spines",
+      "source_sha256": "de6084fb71d9fcfb93f085d186b4e71dadcb30034656ecff839b857508e904e8",
+      "table": "ui",
+      "translation": "Dölj övre/högra axellinjer"
+    },
+    {
+      "key": "How fast the animation moves, against the speed each one was designed at. It applies to every kind of motion in the chosen animation at once, and changing it never makes what is already on screen jump.",
+      "source": "How fast the animation moves, against the speed each one was designed at. It applies to every kind of motion in the chosen animation at once, and changing it never makes what is already on screen jump.",
+      "source_sha256": "3b0e0fb078df0e0ec979171334e971324f5e70d89edb26b6ad05c9ff4df24397",
+      "table": "ui",
+      "translation": "Hur snabbt animeringen rör sig, i förhållande till den hastighet varje animering utformades för. Den gäller för alla sorters rörelser i den valda animeringen på en gång, och att ändra den får aldrig det som redan visas på skärmen att hoppa."
+    },
+    {
+      "key": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
+      "source": "How many things there are: blobs, aurora curtains, ripple sources, stars, bokeh discs, cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
+      "source_sha256": "ecf8d5190cb2844a1a90174e483138118389e7e9f0d67c99282adfb7f09203e1",
+      "table": "ui",
+      "translation": "Hur många saker det finns: klickar, norrskensridåer, krusningskällor, stjärnor, bokeh-skivor, celler. Täthet och detaljnivå delar en gemensam kostnadsbudget, så om du begär maximalt av båda minskas tätheten i stället för att bildrutor tappas."
+    },
+    {
+      "key": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
+      "source": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
+      "source_sha256": "ab388434f351b32a1a3bd22c13c65396a1c054d164983bd5fc2683dc718f85a4",
+      "table": "ui",
+      "translation": "Hur oskarp animeringen är, utöver den detaljnivå den ritades med. 0 % lämnar den så skarp som detaljinställningen tillåter; 100 % är den mjukhet animeringarna tidigare levererades med. Till skillnad från detalj kostar den här nästan ingenting — och tillsammans gör de två att bakgrunden kan vara mjuk utan att bli blockig."
+    },
+    {
+      "key": "Loading the bundled Toxoplasma annotation…",
+      "source": "Loading the bundled Toxoplasma annotation…",
+      "source_sha256": "0386cebfba418e555151984ebc6d6687c51815f2ee6cd529bdc508f145c3f3c4",
+      "table": "ui",
+      "translation": "Läser in den medföljande Toxoplasma-annoteringen…"
+    },
+    {
+      "key": "Loading was cancelled; the run already on screen is unchanged.",
+      "source": "Loading was cancelled; the run already on screen is unchanged.",
+      "source_sha256": "c0343cbd4a08c584d320d03d53754cc253ce89d93e40375e054c9589b1124207",
+      "table": "ui",
+      "translation": "Inläsningen avbröts; körningen som redan visas är oförändrad."
+    },
+    {
+      "key": "Marker size for significant points",
+      "source": "Marker size for significant points",
+      "source_sha256": "8e3f06dfc5687d565f18edb21a4b6ccf49147595328774ac32333be836083657",
+      "table": "ui",
+      "translation": "Markörstorlek för signifikanta punkter"
+    },
+    {
+      "key": "Multiplier applied to the rule above (the quantile itself when the method is 'quantile')",
+      "source": "Multiplier applied to the rule above (the quantile itself when the method is 'quantile')",
+      "source_sha256": "384d009a778619d7f11d1f583599f222ad07b5a437f9c6cbe7f48f2eefaeeb34",
+      "table": "ui",
+      "translation": "Multiplikator som tillämpas på regeln ovan (själva kvantilen när metoden är 'quantile')"
+    },
+    {
+      "key": "Name at least one source, then build the digest.",
+      "source": "Name at least one source, then build the digest.",
+      "source_sha256": "494782c5280e148de4516ccaa770c1071c9b6e0a4b5b2a1380125de7cac6b8c7",
+      "table": "ui",
+      "translation": "Ange minst en källa och bygg sedan sammanställningen."
+    },
+    {
+      "key": "Neighbours per seed",
+      "source": "Neighbours per seed",
+      "source_sha256": "e44a100da8498ec32867214e7c4b2ae1aa8f0cabc7cfa8de9c9a2dcc7a6135ee",
+      "table": "ui",
+      "translation": "Grannar per startpunkt"
+    },
+    {
+      "key": "No gene number could be parsed out of this term, so there is no annotation to look up.",
+      "source": "No gene number could be parsed out of this term, so there is no annotation to look up.",
+      "source_sha256": "9aa561c8948ae747f3deacf1b7f6fca5122cde68394efe18651ace144ad10741",
+      "table": "ui",
+      "translation": "Inget gennummer kunde tolkas ur denna term, så det finns ingen annotering att slå upp."
+    },
+    {
+      "key": "Nothing was handed to the results panel, so there is no folder to search. Use “Load results…”.",
+      "source": "Nothing was handed to the results panel, so there is no folder to search. Use “Load results…”.",
+      "source_sha256": "b753e3f49f93c425540881613863bfc06105ba4320659660a43f010cb1c4ae9a",
+      "table": "ui",
+      "translation": "Inget överlämnades till resultatpanelen, så det finns ingen mapp att söka i. Använd ”Läs in resultat…”."
+    },
+    {
+      "key": "Pick a method and press Embed and score. Nothing is computed until then.",
+      "source": "Pick a method and press Embed and score. Nothing is computed until then.",
+      "source_sha256": "a708b7b25759d42c91aa3935d7ad7c4f4e8b214e9f54cdcb91df38f1a0e0720c",
+      "table": "ui",
+      "translation": "Välj en metod och tryck på Bädda in och poängsätt. Inget beräknas förrän dess."
+    },
+    {
+      "key": "Plot title",
+      "source": "Plot title",
+      "source_sha256": "f6a53f9aac380bcfa5959194c803f6cc9ed46feeb6069a51f77377c7d5f1a194",
+      "table": "ui",
+      "translation": "Diagramrubrik"
+    },
+    {
+      "key": "Point size…",
+      "source": "Point size…",
+      "source_sha256": "64ea43fdd2a6468cd0105a2d14470e04d2907da9b3f83bfe53b2490489e7ba38",
+      "table": "ui",
+      "translation": "Punktstorlek…"
+    },
+    {
+      "key": "Point src at a plate folder first — there is nothing to measure yet.",
+      "source": "Point src at a plate folder first — there is nothing to measure yet.",
+      "source_sha256": "a5038f58402ee32decf4d04419420346cbcec24d0494ee02fe1a85ee49b1bb9a",
+      "table": "ui",
+      "translation": "Peka src mot en plattmapp först — det finns inget att mäta ännu."
+    },
+    {
+      "key": "Points labelled by name (set by clicking a point)",
+      "source": "Points labelled by name (set by clicking a point)",
+      "source_sha256": "d817429b8d3d47a36f79b3b87033bbd20131a78cd2f6f399f0020d7de0acfa23",
+      "table": "ui",
+      "translation": "Punkter märkta med namn (anges genom att klicka på en punkt)"
+    },
+    {
+      "key": "Reading the run…",
+      "source": "Reading the run…",
+      "source_sha256": "ad507ced0123b1c23ae6fd0ae80845da1ca4e321e8a8e3434407bf17e85f4267",
+      "table": "ui",
+      "translation": "Läser körningen…"
+    },
+    {
+      "key": "Sample the reads of one sample and measure every reference table against them, in both orientations and in both mates.",
+      "source": "Sample the reads of one sample and measure every reference table against them, in both orientations and in both mates.",
+      "source_sha256": "7b72a7998b51633858ecc01e775e950e4431e3fed398d723885e9d9b21b9001d",
+      "table": "ui",
+      "translation": "Ta ett urval av läsningarna från ett prov och mät varje referenstabell mot dem, i båda orienteringarna och för båda läsningarna i paret."
+    },
+    {
+      "key": "Score strata",
+      "source": "Score strata",
+      "source_sha256": "f9b65f1695a31da3480df98c6735b2777d17e42c38428636f73b14c97dba546e",
+      "table": "ui",
+      "translation": "Poängskikt"
+    },
+    {
+      "key": "Shape by a column…",
+      "source": "Shape by a column…",
+      "source_sha256": "42eb09cbdc65bcf49d62d9ee47abcf7a7e69475bcd76e42e55b6505e2e21f333",
+      "table": "ui",
+      "translation": "Form efter en kolumn…"
+    },
+    {
+      "key": "Show the colour bar",
+      "source": "Show the colour bar",
+      "source_sha256": "070cabcc3ba85af2fe5f3eea67785dfc4af01a2ed2cb023e8f8650d0843ea9f1",
+      "table": "ui",
+      "translation": "Visa färgskalan"
+    },
+    {
+      "key": "Significance level",
+      "source": "Significance level",
+      "source_sha256": "4551b4c8f9dde6969602dd274808e3de229b1bd3b1081d6f38ab075c9a355850",
+      "table": "ui",
+      "translation": "Signifikansnivå"
+    },
+    {
+      "key": "The digest could not be built.",
+      "source": "The digest could not be built.",
+      "source_sha256": "efaec88b5f9fac6cadfbe3ec65b226f8bab4d647976b1736d866e47f0db34280",
+      "table": "ui",
+      "translation": "Sammanställningen kunde inte byggas."
+    },
+    {
+      "key": "The gene could not be resolved, so there is nothing to look up. The plot is unaffected.",
+      "source": "The gene could not be resolved, so there is nothing to look up. The plot is unaffected.",
+      "source_sha256": "39ab4725bc6dd7ca9d4160cdcb908f858280a21e835dfa0a60bb551754f21ae2",
+      "table": "ui",
+      "translation": "Genen kunde inte identifieras, så det finns inget att slå upp. Diagrammet påverkas inte."
+    },
+    {
+      "key": "The hit list could not be built.",
+      "source": "The hit list could not be built.",
+      "source_sha256": "f9ebbf34bc90347a2dff394c762d2c5108d64ccf835fb00d2bfc810dc7110817",
+      "table": "ui",
+      "translation": "Träfflistan kunde inte byggas."
+    },
+    {
+      "key": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source": "The percentile mapped to black. Raise it to crush more background; 0 keeps the dimmest pixel.",
+      "source_sha256": "0b8916e8ba6fe052ecb6290baf17f972e3758ba58003eb26979f96aea96a2e7e",
+      "table": "ui",
+      "translation": "Percentilen som mappas till svart. Höj den för att trycka ner mer bakgrund; 0 behåller den mörkaste pixeln."
+    },
+    {
+      "key": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
+      "source": "The percentile mapped to white. Lower it for more contrast at the cost of clipping the brightest pixels; 100 clips none.",
+      "source_sha256": "0549c47361f20d04a96ba1830cb2ae082be3246b95b3720a9b391b0b0c30ed6f",
+      "table": "ui",
+      "translation": "Percentilen som mappas till vitt. Sänk den för mer kontrast, på bekostnad av att de ljusaste pixlarna klipps; 100 klipper inga."
+    },
+    {
+      "key": "The results table is empty: it has columns but no rows, so the fit produced no coefficients.",
+      "source": "The results table is empty: it has columns but no rows, so the fit produced no coefficients.",
+      "source_sha256": "37208ee3e331f817cfd0ae6af518e1582a4fe22fd0e7bd952a04f8f856a9f3d7",
+      "table": "ui",
+      "translation": "Resultattabellen är tom: den har kolumner men inga rader, så anpassningen gav inga koefficienter."
+    },
+    {
+      "key": "The run finished, but its settings name no output folder -- src, count_data and score_data are all empty -- so there is nowhere to look for a results table. Use “Load results…” to point at one.",
+      "source": "The run finished, but its settings name no output folder -- src, count_data and score_data are all empty -- so there is nowhere to look for a results table. Use “Load results…” to point at one.",
+      "source_sha256": "30f39b338f5a50c00c3469016332c6de396d98463ccf94f67b4eac198474cfcb",
+      "table": "ui",
+      "translation": "Körningen är klar, men dess inställningar anger ingen utdatamapp -- src, count_data och score_data är alla tomma -- så det finns ingenstans att leta efter en resultattabell. Använd ”Läs in resultat…” för att peka ut en."
+    },
+    {
+      "key": "The run this was showing has been deleted. Pick another in the Runs tab.",
+      "source": "The run this was showing has been deleted. Pick another in the Runs tab.",
+      "source_sha256": "61c16509ff299f2dc611d468ac6d8c554e7b50ffc48ca77d4f249418d9f8dadb",
+      "table": "ui",
+      "translation": "Körningen som visades här har tagits bort. Välj en annan på fliken Körningar."
+    },
+    {
+      "key": "There is no settings store to save a default into.",
+      "source": "There is no settings store to save a default into.",
+      "source_sha256": "e83f38e6acd6977813d4df0d8cfd2cca5dc5f3f630bbeeae0c7e81231dc1ce5d",
+      "table": "ui",
+      "translation": "Det finns inget inställningslager att spara ett standardvärde i."
+    },
+    {
+      "key": "Uncertainty measure",
+      "source": "Uncertainty measure",
+      "source_sha256": "663c8bb8e9a5397d581952bfb779650abbe35b33712b1b2c942ae6ee5b6097e3",
+      "table": "ui",
+      "translation": "Osäkerhetsmått"
+    },
+    {
+      "key": "Undone.",
+      "source": "Undone.",
+      "source_sha256": "dc16676623c41e87659bac36a19b91addf09b622f19f304194119211e57757e4",
+      "table": "ui",
+      "translation": "Ångrat."
+    },
+    {
+      "key": "What spaCR knows about the gene appears here — product, topology, compartment, fitness screens and stage expression.",
+      "source": "What spaCR knows about the gene appears here — product, topology, compartment, fitness screens and stage expression.",
+      "source_sha256": "13f3ac5383c22d164b4775777e127bc35f6e80bb46307445eb24bf72041e2827",
+      "table": "ui",
+      "translation": "Det spaCR vet om genen visas här — produkt, topologi, kompartment, fitness-screeningar och uttryck per livsstadium."
+    },
+    {
+      "key": "parses — load a table to see the values",
+      "source": "parses — load a table to see the values",
+      "source_sha256": "b8cd1d8b08fc02674074f302125203f4b8f1c3e9e2c360fb3400ada468a8f92a",
+      "table": "ui",
+      "translation": "tolkas — läs in en tabell för att se värdena"
+    }
+  ],
+  "schema": 1
+}

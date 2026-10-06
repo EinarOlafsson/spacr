@@ -2,13 +2,6 @@
   "language": "de",
   "records": [
     {
-      "key": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains. SubCell's two-plane model takes DNA then protein; its four-plane model needs explicit microtubules, ER, DNA and protein mapping. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
-      "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains. SubCell's two-plane model takes DNA then protein; its four-plane model needs explicit microtubules, ER, DNA and protein mapping. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
-      "source_sha256": "cc9ae20efdf28de8254e631fc3c587cfca5a8ff7337128cf47efbca274214c58",
-      "table": "ui",
-      "translation": "Ein auf Mikroskopiebildern statt Fotografien trainiertes Modell. OpenPhenom und ChAda-ViT verwenden beliebig viele Färbungskanäle. Das Zweikanalmodell von SubCell verwendet zuerst DNA und dann Protein; das Vierkanalmodell erfordert eine explizite Zuordnung zu Mikrotubuli, ER, DNA und Protein. Die Gewichte werden einmal heruntergeladen. Cell-DINO benötigt einen offiziellen Checkpoint und wird von dieser Version noch nicht unterstützt. Standard: None (das Backbone verwenden)."
-    },
-    {
       "key": "A selected SubCell channel is outside the loaded crops. Open Channels… and map the four planes again.",
       "source": "A selected SubCell channel is outside the loaded crops. Open Channels… and map the four planes again.",
       "source_sha256": "aacf67f543d79b938c33e5e42d3f898f791b3d22a8708c41e53618118ecded0a",

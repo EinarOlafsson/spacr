@@ -1,86 +1,72 @@
 {
-  "schema": 1,
-  "language": "pt",
   "date": "2026-10-05",
-  "review_kind": "Codex AI technical translation and review; no native-speaker signoff",
+  "language": "pt",
   "note": "The actual theme registry descriptions, including musical keys, modes, tempo, colours, animations and accessibility intent. Direct translations; the extractor now reads the registry instead of losing returned prose. Existing translations and prior review attribution are preserved.",
   "records": [
     {
-      "table": "ui",
-      "key": "A lit window in the dark: warm orange on near-black, out-of-focus lights drifting behind it, and a sound set in G minor at 118 BPM.",
-      "source": "A lit window in the dark: warm orange on near-black, out-of-focus lights drifting behind it, and a sound set in G minor at 118 BPM.",
-      "source_sha256": "b231f713c9ad5f662d24fa317064b16f61493c2504ba1a0677a9bc3f77ad06b1",
-      "translation": "Uma janela iluminada no escuro: laranja quente sobre quase preto, luzes desfocadas a flutuar atrás e um conjunto de sons em sol menor a 118 BPM."
-    },
-    {
-      "table": "ui",
       "key": "Gold haze over a brown-black room, nebula fields moving slowly through it, and a sound set in F Dorian at 120 BPM.",
       "source": "Gold haze over a brown-black room, nebula fields moving slowly through it, and a sound set in F Dorian at 120 BPM.",
       "source_sha256": "89322a59f61e7f14fc537ad268f7e439530a1186eca3d0c3d2ee277cb0466654",
+      "table": "ui",
       "translation": "Névoa dourada numa sala castanho-preta, campos de nebulosas a mover-se lentamente e um conjunto de sons em fá dórico a 120 BPM."
     },
     {
-      "table": "ui",
       "key": "The long low light of a year's turn: olive and pale gold, cells drifting through it, and a sound set in G Lydian at 112 BPM.",
       "source": "The long low light of a year's turn: olive and pale gold, cells drifting through it, and a sound set in G Lydian at 112 BPM.",
       "source_sha256": "50af288600ad0541aacdcdc69505c858165ac107f1f92c47f9402a9bb076fe9f",
+      "table": "ui",
       "translation": "A luz longa e baixa da viragem do ano: verde-azeitona e ouro pálido, células a flutuar e um conjunto de sons em sol lídio a 112 BPM."
     },
     {
-      "table": "ui",
       "key": "Deep water, green-black and slow: rings spreading and fading, and a sound set in E minor at 116 BPM with the heaviest sub of the ten.",
       "source": "Deep water, green-black and slow: rings spreading and fading, and a sound set in E minor at 116 BPM with the heaviest sub of the ten.",
       "source_sha256": "a3153b50f328cdb5c1dfab71c664151e6cd16338f36b0f112a9bc015582d3263",
+      "table": "ui",
       "translation": "Água profunda, verde-preta e lenta: anéis que se expandem e desaparecem, um conjunto de sons em mi menor a 116 BPM com o subgrave mais intenso dos dez."
     },
     {
-      "table": "ui",
       "key": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
       "source": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
       "source_sha256": "528943df3a5f1e1d91937a6f745e21c9e9652a96fe9096ef3d3c6feb880393bf",
+      "table": "ui",
       "translation": "Uma linha de horizonte turquesa com cortinas de luz a dobrar-se por cima e um conjunto de sons em lá dórico a 124 BPM."
     },
     {
-      "table": "ui",
       "key": "Thin high cloud: pale ice blue, barely coloured, a starfield behind it, and the most open sound set of the ten, in B minor at 126 BPM.",
       "source": "Thin high cloud: pale ice blue, barely coloured, a starfield behind it, and the most open sound set of the ten, in B minor at 126 BPM.",
       "source_sha256": "b26ec35a00d4dd7fc05650a7e69760e24575ba0e6482f39049485ea050581729",
+      "table": "ui",
       "translation": "Nuvens altas e finas: azul-gelo pálido, quase sem cor, um campo de estrelas atrás e o conjunto de sons mais arejado dos dez, em si menor a 126 BPM."
     },
     {
-      "table": "ui",
       "key": "Indigo, a starfield and the slowest sound set of the ten — C sharp minor at 108 BPM, long decays and almost no drum.",
       "source": "Indigo, a starfield and the slowest sound set of the ten — C sharp minor at 108 BPM, long decays and almost no drum.",
       "source_sha256": "063e969412f94b89a1dbb287c420abbe169b6718342e802d181343fac2fe3f72",
+      "table": "ui",
       "translation": "Índigo, um campo de estrelas e o conjunto de sons mais lento dos dez — dó sustenido menor a 108 BPM, decaimentos longos e quase sem percussão."
     },
     {
-      "table": "ui",
-      "key": "Furthest from the sun: cold violet, sand settling on a vibrating plate, and a tense sound set in D harmonic minor at 128 BPM.",
-      "source": "Furthest from the sun: cold violet, sand settling on a vibrating plate, and a tense sound set in D harmonic minor at 128 BPM.",
-      "source_sha256": "4e95ed2eb6e6e8404e62485da204b971cea3ef50f8adfb3022aed9312cf53371",
-      "translation": "O ponto mais afastado do sol: violeta frio, areia a assentar numa placa vibrante e um conjunto de sons tenso em ré menor harmónico a 128 BPM."
-    },
-    {
-      "table": "ui",
       "key": "Magenta on black with nebula fields turning through it, and the hardest-pumping sound set of the ten, in F sharp minor at 128 BPM.",
       "source": "Magenta on black with nebula fields turning through it, and the hardest-pumping sound set of the ten, in F sharp minor at 128 BPM.",
       "source_sha256": "c31728ecb6c996e5e9bdec00e5dd5a95b5824e903feb186d8b19b8f5c9f20f25",
+      "table": "ui",
       "translation": "Magenta sobre preto com campos de nebulosas a rodar e o conjunto de sons mais pulsante dos dez, em fá sustenido menor a 128 BPM."
     },
     {
-      "table": "ui",
       "key": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
       "source": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
       "source_sha256": "f32e9d844d2ff92dcfadf473b5bc56f5f91c40bfd708a2b7204428917a2dd3db",
+      "table": "ui",
       "translation": "A última cor do céu: ameixa e rosa apagado, cortinas de luz a dobrar-se por cima e um conjunto de sons suave em mi bemol menor a 114 BPM."
     },
     {
-      "table": "ui",
       "key": "White text and outlines on black with a yellow accent, for low vision and bright rooms.",
       "source": "White text and outlines on black with a yellow accent, for low vision and bright rooms.",
       "source_sha256": "938eb05af4d8d606b38813dca057f662572d04403b6f3a42ae260dc4ebd7c20e",
+      "table": "ui",
       "translation": "Texto e contornos brancos sobre preto com um destaque amarelo, para pessoas com baixa visão e salas luminosas."
     }
-  ]
+  ],
+  "review_kind": "Codex AI technical translation and review; no native-speaker signoff",
+  "schema": 1
 }

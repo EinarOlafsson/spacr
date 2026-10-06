@@ -82,6 +82,8 @@ Los módulos de segmentación, medición, anotación y clasificación también f
 
 Make Masks corrige máscaras de segmentación y anota rectángulos independientes con etiquetas de clase mediante la herramienta **Box** para exportarlos a YOLO. Los recuadros conservan sus propias etiquetas e historial sin modificar las imágenes ni las máscaras de origen.
 
+Consulte la `guía de funciones <../../source/features.rst>`_ para conocer cada herramienta.
+
 Imágenes, máscaras, recortes, mediciones, anotaciones, predicciones, códigos de barras e identificadores de pocillo residen en un único proyecto SQLite.
 
 Se ejecuta como una aplicación de escritorio o sin interfaz gráfica en una estación de trabajo, servidor o clúster.

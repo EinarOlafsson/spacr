@@ -82,6 +82,8 @@ Die Segmentierungs-, Mess-, Anmerkungs- und Klassifizierungsmodule laufen auch o
 
 Make Masks korrigiert Segmentierungsmasken und annotiert mit dem Werkzeug **Box** unabhängige Rechtecke mit Klassenlabels für den YOLO-Export. Die Rechtecke behalten ihre eigenen Labels und ihren Verlauf, ohne Quellbilder oder Masken zu ändern.
 
+Einzelheiten zu jedem Werkzeug stehen im `Funktionsleitfaden <../../source/features.rst>`_.
+
 Bilder, Masken, Bildausschnitte, Messungen, Anmerkungen, Vorhersagen, Barcodes und Well-Identifikatoren liegen in einem einzigen SQLite-Projekt.
 
 Läuft als Desktop-Anwendung oder ohne grafische Oberfläche auf einer Workstation, einem Server oder Cluster.

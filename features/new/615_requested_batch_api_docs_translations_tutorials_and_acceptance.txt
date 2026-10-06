@@ -1431,3 +1431,29 @@ refresh is next. Actual official pretrained Cell-DINO weights are still
 unobtained; scientific/GPU acceptance remains OPEN. User theme revisions and
 the preference-save native crash remain Home priority under N663. Protected
 serial Qt 37457998285 is still running at older 237506317; leave it alone.
+
+2026-10-06 — WORKSTATION HOME RUNTIME SOURCE-BOUND REFRESH ACCEPTED
+The frozen older Home Cell-DINO/Save/multi-plate/six-theme source now has
+9,918 current runtime entries in all nine external languages, including
+7,150 UI sources. The normal --repair-invalid-only generator and its full
+nine-language audit exit 0. All 522 new interface records plus two corrected
+Korean/Icelandic Similar crops captions are read back exactly; every unrelated
+runtime row and source hash is retained. Complete original review files are
+preserved byte-exact in dated archives. The Swedish and French historical
+review checks pass with every existing numeric pin unchanged and explicit
+source-retirement proofs. Receipt:
+data/615_home_runtime_translation_2026-10-06.json.
+This receipt does not cover newer Home 1f3e4a240 themes/native watching, API/
+README completion, Sphinx/browser publication, native crash or GPU acceptance.
+The older frozen API normal refresh and localized README rebuild remain live;
+newer Home source must be integrated and normally regenerated afterwards.
+N615 and the broad documentation/tutorial/translation/GPU goal remain OPEN.
+
+2026-10-06 — README REFERRAL NORMAL NINE-LANGUAGE REBUILD ACCEPTED
+Restore the Make Masks feature-guide referral and reuse its original dated
+source-bound translations in all nine localized READMEs. The normal rebuild
+exits 0; exact full-file comparison proves every other localized byte is
+unchanged, and every original review file remains byte-exact. Three existing
+README contracts plus the exact English referral check pass. Receipt:
+data/615_readme_referral_2026-10-06.json. This is not a website publication or
+newer Home theme acceptance; broader N615 stays OPEN.
