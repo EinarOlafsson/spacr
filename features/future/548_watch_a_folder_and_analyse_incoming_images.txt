@@ -717,7 +717,9 @@ CLOSED FIXED-MAP POOLED NORMALIZATION (2026-10-06, alpha subset)
 
     Real original-pixel batch/watch checks cover three fields, batch_size=2,
     both equal and unequal spatial dimensions, exact normalized archives,
-    merged masks and every available cell/nucleus Measure column. Only
+    merged masks and every available scientific cell/nucleus Measure column,
+    including pathogen relationships. File_name/path_name location columns
+    are excluded because batch and watch use different private directories. Only
     model inference is doubled; conversion, normalization, padding, Measure,
     publication and interrupted recovery execute normally. Real DB-append
     I/O and Stop interruptions resume with zero extra analysis and unchanged

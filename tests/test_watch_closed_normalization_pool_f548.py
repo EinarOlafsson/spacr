@@ -2,6 +2,7 @@
 
 import json
 import shutil
+import sqlite3
 from pathlib import Path
 
 import numpy as np
@@ -10,8 +11,18 @@ import tifffile
 
 from spacr import convert, core
 from spacr.cancellation import CancellationToken, PipelineCancelled, installed_token
-from tests.test_watch_folder_and_analyse import MASK, MEASURE, _channels, _rows, real_pipeline
+from tests.test_watch_folder_and_analyse import MASK, MEASURE, _channels, real_pipeline
 from tests.test_watch_pipeline_resume_f548 import _bytes
+
+
+def _rows(db, table):
+    """Compare every scientific column, including columns measuring pathogens."""
+    with sqlite3.connect(db) as connection:
+        columns = [row[1] for row in connection.execute(f'PRAGMA table_info("{table}")')]
+        scientific = [name for name in columns if name not in ('file_name', 'path_name')]
+        listed = ', '.join(f'"{name}"' for name in scientific)
+        rows = connection.execute(f'SELECT {listed} FROM "{table}"').fetchall()
+    return scientific, sorted(rows, key=repr)
 
 
 def _acquisition(tmp_path, *, uneven=False):
