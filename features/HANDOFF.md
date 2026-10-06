@@ -17,6 +17,26 @@ The old job's reviewed translations, English UI source hashes, Help API
 index, settings-flow source sections and locale runtime rows require the
 workstation's normal generated-artifact refresh. These historical job logs
 cannot establish green status for the current source. Item 43 remains OPEN.
+## 2026-10-06 user advection gravity and random-colors palette for Home
+The user's latest density requirement is exact: minimum 1% (0.01), not the
+current shared DENSITY_RANGE floor 0.25. Change the actual shared bound and
+engine-specific floors, with saved 1% and graded low-density effects. Mouse
+gravity still separately permits/defaults to 0. Exact quote and source cues
+are appended to data/663_advection_point_gravity_request_2026-10-06.txt.
+
+The user wants spaCR advection particles pulled toward the cursor, strongest
+near its center and smoothly fading to zero at the selected radius. The
+current pointer-local rotation looks like a distortion field to the user.
+Exact quote, source observation and requested checks are in
+data/663_advection_point_gravity_request_2026-10-06.txt. Keep default radius
+0, graduated reach and existing outside-radius flow. Home owns this renderer
+change; workstation retains all GPU/API/docs/translations/tutorials. This is
+new feedback, not implemented or accepted behavior. The user also requests
+a palette with random colors everywhere: add an optional Random colors
+animation palette with spatially varied colors and saved selection. Stable
+per-element colors are the working interpretation to avoid frame flicker.
+Both exact quotes and palette integration points are in the same receipt.
+Prior Thore/density/mycelium-growth feedback and Save investigation stay open.
 
 ## 2026-10-06 installed Home compatibility repair, local archive smoke
 Historical compat run 37494089502 (source 1f3e4a2403) failed all eight

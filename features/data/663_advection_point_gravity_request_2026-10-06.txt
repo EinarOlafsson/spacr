@@ -1,0 +1,90 @@
+2026-10-06 — USER CLARIFICATION: ADVECTION POINT GRAVITY
+Owner: Home CPU/Qt/theme session. This is a requested change, not acceptance.
+Workstation retains all API/documentation/translation/tutorial and GPU work.
+
+Exact user message:
+"on the advection theeme, the mouse looks like a distortion field. id like it to look more like a point of gravity that effects a radius with the center having the highest gravity and pull"
+
+Requested behavior:
+- In spaCR advection, the cursor is an attractive point. Particles and their
+  motion/trails should visibly converge toward it while within its radius.
+- Attraction is strongest near the cursor and falls smoothly with distance
+  to zero at the selected radius. A bounded center avoids singularities,
+  nonfinite coordinates, flicker or abrupt jumps.
+- Keep the persistent Mouse gravity radius setting: 0 disables attraction
+  and remains the default. Its reach is measured against the shorter screen
+  edge, with visibly different influence areas at 1%, 10% and 50%.
+- Preserve evolving background currents/vortices outside that reach. A
+  stationary cursor must still attract nearby moving particles; the effect
+  should not depend solely on cursor movement or be a static trail warp.
+- This clarification concerns spaCR advection. It does not establish which
+  slider the earlier broader 1%/10%/50% complaint referred to; continue to
+  check both density and radius across the applicable themes.
+
+Read-only source observation at origin/nightly 209651b7b:
+spacr/qt/widgets/ambient.py, _DataArtEngine._frame_genetic_advection,
+currently applies rotation = 1.5 * weight to the pointer-local trail
+coordinates. That term rotates local offsets without radial contraction.
+It is a concrete candidate to replace or revise for the requested inward
+attraction, not a verified diagnosis of the version in the running app.
+The shared user checkout and running application were not modified.
+
+Home validation requested:
+Compare actual pointer-on/off motion with a stationary cursor at multiple
+distances/radii; verify inward motion, smooth radial falloff, exact zero
+disable, unaffected samples outside reach, finite center behavior and saved
+radius. Preserve asynchronous image ownership/lifecycle, existing CPU caps
+and protected jobs. Report the implemented source and actual visual/native
+evidence separately; the reported Save SIGSEGV remains open.
+
+The preceding smoother Thore, lower density floor, graded controls and
+mycelium-style growth requests remain in
+data/663_user_theme_followup_2026-10-06.txt.
+
+2026-10-06 — ADDITIONAL USER REQUEST: RANDOM COLORS PALETTE
+Exact user message:
+"there should be a color palet for the themes that is just random colors everywhere"
+
+Add an optional Random colors choice to the animation palette selector for
+the themes. Interpret this as many independently varied colors across the
+background elements/regions, rather than choosing one random uniform tint.
+Use stable element/region assignments as the working interpretation so
+animation does not flicker through a fresh random color on every frame.
+This stability detail is an implementation interpretation, not an additional
+verbatim user requirement. Keep the existing default palette and the scope
+of this setting on decorative backgrounds. Save and restore the choice
+through existing preferences, and expose its caption through tr().
+
+At the inspected source, palettes are registered per theme in
+ambient._THEME_PALETTES and exposed through palettes_for/palette_label;
+Preferences uses the existing AmbientPalette selector. Check each applicable
+renderer, including native point materials, for actual spatial color variety.
+An offered menu item alone is not visual acceptance. Preserve finite pixel
+values, owned images/lifecycle and CPU/native frame-budget evidence. Home
+owns the palette source and native validation; workstation will regenerate
+source-bound API/runtime/guide translations after receiving that source.
+
+2026-10-06 — EXACT DENSITY MINIMUM FROM USER
+Exact user message: "the density floor should be 1 %"
+
+Set Animation density's supported lower bound to 1% (normalized 0.01),
+through the shared range, UI slider, preference getter/setter and renderer.
+Preserve its existing default and upper bound. This is the density minimum;
+mouse gravity retains its separate 0/off default and minimum.
+
+Read-only source observation at f5f5bf9ee:
+ambient.DENSITY_RANGE is currently (0.25, 3.0), and engine/widget density
+setters clamp to it. Thus requested densities 0.01 and 0.10 both become 0.25
+at that source. Update the shared bound normally rather than changing only
+the slider display. In _paint_thore, rain amount also has a max(24, ...)
+floor; review that and other theme-specific minima so low densities have a
+real visual effect. Preserve any minimum needed for a valid primitive, but
+do not silently make 1%, 10% and 50% look identical. The existing work-budget
+upper guard stays intact.
+
+Home should prove exact 0.01 persistence and effective renderer density,
+graded counts/spacing at 1%, 10% and 50%, valid low-density painting and
+unchanged outside-radius/zero-gravity behavior. Update source-bound API
+range documentation normally; workstation will refresh all derived API,
+runtime, guide and Help artifacts after integration. This explicit 1% floor
+supersedes the earlier unspecific request to lower the density minimum.
