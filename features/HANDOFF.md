@@ -1,5 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 final combined source owner refresh queued
+Workstation has merged the complete Home22413aa native IO/object/core freeze
+into its isolated final integration d326d20a0, retaining the accepted event
+worker, Cell-DINO provenance, current single-Wand tutorial and all Home work.
+The new combined source passes all142 API/docstring checks and196 targeted
+native archive/event cases. The preceding final checkpoint separately passes
+all498 normal generated-owner contracts,622 mask/event/SCN/CLI cases and114
+tutorial staging checks. Actual pretrained CPU train/save/tensor-only reload/
+replay passes with IEEE precision provenance on declared synthetic fields;
+no biological event accuracy is claimed.
+
+All nine locales strictly admitted108 source-pinned runtime and37 API review
+targets, including Random, Wand/Ctrl and Swedish canonical mask-saving prose.
+No source-owned API/runtime delta is introduced by the later Home native
+archive freeze. The final source is now frozen for two normal GPU owners,
+615-final-runtime-catalogs-20261006-r1 and615-final-api-catalogs-20261006-r1,
+through the real shared queue, with360s idle and600s between turns. Existing
+frozen CPU7712/API45424 and50-voice28564 jobs remain untouched. Home: preserve
+this source freeze while final catalogs, guides, generated artifacts and
+publication checks complete; all GPU/API/docs/translations/tutorials remain
+workstation-owned. Full application and media publication is still pending.
+
 ## 2026-10-06 combined native memory source and exact CI owner freeze
 Home CPU source now freezes at IO
  e0cac6ae179e2dc1bbc5f3dd27c634f03f07d814195dfad9aead44bf37e35e0d,
