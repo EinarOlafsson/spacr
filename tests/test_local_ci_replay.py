@@ -3,19 +3,37 @@
 import hashlib
 import json
 import os
-from pathlib import Path
 import shutil
 import signal
 import subprocess
 import sys
 import time
+from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 from tools import replay_ci_batch as replay
 
-
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_pytest_plugin_inventory_accepts_python39_and_selectable_metadata(monkeypatch):
+    plugins = [SimpleNamespace(name="fixture", value="package:plugin")]
+    unrelated = [SimpleNamespace(name="other", value="package:other")]
+    monkeypatch.setattr(replay.importlib.metadata, "entry_points",
+                        lambda: {"pytest11": plugins, "console_scripts": unrelated})
+    assert replay._pytest_plugin_entry_points() == {"fixture": "package:plugin"}
+
+    class SelectableEntries:
+        """Provide the selectable entry-point interface of newer Python."""
+
+        def select(self, *, group):
+            assert group == "pytest11"
+            return plugins
+
+    monkeypatch.setattr(replay.importlib.metadata, "entry_points", SelectableEntries)
+    assert replay._pytest_plugin_entry_points() == {"fixture": "package:plugin"}
 
 
 @pytest.mark.parametrize("suite,count,size,timeout,ignored", [

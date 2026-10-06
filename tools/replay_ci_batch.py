@@ -16,7 +16,6 @@ import importlib.metadata
 import importlib.util
 import json
 import os
-from pathlib import Path
 import platform
 import re
 import shlex
@@ -24,6 +23,7 @@ import signal
 import subprocess
 import sys
 import time
+from pathlib import Path
 
 
 def _load_runner(root, coverage):
@@ -136,6 +136,13 @@ def _write(path, data):
     temporary = path.with_suffix(path.suffix + ".partial")
     temporary.write_text(json.dumps(data, indent=2) + "\n")
     temporary.replace(path)
+
+
+def _pytest_plugin_entry_points():
+    """Record pytest plugins with the Python 3.9 and newer metadata APIs."""
+    entries = importlib.metadata.entry_points()
+    selected = entries.select(group="pytest11") if hasattr(entries, "select") else entries.get("pytest11", ())
+    return {entry.name: entry.value for entry in selected}
 
 
 def _environment(root, output, suite, shard, count, disabled_plugins=()):
@@ -308,7 +315,7 @@ def main(argv=None):
         "memory_cap": "8G", "per_worker_memory_guard_gb": 6,
         "qt_serial_tail": "excluded" if cli.suite == "qt" else "not applicable",
         "disabled_plugins": cli.disable_plugin, "ci_environment": {"CI": "true", "GITHUB_ACTIONS": "true"},
-        "pytest_plugin_entry_points": {entry.name: entry.value for entry in importlib.metadata.entry_points(group="pytest11")},
+        "pytest_plugin_entry_points": _pytest_plugin_entry_points(),
     }
     _write(cli.output / "manifest.json", manifest)
     (cli.output / "replay-helper.py").write_bytes(Path(__file__).read_bytes())
