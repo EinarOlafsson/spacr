@@ -36,9 +36,20 @@
     "tests/qt/test_make_masks_saved_edits_reopen.py": "eb902a0f3a225dcb91067046d3f5b251f7ec4e272cc9926bab25d20589aa48a4"
   },
   "archive_sha256": {
-    "mask-save-engine-contracts-r1.log": "f4fb2c2aec3a9e06181a0d904bc1ad08ef0302278dab1f8d03b025b6e39280f5",
-    "mask-save-reopen-baseline-r1.log": "1f5160bd05ed656c7db9cb85e383251599c28b277e6e2dcf26db1d85cfee7974",
-    "mask-save-reopen-fixed-r1.log": "1e519f4a0e768e3c256078b388c30985e24cdf0ecdb8b69c36ca30a7837ffcaf",
+    "mask-save-engine-contracts-r1.log.gz": "5d044448642f5d2800d5a98188760a32f03012466fe17ea35ddd619d470b68d7",
+    "mask-save-reopen-baseline-r1.log.gz": "6f85ca27dc280cc853cfa89f2dae265270f323e81a569d4f4454bc0dee93870d",
+    "mask-save-reopen-fixed-r1.log.gz": "1ae88dd23fad9939aaf10f521699a922169d89cf356fd4b0628f13f4a266db61",
     "regressions.py": "eb902a0f3a225dcb91067046d3f5b251f7ec4e272cc9926bab25d20589aa48a4"
+  },
+  "complete_original_logs": {
+    "mask-save-reopen-baseline-r1.log.gz": {
+      "uncompressed_sha256": "1f5160bd05ed656c7db9cb85e383251599c28b277e6e2dcf26db1d85cfee7974"
+    },
+    "mask-save-reopen-fixed-r1.log.gz": {
+      "uncompressed_sha256": "1e519f4a0e768e3c256078b388c30985e24cdf0ecdb8b69c36ca30a7837ffcaf"
+    },
+    "mask-save-engine-contracts-r1.log.gz": {
+      "uncompressed_sha256": "f4fb2c2aec3a9e06181a0d904bc1ad08ef0302278dab1f8d03b025b6e39280f5"
+    }
   }
 }
