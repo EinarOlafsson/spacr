@@ -54,6 +54,29 @@ def test_identical_crop_paths_in_two_databases_keep_their_owners(tmp_path):
         index.like(first, "not-a-crop.png")
 
 
+def test_multi_plate_auto_backend_uses_available_faiss_without_losing_sources(
+        tmp_path, monkeypatch):
+    import sys
+    from tests.test_similarity_search import _fake_faiss
+
+    first, first_keys = _plate(tmp_path, "plate1")
+    second, second_keys = _plate(tmp_path, "plate2")
+    monkeypatch.setitem(sys.modules, "faiss", _fake_faiss(2))
+    monkeypatch.delenv("CUDA_VISIBLE_DEVICES", raising=False)
+    accelerated = al._multi_similarity_index([first, second])
+    assert accelerated.backend == "faiss-gpu"
+    plain = al._multi_similarity_index([first, second], backend="numpy")
+    assert plain.backend == "numpy"
+    assert set(zip(accelerated.like(first, first_keys[0], 5).db_path,
+                   accelerated.like(first, first_keys[0], 5).key)) == set(zip(
+                       plain.like(first, first_keys[0], 5).db_path,
+                       plain.like(first, first_keys[0], 5).key))
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")
+    cpu_only = al._multi_similarity_index([first, second])
+    assert cpu_only.backend == "faiss"
+    assert (second, second_keys[0]) in cpu_only.keys
+
+
 def test_a_requested_crop_kind_filters_both_plates_without_reassigning_owners(tmp_path):
     first, _ = _plate(tmp_path, "plate1")
     second, _ = _plate(tmp_path, "plate2")

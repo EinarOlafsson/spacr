@@ -143,10 +143,13 @@ def test_worker_honours_an_explicit_measurement_choice_without_saved_vectors(
 
 
 def test_worker_builds_each_available_feature_kind_and_source_scope(
-        plate, tmp_path):  # noqa: F811
+        plate, tmp_path, monkeypatch):  # noqa: F811
+    import sys
+
     from spacr import active_learning as al
     from spacr.embeddings import EmbeddingSpec
     from spacr.qt.screens.annotate import _SimilarityWorker
+    from tests.test_similarity_search import _fake_faiss
 
     first = str(plate / "measurements" / "measurements.db")
     with sqlite3.connect(first) as db:
@@ -177,7 +180,10 @@ def test_worker_builds_each_available_feature_kind_and_source_scope(
     other = tmp_path / "plate2"
     shutil.copytree(plate, other)
     second = str(other / "measurements" / "measurements.db")
+    monkeypatch.setitem(sys.modules, "faiss", _fake_faiss(0))
+    monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")
     combined = search(feature_kind="embeddings", db_paths=[first, second])
+    assert combined["index"].backend == "faiss"
     assert set(combined["hits"].db_path) == {first, second}
 
 

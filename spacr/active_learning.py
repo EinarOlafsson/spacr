@@ -2725,7 +2725,8 @@ def _store_crop_embeddings(db_path: str, prcfo: Sequence[Any],
                 break
     if compatible:
         existing = existing[~existing["prcfo"].isin(frame["prcfo"])]
-        frame = pd.concat([existing, frame], ignore_index=True)
+        if not existing.empty:
+            frame = pd.concat([existing, frame], ignore_index=True)
     tabular.write_database(frame, db_path, _EMBEDDING_TABLE,
                            if_exists="replace", canonicalise=False)
     return len(frame)
@@ -2808,7 +2809,7 @@ class _MultiSimilarityIndex:
     """Search compatible crops across databases without losing source identity."""
 
     def __init__(self, frames: Sequence[Tuple[str, pd.DataFrame]], *,
-                 backend: str = "numpy"):
+                 backend: str = "auto"):
         """Give every crop a private index key and retain its database and key."""
         sources = {}
         indexed = []
@@ -2851,7 +2852,7 @@ class _MultiSimilarityIndex:
 
 def _multi_similarity_index(db_paths: Sequence[str], *,
                             image_type: Optional[str] = None,
-                            backend: str = "numpy",
+                            backend: str = "auto",
                             feature_kind: str = "auto") -> _MultiSimilarityIndex:
     """Build one CPU index only when every plate has the same feature space.
 
