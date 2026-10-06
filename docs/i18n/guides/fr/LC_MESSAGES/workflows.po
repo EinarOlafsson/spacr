@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 07:48-0400\n"
+"POT-Creation-Date: 2026-10-06 13:33-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -271,6 +271,14 @@ msgstr "Masques"
 
 msgid "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table."
 msgstr "Choisissez les canaux et les modèles, examinez un aperçu, puis exécutez Mask. Measure utilise les tableaux fusionnés ; la base de comptages n’est pas encore une table de caractéristiques."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Folder watching uses ``watch_normalization_pool='per_field'`` by default. For a declared static projected acquisition, ``'fixed_map'`` waits for every image in ``conversion_map.csv`` before running the ordinary Mask or Mask/Measure batch with shared percentile normalization and padding. Set ``randomize=False`` and ``batch_size`` greater than one. A timeout never releases an incomplete pool; restart checkpoints bind the declared members, recipes and original input hashes."
+msgstr "La surveillance de dossiers utilise ``watch_normalization_pool='per_field'`` par défaut. Pour une acquisition statique projetée déclarée, ``'fixed_map'`` attend chaque image de ``conversion_map.csv`` avant d’exécuter le lot habituel de Mask ou Mask/Measure avec normalisation par percentiles et remplissage partagés. Définissez ``randomize=False`` et ``batch_size`` supérieur à un. Un délai dépassé ne libère jamais un groupe incomplet ; les points de reprise lient les membres déclarés, les recettes et les empreintes des entrées originales."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Native time-volume Mask accepts a complete fixed Convert map of explicitly identified C/Z/T planes with both ``z_stack`` and ``t_stack`` enabled. Declare TZYX axis order, physical Z spacing and frame interval. Batch ingest and folder watching retain the original planes and build TZYXC archives for 4-D segmentation. This route supports Mask only; it does not enable Measure, tracking or Classify for native time volumes."
+msgstr "Mask pour les volumes temporels natifs accepte un plan fixe complet de Convert avec des plans C/Z/T explicitement identifiés lorsque ``z_stack`` et ``t_stack`` sont activés. Déclarez l’ordre des axes TZYX, l’espacement physique en Z et l’intervalle entre images. L’importation par lots et la surveillance de dossiers conservent les plans originaux et créent des archives TZYXC pour la segmentation 4-D. Cette voie prend uniquement en charge Mask ; elle n’active ni Measure, ni le suivi, ni Classify pour les volumes temporels natifs."
 
 msgid "**Open:** Home → Mask."
 msgstr "**Ouvrir :** Accueil → Masques."
@@ -971,6 +979,10 @@ msgstr "Embeddings"
 
 msgid "Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration."
 msgstr "Encodez les images d’objets avec un modèle et une politique de canaux choisis. Conservez les identités des objets et la provenance de l’encodeur lorsque vous fournissez les caractéristiques à l’exploration ultérieure."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With alpha features enabled, **Save for Similar crops** stores the full embedding matrix in the measurements database that supplied the loaded objects. It requires the original database object identities and verified encoder weights. Annotate can then search those stored vectors with compatible model, channel and preprocessing identities. Folder-loaded crops use the standalone Python example to save matrices; they cannot use the database save action."
+msgstr "Lorsque les fonctions alpha sont activées, **Enregistrer pour les images similaires** enregistre toute la matrice d’embeddings dans la base de mesures qui a fourni les objets chargés. Les identités originales des objets de la base et des poids d’encodeur vérifiés sont nécessaires. Annotate peut ensuite rechercher ces vecteurs enregistrés avec des identités compatibles de modèle, de canaux et de prétraitement. Les recadrages chargés depuis un dossier utilisent l’exemple Python autonome pour enregistrer les matrices ; ils ne peuvent pas utiliser l’action d’enregistrement dans la base."
 
 msgid "**Open:** Home → Embeddings."
 msgstr "**Ouvrir :** Accueil → Embeddings."

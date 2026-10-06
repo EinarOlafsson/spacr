@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 07:48-0400\n"
+"POT-Creation-Date: 2026-10-06 13:33-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -271,6 +271,14 @@ msgstr "मास्क"
 
 msgid "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table."
 msgstr "चैनल और मॉडल चुनें, पूर्वावलोकन देखें, फिर Mask चलाएँ। Measure मर्ज किए गए ऐरे लेता है; गिनतियों का डेटाबेस अभी फ़ीचर तालिका नहीं है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Folder watching uses ``watch_normalization_pool='per_field'`` by default. For a declared static projected acquisition, ``'fixed_map'`` waits for every image in ``conversion_map.csv`` before running the ordinary Mask or Mask/Measure batch with shared percentile normalization and padding. Set ``randomize=False`` and ``batch_size`` greater than one. A timeout never releases an incomplete pool; restart checkpoints bind the declared members, recipes and original input hashes."
+msgstr "फ़ोल्डर निगरानी डिफ़ॉल्ट रूप से ``watch_normalization_pool='per_field'`` का उपयोग करती है। घोषित स्थिर प्रक्षेपित इमेज अधिग्रहण के लिए ``'fixed_map'`` सामान्य Mask या Mask/Measure बैच को साझा परसेंटाइल सामान्यीकरण और पैडिंग के साथ चलाने से पहले ``conversion_map.csv`` की हर इमेज की प्रतीक्षा करता है। ``randomize=False`` सेट करें और ``batch_size`` एक से अधिक रखें। समयसीमा कभी अधूरे समूह को आगे नहीं भेजती; पुनः आरंभ के चेकपॉइंट घोषित सदस्यों, प्रक्रिया निर्देशों और मूल इनपुट हैश को साथ बाँधते हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Native time-volume Mask accepts a complete fixed Convert map of explicitly identified C/Z/T planes with both ``z_stack`` and ``t_stack`` enabled. Declare TZYX axis order, physical Z spacing and frame interval. Batch ingest and folder watching retain the original planes and build TZYXC archives for 4-D segmentation. This route supports Mask only; it does not enable Measure, tracking or Classify for native time volumes."
+msgstr "मूल समय-आयतन का Mask स्पष्ट रूप से पहचाने गए C/Z/T तलों का पूरा निश्चित Convert मैप स्वीकार करता है, जब ``z_stack`` और ``t_stack`` दोनों सक्षम हों। TZYX अक्ष क्रम, भौतिक Z दूरी और फ़्रेमों का अंतराल घोषित करें। बैच इनपुट और फ़ोल्डर निगरानी मूल तलों को सुरक्षित रखते हैं और 4-D सेगमेंटेशन के लिए TZYXC आर्काइव बनाते हैं। यह प्रक्रिया केवल Mask का समर्थन करती है; मूल समय-आयतन के लिए Measure, ट्रैकिंग या Classify सक्षम नहीं करती।"
 
 msgid "**Open:** Home → Mask."
 msgstr "**खोलें:** मुखपृष्ठ → मास्क।"
@@ -971,6 +979,10 @@ msgstr "Embeddings"
 
 msgid "Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration."
 msgstr "चुने हुए मॉडल और चैनल नीति से वस्तु छवियों को एन्कोड करें। आगे की खोज में फ़ीचर देते समय वस्तुओं की पहचान और एन्कोडर की उत्पत्ति का रिकॉर्ड रखें।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With alpha features enabled, **Save for Similar crops** stores the full embedding matrix in the measurements database that supplied the loaded objects. It requires the original database object identities and verified encoder weights. Annotate can then search those stored vectors with compatible model, channel and preprocessing identities. Folder-loaded crops use the standalone Python example to save matrices; they cannot use the database save action."
+msgstr "अल्फ़ा सुविधाएँ सक्षम होने पर **समान चित्रखंडों के लिए सहेजें** पूरी एम्बेडिंग मैट्रिक्स को उस मापन डेटाबेस में सहेजता है जिससे लोड किए गए ऑब्जेक्ट आए थे। मूल डेटाबेस ऑब्जेक्ट पहचान और सत्यापित एनकोडर वज़न आवश्यक हैं। फिर Annotate संगत मॉडल, चैनल और प्रीप्रोसेसिंग पहचान के साथ सहेजे गए वेक्टर खोज सकता है। फ़ोल्डर से लोड किए गए इमेज क्रॉप मैट्रिक्स सहेजने के लिए स्वतंत्र Python उदाहरण का उपयोग करते हैं; वे डेटाबेस में सहेजने की क्रिया का उपयोग नहीं कर सकते।"
 
 msgid "**Open:** Home → Embeddings."
 msgstr "**खोलें:** मुखपृष्ठ → Embeddings।"

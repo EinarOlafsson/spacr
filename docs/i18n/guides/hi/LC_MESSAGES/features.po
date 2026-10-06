@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 07:48-0400\n"
+"POT-Creation-Date: 2026-10-06 13:33-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -237,56 +237,38 @@ msgid "Data-art themes"
 msgstr "डेटा कला थीम"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Under **Preferences** → **Appearance** → **Theme**, twelve data-art presets each select an interface palette and an animated background. The original ten night themes and seven background animations remain available. **Animation** lets you choose a background independently; select **None** for a static background. These backgrounds are decorative and do not display project measurements."
-msgstr "**प्राथमिकताएं** → **रूप-रंग** → **थीम** में बारह डेटा कला पूर्वनिर्धारित विकल्पों में से प्रत्येक एक इंटरफ़ेस रंग-पैलेट और एनिमेटेड पृष्ठभूमि चुनता है। मूल दस रात्रि थीम और सात पृष्ठभूमि एनिमेशन अब भी उपलब्ध हैं। **एनिमेशन** से पृष्ठभूमि स्वतंत्र रूप से चुन सकते हैं; स्थिर पृष्ठभूमि के लिए **कोई नहीं** चुनें। ये पृष्ठभूमियाँ सजावटी हैं और परियोजना के मापन नहीं दिखातीं।"
+msgid "Under **Preferences** → **Appearance** → **Theme**, seven data-art presets each select an interface palette and an animated background. The ten night themes remain available. **Animation** lets you choose a background independently; select **None** for a static background. These backgrounds are decorative and do not display project measurements."
+msgstr "**प्राथमिकताएं** → **रूप-रंग** → **थीम** में सात डेटा आर्ट प्रीसेट में से प्रत्येक इंटरफ़ेस का रंग-पैलेट और एनिमेटेड पृष्ठभूमि चुनता है। दस रात्रि थीम उपलब्ध रहती हैं। **एनिमेशन** से पृष्ठभूमि स्वतंत्र रूप से चुनें; स्थिर पृष्ठभूमि के लिए **कोई नहीं** चुनें। ये पृष्ठभूमियाँ सजावटी हैं और परियोजना के मापन नहीं दिखातीं।"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Spatial point atlas** — A finely sampled three-dimensional point landscape with depth and cursor-driven parallax."
-msgstr "**स्थानिक बिंदु मानचित्र** — बारीकी से नमूनाकृत त्रिविमीय बिंदु परिदृश्य, जिसमें गहराई और कर्सर से नियंत्रित लंबन है।"
+msgid "The animation menu begins with **spaCR field** (the default), **spaCR advection**, **spaCR growth**, **spaCR Thore**, **spaCR waves**, and **Blobs**, followed by the remaining backgrounds."
+msgstr "एनिमेशन मेनू की शुरुआत **spaCR field** (डिफ़ॉल्ट), **spaCR advection**, **spaCR growth**, **spaCR Thore**, **spaCR waves** और **तरल आकृतियाँ** से होती है; शेष पृष्ठभूमियाँ इनके बाद आती हैं।"
+
+msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
+msgstr "**spaCR field** — स्पष्ट बिंदुओं वाला गुरुत्व क्षेत्र, जिसमें वैकल्पिक स्थानीय माउस प्रभाव और फैलती लहरें हैं।"
+
+msgid "**spaCR advection** — Fine particles form evolving vortices and branching currents, with optional mouse gravity."
+msgstr "**spaCR advection** — महीन कण बदलते भंवर और शाखित प्रवाह बनाते हैं, जिनमें माउस का गुरुत्व वैकल्पिक है।"
+
+#, python-format
+msgid "**spaCR growth** — A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop."
+msgstr "**spaCR growth** — एक ही शाखित वृद्धि अग्रभाग लगातार आगे बढ़ता है और पीछे का निशान फीका पड़ता जाता है; पृष्ठभूमि का अधिकतम 25% भाग घिरता है।"
+
+msgid "**spaCR Thore** — Fine background rain and branching lightning briefly illuminate the scene."
+msgstr "**spaCR Thore** — पृष्ठभूमि की महीन बारिश और शाखित बिजली दृश्य को थोड़ी देर के लिए रोशन करती हैं।"
+
+msgid "**spaCR waves** — An edge-free landscape of round points carries wide travelling waves."
+msgstr "**spaCR waves** — बिना किनारों वाले गोल बिंदुओं के परिदृश्य में चौड़ी लहरें आगे बढ़ती हैं।"
+
+msgid "**Tissue facets** — Fine paper facets move gently and respond locally to the mouse."
+msgstr "**ऊतक फलक** — कागज़ जैसे महीन फलक धीरे चलते हैं और स्थानीय रूप से माउस पर प्रतिक्रिया देते हैं।"
+
+msgid "**Chromatin satin** — Fine chromatin fibres undulate in travelling waves across folded ribbons."
+msgstr "**क्रोमैटिन साटन** — महीन क्रोमैटिन तंतु मुड़ी हुई पट्टियों पर आगे बढ़ती लहरों में लहराते हैं।"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Tissue facets** — A crystalline tissue mosaic of shaded geometric facets, with slowly changing local relief."
-msgstr "**ऊतक फलक** — छायांकित ज्यामितीय फलकों से बना स्फटिक जैसा ऊतक मोज़ेक, जिसकी स्थानीय ऊँचाई-निचाई धीरे बदलती है।"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Spatial strata** — Fine stacked topographic layers form a moving spatial relief with precise depth and contour detail."
-msgstr "**स्थानिक परतें** — बारीक, एक के ऊपर एक रखी स्थलाकृतिक परतें गतिशील स्थानिक उभार बनाती हैं, जिसमें गहराई और समोच्च का सटीक विवरण है।"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Molecular helix** — A rotating molecular helix of shaded beads and paired bases, with perspective and depth."
-msgstr "**आणविक कुंडलिनी** — छायांकित मोतियों और युग्मित क्षारकों से बनी घूमती आणविक कुंडलिनी, जिसमें परिप्रेक्ष्य और गहराई है।"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Chromatin satin** — Folded satin-like chromatin ribbons carry fine fibres through soft, interwoven surfaces."
-msgstr "**क्रोमैटिन साटन** — मुड़े हुए साटन जैसे क्रोमैटिन रिबन बारीक तंतुओं को कोमल, आपस में बुनी सतहों से गुज़ारते हैं।"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Genome mosaic** — A layered genome mosaic of tiny encoded tiles shifts through an architectural sequence field."
-msgstr "**जीनोम मोज़ेक** — छोटी कूटबद्ध टाइलों से बना परतदार जीनोम मोज़ेक एक स्थापत्य-जैसे अनुक्रम क्षेत्र में खिसकता है।"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Transcript rain** — Fine falling transcription marks stream through a layered field of genetic information."
-msgstr "**ट्रांसक्रिप्ट वर्षा** — गिरते हुए बारीक प्रतिलेखन चिह्न आनुवंशिक सूचना के परतदार क्षेत्र में बहते हैं।"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Regulatory circuit** — An etched regulatory circuit routes pulses through precise orthogonal paths and small control nodes."
-msgstr "**नियामक परिपथ** — एक उकेरा हुआ नियामक परिपथ सटीक समकोणीय पथों और छोटे नियंत्रण नोडों से स्पंदों को भेजता है।"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Genetic advection** — Thousands of fine genetic-flow particles move through a continuous wind-like field that bends near the cursor."
-msgstr "**आनुवंशिक अभिवहन** — आनुवंशिक प्रवाह के हज़ारों बारीक कण हवा जैसे एक सतत क्षेत्र में चलते हैं, जो कर्सर के पास मुड़ता है।"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Perturbation interference** — Smooth interference waves form a changing pearlescent field, distorted locally by the cursor."
-msgstr "**विक्षोभ व्यतिकरण** — चिकनी व्यतिकरण तरंगें बदलता हुआ मोती जैसा चमकीला क्षेत्र बनाती हैं, जिसे कर्सर स्थानीय रूप से विकृत करता है।"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Morphogenesis** — A fine organic pattern of changing spots and labyrinths evokes the emergence of biological structure."
-msgstr "**आकारजनन** — बदलते धब्बों और भूलभुलैयों का बारीक जैविक पैटर्न जैविक संरचना के उभरने की याद दिलाता है।"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Perturbation lens** — A precision dot lattice bends around moving impulses and the cursor, revealing local perturbation."
-msgstr "**विक्षोभ लेंस** — एक सटीक बिंदु जाल गतिमान स्पंदों और कर्सर के आसपास मुड़कर स्थानीय विक्षोभ दिखाता है।"
+msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **0**, which disables mouse influence. Use **Animation density** to change the number of elements and **Animation detail** to change drawing resolution. Density and detail share the renderer's work budget. Press **Save** to keep preference changes."
+msgstr "**माउस गुरुत्व की त्रिज्या** प्रभावित क्षेत्र को स्क्रीन के छोटे किनारे के प्रतिशत के रूप में सेट करता है। डिफ़ॉल्ट **0** माउस का प्रभाव बंद करता है। तत्वों की संख्या बदलने के लिए **गति घनत्व** और चित्रण का रिज़ॉल्यूशन बदलने के लिए **एनीमेशन विवरण** का उपयोग करें। घनत्व और विस्तार रेंडरर का कार्य बजट साझा करते हैं। प्राथमिकताओं के बदलाव बनाए रखने के लिए **सहेजें** दबाएँ।"
 
 msgid "Arranging the window"
 msgstr "विंडो की व्यवस्था"

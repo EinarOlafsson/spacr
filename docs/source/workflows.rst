@@ -204,6 +204,10 @@ Mask
 
 Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table.
 
+Folder watching uses ``watch_normalization_pool='per_field'`` by default. For a declared static projected acquisition, ``'fixed_map'`` waits for every image in ``conversion_map.csv`` before running the ordinary Mask or Mask/Measure batch with shared percentile normalization and padding. Set ``randomize=False`` and ``batch_size`` greater than one. A timeout never releases an incomplete pool; restart checkpoints bind the declared members, recipes and original input hashes.
+
+Native time-volume Mask accepts a complete fixed Convert map of explicitly identified C/Z/T planes with both ``z_stack`` and ``t_stack`` enabled. Declare TZYX axis order, physical Z spacing and frame interval. Batch ingest and folder watching retain the original planes and build TZYXC archives for 4-D segmentation. This route supports Mask only; it does not enable Measure, tracking or Classify for native time volumes.
+
 **Open:** Home → Mask.
 
 Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
@@ -1068,6 +1072,8 @@ Embeddings
 ~~~~~~~~~~
 
 Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration.
+
+With alpha features enabled, **Save for Similar crops** stores the full embedding matrix in the measurements database that supplied the loaded objects. It requires the original database object identities and verified encoder weights. Annotate can then search those stored vectors with compatible model, channel and preprocessing identities. Folder-loaded crops use the standalone Python example to save matrices; they cannot use the database save action.
 
 **Open:** Home → Embeddings.
 

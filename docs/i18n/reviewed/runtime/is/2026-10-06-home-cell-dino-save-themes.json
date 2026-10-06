@@ -9,13 +9,6 @@
       "translation": "Cell-DINO-rás vantar í innlesnu myndskurðina. Opnaðu vörpunina aftur og veldu gild myndplön."
     },
     {
-      "key": "A lit window in the dark: warm orange on near-black, crisp cells drifting behind it, and a sound set in G minor at 118 BPM.",
-      "source": "A lit window in the dark: warm orange on near-black, crisp cells drifting behind it, and a sound set in G minor at 118 BPM.",
-      "source_sha256": "aef0600fd914c66f87b97be875d7798f4ca4a2263dfbd2141e063af31f6a83bf",
-      "table": "ui",
-      "translation": "Upplýstur gluggi í myrkrinu: hlýr appelsínugulur á nærsvörtum grunni, skýrar frumur sem reka fyrir aftan hann og hljóðasafn í g-moll við 118 BPM."
-    },
-    {
       "key": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains. SubCell's two-plane model takes DNA then protein; its four-plane model needs explicit microtubules, ER, DNA and protein mapping. Other weights download once. Cell-DINO requires a local official checkpoint, declared SHA-256 and explicit model-plane mapping. Default None (use the backbone).",
       "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains. SubCell's two-plane model takes DNA then protein; its four-plane model needs explicit microtubules, ER, DNA and protein mapping. Other weights download once. Cell-DINO requires a local official checkpoint, declared SHA-256 and explicit model-plane mapping. Default None (use the backbone).",
       "source_sha256": "f56f8ca9fc07e6461b525f0b74eece2a38a93b32d6147da646a6abecdc143498",
@@ -189,27 +182,6 @@
       "source_sha256": "ab3fab52492acd28d5bca729dd9453f0216cb11530401ff3722073030a62be4d",
       "table": "ui",
       "translation": "Vænt SHA-256"
-    },
-    {
-      "key": "Fine fungal branches extend continuously across at most 30% of the backdrop, leaving the field clear.",
-      "source": "Fine fungal branches extend continuously across at most 30% of the backdrop, leaving the field clear.",
-      "source_sha256": "4340ff03673a8a39b6fc2e813d56b9bb35c14d687f6c6c801bcd444666da24a3",
-      "table": "ui",
-      "translation": "Fínir sveppaþræðir vaxa stöðugt yfir í mesta lagi 30% bakgrunnsins og halda svæðinu opnu."
-    },
-    {
-      "key": "Fungal growth",
-      "source": "Fungal growth",
-      "source_sha256": "e26f0952f30f921ce84610339202f480b1b9d77b5ea9bc16ddb8f5f51d7c505f",
-      "table": "ui",
-      "translation": "Sveppavöxtur"
-    },
-    {
-      "key": "Furthest from the sun: cold violet, rings spreading through the dark, and a tense sound set in D harmonic minor at 128 BPM.",
-      "source": "Furthest from the sun: cold violet, rings spreading through the dark, and a tense sound set in D harmonic minor at 128 BPM.",
-      "source_sha256": "f452c6f271e4dce975cc7b761e6bc1074f28ce8fb2dab2c3be3e850365e850ca",
-      "table": "ui",
-      "translation": "Lengst frá sólinni: kaldur fjólublár litur, hringir sem breiðast út í myrkrinu og spennuþrungið hljóðasafn í d-harmónískum moll við 128 BPM."
     },
     {
       "key": "HPA ViT-L/14 · four planes · 518 pixels",

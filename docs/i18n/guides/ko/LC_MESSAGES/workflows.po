@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 07:48-0400\n"
+"POT-Creation-Date: 2026-10-06 13:33-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -271,6 +271,14 @@ msgstr "마스크"
 
 msgid "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table."
 msgstr "채널과 모델을 선택하고 미리보기를 검사한 다음 마스크를 실행하세요. 측정은 병합 배열을 사용하며, 개수 데이터베이스는 아직 특징 테이블이 아닙니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Folder watching uses ``watch_normalization_pool='per_field'`` by default. For a declared static projected acquisition, ``'fixed_map'`` waits for every image in ``conversion_map.csv`` before running the ordinary Mask or Mask/Measure batch with shared percentile normalization and padding. Set ``randomize=False`` and ``batch_size`` greater than one. A timeout never releases an incomplete pool; restart checkpoints bind the declared members, recipes and original input hashes."
+msgstr "폴더 감시는 기본적으로 ``watch_normalization_pool='per_field'`` 를 사용합니다. 선언된 정적 투영 이미지 획득에서는 ``'fixed_map'`` 이 ``conversion_map.csv`` 의 모든 이미지를 기다린 다음 공유 백분위 정규화와 패딩으로 일반적인 Mask 또는 Mask/Measure 배치를 실행합니다. ``randomize=False`` 로 설정하고 ``batch_size`` 를 1보다 크게 설정하세요. 시간 초과로 불완전한 그룹을 처리하지 않습니다. 재시작 체크포인트는 선언된 구성원, 처리 레시피 및 원본 입력 해시를 함께 연결합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Native time-volume Mask accepts a complete fixed Convert map of explicitly identified C/Z/T planes with both ``z_stack`` and ``t_stack`` enabled. Declare TZYX axis order, physical Z spacing and frame interval. Batch ingest and folder watching retain the original planes and build TZYXC archives for 4-D segmentation. This route supports Mask only; it does not enable Measure, tracking or Classify for native time volumes."
+msgstr "원본 시간 볼륨 Mask는 명시적으로 식별된 C/Z/T 평면의 완전한 고정 Convert 매핑을 받으며, ``z_stack`` 과 ``t_stack`` 이 모두 활성화되어야 합니다. TZYX 축 순서, 물리적 Z 간격 및 프레임 간격을 선언하세요. 배치 입력과 폴더 감시는 원본 평면을 보존하고 4-D 분할용 TZYXC 아카이브를 만듭니다. 이 경로는 Mask만 지원하며 원본 시간 볼륨의 Measure, 추적 또는 Classify를 활성화하지 않습니다."
 
 msgid "**Open:** Home → Mask."
 msgstr "**열기:** 홈 → 마스크."
@@ -971,6 +979,10 @@ msgstr "Embeddings"
 
 msgid "Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration."
 msgstr "선택한 모델과 채널 정책으로 객체 이미지를 인코딩하세요. 하위 탐색에 특징을 제공할 때 객체 식별 정보와 인코더 출처 정보를 보존하세요."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With alpha features enabled, **Save for Similar crops** stores the full embedding matrix in the measurements database that supplied the loaded objects. It requires the original database object identities and verified encoder weights. Annotate can then search those stored vectors with compatible model, channel and preprocessing identities. Folder-loaded crops use the standalone Python example to save matrices; they cannot use the database save action."
+msgstr "알파 기능을 활성화하면 **유사한 이미지 조각 검색용으로 저장** 는 불러온 객체를 제공한 측정 데이터베이스에 전체 임베딩 행렬을 저장합니다. 원래 데이터베이스 객체 식별자와 검증된 인코더 가중치가 필요합니다. 이후 Annotate는 모델, 채널 및 전처리 식별자가 호환되는 저장 벡터를 검색할 수 있습니다. 폴더에서 불러온 이미지 조각은 독립적인 Python 예제로 행렬을 저장하며 데이터베이스 저장 작업을 사용할 수 없습니다."
 
 msgid "**Open:** Home → Embeddings."
 msgstr "**열기:** 홈 → Embeddings."

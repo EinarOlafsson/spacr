@@ -30,8 +30,8 @@ three and run again to compare the policies.
 Per channel produces 16 x 1536 values for this example. Project to three
 produces 16 x 512. These are different feature representations. Keep the
 policy, backbone, weights and normalization consistent when comparing runs.
-The preview shows a few dimensions of up to fifty objects. The current screen
-has no export button; use the helper below to save complete matrices.
+The preview shows a few dimensions of up to fifty objects. This folder-based
+workflow uses the helper below to save complete matrices.
 
 SAVE WITH PYTHON
 

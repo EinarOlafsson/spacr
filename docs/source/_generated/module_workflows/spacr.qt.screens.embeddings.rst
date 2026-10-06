@@ -6,6 +6,8 @@ Embeddings
 
 Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration.
 
+With alpha features enabled, **Save for Similar crops** stores the full embedding matrix in the measurements database that supplied the loaded objects. It requires the original database object identities and verified encoder weights. Annotate can then search those stored vectors with compatible model, channel and preprocessing identities. Folder-loaded crops use the standalone Python example to save matrices; they cannot use the database save action.
+
 **Open:** Home → Embeddings.
 
 Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.

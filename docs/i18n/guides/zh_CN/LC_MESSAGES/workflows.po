@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 07:48-0400\n"
+"POT-Creation-Date: 2026-10-06 13:33-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -271,6 +271,14 @@ msgstr "掩膜"
 
 msgid "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table."
 msgstr "选择通道和模型，检查预览，然后运行 Mask。Measure 使用合并数组；计数数据库还不是特征表。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Folder watching uses ``watch_normalization_pool='per_field'`` by default. For a declared static projected acquisition, ``'fixed_map'`` waits for every image in ``conversion_map.csv`` before running the ordinary Mask or Mask/Measure batch with shared percentile normalization and padding. Set ``randomize=False`` and ``batch_size`` greater than one. A timeout never releases an incomplete pool; restart checkpoints bind the declared members, recipes and original input hashes."
+msgstr "文件夹监视默认使用 ``watch_normalization_pool='per_field'``。对于已声明的静态投影采集，``'fixed_map'`` 会等待 ``conversion_map.csv`` 中的全部图像，再以共享的百分位归一化和填充执行常规 Mask 或 Mask/Measure 批处理。设置 ``randomize=False``，并将 ``batch_size`` 设为大于一。超时不会放行不完整的组；重启检查点绑定已声明的成员、处理配方和原始输入的哈希值。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Native time-volume Mask accepts a complete fixed Convert map of explicitly identified C/Z/T planes with both ``z_stack`` and ``t_stack`` enabled. Declare TZYX axis order, physical Z spacing and frame interval. Batch ingest and folder watching retain the original planes and build TZYXC archives for 4-D segmentation. This route supports Mask only; it does not enable Measure, tracking or Classify for native time volumes."
+msgstr "原生时间体积 Mask 接受完整的固定 Convert 映射；每个 C/Z/T 平面都必须明确标识，且 ``z_stack`` 和 ``t_stack`` 均须启用。声明 TZYX 轴顺序、物理 Z 间距和帧间隔。批量导入和文件夹监视保留原始平面，并生成用于 4-D 分割的 TZYXC 存档。此流程仅支持 Mask，不启用原生时间体积的 Measure、跟踪或 Classify。"
 
 msgid "**Open:** Home → Mask."
 msgstr "**打开：** 主页 → 掩膜。"
@@ -971,6 +979,10 @@ msgstr "Embeddings"
 
 msgid "Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration."
 msgstr "使用所选模型和通道策略编码对象图像。将特征传递给后续探索步骤时，保留对象标识和编码器来源信息。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With alpha features enabled, **Save for Similar crops** stores the full embedding matrix in the measurements database that supplied the loaded objects. It requires the original database object identities and verified encoder weights. Annotate can then search those stored vectors with compatible model, channel and preprocessing identities. Folder-loaded crops use the standalone Python example to save matrices; they cannot use the database save action."
+msgstr "启用 alpha 功能后，**保存以搜索相似裁剪图像** 会将完整嵌入矩阵存入提供已加载对象的测量数据库。这需要保留原始数据库对象标识，并验证编码器权重。随后，Annotate 可在模型、通道和预处理标识兼容时搜索这些已存储向量。从文件夹加载的图像裁块使用独立的 Python 示例保存矩阵，不能使用数据库保存操作。"
 
 msgid "**Open:** Home → Embeddings."
 msgstr "**打开：** 主页 → Embeddings。"

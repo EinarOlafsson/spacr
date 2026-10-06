@@ -3,20 +3,6 @@
   "note": "Twelve distinct data-art labels and descriptions from the actual replacement registry. These describe decorative artwork, not measurements or biological simulation. Four descriptions retain cursor interaction. The removed flow registry is not reintroduced; all earlier complete catalog records are preserved.",
   "records": [
     {
-      "key": "Spatial point atlas",
-      "source": "Spatial point atlas",
-      "source_sha256": "43074da4fced7c9693a6c7c9d37d7df66e8715feee38ef05feaf194cfa705cdf",
-      "table": "ui",
-      "translation": "Atlas espacial de puntos"
-    },
-    {
-      "key": "A finely sampled three-dimensional point landscape with depth and cursor-driven parallax.",
-      "source": "A finely sampled three-dimensional point landscape with depth and cursor-driven parallax.",
-      "source_sha256": "9c0cc11bb3ff966c9c4f0126cb9db80e9b9bbea718f5cf2db4d782305fde5022",
-      "table": "ui",
-      "translation": "Un paisaje tridimensional de puntos con muestreo fino, profundidad y paralaje controlado por el cursor."
-    },
-    {
       "key": "Tissue facets",
       "source": "Tissue facets",
       "source_sha256": "3b5391060739ab881bebb8e4133802b832804c6f50f18459ce7f1c4051750981",
@@ -24,53 +10,11 @@
       "translation": "Facetas tisulares"
     },
     {
-      "key": "A crystalline tissue mosaic of shaded geometric facets, with slowly changing local relief.",
-      "source": "A crystalline tissue mosaic of shaded geometric facets, with slowly changing local relief.",
-      "source_sha256": "2bf26a61ca87131d044173b91e5aa60ec01049f6e73768f466abf129a84a5e0f",
-      "table": "ui",
-      "translation": "Un mosaico tisular cristalino de facetas geométricas sombreadas, con un relieve local que cambia lentamente."
-    },
-    {
       "key": "Chromatin satin",
       "source": "Chromatin satin",
       "source_sha256": "50034da660d85c393f7cdb76309c64679d1204c636b436fd373fcfe5b4608f80",
       "table": "ui",
       "translation": "Satén de cromatina"
-    },
-    {
-      "key": "Folded satin-like chromatin ribbons carry fine fibres through soft, interwoven surfaces.",
-      "source": "Folded satin-like chromatin ribbons carry fine fibres through soft, interwoven surfaces.",
-      "source_sha256": "b040a24580220534339179c6ddf337deacbbaef6cd80c3381999bc76bd9746dd",
-      "table": "ui",
-      "translation": "Cintas plegadas de cromatina, semejantes al satén, llevan fibras finas a través de superficies suaves y entretejidas."
-    },
-    {
-      "key": "Genetic advection",
-      "source": "Genetic advection",
-      "source_sha256": "747c0cbb173381175ed4590248a89d35b6fea72b4e67d43b60b300eb2d960920",
-      "table": "ui",
-      "translation": "Advección genética"
-    },
-    {
-      "key": "Thousands of fine genetic-flow particles move through a continuous wind-like field that bends near the cursor.",
-      "source": "Thousands of fine genetic-flow particles move through a continuous wind-like field that bends near the cursor.",
-      "source_sha256": "047c6e042cc4d4ef0e123f571d3f55839d787eb8343acbaff46c235d84537191",
-      "table": "ui",
-      "translation": "Miles de partículas finas de flujo genético se mueven por un campo continuo semejante al viento que se curva cerca del cursor."
-    },
-    {
-      "key": "Perturbation lens",
-      "source": "Perturbation lens",
-      "source_sha256": "0d9c32b7ad9ab4df3cb4975593c05c147a5d31b35434a89f9ad07690cb523d55",
-      "table": "ui",
-      "translation": "Lente de perturbación"
-    },
-    {
-      "key": "A precision dot lattice bends around moving impulses and the cursor, revealing local perturbation.",
-      "source": "A precision dot lattice bends around moving impulses and the cursor, revealing local perturbation.",
-      "source_sha256": "965edd9947feb7412f8b7590b23a79a54c2b4e6a24c3af3b1c74af19b3979b1f",
-      "table": "ui",
-      "translation": "Una retícula precisa de puntos se curva alrededor de impulsos en movimiento y del cursor, revelando perturbaciones locales."
     }
   ],
   "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff",

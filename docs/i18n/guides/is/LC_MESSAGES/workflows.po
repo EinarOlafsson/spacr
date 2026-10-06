@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 07:48-0400\n"
+"POT-Creation-Date: 2026-10-06 13:33-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -271,6 +271,14 @@ msgstr "Grímur"
 
 msgid "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table."
 msgstr "Veldu rásir og líkön, skoðaðu forskoðun og keyrðu svo Grímur. Mæling notar sameinuðu fylkin; talningagagnagrunnurinn er ekki enn eiginleikatafla."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Folder watching uses ``watch_normalization_pool='per_field'`` by default. For a declared static projected acquisition, ``'fixed_map'`` waits for every image in ``conversion_map.csv`` before running the ordinary Mask or Mask/Measure batch with shared percentile normalization and padding. Set ``randomize=False`` and ``batch_size`` greater than one. A timeout never releases an incomplete pool; restart checkpoints bind the declared members, recipes and original input hashes."
+msgstr "Möppuvöktun notar sjálfgefið ``watch_normalization_pool='per_field'``. Fyrir skilgreinda kyrrstæða myndasöfnun með vörpun bíður ``'fixed_map'`` eftir hverri mynd í ``conversion_map.csv`` áður en venjuleg Mask- eða Mask/Measure-lota keyrir með sameiginlegri hundraðshlutastöðlun og jaðarfyllingu. Stilltu ``randomize=False`` og ``batch_size`` stærra en einn. Tímamörk sleppa aldrei ófullkomnum hópi áfram; endurræsingarstöðvar binda skilgreinda meðlimi, vinnsluuppskriftir og hakkgildi upprunalegra inntaka."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Native time-volume Mask accepts a complete fixed Convert map of explicitly identified C/Z/T planes with both ``z_stack`` and ``t_stack`` enabled. Declare TZYX axis order, physical Z spacing and frame interval. Batch ingest and folder watching retain the original planes and build TZYXC archives for 4-D segmentation. This route supports Mask only; it does not enable Measure, tracking or Classify for native time volumes."
+msgstr "Mask fyrir upprunaleg tímarúmmál tekur við fullskipuðu föstu Convert-vörpunarkorti með sérstaklega auðkenndum C/Z/T-flötum þegar bæði ``z_stack`` og ``t_stack`` eru virk. Tilgreindu TZYX-röð ása, raunverulegt Z-bil og tímabil milli ramma. Lotuinnlestur og möppuvöktun halda upprunalegu flötunum og byggja TZYXC-söfn fyrir 4-D-hlutun. Þessi leið styður aðeins Mask; hún virkjar ekki Measure, rakningu eða Classify fyrir upprunaleg tímarúmmál."
 
 msgid "**Open:** Home → Mask."
 msgstr "**Opna:** Heim → Grímur."
@@ -971,6 +979,10 @@ msgstr "Embeddings"
 
 msgid "Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration."
 msgstr "Kóðaðu myndir af hlutum með völdu líkani og rásareglu. Varðveittu auðkenni hluta og uppruna kóðara þegar eiginleikarnir eru afhentir til áframhaldandi könnunar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With alpha features enabled, **Save for Similar crops** stores the full embedding matrix in the measurements database that supplied the loaded objects. It requires the original database object identities and verified encoder weights. Annotate can then search those stored vectors with compatible model, channel and preprocessing identities. Folder-loaded crops use the standalone Python example to save matrices; they cannot use the database save action."
+msgstr "Þegar alfaeiginleikar eru virkir geymir **Vista fyrir svipaða myndskurði** allt innfellingarfylkið í mæligagnagrunninum sem hlóðu hlutirnir komu úr. Það krefst upprunalegra auðkenna gagnagrunnshlutanna og staðfestra kóðaravægja. Annotate getur síðan leitað í geymdu vigrunum með samhæfum auðkennum líkans, rása og forvinnslu. Myndskurðir hlaðnir úr möppu nota sjálfstæða Python-dæmið til að vista fylki; þeir geta ekki notað vistunaraðgerð gagnagrunnsins."
 
 msgid "**Open:** Home → Embeddings."
 msgstr "**Opna:** Heim → Embeddings."

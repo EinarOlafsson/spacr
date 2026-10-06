@@ -1299,6 +1299,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'watch_folder',
     'watch_measure_settings',
     'watch_measure_snapshot',
+    'watch_normalization_pool',
     'watch_pipeline',
     'weight_decay',
     'well_confidence',

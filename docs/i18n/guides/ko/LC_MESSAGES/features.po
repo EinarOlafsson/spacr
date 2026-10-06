@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 07:48-0400\n"
+"POT-Creation-Date: 2026-10-06 13:33-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -237,56 +237,38 @@ msgid "Data-art themes"
 msgstr "데이터 아트 테마"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Under **Preferences** → **Appearance** → **Theme**, twelve data-art presets each select an interface palette and an animated background. The original ten night themes and seven background animations remain available. **Animation** lets you choose a background independently; select **None** for a static background. These backgrounds are decorative and do not display project measurements."
-msgstr "**환경설정** → **모양** → **테마** 에서 열두 가지 데이터 아트 사전 설정은 각각 인터페이스 색상 팔레트와 움직이는 배경을 선택합니다. 기존의 열 가지 야간 테마와 일곱 가지 배경 애니메이션도 계속 사용할 수 있습니다. **애니메이션** 으로 배경을 독립적으로 선택할 수 있으며, 정적인 배경을 사용하려면 **없음** 을 선택하세요. 이러한 배경은 장식용이며 프로젝트 측정값을 표시하지 않습니다."
+msgid "Under **Preferences** → **Appearance** → **Theme**, seven data-art presets each select an interface palette and an animated background. The ten night themes remain available. **Animation** lets you choose a background independently; select **None** for a static background. These backgrounds are decorative and do not display project measurements."
+msgstr "**환경설정** → **모양** → **테마** 에서 일곱 가지 데이터 아트 프리셋은 각각 인터페이스 팔레트와 애니메이션 배경을 선택합니다. 열 가지 야간 테마도 계속 사용할 수 있습니다. **애니메이션** 에서는 배경을 독립적으로 선택하며, 정적인 배경은 **없음** 을 선택합니다. 이 배경은 장식용이며 프로젝트 측정값을 표시하지 않습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Spatial point atlas** — A finely sampled three-dimensional point landscape with depth and cursor-driven parallax."
-msgstr "**공간 점 지도** — 촘촘하게 샘플링한 3차원 점 풍경이 깊이와 커서에 따라 움직이는 시차를 보여 줍니다."
+msgid "The animation menu begins with **spaCR field** (the default), **spaCR advection**, **spaCR growth**, **spaCR Thore**, **spaCR waves**, and **Blobs**, followed by the remaining backgrounds."
+msgstr "애니메이션 메뉴는 **spaCR field** (기본값), **spaCR advection**, **spaCR growth**, **spaCR Thore**, **spaCR waves**, **블롭** 순서로 시작하고 나머지 배경이 뒤따릅니다."
+
+msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
+msgstr "**spaCR field** — 선명한 중력 점장으로 선택적인 국소 마우스 영향과 퍼져 나가는 파문을 제공합니다."
+
+msgid "**spaCR advection** — Fine particles form evolving vortices and branching currents, with optional mouse gravity."
+msgstr "**spaCR advection** — 섬세한 입자들이 변화하는 소용돌이와 갈라지는 흐름을 만들며, 마우스 중력을 선택적으로 사용할 수 있습니다."
+
+#, python-format
+msgid "**spaCR growth** — A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop."
+msgstr "**spaCR growth** — 하나의 갈라지는 성장 전선이 계속 전진하고 지나온 흔적은 사라지며, 배경의 최대 25%만 차지합니다."
+
+msgid "**spaCR Thore** — Fine background rain and branching lightning briefly illuminate the scene."
+msgstr "**spaCR Thore** — 배경의 가는 빗줄기와 갈라지는 번개가 장면을 잠시 밝힙니다."
+
+msgid "**spaCR waves** — An edge-free landscape of round points carries wide travelling waves."
+msgstr "**spaCR waves** — 경계가 없는 둥근 점들의 풍경에 넓은 진행파가 흐릅니다."
+
+msgid "**Tissue facets** — Fine paper facets move gently and respond locally to the mouse."
+msgstr "**조직 결정면** — 섬세한 종이 면이 부드럽게 움직이고 마우스에 국소적으로 반응합니다."
+
+msgid "**Chromatin satin** — Fine chromatin fibres undulate in travelling waves across folded ribbons."
+msgstr "**염색질 새틴** — 섬세한 염색질 섬유가 접힌 띠 위를 지나가는 파도처럼 물결칩니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Tissue facets** — A crystalline tissue mosaic of shaded geometric facets, with slowly changing local relief."
-msgstr "**조직 결정면** — 음영을 넣은 기하학적 결정면으로 이루어진 결정질 조직 모자이크에서 국소적인 높낮이가 천천히 변합니다."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Spatial strata** — Fine stacked topographic layers form a moving spatial relief with precise depth and contour detail."
-msgstr "**공간 지층** — 세밀하게 쌓인 지형 층이 움직이는 공간 부조를 이루며 정밀한 깊이와 등고선 세부를 보여 줍니다."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Molecular helix** — A rotating molecular helix of shaded beads and paired bases, with perspective and depth."
-msgstr "**분자 나선** — 음영을 넣은 구슬과 짝지어진 염기로 이루어진 분자 나선이 회전하며 원근감과 깊이를 보여 줍니다."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Chromatin satin** — Folded satin-like chromatin ribbons carry fine fibres through soft, interwoven surfaces."
-msgstr "**염색질 새틴** — 접힌 새틴 같은 염색질 리본이 부드럽게 얽힌 표면 사이로 가는 섬유를 나릅니다."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Genome mosaic** — A layered genome mosaic of tiny encoded tiles shifts through an architectural sequence field."
-msgstr "**유전체 모자이크** — 작은 부호화 타일로 이루어진 다층 유전체 모자이크가 건축적인 서열 공간을 따라 이동합니다."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Transcript rain** — Fine falling transcription marks stream through a layered field of genetic information."
-msgstr "**전사체 비** — 가는 전사 기호가 떨어지며 여러 층으로 이루어진 유전 정보 공간을 흐릅니다."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Regulatory circuit** — An etched regulatory circuit routes pulses through precise orthogonal paths and small control nodes."
-msgstr "**조절 회로** — 새겨진 듯한 조절 회로가 정밀한 직교 경로와 작은 제어 노드를 통해 펄스를 전달합니다."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Genetic advection** — Thousands of fine genetic-flow particles move through a continuous wind-like field that bends near the cursor."
-msgstr "**유전적 이류** — 수천 개의 미세한 유전 흐름 입자가 바람 같은 연속적인 장을 따라 움직이며, 이 장은 커서 근처에서 휘어집니다."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Perturbation interference** — Smooth interference waves form a changing pearlescent field, distorted locally by the cursor."
-msgstr "**섭동 간섭** — 부드러운 간섭파가 변화하는 진주빛 장을 이루고, 커서가 이를 국소적으로 변형합니다."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Morphogenesis** — A fine organic pattern of changing spots and labyrinths evokes the emergence of biological structure."
-msgstr "**형태 형성** — 변화하는 반점과 미로의 세밀한 유기적 무늬가 생물학적 구조의 출현을 연상시킵니다."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "**Perturbation lens** — A precision dot lattice bends around moving impulses and the cursor, revealing local perturbation."
-msgstr "**섭동 렌즈** — 정밀한 점 격자가 움직이는 펄스와 커서 주위에서 휘어지며 국소적인 섭동을 드러냅니다."
+msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **0**, which disables mouse influence. Use **Animation density** to change the number of elements and **Animation detail** to change drawing resolution. Density and detail share the renderer's work budget. Press **Save** to keep preference changes."
+msgstr "**마우스 중력 반경** 는 화면의 짧은 변에 대한 백분율로 영향 영역을 설정합니다. 기본값 **0** 은 마우스 영향을 비활성화합니다. **애니메이션 밀도** 로 요소 수를, **애니메이션 세부 사항** 로 그리기 해상도를 변경합니다. 밀도와 세부 수준은 렌더러의 작업 예산을 공유합니다. 환경설정 변경을 유지하려면 **저장** 를 누르세요."
 
 msgid "Arranging the window"
 msgstr "창 배치"

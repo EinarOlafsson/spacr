@@ -9,13 +9,6 @@
       "translation": "불러온 이미지 조각에 Cell-DINO 채널 하나가 없습니다. 매핑을 다시 열고 유효한 영상 평면을 선택하세요."
     },
     {
-      "key": "A lit window in the dark: warm orange on near-black, crisp cells drifting behind it, and a sound set in G minor at 118 BPM.",
-      "source": "A lit window in the dark: warm orange on near-black, crisp cells drifting behind it, and a sound set in G minor at 118 BPM.",
-      "source_sha256": "aef0600fd914c66f87b97be875d7798f4ca4a2263dfbd2141e063af31f6a83bf",
-      "table": "ui",
-      "translation": "어둠 속 밝은 창: 검정에 가까운 배경 위의 따뜻한 주황색, 뒤에서 떠다니는 선명한 세포, G 단조 118 BPM의 사운드 구성입니다."
-    },
-    {
       "key": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains. SubCell's two-plane model takes DNA then protein; its four-plane model needs explicit microtubules, ER, DNA and protein mapping. Other weights download once. Cell-DINO requires a local official checkpoint, declared SHA-256 and explicit model-plane mapping. Default None (use the backbone).",
       "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains. SubCell's two-plane model takes DNA then protein; its four-plane model needs explicit microtubules, ER, DNA and protein mapping. Other weights download once. Cell-DINO requires a local official checkpoint, declared SHA-256 and explicit model-plane mapping. Default None (use the backbone).",
       "source_sha256": "f56f8ca9fc07e6461b525f0b74eece2a38a93b32d6147da646a6abecdc143498",
@@ -189,27 +182,6 @@
       "source_sha256": "ab3fab52492acd28d5bca729dd9453f0216cb11530401ff3722073030a62be4d",
       "table": "ui",
       "translation": "예상 SHA-256"
-    },
-    {
-      "key": "Fine fungal branches extend continuously across at most 30% of the backdrop, leaving the field clear.",
-      "source": "Fine fungal branches extend continuously across at most 30% of the backdrop, leaving the field clear.",
-      "source_sha256": "4340ff03673a8a39b6fc2e813d56b9bb35c14d687f6c6c801bcd444666da24a3",
-      "table": "ui",
-      "translation": "가는 균사 가지가 배경의 최대 30%까지 계속 뻗으며 나머지 영역은 비워 둡니다."
-    },
-    {
-      "key": "Fungal growth",
-      "source": "Fungal growth",
-      "source_sha256": "e26f0952f30f921ce84610339202f480b1b9d77b5ea9bc16ddb8f5f51d7c505f",
-      "table": "ui",
-      "translation": "균사 성장"
-    },
-    {
-      "key": "Furthest from the sun: cold violet, rings spreading through the dark, and a tense sound set in D harmonic minor at 128 BPM.",
-      "source": "Furthest from the sun: cold violet, rings spreading through the dark, and a tense sound set in D harmonic minor at 128 BPM.",
-      "source_sha256": "f452c6f271e4dce975cc7b761e6bc1074f28ce8fb2dab2c3be3e850365e850ca",
-      "table": "ui",
-      "translation": "태양에서 가장 먼 곳: 차가운 보라색, 어둠 속에 퍼지는 고리, D 화성 단조 128 BPM의 긴장감 있는 사운드 구성입니다."
     },
     {
       "key": "HPA ViT-L/14 · four planes · 518 pixels",

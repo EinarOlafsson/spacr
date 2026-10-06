@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 07:48-0400\n"
+"POT-Creation-Date: 2026-10-06 13:33-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -271,6 +271,14 @@ msgstr "Masker"
 
 msgid "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table."
 msgstr "Välj kanaler och modeller, inspektera en förhandsvisning och kör sedan Mask. Measure använder de sammanslagna arrayerna; databasen med antal är ännu ingen egenskapstabell."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Folder watching uses ``watch_normalization_pool='per_field'`` by default. For a declared static projected acquisition, ``'fixed_map'`` waits for every image in ``conversion_map.csv`` before running the ordinary Mask or Mask/Measure batch with shared percentile normalization and padding. Set ``randomize=False`` and ``batch_size`` greater than one. A timeout never releases an incomplete pool; restart checkpoints bind the declared members, recipes and original input hashes."
+msgstr "Mappövervakning använder som standard ``watch_normalization_pool='per_field'``. För en deklarerad statisk projicerad insamling väntar ``'fixed_map'`` på varje bild i ``conversion_map.csv`` innan den vanliga Mask- eller Mask/Measure-batchen körs med gemensam percentilnormalisering och utfyllnad. Ange ``randomize=False`` och ``batch_size`` större än ett. En tidsgräns släpper aldrig igenom en ofullständig grupp; kontrollpunkter för omstart binder de deklarerade medlemmarna, bearbetningsrecepten och kontrollsummorna för originalindata."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Native time-volume Mask accepts a complete fixed Convert map of explicitly identified C/Z/T planes with both ``z_stack`` and ``t_stack`` enabled. Declare TZYX axis order, physical Z spacing and frame interval. Batch ingest and folder watching retain the original planes and build TZYXC archives for 4-D segmentation. This route supports Mask only; it does not enable Measure, tracking or Classify for native time volumes."
+msgstr "Mask för ursprungliga tidsvolymer accepterar en fullständig fast Convert-karta med uttryckligen identifierade C/Z/T-plan när både ``z_stack`` och ``t_stack`` är aktiverade. Ange axelordningen TZYX, fysiskt Z-avstånd och bildruteintervall. Batchinläsning och mappövervakning behåller originalplanen och bygger TZYXC-arkiv för 4-D-segmentering. Denna körväg stöder endast Mask; den aktiverar inte Measure, spårning eller Classify för ursprungliga tidsvolymer."
 
 msgid "**Open:** Home → Mask."
 msgstr "**Öppna:** Hem → Masker."
@@ -971,6 +979,10 @@ msgstr "Embeddings"
 
 msgid "Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration."
 msgstr "Koda objektbilder med en vald modell och kanalpolicy. Behåll objektidentiteter och kodarens ursprung när egenskaperna lämnas till efterföljande utforskning."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "With alpha features enabled, **Save for Similar crops** stores the full embedding matrix in the measurements database that supplied the loaded objects. It requires the original database object identities and verified encoder weights. Annotate can then search those stored vectors with compatible model, channel and preprocessing identities. Folder-loaded crops use the standalone Python example to save matrices; they cannot use the database save action."
+msgstr "Med alfafunktioner aktiverade lagrar **Spara för liknande bildutsnitt** hela inbäddningsmatrisen i den mätdatabas som de inlästa objekten kom från. Det kräver de ursprungliga databasobjektens identiteter och verifierade kodarvikter. Annotate kan sedan söka i de lagrade vektorerna med kompatibla identiteter för modell, kanaler och förbehandling. Mappinlästa bildutsnitt använder det fristående Python-exemplet för att spara matriser; de kan inte använda databasens sparåtgärd."
 
 msgid "**Open:** Home → Embeddings."
 msgstr "**Öppna:** Hem → Embeddings."

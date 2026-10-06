@@ -1504,3 +1504,19 @@ Receipt:data/615_home_API_acceptance_2026-10-06.json. Latest Home1f3e4a240
 seven-theme/radius/native-watcher source still needs integration and normal
 refresh; Help/settings/workflows/guides/Sphinx/browser/publication remain.
 N615 stays OPEN; no new native crash fix or GPU acceptance is claimed.
+2026-10-06 — integrated seven-theme runtime and guide checkpoint
+Normal nine-language runtime generation/audit passes: 9,922 entries each,
+all 189 new reviewed targets exact and 9,901 unrelated targets/source hashes
+per locale unchanged. Complete original review files preserved: 2,045 runtime
+and 1,150 API. Unmodified Swedish/French historical assertions and 12 semantic/
+display-geometry cases pass. Normal guide import/strict audit passes all
+2,991 messages per locale with no stale/invalid/unlabelled entries; 2,978
+original accepted targets remain exact and 13 replaced sources per locale
+are retained in complete original PO archives. Normal workflow/consumer/flow/
+Help generation and seven existing artifact contracts pass. Both Embeddings
+download contracts pass, accepted helper remains exact, ordinary lesson
+remains alpha-off and 628 unrelated accepted tutorial artifacts are unchanged.
+Receipt: data/615_latest_home_runtime_guides_2026-10-06.json. API normal
+refresh handle 38785 is live, not accepted. Newer Home source/refinements,
+strict Sphinx/browser/publication and remaining GPU acceptance still remain.
+N615 and the full goal stay OPEN; no native Save-crash fix is claimed.
