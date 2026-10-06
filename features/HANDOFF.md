@@ -1,5 +1,36 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 workstation single Wand button and progress relay
+The latest user mask request is workstation-owned and accepted: one Wand
+button adds by default; Ctrl+left removes the bounded intensity region using
+the same tolerance and rescue settings. The shortcut panel follows the
+selected tool. All269 affected Qt checks pass, including actual Undo/Redo,
+Save, Next, close and fresh-screen reopening; fatal Ruff also passes.
+Three before-fix failures on unchanged711999b77 are retained separately from
+two corrected test assumptions and the initial wrong-checkout guard refusal.
+Complete evidence: data/419_single_wand_ctrl_2026-10-06.json.
+Home: preserve make_masks.py and the prior Draw/Brush persistence, Clear,
+Box deletion, Divide / Merge, magnifier drag and Templates full-path changes.
+No duplicate mask work is needed. Continue CPU/native/CI work; workstation
+owns all GPU/API/docs/translations/tutorials. New tr sources and the named
+private _wand_edit_at callable need normal owner regeneration without
+raising a ratchet ceiling, plus current Make Masks tutorial recording.
+
+Workstation prepared reviews were admitted in all9locales; all5 generated
+artifact owners ran normally and498 affected checks pass. The native Mask
+editor/readouts, restoration, puncta and Box stages pass independent checks;
+57 exact native visuals cover all59 lesson scenes. This checkpoint precedes
+the single-Wand change: captions/media and publication remain OPEN. Do not
+call this current-Wand publication. Current runtime7712 and API45424 jobs
+remain live on frozen50de2fdb0; latest Home Random/IO/Prefs/Safe plus this Wand
+change require the subsequent source-current refresh, not a timeout restart.
+
+GPU567 acquired its normal idle turn and ran, but CPU/CUDA parity failed
+the unchanged tolerance (373/768 values; maximum violating error0.00031522).
+Normal scheduler receipt: data/567_event_video_GPU_parity_failure_2026-10-06.json,
+terminal rc1. Workstation will diagnose this; no GPU success or microscopy accuracy
+is claimed. User app and protected livecell/cellposeTIME jobs were untouched.
+
 ## 2026-10-06 final exact packed Random source and owner freeze update
 Latest Home renderer is ambientac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20;
 app5fc990e6, Preferences733f9af0 and io6ef38e31 remain unchanged.

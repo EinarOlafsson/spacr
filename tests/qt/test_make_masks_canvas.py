@@ -522,6 +522,46 @@ def test_wand_erase_clears_the_uniform_square(canvas):
     assert canvas.mask[0, 0] == 77
 
 
+def test_ctrl_wand_removes_only_the_intensity_region_and_owns_its_release(canvas):
+    canvas.mask[:] = 77
+    original_image = canvas.image.copy()
+    canvas.mode = MODE_WAND_ADD
+    canvas.wand_tolerance = 100.0
+    canvas.wand_max_pixels = 10_000
+    finished = []
+    canvas.stroke_finished.connect(lambda: finished.append(1))
+    x, y = canvas_xy(30, 30)
+    pos = QPointF(x, y)
+    event = QMouseEvent(QEvent.Type.MouseButtonPress, pos, pos,
+                        Qt.LeftButton, Qt.LeftButton, Qt.ControlModifier)
+    canvas.mousePressEvent(event)
+    assert canvas.mode == MODE_WAND_ADD
+    assert int((canvas.mask == 0).sum()) == 400
+    assert canvas.mask[0, 0] == 77
+    np.testing.assert_array_equal(canvas.image, original_image)
+    canvas.mouseReleaseEvent(release(x, y))
+    assert finished == [1]
+    assert canvas._ctrl_click is None
+    canvas.mousePressEvent(press(x, y))
+    assert int((canvas.mask == 255).sum()) == 400
+    assert canvas.mask[0, 0] == 77
+    assert finished == [1, 1]
+
+
+def test_ctrl_wand_outside_the_image_does_not_edit_or_open_a_stroke(canvas):
+    canvas.mask[20:40, 20:40] = 77
+    before = canvas.mask.copy()
+    canvas.mode = MODE_WAND_ADD
+    finished = []
+    canvas.stroke_finished.connect(lambda: finished.append(1))
+    pos = QPointF(1, 1)
+    canvas.mousePressEvent(QMouseEvent(QEvent.Type.MouseButtonPress, pos, pos,
+                                     Qt.LeftButton, Qt.LeftButton, Qt.ControlModifier))
+    canvas.mouseReleaseEvent(release(1, 1))
+    np.testing.assert_array_equal(canvas.mask, before)
+    assert not finished
+
+
 def test_wand_respects_max_pixels(canvas):
     canvas.mode = MODE_WAND_ADD
     canvas.wand_tolerance = 100.0
@@ -1044,11 +1084,15 @@ def test_undo_redo_and_escape_shortcuts(screen):
 
 def test_set_mode_checks_exactly_one_button(screen):
     for mode in (MODE_BRUSH, MODE_ERASE, MODE_ERASE_OBJECT,
-                 MODE_WAND_ADD, MODE_WAND_ERASE, MODE_ZOOM):
+                 MODE_WAND_ADD, MODE_ZOOM):
         screen._set_mode(mode)
         assert screen._canvas.mode == mode
         checked = [m for m, b in screen._mode_buttons.items() if b.isChecked()]
         assert checked == [mode]
+    screen._set_mode(MODE_WAND_ERASE)
+    assert screen._canvas.mode == MODE_WAND_ADD
+    checked = [m for m, b in screen._mode_buttons.items() if b.isChecked()]
+    assert checked == [MODE_WAND_ADD]
 
 
 # ===========================================================================

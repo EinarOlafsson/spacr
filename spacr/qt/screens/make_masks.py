@@ -10,9 +10,9 @@ THE TEN TOOLS, in :data:`TOOL_MODES` order, because this vocabulary is what
 a reader needs before opening the screen:
 
 **Brush** and **Erase** paint and unpaint the active label a pixel at a time.
-**Erase object** removes a whole label in one click. **Wand +** and
-**Wand −** grow a region from the pixel clicked and add it to the label or
-take it out of it; the tolerance is relative to the image's intensity range
+**Erase object** removes a whole label in one click. **Wand** grows a region
+from the pixel clicked and adds it to the mask by default. Hold Ctrl while
+clicking to remove that region; the tolerance is relative to the image's intensity range
 by default, see :func:`spacr.qt.mask_engine.relative_tolerance`. **Draw**
 traces a free-form outline that closes and fills as ONE object -- the tool a
 brush is not, because a brush stamps disks along the path, so tracing a rim
@@ -353,8 +353,7 @@ TOOL_MODES: List[tuple] = [
     (MODE_BRUSH,        "Brush",        "brush"),
     (MODE_ERASE,        "Erase",        "erase"),
     (MODE_ERASE_OBJECT, "Erase object", "erase_object"),
-    (MODE_WAND_ADD,     "Wand +",       "wand_add"),
-    (MODE_WAND_ERASE,   "Wand −",       "wand_erase"),
+    (MODE_WAND_ADD,     "Wand",         "wand_add"),
     (MODE_DRAW,         "Draw",         "draw"),
     (MODE_BOX,          "Box",          "embeddings"),
     (MODE_DIVIDE,       "Divide / Merge", "divide"),
@@ -373,6 +372,8 @@ def tool_row_entries() -> List[tuple]:
     has for that name, which is a fallback glyph when it has nothing.
     Alphabetical among themselves, so the row is the same on every run.
 
+    ``MODE_WAND_ERASE`` is the legacy canvas action, now selected with Ctrl
+    on the single Wand tool rather than a separate toolbar button.
     ``MODE_NONE`` is excluded because it is not a tool: it is the canvas
     with no tool held, which is what the row shows when nothing is
     checked.
@@ -380,7 +381,7 @@ def tool_row_entries() -> List[tuple]:
     entries = list(TOOL_MODES)
     seen = {mode for mode, _label, _icon in entries}
     for name, value in sorted(globals().items()):
-        if not name.startswith("MODE_") or name == "MODE_NONE":
+        if not name.startswith("MODE_") or name in ("MODE_NONE", "MODE_WAND_ERASE"):
             continue
         if not isinstance(value, str) or value in seen:
             continue
@@ -2483,7 +2484,8 @@ class _MaskCanvas(QLabel):
         """Dispatch a click to the current tool (brush/erase/wand/zoom/…).
 
         Three gestures are checked before the tool, because they work from
-        *any* tool: Ctrl + left splits and Ctrl + right removes the object
+        *any* tool: Ctrl + left splits (or erases a region with Wand selected)
+        and Ctrl + right removes the object
         under the cursor, the right button sweep-deletes except in Divide /
         Merge where it traces a line that joins objects,
         and Shift/Alt + left pans. All of them are things you want mid-edit
@@ -2563,10 +2565,12 @@ class _MaskCanvas(QLabel):
                     and event.button() in (Qt.LeftButton, Qt.RightButton))
                 else None)
             if self._ctrl_click is not None:
-                self._ctrl_edit_at(
-                    self._canvas_to_image(event.position().x(),
-                                           event.position().y()),
-                    split=event.button() == Qt.LeftButton)
+                pt = self._canvas_to_image(event.position().x(), event.position().y())
+                if (self.mode in (MODE_WAND_ADD, MODE_WAND_ERASE)
+                        and event.button() == Qt.LeftButton):
+                    self._wand_edit_at(pt, action="erase")
+                else:
+                    self._ctrl_edit_at(pt, split=event.button() == Qt.LeftButton)
                 self.update()
                 return
         elif (self._ctrl_click is not None
@@ -2644,11 +2648,9 @@ class _MaskCanvas(QLabel):
             self.update()
             return
 
-        wand_input = None
         if self.mode in (MODE_WAND_ADD, MODE_WAND_ERASE):
-            wand_input = self.wand_source()
-            if wand_input is None:
-                return
+            self._wand_edit_at(pt, action="add" if self.mode == MODE_WAND_ADD else "erase")
+            return
 
         if self.mode == MODE_BRUSH:
             self._brush_value = int(engine.next_label(self.mask)) if self.manual_ids else 255
@@ -2664,42 +2666,51 @@ class _MaskCanvas(QLabel):
             self._emit_stroke_end(kind="delete", target=removed)
             return
 
-        if self.mode in (MODE_WAND_ADD, MODE_WAND_ERASE):
-            action = "add" if self.mode == MODE_WAND_ADD else "erase"
-            tolerance = self.effective_wand_tolerance(wand_input)
-            before = self.mask
-            self.mask, report = wand_rescue.magic_wand(
-                wand_input, self.mask, pt[0], pt[1],
-                tolerance, self.wand_max_pixels, action=action,
-                **self.wand_rescue_settings(),
-            )
-            target = 255 if action == "add" else 0
-            if self.manual_ids and action == "add":
-                target = int(engine.next_label(before))
-                out = self.mask.astype(np.int64, copy=True)
-                out[(self.mask == 255) & (before != 255)] = target
-                self.mask = engine._fit_label_width(out, before)
-            self.refresh()
-            self._emit_stroke_end(
-                kind="wand", target=target,
-                action=action, tolerance=round(float(tolerance), 3),
-                relative=bool(self.wand_relative), **report,
-                input_kind='enhanced_picture' if self.enhance_display else 'as_loaded',
-                invert=bool(self.enhance_display and self.invert_display),
-                normalization_percentiles=([float(self.norm_lo), float(self.norm_hi)]
-                    if self.enhance_display and self.detect_on_normalized else None),
-                **detect_chain.provenance(
-                    self.enhance_chain._replace(morphology='none', split=False)
-                    if self.enhance_display else detect_chain.NO_CHAIN,
-                    percentile_stretch=self.enhance_display and self.detect_on_normalized),
-            )
-            return
-
         radius = self._mask_radius_for_brush()
         value = self._brush_value if self.mode == MODE_BRUSH else 0
         engine.paint_disk(self.mask, pt[0], pt[1], radius, value)
         self._last_pt = QPoint(*pt)
         self.refresh()
+
+    def _wand_edit_at(self, pt, *, action):
+        """Apply one bounded intensity-region edit with the Wand settings.
+
+        :param pt: clicked image coordinates, or None outside the image.
+        :param action: add the region or erase it.
+        """
+        if pt is None:
+            return
+        wand_input = self.wand_source()
+        if wand_input is None:
+            return
+        self._emit_stroke_start()
+        tolerance = self.effective_wand_tolerance(wand_input)
+        before = self.mask
+        self.mask, report = wand_rescue.magic_wand(
+            wand_input, self.mask, pt[0], pt[1],
+            tolerance, self.wand_max_pixels, action=action,
+            **self.wand_rescue_settings(),
+        )
+        target = 255 if action == "add" else 0
+        if self.manual_ids and action == "add":
+            target = int(engine.next_label(before))
+            out = self.mask.astype(np.int64, copy=True)
+            out[(self.mask == 255) & (before != 255)] = target
+            self.mask = engine._fit_label_width(out, before)
+        self.refresh()
+        self._emit_stroke_end(
+            kind="wand", target=target,
+            action=action, tolerance=round(float(tolerance), 3),
+            relative=bool(self.wand_relative), **report,
+            input_kind='enhanced_picture' if self.enhance_display else 'as_loaded',
+            invert=bool(self.enhance_display and self.invert_display),
+            normalization_percentiles=([float(self.norm_lo), float(self.norm_hi)]
+                if self.enhance_display and self.detect_on_normalized else None),
+            **detect_chain.provenance(
+                self.enhance_chain._replace(morphology='none', split=False)
+                if self.enhance_display else detect_chain.NO_CHAIN,
+                percentile_stretch=self.enhance_display and self.detect_on_normalized),
+        )
 
     def mouseMoveEvent(self, event):
         """Move the readout; extend a sweep, a pan, a stroke or a zoom drag.
@@ -10648,6 +10659,8 @@ class MakeMasksScreen(QWidget):
             from ..i18n import tr
 
             btn = QPushButton(tr(label))
+            if mode == MODE_WAND_ADD:
+                btn.setToolTip(tr("Click to add an intensity region. Hold Ctrl and click to remove it."))
             if mode == MODE_DIVIDE:
                 btn.setToolTip(tr("Left-drag to divide an object. Right-drag across objects to merge them."))
             btn.setIcon(iconset.icon(icon_key))
@@ -10666,7 +10679,8 @@ class MakeMasksScreen(QWidget):
         self._btn_erase = self._mode_buttons[MODE_ERASE]
         self._btn_del_obj = self._mode_buttons[MODE_ERASE_OBJECT]
         self._btn_wand_add = self._mode_buttons[MODE_WAND_ADD]
-        self._btn_wand_erase = self._mode_buttons[MODE_WAND_ERASE]
+        self._btn_wand = self._btn_wand_add
+        self._btn_wand_erase = self._btn_wand
         self._btn_zoom = self._mode_buttons[MODE_ZOOM]
         self._btn_recrop = self._mode_buttons[MODE_RECROP]
         self._btn_recrop.setToolTip(RECROP_TOOLTIP)
@@ -11535,6 +11549,8 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
 
+        if mode == MODE_WAND_ERASE:
+            mode = MODE_WAND_ADD
         if mode == MODE_BOX and self._canvas.image is None:
             return
         if mode == MODE_BOX and self._box_load_error is not None:
@@ -11573,7 +11589,10 @@ class MakeMasksScreen(QWidget):
                 ('Ctrl + right click', tr('Remove the object under the cursor'), tr('Delete the box under the cursor'))):
             shortcut = getattr(self, '_shortcut_rows', {}).get(keys)
             if shortcut is not None:
-                shortcut[1].setText(boxes if mode == MODE_BOX else normal)
+                text = (tr('Remove the intensity region')
+                        if keys == 'Ctrl + left click' and mode == MODE_WAND_ADD
+                        else boxes if mode == MODE_BOX else normal)
+                shortcut[1].setText(text)
         for m, btn in self._mode_buttons.items():
             btn.setChecked(m == mode)
 

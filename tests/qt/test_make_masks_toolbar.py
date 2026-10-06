@@ -102,6 +102,22 @@ def test_mode_none_is_not_a_tool(qtbot, qt_theme_applied):
     assert MODE_NONE not in screen._mode_buttons
 
 
+def test_wand_has_one_button_and_its_modifier_help_follows_the_selected_tool(qtbot, qt_theme_applied):
+    screen = MakeMasksScreen()
+    qtbot.addWidget(screen)
+    wand = screen._mode_buttons[mm.MODE_WAND_ADD]
+    assert mm.MODE_WAND_ERASE not in screen._mode_buttons
+    assert [button for button in screen._mode_buttons.values()
+            if button.text().startswith('Wand')] == [wand]
+    assert wand.text() == 'Wand'
+    assert 'Hold Ctrl' in wand.toolTip()
+    screen._set_mode(mm.MODE_WAND_ADD)
+    assert wand.isChecked()
+    assert screen._shortcut_rows['Ctrl + left click'][1].text() == 'Remove the intensity region'
+    screen._set_mode(MODE_BRUSH)
+    assert screen._shortcut_rows['Ctrl + left click'][1].text() == 'Split the object at its waist'
+
+
 def test_a_new_tool_is_enabled_with_the_rest_when_a_folder_opens(
         qtbot, qt_theme_applied, monkeypatch, folder_2: Path):
     """_sync_button_states reads the row, so it cannot miss a new tool."""
