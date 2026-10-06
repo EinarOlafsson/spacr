@@ -5,10 +5,12 @@ the ATGC cascade). This is the one for *everything else*: a slow, diffuse
 animation that sits behind the settings form and the console, takes no focus
 and no mouse events, and can be switched off entirely in Preferences.
 
-Five classic themes remain in the menu alongside six data-art materials,
-each chosen to read as a different kind of movement:
+Seven data-art materials and three classic themes remain in the menu.
+The default is ``data_art_lens`` (spaCR field). The other data-art choices
+are advection, growth, Thore, waves, tissue facets and chromatin satin.
+The classic choices provide softer motion:
 
-``blobs``   (default)
+``blobs``
     Big and small colour blobs drifting over the page, each pulsing in size on
     its own period. They overlap and blend, so the result reads as soft colour
     *fields* rather than as a bag of circles.
@@ -19,19 +21,14 @@ each chosen to read as a different kind of movement:
     schedule, a sharp lower edge, a diffuse top, and the real thing's
     vertical colour order: green through the body, red high up, a violet
     fringe underneath.
-``ripple``
-    Concentric rings expanding out of three fixed sources and fading as they
-    grow, like rain on water. Soft-edged, so it never reads as line work.
 ``drift``
     A slow starfield in three parallax layers: small, dim, slow ones behind;
     bigger, brighter, faster ones in front. The one crisp theme. It travels
     up, down, or every which way — see :data:`DRIFT_DIRECTIONS`.
-``cells``
-    Cells drifting through the field, turning as they go — a soft body, a
-    slightly brighter membrane where the edge is seen nearly edge-on, and a
-    distinctly brighter nucleus set off centre.
-The older :class:`BokehEngine` and :class:`ResonanceEngine` remain importable
-for direct callers, but are no longer menu choices or factory entries.
+
+The older :class:`RippleEngine`, :class:`CellsEngine`, :class:`BokehEngine`
+and :class:`ResonanceEngine` remain importable for direct callers, but are
+no longer menu choices or factory entries.
 
 There is also a private ``fractal`` engine: it is
 not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it,
