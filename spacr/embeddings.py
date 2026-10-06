@@ -641,7 +641,7 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
     hub cache.
 
     :raises EmbeddingError: when torch or transformers is missing, or the
-        model's weights are not published.
+        model is not supported by this version.
     """
     try:
         import torch
@@ -653,8 +653,10 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
     device = spec.device or ("cuda" if torch.cuda.is_available() else "cpu")
     if spec.backbone == "cell_dino":
         raise EmbeddingError(
-            "Cell-DINO's weights are not published yet (Meta FAIR, "
-            "facebookresearch/dinov2 README_CELL_DINO.md). Choose openphenom, "
+            "Cell-DINO checkpoints are not yet supported by this version. "
+            "Official weights are available through Meta's download request "
+            "at https://ai.meta.com/resources/models-and-libraries/cell-dino-downloads/. "
+            "Choose openphenom, "
             "chada_vit or subcell, or a timm DINOv2 backbone such as "
             "vit_small_patch14_dinov2.lvd142m.")
     if spec.backbone == "subcell":
@@ -797,8 +799,10 @@ def _retrieval_scorecard(features: Any, labels: Mapping[Any, Any],
       the full ranking, averaged over queries.
     - ``precision_at_k``: share of the ``k`` nearest that share the label.
 
-    The whole similarity matrix is held at once, so this is meant for a
-    labelled set of up to a few tens of thousands of crops.
+    Queries are scored in bounded blocks against every labelled crop. Full
+    rankings and eligible labels are retained without allocating the whole
+    pairwise similarity matrix, so tens of thousands of crops remain
+    practical.
 
     :param features: numeric frame indexed by crop key, such as
         :meth:`EmbeddingResult.to_frame` or the measured features.
@@ -819,22 +823,29 @@ def _retrieval_scorecard(features: Any, labels: Mapping[Any, Any],
             "a scorecard needs at least two labelled crops in two classes")
     rows = np.asarray([index._position[p[0]] for p in pairs], dtype=np.int64)
     sub = index._matrix[rows].astype(np.float64)
-    scores = sub @ sub.T
-    np.fill_diagonal(scores, -np.inf)
-    order = np.argsort(-scores, axis=1, kind="stable")[:, :-1]
-    same = classes[order] == classes[:, None]
     k = max(1, min(int(k), len(pairs) - 1))
+    ranks = np.arange(1, len(pairs))
+    hits = np.empty(len(pairs), dtype=np.float64)
+    positives = np.empty(len(pairs), dtype=np.int64)
+    ap = np.empty(len(pairs), dtype=np.float64)
     correct = 0
-    for i in range(len(pairs)):
-        near = list(classes[order[i, :k]])
-        counts = {c: near.count(c) for c in near}
-        best = max(counts.values())
-        vote = next(c for c in near if counts[c] == best)
-        correct += vote == classes[i]
-    ranks = np.arange(1, same.shape[1] + 1)
-    positives = same.sum(axis=1)
-    precision = np.cumsum(same, axis=1) / ranks
-    ap = (precision * same).sum(axis=1) / np.maximum(positives, 1)
+    for start in range(0, len(pairs), 256):
+        stop = min(start + 256, len(pairs))
+        scores = sub[start:stop] @ sub.T
+        scores[np.arange(stop - start), np.arange(start, stop)] = -np.inf
+        order = np.argsort(-scores, axis=1, kind="stable")[:, :-1]
+        same = classes[order] == classes[start:stop, None]
+        hits[start:stop] = same[:, :k].mean(axis=1)
+        positives[start:stop] = same.sum(axis=1)
+        precision = np.cumsum(same, axis=1) / ranks
+        ap[start:stop] = ((precision * same).sum(axis=1)
+                         / np.maximum(positives[start:stop], 1))
+        for label, neighbors in zip(classes[start:stop], classes[order[:, :k]]):
+            near = list(neighbors)
+            counts = {c: near.count(c) for c in near}
+            best = max(counts.values())
+            vote = next(c for c in near if counts[c] == best)
+            correct += vote == label
     kept = positives > 0
     freq = {c: float(np.mean(classes == c)) for c in set(classes)}
     chance = np.asarray([(freq[c] * len(pairs) - 1) / (len(pairs) - 1)
@@ -842,7 +853,7 @@ def _retrieval_scorecard(features: Any, labels: Mapping[Any, Any],
     return {
         "knn_accuracy": float(correct / len(pairs)),
         "map": float(ap[kept].mean()),
-        "precision_at_k": float(same[:, :k].mean()),
+        "precision_at_k": float(hits.mean()),
         "chance_map": float(chance[kept].mean()),
         "chance_precision": float(chance.mean()),
         "n": float(len(pairs)),

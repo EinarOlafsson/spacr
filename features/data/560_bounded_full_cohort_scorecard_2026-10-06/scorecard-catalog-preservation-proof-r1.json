@@ -1,0 +1,106 @@
+{
+  "API": {
+    "en": {
+      "all_complete_records_preserved": 13181,
+      "catalog_sha256": "b320a398d4141ac53ffff6b142b125bd89db2f3baf3dcebf7e22cada6067d026"
+    },
+    "sv": {
+      "all_complete_records_preserved": 13181,
+      "catalog_sha256": "32b3184b8c1b0c2b66b5defbcca3e0b1a3276d4f3b27adf09dcc016df487c686"
+    },
+    "de": {
+      "all_complete_records_preserved": 13181,
+      "catalog_sha256": "1c41eddc5541cfafa065a8c5906ada4bbe57a68db30274bf930510f849d897a4"
+    },
+    "es": {
+      "all_complete_records_preserved": 13181,
+      "catalog_sha256": "d100843c3dc58a9280acb4901948095cfadd2a6de1fd630f18b0f59c0bee36a6"
+    },
+    "zh_CN": {
+      "all_complete_records_preserved": 13181,
+      "catalog_sha256": "72e399336570b6c06d44cdb9d57fd8ad12c75f4effbc2a353d7b8208a2fb3323"
+    },
+    "pt": {
+      "all_complete_records_preserved": 13181,
+      "catalog_sha256": "84591e37a7b4a3935b21d0edefe4db0905a5df4de013ab1bbb1c4830b6e577cd"
+    },
+    "hi": {
+      "all_complete_records_preserved": 13181,
+      "catalog_sha256": "0ea891e2984a21d607b68e5e8276b8ef5b386d54693b1674ce95c8aee04b446f"
+    },
+    "ko": {
+      "all_complete_records_preserved": 13181,
+      "catalog_sha256": "baaedfe33fc9c079aca2b220d4a78273f824c46c4283aed4471a46bb9e84e30b"
+    },
+    "is": {
+      "all_complete_records_preserved": 13181,
+      "catalog_sha256": "72efeb0b44813ded93b36e93afdbdee9e215b8f3f4236d39426b5f6c8efda34e"
+    },
+    "fr": {
+      "all_complete_records_preserved": 13181,
+      "catalog_sha256": "b3ef81ed3fd68871294319192755f60ce89857e48a8cd19d5f5c63f8e5c3ae44"
+    }
+  },
+  "runtime": {
+    "en": {
+      "all_other_complete_rows_and_hashes_preserved": 9856,
+      "current_rows": 9857,
+      "exact_source_replacements": 1,
+      "catalog_sha256": "c353c16d6d77ef63980341052773f5f1916d741a2e517f40b7e20eec83a8e0da"
+    },
+    "sv": {
+      "all_other_complete_rows_and_hashes_preserved": 9856,
+      "current_rows": 9857,
+      "exact_source_replacements": 1,
+      "catalog_sha256": "44a54894241bd46e1b43d8d8fdba89a28d65342baedd5caad261287fd79e3eab"
+    },
+    "de": {
+      "all_other_complete_rows_and_hashes_preserved": 9856,
+      "current_rows": 9857,
+      "exact_source_replacements": 1,
+      "catalog_sha256": "667e226aef797dc726fb2468fc74c15ab856bec514869287450f4346b9a1a1ea"
+    },
+    "es": {
+      "all_other_complete_rows_and_hashes_preserved": 9856,
+      "current_rows": 9857,
+      "exact_source_replacements": 1,
+      "catalog_sha256": "7b81b0eddb3d83c76b1b6e370380b74cc524e61fb79ec336ee70799b8da0e849"
+    },
+    "zh_CN": {
+      "all_other_complete_rows_and_hashes_preserved": 9856,
+      "current_rows": 9857,
+      "exact_source_replacements": 1,
+      "catalog_sha256": "52725086b1fa8ce57e08db765b083f6d84f0c701640ee7c097d9fd29e8786f3b"
+    },
+    "pt": {
+      "all_other_complete_rows_and_hashes_preserved": 9856,
+      "current_rows": 9857,
+      "exact_source_replacements": 1,
+      "catalog_sha256": "b1619025a3935ab806807653a7ce93c0b9a11d3c5668dcd1fa1e938e604c4f4a"
+    },
+    "hi": {
+      "all_other_complete_rows_and_hashes_preserved": 9856,
+      "current_rows": 9857,
+      "exact_source_replacements": 1,
+      "catalog_sha256": "122233779840f3b144024ded8a7a1bbbb825facbbd8d0afd54401d3fb104a5ad"
+    },
+    "ko": {
+      "all_other_complete_rows_and_hashes_preserved": 9856,
+      "current_rows": 9857,
+      "exact_source_replacements": 1,
+      "catalog_sha256": "cf24038ad01aa47efd51e400e1352a819cae4438365f142f76d02faf5f87b611"
+    },
+    "is": {
+      "all_other_complete_rows_and_hashes_preserved": 9856,
+      "current_rows": 9857,
+      "exact_source_replacements": 1,
+      "catalog_sha256": "d29d51f367c26ab3462d96cffbaacccc140c6f2b0afab7c0c920029f1ed2453a"
+    },
+    "fr": {
+      "all_other_complete_rows_and_hashes_preserved": 9856,
+      "current_rows": 9857,
+      "exact_source_replacements": 1,
+      "catalog_sha256": "6d8ee7ee2d848f6c0b08a49f50bffdaa0c4f5d6603bf0d509ace0f092990fa26"
+    }
+  }
+}

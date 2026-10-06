@@ -1,0 +1,9 @@
+{
+  "api_changed": [],
+  "runtime_retired": [
+    "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO's weights are not published yet. Default None (use the backbone)."
+  ],
+  "runtime_added": [
+    "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone)."
+  ]
+}

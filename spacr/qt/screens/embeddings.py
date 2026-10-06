@@ -439,8 +439,9 @@ class EmbeddingsScreen(QWidget):
             "A model trained on microscopy rather than photographs. "
             "OpenPhenom and ChAda-ViT take any number of stains; SubCell "
             "takes two, DNA then the stain of interest, in the order the "
-            "channels are encoded. Weights download once. Cell-DINO's "
-            "weights are not published yet. Default None (use the "
+            "channels are encoded. Weights download once. Cell-DINO needs "
+            "an official checkpoint and is not yet supported by this version. "
+            "Default None (use the "
             "backbone)."))
         controls.addWidget(self._foundation)
         _apply_alpha_widgets(label)

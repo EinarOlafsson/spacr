@@ -3,7 +3,7 @@
 The models themselves are downloaded weights, so these tests pin the wiring
 around them with injected encoders: how many planes a channel-adaptive or
 fixed-width encoder is handed under each channel policy, which loader a
-backbone name reaches, the refusal for unpublished weights, and the kNN
+backbone name reaches, the refusal for unsupported checkpoints, and the kNN
 accuracy / mAP scorecard that compares backbones on a labelled set.
 """
 from __future__ import annotations
@@ -87,7 +87,7 @@ def test_a_backbone_name_reaches_its_loader(monkeypatch):
 
 def test_cell_dino_is_refused_with_a_reason_before_any_download():
     pytest.importorskip("torch")
-    with pytest.raises(emb.EmbeddingError, match="not published"):
+    with pytest.raises(emb.EmbeddingError, match="not yet supported"):
         emb._foundation_encoder(emb.EmbeddingSpec(backbone="cell_dino"))
 
 
@@ -130,3 +130,18 @@ def test_the_scorecard_drops_blanks_and_refuses_one_class():
     labels = {k: ("" if i % 2 else "a") for i, k in enumerate(labels)}
     with pytest.raises(ValueError, match="two classes"):
         emb._retrieval_scorecard(frame, labels)
+
+
+def test_all_cells_are_scored_and_singletons_do_not_lower_average_precision():
+    values = np.concatenate((np.tile([1., 0.], (260, 1)),
+                             np.tile([0., 1.], (260, 1)), [[.5, .5]]))
+    keys = [f"crop{i}" for i in range(len(values))]
+    labels = dict(zip(keys, ["a"] * 260 + ["b"] * 260 + ["singleton"]))
+    card = emb._retrieval_scorecard(pd.DataFrame(values, index=keys), labels,
+                                  k=300)
+    assert card["n"] == 521 and card["classes"] == 3
+    assert card["knn_accuracy"] == pytest.approx(520 / 521)
+    assert card["map"] == pytest.approx(1.0)
+    assert card["precision_at_k"] == pytest.approx(520 * 259 / (521 * 300))
+    assert card["chance_map"] == pytest.approx(259 / 520)
+    assert card["chance_precision"] == pytest.approx(259 / 521)

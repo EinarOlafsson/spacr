@@ -2,14 +2,14 @@
   "schema": 1,
   "language": "is",
   "review_kind": "AI technical review (Codex), no native-speaker signoff",
-  "note": "Direct AI translation and technical review against current English source and code context. German, French and Icelandic, plus the 35 historical Hindi captions, also received a second independent Codex AI technical review. No native-speaker signoff. Hindi historical IDs 821–855 were directly translated after content review; no external translation filter was invoked. Prior fallback history remains in earlier evidence.",
+  "note": "Direct AI translation and technical review against current English source and code context. German, French and Icelandic, plus the 35 historical Hindi captions, also received a second independent Codex AI technical review. No native-speaker signoff. Hindi historical IDs 821–855 were directly translated after content review; no external translation filter was invoked. Prior fallback history remains in earlier evidence. 2026-10-06: the revised Cell-DINO caption received direct Codex AI technical review only; earlier independent-review statements apply to its previous wording. All other records retain their existing review history.",
   "records": [
     {
       "table": "ui",
-      "key": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO's weights are not published yet. Default None (use the backbone).",
-      "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO's weights are not published yet. Default None (use the backbone).",
-      "source_sha256": "7ca7859bd5cc5cf407d141cc972dcadea61f53d5981ce243bc604b60cac418de",
-      "translation": "Líkan þjálfað á smásjármyndum fremur en ljósmyndum. OpenPhenom og ChAda-ViT taka við hvaða fjölda litana sem er; SubCell tekur tvær, DNA fyrst og síðan litunina sem á að skoða, í þeirri röð sem rásirnar eru kóðaðar. Vægi eru sótt einu sinni. Vægi Cell-DINO hafa ekki enn verið birt. Sjálfgefið: None (nota grunnnetið)."
+      "key": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+      "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
+      "source_sha256": "d25bb244df4fcf08909bd1d860d55646aa14346420a9fc0dcace7c696cbce162",
+      "translation": "Líkan þjálfað á smásjármyndum fremur en ljósmyndum. OpenPhenom og ChAda-ViT taka við hvaða fjölda litana sem er; SubCell tekur tvær, DNA fyrst og síðan litunina sem á að skoða, í þeirri röð sem rásirnar eru kóðaðar. Vægi eru sótt einu sinni. Cell-DINO þarf opinbera vistun af líkaninu og er ekki enn stutt í þessari útgáfu. Sjálfgefið: None (nota grunnnetið)."
     },
     {
       "table": "setting_tooltips",
