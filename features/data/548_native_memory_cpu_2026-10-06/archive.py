@@ -31,6 +31,8 @@ def freeze(target, commit, name, label):
 def copy_files(target, source, names):
     for name in names:
         path = source / name
+        if name in ("prepare.py", "measure.py") and (target / name).exists():
+            continue
         if path.suffix == '.log':
             compressed(target / (name + '.gz'), path.read_bytes())
         else:
@@ -100,7 +102,8 @@ assert sources['scatter-production']['sha256'] == json.loads(
     (numba / 'new-source-coverage.json').read_text())['source_sha256']
 compressed(themes / 'growth-coverage.json.gz', (growth / 'coverage-bc.json').read_bytes())
 compressed(themes / 'thore-fix-coverage.json.gz', (thore / 'coverage-final.json').read_bytes())
-shutil.copyfile(growth / 'live_widget_probe.py', themes / 'live_widget_probe.py')
+if not (themes / 'live_widget_probe.py').exists():
+    shutil.copyfile(growth / 'live_widget_probe.py', themes / 'live_widget_probe.py')
 for path in sorted((growth / 'stills').iterdir()):
     shutil.copyfile(path, themes / path.name)
 for name in ['fungal-preview.mp4', 'thore-preview.mp4']:

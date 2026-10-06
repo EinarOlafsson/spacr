@@ -8,3 +8,11 @@ Coverage is added-source coverage, not global/full-module acceptance.
 Gallery images/clips bind growth-footprint bc393abfd2. Live widget script
 binds catalog16d; later Thore fix539058 changes geometry/speed behavior.
 Native4K frame targets and the actual Save crash remain OPEN.
+
+The live-widget probe now requires --renderer, --source-sha256 and
+--output-dir. It loads the frozen module bytes and refuses a different
+SHA256; a mutable worktree path cannot silently stand in for catalog16d.
+Example: read the live-widget-catalog SHA256 from receipt.json and run:
+PYTHONPATH=. CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G python features/data/663_cpu_scatter_growth_thore_2026-10-06/live_widget_probe.py thore --renderer features/data/663_cpu_scatter_growth_thore_2026-10-06/live-widget-catalog.py.gz --source-sha256 <recorded SHA256> --output-dir <fresh scratch path>
+This verifies source-bound lifecycle/rendering only; it includes grabs and
+control setters and is not a steady-state FPS acceptance test.
