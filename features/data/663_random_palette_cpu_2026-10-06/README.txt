@@ -21,7 +21,7 @@ uint64 rank field while compilation is pending. Native first-frame costs and CPU
 compiler GIL interruptions are measured explicitly; no no-stall promise.
 
 Tests:192 affected cases passed34.68s; subsequently four center/round primitive
-cases passed3.75s, adding two unique parameter cases (194 unique overall).
+cases passed3.75s, extending overlapping scenarios; no unique execution union is asserted.
 All99 added executable statements and33 touching source arcs were hit, zero gaps.
 The complete report/source diff and new test snapshots are retained. Existing
 unknown-qt-marker warning comes from this worktree's sparse pytest configuration.
@@ -113,3 +113,12 @@ optimized_startup replay was actually run: three exact hashes, no pre-gate impor
 the integrated old/current sources rather than the earlier individual baseline.
 For optimized_startup it restores the accepted4401 individual source. Each
 restored source is validated against source_checkpoints.json before execution.
+
+Count clarification:192,4and106 are the actual individual execution phases,
+with overlap and different source checkpoints. No194/195 unique passed-case
+union is asserted. Root separately passed one Preferences save/reopen/theme/
+cancel integration test, not included in the archived test snapshots.
+Portable optimized_native replay was actually run from restored sources:
+40 existing default/custom pairs,24 Random compiled/fallback pairs and24 old/
+optimized active-pointer native pairs pass; peak586,660KiB. The source hashes
+match7a35→a324, confirming the current integrated renderer checkpoint.
