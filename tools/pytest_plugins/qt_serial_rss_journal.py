@@ -1,10 +1,11 @@
-"""Durable, passive file-boundary RSS evidence for a serial Qt acceptance run.
+"""Durable file-boundary RSS and failure evidence for a serial Qt run.
 
 Load explicitly with ``-p tools.pytest_plugins.qt_serial_rss_journal`` and set
 ``SPACR_QT_SERIAL_RSS_JOURNAL`` to a new JSONL path. Every record is written
 and synced before pytest continues, so a later memory-guard ``os._exit`` does
-not discard the boundaries it already crossed. The observer neither touches
-Qt objects nor changes test order, garbage collection, or event processing.
+not discard the boundaries or reported failures it already crossed. The
+observer neither touches Qt objects nor changes test order, garbage collection,
+or event processing.
 """
 
 from __future__ import annotations
@@ -117,6 +118,23 @@ def pytest_runtest_setup(item: pytest.Item) -> None:
         _completed_files += 1
     _active_file = name
     _write("file_begin", file=name, first_nodeid=item.nodeid[:512])
+
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_runtest_logreport(report: pytest.TestReport) -> None:
+    """Sync failure details before a later native crash skips pytest's summary."""
+    if not report.failed:
+        return
+    detail = report.longreprtext
+    limit = 65536
+    _write(
+        "test_failure",
+        nodeid=report.nodeid,
+        when=report.when,
+        detail=detail[:limit],
+        detail_chars=len(detail),
+        detail_truncated=len(detail) > limit,
+    )
 
 
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
