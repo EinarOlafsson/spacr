@@ -11,6 +11,21 @@ spaCR growth, spaCR Thore, spaCR waves, Blobs, then the rest. These new requests
 are pending, not claimed complete. Workstation retains subsequent API/docs/
 translations/tutorial refresh and all GPU work. Preserve live protected jobs.
 
+## 2026-10-06 existing local native crash evidence for Home
+2026-10-06 workstation found an existing real native crash trace:
+A byte-exact excerpt from the user's local spacr-crash.log records PID
+3063654 dying with Fatal Python error: Segmentation fault. The current
+thread is Garbage-collecting in gc_policy.collect_once:96, called from
+app.launch:7331; the ambient worker is waiting in ambient._run:5492.
+Evidence: data/663_local_native_crash_trace_2026-10-06/manifest.json and
+pid-3063654-faulthandler.log. The block has no timestamp or source commit
+and does not record Detail/Save, so its relation to the newly reported
+crash is unproven. Current shared app.py has no collect_once call there.
+Home: use this as additional native-lifetime evidence; identify the crashed
+revision and reproduce the user's actual preference-save path first.
+No cause, fix or native reproduction is claimed; no live job was touched.
+All requested behavior and exact menu order remain in the previous relay.
+
 ## 2026-10-06 workstation Cell-DINO actual local provenance repaired
 The coordinated _weights_on_disk/encoder_entry path now verifies supplied
 Cell-DINO checkpoint_path/checkpoint_sha256 against stable regular-file bytes,
