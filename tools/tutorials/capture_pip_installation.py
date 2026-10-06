@@ -47,7 +47,9 @@ def installed_version(prior, route):
     return prior['pypi' if route == 'pip' else 'channel']['version']
 
 
-def commands(route='pip', version='1.5.0.5', prefix=None):
+def commands(route='pip', version='1.5.0.5', prefix=None, *, requested_backend='auto'):
+    if requested_backend not in {'auto', 'cpu'}:
+        raise ValueError('Use the backend requested by the verified installation')
     result = [
         ('01_python_version', ['python', '--version'], 'Python 3.12.'),
         ('02_pip_environment', ['python', '-m', 'pip', '--version'], 'venv/lib/python3.12/site-packages/pip'),
@@ -70,7 +72,7 @@ def commands(route='pip', version='1.5.0.5', prefix=None):
         result[1] = ('02_installer_backend', ['python', '-c',
                      'import json; from pathlib import Path; '
                      f'print(json.dumps(json.loads(Path({str(profile)!r}).read_text()), indent=2))'],
-                     '"requested_backend": "auto"')
+                     f'"requested_backend": "{requested_backend}"')
         result[3] = ('04_installed_launcher', ['python', '-c',
                      'from pathlib import Path; '
                      f'p=Path({str(launcher)!r}); print(p); print(p.read_text())'],
@@ -78,9 +80,11 @@ def commands(route='pip', version='1.5.0.5', prefix=None):
     return result
 
 
-def terminal_driver(stage, root, capture, route='pip', version='1.5.0.5', prefix=None):
+def terminal_driver(stage, root, capture, route='pip', version='1.5.0.5', prefix=None,
+                    *, requested_backend='auto'):
     outcomes = []
-    for name, command, expected in commands(route, version, prefix):
+    for name, command, expected in commands(route, version, prefix,
+                                           requested_backend=requested_backend):
         print('\033[2J\033[3J\033[H', end='', flush=True)
         print('$ ' + shlex.join(command), flush=True)
         result = subprocess.run(command, cwd=root, text=True,
@@ -370,7 +374,8 @@ def main():
     capture = stage / 'captures' / args.capture_name
     if args.terminal_driver:
         version = installed_version(prior, args.route)
-        return terminal_driver(stage, root, capture, args.route, version, venv)
+        return terminal_driver(stage, root, capture, args.route, version, venv,
+                               requested_backend=prior.get('requested_torch_backend', 'auto'))
     if capture.exists():
         raise FileExistsError('Choose a new capture name; earlier evidence is retained')
     if args.inside:

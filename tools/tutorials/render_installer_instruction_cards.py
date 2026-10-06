@@ -31,7 +31,7 @@ def main():
     provenance = read(capture / 'provenance.json')
     if not provenance.get('completed_capture') or provenance['installed_identity']['version'] != version:
         raise ValueError('The real public-installer verification must finish first')
-    style_path = DEFAULT_STAGE.parent / 'tools/render_install_keyframes.py'  # shared card style
+    style_path = Path(__file__).resolve().parent / 'authoring/tools/render_install_keyframes.py'
     spec = importlib.util.spec_from_file_location('existing_installer_style', style_path)
     style = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(style)

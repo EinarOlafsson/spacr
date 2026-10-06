@@ -10,6 +10,7 @@ import argparse
 import hashlib
 import importlib.util
 from pathlib import Path
+import re
 
 from stage_lesson import DEFAULT_STAGE, read, write
 
@@ -23,7 +24,10 @@ def main():
     provenance = read(capture / 'provenance.json')
     if not provenance.get('completed_capture'):
         raise ValueError('Real installation verification must finish first')
-    style_path = Path('/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/tools/render_install_keyframes.py')
+    version = str(provenance['installed_identity']['version'])
+    if not re.fullmatch(r'\d+(?:\.\d+)+', version):
+        raise ValueError('Instruction cards require the exact verified installed release')
+    style_path = Path(__file__).resolve().parent / 'authoring/tools/render_install_keyframes.py'
     spec = importlib.util.spec_from_file_location('existing_installation_style', style_path)
     style = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(style)
@@ -39,7 +43,7 @@ def main():
          'PowerShell policy may block activation; use Command Prompt or the environment Python directly.'),
         ('09_install_package', 'Install the public Python package', [
             ('Inside the selected environment', 'python -m pip install --upgrade pip'),
-            ('Reproduce the release verified in this lesson', 'python -m pip install "spacr==1.5.0.5"')],
+            ('Reproduce the release verified in this lesson', f'python -m pip install "spacr=={version}"')],
          'Current base dependencies include Qt. Scientific packages can require several GB and minutes.'),
         ('10_launch_commands', 'Launch the installed desktop application', [
             ('Normal launch — first-run questions may appear', 'spacr'),

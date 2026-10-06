@@ -1,0 +1,79 @@
+{
+  "route": "Public Linux online installer, cpu backend",
+  "folder": "/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_",
+  "requested_torch_backend": "cpu",
+  "accepted": true,
+  "steps": [
+    {
+      "name": "01_installer",
+      "command": [
+        "bash",
+        "/tmp/spacr-tutorials/installation_runs/linux-installer-frzg4gdf/spaCR-1.5.1.3-Linux-x86_64-Online.run",
+        "--install-root",
+        "/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime",
+        "--launcher-dir",
+        "/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/bin",
+        "--skip-system-deps",
+        "--no-launch",
+        "--torch-backend",
+        "cpu"
+      ],
+      "completed": true,
+      "returncode": 0,
+      "elapsed_seconds": 45.749,
+      "log_sha256": "e25fe6f3d2aa448f5cae911a46f097e6ce643b37cf0cfa1c064008fa7c160fd1"
+    },
+    {
+      "name": "02_import",
+      "command": [
+        "/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv/bin/python",
+        "-I",
+        "-c",
+        "import json,pathlib,sys,spacr,PySide6,torch; assert pathlib.Path(spacr.__file__).resolve().is_relative_to(pathlib.Path(sys.prefix)); assert spacr.__version__ == '1.5.1.3'; print(json.dumps(dict(version=spacr.__version__,qt=PySide6.__version__, torch=torch.__version__,package=spacr.__file__,prefix=sys.prefix),indent=2))"
+      ],
+      "completed": true,
+      "returncode": 0,
+      "elapsed_seconds": 1.166,
+      "log_sha256": "586d54c75936421fc01641fba525826bbed205af71ad1ea0113afacceee5d776"
+    },
+    {
+      "name": "03_doctor",
+      "command": [
+        "/tmp/spacr-tutorials/installation_runs/linux-runtime-6pafwa0_/runtime/venv/bin/spacr-doctor",
+        "--json",
+        "--no-gpu-probe"
+      ],
+      "completed": true,
+      "returncode": 0,
+      "elapsed_seconds": 8.78,
+      "log_sha256": "5f1bf39f6ec11ca1fb43fa443b156e876dba249728cc539070a7a1a64a43f974"
+    }
+  ],
+  "installer_sha256": "81c9806c8d80237c8d14de29e77980715d3628143afcb1a6f1aeb3a6d5562465",
+  "published": false,
+  "installer_tag": "v1.5.1.3",
+  "system_dependencies_installed": false,
+  "gui_launched": false,
+  "consent_choices_supplied": false,
+  "existing_environment_changed": false,
+  "install_profile": {
+    "active_backend": "cpu",
+    "consent": {
+      "collected": false,
+      "report_issues": false,
+      "share_diagnostics": false,
+      "sign_in_now": false
+    },
+    "created_utc": "2026-10-06T04:32:54.587282+00:00",
+    "cuda_available": false,
+    "detected_accelerator": "nvidia",
+    "machine": "x86_64",
+    "mps_available": false,
+    "platform": "linux",
+    "requested_backend": "cpu",
+    "schema": 1,
+    "torch_cuda_build": null,
+    "torch_version": "2.14.1+cpu"
+  },
+  "scope": "Linux installer, real imports and doctor; no GUI, GPU throughput, Windows or macOS acceptance"
+}

@@ -35,6 +35,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
     parser.add_argument('--verified-release', type=Path, required=True)
+    parser.add_argument('--torch-backend', choices=('auto', 'cpu'), default='auto')
     args = parser.parse_args()
     stage = args.stage.resolve()
     installer, verified = verified_installer(stage, args.verified_release)
@@ -44,7 +45,8 @@ def main():
     runtime = root / 'runtime'
     state = root / 'app-state'
     state.mkdir()
-    receipt = dict(route='Public Linux online installer, default auto backend', folder=str(root),
+    receipt = dict(route=f'Public Linux online installer, {args.torch_backend} backend', folder=str(root),
+                   requested_torch_backend=args.torch_backend,
                    accepted=False, steps=[], installer_sha256=verified['sha256'],
                    published=False, installer_tag=verified['tag'],
                    system_dependencies_installed=False, gui_launched=False,
@@ -53,6 +55,7 @@ def main():
     print('Private Linux installer run: ' + str(root), flush=True)
     env = dict(os.environ)
     for key in ('PYTHONPATH', 'PYTHONHOME', 'VIRTUAL_ENV', 'CONDA_PREFIX',
+                'CONDA_EXE', 'CONDA_PYTHON_EXE', 'CONDA_DEFAULT_ENV',
                 'SPACR_TORCH_BACKEND', 'SPACR_PACKAGE_SPEC', 'SPACR_INSTALL_DRY_RUN',
                 'SPACR_LAUNCHER_DIR', 'UV_INDEX_URL', 'UV_EXTRA_INDEX_URL',
                 'PIP_INDEX_URL', 'PIP_EXTRA_INDEX_URL'):
@@ -61,14 +64,19 @@ def main():
                OMP_NUM_THREADS='2', OPENBLAS_NUM_THREADS='2', MKL_NUM_THREADS='2',
                UV_CONCURRENT_DOWNLOADS='2', UV_CONCURRENT_INSTALLS='2',
                UV_CONCURRENT_BUILDS='1', MAX_JOBS='2', CARGO_BUILD_JOBS='2',
-               USE_TF='0', QT_QPA_PLATFORM='offscreen')
+               USE_TF='0', QT_QPA_PLATFORM='offscreen',
+               PATH='/usr/local/bin:/usr/bin:/bin')
     for key, name in (('XDG_CONFIG_HOME', 'config'), ('XDG_DATA_HOME', 'data'),
                       ('XDG_CACHE_HOME', 'cache'), ('SPACR_LOG_DIR', 'logs'),
                       ('MPLCONFIGDIR', 'mpl')):
         path = root / name
         path.mkdir()
         env[key] = str(path)
-    wrapper = ['bwrap', '--die-with-parent', '--bind', '/', '/', '--dev-bind', '/dev', '/dev',
+    wrapper = ['bwrap', '--die-with-parent', '--ro-bind', '/', '/',
+               '--dev-bind', '/dev', '/dev', '--tmpfs', '/tmp',
+               '--bind', str(root), str(root),
+               '--ro-bind', str(installer.parent), str(installer.parent),
+               '--tmpfs', str(Path.home()),
                '--bind', str(state), str(Path.home() / '.spacr'), '--']
 
     def run(name, command, timeout):
@@ -96,7 +104,8 @@ def main():
             raise RuntimeError(f'{name} failed; do not claim installation success')
 
     run('01_installer', ['bash', str(installer), '--install-root', str(runtime),
-                        '--launcher-dir', str(root / 'bin'), '--skip-system-deps', '--no-launch'], 2400)
+                        '--launcher-dir', str(root / 'bin'), '--skip-system-deps', '--no-launch',
+                        '--torch-backend', args.torch_backend], 2400)
     python = runtime / 'venv/bin/python'
     env['PATH'] = str(root / 'bin') + os.pathsep + str(python.parent) + os.pathsep + env['PATH']
     program = ('import json,pathlib,sys,spacr,PySide6,torch; '
