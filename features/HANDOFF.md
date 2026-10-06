@@ -26,6 +26,18 @@ revision and reproduce the user's actual preference-save path first.
 No cause, fix or native reproduction is claimed; no live job was touched.
 All requested behavior and exact menu order remain in the previous relay.
 
+## 2026-10-06 workstation pretrained video checkpoint prepared
+F567 preparation acquires the real official VideoMAE Kinetics checkpoint at
+488eb9a0565f257b32866000305c8178965eb9f6, verifies every primary file identity,
+and strictly loads its actual weights on CPU in a private compatible environment.
+The declared synthetic 16-frame RGB clip gives finite 1x768 features/1x400 logits;
+the actual model classifier reconstructs those logits bit-exactly. Original
+metadata, script, stdout and arrays are archived byte-exact in the receipt folder:
+data/567_pretrained_video_preparation_2026-10-06.json. The private weight path is
+recorded there. No application backend, microscopy accuracy, GPU use or training
+is claimed; F567 remains OPEN. Its CC-BY-NC-4.0 model licence remains explicit.
+Workstation retains GPU ownership and subsequent source-bound documentation.
+
 ## 2026-10-06 workstation Cell-DINO actual local provenance repaired
 The coordinated _weights_on_disk/encoder_entry path now verifies supplied
 Cell-DINO checkpoint_path/checkpoint_sha256 against stable regular-file bytes,
