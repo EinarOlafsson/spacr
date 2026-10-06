@@ -46,7 +46,9 @@ from __future__ import annotations
 import logging
 import os
 import re
+import hashlib
 import sys
+import tempfile
 import threading
 import time
 import weakref
@@ -58,10 +60,11 @@ import numpy as np
 
 from PySide6.QtCore import Qt, QThread, QTimer, Signal
 from PySide6.QtWidgets import (
-    QComboBox, QDoubleSpinBox, QFileDialog, QFormLayout, QGroupBox,
-    QHBoxLayout, QLabel, QPushButton, QSizePolicy, QSlider, QSpinBox,
-    QVBoxLayout, QWidget,
+    QCheckBox, QComboBox, QDialog, QDoubleSpinBox, QFileDialog, QFormLayout,
+    QAbstractItemView, QGroupBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSizePolicy,
+    QSlider, QSpinBox, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
+from ..i18n import tr
 from .preview_controls import (
     DEFAULT_MAX_SETS, MAX_SETS_TOOLTIP, FlatButton, FlatComboBox, FlatSpinBox,
     ImageSetSampler, apply_sample_to_combo, populate_channel_combo,
@@ -1200,6 +1203,491 @@ def open_sequence_payload(path, max_frames: int = 12,
     return out
 
 
+def _annotation_track_identity(path: Path) -> Tuple[str, str, str]:
+    """Parse the detector's exact tracker, object and field filename."""
+    match = re.fullmatch(
+        r"(trackpy|trackastra|ultrack|timeflows|sam2|btrack)_tracks_"
+        r"(cell|nucleus|pathogen)_(.+)\.csv", path.name)
+    if match is None:
+        raise ValueError(tr("Choose a spaCR tracks CSV named backend_tracks_object_field.csv."))
+    return match.group(1), match.group(2), match.group(3)
+
+
+def _annotation_digest(path: Path) -> Optional[str]:
+    """Identify the exact annotation bytes last read before publication."""
+    if not path.exists():
+        return None
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _annotation_field_payload(tracks_path: str, sequence_path: str,
+                              annotations_path: str) -> dict:
+    """Open a tracked field without decoding the movie into memory."""
+    from spacr.tabular import read_table
+    import pandas as pd
+
+    track_file = Path(tracks_path).expanduser().resolve(strict=True)
+    sequence_file = Path(sequence_path).expanduser().resolve(strict=True)
+    target = Path(annotations_path).expanduser().resolve()
+    backend, object_type, field_name = _annotation_track_identity(track_file)
+    sequence = FrameSequence.open(sequence_file, max_frames=2_147_483_647)
+    tracks = read_table(
+        str(track_file), canonicalise=False, report=None,
+        usecols=lambda name: name in ("frame", "track_id", "x", "y"))
+    if tracks.empty or not {"frame", "track_id"}.issubset(tracks.columns):
+        raise ValueError(tr("The tracks CSV needs frame and track_id rows."))
+    for column in ("frame", "track_id"):
+        values = pd.to_numeric(tracks[column], errors="raise")
+        if (not np.isfinite(values).all() or (values < 0).any()
+                or (values % 1 != 0).any()):
+            raise ValueError(tr("Track IDs and frames must be nonnegative integers."))
+        tracks[column] = values.astype("int64")
+    if tracks.duplicated(["track_id", "frame"]).any():
+        raise ValueError(tr("The tracks CSV repeats a track at the same frame."))
+    if int(tracks["frame"].max()) >= len(sequence):
+        raise ValueError(tr("A tracked frame is outside the selected image sequence."))
+    frame = np.asarray(sequence.frame(0))
+    if frame.ndim == 3 and frame.shape[-1] <= 8 and frame.shape[0] > 8:
+        channels = int(frame.shape[-1])
+    elif frame.ndim == 3 and frame.shape[0] <= 8 and frame.shape[-1] > 8:
+        channels = int(frame.shape[0])
+    else:
+        channels = int(frame.shape[-1]) if frame.ndim == 3 else 1
+    columns = ["field", "track_id", "frame", "event", "object"]
+    existing = (read_table(str(target), canonicalise=False, report=None)
+                if target.exists() else pd.DataFrame(columns=columns))
+    if target.exists() and not set(columns[:4]).issubset(existing.columns):
+        raise ValueError(tr("The existing annotation table lacks field, track_id, frame or event."))
+    if not existing.empty:
+        if existing[columns[:4]].isna().any().any():
+            raise ValueError(tr("The existing annotation table has incomplete event rows."))
+        for column in ("track_id", "frame"):
+            values = pd.to_numeric(existing[column], errors="raise")
+            if (not np.isfinite(values).all() or (values < 0).any()
+                    or (values % 1 != 0).any()):
+                raise ValueError(tr("Existing track IDs and frames must be nonnegative integers."))
+            existing[column] = values.astype("int64")
+        if any(not str(value).strip() or str(value).strip().lower() == "background"
+               or any(ord(char) < 32 for char in str(value))
+               for value in existing["event"]):
+            raise ValueError(tr("The existing annotation table has an invalid event name."))
+    same_field = existing["field"].astype(str) == field_name
+    if "object" not in existing:
+        if same_field.any():
+            raise ValueError(tr("Existing annotations for this field need an object column before editing."))
+        existing["object"] = ""
+    keys = existing[["field", "object", "track_id", "frame", "event"]].copy()
+    keys["object"] = keys["object"].fillna("").astype(str)
+    keys["event"] = keys["event"].astype(str).str.strip().str.lower()
+    if keys.duplicated().any():
+        raise ValueError(tr("The existing annotation table repeats an event."))
+    if (same_field & existing["object"].isna()).any():
+        raise ValueError(tr("Existing annotations for this field have no object identity."))
+    selected = same_field & (existing["object"].astype(str) == object_type)
+    mine = existing[selected].copy()
+    observed = set(zip(tracks["track_id"], tracks["frame"]))
+    events = []
+    for row in mine.to_dict("records"):
+        key = (int(row["track_id"]), int(row["frame"]))
+        name = str(row["event"]).strip().lower()
+        if key not in observed:
+            raise ValueError(tr("An existing event is not on an observed track frame."))
+        events.append({"track_id": key[0], "frame": key[1], "event": name,
+                       "extra": {column: value for column, value in row.items()
+                                 if column not in columns}})
+    return {"sequence": sequence, "tracks": tracks, "observed": observed,
+            "events": events, "other": existing[~selected].copy(),
+            "field": field_name, "object": object_type, "backend": backend,
+            "channels": channels, "target": target,
+            "digest": _annotation_digest(target),
+            "track_digest": _annotation_digest(track_file),
+            "track_path": track_file, "sequence_path": sequence_file}
+
+
+class _EventAnnotationDialog(QDialog):
+    """Edit detector-ready event rows against real tracked observations."""
+
+    def __init__(self, parent=None, *, sequence_path=None, threaded=True):
+        """Construct one field editor with a lazy sequence and bounded cache."""
+        super().__init__(parent)
+        self.setObjectName("TimelapseEventAnnotationDialog")
+        self.setWindowTitle(tr("Track event annotations"))
+        self.resize(760, 680)
+        self._jobs = JobRunner(self, threaded=threaded,
+                               app_key=tr("event annotation load"),
+                               user_visible=False)
+        self._jobs.job_failed.connect(self._load_failed)
+        self._field = None
+        self._events = []
+        self._shown_observation = None
+        self._saved_path = None
+        self._load_token = 0
+        root = QVBoxLayout(self)
+        form = QFormLayout()
+        self._tracks_path = QLineEdit(self)
+        self._tracks_path.setObjectName("TimelapseEventTracksPath")
+        self._sequence_path = QLineEdit(self)
+        self._sequence_path.setObjectName("TimelapseEventSequencePath")
+        if sequence_path is not None:
+            self._sequence_path.setText(os.fspath(sequence_path))
+        self._output_path = QLineEdit(self)
+        self._output_path.setObjectName("TimelapseEventOutputPath")
+        for control, caption, picker in (
+                (self._tracks_path, tr("Tracks CSV"), self._pick_tracks),
+                (self._sequence_path, tr("Image sequence"), self._pick_sequence),
+                (self._output_path, tr("Annotations CSV"), self._pick_output)):
+            row = QHBoxLayout()
+            row.addWidget(control, 1)
+            button = QPushButton(tr("Browse…"), self)
+            if control is self._tracks_path:
+                button.setObjectName("TimelapseEventBrowseTracks")
+            elif control is self._sequence_path:
+                button.setObjectName("TimelapseEventBrowseSequence")
+            else:
+                button.setObjectName("TimelapseEventBrowseOutput")
+            button.clicked.connect(picker)
+            row.addWidget(button)
+            if control is self._sequence_path:
+                folder = QPushButton(tr("Folder…"), self)
+                folder.setObjectName("TimelapseEventBrowseFolder")
+                folder.clicked.connect(self._pick_sequence_folder)
+                row.addWidget(folder)
+            form.addRow(caption, row)
+        root.addLayout(form)
+        self._open_button = QPushButton(tr("Open tracked field"), self)
+        self._open_button.setObjectName("TimelapseEventOpenField")
+        self._open_button.clicked.connect(self._load_field)
+        root.addWidget(self._open_button)
+        self._identity = QLabel(tr("Choose a tracks CSV and its matching image sequence."), self)
+        self._identity.setWordWrap(True)
+        root.addWidget(self._identity)
+        self._confirm = QCheckBox(
+            tr("I confirm this image sequence is the tracked field shown above."), self)
+        self._confirm.setObjectName("TimelapseEventConfirmField")
+        self._confirm.setChecked(False)
+        root.addWidget(self._confirm)
+        self._tracks_path.textChanged.connect(self._source_changed)
+        self._sequence_path.textChanged.connect(self._source_changed)
+        self._preview = QLabel(self)
+        self._preview.setObjectName("TimelapseEventFramePreview")
+        self._preview.setMinimumHeight(220)
+        self._preview.setAlignment(Qt.AlignCenter)
+        root.addWidget(self._preview, 1)
+        controls = QHBoxLayout()
+        self._track = QComboBox(self)
+        self._track.setObjectName("TimelapseEventTrack")
+        self._track.currentIndexChanged.connect(self._show_frame)
+        self._frame = QSpinBox(self)
+        self._frame.setObjectName("TimelapseEventFrame")
+        self._frame.valueChanged.connect(self._show_frame)
+        self._channel = QSpinBox(self)
+        self._channel.setObjectName("TimelapseEventChannel")
+        self._channel.valueChanged.connect(self._show_frame)
+        self._event = QLineEdit(self)
+        self._event.setObjectName("TimelapseEventName")
+        self._event.setPlaceholderText(tr("Event name, for example mitosis"))
+        for caption, control in ((tr("Track"), self._track),
+                                 (tr("Frame (zero-based)"), self._frame),
+                                 (tr("Channel"), self._channel),
+                                 (tr("Event"), self._event)):
+            controls.addWidget(QLabel(caption, self))
+            controls.addWidget(control)
+        root.addLayout(controls)
+        self._rows = QTableWidget(0, 3, self)
+        self._rows.setObjectName("TimelapseEventRows")
+        self._rows.setHorizontalHeaderLabels(
+            [tr("Track ID"), tr("Frame"), tr("Event")])
+        self._rows.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self._rows.setSelectionMode(QAbstractItemView.SingleSelection)
+        self._rows.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self._rows.itemSelectionChanged.connect(self._select_event)
+        root.addWidget(self._rows)
+        actions = QHBoxLayout()
+        self._add_button = QPushButton(tr("Add or update"), self)
+        self._add_button.setObjectName("TimelapseEventAdd")
+        self._add_button.clicked.connect(self._add_event)
+        self._remove_button = QPushButton(tr("Remove selected"), self)
+        self._remove_button.setObjectName("TimelapseEventRemove")
+        self._remove_button.clicked.connect(self._remove_event)
+        self._save_button = QPushButton(tr("Save annotations"), self)
+        self._save_button.setObjectName("TimelapseEventSave")
+        self._save_button.clicked.connect(self._save)
+        close_button = QPushButton(tr("Close"), self)
+        close_button.setObjectName("TimelapseEventClose")
+        close_button.clicked.connect(self.reject)
+        for button in (self._add_button, self._remove_button,
+                       self._save_button, close_button):
+            actions.addWidget(button)
+        root.addLayout(actions)
+        self._status = QLabel("", self)
+        self._status.setWordWrap(True)
+        root.addWidget(self._status)
+
+    def _pick_tracks(self) -> None:
+        """Choose an actual tracker export without opening a movie."""
+        path, _ = QFileDialog.getOpenFileName(
+            self, tr("Choose spaCR tracks CSV"), "", tr("CSV (*.csv)"))
+        if path:
+            self._tracks_path.setText(path)
+            self._output_path.setText(str(Path(path).parent / "events" /
+                                          "annotations.csv"))
+
+    def _pick_sequence(self) -> None:
+        """Choose the matching stack or one folder of image frames."""
+        path, _ = QFileDialog.getOpenFileName(
+            self, tr("Choose image sequence"), "",
+            tr("Images (*.tif *.tiff *.npy)"))
+        if path:
+            self._sequence_path.setText(path)
+
+    def _pick_sequence_folder(self) -> None:
+        """Choose a directory of frames through the ordinary folder picker."""
+        path = QFileDialog.getExistingDirectory(
+            self, tr("Choose image-frame folder"), "")
+        if path:
+            self._sequence_path.setText(path)
+
+    def _pick_output(self) -> None:
+        """Choose an annotation CSV, including one already containing fields."""
+        path, _ = QFileDialog.getSaveFileName(
+            self, tr("Choose annotations CSV"),
+            self._output_path.text(), tr("CSV (*.csv)"))
+        if path:
+            self._output_path.setText(path)
+
+    def _source_changed(self, *_args) -> None:
+        """Require renewed source confirmation after either identity changes."""
+        self._confirm.setChecked(False)
+
+    def _load_failed(self, message: str) -> None:
+        """Report a failed file read without changing a prior field."""
+        self._status.setText(tr("Could not open tracked field: {reason}",
+                                reason=message))
+
+    def _load_field(self) -> None:
+        """Read table and sequence metadata on a worker, then adopt on GUI."""
+        paths = (self._tracks_path.text().strip(),
+                 self._sequence_path.text().strip())
+        if not all(paths):
+            self._status.setText(tr("Choose both a tracks CSV and image sequence."))
+            return
+        target = self._output_path.text().strip()
+        if not target:
+            target = str(Path(paths[0]).parent / "events" / "annotations.csv")
+            self._output_path.setText(target)
+        if Path(target).suffix.lower() != ".csv":
+            self._status.setText(tr("Annotations must be saved as a CSV file."))
+            return
+        self._load_token += 1
+        token = self._load_token
+        self._jobs.cancel()
+        self._confirm.setChecked(False)
+        self._status.setText(tr("Opening tracked field…"))
+        self._jobs.submit(
+            lambda: _annotation_field_payload(paths[0], paths[1], target),
+            lambda result, _token=token: self._adopt_field(_token, result))
+
+    def _adopt_field(self, token: int, field: dict) -> None:
+        """Install one validated field and keep only its lazy frame cache."""
+        if token != self._load_token:
+            return
+        self._field = field
+        self._events = list(field["events"])
+        self._shown_observation = None
+        field["sequence"]._register_cache_budget()
+        self._confirm.setChecked(False)
+        self._identity.setText(
+            tr("Field {field} · {object} · {backend} · source {source}",
+               field=field["field"], object=field["object"],
+               backend=field["backend"], source=str(field["sequence_path"])))
+        self._track.clear()
+        for track_id in sorted(set(int(value) for value in field["tracks"]["track_id"])):
+            self._track.addItem(str(track_id), track_id)
+        self._frame.setRange(0, len(field["sequence"]) - 1)
+        self._channel.setRange(0, max(0, field["channels"] - 1))
+        self._refresh_rows()
+        self._status.setText(tr("Loaded tracked field; frames are read only when shown."))
+        self._show_frame()
+
+    def _show_frame(self, *_args) -> None:
+        """Display one lazy-decoded frame and the selected track's position."""
+        field = self._field
+        self._shown_observation = None
+        if field is None:
+            return
+        frame = int(self._frame.value())
+        track_id = self._track.currentData()
+        if track_id is None:
+            return
+        try:
+            image = field["sequence"].frame(frame)
+            tracks = field["tracks"]
+            track = tracks[tracks["track_id"] == int(track_id)]
+            rgb = render_frame(image, tracks=track, frame=frame,
+                               channel=int(self._channel.value()))
+            pixmap = numpy_to_qpixmap(rgb)
+            self._preview.setPixmap(pixmap.scaled(
+                640, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            self._shown_observation = (int(track_id), frame)
+            if (int(track_id), frame) not in field["observed"]:
+                self._status.setText(tr("This track has no observation at this frame."))
+        except Exception as exc:
+            self._preview.clear()
+            self._status.setText(tr("Could not show frame: {reason}", reason=str(exc)))
+
+    def _select_event(self) -> None:
+        """Copy the selected event into the edit controls."""
+        selected = self._rows.selectionModel().selectedRows()
+        row = selected[0].row() if selected else -1
+        if not 0 <= row < len(self._events):
+            return
+        event = self._events[row]
+        self._track.setCurrentIndex(self._track.findData(event["track_id"]))
+        self._frame.setValue(event["frame"])
+        self._event.setText(event["event"])
+
+    def _refresh_rows(self) -> None:
+        """Show in-memory edits without touching the annotation CSV."""
+        self._rows.setRowCount(len(self._events))
+        for index, event in enumerate(self._events):
+            for column, key in enumerate(("track_id", "frame", "event")):
+                self._rows.setItem(index, column,
+                                   QTableWidgetItem(str(event[key])))
+        self._rows.clearSelection()
+
+    def _add_event(self) -> None:
+        """Add or edit one event only at an observed zero-based track frame."""
+        field = self._field
+        if field is None or not self._confirm.isChecked():
+            self._status.setText(tr("Open a field and confirm its image sequence first."))
+            return
+        if (Path(self._tracks_path.text().strip()).expanduser().resolve()
+                != field["track_path"] or
+                Path(self._sequence_path.text().strip()).expanduser().resolve()
+                != field["sequence_path"]):
+            self._status.setText(tr("The source paths changed; reopen the tracked field."))
+            return
+        track_id = self._track.currentData()
+        frame = int(self._frame.value())
+        name = self._event.text().strip().lower()
+        if (track_id is None or (int(track_id), frame) not in field["observed"]
+                or self._shown_observation != (int(track_id), frame)):
+            self._status.setText(tr("Choose a frame where this track was observed."))
+            return
+        if not name or name == "background" or any(ord(char) < 32 for char in name):
+            self._status.setText(tr("Enter a nonempty event name other than background."))
+            return
+        event = {"track_id": int(track_id), "frame": frame, "event": name}
+        selection = self._rows.selectionModel().selectedRows()
+        selected = selection[0].row() if selection else -1
+        if any(all(item[key] == event[key]
+                   for key in ("track_id", "frame", "event"))
+               for index, item in enumerate(self._events) if index != selected):
+            self._status.setText(tr("This event is already annotated."))
+            return
+        if 0 <= selected < len(self._events):
+            event["extra"] = self._events[selected].get("extra", {})
+            self._events[selected] = event
+        else:
+            self._events.append(event)
+        self._refresh_rows()
+        self._event.clear()
+        self._status.setText(tr("Event is staged; save to publish the table."))
+
+    def _remove_event(self) -> None:
+        """Remove one selected staged row, leaving the file unchanged."""
+        selection = self._rows.selectionModel().selectedRows()
+        selected = selection[0].row() if selection else -1
+        if not 0 <= selected < len(self._events):
+            return
+        del self._events[selected]
+        self._refresh_rows()
+        self._status.setText(tr("Event removed from staged edits."))
+
+    def _save(self) -> None:
+        """Validate with the detector reader before atomically replacing CSV."""
+        import pandas as pd
+        from spacr.tabular import write_table
+        from spacr.timelapse import _event_read_annotations
+
+        field = self._field
+        if field is None or not self._confirm.isChecked():
+            self._status.setText(tr("Open a field and confirm its image sequence first."))
+            return
+        if (Path(self._tracks_path.text().strip()).expanduser().resolve()
+                != field["track_path"] or
+                Path(self._sequence_path.text().strip()).expanduser().resolve()
+                != field["sequence_path"]):
+            self._status.setText(tr("The source paths changed; reopen the tracked field."))
+            return
+        target = Path(self._output_path.text().strip()).expanduser().resolve()
+        if target.suffix.lower() != ".csv":
+            self._status.setText(tr("Annotations must be saved as a CSV file."))
+            return
+        same_target = target == field["target"]
+        try:
+            if _annotation_digest(field["track_path"]) != field["track_digest"]:
+                raise ValueError(tr("The tracks CSV changed; reopen the field before saving."))
+            digest = _annotation_digest(target)
+            if (same_target and digest != field["digest"]
+                    or not same_target and digest is not None):
+                raise ValueError(tr("Annotations changed on disk; reopen the field or choose a new CSV."))
+            rows = [{"field": field["field"], "track_id": event["track_id"],
+                     "frame": event["frame"], "event": event["event"],
+                     "object": field["object"], **event.get("extra", {})}
+                    for event in self._events]
+            current = (pd.DataFrame(rows) if rows else pd.DataFrame(
+                columns=["field", "track_id", "frame", "event", "object"]))
+            table = pd.concat([field["other"], current], ignore_index=True)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            handle, pending = tempfile.mkstemp(
+                prefix=".event-annotations-", suffix=".csv", dir=target.parent)
+            os.close(handle)
+            try:
+                write_table(table, pending, canonicalise=False)
+                checked = _event_read_annotations(pending)
+                if len(checked) != len(table):
+                    raise ValueError(tr("The detector reader did not retain every event row."))
+                if _annotation_digest(target) != digest:
+                    raise ValueError(tr("Annotations changed during save; reopen the field."))
+                os.replace(pending, target)
+            finally:
+                if os.path.exists(pending):
+                    os.unlink(pending)
+            field["target"] = target
+            field["digest"] = _annotation_digest(target)
+            self._saved_path = str(target)
+            self._status.setText(tr("Saved annotations to {path}", path=str(target)))
+        except Exception as exc:
+            self._status.setText(tr("Could not save annotations: {reason}", reason=str(exc)))
+
+    def _release_field(self) -> None:
+        """Drop six-frame cache and retire the loader on either dialog exit."""
+        self._jobs.shutdown()
+        field = self._field
+        self._field = None
+        self._shown_observation = None
+        if field is not None:
+            sequence = field["sequence"]
+            for key in tuple(sequence._cache):
+                sequence._drop_cache_budget_entry(key)
+        self._preview.clear()
+
+    def done(self, result):
+        """Release image and worker references when Save or Cancel exits."""
+        self._release_field()
+        super().done(result)
+
+    def closeEvent(self, event):
+        """Also release references on a window-manager close."""
+        self._release_field()
+        super().closeEvent(event)
+
+
 class TimelapsePreviewPanel(LivePreviewContract, QWidget):
     """Interactive tracking preview — Timelapse module.
 
@@ -1281,6 +1769,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._play_timer = QTimer(self)
         self._play_timer.timeout.connect(self._advance_frame)
         self._build_ui()
+        from ..preferences import _is_alpha_visible
+        if not _is_alpha_visible("widgets", "TimelapseEventAnnotationButton"):
+            self._event_annotation_btn.setProperty("_spacr_alpha_hid", True)
+            self._event_annotation_btn.hide()
         self.setAcceptDrops(True)
         for v in (self._src_view, self._out_view):
             v.setAcceptDrops(False)
@@ -1472,6 +1964,11 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._relink_btn.setToolTip(
             "Re-run only the tracker on the cached per-frame masks.")
         self._relink_btn.clicked.connect(self.relink)
+        self._event_annotation_btn = QPushButton(tr("Event annotations…"), self)
+        self._event_annotation_btn.setObjectName("TimelapseEventAnnotationButton")
+        self._event_annotation_btn.setToolTip(
+            tr("Label events on an existing tracked field for event detection."))
+        self._event_annotation_btn.clicked.connect(self._open_event_annotations)
         self._propagate_btn = QPushButton("Propagate settings", self)
         self._propagate_btn.setObjectName("ToggleButton")
         self._propagate_btn.setCheckable(True)
@@ -1483,6 +1980,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         act.addWidget(self._run_btn)
         act.addWidget(self._cancel_btn)
         act.addWidget(self._relink_btn)
+        act.addWidget(self._event_annotation_btn)
         act.addWidget(self._propagate_btn)
         act.addWidget(self._status, 1)
         from .preview_scale import install_preview_scale
@@ -1539,6 +2037,23 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             self._stats_label, "Track quality", stretch=0,
             persist_key=f"{key}/Track quality")
         root.addWidget(self._section_split, 1)
+
+    def _open_event_annotations(self) -> None:
+        """Open the alpha editor using real exported track IDs, not preview IDs."""
+        from ..preferences import _is_alpha_visible
+        if not _is_alpha_visible("widgets", "TimelapseEventAnnotationButton"):
+            return
+        dialog = _EventAnnotationDialog(
+            self, sequence_path=self._sequence_path,
+            threaded=self._jobs._threaded)
+        try:
+            dialog.exec()
+            if dialog._saved_path is not None and self._propagate_cb is not None:
+                self._propagate_cb({"timelapse_events_annotations":
+                                    dialog._saved_path})
+        finally:
+            dialog.close()
+            dialog.deleteLater()
 
 
     def _dropped_path(self, event) -> Optional[str]:
