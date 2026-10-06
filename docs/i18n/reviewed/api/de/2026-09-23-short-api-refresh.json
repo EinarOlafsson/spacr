@@ -251,7 +251,9 @@
       "label": "spacr.qt.night_themes.NightTheme.sound#0",
       "source": "Key of this theme's sound set. It is the theme's own key.",
       "source_sha256": "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794",
-      "translation": "Schlüssel des Klangsets dieses Designs; er entspricht dem Schlüssel des Designs selbst."
+      "translation": "Schlüssel des Klangsets dieses Designs; er entspricht dem Schlüssel des Designs selbst.",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "context": "Every mode this module adds to Make Masks, in the box's order.",

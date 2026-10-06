@@ -156,7 +156,9 @@
       "source_sha256": "b597667cc79d085cc0bebc81dc664039e2b02a19e409367088ca92ae9ff30837",
       "context": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night theme also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
       "translation": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` 의 열 가지 야간 테마 중 하나 | ``\"system\"`` (기본값 ``\"dark\"``). ``\"system\"`` 은 명시적으로 선택한 뒤에만 운영체제 색 구성표를 따릅니다. 어두운 테마가 기본값이 되기 전(2026-09-21)에 저장한 ``\"system\"`` 은 선택이 아니라 이전 기본값이므로 ``\"dark\"`` 로 읽습니다. :func:`get_theme` 를 참조하세요. ``\"cell\"`` 은 형광 이미지를 사용하고 ``\"glass\"`` 는 내장된 빛의 장 위에 중립적인 재질을 여러 층으로 사용합니다. 야간 테마에는 배경과 소리 모음도 있으며 선택할 때 :func:`apply_night_theme` 가 저장합니다. Space는 선택할 수 있는 테마가 아닙니다. 처음 테마를 읽을 때 이전 저장소에서 폐기된 ``space_variant`` 및 ``space_seed`` 값을 제거합니다. :func:`get_theme` 를 참조하세요.",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.preferences.theme_description#3",
@@ -220,7 +222,9 @@
       "source_sha256": "ea885ad1ccbf2a096e6f3694890e8a3139ba367273d517d9ed1e89d85b0ea947",
       "context": "Use :func:`active_palette` for colors shown by a live widget and :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains the selectable palettes ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` and the ten night themes of :mod:`spacr.qt.night_themes`; the ``\"system\"`` preference resolves to dark or light before palette lookup. A legacy ``\"space\"`` palette can still be read from persisted settings but is not selectable.",
       "translation": "활성 위젯의 표시 색에는 :func:`active_palette` 를, 응용프로그램 스타일시트에는 :func:`stylesheet` 를 사용하세요. :data:`THEMES` 에는 선택 가능한 ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` 팔레트와 :mod:`spacr.qt.night_themes` 의 열 가지 야간 테마가 있습니다. 팔레트를 조회하기 전에 ``\"system\"`` 기본 설정을 어두운 테마나 밝은 테마로 해석합니다. 저장된 설정에서 기존 ``\"space\"`` 팔레트를 읽을 수는 있지만 선택할 수는 없습니다.",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.theme.close_mark_side#1",

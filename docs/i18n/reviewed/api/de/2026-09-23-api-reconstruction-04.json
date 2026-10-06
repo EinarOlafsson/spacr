@@ -155,21 +155,27 @@
       "label": "spacr.qt.night_themes.ambient_for#1",
       "source": "one of :data:`NIGHT_THEME_KEYS`.",
       "source_sha256": "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
-      "translation": "Einer der Werte aus :data:`NIGHT_THEME_KEYS`."
+      "translation": "Einer der Werte aus :data:`NIGHT_THEME_KEYS`.",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "context": "one of :data:`NIGHT_THEME_KEYS`.",
       "label": "spacr.qt.night_themes.sound_for#1",
       "source": "one of :data:`NIGHT_THEME_KEYS`.",
       "source_sha256": "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
-      "translation": "Einer der Werte aus :data:`NIGHT_THEME_KEYS`."
+      "translation": "Einer der Werte aus :data:`NIGHT_THEME_KEYS`.",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "context": "one of :data:`NIGHT_THEME_KEYS`.",
       "label": "spacr.qt.night_themes.theme_for#1",
       "source": "one of :data:`NIGHT_THEME_KEYS`.",
       "source_sha256": "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
-      "translation": "Einer der Werte aus :data:`NIGHT_THEME_KEYS`."
+      "translation": "Einer der Werte aus :data:`NIGHT_THEME_KEYS`.",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "context": "owning widget; defaults to None.",
@@ -716,28 +722,36 @@
       "label": "spacr.qt.night_themes.ambient_for#3",
       "source": "if ``name`` is not one of the ten.",
       "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
-      "translation": "Wenn ``name`` keiner der zehn Werte ist."
+      "translation": "Wenn ``name`` keiner der zehn Werte ist.",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "context": "if ``name`` is not one of the ten.",
       "label": "spacr.qt.night_themes.sound_for#3",
       "source": "if ``name`` is not one of the ten.",
       "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
-      "translation": "Wenn ``name`` keiner der zehn Werte ist."
+      "translation": "Wenn ``name`` keiner der zehn Werte ist.",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "context": "if ``name`` is not one of the ten.",
       "label": "spacr.qt.night_themes.theme_for#3",
       "source": "if ``name`` is not one of the ten.",
       "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
-      "translation": "Wenn ``name`` keiner der zehn Werte ist."
+      "translation": "Wenn ``name`` keiner der zehn Werte ist.",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "context": "if ``name`` is not one of the ten.",
       "label": "spacr.qt.preferences.apply_night_theme#6",
       "source": "if ``name`` is not one of the ten.",
       "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
-      "translation": "Wenn ``name`` keiner der zehn Werte ist."
+      "translation": "Wenn ``name`` keiner der zehn Werte ist.",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "context": "image path -> the row, as strings.",

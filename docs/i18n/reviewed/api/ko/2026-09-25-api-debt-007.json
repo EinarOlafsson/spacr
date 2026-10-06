@@ -60,7 +60,9 @@
       "source_sha256": "fb456b620dde3f8d1b93927499830e2873de191e3f691b5eb0ce77c575476633",
       "context": "Write the backdrop and the sound set a night theme comes with.",
       "translation": "야간 테마에 딸린 배경과 사운드 세트를 기록합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.preferences.apply_night_theme#1",
@@ -100,7 +102,9 @@
       "source_sha256": "9785d1c6e0bec5220095fcda1c3d2133898ab7387eb93715d0842e97a52ecb4a",
       "context": "one of :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS`.",
       "translation": ":data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` 중 하나입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.preferences.backdrop_is_switched_off#0",
@@ -1142,7 +1146,9 @@
       "source_sha256": "376fc869375957cc28e292fc4d274dc98be2941d87a0c80e5db269720f49fe52",
       "context": "Choosing one of the ten night themes also writes that theme's backdrop and its sound set — see :func:`apply_night_theme`, which is where the reasoning for doing so lives.",
       "translation": "열 가지 야간 테마 중 하나를 선택하면 그 테마의 배경과 사운드 세트도 기록합니다. 그렇게 하는 이유는 :func:`apply_night_theme` 에 설명되어 있습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.preferences.set_theme_choice#2",
@@ -1222,7 +1228,9 @@
       "source_sha256": "07dd4893d573e5cdb4cd1f69d50ad5ebb9cd0decc3d887c566a5c1b6b56b3dae",
       "context": "The ten night themes come last, in :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the application has always had stay where a returning user looks for them and the new family reads as one block down the bottom of the list. Their tokens are their plain keys: a night theme has no variant, so there is nothing to compose into the token the way Cell does.",
       "translation": "열 가지 야간 테마는 :data:`spacr.qt.night_themes.NIGHT_THEMES` 순서로 맨 마지막에 오므로, 애플리케이션에 원래 있던 네 가지는 돌아온 사용자가 찾는 위치에 그대로 있고 새 계열은 목록 아래쪽의 한 덩어리로 읽힙니다. 토큰은 그 자체의 키입니다. 야간 테마에는 변형이 없으므로 Cell 처럼 토큰에 조합해 넣을 것이 없습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.preferences.theme_description#0",
@@ -1238,7 +1246,9 @@
       "source_sha256": "12b70e83d132c7a84b5e012201346a2cd7f4a367ba067cba25e1375d1e502f14",
       "context": "The ten night themes each carry a sentence saying what colours, backdrop and sound set come with them; that sentence is what the Theme control shows as the entry's tooltip, the way the Sound set control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`.",
       "translation": "열 가지 야간 테마는 각각 어떤 색상, 배경, 사운드 세트가 함께 오는지 말하는 문장을 가집니다. Sound set 컨트롤이 :attr:`spacr.qt.sound_synth.SoundTheme.description` 을 보여 주는 것과 마찬가지로, Theme 컨트롤은 그 문장을 항목의 툴팁으로 보여 줍니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.preferences.theme_description#2",

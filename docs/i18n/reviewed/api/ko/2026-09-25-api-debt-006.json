@@ -1856,7 +1856,9 @@
       "source_sha256": "346723f1541cc4bec1b688e9259d94747bb485fdcc2c7b65d48f994ba747c912",
       "context": "The ten night themes, each a palette, a backdrop and a sound set.",
       "translation": "열 가지 야간 테마이며, 각각 팔레트, 배경, 사운드 세트로 이루어집니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes#1",
@@ -1912,7 +1914,9 @@
       "source_sha256": "6f72a94ed8d17445cf0d961b5c4d969e457f66f46052759c45fa9a77f65976e1",
       "context": "One night theme: what it is called, and the three things it moves.",
       "translation": "야간 테마 하나입니다. 그 이름과, 그것이 바꾸는 세 가지입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes.NightTheme#1",
@@ -1920,7 +1924,9 @@
       "source_sha256": "b66ab95f8da0797fc565966e552fd1d912f46d577872ec424516f3905ff66b03",
       "context": "stable identifier. It is the persisted ``prefs/theme`` value, the structured-data name in :data:`spacr.qt.theme.THEMES`, and the structured-data name of the matching :class:`spacr.qt.sound_synth.SoundTheme`, so the three stay in step by construction rather than by a table.",
       "translation": "고정 식별자입니다. 저장되는 ``prefs/theme`` 값이자 :data:`spacr.qt.theme.THEMES` 의 키이며, 대응하는 :class:`spacr.qt.sound_synth.SoundTheme` 의 키이므로, 셋은 표가 아니라 구조상 보조를 맞춥니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes.NightTheme#2",
@@ -1968,7 +1974,9 @@
       "source_sha256": "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794",
       "context": "Key of this theme's sound set. It is the theme's own key.",
       "translation": "이 테마의 사운드 세트 키입니다. 테마 자체의 키와 같습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes.ambient_for#0",
@@ -1984,7 +1992,9 @@
       "source_sha256": "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
       "context": "one of :data:`NIGHT_THEME_KEYS`.",
       "translation": ":data:`NIGHT_THEME_KEYS` 중 하나입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes.ambient_for#2",
@@ -2000,7 +2010,9 @@
       "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
       "context": "if ``name`` is not one of the ten.",
       "translation": "``name`` 이 열 가지 중 하나가 아닐 때 발생합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes.is_night_theme#0",
@@ -2064,7 +2076,9 @@
       "source_sha256": "3d01be273faedd31281bb08d51925860acd197b359a3dbb0d77d1dc5c22e9334",
       "context": "The :class:`NightTheme` called ``name``.",
       "translation": ":class:`NightTheme` 중 이름이 ``name`` 인 것입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes.theme_for#2",

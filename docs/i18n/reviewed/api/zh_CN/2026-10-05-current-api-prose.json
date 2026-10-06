@@ -156,7 +156,9 @@
       "source_sha256": "b597667cc79d085cc0bebc81dc664039e2b02a19e409367088ca92ae9ff30837",
       "context": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night theme also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
       "translation": "``theme``：``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` 中的十个夜间主题之一 | ``\"system\"``（默认 ``\"dark\"``）。``\"system\"`` 跟随操作系统配色，但仅在明确选择它后生效：在深色成为默认值（2026-09-21）之前保存的 ``\"system\"`` 是旧默认值，不是用户选择，读取时视为 ``\"dark\"``；参见 :func:`get_theme`。``\"cell\"`` 使用荧光图像，``\"glass\"`` 使用内置光场上的中性分层材质。夜间主题还包含背景和声音集，在选定时由 :func:`apply_night_theme` 写入。Space 不是可选主题。首次读取主题时，会从旧存储中删除已停用的 ``space_variant`` 和 ``space_seed`` 值；参见 :func:`get_theme`。",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.preferences.theme_description#3",
@@ -220,7 +222,9 @@
       "source_sha256": "ea885ad1ccbf2a096e6f3694890e8a3139ba367273d517d9ed1e89d85b0ea947",
       "context": "Use :func:`active_palette` for colors shown by a live widget and :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains the selectable palettes ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` and the ten night themes of :mod:`spacr.qt.night_themes`; the ``\"system\"`` preference resolves to dark or light before palette lookup. A legacy ``\"space\"`` palette can still be read from persisted settings but is not selectable.",
       "translation": "使用 :func:`active_palette` 获取活动控件显示的颜色，使用 :func:`stylesheet` 获取应用样式表。:data:`THEMES` 包含可选的 ``\"dark\"``、``\"light\"``、``\"cell\"``、``\"glass\"``、``\"high_contrast\"`` 调色板以及 :mod:`spacr.qt.night_themes` 的十个夜间主题；查找调色板前，``\"system\"`` 首选项会解析为深色或浅色。仍可从持久化设置读取旧的 ``\"space\"`` 调色板，但不能选择它。",
-      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior."
+      "review_basis": "Direct Codex technical translation and review of the current API block, preserving numerical/code literals, intended UI and scientific senses, state ownership and recovery behavior.",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.theme.close_mark_side#1",

@@ -470,7 +470,9 @@
       "source_sha256": "346723f1541cc4bec1b688e9259d94747bb485fdcc2c7b65d48f994ba747c912",
       "context": "The ten night themes, each a palette, a backdrop and a sound set.",
       "translation": "十个夜间主题，每个都包含一套调色板、一个背景和一组音效。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes#1",
@@ -526,7 +528,9 @@
       "source_sha256": "6f72a94ed8d17445cf0d961b5c4d969e457f66f46052759c45fa9a77f65976e1",
       "context": "One night theme: what it is called, and the three things it moves.",
       "translation": "一个夜间主题：它的名称，以及它所改变的三样东西。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes.NightTheme#1",
@@ -534,7 +538,9 @@
       "source_sha256": "b66ab95f8da0797fc565966e552fd1d912f46d577872ec424516f3905ff66b03",
       "context": "stable identifier. It is the persisted ``prefs/theme`` value, the structured-data name in :data:`spacr.qt.theme.THEMES`, and the structured-data name of the matching :class:`spacr.qt.sound_synth.SoundTheme`, so the three stay in step by construction rather than by a table.",
       "translation": "稳定的标识符。它是持久保存的 ``prefs/theme`` 值、:data:`spacr.qt.theme.THEMES` 中的键，也是对应 :class:`spacr.qt.sound_synth.SoundTheme` 的键，因此三者在构造上就保持一致，而不需要依靠一张表。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes.NightTheme#2",
@@ -582,7 +588,9 @@
       "source_sha256": "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794",
       "context": "Key of this theme's sound set. It is the theme's own key.",
       "translation": "此主题音效集的键。它就是该主题自身的键。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes.ambient_for#0",
@@ -598,7 +606,9 @@
       "source_sha256": "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
       "context": "one of :data:`NIGHT_THEME_KEYS`.",
       "translation": ":data:`NIGHT_THEME_KEYS` 之一。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes.ambient_for#2",
@@ -614,7 +624,9 @@
       "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
       "context": "if ``name`` is not one of the ten.",
       "translation": "如果 ``name`` 不是这十个之一。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes.is_night_theme#0",
@@ -678,7 +690,9 @@
       "source_sha256": "3d01be273faedd31281bb08d51925860acd197b359a3dbb0d77d1dc5c22e9334",
       "context": "The :class:`NightTheme` called ``name``.",
       "translation": ":class:`NightTheme`，名为 ``name``。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes.theme_for#2",
@@ -1640,7 +1654,9 @@
       "source_sha256": "fb456b620dde3f8d1b93927499830e2873de191e3f691b5eb0ce77c575476633",
       "context": "Write the backdrop and the sound set a night theme comes with.",
       "translation": "写入夜间主题附带的背景和音效集。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.preferences.apply_night_theme#1",
@@ -1680,7 +1696,9 @@
       "source_sha256": "9785d1c6e0bec5220095fcda1c3d2133898ab7387eb93715d0842e97a52ecb4a",
       "context": "one of :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS`.",
       "translation": ":data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` 之一。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.preferences.backdrop_is_switched_off#0",
@@ -2722,7 +2740,9 @@
       "source_sha256": "376fc869375957cc28e292fc4d274dc98be2941d87a0c80e5db269720f49fe52",
       "context": "Choosing one of the ten night themes also writes that theme's backdrop and its sound set — see :func:`apply_night_theme`, which is where the reasoning for doing so lives.",
       "translation": "选择十个夜间主题之一时，还会写入该主题的背景和音效集——参见 :func:`apply_night_theme`，那里说明了这样做的理由。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.preferences.set_theme_choice#2",
@@ -2802,7 +2822,9 @@
       "source_sha256": "07dd4893d573e5cdb4cd1f69d50ad5ebb9cd0decc3d887c566a5c1b6b56b3dae",
       "context": "The ten night themes come last, in :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the application has always had stay where a returning user looks for them and the new family reads as one block down the bottom of the list. Their tokens are their plain keys: a night theme has no variant, so there is nothing to compose into the token the way Cell does.",
       "translation": "十个夜间主题排在最后，按 :data:`spacr.qt.night_themes.NIGHT_THEMES` 的顺序排列，这样应用程序一直以来的四个主题会保持在老用户习惯寻找的位置，而新的主题系列则作为一个整体位于列表底部。它们的标记就是其普通的键：夜间主题没有变体，因此不需要像 Cell 那样把任何内容组合进标记中。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.preferences.theme_description#0",
@@ -2818,7 +2840,9 @@
       "source_sha256": "12b70e83d132c7a84b5e012201346a2cd7f4a367ba067cba25e1375d1e502f14",
       "context": "The ten night themes each carry a sentence saying what colours, backdrop and sound set come with them; that sentence is what the Theme control shows as the entry's tooltip, the way the Sound set control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`.",
       "translation": "十个夜间主题各自都有一句话，说明其所附带的颜色、背景和音效集；Theme 控件会把这句话显示为该条目的工具提示，就像 Sound set 控件显示 :attr:`spacr.qt.sound_synth.SoundTheme.description` 那样。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.preferences.theme_description#2",

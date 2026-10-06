@@ -1536,7 +1536,9 @@
       "source_sha256": "346723f1541cc4bec1b688e9259d94747bb485fdcc2c7b65d48f994ba747c912",
       "context": "The ten night themes, each a palette, a backdrop and a sound set.",
       "translation": "Les dix thèmes nocturnes, chacun avec une palette, un arrière-plan et un jeu de sons.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes#1",
@@ -1592,7 +1594,9 @@
       "source_sha256": "6f72a94ed8d17445cf0d961b5c4d969e457f66f46052759c45fa9a77f65976e1",
       "context": "One night theme: what it is called, and the three things it moves.",
       "translation": "Un thème nocturne : son nom, et les trois choses qu’il modifie.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes.NightTheme#1",
@@ -1600,7 +1604,9 @@
       "source_sha256": "b66ab95f8da0797fc565966e552fd1d912f46d577872ec424516f3905ff66b03",
       "context": "stable identifier. It is the persisted ``prefs/theme`` value, the structured-data name in :data:`spacr.qt.theme.THEMES`, and the structured-data name of the matching :class:`spacr.qt.sound_synth.SoundTheme`, so the three stay in step by construction rather than by a table.",
       "translation": "identifiant stable. C’est la valeur persistée de ``prefs/theme``, la clé dans :data:`spacr.qt.theme.THEMES` et la clé du :class:`spacr.qt.sound_synth.SoundTheme` correspondant, si bien que les trois restent alignés par construction plutôt que par une table.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes.NightTheme#2",
@@ -1648,7 +1654,9 @@
       "source_sha256": "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794",
       "context": "Key of this theme's sound set. It is the theme's own key.",
       "translation": "Clé du jeu de sons de ce thème. C’est la clé propre du thème.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes.ambient_for#0",
@@ -1664,7 +1672,9 @@
       "source_sha256": "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
       "context": "one of :data:`NIGHT_THEME_KEYS`.",
       "translation": "l’une des :data:`NIGHT_THEME_KEYS`.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes.ambient_for#2",
@@ -1680,7 +1690,9 @@
       "source_sha256": "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44",
       "context": "if ``name`` is not one of the ten.",
       "translation": "si ``name`` n’est pas l’un des dix.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes.is_night_theme#0",
@@ -1744,7 +1756,9 @@
       "source_sha256": "3d01be273faedd31281bb08d51925860acd197b359a3dbb0d77d1dc5c22e9334",
       "context": "The :class:`NightTheme` called ``name``.",
       "translation": "Le :class:`NightTheme` appelé ``name``.",
-      "review_basis": "MT draft kept after AI review"
+      "review_basis": "MT draft kept after AI review",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.night_themes.theme_for#2",
@@ -2706,7 +2720,9 @@
       "source_sha256": "fb456b620dde3f8d1b93927499830e2873de191e3f691b5eb0ce77c575476633",
       "context": "Write the backdrop and the sound set a night theme comes with.",
       "translation": "Écrit l’arrière-plan et le jeu de sons qui accompagnent un thème nocturne.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.preferences.apply_night_theme#1",
@@ -2746,7 +2762,9 @@
       "source_sha256": "9785d1c6e0bec5220095fcda1c3d2133898ab7387eb93715d0842e97a52ecb4a",
       "context": "one of :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS`.",
       "translation": "l’une des :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS`.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.preferences.backdrop_is_switched_off#0",
@@ -3788,7 +3806,9 @@
       "source_sha256": "376fc869375957cc28e292fc4d274dc98be2941d87a0c80e5db269720f49fe52",
       "context": "Choosing one of the ten night themes also writes that theme's backdrop and its sound set — see :func:`apply_night_theme`, which is where the reasoning for doing so lives.",
       "translation": "Choisir l’un des dix thèmes de nuit écrit aussi l’arrière-plan de ce thème et son jeu de sons — voir :func:`apply_night_theme`, où se trouve la justification de ce choix.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.preferences.set_theme_choice#2",
@@ -3868,7 +3888,9 @@
       "source_sha256": "07dd4893d573e5cdb4cd1f69d50ad5ebb9cd0decc3d887c566a5c1b6b56b3dae",
       "context": "The ten night themes come last, in :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the application has always had stay where a returning user looks for them and the new family reads as one block down the bottom of the list. Their tokens are their plain keys: a night theme has no variant, so there is nothing to compose into the token the way Cell does.",
       "translation": "Les dix thèmes de nuit viennent en dernier, dans l’ordre de :data:`spacr.qt.night_themes.NIGHT_THEMES`, de sorte que les quatre thèmes que l’application a toujours eus restent là où un utilisateur habitué les cherche et que la nouvelle famille se lit comme un seul bloc en bas de la liste. Leurs jetons sont leurs clés simples : un thème de nuit n’a pas de variante, il n’y a donc rien à composer dans le jeton comme le fait Cell.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.preferences.theme_description#0",
@@ -3884,7 +3906,9 @@
       "source_sha256": "12b70e83d132c7a84b5e012201346a2cd7f4a367ba067cba25e1375d1e502f14",
       "context": "The ten night themes each carry a sentence saying what colours, backdrop and sound set come with them; that sentence is what the Theme control shows as the entry's tooltip, the way the Sound set control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`.",
       "translation": "Les dix thèmes de nuit portent chacun une phrase indiquant les couleurs, l’arrière-plan et le jeu de sons qui les accompagnent ; cette phrase est ce que le contrôle Theme affiche comme infobulle de l’entrée, de la même façon que le contrôle Sound set affiche :attr:`spacr.qt.sound_synth.SoundTheme.description`.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-05: replacement data-art documentation rewrites this English block. Original source, translation and reviewer attribution are preserved as historical evidence; the new source requires a new translation and review."
     },
     {
       "label": "spacr.qt.preferences.theme_description#2",
