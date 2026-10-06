@@ -241,8 +241,8 @@ def test_alpha_gate_hides_editor_entry_until_enabled(qtbot, prefs):
     (lambda table: table.drop(columns=["object"]), "object column"),
     (lambda table: table.assign(object=None), "object identity"),
     (lambda table: table.assign(track_id=9, frame=0), "observed track frame"),
-    (lambda table: pd.concat([table, table.assign(event="MITOSIS")]),
-     "repeats an event"),
+    (lambda table: pd.concat([table, table.assign(event="death")]),
+     "labels one track frame"),
 ])
 def test_bad_existing_event_tables_are_refused_before_any_edit(
         tmp_path, change, reason):
@@ -499,6 +499,100 @@ def test_reader_that_drops_a_row_blocks_publication(qtbot, tmp_path, monkeypatch
     assert not target.exists()
     assert not list(target.parent.glob(".event-annotations-*.csv"))
     dialog.close()
+
+
+def test_one_observation_cannot_acquire_two_classes_or_two_staged_rows(
+        qtbot, tmp_path):
+    sequence, tracks, target = _field_files(tmp_path)
+    dialog = _dialog(qtbot, sequence, tracks, target)
+    dialog._confirm.setChecked(True)
+    dialog._event.setText("mitosis")
+    dialog._add_event()
+    dialog._event.setText("death")
+    dialog._add_event()
+    assert [row["event"] for row in dialog._events] == ["mitosis"]
+    assert "already has" in dialog._status.text()
+    dialog._rows.selectRow(0)
+    dialog._event.setText("death")
+    dialog._add_event()
+    assert [row["event"] for row in dialog._events] == ["death"]
+    dialog._events.append(dict(dialog._events[0], event="mitosis"))
+    dialog._save()
+    assert "multiple event labels" in dialog._status.text()
+    assert not target.exists()
+    dialog.close()
+
+
+def test_existing_other_tracker_provenance_is_refused_before_edit(
+        qtbot, tmp_path):
+    sequence, tracks, target = _field_files(tmp_path)
+    write_table(pd.DataFrame([{
+        "field": "field", "track_id": 7, "frame": 1,
+        "event": "mitosis", "object": "cell", "tracker_backend": "trackastra",
+        "track_source_sha256": "0" * 64,
+    }]), target, canonicalise=False)
+    before = target.read_bytes()
+    with pytest.raises(ValueError, match="another tracker CSV"):
+        _annotation_field_payload(str(tracks), str(sequence), str(target))
+    assert target.read_bytes() == before
+
+
+def test_legacy_rows_require_explicit_confirmation_then_gain_provenance(
+        qtbot, tmp_path):
+    sequence, tracks, target = _field_files(tmp_path)
+    write_table(pd.DataFrame([{
+        "field": "field", "track_id": 7, "frame": 1,
+        "event": "mitosis", "object": "cell",
+    }]), target, canonicalise=False)
+    dialog = _dialog(qtbot, sequence, tracks, target)
+    assert dialog._field["legacy_rows"]
+    assert "no tracker identity" in dialog._status.text()
+    dialog._save()
+    assert "confirm" in dialog._status.text()
+    dialog._confirm.setChecked(True)
+    dialog._save()
+    from spacr.tabular import read_table
+    rows = read_table(str(target), canonicalise=False, report=None)
+    assert rows["tracker_backend"].tolist() == ["trackpy"]
+    assert rows["track_source_sha256"].tolist() == [dialog._field["track_digest"]]
+    dialog.close()
+
+
+def test_two_existing_labels_bound_to_current_tracker_reopen_without_guessing(
+        tmp_path):
+    import hashlib
+
+    sequence, tracks, target = _field_files(tmp_path)
+    digest = hashlib.sha256(tracks.read_bytes()).hexdigest()
+    write_table(pd.DataFrame([{
+        "field": "field", "track_id": 7, "frame": frame,
+        "event": event, "object": "cell", "tracker_backend": "trackpy",
+        "track_source_sha256": digest,
+    } for frame, event in ((1, "mitosis"), (2, "death"))]),
+        target, canonicalise=False)
+    payload = _annotation_field_payload(str(tracks), str(sequence), str(target))
+    assert not payload["legacy_rows"]
+    assert [(row["frame"], row["event"]) for row in payload["events"]] == [
+        (1, "mitosis"), (2, "death")]
+
+
+def test_tracker_modified_during_load_cannot_bind_stale_observations(
+        tmp_path, monkeypatch):
+    from spacr import tabular
+
+    sequence, tracks, target = _field_files(tmp_path)
+    original = tabular.read_table
+
+    def mutate_after_parse(path, **kwargs):
+        rows = original(path, **kwargs)
+        if path == str(tracks):
+            tracks.write_bytes(tracks.read_bytes() + b"\n")
+        return rows
+
+    monkeypatch.setattr(tabular, "read_table", mutate_after_parse)
+    with pytest.raises(ValueError, match="changed while it was being read"):
+        _annotation_field_payload(str(tracks), str(sequence), str(target))
+    assert not target.exists()
 
 
 def test_prefilled_sequence_and_unopened_controls_do_not_write(qtbot, tmp_path):
