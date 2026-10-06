@@ -1,0 +1,62 @@
+{
+  "item": 552,
+  "actual_brightfield_CPU_execution_accepted": true,
+  "terminal_CPU_returncode": 0,
+  "upstream_commit": "414fbc9e8039c1d049cc27871d66409084ded21c",
+  "original_RGB_shape": [
+    1484,
+    1380,
+    3
+  ],
+  "source_original_bytes_and_git_blob_verified": true,
+  "no_cropping_or_simulated_images": true,
+  "routes_and_actual_counts": {
+    "make_masks": 5728,
+    "normal_mask_generation": 5871
+  },
+  "normal_mask_ingest_all_RGB_intensity_planes_independently_verified": true,
+  "RGB_intensity_slot_labels_do_not_claim_cell_or_pathogen_analysis": true,
+  "native_model_pixel_size_requested_without_reference_derived_diameter": true,
+  "no_independent_biological_accuracy_claimed": true,
+  "prior_source_path_and_unconfigured_RGB_slot_fixture_failures_retained": true,
+  "GPU_acceptance_pending": true,
+  "next_normal_GPU_label_planned_after_installation_narration": "552-instanseg-brightfield-cuda-20261006-r1",
+  "artifacts": {
+    "features/data/552_instanseg_brightfield_cpu_2026-10-06/archive_instanseg_brightfield_cpu.py": {
+      "sha256": "93b69fc83236406de2b3f02eb615c9d0f21efc8b9b98db267cedd252b11ca799",
+      "bytes": 5573
+    },
+    "features/data/552_instanseg_brightfield_cpu_2026-10-06/benchmark_instanseg_brightfield.py": {
+      "sha256": "6a9c620b0632c12f7c85192db192277b4fb6bfd46a5463677ccf8621f1fd5ee7",
+      "bytes": 7608
+    },
+    "features/data/552_instanseg_brightfield_cpu_2026-10-06/cpu-acceptance.json": {
+      "sha256": "34d135d5c744220489324c96358c5ff4f0166f7aadb53a8d514527497f4472c4",
+      "bytes": 7795
+    },
+    "features/data/552_instanseg_brightfield_cpu_2026-10-06/fetch_instanseg_brightfield_example.py": {
+      "sha256": "d9174a8cba18723c379b14d30263a85693fdd69605b54617fe751442afdc0e7d",
+      "bytes": 2065
+    },
+    "features/data/552_instanseg_brightfield_cpu_2026-10-06/instanseg-brightfield-cpu-r1.log.gz": {
+      "sha256": "776ae0ff39a027bbd58a9badcf687608ff5514a4b57980d8b5ff94f8e2e05a06",
+      "bytes": 878
+    },
+    "features/data/552_instanseg_brightfield_cpu_2026-10-06/instanseg-brightfield-cpu-r2.log.gz": {
+      "sha256": "fcd939ba8f7c0f770a8749642565a4498a248a21c46d4adb3232d76c78ce6ec5",
+      "bytes": 1320
+    },
+    "features/data/552_instanseg_brightfield_cpu_2026-10-06/instanseg-brightfield-source-r1.log.gz": {
+      "sha256": "799f20acea85187c963bda11ea3f2a86153af1b769b94446baae3e35327ce5c9",
+      "bytes": 250
+    },
+    "features/data/552_instanseg_brightfield_cpu_2026-10-06/instanseg-brightfield-source-r2.log.gz": {
+      "sha256": "44b6f6ed44efdd8b43c0c08b08dc11c3854151e8336010abf79687b33d53c948",
+      "bytes": 357
+    },
+    "features/data/552_instanseg_brightfield_cpu_2026-10-06/original-brightfield-input-controls-and-cpu-labels.zip": {
+      "sha256": "e43c7de1a992bca2f4024be04d31a501cde08ffb52a206e4386462c54db66c4f",
+      "bytes": 18831796
+    }
+  }
+}
