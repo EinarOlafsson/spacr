@@ -73,7 +73,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -298,18 +321,12 @@
           "hold_after": 0.7
         },
         {
-          "visual": "06_installed_home",
-          "narration": "Home åpnes med kategoriene Core, Data, Tools og Assays. Fortsett med Home-veiledningen for å finne en modul, laste inn eksempeldata og åpne en pipelineoversikt.",
+          "visual": "13_current_nightly_home",
+          "narration": "Dette opptaket installerer spaCR versjon én punkt fem punkt én punkt tre. Publiserte versjoner kan vise et eldre Home-oppsett. Her vises Home i den nåværende nightly-versjonen, med Core, Data, Tools og Assays. Fortsett med Home screen and navigation for de nåværende modulene.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7,
-          "focus": [
-            48,
-            318,
-            2712,
-            1332
-          ]
+          "hold_after": 0.7
         },
         {
           "visual": "11_update_intentionally",
@@ -323,7 +340,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -419,27 +459,21 @@
           "hold_after": 0.7
         },
         {
-          "visual": "09_performance",
-          "narration": "I Preferences velger du en Performance-profil for datamaskinen din. Laptop bruker færre ressurser; de høyere profilene tillater mer mellomlagring og bakgrunnsarbeid. Begynn med en moderat profil hvis minnet er begrenset. Analyseinnstillingene dine forblir under din kontroll i hver modul.",
+          "visual": "14_current_nightly_performance",
+          "narration": "Åpne Preferences i det nåværende nightly-grensesnittet, og velg Performance. Velg en profil for datamaskinen din. Laptop bruker færre ressurser; høyere profiler tillater mer mellomlagring og bakgrunnsarbeid. Start med en moderat profil hvis minnet er begrenset.",
           "hold_after": 0.7
         },
         {
-          "visual": "06_installed_home",
-          "narration": "Når Home åpnes, fortsetter du med Home-veiledningen. Den viser hvordan du åpner en modul, finner testdata og velger en pipeline for eksperimentet ditt.",
+          "visual": "13_current_nightly_home",
+          "narration": "Dette opptaket installerer spaCR versjon én punkt fem punkt én punkt tre. Publiserte versjoner kan vise et eldre Home-oppsett. Her vises Home i den nåværende nightly-versjonen, med Core, Data, Tools og Assays. Fortsett med Home screen and navigation for de nåværende modulene.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7,
-          "focus": [
-            48,
-            318,
-            2712,
-            1332
-          ]
+          "hold_after": 0.7
         },
         {
           "visual": "05_doctor",
-          "narration": "Hvis oppstarten eller et filformat trenger oppfølging, kjører du spacr-doctor fra det installerte kjøremiljøet. Det viser hver kontroll med en foreslått løsning. På denne installasjonen med bare CPU feiler GPU-kontrollen som forventet, og PATH-kontrollen markerer installasjonsprogrammets egen spacr-starter, som starter det samme kjøremiljøet, så ingen av dem trenger endring her.",
+          "narration": "Kjør spacr-doctor fra det installerte kjøremiljøet hvis oppstart eller et filformat trenger oppmerksomhet. I denne innspilte CPU-installasjonen består backend-kontrollen, og GPU-kontrollen hoppes over. Advarselen sier at den valgfrie CZI-leseren mangler; installer dette tillegget bare hvis du trenger CZI-filer.",
           "hold_after": 0.7
         },
         {
@@ -455,7 +489,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

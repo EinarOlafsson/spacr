@@ -1,0 +1,33 @@
+{
+  "lesson": "03_pip_install",
+  "scope": "en/af_heart playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "0a3b94f18bad4634bb6a12dd0f642e1ceecbea7c8e99c50c3df0505f3acb58af",
+  "caption_language": "nb",
+  "caption_scenes_match_staging": true,
+  "caption_webvtt_sha256": "96f5c5168125b2281d383cbea92127c7ef08dee6789a147764bac8c156db2ec0",
+  "scene_count": 11,
+  "seek_playback_clocks": {
+    "audio": 59.694386,
+    "video": 59.737,
+    "expectedVideo": 59.69194161254658,
+    "audioDuration": 122.105,
+    "videoDuration": 122.1,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "41a962be459c93e839dc73d3ad36dd7e3c73ae488bfabf44cdaaa8346345e8c9",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "04_platform_installers",
+    "05_home"
+  ],
+  "passed": true
+}

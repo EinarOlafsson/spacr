@@ -1,0 +1,66 @@
+{
+  "schema": 1,
+  "lesson": "03_pip_install",
+  "passed": true,
+  "checks": [
+    {
+      "case": "en-af_heart-sentence-cues",
+      "report": "browser-web/03_pip_install/en-af_heart-sentence-cues/playback-checks.json"
+    },
+    {
+      "case": "es-ef_dora",
+      "report": "browser-web/03_pip_install/es-ef_dora/playback-checks.json"
+    },
+    {
+      "case": "fr-ff_siwis",
+      "report": "browser-web/03_pip_install/fr-ff_siwis/playback-checks.json"
+    },
+    {
+      "case": "hi-hf_alpha",
+      "report": "browser-web/03_pip_install/hi-hf_alpha/playback-checks.json"
+    },
+    {
+      "case": "it-if_sara",
+      "report": "browser-web/03_pip_install/it-if_sara/playback-checks.json"
+    },
+    {
+      "case": "ja-jf_alpha",
+      "report": "browser-web/03_pip_install/ja-jf_alpha/playback-checks.json"
+    },
+    {
+      "case": "pt-BR-pf_dora",
+      "report": "browser-web/03_pip_install/pt-BR-pf_dora/playback-checks.json"
+    },
+    {
+      "case": "zh-CN-zf_xiaobei",
+      "report": "browser-web/03_pip_install/zh-CN-zf_xiaobei/playback-checks.json"
+    },
+    {
+      "case": "en-af_heart-captions-da",
+      "report": "browser-web/03_pip_install/en-af_heart-captions-da/playback-checks.json"
+    },
+    {
+      "case": "en-af_heart-captions-de",
+      "report": "browser-web/03_pip_install/en-af_heart-captions-de/playback-checks.json"
+    },
+    {
+      "case": "en-af_heart-captions-is",
+      "report": "browser-web/03_pip_install/en-af_heart-captions-is/playback-checks.json"
+    },
+    {
+      "case": "en-af_heart-captions-ko",
+      "report": "browser-web/03_pip_install/en-af_heart-captions-ko/playback-checks.json"
+    },
+    {
+      "case": "en-af_heart-captions-nb",
+      "report": "browser-web/03_pip_install/en-af_heart-captions-nb/playback-checks.json"
+    },
+    {
+      "case": "en-af_heart-captions-sv",
+      "report": "browser-web/03_pip_install/en-af_heart-captions-sv/playback-checks.json"
+    }
+  ],
+  "scope": "Eight narration languages and six independent caption languages, current-byte 1440p playback, desktop/mobile layout, exact narration loading, chapter links and English sentence cues.",
+  "independent_native_speaker_review": false,
+  "published": false
+}

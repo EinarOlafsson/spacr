@@ -1,0 +1,34 @@
+{
+  "lesson": "04_platform_installers",
+  "scope": "en/af_heart playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "6113aa10ab6e0b64f35b735728c7a847baad13ef0fd94d0cfe105d614b26cfc5",
+  "caption_language": "sv",
+  "caption_scenes_match_staging": true,
+  "caption_webvtt_sha256": "04bfaab76736861460155bd5d58e243d1b97a0c0aff9a3b456033cde4d5627b0",
+  "scene_count": 11,
+  "seek_playback_clocks": {
+    "audio": 81.17398,
+    "video": 81.205753,
+    "expectedVideo": 81.166005188773,
+    "audioDuration": 169.65,
+    "videoDuration": 169.633333,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "3cc8e4cb50fecf8489b38a14b219b528ee525b10e569554539d51e32aa98a94e",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "02_conda_install",
+    "03_pip_install",
+    "05_home"
+  ],
+  "passed": true
+}

@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "baseline": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-yolo-current-r1/release-candidate-append-7_xl1_9q",
+  "baseline_revision": "f3fe5e321a9734c103c8c83d3ca0b9753e7df79f",
+  "selected_lessons": [
+    "01_pypi_github",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "unchanged_complete_lesson_objects": {
+    "captions_da.json": 82,
+    "captions_de.json": 82,
+    "captions_is.json": 82,
+    "captions_ko.json": 82,
+    "captions_nb.json": 82,
+    "captions_sv.json": 82,
+    "lessons_en.json": 82,
+    "lessons_es.json": 82,
+    "lessons_fr.json": 82,
+    "lessons_hi.json": 82,
+    "lessons_it.json": 82,
+    "lessons_ja.json": 82,
+    "lessons_pt-BR.json": 82,
+    "lessons_zh-CN.json": 82
+  },
+  "unchanged_other_media_records": 4730,
+  "Mask_07_unchanged": true,
+  "Measure_08_Home_05_Conda_02_and_YOLO_14_complete_current_objects_and_media_retained": true,
+  "before_media_files": 4898,
+  "after_media_files": 5036
+}

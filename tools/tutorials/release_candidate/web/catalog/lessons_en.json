@@ -94,7 +94,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -319,18 +342,12 @@
           "hold_after": 0.7
         },
         {
-          "visual": "06_installed_home",
-          "narration": "Home opens with the Core, Data, Tools and Assays categories. Continue to the Home tutorial to find a module, load example data and open a pipeline overview.",
+          "visual": "13_current_nightly_home",
+          "narration": "This recording installs spaCR version one point five point one point three. Released builds can show an older Home layout. Here is Home in the current nightly build, with Core, Data, Tools and Assays. Continue to Home screen and navigation for the current modules.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7,
-          "focus": [
-            48,
-            318,
-            2712,
-            1332
-          ]
+          "hold_after": 0.7
         },
         {
           "visual": "11_update_intentionally",
@@ -344,7 +361,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -440,27 +480,21 @@
           "hold_after": 0.7
         },
         {
-          "visual": "09_performance",
-          "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
+          "visual": "14_current_nightly_performance",
+          "narration": "In the current nightly interface, open Preferences and choose Performance. Select a profile for your computer. Laptop uses fewer resources; higher profiles allow more caching and background work. Start with a modest profile if memory is limited.",
           "hold_after": 0.7
         },
         {
-          "visual": "06_installed_home",
-          "narration": "When Home opens, continue with the Home tutorial. It shows how to open a module, find test data and choose a pipeline for your experiment.",
+          "visual": "13_current_nightly_home",
+          "narration": "This recording installs spaCR version one point five point one point three. Released builds can show an older Home layout. Here is Home in the current nightly build, with Core, Data, Tools and Assays. Continue to Home screen and navigation for the current modules.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7,
-          "focus": [
-            48,
-            318,
-            2712,
-            1332
-          ]
+          "hold_after": 0.7
         },
         {
           "visual": "05_doctor",
-          "narration": "If startup or a file format needs attention, run spacr-doctor from the installed runtime. It lists each check with a suggested fix. On this CPU-only installation the GPU check fails as expected, and the PATH check flags the installer’s own spacr launcher, which starts this same runtime, so neither needs a change here.",
+          "narration": "Run spacr-doctor from the installed runtime if startup or a file format needs attention. In this recorded CPU installation, the backend check passes and the GPU probe is skipped. The warning says the optional CZI reader is missing; install that extra only if you need CZI files.",
           "hold_after": 0.7
         },
         {
@@ -476,7 +510,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

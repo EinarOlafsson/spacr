@@ -1,0 +1,31 @@
+{
+  "lesson": "01_pypi_github",
+  "scope": "zh-CN/zf_xiaobei playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "7352caeecd55903f1a9e0ea5ec33ba61f969c5128ee926d1189be16898f207c9",
+  "narration_language_scenes_match_staging": true,
+  "scene_count": 8,
+  "seek_playback_clocks": {
+    "audio": 74.271212,
+    "video": 68.234978,
+    "expectedVideo": 68.18097965762337,
+    "audioDuration": 110.305,
+    "videoDuration": 99.8,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "336c92dd9404d94441e58d2931203889b8ff1f84c36e83e94ec5f14b0b24c571",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "02_conda_install",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "passed": true
+}

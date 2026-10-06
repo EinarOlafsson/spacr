@@ -1,0 +1,32 @@
+{
+  "lesson": "04_platform_installers",
+  "scope": "pt-BR/pf_dora playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "b9c8bfec4431bbb13ec27161adb48daed91d5d0a40cb7c3660dddb5c6360c7a2",
+  "narration_language_scenes_match_staging": true,
+  "scene_count": 11,
+  "seek_playback_clocks": {
+    "audio": 77.733342,
+    "video": 81.080427,
+    "expectedVideo": 81.04242351276466,
+    "audioDuration": 169.975,
+    "videoDuration": 169.633333,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "3cc8e4cb50fecf8489b38a14b219b528ee525b10e569554539d51e32aa98a94e",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "02_conda_install",
+    "03_pip_install",
+    "05_home"
+  ],
+  "passed": true
+}

@@ -1,0 +1,312 @@
+{
+  "lesson": "03_pip_install",
+  "scope": "en/af_heart playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "0a3b94f18bad4634bb6a12dd0f642e1ceecbea7c8e99c50c3df0505f3acb58af",
+  "scene_count": 11,
+  "seek_playback_clocks": {
+    "audio": 59.706528,
+    "video": 59.749075,
+    "expectedVideo": 59.70408311535154,
+    "audioDuration": 122.105,
+    "videoDuration": 122.1,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "41a962be459c93e839dc73d3ad36dd7e3c73ae488bfabf44cdaaa8346345e8c9",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "01_pypi_github",
+    "04_platform_installers",
+    "05_home"
+  ],
+  "sentence_cue_checks": [
+    {
+      "requested_audio_time": 1.41,
+      "text": "Open a terminal and check your Python version.",
+      "audio": 1.41,
+      "video": 1.409942,
+      "cues": [
+        "Open a terminal and check your Python version."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 4.2975,
+      "text": "This walkthrough uses Python three point twelve.",
+      "audio": 4.2975,
+      "video": 4.297324,
+      "cues": [
+        "This walkthrough uses Python three point twelve."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 8.365,
+      "text": "Keep spaCR in a dedicated virtual environment so its packages are easy to manage.",
+      "audio": 8.365,
+      "video": 8.364656,
+      "cues": [
+        "Keep spaCR in a dedicated virtual environment so its packages are easy to manage."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 14.282499999999999,
+      "text": "Create a virtual environment named dot venv with the command for your operating system.",
+      "audio": 14.282499,
+      "video": 14.281915,
+      "cues": [
+        "Create a virtual environment named dot venv with the command for your operating system."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 19.6375,
+      "text": "This creates a folder containing the Python environment you will use for spaCR.",
+      "audio": 19.6375,
+      "video": 19.636695,
+      "cues": [
+        "This creates a folder containing the Python environment you will use for spaCR."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 24.152499999999996,
+      "text": "Activate dot venv using the command for your shell.",
+      "audio": 24.152499,
+      "video": 24.15151,
+      "cues": [
+        "Activate dot venv using the command for your shell."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 29.947499999999998,
+      "text": "Windows PowerShell and Command Prompt have different activation commands; macOS and Linux usually use the shell command shown here.",
+      "audio": 29.947499,
+      "video": 29.946273,
+      "cues": [
+        "Windows PowerShell and Command Prompt have different activation commands; macOS and Linux usually use the shell command shown here."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 36.0375,
+      "text": "Run python dash m pip dash dash version.",
+      "audio": 36.0375,
+      "video": 36.036024,
+      "cues": [
+        "Run python dash m pip dash dash version."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 39.040000000000006,
+      "text": "Check that the displayed path belongs to dot venv.",
+      "audio": 39.04,
+      "video": 39.038401,
+      "cues": [
+        "Check that the displayed path belongs to dot venv."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 43.405,
+      "text": "Use python dash m pip for the installation commands so pip uses this interpreter.",
+      "audio": 43.405,
+      "video": 43.403222,
+      "cues": [
+        "Use python dash m pip for the installation commands so pip uses this interpreter."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 47.90500000000001,
+      "text": "Upgrade pip, then install spacr.",
+      "audio": 47.905,
+      "video": 47.903038,
+      "cues": [
+        "Upgrade pip, then install spacr."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 51.20750000000001,
+      "text": "Wait for the scientific packages to finish downloading and installing.",
+      "audio": 51.2075,
+      "video": 51.205403,
+      "cues": [
+        "Wait for the scientific packages to finish downloading and installing."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 55.7625,
+      "text": "The current package includes the desktop components needed to open the application.",
+      "audio": 55.7625,
+      "video": 55.760216,
+      "cues": [
+        "The current package includes the desktop components needed to open the application."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 61.23750000000001,
+      "text": "Check the installed spaCR version and package location with the displayed command.",
+      "audio": 61.2375,
+      "video": 61.234992,
+      "cues": [
+        "Check the installed spaCR version and package location with the displayed command."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 65.34750000000001,
+      "text": "Save the version alongside your analysis notes.",
+      "audio": 65.3475,
+      "video": 65.344824,
+      "cues": [
+        "Save the version alongside your analysis notes."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 68.36250000000001,
+      "text": "Run python dash m pip check.",
+      "audio": 68.3625,
+      "video": 68.3597,
+      "cues": [
+        "Run python dash m pip check."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 72.25999999999999,
+      "text": "If it reports conflicting requirements, resolve those conflicts before using the environment.",
+      "audio": 72.259999,
+      "video": 72.257041,
+      "cues": [
+        "If it reports conflicting requirements, resolve those conflicts before using the environment."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 78.26249999999999,
+      "text": "Run spacr-doctor to inspect the installation and see any missing optional features.",
+      "audio": 78.262499,
+      "video": 78.259295,
+      "cues": [
+        "Run spacr-doctor to inspect the installation and see any missing optional features."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 83.305,
+      "text": "Follow the suggested repair only for the formats or capabilities you need.",
+      "audio": 83.305,
+      "video": 83.301588,
+      "cues": [
+        "Follow the suggested repair only for the formats or capabilities you need."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 87.32749999999999,
+      "text": "Launch spacr from the activated environment.",
+      "audio": 87.327499,
+      "video": 87.323924,
+      "cues": [
+        "Launch spacr from the activated environment."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 90.7775,
+      "text": "On the first launch, follow the setup prompts and choose your preferences.",
+      "audio": 90.7775,
+      "video": 90.773782,
+      "cues": [
+        "On the first launch, follow the setup prompts and choose your preferences."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 95.6,
+      "text": "This recording installs spaCR version one point five point one point three.",
+      "audio": 95.6,
+      "video": 95.596085,
+      "cues": [
+        "This recording installs spaCR version one point five point one point three."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 99.38999999999999,
+      "text": "Released builds can show an older Home layout.",
+      "audio": 99.389999,
+      "video": 99.38593,
+      "cues": [
+        "Released builds can show an older Home layout."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 103.23249999999999,
+      "text": "Here is Home in the current nightly build, with Core, Data, Tools and Assays.",
+      "audio": 103.232499,
+      "video": 103.228272,
+      "cues": [
+        "Here is Home in the current nightly build, with Core, Data, Tools and Assays."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 107.6,
+      "text": "Continue to Home screen and navigation for the current modules.",
+      "audio": 107.6,
+      "video": 107.595593,
+      "cues": [
+        "Continue to Home screen and navigation for the current modules."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 111.63749999999999,
+      "text": "To update, close spaCR and activate this environment.",
+      "audio": 111.637499,
+      "video": 111.632928,
+      "cues": [
+        "To update, close spaCR and activate this environment."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 115.35999999999999,
+      "text": "Upgrade the package, then check its version and dependencies again.",
+      "audio": 115.359999,
+      "video": 115.355276,
+      "cues": [
+        "Upgrade the package, then check its version and dependencies again."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 119.51749999999998,
+      "text": "Keep the previous environment if you need it for an ongoing analysis.",
+      "audio": 119.517499,
+      "video": 119.512605,
+      "cues": [
+        "Keep the previous environment if you need it for an ongoing analysis."
+      ],
+      "seek_attempts": 1
+    }
+  ],
+  "passed": true
+}

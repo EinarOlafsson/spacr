@@ -1,0 +1,459 @@
+{
+  "passed": true,
+  "read_only_original_capture_OCR": true,
+  "no_pixel_editing": true,
+  "scenes": [
+    {
+      "lesson": "01_pypi_github",
+      "scene": 1,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/official_sources_20261006_r1/01_pypi_current_release.png",
+      "source_sha256": "1674e3caa3198e0e62771d43768bdfc25629f81cb338d89549320ecfe629cfcb",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 315,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "scene": 2,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/official_sources_20261006_r1/01_pypi_current_release.png",
+      "source_sha256": "1674e3caa3198e0e62771d43768bdfc25629f81cb338d89549320ecfe629cfcb",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 315,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "scene": 3,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/official_sources_20261006_r1/02_pypi_project_links.png",
+      "source_sha256": "1674e3caa3198e0e62771d43768bdfc25629f81cb338d89549320ecfe629cfcb",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 315,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "scene": 4,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/official_sources_20261006_r1/03_github_main_branch.png",
+      "source_sha256": "be86668dc34019cb3807eb2464bbbc9fda671a4823d99232c48cfbbd5017029d",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 467,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "scene": 5,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/official_sources_20261006_r1/04_github_current_assets.png",
+      "source_sha256": "c2622185a637a9a6019a9be2811bc79315538f1745ce8559cf91ca217657a5cb",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 238,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "scene": 6,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/official_sources_20261006_r1/05_conda_current_package.png",
+      "source_sha256": "5cd019f7bc820c9fdcd55fc2c31d517c19bac5ec4880e4b2dbe97864b0c24da0",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 160,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "scene": 7,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/official_sources_20261006_r1/05_conda_current_package.png",
+      "source_sha256": "5cd019f7bc820c9fdcd55fc2c31d517c19bac5ec4880e4b2dbe97864b0c24da0",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 160,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "01_pypi_github",
+      "scene": 8,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/official_sources_20261006_r1/01_pypi_current_release.png",
+      "source_sha256": "1674e3caa3198e0e62771d43768bdfc25629f81cb338d89549320ecfe629cfcb",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 315,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "03_pip_install",
+      "scene": 1,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/pip_public_plus_current_nightly_ui_r1/01_python_version.png",
+      "source_sha256": "546e1d065b3fc695420c6a88d8016a46c761376d741b28042f43f036256b8b86",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 8,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "03_pip_install",
+      "scene": 2,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/pip_public_plus_current_nightly_ui_r1/07_create_environment.png",
+      "source_sha256": "27ca0d85d96008bf4a1b825185d54caf4c6721875e4737504b2801705105deae",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 30,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "03_pip_install",
+      "scene": 3,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/pip_public_plus_current_nightly_ui_r1/08_activate_environment.png",
+      "source_sha256": "0037da2b92861aeb200f4eacc2e4896ab5b18e8d36173adf4450fbed8186f9aa",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 39,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "03_pip_install",
+      "scene": 4,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/pip_public_plus_current_nightly_ui_r1/02_pip_environment.png",
+      "source_sha256": "7b082c3fe549c5ecc935a269f950d6afa87a31c49c1de4fc60256a4c95b14e49",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 10,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "03_pip_install",
+      "scene": 5,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/pip_public_plus_current_nightly_ui_r1/09_install_package.png",
+      "source_sha256": "d4fe2d6f9cb538fbf97e9e151f0631d6fc368d46c31cabbe2a6b29f2338d86e1",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 32,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "03_pip_install",
+      "scene": 6,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/pip_public_plus_current_nightly_ui_r1/03_installed_versions.png",
+      "source_sha256": "d8d26a13cf9215dde288a3d0f1b05c631240b61f65e8405a8cad7dc17d834168",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 19,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "03_pip_install",
+      "scene": 7,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/pip_public_plus_current_nightly_ui_r1/04_dependency_check.png",
+      "source_sha256": "15a084b5208f20f5fb8ad38231d58908bff6489984fbee8a62145bb1088e6101",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 8,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "03_pip_install",
+      "scene": 8,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/pip_public_plus_current_nightly_ui_r1/05_doctor.png",
+      "source_sha256": "0a803ec44acd6c36481706f190ef270bebca80210ba96ebc2b98cdca278f542a",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 254,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "03_pip_install",
+      "scene": 9,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/pip_public_plus_current_nightly_ui_r1/10_launch_commands.png",
+      "source_sha256": "b651731568dd0dee3f8b6b46aa87ba76f84513ca957e06c8ca402ec7e0673b99",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 29,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "03_pip_install",
+      "scene": 10,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/pip_public_plus_current_nightly_ui_r1/13_current_nightly_home.png",
+      "source_sha256": "ca91d9f46245e663d5a5d250699f0c3ea18edda89d2a1cb8cfd82a490a53d29d",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 208,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "03_pip_install",
+      "scene": 11,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/pip_public_plus_current_nightly_ui_r1/11_update_intentionally.png",
+      "source_sha256": "70816d59991213f72d83b19884b639c0d225ad5cc41121b3ea8037c000f6fafa",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 39,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "scene": 1,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/linux_public_plus_current_nightly_ui_r1/08_official_release.png",
+      "source_sha256": "c2622185a637a9a6019a9be2811bc79315538f1745ce8559cf91ca217657a5cb",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 238,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "scene": 2,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/linux_public_plus_current_nightly_ui_r1/09_windows_guidance.png",
+      "source_sha256": "96530a58c74af586e2ecb3c0e0a326e05d5175a17e574ac5a8b21c402a3b8988",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 35,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "scene": 3,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/linux_public_plus_current_nightly_ui_r1/10_macos_guidance.png",
+      "source_sha256": "376d015d8e36bf9ce5ebee82a20e55ddceae5c6520f022b02aa4762208cd0b85",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 32,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "scene": 4,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/linux_public_plus_current_nightly_ui_r1/11_linux_commands.png",
+      "source_sha256": "97a22c7ec40dff722da063d4f30b679ab7f704842dd7fde74f79da76c7702c4c",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 46,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "scene": 5,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/linux_public_plus_current_nightly_ui_r1/02_installer_backend.png",
+      "source_sha256": "73d08e6d0976be6aaac96356531ae96ef7ca6d9d351095da242df604c05d1cf9",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 47,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "scene": 6,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/linux_public_plus_current_nightly_ui_r1/03_installed_versions.png",
+      "source_sha256": "bf56ef733510ce0d945636175c3bf26975f9d79d759b5bd38f13c1b3b21dd123",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 19,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "scene": 7,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/linux_public_plus_current_nightly_ui_r1/07_privacy_keep_off.png",
+      "source_sha256": "73d08e6d0976be6aaac96356531ae96ef7ca6d9d351095da242df604c05d1cf9",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 47,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "scene": 8,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/linux_public_plus_current_nightly_ui_r1/14_current_nightly_performance.png",
+      "source_sha256": "1c627c0749b63fd26e54ababa3e46df01cc56d267b3bb254e2c1cf072b52a601",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 348,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "scene": 9,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/linux_public_plus_current_nightly_ui_r1/13_current_nightly_home.png",
+      "source_sha256": "ca91d9f46245e663d5a5d250699f0c3ea18edda89d2a1cb8cfd82a490a53d29d",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 208,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "scene": 10,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/linux_public_plus_current_nightly_ui_r1/05_doctor.png",
+      "source_sha256": "6444384300ba42f79e0d14bcf519284bbdced5be225271cde68d2c47070ea26d",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 249,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "scene": 11,
+      "source": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-installation-completion-r2/captures/linux_public_plus_current_nightly_ui_r1/12_logs_and_versions.png",
+      "source_sha256": "e61219d320a7927b23aa239ae0d44218529b17e575f5fa1cca3be96b84062409",
+      "native_shape": [
+        2160,
+        3840,
+        3
+      ],
+      "full_native_and_overlapping_tile_OCR": true,
+      "OCR_row_count": 37,
+      "private_path_hits": [],
+      "alpha_species_hits": []
+    }
+  ],
+  "unique_frames": 23,
+  "problems": []
+}
