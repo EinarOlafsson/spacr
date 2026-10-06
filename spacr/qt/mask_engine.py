@@ -795,7 +795,8 @@ def load_image_and_mask(folder: str, filename: str,
     - Missing masks are created as zeros of the image shape.
     - Images are returned as uint16; masks preserve uint8/uint16 label IDs.
     - A mask saved by :func:`save_mask` is found even when the source image
-      had a non-TIFF extension.
+      had a non-TIFF extension. Its canonical TIFF takes precedence over
+      an older mask under the source image's extension.
     - A ``filename`` ending in :data:`SEG_SUFFIX` is a Cellpose bundle and is
       read by :func:`load_seg_bundle` instead.
 
@@ -815,8 +816,8 @@ def load_image_and_mask(folder: str, filename: str,
     mask_dir = masks_folder(folder, masks_dir)
     stem = os.path.splitext(filename)[0]
     candidates = [
-        os.path.join(mask_dir, filename),
         os.path.join(mask_dir, stem + ".tif"),
+        os.path.join(mask_dir, filename),
         os.path.join(mask_dir, stem + ".tiff"),
     ]
     mask_path = next((path for path in candidates if os.path.isfile(path)), "")
