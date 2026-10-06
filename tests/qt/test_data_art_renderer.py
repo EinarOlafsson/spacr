@@ -89,8 +89,8 @@ def test_material_keys_produce_unique_full_frame_hashes():
 
 
 @pytest.mark.parametrize("family", tuple(sorted(INTERACTIVE)))
-def test_pointer_bends_only_the_four_interactive_materials(family):
-    """A fixed clock responds to a local pointer and restores the idle view."""
+def test_pointer_bends_interactive_materials_and_lens_wake_expires(family):
+    """The gravity lens keeps a brief wake; other pointers clear at once."""
     engine = _engine(family, seed=17)
     engine.set_time(6.0)
     idle = _digest(_frame(engine))
@@ -98,7 +98,14 @@ def test_pointer_bends_only_the_four_interactive_materials(family):
     assert engine.pointer == (0.22, 0.68)
     assert _digest(_frame(engine)) != idle
     engine.set_pointer(None)
-    assert _digest(_frame(engine)) == idle
+    if family == "impulse_lens":
+        assert _digest(_frame(engine)) != idle
+        engine.set_time(11.1)
+        reference = _engine(family, seed=17)
+        reference.set_time(11.1)
+        assert _digest(_frame(engine)) == _digest(_frame(reference))
+    else:
+        assert _digest(_frame(engine)) == idle
 
 
 def test_pointer_rejects_nonfinite_values_and_static_material_ignores_it():

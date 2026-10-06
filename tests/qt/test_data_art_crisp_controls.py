@@ -23,6 +23,7 @@ def test_native_4k_detail_respects_real_screen_budget_and_lower_detail():
     engine = ambient.make_engine("data_art_point_atlas", "mono", "#101418", seed=7)
     engine.set_max_pixels(3840 * 2160)
     assert engine.buffer_size(3840, 2160) == (3840, 2160)
+    assert engine.buffer_scale(3840, 2160) == 1.0
     engine.set_resolution(2.0)
     assert engine.buffer_size(3840, 2160) == (3840, 2160)
     image = engine.shade(3840, 2160)
@@ -30,6 +31,7 @@ def test_native_4k_detail_respects_real_screen_budget_and_lower_detail():
     assert image.size().height() == 2160
     engine.set_resolution(0.5)
     assert engine.buffer_size(3840, 2160) == (1920, 1080)
+    assert engine.buffer_scale(3840, 2160) == 2.0
     engine.set_resolution(1.0)
     engine.set_max_pixels(1920 * 1080)
     assert engine.buffer_size(3840, 2160) == (1920, 1080)
@@ -172,3 +174,65 @@ def test_color_dialog_cancel_preserves_store_and_save_applies_complete_pair(
     next(button for button in buttons if button is not None).click()
     assert preferences._ambient_custom_colors() == ("#1199aa", original[1])
     assert preferences.get_ambient_palette() == "custom"
+
+
+def test_reset_custom_art_colors_is_cancelable_and_saves_valid_defaults(
+    color_store, qtbot
+):
+    preferences.set_theme_choice("data_art_point_atlas")
+    preferences.set_ambient_palette("custom")
+    original = ("#194f77", "#da82a1")
+    preferences._set_ambient_custom_colors(original)
+
+    dialog = preferences.PreferencesDialog()
+    qtbot.addWidget(dialog)
+    palette = dialog.findChild(QComboBox, "AmbientPalette")
+    assert palette.currentData() == "custom"
+    dialog.findChild(QPushButton, "PreferencesReset").click()
+    assert palette.currentIndex() >= 0
+    assert palette.currentData() in ambient.palettes_for("blobs")
+    assert "#3b82f6" in dialog.findChild(QPushButton, "AmbientPrimaryColor").text()
+    assert "#ff00ff" in dialog.findChild(QPushButton, "AmbientAccentColor").text()
+    assert preferences._ambient_custom_colors() == original
+    dialog.reject()
+    assert preferences._ambient_custom_colors() == original
+    assert preferences.get_ambient_palette() == "custom"
+
+    saved = preferences.PreferencesDialog()
+    qtbot.addWidget(saved)
+    saved.findChild(QPushButton, "PreferencesReset").click()
+    boxes = saved.findChildren(QDialogButtonBox)
+    next(box.button(QDialogButtonBox.Save) for box in boxes
+         if box.button(QDialogButtonBox.Save) is not None).click()
+    assert preferences._ambient_custom_colors() == ("#3b82f6", "#ff00ff")
+    assert preferences.get_ambient_palette() in ambient.palettes_for(
+        preferences.get_ambient_animation())
+
+
+def test_invalid_saved_art_palette_never_selects_an_invalid_dialog_row(
+    color_store, qtbot
+):
+    preferences.set_theme_choice("data_art_point_atlas")
+    color_store.setValue(preferences._KEY_AMBIENT_PALETTE, "retired_palette")
+    dialog = preferences.PreferencesDialog()
+    qtbot.addWidget(dialog)
+    palette = dialog.findChild(QComboBox, "AmbientPalette")
+    assert palette.currentIndex() >= 0
+    assert palette.currentData() in ambient.palettes_for("data_art_point_atlas")
+    assert dialog.findChild(QPushButton, "AmbientPrimaryColor").isEnabled()
+    assert dialog.findChild(QPushButton, "AmbientAccentColor").isEnabled()
+
+
+def test_no_animation_saves_without_a_palette_row(color_store, qtbot):
+    preferences.set_theme_choice("data_art_point_atlas")
+    dialog = preferences.PreferencesDialog()
+    qtbot.addWidget(dialog)
+    animation = dialog.findChild(QComboBox, "AmbientTheme")
+    palette = dialog.findChild(QComboBox, "AmbientPalette")
+    animation.setCurrentIndex(animation.findData("none"))
+    assert palette.count() == 0
+    assert palette.currentData() is None
+    boxes = dialog.findChildren(QDialogButtonBox)
+    next(box.button(QDialogButtonBox.Save) for box in boxes
+         if box.button(QDialogButtonBox.Save) is not None).click()
+    assert preferences.get_ambient_animation() == "none"
