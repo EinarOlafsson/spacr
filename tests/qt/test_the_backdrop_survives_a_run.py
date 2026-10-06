@@ -202,7 +202,8 @@ def test_the_shading_thread_draws_exactly_what_the_gui_thread_would(theme):
     # The comparison has to be capable of failing, or it asserts nothing: the
     # same engine at a different clock is a different picture.
     engine.set_time(40.0)
-    assert bytes(engine.shade(W, H).constBits()) != bytes(here.constBits())
+    later = engine.shade(W, H)
+    assert bytes(later.constBits()) != bytes(here.constBits())
 
 
 def test_the_two_halves_of_a_frame_compose_back_into_the_whole_frame(qtbot):

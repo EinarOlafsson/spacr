@@ -84,6 +84,11 @@ def _render(engine, width=320, height=200, background=DARK) -> QImage:
     return image
 
 
+def _image_bytes(image: QImage) -> bytes:
+    """Keep the image alive while copying its borrowed pixel buffer."""
+    return bytes(image.constBits())
+
+
 # ---------------------------------------------------------------------------
 # The plate
 # ---------------------------------------------------------------------------
@@ -377,7 +382,7 @@ def test_it_idles_beautifully_in_silence(qapp):
     assert engine.energy() > 0.2, "the plate went out"
     early = _render(engine)
     engine.set_time(30.0)
-    assert bytes(_render(engine).constBits()) != bytes(early.constBits())
+    assert _image_bytes(_render(engine)) != _image_bytes(early)
     grains = engine.geometry(320, 200)
     assert len(grains) == amb.RESONANCE_PARTICLES
     assert all(b > 0.0 for _x, _y, b in grains)
@@ -390,14 +395,14 @@ def test_the_music_reaches_the_picture(qapp, tmp_path):
     engine = _plate(seed=7)
     engine.set_time(6.0)
     engine.advance(0.0)
-    silent = bytes(_render(engine).constBits())
+    silent = _image_bytes(_render(engine))
     quiet_energy = engine.energy()
 
     rs.set_now_playing(rs.NowPlaying(str(analysis), 0.0, 2.0, True))
     engine.advance(0.0)
     assert engine.drive.level > 0.5
     assert engine.energy() > quiet_energy
-    assert bytes(_render(engine).constBits()) != silent
+    assert _image_bytes(_render(engine)) != silent
 
 
 def test_the_beat_throws_the_sand_off_the_lines(qapp):
@@ -482,12 +487,12 @@ def test_the_real_time_signal_enters_in_advance_and_nowhere_else(qapp,
 
     rs.set_now_playing(rs.NowPlaying(str(analysis), 0.0, 1.5, True))
     assert rs.playing_moment(0.6).level > 0.5, "the test is not driving it"
-    assert bytes(engine.shade(320, 200).constBits()) == \
-        bytes(first.constBits()), "shade() read something outside the clock"
+    assert _image_bytes(engine.shade(320, 200)) == \
+        _image_bytes(first), "shade() read something outside the clock"
 
     engine.advance(0.0)
     assert engine.drive.level > 0.0
-    assert bytes(engine.shade(320, 200).constBits()) != bytes(first.constBits())
+    assert _image_bytes(engine.shade(320, 200)) != _image_bytes(first)
 
 
 def test_the_same_clock_shades_the_same_bytes_on_another_thread(qapp):
