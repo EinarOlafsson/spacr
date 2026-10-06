@@ -41,7 +41,6 @@ from __future__ import annotations
 from typing import List, NamedTuple, Optional, Tuple
 
 import numpy as np
-from scipy import ndimage
 
 #: Rule 2: the share of the smaller of a piece and an object already gathered
 #: that the two must have in common to be one object.
@@ -225,6 +224,8 @@ class _DragStroke:
 
     def _take_in(self, labels: np.ndarray, box) -> None:
         """Apply rules 1, 2 and 4 to one frame's pieces."""
+        from scipy import ndimage
+
         x0, y0, x1, y1 = (int(v) for v in box[:4])
         if self._owner is None:
             self._owner = np.zeros(self.shape, dtype=np.int32)
