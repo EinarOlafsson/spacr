@@ -143,5 +143,6 @@ def test_density_changes_actual_sample_population(family, monkeypatch):
     for density in (.25, 1, 3):
         engine.set_density(density)
         points = _coordinates(engine, monkeypatch, 960, 540)
-        populations.append(len(points[0]))
+        assert points[0].shape == points[1].shape == points[2].shape
+        populations.append(points[0].size)
     assert populations[0] < populations[1] < populations[2]
