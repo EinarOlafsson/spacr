@@ -11,7 +11,7 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QPoint  # noqa: E402
-from PySide6.QtGui import QColor, QImage  # noqa: E402
+from PySide6.QtGui import QColor, QImage, QPainterPath  # noqa: E402
 from PySide6.QtWidgets import QWidget  # noqa: E402
 
 from spacr.qt.widgets import ambient as amb  # noqa: E402
@@ -144,6 +144,43 @@ def test_helix_seed_shifts_its_rails_and_rungs_together():
         assert rail_a[0] == rail_b[0]
         assert rail_a[1] + rail_b[1] == pytest.approx(180.0)
         assert rung[1] + rung[-1] == pytest.approx(180.0)
+
+
+def test_synapse_and_chromatin_fill_the_field_with_spread_hubs():
+    """Seed variation cannot crowd every connection into one corner."""
+    for family in ("synapse", "chromatin"):
+        engine = _engine(family)
+        hubs = (engine._hubs if family == "synapse" else
+                tuple(engine._hubs[index] for index in (0, 2, 4, 7, 9, 11)))
+        assert min(x for x, _ in hubs) < 0.2
+        assert max(x for x, _ in hubs) > 0.85
+        assert min(y for _, y in hubs) < 0.2
+        assert max(y for _, y in hubs) > 0.8
+    synapse = _engine("synapse")
+    count = len(synapse.geometry(320, 180))
+    seed = synapse._seeds[0]
+    start = synapse._path_synapse(seed, 0, 0.0, count)
+    middle = synapse._path_synapse(seed, 0, 0.5, count)
+    end = synapse._path_synapse(seed, 0, 1.0, count)
+    assert math.dist(middle, tuple((a + b) / 2.0 for a, b in zip(start, end))) > 0.02
+
+
+@pytest.mark.parametrize("family", ("atlas", "helix"))
+def test_smooth_contours_use_curves_and_keep_glow_bounded(family):
+    """Large contours are curved paths with a limited, readable highlight."""
+    engine = _engine(family)
+    path = engine._smooth_path(engine.geometry(960, 540)[0])
+    assert any(path.elementAt(index).type == QPainterPath.CurveToElement
+               for index in range(path.elementCount()))
+    halo, glow, trace = engine._pens[0]
+    assert halo.widthF() < glow.widthF()
+    assert trace.widthF() < halo.widthF()
+    image = engine.shade(960, 540)
+    assert image is not None
+    lit = sum(image.pixelColor(x, y).lightness() > 16
+              for y in range(0, image.height(), 6)
+              for x in range(0, image.width(), 6))
+    assert 0 < lit < (image.width() // 6) * (image.height() // 6) // 3
 
 
 @pytest.mark.parametrize("background", (DARK, LIGHT))

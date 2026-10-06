@@ -4642,8 +4642,9 @@ class _FlowEngine(_BufferedEngine):
         self._seeds = tuple(_FlowSeed(rng.random(), rng.random(), rng.random(),
                                       rng.random(), 0.75 + 0.5 * rng.random())
                             for _ in range(96))
-        self._hubs = tuple((0.10 + 0.80 * rng.random(),
-                            0.12 + 0.76 * rng.random()) for _ in range(12))
+        self._hubs = tuple((0.11 + 0.26 * column + 0.045 * rng.random(),
+                            0.13 + 0.34 * row + 0.045 * rng.random())
+                           for row in range(3) for column in range(4))
 
     def _restyle(self) -> None:
         """Cache colour and width variants outside the per-frame path loop."""
@@ -4659,15 +4660,17 @@ class _FlowEngine(_BufferedEngine):
         self._build_pens()
 
     def _build_pens(self) -> None:
-        """Prepare subdued halo, filament and travelling-trace pens."""
+        """Prepare subdued filaments with soft, travelling local glow."""
         scale = self.alpha_scale()
         self._pens = []
         for color in self.paint_colors:
             halo = QPen(_with_alpha(color, 0.15 * scale),
                         5.0 * self.size, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
+            glow = QPen(_with_alpha(color, 0.13 * scale),
+                        8.0 * self.size, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
             trace = QPen(_with_alpha(color, 0.48 * scale),
                          2.3 * self.size, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
-            self._pens.append((halo, trace))
+            self._pens.append((halo, glow, trace))
 
     def set_pointer(self, point: Optional[Tuple[float, float]]) -> None:
         """Set an immutable normalized cursor target for a mouse variant.
@@ -4713,7 +4716,8 @@ class _FlowEngine(_BufferedEngine):
         start = self._hubs[index % len(self._hubs)]
         end = self._hubs[(index * 5 + 3) % len(self._hubs)]
         dx, dy = end[0] - start[0], end[1] - start[1]
-        curve = math.sin(math.pi * q) * (seed.bend - 0.5) * 0.34
+        curve = (math.sin(math.pi * q) * (0.12 + 0.17 * seed.bend)
+                 * (1 if index % 2 else -1))
         sway = 0.016 * math.sin(self.time * 0.11 + seed.phase * 6.0)
         return (start[0] + dx * q - dy * (curve + sway),
                 start[1] + dy * q + dx * (curve + sway))
@@ -4757,7 +4761,7 @@ class _FlowEngine(_BufferedEngine):
     def _path_chromatin(self, seed: _FlowSeed, index: int, q: float,
                         count: int) -> Tuple[float, float]:
         """Wind compact multi-turn loops around six spatial clusters."""
-        centre = self._hubs[index % 6]
+        centre = self._hubs[(0, 2, 4, 7, 9, 11)[index % 6]]
         theta = 2.0 * math.pi * (2.2 * q + seed.phase)
         radius = 0.018 + 0.12 * q * seed.span
         drift = 0.020 * math.sin(self.time * 0.07 + seed.phase * 6.0)
@@ -4811,8 +4815,8 @@ class _FlowEngine(_BufferedEngine):
         return tuple(paths)
 
     @staticmethod
-    def _trace_path(points: tuple, start: float, stop: float) -> QPainterPath:
-        """Interpolate one moving segment from existing filament vertices."""
+    def _trace_path(points: tuple, start: float, stop: float) -> tuple:
+        """Interpolate the sampled vertices of one travelling segment."""
         last = len(points) // 2 - 1
 
         def sample(fraction: float) -> QPointF:
@@ -4826,32 +4830,56 @@ class _FlowEngine(_BufferedEngine):
                            points[offset + 1] * (1.0 - amount)
                            + points[offset + 3] * amount)
 
-        trace = QPainterPath(sample(start))
+        trace = [sample(start)]
         first = int(start * last) + 1
         final = int(stop * last)
         for vertex in range(first, final + 1):
-            trace.lineTo(points[2 * vertex], points[2 * vertex + 1])
-        trace.lineTo(sample(stop))
-        return trace
+            trace.append(QPointF(points[2 * vertex], points[2 * vertex + 1]))
+        trace.append(sample(stop))
+        return tuple(value for point in trace for value in (point.x(), point.y()))
+
+    @staticmethod
+    def _smooth_path(points: tuple) -> QPainterPath:
+        """Join sampled points with bounded quadratic arcs, not sharp chords."""
+        path = QPainterPath(QPointF(points[0], points[1]))
+        count = len(points) // 2
+        for vertex in range(1, count - 1):
+            offset = 2 * vertex
+            path.quadTo(points[offset], points[offset + 1],
+                        (points[offset] + points[offset + 2]) * 0.5,
+                        (points[offset + 1] + points[offset + 3]) * 0.5)
+        path.lineTo(points[-2], points[-1])
+        return path
+
+    @classmethod
+    def _smooth_path_segment(cls, points: tuple, start: float,
+                             stop: float) -> QPainterPath:
+        """Give a travelling highlight the same curvature as its filament."""
+        return cls._smooth_path(cls._trace_path(points, start, stop))
 
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
         """Layer a quiet glow, full filament and travelling bright segment."""
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setBrush(Qt.NoBrush)
         for index, points in enumerate(self.geometry(width, height)):
-            path = QPainterPath(QPointF(points[0], points[1]))
-            for offset in range(2, len(points), 2):
-                path.lineTo(points[offset], points[offset + 1])
-            halo, trace = self._pens[index % len(self._pens)]
+            path = self._smooth_path(points)
+            halo, glow, trace = self._pens[index % len(self._pens)]
             painter.setPen(halo)
             painter.drawPath(path)
-            painter.setPen(trace)
             phase = (self.time * (0.045 + 0.012 * (index % 3))
                      + self._seeds[index].phase) % 1.0
             end = phase + 0.17
-            painter.drawPath(self._trace_path(points, phase, min(1.0, end)))
+            segment = self._smooth_path_segment(points, phase, min(1.0, end))
+            painter.setPen(glow)
+            painter.drawPath(segment)
+            painter.setPen(trace)
+            painter.drawPath(segment)
             if end > 1.0:
-                painter.drawPath(self._trace_path(points, 0.0, end - 1.0))
+                wrapped = self._smooth_path_segment(points, 0.0, end - 1.0)
+                painter.setPen(glow)
+                painter.drawPath(wrapped)
+                painter.setPen(trace)
+                painter.drawPath(wrapped)
             if self.family == "synapse" and index % 3 == 0:
                 painter.setPen(Qt.NoPen)
                 painter.setBrush(_with_alpha(
