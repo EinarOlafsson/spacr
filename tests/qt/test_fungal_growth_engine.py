@@ -48,7 +48,7 @@ def _digest(image):
 
 
 @pytest.mark.parametrize("canvas", ((160, 90), (384, 216), (640, 360)))
-def test_fungal_raster_occupies_less_than_thirty_percent_at_control_extremes(
+def test_fungal_raster_occupies_less_than_twenty_five_percent_at_control_extremes(
         canvas):
     """The limit applies to real light/dark pixels, softness and low detail."""
     width, height = canvas
@@ -62,11 +62,11 @@ def test_fungal_raster_occupies_less_than_thirty_percent_at_control_extremes(
             engine = _engine(background, resolution=resolution,
                              density=density, size=size, blur=blur)
             engine.set_max_pixels(width * height)
-            for second in (0.0, 30.01, 3600.33):
+            for second in (0.0, 11.37, 30.01, 93.81, 3600.33):
                 engine.set_time(second)
                 occupied = _occupancy(_frame(engine, width, height),
                                       background)
-                assert occupied < 0.30, (
+                assert occupied <= 0.25, (
                     canvas, background, resolution, density,
                     size, blur, second, occupied)
 
@@ -76,10 +76,11 @@ def test_native_4k_uses_the_physical_pixel_budget_and_remains_sparse():
     width, height = 3840, 2160
     engine = _engine("#f0f1ed", density=3.0, size=2.5, blur=3.0)
     engine.set_max_pixels(width * height)
-    engine.set_time(47.5)
     assert engine.buffer_size(width, height) == (width, height)
-    image = _frame(engine, width, height)
-    assert _occupancy(image, "#f0f1ed") < 0.30
+    for second in (47.5, 3600.33):
+        engine.set_time(second)
+        image = _frame(engine, width, height)
+        assert _occupancy(image, "#f0f1ed") <= 0.25
     assert engine._buffer.bytesPerLine() * engine._buffer.height() <= \
         width * height * 4
     engine.set_resolution(0.5)
@@ -135,6 +136,23 @@ def test_arbitrary_hour_later_clock_is_seeded_and_history_stays_bounded():
     other = _FungalGrowthEngine(PALETTE, "#101418", seed=30)
     other.set_time(3600.33)
     assert _digest(_frame(other, 384, 216)) != expected
+
+
+def test_one_origin_and_block_boundary_join_without_a_new_root():
+    """Every front step joins the prior tip, even across cache blocks."""
+    engine = _engine()
+    width, height = 640, 360
+    first = engine._lineage(0, width, height)
+    second = engine._lineage(1, width, height)
+    trunks = [edge for edge in first + second if edge[-1] == 0]
+    assert len(trunks) == 32
+    assert trunks[0][1:3] == engine._apex(0, width, height)
+    assert all(before[5:7] == after[1:3]
+               for before, after in zip(trunks, trunks[1:]))
+    engine.set_time(3600.33)
+    visible = engine.geometry(width, height)
+    assert visible
+    assert len(engine._lineage_cache) <= 8
 
 
 def test_density_size_speed_and_palette_change_the_actual_frame():
