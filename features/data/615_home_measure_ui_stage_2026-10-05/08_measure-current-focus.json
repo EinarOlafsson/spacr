@@ -1,0 +1,77 @@
+{
+  "english_sha256": "03a3a6fda412c43682c96bba3f1e6836dabd3cabb2df66c0022251d0355c0f12",
+  "scenes": {
+    "preview_03_data_ready": [
+      345,
+      45,
+      1180,
+      630
+    ],
+    "preview_04_preview_normalization_setup": null,
+    "preview_05_live_all_channels": null,
+    "preview_06_live_channel_zero": null,
+    "preview_07_live_second_field": null,
+    "preview_07c_checked_two_fields": null,
+    "09a_qc_popup": [
+      0,
+      0,
+      560,
+      510
+    ],
+    "09b_image_preprocessing": null,
+    "preview_08_saved_normalization_restored": null,
+    "tpl_31_template_save_name": [
+      1520,
+      774,
+      1400,
+      900
+    ],
+    "tpl_33_templates_imported": [
+      1520,
+      774,
+      1400,
+      900
+    ],
+    "tpl_35_templates_renamed": [
+      1520,
+      774,
+      1400,
+      900
+    ],
+    "tpl_37_change_shortcuts": [
+      1683,
+      860,
+      1300,
+      1100
+    ],
+    "batch_20_batch_settings": null,
+    "batch_25_measure_figure_02": null,
+    "batch_21_ram_guard": [
+      1680,
+      895,
+      460,
+      290
+    ]
+  },
+  "recapture": {
+    "capture_module": "measure_no_banner_complete_20261005_r1",
+    "frames": {
+      "preview_03_data_ready": "01f4e655ead1cb97f15c60b0f5c8c23d37b6aeac6a0e24f02d29f22e3da43f42",
+      "preview_04_preview_normalization_setup": "114ae08657511598fe55212fc379184489639917a0334c1a460f77e03a79137b",
+      "preview_05_live_all_channels": "12145faaf60b7027988ec0cc9981f6071a1df7cf81b58bdd49e6da1236ee1692",
+      "preview_06_live_channel_zero": "65740c8a02c52c8b3956252bc3207ee70c8fe09bcece56c22dab59b652c74226",
+      "preview_07_live_second_field": "38059cdb3637d61690469f86a1a0d5c1451c1642815cacf59c95175b86c573a4",
+      "preview_08_saved_normalization_restored": "b49828fb00bbda49098a969c71c5ca08f0f578e48811429e00d1cc3a9e65c248",
+      "preview_07c_checked_two_fields": "5d9c7d6f3c6145d98122fde1c817698c2c99a934b9fde950cf73df4a8c2954e0",
+      "09a_qc_popup": "5fd8af2444dac2ddeb22cf832c672471337055220cac5f1dec27699f0c1a565c",
+      "09b_image_preprocessing": "d45851d81ddb9ca6ffb1c315c144734c2fda7995e04845379812fe60c144898c",
+      "batch_20_batch_settings": "8d4bbee68d1c89a1f907fe2dbab2c0e62afd7c2c9f7aaae1e3cb2d32fba18363",
+      "batch_25_measure_figure_02": "f6aeb02f58bfbc7ac3ad467ccaf7103397def3daa88232e0e7896e4bb8abd3f0",
+      "tpl_31_template_save_name": "725e85cf737145b0f345f2b11ff348d030bfe69a978f46440e43b5be0c312a2b",
+      "tpl_33_templates_imported": "181549f06e0599c8b52473b62376415b96e1a21e9b3668d27772b1e7c41e62d7",
+      "tpl_35_templates_renamed": "6ddadb7e9dccbe9d6fd0e3633d81ff710410d734c8a5dcf2189f4af744765e22",
+      "tpl_37_change_shortcuts": "6fa7a9d17ebf66e757d9bbc517f9be6d95e306925e0587ec0b101b6d4f3c11db",
+      "batch_21_ram_guard": "45053304fe16ebe706a5b2a8989d38ac9d52a93074622edb0d6b5390e0b50362"
+    }
+  }
+}

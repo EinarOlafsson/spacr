@@ -1,0 +1,39 @@
+alpha features off: /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-home-left-to-right-current-r1/profile/.config/spacr/qt.conf
+no remembered session or drafts: /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-home-left-to-right-current-r1/profile/.config/spacr/qt.conf
+qt.qpa.theme.dbus: Session DBus not running.
+qt.qpa.theme.dbus: Application will not react to setting changes.
+ Check your DBus installation.
+qt.qpa.theme.gnome: dbus connection failed. Last error:  QDBusError("org.freedesktop.DBus.Error.NoReply", "Did not receive a reply. Possible causes include: the remote application did not send a reply, the message bus security policy blocked the reply, the reply timeout expired, or the network connection was broken.")
+qt.qpa.theme.dbus: Session DBus not running.
+qt.qpa.theme.dbus: Application will not react to setting changes.
+ Check your DBus installation.
+qt.qpa.theme.gnome: dbus connection failed. Last error:  QDBusError("org.freedesktop.DBus.Error.NoReply", "Did not receive a reply. Possible causes include: the remote application did not send a reply, the message bus security policy blocked the reply, the reply timeout expired, or the network connection was broken.")
+captured home/00_home
+captured home/01_core  (6)
+captured home/02_data  (7)
+captured home/03_tools  (5)
+captured home/04_assays  (1)
+captured home/05_classify_host
+captured home/06_mask_host
+captured home/14_resize_panels
+captured home/10_home_column
+captured home/11_column_folded
+captured home/07_help
+captured home/08_help_search
+captured home/12_command_palette
+captured home/09_performance
+captured home/10_appearance_categories
+captured home/11_appearance_theme
+captured home/12_appearance_animation
+captured home/13_preferences_general
+captured home/13b_preferences_appearance
+captured home/13c_appearance_theme
+captured home/13d_appearance_animation
+captured home/13e_session_updates
+captured home/13f_storage
+captured home/13g_storage_prune
+Traceback (most recent call last):
+  File "/tmp/spacr-code/tools/tutorials/capture_home.py", line 399, in answer
+    (cancel[0] if cancel else box.escapeButton()).click()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'click'

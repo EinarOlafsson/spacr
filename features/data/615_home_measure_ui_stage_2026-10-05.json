@@ -1,0 +1,219 @@
+{
+  "accepted": true,
+  "scope": "Fresh current Home capture and Measure preview controls; revised left-to-right Home narration and loaded-project Measure opening staged in all fourteen catalogs. Narration, video, hosted and deployed acceptance remain open.",
+  "mask_tutorial_changed": false,
+  "conda_script_changed": false,
+  "scene_counts": {
+    "05_home": 22,
+    "08_measure": 17
+  },
+  "translation_reviews": 26,
+  "unrelated_lesson_objects_preserved_per_catalog": 83,
+  "native_captures": {
+    "home": {
+      "provenance": {
+        "commit": "dbde6063f2782a1a7891cf538abdc76451127cc0",
+        "version": "1.5.1.3",
+        "module": "home",
+        "download_requested": false,
+        "dataset_cache": "/tmp/spacr-tutorials/example_data",
+        "app_source_modified": false,
+        "cache_isolated_with_bind_mount": true,
+        "completed_capture": true
+      },
+      "frame_sha256": {
+        "00_home": "abc3a7395c599010cff1bd6b3f71facbb819898df674a612dc4e9d4df8286453",
+        "01_core  (6)": "b5648f031e9c220881bf8ae2f6d732269b107fd742f0432398dadb475eb8f063",
+        "02_data  (7)": "733c7d377a5be40c4f00abc487cb76de32029c06af61ef8f3d7044c56a35bce6",
+        "03_tools  (5)": "222f80ed0bfc97cdb99bc082842d4a4181226a8a44a43378324b0214bd53f8f2",
+        "04_assays  (1)": "0cd0e6a5c0ece3cd6ea108d75e201a271a91c52f573d09ffc0eb2ff59c74291f",
+        "05_classify_host": "3b7f4b00b08708388761d05e91bafbe933006e3e4f940d8d8d83a728fde6d4cf",
+        "06_mask_host": "7002e7ae3d5c93ce07ec1aac3235eb5b93c1d788766447aed908c0548f5dd2d8",
+        "14_resize_panels": "45a005fde510f0e8efad79eece734bc60e2f9e77b842874b727cd0bff4a1dcf2",
+        "10_home_column": "6de4f64a7adeecfac00096b896cfc98da372b31fa0a3caab54ff730819d65eba",
+        "11_column_folded": "64ef0afdf8370b7b5b06a3c91ab0aedb3145b5a4010024f1aa2e16cc197df83a",
+        "07_help": "2cdbef44975f63b035a349eec1349224a816e2b9b138b14cb04bb86a34c97bb7",
+        "08_help_search": "3d8e336a1fd9fe2851f76e6ce9bfba52c2921745f70862423968cb86ef7178cf",
+        "12_command_palette": "7d1c57599ecb59b0792db7021e34efba0991496a53606f72de317aa71d7e5095",
+        "09_performance": "eb1685da515833ad6d31e54d1ed4328803907aa421038f2654358b4d98b012ad",
+        "10_appearance_categories": "07e13d532ebe1a345d485fd9fddc99f72d68c5a505eae8302d6a0543ca9ca84b",
+        "11_appearance_theme": "93927b70976549cc44dd45db54c61ba08499c7e537445a52331c1c77116d10fe",
+        "12_appearance_animation": "cd9d48b021df3e27054575a05390d11a555f00d1b12f10caf0862ecf95f79c65",
+        "13_preferences_general": "d48752b870b3a771c8112332adf781c2cc4c9113b617d3461eb5331b301da716",
+        "13b_preferences_appearance": "8a46f9e40e7ef5e2d58ce1ca381fb1d123dc713fdce85620d1f1365123de6e85",
+        "13c_appearance_theme": "2720bec9a64288c69c744e0841ca19c43eb85963089738c43ad5ab120f45b5a4",
+        "13d_appearance_animation": "20f96c5e92f2374621d110d82d70ae68e1763fa9c852bd467f125f56eb17c37b",
+        "13e_session_updates": "9b885a3e06bc8f98d388b2bb092c62aabf7b8999b206cbb751e725b9223379c6",
+        "13f_storage": "3fa77b506d9eebcb6223dbdc9764024f3a5bb53a5fbdf6790539adf289ff4488",
+        "13g_storage_prune": "686b6fd1f6dff797a9ecc299185ddb0ea63b7174b6e8ad7de27de08010bdae68"
+      }
+    },
+    "measure_preview": {
+      "provenance": {
+        "commit": "dbde6063f2782a1a7891cf538abdc76451127cc0",
+        "version": "1.5.1.3",
+        "module": "measure",
+        "download_requested": true,
+        "dataset_cache": "/tmp/spacr-tutorials/example_data",
+        "app_source_modified": false,
+        "cache_isolated_with_bind_mount": true,
+        "completed_capture": true
+      },
+      "frame_sha256": {
+        "00_home": "2b963596be3f24159ecc3e47a7ce66e82bbdc1a6a02d15cc2566e20a31d8c296",
+        "01_module": "939ba59582cf8761582bf00188989397e54db1585389c2f997224e990bc9979d",
+        "03_data_ready": "01f4e655ead1cb97f15c60b0f5c8c23d37b6aeac6a0e24f02d29f22e3da43f42",
+        "09a_qc_popup": "5fd8af2444dac2ddeb22cf832c672471337055220cac5f1dec27699f0c1a565c",
+        "09b_image_preprocessing": "d45851d81ddb9ca6ffb1c315c144734c2fda7995e04845379812fe60c144898c",
+        "04_preview_normalization_setup": "114ae08657511598fe55212fc379184489639917a0334c1a460f77e03a79137b",
+        "05_live_all_channels": "12145faaf60b7027988ec0cc9981f6071a1df7cf81b58bdd49e6da1236ee1692",
+        "06_live_channel_zero": "65740c8a02c52c8b3956252bc3207ee70c8fe09bcece56c22dab59b652c74226",
+        "07_live_second_field": "38059cdb3637d61690469f86a1a0d5c1451c1642815cacf59c95175b86c573a4",
+        "07b_checked_images_menu": "f169352eb34613c2ed600cf2b674d7b70058891be1a473d0c993ec8d20a26f05",
+        "07c_checked_two_fields": "5d9c7d6f3c6145d98122fde1c817698c2c99a934b9fde950cf73df4a8c2954e0",
+        "08_saved_normalization_restored": "b49828fb00bbda49098a969c71c5ca08f0f578e48811429e00d1cc3a9e65c248"
+      }
+    },
+    "measure_complete": {
+      "provenance": {
+        "commit": "dbde6063f2782a1a7891cf538abdc76451127cc0",
+        "version": "1.5.1.3",
+        "module": "measure",
+        "download_requested": true,
+        "dataset_cache": "/tmp/spacr-tutorials/example_data",
+        "app_source_modified": false,
+        "cache_isolated_with_bind_mount": true,
+        "completed_capture": true,
+        "sources": [
+          {
+            "commit": "dbde6063f2782a1a7891cf538abdc76451127cc0",
+            "version": "1.5.1.3",
+            "module": "measure",
+            "download_requested": true,
+            "dataset_cache": "/tmp/spacr-tutorials/example_data",
+            "app_source_modified": false,
+            "cache_isolated_with_bind_mount": true,
+            "completed_capture": true
+          },
+          {
+            "commit": "522d9a59c7e390a3f2545bac2bf9a0a3db909b30",
+            "version": "1.5.1.3",
+            "module": "measure",
+            "download_requested": true,
+            "dataset_cache": "/tmp/spacr-tutorial-measure-run-r4-20261005/example_data",
+            "app_source_modified": false,
+            "cache_isolated_with_bind_mount": true,
+            "completed_capture": true
+          },
+          {
+            "commit": "522d9a59c7e390a3f2545bac2bf9a0a3db909b30",
+            "version": "1.5.1.3",
+            "module": "measure",
+            "download_requested": true,
+            "dataset_cache": "/tmp/spacr-tutorial-templates-20261005/example_data",
+            "app_source_modified": false,
+            "cache_isolated_with_bind_mount": true,
+            "completed_capture": true
+          },
+          {
+            "commit": "522d9a59c7e390a3f2545bac2bf9a0a3db909b30",
+            "version": "1.5.1.3",
+            "module": "home",
+            "download_requested": false,
+            "dataset_cache": "/tmp/spacr-tutorial-ram-20261005/example_data",
+            "app_source_modified": false,
+            "cache_isolated_with_bind_mount": true,
+            "completed_capture": true
+          }
+        ],
+        "composition_only": true
+      },
+      "frame_sha256": {
+        "preview_03_data_ready": "01f4e655ead1cb97f15c60b0f5c8c23d37b6aeac6a0e24f02d29f22e3da43f42",
+        "preview_04_preview_normalization_setup": "114ae08657511598fe55212fc379184489639917a0334c1a460f77e03a79137b",
+        "preview_05_live_all_channels": "12145faaf60b7027988ec0cc9981f6071a1df7cf81b58bdd49e6da1236ee1692",
+        "preview_06_live_channel_zero": "65740c8a02c52c8b3956252bc3207ee70c8fe09bcece56c22dab59b652c74226",
+        "preview_07_live_second_field": "38059cdb3637d61690469f86a1a0d5c1451c1642815cacf59c95175b86c573a4",
+        "preview_08_saved_normalization_restored": "b49828fb00bbda49098a969c71c5ca08f0f578e48811429e00d1cc3a9e65c248",
+        "preview_07c_checked_two_fields": "5d9c7d6f3c6145d98122fde1c817698c2c99a934b9fde950cf73df4a8c2954e0",
+        "09a_qc_popup": "5fd8af2444dac2ddeb22cf832c672471337055220cac5f1dec27699f0c1a565c",
+        "09b_image_preprocessing": "d45851d81ddb9ca6ffb1c315c144734c2fda7995e04845379812fe60c144898c",
+        "batch_20_batch_settings": "8d4bbee68d1c89a1f907fe2dbab2c0e62afd7c2c9f7aaae1e3cb2d32fba18363",
+        "batch_25_measure_figure_02": "f6aeb02f58bfbc7ac3ad467ccaf7103397def3daa88232e0e7896e4bb8abd3f0",
+        "tpl_31_template_save_name": "725e85cf737145b0f345f2b11ff348d030bfe69a978f46440e43b5be0c312a2b",
+        "tpl_33_templates_imported": "181549f06e0599c8b52473b62376415b96e1a21e9b3668d27772b1e7c41e62d7",
+        "tpl_35_templates_renamed": "6ddadb7e9dccbe9d6fd0e3633d81ff710410d734c8a5dcf2189f4af744765e22",
+        "tpl_37_change_shortcuts": "6fa7a9d17ebf66e757d9bbc517f9be6d95e306925e0587ec0b101b6d4f3c11db",
+        "batch_21_ram_guard": "45053304fe16ebe706a5b2a8989d38ac9d52a93074622edb0d6b5390e0b50362"
+      }
+    }
+  },
+  "artifacts": {
+    "features/data/615_home_measure_ui_stage_2026-10-05/home.zip": {
+      "sha256": "47f6f6886ff3139302156cd8548f2d8d7469420fad41def2632784af555e2f7b",
+      "bytes": 9423126
+    },
+    "features/data/615_home_measure_ui_stage_2026-10-05/measure_preview.zip": {
+      "sha256": "8c4a52ffc563cb59db2a889278f3209e8f175bd0225baba4e45dcdffb4a68093",
+      "bytes": 8320685
+    },
+    "features/data/615_home_measure_ui_stage_2026-10-05/measure_complete.zip": {
+      "sha256": "6b3d07e4bd963eaf6ff8c29b16e5289c4d5fbf74f7f2deaa3f177df7347a4b5b",
+      "bytes": 10933919
+    },
+    "features/data/615_home_measure_ui_stage_2026-10-05/stage_home_measure_ui.py": {
+      "sha256": "1d6551763f1404eef85611a2603f7e25c8a2fcf11cd9af8365a1765d50454ade",
+      "bytes": 4120
+    },
+    "features/data/615_home_measure_ui_stage_2026-10-05/home-measure-ui-review-delta.json": {
+      "sha256": "10b0ead5725bcf2ad7e486ad08717c31a3c98bcc1078184a04f6d23cc0a43a8a",
+      "bytes": 22517
+    },
+    "features/data/615_home_measure_ui_stage_2026-10-05/home-measure-ui-stage-r1.log.txt": {
+      "sha256": "f69256a7352350b1108b346954aae4b204bc5d3958b89760246e1218d73bba54",
+      "bytes": 2525
+    },
+    "features/data/615_home_measure_ui_stage_2026-10-05/measure-no-banner-independent-output.json": {
+      "sha256": "0548fb90c3c02477c44ce4de24f601ffbcbee90a0246203d49c6ad282abb93ca",
+      "bytes": 8402
+    },
+    "features/data/615_home_measure_ui_stage_2026-10-05/home-left-to-right-capture-r1.log.txt": {
+      "sha256": "39d25dd21e4758f477c29d273f7b3e5f5c5314c84cc915d922fa3e825214ec1a",
+      "bytes": 2275
+    },
+    "features/data/615_home_measure_ui_stage_2026-10-05/home-left-to-right-capture-r2.log.txt": {
+      "sha256": "d7cfa72d9a544b755de8c4e47dc531bf16495fb21f205547d0eb2ca67e48e16d",
+      "bytes": 1989
+    },
+    "features/data/615_home_measure_ui_stage_2026-10-05/measure-no-banner-capture-r1.log.txt": {
+      "sha256": "23a1feb40b27af8a3d81f5d331f5776b160a2433031c7817558bf2a140d34e11",
+      "bytes": 1683
+    },
+    "features/data/615_home_measure_ui_stage_2026-10-05/measure-no-banner-compose-r4.log.txt": {
+      "sha256": "5a77847d8ecc26b8c707691569fe22a8ecd09ea080d4c15ac54d47dd42b5cb86",
+      "bytes": 146
+    },
+    "features/data/615_home_measure_ui_stage_2026-10-05/08_measure-current-focus.json": {
+      "sha256": "7485a63015d510b125dc9c04d2008d19cefcbd773b3846eff606d8660aff2385",
+      "bytes": 2838
+    },
+    "features/data/615_home_measure_ui_stage_2026-10-05/05_home-current-focus.json": {
+      "sha256": "2ceb5a44d79c6010e8b606ab590a19ee1cbb711702fabd44043febba3c7cfb46",
+      "bytes": 3596
+    }
+  },
+  "narration_complete": false,
+  "published": false,
+  "complete_batch_values_preserved": true,
+  "fresh_preview_grid_counts": [
+    50,
+    50,
+    50
+  ],
+  "previous_preview_grid_counts": [
+    60,
+    60,
+    60
+  ],
+  "preview_count_scope": "The native current preview displays fifty crops. The retained sixteen-field batch, database, areas/intensities, crops, source arrays and all other independent batch-result records are unchanged."
+}

@@ -1,23 +1,33 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
+  "english_sha256": "03a3a6fda412c43682c96bba3f1e6836dabd3cabb2df66c0022251d0355c0f12",
   "review": {
     "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
     "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "scope": "Opening scene uses Input and Experiment, Source and Load test data with an already-loaded example; sixteen other scene translations retained.",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-30",
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+      "date": "2026-10-05",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
-      "listening_review": false
+      "listening_review": false,
+      "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
     },
-    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
+    "previous_english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819"
   },
   "language": "fr",
   "title": "Measure : extraire les caractéristiques et les vignettes des objets",
@@ -29,7 +39,7 @@
   ],
   "prerequisite": "Utilisez les sorties fusionnées de Mask, ou choisissez Load test data dans Measure. L’exemple fournit seize champs avec les plans d’intensité 0–3 et les masques de cellules, de noyaux et de pathogènes dans les plans 4, 5 et 6.",
   "scenes": [
-    "Depuis Home, ouvrez Measure. Partez d’images qui ont déjà des masques d’objets. Measure extrait des caractéristiques comme l’aire et l’intensité, associe les objets liés et peut enregistrer des vignettes d’objets individuels pour Annotate et Classify.",
+    "Depuis Home, ouvrez Measure. Dans Input and Experiment, utilisez Source pour sélectionner le dossier fusionné contenant vos images et masques d’objets, ou cliquez sur Load test data. Ici, l’exemple est déjà chargé. Measure extrait des caractéristiques comme l’aire et l’intensité, associe les objets apparentés et peut enregistrer des recadrages d’objets pour Annotate et Classify.",
     "Cliquez sur Load test data et attendez le chargement de l’exemple, ou sélectionnez votre propre projet fusionné. Vérifiez l’attribution des plans : cet exemple comporte quatre canaux d’intensité, suivis des masques de cellules, de noyaux et de pathogènes dans les plans quatre, cinq et six. Quand vous appuyez sur Run, Measure compare ces plans de masques avec la disposition enregistrée pour le dossier ; s’ils diffèrent, il propose Use stored image layout et vous demande de vérifier l’affectation puis de relancer.",
     "Pour inspecter ces vignettes d’exemple en seize bits, activez Normalize avant d’ouvrir Live. L’aperçu est ainsi plus lisible. N’oubliez pas que ce paramètre principal s’applique aussi aux vignettes enregistrées ; nous le désactiverons avant cette exécution par lots.",
     "Activez Live et choisissez un champ. Inspectez les vignettes d’objets et les relations entre leurs masques. Faites défiler les catégories et agrandissez l’aperçu si nécessaire pour bien voir les contours.",

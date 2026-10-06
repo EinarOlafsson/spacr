@@ -1,0 +1,109 @@
+{
+  "english_sha256": "df01cfbd41c345bfed5ea9e8afa738a1d5dd9ffc534f6157b02218ccb45e3ee2",
+  "scenes": {
+    "00_home": null,
+    "01_core  (6)": [
+      378,
+      304,
+      1717,
+      186
+    ],
+    "02_data  (7)": [
+      378,
+      304,
+      2001,
+      186
+    ],
+    "03_tools  (5)": [
+      378,
+      304,
+      1432,
+      186
+    ],
+    "04_assays  (1)": [
+      378,
+      304,
+      285,
+      186
+    ],
+    "05_classify_host": null,
+    "06_mask_host": null,
+    "14_resize_panels": null,
+    "10_home_column": null,
+    "11_column_folded": null,
+    "08_help_search": null,
+    "12_command_palette": null,
+    "09_performance": null,
+    "13_preferences_general": [
+      1310,
+      440,
+      1200,
+      1200
+    ],
+    "13b_preferences_appearance": [
+      1310,
+      440,
+      1200,
+      1200
+    ],
+    "13c_appearance_theme": [
+      1310,
+      290,
+      1200,
+      1500
+    ],
+    "13d_appearance_animation": [
+      1310,
+      290,
+      1200,
+      1500
+    ],
+    "13e_session_updates": [
+      1310,
+      440,
+      1200,
+      367
+    ],
+    "13f_storage": [
+      1310,
+      290,
+      1200,
+      1500
+    ],
+    "13g_storage_prune": [
+      1310,
+      290,
+      1200,
+      1500
+    ]
+  },
+  "recapture": {
+    "capture_module": "home_left_to_right_20261005_r2",
+    "frames": {
+      "00_home": "abc3a7395c599010cff1bd6b3f71facbb819898df674a612dc4e9d4df8286453",
+      "01_core  (6)": "b5648f031e9c220881bf8ae2f6d732269b107fd742f0432398dadb475eb8f063",
+      "02_data  (7)": "733c7d377a5be40c4f00abc487cb76de32029c06af61ef8f3d7044c56a35bce6",
+      "03_tools  (5)": "222f80ed0bfc97cdb99bc082842d4a4181226a8a44a43378324b0214bd53f8f2",
+      "04_assays  (1)": "0cd0e6a5c0ece3cd6ea108d75e201a271a91c52f573d09ffc0eb2ff59c74291f",
+      "05_classify_host": "3b7f4b00b08708388761d05e91bafbe933006e3e4f940d8d8d83a728fde6d4cf",
+      "06_mask_host": "7002e7ae3d5c93ce07ec1aac3235eb5b93c1d788766447aed908c0548f5dd2d8",
+      "14_resize_panels": "45a005fde510f0e8efad79eece734bc60e2f9e77b842874b727cd0bff4a1dcf2",
+      "10_home_column": "6de4f64a7adeecfac00096b896cfc98da372b31fa0a3caab54ff730819d65eba",
+      "11_column_folded": "64ef0afdf8370b7b5b06a3c91ab0aedb3145b5a4010024f1aa2e16cc197df83a",
+      "07_help": "2cdbef44975f63b035a349eec1349224a816e2b9b138b14cb04bb86a34c97bb7",
+      "08_help_search": "3d8e336a1fd9fe2851f76e6ce9bfba52c2921745f70862423968cb86ef7178cf",
+      "12_command_palette": "7d1c57599ecb59b0792db7021e34efba0991496a53606f72de317aa71d7e5095",
+      "09_performance": "eb1685da515833ad6d31e54d1ed4328803907aa421038f2654358b4d98b012ad",
+      "10_appearance_categories": "07e13d532ebe1a345d485fd9fddc99f72d68c5a505eae8302d6a0543ca9ca84b",
+      "11_appearance_theme": "93927b70976549cc44dd45db54c61ba08499c7e537445a52331c1c77116d10fe",
+      "12_appearance_animation": "cd9d48b021df3e27054575a05390d11a555f00d1b12f10caf0862ecf95f79c65",
+      "13_preferences_general": "d48752b870b3a771c8112332adf781c2cc4c9113b617d3461eb5331b301da716",
+      "13b_preferences_appearance": "8a46f9e40e7ef5e2d58ce1ca381fb1d123dc713fdce85620d1f1365123de6e85",
+      "13c_appearance_theme": "2720bec9a64288c69c744e0841ca19c43eb85963089738c43ad5ab120f45b5a4",
+      "13d_appearance_animation": "20f96c5e92f2374621d110d82d70ae68e1763fa9c852bd467f125f56eb17c37b",
+      "13e_session_updates": "9b885a3e06bc8f98d388b2bb092c62aabf7b8999b206cbb751e725b9223379c6",
+      "13f_storage": "3fa77b506d9eebcb6223dbdc9764024f3a5bb53a5fbdf6790539adf289ff4488",
+      "13g_storage_prune": "686b6fd1f6dff797a9ecc299185ddb0ea63b7174b6e8ad7de27de08010bdae68"
+    }
+  }
+}

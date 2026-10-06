@@ -1,13 +1,23 @@
 {
   "lesson": "05_home",
-  "english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+  "english_sha256": "df01cfbd41c345bfed5ea9e8afa738a1d5dd9ffc534f6157b02218ccb45e3ee2",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Core, Data and Tools rows follow the visible left-to-right module order; all other scene translations retained.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac"
   },
   "language": "zh-CN",
   "title": "Home界面与导航",
@@ -21,9 +31,9 @@
   "prerequisite": "安装spaCR并打开桌面应用程序。",
   "scenes": [
     "Home是您的起点。点击一个磁贴打开模块，或使用左侧的侧边栏。点击侧边栏中的Home即可回到这里。Core、Data、Tools和Assays选项卡帮助您找到想要完成的任务。",
-    "对于显微镜图像，先用Mask勾勒出对象轮廓，再用Measure提取它们的特征和裁剪图像。Annotate让您为示例对象添加标签，Classify则从这些标签中学习，为更多对象打分。Map Barcodes读取测序数据。Regression把得到的表型分数与向导计数结合起来，寻找关联。",
-    "Data是导入文件和检查结果的地方。如果您已有图像、掩膜或测量表，Import会把它们导入其他模块可以读取的项目。实验之前，Experiment Design用于规划板布局；实验之后，QC显示记录的质量检查，Run Compare则把两次运行并排比较。",
-    "Tools汇集了可动手操作的编辑器和浏览器。在Make Masks中可以修正掩膜，也可以从这里打开Cellpose Workbench。Align and Stitch把相互重叠的图像块拼接成一张图。有了测量数据后，可以用Image UMAP、Gate Editor和Graph Builder来探索和绘图。每个模块的工具栏都会打开与之相关的工具。",
+    "从左到右查看 Core 磁贴。 对于显微镜图像，先用Mask勾勒出对象轮廓，再用Measure提取它们的特征和裁剪图像。Annotate让您为示例对象添加标签，Classify则从这些标签中学习，为更多对象打分。Map Barcodes读取测序数据。Regression把得到的表型分数与向导计数结合起来，寻找关联。",
+    "从左到右查看 Data 磁贴。Import 将现有图像、掩膜或测量表导入项目。Embeddings 将对象裁剪图像转换为用于比较的数值特征向量。Run Compare 并排显示两次运行。Experiment Design 规划孔板布局。Power / Design 在不同细胞数和孔数假设下模拟检出情况，帮助规划实验。Dose-Response 拟合浓度与响应曲线，并显示估计值、区间和拟合警告。QC 显示已记录的质量检查。打开各模块的教程，了解其输入和后续步骤。",
+    "从左到右查看 Tools 磁贴。Make Masks 可编辑掩膜并打开 Cellpose Workbench。Align and Stitch 拼接相互重叠的图像块。Image UMAP 在降维视图中探索对象裁剪图像。Gate Editor 根据测量特征的数值范围选择组。Graph Builder 绘制测量结果。各模块的工具栏可打开其相关工具。",
     "打开 Assays 查找特定生物的工作流程。Toxoplasma 会打开它的检测菜单，例如噬斑分析或宿主–病原体测量。按照所选检测的教程准备其图像、掩膜和测量输入。",
     "打开Classify，使用Classifier family选择输入类型。对象图像请选择Computer Vision，已测量的特征列请选择Tabular Machine Learning。链接的教程会带您完成每一类方法的训练、评估和打分。",
     "模型训练好之后，Classify的工具栏可以帮助您审视它。Classifier Evaluation显示模型在预留数据上的表现，Explain CV Model和Activation显示是什么驱动了它的判断，Training Runs比较训练历史，Feature Explorer则对区分各组的特征进行排序。把指针悬停在图标上即可看到名称。",

@@ -1,23 +1,33 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
+  "english_sha256": "03a3a6fda412c43682c96bba3f1e6836dabd3cabb2df66c0022251d0355c0f12",
   "review": {
     "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
     "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "scope": "Opening scene uses Input and Experiment, Source and Load test data with an already-loaded example; sixteen other scene translations retained.",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-30",
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+      "date": "2026-10-05",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
-      "listening_review": false
+      "listening_review": false,
+      "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
     },
-    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
+    "previous_english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819"
   },
   "language": "it",
   "title": "Measure: estrarre caratteristiche e ritagli degli oggetti",
@@ -29,7 +39,7 @@
   ],
   "prerequisite": "Usa gli output uniti di Mask oppure scegli Load test data in Measure. L’esempio fornisce sedici campi con i piani di intensità 0–3 e le maschere di cellule, nuclei e patogeni nei piani 4, 5 e 6.",
   "scenes": [
-    "Da Home, apri Measure. Parti da immagini che hanno già le maschere degli oggetti. Measure estrae caratteristiche come area e intensità, abbina oggetti correlati e può salvare ritagli dei singoli oggetti per Annotate e Classify.",
+    "Da Home, apri Measure. In Input and Experiment, usa Source per selezionare la cartella unita contenente immagini e maschere degli oggetti, oppure fai clic su Load test data. Qui l’esempio è già caricato. Measure estrae caratteristiche come area e intensità, associa oggetti correlati e può salvare ritagli degli oggetti per Annotate e Classify.",
     "Fai clic su Load test data e attendi il caricamento dell’esempio, oppure seleziona un tuo progetto unito. Controlla l’assegnazione dei piani: questo esempio ha quattro canali di intensità seguiti dalle maschere di cellule, nuclei e patogeni nei piani quattro, cinque e sei. Quando preme Run, Measure confronta questi piani di maschera con il layout salvato per la cartella; se non coincidono, propone Use stored image layout e le chiede di rivedere la mappatura e rieseguire.",
     "Per esaminare questi ritagli di esempio a sedici bit, attiva Normalize prima di aprire Live. Così l’anteprima è più leggibile. Ricorda che questa impostazione principale influisce anche sui ritagli salvati; la disattiveremo prima di questa esecuzione in batch.",
     "Attiva Live e scegli un campo. Esamina i ritagli degli oggetti e le relazioni tra le loro maschere. Scorri le categorie e ingrandisci l’anteprima se serve per vedere bene i bordi.",

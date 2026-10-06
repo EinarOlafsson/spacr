@@ -1,23 +1,33 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
+  "english_sha256": "03a3a6fda412c43682c96bba3f1e6836dabd3cabb2df66c0022251d0355c0f12",
   "review": {
     "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
     "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "scope": "Opening scene uses Input and Experiment, Source and Load test data with an already-loaded example; sixteen other scene translations retained.",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-30",
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+      "date": "2026-10-05",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
-      "listening_review": false
+      "listening_review": false,
+      "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
     },
-    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
+    "previous_english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819"
   },
   "language": "de",
   "title": "Measure: Objektmerkmale und Ausschnitte extrahieren",
@@ -29,7 +39,7 @@
   ],
   "prerequisite": "Verwenden Sie die zusammengeführten Ausgaben von Mask oder wählen Sie in Measure Load test data. Das Beispiel liefert sechzehn Bildfelder mit den Intensitätsebenen 0–3 sowie Zell-, Kern- und Pathogenmasken in den Ebenen 4, 5 und 6.",
   "scenes": [
-    "Öffnen Sie von Home aus Measure. Beginnen Sie mit Bildern, die bereits Objektmasken haben. Measure extrahiert Merkmale wie Fläche und Intensität, ordnet zusammengehörige Objekte einander zu und kann einzelne Objektausschnitte für Annotate und Classify speichern.",
+    "Öffnen Sie Measure über Home. Wählen Sie unter Input and Experiment mit Source den zusammengeführten Ordner mit Ihren Bildern und Objektmasken aus, oder klicken Sie auf Load test data. Hier ist das Beispiel bereits geladen. Measure extrahiert Merkmale wie Fläche und Intensität, ordnet zusammengehörige Objekte einander zu und kann Objektausschnitte für Annotate und Classify speichern.",
     "Klicken Sie auf Load test data und warten Sie, bis das Beispiel geladen ist, oder wählen Sie Ihr eigenes zusammengeführtes Projekt. Prüfen Sie die Ebenenzuordnung: Dieses Beispiel hat vier Intensitätskanäle, gefolgt von Zell-, Kern- und Pathogenmasken in den Ebenen 4, 5 und 6. Wenn Sie Run drücken, vergleicht Measure diese Maskenebenen mit dem für den Ordner gespeicherten Layout; stimmen sie nicht überein, bietet es Use stored image layout an und bittet Sie, die Zuordnung zu prüfen und erneut zu starten.",
     "Um diese 16-Bit-Beispielausschnitte zu prüfen, schalten Sie Normalize ein, bevor Sie Live öffnen. So ist die Vorschau besser zu erkennen. Denken Sie daran, dass diese Haupteinstellung auch gespeicherte Ausschnitte beeinflusst; wir schalten sie vor diesem Batch-Lauf wieder aus.",
     "Schalten Sie Live ein und wählen Sie ein Bildfeld. Prüfen Sie die Objektausschnitte und die Beziehungen zwischen ihren Masken. Blättern Sie durch die Kategorien und vergrößern Sie die Vorschau bei Bedarf, um die Grenzen deutlich zu sehen.",

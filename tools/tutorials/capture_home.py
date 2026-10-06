@@ -395,8 +395,15 @@ def record_storage(window, capture, settle):
             proof["question"] = [box.windowTitle(), box.text(), box.informativeText()]
             capture("13g_storage_prune")
             asked.append(box)
-            cancel = [b for b in box.buttons() if box.buttonRole(b) == QMessageBox.RejectRole]
-            (cancel[0] if cancel else box.escapeButton()).click()
+            cancel = [b for b in box.buttons()
+                      if box.buttonRole(b) in (QMessageBox.RejectRole, QMessageBox.NoRole)]
+            button = cancel[0] if cancel else box.escapeButton()
+            if button is None:
+                box.reject()
+                proof['cancel_method'] = 'dismiss confirmation without accepting deletion'
+            else:
+                button.click()
+                proof['cancel_method'] = 'native No or Cancel button'
         QTimer.singleShot(300, answer)
         storage.prune()
         import time

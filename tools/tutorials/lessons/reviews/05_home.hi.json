@@ -1,13 +1,23 @@
 {
   "lesson": "05_home",
-  "english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+  "english_sha256": "df01cfbd41c345bfed5ea9e8afa738a1d5dd9ffc534f6157b02218ccb45e3ee2",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Core, Data and Tools rows follow the visible left-to-right module order; all other scene translations retained.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac"
   },
   "language": "hi",
   "title": "Home स्क्रीन और नेविगेशन",
@@ -21,9 +31,9 @@
   "prerequisite": "spaCR इंस्टॉल करें और डेस्कटॉप ऐप्लिकेशन खोलें।",
   "scenes": [
     "Home आपका शुरुआती बिंदु है। कोई मॉड्यूल खोलने के लिए किसी टाइल पर क्लिक करें, या बाईं ओर की साइडबार इस्तेमाल करें। यहाँ लौटने के लिए साइडबार में Home पर क्लिक करें। Core, Data, Tools और Assays टैब आपको वह काम खोजने में मदद करते हैं जो आप करना चाहते हैं।",
-    "माइक्रोस्कोप इमेज के लिए पहले Mask से वस्तुओं की रूपरेखा बनाएँ, फिर Measure से उनकी विशेषताएँ और क्रॉप निकालें। Annotate से आप उदाहरण वस्तुओं पर लेबल लगा सकते हैं, और Classify उन लेबल से सीखकर और वस्तुओं को स्कोर देता है। Map Barcodes सीक्वेंसिंग डेटा पढ़ता है। Regression मिलने वाले फ़ीनोटाइप स्कोर और गाइड गिनती को मिलाकर संबंध खोजता है।",
-    "Data में फ़ाइलें आती हैं और परिणाम जाँचे जाते हैं। अगर आपके पास पहले से इमेज, मास्क या माप की तालिकाएँ हैं, तो Import उन्हें ऐसे प्रोजेक्ट में लाता है जिसे बाकी मॉड्यूल पढ़ सकें। प्रयोग से पहले Experiment Design आपकी प्लेटों की रूपरेखा बनाता है; बाद में QC दर्ज की गई गुणवत्ता जाँच दिखाता है और Run Compare दो रन को साथ-साथ रखता है।",
-    "Tools में काम करने वाले एडिटर और एक्सप्लोरर हैं। Make Masks में आप मास्क सुधारते हैं, और वहीं से Cellpose Workbench भी खुलता है। Align and Stitch एक-दूसरे पर चढ़ी इमेज टाइलों को जोड़कर एक चित्र बनाता है। माप मिल जाने के बाद Image UMAP, Gate Editor और Graph Builder से आप उन्हें खोज और प्लॉट कर सकते हैं। हर मॉड्यूल का टूलबार उसके संबंधित टूल खोलता है।",
+    "Core की टाइलें बाएँ से दाएँ पढ़ें। माइक्रोस्कोप इमेज के लिए पहले Mask से वस्तुओं की रूपरेखा बनाएँ, फिर Measure से उनकी विशेषताएँ और क्रॉप निकालें। Annotate से आप उदाहरण वस्तुओं पर लेबल लगा सकते हैं, और Classify उन लेबल से सीखकर और वस्तुओं को स्कोर देता है। Map Barcodes सीक्वेंसिंग डेटा पढ़ता है। Regression मिलने वाले फ़ीनोटाइप स्कोर और गाइड गिनती को मिलाकर संबंध खोजता है।",
+    "Data की टाइलें बाएँ से दाएँ पढ़ें। Import मौजूदा इमेज, मास्क या मापन तालिकाओं को प्रोजेक्ट में लाता है। Embeddings तुलना के लिए ऑब्जेक्ट क्रॉप को संख्यात्मक फ़ीचर वेक्टर में बदलता है। Run Compare दो रन को साथ-साथ दिखाता है। Experiment Design आपकी प्लेटों की योजना बनाता है। Power / Design प्रयोग की योजना बनाने में मदद के लिए कोशिकाओं और वेल की संख्या संबंधी अलग-अलग मान्यताओं के तहत पहचान का सिमुलेशन करता है। Dose-Response सांद्रता-प्रतिक्रिया वक्र फिट करता है और उनके अनुमान, अंतराल तथा फिट संबंधी चेतावनियाँ दिखाता है। QC दर्ज की गई गुणवत्ता जाँच दिखाता है। हर मॉड्यूल के इनपुट और अगले चरणों के लिए उसका ट्यूटोरियल खोलें।",
+    "Tools की टाइलें बाएँ से दाएँ पढ़ें। Make Masks में मास्क संपादित किए जा सकते हैं और Cellpose Workbench खोला जा सकता है। Align and Stitch ओवरलैप करने वाली इमेज टाइलों को जोड़ता है। Image UMAP कम आयामों वाले दृश्य में ऑब्जेक्ट क्रॉप का अन्वेषण करता है। Gate Editor मापे गए फ़ीचर के मानों की सीमाओं से समूह चुनता है। Graph Builder मापन परिणामों के ग्राफ बनाता है। हर मॉड्यूल का टूलबार उससे संबंधित टूल खोलता है।",
     "जीव-विशेष वर्कफ़्लो के लिए Assays खोलें। Toxoplasma अपना परीक्षण मेन्यू खोलता है, जैसे प्लाक विश्लेषण या मेज़बान–रोगाणु माप। चुने गए परीक्षण के ट्यूटोरियल का पालन करके उसकी इमेज, मास्क और माप इनपुट तैयार करें।",
     "Classify खोलें और अपना इनपुट चुनने के लिए Classifier family इस्तेमाल करें। वस्तुओं की इमेज के लिए Computer Vision चुनें, या मापी गई विशेषताओं के कॉलम के लिए Tabular Machine Learning चुनें। लिंक किए गए ट्यूटोरियल हर परिवार के लिए प्रशिक्षण, मूल्यांकन और स्कोरिंग समझाते हैं।",
     "मॉडल प्रशिक्षित हो जाने के बाद Classify का टूलबार उसे परखने में मदद करता है। Classifier Evaluation दिखाता है कि अलग रखे गए डेटा पर उसने कैसा किया, Explain CV Model और Activation दिखाते हैं कि उसके फ़ैसले किन बातों से तय होते हैं, Training Runs प्रशिक्षण के इतिहास की तुलना करता है, और Feature Explorer उन विशेषताओं को क्रम देता है जो आपके समूहों को अलग करती हैं। किसी आइकन का नाम देखने के लिए उस पर माउस रखें।",

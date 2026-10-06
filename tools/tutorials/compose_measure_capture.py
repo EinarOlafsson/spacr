@@ -43,7 +43,11 @@ def compose(stage=DEFAULT_STAGE, *, preview=None, batch=None, project=None,
         raise ValueError('The native batch must have completed successfully')
     output = inspect_project(project, batch, recorded_project=recorded_project,
                              preview_capture=preview if recorded_project is not None else None)
-    if output != receipt['independent_output_checks']:
+    recorded_output = receipt['independent_output_checks']
+    batch_output = {key: value for key, value in output.items() if key != 'live_grid_counts'}
+    recorded_batch_output = {key: value for key, value in recorded_output.items()
+                             if key != 'live_grid_counts'}
+    if batch_output != recorded_batch_output:
         raise ValueError('The previously checked batch outputs changed')
     for published, digest in proof['source_hashes'].items():
         stem = Path(published).stem
@@ -77,6 +81,11 @@ def compose(stage=DEFAULT_STAGE, *, preview=None, batch=None, project=None,
                  ('templates', templates, {key: 'tpl_' + key for key in
                     ('31_template_save_name', '33_templates_imported', '35_templates_renamed', '37_change_shortcuts')}, 'measure'),
                  ('ram', ram, {'batch_21_ram_guard': 'batch_21_ram_guard'}, 'home')]
+        lesson = _read(REPO / 'tools/tutorials/lessons/08_measure.json', hashes)
+        required = {scene['visual'] for scene in lesson['scenes']}
+        plans = [(prefix, root, {key: name for key, name in names.items()
+                                if name in required}, module)
+                 for prefix, root, names, module in plans]
     frames, sources = {}, []
     for prefix, root, names, module in plans:
         provenance = _read(root / 'provenance.json', hashes)
@@ -92,7 +101,6 @@ def compose(stage=DEFAULT_STAGE, *, preview=None, batch=None, project=None,
             frame['source_capture'] = str(root)
             frames[destination_key] = frame
     if current:
-        lesson = _read(REPO / 'tools/tutorials/lessons/08_measure.json', hashes)
         if set(frames) != {scene['visual'] for scene in lesson['scenes']}:
             raise ValueError('Current composition must provide every exact Measure lesson visual')
     for path, digest in hashes.items():
@@ -104,6 +112,9 @@ def compose(stage=DEFAULT_STAGE, *, preview=None, batch=None, project=None,
                                               composition_only=True, app_source_modified=False))
     acceptance = {'accepted': True, 'scope': 'Visible preview controls plus verified full batch',
                   'preview': proof, 'independent_output_checks': output,
+                  'recorded_preview_grid_counts': recorded_output['live_grid_counts'],
+                  'current_preview_grid_counts': output['live_grid_counts'],
+                  'complete_batch_output_preserved': True,
                   'batch_acceptance': receipt['batch_acceptance'], 'source_hashes': hashes,
                   'offscreen_crop_dialog_scenes_included': False,
                   'application_layout_fixed': False, 'biological_validation': False,

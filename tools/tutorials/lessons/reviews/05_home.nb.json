@@ -1,13 +1,23 @@
 {
   "lesson": "05_home",
-  "english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+  "english_sha256": "df01cfbd41c345bfed5ea9e8afa738a1d5dd9ffc534f6157b02218ccb45e3ee2",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Core, Data and Tools rows follow the visible left-to-right module order; all other scene translations retained.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac"
   },
   "language": "nb",
   "title": "Home-skjermen og navigering",
@@ -21,9 +31,9 @@
   "prerequisite": "Installer spaCR og åpne skrivebordsprogrammet.",
   "scenes": [
     "Home er utgangspunktet ditt. Klikk på en flis for å åpne en modul, eller bruk sidefeltet til venstre. Klikk på Home i sidefeltet for å komme tilbake hit. Fanene Core, Data, Tools og Assays hjelper deg å finne oppgaven du vil utføre.",
-    "For mikroskopbilder begynner du med Mask for å avgrense objekter, og deretter Measure for å hente ut egenskapene og utsnittene deres. Med Annotate merker du eksempelobjekter, og Classify lærer av merkene for å gi flere objekter en poengsum. Map Barcodes leser sekvenseringsdata. Regression kombinerer de resulterende fenotypepoengene med guide-tellingene for å finne sammenhenger.",
-    "I Data kommer filer inn og resultater kontrolleres. Hvis du allerede har bilder, masker eller måletabeller, tar Import dem inn i et prosjekt som de andre modulene kan lese. Før et eksperiment planlegger Experiment Design platene dine; etterpå viser QC de registrerte kvalitetskontrollene, og Run Compare setter to kjøringer side om side.",
-    "Tools samler de praktiske redigeringsverktøyene og utforskerne. I Make Masks retter du masker, og derfra åpnes også Cellpose Workbench. Align and Stitch setter sammen overlappende bildefliser til ett bilde. Når du har målinger, kan du utforske og plotte dem med Image UMAP, Gate Editor og Graph Builder. Verktøylinjen i hver modul åpner de tilhørende verktøyene.",
+    "Les Core-flisene fra venstre mot høyre. For mikroskopbilder begynner du med Mask for å avgrense objekter, og deretter Measure for å hente ut egenskapene og utsnittene deres. Med Annotate merker du eksempelobjekter, og Classify lærer av merkene for å gi flere objekter en poengsum. Map Barcodes leser sekvenseringsdata. Regression kombinerer de resulterende fenotypepoengene med guide-tellingene for å finne sammenhenger.",
+    "Les Data-flisene fra venstre mot høyre. Import henter eksisterende bilder, masker eller måletabeller inn i et prosjekt. Embeddings omdanner objektutsnitt til numeriske egenskapsvektorer for sammenligning. Run Compare viser to kjøringer side om side. Experiment Design planlegger platene dine. Power / Design simulerer deteksjon med ulike antakelser om antall celler og brønner for å hjelpe med forsøksplanleggingen. Dose-Response tilpasser konsentrasjons-responskurver og viser estimater, intervaller og advarsler om tilpasningen. QC viser de registrerte kvalitetskontrollene. Åpne veiledningen til hvert modul for å se inndata og neste trinn.",
+    "Les Tools-flisene fra venstre mot høyre. Make Masks lar deg redigere masker og åpner Cellpose Workbench. Align and Stitch setter sammen overlappende bildefliser. Image UMAP utforsker objektutsnitt i en visning med redusert dimensjonalitet. Gate Editor velger grupper ut fra intervaller av målte egenskaper. Graph Builder plotter måleresultater. Verktøylinjen i hvert modul åpner de tilknyttede verktøyene.",
     "Åpne Assays for arbeidsflyter knyttet til en organisme. Toxoplasma åpner sin analysemeny, for eksempel plakkanalyse eller vert–patogen-målinger. Følg veiledningen for den valgte analysen for å klargjøre bildene, maskene og måleinndataene.",
     "Åpne Classify og velg inndata med Classifier family. Velg Computer Vision for objektbilder eller Tabular Machine Learning for kolonner med målte egenskaper. De lenkede veiledningene tar deg gjennom trening, evaluering og poengsetting for hver familie.",
     "Når en modell er trent, hjelper verktøylinjen i Classify deg med å granske den. Classifier Evaluation viser hvordan den gjorde det på tilbakeholdte data, Explain CV Model og Activation viser hva som styrer avgjørelsene, Training Runs sammenligner treningshistorikk, og Feature Explorer rangerer egenskapene som skiller gruppene dine. Hold pekeren over et ikon for å se navnet.",

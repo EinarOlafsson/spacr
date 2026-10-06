@@ -1,23 +1,33 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
+  "english_sha256": "03a3a6fda412c43682c96bba3f1e6836dabd3cabb2df66c0022251d0355c0f12",
   "review": {
     "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
     "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "scope": "Opening scene uses Input and Experiment, Source and Load test data with an already-loaded example; sixteen other scene translations retained.",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-30",
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+      "date": "2026-10-05",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
-      "listening_review": false
+      "listening_review": false,
+      "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
     },
-    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
+    "previous_english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819"
   },
   "language": "hi",
   "title": "Measure: वस्तुओं की विशेषताएँ और क्रॉप निकालें",
@@ -29,7 +39,7 @@
   ],
   "prerequisite": "Mask के मिले हुए आउटपुट इस्तेमाल करें, या Measure में Load test data चुनें। उदाहरण में सोलह फ़ील्ड हैं, जिनमें तीव्रता प्लेन 0–3 और प्लेन 4, 5 और 6 में कोशिका, नाभिक और रोगजनक मास्क हैं।",
   "scenes": [
-    "Home से Measure खोलें। ऐसी इमेज से शुरू करें जिनके वस्तु मास्क पहले से हों। Measure क्षेत्रफल और तीव्रता जैसी विशेषताएँ निकालता है, संबंधित वस्तुओं को जोड़ता है, और Annotate तथा Classify के लिए अलग-अलग वस्तुओं के क्रॉप सहेज सकता है।",
+    "Home से Measure खोलें। Input and Experiment में Source से वह मर्ज किया हुआ फ़ोल्डर चुनें जिसमें आपकी इमेज और ऑब्जेक्ट मास्क हैं, या Load test data पर क्लिक करें। यहाँ उदाहरण पहले से लोड है। Measure क्षेत्रफल और तीव्रता जैसे फ़ीचर निकालता है, संबंधित ऑब्जेक्ट को जोड़ता है और Annotate तथा Classify के लिए ऑब्जेक्ट क्रॉप सहेज सकता है।",
     "Load test data पर क्लिक करें और उदाहरण लोड होने तक प्रतीक्षा करें, या अपना मिला हुआ प्रोजेक्ट चुनें। प्लेन मैपिंग जाँचें: इस उदाहरण में चार तीव्रता चैनल हैं, उसके बाद प्लेन चार, पाँच और छह में कोशिका, नाभिक और रोगजनक मास्क हैं। Run दबाने पर Measure इन मास्क प्लेन की तुलना फ़ोल्डर के लिए सहेजे गए लेआउट से करता है; यदि वे मेल नहीं खाते, तो यह Use stored image layout का विकल्प देता है और आपसे मैपिंग जाँचकर फिर से चलाने को कहता है।",
     "इन सोलह-बिट उदाहरण क्रॉप को देखने के लिए Live खोलने से पहले Normalize चालू करें। इससे पूर्वावलोकन देखना आसान होता है। याद रखें कि यह मुख्य सेटिंग सहेजे गए क्रॉप पर भी असर डालती है; इस बैच रन से पहले हम इसे बंद कर देंगे।",
     "Live चालू करें और एक फ़ील्ड चुनें। वस्तुओं के क्रॉप और उनके मास्क के आपसी संबंध देखें। श्रेणियों में स्क्रॉल करें और सीमाएँ साफ़ देखने के लिए ज़रूरत हो तो पूर्वावलोकन बड़ा करें।",

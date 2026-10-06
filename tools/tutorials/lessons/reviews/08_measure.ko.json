@@ -1,23 +1,33 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
+  "english_sha256": "03a3a6fda412c43682c96bba3f1e6836dabd3cabb2df66c0022251d0355c0f12",
   "review": {
     "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
     "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "scope": "Opening scene uses Input and Experiment, Source and Load test data with an already-loaded example; sixteen other scene translations retained.",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-30",
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+      "date": "2026-10-05",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
-      "listening_review": false
+      "listening_review": false,
+      "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
     },
-    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
+    "previous_english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819"
   },
   "language": "ko",
   "title": "Measure: 객체 특징과 크롭 추출",
@@ -29,7 +39,7 @@
   ],
   "prerequisite": "Mask의 병합된 출력을 쓰거나 Measure에서 Load test data를 선택하세요. 예제에는 강도 평면 0–3과 평면 4, 5, 6의 세포, 핵, 병원체 마스크가 있는 시야 16개가 들어 있습니다.",
   "scenes": [
-    "Home에서 Measure를 여세요. 이미 객체 마스크가 있는 이미지로 시작하세요. Measure는 면적과 강도 같은 특징을 추출하고, 관련된 객체를 짝지으며, Annotate와 Classify에 쓸 개별 객체 크롭을 저장할 수 있습니다.",
+    "Home에서 Measure를 엽니다. Input and Experiment 아래의 Source에서 이미지와 객체 마스크가 포함된 병합 폴더를 선택하거나 Load test data를 클릭합니다. 여기서는 예제가 이미 로드되어 있습니다. Measure는 면적과 강도 같은 특징을 추출하고 관련 객체를 연결하며 Annotate와 Classify에 사용할 객체 크롭을 저장할 수 있습니다.",
     "Load test data를 클릭하고 예제가 불러와질 때까지 기다리거나, 자신의 병합된 프로젝트를 고르세요. 평면 매핑을 확인하세요. 이 예제는 강도 채널 네 개 다음에 평면 4, 5, 6에 세포, 핵, 병원체 마스크가 이어집니다. Run을 누르면 Measure가 이 마스크 평면을 폴더에 저장된 레이아웃과 비교합니다. 일치하지 않으면 Use stored image layout을 제안하고, 매핑을 검토한 뒤 다시 실행하도록 요청합니다.",
     "이 16비트 예제 크롭을 확인하려면 Live를 열기 전에 Normalize를 켜세요. 그러면 미리 보기가 잘 보입니다. 이 주요 설정은 저장되는 크롭에도 영향을 주므로, 이번 배치 실행 전에 다시 끌 것입니다.",
     "Live를 켜고 시야를 고르세요. 객체 크롭과 마스크 사이의 관계를 확인하세요. 범주를 스크롤하고, 경계가 잘 보이도록 필요하면 미리 보기를 확대하세요.",

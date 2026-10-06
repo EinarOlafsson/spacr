@@ -15,8 +15,8 @@
   "prerequisite": "Use the merged outputs from Mask, or choose Load test data in Measure. The example supplies sixteen fields with intensity planes 0–3 and cell, nucleus and pathogen masks in planes 4, 5 and 6.",
   "scenes": [
     {
-      "visual": "preview_01_module",
-      "narration": "From Home, open Measure. Start with images that already have object masks. Measure extracts features such as area and intensity, pairs related objects, and can save individual object crops for Annotate and Classify.",
+      "visual": "preview_03_data_ready",
+      "narration": "From Home, open Measure. Under Input and Experiment, use Source to select the merged folder containing your images and object masks, or click Load test data. Here the example is already loaded. Measure extracts features such as area and intensity, pairs related objects, and can save object crops for Annotate and Classify.",
       "related_lessons": [
         "07_mask",
         "43_illumination",

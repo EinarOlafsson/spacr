@@ -1,13 +1,23 @@
 {
   "lesson": "05_home",
-  "english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+  "english_sha256": "df01cfbd41c345bfed5ea9e8afa738a1d5dd9ffc534f6157b02218ccb45e3ee2",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Core, Data and Tools rows follow the visible left-to-right module order; all other scene translations retained.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac"
   },
   "language": "ko",
   "title": "Home 화면과 탐색",
@@ -21,9 +31,9 @@
   "prerequisite": "spaCR을 설치하고 데스크톱 애플리케이션을 여세요.",
   "scenes": [
     "Home이 출발점입니다. 타일을 클릭해 모듈을 열거나 왼쪽 사이드바를 사용하세요. 사이드바에서 Home을 클릭하면 여기로 돌아옵니다. Core, Data, Tools, Assays 탭이 원하는 작업을 찾도록 도와줍니다.",
-    "현미경 이미지라면 먼저 Mask로 객체의 윤곽을 잡고, 이어서 Measure로 특징과 잘라낸 이미지를 추출하세요. Annotate로 예시 객체에 라벨을 붙이면 Classify가 그 라벨로 학습해 더 많은 객체에 점수를 매깁니다. Map Barcodes는 시퀀싱 데이터를 읽습니다. Regression은 이렇게 얻은 표현형 점수와 가이드 카운트를 결합해 연관성을 찾습니다.",
-    "Data는 파일을 들여오고 결과를 확인하는 곳입니다. 이미지, 마스크, 측정 테이블이 이미 있다면 Import가 다른 모듈이 읽을 수 있는 프로젝트로 가져옵니다. 실험 전에는 Experiment Design으로 플레이트를 배치하고, 실험 후에는 QC가 기록된 품질 검사를 보여 주며 Run Compare가 두 실행을 나란히 비교합니다.",
-    "Tools에는 직접 다루는 편집기와 탐색기가 모여 있습니다. Make Masks에서는 마스크를 수정하고, 여기서 Cellpose Workbench도 열 수 있습니다. Align and Stitch는 겹치는 이미지 타일을 하나의 그림으로 이어 붙입니다. 측정값이 생기면 Image UMAP, Gate Editor, Graph Builder로 탐색하고 그래프를 그릴 수 있습니다. 각 모듈의 도구 모음은 관련 도구를 엽니다.",
+    "Core 타일을 왼쪽에서 오른쪽으로 살펴봅니다. 현미경 이미지라면 먼저 Mask로 객체의 윤곽을 잡고, 이어서 Measure로 특징과 잘라낸 이미지를 추출하세요. Annotate로 예시 객체에 라벨을 붙이면 Classify가 그 라벨로 학습해 더 많은 객체에 점수를 매깁니다. Map Barcodes는 시퀀싱 데이터를 읽습니다. Regression은 이렇게 얻은 표현형 점수와 가이드 카운트를 결합해 연관성을 찾습니다.",
+    "Data 타일을 왼쪽에서 오른쪽으로 살펴봅니다. Import는 기존 이미지, 마스크 또는 측정 표를 프로젝트로 가져옵니다. Embeddings는 비교를 위해 객체 크롭을 수치 특징 벡터로 변환합니다. Run Compare는 두 실행을 나란히 보여 줍니다. Experiment Design은 플레이트 배치를 계획합니다. Power / Design은 다양한 세포 수와 웰 수 가정에서 검출을 시뮬레이션하여 실험 계획을 돕습니다. Dose-Response는 농도와 반응 곡선을 적합하고 추정값, 구간 및 적합 경고를 보여 줍니다. QC는 기록된 품질 검사를 보여 줍니다. 각 모듈의 입력과 다음 단계는 해당 튜토리얼을 열어 확인하세요.",
+    "Tools 타일을 왼쪽에서 오른쪽으로 살펴봅니다. Make Masks에서 마스크를 편집하고 Cellpose Workbench를 열 수 있습니다. Align and Stitch는 겹치는 이미지 타일을 연결합니다. Image UMAP은 차원을 줄인 보기에서 객체 크롭을 탐색합니다. Gate Editor는 측정된 특징의 값 범위로 그룹을 선택합니다. Graph Builder는 측정 결과를 그래프로 그립니다. 각 모듈의 도구 모음에서 관련 도구를 열 수 있습니다.",
     "생물별 워크플로를 찾으려면 Assays를 여세요. Toxoplasma를 열면 플라크 분석이나 숙주–병원체 측정 같은 분석 메뉴가 나옵니다. 선택한 분석의 튜토리얼을 따라 이미지, 마스크, 측정 입력을 준비하세요.",
     "Classify를 열고 Classifier family로 입력을 고르세요. 객체 이미지에는 Computer Vision을, 측정된 특징 열에는 Tabular Machine Learning을 선택하세요. 연결된 튜토리얼이 각 방식의 학습, 평가, 점수 매기기를 안내합니다.",
     "모델을 학습시킨 뒤에는 Classify 도구 모음으로 모델을 점검할 수 있습니다. Classifier Evaluation은 따로 남겨 둔 데이터에서의 성능을 보여 주고, Explain CV Model과 Activation은 판단을 이끄는 요인을 보여 줍니다. Training Runs는 학습 기록을 비교하고, Feature Explorer는 그룹을 구분하는 특징의 순위를 매깁니다. 아이콘에 포인터를 올리면 이름이 표시됩니다.",

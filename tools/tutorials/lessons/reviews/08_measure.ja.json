@@ -1,23 +1,33 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
+  "english_sha256": "03a3a6fda412c43682c96bba3f1e6836dabd3cabb2df66c0022251d0355c0f12",
   "review": {
     "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
     "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "scope": "Opening scene uses Input and Experiment, Source and Load test data with an already-loaded example; sixteen other scene translations retained.",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-30",
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+      "date": "2026-10-05",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
-      "listening_review": false
+      "listening_review": false,
+      "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
     },
-    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
+    "previous_english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819"
   },
   "language": "ja",
   "title": "Measure：物体の特徴量と切り出し画像を抽出する",
@@ -29,7 +39,7 @@
   ],
   "prerequisite": "Maskの結合出力を使うか、MeasureでLoad test dataを選びます。この例には十六の視野があり、強度の面0～3と、面4、5、6に細胞、核、病原体のマスクが入っています。",
   "scenes": [
-    "HomeからMeasureを開きます。すでに物体のマスクがある画像から始めます。Measureは面積や強度などの特徴量を抽出し、関連する物体を対応付け、AnnotateとClassifyのために個々の物体の切り出し画像を保存できます。",
+    "Home から Measure を開きます。Input and Experiment の Source で画像とオブジェクトマスクを含む統合フォルダーを選択するか、Load test data をクリックします。ここではすでに例を読み込んでいます。Measure は面積や輝度などの特徴を抽出し、関連するオブジェクトを対応付け、Annotate と Classify 用にオブジェクトの切り出し画像を保存できます。",
     "Load test dataをクリックして例が読み込まれるのを待つか、自分の結合済みプロジェクトを選びます。面の対応を確認します。この例では、四つの強度チャネルの後に、面四、五、六に細胞、核、病原体のマスクが続きます。 Runを押すと、Measureはこれらのマスクプレーンをフォルダーに保存されたレイアウトと比較します。一致しない場合はUse stored image layoutを提示し、マッピングを確認してから再実行するよう求めます。",
     "この十六ビットの例の切り出し画像を確認するには、Liveを開く前にNormalizeをオンにします。これでプレビューが見やすくなります。ただし、この主設定は保存される切り出し画像にも影響します。このバッチ実行の前にはオフに戻します。",
     "Liveをオンにして、視野を選びます。物体の切り出し画像と、マスク同士の関係を確認します。カテゴリーをスクロールし、必要ならプレビューを拡大して境界をはっきり見ます。",

@@ -1,23 +1,33 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
+  "english_sha256": "03a3a6fda412c43682c96bba3f1e6836dabd3cabb2df66c0022251d0355c0f12",
   "review": {
     "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
     "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "scope": "Opening scene uses Input and Experiment, Source and Load test data with an already-loaded example; sixteen other scene translations retained.",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-30",
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+      "date": "2026-10-05",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
-      "listening_review": false
+      "listening_review": false,
+      "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
     },
-    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
+    "previous_english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819"
   },
   "language": "pt-BR",
   "title": "Measure: extrair características e recortes de objetos",
@@ -29,7 +39,7 @@
   ],
   "prerequisite": "Use as saídas combinadas do Mask ou escolha Load test data no Measure. O exemplo traz dezesseis campos com os planos de intensidade 0–3 e as máscaras de células, núcleos e patógenos nos planos 4, 5 e 6.",
   "scenes": [
-    "Na tela Home, abra Measure. Comece com imagens que já tenham máscaras de objetos. O Measure extrai características como área e intensidade, associa objetos relacionados e pode salvar recortes individuais dos objetos para o Annotate e o Classify.",
+    "Em Home, abra Measure. Em Input and Experiment, use Source para selecionar a pasta mesclada que contém suas imagens e máscaras de objetos, ou clique em Load test data. Aqui o exemplo já está carregado. Measure extrai características como área e intensidade, associa objetos relacionados e pode salvar recortes de objetos para Annotate e Classify.",
     "Clique em Load test data e aguarde o exemplo carregar, ou selecione seu próprio projeto combinado. Confira o mapeamento de planos: este exemplo tem quatro canais de intensidade seguidos das máscaras de células, núcleos e patógenos nos planos quatro, cinco e seis. Ao pressionar Run, Measure compara esses planos de máscara com o layout salvo para a pasta; se não coincidirem, oferece Use stored image layout e pede que você revise o mapeamento e execute novamente.",
     "Para inspecionar estes recortes de exemplo de dezesseis bits, ative Normalize antes de abrir Live. Isso facilita ver a pré-visualização. Lembre-se de que essa configuração principal também afeta os recortes salvos; vamos desativá-la antes desta execução em lote.",
     "Ative Live e escolha um campo. Inspecione os recortes dos objetos e as relações entre as máscaras. Percorra as categorias e amplie a pré-visualização, se necessário, para ver bem as bordas.",

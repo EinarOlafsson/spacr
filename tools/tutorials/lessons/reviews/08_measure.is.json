@@ -1,23 +1,33 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
+  "english_sha256": "03a3a6fda412c43682c96bba3f1e6836dabd3cabb2df66c0022251d0355c0f12",
   "review": {
     "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
     "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "scope": "Opening scene uses Input and Experiment, Source and Load test data with an already-loaded example; sixteen other scene translations retained.",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-30",
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+      "date": "2026-10-05",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
-      "listening_review": false
+      "listening_review": false,
+      "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
     },
-    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
+    "previous_english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819"
   },
   "language": "is",
   "title": "Measure: dragðu út eiginleika og úrklipp hluta",
@@ -29,7 +39,7 @@
   ],
   "prerequisite": "Notaðu sameinað úttak frá Mask eða veldu Load test data í Measure. Dæmið inniheldur sextán sjónsvið með styrkleikalögum 0–3 og grímum fyrir frumur, kjarna og sýkla í lögum 4, 5 og 6.",
   "scenes": [
-    "Frá Home opnarðu Measure. Byrjaðu á myndum sem hafa þegar grímur fyrir hluti. Measure dregur út eiginleika eins og flatarmál og styrk, parar tengda hluti saman og getur vistað úrklipp einstakra hluta fyrir Annotate og Classify.",
+    "Opnaðu Measure frá Home. Undir Input and Experiment skaltu nota Source til að velja sameinaða möppu með myndunum þínum og grímum hluta, eða smella á Load test data. Hér hefur dæmið þegar verið hlaðið inn. Measure dregur út eiginleika eins og flatarmál og styrk, parar tengda hluti og getur vistað myndútskurði hluta fyrir Annotate og Classify.",
     "Smelltu á Load test data og bíddu þar til dæmið hefur hlaðist inn, eða veldu þitt eigið sameinaða verkefni. Athugaðu vörpun laganna: dæmið hefur fjórar styrkleikarásir og svo grímur fyrir frumur, kjarna og sýkla í lögum 4, 5 og 6. Þegar þú ýtir á Run ber Measure þessi grímulög saman við uppsetninguna sem er vistuð fyrir möppuna; ef þau stemma ekki býður það Use stored image layout og biður þig að yfirfara vörpunina og keyra aftur.",
     "Til að skoða þessi 16 bita dæmaúrklipp kveikirðu á Normalize áður en þú opnar Live. Þá er auðveldara að sjá forskoðunina. Mundu að þessi aðalstilling hefur líka áhrif á vistuð úrklipp; við slökkvum á henni fyrir þessa runukeyrslu.",
     "Kveiktu á Live og veldu sjónsvið. Skoðaðu úrklipp hlutanna og tengsl grímna þeirra. Flettu í gegnum flokkana og stækkaðu forskoðunina ef þörf er á til að sjá mörkin skýrt.",

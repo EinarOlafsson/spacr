@@ -1,13 +1,23 @@
 {
   "lesson": "05_home",
-  "english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+  "english_sha256": "df01cfbd41c345bfed5ea9e8afa738a1d5dd9ffc534f6157b02218ccb45e3ee2",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Core, Data and Tools rows follow the visible left-to-right module order; all other scene translations retained.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac"
   },
   "language": "pt-BR",
   "title": "Tela Home e navegação",
@@ -21,9 +31,9 @@
   "prerequisite": "Instale o spaCR e abra o aplicativo de desktop.",
   "scenes": [
     "A tela Home é o seu ponto de partida. Clique em um bloco para abrir um módulo ou use a barra lateral à esquerda. Clique em Home na barra lateral para voltar aqui. As abas Core, Data, Tools e Assays ajudam você a encontrar a tarefa que quer fazer.",
-    "Para imagens de microscópio, comece com Mask para contornar os objetos e depois use Measure para extrair suas características e recortes. Annotate permite rotular objetos de exemplo, e Classify aprende com esses rótulos para pontuar mais objetos. Map Barcodes lê dados de sequenciamento. Regression combina as pontuações de fenótipo resultantes com as contagens de guias para encontrar associações.",
-    "Data é onde os arquivos entram e os resultados são conferidos. Se você já tem imagens, máscaras ou tabelas de medições, Import as traz para um projeto que os outros módulos conseguem ler. Antes de um experimento, Experiment Design organiza suas placas; depois, QC mostra as verificações de qualidade registradas e Run Compare coloca duas execuções lado a lado.",
-    "Tools reúne os editores e exploradores práticos. Em Make Masks você corrige máscaras, e por ali também se abre o Cellpose Workbench. Align and Stitch junta blocos de imagem sobrepostos em uma única imagem. Quando você tem medições, Image UMAP, Gate Editor e Graph Builder permitem explorá-las e representá-las em gráficos. A barra de ferramentas de cada módulo abre suas ferramentas relacionadas.",
+    "Leia os blocos de Core da esquerda para a direita. Para imagens de microscópio, comece com Mask para contornar os objetos e depois use Measure para extrair suas características e recortes. Annotate permite rotular objetos de exemplo, e Classify aprende com esses rótulos para pontuar mais objetos. Map Barcodes lê dados de sequenciamento. Regression combina as pontuações de fenótipo resultantes com as contagens de guias para encontrar associações.",
+    "Leia os blocos de Data da esquerda para a direita. Import traz imagens, máscaras ou tabelas de medições existentes para um projeto. Embeddings transforma os recortes de objetos em vetores numéricos de características para comparação. Run Compare coloca duas execuções lado a lado. Experiment Design organiza suas placas. Power / Design simula a detecção com diferentes hipóteses sobre o número de células e poços para ajudar a planejar um experimento. Dose-Response ajusta curvas de concentração e resposta e mostra estimativas, intervalos e avisos de ajuste. QC mostra as verificações de qualidade registradas. Abra o tutorial de cada módulo para conhecer as entradas e os próximos passos.",
+    "Leia os blocos de Tools da esquerda para a direita. Make Masks permite editar máscaras e abre o Cellpose Workbench. Align and Stitch une blocos de imagens sobrepostos. Image UMAP explora recortes de objetos em uma visualização de dimensionalidade reduzida. Gate Editor seleciona grupos usando intervalos de características medidas. Graph Builder plota os resultados medidos. A barra de ferramentas de cada módulo abre suas ferramentas relacionadas.",
     "Abra Assays para fluxos de trabalho específicos de um organismo. Toxoplasma abre seu menu de ensaios, por exemplo a análise de placas ou as medições hospedeiro–patógeno. Siga o tutorial do ensaio escolhido para preparar suas imagens, máscaras e dados de medição.",
     "Abra Classify e use Classifier family para escolher sua entrada. Selecione Computer Vision para imagens de objetos, ou Tabular Machine Learning para colunas de características medidas. Os tutoriais vinculados conduzem você pelo treinamento, pela avaliação e pela pontuação de cada família.",
     "Depois que um modelo é treinado, a barra de ferramentas de Classify ajuda você a examiná-lo. Classifier Evaluation mostra como ele se saiu com dados reservados, Explain CV Model e Activation mostram o que orienta as decisões, Training Runs compara históricos de treinamento e Feature Explorer ordena as características que separam seus grupos. Passe o cursor sobre um ícone para ver o nome.",

@@ -1,23 +1,33 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
+  "english_sha256": "03a3a6fda412c43682c96bba3f1e6836dabd3cabb2df66c0022251d0355c0f12",
   "review": {
     "kind": "AI technical review (Codex), no native-speaker signoff",
-    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
     "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "scope": "Opening scene uses Input and Experiment, Source and Load test data with an already-loaded example; sixteen other scene translations retained.",
     "previous_review": {
-      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-      "date": "2026-09-30",
+      "kind": "AI technical review (Codex), no native-speaker signoff",
+      "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+      "date": "2026-10-05",
       "independent_peer_review": false,
       "native_speaker_signoff": false,
-      "listening_review": false
+      "listening_review": false,
+      "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+      "previous_review": {
+        "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+        "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+        "date": "2026-09-30",
+        "independent_peer_review": false,
+        "native_speaker_signoff": false,
+        "listening_review": false
+      },
+      "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
     },
-    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
+    "previous_english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819"
   },
   "language": "nb",
   "title": "Measure: hent ut objektegenskaper og utsnitt",
@@ -29,7 +39,7 @@
   ],
   "prerequisite": "Bruk de sammenslåtte utdataene fra Mask, eller velg Load test data i Measure. Eksemplet har seksten synsfelt med intensitetsplanene 0–3 og masker for celler, kjerner og patogener i planene 4, 5 og 6.",
   "scenes": [
-    "Fra Home åpner du Measure. Begynn med bilder som allerede har objektmasker. Measure henter ut egenskaper som areal og intensitet, kobler sammen relaterte objekter og kan lagre utsnitt av enkeltobjekter for Annotate og Classify.",
+    "Åpne Measure fra Home. Bruk Source under Input and Experiment til å velge den sammenslåtte mappen med bildene og objektmaskene dine, eller klikk på Load test data. Her er eksemplet allerede lastet inn. Measure trekker ut egenskaper som areal og intensitet, kobler sammen relaterte objekter og kan lagre objektutsnitt til Annotate og Classify.",
     "Klikk på Load test data og vent til eksemplet er lastet inn, eller velg ditt eget sammenslåtte prosjekt. Kontroller plantilordningen: eksemplet har fire intensitetskanaler etterfulgt av masker for celler, kjerner og patogener i planene 4, 5 og 6. Når du trykker Run, sammenligner Measure disse maskeplanene med oppsettet som er lagret for mappen; hvis de ikke stemmer, tilbyr den Use stored image layout og ber deg gå gjennom tilordningen og kjøre på nytt.",
     "For å undersøke disse 16-biters eksempelutsnittene slår du på Normalize før du åpner Live. Da blir forhåndsvisningen lettere å se. Husk at denne hovedinnstillingen også påvirker lagrede utsnitt; vi slår den av før denne batchkjøringen.",
     "Slå på Live og velg et synsfelt. Undersøk objektutsnittene og forholdet mellom maskene. Bla gjennom kategoriene og forstørr forhåndsvisningen ved behov for å se grensene tydelig.",

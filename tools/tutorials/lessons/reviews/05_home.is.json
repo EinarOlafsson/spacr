@@ -1,13 +1,23 @@
 {
   "lesson": "05_home",
-  "english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
+  "english_sha256": "df01cfbd41c345bfed5ea9e8afa738a1d5dd9ffc534f6157b02218ccb45e3ee2",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed text retained; Codex translated and reviewed the current module order and Source-control correction",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Core, Data and Tools rows follow the visible left-to-right module order; all other scene translations retained.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac"
   },
   "language": "is",
   "title": "Home-skjárinn og leiðsögn",
@@ -21,9 +31,9 @@
   "prerequisite": "Settu upp spaCR og opnaðu skjáborðsforritið.",
   "scenes": [
     "Home er upphafsstaðurinn. Smelltu á reit til að opna einingu, eða notaðu hliðarstikuna vinstra megin. Smelltu á Home í hliðarstikunni til að koma aftur hingað. Flipinn Core, Data, Tools og Assays hjálpa þér að finna verkið sem þú vilt vinna.",
-    "Fyrir smásjármyndir byrjarðu á Mask til að afmarka hluti og notar svo Measure til að draga út eiginleika þeirra og útskurði. Með Annotate merkirðu dæmihluti og Classify lærir af merkingunum til að gefa fleiri hlutum stig. Map Barcodes les raðgreiningargögn. Regression tengir svipgerðarstigin sem fást við talningu leiðsagnar-RNA til að finna tengsl.",
-    "Í Data koma skrár inn og niðurstöður eru athugaðar. Ef þú ert þegar með myndir, grímur eða mælitöflur færir Import þær inn í verkefni sem hinar einingarnar geta lesið. Fyrir tilraun skipuleggur Experiment Design plöturnar; eftir hana sýnir QC skráðar gæðaathuganir og Run Compare setur tvær keyrslur hlið við hlið.",
-    "Tools geymir verklegu ritlana og könnunartólin. Í Make Masks lagarðu grímur og þaðan opnast líka Cellpose Workbench. Align and Stitch skeytir saman myndreitum sem skarast í eina mynd. Þegar mælingar liggja fyrir geturðu kannað þær og teiknað með Image UMAP, Gate Editor og Graph Builder. Verkfærastika hverrar einingar opnar tengd verkfæri hennar.",
+    "Lestu reitina í Core frá vinstri til hægri. Fyrir smásjármyndir byrjarðu á Mask til að afmarka hluti og notar svo Measure til að draga út eiginleika þeirra og útskurði. Með Annotate merkirðu dæmihluti og Classify lærir af merkingunum til að gefa fleiri hlutum stig. Map Barcodes les raðgreiningargögn. Regression tengir svipgerðarstigin sem fást við talningu leiðsagnar-RNA til að finna tengsl.",
+    "Lestu reitina í Data frá vinstri til hægri. Import flytur fyrirliggjandi myndir, grímur eða mælitöflur inn í verkefni. Embeddings breytir myndútskurðum hluta í tölulega eiginleikavigra til samanburðar. Run Compare sýnir tvær keyrslur hlið við hlið. Experiment Design skipuleggur plöturnar þínar. Power / Design hermir greiningu út frá mismunandi forsendum um fjölda frumna og brunna til að hjálpa við skipulagningu tilraunar. Dose-Response fellir styrk-svörunarferla að gögnunum og sýnir áætlanir, bil og viðvaranir um aðlögunina. QC sýnir skráðar gæðaprófanir. Opnaðu kennsluefni hvers einingar til að sjá inntak hennar og næstu skref.",
+    "Lestu reitina í Tools frá vinstri til hægri. Make Masks gerir þér kleift að breyta grímum og opnar Cellpose Workbench. Align and Stitch sameinar myndflísar sem skarast. Image UMAP kannar myndútskurði hluta í sýn með færri víddum. Gate Editor velur hópa út frá gildisbilum mældra eiginleika. Graph Builder teiknar mælinganiðurstöður. Verkfærastikan í hverri einingu opnar tengd verkfæri hennar.",
     "Opnaðu Assays fyrir verkferla sem eru bundnir lífveru. Toxoplasma opnar prófavalmynd sína, til dæmis skelluagreiningu eða mælingar á hýsli og sýkli. Fylgdu kennsluefni valda prófsins til að undirbúa myndir þess, grímur og mæligögn.",
     "Opnaðu Classify og veldu inntakið með Classifier family. Veldu Computer Vision fyrir myndir af hlutum eða Tabular Machine Learning fyrir dálka með mældum eiginleikum. Tengdu kennslurnar leiða þig í gegnum þjálfun, mat og stigagjöf fyrir hvora fjölskyldu.",
     "Þegar líkan hefur verið þjálfað hjálpar verkfærastika Classify þér að rýna í það. Classifier Evaluation sýnir hvernig því gekk á gögnum sem haldið var til hliðar, Explain CV Model og Activation sýna hvað ræður niðurstöðum þess, Training Runs ber saman þjálfunarsögu og Feature Explorer raðar þeim eiginleikum sem aðgreina hópana. Haltu bendlinum yfir tákni til að sjá heiti þess.",
