@@ -48,7 +48,7 @@ jobs:
             libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
             libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
             libxdamage1 libxi6 libxtst6 libasound2t64 \
-            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg
+            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg gdb
 
       - name: Install the existing hosted Qt test dependencies
         run: |
@@ -88,11 +88,22 @@ jobs:
             bash "$GITHUB_WORKSPACE/tools/run_qt_serial_acceptance.sh" \
             2>&1 | tee "$evidence/pytest.log"
 
+      - name: Collect a native core backtrace if one exists
+        if: failure()
+        continue-on-error: true
+        timeout-minutes: 3
+        run: python tools/collect_qt_native_backtrace.py
+
       - name: Upload durable serial and host-memory evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: n47-qt-serial-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/spacr-qt-serial/
+          path: |
+            ${{ runner.temp }}/spacr-qt-serial/pytest.log
+            ${{ runner.temp }}/spacr-qt-serial/host-memory.log
+            ${{ runner.temp }}/spacr-qt-serial/file-rss.jsonl
+            ${{ runner.temp }}/spacr-qt-serial/fatal-python.log
+            ${{ runner.temp }}/spacr-qt-serial/native-core-backtrace.txt
           if-no-files-found: warn
           retention-days: 7
