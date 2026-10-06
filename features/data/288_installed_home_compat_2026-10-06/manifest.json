@@ -1,0 +1,202 @@
+{
+  "build_artifacts": [
+    {
+      "bytes": 43004121,
+      "name": "spacr-1.5.1.3-py3-none-any.whl",
+      "scratch_path": "/mnt/wd4tb/scratch/compat-37494089502-coverage-lane/installed/dist/spacr-1.5.1.3-py3-none-any.whl",
+      "sha256": "98662b343f3d078cfb5d851a05823c036813ea95db836f4ee09099ecdc4013de"
+    },
+    {
+      "bytes": 51517710,
+      "name": "spacr-1.5.1.3.tar.gz",
+      "scratch_path": "/mnt/wd4tb/scratch/compat-37494089502-coverage-lane/installed/dist/spacr-1.5.1.3.tar.gz",
+      "sha256": "97fcc21523696b10ea99d04fc8123d2b8c5871f58f29823191550d09f2300319"
+    }
+  ],
+  "files": [
+    {
+      "bytes": 2439,
+      "path": "REPRODUCE.txt",
+      "sha256": "458f0a1c71d8e2dac1719ba3aa0e5e8b363702f8291175952f9b9276d35f3284"
+    },
+    {
+      "bytes": 55476,
+      "path": "build.log.gz",
+      "sha256": "a72510de6a45c3e9226c6dac673981f755284b32d63c289c44c98673a78b4b14"
+    },
+    {
+      "bytes": 100,
+      "path": "focused26.log",
+      "sha256": "25ec15633d8dee98accde807486f8be6899040090c4599fcbd03efb82d9a8502"
+    },
+    {
+      "bytes": 1063,
+      "path": "install-sdist.log",
+      "sha256": "075a1410b7e0d874fff2f9445d8ef39f371001822623c481c49526d1a567e15e"
+    },
+    {
+      "bytes": 506,
+      "path": "install-wheel.log",
+      "sha256": "fc27220e67e1378719806f7e0582784a33483a925ed7a48de3a106cc90147fc8"
+    },
+    {
+      "bytes": 37495,
+      "path": "old-run-logs/112375650239.log.gz",
+      "sha256": "5aa55f634cfe1ce7ace311f702bd0be024fe7a78d47a392455cbea3538e3ab2a"
+    },
+    {
+      "bytes": 36093,
+      "path": "old-run-logs/112375650265.log.gz",
+      "sha256": "61967a5e8069e1946a4373970fc6f7a3935b97ff7733b37033c90bc76ab4757b"
+    },
+    {
+      "bytes": 37143,
+      "path": "old-run-logs/112375650279.log.gz",
+      "sha256": "a1d10a4e839b376b514f2bcad3a7fad02defc8ee89670b03001c0d8ab88f1fea"
+    },
+    {
+      "bytes": 37318,
+      "path": "old-run-logs/112375650282.log.gz",
+      "sha256": "5740f45d70db2f28382949ab45b00faba62deaa582f83355a9a239cfb586f029"
+    },
+    {
+      "bytes": 23368,
+      "path": "old-run-logs/112375650383.log.gz",
+      "sha256": "2405b626dcfed2b7d02b15cb508d4e69815d20ecbdc4113bcbf12cd8a0331078"
+    },
+    {
+      "bytes": 36310,
+      "path": "old-run-logs/112375650392.log.gz",
+      "sha256": "2a65aa1645a09d992daec744da3b466fb89db6841ee9e23fce08f0ca4be08eeb"
+    },
+    {
+      "bytes": 36112,
+      "path": "old-run-logs/112375650397.log.gz",
+      "sha256": "6f77407b3f1d5fc097cc6a1908df9da723e216c18dbbceaceb5dd1d96935adf0"
+    },
+    {
+      "bytes": 22984,
+      "path": "old-run-logs/112375650435.log.gz",
+      "sha256": "6361bb0683bcc2ddbc9dd02bf69c1cfc097a1c2dfba5d2970f789f4008a79599"
+    },
+    {
+      "bytes": 1347,
+      "path": "sdist-home-probe.json",
+      "sha256": "19a22a2366666bb8dddd1074413620214486714fabf038abe52f5f18edc3475b"
+    },
+    {
+      "bytes": 1057,
+      "path": "sdist-home-timing.txt",
+      "sha256": "4db796ca5cc5633cb8566f32913ada5ec3e7e44888c540696607b812982416d8"
+    },
+    {
+      "bytes": 761,
+      "path": "sdist-probe.json",
+      "sha256": "3a1fc01cc46b560a5e0de12766b269e72da360124f5c0f49fd3f92f61cc0740f"
+    },
+    {
+      "bytes": 1174,
+      "path": "source-fix.patch.gz",
+      "sha256": "93b50728b64469caa71bbef9297e255261bcce6342738b6102cba90888e055b2"
+    },
+    {
+      "bytes": 1357,
+      "path": "wheel-home-probe.json",
+      "sha256": "de29949d99d96ba2f22256940856a8c9d70aa778fb346bbe0447416dc19ea940"
+    },
+    {
+      "bytes": 1057,
+      "path": "wheel-home-timing.txt",
+      "sha256": "56099b9c8402ba4a8211e4fbe4d9f4c2356837dbcc73bc28899013c2839b4991"
+    },
+    {
+      "bytes": 771,
+      "path": "wheel-probe.json",
+      "sha256": "f1935a86ca6a43c80ff3c5e5c16fde9662a9a5d1aea7d82f613b9397e7a56ed8"
+    }
+  ],
+  "focused_test_result": "26 passed in 15.25 seconds",
+  "historical_run": {
+    "conclusion": "failure",
+    "id": 37494089502,
+    "jobs": [
+      {
+        "job_id": 112375650239,
+        "path": "old-run-logs/112375650239.log.gz",
+        "platform": "Linux x86-64 / py3.14",
+        "raw_bytes": 199339,
+        "raw_sha256": "38f376715c0f7706b9fd678f0fbde17dd5141cc2f1d74f248b5eb58aaf8c4e14"
+      },
+      {
+        "job_id": 112375650265,
+        "path": "old-run-logs/112375650265.log.gz",
+        "platform": "Linux x86-64 / py3.9 (floor)",
+        "raw_bytes": 190350,
+        "raw_sha256": "d5205a547d6374c1e15aff7a763cd26a46d202fb05e19666ce0f800c5cbfab14"
+      },
+      {
+        "job_id": 112375650279,
+        "path": "old-run-logs/112375650279.log.gz",
+        "platform": "Linux x86-64 / py3.12 (control)",
+        "raw_bytes": 198735,
+        "raw_sha256": "98a56c98c91a9041b04cb4f82e7b037d04293ff6f5b0af27a8cb05d9246ba071"
+      },
+      {
+        "job_id": 112375650282,
+        "path": "old-run-logs/112375650282.log.gz",
+        "platform": "Linux x86-64 / py3.13",
+        "raw_bytes": 199329,
+        "raw_sha256": "3c8b7b6dc864eaa1a019229c056b09ea38f0186b9aa9a219fda0e1351e5e579f"
+      },
+      {
+        "job_id": 112375650383,
+        "path": "old-run-logs/112375650383.log.gz",
+        "platform": "macOS arm64 / py3.11",
+        "raw_bytes": 116830,
+        "raw_sha256": "d602090c27534b3dc52d9cd356f965370d247e54e0fe3cd25d92cbe4d9aab9de"
+      },
+      {
+        "job_id": 112375650392,
+        "path": "old-run-logs/112375650392.log.gz",
+        "platform": "Linux ARM64 / py3.11",
+        "raw_bytes": 195328,
+        "raw_sha256": "5aa3ed2be88ddf228df58447f6aae2cb5e443e2d1b443f756bc9b509cd250615"
+      },
+      {
+        "job_id": 112375650397,
+        "path": "old-run-logs/112375650397.log.gz",
+        "platform": "Linux x86-64 / py3.10",
+        "raw_bytes": 194459,
+        "raw_sha256": "bf41d7e267271c974f10d4183c5fd7338c096f3e5e0578f66b8f5ef9a7b20622"
+      },
+      {
+        "job_id": 112375650435,
+        "path": "old-run-logs/112375650435.log.gz",
+        "platform": "Windows x86-64 / py3.11",
+        "raw_bytes": 108815,
+        "raw_sha256": "ed20036a92ac5dc172ae8ecabd7b980fd8f92c6904f65966d8203f3f6758d2b4"
+      }
+    ],
+    "source_sha": "1f3e4a240339ebc88993d72c49b39ab5716e3904"
+  },
+  "installed_probes": {
+    "sdist": {
+      "core": "sdist-probe.json",
+      "elapsed_home_seconds": 2.328,
+      "home": "sdist-home-probe.json",
+      "installed_from": "/mnt/wd4tb/scratch/compat-37494089502-coverage-lane/installed/venv/lib/python3.12/site-packages/spacr/__init__.py",
+      "painted_usable_controls": 9
+    },
+    "wheel": {
+      "core": "wheel-probe.json",
+      "elapsed_home_seconds": 2.292,
+      "home": "wheel-home-probe.json",
+      "installed_from": "/mnt/wd4tb/scratch/compat-37494089502-coverage-lane/installed/venv/lib/python3.12/site-packages/spacr/__init__.py",
+      "painted_usable_controls": 9
+    }
+  },
+  "integrated_source_sha": "c37b7f7d69c7d5df8eb59fa3f96905b17270304b",
+  "magnifier_source_sha256": "b4073ac63140264082f90b1086ccaee09240ccc1b55371124f0b5713778336c5",
+  "schema_version": 1,
+  "scope_limit": "local Linux Python 3.12.13 installed wheel/sdist probes; hosted eight-platform rerun pending"
+}

@@ -1,5 +1,28 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 installed Home compatibility repair, local archive smoke
+Historical compat run 37494089502 (source 1f3e4a2403) failed all eight
+platform cells at the same strict installed-wheel Home boundary: scipy was
+already loaded at interactive readiness. Make Masks prewarm constructed Live
+Magnifier; its startup timer imported _PREVIEW_MS from _magnifier_drag, which
+eagerly imported scipy.ndimage. Integrated source c37b7f7d69 moves that
+import into actual stroke-frame delivery and adds a fresh-process test for
+both sides of the boundary. No operation-only import guard was changed.
+
+The exact eight old logs, source patch, build/install receipts, focused test
+log, SHA manifest and installed-probe/timing JSON are in
+features/data/288_installed_home_compat_2026-10-06/. A full isolated c37
+worktree built both wheel and sdist; each was installed in a fresh scratch
+venv, then the existing packaging child Home probe ran under python -I from
+a scratch directory. Both reported origin_verified=true, painted usable Home
+and heavy_modules_at_ready=[]; both separate core/measure-AppScreen probes
+passed. The integrated magnifier cohort passes 26 under 4 GiB/CUDA hidden.
+This is local Linux Python 3.12.13/PySide6 6.11.2 evidence, not an eight-cell
+hosted verdict or full resolver/CLI replay. Keep F288 OPEN until the current
+source's compatibility, ordinary tests and aggregate gates finish green.
+The newer b779 protected runs were dispatched before this source fix; do not
+credit them with c37 without an exact SHA match.
+
 ## 2026-10-06 Home coherent final CPU/theme source ready for hosted acceptance
 Final renderer source is9ad69bab29 with ambient SHA256
 4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5;

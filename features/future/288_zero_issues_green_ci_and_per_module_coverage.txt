@@ -5684,3 +5684,25 @@ Item 288 remains OPEN.
     README/translation generation defects. Source546bf33e8 repairs the actual
     nightly docs module-introduction formatting error. Source-bound hosted
     tests/coverage/serial summaries still required; no guard was weakened.
+
+2026-10-06 — installed Home compatibility import boundary
+    Historical compatibility run 37494089502 at 1f3e4a2403 failed all eight
+    platform cells at the installed-wheel Home probe: scipy was imported
+    before Home's interactive readiness record. The first-import trace led
+    through Make Masks prewarm to Live Magnifier's startup timer importing
+    _PREVIEW_MS from _magnifier_drag, whose module imported scipy.ndimage at
+    import time. Integrated source c37b7f7d69 defers that import until a
+    stroke frame is delivered; no Home smoke assertion was relaxed.
+    The complete old job logs and source patch are archived at
+    data/288_installed_home_compat_2026-10-06/.
+
+    From a full isolated c37 worktree, local Python 3.12.13 built both the
+    actual wheel and sdist, installed each into a fresh scratch venv, and ran
+    the existing packaging tool's child Home probe with python -I from a
+    scratch directory. Both verified the installed distribution's PEP 610
+    artifact origin, painted usable Home controls, and an empty heavy-module
+    list at readiness; both separate core/AppScreen probes passed. The
+    integrated 26-case magnifier regression cohort passed under 4 GiB with
+    CUDA hidden. This local Linux receipt does not establish the hosted
+    eight-platform matrix, its dependency resolver or CLI step, nor an
+    all-green final-source CI run. Item 288 remains OPEN.
