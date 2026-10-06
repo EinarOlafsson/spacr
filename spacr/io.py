@@ -1855,6 +1855,62 @@ def _close_private_memmap(mapped):
         mapped._mmap.close()
 
 
+def _native_workspace_preflight(workspace, output_shape, selected_count,
+                                source_dtype, filenames):
+    """Require space for every simultaneous private map and staged archive."""
+    import errno
+    import math
+
+    voxels = math.prod(output_shape[:-1])
+    selected_bytes = voxels * selected_count * np.dtype(np.float32).itemsize
+    channel_bytes = voxels * np.dtype(source_dtype).itemsize
+    archive_payload = selected_bytes + np.asarray(filenames).nbytes + 8192
+    archive_bound = (archive_payload + archive_payload // 4096
+                     + archive_payload // 16384 + archive_payload // 33554432
+                     + 26 + 8192)
+    required = selected_bytes + 2 * channel_bytes + archive_bound
+    if hasattr(os, 'statvfs'):
+        stat = os.statvfs(workspace)
+        available = stat.f_bavail * stat.f_frsize
+    else:
+        available = shutil.disk_usage(workspace).free
+    if available < required:
+        raise OSError(errno.ENOSPC,
+                      'Native T-by-Z private normalization needs more free disk space',
+                      os.fspath(workspace))
+
+
+def _reserve_private_memmap(mapped):
+    """Allocate a new private map's file before any mapped data writes."""
+    import errno
+
+    descriptor = os.open(mapped.filename, os.O_RDWR)
+    try:
+        size = os.fstat(descriptor).st_size
+        if hasattr(os, 'posix_fallocate'):
+            try:
+                os.posix_fallocate(descriptor, 0, size)
+                return
+            except OSError as error:
+                if error.errno not in (errno.ENOSYS, errno.EOPNOTSUPP):
+                    raise
+        offset = mapped.offset
+        block = bytes(1024 * 1024)
+        while offset < size:
+            chunk = block[:min(len(block), size - offset)]
+            if hasattr(os, 'pwrite'):
+                written = os.pwrite(descriptor, chunk, offset)
+            else:
+                os.lseek(descriptor, offset, os.SEEK_SET)
+                written = os.write(descriptor, chunk)
+            if written <= 0:
+                raise OSError(errno.ENOSPC, 'Native private map reservation failed')
+            offset += written
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
 def _native_nonzero_vector(single_channel, workspace_dir, channel,
                            background, remove_background):
     """Stage scalar-order nonzero values without a field-sized boolean copy."""
@@ -1876,6 +1932,7 @@ def _native_nonzero_vector(single_channel, workspace_dir, channel,
     try:
         vector = np.memmap(path, mode='w+', dtype=single_channel.dtype,
                            shape=(count,))
+        _reserve_private_memmap(vector)
         offset = 0
         for time_index in range(single_channel.shape[0]):
             for z_index in range(single_channel.shape[1]):
@@ -3760,11 +3817,14 @@ def _preprocess_mapped_volume_series(settings):
                 output_shape = (len(filenames), *frame_shape)
                 with tempfile.TemporaryDirectory(
                         prefix='.spacr-normalize-', dir=stage) as workspace:
+                    _native_workspace_preflight(
+                        workspace, output_shape, len(selected), dtype, filenames)
                     normalized = np.lib.format.open_memmap(
                         os.path.join(workspace, 'selected.npy'), mode='w+',
                         dtype=np.float32,
                         shape=(*output_shape[:-1], len(selected)))
                     try:
+                        _reserve_private_memmap(normalized)
                         def load_channel(channel):
                             """Read one private channel from verified staged stacks."""
                             channel_path = os.path.join(
@@ -3773,6 +3833,7 @@ def _preprocess_mapped_volume_series(settings):
                                 channel_path, mode='w+', dtype=np.dtype(dtype),
                                 shape=output_shape[:-1])
                             try:
+                                _reserve_private_memmap(values)
                                 for index, path in enumerate(staged_paths):
                                     checkpoint()
                                     mapped = np.load(path, mmap_mode='r',
@@ -3782,7 +3843,10 @@ def _preprocess_mapped_volume_series(settings):
                                                 or mapped.dtype.str != dtype):
                                             raise ValueError(
                                                 'Native T-by-Z staged stack shape or dtype changed.')
-                                        values[index] = mapped[..., channel]
+                                        for z_index in range(frame_shape[0]):
+                                            checkpoint()
+                                            values[index, z_index] = (
+                                                mapped[z_index, ..., channel])
                                     finally:
                                         mapped._mmap.close()
                                 return values

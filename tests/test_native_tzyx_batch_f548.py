@@ -1,9 +1,11 @@
 """Fixed Convert planes become native TZYXC Mask fields without projection."""
 
 import hashlib
+import errno
 import json
 import os
 import shutil
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -321,6 +323,106 @@ def test_native_tzyx_cancel_during_staged_channel_read_discards_private_stage(
     monkeypatch.setattr(io, '_normalize_img_channels', cancel_second_channel)
     with installed_token(token), pytest.raises(PipelineCancelled):
         io.preprocess_img_data(_settings(source))
+    assert not (source / 'stack').exists()
+    assert not (source / 'masks').exists()
+    assert not list(source.glob('.spacr-volume-series-*'))
+
+
+def test_native_tzyx_cancel_between_z_planes_discards_private_stage(
+        tmp_path, monkeypatch):
+    """A stopped field never copies the next plane or publishes a partial stack."""
+    from spacr.cancellation import CancellationToken, PipelineCancelled, installed_token
+
+    source, _rows = _converted_series(tmp_path)
+    token = CancellationToken()
+    original_load = io.np.load
+    visited = []
+
+    class StagedView:
+        def __init__(self, mapped):
+            self.mapped = mapped
+            self.shape = mapped.shape
+            self.dtype = mapped.dtype
+            self._mmap = mapped._mmap
+
+        def __getitem__(self, key):
+            visited.append(key[0])
+            if key[0] == 0:
+                token.cancel()
+            return self.mapped[key]
+
+    def observe_staged_plane(path, *args, **kwargs):
+        mapped = original_load(path, *args, **kwargs)
+        if kwargs.get('mmap_mode') == 'r' and str(path).endswith('.npy'):
+            return StagedView(mapped)
+        return mapped
+
+    monkeypatch.setattr(io.np, 'load', observe_staged_plane)
+    with installed_token(token), pytest.raises(PipelineCancelled):
+        io.preprocess_img_data(_settings(source))
+    assert visited == [0]
+    assert not (source / 'stack').exists()
+    assert not (source / 'masks').exists()
+    assert not list(source.glob('.spacr-volume-series-*'))
+
+
+@pytest.mark.skipif(not hasattr(os, 'statvfs'),
+                    reason='the disk availability probe is platform-specific')
+def test_native_tzyx_refuses_insufficient_workspace_before_mapping(
+        tmp_path, monkeypatch):
+    """Disk budget failure leaves source planes and public outputs untouched."""
+    source, _rows = _converted_series(tmp_path)
+    original_statvfs = io.os.statvfs
+
+    def exhausted_workspace(path):
+        if '.spacr-normalize-' in str(path):
+            return SimpleNamespace(f_bavail=0, f_frsize=4096)
+        return original_statvfs(path)
+
+    monkeypatch.setattr(io.os, 'statvfs', exhausted_workspace)
+    with pytest.raises(OSError) as error:
+        io.preprocess_img_data(_settings(source))
+    assert error.value.errno == errno.ENOSPC
+    assert not (source / 'stack').exists()
+    assert not (source / 'masks').exists()
+    assert not list(source.glob('.spacr-volume-series-*'))
+
+
+@pytest.mark.skipif(not hasattr(os, 'posix_fallocate'),
+                    reason='POSIX disk reservation is unavailable')
+@pytest.mark.parametrize('reservation', [1, 2, 3])
+def test_native_tzyx_disk_reservation_failure_closes_private_maps(
+        tmp_path, monkeypatch, reservation):
+    """ENOSPC before the first mapped write unwinds the private workspace."""
+    source, _rows = _converted_series(tmp_path)
+    closed = []
+    calls = 0
+    original_close = io._close_private_memmap
+    original_reserve = io.os.posix_fallocate
+
+    def fail_reservation(*args):
+        nonlocal calls
+        calls += 1
+        if calls == reservation:
+            raise OSError(errno.ENOSPC, 'disk full')
+        return original_reserve(*args)
+
+    def record_close(mapped):
+        closed.append(os.path.basename(mapped.filename))
+        original_close(mapped)
+
+    monkeypatch.setattr(io.os, 'posix_fallocate', fail_reservation)
+    monkeypatch.setattr(io, '_close_private_memmap', record_close)
+    with pytest.raises(OSError) as error:
+        io.preprocess_img_data(_settings(source))
+    assert error.value.errno == errno.ENOSPC
+    assert calls == reservation
+    assert 'selected.npy' in closed
+    if reservation > 1:
+        assert any(name.startswith('channel-') and name.endswith('.npy')
+                   for name in closed)
+    if reservation > 2:
+        assert any(name.endswith('-quantiles.bin') for name in closed)
     assert not (source / 'stack').exists()
     assert not (source / 'masks').exists()
     assert not list(source.glob('.spacr-volume-series-*'))

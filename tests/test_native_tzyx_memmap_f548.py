@@ -1,12 +1,34 @@
 """Native mapped normalization retains scalar statistics and archive bytes."""
 
 import hashlib
+import errno
+import os
 import warnings
 
 import numpy as np
 import pytest
 
 from spacr import cancellation, io
+
+
+@pytest.mark.skipif(not hasattr(os, 'posix_fallocate'),
+                    reason='POSIX disk reservation is unavailable')
+def test_native_private_map_reservation_falls_back_without_changing_npy_header(
+        tmp_path, monkeypatch):
+    mapped = np.lib.format.open_memmap(
+        tmp_path / 'selected.npy', mode='w+', dtype=np.float32,
+        shape=(2, 3, 4))
+
+    def unsupported(*_args):
+        raise OSError(errno.EOPNOTSUPP, 'filesystem cannot preallocate')
+
+    monkeypatch.setattr(io.os, 'posix_fallocate', unsupported)
+    io._reserve_private_memmap(mapped)
+    mapped[:] = np.arange(mapped.size, dtype=np.float32).reshape(mapped.shape)
+    io._close_private_memmap(mapped)
+    np.testing.assert_array_equal(
+        np.load(tmp_path / 'selected.npy', allow_pickle=False),
+        np.arange(24, dtype=np.float32).reshape(2, 3, 4))
 
 
 def _settings():
