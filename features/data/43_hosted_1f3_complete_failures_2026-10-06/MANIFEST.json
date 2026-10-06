@@ -262,14 +262,14 @@
       "sha256": "1cab108744ab95c6df1928b8624e527d1c1822a85e643771edd336f1bad1b2dd"
     },
     {
-      "bytes": 2822,
+      "bytes": 2906,
       "file": "README.txt",
-      "sha256": "9d39235b391ba5db6261178de6310b63a327309e26b9a94430cf408dd11719ff"
+      "sha256": "3aa31e7a02ba6e64cd876431e2fb6c861c13395c53d326a344a34c7063ff7f85"
     },
     {
-      "bytes": 1061,
+      "bytes": 1118,
       "file": "REPRODUCE.sh",
-      "sha256": "fdc15fad8426fff0b7f7e37772f34ccd0b6b4077b259c10ebb8302b283f897e4"
+      "sha256": "6d81d0340ade7558c33d3b3c04ea5ec9b2b24db44f9f54ba88b537af88506840"
     },
     {
       "bytes": 1191,
@@ -280,6 +280,13 @@
       "bytes": 4495,
       "file": "failure-triage.md",
       "sha256": "f0d20da8984ab7ecec1ab9d43682ec002b506ad81a5c762730f32c5d7e06aa14"
+    },
+    {
+      "bytes": 420,
+      "file": "proofs/archive-reproduce.log.gz",
+      "sha256": "29706ff1c2de58d6989cec20bfffc94be63edeb0397e1eaab99eb8e93f67bbef",
+      "uncompressed_bytes": 2448,
+      "uncompressed_sha256": "2d287e347a1082d8ed5bc18aab9e8f4b363615ea8474ee7c5579647e85c8a70d"
     }
   ],
   "run_id": 37494090176,

@@ -37,7 +37,8 @@ The exact test-only correction is commit 270c7ff4562ebcefb48ab5f0412c094eda257b2
 and proofs/native-cellpose-test.patch.gz. Receipts: two parameterized cases pass
 under installed 4.2.1.1 and an isolated 4.0.7 wheel overlay; the full native
 batch test file passes 47/47 under the installed version. REPRODUCE.sh has
-the bounded commands. No pretrained inference or GPU claim follows from
+the bounded commands and its actual full exit-zero output is retained as
+proofs/archive-reproduce.log.gz. No pretrained inference or GPU claim follows from
 these tests.
 
 Current 3ca-source tests run 37511792034, rather than this historical run,
