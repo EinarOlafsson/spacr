@@ -1238,14 +1238,19 @@ def _annotation_field_payload(tracks_path: str, sequence_path: str,
     tracks = read_table(
         str(track_file), canonicalise=False, report=None,
         usecols=lambda name: name in ("frame", "track_id", "x", "y"))
-    if tracks.empty or not {"frame", "track_id"}.issubset(tracks.columns):
-        raise ValueError(tr("The tracks CSV needs frame and track_id rows."))
+    if tracks.empty or not {"frame", "track_id", "x", "y"}.issubset(tracks.columns):
+        raise ValueError(tr("The tracks CSV needs frame and track_id rows with x and y positions."))
     for column in ("frame", "track_id"):
         values = pd.to_numeric(tracks[column], errors="raise")
         if (not np.isfinite(values).all() or (values < 0).any()
                 or (values % 1 != 0).any()):
             raise ValueError(tr("Track IDs and frames must be nonnegative integers."))
         tracks[column] = values.astype("int64")
+    for column in ("x", "y"):
+        values = pd.to_numeric(tracks[column], errors="raise")
+        if not np.isfinite(values).all():
+            raise ValueError(tr("Track positions must be finite numbers."))
+        tracks[column] = values.astype(float)
     if tracks.duplicated(["track_id", "frame"]).any():
         raise ValueError(tr("The tracks CSV repeats a track at the same frame."))
     if int(tracks["frame"].max()) >= len(sequence):

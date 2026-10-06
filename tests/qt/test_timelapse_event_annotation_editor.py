@@ -9,7 +9,7 @@ import tifffile
 from PySide6.QtCore import QSettings
 
 from spacr.qt.widgets.timelapse_preview import (
-    _EventAnnotationDialog, _annotation_field_payload,
+    _EventAnnotationDialog, _annotation_field_payload, render_frame, track_colour,
 )
 from spacr.tabular import write_table
 from spacr.timelapse import _event_read_annotations
@@ -408,6 +408,26 @@ def test_invalid_source_and_empty_tracks_fail_before_annotation_file(tmp_path):
     write_table(pd.DataFrame(columns=["track_id", "frame"]),
                 tracks, canonicalise=False)
     with pytest.raises(ValueError, match="needs frame and track_id"):
+        _annotation_field_payload(str(tracks), str(sequence), str(target))
+    assert not target.exists()
+
+
+@pytest.mark.parametrize("change", [
+    lambda table: table.drop(columns=["x"]),
+    lambda table: table.assign(x=np.nan),
+    lambda table: table.assign(y=np.inf),
+])
+def test_unlocatable_tracks_are_refused_instead_of_hiding_the_track_marker(
+        tmp_path, change):
+    sequence, tracks, target = _field_files(tmp_path)
+    from spacr.tabular import read_table
+
+    original = read_table(str(tracks), canonicalise=False, report=None)
+    image = tifffile.imread(sequence, key=0)
+    rgb = render_frame(image, tracks=original, frame=0)
+    assert tuple(rgb[9, 10]) == tuple(track_colour(7))
+    write_table(change(original), tracks, canonicalise=False)
+    with pytest.raises(ValueError, match="positions"):
         _annotation_field_payload(str(tracks), str(sequence), str(target))
     assert not target.exists()
 
