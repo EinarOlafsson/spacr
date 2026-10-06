@@ -544,7 +544,7 @@
         },
         {
           "visual": "01_core  (6)",
-          "narration": "For microscope images, begin with Mask to outline objects, then Measure to extract their features and crops. Annotate lets you label example objects, and Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines the resulting phenotype scores and guide counts to find associations.",
+          "narration": "Read the Core tiles from left to right. Mask outlines objects in microscope images. Measure extracts object features and crops. Annotate lets you label example objects. Classify learns from those labels to score more objects. Map Barcodes reads sequencing data. Regression combines phenotype scores and guide counts to find associations.",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -565,7 +565,7 @@
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Data is where files come in and results get checked. If you already have images, masks or measurement tables, Import brings them into a project the other modules can read. Before an experiment, Experiment Design lays out your plates; afterwards, QC shows the recorded quality checks and Run Compare sets two runs side by side.",
+          "narration": "Read the Data tiles from left to right. Import brings existing images, masks or measurement tables into a project. Embeddings turns object crops into numerical feature vectors for comparison. Run Compare sets two runs side by side. Experiment Design lays out your plates. Power / Design simulates detection under different cell-count and well-count assumptions to help plan an experiment. Dose-Response fits concentration-response curves and shows their estimates, intervals and fit warnings. QC shows the recorded quality checks. Open each module’s tutorial for its inputs and next steps.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -578,14 +578,17 @@
           ],
           "related_lessons": [
             "36_import",
-            "35_converter",
-            "31_external_masks",
-            "77_embeddings"
+            "77_embeddings",
+            "50_run_compare",
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response",
+            "54_qc_dashboard"
           ]
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools holds the hands-on editors and explorers. Make Masks is where you correct masks, and it also opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles into one picture. Once you have measurements, Image UMAP, Gate Editor and Graph Builder let you explore and plot them. Each module's toolbar opens its related tools.",
+          "narration": "Read the Tools tiles from left to right. Make Masks lets you edit masks and opens the Cellpose Workbench. Align and Stitch joins overlapping image tiles. Image UMAP explores object crops in a reduced-dimensional view. Gate Editor selects groups using measured feature ranges. Graph Builder plots measured results. Each module’s toolbar opens its related tools.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -798,7 +801,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1137,8 +1163,8 @@
       "prerequisite": "Use the merged outputs from Mask, or choose Load test data in Measure. The example supplies sixteen fields with intensity planes 0–3 and cell, nucleus and pathogen masks in planes 4, 5 and 6.",
       "scenes": [
         {
-          "visual": "preview_01_module",
-          "narration": "From Home, open Measure. Start with images that already have object masks. Measure extracts features such as area and intensity, pairs related objects, and can save individual object crops for Annotate and Classify.",
+          "visual": "preview_03_data_ready",
+          "narration": "From Home, open Measure. Under Input and Experiment, use Source to select the merged folder containing your images and object masks, or click Load test data. Here the example is already loaded. Measure extracts features such as area and intensity, pairs related objects, and can save object crops for Annotate and Classify.",
           "related_lessons": [
             "07_mask",
             "43_illumination",
@@ -1246,7 +1272,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

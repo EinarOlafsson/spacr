@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "baseline": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-conda-home-current-r2/release-candidate-append-gcfljjp0",
+  "baseline_revision": "bf1cca988e0fa91683a2ca96d3acabe8cf39c60a",
+  "selected_lessons": [
+    "05_home",
+    "08_measure"
+  ],
+  "unchanged_complete_lesson_objects": {
+    "lessons_en.json": 83,
+    "lessons_es.json": 83,
+    "lessons_fr.json": 83,
+    "lessons_hi.json": 83,
+    "lessons_it.json": 83,
+    "lessons_ja.json": 83,
+    "lessons_pt-BR.json": 83,
+    "lessons_zh-CN.json": 83
+  },
+  "unchanged_other_media_records": 4648,
+  "Mask_07_unchanged": true,
+  "Conda_02_verified_single_scene_replacement_retained": true,
+  "before_media_files": 4760,
+  "after_media_files": 4852
+}

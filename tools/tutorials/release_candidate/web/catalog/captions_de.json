@@ -523,7 +523,7 @@
         },
         {
           "visual": "01_core  (6)",
-          "narration": "Beginnen Sie bei Mikroskopbildern mit Mask, um Objekte zu umranden, und extrahieren Sie dann mit Measure deren Merkmale und Ausschnitte. Mit Annotate beschriften Sie Beispielobjekte, und Classify lernt aus diesen Labels, um weitere Objekte zu bewerten. Map Barcodes liest Sequenzierdaten. Regression kombiniert die entstandenen Phänotyp-Scores mit den Guide-Zählungen, um Zusammenhänge zu finden.",
+          "narration": "Lesen Sie die Core-Kacheln von links nach rechts. Beginnen Sie bei Mikroskopbildern mit Mask, um Objekte zu umranden, und extrahieren Sie dann mit Measure deren Merkmale und Ausschnitte. Mit Annotate beschriften Sie Beispielobjekte, und Classify lernt aus diesen Labels, um weitere Objekte zu bewerten. Map Barcodes liest Sequenzierdaten. Regression kombiniert die entstandenen Phänotyp-Scores mit den Guide-Zählungen, um Zusammenhänge zu finden.",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -544,7 +544,7 @@
         },
         {
           "visual": "02_data  (7)",
-          "narration": "In Data kommen Dateien herein und Ergebnisse werden geprüft. Wenn Sie bereits Bilder, Masken oder Messtabellen haben, bringt Import sie in ein Projekt, das die anderen Module lesen können. Vor einem Experiment plant Experiment Design Ihre Platten; danach zeigt QC die aufgezeichneten Qualitätsprüfungen, und Run Compare stellt zwei Läufe nebeneinander.",
+          "narration": "Lesen Sie die Data-Kacheln von links nach rechts. Import übernimmt vorhandene Bilder, Masken oder Messtabellen in ein Projekt. Embeddings wandelt Objektausschnitte in numerische Merkmalsvektoren für Vergleiche um. Run Compare stellt zwei Läufe nebeneinander. Experiment Design plant die Belegung Ihrer Platten. Power / Design simuliert die Erkennung unter verschiedenen Annahmen zur Zell- und Well-Zahl und hilft so bei der Versuchsplanung. Dose-Response passt Konzentrations-Wirkungs-Kurven an und zeigt Schätzwerte, Intervalle und Warnungen zur Anpassung. QC zeigt die aufgezeichneten Qualitätsprüfungen. Öffnen Sie das Tutorial des jeweiligen Moduls für seine Eingaben und die nächsten Schritte.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -557,14 +557,17 @@
           ],
           "related_lessons": [
             "36_import",
-            "35_converter",
-            "31_external_masks",
-            "77_embeddings"
+            "77_embeddings",
+            "50_run_compare",
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response",
+            "54_qc_dashboard"
           ]
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools enthält die praktischen Editoren und Explorer. In Make Masks korrigieren Sie Masken, und von dort öffnet sich auch die Cellpose Workbench. Align and Stitch fügt überlappende Bildkacheln zu einem Bild zusammen. Sobald Sie Messwerte haben, können Sie sie mit Image UMAP, Gate Editor und Graph Builder erkunden und darstellen. Die Werkzeugleiste jedes Moduls öffnet dessen zugehörige Werkzeuge.",
+          "narration": "Lesen Sie die Tools-Kacheln von links nach rechts. Make Masks ermöglicht das Bearbeiten von Masken und öffnet die Cellpose Workbench. Align and Stitch fügt überlappende Bildkacheln zusammen. Image UMAP erkundet Objektausschnitte in einer Ansicht mit reduzierter Dimension. Gate Editor wählt Gruppen anhand von Wertebereichen gemessener Merkmale aus. Graph Builder stellt Messergebnisse grafisch dar. Die Werkzeugleiste jedes Moduls öffnet die zugehörigen Werkzeuge.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -777,7 +780,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1116,8 +1142,8 @@
       "prerequisite": "Verwenden Sie die zusammengeführten Ausgaben von Mask oder wählen Sie in Measure Load test data. Das Beispiel liefert sechzehn Bildfelder mit den Intensitätsebenen 0–3 sowie Zell-, Kern- und Pathogenmasken in den Ebenen 4, 5 und 6.",
       "scenes": [
         {
-          "visual": "preview_01_module",
-          "narration": "Öffnen Sie von Home aus Measure. Beginnen Sie mit Bildern, die bereits Objektmasken haben. Measure extrahiert Merkmale wie Fläche und Intensität, ordnet zusammengehörige Objekte einander zu und kann einzelne Objektausschnitte für Annotate und Classify speichern.",
+          "visual": "preview_03_data_ready",
+          "narration": "Öffnen Sie Measure über Home. Wählen Sie unter Input and Experiment mit Source den zusammengeführten Ordner mit Ihren Bildern und Objektmasken aus, oder klicken Sie auf Load test data. Hier ist das Beispiel bereits geladen. Measure extrahiert Merkmale wie Fläche und Intensität, ordnet zusammengehörige Objekte einander zu und kann Objektausschnitte für Annotate und Classify speichern.",
           "related_lessons": [
             "07_mask",
             "43_illumination",
@@ -1225,7 +1251,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

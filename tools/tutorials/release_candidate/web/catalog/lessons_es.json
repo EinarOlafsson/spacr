@@ -584,7 +584,7 @@
         },
         {
           "visual": "01_core  (6)",
-          "narration": "Para imágenes de microscopio, empieza con Mask para delimitar los objetos y sigue con Measure para extraer sus características y recortes. Annotate te permite etiquetar objetos de ejemplo, y Classify aprende de esas etiquetas para puntuar más objetos. Map Barcodes lee datos de secuenciación. Regression combina las puntuaciones de fenotipo resultantes con los recuentos de guías para encontrar asociaciones.",
+          "narration": "Lee los mosaicos de Core de izquierda a derecha. Para imágenes de microscopio, empieza con Mask para delimitar los objetos y sigue con Measure para extraer sus características y recortes. Annotate te permite etiquetar objetos de ejemplo, y Classify aprende de esas etiquetas para puntuar más objetos. Map Barcodes lee datos de secuenciación. Regression combina las puntuaciones de fenotipo resultantes con los recuentos de guías para encontrar asociaciones.",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -602,11 +602,11 @@
             "12_map_barcodes",
             "13_regression"
           ],
-          "speech_text": "Para imágenes de microscopio, empieza con Mask para delimitar los objetos y sigue con Measure para extraer sus características y recortes. Annotate te permite etiquetar objetos de ejemplo, y Classify aprende de esas etiquetas para puntuar más objetos. Map Barcodes lee datos de secuenciación. Regression combina las puntuaciones de fenotipo resultantes con los recuentos de guías para encontrar asociaciones."
+          "speech_text": "Lee los mosaicos de Core de izquierda a derecha. Para imágenes de microscopio, empieza con Mask para delimitar los objetos y sigue con Measure para extraer sus características y recortes. Annotate te permite etiquetar objetos de ejemplo, y Classify aprende de esas etiquetas para puntuar más objetos. Map Barcodes lee datos de secuenciación. Regression combina las puntuaciones de fenotipo resultantes con los recuentos de guías para encontrar asociaciones."
         },
         {
           "visual": "02_data  (7)",
-          "narration": "En Data entran los archivos y se revisan los resultados. Si ya tienes imágenes, máscaras o tablas de mediciones, Import las incorpora a un proyecto que los demás módulos pueden leer. Antes de un experimento, Experiment Design organiza tus placas; después, QC muestra los controles de calidad registrados y Run Compare pone dos ejecuciones una al lado de la otra.",
+          "narration": "Lee los mosaicos de Data de izquierda a derecha. Import incorpora imágenes, máscaras o tablas de mediciones existentes a un proyecto. Embeddings convierte los recortes de objetos en vectores numéricos de características para compararlos. Run Compare muestra dos ejecuciones una al lado de la otra. Experiment Design organiza tus placas. Power / Design simula la detección con distintos supuestos sobre el número de células y pocillos para ayudar a planificar un experimento. Dose-Response ajusta curvas de concentración y respuesta y muestra sus estimaciones, intervalos y advertencias de ajuste. QC muestra los controles de calidad registrados. Abre el tutorial de cada módulo para conocer sus entradas y los pasos siguientes.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -619,15 +619,18 @@
           ],
           "related_lessons": [
             "36_import",
-            "35_converter",
-            "31_external_masks",
-            "77_embeddings"
+            "77_embeddings",
+            "50_run_compare",
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response",
+            "54_qc_dashboard"
           ],
-          "speech_text": "En Data entran los archivos y se revisan los resultados. Si ya tienes imágenes, máscaras o tablas de mediciones, Import las incorpora a un proyecto que los demás módulos pueden leer. Antes de un experimento, Experiment Design organiza tus placas; después, QC muestra los controles de calidad registrados y Run Compare pone dos ejecuciones una al lado de la otra."
+          "speech_text": "Lee los mosaicos de Data de izquierda a derecha. Import incorpora imágenes, máscaras o tablas de mediciones existentes a un proyecto. Embeddings convierte los recortes de objetos en vectores numéricos de características para compararlos. Run Compare muestra dos ejecuciones una al lado de la otra. Experiment Design organiza tus placas. Power / Design simula la detección con distintos supuestos sobre el número de células y pocillos para ayudar a planificar un experimento. Dose-Response ajusta curvas de concentración y respuesta y muestra sus estimaciones, intervalos y advertencias de ajuste. QC muestra los controles de calidad registrados. Abre el tutorial de cada módulo para conocer sus entradas y los pasos siguientes."
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools reúne los editores y exploradores prácticos. En Make Masks corriges máscaras, y desde ahí también se abre Cellpose Workbench. Align and Stitch une mosaicos de imagen superpuestos en una sola imagen. Cuando tienes mediciones, Image UMAP, Gate Editor y Graph Builder te permiten explorarlas y representarlas. La barra de herramientas de cada módulo abre sus herramientas relacionadas.",
+          "narration": "Lee los mosaicos de Tools de izquierda a derecha. Make Masks permite editar máscaras y abrir Cellpose Workbench. Align and Stitch une mosaicos de imagen superpuestos. Image UMAP explora recortes de objetos en una vista de dimensionalidad reducida. Gate Editor selecciona grupos mediante rangos de características medidas. Graph Builder representa los resultados medidos. La barra de herramientas de cada módulo abre sus herramientas relacionadas.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -643,7 +646,7 @@
             "64_gate_editor",
             "58_graph_builder"
           ],
-          "speech_text": "Tools reúne los editores y exploradores prácticos. En Make Masks corriges máscaras, y desde ahí también se abre sel póus Workbench. Align and Stitch une mosaicos de imagen superpuestos en una sola imagen. Cuando tienes mediciones, Image ú map, gueit éditor y Graph Builder te permiten explorarlas y representarlas. La barra de herramientas de cada módulo abre sus herramientas relacionadas."
+          "speech_text": "Lee los mosaicos de Tools de izquierda a derecha. Make Masks permite editar máscaras y abrir sel póus Workbench. Align and Stitch une mosaicos de imagen superpuestos. Image ú map explora recortes de objetos en una vista de dimensionalidad reducida. gueit éditor selecciona grupos mediante rangos de características medidas. Graph Builder representa los resultados medidos. La barra de herramientas de cada módulo abre sus herramientas relacionadas."
         },
         {
           "visual": "04_assays  (1)",
@@ -859,7 +862,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1217,8 +1243,8 @@
       "prerequisite": "Usa las salidas combinadas de Mask o elige Load test data en Measure. El ejemplo aporta dieciséis campos con planos de intensidad 0–3 y máscaras de células, núcleos y patógenos en los planos 4, 5 y 6.",
       "scenes": [
         {
-          "visual": "preview_01_module",
-          "narration": "Desde Home, abre Measure. Empieza con imágenes que ya tengan máscaras de objetos. Measure extrae características como el área y la intensidad, empareja objetos relacionados y puede guardar recortes individuales de los objetos para Annotate y Classify.",
+          "visual": "preview_03_data_ready",
+          "narration": "Desde Home, abre Measure. En Input and Experiment, usa Source para seleccionar la carpeta combinada que contiene tus imágenes y máscaras de objetos, o haz clic en Load test data. Aquí el ejemplo ya está cargado. Measure extrae características como el área y la intensidad, empareja objetos relacionados y puede guardar recortes de objetos para Annotate y Classify.",
           "related_lessons": [
             "07_mask",
             "43_illumination",
@@ -1226,7 +1252,7 @@
             "59_anndata_export"
           ],
           "hold_after": 0.7,
-          "speech_text": "Desde Home, abre Measure. Empieza con imágenes que ya tengan máscaras de objetos. Measure extrae características como el área y la intensidad, empareja objetos relacionados y puede guardar recortes individuales de los objetos para Annotate y Classify."
+          "speech_text": "Desde Home, abre Measure. En Input and Experiment, usa Source para seleccionar la carpeta combinada que contiene tus imágenes y máscaras de objetos, o haz clic en Load test data. Aquí el ejemplo ya está cargado. Measure extrae características como el área y la intensidad, empareja objetos relacionados y puede guardar recortes de objetos para Annotate y Classify."
         },
         {
           "visual": "preview_03_data_ready",
@@ -1343,7 +1369,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

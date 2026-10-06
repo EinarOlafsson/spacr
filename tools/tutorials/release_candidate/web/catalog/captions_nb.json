@@ -523,7 +523,7 @@
         },
         {
           "visual": "01_core  (6)",
-          "narration": "For mikroskopbilder begynner du med Mask for å avgrense objekter, og deretter Measure for å hente ut egenskapene og utsnittene deres. Med Annotate merker du eksempelobjekter, og Classify lærer av merkene for å gi flere objekter en poengsum. Map Barcodes leser sekvenseringsdata. Regression kombinerer de resulterende fenotypepoengene med guide-tellingene for å finne sammenhenger.",
+          "narration": "Les Core-flisene fra venstre mot høyre. For mikroskopbilder begynner du med Mask for å avgrense objekter, og deretter Measure for å hente ut egenskapene og utsnittene deres. Med Annotate merker du eksempelobjekter, og Classify lærer av merkene for å gi flere objekter en poengsum. Map Barcodes leser sekvenseringsdata. Regression kombinerer de resulterende fenotypepoengene med guide-tellingene for å finne sammenhenger.",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -544,7 +544,7 @@
         },
         {
           "visual": "02_data  (7)",
-          "narration": "I Data kommer filer inn og resultater kontrolleres. Hvis du allerede har bilder, masker eller måletabeller, tar Import dem inn i et prosjekt som de andre modulene kan lese. Før et eksperiment planlegger Experiment Design platene dine; etterpå viser QC de registrerte kvalitetskontrollene, og Run Compare setter to kjøringer side om side.",
+          "narration": "Les Data-flisene fra venstre mot høyre. Import henter eksisterende bilder, masker eller måletabeller inn i et prosjekt. Embeddings omdanner objektutsnitt til numeriske egenskapsvektorer for sammenligning. Run Compare viser to kjøringer side om side. Experiment Design planlegger platene dine. Power / Design simulerer deteksjon med ulike antakelser om antall celler og brønner for å hjelpe med forsøksplanleggingen. Dose-Response tilpasser konsentrasjons-responskurver og viser estimater, intervaller og advarsler om tilpasningen. QC viser de registrerte kvalitetskontrollene. Åpne veiledningen til hvert modul for å se inndata og neste trinn.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -557,14 +557,17 @@
           ],
           "related_lessons": [
             "36_import",
-            "35_converter",
-            "31_external_masks",
-            "77_embeddings"
+            "77_embeddings",
+            "50_run_compare",
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response",
+            "54_qc_dashboard"
           ]
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools samler de praktiske redigeringsverktøyene og utforskerne. I Make Masks retter du masker, og derfra åpnes også Cellpose Workbench. Align and Stitch setter sammen overlappende bildefliser til ett bilde. Når du har målinger, kan du utforske og plotte dem med Image UMAP, Gate Editor og Graph Builder. Verktøylinjen i hver modul åpner de tilhørende verktøyene.",
+          "narration": "Les Tools-flisene fra venstre mot høyre. Make Masks lar deg redigere masker og åpner Cellpose Workbench. Align and Stitch setter sammen overlappende bildefliser. Image UMAP utforsker objektutsnitt i en visning med redusert dimensjonalitet. Gate Editor velger grupper ut fra intervaller av målte egenskaper. Graph Builder plotter måleresultater. Verktøylinjen i hvert modul åpner de tilknyttede verktøyene.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -777,7 +780,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1116,8 +1142,8 @@
       "prerequisite": "Bruk de sammenslåtte utdataene fra Mask, eller velg Load test data i Measure. Eksemplet har seksten synsfelt med intensitetsplanene 0–3 og masker for celler, kjerner og patogener i planene 4, 5 og 6.",
       "scenes": [
         {
-          "visual": "preview_01_module",
-          "narration": "Fra Home åpner du Measure. Begynn med bilder som allerede har objektmasker. Measure henter ut egenskaper som areal og intensitet, kobler sammen relaterte objekter og kan lagre utsnitt av enkeltobjekter for Annotate og Classify.",
+          "visual": "preview_03_data_ready",
+          "narration": "Åpne Measure fra Home. Bruk Source under Input and Experiment til å velge den sammenslåtte mappen med bildene og objektmaskene dine, eller klikk på Load test data. Her er eksemplet allerede lastet inn. Measure trekker ut egenskaper som areal og intensitet, kobler sammen relaterte objekter og kan lagre objektutsnitt til Annotate og Classify.",
           "related_lessons": [
             "07_mask",
             "43_illumination",
@@ -1225,7 +1251,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

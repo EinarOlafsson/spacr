@@ -1,0 +1,52 @@
+{
+  "candidate_verified": true,
+  "selected_lessons": [
+    "05_home",
+    "08_measure"
+  ],
+  "player_routes_passed": 85,
+  "other_lessons_preserved_per_catalog": 83,
+  "catalog_languages_verified": 14,
+  "other_media_records_preserved": 4648,
+  "candidate_media_files": 4852,
+  "Mask_07_unchanged": true,
+  "Conda_02_accepted_scene_preserved": true,
+  "normal_checkpoint_completed": true,
+  "uploaded": false,
+  "nightly_deployment_verified": false,
+  "candidate": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-home-measure-ui-current-r1/release-candidate-append-ke3jjmi6",
+  "artifacts": {
+    "features/data/615_home_measure_ui_candidate_2026-10-05/candidate-browser-checks.json": {
+      "sha256": "6d79997fa27c403e51d1ac49ef7d0b8a8477e947c4e1cdd7d8e666e296c91524",
+      "bytes": 124137
+    },
+    "features/data/615_home_measure_ui_candidate_2026-10-05/home-measure-all-catalog-preservation.json": {
+      "sha256": "964bc234ade62fb811f2d31a5f9f01ab88403a28145ce122d3163c46562d71e6",
+      "bytes": 1596
+    },
+    "features/data/615_home_measure_ui_candidate_2026-10-05/home-measure-preservation.json": {
+      "sha256": "6ef592b9ab0bc68624500393d2b2a9de7257731534eaa9ff2e3f78e5ac7f8dcb",
+      "bytes": 752
+    },
+    "features/data/615_home_measure_ui_candidate_2026-10-05/home-measure-ui-candidate-r1.log.gz": {
+      "sha256": "22924bbe0489c2c839ce7561b7c3e3835b54446fd5939fae3f5d425fd7c25649",
+      "bytes": 679
+    },
+    "features/data/615_home_measure_ui_candidate_2026-10-05/home-measure-ui-candidate-r2.log.gz": {
+      "sha256": "6244335306e401df836882a4c77a62d2ea54878918a9b1b9006180dfea1b34bd",
+      "bytes": 501
+    },
+    "features/data/615_home_measure_ui_candidate_2026-10-05/home-measure-ui-candidate-r3.log.gz": {
+      "sha256": "6de26957f8a604349e89b6a6798cf6ee1794b9132927349add0dad125ee633e0",
+      "bytes": 1051
+    },
+    "features/data/615_home_measure_ui_candidate_2026-10-05/placeholder-mutation-checks.json": {
+      "sha256": "4f6c6c5b06fca0ddff03ecf20fb5663550295a8e088d8b81d54c8f7b17c61bb8",
+      "bytes": 510
+    },
+    "features/data/615_home_measure_ui_candidate_2026-10-05/prepare_home_measure_candidate.py": {
+      "sha256": "c46bfeaf41a10cb4075e8b5c81342f98deb50bcfe4cf6b7e94537fd9854c61da",
+      "bytes": 3640
+    }
+  }
+}
