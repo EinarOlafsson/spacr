@@ -11,6 +11,7 @@ manifest and result. This is a single-batch diagnostic, not a suite verdict.
 from __future__ import annotations
 
 import argparse
+import ast
 import hashlib
 import importlib.metadata
 import importlib.util
@@ -24,11 +25,41 @@ import signal
 import subprocess
 import sys
 import time
+from types import SimpleNamespace
+
+
+def _coverage_plan_runner(path):
+    """Load only source-defined coverage planning functions without coverage.py.
+
+    Dry-run selection needs the runner's own parser, file walk, hashing and
+    batching, but not its measurement dependency. Execution still imports the
+    complete runner and refuses a missing dependency before writing evidence.
+    """
+    tree = ast.parse(path.read_text(), filename=str(path))
+    names = {"build_parser", "_test_files", "_shard", "_batches"}
+    functions = [node for node in tree.body
+                 if isinstance(node, ast.FunctionDef) and node.name in names]
+    constant = [node for node in tree.body
+                if isinstance(node, ast.Assign)
+                and any(isinstance(target, ast.Name)
+                        and target.id == "BATCH_TIMED_OUT" for target in node.targets)]
+    if {node.name for node in functions} != names or len(constant) != 1:
+        raise ValueError("coverage runner planning interface changed")
+    planned = ast.Module(body=[ast.ImportFrom(module="__future__",
+                                              names=[ast.alias(name="annotations")],
+                                              level=0), *constant, *functions], type_ignores=[])
+    namespace = {"argparse": argparse, "hashlib": hashlib, "Path": Path,
+                 "__doc__": ast.get_docstring(tree)}
+    exec(compile(ast.fix_missing_locations(planned), str(path), "exec"), namespace)
+    return SimpleNamespace(**{name: namespace[name] for name in names})
 
 
 def _load_runner(root, coverage):
     name = "run_coverage_batches" if coverage else "run_pytest_batches"
-    spec = importlib.util.spec_from_file_location(name, root / "tools" / f"{name}.py")
+    path = root / "tools" / f"{name}.py"
+    if coverage and importlib.util.find_spec("coverage") is None:
+        return _coverage_plan_runner(path)
+    spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -286,8 +317,10 @@ def main(argv=None):
     files = batches[cli.batch - 1]
     if cli._execute:
         return _execute(cli, root, runner, args, options, files)
-    if importlib.util.find_spec("pytest_timeout") is None:
-        parser.error("pytest-timeout is required to preserve the CI time limit")
+    if cli.suite == "coverage" and importlib.util.find_spec("coverage") is None:
+        parser.error("coverage.py is required to execute a coverage replay; --list remains available")
+    if args.per_test_timeout > 0 and importlib.util.find_spec("pytest_timeout") is None:
+        parser.error("pytest-timeout is required to preserve the CI per-test time limit")
     cli.output.mkdir(parents=True, exist_ok=False)
     versions = {}
     for package in ("pytest", "pytest-xdist", "pytest-timeout", "pytest-cov", "coverage", "pytest-qt", "pytest-randomly", "PySide6", "shiboken6", "numpy", "matplotlib", "torch", "cellpose"):

@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import signal
@@ -64,6 +65,39 @@ def test_coverage_hashes_relative_paths_before_making_batches(tmp_path):
     assert all(len(batch) == 7 for batch in actual[:-1])
 
 
+def test_coverage_planner_loads_source_functions_without_installed_coverage():
+    """Listing a coverage shard must work in a bare Python interpreter."""
+    result = subprocess.run([
+        sys.executable, "-S", "-c",
+        "from pathlib import Path; from tools import replay_ci_batch as replay; "
+        "runner = replay._load_runner(Path.cwd(), True); "
+        "print(runner._shard(Path.cwd() / 'tests/test_local_ci_replay.py', "
+        "Path.cwd(), 12)); print(runner.build_parser().parse_args("
+        "['tests', '--marker', 'not gui', '--shard-index', '4', "
+        "'--shard-count', '12', '--data-dir', '/tmp']).shard_count)",
+    ], cwd=ROOT, capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.splitlines()[-1] == "12"
+
+
+def test_coverage_execution_refuses_a_missing_measurement_dependency(
+        tmp_path, monkeypatch, capsys):
+    """A dry plan can work without coverage while execution fails clearly."""
+    original = replay.importlib.util.find_spec
+    monkeypatch.setattr(replay.importlib.util, "find_spec",
+                        lambda name: None if name == "coverage" else original(name))
+    output = tmp_path / "evidence"
+    assert replay.main(["--repo", str(ROOT), "--suite", "coverage", "--shard", "0",
+                        "--batch", "1", "--list"]) == 0
+    assert any(line.startswith("tests/") for line in capsys.readouterr().out.splitlines())
+    with pytest.raises(SystemExit) as stopped:
+        replay.main(["--repo", str(ROOT), "--suite", "coverage", "--shard", "0",
+                     "--batch", "1", "--output", str(output)])
+    assert stopped.value.code == 2
+    assert "coverage.py is required" in capsys.readouterr().err
+    assert not output.exists()
+
+
 def test_environment_cannot_inherit_gpu_sharding_or_extra_pytest_options(tmp_path, monkeypatch):
     for key in ("CUDA_VISIBLE_DEVICES", "SPACR_PYTEST_FILE_SHARD_COUNT", "PYTEST_ADDOPTS", "COVERAGE_FILE", "SPACR_HF_E2E_STUB"):
         monkeypatch.setenv(key, "inherited")
@@ -104,7 +138,7 @@ exec "$@"
         env:
           SPACR_PYTEST_FILE_SHARD_COUNT: "1"
         run: |
-          python tools/run_pytest_batches.py --marker "not slow" --batch-size 2 --workers 1 --per-test-timeout 10 --batch-timeout 60
+          python tools/run_pytest_batches.py --marker "not slow" --batch-size 2 --workers 1 --per-test-timeout 0 --batch-timeout 60
 ''')
     (repo / "tests/test_a.py").write_text("def test_pass():\n    pass\n")
     (repo / "tests/test_b.py").write_text("def test_failure_is_reported():\n    assert False, 'local diagnostic failure'\n")
@@ -120,7 +154,8 @@ def test_real_failing_child_keeps_its_exit_live_log_and_exact_manifest(tiny_repo
     result = subprocess.run([
         sys.executable, str(ROOT / "tools/replay_ci_batch.py"), "--repo", str(tiny_repo),
         "--suite", "fast", "--shard", "0", "--batch", "1", "--output", str(output),
-    ], capture_output=True, text=True)
+    ], capture_output=True, text=True,
+        env={**os.environ, "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"})
     assert result.returncode == 1, result.stdout + result.stderr
     evidence = json.loads((output / "result.json").read_text())
     assert evidence["exit_code"] == 1 and not evidence["source_changed"]
@@ -203,7 +238,9 @@ def test_interrupt_stops_a_child_even_in_a_separate_process_session(tiny_repo, t
     process = subprocess.Popen([
         sys.executable, str(ROOT / "tools/replay_ci_batch.py"), "--repo", str(tiny_repo),
         "--suite", "fast", "--shard", "0", "--batch", "1", "--output", str(output),
-    ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, start_new_session=True)
+    ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+        start_new_session=True,
+        env={**os.environ, "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"})
     try:
         deadline = time.monotonic() + 15
         while not marker.exists() and process.poll() is None and time.monotonic() < deadline:
