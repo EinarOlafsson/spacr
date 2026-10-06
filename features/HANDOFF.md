@@ -29,6 +29,30 @@ progress; final nine-locale catalogs, guides, Help/artifact owners, shared video
 browser/media publication and held-out biological inputs remain workstation
 work. No broad completion, current-source deployment or crash closure is claimed.
 
+## 2026-10-06 exact 246 coverage-6 reviewed-runtime owner relay
+Ordinary tests run 37531397394 targets
+24601d5924e72221b4e8ffc1c7f5e14ea5e9c69b. Coverage shard 6 job
+112502081095 failed only the source-bound reviewed-runtime check; its other
+focused batches passed. The untruncated reporter on that exact source finds
+289 of 55,989 reviewed runtime records stale. This is the prior 262 records
+plus exactly 27: `ui/Divide`, `ui/Wand +` and `ui/Wand −` in each of nine
+locale files named `2026-10-05-make-masks-toolbar.json`. No old stale record
+disappeared. Full job log, all 289 file/key identities, the 27-key delta,
+source hashes and verifier are in
+`features/data/43_hosted_246_reviewed_runtime_2026-10-06/`. The workstation
+owns normal reviewed-record and generated-catalog regeneration; do not edit
+records by hand, weaken the guard or credit this failed shard as a numerical
+coverage verdict. The truthful Preferences `_sync_custom_colors` docstring
+now describes seven scenes, so its reviewed private-contract six-scene prose
+pin also needs the workstation's normal source-current refresh, not a source
+reversion. A separate current-source public callable inventory check reports
+9,994 versus the pinned 9,991. The new Bio-Rad SCN entry points in
+`spacr.convert` and the `spacr.submodules` reader export are candidate
+additions; the workstation must reconcile their exact identities against
+the frozen inventory before regenerating the reviewed API contract. Do
+not raise or silently rebaseline the pin. Items 43/288/47 remain open
+until current-source hosted acceptance.
+
 ## 2026-10-06 workstation owns GitHub issue137 CSV boolean repair
 The user explicitly requested the newly posted GitHub issue be fixed:
 https://github.com/EinarOlafsson/spacr/issues/137.
