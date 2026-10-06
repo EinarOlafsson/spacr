@@ -35,6 +35,8 @@ from spacr.qt.widgets.ambient import (AMBIENT_THEMES, AmbientWidget,
 DT = 1.0 / 24.0
 DARK = "#101418"
 LIGHT = "#f6f7f9"
+LEGACY_THEMES = ("blobs", "aurora", "ripple", "drift", "bokeh", "cells",
+                 "resonance")
 
 
 def render(engine, width=320, height=200, background=DARK) -> QImage:
@@ -275,14 +277,18 @@ def test_same_seed_gives_the_same_first_frame(theme):
     a = make_engine(theme, "spacr", DARK, seed=99)
     b = make_engine(theme, "spacr", DARK, seed=99)
     assert render(a) == render(b), theme
-    assert a.geometry(320, 200) == b.geometry(320, 200)
+    if theme in LEGACY_THEMES:
+        assert a.geometry(320, 200) == b.geometry(320, 200)
 
 
 @pytest.mark.parametrize("theme", AMBIENT_THEMES)
 def test_different_seeds_give_different_frames(theme):
     a = make_engine(theme, "spacr", DARK, seed=1)
     b = make_engine(theme, "spacr", DARK, seed=2)
-    assert a.geometry(320, 200) != b.geometry(320, 200), theme
+    if theme in LEGACY_THEMES:
+        assert a.geometry(320, 200) != b.geometry(320, 200), theme
+    else:
+        assert render(a) != render(b), theme
 
 
 @pytest.mark.parametrize("theme", AMBIENT_THEMES)
@@ -296,9 +302,10 @@ def test_the_clock_alone_decides_the_frame(theme):
     jumped = make_engine(theme, "ocean", DARK, seed=5)
     jumped.set_time(3.0)
     assert stepped.time == pytest.approx(3.0)
-    flat = [v for item in stepped.geometry(320, 200) for v in item]
-    assert flat == pytest.approx(
-        [v for item in jumped.geometry(320, 200) for v in item])
+    if theme in LEGACY_THEMES:
+        flat = [v for item in stepped.geometry(320, 200) for v in item]
+        assert flat == pytest.approx(
+            [v for item in jumped.geometry(320, 200) for v in item])
     assert render(stepped) == render(jumped)
 
 
@@ -332,10 +339,36 @@ def test_negative_and_zero_steps_do_not_move_the_clock_backwards():
 #: figure is a standing wave, and a standing wave that moved as much as a
 #: blob field would not be standing. What moves in seven seconds is the
 #: sand and the breath under it, not the lines.
+#: The data-art entries use the same half-measured rule at 320x200 with the
+#: common spaCR palette; their full-resolution visual review is separate.
 MIN_PAINTED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.003,
-               "bokeh": 0.28, "cells": 0.08, "resonance": 0.22}
+               "bokeh": 0.28, "cells": 0.08, "resonance": 0.22,
+               "data_art_point_atlas": 0.22,
+               "data_art_tissue_facets": 0.47,
+               "data_art_spatial_strata": 0.25,
+               "data_art_molecular_helix": 0.14,
+               "data_art_chromatin_ribbon": 0.19,
+               "data_art_sequence_matrix": 0.19,
+               "data_art_transcript_rain": 0.37,
+               "data_art_regulatory_circuit": 0.28,
+               "data_art_genetic_advection": 0.46,
+               "data_art_interference": 0.49,
+               "data_art_morphogenesis": 0.49,
+               "data_art_impulse_lens": 0.02}
 MIN_CHANGED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.006,
-               "bokeh": 0.30, "cells": 0.11, "resonance": 0.03}
+               "bokeh": 0.30, "cells": 0.11, "resonance": 0.03,
+               "data_art_point_atlas": 0.17,
+               "data_art_tissue_facets": 0.17,
+               "data_art_spatial_strata": 0.25,
+               "data_art_molecular_helix": 0.16,
+               "data_art_chromatin_ribbon": 0.21,
+               "data_art_sequence_matrix": 0.11,
+               "data_art_transcript_rain": 0.18,
+               "data_art_regulatory_circuit": 0.016,
+               "data_art_genetic_advection": 0.47,
+               "data_art_interference": 0.38,
+               "data_art_morphogenesis": 0.20,
+               "data_art_impulse_lens": 0.02}
 
 
 def all_pixels(image: QImage):

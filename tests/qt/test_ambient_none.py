@@ -56,17 +56,22 @@ def _screen(qtbot, app_key="measure"):
 def test_none_is_offered_alongside_every_animation():
     """The list is pinned because the ORDER is the menu's order.
 
-    ``resonance`` joined it on 2026-09-19 (instruction 427 part B) and is
-    last for the reason a new animation always will be: the stored
-    preference is a name, so inserting one in the middle would renumber
-    nothing and reorder everybody's menu for no reason.
+    The original seven stay in order and the twelve data-art styles append.
+    Stored preferences use names, so existing choices remain valid.
     """
     ambient = _ambient()
+    original = ("blobs", "aurora", "ripple", "drift", "bokeh", "cells",
+                "resonance")
+    data_art = ("data_art_point_atlas", "data_art_tissue_facets",
+                "data_art_spatial_strata", "data_art_molecular_helix",
+                "data_art_chromatin_ribbon", "data_art_sequence_matrix",
+                "data_art_transcript_rain", "data_art_regulatory_circuit",
+                "data_art_genetic_advection", "data_art_interference",
+                "data_art_morphogenesis", "data_art_impulse_lens")
     assert ambient.NO_ANIMATION == "none"
     assert ambient.ANIMATION_CHOICES == (ambient.NO_ANIMATION,) + \
-        ("blobs", "aurora", "ripple", "drift", "bokeh", "cells", "resonance")
-    assert ambient.AMBIENT_THEMES == ("blobs", "aurora", "ripple", "drift",
-                                      "bokeh", "cells", "resonance"), (
+        original + data_art
+    assert ambient.AMBIENT_THEMES == original + data_art, (
         "None must not join the paintable themes: make_engine, "
         "_require_theme and every engine test mean 'can be drawn' by it")
 
