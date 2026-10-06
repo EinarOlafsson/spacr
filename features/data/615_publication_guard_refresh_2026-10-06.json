@@ -1,0 +1,27 @@
+{
+  "historical_global_pin_failures": 5,
+  "scoped_tests_passed": 13,
+  "conflicting_current_revision_mutation_rejected": true,
+  "conflicting_hosted_narration_hash_mutation_rejected": true,
+  "accepted_baseline_voice_set_preserved": true,
+  "current_normal_checkpoint_receipt_readback_and_hosted_checks_bound": true,
+  "guard_ceiling_or_exclusion_changed": false,
+  "artifacts": {
+    "features/data/615_publication_guard_refresh_2026-10-06/archive_publication_guard_refresh.py": {
+      "sha256": "e3a4a0825f230dbdc86e4160ad759ab0ff5f9e93a78e4c7a07a430976c86d05f",
+      "bytes": 2666
+    },
+    "features/data/615_publication_guard_refresh_2026-10-06/yolo-preserved-publication-tests-r1.log.gz": {
+      "sha256": "8131aaf84e6cc0e1a024d257786f85d12ccb3f0c6efe43df04e2b6e31db96d73",
+      "bytes": 980
+    },
+    "features/data/615_publication_guard_refresh_2026-10-06/yolo-preserved-publication-tests-r2.log.gz": {
+      "sha256": "396ef5ce4f1c118c3ab2e8aa4349db02176e4ed9ffe1ce2cd19acb6be9c4c2c4",
+      "bytes": 52
+    },
+    "features/data/615_publication_guard_refresh_2026-10-06/yolo-preserved-publication-tests-r3.log.gz": {
+      "sha256": "0b23c98d29ee598275ff2f6479b2edd429328fd8f77499c3f32f466934a990a2",
+      "bytes": 52
+    }
+  }
+}

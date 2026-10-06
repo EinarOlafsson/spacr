@@ -86254,72 +86254,76 @@
     },
     "spacr.qt.night_themes": {
       "source_blocks_sha256": [
-        "346723f1541cc4bec1b688e9259d94747bb485fdcc2c7b65d48f994ba747c912",
+        "a75dbf0f3d2da88ace6b93626d9c1138dffeb27eac5a51999f3e3a1d11bbbd56",
         "49ce420028c6eb5eaf9d09cfb9403595e41462862cce337273428410717c1611",
         "e2ae18a447fd3e2c22c635ff634345d154df191d541e9a9e492ce13478ac7d00",
         "9e416ff9a6db162726dfb91a00e8b61ff0fa6476d05142c39c4c7ba3da2c3633",
         "f6dd7419e49258f93302b0be03ae57fb97083eeef18d64539a755988b2ea3ddd",
         "552e6586e46573d11229cdea62271291a2f6c657ccd3f6e8d7d5a5eb8241b01c",
-        "a36a6ba9d297a7db56d4b926e15ad78a98d1f438aa96723f15517149a8ed2555"
+        "a36a6ba9d297a7db56d4b926e15ad78a98d1f438aa96723f15517149a8ed2555",
+        "4dda2672e61347f828d85de9998b88c9122d2e766dfca1b74ef9e4a969f9d141"
       ],
-      "source_sha256": "d9a700aeab3e57ddb742a6f4e79f663d496861bce4d40c6bc6fd965d4b344f98",
-      "text": "Les dix thèmes nocturnes, chacun avec une palette, un arrière-plan et un jeu de sons.\n\nUn thème nocturne est un seul choix qui modifie trois choses à la fois : les couleurs dans lesquelles l’interface est peinte (:data:`spacr.qt.theme.THEMES` compte dix thèmes de plus grâce à ce module), l’animation d’ambiance qui s’exécute derrière elle et ses couleurs (:mod:`spacr.qt.widgets.ambient`), et le jeu de sons que joue spaCR si l’utilisateur a déjà activé le son (:mod:`spacr.qt.sound_synth`). En choisir un dans les Préférences change donc l’apparence de spaCR *et* sa sonorité, ce qui est toute la raison d’être de cette famille.\n\nCe module est délibérément indépendant de Qt, de la même façon que :mod:`spacr.qt.sound_synth` : :mod:`spacr.qt.preferences` l’importe pour valider un nom de thème stocké et ne doit pas, ce faisant, entraîner QtGui ou QtWidgets. Il contient des données et trois fonctions de recherche et n’importe rien du reste de spaCR, si bien que :mod:`spacr.qt.theme`, :mod:`spacr.qt.widgets.ambient` et :mod:`spacr.qt.sound_synth` peuvent tous y lire sans dépendance circulaire.\n\nLES PALETTES SONT DES LITTÉRAUX PLUTÔT QU’UNE RECETTE. Chacune a été générée à partir d’une teinte et d’une saturation sur une rampe de luminosité commune, puis vérifiée avec :func:`spacr.qt.theme.contrast_failures` et :func:`spacr.qt.theme.page_separation_failures`, et consignée. Conserver ici les nombres plutôt que la recette garantit que les couleurs publiées sont les couleurs relues, qu’aucun solveur ne s’exécute à l’importation, et que ``tests/qt/test_ten_night_themes.py`` évalue ce qui est réellement livré.\n\nTROIS COULEURS ONT ÉTÉ ÉCARTÉES DE LA RECETTE SUR LA FOI DE MESURES, et ce sont les trois seules. Les ``accent_lo`` de Nocturne et d’Aphelion échouaient au test ``bg`` contre ``accent_lo`` à 4.5:1 sans habillage -- un bleu profond et un violet profond sont tout simplement trop sombres à la luminosité de la recette --, et celui de Vesper y échouait à 4.49:1 pour l’un des soixante décalages de teinte que peut atteindre l’habillage ``spaceout``. Les trois ont été éclaircis jusqu’à réussir le test, et rien d’autre n’a été modifié. Voir ``docs/notes/spacr/qt/night_themes.md``.\n\nTROIS RÔLES SONT IDENTIQUES DANS LES DIX THÈMES, et c’est délibéré : ``success``, ``warning`` et ``error``. Un rouge qui signifie *cette exécution a échoué* ne doit pas devenir une décision de thème ; les teintes d’état ne suivent donc pas la palette autour du cercle chromatique. ``fg`` est blanc dans les dix thèmes, pour la raison même qui le rend souhaitable dans une palette nocturne : toutes les surfaces y sont sombres.\n\n:data:`NIGHT_THEMES` est ordonné par teinte, des chaudes aux froides puis de retour vers le rose, afin que le menu Theme se lise comme une seule famille plutôt que comme dix entrées sans rapport.",
+      "source_sha256": "f250e329b8fd6e6658169928ffd89a9a3c6fba9f61367f5c1a424537c09d79a7",
+      "text": "Dix palettes nocturnes et douze préréglages distincts d’art de données.\n\nUn thème nocturne est un seul choix qui modifie trois choses à la fois : les couleurs dans lesquelles l’interface est peinte (:data:`spacr.qt.theme.THEMES` compte dix thèmes de plus grâce à ce module), l’animation d’ambiance qui s’exécute derrière elle et ses couleurs (:mod:`spacr.qt.widgets.ambient`), et le jeu de sons que joue spaCR si l’utilisateur a déjà activé le son (:mod:`spacr.qt.sound_synth`). En choisir un dans les Préférences change donc l’apparence de spaCR *et* sa sonorité, ce qui est toute la raison d’être de cette famille.\n\nCe module est délibérément indépendant de Qt, de la même façon que :mod:`spacr.qt.sound_synth` : :mod:`spacr.qt.preferences` l’importe pour valider un nom de thème stocké et ne doit pas, ce faisant, entraîner QtGui ou QtWidgets. Il contient des données et trois fonctions de recherche et n’importe rien du reste de spaCR, si bien que :mod:`spacr.qt.theme`, :mod:`spacr.qt.widgets.ambient` et :mod:`spacr.qt.sound_synth` peuvent tous y lire sans dépendance circulaire.\n\nLES PALETTES SONT DES LITTÉRAUX PLUTÔT QU’UNE RECETTE. Chacune a été générée à partir d’une teinte et d’une saturation sur une rampe de luminosité commune, puis vérifiée avec :func:`spacr.qt.theme.contrast_failures` et :func:`spacr.qt.theme.page_separation_failures`, et consignée. Conserver ici les nombres plutôt que la recette garantit que les couleurs publiées sont les couleurs relues, qu’aucun solveur ne s’exécute à l’importation, et que ``tests/qt/test_ten_night_themes.py`` évalue ce qui est réellement livré.\n\nTROIS COULEURS ONT ÉTÉ ÉCARTÉES DE LA RECETTE SUR LA FOI DE MESURES, et ce sont les trois seules. Les ``accent_lo`` de Nocturne et d’Aphelion échouaient au test ``bg`` contre ``accent_lo`` à 4.5:1 sans habillage -- un bleu profond et un violet profond sont tout simplement trop sombres à la luminosité de la recette --, et celui de Vesper y échouait à 4.49:1 pour l’un des soixante décalages de teinte que peut atteindre l’habillage ``spaceout``. Les trois ont été éclaircis jusqu’à réussir le test, et rien d’autre n’a été modifié. Voir ``docs/notes/spacr/qt/night_themes.md``.\n\nTROIS RÔLES SONT IDENTIQUES DANS LES DIX THÈMES, et c’est délibéré : ``success``, ``warning`` et ``error``. Un rouge qui signifie *cette exécution a échoué* ne doit pas devenir une décision de thème ; les teintes d’état ne suivent donc pas la palette autour du cercle chromatique. ``fg`` est blanc dans les dix thèmes, pour la raison même qui le rend souhaitable dans une palette nocturne : toutes les surfaces y sont sombres.\n\n:data:`NIGHT_THEMES` est ordonné par teinte, des chaudes aux froides puis de retour vers le rose, afin que le menu Theme se lise comme une seule famille plutôt que comme dix entrées sans rapport.\n\nLe catalogue d’art de données ajoute douze préréglages de palette indépendants. Ses clés sélectionnent des générateurs de fonds animés distincts et des ensembles de sons existants sans modifier l’identité des dix thèmes nocturnes d’origine. Ses remplacements explicites de couleurs conservent les couleurs d’état stables des palettes nocturnes et sont vérifiés selon les mêmes règles de contraste et de séparation entre les pages.",
       "translation_source_blocks_sha256": [
-        "346723f1541cc4bec1b688e9259d94747bb485fdcc2c7b65d48f994ba747c912",
+        "a75dbf0f3d2da88ace6b93626d9c1138dffeb27eac5a51999f3e3a1d11bbbd56",
         "49ce420028c6eb5eaf9d09cfb9403595e41462862cce337273428410717c1611",
         "e2ae18a447fd3e2c22c635ff634345d154df191d541e9a9e492ce13478ac7d00",
         "a0c6becab15df4f7908c877535c9fe83bc36e51b647772925eed25075d324f76",
         "cff568be522f9f48ce093ea5d9f606dd298386c97c56158773b0897429a5a65f",
         "05b5a891458a623bc8f33e1d9f62f2a2356efc69d04ff01fce47ab3bff5330ec",
-        "a36a6ba9d297a7db56d4b926e15ad78a98d1f438aa96723f15517149a8ed2555"
+        "a36a6ba9d297a7db56d4b926e15ad78a98d1f438aa96723f15517149a8ed2555",
+        "4dda2672e61347f828d85de9998b88c9122d2e766dfca1b74ef9e4a969f9d141"
       ]
     },
     "spacr.qt.night_themes.NightTheme": {
       "source_blocks_sha256": [
-        "6f72a94ed8d17445cf0d961b5c4d969e457f66f46052759c45fa9a77f65976e1",
-        "b66ab95f8da0797fc565966e552fd1d912f46d577872ec424516f3905ff66b03",
+        "1c2ef8f9986d2e9322b18cb7dfb3db66dc00c40d640c711236e2cd87550d464a",
+        "0046349464d284760af5d7913fd6c60cd79f485c1a324b1cbc811a0acdc0b748",
         "5c90f3f81c414201cd9307801a7c946abea22aa8032d6e5a0141d21bdd51bb6c",
         "e0f90f3ca4bf447b317b49611d6132622c132dc3762cc30baefeff5e0fcdcb23",
         "60fa51a7cddda06a4fce853b0331ff28b55a0d30748bf1b52e4ac2cfe43cf85a",
         "bce99c944aa7c6a9abf154a160d790a7126fdc080064b62b3a14a25975477065",
-        "166f92f2b355b1a1647b76a22fffc2e0a55c8834fd0aee19d8c9dabbbe6d1b22"
+        "166f92f2b355b1a1647b76a22fffc2e0a55c8834fd0aee19d8c9dabbbe6d1b22",
+        "2b3ed305dc872fc45a5a57bf346aa7d093c3b693d156dd1f551cca9aed43bac8"
       ],
-      "source_sha256": "f731d75b1a93b3d089fded6008f985c1a66f7d9fb3c61005e3e279ac4fc3b301",
-      "text": "Un thème nocturne : son nom, et les trois choses qu’il modifie.\n\n:param key: identifiant stable. C’est la valeur persistée de ``prefs/theme``, la clé dans :data:`spacr.qt.theme.THEMES` et la clé du :class:`spacr.qt.sound_synth.SoundTheme` correspondant, si bien que les trois restent alignés par construction plutôt que par une table.\n:param label: nom affiché dans les Préférences.\n:param description: une phrase affichée comme explication du choix.\n:param palette: la palette complète de l’interface, avec chaque rôle que promet :func:`spacr.qt.theme.palette_for`.\n:param ambient: l’animation d’ambiance que ce thème exécute en arrière-plan, l’une de :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`.\n:param ambient_palette: le jeu de couleurs dans lequel cette animation est peinte, une clé de :data:`spacr.qt.widgets.ambient.PALETTE_SETS`.",
+      "source_sha256": "3e001b46abaaf69755f11e37fe253b7b3d8f973c2417f22e022d3587970dd921",
+      "text": "Un préréglage de palette : son libellé, ses couleurs, son fond et son ensemble de sons.\n\n:param key: identifiant stable dans la préférence de thème et la table des palettes.\n:param label: nom affiché dans les Préférences.\n:param description: une phrase affichée comme explication du choix.\n:param palette: la palette complète de l’interface, avec chaque rôle que promet :func:`spacr.qt.theme.palette_for`.\n:param ambient: l’animation d’ambiance que ce thème exécute en arrière-plan, l’une de :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`.\n:param ambient_palette: le jeu de couleurs dans lequel cette animation est peinte, une clé de :data:`spacr.qt.widgets.ambient.PALETTE_SETS`.\n:param sound_key: clé d’un ensemble de sons existant pour les préréglages d’art de données ; ``None`` conserve la clé sonore correspondante du thème nocturne d’origine.",
       "translation_source_blocks_sha256": [
-        "6f72a94ed8d17445cf0d961b5c4d969e457f66f46052759c45fa9a77f65976e1",
-        "29111d5f37031ecc17335333bceb03b624e12d3252c6ae37a8d4ade503c70667",
+        "1c2ef8f9986d2e9322b18cb7dfb3db66dc00c40d640c711236e2cd87550d464a",
+        "0046349464d284760af5d7913fd6c60cd79f485c1a324b1cbc811a0acdc0b748",
         "5c90f3f81c414201cd9307801a7c946abea22aa8032d6e5a0141d21bdd51bb6c",
         "e0f90f3ca4bf447b317b49611d6132622c132dc3762cc30baefeff5e0fcdcb23",
         "60fa51a7cddda06a4fce853b0331ff28b55a0d30748bf1b52e4ac2cfe43cf85a",
         "bce99c944aa7c6a9abf154a160d790a7126fdc080064b62b3a14a25975477065",
-        "166f92f2b355b1a1647b76a22fffc2e0a55c8834fd0aee19d8c9dabbbe6d1b22"
+        "166f92f2b355b1a1647b76a22fffc2e0a55c8834fd0aee19d8c9dabbbe6d1b22",
+        "2b3ed305dc872fc45a5a57bf346aa7d093c3b693d156dd1f551cca9aed43bac8"
       ]
     },
     "spacr.qt.night_themes.NightTheme.sound": {
       "source_blocks_sha256": [
-        "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794"
+        "162c7d3c8b281f765a574e9682002884dc0edda5172bdf85a9e322a605c71eba"
       ],
-      "source_sha256": "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794",
-      "text": "Clé du jeu de sons de ce thème. C’est la clé propre du thème.",
+      "source_sha256": "162c7d3c8b281f765a574e9682002884dc0edda5172bdf85a9e322a605c71eba",
+      "text": "Clé d’un ensemble de sons existant ; les préréglages nocturnes conservent la leur.",
       "translation_source_blocks_sha256": [
-        "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794"
+        "162c7d3c8b281f765a574e9682002884dc0edda5172bdf85a9e322a605c71eba"
       ]
     },
     "spacr.qt.night_themes.ambient_for": {
       "source_blocks_sha256": [
         "1b89c135b53ba823e866f55d52277c7a7ffa2695ae6ccbd8b62a6192bca2afaa",
-        "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "3e489fb1201417ea6f069beb414062178b602647e0ee9037ee9afab486afd896",
         "b3a9d03e1327a6b30ea9db8356fff41b7372987c2425adb33517d797de84240d",
-        "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44"
+        "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef"
       ],
-      "source_sha256": "31d7a3dd00336fb17127b44127bededb8be34a807be17a4cdfbba0f8652e2c8b",
-      "text": "L’arrière-plan que demande ``name``.\n\n:param name: l’une des :data:`NIGHT_THEME_KEYS`.\n:returns: ``(animation, palette)`` -- un nom de :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` et une clé de :data:`spacr.qt.widgets.ambient.PALETTE_SETS`.\n:raises KeyError: si ``name`` n’est pas l’un des dix.",
+      "source_sha256": "4c98827f47e602c055a19787f6f62a88093b0c3d16871817ff37450d6b4a4125",
+      "text": "L’arrière-plan que demande ``name``.\n\n:param name: une des clés de :data:`NIGHT_THEME_KEYS` ou :data:`DATA_ART_THEME_KEYS`.\n:returns: ``(animation, palette)`` -- un nom de :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` et une clé de :data:`spacr.qt.widgets.ambient.PALETTE_SETS`.\n:raises KeyError: si ``name`` est inconnu.",
       "translation_source_blocks_sha256": [
         "1b89c135b53ba823e866f55d52277c7a7ffa2695ae6ccbd8b62a6192bca2afaa",
-        "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "3e489fb1201417ea6f069beb414062178b602647e0ee9037ee9afab486afd896",
         "b3a9d03e1327a6b30ea9db8356fff41b7372987c2425adb33517d797de84240d",
-        "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44"
+        "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef"
       ]
     },
     "spacr.qt.night_themes.is_night_theme": {
@@ -86351,33 +86355,33 @@
     "spacr.qt.night_themes.sound_for": {
       "source_blocks_sha256": [
         "7f883d7d4007a2b3ea3594ca2cdbb46d5e6e66508b220caabab9320fc4254125",
-        "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "3e489fb1201417ea6f069beb414062178b602647e0ee9037ee9afab486afd896",
         "45d6b1c147b794bf98079e56230e071c9a42013618da724c95ffc40b03441040",
-        "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44"
+        "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef"
       ],
-      "source_sha256": "72be6c84d5929bb6e7189fd69edfc6318c55611c13cccb0fa180895e5021045d",
-      "text": "Le jeu de sons que demande ``name``.\n\n:param name: l’une des :data:`NIGHT_THEME_KEYS`.\n:returns: une clé de :data:`spacr.qt.sound_synth.SOUND_THEMES`.\n:raises KeyError: si ``name`` n’est pas l’un des dix.",
+      "source_sha256": "18247e532cadf654f534fb87d17005b142e54f1f6766ec15406dac2f0911b3f4",
+      "text": "Le jeu de sons que demande ``name``.\n\n:param name: une des clés de :data:`NIGHT_THEME_KEYS` ou :data:`DATA_ART_THEME_KEYS`.\n:returns: une clé de :data:`spacr.qt.sound_synth.SOUND_THEMES`.\n:raises KeyError: si ``name`` est inconnu.",
       "translation_source_blocks_sha256": [
         "7f883d7d4007a2b3ea3594ca2cdbb46d5e6e66508b220caabab9320fc4254125",
-        "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "3e489fb1201417ea6f069beb414062178b602647e0ee9037ee9afab486afd896",
         "45d6b1c147b794bf98079e56230e071c9a42013618da724c95ffc40b03441040",
-        "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44"
+        "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef"
       ]
     },
     "spacr.qt.night_themes.theme_for": {
       "source_blocks_sha256": [
-        "3d01be273faedd31281bb08d51925860acd197b359a3dbb0d77d1dc5c22e9334",
-        "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "65c18e3f567ad212679dcddc8693d35a9cbe5796e4b65df593a851052110b6b4",
+        "3e489fb1201417ea6f069beb414062178b602647e0ee9037ee9afab486afd896",
         "039b021392faea6f9527d02d26700e5d1c0babcb9708dd1a7d718122e8ec06f1",
-        "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44"
+        "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef"
       ],
-      "source_sha256": "d7f5f67e052fe845e993a93870a339805b5799571b87ff4d2a1b8e48862dfba7",
-      "text": "Le :class:`NightTheme` appelé ``name``.\n\n:param name: l’une des :data:`NIGHT_THEME_KEYS`.\n:returns: le thème.\n:raises KeyError: si ``name`` n’est pas l’un des dix.",
+      "source_sha256": "e882ec188543e726ac358466b18f9d0577130f6755bc79b53b5b7db1ab981953",
+      "text": "Le préréglage de palette nocturne ou d’art de données nommé ``name``.\n\n:param name: une des clés de :data:`NIGHT_THEME_KEYS` ou :data:`DATA_ART_THEME_KEYS`.\n:returns: le thème.\n:raises KeyError: si ``name`` est inconnu.",
       "translation_source_blocks_sha256": [
-        "3d01be273faedd31281bb08d51925860acd197b359a3dbb0d77d1dc5c22e9334",
-        "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "65c18e3f567ad212679dcddc8693d35a9cbe5796e4b65df593a851052110b6b4",
+        "3e489fb1201417ea6f069beb414062178b602647e0ee9037ee9afab486afd896",
         "039b021392faea6f9527d02d26700e5d1c0babcb9708dd1a7d718122e8ec06f1",
-        "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44"
+        "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef"
       ]
     },
     "spacr.qt.notify": {
@@ -87529,7 +87533,7 @@
         "8c0ffabb9533d0ceeda8b279c8bea0ceb461a19081b578103ce479b2cd3cae20",
         "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
         "5cc0279aece897e1cc3c9d2441a8760656b5a35c8da09522ab236b23413869e8",
-        "b597667cc79d085cc0bebc81dc664039e2b02a19e409367088ca92ae9ff30837",
+        "310ce5591c3270eda11665fc69b36c06f9f9324a288f0e5f60f9ed3af0f3a3d3",
         "67e2eba58f8bc035a69d08714935640c9cff8e6eddb6da5ff95cdb313e6c0f03",
         "eeccbe7ee0aa5b83848a946db48b3f74d068c919723dfa65f6050f3d1580f2ba",
         "41c931441e9f96645bac069a9c14ba394abe73b62bdab0739f6fe7569c1648cc",
@@ -87551,8 +87555,8 @@
         "8af42943d1d1af2aba07a4cfc2782231682f5301394f99a0967fcfed571f4c35",
         "fb04228cdb186b5d2a893ae59213e5a81e4b9832ca2bcd52336771c187e56217"
       ],
-      "source_sha256": "54dfdfa246a27ccef067ec8203f4933f8ee5b9550f842af4d40db6d1c2a05d3c",
-      "text": "Préférences orientées vers l'utilisateur — langage, thème, échelle de police et accessibilité.\n\nLes paramètres persistants soutenus par :class:`PySide6.QtCore.QSettings`, donc ils survivent aux redémarrages de l'application. De nouveaux boutons peuvent s'emboîter aux côtés de ceux existants sans changer les consommateurs grâce au petit tapé API (``get_theme()`` / ``set_theme(...)`` etc.).\n\nMise en ligne:\n\n* :func:`apply_preferences_to_app` — appeler une fois au démarrage et de nouveau chaque fois qu'un réglage change; réapplique la feuille de style avec l'échelle de police actuelle du thème +.\n* :class:`PreferencesDialog` — la boîte de dialogue Paramètres modaux ouverte par Ctrl+P (voir :mod:`spacr.qt.shortcuts`).\n\nAPI publique::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_cell_variant, set_cell_variant,\n        cell_background_path,\n        theme_background_path,\n        get_sound_music_file, set_sound_music_file,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_tooltips_enabled, set_tooltips_enabled,\n        get_font_scale, set_font_scale,\n        get_gui_scale, set_gui_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\nValeurs :\n\n* ``theme`` : ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | l’un des dix thèmes nocturnes de :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | ``\"system\"`` (par défaut ``\"dark\"``). ``\"system\"`` suit le thème de couleurs du système d’exploitation, uniquement après un choix explicite : une valeur ``\"system\"`` enregistrée avant que le mode sombre ne devienne la valeur par défaut (2026-09-21) était l’ancien défaut, pas un choix, et se lit comme ``\"dark\"`` ; voir :func:`get_theme`. ``\"cell\"`` utilise des images de fluorescence et ``\"glass\"`` des matériaux neutres superposés sur un champ lumineux intégré. Un thème nocturne comprend également un arrière-plan et un ensemble de sons, enregistrés par :func:`apply_night_theme` lors de sa sélection. Space n’est pas un thème sélectionnable. Les anciennes valeurs ``space_variant`` et ``space_seed`` sont supprimées d’un stockage existant lors de la première lecture du thème ; voir :func:`get_theme`.\n* ``font_scale``: float, 1.0 = 100 % (valeur par défaut). Borné à [0.10, 2.0].\n* ``gui_scale`` : flottant, 1.0 = 100 % (valeur par défaut). Borné à [0.10, 2.0]. Met à l’échelle toutes les tailles de l’interface, pas seulement le texte, et s’applique en direct. Voir :mod:`spacr.qt.gui_scale`.\n* ``figure_save_mode``: ``\"print\"``- ``\"screen\"``-``\"transparent\"`` (par défaut ``\"print\"``). Contrôle les couleurs de la page et de l'élément de la figure utilisées pour les figures sauvegardées. ``SPACR_FIGURE_SAVE_MODE`` reste une priorité locale-processus; voir :func:`spacr.figure_style.figure_save_mode`.\n* ``color_blind_mode``: ``\"off\"``= ``\"deuteranopia\"``= ``\"protanopia\"``= ``\"tritanopia\"`` (par défaut ``\"off\"``). Swaps matplotlib palettes arc-en-ciel / rouge-vert pour perceptually-uniform + color-aveugle-safe alternatives (viridis pour continu, Okabe-Ito pour catégorique).\n* ``performance_logging``: ``\"off\"``=``\"summary\"``=``\"detailed\"`` (par défaut ``\"summary\"``). Enregistrer l'utilisation des ressources process-tree indépendamment de la recherche d'appels verbeux; voir :func:`get_performance_logging` et :mod:`spacr.resource_log`.\n* ``db_browser_editable``: bool, valeur initiale ``False``. Permet à Database Browser d'ouvrir une connexion lecture-écriture. Détails: :func:`get_db_browser_editable`.\n* ``dock_mode``: ``\"locked\"``=\" ``\"hidden\"`` (par défaut ``\"locked\"``). Que le dock de l'application de gauche révèle sur hover, est épinglé ouvert comme une colonne permanente, ou n'y est pas du tout.\n* ``pane_opacity``: int pourcentage, valeur initiale ``60``. Contrôle la solidité des surfaces partagées ou la résistance du matériau dans le verre. Au moment de la peinture :func:`spacr.qt.theme.pane_alpha_floor` fixe une limite inférieure: la préférence est une demande, tandis que la lisibilité est obligatoire.\n* ``field_fade`` : bool, par défaut ``True``. Indique si le conteneur et le contour d'un champ de saisie passent progressivement d'opaques à gauche à entièrement transparents à droite. Les champs sont **exemptés de** ``pane_opacity`` tant que cette option est active — voir :func:`get_field_fade_enabled` et :mod:`spacr.qt.widgets.field_fade`.\n* ``show_alpha`` / ``show_beta``: bool, les deux par défaut ``True``. Contrôlez si les modules et les paramètres à cette maturité sont affichés.\n* ``sound/music_file`` : str, ``\"\"`` par défaut. Un WAV propre à l’utilisateur que la nappe musicale joue à la place de celle qui est synthétisée, et qui pilote l’arrière-plan Resonance. Voir :func:`get_sound_music_file`.\n* ``ambient_enabled``: bool, valeur initiale ``True``. Contrôle si les écrans du module peignent l'arrière-plan animé. Désactiver est un choix de première classe; détails: :func:`get_ambient_enabled`. Le contrôle orienté vers l'utilisateur est l'entrée ``None`` dans la liste d'animation plutôt qu'un autre commutateur: une ligne, une signification. Choisir une animation l'autorise à nouveau.\n* ``spacr_mode``: ``\"extra_performance\"`` . ``\"performance\"`` , ``\"balanced\"`` (par défaut ``\"balanced\"``). Comment le spaCR tente de rester hors de la voie de la machine — quand il libère ses propres caches, et si il surcharge les paramètres visuels. L'équilibre ne fait rien. Voir :func:`set_spacr_mode` et :mod:`spacr.qt.resource_cleanup`, qui possède ce qu'un nettoyage est autorisé à toucher (spaCR propre mémoire, et rien d'autre — aucun autre processus, jamais).\n* ``ambient_theme`` / ``ambient_palette``: quelle animation, et dans quelles couleurs. ``ambient_theme`` contient également :data:`spacr.qt.widgets.ambient.NO_ANIMATION` — lisez-le avec :func:`get_ambient_animation`, qui peut répondre ``\"none\"`` ou :func:`get_ambient_theme`, dont la réponse est toujours quelque chose de peinture. Validée contre :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` et :func:`spacr.qt.widgets.ambient.palettes_for` respectivement; les palettes sont *par thème*, alors voyez :func:`get_ambient_palette` pour savoir comment les deux touches restent compatibles les unes avec les autres.\n* ``ambient_speed``/ ``ambient_size`` / ``ambient_resolution`` /``ambient_density``: flotteurs, tous par défaut ``1.0``, tous *multipliers* sur ce que l'animation choisie fait déjà — à quelle vitesse elle se déplace, à quelle taille ses éléments sont, à combien de détails elle est dessinée et combien d'éléments il y a. 1.0 est l' animation expédiée dans chaque thème, exactement, donc un utilisateur qui ne les touche jamais ne voit aucun changement. Clampé sur lecture et sur écriture aux gammes que les moteurs déclarent (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` et amis).\n* ``ambient_blur``: flotteur, par défaut ``0.0`` — combien l'image finie est adoucie, en unités de huit pixels d'criblage. Le détail d'image est contrôlé séparément par ``ambient_resolution``. Les valeurs stockées sous l'échelle de flou héritée sont traduites une fois en lecture par :func:`_migrate_ambient_motion`.\n* ``ambient_drift_direction``: ``\"up\"`` . ``\"down\"`` , ``\"random\"`` (par défaut ``\"up\"``). De quelle façon l'animation Starfield voyage. Une préférence plutôt que trois entrées dans le menu d'animation; voir :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS` pour pourquoi.\n* ``spinner_delay``: flotter secondes, par défaut ``2.0``. Combien de temps le travail d'arrière-plan doit-il durer avant que le spinner d'activité n'apparaisse du tout — voir :func:`get_spinner_delay`.\n* ``setting_animations``: bool, par défaut ``False``. Indique si les tooltips jouent automatiquement leurs animations. Lorsque désactivé, hover reste texte seulement jusqu'à ce que l'utilisateur active **Animation** dans le pied de page de cet tooltip; voir :func:`get_setting_animations_enabled`.\n* ``language`` : l'un des codes de langue groupés de :mod:`spacr.qt.i18n`; par défaut, il retourne en anglais en toute sécurité lorsqu'une valeur persistante n'est pas valide.",
+      "source_sha256": "56a126f71f278732cc3d5a562c192696faac23c91b4535e590b93b5f09f717fb",
+      "text": "Préférences orientées vers l'utilisateur — langage, thème, échelle de police et accessibilité.\n\nLes paramètres persistants soutenus par :class:`PySide6.QtCore.QSettings`, donc ils survivent aux redémarrages de l'application. De nouveaux boutons peuvent s'emboîter aux côtés de ceux existants sans changer les consommateurs grâce au petit tapé API (``get_theme()`` / ``set_theme(...)`` etc.).\n\nMise en ligne:\n\n* :func:`apply_preferences_to_app` — appeler une fois au démarrage et de nouveau chaque fois qu'un réglage change; réapplique la feuille de style avec l'échelle de police actuelle du thème +.\n* :class:`PreferencesDialog` — la boîte de dialogue Paramètres modaux ouverte par Ctrl+P (voir :mod:`spacr.qt.shortcuts`).\n\nAPI publique::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_cell_variant, set_cell_variant,\n        cell_background_path,\n        theme_background_path,\n        get_sound_music_file, set_sound_music_file,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_tooltips_enabled, set_tooltips_enabled,\n        get_font_scale, set_font_scale,\n        get_gui_scale, set_gui_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\nValeurs :\n\n* ``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | un des dix thèmes nocturnes de :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | les douze préréglages d’art de données de :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (valeur par défaut ``\"dark\"``). ``\"system\"`` suit le schéma de couleurs du système d’exploitation, mais seulement après avoir été choisi : une valeur ``\"system\"`` enregistrée avant que le mode sombre devienne le mode par défaut (2026-09-21) correspondait à l’ancienne valeur par défaut, pas à un choix, et est lue comme ``\"dark\"`` ; voir :func:`get_theme`. ``\"cell\"`` utilise des images de fluorescence et ``\"glass\"`` des matériaux neutres superposés sur un champ lumineux intégré. Un préréglage nocturne ou d’art de données comprend également un fond et un ensemble de sons, enregistrés par :func:`apply_night_theme` lors de sa sélection. Space n’est pas un thème sélectionnable. Les valeurs abandonnées ``space_variant`` et ``space_seed`` sont supprimées des anciens paramètres enregistrés à la première lecture du thème ; voir :func:`get_theme`.\n* ``font_scale``: float, 1.0 = 100 % (valeur par défaut). Borné à [0.10, 2.0].\n* ``gui_scale`` : flottant, 1.0 = 100 % (valeur par défaut). Borné à [0.10, 2.0]. Met à l’échelle toutes les tailles de l’interface, pas seulement le texte, et s’applique en direct. Voir :mod:`spacr.qt.gui_scale`.\n* ``figure_save_mode``: ``\"print\"``- ``\"screen\"``-``\"transparent\"`` (par défaut ``\"print\"``). Contrôle les couleurs de la page et de l'élément de la figure utilisées pour les figures sauvegardées. ``SPACR_FIGURE_SAVE_MODE`` reste une priorité locale-processus; voir :func:`spacr.figure_style.figure_save_mode`.\n* ``color_blind_mode``: ``\"off\"``= ``\"deuteranopia\"``= ``\"protanopia\"``= ``\"tritanopia\"`` (par défaut ``\"off\"``). Swaps matplotlib palettes arc-en-ciel / rouge-vert pour perceptually-uniform + color-aveugle-safe alternatives (viridis pour continu, Okabe-Ito pour catégorique).\n* ``performance_logging``: ``\"off\"``=``\"summary\"``=``\"detailed\"`` (par défaut ``\"summary\"``). Enregistrer l'utilisation des ressources process-tree indépendamment de la recherche d'appels verbeux; voir :func:`get_performance_logging` et :mod:`spacr.resource_log`.\n* ``db_browser_editable``: bool, valeur initiale ``False``. Permet à Database Browser d'ouvrir une connexion lecture-écriture. Détails: :func:`get_db_browser_editable`.\n* ``dock_mode``: ``\"locked\"``=\" ``\"hidden\"`` (par défaut ``\"locked\"``). Que le dock de l'application de gauche révèle sur hover, est épinglé ouvert comme une colonne permanente, ou n'y est pas du tout.\n* ``pane_opacity``: int pourcentage, valeur initiale ``60``. Contrôle la solidité des surfaces partagées ou la résistance du matériau dans le verre. Au moment de la peinture :func:`spacr.qt.theme.pane_alpha_floor` fixe une limite inférieure: la préférence est une demande, tandis que la lisibilité est obligatoire.\n* ``field_fade`` : bool, par défaut ``True``. Indique si le conteneur et le contour d'un champ de saisie passent progressivement d'opaques à gauche à entièrement transparents à droite. Les champs sont **exemptés de** ``pane_opacity`` tant que cette option est active — voir :func:`get_field_fade_enabled` et :mod:`spacr.qt.widgets.field_fade`.\n* ``show_alpha`` / ``show_beta``: bool, les deux par défaut ``True``. Contrôlez si les modules et les paramètres à cette maturité sont affichés.\n* ``sound/music_file`` : str, ``\"\"`` par défaut. Un WAV propre à l’utilisateur que la nappe musicale joue à la place de celle qui est synthétisée, et qui pilote l’arrière-plan Resonance. Voir :func:`get_sound_music_file`.\n* ``ambient_enabled``: bool, valeur initiale ``True``. Contrôle si les écrans du module peignent l'arrière-plan animé. Désactiver est un choix de première classe; détails: :func:`get_ambient_enabled`. Le contrôle orienté vers l'utilisateur est l'entrée ``None`` dans la liste d'animation plutôt qu'un autre commutateur: une ligne, une signification. Choisir une animation l'autorise à nouveau.\n* ``spacr_mode``: ``\"extra_performance\"`` . ``\"performance\"`` , ``\"balanced\"`` (par défaut ``\"balanced\"``). Comment le spaCR tente de rester hors de la voie de la machine — quand il libère ses propres caches, et si il surcharge les paramètres visuels. L'équilibre ne fait rien. Voir :func:`set_spacr_mode` et :mod:`spacr.qt.resource_cleanup`, qui possède ce qu'un nettoyage est autorisé à toucher (spaCR propre mémoire, et rien d'autre — aucun autre processus, jamais).\n* ``ambient_theme`` / ``ambient_palette``: quelle animation, et dans quelles couleurs. ``ambient_theme`` contient également :data:`spacr.qt.widgets.ambient.NO_ANIMATION` — lisez-le avec :func:`get_ambient_animation`, qui peut répondre ``\"none\"`` ou :func:`get_ambient_theme`, dont la réponse est toujours quelque chose de peinture. Validée contre :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` et :func:`spacr.qt.widgets.ambient.palettes_for` respectivement; les palettes sont *par thème*, alors voyez :func:`get_ambient_palette` pour savoir comment les deux touches restent compatibles les unes avec les autres.\n* ``ambient_speed``/ ``ambient_size`` / ``ambient_resolution`` /``ambient_density``: flotteurs, tous par défaut ``1.0``, tous *multipliers* sur ce que l'animation choisie fait déjà — à quelle vitesse elle se déplace, à quelle taille ses éléments sont, à combien de détails elle est dessinée et combien d'éléments il y a. 1.0 est l' animation expédiée dans chaque thème, exactement, donc un utilisateur qui ne les touche jamais ne voit aucun changement. Clampé sur lecture et sur écriture aux gammes que les moteurs déclarent (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` et amis).\n* ``ambient_blur``: flotteur, par défaut ``0.0`` — combien l'image finie est adoucie, en unités de huit pixels d'criblage. Le détail d'image est contrôlé séparément par ``ambient_resolution``. Les valeurs stockées sous l'échelle de flou héritée sont traduites une fois en lecture par :func:`_migrate_ambient_motion`.\n* ``ambient_drift_direction``: ``\"up\"`` . ``\"down\"`` , ``\"random\"`` (par défaut ``\"up\"``). De quelle façon l'animation Starfield voyage. Une préférence plutôt que trois entrées dans le menu d'animation; voir :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS` pour pourquoi.\n* ``spinner_delay``: flotter secondes, par défaut ``2.0``. Combien de temps le travail d'arrière-plan doit-il durer avant que le spinner d'activité n'apparaisse du tout — voir :func:`get_spinner_delay`.\n* ``setting_animations``: bool, par défaut ``False``. Indique si les tooltips jouent automatiquement leurs animations. Lorsque désactivé, hover reste texte seulement jusqu'à ce que l'utilisateur active **Animation** dans le pied de page de cet tooltip; voir :func:`get_setting_animations_enabled`.\n* ``language`` : l'un des codes de langue groupés de :mod:`spacr.qt.i18n`; par défaut, il retourne en anglais en toute sécurité lorsqu'une valeur persistante n'est pas valide.",
       "translation_source_blocks_sha256": [
         "5b0b335614a237516d384603427cf70317d840b19cdfb21798991377604d621b",
         "66c34eee0d9f2711879c10d2717b8a26f00f8b45d872c760469b9e2ff26b96c6",
@@ -87561,7 +87565,7 @@
         "8c0ffabb9533d0ceeda8b279c8bea0ceb461a19081b578103ce479b2cd3cae20",
         "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
         "5cc0279aece897e1cc3c9d2441a8760656b5a35c8da09522ab236b23413869e8",
-        "b597667cc79d085cc0bebc81dc664039e2b02a19e409367088ca92ae9ff30837",
+        "310ce5591c3270eda11665fc69b36c06f9f9324a288f0e5f60f9ed3af0f3a3d3",
         "67e2eba58f8bc035a69d08714935640c9cff8e6eddb6da5ff95cdb313e6c0f03",
         "eeccbe7ee0aa5b83848a946db48b3f74d068c919723dfa65f6050f3d1580f2ba",
         "41c931441e9f96645bac069a9c14ba394abe73b62bdab0739f6fe7569c1648cc",
@@ -88238,24 +88242,24 @@
     },
     "spacr.qt.preferences.apply_night_theme": {
       "source_blocks_sha256": [
-        "fb456b620dde3f8d1b93927499830e2873de191e3f691b5eb0ce77c575476633",
+        "f9ac0d80836638ce394ab684cd6a9f49d323994be1a22210b246b3cd6aaf3317",
         "985c001b33bb86cbbb594976c2420bb3d6d258d6c54800537d8e0f0a5419c028",
         "0c66875be70f6c978a3c1e1bf7e3a0f52306da16a10a5e50db785c8c974480d7",
         "a8313e70cb10b423b640aaf5fdf95b3604d9dfe50e45e59b9cc45f6c89530c48",
         "88253fd81c715bc3353f84e4dd8f60a7cae387be1d7ae754ca0f9fe58c10c0c6",
-        "9785d1c6e0bec5220095fcda1c3d2133898ab7387eb93715d0842e97a52ecb4a",
-        "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44"
+        "cc315c65931748f6d2e96327957ee98642123b99d3632b13a06543de84e7c559",
+        "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef"
       ],
-      "source_sha256": "9882c3e6f8a82b09d538bb3c4d02f5aa2ecc3b498081630f715321ec140dea10",
-      "text": "Écrit l’arrière-plan et le jeu de sons qui accompagnent un thème nocturne.\n\nUn thème nocturne est un seul choix qui modifie trois choses : les couleurs, l’animation derrière elles et le jeu de sons que jouerait spaCR. Cette fonction écrit donc l’animation d’ambiance, la palette d’ambiance et le jeu de sons qui vont avec les couleurs.\n\nELLE N’ACTIVE RIEN. L’interrupteur général du son reste exactement là où l’utilisateur l’a laissé, c’est-à-dire désactivé sur une installation neuve et sur toute installation où l’onglet Sound n’a jamais été ouvert ; elle décide seulement *quel* jeu serait joué s’il était un jour activé. Elle laisse de même l’interrupteur général de l’animation intact : si l’arrière-plan est désactivé, l’animation stockée est celle qui reviendra lorsqu’il sera réactivé, et :func:`set_ambient_animation` n’est pas utilisée ici précisément pour cette raison -- ce mutateur active aussi l’arrière-plan.\n\nC’EST UN PRÉRÉGLAGE, PAS UNE SURCHARGE. Les trois valeurs sont écrites une seule fois, au moment où le thème est choisi, dans les mêmes clés que celles que lisent et écrivent les contrôles Animation et Sound. Rien ne les réimpose ; un utilisateur qui choisit Nocturne puis change l’animation pour Bokeh garde donc Bokeh.\n\nET ELLE NE RÉACTIVE JAMAIS L’ARRIÈRE-PLAN. \"No animation\" est stocké comme NOM d’animation (:data:`spacr.qt.widgets.ambient.NO_ANIMATION`), que lit :func:`get_ambient_enabled` ; écrire une animation par-dessus donnerait donc un arrière-plan animé à un utilisateur qui avait désactivé le mouvement -- via le contrôle Animation, ou via Extra Performance, qui le désactive de la même façon. :func:`backdrop_is_switched_off` est donc consultée d’abord, et lorsqu’elle répond oui, les deux clés d’ambiance restent exactement telles quelles. Le thème change quand même les couleurs et le jeu de sons ; il ne met simplement rien en mouvement. Le coût est faible et mérite d’être signalé : un utilisateur qui réactive ensuite l’arrière-plan retrouve l’animation qu’il avait avant, et non celle qu’aurait apportée ce thème, et il peut la choisir avec le contrôle qu’il vient d’utiliser.\n\n:param name: l’une des :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS`.\n:raises KeyError: si ``name`` n’est pas l’un des dix.",
+      "source_sha256": "3db717b70e0174301e60b0ae463d7960c8b4813b307587c24a152a294917fedf",
+      "text": "Enregistrer le fond et l’ensemble de sons associés à un préréglage nocturne ou d’art de données.\n\nUn thème nocturne est un seul choix qui modifie trois choses : les couleurs, l’animation derrière elles et le jeu de sons que jouerait spaCR. Cette fonction écrit donc l’animation d’ambiance, la palette d’ambiance et le jeu de sons qui vont avec les couleurs.\n\nELLE N’ACTIVE RIEN. L’interrupteur général du son reste exactement là où l’utilisateur l’a laissé, c’est-à-dire désactivé sur une installation neuve et sur toute installation où l’onglet Sound n’a jamais été ouvert ; elle décide seulement *quel* jeu serait joué s’il était un jour activé. Elle laisse de même l’interrupteur général de l’animation intact : si l’arrière-plan est désactivé, l’animation stockée est celle qui reviendra lorsqu’il sera réactivé, et :func:`set_ambient_animation` n’est pas utilisée ici précisément pour cette raison -- ce mutateur active aussi l’arrière-plan.\n\nC’EST UN PRÉRÉGLAGE, PAS UNE SURCHARGE. Les trois valeurs sont écrites une seule fois, au moment où le thème est choisi, dans les mêmes clés que celles que lisent et écrivent les contrôles Animation et Sound. Rien ne les réimpose ; un utilisateur qui choisit Nocturne puis change l’animation pour Bokeh garde donc Bokeh.\n\nET ELLE NE RÉACTIVE JAMAIS L’ARRIÈRE-PLAN. \"No animation\" est stocké comme NOM d’animation (:data:`spacr.qt.widgets.ambient.NO_ANIMATION`), que lit :func:`get_ambient_enabled` ; écrire une animation par-dessus donnerait donc un arrière-plan animé à un utilisateur qui avait désactivé le mouvement -- via le contrôle Animation, ou via Extra Performance, qui le désactive de la même façon. :func:`backdrop_is_switched_off` est donc consultée d’abord, et lorsqu’elle répond oui, les deux clés d’ambiance restent exactement telles quelles. Le thème change quand même les couleurs et le jeu de sons ; il ne met simplement rien en mouvement. Le coût est faible et mérite d’être signalé : un utilisateur qui réactive ensuite l’arrière-plan retrouve l’animation qu’il avait avant, et non celle qu’aurait apportée ce thème, et il peut la choisir avec le contrôle qu’il vient d’utiliser.\n\n:param name: clé d’un préréglage nocturne ou d’art de données.\n:raises KeyError: si ``name`` est inconnu.",
       "translation_source_blocks_sha256": [
-        "fb456b620dde3f8d1b93927499830e2873de191e3f691b5eb0ce77c575476633",
+        "f9ac0d80836638ce394ab684cd6a9f49d323994be1a22210b246b3cd6aaf3317",
         "985c001b33bb86cbbb594976c2420bb3d6d258d6c54800537d8e0f0a5419c028",
         "5f6551a870a5c80ef0d4b852a17cd73dcd19256adbfa5102d4140e40e0c84389",
         "ea2674699f96e06ec06bd8727c25f7dc9a17bb94242f8d329c3573cd2175a163",
         "843ad1c00072e5d344d2afc7fbd9484d735d103cde26de7d9bc3aaa39d70dcdf",
-        "9785d1c6e0bec5220095fcda1c3d2133898ab7387eb93715d0842e97a52ecb4a",
-        "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44"
+        "cc315c65931748f6d2e96327957ee98642123b99d3632b13a06543de84e7c559",
+        "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef"
       ]
     },
     "spacr.qt.preferences.apply_preferences_to_app": {
@@ -90779,14 +90783,14 @@
     "spacr.qt.preferences.set_theme_choice": {
       "source_blocks_sha256": [
         "c237fd3639e51fb1cc0cbad74d854a3195a3756543bacaaf1e735dde3d197cb7",
-        "376fc869375957cc28e292fc4d274dc98be2941d87a0c80e5db269720f49fe52",
+        "0fb2bea1e3cdaadaaab1b466d0c0ef18c6dbccd054a25c5cb5aaaf3c76ca59f4",
         "c3edb9e0a245d68f188c7004be223d6ada8770f38691af029cad359bbef5537a"
       ],
-      "source_sha256": "b46268b363daa6de0c23630f6e7493c59f526696d07b097b150a4f8042310824",
-      "text": "Persistez un jeton de :func:`theme_choices`.\n\nChoisir l’un des dix thèmes de nuit écrit aussi l’arrière-plan de ce thème et son jeu de sons — voir :func:`apply_night_theme`, où se trouve la justification de ce choix.\n\n:param choice: un jeton issu de :func:`theme_choices` ; un jeton ``\"cell:<variant>\"`` définit le thème Cell et cette variante. Toute autre valeur lève :class:`ValueError`.",
+      "source_sha256": "0fbed2455f20ff622ac4fd883ca8bacca48b03f4afaf07b13271385c3e1a6221",
+      "text": "Persistez un jeton de :func:`theme_choices`.\n\nChoisir un préréglage nocturne ou d’art de données enregistre aussi son fond et son ensemble de sons — voir :func:`apply_night_theme`, où ce comportement est expliqué.\n\n:param choice: un jeton issu de :func:`theme_choices` ; un jeton ``\"cell:<variant>\"`` définit le thème Cell et cette variante. Toute autre valeur lève :class:`ValueError`.",
       "translation_source_blocks_sha256": [
         "c237fd3639e51fb1cc0cbad74d854a3195a3756543bacaaf1e735dde3d197cb7",
-        "376fc869375957cc28e292fc4d274dc98be2941d87a0c80e5db269720f49fe52",
+        "0fb2bea1e3cdaadaaab1b466d0c0ef18c6dbccd054a25c5cb5aaaf3c76ca59f4",
         "c3edb9e0a245d68f188c7004be223d6ada8770f38691af029cad359bbef5537a"
       ]
     },
@@ -90932,28 +90936,28 @@
       "source_blocks_sha256": [
         "50386be4cc3450aaad0c952262cbe7c3442383c40a11a84b3e3a7d1fecf8f02a",
         "85beeac903811c13530b5e99206f3aa10a7862d28747ba2d8a9451dfa8d78e65",
-        "07dd4893d573e5cdb4cd1f69d50ad5ebb9cd0decc3d887c566a5c1b6b56b3dae"
+        "365b4e26992b3354102dadcd9219e23f0aa009e36ea36e44078d3b71e19acab1"
       ],
-      "source_sha256": "3b9a33abc52be17218915dda5c977bcc552153f8890f716a4d77d590eb5c3603",
-      "text": "Retournez les choix ``(label, token)`` pour le contrôle de thème unique.\n\nLes variantes d'image sont représentées comme des jetons composites dans le UI tandis que les touches persistantes restent compatibles avec l'arrière.\n\nLes dix thèmes de nuit viennent en dernier, dans l’ordre de :data:`spacr.qt.night_themes.NIGHT_THEMES`, de sorte que les quatre thèmes que l’application a toujours eus restent là où un utilisateur habitué les cherche et que la nouvelle famille se lit comme un seul bloc en bas de la liste. Leurs jetons sont leurs clés simples : un thème de nuit n’a pas de variante, il n’y a donc rien à composer dans le jeton comme le fait Cell.",
+      "source_sha256": "4be810db7981bd11392886314295019b7cf4e0e05d22e96255223b5661371ffc",
+      "text": "Retournez les choix ``(label, token)`` pour le contrôle de thème unique.\n\nLes variantes d'image sont représentées comme des jetons composites dans le UI tandis que les touches persistantes restent compatibles avec l'arrière.\n\nLes dix thèmes nocturnes suivent les anciennes palettes dans l’ordre de :data:`spacr.qt.night_themes.NIGHT_THEMES`, afin que les quatre palettes présentes depuis toujours restent à l’emplacement attendu par les utilisateurs habitués et apparaissent comme une même famille. Douze préréglages d’art de données suivent dans un bloc distinct. Leurs tokens sont des clés simples sans variante ; il n’y a donc aucun composant à assembler pour former le token comme pour Cell.",
       "translation_source_blocks_sha256": [
         "50386be4cc3450aaad0c952262cbe7c3442383c40a11a84b3e3a7d1fecf8f02a",
         "85beeac903811c13530b5e99206f3aa10a7862d28747ba2d8a9451dfa8d78e65",
-        "07dd4893d573e5cdb4cd1f69d50ad5ebb9cd0decc3d887c566a5c1b6b56b3dae"
+        "365b4e26992b3354102dadcd9219e23f0aa009e36ea36e44078d3b71e19acab1"
       ]
     },
     "spacr.qt.preferences.theme_description": {
       "source_blocks_sha256": [
         "1b273b90aa832ca83d4f19a6cb394c66a4f3ae31289e100fdadefdd0a0197815",
-        "12b70e83d132c7a84b5e012201346a2cd7f4a367ba067cba25e1375d1e502f14",
+        "8e48a03ac72820259a4703a7ca1d6ad0103661a926ad4451b4220ee09282599e",
         "25624b8aca57fd6754c1abc1da19c4be33466b8e02f54cf8f638511b505913fa",
         "2de45835a0144ac977296e318b082f07b344ed7eb41821ed22159215b54eed63"
       ],
-      "source_sha256": "c87ac4ea9ec4c8028c98e5b153342559658c834b51c7d412768a30de13cc6612",
-      "text": "Renvoie l’explication en une phrase d’un jeton :func:`theme_choices`.\n\nLes dix thèmes de nuit portent chacun une phrase indiquant les couleurs, l’arrière-plan et le jeu de sons qui les accompagnent ; cette phrase est ce que le contrôle Theme affiche comme infobulle de l’entrée, de la même façon que le contrôle Sound set affiche :attr:`spacr.qt.sound_synth.SoundTheme.description`.\n\n:param token: un jeton issu de :func:`theme_choices`.\n:returns: la phrase descriptive du thème, y compris pour le thème à contraste élevé, ou ``\"\"`` pour les quatre thèmes antérieurs à cette famille et pour tout identifiant sans description. L’appelant transmet le résultat à :func:`tr` et n’ajoute aucune infobulle s’il est vide.",
+      "source_sha256": "769c7e73feadf09ffc4c085ad35efb1cdee35f6bc14f3b766b5e388797cd9583",
+      "text": "Renvoie l’explication en une phrase d’un jeton :func:`theme_choices`.\n\nLes thèmes nocturnes et d’art de données comportent chacun une phrase indiquant leurs couleurs, leur fond et leur ensemble de sons ; le contrôle Thème affiche cette phrase dans l’infobulle de l’entrée, comme le contrôle d’ensemble de sons affiche :attr:`spacr.qt.sound_synth.SoundTheme.description`.\n\n:param token: un jeton issu de :func:`theme_choices`.\n:returns: la phrase descriptive du thème, y compris pour le thème à contraste élevé, ou ``\"\"`` pour les quatre thèmes antérieurs à cette famille et pour tout identifiant sans description. L’appelant transmet le résultat à :func:`tr` et n’ajoute aucune infobulle s’il est vide.",
       "translation_source_blocks_sha256": [
         "1b273b90aa832ca83d4f19a6cb394c66a4f3ae31289e100fdadefdd0a0197815",
-        "12b70e83d132c7a84b5e012201346a2cd7f4a367ba067cba25e1375d1e502f14",
+        "8e48a03ac72820259a4703a7ca1d6ad0103661a926ad4451b4220ee09282599e",
         "25624b8aca57fd6754c1abc1da19c4be33466b8e02f54cf8f638511b505913fa",
         "2de45835a0144ac977296e318b082f07b344ed7eb41821ed22159215b54eed63"
       ]
@@ -117393,16 +117397,16 @@
     "spacr.qt.theme": {
       "source_blocks_sha256": [
         "134d4f2d9905335c1842012a081f5c26383600121a84c05b805c1349cf52b9cd",
-        "ea885ad1ccbf2a096e6f3694890e8a3139ba367273d517d9ed1e89d85b0ea947",
+        "cca1167c2d2f6771567cd1e1b7e025b791ffd4126698b8c18cc4a409f61c1812",
         "47d18000afd400b8472067398fe2b0a2fd10dcab09f0e2f0aad09cfa0c560297",
         "da6db3abfc9fa26087346cce1a921845969c8e9020aa8d2e08376858d802f46e",
         "87c75ccfb6edd2daf615c919fa940513515b60bad6301076ae7cf01aa249c80b"
       ],
-      "source_sha256": "a7ca52218450a477cf601625d06f3da3e6d53d4de91bba250112902536f353f4",
-      "text": "Fournir des palettes, des jetons géométriques et QSS pour l'interface spaCR Qt.\n\nUtiliser :func:`active_palette` pour les couleurs affichées par un widget actif et :func:`stylesheet` pour la feuille de style de l’application. :data:`THEMES` contient les palettes sélectionnables ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` et les dix thèmes nocturnes de :mod:`spacr.qt.night_themes` ; la préférence ``\"system\"`` est résolue en mode sombre ou clair avant la recherche de palette. Une ancienne palette ``\"space\"`` peut encore être lue dans les paramètres persistants, mais ne peut pas être sélectionnée.\n\n.. warning::\n\n   ``theme.PALETTE`` est un alias déprécié, en lecture seule pour la palette sombre et ne suit pas les changements de thème d'exécution. Utilisez :func:`active_palette`, ou :data:`DARK_PALETTE` uniquement lorsque les couleurs foncées sont explicitement requises.\n\nLa cellule et le verre sont :data:`IMAGE_THEMES`. Leurs panneaux utilisent des scrims translucides afin que le fond reste visible sans sacrifier le contraste texte. :func:`contrast_failures` valide les rôles peints sur scrimes, tandis que :func:`image_contrast_failures` valide ceux peints directement sur le contenu de l'image. :func:`solve_scrim_alpha` compare ces contraintes de contraste avec :data:`MIN_PICTURE_CONTRAST`, et :func:`scrim_report` expose le résultat.\n\n:func:`enable_spaceout` habille le processus dans la palette de l'arc-en-ciel le point d'entrée ``spaceout`` lance. Il rejoue quel que soit le thème résolu plutôt que d'ajouter un cinquième, de sorte que :data:`THEMES` et la manipulation lumière/obscurité sont intactes; c'est l'état du processus et ne persiste jamais.",
+      "source_sha256": "aef954d78827ba6ccfefce84cdd6eb594102106ad191f571acce7afd53cb7c2f",
+      "text": "Fournir des palettes, des jetons géométriques et QSS pour l'interface spaCR Qt.\n\nUtilisez :func:`active_palette` pour les couleurs affichées par un widget actif et :func:`stylesheet` pour la feuille de style de l’application. :data:`THEMES` contient les palettes sélectionnables ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` et les préréglages nocturnes et d’art de données de :mod:`spacr.qt.night_themes` ; la préférence ``\"system\"`` est résolue en mode sombre ou clair avant la recherche de palette. Une ancienne palette ``\"space\"`` peut encore être lue dans les paramètres persistants, mais ne peut pas être sélectionnée.\n\n.. warning::\n\n   ``theme.PALETTE`` est un alias déprécié, en lecture seule pour la palette sombre et ne suit pas les changements de thème d'exécution. Utilisez :func:`active_palette`, ou :data:`DARK_PALETTE` uniquement lorsque les couleurs foncées sont explicitement requises.\n\nLa cellule et le verre sont :data:`IMAGE_THEMES`. Leurs panneaux utilisent des scrims translucides afin que le fond reste visible sans sacrifier le contraste texte. :func:`contrast_failures` valide les rôles peints sur scrimes, tandis que :func:`image_contrast_failures` valide ceux peints directement sur le contenu de l'image. :func:`solve_scrim_alpha` compare ces contraintes de contraste avec :data:`MIN_PICTURE_CONTRAST`, et :func:`scrim_report` expose le résultat.\n\n:func:`enable_spaceout` habille le processus dans la palette de l'arc-en-ciel le point d'entrée ``spaceout`` lance. Il rejoue quel que soit le thème résolu plutôt que d'ajouter un cinquième, de sorte que :data:`THEMES` et la manipulation lumière/obscurité sont intactes; c'est l'état du processus et ne persiste jamais.",
       "translation_source_blocks_sha256": [
         "134d4f2d9905335c1842012a081f5c26383600121a84c05b805c1349cf52b9cd",
-        "ea885ad1ccbf2a096e6f3694890e8a3139ba367273d517d9ed1e89d85b0ea947",
+        "cca1167c2d2f6771567cd1e1b7e025b791ffd4126698b8c18cc4a409f61c1812",
         "47d18000afd400b8472067398fe2b0a2fd10dcab09f0e2f0aad09cfa0c560297",
         "da6db3abfc9fa26087346cce1a921845969c8e9020aa8d2e08376858d802f46e",
         "87c75ccfb6edd2daf615c919fa940513515b60bad6301076ae7cf01aa249c80b"

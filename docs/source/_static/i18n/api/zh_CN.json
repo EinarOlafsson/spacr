@@ -86255,72 +86255,76 @@
     },
     "spacr.qt.night_themes": {
       "source_blocks_sha256": [
-        "346723f1541cc4bec1b688e9259d94747bb485fdcc2c7b65d48f994ba747c912",
+        "a75dbf0f3d2da88ace6b93626d9c1138dffeb27eac5a51999f3e3a1d11bbbd56",
         "49ce420028c6eb5eaf9d09cfb9403595e41462862cce337273428410717c1611",
         "e2ae18a447fd3e2c22c635ff634345d154df191d541e9a9e492ce13478ac7d00",
         "9e416ff9a6db162726dfb91a00e8b61ff0fa6476d05142c39c4c7ba3da2c3633",
         "f6dd7419e49258f93302b0be03ae57fb97083eeef18d64539a755988b2ea3ddd",
         "552e6586e46573d11229cdea62271291a2f6c657ccd3f6e8d7d5a5eb8241b01c",
-        "a36a6ba9d297a7db56d4b926e15ad78a98d1f438aa96723f15517149a8ed2555"
+        "a36a6ba9d297a7db56d4b926e15ad78a98d1f438aa96723f15517149a8ed2555",
+        "4dda2672e61347f828d85de9998b88c9122d2e766dfca1b74ef9e4a969f9d141"
       ],
-      "source_sha256": "d9a700aeab3e57ddb742a6f4e79f663d496861bce4d40c6bc6fd965d4b344f98",
-      "text": "十个夜间主题，每个都包含一套调色板、一个背景和一组音效。\n\n夜间主题是一次同时改变三样东西的选择：界面的配色（:data:`spacr.qt.theme.THEMES` 因本模块而增加了十个）、在其背后运行哪种环境动画以及使用哪些颜色（:mod:`spacr.qt.widgets.ambient`），以及如果用户曾经开启过声音，spaCR 会播放哪一组音效（:mod:`spacr.qt.sound_synth`）。因此，在偏好设置中选择一个夜间主题，会改变 spaCR 的外观*以及*声音，这正是这一系列主题的全部意义。\n\n本模块有意不依赖 Qt，与 :mod:`spacr.qt.sound_synth` 一样：:mod:`spacr.qt.preferences` 会导入它来验证已存储的主题名称，而在此过程中不能引入 QtGui 或 QtWidgets。它只包含数据和三个查找函数，并且不从 spaCR 的其他部分导入任何内容，因此 :mod:`spacr.qt.theme`、:mod:`spacr.qt.widgets.ambient` 和 :mod:`spacr.qt.sound_synth` 都可以从中读取而不会产生循环依赖。\n\n调色板是字面值而不是生成规则。每套调色板都是根据一个色相和一个饱和度，在共享的亮度梯度上生成的，然后经过 :func:`spacr.qt.theme.contrast_failures` 和 :func:`spacr.qt.theme.page_separation_failures` 检查并写下来。在这里保存数值而不是生成规则，意味着发布的颜色就是经过审阅的颜色，导入时不需要运行任何求解器，而 ``tests/qt/test_ten_night_themes.py`` 评判的正是实际发布的内容。\n\n有三种颜色是根据测量结果偏离生成规则的，而且只有这三种。Nocturne 和 Aphelion 的 ``accent_lo`` 在未加修饰时，``bg`` 与 ``accent_lo`` 之间的对比度未达到 4.5:1——深蓝和深紫在生成规则的亮度下实在太暗——而 Vesper 在 ``spaceout`` 修饰可以达到的六十个色相偏移之一处为 4.49:1，同样未达标。这三种颜色都被调亮到通过为止，其他任何内容都没有改动。参见 ``docs/notes/spacr/qt/night_themes.md``。\n\n有三个角色在所有十个主题中都相同，这是有意为之：``success``、``warning`` 和 ``error``。表示*此次运行失败*的红色不能变成主题决定的事情，因此状态色相不会随着调色板在色轮上转动。``fg`` 在所有十个主题中都是白色，原因与夜间调色板需要白色相同：这里的每个表面都是深色的。\n\n:data:`NIGHT_THEMES` 按色相排序，从暖色到冷色，再绕回玫瑰色，因此 Theme 菜单读起来是一个系列，而不是十个互不相关的条目。",
+      "source_sha256": "f250e329b8fd6e6658169928ffd89a9a3c6fba9f61367f5c1a424537c09d79a7",
+      "text": "十种夜间配色和十二种独立的数据艺术预设。\n\n夜间主题是一次同时改变三样东西的选择：界面的配色（:data:`spacr.qt.theme.THEMES` 因本模块而增加了十个）、在其背后运行哪种环境动画以及使用哪些颜色（:mod:`spacr.qt.widgets.ambient`），以及如果用户曾经开启过声音，spaCR 会播放哪一组音效（:mod:`spacr.qt.sound_synth`）。因此，在偏好设置中选择一个夜间主题，会改变 spaCR 的外观*以及*声音，这正是这一系列主题的全部意义。\n\n本模块有意不依赖 Qt，与 :mod:`spacr.qt.sound_synth` 一样：:mod:`spacr.qt.preferences` 会导入它来验证已存储的主题名称，而在此过程中不能引入 QtGui 或 QtWidgets。它只包含数据和三个查找函数，并且不从 spaCR 的其他部分导入任何内容，因此 :mod:`spacr.qt.theme`、:mod:`spacr.qt.widgets.ambient` 和 :mod:`spacr.qt.sound_synth` 都可以从中读取而不会产生循环依赖。\n\n调色板是字面值而不是生成规则。每套调色板都是根据一个色相和一个饱和度，在共享的亮度梯度上生成的，然后经过 :func:`spacr.qt.theme.contrast_failures` 和 :func:`spacr.qt.theme.page_separation_failures` 检查并写下来。在这里保存数值而不是生成规则，意味着发布的颜色就是经过审阅的颜色，导入时不需要运行任何求解器，而 ``tests/qt/test_ten_night_themes.py`` 评判的正是实际发布的内容。\n\n有三种颜色是根据测量结果偏离生成规则的，而且只有这三种。Nocturne 和 Aphelion 的 ``accent_lo`` 在未加修饰时，``bg`` 与 ``accent_lo`` 之间的对比度未达到 4.5:1——深蓝和深紫在生成规则的亮度下实在太暗——而 Vesper 在 ``spaceout`` 修饰可以达到的六十个色相偏移之一处为 4.49:1，同样未达标。这三种颜色都被调亮到通过为止，其他任何内容都没有改动。参见 ``docs/notes/spacr/qt/night_themes.md``。\n\n有三个角色在所有十个主题中都相同，这是有意为之：``success``、``warning`` 和 ``error``。表示*此次运行失败*的红色不能变成主题决定的事情，因此状态色相不会随着调色板在色轮上转动。``fg`` 在所有十个主题中都是白色，原因与夜间调色板需要白色相同：这里的每个表面都是深色的。\n\n:data:`NIGHT_THEMES` 按色相排序，从暖色到冷色，再绕回玫瑰色，因此 Theme 菜单读起来是一个系列，而不是十个互不相关的条目。\n\n数据艺术目录增加了十二种独立的配色预设。其键用于选择不同的动态背景生成器和已有声音集，不改变原有十种夜间主题的标识。其显式颜色覆盖保留了夜间配色稳定的状态颜色，并接受相同的对比度与页面区分规则检查。",
       "translation_source_blocks_sha256": [
-        "346723f1541cc4bec1b688e9259d94747bb485fdcc2c7b65d48f994ba747c912",
+        "a75dbf0f3d2da88ace6b93626d9c1138dffeb27eac5a51999f3e3a1d11bbbd56",
         "49ce420028c6eb5eaf9d09cfb9403595e41462862cce337273428410717c1611",
         "e2ae18a447fd3e2c22c635ff634345d154df191d541e9a9e492ce13478ac7d00",
         "a0c6becab15df4f7908c877535c9fe83bc36e51b647772925eed25075d324f76",
         "cff568be522f9f48ce093ea5d9f606dd298386c97c56158773b0897429a5a65f",
         "05b5a891458a623bc8f33e1d9f62f2a2356efc69d04ff01fce47ab3bff5330ec",
-        "a36a6ba9d297a7db56d4b926e15ad78a98d1f438aa96723f15517149a8ed2555"
+        "a36a6ba9d297a7db56d4b926e15ad78a98d1f438aa96723f15517149a8ed2555",
+        "4dda2672e61347f828d85de9998b88c9122d2e766dfca1b74ef9e4a969f9d141"
       ]
     },
     "spacr.qt.night_themes.NightTheme": {
       "source_blocks_sha256": [
-        "6f72a94ed8d17445cf0d961b5c4d969e457f66f46052759c45fa9a77f65976e1",
-        "b66ab95f8da0797fc565966e552fd1d912f46d577872ec424516f3905ff66b03",
+        "1c2ef8f9986d2e9322b18cb7dfb3db66dc00c40d640c711236e2cd87550d464a",
+        "0046349464d284760af5d7913fd6c60cd79f485c1a324b1cbc811a0acdc0b748",
         "5c90f3f81c414201cd9307801a7c946abea22aa8032d6e5a0141d21bdd51bb6c",
         "e0f90f3ca4bf447b317b49611d6132622c132dc3762cc30baefeff5e0fcdcb23",
         "60fa51a7cddda06a4fce853b0331ff28b55a0d30748bf1b52e4ac2cfe43cf85a",
         "bce99c944aa7c6a9abf154a160d790a7126fdc080064b62b3a14a25975477065",
-        "166f92f2b355b1a1647b76a22fffc2e0a55c8834fd0aee19d8c9dabbbe6d1b22"
+        "166f92f2b355b1a1647b76a22fffc2e0a55c8834fd0aee19d8c9dabbbe6d1b22",
+        "2b3ed305dc872fc45a5a57bf346aa7d093c3b693d156dd1f551cca9aed43bac8"
       ],
-      "source_sha256": "f731d75b1a93b3d089fded6008f985c1a66f7d9fb3c61005e3e279ac4fc3b301",
-      "text": "一个夜间主题：它的名称，以及它所改变的三样东西。\n\n:param key: 稳定的标识符。它是持久保存的 ``prefs/theme`` 值、:data:`spacr.qt.theme.THEMES` 中的键，也是对应 :class:`spacr.qt.sound_synth.SoundTheme` 的键，因此三者在构造上就保持一致，而不需要依靠一张表。\n:param label: 在偏好设置中显示的名称。\n:param description: 作为该选项说明显示的一句话。\n:param palette: 完整的界面调色板，包含 :func:`spacr.qt.theme.palette_for` 所承诺的每个角色。\n:param ambient: 此主题在背后运行的环境动画，为 :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` 之一。\n:param ambient_palette: 绘制该动画所用的颜色集，为 :data:`spacr.qt.widgets.ambient.PALETTE_SETS` 的一个键。",
+      "source_sha256": "3e001b46abaaf69755f11e37fe253b7b3d8f973c2417f22e022d3587970dd921",
+      "text": "一个配色预设：其标签、颜色、背景和声音集。\n\n:param key: 主题首选项和配色映射中的稳定标识符。\n:param label: 在偏好设置中显示的名称。\n:param description: 作为该选项说明显示的一句话。\n:param palette: 完整的界面调色板，包含 :func:`spacr.qt.theme.palette_for` 所承诺的每个角色。\n:param ambient: 此主题在背后运行的环境动画，为 :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` 之一。\n:param ambient_palette: 绘制该动画所用的颜色集，为 :data:`spacr.qt.widgets.ambient.PALETTE_SETS` 的一个键。\n:param sound_key: 数据艺术预设使用的已有声音集的键；``None`` 保留原夜间主题对应的声音键。",
       "translation_source_blocks_sha256": [
-        "6f72a94ed8d17445cf0d961b5c4d969e457f66f46052759c45fa9a77f65976e1",
-        "29111d5f37031ecc17335333bceb03b624e12d3252c6ae37a8d4ade503c70667",
+        "1c2ef8f9986d2e9322b18cb7dfb3db66dc00c40d640c711236e2cd87550d464a",
+        "0046349464d284760af5d7913fd6c60cd79f485c1a324b1cbc811a0acdc0b748",
         "5c90f3f81c414201cd9307801a7c946abea22aa8032d6e5a0141d21bdd51bb6c",
         "e0f90f3ca4bf447b317b49611d6132622c132dc3762cc30baefeff5e0fcdcb23",
         "60fa51a7cddda06a4fce853b0331ff28b55a0d30748bf1b52e4ac2cfe43cf85a",
         "bce99c944aa7c6a9abf154a160d790a7126fdc080064b62b3a14a25975477065",
-        "166f92f2b355b1a1647b76a22fffc2e0a55c8834fd0aee19d8c9dabbbe6d1b22"
+        "166f92f2b355b1a1647b76a22fffc2e0a55c8834fd0aee19d8c9dabbbe6d1b22",
+        "2b3ed305dc872fc45a5a57bf346aa7d093c3b693d156dd1f551cca9aed43bac8"
       ]
     },
     "spacr.qt.night_themes.NightTheme.sound": {
       "source_blocks_sha256": [
-        "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794"
+        "162c7d3c8b281f765a574e9682002884dc0edda5172bdf85a9e322a605c71eba"
       ],
-      "source_sha256": "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794",
-      "text": "此主题音效集的键。它就是该主题自身的键。",
+      "source_sha256": "162c7d3c8b281f765a574e9682002884dc0edda5172bdf85a9e322a605c71eba",
+      "text": "已有声音集的键；夜间预设保留各自的键。",
       "translation_source_blocks_sha256": [
-        "b7df02ec0fd545507c6d1ac1198cb094d2ba1dc3331d8d9c1dc90b11c5cdb794"
+        "162c7d3c8b281f765a574e9682002884dc0edda5172bdf85a9e322a605c71eba"
       ]
     },
     "spacr.qt.night_themes.ambient_for": {
       "source_blocks_sha256": [
         "1b89c135b53ba823e866f55d52277c7a7ffa2695ae6ccbd8b62a6192bca2afaa",
-        "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "3e489fb1201417ea6f069beb414062178b602647e0ee9037ee9afab486afd896",
         "b3a9d03e1327a6b30ea9db8356fff41b7372987c2425adb33517d797de84240d",
-        "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44"
+        "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef"
       ],
-      "source_sha256": "31d7a3dd00336fb17127b44127bededb8be34a807be17a4cdfbba0f8652e2c8b",
-      "text": "``name`` 所要求的背景。\n\n:param name: :data:`NIGHT_THEME_KEYS` 之一。\n:returns: ``(animation, palette)`` —— 一个 :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` 名称和一个 :data:`spacr.qt.widgets.ambient.PALETTE_SETS` 键。\n:raises KeyError: 如果 ``name`` 不是这十个之一。",
+      "source_sha256": "4c98827f47e602c055a19787f6f62a88093b0c3d16871817ff37450d6b4a4125",
+      "text": "``name`` 所要求的背景。\n\n:param name: :data:`NIGHT_THEME_KEYS` 或 :data:`DATA_ART_THEME_KEYS` 中的一个键。\n:returns: ``(animation, palette)`` —— 一个 :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` 名称和一个 :data:`spacr.qt.widgets.ambient.PALETTE_SETS` 键。\n:raises KeyError: 当 ``name`` 未知时。",
       "translation_source_blocks_sha256": [
         "1b89c135b53ba823e866f55d52277c7a7ffa2695ae6ccbd8b62a6192bca2afaa",
-        "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "3e489fb1201417ea6f069beb414062178b602647e0ee9037ee9afab486afd896",
         "b3a9d03e1327a6b30ea9db8356fff41b7372987c2425adb33517d797de84240d",
-        "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44"
+        "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef"
       ]
     },
     "spacr.qt.night_themes.is_night_theme": {
@@ -86352,33 +86356,33 @@
     "spacr.qt.night_themes.sound_for": {
       "source_blocks_sha256": [
         "7f883d7d4007a2b3ea3594ca2cdbb46d5e6e66508b220caabab9320fc4254125",
-        "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "3e489fb1201417ea6f069beb414062178b602647e0ee9037ee9afab486afd896",
         "45d6b1c147b794bf98079e56230e071c9a42013618da724c95ffc40b03441040",
-        "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44"
+        "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef"
       ],
-      "source_sha256": "72be6c84d5929bb6e7189fd69edfc6318c55611c13cccb0fa180895e5021045d",
-      "text": "``name`` 所要求的音效集。\n\n:param name: :data:`NIGHT_THEME_KEYS` 之一。\n:returns: :data:`spacr.qt.sound_synth.SOUND_THEMES` 的一个键。\n:raises KeyError: 如果 ``name`` 不是这十个之一。",
+      "source_sha256": "18247e532cadf654f534fb87d17005b142e54f1f6766ec15406dac2f0911b3f4",
+      "text": "``name`` 所要求的音效集。\n\n:param name: :data:`NIGHT_THEME_KEYS` 或 :data:`DATA_ART_THEME_KEYS` 中的一个键。\n:returns: :data:`spacr.qt.sound_synth.SOUND_THEMES` 的一个键。\n:raises KeyError: 当 ``name`` 未知时。",
       "translation_source_blocks_sha256": [
         "7f883d7d4007a2b3ea3594ca2cdbb46d5e6e66508b220caabab9320fc4254125",
-        "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "3e489fb1201417ea6f069beb414062178b602647e0ee9037ee9afab486afd896",
         "45d6b1c147b794bf98079e56230e071c9a42013618da724c95ffc40b03441040",
-        "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44"
+        "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef"
       ]
     },
     "spacr.qt.night_themes.theme_for": {
       "source_blocks_sha256": [
-        "3d01be273faedd31281bb08d51925860acd197b359a3dbb0d77d1dc5c22e9334",
-        "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "65c18e3f567ad212679dcddc8693d35a9cbe5796e4b65df593a851052110b6b4",
+        "3e489fb1201417ea6f069beb414062178b602647e0ee9037ee9afab486afd896",
         "039b021392faea6f9527d02d26700e5d1c0babcb9708dd1a7d718122e8ec06f1",
-        "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44"
+        "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef"
       ],
-      "source_sha256": "d7f5f67e052fe845e993a93870a339805b5799571b87ff4d2a1b8e48862dfba7",
-      "text": ":class:`NightTheme`，名为 ``name``。\n\n:param name: :data:`NIGHT_THEME_KEYS` 之一。\n:returns: 该主题。\n:raises KeyError: 如果 ``name`` 不是这十个之一。",
+      "source_sha256": "e882ec188543e726ac358466b18f9d0577130f6755bc79b53b5b7db1ab981953",
+      "text": "名为 ``name`` 的夜间或数据艺术配色预设。\n\n:param name: :data:`NIGHT_THEME_KEYS` 或 :data:`DATA_ART_THEME_KEYS` 中的一个键。\n:returns: 该主题。\n:raises KeyError: 当 ``name`` 未知时。",
       "translation_source_blocks_sha256": [
-        "3d01be273faedd31281bb08d51925860acd197b359a3dbb0d77d1dc5c22e9334",
-        "6053af3aa95175f89bed57105349ab6a52fb987519ee55b32c0fa656194819ff",
+        "65c18e3f567ad212679dcddc8693d35a9cbe5796e4b65df593a851052110b6b4",
+        "3e489fb1201417ea6f069beb414062178b602647e0ee9037ee9afab486afd896",
         "039b021392faea6f9527d02d26700e5d1c0babcb9708dd1a7d718122e8ec06f1",
-        "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44"
+        "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef"
       ]
     },
     "spacr.qt.notify": {
@@ -87530,7 +87534,7 @@
         "8c0ffabb9533d0ceeda8b279c8bea0ceb461a19081b578103ce479b2cd3cae20",
         "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
         "5cc0279aece897e1cc3c9d2441a8760656b5a35c8da09522ab236b23413869e8",
-        "b597667cc79d085cc0bebc81dc664039e2b02a19e409367088ca92ae9ff30837",
+        "310ce5591c3270eda11665fc69b36c06f9f9324a288f0e5f60f9ed3af0f3a3d3",
         "67e2eba58f8bc035a69d08714935640c9cff8e6eddb6da5ff95cdb313e6c0f03",
         "eeccbe7ee0aa5b83848a946db48b3f74d068c919723dfa65f6050f3d1580f2ba",
         "41c931441e9f96645bac069a9c14ba394abe73b62bdab0739f6fe7569c1648cc",
@@ -87552,8 +87556,8 @@
         "8af42943d1d1af2aba07a4cfc2782231682f5301394f99a0967fcfed571f4c35",
         "fb04228cdb186b5d2a893ae59213e5a81e4b9832ca2bcd52336771c187e56217"
       ],
-      "source_sha256": "54dfdfa246a27ccef067ec8203f4933f8ee5b9550f842af4d40db6d1c2a05d3c",
-      "text": "用户面向偏好 - 语言、主题、字体规模和可用性。\n\n持久设置由 :class:`PySide6.QtCore.QSettings` 支持,以便它们生存应用程序重新启动. 新的按钮可以在现有按钮旁边插入,而不会改变用户,因为小字符为 API(``get_theme()`` / ``set_theme(...)`` 等)。\n\nWire-up 的内容:\n\n* :func:`apply_preferences_to_app` - 每次设置更改时,在启动时一次呼叫,重新应用现有主题 + 字体规模的风格表。\n* :class:`PreferencesDialog` — 通过 Ctrl+P 打开的模型设置对话(参见 :mod:`spacr.qt.shortcuts`)。\n\n公开 API::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_cell_variant, set_cell_variant,\n        cell_background_path,\n        theme_background_path,\n        get_sound_music_file, set_sound_music_file,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_tooltips_enabled, set_tooltips_enabled,\n        get_font_scale, set_font_scale,\n        get_gui_scale, set_gui_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\n价值:\n\n* ``theme``：``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` 中的十个夜间主题之一 | ``\"system\"``（默认 ``\"dark\"``）。``\"system\"`` 跟随操作系统配色，但仅在明确选择它后生效：在深色成为默认值（2026-09-21）之前保存的 ``\"system\"`` 是旧默认值，不是用户选择，读取时视为 ``\"dark\"``；参见 :func:`get_theme`。``\"cell\"`` 使用荧光图像，``\"glass\"`` 使用内置光场上的中性分层材质。夜间主题还包含背景和声音集，在选定时由 :func:`apply_night_theme` 写入。Space 不是可选主题。首次读取主题时，会从旧存储中删除已停用的 ``space_variant`` 和 ``space_seed`` 值；参见 :func:`get_theme`。\n* ``font_scale``: float，1.0 = 100 %（默认值）。限制在 [0.10, 2.0] 范围内。\n* ``gui_scale``：浮点数，1.0 = 100 %（默认值）。限制在 [0.10, 2.0] 范围内。缩放界面的所有尺寸，而不仅仅是文字，并且实时生效。参见 :mod:`spacr.qt.gui_scale`。\n* ``figure_save_mode``: ``\"print\"````\"screen\"`` ``\"transparent\"``(默认 ``\"print\"``)。 控制用于保存的数字的页面和图数元素颜色. ``SPACR_FIGURE_SAVE_MODE`` 仍然是一个过程本地上线; 见 :func:`spacr.figure_style.figure_save_mode`。\n* ``color_blind_mode``: ``\"off\"````\"deuteranopia\"`` ``\"protanopia\"`` ``\"tritanopia\"``(默认 ``\"off\"``)。 交换 matplotlib 雨谷 / 红绿色板为感知统一 + 颜色盲安全的替代品(Viridis为连续, Okabe-Ito为类别)。\n* ``performance_logging``: ``\"off\"````\"summary\"`` ``\"detailed\"``(默认情况为 ``\"summary\"``)。记录过程树资源使用,独立于口头通话跟踪;见 :func:`get_performance_logging`和 :mod:`spacr.resource_log`。\n* ``db_browser_editable``: bool,初始值 ``False``. 允许 Database Browser 打开阅读写的连接. 详细信息: :func:`get_db_browser_editable`。\n* ``dock_mode``: ``\"locked\"`` ``\"hidden\"``(默认情况为 ``\"locked\"``)。无论左应用程序插槽显示在插槽上,则被打开为永久列,或者根本不存在。\n* ``pane_opacity``: int 百分比,初始值 ``60``. 控制玻璃中的共享表面或物质强度。 在绘画时间 :func:`spacr.qt.theme.pane_alpha_floor` 设置较低的界限:偏好是请求,而可读性是强制性的。\n* ``field_fade`` :bool,默认 ``True`` 。输入字段的容器和轮廓是否从左侧的实色渐变到右侧的完全透明。启用时,字段 **不受** ``pane_opacity`` 影响——参见 :func:`get_field_fade_enabled` 和 :mod:`spacr.qt.widgets.field_fade` 。\n* ``show_alpha`` / ``show_beta``: bool,既定是 ``True``. 检查该成熟时是否显示模块和设置。\n* ``sound/music_file``：字符串，默认 ``\"\"``。用户自己的 WAV 文件，音乐背景会播放它而不是合成的音乐，Resonance 背景也由它驱动。参见 :func:`get_sound_music_file`。\n* ``ambient_enabled``: bool, 初始值 ``True``. 控制模块界面是否绘制动画背景. 禁用它是第一类选择; 细节: :func:`get_ambient_enabled`。 用户面部控制是动画列表中的 ``None`` 输入而不是另一个转换器:一个序列,一个含义. 选择动画允许它再次。\n* ``spacr_mode``: ``\"extra_performance\"`` ``\"performance\"`` ``\"balanced\"`` (默认情况下 ``\"balanced\"``)。 如何硬 spaCR 试图离开机器的路径 - 当它释放自己的缓存,以及它是否超越视觉设置. 平衡不行. 参见 :func:`set_spacr_mode` 和 :mod:`spacr.qt.resource_cleanup`,它拥有什么清洁器允许触摸(spaCR 自己的记忆,而没有其他 - 没有其他过程,从来)。\n* ``ambient_theme`` / ``ambient_palette``:什么动画,以及什么颜色。 ``ambient_theme`` 也持有 :data:`spacr.qt.widgets.ambient.NO_ANIMATION` - 用 :func:`get_ambient_animation` 阅读它,可以回答 ``\"none\"`` 或 :func:`get_ambient_theme`,答案总是可画的东西。 对 :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` 和 :func:`spacr.qt.widgets.ambient.palettes_for` 相应进行验证; 面板是 *per theme*,所以看看 :func:`get_ambient_palette` 为如何两个密钥保持一致。\n* ``ambient_speed`` / ``ambient_size`` / ``ambient_resolution`` / ``ambient_density``:浮动,所有默认``1.0``,所有*多元化*关于所选择的动画已经做了什么 - 它移动的速度,它的元素有多大,它的细节是多少,以及有多少元素。 1.0 是每个主题的发送动画,准确地说,这样一个从未触摸到它们的用户就不会看到任何变化。 点击阅读和写到发动机声明(:data:`spacr.qt.widgets.ambient.SPEED_RANGE`和朋友)的范围。\n* ``ambient_blur``:浮动,默认情况为``0.0`` - 完成图像是多么的软化,在8个筛选像素的单位。 图像细节以 ``ambient_resolution`` 单独控制。 存储在遗产蓝色尺寸下的值被翻译为 :func:`_migrate_ambient_motion` 阅读一次。\n* ``ambient_drift_direction``: ``\"up\"````\"down\"`` ``\"random\"``(默认情况下 ``\"up\"``)。 星球场动画的旅行方式 优先于动画菜单中的三个输入; 请参见 :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS`为何。\n* ``spinner_delay``:浮动秒,默认情况下 ``2.0``.在活动旋转器出现之前,背景工作需要运行多少时间 — 见 :func:`get_spinner_delay`。\n* ``setting_animations``: bool, 默认情况下 ``False``. 设置工具提示是否自动播放动画. 关闭时, hover 只留下文本,直到用户在该工具提示的脚步中激活 **动画**; 见 :func:`get_setting_animations_enabled`。\n* ``language``:由 :mod:`spacr.qt.i18n` 组合的语言代码之一;默认为英语,并在持久值无效时安全返回。",
+      "source_sha256": "56a126f71f278732cc3d5a562c192696faac23c91b4535e590b93b5f09f717fb",
+      "text": "用户面向偏好 - 语言、主题、字体规模和可用性。\n\n持久设置由 :class:`PySide6.QtCore.QSettings` 支持,以便它们生存应用程序重新启动. 新的按钮可以在现有按钮旁边插入,而不会改变用户,因为小字符为 API(``get_theme()`` / ``set_theme(...)`` 等)。\n\nWire-up 的内容:\n\n* :func:`apply_preferences_to_app` - 每次设置更改时,在启动时一次呼叫,重新应用现有主题 + 字体规模的风格表。\n* :class:`PreferencesDialog` — 通过 Ctrl+P 打开的模型设置对话(参见 :mod:`spacr.qt.shortcuts`)。\n\n公开 API::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_cell_variant, set_cell_variant,\n        cell_background_path,\n        theme_background_path,\n        get_sound_music_file, set_sound_music_file,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_tooltips_enabled, set_tooltips_enabled,\n        get_font_scale, set_font_scale,\n        get_gui_scale, set_gui_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\n价值:\n\n* ``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` 中的十种夜间主题之一 | :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` 中的十二种数据艺术预设 | ``\"system\"`` （默认值 ``\"dark\"``）。``\"system\"`` 跟随操作系统的配色方案，但只有用户选择过它后才会生效：在深色成为默认值之前（2026-09-21）写入的 ``\"system\"`` 是旧默认值，而非用户选择，读取时视为 ``\"dark\"``；参见 :func:`get_theme`。``\"cell\"`` 使用荧光图像，``\"glass\"`` 在内置光场上使用中性的分层材质。夜间或数据艺术预设也包含背景和声音集，选择预设时由 :func:`apply_night_theme` 写入。Space 不是可选主题。首次读取主题时，会从旧的已存储设置中移除已废弃的 ``space_variant`` 和 ``space_seed`` 值；参见 :func:`get_theme`。\n* ``font_scale``: float，1.0 = 100 %（默认值）。限制在 [0.10, 2.0] 范围内。\n* ``gui_scale``：浮点数，1.0 = 100 %（默认值）。限制在 [0.10, 2.0] 范围内。缩放界面的所有尺寸，而不仅仅是文字，并且实时生效。参见 :mod:`spacr.qt.gui_scale`。\n* ``figure_save_mode``: ``\"print\"````\"screen\"`` ``\"transparent\"``(默认 ``\"print\"``)。 控制用于保存的数字的页面和图数元素颜色. ``SPACR_FIGURE_SAVE_MODE`` 仍然是一个过程本地上线; 见 :func:`spacr.figure_style.figure_save_mode`。\n* ``color_blind_mode``: ``\"off\"````\"deuteranopia\"`` ``\"protanopia\"`` ``\"tritanopia\"``(默认 ``\"off\"``)。 交换 matplotlib 雨谷 / 红绿色板为感知统一 + 颜色盲安全的替代品(Viridis为连续, Okabe-Ito为类别)。\n* ``performance_logging``: ``\"off\"````\"summary\"`` ``\"detailed\"``(默认情况为 ``\"summary\"``)。记录过程树资源使用,独立于口头通话跟踪;见 :func:`get_performance_logging`和 :mod:`spacr.resource_log`。\n* ``db_browser_editable``: bool,初始值 ``False``. 允许 Database Browser 打开阅读写的连接. 详细信息: :func:`get_db_browser_editable`。\n* ``dock_mode``: ``\"locked\"`` ``\"hidden\"``(默认情况为 ``\"locked\"``)。无论左应用程序插槽显示在插槽上,则被打开为永久列,或者根本不存在。\n* ``pane_opacity``: int 百分比,初始值 ``60``. 控制玻璃中的共享表面或物质强度。 在绘画时间 :func:`spacr.qt.theme.pane_alpha_floor` 设置较低的界限:偏好是请求,而可读性是强制性的。\n* ``field_fade`` :bool,默认 ``True`` 。输入字段的容器和轮廓是否从左侧的实色渐变到右侧的完全透明。启用时,字段 **不受** ``pane_opacity`` 影响——参见 :func:`get_field_fade_enabled` 和 :mod:`spacr.qt.widgets.field_fade` 。\n* ``show_alpha`` / ``show_beta``: bool,既定是 ``True``. 检查该成熟时是否显示模块和设置。\n* ``sound/music_file``：字符串，默认 ``\"\"``。用户自己的 WAV 文件，音乐背景会播放它而不是合成的音乐，Resonance 背景也由它驱动。参见 :func:`get_sound_music_file`。\n* ``ambient_enabled``: bool, 初始值 ``True``. 控制模块界面是否绘制动画背景. 禁用它是第一类选择; 细节: :func:`get_ambient_enabled`。 用户面部控制是动画列表中的 ``None`` 输入而不是另一个转换器:一个序列,一个含义. 选择动画允许它再次。\n* ``spacr_mode``: ``\"extra_performance\"`` ``\"performance\"`` ``\"balanced\"`` (默认情况下 ``\"balanced\"``)。 如何硬 spaCR 试图离开机器的路径 - 当它释放自己的缓存,以及它是否超越视觉设置. 平衡不行. 参见 :func:`set_spacr_mode` 和 :mod:`spacr.qt.resource_cleanup`,它拥有什么清洁器允许触摸(spaCR 自己的记忆,而没有其他 - 没有其他过程,从来)。\n* ``ambient_theme`` / ``ambient_palette``:什么动画,以及什么颜色。 ``ambient_theme`` 也持有 :data:`spacr.qt.widgets.ambient.NO_ANIMATION` - 用 :func:`get_ambient_animation` 阅读它,可以回答 ``\"none\"`` 或 :func:`get_ambient_theme`,答案总是可画的东西。 对 :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` 和 :func:`spacr.qt.widgets.ambient.palettes_for` 相应进行验证; 面板是 *per theme*,所以看看 :func:`get_ambient_palette` 为如何两个密钥保持一致。\n* ``ambient_speed`` / ``ambient_size`` / ``ambient_resolution`` / ``ambient_density``:浮动,所有默认``1.0``,所有*多元化*关于所选择的动画已经做了什么 - 它移动的速度,它的元素有多大,它的细节是多少,以及有多少元素。 1.0 是每个主题的发送动画,准确地说,这样一个从未触摸到它们的用户就不会看到任何变化。 点击阅读和写到发动机声明(:data:`spacr.qt.widgets.ambient.SPEED_RANGE`和朋友)的范围。\n* ``ambient_blur``:浮动,默认情况为``0.0`` - 完成图像是多么的软化,在8个筛选像素的单位。 图像细节以 ``ambient_resolution`` 单独控制。 存储在遗产蓝色尺寸下的值被翻译为 :func:`_migrate_ambient_motion` 阅读一次。\n* ``ambient_drift_direction``: ``\"up\"````\"down\"`` ``\"random\"``(默认情况下 ``\"up\"``)。 星球场动画的旅行方式 优先于动画菜单中的三个输入; 请参见 :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS`为何。\n* ``spinner_delay``:浮动秒,默认情况下 ``2.0``.在活动旋转器出现之前,背景工作需要运行多少时间 — 见 :func:`get_spinner_delay`。\n* ``setting_animations``: bool, 默认情况下 ``False``. 设置工具提示是否自动播放动画. 关闭时, hover 只留下文本,直到用户在该工具提示的脚步中激活 **动画**; 见 :func:`get_setting_animations_enabled`。\n* ``language``:由 :mod:`spacr.qt.i18n` 组合的语言代码之一;默认为英语,并在持久值无效时安全返回。",
       "translation_source_blocks_sha256": [
         "5b0b335614a237516d384603427cf70317d840b19cdfb21798991377604d621b",
         "66c34eee0d9f2711879c10d2717b8a26f00f8b45d872c760469b9e2ff26b96c6",
@@ -87562,7 +87566,7 @@
         "8c0ffabb9533d0ceeda8b279c8bea0ceb461a19081b578103ce479b2cd3cae20",
         "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
         "5cc0279aece897e1cc3c9d2441a8760656b5a35c8da09522ab236b23413869e8",
-        "b597667cc79d085cc0bebc81dc664039e2b02a19e409367088ca92ae9ff30837",
+        "310ce5591c3270eda11665fc69b36c06f9f9324a288f0e5f60f9ed3af0f3a3d3",
         "67e2eba58f8bc035a69d08714935640c9cff8e6eddb6da5ff95cdb313e6c0f03",
         "eeccbe7ee0aa5b83848a946db48b3f74d068c919723dfa65f6050f3d1580f2ba",
         "41c931441e9f96645bac069a9c14ba394abe73b62bdab0739f6fe7569c1648cc",
@@ -88239,24 +88243,24 @@
     },
     "spacr.qt.preferences.apply_night_theme": {
       "source_blocks_sha256": [
-        "fb456b620dde3f8d1b93927499830e2873de191e3f691b5eb0ce77c575476633",
+        "f9ac0d80836638ce394ab684cd6a9f49d323994be1a22210b246b3cd6aaf3317",
         "985c001b33bb86cbbb594976c2420bb3d6d258d6c54800537d8e0f0a5419c028",
         "0c66875be70f6c978a3c1e1bf7e3a0f52306da16a10a5e50db785c8c974480d7",
         "a8313e70cb10b423b640aaf5fdf95b3604d9dfe50e45e59b9cc45f6c89530c48",
         "88253fd81c715bc3353f84e4dd8f60a7cae387be1d7ae754ca0f9fe58c10c0c6",
-        "9785d1c6e0bec5220095fcda1c3d2133898ab7387eb93715d0842e97a52ecb4a",
-        "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44"
+        "cc315c65931748f6d2e96327957ee98642123b99d3632b13a06543de84e7c559",
+        "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef"
       ],
-      "source_sha256": "9882c3e6f8a82b09d538bb3c4d02f5aa2ecc3b498081630f715321ec140dea10",
-      "text": "写入夜间主题附带的背景和音效集。\n\n夜间主题是一次改变三样东西的选择：颜色、颜色背后的动画，以及 spaCR 会播放的音效集。因此，这里会写入与这些颜色配套的环境动画、环境调色板和音效集。\n\n它不会开启任何东西。声音总开关会完全保持用户设置的状态，在全新安装以及从未打开过 Sound 选项卡的每个安装中，它都是关闭的；这里决定的只是如果开启声音，会播放*哪一组*音效。它同样不会改动动画总开关：如果背景已关闭，存储的动画就是再次开启时恢复的动画，正是出于这个原因，这里没有使用 :func:`set_ambient_animation`——该设置函数还会开启背景。\n\n它是一种预设，而不是强制覆盖。这三个值只在选择主题的那一刻写入一次，写入的正是 Animation 和 Sound 控件所读写的那些键。之后没有任何东西会重新强加它们，因此选择了 Nocturne 然后把动画改为 Bokeh 的用户会保留 Bokeh。\n\n而且它绝不会重新开启背景。\"No animation\" 是作为动画名称存储的（:data:`spacr.qt.widgets.ambient.NO_ANIMATION`），由 :func:`get_ambient_enabled` 读取，因此在其上写入一个动画，就会把动态背景交给一个已经关闭了动态效果的用户——无论是通过 Animation 控件，还是通过以同样方式关闭动态效果的 Extra Performance。因此会先询问 :func:`backdrop_is_switched_off`，当它回答“是”时，两个环境动画键会保持原样。主题仍然会改变颜色和音效集；只是不会让任何东西动起来。这样做的代价很小，但值得说明：之后开启背景的用户会得到他们之前的动画，而不是此主题本会带来的动画，他们可以在刚才使用的同一个控件上选择它。\n\n:param name: :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` 之一。\n:raises KeyError: 如果 ``name`` 不是这十个之一。",
+      "source_sha256": "3db717b70e0174301e60b0ae463d7960c8b4813b307587c24a152a294917fedf",
+      "text": "写入夜间或数据艺术预设所附带的背景和声音集。\n\n夜间主题是一次改变三样东西的选择：颜色、颜色背后的动画，以及 spaCR 会播放的音效集。因此，这里会写入与这些颜色配套的环境动画、环境调色板和音效集。\n\n它不会开启任何东西。声音总开关会完全保持用户设置的状态，在全新安装以及从未打开过 Sound 选项卡的每个安装中，它都是关闭的；这里决定的只是如果开启声音，会播放*哪一组*音效。它同样不会改动动画总开关：如果背景已关闭，存储的动画就是再次开启时恢复的动画，正是出于这个原因，这里没有使用 :func:`set_ambient_animation`——该设置函数还会开启背景。\n\n它是一种预设，而不是强制覆盖。这三个值只在选择主题的那一刻写入一次，写入的正是 Animation 和 Sound 控件所读写的那些键。之后没有任何东西会重新强加它们，因此选择了 Nocturne 然后把动画改为 Bokeh 的用户会保留 Bokeh。\n\n而且它绝不会重新开启背景。\"No animation\" 是作为动画名称存储的（:data:`spacr.qt.widgets.ambient.NO_ANIMATION`），由 :func:`get_ambient_enabled` 读取，因此在其上写入一个动画，就会把动态背景交给一个已经关闭了动态效果的用户——无论是通过 Animation 控件，还是通过以同样方式关闭动态效果的 Extra Performance。因此会先询问 :func:`backdrop_is_switched_off`，当它回答“是”时，两个环境动画键会保持原样。主题仍然会改变颜色和音效集；只是不会让任何东西动起来。这样做的代价很小，但值得说明：之后开启背景的用户会得到他们之前的动画，而不是此主题本会带来的动画，他们可以在刚才使用的同一个控件上选择它。\n\n:param name: 夜间或数据艺术预设的键。\n:raises KeyError: 当 ``name`` 未知时。",
       "translation_source_blocks_sha256": [
-        "fb456b620dde3f8d1b93927499830e2873de191e3f691b5eb0ce77c575476633",
+        "f9ac0d80836638ce394ab684cd6a9f49d323994be1a22210b246b3cd6aaf3317",
         "985c001b33bb86cbbb594976c2420bb3d6d258d6c54800537d8e0f0a5419c028",
         "5f6551a870a5c80ef0d4b852a17cd73dcd19256adbfa5102d4140e40e0c84389",
         "ea2674699f96e06ec06bd8727c25f7dc9a17bb94242f8d329c3573cd2175a163",
         "843ad1c00072e5d344d2afc7fbd9484d735d103cde26de7d9bc3aaa39d70dcdf",
-        "9785d1c6e0bec5220095fcda1c3d2133898ab7387eb93715d0842e97a52ecb4a",
-        "159c7ef76a7fc7dce1e9ad98183de4c8f300f5d38f65447ee86c3b9874f97b44"
+        "cc315c65931748f6d2e96327957ee98642123b99d3632b13a06543de84e7c559",
+        "7c00a93e011bfab17962e81d04fd44a15846b70c59defa066640f2a13bbfeaef"
       ]
     },
     "spacr.qt.preferences.apply_preferences_to_app": {
@@ -90780,14 +90784,14 @@
     "spacr.qt.preferences.set_theme_choice": {
       "source_blocks_sha256": [
         "c237fd3639e51fb1cc0cbad74d854a3195a3756543bacaaf1e735dde3d197cb7",
-        "376fc869375957cc28e292fc4d274dc98be2941d87a0c80e5db269720f49fe52",
+        "0fb2bea1e3cdaadaaab1b466d0c0ef18c6dbccd054a25c5cb5aaaf3c76ca59f4",
         "c3edb9e0a245d68f188c7004be223d6ada8770f38691af029cad359bbef5537a"
       ],
-      "source_sha256": "b46268b363daa6de0c23630f6e7493c59f526696d07b097b150a4f8042310824",
-      "text": "只需从 :func:`theme_choices` 中持有一个代码。\n\n选择十个夜间主题之一时，还会写入该主题的背景和音效集——参见 :func:`apply_night_theme`，那里说明了这样做的理由。\n\n:param choice: 来自 :func:`theme_choices` 的标记；``\"cell:<variant>\"`` 标记会设置 Cell 主题及该变体。其他任何值都会抛出 :class:`ValueError`。",
+      "source_sha256": "0fbed2455f20ff622ac4fd883ca8bacca48b03f4afaf07b13271385c3e1a6221",
+      "text": "只需从 :func:`theme_choices` 中持有一个代码。\n\n选择夜间或数据艺术预设时，也会写入其背景和声音集 — 参见 :func:`apply_night_theme`，其中解释了这样做的原因。\n\n:param choice: 来自 :func:`theme_choices` 的标记；``\"cell:<variant>\"`` 标记会设置 Cell 主题及该变体。其他任何值都会抛出 :class:`ValueError`。",
       "translation_source_blocks_sha256": [
         "c237fd3639e51fb1cc0cbad74d854a3195a3756543bacaaf1e735dde3d197cb7",
-        "376fc869375957cc28e292fc4d274dc98be2941d87a0c80e5db269720f49fe52",
+        "0fb2bea1e3cdaadaaab1b466d0c0ef18c6dbccd054a25c5cb5aaaf3c76ca59f4",
         "c3edb9e0a245d68f188c7004be223d6ada8770f38691af029cad359bbef5537a"
       ]
     },
@@ -90933,28 +90937,28 @@
       "source_blocks_sha256": [
         "50386be4cc3450aaad0c952262cbe7c3442383c40a11a84b3e3a7d1fecf8f02a",
         "85beeac903811c13530b5e99206f3aa10a7862d28747ba2d8a9451dfa8d78e65",
-        "07dd4893d573e5cdb4cd1f69d50ad5ebb9cd0decc3d887c566a5c1b6b56b3dae"
+        "365b4e26992b3354102dadcd9219e23f0aa009e36ea36e44078d3b71e19acab1"
       ],
-      "source_sha256": "3b9a33abc52be17218915dda5c977bcc552153f8890f716a4d77d590eb5c3603",
-      "text": "返回 ``(label, token)`` 选项,以便单个主题控制。\n\n图像变量在 UI 中被描述为合成代币,而持久的密钥则可背向兼容。\n\n十个夜间主题排在最后，按 :data:`spacr.qt.night_themes.NIGHT_THEMES` 的顺序排列，这样应用程序一直以来的四个主题会保持在老用户习惯寻找的位置，而新的主题系列则作为一个整体位于列表底部。它们的标记就是其普通的键：夜间主题没有变体，因此不需要像 Cell 那样把任何内容组合进标记中。",
+      "source_sha256": "4be810db7981bd11392886314295019b7cf4e0e05d22e96255223b5661371ffc",
+      "text": "返回 ``(label, token)`` 选项,以便单个主题控制。\n\n图像变量在 UI 中被描述为合成代币,而持久的密钥则可背向兼容。\n\n十种夜间主题按 :data:`spacr.qt.night_themes.NIGHT_THEMES` 的顺序排列在旧配色之后，使应用一直提供的四种配色保留在熟悉的位置，并作为同一系列显示。随后是单独一组十二种数据艺术预设。它们的标记值是没有变体的简单键，因此无需像 Cell 那样组合各部分来形成标记值。",
       "translation_source_blocks_sha256": [
         "50386be4cc3450aaad0c952262cbe7c3442383c40a11a84b3e3a7d1fecf8f02a",
         "85beeac903811c13530b5e99206f3aa10a7862d28747ba2d8a9451dfa8d78e65",
-        "07dd4893d573e5cdb4cd1f69d50ad5ebb9cd0decc3d887c566a5c1b6b56b3dae"
+        "365b4e26992b3354102dadcd9219e23f0aa009e36ea36e44078d3b71e19acab1"
       ]
     },
     "spacr.qt.preferences.theme_description": {
       "source_blocks_sha256": [
         "1b273b90aa832ca83d4f19a6cb394c66a4f3ae31289e100fdadefdd0a0197815",
-        "12b70e83d132c7a84b5e012201346a2cd7f4a367ba067cba25e1375d1e502f14",
+        "8e48a03ac72820259a4703a7ca1d6ad0103661a926ad4451b4220ee09282599e",
         "25624b8aca57fd6754c1abc1da19c4be33466b8e02f54cf8f638511b505913fa",
         "2de45835a0144ac977296e318b082f07b344ed7eb41821ed22159215b54eed63"
       ],
-      "source_sha256": "c87ac4ea9ec4c8028c98e5b153342559658c834b51c7d412768a30de13cc6612",
-      "text": "返回某个 :func:`theme_choices` 标记的一句话说明。\n\n十个夜间主题各自都有一句话，说明其所附带的颜色、背景和音效集；Theme 控件会把这句话显示为该条目的工具提示，就像 Sound set 控件显示 :attr:`spacr.qt.sound_synth.SoundTheme.description` 那样。\n\n:param token: 来自 :func:`theme_choices` 的标记。\n:returns: 主题的描述句，高对比度主题也有描述；对于早于该系列的四个主题以及没有描述的标识符，返回 ``\"\"``。调用方将结果传给 :func:`tr`，结果为空时不设置工具提示。",
+      "source_sha256": "769c7e73feadf09ffc4c085ad35efb1cdee35f6bc14f3b766b5e388797cd9583",
+      "text": "返回某个 :func:`theme_choices` 标记的一句话说明。\n\n夜间主题和数据艺术主题各包含一句说明其颜色、背景和声音集的文字；主题控件将该句显示为条目的提示信息，类似于声音集控件显示 :attr:`spacr.qt.sound_synth.SoundTheme.description`。\n\n:param token: 来自 :func:`theme_choices` 的标记。\n:returns: 主题的描述句，高对比度主题也有描述；对于早于该系列的四个主题以及没有描述的标识符，返回 ``\"\"``。调用方将结果传给 :func:`tr`，结果为空时不设置工具提示。",
       "translation_source_blocks_sha256": [
         "1b273b90aa832ca83d4f19a6cb394c66a4f3ae31289e100fdadefdd0a0197815",
-        "12b70e83d132c7a84b5e012201346a2cd7f4a367ba067cba25e1375d1e502f14",
+        "8e48a03ac72820259a4703a7ca1d6ad0103661a926ad4451b4220ee09282599e",
         "25624b8aca57fd6754c1abc1da19c4be33466b8e02f54cf8f638511b505913fa",
         "2de45835a0144ac977296e318b082f07b344ed7eb41821ed22159215b54eed63"
       ]
@@ -117394,16 +117398,16 @@
     "spacr.qt.theme": {
       "source_blocks_sha256": [
         "134d4f2d9905335c1842012a081f5c26383600121a84c05b805c1349cf52b9cd",
-        "ea885ad1ccbf2a096e6f3694890e8a3139ba367273d517d9ed1e89d85b0ea947",
+        "cca1167c2d2f6771567cd1e1b7e025b791ffd4126698b8c18cc4a409f61c1812",
         "47d18000afd400b8472067398fe2b0a2fd10dcab09f0e2f0aad09cfa0c560297",
         "da6db3abfc9fa26087346cce1a921845969c8e9020aa8d2e08376858d802f46e",
         "87c75ccfb6edd2daf615c919fa940513515b60bad6301076ae7cf01aa249c80b"
       ],
-      "source_sha256": "a7ca52218450a477cf601625d06f3da3e6d53d4de91bba250112902536f353f4",
-      "text": "为 spaCR Qt 界面提供分区、地质标志和 QSS。\n\n使用 :func:`active_palette` 获取活动控件显示的颜色，使用 :func:`stylesheet` 获取应用样式表。:data:`THEMES` 包含可选的 ``\"dark\"``、``\"light\"``、``\"cell\"``、``\"glass\"``、``\"high_contrast\"`` 调色板以及 :mod:`spacr.qt.night_themes` 的十个夜间主题；查找调色板前，``\"system\"`` 首选项会解析为深色或浅色。仍可从持久化设置读取旧的 ``\"space\"`` 调色板，但不能选择它。\n\n.. warning::\n\n   ``theme.PALETTE`` 是黑色板的折叠,仅阅读的标志,并且不跟随运行时间主题的变化. 使用 :func:`active_palette` 或 :data:`DARK_PALETTE` 只有当黑色颜色明确要求时。\n\n细胞和玻璃是 :data:`IMAGE_THEMES`. 它们的面板使用透明的脚印,以便背景保持可见,而不会牺牲文本对比。 :func:`contrast_failures` 验证在脚印上绘制的角色,而 :func:`image_contrast_failures` 确认在图像内容上直接绘画的角色. :func:`solve_scrim_alpha` 平衡这些对比限制对 :data:`MIN_PICTURE_CONTRAST`, :func:`scrim_report` 曝光结果。\n\n:func:`enable_spaceout` 装饰进程在雨泡板的 ``spaceout`` 输入点启动到. 它重新装饰任何主题是解决的,而不是添加一个第五个,所以 :data:`THEMES` 和光 / 黑暗处理是无触摸的; 它是进程状态,从来没有坚持。",
+      "source_sha256": "aef954d78827ba6ccfefce84cdd6eb594102106ad191f571acce7afd53cb7c2f",
+      "text": "为 spaCR Qt 界面提供分区、地质标志和 QSS。\n\n使用 :func:`active_palette` 获取活动控件显示的颜色，使用 :func:`stylesheet` 获取应用的样式表。:data:`THEMES` 包含可选配色 ``\"dark\"``、``\"light\"``、``\"cell\"``、``\"glass\"``、``\"high_contrast\"``，以及 :mod:`spacr.qt.night_themes` 的夜间和数据艺术预设；查找配色之前，``\"system\"`` 首选项会解析为深色或浅色。仍可从持久化设置中读取旧的 ``\"space\"`` 配色，但它不可选。\n\n.. warning::\n\n   ``theme.PALETTE`` 是黑色板的折叠,仅阅读的标志,并且不跟随运行时间主题的变化. 使用 :func:`active_palette` 或 :data:`DARK_PALETTE` 只有当黑色颜色明确要求时。\n\n细胞和玻璃是 :data:`IMAGE_THEMES`. 它们的面板使用透明的脚印,以便背景保持可见,而不会牺牲文本对比。 :func:`contrast_failures` 验证在脚印上绘制的角色,而 :func:`image_contrast_failures` 确认在图像内容上直接绘画的角色. :func:`solve_scrim_alpha` 平衡这些对比限制对 :data:`MIN_PICTURE_CONTRAST`, :func:`scrim_report` 曝光结果。\n\n:func:`enable_spaceout` 装饰进程在雨泡板的 ``spaceout`` 输入点启动到. 它重新装饰任何主题是解决的,而不是添加一个第五个,所以 :data:`THEMES` 和光 / 黑暗处理是无触摸的; 它是进程状态,从来没有坚持。",
       "translation_source_blocks_sha256": [
         "134d4f2d9905335c1842012a081f5c26383600121a84c05b805c1349cf52b9cd",
-        "ea885ad1ccbf2a096e6f3694890e8a3139ba367273d517d9ed1e89d85b0ea947",
+        "cca1167c2d2f6771567cd1e1b7e025b791ffd4126698b8c18cc4a409f61c1812",
         "47d18000afd400b8472067398fe2b0a2fd10dcab09f0e2f0aad09cfa0c560297",
         "da6db3abfc9fa26087346cce1a921845969c8e9020aa8d2e08376858d802f46e",
         "87c75ccfb6edd2daf615c919fa940513515b60bad6301076ae7cf01aa249c80b"

@@ -15,8 +15,8 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 CANDIDATE = ROOT / 'release_candidate'
-#: The newest publication evidence; it names the voices every lesson ships.
-PUBLICATION = ROOT / 'evidence/2026-10-04-rerecord-wave4-publication.json'
+#: The unchanged lessons in this cohort retain this accepted voice set.
+VOICE_BASELINE = ROOT / 'evidence/2026-10-04-rerecord-wave4-publication.json'
 sys.path.insert(0, str(ROOT / 'authoring/tools'))
 import render_all_voices as renderer  # noqa: E402
 
@@ -39,11 +39,17 @@ def check_published_lesson(identity, scenes):
     assert len(source['scenes']) == scenes
     manifest_path = CANDIDATE / 'release-manifest.json'
     manifest_sha = sha(manifest_path)
-    assert read(CANDIDATE / 'checkpoint.json')['manifest_sha256'] == manifest_sha
+    checkpoint = read(CANDIDATE / 'checkpoint.json')
+    assert checkpoint['manifest_sha256'] == manifest_sha
     receipt = read(CANDIDATE / 'publication-receipt.json')
     assert receipt['manifest_sha256'] == manifest_sha and receipt['readback']['passed'] is True
-    publication = read(PUBLICATION)
-    assert publication['commit'] == receipt['commit'] and publication['tag'] == receipt['tag']
+    assert checkpoint['media_uploaded'] and checkpoint['pages_tree_ready']
+    assert checkpoint['release_hold'] is False
+    for key in ('repository', 'branch', 'tag', 'commit', 'media_root'):
+        assert checkpoint['media_revision'][key] == receipt[key]
+    assert receipt['readback']['commit'] == receipt['commit']
+    assert receipt['media_root'].endswith('/resolve/' + receipt['commit'])
+    publication = read(VOICE_BASELINE)
 
     catalog = read(CANDIDATE / 'web/catalog/lessons_en.json')
     lesson = next(item for item in catalog['lessons'] if item['id'] == identity)
@@ -54,7 +60,7 @@ def check_published_lesson(identity, scenes):
     records = {item['path']: item for item in read(manifest_path)['files']}
     tracks = {tuple(path.split('/')[3:5]) for path in records
               if path.startswith(f'media_host/{identity}/audio/') and path.endswith('.m4a')}
-    # Every lesson in a publication ships the same full voice set.
+    # These unchanged lessons retain the accepted baseline voices.
     sets = {tuple(map(tuple, pairs)) for pairs in publication['narration_voices'].values()}
     assert len(sets) == 1, 'publication lessons ship different voice sets'
     voices = {(language, voice + '.m4a') for language, voice in sets.pop()}
@@ -71,6 +77,13 @@ def check_published_lesson(identity, scenes):
     case = cases[0]
     heart = records[f'media_host/{identity}/audio/en/af_heart.m4a']
     assert case['audio_sha256'] == heart['sha256']
+    hosted = read(CANDIDATE / 'published-media-browser-checks.json')
+    assert hosted['manifest_sha256'] == manifest_sha and hosted['passed'] is True
+    assert hosted['media_root'] == receipt['media_root']
+    assert hosted['index_sha256'] == sha(ROOT.parents[1] / 'docs/source/_extra/tutorials/index.html')
+    hosted_cases = [item for item in hosted['ready_playback_cases'] if item['lesson'] == identity]
+    assert len(hosted_cases) == 1 and hosted_cases[0]['passed'] is True
+    assert hosted_cases[0]['audio_sha256'] == heart['sha256']
     dialect = renderer.narration_dialect('en', renderer.LANGUAGES['en'][0], 'af_heart')
     plans = renderer.prepare_scene_plans(lesson, 'en', dialect,
                                          renderer.resolve_voice_speed('af_heart'), voice='af_heart')
