@@ -53,11 +53,66 @@ def test_atlas_terrain_extends_beyond_every_viewport_edge(monkeypatch, pointer):
     for stamp in (0.0, 19.0, 241.0):
         engine.set_time(stamp)
         x, y, light = _points(engine, monkeypatch)
-        assert x.min() < -50 and x.max() > 562
-        assert y.min() < -50 and y.max() > 338
+        assert x.min() < -3 and x.max() > 515
+        assert y.min() < -3 and y.max() > 291
         assert np.isfinite(light).all()
         inside = (x >= 0) & (x < 512) & (y >= 0) & (y < 288)
         assert np.count_nonzero(inside) > 3000
+
+
+def _uncropped_atlas_coordinates(engine, width, height):
+    spacing = max(2.4, 4.6 * engine.size / np.sqrt(engine.effective_density()))
+    columns = min(900, max(48, int(np.ceil(width * 1.65 / spacing))))
+    rows = min(520, max(32, int(np.ceil(height * 1.85 / spacing))))
+    xx, zz = np.meshgrid(np.linspace(-0.33, 1.33, columns, dtype=np.float32),
+                         np.linspace(-0.43, 1.43, rows, dtype=np.float32))
+    rng = np.random.default_rng(engine._art_seed)
+    jitter = rng.uniform(-0.17, 0.17, size=(2, xx.size)).astype(np.float32)
+    xx = xx.ravel() + jitter[0] / columns
+    zz = zz.ravel() + jitter[1] / rows
+    return (xx, zz, 9.0 * xx + 6.1 * zz, 12.3 * zz - 4.2 * xx,
+            18.0 * xx + 8.0 * zz + engine._anchors[0][0] * np.pi * 2)
+
+
+@pytest.mark.parametrize("pointer", [None, (0, 0), (1, 1), (0, 1), (1, 0)])
+@pytest.mark.parametrize("size,density,resolution", [(1, 1, 1), (0.25, 3, 1),
+                                                    (2.5, 0.25, 1), (1, 3, 2)])
+def test_atlas_culling_keeps_exact_native_4k_pixels(pointer, size, density, resolution):
+    optimized = _engine("point_atlas", size=size, density=density,
+                        resolution=resolution)
+    full_region = _engine("point_atlas", size=size, density=density,
+                          resolution=resolution)
+    width, height = 3840, 2160
+    original = _uncropped_atlas_coordinates(full_region, width, height)
+    key = ("point_atlas", width, height, full_region.size, full_region.density)
+    full_region._material_cache[key] = original
+    for engine in (optimized, full_region):
+        engine.set_max_pixels(width * height)
+        engine.set_pointer(pointer)
+    full_region._material_cache[key] = original
+    for stamp in (0.0, 19.0, 241.0):
+        optimized.set_time(stamp)
+        full_region.set_time(stamp)
+        first = _render(optimized, width, height)
+        second = _render(full_region, width, height)
+        assert np.array_equal(np.frombuffer(first.bits(), dtype=np.uint32),
+                              np.frombuffer(second.bits(), dtype=np.uint32))
+    clipped = optimized._material_cache[key][0]
+    assert len(clipped) < len(original[0]) * 0.65
+
+
+@pytest.mark.parametrize("width,height", [(1, 1), (16, 9), (128, 72), (512, 288)])
+def test_atlas_culling_preserves_truncated_perimeter_grains(width, height):
+    optimized = _engine("point_atlas")
+    full_region = _engine("point_atlas")
+    full_region._material_cache[("point_atlas", width, height, 1.0, 1.0)] = (
+        _uncropped_atlas_coordinates(full_region, width, height))
+    for pointer in ((0, 0), (1, 1)):
+        for engine in (optimized, full_region):
+            engine.set_pointer(pointer)
+            engine.set_time(1023.75)
+        assert _digest(_render(optimized, width, height)) == (
+            _digest(_render(full_region, width, height)))
 
 
 def test_facets_move_cached_polygon_geometry_without_rerolling():

@@ -4724,22 +4724,31 @@ class _DataArtEngine(_BufferedEngine):
                                              dtype=np.float32))
             rng = np.random.default_rng(self._art_seed)
             jitter = rng.uniform(-0.17, 0.17, size=(2, xx.size)).astype(np.float32)
-            points = (xx.ravel() + jitter[0] / columns,
-                      zz.ravel() + jitter[1] / rows)
+            xx = xx.ravel() + jitter[0] / columns
+            zz = zz.ravel() + jitter[1] / rows
+            margin_x = 0.07 * np.abs(zz - 0.5) + 0.047074 + 1.0 / width
+            margin_z = 0.05 * np.abs(xx - 0.5) + 0.161001 + 1.0 / height
+            visible = ((xx >= -margin_x) & (xx <= 1.0 + margin_x)
+                       & (zz >= -margin_z) & (zz <= 1.0 + margin_z))
+            xx, zz = xx[visible], zz[visible]
+            points = (xx, zz, 9.0 * xx + 6.1 * zz,
+                      12.3 * zz - 4.2 * xx,
+                      18.0 * xx + 8.0 * zz + self._anchors[0][0] * math.tau)
             self._material_cache[key] = points
-        xx, zz = points
+        xx, zz, base_a, base_b, base_c = points
         pointer = self.pointer or (0.5, 0.5)
         yaw = (pointer[0] - 0.5) * 0.14
         tilt = (pointer[1] - 0.5) * 0.10
-        phase_a = 9.0 * xx + 6.1 * zz + self.time * 0.25
-        phase_b = 12.3 * zz - 4.2 * xx - self.time * 0.17
-        phase_c = 18.0 * xx + 8.0 * zz + self._anchors[0][0] * math.tau
+        phase_a = base_a + self.time * 0.25
+        phase_b = base_b - self.time * 0.17
+        phase_c = base_c + self.time * 0.12
+        sine_b = np.sin(phase_b)
+        cosine_c = np.cos(phase_c)
         crest = (0.085 * np.sin(phase_a) + 0.060 * np.cos(phase_b)
-                 + 0.016 * np.sin(phase_c + self.time * 0.12))
-        slope_x = (0.765 * np.cos(phase_a) + 0.252 * np.sin(phase_b)
-                   + 0.288 * np.cos(phase_c + self.time * 0.12))
-        slope_z = (0.5185 * np.cos(phase_a) - 0.738 * np.sin(phase_b)
-                   + 0.128 * np.cos(phase_c + self.time * 0.12))
+                 + 0.016 * np.sin(phase_c))
+        cosine_a = np.cos(phase_a)
+        slope_x = (0.765 * cosine_a + 0.252 * sine_b + 0.288 * cosine_c)
+        slope_z = (0.5185 * cosine_a - 0.738 * sine_b + 0.128 * cosine_c)
         normal = (0.90 - 0.30 * slope_x - 0.48 * slope_z) / np.sqrt(
             1.0 + slope_x * slope_x + slope_z * slope_z)
         light = np.clip(0.30 + 0.62 * normal, 0.20, 0.95)
