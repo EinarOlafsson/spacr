@@ -1,0 +1,104 @@
+diff --git a/spacr/qt/widgets/ambient.py b/spacr/qt/widgets/ambient.py
+index 3f36ab78c6..0b4fac63ea 100644
+--- a/spacr/qt/widgets/ambient.py
++++ b/spacr/qt/widgets/ambient.py
+@@ -4836,13 +4836,38 @@ class _DataArtEngine(_BufferedEngine):
+                 combine(flat, destinations, lookup[intensity])
+         return image
+ 
++    def _shade(self, width: int, height: int) -> QImage:
++        """Publish a fresh native point image without redundant raster copies."""
++        if self.family not in ("point_atlas", "impulse_lens", "genetic_advection"):
++            return super()._shade(width, height)
++        bw, bh = self.buffer_size(width, height)
++        previous = self._buffer
++        if previous is None or previous.width() != bw or previous.height() != bh:
++            self._material_cache.clear()
++        image = getattr(self, f"_frame_{self.family}")(bw, bh)
++        self._buffer = image
++        return self._soften(image, width, height)
++
++    def shade(self, width: int, height: int) -> Optional[QImage]:
++        """Return an independently owned point frame or the buffered material."""
++        if self.family not in ("point_atlas", "impulse_lens", "genetic_advection"):
++            return super().shade(width, height)
++        if width <= 0 or height <= 0:
++            return None
++        return self._shade(width, height)
++
+     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+         """Dispatch to one material painter without crossing into the GUI."""
+         painter.setRenderHint(QPainter.Antialiasing, True)
+         getattr(self, f"_paint_{self.family}")(painter, width, height)
+ 
+     def _paint_point_atlas(self, painter: QPainter, width: int,
+-                           height: int) -> None:
++                              height: int) -> None:
++        """Blit the owned point frame for synchronous material callers."""
++        painter.drawImage(0, 0, self._frame_point_atlas(width, height))
++
++    def _frame_point_atlas(self, width: int,
++                           height: int) -> QImage:
+         """Light an unbounded waving terrain of densely sampled round grains."""
+         np = _numpy()
+         key = ("point_atlas", width, height, self.size, self.density)
+@@ -4889,8 +4914,8 @@ class _DataArtEngine(_BufferedEngine):
+                                    width, height)
+         sx, sy = sx * width, sy * height
+         gain = max(1.0, self.effective_density())
+-        painter.drawImage(0, 0, self._point_material(
+-            width, height, sx, sy, light * gain, spread=True))
++        return self._point_material(
++            width, height, sx, sy, light * gain, spread=True)
+ 
+     def _paint_tissue_facets(self, painter: QPainter, width: int,
+                              height: int) -> None:
+@@ -5063,7 +5088,12 @@ class _DataArtEngine(_BufferedEngine):
+ 
+ 
+ 
+-    def _paint_genetic_advection(self, painter, width, height):
++    def _paint_genetic_advection(self, painter: QPainter, width: int,
++                              height: int) -> None:
++        """Blit the owned point frame for synchronous material callers."""
++        painter.drawImage(0, 0, self._frame_genetic_advection(width, height))
++
++    def _frame_genetic_advection(self, width, height) -> QImage:
+         """Advect fine trails through changing filaments and migrating vortices."""
+         np = _numpy()
+         key = ("wind_grains", width, height, self.size, self.density)
+@@ -5130,14 +5160,19 @@ class _DataArtEngine(_BufferedEngine):
+         columns = np.clip((x * width).astype(np.int32), 0, width - 1)
+         rows = np.clip((y * height).astype(np.int32), 0, height - 1)
+         intensity = (0.25 + 0.60 * depth) * ((12 - trails) / 12) ** 1.3
+-        painter.drawImage(0, 0, self._point_material(
+-            width, height, columns.ravel(), rows.ravel(), intensity.ravel()))
++        return self._point_material(
++            width, height, columns.ravel(), rows.ravel(), intensity.ravel())
+ 
+ 
+ 
+ 
+     def _paint_impulse_lens(self, painter: QPainter, width: int,
+-                            height: int) -> None:
++                              height: int) -> None:
++        """Blit the owned point frame for synchronous material callers."""
++        painter.drawImage(0, 0, self._frame_impulse_lens(width, height))
++
++    def _frame_impulse_lens(self, width: int,
++                            height: int) -> QImage:
+         """Bend a round-dot gravity field with cursor wakes and burst waves."""
+         np = _numpy()
+         key = ("impulse_lens", width, height, self.size, self.density)
+@@ -5200,9 +5235,9 @@ class _DataArtEngine(_BufferedEngine):
+             energy[selected] += decay * packet * 0.40
+         brilliance = np.clip(0.57 + energy, 0.48, 1.0)
+         gain = max(1.0, self.effective_density())
+-        painter.drawImage(0, 0, self._point_material(
++        return self._point_material(
+             width, height, px * width, py * height, brilliance * gain,
+-            spread=True))
++            spread=True)
+ 
+ 
+ class _FungalGrowthEngine(_BufferedEngine):

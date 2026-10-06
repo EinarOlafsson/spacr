@@ -514,3 +514,18 @@ diffs, coverage receipts, actual tests and measured comparisons retain their
 individual checkpoint identities. Satin wave prototypes are excluded.
 Integrated native4K frame-budget and reported Save-crash acceptance remain
 OPEN; reduced terrain work does not claim an end-to-end speed improvement.
+
+2026-10-06 — independently owned native point frames
+Source ea51dd4419 bypasses redundant native composition/copy for field,
+waves and advection, publishing each already-fresh owned QImage directly.
+Blur and synchronous composition remain exact; later shade/resize/caller
+mutation cannot change an earlier published image. 133 affected cases pass,
+including 12 full-native dark/light/blur parity cases and three ownership
+cases. A scratch pre-change prototype also compared18 full4K images exactly.
+Actual frozen Xvfb4K nine-case widget/producer/heartbeat probe exits normally,
+all workers stop on hide, peak RSS728.34MiB. Delivered field23.71FPS default,
+23.46 with cursor/clicks; waves21.95 default/23.80 cursor; advection23.91
+default/23.68 cursor. Light pointer cases23.99/23.92/23.77 respectively.
+These are shared-host observations, not all-theme24FPS acceptance. Archive:
+data/663_owned_native_point_frames_cpu_2026-10-06/. Satin and reported Save
+crash remain separate; no native crash fix claimed.
