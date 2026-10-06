@@ -260,7 +260,8 @@ TOOLS = ROOT / "tools"
 # spacr.measure._pin_cupy_cudart_headers._pinned; all 13,175 prior unchanged.
 # Item 662: +4 public mask_engine YOLO helpers, no removals.
 # All 13,177 prior English records preserved; 662_yolo_support receipt.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_181
+# 2026-10-06 560: +1/-0, EmbeddingsScreen._subcell_channels_dialog.accept_mapping.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_182
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

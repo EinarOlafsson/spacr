@@ -5,13 +5,6 @@
   "note": "Direct AI translation and technical review against current English source and code context. German, French and Icelandic, plus the 35 historical Hindi captions, also received a second independent Codex AI technical review. No native-speaker signoff. Hindi historical IDs 821–855 were directly translated after content review; no external translation filter was invoked. Prior fallback history remains in earlier evidence. 2026-10-06: the revised Cell-DINO caption received direct Codex AI technical review only; earlier independent-review statements apply to its previous wording. All other records retain their existing review history.",
   "records": [
     {
-      "table": "ui",
-      "key": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
-      "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains; SubCell takes two, DNA then the stain of interest, in the order the channels are encoded. Weights download once. Cell-DINO needs an official checkpoint and is not yet supported by this version. Default None (use the backbone).",
-      "source_sha256": "d25bb244df4fcf08909bd1d860d55646aa14346420a9fc0dcace7c696cbce162",
-      "translation": "Un modelo entrenado con imágenes de microscopía en vez de fotografías. OpenPhenom y ChAda-ViT admiten cualquier número de tinciones; SubCell admite dos, primero DNA y después la tinción de interés, en el orden en que están codificados los canales. Los pesos se descargan una sola vez. Cell-DINO requiere un punto de control oficial y esta versión aún no lo admite. Valor predeterminado: None (usar la red base)."
-    },
-    {
       "table": "setting_tooltips",
       "key": "microscope_event_query",
       "source": "A pandas query on microscope_event_table choosing which objects are events, for example pathogen_area > 200 or cell_channel_1_mean_intensity > 900. Blank makes every object an event, up to microscope_max_events per field. Default blank.",

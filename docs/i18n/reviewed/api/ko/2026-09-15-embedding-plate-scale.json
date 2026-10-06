@@ -3,14 +3,14 @@
   "records": [
     {
       "context": "divide each image data channel by a fixed scale before encoding, clipped to [0, 1]. Microscopy dynamic range varies by orders of magnitude between stains, and an encoder trained on photographs will otherwise see one image data channel as noise.",
-      "label": "spacr.embeddings.EmbeddingSpec#6",
+      "label": "spacr.embeddings.EmbeddingSpec#7",
       "source": "divide each channel by a fixed scale before encoding, clipped to [0, 1]. Microscopy dynamic range varies by orders of magnitude between stains, and an encoder trained on photographs will otherwise see one channel as noise.",
       "source_sha256": "7a9147ade2bc7db9741e11b018d6ea84bdaf4cb9799b1c76eb0d88ec86ff1aa9",
       "translation": "인코딩 전에 각 채널을 고정된 스케일로 나누고 [0, 1] 범위로 자릅니다. 현미경 영상의 동적 범위는 염색마다 몇 자릿수씩 다르므로, 그렇지 않으면 사진으로 학습한 인코더가 한 채널을 잡음으로 봅니다."
     },
     {
       "context": "that scale, one value per encoded channel in encoding order -- normally each channel's 99th percentile over a random sample of the laboratory microplate. The same numbers for every extracted image region mean an object's embedding does not depend on which extracted image regions share its batch. ``None`` lets :func:`embed_array` estimate it from the extracted image regions it is given.",
-      "label": "spacr.embeddings.EmbeddingSpec#7",
+      "label": "spacr.embeddings.EmbeddingSpec#8",
       "source": "that scale, one value per encoded channel in encoding order -- normally each channel's 99th percentile over a random sample of the plate. The same numbers for every crop mean an object's embedding does not depend on which crops share its batch. ``None`` lets :func:`embed_array` estimate it from the crops it is given.",
       "source_sha256": "09679f71d5c829d26b1a41b763ef5334751652ca757fb25cac59a45b25ae9aed",
       "translation": "그 스케일로, 인코딩 순서에 따라 인코딩되는 채널마다 값 하나 -- 보통 플레이트의 무작위 표본에서 구한 각 채널의 99번째 백분위수입니다. 모든 크롭에 같은 수를 쓰므로 객체의 임베딩은 어떤 크롭과 같은 배치에 들어가는지에 좌우되지 않습니다. ``None`` 이면 :func:`embed_array` 가 전달받은 크롭에서 추정합니다."

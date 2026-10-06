@@ -1,8 +1,8 @@
 FOUNDATION-MODEL EMBEDDINGS: SubCell, OpenPhenom, ChAda-ViT, Cell-DINO
 
-Status: OPEN (alpha) 2026-10-06 — supported-backbone human-label comparisons
-are verified; coordinated chance/provenance repairs, official Cell-DINO
-loading and four-channel integration remain. See dated trailing notes.
+Status: OPEN (alpha) 2026-10-06 — supported-backbone human-label comparisons,
+chance/provenance APIs and four-channel CPU/CUDA parity are verified;
+official Cell-DINO loading and final hosted acceptance remain. See dated notes.
 Previous status: DONE (alpha) 2026-09-27 (evidence d8f7deeda)
 VERIFIED 2026-10-04: test_foundation_model_embeddings, qt foundation-picker and embedding use-for gates pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
@@ -232,5 +232,26 @@ remain pending; item560 stays OPEN. Workstation owns all GPU and normal
 API/runtime/docs/translation/tutorial refresh, with source-current catalogs
 and actual rendering still in progress. Accepted six-model human-label
 benchmarks retain their original scope and are not replaced by this test.
+
+2026-10-06 workstation current four-channel documentation acceptance:
+All nine normal API catalogs and full CLI audits pass at 13,182 symbols;
+the one arrival is EmbeddingsScreen._subcell_channels_dialog.accept_mapping.
+The other 13,177 complete API records retain their exact earlier content,
+with four existing source records updated. Eight new blocks have direct AI
+technical review in each locale. All nine normal runtime catalogs and their
+full audit pass at 9,880 source-hashed rows: 9,859 earlier rows are exact,
+21 new mapping captions are reviewed, and one obsolete two-plane-only
+tooltip is retired. Complete older review files are retained byte-exact in
+place or explicit archives; no numerical, debt, coverage or word bound moves.
+Normal Help and settings artifacts are current. Strict complete Sphinx passes,
+all eight new and seven prior reviewed API blocks render in nine actual
+browser panels, and all 21 captions and mapping refusals execute in actual Qt
+in every locale. The integrated current-source replay preserves every measured
+result and independently calculated chance AP across the twelve original
+expert fluorescence cohorts at 1e-12, with all six actual checkpoint digests.
+The companion receipt is data/615_subcell_current_documentation_2026-10-06.json.
+All accepted tutorial source/media bytes are unchanged. This is local acceptance;
+exact pushed-source deployment/readback remains separate. Official Cell-DINO,
+four-stain expert biological accuracy and final hosted CI remain unclaimed.
 
 2026-10-06 workstation private four-channel integration: published Home source 3ce39ac7b is now merged. Both branches complete dated notes are preserved, and all three accepted workstation-owned functions are source-text identical to 58df6f5b9; every other embedding callable/class is source-text identical to Home 3ce39ac7b. Normal API/runtime/Help/settings documentation refresh and four-channel CUDA acceptance are now workstation-owned next actions. Earlier six-model receipts retain their exact source scope. No four-channel GPU, final CI or current-source publication acceptance is claimed yet.

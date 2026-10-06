@@ -14,6 +14,23 @@ if str(TOOLS) not in sys.path:
 from build_i18n_catalogs import _contextualize, _syntax_preserved  # noqa: E402
 
 
+@pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
+@pytest.mark.parametrize("source", ["ER (Y)", "DNA (B)"])
+def test_subcell_colour_marker_is_scientific_identity(language, source):
+    import build_i18n_catalogs as builder
+
+    assert builder._reviewed_translation(source, language) == source
+    assert builder._contextualize(source, language, source) == source
+    assert not builder._translation_rejection_reasons(source, source, language)
+
+
+def test_scientific_marker_identity_does_not_admit_copied_mapping_instructions():
+    import build_i18n_catalogs as builder
+
+    source = "Choose four distinct crop channels in SubCell's official order. Stain identity is not guessed from channel position."
+    assert "exact" in builder._translation_rejection_reasons(source, source, "de", force=True)
+
+
 @pytest.mark.parametrize("source", [
     "Open the organism guide from Home.",
     "Read the user guide before running the analysis.",

@@ -3,14 +3,14 @@
   "records": [
     {
       "context": "divide each image data channel by a fixed scale before encoding, clipped to [0, 1]. Microscopy dynamic range varies by orders of magnitude between stains, and an encoder trained on photographs will otherwise see one image data channel as noise.",
-      "label": "spacr.embeddings.EmbeddingSpec#6",
+      "label": "spacr.embeddings.EmbeddingSpec#7",
       "source": "divide each channel by a fixed scale before encoding, clipped to [0, 1]. Microscopy dynamic range varies by orders of magnitude between stains, and an encoder trained on photographs will otherwise see one channel as noise.",
       "source_sha256": "7a9147ade2bc7db9741e11b018d6ea84bdaf4cb9799b1c76eb0d88ec86ff1aa9",
       "translation": "एन्कोडिंग से पहले हर चैनल को एक निश्चित स्केल से भाग दें, और परिणाम को [0, 1] तक सीमित करें। माइक्रोस्कोपी में डायनेमिक रेंज अलग-अलग स्टेन के बीच कई परिमाण-क्रम तक बदलती है, और तस्वीरों पर प्रशिक्षित एन्कोडर अन्यथा किसी चैनल को शोर समझेगा।"
     },
     {
       "context": "that scale, one value per encoded channel in encoding order -- normally each channel's 99th percentile over a random sample of the laboratory microplate. The same numbers for every extracted image region mean an object's embedding does not depend on which extracted image regions share its batch. ``None`` lets :func:`embed_array` estimate it from the extracted image regions it is given.",
-      "label": "spacr.embeddings.EmbeddingSpec#7",
+      "label": "spacr.embeddings.EmbeddingSpec#8",
       "source": "that scale, one value per encoded channel in encoding order -- normally each channel's 99th percentile over a random sample of the plate. The same numbers for every crop mean an object's embedding does not depend on which crops share its batch. ``None`` lets :func:`embed_array` estimate it from the crops it is given.",
       "source_sha256": "09679f71d5c829d26b1a41b763ef5334751652ca757fb25cac59a45b25ae9aed",
       "translation": "वह स्केल, एन्कोडिंग क्रम में एन्कोड किए गए हर चैनल के लिए एक मान -- सामान्यतः प्लेट के एक यादृच्छिक नमूने पर हर चैनल का 99वाँ पर्सेंटाइल। हर क्रॉप के लिए समान संख्याएँ होने का अर्थ है कि किसी ऑब्जेक्ट का एम्बेडिंग इस पर निर्भर नहीं करता कि कौन-से क्रॉप उसके बैच में साथ हैं। ``None`` होने पर :func:`embed_array` इसे दिए गए क्रॉप से अनुमानित करता है।"

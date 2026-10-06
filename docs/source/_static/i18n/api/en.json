@@ -14068,7 +14068,8 @@
     "spacr.embeddings.EmbeddingSpec": {
       "source_blocks_sha256": [
         "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
-        "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
+        "3f998fedd8b65104d670625a22b252810820df4082091259ee527bce7118c5db",
+        "acbddedc3672c8d4558036b8daf7b46584ba077ce7b5919381a7ff4e246b1537",
         "76ecb25e1c2dcdbc2fc0fce5276c32a0dfe60ec81781ce5df3e2027195e2f7f8",
         "ce0baf6a226da2e3e0541e2fa5ca51bdd937bcb4050ee2787f2e09ed9c77ab97",
         "8b054ffb4a5c5e7138f8c0f923f4ab0471f779df69409ed80a25ee905a72ce33",
@@ -14076,8 +14077,8 @@
         "7a9147ade2bc7db9741e11b018d6ea84bdaf4cb9799b1c76eb0d88ec86ff1aa9",
         "09679f71d5c829d26b1a41b763ef5334751652ca757fb25cac59a45b25ae9aed"
       ],
-      "source_sha256": "d4dcdff695ff190579a75136fa594617ac50e248969cb867b0314248ad6e639e",
-      "text": "How to embed, recorded so a matrix can say where it came from.\n\n:param backbone: encoder name, resolved through timm.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` or\n    :data:`CHANNEL_PROJECT`.\n:param channels: which channel indices to encode, in order. ``None``\n    means every channel the array has.\n:param batch_size: crops per forward pass.\n:param device: torch device string, or ``None`` to choose one.\n:param normalize: divide each channel by a fixed scale before encoding,\n    clipped to [0, 1]. Microscopy dynamic range varies by orders of\n    magnitude between stains, and an encoder trained on photographs will\n    otherwise see one channel as noise.\n:param channel_scale: that scale, one value per encoded channel in\n    encoding order -- normally each channel's 99th percentile over a\n    random sample of the plate. The same numbers for every crop mean an\n    object's embedding does not depend on which crops share its batch.\n    ``None`` lets :func:`embed_array` estimate it from the crops it is\n    given."
+      "source_sha256": "acbdc58e4f35cb0e6c07b42d821da70a3acdda9edb06609462253b7ca3ecd9ee",
+      "text": "How to embed, recorded so a matrix can say where it came from.\n\nFor ``subcell_rybg``, choose :data:`CHANNEL_PROJECT`, supply four\nexplicit, distinct ``channels`` in microtubules (R), ER (Y), DNA (B),\nprotein (G) order, and set ``normalize=False``. Crops must be at least\n16 pixels in each spatial dimension. Native dimensions are preserved;\nthe encoder applies the authors' whole-crop min-max normalization.\n\n:param backbone: Name of a timm or registered foundation encoder.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` or\n    :data:`CHANNEL_PROJECT`.\n:param channels: which channel indices to encode, in order. ``None``\n    means every channel the array has.\n:param batch_size: crops per forward pass.\n:param device: torch device string, or ``None`` to choose one.\n:param normalize: divide each channel by a fixed scale before encoding,\n    clipped to [0, 1]. Microscopy dynamic range varies by orders of\n    magnitude between stains, and an encoder trained on photographs will\n    otherwise see one channel as noise.\n:param channel_scale: that scale, one value per encoded channel in\n    encoding order -- normally each channel's 99th percentile over a\n    random sample of the plate. The same numbers for every crop mean an\n    object's embedding does not depend on which crops share its batch.\n    ``None`` lets :func:`embed_array` estimate it from the crops it is\n    given."
     },
     "spacr.embeddings.EmbeddingSpec.__post_init__": {
       "source_blocks_sha256": [
@@ -14128,12 +14129,12 @@
     },
     "spacr.embeddings._foundation_encoder.run": {
       "source_blocks_sha256": [
-        "6232df384397cd204ba3032485fc4b4bc3156636b10bcdadfb52e0d3172884df",
-        "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427",
+        "47a247456a4b73e2ecedf7e56e310fdd568f09cf4ac3bb2a161042c7ab87b540",
+        "3db3fd3ac8dd6e0bbf0d17a24bb0a435b27f30364dab3e652fd106ad0b915b72",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
       ],
-      "source_sha256": "8d5bc9a747a252bf07d552909f6ad88a66a4a105e6826b9b84dbaf8aff1f77a9",
-      "text": "Encode ``(n, h, w, k)`` crops in batches, resized to the model's size.\n\n:param stack: float32 in [0, 1], channels last.\n:returns: ``(n, dims)`` float32 features."
+      "source_sha256": "9980c29acff6fbdf4cd33fd1213bd106dfea8da696d9b7b69f9bda7499c40cd5",
+      "text": "Encode ``(n, h, w, k)`` crops in model-appropriate batches.\n\n:param stack: float32 crops, channels last. SubCell R/Y/B/G uses\n    native intensity values; other foundations expect [0, 1].\n:returns: ``(n, dims)`` float32 features."
     },
     "spacr.embeddings._hub_model.forward": {
       "source_blocks_sha256": [
@@ -14166,17 +14167,18 @@
     },
     "spacr.embeddings._subcell_model.Pooled.forward": {
       "source_blocks_sha256": [
-        "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+        "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+        "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4"
       ],
-      "source_sha256": "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2",
-      "text": "``(n, 2, h, w)`` to ``(n, 1536)``, the two heads joined."
+      "source_sha256": "79d57ddc5b85cd1e40dcea855422dbb0eae191de7b8b6c2ef251c5d5444e581f",
+      "text": "``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.\n\nThe checkpoint determines whether ``k`` is two or four channels."
     },
     "spacr.embeddings._subcell_model.forward": {
       "source_blocks_sha256": [
-        "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754"
+        "82f232bd11178b82ce5736e669713c5ef37142ea414745ac3aa937f512d5abdd"
       ],
-      "source_sha256": "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754",
-      "text": "Min-max scale each crop channel, then encode."
+      "source_sha256": "82f232bd11178b82ce5736e669713c5ef37142ea414745ac3aa937f512d5abdd",
+      "text": "Min-max scale the expected model planes, then encode."
     },
     "spacr.embeddings._timm_encoder.run": {
       "source_blocks_sha256": [
@@ -62138,6 +62140,13 @@
       ],
       "source_sha256": "7e58ecbd26981620a1bb87e69dd27f8ed8812d38eeb99a7765ce59e1a3950243",
       "text": "Ask the database what it holds. Two cheap indexed reads.\n\nTHE STAT IS HERE, on the worker, because it is the part that\nblocks on a slow mount. A path that is not a file yet is not an\nerror -- it is one somebody is halfway through typing -- so it\nanswers with nothing to offer rather than raising, which would\nput a refusal in the status line for every keystroke."
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping": {
+      "source_blocks_sha256": [
+        "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec"
+      ],
+      "source_sha256": "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec",
+      "text": "Store only a complete four-index choice, then close."
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._use_embeddings.work": {
       "source_blocks_sha256": [

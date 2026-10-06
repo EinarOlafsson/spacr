@@ -22815,7 +22815,8 @@
     "spacr.embeddings.EmbeddingSpec": {
       "source_blocks_sha256": [
         "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
-        "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
+        "3f998fedd8b65104d670625a22b252810820df4082091259ee527bce7118c5db",
+        "acbddedc3672c8d4558036b8daf7b46584ba077ce7b5919381a7ff4e246b1537",
         "76ecb25e1c2dcdbc2fc0fce5276c32a0dfe60ec81781ce5df3e2027195e2f7f8",
         "ce0baf6a226da2e3e0541e2fa5ca51bdd937bcb4050ee2787f2e09ed9c77ab97",
         "8b054ffb4a5c5e7138f8c0f923f4ab0471f779df69409ed80a25ee905a72ce33",
@@ -22823,11 +22824,12 @@
         "7a9147ade2bc7db9741e11b018d6ea84bdaf4cb9799b1c76eb0d88ec86ff1aa9",
         "09679f71d5c829d26b1a41b763ef5334751652ca757fb25cac59a45b25ae9aed"
       ],
-      "source_sha256": "d4dcdff695ff190579a75136fa594617ac50e248969cb867b0314248ad6e639e",
-      "text": "Comment intégrer, enregistré pour qu'une matrice puisse dire d'où elle vient.\n\n:param backbone: nom d'encodeur, résolu par timm.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` ou :data:`CHANNEL_PROJECT`.\n:param channels: quel canal de données d'image indexer pour encoder, dans l'ordre. ``None`` signifie chaque canal de donnée d'images que le tableau a.\n:param batch_size: régions d'image extraites par passe vers l'avant.\n:param device: torch chaîne de périphérique, ou ``None`` pour en choisir une.\n:param normalize: diviser chaque canal par une échelle fixe avant l'encodage, borné à [0, 1]. La plage dynamique en microscopie varie de plusieurs ordres de grandeur d'un marquage à l'autre, et un encodeur entraîné sur des photographies verrait sinon un canal comme du bruit.\n:param channel_scale: cette échelle, une valeur par canal encodé dans l'ordre d'encodage -- normalement le 99e centile de chaque canal sur un échantillon aléatoire de la plaque. Les mêmes nombres pour chaque vignette font que le plongement d'un objet ne dépend pas des vignettes qui partagent son lot. ``None`` laisse :func:`embed_array` l'estimer à partir des vignettes qu'on lui donne.",
+      "source_sha256": "acbdc58e4f35cb0e6c07b42d821da70a3acdda9edb06609462253b7ca3ecd9ee",
+      "text": "Comment intégrer, enregistré pour qu'une matrice puisse dire d'où elle vient.\n\nPour ``subcell_rybg``, choisissez :data:`CHANNEL_PROJECT`, indiquez quatre ``channels`` explicites et distincts dans l’ordre microtubules (R), ER (Y), DNA (B), protéine (G), et définissez ``normalize=False``. Les recadrages doivent mesurer au moins 16 pixels dans chaque dimension spatiale. Les dimensions originales sont conservées ; l’encodeur applique la normalisation minimum-maximum des auteurs à l’ensemble du recadrage.\n\n:param backbone: Nom d’un encodeur timm ou d’un encodeur de modèle de fondation enregistré.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` ou :data:`CHANNEL_PROJECT`.\n:param channels: quel canal de données d'image indexer pour encoder, dans l'ordre. ``None`` signifie chaque canal de donnée d'images que le tableau a.\n:param batch_size: régions d'image extraites par passe vers l'avant.\n:param device: torch chaîne de périphérique, ou ``None`` pour en choisir une.\n:param normalize: diviser chaque canal par une échelle fixe avant l'encodage, borné à [0, 1]. La plage dynamique en microscopie varie de plusieurs ordres de grandeur d'un marquage à l'autre, et un encodeur entraîné sur des photographies verrait sinon un canal comme du bruit.\n:param channel_scale: cette échelle, une valeur par canal encodé dans l'ordre d'encodage -- normalement le 99e centile de chaque canal sur un échantillon aléatoire de la plaque. Les mêmes nombres pour chaque vignette font que le plongement d'un objet ne dépend pas des vignettes qui partagent son lot. ``None`` laisse :func:`embed_array` l'estimer à partir des vignettes qu'on lui donne.",
       "translation_source_blocks_sha256": [
         "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
-        "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
+        "ab10feb59a6a84532d10db83fd653894ce10767756d261caa7744f26e2c94907",
+        "acbddedc3672c8d4558036b8daf7b46584ba077ce7b5919381a7ff4e246b1537",
         "76ecb25e1c2dcdbc2fc0fce5276c32a0dfe60ec81781ce5df3e2027195e2f7f8",
         "bfceff41558220573fedc999b4fbdbf09e3949963ee7cbab02d6bd18bb30812c",
         "ffa122dd219abf4f2be9e2ec816cef63c6495a3dc89241110d7f4bbfab37465a",
@@ -22908,15 +22910,15 @@
     },
     "spacr.embeddings._foundation_encoder.run": {
       "source_blocks_sha256": [
-        "6232df384397cd204ba3032485fc4b4bc3156636b10bcdadfb52e0d3172884df",
-        "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427",
+        "47a247456a4b73e2ecedf7e56e310fdd568f09cf4ac3bb2a161042c7ab87b540",
+        "3db3fd3ac8dd6e0bbf0d17a24bb0a435b27f30364dab3e652fd106ad0b915b72",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
       ],
-      "source_sha256": "8d5bc9a747a252bf07d552909f6ad88a66a4a105e6826b9b84dbaf8aff1f77a9",
-      "text": "Encode des découpes ``(n, h, w, k)`` par batchs, redimensionnées à la taille du modèle.\n\n:param stack: float32 dans [0, 1], canaux en dernier.\n:returns: Caractéristiques ``(n, dims)`` en float32.",
+      "source_sha256": "9980c29acff6fbdf4cd33fd1213bd106dfea8da696d9b7b69f9bda7499c40cd5",
+      "text": "Encoder les recadrages de forme ``(n, h, w, k)`` par lots adaptés au modèle.\n\n:param stack: Recadrages float32 avec les canaux dans la dernière dimension. SubCell R/Y/B/G utilise les valeurs d’intensité originales ; les autres modèles de fondation attendent [0, 1].\n:returns: Caractéristiques ``(n, dims)`` en float32.",
       "translation_source_blocks_sha256": [
-        "47ab868d3ea6b488c8b2c369f2628ef1f3887d2d8e37cd3389331046d5ec63f1",
-        "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427",
+        "86f8f60a4408c7c0e96e45bb8367896783379428c07842bcb7f92de65a32ed11",
+        "09758f250f052b2dd8d43917b56484d97cf847b5e91074bb17f7b88e51d979be",
         "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
       ]
     },
@@ -22964,22 +22966,24 @@
     },
     "spacr.embeddings._subcell_model.Pooled.forward": {
       "source_blocks_sha256": [
-        "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+        "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+        "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4"
       ],
-      "source_sha256": "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2",
-      "text": "``(n, 2, h, w)`` vers ``(n, 1536)``, les deux têtes réunies.",
+      "source_sha256": "79d57ddc5b85cd1e40dcea855422dbb0eae191de7b8b6c2ef251c5d5444e581f",
+      "text": "De ``(n, k, h, w)`` à ``(n, 1536)``, en concaténant les deux têtes.\n\nLe point de contrôle détermine si ``k`` correspond à deux ou quatre canaux.",
       "translation_source_blocks_sha256": [
-        "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+        "8aaa72da98e220b3c14d5fbe760e39d18eeb29b5edadfffc7ce912a186bd7b5a",
+        "4ffb4f896fd88a9d9db2330ea46477985b2db82e38883d1e8ad7ae4596436fd4"
       ]
     },
     "spacr.embeddings._subcell_model.forward": {
       "source_blocks_sha256": [
-        "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754"
+        "82f232bd11178b82ce5736e669713c5ef37142ea414745ac3aa937f512d5abdd"
       ],
-      "source_sha256": "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754",
-      "text": "Met chaque canal de découpe à l'échelle min-max, puis encode.",
+      "source_sha256": "82f232bd11178b82ce5736e669713c5ef37142ea414745ac3aa937f512d5abdd",
+      "text": "Normaliser par le minimum et le maximum les plans attendus par le modèle, puis les encoder.",
       "translation_source_blocks_sha256": [
-        "d4373d9db887a8de9e89adfd0a501d396544fa58940d7b447b584537154ef5c9"
+        "f5695e9558de1fdbdd03f8860df9e5545486f3286a377256aee7c99a817a960c"
       ]
     },
     "spacr.embeddings._timm_encoder.run": {
@@ -99622,6 +99626,16 @@
       "translation_source_blocks_sha256": [
         "ef54a96509237954a086aef555dd5f344751d6b9a8e1bf1f608a947a594c55d6",
         "61d2992be70109d1c24826f9a1f8a844580ae5fb00d0f9afa4a1228830995547"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._subcell_channels_dialog.accept_mapping": {
+      "source_blocks_sha256": [
+        "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec"
+      ],
+      "source_sha256": "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec",
+      "text": "Enregistrer uniquement un choix complet de quatre indices, puis fermer.",
+      "translation_source_blocks_sha256": [
+        "d826c4a9cd928a6ae7c8dae2a764f073f0de1b118a7051fe4d5108ac97ea65ec"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen._use_embeddings.work": {

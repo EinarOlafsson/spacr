@@ -1,0 +1,105 @@
+{
+  "passed": true,
+  "languages": [
+    {
+      "language": "sv",
+      "all_21_reviewed_captions_exercised_in_actual_Qt": true,
+      "no_guessed_mapping": true,
+      "raw_selected_mapping": [
+        4,
+        0,
+        2,
+        1
+      ]
+    },
+    {
+      "language": "de",
+      "all_21_reviewed_captions_exercised_in_actual_Qt": true,
+      "no_guessed_mapping": true,
+      "raw_selected_mapping": [
+        4,
+        0,
+        2,
+        1
+      ]
+    },
+    {
+      "language": "es",
+      "all_21_reviewed_captions_exercised_in_actual_Qt": true,
+      "no_guessed_mapping": true,
+      "raw_selected_mapping": [
+        4,
+        0,
+        2,
+        1
+      ]
+    },
+    {
+      "language": "zh_CN",
+      "all_21_reviewed_captions_exercised_in_actual_Qt": true,
+      "no_guessed_mapping": true,
+      "raw_selected_mapping": [
+        4,
+        0,
+        2,
+        1
+      ]
+    },
+    {
+      "language": "pt",
+      "all_21_reviewed_captions_exercised_in_actual_Qt": true,
+      "no_guessed_mapping": true,
+      "raw_selected_mapping": [
+        4,
+        0,
+        2,
+        1
+      ]
+    },
+    {
+      "language": "hi",
+      "all_21_reviewed_captions_exercised_in_actual_Qt": true,
+      "no_guessed_mapping": true,
+      "raw_selected_mapping": [
+        4,
+        0,
+        2,
+        1
+      ]
+    },
+    {
+      "language": "ko",
+      "all_21_reviewed_captions_exercised_in_actual_Qt": true,
+      "no_guessed_mapping": true,
+      "raw_selected_mapping": [
+        4,
+        0,
+        2,
+        1
+      ]
+    },
+    {
+      "language": "is",
+      "all_21_reviewed_captions_exercised_in_actual_Qt": true,
+      "no_guessed_mapping": true,
+      "raw_selected_mapping": [
+        4,
+        0,
+        2,
+        1
+      ]
+    },
+    {
+      "language": "fr",
+      "all_21_reviewed_captions_exercised_in_actual_Qt": true,
+      "no_guessed_mapping": true,
+      "raw_selected_mapping": [
+        4,
+        0,
+        2,
+        1
+      ]
+    }
+  ],
+  "script_sha256": "a8130b6bc42ff411789c2d71ff90d78e9edf7a409d86ce5acd996f09f4cdc100"
+}

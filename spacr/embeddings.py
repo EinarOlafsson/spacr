@@ -93,7 +93,13 @@ DEFAULT_POOL = "avg"
 class EmbeddingSpec:
     """How to embed, recorded so a matrix can say where it came from.
 
-    :param backbone: encoder name, resolved through timm.
+    For ``subcell_rybg``, choose :data:`CHANNEL_PROJECT`, supply four
+    explicit, distinct ``channels`` in microtubules (R), ER (Y), DNA (B),
+    protein (G) order, and set ``normalize=False``. Crops must be at least
+    16 pixels in each spatial dimension. Native dimensions are preserved;
+    the encoder applies the authors' whole-crop min-max normalization.
+
+    :param backbone: Name of a timm or registered foundation encoder.
     :param channel_policy: :data:`CHANNEL_PER_CHANNEL` or
         :data:`CHANNEL_PROJECT`.
     :param channels: which channel indices to encode, in order. ``None``
@@ -667,9 +673,10 @@ def _foundation_names() -> Tuple[str, ...]:
     """The single-cell foundation models :func:`embed_array` can load by name.
 
     They are offered beside the ``timm`` backbones. OpenPhenom and ChAda-ViT
-    are channel-adaptive and take any number of channels; SubCell takes two,
-    DNA then the stain of interest; Cell-DINO is listed so a request for it
-    gets a reason rather than an unknown-name error.
+    are channel-adaptive and take any number of channels. ``subcell`` takes
+    DNA and the stain of interest; ``subcell_rybg`` takes four explicitly
+    mapped microtubule, ER, DNA and protein planes. Cell-DINO is listed so a
+    request for it gets a reason rather than an unknown-name error.
     """
     return tuple(_FOUNDATION_MODELS)
 
@@ -687,7 +694,7 @@ def _backbone_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]
 def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
     """Load one single-cell foundation model and wrap it as an encoder.
 
-    The returned callable takes ``(n, height, width, k)`` float32 in [0, 1]
+    The returned callable takes ``(n, height, width, k)`` float32 crops
     and returns ``(n, dims)``; its ``in_channels`` attribute tells
     :func:`embed_array` how many planes ``k`` it wants, ``None`` meaning any.
     Other foundation crops are resized to the model's training size. SubCell
@@ -726,7 +733,8 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
     def run(stack: np.ndarray) -> np.ndarray:
         """Encode ``(n, h, w, k)`` crops in model-appropriate batches.
 
-        :param stack: float32 in [0, 1], channels last.
+        :param stack: float32 crops, channels last. SubCell R/Y/B/G uses
+            native intensity values; other foundations expect [0, 1].
         :returns: ``(n, dims)`` float32 features.
         """
         out: List[np.ndarray] = []
@@ -823,7 +831,10 @@ def _subcell_model(info: Mapping[str, Any], torch: Any):
             self.attention = nn.Linear(512, 2)
 
         def forward(self, x):
-            """``(n, 2, h, w)`` to ``(n, 1536)``, the two heads joined."""
+            """``(n, k, h, w)`` to ``(n, 1536)``, with the two heads joined.
+
+            The checkpoint determines whether ``k`` is two or four channels.
+            """
             tokens = self.encoder(
                 x, interpolate_pos_encoding=True).last_hidden_state
             gate = self.attention(self.attention_v(tokens)
