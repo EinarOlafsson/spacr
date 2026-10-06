@@ -18805,3 +18805,19 @@ pending; audit both radius and density. Prior default-zero mouse influence,
 fading trails and25% growth occupancy remain requirements. These are new
 requests, not completed acceptance. Home owns CPU/theme refinement and native
 Save investigation; workstation retains all GPU/API/docs/translations/tutorials.
+2026-10-06 user advection clarification for Home: replace the perceived cursor
+distortion with attractive point gravity, strongest near center and fading
+smoothly to zero at the selected radius. Keep radius 0 as default/disabled,
+visible graduated reach and outside-radius currents. Exact user quote and
+source observation: data/663_advection_point_gravity_request_2026-10-06.txt.
+Home owns this CPU renderer change and native evidence. Workstation retains
+all GPU/API/docs/translations/tutorials. Requested behavior is not yet
+implemented acceptance; previous theme feedback and Save crash stay open.
+
+2026-10-06 additional request for Home: an optional Random colors animation
+palette with many independently varied colors across background elements.
+Keep existing defaults and saved palette selection; stable per-element colors
+are the working interpretation to avoid frame flicker. Exact user quote:
+data/663_advection_point_gravity_request_2026-10-06.txt. Home owns renderer/
+preferences/native evidence, workstation owns subsequent API/docs/runtime/
+guide translations and all GPU work. Requested behavior is not acceptance.

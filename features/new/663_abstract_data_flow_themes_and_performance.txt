@@ -620,3 +620,20 @@ pending; audit both radius and density. Prior default-zero mouse influence,
 fading trails and25% growth occupancy remain requirements. These are new
 requests, not completed acceptance. Home owns CPU/theme refinement and native
 Save investigation; workstation retains all GPU/API/docs/translations/tutorials.
+2026-10-06 user clarification relayed to Home: spaCR advection should pull
+particles toward the cursor as an attractive point, strongest near the center
+with smooth falloff to zero at the selected radius. Default radius 0 remains;
+graduated reach and outside-radius evolving flow remain requirements. Exact
+quote and current pointer-rotation source observation:
+data/663_advection_point_gravity_request_2026-10-06.txt. This is a new request,
+not acceptance. Home owns renderer/native validation; workstation retains all
+GPU/API/docs/translations/tutorials. Earlier Thore/density/mycelium feedback
+and reported Save SIGSEGV remain open.
+
+2026-10-06 additional user request relayed to Home: an optional Random colors
+animation palette with many varied colors across the themes' elements.
+Stable element colors are the implementation interpretation to avoid frame
+flicker. Exact quote, existing palette integration points and requested Save/
+visual validation: data/663_advection_point_gravity_request_2026-10-06.txt.
+Home owns source/native work; workstation retains source-bound API/runtime/
+guide translations and all GPU work. This request is not yet acceptance.
