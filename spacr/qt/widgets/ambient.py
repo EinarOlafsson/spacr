@@ -1215,6 +1215,10 @@ class AmbientEngine:
         """
         return 1.0 / max(1.0, self.effective_density())
 
+    def _fractional_alpha_scale(self, base: int) -> float:
+        """Represent a fractional population when a coarse scene keeps one shape."""
+        return self.alpha_scale() * min(1.0, base * self.effective_density())
+
     def set_max_pixels(self, pixels: int) -> None:
         """Set the display-pixel ceiling used to size the render buffer."""
         pixels = max(BUFFER_MIN_EDGE ** 2, int(pixels))
@@ -1631,7 +1635,7 @@ class BlobsEngine(_BufferedEngine):
         :param height: its height in pixels.
         """
         peak = (BLOB_ALPHA_DARK if self.dark else BLOB_ALPHA_LIGHT) \
-            * self.alpha_scale()
+            * self._fractional_alpha_scale(BLOB_COUNT)
         colors = self.paint_colors
         for blob, (cx, cy, radius) in zip(self.blobs,
                                           self.geometry(width, height)):
@@ -2179,7 +2183,7 @@ class AuroraEngine(_BufferedEngine):
         """
         step = int(round(self.hue_phase(curtain) * (AURORA_HUE_STEPS - 1)))
         lengths = self.ray_lengths(curtain)
-        key = (curtain.depth, step, width, height, lengths)
+        key = (curtain.depth, step, width, height, lengths, peak)
         tile = self._tiles.get(key)
         if tile is not None:
             return tile
@@ -2292,7 +2296,7 @@ class AuroraEngine(_BufferedEngine):
         step = int(round(phase % (2 * math.pi)
                          / (2 * math.pi) * AURORA_PULSE_STEPS))
         hue = int(round(self.hue_phase(curtain) * (AURORA_HUE_STEPS - 1)))
-        key = (curtain.depth, step % AURORA_PULSE_STEPS, hue)
+        key = (curtain.depth, step % AURORA_PULSE_STEPS, hue, peak)
         image = self._surges.get(key)
         if image is not None:
             return image
@@ -2337,7 +2341,7 @@ class AuroraEngine(_BufferedEngine):
         :param height: its height in pixels.
         """
         peak = (AURORA_ALPHA_DARK if self.dark else AURORA_ALPHA_LIGHT) \
-            * self.alpha_scale()
+            * self._fractional_alpha_scale(AURORA_CURTAINS)
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
         samples = self.geometry(width, height)
@@ -5069,8 +5073,8 @@ class _DataArtEngine(_BufferedEngine):
         if material is None:
             rng = random.Random(self._art_seed)
             scale = math.sqrt(self.effective_density()) / self.size
-            columns = max(12, min(66, round(38 * scale)))
-            rows = max(8, min(42, round(columns * height / width)))
+            columns = max(3, min(66, round(38 * scale)))
+            rows = max(2, min(42, round(columns * height / width)))
             cell_width = width / columns
             cell_height = height / rows
             cells = []
@@ -5274,8 +5278,13 @@ class _DataArtEngine(_BufferedEngine):
                 _SATIN_COMPILER.failed = True
                 for source, target, shifts, _, _, padding in tasks:
                     _numpy_satin_columns(source, target, shifts, padding)
-        for _target, image, origin_x, origin_y in images:
-            painter.drawImage(QPointF(origin_x, origin_y), image)
+        opacity = painter.opacity()
+        painter.setOpacity(opacity * min(1.0, 7 * self.effective_density()))
+        try:
+            for _target, image, origin_x, origin_y in images:
+                painter.drawImage(QPointF(origin_x, origin_y), image)
+        finally:
+            painter.setOpacity(opacity)
 
 
 
@@ -5720,7 +5729,7 @@ class _ThoreEngine(_BufferedEngine):
         """Colour-independent rain positions and the active lightning tree."""
         if width <= 0 or height <= 0:
             return ()
-        amount = min(len(self._rain), max(24, round(105 * self.density)))
+        amount = min(len(self._rain), max(1, round(105 * self.density)))
         length = min(width, height) * 0.025 * self.size
         slant = length * 0.24
         drops = tuple((x0 * width,
