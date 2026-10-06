@@ -1703,14 +1703,15 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
 
 
 def _normalize_img_channels(normalized_stack, channels, save_dtype, settings,
-                            load_channel):
+                            load_channel, output_columns=None):
     """Fill a float32 output from mutable channels in their source order.
 
-    :param normalized_stack: zero-filled destination with the full source shape.
+    :param normalized_stack: zero-filled destination with full or selected channels.
     :param channels: source channel indices to normalize.
     :param save_dtype: requested output dtype.
     :param settings: object-specific background and percentile settings.
     :param load_channel: callable returning one mutable source channel.
+    :param output_columns: optional source-channel to destination-column mapping.
     :returns: normalized output converted to ``save_dtype``.
     """
     from .utils import print_progress
@@ -1725,6 +1726,7 @@ def _normalize_img_channels(normalized_stack, channels, save_dtype, settings,
 
     time_ls = []
     for i, channel in enumerate(channels):
+        output_column = channel if output_columns is None else output_columns[channel]
         start = time.time()
         background = settings.get('background', 100)
         signal_threshold = settings.get('Signal_to_noise', 10) * background
@@ -1793,7 +1795,7 @@ def _normalize_img_channels(normalized_stack, channels, save_dtype, settings,
         for array_index in range(single_channel.shape[0]):
             arr_2d = single_channel[array_index]
             arr_2d_normalized = exposure.rescale_intensity(arr_2d, in_range=(global_lower, global_upper), out_range=(0, 1))
-            normalized_stack[array_index, ..., channel] = arr_2d_normalized
+            normalized_stack[array_index, ..., output_column] = arr_2d_normalized
 
         stop = time.time()
         duration = stop - start
@@ -3667,7 +3669,8 @@ def _preprocess_mapped_volume_series(settings):
                     if os.path.islink(path) or _volume_file_hash(path) != stacks[name]:
                         raise ValueError(f'Native T-by-Z staged stack changed: {name}')
                 output_shape = (len(filenames), *frame_shape)
-                normalized = np.zeros(output_shape, dtype=np.float32)
+                normalized = np.zeros((*output_shape[:-1], len(selected)),
+                                      dtype=np.float32)
 
                 def load_channel(channel):
                     """Read one private source channel from verified staged stacks."""
@@ -3682,13 +3685,12 @@ def _preprocess_mapped_volume_series(settings):
                     return values
 
                 normalized = _normalize_img_channels(
-                    normalized, selected, np.float32, settings, load_channel)
+                    normalized, selected, np.float32, settings, load_channel,
+                    output_columns={channel: index for index, channel in enumerate(selected)})
                 for name, path in zip(filenames, staged_paths):
                     checkpoint()
                     if os.path.islink(path) or _volume_file_hash(path) != stacks[name]:
                         raise ValueError(f'Native T-by-Z staged stack changed: {name}')
-                if selected != list(range(len(channel_ids))):
-                    normalized = normalized[..., selected]
                 archive_name = _escaped_field_stem(*field, '') + 'norm_timelapse.npz'
                 archive = os.path.join(stage_masks, archive_name)
                 _save_npz_atomic(archive, data=normalized, filenames=filenames)

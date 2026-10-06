@@ -68,15 +68,17 @@ def test_fixed_map_tzyx_preserves_every_original_plane_and_frame(tmp_path):
     assert _digest(archive) == before
 
 
-def test_native_three_time_three_z_three_channel_archive_matches_scalar_stack(
-        tmp_path):
+@pytest.mark.parametrize('channel_count, selected', [
+    (3, [2, 0, 1]), (4, [3, 1])])
+def test_native_three_time_three_z_archive_matches_scalar_stack(
+        tmp_path, channel_count, selected):
     """The app's float32 archive keeps full-field quantiles and channel order."""
     from spacr import convert
 
     source = tmp_path / 'raw' / 'A01'
     source.mkdir(parents=True)
     ramp = np.arange(64 * 64, dtype=np.uint16).reshape(64, 64)
-    for channel in range(3):
+    for channel in range(channel_count):
         frames = np.stack([
             np.stack([
                 ((ramp + 37 * time + 53 * z + 71 * channel) % 3000).astype(np.uint16)
@@ -89,7 +91,8 @@ def test_native_three_time_three_z_three_channel_archive_matches_scalar_stack(
                                        dst=str(converted), z_handling='keep',
                                        preview_rows=0)).is_complete
     settings, returned = io.preprocess_img_data(_settings(
-        converted, nucleus_channel=2, cell_channel=0, pathogen_channel=1,
+        converted, nucleus_channel=selected[0], cell_channel=selected[1],
+        pathogen_channel=selected[2] if len(selected) > 2 else None,
         pathogen_background=300, pathogen_signal_to_noise=2,
         remove_background_pathogen=True, lower_percentile=17))
     assert returned == str(converted)
@@ -97,12 +100,12 @@ def test_native_three_time_three_z_three_channel_archive_matches_scalar_stack(
     assert len(staged) == 3
     raw = np.stack([np.load(path, allow_pickle=False) for path in staged])
     expected = io._normalize_img_batch(
-        raw, [2, 0, 1], np.float32, settings)[..., [2, 0, 1]]
+        raw, selected, np.float32, settings)[..., selected]
     archive = converted / 'masks/plate1_A01_1_norm_timelapse.npz'
     with np.load(archive, allow_pickle=False) as content:
         actual = content['data']
         assert content['filenames'].tolist() == [path.name for path in staged]
-    assert actual.shape == (3, 3, 64, 64, 3)
+    assert actual.shape == (3, 3, 64, 64, len(selected))
     assert actual.dtype == np.float32
     assert actual.tobytes() == expected.tobytes()
     reference = tmp_path / 'reference.npz'
@@ -301,7 +304,8 @@ def test_native_tzyx_cancel_during_staged_channel_read_discards_private_stage(
     token = CancellationToken()
     original = io._normalize_img_channels
 
-    def cancel_second_channel(output, channels, dtype, settings, load_channel):
+    def cancel_second_channel(output, channels, dtype, settings, load_channel,
+                              **kwargs):
         reads = 0
 
         def cancellable_load(channel):
@@ -311,7 +315,8 @@ def test_native_tzyx_cancel_during_staged_channel_read_discards_private_stage(
                 token.cancel()
             return load_channel(channel)
 
-        return original(output, channels, dtype, settings, cancellable_load)
+        return original(output, channels, dtype, settings, cancellable_load,
+                        **kwargs)
 
     monkeypatch.setattr(io, '_normalize_img_channels', cancel_second_channel)
     with installed_token(token), pytest.raises(PipelineCancelled):
