@@ -211,7 +211,7 @@ def test_subcell_rybg_uses_explicit_plane_order_and_whole_crop_scale(
     monkeypatch.setattr(torch.hub, "get_dir", lambda: str(tmp_path / "hub"))
     monkeypatch.setattr(torch.hub, "download_url_to_file", download)
     crops = np.broadcast_to(np.array([1.0, 3.0, 0.0, 2.0], dtype=np.float32),
-                            (2, 9, 11, 4)).copy()
+                            (2, 20, 21, 4)).copy()
     spec = emb.EmbeddingSpec(
         backbone="subcell_rybg", channel_policy=emb.CHANNEL_PROJECT,
         channels=(2, 0, 3, 1), normalize=False, device="cpu", batch_size=1)
@@ -221,12 +221,70 @@ def test_subcell_rybg_uses_explicit_plane_order_and_whole_crop_scale(
     assert len(downloads) == 1
     assert downloads[0][0] == emb._FOUNDATION_MODELS["subcell_rybg"]["url"]
     assert downloads[0][1].endswith("all_channels_ViT-ProtS-Pool.pth")
-    assert len(seen) == 2 and all(x.shape == (1, 4, 448, 448) for x in seen)
+    assert len(seen) == 2 and all(x.shape == (1, 4, 20, 21) for x in seen)
     np.testing.assert_allclose(seen[0].mean(axis=(2, 3))[0],
                                [0.0, 1 / 3, 2 / 3, 1.0], atol=1e-6)
     assert result.spec.fingerprint() != emb.EmbeddingSpec(
         backbone="subcell_rybg", channel_policy=emb.CHANNEL_PROJECT,
         channels=(0, 1, 2, 3), normalize=False).fingerprint()
+
+
+def test_subcell_rybg_preserves_native_large_crop_and_authors_normalizer(
+        monkeypatch, tmp_path):
+    seen = []
+
+    class RecordingViT(_ViT):
+        """Record the whole native crop the model receives."""
+
+        def forward(self, x, interpolate_pos_encoding):
+            seen.append(x.detach().cpu().numpy().copy())
+            return super().forward(x, interpolate_pos_encoding)
+
+    _transformers(monkeypatch, vit=RecordingViT)
+    monkeypatch.setattr(torch.hub, "get_dir", lambda: str(tmp_path / "hub"))
+    monkeypatch.setattr(torch.hub, "download_url_to_file",
+                        lambda _url, target: torch.save(_subcell_checkpoint(), target))
+    crops = np.full((1, 512, 544, 4), 100.0, dtype=np.float32)
+    crops[0, 2, 3, 0] = 0.0
+    crops[0, 500, 501, 3] = 1000.0
+    spec = emb.EmbeddingSpec(
+        backbone="subcell_rybg", channel_policy=emb.CHANNEL_PROJECT,
+        channels=(0, 1, 2, 3), normalize=False, device="cpu")
+    result = emb.embed_array(crops, spec)
+    original = crops[0].transpose(2, 0, 1)
+    minimum = np.amin(original, keepdims=True)
+    maximum = np.amax(original, keepdims=True)
+    authors_input = (original - minimum) / (maximum - minimum + 1e-8)
+    assert result.values.shape == (1, 1536)
+    assert len(seen) == 1 and seen[0].shape == (1, 4, 512, 544)
+    np.testing.assert_array_equal(seen[0][0], authors_input)
+    assert seen[0][0, 0, 2, 3] == 0.0
+    assert seen[0][0, 3, 500, 501] == 1.0
+
+
+@pytest.mark.parametrize("shape", [(15, 20), (20, 15)])
+def test_subcell_rybg_refuses_a_crop_smaller_than_one_patch(
+        monkeypatch, tmp_path, shape):
+    calls = []
+
+    class RecordingViT(_ViT):
+        """Reject a short input before patch embedding runs."""
+
+        def forward(self, x, interpolate_pos_encoding):
+            calls.append(tuple(x.shape))
+            return super().forward(x, interpolate_pos_encoding)
+
+    _transformers(monkeypatch, vit=RecordingViT)
+    monkeypatch.setattr(torch.hub, "get_dir", lambda: str(tmp_path / "hub"))
+    monkeypatch.setattr(torch.hub, "download_url_to_file",
+                        lambda _url, target: torch.save(_subcell_checkpoint(), target))
+    spec = emb.EmbeddingSpec(
+        backbone="subcell_rybg", channel_policy=emb.CHANNEL_PROJECT,
+        channels=(0, 1, 2, 3), normalize=False, device="cpu")
+    encoder = emb._foundation_encoder(spec)
+    with pytest.raises(emb.EmbeddingError, match="at least 16 pixels"):
+        encoder(np.zeros((1, *shape, 4), dtype=np.float32))
+    assert calls == []
 
 
 def test_subcell_rybg_refuses_a_two_plane_checkpoint(

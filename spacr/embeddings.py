@@ -678,9 +678,10 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
     The returned callable takes ``(n, height, width, k)`` float32 in [0, 1]
     and returns ``(n, dims)``; its ``in_channels`` attribute tells
     :func:`embed_array` how many planes ``k`` it wants, ``None`` meaning any.
-    Crops are resized to the size the model was trained at. Weights are
-    downloaded once, at a pinned revision, into the Hugging Face or torch
-    hub cache.
+    Other foundation crops are resized to the model's training size. SubCell
+    R/Y/B/G keeps its native crop geometry and interpolates position tokens.
+    Weights are downloaded once, at a pinned revision, into the Hugging Face
+    or torch hub cache.
 
     :raises EmbeddingError: when torch or transformers is missing, or the
         model is not supported by this version.
@@ -711,7 +712,7 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
     size = int(info["size"])
 
     def run(stack: np.ndarray) -> np.ndarray:
-        """Encode ``(n, h, w, k)`` crops in batches, resized to the model's size.
+        """Encode ``(n, h, w, k)`` crops in model-appropriate batches.
 
         :param stack: float32 in [0, 1], channels last.
         :returns: ``(n, dims)`` float32 features.
@@ -722,7 +723,12 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
                 chunk = torch.from_numpy(np.ascontiguousarray(
                     stack[start:start + spec.batch_size].transpose(0, 3, 1, 2)
                 )).float().to(device)
-                if chunk.shape[-2:] != (size, size):
+                if spec.backbone == "subcell_rybg" and min(chunk.shape[-2:]) < 16:
+                    raise EmbeddingError(
+                        "subcell_rybg needs crops at least 16 pixels high "
+                        "and wide for its ViT-B/16 patch embedding")
+                if (spec.backbone != "subcell_rybg"
+                        and chunk.shape[-2:] != (size, size)):
                     chunk = torch.nn.functional.interpolate(
                         chunk, size=(size, size), mode="bilinear",
                         align_corners=False)
