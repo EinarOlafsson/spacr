@@ -4603,17 +4603,30 @@ def _scatter_colored_grains(flat, ranks, px, py, indices, lookup, axial, diagona
     for i in range(px.size):
         x, y = px[i], py[i]
         level = indices[i]
-        start, stop = (-1, 2) if spread else (0, 1)
-        for dy in range(start, stop):
+        destination = y * width + x
+        encoded = lookup[level]
+        score = encoded >> 32 if dark else 255 - (encoded >> 32)
+        color = encoded & 0xffffffff
+        if score > ranks[destination]:
+            ranks[destination] = score
+            flat[destination] = color
+        elif score == ranks[destination] and (
+                (dark and color > flat[destination])
+                or (not dark and color < flat[destination])):
+            flat[destination] = color
+        if not spread:
+            continue
+        for dy in range(-1, 2):
             ny = y + dy
             if ny < 0 or ny >= height:
                 continue
-            for dx in range(start, stop):
+            for dx in range(-1, 2):
+                if dx == 0 and dy == 0:
+                    continue
                 nx = x + dx
                 if nx < 0 or nx >= width:
                     continue
-                encoded = lookup[level] if dx == 0 and dy == 0 else (
-                    diagonal[level] if dx and dy else axial[level])
+                encoded = diagonal[level] if dx and dy else axial[level]
                 score = encoded >> 32 if dark else 255 - (encoded >> 32)
                 color = encoded & 0xffffffff
                 destination = ny * width + nx
@@ -5084,13 +5097,18 @@ class _DataArtEngine(_BufferedEngine):
         global _COLORED_SCATTER, _COLORED_SCATTER_FAILED
         np = _numpy()
         px, py = np.asarray(x, np.int32), np.asarray(y, np.int32)
-        identities = np.broadcast_to(np.arange(px.shape[-1], dtype=np.uint32), px.shape)
-        mixed = identities * np.uint32(0x9e3779b1) + np.uint32(self._art_seed & 0xffffffff)
-        mixed ^= mixed >> 16
+        count = px.shape[-1]
+        identity_cache = self._material_cache.get("random_grain_identities")
+        if identity_cache is None or identity_cache[0] != count:
+            identities = np.arange(count, dtype=np.uint32)
+            mixed = identities * np.uint32(0x9e3779b1) + np.uint32(self._art_seed & 0xffffffff)
+            mixed ^= mixed >> 16
+            identity_cache = count, (mixed % len(self.paint_colors)).astype(np.uint16)
+            self._material_cache["random_grain_identities"] = identity_cache
         values = np.clip(np.asarray(light, np.float32) * self.alpha_scale(), 0.0, 1.0)
         inside = (px >= 0) & (px < width) & (py >= 0) & (py < height)
         px, py = px[inside], py[inside]
-        hues = (mixed[inside] % len(self.paint_colors)).astype(np.uint16)
+        hues = np.broadcast_to(identity_cache[1], inside.shape)[inside]
         intensities = np.rint(values[inside] * 255).astype(np.uint16)
         indices = hues * np.uint16(256) + intensities
         key = ("random_grain_palette", self.dark)

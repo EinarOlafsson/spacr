@@ -208,6 +208,26 @@ def test_rank_plane_is_frame_local_and_palette_cache_is_bounded(
     assert all(table.ndim == 1 for table in tables)
 
 
+def test_one_identity_cache_reuses_particle_hues_and_replaces_changed_count(
+        qapp, numpy_colors):
+    engine = ambient.make_engine('data_art_genetic_advection', 'random', '#101418', seed=42)
+    x = np.array([[2, 10], [4, 12]], np.float32)
+    y = np.array([[2, 2], [5, 5]], np.float32)
+    engine._point_material(20, 12, x, y, np.ones_like(x), spread=False)
+    cached = engine._material_cache['random_grain_identities'][1]
+    assert cached.shape == (2,) and cached.dtype == np.uint16
+    engine._point_material(20, 12, x + 1, y + 1, np.ones_like(x), spread=False)
+    assert engine._material_cache['random_grain_identities'][1] is cached
+    reference = weakref.ref(cached)
+    del cached
+    x = np.array([[2, 8, 14]], np.float32)
+    engine._point_material(20, 12, x, np.full_like(x, 5), np.ones_like(x), spread=False)
+    gc.collect()
+    assert reference() is None
+    assert engine._material_cache['random_grain_identities'][0] == 3
+    assert sum(key == 'random_grain_identities' for key in engine._material_cache) == 1
+
+
 @pytest.mark.parametrize('failure', ['raise', 'disabled'])
 def test_optional_colored_compiler_failure_keeps_existing_single_hue_kernel(
         failure, numpy_colors, monkeypatch):
