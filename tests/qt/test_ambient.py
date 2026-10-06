@@ -37,6 +37,8 @@ DARK = "#101418"
 LIGHT = "#f6f7f9"
 LEGACY_THEMES = ("blobs", "aurora", "ripple", "drift", "cells")
 RENDERED_THEMES = AMBIENT_THEMES + ("ripple", "cells")
+AUTONOMOUS_THEMES = tuple(theme for theme in RENDERED_THEMES
+                          if theme != "data_art_tissue_facets")
 
 
 def make_engine(theme, palette, background, *args, **kwargs):
@@ -355,7 +357,6 @@ MIN_PAINTED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.003,
 MIN_CHANGED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.006,
                "cells": 0.11,
                "data_art_point_atlas": 0.17,
-               "data_art_tissue_facets": 0.17,
                "data_art_chromatin_ribbon": 0.21,
                "data_art_genetic_advection": 0.47,
                "data_art_impulse_lens": 0.02,
@@ -384,7 +385,7 @@ def test_a_frame_is_not_just_the_background(theme, background):
 
 
 @pytest.mark.parametrize("background", [DARK, LIGHT])
-@pytest.mark.parametrize("theme", RENDERED_THEMES)
+@pytest.mark.parametrize("theme", AUTONOMOUS_THEMES)
 def test_the_frame_changes_between_two_animation_times(theme, background):
     engine = make_engine(theme, "spacr", background, seed=7)
     engine.set_time(2.0)
@@ -394,6 +395,23 @@ def test_the_frame_changes_between_two_animation_times(theme, background):
     differing = sum(1 for a, b in zip(first, second) if a != b)
     assert differing > len(first) * MIN_CHANGED[theme], \
         f"{theme} moved only {differing} of {len(first)} px in seven seconds"
+
+
+@pytest.mark.parametrize("background", [DARK, LIGHT])
+def test_paper_stays_still_until_the_pointer_lifts_it(background):
+    engine = make_engine("data_art_tissue_facets", "spacr", background, seed=7)
+    engine.set_time(2.0)
+    still = all_pixels(render(engine, background=background))
+    engine.set_time(9.0)
+    assert all_pixels(render(engine, background=background)) == still
+
+    engine.set_gravity_radius(0.5)
+    engine.set_pointer((0.35, 0.45))
+    lifted = all_pixels(render(engine, background=background))
+    engine.set_pointer((0.65, 0.55))
+    moved = all_pixels(render(engine, background=background))
+    assert sum(a != b for a, b in zip(still, lifted)) > len(still) * 0.01
+    assert sum(a != b for a, b in zip(lifted, moved)) > len(still) * 0.01
 
 
 @pytest.mark.parametrize("theme", RENDERED_THEMES)
