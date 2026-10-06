@@ -312,3 +312,51 @@ stops on hide. All published clocks are distinct except one repeat among
 The final retained focused root cohort passes 102 cases under 4 GiB.
 Receipt worker_gui_retained_final.json and its frozen probe are archived.
 The native-4K smoothness limitation remains explicit; item 663 stays OPEN.
+
+2026-10-06 — NEW USER THEME REQUIREMENTS RELAYED TO HOME
+Owner: Home CPU/Qt/theme session. Workstation owns subsequent API/docs/
+translation/tutorial refresh and all GPU execution. These are new requested
+changes, not completed acceptance. Prior six-theme measurements stay archived.
+
+P0 crash: user changed Detail for Genetic advection and pressed Save, then
+received "Segmentation fault (core dumped)". Reproduce the actual preference
+save / renderer replacement / worker-lifetime path and repair the native crash.
+User installation was verified at application source 0ef43046e (nightly
+8a6068f18 adds only completion evidence/handoff). No native crash stack has yet
+been collected or diagnosed. Do not cancel protected serial Qt or GPU jobs.
+
+Requested behavior:
+- Tissue facets should respond to the mouse, feel like paper, and stop the
+  constant vibration.
+- Chromatin satin (user wrote "chromatin stain") should move like waves.
+- Genetic advection should have more structures and whirlwinds, with changing
+  motion rather than constant motion; rename it "spaCR advection".
+- Mouse gravitational influence needs an area/radius slider that includes 0
+  and defaults to 0 (disabled).
+- Perturbation lens becomes "spaCR field". Both this and spaCR advection need
+  a density control to increase/decrease the number of spawned elements.
+  User also asks for density controls for many of the other themes.
+- Fungal growth becomes "spaCR growth": start from one place, branch much
+  more at the growing front, advance in different random directions, and fade
+  the trailing structure as it advances. At most 25% of the screen should be
+  occupied at any time (supersedes the earlier 30% bound). User's exact wording
+  for the fading part was "the end should face as the structure grows forward".
+- Add "spaCR Thore": background rain and lightning, with restrained screen
+  illumination from lightning.
+- Aurora should look more like the aurora borealis.
+- Spatial point atlas becomes "spaCR waves".
+- Remove the Ripples and Cells theme choices.
+
+Requested menu order, preserving these exact captions:
+1. spaCR field (default)
+2. spaCR advection
+3. spaCR growth
+4. spaCR Thore
+5. spaCR waves
+6. Blobs
+7. The rest
+
+Please treat the crash as first priority and coordinate source checkpoints
+through nightly. New labels, descriptions, sliders and factory changes need
+normal source-bound multilingual generation by the workstation after source
+integration; do not hand-edit generated catalogs or relax rendering/CI guards.

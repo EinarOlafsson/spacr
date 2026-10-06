@@ -1,5 +1,16 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 urgent user theme feedback — Home source owner
+The user reports a native segmentation fault after changing Genetic advection
+Detail and pressing Save. Home: reproduce and repair the actual preference/
+renderer lifetime path first. The full new behavior, gravity slider default 0,
+density controls, 25% growth limit, Aurora improvement, removals and exact menu
+order are in data/663_user_theme_requests_2026-10-06.txt and N663's dated tail.
+Default becomes spaCR field; menu begins spaCR field, spaCR advection,
+spaCR growth, spaCR Thore, spaCR waves, Blobs, then the rest. These new requests
+are pending, not claimed complete. Workstation retains subsequent API/docs/
+translations/tutorial refresh and all GPU work. Preserve live protected jobs.
+
 ## 2026-10-06 Home pooled watcher and native time-volume batch source
 Home integrates source 0ee2f0053/b777c3211/25031e230: a fixed finite-map
 static projected v1 Mask/Measure pool preserving normal batch normalization,
