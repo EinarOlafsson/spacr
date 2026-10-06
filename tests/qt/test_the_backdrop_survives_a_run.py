@@ -257,7 +257,7 @@ def test_a_frame_that_is_not_ready_is_repeated_and_never_waited_for(qtbot):
     the hold is released, which is exactly the frozen interface being
     reported.
     """
-    widget = _shown(qtbot, theme="cells")
+    widget = _shown(qtbot, theme="data_art_genetic_advection")
     qtbot.waitUntil(lambda: widget.frames_shaded() > 0, timeout=10000)
 
     holding, release = threading.Event(), threading.Event()
@@ -431,7 +431,7 @@ def test_a_python_worker_no_longer_shades_the_backdrop_on_the_gui_thread(
     and asserts it is dear. Cheap frame plus dear shade is the split working;
     cheap frame plus cheap shade is a test that measured nothing.
     """
-    widget = _shown(qtbot, theme="cells", cls=_TimedBackdrop)
+    widget = _shown(qtbot, theme="data_art_genetic_advection", cls=_TimedBackdrop)
     qtbot.waitUntil(lambda: widget.frames_shaded() > 0, timeout=10000)
 
     stop = threading.Event()
@@ -444,8 +444,9 @@ def test_a_python_worker_no_longer_shades_the_backdrop_on_the_gui_thread(
         costs = list(widget.costs)
 
         # The control: the same work, on the GUI thread, under the same load.
-        engine = make_engine("cells", default_palette_for("cells"), DARK,
-                             seed=4242)
+        engine = make_engine(
+            "data_art_genetic_advection",
+            default_palette_for("data_art_genetic_advection"), DARK, seed=4242)
         engine.shade(W, H)                     # allocate the buffer first
         shades = []
         for _ in range(21):
@@ -646,12 +647,12 @@ def test_switching_theme_while_it_runs_retires_the_old_shading_thread(qtbot):
     qtbot.waitUntil(lambda: widget.frames_shaded() > 0, timeout=10000)
     first = widget._producer_box[0]
 
-    widget.set_theme("ripple")
+    widget.set_theme("data_art_point_atlas")
 
     assert not first.is_alive(), "the old shading thread was left running"
     assert widget.shading_thread_alive()
     assert widget._producer_box[0] is not first
-    assert widget.theme() == "ripple"
+    assert widget.theme() == "data_art_point_atlas"
 
     qtbot.waitUntil(lambda: widget.frames_shaded() > 0, timeout=10000)
     widget.repaint()
