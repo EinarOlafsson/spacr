@@ -84,8 +84,9 @@ import numpy as np
 import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
-    QComboBox, QFileDialog, QHBoxLayout, QLabel, QLineEdit, QPushButton,
-    QSpinBox, QStackedWidget, QTableWidget, QVBoxLayout, QWidget,
+    QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
+    QHBoxLayout, QLabel, QLineEdit, QPushButton, QSpinBox, QStackedWidget,
+    QTableWidget, QVBoxLayout, QWidget,
 )
 
 from ...crop_loader import (CROP_SOURCE_DATABASE, CROP_SOURCES,
@@ -230,6 +231,8 @@ class EmbeddingsScreen(QWidget):
         self._stop = threading.Event()
         self._loading = False
         self._read_path = ""
+        self._subcell_channels: Optional[tuple[int, int, int, int]] = None
+        self._policy_before_subcell: Optional[str] = None
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._jobs.job_failed.connect(self._on_job_failed)
         self.crops_progress.connect(self._on_crops_progress)
@@ -437,15 +440,148 @@ class EmbeddingsScreen(QWidget):
             self._foundation.addItem(tr(info["label"]), name)
         self._foundation.setToolTip(tr(
             "A model trained on microscopy rather than photographs. "
-            "OpenPhenom and ChAda-ViT take any number of stains; SubCell "
-            "takes two, DNA then the stain of interest, in the order the "
-            "channels are encoded. Weights download once. Cell-DINO needs "
+            "OpenPhenom and ChAda-ViT take any number of stains. SubCell's "
+            "two-plane model takes DNA then protein; its four-plane model "
+            "needs explicit microtubules, ER, DNA and protein mapping. "
+            "Weights download once. Cell-DINO needs "
             "an official checkpoint and is not yet supported by this version. "
             "Default None (use the "
             "backbone)."))
         controls.addWidget(self._foundation)
+        self._subcell_button = QPushButton(tr("Channels…"), self)
+        self._subcell_button.setObjectName("EmbeddingsSubCellChannelsButton")
+        self._subcell_button.setToolTip(tr(
+            "Map four crop channels to microtubules, ER, DNA and protein "
+            "before running SubCell's four-plane model."))
+        self._subcell_button.clicked.connect(self._choose_subcell_channels)
+        controls.addWidget(self._subcell_button)
+        self._foundation.currentIndexChanged.connect(
+            self._sync_subcell_controls)
+        self._sync_subcell_controls()
         _apply_alpha_widgets(label)
         _apply_alpha_widgets(self._foundation)
+
+    def _sync_subcell_controls(self) -> None:
+        """Show the four-plane choice and keep its policy caption truthful."""
+        from ..preferences import _get_show_alpha_features
+
+        selected = self._foundation.currentData() == "subcell_rybg"
+        project = self._policy.findData("project")
+        if selected:
+            if self._policy_before_subcell is None:
+                self._policy_before_subcell = str(self._policy.currentData())
+            self._policy.setCurrentIndex(project)
+            self._policy.setItemText(
+                project, tr("Four mapped planes (one pass)"))
+            self._policy.setEnabled(False)
+        else:
+            self._policy.setItemText(
+                project, tr("Project to three (one pass)"))
+            self._policy.setEnabled(True)
+            if self._policy_before_subcell is not None:
+                previous = self._policy.findData(self._policy_before_subcell)
+                if previous >= 0:
+                    self._policy.setCurrentIndex(previous)
+                self._policy_before_subcell = None
+        crops = getattr(self, "_crops", None)
+        count = 0 if crops is None else int(crops.shape[-1])
+        self._subcell_button.setEnabled(selected and count >= 4)
+        if selected and count < 4:
+            self._subcell_button.setToolTip(tr(
+                "Load crops with at least four channels before mapping "
+                "SubCell's microtubules, ER, DNA and protein planes."))
+        else:
+            self._subcell_button.setToolTip(tr(
+                "Map four crop channels to microtubules, ER, DNA and protein "
+                "before running SubCell's four-plane model."))
+        alpha_on = _get_show_alpha_features()
+        self._subcell_button.setVisible(selected and alpha_on)
+        self._subcell_button.setProperty(
+            "_spacr_alpha_hid", bool(selected and not alpha_on))
+
+    def _subcell_mapping_error(self, channels, available: int) -> str:
+        """Explain an incomplete, repeated or stale four-plane mapping."""
+        if channels is None or len(channels) != 4 or any(
+                not isinstance(channel, int) for channel in channels):
+            return tr("Choose a crop channel for each SubCell plane: "
+                      "microtubules, ER, DNA and protein.")
+        if len(set(channels)) != 4:
+            return tr("Choose four different crop channels for SubCell.")
+        if any(channel < 0 or channel >= available for channel in channels):
+            return tr("A selected SubCell channel is outside the loaded "
+                      "crops. Open Channels… and map the four planes again.")
+        return ""
+
+    def _subcell_channels_dialog(self) -> QDialog:
+        """Build four initially unchosen selectors in official R/Y/B/G order."""
+        crops = getattr(self, "_crops", None)
+        available = 0 if crops is None else int(crops.shape[-1])
+        dialog = QDialog(self)
+        dialog.setObjectName("EmbeddingsSubCellChannelsDialog")
+        dialog.setWindowTitle(tr("SubCell four-plane channels"))
+        layout = QVBoxLayout(dialog)
+        guidance = QLabel(tr(
+            "Assign four different crop channels in SubCell's official "
+            "order. No stain identity is guessed from channel position."),
+            dialog)
+        guidance.setWordWrap(True)
+        layout.addWidget(guidance)
+        form = QFormLayout()
+        selectors = []
+        for label, name in (
+            (tr("Microtubules (R)"), "EmbeddingsSubCellMicrotubulesChannel"),
+            (tr("ER (Y)"), "EmbeddingsSubCellErChannel"),
+            (tr("DNA (B)"), "EmbeddingsSubCellDnaChannel"),
+            (tr("Protein (G)"), "EmbeddingsSubCellProteinChannel"),
+        ):
+            selector = QComboBox(dialog)
+            selector.setObjectName(name)
+            selector.addItem(tr("Choose channel…"), None)
+            for index in range(available):
+                selector.addItem(tr("Channel {position} (index {index})").format(
+                    position=index + 1, index=index), index)
+            if self._subcell_channels is not None:
+                role = len(selectors)
+                matching = selector.findData(self._subcell_channels[role])
+                if matching >= 0:
+                    selector.setCurrentIndex(matching)
+            form.addRow(label, selector)
+            selectors.append(selector)
+        layout.addLayout(form)
+        problem = QLabel("", dialog)
+        problem.setObjectName("EmbeddingsSubCellChannelsProblem")
+        problem.setWordWrap(True)
+        layout.addWidget(problem)
+        actions = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel, dialog)
+        layout.addWidget(actions)
+
+        def accept_mapping() -> None:
+            """Store only a complete four-index choice, then close."""
+            chosen = tuple(selector.currentData() for selector in selectors)
+            current = getattr(self, "_crops", None)
+            count = 0 if current is None else int(current.shape[-1])
+            reason = self._subcell_mapping_error(chosen, count)
+            if reason:
+                problem.setText(reason)
+                return
+            self._subcell_channels = chosen
+            self._status.setText(tr(
+                "SubCell channel mapping saved in microtubules, ER, DNA, "
+                "protein order."))
+            dialog.accept()
+
+        actions.accepted.connect(accept_mapping)
+        actions.rejected.connect(dialog.reject)
+        return dialog
+
+    def _choose_subcell_channels(self) -> None:
+        """Open the mapping form without retaining its Qt wrappers."""
+        dialog = self._subcell_channels_dialog()
+        try:
+            dialog.exec()
+        finally:
+            dialog.deleteLater()
 
     def _add_use_for_pickers(self, controls) -> None:
         """Alpha controls that score the embedding and feed it onward.
@@ -1267,6 +1403,14 @@ class EmbeddingsScreen(QWidget):
         self._scale_record = {}
         self._source.setText(
             label or f"{crops.shape[0]} objects x {crops.shape[-1]} channels")
+        if (self._subcell_channels is not None
+                and self._subcell_mapping_error(
+                    self._subcell_channels, int(crops.shape[-1]))):
+            self._subcell_channels = None
+            self._status.setText(tr(
+                "The new crops have fewer channels. Reopen Channels… to "
+                "map SubCell's four planes."))
+        self._sync_subcell_controls()
         self._run.setEnabled(True)
         self._run.setToolTip("Encode every object")
         self._state.say(
@@ -1278,9 +1422,21 @@ class EmbeddingsScreen(QWidget):
 
     def spec(self):
         """The :class:`spacr.embeddings.EmbeddingSpec` the controls describe."""
-        from ...embeddings import EmbeddingSpec
+        from ...embeddings import CHANNEL_PROJECT, EmbeddingError, EmbeddingSpec
 
         foundation = str(self._foundation.currentData() or "")
+        if foundation == "subcell_rybg":
+            if self._subcell_channels is None:
+                raise EmbeddingError(tr(
+                    "Choose four distinct crop channels before running "
+                    "SubCell's four-plane model."))
+            return EmbeddingSpec(
+                backbone=foundation,
+                channel_policy=CHANNEL_PROJECT,
+                channels=self._subcell_channels,
+                batch_size=int(self._batch.value()),
+                normalize=False,
+            )
         return EmbeddingSpec(
             backbone=foundation or str(self._backbone.currentText()).strip(),
             channel_policy=str(self._policy.currentData()),
@@ -1293,7 +1449,18 @@ class EmbeddingsScreen(QWidget):
         if crops is None:
             self._status.setText("Load crops first.")
             return
-        spec = self.spec()
+        if self._foundation.currentData() == "subcell_rybg":
+            reason = self._subcell_mapping_error(
+                self._subcell_channels, int(crops.shape[-1]))
+            if reason:
+                self._status.setText(reason)
+                return
+        try:
+            spec = self.spec()
+        except ValueError as exc:
+            self._status.setText(tr(
+                "Cannot start embedding: {reason}").format(reason=str(exc)))
+            return
         record = self._scale_record
         self._status.setText(f"Embedding {crops.shape[0]} objects…")
 
@@ -1320,7 +1487,7 @@ class EmbeddingsScreen(QWidget):
 
         from ...embeddings import encoder_entry
 
-        entry = encoder_entry(self.spec())
+        entry = encoder_entry(result.spec)
         digest = entry.sha256[:12] + "…" if entry.sha256 else "no checksum"
         self._status.setText(
             f"{len(frame)} objects x {len(frame.columns)} dimensions. "
