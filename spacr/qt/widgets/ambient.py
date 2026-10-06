@@ -509,7 +509,9 @@ _THEME_PALETTES: Dict[str, Tuple[str, ...]] = {
     SPACEOUT_THEME: (SPACEOUT_PALETTE,),
 }
 for _data_art_key in AMBIENT_THEMES[7:]:
-    _THEME_PALETTES[_data_art_key] = tuple(PALETTE_SETS)
+    _THEME_PALETTES[_data_art_key] = tuple(
+        palette for palette in PALETTE_SETS
+        if palette != SPACEOUT_PALETTE)
 
 #: Every theme that has an engine behind it — the seven a menu offers, plus
 #: the one the ``spaceout`` entry point dresses the application in.

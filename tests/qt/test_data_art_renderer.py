@@ -60,7 +60,8 @@ def test_data_art_registry_has_twelve_distinct_named_materials():
         assert engine.interactive is (family in INTERACTIVE)
         assert ambient.animation_label(key) != key
         assert ambient.animation_note(key).endswith(".")
-        assert set(ambient.PALETTE_SETS) <= set(ambient.palettes_for(key))
+        assert set(ambient.palettes_for(key)) == (
+            set(ambient.PALETTE_SETS) - {ambient.SPACEOUT_PALETTE})
 
 
 @pytest.mark.parametrize("family", FAMILIES)
