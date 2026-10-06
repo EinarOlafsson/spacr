@@ -1,0 +1,257 @@
+{
+  "passed": true,
+  "application_source_sha256": "10f792e55641d29b4aa5a401d9b550a213f16711874461aafaa463368cbdd40e",
+  "script_sha256": "b99df67a12156c276a5df50ae00f070bdc5c348b78d29d4dc2faf9ce572658ee",
+  "spec": {
+    "backbone": "subcell_rybg",
+    "channel_policy": "project",
+    "channels": [
+      4,
+      0,
+      2,
+      1
+    ],
+    "batch_size": 1,
+    "device": "cuda",
+    "normalize": false,
+    "channel_scale": null
+  },
+  "complete_ordered_model_state_sha256": "4e3d25fd7e5f05db96af5372f8b39bb3bf3a205a17159278eda6211776a1c809",
+  "checkpoint_sha256": "6a2d117bcacaa0697034d06d6922580ca7cd996564f270529ec97e6502559845",
+  "actual_normal_entry": {
+    "key": "encoder:subcell_rybg/project",
+    "name": "subcell_rybg (project)",
+    "kind": "encoder",
+    "source": "local",
+    "path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/560-subcell-rybg-preparation-r1/torch/hub/checkpoints/all_channels_ViT-ProtS-Pool.pth",
+    "uri": "https://czi-subcell-public.s3.amazonaws.com/models/all_channels_ViT-ProtS-Pool.pth",
+    "version": "1",
+    "sha256": "6a2d117bcacaa0697034d06d6922580ca7cd996564f270529ec97e6502559845",
+    "size_bytes": 349009018,
+    "trained_on": "unknown",
+    "trained_by": "SubCell (CZI / Lundberg lab ViT-B/16, R/Y/B/G)",
+    "metrics": {},
+    "notes": [
+      "Channel policy: project. Dimensions from different policies are not comparable.",
+      "No scorecard. Measure retrieval against labelled phenotype controls and attach the results."
+    ],
+    "verified": false,
+    "settings_path": "",
+    "licence": ""
+  },
+  "comparisons": {
+    "16x16": {
+      "original_shape": [
+        1,
+        16,
+        16,
+        5
+      ],
+      "model_input_shape": [
+        1,
+        4,
+        16,
+        16
+      ],
+      "features_shape": [
+        1,
+        1536
+      ],
+      "max_abs_difference": 2.384185791015625e-06,
+      "mean_abs_difference": 1.7417721664969577e-07,
+      "predeclared_max_abs_guard": 1e-05
+    },
+    "48x64": {
+      "original_shape": [
+        1,
+        48,
+        64,
+        5
+      ],
+      "model_input_shape": [
+        1,
+        4,
+        48,
+        64
+      ],
+      "features_shape": [
+        1,
+        1536
+      ],
+      "max_abs_difference": 9.5367431640625e-07,
+      "mean_abs_difference": 1.5457787583272875e-07,
+      "predeclared_max_abs_guard": 1e-05
+    },
+    "64x64": {
+      "original_shape": [
+        1,
+        64,
+        64,
+        5
+      ],
+      "model_input_shape": [
+        1,
+        4,
+        64,
+        64
+      ],
+      "features_shape": [
+        1,
+        1536
+      ],
+      "max_abs_difference": 9.5367431640625e-07,
+      "mean_abs_difference": 1.6032102223562106e-07,
+      "predeclared_max_abs_guard": 1e-05
+    },
+    "512x512": {
+      "original_shape": [
+        1,
+        512,
+        512,
+        5
+      ],
+      "model_input_shape": [
+        1,
+        4,
+        512,
+        512
+      ],
+      "features_shape": [
+        1,
+        1536
+      ],
+      "max_abs_difference": 1.430511474609375e-06,
+      "mean_abs_difference": 2.0754821150603675e-07,
+      "predeclared_max_abs_guard": 1e-05
+    },
+    "constant-64x64": {
+      "original_shape": [
+        1,
+        64,
+        64,
+        5
+      ],
+      "model_input_shape": [
+        1,
+        4,
+        64,
+        64
+      ],
+      "features_shape": [
+        1,
+        1536
+      ],
+      "max_abs_difference": 3.814697265625e-06,
+      "mean_abs_difference": 2.507949830032885e-07,
+      "predeclared_max_abs_guard": 1e-05
+    }
+  },
+  "peak_rss_KiB": 2178320,
+  "CUDA_device": "NVIDIA GeForce RTX 3090 Ti",
+  "profiles": {
+    "16x16": {
+      "positive_CUDA_events": 182,
+      "CUDA_event_microseconds": 1342.378000000017
+    },
+    "48x64": {
+      "positive_CUDA_events": 244,
+      "CUDA_event_microseconds": 1718.806999999996
+    },
+    "64x64": {
+      "positive_CUDA_events": 245,
+      "CUDA_event_microseconds": 1781.9509999999955
+    },
+    "512x512": {
+      "positive_CUDA_events": 247,
+      "CUDA_event_microseconds": 24797.309000000012
+    },
+    "constant-64x64": {
+      "positive_CUDA_events": 245,
+      "CUDA_event_microseconds": 1768.4270000000033
+    }
+  },
+  "no_biological_accuracy_or_human_labels_claim": true,
+  "input_scope": "Five deterministic synthetic normalization/mapping fixtures; original five planes retained, four explicitly permuted selected planes, an unselected extreme plane, minimum/rectangular/native dimensions and constant input.",
+  "files": {
+    "16x16-CUDA-trace.json": {
+      "bytes": 565519,
+      "sha256": "5eeae0965db0c0331d80606a1103eda1ad349482da419ac83fa4372df4262c56"
+    },
+    "16x16-authors-features.npy": {
+      "bytes": 6272,
+      "sha256": "bc2d52044909541fbf14b30a6effcb17515d986e10d90f71dae7bcd535485281"
+    },
+    "16x16-original.npy": {
+      "bytes": 5248,
+      "sha256": "a712671050326ba370d6636779bab6f01a96f81a5d96859266bb0f2f089608c2"
+    },
+    "16x16-spacr-features.npy": {
+      "bytes": 6272,
+      "sha256": "6829b5dd23627c4af2a0bbbdf541917c4956a7f6584b180e70c8fd2082205ca6"
+    },
+    "48x64-CUDA-trace.json": {
+      "bytes": 609873,
+      "sha256": "a5c17580b8eb24bc2dd02d53aee4d35075417c90f1ae121c642fe057e4120731"
+    },
+    "48x64-authors-features.npy": {
+      "bytes": 6272,
+      "sha256": "4a43d13a53430ffdeb3079616beba4f49ceb3b6d24807bde45b6fb6a4054dbc0"
+    },
+    "48x64-original.npy": {
+      "bytes": 61568,
+      "sha256": "d85f9158cd7499e051a493661a5d340c31c4c32f7ecbd0aeeb26b0071634725e"
+    },
+    "48x64-spacr-features.npy": {
+      "bytes": 6272,
+      "sha256": "c13a7c5adc2db4dbbde2ade231b62e82343964550e0bcae8d40edcbfedfede58"
+    },
+    "512x512-CUDA-trace.json": {
+      "bytes": 588889,
+      "sha256": "4a03c842c0e697752802904d2343cad4fbce1a9b5750fb3d41665231d7333670"
+    },
+    "512x512-authors-features.npy": {
+      "bytes": 6272,
+      "sha256": "0e2e6be43d1034a28a478be8d96f905e5c653fa8c8b0a573383c95b4391bf9ec"
+    },
+    "512x512-original.npy": {
+      "bytes": 5243008,
+      "sha256": "718a2d950180a094801a0046fd2f1fd3020cd01fae075028da56bae9b3572fa0"
+    },
+    "512x512-spacr-features.npy": {
+      "bytes": 6272,
+      "sha256": "cbb0d2c8125c4c25b3f326e3d7ea2915ca7bd8c2f84170c218e2d97afc73687f"
+    },
+    "64x64-CUDA-trace.json": {
+      "bytes": 621159,
+      "sha256": "f5c0dcd493f6d11d7dc1fa6622c63d00149519a7dedafc52b807d74922b103ab"
+    },
+    "64x64-authors-features.npy": {
+      "bytes": 6272,
+      "sha256": "bfbdb74266fbb42e2bd8e01486dfa675839b90842472d9987cfcd8efc02118df"
+    },
+    "64x64-original.npy": {
+      "bytes": 82048,
+      "sha256": "e0dff75d786959a54a3d8f8bac223b4eb96990691f395d9a5dc2e529ecdcab76"
+    },
+    "64x64-spacr-features.npy": {
+      "bytes": 6272,
+      "sha256": "c769b1e1c510c6b6c6cb2dc204ebf1a1b71eea8db2e0c937c332f7c80cf3f7a1"
+    },
+    "constant-64x64-CUDA-trace.json": {
+      "bytes": 589871,
+      "sha256": "97afa0dfcae6a46f8731d0c7ffcbbfefcce9d0042b51cb65338685e273d5f891"
+    },
+    "constant-64x64-authors-features.npy": {
+      "bytes": 6272,
+      "sha256": "60a9e475615c4a3713f7e0276510e5d184669c3ca429109dc2a4f5be3ab103ff"
+    },
+    "constant-64x64-original.npy": {
+      "bytes": 82048,
+      "sha256": "f5d8d0e844d5289fe65e45274a0596fb081131eafc540dc4bbbc23754bc7983e"
+    },
+    "constant-64x64-spacr-features.npy": {
+      "bytes": 6272,
+      "sha256": "5db26c4bce1ffcf68b19a77ffba3438e4fedbe0d967246a69568425d352709d0"
+    }
+  }
+}

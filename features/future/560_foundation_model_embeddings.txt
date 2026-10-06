@@ -210,4 +210,27 @@ with43/288/47; no numerical guard or coverage ceiling is raised.
 
 2026-10-06 workstation next-source ownership: Home checkpoint 3ce39ac7b adds native-size four-channel SubCell and explicit alpha channel mapping. It is not covered by this earlier source receipt and is the next private integration/API/runtime/documentation scope. Workstation retains its GPU acceptance. The public 349,009,018-byte all_channels_ViT-ProtS-Pool.pth and three pinned authors reference files have been independently reacquired; all four SHA256 values exactly match Home CPU evidence. Acquisition is preparation only, not four-stain biological or CUDA acceptance. Current protected livecell/cellposeTIME jobs are untouched.
 
+2026-10-06 workstation four-channel real-model CPU/CUDA parity:
+Normal public embed_array and the pinned original authors' implementation
+strictly load the same official 349,009,018-byte checkpoint. Five deterministic
+synthetic fixtures exercise explicitly permuted four-channel mapping, an
+unselected extreme fifth plane, 16x16 minimum size, 48x64 rectangular geometry,
+64x64 and 512x512 native crops, and constant input. The largest CPU and CUDA
+differences are both 3.814697265625e-6, below the unchanged 1e-5 guard. Every
+original input byte and the complete ordered model-state digest match between
+CPU and CUDA. All five CUDA cases have positive recorded kernel activity.
+The normal shared turn 560-subcell-rybg-author-parity-20261006-r1 is closed
+rc=0 at 13:48:21 UTC after the ordinary 360-second idle and 600-second handoff,
+using real HOME and an 8 GiB cap. Complete inputs/features, author outputs,
+traces and raw logs are losslessly retained and independently rescored in
+data/560_subcell_rybg_CPU_CUDA_2026-10-06.json. The earlier private verifier
+failure is retained separately; application inference code is unchanged.
+This closes real four-channel mapping/normalization/native-geometry parity,
+without claiming expert biological accuracy from synthetic fixtures. Official
+Cell-DINO loading, final hosted CI and current-source documentation publication
+remain pending; item560 stays OPEN. Workstation owns all GPU and normal
+API/runtime/docs/translation/tutorial refresh, with source-current catalogs
+and actual rendering still in progress. Accepted six-model human-label
+benchmarks retain their original scope and are not replaced by this test.
+
 2026-10-06 workstation private four-channel integration: published Home source 3ce39ac7b is now merged. Both branches complete dated notes are preserved, and all three accepted workstation-owned functions are source-text identical to 58df6f5b9; every other embedding callable/class is source-text identical to Home 3ce39ac7b. Normal API/runtime/Help/settings documentation refresh and four-channel CUDA acceptance are now workstation-owned next actions. Earlier six-model receipts retain their exact source scope. No four-channel GPU, final CI or current-source publication acceptance is claimed yet.
