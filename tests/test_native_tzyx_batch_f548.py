@@ -326,6 +326,70 @@ def test_native_tzyx_cancel_during_staged_channel_read_discards_private_stage(
     assert not list(source.glob('.spacr-volume-series-*'))
 
 
+def test_native_tzyx_cancel_after_quantile_closes_maps_before_discard(
+        tmp_path, monkeypatch):
+    """A late stop releases mapped quantiles, channels and selected output."""
+    from spacr.cancellation import CancellationToken, PipelineCancelled, installed_token
+
+    source, _rows = _converted_series(tmp_path)
+    token = CancellationToken()
+    original_percentile = io.np.percentile
+    original_close = io._close_private_memmap
+    closed = []
+    calls = 0
+
+    def cancel_after_first_quantile(*args, **kwargs):
+        nonlocal calls
+        result = original_percentile(*args, **kwargs)
+        calls += 1
+        if calls == 1:
+            token.cancel()
+        return result
+
+    def record_close(mapped):
+        closed.append(os.path.basename(mapped.filename))
+        original_close(mapped)
+
+    monkeypatch.setattr(io.np, 'percentile', cancel_after_first_quantile)
+    monkeypatch.setattr(io, '_close_private_memmap', record_close)
+    with installed_token(token), pytest.raises(PipelineCancelled):
+        io.preprocess_img_data(_settings(source))
+    assert calls >= 1
+    assert any(name.endswith('-quantiles.bin') for name in closed)
+    assert any(name.startswith('channel-') and name.endswith('.npy')
+               for name in closed)
+    assert 'selected.npy' in closed
+    assert not (source / 'stack').exists()
+    assert not (source / 'masks').exists()
+    assert not list(source.glob('.spacr-volume-series-*'))
+
+
+def test_native_tzyx_rescale_failure_closes_private_stage(tmp_path, monkeypatch):
+    """A failed plane operation leaves no mapped workspace or output."""
+    source, _rows = _converted_series(tmp_path)
+    original_close = io._close_private_memmap
+    closed = []
+
+    def record_close(mapped):
+        closed.append(os.path.basename(mapped.filename))
+        original_close(mapped)
+
+    def fail_rescale(*_args, **_kwargs):
+        raise RuntimeError('rescale failed')
+
+    monkeypatch.setattr(io, '_close_private_memmap', record_close)
+    monkeypatch.setattr(io.exposure, 'rescale_intensity', fail_rescale)
+    with pytest.raises(RuntimeError, match='rescale failed'):
+        io.preprocess_img_data(_settings(source))
+    assert any(name.endswith('-quantiles.bin') for name in closed)
+    assert any(name.startswith('channel-') and name.endswith('.npy')
+               for name in closed)
+    assert 'selected.npy' in closed
+    assert not (source / 'stack').exists()
+    assert not (source / 'masks').exists()
+    assert not list(source.glob('.spacr-volume-series-*'))
+
+
 @pytest.mark.parametrize('case', [
     'illumination', 'metadata', 'missing_map', 'only_t1', 'no_object',
     'old_stack', 'linked_receipt', 'oversized_receipt',

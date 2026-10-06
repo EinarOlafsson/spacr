@@ -1703,7 +1703,8 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
 
 
 def _normalize_img_channels(normalized_stack, channels, save_dtype, settings,
-                            load_channel, output_columns=None):
+                            load_channel, output_columns=None,
+                            workspace_dir=None):
     """Fill a float32 output from mutable channels in their source order.
 
     :param normalized_stack: zero-filled destination with full or selected channels.
@@ -1712,8 +1713,10 @@ def _normalize_img_channels(normalized_stack, channels, save_dtype, settings,
     :param settings: object-specific background and percentile settings.
     :param load_channel: callable returning one mutable source channel.
     :param output_columns: optional source-channel to destination-column mapping.
+    :param workspace_dir: optional private directory for native mapped quantiles.
     :returns: normalized output converted to ``save_dtype``.
     """
+    from .cancellation import checkpoint
     from .utils import print_progress
 
     channels = [int(c) for c in channels]
@@ -1764,47 +1767,133 @@ def _normalize_img_channels(normalized_stack, channels, save_dtype, settings,
                 remove_background = role_remove_background
 
         single_channel = load_channel(channel)
+        try:
+            print(f'Processing channel {channel}: background={background}, signal_threshold={signal_threshold}, remove_background={remove_background}')
 
-        print(f'Processing channel {channel}: background={background}, signal_threshold={signal_threshold}, remove_background={remove_background}')
+            quantile_path = None
+            if workspace_dir is None:
+                if remove_background:
+                    single_channel[single_channel < background] = 0
+                non_zero_single_channel = single_channel[single_channel != 0]
+            else:
+                non_zero_single_channel, quantile_path = (
+                    _native_nonzero_vector(single_channel, workspace_dir,
+                                           channel, background, remove_background))
+            try:
+                if not non_zero_single_channel.size:
+                    if workspace_dir is not None:
+                        normalized_stack[..., output_column] = 0
+                    continue
+                global_lower = np.percentile(
+                    non_zero_single_channel, settings['lower_percentile'],
+                    overwrite_input=True)
 
-        if remove_background:
-            single_channel[single_channel < background] = 0
+                global_upper = None
+                for upper_p in np.linspace(98, 99.5, num=16):
+                    upper_value = np.percentile(
+                        non_zero_single_channel, upper_p, overwrite_input=True)
+                    if upper_value >= signal_threshold:
+                        global_upper = upper_value
+                        break
 
-        non_zero_single_channel = single_channel[single_channel != 0]
-        if not non_zero_single_channel.size:
-            continue
-        global_lower = np.percentile(
-            non_zero_single_channel, settings['lower_percentile'],
-            overwrite_input=True)
+                if global_upper is None:
+                    global_upper = np.percentile(
+                        non_zero_single_channel, 99.5, overwrite_input=True)
+            finally:
+                try:
+                    if workspace_dir is not None and quantile_path is not None:
+                        _close_private_memmap(non_zero_single_channel)
+                finally:
+                    del non_zero_single_channel
+                    if quantile_path is not None:
+                        os.unlink(quantile_path)
 
-        global_upper = None
-        for upper_p in np.linspace(98, 99.5, num=16):
-            upper_value = np.percentile(
-                non_zero_single_channel, upper_p, overwrite_input=True)
-            if upper_value >= signal_threshold:
-                global_upper = upper_value
-                break
+            if workspace_dir is not None:
+                checkpoint()
+            print(f'Channel {channel}: global_lower={global_lower}, global_upper={global_upper}, Signal-to-noise={global_upper / global_lower}')
 
-        if global_upper is None:
-            global_upper = np.percentile(
-                non_zero_single_channel, 99.5, overwrite_input=True)
-        del non_zero_single_channel
+            if workspace_dir is None:
+                for array_index in range(single_channel.shape[0]):
+                    arr_2d = single_channel[array_index]
+                    arr_2d_normalized = exposure.rescale_intensity(arr_2d, in_range=(global_lower, global_upper), out_range=(0, 1))
+                    normalized_stack[array_index, ..., output_column] = arr_2d_normalized
+            else:
+                for time_index in range(single_channel.shape[0]):
+                    for z_index in range(single_channel.shape[1]):
+                        checkpoint()
+                        plane = single_channel[time_index, z_index]
+                        try:
+                            normalized_stack[time_index, z_index, ..., output_column] = (
+                                exposure.rescale_intensity(
+                                    plane, in_range=(global_lower, global_upper),
+                                    out_range=(0, 1)))
+                        finally:
+                            del plane
 
-        print(f'Channel {channel}: global_lower={global_lower}, global_upper={global_upper}, Signal-to-noise={global_upper / global_lower}')
-
-        for array_index in range(single_channel.shape[0]):
-            arr_2d = single_channel[array_index]
-            arr_2d_normalized = exposure.rescale_intensity(arr_2d, in_range=(global_lower, global_upper), out_range=(0, 1))
-            normalized_stack[array_index, ..., output_column] = arr_2d_normalized
-
-        stop = time.time()
-        duration = stop - start
-        time_ls.append(duration)
-        files_processed = i+1
-        files_to_process = len(channels)
-        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f"Normalizing")
+            stop = time.time()
+            duration = stop - start
+            time_ls.append(duration)
+            files_processed = i+1
+            files_to_process = len(channels)
+            print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f"Normalizing")
+        finally:
+            if workspace_dir is not None:
+                try:
+                    _close_private_memmap(single_channel)
+                finally:
+                    os.unlink(os.path.join(workspace_dir,
+                                           f'channel-{channel}.npy'))
 
     return normalized_stack.astype(save_dtype, copy=False)
+
+
+def _close_private_memmap(mapped):
+    """Flush and close one private native-ingest map before workspace removal."""
+    try:
+        mapped.flush()
+    finally:
+        mapped._mmap.close()
+
+
+def _native_nonzero_vector(single_channel, workspace_dir, channel,
+                           background, remove_background):
+    """Stage scalar-order nonzero values without a field-sized boolean copy."""
+    from .cancellation import checkpoint
+
+    count = 0
+    for time_index in range(single_channel.shape[0]):
+        for z_index in range(single_channel.shape[1]):
+            checkpoint()
+            plane = single_channel[time_index, z_index]
+            if remove_background:
+                plane[plane < background] = 0
+            count += np.count_nonzero(plane)
+            del plane
+    if not count:
+        return np.empty(0, dtype=single_channel.dtype), None
+    path = os.path.join(workspace_dir, f'channel-{channel}-quantiles.bin')
+    vector = None
+    try:
+        vector = np.memmap(path, mode='w+', dtype=single_channel.dtype,
+                           shape=(count,))
+        offset = 0
+        for time_index in range(single_channel.shape[0]):
+            for z_index in range(single_channel.shape[1]):
+                checkpoint()
+                plane = single_channel[time_index, z_index]
+                values = plane[plane != 0]
+                vector[offset:offset + values.size] = values
+                offset += values.size
+                del plane, values
+        return vector, path
+    except BaseException:
+        try:
+            if vector is not None:
+                _close_private_memmap(vector)
+        finally:
+            if os.path.exists(path):
+                os.unlink(path)
+        raise
 
 _PARTIAL_SUFFIX = '.partial'
 _DAMAGED_SUFFIX = '.damaged'
@@ -3669,33 +3758,58 @@ def _preprocess_mapped_volume_series(settings):
                     if os.path.islink(path) or _volume_file_hash(path) != stacks[name]:
                         raise ValueError(f'Native T-by-Z staged stack changed: {name}')
                 output_shape = (len(filenames), *frame_shape)
-                normalized = np.zeros((*output_shape[:-1], len(selected)),
-                                      dtype=np.float32)
+                with tempfile.TemporaryDirectory(
+                        prefix='.spacr-normalize-', dir=stage) as workspace:
+                    normalized = np.lib.format.open_memmap(
+                        os.path.join(workspace, 'selected.npy'), mode='w+',
+                        dtype=np.float32,
+                        shape=(*output_shape[:-1], len(selected)))
+                    try:
+                        def load_channel(channel):
+                            """Read one private channel from verified staged stacks."""
+                            channel_path = os.path.join(
+                                workspace, f'channel-{channel}.npy')
+                            values = np.lib.format.open_memmap(
+                                channel_path, mode='w+', dtype=np.dtype(dtype),
+                                shape=output_shape[:-1])
+                            try:
+                                for index, path in enumerate(staged_paths):
+                                    checkpoint()
+                                    mapped = np.load(path, mmap_mode='r',
+                                                     allow_pickle=False)
+                                    try:
+                                        if (mapped.shape != frame_shape
+                                                or mapped.dtype.str != dtype):
+                                            raise ValueError(
+                                                'Native T-by-Z staged stack shape or dtype changed.')
+                                        values[index] = mapped[..., channel]
+                                    finally:
+                                        mapped._mmap.close()
+                                return values
+                            except BaseException:
+                                try:
+                                    _close_private_memmap(values)
+                                finally:
+                                    os.unlink(channel_path)
+                                raise
 
-                def load_channel(channel):
-                    """Read one private source channel from verified staged stacks."""
-                    values = np.empty(output_shape[:-1], dtype=np.dtype(dtype))
-                    for index, path in enumerate(staged_paths):
-                        checkpoint()
-                        mapped = np.load(path, mmap_mode='r', allow_pickle=False)
-                        if mapped.shape != frame_shape or mapped.dtype.str != dtype:
-                            raise ValueError('Native T-by-Z staged stack shape or dtype changed.')
-                        values[index] = mapped[..., channel]
-                        del mapped
-                    return values
-
-                normalized = _normalize_img_channels(
-                    normalized, selected, np.float32, settings, load_channel,
-                    output_columns={channel: index for index, channel in enumerate(selected)})
-                for name, path in zip(filenames, staged_paths):
-                    checkpoint()
-                    if os.path.islink(path) or _volume_file_hash(path) != stacks[name]:
-                        raise ValueError(f'Native T-by-Z staged stack changed: {name}')
-                archive_name = _escaped_field_stem(*field, '') + 'norm_timelapse.npz'
-                archive = os.path.join(stage_masks, archive_name)
-                _save_npz_atomic(archive, data=normalized, filenames=filenames)
-                archives[archive_name] = _volume_file_hash(archive)
-                del normalized
+                        normalized = _normalize_img_channels(
+                            normalized, selected, np.float32, settings,
+                            load_channel,
+                            output_columns={channel: index
+                                            for index, channel in enumerate(selected)},
+                            workspace_dir=workspace)
+                        for name, path in zip(filenames, staged_paths):
+                            checkpoint()
+                            if os.path.islink(path) or _volume_file_hash(path) != stacks[name]:
+                                raise ValueError(f'Native T-by-Z staged stack changed: {name}')
+                        archive_name = _escaped_field_stem(*field, '') + 'norm_timelapse.npz'
+                        archive = os.path.join(stage_masks, archive_name)
+                        _save_npz_atomic(archive, data=normalized,
+                                         filenames=filenames)
+                        archives[archive_name] = _volume_file_hash(archive)
+                    finally:
+                        _close_private_memmap(normalized)
             if (hashlib.sha256(core._watch_map_bytes(src)).hexdigest() != map_sha256
                     or any(core._watch_file_identity(os.path.join(src, name))
                            != row['identity'] or core._watch_artifact_sha256(os.path.join(src, name))
