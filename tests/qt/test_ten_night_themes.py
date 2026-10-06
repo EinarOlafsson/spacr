@@ -207,9 +207,11 @@ class TestEveryThemeHasItsOwnBackdrop:
         assert len(set(pairs)) == 10, f"a backdrop is used twice: {pairs}"
 
     def test_the_backdrops_reuse_the_producers_that_were_there(self):
-        """"reuse and parameterise the existing producers" -- so no new
-        engine was added for this, and the count is the check."""
-        assert len(ambient.AMBIENT_THEMES) == 7
+        """The original ten keep their seven producers as others are added."""
+        legacy = {"blobs", "aurora", "ripple", "drift", "bokeh", "cells",
+                  "resonance"}
+        assert {night.ambient_for(key)[0] for key in night.NIGHT_THEME_KEYS} == legacy
+        assert legacy.issubset(ambient.AMBIENT_THEMES)
 
     @pytest.mark.parametrize("key", night.NIGHT_THEME_KEYS)
     def test_the_backdrop_builds_and_paints(self, key, qapp):

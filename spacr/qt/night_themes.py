@@ -1,4 +1,4 @@
-"""The ten night themes, each a palette, a backdrop and a sound set.
+"""The ten night themes and sixteen flow choices.
 
 A night theme is one choice that moves three things at once: the colours
 the interface is painted in (:data:`spacr.qt.theme.THEMES` grows by ten
@@ -42,6 +42,11 @@ night palette wants it: every surface here is dark.
 :data:`NIGHT_THEMES` is ordered by hue, warm through cool and back round
 to rose, so the Theme menu reads as one family rather than ten unrelated
 entries.
+
+The flow choices form a separate catalog. Each of eight geometries has a
+pointer-responsive counterpart; both use a reviewed static palette and an
+existing sound set. The original night catalog and sound identities stay
+unchanged.
 """
 from __future__ import annotations
 
@@ -49,6 +54,8 @@ from dataclasses import dataclass
 from typing import Dict, Mapping, Tuple
 
 __all__ = [
+    "FLOW_THEMES",
+    "FLOW_THEME_KEYS",
     "NIGHT_THEMES",
     "NIGHT_THEME_KEYS",
     "NightTheme",
@@ -62,12 +69,10 @@ __all__ = [
 
 @dataclass(frozen=True)
 class NightTheme:
-    """One night theme: what it is called, and the three things it moves.
+    """One palette preset: what it is called and the settings it moves.
 
-    :param key: stable identifier. It is the persisted ``prefs/theme``
-        value, the key in :data:`spacr.qt.theme.THEMES`, and the key of
-        the matching :class:`spacr.qt.sound_synth.SoundTheme`, so the
-        three stay in step by construction rather than by a table.
+    :param key: stable persisted theme identifier in
+        :data:`spacr.qt.theme.THEMES`.
     :param label: name shown in Preferences.
     :param description: one sentence shown as the choice's explanation.
     :param palette: the full interface palette, every role
@@ -76,6 +81,8 @@ class NightTheme:
         of :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`.
     :param ambient_palette: the colour set that animation is painted in,
         a key of :data:`spacr.qt.widgets.ambient.PALETTE_SETS`.
+    :param sound_key: an existing sound set for a flow theme; ``None`` keeps
+        a night theme's matching sound key unchanged.
     """
 
     key: str
@@ -84,11 +91,12 @@ class NightTheme:
     palette: Mapping[str, str]
     ambient: str
     ambient_palette: str
+    sound_key: str | None = None
 
     @property
     def sound(self) -> str:
-        """Key of this theme's sound set. It is the theme's own key."""
-        return self.key
+        """Key of its existing sound set; night themes use their own key."""
+        return self.sound_key or self.key
 
 
 LANTERN_PALETTE = {
@@ -431,6 +439,326 @@ NIGHT_THEMES: Dict[str, NightTheme] = {
 NIGHT_THEME_KEYS: Tuple[str, ...] = tuple(NIGHT_THEMES)
 
 
+CYTOPLASM_FLOW_PALETTE = {
+    "bg": "#07110d",
+    "page": "#254237",
+    "surface": "#0b1b14",
+    "surface_alt": "#13291f",
+    "surface_hi": "#1f3b30",
+    "border": "#3b6151",
+    "border_soft": "#244334",
+    "fg": "#ffffff",
+    "fg_muted": "#d4e6db",
+    "fg_dim": "#a6c5b4",
+    "accent": "#8feabd",
+    "accent_hi": "#c1f7d9",
+    "accent_lo": "#4edaa0",
+    "accent_soft": "#214d38",
+    "success": "#66d68f",
+    "chip_class": "#6ed8d1",
+    "chip_value": "#66d68f",
+    "warning": "#eec14f",
+    "error": "#ff7a70",
+    "info": "#8feabd",
+}
+
+SYNAPSE_FLOW_PALETTE = {
+    "bg": "#071014",
+    "page": "#234250",
+    "surface": "#0c1b22",
+    "surface_alt": "#142a34",
+    "surface_hi": "#203c4b",
+    "border": "#3b6376",
+    "border_soft": "#264453",
+    "fg": "#ffffff",
+    "fg_muted": "#d2e3eb",
+    "fg_dim": "#a9bdc8",
+    "accent": "#93def7",
+    "accent_hi": "#c6ecfb",
+    "accent_lo": "#51c5ed",
+    "accent_soft": "#1f475b",
+    "success": "#66d68f",
+    "chip_class": "#6ed8d1",
+    "chip_value": "#66d68f",
+    "warning": "#eec14f",
+    "error": "#ff7a70",
+    "info": "#93def7",
+}
+
+WIND_FLOW_PALETTE = {
+    "bg": "#080d12",
+    "page": "#2a3944",
+    "surface": "#0f1922",
+    "surface_alt": "#172633",
+    "surface_hi": "#253b49",
+    "border": "#476579",
+    "border_soft": "#2c4658",
+    "fg": "#ffffff",
+    "fg_muted": "#d8e5ed",
+    "fg_dim": "#adbfcb",
+    "accent": "#b6def3",
+    "accent_hi": "#e0f3fc",
+    "accent_lo": "#72badd",
+    "accent_soft": "#294b62",
+    "success": "#66d68f",
+    "chip_class": "#6ed8d1",
+    "chip_value": "#66d68f",
+    "warning": "#eec14f",
+    "error": "#ff7a70",
+    "info": "#b6def3",
+}
+
+ATLAS_FLOW_PALETTE = {
+    "bg": "#0e1009",
+    "page": "#3b4329",
+    "surface": "#171b0f",
+    "surface_alt": "#242a17",
+    "surface_hi": "#343e25",
+    "border": "#596943",
+    "border_soft": "#39472a",
+    "fg": "#ffffff",
+    "fg_muted": "#dce3ce",
+    "fg_dim": "#b3bfa2",
+    "accent": "#dbe996",
+    "accent_hi": "#eef5c4",
+    "accent_lo": "#b8d456",
+    "accent_soft": "#394a20",
+    "success": "#66d68f",
+    "chip_class": "#6ed8d1",
+    "chip_value": "#66d68f",
+    "warning": "#eec14f",
+    "error": "#ff7a70",
+    "info": "#dbe996",
+}
+
+HELIX_FLOW_PALETTE = {
+    "bg": "#09091a",
+    "page": "#2a2947",
+    "surface": "#101025",
+    "surface_alt": "#1b1a34",
+    "surface_hi": "#282847",
+    "border": "#48466e",
+    "border_soft": "#2f2e4c",
+    "fg": "#ffffff",
+    "fg_muted": "#dedcf4",
+    "fg_dim": "#b7b3d5",
+    "accent": "#aaa4ff",
+    "accent_hi": "#d5d2ff",
+    "accent_lo": "#7770ee",
+    "accent_soft": "#2d285c",
+    "success": "#66d68f",
+    "chip_class": "#6ed8d1",
+    "chip_value": "#66d68f",
+    "warning": "#eec14f",
+    "error": "#ff7a70",
+    "info": "#aaa4ff",
+}
+
+CHROMATIN_FLOW_PALETTE = {
+    "bg": "#100817",
+    "page": "#3b2944",
+    "surface": "#1a1022",
+    "surface_alt": "#291733",
+    "surface_hi": "#3a2545",
+    "border": "#654575",
+    "border_soft": "#442d50",
+    "fg": "#ffffff",
+    "fg_muted": "#eadced",
+    "fg_dim": "#c8b2cf",
+    "accent": "#dba8f3",
+    "accent_hi": "#f2d4ff",
+    "accent_lo": "#bc72e6",
+    "accent_soft": "#4c295b",
+    "success": "#66d68f",
+    "chip_class": "#6ed8d1",
+    "chip_value": "#66d68f",
+    "warning": "#eec14f",
+    "error": "#ff7a70",
+    "info": "#dba8f3",
+}
+
+NEBULA_FLOW_PALETTE = {
+    "bg": "#150916",
+    "page": "#492b45",
+    "surface": "#211024",
+    "surface_alt": "#321934",
+    "surface_hi": "#452747",
+    "border": "#735075",
+    "border_soft": "#503452",
+    "fg": "#ffffff",
+    "fg_muted": "#efdcec",
+    "fg_dim": "#d0b5cd",
+    "accent": "#f5a9e8",
+    "accent_hi": "#ffdbf7",
+    "accent_lo": "#dd69d3",
+    "accent_soft": "#5a2752",
+    "success": "#66d68f",
+    "chip_class": "#6ed8d1",
+    "chip_value": "#66d68f",
+    "warning": "#eec14f",
+    "error": "#ff7a70",
+    "info": "#f5a9e8",
+}
+
+SILK_FLOW_PALETTE = {
+    "bg": "#160c10",
+    "page": "#482f38",
+    "surface": "#221218",
+    "surface_alt": "#301c25",
+    "surface_hi": "#432b34",
+    "border": "#70505b",
+    "border_soft": "#4c343d",
+    "fg": "#ffffff",
+    "fg_muted": "#efdedf",
+    "fg_dim": "#cfb6b9",
+    "accent": "#f5b0b8",
+    "accent_hi": "#fbd8dc",
+    "accent_lo": "#dc808f",
+    "accent_soft": "#582e3b",
+    "success": "#66d68f",
+    "chip_class": "#6ed8d1",
+    "chip_value": "#66d68f",
+    "warning": "#eec14f",
+    "error": "#ff7a70",
+    "info": "#f5b0b8",
+}
+
+FLOW_THEMES: Dict[str, NightTheme] = {
+    theme.key: theme for theme in (
+        NightTheme(
+            key="flow_cytoplasm",
+            label="Cytoplasm flow",
+            description="Soft membrane-like streams drift through a green-black field.",
+            palette=CYTOPLASM_FLOW_PALETTE,
+            ambient="flow_cytoplasm",
+            ambient_palette="deepwater",
+            sound_key="solstice"),
+        NightTheme(
+            key="flow_cytoplasm_mouse",
+            label="Cytoplasm flow · Pointer",
+            description="Green-black membrane streams follow the pointer across the field.",
+            palette=CYTOPLASM_FLOW_PALETTE,
+            ambient="flow_cytoplasm_mouse",
+            ambient_palette="deepwater",
+            sound_key="solstice"),
+        NightTheme(
+            key="flow_synapse",
+            label="Synapse flow",
+            description="Fine branching signals pulse gently through a cool cyan field.",
+            palette=SYNAPSE_FLOW_PALETTE,
+            ambient="flow_synapse",
+            ambient_palette="ocean",
+            sound_key="meridian"),
+        NightTheme(
+            key="flow_synapse_mouse",
+            label="Synapse flow · Pointer",
+            description="Fine cyan branches follow the pointer across the field.",
+            palette=SYNAPSE_FLOW_PALETTE,
+            ambient="flow_synapse_mouse",
+            ambient_palette="ocean",
+            sound_key="meridian"),
+        NightTheme(
+            key="flow_wind",
+            label="Wind flow",
+            description="Layered currents cross an airy blue field without hiding the work.",
+            palette=WIND_FLOW_PALETTE,
+            ambient="flow_wind",
+            ambient_palette="ocean",
+            sound_key="cirrus"),
+        NightTheme(
+            key="flow_wind_mouse",
+            label="Wind flow · Pointer",
+            description="Layered blue currents follow the pointer without hiding the work.",
+            palette=WIND_FLOW_PALETTE,
+            ambient="flow_wind_mouse",
+            ambient_palette="ocean",
+            sound_key="cirrus"),
+        NightTheme(
+            key="flow_atlas",
+            label="Atlas flow",
+            description="Contour paths wander over an olive and pale-gold map.",
+            palette=ATLAS_FLOW_PALETTE,
+            ambient="flow_atlas",
+            ambient_palette="lowsun",
+            sound_key="halcyon"),
+        NightTheme(
+            key="flow_atlas_mouse",
+            label="Atlas flow · Pointer",
+            description="Olive and pale-gold contours follow the pointer across the map.",
+            palette=ATLAS_FLOW_PALETTE,
+            ambient="flow_atlas_mouse",
+            ambient_palette="lowsun",
+            sound_key="halcyon"),
+        NightTheme(
+            key="flow_helix",
+            label="Helix flow",
+            description="Twisting strands move slowly across a deep indigo field.",
+            palette=HELIX_FLOW_PALETTE,
+            ambient="flow_helix",
+            ambient_palette="midnight",
+            sound_key="nocturne"),
+        NightTheme(
+            key="flow_helix_mouse",
+            label="Helix flow · Pointer",
+            description="Deep indigo strands bend toward the moving pointer.",
+            palette=HELIX_FLOW_PALETTE,
+            ambient="flow_helix_mouse",
+            ambient_palette="midnight",
+            sound_key="nocturne"),
+        NightTheme(
+            key="flow_chromatin",
+            label="Chromatin flow",
+            description="Folded violet fibres drift behind the interface.",
+            palette=CHROMATIN_FLOW_PALETTE,
+            ambient="flow_chromatin",
+            ambient_palette="midnight",
+            sound_key="aphelion"),
+        NightTheme(
+            key="flow_chromatin_mouse",
+            label="Chromatin flow · Pointer",
+            description="Folded violet fibres follow the pointer behind the interface.",
+            palette=CHROMATIN_FLOW_PALETTE,
+            ambient="flow_chromatin_mouse",
+            ambient_palette="midnight",
+            sound_key="aphelion"),
+        NightTheme(
+            key="flow_nebula",
+            label="Nebula flow",
+            description="A magenta cloud curls through the dark with restrained motion.",
+            palette=NEBULA_FLOW_PALETTE,
+            ambient="flow_nebula",
+            ambient_palette="dusk",
+            sound_key="pulsar"),
+        NightTheme(
+            key="flow_nebula_mouse",
+            label="Nebula flow · Pointer",
+            description="A magenta cloud curls gently toward the moving pointer.",
+            palette=NEBULA_FLOW_PALETTE,
+            ambient="flow_nebula_mouse",
+            ambient_palette="dusk",
+            sound_key="pulsar"),
+        NightTheme(
+            key="flow_silk",
+            label="Silk flow",
+            description="Rose-coloured ribbons trace smooth paths through a warm dark field.",
+            palette=SILK_FLOW_PALETTE,
+            ambient="flow_silk",
+            ambient_palette="dusk",
+            sound_key="vesper"),
+        NightTheme(
+            key="flow_silk_mouse",
+            label="Silk flow · Pointer",
+            description="Rose-coloured ribbons flow toward the moving pointer.",
+            palette=SILK_FLOW_PALETTE,
+            ambient="flow_silk_mouse",
+            ambient_palette="dusk",
+            sound_key="vesper"),
+    )
+}
+
+FLOW_THEME_KEYS: Tuple[str, ...] = tuple(FLOW_THEMES)
+
+
 def is_night_theme(name) -> bool:
     """True when ``name`` is one of the ten.
 
@@ -441,13 +769,15 @@ def is_night_theme(name) -> bool:
 
 
 def theme_for(name: str) -> NightTheme:
-    """The :class:`NightTheme` called ``name``.
+    """The night or flow theme called ``name``.
 
-    :param name: one of :data:`NIGHT_THEME_KEYS`.
+    :param name: one of :data:`NIGHT_THEME_KEYS` or :data:`FLOW_THEME_KEYS`.
     :returns: the theme.
-    :raises KeyError: if ``name`` is not one of the ten.
+    :raises KeyError: if ``name`` is unknown.
     """
-    return NIGHT_THEMES[name]
+    if name in NIGHT_THEMES:
+        return NIGHT_THEMES[name]
+    return FLOW_THEMES[name]
 
 
 def palettes() -> Dict[str, Dict[str, str]]:
@@ -462,21 +792,21 @@ def palettes() -> Dict[str, Dict[str, str]]:
 def ambient_for(name: str) -> Tuple[str, str]:
     """The backdrop ``name`` asks for.
 
-    :param name: one of :data:`NIGHT_THEME_KEYS`.
+    :param name: one of :data:`NIGHT_THEME_KEYS` or :data:`FLOW_THEME_KEYS`.
     :returns: ``(animation, palette)`` — an
         :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` name and a
         :data:`spacr.qt.widgets.ambient.PALETTE_SETS` key.
-    :raises KeyError: if ``name`` is not one of the ten.
+    :raises KeyError: if ``name`` is unknown.
     """
-    theme = NIGHT_THEMES[name]
+    theme = theme_for(name)
     return theme.ambient, theme.ambient_palette
 
 
 def sound_for(name: str) -> str:
     """The sound set ``name`` asks for.
 
-    :param name: one of :data:`NIGHT_THEME_KEYS`.
+    :param name: one of :data:`NIGHT_THEME_KEYS` or :data:`FLOW_THEME_KEYS`.
     :returns: a key of :data:`spacr.qt.sound_synth.SOUND_THEMES`.
-    :raises KeyError: if ``name`` is not one of the ten.
+    :raises KeyError: if ``name`` is unknown.
     """
-    return NIGHT_THEMES[name].sound
+    return theme_for(name).sound
