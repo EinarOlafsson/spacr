@@ -1,0 +1,22 @@
+{
+  "source_sha256": "5b835ce5fb55fb85032dfcd6e90b974c3630d36a33e3be18e4af02fc49a0f308",
+  "output_sha256": "d01a31b48a3272adaebdd5b83bca74fbe463dca15379ee299b22506012143726",
+  "slide_count": 57,
+  "changed_members": [
+    "ppt/media/image-32-2.png",
+    "ppt/slides/slide32.xml"
+  ],
+  "untouched_members_verified": 429,
+  "captures": [
+    {
+      "slide": 32,
+      "frame": "yolo_18_reloaded_boxes",
+      "sha256": "9bab68ed1a9459835243497e80d9f795695e181f201ee71e75caeb692431a245",
+      "member": "ppt/media/image-32-2.png",
+      "fit_preserves_aspect": true
+    }
+  ],
+  "original_unchanged": true,
+  "capture_pixels_unchanged": true,
+  "published": false
+}
