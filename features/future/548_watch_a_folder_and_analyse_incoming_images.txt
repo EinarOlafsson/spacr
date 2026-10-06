@@ -846,3 +846,17 @@ LOWER-COPY NATIVE NORMALIZATION (2026-10-06, bounded CPU acceptance)
     logs: data/548_native_memory_followup_cpu_2026-10-06/. Shared-load timings
     are not speed acceptance. Whole-field arrays still grow with acquisition
     size; arbitrary large native series and parent F548 remain OPEN.
+
+2026-10-06 — scalar percentile scratch reuse with exact normalization
+    Source06b1b3474f lets each original scalar percentile call partition only
+    the already-private boolean-selected nonzero channel copy, then releases
+    it before rescaling. All original threshold choices and scalar/nonfinite
+    semantics remain. A batched vector quantile prototype was rejected because
+    float32+Inf differs numerically. Complete normalization parity covers
+    ordered roles, threshold branches, arbitrary lower percentiles, background,
+    output dtypes, zero/NaN/Inf. Root196 integrated cases pass under4GiB.
+    The same native TIFF fixture peaks1666.16MiB versus1698.21 previously
+    (32.05MiB less); all three output files remain byte-identical. Frozen
+    sources, tests, logs and hashes:
+    data/548_native_percentile_scratch_cpu_2026-10-06/. Whole-field scaling
+    and broader parentF548 acceptance remain OPEN.
