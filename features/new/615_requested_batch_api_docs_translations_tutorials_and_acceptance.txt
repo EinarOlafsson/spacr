@@ -1448,3 +1448,19 @@ data/615_GitHub_issue137_2026-10-06.json. Home must preserve this workstation
 repair rather than duplicating it. New English guide prose awaits the normal
 all-nine source-current guide refresh; API signatures/docstrings and runtime
 captions are unchanged by this fix.
+
+2026-10-06 workstation current native tutorial packaging accepted:
+The normal Make Masks composer now has an optional --copy-frames flag. It
+checks the original scientific/native evidence, then byte-copies all59
+original PNGs into the private composition; all61 staged scene paths remain
+inside the final stage. Original source pixels, focus/pointers, all13 caption
+reviews and all84 unrelated lesson objects across14 catalogs are retained.
+Every scene is independently compared to its original native source; all114
+staging/review/preservation/candidate checks and fatal Ruff checks pass.
+The default composer behavior is unchanged. Complete source-bound packaging,
+original guide/review checkpoints and terminal resource failures are in
+data/615_final_prepublication_checkpoint_2026-10-06/ and
+data/615_contained_tutorial_composer_2026-10-06.json. This publishes the
+packaging utility and evidence, not the isolated final application source.
+All50 narration decoding, actual4K/1440p rendering, browser/media publication
+and final nine-locale catalog/guides/current-source deployment remain OPEN.

@@ -7,16 +7,20 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import shutil
 
 from compose_report_capture import _frame, _read, _same_hash
 from stage_lesson import REPO, write
 
 
-def compose(*, editor, restoration, puncta, destination, yolo=None, receipt_item=615):
+def compose(*, editor, restoration, puncta, destination, yolo=None, receipt_item=615,
+            receipt_date='2026-10-05', copy_frames=False):
     roots = {key: Path(path).resolve() for key, path in
              [('editor', editor), ('restoration', restoration), ('puncta', puncta)]}
     if receipt_item not in (615, 662):
         raise ValueError('Use an existing independently checked receipt set')
+    if receipt_date not in ('2026-10-05', '2026-10-06'):
+        raise ValueError('Use an independently checked recording date')
     if yolo is not None:
         roots['yolo'] = Path(yolo).resolve()
     destination = Path(destination).resolve()
@@ -24,7 +28,7 @@ def compose(*, editor, restoration, puncta, destination, yolo=None, receipt_item
         raise ValueError('Preserve distinct accepted captures and use a new destination')
     hashes, sources, available, proofs = {}, [], {}, {}
     for key, root in roots.items():
-        proof = _read(REPO / f'features/data/{receipt_item}_make_masks_current_{key}_2026-10-05.json', hashes)
+        proof = _read(REPO / f'features/data/{receipt_item}_make_masks_current_{key}_{receipt_date}.json', hashes)
         if proof.get('accepted') is not True or Path(proof['capture']).resolve() != root:
             raise ValueError('The independent evidence must name this exact accepted capture')
         for path, digest in proof['source_file_sha256'].items():
@@ -82,6 +86,19 @@ def compose(*, editor, restoration, puncta, destination, yolo=None, receipt_item
         if hashlib.sha256(Path(path).read_bytes()).hexdigest() != digest:
             raise ValueError('A composition input changed during verification')
     destination.mkdir(parents=True)
+    if copy_frames:
+        images = destination / 'native_frames'
+        images.mkdir()
+        for visual, frame in frames.items():
+            if Path(visual).name != visual or visual in ('.', '..'):
+                raise ValueError('Use a single authored visual name for each copied frame')
+            original = (destination / frame['image']).resolve()
+            _same_hash(original, frame['sha256'], hashes)
+            copied = images / (visual + '.png')
+            shutil.copyfile(original, copied)
+            _same_hash(copied, frame['sha256'], hashes)
+            frame.update(original_image=str(original),
+                         image=os.path.relpath(copied, destination))
     write(destination / 'frames.json', frames)
     write(destination / 'provenance.json', dict(sources[0], sources=sources,
         composition_only=True, app_source_modified=False))
@@ -102,4 +119,8 @@ if __name__ == '__main__':
         parser.add_argument('--' + name, type=Path, required=True)
     parser.add_argument('--yolo', type=Path, help='Independently accepted native Box interaction recording')
     parser.add_argument('--receipt-item', type=int, choices=(615, 662), default=615)
+    parser.add_argument('--receipt-date', choices=('2026-10-05', '2026-10-06'),
+                        default='2026-10-05')
+    parser.add_argument('--copy-frames', action='store_true',
+                        help='Copy byte-verified native frames into the new composition directory')
     compose(**vars(parser.parse_args()))

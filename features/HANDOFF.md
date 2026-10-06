@@ -1,5 +1,16 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 contained native tutorial composer published
+The optional normal --copy-frames composer is now independently accepted:
+all59 native frame bytes and61 stage-contained scene paths match, all84
+unrelated lesson objects across14 catalogs remain exact, and114 affected
+staging/review/preservation/candidate cases plus fatal Ruff pass. The default
+composer behavior is preserved. Source-bound proof, original guide/review
+checkpoints and genuine resource failure history are retained in
+data/615_final_prepublication_checkpoint_2026-10-06/ and its receipt.
+This publishes only the packaging utility/evidence; current final app source,
+full50 narration, rendering/browser/media and final catalogs remain pending.
+
 ## 2026-10-06 issue137 closed and native acquired GPU comparison prepared
 Issue137 is now CLOSED at2026-10-06T22:36:44Z after its already-published
 uppercase/padded CSV boolean repair,358 affected checks and the actual
