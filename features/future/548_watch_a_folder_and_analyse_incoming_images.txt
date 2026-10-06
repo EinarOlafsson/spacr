@@ -835,3 +835,14 @@ LOWER-COPY NATIVE NORMALIZATION (2026-10-06, bounded CPU acceptance)
     failure still refuses partial folders. Native watcher stages recover
     separately; uncheckpointed completed inference can necessarily repeat.
     ParentF548 stays OPEN for raw/vendor and unsupported scientific modes.
+
+2026-10-06 — further transient release, bounded CPU follow-up
+    Source cb33158ba9 releases per-channel plane buffers after channel stacking,
+    channel volumes after frame stacking, and the local frame after appending
+    it. The same real 2T/2Z/2C/2048-square TIFF fixture measured 1792.76 MiB
+    before versus 1698.21 MiB after (94.55 MiB less). Both raw NPY stacks and
+    normalized NPZ remain byte-identical; all 66 native batch/watch cases pass
+    under 4 GiB CPU-only. Frozen sources, exact output identities and paired
+    logs: data/548_native_memory_followup_cpu_2026-10-06/. Shared-load timings
+    are not speed acceptance. Whole-field arrays still grow with acquisition
+    size; arbitrary large native series and parent F548 remain OPEN.
