@@ -237,3 +237,38 @@ def test_optional_colored_compiler_failure_keeps_existing_single_hue_kernel(
     assert ambient._COLORED_SCATTER_FAILED
     assert ambient._ready_colored_scatter() is None
     assert ambient._ready_packed_scatter() is original
+
+
+def test_random_palette_survives_all_theme_changes_save_and_fresh_dialog(
+        qtbot, tmp_path, monkeypatch):
+    from PySide6.QtCore import QSettings
+    from PySide6.QtWidgets import QComboBox, QDialogButtonBox
+    from spacr.qt import preferences
+
+    settings_path = tmp_path / 'random-colors.ini'
+    store = QSettings(str(settings_path), QSettings.IniFormat)
+    monkeypatch.setattr(preferences, '_settings', lambda: store)
+    preferences.set_theme_choice('data_art_impulse_lens')
+    dialog = preferences.PreferencesDialog()
+    qtbot.addWidget(dialog)
+    themes = dialog.findChild(QComboBox, 'AmbientTheme')
+    palettes = dialog.findChild(QComboBox, 'AmbientPalette')
+    palettes.setCurrentIndex(palettes.findData('random'))
+    assert palettes.currentData() == 'random'
+    for theme in ambient.AMBIENT_THEMES:
+        themes.setCurrentIndex(themes.findData(theme))
+        assert themes.currentData() == theme
+        assert palettes.currentData() == 'random'
+    dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+    store.sync()
+    fresh = QSettings(str(settings_path), QSettings.IniFormat)
+    monkeypatch.setattr(preferences, '_settings', lambda: fresh)
+    assert preferences.get_ambient_palette() == 'random'
+    assert preferences.get_ambient_theme() == ambient.AMBIENT_THEMES[-1]
+    reopened = preferences.PreferencesDialog()
+    qtbot.addWidget(reopened)
+    palettes = reopened.findChild(QComboBox, 'AmbientPalette')
+    assert palettes.currentData() == 'random'
+    palettes.setCurrentIndex(palettes.findData('custom'))
+    reopened.findChild(QDialogButtonBox).button(QDialogButtonBox.Cancel).click()
+    assert preferences.get_ambient_palette() == 'random'
