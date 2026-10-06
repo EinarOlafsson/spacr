@@ -4644,6 +4644,9 @@ class _DataArtEngine(_BufferedEngine):
         self._anchors = tuple((rng.random(), rng.random(), rng.random())
                               for _ in range(192))
         self._material_cache: Dict[tuple, object] = {}
+        self._gravity_impulses = []
+        self._pointer_impulse_time = -math.inf
+        self._pointer_impulse_origin = None
 
     def _restyle(self) -> None:
         """Invalidate rendered material when its palette or page changes."""
@@ -4694,6 +4697,30 @@ class _DataArtEngine(_BufferedEngine):
         self.pointer = (max(0.0, min(1.0, float(x))),
                         max(0.0, min(1.0, float(y)))) if (
                             math.isfinite(x) and math.isfinite(y)) else None
+        if self.family == "impulse_lens" and self.pointer is not None:
+            previous = self._pointer_impulse_origin
+            moved = previous is None or math.hypot(
+                self.pointer[0] - previous[0], self.pointer[1] - previous[1]) > 0.006
+            if moved and self.time - self._pointer_impulse_time >= 0.06:
+                self._add_impulse(self.pointer, 0.24)
+                self._pointer_impulse_time = self.time
+                self._pointer_impulse_origin = self.pointer
+
+    def _add_impulse(self, point, strength: float = 1.0) -> None:
+        """Remember a bounded, finite gravity burst in animation time."""
+        if self.family != "impulse_lens" or point is None:
+            return
+        x, y = point
+        if not all(math.isfinite(value) for value in (x, y, strength)):
+            return
+        point = (max(0.0, min(1.0, float(x))),
+                 max(0.0, min(1.0, float(y))))
+        strength = max(0.0, min(2.0, float(strength)))
+        if strength == 0.0:
+            return
+        recent = [event for event in self._gravity_impulses
+                  if 0.0 <= self.time - event[0] < 5.0]
+        self._gravity_impulses = (recent + [(self.time, point, strength)])[-24:]
 
     def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
         """Return deterministic sampled material anchors for the engine API.
@@ -4759,126 +4786,132 @@ class _DataArtEngine(_BufferedEngine):
 
     def _paint_point_atlas(self, painter: QPainter, width: int,
                            height: int) -> None:
-        """Project thousands of terrain samples into a sculpted point cloud."""
+        """Light an unbounded waving terrain of densely sampled round grains."""
         np = _numpy()
-        key = ("point_atlas", width, height)
+        key = ("point_atlas", width, height, self.size, self.density)
         points = self._material_cache.get(key)
         if points is None:
+            spacing = max(2.4, 4.6 * self.size
+                          / math.sqrt(self.effective_density()))
+            columns = min(900, max(48, math.ceil(width * 1.65 / spacing)))
+            rows = min(520, max(32, math.ceil(height * 1.85 / spacing)))
+            xx, zz = np.meshgrid(np.linspace(-0.33, 1.33, columns,
+                                            dtype=np.float32),
+                                 np.linspace(-0.43, 1.43, rows,
+                                             dtype=np.float32))
             rng = np.random.default_rng(self._art_seed)
-            xx, zz = np.meshgrid(np.linspace(-1.0, 1.0, 300, dtype=np.float32),
-                                 np.linspace(-1.0, 1.0, 180, dtype=np.float32))
-            points = (xx.ravel() + rng.normal(0.0, 0.003, xx.size),
-                      zz.ravel() + rng.normal(0.0, 0.003, zz.size),
-                      rng.permutation(xx.size))
+            jitter = rng.uniform(-0.17, 0.17, size=(2, xx.size)).astype(np.float32)
+            points = (xx.ravel() + jitter[0] / columns,
+                      zz.ravel() + jitter[1] / rows)
             self._material_cache[key] = points
-        xx, zz, order = points
-        count = self.element_count(37296, len(xx))
-        chosen = order[:count]
-        xx, zz = xx[chosen], zz[chosen]
-        phase_a = 4.5 * xx + 2.8 * zz + self.time * 0.08
-        phase_b = 7.2 * zz - 2.2 * xx - self.time * 0.035
-        mound = np.exp(-5.0 * ((xx - 0.2) ** 2 + (zz + 0.1) ** 2))
-        crest = 0.19 * np.sin(phase_a) + 0.13 * np.cos(phase_b) + 0.10 * mound
-        slope_x = (0.855 * np.cos(phase_a) + 0.286 * np.sin(phase_b)
-                   - (xx - 0.2) * mound)
-        slope_z = (0.532 * np.cos(phase_a) - 0.936 * np.sin(phase_b)
-                   - (zz + 0.1) * mound)
-        normal = (0.46 * -slope_x + 0.82 + 0.35 * -slope_z) / np.sqrt(
+        xx, zz = points
+        pointer = self.pointer or (0.5, 0.5)
+        yaw = (pointer[0] - 0.5) * 0.14
+        tilt = (pointer[1] - 0.5) * 0.10
+        phase_a = 9.0 * xx + 6.1 * zz + self.time * 0.25
+        phase_b = 12.3 * zz - 4.2 * xx - self.time * 0.17
+        phase_c = 18.0 * xx + 8.0 * zz + self._anchors[0][0] * math.tau
+        crest = (0.085 * np.sin(phase_a) + 0.060 * np.cos(phase_b)
+                 + 0.016 * np.sin(phase_c + self.time * 0.12))
+        slope_x = (0.765 * np.cos(phase_a) + 0.252 * np.sin(phase_b)
+                   + 0.288 * np.cos(phase_c + self.time * 0.12))
+        slope_z = (0.5185 * np.cos(phase_a) - 0.738 * np.sin(phase_b)
+                   + 0.128 * np.cos(phase_c + self.time * 0.12))
+        normal = (0.90 - 0.30 * slope_x - 0.48 * slope_z) / np.sqrt(
             1.0 + slope_x * slope_x + slope_z * slope_z)
-        illumination = np.clip(0.33 + 0.68 * normal, 0.0, 1.0)
-        pointer = self.pointer
-        yaw = 0.24 + ((pointer[0] - 0.5) * 0.30 if pointer else 0.0)
-        pitch = 0.56 + ((pointer[1] - 0.5) * 0.20 if pointer else 0.0)
-        camera_x = xx * math.cos(yaw) - zz * math.sin(yaw)
-        camera_z = xx * math.sin(yaw) + zz * math.cos(yaw)
-        camera_y = crest * math.cos(pitch) - camera_z * math.sin(pitch)
-        distance = crest * math.sin(pitch) + camera_z * math.cos(pitch)
-        perspective = 1.0 / (1.0 + 0.20 * (distance + 1.0))
-        sx = width * (0.50 + 0.56 * camera_x * perspective)
-        sy = height * (0.57 - 0.48 * camera_y * perspective)
-        light = np.clip(0.25 + 0.76 * illumination
-                        + 0.18 * (distance + 1.0) * 0.5, 0.16, 1.0)
-        gain = max(1.0, self.effective_density()) / max(1.0, count / 37296)
-        painter.drawImage(0, 0, self._point_material(width, height, sx, sy,
-                                                      light * gain, spread=True))
+        light = np.clip(0.30 + 0.62 * normal, 0.20, 0.95)
+        sx = width * (xx + yaw * (zz - 0.5) + 0.034 * slope_z)
+        sy = height * (zz + crest + tilt * (xx - 0.5))
+        gain = max(1.0, self.effective_density())
+        painter.drawImage(0, 0, self._point_material(
+            width, height, sx, sy, light * gain, spread=True))
 
     def _paint_tissue_facets(self, painter: QPainter, width: int,
                              height: int) -> None:
-        """Shade a packed field of individually raised mineral tissue cells."""
+        """Move seeded faceted tissue cells with continuous local breathing."""
         key = ("tissue_facets", width, height, self.size, self.density)
         material = self._material_cache.get(key)
         if material is None:
-            material = QImage(width, height, QImage.Format_RGB32)
-            material.fill(self.identity)
-            inner = QPainter(material)
-            inner.setRenderHint(QPainter.Antialiasing, True)
-            inner.setCompositionMode(QPainter.CompositionMode_SourceOver)
             rng = random.Random(self._art_seed)
-            columns, rows = 40, 24
+            scale = math.sqrt(self.effective_density()) / self.size
+            columns = max(12, min(66, round(38 * scale)))
+            rows = max(8, min(42, round(columns * height / width)))
             cell_width = width / columns
             cell_height = height / rows
-            count = self.element_count(columns * rows, columns * rows)
-            for cell in range(count):
-                row, column = divmod(cell, columns)
-                cx = (column + 0.5 * (row % 2) + 0.15
-                      + rng.uniform(-0.23, 0.23)) * cell_width
-                cy = (row + 0.45 + rng.uniform(-0.23, 0.23)) * cell_height
-                cluster = 0.86 + 0.22 * math.sin(
-                    column * 0.64 + row * 0.52 + self._anchors[0][0] * 6.0)
-                rx = cell_width * rng.uniform(0.52, 0.74) * cluster * self.size
-                ry = cell_height * rng.uniform(0.54, 0.76) * cluster * self.size
-                peak = rng.uniform(0.20, 0.55)
-                height_scale = min(rx, ry)
-                corners = []
-                sides = rng.randrange(6, 11)
-                for side in range(sides):
-                    angle = math.tau * side / sides + 0.12 * (row % 2)
-                    reach = rng.uniform(0.76, 1.20)
-                    corners.append((cx + math.cos(angle) * rx * reach,
-                                    cy + math.sin(angle) * ry * reach,
-                                    rng.uniform(-0.05, 0.09) * height_scale))
-                centre = (cx + rx * rng.uniform(-0.29, 0.29),
-                          cy + ry * rng.uniform(-0.29, 0.29)
-                          - peak * ry * 0.42, peak * height_scale * 1.4)
-                for side in range(len(corners)):
-                    a = corners[side]
-                    b = corners[(side + 1) % len(corners)]
-                    vx, vy, vz = a[0] - centre[0], a[1] - centre[1], a[2] - centre[2]
-                    wx, wy, wz = b[0] - centre[0], b[1] - centre[1], b[2] - centre[2]
-                    nx, ny, nz = (vy * wz - vz * wy,
-                                  vz * wx - vx * wz,
-                                  vx * wy - vy * wx)
-                    norm = math.sqrt(nx * nx + ny * ny + nz * nz) or 1.0
-                    light = max(0.0, min(1.0,
-                                         0.49 + (0.43 * nx - 0.49 * ny
-                                                 + 0.73 * nz) / norm * 0.46))
-                    tone = 1 if cell % 7 == 0 else 0
+            cells = []
+            for row in range(-1, rows + 1):
+                for column in range(-1, columns + 1):
+                    cx = (column + 0.5 * (row % 2) + 0.25
+                          + rng.uniform(-0.18, 0.18)) * cell_width
+                    cy = (row + 0.45 + rng.uniform(-0.18, 0.18)) * cell_height
+                    rx = cell_width * rng.uniform(0.40, 0.56)
+                    ry = cell_height * rng.uniform(0.40, 0.56)
+                    peak = rng.uniform(0.20, 0.55)
+                    height_scale = min(rx, ry)
+                    corners = []
+                    sides = rng.randrange(6, 10)
+                    for side in range(sides):
+                        angle = math.tau * side / sides + 0.12 * (row % 2)
+                        reach = rng.uniform(0.82, 1.15)
+                        corners.append((math.cos(angle) * rx * reach,
+                                        math.sin(angle) * ry * reach,
+                                        rng.uniform(-0.05, 0.09) * height_scale))
+                    centre = (rx * rng.uniform(-0.22, 0.22),
+                              ry * rng.uniform(-0.22, 0.22) - peak * ry * 0.42,
+                              peak * height_scale * 1.4)
+                    triangles = []
+                    for side, a in enumerate(corners):
+                        b = corners[(side + 1) % len(corners)]
+                        vx, vy, vz = (a[index] - centre[index] for index in range(3))
+                        wx, wy, wz = (b[index] - centre[index] for index in range(3))
+                        nx, ny, nz = (vy * wz - vz * wy,
+                                      vz * wx - vx * wz,
+                                      vx * wy - vy * wx)
+                        norm = math.sqrt(nx * nx + ny * ny + nz * nz) or 1.0
+                        light = max(0.0, min(1.0,
+                                             0.49 + (0.43 * nx - 0.49 * ny
+                                                     + 0.73 * nz) / norm * 0.46))
+                        tone = 1 if (row * columns + column) % 7 == 0 else 0
+                        color = _mix(self.identity, self.paint_colors[tone],
+                                     0.040 + 0.64 * light ** 3)
+                        triangle = QPolygonF((QPointF(*centre[:2]),
+                                              QPointF(*a[:2]), QPointF(*b[:2])))
+                        triangles.append((triangle, color))
+                    outline = QPolygonF([QPointF(x, y) for x, y, _ in corners])
+                    extent_x = math.ceil(max(abs(x) for x, _, _ in corners) + 2)
+                    extent_y = math.ceil(max(abs(y) for _, y, _ in corners) + 2)
+                    tile = QImage(extent_x * 2 + 1, extent_y * 2 + 1,
+                                  QImage.Format_RGB32)
+                    tile.fill(self.identity)
+                    inner = QPainter(tile)
+                    inner.setRenderHint(QPainter.Antialiasing, True)
+                    inner.setCompositionMode(self.mode)
+                    inner.translate(extent_x, extent_y)
                     inner.setPen(Qt.NoPen)
-                    inner.setBrush(_mix(self.identity, self.paint_colors[tone],
-                                        0.025 + 0.53 * light ** 3))
-                    inner.drawPolygon(QPolygonF((QPointF(centre[0], centre[1]),
-                                                  QPointF(a[0], a[1]),
-                                                  QPointF(b[0], b[1]))))
-                    if light > 0.74 and side % 5 == 0:
-                        inner.setPen(QPen(self._ink(1, 0.28), 0.45))
-                        inner.drawLine(QPointF(centre[0], centre[1]),
-                                       QPointF(a[0], a[1]))
-                inner.setBrush(Qt.NoBrush)
-                inner.setPen(QPen(self._ink(0, 0.16), 0.45))
-                inner.drawPolygon(QPolygonF([QPointF(x, y)
-                                              for x, y, _ in corners]))
-            inner.end()
+                    for triangle, color in triangles:
+                        inner.setBrush(color)
+                        inner.drawPolygon(triangle)
+                    inner.setBrush(Qt.NoBrush)
+                    inner.setPen(QPen(self._ink(0, 0.23), 0.65))
+                    inner.drawPolygon(outline)
+                    inner.end()
+                    cells.append((cx, cy, rx, ry, rng.uniform(0, math.tau),
+                                  tile, extent_x, extent_y))
+            material = tuple(cells)
             self._material_cache[key] = material
-        painter.drawImage(0, 0, material)
-        travel = width * ((self.time * 0.072 + self._anchors[0][0]) % 1.0)
-        sheen = QLinearGradient(travel - width * 0.18, 0,
-                                travel + width * 0.18, 0)
-        sheen.setColorAt(0.0, self._ink(1, 0.0))
-        sheen.setColorAt(0.5, self._ink(1, 0.13))
-        sheen.setColorAt(1.0, self._ink(1, 0.0))
-        painter.setPen(Qt.NoPen)
-        painter.setBrush(QBrush(sheen))
-        painter.drawRect(0, 0, width, height)
+        painter.save()
+        for cx, cy, rx, ry, phase, tile, extent_x, extent_y in material:
+            drift = self.time * 0.30 + phase
+            dx = rx * 0.23 * math.sin(drift + cy / max(1, height) * 3.0)
+            dy = ry * 0.21 * math.cos(drift * 0.83 + cx / max(1, width) * 4.0)
+            breath = 1.0 + 0.035 * math.sin(drift * 0.73)
+            painter.save()
+            painter.translate(cx + dx, cy + dy)
+            painter.rotate(2.2 * math.sin(drift * 0.64))
+            painter.scale(breath, breath)
+            painter.drawImage(QPointF(-extent_x, -extent_y), tile)
+            painter.restore()
+        painter.restore()
 
     def _paint_spatial_strata(self, painter: QPainter, width: int,
                               height: int) -> None:
@@ -5452,37 +5485,53 @@ class _DataArtEngine(_BufferedEngine):
 
     def _paint_impulse_lens(self, painter: QPainter, width: int,
                             height: int) -> None:
-        """Displace a fine ordered dot lattice with travelling optical lenses."""
+        """Bend a round-dot gravity field with cursor wakes and burst waves."""
         np = _numpy()
-        key = ("impulse_lens", width, height)
+        key = ("impulse_lens", width, height, self.size, self.density)
         lattice = self._material_cache.get(key)
         if lattice is None:
-            side = max(7, int(11 * self.size
-                              / math.sqrt(self.effective_density())))
-            xx, yy = np.meshgrid(np.arange(side // 2, width, side,
+            side = max(3.5, 8.0 * self.size
+                       / math.sqrt(self.effective_density()))
+            xx, yy = np.meshgrid(np.arange(-side, width + side, side,
                                            dtype=np.float32),
-                                 np.arange(side // 2, height, side,
+                                 np.arange(-side, height + side, side,
                                            dtype=np.float32))
             lattice = (xx.ravel() / width, yy.ravel() / height)
             self._material_cache[key] = lattice
         x, y = lattice
-        cx = self.pointer[0] if self.pointer else 0.5 + 0.25 * math.sin(
-            self.time * 0.04 + self._anchors[0][0])
-        cy = self.pointer[1] if self.pointer else 0.5 + 0.22 * math.cos(
-            self.time * 0.033 + self._anchors[0][1])
-        dx, dy = x - cx, y - cy
-        radius = np.sqrt(dx * dx + dy * dy) + 1e-4
-        envelope = np.exp(-(radius / 0.29) ** 2)
-        wave = np.sin(31.0 * radius - self.time * 0.07)
-        shift = (0.055 * envelope * wave / radius).astype(np.float32)
-        px = (x + dx * shift) * width
-        py = (y + dy * shift) * height
-        brilliance = np.clip(0.62 + 0.40 * envelope * (1.0 + wave) * 0.5,
-                             0.56, 1.0)
-        baseline = max(1, (width // 11) * (height // 11))
-        gain = max(1.0, self.effective_density()) / max(1.0, len(x) / baseline)
+        aspect = width / max(1, height)
+        cx = self.pointer[0] if self.pointer else 0.5 + 0.20 * math.sin(
+            self.time * 0.10 + self._anchors[0][0])
+        cy = self.pointer[1] if self.pointer else 0.5 + 0.18 * math.cos(
+            self.time * 0.083 + self._anchors[0][1])
+        dx, dy = (x - cx) * aspect, y - cy
+        radius = np.sqrt(dx * dx + dy * dy + 1e-6)
+        envelope = np.exp(-(radius / 0.34) ** 2)
+        gravity = -0.052 * envelope / np.sqrt(radius * radius + 0.013)
+        px = x + dx / aspect * gravity
+        py = y + dy * gravity
+        energy = envelope * 0.12
+        for started, origin, strength in self._gravity_impulses:
+            age = self.time - started
+            if age < 0.0 or age >= 5.0:
+                continue
+            ex, ey = (x - origin[0]) * aspect, y - origin[1]
+            distance = np.sqrt(ex * ex + ey * ey + 1e-6)
+            decay = math.exp(-age * 0.90) * strength
+            burst = -0.12 * decay * math.exp(-age * 3.0) * np.exp(
+                -(distance / 0.32) ** 2) / np.sqrt(distance * distance + 0.02)
+            front = distance - age * 0.26
+            packet = np.exp(-(front / 0.075) ** 2)
+            ripple = 0.045 * decay * packet * np.sin(front * 58.0)
+            displacement = burst + ripple / np.maximum(distance, 0.055)
+            px += ex / aspect * displacement
+            py += ey * displacement
+            energy += decay * packet * 0.40
+        brilliance = np.clip(0.57 + energy, 0.48, 1.0)
+        gain = max(1.0, self.effective_density())
         painter.drawImage(0, 0, self._point_material(
-            width, height, px, py, brilliance * gain, spread=True))
+            width, height, px * width, py * height, brilliance * gain,
+            spread=True))
 
 
 _ENGINES = {
