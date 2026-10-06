@@ -5070,6 +5070,173 @@ class _DataArtEngine(_BufferedEngine):
             spread=True))
 
 
+class _FungalGrowthEngine(_BufferedEngine):
+    """Seeded hyphal trees grow while old filaments thin and recede.
+
+    A lineage is rolled once per clock interval and buffer size. Its edges
+    keep their parent endpoints and birth times; shading only reveals a
+    continuous prefix of each curved edge. Overlapping lineages make a new
+    root arrive before its predecessors have faded, with no reset frame.
+    """
+
+    name = "data_art_fungal_growth"
+    _interval = 30.0
+    _edge_lifetime = 58.0
+    _anchors = ((0.14, 0.18), (0.72, 0.76), (0.83, 0.16),
+                (0.28, 0.79), (0.50, 0.42), (0.10, 0.59))
+
+    def _configure(self, rng: random.Random) -> None:
+        """Keep a bounded cache of independently seeded lineage geometry."""
+        self._fungal_seed = rng.randrange(2 ** 63)
+        self._lineage_cache: Dict[tuple, tuple] = {}
+
+    def _resize(self) -> None:
+        """Rebuild paths at the chosen physical branch length."""
+        self._lineage_cache.clear()
+
+    def buffer_scale(self, width: int, height: int) -> int:
+        """Draw crisp native pixels when the physical screen budget allows."""
+        width, height = max(1, int(width)), max(1, int(height))
+        scale = max(1, int(math.ceil(1.0 / self.resolution)))
+        scale = min(scale, max(1, min(width, height) // BUFFER_MIN_EDGE))
+        while scale < 64 and (width // scale) * (height // scale) > self.max_pixels:
+            scale += 1
+        return scale
+
+    def blur_scale(self, width: int, height: int) -> float:
+        """Allow a little softness without turning filaments into a wash."""
+        return min(1.3, super().blur_scale(width, height))
+
+    def _step(self, rng: random.Random, x: float, y: float,
+              angle: float, width: int, height: int) -> tuple:
+        """Bend one short hypha while keeping its tip on the canvas."""
+        length = min(width, height) * self.size * rng.uniform(0.026, 0.044)
+        dx, dy = length * math.cos(angle), length * math.sin(angle)
+        margin = max(2.0, min(width, height) * 0.025)
+        if x + dx < margin or x + dx > width - margin:
+            dx = -dx
+        if y + dy < margin or y + dy > height - margin:
+            dy = -dy
+        end_x = max(margin, min(width - margin, x + dx))
+        end_y = max(margin, min(height - margin, y + dy))
+        bend = rng.uniform(-0.20, 0.20)
+        control_x = (x + end_x) * 0.5 - (end_y - y) * bend
+        control_y = (y + end_y) * 0.5 + (end_x - x) * bend
+        return end_x, end_y, control_x, control_y, math.atan2(
+            end_y - y, end_x - x)
+
+    def _lineage(self, cycle: int, width: int, height: int) -> tuple:
+        """Return one cached forest with a fixed-size six-root seed pool."""
+        key = (cycle, width, height)
+        cached = self._lineage_cache.get(key)
+        if cached is not None:
+            return cached
+        rng = random.Random((self._fungal_seed ^
+                             (cycle * 0x9E3779B97F4A7C15)) & (2 ** 128 - 1))
+        edges = []
+        for root in range(len(self._anchors)):
+            anchor_x, anchor_y = self._anchors[(root + cycle) % len(self._anchors)]
+            x = width * max(0.05, min(0.95, anchor_x + rng.uniform(-0.07, 0.07)))
+            y = height * max(0.05, min(0.95, anchor_y + rng.uniform(-0.07, 0.07)))
+            angle = rng.uniform(-math.pi, math.pi)
+            birth = rng.uniform(0.0, 5.0)
+            branches = []
+            shortest = min(width, height)
+            trunk_steps = 10 if shortest < 120 else 13
+            forks = () if shortest < 120 else (
+                (5,) if shortest < 240 else (3, 7, 10))
+            for step in range(trunk_steps):
+                end_x, end_y, cx, cy, angle = self._step(
+                    rng, x, y, angle, width, height)
+                duration = rng.uniform(1.35, 1.85)
+                edges.append((root, x, y, cx, cy, end_x, end_y,
+                              birth, duration, root, 0))
+                birth += duration
+                if step in forks:
+                    branches.append((end_x, end_y, angle, birth, step))
+                x, y = end_x, end_y
+                angle += rng.uniform(-0.25, 0.25)
+            for bx, by, direction, began, fork in branches:
+                direction += rng.choice((-1.0, 1.0)) * rng.uniform(0.65, 1.1)
+                for branch_step in range(5 + rng.randrange(3)):
+                    end_x, end_y, cx, cy, direction = self._step(
+                        rng, bx, by, direction, width, height)
+                    duration = rng.uniform(1.25, 1.75)
+                    edges.append((root, bx, by, cx, cy, end_x, end_y,
+                                  began, duration, root + fork, 1))
+                    began += duration
+                    bx, by = end_x, end_y
+                    direction += rng.uniform(-0.31, 0.31)
+        result = tuple(edges)
+        self._lineage_cache[key] = result
+        if len(self._lineage_cache) > 8:
+            del self._lineage_cache[next(iter(self._lineage_cache))]
+        return result
+
+    def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """Visible curved edges as pixel controls, progress and fading ink."""
+        if width <= 0 or height <= 0:
+            return ()
+        width, height = int(width), int(height)
+        cycle = math.floor(self.time / self._interval)
+        roots = max(1, min(6, round(3.0 * self.density),
+                           min(width, height) // 60,
+                           round(6.0 * min(1.0, self.resolution))))
+        stroke = max(0.55, min(2.4, (0.70 + 0.32 * self.size)
+                              * (min(width, height) / 1080.0) ** 0.35))
+        visible = []
+        for era in range(cycle - 3, cycle + 1):
+            elapsed = self.time - era * self._interval
+            if elapsed < 0.0 or elapsed > 100.0:
+                continue
+            for (root, x0, y0, cx, cy, x1, y1, born, duration,
+                 hue, depth) in self._lineage(era, width, height):
+                if root >= roots:
+                    continue
+                age = elapsed - born
+                if age <= 0.0 or age >= self._edge_lifetime:
+                    continue
+                progress = min(1.0, age / duration)
+                fade = min(1.0, age / 0.35,
+                           (self._edge_lifetime - age) / 24.0)
+                alpha = (0.68 if depth == 0 else 0.48) * fade \
+                    * self.alpha_scale()
+                if alpha >= 0.006:
+                    visible.append((x0, y0, cx, cy, x1, y1, progress,
+                                    alpha, stroke * (1.0 if depth == 0
+                                                    else 0.74), hue))
+        return tuple(visible)
+
+    def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+        """Trace antialiased partial Béziers and their live growing tips."""
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setBrush(Qt.NoBrush)
+        colors = self.paint_colors
+        for (x0, y0, cx, cy, x1, y1, progress,
+             alpha, stroke, hue) in self.geometry(width, height):
+            control_x = x0 + progress * (cx - x0)
+            control_y = y0 + progress * (cy - y0)
+            end_x = ((1.0 - progress) ** 2 * x0
+                     + 2.0 * (1.0 - progress) * progress * cx
+                     + progress ** 2 * x1)
+            end_y = ((1.0 - progress) ** 2 * y0
+                     + 2.0 * (1.0 - progress) * progress * cy
+                     + progress ** 2 * y1)
+            path = QPainterPath(QPointF(x0, y0))
+            path.quadTo(QPointF(control_x, control_y), QPointF(end_x, end_y))
+            color = _with_alpha(colors[hue % len(colors)], alpha)
+            painter.setPen(QPen(color, stroke, Qt.SolidLine,
+                                Qt.RoundCap, Qt.RoundJoin))
+            painter.drawPath(path)
+            if progress < 1.0:
+                painter.setPen(Qt.NoPen)
+                painter.setBrush(_with_alpha(colors[(hue + 1) % len(colors)],
+                                             min(0.75, alpha * 1.8)))
+                radius = max(0.45, stroke * 0.8)
+                painter.drawEllipse(QPointF(end_x, end_y), radius, radius)
+                painter.setBrush(Qt.NoBrush)
+
+
 _ENGINES = {
     "blobs": BlobsEngine,
     "aurora": AuroraEngine,
