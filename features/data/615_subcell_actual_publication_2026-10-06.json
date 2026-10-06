@@ -1,0 +1,366 @@
+{
+  "item": 615,
+  "passed": true,
+  "completed_documentation_workflow": 37478293839,
+  "actual_resolved_and_deployed_nightly_source": "e259c2d4ecfa34b8228a8e8eab4520ff06edcf04",
+  "actual_normal_artifacts_assembled_with_standard_publisher": true,
+  "all_ten_deployed_API_catalogs_and_fourteen_tutorial_catalogs_exact": true,
+  "API_symbols": 13182,
+  "all_135_reviewed_API_blocks_visible_in_nine_languages": true,
+  "actual_screen_mapping_callback_on_its_own_API_page": true,
+  "all_108_new_puncta_reference_messages_visible_in_nine_guides": true,
+  "actual_six_browser_screenshots_visually_reviewed": true,
+  "immutable_accepted_tutorial_media_commit": "0889ee14f5a7368a791df27c7331862a6c7741b4",
+  "all_three_live_tutorial_media_roots_exact_to_prior_full_playback_and_decoded_visual_acceptance": true,
+  "earlier_full_tutorial_acceptance_receipt": "features/data/615_installation_actual_nightly_2026-10-06.json",
+  "no_application_catalog_or_tutorial_source_change_for_this_publication_receipt": true,
+  "remaining_goal_scopes_not_claimed": [
+    "Official obtained-checkpoint Cell-DINO integration and GPU benchmark",
+    "Expert-labelled four-stain accuracy",
+    "Remaining Home source/CPU/CI/Qt acceptance",
+    "Missing calibrated low-light/manual masks, original OPS inputs and labelled QC/event data",
+    "Native-speaker or native Windows/macOS capture"
+  ],
+  "artifacts": {
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_API_browser/_static--api_i18n.js.gz": {
+      "bytes": 8662,
+      "sha256": "a9aa23b81cad9903fe638d2edac15184dd968090d8f116f62d5e3d147a3e6fe1"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_API_browser/acceptance.json": {
+      "bytes": 16710,
+      "sha256": "976ac5baaebab67b558629c06cd378d96c7b386ea6b8df831e75cfd7578541f7"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_API_browser/api--spacr--embeddings--index.html.gz": {
+      "bytes": 12590,
+      "sha256": "fdc33c74ea92d807c9f1b1ef7ecda0f6e033c1ca59ec67c3414dd49bf010432c"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_API_browser/api--spacr--qt--screens--embeddings--index.html.gz": {
+      "bytes": 12598,
+      "sha256": "2a2de5d081ecb57f7a4b41ae2e0c07742c4b6cc62ddcae8359412683d79e263f"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_API_browser/spec-ko.png": {
+      "bytes": 251113,
+      "sha256": "57dcdbb73168821ce9e17d1d1760332211925f64ffbc3901c27c57c6060c59c8"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_API_browser/spec-sv.png": {
+      "bytes": 247830,
+      "sha256": "8257109d65d32f5f2e79c1ea4a07e0b06b8cf888417fe48c20107a4bd0a8282c"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_API_browser/spec-zh_CN.png": {
+      "bytes": 274942,
+      "sha256": "6cecbb87423f07dd5ccf1651408428652f8b3976bba47aad079bd7661417c232"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_puncta_guides/acceptance.json": {
+      "bytes": 5733,
+      "sha256": "6aa245b59bfc6d26acf6af901222aff9f07140dbbb854c7529e686cae4203308"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_puncta_guides/de.html.gz": {
+      "bytes": 28190,
+      "sha256": "01ef43ceb7a710a6dcf355b2f4a3b6afb6d041539d46210ca4a6626695dde755"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_puncta_guides/es.html.gz": {
+      "bytes": 26691,
+      "sha256": "95a9e6f5f085eaf644fce121679ec8f3630a9cb8e647f0efcd5b817d469bc987"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_puncta_guides/fr.html.gz": {
+      "bytes": 27504,
+      "sha256": "81b9e83673da172761e22e419d15db1896964ce5d00fcd1faa2137ae45b18a18"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_puncta_guides/hi.html.gz": {
+      "bytes": 30331,
+      "sha256": "f5add498bbf739f0a259a53c957a704b181a948e5e75e97fadc26426acd3179c"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_puncta_guides/is.html.gz": {
+      "bytes": 27063,
+      "sha256": "56c498813b22a2101ec64c70a586dd6e1f5eef8c05a258afbbfa1f085557b4df"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_puncta_guides/ko.html.gz": {
+      "bytes": 27298,
+      "sha256": "c0055b0a4fd2d912e13114f21029bd37fde808fc4e4732f24cc5843182e2a2d7"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_puncta_guides/ko.png": {
+      "bytes": 242510,
+      "sha256": "6b605d4530060910c68504ac15fe65ae828e5afdd0f6b937bdef55ba0dfebac7"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_puncta_guides/pt.html.gz": {
+      "bytes": 26653,
+      "sha256": "55758ab22cdc4798a4d03747e4c1589f567450d6e45f088c4125b0594f1818df"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_puncta_guides/sv.html.gz": {
+      "bytes": 26186,
+      "sha256": "1e9180c1745fa2ad36dff02938d4ec7b20b8c631b2939f88c24d82578d8a7190"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_puncta_guides/sv.png": {
+      "bytes": 270507,
+      "sha256": "bc52416e3ad2c64a9ce3c28980388ff5d46f4de55e98a778c92917d55bf15326"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_puncta_guides/zh_CN.html.gz": {
+      "bytes": 26711,
+      "sha256": "3604ad8b942fee7e614927e5ae6bcc1a682e174478f5bc3eb4c5a1c41fa0027a"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/actual_puncta_guides/zh_CN.png": {
+      "bytes": 305202,
+      "sha256": "8dceb9e7a7a8a0f30391838a5427bcf5ca67459445c7a9b671965fe502981f0e"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/archive_subcell_actual_publication_r1.py": {
+      "bytes": 4874,
+      "sha256": "7137b41e318538d93b2bcc6a75fde3e0b6a6fc35a8c6fe6b24db3d44135e92e0"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/finish_subcell_publication_r1.py": {
+      "bytes": 4492,
+      "sha256": "a7b03ed946e61253a7ec683ea01d96aa19b89a2f93ac2429539ed590f86de634"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/normal_assembled_reference/channels.json": {
+      "bytes": 511,
+      "sha256": "b20217ad65e62903135b1a183229ebf5955b67cb393b06ec281dedcc92d615ae"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/normal_assembled_reference/nightly/guide-translations.json": {
+      "bytes": 63587,
+      "sha256": "2cca937aec0274c11fbe1e65d1f55f5ec9c6a075243f52fae804cd5d83875b64"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/normal_assembled_reference/nightly/translation-compatibility.json": {
+      "bytes": 14301,
+      "sha256": "8796f1c1f704bb681cbdd6b1f289985b0d859714b9274c4892bd08ef8c3a76eb"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/normal_assembled_reference/nightly/tutorials/index.html.gz": {
+      "bytes": 4097,
+      "sha256": "29d0391160849a083277af76ee3cfb763b4cd0f84ff5dd9ae92b518de63c67c8"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/subcell-current-deployment-r1.json": {
+      "bytes": 6181,
+      "sha256": "51f22c822172d7ea6e2f8b5df37ee6176e5c82b9adc904da1734a26f509ac054"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/subcell-deployed-screenshot-visual-review-r1.json": {
+      "bytes": 1647,
+      "sha256": "b985d7329b525b647149c77702e7d6fabe865ee0d84902743213f6cf9c9d4358"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/subcell-docs-complete-workflow-r1.log.gz": {
+      "bytes": 306988,
+      "sha256": "9c381e78ec86a0f74207ade7b9881a2e62dcc569038dfeb75ac3b75d83c45c5b"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/subcell-hosted-source-contract-proof-r1.json": {
+      "bytes": 396,
+      "sha256": "021e2e2b24ea6a9f6528a4b272c5b4bcbd245750cc610d5d7f64415935c127c6"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/subcell-publication-expectations-r1.json": {
+      "bytes": 5320,
+      "sha256": "3a8e6f089d197311597ad83ac09f96a5d77f13d1eca1196e73106c7748f69c6f"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/subcell-publication-worker-r1.log.gz": {
+      "bytes": 1693,
+      "sha256": "47f95be78fefc50a0d090a99b2d2ec61a63a2245d023133d1d73051ae6daf33f"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/verify_subcell_current_deployment_r1.py": {
+      "bytes": 3004,
+      "sha256": "92db35f7e94492f82814d9163bad798bd0bde0d03afa31097d42cd5427a4d868"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/verify_subcell_deployed_API_browser_r1.py": {
+      "bytes": 7063,
+      "sha256": "a21adc639740324acf0077ff651e452c0312b2d69d1c8b0d7a38bd351c6d00d8"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/verify_subcell_deployed_puncta_guides_r1.py": {
+      "bytes": 3499,
+      "sha256": "19afd01d6abde726f8515242a98a4ebc212dd921cd6a961dd93f8992d9fe399c"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/branch-artifact-inventory-r1.json": {
+      "bytes": 2805,
+      "sha256": "dab710f5787da4cc4f4d39275e0d723ef7d065a551abc50573226cfd532f46f6"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/publication-completion.json": {
+      "bytes": 3587,
+      "sha256": "621b207ab047d8c78948e05b84f1719a8d1652d6915c4cd1a74c6d2a0168d4ec"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/publication-stage-journal.json": {
+      "bytes": 2871,
+      "sha256": "146b128f18a1cfcc7184f8862c8b538050fbdb9dd4adebdedcdfc4606ecde223"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0001.json": {
+      "bytes": 12027,
+      "sha256": "ac653c61cf3140450a68dda7e3cb0716613f170bc83427a97cd4d361f55d89ff"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0002.json": {
+      "bytes": 12027,
+      "sha256": "2fd1d1bab74bfe7fade655b550127b5f49984f3298520b349663fb462edf4b94"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0003.json": {
+      "bytes": 12027,
+      "sha256": "593977cd070ee65f743669be886ff7fa29b4ec502aa1883ad55cb634f96ffe96"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0004.json": {
+      "bytes": 12027,
+      "sha256": "fbebcf7f901a1d01dd411db1b958fcd6aa635c44084402b0072350f136b533e7"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0005.json": {
+      "bytes": 12036,
+      "sha256": "b10f228d1da7eca0d0a104c0c741acc674e5cca3c0a7e02caff0a53301447290"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0006.json": {
+      "bytes": 12036,
+      "sha256": "e43341b593cb24d2704aaf6fab733a05f0c4dfccf3f3e306f986d2122b0f0d92"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0007.json": {
+      "bytes": 12036,
+      "sha256": "3571dbe77cc66abe7f61b04e90be348c6cf942780be3cb3aab7c881cfd79d586"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0008.json": {
+      "bytes": 12036,
+      "sha256": "9816204b69b70a6a1d0015a1c4e92ba56c22a5cbb51753bb1890ada6ef280aba"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0009.json": {
+      "bytes": 12358,
+      "sha256": "f100a1bed569e7dd0611863ba5dd6323560b771c656bc954c3aad9b0d3509be8"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0010.json": {
+      "bytes": 12358,
+      "sha256": "a423d1341413335f9c75d7d92503752c9f0eefedbc8bc01bed07ba6f32cda2d6"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0011.json": {
+      "bytes": 12358,
+      "sha256": "cd056d09cc101b7b4e092912df22c587409491df876839bdf75bcabcfa70ea0d"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0012.json": {
+      "bytes": 12358,
+      "sha256": "27e3948b32680987cae86254758aa8e044bddda7a268d4c9a18f6756a28ed1ce"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0013.json": {
+      "bytes": 12358,
+      "sha256": "525eae2a1ccd1a02a18198213c08599e390189070fc23887cf9358af084806b3"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0014.json": {
+      "bytes": 12358,
+      "sha256": "db1d2a2a56865e9c09638727d14ab30d865ca6b9d1537a92969c2d50fa40daee"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0015.json": {
+      "bytes": 12358,
+      "sha256": "a00128c30f924d05b7a2a499918d1b481277bd4a1eb15b0a8f81c31ac353e92e"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0016.json": {
+      "bytes": 12367,
+      "sha256": "06ce79d5326db2c81c94e60dcf870ab82b5532558f03b134dc6fd47879abef74"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0017.json": {
+      "bytes": 12367,
+      "sha256": "e13f77fc858bb263a9559198090ba33eff36069f996935843666739f3d38dd12"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0018.json": {
+      "bytes": 12367,
+      "sha256": "39ae270f3055ede7cf19b7a30f8524c3db52dbc32817ef2c9cdb60548eb22593"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0019.json": {
+      "bytes": 12367,
+      "sha256": "ce4a33d62c825b5bfe7171af6b8a9520081799822b06ce7894a257ed5cf8af02"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0020.json": {
+      "bytes": 12385,
+      "sha256": "49dc041d58b6643a4f5bb7ebc692461d12f86d13e32ed0fa5ccb6b9b0b8b14c9"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0021.json": {
+      "bytes": 13046,
+      "sha256": "891235f2a6333156e747bf2f40ffedc88bd04164bb0b929e5e1959d6faff5ccf"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0022.json": {
+      "bytes": 13046,
+      "sha256": "d9de31836d847a9c6bcf618c5d0b6e7c2b2c15fcbc1aa9b7b469c2e70b8114e6"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0023.json": {
+      "bytes": 13046,
+      "sha256": "cdac1cc2599978c993b594312d1086b8be36e2e14dcc1df803dd1243f2fc576d"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0024.json": {
+      "bytes": 13046,
+      "sha256": "23f00ffc4c2bd5f89ecc49aff1c55696ba048d684ef695b8576c39906c78f3d1"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0025.json": {
+      "bytes": 13046,
+      "sha256": "15c973b2e2b274004fd6fa653668558b78bbbe22566728a8f98835b904e2e5b8"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0026.json": {
+      "bytes": 13046,
+      "sha256": "4ebf238bacbfa2877e2054dc5658ed96eb5ad9db547e1596859b4899e733ec14"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0027.json": {
+      "bytes": 13046,
+      "sha256": "70440ff676897ae8a16b05cf450e11ffe0a8a37745564a43c1bf4b4f446b8d75"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0028.json": {
+      "bytes": 13046,
+      "sha256": "9585b6715a9c08791651c464901a5d162bee64fac471d28c9fb44e8a6eb88b0c"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0029.json": {
+      "bytes": 13046,
+      "sha256": "6f8db4bc78f386389b14d6d7caa7939c7683d7a6bbba31488c4bdbc48da30506"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0030.json": {
+      "bytes": 13046,
+      "sha256": "6af777fbd23de2ff8d17452af0c80f9f2be69767ddf6e8fabbd239f29c7f2995"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0031.json": {
+      "bytes": 13046,
+      "sha256": "77b2e23f19f504103ff3d4d108a8cdf7bc3db3983572bf7e3e9f664d0ff0738a"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0032.json": {
+      "bytes": 13046,
+      "sha256": "7350cb205e73682b5ecd27d26ef46c31447450b4c71a942a4209a5ed686875d3"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0033.json": {
+      "bytes": 13046,
+      "sha256": "36a93aee661dda9bca9dd4bde80e7b186f5160c50962b1de0ef10b2d920b3ba7"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0034.json": {
+      "bytes": 13046,
+      "sha256": "ab223ee228598f6f6a97a1ae37fffb020f19d4a9222c198cc146433b8fa5b838"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0035.json": {
+      "bytes": 13046,
+      "sha256": "10df65893872e2c7a457f86434dd3af11cdc55f933af18c08808a597e6f9ad60"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0036.json": {
+      "bytes": 13046,
+      "sha256": "fe075f146cb1b2541d3a148709ab10ea43f038ac141d149385ca735122e34f9b"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0037.json": {
+      "bytes": 13046,
+      "sha256": "496eec9543532d0a428273487faabac278c52872ae38b0be775f9af912570b4e"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0038.json": {
+      "bytes": 13046,
+      "sha256": "e19e4d802413383d2c94b1d99425345cd457bbbb7cef141f2c0260cda87e2aa8"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0039.json": {
+      "bytes": 13046,
+      "sha256": "32408491a39213786ca94e490e4b835496451101a2fa38e9dc7fa9281c0e31ea"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0040.json": {
+      "bytes": 13046,
+      "sha256": "46703200f6b7eb1b83275776267591ccacf09981c815ed1f5c77509ba61fc333"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0041.json": {
+      "bytes": 13046,
+      "sha256": "979bea418f94a6955494bb1050571c0e7f4adf92ae84812a0c206ead1ea6951f"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0042.json": {
+      "bytes": 13046,
+      "sha256": "e41c80e8d02e7d6297edafbe572041ae6a6a958614e36b32bd56015eee81ce9e"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0043.json": {
+      "bytes": 15674,
+      "sha256": "2d216119f83f76f2fd39b81d22a7008e2acbbfceaadda7cc2fd64390ee98dd01"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0044.json": {
+      "bytes": 15701,
+      "sha256": "02247cc298918e1b3c03805936a405900a0fab5a1e11f08d5c6302bd1bf439c0"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0045.json": {
+      "bytes": 15710,
+      "sha256": "d9cadefcddf466faf9e12f2c19d8ccac2001217fc450582554edf9e49a7eafe6"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0046.json": {
+      "bytes": 15710,
+      "sha256": "1c30347d9a5bba79351c0d6a00d01c3f043ab0e7a1c518c231a26bfd322dbbcf"
+    },
+    "features/data/615_subcell_actual_publication_2026-10-06/workflow/workflow-observation-0047.json": {
+      "bytes": 16001,
+      "sha256": "7a4629a1effcd4dd058668a98807240e960b708573ab3352481d207b7968cf2a"
+    }
+  }
+}

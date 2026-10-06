@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "checkout": "/home/carruthers/Documents/repo/spacr",
+  "installed_source": "0ef43046e177610e7f7630c97268d8b293a7c576",
+  "version": "1.5.1.3",
+  "editable_install_completed": true,
+  "existing_conda_python": "/home/carruthers/anaconda3/envs/spacr/bin/python",
+  "dependency_versions_unchanged": true,
+  "actual_installed_console_entry_home_launch": "offscreen Qt; visible Home, captured screenshot, clean event-loop exit",
+  "native_desktop_launch_claimed": false,
+  "original_user_edits_preserved_at": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/local-install-preservation-20261006-r1",
+  "tracked_checkout_edits_after_update": [],
+  "original_untracked_Claude_and_puncta_files_preserved": true,
+  "original_failed_probe_preserved": "launch.log.gz; timer wrapper passed an argument to static QApplication.exec; corrected r2 uses exec()",
+  "screenshot_visually_reviewed": true
+}

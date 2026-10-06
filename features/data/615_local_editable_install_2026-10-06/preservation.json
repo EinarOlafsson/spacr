@@ -1,0 +1,43 @@
+{
+  "original_HEAD": "54f156ee7256703c4341a99ff874e3574653b099",
+  "original_branch": "nightly",
+  "backup_files": {
+    "docs/source/make_masks.rst": {
+      "bytes": 30333,
+      "sha256": "e50eb3dbbe499adc33cf8655c3d20d317fb6e6318c5a6f240b2e1099c92ce3ce",
+      "tracked_local_edit": true
+    },
+    "spacr/qt/cpu_modes.py": {
+      "bytes": 17409,
+      "sha256": "886f51aee1d91c7e3045ad303d6e863097fcb7f017eff30751fdbba0511bc79c",
+      "tracked_local_edit": true
+    },
+    "spacr/qt/screens/make_masks.py": {
+      "bytes": 760710,
+      "sha256": "1ae511330ab8e0a0107e01b8a1444c0b4146fe44089d94d7bcf3b5d8db0495dd",
+      "tracked_local_edit": true
+    },
+    "spacr/_puncta.py": {
+      "bytes": 5070,
+      "sha256": "76e83cab62441227cc0531d8533f7dba3fdf2f0e313235857060ccf34057bb07",
+      "tracked_local_edit": false
+    },
+    "tests/qt/test_make_masks_local_contrast_puncta.py": {
+      "bytes": 3408,
+      "sha256": "d0db9ca6f41717c912c16c516ff4871d3d19cdc26524239ec683597a9c62e3ff",
+      "tracked_local_edit": false
+    },
+    "tests/test_local_contrast_puncta.py": {
+      "bytes": 1898,
+      "sha256": "1665b1f76a6a28c014d90c2efe601e46eb84f0457fa3094777e302b43a7db633",
+      "tracked_local_edit": false
+    },
+    "CLAUDE.md": {
+      "bytes": 38407,
+      "sha256": "5b04816a8cc6e0994ce13503f2fbf2f21c2d4e1a1802cbf338d89d931feee76d",
+      "tracked_local_edit": false
+    }
+  },
+  "patch_sha256": "8a8cd3f10a7af4250034720b7562b42aaef7976417a257c3b9eaba6af03e5c1d",
+  "untracked_Claude_worktrees_remain_in_place": true
+}

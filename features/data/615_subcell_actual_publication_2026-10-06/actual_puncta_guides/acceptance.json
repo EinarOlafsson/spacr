@@ -1,0 +1,108 @@
+{
+  "passed": true,
+  "completed_documentation_workflow": 37478293839,
+  "actual_resolved_nightly_source": "e259c2d4ecfa34b8228a8e8eab4520ff06edcf04",
+  "actual_channels_sha256": "b20217ad65e62903135b1a183229ebf5955b67cb393b06ec281dedcc92d615ae",
+  "all_108_reviewed_message_readbacks": [
+    {
+      "language": "sv",
+      "actual_url": "https://einarolafsson.github.io/spacr/nightly/sv/make_masks.html",
+      "actual_HTML_exact_to_normal_artifact": true,
+      "bytes": 106616,
+      "sha256": "6c37798133f839f0fda4eb1832fcdf7b9607605ffd693529d96e3e6bebe13679",
+      "all_twelve_exact_reviewed_translations_visible": true,
+      "all_six_puncta_parameters_visible": true,
+      "reviewed_messages_sha256": "d5e74296bb2b1dead03ded5d2042356d2b27296ced9d7bb88fb403c058b45d0e",
+      "rendered_text_sha256": "7489872755447373470d9bc9a2e4e091dba9fcd6ee6b2a9e61cbc6bb2784b087"
+    },
+    {
+      "language": "de",
+      "actual_url": "https://einarolafsson.github.io/spacr/nightly/de/make_masks.html",
+      "actual_HTML_exact_to_normal_artifact": true,
+      "bytes": 112988,
+      "sha256": "19d23e98ab2e55c4a904040619e38ec78ef2b3bcd26e2e118d4a13f0d8f4bbe6",
+      "all_twelve_exact_reviewed_translations_visible": true,
+      "all_six_puncta_parameters_visible": true,
+      "reviewed_messages_sha256": "34945909873e40c50f2af29f20d9924e7eeb5ad62829700f4b57cd945816fe22",
+      "rendered_text_sha256": "c66784b5d7548e5f803fade18be617ea233d131a87d67c3926cd801966194e5c"
+    },
+    {
+      "language": "es",
+      "actual_url": "https://einarolafsson.github.io/spacr/nightly/es/make_masks.html",
+      "actual_HTML_exact_to_normal_artifact": true,
+      "bytes": 111519,
+      "sha256": "f0e796a66aaf4f78b1364e151c01fa2100fa1dabaf7e1c0a9a1ec154297a5433",
+      "all_twelve_exact_reviewed_translations_visible": true,
+      "all_six_puncta_parameters_visible": true,
+      "reviewed_messages_sha256": "e71d16faa30c6f2dc372eb1f9fe090940a36321ac85f0319275ec1f8b21a829b",
+      "rendered_text_sha256": "bffaa0455dc496ceb8f200b1d6eef2406f2535c2d73a49bb14589654eeed9de0"
+    },
+    {
+      "language": "zh_CN",
+      "actual_url": "https://einarolafsson.github.io/spacr/nightly/zh_CN/make_masks.html",
+      "actual_HTML_exact_to_normal_artifact": true,
+      "bytes": 100497,
+      "sha256": "7ab4526f80ea45e2c7a8f26536e6911aa9b7204c0a8fb2f80ffc05ab87ba32f5",
+      "all_twelve_exact_reviewed_translations_visible": true,
+      "all_six_puncta_parameters_visible": true,
+      "reviewed_messages_sha256": "d7a1bd2f66aa439f92790d2d46d6bd066e4b2bf6e791e43ed6312bfa386583cc",
+      "rendered_text_sha256": "a23a2f295bfae8ab9127caf720bed04535f3f948c625aba49bdf0c3676357c89"
+    },
+    {
+      "language": "pt",
+      "actual_url": "https://einarolafsson.github.io/spacr/nightly/pt/make_masks.html",
+      "actual_HTML_exact_to_normal_artifact": true,
+      "bytes": 109523,
+      "sha256": "658381f3f52bd8748f9f16fbf9e2dcf3d3825ad5ed43b278ca95aea04c4346b3",
+      "all_twelve_exact_reviewed_translations_visible": true,
+      "all_six_puncta_parameters_visible": true,
+      "reviewed_messages_sha256": "8ccf0ae5876e560962963c3fb26a8b81108af2cd2d6768a9e8d0b0bf59de84ed",
+      "rendered_text_sha256": "dc94b1b669c964a27022d2915e48dfbcdf6e82720a84242ae94eb88f709d2bb2"
+    },
+    {
+      "language": "hi",
+      "actual_url": "https://einarolafsson.github.io/spacr/nightly/hi/make_masks.html",
+      "actual_HTML_exact_to_normal_artifact": true,
+      "bytes": 167776,
+      "sha256": "72dc9c2b5a5ed96f33328842b601c8cbf1dae40060cbefbf7d7d080ed8844c62",
+      "all_twelve_exact_reviewed_translations_visible": true,
+      "all_six_puncta_parameters_visible": true,
+      "reviewed_messages_sha256": "9a055b076df37044807c9fda87aad3e685bea4e9025b5135b3ad714e3317bb97",
+      "rendered_text_sha256": "59bcecbf9039ff618d283613966b6cd7f7381f942554df3eec22c594f3cedb7c"
+    },
+    {
+      "language": "ko",
+      "actual_url": "https://einarolafsson.github.io/spacr/nightly/ko/make_masks.html",
+      "actual_HTML_exact_to_normal_artifact": true,
+      "bytes": 112577,
+      "sha256": "4b1ea388de18eb494ff505aa0b980fd77363a3693fa5225add0b31da65a953fa",
+      "all_twelve_exact_reviewed_translations_visible": true,
+      "all_six_puncta_parameters_visible": true,
+      "reviewed_messages_sha256": "e02908b9a7a44914e14e1161df0ea639594f4493a18e9e1e4905357c0c997c33",
+      "rendered_text_sha256": "39e260168c0e1a0ba6e27e238ec756b4a106e1620af11583d55a3b5470e7d298"
+    },
+    {
+      "language": "is",
+      "actual_url": "https://einarolafsson.github.io/spacr/nightly/is/make_masks.html",
+      "actual_HTML_exact_to_normal_artifact": true,
+      "bytes": 107171,
+      "sha256": "15d7c7d3da97099f041b29468c7d065bf32ea4c10e937fc0c478c80efaeaa5e0",
+      "all_twelve_exact_reviewed_translations_visible": true,
+      "all_six_puncta_parameters_visible": true,
+      "reviewed_messages_sha256": "4034eb1930404689620dcef6a6052cf0f0d102175afdc047b52c697591c88d05",
+      "rendered_text_sha256": "36c53ea4e6bfbb7524ce589af28184885fa453ac8a42b2efb7f9e375bd9119dc"
+    },
+    {
+      "language": "fr",
+      "actual_url": "https://einarolafsson.github.io/spacr/nightly/fr/make_masks.html",
+      "actual_HTML_exact_to_normal_artifact": true,
+      "bytes": 114543,
+      "sha256": "8215d165bc77e1bd734d99151770b4a38f858d3f6846247481a8dc4e0ae842ea",
+      "all_twelve_exact_reviewed_translations_visible": true,
+      "all_six_puncta_parameters_visible": true,
+      "reviewed_messages_sha256": "93f0318224beb31e7c346b2d6b91b439918b798aca2046cd2eb84dce75555e4f",
+      "rendered_text_sha256": "7d813834ec280d758686e8aba9b4de0e08f4619f7fdf33f20dcc3994704b6378"
+    }
+  ],
+  "script_sha256": "19afd01d6abde726f8515242a98a4ebc212dd921cd6a961dd93f8992d9fe399c"
+}
