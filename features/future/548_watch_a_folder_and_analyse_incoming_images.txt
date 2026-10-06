@@ -684,3 +684,59 @@ NATIVE T1 SUBSET IN COMBINED CPU CANDIDATE (2026-10-05, partial)
 2026-10-06 workstation real timelapse GPU preparation: four genuinely acquired CTC Fluo-N2DH-GOWT1 frames t021-t024 are stacked into an explicitly derived TYX TIFF and converted normally into a fixed four-timepoint CellVoyager map. Every acquired/derived/converted pixel matches. The real watcher with only three arrivals waits with zero analysis or database output. Current nucleus-only batch_size=1 Mask/Measure and IoU tracking recipes and a source-bound CUDA benchmark are prepared. The benchmark will compare actual CUDA batch/watch outputs, complete nucleus rows and flat track CSVs, then verify interrupted collection and completed restart without repeating inference. Receipt 548_gowt1_gpu_preparation_2026-10-06.json archives original inputs, map, recipes, completed CPU preparation and the unexecuted benchmark. This does not claim CUDA acceptance, native vendor T>1, raw/vendor completion or pooled parity. All GPU processes remain workstation-owned; protected livecell/cellposeTIME jobs remain untouched. Current reference narration turn 662-yolo-narration-reference-20261006-r1 is running; the scientific benchmark is not queued yet.
 
 2026-10-06 workstation real GPU watch acceptance: the acquired CTC GOWT1 four-frame fixed-map benchmark completes normally, rc=0, with actual CPSAM CUDA kernels in both batch and watch analysis. All four merged frames, every available scientific nucleus column across 91 rows and all 91 flat track rows match exactly. The three-arrival no-analysis wait, real-analysis/injected-I/O interruption, normal collection resume and completed restart pass; both resume/restart have zero CUDA events and staged scientific hashes/mtimes remain exact. Optional Mahotas is unavailable, so Zernike columns are explicitly absent in both runs. Independent normal IoU scoring is recorded on t021 only, with its 24 gold objects and the CTC 50-pixel field-of-interest policy; it is not tracking-accuracy or four-replicate acceptance. Receipt 548_gowt1_gpu_acceptance_2026-10-06.json archives exact paired arrays, databases, tracks, source/model hashes, positive CUDA profiles, gold scoring and completed raw turn log. Native vendor T>1, raw/vendor completion and pooled batch_size>1 remain OPEN. Home retains their implementation/CPU ownership; all remaining GPU work stays workstation-owned. No protected livecell/cellposeTIME job was touched.
+
+CLOSED FIXED-MAP POOLED NORMALIZATION (2026-10-06, alpha subset)
+    watch_normalization_pool is a new alpha Make Masks setting with choices
+    per_field (unchanged default) and fixed_map. The fixed_map choice waits
+    for every field/channel/Z companion declared by one finite Convert map,
+    then snapshots the entire static projected acquisition and runs the
+    unchanged v1 Mask or Mask/Measure batch pipeline once. It requires an
+    explicit randomize=False and integer batch_size>1. Canonical legacy
+    stack filenames and sorted stack order are recorded using the existing
+    ingest parser, including numeric zero-padding normalization and escaped
+    plate names. Colliding or ambiguous stack identities are refused.
+    Shared background/percentile normalization, unlike-image padding and
+    the final short batch retain ordinary batch semantics. This supersedes
+    the pooled-parity gap for this closed static subset; it does not claim
+    exact pooled normalization for an unbounded stream of unseen arrivals.
+
+    Waiting is explicit in the progress line and ledger; idle timeouts and
+    Stop never release a partial cohort. Every original input digest and
+    regular-file identity, full map membership, deterministic order and
+    Mask/Measure recipe hash bind one cohort checkpoint. Scientific field
+    identities remain separate ledger entries. Missing fields, unexpected
+    or duplicate inputs, changed inputs during analysis, incomplete merged
+    outputs and changed checkpoint provenance are refused before cohort
+    publication. An interrupted collection resumes its immutable artifacts
+    without repeating analysis or appending another field transaction.
+    Stop before publication safely restarts from all original images.
+    The default immediate per-field path and its existing native T1 and
+    mapped timelapse support are unchanged. The new fixed_map mode refuses
+    native Z, timelapse, v2, Classify and feedback; it does not silently use
+    a different scientific recipe for those modes.
+
+    Real original-pixel batch/watch checks cover three fields, batch_size=2,
+    both equal and unequal spatial dimensions, exact normalized archives,
+    merged masks and every available cell/nucleus Measure column. Only
+    model inference is doubled; conversion, normalization, padding, Measure,
+    publication and interrupted recovery execute normally. Real DB-append
+    I/O and Stop interruptions resume with zero extra analysis and unchanged
+    staged artifact bytes/mtimes; completed restarts also do no analysis.
+    The broader watch/native-T1/timelapse/checkpoint cohort passes 176.
+    Final-source cohort/default-watch/alpha GUI checks pass 53, and expanded
+    cohort guards pass 37. Source hygiene, alpha registry and restored
+    settings-type checks pass 54. All run CUDA-hidden under 4 GiB. Final
+    branch tracing executes all 128 added core statements and 70 touching
+    branch arcs with no missing new lines/arcs. Source-bound logs and trace
+    receipt are in /mnt/wd4tb/scratch/f548-closed-pool-20261006/.
+
+    The setting is registered in ALPHA_FEATURES[548], its Advanced form,
+    expected types, tooltip and combo specification. Existing literal
+    WatchFolderProgress and WatchLivePlate object names remain the alpha
+    widget gates. The workstation should regenerate API, settings-flow,
+    consumer-map, help and translation artifacts normally after integration;
+    this CPU change does not hand-edit generated assets. F548 remains OPEN
+    for general native/vendor series and raw acquisition completion. This
+    is local CPU acceptance of the closed normalization subset, not final
+    protected GitHub or new GPU acceptance. All GPU processes remain owned
+    by the workstation session.

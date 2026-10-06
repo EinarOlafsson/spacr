@@ -208,7 +208,9 @@ def preprocess_generate_masks(settings):
           ``watch_measure_settings``, ``watch_settle_seconds``,
           ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather
           in ``src/spacr_watch``, and a record there lets a restarted watch
-          skip the fields already analysed.
+          skip the fields already analysed. ``watch_normalization_pool='fixed_map'``
+          instead waits for the entire declared static acquisition and retains
+          the ordinary batch recipe's shared normalization and padding.
         - ``microscope_feedback`` — during a ``watch_folder`` run with
           ``watch_pipeline='mask_measure'``, send the objects matching
           ``microscope_event_query`` back to the microscope named by
@@ -1966,7 +1968,7 @@ def _watch_defer_snapshot(key, members, field_dir, context):
         if name in context['seen']:
             context['seen'][name].update(signature=None, identity=None,
                                          changed=now, readable=False)
-    context['ledger']['fields'][key].update(
+    context.get('analysis_entries', context['ledger']['fields'])[key].update(
         status='waiting', finished=now,
         error='Source files changed while preparing the field snapshot; waiting again.')
     _watch_save_ledger(context['ledger_path'], context['ledger'])
@@ -1992,7 +1994,7 @@ def _watch_run_field(key, members, signature, context):
     _watch_check_map(context)
     seen, ledger = context['seen'], context['ledger']
     arrived = max(seen[name]['changed'] for name, _channel in members)
-    entry = ledger['fields'].setdefault(key, {})
+    entry = context.get('analysis_entries', ledger['fields']).setdefault(key, {})
     saved_collection = entry.get('collection_checkpoint')
     if saved_collection is None:
         entry.pop('snapshot_sha256', None)
@@ -2672,6 +2674,175 @@ def _microscope_feedback(key, field_dir, context):
               f'{type(exc).__name__}: {exc}')
 
 
+def _watch_closed_pool_spec(settings, manifest, map_sha256, mask_sha256, measure_sha256=None):
+    """Bind one finite acquisition to the unchanged legacy batch pipeline.
+
+    A closed pool waits for the entire fixed Convert map. It never estimates
+    future members or releases a partial percentile pool at an idle timeout.
+    Randomized order and streaming/native/time-series recipes are outside
+    this static projected v1 subset; their ordinary watch paths remain intact.
+    """
+    import hashlib
+    import json
+
+    mode = str(settings.get('watch_normalization_pool') or 'per_field')
+    if mode == 'per_field':
+        return None
+    if mode != 'fixed_map':
+        raise ValueError('watch_normalization_pool must be per_field or fixed_map.')
+    if manifest is None:
+        raise ValueError('watch_folder: fixed_map normalization needs a finite '
+                         'conversion_map.csv; an open-ended pool is not supported.')
+    if (any(_watch_truthy(settings.get(key, False))
+            for key in ('timelapse', 'z_stack', 'microscope_feedback'))
+            or str(settings.get('pipeline_style') or 'v1') != 'v1'
+            or settings.get('watch_pipeline', 'mask') not in ('mask', 'mask_measure')):
+        raise ValueError('watch_folder: fixed_map normalization supports static '
+                         'projected v1 Mask or Mask/Measure without feedback.')
+    if settings.get('randomize') is not False:
+        raise ValueError('watch_folder: fixed_map normalization requires explicit '
+                         'randomize=False for deterministic legacy batch order.')
+    batch_size = settings.get('batch_size', 50)
+    if type(batch_size) is not int or batch_size <= 1:
+        raise ValueError('watch_folder: fixed_map normalization requires an integer '
+                         'batch_size greater than one.')
+    from .io import _escaped_field_stem
+    from .utils import _extract_filename_metadata
+
+    merged_filenames, patterns = {}, {}
+    for field, names in sorted(manifest.items()):
+        stems = set()
+        for name in sorted(names):
+            pattern = _watch_pattern(settings, os.path.splitext(name)[1].lstrip('.'), patterns)
+            if pattern is None or 'plateID' not in pattern.groupindex:
+                raise ValueError('watch_folder: fixed_map normalization requires '
+                                 'filenames declaring their plate identity.')
+            parsed = _extract_filename_metadata(
+                [name], settings['src'], pattern, settings.get('metadata_type', 'cellvoyager'))
+            if sum(map(len, parsed.values())) != 1:
+                raise ValueError('watch_folder: fixed_map normalization cannot '
+                                 'identify every declared legacy batch stack.')
+            stems.update(_escaped_field_stem(key[0], key[1], key[2], key[4])
+                         for key in parsed)
+        if len(stems) != 1:
+            raise ValueError('watch_folder: each mapped field must identify exactly '
+                             'one legacy batch stack for fixed_map normalization.')
+        merged_filenames[field] = stems.pop() + '.npy'
+    if len(set(merged_filenames.values())) != len(merged_filenames):
+        raise ValueError('watch_folder: declared fields collide after legacy '
+                         'batch filename canonicalization.')
+    spec = {'mode': mode, 'field_order': sorted(manifest),
+            'companions': {key: sorted(manifest[key]) for key in sorted(manifest)},
+            'merged_filenames': merged_filenames,
+            'stack_order': sorted(merged_filenames.values()),
+            'batch_size': batch_size, 'conversion_map_sha256': map_sha256,
+            'mask_settings_sha256': mask_sha256,
+            'pipeline': settings.get('watch_pipeline', 'mask'),
+            'measure_settings_sha256': measure_sha256}
+    encoded = json.dumps(spec, sort_keys=True, separators=(',', ':')).encode('utf-8')
+    return {**spec, 'id': 'closed_pool_' + hashlib.sha256(encoded).hexdigest()}
+
+
+def _watch_closed_pool_inputs(src, spec):
+    """Refuse inputs outside the declared cohort instead of silently pooling them."""
+    expected = {name for names in spec['companions'].values() for name in names}
+    observed = _watch_images(src)
+    basenames = [os.path.basename(name) for name in observed]
+    if len(basenames) != len(set(basenames)) or not set(basenames) <= expected:
+        raise ValueError('watch_folder: fixed normalization pool has unexpected or '
+                         'duplicate inputs outside its exact fixed map.')
+
+
+def _watch_closed_pool_resume(context):
+    """Verify complete cohort input and output provenance before resuming writes."""
+    spec = context['normalization_pool']
+    entry = context['ledger'].get('normalization_cohorts', {}).get(spec['id'], {})
+    if entry.get('collection_checkpoint') is None:
+        if (entry.get('status') == 'done'
+                or any(context['ledger']['fields'].get(field, {}).get('status') == 'done'
+                       for field in spec['field_order'])):
+            raise ValueError('watch_folder: completed normalization cohort lacks '
+                             'its collection checkpoint; provenance is unknown.')
+        return
+    expected = {name for names in spec['companions'].values() for name in names}
+    snapshots = entry.get('snapshot_sha256', {})
+    if ({os.path.basename(name) for name in snapshots} != expected
+            or len(snapshots) != len(expected)):
+        raise ValueError('watch_folder: normalization cohort input hashes are '
+                         'incomplete; preserved results cannot be resumed.')
+    observed = set(_watch_images(context['src']))
+    for name, digest in snapshots.items():
+        path = os.path.join(context['src'], name)
+        if (name not in observed
+                or _watch_file_identity(path) != entry.get('source_identity', {}).get(name)
+                or _watch_artifact_sha256(path) != digest):
+            raise ValueError('watch_folder: normalization cohort inputs changed; '
+                             'use a separate workspace. Existing results are preserved.')
+    _watch_validate_collection(
+        os.path.join(context['work'], 'fields', spec['id']), context['work'],
+        entry['collection_checkpoint']['artifacts'], verify_staged=True)
+
+
+def _watch_closed_pool_ready(context, ready):
+    """Release the complete declared cohort once; never release a partial window."""
+    spec = context['normalization_pool']
+    _watch_closed_pool_inputs(context['src'], spec)
+    by_field = {key: (first, members, signature)
+                for first, key, members, signature in ready}
+    if set(by_field) != set(spec['field_order']):
+        return []
+    members = [member for key in spec['field_order'] for member in by_field[key][1]]
+    signature = {name: value for key in spec['field_order']
+                 for name, value in by_field[key][2].items()}
+    if (spec['id'], repr(sorted(signature.items()))) in context['tried']:
+        return []
+    return [(min(value[0] for value in by_field.values()), spec['id'], members, signature)]
+
+
+def _watch_run_closed_pool(key, members, signature, context):
+    """Collect one whole-pool checkpoint while retaining scientific field identities."""
+    spec, ledger = context['normalization_pool'], context['ledger']
+    callback = context['analyse']
+
+    def analyse_pool(directory, settings):
+        from .cancellation import checkpoint
+
+        checkpoint()
+        callback(directory, settings)
+        checkpoint()
+        _watch_closed_pool_inputs(context['src'], spec)
+        identities = ledger['normalization_cohorts'][key]['source_identity']
+        if any(_watch_file_identity(os.path.join(context['src'], name)) != identity
+               for name, identity in identities.items()):
+            raise ValueError('Closed normalization cohort inputs changed during '
+                             'analysis; outputs are not published.')
+        expected = set(spec['merged_filenames'].values())
+        merged = os.path.join(directory, 'merged')
+        if not os.path.isdir(merged) or set(_overlay_candidates(merged)) != expected:
+            raise RuntimeError('Closed normalization cohort did not produce every '
+                               'declared merged field; partial outputs are not published.')
+
+    pooled = {**context, 'analysis_entries': ledger['normalization_cohorts'],
+              'analyse': analyse_pool}
+    try:
+        _watch_run_field(key, members, signature, pooled)
+    finally:
+        unit = ledger['normalization_cohorts'][key]
+        for field in spec['field_order']:
+            names = {name for name, _channel in members
+                     if os.path.basename(name) in spec['companions'][field]}
+            entry = ledger['fields'].setdefault(field, {})
+            entry.update(normalization_cohort=key,
+                         status=unit.get('status', 'waiting'), error=unit.get('error'),
+                         files={name: signature[name] for name in names},
+                         source_identity={name: unit.get('source_identity', {}).get(name)
+                                          for name in names})
+            for timing in ('first_seen', 'stable_since', 'started', 'finished', 'seconds', 'waited'):
+                if timing in unit:
+                    entry[timing] = unit[timing]
+        _watch_save_ledger(context['ledger_path'], ledger)
+
+
 def _watch_folder_and_analyse(settings, analyse=None):
     """Watch an acquisition folder and analyse each field as it arrives.
 
@@ -2694,9 +2865,14 @@ def _watch_folder_and_analyse(settings, analyse=None):
     ``src/spacr_watch/measurements/measurements.db``. The
     ``'mask_measure_classify'`` pipeline also applies a saved CV model and
     collects its per-object predictions in that database. A mapped timelapse
-    also collects its flat track CSVs under ``src/spacr_watch/tracks``. Every field is
-    preprocessed alone, so the result equals a batch run of the same plate
-    with ``batch_size=1``.
+    also collects its flat track CSVs under ``src/spacr_watch/tracks``. The
+    default ``watch_normalization_pool='per_field'`` preprocesses fields alone,
+    matching batch normalization with ``batch_size=1``. The opt-in ``'fixed_map'``
+    waits for every declared companion before running one static projected v1
+    Mask or Mask/Measure cohort with its unchanged legacy batch size, sorted
+    stack order, shared percentiles and padding. Randomization must be off;
+    idle timeouts never release an incomplete normalization pool. One cohort
+    checkpoint binds its membership, recipes and original input hashes.
 
     ``src/spacr_watch/watch_ledger.json`` records every field with its files,
     when it arrived, started and finished, and whether it succeeded. It is
@@ -2797,10 +2973,17 @@ def _watch_folder_and_analyse(settings, analyse=None):
     if pipeline == 'mask_measure_classify':
         classify_recipe, classify_sha256, classify_model_sha256 = (
             _watch_classify_recipe(settings))
+    normalization_pool = _watch_closed_pool_spec(
+        settings, manifest, map_sha256, mask_sha256, measure_sha256)
+    if normalization_pool is not None:
+        _watch_closed_pool_inputs(src, normalization_pool)
     work = os.path.join(src, _WATCH_DIR)
     os.makedirs(work, exist_ok=True)
     ledger_path = os.path.join(work, _WATCH_LEDGER)
     ledger = _watch_load_ledger(ledger_path, src)
+    if ledger['fields'] and ledger.get('normalization_pool') != normalization_pool:
+        raise ValueError('watch_folder: normalization pool differs or its provenance '
+                         'is unknown; use a separate watch workspace.')
     if ledger['fields'] and ledger.get('pipeline') != pipeline:
         raise ValueError(
             'watch_folder: the saved pipeline differs or is unknown; use a '
@@ -2836,10 +3019,18 @@ def _watch_folder_and_analyse(settings, analyse=None):
     ledger['mask_settings_sha256'] = mask_sha256
     ledger['conversion_map_sha256'] = map_sha256
     ledger['pipeline'] = pipeline
+    if normalization_pool is not None:
+        ledger['normalization_pool'] = normalization_pool
+        cohorts = ledger.setdefault('normalization_cohorts', {})
+        if set(cohorts) - {normalization_pool['id']}:
+            raise ValueError('watch_folder: saved normalization cohort membership is unknown.')
+        cohorts.setdefault(normalization_pool['id'], {'status': 'waiting'})
+        for field in normalization_pool['field_order']:
+            ledger['fields'].setdefault(field, {'status': 'waiting',
+                                               'normalization_cohort': normalization_pool['id']})
     for entry in ledger['fields'].values():
         if entry.get('status') == 'running':
             entry['status'] = 'interrupted'
-    _watch_save_ledger(ledger_path, ledger)
     context = {'src': src, 'work': work, 'ledger': ledger,
                'ledger_path': ledger_path, 'settings': settings,
                'analyse': analyse or _watch_analyse_field, 'settle': settle,
@@ -2850,7 +3041,11 @@ def _watch_folder_and_analyse(settings, analyse=None):
                'manifest': manifest, 'map_sha256': map_sha256,
                'volume_plan': volume_plan,
                'series': series,
+               'normalization_pool': normalization_pool,
                'microscope': None}
+    if normalization_pool is not None:
+        _watch_closed_pool_resume(context)
+    _watch_save_ledger(ledger_path, ledger)
     if _watch_truthy(settings.get('microscope_feedback', False)):
         context.update(positions=_microscope_positions(settings),
                        matrix=_microscope_matrix(settings))
@@ -2874,12 +3069,24 @@ def _watch_folder_and_analyse(settings, analyse=None):
                 last_change = now
             ready, waiting = _watch_ready_fields(context, now)
             line = _watch_status_line(ledger, waiting)
+            if normalization_pool is not None:
+                ready_count = len(ready)
+                ready = _watch_closed_pool_ready(context, ready)
+                total = len(normalization_pool['field_order'])
+                if ledger['normalization_cohorts'][normalization_pool['id']].get('status') == 'done':
+                    line += f'; closed normalization cohort complete: {total}/{total} fields'
+                else:
+                    line += (f'; closed normalization cohort: {ready_count}/{total} '
+                             'fields ready; all declared fields are required before analysis')
             if line != last_line:
                 print(line)
                 last_line = line
             for _first, key, members, signature in ready:
                 checkpoint()
-                _watch_run_field(key, members, signature, context)
+                if normalization_pool is None:
+                    _watch_run_field(key, members, signature, context)
+                else:
+                    _watch_run_closed_pool(key, members, signature, context)
                 last_change = time.time()
             if ready:
                 continue
