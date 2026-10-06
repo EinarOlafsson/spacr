@@ -595,6 +595,50 @@ def test_tracker_modified_during_load_cannot_bind_stale_observations(
     assert not target.exists()
 
 
+def test_annotations_modified_during_load_cannot_pair_old_rows_with_new_digest(
+        tmp_path, monkeypatch):
+    from spacr import tabular
+
+    sequence, tracks, target = _field_files(tmp_path)
+    write_table(pd.DataFrame([{
+        "field": "field", "track_id": 7, "frame": 1,
+        "event": "mitosis", "object": "cell",
+    }]), target, canonicalise=False)
+    original = tabular.read_table
+    newer = b"field,track_id,frame,event,object\nfield,7,2,death,cell\n"
+
+    def replace_after_parse(path, **kwargs):
+        rows = original(path, **kwargs)
+        if path == str(target):
+            target.write_bytes(newer)
+        return rows
+
+    monkeypatch.setattr(tabular, "read_table", replace_after_parse)
+    with pytest.raises(ValueError, match="Annotations changed while"):
+        _annotation_field_payload(str(tracks), str(sequence), str(target))
+    assert target.read_bytes() == newer
+
+
+def test_annotation_output_cannot_alias_tracker_or_image_source(tmp_path):
+    sequence, tracks, _target = _field_files(tmp_path)
+    from spacr.tabular import read_table
+
+    original = read_table(str(tracks), canonicalise=False, report=None)
+    original["field"] = "field"
+    original["event"] = "mitosis"
+    original["object"] = "cell"
+    write_table(original, tracks, canonicalise=False)
+    tracks_before = tracks.read_bytes()
+    image_before = sequence.read_bytes()
+    tracker_alias = tmp_path / "annotations.csv"
+    tracker_alias.symlink_to(tracks)
+    for output in (tracks, tracker_alias, sequence):
+        with pytest.raises(ValueError, match="separate from"):
+            _annotation_field_payload(str(tracks), str(sequence), str(output))
+    assert tracks.read_bytes() == tracks_before
+    assert sequence.read_bytes() == image_before
+
+
 def test_prefilled_sequence_and_unopened_controls_do_not_write(qtbot, tmp_path):
     sequence, tracks, target = _field_files(tmp_path)
     dialog = _EventAnnotationDialog(sequence_path=sequence, threaded=False)
