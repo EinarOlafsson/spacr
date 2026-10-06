@@ -141,7 +141,7 @@ def test_four_plane_mapping_starts_without_a_guessed_stain(screen, alpha):
     from spacr.embeddings import EmbeddingError
     from spacr.settings import ALPHA_FEATURES
 
-    screen.set_crops(np.zeros((2, 8, 8, 5), dtype=np.float32))
+    screen.set_crops(np.zeros((2, 16, 16, 5), dtype=np.float32))
     _four_plane_screen(screen, alpha)
     assert screen._subcell_button.isEnabled()
     assert not screen._subcell_button.isHidden()
@@ -170,7 +170,7 @@ def test_four_plane_mapping_routes_reordered_raw_planes_and_preserves_origin(
     import spacr.embeddings as emb
     from types import SimpleNamespace
 
-    crops = np.zeros((2, 3, 4, 5), dtype=np.float32)
+    crops = np.zeros((2, 16, 16, 5), dtype=np.float32)
     for channel in range(5):
         crops[..., channel] = channel + 1
     screen.set_crops(crops)
@@ -225,7 +225,7 @@ def test_duplicate_or_missing_mapping_never_submits_a_job(screen, alpha,
                                                           monkeypatch):
     from PySide6.QtWidgets import QDialogButtonBox, QLabel
 
-    screen.set_crops(np.zeros((2, 8, 8, 4), dtype=np.float32))
+    screen.set_crops(np.zeros((2, 16, 16, 4), dtype=np.float32))
     _four_plane_screen(screen, alpha)
     submitted = []
     monkeypatch.setattr(screen._jobs, "submit", lambda *a: submitted.append(a))
@@ -255,11 +255,11 @@ def test_reload_keeps_only_still_valid_mapping_and_alpha_hides_only_the_control(
         screen, alpha, monkeypatch):
     from spacr.qt.preferences import _apply_alpha_widgets
 
-    screen.set_crops(np.zeros((2, 8, 8, 5), dtype=np.float32))
+    screen.set_crops(np.zeros((2, 16, 16, 5), dtype=np.float32))
     _four_plane_screen(screen, alpha)
     _save_mapping(screen, (4, 2, 0, 1))
     fingerprint = screen.spec().fingerprint()
-    screen.set_crops(np.zeros((2, 8, 8, 6), dtype=np.float32))
+    screen.set_crops(np.zeros((2, 16, 16, 6), dtype=np.float32))
     assert screen.spec().fingerprint() == fingerprint
 
     alpha["on"] = False
@@ -272,7 +272,7 @@ def test_reload_keeps_only_still_valid_mapping_and_alpha_hides_only_the_control(
     assert not screen._foundation.isHidden()
     assert not screen._subcell_button.isHidden()
 
-    screen.set_crops(np.zeros((2, 8, 8, 4), dtype=np.float32))
+    screen.set_crops(np.zeros((2, 16, 16, 4), dtype=np.float32))
     assert screen._subcell_channels is None
     submitted = []
     monkeypatch.setattr(screen._jobs, "submit", lambda *a: submitted.append(a))
@@ -333,7 +333,7 @@ def test_cancelled_mapping_disposes_its_dialog_without_changing_saved_indices(
     from PySide6.QtWidgets import QApplication, QComboBox
     from shiboken6 import isValid
 
-    screen.set_crops(np.zeros((2, 8, 8, 4), dtype=np.float32))
+    screen.set_crops(np.zeros((2, 16, 16, 4), dtype=np.float32))
     _four_plane_screen(screen, alpha)
     _save_mapping(screen, (0, 1, 2, 3))
     original = screen._subcell_channels_dialog
