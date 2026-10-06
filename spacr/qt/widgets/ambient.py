@@ -4539,6 +4539,18 @@ _PACKED_SCATTER = None
 _PACKED_SCATTER_STARTED = False
 _PACKED_SCATTER_FAILED = False
 _PACKED_SCATTER_LOCK = threading.Lock()
+_AMBIENT_STARTUP_READY = threading.Event()
+_AMBIENT_STARTUP_READY.set()
+
+
+def _begin_ambient_startup() -> None:
+    """Defer optional compiler imports until the application's first paint."""
+    _AMBIENT_STARTUP_READY.clear()
+
+
+def _complete_ambient_startup() -> None:
+    """Permit lazy CPU compilation after the actual interactive checkpoint."""
+    _AMBIENT_STARTUP_READY.set()
 
 
 def _scatter_packed_grains(flat, px, py, intensities, lookup, axial, diagonal,
@@ -4580,7 +4592,11 @@ def _warm_packed_scatter():
     Import/compiler errors and NUMBA_DISABLE_JIT leave that path active. Some
     import/compiler phases hold the GIL briefly; this is not a no-stall claim.
     """
-    global _PACKED_SCATTER, _PACKED_SCATTER_FAILED
+    global _PACKED_SCATTER, _PACKED_SCATTER_FAILED, _PACKED_SCATTER_STARTED
+    if not _AMBIENT_STARTUP_READY.is_set():
+        with _PACKED_SCATTER_LOCK:
+            _PACKED_SCATTER_STARTED = False
+        return
     try:
         from numba import njit
 
@@ -4608,6 +4624,8 @@ def _ready_packed_scatter():
     compilation occurs here, and a contended startup lock returns immediately.
     """
     global _PACKED_SCATTER_STARTED, _PACKED_SCATTER_FAILED
+    if not _AMBIENT_STARTUP_READY.is_set():
+        return _PACKED_SCATTER
     if (_PACKED_SCATTER is None and not _PACKED_SCATTER_STARTED
             and not _PACKED_SCATTER_FAILED and _PACKED_SCATTER_LOCK.acquire(blocking=False)):
         try:
@@ -4662,6 +4680,7 @@ class _WaveCopyWorker:
     """Own one bounded CPU queue without retaining completed scene arrays."""
 
     def __init__(self):
+        """Start one bounded daemon without importing any compiler packages."""
         from concurrent.futures import Future
         from queue import Queue
 
@@ -4677,6 +4696,7 @@ class _WaveCopyWorker:
         return future
 
     def _run(self):
+        """Complete or cancel each CPU job and release all submitted arrays."""
         while True:
             function, arguments, future = self._pending.get()
             try:
@@ -4694,6 +4714,7 @@ class _SatinCompiler:
     """Compile one CPU wave-copy signature once away from the GUI thread."""
 
     def __init__(self):
+        """Keep one lazy compilation attempt and a shared bounded copy worker."""
         self.kernel = None
         self.started = False
         self.failed = False
@@ -4702,6 +4723,11 @@ class _SatinCompiler:
         self.pool = None
 
     def _warm(self):
+        """Compile owned tiny arrays only after application readiness permits it."""
+        if not _AMBIENT_STARTUP_READY.is_set():
+            with self.lock:
+                self.started = False
+            return
         try:
             from numba import njit
 
@@ -4721,6 +4747,9 @@ class _SatinCompiler:
             self.failed = True
 
     def ready(self):
+        """Offer the exact fallback while startup defers compiler imports."""
+        if not _AMBIENT_STARTUP_READY.is_set():
+            return self.kernel
         if self.kernel is not None or self.started or self.failed:
             return self.kernel
         if not self.lock.acquire(blocking=False):
@@ -5937,6 +5966,7 @@ class _QueuedArtInput:
     """
 
     def __init__(self):
+        """Initialize bounded cumulative tick and click ownership counters."""
         self._serial = 0
         self._elapsed = 0.0
         self._click_serial = 0
