@@ -3,6 +3,7 @@
 import hashlib
 import json
 import os
+import shutil
 
 import numpy as np
 import pytest
@@ -84,6 +85,25 @@ def test_two_mapped_native_series_keep_their_timepoints_separate(tmp_path):
         saved = np.load(source / f'stack/plate1_{well}_1_1.npy')
         np.testing.assert_array_equal(saved[0, :, :, 0],
                                       tifffile.imread(source / first['target']))
+
+
+def test_one_selected_channel_matches_its_position_in_reordered_output(tmp_path):
+    source, _rows = _converted_series(tmp_path)
+    one_channel = tmp_path / 'one_channel'
+    shutil.copytree(source, one_channel)
+    selected, _ = io.preprocess_img_data(_settings(
+        one_channel, nucleus_channel=1, cell_channel=None))
+    reordered, _ = io.preprocess_img_data(_settings(
+        source, nucleus_channel=1, cell_channel=0))
+    assert selected['cellpose_nucleus_channel'] == 0
+    assert reordered['cellpose_nucleus_channel'] == 0
+    assert reordered['cellpose_cell_channel'] == 1
+    name = 'plate1_A01_1_norm_timelapse.npz'
+    with (np.load(one_channel / 'masks' / name, allow_pickle=False) as only,
+          np.load(source / 'masks' / name, allow_pickle=False) as both):
+        assert only['data'].shape[-1] == 1
+        assert both['data'].shape[-1] == 2
+        np.testing.assert_array_equal(only['data'][..., 0], both['data'][..., 0])
 
 
 @pytest.mark.parametrize('damage', [

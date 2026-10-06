@@ -3638,13 +3638,16 @@ def _preprocess_mapped_volume_series(settings):
                     frames.append(frame)
                     filenames.append(filename)
                 raw = np.stack(frames)
-                normalized = _normalize_img_batch(raw.copy(), selected,
-                                                  np.float32, settings)[..., selected]
+                del frames
+                normalized = _normalize_img_batch(raw, selected, np.float32, settings)
+                del raw
+                if selected != list(range(len(channel_ids))):
+                    normalized = normalized[..., selected]
                 archive_name = _escaped_field_stem(*field, '') + 'norm_timelapse.npz'
                 archive = os.path.join(stage_masks, archive_name)
                 _save_npz_atomic(archive, data=normalized, filenames=filenames)
                 archives[archive_name] = _volume_file_hash(archive)
-                del frames, raw, normalized
+                del normalized
             if (hashlib.sha256(core._watch_map_bytes(src)).hexdigest() != map_sha256
                     or any(core._watch_file_identity(os.path.join(src, name))
                            != row['identity'] or core._watch_artifact_sha256(os.path.join(src, name))
