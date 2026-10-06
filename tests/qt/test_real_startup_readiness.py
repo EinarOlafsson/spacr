@@ -135,6 +135,74 @@ def test_a_painted_but_disabled_control_is_not_interactive(
     assert seen[0]["painted_usable_controls"] == 1
 
 
+def test_readiness_callback_without_profiling_waits_for_usable_post_loop_paint(
+        qtbot, enabled_timing, monkeypatch):
+    monkeypatch.setattr(timing, "ENABLED", False)
+    root, button = _page()
+    button.setEnabled(False)
+    qtbot.addWidget(root)
+    ready = []
+    reported = []
+    timing.subscribe_readiness(reported.append)
+    probe = timing.watch_interactive(
+        root, "interactive Home", "__home__", on_ready=lambda: ready.append(True))
+    root.show()
+    qtbot.wait(30)
+    assert button.paint_count > 0
+    assert ready == []
+    QTimer.singleShot(0, timing.event_loop_started)
+    qtbot.wait(30)
+    assert ready == []
+    button.setEnabled(True)
+    root.update()
+    button.update()
+    qtbot.waitUntil(lambda: ready == [True], timeout=2000)
+    root.update()
+    qtbot.wait(20)
+    assert ready == [True]
+    assert probe.done
+    assert probe not in timing._ACTIVE_PROBES
+    assert reported == timing._READINESS == timing._MARKS == []
+
+
+def test_compiler_gate_opens_after_readiness_observers_and_the_next_loop_turn(
+        qtbot, enabled_timing):
+    from spacr.qt.app import _queue_ambient_compilation
+    from spacr.qt.widgets import ambient
+
+    root, _button = _page()
+    qtbot.addWidget(root)
+    observed = []
+    ambient._begin_ambient_startup()
+    try:
+        timing.subscribe_readiness(
+            lambda _entry: observed.append(ambient._AMBIENT_STARTUP_READY.is_set()))
+        timing.watch_interactive(
+            root, "interactive Home", "__home__",
+            on_ready=_queue_ambient_compilation)
+        root.show()
+        QTimer.singleShot(0, timing.event_loop_started)
+        qtbot.waitUntil(ambient._AMBIENT_STARTUP_READY.is_set, timeout=2000)
+        assert observed == [False]
+        assert len(timing._READINESS) == 1
+        assert timing._READINESS[0]["painted_usable_controls"] == 1
+        assert timing._ACTIVE_PROBES == []
+    finally:
+        ambient._complete_ambient_startup()
+
+
+def test_disabled_timing_without_a_callback_still_creates_no_probe(
+        qtbot, enabled_timing, monkeypatch):
+    monkeypatch.setattr(timing, "ENABLED", False)
+    root, _button = _page()
+    qtbot.addWidget(root)
+    assert timing.watch_interactive(root, "Home", "__home__") is None
+    timing.event_loop_started()
+    assert timing._ACTIVE_PROBES == []
+    assert timing._EVENT_LOOP_STARTED_AT is None
+    assert timing._READINESS == timing._MARKS == []
+
+
 @pytest.mark.parametrize("view_type", (QTableWidget, QListWidget))
 def test_item_view_update_overloads_cannot_break_readiness(
         qtbot, enabled_timing, view_type):
