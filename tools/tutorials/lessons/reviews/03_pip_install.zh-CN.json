@@ -1,13 +1,14 @@
 {
   "lesson": "03_pip_install",
-  "english_sha256": "fb556ecea7416e2a547acc5968c51d1522936d3cf3647916e693dbe10a88f49c",
+  "english_sha256": "1e150e900654ccf75aeef1b8f6004ee78ebf84c1e63b223fe627b3ed54238375",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
   },
   "language": "zh-CN",
   "title": "使用pip安装spaCR",
@@ -28,7 +29,7 @@
     "运行python 横杠 m pip check。如果它报告依赖要求冲突，请在使用该环境之前解决这些冲突。",
     "运行spacr-doctor检查安装情况，并查看缺少哪些可选功能。只针对您需要的格式或功能执行建议的修复。",
     "从已激活的环境启动spacr。首次启动时，按照设置提示选择您的偏好。",
-    "Home打开后显示Core、Data、Tools和Assays类别。继续学习Home教程，查找模块、加载示例数据并打开流程概览。",
+    "这段录像安装的是 spaCR 一点五点一点三版。已发布的版本可能显示较旧的 Home 布局。这里展示的是当前每夜开发版的 Home，包含 Core、Data、Tools 和 Assays。请继续观看主页与导航教程，了解当前的模块。",
     "要更新时，关闭spaCR并激活此环境。升级软件包，然后再次检查版本和依赖项。如果进行中的分析还需要之前的环境，请保留它。"
   ]
 }

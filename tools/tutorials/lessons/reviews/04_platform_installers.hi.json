@@ -1,14 +1,14 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+  "english_sha256": "55a13c92ca5d8ccce8e9f6b5e57747519c461faa07107477e3b649a38521315c",
   "review": {
-    "kind": "AI technical review (Codex insertion), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 original installer and Home translations retained; Codex checked reuse of unchanged Home Performance narration.",
-    "date": "2026-09-27",
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Only the Performance scene was inserted before the Home handoff; all original ten scene translations and lesson metadata preserved."
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
   },
   "language": "hi",
   "title": "डेस्कटॉप इंस्टॉलर से spaCR इंस्टॉल करें",
@@ -27,9 +27,9 @@
     "सेटअप के बाद इंस्टॉलेशन प्रोफ़ाइल चुना गया बैकएंड दर्ज करती है। जब पुष्टि करनी हो कि रनटाइम CPU इस्तेमाल करता है या कोई समर्थित एक्सेलरेटर, तो इसे देखें।",
     "इंस्टॉल हुए spaCR का संस्करण जाँचें। इसे अपने विश्लेषण नोट्स के साथ रखें, खासकर जब आप बाद में ऐप्लिकेशन अपडेट करें।",
     "सेटअप वैकल्पिक डायग्नॉस्टिक साझा करने और खाता सेटअप के बारे में पूछता है। केवल उन्हीं विकल्पों के लिए y लिखें जो आप चाहते हैं; डिफ़ॉल्ट n हर विकल्प को बंद रखता है। Windows इंस्टॉलर यही विकल्प चेकबॉक्स के रूप में दिखाता है।",
-    "Preferences में अपने कंप्यूटर के लिए कोई Performance प्रोफ़ाइल चुनें। Laptop कम संसाधन इस्तेमाल करता है; ऊँची प्रोफ़ाइल ज़्यादा कैशिंग और पृष्ठभूमि का काम करने देती हैं। अगर मेमोरी सीमित है, तो साधारण प्रोफ़ाइल से शुरू करें। हर मॉड्यूल में आपकी विश्लेषण सेटिंग आपके ही नियंत्रण में रहती हैं।",
-    "Home खुलने पर Home ट्यूटोरियल पर आगे बढ़ें। वह दिखाता है कि मॉड्यूल कैसे खोलें, परीक्षण डेटा कैसे खोजें और अपने प्रयोग के लिए पाइपलाइन कैसे चुनें।",
-    "अगर ऐप्लिकेशन शुरू होने में या किसी फ़ाइल फ़ॉर्मैट में दिक्कत हो, तो इंस्टॉल हुए रनटाइम से spacr-doctor चलाएँ। यह हर जाँच को सुझाए गए सुधार के साथ दिखाता है। इस केवल CPU वाले इंस्टॉलेशन पर GPU जाँच उम्मीद के मुताबिक विफल होती है, और PATH जाँच इंस्टॉलर के अपने spacr लॉन्चर को चिह्नित करती है, जो इसी रनटाइम को शुरू करता है, इसलिए यहाँ दोनों में कोई बदलाव ज़रूरी नहीं।",
+    "वर्तमान nightly इंटरफ़ेस में Preferences खोलें और Performance चुनें। अपने कंप्यूटर के लिए प्रोफ़ाइल चुनें। Laptop कम संसाधन इस्तेमाल करता है; ऊँची प्रोफ़ाइल अधिक कैश और पृष्ठभूमि कार्य की अनुमति देती हैं। मेमोरी सीमित हो तो कम संसाधन वाली प्रोफ़ाइल से शुरू करें।",
+    "इस रिकॉर्डिंग में spaCR का संस्करण एक दशमलव पाँच दशमलव एक दशमलव तीन स्थापित किया जाता है। जारी किए गए संस्करणों में Home का पुराना लेआउट दिख सकता है। यहाँ वर्तमान nightly बिल्ड का Home दिखाया गया है, जिसमें Core, Data, Tools और Assays हैं। वर्तमान मॉड्यूल जानने के लिए Home screen and navigation देखें।",
+    "स्टार्टअप या किसी फ़ाइल फ़ॉर्मेट में समस्या हो तो स्थापित रनटाइम से spacr-doctor चलाएँ। इस रिकॉर्ड की गई CPU स्थापना में बैकएंड की जाँच सफल होती है और GPU की जाँच छोड़ दी जाती है। चेतावनी बताती है कि वैकल्पिक CZI रीडर मौजूद नहीं है; यह अतिरिक्त पैकेज तभी स्थापित करें जब आपको CZI फ़ाइलें पढ़नी हों।",
     "इंस्टॉलेशन की समस्याओं के लिए इंस्टॉलेशन फ़ोल्डर में install डॉट log और install-profile डॉट json खोजें। सहायता अनुरोध के साथ साझा करने से पहले लॉग की समीक्षा करें। अपना ऑपरेटिंग सिस्टम और spaCR संस्करण भी बताएँ, ताकि समस्या का निदान आसान हो।"
   ]
 }

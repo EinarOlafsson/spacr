@@ -1,13 +1,14 @@
 {
   "lesson": "03_pip_install",
-  "english_sha256": "fb556ecea7416e2a547acc5968c51d1522936d3cf3647916e693dbe10a88f49c",
+  "english_sha256": "1e150e900654ccf75aeef1b8f6004ee78ebf84c1e63b223fe627b3ed54238375",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
   },
   "language": "fr",
   "title": "Installer spaCR avec pip",
@@ -28,7 +29,7 @@
     "Exécutez python tiret m pip check. S’il signale des dépendances en conflit, résolvez ces conflits avant d’utiliser l’environnement.",
     "Exécutez spacr-doctor pour inspecter l’installation et repérer les fonctions optionnelles manquantes. N’appliquez la réparation suggérée que pour les formats ou les capacités dont vous avez besoin.",
     "Lancez spacr depuis l’environnement activé. Au premier lancement, suivez les invites de configuration et choisissez vos préférences.",
-    "Home s’ouvre avec les catégories Core, Data, Tools et Assays. Poursuivez avec le tutoriel Home pour trouver un module, charger des données d’exemple et ouvrir une vue d’ensemble d’un pipeline.",
+    "Cet enregistrement installe spaCR version un point cinq point un point trois. Les versions publiées peuvent présenter une ancienne disposition de Home. Voici Home dans la version nightly actuelle, avec Core, Data, Tools et Assays. Poursuivez avec Home screen and navigation pour découvrir les modules actuels.",
     "Pour mettre à jour, fermez spaCR et activez cet environnement. Mettez le paquet à jour, puis vérifiez de nouveau sa version et ses dépendances. Conservez l’environnement précédent si vous en avez besoin pour une analyse en cours."
   ]
 }

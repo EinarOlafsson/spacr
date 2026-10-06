@@ -1,13 +1,14 @@
 {
   "lesson": "03_pip_install",
-  "english_sha256": "fb556ecea7416e2a547acc5968c51d1522936d3cf3647916e693dbe10a88f49c",
+  "english_sha256": "1e150e900654ccf75aeef1b8f6004ee78ebf84c1e63b223fe627b3ed54238375",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
   },
   "language": "it",
   "title": "Installare spaCR con pip",
@@ -28,7 +29,7 @@
     "Esegui python trattino m pip check. Se segnala requisiti in conflitto, risolvi quei conflitti prima di usare l’ambiente.",
     "Esegui spacr-doctor per esaminare l’installazione e vedere eventuali funzioni opzionali mancanti. Applica la riparazione suggerita solo per i formati o le funzionalità che ti servono.",
     "Avvia spacr dall’ambiente attivato. Al primo avvio, segui le richieste di configurazione e scegli le tue preferenze.",
-    "Home si apre con le categorie Core, Data, Tools e Assays. Continua con il tutorial di Home per trovare un modulo, caricare dati di esempio e aprire la panoramica di una pipeline.",
+    "Questa registrazione installa spaCR versione uno punto cinque punto uno punto tre. Le versioni pubblicate possono mostrare una disposizione precedente di Home. Qui si vede Home nella versione nightly attuale, con Core, Data, Tools e Assays. Prosegui con Home screen and navigation per conoscere i moduli attuali.",
     "Per aggiornare, chiudi spaCR e attiva questo ambiente. Aggiorna il pacchetto, poi controlla di nuovo versione e dipendenze. Conserva l’ambiente precedente se ti serve per un’analisi in corso."
   ]
 }

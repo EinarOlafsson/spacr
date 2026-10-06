@@ -1,14 +1,14 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+  "english_sha256": "55a13c92ca5d8ccce8e9f6b5e57747519c461faa07107477e3b649a38521315c",
   "review": {
-    "kind": "AI technical review (Codex insertion), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 original installer and Home translations retained; Codex checked reuse of unchanged Home Performance narration.",
-    "date": "2026-09-27",
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Only the Performance scene was inserted before the Home handoff; all original ten scene translations and lesson metadata preserved."
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
   },
   "language": "ja",
   "title": "デスクトップインストーラーでspaCRをインストールする",
@@ -27,9 +27,9 @@
     "セットアップ後、インストールプロファイルに選択されたバックエンドが記録されます。ランタイムがCPUと対応アクセラレーターのどちらを使っているか確かめたいときに確認します。",
     "インストールされたspaCRのバージョンを確認します。特に後でアプリケーションを更新するときのために、解析メモに残しておきましょう。",
     "セットアップでは、診断情報の任意の共有とアカウント設定について尋ねられます。希望するオプションにだけyと答えます。既定のnでは、それぞれがオフのままになります。Windowsのインストーラーでは、同じ選択肢がチェックボックスで表示されます。",
-    "Preferencesで、お使いのコンピューターに合ったPerformanceプロファイルを選びます。Laptopは使用するリソースが少なく、上位のプロファイルほどキャッシュやバックグラウンド処理を多く使えます。メモリが限られている場合は、控えめなプロファイルから始めましょう。解析の設定は、各モジュールで引き続き自分で管理できます。",
-    "Homeが開いたら、Homeのチュートリアルに進みます。モジュールの開き方、テストデータの見つけ方、実験に合ったパイプラインの選び方を説明しています。",
-    "起動やファイル形式に問題がある場合は、インストールされたランタイムからspacr-doctorを実行します。各チェックが修正案とともに一覧表示されます。このCPUのみのインストールでは、GPUのチェックは想定どおり失敗します。PATHのチェックはインストーラー自身のspacrランチャーを指摘しますが、これは同じランタイムを起動するものなので、ここではどちらも変更は不要です。",
+    "現在のナイトリー版の画面でPreferencesを開き、Performanceを選びます。お使いのコンピューターに合うプロファイルを選んでください。Laptopは使うリソースが少なく、上位のプロファイルではキャッシュとバックグラウンド処理をより多く使えます。メモリが限られている場合は、控えめなプロファイルから始めましょう。",
+    "この録画では、spaCRのバージョン一・五・一・三をインストールしています。公開済みのバージョンでは、Homeの配置が古い場合があります。ここに示すのは現在のナイトリービルドのHomeで、Core、Data、Tools、Assaysがあります。現在のモジュールについては、ホーム画面とナビゲーションのチュートリアルに進んでください。",
+    "起動やファイル形式に問題があれば、インストールされたランタイムからspacr-doctorを実行します。この録画のCPUインストールでは、バックエンドのチェックは合格し、GPUのチェックはスキップされています。警告は、オプションのCZIリーダーがないことを示しています。CZIファイルが必要な場合だけ、この追加パッケージをインストールしてください。",
     "インストールで問題が起きたときは、インストールフォルダーにあるinstall ドット logとinstall-profile ドット jsonを探します。サポートを依頼する際に共有する前に、ログの内容を確認してください。問題を診断しやすいように、OSとspaCRのバージョンも添えましょう。"
   ]
 }

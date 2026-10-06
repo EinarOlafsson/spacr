@@ -1,13 +1,14 @@
 {
   "lesson": "03_pip_install",
-  "english_sha256": "fb556ecea7416e2a547acc5968c51d1522936d3cf3647916e693dbe10a88f49c",
+  "english_sha256": "1e150e900654ccf75aeef1b8f6004ee78ebf84c1e63b223fe627b3ed54238375",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
   },
   "language": "hi",
   "title": "pip से spaCR इंस्टॉल करें",
@@ -28,7 +29,7 @@
     "python डैश m pip check चलाएँ। अगर यह परस्पर विरोधी आवश्यकताएँ बताता है, तो परिवेश इस्तेमाल करने से पहले उन टकरावों को सुलझाएँ।",
     "इंस्टॉलेशन जाँचने और छूटी हुई वैकल्पिक सुविधाएँ देखने के लिए spacr-doctor चलाएँ। सुझाया गया सुधार केवल उन्हीं फ़ॉर्मैट या क्षमताओं के लिए अपनाएँ जिनकी आपको ज़रूरत है।",
     "सक्रिय परिवेश से spacr शुरू करें। पहली बार शुरू होने पर सेटअप के निर्देशों का पालन करें और अपनी पसंद चुनें।",
-    "Home, Core, Data, Tools और Assays श्रेणियों के साथ खुलता है। कोई मॉड्यूल खोजने, उदाहरण डेटा लोड करने और किसी पाइपलाइन का अवलोकन खोलने के लिए Home ट्यूटोरियल पर आगे बढ़ें।",
+    "इस रिकॉर्डिंग में spaCR का संस्करण एक दशमलव पाँच दशमलव एक दशमलव तीन स्थापित किया जाता है। जारी किए गए संस्करणों में Home का पुराना लेआउट दिख सकता है। यहाँ वर्तमान nightly बिल्ड का Home दिखाया गया है, जिसमें Core, Data, Tools और Assays हैं। वर्तमान मॉड्यूल जानने के लिए Home screen and navigation देखें।",
     "अपडेट करने के लिए spaCR बंद करें और यह परिवेश सक्रिय करें। पैकेज अपग्रेड करें, फिर उसका संस्करण और निर्भरताएँ दोबारा जाँचें। अगर किसी चल रहे विश्लेषण के लिए पिछला परिवेश चाहिए, तो उसे रहने दें।"
   ]
 }

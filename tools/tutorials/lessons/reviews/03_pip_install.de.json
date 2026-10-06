@@ -1,13 +1,14 @@
 {
   "lesson": "03_pip_install",
-  "english_sha256": "fb556ecea7416e2a547acc5968c51d1522936d3cf3647916e693dbe10a88f49c",
+  "english_sha256": "1e150e900654ccf75aeef1b8f6004ee78ebf84c1e63b223fe627b3ed54238375",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
   },
   "language": "de",
   "title": "spaCR mit pip installieren",
@@ -28,7 +29,7 @@
     "Führen Sie python -m pip check aus. Meldet es widersprüchliche Anforderungen, lösen Sie diese Konflikte, bevor Sie die Umgebung verwenden.",
     "Führen Sie spacr-doctor aus, um die Installation zu prüfen und fehlende optionale Funktionen zu sehen. Folgen Sie der vorgeschlagenen Reparatur nur für die Formate oder Fähigkeiten, die Sie benötigen.",
     "Starten Sie spacr aus der aktivierten Umgebung. Folgen Sie beim ersten Start den Einrichtungsaufforderungen und wählen Sie Ihre Einstellungen.",
-    "Home öffnet sich mit den Kategorien Core, Data, Tools und Assays. Fahren Sie mit dem Home-Tutorial fort, um ein Modul zu finden, Beispieldaten zu laden und eine Pipeline-Übersicht zu öffnen.",
+    "Diese Aufnahme installiert spaCR Version eins Punkt fünf Punkt eins Punkt drei. Veröffentlichte Versionen können ein älteres Home-Layout zeigen. Hier sehen Sie Home im aktuellen Nightly-Build mit Core, Data, Tools und Assays. Die aktuellen Module erklärt Home screen and navigation.",
     "Zum Aktualisieren schließen Sie spaCR und aktivieren diese Umgebung. Aktualisieren Sie das Paket und prüfen Sie dann Version und Abhängigkeiten erneut. Behalten Sie die vorherige Umgebung, wenn Sie sie für eine laufende Analyse brauchen."
   ]
 }

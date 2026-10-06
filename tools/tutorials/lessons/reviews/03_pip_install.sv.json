@@ -1,13 +1,14 @@
 {
   "lesson": "03_pip_install",
-  "english_sha256": "fb556ecea7416e2a547acc5968c51d1522936d3cf3647916e693dbe10a88f49c",
+  "english_sha256": "1e150e900654ccf75aeef1b8f6004ee78ebf84c1e63b223fe627b3ed54238375",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
   },
   "language": "sv",
   "title": "Installera spaCR med pip",
@@ -28,7 +29,7 @@
     "Kör python -m pip check. Om det rapporterar motstridiga krav ska du lösa dem innan du använder miljön.",
     "Kör spacr-doctor för att granska installationen och se eventuella saknade valfria funktioner. Följ den föreslagna reparationen bara för de format eller funktioner du behöver.",
     "Starta spacr från den aktiverade miljön. Vid första starten följer du installationsanvisningarna och väljer dina inställningar.",
-    "Home öppnas med kategorierna Core, Data, Tools och Assays. Fortsätt med Home-handledningen för att hitta en modul, läsa in exempeldata och öppna en pipelineöversikt.",
+    "Den här inspelningen installerar spaCR version ett punkt fem punkt ett punkt tre. Publicerade versioner kan visa en äldre Home-layout. Här visas Home i den aktuella nightly-versionen, med Core, Data, Tools och Assays. Fortsätt till Home screen and navigation för de aktuella modulerna.",
     "För att uppdatera stänger du spaCR och aktiverar den här miljön. Uppgradera paketet och kontrollera sedan version och beroenden igen. Behåll den tidigare miljön om du behöver den för en pågående analys."
   ]
 }

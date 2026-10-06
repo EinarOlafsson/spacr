@@ -60,18 +60,12 @@
       "hold_after": 0.7
     },
     {
-      "visual": "06_installed_home",
-      "narration": "Home opens with the Core, Data, Tools and Assays categories. Continue to the Home tutorial to find a module, load example data and open a pipeline overview.",
+      "visual": "13_current_nightly_home",
+      "narration": "This recording installs spaCR version one point five point one point three. Released builds can show an older Home layout. Here is Home in the current nightly build, with Core, Data, Tools and Assays. Continue to Home screen and navigation for the current modules.",
       "related_lessons": [
         "05_home"
       ],
-      "hold_after": 0.7,
-      "focus": [
-        48,
-        318,
-        2712,
-        1332
-      ]
+      "hold_after": 0.7
     },
     {
       "visual": "11_update_intentionally",

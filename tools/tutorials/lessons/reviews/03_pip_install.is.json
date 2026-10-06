@@ -1,13 +1,14 @@
 {
   "lesson": "03_pip_install",
-  "english_sha256": "fb556ecea7416e2a547acc5968c51d1522936d3cf3647916e693dbe10a88f49c",
+  "english_sha256": "1e150e900654ccf75aeef1b8f6004ee78ebf84c1e63b223fe627b3ed54238375",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
   },
   "language": "is",
   "title": "Settu upp spaCR með pip",
@@ -28,7 +29,7 @@
     "Keyrðu python -m pip check. Ef það tilkynnir um kröfur sem stangast á skaltu leysa þá árekstra áður en þú notar umhverfið.",
     "Keyrðu spacr-doctor til að skoða uppsetninguna og sjá hvort valfrjálsa eiginleika vanti. Fylgdu ráðlagðri lagfæringu aðeins fyrir þau snið eða eiginleika sem þú þarft.",
     "Ræstu spacr úr virka umhverfinu. Við fyrstu ræsingu fylgirðu uppsetningarleiðbeiningunum og velur stillingarnar þínar.",
-    "Home opnast með flokkunum Core, Data, Tools og Assays. Haltu áfram með Home-kennsluna til að finna einingu, hlaða inn sýnigögnum og opna yfirlit yfir greiningarferli.",
+    "Þessi upptaka setur upp spaCR útgáfu eitt punktur fimm punktur eitt punktur þrjú. Útgefnar útgáfur geta sýnt eldra Home-skipulag. Hér sést Home í núverandi nightly-útgáfu, með Core, Data, Tools og Assays. Haltu áfram í Home screen and navigation til að kynnast núverandi einingum.",
     "Til að uppfæra lokarðu spaCR og virkjar þetta umhverfi. Uppfærðu pakkann og athugaðu svo útgáfuna og pakkana sem hann þarfnast aftur. Haltu fyrra umhverfinu ef þú þarft það fyrir greiningu sem er í gangi."
   ]
 }

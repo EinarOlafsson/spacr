@@ -1,14 +1,14 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+  "english_sha256": "55a13c92ca5d8ccce8e9f6b5e57747519c461faa07107477e3b649a38521315c",
   "review": {
-    "kind": "AI technical review (Codex insertion), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 original installer and Home translations retained; Codex checked reuse of unchanged Home Performance narration.",
-    "date": "2026-09-27",
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Only the Performance scene was inserted before the Home handoff; all original ten scene translations and lesson metadata preserved."
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
   },
   "language": "fr",
   "title": "Installer spaCR avec un installateur de bureau",
@@ -27,9 +27,9 @@
     "Après la configuration, le profil d’installation enregistre le backend sélectionné. Consultez-le lorsque vous voulez savoir si l’environnement d’exécution utilise le CPU ou un accélérateur compatible.",
     "Vérifiez la version installée de spaCR. Conservez-la avec vos notes d’analyse, surtout lorsque vous mettrez l’application à jour plus tard.",
     "La configuration propose le partage facultatif de diagnostics et la création d’un compte. Répondez y uniquement pour les options souhaitées ; n, la valeur par défaut, laisse chacune désactivée. L’installateur Windows présente les mêmes choix sous forme de cases à cocher.",
-    "Dans Preferences, choisissez un profil Performance adapté à votre ordinateur. Laptop utilise moins de ressources ; les profils plus élevés permettent davantage de cache et de travail en arrière-plan. Commencez par un profil modeste si la mémoire est limitée. Les paramètres de vos analyses restent sous votre contrôle dans chaque module.",
-    "Lorsque Home s’ouvre, poursuivez avec le tutoriel Home. Il montre comment ouvrir un module, trouver des données de test et choisir un pipeline pour votre expérience.",
-    "Si le démarrage ou un format de fichier pose problème, exécutez spacr-doctor depuis l’environnement installé. Il liste chaque vérification avec une correction suggérée. Sur cette installation CPU seul, la vérification GPU échoue comme prévu, et la vérification du PATH signale le lanceur spacr propre à l’installateur, qui démarre ce même environnement ; aucune des deux ne demande de changement ici.",
+    "Dans l’interface nightly actuelle, ouvrez Preferences et choisissez Performance. Sélectionnez un profil adapté à votre ordinateur. Laptop utilise moins de ressources ; les profils supérieurs autorisent davantage de cache et de travail en arrière-plan. Commencez par un profil modéré si la mémoire est limitée.",
+    "Cet enregistrement installe spaCR version un point cinq point un point trois. Les versions publiées peuvent présenter une ancienne disposition de Home. Voici Home dans la version nightly actuelle, avec Core, Data, Tools et Assays. Poursuivez avec Home screen and navigation pour découvrir les modules actuels.",
+    "Exécutez spacr-doctor depuis l’environnement installé si le démarrage ou un format de fichier pose problème. Dans cette installation CPU enregistrée, la vérification du backend réussit et le test GPU est ignoré. L’avertissement indique que le lecteur CZI facultatif manque ; installez cet extra uniquement si vous avez besoin de fichiers CZI.",
     "En cas de problème d’installation, cherchez install point log et install-profile point json dans le dossier d’installation. Relisez les journaux avant de les joindre à une demande d’assistance. Indiquez votre système d’exploitation et votre version de spaCR pour faciliter le diagnostic."
   ]
 }

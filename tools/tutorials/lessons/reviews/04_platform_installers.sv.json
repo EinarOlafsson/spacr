@@ -1,14 +1,14 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+  "english_sha256": "55a13c92ca5d8ccce8e9f6b5e57747519c461faa07107477e3b649a38521315c",
   "review": {
-    "kind": "AI technical review (Codex insertion), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 original installer and Home translations retained; Codex checked reuse of unchanged Home Performance narration.",
-    "date": "2026-09-27",
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Only the Performance scene was inserted before the Home handoff; all original ten scene translations and lesson metadata preserved."
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
   },
   "language": "sv",
   "title": "Installera spaCR med ett installationsprogram",
@@ -27,9 +27,9 @@
     "Efter installationen registrerar installationsprofilen den valda backenden. Titta där när du vill bekräfta om körmiljön använder CPU:n eller en accelerator som stöds.",
     "Kontrollera den installerade spaCR-versionen. Spara den med dina analysanteckningar, särskilt när du uppdaterar programmet senare.",
     "Installationen frågar om valfri delning av diagnostik och om kontokonfiguration. Svara y bara för de alternativ du vill ha; n, standardvalet, håller varje alternativ avstängt. Installationsprogrammet för Windows visar samma val som kryssrutor.",
-    "I Preferences väljer du en Performance-profil för din dator. Laptop använder mindre resurser; de högre profilerna tillåter mer cachning och bakgrundsarbete. Börja med en måttlig profil om minnet är begränsat. Dina analysinställningar förblir under din kontroll i varje modul.",
-    "När Home öppnas fortsätter du med Home-handledningen. Den visar hur du öppnar en modul, hittar testdata och väljer en pipeline för ditt experiment.",
-    "Om starten eller ett filformat behöver åtgärdas kör du spacr-doctor från den installerade körmiljön. Det listar varje kontroll med en föreslagen åtgärd. I den här installationen med enbart CPU misslyckas GPU-kontrollen som väntat, och PATH-kontrollen flaggar installationsprogrammets egen spacr-startare, som startar samma körmiljö, så ingen av dem behöver ändras här.",
+    "Öppna Preferences i det aktuella nightly-gränssnittet och välj Performance. Välj en profil för din dator. Laptop använder färre resurser; högre profiler tillåter mer cache och bakgrundsarbete. Börja med en måttlig profil om minnet är begränsat.",
+    "Den här inspelningen installerar spaCR version ett punkt fem punkt ett punkt tre. Publicerade versioner kan visa en äldre Home-layout. Här visas Home i den aktuella nightly-versionen, med Core, Data, Tools och Assays. Fortsätt till Home screen and navigation för de aktuella modulerna.",
+    "Kör spacr-doctor från den installerade körmiljön om uppstart eller ett filformat behöver åtgärdas. I den här inspelade CPU-installationen godkänns backend-kontrollen och GPU-kontrollen hoppas över. Varningen säger att den valfria CZI-läsaren saknas; installera bara det tillägget om du behöver CZI-filer.",
     "Vid installationsproblem hittar du install.log och install-profile.json i installationskatalogen. Granska loggarna innan du delar dem i en supportbegäran. Ange ditt operativsystem och din spaCR-version så att problemet blir lättare att felsöka."
   ]
 }

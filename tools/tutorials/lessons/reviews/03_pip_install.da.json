@@ -1,13 +1,14 @@
 {
   "lesson": "03_pip_install",
-  "english_sha256": "fb556ecea7416e2a547acc5968c51d1522936d3cf3647916e693dbe10a88f49c",
+  "english_sha256": "1e150e900654ccf75aeef1b8f6004ee78ebf84c1e63b223fe627b3ed54238375",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
   },
   "language": "da",
   "title": "Installer spaCR med pip",
@@ -28,7 +29,7 @@
     "Kør python -m pip check. Hvis den rapporterer modstridende krav, skal du løse konflikterne, før du bruger miljøet.",
     "Kør spacr-doctor for at undersøge installationen og se eventuelle manglende valgfrie funktioner. Følg kun den foreslåede reparation for de formater eller funktioner, du har brug for.",
     "Start spacr fra det aktiverede miljø. Ved første opstart følger du opsætningsvejledningen og vælger dine indstillinger.",
-    "Home åbner med kategorierne Core, Data, Tools og Assays. Fortsæt med Home-vejledningen for at finde et modul, indlæse eksempeldata og åbne en pipelineoversigt.",
+    "Denne optagelse installerer spaCR version et punkt fem punkt et punkt tre. Udgivne versioner kan vise et ældre Home-layout. Her vises Home i den aktuelle nightly-version med Core, Data, Tools og Assays. Fortsæt med Home screen and navigation for de aktuelle moduler.",
     "For at opdatere lukker du spaCR og aktiverer dette miljø. Opgrader pakken, og kontrollér derefter version og afhængigheder igen. Behold det tidligere miljø, hvis du har brug for det til en igangværende analyse."
   ]
 }

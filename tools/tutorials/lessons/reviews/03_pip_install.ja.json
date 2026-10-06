@@ -1,13 +1,14 @@
 {
   "lesson": "03_pip_install",
-  "english_sha256": "fb556ecea7416e2a547acc5968c51d1522936d3cf3647916e693dbe10a88f49c",
+  "english_sha256": "1e150e900654ccf75aeef1b8f6004ee78ebf84c1e63b223fe627b3ed54238375",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
   },
   "language": "ja",
   "title": "pipでspaCRをインストールする",
@@ -28,7 +29,7 @@
     "python ダッシュ m pip checkを実行します。要件の競合が報告された場合は、環境を使う前にそれを解消してください。",
     "spacr-doctorを実行してインストールを調べ、不足しているオプション機能を確認します。提案された修復は、必要な形式や機能に関するものだけに従ってください。",
     "有効にした環境からspacrを起動します。初回起動時は、セットアップの案内に従って設定を選びます。",
-    "HomeはCore、Data、Tools、Assaysのカテゴリーとともに開きます。Homeのチュートリアルに進み、モジュールを探し、例データを読み込み、パイプラインの概要を開きましょう。",
+    "この録画では、spaCRのバージョン一・五・一・三をインストールしています。公開済みのバージョンでは、Homeの配置が古い場合があります。ここに示すのは現在のナイトリービルドのHomeで、Core、Data、Tools、Assaysがあります。現在のモジュールについては、ホーム画面とナビゲーションのチュートリアルに進んでください。",
     "更新するときは、spaCRを閉じてこの環境を有効にします。パッケージをアップグレードしてから、バージョンと依存関係をもう一度確認します。進行中の解析に必要な場合は、以前の環境を残しておいてください。"
   ]
 }

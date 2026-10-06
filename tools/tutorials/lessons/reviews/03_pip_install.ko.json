@@ -1,13 +1,14 @@
 {
   "lesson": "03_pip_install",
-  "english_sha256": "fb556ecea7416e2a547acc5968c51d1522936d3cf3647916e693dbe10a88f49c",
+  "english_sha256": "1e150e900654ccf75aeef1b8f6004ee78ebf84c1e63b223fe627b3ed54238375",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
   },
   "language": "ko",
   "title": "pip으로 spaCR 설치하기",
@@ -28,7 +29,7 @@
     "python -m pip check를 실행하세요. 요구 사항 충돌이 보고되면 환경을 사용하기 전에 그 충돌을 해결하세요.",
     "spacr-doctor를 실행해 설치 상태를 점검하고 빠진 선택 기능이 있는지 확인하세요. 제안된 복구는 필요한 형식이나 기능에 해당할 때만 따르세요.",
     "활성화한 환경에서 spacr를 실행하세요. 처음 실행할 때는 설정 안내에 따라 원하는 항목을 선택하세요.",
-    "Home은 Core, Data, Tools, Assays 범주와 함께 열립니다. Home 튜토리얼로 넘어가 모듈을 찾고, 예제 데이터를 불러오고, 파이프라인 개요를 여세요.",
+    "이 녹화에서는 spaCR 버전 일 점 오 점 일 점 삼을 설치합니다. 정식 배포 버전에는 이전 Home 배치가 표시될 수 있습니다. 여기에는 Core, Data, Tools, Assays가 있는 현재 nightly 빌드의 Home이 표시됩니다. 현재 모듈은 홈 화면과 탐색 튜토리얼에서 확인하세요.",
     "업데이트하려면 spaCR을 닫고 이 환경을 활성화하세요. 패키지를 업그레이드한 뒤 버전과 의존성을 다시 확인하세요. 진행 중인 분석에 이전 환경이 필요하다면 그대로 두세요."
   ]
 }

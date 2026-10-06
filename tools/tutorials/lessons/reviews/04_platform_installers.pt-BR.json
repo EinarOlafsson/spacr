@@ -1,14 +1,14 @@
 {
   "lesson": "04_platform_installers",
-  "english_sha256": "5733777916561df1997773e74a43ef023771a98798aa3d7a9fb2be87e92b4f63",
+  "english_sha256": "55a13c92ca5d8ccce8e9f6b5e57747519c461faa07107477e3b649a38521315c",
   "review": {
-    "kind": "AI technical review (Codex insertion), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 original installer and Home translations retained; Codex checked reuse of unchanged Home Performance narration.",
-    "date": "2026-09-27",
+    "kind": "AI technical review of current source/capture changes; existing unchanged scene prose retained",
+    "translator": "Codex AI, explicit direct translations of current English changes",
+    "date": "2026-10-06",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false,
-    "scope": "Only the Performance scene was inserted before the Home handoff; all original ten scene translations and lesson metadata preserved."
+    "scope": "Public-version/current-nightly distinction; current Performance and actual doctor result where applicable"
   },
   "language": "pt-BR",
   "title": "Instalar o spaCR com um instalador de desktop",
@@ -27,9 +27,9 @@
     "Depois da configuração, o perfil de instalação registra o backend selecionado. Consulte-o quando quiser confirmar se o runtime usa a CPU ou um acelerador compatível.",
     "Confira a versão instalada do spaCR. Guarde-a com suas anotações de análise, principalmente quando atualizar o aplicativo mais tarde.",
     "A configuração pergunta sobre o compartilhamento opcional de diagnósticos e a configuração de conta. Responda y apenas para as opções que você quer; n, o padrão, mantém cada uma desativada. O instalador do Windows mostra as mesmas escolhas como caixas de seleção.",
-    "Em Preferences, escolha um perfil de Performance para o seu computador. Laptop usa menos recursos; os perfis mais altos permitem mais cache e mais trabalho em segundo plano. Comece com um perfil modesto se a memória for limitada. As configurações das suas análises continuam sob o seu controle em cada módulo.",
-    "Quando a tela Home abrir, continue com o tutorial de Home. Ele mostra como abrir um módulo, encontrar dados de teste e escolher um pipeline para o seu experimento.",
-    "Se a inicialização ou um formato de arquivo precisar de atenção, execute o spacr-doctor a partir do runtime instalado. Ele lista cada verificação com uma correção sugerida. Nesta instalação só com CPU, a verificação de GPU falha como esperado, e a verificação do PATH aponta o próprio inicializador spacr do instalador, que abre este mesmo runtime; por isso nenhuma das duas exige mudança aqui.",
+    "Na interface nightly atual, abra Preferences e escolha Performance. Selecione um perfil para o seu computador. Laptop usa menos recursos; os perfis superiores permitem mais cache e trabalho em segundo plano. Comece com um perfil moderado se houver pouca memória.",
+    "Esta gravação instala o spaCR versão um ponto cinco ponto um ponto três. As versões publicadas podem mostrar um layout anterior de Home. Aqui é mostrado Home na versão nightly atual, com Core, Data, Tools e Assays. Continue em Home screen and navigation para conhecer os módulos atuais.",
+    "Execute spacr-doctor a partir do ambiente instalado se a inicialização ou um formato de arquivo precisar de atenção. Nesta instalação de CPU gravada, a verificação do backend passa e a verificação da GPU é ignorada. O aviso informa que o leitor CZI opcional está ausente; instale esse extra apenas se precisar de arquivos CZI.",
     "Em caso de problemas de instalação, procure install ponto log e install-profile ponto json na pasta de instalação. Revise os logs antes de compartilhá-los em um pedido de suporte. Informe seu sistema operacional e a versão do spaCR para facilitar o diagnóstico do problema."
   ]
 }
