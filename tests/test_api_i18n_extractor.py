@@ -1352,7 +1352,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # (tools/nested_helper_docs.ENABLED_MODULES); all 13,071 prior symbols unchanged.
     # 2026-10-04 566 (a71b646a7): +1/-0, the documented nested helper
     # spacr.measure._pin_cupy_cudart_headers._pinned; all 13,175 prior unchanged.
-    expected = 13_177
+    # Item 662: +4 public mask_engine YOLO helpers, no removals.
+    # All 13,177 prior English records preserved; 662_yolo_support receipt.
+    expected = 13_181
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1399,7 +1401,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,816 -> 11,834 with `expected` above.
     # 11,865 -> 11,929 with `expected` above, for item 593's 64.
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 13_177
+    # Item 662: +4 public mask_engine YOLO helpers, no removals.
+    # All 13,177 prior English records preserved; 662_yolo_support receipt.
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 13_181
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

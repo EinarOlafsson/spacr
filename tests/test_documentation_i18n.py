@@ -258,7 +258,9 @@ TOOLS = ROOT / "tools"
 # (tools/nested_helper_docs.ENABLED_MODULES); all 13,071 prior symbols unchanged.
 # 2026-10-04 566 (a71b646a7): +1/-0, the documented nested helper
 # spacr.measure._pin_cupy_cudart_headers._pinned; all 13,175 prior unchanged.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_177
+# Item 662: +4 public mask_engine YOLO helpers, no removals.
+# All 13,177 prior English records preserved; 662_yolo_support receipt.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_181
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

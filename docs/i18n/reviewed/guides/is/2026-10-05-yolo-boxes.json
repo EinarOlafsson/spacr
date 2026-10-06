@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "language": "is",
+  "source_commit": "d7522bcd71198539e0506388f25626ef68df85fb",
+  "method": "Direct Codex AI technical translation and review; no independent peer or native-speaker signoff. Source-image identity, edit/save failures, negative labels, overlap, recrop and blinding reviewed. Actual runtime control names inserted with the normal glossary and import gates.",
+  "source_files": {
+    "docs/source/make_masks.rst": "9e5e3d4916a4d1e43082f2dd4d8e3bbfb95e2a3a3ce8a29ea06fb1fad8ac8bda"
+  },
+  "records": [
+    {
+      "index": 0,
+      "domain": "make_masks",
+      "source": "Draw bounding boxes for YOLO",
+      "source_sha256": "964b4faee868aca7e6e2aed2641d7c33613ec987569d8395bd0642a7cd79a35c",
+      "target": "Teikna afmörkunarramma fyrir YOLO",
+      "ui": {}
+    },
+    {
+      "index": 1,
+      "domain": "make_masks",
+      "source": "Open the source-image folder and choose **Box** beside **Draw**, or press **X**. Choose a class, or use **Add class** to name another class.",
+      "source_sha256": "1899e53a6af3d0f90873206b85aa169c57c0222e8d41bce72a27f0431ed4790b",
+      "target": "Opnaðu möppuna með upprunamyndunum og veldu **Rammi** við hliðina á **Teikna**, eða ýttu á **X**. Veldu flokk eða notaðu **Bæta við flokki** til að nefna annan flokk.",
+      "ui": {
+        "Box": "Rammi",
+        "Draw": "Teikna",
+        "Add class": "Bæta við flokki"
+      }
+    },
+    {
+      "index": 2,
+      "domain": "make_masks",
+      "source": "Drag across the image to draw a box. Drag inside a box to move it, drag a corner to resize it, and right-click a box to delete it. Hold **Ctrl** while dragging to add an overlapping or contained box.",
+      "source_sha256": "501664e26a9cecbe7d13ce7156b5554ad88e8da892cc9f4673792c9a03af6d4a",
+      "target": "Dragðu yfir myndina til að teikna ramma. Dragðu innan ramma til að færa hann, dragðu horn til að breyta stærð hans og hægrismelltu á ramma til að eyða honum. Haltu **Ctrl** inni meðan þú dregur til að bæta við ramma sem skarast við annan eða er inni í öðrum ramma.",
+      "ui": {}
+    },
+    {
+      "index": 3,
+      "domain": "make_masks",
+      "source": "Select a box to change its class. **Undo** and **Redo** apply to box edits while Box is selected. Use **Save boxes**, or **Ctrl+S** in Box mode, to save editable annotations. Moving to another image or closing saves changed boxes first; a failed save keeps the current image open.",
+      "source_sha256": "ff916db5df097b53262aa56cea201cdb43352cb2353b2549cc8b7ea52abbfa60",
+      "target": "Veldu ramma til að breyta flokki hans. **Afturkalla** og **Endurtaka** gilda um breytingar á römmum meðan Rammi er valið. Notaðu **Vista ramma**, eða **Ctrl+S** í Rammi-ham, til að vista breytanlegar merkingar. Breyttir rammar eru vistaðir áður en farið er yfir á aðra mynd eða lokað; ef vistun mistekst helst núverandi mynd opin.",
+      "ui": {
+        "Undo": "Afturkalla",
+        "Redo": "Endurtaka",
+        "Save boxes": "Vista ramma"
+      }
+    },
+    {
+      "index": 4,
+      "domain": "make_masks",
+      "source": "Choose **Export YOLO labels** and save the image's ``.txt`` label file. The export folder also receives ``.classes.json`` with the class-name mapping. A reviewed image without boxes exports an empty label file.",
+      "source_sha256": "d80c2cc06f15caab05171357c224f93b4bf1dfa70683cda72af94e87465261da",
+      "target": "Veldu **Flytja út YOLO-merkingar** og vistaðu ``.txt``-merkingaskrá myndarinnar. Útflutningsmappan fær einnig ``.classes.json`` með vörpun flokksheita. Yfirfarin mynd án ramma flytur út tóma merkingaskrá.",
+      "ui": {
+        "Export YOLO labels": "Flytja út YOLO-merkingar"
+      }
+    },
+    {
+      "index": 5,
+      "domain": "make_masks",
+      "source": "YOLO label rows contain the class ID followed by centre X, centre Y, width and height, normalized to the full source image. Pair each label file with its original image when preparing a training dataset. Make Masks stores editable boxes in ``.spacr_yolo_annotations.json`` beside the source images; these annotations retain their image dimensions and source identity.",
+      "source_sha256": "debcee5674a96d09fa81fb1d8fae2d6f7d04fb569aad290d044870dfad73906f",
+      "target": "YOLO-merkingalínur innihalda auðkenni flokks og síðan miðju X, miðju Y, breidd og hæð, kvörðuð miðað við alla upprunamyndina. Paraðu hverja merkingaskrá við upprunamynd hennar þegar þú undirbýrð þjálfunargagnasafn. Make Masks geymir breytanlega ramma í ``.spacr_yolo_annotations.json`` við hlið upprunamyndanna; þessar merkingar varðveita myndstærð og auðkenni upprunans.",
+      "ui": {}
+    },
+    {
+      "index": 6,
+      "domain": "make_masks",
+      "source": "Finish **Recrop** before adding boxes. For Cellpose ``_seg.npy`` bundles, open or export a standalone image first. Named YOLO export becomes available after unblinding a blinded session. Boxes have their own editing history and leave image pixels and segmentation masks unchanged. Dataset splitting and YOLO model training are separate steps.",
+      "source_sha256": "7f4b4fa38dcd9e909e534d0fe13652d51b07549d326377f3b9a1cf4a92a7f3a7",
+      "target": "Ljúktu við **Skera aftur** áður en þú bætir við römmum. Fyrir Cellpose-pakka á ``_seg.npy``-sniði skaltu fyrst opna eða flytja út sjálfstæða mynd. YOLO-útflutningur með upprunanöfnum verður tiltækur eftir að blindun lotunnar er aflétt. Rammar hafa eigin breytingasögu og halda myndpunktum og skiptingargrímum óbreyttum. Skipting gagnasafns og þjálfun YOLO-líkans eru aðskilin skref.",
+      "ui": {
+        "Recrop": "Skera aftur"
+      }
+    }
+  ],
+  "existing_guide_toolbar_retargets": [
+    {
+      "domain": "table_workflows",
+      "msgid": "In **Draw** mode, the shape dropdown lists the gates you can draw in 3D:",
+      "old_target": "Í ham **Draw** sýnir formvalmyndin hliðin sem þú getur teiknað í þrívídd:",
+      "msgstr": "Í ham **Teikna** sýnir formvalmyndin hliðin sem þú getur teiknað í þrívídd:",
+      "ui": {
+        "Draw": "Teikna"
+      }
+    }
+  ],
+  "preserved_previous_translations": 2958,
+  "initial_source_files": {
+    "docs/source/make_masks.rst": "0ca312b0a05d2bb54d0e63a201b44468e5efbacb4ca3f99d5f5fa16e232ae40c"
+  },
+  "source_formatting_followup": "The English YOLO heading underline was lengthened after the first strict build. All seven exact English message hashes are unchanged."
+}

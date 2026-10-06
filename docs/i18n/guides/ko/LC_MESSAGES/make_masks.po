@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 11:30-0400\n"
+"POT-Creation-Date: 2026-10-05 18:40-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -95,6 +95,34 @@ msgstr "**마스크 저장**, **이전 이미지**, **다음 이미지**\\ 는 �
 
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
 msgstr "자신의 데이터 없이 이 화면을 시험하려면 **테스트 데이터 불러오기...** 를 사용합니다. 분할되지 않은 톡소플라스마 액포 시야 10개를 다운로드하고(선별된 마스크는 ``ground_truth_masks/`` 에 따로 보관) 첫 번째 시야를 엽니다. 같은 버튼의 화살표는 게시된 각 모델이 학습한 데이터 세트에서 시야 표본을 제공합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Draw bounding boxes for YOLO"
+msgstr "YOLO용 경계 상자 그리기"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open the source-image folder and choose **Box** beside **Draw**, or press **X**. Choose a class, or use **Add class** to name another class."
+msgstr "원본 이미지 폴더를 열고 **그리기** 옆의 **상자** 버튼을 선택하거나 **X** 키를 누르세요. 클래스를 선택하거나 **클래스 추가** 버튼을 사용하여 다른 클래스에 이름을 지정하세요."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Drag across the image to draw a box. Drag inside a box to move it, drag a corner to resize it, and right-click a box to delete it. Hold **Ctrl** while dragging to add an overlapping or contained box."
+msgstr "이미지 위에서 드래그하여 상자를 그리세요. 상자 내부를 드래그하여 이동하고, 모서리를 드래그하여 크기를 조절하며, 상자를 마우스 오른쪽 버튼으로 클릭하여 삭제하세요. 드래그하면서 **Ctrl** 키를 누르면 겹치는 상자나 다른 상자 안에 포함되는 상자를 추가합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a box to change its class. **Undo** and **Redo** apply to box edits while Box is selected. Use **Save boxes**, or **Ctrl+S** in Box mode, to save editable annotations. Moving to another image or closing saves changed boxes first; a failed save keeps the current image open."
+msgstr "상자를 선택하여 클래스를 변경하세요. 상자 모드에서 **실행 취소** 및 **다시 실행** 버튼은 상자 편집에 적용됩니다. **상자 저장** 버튼 또는 상자 모드의 **Ctrl+S** 단축키를 사용하여 편집 가능한 주석을 저장하세요. 다른 이미지로 이동하거나 닫기 전에 변경된 상자를 먼저 저장하며, 저장에 실패하면 현재 이미지가 열린 상태로 유지됩니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Export YOLO labels** and save the image's ``.txt`` label file. The export folder also receives ``.classes.json`` with the class-name mapping. A reviewed image without boxes exports an empty label file."
+msgstr "**YOLO 라벨 내보내기** 옵션을 선택하고 이미지의 ``.txt`` 라벨 파일을 저장하세요. 내보내기 폴더에는 클래스 이름 매핑을 포함하는 ``.classes.json`` 파일도 저장됩니다. 검토한 이미지에 상자가 없으면 빈 라벨 파일을 내보냅니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "YOLO label rows contain the class ID followed by centre X, centre Y, width and height, normalized to the full source image. Pair each label file with its original image when preparing a training dataset. Make Masks stores editable boxes in ``.spacr_yolo_annotations.json`` beside the source images; these annotations retain their image dimensions and source identity."
+msgstr "YOLO 라벨 행은 클래스 ID 다음에 중심 X, 중심 Y, 너비 및 높이를 포함하며, 전체 원본 이미지에 대해 정규화됩니다. 학습 데이터셋을 준비할 때 각 라벨 파일을 원본 이미지와 짝지으세요. Make Masks는 원본 이미지 옆의 ``.spacr_yolo_annotations.json`` 파일에 편집 가능한 상자를 저장하며, 이 주석은 이미지 크기와 원본 식별 정보를 유지합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Finish **Recrop** before adding boxes. For Cellpose ``_seg.npy`` bundles, open or export a standalone image first. Named YOLO export becomes available after unblinding a blinded session. Boxes have their own editing history and leave image pixels and segmentation masks unchanged. Dataset splitting and YOLO model training are separate steps."
+msgstr "상자를 추가하기 전에 **다시 자르기** 작업을 완료하세요. Cellpose ``_seg.npy`` 번들의 경우 먼저 독립된 이미지를 열거나 내보내세요. 눈가림 세션의 눈가림을 해제하면 원본 이름을 사용하는 YOLO 내보내기가 가능해집니다. 상자는 자체 편집 이력을 가지며 이미지 픽셀과 분할 마스크를 변경하지 않습니다. 데이터셋 분할과 YOLO 모델 학습은 별도 단계입니다."
 
 msgid "Drop images and folders"
 msgstr "이미지와 폴더 끌어다 놓기"

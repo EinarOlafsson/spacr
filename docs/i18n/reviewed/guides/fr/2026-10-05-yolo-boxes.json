@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "source_commit": "d7522bcd71198539e0506388f25626ef68df85fb",
+  "method": "Direct Codex AI technical translation and review; no independent peer or native-speaker signoff. Source-image identity, edit/save failures, negative labels, overlap, recrop and blinding reviewed. Actual runtime control names inserted with the normal glossary and import gates.",
+  "source_files": {
+    "docs/source/make_masks.rst": "9e5e3d4916a4d1e43082f2dd4d8e3bbfb95e2a3a3ce8a29ea06fb1fad8ac8bda"
+  },
+  "records": [
+    {
+      "index": 0,
+      "domain": "make_masks",
+      "source": "Draw bounding boxes for YOLO",
+      "source_sha256": "964b4faee868aca7e6e2aed2641d7c33613ec987569d8395bd0642a7cd79a35c",
+      "target": "Dessiner des boîtes englobantes pour YOLO",
+      "ui": {}
+    },
+    {
+      "index": 1,
+      "domain": "make_masks",
+      "source": "Open the source-image folder and choose **Box** beside **Draw**, or press **X**. Choose a class, or use **Add class** to name another class.",
+      "source_sha256": "1899e53a6af3d0f90873206b85aa169c57c0222e8d41bce72a27f0431ed4790b",
+      "target": "Ouvrez le dossier des images sources et choisissez **Boîte** à côté de **Dessiner**, ou appuyez sur **X**. Choisissez une classe ou utilisez **Ajouter une classe** pour nommer une autre classe.",
+      "ui": {
+        "Box": "Boîte",
+        "Draw": "Dessiner",
+        "Add class": "Ajouter une classe"
+      }
+    },
+    {
+      "index": 2,
+      "domain": "make_masks",
+      "source": "Drag across the image to draw a box. Drag inside a box to move it, drag a corner to resize it, and right-click a box to delete it. Hold **Ctrl** while dragging to add an overlapping or contained box.",
+      "source_sha256": "501664e26a9cecbe7d13ce7156b5554ad88e8da892cc9f4673792c9a03af6d4a",
+      "target": "Faites glisser sur l'image pour dessiner une boîte. Faites glisser à l'intérieur d'une boîte pour la déplacer, faites glisser un coin pour la redimensionner et faites un clic droit sur une boîte pour la supprimer. Maintenez **Ctrl** pendant le glissement pour ajouter une boîte chevauchante ou contenue dans une autre.",
+      "ui": {}
+    },
+    {
+      "index": 3,
+      "domain": "make_masks",
+      "source": "Select a box to change its class. **Undo** and **Redo** apply to box edits while Box is selected. Use **Save boxes**, or **Ctrl+S** in Box mode, to save editable annotations. Moving to another image or closing saves changed boxes first; a failed save keeps the current image open.",
+      "source_sha256": "ff916db5df097b53262aa56cea201cdb43352cb2353b2549cc8b7ea52abbfa60",
+      "target": "Sélectionnez une boîte pour changer sa classe. **Annuler** et **Rétablir** s'appliquent aux modifications des boîtes lorsque Boîte est sélectionné. Utilisez **Enregistrer les boîtes**, ou **Ctrl+S** en mode Boîte, pour enregistrer les annotations modifiables. Les boîtes modifiées sont enregistrées avant de passer à une autre image ou de fermer ; si l'enregistrement échoue, l'image actuelle reste ouverte.",
+      "ui": {
+        "Undo": "Annuler",
+        "Redo": "Rétablir",
+        "Save boxes": "Enregistrer les boîtes"
+      }
+    },
+    {
+      "index": 4,
+      "domain": "make_masks",
+      "source": "Choose **Export YOLO labels** and save the image's ``.txt`` label file. The export folder also receives ``.classes.json`` with the class-name mapping. A reviewed image without boxes exports an empty label file.",
+      "source_sha256": "d80c2cc06f15caab05171357c224f93b4bf1dfa70683cda72af94e87465261da",
+      "target": "Choisissez **Exporter les étiquettes YOLO** et enregistrez le fichier d'étiquettes ``.txt`` de l'image. Le dossier d'export reçoit également ``.classes.json`` avec la correspondance des noms de classes. Une image vérifiée sans boîtes exporte un fichier d'étiquettes vide.",
+      "ui": {
+        "Export YOLO labels": "Exporter les étiquettes YOLO"
+      }
+    },
+    {
+      "index": 5,
+      "domain": "make_masks",
+      "source": "YOLO label rows contain the class ID followed by centre X, centre Y, width and height, normalized to the full source image. Pair each label file with its original image when preparing a training dataset. Make Masks stores editable boxes in ``.spacr_yolo_annotations.json`` beside the source images; these annotations retain their image dimensions and source identity.",
+      "source_sha256": "debcee5674a96d09fa81fb1d8fae2d6f7d04fb569aad290d044870dfad73906f",
+      "target": "Les lignes d'étiquettes YOLO contiennent l'identifiant de classe suivi du centre X, du centre Y, de la largeur et de la hauteur, normalisés par rapport à l'image source entière. Associez chaque fichier d'étiquettes à son image originale lors de la préparation d'un jeu d'entraînement. Make Masks conserve les boîtes modifiables dans ``.spacr_yolo_annotations.json`` à côté des images sources ; ces annotations conservent les dimensions de l'image et l'identité de la source.",
+      "ui": {}
+    },
+    {
+      "index": 6,
+      "domain": "make_masks",
+      "source": "Finish **Recrop** before adding boxes. For Cellpose ``_seg.npy`` bundles, open or export a standalone image first. Named YOLO export becomes available after unblinding a blinded session. Boxes have their own editing history and leave image pixels and segmentation masks unchanged. Dataset splitting and YOLO model training are separate steps.",
+      "source_sha256": "7f4b4fa38dcd9e909e534d0fe13652d51b07549d326377f3b9a1cf4a92a7f3a7",
+      "target": "Terminez **Recadrer à nouveau** avant d'ajouter des boîtes. Pour les paquets Cellpose ``_seg.npy``, ouvrez ou exportez d'abord une image autonome. L'export YOLO avec les noms sources devient disponible après la levée de l'insu de la session. Les boîtes ont leur propre historique de modification et laissent inchangés les pixels de l'image et les masques de segmentation. La division du jeu de données et l'entraînement du modèle YOLO sont des étapes séparées.",
+      "ui": {
+        "Recrop": "Recadrer à nouveau"
+      }
+    }
+  ],
+  "existing_guide_toolbar_retargets": [
+    {
+      "domain": "table_workflows",
+      "msgid": "In **Draw** mode, the shape dropdown lists the gates you can draw in 3D:",
+      "old_target": "En mode **Draw**, le menu des formes liste les régions de sélection que vous pouvez tracer en 3D :",
+      "msgstr": "En mode **Dessiner**, le menu des formes liste les régions de sélection que vous pouvez tracer en 3D :",
+      "ui": {
+        "Draw": "Dessiner"
+      }
+    }
+  ],
+  "preserved_previous_translations": 2958,
+  "initial_source_files": {
+    "docs/source/make_masks.rst": "0ca312b0a05d2bb54d0e63a201b44468e5efbacb4ca3f99d5f5fa16e232ae40c"
+  },
+  "source_formatting_followup": "The English YOLO heading underline was lengthened after the first strict build. All seven exact English message hashes are unchanged."
+}

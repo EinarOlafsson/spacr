@@ -532,7 +532,11 @@ EXTERNAL_SOURCE_COUNTS = {
     # "Prepare compatible Python": two arrivals, one retirement, net +1.
     # F538: two reviewed opt-in unmixed Measure display captions, no removals.
     # N615 2026-10-03: +62/-1 alpha-batch captions and +12 for 631, named above.
-    "UI": 7032,
+    # Item 662: +26 YOLO controls and +7 previously omitted tool labels;
+    # four other tool labels retain their existing catalog ownership.
+    # Old identity hash reproduced
+    # by removing exactly the arrivals in 662_yolo_support_2026-10-05.json.
+    "UI": 7065,
     "MODULE_SUMMARIES": 77,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -656,7 +660,8 @@ EXTERNAL_SOURCE_KEY_SHA256 = (
     # prompt reproduces 70748cfb...181c60.
     # Item 661: +26/-0 identities; exact subtraction reproduces e56629ad...
     # Evidence: features/data/661_source_delta_2026-10-05.json.
-    '60ab4e6ca4b8c6da387f13cfa15e6956fe2b7828dde9178fd0eeccf3b4f3cf11'
+    # Item 662: +33/-0, all nine source-bound reviews admitted.
+    'eada361ba5b02e6f0c3f77d765defb6c2077e089fe4a83de1ce96acc41f14552'
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

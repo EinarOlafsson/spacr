@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 11:30-0400\n"
+"POT-Creation-Date: 2026-10-05 18:40-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -95,6 +95,34 @@ msgstr "**Vista grímu**, **Fyrri mynd** og **Næsta mynd** eru í efstu aðger�
 
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
 msgstr "Til að prófa skjáinn án eigin gagna sækir **Hlaða prófunargögnum...** tíu óhlutuð sjónsvið með Toxoplasma-bólum, með grisjuðu grímunum þeirra geymdum sér í ``ground_truth_masks/``, og opnar það fyrsta. Örin á sama hnappi býður upp á úrtak sjónsviða úr gagnasafninu sem hvert birt líkan var þjálfað á."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Draw bounding boxes for YOLO"
+msgstr "Teikna afmörkunarramma fyrir YOLO"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open the source-image folder and choose **Box** beside **Draw**, or press **X**. Choose a class, or use **Add class** to name another class."
+msgstr "Opnaðu möppuna með upprunamyndunum og veldu **Rammi** við hliðina á **Teikna**, eða ýttu á **X**. Veldu flokk eða notaðu **Bæta við flokki** til að nefna annan flokk."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Drag across the image to draw a box. Drag inside a box to move it, drag a corner to resize it, and right-click a box to delete it. Hold **Ctrl** while dragging to add an overlapping or contained box."
+msgstr "Dragðu yfir myndina til að teikna ramma. Dragðu innan ramma til að færa hann, dragðu horn til að breyta stærð hans og hægrismelltu á ramma til að eyða honum. Haltu **Ctrl** inni meðan þú dregur til að bæta við ramma sem skarast við annan eða er inni í öðrum ramma."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a box to change its class. **Undo** and **Redo** apply to box edits while Box is selected. Use **Save boxes**, or **Ctrl+S** in Box mode, to save editable annotations. Moving to another image or closing saves changed boxes first; a failed save keeps the current image open."
+msgstr "Veldu ramma til að breyta flokki hans. **Afturkalla** og **Endurtaka** gilda um breytingar á römmum meðan Rammi er valið. Notaðu **Vista ramma**, eða **Ctrl+S** í Rammi-ham, til að vista breytanlegar merkingar. Breyttir rammar eru vistaðir áður en farið er yfir á aðra mynd eða lokað; ef vistun mistekst helst núverandi mynd opin."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Export YOLO labels** and save the image's ``.txt`` label file. The export folder also receives ``.classes.json`` with the class-name mapping. A reviewed image without boxes exports an empty label file."
+msgstr "Veldu **Flytja út YOLO-merkingar** og vistaðu ``.txt``-merkingaskrá myndarinnar. Útflutningsmappan fær einnig ``.classes.json`` með vörpun flokksheita. Yfirfarin mynd án ramma flytur út tóma merkingaskrá."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "YOLO label rows contain the class ID followed by centre X, centre Y, width and height, normalized to the full source image. Pair each label file with its original image when preparing a training dataset. Make Masks stores editable boxes in ``.spacr_yolo_annotations.json`` beside the source images; these annotations retain their image dimensions and source identity."
+msgstr "YOLO-merkingalínur innihalda auðkenni flokks og síðan miðju X, miðju Y, breidd og hæð, kvörðuð miðað við alla upprunamyndina. Paraðu hverja merkingaskrá við upprunamynd hennar þegar þú undirbýrð þjálfunargagnasafn. Make Masks geymir breytanlega ramma í ``.spacr_yolo_annotations.json`` við hlið upprunamyndanna; þessar merkingar varðveita myndstærð og auðkenni upprunans."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Finish **Recrop** before adding boxes. For Cellpose ``_seg.npy`` bundles, open or export a standalone image first. Named YOLO export becomes available after unblinding a blinded session. Boxes have their own editing history and leave image pixels and segmentation masks unchanged. Dataset splitting and YOLO model training are separate steps."
+msgstr "Ljúktu við **Skera aftur** áður en þú bætir við römmum. Fyrir Cellpose-pakka á ``_seg.npy``-sniði skaltu fyrst opna eða flytja út sjálfstæða mynd. YOLO-útflutningur með upprunanöfnum verður tiltækur eftir að blindun lotunnar er aflétt. Rammar hafa eigin breytingasögu og halda myndpunktum og skiptingargrímum óbreyttum. Skipting gagnasafns og þjálfun YOLO-líkans eru aðskilin skref."
 
 msgid "Drop images and folders"
 msgstr "Sleppa myndum og möppum"

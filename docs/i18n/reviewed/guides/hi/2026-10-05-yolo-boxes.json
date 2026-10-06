@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "source_commit": "d7522bcd71198539e0506388f25626ef68df85fb",
+  "method": "Direct Codex AI technical translation and review; no independent peer or native-speaker signoff. Source-image identity, edit/save failures, negative labels, overlap, recrop and blinding reviewed. Actual runtime control names inserted with the normal glossary and import gates.",
+  "source_files": {
+    "docs/source/make_masks.rst": "9e5e3d4916a4d1e43082f2dd4d8e3bbfb95e2a3a3ce8a29ea06fb1fad8ac8bda"
+  },
+  "records": [
+    {
+      "index": 0,
+      "domain": "make_masks",
+      "source": "Draw bounding boxes for YOLO",
+      "source_sha256": "964b4faee868aca7e6e2aed2641d7c33613ec987569d8395bd0642a7cd79a35c",
+      "target": "YOLO के लिए सीमांकन बॉक्स बनाएँ",
+      "ui": {}
+    },
+    {
+      "index": 1,
+      "domain": "make_masks",
+      "source": "Open the source-image folder and choose **Box** beside **Draw**, or press **X**. Choose a class, or use **Add class** to name another class.",
+      "source_sha256": "1899e53a6af3d0f90873206b85aa169c57c0222e8d41bce72a27f0431ed4790b",
+      "target": "स्रोत छवियों का फ़ोल्डर खोलें और **बनाएँ** के पास **बॉक्स** चुनें, या **X** दबाएँ। कोई वर्ग चुनें, या दूसरे वर्ग का नाम देने के लिए **वर्ग जोड़ें** का उपयोग करें।",
+      "ui": {
+        "Box": "बॉक्स",
+        "Draw": "बनाएँ",
+        "Add class": "वर्ग जोड़ें"
+      }
+    },
+    {
+      "index": 2,
+      "domain": "make_masks",
+      "source": "Drag across the image to draw a box. Drag inside a box to move it, drag a corner to resize it, and right-click a box to delete it. Hold **Ctrl** while dragging to add an overlapping or contained box.",
+      "source_sha256": "501664e26a9cecbe7d13ce7156b5554ad88e8da892cc9f4673792c9a03af6d4a",
+      "target": "बॉक्स बनाने के लिए छवि पर खींचें। बॉक्स को स्थानांतरित करने के लिए उसके अंदर खींचें, आकार बदलने के लिए कोना खींचें और हटाने के लिए बॉक्स पर दायाँ क्लिक करें। ओवरलैप करने वाला या दूसरे बॉक्स के भीतर का बॉक्स जोड़ने के लिए खींचते समय **Ctrl** दबाए रखें।",
+      "ui": {}
+    },
+    {
+      "index": 3,
+      "domain": "make_masks",
+      "source": "Select a box to change its class. **Undo** and **Redo** apply to box edits while Box is selected. Use **Save boxes**, or **Ctrl+S** in Box mode, to save editable annotations. Moving to another image or closing saves changed boxes first; a failed save keeps the current image open.",
+      "source_sha256": "ff916db5df097b53262aa56cea201cdb43352cb2353b2549cc8b7ea52abbfa60",
+      "target": "वर्ग बदलने के लिए बॉक्स चुनें। बॉक्स चुना होने पर **पूर्ववत करें** और **फिर से करें** बॉक्स संपादन पर लागू होते हैं। संपादन योग्य एनोटेशन सहेजने के लिए **बॉक्स सहेजें** या बॉक्स मोड में **Ctrl+S** का उपयोग करें। दूसरी छवि पर जाने या बंद करने से पहले बदले हुए बॉक्स सहेजे जाते हैं; सहेजने में विफलता होने पर वर्तमान छवि खुली रहती है।",
+      "ui": {
+        "Undo": "पूर्ववत करें",
+        "Redo": "फिर से करें",
+        "Save boxes": "बॉक्स सहेजें"
+      }
+    },
+    {
+      "index": 4,
+      "domain": "make_masks",
+      "source": "Choose **Export YOLO labels** and save the image's ``.txt`` label file. The export folder also receives ``.classes.json`` with the class-name mapping. A reviewed image without boxes exports an empty label file.",
+      "source_sha256": "d80c2cc06f15caab05171357c224f93b4bf1dfa70683cda72af94e87465261da",
+      "target": "**YOLO लेबल निर्यात करें** चुनें और छवि की ``.txt`` लेबल फ़ाइल सहेजें। निर्यात फ़ोल्डर में वर्ग नाम मैप वाली ``.classes.json`` भी आती है। समीक्षा की गई, बिना बॉक्स वाली छवि के लिए खाली लेबल फ़ाइल निर्यात होती है।",
+      "ui": {
+        "Export YOLO labels": "YOLO लेबल निर्यात करें"
+      }
+    },
+    {
+      "index": 5,
+      "domain": "make_masks",
+      "source": "YOLO label rows contain the class ID followed by centre X, centre Y, width and height, normalized to the full source image. Pair each label file with its original image when preparing a training dataset. Make Masks stores editable boxes in ``.spacr_yolo_annotations.json`` beside the source images; these annotations retain their image dimensions and source identity.",
+      "source_sha256": "debcee5674a96d09fa81fb1d8fae2d6f7d04fb569aad290d044870dfad73906f",
+      "target": "YOLO लेबल पंक्तियों में वर्ग ID के बाद केंद्र X, केंद्र Y, चौड़ाई और ऊँचाई होती हैं, जो पूरी स्रोत छवि के सापेक्ष सामान्यीकृत होती हैं। प्रशिक्षण डेटासेट तैयार करते समय प्रत्येक लेबल फ़ाइल को उसकी मूल छवि के साथ जोड़ें। Make Masks संपादन योग्य बॉक्स को स्रोत छवियों के पास ``.spacr_yolo_annotations.json`` में रखता है; ये एनोटेशन छवि के आयाम और स्रोत पहचान बनाए रखते हैं।",
+      "ui": {}
+    },
+    {
+      "index": 6,
+      "domain": "make_masks",
+      "source": "Finish **Recrop** before adding boxes. For Cellpose ``_seg.npy`` bundles, open or export a standalone image first. Named YOLO export becomes available after unblinding a blinded session. Boxes have their own editing history and leave image pixels and segmentation masks unchanged. Dataset splitting and YOLO model training are separate steps.",
+      "source_sha256": "7f4b4fa38dcd9e909e534d0fe13652d51b07549d326377f3b9a1cf4a92a7f3a7",
+      "target": "बॉक्स जोड़ने से पहले **दोबारा क्रॉप करें** पूरा करें। Cellpose ``_seg.npy`` बंडल के लिए पहले अलग छवि खोलें या निर्यात करें। ब्लाइंडिंग वाले सत्र की ब्लाइंडिंग हटाने के बाद स्रोत छवि के नाम वाला YOLO निर्यात उपलब्ध होता है। बॉक्स का अपना संपादन इतिहास होता है और छवि के पिक्सेल तथा सेगमेंटेशन मास्क अपरिवर्तित रहते हैं। डेटासेट विभाजन और YOLO मॉडल प्रशिक्षण अलग चरण हैं।",
+      "ui": {
+        "Recrop": "दोबारा क्रॉप करें"
+      }
+    }
+  ],
+  "existing_guide_toolbar_retargets": [
+    {
+      "domain": "table_workflows",
+      "msgid": "In **Draw** mode, the shape dropdown lists the gates you can draw in 3D:",
+      "old_target": "**Draw** मोड में आकृति ड्रॉपडाउन उन गेट को सूचीबद्ध करता है जिन्हें आप 3D में बना सकते हैं:",
+      "msgstr": "**बनाएँ** मोड में आकृति ड्रॉपडाउन उन गेट को सूचीबद्ध करता है जिन्हें आप 3D में बना सकते हैं:",
+      "ui": {
+        "Draw": "बनाएँ"
+      }
+    }
+  ],
+  "preserved_previous_translations": 2958,
+  "initial_source_files": {
+    "docs/source/make_masks.rst": "0ca312b0a05d2bb54d0e63a201b44468e5efbacb4ca3f99d5f5fa16e232ae40c"
+  },
+  "source_formatting_followup": "The English YOLO heading underline was lengthened after the first strict build. All seven exact English message hashes are unchanged."
+}

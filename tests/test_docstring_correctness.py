@@ -1932,6 +1932,30 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     assert not imported_package_modules
     by_symbol = {item.symbol: item for item in callables}
 
+    # Item 662 adds four named functions. Check their complete source boundary
+    # separately, then reproduce every previous inventory pin and digest.
+    yolo_parameters = {
+        "yolo_box_lines": ({"boxes", "width", "height"}, {"boxes", "width", "height"}),
+        "save_yolo_boxes": ({"folder", "filename", "image_shape", "boxes", "classes", "expected_source_sha256"},
+                            {"folder", "filename", "image_shape", "boxes", "classes"}),
+        "load_yolo_boxes": ({"folder", "filename", "image_shape"}, {"folder", "filename", "image_shape"}),
+        "export_yolo_boxes": ({"path", "boxes", "image_shape", "classes"},
+                              {"path", "boxes", "image_shape", "classes"}),
+    }
+    yolo_symbols = {"spacr.qt.mask_engine." + name for name in yolo_parameters}
+    assert len(yolo_symbols) == 4
+    assert yolo_symbols <= by_symbol.keys()
+    for name, (parameters, required) in yolo_parameters.items():
+        item = by_symbol["spacr.qt.mask_engine." + name]
+        assert item.category == "function"
+        assert item.exposure == "autoapi"
+        assert item.variant_count == 1
+        assert item.docless_variant_count == 0
+        assert item.parameters == parameters
+        assert item.required_parameters == required
+    callables = [item for item in callables if item.symbol not in yolo_symbols]
+    by_symbol = {item.symbol: item for item in callables}
+
     # 8,453 -> 8,462 on 2026-09-07, +9/-0, and the tree was FROZEN at that
     # number by agreement while the localization catalogs regenerated. The
     # nine are the other session's spacr/infection.py (5 public functions)
@@ -3452,7 +3476,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 2026-10-04 item 566: +1/-0, the documented nested helper of
     # spacr.measure._pin_cupy_cudart_headers; all 13,175 prior symbols unchanged.
     # 2026-10-05: cpu_modes.puncta is the sole rendered arrival (item 661).
-    assert len(docs) == 13177
+    # Item 662: +4 public mask_engine YOLO helpers, no removals.
+    # All 13,177 prior English records preserved; 662_yolo_support receipt.
+    assert len(docs) == 13181
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -3771,11 +3797,21 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     }
     assert len(roi_callables) == 18
     assert roi_callables <= rendered_documented_callables.keys()
+    # Item 662 adds exactly these four rendered public YOLO helpers.
+    # Removing the named arrivals preserves the previous inventory pins.
+    yolo_callables = {
+        f"spacr.qt.mask_engine.{name}" for name in (
+            "export_yolo_boxes", "load_yolo_boxes", "save_yolo_boxes",
+            "yolo_box_lines")
+    }
+    assert len(yolo_callables) == 4
+    assert yolo_callables <= rendered_documented_callables.keys()
+    assert yolo_callables <= docs.keys()
     prior = (rendered_documented_callables.keys() - incoming_callables
              - quality_and_host_callables - classification_callables - example_callables
              - preview_callables - current_additions - session_callables
                  - rebase_callables - merged_callables
-                 - final_pass_callables - roi_callables
+                 - final_pass_callables - roi_callables - yolo_callables
                  - {'spacr.qt.cpu_modes.puncta'}) | {
                  "spacr.qt.app.demo_label_for_app",
                  "spacr.qt.widgets.plaque_preview.render_cellprob"}
@@ -3801,7 +3837,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 9,828 -> 9,832 with items 544 and 573's four.
     # 9,832 -> 9,890 with item 593's 58.
     # Item 600, 2026-09-29: +11 callables (drop_classification, organize_for_measure).
-    assert len(rendered_documented_callables) == 9986
+    assert len(rendered_documented_callables.keys() - yolo_callables) == 9986
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

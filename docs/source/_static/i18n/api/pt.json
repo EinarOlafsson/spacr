@@ -84196,6 +84196,28 @@
         "b18d98c89ff3bbba09bd6f07e5406a4cb836a64c2a3f0c25c971b7f0e92b9b6b"
       ]
     },
+    "spacr.qt.mask_engine.export_yolo_boxes": {
+      "source_blocks_sha256": [
+        "f820e2776783be7b2903e03727f33c3081416e612cc3893afbdfceb5a0b30638",
+        "dd604131d2a9f4387dca33b9eb3ab64767bdcbc13536f880a5fb4ecf574fd268",
+        "47a757e4628dfb6dc5b74ee91017a966710703690d66a5adc2cd0e94d8836956",
+        "9dac37272c1cf65811f4292b51a178507e4c74da94781c3a0f580fb52f96ad7c",
+        "20eed0a5046f73831497edfdbba1c94eefe40c7b145c6c2a5e5354ca16a83dc9",
+        "28f175d3e524de90fe3bf8e5adce9d1adcad31e79f0ad6d2a1ad45ea4ebacd35",
+        "6001dce281f44fcf95fb74d0935e38bcfceb9e8232378c7f6a6bbabf73b79d60"
+      ],
+      "source_sha256": "95e21adf32f6e05c51b67950c9d227827c8345772922c77e617f8cb7624e5572",
+      "text": "Gravar atomicamente um arquivo de texto de rótulos YOLO e os metadados de classes associados.\n\nO caminho dos rótulos deve terminar em ``.txt``. O arquivo associado ``.classes.json`` preserva os nomes de classe ordenados; um mapa de classes existente só pode ser ampliado. Um ``boxes`` vazio grava intencionalmente um arquivo de rótulos vazio para uma imagem negativa. Esta exportação nunca abre nem converte imagens de origem ou máscaras.\n\n:param path: caminho ``.txt`` escolhido em um diretório existente.\n:param boxes: caixas ``(class_id, x0, y0, x1, y1)`` nas coordenadas de pixel da imagem inteira.\n:param image_shape: forma da imagem descrita pelos rótulos.\n:param classes: nomes ordenados cujos índices são os IDs de classe.\n:returns: caminho do arquivo de texto de rótulos gravado, como uma string.",
+      "translation_source_blocks_sha256": [
+        "f820e2776783be7b2903e03727f33c3081416e612cc3893afbdfceb5a0b30638",
+        "dd604131d2a9f4387dca33b9eb3ab64767bdcbc13536f880a5fb4ecf574fd268",
+        "47a757e4628dfb6dc5b74ee91017a966710703690d66a5adc2cd0e94d8836956",
+        "9dac37272c1cf65811f4292b51a178507e4c74da94781c3a0f580fb52f96ad7c",
+        "20eed0a5046f73831497edfdbba1c94eefe40c7b145c6c2a5e5354ca16a83dc9",
+        "28f175d3e524de90fe3bf8e5adce9d1adcad31e79f0ad6d2a1ad45ea4ebacd35",
+        "6001dce281f44fcf95fb74d0935e38bcfceb9e8232378c7f6a6bbabf73b79d60"
+      ]
+    },
     "spacr.qt.mask_engine.field_stem": {
       "source_blocks_sha256": [
         "74232f44f3e55ba93db682d39e4b6cfd0bb2ce1c585a2b48b03e5489fc2738c3",
@@ -84568,6 +84590,26 @@
         "1a7791c876b3a03ecd04ffd813bfde5c8e9607f0a8fe4c6f119695186ba13c18",
         "06b914af78e20f22e3caa360b97b5af2dda14b82e41c4e932964fe78565e9842",
         "67b14b18f207e8af712b9f66deacd03f488cadbfd37dae6ed11ef64edd6d2a64"
+      ]
+    },
+    "spacr.qt.mask_engine.load_yolo_boxes": {
+      "source_blocks_sha256": [
+        "ebd81a03a270fc79e4e80ce177c0e61af5a0680a65c1d53e34793d2c8fb62e7e",
+        "095041847af717e9263587e5f11bd681c19392e54e7521ba181e15ed9bb4a922",
+        "f7a29fa61b60d67a739b2501f64f922c69bbf5b86804fd130638bc370fa8f1de",
+        "df8ecdc84c4d628cf9d1a95417b8ab3aaee3a6a87833c2c8cbde70f17721d743",
+        "2f51a6a2b9f44ce515afbb89a0440de7eacda3c60df14474a357ebfa6056d4bd",
+        "1a5b7eca167f7b86954a4cfed3b3479ddc8e0a5d29dccee1b796d6a97dc61bad"
+      ],
+      "source_sha256": "2e44e65ac0ec7f1eb5084e2e55a4097cced5742d6c254a187cdcd3160bf08783",
+      "text": "Carregar as caixas desta fonte, recusando dados desatualizados ou uma forma de imagem alterada.\n\nUma fonte sem anotações retorna as classes existentes do projeto e nenhuma caixa. Um projeto sem registro começa com a classe ``object`` e nenhuma caixa.\n\n:param folder: pasta do projeto que contém a imagem original.\n:param filename: caminho da imagem de origem relativo a ``folder``.\n:param image_shape: forma da imagem de origem exibida.\n:returns: classes, caixas em forma canônica e SHA-256 atual da fonte.",
+      "translation_source_blocks_sha256": [
+        "ebd81a03a270fc79e4e80ce177c0e61af5a0680a65c1d53e34793d2c8fb62e7e",
+        "095041847af717e9263587e5f11bd681c19392e54e7521ba181e15ed9bb4a922",
+        "f7a29fa61b60d67a739b2501f64f922c69bbf5b86804fd130638bc370fa8f1de",
+        "df8ecdc84c4d628cf9d1a95417b8ab3aaee3a6a87833c2c8cbde70f17721d743",
+        "2f51a6a2b9f44ce515afbb89a0440de7eacda3c60df14474a357ebfa6056d4bd",
+        "1a5b7eca167f7b86954a4cfed3b3479ddc8e0a5d29dccee1b796d6a97dc61bad"
       ]
     },
     "spacr.qt.mask_engine.magic_wand": {
@@ -85144,6 +85186,32 @@
         "b8b67aa673028d2375e564f1174c8d04bb4d1d5b40ce52fa73e63f0ab61e9caf"
       ]
     },
+    "spacr.qt.mask_engine.save_yolo_boxes": {
+      "source_blocks_sha256": [
+        "370788dd497afc3714ca11fb93cbfb579cd83d4f91c68d32a14fe4d2ad1421de",
+        "928e4d97ccfc5d0ce56959c5228114f2e7a9dce6dfa9af1958988f8d7377ab7c",
+        "f7a29fa61b60d67a739b2501f64f922c69bbf5b86804fd130638bc370fa8f1de",
+        "df8ecdc84c4d628cf9d1a95417b8ab3aaee3a6a87833c2c8cbde70f17721d743",
+        "2f51a6a2b9f44ce515afbb89a0440de7eacda3c60df14474a357ebfa6056d4bd",
+        "9dac37272c1cf65811f4292b51a178507e4c74da94781c3a0f580fb52f96ad7c",
+        "28f175d3e524de90fe3bf8e5adce9d1adcad31e79f0ad6d2a1ad45ea4ebacd35",
+        "2cc5d31c47a2faac8ae3c5400096aae8613d1e901e310c79f3c622e715e3d887",
+        "45283214155749d88cb27f05ee8da67a14e6291fa05d00791a2c7bf8b55301ab"
+      ],
+      "source_sha256": "225eb59f7508ecaf5fc455531e04763a3f53c83eff10d7257c96a807437430a4",
+      "text": "Salvar atomicamente um registro de caixas vinculado à fonte no registro do projeto.\n\n``folder`` contém a imagem de origem sem modificações. ``filename`` é relativo a essa pasta. Os IDs de classe existentes mantêm seu significado: o mapa de classes antigo deve ser um prefixo de ``classes``. O SHA-256 salvo da fonte e a forma completa da imagem devem coincidir na próxima chamada a :func:`load_yolo_boxes`. Quando um hash esperado da fonte é fornecido, uma alteração externa da imagem entre o carregamento e o salvamento é recusada antes de modificar o registro.\n\n:param folder: pasta do projeto que contém a imagem original.\n:param filename: caminho da imagem de origem relativo a ``folder``.\n:param image_shape: forma da imagem de origem exibida.\n:param boxes: caixas ``(class_id, x0, y0, x1, y1)`` nas coordenadas de pixel da imagem inteira.\n:param classes: nomes ordenados cujos índices são os IDs de classe.\n:param expected_source_sha256: hash recebido de um carregamento anterior, ou None quando quem chama não tem uma captura anterior da imagem.\n:returns: caminho do registro privado do projeto.",
+      "translation_source_blocks_sha256": [
+        "370788dd497afc3714ca11fb93cbfb579cd83d4f91c68d32a14fe4d2ad1421de",
+        "928e4d97ccfc5d0ce56959c5228114f2e7a9dce6dfa9af1958988f8d7377ab7c",
+        "f7a29fa61b60d67a739b2501f64f922c69bbf5b86804fd130638bc370fa8f1de",
+        "df8ecdc84c4d628cf9d1a95417b8ab3aaee3a6a87833c2c8cbde70f17721d743",
+        "2f51a6a2b9f44ce515afbb89a0440de7eacda3c60df14474a357ebfa6056d4bd",
+        "9dac37272c1cf65811f4292b51a178507e4c74da94781c3a0f580fb52f96ad7c",
+        "28f175d3e524de90fe3bf8e5adce9d1adcad31e79f0ad6d2a1ad45ea4ebacd35",
+        "2cc5d31c47a2faac8ae3c5400096aae8613d1e901e310c79f3c622e715e3d887",
+        "45283214155749d88cb27f05ee8da67a14e6291fa05d00791a2c7bf8b55301ab"
+      ]
+    },
     "spacr.qt.mask_engine.secondary_object_instances": {
       "source_blocks_sha256": [
         "3170bdb4c52eaf2bc6d1ee9c7e677a201002e93870844c75ef852d55a2142241",
@@ -85308,6 +85376,26 @@
         "44a91aa815f8050279db5c579fefafaaa368d9331f909c43f7292fdc0c768024",
         "63d74b26c05f8a2e7b0f3411c6114e24a908d54712cac898a7f166c4270dc4d9",
         "5718f3bf674e4d3967ec7ecd2278b0e15e7f86f7d65a076df0bf9d36faadc25e"
+      ]
+    },
+    "spacr.qt.mask_engine.yolo_box_lines": {
+      "source_blocks_sha256": [
+        "c27208cc5d1aef207e598ceb72a815197f23ff0d7542851e3aef7190349b3ba0",
+        "fa93c8ee76d607e3536d2aa72383a23c2baaafea0db3d30803d10c131856a768",
+        "9dac37272c1cf65811f4292b51a178507e4c74da94781c3a0f580fb52f96ad7c",
+        "5d375f4997e4a3211ba49792cdc1f795a47e942ea7c844e80600b56646a72df7",
+        "e26d416e9596bbdd1c03ca205d8cf57462730eb97827e71e1e9b752fac1dc276",
+        "ed74942a85ce01b209a09bac04d4b937c51d6a4275a870f344e720b35217e81a"
+      ],
+      "source_sha256": "fa39f642fd76059ccd48582276e313bd4830a0c1f020d4031c9c25bbab1d2b1f",
+      "text": "Codificar as caixas nas coordenadas de pixel da imagem inteira no formato YOLO padrão ``class cx cy w h``.\n\nOs cantos podem estar invertidos ou fora da imagem. Cada caixa é recortada aos limites da imagem e verificada antes de qualquer linha ser retornada; caixas sobrepostas permanecem distintas. As coordenadas usam limites direito e inferior exclusivos e são normalizadas pela largura e altura positivas da imagem.\n\n:param boxes: caixas ``(class_id, x0, y0, x1, y1)`` nas coordenadas de pixel da imagem inteira.\n:param width: largura da imagem original como inteiro positivo.\n:param height: altura da imagem original como inteiro positivo.\n:returns: uma linha normalizada de rótulos YOLO por caixa de entrada, na ordem de entrada.",
+      "translation_source_blocks_sha256": [
+        "c27208cc5d1aef207e598ceb72a815197f23ff0d7542851e3aef7190349b3ba0",
+        "fa93c8ee76d607e3536d2aa72383a23c2baaafea0db3d30803d10c131856a768",
+        "9dac37272c1cf65811f4292b51a178507e4c74da94781c3a0f580fb52f96ad7c",
+        "5d375f4997e4a3211ba49792cdc1f795a47e942ea7c844e80600b56646a72df7",
+        "e26d416e9596bbdd1c03ca205d8cf57462730eb97827e71e1e9b752fac1dc276",
+        "ed74942a85ce01b209a09bac04d4b937c51d6a4275a870f344e720b35217e81a"
       ]
     },
     "spacr.qt.mask_thumbnail_quality": {

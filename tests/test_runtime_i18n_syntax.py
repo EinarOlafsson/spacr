@@ -12,6 +12,21 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 
+def test_make_masks_tool_registry_and_fallback_names_enter_extraction(monkeypatch) -> None:
+    from build_i18n_catalogs import _indirect_runtime_ui_sources
+    from spacr.qt.screens import make_masks
+
+    monkeypatch.setattr(make_masks, "TOOL_MODES", [
+        *make_masks.TOOL_MODES,
+        ("sentinel", "Registered tool sentinel", "brush"),
+    ])
+    monkeypatch.setattr(make_masks, "MODE_SENTINEL_FALLBACK", "fallback_sentinel", raising=False)
+    sources = _indirect_runtime_ui_sources()
+    assert {label for _mode, label, _icon in make_masks.tool_row_entries()} <= sources
+    assert "Registered tool sentinel" in sources
+    assert "Fallback sentinel" in sources
+
+
 def test_portuguese_well_locations_preserve_containers_and_repair_adverbs() -> None:
     """Container positions retain poço; adverbial well still repairs to bem."""
     from build_i18n_catalogs import _contextualize, _translation_rejection_reasons

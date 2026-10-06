@@ -3819,6 +3819,7 @@ def _indirect_runtime_ui_sources() -> set[str]:
     from spacr.qt.screens.batch import ON_ERROR_LABELS
     from spacr.qt.screens.hyperparam import TOGGLE_TEXT, TOGGLE_TOOLTIP
     from spacr.qt.screens.mask import OPS_TOGGLE_TOOLTIP
+    from spacr.qt.screens.make_masks import tool_row_entries
     from spacr.qt.screens.parameter_sweep import (
         SWEEP_TOGGLE_TEXT,
         SWEEP_TOGGLE_TOOLTIP,
@@ -3928,6 +3929,7 @@ def _indirect_runtime_ui_sources() -> set[str]:
     found.update(_starplast_progress_sources())
     found.update(_organism_description_sources())
     found.update(_make_masks_shortcut_sources())
+    found.update(label for _mode, label, _icon in tool_row_entries())
     for detector_modes in (cpu_modes, organelle_modes):
         found.update(detector_modes.MODE_LABELS.values())
         found.update(detector_modes.guidance(mode)

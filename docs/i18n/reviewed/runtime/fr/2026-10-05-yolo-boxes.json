@@ -1,0 +1,191 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "date": "2026-10-05",
+  "review_kind": "Codex AI technical translation and review; no native-speaker signoff",
+  "note": "Source-bound YOLO box controls and notices. Drawing/moving/resizing/deleting, overlapping boxes, standalone sources, recrop ordering, blinding and export failures reviewed explicitly; keyboard keys, file patterns and placeholders preserved.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Add box class",
+      "source": "Add box class",
+      "source_sha256": "7ee27ce26395ccc9a5a4a1f18094bc1d38ae92d5f7c81239e1febaf013cecbfb",
+      "translation": "Ajouter une classe de boîte"
+    },
+    {
+      "table": "ui",
+      "key": "Add class",
+      "source": "Add class",
+      "source_sha256": "6d06d0a508ff7f72d9e6cdd0b5ae45982568841504141e563585b6fe5a4607d4",
+      "translation": "Ajouter une classe"
+    },
+    {
+      "table": "ui",
+      "key": "Box annotations need a standalone image. Export the image from this segmentation bundle first, then open it in Make Masks.",
+      "source": "Box annotations need a standalone image. Export the image from this segmentation bundle first, then open it in Make Masks.",
+      "source_sha256": "83e5bdf358a6d534b67f2757b397076485014d9087edb8ec66e05b7afcca78a4",
+      "translation": "Les annotations de boîtes nécessitent une image autonome. Exportez d'abord l'image de ce paquet de segmentation, puis ouvrez-la dans Make Masks."
+    },
+    {
+      "table": "ui",
+      "key": "Box annotations saved → {path}",
+      "source": "Box annotations saved → {path}",
+      "source_sha256": "59834f446de4552c4cc880290df422c013070f836705db3a017f79d09b081bdc",
+      "translation": "Annotations de boîtes enregistrées → {path}"
+    },
+    {
+      "table": "ui",
+      "key": "Cannot edit box annotations",
+      "source": "Cannot edit box annotations",
+      "source_sha256": "1d3e4a3d1edd06d0a39327e0d776eb6fc383d1f27dda8c1512d78194ddad9318",
+      "translation": "Impossible de modifier les annotations de boîtes"
+    },
+    {
+      "table": "ui",
+      "key": "Cannot export YOLO labels",
+      "source": "Cannot export YOLO labels",
+      "source_sha256": "a7d3d3936115b48cc99734d6fcc98e7827dd060f9bc91548cb0f596e62a50ed8",
+      "translation": "Impossible d'exporter les étiquettes YOLO"
+    },
+    {
+      "table": "ui",
+      "key": "Cannot load box annotations",
+      "source": "Cannot load box annotations",
+      "source_sha256": "d711e0b9650892cf5aa0873dcbbc056129724e9244fc02f69d52fc8ed5740565",
+      "translation": "Impossible de charger les annotations de boîtes"
+    },
+    {
+      "table": "ui",
+      "key": "Cannot save box annotations",
+      "source": "Cannot save box annotations",
+      "source_sha256": "90943c0336c436a02f6f18ad451b207c89648e2b196dfa812e63de433754bc33",
+      "translation": "Impossible d'enregistrer les annotations de boîtes"
+    },
+    {
+      "table": "ui",
+      "key": "Class for a selected box or the next box",
+      "source": "Class for a selected box or the next box",
+      "source_sha256": "667bb9c048e835fb44ab6f860493f8e42948b8df461be9d9f477fe3c0d5ca0dd",
+      "translation": "Classe de la boîte sélectionnée ou de la prochaine boîte"
+    },
+    {
+      "table": "ui",
+      "key": "Delete the box under the cursor",
+      "source": "Delete the box under the cursor",
+      "source_sha256": "fe5e150f9db06472c9cc1897a864e116e7f85788c90c69db92eb081cef31fb33",
+      "translation": "Supprimer la boîte sous le curseur"
+    },
+    {
+      "table": "ui",
+      "key": "Draw YOLO bounding boxes",
+      "source": "Draw YOLO bounding boxes",
+      "source_sha256": "ba36428254f3f1861e26911495f1e0a9c11a39c3d69cd67efaf5b35a9244d6b0",
+      "translation": "Dessiner des boîtes englobantes YOLO"
+    },
+    {
+      "table": "ui",
+      "key": "Draw YOLO bounding boxes (X). Drag inside to move, drag a corner to resize, or right-click to delete. Ctrl-drag draws an overlapping box.",
+      "source": "Draw YOLO bounding boxes (X). Drag inside to move, drag a corner to resize, or right-click to delete. Ctrl-drag draws an overlapping box.",
+      "source_sha256": "b3f046dc678559dfb97a8c160a6374bccdb0e614b860839aff898a86ed5b0c8f",
+      "translation": "Dessiner des boîtes englobantes YOLO (X). Faites glisser à l'intérieur pour déplacer, faites glisser un coin pour redimensionner ou faites un clic droit pour supprimer. Faites glisser avec Ctrl pour dessiner une boîte chevauchante."
+    },
+    {
+      "table": "ui",
+      "key": "Draw an overlapping box",
+      "source": "Draw an overlapping box",
+      "source_sha256": "13d77116bab8b45fc7ff2d2d0947c0b638c61393f131956cf4ce41a29c8db931",
+      "translation": "Dessiner une boîte chevauchante"
+    },
+    {
+      "table": "ui",
+      "key": "Enter a unique, nonempty class name.",
+      "source": "Enter a unique, nonempty class name.",
+      "source_sha256": "f3a79c0dad85387f189d73b26ff6a4ccfc1f2b9ff1f001f88911bcbe6af8dee1",
+      "translation": "Saisissez un nom de classe unique et non vide."
+    },
+    {
+      "table": "ui",
+      "key": "Export YOLO labels",
+      "source": "Export YOLO labels",
+      "source_sha256": "c14d4a67fa4b9b4109ac6fbdc2e5a47252d29ebdd4a6d536b6d2afe745b0ced1",
+      "translation": "Exporter les étiquettes YOLO"
+    },
+    {
+      "table": "ui",
+      "key": "Export this image's boxes as a YOLO .txt label file with a class-name companion.",
+      "source": "Export this image's boxes as a YOLO .txt label file with a class-name companion.",
+      "source_sha256": "c5f48dc43b2cc76920d9545d55dc71cb3e4e14ad867ba21c806ab4bc8d6ea2d9",
+      "translation": "Exporter les boîtes de cette image dans un fichier d'étiquettes YOLO .txt accompagné d'un fichier de noms de classes."
+    },
+    {
+      "table": "ui",
+      "key": "Finish recropping first",
+      "source": "Finish recropping first",
+      "source_sha256": "60d3c93c5bd01e0db55198a23928bdc482d30da56f33220e74b41ebf82e5bd5d",
+      "translation": "Terminez d'abord le nouveau recadrage"
+    },
+    {
+      "table": "ui",
+      "key": "Image has box annotations",
+      "source": "Image has box annotations",
+      "source_sha256": "4b60ac4ac03a247d34dd1699d26acdfc10ab33fadd77772f6b2b2461482e8e63",
+      "translation": "L'image contient des annotations de boîtes"
+    },
+    {
+      "table": "ui",
+      "key": "Invalid class",
+      "source": "Invalid class",
+      "source_sha256": "049fa9c9efa3171b7651323a600f0b5bec316373a1d7e66a60708583878e2523",
+      "translation": "Classe non valide"
+    },
+    {
+      "table": "ui",
+      "key": "Move to a cropped field before adding box annotations.",
+      "source": "Move to a cropped field before adding box annotations.",
+      "source_sha256": "f35c2aa037f8583616590adae834dd56ea68c180cbc498b03651304500166551",
+      "translation": "Passez à un champ recadré avant d'ajouter des annotations de boîtes."
+    },
+    {
+      "table": "ui",
+      "key": "Remove this image's box annotations before recropping it.",
+      "source": "Remove this image's box annotations before recropping it.",
+      "source_sha256": "32033eef3d4524e7c1d4b3a454e6d3ceb9d628dd1c9eb7145b72c3c1104952bd",
+      "translation": "Supprimez les annotations de boîtes de cette image avant de la recadrer à nouveau."
+    },
+    {
+      "table": "ui",
+      "key": "Save boxes",
+      "source": "Save boxes",
+      "source_sha256": "44db33f3e8d48815516e448ce19a46a787ea900f42faccdbbb84b78b841248bf",
+      "translation": "Enregistrer les boîtes"
+    },
+    {
+      "table": "ui",
+      "key": "Unblind this session before exporting labels named after source images.",
+      "source": "Unblind this session before exporting labels named after source images.",
+      "source_sha256": "75bf47759b3aa6173af74ca3266268788e05368ad462c2280fc62761742bac70",
+      "translation": "Levez l'insu de cette session avant d'exporter des étiquettes nommées d'après les images sources."
+    },
+    {
+      "table": "ui",
+      "key": "YOLO export is off while blinded",
+      "source": "YOLO export is off while blinded",
+      "source_sha256": "d4bbbaa6a7f7c16fdb1fd731ef662ea75888afa6b94aee16a38b84fbbaca1b64",
+      "translation": "L'export YOLO est désactivé pendant l'insu"
+    },
+    {
+      "table": "ui",
+      "key": "YOLO labels (*.txt)",
+      "source": "YOLO labels (*.txt)",
+      "source_sha256": "1a74af8c8d591948f459768474145c9b69e3d0afdb1e0f7a370ea0a4fcf8deaf",
+      "translation": "Étiquettes YOLO (*.txt)"
+    },
+    {
+      "table": "ui",
+      "key": "YOLO labels exported → {path}",
+      "source": "YOLO labels exported → {path}",
+      "source_sha256": "ed570d06bbc20a2df16aefaf5606f55b35eecac884f00147ba3c261305d80aa4",
+      "translation": "Étiquettes YOLO exportées → {path}"
+    }
+  ]
+}

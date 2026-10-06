@@ -8207,7 +8207,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "classes",
-    "line": 7061,
+    "line": 7248,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_threshold_histogram"
@@ -8216,7 +8216,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 7063,
+    "line": 7250,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_threshold_histogram"
@@ -8225,7 +8225,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 11941,
+    "line": 12373,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -8234,7 +8234,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 11941,
+    "line": 12373,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._cpu_detect"
@@ -8243,7 +8243,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 12066,
+    "line": 12498,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._otsu_description"
@@ -12719,7 +12719,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "diameter",
-    "line": 14394,
+    "line": 14826,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "MakeMasksScreen._on_detect_cellpose"
@@ -16192,7 +16192,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "gpu",
-    "line": 3028,
+    "line": 3215,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "load_cellpose_model"
@@ -24477,7 +24477,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "mode",
-    "line": 5887,
+    "line": 6074,
     "module": "spacr.qt.screens.make_masks",
     "nested": false,
     "qualname": "_LiveMagnifier._primary_request_values"
@@ -29451,7 +29451,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "object_filters",
-    "line": 2039,
+    "line": 2384,
     "module": "spacr.qt.mask_engine",
     "nested": false,
     "qualname": "settings_filters"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 11:30-0400\n"
+"POT-Creation-Date: 2026-10-05 18:40-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -95,6 +95,34 @@ msgstr "**保存掩膜**、**上一张图像** 和 **下一张图像** 与编辑
 
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
 msgstr "如需在没有自己数据的情况下试用此屏幕，**加载测试数据...** 会下载十个未分割的弓形虫纳虫泡视野（其整理后的掩膜单独保存在 ``ground_truth_masks/`` 中），并打开第一个视野。同一按钮上的箭头可打开每个已发布模型所用训练数据集中的视野样本。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Draw bounding boxes for YOLO"
+msgstr "为 YOLO 绘制边界框"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open the source-image folder and choose **Box** beside **Draw**, or press **X**. Choose a class, or use **Add class** to name another class."
+msgstr "打开源图像文件夹，选择 **绘制** 旁的 **边界框**，或按 **X**。选择一个类别，或使用 **添加类别** 命名另一个类别。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Drag across the image to draw a box. Drag inside a box to move it, drag a corner to resize it, and right-click a box to delete it. Hold **Ctrl** while dragging to add an overlapping or contained box."
+msgstr "在图像上拖动以绘制边界框。在框内拖动可移动边界框，拖动角点可调整大小，右键单击边界框可删除。拖动时按住 **Ctrl** 可添加重叠边界框或位于另一个框内的边界框。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a box to change its class. **Undo** and **Redo** apply to box edits while Box is selected. Use **Save boxes**, or **Ctrl+S** in Box mode, to save editable annotations. Moving to another image or closing saves changed boxes first; a failed save keeps the current image open."
+msgstr "选择边界框可更改其类别。选中 边界框 时，**撤销** 和 **重做** 作用于边界框编辑。在 边界框 模式下，使用 **保存边界框** 或 **Ctrl+S** 保存可编辑的标注。切换到另一图像或关闭之前会先保存已更改的边界框；保存失败时，当前图像保持打开。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Export YOLO labels** and save the image's ``.txt`` label file. The export folder also receives ``.classes.json`` with the class-name mapping. A reviewed image without boxes exports an empty label file."
+msgstr "选择 **导出 YOLO 标签**，保存图像的 ``.txt`` 标签文件。导出文件夹还会收到包含类别名称映射的 ``.classes.json``。已审核但没有边界框的图像会导出空标签文件。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "YOLO label rows contain the class ID followed by centre X, centre Y, width and height, normalized to the full source image. Pair each label file with its original image when preparing a training dataset. Make Masks stores editable boxes in ``.spacr_yolo_annotations.json`` beside the source images; these annotations retain their image dimensions and source identity."
+msgstr "YOLO 标签行包含类别 ID，随后是中心 X、中心 Y、宽度和高度，均相对于完整源图像归一化。准备训练数据集时，应将每个标签文件与其原始图像配对。Make Masks 将可编辑边界框保存到源图像旁的 ``.spacr_yolo_annotations.json``；这些标注保留图像尺寸和源图像身份信息。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Finish **Recrop** before adding boxes. For Cellpose ``_seg.npy`` bundles, open or export a standalone image first. Named YOLO export becomes available after unblinding a blinded session. Boxes have their own editing history and leave image pixels and segmentation masks unchanged. Dataset splitting and YOLO model training are separate steps."
+msgstr "添加边界框前请完成 **重新裁剪**。对于 Cellpose ``_seg.npy`` 数据包，请先打开或导出独立图像。解除会话盲法后，才可按源图像名称导出 YOLO 标签。边界框有独立的编辑历史，不会改变图像像素或分割掩膜。数据集划分和 YOLO 模型训练是另外的步骤。"
 
 msgid "Drop images and folders"
 msgstr "拖放图像和文件夹"

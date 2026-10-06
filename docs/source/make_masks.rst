@@ -112,6 +112,34 @@ in ``ground_truth_masks/``, and opens the first. The arrow on the same
 button offers a sample of fields from the dataset each published model was
 trained on.
 
+Draw bounding boxes for YOLO
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. Open the source-image folder and choose **Box** beside **Draw**, or press
+   **X**. Choose a class, or use **Add class** to name another class.
+#. Drag across the image to draw a box. Drag inside a box to move it, drag
+   a corner to resize it, and right-click a box to delete it. Hold **Ctrl**
+   while dragging to add an overlapping or contained box.
+#. Select a box to change its class. **Undo** and **Redo** apply to box edits
+   while Box is selected. Use **Save boxes**, or **Ctrl+S** in Box mode, to
+   save editable annotations. Moving to another image or closing saves
+   changed boxes first; a failed save keeps the current image open.
+#. Choose **Export YOLO labels** and save the image's ``.txt`` label file.
+   The export folder also receives ``.classes.json`` with the class-name
+   mapping. A reviewed image without boxes exports an empty label file.
+
+YOLO label rows contain the class ID followed by centre X, centre Y, width
+and height, normalized to the full source image. Pair each label file with
+its original image when preparing a training dataset. Make Masks stores
+editable boxes in ``.spacr_yolo_annotations.json`` beside the source images;
+these annotations retain their image dimensions and source identity.
+
+Finish **Recrop** before adding boxes. For Cellpose ``_seg.npy`` bundles,
+open or export a standalone image first. Named YOLO export becomes available
+after unblinding a blinded session. Boxes have their own editing history
+and leave image pixels and segmentation masks unchanged. Dataset splitting
+and YOLO model training are separate steps.
+
 Drop images and folders
 ~~~~~~~~~~~~~~~~~~~~~~~
 

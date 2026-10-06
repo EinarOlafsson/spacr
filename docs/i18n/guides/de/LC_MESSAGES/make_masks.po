@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 11:30-0400\n"
+"POT-Creation-Date: 2026-10-05 18:40-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
@@ -95,6 +95,34 @@ msgstr "**Maske speichern**, **Vorheriges Bild** und **Nächstes Bild** stehen z
 
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
 msgstr "Um den Bildschirm ohne eigene Daten auszuprobieren, lädt **Testdaten laden...** zehn unsegmentierte Bildfelder mit Toxoplasma-Vakuolen herunter, deren kuratierte Masken getrennt in ``ground_truth_masks/`` aufbewahrt werden, und öffnet das erste. Der Pfeil an derselben Schaltfläche bietet eine Stichprobe von Bildfeldern aus dem Datensatz, mit dem jedes veröffentlichte Modell trainiert wurde."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Draw bounding boxes for YOLO"
+msgstr "Begrenzungsrahmen für YOLO zeichnen"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open the source-image folder and choose **Box** beside **Draw**, or press **X**. Choose a class, or use **Add class** to name another class."
+msgstr "Öffnen Sie den Ordner mit den Quellbildern und wählen Sie **Rahmen** neben **Zeichnen**, oder drücken Sie **X**. Wählen Sie eine Klasse oder benennen Sie mit **Klasse hinzufügen** eine weitere Klasse."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Drag across the image to draw a box. Drag inside a box to move it, drag a corner to resize it, and right-click a box to delete it. Hold **Ctrl** while dragging to add an overlapping or contained box."
+msgstr "Ziehen Sie über das Bild, um einen Rahmen zu zeichnen. Ziehen Sie innerhalb eines Rahmens, um ihn zu verschieben, ziehen Sie eine Ecke, um seine Größe zu ändern, und rechtsklicken Sie auf einen Rahmen, um ihn zu löschen. Halten Sie beim Ziehen **Ctrl** gedrückt, um einen überlappenden oder eingeschlossenen Rahmen hinzuzufügen."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a box to change its class. **Undo** and **Redo** apply to box edits while Box is selected. Use **Save boxes**, or **Ctrl+S** in Box mode, to save editable annotations. Moving to another image or closing saves changed boxes first; a failed save keeps the current image open."
+msgstr "Wählen Sie einen Rahmen aus, um seine Klasse zu ändern. **Rückgängig** und **Wiederherstellen** wirken auf Rahmenänderungen, solange Rahmen ausgewählt ist. Speichern Sie bearbeitbare Annotationen mit **Rahmen speichern** oder **Ctrl+S** im Modus Rahmen. Vor einem Bildwechsel oder dem Schließen werden geänderte Rahmen gespeichert; bei einem Speicherfehler bleibt das aktuelle Bild geöffnet."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Export YOLO labels** and save the image's ``.txt`` label file. The export folder also receives ``.classes.json`` with the class-name mapping. A reviewed image without boxes exports an empty label file."
+msgstr "Wählen Sie **YOLO-Labels exportieren** und speichern Sie die ``.txt``-Labeldatei des Bildes. Der Exportordner erhält außerdem ``.classes.json`` mit der Klassennamenzuordnung. Ein geprüftes Bild ohne Rahmen erzeugt eine leere Labeldatei."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "YOLO label rows contain the class ID followed by centre X, centre Y, width and height, normalized to the full source image. Pair each label file with its original image when preparing a training dataset. Make Masks stores editable boxes in ``.spacr_yolo_annotations.json`` beside the source images; these annotations retain their image dimensions and source identity."
+msgstr "YOLO-Labelzeilen enthalten die Klassen-ID, gefolgt von Mittelpunkt X, Mittelpunkt Y, Breite und Höhe, normalisiert auf das vollständige Quellbild. Ordnen Sie beim Vorbereiten eines Trainingsdatensatzes jeder Labeldatei ihr Originalbild zu. Make Masks speichert bearbeitbare Rahmen in ``.spacr_yolo_annotations.json`` neben den Quellbildern; diese Annotationen behalten die Bildabmessungen und die Quellidentität."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Finish **Recrop** before adding boxes. For Cellpose ``_seg.npy`` bundles, open or export a standalone image first. Named YOLO export becomes available after unblinding a blinded session. Boxes have their own editing history and leave image pixels and segmentation masks unchanged. Dataset splitting and YOLO model training are separate steps."
+msgstr "Schließen Sie **Erneut zuschneiden** ab, bevor Sie Rahmen hinzufügen. Öffnen oder exportieren Sie bei Cellpose-Paketen im Format ``_seg.npy`` zuerst ein eigenständiges Bild. Der benannte YOLO-Export wird verfügbar, nachdem die Verblindung einer Sitzung aufgehoben wurde. Rahmen haben eine eigene Bearbeitungshistorie und lassen Bildpixel und Segmentierungsmasken unverändert. Die Aufteilung des Datensatzes und das Training eines YOLO-Modells sind separate Schritte."
 
 msgid "Drop images and folders"
 msgstr "Bilder und Ordner ablegen"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 11:30-0400\n"
+"POT-Creation-Date: 2026-10-05 18:40-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -95,6 +95,34 @@ msgstr "**Spara mask**, **Föregående bild** och **Nästa bild** finns på den 
 
 msgid "To try the screen without your own data, **Load test data…** downloads ten unsegmented Toxoplasma vacuole fields, with their curated masks kept apart in ``ground_truth_masks/``, and opens the first. The arrow on the same button offers a sample of fields from the dataset each published model was trained on."
 msgstr "För att prova skärmen utan egna data laddar **Ladda testdata...** ner tio osegmenterade fält med Toxoplasma-vakuoler, med deras kurerade masker undanlagda i ``ground_truth_masks/``, och öppnar det första. Pilen på samma knapp erbjuder ett urval fält från den datamängd som varje publicerad modell tränades på."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Draw bounding boxes for YOLO"
+msgstr "Rita avgränsningsrutor för YOLO"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Open the source-image folder and choose **Box** beside **Draw**, or press **X**. Choose a class, or use **Add class** to name another class."
+msgstr "Öppna mappen med källbilder och välj **Ruta** bredvid **Rita**, eller tryck på **X**. Välj en klass, eller använd **Lägg till klass** för att namnge en ny klass."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Drag across the image to draw a box. Drag inside a box to move it, drag a corner to resize it, and right-click a box to delete it. Hold **Ctrl** while dragging to add an overlapping or contained box."
+msgstr "Dra över bilden för att rita en ruta. Dra inuti en ruta för att flytta den, dra ett hörn för att ändra dess storlek och högerklicka på en ruta för att ta bort den. Håll **Ctrl** medan du drar för att lägga till en överlappande ruta eller en ruta inuti en annan."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Select a box to change its class. **Undo** and **Redo** apply to box edits while Box is selected. Use **Save boxes**, or **Ctrl+S** in Box mode, to save editable annotations. Moving to another image or closing saves changed boxes first; a failed save keeps the current image open."
+msgstr "Välj en ruta för att ändra dess klass. **Ångra** och **Gör om** gäller rutändringar medan Ruta är valt. Använd **Spara rutor**, eller **Ctrl+S** i Ruta-läget, för att spara redigerbara annoteringar. Ändrade rutor sparas innan du byter bild eller stänger; om sparandet misslyckas förblir den aktuella bilden öppen."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Export YOLO labels** and save the image's ``.txt`` label file. The export folder also receives ``.classes.json`` with the class-name mapping. A reviewed image without boxes exports an empty label file."
+msgstr "Välj **Exportera YOLO-etiketter** och spara bildens etikettfil i ``.txt``-format. Exportmappen får även ``.classes.json`` med klassnamnsmappningen. En granskad bild utan rutor exporterar en tom etikettfil."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "YOLO label rows contain the class ID followed by centre X, centre Y, width and height, normalized to the full source image. Pair each label file with its original image when preparing a training dataset. Make Masks stores editable boxes in ``.spacr_yolo_annotations.json`` beside the source images; these annotations retain their image dimensions and source identity."
+msgstr "YOLO-etikettrader innehåller klass-ID följt av centrumets X, centrumets Y, bredd och höjd, normaliserade till hela källbilden. Koppla varje etikettfil till dess originalbild när du förbereder träningsdata. Make Masks sparar redigerbara rutor i ``.spacr_yolo_annotations.json`` bredvid källbilderna; annoteringarna behåller bilddimensioner och källidentitet."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Finish **Recrop** before adding boxes. For Cellpose ``_seg.npy`` bundles, open or export a standalone image first. Named YOLO export becomes available after unblinding a blinded session. Boxes have their own editing history and leave image pixels and segmentation masks unchanged. Dataset splitting and YOLO model training are separate steps."
+msgstr "Slutför **Beskär igen** innan du lägger till rutor. För Cellpose-paket i ``_seg.npy``-format ska du först öppna eller exportera en fristående bild. Namngiven YOLO-export blir tillgänglig när en blindad session avblindas. Rutor har egen redigeringshistorik och lämnar bildpixlar och segmenteringsmasker oförändrade. Uppdelning av datamängden och träning av YOLO-modeller är separata steg."
 
 msgid "Drop images and folders"
 msgstr "Släpp bilder och mappar"
