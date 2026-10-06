@@ -1,0 +1,16 @@
+{
+  "application_source_sha256": "19e04a7a686adbbe78ad1d173b466ff4d44a08fcfbc9e47a01989df97d253945",
+  "normal_four_crop_scorecard": {
+    "knn_accuracy": 1.0,
+    "map": 1.0,
+    "precision_at_k": 1.0,
+    "chance_map": 0.3333333333333333,
+    "chance_precision": 0.3333333333333333,
+    "n": 4.0,
+    "classes": 2.0
+  },
+  "exact_random_rank_AP_enumerated_all_permutations": 0.6111111111111112,
+  "normal_chance_precision_is_correct": true,
+  "normal_chance_map_uses_class_prevalence_not_exact_random_AP_expectation": true,
+  "no_GPU_biological_model_performance_or_application_source_change": true
+}
