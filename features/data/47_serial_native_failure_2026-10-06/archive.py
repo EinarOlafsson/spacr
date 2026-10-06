@@ -27,10 +27,13 @@ for name in ['n47-puncta-false-replay.log', 'n47-puncta-file-replay.log',
 for name in ['n47-bounded-replay-manifest.json', 'faulthandler_fd_repro.py']:
     shutil.copyfile(SOURCE / name, TARGET / name)
 for folder in ['first', 'second']:
-    shutil.copyfile(SOURCE / 'fd-repro' / folder / 'spacr-crash.log',
-                    TARGET / ('handler-' + folder + '-crash.log'))
-shutil.copyfile(SOURCE / 'fd-repro/stdout.log', TARGET / 'handler-repro-stdout.log')
-shutil.copyfile(SOURCE / 'fd-repro/stderr.log', TARGET / 'handler-repro-stderr.log')
+    compress('handler-' + folder + '-crash.log',
+             SOURCE / 'fd-repro' / folder / 'spacr-crash.log')
+compress('handler-repro-stdout.log', SOURCE / 'fd-repro/stdout.log')
+compress('handler-repro-stderr.log', SOURCE / 'fd-repro/stderr.log')
+for name in ['handler-first-crash.log', 'handler-second-crash.log',
+             'handler-repro-stdout.log', 'handler-repro-stderr.log']:
+    (TARGET / name).unlink(missing_ok=True)
 
 rows = [json.loads(line) for line in (SOURCE / 'n47/file-rss.jsonl').read_text().splitlines()]
 last = rows[-1]
