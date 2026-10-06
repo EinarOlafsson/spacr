@@ -278,3 +278,33 @@ Normal source-current API/runtime/docs/translation generation remains
 workstation-owned. Its three provenance/chance-AP helpers are unchanged from
 e259c2d4e, and all original scientific/CUDA/tutorial receipts are preserved.
 Item 560 remains OPEN for those precise remaining scopes.
+
+2026-10-06 workstation Cell-DINO local checkpoint provenance fixed:
+_weights_on_disk now accepts explicit checkpoint_path/checkpoint_sha256 for
+Cell-DINO, resolves the real path and hashes stable regular-file bytes without
+loading/downloading a model or importing torch/timm/transformers. Actual bytes
+must match the declared SHA-256; before/after/final path identity checks refuse
+changed, replaced or removed files. Missing, malformed, mismatched, unreadable,
+directory and FIFO inputs retain empty provenance. encoder_entry passes these
+fields only for Cell-DINO; all existing backbone calls and provenance remain
+unchanged. UNKNOWN provider/training provenance and verified=False remain honest.
+Actual synthetic-vector database storage/cross-plate search accepts the real
+verified file identity, then correctly refuses a changed checkpoint. This is
+provenance/storage acceptance, not pretrained scientific model acceptance.
+
+The combined compatible-environment CPU/Qt cohort passes 147 with no skips.
+All 26 added executable lines are exercised; no whole-module/global coverage
+claim. Only these two helpers change; all inference, spec and scientific
+scorecard functions are AST-exact to the integrated Home source. All twelve
+original full human-labelled fluorescence scorecards replay on this actual
+source at the unchanged 1e-12 guard; all six real checkpoint digests agree
+with the original frozen GPU plan. Receipt:
+data/560_cell_dino_local_provenance_2026-10-06.json.
+
+Home: the empty ModelEntry SHA gap is closed for a valid supplied local
+Cell-DINO checkpoint. Do not overwrite these two coordinated helper bodies.
+The workstation's normal API/runtime/Help/settings/guide and all-nine-language
+refresh is next. Actual official pretrained Cell-DINO weights are still
+unobtained; scientific/GPU acceptance remains OPEN. User theme revisions and
+the preference-save native crash remain Home priority under N663. Protected
+serial Qt 37457998285 is still running at older 237506317; leave it alone.

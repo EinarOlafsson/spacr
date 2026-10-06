@@ -1893,7 +1893,8 @@ def encoder_key(spec: "EmbeddingSpec") -> str:
     return f"{ENCODER_KEY_PREFIX}{spec.backbone}/{spec.channel_policy}"
 
 
-def _weights_on_disk(backbone: str) -> Tuple[str, str, int]:
+def _weights_on_disk(backbone: str, *, checkpoint_path: Optional[str] = None,
+                     checkpoint_sha256: Optional[str] = None) -> Tuple[str, str, int]:
     """Find the encoder's existing checkpoint and hash its actual bytes.
 
     :returns: ``(path, sha256, size_bytes)``; the path is ``''`` and the
@@ -1903,10 +1904,42 @@ def _weights_on_disk(backbone: str) -> Tuple[str, str, int]:
     SubCell uses the existing torch hub checkpoint directory; local DINO
     uses its configured path. Other backbones use timm's cache metadata.
     No checkpoint is downloaded or loaded, and torch is not imported.
+
+    Cell-DINO uses ``checkpoint_path`` only when its stable regular-file
+    bytes match ``checkpoint_sha256``. Missing, changed or mismatched files
+    return the same empty provenance tuple as an unresolved cache.
     """
     import sys
 
     try:
+        if backbone == "cell_dino":
+            if (not isinstance(checkpoint_path, str) or not checkpoint_path
+                    or not isinstance(checkpoint_sha256, str)
+                    or not re.fullmatch(r"[0-9a-fA-F]{64}", checkpoint_sha256)):
+                return "", "", 0
+            path = os.path.realpath(os.path.expanduser(checkpoint_path))
+            descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NONBLOCK", 0))
+            before = os.fstat(descriptor)
+            if not stat.S_ISREG(before.st_mode):
+                os.close(descriptor)
+                return "", "", 0
+            with os.fdopen(descriptor, "rb") as handle:
+                digest = hashlib.sha256()
+                size = 0
+                for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                    digest.update(chunk)
+                    size += len(chunk)
+                after = os.fstat(handle.fileno())
+                current = os.stat(path)
+                identity = lambda status: (
+                    status.st_dev, status.st_ino, status.st_size,
+                    status.st_mtime_ns, status.st_ctime_ns)
+                if (identity(before) != identity(after)
+                        or identity(after) != identity(current)
+                        or size != after.st_size
+                        or digest.hexdigest() != checkpoint_sha256.lower()):
+                    return "", "", 0
+                return path, digest.hexdigest(), size
         if backbone.startswith(_DINO_PREFIX):
             path = backbone[len(_DINO_PREFIX):]
         elif backbone in _FOUNDATION_MODELS:
@@ -1969,7 +2002,10 @@ def encoder_entry(spec: Optional["EmbeddingSpec"] = None, *,
     local checkpoint bytes without downloading or loading a model. Public
     backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned
     Hugging Face revisions; SubCell uses its official torch hub checkpoint;
-    a local DINO encoder uses its configured checkpoint path. Foundation
+    a local DINO encoder uses its configured checkpoint path. Cell-DINO
+    uses the declared local checkpoint only when stable regular-file bytes
+    match its expected SHA-256; changed or mismatched files leave no digest.
+    Foundation
     entries name the original provider and checkpoint URL. A checksum alone
     does not verify a model or establish its training-data provenance.
 
@@ -1986,7 +2022,12 @@ def encoder_entry(spec: Optional["EmbeddingSpec"] = None, *,
     from .qt.i18n import tr
 
     spec = spec if spec is not None else EmbeddingSpec()
-    path, digest, size = _weights_on_disk(spec.backbone)
+    if spec.backbone == "cell_dino":
+        path, digest, size = _weights_on_disk(
+            spec.backbone, checkpoint_path=spec.checkpoint_path,
+            checkpoint_sha256=spec.checkpoint_sha256)
+    else:
+        path, digest, size = _weights_on_disk(spec.backbone)
 
     notes = [
         tr("Channel policy: {policy}. Dimensions from different policies "
