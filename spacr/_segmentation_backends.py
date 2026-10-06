@@ -3469,6 +3469,8 @@ def _event_video_features(windows, model_dir, channel_map, *, device=None,
 def _worker_event_video_features(name, request, adapters):
     """Encode one bounded clip at a time with frozen strictly loaded weights.
 
+    CUDA convolutions use IEEE float32; the previous precision is restored
+    after inference, including failures, without changing another backend.
     :returns: output path and actual preprocessing/model/device provenance.
     :raises ValueError: incorrect worker, changed checkpoint or invalid crops.
     """
@@ -3505,7 +3507,13 @@ def _worker_event_video_features(name, request, adapters):
     threads = torch.get_num_threads()
     if str(device) == "cpu":
         torch.set_num_threads(min(threads, 2))
+    precision_backend = getattr(torch.backends.cudnn, "conv", torch.backends.cudnn)
+    precision_key = ("fp32_precision" if hasattr(precision_backend, "fp32_precision")
+                     else "allow_tf32")
+    previous_precision = getattr(precision_backend, precision_key)
     try:
+        setattr(precision_backend, precision_key,
+                "ieee" if precision_key == "fp32_precision" else False)
         with torch.inference_mode():
             for index, window in enumerate(source):
                 clip = np.clip(window[sampled][:, channels], 0, 1).astype(np.float32)
@@ -3516,6 +3524,7 @@ def _worker_event_video_features(name, request, adapters):
                 encoded = model.fc_norm(hidden.mean(dim=1))
                 features[index] = encoded[0].float().cpu().numpy()
     finally:
+        setattr(precision_backend, precision_key, previous_precision)
         torch.set_num_threads(threads)
     if not np.isfinite(features).all():
         raise ValueError("VideoMAE produced nonfinite features")
@@ -3525,6 +3534,7 @@ def _worker_event_video_features(name, request, adapters):
     np.save(request["output"], features, allow_pickle=False)
     return {"output": request["output"], "provenance": {
         **identity, "channel_map": channels, "device": str(device),
+        "CUDA_convolution_precision": "IEEE float32",
         "transformers": importlib.metadata.version("transformers"),
         "torch": str(torch.__version__)}}
 

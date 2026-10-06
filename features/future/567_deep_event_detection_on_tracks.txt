@@ -242,3 +242,17 @@ Item567 remains OPEN for actual GPU validation, held-out annotated biological
 events, real Toxo egress/invasion, Home annotation GUI integration and normal
 latest-source API/docs/translations/publication. Workstation owns those GPU
 and documentation lanes; Home retains the GUI source lane.
+
+2026-10-06 workstation actual CPU/CUDA precision acceptance:
+The genuine pinned VideoMAE worker passed the normal GPU queue on declared
+RGB and repeated monochrome clips. Both device repetitions are bit exact;
+maximum CPU/CUDA differences are1.132488e-6 and1.236796e-6 at the unchanged
+rtol2e-4/atol2e-5 contract. The worker temporarily selects IEEE float32
+convolutions and restores previous precision/thread settings, including a
+deliberate exception during real-model forward. Original CPU features are
+unchanged. All158 affected backend/event/environment checks pass. Complete
+before/after arrays, original failed CUDA run, diagnostic workers, terminal
+logs and accepted source are preserved in
+data/567_event_video_precision_2026-10-06.json and its evidence folder.
+This completes numerical GPU acceptance for that fixture. Annotated held-out
+Toxoplasma event accuracy and final integrated-source publication remain OPEN.
