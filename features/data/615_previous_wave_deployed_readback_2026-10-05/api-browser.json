@@ -1,0 +1,378 @@
+{
+  "passed": true,
+  "scope": "Actual deployed nightly Sphinx API pages in all nine locales, including puncta, figure preference literals, shortcut prose and current preprocessing.",
+  "catalog_readback_sha256": {
+    "en": "22b09912629283d0a0f8947fa25c07b3eabd13dcd8c4b5fa7e3ed2ae683fa03d",
+    "sv": "c62f736ca91573819b6c0c7f6763c500b95320a06ef8bd9e0d2fb5c27a1a852c",
+    "de": "ccc257f94c2fe6df9b7f47b3ca9bdd8f5d22e08a54fb5fefcb762121808b893d",
+    "es": "afc887458f534210d2bd71bbf25f7b85b5904a3a3a88417cc6fb824f6912cc2d",
+    "zh_CN": "79878b0f922bcd0d08882a55f549cd2f045c3e158a17d74bf2ba82d35c1de37e",
+    "pt": "12bc8ede25d2a0a8af840d0a1fc4335eb63ea4c100b63cb874651f69b2e7af09",
+    "hi": "3115978a72d9f15d7ab77a9e41180e1a5493455932fda3ccd67533a149f6bad9",
+    "ko": "9c11351473379bdccf341276e8df94ba6d29ae8190f267d3bce3b0c9b0957418",
+    "is": "b875cc3a4942abcb7cffb6f2cca37e8fff7773f6f72ddcde30a039b12b6eebf1",
+    "fr": "598f43e0fe785e968c0dcadfddbabb306093b5e372cf32469cebf19860c49491"
+  },
+  "cases": [
+    {
+      "symbol": "spacr.qt.cpu_modes.puncta",
+      "language": "sv",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/qt/cpu_modes/index.html",
+      "page_sha256": "e65027a7253084cad8a02a99581ac277a4862119c4026e2a99e4c46b2a681926",
+      "catalog_source_sha256": "f9746c0b1a8c615fbf5ebdcc5a65640f8973c1c77d41e688c2d71a9f3b4b3232",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "308dafd130a4875da8ab1309dd4c420b42d44365b29f3ad76fb4759baa162bce",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.cpu_modes.puncta",
+      "language": "de",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/qt/cpu_modes/index.html",
+      "page_sha256": "e65027a7253084cad8a02a99581ac277a4862119c4026e2a99e4c46b2a681926",
+      "catalog_source_sha256": "f9746c0b1a8c615fbf5ebdcc5a65640f8973c1c77d41e688c2d71a9f3b4b3232",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "d4da661581045b1e0be014cc2d0054b2884806ad00d0afa9e705c610b8605fd0",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.cpu_modes.puncta",
+      "language": "es",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/qt/cpu_modes/index.html",
+      "page_sha256": "e65027a7253084cad8a02a99581ac277a4862119c4026e2a99e4c46b2a681926",
+      "catalog_source_sha256": "f9746c0b1a8c615fbf5ebdcc5a65640f8973c1c77d41e688c2d71a9f3b4b3232",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "b5e3f14cd5a3a2f165a0984b28631be3ad9861182c6aa5bd7f5124e06acb8bdd",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.cpu_modes.puncta",
+      "language": "zh_CN",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/qt/cpu_modes/index.html",
+      "page_sha256": "e65027a7253084cad8a02a99581ac277a4862119c4026e2a99e4c46b2a681926",
+      "catalog_source_sha256": "f9746c0b1a8c615fbf5ebdcc5a65640f8973c1c77d41e688c2d71a9f3b4b3232",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "40895415b464da22a921f5ed8c12801ef978af0a607e0842d6cf01192d254ff3",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.cpu_modes.puncta",
+      "language": "pt",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/qt/cpu_modes/index.html",
+      "page_sha256": "e65027a7253084cad8a02a99581ac277a4862119c4026e2a99e4c46b2a681926",
+      "catalog_source_sha256": "f9746c0b1a8c615fbf5ebdcc5a65640f8973c1c77d41e688c2d71a9f3b4b3232",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "1c625e5b60eb8f3da5b336989a9ad08fcf0245def0554d7d3bb09989af873197",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.cpu_modes.puncta",
+      "language": "hi",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/qt/cpu_modes/index.html",
+      "page_sha256": "e65027a7253084cad8a02a99581ac277a4862119c4026e2a99e4c46b2a681926",
+      "catalog_source_sha256": "f9746c0b1a8c615fbf5ebdcc5a65640f8973c1c77d41e688c2d71a9f3b4b3232",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "2f59253a3edbf4e26f47d053ed3295e7d6f79a03c2f73cc489297c1fcf91ab4a",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.cpu_modes.puncta",
+      "language": "ko",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/qt/cpu_modes/index.html",
+      "page_sha256": "e65027a7253084cad8a02a99581ac277a4862119c4026e2a99e4c46b2a681926",
+      "catalog_source_sha256": "f9746c0b1a8c615fbf5ebdcc5a65640f8973c1c77d41e688c2d71a9f3b4b3232",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "749b2526e75f5c73b5a86aea75b7cafc82b7e37aa0ad4fce5731d4e115b0a9e7",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.cpu_modes.puncta",
+      "language": "is",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/qt/cpu_modes/index.html",
+      "page_sha256": "e65027a7253084cad8a02a99581ac277a4862119c4026e2a99e4c46b2a681926",
+      "catalog_source_sha256": "f9746c0b1a8c615fbf5ebdcc5a65640f8973c1c77d41e688c2d71a9f3b4b3232",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "76bbc8128c3f6a928c876078f762157cf8ceac3e347119638273f3ae94673d89",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.cpu_modes.puncta",
+      "language": "fr",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/qt/cpu_modes/index.html",
+      "page_sha256": "e65027a7253084cad8a02a99581ac277a4862119c4026e2a99e4c46b2a681926",
+      "catalog_source_sha256": "f9746c0b1a8c615fbf5ebdcc5a65640f8973c1c77d41e688c2d71a9f3b4b3232",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "a2f1538d849168f71fa39039e4c8ffea4b380891114f272e002659eb20e17f87",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.plot.figure_output_preferences",
+      "language": "sv",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/plot/index.html",
+      "page_sha256": "ba56c720da9d7c3d2e95d67928e5ecbb197043f0f212a7c9e9efce18f3a100c5",
+      "catalog_source_sha256": "e17a4a500963300e05dda46aeef8627cd8e7f59a84d62e9d17ba5860f88be6c8",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "5172b45f8ec90e0fc910aa073cf1618855c3e2e8b8603d253e5f04f534824483",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.plot.figure_output_preferences",
+      "language": "de",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/plot/index.html",
+      "page_sha256": "ba56c720da9d7c3d2e95d67928e5ecbb197043f0f212a7c9e9efce18f3a100c5",
+      "catalog_source_sha256": "e17a4a500963300e05dda46aeef8627cd8e7f59a84d62e9d17ba5860f88be6c8",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "e1e8e66b3bd1ef9a5113f2bf445caccaad70c14ec371b1d3159ef430e252e919",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.plot.figure_output_preferences",
+      "language": "es",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/plot/index.html",
+      "page_sha256": "ba56c720da9d7c3d2e95d67928e5ecbb197043f0f212a7c9e9efce18f3a100c5",
+      "catalog_source_sha256": "e17a4a500963300e05dda46aeef8627cd8e7f59a84d62e9d17ba5860f88be6c8",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "e3d5f8b00759487b928b523eddf326f649e324afff8c5e2b0da76d3898f97282",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.plot.figure_output_preferences",
+      "language": "zh_CN",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/plot/index.html",
+      "page_sha256": "ba56c720da9d7c3d2e95d67928e5ecbb197043f0f212a7c9e9efce18f3a100c5",
+      "catalog_source_sha256": "e17a4a500963300e05dda46aeef8627cd8e7f59a84d62e9d17ba5860f88be6c8",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "e7ef19c2f1e59d313209262087f600fdb50365c1833a4e5b0f8f50a3928f1372",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.plot.figure_output_preferences",
+      "language": "pt",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/plot/index.html",
+      "page_sha256": "ba56c720da9d7c3d2e95d67928e5ecbb197043f0f212a7c9e9efce18f3a100c5",
+      "catalog_source_sha256": "e17a4a500963300e05dda46aeef8627cd8e7f59a84d62e9d17ba5860f88be6c8",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "bf936ed36a9cde1d2da4d37049f104388633640f86a3c129b128c4f12f64d4bf",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.plot.figure_output_preferences",
+      "language": "hi",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/plot/index.html",
+      "page_sha256": "ba56c720da9d7c3d2e95d67928e5ecbb197043f0f212a7c9e9efce18f3a100c5",
+      "catalog_source_sha256": "e17a4a500963300e05dda46aeef8627cd8e7f59a84d62e9d17ba5860f88be6c8",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "4b9ef6c41a0486004f7d751f73b37c8bb840543474935cfa6c683d334fa791c4",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.plot.figure_output_preferences",
+      "language": "ko",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/plot/index.html",
+      "page_sha256": "ba56c720da9d7c3d2e95d67928e5ecbb197043f0f212a7c9e9efce18f3a100c5",
+      "catalog_source_sha256": "e17a4a500963300e05dda46aeef8627cd8e7f59a84d62e9d17ba5860f88be6c8",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "28260e12e154bdb9d907d29d283a923781a1e759c3c562a7cad51a18852e10da",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.plot.figure_output_preferences",
+      "language": "is",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/plot/index.html",
+      "page_sha256": "ba56c720da9d7c3d2e95d67928e5ecbb197043f0f212a7c9e9efce18f3a100c5",
+      "catalog_source_sha256": "e17a4a500963300e05dda46aeef8627cd8e7f59a84d62e9d17ba5860f88be6c8",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "21397cee7a8d69fabe14f6be4e22b4d32f97828cf5471e4e3af5e0361b0c8813",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.plot.figure_output_preferences",
+      "language": "fr",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/plot/index.html",
+      "page_sha256": "ba56c720da9d7c3d2e95d67928e5ecbb197043f0f212a7c9e9efce18f3a100c5",
+      "catalog_source_sha256": "e17a4a500963300e05dda46aeef8627cd8e7f59a84d62e9d17ba5860f88be6c8",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "f806cdf8867aca46ea3611e6917cbffc07984b709e4d1b964cf6a9c6baaee4c2",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.shortcuts",
+      "language": "sv",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/qt/shortcuts/index.html",
+      "page_sha256": "b009160079c3ca39f54a8e7ac76c9b121817cef5a9964929681bee1f0c4539b7",
+      "catalog_source_sha256": "62034dc1cc0d2f1c6cad3f21b75e8b9deb4fb3c5510d0c50d64c947f8305a805",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "ec8c5d1a5475b99adaadc4be230a011b304638c6e92229e5bfd0c81e22240733",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.shortcuts",
+      "language": "de",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/qt/shortcuts/index.html",
+      "page_sha256": "b009160079c3ca39f54a8e7ac76c9b121817cef5a9964929681bee1f0c4539b7",
+      "catalog_source_sha256": "62034dc1cc0d2f1c6cad3f21b75e8b9deb4fb3c5510d0c50d64c947f8305a805",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "b07ff8c422aed3b9cf84f2f3eaaf7ae312d634c840c12b2e6fa75e4460f4f60b",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.shortcuts",
+      "language": "es",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/qt/shortcuts/index.html",
+      "page_sha256": "b009160079c3ca39f54a8e7ac76c9b121817cef5a9964929681bee1f0c4539b7",
+      "catalog_source_sha256": "62034dc1cc0d2f1c6cad3f21b75e8b9deb4fb3c5510d0c50d64c947f8305a805",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "63559fd9afc0d5621261d04727fc6636e63af12e1024a0031298ed2fae2abec7",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.shortcuts",
+      "language": "zh_CN",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/qt/shortcuts/index.html",
+      "page_sha256": "b009160079c3ca39f54a8e7ac76c9b121817cef5a9964929681bee1f0c4539b7",
+      "catalog_source_sha256": "62034dc1cc0d2f1c6cad3f21b75e8b9deb4fb3c5510d0c50d64c947f8305a805",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "d492255de199f73406991ee5dd262375a53a95f76401db349383fae1dbf86c5f",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.shortcuts",
+      "language": "pt",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/qt/shortcuts/index.html",
+      "page_sha256": "b009160079c3ca39f54a8e7ac76c9b121817cef5a9964929681bee1f0c4539b7",
+      "catalog_source_sha256": "62034dc1cc0d2f1c6cad3f21b75e8b9deb4fb3c5510d0c50d64c947f8305a805",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "ec24765e3f047fda5ae10bb71180fb500f37eab4374d8dcab28008691322a074",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.shortcuts",
+      "language": "hi",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/qt/shortcuts/index.html",
+      "page_sha256": "b009160079c3ca39f54a8e7ac76c9b121817cef5a9964929681bee1f0c4539b7",
+      "catalog_source_sha256": "62034dc1cc0d2f1c6cad3f21b75e8b9deb4fb3c5510d0c50d64c947f8305a805",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "408fa033546753f3314b6043f134fd74a6ae44030f7f371bc0f0eceeff977ecb",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.shortcuts",
+      "language": "ko",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/qt/shortcuts/index.html",
+      "page_sha256": "b009160079c3ca39f54a8e7ac76c9b121817cef5a9964929681bee1f0c4539b7",
+      "catalog_source_sha256": "62034dc1cc0d2f1c6cad3f21b75e8b9deb4fb3c5510d0c50d64c947f8305a805",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "666765bdccfa26b22b53c40fc34acc34aebec01249b834a79921dd049c098a3c",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.shortcuts",
+      "language": "is",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/qt/shortcuts/index.html",
+      "page_sha256": "b009160079c3ca39f54a8e7ac76c9b121817cef5a9964929681bee1f0c4539b7",
+      "catalog_source_sha256": "62034dc1cc0d2f1c6cad3f21b75e8b9deb4fb3c5510d0c50d64c947f8305a805",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "115507b25e18a2a2ed791722dad1ef262692999377f2ce280f68fd454865993e",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.qt.shortcuts",
+      "language": "fr",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/qt/shortcuts/index.html",
+      "page_sha256": "b009160079c3ca39f54a8e7ac76c9b121817cef5a9964929681bee1f0c4539b7",
+      "catalog_source_sha256": "62034dc1cc0d2f1c6cad3f21b75e8b9deb4fb3c5510d0c50d64c947f8305a805",
+      "literal_count": 1,
+      "translated_panel_text_sha256": "7383f3f54846fee23327f7a940a373015abf67d184b3728705d6d81588678703",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.core.preprocess_generate_masks",
+      "language": "sv",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/core/index.html",
+      "page_sha256": "cbd967e3423115bcd22ddeac726d3f914d8a403e037fbf3dcc5c225599b59e14",
+      "catalog_source_sha256": "5e7bae4cbe79501ac806ac881eb1ac588dc1b212e610f7853b65322d8b5bf7df",
+      "literal_count": 75,
+      "translated_panel_text_sha256": "ff00b64a3d9dde8b653daefa6e55c3068d6325da6011f9d1eb84941583ad7710",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.core.preprocess_generate_masks",
+      "language": "de",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/core/index.html",
+      "page_sha256": "cbd967e3423115bcd22ddeac726d3f914d8a403e037fbf3dcc5c225599b59e14",
+      "catalog_source_sha256": "5e7bae4cbe79501ac806ac881eb1ac588dc1b212e610f7853b65322d8b5bf7df",
+      "literal_count": 75,
+      "translated_panel_text_sha256": "f7933438601a402613546903b9fb5d7f4c7fee8bc04d18b3701c39453268d126",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.core.preprocess_generate_masks",
+      "language": "es",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/core/index.html",
+      "page_sha256": "cbd967e3423115bcd22ddeac726d3f914d8a403e037fbf3dcc5c225599b59e14",
+      "catalog_source_sha256": "5e7bae4cbe79501ac806ac881eb1ac588dc1b212e610f7853b65322d8b5bf7df",
+      "literal_count": 75,
+      "translated_panel_text_sha256": "ed3d70df7a6bc038d54d27e61ce47406ddff0b6848751db2daefaa5ff0087eed",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.core.preprocess_generate_masks",
+      "language": "zh_CN",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/core/index.html",
+      "page_sha256": "cbd967e3423115bcd22ddeac726d3f914d8a403e037fbf3dcc5c225599b59e14",
+      "catalog_source_sha256": "5e7bae4cbe79501ac806ac881eb1ac588dc1b212e610f7853b65322d8b5bf7df",
+      "literal_count": 75,
+      "translated_panel_text_sha256": "d8e9518ac77f2c6207995133eac298ca461a982dd99793917cce67a5a7f396c3",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.core.preprocess_generate_masks",
+      "language": "pt",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/core/index.html",
+      "page_sha256": "cbd967e3423115bcd22ddeac726d3f914d8a403e037fbf3dcc5c225599b59e14",
+      "catalog_source_sha256": "5e7bae4cbe79501ac806ac881eb1ac588dc1b212e610f7853b65322d8b5bf7df",
+      "literal_count": 75,
+      "translated_panel_text_sha256": "44efccc224c3a43c46062a8ad12e04b0adba506db9d09d30f7cc34ff96633cc0",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.core.preprocess_generate_masks",
+      "language": "hi",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/core/index.html",
+      "page_sha256": "cbd967e3423115bcd22ddeac726d3f914d8a403e037fbf3dcc5c225599b59e14",
+      "catalog_source_sha256": "5e7bae4cbe79501ac806ac881eb1ac588dc1b212e610f7853b65322d8b5bf7df",
+      "literal_count": 75,
+      "translated_panel_text_sha256": "52ce50ca99fa0abd640a95c779df6d831c6e0d486521a5a7475519e8af993ebf",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.core.preprocess_generate_masks",
+      "language": "ko",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/core/index.html",
+      "page_sha256": "cbd967e3423115bcd22ddeac726d3f914d8a403e037fbf3dcc5c225599b59e14",
+      "catalog_source_sha256": "5e7bae4cbe79501ac806ac881eb1ac588dc1b212e610f7853b65322d8b5bf7df",
+      "literal_count": 75,
+      "translated_panel_text_sha256": "431c84653e2d060cda24ee507709e6a35540d38760269821a3905c78a2c7f14f",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.core.preprocess_generate_masks",
+      "language": "is",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/core/index.html",
+      "page_sha256": "cbd967e3423115bcd22ddeac726d3f914d8a403e037fbf3dcc5c225599b59e14",
+      "catalog_source_sha256": "5e7bae4cbe79501ac806ac881eb1ac588dc1b212e610f7853b65322d8b5bf7df",
+      "literal_count": 75,
+      "translated_panel_text_sha256": "d82247a5d3c79d23c6db4172367002a9a9fdcfff9c71679051453d0f5187ed92",
+      "passed": true
+    },
+    {
+      "symbol": "spacr.core.preprocess_generate_masks",
+      "language": "fr",
+      "page_url": "https://einarolafsson.github.io/spacr/nightly/api/spacr/core/index.html",
+      "page_sha256": "cbd967e3423115bcd22ddeac726d3f914d8a403e037fbf3dcc5c225599b59e14",
+      "catalog_source_sha256": "5e7bae4cbe79501ac806ac881eb1ac588dc1b212e610f7853b65322d8b5bf7df",
+      "literal_count": 75,
+      "translated_panel_text_sha256": "9560b46df5369fb3a18c3ab47963b48cf4f0062a2d5b9f41d16ca5231c735d15",
+      "passed": true
+    }
+  ]
+}

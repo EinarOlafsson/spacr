@@ -1,4 +1,4 @@
-"""Compose current native editor, restoration and puncta frames without changing pixels."""
+"""Compose independently accepted native Make Masks frames without changing pixels."""
 from __future__ import annotations
 
 import argparse
@@ -12,15 +12,19 @@ from compose_report_capture import _frame, _read, _same_hash
 from stage_lesson import REPO, write
 
 
-def compose(*, editor, restoration, puncta, destination):
+def compose(*, editor, restoration, puncta, destination, yolo=None, receipt_item=615):
     roots = {key: Path(path).resolve() for key, path in
              [('editor', editor), ('restoration', restoration), ('puncta', puncta)]}
+    if receipt_item not in (615, 662):
+        raise ValueError('Use an existing independently checked receipt set')
+    if yolo is not None:
+        roots['yolo'] = Path(yolo).resolve()
     destination = Path(destination).resolve()
-    if destination.exists() or len(set(roots.values())) != 3:
-        raise ValueError('Preserve three distinct accepted captures and use a new destination')
+    if destination.exists() or len(set(roots.values())) != len(roots):
+        raise ValueError('Preserve distinct accepted captures and use a new destination')
     hashes, sources, available, proofs = {}, [], {}, {}
     for key, root in roots.items():
-        proof = _read(REPO / f'features/data/615_make_masks_current_{key}_2026-10-05.json', hashes)
+        proof = _read(REPO / f'features/data/{receipt_item}_make_masks_current_{key}_2026-10-05.json', hashes)
         if proof.get('accepted') is not True or Path(proof['capture']).resolve() != root:
             raise ValueError('The independent evidence must name this exact accepted capture')
         for path, digest in proof['source_file_sha256'].items():
@@ -41,11 +45,27 @@ def compose(*, editor, restoration, puncta, destination):
             or proofs['puncta'].get('reference_rows') != 150
             or proofs['puncta'].get('included_puncta') != 46):
         raise ValueError('The recorded puncta mask and complete CSV need the exact scientific replay')
+    if receipt_item == 662:
+        application = proofs['editor'].get('application_source_sha256')
+        if not application or any(proof.get('application_source_sha256') != application
+                                  for proof in proofs.values()):
+            raise ValueError('All refreshed recordings must use the same current application source')
+    if 'yolo' in proofs:
+        native = proofs['yolo']['native_acceptance']
+        if (native.get('source_images_and_masks_unchanged') is not True
+                or native.get('demonstration_boxes_are_not_biological_ground_truth') is not True):
+            raise ValueError('YOLO demonstrations must preserve acquired inputs and their stated scope')
     lesson = _read(REPO / 'tools/tutorials/lessons/14_make_masks.json', hashes)
+    if yolo is not None and not any(scene['visual'].startswith('yolo_')
+                                   for scene in lesson['scenes']):
+        raise ValueError('Author the actual YOLO scenes before including their capture')
     frames, focus = {}, {}
     for scene in lesson['scenes']:
         visual = scene['visual']
-        key = 'restoration' if visual.startswith('restoration_') else 'puncta' if visual.startswith('puncta_') else 'editor'
+        key = next((key for key in ('restoration', 'puncta', 'yolo')
+                    if visual.startswith(key + '_')), 'editor')
+        if key not in available or visual not in available[key]:
+            raise ValueError(f'The lesson needs an independently accepted native frame: {visual}')
         frame = deepcopy(available[key][visual])
         path = _frame(roots[key] / frame['image'], frame['sha256'], roots[key], hashes)
         frame.update(image=os.path.relpath(path, destination), source_capture=str(roots[key]))
@@ -66,7 +86,7 @@ def compose(*, editor, restoration, puncta, destination):
     write(destination / 'provenance.json', dict(sources[0], sources=sources,
         composition_only=True, app_source_modified=False))
     write(destination / 'scientific_acceptance.json', {
-        'accepted': True, 'scope': 'All current editor, CPU restoration and scientific-reference puncta scenes',
+        'accepted': True, 'scope': 'Current native ' + ', '.join(roots) + ' scenes; demonstration boxes are not biological ground truth',
         'input_receipts': proofs, 'source_hashes': hashes, 'published': False,
         'biological_ground_truth_claimed': False, 'frame_count': len(frames)})
     digest = hashlib.sha256(json.dumps(lesson, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
@@ -80,4 +100,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('editor', 'restoration', 'puncta', 'destination'):
         parser.add_argument('--' + name, type=Path, required=True)
+    parser.add_argument('--yolo', type=Path, help='Independently accepted native Box interaction recording')
+    parser.add_argument('--receipt-item', type=int, choices=(615, 662), default=615)
     compose(**vars(parser.parse_args()))

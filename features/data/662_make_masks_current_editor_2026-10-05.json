@@ -1,0 +1,273 @@
+{
+  "accepted": true,
+  "scope": "Current native editing, inference, recrop, curation and Organize recording; exact acquired planes and derived crops checked independently",
+  "capture": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5",
+  "provenance": {
+    "commit": "017fe98ba8a87b2ce8cea8817e65c32ddc0d60b7",
+    "version": "1.5.1.3",
+    "module": "make_masks",
+    "download_requested": false,
+    "dataset_cache": "/tmp/spacr-tutorials/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "native_acceptance": {
+    "accepted": true,
+    "input_folder": "/tmp/spacr-tutorials/make_masks_runs/example-gre6c170",
+    "initial_objects": 63,
+    "steps": [
+      {
+        "action": "erase_object",
+        "label": 17,
+        "before": 63,
+        "after": 62
+      },
+      {
+        "action": "draw",
+        "demonstration_only": true,
+        "before": 63,
+        "after": 64
+      },
+      {
+        "action": "divide",
+        "before": 63,
+        "after": 64
+      },
+      {
+        "action": "area_filter_row",
+        "minimum_area": 21022,
+        "before": 63,
+        "after": 31,
+        "ledger_rows": 32,
+        "model_rerun": false
+      }
+    ],
+    "reversible_label_edits_undone_before_recrop": true,
+    "saved_original_foreground_unchanged": true,
+    "original_images_unchanged": true,
+    "folded_routes_shown": [
+      "train_cellpose",
+      "cellpose_all",
+      "model_compare",
+      "model_zoo",
+      "curate",
+      "napari_bridge"
+    ],
+    "model_inference_requested": true,
+    "model_inference": {
+      "model": "cpsam",
+      "objects": 1,
+      "status": "Object detection (cpsam) found 1 object(s) — replaced into the mask. See the Cell probability and Flows tabs.",
+      "input_shape": [
+        332,
+        268
+      ],
+      "cell_probability": 0.0,
+      "flow_threshold": 0.4,
+      "diameter": 0,
+      "normalize": true,
+      "mode": "replace"
+    },
+    "recrop_recorded": true,
+    "recrop": {
+      "child": "/tmp/spacr-tutorials/make_masks_runs/example-gre6c170/plate1_E01_10_1_ER__r00.tif",
+      "box": [
+        1450,
+        473,
+        1718,
+        805
+      ],
+      "image_sha256": "44aa22ae0e41e4880ce1c8b3670c809f66a96d5332df8a1e97d3ce16d2d5c33b",
+      "child_objects": 1,
+      "parent_recovery_path": "/tmp/spacr-tutorials/make_masks_runs/example-gre6c170/recropped_originals/plate1_E01_10_1_ER.tif"
+    },
+    "curation_organize": {
+      "consolidation": {
+        "output": "/tmp/spacr-tutorials/make_masks_runs/organize-2aj0mdoe/by_well_renamed",
+        "copied": [
+          "by_well_E01.tif",
+          "by_well_E02.tif"
+        ],
+        "originals_untouched": true
+      },
+      "organize_inputs": [
+        {
+          "source": "/tmp/spacr-tutorials/example_data/plate1/merged/plate1_E01_10_1.npy",
+          "field": "E01_f01",
+          "planes": {
+            "Hoechst": 0,
+            "ER": 1,
+            "Toxo": 2,
+            "cell mask": 4
+          }
+        },
+        {
+          "source": "/tmp/spacr-tutorials/example_data/plate1/merged/plate1_E01_11_1.npy",
+          "field": "E01_f02",
+          "planes": {
+            "Hoechst": 0,
+            "ER": 1,
+            "Toxo": 2,
+            "cell mask": 4
+          }
+        }
+      ]
+    }
+  },
+  "frame_sha256": {
+    "00_home": "3cadf5e9cae53a854abe3d5a44802d1e1b1fd9d8b79a60100dd95549631bd530",
+    "01_module": "859de345573cf7ae58896decde7c6e5a73a759b513b02d25c2073c79c6a8790f",
+    "01b_test_data_menu": "68d0ff9e09855cf3be8dddd0602d9f38d3ba9eb492d689351589d66aebb8fb5c",
+    "02_folder_picker": "bb87307083854ac28ea2fc3a0e61f7e314ff4133c8d831f47da0ec63e9986add",
+    "03_real_labels": "e29abd34389b83c7934a431e419ae5b1013c225e233be67f5c8e518fd96872f6",
+    "readouts_04_otsu_magnifier_settings": "018ea40a4bc976e26bc8ac52307d46e0cdded0438f8e52346888e0962139e49b",
+    "readouts_05_live_otsu_magnifier": "2df5b476e88024b5936c7b205b6ff6830454fd9962ac6f7616c8dba620e4a071",
+    "04_erase_one_object": "e26e2a78b1295ba94b91ab3d4bd310d6502388056f22ddab8ce17cb7fc8d001e",
+    "05_undo_exactly": "e880d8da34de44f2fa4266ee43e332884476b6043b5b1e102bfe767724f3b526",
+    "06_redo": "218f3aab8f4c442b1088b090ae6d340a80603a05be26e3d40a4f669141de1ceb",
+    "07_draw_demo_not_annotation": "b8144759af5f9f99518094a205788083d5bed11c38998bd79a897e498bfad44e",
+    "08_divide_gesture": "724dd3f6157abaf3c904050ee18ae7e9b468e5eccdecf14212513b1e87d85ee6",
+    "08_divide_demo": "ebb767b93e21c1483e3da6c6c751a7318fa8646dc17ecdd48a2c26904afe6d43",
+    "08b_contrast_only": "6f13ddf9d9992e9940185a70594df0840678afe9f78bc8fab4d51e1d98924634",
+    "08c_filter_edits_labels": "9543d238a681aa2d27b9db2cc0bf4ee382357986e3ed855c8ebaa19f32caa4e3",
+    "08d_filter_removed": "52a35f9fe221d5956b46302b5fc7d89d7ec7def2a582093d48b4e583b0237730",
+    "09_fold_train_cellpose": "0478c874c2c3649081bd858af739c966098041fd0559f82797308be84d920c9b",
+    "09_fold_cellpose_all": "7561987e2dfee9e98082da1e8d97223bc38223f7c2085e49b8d4e1eafafe826c",
+    "09_fold_model_compare": "f70582e7574b0a6a7e2aaff7af022cda7d9799fd389fa67d5d49fc724a7af66f",
+    "09_fold_model_zoo": "e11c63b91ec8943778adf52d647df5523dea8c23ae972559e15c74a637110843",
+    "09_fold_curate": "f8f8c82fceba78a5a8f777bb8bfde00d88da3b5cde164a60a178246ba8f1f918",
+    "09_fold_napari_bridge": "4076437f3bd47ee8670de939a9ed85dc460adafd466a60f53b27a7a32d80fd9d",
+    "11_saved_restored_mask": "b2eb9b966c59db01c848f64f69f8ca30fd48d139574886e7ef20e5e5cca99a24",
+    "12_recrop_written": "d04e77ac75eed8bc4dbed89663787f449760b577b5823eef9024c8fa5394ffa4",
+    "13_child_and_recovery_archive": "856c2e57d9f68449310c98e0769990854fbe33cab962d4738e23934b66654903",
+    "14_cellpose_settings": "ec9cb4f35aba4d678e15996e5d110c462269caa680cf0c9b35430a9868991c82",
+    "15_cellpose_detected": "41338b6a7f0241a0966ddf17b4facd0aabde0218be6a3e21890d292b55b13913",
+    "16_cell_probability": "5c3f2c4fcbc2608727d169e8992a5a5a159ec26547e248ca33f2f77878f5b814",
+    "17_flows": "cba4961961d98628daccb2810a676c3b84944c75ca2bff45ae4fd6d4bddf9a88",
+    "18_mask_again": "98b9b459c9d4bb0526367287d0c5617131a2a6b7edee02081ade17143bd369dd",
+    "19_detection_undone": "3e0c6bb260d0286f9abc97ffd24f90a9f651af8ba97d0352eb2d6b603dbcb136",
+    "20_curate_keep": "964a02d225a52c12be64e5f1d4c3cd38723468d2e5bb69ef4c45c71e9efa0ce8",
+    "21_curate_discard": "dcddbcdf763fa10ad7e29421252813b4bcaedb32c8a91ea4e4fee4863fc22959",
+    "22_upload_data": "ee401912069f2362f5971c58c4d2ab027dc80a72cbaf50e6a24e31770f3fbd95",
+    "23a_folder_picker_nested": "f34443a96846dbbeb45b07f141e3ef52e66a47d0da3ba0d01a1b2a018676c646",
+    "23_consolidate_offer": "58e41bc335fc020a10c6014a44158bee575568d5dee4d82879a2ed1dd2986713",
+    "24_consolidated_opened": "eb161670885bd0bb1a4ebbf2a89a215bb8f70ac1ef00955b78fadb8d1d7d391c",
+    "25_organize_open": "64434fdf578b5c8fda8f4ab129e631034e0ea3f68a0691b0b7e15bd2566ad68b",
+    "26_organize_table": "05626aff9fa07415e6dd993c4929f7d59bce1484acfed0921f76b0d6837125c1",
+    "27_detect_sets_check": "d5259a52b3ccb430bdbbda3a7ac8b77c0254f75b9c45e67fbcf7d26ee3832fcc",
+    "28_organize_images": "0bef6e9244062e88cfc3f6fef6274967bc38a1ad53b504e32dd9986c26cda0d5",
+    "29_move_and_merge": "5152eb1e33ebadd65465c70a377397de9c5c06eeb9695c81734d04efa655498b",
+    "30_organized_for_measure": "cd35ea783066b8c4a58a152a8caef9a4ccfdd86f9e34ae449e85aca2d4267def"
+  },
+  "independent_input_checks": [
+    {
+      "source_sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+      "image_sha256": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67",
+      "mask_sha256": "8f6e99d963b58f483ff88de44270ab45a3d265a71891a8f3be2b1d8e6914df29",
+      "planes_equal": true
+    },
+    {
+      "source_sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+      "image_sha256": "0ce34c658d93ada05d738e542dbac82225aafe09d99b83056a1b9eb15e3daead",
+      "mask_sha256": "4790aac50a70c17c9f5e3241c871b76a0c994d45d23078ebe346f47660163e1b",
+      "planes_equal": true
+    }
+  ],
+  "recrop_pixels_equal": true,
+  "organized_arrays": [
+    {
+      "array": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/make_masks_runs/organize-2aj0mdoe/scope_export/sorted_channels/merged/plate1_A01_1_1.npy",
+      "sha256": "25656ddb5be9eb2f87cd83106268d1fabcbb0b655fadf1ef46371d3d39d90bf9",
+      "exact_source_planes": [
+        0,
+        1,
+        2,
+        4
+      ]
+    },
+    {
+      "array": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/make_masks_runs/organize-2aj0mdoe/scope_export/sorted_channels/merged/plate1_A02_1_1.npy",
+      "sha256": "ee769ab740dfce0a1da52ffa4d4ff0a8c534b1841764ec76fbe2f02a7e9387ab",
+      "exact_source_planes": [
+        0,
+        1,
+        2,
+        4
+      ]
+    }
+  ],
+  "biological_ground_truth_claimed": false,
+  "narration_video_publication_complete": false,
+  "source_file_sha256": {
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/00_home.png": "3cadf5e9cae53a854abe3d5a44802d1e1b1fd9d8b79a60100dd95549631bd530",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/01_module.png": "859de345573cf7ae58896decde7c6e5a73a759b513b02d25c2073c79c6a8790f",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/01b_test_data_menu.png": "68d0ff9e09855cf3be8dddd0602d9f38d3ba9eb492d689351589d66aebb8fb5c",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/02_folder_picker.png": "bb87307083854ac28ea2fc3a0e61f7e314ff4133c8d831f47da0ec63e9986add",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/03_real_labels.png": "e29abd34389b83c7934a431e419ae5b1013c225e233be67f5c8e518fd96872f6",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/readouts_04_otsu_magnifier_settings.png": "018ea40a4bc976e26bc8ac52307d46e0cdded0438f8e52346888e0962139e49b",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/readouts_05_live_otsu_magnifier.png": "2df5b476e88024b5936c7b205b6ff6830454fd9962ac6f7616c8dba620e4a071",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/04_erase_one_object.png": "e26e2a78b1295ba94b91ab3d4bd310d6502388056f22ddab8ce17cb7fc8d001e",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/05_undo_exactly.png": "e880d8da34de44f2fa4266ee43e332884476b6043b5b1e102bfe767724f3b526",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/06_redo.png": "218f3aab8f4c442b1088b090ae6d340a80603a05be26e3d40a4f669141de1ceb",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/07_draw_demo_not_annotation.png": "b8144759af5f9f99518094a205788083d5bed11c38998bd79a897e498bfad44e",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/08_divide_gesture.png": "724dd3f6157abaf3c904050ee18ae7e9b468e5eccdecf14212513b1e87d85ee6",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/08_divide_demo.png": "ebb767b93e21c1483e3da6c6c751a7318fa8646dc17ecdd48a2c26904afe6d43",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/08b_contrast_only.png": "6f13ddf9d9992e9940185a70594df0840678afe9f78bc8fab4d51e1d98924634",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/08c_filter_edits_labels.png": "9543d238a681aa2d27b9db2cc0bf4ee382357986e3ed855c8ebaa19f32caa4e3",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/08d_filter_removed.png": "52a35f9fe221d5956b46302b5fc7d89d7ec7def2a582093d48b4e583b0237730",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/09_fold_train_cellpose.png": "0478c874c2c3649081bd858af739c966098041fd0559f82797308be84d920c9b",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/09_fold_cellpose_all.png": "7561987e2dfee9e98082da1e8d97223bc38223f7c2085e49b8d4e1eafafe826c",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/09_fold_model_compare.png": "f70582e7574b0a6a7e2aaff7af022cda7d9799fd389fa67d5d49fc724a7af66f",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/09_fold_model_zoo.png": "e11c63b91ec8943778adf52d647df5523dea8c23ae972559e15c74a637110843",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/09_fold_curate.png": "f8f8c82fceba78a5a8f777bb8bfde00d88da3b5cde164a60a178246ba8f1f918",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/09_fold_napari_bridge.png": "4076437f3bd47ee8670de939a9ed85dc460adafd466a60f53b27a7a32d80fd9d",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/11_saved_restored_mask.png": "b2eb9b966c59db01c848f64f69f8ca30fd48d139574886e7ef20e5e5cca99a24",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/12_recrop_written.png": "d04e77ac75eed8bc4dbed89663787f449760b577b5823eef9024c8fa5394ffa4",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/13_child_and_recovery_archive.png": "856c2e57d9f68449310c98e0769990854fbe33cab962d4738e23934b66654903",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/14_cellpose_settings.png": "ec9cb4f35aba4d678e15996e5d110c462269caa680cf0c9b35430a9868991c82",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/15_cellpose_detected.png": "41338b6a7f0241a0966ddf17b4facd0aabde0218be6a3e21890d292b55b13913",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/16_cell_probability.png": "5c3f2c4fcbc2608727d169e8992a5a5a159ec26547e248ca33f2f77878f5b814",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/17_flows.png": "cba4961961d98628daccb2810a676c3b84944c75ca2bff45ae4fd6d4bddf9a88",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/18_mask_again.png": "98b9b459c9d4bb0526367287d0c5617131a2a6b7edee02081ade17143bd369dd",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/19_detection_undone.png": "3e0c6bb260d0286f9abc97ffd24f90a9f651af8ba97d0352eb2d6b603dbcb136",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/20_curate_keep.png": "964a02d225a52c12be64e5f1d4c3cd38723468d2e5bb69ef4c45c71e9efa0ce8",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/21_curate_discard.png": "dcddbcdf763fa10ad7e29421252813b4bcaedb32c8a91ea4e4fee4863fc22959",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/22_upload_data.png": "ee401912069f2362f5971c58c4d2ab027dc80a72cbaf50e6a24e31770f3fbd95",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/23a_folder_picker_nested.png": "f34443a96846dbbeb45b07f141e3ef52e66a47d0da3ba0d01a1b2a018676c646",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/23_consolidate_offer.png": "58e41bc335fc020a10c6014a44158bee575568d5dee4d82879a2ed1dd2986713",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/24_consolidated_opened.png": "eb161670885bd0bb1a4ebbf2a89a215bb8f70ac1ef00955b78fadb8d1d7d391c",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/25_organize_open.png": "64434fdf578b5c8fda8f4ab129e631034e0ea3f68a0691b0b7e15bd2566ad68b",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/26_organize_table.png": "05626aff9fa07415e6dd993c4929f7d59bce1484acfed0921f76b0d6837125c1",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/27_detect_sets_check.png": "d5259a52b3ccb430bdbbda3a7ac8b77c0254f75b9c45e67fbcf7d26ee3832fcc",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/28_organize_images.png": "0bef6e9244062e88cfc3f6fef6274967bc38a1ad53b504e32dd9986c26cda0d5",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/29_move_and_merge.png": "5152eb1e33ebadd65465c70a377397de9c5c06eeb9695c81734d04efa655498b",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/30_organized_for_measure.png": "cd35ea783066b8c4a58a152a8caef9a4ccfdd86f9e34ae449e85aca2d4267def",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/example_data/plate1/merged/plate1_E01_10_1.npy": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+    "/home/carruthers/.cache/spacr/example_data/plate1/merged/plate1_E01_10_1.npy": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/make_masks_runs/example-gre6c170/recropped_originals/plate1_E01_10_1_ER.tif": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/make_masks_runs/example-gre6c170/recropped_originals/masks/plate1_E01_10_1_ER.tif": "8f6e99d963b58f483ff88de44270ab45a3d265a71891a8f3be2b1d8e6914df29",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/example_data/plate1/merged/plate1_E01_11_1.npy": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+    "/home/carruthers/.cache/spacr/example_data/plate1/merged/plate1_E01_11_1.npy": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/make_masks_runs/example-gre6c170/plate1_E01_11_1_ER.tif": "0ce34c658d93ada05d738e542dbac82225aafe09d99b83056a1b9eb15e3daead",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/make_masks_runs/example-gre6c170/masks/plate1_E01_11_1_ER.tif": "4790aac50a70c17c9f5e3241c871b76a0c994d45d23078ebe346f47660163e1b",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/make_masks_runs/example-gre6c170/plate1_E01_10_1_ER__r00.tif": "44aa22ae0e41e4880ce1c8b3670c809f66a96d5332df8a1e97d3ce16d2d5c33b",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/make_masks_runs/organize-2aj0mdoe/scope_export/sorted_channels/merged/plate1_A01_1_1.npy": "25656ddb5be9eb2f87cd83106268d1fabcbb0b655fadf1ef46371d3d39d90bf9",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/make_masks_runs/organize-2aj0mdoe/scope_export/sorted_channels/merged/plate1_A02_1_1.npy": "ee769ab740dfce0a1da52ffa4d4ff0a8c534b1841764ec76fbe2f02a7e9387ab",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-completion-20261005/spacr/qt/screens/make_masks.py": "c62def2851142e58ce764c22638643cf5f96591e1e86ae5b88a216caf316488a",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-completion-20261005/spacr/qt/mask_engine.py": "9b25edcc8870b999677066c1bc3c743c2946549c271c30b0cc90ce6fbb1c136c",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-completion-20261005/spacr/qt/cpu_modes.py": "09989fe347ed7edf9d6ba36006dde942b39e7a5040acb1ec9fe8cfc9427f5a0e",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-completion-20261005/spacr/qt/detect_chain.py": "4d4a499c949fe01d563f634c6de4abf7538a42c7774b2c26af6439891a931770",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-completion-20261005/spacr/_segmentation_backends.py": "0bf668bfd65b8b429dadcca73d61fef91a80f61afc00ec6914bace43b9ce0e47",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-completion-20261005/spacr/point_spread.py": "ae8a73268b6dd9c50c560056ca2641f1b78f6a69238e141325803c1b1e7f7f0a"
+  },
+  "source_commit": "f4d6e8df349603dda223d0572bb54342c2900114",
+  "application_source_sha256": {
+    "spacr/qt/screens/make_masks.py": "c62def2851142e58ce764c22638643cf5f96591e1e86ae5b88a216caf316488a",
+    "spacr/qt/mask_engine.py": "9b25edcc8870b999677066c1bc3c743c2946549c271c30b0cc90ce6fbb1c136c",
+    "spacr/qt/cpu_modes.py": "09989fe347ed7edf9d6ba36006dde942b39e7a5040acb1ec9fe8cfc9427f5a0e",
+    "spacr/qt/detect_chain.py": "4d4a499c949fe01d563f634c6de4abf7538a42c7774b2c26af6439891a931770",
+    "spacr/_segmentation_backends.py": "0bf668bfd65b8b429dadcca73d61fef91a80f61afc00ec6914bace43b9ce0e47",
+    "spacr/point_spread.py": "ae8a73268b6dd9c50c560056ca2641f1b78f6a69238e141325803c1b1e7f7f0a"
+  }
+}

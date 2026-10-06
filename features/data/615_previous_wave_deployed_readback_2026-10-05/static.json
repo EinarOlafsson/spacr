@@ -1,0 +1,33 @@
+{
+  "static": {
+    "app_cache_key": "ff3f6c94894cd477ab9767f7e4794cf97a0682396c5dd192d5ef8b2c7ef11ac1",
+    "cache_key": "final-wave-20261005-co2wgfyt",
+    "expected_source_scenes": 1201,
+    "hashes_match_local": true,
+    "languages": 8,
+    "lessons": 85,
+    "local_sha256": {
+      "app_v2.js": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+      "index.html": "db4c55a2015b99ee46329b55b3fcec679ca0a819c81a80c77d2b8703349b3e18",
+      "lesson_catalog.js": "86c9dc0348a659dc23a29d0f83ba616cf6af93ccfed758b224bbc87262fe10c2",
+      "voice_catalog.js": "2b05369143743eaa92da5c20376f868146f891426a51833a236f7516ada6b6a4"
+    },
+    "retired_voices_present": [],
+    "scenes": 1201,
+    "sha256": {
+      "app_v2.js": "ff3f6c94894cd477ab9767f7e4794cf97a0682396c5dd192d5ef8b2c7ef11ac1",
+      "index.html": "e518621b5de4d6ffc1ea18255a0100aa091da1ea3a16abb8bd02d27b2eb9d3f8",
+      "lesson_catalog.js": "86c9dc0348a659dc23a29d0f83ba616cf6af93ccfed758b224bbc87262fe10c2",
+      "voice_catalog.js": "2b05369143743eaa92da5c20376f868146f891426a51833a236f7516ada6b6a4"
+    },
+    "source_equivalent_sha256": {
+      "app_v2.js": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+      "index.html": "db4c55a2015b99ee46329b55b3fcec679ca0a819c81a80c77d2b8703349b3e18",
+      "lesson_catalog.js": "86c9dc0348a659dc23a29d0f83ba616cf6af93ccfed758b224bbc87262fe10c2",
+      "voice_catalog.js": "2b05369143743eaa92da5c20376f868146f891426a51833a236f7516ada6b6a4"
+    },
+    "url": "https://einarolafsson.github.io/spacr/nightly/tutorials/",
+    "voice_cache_key": "20260811-50-voices",
+    "voices": 50
+  }
+}
