@@ -6,7 +6,7 @@ animation that sits behind the settings form and the console, takes no focus
 and no mouse events, and can be switched off entirely in Preferences.
 
 Seven data-art materials and three classic themes remain in the menu.
-The default is ``data_art_lens`` (spaCR field). The other data-art choices
+The default is ``data_art_impulse_lens`` (spaCR field). The other data-art choices
 are advection, growth, Thore, waves, tissue facets and chromatin satin.
 The classic choices provide softer motion:
 
