@@ -1,0 +1,7 @@
+Processing channel 3: background=100, signal_threshold=1000, remove_background=False
+Channel 3: global_lower=512.0, global_upper=2938.0, Signal-to-noise=5.73828125
+Progress: 1/2, operation_type: Normalizing, Time/image: 0.119sec, Time_left: 0.002 min.
+Processing channel 1: background=100, signal_threshold=1000, remove_background=False
+Channel 1: global_lower=506.0, global_upper=2938.0, Signal-to-noise=5.8063241106719365
+Progress: 2/2, operation_type: Normalizing, Time/image: 0.131sec, Time_left: 0.000 min.
+{"source": "/mnt/wd4tb/scratch/native_selected_probe_20261006/candidate", "returned": "/mnt/wd4tb/scratch/native_selected_probe_20261006/candidate", "seconds": 1.207, "peak_rss_mib": 1462.74, "channels": [0, 1, 2, 3]}
