@@ -1,0 +1,142 @@
+{
+  "item": 548,
+  "accepted_cuda_fixed_map_batch_watch_parity": true,
+  "application_source_commit": "b19fcb0414809f448ea58df2a78358639d284aaa",
+  "batch_size": 1,
+  "acquired_frames": 4,
+  "input_policy": "Exact acquired t021-t024 pixels, stacked into a derived TYX TIFF; no native vendor T>1 claim.",
+  "nucleus_measurement_rows": 91,
+  "nucleus_measurement_columns": 91,
+  "measurement_prcf_timepoints": [
+    [
+      "plate1_r1_c1_f1_t1"
+    ],
+    [
+      "plate1_r1_c1_f1_t2"
+    ],
+    [
+      "plate1_r1_c1_f1_t3"
+    ],
+    [
+      "plate1_r1_c1_f1_t4"
+    ]
+  ],
+  "flat_track_rows": 91,
+  "profiles": [
+    {
+      "phase": "batch",
+      "seconds": 49.22999363695271,
+      "cuda_events": 97205,
+      "cuda_kernel_events": 90130,
+      "cuda_device": "NVIDIA GeForce RTX 3090 Ti"
+    },
+    {
+      "phase": "watch-analysis",
+      "seconds": 68.55668548500398,
+      "cuda_events": 97202,
+      "cuda_kernel_events": 90128,
+      "cuda_device": "NVIDIA GeForce RTX 3090 Ti"
+    },
+    {
+      "phase": "collection-resume",
+      "seconds": 1.1945530269877054,
+      "cuda_events": 0,
+      "cuda_kernel_events": 0,
+      "cuda_device": "NVIDIA GeForce RTX 3090 Ti"
+    },
+    {
+      "phase": "completed-restart",
+      "seconds": 1.0307238320237957,
+      "cuda_events": 0,
+      "cuda_kernel_events": 0,
+      "cuda_device": "NVIDIA GeForce RTX 3090 Ti"
+    }
+  ],
+  "collection_resume_without_inference": true,
+  "completed_restart_without_inference": true,
+  "single_field_gold_scoring": {
+    "scoring_completed": true,
+    "acquired_frame": "sequence 01 t021 only",
+    "independent_gold_objects": 24,
+    "gold_sha256": "abd1dee1d6ace107c908819100221774c57e13c150456e92e6d08bc59a83d94a",
+    "merged_sha256": "fdff4c41a7fa633a0228d1955457f7a11cc7843057d24c17fa00ddaac46b943e",
+    "mask_plane": 1,
+    "scores": {
+      "0.5": {
+        "tp": 22,
+        "fp": 0,
+        "fn": 2,
+        "f1": 0.9565217391304348,
+        "precision": 1.0,
+        "recall": 0.9166666666666666,
+        "n_truth": 24,
+        "n_pred": 22
+      },
+      "0.75": {
+        "tp": 22,
+        "fp": 0,
+        "fn": 2,
+        "f1": 0.9565217391304348,
+        "precision": 1.0,
+        "recall": 0.9166666666666666,
+        "n_truth": 24,
+        "n_pred": 22
+      }
+    },
+    "policy": "CTC 50-pixel field of interest; remove predictions wholly outside it, retain complete intersecting objects. Normal spacr.scorecard.match_objects.",
+    "other_three_frames_have_not_been_quality_scored": true,
+    "tracking_accuracy_against_gold_not_scored": true,
+    "four_independent_biological_replicates_claimed": false
+  },
+  "zernike_columns_skipped_when_optional_mahotas_unavailable": true,
+  "native_vendor_T_gt_1": false,
+  "raw_vendor_completion_complete": false,
+  "pooled_batch_size_gt_1": false,
+  "whole_item_complete": false,
+  "artifacts": {
+    "features/data/548_gowt1_gpu_acceptance_2026-10-06/archive_gowt1_watch_gpu.py": {
+      "sha256": "393a15c0e047e3a4fca8f47cf19c80dc9103b14dd98b2dd90ddb371db3c99979",
+      "bytes": 7239
+    },
+    "features/data/548_gowt1_gpu_acceptance_2026-10-06/batch-cuda-execution.json": {
+      "sha256": "e6b29fd2b2b56e4507e7d553ddaa59e8c92b3b6d5480fc6b3a9e555882f79970",
+      "bytes": 42382
+    },
+    "features/data/548_gowt1_gpu_acceptance_2026-10-06/benchmark.json": {
+      "sha256": "ba2668ec57f762e46497600a3c811067170bf43319725ab226daed6a35be58ff",
+      "bytes": 91828
+    },
+    "features/data/548_gowt1_gpu_acceptance_2026-10-06/benchmark_gowt1_watch.py": {
+      "sha256": "cc931d9c67ec266f5b622cd5fc5ab814967976dc11b5aedfd54e9f620d830969",
+      "bytes": 9213
+    },
+    "features/data/548_gowt1_gpu_acceptance_2026-10-06/collection-resume-cuda-execution.json": {
+      "sha256": "7d70dfd35c441002ed37e93a1468cf6d7daa4b6fbc517ff32ff6cc2b7b860c2e",
+      "bytes": 184
+    },
+    "features/data/548_gowt1_gpu_acceptance_2026-10-06/completed-restart-cuda-execution.json": {
+      "sha256": "bd00f272b9e3d9f85133af9794c5b74153a25dc2aaf0cf8c558018237b87a7e2",
+      "bytes": 184
+    },
+    "features/data/548_gowt1_gpu_acceptance_2026-10-06/gowt1-watch-cuda-r1.log.gz": {
+      "sha256": "bceedf75fd70fd143c9247d159dd49237e452f56cd657f1a4b52a70eb40f15b6",
+      "bytes": 4271
+    },
+    "features/data/548_gowt1_gpu_acceptance_2026-10-06/paired-scientific-outputs.zip": {
+      "sha256": "e3fd8e58e7c14302773a23f5e4970820132ece23b50c3ec62a09c3c39d471dbc",
+      "bytes": 3509802
+    },
+    "features/data/548_gowt1_gpu_acceptance_2026-10-06/single-field-quality.json": {
+      "sha256": "0ceb3fec99c2e7e489491fe0a4af897a6e427ec37a85b0a4db773264436c8cf7",
+      "bytes": 1049
+    },
+    "features/data/548_gowt1_gpu_acceptance_2026-10-06/source-snapshot.zip": {
+      "sha256": "dd470a9f5badf1bae3ecd822a229d6e6a0bc3549e2c7cf3ec271841d756badf8",
+      "bytes": 897620
+    },
+    "features/data/548_gowt1_gpu_acceptance_2026-10-06/watch-analysis-cuda-execution.json": {
+      "sha256": "a0c4d5e1a69cefa5433726a963e2a252d341710bf43041564e095fa92b94fad2",
+      "bytes": 42391
+    }
+  }
+}

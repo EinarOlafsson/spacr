@@ -1,0 +1,34 @@
+{
+  "scoring_completed": true,
+  "acquired_frame": "sequence 01 t021 only",
+  "independent_gold_objects": 24,
+  "gold_sha256": "abd1dee1d6ace107c908819100221774c57e13c150456e92e6d08bc59a83d94a",
+  "merged_sha256": "fdff4c41a7fa633a0228d1955457f7a11cc7843057d24c17fa00ddaac46b943e",
+  "mask_plane": 1,
+  "scores": {
+    "0.5": {
+      "tp": 22,
+      "fp": 0,
+      "fn": 2,
+      "f1": 0.9565217391304348,
+      "precision": 1.0,
+      "recall": 0.9166666666666666,
+      "n_truth": 24,
+      "n_pred": 22
+    },
+    "0.75": {
+      "tp": 22,
+      "fp": 0,
+      "fn": 2,
+      "f1": 0.9565217391304348,
+      "precision": 1.0,
+      "recall": 0.9166666666666666,
+      "n_truth": 24,
+      "n_pred": 22
+    }
+  },
+  "policy": "CTC 50-pixel field of interest; remove predictions wholly outside it, retain complete intersecting objects. Normal spacr.scorecard.match_objects.",
+  "other_three_frames_have_not_been_quality_scored": true,
+  "tracking_accuracy_against_gold_not_scored": true,
+  "four_independent_biological_replicates_claimed": false
+}
