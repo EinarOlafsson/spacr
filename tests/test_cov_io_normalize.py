@@ -275,6 +275,88 @@ def test_normalize_img_batch_accepts_string_channels_and_save_dtype():
     assert float(out.max()) == pytest.approx(1.0, abs=1e-3)
 
 
+def _scalar_percentile_reference(stack, channels, profiles, lower, save_dtype):
+    """Calculate complete planes with the original scalar percentile search."""
+    from skimage import exposure
+
+    result = np.zeros_like(stack, dtype=np.float32)
+    for channel in channels:
+        background, signal_threshold, remove_background = profiles[channel]
+        source = stack[..., channel]
+        if remove_background:
+            source[source < background] = 0
+        nonzero = source[source != 0]
+        if not nonzero.size:
+            continue
+        low = np.percentile(nonzero, lower)
+        high = None
+        for percentile in np.linspace(98, 99.5, num=16):
+            value = np.percentile(nonzero, percentile)
+            if value >= signal_threshold:
+                high = value
+                break
+        if high is None:
+            high = np.percentile(nonzero, 99.5)
+        for index in range(source.shape[0]):
+            result[index, ..., channel] = exposure.rescale_intensity(
+                source[index], in_range=(low, high), out_range=(0, 1))
+    return result.astype(save_dtype, copy=False)
+
+
+@pytest.mark.parametrize("source_dtype", [np.uint16, np.float32])
+@pytest.mark.parametrize("save_dtype", [np.float16, np.float32])
+@pytest.mark.parametrize("lower", [0, 2, 17, 63.5])
+def test_normalize_img_batch_matches_scalar_quantiles_for_all_roles(
+        source_dtype, save_dtype, lower):
+    """Native channels keep exact planes across early, late and fallback cuts."""
+    from spacr.io import _normalize_img_batch
+
+    rng = np.random.default_rng(548)
+    stack = rng.integers(0, 1001, size=(2, 3, 17, 5)).astype(source_dtype)
+    stack[0, 0, :4, :] = 0
+    stack[..., 4] = 0
+    settings = _base_settings(
+        lower_percentile=lower, pathogen_channel=2, organelle_channel=3,
+        nucleus_background=1, nucleus_signal_to_noise=1,
+        cell_background=1, cell_signal_to_noise=992,
+        pathogen_background=1, pathogen_signal_to_noise=1000000,
+        remove_background_pathogen=False,
+        organelle_background=400, organelle_signal_to_noise=2.4725,
+        remove_background_organelle=True)
+    profiles = ((1, 1, False), (1, 992, False),
+                (1, 1000000, False), (400, 989, True), (100, 500, False))
+    channels = [3, 0, 4, 2, 1]
+    assert np.percentile(stack[..., 0][stack[..., 0] != 0], 98) >= 1
+    cell = stack[..., 1][stack[..., 1] != 0]
+    assert np.percentile(cell, 98) < 992 <= np.percentile(cell, 99.5)
+    assert np.percentile(stack[..., 2], 99.5) < 1000000
+    organelle = stack[..., 3][stack[..., 3] >= 400]
+    assert np.percentile(organelle, 99.4) < 989 <= np.percentile(organelle, 99.5)
+    expected = _scalar_percentile_reference(
+        stack.copy(), channels, profiles, lower, save_dtype)
+    actual = _normalize_img_batch(stack.copy(), channels, save_dtype, settings)
+    assert actual.shape == expected.shape
+    assert actual.dtype == expected.dtype
+    assert actual.tobytes() == expected.tobytes()
+
+
+@pytest.mark.parametrize("special", [np.nan, np.inf, -np.inf])
+def test_normalize_img_batch_keeps_scalar_nonfinite_behavior(special):
+    """A private percentile scratch must not change legacy nonfinite pixels."""
+    from spacr.io import _normalize_img_batch
+
+    stack = np.arange(1, 49, dtype=np.float32).reshape(2, 3, 8, 1)
+    stack[0, 0, 0, 0] = special
+    stack[1, 2, 7, 0] = 0
+    settings = _base_settings(
+        nucleus_channel=None, cell_channel=None, lower_percentile=2,
+        background=1, Signal_to_noise=1)
+    expected = _scalar_percentile_reference(
+        stack.copy(), [0], ((1, 1, False),), 2, np.float32)
+    actual = _normalize_img_batch(stack.copy(), [0], np.float32, settings)
+    np.testing.assert_array_equal(actual, expected)
+
+
 # ---------------------------------------------------------------------------
 # concatenate_and_normalize - non-timelapse batching
 # ---------------------------------------------------------------------------

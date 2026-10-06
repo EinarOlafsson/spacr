@@ -1756,17 +1756,22 @@ def _normalize_img_batch(stack, channels, save_dtype, settings):
         non_zero_single_channel = single_channel[single_channel != 0]
         if not non_zero_single_channel.size:
             continue
-        global_lower = np.percentile(non_zero_single_channel, settings['lower_percentile'])
+        global_lower = np.percentile(
+            non_zero_single_channel, settings['lower_percentile'],
+            overwrite_input=True)
 
         global_upper = None
         for upper_p in np.linspace(98, 99.5, num=16):
-            upper_value = np.percentile(non_zero_single_channel, upper_p)
+            upper_value = np.percentile(
+                non_zero_single_channel, upper_p, overwrite_input=True)
             if upper_value >= signal_threshold:
                 global_upper = upper_value
                 break
 
         if global_upper is None:
-            global_upper = np.percentile(non_zero_single_channel, 99.5)
+            global_upper = np.percentile(
+                non_zero_single_channel, 99.5, overwrite_input=True)
+        del non_zero_single_channel
 
         print(f'Channel {channel}: global_lower={global_lower}, global_upper={global_upper}, Signal-to-noise={global_upper / global_lower}')
 
