@@ -1,0 +1,107 @@
+{
+  "item": 615,
+  "actual_deployed_acceptance_passed": true,
+  "completed_documentation_workflow": 37419061863,
+  "actual_resolved_nightly_documentation_source": "7d24dcf7760e63f38a85c311da3bd477d0be9479",
+  "actual_source_not_inferred_from_workflow_trigger": true,
+  "immutable_media_commit": "f3fe5e321a9734c103c8c83d3ca0b9753e7df79f",
+  "actual_API_panels_passed": 108,
+  "changed_symbols": 12,
+  "translated_languages": 9,
+  "actual_deployed_API_catalogs_exact": 10,
+  "actual_tutorial_player_and_fourteen_catalog_files_exact": true,
+  "four_actual_deployed_complete_video_hashes_exact": true,
+  "four_actual_phone_playback_and_chapter_seek_cases_passed": true,
+  "decoded_current_Measure_Home_Conda_and_new_YOLO_box_visually_reviewed": true,
+  "Mask_07_unchanged": true,
+  "historical_machine_report_visual_review_pending_closed_by_separate_dated_visual_receipt": true,
+  "private_failed_source_inference_and_missing_pending_phone_receipt_attempts_retained": true,
+  "installation_01_03_04_new_publication_still_pending": true,
+  "native_speaker_or_independent_biological_training_accuracy_claimed": false,
+  "artifacts": {
+    "features/data/615_deployed_api_yolo_2026-10-06/02_conda_install-yolo-nightly-frame-r1.png": {
+      "sha256": "417ecb8d0ac6679beda971f8821065a2048f7ff2d356e2519da35376ce004286",
+      "bytes": 535899
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/05_home-yolo-nightly-frame-r1.png": {
+      "sha256": "2b999d9cd1328e7c9914648e583ea835cb02eb740d19935d9a52956e24c94d77",
+      "bytes": 309928
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/08_measure-yolo-nightly-frame-r1.png": {
+      "sha256": "d471e043be3e272384589bb233aff5338c3a754a24f43eed19925b67b791db2e",
+      "bytes": 399572
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/14_make_masks-yolo-nightly-box-frame-r1.png": {
+      "sha256": "59b8ab57b05b9e55aa498d9f11827506cce4919a90f9b946cd54eb169babc35d",
+      "bytes": 1082927
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/14_make_masks-yolo-nightly-frame-r1.png": {
+      "sha256": "00aa1a186b9925503a5f08ca6d26e3471536c5c68e42c335712123a98f03ccdd",
+      "bytes": 1965784
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/acceptance.json": {
+      "sha256": "77cf9d29a2acced18fb2c2c40cd61675a45df70072009781cc7f86c48a6d44d1",
+      "bytes": 58894
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/actual-deployed-frame-visual-review.json": {
+      "sha256": "d73723152c398f3731b9812ab486e602430550a0ff8c0eacab0b7592192b65a9",
+      "bytes": 936
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/archive_deployed_api_yolo.py": {
+      "sha256": "9bc1ace8e99bef3e3fc3940bc0268e31f9068df51ca26542ca3507aad69f54de",
+      "bytes": 7133
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/channels.json": {
+      "sha256": "bb0c03a271a70d75f62a5942649bdb4fd1421c8301f62bae1e4b39f6a42c9a29",
+      "bytes": 511
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/deployed-data-art-api-r1.log.gz": {
+      "sha256": "cfc98923eecd069c58d4ec6b6889f9682951368c39a1d0c395535f5a249faeec",
+      "bytes": 249
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/deployed-data-art-api-r2.log.gz": {
+      "sha256": "4856266352cb78588ceb81c29edd8526416ea8156ff283b0de2e35c4f69526c9",
+      "bytes": 155
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/spacr.qt.night_themes-ko.png": {
+      "sha256": "b88560fa8474983f61aa9cab5f10b4c14515743573e56d88ce924cbfcbe4c789",
+      "bytes": 950155
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/spacr.qt.preferences-ko.png": {
+      "sha256": "6cea0e87ea62bf490fd7da92e91e5d97cf2579e4906916814b8834614484e942",
+      "bytes": 14896711
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/spacr.qt.theme-ko.png": {
+      "sha256": "87fc110ff75d53280fa80161b9df5b9987408f21c86320d4e54062f1cf659aa6",
+      "bytes": 10182150
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/verify_deployed_data_art_api_r2.py": {
+      "sha256": "d4cdb6f6a5d2c941a1d5c91aa6fa81c43270812133cdb23ef7d060d4648151f4",
+      "bytes": 5031
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/verify_deployed_yolo_and_preserved_tutorials_r1.py": {
+      "sha256": "7590579f164abf3c62ce871369336967cb2121541a0c704a4bbf83dee356b6c7",
+      "bytes": 4732
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/yolo-api-nightly-mobile-r1.json": {
+      "sha256": "cf683b060c53d0e008ce968d6580a0f9df6739313708bd8e83c56fdd068f25c9",
+      "bytes": 5695
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/yolo-api-nightly-mobile-r1.log.gz": {
+      "sha256": "d6c754c5eb2bd26665098c9fd4f8b9b97635a7e7410679a062613d2ed5be5034",
+      "bytes": 499
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/yolo-preserved-tutorials-deployed-r1.json": {
+      "sha256": "fb433dd1497447ec3d756d8f8d69af5bed9ec57883df23446b6d4ca192da8483",
+      "bytes": 5411
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/yolo-preserved-tutorials-deployed-r1.log.gz": {
+      "sha256": "000a8e6caf12f29bdb21388c2d9082731eabd683aa68564b0deeb088f749fb13",
+      "bytes": 446
+    },
+    "features/data/615_deployed_api_yolo_2026-10-06/yolo-preserved-tutorials-deployed-r2.log.gz": {
+      "sha256": "1181c51177464607a5cc72e866877d28ecc0d6b556e70852df12e5a7157970bb",
+      "bytes": 146
+    }
+  }
+}

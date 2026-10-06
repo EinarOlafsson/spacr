@@ -1,0 +1,76 @@
+{
+  "passed": true,
+  "completed_docs_workflow": 37419061863,
+  "actual_documentation_source": "7d24dcf7760e63f38a85c311da3bd477d0be9479",
+  "immutable_media_commit": "f3fe5e321a9734c103c8c83d3ca0b9753e7df79f",
+  "normal_assembled_reference": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/docs-37419061863/assembled",
+  "actual_deployed_player_and_catalog_files": {
+    "index.html": "27e9d032c7b9367ba07fb7585d7b72690bd2ebdee740995621055b879d6a8fc3",
+    "app_v2.js": "692ac8dbe8374b986c86e1a742c83d86ce307e81478d26d6c7b141596f3b9dcc",
+    "lesson_catalog.js": "984009de1d92b62a2ec3a7efe4449c17d33ff0f124251edaf156b4dedb8e630d",
+    "module_navigation.js": "28e7075ab169adb9b0395eed49a4a1da92404704064490b90c45f10aaafa4c48",
+    "catalog/captions_da.json": "7a7641d6736f7287c0dca45d758d382361b781fc14444525bf01e0582a60162a",
+    "catalog/captions_de.json": "d14ec237837b23547b3a50e15b55ce52422419d2088f249451b2324a338bbd1f",
+    "catalog/captions_is.json": "e282d433f10ceed1b259620288f1f9c28c1b0bf5c583d3ba738e1c1a83a3be01",
+    "catalog/captions_ko.json": "1fb3ab8fee63c22072103e10f65f4d622840ddc0ed88a0345b98023dcaa271a8",
+    "catalog/captions_nb.json": "4fa5cc191b6e3ba35fd9c8afdee6df9c5eca5b8832e25e2bbb8bf2549f61fd40",
+    "catalog/captions_sv.json": "e7d7820fada9d5788f8eda7b8606adc5c556fabe43457e0c29bd7cd01f01c856",
+    "catalog/lessons_en.json": "584e829fd6655bf8251c73847109e79b0e3e3f9d355afb36f7a34ab7c5506a82",
+    "catalog/lessons_es.json": "67eb07ea29664f3e119e956281c2422ff126826c8fa820ad09643e67939ad7f0",
+    "catalog/lessons_fr.json": "de2ab22172901c902a1db1bf3b4824f39d234891c453a4e72e7db6857e7c29ed",
+    "catalog/lessons_hi.json": "d414a47f43e2bf52013222729de4747b72a58a82e709eeb15a80f5f5e9fb2091",
+    "catalog/lessons_it.json": "5470013c2490499397b5cde418e7d308b8655dd46dee396d0312bb8780d4297c",
+    "catalog/lessons_ja.json": "535085d0c809770ddb8b46a84ddf599853ee62a22509f9dfdea7758216d3249d",
+    "catalog/lessons_pt-BR.json": "ff00c965dfa9a38cd407e5874355bbb967773dad9fe95492fe301cf93f8cf589",
+    "catalog/lessons_zh-CN.json": "c5e726dbf335705ba33825bbfb8ca6106c833371584882e66caeec1bb5b51d73"
+  },
+  "mobile_receipt_sha256": "cf683b060c53d0e008ce968d6580a0f9df6739313708bd8e83c56fdd068f25c9",
+  "lessons": {
+    "14_make_masks": {
+      "video_url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f3fe5e321a9734c103c8c83d3ca0b9753e7df79f/14_make_masks/web/14_make_masks_silent.mp4",
+      "complete_video_sha256": "298de947435690fa9b119b978a8325575a442863ddbe169651e4c2ad26bbc0e0",
+      "bytes": 58826526,
+      "candidate_record_exact": true,
+      "decoded_frame": 18137,
+      "decoded_frame_png": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/14_make_masks-yolo-nightly-frame-r1.png",
+      "decoded_frame_png_sha256": "00aa1a186b9925503a5f08ca6d26e3471536c5c68e42c335712123a98f03ccdd",
+      "deployed_phone_playback_and_seek_passed": true,
+      "narration_sha256": "db6a8dca3c815ca6144c2d4a2b2772d7681cbe0e39a1d56631258a2ce9e2c712"
+    },
+    "05_home": {
+      "video_url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f3fe5e321a9734c103c8c83d3ca0b9753e7df79f/05_home/web/05_home_silent.mp4",
+      "complete_video_sha256": "c2aaa7e085ab762245d0d78017c807e187abb1f35b2b9db289f00ae05e08f021",
+      "bytes": 12422651,
+      "candidate_record_exact": true,
+      "decoded_frame": 1063,
+      "decoded_frame_png": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/05_home-yolo-nightly-frame-r1.png",
+      "decoded_frame_png_sha256": "2b999d9cd1328e7c9914648e583ea835cb02eb740d19935d9a52956e24c94d77",
+      "deployed_phone_playback_and_seek_passed": true,
+      "narration_sha256": "27b949c20219dbf19252e799dfa3ab2251273325ad2fa4975f747a6b39df3079"
+    },
+    "08_measure": {
+      "video_url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f3fe5e321a9734c103c8c83d3ca0b9753e7df79f/08_measure/web/08_measure_silent.mp4",
+      "complete_video_sha256": "0afda4c258bacca6fb0864408d529d27c31ac7cbedfe2df614973c7840411b8f",
+      "bytes": 11468682,
+      "candidate_record_exact": true,
+      "decoded_frame": 0,
+      "decoded_frame_png": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/08_measure-yolo-nightly-frame-r1.png",
+      "decoded_frame_png_sha256": "d471e043be3e272384589bb233aff5338c3a754a24f43eed19925b67b791db2e",
+      "deployed_phone_playback_and_seek_passed": true,
+      "narration_sha256": "10fe8d2a4c15d88a40e9b21d578e827cfc8c7ed56032dbbbb7f37420714dad91"
+    },
+    "02_conda_install": {
+      "video_url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/f3fe5e321a9734c103c8c83d3ca0b9753e7df79f/02_conda_install/web/02_conda_install_silent.mp4",
+      "complete_video_sha256": "4e72bac1e17e1fb2c7d0ac9579ddfe73652c3c2b23eb862c969a505fc40a313f",
+      "bytes": 3719308,
+      "candidate_record_exact": true,
+      "decoded_frame": 2682,
+      "decoded_frame_png": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/02_conda_install-yolo-nightly-frame-r1.png",
+      "decoded_frame_png_sha256": "417ecb8d0ac6679beda971f8821065a2048f7ff2d356e2519da35376ce004286",
+      "deployed_phone_playback_and_seek_passed": true,
+      "narration_sha256": "c8f975ada4b0548db84197230bb8e4e9e88176a682bda11120f71df5e43376b9"
+    }
+  },
+  "Mask_07_unchanged": true,
+  "visual_review_pending": true
+}

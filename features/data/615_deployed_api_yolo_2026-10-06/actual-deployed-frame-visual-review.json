@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "review_date": "2026-10-06",
+  "review_scope": "AI visual review of actual decoded deployed videos; no independent listening or native-speaker signoff",
+  "08_measure": "Source and Load test data controls, loaded example, obsolete Point measure at some data card absent",
+  "05_home": "Current Data row, including Embeddings, Power and Dose Response in left-to-right order",
+  "02_conda_install": "Current alpha-off nineteen-tile Home; only the previously requested Home scene was replaced",
+  "14_make_masks": {
+    "new_YOLO_scene_index_zero_based": 17,
+    "visual": "yolo_06_drawn_box",
+    "decoded_web_frame": 7475,
+    "frame_sha256": "59b8ab57b05b9e55aa498d9f11827506cce4919a90f9b946cd54eb169babc35d",
+    "review": "Blue drawn class-labelled box and normal Save boxes/Export YOLO controls visible",
+    "earlier_scene_45_frame_18137_is_puncta_not_new_YOLO_visual": true
+  },
+  "Mask_07_unchanged": true
+}
