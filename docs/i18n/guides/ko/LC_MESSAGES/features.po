@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 18:40-0400\n"
+"POT-Creation-Date: 2026-10-05 20:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -253,8 +253,13 @@ msgstr "이 크기들은 세션 간에 기억됩니다."
 msgid "To resize a popup, point at one of its edges or corners. A thin blue guide line appears across the middle half of each side you can drag. Drag from anywhere along that edge or corner; the line only marks the side."
 msgstr "팝업 크기를 바꾸려면 가장자리나 모서리 중 하나를 가리킵니다. 끌 수 있는 각 변의 가운데 절반에 얇은 파란색 안내선이 나타납니다. 그 가장자리나 모서리의 어느 지점에서든 끌면 되며, 안내선은 변을 표시할 뿐입니다."
 
-msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
-msgstr "마스크 만들기는 마스크를 손으로 수정하며, 헤더에서 Cellpose 루프를 제공합니다. 캔버스에는 브러시, 지우개, Erase object, Wand +, Wand −, Draw, Divide, 확대/축소, Recrop, 자의 10가지 도구가 있습니다. :doc:`마스크 만들기 참조 <make_masks>` 에서 이 도구들과 레벨, 검출 설정, 1차/2차 짝짓기, 저장, 측정을 다룹니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has eleven tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Box, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
+msgstr "Make Masks는 마스크를 수동으로 수정하고 상단에 Cellpose 반복 학습 기능을 제공합니다. 캔버스에는 Brush, Erase, Erase object, Wand +, Wand −, 그리기, 상자, Divide, Zoom, 다시 자르기, 자의 열한 가지 도구가 있습니다. :doc:`Make Masks 참고 문서 <make_masks>` 항목에서는 이 도구들, Levels, 검출 설정, 주/보조 객체 짝짓기, 저장과 측정을 설명합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
+msgstr "**상자** 도구는 YOLO 주석을 위해 클래스 라벨이 있는 독립적인 사각형을 그립니다. 상자를 이동하거나 크기를 조절하고, 편집을 실행 취소하거나 다시 실행할 수 있습니다. **상자 저장** 기능으로 프로젝트를 보존하거나 **Export YOLO…** 기능으로 정규화된 라벨과 순서가 지정된 클래스 메타데이터를 저장하세요. 원본 이미지와 분할 마스크는 변경되지 않습니다."
 
 msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. Divide drags a line across a merged object and makes it two, leaving every other object's label untouched; it is the commonest correction a segmentation needs."
 msgstr "Draw는 자유형 윤곽을 따라 그린 뒤 닫고 채워 하나의 객체로 만듭니다. 이는 브러시로는 할 수 없는 일입니다. 브러시는 경로를 따라 원판을 찍기 때문에 가장자리를 따라 그리면 가장자리만 레이블되고 가운데는 배경으로 남습니다. Divide는 합쳐진 객체를 가로질러 선을 그어 둘로 나누며, 다른 객체의 레이블은 건드리지 않습니다. 분할에서 가장 흔히 필요한 수정입니다."
@@ -397,6 +402,7 @@ msgstr "GUI 위젯, 작업자, 구현 도우미입니다. 기여자를 위해 �
 msgid "Optional dependencies"
 msgstr "선택적 의존성"
 
-msgid "The base package contains the headless pipelines. Install ``spacr[qt]`` for the desktop interface. Other extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table."
-msgstr "기본 패키지에는 헤드리스 파이프라인이 들어 있습니다. 데스크톱 인터페이스를 사용하려면 ``spacr[qt]`` 를 설치합니다. 다른 추가 구성 요소는 OME-Zarr, OMERO, napari, 기여도 분석, 추적, Zernike 측정, 제조사별 판독기를 추가합니다. 사용 가능 여부는 Python 버전에 따라 다르며, :doc:`설치 안내서 <installer_guide>` 가 공식 호환성 표입니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The base package contains the Qt desktop interface and headless pipelines. Extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table."
+msgstr "기본 패키지에는 Qt 데스크톱 인터페이스와 그래픽 인터페이스 없이 실행하는 파이프라인이 포함됩니다. 선택적 추가 기능은 OME-Zarr, OMERO, napari, 기여도 분석, 추적, Zernike 측정과 제조업체 파일 리더를 제공합니다. 지원 여부는 Python 버전에 따라 다릅니다. :doc:`설치 안내서 <installer_guide>` 항목에서 기준이 되는 호환성 표를 확인하세요."
 

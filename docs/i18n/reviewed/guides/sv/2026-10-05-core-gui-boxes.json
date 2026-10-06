@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "source_commit": "bb52953cd27a38a4dfcec29b7132518642aae444",
+  "review_method": "Direct Codex AI technical translation and review; no independent peer or native-speaker signoff. Core Qt installation, optional extras, eleven tools and independent Box/YOLO export checked; displayed bold controls inserted from current runtime glossary.",
+  "source_files": {
+    "docs/source/features.rst": "a202396112e3c8a4cc3f1f390298fe9eb25b1ef4a27cbf2c5ec60dc528494263",
+    "docs/source/index.rst": "b55457de1e444e53de8600e24cb21e23376043305ece3f0d729716767121dd64",
+    "docs/source/installer_guide.rst": "a6c88a4dc0799676d0741c988a9932b4430f11ad5328e66114275bfd66fe0483"
+  },
+  "records": [
+    {
+      "domain": "features",
+      "source": "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has eleven tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Box, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement.",
+      "source_sha256": "2013e91de5bb1903826a324797d9cc4c438fe2f82dd7ad64794548a62cae9491",
+      "target": "Make Masks korrigerar masker för hand och visar Cellpose-loopen i sidhuvudet. Dess arbetsyta har elva verktyg: Brush, Erase, Erase object, Wand +, Wand −, Rita, Ruta, Divide, Zoom, Beskär igen och Linjal. :doc:`Referensen för Make Masks <make_masks>` beskriver verktygen, Levels, detektionsinställningar, primär/sekundär parning, sparande och mätning.",
+      "ui": {}
+    },
+    {
+      "domain": "features",
+      "source": "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged.",
+      "source_sha256": "313862afacdbd436805c3b7b3b34803897aba5b8865d3c3dd3a6ed599ef96da3",
+      "target": "**Ruta** ritar oberoende rektanglar med klassetiketter för YOLO-annotering. Flytta eller ändra storlek på en ruta, ångra eller gör om redigeringar och använd **Spara rutor** för att bevara projektet eller **Export YOLO…** för att skriva normaliserade etiketter och klassmetadata i rätt ordning. Källbilder och segmenteringsmasker förblir oförändrade.",
+      "ui": {
+        "Box": "Ruta",
+        "Save boxes": "Spara rutor"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "The base package contains the Qt desktop interface and headless pipelines. Extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table.",
+      "source_sha256": "ef5a762fc344a395ee3ff23e4bee62e9cd161a403029279d248c2a69cc2b9549",
+      "target": "Baspaketet innehåller Qt-gränssnittet för skrivbordet och körflöden utan grafiskt gränssnitt. Tillägg ger stöd för OME-Zarr, OMERO, napari, attribution, spårning, Zernike-mätningar och tillverkarspecifika läsare. Tillgängligheten beror på Python-versionen; :doc:`installationsguiden <installer_guide>` är den auktoritativa kompatibilitetstabellen.",
+      "ui": {}
+    },
+    {
+      "domain": "index",
+      "source": "Install spaCR and launch the desktop application. The standard package includes the Qt interface and command-line pipelines.",
+      "source_sha256": "4ab94fb787ad0cad77a177cb5cc3f1b94b2e1f0a393825f07f30755299e9be82",
+      "target": "Installera spaCR och starta skrivbordsprogrammet. Standardpaketet innehåller Qt-gränssnittet och körflöden för kommandoraden.",
+      "ui": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``. ``--extras`` chooses optional spaCR extras (none by default); the standard package includes the Qt desktop interface. ``--cellpose-model`` adds Cellpose weights and can be repeated, ``--test-fields`` limits the number of test fields, and ``--from-source .`` packs spaCR built from the checkout instead of the PyPI release.",
+      "source_sha256": "14339f77ed52307372e0458d2eb238063c38c0a50f7dd283c2409fb4c66ca780",
+      "target": "Detta skriver mappen ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` och, med ``--archive``, samma mapp som en enda ``.tar``. ``--extras`` väljer valfria spaCR-tillägg (inga som standard); standardpaketet innehåller Qt-gränssnittet för skrivbordet. ``--cellpose-model`` lägger till Cellpose-vikter och kan upprepas, ``--test-fields`` begränsar antalet testfält och ``--from-source .`` packar spaCR byggt från arbetskopian i stället för PyPI-versionen.",
+      "ui": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "The standard package includes the Qt desktop interface and command-line pipelines. On a headless server, use ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[czi,nd2,lif]``. Common additions are:",
+      "source_sha256": "939a107d53ed79cd848029f7bf114b0f89e57d93a6cce694eaba034c42cd4586",
+      "target": "Standardpaketet innehåller Qt-gränssnittet för skrivbordet och körflöden för kommandoraden. På en server utan grafiskt gränssnitt använder du ``spacr-run`` utan att öppna skrivbordsprogrammet. Tillägg kan kombineras, till exempel ``spacr[czi,nd2,lif]``. Vanliga tillägg är:",
+      "ui": {}
+    }
+  ],
+  "preserved_existing_translations": 2959
+}

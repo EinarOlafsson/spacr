@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 18:40-0400\n"
+"POT-Creation-Date: 2026-10-05 20:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -253,8 +253,13 @@ msgstr "这些尺寸会在会话之间被记住。"
 msgid "To resize a popup, point at one of its edges or corners. A thin blue guide line appears across the middle half of each side you can drag. Drag from anywhere along that edge or corner; the line only marks the side."
 msgstr "要调整弹出窗口的大小，请将指针指向其任一边缘或角。可拖动的每条边的中间一半会出现一条细蓝色参考线。可沿该边缘或角的任意位置拖动；参考线只是标示出可拖动的边。"
 
-msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
-msgstr "创建掩膜用于手动校正掩膜，并在其标题栏上提供 Cellpose 循环。其画布有十种工具：画笔、橡皮擦、Erase object、Wand +、Wand −、Draw、Divide、缩放、Recrop 和标尺。:doc:`创建掩膜参考 <make_masks>` 介绍了这些工具、色阶、检测设置、初级/次级配对、保存和测量。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has eleven tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Box, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
+msgstr "Make Masks 用于手动修正掩膜，并在标题栏中提供 Cellpose 循环。画布包含十一种工具：Brush、Erase、Erase object、Wand +、Wand −、绘制、边界框、Divide、Zoom、重新裁剪 和 标尺。:doc:`Make Masks 参考指南 <make_masks>` 介绍这些工具、Levels、检测设置、主次对象配对、保存和测量。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
+msgstr "**边界框** 为 YOLO 标注绘制带类别标签的独立矩形。可以移动或调整框的大小、撤销或重做编辑，并使用 **保存边界框** 保存项目，或使用 **Export YOLO…** 写出归一化标签和有序的类别元数据。源图像和分割掩膜保持不变。"
 
 msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. Divide drags a line across a merged object and makes it two, leaving every other object's label untouched; it is the commonest correction a segmentation needs."
 msgstr "Draw 描绘一个自由形状的轮廓，并将其闭合、填充为单个对象——这是画笔做不到的，因为画笔沿路径盖印圆盘，用它描绘边缘只会标记边缘，而中间仍为背景。Divide 在合并的对象上拖出一条线，将其分为两个，而不影响其他任何对象的标签；这是分割最常需要的校正。"
@@ -397,6 +402,7 @@ msgstr "GUI 控件、工作线程和实现辅助函数。它们为贡献者提�
 msgid "Optional dependencies"
 msgstr "可选依赖"
 
-msgid "The base package contains the headless pipelines. Install ``spacr[qt]`` for the desktop interface. Other extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table."
-msgstr "基础软件包包含无界面流程。安装 ``spacr[qt]`` 可获得桌面界面。其他附加组件可添加 OME-Zarr、OMERO、napari、归因、跟踪、Zernike 测量和厂商读取器。可用性因 Python 版本而异；:doc:`安装指南 <installer_guide>` 是权威的兼容性表。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The base package contains the Qt desktop interface and headless pipelines. Extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table."
+msgstr "基础包包含 Qt 桌面界面和无图形界面的处理流水线。可选扩展提供 OME-Zarr、OMERO、napari、归因分析、追踪、Zernike 测量以及厂商文件读取器。可用性取决于 Python 版本；:doc:`安装指南 <installer_guide>` 提供权威的兼容性表。"
 

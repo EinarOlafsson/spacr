@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_method": "AI technical review (Codex), no independent peer or native-speaker signoff",
+  "readme_source_sha256": "95cc35b5c42676dcec1c1aeb1aaa49bbc7f2de89f6f15e3a78be98727c856158",
+  "scope": "New Box paragraph only; labels, independent history and immutable source images/masks verified against current production implementation. Standard installation recipe refresh uses the normal README builder.",
+  "records": [
+    {
+      "label": "make-masks-box",
+      "source": "Make Masks corrects segmentation masks and annotates independent, class-labelled rectangles with the **Box** tool for YOLO export. Boxes keep their own labels and history without changing source images or masks.",
+      "source_sha256": "d43a473a9373bcadf25b3e9c85385bb5b360f1ff7c0a5fb99c0cf194a4a03196",
+      "translation": "Make Masks 修正分割掩膜，并使用 **Box** 工具标注带类别标签的独立矩形以进行 YOLO 导出。框保留自己的标签和历史记录，不会更改原始图像或掩膜。"
+    }
+  ]
+}

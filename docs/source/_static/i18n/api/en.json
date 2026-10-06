@@ -13705,7 +13705,7 @@
         "8f5d28f9ac3113149f1290ede2818976bec80d2ce59849a187b9df53947e0eb2",
         "3388a94886fdf212c170458ffde4d61799dc75bb4c28d613aabdd639adafdb99",
         "c5dc3a7c7cdaf9ab2ca1563dde69e6e44e8eb20fa83f1f88388e3a06cbd8f5e9",
-        "dbe14cfebb600d72ccd36347a24db689188457343c8d67d3bde2e677cf651192",
+        "6601ace2bf5e54a7078ca58201626db32481d51125aa17a95719e475b4369471",
         "56402ec2d9e984215daa495ac6a6b7625963bdb2413748f7eca9dd1cc20f8581",
         "4c9a5387f6863cd570fe358e1fde8d64e973b44cce93135ece37843f8551a5b2",
         "6876c177da683a1ef64df15cedbfb5a3b22b757e86f9bf48cbece8dd6493676d",
@@ -13715,8 +13715,8 @@
         "7ec08f5a7e7cadcc7ef1a3b32d5d5b303de5483e30d27ce7e647c330488a3507",
         "31608459a8544615eee4263d549bf474283a994a653c255a5cb249d8a3e6cf7b"
       ],
-      "source_sha256": "bf32e8979220732da7559aec6710c81bbf3dd04fcb5af6da7d5d507636d90271",
-      "text": "``spacr-doctor`` — diagnose a spaCR installation and say how to fix it.\n\nOne command, one line per check, and for every line that is not ``PASS`` a\nconcrete command the user can copy and run. A diagnostic that says\n\"GPU not available\" without saying what to do about it is not a diagnostic,\nso :class:`Result` makes ``fix`` a first-class field rather than an optional\nafterthought, and :func:`format_report` always prints it.\n\nThe checks exist because these failures actually happened:\n\n* **A stale editable install.** This repository is checked out more than once\n  on the same machine, and an editable install points at exactly one of them.\n  Editing checkout A while ``import spacr`` resolves to checkout B costs hours\n  before anyone thinks to print ``spacr.__file__``. :func:`check_running_checkout`\n  is the single most valuable function in this module.\n* **A missing optional extra.** PySide6 lives in the ``qt`` extra, not in the\n  core dependencies, so a plain ``pip install spacr`` used to install a\n  ``spacr`` command that died on an unhandled ``ImportError`` six frames deep.\n  :mod:`spacr.qt` already grew the friendly path for that; :func:`check_qt_extra`\n  reuses its logic rather than writing a second copy that can drift.\n* **A GPU that is present but unusable.** A CPU-only torch build on a machine\n  with an NVIDIA card, or a driver older than the CUDA runtime torch was built\n  against, both present as \"cuda not available\" and have entirely different\n  fixes.\n* **Cellpose version drift.** spaCR migrated to the Cellpose 4.x / SAM API.\n  Cellpose 3 lingering in an environment breaks at the first ``CellposeModel``\n  call, deep inside a run that has already spent an hour on masks.\n* **A project database that is corrupt, locked, or from a newer spaCR.**\n* **Settings whose combination cannot work**, which\n  :func:`spacr.validate.validate_settings` already knows how to name.\n\nDesign rules, all of them load-bearing:\n\n* Every check is an independent module-level function taking a\n  :class:`Context` and returning a :class:`Result` (or a sequence of them),\n  so each one is callable and assertable on its own.\n* :func:`run_checks` wraps every call, so a check that raises becomes an\n  ``ERROR`` row rather than taking down the report. A diagnostic tool that\n  crashes while diagnosing is worse than no diagnostic tool.\n* Nothing heavy is imported at module scope. ``spacr-doctor --help`` must not\n  pay for torch."
+      "source_sha256": "2688057b6631628e4fc9f198cb4f14d71c23fab277810a1ec060fdc6c3911b75",
+      "text": "``spacr-doctor`` — diagnose a spaCR installation and say how to fix it.\n\nOne command, one line per check, and for every line that is not ``PASS`` a\nconcrete command the user can copy and run. A diagnostic that says\n\"GPU not available\" without saying what to do about it is not a diagnostic,\nso :class:`Result` makes ``fix`` a first-class field rather than an optional\nafterthought, and :func:`format_report` always prints it.\n\nThe checks exist because these failures actually happened:\n\n* **A stale editable install.** This repository is checked out more than once\n  on the same machine, and an editable install points at exactly one of them.\n  Editing checkout A while ``import spacr`` resolves to checkout B costs hours\n  before anyone thinks to print ``spacr.__file__``. :func:`check_running_checkout`\n  is the single most valuable function in this module.\n* **A broken GUI dependency install.** PySide6 ships with the core package,\n  but a missing or incomplete wheel can still make the ``spacr`` command\n  fail on import. :mod:`spacr.qt` has a friendly path for that;\n  :func:`check_qt_extra` reuses its logic so the two cannot drift.\n* **A GPU that is present but unusable.** A CPU-only torch build on a machine\n  with an NVIDIA card, or a driver older than the CUDA runtime torch was built\n  against, both present as \"cuda not available\" and have entirely different\n  fixes.\n* **Cellpose version drift.** spaCR migrated to the Cellpose 4.x / SAM API.\n  Cellpose 3 lingering in an environment breaks at the first ``CellposeModel``\n  call, deep inside a run that has already spent an hour on masks.\n* **A project database that is corrupt, locked, or from a newer spaCR.**\n* **Settings whose combination cannot work**, which\n  :func:`spacr.validate.validate_settings` already knows how to name.\n\nDesign rules, all of them load-bearing:\n\n* Every check is an independent module-level function taking a\n  :class:`Context` and returning a :class:`Result` (or a sequence of them),\n  so each one is callable and assertable on its own.\n* :func:`run_checks` wraps every call, so a check that raises becomes an\n  ``ERROR`` row rather than taking down the report. A diagnostic tool that\n  crashes while diagnosing is worse than no diagnostic tool.\n* Nothing heavy is imported at module scope. ``spacr-doctor --help`` must not\n  pay for torch."
     },
     "spacr.doctor.Context": {
       "source_blocks_sha256": [
@@ -13887,12 +13887,12 @@
     },
     "spacr.doctor.check_qt_extra": {
       "source_blocks_sha256": [
-        "33031ccea2cd9bae37b6eca6eeb7587ecd992cce8c9b25dd7ec19742aef08fa2",
-        "d7d00264164fac96af87171190969317e728cc1abe067ad57b375feae2605d64",
+        "1c1d88efdd570ef307173d1f5e188ec79a9955cd6cddc4d0e8376bce966f518d",
+        "bad7e0e29b9463502425b5980b191c0e01c746488b22c5fe284e1de75b0f2803",
         "2c380ff26d422bbe1bf58295ca4ccf7c37af70f1b49a004932f5851ed9a31e4f"
       ],
-      "source_sha256": "af66da6aa365e06cb4f44765a52e7bff42bf5fe168282cae24094ef6088969ce",
-      "text": "The GUI's optional extra is installed.\n\nReuses :mod:`spacr.qt`'s own diagnosis — ``_missing_qt_extra`` and\n``_QT_MISSING_MESSAGE`` — rather than restating which distributions are in\nthe extra, so the two cannot drift apart.\n\n:param ctx: not read. The check imports the real GUI entry point, which\n    means it is the one check that pays for importing PySide6, and it\n    reports what that import did in this interpreter. It says nothing\n    about whether a window can be opened — see :func:`check_display` for\n    that half."
+      "source_sha256": "d9746a7c60ac93e22a5016818b7193208aac0853a83f0273409a2a4dbec33aa7",
+      "text": "The GUI dependencies import in this interpreter.\n\nReuses :mod:`spacr.qt`'s own diagnosis — ``_missing_qt_extra`` and\n``_QT_MISSING_MESSAGE`` — rather than restating which distributions the\nGUI needs. The legacy ``qt extra`` report key stays stable for consumers.\n\n:param ctx: not read. The check imports the real GUI entry point, which\n    means it is the one check that pays for importing PySide6, and it\n    reports what that import did in this interpreter. It says nothing\n    about whether a window can be opened — see :func:`check_display` for\n    that half."
     },
     "spacr.doctor.check_running_checkout": {
       "source_blocks_sha256": [
@@ -58059,10 +58059,10 @@
       "source_blocks_sha256": [
         "9db5a3b329429d121ffcb014ac3a8bd266317835e3d757101be5ba9a41d8247d",
         "0b9c9c5217abb532b449c8d976e24e1e1678889237588642fc0aba196734e032",
-        "4210e5e4f76871b13db086bca80ba0d5c113bd40e153fafe91ca671ac2f4d240"
+        "de911040ce54b580e91f255387b6aabfe734c80f07217b19c08e6dcc3430cdce"
       ],
-      "source_sha256": "67e609ad061ea39a784e9c3a0903a78ac22d7023595e9aee7119609bfc4c4515",
-      "text": "Launch the Qt GUI. Public entry point used by both `spacr-qt` and\n`python -m spacr.qt`.\n\nArgs:\n    argv: Optional CLI arguments. The first positional element,\n          if present, opens directly into that app screen key\n          (e.g. `spacr-qt mask`).\n\nReturns:\n    The exit code returned by `QApplication.exec()`, or ``1`` when the\n    optional Qt extra is not installed."
+      "source_sha256": "d5ed126e67e8817b48a58a6c99d07ca001fc6b821e3f43707c7c1eb5eb4c9ddc",
+      "text": "Launch the Qt GUI. Public entry point used by both `spacr-qt` and\n`python -m spacr.qt`.\n\nArgs:\n    argv: Optional CLI arguments. The first positional element,\n          if present, opens directly into that app screen key\n          (e.g. `spacr-qt mask`).\n\nReturns:\n    The exit code returned by `QApplication.exec()`, or ``1`` when the\n    required Qt dependency cannot be imported."
     },
     "spacr.qt.safespacr": {
       "source_blocks_sha256": [

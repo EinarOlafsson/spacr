@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 18:40-0400\n"
+"POT-Creation-Date: 2026-10-05 20:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -253,8 +253,13 @@ msgstr "Þessar stærðir eru munaðar milli lota."
 msgid "To resize a popup, point at one of its edges or corners. A thin blue guide line appears across the middle half of each side you can drag. Drag from anywhere along that edge or corner; the line only marks the side."
 msgstr "Til að breyta stærð sprettiglugga bendir þú á eina af brúnum hans eða hornum. Þunn blá leiðarlína birtist yfir miðhelmingi hverrar hliðar sem hægt er að draga. Dragðu hvar sem er meðfram þeirri brún eða horni; línan merkir aðeins hliðina."
 
-msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
-msgstr "Búa til grímur leiðréttir grímur handvirkt og ber Cellpose-lykkjuna á haus sínum. Strigi þess hefur tíu verkfæri: Pensill, Strokleður, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop og Reglustika. :doc:`Tilvísunin fyrir Búa til grímur <make_masks>` fjallar um þessi verkfæri, Tónsvið, greiningarstillingar, pörun frum- og afleiddra hluta, vistun og mælingu."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has eleven tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Box, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
+msgstr "Make Masks leiðréttir grímur handvirkt og sýnir Cellpose-hringrásina í hausnum. Vinnuflöturinn hefur ellefu verkfæri: Brush, Erase, Erase object, Wand +, Wand −, Teikna, Rammi, Divide, Zoom, Skera aftur og Reglustika. :doc:`Make Masks-handbókin <make_masks>` fjallar um þessi verkfæri, Levels, greiningarstillingar, pörun aðal- og aukamarka, vistun og mælingar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
+msgstr "**Rammi** teiknar sjálfstæða rétthyrninga með flokkamerkingum fyrir YOLO-merkingar. Færðu ramma eða breyttu stærð hans, afturkallaðu eða endurtaktu breytingar og notaðu **Vista ramma** til að varðveita verkefnið eða **Export YOLO…** til að skrifa stöðluð hnitamerki og flokkalýsigögn í fastri röð. Upprunamyndir og skiptingargrímur haldast óbreyttar."
 
 msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. Divide drags a line across a merged object and makes it two, leaving every other object's label untouched; it is the commonest correction a segmentation needs."
 msgstr "Draw rekur útlínu að vild sem lokast og fyllist sem einn hlutur -- verkfærið sem pensill er ekki, því að pensill stimplar diska eftir ferlinum, svo ef brún er rakin með honum er brúnin merkt og miðjan skilin eftir sem bakgrunnur. Divide dregur línu þvert yfir samrunninn hlut og gerir úr honum tvo, án þess að snerta merki nokkurs annars hlutar; það er algengasta leiðréttingin sem hlutun þarfnast."
@@ -397,6 +402,7 @@ msgstr "Viðmótshlutar myndræna viðmótsins, vinnsluþræðir og útfærsluhj
 msgid "Optional dependencies"
 msgstr "Valkvæðir pakkar"
 
-msgid "The base package contains the headless pipelines. Install ``spacr[qt]`` for the desktop interface. Other extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table."
-msgstr "Grunnpakkinn inniheldur vinnslukeðjurnar án myndræns viðmóts. Settu upp ``spacr[qt]`` fyrir skjáborðsviðmótið. Önnur aukasöfn bæta við OME-Zarr, OMERO, napari, eignun, rakningu, Zernike-mælingum og lesurum framleiðenda. Framboð er breytilegt eftir útgáfu Python; :doc:`uppsetningarleiðbeiningarnar <installer_guide>` eru áreiðanlega samhæfnistaflan."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The base package contains the Qt desktop interface and headless pipelines. Extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table."
+msgstr "Grunnpakkinn inniheldur Qt-skjáborðsviðmótið og vinnslulínur án myndræns viðmóts. Viðbætur bæta við OME-Zarr, OMERO, napari, eignun, rakningu, Zernike-mælingum og lesurum fyrir snið framleiðenda. Aðgengi fer eftir Python-útgáfu; :doc:`uppsetningarhandbókin <installer_guide>` hefur viðmiðunartöfluna fyrir samhæfni."
 

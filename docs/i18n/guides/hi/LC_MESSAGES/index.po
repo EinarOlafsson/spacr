@@ -1,5 +1,5 @@
 # spaCR user guide translation (hi).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 18:40-0400\n"
+"POT-Creation-Date: 2026-10-05 20:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -187,8 +187,9 @@ msgstr "टोक्सोप्लाज़्मा API खोलें"
 msgid "Installation"
 msgstr "स्थापना"
 
-msgid "Install spaCR and launch the desktop application. The ``qt`` extra remains supported for desktop installations; current packages also include PySide6 among their base dependencies."
-msgstr "spaCR स्थापित करें और डेस्कटॉप एप्लिकेशन लॉन्च करें। ``qt`` अतिरिक्त घटक डेस्कटॉप स्थापनाओं के लिए समर्थित रहता है; वर्तमान पैकेजों की मूल निर्भरताओं में PySide6 भी शामिल है।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Install spaCR and launch the desktop application. The standard package includes the Qt interface and command-line pipelines."
+msgstr "spaCR स्थापित करें और डेस्कटॉप अनुप्रयोग शुरू करें। मानक पैकेज में Qt इंटरफ़ेस और कमांड लाइन पाइपलाइन शामिल हैं।"
 
 msgid "For a terminal workflow on a cluster or server, use ``spacr-run`` without opening the desktop application:"
 msgstr "क्लस्टर या सर्वर पर टर्मिनल कार्यप्रवाह के लिए डेस्कटॉप एप्लिकेशन खोले बिना ``spacr-run`` का उपयोग करें:"

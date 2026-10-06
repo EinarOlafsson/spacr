@@ -1,0 +1,115 @@
+{
+  "source_commit": "bb52953cd27a38a4dfcec29b7132518642aae444",
+  "languages": {
+    "en": {
+      "catalog_sha256": "e0cf76e241031760194f44ea24b51e63eb70f51146acf5120fbca4e15133b689",
+      "symbols": 13181,
+      "changed": [
+        "spacr.doctor",
+        "spacr.doctor.check_qt_extra",
+        "spacr.qt.run"
+      ],
+      "other_complete_records_preserved": 13178,
+      "new_source_and_translation_context_hashes_current": true
+    },
+    "sv": {
+      "catalog_sha256": "deb9f387777e8fd3c79b7db963973df6629b0c1e3e56a8a9cdbdf8acbddbbd57",
+      "symbols": 13181,
+      "changed": [
+        "spacr.doctor",
+        "spacr.doctor.check_qt_extra",
+        "spacr.qt.run"
+      ],
+      "other_complete_records_preserved": 13178,
+      "new_source_and_translation_context_hashes_current": true
+    },
+    "de": {
+      "catalog_sha256": "ea0b6966a3b2ae4b6f563ef1bb44c4baec3b009ee35cbe45c1e55ce1ff4fe465",
+      "symbols": 13181,
+      "changed": [
+        "spacr.doctor",
+        "spacr.doctor.check_qt_extra",
+        "spacr.qt.run"
+      ],
+      "other_complete_records_preserved": 13178,
+      "new_source_and_translation_context_hashes_current": true
+    },
+    "es": {
+      "catalog_sha256": "f9e11204f1b08c4fa27d1b0dd0871820f35f556beb94e883119c070d0eda63e3",
+      "symbols": 13181,
+      "changed": [
+        "spacr.doctor",
+        "spacr.doctor.check_qt_extra",
+        "spacr.qt.run"
+      ],
+      "other_complete_records_preserved": 13178,
+      "new_source_and_translation_context_hashes_current": true
+    },
+    "zh_CN": {
+      "catalog_sha256": "f144c958155fcc26fc0e1dd32e117feedc1ab7e8268c8bc7c5a55ba261f427d7",
+      "symbols": 13181,
+      "changed": [
+        "spacr.doctor",
+        "spacr.doctor.check_qt_extra",
+        "spacr.qt.run"
+      ],
+      "other_complete_records_preserved": 13178,
+      "new_source_and_translation_context_hashes_current": true
+    },
+    "pt": {
+      "catalog_sha256": "ffb024105c2478df415304851e3d5a756695588c68aa26e8f91121026d759139",
+      "symbols": 13181,
+      "changed": [
+        "spacr.doctor",
+        "spacr.doctor.check_qt_extra",
+        "spacr.qt.run"
+      ],
+      "other_complete_records_preserved": 13178,
+      "new_source_and_translation_context_hashes_current": true
+    },
+    "hi": {
+      "catalog_sha256": "d79e52d21916bf6245e3014cbed448652e8a899feadead8e818f371652a0b618",
+      "symbols": 13181,
+      "changed": [
+        "spacr.doctor",
+        "spacr.doctor.check_qt_extra",
+        "spacr.qt.run"
+      ],
+      "other_complete_records_preserved": 13178,
+      "new_source_and_translation_context_hashes_current": true
+    },
+    "ko": {
+      "catalog_sha256": "0e129d8b423e904ab31c13cdc489196526c02117655ffe9e96857458a848d87f",
+      "symbols": 13181,
+      "changed": [
+        "spacr.doctor",
+        "spacr.doctor.check_qt_extra",
+        "spacr.qt.run"
+      ],
+      "other_complete_records_preserved": 13178,
+      "new_source_and_translation_context_hashes_current": true
+    },
+    "is": {
+      "catalog_sha256": "4e42a8463f888b2aa6014c926dc77aec0b394df3ce36884ddd349fbd598dc704",
+      "symbols": 13181,
+      "changed": [
+        "spacr.doctor",
+        "spacr.doctor.check_qt_extra",
+        "spacr.qt.run"
+      ],
+      "other_complete_records_preserved": 13178,
+      "new_source_and_translation_context_hashes_current": true
+    },
+    "fr": {
+      "catalog_sha256": "15f05f036cb38dfc533eceb6ea3239e6900c6af2607a7cdb390d9d4d870b6cc5",
+      "symbols": 13181,
+      "changed": [
+        "spacr.doctor",
+        "spacr.doctor.check_qt_extra",
+        "spacr.qt.run"
+      ],
+      "other_complete_records_preserved": 13178,
+      "new_source_and_translation_context_hashes_current": true
+    }
+  }
+}

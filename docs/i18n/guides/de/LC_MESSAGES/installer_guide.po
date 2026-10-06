@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 18:40-0400\n"
+"POT-Creation-Date: 2026-10-05 20:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
@@ -231,8 +231,9 @@ msgstr "Die kleinen Desktop-Installationsprogramme sind Online-Installationsprog
 msgid "From a spaCR checkout, on the networked machine:"
 msgstr "Aus einem spaCR-Checkout auf dem vernetzten Rechner:"
 
-msgid "This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``. ``--extras`` chooses the spaCR extras (default ``qt``), ``--cellpose-model`` adds Cellpose weights and can be repeated, ``--test-fields`` limits the number of test fields, and ``--from-source .`` packs spaCR built from the checkout instead of the PyPI release."
-msgstr "Dies schreibt den Ordner ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` unter ``dist/offline`` und mit ``--archive`` denselben Ordner als eine ``.tar``-Datei. ``--extras`` wählt die spaCR-Extras (Voreinstellung ``qt``), ``--cellpose-model`` fügt Cellpose-Gewichte hinzu und kann wiederholt werden, ``--test-fields`` begrenzt die Anzahl der Testbildfelder, und ``--from-source .`` packt ein aus dem Checkout gebautes spaCR statt des PyPI-Release."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``. ``--extras`` chooses optional spaCR extras (none by default); the standard package includes the Qt desktop interface. ``--cellpose-model`` adds Cellpose weights and can be repeated, ``--test-fields`` limits the number of test fields, and ``--from-source .`` packs spaCR built from the checkout instead of the PyPI release."
+msgstr "Dies schreibt den Ordner ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` unter ``dist/offline`` und mit ``--archive`` denselben Ordner als einzelne ``.tar``-Datei. ``--extras`` wählt optionale spaCR-Extras (standardmäßig keine); das Standardpaket enthält die Qt-Desktopoberfläche. ``--cellpose-model`` fügt Cellpose-Gewichte hinzu und kann wiederholt werden, ``--test-fields`` begrenzt die Anzahl der Testfelder und ``--from-source .`` packt spaCR aus der Arbeitskopie statt der PyPI-Version."
 
 msgid "Copy the bundle to the offline machine and run its installer with the bundle folder. On Linux or macOS:"
 msgstr "Kopieren Sie das Paket auf den Offline-Rechner und führen Sie sein Installationsprogramm mit dem Paketordner aus. Unter Linux oder macOS:"
@@ -270,20 +271,15 @@ msgstr "Installation über PyPI und Extras"
 msgid "The PyPI package supports Python 3.9 through 3.14 except Python 3.14.1. To install the PyPI release and desktop interface inside a Conda environment:"
 msgstr "Das PyPI-Paket unterstützt Python 3.9 bis 3.14 mit Ausnahme von Python 3.14.1. So installieren Sie das PyPI-Release und die Desktopoberfläche in einer Conda-Umgebung:"
 
-msgid "Omit ``qt`` for a headless server. Extras can be combined, for example ``spacr[qt,czi,nd2,lif]``. Common additions are:"
-msgstr "Lassen Sie ``qt`` für einen Server ohne GUI weg. Extras lassen sich kombinieren, zum Beispiel ``spacr[qt,czi,nd2,lif]``. Häufige Ergänzungen sind:"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The standard package includes the Qt desktop interface and command-line pipelines. On a headless server, use ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[czi,nd2,lif]``. Common additions are:"
+msgstr "Das Standardpaket enthält die Qt-Desktopoberfläche und Kommandozeilen-Pipelines. Verwenden Sie auf einem Server ohne grafische Oberfläche ``spacr-run``, ohne die Desktopanwendung zu öffnen. Extras lassen sich kombinieren, beispielsweise ``spacr[czi,nd2,lif]``. Häufige Ergänzungen sind:"
 
 msgid "Extra"
 msgstr "Extra"
 
 msgid "Adds"
 msgstr "Fügt hinzu"
-
-msgid "``qt``"
-msgstr "``qt``"
-
-msgid "The PySide6 desktop interface."
-msgstr "Die PySide6-Desktopoberfläche."
 
 msgid "``czi``, ``nd2``, ``lif``"
 msgstr "``czi``, ``nd2``, ``lif``"

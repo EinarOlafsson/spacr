@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 18:40-0400\n"
+"POT-Creation-Date: 2026-10-05 20:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -231,8 +231,9 @@ msgstr "De små skrivbordsinstallationsprogrammen är onlineinstallationsprogram
 msgid "From a spaCR checkout, on the networked machine:"
 msgstr "Från en utcheckning av spaCR, på datorn med nätverk:"
 
-msgid "This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``. ``--extras`` chooses the spaCR extras (default ``qt``), ``--cellpose-model`` adds Cellpose weights and can be repeated, ``--test-fields`` limits the number of test fields, and ``--from-source .`` packs spaCR built from the checkout instead of the PyPI release."
-msgstr "Detta skriver mappen ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` och, med ``--archive``, samma mapp som en enda ``.tar``. ``--extras`` väljer spaCR-tilläggen (standard ``qt``), ``--cellpose-model`` lägger till Cellpose-vikter och kan upprepas, ``--test-fields`` begränsar antalet testfält, och ``--from-source .`` paketerar spaCR byggt från utcheckningen i stället för PyPI-versionen."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``. ``--extras`` chooses optional spaCR extras (none by default); the standard package includes the Qt desktop interface. ``--cellpose-model`` adds Cellpose weights and can be repeated, ``--test-fields`` limits the number of test fields, and ``--from-source .`` packs spaCR built from the checkout instead of the PyPI release."
+msgstr "Detta skriver mappen ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` och, med ``--archive``, samma mapp som en enda ``.tar``. ``--extras`` väljer valfria spaCR-tillägg (inga som standard); standardpaketet innehåller Qt-gränssnittet för skrivbordet. ``--cellpose-model`` lägger till Cellpose-vikter och kan upprepas, ``--test-fields`` begränsar antalet testfält och ``--from-source .`` packar spaCR byggt från arbetskopian i stället för PyPI-versionen."
 
 msgid "Copy the bundle to the offline machine and run its installer with the bundle folder. On Linux or macOS:"
 msgstr "Kopiera paketet till datorn utan nätverk och kör dess installationsprogram med paketmappen. På Linux eller macOS:"
@@ -270,20 +271,15 @@ msgstr "Installation via PyPI och tillägg"
 msgid "The PyPI package supports Python 3.9 through 3.14 except Python 3.14.1. To install the PyPI release and desktop interface inside a Conda environment:"
 msgstr "PyPI-paketet stöder Python 3.9 till och med 3.14 utom Python 3.14.1. För att installera PyPI-versionen och skrivbordsgränssnittet i en Conda-miljö:"
 
-msgid "Omit ``qt`` for a headless server. Extras can be combined, for example ``spacr[qt,czi,nd2,lif]``. Common additions are:"
-msgstr "Utelämna ``qt`` för en server utan grafiskt gränssnitt. Tillägg kan kombineras, till exempel ``spacr[qt,czi,nd2,lif]``. Vanliga tillägg är:"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The standard package includes the Qt desktop interface and command-line pipelines. On a headless server, use ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[czi,nd2,lif]``. Common additions are:"
+msgstr "Standardpaketet innehåller Qt-gränssnittet för skrivbordet och körflöden för kommandoraden. På en server utan grafiskt gränssnitt använder du ``spacr-run`` utan att öppna skrivbordsprogrammet. Tillägg kan kombineras, till exempel ``spacr[czi,nd2,lif]``. Vanliga tillägg är:"
 
 msgid "Extra"
 msgstr "Tillägg"
 
 msgid "Adds"
 msgstr "Lägger till"
-
-msgid "``qt``"
-msgstr "``qt``"
-
-msgid "The PySide6 desktop interface."
-msgstr "Skrivbordsgränssnittet i PySide6."
 
 msgid "``czi``, ``nd2``, ``lif``"
 msgstr "``czi``, ``nd2``, ``lif``"

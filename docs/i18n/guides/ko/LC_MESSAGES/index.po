@@ -1,5 +1,5 @@
 # spaCR user guide translation (ko).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 18:40-0400\n"
+"POT-Creation-Date: 2026-10-05 20:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -187,8 +187,9 @@ msgstr "톡소플라스마 API 열기"
 msgid "Installation"
 msgstr "설치"
 
-msgid "Install spaCR and launch the desktop application. The ``qt`` extra remains supported for desktop installations; current packages also include PySide6 among their base dependencies."
-msgstr "spaCR을 설치하고 데스크톱 애플리케이션을 실행합니다. ``qt`` 추가 구성 요소는 데스크톱 설치에서 계속 지원되며, 현재 패키지에는 기본 의존성에 PySide6도 포함되어 있습니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Install spaCR and launch the desktop application. The standard package includes the Qt interface and command-line pipelines."
+msgstr "spaCR를 설치하고 데스크톱 애플리케이션을 실행하세요. 표준 패키지에는 Qt 인터페이스와 명령줄 파이프라인이 포함됩니다."
 
 msgid "For a terminal workflow on a cluster or server, use ``spacr-run`` without opening the desktop application:"
 msgstr "클러스터나 서버에서 터미널 워크플로를 사용하려면 데스크톱 애플리케이션을 열지 않고 ``spacr-run`` 을 사용합니다."

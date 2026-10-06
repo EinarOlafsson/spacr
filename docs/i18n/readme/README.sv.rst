@@ -80,6 +80,8 @@ spaCR segmenterar och mäter enskilda celler i mikroskopibilder med högt inneh�
 
 Segmenterings-, mät-, annoterings- och klassificeringsmodulerna körs även utan en sekvensarm.
 
+Make Masks korrigerar segmenteringsmasker och annoterar oberoende, klassmärkta rektanglar med verktyget **Box** för YOLO-export. Rutorna har egna etiketter och egen historik utan att ändra källbilder eller masker.
+
 Bilder, masker, bildutsnitt, mätningar, annoteringar, förutsägelser, streckkoder och brunnsidentifierare ligger i ett och samma SQLite-projekt.
 
 Körs som ett skrivbordsprogram eller utan grafiskt gränssnitt på en arbetsstation, server eller kluster.
@@ -91,7 +93,7 @@ Prova spaCR
 
    conda create -n spacr python=3.12 -y
    conda activate spacr
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 Använd **Ladda testdata…** i Import, Make Masks, Annotate eller en analysskärm för att hämta exempeldata. Från en terminal använder du ``spacr-download``.
@@ -134,7 +136,7 @@ Hårdvarustöd
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+Stödda (stabila)  och genomförda (beta) - CPU stöd endast
 
 .. spacr-hardware-end
 
@@ -193,12 +195,12 @@ För PyPI-utgåvan installerar du spaCR med pip i en Conda-miljö. Python 3.12 g
    conda create -n spacr python=3.12 -y
    conda activate spacr
    python -m pip install --upgrade pip
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 spaCR stöder Python **3.9 through 3.14**, utom Python 3.14.1, som torchvision utesluter. Linux rekommenderas för de tyngsta CUDA- och ROCm-arbetsflödena; macOS och Windows stöds också, och båda använder sina GPU:er — macOS via Metal, som täcker Apple Silicon och AMD-korten i Intel-Mac-datorer, och Windows via CUDA eller DirectML.
 
-Utelämna Qt på en server, ett beräkningskluster eller en CI-körare:
+Standardinstallationen inkluderar desktop-gränssnittet Qt. För en server, kluster eller CI löpare, kör kommandoradsrörledningarna utan att öppna den:
 
 .. code-block:: bash
 
@@ -441,7 +443,7 @@ Språk och översättning
 
 Gränssnittet stöder tio språk i navigering och inställningar. AI- och LIVE-kontroller, modulbeskrivningar och granskad kontexthjälp översätts också. Byt språk under **spaCR → Inställningar → Språk** utan att starta om. Loggar, sökvägar, databasvärden och mätningar översätts aldrig; vetenskapliga utdata förblir på kanonisk engelska. Se `policyn för kontexthjälp <../../source/localization.rst#contextual-help>`_.
 
-De nio icke-engelska katalogerna är maskinskrivna och tekniskt granskade i stället för att läsa ända till slutet av en infödd talare av varje språk. De `Översynens tillämpningsområde <../REVIEW_SCOPE_2026-09-04.md>`_ poster vilka språk har haft ett mänskligt pass, hur mycket av de corpus som täcker, och varje term kvar på engelska genom beslut.
+De nio icke-engelska katalogerna är maskinskrivna och tekniskt recenserade snarare än lästa ända till slut av en infödd talare. De `Översynens tillämpningsområde <../REVIEW_SCOPE_2026-09-04.md>`_ skivor som språken har haft ett mänskligt pass och varje term kvar på engelska av beslut.
 
 Animerad hjälp för inställningar
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -477,8 +479,8 @@ Referensdatauppsättningar
    :alt: Öppna bioRxiv-förhandsversionen
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
-Förlaga till djurpark
-~~~~~~~~~~~~~~~~~~~~~
+Modellbibliotek
+~~~~~~~~~~~~~~~
 
 spaCR skickar en katalog med utbildade modeller och hämtar dem på begäran. Öppna **Modellzoo** från startskärmen för att bläddra och installera dem, eller namnge en nyckel i en inställningsfil -- ``pathogen_model: toxoplasma_pv_v1`` -- och modellen laddas ner och kontrolleras första gången den behövs. Varje publicerad post innehåller en SHA-256; en post utan en nekas snarare än installeras, eftersom en trunkerad eller ersatt kontrollpunkt inte kan meddelas från den verkliga.
 
@@ -671,15 +673,15 @@ Olafsson EB, *et al.* En poolad bildbaserad CRISPR screening identifierar EAF1 s
 
 `BioRxiv preprint <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `programvaruarkiv <https://doi.org/10.5281/zenodo.21343316>`_
 
-Andra arbeten som citerar spaCR
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Andra arbeten med hänvisning till spaCR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. spacr-citing-papers-begin
 
-* `Metabolic adaptability and nutrient scavenging in Toxoplasma gondii: insights from ingestion pathway-deficient mutants. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
-* `IRE1α promotes phagosomal calcium flux to enhance macrophage fungicidal activity. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
-* `Toxoplasma GRA8 engages the host ESCRT accessory protein ALG-2 and is necessary for parasite metabolic integrity. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
-* `spaCR: Spatial phenotype analysis of CRISPR-Cas9 screens (preprint version 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
+* `Metabol anpassningsförmåga och näringsavlagring i Toxoplasma gondii: insikter från intag väg-deficen mutanter. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
+* `IRE1α främjar fagsomalt kalciumflöde för att öka makrofag fungicid aktivitet. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
+* `Toxoplasma GRA8 engagerar värd ESCRT tillbehör protein ALG-2 och är nödvändig för parasit metabolisk integritet. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
+* `spaCR: Spatial fenotypanalys av CRISPR-Cas9-screeningar (preprint version 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
 
 .. spacr-citing-papers-end
 

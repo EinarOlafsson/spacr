@@ -80,6 +80,8 @@ spaCR उच्च-सामग्री माइक्रोस्कोपी
 
 segmentation, measurement, annotation और classification modules भी एक sequencing arm के बिना चलता है।
 
+Make Masks सेगमेंटेशन मास्क सुधारता है और YOLO निर्यात के लिए **Box** टूल से स्वतंत्र, क्लास-लेबल वाले आयतों का एनोटेशन करता है। ये बॉक्स स्रोत इमेज या मास्क बदले बिना अपने लेबल और इतिहास रखते हैं।
+
 छवियाँ, मास्क, क्रॉप, मापन, एनोटेशन, भविष्यवाणियाँ, बारकोड और वेल पहचानकर्ता एक ही SQLite परियोजना में रहते हैं।
 
 यह डेस्कटॉप एप्लिकेशन के रूप में, या वर्कस्टेशन, सर्वर या क्लस्टर पर हेडलेस रूप में चलता है।
@@ -91,7 +93,7 @@ spaCR आज़माएँ
 
    conda create -n spacr python=3.12 -y
    conda activate spacr
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 उदाहरण डेटा डाउनलोड करने के लिए Import, Make Masks, Annotate या किसी असे स्क्रीन में **टेस्ट डेटा लोड करें…** का उपयोग करें। टर्मिनल से ``spacr-download`` का उपयोग करें।
@@ -134,7 +136,7 @@ spaCR आज़माएँ
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+समर्थित (स्थिर)  लागू (बेटा) 🔴 CPU समर्थन केवल
 
 .. spacr-hardware-end
 
@@ -193,12 +195,12 @@ PyPI रिलीज़ के लिए, Conda वातावरण के भ
    conda create -n spacr python=3.12 -y
    conda activate spacr
    python -m pip install --upgrade pip
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 spaCR, Python **3.9 through 3.14** का समर्थन करता है, Python 3.14.1 को छोड़कर, जिसे torchvision बाहर रखता है। सबसे भारी CUDA और ROCm कार्यप्रवाहों के लिए Linux की अनुशंसा की जाती है; macOS और Windows भी समर्थित हैं, और दोनों अपने GPU का उपयोग करते हैं — macOS, Metal के माध्यम से, जो Apple Silicon और Intel Mac में लगे AMD कार्डों को कवर करता है, और Windows, CUDA या DirectML के माध्यम से।
 
-सर्वर, क्लस्टर या CI रनर पर Qt को छोड़ दें:
+मानक स्थापना में Qt डेस्कटॉप इंटरफ़ेस शामिल है. एक सर्वर, क्लस्टर या सीआई रनर के लिए, इसे खोलने के बिना कमांड लाइन पाइपलाइन चलाएं:
 
 .. code-block:: bash
 
@@ -441,7 +443,7 @@ Quantitative readouts for biological assays.
 
 इंटरफ़ेस नेविगेशन और प्राथमिकताओं में दस भाषाओं का समर्थन करता है। AI और LIVE नियंत्रण, मॉड्यूल विवरण और समीक्षित संदर्भ सहायता भी अनुवादित हैं। पुनः आरंभ किए बिना **spaCR → प्राथमिकताएँ → भाषा** में भाषा बदलें। लॉग, पथ, डेटाबेस मान और मापन कभी अनुवादित नहीं होते; वैज्ञानिक आउटपुट मानक अंग्रेज़ी में रहता है। `संदर्भ-सहायता नीति <../../source/localization.rst#contextual-help>`_ देखें।
 
-नौ गैर-अंग्रेजी कैटलॉग मशीन-ग्रेड किए जाते हैं और तकनीकी रूप से समीक्षा की जाती है, प्रत्येक भाषा के एक स्वदेशी बोलने वाले द्वारा अंत तक पढ़ने के बजाय. `समीक्षा स्कोप <../REVIEW_SCOPE_2026-09-04.md>`_ रिकॉर्ड किस भाषाओं में एक मानव पास था, कितने शरीर को कवर किया गया था, और प्रत्येक शब्द अंग्रेजी में निर्णय के अनुसार छोड़ दिया गया था.
+नौ गैर-अंग्रेजी कैटलॉग मशीन-ड्राइंग और तकनीकी रूप से समीक्षा के बजाय एक स्वदेशी वक्ता द्वारा समाप्त पढ़ने के लिए. `समीक्षा स्कोप <../REVIEW_SCOPE_2026-09-04.md>`_ रिकॉर्ड जिन भाषाओं ने एक मानव पास किया है और प्रत्येक शब्द अंग्रेजी में छोड़ दिया है निर्णय द्वारा.
 
 एनिमेटेड सेटिंग मार्गदर्शन
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -477,8 +479,8 @@ Quantitative readouts for biological assays.
    :alt: bioRxiv प्रीप्रिंट खोलें
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
-जानवरों का मॉडल
-~~~~~~~~~~~~~~~
+मॉडल लाइब्रेरी
+~~~~~~~~~~~~~
 
 spaCR प्रशिक्षित मॉडलों का एक कैटलॉग भेजता है और उन्हें मांग पर पकड़ता है. होम स्क्रीन से ब्राउज़ करने और स्थापित करने के लिए **मॉडल Zoo** खोलें, या सेटिंग्स फ़ाइल में एक कुंजी नामित करें - ``pathogen_model: toxoplasma_pv_v1`` - और मॉडल को डाउनलोड किया जाता है और पहली बार जांच की जाती है. प्रत्येक प्रकाशित प्रविष्टि में एक SHA-256 होता है; एक के बिना एक प्रविष्ट को अस्वीकार कर दिया जाता है, बल्कि स्थापित किया जा सकता है, क्योंकि एक ट्रिगर या प्रतिस्थापित चेकपॉइंट को वास्तविक से नहीं बताया जा सकता।
 
@@ -671,15 +673,15 @@ Olafsson EB, *et al.* एक संयोजित छवि-आधारित 
 
 `BioRxiv प्रीप्रिंट <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `सॉफ्टवेयर संग्रह <https://doi.org/10.5281/zenodo.21343316>`_
 
-spaCR का संदर्भ देने वाले अन्य कार्य
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+अन्य कार्य उद्धरण spaCR
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. spacr-citing-papers-begin
 
-* `Metabolic adaptability and nutrient scavenging in Toxoplasma gondii: insights from ingestion pathway-deficient mutants. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
-* `IRE1α promotes phagosomal calcium flux to enhance macrophage fungicidal activity. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
-* `Toxoplasma GRA8 engages the host ESCRT accessory protein ALG-2 and is necessary for parasite metabolic integrity. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
-* `spaCR: Spatial phenotype analysis of CRISPR-Cas9 screens (preprint version 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
+* `टॉक्सोप्लाज्मा गोंडी में चयापचय अनुकूलन और पोषक तत्वों के अधिग्रहण: अवशोषण मार्ग-अनावश्यक मुट्ठी से अंतर्दृष्टि। <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
+* `IRE1α मैक्रोफैग fungicidal गतिविधि को बढ़ावा देने के लिए phagosomal कैल्शियम प्रवाह को बढ़ाता है। <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
+* `टॉक्सोप्लाज्मा जीआरए 8 होस्ट एससीआरटी सामान प्रोटीन एलजी-2 को शामिल करता है और परजीवी के मेटाबोलिक अखंडता के लिए आवश्यक है। <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
+* `spaCR: CRISPR-Cas9 स्क्रीनिंग (प्रिंट संस्करण 1) के अंतरिक्ष प्रजनन विश्लेषण। <https://www.researchsquare.com/article/rs-7368254/v1>`_
 
 .. spacr-citing-papers-end
 

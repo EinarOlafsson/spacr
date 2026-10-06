@@ -80,6 +80,8 @@ spaCR는 고함량 현미경 영상에서 단일 세포를 분할하고 측정�
 
 분류, 측정, 기록 및 분류 모듈은 또한 순서 팔없이 실행됩니다.
 
+Make Masks는 분할 마스크를 수정하고 YOLO 내보내기를 위해 **Box** 도구로 클래스 라벨이 있는 독립적인 사각형을 주석 처리합니다. 박스는 원본 이미지나 마스크를 변경하지 않고 자체 라벨과 편집 이력을 유지합니다.
+
 이미지, 마스크, 크롭, 측정값, 주석, 예측, 바코드 및 웰 식별자가 하나의 SQLite 프로젝트에 저장됩니다.
 
 데스크톱 애플리케이션으로 실행되거나 워크스테이션, 서버 또는 클러스터에서 헤드리스로 실행됩니다.
@@ -91,7 +93,7 @@ spaCR 사용해 보기
 
    conda create -n spacr python=3.12 -y
    conda activate spacr
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 Import, Make Masks, Annotate 또는 분석 화면에서 **테스트 데이터 불러오기…**\ 를 사용하여 예제 데이터를 다운로드합니다. 터미널에서는 ``spacr-download``\ 를 사용합니다.
@@ -134,7 +136,7 @@ Import, Make Masks, Annotate 또는 분석 화면에서 **테스트 데이터 �
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+지원 (안정)  구현 (베타) 🔴 CPU 지원만
 
 .. spacr-hardware-end
 
@@ -145,7 +147,7 @@ spaCR 설치
 데스크톱 애플리케이션
 ---------------------
 
-The installers bundle their own Python. Conda is not required.
+설치자는 자신의 Python을 묶습니다.Conda는 필요하지 않습니다.
 
 .. spacr-installer-links-begin
 
@@ -193,12 +195,12 @@ PyPI 릴리스는 Conda 환경 안에서 pip로 spaCR를 설치하세요. Python
    conda create -n spacr python=3.12 -y
    conda activate spacr
    python -m pip install --upgrade pip
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 spaCR는 Python **3.9 through 3.14** 버전을 지원하며, torchvision이 제외하는 Python 3.14.1은 예외입니다. 가장 부하가 큰 CUDA 및 ROCm 워크플로에는 Linux를 권장합니다. macOS와 Windows도 지원되며, 두 플랫폼 모두 GPU를 사용합니다 — macOS는 Apple Silicon과 Intel Mac의 AMD 카드를 모두 포괄하는 Metal을 통해, Windows는 CUDA 또는 DirectML을 통해 GPU를 사용합니다.
 
-서버, 클러스터 또는 CI 실행 환경에서는 Qt를 제외합니다:
+표준 설치에는 Qt 데스크톱 인터페이스가 포함되어 있습니다. 서버, 클러스터 또는 CI 라운더의 경우, 그것을 열지 않고 명령 라인 파이프 라인을 실행하십시오.
 
 .. code-block:: bash
 
@@ -220,7 +222,7 @@ conda-forge 설치
    spacr
 
 Docker로 설치
--------------
+-------------------
 
 게시된 `GHCR의 Docker 이미지 <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_\ 를 사용하여 컨테이너에서 spaCR의 명령줄 파이프라인을 실행합니다. `Docker <https://docs.docker.com/get-started/get-docker/>`_\ 를 설치한 다음, 게시된 이 CPU 이미지로 사용 가능한 파이프라인 목록을 확인합니다:
 
@@ -441,7 +443,7 @@ Quantitative readouts for biological assays.
 
 인터페이스는 탐색 및 환경 설정에서 10개 언어를 지원합니다. AI 및 LIVE 컨트롤, 모듈 설명과 검토된 상황별 도움말도 번역됩니다. 다시 시작하지 않고 **spaCR → 환경 설정 → 언어** 메뉴에서 언어를 변경할 수 있습니다. 로그, 경로, 데이터베이스 값과 측정값은 번역하지 않으며 과학적 출력은 표준 영어로 유지됩니다. `상황별 도움말 정책 <../../source/localization.rst#contextual-help>`_ 문서를 참조하세요.
 
-영어가 아닌 9 개의 카탈로그는 각 언어의 원주민 연설자에 의해 끝까지 읽기보다는 기계적으로 작성되고 기술적으로 검토됩니다. `검토 범위 <../REVIEW_SCOPE_2026-09-04.md>`_ 기록은 어떤 언어가 인간의 통로를 가지고 있었는지, 얼마나 많은 것을 커버하는지, 그리고 결정에 따라 영어로 남아있는 각 용어입니다.
+영어가 아닌 9개의 카탈로그는 기계적으로 작성되고 기술적으로 검토되며, 원주민 연설자에 의해 끝까지 읽기보다는 `검토 범위 <../REVIEW_SCOPE_2026-09-04.md>`_ 기록은 언어가 인간의 통로를 가졌으며 각 용어는 결정에 따라 영어로 남아 있습니다.
 
 애니메이션 설정 안내
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -477,10 +479,10 @@ Quantitative readouts for biological assays.
    :alt: bioRxiv 사전 인쇄본 열기
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
-모델 동물원
-~~~~~~~~~~~
+모델 라이브러리
+~~~~~~~~~~~~~~~
 
-spaCR ships a catalogue of trained models and fetches them on demand. Open **Model Zoo** from the home screen to browse and install them, or name a key in a settings file -- ``pathogen_model: toxoplasma_pv_v1`` -- and the model is downloaded and checksum-verified the first time it is needed. Every published entry carries a SHA-256; an entry without one is refused rather than installed, because a truncated or substituted checkpoint cannot be told from the real one.
+spaCR는 훈련 된 모델의 카탈로그를 배치하고 수요에 따라 그들을 잡습니다. **모델 동물원** 홈 화면에서 탐색하고 설치하거나 설정을 파일에 키를 지정하십시오 - ``pathogen_model: toxoplasma_pv_v1`` - 그리고 모델이 다운로드되고 처음으로 필요합니다. 각 게시 된 입력은 SHA-256을 가지고; 하나가없는 입력은 설치되지 않고 거부됩니다, 왜냐하면 흔들리거나 대체 된 체크 포인트가 실제로 말할 수 없기 때문에.
 
 .. spacr-model-zoo-begin
 
@@ -655,7 +657,7 @@ Qt 없으며, 클러스터, 서버 및 CI를 위한 디스플레이가 없습니
 
 spaCR is released under the `BSD 3 클래스 라이센스 <https://github.com/EinarOlafsson/spacr/blob/main/LICENSE>`_.
 
-If spaCR contributed to published work, a citation is appreciated and is not a condition of the licence — see `spaCR 인용`_ below.
+spaCR이 출판된 작품에 기여한 경우, 인용문이 평가되고 라이센스의 조건이 아닙니다. - 아래의 `spaCR 인용`_을 참조하십시오.
 
 튜토리얼
 ~~~~~~~~~
@@ -671,15 +673,15 @@ Olafsson EB, *et al.* 풀드 이미지 기반 CRISPR 스크린은 EAF1을 *T. go
 
 `BioRxiv 프리프린트 <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `소프트웨어 아카이브 <https://doi.org/10.5281/zenodo.21343316>`_
 
-spaCR을 인용한 다른 연구
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+다른 작품은 spaCR을 인용합니다.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. spacr-citing-papers-begin
 
-* `Metabolic adaptability and nutrient scavenging in Toxoplasma gondii: insights from ingestion pathway-deficient mutants. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
-* `IRE1α promotes phagosomal calcium flux to enhance macrophage fungicidal activity. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
-* `Toxoplasma GRA8 engages the host ESCRT accessory protein ALG-2 and is necessary for parasite metabolic integrity. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
-* `spaCR: Spatial phenotype analysis of CRISPR-Cas9 screens (preprint version 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
+* `Toxoplasma gondii에서 신진 대사 적응성 및 영양 탐색 : 섭취 경로 결핍 돌연변이의 인식. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
+* `IRE1α는 마크로파지 곰팡이 활동을 향상시키기 위해 파고소마 칼슘 흐름을 촉진합니다. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
+* `Toxoplasma GRA8은 호스트 ESCRT 액세서리 단백질 ALG-2를 포함하고 기생충의 신진 대사 무결성을 위해 필요합니다. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
+* `spaCR: CRISPR-Cas9 스크린의 공간 현상 분석 (프리 프린트 버전 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
 
 .. spacr-citing-papers-end
 

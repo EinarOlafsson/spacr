@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "language": "de",
+  "source_commit": "bb52953cd27a38a4dfcec29b7132518642aae444",
+  "review_method": "Direct Codex AI technical translation and review; no independent peer or native-speaker signoff. Core Qt installation, optional extras, eleven tools and independent Box/YOLO export checked; displayed bold controls inserted from current runtime glossary.",
+  "source_files": {
+    "docs/source/features.rst": "a202396112e3c8a4cc3f1f390298fe9eb25b1ef4a27cbf2c5ec60dc528494263",
+    "docs/source/index.rst": "b55457de1e444e53de8600e24cb21e23376043305ece3f0d729716767121dd64",
+    "docs/source/installer_guide.rst": "a6c88a4dc0799676d0741c988a9932b4430f11ad5328e66114275bfd66fe0483"
+  },
+  "records": [
+    {
+      "domain": "features",
+      "source": "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has eleven tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Box, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement.",
+      "source_sha256": "2013e91de5bb1903826a324797d9cc4c438fe2f82dd7ad64794548a62cae9491",
+      "target": "Make Masks korrigiert Masken von Hand und zeigt die Cellpose-Schleife im Kopfbereich. Seine Zeichenfläche bietet elf Werkzeuge: Brush, Erase, Erase object, Wand +, Wand −, Zeichnen, Rahmen, Divide, Zoom, Erneut zuschneiden und Lineal. Die :doc:`Make Masks-Referenz <make_masks>` beschreibt diese Werkzeuge, Levels, Erkennungseinstellungen, die primäre/sekundäre Zuordnung, das Speichern und die Messung.",
+      "ui": {}
+    },
+    {
+      "domain": "features",
+      "source": "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged.",
+      "source_sha256": "313862afacdbd436805c3b7b3b34803897aba5b8865d3c3dd3a6ed599ef96da3",
+      "target": "**Rahmen** zeichnet unabhängige Rechtecke mit Klassenbezeichnungen für YOLO-Annotationen. Verschieben oder skalieren Sie eine Box, machen Sie Bearbeitungen rückgängig oder wiederholen Sie sie und verwenden Sie **Rahmen speichern**, um das Projekt zu erhalten, oder **Export YOLO…**, um normalisierte Labels und geordnete Klassenmetadaten zu schreiben. Quellbilder und Segmentierungsmasken bleiben unverändert.",
+      "ui": {
+        "Box": "Rahmen",
+        "Save boxes": "Rahmen speichern"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "The base package contains the Qt desktop interface and headless pipelines. Extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table.",
+      "source_sha256": "ef5a762fc344a395ee3ff23e4bee62e9cd161a403029279d248c2a69cc2b9549",
+      "target": "Das Basispaket enthält die Qt-Desktopoberfläche und Pipelines ohne grafische Oberfläche. Extras ergänzen OME-Zarr, OMERO, napari, Attribution, Tracking, Zernike-Messungen und herstellerspezifische Leser. Die Verfügbarkeit hängt von der Python-Version ab; die :doc:`Installationsanleitung <installer_guide>` enthält die maßgebliche Kompatibilitätstabelle.",
+      "ui": {}
+    },
+    {
+      "domain": "index",
+      "source": "Install spaCR and launch the desktop application. The standard package includes the Qt interface and command-line pipelines.",
+      "source_sha256": "4ab94fb787ad0cad77a177cb5cc3f1b94b2e1f0a393825f07f30755299e9be82",
+      "target": "Installieren Sie spaCR und starten Sie die Desktopanwendung. Das Standardpaket enthält die Qt-Oberfläche und Kommandozeilen-Pipelines.",
+      "ui": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``. ``--extras`` chooses optional spaCR extras (none by default); the standard package includes the Qt desktop interface. ``--cellpose-model`` adds Cellpose weights and can be repeated, ``--test-fields`` limits the number of test fields, and ``--from-source .`` packs spaCR built from the checkout instead of the PyPI release.",
+      "source_sha256": "14339f77ed52307372e0458d2eb238063c38c0a50f7dd283c2409fb4c66ca780",
+      "target": "Dies schreibt den Ordner ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` unter ``dist/offline`` und mit ``--archive`` denselben Ordner als einzelne ``.tar``-Datei. ``--extras`` wählt optionale spaCR-Extras (standardmäßig keine); das Standardpaket enthält die Qt-Desktopoberfläche. ``--cellpose-model`` fügt Cellpose-Gewichte hinzu und kann wiederholt werden, ``--test-fields`` begrenzt die Anzahl der Testfelder und ``--from-source .`` packt spaCR aus der Arbeitskopie statt der PyPI-Version.",
+      "ui": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "The standard package includes the Qt desktop interface and command-line pipelines. On a headless server, use ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[czi,nd2,lif]``. Common additions are:",
+      "source_sha256": "939a107d53ed79cd848029f7bf114b0f89e57d93a6cce694eaba034c42cd4586",
+      "target": "Das Standardpaket enthält die Qt-Desktopoberfläche und Kommandozeilen-Pipelines. Verwenden Sie auf einem Server ohne grafische Oberfläche ``spacr-run``, ohne die Desktopanwendung zu öffnen. Extras lassen sich kombinieren, beispielsweise ``spacr[czi,nd2,lif]``. Häufige Ergänzungen sind:",
+      "ui": {}
+    }
+  ],
+  "preserved_existing_translations": 2959
+}

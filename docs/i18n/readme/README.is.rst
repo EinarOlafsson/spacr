@@ -80,6 +80,8 @@ spaCR aðgreinir og mælir stakar frumur í afkastamiklum smásjármyndum, samþ
 
 Segmingu, mæling, notkun og flokksmiðju mótmælur virkar einnig án sekkunararms.
 
+Make Masks leiðréttir skiptingargrímur og merkir sjálfstæða rétthyrninga með flokkamerkjum með **Box** verkfærinu fyrir YOLO-útflutning. Rammarnir halda eigin merkjum og sögu án þess að breyta upprunamyndum eða grímum.
+
 Myndir, grímur, myndúrklippur, mælingar, merkingar, spár, strikamerki og auðkenni brunna eru geymd í einu SQLite-verkefni.
 
 Keyrist sem skjáborðsforrit eða án grafísks viðmóts á vinnustöð, þjóni eða reikniklasa.
@@ -91,7 +93,7 @@ Prófa spaCR
 
    conda create -n spacr python=3.12 -y
    conda activate spacr
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 Notaðu **Hlaða prófunargögnum…** í Import, Make Masks, Annotate eða á greiningarskjá til að sækja sýnigögn. Notaðu ``spacr-download`` í skipanalínu.
@@ -134,7 +136,7 @@ Hardware aðstoð
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+stuðlað (stabil)  framkvæmd (beta) 🔴 CPU stuðning aðeins
 
 .. spacr-hardware-end
 
@@ -193,12 +195,12 @@ Fyrir útgáfuna á PyPI skaltu setja spaCR upp með pip inni í Conda-umhverfi.
    conda create -n spacr python=3.12 -y
    conda activate spacr
    python -m pip install --upgrade pip
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 spaCR styður Python **3.9 til 3.14**, nema Python 3.14.1, sem torchvision útilokar. Mælt er með Linux fyrir þyngstu CUDA- og ROCm-verkflæðin; macOS og Windows eru einnig studd og nýta bæði GPU sín — macOS í gegnum Metal, sem nær yfir Apple Silicon og AMD-kortin í Intel-Mac-tölvum, og Windows í gegnum CUDA eða DirectML.
 
-Slepptu Qt á þjóni, reikniklasa eða CI-keyrsluumhverfi:
+Standað uppsetningu inniheldur Qt skrifstofu samskipti. Fyrir þjónustuna, klúster eða CI runner, hlaða beiti stefnu án að opna það:
 
 .. code-block:: bash
 
@@ -441,7 +443,7 @@ Tungumál og þýðingar
 
 Viðmótið styður tíu tungumál í leiðsögn og stillingum. AI- og LIVE-stýringar, lýsingar á einingum og yfirfarin samhengishjálp eru einnig þýdd. Skiptu um tungumál undir **spaCR → Stillingar → Tungumál** án endurræsingar. Annálar, slóðir, gagnagrunnsgildi og mælingar eru aldrei þýdd; vísindaleg úttök haldast á viðurkenndri ensku. Sjá `stefnu um samhengishjálp <../../source/localization.rst#contextual-help>`_.
 
-Nín ekki Engleska sögu eru stutt og tæknilegt skoðað í stað þess að lesa end til end af einum heimilum tungumálum. `Sjáðu skammt <../REVIEW_SCOPE_2026-09-04.md>`_ skráir hvaða tungumálar hafa haft mannleg útgang, hversu mikið af líkamanum sem dekkar, og hvert orð eftir á Englesku eftir ákvörðun.
+Nín ekki Engleska sögu eru stutt og tæknilegt endurskoðað í stað þess að lesa end til end af heimilum tala. `Sjáðu skammt <../REVIEW_SCOPE_2026-09-04.md>`_ skrá sem tungumálir hafa haft mannleg útgang og hvert orð eftir á Englesku eftir ákvörðun.
 
 Hreyfimyndaleiðbeiningar fyrir stillingar
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -477,7 +479,7 @@ Viðmiðunargagnasöfn
    :alt: Opna bioRxiv-forprentið
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
-Góðursvæði
+Líkanasafn
 ~~~~~~~~~~
 
 spaCR skipar listan af þjálfað mönnunum og snúa þeim á eftirspurn. Opna **Mönnun Zoo** frá heimaskjólum til að skoða og setja upp þá, eða nefna key í setningarfilenni - ``pathogen_model: toxoplasma_pv_v1`` - og mönnin er hlaðið niður og checksum-verified fyrsta sinn sem það er nauðsynlegt.
@@ -671,15 +673,15 @@ Olafsson EB, *et al.* A sameiginlegur myndbönd sem er bastir á CRISPR skrefinn
 
 `Bioregl fyrirframskrift <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `Programvarparkíf <https://doi.org/10.5281/zenodo.21343316>`_
 
-Önnur verk sem vísa í spaCR
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Aðrir verk sem heitir spaCR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. spacr-citing-papers-begin
 
-* `Metabolic adaptability and nutrient scavenging in Toxoplasma gondii: insights from ingestion pathway-deficient mutants. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
-* `IRE1α promotes phagosomal calcium flux to enhance macrophage fungicidal activity. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
-* `Toxoplasma GRA8 engages the host ESCRT accessory protein ALG-2 and is necessary for parasite metabolic integrity. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
-* `spaCR: Spatial phenotype analysis of CRISPR-Cas9 screens (preprint version 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
+* `Metabolic adaptability og næringssvopning í Toxoplasma gondii: innsýn frá innihaldskortum mutantum. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
+* `IRE1α stuðlar að fagosomal kalsiumflokk til að bæta makrofága svítilverkefni. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
+* `Toxoplasma GRA8 er nauðsynlegur fyrir aðstoðproteín ALG-2 og er mikilvægt fyrir efnahagsleikum parasita. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
+* `spaCR: Spatial fenotypeanalyse af CRISPR-Cas9 skrefum (preprint útgáfa 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
 
 .. spacr-citing-papers-end
 

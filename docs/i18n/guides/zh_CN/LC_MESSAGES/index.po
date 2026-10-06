@@ -1,5 +1,5 @@
 # spaCR user guide translation (zh_CN).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 18:40-0400\n"
+"POT-Creation-Date: 2026-10-05 20:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -187,8 +187,9 @@ msgstr "打开弓形虫 API"
 msgid "Installation"
 msgstr "安装"
 
-msgid "Install spaCR and launch the desktop application. The ``qt`` extra remains supported for desktop installations; current packages also include PySide6 among their base dependencies."
-msgstr "安装 spaCR 并启动桌面应用程序。``qt`` 附加组件仍支持桌面安装；当前软件包的基础依赖中也已包含 PySide6。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Install spaCR and launch the desktop application. The standard package includes the Qt interface and command-line pipelines."
+msgstr "安装 spaCR 并启动桌面应用。标准包包含 Qt 界面和命令行处理流水线。"
 
 msgid "For a terminal workflow on a cluster or server, use ``spacr-run`` without opening the desktop application:"
 msgstr "如需在集群或服务器上使用终端工作流程，请使用 ``spacr-run``，无需打开桌面应用程序："

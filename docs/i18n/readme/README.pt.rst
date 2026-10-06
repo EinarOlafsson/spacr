@@ -80,6 +80,8 @@ O spaCR segmenta e mede células individuais em imagens de microscopia de alto c
 
 Os módulos de segmentação, medição, anotação e classificação também são executados sem um braço de sequenciamento.
 
+Make Masks corrige máscaras de segmentação e anota retângulos independentes com rótulos de classe usando a ferramenta **Box** para exportação YOLO. Os retângulos mantêm seus próprios rótulos e histórico sem alterar as imagens ou máscaras de origem.
+
 Imagens, máscaras, recortes, medições, anotações, previsões, códigos de barras e identificadores de poço ficam em um único projeto SQLite.
 
 É executado como um aplicativo de desktop ou sem interface gráfica em uma estação de trabalho, servidor ou cluster.
@@ -91,7 +93,7 @@ Experimente o spaCR
 
    conda create -n spacr python=3.12 -y
    conda activate spacr
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 Use **Carregar dados de teste…** em Import, Make Masks, Annotate ou em uma tela de ensaio para baixar dados de exemplo. No terminal, use ``spacr-download``.
@@ -134,7 +136,7 @@ Suporte de hardware
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+suportado (estável)  implementado (beta) ? CPU apenas suporte
 
 .. spacr-hardware-end
 
@@ -193,12 +195,12 @@ Para usar a versão publicada no PyPI, instale o spaCR com pip em um ambiente Co
    conda create -n spacr python=3.12 -y
    conda activate spacr
    python -m pip install --upgrade pip
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 O spaCR oferece suporte ao Python **3.9 through 3.14**, exceto ao Python 3.14.1, que é excluído pelo torchvision. Recomenda-se Linux para os fluxos de trabalho mais pesados com CUDA e ROCm; macOS e Windows também são compatíveis, e ambos utilizam suas GPUs — macOS por meio do Metal, que abrange o Apple Silicon e as placas gráficas AMD dos Macs Intel, e Windows por meio de CUDA ou DirectML.
 
-Em um servidor, cluster ou executor de CI, omita o Qt:
+A instalação padrão inclui a interface de desktop Qt. Para um servidor, cluster ou corredor de CI, execute os pipelines de linha de comando sem abri-lo:
 
 .. code-block:: bash
 
@@ -441,7 +443,7 @@ Idioma e tradução
 
 A interface oferece dez idiomas na navegação e nas preferências. Os controles AI e LIVE, as descrições dos módulos e a ajuda contextual revisada também são traduzidos. Altere o idioma em **spaCR → Preferências → Idioma** sem reiniciar. Logs, caminhos, valores de banco de dados e medições nunca são traduzidos; a saída científica permanece em inglês canônico. Consulte a `política de ajuda contextual <../../source/localization.rst#contextual-help>`_.
 
-Os nove catálogos não ingleses são elaborados por máquina e tecnicamente revisados em vez de lidos de ponta a ponta por um falante nativo de cada idioma. Os registros `âmbito de revisão <../REVIEW_SCOPE_2026-09-04.md>`_ que as línguas tiveram um passe humano, quanto do corpus que cobre e cada termo deixado em inglês por decisão.
+Os nove catálogos não ingleses são elaborados por máquina e tecnicamente revisados em vez de lidos de ponta a ponta por um falante nativo. Os registros `âmbito de revisão <../REVIEW_SCOPE_2026-09-04.md>`_ que as línguas tiveram um passe humano e todos os termos deixados em inglês por decisão.
 
 Guia animado de configurações
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -477,8 +479,8 @@ Conjuntos de dados de referência
    :alt: Abrir a pré-publicação no bioRxiv
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
-Modelo zoo
-~~~~~~~~~~
+Biblioteca de modelos
+~~~~~~~~~~~~~~~~~~~~~
 
 spaCR envia um catálogo de modelos treinados e os busca sob demanda. Abra  **Modelo Zoo** da tela inicial para navegar e instalá-los, ou nomeie uma chave em um arquivo de configurações -  ``pathogen_model: toxoplasma_pv_v1`` - e o modelo é baixado e verificado na primeira vez que é necessário. Cada entrada publicada carrega um SHA-256; uma entrada real sem um é recusada em vez de instalada, porque um truncado não pode ser informado
 
@@ -669,17 +671,17 @@ Se o spaCR contribuir para sua pesquisa, cite:
 
 Olafsson EB, *et al.* Um pooled image-based  CRISPR screen identifica o EAF1 como um modulador *T. gondii* da subversão ESCRT.
 
-`bioRxiv pré-impressão <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_  · ? `arquivo de software <https://doi.org/10.5281/zenodo.21343316>`_
+`bioRxiv pré-impressão <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `arquivo de software <https://doi.org/10.5281/zenodo.21343316>`_
 
-Outros trabalhos que citam o spaCR
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Outros trabalhos citando spaCR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. spacr-citing-papers-begin
 
-* `Metabolic adaptability and nutrient scavenging in Toxoplasma gondii: insights from ingestion pathway-deficient mutants. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
-* `IRE1α promotes phagosomal calcium flux to enhance macrophage fungicidal activity. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
-* `Toxoplasma GRA8 engages the host ESCRT accessory protein ALG-2 and is necessary for parasite metabolic integrity. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
-* `spaCR: Spatial phenotype analysis of CRISPR-Cas9 screens (preprint version 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
+* `Adaptação metabólica e eliminação de nutrientes em Toxoplasma gondii: insights de mutantes deficientes em vias de ingestão. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
+* `O IRE1 promove o fluxo de cálcio fagossomal para aumentar a atividade fungicida dos macrófagos. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
+* `O Toxoplasma GRA8 envolve a proteína acessória do hospedeiro ESCRT ALG-2 e é necessário para a integridade metabólica do parasita. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
+* `spaCR: Análise do fenótipo espacial das triagens  CRISPR-Cas9 (versão de pré-impressão 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
 
 .. spacr-citing-papers-end
 

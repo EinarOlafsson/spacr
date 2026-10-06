@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 18:40-0400\n"
+"POT-Creation-Date: 2026-10-05 20:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -231,8 +231,9 @@ msgstr "छोटे डेस्कटॉप इंस्टॉलर ऑनल
 msgid "From a spaCR checkout, on the networked machine:"
 msgstr "नेटवर्क से जुड़ी मशीन पर spaCR चेकआउट से:"
 
-msgid "This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``. ``--extras`` chooses the spaCR extras (default ``qt``), ``--cellpose-model`` adds Cellpose weights and can be repeated, ``--test-fields`` limits the number of test fields, and ``--from-source .`` packs spaCR built from the checkout instead of the PyPI release."
-msgstr "यह ``dist/offline`` के अंतर्गत ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` फ़ोल्डर लिखता है और, ``--archive`` के साथ, उसी फ़ोल्डर को एक ``.tar`` के रूप में भी। ``--extras`` spaCR अतिरिक्त घटक चुनता है (डिफ़ॉल्ट ``qt``), ``--cellpose-model`` Cellpose भार जोड़ता है और दोहराया जा सकता है, ``--test-fields`` परीक्षण फ़ील्ड की संख्या सीमित करता है, और ``--from-source .`` PyPI रिलीज़ के बजाय चेकआउट से बनाया गया spaCR पैक करता है।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``. ``--extras`` chooses optional spaCR extras (none by default); the standard package includes the Qt desktop interface. ``--cellpose-model`` adds Cellpose weights and can be repeated, ``--test-fields`` limits the number of test fields, and ``--from-source .`` packs spaCR built from the checkout instead of the PyPI release."
+msgstr "यह ``dist/offline`` के अंतर्गत ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` फ़ोल्डर लिखता है और ``--archive`` के साथ उसी फ़ोल्डर को एक ``.tar`` फ़ाइल में पैक करता है। ``--extras`` वैकल्पिक spaCR सुविधाएँ चुनता है (डिफ़ॉल्ट रूप से कोई नहीं); मानक पैकेज में Qt डेस्कटॉप इंटरफ़ेस शामिल है। ``--cellpose-model`` Cellpose वज़न जोड़ता है और इसे दोहराया जा सकता है, ``--test-fields`` परीक्षण क्षेत्रों की संख्या सीमित करता है और ``--from-source .`` PyPI रिलीज़ के बजाय कार्यशील प्रति से निर्मित spaCR पैक करता है।"
 
 msgid "Copy the bundle to the offline machine and run its installer with the bundle folder. On Linux or macOS:"
 msgstr "बंडल को ऑफ़लाइन मशीन पर कॉपी करें और बंडल फ़ोल्डर के साथ उसका इंस्टॉलर चलाएँ। Linux या macOS पर:"
@@ -270,20 +271,15 @@ msgstr "PyPI स्थापना और अतिरिक्त घटक"
 msgid "The PyPI package supports Python 3.9 through 3.14 except Python 3.14.1. To install the PyPI release and desktop interface inside a Conda environment:"
 msgstr "PyPI पैकेज Python 3.14.1 को छोड़कर Python 3.9 से 3.14 तक का समर्थन करता है। Conda परिवेश के भीतर PyPI रिलीज़ और डेस्कटॉप इंटरफ़ेस स्थापित करने के लिए:"
 
-msgid "Omit ``qt`` for a headless server. Extras can be combined, for example ``spacr[qt,czi,nd2,lif]``. Common additions are:"
-msgstr "हेडलेस सर्वर के लिए ``qt`` छोड़ दें। अतिरिक्त घटकों को जोड़ा जा सकता है, उदाहरण के लिए ``spacr[qt,czi,nd2,lif]``। सामान्य जोड़ ये हैं:"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The standard package includes the Qt desktop interface and command-line pipelines. On a headless server, use ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[czi,nd2,lif]``. Common additions are:"
+msgstr "मानक पैकेज में Qt डेस्कटॉप इंटरफ़ेस और कमांड लाइन पाइपलाइन शामिल हैं। ग्राफ़िकल इंटरफ़ेस के बिना चलने वाले सर्वर पर डेस्कटॉप अनुप्रयोग खोले बिना ``spacr-run`` का उपयोग करें। अतिरिक्त सुविधाएँ मिलाई जा सकती हैं, जैसे ``spacr[czi,nd2,lif]``। आम अतिरिक्त सुविधाएँ हैं:"
 
 msgid "Extra"
 msgstr "अतिरिक्त घटक"
 
 msgid "Adds"
 msgstr "जोड़ता है"
-
-msgid "``qt``"
-msgstr "``qt``"
-
-msgid "The PySide6 desktop interface."
-msgstr "PySide6 डेस्कटॉप इंटरफ़ेस।"
 
 msgid "``czi``, ``nd2``, ``lif``"
 msgstr "``czi``, ``nd2``, ``lif``"

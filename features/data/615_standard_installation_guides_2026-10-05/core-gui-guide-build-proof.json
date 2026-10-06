@@ -1,0 +1,38 @@
+{
+  "sv": {
+    "passed": true,
+    "warnings_are_errors": true
+  },
+  "de": {
+    "passed": true,
+    "warnings_are_errors": true
+  },
+  "es": {
+    "passed": true,
+    "warnings_are_errors": true
+  },
+  "pt": {
+    "passed": true,
+    "warnings_are_errors": true
+  },
+  "fr": {
+    "passed": true,
+    "warnings_are_errors": true
+  },
+  "is": {
+    "passed": true,
+    "warnings_are_errors": true
+  },
+  "zh_CN": {
+    "passed": true,
+    "warnings_are_errors": true
+  },
+  "ko": {
+    "passed": true,
+    "warnings_are_errors": true
+  },
+  "hi": {
+    "passed": true,
+    "warnings_are_errors": true
+  }
+}

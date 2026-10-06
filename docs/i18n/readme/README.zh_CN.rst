@@ -80,6 +80,8 @@ spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将逐�
 
 分区、测量、标记和分类模块也没有序列手臂运行。
 
+Make Masks 修正分割掩膜，并使用 **Box** 工具标注带类别标签的独立矩形以进行 YOLO 导出。框保留自己的标签和历史记录，不会更改原始图像或掩膜。
+
 图像、掩膜、裁剪图像块、测量值、标注、预测、条形码和微孔标识符都存放在同一个 SQLite 项目中。
 
 可作为桌面应用程序运行，也可在工作站、服务器或集群上以无图形界面方式运行。
@@ -91,7 +93,7 @@ spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将逐�
 
    conda create -n spacr python=3.12 -y
    conda activate spacr
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 在 Import、Make Masks、Annotate 或实验分析界面中使用 **加载测试数据…** 下载示例数据。在终端中使用 ``spacr-download``。
@@ -134,7 +136,7 @@ spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将逐�
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+支持(稳定) 实施(beta) 🔴 CPU 仅支持
 
 .. spacr-hardware-end
 
@@ -193,12 +195,12 @@ spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将逐�
    conda create -n spacr python=3.12 -y
    conda activate spacr
    python -m pip install --upgrade pip
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvision 不包含该版本。最繁重的 CUDA 和 ROCm 工作流程建议使用 Linux；macOS 和 Windows 也受支持，两者都会使用各自的 GPU — macOS 通过 Metal，它涵盖 Apple Silicon 和 Intel Mac 中的 AMD 显卡，Windows 则通过 CUDA 或 DirectML。
 
-在服务器、集群或 CI 运行器上安装时，请省略 Qt：
+默认安装包括桌面接口 Qt. 对于服务器、集群或 CI 运行器,运行命令线流程而不打开它:
 
 .. code-block:: bash
 
@@ -220,7 +222,7 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
    spacr
 
 使用 Docker 安装
-----------------
+-------------------
 
 使用已发布的 `GHCR 上的 Docker 镜像 <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_，在容器中运行 spaCR 的命令行处理流程。安装 `Docker <https://docs.docker.com/get-started/get-docker/>`_，然后使用此已发布的 CPU 镜像列出可用的处理流程：
 
@@ -432,16 +434,16 @@ Quantitative readouts for biological assays.
 
 - `交互式教程 <https://einarolafsson.github.io/spacr/tutorials/>`_ — 从安装到筛选命中结果分析的引导式工作流程。
 - `Python API 快速启动 <../../source/python_api.rst>`_ - 从脚本、笔记本或集群运行和验证流程。
-- `功能指南 <../../source/features.rst>`_ - 能力、成熟度和可选集成。
+- `特色引导 RNA <../../source/features.rst>`_ - 能力、成熟度和可选集成。
 - `清理 API 参考 <https://einarolafsson.github.io/spacr/api/index.html>`_ - 按任务支持输入点,完整的模块参考一个级别更深。
-- `语言与翻译指南 <../../source/localization.rst>`_ — 界面语言、上下文帮助和科学输出政策。
+- `语言与翻译引导 RNA <../../source/localization.rst>`_ — 界面语言、上下文帮助和科学输出政策。
 
 语言与翻译
 ~~~~~~~~~~~~~~~~~~~~~~
 
 界面的导航和首选项支持十种语言。AI 和 LIVE 控件、模块说明以及经过审核的上下文帮助也会翻译。无需重启，即可在 **spaCR → 首选项 → 语言** 中更改语言。日志、路径、数据库值和测量结果不会被翻译；科学输出始终使用规范英语。请参阅 `上下文帮助政策 <../../source/localization.rst#contextual-help>`_。
 
-九个非英语目录是机器编写和技术审查的,而不是由每个语言的原住民发言人读到结尾。 `评论范围 <../REVIEW_SCOPE_2026-09-04.md>`_ 记录哪种语言有人类的通道,覆盖的体积多少,并根据决定留在英语中的每一个术语。
+The nine non-English catalogs are machine-drafted and technically reviewed rather than read end to end by a native speaker. The `评论范围 <../REVIEW_SCOPE_2026-09-04.md>`_ records which languages have had a human pass and every term left in English by decision.
 
 动画设置指南
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -477,8 +479,8 @@ Quantitative readouts for biological assays.
    :alt: 打开 bioRxiv 预印本
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
-动物园模型
-~~~~~~~~~~
+模型库
+~~~~~~~~~
 
 spaCR ships a catalogue of trained models and fetches them on demand. Open **Model Zoo** from the home screen to browse and install them, or name a key in a settings file -- ``pathogen_model: toxoplasma_pv_v1`` -- and the model is downloaded and checksum-verified the first time it is needed. Every published entry carries a SHA-256; an entry without one is refused rather than installed, because a truncated or substituted checkpoint cannot be told from the real one.
 
@@ -671,15 +673,15 @@ Olafsson EB, *et al.* 一张以图像为基础的 CRISPR 筛选将 EAF1 定义�
 
 `生物Rxiv 预印 <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `软件档案 <https://doi.org/10.5281/zenodo.21343316>`_
 
-引用 spaCR 的其他工作
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+其他作品引用 spaCR
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. spacr-citing-papers-begin
 
-* `Metabolic adaptability and nutrient scavenging in Toxoplasma gondii: insights from ingestion pathway-deficient mutants. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
+* `代谢适应性和Toxoplasma gondii中的营养素挖掘:从吸入路径缺乏突变物的见解。 <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
 * `IRE1α promotes phagosomal calcium flux to enhance macrophage fungicidal activity. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
-* `Toxoplasma GRA8 engages the host ESCRT accessory protein ALG-2 and is necessary for parasite metabolic integrity. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
-* `spaCR: Spatial phenotype analysis of CRISPR-Cas9 screens (preprint version 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
+* `Toxoplasma GRA8 包含主 ESCRT 配件蛋白质 ALG-2 并且对寄生虫的代谢完整性至关重要。 <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
+* `spaCR: CRISPR-Cas9 筛选的空间现象分析(预印版本 1)。 <https://www.researchsquare.com/article/rs-7368254/v1>`_
 
 .. spacr-citing-papers-end
 

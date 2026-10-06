@@ -85,6 +85,10 @@ classifiers, per-guide and per-gene effect estimates, and a ranked hit list.
 The segmentation, measurement, annotation and classification modules also
 run without a sequencing arm.
 
+Make Masks corrects segmentation masks and annotates independent,
+class-labelled rectangles with the **Box** tool for YOLO export. Boxes keep
+their own labels and history without changing source images or masks.
+
 Images, masks, crops, measurements, annotations, predictions, barcodes and
 well identifiers live in one SQLite project.
 

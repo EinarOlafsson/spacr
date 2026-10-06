@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Interactive plots need pyqtgraph.\n\nInstall it with python -m pip install spacr, then reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "source": "Interactive plots need pyqtgraph.\n\nInstall it with python -m pip install spacr, then reopen this module.\n\nEverything else works without it: the run still produces every figure, and they appear on the grid above the console.",
+      "source_sha256": "2352735cfdd52e8dc466f404e2fce718a83ef7f787834f491f73563fd5d625c6",
+      "translation": "대화형 그래프에는 pyqtgraph가 필요합니다.\n\npython -m pip install spacr 명령으로 설치한 다음 이 모듈을 다시 여세요.\n\n그 외의 기능은 pyqtgraph 없이도 작동합니다. 실행하면 모든 그림이 생성되고 콘솔 위의 그리드에 표시됩니다."
+    }
+  ]
+}

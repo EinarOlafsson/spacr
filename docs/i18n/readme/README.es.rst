@@ -80,6 +80,8 @@ spaCR segmenta y mide células individuales en imágenes de microscopía de alto
 
 Los módulos de segmentación, medición, anotación y clasificación también funcionan sin un brazo de secuenciación.
 
+Make Masks corrige máscaras de segmentación y anota rectángulos independientes con etiquetas de clase mediante la herramienta **Box** para exportarlos a YOLO. Los recuadros conservan sus propias etiquetas e historial sin modificar las imágenes ni las máscaras de origen.
+
 Imágenes, máscaras, recortes, mediciones, anotaciones, predicciones, códigos de barras e identificadores de pocillo residen en un único proyecto SQLite.
 
 Se ejecuta como una aplicación de escritorio o sin interfaz gráfica en una estación de trabajo, servidor o clúster.
@@ -91,7 +93,7 @@ Probar spaCR
 
    conda create -n spacr python=3.12 -y
    conda activate spacr
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 Use **Cargar datos de prueba…** en Import, Make Masks, Annotate o una pantalla de ensayo para descargar datos de ejemplo. Desde una terminal, use ``spacr-download``.
@@ -134,7 +136,7 @@ Soporte de hardware
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+soportado (estable)  implementado (beta) CPU soporte solamente
 
 .. spacr-hardware-end
 
@@ -193,12 +195,12 @@ Para la versión de PyPI, instale spaCR con pip dentro de un entorno Conda. Pyth
    conda create -n spacr python=3.12 -y
    conda activate spacr
    python -m pip install --upgrade pip
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 spaCR admite Python **3.9 through 3.14**, salvo Python 3.14.1, que torchvision excluye. Se recomienda Linux para los flujos de trabajo CUDA y ROCm más exigentes; macOS y Windows también son compatibles, y ambos usan sus GPU — macOS mediante Metal, que cubre Apple Silicon y las tarjetas AMD de los Mac con Intel, y Windows mediante CUDA o DirectML.
 
-En un servidor, clúster o ejecutor de CI, omita Qt:
+La instalación estándar incluye la interfaz de escritorio Qt. Para un servidor, clúster o corredor CI, ejecute las flujos de trabajo de la línea de comandos sin abrirlo:
 
 .. code-block:: bash
 
@@ -441,7 +443,7 @@ Idioma y traducción
 
 La interfaz admite diez idiomas en la navegación y las preferencias. Los controles AI y LIVE, las descripciones de los módulos y la ayuda contextual revisada también se traducen. Cambie el idioma en **spaCR → Preferencias → Idioma** sin reiniciar. Los registros, las rutas, los valores de la base de datos y las mediciones nunca se traducen; los resultados científicos permanecen en inglés canónico. Consulte la `política de ayuda contextual <../../source/localization.rst#contextual-help>`_.
 
-Los nueve catálogos no ingleses son redactados por máquina y revisados técnicamente en lugar de leer de extremo a extremo por un hablante nativo de cada idioma. Los registros `ámbito de aplicación de la revisión <../REVIEW_SCOPE_2026-09-04.md>`_ qué idiomas han tenido un pase humano, cuánto del corpus que cubre, y cada término dejado en inglés por decisión.
+Los nueve catálogos no ingleses son redactados por máquina y revisados técnicamente en lugar de leer de extremo a extremo por un hablante nativo. Los registros `ámbito de aplicación de la revisión <../REVIEW_SCOPE_2026-09-04.md>`_ que los idiomas han tenido un pase humano y cada término dejado en inglés por decisión.
 
 Guía animada de ajustes
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -477,8 +479,8 @@ Conjuntos de datos de referencia
    :alt: Abrir la prepublicación de bioRxiv
    :target: https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1
 
-Zoológico modelo
-~~~~~~~~~~~~~~~~
+Biblioteca de modelos
+~~~~~~~~~~~~~~~~~~~~~
 
 spaCR envía un catálogo de modelos entrenados y los trae a pedido. Abra **Model Zoo** desde la pantalla de inicio para navegar e instalarlos, o nombre una clave en un archivo de configuración -- ``pathogen_model: toxoplasma_pv_v1`` -- y el modelo se descarga y comprueba la primera vez que es necesario. Cada entrada publicada lleva un SHA-256; una entrada sin uno se rechaza en lugar de instalarse, porque un puesto de control truncado o sustituido no se puede decir desde el real.
 
@@ -554,7 +556,7 @@ Cada figura de arriba se mide en imágenes que el modelo nunca vio en el entrena
 
 **IoU** (intersección sobre unión) divide el área de solapamiento entre el objeto predicho y el de referencia por el área de su unión. Lea las puntuaciones junto con su umbral: «F1 0.864 con IoU 0.5» cuenta una vacuola como detectada cuando el solapamiento alcanza al menos la mitad del área de la unión.
 
-**mAP50** and **mAP50-95** belong to the detector. The first asks whether the wells were found; the second repeats it across ten thresholds from 0.5 to 0.95, so it also asks how tightly each box is drawn. The gap between them is placement, not detection.
+**mAP50** y **m AP50-95** pertenecen al detector. El primero pregunta si se encontraron los pozos; el segundo lo repite a través de diez umbrales de 0,5 a 0,95, por lo que también pregunta qué tan firmemente dibuja cada caja. La brecha entre ellos es la colocación, no la detección.
 
 **Cross-validated**, con un **SD**, significa que la puntuación es la media de tres ejecuciones en diferentes divisiones y el SD es lo lejos que se alejaron. Una división puede tener suerte: la cifra de literatura de este modelo es 0,834 en una sola división de 19 pocillos y 0,806 en los tres.
 
@@ -669,17 +671,17 @@ Si spaCR contribuye a su investigación, cite:
 
 Olafsson EB, *et al.* Una cribado de imagen agrupada basada en CRISPR identifica EAF1 como un modulador *T. gondii* de subversión ESCRT.
 
-`preimpresión de bioRxiv <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · =`archivo de software <https://doi.org/10.5281/zenodo.21343316>`_
+`preimpresión de bioRxiv <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `archivo de software <https://doi.org/10.5281/zenodo.21343316>`_
 
-Otros trabajos que citan spaCR
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Otros trabajos citando spaCR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. spacr-citing-papers-begin
 
-* `Metabolic adaptability and nutrient scavenging in Toxoplasma gondii: insights from ingestion pathway-deficient mutants. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
-* `IRE1α promotes phagosomal calcium flux to enhance macrophage fungicidal activity. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
-* `Toxoplasma GRA8 engages the host ESCRT accessory protein ALG-2 and is necessary for parasite metabolic integrity. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
-* `spaCR: Spatial phenotype analysis of CRISPR-Cas9 screens (preprint version 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
+* `Adaptabilidad metabólica y recolección de nutrientes en Toxoplasma gondii: percepciones de mutantes deficientes en la vía de ingestión. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
+* `IRE1α promueve el flujo de calcio fagosomal para mejorar la actividad fungicida de los macrófagos. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
+* `El toxoplasma GRA8 activa la proteína accesoria ESCRT ALG-2 y es necesario para la integridad metabólica del parásito. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
+* `spaCR: Análisis espacial del fenotipo de cribados CRISPR-Cas9 (versión preliminar 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
 
 .. spacr-citing-papers-end
 

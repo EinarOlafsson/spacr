@@ -22247,7 +22247,7 @@
         "8f5d28f9ac3113149f1290ede2818976bec80d2ce59849a187b9df53947e0eb2",
         "3388a94886fdf212c170458ffde4d61799dc75bb4c28d613aabdd639adafdb99",
         "c5dc3a7c7cdaf9ab2ca1563dde69e6e44e8eb20fa83f1f88388e3a06cbd8f5e9",
-        "dbe14cfebb600d72ccd36347a24db689188457343c8d67d3bde2e677cf651192",
+        "6601ace2bf5e54a7078ca58201626db32481d51125aa17a95719e475b4369471",
         "56402ec2d9e984215daa495ac6a6b7625963bdb2413748f7eca9dd1cc20f8581",
         "4c9a5387f6863cd570fe358e1fde8d64e973b44cce93135ece37843f8551a5b2",
         "6876c177da683a1ef64df15cedbfb5a3b22b757e86f9bf48cbece8dd6493676d",
@@ -22257,14 +22257,14 @@
         "7ec08f5a7e7cadcc7ef1a3b32d5d5b303de5483e30d27ce7e647c330488a3507",
         "31608459a8544615eee4263d549bf474283a994a653c255a5cb249d8a3e6cf7b"
       ],
-      "source_sha256": "bf32e8979220732da7559aec6710c81bbf3dd04fcb5af6da7d5d507636d90271",
-      "text": "``spacr-doctor`` - 诊断一个 spaCR 安装,并告诉你如何修复它。\n\n一个命令,一个行每检查,每个行不是 ``PASS`` 一个具体命令的用户可以复制和运行。 一个诊断说 \"GPU not available\" 没有说该怎么做的不是诊断,所以 :class:`Result` 使 ``fix`` 成为一个第一级字段而不是一个可选的后思,并且 :func:`format_report` 总是打印它。\n\n检查是因为这些失败实际发生:\n\n* **可编辑的安装** 此存储库在同一机器上检查一次以上,并且在其中一个点进行编辑可安装。 编辑 A 时, ``import spacr`` 解决 B 时会花费几个小时,直到任何人想打印 ``spacr.__file__``. :func:`check_running_checkout` 是该模块中唯一最有价值的功能。\n* **缺少的选项额外。** PySide6 生活在 ``qt`` 超越,不是在核心依赖,所以一个平坦的 ``pip install spacr`` 常用安装A ``spacr`` 命令死在一个未经处理的 ``ImportError`` 六个深度。 :mod:`spacr.qt` 为此,已经成长了友好的道路; :func:`check_qt_extra` 重复使用它的逻辑而不是写下第二份可以流动的副本。\n* **A GPU 它是存在的,但不可用。** A CPU 只 torch 建立在一个机器上与一个 NVIDIA 卡片,或司机比老 CUDA 浪费时间 torch 相反,两者都存在于 \"cuda not available\" 并且有完全不同的调整。\n* **Cellpose 版本 drift.** spaCR 迁移到 Cellpose 4.x / SAM API. Cellpose 3 旋转在环境中打破在第一个 ``CellposeModel`` 呼叫,深深在一个已经在掩膜上花了一个小时的跑步。\n* **被破坏、锁定或来自更新的项目数据库 spaCR.**\n* **设置,其组合无法工作**,而 :func:`spacr.validate.validate_settings` 已经知道如何命名。\n\n设计规则,所有这些负载:\n\n* 每个检查都是一个独立的模块级函数,采取 :class:`Context` 并返回 :class:`Result` (或其序列),因此每一个单独可称呼和可说。\n* :func:`run_checks` 打破每一次呼叫,因此,一个上传的检查变成一个 ``ERROR`` 序列而不是下载报告。\n* 没有重量在模块范围内进口。 ``spacr-doctor --help`` 不应为 torch 付出代价。",
+      "source_sha256": "2688057b6631628e4fc9f198cb4f14d71c23fab277810a1ec060fdc6c3911b75",
+      "text": "``spacr-doctor`` - 诊断一个 spaCR 安装,并告诉你如何修复它。\n\n一个命令,一个行每检查,每个行不是 ``PASS`` 一个具体命令的用户可以复制和运行。 一个诊断说 \"GPU not available\" 没有说该怎么做的不是诊断,所以 :class:`Result` 使 ``fix`` 成为一个第一级字段而不是一个可选的后思,并且 :func:`format_report` 总是打印它。\n\n检查是因为这些失败实际发生:\n\n* **可编辑的安装** 此存储库在同一机器上检查一次以上,并且在其中一个点进行编辑可安装。 编辑 A 时, ``import spacr`` 解决 B 时会花费几个小时,直到任何人想打印 ``spacr.__file__``. :func:`check_running_checkout` 是该模块中唯一最有价值的功能。\n* **GUI 依赖安装损坏。** PySide6 随核心包提供，但缺失或不完整的 wheel 仍可能导致 ``spacr`` 命令在导入时失败。:mod:`spacr.qt` 为此提供易于理解的诊断；:func:`check_qt_extra` 复用其逻辑，避免两处诊断发生偏差。\n* **A GPU 它是存在的,但不可用。** A CPU 只 torch 建立在一个机器上与一个 NVIDIA 卡片,或司机比老 CUDA 浪费时间 torch 相反,两者都存在于 \"cuda not available\" 并且有完全不同的调整。\n* **Cellpose 版本 drift.** spaCR 迁移到 Cellpose 4.x / SAM API. Cellpose 3 旋转在环境中打破在第一个 ``CellposeModel`` 呼叫,深深在一个已经在掩膜上花了一个小时的跑步。\n* **被破坏、锁定或来自更新的项目数据库 spaCR.**\n* **设置,其组合无法工作**,而 :func:`spacr.validate.validate_settings` 已经知道如何命名。\n\n设计规则,所有这些负载:\n\n* 每个检查都是一个独立的模块级函数,采取 :class:`Context` 并返回 :class:`Result` (或其序列),因此每一个单独可称呼和可说。\n* :func:`run_checks` 打破每一次呼叫,因此,一个上传的检查变成一个 ``ERROR`` 序列而不是下载报告。\n* 没有重量在模块范围内进口。 ``spacr-doctor --help`` 不应为 torch 付出代价。",
       "translation_source_blocks_sha256": [
         "72e5b7e4c9e69fd458f88622fe0d5841fba9bd4efb1c789b8e623d4b3ee4a270",
         "8f5d28f9ac3113149f1290ede2818976bec80d2ce59849a187b9df53947e0eb2",
         "3388a94886fdf212c170458ffde4d61799dc75bb4c28d613aabdd639adafdb99",
         "c5dc3a7c7cdaf9ab2ca1563dde69e6e44e8eb20fa83f1f88388e3a06cbd8f5e9",
-        "dbe14cfebb600d72ccd36347a24db689188457343c8d67d3bde2e677cf651192",
+        "6601ace2bf5e54a7078ca58201626db32481d51125aa17a95719e475b4369471",
         "56402ec2d9e984215daa495ac6a6b7625963bdb2413748f7eca9dd1cc20f8581",
         "4c9a5387f6863cd570fe358e1fde8d64e973b44cce93135ece37843f8551a5b2",
         "6876c177da683a1ef64df15cedbfb5a3b22b757e86f9bf48cbece8dd6493676d",
@@ -22531,15 +22531,15 @@
     },
     "spacr.doctor.check_qt_extra": {
       "source_blocks_sha256": [
-        "33031ccea2cd9bae37b6eca6eeb7587ecd992cce8c9b25dd7ec19742aef08fa2",
-        "d7d00264164fac96af87171190969317e728cc1abe067ad57b375feae2605d64",
+        "1c1d88efdd570ef307173d1f5e188ec79a9955cd6cddc4d0e8376bce966f518d",
+        "bad7e0e29b9463502425b5980b191c0e01c746488b22c5fe284e1de75b0f2803",
         "2c380ff26d422bbe1bf58295ca4ccf7c37af70f1b49a004932f5851ed9a31e4f"
       ],
-      "source_sha256": "af66da6aa365e06cb4f44765a52e7bff42bf5fe168282cae24094ef6088969ce",
-      "text": "GUI 的可选额外安装。\n\n重新使用 :mod:`spacr.qt` 的自己的诊断 - ``_missing_qt_extra`` 和 ``_QT_MISSING_MESSAGE`` - 而不是重新分配哪些分布在额外,所以两者不能分开。\n\n:param ctx: 不要读。 检查输入了真正的 GUI 输入点,这意味着它是进口 PySide6 的唯一支票,并报告了该进口在这个翻译器中所做的事情。 它没有说明是否可以打开一个窗口 - 见 :func:`check_display` 为那半。",
+      "source_sha256": "d9746a7c60ac93e22a5016818b7193208aac0853a83f0273409a2a4dbec33aa7",
+      "text": "GUI 依赖可以在此解释器中导入。\n\n复用 :mod:`spacr.qt` 自身的诊断，即 ``_missing_qt_extra`` 和 ``_QT_MISSING_MESSAGE``，而不是重新列出 GUI 所需的分发包。旧的报告键 ``qt extra`` 对报告使用者保持不变。\n\n:param ctx: 不要读。 检查输入了真正的 GUI 输入点,这意味着它是进口 PySide6 的唯一支票,并报告了该进口在这个翻译器中所做的事情。 它没有说明是否可以打开一个窗口 - 见 :func:`check_display` 为那半。",
       "translation_source_blocks_sha256": [
-        "33031ccea2cd9bae37b6eca6eeb7587ecd992cce8c9b25dd7ec19742aef08fa2",
-        "d7d00264164fac96af87171190969317e728cc1abe067ad57b375feae2605d64",
+        "1c1d88efdd570ef307173d1f5e188ec79a9955cd6cddc4d0e8376bce966f518d",
+        "bad7e0e29b9463502425b5980b191c0e01c746488b22c5fe284e1de75b0f2803",
         "2c380ff26d422bbe1bf58295ca4ccf7c37af70f1b49a004932f5851ed9a31e4f"
       ]
     },
@@ -93329,14 +93329,14 @@
       "source_blocks_sha256": [
         "9db5a3b329429d121ffcb014ac3a8bd266317835e3d757101be5ba9a41d8247d",
         "0b9c9c5217abb532b449c8d976e24e1e1678889237588642fc0aba196734e032",
-        "4210e5e4f76871b13db086bca80ba0d5c113bd40e153fafe91ca671ac2f4d240"
+        "de911040ce54b580e91f255387b6aabfe734c80f07217b19c08e6dcc3430cdce"
       ],
-      "source_sha256": "67e609ad061ea39a784e9c3a0903a78ac22d7023595e9aee7119609bfc4c4515",
-      "text": "启动 Qt GUI. 公共输入点由 `spacr-qt` 和 `python -m spacr.qt` 使用。\n\nArgs: argv: 可选的 CLI 论点。 第一个位置元素,如果存在,直接开到该应用程式显示键(例如: `spacr-qt mask` )\n\n返回: 输出代码由 `QApplication.exec()` 或 ``1`` 返回到,当选项 Qt 额外不安装时。",
+      "source_sha256": "d5ed126e67e8817b48a58a6c99d07ca001fc6b821e3f43707c7c1eb5eb4c9ddc",
+      "text": "启动 Qt GUI. 公共输入点由 `spacr-qt` 和 `python -m spacr.qt` 使用。\n\nArgs: argv: 可选的 CLI 论点。 第一个位置元素,如果存在,直接开到该应用程式显示键(例如: `spacr-qt mask` )\n\nReturns: `QApplication.exec()` 返回的退出码；无法导入所需 Qt 依赖时返回 ``1``。",
       "translation_source_blocks_sha256": [
         "9db5a3b329429d121ffcb014ac3a8bd266317835e3d757101be5ba9a41d8247d",
         "743d1de5e3628200ebe089356ad524ee69262ffda5850adb960c6a30d2f8a336",
-        "4210e5e4f76871b13db086bca80ba0d5c113bd40e153fafe91ca671ac2f4d240"
+        "de911040ce54b580e91f255387b6aabfe734c80f07217b19c08e6dcc3430cdce"
       ]
     },
     "spacr.qt.safespacr": {

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 18:40-0400\n"
+"POT-Creation-Date: 2026-10-05 20:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -231,8 +231,9 @@ msgstr "작은 데스크톱 설치 프로그램은 온라인 설치 프로그램
 msgid "From a spaCR checkout, on the networked machine:"
 msgstr "네트워크에 연결된 컴퓨터의 spaCR 체크아웃에서 실행합니다."
 
-msgid "This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``. ``--extras`` chooses the spaCR extras (default ``qt``), ``--cellpose-model`` adds Cellpose weights and can be repeated, ``--test-fields`` limits the number of test fields, and ``--from-source .`` packs spaCR built from the checkout instead of the PyPI release."
-msgstr "이 명령은 ``dist/offline`` 아래에 ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` 폴더를 쓰고, ``--archive`` 를 사용하면 같은 폴더를 ``.tar`` 하나로도 씁니다. ``--extras`` 는 spaCR 추가 구성 요소를 선택하고(기본값 ``qt``), ``--cellpose-model`` 은 Cellpose 가중치를 추가하며 여러 번 쓸 수 있고, ``--test-fields`` 는 테스트 시야 수를 제한하며, ``--from-source .`` 는 PyPI 릴리스 대신 체크아웃에서 빌드한 spaCR을 담습니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``. ``--extras`` chooses optional spaCR extras (none by default); the standard package includes the Qt desktop interface. ``--cellpose-model`` adds Cellpose weights and can be repeated, ``--test-fields`` limits the number of test fields, and ``--from-source .`` packs spaCR built from the checkout instead of the PyPI release."
+msgstr "이 명령은 ``dist/offline`` 아래에 ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` 폴더를 만들고, ``--archive`` 옵션을 사용하면 같은 폴더를 하나의 ``.tar`` 파일로 저장합니다. ``--extras`` 항목에서는 선택적 spaCR 추가 기능을 지정합니다(기본값은 없음). 표준 패키지에는 Qt 데스크톱 인터페이스가 포함됩니다. ``--cellpose-model`` 옵션은 Cellpose 가중치를 추가하며 반복해서 사용할 수 있습니다. ``--test-fields`` 항목에서는 테스트 시야 수를 제한하고, ``--from-source .`` 옵션은 PyPI 배포판 대신 작업 복사본에서 빌드한 spaCR를 패키징합니다."
 
 msgid "Copy the bundle to the offline machine and run its installer with the bundle folder. On Linux or macOS:"
 msgstr "번들을 오프라인 컴퓨터에 복사하고 번들 폴더를 지정하여 설치 프로그램을 실행합니다. Linux 또는 macOS에서:"
@@ -270,20 +271,15 @@ msgstr "PyPI 설치와 추가 구성 요소"
 msgid "The PyPI package supports Python 3.9 through 3.14 except Python 3.14.1. To install the PyPI release and desktop interface inside a Conda environment:"
 msgstr "PyPI 패키지는 Python 3.14.1을 제외한 Python 3.9부터 3.14까지 지원합니다. Conda 환경 안에 PyPI 릴리스와 데스크톱 인터페이스를 설치하려면 다음을 실행합니다."
 
-msgid "Omit ``qt`` for a headless server. Extras can be combined, for example ``spacr[qt,czi,nd2,lif]``. Common additions are:"
-msgstr "헤드리스 서버에서는 ``qt`` 를 생략합니다. 추가 구성 요소는 ``spacr[qt,czi,nd2,lif]`` 처럼 조합할 수 있습니다. 흔히 추가하는 구성 요소는 다음과 같습니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The standard package includes the Qt desktop interface and command-line pipelines. On a headless server, use ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[czi,nd2,lif]``. Common additions are:"
+msgstr "표준 패키지에는 Qt 데스크톱 인터페이스와 명령줄 파이프라인이 포함됩니다. 그래픽 인터페이스가 없는 서버에서는 데스크톱 애플리케이션을 열지 않고 ``spacr-run`` 명령을 사용하세요. 추가 기능은 ``spacr[czi,nd2,lif]`` 같은 방식으로 조합할 수 있습니다. 자주 사용하는 추가 기능은 다음과 같습니다:"
 
 msgid "Extra"
 msgstr "추가 구성 요소"
 
 msgid "Adds"
 msgstr "추가되는 기능"
-
-msgid "``qt``"
-msgstr "``qt``"
-
-msgid "The PySide6 desktop interface."
-msgstr "PySide6 데스크톱 인터페이스."
 
 msgid "``czi``, ``nd2``, ``lif``"
 msgstr "``czi``, ``nd2``, ``lif``"

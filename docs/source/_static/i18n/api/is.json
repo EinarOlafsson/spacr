@@ -22246,7 +22246,7 @@
         "8f5d28f9ac3113149f1290ede2818976bec80d2ce59849a187b9df53947e0eb2",
         "3388a94886fdf212c170458ffde4d61799dc75bb4c28d613aabdd639adafdb99",
         "c5dc3a7c7cdaf9ab2ca1563dde69e6e44e8eb20fa83f1f88388e3a06cbd8f5e9",
-        "dbe14cfebb600d72ccd36347a24db689188457343c8d67d3bde2e677cf651192",
+        "6601ace2bf5e54a7078ca58201626db32481d51125aa17a95719e475b4369471",
         "56402ec2d9e984215daa495ac6a6b7625963bdb2413748f7eca9dd1cc20f8581",
         "4c9a5387f6863cd570fe358e1fde8d64e973b44cce93135ece37843f8551a5b2",
         "6876c177da683a1ef64df15cedbfb5a3b22b757e86f9bf48cbece8dd6493676d",
@@ -22256,14 +22256,14 @@
         "7ec08f5a7e7cadcc7ef1a3b32d5d5b303de5483e30d27ce7e647c330488a3507",
         "31608459a8544615eee4263d549bf474283a994a653c255a5cb249d8a3e6cf7b"
       ],
-      "source_sha256": "bf32e8979220732da7559aec6710c81bbf3dd04fcb5af6da7d5d507636d90271",
-      "text": "``spacr-doctor`` — dásamlegur uppsetningu spaCR og segja hvernig á að laga það.\n\nEinn stefnumót, einn línu á athygli, og fyrir hverri línu sem er ekki ``PASS`` einhvers komandi getur notandinn kopið og keyrslan. Diagnósi sem segir \"GPU not available\" án þess að segja hvað á að gera um það er ekki diagósi, svo :class:`Result` gerir ``fix`` fyrstu flokksveldinn í stað þess að óþægilegt eftirmyndun, Og :func:`format_report` stendur alltaf út.\n\nÞessar skammtur eru til vegna þess að þessi mismunandi gerðist:\n\n* **A stale redigable install.** Þessi skammt er athugað meira en einu sinni á sama vél, og redigabil uppsetningsstæði á nákvæmlega einn af þeim. Redigera reiði A meðan ``import spacr`` leyfa reiðu B kostar klukkustundir áður en einhver hugsar um að trúa ``spacr.__file__``. :func:`check_running_checkout` er eina verðmætasta virkefni í þessari mót.\n* **A missað valframt extra.** PySide6 lifir í ``qt`` extra, ekki í kerfi afhengingar, svo ljóst ``pip install spacr`` notað til að setja upp ``spacr`` beint sem dó á óhyggjuð ``ImportError`` sex rammar djúpt. :mod:`spacr.qt` hefur þegar vokist vináttu leið fyrir það; :func:`check_qt_extra` nýta logik sinn en að skrifa annað kopi sem getur dreift.\n* **A GPU sem er núverandi en ekki notað.** A CPU- aðeins torch byggð á vél með NVIDIA kort, eða leiðandi eldri en CUDA vinnu tími torch var byggð gegn, bæði til staðar eins og \"cuda not available\" og hafa alveg mismunandi staðfestingar.\n* **Cellpose útgáfa drift.** spaCR flytja til Cellpose 4.x / SAM API. Cellpose 3 lingering í umhverfi breyta á fyrstu ``CellposeModel`` hring, hlýtur inn í rán sem hefur þegar verið klukkustund á maskarum.\n* **A verkefni gögn sem er rökkt, lokað eða frá nýrri spaCR.**\n* **Sættir sem samsetningu þeirra getur ekki virkað**, sem :func:`spacr.validate.validate_settings` veit þegar hvernig á að nafn.\n\nSkilmyndarreglur, allir þeirra lágmarka:\n\n* Hver skekkur er sjálfstætt aðgerð á mólum-þátt með :class:`Context` og endurheimta :class:`Result` (eða sekk þeirra), svo hver er kallað og hættulegt á eigin hátt.\n* :func:`run_checks` er að rækta hvert samtal, þannig að skák sem hófst verður ``ERROR`` röð í stað þess að taka niður skýrslu.\n* Það er engin þyngd sem koma inn á mólum. ``spacr-doctor --help`` þarf ekki að greiða fyrir torch.",
+      "source_sha256": "2688057b6631628e4fc9f198cb4f14d71c23fab277810a1ec060fdc6c3911b75",
+      "text": "``spacr-doctor`` — dásamlegur uppsetningu spaCR og segja hvernig á að laga það.\n\nEinn stefnumót, einn línu á athygli, og fyrir hverri línu sem er ekki ``PASS`` einhvers komandi getur notandinn kopið og keyrslan. Diagnósi sem segir \"GPU not available\" án þess að segja hvað á að gera um það er ekki diagósi, svo :class:`Result` gerir ``fix`` fyrstu flokksveldinn í stað þess að óþægilegt eftirmyndun, Og :func:`format_report` stendur alltaf út.\n\nÞessar skammtur eru til vegna þess að þessi mismunandi gerðist:\n\n* **A stale redigable install.** Þessi skammt er athugað meira en einu sinni á sama vél, og redigabil uppsetningsstæði á nákvæmlega einn af þeim. Redigera reiði A meðan ``import spacr`` leyfa reiðu B kostar klukkustundir áður en einhver hugsar um að trúa ``spacr.__file__``. :func:`check_running_checkout` er eina verðmætasta virkefni í þessari mót.\n* **Gölluð uppsetning á háðum pökkum grafíska viðmótsins (GUI).** PySide6 fylgir grunnpakkanum, en wheel sem vantar eða er ófullkomið getur samt valdið því að ``spacr`` skipunin bregðist við innflutning. :mod:`spacr.qt` gefur skýra greiningu á því; :func:`check_qt_extra` endurnýtir sömu rök svo greiningarnar geti ekki farið hvor sína leið.\n* **A GPU sem er núverandi en ekki notað.** A CPU- aðeins torch byggð á vél með NVIDIA kort, eða leiðandi eldri en CUDA vinnu tími torch var byggð gegn, bæði til staðar eins og \"cuda not available\" og hafa alveg mismunandi staðfestingar.\n* **Cellpose útgáfa drift.** spaCR flytja til Cellpose 4.x / SAM API. Cellpose 3 lingering í umhverfi breyta á fyrstu ``CellposeModel`` hring, hlýtur inn í rán sem hefur þegar verið klukkustund á maskarum.\n* **A verkefni gögn sem er rökkt, lokað eða frá nýrri spaCR.**\n* **Sættir sem samsetningu þeirra getur ekki virkað**, sem :func:`spacr.validate.validate_settings` veit þegar hvernig á að nafn.\n\nSkilmyndarreglur, allir þeirra lágmarka:\n\n* Hver skekkur er sjálfstætt aðgerð á mólum-þátt með :class:`Context` og endurheimta :class:`Result` (eða sekk þeirra), svo hver er kallað og hættulegt á eigin hátt.\n* :func:`run_checks` er að rækta hvert samtal, þannig að skák sem hófst verður ``ERROR`` röð í stað þess að taka niður skýrslu.\n* Það er engin þyngd sem koma inn á mólum. ``spacr-doctor --help`` þarf ekki að greiða fyrir torch.",
       "translation_source_blocks_sha256": [
         "72e5b7e4c9e69fd458f88622fe0d5841fba9bd4efb1c789b8e623d4b3ee4a270",
         "8f5d28f9ac3113149f1290ede2818976bec80d2ce59849a187b9df53947e0eb2",
         "3388a94886fdf212c170458ffde4d61799dc75bb4c28d613aabdd639adafdb99",
         "c5dc3a7c7cdaf9ab2ca1563dde69e6e44e8eb20fa83f1f88388e3a06cbd8f5e9",
-        "dbe14cfebb600d72ccd36347a24db689188457343c8d67d3bde2e677cf651192",
+        "6601ace2bf5e54a7078ca58201626db32481d51125aa17a95719e475b4369471",
         "56402ec2d9e984215daa495ac6a6b7625963bdb2413748f7eca9dd1cc20f8581",
         "4c9a5387f6863cd570fe358e1fde8d64e973b44cce93135ece37843f8551a5b2",
         "6876c177da683a1ef64df15cedbfb5a3b22b757e86f9bf48cbece8dd6493676d",
@@ -22530,15 +22530,15 @@
     },
     "spacr.doctor.check_qt_extra": {
       "source_blocks_sha256": [
-        "33031ccea2cd9bae37b6eca6eeb7587ecd992cce8c9b25dd7ec19742aef08fa2",
-        "d7d00264164fac96af87171190969317e728cc1abe067ad57b375feae2605d64",
+        "1c1d88efdd570ef307173d1f5e188ec79a9955cd6cddc4d0e8376bce966f518d",
+        "bad7e0e29b9463502425b5980b191c0e01c746488b22c5fe284e1de75b0f2803",
         "2c380ff26d422bbe1bf58295ca4ccf7c37af70f1b49a004932f5851ed9a31e4f"
       ],
-      "source_sha256": "af66da6aa365e06cb4f44765a52e7bff42bf5fe168282cae24094ef6088969ce",
-      "text": "Opcionalsgrafttur GUI er sett.\n\nReus :mod:`spacr.qt` eigin getu — ``_missing_qt_extra`` og ``_QT_MISSING_MESSAGE`` — í stað þess að endurspegla hvaða útgáfur eru í extra, þannig að tveir geta ekki dreifst frá.\n\n:param ctx: Ekki lesa. athygli inntækir raunverulegu GUI innfangspunkt, sem þýðir að það er einn athyglis sem greiðir fyrir innleiðing PySide6, og það segir hvað það innleiðingar gerði í þessu táknari. Það segir ekkert um hvort vönnun getur opnað — sjá :func:`check_display` fyrir þessar hálfa.",
+      "source_sha256": "d9746a7c60ac93e22a5016818b7193208aac0853a83f0273409a2a4dbec33aa7",
+      "text": "Hægt er að flytja inn háða pakka grafíska viðmótsins (GUI) í þessum túlki.\n\nEndurnýtir eigin greiningu :mod:`spacr.qt` — ``_missing_qt_extra`` og ``_QT_MISSING_MESSAGE`` — í stað þess að telja aftur upp hvaða dreifingar grafíska viðmótið (GUI) þarf. Eldri skýrslulykillinn ``qt extra`` helst óbreyttur fyrir þá sem nota skýrsluna.\n\n:param ctx: Ekki lesa. athygli inntækir raunverulegu GUI innfangspunkt, sem þýðir að það er einn athyglis sem greiðir fyrir innleiðing PySide6, og það segir hvað það innleiðingar gerði í þessu táknari. Það segir ekkert um hvort vönnun getur opnað — sjá :func:`check_display` fyrir þessar hálfa.",
       "translation_source_blocks_sha256": [
-        "33031ccea2cd9bae37b6eca6eeb7587ecd992cce8c9b25dd7ec19742aef08fa2",
-        "d7d00264164fac96af87171190969317e728cc1abe067ad57b375feae2605d64",
+        "1c1d88efdd570ef307173d1f5e188ec79a9955cd6cddc4d0e8376bce966f518d",
+        "bad7e0e29b9463502425b5980b191c0e01c746488b22c5fe284e1de75b0f2803",
         "2c380ff26d422bbe1bf58295ca4ccf7c37af70f1b49a004932f5851ed9a31e4f"
       ]
     },
@@ -93328,14 +93328,14 @@
       "source_blocks_sha256": [
         "9db5a3b329429d121ffcb014ac3a8bd266317835e3d757101be5ba9a41d8247d",
         "0b9c9c5217abb532b449c8d976e24e1e1678889237588642fc0aba196734e032",
-        "4210e5e4f76871b13db086bca80ba0d5c113bd40e153fafe91ca671ac2f4d240"
+        "de911040ce54b580e91f255387b6aabfe734c80f07217b19c08e6dcc3430cdce"
       ],
-      "source_sha256": "67e609ad061ea39a784e9c3a0903a78ac22d7023595e9aee7119609bfc4c4515",
-      "text": "Letið Qt GUI. Public innfangsmiðil sem notað er bæði `spacr-qt` og `python -m spacr.qt`.\n\nSjöfli: Sjálfargjald: Optional CLI arguments. fyrsti staðsetningu, ef til staðar, opnar það beint inn á viðtali app sýningarkla (t.d. `spacr-qt mask`).\n\nTil baka: útgangskódin sem er hættað með `QApplication.exec()`, eða ``1`` þegar valandi Qt extra er ekki sett.",
+      "source_sha256": "d5ed126e67e8817b48a58a6c99d07ca001fc6b821e3f43707c7c1eb5eb4c9ddc",
+      "text": "Letið Qt GUI. Public innfangsmiðil sem notað er bæði `spacr-qt` og `python -m spacr.qt`.\n\nSjöfli: Sjálfargjald: Optional CLI arguments. fyrsti staðsetningu, ef til staðar, opnar það beint inn á viðtali app sýningarkla (t.d. `spacr-qt mask`).\n\nReturns: Lokakóðinn sem `QApplication.exec()` skilar, eða ``1`` þegar ekki er hægt að flytja inn nauðsynlegan Qt-pakka.",
       "translation_source_blocks_sha256": [
         "9db5a3b329429d121ffcb014ac3a8bd266317835e3d757101be5ba9a41d8247d",
         "743d1de5e3628200ebe089356ad524ee69262ffda5850adb960c6a30d2f8a336",
-        "4210e5e4f76871b13db086bca80ba0d5c113bd40e153fafe91ca671ac2f4d240"
+        "de911040ce54b580e91f255387b6aabfe734c80f07217b19c08e6dcc3430cdce"
       ]
     },
     "spacr.qt.safespacr": {

@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "source_commit": "bb52953cd27a38a4dfcec29b7132518642aae444",
+  "review_method": "Direct Codex AI technical translation and review; no independent peer or native-speaker signoff. Core Qt installation, optional extras, eleven tools and independent Box/YOLO export checked; displayed bold controls inserted from current runtime glossary.",
+  "source_files": {
+    "docs/source/features.rst": "a202396112e3c8a4cc3f1f390298fe9eb25b1ef4a27cbf2c5ec60dc528494263",
+    "docs/source/index.rst": "b55457de1e444e53de8600e24cb21e23376043305ece3f0d729716767121dd64",
+    "docs/source/installer_guide.rst": "a6c88a4dc0799676d0741c988a9932b4430f11ad5328e66114275bfd66fe0483"
+  },
+  "records": [
+    {
+      "domain": "features",
+      "source": "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has eleven tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Box, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement.",
+      "source_sha256": "2013e91de5bb1903826a324797d9cc4c438fe2f82dd7ad64794548a62cae9491",
+      "target": "Make Masks는 마스크를 수동으로 수정하고 상단에 Cellpose 반복 학습 기능을 제공합니다. 캔버스에는 Brush, Erase, Erase object, Wand +, Wand −, 그리기, 상자, Divide, Zoom, 다시 자르기, 자의 열한 가지 도구가 있습니다. :doc:`Make Masks 참고 문서 <make_masks>` 항목에서는 이 도구들, Levels, 검출 설정, 주/보조 객체 짝짓기, 저장과 측정을 설명합니다.",
+      "ui": {},
+      "original_draft": "Make Masks는 마스크를 수동으로 수정하고 상단에 Cellpose 반복 학습 기능을 제공합니다. 캔버스에는 Brush, Erase, Erase object, Wand +, Wand −, 그리기, 상자, Divide, Zoom, 다시 자르기, 자의 열한 가지 도구가 있습니다. :doc:`Make Masks 참고 문서 <make_masks>`는 이 도구들, Levels, 검출 설정, 주/보조 객체 짝짓기, 저장과 측정을 설명합니다.",
+      "formatting_review": "Natural Korean nouns separate RST delimiters from grammatical particles; technical meaning, control labels and literal values preserved."
+    },
+    {
+      "domain": "features",
+      "source": "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged.",
+      "source_sha256": "313862afacdbd436805c3b7b3b34803897aba5b8865d3c3dd3a6ed599ef96da3",
+      "target": "**상자** 도구는 YOLO 주석을 위해 클래스 라벨이 있는 독립적인 사각형을 그립니다. 상자를 이동하거나 크기를 조절하고, 편집을 실행 취소하거나 다시 실행할 수 있습니다. **상자 저장** 기능으로 프로젝트를 보존하거나 **Export YOLO…** 기능으로 정규화된 라벨과 순서가 지정된 클래스 메타데이터를 저장하세요. 원본 이미지와 분할 마스크는 변경되지 않습니다.",
+      "ui": {
+        "Box": "상자",
+        "Save boxes": "상자 저장"
+      },
+      "original_draft": "**상자**는 YOLO 주석을 위해 클래스 라벨이 있는 독립적인 사각형을 그립니다. 상자를 이동하거나 크기를 조절하고, 편집을 실행 취소하거나 다시 실행할 수 있습니다. **상자 저장**로 프로젝트를 보존하거나 **Export YOLO…**로 정규화된 라벨과 순서가 지정된 클래스 메타데이터를 저장하세요. 원본 이미지와 분할 마스크는 변경되지 않습니다.",
+      "formatting_review": "Natural Korean nouns separate RST delimiters from grammatical particles; technical meaning, control labels and literal values preserved."
+    },
+    {
+      "domain": "features",
+      "source": "The base package contains the Qt desktop interface and headless pipelines. Extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table.",
+      "source_sha256": "ef5a762fc344a395ee3ff23e4bee62e9cd161a403029279d248c2a69cc2b9549",
+      "target": "기본 패키지에는 Qt 데스크톱 인터페이스와 그래픽 인터페이스 없이 실행하는 파이프라인이 포함됩니다. 선택적 추가 기능은 OME-Zarr, OMERO, napari, 기여도 분석, 추적, Zernike 측정과 제조업체 파일 리더를 제공합니다. 지원 여부는 Python 버전에 따라 다릅니다. :doc:`설치 안내서 <installer_guide>` 항목에서 기준이 되는 호환성 표를 확인하세요.",
+      "ui": {},
+      "original_draft": "기본 패키지에는 Qt 데스크톱 인터페이스와 그래픽 인터페이스 없이 실행하는 파이프라인이 포함됩니다. 선택적 추가 기능은 OME-Zarr, OMERO, napari, 기여도 분석, 추적, Zernike 측정과 제조업체 파일 리더를 제공합니다. 지원 여부는 Python 버전에 따라 다릅니다. :doc:`설치 안내서 <installer_guide>`에서 기준이 되는 호환성 표를 확인하세요.",
+      "formatting_review": "Natural Korean nouns separate RST delimiters from grammatical particles; technical meaning, control labels and literal values preserved."
+    },
+    {
+      "domain": "index",
+      "source": "Install spaCR and launch the desktop application. The standard package includes the Qt interface and command-line pipelines.",
+      "source_sha256": "4ab94fb787ad0cad77a177cb5cc3f1b94b2e1f0a393825f07f30755299e9be82",
+      "target": "spaCR를 설치하고 데스크톱 애플리케이션을 실행하세요. 표준 패키지에는 Qt 인터페이스와 명령줄 파이프라인이 포함됩니다.",
+      "ui": {}
+    },
+    {
+      "domain": "installer_guide",
+      "source": "This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``. ``--extras`` chooses optional spaCR extras (none by default); the standard package includes the Qt desktop interface. ``--cellpose-model`` adds Cellpose weights and can be repeated, ``--test-fields`` limits the number of test fields, and ``--from-source .`` packs spaCR built from the checkout instead of the PyPI release.",
+      "source_sha256": "14339f77ed52307372e0458d2eb238063c38c0a50f7dd283c2409fb4c66ca780",
+      "target": "이 명령은 ``dist/offline`` 아래에 ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` 폴더를 만들고, ``--archive`` 옵션을 사용하면 같은 폴더를 하나의 ``.tar`` 파일로 저장합니다. ``--extras`` 항목에서는 선택적 spaCR 추가 기능을 지정합니다(기본값은 없음). 표준 패키지에는 Qt 데스크톱 인터페이스가 포함됩니다. ``--cellpose-model`` 옵션은 Cellpose 가중치를 추가하며 반복해서 사용할 수 있습니다. ``--test-fields`` 항목에서는 테스트 시야 수를 제한하고, ``--from-source .`` 옵션은 PyPI 배포판 대신 작업 복사본에서 빌드한 spaCR를 패키징합니다.",
+      "ui": {},
+      "original_draft": "이 명령은 ``dist/offline`` 아래에 ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` 폴더를 만들고, ``--archive``를 사용하면 같은 폴더를 하나의 ``.tar`` 파일로 저장합니다. ``--extras``는 선택적 spaCR 추가 기능을 지정합니다(기본값은 없음). 표준 패키지에는 Qt 데스크톱 인터페이스가 포함됩니다. ``--cellpose-model``은 Cellpose 가중치를 추가하며 반복해서 사용할 수 있습니다. ``--test-fields``는 테스트 시야 수를 제한하고, ``--from-source .``는 PyPI 배포판 대신 작업 복사본에서 빌드한 spaCR를 패키징합니다.",
+      "formatting_review": "Natural Korean nouns separate RST delimiters from grammatical particles; technical meaning, control labels and literal values preserved."
+    },
+    {
+      "domain": "installer_guide",
+      "source": "The standard package includes the Qt desktop interface and command-line pipelines. On a headless server, use ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[czi,nd2,lif]``. Common additions are:",
+      "source_sha256": "939a107d53ed79cd848029f7bf114b0f89e57d93a6cce694eaba034c42cd4586",
+      "target": "표준 패키지에는 Qt 데스크톱 인터페이스와 명령줄 파이프라인이 포함됩니다. 그래픽 인터페이스가 없는 서버에서는 데스크톱 애플리케이션을 열지 않고 ``spacr-run`` 명령을 사용하세요. 추가 기능은 ``spacr[czi,nd2,lif]`` 같은 방식으로 조합할 수 있습니다. 자주 사용하는 추가 기능은 다음과 같습니다:",
+      "ui": {},
+      "original_draft": "표준 패키지에는 Qt 데스크톱 인터페이스와 명령줄 파이프라인이 포함됩니다. 그래픽 인터페이스가 없는 서버에서는 데스크톱 애플리케이션을 열지 않고 ``spacr-run``을 사용하세요. 추가 기능은 ``spacr[czi,nd2,lif]``처럼 조합할 수 있습니다. 자주 사용하는 추가 기능은 다음과 같습니다:",
+      "formatting_review": "Natural Korean nouns separate RST delimiters from grammatical particles; technical meaning, control labels and literal values preserved."
+    }
+  ],
+  "preserved_existing_translations": 2959,
+  "formatting_followup": "Initial strict Korean HTML build failed RST delimiter boundaries. Five new messages rephrased and imported normally. Full strict rebuilt acceptance remains separate."
+}

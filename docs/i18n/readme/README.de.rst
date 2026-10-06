@@ -80,6 +80,8 @@ spaCR segmentiert und vermisst einzelne Zellen in High-Content-Mikroskopiebilder
 
 Die Segmentierungs-, Mess-, Anmerkungs- und Klassifizierungsmodule laufen auch ohne Sequenzierungsarm.
 
+Make Masks korrigiert Segmentierungsmasken und annotiert mit dem Werkzeug **Box** unabhängige Rechtecke mit Klassenlabels für den YOLO-Export. Die Rechtecke behalten ihre eigenen Labels und ihren Verlauf, ohne Quellbilder oder Masken zu ändern.
+
 Bilder, Masken, Bildausschnitte, Messungen, Anmerkungen, Vorhersagen, Barcodes und Well-Identifikatoren liegen in einem einzigen SQLite-Projekt.
 
 Läuft als Desktop-Anwendung oder ohne grafische Oberfläche auf einer Workstation, einem Server oder Cluster.
@@ -91,7 +93,7 @@ spaCR ausprobieren
 
    conda create -n spacr python=3.12 -y
    conda activate spacr
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 Verwenden Sie **Testdaten laden…** in Import, Make Masks, Annotate oder einem Assay-Bildschirm, um Beispieldaten herunterzuladen. Im Terminal verwenden Sie ``spacr-download``.
@@ -134,7 +136,7 @@ Hardware-Unterstützung
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+Nur unterstützte (stabile) Unterstützung implementierte (beta) Unterstützung CPU
 
 .. spacr-hardware-end
 
@@ -193,12 +195,12 @@ Installieren Sie die PyPI-Veröffentlichung von spaCR mit pip in einer Conda-Umg
    conda create -n spacr python=3.12 -y
    conda activate spacr
    python -m pip install --upgrade pip
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 spaCR unterstützt Python **3.9 through 3.14**, außer Python 3.14.1, das von torchvision ausgeschlossen wird. Linux wird für die anspruchsvollsten CUDA- und ROCm-Workflows empfohlen; macOS und Windows werden ebenfalls unterstützt und nutzen beide ihre GPUs — macOS über Metal, das Apple Silicon und die AMD-Karten in Intel Macs abdeckt, und Windows über CUDA oder DirectML.
 
-Lassen Sie Qt auf einem Server, Cluster oder CI-Runner weg:
+Die Standardinstallation enthält die Desktop-Schnittstelle Qt. Für einen Server, Cluster oder CI-Läufer führen Sie die Kommandozeilen-Pipelines aus, ohne sie zu öffnen:
 
 .. code-block:: bash
 
@@ -441,7 +443,7 @@ Sprache und Übersetzung
 
 Die Oberfläche unterstützt zehn Sprachen in der Navigation und den Einstellungen. AI- und LIVE-Steuerelemente, Modulbeschreibungen und geprüfte Kontexthilfe werden ebenfalls übersetzt. Ändern Sie die Sprache unter **spaCR → Einstellungen → Sprache**, ohne neu zu starten. Protokolle, Pfade, Datenbankwerte und Messungen werden nie übersetzt; wissenschaftliche Ausgaben bleiben im kanonischen Englisch. Siehe die `Richtlinie zur Kontexthilfe <../../source/localization.rst#contextual-help>`_.
 
-Die neun nicht-englischen Kataloge werden von einem Muttersprachler jeder Sprache maschinengefertigt und technisch überarbeitet, anstatt zu Ende zu lesen. Die `Überprüfungsspielraum <../REVIEW_SCOPE_2026-09-04.md>`_ zeichnet auf, welche Sprachen einen menschlichen Pass hatten, wie viel von dem Corpus, der umfasst, und jeder Begriff, der auf Englisch durch Entscheidung übrig bleibt.
+Die neun nicht-englischen Kataloge werden von einem Muttersprachler maschinengefertigt und technisch überarbeitet, anstatt zu Ende zu lesen. Die `Überprüfungsspielraum <../REVIEW_SCOPE_2026-09-04.md>`_ Aufzeichnungen, welche Sprachen einen menschlichen Pass hatten und jeder Begriff auf Englisch durch Entscheidung übrig geblieben ist.
 
 Animierte Einstellungshilfe
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -671,15 +673,15 @@ Olafsson EB, *et al.* Ein gepoolter Bild-basierter CRISPR Screening identifizier
 
 `Vordruck bioRxiv <https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1>`_ · `Software-Archiv <https://doi.org/10.5281/zenodo.21343316>`_
 
-Weitere Arbeiten, die spaCR zitieren
+Sonstige Arbeiten unter Angabe von spaCR
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. spacr-citing-papers-begin
 
-* `Metabolic adaptability and nutrient scavenging in Toxoplasma gondii: insights from ingestion pathway-deficient mutants. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
-* `IRE1α promotes phagosomal calcium flux to enhance macrophage fungicidal activity. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
-* `Toxoplasma GRA8 engages the host ESCRT accessory protein ALG-2 and is necessary for parasite metabolic integrity. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
-* `spaCR: Spatial phenotype analysis of CRISPR-Cas9 screens (preprint version 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
+* `Metabolische Anpassungsfähigkeit und Nährstoffverschrottung in Toxoplasma gondii: Erkenntnisse aus ingestionsweg-defizienten Mutanten. <https://journals.asm.org/doi/full/10.1128/msphere.01011-24>`_
+* `IRE1α fördert den Phagosomal-Calcium-Fluss zur Verbesserung der makrophagenfungiziden Aktivität. <https://www.cell.com/cell-reports/fulltext/S2211-1247(25)00465-6>`_
+* `Toxoplasma GRA8 greift das Wirts-ESCRT-Zubehörprotein ALG-2 auf und ist für die metabolische Integrität des Parasiten notwendig. <https://www.biorxiv.org/content/10.64898/2026.07.20.739547v1.abstract>`_
+* `spaCR: Räumliche Phänotypanalyse von CRISPR-Cas9-Bildschirmen (Vordruckversion 1). <https://www.researchsquare.com/article/rs-7368254/v1>`_
 
 .. spacr-citing-papers-end
 

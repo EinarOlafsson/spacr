@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 18:40-0400\n"
+"POT-Creation-Date: 2026-10-05 20:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -253,8 +253,13 @@ msgstr "ये आकार सत्रों के बीच याद रख
 msgid "To resize a popup, point at one of its edges or corners. A thin blue guide line appears across the middle half of each side you can drag. Drag from anywhere along that edge or corner; the line only marks the side."
 msgstr "किसी पॉपअप का आकार बदलने के लिए उसके किसी किनारे या कोने पर पॉइंटर ले जाएँ। जिस भी भुजा को खींचा जा सकता है, उसके बीच के आधे भाग पर एक पतली नीली मार्गदर्शक रेखा दिखती है। उस किनारे या कोने पर कहीं से भी खींचें; रेखा केवल भुजा को चिह्नित करती है।"
 
-msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
-msgstr "मास्क बनाएँ हाथ से मास्क सुधारता है और अपनी शीर्षपट्टी पर Cellpose लूप रखता है। इसके कैनवास में दस उपकरण हैं: ब्रश, इरेज़र, Erase object, Wand +, Wand −, Draw, Divide, ज़ूम, Recrop और रूलर। :doc:`मास्क बनाएँ संदर्भ <make_masks>` इन उपकरणों, स्तर, पहचान सेटिंग्स, प्राथमिक/द्वितीयक युग्मन, सहेजने और मापन को कवर करता है।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has eleven tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Box, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
+msgstr "Make Masks में मास्क हाथ से सुधारे जाते हैं और शीर्ष पर Cellpose चक्र उपलब्ध है। इसके कैनवास में ग्यारह उपकरण हैं: Brush, Erase, Erase object, Wand +, Wand −, बनाएँ, बॉक्स, Divide, Zoom, दोबारा क्रॉप करें और रूलर। :doc:`Make Masks संदर्भ <make_masks>` में इन उपकरणों, Levels, पहचान सेटिंग, प्राथमिक/द्वितीयक युग्मन, सहेजने और मापन का विवरण है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
+msgstr "**बॉक्स** YOLO एनोटेशन के लिए वर्ग लेबल वाले स्वतंत्र आयत बनाता है। बॉक्स को खिसकाएँ या उसका आकार बदलें, संपादन को पूर्ववत करें या दोहराएँ और परियोजना सुरक्षित रखने के लिए **बॉक्स सहेजें** या सामान्यीकृत लेबल और क्रमबद्ध वर्ग मेटाडेटा लिखने के लिए **Export YOLO…** का उपयोग करें। स्रोत चित्र और विभाजन मास्क अपरिवर्तित रहते हैं।"
 
 msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. Divide drags a line across a merged object and makes it two, leaving every other object's label untouched; it is the commonest correction a segmentation needs."
 msgstr "Draw एक मुक्त-रूप रूपरेखा बनाता है जो बंद होकर एक ऑब्जेक्ट के रूप में भर जाती है -- यह वह काम है जो ब्रश नहीं करता, क्योंकि ब्रश पथ पर डिस्क छापता है, इसलिए उससे किसी किनारे को रेखांकित करने पर किनारा लेबल होता है और बीच का भाग पृष्ठभूमि रह जाता है। Divide किसी जुड़े हुए ऑब्जेक्ट के आर-पार एक रेखा खींचकर उसे दो बनाता है, और किसी अन्य ऑब्जेक्ट के लेबल को नहीं छूता; यह वह सुधार है जिसकी विभाजन को सबसे अधिक आवश्यकता होती है।"
@@ -397,6 +402,7 @@ msgstr "GUI विजेट, वर्कर और कार्यान्व�
 msgid "Optional dependencies"
 msgstr "वैकल्पिक निर्भरताएँ"
 
-msgid "The base package contains the headless pipelines. Install ``spacr[qt]`` for the desktop interface. Other extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table."
-msgstr "मूल पैकेज में हेडलेस पाइपलाइन होती हैं। डेस्कटॉप इंटरफ़ेस के लिए ``spacr[qt]`` स्थापित करें। अन्य अतिरिक्त घटक OME-Zarr, OMERO, napari, एट्रिब्यूशन, ट्रैकिंग, Zernike मापन और विक्रेता रीडर जोड़ते हैं। उपलब्धता Python संस्करण के साथ बदलती है; :doc:`इंस्टॉलर मार्गदर्शिका <installer_guide>` प्रामाणिक संगतता तालिका है।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The base package contains the Qt desktop interface and headless pipelines. Extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table."
+msgstr "मूल पैकेज में Qt डेस्कटॉप इंटरफ़ेस और ग्राफ़िकल इंटरफ़ेस के बिना चलने वाली पाइपलाइन शामिल हैं। अतिरिक्त सुविधाएँ OME-Zarr, OMERO, napari, योगदान विश्लेषण, ट्रैकिंग, Zernike मापन और निर्माताओं के फ़ाइल रीडर जोड़ती हैं। उपलब्धता Python संस्करण पर निर्भर करती है; :doc:`इंस्टॉलर मार्गदर्शिका <installer_guide>` में प्रामाणिक संगतता तालिका है।"
 

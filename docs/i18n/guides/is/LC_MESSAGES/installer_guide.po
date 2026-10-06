@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 18:40-0400\n"
+"POT-Creation-Date: 2026-10-05 20:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -231,8 +231,9 @@ msgstr "Litlu skjáborðsuppsetningarforritin eru netuppsetningarforrit og geta 
 msgid "From a spaCR checkout, on the networked machine:"
 msgstr "Úr frumkóðaafriti spaCR, á nettengdu vélinni:"
 
-msgid "This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``. ``--extras`` chooses the spaCR extras (default ``qt``), ``--cellpose-model`` adds Cellpose weights and can be repeated, ``--test-fields`` limits the number of test fields, and ``--from-source .`` packs spaCR built from the checkout instead of the PyPI release."
-msgstr "Þetta skrifar möppuna ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` undir ``dist/offline`` og, með ``--archive``, sömu möppu sem eina ``.tar``-skrá. ``--extras`` velur aukasöfn spaCR (sjálfgefið ``qt``), ``--cellpose-model`` bætir við Cellpose-vægjum og má endurtaka, ``--test-fields`` takmarkar fjölda prófunarsjónsviða og ``--from-source .`` pakkar spaCR sem byggt er úr frumkóðaafritinu í stað PyPI-útgáfunnar."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``. ``--extras`` chooses optional spaCR extras (none by default); the standard package includes the Qt desktop interface. ``--cellpose-model`` adds Cellpose weights and can be repeated, ``--test-fields`` limits the number of test fields, and ``--from-source .`` packs spaCR built from the checkout instead of the PyPI release."
+msgstr "Þetta skrifar möppuna ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` undir ``dist/offline`` og, með ``--archive``, sömu möppu sem eina ``.tar``-skrá. ``--extras`` velur valfrjálsar spaCR-viðbætur (engar sjálfgefið); staðalpakkinn inniheldur Qt-skjáborðsviðmótið. ``--cellpose-model`` bætir við Cellpose-vogum og má endurtaka, ``--test-fields`` takmarkar fjölda prófunarsvæða og ``--from-source .`` pakkar spaCR byggðu úr vinnueintakinu í stað PyPI-útgáfunnar."
 
 msgid "Copy the bundle to the offline machine and run its installer with the bundle folder. On Linux or macOS:"
 msgstr "Afritaðu pakkann á vélina án nettengingar og keyrðu uppsetningarforrit hans með pakkamöppunni. Á Linux eða macOS:"
@@ -270,20 +271,15 @@ msgstr "Uppsetning með PyPI og aukasöfn"
 msgid "The PyPI package supports Python 3.9 through 3.14 except Python 3.14.1. To install the PyPI release and desktop interface inside a Conda environment:"
 msgstr "PyPI-pakkinn styður Python 3.9 til 3.14 nema Python 3.14.1. Til að setja upp PyPI-útgáfuna og skjáborðsviðmótið innan Conda-umhverfis:"
 
-msgid "Omit ``qt`` for a headless server. Extras can be combined, for example ``spacr[qt,czi,nd2,lif]``. Common additions are:"
-msgstr "Slepptu ``qt`` fyrir netþjón án myndræns viðmóts. Hægt er að sameina aukasöfn, til dæmis ``spacr[qt,czi,nd2,lif]``. Algengar viðbætur eru:"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The standard package includes the Qt desktop interface and command-line pipelines. On a headless server, use ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[czi,nd2,lif]``. Common additions are:"
+msgstr "Staðalpakkinn inniheldur Qt-skjáborðsviðmótið og vinnslulínur fyrir skipanalínu. Á netþjóni án myndræns viðmóts skaltu nota ``spacr-run`` án þess að opna skjáborðsforritið. Hægt er að sameina viðbætur, til dæmis ``spacr[czi,nd2,lif]``. Algengar viðbætur eru:"
 
 msgid "Extra"
 msgstr "Aukasafn"
 
 msgid "Adds"
 msgstr "Bætir við"
-
-msgid "``qt``"
-msgstr "``qt``"
-
-msgid "The PySide6 desktop interface."
-msgstr "PySide6-skjáborðsviðmótinu."
 
 msgid "``czi``, ``nd2``, ``lif``"
 msgstr "``czi``, ``nd2``, ``lif``"

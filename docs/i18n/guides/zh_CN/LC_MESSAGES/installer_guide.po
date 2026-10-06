@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 18:40-0400\n"
+"POT-Creation-Date: 2026-10-05 20:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -231,8 +231,9 @@ msgstr "小型桌面安装程序是在线安装程序，没有网络访问就无
 msgid "From a spaCR checkout, on the networked machine:"
 msgstr "在联网的计算机上，从 spaCR 源代码检出中运行："
 
-msgid "This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``. ``--extras`` chooses the spaCR extras (default ``qt``), ``--cellpose-model`` adds Cellpose weights and can be repeated, ``--test-fields`` limits the number of test fields, and ``--from-source .`` packs spaCR built from the checkout instead of the PyPI release."
-msgstr "这会在 ``dist/offline`` 下写入文件夹 ``spaCR-VERSION-Linux-x86_64-Offline-cpu``，使用 ``--archive`` 时还会将同一文件夹写为一个 ``.tar``。``--extras`` 选择 spaCR 附加组件（默认 ``qt``），``--cellpose-model`` 添加 Cellpose 权重且可重复使用，``--test-fields`` 限制测试视野的数量，``--from-source .`` 则打包从源代码检出构建的 spaCR，而不是 PyPI 版本。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``. ``--extras`` chooses optional spaCR extras (none by default); the standard package includes the Qt desktop interface. ``--cellpose-model`` adds Cellpose weights and can be repeated, ``--test-fields`` limits the number of test fields, and ``--from-source .`` packs spaCR built from the checkout instead of the PyPI release."
+msgstr "此命令在 ``dist/offline`` 下写出文件夹 ``spaCR-VERSION-Linux-x86_64-Offline-cpu``；使用 ``--archive`` 时，还将同一文件夹打包为单个 ``.tar`` 文件。``--extras`` 选择可选的 spaCR 扩展（默认为无）；标准包包含 Qt 桌面界面。``--cellpose-model`` 添加 Cellpose 权重，可重复使用；``--test-fields`` 限制测试视野数量；``--from-source .`` 打包从工作副本构建的 spaCR，而非 PyPI 发布版本。"
 
 msgid "Copy the bundle to the offline machine and run its installer with the bundle folder. On Linux or macOS:"
 msgstr "将安装包复制到离线计算机，并以安装包文件夹运行其安装程序。在 Linux 或 macOS 上："
@@ -270,20 +271,15 @@ msgstr "PyPI 安装与附加组件"
 msgid "The PyPI package supports Python 3.9 through 3.14 except Python 3.14.1. To install the PyPI release and desktop interface inside a Conda environment:"
 msgstr "PyPI 软件包支持 Python 3.9 至 3.14（Python 3.14.1 除外）。在 Conda 环境中安装 PyPI 版本和桌面界面："
 
-msgid "Omit ``qt`` for a headless server. Extras can be combined, for example ``spacr[qt,czi,nd2,lif]``. Common additions are:"
-msgstr "对于无界面服务器，请省略 ``qt``。附加组件可以组合使用，例如 ``spacr[qt,czi,nd2,lif]``。常见的附加组件包括："
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The standard package includes the Qt desktop interface and command-line pipelines. On a headless server, use ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[czi,nd2,lif]``. Common additions are:"
+msgstr "标准包包含 Qt 桌面界面和命令行处理流水线。在无图形界面的服务器上，使用 ``spacr-run``，无需打开桌面应用。扩展可以组合，例如 ``spacr[czi,nd2,lif]``。常用扩展包括："
 
 msgid "Extra"
 msgstr "附加组件"
 
 msgid "Adds"
 msgstr "新增内容"
-
-msgid "``qt``"
-msgstr "``qt``"
-
-msgid "The PySide6 desktop interface."
-msgstr "PySide6 桌面界面。"
 
 msgid "``czi``, ``nd2``, ``lif``"
 msgstr "``czi``, ``nd2``, ``lif``"

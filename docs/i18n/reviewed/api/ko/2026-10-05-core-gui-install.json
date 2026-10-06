@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Codex), no independent peer or native-speaker signoff",
+  "source_commit": "bb52953cd27a38a4dfcec29b7132518642aae444",
+  "source_files": {
+    "spacr/doctor.py": "1d4a0984c233433b0c7bd05d146d9fc4c0cdc2523b4052c9d844aadd467d52ca",
+    "spacr/qt/__init__.py": "5388e4adba1fa5c0e26df5892f88f8d985cce91f3f75a1649a33061e738d16cf"
+  },
+  "note": "Four changed API prose blocks follow standard installation with GUI dependencies in core; missing wheels remain diagnosable and the legacy qt extra report key stays stable.",
+  "records": [
+    {
+      "label": "spacr.doctor#4",
+      "source": "**A broken GUI dependency install.** PySide6 ships with the core package, but a missing or incomplete wheel can still make the ``spacr`` command fail on import. :mod:`spacr.qt` has a friendly path for that; :func:`check_qt_extra` reuses its logic so the two cannot drift.",
+      "source_sha256": "6601ace2bf5e54a7078ca58201626db32481d51125aa17a95719e475b4369471",
+      "context": "**A broken GUI dependency install.** PySide6 ships with the core package, but a missing or incomplete wheel can still make the ``spacr`` command fail on import. :mod:`spacr.qt` has a friendly path for that; :func:`check_qt_extra` reuses its logic so the two cannot drift.",
+      "translation": "**GUI 의존성 설치 오류.** PySide6는 기본 패키지에 포함되지만 wheel이 없거나 불완전하면 ``spacr`` 명령의 가져오기가 여전히 실패할 수 있습니다. :mod:`spacr.qt`는 이를 이해하기 쉽게 진단하며, :func:`check_qt_extra`는 같은 로직을 재사용하여 두 진단이 서로 달라지지 않게 합니다.",
+      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained."
+    },
+    {
+      "label": "spacr.doctor.check_qt_extra#0",
+      "source": "The GUI dependencies import in this interpreter.",
+      "source_sha256": "1c1d88efdd570ef307173d1f5e188ec79a9955cd6cddc4d0e8376bce966f518d",
+      "context": "The GUI dependencies import in this interpreter.",
+      "translation": "GUI 의존성을 이 인터프리터에서 가져올 수 있습니다.",
+      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained."
+    },
+    {
+      "label": "spacr.doctor.check_qt_extra#1",
+      "source": "Reuses :mod:`spacr.qt`'s own diagnosis — ``_missing_qt_extra`` and ``_QT_MISSING_MESSAGE`` — rather than restating which distributions the GUI needs. The legacy ``qt extra`` report key stays stable for consumers.",
+      "source_sha256": "bad7e0e29b9463502425b5980b191c0e01c746488b22c5fe284e1de75b0f2803",
+      "context": "Reuses :mod:`spacr.qt`'s own diagnosis — ``_missing_qt_extra`` and ``_QT_MISSING_MESSAGE`` — rather than restating which distributions the GUI needs. The legacy ``qt extra`` report key stays stable for consumers.",
+      "translation": "GUI에 필요한 배포판을 다시 나열하는 대신 :mod:`spacr.qt`의 자체 진단인 ``_missing_qt_extra``와 ``_QT_MISSING_MESSAGE``를 재사용합니다. 기존 보고서 키 ``qt extra``는 보고서 사용자에게 안정적으로 유지됩니다.",
+      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained."
+    },
+    {
+      "label": "spacr.qt.run#2",
+      "source": "Returns: The exit code returned by `QApplication.exec()`, or ``1`` when the required Qt dependency cannot be imported.",
+      "source_sha256": "de911040ce54b580e91f255387b6aabfe734c80f07217b19c08e6dcc3430cdce",
+      "context": "Returns: The exit code returned by `QApplication.exec()`, or ``1`` when the required Qt dependency cannot be imported.",
+      "translation": "Returns: `QApplication.exec()`가 반환한 종료 코드 또는 필요한 Qt 의존성을 가져올 수 없을 때 ``1``.",
+      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained."
+    }
+  ]
+}

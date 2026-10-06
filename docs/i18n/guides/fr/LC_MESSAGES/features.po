@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 18:40-0400\n"
+"POT-Creation-Date: 2026-10-05 20:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -253,8 +253,13 @@ msgstr "Ces tailles sont mémorisées d’une session à l’autre."
 msgid "To resize a popup, point at one of its edges or corners. A thin blue guide line appears across the middle half of each side you can drag. Drag from anywhere along that edge or corner; the line only marks the side."
 msgstr "Pour redimensionner une fenêtre contextuelle, pointez l’un de ses bords ou de ses coins. Une fine ligne guide bleue apparaît sur la moitié centrale de chaque côté que vous pouvez faire glisser. Faites glisser depuis n’importe quel point de ce bord ou de ce coin ; la ligne ne fait que signaler le côté."
 
-msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
-msgstr "Créer des masques corrige les masques à la main et porte la boucle Cellpose dans son en-tête. Son canevas comporte dix outils : Pinceau, Gomme, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop et Règle. La :doc:`référence de Créer des masques <make_masks>` couvre ces outils, les Niveaux, les paramètres de détection, l’appariement primaire/secondaire, l’enregistrement et la mesure."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has eleven tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Box, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
+msgstr "Créer des masques corrige les masques à la main et affiche la boucle Cellpose dans son en-tête. Son canevas comporte onze outils : Brush, Erase, Erase object, Wand +, Wand −, Dessiner, Boîte, Divide, Zoom, Recadrer à nouveau et Règle. La :doc:`référence de Créer des masques <make_masks>` décrit ces outils, Levels, les paramètres de détection, l’appariement primaire/secondaire, l’enregistrement et la mesure."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
+msgstr "**Boîte** dessine des rectangles indépendants portant des étiquettes de classe pour l’annotation YOLO. Déplacez ou redimensionnez une boîte, annulez ou rétablissez des modifications et utilisez **Enregistrer les boîtes** pour conserver le projet ou **Export YOLO…** pour écrire des étiquettes normalisées et des métadonnées de classe ordonnées. Les images sources et les masques de segmentation restent inchangés."
 
 msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. Divide drags a line across a merged object and makes it two, leaving every other object's label untouched; it is the commonest correction a segmentation needs."
 msgstr "Draw trace un contour libre qui se ferme et se remplit comme un objet unique -- l’outil qu’un pinceau n’est pas, car un pinceau estampe des disques le long du tracé, de sorte que suivre un bord avec lui étiquette le bord et laisse le centre en arrière-plan. Divide trace une ligne à travers un objet fusionné et en fait deux, sans toucher à l’étiquette d’aucun autre objet ; c’est la correction la plus courante dont une segmentation a besoin."
@@ -397,6 +402,7 @@ msgstr "Widgets d’interface, workers et fonctions d’aide à l’implémentat
 msgid "Optional dependencies"
 msgstr "Dépendances facultatives"
 
-msgid "The base package contains the headless pipelines. Install ``spacr[qt]`` for the desktop interface. Other extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table."
-msgstr "Le paquet de base contient les pipelines sans interface graphique. Installez ``spacr[qt]`` pour l’interface de bureau. D’autres extras ajoutent OME-Zarr, OMERO, napari, l’attribution, le suivi, les mesures de Zernike et des lecteurs propres aux fabricants. La disponibilité varie selon la version de Python ; le :doc:`guide d’installation <installer_guide>` est la table de compatibilité de référence."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The base package contains the Qt desktop interface and headless pipelines. Extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table."
+msgstr "Le paquet de base contient l’interface de bureau Qt et les pipelines sans interface graphique. Les extras ajoutent OME-Zarr, OMERO, napari, l’attribution, le suivi, les mesures de Zernike et les lecteurs propres aux fabricants. La disponibilité varie selon la version de Python ; le :doc:`guide d’installation <installer_guide>` contient la table de compatibilité de référence."
 

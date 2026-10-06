@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 18:40-0400\n"
+"POT-Creation-Date: 2026-10-05 20:46-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -253,8 +253,13 @@ msgstr "Dessa storlekar sparas mellan sessionerna."
 msgid "To resize a popup, point at one of its edges or corners. A thin blue guide line appears across the middle half of each side you can drag. Drag from anywhere along that edge or corner; the line only marks the side."
 msgstr "Om du vill ändra storlek på ett popupfönster pekar du på någon av dess kanter eller hörn. En tunn blå hjälplinje visas över den mittersta halvan av varje sida som du kan dra i. Dra var som helst längs den kanten eller det hörnet; linjen markerar bara sidan."
 
-msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
-msgstr "Skapa masker korrigerar masker för hand och har Cellpose-slingan i sin huvudrad. Dess arbetsyta har tio verktyg: Pensel, Suddgummi, Erase object, Wand +, Wand −, Draw, Divide, Zooma, Recrop och Linjal. :doc:`Referensen för Skapa masker <make_masks>` beskriver dessa verktyg, Nivåer, detektionsinställningar, parning av primära och sekundära objekt, sparande och mätning."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has eleven tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Box, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
+msgstr "Make Masks korrigerar masker för hand och visar Cellpose-loopen i sidhuvudet. Dess arbetsyta har elva verktyg: Brush, Erase, Erase object, Wand +, Wand −, Rita, Ruta, Divide, Zoom, Beskär igen och Linjal. :doc:`Referensen för Make Masks <make_masks>` beskriver verktygen, Levels, detektionsinställningar, primär/sekundär parning, sparande och mätning."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
+msgstr "**Ruta** ritar oberoende rektanglar med klassetiketter för YOLO-annotering. Flytta eller ändra storlek på en ruta, ångra eller gör om redigeringar och använd **Spara rutor** för att bevara projektet eller **Export YOLO…** för att skriva normaliserade etiketter och klassmetadata i rätt ordning. Källbilder och segmenteringsmasker förblir oförändrade."
 
 msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. Divide drags a line across a merged object and makes it two, leaving every other object's label untouched; it is the commonest correction a segmentation needs."
 msgstr "Draw ritar en frihandskontur som sluts och fylls som ett enda objekt -- det verktyg som en pensel inte är, eftersom en pensel stämplar skivor längs banan, så att en kant som ritas med den märker kanten och lämnar mitten som bakgrund. Divide drar en linje tvärs över ett sammanslaget objekt och gör det till två, utan att röra något annat objekts etikett; det är den vanligaste korrigeringen en segmentering behöver."
@@ -397,6 +402,7 @@ msgstr "GUI-widgetar, arbetsprocesser och implementationshjälpare. De dokumente
 msgid "Optional dependencies"
 msgstr "Valfria beroenden"
 
-msgid "The base package contains the headless pipelines. Install ``spacr[qt]`` for the desktop interface. Other extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table."
-msgstr "Baspaketet innehåller pipelinerna utan grafiskt gränssnitt. Installera ``spacr[qt]`` för skrivbordsgränssnittet. Andra tillägg lägger till OME-Zarr, OMERO, napari, attribution, spårning, Zernike-mätningar och läsare för leverantörsformat. Tillgängligheten varierar med Python-versionen; :doc:`installationsguiden <installer_guide>` är den auktoritativa kompatibilitetstabellen."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The base package contains the Qt desktop interface and headless pipelines. Extras add OME-Zarr, OMERO, napari, attribution, tracking, Zernike measurements and vendor readers. Availability varies with Python version; the :doc:`installer guide <installer_guide>` is the authoritative compatibility table."
+msgstr "Baspaketet innehåller Qt-gränssnittet för skrivbordet och körflöden utan grafiskt gränssnitt. Tillägg ger stöd för OME-Zarr, OMERO, napari, attribution, spårning, Zernike-mätningar och tillverkarspecifika läsare. Tillgängligheten beror på Python-versionen; :doc:`installationsguiden <installer_guide>` är den auktoritativa kompatibilitetstabellen."
 

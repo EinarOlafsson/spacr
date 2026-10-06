@@ -22246,7 +22246,7 @@
         "8f5d28f9ac3113149f1290ede2818976bec80d2ce59849a187b9df53947e0eb2",
         "3388a94886fdf212c170458ffde4d61799dc75bb4c28d613aabdd639adafdb99",
         "c5dc3a7c7cdaf9ab2ca1563dde69e6e44e8eb20fa83f1f88388e3a06cbd8f5e9",
-        "dbe14cfebb600d72ccd36347a24db689188457343c8d67d3bde2e677cf651192",
+        "6601ace2bf5e54a7078ca58201626db32481d51125aa17a95719e475b4369471",
         "56402ec2d9e984215daa495ac6a6b7625963bdb2413748f7eca9dd1cc20f8581",
         "4c9a5387f6863cd570fe358e1fde8d64e973b44cce93135ece37843f8551a5b2",
         "6876c177da683a1ef64df15cedbfb5a3b22b757e86f9bf48cbece8dd6493676d",
@@ -22256,14 +22256,14 @@
         "7ec08f5a7e7cadcc7ef1a3b32d5d5b303de5483e30d27ce7e647c330488a3507",
         "31608459a8544615eee4263d549bf474283a994a653c255a5cb249d8a3e6cf7b"
       ],
-      "source_sha256": "bf32e8979220732da7559aec6710c81bbf3dd04fcb5af6da7d5d507636d90271",
-      "text": "``spacr-doctor`` — diagnostizieren Sie eine spaCR Installation und sagen Sie, wie Sie sie beheben können.\n\nEin Befehl, eine Zeile pro Check, und für jede Zeile, die nicht ``PASS`` ein konkreter Befehl ist, kann der Benutzer kopieren und ausführen. Eine Diagnose, die \"GPU not available\" sagt, ohne zu sagen, was zu tun ist keine Diagnose, so :class:`Result` macht ``fix`` ein erstklassiges Feld statt ein optionales Nachdenken, und :func:`format_report` immer druckt es.\n\nDie Kontrollen bestehen, weil diese Fehler tatsächlich passiert sind:\n\n* **Eine veraltete editierbare Installation.** Dieses Repository wird mehr als einmal auf dem gleichen Rechner ausgecheckt, und ein editierbarer Installationspunkt an genau einem von ihnen. Das Bearbeiten von Checkout A während ``import spacr`` das Checkout B Stunden kostet, bevor jemand denkt, ``spacr.__file__`` zu drucken. :func:`check_running_checkout` ist die wertvollste Funktion in diesem Modul.\n* **A fehlt optional extra.** PySide6 lebt im ``qt`` extra, nicht in den Kernabhängigkeiten, so dass ein einfacher ``pip install spacr`` verwendet, um einen ``spacr`` Befehl zu installieren, der auf einem nicht handled ``ImportError`` sechs Frames tief starb. :mod:`spacr.qt` hat bereits den freundlichen Pfad dafür vergrößert; :func:`check_qt_extra` verwendet seine Logik anstatt eine zweite Kopie zu schreiben, die driften kann.\n* **A GPU Das ist vorhanden, aber unbrauchbar.** A CPU- Nur torch bauen auf einer Maschine mit einem NVIDIA Karte, oder ein Fahrer älter als die CUDA Laufzeit torch wurde gegen, beide vorhanden als gebaut \"cuda not available\" und haben ganz andere Korrekturen.\n* **Cellpose Version drift.** spaCR migrierte auf die Cellpose 4.x / SAM API. Cellpose 3 in einer Umgebung bleibt Pausen bei der ersten ``CellposeModel`` Anruf, tief in einem Lauf, der bereits eine Stunde auf Masken verbracht hat.\n* **A Projektdatenbank, die beschädigt, gesperrt oder von einem neueren spaCR.** ist\n* **Einstellungen, deren Kombination nicht funktionieren kann**, die :func:`spacr.validate.validate_settings` bereits kennt, wie man sie nennt.\n\nKonstruktionsregeln, alle tragend:\n\n* Jede Prüfung ist eine unabhängige Modul-Level-Funktion, die eine :class:`Context` und eine :class:`Result` (oder eine Folge davon) zurückgibt, so dass jede einzelne Funktion allein berechenbar und durchsetzbar ist.\n* :func:`run_checks` wickelt jeden Anruf ein, so dass eine Überprüfung, die erhöht, zu einer ``ERROR`` Zeile wird, anstatt den Bericht zu entfernen.\n* Im Modulbereich wird nichts Schweres importiert. ``spacr-doctor --help`` darf nicht für torch bezahlen.",
+      "source_sha256": "2688057b6631628e4fc9f198cb4f14d71c23fab277810a1ec060fdc6c3911b75",
+      "text": "``spacr-doctor`` — diagnostizieren Sie eine spaCR Installation und sagen Sie, wie Sie sie beheben können.\n\nEin Befehl, eine Zeile pro Check, und für jede Zeile, die nicht ``PASS`` ein konkreter Befehl ist, kann der Benutzer kopieren und ausführen. Eine Diagnose, die \"GPU not available\" sagt, ohne zu sagen, was zu tun ist keine Diagnose, so :class:`Result` macht ``fix`` ein erstklassiges Feld statt ein optionales Nachdenken, und :func:`format_report` immer druckt es.\n\nDie Kontrollen bestehen, weil diese Fehler tatsächlich passiert sind:\n\n* **Eine veraltete editierbare Installation.** Dieses Repository wird mehr als einmal auf dem gleichen Rechner ausgecheckt, und ein editierbarer Installationspunkt an genau einem von ihnen. Das Bearbeiten von Checkout A während ``import spacr`` das Checkout B Stunden kostet, bevor jemand denkt, ``spacr.__file__`` zu drucken. :func:`check_running_checkout` ist die wertvollste Funktion in diesem Modul.\n* **Eine fehlerhafte Installation der GUI-Abhängigkeiten.** PySide6 gehört zum Basispaket, aber ein fehlendes oder unvollständiges Wheel kann den Import durch den Befehl ``spacr`` weiterhin scheitern lassen. :mod:`spacr.qt` bietet dafür eine verständliche Diagnose; :func:`check_qt_extra` verwendet dieselbe Logik, damit beide nicht auseinanderlaufen.\n* **A GPU Das ist vorhanden, aber unbrauchbar.** A CPU- Nur torch bauen auf einer Maschine mit einem NVIDIA Karte, oder ein Fahrer älter als die CUDA Laufzeit torch wurde gegen, beide vorhanden als gebaut \"cuda not available\" und haben ganz andere Korrekturen.\n* **Cellpose Version drift.** spaCR migrierte auf die Cellpose 4.x / SAM API. Cellpose 3 in einer Umgebung bleibt Pausen bei der ersten ``CellposeModel`` Anruf, tief in einem Lauf, der bereits eine Stunde auf Masken verbracht hat.\n* **A Projektdatenbank, die beschädigt, gesperrt oder von einem neueren spaCR.** ist\n* **Einstellungen, deren Kombination nicht funktionieren kann**, die :func:`spacr.validate.validate_settings` bereits kennt, wie man sie nennt.\n\nKonstruktionsregeln, alle tragend:\n\n* Jede Prüfung ist eine unabhängige Modul-Level-Funktion, die eine :class:`Context` und eine :class:`Result` (oder eine Folge davon) zurückgibt, so dass jede einzelne Funktion allein berechenbar und durchsetzbar ist.\n* :func:`run_checks` wickelt jeden Anruf ein, so dass eine Überprüfung, die erhöht, zu einer ``ERROR`` Zeile wird, anstatt den Bericht zu entfernen.\n* Im Modulbereich wird nichts Schweres importiert. ``spacr-doctor --help`` darf nicht für torch bezahlen.",
       "translation_source_blocks_sha256": [
         "72e5b7e4c9e69fd458f88622fe0d5841fba9bd4efb1c789b8e623d4b3ee4a270",
         "8f5d28f9ac3113149f1290ede2818976bec80d2ce59849a187b9df53947e0eb2",
         "3388a94886fdf212c170458ffde4d61799dc75bb4c28d613aabdd639adafdb99",
         "c5dc3a7c7cdaf9ab2ca1563dde69e6e44e8eb20fa83f1f88388e3a06cbd8f5e9",
-        "dbe14cfebb600d72ccd36347a24db689188457343c8d67d3bde2e677cf651192",
+        "6601ace2bf5e54a7078ca58201626db32481d51125aa17a95719e475b4369471",
         "56402ec2d9e984215daa495ac6a6b7625963bdb2413748f7eca9dd1cc20f8581",
         "4c9a5387f6863cd570fe358e1fde8d64e973b44cce93135ece37843f8551a5b2",
         "6876c177da683a1ef64df15cedbfb5a3b22b757e86f9bf48cbece8dd6493676d",
@@ -22530,15 +22530,15 @@
     },
     "spacr.doctor.check_qt_extra": {
       "source_blocks_sha256": [
-        "33031ccea2cd9bae37b6eca6eeb7587ecd992cce8c9b25dd7ec19742aef08fa2",
-        "d7d00264164fac96af87171190969317e728cc1abe067ad57b375feae2605d64",
+        "1c1d88efdd570ef307173d1f5e188ec79a9955cd6cddc4d0e8376bce966f518d",
+        "bad7e0e29b9463502425b5980b191c0e01c746488b22c5fe284e1de75b0f2803",
         "2c380ff26d422bbe1bf58295ca4ccf7c37af70f1b49a004932f5851ed9a31e4f"
       ],
-      "source_sha256": "af66da6aa365e06cb4f44765a52e7bff42bf5fe168282cae24094ef6088969ce",
-      "text": "Das optionale Extra der GUI ist installiert.\n\nWiederverwendungen:mod:`spacr.qt`'s eigene Diagnose — ``_missing_qt_extra`` und ``_QT_MISSING_MESSAGE`` — anstatt zu revidieren, welche Verteilungen im Extra sind, so dass die beiden nicht auseinanderdriften können.\n\n:param ctx: Die Überprüfung importiert den tatsächlichen GUI-Eintrag, was bedeutet, dass die eine Kontrolle für den Import von PySide6 bezahlt, und sie berichtet, was dieser Import in diesem Interpreter getan hat. Es steht nichts darüber, ob ein Fenster geöffnet werden kann – siehe :func:`check_display` für die Hälfte.",
+      "source_sha256": "d9746a7c60ac93e22a5016818b7193208aac0853a83f0273409a2a4dbec33aa7",
+      "text": "Die GUI-Abhängigkeiten lassen sich in diesem Interpreter importieren.\n\nVerwendet die eigene Diagnose von :mod:`spacr.qt` — ``_missing_qt_extra`` und ``_QT_MISSING_MESSAGE`` — statt erneut aufzuführen, welche Distributionen die GUI benötigt. Der bisherige Berichtsschlüssel ``qt extra`` bleibt für Berichtsnutzer stabil.\n\n:param ctx: Die Überprüfung importiert den tatsächlichen GUI-Eintrag, was bedeutet, dass die eine Kontrolle für den Import von PySide6 bezahlt, und sie berichtet, was dieser Import in diesem Interpreter getan hat. Es steht nichts darüber, ob ein Fenster geöffnet werden kann – siehe :func:`check_display` für die Hälfte.",
       "translation_source_blocks_sha256": [
-        "33031ccea2cd9bae37b6eca6eeb7587ecd992cce8c9b25dd7ec19742aef08fa2",
-        "d7d00264164fac96af87171190969317e728cc1abe067ad57b375feae2605d64",
+        "1c1d88efdd570ef307173d1f5e188ec79a9955cd6cddc4d0e8376bce966f518d",
+        "bad7e0e29b9463502425b5980b191c0e01c746488b22c5fe284e1de75b0f2803",
         "2c380ff26d422bbe1bf58295ca4ccf7c37af70f1b49a004932f5851ed9a31e4f"
       ]
     },
@@ -93328,14 +93328,14 @@
       "source_blocks_sha256": [
         "9db5a3b329429d121ffcb014ac3a8bd266317835e3d757101be5ba9a41d8247d",
         "0b9c9c5217abb532b449c8d976e24e1e1678889237588642fc0aba196734e032",
-        "4210e5e4f76871b13db086bca80ba0d5c113bd40e153fafe91ca671ac2f4d240"
+        "de911040ce54b580e91f255387b6aabfe734c80f07217b19c08e6dcc3430cdce"
       ],
-      "source_sha256": "67e609ad061ea39a784e9c3a0903a78ac22d7023595e9aee7119609bfc4c4515",
-      "text": "Starten Sie die Qt GUI. Öffentlicher Eintrag, der von `spacr-qt` und `python -m spacr.qt` verwendet wird.\n\nArgs: argv: Optionale CLI-Argumente. Wenn vorhanden, öffnet sich das erste Positionselement direkt in die App-Anwendungsansichtstaste (z.B. `spacr-qt mask`).\n\nRückgabe: Der von `QApplication.exec()` zurückgegebene Exit-Code oder ``1``, wenn das optionale Qt extra nicht installiert ist.",
+      "source_sha256": "d5ed126e67e8817b48a58a6c99d07ca001fc6b821e3f43707c7c1eb5eb4c9ddc",
+      "text": "Starten Sie die Qt GUI. Öffentlicher Eintrag, der von `spacr-qt` und `python -m spacr.qt` verwendet wird.\n\nArgs: argv: Optionale CLI-Argumente. Wenn vorhanden, öffnet sich das erste Positionselement direkt in die App-Anwendungsansichtstaste (z.B. `spacr-qt mask`).\n\nReturns: Der von `QApplication.exec()` zurückgegebene Exit-Code oder ``1``, wenn die erforderliche Qt-Abhängigkeit nicht importiert werden kann.",
       "translation_source_blocks_sha256": [
         "9db5a3b329429d121ffcb014ac3a8bd266317835e3d757101be5ba9a41d8247d",
         "743d1de5e3628200ebe089356ad524ee69262ffda5850adb960c6a30d2f8a336",
-        "4210e5e4f76871b13db086bca80ba0d5c113bd40e153fafe91ca671ac2f4d240"
+        "de911040ce54b580e91f255387b6aabfe734c80f07217b19c08e6dcc3430cdce"
       ]
     },
     "spacr.qt.safespacr": {

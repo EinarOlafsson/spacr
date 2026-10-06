@@ -1,0 +1,73 @@
+{
+  "accepted": true,
+  "scope": "English Box prose and normal nine-language README/guide refresh for core Qt standard installation at source-frozen bb52953cd; API/runtime and later Home flow-theme integration are separate.",
+  "source_commit": "bb52953cd27a38a4dfcec29b7132518642aae444",
+  "guide_languages": 9,
+  "current_guide_messages_per_language": 2965,
+  "new_reviewed_messages_per_language": 6,
+  "prior_accepted_translations_per_language_preserved": 2959,
+  "strict_guide_builds_all_nine_passed": true,
+  "actual_six_reviewed_targets_rendered_all_nine": true,
+  "initial_korean_build_failed": true,
+  "korean_new_messages_rephrased_through_normal_import": 5,
+  "README_normal_generator_passed": true,
+  "standard_pip_recipe_occurrences_each_README": 3,
+  "focused_README_and_installation_tests_passed": 80,
+  "new_Box_paragraph_reviewed_all_nine": true,
+  "native_speaker_signoff": false,
+  "all_language_full_API_Sphinx_build_current": false,
+  "artifacts": {
+    "features/data/615_standard_installation_guides_2026-10-05/core-gui-guide-build-proof.json": {
+      "sha256": "cdb842dcf4d5a87cba5b2f04f93ece82c7a342b655c0ea4853239de03253ed0c",
+      "bytes": 609
+    },
+    "features/data/615_standard_installation_guides_2026-10-05/core-gui-guide-build-r3.log.gz": {
+      "sha256": "730bee9c284e18cd28a1a3322a231d2c6c4aa465ff292099839d8dc55c9bc330",
+      "bytes": 81
+    },
+    "features/data/615_standard_installation_guides_2026-10-05/core-gui-guide-proof.json": {
+      "sha256": "d51c9a6ff3965f1a177b8547eb675fc27705b2aa1795302460301d65b165c02c",
+      "bytes": 78745
+    },
+    "features/data/615_standard_installation_guides_2026-10-05/core-gui-guide-rendered-proof.json": {
+      "sha256": "18e4b8b04723051f07b9180868f5fa8a755790d821ac19817f736c7cf1105936",
+      "bytes": 79758
+    },
+    "features/data/615_standard_installation_guides_2026-10-05/core-gui-guide-rendered-r2.log.gz": {
+      "sha256": "1530f488391b4e92656aaae5cdb225d7c5a86957586450bda07e6e8ec059bf51",
+      "bytes": 95
+    },
+    "features/data/615_standard_installation_guides_2026-10-05/core-gui-guide-review-r1.log.gz": {
+      "sha256": "0129e8e7e700706a962a833b6d1f13be91b4c2b92c03c705071cd102345149a2",
+      "bytes": 173
+    },
+    "features/data/615_standard_installation_guides_2026-10-05/core-gui-guide-targets.json": {
+      "sha256": "2a6849d9211279ab174ae4a18d11eb5d533dddcd0945d5dcb56c8a5de1f28b4c",
+      "bytes": 21081
+    },
+    "features/data/615_standard_installation_guides_2026-10-05/core-gui-korean-guide-format-r1.log.gz": {
+      "sha256": "9ba8e07feb45e7d9b8a9e6c6c34bb27ad15309d7410900c4867da2f4c52c47d7",
+      "bytes": 75
+    },
+    "features/data/615_standard_installation_guides_2026-10-05/core-gui-korean-guide-format-r2.log.gz": {
+      "sha256": "05c9444e380fa38f721316eb0fa9aa3227b179c521cfb6cbf6ab0621b12b6027",
+      "bytes": 75
+    },
+    "features/data/615_standard_installation_guides_2026-10-05/core-gui-readme-refresh-r1.log.gz": {
+      "sha256": "e1155bb0a8b4872b4f07bf4497e769dfbcb279993f672083a86bf7652f3f0f82",
+      "bytes": 352
+    },
+    "features/data/615_standard_installation_guides_2026-10-05/core-gui-readme-tests-r1.log.gz": {
+      "sha256": "458b7609a23cd1e0baab63d803d357c24dac879c7519c8aae6bd85c5b348a5c4",
+      "bytes": 59
+    },
+    "features/data/615_standard_installation_guides_2026-10-05/finish_core_gui_guides.py": {
+      "sha256": "905283ba64f5af455edd42db6700fa753a3d440b7e633feac5bb92d97152a89f",
+      "bytes": 4182
+    },
+    "features/data/615_standard_installation_guides_2026-10-05/verify_core_gui_guides.py": {
+      "sha256": "bae172a945db9c528a18e515f5571f49c48469c9b316a02fc97cb962abfcdcf3",
+      "bytes": 2461
+    }
+  }
+}

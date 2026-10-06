@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Codex), no independent peer or native-speaker signoff",
+  "source_commit": "bb52953cd27a38a4dfcec29b7132518642aae444",
+  "source_files": {
+    "spacr/doctor.py": "1d4a0984c233433b0c7bd05d146d9fc4c0cdc2523b4052c9d844aadd467d52ca",
+    "spacr/qt/__init__.py": "5388e4adba1fa5c0e26df5892f88f8d985cce91f3f75a1649a33061e738d16cf"
+  },
+  "note": "Four changed API prose blocks follow standard installation with GUI dependencies in core; missing wheels remain diagnosable and the legacy qt extra report key stays stable.",
+  "records": [
+    {
+      "label": "spacr.doctor#4",
+      "source": "**A broken GUI dependency install.** PySide6 ships with the core package, but a missing or incomplete wheel can still make the ``spacr`` command fail on import. :mod:`spacr.qt` has a friendly path for that; :func:`check_qt_extra` reuses its logic so the two cannot drift.",
+      "source_sha256": "6601ace2bf5e54a7078ca58201626db32481d51125aa17a95719e475b4369471",
+      "context": "**A broken GUI dependency install.** PySide6 ships with the core package, but a missing or incomplete wheel can still make the ``spacr`` command fail on import. :mod:`spacr.qt` has a friendly path for that; :func:`check_qt_extra` reuses its logic so the two cannot drift.",
+      "translation": "**GUI 依赖安装损坏。** PySide6 随核心包提供，但缺失或不完整的 wheel 仍可能导致 ``spacr`` 命令在导入时失败。:mod:`spacr.qt` 为此提供易于理解的诊断；:func:`check_qt_extra` 复用其逻辑，避免两处诊断发生偏差。",
+      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained."
+    },
+    {
+      "label": "spacr.doctor.check_qt_extra#0",
+      "source": "The GUI dependencies import in this interpreter.",
+      "source_sha256": "1c1d88efdd570ef307173d1f5e188ec79a9955cd6cddc4d0e8376bce966f518d",
+      "context": "The GUI dependencies import in this interpreter.",
+      "translation": "GUI 依赖可以在此解释器中导入。",
+      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained."
+    },
+    {
+      "label": "spacr.doctor.check_qt_extra#1",
+      "source": "Reuses :mod:`spacr.qt`'s own diagnosis — ``_missing_qt_extra`` and ``_QT_MISSING_MESSAGE`` — rather than restating which distributions the GUI needs. The legacy ``qt extra`` report key stays stable for consumers.",
+      "source_sha256": "bad7e0e29b9463502425b5980b191c0e01c746488b22c5fe284e1de75b0f2803",
+      "context": "Reuses :mod:`spacr.qt`'s own diagnosis — ``_missing_qt_extra`` and ``_QT_MISSING_MESSAGE`` — rather than restating which distributions the GUI needs. The legacy ``qt extra`` report key stays stable for consumers.",
+      "translation": "复用 :mod:`spacr.qt` 自身的诊断，即 ``_missing_qt_extra`` 和 ``_QT_MISSING_MESSAGE``，而不是重新列出 GUI 所需的分发包。旧的报告键 ``qt extra`` 对报告使用者保持不变。",
+      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained."
+    },
+    {
+      "label": "spacr.qt.run#2",
+      "source": "Returns: The exit code returned by `QApplication.exec()`, or ``1`` when the required Qt dependency cannot be imported.",
+      "source_sha256": "de911040ce54b580e91f255387b6aabfe734c80f07217b19c08e6dcc3430cdce",
+      "context": "Returns: The exit code returned by `QApplication.exec()`, or ``1`` when the required Qt dependency cannot be imported.",
+      "translation": "Returns: `QApplication.exec()` 返回的退出码；无法导入所需 Qt 依赖时返回 ``1``。",
+      "review_basis": "Direct Codex translation and technical review of the core GUI dependency contract and unchanged diagnostic key; all code and GUI literals retained."
+    }
+  ]
+}
