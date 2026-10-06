@@ -1,5 +1,17 @@
 DEEP-LEARNING EVENT DETECTION ON TRACKS: MITOSIS, EGRESS, INVASION, HOST DEATH
 
+2026-10-06 workstation implementation in progress:
+Requested: extend the existing event detector with the strictly verified
+official pretrained VideoMAE video encoder, in an isolated optional backend
+environment, and connect its clip features to the annotated event classifier.
+The fixed checkpoint and its noncommercial weight licence remain explicit.
+Kinetics classes are never reported as microscopy events. Ordered source
+channels, frame resampling, intensity clipping and actual checkpoint identity
+must be stored with the trained event model and checked on subsequent use.
+Home owns annotation GUI integration; workstation owns backend/scientific GPU
+acceptance and subsequent normal documentation/translation refresh. This
+record does not close item567 or claim GPU/biological accuracy.
+
 Status: DONE (alpha) 2026-09-27 (evidence 1b7606dc7)
 VERIFIED 2026-10-04: test_event_detection_on_tracks, qt/test_event_detection_alpha_gate pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
@@ -209,3 +221,24 @@ shared machine; no GPU turn; scripts in /mnt/wd4tb/scratch/571/scripts)
     This closes the requested annotation GUI only. Parent567still requires
     pretrained backend integration and real annotated Toxoplasma/GPU evidence;
     workstation's VideoMAE checkpoint remains separately owned.
+2026-10-06 workstation application/backend CPU integration accepted:
+The optional alpha VideoMAE Model Zoo row installs its own environment through
+the normal installer, with Transformers4.48.3. Actual pinned local bytes are
+verified before/after extraction, strict loading is required, channel mapping
+is explicit and provenance binds the saved event classifier. The normal
+parent/worker returns768 frozen clip features; a synthetic RGB preparation
+matches bit-exactly and repeats exactly. Normal Timelapse settings select the
+pretrained encoder; whole-field held-out evaluation, training, tensor-only
+save/reload and event output replay pass on an explicitly synthetic two-field
+fixture. Missing observed-frame crops, channel drift and invalid worker
+outputs are refused. Default small CPU encoder remains supported. All231
+affected backend/event/alpha/docstring contracts pass without exemptions.
+The saved-model test now uses a private copy of its shared training fixture,
+so it cannot replace the condition-timing evidence under a later test.
+Original failed fixture/inventory/cumulative attempts are preserved in receipt
+data/567_event_video_backend_cpu_2026-10-06.json and its evidence folder.
+This accepts CPU application plumbing, not pretrained microscopy accuracy.
+Item567 remains OPEN for actual GPU validation, held-out annotated biological
+events, real Toxo egress/invasion, Home annotation GUI integration and normal
+latest-source API/docs/translations/publication. Workstation owns those GPU
+and documentation lanes; Home retains the GUI source lane.

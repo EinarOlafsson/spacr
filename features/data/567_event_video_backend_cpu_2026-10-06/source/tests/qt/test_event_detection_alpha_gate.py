@@ -23,19 +23,6 @@ KEYS = ("timelapse_events", "timelapse_events_annotations",
         "timelapse_events_threshold", "timelapse_events_conditions",
         "timelapse_events_encoder", "timelapse_events_video_checkpoint",
         "timelapse_events_video_channels", "timelapse_events_video_device")
-WIDGETS = ("TimelapseEventAnnotationButton",
-           "TimelapseEventAnnotationDialog",
-           "TimelapseEventTracksPath", "TimelapseEventSequencePath",
-           "TimelapseEventOutputPath", "TimelapseEventOpenField",
-           "TimelapseEventConfirmField", "TimelapseEventFramePreview",
-           "TimelapseEventTrack", "TimelapseEventFrame",
-           "TimelapseEventChannel", "TimelapseEventName",
-           "TimelapseEventRows", "TimelapseEventAdd",
-           "TimelapseEventRemove", "TimelapseEventSave",
-           "TimelapseEventBrowseTracks",
-           "TimelapseEventBrowseSequence",
-           "TimelapseEventBrowseFolder",
-           "TimelapseEventBrowseOutput", "TimelapseEventClose")
 
 
 @pytest.fixture
@@ -52,8 +39,7 @@ def prefs(tmp_path, monkeypatch):
 def test_the_settings_are_registered_under_their_item():
     from spacr.settings import ALPHA_FEATURES, _is_alpha, timelapse_settings
 
-    assert ALPHA_FEATURES[567] == {"settings": KEYS, "widgets": WIDGETS,
-                                   "models": ("videomae_v1",)}
+    assert ALPHA_FEATURES[567] == {"settings": KEYS, "models": ("videomae_v1",)}
     assert set(KEYS) <= set(timelapse_settings)
     assert all(_is_alpha("settings", key) for key in KEYS)
     assert _is_alpha("models", "videomae_v1")
