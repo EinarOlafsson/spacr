@@ -178,3 +178,13 @@ helpers. Existing genuine human-labelled CUDA/FAISS receipts are retained.
 Added-line/branch coverage and cached-index freshness review remain underway;
 item 565 is OPEN until those boundaries are verified. Source-current normal
 API/runtime/docs generation remains workstation-owned.
+
+2026-10-06 — SAVED VECTOR CACHE FRESHNESS REPAIRED
+Source 43418b29b records actual DB/WAL identity/mtime/ctime/size before index
+construction and invalidates on subsequent changes. If files change while
+building, caching keeps the old token so the next Similar query rebuilds;
+legitimate concurrent SQLite activity does not reject the current result.
+A real GUI test replaces same-model stored vectors and proves the next
+query rebuilds with the new vector. Agent 72 focused cases pass, with every
+added backend line/arc exercised. The remaining Annotate lifecycle/failure
+coverage audit is ongoing. No ratchet, cap or provenance requirement moves.

@@ -1,5 +1,24 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 F565 vector replacement freshness repaired
+Source 43418b29b invalidates cached Similar indexes when database or WAL
+identity/mtime/ctime/size changes. Build captures the pre-read signature and
+compares it afterwards; a database changed during construction retains the
+old token, ensuring the next query rebuilds without refusing the current
+result. A real GUI regression replaces same-model vectors and verifies the
+next query sees them. The near-parity bounded agent cohort passes 72 cases;
+all added backend lines/arcs are exercised. Remaining Annotate failure and
+lifecycle branch coverage is being completed without ratchet edits. Item 565
+remains OPEN until that final boundary audit and root integration finish.
+
+Two reused CPU agents now own F548: an explicit closed finite-map pooled
+normalization mode preserving legacy batch quantiles/order, and a batch-first
+native T>1 Mask-only ingest contract preserving T/Z/channel pixels. Neither
+claims vendor completion from observed filenames or starts a GPU process.
+F543 current implementation needs no further CPU change: its 43 focused cases
+pass; real foreground/background Harmony pairs and actual embedded vendor
+shading references remain external data gaps, not synthetic acceptance.
+
 ## 2026-10-06 Cell-DINO CPU source and exact documentation-owner follow-up
 CPU source 4e352e79f adds local official Cell-DINO checkpoint loading with
 an explicit HPA L16, HPA L14 or Cell Painting S8 factory, ordered four/five
