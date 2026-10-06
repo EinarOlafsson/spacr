@@ -1,5 +1,40 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+
+## 2026-10-06 CPU startup, Preferences, native memory and owner regeneration
+Fresh209 hosted Home SciPy failures now have a confirmed second import path:
+the default grain compiler imports NumBa, which imports SciPy before Home is
+actually usable. App/ambient/timing gate optional compilation until the genuine
+post-paint readiness checkpoint, including profiling-off launches. Unchanged
+installed-wheel AND sdist Python-I Home guards pass, with16painted controls and
+zero heavy imports;83callback/timing,64affected renderer and87docstring checks
+pass. Source/archive identity and three unchanged hosted failure logs are in
+data/43_home_compiler_boundary_cpu_2026-10-06/. Current hosted green is pending.
+Preferences safe color pickers/dynamic Help hints and exact saved1%density are
+complete; all114affected tests pass. Default claim inventory increases only
+mask/watch_normalization_pool919->920, all prior pairs/variants identical;
+its named arithmetic checksum passes. No ratchet or mismatch ceiling is lifted.
+Native ingest retains one source channel and only selected output channels;
+paired full TIFF ingests save32.47MiB and71.88MiB respectively, with exact
+raw/normalized compressed bytes. Root161affected cases pass. Full normalized
+selected field still resides in memory, so arbitrary large-volume acceptance
+is not claimed. Source-bound archives are in item548's dated notes.
+
+Workstation: regenerate normally against this checkpoint, including new
+ambient controls/Thore/compiler docstrings, app/timing optional readiness
+callback, safe Preferences Help behavior, Watch pool form placement and private
+normalization-helper output mapping. Prior exact1f3 failures additionally need
+normal notebook-settings regeneration, Help API/settings-flow/runtime source
+hashes and reviewed translations. Preserve your three foundation-model helpers.
+No GPU/API/docs/translations/tutorial work is started by Home. User's mycelium,
+inward stationary-cursor advection and spatially varied Random colors requests
+remain actively owned here; new source will be relayed once accepted locally.
+Event annotation GUI is undergoing duplicate-label and tracker-provenance
+safety validation before integration; parent567 science/backend acceptance
+stays separate. Protected b779 serial37503577012 remains untouched/live;
+it cannot validate this later source. Items43/288/47 and reportedSaveSIGSEGV
+remain OPEN until actual terminal current-source acceptance.
+
 ## 2026-10-06 older 1f3 ordinary CI failures and generated-artifact relay
 The exact seven failed coverage/slow logs from tests run 37494090176 and
 one newer pre-fix compatibility log are archived with SHA-256 manifest,

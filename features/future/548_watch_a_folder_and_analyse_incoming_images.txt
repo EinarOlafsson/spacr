@@ -860,3 +860,18 @@ LOWER-COPY NATIVE NORMALIZATION (2026-10-06, bounded CPU acceptance)
     sources, tests, logs and hashes:
     data/548_native_percentile_scratch_cpu_2026-10-06/. Whole-field scaling
     and broader parentF548 acceptance remain OPEN.
+
+2026-10-06 — staged-channel loading and selected-output allocation
+Native TZYX normalization now loads only one original staged channel at a
+time, preserving complete-field scalar quantiles and private-stage hashes.
+Full2T/2Z/2C2048TIFF ingest peaks1668.24->1635.77MiB,32.47MiB less;
+rawNPY andnormalized compressedNPZ bytes match. Separate selected-output
+allocation avoids unselected source channels and the final advanced-index
+copy: real2T/2Z/4C1536TIFF selecting[3,1] peaks1534.62->1462.74MiB,
+71.88MiB less. Every output SHA matches;36scratch role/dtype/percentile
+cases preserve completearrays/NPZ bytes. Root161integratednative/watch/
+normalization cases pass; agent191relevant cases andallnewIObranches pass.
+Evidence: data/548_native_stream_channels_cpu_2026-10-06/ and
+data/548_native_selected_channels_cpu_2026-10-06/. Differentfixture savings
+are not summed. Full selected float32 field remains resident; large-volume
+and parent548 scientific/external-data acceptance remainOPEN.

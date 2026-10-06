@@ -2755,3 +2755,15 @@ Receipts: data/663_preferences_density_help_cpu_2026-10-06/. Item43 stays
 OPEN: fresh209 installed Home still imports SciPy via the NumBa grain daemon
 before genuine post-paint readiness. A confirmed trace, not a guard waiver,
 drives the separate compiler-startup repair now being validated.
+
+2026-10-06 — confirmed second Home import path deferred correctly
+Fresh209 hosted Home probes still failSciPy. The independent actualpublic
+trace proves NumBa dependency checking in spacr-grain-compile importsSciPy
+before realHomeReady; the magnifier repair alone could not prevent this.
+Both themecompiler helpers now defer until the actual post-paint usable
+checkpoint, also when profiling is off. Normal-mode and profiled launches
+show noSciPy atready; later compilation remains available. Strict unchanged
+installed-wheel andsdist Home probes pass with16painted controls andzero
+heavy imports. Source-matched64renderer,83callback/timing and87docstring
+cases pass. Receipts: data/43_home_compiler_boundary_cpu_2026-10-06/.
+Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
