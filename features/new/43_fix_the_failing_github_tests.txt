@@ -2796,3 +2796,14 @@ Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
     regeneration. Numerical coverage/current-source all-green remain OPEN.
     Exact receipts: data/43_final_cpu_source_checkpoint_2026-10-06/ and
     data/43_hosted_3ca_failures_2026-10-06/. Protected serial is untouched.
+
+2026-10-06 — actual45f all-platform success, test-only Xenon repair
+    Compat37521372368 is terminalSUCCESS across all17jobs, including every
+    mandatory8platform wheel/sdist cell. NativeWindows37521372558 also passes.
+    Ordinary45f remains failed: newly-added routing test had Xenon rankC.
+    d130 splits independent invariants/event cases, preserving all assertions
+    and thresholds;21classification cases and exact6target Xenon/Ruff pass.
+    Final7source parameter/default/nested-budget guards pass on integrated IO
+    and station mask source. Complete source-bound receipts:
+    data/43_45f_platform_and_complexity_2026-10-06/. Source-current overall
+    GitHub/coverage/serial acceptance remains OPEN; protected runs untouched.

@@ -1,0 +1,81 @@
+{
+  "compat_conclusion": "success",
+  "compat_jobs": 17,
+  "compat_run": 37521372368,
+  "complexity_fix_revision": "d130f0daa310bc0b60487d48933a71b4491f4347",
+  "complexity_test_sha256": "84cc233b9933908b3de5bb19f2b877dc63cca6ecef45ddedcf7ec363137f478f",
+  "files": {
+    "112470220732.log.gz": {
+      "raw_sha256": "a38a5545238d111c3f2e8768479bb3f6f793c7e2196677c0cbf6b6138fcb329e",
+      "stored_sha256": "027a1ae51e8caa26152dd86561e9ba7fd8a61a9dc71891b686b37f6a3db233f4"
+    },
+    "classification-21-after.log.gz": {
+      "raw_sha256": "9521df49dffaa119dad5fcb471c2881b4028bbfc6b36f59ffbf68335e4f6360c",
+      "stored_sha256": "29d9ff0fba2e80a99eab5967a7ff7591489fe183b041459ac7c12fa9725ddb7e"
+    },
+    "compat-terminal-jobs.json.gz": {
+      "raw_sha256": "9c0892ac1ffbf7e40a7ad077035f2201c189307e71358a033532f11f89d8feae",
+      "stored_sha256": "576c2b29dc09fff0a78d4977ce85982be74da227bd956d1f261c67e217e19d0d"
+    },
+    "compat-terminal.json.gz": {
+      "raw_sha256": "2eb1c0deb7b7f73f07d4da6a013843f713a0d92eb5233ac385a6785b5ad089fa",
+      "stored_sha256": "acb705cc1e462dc15f0e35f92249088696188b1182a98ae5f2f3814c1e4d648b"
+    },
+    "final-io-mask-doc-guards.log.gz": {
+      "raw_sha256": "38f386b61ee341d1c19f5a533e6d672a552f312f0d8b9984ba1863a14c9a82f3",
+      "stored_sha256": "f0c7f05070bd3564749bc48cdf2603a7335bffdaac1e07ceadce4bbb6ffdb8c6"
+    },
+    "ordinary-after-cancel.json.gz": {
+      "raw_sha256": "8bad50128dff879d9db23e99419d6ac3b977a236a257355f2e9afa704223b8a9",
+      "stored_sha256": "988893cc061ba692a46169aeb57ebc3d3e62292eee3384198c5f02d9d0fc2807"
+    },
+    "ordinary-cancel-http.txt.gz": {
+      "raw_sha256": "893b17101f047efc0c598541c0fc40f7f9720fa4952ece730f2d231e53ac1fda",
+      "stored_sha256": "9c7ddbbc2af7ec650f15766336e9130e7ed3f598100875de39d3229d2750dd8e"
+    },
+    "ordinary-force-cancel-http.txt.gz": {
+      "raw_sha256": "0e75348e41dd01d716fe4bd5b34095faf0fe515bd9275f415757e135295e2f99",
+      "stored_sha256": "6d2ca8e9766aae30785128f8da324aae9973dd6626a90a8c1bd07b9f06537cc6"
+    },
+    "ordinary-pre-cancel-jobs.json.gz": {
+      "raw_sha256": "b56fe53d4882f7416ff65f71205b89c1294377e3e5cd9087adcf6bfdb31fe984",
+      "stored_sha256": "4bb0cc81ccdb0b99f1862e7e3789f9032b1da09e2549b7b3556cad172a0dfe9b"
+    },
+    "ordinary-pre-cancel.json.gz": {
+      "raw_sha256": "49ee751054555fa15121d649993d95951d9bf7297a54dfc2ecba0b7446b36270",
+      "stored_sha256": "9a24407167639fbc82b9055fbe87181db44e7b0fef250dd04d199f1291066864"
+    },
+    "root-xenon-six-after.log.gz": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    "ruff-six-after.log.gz": {
+      "raw_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "stored_sha256": "47f394a1497b1873bc6e6d6f9bb92aa51b990821f1ddd7770a933ffd29c456cd"
+    },
+    "windows-terminal.json.gz": {
+      "raw_sha256": "9ca39676f2e9efbefb1ba84f077cb01bb1f7c3df110e85a7f249ef96018151ba",
+      "stored_sha256": "fbef4cfe55b797fde099efa6935588f8c031ff37cdd7d7afda706fc46c9f71f2"
+    },
+    "xenon-six-after.log.gz": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    }
+  },
+  "hosted_source": "45f3cb1ec0ec5df9e10bb6bcf788c5939d2cc1a3",
+  "limits": [
+    "Ordinary45f was already failing Xenon; this records its test-only repair, not an all-green ordinary verdict.",
+    "Protected serial45f and b779 remain untouched.",
+    "Mypy passed in hosted45f before Xenon; local stubs are absent, so no new local mypy verdict is claimed.",
+    "Old failed3ca ordinary cancellation is not success. Full failure evidence was archived before queue release."
+  ],
+  "local_acceptance": {
+    "classification_tests": 21,
+    "final_source_doc_guards": 7,
+    "ruff_exit_code": 0,
+    "xenon_exit_code": 0,
+    "xenon_maintained_targets": 6
+  },
+  "windows_conclusion": "success",
+  "windows_run": 37521372558
+}

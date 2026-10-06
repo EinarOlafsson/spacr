@@ -1,5 +1,26 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 source45f actual platform success and immediate test-only repair
+Current45f compat37521372368 is terminalSUCCESS: all17jobs, including all8
+mandatory wheel/sdist platform cells. Native Windows37521372558 alsoSUCCESS.
+Ordinary37521372698 started27jobs and exposed one test-only Xenon rankC in
+the new compatibility routing guard; Ruff/mypy passed first. d130f0daa3 splits
+the independent invariants and event/platform checks without dropping any
+assertion or changing thresholds. All21classification cases plus exact6target
+Xenon/Ruff pass; root also passes final7source doc/parameter/default/budget
+guards after current IO and station mask integration. Immutable complete
+receipts: data/43_45f_platform_and_complexity_2026-10-06/.
+
+Obsolete3ca ordinary37511792034 is now terminalCANCELLED after preserving
+its3knownfailed jobs/full states, releasing current ordinary concurrency.
+Normal cancellation first returned500/502; accepted normal/force requests
+are archived honestly. No cancellation is green. Protected b779serial
+37503577012 remains live; source45f serial37521372347 is queued and untouched.
+This next test-only push changes no app/ambient/Preferences/IO source and does
+not touch the serial workflow. The exact product freeze below remains valid.
+Random packed-word candidate stays isolated because live repeats are mixed;
+no performance claim or integration from one favorable measurement.
+
 ## 2026-10-06 final Home CPU source and workstation regeneration relay
 Home CPU product source is frozen at app5fc990e6, ambienta324d395,
 Preferences733f9af0 and io6ef38e31 (full hashes in
