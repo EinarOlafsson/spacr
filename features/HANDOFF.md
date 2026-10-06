@@ -1,6 +1,20 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-05)
 
-## 2026-10-05 CPU session — animated flow themes (item 663)
+## 2026-10-05 maintainer correction — item 663 REOPENED
+The maintainer rejected all sixteen newly added flow themes: their shared
+thin-filament look does not meet the request. They are removed, including
+the renderer and feature-specific tests. Existing seven ambient engines and
+ten night presets remain. Item 663 is OPEN again. The prior implementation
+receipts below are historical evidence, not current visual acceptance.
+
+Replacement work requires 10-20 distinct professional generative data art
+styles for spatial organization, genetics, genetic flow and perturbation,
+with finer detail and higher resolution. Pointer or colour variations do not
+count as additional styles. Do not translate or document the removed flow
+keys; wait for the replacement source checkpoint. API/docs/translations/
+tutorials and every GPU process remain owned by the workstation.
+
+## 2026-10-05 CPU session — original animated flow themes (SUPERSEDED)
 Sixteen regular Appearance presets are implemented and CPU verified: eight
 biology/spatial/DNA/space flow families, each with a mouse-responsive variant.
 The existing buffered worker renders bounded smooth luminous filaments;

@@ -1,5 +1,5 @@
 ABSTRACT DATA FLOW THEMES AND BACKDROP PERFORMANCE
-Status: DONE 2026-10-05 — 16 bounded animated flow presets, CPU verified.
+Status: OPEN 2026-10-05 — maintainer rejected all sixteen original themes.
 Requested: 2026-10-05 by the maintainer: performance-optimize themes and add
 10–20 abstract high-resolution continuously flowing backgrounds, including
 weather-like wind, mouse-influenced flows, biology, spatial data, DNA and space.
@@ -27,7 +27,7 @@ queues. GUI paints use ready frames; hidden/minimized/disabled backgrounds
 stop timers and retire render workers. Keep the existing memory/work/CI
 ceilings. Verify both moving output and all lifecycle failure boundaries.
 
-2026-10-05 — IMPLEMENTED AND VERIFIED
+2026-10-05 — ORIGINAL IMPLEMENTATION; VISUAL ACCEPTANCE WITHDRAWN
 Appearance > Theme offers the eight families and their Pointer variants;
 Animation can also select the individual flow behind another visual theme.
 Continuously travelling highlights follow smoothed curves, with localized
@@ -77,3 +77,19 @@ Source-derived API, documentation, translations and tutorials are a separate
 workstation lane, handed off in protocol 325. Final hosted GitHub verdict
 remains item 43; this feature's scoped acceptance does not close items 43,
 288, 47 or the broader release-performance item 284.
+
+2026-10-05 — MAINTAINER REJECTED THE ORIGINAL VISUAL DIRECTION
+The maintainer strongly dislikes every new theme and explicitly requests
+removal of all sixteen. Prior tests and measurements describe the rejected
+implementation only; they do not establish the requested visual acceptance.
+All sixteen presets, their renderers and feature-specific tests are removed.
+The original seven ambient engines and ten night presets remain available.
+
+Replacement request: 10-20 genuinely different professional generative data
+artworks representing spatial organization, genetics, genetic flow and
+perturbation. Each artwork must have its own visual language, fine detail
+and higher rendering resolution; recoloured or pointer-paired versions do
+not count as separate artworks. CPU-safe bounded rendering and UI lifecycle
+rules still apply. Real renderer previews precede completion claims. Item
+663 is reopened; generated API/docs/translations/tutorials and GPU work
+remain workstation-owned. Do not regenerate captions for removed flow keys.
