@@ -4742,14 +4742,15 @@ class _FlowEngine(_BufferedEngine):
     def _path_helix(self, seed: _FlowSeed, index: int, q: float,
                     count: int) -> Tuple[float, float]:
         """Draw two oscillating DNA rails and separate connecting rungs."""
+        phase = self._seeds[0].phase
         if index < 2:
             x = -0.10 + 1.20 * q
             wave = math.sin(2.0 * math.pi
-                            * (3.0 * q - 0.035 * self.time))
+                            * (3.0 * q - 0.035 * self.time + phase))
             return x, 0.50 + (1 if index else -1) * 0.19 * wave
         along = (index - 1) / max(2, count - 1)
         wave = math.sin(2.0 * math.pi
-                        * (3.0 * along - 0.035 * self.time))
+                        * (3.0 * along - 0.035 * self.time + phase))
         return (-0.10 + 1.20 * along + 0.014 * math.sin(math.pi * q),
                 0.50 + (2.0 * q - 1.0) * 0.19 * wave)
 

@@ -130,6 +130,22 @@ def test_invalid_flow_inputs_and_control_updates_fail_or_rebuild_safely():
     assert engine.shade(320, 180) is not None
 
 
+def test_helix_seed_shifts_its_rails_and_rungs_together():
+    """Different seeds change the DNA flow without disconnecting its rungs."""
+    first = amb.make_engine("flow_helix", "ocean", DARK, seed=27)
+    second = amb.make_engine("flow_helix", "ocean", DARK, seed=28)
+    one = first.geometry(320, 180)
+    two = second.geometry(320, 180)
+    assert one != two
+    assert one[0] != two[0]
+    assert one[2] != two[2]
+    for path in (one, two):
+        rail_a, rail_b, rung = path[:3]
+        assert rail_a[0] == rail_b[0]
+        assert rail_a[1] + rail_b[1] == pytest.approx(180.0)
+        assert rung[1] + rung[-1] == pytest.approx(180.0)
+
+
 @pytest.mark.parametrize("background", (DARK, LIGHT))
 def test_flow_filaments_are_visible_over_dark_and_light_pages(background):
     """The compositing mode leaves a soft but visible field on either page."""
