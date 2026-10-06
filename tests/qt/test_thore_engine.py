@@ -17,9 +17,9 @@ from spacr.qt.widgets.ambient import _ThoreEngine
 PALETTE = ("#93bce8", "#a8d9ee", "#d7e2f2")
 
 
-def _engine(**options):
+def _engine(background="#09121b", **options):
     """Construct the worker-safe private painter with a fixed seed."""
-    return _ThoreEngine(PALETTE, "#09121b", seed=17, **options)
+    return _ThoreEngine(PALETTE, background, seed=17, **options)
 
 
 def _frame(engine, second, width=640, height=360):
@@ -54,6 +54,17 @@ def test_rain_continues_and_lightning_is_local_without_a_full_screen_flash():
     assert abs(float(flash.mean()) - float(rest.mean())) < 12.0
     assert np.mean(np.max(flash, axis=2) > 100) < 0.03
     assert _digest(_frame(engine, 1.0)) != _digest(_frame(engine, 1.1))
+
+
+@pytest.mark.parametrize("background", ("#09121b", "#f0f1ed"))
+def test_rain_is_visible_on_dark_and_light_pages(background):
+    """The composition mode leaves a sparse legible field on either page."""
+    engine = _engine(background)
+    frame = _pixels(_frame(engine, 1.0))
+    page = np.array([engine.background.blue(), engine.background.green(),
+                     engine.background.red()])
+    painted = float(np.any(frame != page, axis=2).mean())
+    assert 0.001 < painted < 0.25
 
 
 def test_seeded_bolts_and_rain_survive_arbitrary_clock_seek_with_bounded_cache():
