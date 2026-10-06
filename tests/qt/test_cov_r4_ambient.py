@@ -324,7 +324,7 @@ def test_unchanged_preferences_preserve_the_ready_frame_without_shading(
     ("set_resolution", "resolution", 0.75),
     ("set_density", "density", 0.5),
     ("set_size_scale", "size", 1.5),
-    ("set_direction", "direction", "up"),
+    ("set_direction", "direction", "down"),
     ("set_speed", "speed", 1.5),
 ])
 def test_a_reapplied_control_repairs_a_changed_engine_and_keeps_ready_pixels(
