@@ -1,0 +1,15 @@
+{
+  "README.md": "fe7c992fab4ffbb8427b358dcc5a3ab4e10ee47851c185908c87dec1d5612c81",
+  "ambient.after.py.gz": "72ce6f0904dced432b552853446df6de99f1e862972e6af0afcf88a1daecb2e6",
+  "ambient.before.py.gz": "7b826fbdb3534ae8151f308f3acdc0e2819b2a964449fe338e3c6f1d181a9f9b",
+  "probe_source_unchanged_ambient_controls.py": "c77499db864f1e25345be76c9145ed2c3dd6837b4b2e921c23020ca312392e74",
+  "receipt.json": "fcc7c6038154a807fdf66d2a362cc94cd5584267705e4cc6ef9662e48aaa4991",
+  "repro_mainwindow_random_alpha_20261006.py": "72ab498965c487461d2ac9b275bd4d6e2be3a885a2399f207544ffce5343d4a3",
+  "source-unchanged-controls-probe.log.gz": "08dda78235675606ca9b868460e633059cda8bd7dabc1348faa65ead528f8e50",
+  "unchanged-controls-added-coverage.json": "d6ae2d30a066d1e708ef84fce9fc0265d84a6e53b3ac7234e1208f7befd23644",
+  "unchanged-controls-cohort.log.gz": "7d930db25dd9880b2a465f2b6f6f79c3cb39d6547eb85b631e5c59086d206218",
+  "unchanged-controls-final-coverage.json": "16f1850fdd0850bce45c360e1c0c941f0fdb17b76c78ff235cfd674b935f615c",
+  "unchanged-controls-final-coverage.log.gz": "759db93f62b3b4a6b505d69111fe9dda6fbdf9c2f31b4e76ee2cbecddf0ab049",
+  "unchanged-controls-mainwindow.log.gz": "5979a232ca857772874d3ebb13b6a5eb77ba2d0f6c0e7471d66474623da9d86d",
+  "unchanged-controls-source.diff": "f3b9de2942861ee81095e93286e6d8dda083159bded82f567d06022a91eaa10b"
+}

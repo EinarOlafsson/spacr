@@ -279,6 +279,85 @@ def test_a_republish_with_no_canvas_publishes_nothing(qtbot):
     assert producer.latest() is not None
 
 
+@pytest.mark.parametrize("theme", amb.AMBIENT_THEMES)
+def test_unchanged_preferences_preserve_the_ready_frame_without_shading(
+        qtbot, monkeypatch, tmp_path, theme):
+    """Saving unrelated settings spends no GUI frames on unchanged motion."""
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences as prefs
+
+    store = QSettings(str(tmp_path / "prefs.ini"), QSettings.IniFormat)
+    monkeypatch.setattr(prefs, "_settings", lambda: store)
+    prefs.set_ambient_animation(theme)
+    prefs.set_ambient_palette(amb.default_palette_for(theme))
+    prefs.set_ambient_enabled(True)
+    motion = amb.preferred_motion()
+    monkeypatch.setattr(_FrameProducer, "start", lambda self: None)
+    widget = AmbientWidget(theme=theme, palette=amb.default_palette_for(theme),
+                           background=DARK, seed=7, **motion._asdict())
+    qtbot.addWidget(widget)
+    widget.resize(320, 200)
+    widget.show()
+    widget.set_time(4.0)
+    producer = widget._producer_box[0]
+    before = None if producer is None else producer.latest().copy()
+    shaded = []
+    if producer is not None:
+        original = widget.engine.shade
+
+        def shade(width, height):
+            shaded.append((width, height))
+            return original(width, height)
+
+        monkeypatch.setattr(widget.engine, "shade", shade)
+    prefs.apply_ambient_preferences()
+    assert not shaded
+    assert widget.isVisible() and widget.is_animating()
+    if producer is not None:
+        after = producer.latest()
+        assert after.size() == before.size()
+        assert bytes(after.constBits()) == bytes(before.constBits())
+
+
+@pytest.mark.parametrize("setter,field,changed", [
+    ("set_blur", "blur", 1.5),
+    ("set_resolution", "resolution", 0.75),
+    ("set_density", "density", 0.5),
+    ("set_size_scale", "size", 1.5),
+    ("set_direction", "direction", "down"),
+    ("set_speed", "speed", 1.5),
+])
+def test_a_reapplied_control_repairs_a_changed_engine_and_keeps_ready_pixels(
+        qtbot, monkeypatch, setter, field, changed):
+    """A caller changing the exposed engine still gets the requested frame."""
+    monkeypatch.setattr(_FrameProducer, "start", lambda self: None)
+    widget = AmbientWidget(theme="blobs", palette="spacr", background=DARK,
+                           seed=7)
+    qtbot.addWidget(widget)
+    widget.resize(320, 200)
+    widget._start_producer()
+    widget.set_time(4.0)
+    producer = widget._producer_box[0]
+    before = producer.latest().copy()
+    expected_value = getattr(widget.engine, field)
+    getattr(widget.engine, "set_" + field)(changed)
+    getattr(widget, setter)(expected_value)
+    assert getattr(widget.engine, field) == expected_value
+    assert bytes(producer.latest().constBits()) == bytes(before.constBits())
+    getattr(widget, setter)(changed)
+    assert getattr(widget.engine, field) == changed
+    if field == "speed":
+        widget.advance_frame(0.5)
+        assert widget.time() == pytest.approx(4.0 + 0.5 * changed)
+    else:
+        reference = make_engine("blobs", "spacr", DARK, seed=7)
+        reference.set_max_pixels(widget.engine.max_pixels)
+        reference.set_time(4.0)
+        getattr(reference, "set_" + field)(changed)
+        expected = reference.shade(320, 200)
+        assert bytes(producer.latest().constBits()) == bytes(expected.constBits())
+
+
 def test_a_first_frame_that_cannot_be_shaded_is_not_published(qtbot,
                                                               monkeypatch):
     """The producer is installed either way; only the head start is lost."""

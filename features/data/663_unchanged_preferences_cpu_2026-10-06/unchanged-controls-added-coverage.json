@@ -1,0 +1,87 @@
+{
+  "added_executable_lines": [
+    6627,
+    6628,
+    6629,
+    6630,
+    6642,
+    6643,
+    6644,
+    6645,
+    6688,
+    6689,
+    6690,
+    6691,
+    6706,
+    6707,
+    6722,
+    6723,
+    6724,
+    6725,
+    6744,
+    6745,
+    6746,
+    6747
+  ],
+  "added_executable_count": 22,
+  "touching_branch_arcs": [
+    [
+      6628,
+      6629
+    ],
+    [
+      6628,
+      6630
+    ],
+    [
+      6643,
+      6644
+    ],
+    [
+      6643,
+      6645
+    ],
+    [
+      6689,
+      6690
+    ],
+    [
+      6689,
+      6691
+    ],
+    [
+      6704,
+      6706
+    ],
+    [
+      6706,
+      6707
+    ],
+    [
+      6706,
+      6708
+    ],
+    [
+      6723,
+      6724
+    ],
+    [
+      6723,
+      6725
+    ],
+    [
+      6745,
+      6746
+    ],
+    [
+      6745,
+      6747
+    ]
+  ],
+  "touching_branch_arc_count": 13,
+  "missing_added_lines": [],
+  "missing_touching_arcs": [],
+  "cases": 17,
+  "broader_affected_cases": 321,
+  "case_overlap": "17 focused cases overlap the321; no unique sum is claimed."
+}

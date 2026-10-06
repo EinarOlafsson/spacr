@@ -6624,7 +6624,10 @@ class AmbientWidget(QWidget):
 
         :param value: the blur amount, converted with ``float``.
         """
-        self._blur = _clamp(value, *BLUR_RANGE)
+        value = _clamp(value, *BLUR_RANGE)
+        if value == self._blur and value == self._engine.blur:
+            return
+        self._blur = value
         self._mutate_engine(lambda: self._engine.set_blur(self._blur))
 
     def resolution(self) -> float:
@@ -6636,7 +6639,10 @@ class AmbientWidget(QWidget):
 
         :param value: the resolution multiplier, converted with ``float``.
         """
-        self._resolution = _clamp(value, *RESOLUTION_RANGE)
+        value = _clamp(value, *RESOLUTION_RANGE)
+        if value == self._resolution and value == self._engine.resolution:
+            return
+        self._resolution = value
         self._mutate_engine(
             lambda: self._engine.set_resolution(self._resolution))
 
@@ -6679,7 +6685,10 @@ class AmbientWidget(QWidget):
 
         :param value: the density multiplier, converted with ``float``.
         """
-        self._density = _clamp(value, *DENSITY_RANGE)
+        value = _clamp(value, *DENSITY_RANGE)
+        if value == self._density and value == self._engine.density:
+            return
+        self._density = value
         self._mutate_engine(lambda: self._engine.set_density(self._density))
 
     def direction(self) -> str:
@@ -6693,6 +6702,8 @@ class AmbientWidget(QWidget):
         :param name: one of :data:`DRIFT_DIRECTIONS`.
         """
         if not is_valid_drift_direction(name):
+            return
+        if name == self._direction and name == self._engine.direction:
             return
         self._direction = name
         self._mutate_engine(lambda: self._engine.set_direction(name))
@@ -6708,7 +6719,10 @@ class AmbientWidget(QWidget):
 
         :param value: the speed multiplier, converted with ``float``.
         """
-        self._speed = _clamp(value, *SPEED_RANGE)
+        value = _clamp(value, *SPEED_RANGE)
+        if value == self._speed and value == self._engine.speed:
+            return
+        self._speed = value
         with self._engine_lock:
             if self._art_input is not None:
                 self._art_input._consume(self._engine)
@@ -6727,7 +6741,10 @@ class AmbientWidget(QWidget):
 
         :param value: the size multiplier, converted with ``float``.
         """
-        self._size = _clamp(value, *SIZE_RANGE)
+        value = _clamp(value, *SIZE_RANGE)
+        if value == self._size and value == self._engine.size:
+            return
+        self._size = value
         self._mutate_engine(lambda: self._engine.set_size(self._size))
 
     def background_color(self) -> QColor:

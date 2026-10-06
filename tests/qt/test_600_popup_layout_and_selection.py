@@ -84,8 +84,9 @@ def test_the_maintainers_button_layout(qtbot, qt_theme_applied, monkeypatch,
 
     Bottom row, left: Open folder, Organize for Measure, Load test data,
     Uncertainty. Editor action row: Save mask, Prev, Next (item 247, 2026-10-01).
-    Bottom row, right, under the console: Discard, Keep, Skip, Blind, ROIs,
-    Upload data -- Keep and Discard no longer on a row of their own.
+    Bottom row, right, under the console: Clear all objects, Discard, Keep,
+    Skip, Blind, ROIs, Upload data -- Keep and Discard no longer on a row of
+    their own.
     """
     from spacr.qt import preferences
     from spacr.qt.screens import make_masks as mm
@@ -106,8 +107,9 @@ def test_the_maintainers_button_layout(qtbot, qt_theme_applied, monkeypatch,
         assert screen._tool_row_layout.indexOf(button) >= 0
     # With alpha features shown, the alpha SAM2 seeds button (556, 451c67deb)
     # and the virtual-stain apply control (18d43544f) sit before Upload data.
-    assert widgets(curate) == [screen._btn_discard, screen._btn_keep,
-                               screen._btn_skip, screen._btn_blind,
+    assert widgets(curate) == [screen._btn_clear, screen._btn_discard,
+                               screen._btn_keep, screen._btn_skip,
+                               screen._btn_blind,
                                screen._btn_rois, screen._btn_sam2,
                                screen._virtual_stain, screen._btn_contribute]
     # One widget each, so neither group can wrap apart.

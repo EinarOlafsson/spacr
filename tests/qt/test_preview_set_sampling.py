@@ -84,15 +84,17 @@ def big_plate(tmp_path_factory) -> Path:
 
 
 class OpenCounter:
-    """Records every image file the process really opens.
+    """Records every experiment image file the process really opens.
 
     Wraps :func:`builtins.open` and :func:`tifffile.imread` — the two doors a
-    preview can read a pixel through — so the assertions below are about the
-    filesystem, not about a variable the widget keeps.
+    preview can read a pixel through — for the fixture's image tree, excluding
+    dependencies' own ``.npy`` data. The assertions are about real file reads,
+    not a variable the widget keeps.
     """
 
-    def __init__(self, monkeypatch):
+    def __init__(self, monkeypatch, data_root: Path):
         self.paths: list = []
+        self.data_root = data_root.resolve()
         real_open, real_imread = builtins.open, tifffile.imread
 
         def counting_open(file, *a, **kw):
@@ -114,7 +116,8 @@ class OpenCounter:
             return
         if isinstance(text, bytes):
             text = text.decode("utf8", "replace")
-        if text.lower().endswith((".tif", ".tiff", ".png", ".npy")):
+        if (text.lower().endswith((".tif", ".tiff", ".png", ".npy"))
+                and Path(text).resolve().is_relative_to(self.data_root)):
             self.paths.append(text)
 
     @property
@@ -126,8 +129,8 @@ class OpenCounter:
 
 
 @pytest.fixture
-def counter(monkeypatch) -> OpenCounter:
-    return OpenCounter(monkeypatch)
+def counter(monkeypatch, tmp_path_factory) -> OpenCounter:
+    return OpenCounter(monkeypatch, tmp_path_factory.getbasetemp())
 
 
 def _entries(combo) -> list:
@@ -552,7 +555,10 @@ def test_measure_preview_samples_a_big_merged_folder(tmp_path, counter, qtbot):
 
     panel = MeasurePreviewPanel()
     qtbot.addWidget(panel)
-    panel.load_array(str(sorted(merged.iterdir())[0]))
+    first = sorted(merged.iterdir())[0]
+    counter.reset()
+    panel.load_array(str(first))
+    assert str(first) in counter.unique
     counter.reset()
 
     assert panel._fov_box.count() in (DEFAULT_MAX_SETS, DEFAULT_MAX_SETS + 1)
