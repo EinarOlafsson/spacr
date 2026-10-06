@@ -1276,9 +1276,9 @@ def split_wells(settings):
     for filename in sorted(os.listdir(src)):
         path = os.path.join(src, filename)
         if not (os.path.isfile(path) and filename.lower().endswith(
-                ('.tif', '.tiff', '.png', '.jpg', '.jpeg'))):
+                _PLAQUE_IMAGE_SUFFIXES)):
             continue
-        image = cellpose.io.imread(path)
+        image = _plaque_imread(path)
         wells = detect_wells(image, weights,
                              confidence=float(settings.get('well_confidence',
                                                            0.25)))
@@ -1301,12 +1301,33 @@ def split_wells(settings):
     for filename in undetected:
         stem = os.path.splitext(filename)[0]
         cellpose.io.imsave(os.path.join(out_dir, f"{stem}.tif"),
-                           cellpose.io.imread(os.path.join(src, filename)))
+                           _plaque_imread(os.path.join(src, filename)))
     settings['_well_geometry'] = geometry
     print(f"split {n_images} image(s) into {len(geometry)} well crop(s)"
           + (f"; {len(undetected)} image(s) held no detectable well and were "
              "passed through whole" if undetected else ""))
     return out_dir
+
+
+_PLAQUE_IMAGE_SUFFIXES = ('.tif', '.tiff', '.png', '.jpg', '.jpeg', '.scn')
+
+
+def _plaque_imread(path):
+    """Read one plaque image the way the plaque models expect it.
+
+    A Bio-Rad Image Lab ``.scn`` (Gel Doc) is read by
+    :func:`spacr.convert.read_scn` and rendered as 8-bit RGB, linear to its
+    scanner ceiling, which is what a photographed plate looks like to the
+    detectors. Every other file goes through :func:`cellpose.io.imread`.
+
+    :param path: the image file.
+    :returns: the pixels.
+    """
+    if str(path).lower().endswith('.scn'):
+        from .convert import read_scn, scn_to_rgb8
+
+        return scn_to_rgb8(*read_scn(path))
+    return cellpose.io.imread(path)
 
 
 def _resolve_well_detector(settings):
@@ -1785,12 +1806,12 @@ def _segment_plaque_folder(settings, model_path):
     os.makedirs(dst, exist_ok=True)
     names = [f for f in sorted(os.listdir(src))
              if os.path.isfile(os.path.join(src, f))
-             and f.lower().endswith(('.tif', '.tiff', '.png', '.jpg', '.jpeg'))]
+             and f.lower().endswith(_PLAQUE_IMAGE_SUFFIXES)]
     if not names:
         return 0
     model = _plaque_cellpose_model(model_path)
     for index, name in enumerate(names, start=1):
-        image = cellpose.io.imread(os.path.join(src, name))
+        image = _plaque_imread(os.path.join(src, name))
         labels = segment_plaque_image(model, image, settings)
         stem = os.path.splitext(name)[0]
         write_tiff(os.path.join(dst, f"{stem}.tif"),
@@ -1844,11 +1865,11 @@ def _analyze_colony_plates(settings):
             settings['colony_detector'] = None
     names = [f for f in sorted(os.listdir(src))
              if os.path.isfile(os.path.join(src, f))
-             and f.lower().endswith(('.tif', '.tiff', '.png', '.jpg', '.jpeg'))]
+             and f.lower().endswith(_PLAQUE_IMAGE_SUFFIXES)]
     per_plate, per_colony = [], []
     save = bool(settings.get('save', True))
     for name in names:
-        image = cellpose.io.imread(os.path.join(src, name))
+        image = _plaque_imread(os.path.join(src, name))
         wells = []
         if weights:
             try:

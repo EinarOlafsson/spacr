@@ -81,9 +81,26 @@ from ..curation_queue import SEG_SUFFIX
 from ..tiff_io import write_tiff
 
 
-IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp")
+IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".scn")
 YOLO_ANNOTATIONS_NAME = ".spacr_yolo_annotations.json"
 YOLO_CLASSES_NAME = ".classes.json"
+
+
+def read_image(path: str) -> np.ndarray:
+    """Read one image file the way Make Masks shows it.
+
+    A Bio-Rad Image Lab ``.scn`` is read by :func:`spacr.convert.read_scn`
+    (``uint16``, inverted so it looks like Image Lab's own exports); every
+    other format goes through :func:`imageio.v2.imread`.
+
+    :param path: the image file.
+    :returns: the pixels.
+    """
+    if str(path).lower().endswith(".scn"):
+        from ..convert import read_scn
+
+        return read_scn(path)[0]
+    return imageio.imread(path)
 
 
 def _yolo_shape(image_shape) -> tuple:
@@ -811,7 +828,7 @@ def load_image_and_mask(folder: str, filename: str,
     if is_seg_bundle(filename):
         return load_seg_bundle(os.path.join(folder, filename))
     image_path = os.path.join(folder, filename)
-    image = _as_field_image(imageio.imread(image_path), image_path)
+    image = _as_field_image(read_image(image_path), image_path)
 
     mask_dir = masks_folder(folder, masks_dir)
     stem = os.path.splitext(filename)[0]
@@ -888,7 +905,7 @@ def _bundle_image(path: str, payload: Dict, shape) -> Tuple[np.ndarray, str]:
             if not os.path.isfile(original):
                 continue
             try:
-                pixels = np.asarray(imageio.imread(original))
+                pixels = np.asarray(read_image(original))
             except Exception:
                 continue
             if pixels.shape[:2] == tuple(shape)[:2]:
@@ -904,7 +921,7 @@ def _bundle_image(path: str, payload: Dict, shape) -> Tuple[np.ndarray, str]:
     for ext in IMAGE_EXTS:
         beside = os.path.join(folder, stem + ext)
         if os.path.isfile(beside):
-            return np.asarray(imageio.imread(beside)), beside
+            return np.asarray(read_image(beside)), beside
     raise ValueError(
         f"{path} carries no image ('img') and there is no {stem}.<ext> beside "
         f"it, so there is nothing to draw its labels on.")

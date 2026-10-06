@@ -2927,7 +2927,7 @@ class ConvertDropHandler(DropHandler):
         :returns: True when this handler can use ``path`` as-is.
         """
         return path.is_dir() or (
-            path.is_file() and path.suffix.lower() in _IMAGE_SUFFIXES)
+            path.is_file() and path.suffix.lower() in (_IMAGE_SUFFIXES | {".scn"}))
 
     def error_message(self, path: Path) -> str:
         """Name the container formats, because a user with an ND2 will not
@@ -2937,7 +2937,8 @@ class ConvertDropHandler(DropHandler):
         :returns: the sentence shown when the drop is refused.
         """
         return ("Format Converter accepts a microscopy image/container or a "
-                "folder containing ND2, CZI, LIF, OME-TIFF or image files.")
+                "folder containing ND2, CZI, LIF, OME-TIFF, Bio-Rad SCN or image "
+                "files.")
 
     def apply(self, path: Path, screen) -> None:
         """Set the source, normalising a dropped file to its folder.

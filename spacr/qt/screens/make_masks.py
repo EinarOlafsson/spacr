@@ -15501,7 +15501,7 @@ class MakeMasksScreen(QWidget):
             return cached[1]
         if engine.is_seg_bundle(filename):
             raise ValueError(tr('For puncta detection, open the original single-channel image rather than a segmentation bundle.'))
-        image = engine.imageio.imread(path)
+        image = engine.read_image(path)
         if image.ndim == 3 and image.shape[-1] == 1:
             image = image[..., 0]
         if image.ndim != 2 or image.shape != self._canvas.image.shape:
