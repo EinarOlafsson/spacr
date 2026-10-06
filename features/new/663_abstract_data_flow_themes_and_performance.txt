@@ -561,3 +561,19 @@ data/663_satin_waves_cpu_2026-10-06/. Individual9ea source and integrated4de
 source are distinct frozen checkpoints. Offline sampled24Hz media is not
 live cadence. The reported Save SIGSEGV and all-theme native4K smoothness
 remain OPEN; narrow lifecycle success does not reproduce or fix that crash.
+
+2026-10-06 — frozen actual MainWindow native-4K Save and GUI-GC probe
+Source 9ad69bab29d9a4f1b2188dbe823cc52860793adf has ambient SHA-256
+4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5.
+Five isolated, 4-GiB-capped, CUDA-hidden Xvfb 3840×2160 application probes
+exited zero. The final run used real Home, Make Masks, Measure and Annotate
+screens with an active 3840×2114 ambient backdrop, then three modal
+Preferences Saves: Detail 2→1→2 and gravity radius 0→0.65→0. Each saved
+value was read back and asserted. Nine naturally scheduled cyclic-GC
+callbacks ran on the GUI thread; no forced collection was used. After
+MainWindow close and delivery of queued Qt DeferredDelete events, zero
+QWidgets, AmbientWidgets and shading workers remained. The complete scripts,
+logs, source identities and reproduction command are archived at
+`data/663_mainwindow_save_gc_2026-10-06/`. This bounded local probe did not
+reproduce the user's native Save SIGSEGV, identify its cause or prove all-theme
+native-4K smoothness. Both acceptance questions remain OPEN.

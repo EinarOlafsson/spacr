@@ -1,0 +1,25 @@
+Frozen CPU/Xvfb MainWindow Save and GUI-GC probe, 2026-10-06
+
+Source commit: 9ad69bab29d9a4f1b2188dbe823cc52860793adf
+Ambient SHA-256: 4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5
+
+In an isolated worktree checked out at that commit, from its root:
+
+  CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=xcb \
+  XDG_CONFIG_HOME=/mnt/wd4tb/scratch/ambient-crash-20261006/config-final9ad-verified \
+  PYTHONPATH="$PWD" tools/run_capped.sh 4G \
+  xvfb-run -a -s '-screen 0 3840x2160x24' \
+  /home/olafsson/anaconda3/envs/spacr/bin/python \
+  features/data/663_mainwindow_save_gc_2026-10-06/run-5-verified.py final9adverified
+
+The final argument gives the disposable QSettings INI a unique suffix. The script
+writes it under /mnt/wd4tb/scratch/ambient-crash-20261006. Use a new suffix to
+avoid reusing an earlier run's settings. The four earlier scripts/logs retain
+the progression from plain close to explicitly drained Qt DeferredDelete and
+a passive GUI-thread GC callback count. All five runs exited zero; the fifth
+is the strongest acceptance probe and verifies both saved settings values.
+
+The probe uses actual MainWindow, Home, Mask, Measure, Annotate and modal
+Preferences Save; it does not run the whole Qt suite. It does not reproduce or
+resolve the user's native Save SIGSEGV. See manifest.json for source identities,
+observations and limits.
