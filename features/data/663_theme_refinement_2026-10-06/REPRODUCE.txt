@@ -36,3 +36,15 @@ passes65tests in28.77seconds under4GiB. Focused storage follow-up20cases and
 all eleven queued-clock cases pass independently. Final GitHub green and
 uninterrupted serial Qt acceptance remain OPEN, as does uniform native4K
 24fps under active pointer/impulse load.
+
+Retained final lens source is bound by lens_final_receipt.json. It matches
+root ambient.py SHA bfd77a38ac5eac7de9f2cdde1880367e2fb42d5a320a79bb21f935d28e1ea1a3.
+The receipt retains both the useful stationary cache measurement and the
+rejected Gaussian-tail result; the latter source is not the shipped source.
+Copy lens_sparse_safe_worker.py into a NEW scratch directory and set ROOT
+to that directory, REPO to the isolated checkout. Materialize ambient.py
+from the retained source revision there, verify SHA, and use the existing
+4 GiB/CUDA-hidden/offscreen invocation. Do not overwrite archived probes.
+Point-stamping proof records compare all 48 native frames against the
+clock-repaired source; the separate final lens proof compares 24 cached
+frames against uncached frames using the same exact sparse stamp.

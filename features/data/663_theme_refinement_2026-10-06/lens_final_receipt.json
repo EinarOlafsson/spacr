@@ -1,0 +1,202 @@
+{
+  "retained_commits": [
+    "6858bf1db",
+    "b533c5504"
+  ],
+  "root_sparse_stamp": "fe291165c",
+  "excluded_experiment": "9186d0185",
+  "excluded_revert_not_needed_in_root": "48f5785dc",
+  "renderer_sha256": "bfd77a38ac5eac7de9f2cdde1880367e2fb42d5a320a79bb21f935d28e1ea1a3",
+  "frozen_renderer": "/mnt/wd4tb/scratch/theme-refinement-20261006/lens_sparse_safe/ambient.py",
+  "source_matches_measured_final": true,
+  "live_native_4k_records": {
+    "lens_sparse_before": {
+      "renderer_sha256": "f71d253586ad9959d678214ee416bd4162e2f1d51172fb857be29ddc513b1e97",
+      "imported_renderer": "/mnt/wd4tb/scratch/theme-refinement-20261006/lens_sparse_before/ambient.py",
+      "qt_platform": "offscreen",
+      "scope": "real AmbientWidget timer + FrameProducer + offscreen QWidget paints; source unchanged; synthetic local pointer and QTest click",
+      "screen_budget_override": "Offscreen QScreen size replaced by explicit native viewport pixel area only for this measurement",
+      "records": [
+        {
+          "family": "impulse_lens",
+          "display": [
+            3840,
+            2160
+          ],
+          "buffer": [
+            3840,
+            2160
+          ],
+          "max_pixels": 8294400,
+          "requested_fps": 24,
+          "actual_widget_rate_cap": 24,
+          "elapsed_seconds": 3.084329121003975,
+          "published_frames": 51,
+          "published_fps": 16.535200362599134,
+          "distinct_published_animation_clocks": 51,
+          "painted_frames": 76,
+          "painted_fps": 24.64069073642224,
+          "repeated_frame_objects": 24,
+          "worker_shade_copy": {
+            "median_ms": 58.03757900139317,
+            "p95_ms": 85.89998300885782,
+            "max_ms": 94.3499260029057,
+            "samples": 51
+          },
+          "gui_paint": {
+            "median_ms": 6.3227089995052665,
+            "p95_ms": 9.098260998143815,
+            "max_ms": 9.816644000238739,
+            "samples": 76
+          },
+          "gui_10ms_heartbeat": {
+            "median_ms": 10.12180300313048,
+            "p95_ms": 20.146059992839582,
+            "max_ms": 26.870968998991884,
+            "samples": 305
+          },
+          "publication_intervals": {
+            "median_ms": 58.7781165013439,
+            "p95_ms": 85.93355098855682,
+            "max_ms": 94.40587399876676,
+            "samples": 50
+          },
+          "load_average": [
+            3.9609375,
+            3.73095703125,
+            3.66259765625
+          ],
+          "lens_pending_clicks_at_end": 0,
+          "lens_active_impulses_at_end": 24,
+          "worker_stopped_after_hide": true
+        }
+      ]
+    },
+    "lens_sparse_safe": {
+      "renderer_sha256": "bfd77a38ac5eac7de9f2cdde1880367e2fb42d5a320a79bb21f935d28e1ea1a3",
+      "imported_renderer": "/mnt/wd4tb/scratch/theme-refinement-20261006/lens_sparse_safe/ambient.py",
+      "qt_platform": "offscreen",
+      "scope": "real AmbientWidget timer + FrameProducer + offscreen QWidget paints; source unchanged; synthetic local pointer and QTest click",
+      "screen_budget_override": "Offscreen QScreen size replaced by explicit native viewport pixel area only for this measurement",
+      "records": [
+        {
+          "family": "impulse_lens",
+          "display": [
+            3840,
+            2160
+          ],
+          "buffer": [
+            3840,
+            2160
+          ],
+          "max_pixels": 8294400,
+          "requested_fps": 24,
+          "actual_widget_rate_cap": 24,
+          "elapsed_seconds": 3.155851597999572,
+          "published_frames": 64,
+          "published_fps": 20.279787566870464,
+          "distinct_published_animation_clocks": 64,
+          "painted_frames": 78,
+          "painted_fps": 24.71599109712338,
+          "repeated_frame_objects": 13,
+          "worker_shade_copy": {
+            "median_ms": 45.884143000876065,
+            "p95_ms": 69.7121159901144,
+            "max_ms": 79.68878500105347,
+            "samples": 64
+          },
+          "gui_paint": {
+            "median_ms": 5.612751505395863,
+            "p95_ms": 8.891478995792568,
+            "max_ms": 11.464404000435024,
+            "samples": 78
+          },
+          "gui_10ms_heartbeat": {
+            "median_ms": 10.122633990249597,
+            "p95_ms": 19.822292000753805,
+            "max_ms": 29.670776013517752,
+            "samples": 303
+          },
+          "publication_intervals": {
+            "median_ms": 46.13442400295753,
+            "p95_ms": 69.78394299221691,
+            "max_ms": 79.73681300063618,
+            "samples": 63
+          },
+          "load_average": [
+            3.9609375,
+            3.73095703125,
+            3.66259765625
+          ],
+          "lens_pending_clicks_at_end": 0,
+          "lens_active_impulses_at_end": 24,
+          "worker_stopped_after_hide": true
+        }
+      ]
+    },
+    "lens_sparse_normal": {
+      "renderer_sha256": "ee213015f843e9aaa775f8a9f35e8e763dc117ccbb6b4463197c7117a68b6eee",
+      "imported_renderer": "/mnt/wd4tb/scratch/theme-refinement-20261006/lens_sparse_normal/ambient.py",
+      "qt_platform": "offscreen",
+      "scope": "real AmbientWidget timer + FrameProducer + offscreen QWidget paints; source unchanged; synthetic local pointer and QTest click",
+      "screen_budget_override": "Offscreen QScreen size replaced by explicit native viewport pixel area only for this measurement",
+      "records": [
+        {
+          "family": "impulse_lens",
+          "display": [
+            3840,
+            2160
+          ],
+          "buffer": [
+            3840,
+            2160
+          ],
+          "max_pixels": 8294400,
+          "requested_fps": 24,
+          "actual_widget_rate_cap": 24,
+          "elapsed_seconds": 2.8596094279928366,
+          "published_frames": 42,
+          "published_fps": 14.687320439239093,
+          "distinct_published_animation_clocks": 42,
+          "painted_frames": 68,
+          "painted_fps": 23.779471187339485,
+          "repeated_frame_objects": 26,
+          "worker_shade_copy": {
+            "median_ms": 60.67818999872543,
+            "p95_ms": 101.78725600417238,
+            "max_ms": 106.87241799314506,
+            "samples": 42
+          },
+          "gui_paint": {
+            "median_ms": 6.538622001244221,
+            "p95_ms": 11.417294997954741,
+            "max_ms": 39.36653700657189,
+            "samples": 68
+          },
+          "gui_10ms_heartbeat": {
+            "median_ms": 10.127943998668343,
+            "p95_ms": 25.50173299096059,
+            "max_ms": 54.43228599324357,
+            "samples": 257
+          },
+          "publication_intervals": {
+            "median_ms": 60.974283987889066,
+            "p95_ms": 101.84587498952169,
+            "max_ms": 106.92611600097734,
+            "samples": 41
+          },
+          "load_average": [
+            3.8837890625,
+            3.71875,
+            3.65869140625
+          ],
+          "lens_pending_clicks_at_end": 0,
+          "lens_active_impulses_at_end": 24,
+          "worker_stopped_after_hide": true
+        }
+      ]
+    }
+  },
+  "caveat": "3-second actual worker/GUI probes on shared CPU; all variants share the sparse point stamp, native pixels, 24 wakes and queue-fixed clock; no claim of24fps at native4K",
+  "visual_review": "Atlas full-viewport circular grains, independently moving faceted cells, satin chromatin with fine native fibres, circular gravitational dot lens; advection/fungal use subtle low-contrast default ink; custom color controls belong to root."
+}

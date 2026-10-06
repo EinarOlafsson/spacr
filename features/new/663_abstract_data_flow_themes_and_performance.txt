@@ -285,3 +285,18 @@ Compact immutable evidence/probes are in
 features/data/663_theme_refinement_2026-10-06/.
 Item663 remains OPEN for smoothness acceptance; source/menu/clock repairs
 are tested without relaxing caps or hiding the slower4K cases.
+
+2026-10-06 — EXACT DOT STAMPING AND BOUNDED LENS CACHE ACCEPTED
+Sparse packed-RGBA stamping preserves 48 complete native-4K frames and
+independent per-channel overlap cases while removing the dense intermediate
+intensity field. Retained stationary-origin caching preserves 24 actual
+frames, expires inactive entries and adds about 60 MiB for 24 default 4K
+origins. The actual retained renderer SHA256 is
+bfd77a38ac5eac7de9f2cdde1880367e2fb42d5a320a79bb21f935d28e1ea1a3.
+Sequential actual native-4K lens playback improves 16.54 to 20.28 FPS, with
+64 distinct clocks for 64 publications, GUI paint p95 8.89 ms and retirement
+on hide. A Gaussian-tail optimization was discarded because its measured
+live cadence regressed despite matching raster pixels. The final focused
+root cohort passed 106 before that discarded experiment was reverted; the
+retained agent clock/cache cohort passes 29. This is a measured improvement,
+not universal 24 FPS native-4K acceptance; item 663 remains OPEN.

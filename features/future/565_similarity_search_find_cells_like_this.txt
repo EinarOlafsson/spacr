@@ -161,3 +161,18 @@ checksum stays empty. No workstation-owned provenance helper is modified.
 The reused multi-plate agent is strengthening same-database byte-identity
 merge checks and requires nonempty matching actual digests across databases.
 That remaining integration is not yet accepted; item565 remains OPEN.
+
+2026-10-06 — MULTI-PLATE SOURCE AND HIT NAVIGATION INTEGRATED
+Source 58b585d68/9988fd042 adds an explicit source-aware multi-plate index
+and Annotate navigation. Database aliases, incompatible feature columns,
+mixed feature kinds, missing provenance and different actual checkpoints
+are refused. An explicit Measurements selection uses compatible measured
+columns. Results are grouped by plate; selecting a hit opens its own source
+and writes annotation there, with return to the query plate. Pending saves
+are flushed before switching. Blind mode refuses cross-plate search.
+The complete seven-file root integration passes 61 cases under 4 GiB,
+including after merging the workstation's accepted checkpoint/chance-AP
+helpers. Existing genuine human-labelled CUDA/FAISS receipts are retained.
+Added-line/branch coverage and cached-index freshness review remain underway;
+item 565 is OPEN until those boundaries are verified. Source-current normal
+API/runtime/docs generation remains workstation-owned.

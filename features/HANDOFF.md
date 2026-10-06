@@ -1,63 +1,75 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
-## 2026-10-06 retained themes and embedding-storage CPU checkpoint
-The maintainer now retains only Point atlas, Tissue facets, Chromatin satin,
-Genetic advection and Perturbation lens, adds Fungal growth, and removes
-the other seven replacement presets plus selectable Bokeh/Resonance. The
-current CPU source implements that catalog, round atlas/lens grains,
-native physical-display Detail sampling including 4K/HiDPI, two editable
-custom colours, moving facets and pointer gravity/click/movement ripples.
-Existing public Bokeh/Resonance classes remain compatible for Python callers;
-the factory and menus cannot select them. Night sounds remain unchanged.
-Fungal branching overlaps fading eras and sampled stress images stay below
-30% visible ink occupancy. This is sampled evidence, not a universal seed proof.
+## 2026-10-06 CPU retained-theme and multi-plate integration checkpoint
+The current catalog retains Point atlas, Tissue facets, Chromatin satin,
+Genetic advection and Perturbation lens, plus continuous Fungal growth.
+The other seven new presets and selectable Bokeh/Resonance are removed.
+Public Bokeh/Resonance classes remain callable for Python compatibility.
+Full Detail uses native physical display pixels, including HiDPI and 4K.
+Atlas/lens dots are round; atlas waves overscan the viewport. Facet cells
+move independently. Users can save two custom colours. Lens movement
+leaves ripples and clicks produce gravity bursts. Old fungal growth fades
+as new branches arrive; sampled stress images remain below 30% ink coverage.
 
-Renderer063c066e7 repairs the discovered native4K clock starvation with
-bounded immutable cumulative GUI ticks, latest pointer and serial-tagged
-clicks consumed exactly once by the GUI or producer under the engine lock.
-Explicit clock/control changes flush offered input first. The root ten-file
-theme cohort passes523cases under4GiB, and all67added clock executable lines
-and branches are independently exercised. Actual native4K atlas goes from
-51publications/1clock to59/59, lens68/11 to50/50; every sampled publication
-now advances a distinct clock, and all workers stop on hide. No widget/app
-calls are introduced in the producer. Never infer live frame rate from
-offline previews or publication counts alone. Actual1080cadence is about24fps;
-native4K ranges15.85-24.06fps, so active-lens optimization continues and
-uniform24fps is unproven. Item663 stays OPEN for the latest smoothness request.
-Current six-video/native-still gallery:
+The queued GUI-input repair prevents slow renderers from starving animation
+clocks. Sparse packed-pixel stamping preserves all tested output bytes while
+removing a dense intermediate field. Stationary lens fields are cached only
+for active origins, at most 24, and released on expiry or material invalidation.
+The retained renderer SHA256 is
+bfd77a38ac5eac7de9f2cdde1880367e2fb42d5a320a79bb21f935d28e1ea1a3.
+A sequential real native-4K lens probe improves 16.54 to 20.28 FPS: all 64
+published frames have distinct animation clocks, mouse/click input works,
+and the producer stops on hide. GUI paint p95 is 8.89 ms. This does not prove
+24 FPS at native 4K. The Gaussian-tail experiment was reverted because its
+actual live performance was worse despite raster parity. Preserve that failed
+measurement. Item 663 remains OPEN for the remaining smoothness requirement.
+
+The earlier bounded ten-file theme cohort passed 523 cases. The latest focused
+clock/cache/crisp/geometry/renderer cohort passed 106 cases under 4 GiB before
+the discarded Gaussian experiment was reverted; the retained agent clock/cache
+cohort passes 29. Exact sparse stamping matches 48 complete native-4K frames;
+the retained lens cache separately matches 24 actual frames. Compact source,
+measurement and reproducibility receipts are in
+features/data/663_theme_refinement_2026-10-06/.
+Six actual offline motion previews and native stills are at
 /mnt/wd4tb/scratch/theme-refinement-20261006/final/review/index.html.
-Before/after receipts are in features/data/663_theme_refinement_2026-10-06/.
-No caps, coverage ratchets, GPU lane or whole-local-suite rule are relaxed.
+Offline preview frame rates are not live playback measurements.
 
-F565 storage source b290b734d, followed by ce8b24e31's stale-error/ambiguous-key
-guards and actual frozen ModelEntry hook28766ac3c add the alpha literal
-EmbeddingsSaveForSimilarity. Real Load/Embed/
-Save writes full vectors to the original loaded database/object identities;
-controls cannot redirect the save. Late result/errors from replaced crops
-are ignored. Specified rows carry EmbeddingSpec/fingerprint; different specs
-replace even same-width tables and metadata is excluded from search. Actual
-encoder key/source/backbone/weightsSHA is frozen at worker completion and
-passed to storage. The root six-file cohort passes65cases under4GiB; twenty
-independent focused storage-boundary cases also pass. Pending new loads keep
-Save disabled and stale success/errors cannot change their status. Another
-reused CPU agent owns the explicit multi-plate source index/navigation and
-the stronger checkpoint-byte merge guard; item565 stays OPEN.
-Leave _retrieval_scorecard, _weights_on_disk and encoder_entry unchanged for
-the workstation's coordinated API provenance/chance-AP repair.
+F565 now has the alpha EmbeddingsSaveForSimilarity action and explicit
+multi-plate search/navigation in Annotate. Save binds vectors to the actual
+loaded database/object identities, freezes the successful ModelEntry off the
+GUI thread, rejects ambiguous keys and ignores stale inference/save results.
+Different specifications or actual checkpoint digests replace incompatible
+stored vectors. Cross-plate embedding search requires matching feature columns,
+spec fingerprints and nonempty matching actual checkpoint/encoder provenance.
+Explicit Measurements search remains available for compatible measurement
+columns. Duplicate database aliases and mixed feature schemas are refused.
+Hits carry their own source identities; navigating and annotating a hit writes
+to that source database and can return to the original query plate. Blind mode
+refuses cross-plate search. The integrated seven-file cohort passes 61 cases,
+including after the workstation provenance merge. Focused branch coverage and
+cached-index freshness review remain underway; item 565 is still OPEN.
 
-Workstation priority: repair README prose/checkout size, retire stale omit-Qt
-reviewed installation text, and regenerate Help search for all four published
-YOLO symbols normally. Exact237 coverage shard7 SIGSEGVs at puncta [False]
-after1054passes; hosted serial recovery passes that file. Exact-source capped
-1065-case replay and near-parity11-case cohort also pass that puncta case;
-no preceding live widgets or justified CPU source defect is demonstrated.
-Preserve the required passed-shard condition and the crash evidence. Exact237
-tests37457998554 and uninterrupted Qt37457998285 remain active; exact3ce
-tests37463041710 is pending at13:50UTC. These older source runs cannot certify
-this new source. Normal runtime/API/docs generation must include the retained
-six labels, changed night descriptions, custom-colour controls, gravity text
-and new embedding Save captions/storage contract. Preserve all accepted GPU,
-translations/tutorials, original human-labelled cohorts and media receipts.
+Workstation e259c2d4e is integrated. Its accepted exact chance-AP/checkpoint
+provenance helpers and four-channel SubCell CPU/CUDA, API/runtime/documentation
+receipts are preserved. Do not redo or overwrite _retrieval_scorecard,
+_weights_on_disk or encoder_entry. The workstation retains every GPU/API/docs/
+translation/tutorial task. Normal source-current generation is now needed for
+the six retained theme labels/descriptions, custom-colour controls, Save action,
+multi-plate captions and new private storage/search contracts. Cell-DINO CPU
+loading is being implemented separately; actual official pretrained weights
+have not been obtained, so no pretrained acceptance is claimed.
+
+GitHub readback at this checkpoint: docs and compat-matrix on 3ce39ac7b passed;
+its ordinary tests were cancelled by the subsequent nightly push. New tests
+37478294475 are pending at workstation e259c2d4e; docs/compat are running.
+Older exact-237 tests 37457998554 and uninterrupted serial Qt 37457998285 are
+still running. Completed ordinary/coverage failures identify only the already
+repaired README size/prose, obsolete omit-Qt text and generated Help inventory,
+plus the previously documented native Qt crash. Never mistake those older runs
+for acceptance of this new source. Preserve required passed-shard checks and
+all RAM/coverage guards; do not cancel the active serial diagnostic or run the
+full suite locally. Items 43/288/47 remain OPEN.
 
 ## 2026-10-06 workstation four-channel GPU and multilingual local acceptance
 Home 3ce39ac7b is integrated with the workstation provenance/exact chance-AP
