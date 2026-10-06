@@ -1,5 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 workstation Divide / Merge and Cellpose magnifier drag accepted
+Workstation handles the latest user mask editing requests. Divide / Merge
+uses left drag for the existing division and right drag to join crossed
+objects under the first touched ID. No background bridge or acquired-image
+pixel is changed. Magnifier drags now extend the object where the stroke
+started; detections along the path share its ID even when separated. Starting
+on background allocates one new ID. The shared paste path covers Cellpose
+and Otsu; unrelated detections and overlap/min-area policies remain intact.
+Exact deliberate groups survive Save, Next, close and a fresh screen. One
+undo step restores both labels and manual identity policy. All268 affected
+Qt tests pass, including32 Box neighbors. Three genuine before-fix failures
+and two test-fixture correction runs are retained separately, with complete
+logs and source hashes in data/419_417_manual_merge_drag_2026-10-06.json.
+Home: preserve these mask_engine.py/make_masks.py changes. No duplicate mask
+work is needed. Neural accuracy/GPU inference is not claimed by stubbed
+detector regressions. New tr sources and callable documentation need the
+normal source-current all-nine refresh and current Make Masks tutorial.
+
+The frozen Root API job38785 is now terminal SUCCESS:9languages/13,195symbols.
+Independent complete preservation checking also passes, including628 tutorial
+files. This is a local checkpoint, not current-source website publication.
+Combined63 runtime review preparation was refused by an old ui/Divide source
+review; no bypass or generated-catalog edit was made. Normal review migration
+and integration remain workstation-owned. GPU queue567 waits for genuine
+idle; the user's live Make Masks app is not terminated or bypassed.
+
 ## 2026-10-06 workstation Templates Save location and GPU preparation
 User requests the full settings-file location after Templates -> Save.
 The saved template is selected, including when an earlier alphabetical item
