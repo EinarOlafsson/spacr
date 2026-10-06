@@ -4611,22 +4611,20 @@ class ResonanceEngine(_BufferedEngine):
 
 
 class _DataArtEngine(_BufferedEngine):
-    """Native-detail procedural materials with twelve distinct compositions.
+    """Retained crisp procedural materials with native display sampling.
 
     The existing producer owns every shade pass. Reusable coordinates and
     static material layers are cached per buffer size, while the clock and an
     optional immutable local pointer shape the small moving layer.
 
-    :param family: one of the twelve data-art materials.
+    :param family: one of the five retained data-art materials.
     """
 
     base_edge = 2048
-    _families = ("point_atlas", "tissue_facets", "spatial_strata",
-                 "molecular_helix", "chromatin_ribbon", "sequence_matrix",
-                 "transcript_rain", "regulatory_circuit", "genetic_advection",
-                 "interference", "morphogenesis", "impulse_lens")
+    _families = ("point_atlas", "tissue_facets", "chromatin_ribbon",
+                 "genetic_advection", "impulse_lens")
     _interactive = frozenset(("point_atlas", "genetic_advection",
-                              "interference", "impulse_lens"))
+                              "impulse_lens"))
 
     def __init__(self, *args, family: str, **kwargs):
         """Choose a material before the seeded configuration is rolled."""
@@ -4753,6 +4751,10 @@ class _DataArtEngine(_BufferedEngine):
                          * self.alpha_scale(), 0.0, 1.0)
         inside = ((px >= 0) & (px < width) & (py >= 0) & (py < height))
         px, py, values = px[inside], py[inside], values[inside]
+        locations, inverse = np.unique(py * width + px, return_inverse=True)
+        intensities = np.zeros(len(locations), dtype=np.uint8)
+        np.maximum.at(intensities, inverse, np.rint(values * 255).astype(np.uint8))
+        px, py = locations % width, locations // width
         levels = np.arange(256, dtype=np.float32) / 255.0
         palette = self.paint_colors
         lookup = np.full(256, np.uint32(0xFF000000), dtype=np.uint32)
@@ -4763,8 +4765,9 @@ class _DataArtEngine(_BufferedEngine):
             value = ink * levels if self.dark else 255.0 - (255.0 - ink) * levels
             lookup |= np.asarray(value, dtype=np.uint32) << shift
         frame = np.full((height, width), lookup[0], dtype=np.uint32)
-        combine = np.maximum.at if self.dark else np.minimum.at
-        combine(frame, (py, px), lookup[np.rint(values * 255).astype(np.uint8)])
+        flat = frame.ravel()
+        combine = np.maximum if self.dark else np.minimum
+        flat[locations] = lookup[intensities]
         if spread:
             for shift_y, shift_x in ((-1, -1), (-1, 0), (-1, 1),
                                     (0, -1), (0, 1),
@@ -4774,8 +4777,9 @@ class _DataArtEngine(_BufferedEngine):
                 valid = ((shifted_x >= 0) & (shifted_x < width)
                          & (shifted_y >= 0) & (shifted_y < height))
                 coverage = 0.24 if shift_x and shift_y else 0.68
-                intensity = np.rint(values[valid] * coverage * 255).astype(np.uint8)
-                combine(frame, (shifted_y[valid], shifted_x[valid]), lookup[intensity])
+                intensity = np.rint(intensities[valid] * coverage).astype(np.uint8)
+                destinations = shifted_y[valid] * width + shifted_x[valid]
+                flat[destinations] = combine(flat[destinations], lookup[intensity])
         return QImage(frame.data, width, height, int(frame.strides[0]),
                       QImage.Format_RGB32).copy()
 
@@ -4913,109 +4917,7 @@ class _DataArtEngine(_BufferedEngine):
             painter.restore()
         painter.restore()
 
-    def _paint_spatial_strata(self, painter: QPainter, width: int,
-                              height: int) -> None:
-        """Stack filled perspective terrain slices with engraved rims."""
-        count = self.element_count(38, 114)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
-        seed_phase = self._anchors[1][0] * math.tau
-        for layer in range(count):
-            depth = layer / max(1, count - 1)
-            world_z = -1.0 + 2.0 * depth
-            upper = []
-            lower = []
-            for step in range(97):
-                world_x = -1.0 + 2.0 * step / 96.0
-                elevation = (0.19 * math.sin(5.2 * world_x + 2.5 * world_z
-                                             + seed_phase
-                                             + self.time * 0.035)
-                             + 0.09 * math.cos(11.0 * world_x
-                                               - 3.0 * world_z
-                                               + seed_phase * 0.7)) * self.size
-                camera_x = (world_x * math.cos(0.18)
-                            - world_z * math.sin(0.18))
-                camera_z = (world_x * math.sin(0.18)
-                            + world_z * math.cos(0.18))
-                camera_y = elevation * math.cos(0.64) - camera_z * math.sin(0.64)
-                distance = elevation * math.sin(0.64) + camera_z * math.cos(0.64)
-                perspective = 1.0 / (1.0 + 0.18 * (distance + 1.0))
-                x = width * (0.50 + 0.56 * camera_x * perspective)
-                y = height * (0.56 - 0.50 * camera_y * perspective)
-                upper.append(QPointF(x, y))
-                lower.append(QPointF(x, y + height * (0.010 + 0.018 * depth)))
-            path = QPainterPath(upper[0])
-            for point in upper[1:]:
-                path.lineTo(point)
-            for point in reversed(lower):
-                path.lineTo(point)
-            path.closeSubpath()
-            painter.setPen(QPen(self._ink(0, 0.12 + 0.30 * depth),
-                                max(0.4, 0.65 * self.size)))
-            painter.setBrush(_mix(self.identity, self.paint_colors[1],
-                                  0.07 + 0.11 * depth))
-            painter.drawPath(path)
-        painter.setCompositionMode(self.mode)
 
-    def _paint_molecular_helix(self, painter: QPainter, width: int,
-                                height: int) -> None:
-        """Project a diagonal depth-sorted molecule with paired fine atoms."""
-        count = self.element_count(116, 348)
-        beads = []
-        for index in range(count):
-            along = index / max(1, count - 1)
-            angle = 2.0 * math.pi * (4.2 * along + self._anchors[0][0]
-                                     - self.time * 0.013)
-            world_y = -1.0 + 2.0 * along
-            axis_x = 0.50 + 0.31 * world_y
-            axis_y = 0.50 + 0.35 * world_y + 0.035 * math.sin(6.0 * along)
-            for strand in (0, 1):
-                theta = angle + strand * math.pi
-                world_x = 0.24 * math.cos(theta)
-                world_z = 0.24 * math.sin(theta)
-                camera_x = world_x * math.cos(0.48) - world_z * math.sin(0.48)
-                camera_z = world_x * math.sin(0.48) + world_z * math.cos(0.48)
-                camera_y = -camera_z * math.sin(0.80)
-                depth = camera_z / 0.24
-                perspective = 1.0 / (1.0 + 0.40 * (camera_z + 0.24))
-                beads.append((depth, strand, index,
-                              width * (axis_x + 0.58 * camera_x * perspective),
-                              height * (axis_y + 0.80 * camera_y * perspective),
-                              2.7 + 5.5 * (depth + 1.0) * 0.5))
-        painter.setPen(Qt.NoPen)
-        by_pair = {(strand, index): (x, y, radius)
-                   for _, strand, index, x, y, radius in beads}
-        for index in range(count):
-            x1, y1, _ = by_pair[(0, index)]
-            x2, y2, _ = by_pair[(1, index)]
-            painter.setPen(QPen(self._ink(index, 0.13), max(0.65, self.size)))
-            painter.drawLine(QPointF(x1, y1), QPointF(x2, y2))
-            if index:
-                for strand in (0, 1):
-                    px, py, _ = by_pair[(strand, index - 1)]
-                    x, y, _ = by_pair[(strand, index)]
-                    painter.setPen(QPen(self._ink(index + strand, 0.22),
-                                        max(0.65, 1.5 * self.size)))
-                    painter.drawLine(QPointF(px, py), QPointF(x, y))
-        painter.setPen(Qt.NoPen)
-        for depth, strand, index, x, y, radius in sorted(beads):
-            shade = 0.10 + 0.33 * (depth + 1.0) * 0.5
-            gradient = QRadialGradient(QPointF(x - radius * 0.3,
-                                               y - radius * 0.35),
-                                       radius * 1.65)
-            gradient.setColorAt(0.0, self._ink(index + strand, shade + 0.40))
-            gradient.setColorAt(0.48, self._ink(index + strand, shade))
-            gradient.setColorAt(1.0, self._ink(index + strand, 0.01))
-            painter.setBrush(QBrush(gradient))
-            painter.drawEllipse(QPointF(x, y), radius * self.size,
-                                radius * self.size)
-            painter.setBrush(self._ink(index + strand + 1, 0.20 + shade * 0.4))
-            offset = radius * self.size * 1.68
-            painter.drawEllipse(QPointF(x + offset * 0.77, y - offset * 0.38),
-                                max(0.8, radius * self.size * 0.33),
-                                max(0.8, radius * self.size * 0.33))
-            painter.drawEllipse(QPointF(x - offset * 0.52, y + offset * 0.65),
-                                max(0.8, radius * self.size * 0.26),
-                                max(0.8, radius * self.size * 0.26))
 
     def _paint_chromatin_ribbon(self, painter: QPainter, width: int,
                                 height: int) -> None:
@@ -5070,268 +4972,9 @@ class _DataArtEngine(_BufferedEngine):
                     QPointF(a.x(), a.y() * (1.0 - ratio) + b.y() * ratio)
                     for a, b in zip(upper, lower)]))
 
-    def _pixel_image(self, red, green, blue) -> QImage:
-        """Own a packed RGB32 material image after temporary arrays expire."""
-        np = _numpy()
-        packed = (np.uint32(0xFF000000)
-                  | np.asarray(red, dtype=np.uint32) << 16
-                  | np.asarray(green, dtype=np.uint32) << 8
-                  | np.asarray(blue, dtype=np.uint32))
-        height, width = packed.shape
-        return QImage(packed.data, width, height, int(packed.strides[0]),
-                      QImage.Format_RGB32).copy()
 
-    def _paint_sequence_matrix(self, painter, width, height):
-        """Encode fine sequence bars inside a nonuniform architectural wafer."""
-        np = _numpy()
-        key = ("genome_wafer", width, height, self.size, self.density)
-        material = self._material_cache.get(key)
-        if material is None:
-            rng = random.Random(self._art_seed)
-            pixel_rng = np.random.default_rng(self._art_seed)
-            red = np.zeros((height, width), dtype=np.uint8)
-            green = np.zeros_like(red)
-            blue = np.zeros_like(red)
-            leaves = []
-            gutter = max(3, int(6 * self.size))
-            margin = min(gutter * 2, width // 4, height // 4)
-            pending = [(margin, margin, width - margin,
-                        height - margin, 0, 0)]
-            while pending:
-                left, top, right, bottom, depth, hue = pending.pop()
-                w, h = right - left, bottom - top
-                if depth < 6 and min(w, h) > 42 * self.size:
-                    horizontal = h > w * rng.uniform(0.65, 1.45)
-                    ratio = rng.uniform(0.30, 0.70)
-                    if horizontal:
-                        split = int(top + ratio * h)
-                        pending.extend(((left, top, right, split - gutter,
-                                         depth + 1, hue),
-                                        (left, split, right, bottom,
-                                         depth + 1, hue + 1)))
-                    else:
-                        split = int(left + ratio * w)
-                        pending.extend(((left, top, split - gutter, bottom,
-                                         depth + 1, hue),
-                                        (split, top, right, bottom,
-                                         depth + 1, hue + 1)))
-                else:
-                    leaves.append((left, top, right, bottom, hue))
-            pitch = max(3, int(5 * self.size / math.sqrt(self.effective_density())))
-            for left, top, right, bottom, hue in leaves:
-                w, h = right - left, bottom - top
-                yy, xx = np.ogrid[:h, :w]
-                rows, columns = h // pitch + 1, w // pitch + 1
-                code = pixel_rng.random((rows, columns), dtype=np.float32)
-                rr, cc = yy // pitch, xx // pitch
-                bars = ((xx % pitch < pitch - 1)
-                        & (yy % pitch < max(1, pitch - 2)))
-                expression = (0.16 + 0.84 * code[rr, cc])
-                bands = 0.36 + 0.40 * np.sin(yy / max(1, h) * 11 + hue * 0.4) ** 2
-                runs = np.sin(xx / max(1, w) * 8 + yy / max(1, h) * 4 + hue)
-                silenced = code[rr, cc] < 0.13 + 0.19 * (runs > 0.45)
-                light = expression * bands * bars * (~silenced)
-                edge = np.minimum(np.minimum(xx, w - 1 - xx),
-                                  np.minimum(yy, h - 1 - yy))
-                frame = np.where(edge < 1, 0.42, 0.0)
-                line = np.where((yy % (pitch * 8) == 0), 0.12, 0.0)
-                light = np.maximum(light, np.maximum(frame, line)) * self.alpha_scale()
-                tint = self.paint_colors[hue % len(self.paint_colors)]
-                for canvas, channel in ((red, "red"), (green, "green"), (blue, "blue")):
-                    value = (0.15 * 255 + 0.85 * getattr(tint, channel)()) * light
-                    canvas[top:bottom, left:right] = np.clip(value, 0, 230).astype(np.uint8)
-            if not self.dark:
-                red, green, blue = 255 - red, 255 - green, 255 - blue
-            material = (self._pixel_image(red, green, blue), leaves)
-            self._material_cache[key] = material
-        image, leaves = material
-        painter.drawImage(0, 0, image)
-        painter.setCompositionMode(QPainter.CompositionMode_Source)
-        for index, (left, top, right, bottom, hue) in enumerate(leaves):
-            inner_left, inner_top = left + 1, top + 1
-            inner_width = right - left - 2
-            inner_height = bottom - top - 2
-            if inner_width <= 0 or inner_height <= 0:
-                continue
-            shift = (self.time * (3.5 + index % 4) + index * 5.0) % inner_height
-            if shift > 0.0:
-                painter.drawImage(QRectF(inner_left, inner_top,
-                                         inner_width, shift), image,
-                                  QRectF(inner_left,
-                                         inner_top + inner_height - shift,
-                                         inner_width, shift))
-            painter.drawImage(QRectF(inner_left, inner_top + shift,
-                                     inner_width, inner_height - shift), image,
-                              QRectF(inner_left, inner_top, inner_width,
-                                     inner_height - shift))
-        painter.setCompositionMode(self.mode)
-        for index, (left, top, right, bottom, hue) in enumerate(leaves):
-            if index % 3:
-                continue
-            position = (self.time * 0.18 + index * 0.113) % 1.0
-            scan_y = top + position * (bottom - top)
-            painter.setPen(QPen(self._ink(hue, 0.31), 0.8))
-            painter.drawLine(QPointF(left, scan_y), QPointF(right, scan_y))
-            painter.setPen(QPen(self._ink(hue, 0.70), 1.0))
-            painter.drawLine(QPointF(left, scan_y),
-                             QPointF(left + min(9, right - left), scan_y))
 
-    def _paint_transcript_rain(self, painter: QPainter, width: int,
-                               height: int) -> None:
-        """Move luminous transcription heads down grouped code columns."""
-        key = ("transcript_rain", width, height)
-        columns = self._material_cache.get(key)
-        if columns is None:
-            rng = random.Random(self._art_seed)
-            columns = []
-            for column in range(104):
-                if column % 26 < 3:
-                    continue
-                offset = rng.random()
-                depth = rng.random()
-                marks = tuple((row, "ACGU"[rng.randrange(4)])
-                              for row in range(46) if rng.random() < 0.80)
-                columns.append((column, offset, depth, marks))
-            self._material_cache[key] = columns
-        glyphs = self._material_cache.get("transcript_glyphs")
-        if glyphs is None:
-            glyphs = {}
-            a = QPainterPath(QPointF(0, 1))
-            a.lineTo(0.5, 0)
-            a.lineTo(1, 1)
-            a.moveTo(0.22, 0.66)
-            a.lineTo(0.78, 0.66)
-            glyphs["A"] = a
-            c = QPainterPath(QPointF(1, 0.10))
-            c.cubicTo(0.08, -0.16, -0.10, 1.12, 1, 0.90)
-            glyphs["C"] = c
-            g = QPainterPath(c)
-            g.moveTo(1, 0.55)
-            g.lineTo(0.59, 0.55)
-            glyphs["G"] = g
-            u = QPainterPath(QPointF(0, 0))
-            u.lineTo(0, 0.68)
-            u.cubicTo(0, 1.12, 1, 1.12, 1, 0.68)
-            u.lineTo(1, 0)
-            glyphs["U"] = u
-            self._material_cache["transcript_glyphs"] = glyphs
-        painter.setBrush(Qt.NoBrush)
-        count = self.element_count(len(columns), len(columns))
-        for depth_band in range(4):
-            for trail_band in range(5):
-                strength = (0.17, 0.29, 0.42, 0.59, 0.88)[trail_band]
-                painter.setPen(QPen(self._ink(depth_band, strength),
-                                    max(0.52, 0.76 * self.size)))
-                for column, offset, depth, marks in columns[:count]:
-                    if int(depth * 4) != depth_band:
-                        continue
-                    head = (offset * 46 + self.time
-                            * (3.1 + 4.0 * depth)) % 46
-                    x = width * (column + 0.5) / 104
-                    scale = (4.0 + 3.0 * depth) * self.size
-                    for row, letter in marks:
-                        behind = (head - row) % 46
-                        band = (4 if behind < 1.5 else 3 if behind < 5
-                                else 2 if behind < 10 else 1 if behind < 19
-                                else 0)
-                        if band != trail_band:
-                            continue
-                        y = height * ((row + 0.5) / 46)
-                        painter.drawPath(QTransform().translate(x, y).scale(
-                            scale, scale).map(glyphs[letter]))
 
-    def _paint_regulatory_circuit(self, painter: QPainter, width: int,
-                                  height: int) -> None:
-        """Etch fine routed copper traces around ported control islands."""
-        key = ("regulatory_circuit", width, height, self.size, self.density)
-        material = self._material_cache.get(key)
-        if material is None:
-            rng = random.Random(self._art_seed)
-            routes = []
-            columns, rows = 72, 42
-            for _ in range(1050):
-                x0 = rng.randrange(columns) * width / columns
-                y0 = rng.randrange(rows) * height / rows
-                dx = rng.choice((-1, 1)) * rng.randrange(1, 9)
-                dy = rng.choice((-1, 1)) * rng.randrange(1, 7)
-                x1 = max(0.0, min(float(width), x0 + dx * width / columns))
-                y1 = max(0.0, min(float(height), y0 + dy * height / rows))
-                path = QPainterPath(QPointF(x0, y0))
-                path.lineTo(x1, y0)
-                path.lineTo(x1, y1)
-                routes.append((path, QPointF(x0, y0)))
-            image = QImage(width, height, QImage.Format_RGB32)
-            image.fill(self.identity)
-            inner = QPainter(image)
-            inner.setRenderHint(QPainter.Antialiasing, True)
-            inner.setCompositionMode(self.mode)
-            inner.setBrush(Qt.NoBrush)
-            inner.setPen(QPen(self._ink(0, 0.035), 0.42))
-            for column in range(1, columns):
-                x = column * width / columns
-                inner.drawLine(QPointF(x, 0), QPointF(x, height))
-            for row in range(1, rows):
-                y = row * height / rows
-                inner.drawLine(QPointF(0, y), QPointF(width, y))
-            count = self.element_count(870, len(routes))
-            for index, (path, start) in enumerate(routes[:count]):
-                inner.setPen(QPen(self._ink(index, 0.075),
-                                  2.6 * self.size, Qt.SolidLine,
-                                  Qt.SquareCap, Qt.MiterJoin))
-                inner.drawPath(path)
-                inner.setPen(QPen(self._ink(index + 1, 0.30),
-                                  max(0.48, 0.66 * self.size)))
-                inner.drawPath(path)
-                if index % 4 == 0:
-                    inner.setPen(Qt.NoPen)
-                    inner.setBrush(self._ink(index + 2, 0.41))
-                    inner.drawEllipse(start, 1.5 * self.size,
-                                      1.5 * self.size)
-                    inner.setBrush(Qt.NoBrush)
-            inner.setCompositionMode(QPainter.CompositionMode_SourceOver)
-            for chip in range(17):
-                anchor = self._anchors[chip + 4]
-                x = width * (0.04 + 0.82 * anchor[0])
-                y = height * (0.06 + 0.77 * anchor[1])
-                chip_width = width * (0.026 + 0.016 * anchor[2])
-                chip_height = height * (0.034 + 0.017 * anchor[0])
-                rect = QRectF(x, y, chip_width, chip_height)
-                inner.setPen(QPen(self._ink(chip, 0.54), 0.72))
-                inner.setBrush(_mix(self.identity,
-                                    self.paint_colors[chip % len(self.paint_colors)],
-                                    0.085))
-                inner.drawRect(rect)
-                inner.setPen(QPen(self._ink(chip + 1, 0.37), 0.54))
-                for pin in range(1, 9):
-                    offset = pin / 9.0
-                    top = x + chip_width * offset
-                    side = y + chip_height * offset
-                    inner.drawLine(QPointF(top, y - 2.4),
-                                   QPointF(top, y + 1.8))
-                    inner.drawLine(QPointF(top, y + chip_height - 1.8),
-                                   QPointF(top, y + chip_height + 2.4))
-                    inner.drawLine(QPointF(x - 2.4, side),
-                                   QPointF(x + 1.8, side))
-                    inner.drawLine(QPointF(x + chip_width - 1.8, side),
-                                   QPointF(x + chip_width + 2.4, side))
-                inner.setPen(QPen(self._ink(chip + 2, 0.24), 0.45))
-                for trace in range(3):
-                    yy = y + chip_height * (trace + 1) / 4
-                    inner.drawLine(QPointF(x + 3.0, yy),
-                                   QPointF(x + chip_width - 3.0, yy))
-            inner.end()
-            material = (image, routes[:count])
-            self._material_cache[key] = material
-        image, routes = material
-        painter.drawImage(0, 0, image)
-        painter.setPen(Qt.NoPen)
-        painter.setBrush(self._ink(1, 0.68))
-        for index in range(0, len(routes), 9):
-            path, _ = routes[index]
-            position = path.pointAtPercent((self.time * 0.19
-                                            + index * 0.063) % 1.0)
-            painter.drawEllipse(position, 2.0 * self.size,
-                                2.0 * self.size)
 
     def _paint_genetic_advection(self, painter, width, height):
         """Advect dense tapered grain trails through a continuously curled field."""
@@ -5373,115 +5016,8 @@ class _DataArtEngine(_BufferedEngine):
             width, height, np.concatenate(dots_x), np.concatenate(dots_y),
             np.concatenate(levels)))
 
-    def _relief_image(self, tone, light, highlight):
-        """Pack a palette-derived relief material at the full shaded resolution."""
-        np = _numpy()
-        first, second = self.paint_colors[0], self.paint_colors[-1]
-        lookup = self._material_cache.get("relief_palette")
-        if lookup is None:
-            tones = np.linspace(0, 1, 64, dtype=np.float32)[:, None, None]
-            lights = np.linspace(0, 1, 256, dtype=np.float32)[None, :, None]
-            highlights = np.linspace(0, 1, 32, dtype=np.float32)[None, None, :]
-            lookup = np.full((64, 256, 32), np.uint32(0xFF000000), dtype=np.uint32)
-            for channel, shift in (("red", 16), ("green", 8), ("blue", 0)):
-                a, b = getattr(first, channel)(), getattr(second, channel)()
-                tint = (a * tones + b * (1.0 - tones)) / 255.0
-                material = np.clip((0.20 + 0.80 * tint) * lights
-                                   + highlights * (0.72 + 0.28 * tint), 0.0, 0.91)
-                value = material * 255.0 * self.alpha_scale()
-                if not self.dark:
-                    value = 255.0 - value * 0.64
-                lookup |= value.astype(np.uint32) << shift
-            self._material_cache["relief_palette"] = lookup.ravel()
-        indices = ((np.clip(tone * 63, 0, 63).astype(np.uint32) * 256
-                    + np.clip(light * 255, 0, 255).astype(np.uint32)) * 32
-                   + np.clip(highlight * 31, 0, 31).astype(np.uint32))
-        packed = self._material_cache["relief_palette"][indices]
-        return QImage(packed.data, packed.shape[1], packed.shape[0],
-                              int(packed.strides[0]), QImage.Format_RGB32).copy()
 
-    def _paint_interference(self, painter, width, height):
-        """Shade polished interference folds with analytic normals and caustics."""
-        np = _numpy()
-        key = ("pearl_surface", width, height, self.size, self.density)
-        surface = self._material_cache.get(key)
-        if surface is None:
-            x = np.linspace(-1.75, 1.75, width, dtype=np.float32)[None, :]
-            y = np.linspace(-1.0, 1.0, height, dtype=np.float32)[:, None]
-            phase = self._anchors[0][0] * 5.0
-            warped = x + 0.28 * np.sin(2.6 * y + 0.6 * x + phase)
-            radius = np.sqrt((warped + 0.39) ** 2 + (y * 1.32 - 0.14) ** 2)
-            other = np.sqrt((warped - 0.54) ** 2 + (y * 1.18 + 0.21) ** 2)
-            frequency = 31.0 * math.sqrt(self.effective_density()) / self.size
-            field = (np.sin(frequency * radius + 1.4 * np.sin(3.0 * y))
-                     + 0.69 * np.sin(frequency * 0.84 * other)
-                     + 0.26 * np.sin(17.0 * x - 13.0 * y))
-            gy = (np.gradient(field, 2.0 / (height - 1), axis=0)
-                  if height > 1 else np.zeros_like(field))
-            gx = (np.gradient(field, 3.5 / (width - 1), axis=1)
-                  if width > 1 else np.zeros_like(field))
-            scale = np.float32(0.078)
-            norm = np.sqrt(1.0 + (gx * scale) ** 2 + (gy * scale) ** 2)
-            surface = (x, y, field, gx * scale / norm, gy * scale / norm,
-                       1.0 / norm)
-            self._material_cache[key] = surface
-        x, y, field, nx, ny, nz = surface
-        phase = self.time * 0.055
-        lx, ly = 0.42 + 0.18 * math.sin(phase), -0.46
-        local = 0.0
-        if self.pointer is not None:
-            dx = x - (self.pointer[0] * 3.5 - 1.75)
-            dy = y - (self.pointer[1] * 2.0 - 1.0)
-            local = np.exp(-(dx * dx + dy * dy) / 0.13)
-            bump_x = nx + 0.48 * dx * local
-            bump_y = ny + 0.48 * dy * local
-            normal = np.sqrt(bump_x * bump_x + bump_y * bump_y + nz * nz)
-            nx, ny, nz = bump_x / normal, bump_y / normal, nz / normal
-        light = np.clip(nx * lx + ny * ly + nz * 0.72, 0.0, 1.0)
-        highlight = np.maximum(0.0, nx * 0.23 - ny * 0.27 + nz * 0.93) ** 32
-        tone = 0.5 + 0.48 * np.sin(field * 0.86 + x * 1.5 + phase
-                                   + 1.8 * local)
-        image = self._relief_image(tone, 0.05 + 0.47 * light,
-                                   0.39 * highlight)
-        painter.drawImage(0, 0, image)
 
-    def _paint_morphogenesis(self, painter, width, height):
-        """Reveal fine branching cell membranes as a softly lit enamel relief."""
-        np = _numpy()
-        key = ("cellular_relief", width, height, self.size, self.density)
-        surface = self._material_cache.get(key)
-        if surface is None:
-            x = np.linspace(-1.78, 1.78, width, dtype=np.float32)[None, :]
-            y = np.linspace(-1.0, 1.0, height, dtype=np.float32)[:, None]
-            wx = x + 0.22 * np.sin(3.1 * y + 0.7 * x)
-            wy = y + 0.16 * np.sin(2.9 * x - 1.4 * y)
-            field = np.zeros((height, width), dtype=np.float32)
-            rng = np.random.default_rng(self._art_seed)
-            frequency = 61.0 * math.sqrt(self.effective_density()) / self.size
-            for index in range(12):
-                angle = index * math.pi / 12 + float(rng.uniform(-0.10, 0.10))
-                field += np.sin(frequency * (math.cos(angle) * wx
-                                            + math.sin(angle) * wy)
-                                + float(rng.uniform(0.0, math.tau))) / 3.1
-            gy = (np.gradient(field, 2.0 / (height - 1), axis=0)
-                  if height > 1 else np.zeros_like(field))
-            gx = (np.gradient(field, 3.56 / (width - 1), axis=1)
-                  if width > 1 else np.zeros_like(field))
-            surface = (field, gx, gy, x, y)
-            self._material_cache[key] = surface
-        field, gx, gy, x, y = surface
-        phase = self.time * 0.20
-        shifted = field + 0.20 * math.sin(phase)
-        membrane = np.exp(-(shifted / 0.25) ** 2)
-        derivative = -2.0 * shifted * membrane / (0.25 ** 2)
-        nx, ny = gx * derivative * 0.012, gy * derivative * 0.012
-        norm = np.sqrt(1.0 + nx * nx + ny * ny)
-        light = np.clip((nx * 0.48 - ny * 0.55 + 0.65) / norm, 0.0, 1.0)
-        highlight = np.maximum(0.0, (nx * 0.18 - ny * 0.24 + 0.95) / norm) ** 24
-        tone = np.clip(0.53 + 0.26 * field + 0.16 * np.sin(x * 2.0 + y), 0, 1)
-        illumination = (0.045 + 0.12 * light + 0.26 * membrane * light)
-        painter.drawImage(0, 0, self._relief_image(tone, illumination,
-                                                 0.13 * highlight * membrane))
 
     def _paint_impulse_lens(self, painter: QPainter, width: int,
                             height: int) -> None:
@@ -6541,7 +6077,8 @@ class AmbientWidget(QWidget):
             if self.rect().contains(local):
                 point = ((local.x() + 0.5) / max(1, self.width()),
                          (local.y() + 0.5) / max(1, self.height()))
-                self._pending_art_impulses = (self._pending_art_impulses + [point])[-16:]
+                if not self._pending_art_impulses or self._pending_art_impulses[-1] != point:
+                    self._pending_art_impulses = (self._pending_art_impulses + [point])[-16:]
         elif etype == QEvent.Resize and obj is self.parent():
             self.setGeometry(obj.rect())
         elif watched is not None and obj is watched and etype in (
