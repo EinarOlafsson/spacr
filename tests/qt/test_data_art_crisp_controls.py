@@ -118,6 +118,27 @@ def test_overlapping_round_grains_keep_the_brightest_sample(background):
     assert first == reference
 
 
+@pytest.mark.parametrize("background", ("#101418", "#f6f7f9"))
+@pytest.mark.parametrize("colors", (("#ff0011", "#00eeff"), ("#000077", "#00ff00")))
+def test_circular_grain_overlap_matches_independent_per_channel_composition(background, colors):
+    engine = ambient.make_engine("data_art_point_atlas", "mono", background, seed=7)
+    engine.set_colors(colors)
+    points = ((2, 2, 0.2), (2, 2, 0.9), (3, 2, 0.6),
+              (0, 0, 0.7), (6, 4, 0.8), (-2, 3, 1.0), (7, 3, 1.0))
+    actual = engine._point_material(7, 5, [p[0] for p in points],
+                                    [p[1] for p in points], [p[2] for p in points],
+                                    spread=True)
+    individual = [engine._point_material(7, 5, [x], [y], [level], spread=True)
+                  for x, y, level in points]
+    choose = max if engine.dark else min
+    for y in range(5):
+        for x in range(7):
+            expected = tuple(choose(getattr(image.pixelColor(x, y), channel)()
+                                    for image in individual)
+                             for channel in ("red", "green", "blue"))
+            assert actual.pixelColor(x, y).getRgb()[:3] == expected
+
+
 def test_gravity_click_passes_through_to_real_controls_and_stops_when_hidden(qtbot):
     host = QWidget()
     qtbot.addWidget(host)

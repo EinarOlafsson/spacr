@@ -4660,14 +4660,7 @@ class _DataArtEngine(_BufferedEngine):
                          * self.alpha_scale(), 0.0, 1.0)
         inside = ((px >= 0) & (px < width) & (py >= 0) & (py < height))
         px, py, values = px[inside], py[inside], values[inside]
-        locations = py * width + px
         intensities = np.rint(values * 255).astype(np.uint8)
-        if spread:
-            locations, inverse = np.unique(locations, return_inverse=True)
-            merged = np.zeros(len(locations), dtype=np.uint8)
-            np.maximum.at(merged, inverse, intensities)
-            intensities = merged
-            px, py = locations % width, locations // width
         levels = np.arange(256, dtype=np.float32) / 255.0
         palette = self.paint_colors
         lookup = np.full(256, np.uint32(0xFF000000), dtype=np.uint32)
@@ -4680,15 +4673,10 @@ class _DataArtEngine(_BufferedEngine):
         image = QImage(width, height, QImage.Format_RGB32)
         flat = np.frombuffer(image.bits(), dtype=np.uint32,
                              count=width * height)
+        flat.fill(lookup[0])
+        combine = np.maximum.at if self.dark else np.minimum.at
+        combine(flat, py * width + px, lookup[intensities])
         if spread:
-            flat.fill(lookup[0])
-            flat[locations] = lookup[intensities]
-        else:
-            field = np.zeros(width * height, dtype=np.uint8)
-            np.maximum.at(field, locations, intensities)
-            flat[:] = lookup[field]
-        if spread:
-            combine = np.maximum if self.dark else np.minimum
             for shift_y, shift_x in ((-1, -1), (-1, 0), (-1, 1),
                                     (0, -1), (0, 1),
                                     (1, -1), (1, 0), (1, 1)):
@@ -4699,7 +4687,7 @@ class _DataArtEngine(_BufferedEngine):
                 coverage = 0.24 if shift_x and shift_y else 0.68
                 intensity = np.rint(intensities[valid] * coverage).astype(np.uint8)
                 destinations = shifted_y[valid] * width + shifted_x[valid]
-                flat[destinations] = combine(flat[destinations], lookup[intensity])
+                combine(flat, destinations, lookup[intensity])
         return image
 
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
