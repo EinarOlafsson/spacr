@@ -37,7 +37,10 @@ focused batches passed. The untruncated reporter on that exact source finds
 289 of 55,989 reviewed runtime records stale. This is the prior 262 records
 plus exactly 27: `ui/Divide`, `ui/Wand +` and `ui/Wand −` in each of nine
 locale files named `2026-10-05-make-masks-toolbar.json`. No old stale record
-disappeared. Full job log, all 289 file/key identities, the 27-key delta,
+disappeared. Coverage shard 5 independently fails on the same owner drift,
+including 149 missing generated UI source hashes and 21 ambiguous indirect
+caption owners; their exact keys and complete hosted log are archived too.
+Full job logs, all 289 file/key identities, the 27-key delta,
 source hashes and verifier are in
 `features/data/43_hosted_246_reviewed_runtime_2026-10-06/`. The workstation
 owns normal reviewed-record and generated-catalog regeneration; do not edit
@@ -46,11 +49,11 @@ coverage verdict. The truthful Preferences `_sync_custom_colors` docstring
 now describes seven scenes, so its reviewed private-contract six-scene prose
 pin also needs the workstation's normal source-current refresh, not a source
 reversion. A separate current-source public callable inventory check reports
-9,994 versus the pinned 9,991. The new Bio-Rad SCN entry points in
-`spacr.convert` and the `spacr.submodules` reader export are candidate
-additions; the workstation must reconcile their exact identities against
-the frozen inventory before regenerating the reviewed API contract. Do
-not raise or silently rebaseline the pin. Items 43/288/47 remain open
+9,994 versus the pinned 9,991. The candidate SCN additions are
+`spacr.convert.read_scn`, `spacr.convert.scn_to_rgb8`, and
+`spacr.qt.mask_engine.read_image`; the workstation must verify the exact
+source-derived inventory subtraction before regenerating the reviewed API
+contract. Do not raise or silently rebaseline the pin. Items 43/288/47 remain open
 until current-source hosted acceptance.
 
 ## 2026-10-06 workstation owns GitHub issue137 CSV boolean repair

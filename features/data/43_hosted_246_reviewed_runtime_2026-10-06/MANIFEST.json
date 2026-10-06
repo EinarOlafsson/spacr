@@ -1,11 +1,14 @@
 {
+  "additional_failed_job_ids": [
+    112502081075
+  ],
   "checked_records": 55989,
   "files": {
     "README.md": {
-      "raw_sha256": "08c0d26ed6a76f54f1df966421a790f4f9d4374fbda3f3737687a932709fe78f",
-      "raw_size": 2368,
-      "stored_sha256": "08c0d26ed6a76f54f1df966421a790f4f9d4374fbda3f3737687a932709fe78f",
-      "stored_size": 2368
+      "raw_sha256": "68f2cc9cbbb839649a87837e4d41dbc687c56f2f98dc2d88fff0d09bdc11aadf",
+      "raw_size": 3035,
+      "stored_sha256": "68f2cc9cbbb839649a87837e4d41dbc687c56f2f98dc2d88fff0d09bdc11aadf",
+      "stored_size": 3035
     },
     "VERIFY.py": {
       "raw_sha256": "784fe34fac0c6f429a9ea64c490fb739eaa3505ed59885e9824d5a3511f40733",
@@ -13,11 +16,23 @@
       "stored_sha256": "784fe34fac0c6f429a9ea64c490fb739eaa3505ed59885e9824d5a3511f40733",
       "stored_size": 836
     },
+    "logs/112502081075.log.gz": {
+      "raw_sha256": "881cec8d637d9e989efe21249c02bc1eee752a08ec9e894a366c1c670dfd7a27",
+      "raw_size": 2182640,
+      "stored_sha256": "b2c06f67805c658d342cd8ccde600fd55d253c520f0d0ec3753a7e610df455ba",
+      "stored_size": 293665
+    },
     "logs/112502081095.log.gz": {
       "raw_sha256": "2045d3fca0538451ec3f6360d99475c73db7dd4d573dbf80847658ee4c0912ae",
       "raw_size": 2113147,
       "stored_sha256": "a1690ac9725745d7f359b10c46d9c8f7d44eb9014952df88efce24721ab2d9b8",
       "stored_size": 281073
+    },
+    "owner/missing-ui-and-indirect-246.json.gz": {
+      "raw_sha256": "23d89b9e28e703fa0fb90dc89dafd176d61f1da3d2881ae7be7ef0bb656f3b4b",
+      "raw_size": 10358,
+      "stored_sha256": "f1971669c3dddb1be85ac08fcfc91831d4a8535646436e4c044c8e16a2885778",
+      "stored_size": 3442
     },
     "owner/reporter-exact-246.log.gz": {
       "raw_sha256": "c8b5989c14643a22d5d18a75ae8af6db56a1b49cba45554726c4c14942a77b57",
@@ -94,9 +109,11 @@
     "docs/i18n/reviewed/runtime/zh_CN/2026-10-05-theme-descriptions.json": "bd299526a3d3c5c00fd51038222128217fbf8412",
     "docs/i18n/reviewed/runtime/zh_CN/2026-10-06-subcell-rybg.json": "b7f384816cdc34b22ddadf890912bc3900b49aa5",
     "spacr/convert.py": "ffdeb7267203da749882f1c2fd8f244fec3ba328",
+    "spacr/qt/mask_engine.py": "f5f354e1c5141b29c1be4112972be57b6630c55a",
     "spacr/qt/preferences.py": "f8ab3779f4663fd6abb14ea129ef92f947ff717e",
     "spacr/qt/screens/make_masks.py": "fc6a4ec6ed7e838cd2fe0f6d174dae2efbad00a6",
     "spacr/submodules.py": "95f2a100b2df8159ffd2494fa7e28efb553ad8d0",
+    "tests/qt/test_i18n_caption_ratchet.py": "42484b973f0d1700f0039b4148bd767c7c5b8327",
     "tests/test_the_two_settings_tables_agree.py": "e9989d54e7d02ba4ab1f28c85ebb38f30d5e8169",
     "tools/build_i18n_catalogs.py": "d90322162d61e43db6072da38ea167aa2c129883",
     "tools/check_reviewed_runtime_evidence.py": "e6d58e8c76d014f8af92473d1f66e370d98dd08b"
