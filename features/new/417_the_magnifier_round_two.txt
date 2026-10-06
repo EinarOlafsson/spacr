@@ -431,4 +431,17 @@ FOLLOW-UP: the separate 306 repair now resolves the five baseline English
 fallbacks and corrects these three report messages in all nine languages.
 The full runtime audit passes; its evidence is recorded in item 306.
 
+2026-10-06 workstation starting-object magnifier drag follow-up accepted:
+The shared paste boundary now maps path-touched detections to the object ID
+under the initial click, rather than allocating separate labels or dropping
+disconnected pieces. A drag starting on background creates one new object.
+Actual Otsu and Cellpose Qt requests with controlled worker detections cover
+both starting states, one-step undo/redo and Save/Next/close/fresh reopen.
+Bystanders and acquired-image bytes remain exact; no background connection
+is painted. All268 affected checks pass. The three baseline product failures
+and final source-bound evidence are in
+data/419_417_manual_merge_drag_2026-10-06.json. This validates mask assembly,
+not neural detector accuracy; current tutorial/API/runtime refresh remains
+part of the workstation-owned documentation batch.
+
 VERIFIED 2026-10-04: 5 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

@@ -1214,3 +1214,14 @@ CUDA-hidden under8GiB. Original four failures and accepted evidence:
 data/419_mask_save_reopen_2026-10-06.json and its folder. Two popup source
 strings use tr and await the workstation's normal all-nine refresh with the
 next integrated Home source; no current multilingual/publication claim.
+
+2026-10-06 workstation Divide / Merge follow-up accepted:
+The toolbar now says Divide / Merge. Left-button drag retains division;
+right-button drag merges all crossed labels into the first crossed identity,
+without painting background or touching unrelated objects. No-op lines do
+not delete objects or add history. Undo/redo, later Brush/Wand edits, Save,
+Next and fresh-screen reopening preserve exact manually grouped IDs. The
+final268 affected checks pass, including32 independent Box cases. Complete
+before/after logs and source identities are retained in
+data/419_417_manual_merge_drag_2026-10-06.json. Normal multilingual source
+refresh and current tutorial recording remain workstation follow-up work.

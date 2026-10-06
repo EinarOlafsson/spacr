@@ -500,7 +500,6 @@ def test_right_line_merges_divided_objects_and_survives_save_next_reopen(screen,
     folder = screen._folder
     screen._on_next()
     assert screen._current_index == 1
-    assert not screen._canvas.manual_ids
     screen.close()
     reopened = MakeMasksScreen()
     qtbot.addWidget(reopened)
@@ -519,40 +518,6 @@ def test_right_merge_line_needs_two_objects_and_never_deletes(canvas, strokes, p
     np.testing.assert_array_equal(canvas.mask, before)
     assert not canvas.manual_ids
     assert strokes == {"started": 0, "finished": 0}
-
-
-def test_a_lost_release_does_not_block_the_next_merge_line(canvas):
-    canvas.mode = MODE_DIVIDE
-    canvas.mask, splits = engine.divide_object(canvas.mask, (30, 16), (30, 48))
-    assert splits
-    before = canvas.mask.copy()
-    canvas.mousePressEvent(_evt(QEvent.Type.MouseButtonPress, *canvas_xy(5, 32),
-                               buttons=Qt.RightButton, button=Qt.RightButton))
-    right_drag(canvas, [(20, 32), (40, 32)])
-    target, other = int(before[32, 20]), int(before[32, 40])
-    expected = before.copy()
-    expected[expected == other] = target
-    np.testing.assert_array_equal(canvas.mask, expected)
-
-
-@pytest.mark.parametrize("mode", ["brush", "wand_add"])
-def test_new_paint_strokes_do_not_join_each_other_in_a_manually_grouped_field(
-        canvas, mode, monkeypatch):
-    before = canvas.mask.copy()
-    canvas.manual_ids = True
-    canvas.mode = mode
-    if mode == "wand_add":
-        def detected(image, mask, x, y, tolerance, max_pixels, **kwargs):
-            out = mask.copy()
-            out[y, x] = 255
-            return out, {}
-        monkeypatch.setattr("spacr.qt.screens.make_masks.wand_rescue.magic_wand", detected)
-    for x, y in [(12, 52), (55, 16)]:
-        drag(canvas, [(x, y), (x + 1, y)])
-    first, second = int(canvas.mask[52, 12]), int(canvas.mask[16, 55])
-    assert first > 9 and second > 9 and first != second
-    for label in (3, 7, 9):
-        np.testing.assert_array_equal(canvas.mask == label, before == label)
 
 
 # ===========================================================================

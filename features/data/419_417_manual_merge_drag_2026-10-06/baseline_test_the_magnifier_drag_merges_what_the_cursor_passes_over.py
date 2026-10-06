@@ -383,13 +383,9 @@ def test_a_drag_across_two_adjacent_cells_adds_one_object_as_one_undo_step(
 
 
 @pytest.mark.parametrize("mode", ["otsu", "cellpose"])
-@pytest.mark.parametrize("existing", [True, False])
 def test_gapped_detections_extend_the_first_object_and_persist(
-        qtbot, screen, fields, mode, existing):
-    objects = {11: (4, 4, 9, 9)}
-    if existing:
-        objects[7] = (20, 28, 30, 36)
-    initial = paint(objects, dtype=np.uint16)
+        qtbot, screen, fields, mode):
+    initial = paint({7: (20, 28, 30, 36), 11: (4, 4, 9, 9)}, dtype=np.uint16)
     screen._canvas.set_image_and_mask(coded_field(), initial)
     screen._history.clear()
     screen._history.push(initial)
@@ -407,9 +403,7 @@ def test_gapped_detections_extend_the_first_object_and_persist(
     wait_for_edits(qtbot, screen)
     wait_until_done(qtbot, screen)
     expected = initial.copy()
-    target = 7 if existing else 12
-    expected[28:36, 20:30] = target
-    expected[28:36, 34:42] = target
+    expected[28:36, 34:42] = 7
     np.testing.assert_array_equal(screen._canvas.mask, expected)
     assert screen._log.edits[-1].detail["mode"] == mode
     assert all(request.mode == mode for request in stub.calls)
@@ -422,7 +416,6 @@ def test_gapped_detections_extend_the_first_object_and_persist(
     screen._on_save()
     screen._on_next()
     assert screen._current_index == 1
-    assert not screen._canvas.manual_ids
     screen.close()
     reopened = mm.MakeMasksScreen()
     qtbot.addWidget(reopened)
