@@ -394,8 +394,23 @@ def test_informational_windows_sweep_cannot_cancel_the_matrix():
     assert "--maxfail=25" in sweep["run"]
     assert "python -m pytest tests/" in sweep["run"]
     assert "python -m pytest tests/test_perf_guard.py" in sweep["run"]
+    for name in ("Install and smoke the exact wheel and sdist",
+                 "Packaging + smoke subset (decides this cell)"):
+        step = steps[name]
+        assert not step.get("if")
+        assert not step.get("continue-on-error", False)
+
+
+def test_informational_windows_sweep_runs_only_in_advisory_cells():
+    """The slow full suite cannot run on ordinary pushes or Linux."""
+    import yaml
+
+    workflow = yaml.safe_load((ROOT / ".github" / "workflows" /
+                               "compat-matrix.yml").read_text(encoding="utf-8"))
     triggers = workflow.get("on", workflow.get(True))
     assert "schedule" in triggers and "workflow_dispatch" in triggers
+    sweep = next(step for step in workflow["jobs"]["install"]["steps"]
+                 if step.get("name") == "Full suite (informational, never decides)")
     expression = sweep["if"].replace("runner.os", "platform").replace(
         "github.event_name", "event").replace("&&", " and ").replace(
         "||", " or ")
@@ -405,11 +420,6 @@ def test_informational_windows_sweep_cannot_cancel_the_matrix():
                            {"platform": platform, "event": event})
             assert allowed == (platform != "Linux" and event in (
                 "schedule", "workflow_dispatch"))
-    for name in ("Install and smoke the exact wheel and sdist",
-                 "Packaging + smoke subset (decides this cell)"):
-        step = steps[name]
-        assert not step.get("if")
-        assert not step.get("continue-on-error", False)
 
 
 def test_timelapse_does_not_download_btrack_data_during_collection():
