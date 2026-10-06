@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/refresh_conda_home.py", line 178, in <module>
+    main()
+  File "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/refresh_conda_home.py", line 152, in main
+    evidence[kind] = splice(source, replacement, destination, segment_work, begin, finish, total)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/refresh_conda_home.py", line 49, in splice
+    raise ValueError(f'Stream-copy segment has a different frame count: {path}')
+ValueError: Stream-copy segment has a different frame count: /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-conda-home-current/scene-replacement/video/before.mp4
