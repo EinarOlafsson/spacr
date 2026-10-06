@@ -529,3 +529,35 @@ default/23.68 cursor. Light pointer cases23.99/23.92/23.77 respectively.
 These are shared-host observations, not all-theme24FPS acceptance. Archive:
 data/663_owned_native_point_frames_cpu_2026-10-06/. Satin and reported Save
 crash remain separate; no native crash fix claimed.
+
+2026-10-06 — accepted native satin waves and integrated ownership review
+Satin now transports the original native premultiplied fibres as smooth
+column waves through crisp filled folds, without interpolation or reducing
+resolution. Exact NumPy remains active during unavailable/disabled/failed
+CPU compilation. One shared bounded daemon copy queue adds at most one pure
+CPU helper; its owner joins every submitted batch before Qt draws anything.
+A runtime partial-copy failure joins first, restores every layer exactly
+with NumPy, then disables the optimization without per-frame retries.
+Only source views and374724bytes of geometry persist at default native4K;
+all cropped strip targets are frame-local and released after drawing. The
+rejected398MiB persistent draft and14FPS full-target revision are separate
+failed evidence, not accepted performance. The accepted strip revision
+publishes23.87FPS at native4K, shade median30.13/p9536.10/max45.33ms, with
+six repeated frames. Native1080 publishes24.11FPS in its finite probe.
+Cold compilation1.14s/cold heartbeat max64.56ms and first native show528.25ms
+are explicit costs; no no-stall or all-theme24FPS acceptance is claimed.
+Source4160916fa6/renderer9ea17982 passes152 focused tests; all145 added
+statements and41 touching arcs are covered. Thirty-two complete native4K
+NumPy/compiled pairs and16 complete-layer/cropped-strip oracle pairs match
+byte-for-byte, including light/dark/custom colors and fractional origins.
+Root9ad69bab29/renderer4de9fc51 integrates the owned point-frame dispatch.
+Read-only AST comparison confirms six satin helper/painter nodes and six
+point dispatch/frame/stamping nodes exactly preserve accepted source.
+Thirty-one integrated native parity/ownership/blur/clock/queue/hide cases
+pass under4GiB, CUDA hidden. Independent review confirms source lifetime,
+small retained geometry, failure fallback and join-before-paint ownership.
+Portable lossless source/test/coverage/diff and actual worker/proof receipts:
+data/663_satin_waves_cpu_2026-10-06/. Individual9ea source and integrated4de
+source are distinct frozen checkpoints. Offline sampled24Hz media is not
+live cadence. The reported Save SIGSEGV and all-theme native4K smoothness
+remain OPEN; narrow lifecycle success does not reproduce or fix that crash.

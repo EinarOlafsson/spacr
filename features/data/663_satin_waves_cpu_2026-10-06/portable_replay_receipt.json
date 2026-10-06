@@ -1,0 +1,9 @@
+{
+  "scope": "actual archived wrapper native mode replay, capped4GiB/CUDA hidden/offscreen",
+  "frozen_source_sha256": "9ea17982c07bcb3bbea6dd141da13f48e3cba67d1b8e26388754533edf258752",
+  "native_pairs": 32,
+  "all_pair_hashes_match_original_receipt": true,
+  "source_verifier": "12 accepted AST nodes match integrated4de checkpoint",
+  "output": "scratch/satin-archive-replay-20261006",
+  "performance": "Replay timing is not a new integrated/live acceptance claim."
+}

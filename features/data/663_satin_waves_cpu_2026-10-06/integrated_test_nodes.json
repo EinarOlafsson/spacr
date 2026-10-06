@@ -1,0 +1,15 @@
+{
+  "checkpoint": "9ad69bab29",
+  "nodes": [
+    "tests/qt/test_data_art_owned_point_frames.py",
+    "tests/qt/test_data_art_waves_and_vortices.py::test_cropped_strip_composite_matches_complete_native_layers",
+    "tests/qt/test_data_art_waves_and_vortices.py::test_failed_runtime_copy_joins_helper_then_restores_exact_frame",
+    "tests/qt/test_data_art_waves_and_vortices.py::test_native_wave_cache_retains_geometry_not_frame_work",
+    "tests/qt/test_data_art_waves_and_vortices.py::test_daemon_copy_queue_releases_completed_array_ownership",
+    "tests/qt/test_data_art_waves_and_vortices.py::test_daemon_copy_queue_bounds_pending_work_and_honours_cancellation",
+    "tests/qt/test_data_art_clock_handoff.py::test_overrunning_real_shader_keeps_clock_pointer_and_clicks_moving",
+    "tests/qt/test_data_art_lifecycle.py::test_each_data_art_worker_retires_when_hidden_paused_and_closed"
+  ],
+  "result": "31 passed in9.83s",
+  "scope": "CUDA hidden, Qt offscreen, capped4GiB; narrow nodes only"
+}
