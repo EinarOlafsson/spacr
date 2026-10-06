@@ -4960,9 +4960,9 @@ class _DataArtEngine(_BufferedEngine):
                                            dtype=np.float32),
                                  np.arange(-side, height + side, side,
                                            dtype=np.float32))
-            lattice = (xx.ravel() / width, yy.ravel() / height)
+            lattice = (xx.ravel() / width, yy.ravel() / height, {})
             self._material_cache[key] = lattice
-        x, y = lattice
+        x, y, impulse_fields = lattice
         aspect = width / max(1, height)
         cx = self.pointer[0] if self.pointer else 0.5 + 0.20 * math.sin(
             self.time * 0.10 + self._anchors[0][0])
@@ -4975,20 +4975,32 @@ class _DataArtEngine(_BufferedEngine):
         px = x + dx / aspect * gravity
         py = y + dy * gravity
         energy = envelope * 0.12
+        active_origins = {origin for started, origin, _ in self._gravity_impulses
+                          if 0.0 <= self.time - started < 5.0}
+        for origin in tuple(impulse_fields):
+            if origin not in active_origins:
+                del impulse_fields[origin]
         for started, origin, strength in self._gravity_impulses:
             age = self.time - started
             if age < 0.0 or age >= 5.0:
                 continue
-            ex, ey = (x - origin[0]) * aspect, y - origin[1]
-            distance = np.sqrt(ex * ex + ey * ey + 1e-6)
+            field = impulse_fields.get(origin)
+            if field is None:
+                ex, ey = (x - origin[0]) * aspect, y - origin[1]
+                distance = np.sqrt(ex * ex + ey * ey + 1e-6)
+                field = (ex / aspect, ey, distance,
+                         np.exp(-(distance / 0.32) ** 2),
+                         np.sqrt(distance * distance + 0.02))
+                impulse_fields[origin] = field
+            ex, ey, distance, burst_envelope, burst_softening = field
             decay = math.exp(-age * 0.90) * strength
-            burst = -0.12 * decay * math.exp(-age * 3.0) * np.exp(
-                -(distance / 0.32) ** 2) / np.sqrt(distance * distance + 0.02)
+            burst = (-0.12 * decay * math.exp(-age * 3.0)
+                     * burst_envelope / burst_softening)
             front = distance - age * 0.26
             packet = np.exp(-(front / 0.075) ** 2)
             ripple = 0.045 * decay * packet * np.sin(front * 58.0)
             displacement = burst + ripple / np.maximum(distance, 0.055)
-            px += ex / aspect * displacement
+            px += ex * displacement
             py += ey * displacement
             energy += decay * packet * 0.40
         brilliance = np.clip(0.57 + energy, 0.48, 1.0)
