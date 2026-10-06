@@ -1,0 +1,6 @@
+{
+  "model_path": "/home/carruthers/.cellpose/models/cpsam",
+  "model_sha256": "e1440429eb384f95afe32bcba6510f90d518eaedc917ede549bed6804004abe2",
+  "plan_sha256": "851046d18e008f54001b11792457829b14e3f5448b8fd727c99014d171259912",
+  "benchmark_sha256": "7b5cccaab4078fe6efd112660d00b4f1c97d85a44c6eb3c97916d7248edffbb1"
+}

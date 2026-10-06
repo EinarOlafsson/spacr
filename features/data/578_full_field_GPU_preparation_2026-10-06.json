@@ -1,0 +1,51 @@
+{
+  "item": 578,
+  "CPU_preparation_accepted": true,
+  "actual_GPU_acceptance_pending": true,
+  "full_acquired_example_fields": 16,
+  "shape": [
+    1994,
+    1994
+  ],
+  "wells": [
+    "E01",
+    "E02",
+    "L01",
+    "L02"
+  ],
+  "normal_ingest_sampling_and_exact_acquired_plane_contract_passed": true,
+  "planned_actual_GPU_calls": 128,
+  "planned_turn": "578-full-field-robustness-20261006-r1",
+  "scope": "All sixteen fields of the acquired four-well example plate, not a complete production screen",
+  "no_production_full_screen_or_independent_accuracy_claim": true,
+  "artifacts": {
+    "features/data/578_full_field_GPU_preparation_2026-10-06/GPU-freeze.json": {
+      "sha256": "349ad34f5b3632a40b2c50c33f929f3292a5a3d18700280f9462a07961d63291",
+      "bytes": 323
+    },
+    "features/data/578_full_field_GPU_preparation_2026-10-06/archive_robustness_plate_preparation.py": {
+      "sha256": "4278c996008decb2105efa5c4dd72b1363312a38f4a91b42d17fa916c1077b01",
+      "bytes": 3813
+    },
+    "features/data/578_full_field_GPU_preparation_2026-10-06/benchmark_robustness_plate_gpu.py": {
+      "sha256": "7b5cccaab4078fe6efd112660d00b4f1c97d85a44c6eb3c97916d7248edffbb1",
+      "bytes": 6750
+    },
+    "features/data/578_full_field_GPU_preparation_2026-10-06/plan.json": {
+      "sha256": "851046d18e008f54001b11792457829b14e3f5448b8fd727c99014d171259912",
+      "bytes": 13092
+    },
+    "features/data/578_full_field_GPU_preparation_2026-10-06/prepare_robustness_plate_gpu.py": {
+      "sha256": "61acfcd52db04233e488304d95695b54c15cf06bc781c2bb1cb7daebdc0806d1",
+      "bytes": 4930
+    },
+    "features/data/578_full_field_GPU_preparation_2026-10-06/recipe.json": {
+      "sha256": "73935d0c7a380cdb1187d1e0c142f0f74ad03b48a849e6233e8c47c904e526ee",
+      "bytes": 8709
+    },
+    "features/data/578_full_field_GPU_preparation_2026-10-06/robustness-plate-preparation-r1.log.gz": {
+      "sha256": "9b0eb75355bf8f88f1c9c61c30b70d46bb61e681243dbe5bc702a6bc201270fe",
+      "bytes": 1189
+    }
+  }
+}
