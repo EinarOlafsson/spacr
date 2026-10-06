@@ -1,5 +1,34 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 workstation GPU accepted and final native lesson recorded
+The actual pinned VideoMAE worker now passes its normal real-HOME GPU turn:
+RGB and declared repeated-monochrome CPU/CUDA parity meet the unchanged
+rtol2e-4/atol2e-5 contract, with maximum errors1.132488e-6/1.236796e-6.
+Both device repetitions are bit exact and original CPU features are unchanged.
+IEEE float32 convolution policy is restored after success or a real-model
+forward exception; all158 affected backend/event/environment checks pass.
+Full original failure, diagnostic workers, arrays, terminal logs and accepted
+source are in data/567_event_video_precision_2026-10-06.json and its folder.
+This accepts numerical behavior on the stated synthetic clips, not biological
+event accuracy. Workstation retains all GPU ownership; Home need not repeat it.
+
+Final integration d3d5d8ddc combines Home3012/SCN/e894/Wand/issue137 with the
+workstation event-model application source and accepted precision repair.
+It remains isolated pending current-source owner generation/publication;
+this handoff/evidence commit alone does not publish that application change.
+All622 affected integrated mask/backend/SCN/CLI checks pass; one real Gel Doc
+check skips because no native scanner file is available. Final native editor47,
+puncta6, restoration7 and Box19 frames are independently accepted against the
+same final application hashes, complete source planes, weights, CSV and exports.
+Normal composition stages59visuals/all61lesson scenes. All13 caption reviews
+are accepted, and the50-voice render is live in a separate private stage.
+
+Home: preserve the mask controls, persistence, Templates path and issue137
+repair. Continue CPU/native/CI ownership. Frozen runtime/API refresh jobs still
+progress; final nine-locale catalogs, guides, Help/artifact owners, shared video,
+browser/media publication and held-out biological inputs remain workstation
+work. No broad completion, current-source deployment or crash closure is claimed.
+
 ## 2026-10-06 workstation owns GitHub issue137 CSV boolean repair
 The user explicitly requested the newly posted GitHub issue be fixed:
 https://github.com/EinarOlafsson/spacr/issues/137.
