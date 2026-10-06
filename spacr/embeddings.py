@@ -538,7 +538,11 @@ def embed_array(crops: np.ndarray, spec: Optional[EmbeddingSpec] = None, *,
 
 
 def _timm_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
-    """The real encoder: a pretrained backbone with its head removed."""
+    """Load a headless backbone and honor a strict patch embedding size.
+
+    :param spec: Backbone, device and batch-size choices for the encoder.
+    :returns: A callable that encodes float32 image batches.
+    """
     try:
         import timm
         import torch
@@ -550,6 +554,9 @@ def _timm_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
     device = spec.device or ("cuda" if torch.cuda.is_available() else "cpu")
     model = timm.create_model(spec.backbone, pretrained=True, num_classes=0)
     model.eval().to(device)
+    patch_embed = getattr(model, "patch_embed", None)
+    strict_size = (getattr(patch_embed, "img_size", None)
+                   if getattr(patch_embed, "strict_img_size", False) else None)
 
     def run(stack: np.ndarray) -> np.ndarray:
         """Encode one three-channel stack, in batches, under no_grad.
@@ -568,6 +575,11 @@ def _timm_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
                 tensor = torch.from_numpy(
                     np.ascontiguousarray(chunk.transpose(0, 3, 1, 2))
                 ).to(device)
+                if (strict_size is not None
+                        and tuple(tensor.shape[-2:]) != tuple(strict_size)):
+                    tensor = torch.nn.functional.interpolate(
+                        tensor, size=strict_size, mode="bilinear",
+                        align_corners=False)
                 out.append(model(tensor).detach().cpu().numpy())
         return np.concatenate(out, axis=0)
 
