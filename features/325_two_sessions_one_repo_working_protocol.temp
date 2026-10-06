@@ -18787,3 +18787,10 @@ Home: use this as additional native-lifetime evidence; identify the crashed
 revision and reproduce the user's actual preference-save path first.
 No cause, fix or native reproduction is claimed; no live job was touched.
 All requested behavior and exact menu order remain in the previous relay.
+
+2026-10-06 Home integrated source/CI relay: see current HANDOFF top entry.
+Protected serial37457998285 finished with native puncta SIGSEGV below memory
+guard; narrow exact-source cases pass. Workstation priority: e259 CI reviewed
+sv/fr runtime policy130vs131, localization report/Swedish row and README
+feature-guide referral. Home preserves your Cell-DINO helpers; CPU theme
+engine revisions and actual Save-crash/cumulative Qt investigation continue.

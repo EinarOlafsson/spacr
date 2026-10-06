@@ -1,0 +1,17 @@
+{
+  "sha256": {
+    "REPRODUCE.txt": "e9781beb32e8a64931259efb949b8289fac0576a4cd3b587cff6b0797b20e60b",
+    "archive.py": "570a7a78a85aa7941feb773c5bc7b63f02745b5e30cbb0395bd08f5f97306201",
+    "baseline.log.gz": "b709033e190e334c79d2fb9c9dfca05660a50f6ff62bc277479761e424788a23",
+    "coverage.json": "5cc0f6493d5973c4670c3e444a71a46768c300fec6f79666e4fdb3534b4f2176",
+    "coverage.log.gz": "fea1a0794d496056ba582c4611ebafc8d2e7e83dcc5e81798944dab63fba54e9",
+    "focused.log.gz": "58637b9dbff5eb36ce746cbcf11cffd82998c3d676ac10fb5fa547f877cbb973",
+    "io-baseline.py.gz": "ea6a0d045d27461ea76054a8dd6a22e35de64288dd8a3589fe1b3b08e34429a8",
+    "io-optimized.py.gz": "80ac56932354e230a3af49b29f6be7910825a1659a6a379387218856c891e825",
+    "measure.py": "dd4b390b5e57a56fe3859b2e0f488ad924f8f99a8e9e893ad9a96dc005ba1e44",
+    "optimized.log.gz": "6e584ab899ff4aa36d5dcd39fea8db95626751490834ee2167df4975e12a19fc",
+    "prepare.py": "8438c61cdbf690ccb4f8140613446366fa08c083915a922b52a8e8ca6fcf4a4a",
+    "receipt.json": "604da901f9d07268ad86bea9770eb0312bc88b4c65efeaa8ee7da894512266d5",
+    "root-integrated-watch-memory.log.gz": "e1300dcc882b55bb1ffd346d02b6422f04006d16aaa349bd14e018cd0b271e3b"
+  }
+}

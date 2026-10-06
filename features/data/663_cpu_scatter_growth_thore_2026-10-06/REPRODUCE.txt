@@ -1,0 +1,10 @@
+Frozen renderer sources and exact pixel/performance receipts are included.
+The production scatter receipt binds e00d4027e243e400525983dd12d8d32e57468074655ad1e94b8d85594aec39b8.
+parity_perf.py and worker_perf.py record original scratch/worktree paths;
+to relocate, point their baseline/production paths at the matching frozen
+source files and verify SHA256 before running. Do not use current HEAD
+as the old tested revision. Use CUDA-hidden offscreen capped 4G Python.
+Coverage is added-source coverage, not global/full-module acceptance.
+Gallery images/clips bind growth-footprint bc393abfd2. Live widget script
+binds catalog16d; later Thore fix539058 changes geometry/speed behavior.
+Native4K frame targets and the actual Save crash remain OPEN.

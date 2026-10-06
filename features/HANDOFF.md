@@ -1,5 +1,44 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 Home integrated source and actual CI diagnosis
+Home now integrates native T>1 Mask watching plus lower-copy normalization,
+66 root integrated native watcher/batch cases pass as well. Requested
+animation order/names/default, retirement of Ripples/Cells choices,
+persistent opt-in mouse radius (zero by default), single-front 25%-bounded
+fungal growth, Thore and Aurora revisions, and exact asynchronous CPU scatter.
+Root488 affected ambient/catalog/compiler/Thore tests,134 source contracts,
+and17 radius cases pass under capped CPU-only execution. Paper/satin/advection
+and engine-radius physics remain in progress; N663 remains OPEN, including the
+reported Save crash and native4K frame-budget limits. Evidence archives:
+data/548_native_memory_cpu_2026-10-06/ and
+ data/663_cpu_scatter_growth_thore_2026-10-06/.
+
+P0 trace correction: PID3063654 app.py:7331 is app.exec(), gc_policy.py:96
+is a GUI QTimer gc.collect callback, and ambient.py:5492 is an idle worker
+Event.wait. These lines match0ef43046e; nearby sources may also match. This
+proves a native crash during GUI collection, not direct launch cleanup or
+Detail/Save causality. Existing actual MainWindow/4K Save probes have not
+reproduced it; exact new-source stress is ongoing. Do not claim a fix.
+
+Protected serial37457998285 TERMINAL FAILURE on source237506317 after4h:
+exit139 at puncta test[False], last RSS~5.18GiB, host available~10GiB,
+zero swap/OOM kills, below10.8GiB guard. Nine earlier assertion failures lack
+summary because native death. All nine and puncta pass exact-source narrow
+replays; cumulative native state is being investigated. Do not waive memory,
+assertion or coverage guards. No full local Qt run is authorized.
+
+Workstation CI PRIORITY: e259 run37478294475 coverage0/minimum0 fail reviewed
+Swedish/French runtime policy count130 vs131. Minimum0 also fails generated
+localization-progress report exact bytes and Swedish row. Coverage7 fails
+README feature-guide referral for Make Masks tools. Logs downloaded to
+/mnt/wd4tb/scratch/ci-e259-failures-20261006/ on Home. Please repair through
+normal source-bound generation/review, preserving strict assertions.
+All GPU/API/docs/translations/tutorials remain workstation-owned. Latest source
+adds two public AmbientWidget radius methods and optional constructor radius,
+three private CPU scatter helpers, _watch_native_series_plan, native ingest
+and changed private collection signatures; normal regeneration is required.
+
+
 ## 2026-10-06 Home native time-volume watcher integrated
 Source593886b686 adds complete fixed-map native T>1 Mask-only watching.
 It waits for settled C/Z/T planes, preserves their bytes and scoped map,

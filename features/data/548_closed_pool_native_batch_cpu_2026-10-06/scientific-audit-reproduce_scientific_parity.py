@@ -1,13 +1,18 @@
 """Verify the actual batch/watch databases with exact metadata exclusions."""
 
+import argparse
 import hashlib
 import json
 import sqlite3
-import subprocess
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parent
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--artifact-root', type=Path, required=True,
+                    help='Original private pytest database fixture directory')
+ROOT = parser.parse_args().artifact_root.resolve()
+FROZEN = json.loads(Path(__file__).with_name(
+    'scientific-audit-scientific-column-audit.json').read_text())
 METADATA = ('file_name', 'path_name', 'png_path')
 PAIRS = (
     ('per_field', 'pytest-01/test_files_copied_in_one_by_on0', ('cell', 'nucleus')),
@@ -43,23 +48,13 @@ for mode, relative, tables in PAIRS:
             'batch_db_sha256': hashlib.sha256(batch.read_bytes()).hexdigest(),
             'watch_db_sha256': hashlib.sha256(watch.read_bytes()).hexdigest(),
         })
+        expected = next(pair for pair in FROZEN['pairs']
+                        if pair['mode'] == mode and pair['table'] == table)
+        assert results[-1] == expected, (mode, table, 'frozen receipt mismatch')
 
-changed_apps = subprocess.check_output(
-    ['git', 'diff', '25031e230', 'HEAD', '--name-only', '--', 'spacr'], text=True).strip()
-assert not changed_apps
-report = {
-    'base': '25031e230fe21eb12f80bdf3ebae49e080b1eadc',
-    'test_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
-    'test_source_sha256': hashlib.sha256(
-        Path('tests/test_watch_folder_and_analyse.py').read_bytes()).hexdigest(),
-    'app_source_changes': [], 'cuda_visible_devices': '', 'test_memory_cap_gib': 4,
-    'initial_broad_tests': {'passed': 97, 'failed_expected_png_directory_metadata': 1},
-    'affected_final_tests': {'passed': 2}, 'true_scientific_mismatches': [],
-    'metadata_exclusions': METADATA, 'pairs': results,
-    'inference_acceptance': 'CPU fixture doubles; actual normalization, Measure and collection',
-}
-(ROOT / 'scientific-column-audit.json').write_text(json.dumps(report, indent=2) + '\n')
-print(json.dumps({'test_commit': report['test_commit'], 'pairs': [
+assert list(METADATA) == FROZEN['metadata_exclusions']
+assert len(results) == len(FROZEN['pairs']) == 9
+print(json.dumps({'frozen_test_commit': FROZEN['test_commit'], 'pairs': [
     {'mode': row['mode'], 'table': row['table'], 'rows': row['rows'],
      'scientific_columns': row['scientific_columns'],
      'pathogen_columns': len(row['pathogen_columns_checked'])} for row in results]}, indent=2))

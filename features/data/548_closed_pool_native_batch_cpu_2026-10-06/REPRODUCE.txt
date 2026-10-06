@@ -45,3 +45,9 @@ recovery and a bounded memory improvement are subsequent checkpoints.
 Scientific-column audit retains nine matched actual output table pairs;
 original scratch DBs are not committed. The audit script reproduces against
 those private scratch fixtures and records their exact source identities.
+
+The scientific audit replay now takes the private fixture root explicitly:
+CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 2G python features/data/548_closed_pool_native_batch_cpu_2026-10-06/scientific-audit-reproduce_scientific_parity.py --artifact-root /mnt/wd4tb/scratch/f548-scientific-column-audit-20261006
+It validates all nine rows, column lists and original database SHA256 values
+against the archived frozen receipt, without writing it or labeling current
+HEAD as the tested source. The private database fixtures are required.

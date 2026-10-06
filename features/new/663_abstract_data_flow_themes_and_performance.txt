@@ -422,3 +422,25 @@ Home: use this as additional native-lifetime evidence; identify the crashed
 revision and reproduce the user's actual preference-save path first.
 No cause, fix or native reproduction is claimed; no live job was touched.
 All requested behavior and exact menu order remain in the previous relay.
+
+INTEGRATED USER MENU/GRAVITY/NEW RENDERERS (2026-10-06, partial)
+    Source16d073c21b uses spaCR field(default), advection, growth, Thore,
+    waves, Blobs, then the remaining offered scenes. Ripples/Cells are
+    removed from choices/factory; direct legacy public renderers retain
+    their numerical/pixel guards. Seven distinct data-art palette materials
+    remain. Night presets previously using removed scenes select waves or
+    paper facets instead. Mouse-radius preference defaults0, persists only
+    Save, and is clamped/finite at both store and widget boundaries. New
+    engine radius physics/paper/satin/advection revisions remain IN PROGRESS.
+    Source627af/b3d provides never-resetting single-front fungal growth,
+    three-front forks/fading trails and conservative final ink bound25%;
+    restrained rain/branch lightning and improved folded Aurora are added.
+    Thore3c670 fixes double speed scaling and makes geometry color-independent.
+    Root488 affected cases,134 source contracts and17 radius cases pass.
+    Exact CPU scatter and growth/Thore frozen sources/coverage/receipts/media:
+    data/663_cpu_scatter_growth_thore_2026-10-06/. Gallery previews precede
+    the Thore motion fix; offline clip cadence is not live FPS acceptance.
+    The reported Save SIGSEGV is OPEN. Recorded PID3063654 crashed during
+    GUI QTimer cyclic GC within app.exec; idle ambient worker is not proof
+    of a renderer cause. Native4K frame-budget limits remain OPEN. Latest
+    labels/slider/source API require workstation normal multilingual refresh.

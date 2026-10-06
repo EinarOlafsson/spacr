@@ -821,3 +821,17 @@ NATIVE T>1 MASK WATCHER ACCEPTANCE (2026-10-06, alpha subset)
     broader unsupported series keep F548 OPEN. Workstation must regenerate
     the new _watch_native_series_plan documentation and changed private
     collection signatures normally, preserving all accepted GOWT1 receipts.
+
+LOWER-COPY NATIVE NORMALIZATION (2026-10-06, bounded CPU acceptance)
+    Source9292a43d69 drops transient per-time frames after raw stacks are
+    saved, releases the assembled raw field after normalization, and avoids
+    an advanced-index copy when all channels are already ordered. Reversed
+    and subset-channel guards pass40 cases. A real 2T/2Z/2C/2048-square TIFF
+    ingest reduces peak RSS1874.06 to1789.71MiB (84.35MiB); both per-time NPY
+    stacks and normalized NPZ match byte-for-byte. Frozen sources/logs/trace
+    and exact output hashes: data/548_native_memory_cpu_2026-10-06/. This
+    does not qualify arbitrary large native series: whole-field RAM remains
+    proportional to acquisition size, and standalone batch hard-publication
+    failure still refuses partial folders. Native watcher stages recover
+    separately; uncheckpointed completed inference can necessarily repeat.
+    ParentF548 stays OPEN for raw/vendor and unsupported scientific modes.
