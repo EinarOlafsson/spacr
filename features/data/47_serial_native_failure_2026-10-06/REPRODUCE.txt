@@ -1,0 +1,16 @@
+Protected run source and exact original-order journals are frozen here.
+Replay manifests list two bounded windows; original stdout/journal hashes
+refer to uncompressed files. Gzip artifacts are lossless, mtime=0.
+The last boundary RSS is 5180.62 MiB = 5.059 GiB, below10.8GiB guard;
+HWM is 5.179GiB. These figures must not be interchanged. Last raw job
+MEMORY sample reports5183MiB RSS,10118MiB available,swap_used0,oom_kills0.
+The raw job includes an abrupt disk-free drop; its cause is not proven.
+faulthandler_fd_repro.py intentionally SIGSEGVs a subprocess: run only
+CUDA-hidden/offscreen under4G, PYTHONPATH=. with a new scratch
+SPACR_FAULT_REPRO_ROOT. It reproduces app redirection, not the native
+product failure. Source reference for the redirection/closed-handle
+diagnostic is ab8690636d; source-scoped serial plugin changes are
+075e2c6cba and fac1d5ef28. Current tests/test_qt_serial_rss_journal.py
+checks actual redirection then SIGSEGV capture in an owned artifact FD.
+A new hosted serial run is required; do not certify current HEAD using
+the older237 result or a short replay. Do not run full Qt locally.
