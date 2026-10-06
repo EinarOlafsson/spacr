@@ -7446,6 +7446,8 @@ ALPHA_FEATURES = {
     },
     565: {
         'widgets': ('AnnotateFindSimilar', 'AnnotateSimilarityOptions',
+                    'AnnotateSimilarAddPlate', 'AnnotateSimilarClearPlates',
+                    'AnnotateSimilarResultPlate', 'AnnotateSimilarFeatureKind',
                     'EmbeddingsSaveForSimilarity'),
     },
     560: {
