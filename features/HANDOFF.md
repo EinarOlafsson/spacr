@@ -11,6 +11,20 @@ spaCR growth, spaCR Thore, spaCR waves, Blobs, then the rest. These new requests
 are pending, not claimed complete. Workstation retains subsequent API/docs/
 translations/tutorial refresh and all GPU work. Preserve live protected jobs.
 
+## 2026-10-06 workstation Cell-DINO actual local provenance repaired
+The coordinated _weights_on_disk/encoder_entry path now verifies supplied
+Cell-DINO checkpoint_path/checkpoint_sha256 against stable regular-file bytes,
+without loading/downloading a model. Invalid, changed/replaced/deleted or
+nonregular files leave no digest. Valid identity enables actual stored-vector
+cross-plate search; a changed checkpoint correctly refuses it. The combined
+CPU/Qt cohort passes 147 with no skips and exercises all added executable lines.
+Every inference/spec/scorecard function remains AST-exact. All twelve original
+full human-fluorescence scorecards and six actual weight digests replay exactly
+at the unchanged 1e-12 guard. Receipt:
+data/560_cell_dino_local_provenance_2026-10-06.json. Home: preserve both helpers.
+Normal API/runtime/Help/settings/guides and all-nine-language refresh is next;
+No official pretrained Cell-DINO acquisition/scientific/GPU acceptance claimed.
+
 ## 2026-10-06 Home pooled watcher and native time-volume batch source
 Home integrates source 0ee2f0053/b777c3211/25031e230: a fixed finite-map
 static projected v1 Mask/Measure pool preserving normal batch normalization,
@@ -52,9 +66,9 @@ existing conda environment without dependency upgrades. Actual installed Qt
 Home launch/clean exit passes offscreen; no native-desktop claim. Receipt:
 data/615_local_editable_install_2026-10-06.json.
 
-The newer Home source is integrated. Next workstation work is precise: make
-encoder_entry verify Cell-DINO's actual checkpoint_path/checkpoint_sha256,
-then normally refresh API/runtime/Help/settings/guides and all nine languages
+The newer Home source is integrated and Cell-DINO actual local provenance is
+repaired above. Next workstation work is normal API/runtime/Help/settings/guide
+refresh and all nine languages
 for the new Cell-DINO/Save/multi-plate/theme contracts. Preserve every existing
 scientific/tutorial receipt. Home owns F548 source, F663 native-4K smoothness
 and final-source CI/coverage/Qt. Protected serial 37457998285 remains live.

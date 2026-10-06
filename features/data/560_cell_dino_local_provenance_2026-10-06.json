@@ -1,0 +1,69 @@
+{
+  "item": 560,
+  "local_provenance_fix_passed": true,
+  "source_parent": "3ac6d14d0c199f1493adbd1086302433026ba5f8",
+  "source_sha256": "afd5c885a462a5cbc16e9d2ef038f0a7b1316c06cb12e05e1089243753deaec9",
+  "only_two_existing_provenance_functions_changed": true,
+  "all_inference_spec_and_scientific_scorecard_functions_AST_exact": true,
+  "focused_behavior_and_Qt_cases_passed": 147,
+  "missing_added_executable_lines": [],
+  "actual_declared_local_file_bytes_hashed_without_model_load_or_download": true,
+  "stable_regular_file_required": true,
+  "missing_mismatched_modified_replaced_deleted_fifo_directory_unreadable_refused": true,
+  "actual_storage_cross_plate_query_passes_with_verified_identity_and_refuses_changed_checkpoint": true,
+  "all_twelve_original_full_human_fluorescence_scorecards_and_six_actual_checkpoint_digests_reverified": true,
+  "all_measured_metrics_and_exact_random_AP_preserved_atol_1e_12": true,
+  "no_pretrained_Cell_DINO_or_new_GPU_inference_claim": true,
+  "normal_source_current_API_runtime_help_settings_guides_and_translation_refresh_pending": true,
+  "original_base_environment_optional_skips_resolved_by_complete_compatible_environment_cohort": true,
+  "artifacts": {
+    "features/data/560_cell_dino_local_provenance_2026-10-06/archive_cell_dino_provenance_r1.py": {
+      "bytes": 7019,
+      "sha256": "09ff674e05dadc4304d726e4c621c68ddcca14528bcbd8bad47a9fd55b3ca61a"
+    },
+    "features/data/560_cell_dino_local_provenance_2026-10-06/cell-dino-provenance-coverage-r1.json.gz": {
+      "bytes": 2843260,
+      "sha256": "eda4bde0d070ee2274ebd7b14085e3c82118aa5525f7a62e839cf4b165135dae"
+    },
+    "features/data/560_cell_dino_local_provenance_2026-10-06/cell-dino-provenance-focused-compatible-r1.log.gz": {
+      "bytes": 158,
+      "sha256": "bc6f0e4bdf613a06ccfcb34264173a66f051fb7515de1316c4b80d59f5b56268"
+    },
+    "features/data/560_cell_dino_local_provenance_2026-10-06/cell-dino-provenance-focused-r1.log.gz": {
+      "bytes": 330,
+      "sha256": "533d6d36ec71276c16eb9e69bf27a4e0bed3a1f1d4836506a95eb8466aef5b5e"
+    },
+    "features/data/560_cell_dino_local_provenance_2026-10-06/cell-dino-provenance-full-cohort-replay-r1.json": {
+      "bytes": 20272,
+      "sha256": "d9399695c0a6868a4122cc110208e462f3bd3d3446bff4043e19476db548e76b"
+    },
+    "features/data/560_cell_dino_local_provenance_2026-10-06/cell-dino-provenance-full-cohort-replay-r1.log.gz": {
+      "bytes": 1205,
+      "sha256": "b5e493ee12867a743b1a132fefa66f5508a2b59df66230f05c567cc78bee2724"
+    },
+    "features/data/560_cell_dino_local_provenance_2026-10-06/cell-dino-provenance-integration-r1.log.gz": {
+      "bytes": 147,
+      "sha256": "f904a89ba43349c7d18859802267f70cc5c34d819c638fb5aba48d84013f7b5a"
+    },
+    "features/data/560_cell_dino_local_provenance_2026-10-06/cell-dino-provenance-source-and-coverage-r1.json": {
+      "bytes": 749,
+      "sha256": "818579613ea0893f2bce233ef83c63e3c84670b84e6dfc9efc20f1ef836be4f7"
+    },
+    "features/data/560_cell_dino_local_provenance_2026-10-06/embeddings.py.gz": {
+      "bytes": 28981,
+      "sha256": "60eac0d42e652025e71a4fdad9d78ca86a4fc1044e57fa6806730e4de233fb28"
+    },
+    "features/data/560_cell_dino_local_provenance_2026-10-06/prior-embeddings.py.gz": {
+      "bytes": 28432,
+      "sha256": "fef34d6847b7b112289997eddce5f9b3153caa0d563f1011b0a3bcab45c7221b"
+    },
+    "features/data/560_cell_dino_local_provenance_2026-10-06/run_foundation_api_tool_r2.py": {
+      "bytes": 1369,
+      "sha256": "d177b5a1da4cb184e9846edacd23ff2a016191812092fca740e23a00c4476251"
+    },
+    "features/data/560_cell_dino_local_provenance_2026-10-06/verify_cell_dino_provenance_full_cohorts_r1.py": {
+      "bytes": 5222,
+      "sha256": "aa02ab0188a992235af8113fe853ef70b6cbebfd3834e04a9688e3b234ee6809"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "passed": true,
+  "only_changed_functions": [
+    "_weights_on_disk",
+    "encoder_entry"
+  ],
+  "all_inference_and_scorecard_functions_AST_exact_to_HEAD": true,
+  "added_executable_lines": [
+    1896,
+    1915,
+    1916,
+    1919,
+    1920,
+    1921,
+    1922,
+    1923,
+    1924,
+    1925,
+    1926,
+    1927,
+    1928,
+    1929,
+    1930,
+    1931,
+    1932,
+    1933,
+    1934,
+    1937,
+    1941,
+    1942,
+    2025,
+    2026,
+    2030
+  ],
+  "missing_added_executable_lines": [],
+  "source_sha256": "afd5c885a462a5cbc16e9d2ef038f0a7b1316c06cb12e05e1089243753deaec9",
+  "cohort_passed": 147,
+  "coverage_warning": "Inherited .coveragerc source=spacr superseded --include; normal full source tracing retained, no coverage policy changed."
+}

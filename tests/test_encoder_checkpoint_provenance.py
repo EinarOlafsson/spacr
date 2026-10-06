@@ -116,3 +116,119 @@ def test_unsupported_cell_dino_has_no_invented_weight_provider(monkeypatch):
     entry = emb.encoder_entry(emb.EmbeddingSpec(backbone="cell_dino"))
     assert entry.path == "" and entry.sha256 == "" and entry.uri == ""
     assert entry.trained_by == UNKNOWN and not entry.verified
+
+
+@pytest.mark.parametrize("factory,channels", [
+    ("cell_dino_hpa_vitl16", (2, 0, 3, 1)),
+    ("cell_dino_hpa_vitl14", (2, 0, 3, 1)),
+    ("cell_dino_cp_vits8", (4, 2, 0, 3, 1)),
+])
+def test_cell_dino_entry_verifies_declared_bytes_without_loading_a_model(
+        tmp_path, monkeypatch, factory, channels):
+    checkpoint = tmp_path / "local.pth"
+    data = b"local checkpoint fixture\x00" * 60000
+    checkpoint.write_bytes(data)
+    digest = hashlib.sha256(data).hexdigest()
+    alias = tmp_path / "alias.pth"
+    alias.symlink_to(checkpoint)
+    spec = emb.EmbeddingSpec(
+        backbone="cell_dino", channel_policy=emb.CHANNEL_PROJECT,
+        channels=channels, cell_dino_factory=factory,
+        checkpoint_path=str(alias), checkpoint_sha256=digest.upper())
+    _refuse_models(monkeypatch)
+    entry = emb.encoder_entry(spec, scorecard={"mAP": 0.5})
+    assert entry.path == str(checkpoint.resolve())
+    assert entry.sha256 == digest and entry.size_bytes == len(data)
+    assert entry.source == "local" and entry.uri == ""
+    assert entry.trained_by == entry.trained_on == UNKNOWN
+    assert entry.metrics == {"mAP": 0.5} and not entry.verified
+    assert not any("No checksum" in note for note in entry.notes)
+
+
+@pytest.mark.parametrize("condition", [
+    "missing_path", "missing_digest", "bad_digest", "wrong_digest",
+    "missing_file", "directory", "fifo", "unreadable",
+])
+def test_cell_dino_invalid_checkpoint_has_no_claimed_provenance(
+        tmp_path, monkeypatch, condition):
+    import os
+
+    checkpoint = tmp_path / "local.pth"
+    data = b"local checkpoint fixture"
+    checkpoint.write_bytes(data)
+    path = str(checkpoint)
+    digest = hashlib.sha256(data).hexdigest()
+    if condition == "missing_path":
+        path = None
+    elif condition == "missing_digest":
+        digest = None
+    elif condition == "bad_digest":
+        digest = "not a digest"
+    elif condition == "wrong_digest":
+        digest = "0" * 64
+    elif condition == "missing_file":
+        path = str(tmp_path / "missing.pth")
+    elif condition == "directory":
+        path = str(tmp_path)
+    elif condition == "fifo":
+        checkpoint.unlink()
+        os.mkfifo(checkpoint)
+    else:
+        original = os.open
+
+        def unreadable(candidate, *args, **kwargs):
+            if candidate == path:
+                raise PermissionError("checkpoint not readable")
+            return original(candidate, *args, **kwargs)
+
+        monkeypatch.setattr(os, "open", unreadable)
+    _refuse_models(monkeypatch)
+    spec = emb.EmbeddingSpec(backbone="cell_dino", checkpoint_path=path,
+                             checkpoint_sha256=digest)
+    entry = emb.encoder_entry(spec)
+    assert entry.path == entry.sha256 == entry.uri == ""
+    assert entry.size_bytes == 0 and entry.source == "remote"
+    assert entry.trained_by == UNKNOWN and not entry.verified
+    assert any("No checksum" in note for note in entry.notes)
+
+
+@pytest.mark.parametrize("change", ["append", "replace", "remove"])
+def test_cell_dino_checkpoint_changed_while_hashing_cannot_be_saved(
+        tmp_path, monkeypatch, change):
+    checkpoint = tmp_path / "local.pth"
+    data = b"local checkpoint fixture\x00" * 60000
+    checkpoint.write_bytes(data)
+    expected = hashlib.sha256(data).hexdigest()
+    original_hash = hashlib.sha256
+    changed = []
+
+    class ChangingDigest:
+        def __init__(self):
+            self.digest = original_hash()
+
+        def update(self, chunk):
+            self.digest.update(chunk)
+            if changed:
+                return
+            changed.append(change)
+            if change == "append":
+                with checkpoint.open("ab") as handle:
+                    handle.write(b"changed checkpoint")
+            elif change == "replace":
+                replacement = tmp_path / "replacement.pth"
+                replacement.write_bytes(data)
+                replacement.replace(checkpoint)
+            else:
+                checkpoint.unlink()
+
+        def hexdigest(self):
+            return self.digest.hexdigest()
+
+    monkeypatch.setattr(emb.hashlib, "sha256", ChangingDigest)
+    _refuse_models(monkeypatch)
+    entry = emb.encoder_entry(emb.EmbeddingSpec(
+        backbone="cell_dino", checkpoint_path=str(checkpoint),
+        checkpoint_sha256=expected))
+    assert changed == [change]
+    assert entry.path == entry.sha256 == "" and entry.size_bytes == 0
+    assert not entry.verified

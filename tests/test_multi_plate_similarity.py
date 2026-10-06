@@ -241,3 +241,41 @@ def test_explicit_measurements_can_compare_plates_with_different_embeddings(tmp_
     assert len(index) == len(first["crops"]) + len(second["crops"])
     assert {first["db"], second["db"]} == {path for path, _ in index.keys}
     assert len(hits) == 5
+
+
+def test_verified_local_cell_dino_identity_enables_only_compatible_plate_search(
+        tmp_path):
+    from spacr import embeddings as emb
+    import hashlib
+
+    checkpoint = tmp_path / "local-cell-dino.pth"
+    content = b"Synthetic local checkpoint identity, not pretrained model weights"
+    checkpoint.write_bytes(content)
+    digest = hashlib.sha256(content).hexdigest()
+    spec = emb.EmbeddingSpec(
+        backbone="cell_dino", channel_policy=emb.CHANNEL_PROJECT,
+        channels=(0, 1, 2, 3), cell_dino_factory="cell_dino_hpa_vitl16",
+        checkpoint_path=str(checkpoint), checkpoint_sha256=digest)
+    first, first_keys = _plate(tmp_path, "plate1", spec=spec)
+    second, second_keys = _plate(tmp_path, "plate2", spec=spec)
+    result = emb.EmbeddingResult(
+        np.asarray([[1, 0], [0.8, 0.2], [0, 1]], np.float32),
+        ("emb_0", "emb_1"), spec, 4, 2)
+    entry = emb.encoder_entry(spec)
+    assert entry.sha256 == digest and entry.source == "local"
+    for name, database in (("plate1", first), ("plate2", second)):
+        objects = [f"{name}_r1_c1_f1_o{i}" for i in range(1, 4)]
+        al._store_crop_embeddings(database, objects, result, encoder_entry=entry)
+    index = al._multi_similarity_index(
+        [first, second], feature_kind="embeddings", backend="numpy")
+    hits = index.like(first, first_keys[0], k=5)
+    assert (second, second_keys[0]) in set(zip(hits.db_path, hits.key))
+    checkpoint.write_bytes(b"A different local checkpoint")
+    mismatched = emb.encoder_entry(spec)
+    assert mismatched.sha256 == ""
+    al._store_crop_embeddings(
+        second, [f"plate2_r1_c1_f1_o{i}" for i in range(1, 4)],
+        result, encoder_entry=mismatched)
+    with pytest.raises(ValueError, match="missing encoder provenance"):
+        al._multi_similarity_index(
+            [first, second], feature_kind="embeddings", backend="numpy")
