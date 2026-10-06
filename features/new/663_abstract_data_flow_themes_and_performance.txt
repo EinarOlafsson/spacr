@@ -577,3 +577,35 @@ logs, source identities and reproduction command are archived at
 `data/663_mainwindow_save_gc_2026-10-06/`. This bounded local probe did not
 reproduce the user's native Save SIGSEGV, identify its cause or prove all-theme
 native-4K smoothness. Both acceptance questions remain OPEN.
+
+2026-10-06 — frozen source native remaining-theme CPU audit
+Frozen 9ad69bab29 is measured in fresh capped 4 GiB CPU-only Python
+processes on software Xvfb at 3840 x 2160. Its ambient source SHA256 is
+4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5.
+Requested 24 FPS, detail 2, density 1, size 1, speed 1, blur 0, radius 0,
+seed 42 and custom blue/magenta stay unchanged. Data-art buffers are native
+3840 x 2160. Classic Aurora retains its existing 1920 x 1080 internal
+buffer, resampled onto the 4K display; native internal resolution is not
+claimed. After 2.2 seconds warmup, mature growth at 97 seconds publishes
+22.96 FPS: shade median 35.09 ms, p95 50.85 ms, max 65.03 ms; heartbeat
+p95 33.47 ms, max 47.21 ms. Thore publishes 23.39 FPS: shade median 31.35
+ms, p95 40.76 ms, max 61.83 ms; seven actual lightning shades have median
+43.30 ms and max 61.83 ms. Its heartbeat p95 is 40.79 ms, max 57.92 ms.
+Aurora publishes 23.99 FPS: shade median 9.83 ms, p95 13.94 ms, max 18.05
+ms; heartbeat p95 15.02 ms, max 23.81 ms. Three fresh dark waves/atlas
+steady five-second windows publish 23.79, 23.99 and 23.79 FPS, with shade
+medians 17.04, 16.25 and 20.33 ms and p95 30.50, 23.84 and 32.38 ms.
+The earlier shared-load 21.95 FPS waves sample does not reproduce here;
+this is not a universal 24 FPS guarantee. Distinct clock counts are
+explicit, including 110 growth clocks across 115 publications. Every
+worker stops immediately on hide. Cold first shows cost 86.61 ms for
+growth, 92.82 ms Thore, 54.72 ms Aurora and 186.45 ms waves. The first two
+seconds of cold waves publish 17.99 FPS with shade p95 126.58 ms, max
+166.35 ms during CPU compilation. Cold behavior is separate from steady
+acceptance. The original native stills show fine branch/rain/dot strokes,
+restrained dark contrast and smooth classic Aurora bands. Aesthetic
+acceptance remains the user's; growth placement depends on seed/time.
+Receipts, probes and five lossless 4K stills are archived at
+ data/663_native_remaining_theme_audit_cpu_2026-10-06/.
+Growth/Thore late frames, all-theme smoothness and the reported Save
+SIGSEGV remain OPEN. This audit changes no app source or crash diagnosis.

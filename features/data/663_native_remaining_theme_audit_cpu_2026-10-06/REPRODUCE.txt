@@ -1,0 +1,39 @@
+Frozen actual renderer9ad69bab29:
+4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5.
+Published source parentb77916cc94165439fabac6cc9c8e004ba7f944b5 has the same
+ambient bytes. Its renderer snapshot is already retained losslessly in the
+sibling663_satin_waves_cpu_2026-10-06/integrated_renderer.py.gz archive.
+
+From a complete installed repository with CPU Qt/Xvfb dependencies:
+
+TMPDIR=/mnt/wd4tb/scratch CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen \
+  tools/run_capped.sh 4G python \
+  features/data/663_native_remaining_theme_audit_cpu_2026-10-06/reproduce.py
+
+The wrapper expands frozen source and original probes into a new scratch
+folder. Each theme uses a fresh capped4GiB Python process, its own isolated
+preference INI and software-only Xvfb3840x2160. Inner GUI measurement uses
+QT_QPA_PLATFORM=xcb, QT_OPENGL=software and LIBGL_ALWAYS_SOFTWARE=1; no GPU.
+It renders growth, Thore, Aurora and only one three-window dark atlas/waves
+repeat. It does not repeat the already archived nine point scenarios.
+
+Cold firstshow is timed separately, followed by a2-second post-show sample;
+steady windows follow2.2seconds warmup and use precise5-second Qt timers.
+Growth samples a mature70-second trail window after jumping to95s. Thore
+samples an actual lightning event. Each actual widget/producer receipt
+includes shade, paint, heartbeat, publication interval, distinct animation
+clocks, controls, screen/buffer dimensions, current load and hide retirement.
+All data-art buffers are native3840x2160. Classic Aurora preserves its
+existing requested detail and1920x1080 internal buffer; its output is4K.
+Post-timing native grabs and a deterministic lightning still retain their
+original lossless PNG pixels in stills/. These are review evidence, not
+user aesthetic acceptance or MainWindow Save crash reproduction/fix.
+
+See summary.json and per-theme JSON for measured results and limits.
+Growth and lightning exceed the41.7ms24FPS frame budget in some frames.
+The isolated atlas repeat does not reproduce the earlier21.95FPS shared-load
+sample, but short stable windows do not guarantee future/native all-theme
+smoothness. Process RSS peaks include end grabs outside timing. Cold first
+show is explicitly measured; post-show heartbeat intervals do not include
+that initial synchronous construction interval. Scripts are frozen originals;
+replay adapts only repository/scratch paths, not renderer settings or math.

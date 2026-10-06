@@ -1,0 +1,24 @@
+{
+  "source_commit": "9ad69bab29d9a4f1b2188dbe823cc52860793adf",
+  "published_parent_commit": "b77916cc94165439fabac6cc9c8e004ba7f944b5",
+  "source_sha256": "4de9fc513d064114b73646c32e12b41bc4224a13f35a5526073b34640aef28f5",
+  "mode": "Fresh Python process per theme, each CUDA-hidden/capped4GiB; software Xvfb3840x2160, requested24FPS/detail2/density1/size1/speed1/blur0/radius0, blue-magenta custom palette and seed42; native area confirmed. New source not modified.",
+  "cold_vs_steady": "Cold firstshow measured separately, then post-show2s. All themes warm2.2s; growth is set to95s to exercise a mature70-second trail window, Thore is positioned so7 lightning shades occur in steady sample, atlas uses three5-second steady windows. Precise QTimer ends avoid coarse timer duration ambiguity. End native grab is outside timed phase.",
+  "data_art_buffers": [
+    3840,
+    2160
+  ],
+  "classic_aurora_buffer": [
+    1920,
+    1080
+  ],
+  "results": "See per-theme JSON; observed growth22.96FPS/Thore23.39/Aurora23.99/waves23.79,23.99,23.79. Mature growthp9550.85ms/max65.03 and lightningmax61.83ms remain above41.7ms budget. Atlas sampled warmed shadermax40.05ms; prior21.95 shared-load observation did not reproduce in these windows.",
+  "limitations": [
+    "No all-theme24FPS guarantee. All measured workers retire immediately onhide.",
+    "Coldwaves post-show2s only17.99FPS, shaderp95126.58/max166.35 during CPU compiler warmup. Cold shows54.72\u2013186.45ms remain.",
+    "Frame publication count includes any repeated animation clock; distinct counts are explicit, notably mature growth110distinct/115published.",
+    "Performance varies with host load, hardware, history and clocks; five-second windows are observations, not universal bounds.",
+    "No main-window Save crash reproduction/fix or user aesthetic acceptance."
+  ],
+  "retirement_all_immediate": true
+}
