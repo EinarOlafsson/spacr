@@ -1,5 +1,35 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 Home next-source checkpoint and workstation CI relay
+Local Home source now includes bounded radius physics, still facets with local
+mouse response, evolving advection vortices, exact radius-aware terrain culling,
+and three more safe native ingest buffer releases. Paired real TIFF ingest
+reduces RSS1792.76 to1698.21MiB with all three outputs byte-identical; native
+batch/watch66 cases pass. Evidence is in the new 548_native_memory_followup
+and 663_local_gravity_advection_culling_cpu archives. Satin integration still
+awaits its retained-buffer/runtime-fallback review and exact final MainWindow
+Save/Detail/radius stress. Reported native Save crash stays OPEN.
+
+Actual docs37494089527 nightly job112377763420 on1f3 failed solely at ambient
+module introduction: Definition list ends without blank line/unexpected
+unindent. Source546bf33e8 fixes that formatting and stale catalog/default prose.
+140 docstring/field/source contracts pass; full RST sweep skipped because Home
+lacks Sphinx. Direct docutils parse of the changed actual module confirms no
+structural error. Final source still needs workstation normal generated API,
+runtime/Help/settings-flow/consumer-map, translations and deployment refresh.
+
+Older e259 tests37478294475 are now terminal FAILURE. Fast shards0/1 and
+minimum shards0/1 confirm the previously relayed Swedish/French reviewed-policy
+130vs131, localization-progress exact bytes, and missing README Make Masks
+feature-guide referral. These remain workstation-owned; do not weaken strict
+source-bound assertions. Logs in /mnt/wd4tb/scratch/root-evidence-20261006/
+and /mnt/wd4tb/scratch/ci-e259-failures-20261006/; please repair normally.
+Current1f3 tests37494090176 are queued, not green. No source fix for old full
+serial exit139 is claimed. New workflow captures fsynced failed reports and an
+owned fatal Python stream, plus bounded failure-only native core text if
+available. The next coherent workflow-file push starts a new full hosted Qt
+attempt. Keep the 10.8GiB guard and no full local Qt execution.
+
 ## 2026-10-06 Home integrated source and actual CI diagnosis
 Home now integrates native T>1 Mask watching plus lower-copy normalization,
 66 root integrated native watcher/batch cases pass as well. Requested
@@ -21,7 +51,7 @@ Detail/Save causality. Existing actual MainWindow/4K Save probes have not
 reproduced it; exact new-source stress is ongoing. Do not claim a fix.
 
 Protected serial37457998285 TERMINAL FAILURE on source237506317 after4h:
-exit139 at puncta test[False], last RSS~5.18GiB, host available~10GiB,
+exit139 at puncta test[False], last RSS~5.06GiB, host available~10GiB,
 zero swap/OOM kills, below10.8GiB guard. Nine earlier assertion failures lack
 summary because native death. All nine and puncta pass exact-source narrow
 replays; cumulative native state is being investigated. Do not waive memory,
