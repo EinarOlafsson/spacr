@@ -188,9 +188,12 @@ shared machine; no GPU turn; scripts in /mnt/wd4tb/scratch/571/scripts)
     refuses wrong or changed sources before model setup, while legacy
     manually supplied annotation CSVs retain their old behavior. Existing
     unbound rows can be upgraded only after an explicit confirmation of the
-    current tracker. Source-exact bounded CPU/offscreen tests: 110 passed,
+    current tracker. Annotation load binds the before-read file digest and
+    rejects an external edit made during parsing; output paths cannot alias
+    the input tracker or image sequence. Source-exact bounded CPU/offscreen
+    tests: 112 passed,
     including real TIFF reader roundtrip, alpha switch, invalid inputs and
-    interrupted edits; 415/415 added editor lines and 144/144 branches plus
+    interrupted edits; 420/420 added editor lines and 148/148 branches plus
     26/26 added detector lines and 14/14 branches hit.
     Reproducer and frozen source/test receipt are in
     data/567_event_annotation_editor_2026-10-06/. This closes the GUI work

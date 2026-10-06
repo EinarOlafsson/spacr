@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[3]
 BASE = "bf7873dec6859ba75622c532216cd36f183472ec"
 SOURCE_BLOBS = {
     "spacr/qt/widgets/timelapse_preview.py":
-        "166ca145744807af7c8485792b9dcebea875c569",
+        "e303ddce8800ede40cce900434932469bc0093fd",
     "spacr/timelapse.py": "17c2746545d06cc356d6d81897c11a145fa7af3d",
 }
 TESTS = (
@@ -89,7 +89,7 @@ def main() -> int:
         }
     receipt = {
         "source_blobs": SOURCE_BLOBS,
-        "test_count": 110,
+        "test_count": 112,
         "coverage": coverage,
         "coverage_json_sha256": hashlib.sha256(report.read_bytes()).hexdigest(),
     }

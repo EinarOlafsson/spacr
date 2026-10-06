@@ -6,21 +6,23 @@
   "final_test_commit": "f0fdad3eb0b5d762e1417a1035ef01b7846153c4",
   "provenance_source_commit": "e293c6c790",
   "provenance_test_commit": "ac198b6b6861d5c4d0873ddb2c3bb0c95905b6d0",
+  "load_race_source_commit": "7b747c7bda",
+  "load_race_test_commit": "19f556c63010fa977f47ce2863eb613a52f643f3",
   "source_blobs": {
-    "spacr/qt/widgets/timelapse_preview.py": "166ca145744807af7c8485792b9dcebea875c569",
+    "spacr/qt/widgets/timelapse_preview.py": "e303ddce8800ede40cce900434932469bc0093fd",
     "spacr/timelapse.py": "17c2746545d06cc356d6d81897c11a145fa7af3d"
   },
   "settings_blob": "f8c7189937c150c405f705095d107371da0b2297",
-  "coverage_json_sha256": "f35c90a6f024f4e4f05097c7d4805749d52e73623155756f8c8c5f64a76a9e5e",
-  "coverage_artifact_gz_sha256": "05f41206a8950b6f7afe968394816a29ced20e84b38929504949c4ca3e86d5b7",
-  "test_count": 110,
+  "coverage_json_sha256": "7a66da4cfd69d4f83cc23cf07b995d0caa69d0dd3a447c1662059ac0430b5042",
+  "coverage_artifact_gz_sha256": "791eb4283d1b4b427edea2c71b4789917f905ba2764009baa491c731a02521d2",
+  "test_count": 112,
   "coverage": {
     "spacr/qt/widgets/timelapse_preview.py": {
-      "added_executable_lines": 415,
-      "added_executable_hit": 415,
+      "added_executable_lines": 420,
+      "added_executable_hit": 420,
       "added_executable_missing": [],
-      "added_origin_arcs": 144,
-      "added_origin_hit": 144,
+      "added_origin_arcs": 148,
+      "added_origin_hit": 148,
       "added_origin_missing": []
     },
     "spacr/timelapse.py": {
