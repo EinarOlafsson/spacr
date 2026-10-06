@@ -143,7 +143,8 @@ def test_gravity_click_passes_through_to_real_controls_and_stops_when_hidden(qtb
     host = QWidget()
     qtbot.addWidget(host)
     host.resize(360, 240)
-    backdrop = ambient.install_ambient(host, theme="data_art_impulse_lens", seed=7)
+    backdrop = ambient.install_ambient(host, theme="data_art_impulse_lens",
+                                       gravity_radius=0.5, seed=7)
     button = QPushButton("Run", host)
     button.setGeometry(140, 90, 80, 40)
     clicks = []
@@ -161,6 +162,32 @@ def test_gravity_click_passes_through_to_real_controls_and_stops_when_hidden(qtb
     host.hide()
     assert backdrop._interaction_app is None
     assert not backdrop._pending_art_impulses
+    assert not backdrop.shading_thread_alive()
+
+
+def test_zero_gravity_keeps_clicks_out_and_rebuild_preserves_user_radius(qtbot):
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(320, 200)
+    backdrop = ambient.install_ambient(host, theme="data_art_impulse_lens", seed=7,
+                                       gravity_radius=0.0)
+    host.show()
+    qtbot.waitExposed(host)
+    assert backdrop.gravity_radius() == 0.0
+    assert backdrop._interaction_app is None
+
+    backdrop.set_gravity_radius(0.4)
+    assert backdrop._interaction_app is not None
+    backdrop.set_theme("data_art_genetic_advection")
+    assert backdrop.gravity_radius() == 0.4
+    assert backdrop._interaction_app is None
+    backdrop.set_theme("data_art_impulse_lens")
+    assert backdrop._interaction_app is not None
+
+    backdrop.set_gravity_radius(0.0)
+    assert backdrop._interaction_app is None
+    assert not backdrop._pending_art_impulses
+    host.close()
     assert not backdrop.shading_thread_alive()
 
 

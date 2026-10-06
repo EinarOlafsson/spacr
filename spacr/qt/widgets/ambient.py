@@ -5266,6 +5266,16 @@ def preferred_motion() -> Motion:
         return fallback
 
 
+def _preferred_gravity_radius() -> float:
+    """Read the optional pointer radius without requiring Preferences at import."""
+    try:
+        from ..preferences import _ambient_gravity_radius
+
+        return _clamp(_ambient_gravity_radius(), 0.0, 1.0)
+    except Exception:
+        return 0.0
+
+
 
 #: Frames painted by every ambient backdrop in this process, ever.
 #:
@@ -5563,6 +5573,7 @@ class AmbientWidget(QWidget):
                  size: Optional[float] = None,
                  resolution: Optional[float] = None,
                  density: Optional[float] = None,
+                 gravity_radius: Optional[float] = None,
                  direction: Optional[str] = None,
                  corner_radius: int = 0):
         """Build the widget and start its engine.
@@ -5618,6 +5629,9 @@ class AmbientWidget(QWidget):
             *RESOLUTION_RANGE)
         self._density = _clamp(
             stored.density if density is None else density, *DENSITY_RANGE)
+        self._gravity_radius = _clamp(
+            _preferred_gravity_radius() if gravity_radius is None else gravity_radius,
+            0.0, 1.0)
         wanted = stored.direction if direction is None else direction
         self._direction = wanted if is_valid_drift_direction(wanted) \
             else DEFAULT_DRIFT_DIRECTION
@@ -5637,6 +5651,9 @@ class AmbientWidget(QWidget):
                                    resolution=self._resolution,
                                    density=self._density,
                                    direction=self._direction)
+        radius_setter = getattr(self._engine, "set_gravity_radius", None)
+        if radius_setter is not None:
+            radius_setter(self._gravity_radius)
 
         if self._theme.startswith("data_art_"):
             self._art_input = _QueuedArtInput()
@@ -5798,6 +5815,9 @@ class AmbientWidget(QWidget):
                              resolution=self._resolution,
                              density=self._density,
                              direction=self._direction)
+        radius_setter = getattr(engine, "set_gravity_radius", None)
+        if radius_setter is not None:
+            radius_setter(self._gravity_radius)
         with self._engine_lock:
             engine.set_max_pixels(self._engine.max_pixels)
             engine.set_time(self._engine.time)
@@ -5843,6 +5863,30 @@ class AmbientWidget(QWidget):
     def density(self) -> float:
         """How many elements are drawn; 1.0 is each theme's own count."""
         return self._density
+
+    def gravity_radius(self) -> float:
+        """The normalized reach of local pointer gravity; zero disables it."""
+        return self._gravity_radius
+
+    def set_gravity_radius(self, value: float) -> None:
+        """Apply local pointer reach while excluding a concurrent shade pass."""
+        radius = _clamp(value, 0.0, 1.0)
+        if radius == self._gravity_radius:
+            return
+        self._gravity_radius = radius
+        if radius == 0.0:
+            self._pending_art_impulses.clear()
+        with self._engine_lock:
+            if self._art_input is not None:
+                self._art_input._consume(self._engine, discard_clicks=radius == 0.0)
+            radius_setter = getattr(self._engine, "set_gravity_radius", None)
+            if radius_setter is not None:
+                radius_setter(radius)
+            if radius == 0.0 and isinstance(self._engine, _DataArtEngine):
+                self._engine.set_pointer(None)
+            self._republish()
+        self._sync_interaction_filter()
+        self.update()
 
     def set_density(self, value: float) -> None:
         """Set the element-count multiplier. Clamped to
@@ -6170,7 +6214,8 @@ class AmbientWidget(QWidget):
     def _sync_interaction_filter(self) -> None:
         """Observe clicks only while the visible gravitational field runs."""
         app = QApplication.instance()
-        wanted = (self._theme == "data_art_impulse_lens" and self._should_run()
+        wanted = (self._theme == "data_art_impulse_lens" and self._gravity_radius > 0.0
+                  and self._should_run()
                   and self._timer.isActive())
         if wanted and self._interaction_app is None and app is not None:
             app.installEventFilter(self)
@@ -6313,7 +6358,7 @@ class AmbientWidget(QWidget):
         advance_spaceout_drift(step)
         pointer = (self._data_art_pointer_for_tick()
                    if isinstance(self._engine, _DataArtEngine)
-                   and self._engine.interactive else None)
+                   and self._engine.interactive and self._gravity_radius > 0.0 else None)
         if self._art_input is not None:
             self._art_input._offer(step, pointer, tuple(self._pending_art_impulses))
             self._pending_art_impulses.clear()
