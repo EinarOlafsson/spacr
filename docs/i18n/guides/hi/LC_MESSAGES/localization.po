@@ -1,5 +1,5 @@
 # spaCR user guide translation (hi).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 20:46-0400\n"
+"POT-Creation-Date: 2026-10-05 23:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -88,8 +88,9 @@ msgstr "संदर्भ सहायता"
 msgid "Module and setting tooltips have complete external catalog entries in every bundled language. Setting tooltips are assembled from separate semantic fields so the setting name, type, authored explanation and API caption can be checked independently. Format fields, code literals, scientific symbols, URLs and option values are immutable during catalog generation. A translation is accepted only when those structural values survive; otherwise spaCR uses the canonical English text."
 msgstr "मॉड्यूल और सेटिंग टूलटिप की हर अंतर्निहित भाषा में पूर्ण बाहरी कैटलॉग प्रविष्टियाँ हैं। सेटिंग टूलटिप अलग-अलग अर्थगत फ़ील्ड से बनाए जाते हैं ताकि सेटिंग नाम, प्रकार, लिखित व्याख्या और API शीर्षक की स्वतंत्र रूप से जाँच की जा सके। कैटलॉग निर्माण के दौरान प्रारूप फ़ील्ड, कोड शाब्दिक, वैज्ञानिक प्रतीक, URL और विकल्प मान अपरिवर्तनीय रहते हैं। अनुवाद केवल तब स्वीकार होता है जब ये संरचनात्मक मान बने रहें; अन्यथा spaCR मानक अंग्रेज़ी पाठ का उपयोग करता है।"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "The **API** link at the foot of each setting's tooltip keeps the exact documentation URL in every language. Its caption and accessible name follow the selected language, and changing language refreshes already-open settings windows. Where visual help exists, the tooltip footer also offers an **Animation** word that reveals the drawing beside the text. The scientific drawing itself is language-neutral. See the :doc:`setting animation gallery <setting_animations>` for every exact mapping."
-msgstr "हर सेटिंग टूलटिप के नीचे का **API** लिंक हर भाषा में सटीक दस्तावेज़ URL बनाए रखता है। इसका शीर्षक और सुलभ नाम चुनी गई भाषा का अनुसरण करते हैं, और भाषा बदलने से पहले से खुली सेटिंग विंडो ताज़ा हो जाती हैं। जहाँ दृश्य सहायता मौजूद है, वहाँ टूलटिप के निचले भाग में **Animation** शब्द भी मिलता है जो पाठ के बगल में चित्र दिखाता है। वैज्ञानिक चित्र स्वयं भाषा-निरपेक्ष है। हर सटीक मैपिंग के लिए :doc:`सेटिंग एनिमेशन गैलरी <setting_animations>` देखें।"
+msgstr "हर सेटिंग टूलटिप के नीचे का **API** लिंक हर भाषा में सटीक दस्तावेज़ URL बनाए रखता है। इसका शीर्षक और सुलभ नाम चुनी गई भाषा का अनुसरण करते हैं, और भाषा बदलने से पहले से खुली सेटिंग विंडो ताज़ा हो जाती हैं। जहाँ दृश्य सहायता मौजूद है, वहाँ टूलटिप के निचले भाग में **एनिमेशन** शब्द भी मिलता है जो पाठ के बगल में चित्र दिखाता है। वैज्ञानिक चित्र स्वयं भाषा-निरपेक्ष है। हर सटीक मैपिंग के लिए :doc:`सेटिंग एनिमेशन गैलरी <setting_animations>` देखें।"
 
 msgid "Translation safety"
 msgstr "अनुवाद सुरक्षा"

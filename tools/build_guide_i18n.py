@@ -575,6 +575,7 @@ def runtime_ui_name(name: str, language: str):
     only the known trailing count in parentheses is omitted for the guide.
     """
     sys.path.insert(0, str(ROOT))
+    import spacr.qt.widgets.setup_slides
     from spacr.qt.i18n import _exact_translation
     from spacr.qt.i18n_catalogs import en as _english_catalog, setting_label
 

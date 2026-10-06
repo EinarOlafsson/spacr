@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "source_commit": "ccd1c7f4e60ebb15b2b63818c471f7837fcf049e",
+  "review_method": "Direct Codex AI technical review; no native-speaker signoff. Only the displayed Animation caption is changed to the actual first-run-owned runtime row; all surrounding reviewed wording is retained. Previous target text is retained as historical evidence.",
+  "records": [
+    {
+      "domain": "localization",
+      "source": "The **API** link at the foot of each setting's tooltip keeps the exact documentation URL in every language. Its caption and accessible name follow the selected language, and changing language refreshes already-open settings windows. Where visual help exists, the tooltip footer also offers an **Animation** word that reveals the drawing beside the text. The scientific drawing itself is language-neutral. See the :doc:`setting animation gallery <setting_animations>` for every exact mapping.",
+      "source_sha256": "8f1f5b591f96f5a7ee5f6786f3305f5237cb0deaeb67185b8e156b6cbadaa64e",
+      "previous_translation": "O link **API** no rodapé da dica de ferramenta de cada configuração mantém o URL exato da documentação em todos os idiomas. Sua legenda e seu nome acessível seguem o idioma selecionado, e a mudança de idioma atualiza as janelas de configurações já abertas. Onde há ajuda visual, o rodapé da dica também oferece a palavra **Animation**, que revela o desenho ao lado do texto. O desenho científico em si é independente do idioma. Consulte a :doc:`galeria de animações das configurações <setting_animations>` para ver cada correspondência exata.",
+      "target": "O link **API** no rodapé da dica de ferramenta de cada configuração mantém o URL exato da documentação em todos os idiomas. Sua legenda e seu nome acessível seguem o idioma selecionado, e a mudança de idioma atualiza as janelas de configurações já abertas. Onde há ajuda visual, o rodapé da dica também oferece a palavra **Animação**, que revela o desenho ao lado do texto. O desenho científico em si é independente do idioma. Consulte a :doc:`galeria de animações das configurações <setting_animations>` para ver cada correspondência exata.",
+      "displayed_animation_caption": "Animação"
+    },
+    {
+      "domain": "setting_animations",
+      "source": "spaCR includes short, deterministic GIFs for settings whose effect is easier to understand visually. In the desktop interface, hovering a setting shows its explanation; pressing the teal **Animation** word in that tooltip's footer reveals the corresponding animation to the right of the text. It is revealed for that setting only — the next setting is text again until its own **Animation** is pressed, and nothing is decoded until it is. Set *Setting animations* in Preferences to show them without asking.",
+      "source_sha256": "460fc0515db2637d3cb746082c5a9ab630257dd9444cdffbacf13cde30acad85",
+      "previous_translation": "O spaCR inclui GIFs curtos e determinísticos para configurações cujo efeito é mais fácil de entender visualmente. Na interface de desktop, passar o ponteiro sobre uma configuração mostra sua explicação; clicar na palavra **Animation** em verde-azulado no rodapé dessa dica exibe a animação correspondente à direita do texto. Ela é exibida apenas para essa configuração — a próxima configuração volta a ser texto até que sua própria **Animation** seja clicada, e nada é decodificado antes disso. Ative *Animações das configurações* em Preferências para exibi-las sem perguntar.",
+      "target": "O spaCR inclui GIFs curtos e determinísticos para configurações cujo efeito é mais fácil de entender visualmente. Na interface de desktop, passar o ponteiro sobre uma configuração mostra sua explicação; clicar na palavra **Animação** em verde-azulado no rodapé dessa dica exibe a animação correspondente à direita do texto. Ela é exibida apenas para essa configuração — a próxima configuração volta a ser texto até que sua própria **Animação** seja clicada, e nada é decodificado antes disso. Ative *Animações das configurações* em Preferências para exibi-las sem perguntar.",
+      "displayed_animation_caption": "Animação"
+    }
+  ]
+}

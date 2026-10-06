@@ -1,0 +1,140 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "source_commit": "ccd1c7f4e60ebb15b2b63818c471f7837fcf049e",
+  "source_file_sha256": "d52843fc365b69ef8f6accf58817013d11465983eb87bfe7679a90dac7282f8a",
+  "review_method": "Direct Codex AI technical review; no native-speaker signoff. Selection guidance translated directly, twelve labels/descriptions reused exactly from current source-bound runtime reviews and displayed UI glossary.",
+  "records": [
+    {
+      "domain": "features",
+      "source": "Data-art themes",
+      "source_sha256": "cfb3e0bd24dcf3b4344c6c51a7bde4b8ff9e71cd7b6aa0970959e242d1770f84",
+      "target": "데이터 아트 테마",
+      "ui": {}
+    },
+    {
+      "domain": "features",
+      "source": "Under **Preferences** → **Appearance** → **Theme**, twelve data-art presets each select an interface palette and an animated background. The original ten night themes and seven background animations remain available. **Animation** lets you choose a background independently; select **None** for a static background. These backgrounds are decorative and do not display project measurements.",
+      "source_sha256": "4df9b39b349362bbcd9b4842dfd7f4cba570b2be4bf9de9bfb996a84e1af5224",
+      "target": "**환경설정** → **모양** → **테마** 에서 열두 가지 데이터 아트 사전 설정은 각각 인터페이스 색상 팔레트와 움직이는 배경을 선택합니다. 기존의 열 가지 야간 테마와 일곱 가지 배경 애니메이션도 계속 사용할 수 있습니다. **애니메이션** 으로 배경을 독립적으로 선택할 수 있으며, 정적인 배경을 사용하려면 **없음** 을 선택하세요. 이러한 배경은 장식용이며 프로젝트 측정값을 표시하지 않습니다.",
+      "ui": {
+        "Preferences": "환경설정",
+        "Appearance": "모양",
+        "Theme": "테마",
+        "Animation": "애니메이션",
+        "None": "없음"
+      },
+      "previous_target_before_strict_RST_spacing_fix": "**환경설정** → **모양** → **테마**에서 열두 가지 데이터 아트 사전 설정은 각각 인터페이스 색상 팔레트와 움직이는 배경을 선택합니다. 기존의 열 가지 야간 테마와 일곱 가지 배경 애니메이션도 계속 사용할 수 있습니다. **애니메이션**으로 배경을 독립적으로 선택할 수 있으며, 정적인 배경을 사용하려면 **없음**을 선택하세요. 이러한 배경은 장식용이며 프로젝트 측정값을 표시하지 않습니다."
+    },
+    {
+      "domain": "features",
+      "source": "**Spatial point atlas** — A finely sampled three-dimensional point landscape with depth and cursor-driven parallax.",
+      "source_sha256": "b675dc7dcd661f1e350c351c9fdbf680ece68d3fd6ba0c803baea20985b665e8",
+      "target": "**공간 점 지도** — 촘촘하게 샘플링한 3차원 점 풍경이 깊이와 커서에 따라 움직이는 시차를 보여 줍니다.",
+      "ui": {
+        "Spatial point atlas": "공간 점 지도"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Tissue facets** — A crystalline tissue mosaic of shaded geometric facets, with slowly changing local relief.",
+      "source_sha256": "42f551d81fc2e694d8f17b8a45cd4beb419c56f93d6ffea97b36a53dc3b971b7",
+      "target": "**조직 결정면** — 음영을 넣은 기하학적 결정면으로 이루어진 결정질 조직 모자이크에서 국소적인 높낮이가 천천히 변합니다.",
+      "ui": {
+        "Tissue facets": "조직 결정면"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Spatial strata** — Fine stacked topographic layers form a moving spatial relief with precise depth and contour detail.",
+      "source_sha256": "65ca8488d8fb21f966577e7d037477ce9a824ec40fe27e833fa40b8c764e0cc5",
+      "target": "**공간 지층** — 세밀하게 쌓인 지형 층이 움직이는 공간 부조를 이루며 정밀한 깊이와 등고선 세부를 보여 줍니다.",
+      "ui": {
+        "Spatial strata": "공간 지층"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Molecular helix** — A rotating molecular helix of shaded beads and paired bases, with perspective and depth.",
+      "source_sha256": "e99ab54426f2d4c768f2f1f1853f691edac4f22ef8e0a875870ebd5f493d21e3",
+      "target": "**분자 나선** — 음영을 넣은 구슬과 짝지어진 염기로 이루어진 분자 나선이 회전하며 원근감과 깊이를 보여 줍니다.",
+      "ui": {
+        "Molecular helix": "분자 나선"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Chromatin satin** — Folded satin-like chromatin ribbons carry fine fibres through soft, interwoven surfaces.",
+      "source_sha256": "a7727aa607626cff24878a9566dc9114b67e9dce7a414bfa64035077da868ed1",
+      "target": "**염색질 새틴** — 접힌 새틴 같은 염색질 리본이 부드럽게 얽힌 표면 사이로 가는 섬유를 나릅니다.",
+      "ui": {
+        "Chromatin satin": "염색질 새틴"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Genome mosaic** — A layered genome mosaic of tiny encoded tiles shifts through an architectural sequence field.",
+      "source_sha256": "acabd7ef946ae32fbbddd6bc56598ca1b5e114dc9cf3ef27086819c514c74549",
+      "target": "**유전체 모자이크** — 작은 부호화 타일로 이루어진 다층 유전체 모자이크가 건축적인 서열 공간을 따라 이동합니다.",
+      "ui": {
+        "Genome mosaic": "유전체 모자이크"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Transcript rain** — Fine falling transcription marks stream through a layered field of genetic information.",
+      "source_sha256": "22c0631d933646d0c04e6ebe0a2dcf00be28f6ccb5184f605a06b8d23de1ae59",
+      "target": "**전사체 비** — 가는 전사 기호가 떨어지며 여러 층으로 이루어진 유전 정보 공간을 흐릅니다.",
+      "ui": {
+        "Transcript rain": "전사체 비"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Regulatory circuit** — An etched regulatory circuit routes pulses through precise orthogonal paths and small control nodes.",
+      "source_sha256": "9e4f0e00a1bc0ea432856497274b47f0e1889a850a715b961288170deb2d9e5b",
+      "target": "**조절 회로** — 새겨진 듯한 조절 회로가 정밀한 직교 경로와 작은 제어 노드를 통해 펄스를 전달합니다.",
+      "ui": {
+        "Regulatory circuit": "조절 회로"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Genetic advection** — Thousands of fine genetic-flow particles move through a continuous wind-like field that bends near the cursor.",
+      "source_sha256": "b354702a1ae93f7ed7e8226620a5ae318bb016a4d3666df35f560852a4623b71",
+      "target": "**유전적 이류** — 수천 개의 미세한 유전 흐름 입자가 바람 같은 연속적인 장을 따라 움직이며, 이 장은 커서 근처에서 휘어집니다.",
+      "ui": {
+        "Genetic advection": "유전적 이류"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Perturbation interference** — Smooth interference waves form a changing pearlescent field, distorted locally by the cursor.",
+      "source_sha256": "af0b3b7fa4279ab9e33161cdd0e019b68479946ccfc31ab2fd3352e287ed3975",
+      "target": "**섭동 간섭** — 부드러운 간섭파가 변화하는 진주빛 장을 이루고, 커서가 이를 국소적으로 변형합니다.",
+      "ui": {
+        "Perturbation interference": "섭동 간섭"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Morphogenesis** — A fine organic pattern of changing spots and labyrinths evokes the emergence of biological structure.",
+      "source_sha256": "9ba4c742c6161c73f58ed8349608840c96682dd6db57643a7cb6297f4c861eef",
+      "target": "**형태 형성** — 변화하는 반점과 미로의 세밀한 유기적 무늬가 생물학적 구조의 출현을 연상시킵니다.",
+      "ui": {
+        "Morphogenesis": "형태 형성"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Perturbation lens** — A precision dot lattice bends around moving impulses and the cursor, revealing local perturbation.",
+      "source_sha256": "3d9bacec6645a5883e6b9ff2491f690471482bb89a067435ef40fa145c931574",
+      "target": "**섭동 렌즈** — 정밀한 점 격자가 움직이는 펄스와 커서 주위에서 휘어지며 국소적인 섭동을 드러냅니다.",
+      "ui": {
+        "Perturbation lens": "섭동 렌즈"
+      }
+    }
+  ],
+  "previous_complete_translations_preserved": 2965,
+  "strict_RST_spacing_note": "Korean particles are separated from closing bold UI markers to meet docutils boundaries; displayed labels and meaning are retained."
+}

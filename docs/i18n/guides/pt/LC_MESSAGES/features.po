@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 20:46-0400\n"
+"POT-Creation-Date: 2026-10-05 23:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
@@ -231,6 +231,62 @@ msgstr "Acessibilidade"
 
 msgid "Every control has a name that screen readers announce, taken from its label, tooltip or placeholder, and the names follow the interface language. **Tab** moves out of text boxes and tables to the next control instead of typing a tab. **Preferences → Appearance → Theme** offers **High contrast**, in which all text has a contrast ratio of at least 7:1 against its background."
 msgstr "Todo controle tem um nome anunciado pelos leitores de tela, obtido de seu rótulo, sua dica de ferramenta ou seu texto de espaço reservado, e os nomes seguem o idioma da interface. **Tab** sai das caixas de texto e das tabelas para o próximo controle, em vez de inserir uma tabulação. **Preferências → Aparência → Tema** oferece **Alto contraste**, em que todo texto tem uma razão de contraste de pelo menos 7:1 em relação ao fundo."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Data-art themes"
+msgstr "Temas de arte de dados"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Under **Preferences** → **Appearance** → **Theme**, twelve data-art presets each select an interface palette and an animated background. The original ten night themes and seven background animations remain available. **Animation** lets you choose a background independently; select **None** for a static background. These backgrounds are decorative and do not display project measurements."
+msgstr "Em **Preferências** → **Aparência** → **Tema**, cada uma das doze predefinições de arte de dados seleciona uma paleta de interface e um fundo animado. Os dez temas noturnos e as sete animações de fundo originais continuam disponíveis. **Animação** permite escolher um fundo de forma independente; selecione **Nenhuma** para usar um fundo estático. Esses fundos são decorativos e não exibem medições do projeto."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Spatial point atlas** — A finely sampled three-dimensional point landscape with depth and cursor-driven parallax."
+msgstr "**Atlas espacial de pontos** — Uma paisagem tridimensional de pontos com amostragem fina, profundidade e paralaxe controlada pelo cursor."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Tissue facets** — A crystalline tissue mosaic of shaded geometric facets, with slowly changing local relief."
+msgstr "**Facetas teciduais** — Um mosaico tecidual cristalino de facetas geométricas sombreadas, com relevo local que muda lentamente."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Spatial strata** — Fine stacked topographic layers form a moving spatial relief with precise depth and contour detail."
+msgstr "**Estratos espaciais** — Camadas topográficas finas e empilhadas formam um relevo espacial em movimento, com detalhes precisos de profundidade e contorno."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Molecular helix** — A rotating molecular helix of shaded beads and paired bases, with perspective and depth."
+msgstr "**Hélice molecular** — Uma hélice molecular em rotação, formada por contas sombreadas e bases pareadas, com perspectiva e profundidade."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Chromatin satin** — Folded satin-like chromatin ribbons carry fine fibres through soft, interwoven surfaces."
+msgstr "**Cetim de cromatina** — Fitas dobradas de cromatina, semelhantes ao cetim, transportam fibras finas através de superfícies suaves e entrelaçadas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Genome mosaic** — A layered genome mosaic of tiny encoded tiles shifts through an architectural sequence field."
+msgstr "**Mosaico genômico** — Um mosaico genômico em camadas, formado por pequenos ladrilhos codificados, desloca-se por um campo arquitetônico de sequências."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Transcript rain** — Fine falling transcription marks stream through a layered field of genetic information."
+msgstr "**Chuva de transcritos** — Marcas finas de transcrição caem e fluem por um campo estratificado de informação genética."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Regulatory circuit** — An etched regulatory circuit routes pulses through precise orthogonal paths and small control nodes."
+msgstr "**Circuito regulador** — Um circuito regulador gravado conduz pulsos por trajetórias ortogonais precisas e pequenos nós de controle."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Genetic advection** — Thousands of fine genetic-flow particles move through a continuous wind-like field that bends near the cursor."
+msgstr "**Advecção genética** — Milhares de partículas finas de fluxo genético movem-se por um campo contínuo semelhante ao vento que se curva perto do cursor."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Perturbation interference** — Smooth interference waves form a changing pearlescent field, distorted locally by the cursor."
+msgstr "**Interferência de perturbações** — Ondas suaves de interferência formam um campo perolado em mudança, distorcido localmente pelo cursor."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Morphogenesis** — A fine organic pattern of changing spots and labyrinths evokes the emergence of biological structure."
+msgstr "**Morfogênese** — Um padrão orgânico fino de manchas e labirintos em mudança evoca o surgimento de estruturas biológicas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Perturbation lens** — A precision dot lattice bends around moving impulses and the cursor, revealing local perturbation."
+msgstr "**Lente de perturbação** — Uma malha precisa de pontos curva-se ao redor de impulsos em movimento e do cursor, revelando perturbações locais."
 
 msgid "Arranging the window"
 msgstr "Organizar a janela"

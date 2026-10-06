@@ -1,5 +1,5 @@
 # spaCR user guide translation (is).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 20:46-0400\n"
+"POT-Creation-Date: 2026-10-05 23:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -88,8 +88,9 @@ msgstr "Samhengishjálp"
 msgid "Module and setting tooltips have complete external catalog entries in every bundled language. Setting tooltips are assembled from separate semantic fields so the setting name, type, authored explanation and API caption can be checked independently. Format fields, code literals, scientific symbols, URLs and option values are immutable during catalog generation. A translation is accepted only when those structural values survive; otherwise spaCR uses the canonical English text."
 msgstr "Skjábendingar eininga og stillinga hafa heildstæðar færslur í ytri skrám á hverju meðfylgjandi tungumáli. Skjábendingar stillinga eru settar saman úr aðskildum merkingarreitum þannig að hægt er að athuga heiti stillingar, tegund, samda skýringu og API-texta hvert fyrir sig. Sniðreitir, kóðastrengir, vísindaleg tákn, vefslóðir og gildi valkosta eru óbreytanleg við gerð þýðingarskránna. Þýðing er aðeins samþykkt þegar þessi byggingargildi haldast; annars notar spaCR staðlaða enska textann."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "The **API** link at the foot of each setting's tooltip keeps the exact documentation URL in every language. Its caption and accessible name follow the selected language, and changing language refreshes already-open settings windows. Where visual help exists, the tooltip footer also offers an **Animation** word that reveals the drawing beside the text. The scientific drawing itself is language-neutral. See the :doc:`setting animation gallery <setting_animations>` for every exact mapping."
-msgstr "**API**-tengillinn neðst í skjábendingu hverrar stillingar heldur nákvæmri vefslóð skjölunarinnar á öllum tungumálum. Texti hans og aðgengilegt heiti fylgja völdu tungumáli og breyting á tungumáli endurnýjar stillingaglugga sem þegar eru opnir. Þar sem myndræn hjálp er til býður fótur skjábendingarinnar einnig upp á orðið **Animation** sem sýnir teikninguna við hlið textans. Vísindalega teikningin sjálf er óháð tungumáli. Sjá :doc:`myndasafn stillingahreyfimynda <setting_animations>` fyrir allar nákvæmar varpanir."
+msgstr "**API**-tengillinn neðst í skjábendingu hverrar stillingar heldur nákvæmri vefslóð skjölunarinnar á öllum tungumálum. Texti hans og aðgengilegt heiti fylgja völdu tungumáli og breyting á tungumáli endurnýjar stillingaglugga sem þegar eru opnir. Þar sem myndræn hjálp er til býður fótur skjábendingarinnar einnig upp á orðið **Hreyfimynd** sem sýnir teikninguna við hlið textans. Vísindalega teikningin sjálf er óháð tungumáli. Sjá :doc:`myndasafn stillingahreyfimynda <setting_animations>` fyrir allar nákvæmar varpanir."
 
 msgid "Translation safety"
 msgstr "Öryggi þýðinga"

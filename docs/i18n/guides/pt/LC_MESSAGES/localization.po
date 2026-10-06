@@ -1,5 +1,5 @@
 # spaCR user guide translation (pt).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 20:46-0400\n"
+"POT-Creation-Date: 2026-10-05 23:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -88,8 +88,9 @@ msgstr "Ajuda contextual"
 msgid "Module and setting tooltips have complete external catalog entries in every bundled language. Setting tooltips are assembled from separate semantic fields so the setting name, type, authored explanation and API caption can be checked independently. Format fields, code literals, scientific symbols, URLs and option values are immutable during catalog generation. A translation is accepted only when those structural values survive; otherwise spaCR uses the canonical English text."
 msgstr "As dicas de ferramenta de módulos e configurações têm entradas de catálogo externas completas em todos os idiomas incluídos. As dicas das configurações são montadas a partir de campos semânticos separados, de modo que o nome da configuração, o tipo, a explicação redigida e a legenda da API podem ser verificados de forma independente. Campos de formato, literais de código, símbolos científicos, URLs e valores de opção são imutáveis durante a geração dos catálogos. Uma tradução só é aceita quando esses valores estruturais são preservados; caso contrário, o spaCR usa o texto canônico em inglês."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "The **API** link at the foot of each setting's tooltip keeps the exact documentation URL in every language. Its caption and accessible name follow the selected language, and changing language refreshes already-open settings windows. Where visual help exists, the tooltip footer also offers an **Animation** word that reveals the drawing beside the text. The scientific drawing itself is language-neutral. See the :doc:`setting animation gallery <setting_animations>` for every exact mapping."
-msgstr "O link **API** no rodapé da dica de ferramenta de cada configuração mantém o URL exato da documentação em todos os idiomas. Sua legenda e seu nome acessível seguem o idioma selecionado, e a mudança de idioma atualiza as janelas de configurações já abertas. Onde há ajuda visual, o rodapé da dica também oferece a palavra **Animation**, que revela o desenho ao lado do texto. O desenho científico em si é independente do idioma. Consulte a :doc:`galeria de animações das configurações <setting_animations>` para ver cada correspondência exata."
+msgstr "O link **API** no rodapé da dica de ferramenta de cada configuração mantém o URL exato da documentação em todos os idiomas. Sua legenda e seu nome acessível seguem o idioma selecionado, e a mudança de idioma atualiza as janelas de configurações já abertas. Onde há ajuda visual, o rodapé da dica também oferece a palavra **Animação**, que revela o desenho ao lado do texto. O desenho científico em si é independente do idioma. Consulte a :doc:`galeria de animações das configurações <setting_animations>` para ver cada correspondência exata."
 
 msgid "Translation safety"
 msgstr "Segurança da tradução"

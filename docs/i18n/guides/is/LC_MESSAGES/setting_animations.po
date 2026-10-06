@@ -1,5 +1,5 @@
 # spaCR user guide translation (is).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 20:46-0400\n"
+"POT-Creation-Date: 2026-10-05 23:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Setting animation gallery"
 msgstr "Myndasafn stillingahreyfimynda"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "spaCR includes short, deterministic GIFs for settings whose effect is easier to understand visually. In the desktop interface, hovering a setting shows its explanation; pressing the teal **Animation** word in that tooltip's footer reveals the corresponding animation to the right of the text. It is revealed for that setting only — the next setting is text again until its own **Animation** is pressed, and nothing is decoded until it is. Set *Setting animations* in Preferences to show them without asking."
-msgstr "spaCR inniheldur stuttar, ákvörðunarbundnar GIF-hreyfimyndir fyrir stillingar þar sem auðveldara er að skilja áhrifin sjónrænt. Í skjáborðsviðmótinu sýnir svif yfir stillingu skýringu hennar; ef ýtt er á blágræna orðið **Animation** í fæti skjábendingarinnar birtist samsvarandi hreyfimynd hægra megin við textann. Hún birtist aðeins fyrir þá stillingu — næsta stilling er aftur texti þar til ýtt er á hennar eigin **Animation**, og ekkert er afkóðað fyrr en það er gert. Stilltu *Hreyfimyndir í stillingum* í kjörstillingum til að sýna þær án þess að spyrja."
+msgstr "spaCR inniheldur stuttar, ákvörðunarbundnar GIF-hreyfimyndir fyrir stillingar þar sem auðveldara er að skilja áhrifin sjónrænt. Í skjáborðsviðmótinu sýnir svif yfir stillingu skýringu hennar; ef ýtt er á blágræna orðið **Hreyfimynd** í fæti skjábendingarinnar birtist samsvarandi hreyfimynd hægra megin við textann. Hún birtist aðeins fyrir þá stillingu — næsta stilling er aftur texti þar til ýtt er á hennar eigin **Hreyfimynd**, og ekkert er afkóðað fyrr en það er gert. Stilltu *Hreyfimyndir í stillingum* í kjörstillingum til að sýna þær án þess að spyrja."
 
 msgid "The diagrams use a shared biological grammar: white fibroblast or motile immune-cell outlines, blue nuclei with unequal nucleoli, teal Toxoplasma tachyzoites inside an outline-only parasitophorous vacuole, and soft-magenta Golgi cisternae. Filled regions are translucent and the rounded field perimeter remains white on black."
 msgstr "Skýringarmyndirnar nota sameiginlega líffræðilega málfræði: hvítar útlínur trefjakímfrumna eða hreyfanlegra ónæmisfrumna, bláa kjarna með misstórum kjarnakornum, blágræna Toxoplasma-hraðgróa inni í sníkjubólu sem aðeins er sýnd sem útlína, og mjúkar blárauðar Golgi-flögur. Fyllt svæði eru hálfgegnsæ og ávalur jaðar sjónsviðsins er áfram hvítur á svörtu."

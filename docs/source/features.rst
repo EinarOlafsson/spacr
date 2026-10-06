@@ -250,6 +250,29 @@ moves out of text boxes and tables to the next control instead of typing a
 tab. **Preferences → Appearance → Theme** offers **High contrast**, in which
 all text has a contrast ratio of at least 7:1 against its background.
 
+Data-art themes
+---------------
+
+Under **Preferences** → **Appearance** → **Theme**, twelve data-art presets
+each select an interface palette and an animated background. The original
+ten night themes and seven background animations remain available.
+**Animation** lets you choose a background independently; select **None**
+for a static background. These backgrounds are decorative and do not
+display project measurements.
+
+- **Spatial point atlas** — A finely sampled three-dimensional point landscape with depth and cursor-driven parallax.
+- **Tissue facets** — A crystalline tissue mosaic of shaded geometric facets, with slowly changing local relief.
+- **Spatial strata** — Fine stacked topographic layers form a moving spatial relief with precise depth and contour detail.
+- **Molecular helix** — A rotating molecular helix of shaded beads and paired bases, with perspective and depth.
+- **Chromatin satin** — Folded satin-like chromatin ribbons carry fine fibres through soft, interwoven surfaces.
+- **Genome mosaic** — A layered genome mosaic of tiny encoded tiles shifts through an architectural sequence field.
+- **Transcript rain** — Fine falling transcription marks stream through a layered field of genetic information.
+- **Regulatory circuit** — An etched regulatory circuit routes pulses through precise orthogonal paths and small control nodes.
+- **Genetic advection** — Thousands of fine genetic-flow particles move through a continuous wind-like field that bends near the cursor.
+- **Perturbation interference** — Smooth interference waves form a changing pearlescent field, distorted locally by the cursor.
+- **Morphogenesis** — A fine organic pattern of changing spots and labyrinths evokes the emergence of biological structure.
+- **Perturbation lens** — A precision dot lattice bends around moving impulses and the cursor, revealing local perturbation.
+
 Arranging the window
 --------------------
 

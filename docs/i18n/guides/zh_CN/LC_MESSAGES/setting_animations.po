@@ -1,5 +1,5 @@
 # spaCR user guide translation (zh_CN).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 20:46-0400\n"
+"POT-Creation-Date: 2026-10-05 23:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Setting animation gallery"
 msgstr "设置动画库"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "spaCR includes short, deterministic GIFs for settings whose effect is easier to understand visually. In the desktop interface, hovering a setting shows its explanation; pressing the teal **Animation** word in that tooltip's footer reveals the corresponding animation to the right of the text. It is revealed for that setting only — the next setting is text again until its own **Animation** is pressed, and nothing is decoded until it is. Set *Setting animations* in Preferences to show them without asking."
-msgstr "spaCR 为那些通过视觉更容易理解其效果的设置提供了简短、确定性的 GIF 动画。在桌面界面中，将鼠标悬停在某个设置上会显示其说明；按下该工具提示底部青色的 **Animation** 一词，会在文字右侧显示对应的动画。它只对该设置显示——下一个设置仍显示文字，直到按下其自己的 **Animation**，在此之前不会解码任何内容。在“偏好”中开启 *设置项动画*，即可无需询问直接显示动画。"
+msgstr "spaCR 为那些通过视觉更容易理解其效果的设置提供了简短、确定性的 GIF 动画。在桌面界面中，将鼠标悬停在某个设置上会显示其说明；按下该工具提示底部青色的 **动画** 一词，会在文字右侧显示对应的动画。它只对该设置显示——下一个设置仍显示文字，直到按下其自己的 **动画**，在此之前不会解码任何内容。在“偏好”中开启 *设置项动画*，即可无需询问直接显示动画。"
 
 msgid "The diagrams use a shared biological grammar: white fibroblast or motile immune-cell outlines, blue nuclei with unequal nucleoli, teal Toxoplasma tachyzoites inside an outline-only parasitophorous vacuole, and soft-magenta Golgi cisternae. Filled regions are translucent and the rounded field perimeter remains white on black."
 msgstr "这些示意图使用统一的生物学图示语言：白色的成纤维细胞或运动免疫细胞轮廓、带有大小不等核仁的蓝色细胞核、位于仅以轮廓表示的纳虫泡内的青色弓形虫速殖子，以及柔和的品红色高尔基体扁囊。填充区域为半透明，圆角视野边界在黑色背景上保持白色。"

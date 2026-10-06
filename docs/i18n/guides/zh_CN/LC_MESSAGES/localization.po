@@ -1,5 +1,5 @@
 # spaCR user guide translation (zh_CN).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 20:46-0400\n"
+"POT-Creation-Date: 2026-10-05 23:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -88,8 +88,9 @@ msgstr "上下文帮助"
 msgid "Module and setting tooltips have complete external catalog entries in every bundled language. Setting tooltips are assembled from separate semantic fields so the setting name, type, authored explanation and API caption can be checked independently. Format fields, code literals, scientific symbols, URLs and option values are immutable during catalog generation. A translation is accepted only when those structural values survive; otherwise spaCR uses the canonical English text."
 msgstr "模块和设置的工具提示在每种内置语言中都有完整的外部目录条目。设置工具提示由独立的语义字段组装而成，因此可以分别检查设置名称、类型、编写的说明和 API 文字。在生成目录时，格式字段、代码字面量、科学符号、URL 和选项值都不可更改。只有这些结构性值保持不变，翻译才会被接受；否则 spaCR 使用规范的英文文本。"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "The **API** link at the foot of each setting's tooltip keeps the exact documentation URL in every language. Its caption and accessible name follow the selected language, and changing language refreshes already-open settings windows. Where visual help exists, the tooltip footer also offers an **Animation** word that reveals the drawing beside the text. The scientific drawing itself is language-neutral. See the :doc:`setting animation gallery <setting_animations>` for every exact mapping."
-msgstr "每个设置工具提示底部的 **API** 链接在所有语言中都保留确切的文档 URL。其文字和无障碍名称跟随所选语言，更改语言会刷新已打开的设置窗口。在有可视化帮助的地方，工具提示底部还提供一个 **Animation** 词，点击后会在文字旁显示图示。科学图示本身与语言无关。所有确切的映射请参阅 :doc:`设置动画库 <setting_animations>`。"
+msgstr "每个设置工具提示底部的 **API** 链接在所有语言中都保留确切的文档 URL。其文字和无障碍名称跟随所选语言，更改语言会刷新已打开的设置窗口。在有可视化帮助的地方，工具提示底部还提供一个 **动画** 词，点击后会在文字旁显示图示。科学图示本身与语言无关。所有确切的映射请参阅 :doc:`设置动画库 <setting_animations>`。"
 
 msgid "Translation safety"
 msgstr "翻译安全"

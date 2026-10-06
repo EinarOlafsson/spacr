@@ -1,0 +1,103 @@
+{
+  "source_application_commit": "3053b081512d6f598a1aba76dac2393de31ba48a",
+  "previous_guide_catalog_checkpoint": "ccd1c7f4e60ebb15b2b63818c471f7837fcf049e",
+  "features_source_sha256": "d52843fc365b69ef8f6accf58817013d11465983eb87bfe7679a90dac7282f8a",
+  "normal_gettext_update_import_audit_passed": true,
+  "new_reviewed_messages_each_language": 14,
+  "total_current_translated_messages_each_language": 2979,
+  "strict_current_nine_language_builds_passed": true,
+  "actual_current_HTML_and_complete_prior_translation_preservation_passed": true,
+  "old_messages_repaired": "Two Animation captions each in es, pt, is, zh_CN, ko and hi; surrounding text unchanged",
+  "guide_runtime_registration_fix": "Load the existing setup_slides caption owner before resolving the Animation glossary caption",
+  "scoped_tests_passed": 31,
+  "failed_attempts_preserved": "Review bootstrap/audit diagnostics, initial Korean RST spacing failure and private readback path/markup failures are archived as failures; final normal importer, strict build and exact rendered-text checks pass",
+  "review_method": "Direct Codex AI technical review; no native-speaker signoff",
+  "API_refresh_separate_and_pending": true,
+  "Mask_07_unchanged": true,
+  "artifacts": {
+    "features/data/615_data_art_guides_2026-10-05/author_data_art_guide.py": {
+      "sha256": "3a66a1a1e755d48ba1b715c00ab9e79bdcfbc053e53d29e32e560de0ecd9b7f0",
+      "bytes": 1301
+    },
+    "features/data/615_data_art_guides_2026-10-05/data-art-guide-animation-caption-fix-r1.log.gz": {
+      "sha256": "ed1689489140ebac53b482aa6046da6711447f17cdbb9634b3a8d57c4eaa852f",
+      "bytes": 140
+    },
+    "features/data/615_data_art_guides_2026-10-05/data-art-guide-animation-caption-proof.json": {
+      "sha256": "9295e0c5f680c79d42d105ee2eb1cd60873618bd009f7044d8909f34144234ee",
+      "bytes": 82587
+    },
+    "features/data/615_data_art_guides_2026-10-05/data-art-guide-bootstrap-tests-r1.log.gz": {
+      "sha256": "48e1b92f2b3543561c69f4058886f6fb9e7322595a48d76b513e4927b510496a",
+      "bytes": 49
+    },
+    "features/data/615_data_art_guides_2026-10-05/data-art-guide-build-ko-r2.log.gz": {
+      "sha256": "ea90c40073eecb03ccd7278a3cb20cd2ea4b2a509cf75ef517647cd1e5fce5a5",
+      "bytes": 38
+    },
+    "features/data/615_data_art_guides_2026-10-05/data-art-guide-build-r1.log.gz": {
+      "sha256": "6a5236c19a870c4c47ed77a5b213746d5fc602a28b8c2a2cad5688c2fa0d3272",
+      "bytes": 229
+    },
+    "features/data/615_data_art_guides_2026-10-05/data-art-guide-extract-r1.log.gz": {
+      "sha256": "38c897643160f570a5a003bb16eae72086f29ffdef25f23f425f4bf725466d15",
+      "bytes": 1059
+    },
+    "features/data/615_data_art_guides_2026-10-05/data-art-guide-prose-reviewed.json": {
+      "sha256": "23ee1977877c9d4d749f8184641375876d7f0aefb766063cb83f80d55f7f9454",
+      "bytes": 5047
+    },
+    "features/data/615_data_art_guides_2026-10-05/data-art-guide-rendered-proof.json": {
+      "sha256": "2fc059a7d2076ead4f33b5616fba0efb6365e1819b56304622120e2d515ba04d",
+      "bytes": 81113
+    },
+    "features/data/615_data_art_guides_2026-10-05/data-art-guide-rendered-r1.log.gz": {
+      "sha256": "d99ce4f812b5f17a9ce31984ec3b3310fc24bca8f1524278c2d9f5d6ec199738",
+      "bytes": 531
+    },
+    "features/data/615_data_art_guides_2026-10-05/data-art-guide-rendered-r2.log.gz": {
+      "sha256": "6befb58d1ded057dcbe0319042c8e5d865b81b3387255dd44585da89df9c9fe2",
+      "bytes": 572
+    },
+    "features/data/615_data_art_guides_2026-10-05/data-art-guide-rendered-r3.log.gz": {
+      "sha256": "391470721eb6fd6c746991003af24f3497343a8e5843b7205d75f72e1fbd4a97",
+      "bytes": 175
+    },
+    "features/data/615_data_art_guides_2026-10-05/data-art-guide-review-r1.log.gz": {
+      "sha256": "e772a2b7c3f6cf6154539534fdc52776336a011c9cad513e41f160da79bf85d0",
+      "bytes": 226
+    },
+    "features/data/615_data_art_guides_2026-10-05/data-art-guide-review-r2.log.gz": {
+      "sha256": "97851b5cb55d1c9181b867a0fee9e8ab8ae35bfe7b12c12587e9233e319105a8",
+      "bytes": 211
+    },
+    "features/data/615_data_art_guides_2026-10-05/data-art-guide-review-r3.log.gz": {
+      "sha256": "b63c72394e58748e234ad36d88be4761b0336e50acc5c2ca33138ca12dedb658",
+      "bytes": 1363
+    },
+    "features/data/615_data_art_guides_2026-10-05/data-art-guide-tests-r1.log.gz": {
+      "sha256": "2d23606963ac70f0d857db6cf4dd2f7bb2a7b6af2152bd67e1080a82b3e09404",
+      "bytes": 52
+    },
+    "features/data/615_data_art_guides_2026-10-05/data-art-guide-update-r1.log.gz": {
+      "sha256": "0f103091fa9eaadb7a31556ce045c65746340e5794126584b59e9a3f1db199b4",
+      "bytes": 80
+    },
+    "features/data/615_data_art_guides_2026-10-05/finish_data_art_guides.py": {
+      "sha256": "57fbb08e487d615045170b0316f16016ee3b847b46f6f2b22a931373bfc4ff95",
+      "bytes": 5418
+    },
+    "features/data/615_data_art_guides_2026-10-05/fix_data_art_ko_guide_spacing.py": {
+      "sha256": "5d2d16f20efdc241e57ba293536e209cc54549eaf4b9c0e1c86768cf8322e624",
+      "bytes": 1481
+    },
+    "features/data/615_data_art_guides_2026-10-05/fix_guide_animation_captions.py": {
+      "sha256": "db2ba3f3464ee387ae42830797f1737206d2a6532efc1da49e117c046d2ade3f",
+      "bytes": 4048
+    },
+    "features/data/615_data_art_guides_2026-10-05/verify_data_art_guides.py": {
+      "sha256": "abadc212d621eb7697a11a42b2672fa67ab80bda1832ffdd812a08e1870672f2",
+      "bytes": 4374
+    }
+  }
+}

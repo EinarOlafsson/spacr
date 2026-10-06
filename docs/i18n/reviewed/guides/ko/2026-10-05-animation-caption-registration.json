@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "source_commit": "ccd1c7f4e60ebb15b2b63818c471f7837fcf049e",
+  "review_method": "Direct Codex AI technical review; no native-speaker signoff. Only the displayed Animation caption is changed to the actual first-run-owned runtime row; all surrounding reviewed wording is retained. Previous target text is retained as historical evidence.",
+  "records": [
+    {
+      "domain": "localization",
+      "source": "The **API** link at the foot of each setting's tooltip keeps the exact documentation URL in every language. Its caption and accessible name follow the selected language, and changing language refreshes already-open settings windows. Where visual help exists, the tooltip footer also offers an **Animation** word that reveals the drawing beside the text. The scientific drawing itself is language-neutral. See the :doc:`setting animation gallery <setting_animations>` for every exact mapping.",
+      "source_sha256": "8f1f5b591f96f5a7ee5f6786f3305f5237cb0deaeb67185b8e156b6cbadaa64e",
+      "previous_translation": "각 설정 툴팁 하단의 **API** 링크는 모든 언어에서 정확한 문서 URL을 유지합니다. 캡션과 접근성 이름은 선택한 언어를 따르며, 언어를 바꾸면 이미 열린 설정 창이 새로 고쳐집니다. 시각적 도움말이 있는 경우 툴팁 하단에 **Animation** 이라는 단어도 표시되어 텍스트 옆에 그림을 보여 줍니다. 과학 그림 자체는 언어와 무관합니다. 모든 정확한 매핑은 :doc:`설정 애니메이션 갤러리 <setting_animations>` 를 참조합니다.",
+      "target": "각 설정 툴팁 하단의 **API** 링크는 모든 언어에서 정확한 문서 URL을 유지합니다. 캡션과 접근성 이름은 선택한 언어를 따르며, 언어를 바꾸면 이미 열린 설정 창이 새로 고쳐집니다. 시각적 도움말이 있는 경우 툴팁 하단에 **애니메이션** 이라는 단어도 표시되어 텍스트 옆에 그림을 보여 줍니다. 과학 그림 자체는 언어와 무관합니다. 모든 정확한 매핑은 :doc:`설정 애니메이션 갤러리 <setting_animations>` 를 참조합니다.",
+      "displayed_animation_caption": "애니메이션"
+    },
+    {
+      "domain": "setting_animations",
+      "source": "spaCR includes short, deterministic GIFs for settings whose effect is easier to understand visually. In the desktop interface, hovering a setting shows its explanation; pressing the teal **Animation** word in that tooltip's footer reveals the corresponding animation to the right of the text. It is revealed for that setting only — the next setting is text again until its own **Animation** is pressed, and nothing is decoded until it is. Set *Setting animations* in Preferences to show them without asking.",
+      "source_sha256": "460fc0515db2637d3cb746082c5a9ab630257dd9444cdffbacf13cde30acad85",
+      "previous_translation": "spaCR에는 효과를 눈으로 보는 편이 이해하기 쉬운 설정을 위한 짧고 결정적인 GIF 애니메이션이 포함되어 있습니다. 데스크톱 인터페이스에서 설정 위에 마우스를 올리면 설명이 표시되며, 툴팁 하단의 청록색 **Animation** 단어를 누르면 텍스트 오른쪽에 해당 애니메이션이 나타납니다. 애니메이션은 그 설정에서만 표시됩니다. 다음 설정은 자체 **Animation** 을 누르기 전까지 다시 텍스트만 보이며, 누르기 전에는 아무것도 디코딩되지 않습니다. 묻지 않고 바로 표시하려면 환경설정에서 *설정 항목 애니메이션* 을 켭니다.",
+      "target": "spaCR에는 효과를 눈으로 보는 편이 이해하기 쉬운 설정을 위한 짧고 결정적인 GIF 애니메이션이 포함되어 있습니다. 데스크톱 인터페이스에서 설정 위에 마우스를 올리면 설명이 표시되며, 툴팁 하단의 청록색 **애니메이션** 단어를 누르면 텍스트 오른쪽에 해당 애니메이션이 나타납니다. 애니메이션은 그 설정에서만 표시됩니다. 다음 설정은 자체 **애니메이션** 을 누르기 전까지 다시 텍스트만 보이며, 누르기 전에는 아무것도 디코딩되지 않습니다. 묻지 않고 바로 표시하려면 환경설정에서 *설정 항목 애니메이션* 을 켭니다.",
+      "displayed_animation_caption": "애니메이션"
+    }
+  ]
+}

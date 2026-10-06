@@ -1,0 +1,137 @@
+{
+  "schema": 1,
+  "language": "de",
+  "source_commit": "ccd1c7f4e60ebb15b2b63818c471f7837fcf049e",
+  "source_file_sha256": "d52843fc365b69ef8f6accf58817013d11465983eb87bfe7679a90dac7282f8a",
+  "review_method": "Direct Codex AI technical review; no native-speaker signoff. Selection guidance translated directly, twelve labels/descriptions reused exactly from current source-bound runtime reviews and displayed UI glossary.",
+  "records": [
+    {
+      "domain": "features",
+      "source": "Data-art themes",
+      "source_sha256": "cfb3e0bd24dcf3b4344c6c51a7bde4b8ff9e71cd7b6aa0970959e242d1770f84",
+      "target": "Themen mit Datenkunst",
+      "ui": {}
+    },
+    {
+      "domain": "features",
+      "source": "Under **Preferences** → **Appearance** → **Theme**, twelve data-art presets each select an interface palette and an animated background. The original ten night themes and seven background animations remain available. **Animation** lets you choose a background independently; select **None** for a static background. These backgrounds are decorative and do not display project measurements.",
+      "source_sha256": "4df9b39b349362bbcd9b4842dfd7f4cba570b2be4bf9de9bfb996a84e1af5224",
+      "target": "Unter **Einstellungen** → **Erscheinungsbild** → **Design** wählen die zwölf Datenkunst-Voreinstellungen jeweils eine Oberflächenpalette und einen animierten Hintergrund. Die ursprünglichen zehn Nachtthemen und sieben Hintergrundanimationen bleiben verfügbar. Mit **Animation** können Sie den Hintergrund unabhängig auswählen; wählen Sie **Keine** für einen statischen Hintergrund. Diese Hintergründe sind dekorativ und zeigen keine Projektmessungen an.",
+      "ui": {
+        "Preferences": "Einstellungen",
+        "Appearance": "Erscheinungsbild",
+        "Theme": "Design",
+        "None": "Keine"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Spatial point atlas** — A finely sampled three-dimensional point landscape with depth and cursor-driven parallax.",
+      "source_sha256": "b675dc7dcd661f1e350c351c9fdbf680ece68d3fd6ba0c803baea20985b665e8",
+      "target": "**Räumlicher Punktatlas** — Eine fein abgetastete dreidimensionale Punktlandschaft mit Tiefe und durch den Mauszeiger gesteuerter Parallaxe.",
+      "ui": {
+        "Spatial point atlas": "Räumlicher Punktatlas"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Tissue facets** — A crystalline tissue mosaic of shaded geometric facets, with slowly changing local relief.",
+      "source_sha256": "42f551d81fc2e694d8f17b8a45cd4beb419c56f93d6ffea97b36a53dc3b971b7",
+      "target": "**Gewebefacetten** — Ein kristallines Gewebemosaik aus schattierten geometrischen Facetten mit langsam wechselndem lokalem Relief.",
+      "ui": {
+        "Tissue facets": "Gewebefacetten"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Spatial strata** — Fine stacked topographic layers form a moving spatial relief with precise depth and contour detail.",
+      "source_sha256": "65ca8488d8fb21f966577e7d037477ce9a824ec40fe27e833fa40b8c764e0cc5",
+      "target": "**Räumliche Schichten** — Feine übereinanderliegende topografische Schichten bilden ein bewegtes räumliches Relief mit präzisen Tiefen- und Konturdetails.",
+      "ui": {
+        "Spatial strata": "Räumliche Schichten"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Molecular helix** — A rotating molecular helix of shaded beads and paired bases, with perspective and depth.",
+      "source_sha256": "e99ab54426f2d4c768f2f1f1853f691edac4f22ef8e0a875870ebd5f493d21e3",
+      "target": "**Molekulare Helix** — Eine rotierende molekulare Helix aus schattierten Perlen und gepaarten Basen mit Perspektive und Tiefe.",
+      "ui": {
+        "Molecular helix": "Molekulare Helix"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Chromatin satin** — Folded satin-like chromatin ribbons carry fine fibres through soft, interwoven surfaces.",
+      "source_sha256": "a7727aa607626cff24878a9566dc9114b67e9dce7a414bfa64035077da868ed1",
+      "target": "**Chromatinsatin** — Gefaltete satinartige Chromatinbänder führen feine Fasern durch weiche, ineinander verwobene Oberflächen.",
+      "ui": {
+        "Chromatin satin": "Chromatinsatin"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Genome mosaic** — A layered genome mosaic of tiny encoded tiles shifts through an architectural sequence field.",
+      "source_sha256": "acabd7ef946ae32fbbddd6bc56598ca1b5e114dc9cf3ef27086819c514c74549",
+      "target": "**Genommosaik** — Ein mehrschichtiges Genommosaik aus winzigen kodierten Kacheln verschiebt sich durch ein architektonisches Sequenzfeld.",
+      "ui": {
+        "Genome mosaic": "Genommosaik"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Transcript rain** — Fine falling transcription marks stream through a layered field of genetic information.",
+      "source_sha256": "22c0631d933646d0c04e6ebe0a2dcf00be28f6ccb5184f605a06b8d23de1ae59",
+      "target": "**Transkriptregen** — Feine fallende Transkriptionszeichen strömen durch ein geschichtetes Feld genetischer Information.",
+      "ui": {
+        "Transcript rain": "Transkriptregen"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Regulatory circuit** — An etched regulatory circuit routes pulses through precise orthogonal paths and small control nodes.",
+      "source_sha256": "9e4f0e00a1bc0ea432856497274b47f0e1889a850a715b961288170deb2d9e5b",
+      "target": "**Regulatorischer Schaltkreis** — Ein geätzter regulatorischer Schaltkreis leitet Impulse über präzise rechtwinklige Bahnen und kleine Steuerknoten.",
+      "ui": {
+        "Regulatory circuit": "Regulatorischer Schaltkreis"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Genetic advection** — Thousands of fine genetic-flow particles move through a continuous wind-like field that bends near the cursor.",
+      "source_sha256": "b354702a1ae93f7ed7e8226620a5ae318bb016a4d3666df35f560852a4623b71",
+      "target": "**Genetische Advektion** — Tausende feine Partikel eines genetischen Flusses bewegen sich durch ein kontinuierliches windartiges Feld, das sich nahe dem Mauszeiger krümmt.",
+      "ui": {
+        "Genetic advection": "Genetische Advektion"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Perturbation interference** — Smooth interference waves form a changing pearlescent field, distorted locally by the cursor.",
+      "source_sha256": "af0b3b7fa4279ab9e33161cdd0e019b68479946ccfc31ab2fd3352e287ed3975",
+      "target": "**Perturbationsinterferenz** — Sanfte Interferenzwellen bilden ein wechselndes perlmuttartiges Feld, das der Mauszeiger lokal verzerrt.",
+      "ui": {
+        "Perturbation interference": "Perturbationsinterferenz"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Morphogenesis** — A fine organic pattern of changing spots and labyrinths evokes the emergence of biological structure.",
+      "source_sha256": "9ba4c742c6161c73f58ed8349608840c96682dd6db57643a7cb6297f4c861eef",
+      "target": "**Morphogenese** — Ein feines organisches Muster aus wechselnden Flecken und Labyrinthen erinnert an die Entstehung biologischer Strukturen.",
+      "ui": {
+        "Morphogenesis": "Morphogenese"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Perturbation lens** — A precision dot lattice bends around moving impulses and the cursor, revealing local perturbation.",
+      "source_sha256": "3d9bacec6645a5883e6b9ff2491f690471482bb89a067435ef40fa145c931574",
+      "target": "**Perturbationslinse** — Ein präzises Punktgitter krümmt sich um bewegte Impulse und den Mauszeiger und macht lokale Perturbationen sichtbar.",
+      "ui": {
+        "Perturbation lens": "Perturbationslinse"
+      }
+    }
+  ],
+  "previous_complete_translations_preserved": 2965
+}

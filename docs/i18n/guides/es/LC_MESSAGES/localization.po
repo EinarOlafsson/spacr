@@ -1,5 +1,5 @@
 # spaCR user guide translation (es).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 20:46-0400\n"
+"POT-Creation-Date: 2026-10-05 23:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -88,8 +88,9 @@ msgstr "Ayuda contextual"
 msgid "Module and setting tooltips have complete external catalog entries in every bundled language. Setting tooltips are assembled from separate semantic fields so the setting name, type, authored explanation and API caption can be checked independently. Format fields, code literals, scientific symbols, URLs and option values are immutable during catalog generation. A translation is accepted only when those structural values survive; otherwise spaCR uses the canonical English text."
 msgstr "La información emergente de módulos y ajustes tiene entradas de catálogo externas completas en cada idioma incluido. La información emergente de los ajustes se compone a partir de campos semánticos separados, de modo que el nombre del ajuste, el tipo, la explicación redactada y el rótulo de la API pueden comprobarse de forma independiente. Los campos de formato, los literales de código, los símbolos científicos, las URL y los valores de opción son inmutables durante la generación de los catálogos. Una traducción solo se acepta cuando esos valores estructurales se conservan; en caso contrario, spaCR usa el texto canónico en inglés."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "The **API** link at the foot of each setting's tooltip keeps the exact documentation URL in every language. Its caption and accessible name follow the selected language, and changing language refreshes already-open settings windows. Where visual help exists, the tooltip footer also offers an **Animation** word that reveals the drawing beside the text. The scientific drawing itself is language-neutral. See the :doc:`setting animation gallery <setting_animations>` for every exact mapping."
-msgstr "El enlace **API** al pie de la información emergente de cada ajuste conserva la URL exacta de la documentación en todos los idiomas. Su rótulo y su nombre accesible siguen el idioma seleccionado, y cambiar de idioma actualiza las ventanas de configuración ya abiertas. Cuando existe ayuda visual, el pie de la información emergente ofrece también la palabra **Animation**, que muestra el dibujo junto al texto. El dibujo científico en sí es independiente del idioma. Consulte la :doc:`galería de animaciones de ajustes <setting_animations>` para ver cada correspondencia exacta."
+msgstr "El enlace **API** al pie de la información emergente de cada ajuste conserva la URL exacta de la documentación en todos los idiomas. Su rótulo y su nombre accesible siguen el idioma seleccionado, y cambiar de idioma actualiza las ventanas de configuración ya abiertas. Cuando existe ayuda visual, el pie de la información emergente ofrece también la palabra **Animación**, que muestra el dibujo junto al texto. El dibujo científico en sí es independiente del idioma. Consulte la :doc:`galería de animaciones de ajustes <setting_animations>` para ver cada correspondencia exacta."
 
 msgid "Translation safety"
 msgstr "Seguridad de la traducción"

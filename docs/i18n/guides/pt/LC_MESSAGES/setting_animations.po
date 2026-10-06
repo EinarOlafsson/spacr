@@ -1,5 +1,5 @@
 # spaCR user guide translation (pt).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-05 20:46-0400\n"
+"POT-Creation-Date: 2026-10-05 23:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Setting animation gallery"
 msgstr "Galeria de animações das configurações"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "spaCR includes short, deterministic GIFs for settings whose effect is easier to understand visually. In the desktop interface, hovering a setting shows its explanation; pressing the teal **Animation** word in that tooltip's footer reveals the corresponding animation to the right of the text. It is revealed for that setting only — the next setting is text again until its own **Animation** is pressed, and nothing is decoded until it is. Set *Setting animations* in Preferences to show them without asking."
-msgstr "O spaCR inclui GIFs curtos e determinísticos para configurações cujo efeito é mais fácil de entender visualmente. Na interface de desktop, passar o ponteiro sobre uma configuração mostra sua explicação; clicar na palavra **Animation** em verde-azulado no rodapé dessa dica exibe a animação correspondente à direita do texto. Ela é exibida apenas para essa configuração — a próxima configuração volta a ser texto até que sua própria **Animation** seja clicada, e nada é decodificado antes disso. Ative *Animações das configurações* em Preferências para exibi-las sem perguntar."
+msgstr "O spaCR inclui GIFs curtos e determinísticos para configurações cujo efeito é mais fácil de entender visualmente. Na interface de desktop, passar o ponteiro sobre uma configuração mostra sua explicação; clicar na palavra **Animação** em verde-azulado no rodapé dessa dica exibe a animação correspondente à direita do texto. Ela é exibida apenas para essa configuração — a próxima configuração volta a ser texto até que sua própria **Animação** seja clicada, e nada é decodificado antes disso. Ative *Animações das configurações* em Preferências para exibi-las sem perguntar."
 
 msgid "The diagrams use a shared biological grammar: white fibroblast or motile immune-cell outlines, blue nuclei with unequal nucleoli, teal Toxoplasma tachyzoites inside an outline-only parasitophorous vacuole, and soft-magenta Golgi cisternae. Filled regions are translucent and the rounded field perimeter remains white on black."
 msgstr "Os diagramas usam uma gramática biológica comum: contornos brancos de fibroblastos ou de células imunes móveis, núcleos azuis com nucléolos desiguais, taquizoítos de Toxoplasma em verde-azulado dentro de um vacúolo parasitóforo representado apenas pelo contorno, e cisternas do Golgi em magenta suave. As regiões preenchidas são translúcidas, e o perímetro arredondado do campo permanece branco sobre preto."

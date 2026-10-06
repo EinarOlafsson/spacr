@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "language": "is",
+  "source_commit": "ccd1c7f4e60ebb15b2b63818c471f7837fcf049e",
+  "review_method": "Direct Codex AI technical review; no native-speaker signoff. Only the displayed Animation caption is changed to the actual first-run-owned runtime row; all surrounding reviewed wording is retained. Previous target text is retained as historical evidence.",
+  "records": [
+    {
+      "domain": "localization",
+      "source": "The **API** link at the foot of each setting's tooltip keeps the exact documentation URL in every language. Its caption and accessible name follow the selected language, and changing language refreshes already-open settings windows. Where visual help exists, the tooltip footer also offers an **Animation** word that reveals the drawing beside the text. The scientific drawing itself is language-neutral. See the :doc:`setting animation gallery <setting_animations>` for every exact mapping.",
+      "source_sha256": "8f1f5b591f96f5a7ee5f6786f3305f5237cb0deaeb67185b8e156b6cbadaa64e",
+      "previous_translation": "**API**-tengillinn neðst í skjábendingu hverrar stillingar heldur nákvæmri vefslóð skjölunarinnar á öllum tungumálum. Texti hans og aðgengilegt heiti fylgja völdu tungumáli og breyting á tungumáli endurnýjar stillingaglugga sem þegar eru opnir. Þar sem myndræn hjálp er til býður fótur skjábendingarinnar einnig upp á orðið **Animation** sem sýnir teikninguna við hlið textans. Vísindalega teikningin sjálf er óháð tungumáli. Sjá :doc:`myndasafn stillingahreyfimynda <setting_animations>` fyrir allar nákvæmar varpanir.",
+      "target": "**API**-tengillinn neðst í skjábendingu hverrar stillingar heldur nákvæmri vefslóð skjölunarinnar á öllum tungumálum. Texti hans og aðgengilegt heiti fylgja völdu tungumáli og breyting á tungumáli endurnýjar stillingaglugga sem þegar eru opnir. Þar sem myndræn hjálp er til býður fótur skjábendingarinnar einnig upp á orðið **Hreyfimynd** sem sýnir teikninguna við hlið textans. Vísindalega teikningin sjálf er óháð tungumáli. Sjá :doc:`myndasafn stillingahreyfimynda <setting_animations>` fyrir allar nákvæmar varpanir.",
+      "displayed_animation_caption": "Hreyfimynd"
+    },
+    {
+      "domain": "setting_animations",
+      "source": "spaCR includes short, deterministic GIFs for settings whose effect is easier to understand visually. In the desktop interface, hovering a setting shows its explanation; pressing the teal **Animation** word in that tooltip's footer reveals the corresponding animation to the right of the text. It is revealed for that setting only — the next setting is text again until its own **Animation** is pressed, and nothing is decoded until it is. Set *Setting animations* in Preferences to show them without asking.",
+      "source_sha256": "460fc0515db2637d3cb746082c5a9ab630257dd9444cdffbacf13cde30acad85",
+      "previous_translation": "spaCR inniheldur stuttar, ákvörðunarbundnar GIF-hreyfimyndir fyrir stillingar þar sem auðveldara er að skilja áhrifin sjónrænt. Í skjáborðsviðmótinu sýnir svif yfir stillingu skýringu hennar; ef ýtt er á blágræna orðið **Animation** í fæti skjábendingarinnar birtist samsvarandi hreyfimynd hægra megin við textann. Hún birtist aðeins fyrir þá stillingu — næsta stilling er aftur texti þar til ýtt er á hennar eigin **Animation**, og ekkert er afkóðað fyrr en það er gert. Stilltu *Hreyfimyndir í stillingum* í kjörstillingum til að sýna þær án þess að spyrja.",
+      "target": "spaCR inniheldur stuttar, ákvörðunarbundnar GIF-hreyfimyndir fyrir stillingar þar sem auðveldara er að skilja áhrifin sjónrænt. Í skjáborðsviðmótinu sýnir svif yfir stillingu skýringu hennar; ef ýtt er á blágræna orðið **Hreyfimynd** í fæti skjábendingarinnar birtist samsvarandi hreyfimynd hægra megin við textann. Hún birtist aðeins fyrir þá stillingu — næsta stilling er aftur texti þar til ýtt er á hennar eigin **Hreyfimynd**, og ekkert er afkóðað fyrr en það er gert. Stilltu *Hreyfimyndir í stillingum* í kjörstillingum til að sýna þær án þess að spyrja.",
+      "displayed_animation_caption": "Hreyfimynd"
+    }
+  ]
+}
