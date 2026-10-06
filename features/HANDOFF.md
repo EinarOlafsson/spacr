@@ -1,5 +1,34 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 issue137 closed and native acquired GPU comparison prepared
+Issue137 is now CLOSED at2026-10-06T22:36:44Z after its already-published
+uppercase/padded CSV boolean repair,358 affected checks and the actual
+installed spacr-run65-flag dry-run acceptance. No issue comment was sent;
+cluster inference is not claimed.
+
+Workstation has prepared an additional source-pinned GPU comparison for the
+combined Home native archive source. All original acquired GOWT1 t021-t024
+uint8 pixels are retained exactly in a private flat TYX archive; the original
+eager Mask function is preserved byte-for-byte. Real pretrained CPSAM CUDA
+calls will compare every normalized input, all four nonempty mask files,
+SQLite count rows and completion identity against the current mapped path
+at the same outer batch_size2. The initial private preparation's mistaken
+uint16 assertion is preserved; corrected preparation uses original uint8
+without casting or rewriting pixels. Scope is derived acquired flat TYX,
+not vendor-native T/Z volumes, biological accuracy, speed or whole-RSS proof.
+Label548-final-native-TYX-CUDA-20261006-r2 will use the unchanged normal
+shared GPU queue behind final API/runtime/narration. Source remains frozen;
+Home must leave io/object/core source unchanged during this owned check.
+
+The ongoing final API owner has correctly rejected two Swedish and one German
+SCN brand-name paragraphs so far. Eighteen exact SCN technical targets and
+nine complete VideoMAE encoder setting targets pass their unchanged strict
+source/context or runtime gates in private preparation. They are not yet
+admitted into the live writer's review store. Original normal runs, rejection
+history and complete checkpoints remain preserved; all-nine acceptance is
+still required before publication. Workstation retains every GPU/API/docs/
+translation/tutorial owner and Home retains CPU/native/CI investigation.
+
 ## 2026-10-06 final catalog resource recovery and narration handoff
 The normal final runtime GPU r1 exited137: the kernel confirmed an8GiB
 cgroup OOM while loading its fallback. Its original failure is preserved;
