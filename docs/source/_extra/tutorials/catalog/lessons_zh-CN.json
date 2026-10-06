@@ -584,7 +584,7 @@
         },
         {
           "visual": "01_core  (6)",
-          "narration": "对于显微镜图像，先用Mask勾勒出对象轮廓，再用Measure提取它们的特征和裁剪图像。Annotate让您为示例对象添加标签，Classify则从这些标签中学习，为更多对象打分。Map Barcodes读取测序数据。Regression把得到的表型分数与向导计数结合起来，寻找关联。",
+          "narration": "从左到右查看 Core 磁贴。 对于显微镜图像，先用Mask勾勒出对象轮廓，再用Measure提取它们的特征和裁剪图像。Annotate让您为示例对象添加标签，Classify则从这些标签中学习，为更多对象打分。Map Barcodes读取测序数据。Regression把得到的表型分数与向导计数结合起来，寻找关联。",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -602,11 +602,11 @@
             "12_map_barcodes",
             "13_regression"
           ],
-          "speech_text": "对于显微镜图像，先用Mask勾勒出对象轮廓，再用Measure提取它们的特征和裁剪图像。Annotate让您为示例对象添加标签，Classify则从这些标签中学习，为更多对象打分。Map Barcodes读取测序数据。Regression把得到的表型分数与向导计数结合起来，寻找关联。"
+          "speech_text": "从左到右查看 Core 磁贴。 对于显微镜图像，先用Mask勾勒出对象轮廓，再用Measure提取它们的特征和裁剪图像。Annotate让您为示例对象添加标签，Classify则从这些标签中学习，为更多对象打分。Map Barcodes读取测序数据。Regression把得到的表型分数与向导计数结合起来，寻找关联。"
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Data是导入文件和检查结果的地方。如果您已有图像、掩膜或测量表，Import会把它们导入其他模块可以读取的项目。实验之前，Experiment Design用于规划板布局；实验之后，QC显示记录的质量检查，Run Compare则把两次运行并排比较。",
+          "narration": "从左到右查看 Data 磁贴。Import 将现有图像、掩膜或测量表导入项目。Embeddings 将对象裁剪图像转换为用于比较的数值特征向量。Run Compare 并排显示两次运行。Experiment Design 规划孔板布局。Power / Design 在不同细胞数和孔数假设下模拟检出情况，帮助规划实验。Dose-Response 拟合浓度与响应曲线，并显示估计值、区间和拟合警告。QC 显示已记录的质量检查。打开各模块的教程，了解其输入和后续步骤。",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -619,15 +619,18 @@
           ],
           "related_lessons": [
             "36_import",
-            "35_converter",
-            "31_external_masks",
-            "77_embeddings"
+            "77_embeddings",
+            "50_run_compare",
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response",
+            "54_qc_dashboard"
           ],
-          "speech_text": "Data是导入文件和检查结果的地方。如果您已有图像、掩膜或测量表，Import会把它们导入其他模块可以读取的项目。实验之前，Experiment Design用于规划板布局；实验之后，QC显示记录的质量检查，Run Compare则把两次运行并排比较。"
+          "speech_text": "从左到右查看 Data 磁贴。Import 将现有图像、掩膜或测量表导入项目。Embeddings 将对象裁剪图像转换为用于比较的数值特征向量。Run Compare 并排显示两次运行。Experiment Design 规划孔板布局。Power / Design 在不同细胞数和孔数假设下模拟检出情况，帮助规划实验。Dose-Response 拟合浓度与响应曲线，并显示估计值、区间和拟合警告。QC 显示已记录的质量检查。打开各模块的教程，了解其输入和后续步骤。"
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools汇集了可动手操作的编辑器和浏览器。在Make Masks中可以修正掩膜，也可以从这里打开Cellpose Workbench。Align and Stitch把相互重叠的图像块拼接成一张图。有了测量数据后，可以用Image UMAP、Gate Editor和Graph Builder来探索和绘图。每个模块的工具栏都会打开与之相关的工具。",
+          "narration": "从左到右查看 Tools 磁贴。Make Masks 可编辑掩膜并打开 Cellpose Workbench。Align and Stitch 拼接相互重叠的图像块。Image UMAP 在降维视图中探索对象裁剪图像。Gate Editor 根据测量特征的数值范围选择组。Graph Builder 绘制测量结果。各模块的工具栏可打开其相关工具。",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -643,7 +646,7 @@
             "64_gate_editor",
             "58_graph_builder"
           ],
-          "speech_text": "Tools汇集了可动手操作的编辑器和浏览器。在Make Masks中可以修正掩膜，也可以从这里打开塞尔波斯 Workbench。Align and Stitch把相互重叠的图像块拼接成一张图。有了测量数据后，可以用Image 优麦普、门控编辑器和Graph Builder来探索和绘图。每个模块的工具栏都会打开与之相关的工具。"
+          "speech_text": "从左到右查看 Tools 磁贴。Make Masks 可编辑掩膜并打开 塞尔波斯 Workbench。Align and Stitch 拼接相互重叠的图像块。Image 优麦普 在降维视图中探索对象裁剪图像。门控编辑器 根据测量特征的数值范围选择组。Graph Builder 绘制测量结果。各模块的工具栏可打开其相关工具。"
         },
         {
           "visual": "04_assays  (1)",
@@ -859,7 +862,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1217,8 +1243,8 @@
       "prerequisite": "使用Mask的合并输出，或在Measure中选择Load test data。示例提供十六个视野，强度平面为0–3，平面4、5、6中分别是细胞、细胞核和病原体掩膜。",
       "scenes": [
         {
-          "visual": "preview_01_module",
-          "narration": "从Home打开Measure。从已经带有对象掩膜的图像开始。Measure会提取面积和强度等特征，关联相关对象，并可以为Annotate和Classify保存单个对象的裁剪图像。",
+          "visual": "preview_03_data_ready",
+          "narration": "从 Home 打开 Measure。在 Input and Experiment 下，通过 Source 选择包含图像和对象掩膜的合并文件夹，或点击 Load test data。这里已经加载示例。Measure 提取面积和强度等特征，匹配相关对象，还可保存对象裁剪图像供 Annotate 和 Classify 使用。",
           "related_lessons": [
             "07_mask",
             "43_illumination",
@@ -1226,7 +1252,7 @@
             "59_anndata_export"
           ],
           "hold_after": 0.7,
-          "speech_text": "从主页打开Measure。从已经带有对象掩膜的图像开始。Measure会提取面积和强度等特征，关联相关对象，并可以为Annotate和Classify保存单个对象的裁剪图像。"
+          "speech_text": "从 主页 打开 Measure。在 Input and Experiment 下，通过 Source 选择包含图像和对象掩膜的合并文件夹，或点击 Load test data。这里已经加载示例。Measure 提取面积和强度等特征，匹配相关对象，还可保存对象裁剪图像供 Annotate 和 Classify 使用。"
         },
         {
           "visual": "preview_03_data_ready",
@@ -1343,7 +1369,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

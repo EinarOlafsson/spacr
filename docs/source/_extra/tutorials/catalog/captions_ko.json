@@ -523,7 +523,7 @@
         },
         {
           "visual": "01_core  (6)",
-          "narration": "현미경 이미지라면 먼저 Mask로 객체의 윤곽을 잡고, 이어서 Measure로 특징과 잘라낸 이미지를 추출하세요. Annotate로 예시 객체에 라벨을 붙이면 Classify가 그 라벨로 학습해 더 많은 객체에 점수를 매깁니다. Map Barcodes는 시퀀싱 데이터를 읽습니다. Regression은 이렇게 얻은 표현형 점수와 가이드 카운트를 결합해 연관성을 찾습니다.",
+          "narration": "Core 타일을 왼쪽에서 오른쪽으로 살펴봅니다. 현미경 이미지라면 먼저 Mask로 객체의 윤곽을 잡고, 이어서 Measure로 특징과 잘라낸 이미지를 추출하세요. Annotate로 예시 객체에 라벨을 붙이면 Classify가 그 라벨로 학습해 더 많은 객체에 점수를 매깁니다. Map Barcodes는 시퀀싱 데이터를 읽습니다. Regression은 이렇게 얻은 표현형 점수와 가이드 카운트를 결합해 연관성을 찾습니다.",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -544,7 +544,7 @@
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Data는 파일을 들여오고 결과를 확인하는 곳입니다. 이미지, 마스크, 측정 테이블이 이미 있다면 Import가 다른 모듈이 읽을 수 있는 프로젝트로 가져옵니다. 실험 전에는 Experiment Design으로 플레이트를 배치하고, 실험 후에는 QC가 기록된 품질 검사를 보여 주며 Run Compare가 두 실행을 나란히 비교합니다.",
+          "narration": "Data 타일을 왼쪽에서 오른쪽으로 살펴봅니다. Import는 기존 이미지, 마스크 또는 측정 표를 프로젝트로 가져옵니다. Embeddings는 비교를 위해 객체 크롭을 수치 특징 벡터로 변환합니다. Run Compare는 두 실행을 나란히 보여 줍니다. Experiment Design은 플레이트 배치를 계획합니다. Power / Design은 다양한 세포 수와 웰 수 가정에서 검출을 시뮬레이션하여 실험 계획을 돕습니다. Dose-Response는 농도와 반응 곡선을 적합하고 추정값, 구간 및 적합 경고를 보여 줍니다. QC는 기록된 품질 검사를 보여 줍니다. 각 모듈의 입력과 다음 단계는 해당 튜토리얼을 열어 확인하세요.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -557,14 +557,17 @@
           ],
           "related_lessons": [
             "36_import",
-            "35_converter",
-            "31_external_masks",
-            "77_embeddings"
+            "77_embeddings",
+            "50_run_compare",
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response",
+            "54_qc_dashboard"
           ]
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools에는 직접 다루는 편집기와 탐색기가 모여 있습니다. Make Masks에서는 마스크를 수정하고, 여기서 Cellpose Workbench도 열 수 있습니다. Align and Stitch는 겹치는 이미지 타일을 하나의 그림으로 이어 붙입니다. 측정값이 생기면 Image UMAP, Gate Editor, Graph Builder로 탐색하고 그래프를 그릴 수 있습니다. 각 모듈의 도구 모음은 관련 도구를 엽니다.",
+          "narration": "Tools 타일을 왼쪽에서 오른쪽으로 살펴봅니다. Make Masks에서 마스크를 편집하고 Cellpose Workbench를 열 수 있습니다. Align and Stitch는 겹치는 이미지 타일을 연결합니다. Image UMAP은 차원을 줄인 보기에서 객체 크롭을 탐색합니다. Gate Editor는 측정된 특징의 값 범위로 그룹을 선택합니다. Graph Builder는 측정 결과를 그래프로 그립니다. 각 모듈의 도구 모음에서 관련 도구를 열 수 있습니다.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -777,7 +780,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1116,8 +1142,8 @@
       "prerequisite": "Mask의 병합된 출력을 쓰거나 Measure에서 Load test data를 선택하세요. 예제에는 강도 평면 0–3과 평면 4, 5, 6의 세포, 핵, 병원체 마스크가 있는 시야 16개가 들어 있습니다.",
       "scenes": [
         {
-          "visual": "preview_01_module",
-          "narration": "Home에서 Measure를 여세요. 이미 객체 마스크가 있는 이미지로 시작하세요. Measure는 면적과 강도 같은 특징을 추출하고, 관련된 객체를 짝지으며, Annotate와 Classify에 쓸 개별 객체 크롭을 저장할 수 있습니다.",
+          "visual": "preview_03_data_ready",
+          "narration": "Home에서 Measure를 엽니다. Input and Experiment 아래의 Source에서 이미지와 객체 마스크가 포함된 병합 폴더를 선택하거나 Load test data를 클릭합니다. 여기서는 예제가 이미 로드되어 있습니다. Measure는 면적과 강도 같은 특징을 추출하고 관련 객체를 연결하며 Annotate와 Classify에 사용할 객체 크롭을 저장할 수 있습니다.",
           "related_lessons": [
             "07_mask",
             "43_illumination",
@@ -1225,7 +1251,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

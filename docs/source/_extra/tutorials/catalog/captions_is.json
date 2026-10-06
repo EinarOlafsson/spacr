@@ -523,7 +523,7 @@
         },
         {
           "visual": "01_core  (6)",
-          "narration": "Fyrir smásjármyndir byrjarðu á Mask til að afmarka hluti og notar svo Measure til að draga út eiginleika þeirra og útskurði. Með Annotate merkirðu dæmihluti og Classify lærir af merkingunum til að gefa fleiri hlutum stig. Map Barcodes les raðgreiningargögn. Regression tengir svipgerðarstigin sem fást við talningu leiðsagnar-RNA til að finna tengsl.",
+          "narration": "Lestu reitina í Core frá vinstri til hægri. Fyrir smásjármyndir byrjarðu á Mask til að afmarka hluti og notar svo Measure til að draga út eiginleika þeirra og útskurði. Með Annotate merkirðu dæmihluti og Classify lærir af merkingunum til að gefa fleiri hlutum stig. Map Barcodes les raðgreiningargögn. Regression tengir svipgerðarstigin sem fást við talningu leiðsagnar-RNA til að finna tengsl.",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -544,7 +544,7 @@
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Í Data koma skrár inn og niðurstöður eru athugaðar. Ef þú ert þegar með myndir, grímur eða mælitöflur færir Import þær inn í verkefni sem hinar einingarnar geta lesið. Fyrir tilraun skipuleggur Experiment Design plöturnar; eftir hana sýnir QC skráðar gæðaathuganir og Run Compare setur tvær keyrslur hlið við hlið.",
+          "narration": "Lestu reitina í Data frá vinstri til hægri. Import flytur fyrirliggjandi myndir, grímur eða mælitöflur inn í verkefni. Embeddings breytir myndútskurðum hluta í tölulega eiginleikavigra til samanburðar. Run Compare sýnir tvær keyrslur hlið við hlið. Experiment Design skipuleggur plöturnar þínar. Power / Design hermir greiningu út frá mismunandi forsendum um fjölda frumna og brunna til að hjálpa við skipulagningu tilraunar. Dose-Response fellir styrk-svörunarferla að gögnunum og sýnir áætlanir, bil og viðvaranir um aðlögunina. QC sýnir skráðar gæðaprófanir. Opnaðu kennsluefni hvers einingar til að sjá inntak hennar og næstu skref.",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -557,14 +557,17 @@
           ],
           "related_lessons": [
             "36_import",
-            "35_converter",
-            "31_external_masks",
-            "77_embeddings"
+            "77_embeddings",
+            "50_run_compare",
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response",
+            "54_qc_dashboard"
           ]
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Tools geymir verklegu ritlana og könnunartólin. Í Make Masks lagarðu grímur og þaðan opnast líka Cellpose Workbench. Align and Stitch skeytir saman myndreitum sem skarast í eina mynd. Þegar mælingar liggja fyrir geturðu kannað þær og teiknað með Image UMAP, Gate Editor og Graph Builder. Verkfærastika hverrar einingar opnar tengd verkfæri hennar.",
+          "narration": "Lestu reitina í Tools frá vinstri til hægri. Make Masks gerir þér kleift að breyta grímum og opnar Cellpose Workbench. Align and Stitch sameinar myndflísar sem skarast. Image UMAP kannar myndútskurði hluta í sýn með færri víddum. Gate Editor velur hópa út frá gildisbilum mældra eiginleika. Graph Builder teiknar mælinganiðurstöður. Verkfærastikan í hverri einingu opnar tengd verkfæri hennar.",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -777,7 +780,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1116,8 +1142,8 @@
       "prerequisite": "Notaðu sameinað úttak frá Mask eða veldu Load test data í Measure. Dæmið inniheldur sextán sjónsvið með styrkleikalögum 0–3 og grímum fyrir frumur, kjarna og sýkla í lögum 4, 5 og 6.",
       "scenes": [
         {
-          "visual": "preview_01_module",
-          "narration": "Frá Home opnarðu Measure. Byrjaðu á myndum sem hafa þegar grímur fyrir hluti. Measure dregur út eiginleika eins og flatarmál og styrk, parar tengda hluti saman og getur vistað úrklipp einstakra hluta fyrir Annotate og Classify.",
+          "visual": "preview_03_data_ready",
+          "narration": "Opnaðu Measure frá Home. Undir Input and Experiment skaltu nota Source til að velja sameinaða möppu með myndunum þínum og grímum hluta, eða smella á Load test data. Hér hefur dæmið þegar verið hlaðið inn. Measure dregur út eiginleika eins og flatarmál og styrk, parar tengda hluti og getur vistað myndútskurði hluta fyrir Annotate og Classify.",
           "related_lessons": [
             "07_mask",
             "43_illumination",
@@ -1225,7 +1251,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

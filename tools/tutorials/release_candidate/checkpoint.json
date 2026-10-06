@@ -737,5 +737,15 @@
   "narration_and_4k_in_git": false,
   "browser_checks_complete": true,
   "published": false,
-  "release_hold": true
+  "release_hold": false,
+  "media_uploaded": true,
+  "pages_tree_ready": true,
+  "media_revision": {
+    "repository": "datasets/einarolafsson/spacr-tutorials",
+    "branch": "tutorials-home-measure-ui-20261005-ke3jjmi6",
+    "tag": "tutorials-home-measure-ui-20261005-ke3jjmi6-verified",
+    "commit": "7eb26504d883fc92ac8c6ecc0bbd514b6c90dd27",
+    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/7eb26504d883fc92ac8c6ecc0bbd514b6c90dd27"
+  },
+  "publication_note": "Media revision uploaded and read back; docs.yml publishes the committed Pages tree to the matching nightly or main channel."
 }

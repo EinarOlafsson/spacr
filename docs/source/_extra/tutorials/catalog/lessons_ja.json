@@ -584,7 +584,7 @@
         },
         {
           "visual": "01_core  (6)",
-          "narration": "顕微鏡画像の場合は、まずMaskで物体の輪郭を取り、次にMeasureで特徴量と切り出し画像を抽出します。Annotateでは例となる物体にラベルを付けられ、Classifyはそのラベルから学習して、さらに多くの物体にスコアを付けます。Map Barcodesはシーケンシングデータを読み取ります。Regressionは、得られた表現型スコアとガイドのカウントを組み合わせて関連を見つけます。",
+          "narration": "Core のタイルを左から右へ見ていきます。 顕微鏡画像の場合は、まずMaskで物体の輪郭を取り、次にMeasureで特徴量と切り出し画像を抽出します。Annotateでは例となる物体にラベルを付けられ、Classifyはそのラベルから学習して、さらに多くの物体にスコアを付けます。Map Barcodesはシーケンシングデータを読み取ります。Regressionは、得られた表現型スコアとガイドのカウントを組み合わせて関連を見つけます。",
           "hold_after": 0.7,
           "focus_modules": [
             "mask",
@@ -602,11 +602,11 @@
             "12_map_barcodes",
             "13_regression"
           ],
-          "speech_text": "顕微鏡画像の場合は、まずMaskで物体の輪郭を取り、次にMeasureで特徴量と切り出し画像を抽出します。Annotateでは例となる物体にラベルを付けられ、Classifyはそのラベルから学習して、さらに多くの物体にスコアを付けます。Map Barcodesはシーケンシングデータを読み取ります。Regressionは、得られた表現型スコアとガイドのカウントを組み合わせて関連を見つけます。"
+          "speech_text": "Core のタイルを左から右へ見ていきます。 顕微鏡画像の場合は、まずMaskで物体の輪郭を取り、次にMeasureで特徴量と切り出し画像を抽出します。Annotateでは例となる物体にラベルを付けられ、Classifyはそのラベルから学習して、さらに多くの物体にスコアを付けます。Map Barcodesはシーケンシングデータを読み取ります。Regressionは、得られた表現型スコアとガイドのカウントを組み合わせて関連を見つけます。"
         },
         {
           "visual": "02_data  (7)",
-          "narration": "Dataは、ファイルを取り込み、結果を確認する場所です。画像、マスク、測定テーブルがすでにある場合は、Importでほかのモジュールが読める形でプロジェクトに取り込みます。実験の前にはExperiment Designでプレートを設計し、実験の後にはQCで記録された品質チェックを確認し、Run Compareで二つの実行を並べて比べます。",
+          "narration": "Data のタイルを左から右へ見ていきます。Import は既存の画像、マスク、測定表をプロジェクトに取り込みます。Embeddings は比較のためにオブジェクトの切り出し画像を数値の特徴ベクトルに変換します。Run Compare は2つの実行結果を並べて表示します。Experiment Design はプレートの配置を計画します。Power / Design は細胞数とウェル数のさまざまな仮定に基づいて検出をシミュレーションし、実験計画を支援します。Dose-Response は濃度と応答の曲線を当てはめ、推定値、区間、当てはめの警告を表示します。QC は記録された品質チェックを表示します。入力と次の手順については各モジュールのチュートリアルを開いてください。",
           "hold_after": 0.7,
           "focus_modules": [
             "foreign",
@@ -619,15 +619,18 @@
           ],
           "related_lessons": [
             "36_import",
-            "35_converter",
-            "31_external_masks",
-            "77_embeddings"
+            "77_embeddings",
+            "50_run_compare",
+            "67_experiment_design",
+            "68_power_design",
+            "69_dose_response",
+            "54_qc_dashboard"
           ],
-          "speech_text": "Dataは、ファイルを取り込み、結果を確認する場所です。画像、マスク、測定テーブルがすでにある場合は、Importでほかのモジュールが読める形でプロジェクトに取り込みます。実験の前にはExperiment Designでプレートを設計し、実験の後にはQCで記録された品質チェックを確認し、Run Compareで二つの実行を並べて比べます。"
+          "speech_text": "Data のタイルを左から右へ見ていきます。Import は既存の画像、マスク、測定表をプロジェクトに取り込みます。Embeddings は比較のためにオブジェクトの切り出し画像を数値の特徴ベクトルに変換します。Run Compare は2つの実行結果を並べて表示します。Experiment Design はプレートの配置を計画します。Power / Design は細胞数とウェル数のさまざまな仮定に基づいて検出をシミュレーションし、実験計画を支援します。Dose-Response は濃度と応答の曲線を当てはめ、推定値、区間、当てはめの警告を表示します。QC は記録された品質チェックを表示します。入力と次の手順については各モジュールのチュートリアルを開いてください。"
         },
         {
           "visual": "03_tools  (5)",
-          "narration": "Toolsには、実際に手を動かすエディターやエクスプローラーがまとめられています。Make Masksではマスクを修正でき、そこからCellpose Workbenchも開けます。Align and Stitchは、重なり合う画像タイルをつなぎ合わせて一枚の画像にします。測定値がそろったら、Image UMAP、Gate Editor、Graph Builderで探索やプロットができます。各モジュールのツールバーから、関連するツールを開けます。",
+          "narration": "Tools のタイルを左から右へ見ていきます。Make Masks ではマスクを編集でき、Cellpose Workbench を開けます。Align and Stitch は重なり合う画像タイルを結合します。Image UMAP は次元を減らした表示でオブジェクトの切り出し画像を探索します。Gate Editor は測定した特徴の値の範囲からグループを選択します。Graph Builder は測定結果をグラフにします。各モジュールのツールバーから関連ツールを開けます。",
           "hold_after": 0.7,
           "focus_modules": [
             "make_masks",
@@ -643,7 +646,7 @@
             "64_gate_editor",
             "58_graph_builder"
           ],
-          "speech_text": "Toolsには、実際に手を動かすエディターやエクスプローラーがまとめられています。Make Masksではマスクを修正でき、そこからセルポーズ Workbenchも開けます。Align and Stitchは、重なり合う画像タイルをつなぎ合わせて一枚の画像にします。測定値がそろったら、Image ユーマップ、ゲートエディタ、Graph Builderで探索やプロットができます。各モジュールのツールバーから、関連するツールを開けます。"
+          "speech_text": "Tools のタイルを左から右へ見ていきます。Make Masks ではマスクを編集でき、セルポーズ Workbench を開けます。Align and Stitch は重なり合う画像タイルを結合します。Image ユーマップ は次元を減らした表示でオブジェクトの切り出し画像を探索します。ゲートエディタ は測定した特徴の値の範囲からグループを選択します。Graph Builder は測定結果をグラフにします。各モジュールのツールバーから関連ツールを開けます。"
         },
         {
           "visual": "04_assays  (1)",
@@ -859,7 +862,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -1217,8 +1243,8 @@
       "prerequisite": "Maskの結合出力を使うか、MeasureでLoad test dataを選びます。この例には十六の視野があり、強度の面0～3と、面4、5、6に細胞、核、病原体のマスクが入っています。",
       "scenes": [
         {
-          "visual": "preview_01_module",
-          "narration": "HomeからMeasureを開きます。すでに物体のマスクがある画像から始めます。Measureは面積や強度などの特徴量を抽出し、関連する物体を対応付け、AnnotateとClassifyのために個々の物体の切り出し画像を保存できます。",
+          "visual": "preview_03_data_ready",
+          "narration": "Home から Measure を開きます。Input and Experiment の Source で画像とオブジェクトマスクを含む統合フォルダーを選択するか、Load test data をクリックします。ここではすでに例を読み込んでいます。Measure は面積や輝度などの特徴を抽出し、関連するオブジェクトを対応付け、Annotate と Classify 用にオブジェクトの切り出し画像を保存できます。",
           "related_lessons": [
             "07_mask",
             "43_illumination",
@@ -1226,7 +1252,7 @@
             "59_anndata_export"
           ],
           "hold_after": 0.7,
-          "speech_text": "ホームからMeasureを開きます。すでに物体のマスクがある画像から始めます。Measureは面積や強度などの特徴量を抽出し、関連する物体を対応付け、AnnotateとClassifyのために個々の物体の切り出し画像を保存できます。"
+          "speech_text": "ホーム から Measure を開きます。Input and Experiment の Source で画像とオブジェクトマスクを含む統合フォルダーを選択するか、Load test data をクリックします。ここではすでに例を読み込んでいます。Measure は面積や輝度などの特徴を抽出し、関連するオブジェクトを対応付け、Annotate と Classify 用にオブジェクトの切り出し画像を保存できます。"
         },
         {
           "visual": "preview_03_data_ready",
@@ -1343,7 +1369,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
