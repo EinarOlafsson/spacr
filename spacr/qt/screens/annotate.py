@@ -843,6 +843,20 @@ class _RetrainWorker(QThread):
             pass
 
 
+def _similarity_source_stamp(paths):
+    """Identify database and WAL changes that make a cached index stale."""
+    stamp = []
+    for path in paths:
+        for name in (str(path), f"{path}-wal"):
+            try:
+                stat = os.stat(name)
+                stamp.append((name, stat.st_dev, stat.st_ino,
+                              stat.st_mtime_ns, stat.st_ctime_ns, stat.st_size))
+            except FileNotFoundError:
+                stamp.append((name, None, None, None, None, None))
+    return tuple(stamp)
+
+
 class _SimilarityWorker(QThread):
     """Find the crops most like one crop, off the GUI thread.
 
@@ -939,6 +953,7 @@ class _SimilarityWorker(QThread):
         """Build the index if needed, search it, and hand back the hits."""
         try:
             from ... import active_learning as al
+            initial_stamp = _similarity_source_stamp(self._db_paths)
             index = self._index
             if index is None:
                 if len(self._db_paths) > 1:
@@ -969,6 +984,9 @@ class _SimilarityWorker(QThread):
                                exclude=excluded) if len(self._db_paths) > 1
                     else index.like(self._key, self._k, exclude=excluded))
             seconds = time.perf_counter() - started
+            source_stamp = _similarity_source_stamp(self._db_paths)
+            if source_stamp != initial_stamp:
+                source_stamp = initial_stamp
         except Exception as exc:
             try:
                 self.failed.emit(f"{type(exc).__name__}: {exc}")
@@ -981,6 +999,7 @@ class _SimilarityWorker(QThread):
             self.done.emit({"index": index, "hits": hits, "key": self._key,
                             "db_path": self._db_path,
                             "db_paths": self._db_paths,
+                            "source_stamp": source_stamp,
                             "feature_kind": self._feature_kind,
                             "image_type": self._image_type,
                             "annotation_column": self._annotation_column,
@@ -4954,7 +4973,8 @@ class AnnotateScreen(QWidget):
         self._similar_notice_until = 0.0
         index = None
         if (cache is not None and cache[:2] == (frozenset(paths), self._settings.image_type)
-                and (len(cache) < 4 or cache[3] == feature_kind)):
+                and cache[3] == feature_kind
+                and cache[4] == _similarity_source_stamp(paths)):
             index = cache[2]
         self._btn_similar.setEnabled(False)
         self._status_label.setText(
@@ -4986,8 +5006,10 @@ class AnnotateScreen(QWidget):
                 result.get("annotation_column", self._settings.annotation_column) != self._settings.annotation_column or
                 result.get("png_table", self._settings.png_table) != self._settings.png_table):
             return
+        current_stamp = _similarity_source_stamp(self._similar_paths())
         self._similar_cache = (frozenset(self._similar_paths()), result["image_type"],
-                               result["index"], result.get("feature_kind", "auto"))
+                               result["index"], result.get("feature_kind", "auto"),
+                               result.get("source_stamp", current_stamp))
         hits = result["hits"]
         if "db_path" in hits.columns:
             self._similar_navigation = result

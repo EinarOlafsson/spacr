@@ -50,6 +50,23 @@ def test_identical_crop_paths_in_two_databases_keep_their_owners(tmp_path):
     assert (second, second_keys[0]) in set(zip(hits.db_path, hits.key))
     assert hits.similarity.is_monotonic_decreasing
     assert set(index.columns) == {"emb_0", "emb_1"}
+    with pytest.raises(KeyError, match="has no compatible features"):
+        index.like(first, "not-a-crop.png")
+
+
+def test_a_requested_crop_kind_filters_both_plates_without_reassigning_owners(tmp_path):
+    first, _ = _plate(tmp_path, "plate1")
+    second, _ = _plate(tmp_path, "plate2")
+    with sqlite3.connect(second) as db:
+        db.execute("UPDATE png_list SET png_path='plate2-second-alternate.png' "
+                   "WHERE png_path='plate2-third.png'")
+    index = al._multi_similarity_index(
+        [first, second], image_type="second", feature_kind="embeddings")
+    assert len(index) == 3
+    assert {path for path, _ in index.keys} == {first, second}
+    with pytest.raises(ValueError, match="No compatible crops"):
+        al._multi_similarity_index(
+            [first, second], image_type="not-a-crop", feature_kind="embeddings")
 
 
 def test_a_symlink_to_the_same_database_is_not_another_plate(tmp_path):
@@ -58,6 +75,15 @@ def test_a_symlink_to_the_same_database_is_not_another_plate(tmp_path):
     alias.symlink_to(first)
     with pytest.raises(ValueError, match="different plate databases"):
         al._multi_similarity_index([first, str(alias)])
+
+
+def test_invalid_feature_choice_and_disappeared_plate_fail_before_search(tmp_path):
+    first, _ = _plate(tmp_path, "plate1")
+    missing = str(tmp_path / "gone" / "measurements.db")
+    with pytest.raises(ValueError, match="feature kind"):
+        al._multi_similarity_index([first, missing], feature_kind="unknown")
+    with pytest.raises(ValueError, match="does not exist"):
+        al._multi_similarity_index([first, missing])
 
 
 @pytest.mark.parametrize("difference,message", [
@@ -85,6 +111,34 @@ def test_incompatible_embedding_spaces_are_refused(tmp_path, difference, message
         al._multi_similarity_index([first, second], feature_kind="embeddings")
 
 
+@pytest.mark.parametrize("corruption,message", [
+    ("missing_fingerprint", "lack a model fingerprint"),
+    ("mixed_fingerprint", "mixed or missing model fingerprints"),
+    ("mixed_provenance", "mixed or missing encoder provenance"),
+    ("unverified_digest", "verified weights SHA-256"),
+    ("unjoined_rows", "join crop rows"),
+])
+def test_corrupt_stored_plate_cannot_join_a_cross_plate_index(
+        tmp_path, corruption, message):
+    first, _ = _plate(tmp_path, "plate1")
+    second, _ = _plate(tmp_path, "plate2")
+    with sqlite3.connect(second) as db:
+        if corruption == "missing_fingerprint":
+            db.execute("ALTER TABLE crop_embedding DROP COLUMN _embedding_fingerprint")
+        elif corruption == "mixed_fingerprint":
+            db.execute("UPDATE crop_embedding SET _embedding_fingerprint='other' "
+                       "WHERE prcfo='plate2_r1_c1_f1_o1'")
+        elif corruption == "mixed_provenance":
+            db.execute("UPDATE crop_embedding SET _embedding_encoder_key='other' "
+                       "WHERE prcfo='plate2_r1_c1_f1_o1'")
+        elif corruption == "unverified_digest":
+            db.execute("UPDATE crop_embedding SET _embedding_weights_sha256='guess'")
+        else:
+            db.execute("UPDATE png_list SET prcfo='not-in-embedding-table'")
+    with pytest.raises(ValueError, match=message):
+        al._multi_similarity_index([first, second], feature_kind="embeddings")
+
+
 def test_measurement_choice_does_not_silently_fall_back_to_embeddings(tmp_path):
     first, _ = _plate(tmp_path, "plate1")
     second, _ = _plate(tmp_path, "plate2", digest="b" * 64)
@@ -92,6 +146,20 @@ def test_measurement_choice_does_not_silently_fall_back_to_embeddings(tmp_path):
         al._multi_similarity_index([first, second], feature_kind="measurements")
     with pytest.raises(ValueError, match="provenance"):
         al._multi_similarity_index([first, second], feature_kind="auto")
+
+
+def test_a_plate_without_saved_embeddings_cannot_join_an_embedding_search(tmp_path):
+    from tests.test_cov_active_learning_rounds import _make_project
+
+    first, _ = _plate(tmp_path, "plate1")
+    measured = _make_project(tmp_path / "measured", per_well=3,
+                             plate="plate2", labelled=False)
+    with pytest.raises(ValueError, match="No stored embeddings"):
+        al._multi_similarity_index([first, measured["db"]],
+                                   feature_kind="embeddings")
+    with pytest.raises(ValueError, match="Cannot compare stored embeddings"):
+        al._multi_similarity_index([first, measured["db"]],
+                                   feature_kind="auto")
 
 
 @pytest.mark.parametrize("old_digest", ["a" * 64, ""])
@@ -108,6 +176,21 @@ def test_one_database_replaces_old_vectors_when_weight_bytes_change(
     stored = al._stored_embedding_frame(database)
     assert stored.prcfo.tolist() == ["plate1_r1_c1_f1_o1"]
     assert stored._embedding_weights_sha256.tolist() == ["b" * 64]
+
+
+def test_matching_actual_model_identity_preserves_previous_crop_rows(tmp_path):
+    database, _ = _plate(tmp_path, "plate1")
+    result = SimpleNamespace(
+        values=np.asarray([[0.3, 0.7]], np.float32),
+        columns=("emb_0", "emb_1"), spec=_Spec())
+    entry = SimpleNamespace(sha256="a" * 64, key="encoder/example",
+                            source="local")
+    count = al._store_crop_embeddings(
+        database, ["plate1_r1_c1_f1_o1"], result, encoder_entry=entry)
+    stored = al._stored_embedding_frame(database)
+    assert count == len(stored) == 3
+    assert set(stored.prcfo) == {
+        f"plate1_r1_c1_f1_o{number}" for number in range(1, 4)}
 
 
 def test_explicit_measurements_can_compare_plates_with_different_embeddings(tmp_path):

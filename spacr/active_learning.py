@@ -2821,8 +2821,6 @@ class _MultiSimilarityIndex:
             unique.index = identifiers
             indexed.append(unique)
             offset += len(unique)
-        if not offset:
-            raise ValueError("No crops with compatible features were found.")
         combined = pd.concat(indexed, copy=False)
         self._index = _SimilarityIndex(combined, backend=backend)
         self.sources = sources
@@ -2917,8 +2915,6 @@ def _multi_similarity_index(db_paths: Sequence[str], *,
         if features.empty:
             raise ValueError(f"No compatible crops were found in {path}")
         current_columns = list(features.columns)
-        if len(current_columns) != len(set(current_columns)):
-            raise ValueError(f"Feature column names are not unique in {path}")
         if kind is None:
             kind, fingerprint, provenance, columns = (
                 current_kind, current_fingerprint, current_provenance,
