@@ -1,0 +1,36 @@
+{
+  "base": "bf7873dec6859ba75622c532216cd36f183472ec",
+  "source_commit": "281ed6c8e402004037c9d94ac04b3a41e21dd133",
+  "test_commit": "bab86c3a684c18fe5688df2860e1661c8b90ccfc",
+  "position_validation_commit": "bfc6342d6cb1bfda40048a7806fac7a36d14b946",
+  "final_test_commit": "f0fdad3eb0b5d762e1417a1035ef01b7846153c4",
+  "provenance_source_commit": "e293c6c790",
+  "provenance_test_commit": "ac198b6b6861d5c4d0873ddb2c3bb0c95905b6d0",
+  "source_blobs": {
+    "spacr/qt/widgets/timelapse_preview.py": "166ca145744807af7c8485792b9dcebea875c569",
+    "spacr/timelapse.py": "17c2746545d06cc356d6d81897c11a145fa7af3d"
+  },
+  "settings_blob": "f8c7189937c150c405f705095d107371da0b2297",
+  "coverage_json_sha256": "f35c90a6f024f4e4f05097c7d4805749d52e73623155756f8c8c5f64a76a9e5e",
+  "coverage_artifact_gz_sha256": "05f41206a8950b6f7afe968394816a29ced20e84b38929504949c4ca3e86d5b7",
+  "test_count": 110,
+  "coverage": {
+    "spacr/qt/widgets/timelapse_preview.py": {
+      "added_executable_lines": 415,
+      "added_executable_hit": 415,
+      "added_executable_missing": [],
+      "added_origin_arcs": 144,
+      "added_origin_hit": 144,
+      "added_origin_missing": []
+    },
+    "spacr/timelapse.py": {
+      "added_executable_lines": 26,
+      "added_executable_hit": 26,
+      "added_executable_missing": [],
+      "added_origin_arcs": 14,
+      "added_origin_hit": 14,
+      "added_origin_missing": []
+    }
+  },
+  "scope": "CPU/offscreen alpha GUI table integration with real TIFF frames and detector-reader roundtrip; no pretrained model or biological accuracy acceptance."
+}
