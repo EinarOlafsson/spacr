@@ -1235,6 +1235,7 @@ def _annotation_field_payload(tracks_path: str, sequence_path: str,
     target = Path(annotations_path).expanduser().resolve()
     backend, object_type, field_name = _annotation_track_identity(track_file)
     sequence = FrameSequence.open(sequence_file, max_frames=2_147_483_647)
+    track_digest = _annotation_digest(track_file)
     tracks = read_table(
         str(track_file), canonicalise=False, report=None,
         usecols=lambda name: name in ("frame", "track_id", "x", "y"))
@@ -1285,15 +1286,25 @@ def _annotation_field_payload(tracks_path: str, sequence_path: str,
         if same_field.any():
             raise ValueError(tr("Existing annotations for this field need an object column before editing."))
         existing["object"] = ""
-    keys = existing[["field", "object", "track_id", "frame", "event"]].copy()
+    keys = existing[["field", "object", "track_id", "frame"]].copy()
     keys["object"] = keys["object"].fillna("").astype(str)
-    keys["event"] = keys["event"].astype(str).str.strip().str.lower()
     if keys.duplicated().any():
-        raise ValueError(tr("The existing annotation table repeats an event."))
+        raise ValueError(tr("The existing annotation table labels one track frame more than once."))
     if (same_field & existing["object"].isna()).any():
         raise ValueError(tr("Existing annotations for this field have no object identity."))
     selected = same_field & (existing["object"].astype(str) == object_type)
     mine = existing[selected].copy()
+    legacy_rows = False
+    for row in mine.to_dict("records"):
+        recorded_backend = row.get("tracker_backend")
+        recorded_digest = row.get("track_source_sha256")
+        has_backend = pd.notna(recorded_backend) and bool(str(recorded_backend).strip())
+        has_digest = pd.notna(recorded_digest) and bool(str(recorded_digest).strip())
+        if not has_backend and not has_digest:
+            legacy_rows = True
+        elif (not has_backend or not has_digest
+              or recorded_backend != backend or recorded_digest != track_digest):
+            raise ValueError(tr("Existing event labels belong to another tracker CSV."))
     observed = set(zip(tracks["track_id"], tracks["frame"]))
     events = []
     for row in mine.to_dict("records"):
@@ -1304,12 +1315,14 @@ def _annotation_field_payload(tracks_path: str, sequence_path: str,
         events.append({"track_id": key[0], "frame": key[1], "event": name,
                        "extra": {column: value for column, value in row.items()
                                  if column not in columns}})
+    if _annotation_digest(track_file) != track_digest:
+        raise ValueError(tr("The tracks CSV changed while it was being read."))
     return {"sequence": sequence, "tracks": tracks, "observed": observed,
             "events": events, "other": existing[~selected].copy(),
             "field": field_name, "object": object_type, "backend": backend,
-            "channels": channels, "target": target,
+            "channels": channels, "target": target, "legacy_rows": legacy_rows,
             "digest": _annotation_digest(target),
-            "track_digest": _annotation_digest(track_file),
+            "track_digest": track_digest,
             "track_path": track_file, "sequence_path": sequence_file}
 
 
@@ -1371,7 +1384,7 @@ class _EventAnnotationDialog(QDialog):
         self._identity.setWordWrap(True)
         root.addWidget(self._identity)
         self._confirm = QCheckBox(
-            tr("I confirm this image sequence is the tracked field shown above."), self)
+            tr("I confirm this image sequence and existing event labels belong to this tracker CSV."), self)
         self._confirm.setObjectName("TimelapseEventConfirmField")
         self._confirm.setChecked(False)
         root.addWidget(self._confirm)
@@ -1509,13 +1522,17 @@ class _EventAnnotationDialog(QDialog):
             tr("Field {field} · {object} · {backend} · source {source}",
                field=field["field"], object=field["object"],
                backend=field["backend"], source=str(field["sequence_path"])))
+        if field["legacy_rows"]:
+            self._status.setText(tr(
+                "Existing labels have no tracker identity; confirm this exact tracker CSV before saving."))
+        else:
+            self._status.setText(tr("Loaded tracked field; frames are read only when shown."))
         self._track.clear()
         for track_id in sorted(set(int(value) for value in field["tracks"]["track_id"])):
             self._track.addItem(str(track_id), track_id)
         self._frame.setRange(0, len(field["sequence"]) - 1)
         self._channel.setRange(0, max(0, field["channels"] - 1))
         self._refresh_rows()
-        self._status.setText(tr("Loaded tracked field; frames are read only when shown."))
         self._show_frame()
 
     def _show_frame(self, *_args) -> None:
@@ -1590,9 +1607,9 @@ class _EventAnnotationDialog(QDialog):
         selection = self._rows.selectionModel().selectedRows()
         selected = selection[0].row() if selection else -1
         if any(all(item[key] == event[key]
-                   for key in ("track_id", "frame", "event"))
+                   for key in ("track_id", "frame"))
                for index, item in enumerate(self._events) if index != selected):
-            self._status.setText(tr("This event is already annotated."))
+            self._status.setText(tr("This track frame already has an event label."))
             return
         if 0 <= selected < len(self._events):
             event["extra"] = self._events[selected].get("extra", {})
@@ -1635,6 +1652,10 @@ class _EventAnnotationDialog(QDialog):
             return
         same_target = target == field["target"]
         try:
+            keys = [(event["track_id"], event["frame"])
+                    for event in self._events]
+            if len(keys) != len(set(keys)):
+                raise ValueError(tr("One track frame cannot have multiple event labels."))
             if _annotation_digest(field["track_path"]) != field["track_digest"]:
                 raise ValueError(tr("The tracks CSV changed; reopen the field before saving."))
             digest = _annotation_digest(target)
@@ -1643,7 +1664,9 @@ class _EventAnnotationDialog(QDialog):
                 raise ValueError(tr("Annotations changed on disk; reopen the field or choose a new CSV."))
             rows = [{"field": field["field"], "track_id": event["track_id"],
                      "frame": event["frame"], "event": event["event"],
-                     "object": field["object"], **event.get("extra", {})}
+                     "object": field["object"], **event.get("extra", {}),
+                     "tracker_backend": field["backend"],
+                     "track_source_sha256": field["track_digest"]}
                     for event in self._events]
             current = (pd.DataFrame(rows) if rows else pd.DataFrame(
                 columns=["field", "track_id", "frame", "event", "object"]))
