@@ -163,7 +163,7 @@ def test_subcell_rybg_refuses_ambiguous_planes_before_model_load(
     spec = emb.EmbeddingSpec(backbone="subcell_rybg", channel_policy=policy,
                              channels=channels, normalize=False)
     with pytest.raises(emb.EmbeddingError, match="subcell_rybg|channel 4"):
-        emb.embed_array(np.zeros((1, 8, 8, 4), dtype=np.float32), spec)
+        emb.embed_array(np.zeros((1, 20, 20, 4), dtype=np.float32), spec)
 
 
 @pytest.mark.parametrize("width", [3, None, "missing"])
@@ -180,7 +180,7 @@ def test_subcell_rybg_refuses_an_encoder_that_would_drop_a_plane(width):
         backbone="subcell_rybg", channel_policy=emb.CHANNEL_PROJECT,
         channels=(0, 1, 2, 3), normalize=False)
     with pytest.raises(emb.EmbeddingError, match="exactly four planes"):
-        emb.embed_array(np.ones((1, 8, 8, 4), dtype=np.float32), spec,
+        emb.embed_array(np.ones((1, 20, 20, 4), dtype=np.float32), spec,
                         encoder=wrong_encoder)
     assert calls == []
 
@@ -285,6 +285,31 @@ def test_subcell_rybg_refuses_a_crop_smaller_than_one_patch(
     with pytest.raises(emb.EmbeddingError, match="at least 16 pixels"):
         encoder(np.zeros((1, *shape, 4), dtype=np.float32))
     assert calls == []
+
+
+@pytest.mark.parametrize("shape", [(15, 20), (20, 15)])
+@pytest.mark.parametrize("entry", ["array", "plate"])
+def test_subcell_rybg_small_crops_fail_before_scale_or_checkpoint(
+        monkeypatch, shape, entry):
+    calls = []
+
+    def unexpected(*_args, **_kwargs):
+        calls.append("scale or model")
+        raise AssertionError("small crops must fail in input preflight")
+
+    monkeypatch.setattr(emb, "_estimate_channel_scale", unexpected)
+    monkeypatch.setattr(emb, "_backbone_encoder", unexpected)
+    spec = emb.EmbeddingSpec(
+        backbone="subcell_rybg", channel_policy=emb.CHANNEL_PROJECT,
+        channels=(0, 1, 2, 3), normalize=True)
+    crops = np.zeros((2, *shape, 4), dtype=np.float32)
+    record = {}
+    with pytest.raises(emb.EmbeddingError, match="at least 16 pixels"):
+        if entry == "plate":
+            emb._embed_plate(crops, spec, record=record)
+        else:
+            emb.embed_array(crops, spec)
+    assert calls == [] and record == {}
 
 
 def test_subcell_rybg_refuses_a_two_plane_checkpoint(

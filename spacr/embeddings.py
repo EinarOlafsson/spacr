@@ -284,6 +284,8 @@ def _prepare(crops: np.ndarray, spec: EmbeddingSpec
             f"got an array with {array.ndim} dimensions")
     if array.shape[0] == 0:
         raise EmbeddingError("no crops to embed")
+    if spec.backbone == "subcell_rybg":
+        _subcell_rybg_spatial_size(array.shape[1], array.shape[2])
     channels = _encoded_channels(array.shape[3], spec)
     return array.astype(np.float32, copy=False), channels
 
@@ -329,6 +331,14 @@ def _subcell_rybg_channels(spec: EmbeddingSpec) -> None:
         raise EmbeddingError(
             "subcell_rybg needs the projection policy and four explicit, "
             "distinct channel indices in r, y, b, g order")
+
+
+def _subcell_rybg_spatial_size(height: int, width: int) -> None:
+    """Require one full ViT-B/16 patch in each native crop dimension."""
+    if min(height, width) < 16:
+        raise EmbeddingError(
+            "subcell_rybg needs crops at least 16 pixels high "
+            "and wide for its ViT-B/16 patch embedding")
 
 
 def _scaled(plane: np.ndarray, scale: Optional[float]) -> np.ndarray:
@@ -455,6 +465,8 @@ def _embed_plate(crops: Any, spec: Optional[EmbeddingSpec] = None, *,
             raise EmbeddingError(
                 "crops must be (n, height, width, channels); "
                 f"got shape {shape}")
+        if spec.backbone == "subcell_rybg":
+            _subcell_rybg_spatial_size(int(shape[1]), int(shape[2]))
         channels = _encoded_channels(int(shape[3]), spec)
         recorded = None if record is None else record.get("channel_scale")
         if recorded is None:
@@ -723,10 +735,8 @@ def _foundation_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarra
                 chunk = torch.from_numpy(np.ascontiguousarray(
                     stack[start:start + spec.batch_size].transpose(0, 3, 1, 2)
                 )).float().to(device)
-                if spec.backbone == "subcell_rybg" and min(chunk.shape[-2:]) < 16:
-                    raise EmbeddingError(
-                        "subcell_rybg needs crops at least 16 pixels high "
-                        "and wide for its ViT-B/16 patch embedding")
+                if spec.backbone == "subcell_rybg":
+                    _subcell_rybg_spatial_size(*chunk.shape[-2:])
                 if (spec.backbone != "subcell_rybg"
                         and chunk.shape[-2:] != (size, size)):
                     chunk = torch.nn.functional.interpolate(
