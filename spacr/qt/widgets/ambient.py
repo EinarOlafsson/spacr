@@ -5550,6 +5550,8 @@ class AmbientWidget(QWidget):
         theme's own buffer; ``None`` reads Preferences.
     :param density: how many elements are drawn, as a multiplier on the
         theme's own count; ``None`` reads Preferences.
+    :param gravity_radius: pointer influence radius, as a fraction of the
+        shorter screen edge; zero disables it. ``None`` reads Preferences.
     :param direction: which way the starfield travels, one of
         :data:`DRIFT_DIRECTIONS`; ``None`` reads Preferences. Meaningless to
         the other themes, and kept anyway so switching away and back does
@@ -5869,7 +5871,11 @@ class AmbientWidget(QWidget):
         return self._gravity_radius
 
     def set_gravity_radius(self, value: float) -> None:
-        """Apply local pointer reach while excluding a concurrent shade pass."""
+        """Apply local pointer reach while excluding a concurrent shade pass.
+
+        :param value: fraction of the shorter screen edge, clamped to [0, 1];
+            zero disables mouse influence.
+        """
         radius = _clamp(value, 0.0, 1.0)
         if radius == self._gravity_radius:
             return

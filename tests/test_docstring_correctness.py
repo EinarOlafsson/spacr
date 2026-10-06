@@ -1915,6 +1915,35 @@ ViaAlias = TupleAlias("ViaAlias", [("value", int)])
     )
 
 
+def _validated_prior_radius_callables(callables):
+    """Check the exact new radius API before retaining every old boundary pin."""
+    by_symbol = {item.symbol: item for item in callables}
+    prefix = "spacr.qt.widgets.ambient.AmbientWidget"
+    arrivals = {prefix + ".gravity_radius": set(),
+                prefix + ".set_gravity_radius": {"value"}}
+    for symbol, parameters in arrivals.items():
+        item = by_symbol[symbol]
+        assert item.category == "method" and item.exposure == "autoapi"
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.parameters == item.required_parameters == parameters
+        assert item.accepted_documented_parameters == parameters
+    widget = by_symbol[prefix]
+    assert widget.category == "constructor" and widget.exposure == "autoapi"
+    assert widget.parameters == {
+        "parent", "theme", "palette", "background", "backdrop", "fps", "seed",
+        "blur", "speed", "size", "resolution", "density", "direction",
+        "corner_radius", "gravity_radius",
+    }
+    assert widget.required_parameters == set()
+    assert widget.variant_count == 1 and widget.docless_variant_count == 0
+    assert "gravity_radius" in widget.accepted_documented_parameters
+    return [replace(item, parameters=item.parameters - {"gravity_radius"},
+                    accepted_documented_parameters=(
+                        item.accepted_documented_parameters - {"gravity_radius"}))
+            if item.symbol == prefix else item for item in callables
+            if item.symbol not in arrivals]
+
+
 def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     """Freeze the whole boundary and every source-owned parameter name.
 
@@ -1924,7 +1953,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     parameter becoming optional (or the reverse) without changing counts.
     """
     before_modules = set(sys.modules)
-    callables = list(_public_callables())
+    callables = _validated_prior_radius_callables(list(_public_callables()))
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")
@@ -3332,8 +3361,18 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     }
     assert not imported_package_modules
 
+    actual_callables = list(_public_callables())
+    radius_symbols = {
+        "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius",
+        "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius",
+    }
+    radius_docs = {item.symbol: item.docstring for item in actual_callables
+                   if item.symbol in radius_symbols}
+    assert radius_docs.keys() == radius_symbols
+    assert {symbol: docs[symbol] for symbol in radius_symbols} == radius_docs
     rendered_documented_callables = {
-        item.symbol: item.docstring for item in _public_callables()
+        item.symbol: item.docstring
+        for item in _validated_prior_radius_callables(actual_callables)
         if item.exposure == "autoapi" and item.docstring
     }
     # The gap between the two is the entries AutoAPI never renders: the
@@ -3537,7 +3576,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert len(private_additions) == 11
     assert {key: docs[key] for key in private_additions} == private_additions
     assert not private_additions.keys() & rendered_documented_callables.keys()
-    assert len(docs.keys() - private_additions.keys()) == 13182
+    assert len(docs.keys() - private_additions.keys() - radius_symbols) == 13182
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every

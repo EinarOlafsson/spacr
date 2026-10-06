@@ -42,6 +42,7 @@ CONTROLS = {
     "AmbientSpeed": "Appearance",
     "AmbientSize": "Appearance",
     "AmbientDensity": "Appearance",
+    "AmbientGravityRadius": "Appearance",
     "SettingAnimationsEnabled": "Appearance",
     "SpinnerDelay": "Appearance",
     "PaneOpacity": "Appearance",
