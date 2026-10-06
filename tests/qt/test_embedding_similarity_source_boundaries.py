@@ -87,6 +87,20 @@ def test_missing_database_object_key_cannot_enable_similarity_save(
     assert al._stored_embedding_frame(str(database)) is None
 
 
+def test_folder_crops_have_no_database_identity_to_save(screen, tmp_path,
+                                                        monkeypatch):
+    database, rows = _plate(tmp_path, ["plate1_r1_c1_f1_o1"])
+    folder = str((tmp_path / "cell_png").resolve())
+    monkeypatch.setattr(screen, "crop_query", lambda: CropQuery(
+        source="folder", path=folder))
+    _load(screen, folder)
+    assert len(screen._crops) == len(rows)
+    screen.embed()
+    assert not screen._save_similar.isEnabled()
+    screen._save_for_similarity()
+    assert al._stored_embedding_frame(str(database)) is None
+
+
 def test_duplicate_object_keys_cannot_silently_collapse_distinct_crops(
     screen, tmp_path
 ):
@@ -153,6 +167,59 @@ def test_late_embedding_failure_does_not_overwrite_new_crop_status(
         done(reply)
     assert screen._status.text() == "New crop selection"
     assert screen._result is None
+    assert not screen._save_similar.isEnabled()
+
+
+def test_current_embedding_error_is_visible_without_enabling_save(
+    screen, tmp_path, monkeypatch
+):
+    database, _rows = _plate(tmp_path, ["plate1_r1_c1_f1_o1"])
+    _load(screen, database)
+    monkeypatch.setattr(emb, "_embed_plate", lambda *_args, **_kwargs: (
+        _ for _ in ()).throw(ValueError("invalid crop planes")))
+    screen.embed()
+    assert "invalid crop planes" in screen._status.text()
+    assert not screen._save_similar.isEnabled()
+
+
+def test_missing_encoder_provenance_prevents_source_bound_save(
+    screen, tmp_path, monkeypatch
+):
+    database, _rows = _plate(tmp_path, ["plate1_r1_c1_f1_o1"])
+    _load(screen, database)
+    monkeypatch.setattr(emb, "encoder_entry", lambda _spec: (
+        _ for _ in ()).throw(OSError("checkpoint metadata unavailable")))
+    screen.embed()
+    assert "checkpoint metadata unavailable" in screen._status.text()
+    assert screen._result is None
+    assert not screen._save_similar.isEnabled()
+    assert al._stored_embedding_frame(str(database)) is None
+
+
+def test_old_embedding_error_cannot_replace_a_pending_load_status(
+    screen, tmp_path, monkeypatch
+):
+    first = tmp_path / "first"
+    first.mkdir()
+    second = tmp_path / "second"
+    second.mkdir()
+    first_db, _rows = _plate(first, ["plate1_r1_c1_f1_o1"])
+    second_db, _rows = _plate(second, ["plate2_r1_c1_f1_o1"])
+    _load(screen, first_db)
+    pending = []
+    monkeypatch.setattr(screen._jobs, "submit",
+                        lambda work, done: pending.append((work, done)) or True)
+    screen.embed()
+    embed_work, embed_done = pending.pop()
+    screen._path.setText(str(second_db))
+    screen._on_path_changed()
+    screen._load.click()
+    assert screen.is_loading()
+    loading_status = screen._status.text()
+    monkeypatch.setattr(emb, "_embed_plate", lambda *_args, **_kwargs: (
+        _ for _ in ()).throw(ValueError("old crop planes failed")))
+    embed_done(embed_work())
+    assert screen._status.text() == loading_status
     assert not screen._save_similar.isEnabled()
 
 
