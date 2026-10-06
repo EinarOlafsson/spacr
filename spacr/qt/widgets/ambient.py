@@ -5324,7 +5324,7 @@ class _DataArtEngine(_BufferedEngine):
         painter.drawImage(0, 0, self._frame_genetic_advection(width, height))
 
     def _frame_genetic_advection(self, width, height) -> QImage:
-        """Advect fine trails through changing filaments and migrating vortices."""
+        """Advect trails through vortices and short cursor-attracted histories."""
         np = _numpy()
         key = ("wind_grains", width, height, self.size, self.density)
         grains = self._material_cache.get(key)
@@ -5382,11 +5382,15 @@ class _DataArtEngine(_BufferedEngine):
         x, y = positions
         if self.pointer is not None and self.gravity_radius > 0.0:
             dx, dy, _, weight = self._pointer_field(x, y, width, height)
-            rotation = 1.5 * weight
-            cosine, sine = np.cos(rotation), np.sin(rotation)
+            exposure = weight.copy()
+            exposure[:-3] += weight[3:]
+            exposure[-3:] += weight[-1]
+            exposure[:-6] += weight[6:]
+            exposure[-6:] += weight[-1]
+            pull = 0.72 * np.sqrt(weight * exposure / 3.0)
             shorter = max(1, min(width, height))
-            x += (dx * (cosine - 1.0) - dy * sine) * shorter / width
-            y += (dx * sine + dy * (cosine - 1.0)) * shorter / height
+            x -= dx * pull * shorter / width
+            y -= dy * pull * shorter / height
         columns = np.clip((x * width).astype(np.int32), 0, width - 1)
         rows = np.clip((y * height).astype(np.int32), 0, height - 1)
         intensity = (0.25 + 0.60 * depth) * ((12 - trails) / 12) ** 1.3
