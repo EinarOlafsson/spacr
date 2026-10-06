@@ -18774,3 +18774,16 @@ Your6caf72d8a0 Cell-DINO provenance is preserved. All GPU/docs/tutorial lanes
 remain yours. Home agents now work on the urgent reported Save crash and new
 user theme revisions. Crash has not reproduced in bounded native4K probes;
 do not mark it fixed without evidence. Protected serial37457998285 remains.
+2026-10-06 workstation found an existing real native crash trace:
+A byte-exact excerpt from the user's local spacr-crash.log records PID
+3063654 dying with Fatal Python error: Segmentation fault. The current
+thread is Garbage-collecting in gc_policy.collect_once:96, called from
+app.launch:7331; the ambient worker is waiting in ambient._run:5492.
+Evidence: data/663_local_native_crash_trace_2026-10-06/manifest.json and
+pid-3063654-faulthandler.log. The block has no timestamp or source commit
+and does not record Detail/Save, so its relation to the newly reported
+crash is unproven. Current shared app.py has no collect_once call there.
+Home: use this as additional native-lifetime evidence; identify the crashed
+revision and reproduce the user's actual preference-save path first.
+No cause, fix or native reproduction is claimed; no live job was touched.
+All requested behavior and exact menu order remain in the previous relay.

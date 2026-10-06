@@ -1,0 +1,51 @@
+=== spaCR started (pid 3063654) ===
+Fatal Python error: Segmentation fault
+
+Thread 0x000074fe85cfe640 (most recent call first):
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 363 in wait
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 660 in wait
+  File "/home/carruthers/Documents/repo/spacr/spacr/qt/widgets/ambient.py", line 5492 in _run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Thread 0x000074fe43fff640 (most recent call first):
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 359 in wait
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/queue.py", line 199 in get
+  File "/home/carruthers/Documents/repo/spacr/spacr/qt/path_probe.py", line 79 in _worker
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Thread 0x000074fe48ff1640 (most recent call first):
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 359 in wait
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/queue.py", line 199 in get
+  File "/home/carruthers/Documents/repo/spacr/spacr/qt/path_probe.py", line 79 in _worker
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Thread 0x000074fe497f2640 (most recent call first):
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 359 in wait
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/queue.py", line 199 in get
+  File "/home/carruthers/Documents/repo/spacr/spacr/qt/path_probe.py", line 79 in _worker
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Thread 0x000074fe49ff3640 (most recent call first):
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 359 in wait
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/queue.py", line 199 in get
+  File "/home/carruthers/Documents/repo/spacr/spacr/qt/path_probe.py", line 79 in _worker
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 995 in run
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1044 in _bootstrap_inner
+  File "/home/carruthers/anaconda3/envs/spacr/lib/python3.13/threading.py", line 1015 in _bootstrap
+
+Current thread 0x000074ff0f6cf4c0 (most recent call first):
+  Garbage-collecting
+  File "/home/carruthers/Documents/repo/spacr/spacr/qt/gc_policy.py", line 96 in collect_once
+  File "/home/carruthers/Documents/repo/spacr/spacr/qt/app.py", line 7331 in launch
+  File "/home/carruthers/Documents/repo/spacr/spacr/qt/__init__.py", line 401 in run
+  File "/home/carruthers/anaconda3/envs/spacr/bin/spacr", line 6 in <module>
+
+Extension modules: shiboken6.Shiboken, PySide6.QtCore, numpy._core._multiarray_umath, numpy.linalg._umath_linalg, PySide6.QtGui, PySide6.QtWidgets, PIL._imaging, kiwisolver._cext, PySide6.QtDataVisualization, PySide6.QtOpenGLWidgets, PySide6.QtOpenGL, PIL._imagingmath, psutil._psutil_linux, pyarrow.lib, numpy.random._common, numpy.random.bit_generator, numpy.random._bounded_integers, numpy.random._pcg64, numpy.random._generator, numpy.random._mt19937, numpy.random._philox, numpy.random._sfc64, numpy.random.mtrand, pandas._libs.tslibs.ccalendar, pandas._libs.tslibs.np_datetime, pandas._libs.tslibs.dtypes, pandas._libs.tslibs.base, pandas._libs.tslibs.nattype, pandas._libs.tslibs.timezones, pandas._libs.tslibs.fields, pandas._libs.tslibs.timedeltas, pandas._libs.tslibs.tzconversion, pandas._libs.tslibs.timestamps, pandas._libs.properties, pandas._libs.tslibs.offsets, pandas._libs.tslibs.strptime, pandas._libs.tslibs.parsing, pandas._libs.tslibs.conversion, pandas._libs.tslibs.period, pandas._libs.tslibs.vectorized, pandas._libs.ops_dispatch, pandas._libs.missing, pandas._libs.hashtable, pandas._libs.algos, pandas._libs.interval, pandas._libs.lib, pyarrow._compute, pandas._libs.ops, numexpr.interpreter, bottleneck.move, bottleneck.nonreduce, bottleneck.nonreduce_axis, bottleneck.reduce, pandas._libs.hashing, pandas._libs.arrays, pandas._libs.tslib, pandas._libs.sparse, pandas._libs.internals, pandas._libs.indexing, pandas._libs.index, pandas._libs.writers, pandas._libs.join, pandas._libs.window.aggregations, pandas._libs.window.indexers, pandas._libs.reshape, pandas._libs.groupby, pandas._libs.json, pandas._libs.parsers, pandas._libs.testing, _cyutility, scipy._cyutility, scipy._lib._ccallback_c, charset_normalizer.md, charset_normalizer.cd, scipy.ndimage._nd_image, scipy.ndimage._rank_filter_1d, scipy.special._ufuncs_cxx, scipy.special._ellip_harm_2, scipy.special._special_ufuncs, scipy.special._gufuncs, scipy.special._ufuncs, scipy.special._specfun, scipy.special._comb, _ni_label, scipy.ndimage._ni_label, scipy.sparse._sparsetools, _csparsetools, scipy.sparse._csparsetools, scipy.spatial._ckdtree, scipy._lib.messagestream, scipy.linalg._fblas, scipy.linalg._flapack, scipy.linalg.cython_lapack, scipy.linalg._cythonized_array_utils, scipy.linalg._solve_toeplitz, scipy.linalg._batched_linalg, scipy.linalg._decomp_lu_cython, scipy.linalg._matfuncs_schur_sqrtm, scipy.linalg._matfuncs_expm, scipy.linalg._linalg_pythran, scipy.linalg.cython_blas, scipy.linalg._decomp_update, scipy.spatial._qhull, scipy.spatial._voronoi, scipy.spatial._hausdorff, scipy.spatial._distance_wrap, scipy.spatial.transform._rotation_cy, scipy.spatial.transform._rigid_transform_cy, skimage.measure._moments_cy, skimage.measure._find_contours_cy, skimage.measure._marching_cubes_lewiner_cy, skimage.morphology._misc_cy, skimage.measure._ccomp, _skeletonize_lee_cy, skimage.morphology._skeletonize_lee_cy, skimage.morphology._skeletonize_various_cy, skimage._shared.geometry, skimage.measure._pnpoly, skimage.morphology._convex_hull, skimage.morphology._grayreconstruct, skimage.morphology._extrema_cy, skimage.morphology._flood_fill_cy, skimage.morphology._max_tree (total: 123)
