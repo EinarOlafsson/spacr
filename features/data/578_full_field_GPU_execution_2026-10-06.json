@@ -1,0 +1,598 @@
+{
+  "item": 578,
+  "actual_128_normal_CUDA_full_field_calls_and_independent_saved_label_report_replay_accepted": true,
+  "fields": 16,
+  "full_field_shape": [
+    1994,
+    1994
+  ],
+  "original_GPU_turn_rc": 1,
+  "private_postflight_failure_closed_by_normal_field_to_fieldID_table_schema_verification": true,
+  "no_GPU_rerun_or_application_source_change": true,
+  "original_labels_archived": 128,
+  "first_last_positive_CUDA_profiles_archived": true,
+  "normal_CSV_PDF_and_visual_review_complete": true,
+  "source_model_plan_verified_before_and_after": true,
+  "baseline_stable": true,
+  "threshold_6_fragile": true,
+  "scope": "All sixteen complete acquired fields of four wells of the example plate; not an entire production screen",
+  "no_independent_biological_accuracy_or_other_backend_claim": true,
+  "artifacts": {
+    "features/data/578_full_field_GPU_execution_2026-10-06/GPU-freeze.json": {
+      "sha256": "b09b58eb25467b4db208e8c347e10284077a6b7b45a912f1bad9024715d73d78",
+      "bytes": 323
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/actual-normal-PDF-visual-review.json": {
+      "sha256": "cefcb03e6eff5a38630b479b5ec0904ccddb4ba9282ed0bd19d250772b58f837",
+      "bytes": 469
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/archive_robustness_execution_r1.py": {
+      "sha256": "82ae294589e10b0a50a1870ee8a856bd26efd2d2f349db0935914dc1d0685501",
+      "bytes": 4856
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/benchmark_robustness_plate_gpu_r2.py": {
+      "sha256": "fd2504469b0c202f5205dc9d63b42e1fe7057d906dfcb1daf441c0af32d48a96",
+      "bytes": 6750
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-000-labels.npz": {
+      "sha256": "7da8c3e5b1635c044dafd41f9ddb81a36bb057cd0d41925375e4f67b70cfeb98",
+      "bytes": 34884
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-000-profile.json.gz": {
+      "sha256": "23fd3b392128305650cc263af10608655d0026d4236b8c271d751c2665908062",
+      "bytes": 22796234
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-001-labels.npz": {
+      "sha256": "5a93339d4cca0944a80346b6c52d486b2d93d8796f1dbdeb49cbee6454b439d7",
+      "bytes": 36031
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-002-labels.npz": {
+      "sha256": "f0adff8f17f0878550071757ab9acc76952567b24c6dec8af88467e6dafadc8f",
+      "bytes": 35067
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-003-labels.npz": {
+      "sha256": "c5d16eccd60128646bd12532e9850c4b603292f39376d4a2f7f90d8969b6d77d",
+      "bytes": 34500
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-004-labels.npz": {
+      "sha256": "ae45e090736b80d4bd35242bcb443d580a1ef3c84ca948d18ad100061808ece2",
+      "bytes": 35180
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-005-labels.npz": {
+      "sha256": "abd7dc0fd2c9d965caaf31c68c52cde994d4bbdc8fa3097b2263ffc7e2e5da7b",
+      "bytes": 35853
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-006-labels.npz": {
+      "sha256": "27b9fd6cc573946e3932ffa517545f94d6acbeb88a4f349baa8dc91833e2f52e",
+      "bytes": 30070
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-007-labels.npz": {
+      "sha256": "2df5200943c786b8990680f16bfe4fbed0f59a0126d9aa2f09e1038d8a12b864",
+      "bytes": 35495
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-008-labels.npz": {
+      "sha256": "6785c236c3cb09dd88f3d44bfedcc0b94f389566676916a5f93da6dbf422a4a5",
+      "bytes": 19923
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-009-labels.npz": {
+      "sha256": "05ec6261f95f0adcafa4486e06780303bf29a3d460dc0f5c1ae34094266e5783",
+      "bytes": 19762
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-010-labels.npz": {
+      "sha256": "f5f4d551f51710f5f251b441e4c7e968055e4ac01209bf5efad9dcb98ef3e2a4",
+      "bytes": 19970
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-011-labels.npz": {
+      "sha256": "2b7e9bd47bdf067698d791b14ee277da4f82a6c66abfa54f0621b1cc739dacb7",
+      "bytes": 19427
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-012-labels.npz": {
+      "sha256": "5104be43566e5a1909b0c4ab65b87a976b735ef3a12b05a6f148c45e41598e22",
+      "bytes": 20702
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-013-labels.npz": {
+      "sha256": "f408fd117c6a2475915a135e3979b48e41f64f703f3932297b4d5bfb800281af",
+      "bytes": 20325
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-014-labels.npz": {
+      "sha256": "0e6d10ec3e7938567335a5b379445a6be5247c42c46ec1f2a82190f4c5bc5a04",
+      "bytes": 15448
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-015-labels.npz": {
+      "sha256": "b6b8ceb6af21bf347dfe7d356fc1ae304eff2c129878ba48be92e2d78afb0fe9",
+      "bytes": 20667
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-016-labels.npz": {
+      "sha256": "3d6198bee881ca9237a895d115ff27d0502027ca3c54e4537ac99d79261afab2",
+      "bytes": 30425
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-017-labels.npz": {
+      "sha256": "230a68b2485b87f86c44a46c2731c333ac01930521c0212685487864b630a9e5",
+      "bytes": 29781
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-018-labels.npz": {
+      "sha256": "409c74f7300b839f71f15d093132d321da0445c5e334c2d61a1821c97643cc2a",
+      "bytes": 30780
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-019-labels.npz": {
+      "sha256": "7626375e9473037b520fc81d3a1cf42eb1e7889c309800bb6205ed2748aae13d",
+      "bytes": 30228
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-020-labels.npz": {
+      "sha256": "0e01da6a67482897e9069fd4e6631ffac3a58888e70278a9337bccdbc4670d26",
+      "bytes": 30461
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-021-labels.npz": {
+      "sha256": "464cf7da55a5986b785ff85eb2389b5c3e0cdd1e2d7eca0e0e9e227416c8f471",
+      "bytes": 31355
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-022-labels.npz": {
+      "sha256": "caaafc73e059d2bb911750eaa99e397a6cdffb3d4bb8a147ff4d1027558f19bf",
+      "bytes": 24987
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-023-labels.npz": {
+      "sha256": "3dc75a9df9bbe68789bccfedb053856574d85b2b844b82473807cb9d2c8577b0",
+      "bytes": 31374
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-024-labels.npz": {
+      "sha256": "2be4a152251b1397af18a32b6df439c9c293011d269246be9dc0a4b607bc214a",
+      "bytes": 24974
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-025-labels.npz": {
+      "sha256": "53e75e7968e8a91804acb9d6358243ca6d7e7d6368d44c52e52b909106bd8967",
+      "bytes": 25559
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-026-labels.npz": {
+      "sha256": "29edba65d7e076cf7a5b7a0fc98800b875d370700172780caee6a7447c19e751",
+      "bytes": 25231
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-027-labels.npz": {
+      "sha256": "0cf26993ffa802891cdc692ef5182c8d2fe01b289c09ddadedfacabced3f60ce",
+      "bytes": 24336
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-028-labels.npz": {
+      "sha256": "548c61957553e557c140ee62668f0c60b3dce13ad8884b6025e4ab242ab4d52c",
+      "bytes": 25224
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-029-labels.npz": {
+      "sha256": "2bdc1747af13b9ca6bf34041b2f1bfe801f26613a46ae5b7bee676bbf328a7a0",
+      "bytes": 25305
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-030-labels.npz": {
+      "sha256": "801884bd6d75715377d459bbb5719e2ddf3eda9614319bf19175349efca9aab8",
+      "bytes": 20825
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-031-labels.npz": {
+      "sha256": "d6eab7d0004396560b205f0ef779e5a312377a560547106ee37b84afbb886a5a",
+      "bytes": 26717
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-032-labels.npz": {
+      "sha256": "db1f640fbf8f385df5fa219604f95992ff1538827aca66b406f37e0ea25af9bc",
+      "bytes": 34566
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-033-labels.npz": {
+      "sha256": "b03341cb7bc5b4c05dc4e8da4f724214eb1b9c7cd65fc01ddbc62fbc58f9e3fc",
+      "bytes": 35644
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-034-labels.npz": {
+      "sha256": "939aa702c9d08bdc2b4f6200c27a21b928ae14c615f0d51aa844edfe5a4d929f",
+      "bytes": 34792
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-035-labels.npz": {
+      "sha256": "46e4e302c62a275097d56af87b4c3c834d7227f4df1ead77cd132d5c7845d440",
+      "bytes": 34528
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-036-labels.npz": {
+      "sha256": "db1f640fbf8f385df5fa219604f95992ff1538827aca66b406f37e0ea25af9bc",
+      "bytes": 34566
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-037-labels.npz": {
+      "sha256": "d821aed0c2d947afc3593c46fd541a82835832cffd966e8b6ecb25465a59bb44",
+      "bytes": 35460
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-038-labels.npz": {
+      "sha256": "33d685145a26710f5f0c74c76752ed617d9ed64ba07a252f70255fcca08e0acb",
+      "bytes": 29692
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-039-labels.npz": {
+      "sha256": "07f0cdbfeaf2fdc63209346d483cba53dac7511ff26a62440a5ee9cb2743f4ec",
+      "bytes": 35766
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-040-labels.npz": {
+      "sha256": "c6bf41b235908bbdaa64f1e06ce10a8d8495d298b06b77d44e95e4948b0f10fb",
+      "bytes": 16466
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-041-labels.npz": {
+      "sha256": "75912b073207da2e457053364ad674ab8112d6a0a6511faf514df5c2f42f0d33",
+      "bytes": 16548
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-042-labels.npz": {
+      "sha256": "086606b5504e1d188d63bf16372645e790c471ad88f9883c473f73458c421232",
+      "bytes": 16984
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-043-labels.npz": {
+      "sha256": "c6bf41b235908bbdaa64f1e06ce10a8d8495d298b06b77d44e95e4948b0f10fb",
+      "bytes": 16466
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-044-labels.npz": {
+      "sha256": "b5d5dae92df819555276857c2070f1d59c2d6849a7b8330b1da4caa76dc270ba",
+      "bytes": 17241
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-045-labels.npz": {
+      "sha256": "ca04418fd9b550fcad8ae77a7b822cd54de2f9f8ec723df1a251f27171a5327a",
+      "bytes": 16822
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-046-labels.npz": {
+      "sha256": "f6fae1443e1cae449ece629510a702ba8de3096dfccd60d22ef062706217241f",
+      "bytes": 13936
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-047-labels.npz": {
+      "sha256": "128f8bba5d93d5b212a34468808d6bb40f17f912be723bdf94a60475bc869ece",
+      "bytes": 16924
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-048-labels.npz": {
+      "sha256": "0dd9ffc616d324099f7549bd80cb21f03225da3e8ea4f649e0722d8386b1250f",
+      "bytes": 28519
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-049-labels.npz": {
+      "sha256": "80f0d2af134086c452e0c5cd1a0097adb3e03fb05e582f848c115ce9a115024c",
+      "bytes": 28724
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-050-labels.npz": {
+      "sha256": "02798bc72bbc0ac364bd104f480b83e9ef31464749f9031559790c45457617d1",
+      "bytes": 28585
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-051-labels.npz": {
+      "sha256": "bfc86342becf488fdde9175ef9d9e6a36907725c5cb19188d84c115eb11c6470",
+      "bytes": 27929
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-052-labels.npz": {
+      "sha256": "0dd9ffc616d324099f7549bd80cb21f03225da3e8ea4f649e0722d8386b1250f",
+      "bytes": 28519
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-053-labels.npz": {
+      "sha256": "3df38b751d84b99756e7022d01eef997c370c587d2e29b6e6402fd68b8f21f16",
+      "bytes": 28579
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-054-labels.npz": {
+      "sha256": "26a3a1d7e55ef4be509b71677fd25c553d33c00950d96a4d25bf8bb19a85390e",
+      "bytes": 22978
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-055-labels.npz": {
+      "sha256": "0531837405f85c2edda90928448ea98c76f59b0d1d55fe8190c631f229d40266",
+      "bytes": 28562
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-056-labels.npz": {
+      "sha256": "d043bcab4d520021f91e8e2fb21808c99806e55f0e6f239428d3ad599504c344",
+      "bytes": 17090
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-057-labels.npz": {
+      "sha256": "0c832e87b85b4083f0365b1253f3e2cbaa5e56112be042ed9a4bd4fc96b0dbaf",
+      "bytes": 17194
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-058-labels.npz": {
+      "sha256": "6200badfebd4f61f1173e93dc04c2941138de18caed7cbf23b5197caf541c34c",
+      "bytes": 16836
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-059-labels.npz": {
+      "sha256": "5b444ab1254903cda22d8b85e76ca2f0ef337433724ca5e7adf167ec33b55abf",
+      "bytes": 16289
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-060-labels.npz": {
+      "sha256": "dedb01182c180dd6dc493e1d18c887890aaf988ffd6811eb975e465c7f3997e3",
+      "bytes": 17586
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-061-labels.npz": {
+      "sha256": "09bbc353fd68102e65bf2002a8b222501ba395890a0e45c0f1e56b04fd238410",
+      "bytes": 17405
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-062-labels.npz": {
+      "sha256": "799f55e84968fb9594c7b172a555cce8125b225f8020554eff3ebcd3bc3289c9",
+      "bytes": 14510
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-063-labels.npz": {
+      "sha256": "96c93444d85d7d5ccd00678525bebca6828d23c84509ca72233050cf56b318df",
+      "bytes": 19485
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-064-labels.npz": {
+      "sha256": "5f62f272e914d0bea708f825ef0a50a88ad1ad0110797120f306f5c47861a9f2",
+      "bytes": 36696
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-065-labels.npz": {
+      "sha256": "9b375c31fb184b3a3f6458659bde60f1e65ca12cd987f7ba792fd778a3e148da",
+      "bytes": 36524
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-066-labels.npz": {
+      "sha256": "e5a20fd8ad7362c0007872265b1239a205c72bfbf913dc95d44a1bd20c726b1c",
+      "bytes": 36405
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-067-labels.npz": {
+      "sha256": "ab3cc88ed3206034ec587d2db2473840f7c8665154c571d93fccf9615ee76133",
+      "bytes": 36243
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-068-labels.npz": {
+      "sha256": "709efffecce5b343ba3073d691c5b1954f94759e4fe4c2a482adf4c5aaf48448",
+      "bytes": 36828
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-069-labels.npz": {
+      "sha256": "5b7bc5b1ab5f4b9433e7158c5186faa4f096fa3e21b9ab6de8783100d320a0f4",
+      "bytes": 37486
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-070-labels.npz": {
+      "sha256": "2850c386e9926b2eb5114bb63c5b7dde75df4db4f82dbcd922e907f2a7fc69cf",
+      "bytes": 28022
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-071-labels.npz": {
+      "sha256": "d1bc3ed5f9c6ee25ea32eea915200d73405c1500e5d8c568ff995fd7d0d77379",
+      "bytes": 39185
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-072-labels.npz": {
+      "sha256": "9dff5282f3f969ed6f4e708582f15121e5201135618b077cbe1a32de5d86454d",
+      "bytes": 19284
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-073-labels.npz": {
+      "sha256": "2058bbf3cfe542d5545d7ebc88d06f986789590914cad6b177a1b192b8b6b08b",
+      "bytes": 18688
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-074-labels.npz": {
+      "sha256": "df580409a71a16d99dfef9842e659274b8d40005932413560d2e0038ae915ea7",
+      "bytes": 18824
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-075-labels.npz": {
+      "sha256": "61f254c288e265e4813064c15232f7d98cdc910e9006fa23cfa661b4a5d73e94",
+      "bytes": 18535
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-076-labels.npz": {
+      "sha256": "9dff5282f3f969ed6f4e708582f15121e5201135618b077cbe1a32de5d86454d",
+      "bytes": 19284
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-077-labels.npz": {
+      "sha256": "1cf7f15a82681e2a95ba34198b181cd3ce2e49dc28f45223ccbd5944718c2d45",
+      "bytes": 19795
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-078-labels.npz": {
+      "sha256": "362da93ce43738a716d7a8a2513d4c8aa0612e479ba35c575fef6047e8735ee3",
+      "bytes": 15958
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-079-labels.npz": {
+      "sha256": "08966f0d0c7c60cc338ab7e840ee4248d6ccd882245161bd4cd67f9a1bfb4f07",
+      "bytes": 20044
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-080-labels.npz": {
+      "sha256": "5da77f4a0d915f030771398c7f8324143d8e1c8b30f6bb51e8ab7f0d88f34397",
+      "bytes": 29370
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-081-labels.npz": {
+      "sha256": "9a94068fd2a1f30d8f2860f661bef3cacf96f45868b0d29a3d08bf27c573d0af",
+      "bytes": 29311
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-082-labels.npz": {
+      "sha256": "c9d5080c21cf558848f7fc8aa1673d84956baa6e265883e5f51036a25275ce15",
+      "bytes": 29496
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-083-labels.npz": {
+      "sha256": "ffe1256e1f269b37014abca349dfc7ffbe958f39dc5aa5c092ac1c0b5869ff06",
+      "bytes": 28780
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-084-labels.npz": {
+      "sha256": "3bb94f68a4f4773662a53a52e775a7ceca0da8c9361a43850b0119e74e779781",
+      "bytes": 29884
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-085-labels.npz": {
+      "sha256": "0c4a8397958e750b5a706de1db0022e24800081a973db034ba024e76ea7f29bc",
+      "bytes": 30216
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-086-labels.npz": {
+      "sha256": "8ff549839673becb026777c8f611c9044dac32f51a8e2a70596bda25898b5c67",
+      "bytes": 25230
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-087-labels.npz": {
+      "sha256": "1c8d4c3136c778d935490258f05fd6e9ef38f92bf84de90592af5168de13265e",
+      "bytes": 31086
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-088-labels.npz": {
+      "sha256": "0ede11dd0bcc80a24e88c2a15a9edff3c3e5c78085ff925320d34a6b7f5089d4",
+      "bytes": 35007
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-089-labels.npz": {
+      "sha256": "1ab4f9c74794ff9605af82177a704f0d22dde52d5e33ee62341c2ed266a34971",
+      "bytes": 34786
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-090-labels.npz": {
+      "sha256": "ebd38cda37c81e5cfc35d62b225288d6b562908dfd9b357b48654943b1237f62",
+      "bytes": 36108
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-091-labels.npz": {
+      "sha256": "e84c481e1fd6cdde984d0f5fccb9bceecfc4e67882cfa238a69912062f1a318a",
+      "bytes": 34988
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-092-labels.npz": {
+      "sha256": "0ede11dd0bcc80a24e88c2a15a9edff3c3e5c78085ff925320d34a6b7f5089d4",
+      "bytes": 35007
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-093-labels.npz": {
+      "sha256": "d9677e6207445d77ceac93157061e9ed8af211c0c006c1b59416c864de1faf83",
+      "bytes": 35892
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-094-labels.npz": {
+      "sha256": "5f0088992ab0c51e34e2f670614dd166425e50f60556ef7c326b23f03f1eeea9",
+      "bytes": 30860
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-095-labels.npz": {
+      "sha256": "ec4b13a0abd6ad9850128470fcd21c4188ec5d6ad3e928c498b5b2795eea8e84",
+      "bytes": 38304
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-096-labels.npz": {
+      "sha256": "7393dc20b0649af3d9842bbb9d9ab29931eec310b8de9c0c8323059fb63085c4",
+      "bytes": 15142
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-097-labels.npz": {
+      "sha256": "6117f5b7cece3a0cf727a11fca9a2476afc4f7f64bcb002316d4574ce9f24b7a",
+      "bytes": 15240
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-098-labels.npz": {
+      "sha256": "25f9f96292fcd83100dc4ef897af0481b6b7e321ace922336be51a4dcbf3bccd",
+      "bytes": 14979
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-099-labels.npz": {
+      "sha256": "19fb61e1c9df9ac5770b4c3ffd325f8471d59ab1a16fbe024b0efffae17c1f54",
+      "bytes": 14988
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-100-labels.npz": {
+      "sha256": "99c94bea04ba3a4a6745f3bb0ccd0ebeed7754e95390abae096e7a003704d54e",
+      "bytes": 15517
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-101-labels.npz": {
+      "sha256": "333277b5235485851544e7ff34dfda4eda739cf7c69b7607757c5a8c1972d481",
+      "bytes": 15249
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-102-labels.npz": {
+      "sha256": "435db918178f8d247e09f21669283d2f48486d814182f62be86bdbb922e53339",
+      "bytes": 12711
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-103-labels.npz": {
+      "sha256": "22ec09273c22fddd5dc8dc21d5f658e0f03b2150ddf6781e573f9073c9b9a7f0",
+      "bytes": 15846
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-104-labels.npz": {
+      "sha256": "44debd9355dc638e78af2f110fe872466f8730c7c9e5d72fda6edb62f98f8db3",
+      "bytes": 23169
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-105-labels.npz": {
+      "sha256": "56dd91c65545cd7f50db1548eafa93e2c97651d013e4d7d261dfcd1a1bdc9f03",
+      "bytes": 22597
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-106-labels.npz": {
+      "sha256": "87224e394f49b6623ffba3018e4e0853f2e54843eac31a623ddb63c95c74c38a",
+      "bytes": 22912
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-107-labels.npz": {
+      "sha256": "b5f753338c98f06f95a768ed4b29ad6de8a5aee3ef4afc47164abb3ebb2f4e7d",
+      "bytes": 22374
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-108-labels.npz": {
+      "sha256": "a58a6b59cb5b8789ffdfe084891bfa290e18f200f6f88a5ffea993c67398683b",
+      "bytes": 23278
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-109-labels.npz": {
+      "sha256": "6810da7849e5d55867718fb1bb301f2c4c96eae5612cdb46536f3a4da27161cc",
+      "bytes": 23920
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-110-labels.npz": {
+      "sha256": "7587bb89e7af5a70a8f2b1b8186f9873ca8e45cf9fd004c0feb31f17bae9b8cb",
+      "bytes": 18272
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-111-labels.npz": {
+      "sha256": "0165518418849f8cb20cdcc6ed8d73cc8cef558f959b147b5c847076a2b546d1",
+      "bytes": 22698
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-112-labels.npz": {
+      "sha256": "69e70842f2b2b1bd980f9fbc74d4ce66a936a9704889b58bf34ad7e706cf1082",
+      "bytes": 14419
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-113-labels.npz": {
+      "sha256": "2df945b872d973fc2384ea526af00fb0d12fb040a27994bc34ef6bd758a7bca7",
+      "bytes": 14278
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-114-labels.npz": {
+      "sha256": "ec872673b012c68091bc0da01d65d44bc0f3ed9f976acbeb92b8dd0d0b45f3d0",
+      "bytes": 14355
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-115-labels.npz": {
+      "sha256": "69e70842f2b2b1bd980f9fbc74d4ce66a936a9704889b58bf34ad7e706cf1082",
+      "bytes": 14419
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-116-labels.npz": {
+      "sha256": "69e70842f2b2b1bd980f9fbc74d4ce66a936a9704889b58bf34ad7e706cf1082",
+      "bytes": 14419
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-117-labels.npz": {
+      "sha256": "3351ceddf758ab5dce04980e5d2ab6005874d390c55b2968baf7a2fba9738b2c",
+      "bytes": 14836
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-118-labels.npz": {
+      "sha256": "cb2950c4912c9e0671f0834542169934412babe7352f96aad494441e68632932",
+      "bytes": 9924
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-119-labels.npz": {
+      "sha256": "77c9e912208fc4585581656766b8f649f3fe90c0c30bf0ddadf239203b4e81d2",
+      "bytes": 14131
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-120-labels.npz": {
+      "sha256": "bac3d66489583cd9c459b618474239f098644b43d84b0636fa82fd4bbc047517",
+      "bytes": 31309
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-121-labels.npz": {
+      "sha256": "71ffd8768febd0ca965a28136a5ab179c4427139b2c3d479ff30fdfacccf484d",
+      "bytes": 30730
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-122-labels.npz": {
+      "sha256": "c68b3fbe9d9b46076d8d8fe8a59dc6fbdc6286728e1b78904048a5a5035880b9",
+      "bytes": 30908
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-123-labels.npz": {
+      "sha256": "de2d60318325051aed18d4eda4aa58bc6d73aa02e47f0af08b169c3e6c639d28",
+      "bytes": 30534
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-124-labels.npz": {
+      "sha256": "bac3d66489583cd9c459b618474239f098644b43d84b0636fa82fd4bbc047517",
+      "bytes": 31309
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-125-labels.npz": {
+      "sha256": "9974ef935517f636656131b8240c806165d3b4d213953f62a36eadc97daeb747",
+      "bytes": 32014
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-126-labels.npz": {
+      "sha256": "3c4b6c367713054199a864988a4908ef60190beac91f729aa71d74452d7fe74c",
+      "bytes": 26476
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-127-labels.npz": {
+      "sha256": "e120e3b8b8bd909a75af60153b5d66aca0947c8ec8e43448ddd252bf04d65be7",
+      "bytes": 31794
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/call-127-profile.json.gz": {
+      "sha256": "5960641c537b6fac43be305174e6cea8a047b648cd6d1897185c0b6585fd335d",
+      "bytes": 22697696
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/independent-acceptance.json": {
+      "sha256": "ab08e4a0325594b3cec2816e4b659e1184409532683cb650e4f03b0c93aa28cb",
+      "bytes": 103381
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/plan.json": {
+      "sha256": "5f399e02c4ded23bc37f828237ee38bb8d7749a0d86cea4e249c95e9cc091059",
+      "bytes": 15906
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/recipe.json": {
+      "sha256": "73935d0c7a380cdb1187d1e0c142f0f74ad03b48a849e6233e8c47c904e526ee",
+      "bytes": 8709
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/robustness-fullfield-report-r2.png": {
+      "sha256": "8e26e4cceb7232b964884bf4732153b2ef95e04855ccb221a6536cc264ef768c",
+      "bytes": 146019
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/robustness-plate-gpu-r2.log.gz": {
+      "sha256": "5549111c0b7f12efe7641ef3e2cf16904953581732baf055b47926ad2a99233f",
+      "bytes": 2624
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/robustness-saved-label-verification-r1.log.gz": {
+      "sha256": "cd17c7448ef4eb06a446e444cbc52e8262eb5d149aa44412b6a077daa112c315",
+      "bytes": 195
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/segmentation_robustness_nucleus.csv": {
+      "sha256": "2e5e748019af85ee6c247a0b105e1ff3bbf7e5d269bc3648867342b6bc64edd4",
+      "bytes": 1112
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/segmentation_robustness_nucleus.pdf": {
+      "sha256": "7d7886c75c9de29b8b5de9318e5ae8cfbb0b33f25516efb29cfa525b9c15cbe5",
+      "bytes": 30882
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/segmentation_robustness_nucleus_fields.csv": {
+      "sha256": "a9beff886b007c8854345513cc0c5bc38dda60a9dd7b7afeffdd53e2225b288b",
+      "bytes": 16974
+    },
+    "features/data/578_full_field_GPU_execution_2026-10-06/verify_robustness_saved_labels_r1.py": {
+      "sha256": "01660d6f3f4b089c8f3c57308489e8dcbce385931ca96b6eb1a412b44894d256",
+      "bytes": 6012
+    }
+  }
+}

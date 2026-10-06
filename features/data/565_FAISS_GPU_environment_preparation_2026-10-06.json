@@ -1,0 +1,30 @@
+{
+  "item": 565,
+  "isolated_FAISS_GPU_package_CPU_preflight_accepted": true,
+  "FAISS_version": "1.15.1",
+  "private_python": "3.12.14 (main, Sep  2 2026, 23:27:36) [GCC 15.3.0]",
+  "normal_current_spacr_similarity_import_CPU_smoke_passed": true,
+  "actual_GPU_index_query_timing_and_class_agreement_pending": true,
+  "production_environment_not_modified": true,
+  "actual_17k_human_embeddings_and_explicit_synthetic_1_2M_timing_benchmark_frozen": true,
+  "normal_numpy_independent_class_and_query_control_predeclared": true,
+  "FAISS_benchmark_will_queue_only_after_embedding_handle_completes": true,
+  "artifacts": {
+    "features/data/565_FAISS_GPU_environment_preparation_2026-10-06/565-faiss-environment-preparation-r2.json": {
+      "sha256": "d32b670f7bd1d22e4b48bfb3ad44a2b6b5ecb70489bf55b875ba7969705846c0",
+      "bytes": 163132
+    },
+    "features/data/565_FAISS_GPU_environment_preparation_2026-10-06/FAISS-GPU-freeze.json": {
+      "sha256": "e7e5aa67bc0557a8cc8417cf1c115578f0a37c43bb52488d61dce0ebd8d37ceb",
+      "bytes": 282
+    },
+    "features/data/565_FAISS_GPU_environment_preparation_2026-10-06/benchmark_pbc_faiss_gpu_r1.py": {
+      "sha256": "0e500e24be7a79fa0db54a6e5fa256a514e5c748d5b362c543304b46df9ba47e",
+      "bytes": 8396
+    },
+    "features/data/565_FAISS_GPU_environment_preparation_2026-10-06/faiss-gpu-environment-r2.log.gz": {
+      "sha256": "4801ed60a58629daaf615c141a2c15b02ccde3b7578f12c68f22af8ddaad67d0",
+      "bytes": 5015
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "reviewed_native_normal_PDF_render": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/robustness-fullfield-report-r2.png",
+  "render_sha256": "8e26e4cceb7232b964884bf4732153b2ef95e04855ccb221a6536cc264ef768c",
+  "actual_visual_review_complete": true,
+  "all_eight_grid_rows_four_metrics_and_threshold_mark_readable": true,
+  "baseline_zero_and_threshold_6_27_percent_count_29_percent_lost_visible": true,
+  "normal_report_colours_not_altered": true
+}
