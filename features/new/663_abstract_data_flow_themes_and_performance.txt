@@ -505,3 +505,12 @@ is reduced unnecessary terrain math rather than claimed end-to-end speedup.
 Receipts: scratch theme-refinement-20261006/visual-revision/,
 culling-new-source-coverage.json, atlas-radius-culling-perf.json and
 atlas-culling-order-balanced.json. Native24FPS acceptance remains OPEN.
+
+2026-10-06 — portable source-bound refinement evidence
+The local-radius, evolving-advection and conservative-culling checkpoints
+are now archived losslessly at
+data/663_local_gravity_advection_culling_cpu_2026-10-06/. The source files,
+diffs, coverage receipts, actual tests and measured comparisons retain their
+individual checkpoint identities. Satin wave prototypes are excluded.
+Integrated native4K frame-budget and reported Save-crash acceptance remain
+OPEN; reduced terrain work does not claim an end-to-end speed improvement.

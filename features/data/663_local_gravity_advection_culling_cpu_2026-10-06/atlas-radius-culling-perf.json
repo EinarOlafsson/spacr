@@ -1,0 +1,37 @@
+{
+  "source_sha256": "9da8a9dc346a887ad3e13307a8115e37f09d7f0ce73ae87927a6c10358f8d11c",
+  "before_sha256": "5ab81a3ec1e31944faaea00eb66cc47e6428d8cee1a7e280008e2c3c4426057e",
+  "scope": "paired direct native4K shade, unchanged grain spacing, full frame parity",
+  "rows": [
+    {
+      "radius": 0,
+      "before_points": 267288,
+      "after_points": 218994,
+      "before_median_ms": 33.307021505606826,
+      "after_median_ms": 47.320137498900294,
+      "before_p95_ms": 37.42232600052375,
+      "after_p95_ms": 51.94840399781242,
+      "exact_frame_pairs": 24
+    },
+    {
+      "radius": 0.25,
+      "before_points": 267288,
+      "after_points": 250400,
+      "before_median_ms": 27.26386399444891,
+      "after_median_ms": 29.647369003214408,
+      "before_p95_ms": 29.9638500000583,
+      "after_p95_ms": 33.459505008067936,
+      "exact_frame_pairs": 24
+    },
+    {
+      "radius": 1,
+      "before_points": 267288,
+      "after_points": 250400,
+      "before_median_ms": 29.13374149648007,
+      "after_median_ms": 33.961117500439286,
+      "before_p95_ms": 34.27617499255575,
+      "after_p95_ms": 39.306569000473246,
+      "exact_frame_pairs": 24
+    }
+  ]
+}
