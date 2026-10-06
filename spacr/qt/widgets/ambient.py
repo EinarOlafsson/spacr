@@ -4531,6 +4531,94 @@ class ResonanceEngine(_BufferedEngine):
                                        QImage.Format_RGB32))
 
 
+_PACKED_SCATTER = None
+_PACKED_SCATTER_STARTED = False
+_PACKED_SCATTER_FAILED = False
+_PACKED_SCATTER_LOCK = threading.Lock()
+
+
+def _scatter_packed_grains(flat, px, py, intensities, lookup, axial, diagonal,
+                           width, height, dark):
+    """Combine nine round-grain samples with duplicate-safe integer max/min.
+
+    Centres have already been clipped by the material adapter. Every offset
+    retains its original palette/coverage lookup; max/min is commutative, so
+    point-major traversal preserves the NumPy scatter's exact packed pixels.
+    """
+    for i in range(px.size):
+        x, y = px[i], py[i]
+        level = intensities[i]
+        destination = y * width + x
+        color = lookup[level]
+        if (dark and color > flat[destination]) or (not dark and color < flat[destination]):
+            flat[destination] = color
+        for sy in range(-1, 2):
+            ny = y + sy
+            if ny < 0 or ny >= height:
+                continue
+            for sx in range(-1, 2):
+                if sx == 0 and sy == 0:
+                    continue
+                nx = x + sx
+                if nx < 0 or nx >= width:
+                    continue
+                color = diagonal[level] if sx and sy else axial[level]
+                destination = ny * width + nx
+                if ((dark and color > flat[destination])
+                        or (not dark and color < flat[destination])):
+                    flat[destination] = color
+
+
+def _warm_packed_scatter():
+    """Compile once using tiny owned CPU arrays, without Qt or package writes.
+
+    The renderer continues using its exact NumPy path while this daemon works.
+    Import/compiler errors and NUMBA_DISABLE_JIT leave that path active. Some
+    import/compiler phases hold the GIL briefly; this is not a no-stall claim.
+    """
+    global _PACKED_SCATTER, _PACKED_SCATTER_FAILED
+    try:
+        from numba import njit
+
+        np = _numpy()
+        flat = np.zeros(1, dtype=np.uint32)
+        coordinates = np.zeros(1, dtype=np.int32)
+        intensity = np.zeros(1, dtype=np.uint8)
+        lookup = np.arange(256, dtype=np.uint32)
+        kernel = njit(nogil=True, cache=False)(_scatter_packed_grains)
+        kernel(flat, coordinates, coordinates, intensity, lookup, lookup, lookup,
+               1, 1, True)
+        if not getattr(kernel, 'nopython_signatures', ()):
+            raise RuntimeError('Packed grain compiler did not produce a CPU kernel')
+        with _PACKED_SCATTER_LOCK:
+            _PACKED_SCATTER = kernel
+    except Exception:
+        with _PACKED_SCATTER_LOCK:
+            _PACKED_SCATTER_FAILED = True
+
+
+def _ready_packed_scatter():
+    """Offer an already-compiled kernel, starting at most one CPU warmup thread.
+
+    A first frame may be shaded synchronously on the GUI thread. No import or
+    compilation occurs here, and a contended startup lock returns immediately.
+    """
+    global _PACKED_SCATTER_STARTED, _PACKED_SCATTER_FAILED
+    if (_PACKED_SCATTER is None and not _PACKED_SCATTER_STARTED
+            and not _PACKED_SCATTER_FAILED and _PACKED_SCATTER_LOCK.acquire(blocking=False)):
+        try:
+            if not _PACKED_SCATTER_STARTED and not _PACKED_SCATTER_FAILED:
+                _PACKED_SCATTER_STARTED = True
+                try:
+                    threading.Thread(target=_warm_packed_scatter,
+                                     name='spacr-grain-compile', daemon=True).start()
+                except Exception:
+                    _PACKED_SCATTER_FAILED = True
+        finally:
+            _PACKED_SCATTER_LOCK.release()
+    return _PACKED_SCATTER
+
+
 class _DataArtEngine(_BufferedEngine):
     """Retained crisp procedural materials with native display sampling.
 
@@ -4686,6 +4774,15 @@ class _DataArtEngine(_BufferedEngine):
         flat = np.frombuffer(image.bits(), dtype=np.uint32,
                              count=width * height)
         flat.fill(lookup[0])
+        if spread:
+            kernel = _ready_packed_scatter()
+            if kernel is not None:
+                level_ids = np.arange(256, dtype=np.uint8)
+                axial = np.rint(level_ids * 0.68).astype(np.uint8)
+                diagonal = np.rint(level_ids * 0.24).astype(np.uint8)
+                kernel(flat, px, py, intensities, lookup, lookup[axial], lookup[diagonal],
+                       width, height, self.dark)
+                return image
         combine = np.maximum.at if self.dark else np.minimum.at
         combine(flat, py * width + px, lookup[intensities])
         if spread:
