@@ -1,6 +1,9 @@
 FOUNDATION-MODEL EMBEDDINGS: SubCell, OpenPhenom, ChAda-ViT, Cell-DINO
 
-Status: DONE (alpha) 2026-09-27 (evidence d8f7deeda)
+Status: OPEN (alpha) 2026-10-06 — supported-backbone human-label comparisons
+are verified; coordinated chance/provenance repairs, official Cell-DINO
+loading and four-channel integration remain. See dated trailing notes.
+Previous status: DONE (alpha) 2026-09-27 (evidence d8f7deeda)
 VERIFIED 2026-10-04: test_foundation_model_embeddings, qt foundation-picker and embedding use-for gates pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
@@ -172,6 +175,39 @@ private-helper repair leaves the workstation-owned _retrieval_scorecard,
 _weights_on_disk and encoder_entry unchanged and does not close official
 Cell-DINO checkpoint loading, four-channel or remaining pipeline integration.
 
+2026-10-06 CPU four-channel SubCell implementation accepted (scoped)
+Source becca7932ba7ece25713381de347b748f95799b3 implements alpha subcell_rybg
+with its real public four-channel checkpoint and explicit GUI mapping of
+microtubules/ER/DNA/protein. The model requires CHANNEL_PROJECT, four distinct
+valid integer indices, native crops at least 16x16, and no plate prescaling.
+Native geometry and the authors' global min-max preprocessing are retained;
+the prior two-channel loader and preprocessing remain intact. Missing,
+duplicate, boolean or invalid mappings and undersized crops fail before
+model setup/scaling. The seven literal alpha controls follow item560's gate.
+Use-for/scorecard actions retain the actual result specification.
+
+Root integrated CPU/Qt/contract cohort: 75 passed, one main-environment timm
+skip, 4GiB/CUDA-hidden/offscreen. Source-matched added coverage: backend
+26/26 statements and 22/22 added-origin arcs; screen117/117 and34/34.
+The strict-loaded public checkpoint has 349009018 bytes and SHA256
+6a2d117bcacaa0697034d06d6922580ca7cd996564f270529ec97e6502559845.
+Independent original-pixel comparisons against pinned official source
+c4e0a9106ecffdd2ad91fbbd60bda6dc9fc74009 yield finite 1x1536 outputs at
+64x64 and512x512, maximum difference1.91e-6 below unchanged1e-5; peakRSS
+1768556KiB. Archived receipt: data/560_subcell_rybg_cpu_2026-10-06.json.
+The downloaded weights/raw upstream sources and full coverage receipts stay
+in the declared scratch directories, not duplicated into the repository.
+
+This closes four-channel CPU source/GUI/checkpoint parity, superseding the
+earlier skipped four-channel notes. The accepted human-label six-backbone
+comparisons remain separate; this does not establish four-stain GPU accuracy.
+Item560 remains OPEN for official obtained-checkpoint Cell-DINO integration
+and workstation-owned provenance/exact random-AP APIs and normal generated
+source-current docs/runtime refresh. The three workstation-owned functions
+remain unchanged relative to237506317. Final GitHub/serialQt acceptance stays
+with43/288/47; no numerical guard or coverage ceiling is raised.
 2026-10-06 workstation final local encoder/documentation acceptance: the existing provenance and exact finite random-AP repairs pass all twelve original full expert fluorescence cohorts on the exact source SHA 6284705a6f854d310781dff63e6842754d069b4db34b0c9ee1f69ae1980f0920, integrated with df5b9bb7f before the later four-channel source, with unchanged measured scores/chance precision at 1e-12 and all six actual checkpoint digests. Encoder description now explains provenance, optional retrieval metrics and compatible channel policies without internal instruction numbers; all seven blocks are directly technically reviewed in all nine languages. The normal API generation functions and all nine full normal CLI audits pass; the other 13,180 complete API records, all 9,857 prior runtime rows/hashes and every older reviewed API/runtime file/order remain exact. Current runtime total is 9,860. Current README is below the original 1,750-word prose bound, honestly states its dated 1,710 MB tracked checkout, and all nine READMEs are normally rebuilt with correct standard Qt/headless execution guidance. Obsolete omit-Qt wording and the removed Make Masks heading review are retained as archival evidence, not active assertions. Help search is normally regenerated for all four YOLO helpers and current theme summaries. Six omitted puncta parameters are generated into the Make Masks reference; all nine guides preserve every prior 2,979 complete message and add twelve exact reviewed reference messages, with 2,991/2,991, zero stale/invalid/unlabelled. Strict complete Sphinx and all nine translated guide builds pass, with all seven blocks rendered exactly in nine actual browser panels. Receipt 560_foundation_provenance_and_exact_chance_API_2026-10-06.json retains final/current and failed/nonaccepted source-bound diagnostics and proofs. Mask07 and corrected Measure08/Home05/Conda02 plus every tutorial source/media byte are unchanged. Home retains feature/model integration and CPU CI/coverage/serial Qt; workstation retains all GPU/API/docs/translations/tutorials. No global green, official Cell-DINO/four-channel integration, native-speaker/host or new GPU inference is claimed. Actual new-checkpoint publication/readback remains pending; items560/615 remain OPEN for the remaining scope.
 
 2026-10-06 workstation next-source ownership: Home checkpoint 3ce39ac7b adds native-size four-channel SubCell and explicit alpha channel mapping. It is not covered by this earlier source receipt and is the next private integration/API/runtime/documentation scope. Workstation retains its GPU acceptance. The public 349,009,018-byte all_channels_ViT-ProtS-Pool.pth and three pinned authors reference files have been independently reacquired; all four SHA256 values exactly match Home CPU evidence. Acquisition is preparation only, not four-stain biological or CUDA acceptance. Current protected livecell/cellposeTIME jobs are untouched.
+
+2026-10-06 workstation private four-channel integration: published Home source 3ce39ac7b is now merged. Both branches complete dated notes are preserved, and all three accepted workstation-owned functions are source-text identical to 58df6f5b9; every other embedding callable/class is source-text identical to Home 3ce39ac7b. Normal API/runtime/Help/settings documentation refresh and four-channel CUDA acceptance are now workstation-owned next actions. Earlier six-model receipts retain their exact source scope. No four-channel GPU, final CI or current-source publication acceptance is claimed yet.
