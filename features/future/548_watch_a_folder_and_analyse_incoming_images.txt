@@ -3,7 +3,7 @@ WATCH A FOLDER AND ANALYSE IMAGES AS THEY ARRIVE
 Status: OPEN 2026-10-06 — raw/vendor acquisition completion and general native
         series remain. Closed static fixed-map pooled normalization and native
         T>1 fixed-map Mask batch ingest are locally accepted alpha subsets;
-        native T>1 watch integration is underway. Projected Z, fixed-map
+        native T>1 fixed-map Mask watch is locally accepted. Projected Z, fixed-map
         timelapse, native T1 watch, source-aware channels, pretrained CV
         inference and live plate view are available. Per-field fitting is
         unsupported. Final-source GitHub acceptance remains separate.
@@ -793,3 +793,31 @@ INDEPENDENT NATIVE-BATCH LIMIT REVIEW (2026-10-06)
     Large T-by-Z acquisitions can exceed available RAM; these small real-TIFF
     CPU fixtures do not certify arbitrary large-volume scalability. Reducing
     unnecessary copies is underway without changing normalization semantics.
+
+NATIVE T>1 MASK WATCHER ACCEPTANCE (2026-10-06, alpha subset)
+    Source593886b686 integrates native T>1 Mask-only watching. Read-only
+    preflight accepts a complete declared C/Z/T map even while planes are
+    still arriving. It waits for every settled member of a field; no native
+    stage or analysis begins with only T1. Original YX planes and exact
+    field-scoped map bytes are snapshotted before the ordinary native batch
+    route. Map, planes, ingest receipt, raw stacks, normalized archive and
+    exact per-time merged outputs bind the existing collection checkpoint.
+    Interrupted collection resumes without repeating inference. An abrupt
+    private ingest interruption before that checkpoint leaves a running entry;
+    restart removes only its owned private stage and re-snapshots originals.
+    A real fault/restart case verifies both recovered times and no inference
+    on the incomplete attempt. Unsupported modes/calibration/maps refuse
+    before the watcher workspace is created. Existing T1/projected/default
+    and closed pooled routes remain unchanged.
+
+    Root integrated cohort passes119 tests and both exact source contracts
+    pass under4GiB with CUDA hidden. Added native watcher source tracing hits
+    106/106 executable statements, 58/58 added-origin arcs and63/63 touching
+    arcs. Frozen source/diff/trace, root logs and reproducer are in
+    data/548_native_t_series_watch_cpu_2026-10-06/. Actual acquired GPU
+    validation is not claimed for this new native path. Whole-field memory
+    and standalone batch hard-publication recovery limits remain explicit.
+    Native Measure/tracking/Classify/feedback, raw/vendor completion and
+    broader unsupported series keep F548 OPEN. Workstation must regenerate
+    the new _watch_native_series_plan documentation and changed private
+    collection signatures normally, preserving all accepted GOWT1 receipts.

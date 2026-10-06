@@ -1,0 +1,26 @@
+F548 native T>1 fixed-map Mask-only watcher CPU subset, 2026-10-06.
+
+Root source593886b686 has exactly the agent33211434d2 core.py bytes.
+Archivedsource anddiff are compressed losslessly; branchtrace arithmetic is
+reproduced from that frozen source, never reinterpreted against later source.
+CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 2G python features/data/548_native_t_series_watch_cpu_2026-10-06/reproduce_coverage.py
+
+Actual root integrated source passed119 cases under4G; logs are archived.
+This includes new native watcher, native batch, closed static pool and default
+watcher with every scientific pathogen column retained. The two source
+inventory checks separately pass. Existing fork DeprecationWarnings are
+recorded, with no application failure waived. To rerun from a worktree root:
+CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G python -m pytest tests/test_watch_native_t_series_f548.py tests/test_native_tzyx_batch_f548.py tests/test_watch_closed_normalization_pool_f548.py tests/test_watch_folder_and_analyse.py
+
+Only inference is doubled in these CPU tests. Original YX plane bytes, exact
+C/Z/T order, normalizer, per-time stacks/masks, source-map hashes and watcher
+publication/collection execute normally. Completed/collection restart skips
+inference. An interrupted native ingest with no collection checkpoint is
+removed only from the watcher's owned private field stage, then re-snapshotted
+from unchanged originals. A standalone batch interrupted by an abrupt death
+during publication is a separate fail-closed limitation; do not claim this
+private-stage recovery for arbitrary user output folders. Native-over-time
+Measure/tracking/Classify/feedback and vendor completion remain unsupported.
+Full source GitHub/coverage/serialQt and realGPU acceptance remain separate.
+Workstation owns normal API/runtime/Help/consumer-map/settings/translations
+regeneration for _watch_native_series_plan and the changed private signatures.

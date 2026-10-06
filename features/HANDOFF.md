@@ -1,5 +1,22 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 Home native time-volume watcher integrated
+Source593886b686 adds complete fixed-map native T>1 Mask-only watching.
+It waits for settled C/Z/T planes, preserves their bytes and scoped map,
+binds every native artifact into collection checkpoints, skips inference
+when collecting again, and safely rebuilds uncheckpointed private stages
+from originals after a crash. Root119 integrated cases and2source contracts
+pass CUDA-hidden under4GiB. Frozen coverage exercises106new statements and
+63touching arcs; evidence data/548_native_t_series_watch_cpu_2026-10-06/.
+F548 stays OPEN for raw/vendor completion and unsupported scientific modes.
+Whole-field RAM and standalone batch hard-publication recovery limits remain.
+Workstation: normally regenerate _watch_native_series_plan and changed private
+collection signatures with pool/native batch/API/runtime/Help/settings/texts.
+Your6caf72d8a0 Cell-DINO provenance is preserved. All GPU/docs/tutorial lanes
+remain yours. Home agents now work on the urgent reported Save crash and new
+user theme revisions. Crash has not reproduced in bounded native4K probes;
+do not mark it fixed without evidence. Protected serial37457998285 remains.
+
 ## 2026-10-06 urgent user theme feedback — Home source owner
 The user reports a native segmentation fault after changing Genetic advection
 Detail and pressing Save. Home: reproduce and repair the actual preference/
