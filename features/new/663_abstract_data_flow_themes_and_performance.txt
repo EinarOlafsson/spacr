@@ -736,3 +736,19 @@ receipts, four lossless stills/crops and portable capped CPU probes live in
  data/663_mycelium_and_paper_radius_cpu_2026-10-06/.
 Random colors, inward advection point gravity, final installed/hosted acceptance,
 all-theme smoothness and the reported Save SIGSEGV remain separate active items.
+
+2026-10-06 — bounded advection cursor-gravity implementation
+Commit bf4a965280 replaces the prior pointer-local advection rotation with
+smooth inward attraction computed from three recent moving trail samples.
+The effect is strongest near the center and exactly zero outside radius;
+the radius-zero default remains exact, and 1%, 10% and 50% reach have
+measured graduated influence. This is a finite trail-history approximation,
+not a physical integrator or a guarantee that background wind cannot give
+some particles an outward total velocity. Ninety-two focused Qt cases pass
+under 4 GiB. Actual native4K AmbientWidget/FrameProducer probes published
+23.81 FPS at 25% and 23.94 FPS at 50% on this machine, with 75 distinct
+clocks and worker shutdown on hide. Exact source hashes, radius counts,
+portable replay scripts, source-bound worker JSON and full-dimension
+review stills are in data/663_advection_gravity_cpu_2026-10-06/. User
+aesthetic acceptance, reported Save SIGSEGV and remaining N663 work stay
+open.
