@@ -918,3 +918,19 @@ and parent548 scientific/external-data acceptance remainOPEN.
     exact output/memory receipts: data/548_native_mask_archive_cpu_2026-10-06/.
     Disk reservation and full selected batches/masks still scale with fields.
     ParentF548 vendor/large-volume/scientific acceptance remains OPEN.
+
+2026-10-06 — native map diagnostic lifetime child 100%, combined CPU acceptance
+    Native normalization and Mask archive maps now retain their private
+    workspaces while diagnostic NumPy views remain borrowed. Both original
+    explicit-unmap crash paths were reproduced safely in capped subprocesses;
+    their repaired retained pixels stay readable and final release closes maps
+    before unlink. Actual native normalization output/ZIP bytes and channel
+    positions remain exact; T/Z Mask model-double inputs, masks and DB rows
+    match at batch size 2. Native archive fixture VmHWM improves about 133/130
+    MiB; cgroup memory remains essentially unchanged. No GPU or actual-model
+    claim. All 262 final combined and 174 ordinary Mask/T-stack cases pass, with exact IO and archive helper
+    statement/branch receipts. Reserved mask scratch directories cannot enter
+    scientific inventories; same-prefix symlinks and changed real outputs
+    remain rejected. Source/evidence: data/548_native_map_lifetime_cpu_2026-10-06/
+    and data/548_native_mask_archive_cpu_2026-10-06/. Parent F548 remains OPEN
+    for raw/vendor completion, large-volume and scientific acceptance.
