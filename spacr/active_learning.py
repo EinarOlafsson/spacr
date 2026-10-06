@@ -2661,7 +2661,7 @@ _EMBEDDING_TABLE = "crop_embedding"
 
 
 def _store_crop_embeddings(db_path: str, prcfo: Sequence[Any],
-                           embedding: Any) -> int:
+                           embedding: Any, *, encoder_entry=None) -> int:
     """Save crop embeddings in ``measurements.db``, one row per object.
 
     The table is keyed by ``prcfo``, so it joins to the crop table the same
@@ -2702,6 +2702,15 @@ def _store_crop_embeddings(db_path: str, prcfo: Sequence[Any],
     if fingerprint is not None:
         frame["_embedding_fingerprint"] = fingerprint
         frame["_embedding_spec"] = json.dumps(asdict(spec), sort_keys=True)
+    if encoder_entry is not None:
+        frame["_embedding_weights_sha256"] = str(
+            getattr(encoder_entry, "sha256", "") or "").lower()
+        frame["_embedding_encoder_key"] = str(
+            getattr(encoder_entry, "key", "") or "")
+        frame["_embedding_encoder_source"] = str(
+            getattr(encoder_entry, "source", "") or "")
+        frame["_embedding_encoder_backbone"] = str(
+            getattr(spec, "backbone", "") or "")
     existing = _stored_embedding_frame(db_path)
     compatible = (existing is not None
                   and list(existing.columns) == list(frame.columns))
