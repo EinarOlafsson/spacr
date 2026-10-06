@@ -146,6 +146,52 @@ def test_native_series_collection_stop_resumes_without_repeating_inference(
         'plate1_A01_1_1.npy', 'plate1_A01_1_2.npy'}
 
 
+@pytest.mark.parametrize('kind', ['orphan', 'linked_reserved', 'hidden_output'])
+def test_native_series_resume_excludes_only_regular_reserved_mask_workspace(
+        tmp_path, fake_model, monkeypatch, kind):
+    source, _rows = _converted_series(tmp_path)
+    seen = _model(monkeypatch)
+    collect = core._watch_collect
+
+    def interrupted(*args, **kwargs):
+        collect(*args, **kwargs)
+        raise PipelineCancelled('Stop after per-time links')
+
+    with monkeypatch.context() as patch:
+        patch.setattr(core, '_watch_collect', interrupted)
+        with pytest.raises(PipelineCancelled):
+            core._watch_folder_and_analyse(_watch(source))
+    ledger_path = source / 'spacr_watch/watch_ledger.json'
+    ledger = json.loads(ledger_path.read_text())
+    key = next(iter(ledger['fields']))
+    original = ledger['fields'][key]['collection_checkpoint']['artifacts']
+    field = source / 'spacr_watch/fields' / key
+    output = field / 'masks/nucleus_mask_stack'
+    assert output.is_dir() and original and len(seen) == 2
+    name = '.scientific-output' if kind == 'hidden_output' else '.spacr-native-mask-orphan'
+    scratch = output / name
+    if kind == 'linked_reserved':
+        scratch.symlink_to(field / 'stack', target_is_directory=True)
+    else:
+        scratch.mkdir(mode=0o700)
+        np.save(scratch / 'data.npy', np.arange(24, dtype=np.float32))
+    result = core._watch_folder_and_analyse(_watch(source))
+    resumed = json.loads(ledger_path.read_text())['fields'][key]
+    assert len(seen) == 2
+    assert resumed['collection_checkpoint']['artifacts'] == original
+    assert all(_digest(field / relative) == digest for relative, digest in original.items())
+    if kind == 'orphan':
+        assert result['done'] == [key] and not result['failed']
+        assert scratch.is_dir() and (scratch / 'data.npy').is_file()
+        assert not any('.spacr-native-mask-' in name for name in original)
+        assert {path.name for path in (source / 'spacr_watch/merged').glob('*.npy')} == {
+            'plate1_A01_1_1.npy', 'plate1_A01_1_2.npy'}
+    else:
+        assert result['failed'] == [key] and not result['done']
+        expected = 'linked directory' if kind == 'linked_reserved' else 'artifacts changed'
+        assert expected in resumed['error']
+
+
 def test_two_native_series_scope_convert_rows_and_time_outputs_by_field(
         tmp_path, fake_model, monkeypatch):
     source, rows = _converted_series(tmp_path, wells=('A01', 'A02'))

@@ -1807,6 +1807,9 @@ def _watch_collection_artifacts(field_dir, *, volume_plan=None,
                 if any(os.path.islink(os.path.join(root, name))
                        for name in directories):
                     raise ValueError(f'Collection native series {folder} contains a linked directory.')
+                if folder == 'masks':
+                    directories[:] = [name for name in directories
+                                      if not name.startswith('.spacr-native-mask-')]
                 for name in sorted(files):
                     path = os.path.join(root, name)
                     relative = os.path.relpath(path, field_dir)
