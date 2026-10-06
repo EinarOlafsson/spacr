@@ -4616,6 +4616,147 @@ def _ready_packed_scatter():
     return _PACKED_SCATTER
 
 
+def _warp_satin_columns(source, target, shifts, tops, bottoms, padding):
+    """Move native premultiplied pixels along each column without filtering."""
+    height, width = target.shape
+    for start in range(0, width, 32):
+        end = min(width, start + 32)
+        lower, upper = height, 0
+        for column in range(start, end):
+            lower = min(lower, tops[column] + shifts[column] + padding)
+            upper = max(upper, bottoms[column] + shifts[column] + padding)
+        for row in range(max(0, lower), min(height, upper)):
+            for column in range(start, end):
+                source_row = row - shifts[column] - padding
+                if tops[column] <= source_row < bottoms[column]:
+                    target[row, column] = source[source_row, column]
+
+
+def _numpy_satin_columns(source, target, shifts, padding):
+    """Restore the complete native wave layer using exact indexed CPU pixels."""
+    np = _numpy()
+    rows = (np.arange(target.shape[0], dtype=np.int32)[:, None]
+            - shifts[None, :] - padding)
+    inside = (rows >= 0) & (rows < source.shape[0])
+    np.clip(rows, 0, source.shape[0] - 1, out=rows)
+    rows *= source.shape[1]
+    rows += np.arange(source.shape[1], dtype=np.int32)[None, :]
+    np.take(source.ravel(), rows, out=target, mode="clip")
+    target[~inside] = 0
+
+
+def _copy_wave_batch(kernel, tasks):
+    """Finish a finite immutable group of independently owned pixel arrays."""
+    for arguments in tasks:
+        kernel(*arguments)
+
+
+class _WaveCopyWorker:
+    """Own one bounded CPU queue without retaining completed scene arrays."""
+
+    def __init__(self):
+        from concurrent.futures import Future
+        from queue import Queue
+
+        self._future_type = Future
+        self._pending = Queue(maxsize=1)
+        threading.Thread(target=self._run, name="spacr-satin-copy",
+                         daemon=True).start()
+
+    def submit(self, function, *arguments):
+        """Offer one pure CPU job and return its completion ownership fence."""
+        future = self._future_type()
+        self._pending.put_nowait((function, arguments, future))
+        return future
+
+    def _run(self):
+        while True:
+            function, arguments, future = self._pending.get()
+            try:
+                if future.set_running_or_notify_cancel():
+                    try:
+                        future.set_result(function(*arguments))
+                    except BaseException as error:
+                        future.set_exception(error)
+            finally:
+                self._pending.task_done()
+                del function, arguments, future
+
+
+class _SatinCompiler:
+    """Compile one CPU wave-copy signature once away from the GUI thread."""
+
+    def __init__(self):
+        self.kernel = None
+        self.started = False
+        self.failed = False
+        self.lock = threading.Lock()
+        self.copy_gate = threading.Lock()
+        self.pool = None
+
+    def _warm(self):
+        try:
+            from numba import njit
+
+            np = _numpy()
+            kernel = njit(nogil=True, cache=False)(_warp_satin_columns)
+            source = np.zeros((1, 1), dtype=np.uint32)
+            coordinates = np.zeros(1, dtype=np.int32)
+            kernel(source, source.copy(), coordinates, coordinates, coordinates + 1, 0)
+            strided = np.zeros((2, 2), dtype=np.uint32)[:, :1]
+            kernel(strided, np.zeros((2, 1), dtype=np.uint32), coordinates,
+                   coordinates, coordinates + 2, 0)
+            if not getattr(kernel, 'nopython_signatures', ()):
+                raise RuntimeError("native wave compiler is disabled")
+            self.pool = _WaveCopyWorker()
+            self.kernel = kernel
+        except Exception:
+            self.failed = True
+
+    def ready(self):
+        if self.kernel is not None or self.started or self.failed:
+            return self.kernel
+        if not self.lock.acquire(blocking=False):
+            return None
+        try:
+            if not self.started and not self.failed:
+                self.started = True
+                try:
+                    threading.Thread(target=self._warm, name="spacr-satin-compile",
+                                     daemon=True).start()
+                except Exception:
+                    self.failed = True
+        finally:
+            self.lock.release()
+        return self.kernel
+
+    def copy_waves(self, kernel, tasks):
+        """Join at most one shared CPU batch before any Qt painter sees it.
+
+        One nonblocking gate bounds the global executor queue to one job.
+        Other producers use their synchronous kernel instead of queueing.
+        Both paths finish their owned arrays under the existing engine lock.
+        """
+        if self.pool is None or len(tasks) < 2 or not self.copy_gate.acquire(blocking=False):
+            _copy_wave_batch(kernel, tasks)
+            return
+        try:
+            try:
+                future = self.pool.submit(_copy_wave_batch, kernel, tasks[::2])
+            except RuntimeError:
+                _copy_wave_batch(kernel, tasks)
+            else:
+                try:
+                    _copy_wave_batch(kernel, tasks[1::2])
+                finally:
+                    future.result()
+        finally:
+            self.copy_gate.release()
+
+
+_SATIN_COMPILER = _SatinCompiler()
+
+
 class _DataArtEngine(_BufferedEngine):
     """Retained crisp procedural materials with native display sampling.
 
@@ -5009,7 +5150,7 @@ class _DataArtEngine(_BufferedEngine):
 
     def _paint_chromatin_ribbon(self, painter: QPainter, width: int,
                                 height: int) -> None:
-        """Glide native satin folds with cached fine antialiased fibres."""
+        """Deform fine native satin fibres into travelling transverse waves."""
         np = _numpy()
         key = ("chromatin_native_folds", width, height, self.resolution,
                self.size, self.density)
@@ -5073,17 +5214,65 @@ class _DataArtEngine(_BufferedEngine):
                                 picture, origin_x, origin_y))
             ribbons = tuple(ribbons)
             self._material_cache[key] = ribbons
-        painter.save()
-        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
-        for centre, phase, picture, origin_x, origin_y in ribbons:
-            drift = self.time * 0.15
-            dx = width * 0.018 * math.sin(drift * 0.71 + phase)
-            dy = height * 0.017 * math.sin(drift + phase * 0.63)
-            painter.save()
-            painter.translate(dx, centre + dy)
-            painter.drawImage(QPointF(origin_x, origin_y), picture)
-            painter.restore()
-        painter.restore()
+        warp_key = ("chromatin_native_waves", width, height, self.resolution,
+                    self.size, self.density)
+        warps = self._material_cache.get(warp_key)
+        if warps is None:
+            warps = []
+            padding = math.ceil(height * 0.035) + 2
+            for _, _, picture, origin_x, _ in ribbons:
+                source = np.frombuffer(picture.bits(), dtype=np.uint32).reshape(
+                    picture.height(), picture.width())
+                along = (np.arange(source.shape[1], dtype=np.float32)
+                         + origin_x) / width
+                occupied = source != 0
+                present = np.any(occupied, axis=0)
+                tops = np.where(present, np.argmax(occupied, axis=0),
+                                source.shape[0]).astype(np.int32)
+                bottoms = np.where(present, source.shape[0] - np.argmax(
+                    occupied[::-1], axis=0), 0).astype(np.int32)
+                warps.append((source, along, tops, bottoms, padding))
+            self._material_cache[warp_key] = warps
+        kernel = _SATIN_COMPILER.ready()
+        tasks = []
+        images = []
+        for ribbon, warp in zip(ribbons, warps):
+            centre, phase, picture, origin_x, origin_y = ribbon
+            source, along, tops, bottoms, padding = warp
+            travel = height * 0.024 * (
+                np.sin(math.tau * along * 1.1 - self.time * 0.55 + phase)
+                + 0.35 * np.sin(math.tau * along * 2.6
+                                + self.time * 0.31 + phase * 0.63))
+            shifts = np.rint(travel).astype(np.int32)
+            for start in range(0, source.shape[1], 128):
+                end = min(source.shape[1], start + 128)
+                strip_shifts = shifts[start:end]
+                strip_tops, strip_bottoms = tops[start:end], bottoms[start:end]
+                lower = max(0, int(np.min(strip_tops + strip_shifts + padding)))
+                upper = min(source.shape[0] + 2 * padding,
+                            int(np.max(strip_bottoms + strip_shifts + padding)))
+                target = np.zeros((max(1, upper - lower), end - start), dtype=np.uint32)
+                image = QImage(target.data, target.shape[1], target.shape[0],
+                               target.strides[0], QImage.Format_ARGB32_Premultiplied)
+                images.append((target, image, origin_x + start,
+                               centre + origin_y - padding + lower))
+                strip_source = source[:, start:end]
+                strip_padding = padding - lower
+                if kernel is not None:
+                    tasks.append((strip_source, target, strip_shifts, strip_tops,
+                                  strip_bottoms, strip_padding))
+                else:
+                    _numpy_satin_columns(strip_source, target, strip_shifts, strip_padding)
+        if kernel is not None:
+            try:
+                _SATIN_COMPILER.copy_waves(kernel, tuple(tasks))
+            except Exception:
+                _SATIN_COMPILER.kernel = None
+                _SATIN_COMPILER.failed = True
+                for source, target, shifts, _, _, padding in tasks:
+                    _numpy_satin_columns(source, target, shifts, padding)
+        for _target, image, origin_x, origin_y in images:
+            painter.drawImage(QPointF(origin_x, origin_y), image)
 
 
 

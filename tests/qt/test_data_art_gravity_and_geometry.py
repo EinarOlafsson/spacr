@@ -235,7 +235,7 @@ def test_geometry_controls_remain_reproducible_and_cache_is_bounded(family):
     assert _digest(_render(engine)) != before
     engine.set_density(3.0)
     assert _digest(_render(engine)) != before
-    assert len(engine._material_cache) == 1
+    assert len(engine._material_cache) == (2 if family == "chromatin_ribbon" else 1)
 
 
 @pytest.mark.parametrize("background", ["#101418", "#f6f7f9"])
