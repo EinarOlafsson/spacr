@@ -2723,3 +2723,23 @@ after the run started; unconfirmed on CI.
   failing-child exit/log/manifest and separate-session SIGINT assertions.
   No local Python 3.9 is installed; its fresh hosted MinDeps verdict remains
   required. This repair does not waive either observed failure mode.
+
+2026-10-06 — OLDER 1F3 HOSTED FAILURES CLASSIFIED; CURRENT VERDICT OPEN
+  Exact old tests run 37494090176 failed in seven coverage/slow jobs. The
+  unedited logs, SHA-256 manifest, source patch and bounded local receipts
+  are archived in features/data/43_hosted_1f3_guard_triage_2026-10-06/.
+  The current Home source repairs obsolete retired-theme test subjects while
+  retaining meaningful abort and measured performance assertions, places
+  watch_normalization_pool in the Mask workflow form, and documents the
+  nested closed-cohort function. Focused checks pass 82 category/docstring,
+  36 visual, 2 expected-abort and 3 retained performance cases under 4 GiB.
+  The old colour-picker failure exposes one current direct Qt dialog call in
+  Preferences; its owner must route it through the existing safe helper.
+  One pointer-poll assertion failed in the old shard but passes in a bounded
+  one-node current-source replay; no unproven source fix is claimed.
+  Translation review, English UI source hashes, Help API index and generated
+  settings-flow freshness remain workstation-owned normal regeneration.
+  Newer b779 compatibility macOS failure has the same pre-c37 scipy-at-Home
+  source issue; it does not refute the installed-wheel local c37 receipt.
+  No coverage bar, locale policy, timeout or performance budget changed.
+  Item 43 stays OPEN for an exact current-source hosted green verdict.

@@ -1,0 +1,102 @@
+{
+  "files": [
+    {
+      "bytes": 233802,
+      "file": "logs/112391877231.log.gz",
+      "sha256": "ee18ce539b0ae7f74e57285267b267dac1a32c4b73f422b17f0f6a6032532227",
+      "source": "/mnt/wd4tb/scratch/ci-b779-1f3-job-audit-20261006/112391877231.log"
+    },
+    {
+      "bytes": 2168641,
+      "file": "logs/112391877324.log.gz",
+      "sha256": "a0f511800367c5e380e47ea671d95920a33bff063aea0b7c61e27871aec0d0fa",
+      "source": "/mnt/wd4tb/scratch/ci-b779-1f3-job-audit-20261006/112391877324.log"
+    },
+    {
+      "bytes": 3453781,
+      "file": "logs/112391877369.log.gz",
+      "sha256": "27554c461dc93296f91d1460e3cd4d04522b9348b01a95834a7fcdcede4ea61c",
+      "source": "/mnt/wd4tb/scratch/ci-b779-1f3-job-audit-20261006/112391877369.log"
+    },
+    {
+      "bytes": 2388909,
+      "file": "logs/112391877399.log.gz",
+      "sha256": "54d7042b13af2d19b2df5b4211744ff6fdde7805dc13b64eb042be5c8e97dbc0",
+      "source": "/mnt/wd4tb/scratch/ci-b779-1f3-job-audit-20261006/112391877399.log"
+    },
+    {
+      "bytes": 1824872,
+      "file": "logs/112391877404.log.gz",
+      "sha256": "f48297d92758dacfbc997f3be1721410a17d73db19e2635cd08a57d4e15d2092",
+      "source": "/mnt/wd4tb/scratch/ci-b779-1f3-job-audit-20261006/112391877404.log"
+    },
+    {
+      "bytes": 2151590,
+      "file": "logs/112391877543.log.gz",
+      "sha256": "ffd863ddc2ac7c70d466f9561ce838dad6f69be89e625be2d495979b749c5d3d",
+      "source": "/mnt/wd4tb/scratch/ci-b779-1f3-job-audit-20261006/112391877543.log"
+    },
+    {
+      "bytes": 2184648,
+      "file": "logs/112391878542.log.gz",
+      "sha256": "acf919f84124d3fc4912c2016b6ae8e73159563094a0499140251498a4f3b73a",
+      "source": "/mnt/wd4tb/scratch/ci-b779-1f3-job-audit-20261006/112391878542.log"
+    },
+    {
+      "bytes": 115748,
+      "file": "logs/112409761134.log.gz",
+      "sha256": "6fce31c3e576ee328ee0d753dfc68b7da7c13e53bf7d9d34f487263476bc2f6a",
+      "source": "/mnt/wd4tb/scratch/ci-b779-1f3-job-audit-20261006/112409761134.log"
+    },
+    {
+      "bytes": 179,
+      "file": "receipts/categories-doc-after.log.gz",
+      "sha256": "26706a46b1393774d4a028bbbe4abfeb5bfdede3b4361b0adbc44c520e8c676e",
+      "source": "/mnt/wd4tb/scratch/ci-b779-1f3-job-audit-20261006/categories-doc-after.log"
+    },
+    {
+      "bytes": 112,
+      "file": "receipts/perf-after.log.gz",
+      "sha256": "b07291bbce825d6ec79c2b8c8c945fce949afbf85184464683c0d70b209ce116",
+      "source": "/mnt/wd4tb/scratch/ci-b779-1f3-job-audit-20261006/perf-after.log"
+    },
+    {
+      "bytes": 114,
+      "file": "receipts/safespacr-after.log.gz",
+      "sha256": "08a3488805be5eb08a0e6d76260d8bdca586100c5e3af2564710e4205466a212",
+      "source": "/mnt/wd4tb/scratch/ci-b779-1f3-job-audit-20261006/safespacr-after.log"
+    },
+    {
+      "bytes": 99,
+      "file": "receipts/visual-after.log.gz",
+      "sha256": "216d8840c4bc0e9b853bd8c73b3bf0a7ad0dca2f4fecd0da9d3ef4853c3d22c1",
+      "source": "/mnt/wd4tb/scratch/ci-b779-1f3-job-audit-20261006/visual-after.log"
+    },
+    {
+      "bytes": 1791,
+      "file": "receipts/categories-before.log.gz",
+      "sha256": "0afc6f7ec325afcab25182c642aee7e9413531b13668fee1cdcd61e21ce3d715",
+      "source": "/mnt/wd4tb/scratch/ci-b779-1f3-job-audit-20261006/categories-before.log"
+    },
+    {
+      "bytes": 13916,
+      "file": "source-and-guard.patch.gz",
+      "sha256": "7a8bca3c7f883f0fd48e7661206bb49c920a3545decd25127f32790eea2daf96",
+      "source": "git diff d139ffe70c..8b81a0530c"
+    },
+    {
+      "bytes": 480,
+      "file": "receipts/pointer-current.txt",
+      "sha256": "2ebf8591fc574a7491039abebb7445c9acae418a633ae2d9eb26ed48481a71fb",
+      "source": "bounded local test tool output, 2026-10-06"
+    }
+  ],
+  "local_base": "d139ffe70c",
+  "local_guard_commits": [
+    "8f4cbe1abd0889a1e6b614ed106b5489134866aa",
+    "8b81a0530cc1ad53f73d7aa3c525edef318f15f3"
+  ],
+  "run_compat_newer_pre_fix": 37503577086,
+  "run_older_source": "1f3e4a2403",
+  "run_tests": 37494090176
+}

@@ -1,5 +1,23 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 older 1f3 ordinary CI failures and generated-artifact relay
+The exact seven failed coverage/slow logs from tests run 37494090176 and
+one newer pre-fix compatibility log are archived with SHA-256 manifest,
+source patch, focused receipts and job-by-job classification in
+features/data/43_hosted_1f3_guard_triage_2026-10-06/. Home repairs the
+retired Cells/Ripple/blobs test subjects without relaxing abort, theme or
+performance budgets; watch_normalization_pool now appears in the Mask
+workflow form, not Additional Settings, and the closed-pool nested callable
+is documented. The focused 82 category/docstring, 36 visual, 2 expected-abort
+and 3 retained performance cases pass under 4 GiB/CUDA hidden. A direct
+QColorDialog.getColor call for custom animation colours in Preferences remains
+a real picker-guard failure for its owner. The old pointer-poll assertion
+passes one bounded current-source replay; no ambient source fix is claimed.
+The old job's reviewed translations, English UI source hashes, Help API
+index, settings-flow source sections and locale runtime rows require the
+workstation's normal generated-artifact refresh. These historical job logs
+cannot establish green status for the current source. Item 43 remains OPEN.
+
 ## 2026-10-06 installed Home compatibility repair, local archive smoke
 Historical compat run 37494089502 (source 1f3e4a2403) failed all eight
 platform cells at the same strict installed-wheel Home boundary: scipy was
