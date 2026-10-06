@@ -4446,3 +4446,39 @@ def test_localized_readmes_keep_reviewed_semantic_and_typographic_fixes():
         assert all(fragment in readmes[language] for fragment in fragments)
     for language, fragments in forbidden.items():
         assert not any(fragment in readmes[language] for fragment in fragments)
+
+
+@pytest.mark.parametrize(
+    "language,display_text,screening_term",
+    [
+        ("sv", "20% av skärmens kortare kant.", "CRISPR-screening"),
+        ("de", "20% der kürzeren Bildschirmkante.", "CRISPR-Screening"),
+        ("es", "20% del lado más corto de la pantalla.", "cribado CRISPR"),
+        ("zh_CN", "屏幕较短边的 20%。", "CRISPR 筛选"),
+        ("pt", "20% do lado mais curto da tela.", "triagem CRISPR"),
+        ("hi", "स्क्रीन के छोटे किनारे का 20%।", "CRISPR स्क्रीनिंग"),
+        ("ko", "화면의 짧은 변의 20%입니다.", "CRISPR 스크리닝"),
+        ("is", "20% af styttri skjájaðrinum.", "CRISPR-skimun"),
+        ("fr", "20% du côté le plus court de l’écran.", "criblage CRISPR"),
+    ],
+)
+def test_display_edge_geometry_does_not_become_biological_screening(
+    language, display_text, screening_term, monkeypatch,
+):
+    import build_i18n_catalogs as builder
+    from build_i18n_catalogs import _contextualize, _semantic_false_friends
+
+    monkeypatch.setattr(builder, "reviewed_runtime_translations", lambda _: {})
+    display_source = "20% of the shorter screen edge."
+    scientific_source = "A pooled CRISPR screen reports hits."
+    assert _contextualize(display_text, language, display_source) == display_text
+    assert not _semantic_false_friends(display_source, display_text, language)
+    assert _contextualize(screening_term, language, scientific_source) == screening_term
+    assert not _semantic_false_friends(scientific_source, screening_term, language)
+    if language in {"zh_CN", "pt", "hi", "ko", "is", "fr"}:
+        assert "gui-screen-as-scientific-screen" in _semantic_false_friends(
+            display_source, screening_term, language,
+        )
+        assert "scientific-screen-as-ui-screen" in _semantic_false_friends(
+            scientific_source, display_text, language,
+        )
