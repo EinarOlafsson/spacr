@@ -465,3 +465,24 @@ Source-bound reproduction/trace evidence is in scratch theme-refinement-
 20261006/visual-revision/ (radius source SHA 5ab81a3ec1e31944faaea00eb66cc47e
 6428d8cee1a7e280008e2c3c4426057e). Satin/advection revision and native 4K
 24-FPS acceptance are separate pending work. No native Save-crash fix claimed.
+
+2026-10-06 — Home CPU: changing advection structures, separate from satin
+The deterministic advection painter now varies its local speed, filament
+shape and three seeded migrating whirlwinds continuously in animation time.
+Twelve tapered native grain samples remain for each actual spawned particle;
+a bounded three-sample trajectory/tangent/curvature construction avoids
+repeating every vortex calculation twelve times. Existing density, size,
+speed, palette, native raster and disabled-by-default local gravity contracts
+remain intact. Resetting the clock restores the same scientific-style scene;
+actual sampled flow velocities differ across time rather than staying fixed.
+The isolated flow/radius/renderer/clock cohort passes 60 under 4 GiB; all
+31 added executable source statements and four touching arcs are exercised.
+Source SHA: 2f9f777c6a71479c3a9158bcf27cb78f61559f003d4bb7aeb146ae203fba8602.
+The source-matched painter in the archived combined wave/flow worker probe
+improved active native4K advection from 20.11 to 21.95 published FPS at radius
+1.0; worker shade p95 remains 60.06 ms, so native24FPS remains OPEN. Both
+1080 paths were about23.71 FPS. Evidence is scratch theme-refinement-
+20261006/visual-revision/, including advection-new-source-coverage.json and
+wave-flow-worker/worker_gui_perf.json. Satin still belongs to a separate
+pending revision. The radius test helper now retains its QImage while copying
+bits; a temporary diagnostic-image lifetime error is not a Save-crash fix.

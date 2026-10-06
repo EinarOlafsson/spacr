@@ -5066,7 +5066,7 @@ class _DataArtEngine(_BufferedEngine):
 
 
     def _paint_genetic_advection(self, painter, width, height):
-        """Advect dense tapered grain trails through a continuously curled field."""
+        """Advect fine trails through changing filaments and migrating vortices."""
         np = _numpy()
         key = ("wind_grains", width, height, self.size, self.density)
         grains = self._material_cache.get(key)
@@ -5079,15 +5079,49 @@ class _DataArtEngine(_BufferedEngine):
         u, v, depth = grains
         count = self.element_count(34000, len(u))
         u, v, depth = u[:count], v[:count], depth[:count]
-        q = u + self.time * (0.013 + 0.009 * depth)
         phase = self._anchors[0][0] * math.tau
-        trails = np.arange(12, dtype=np.float32)[:, None]
-        t = q[None, :] - trails * (0.0015 + 0.0012 * depth) * self.size
+        travel = (self.time * (0.013 + 0.009 * depth)
+                  + 0.046 * (np.sin(self.time * 0.23 + 4.0 * depth + phase)
+                             - np.sin(4.0 * depth + phase)))
+        q = u + travel
+        samples = np.arange(3, dtype=np.float32)[:, None]
+        t = q[None, :] - samples * (0.0015 + 0.0012 * depth) * self.size
         x = t - np.floor(t)
-        y = (v + 0.135 * np.sin(math.tau * x + 7.0 * v + phase)
-             + 0.07 * np.sin(2.0 * math.tau * x - 5.0 * v + phase * 0.7)
-             + 0.023 * np.sin(5.0 * math.tau * x + 11.0 * v))
+        breathing = self.time * 0.11
+        y = (v + (0.10 + 0.045 * math.sin(breathing)) * np.sin(
+            math.tau * x + 7.0 * v + phase + breathing)
+             + 0.07 * np.sin(2.0 * math.tau * x - 5.0 * v
+                            + phase * 0.7 - breathing * 0.83)
+             + 0.035 * np.sin(5.0 * math.tau * x + 11.0 * v
+                             + breathing * 1.31))
         y -= np.floor(y)
+        for vortex, (anchor_x, anchor_y, spin) in enumerate(self._anchors[2:5]):
+            cx = anchor_x + 0.12 * math.sin(self.time * 0.071 + spin * math.tau)
+            cy = anchor_y + 0.12 * math.cos(self.time * 0.063 + spin * math.tau)
+            dx, dy = x - cx, y - cy
+            dx -= np.rint(dx)
+            dy -= np.rint(dy)
+            reach = 0.15 + 0.025 * math.sin(self.time * 0.14 + vortex)
+            weight = np.maximum(0.0, 1.0 - (dx * dx + dy * dy) / reach ** 2) ** 2
+            rotation = weight * (2.7 + 1.4 * math.sin(
+                self.time * 0.19 + spin * math.tau)) * (1 if vortex % 2 else -1)
+            cosine, sine = np.cos(rotation), np.sin(rotation)
+            x = cx + dx * cosine - dy * sine
+            y = cy + dx * sine + dy * cosine
+            x -= np.floor(x)
+            y -= np.floor(y)
+        trails = np.arange(12, dtype=np.float32)[:, None]
+        positions = []
+        for coordinates in (x, y):
+            tangent = coordinates[0] - coordinates[1]
+            tangent -= np.rint(tangent)
+            previous = coordinates[1] - coordinates[2]
+            previous -= np.rint(previous)
+            curvature = np.clip(tangent - previous, -0.0003, 0.0003)
+            curve = (coordinates[0][None, :] - trails * tangent[None, :]
+                     + 0.5 * trails * (trails - 1.0) * curvature[None, :])
+            positions.append(curve - np.floor(curve))
+        x, y = positions
         if self.pointer is not None and self.gravity_radius > 0.0:
             dx, dy, _, weight = self._pointer_field(x, y, width, height)
             rotation = 1.5 * weight

@@ -14,7 +14,8 @@ def _engine(family):
 
 def _frame(engine, width=480, height=270):
     engine.set_max_pixels(width * height)
-    return engine.shade(width, height).bits().tobytes()
+    image = engine.shade(width, height)
+    return image.bits().tobytes()
 
 
 def _coordinates(engine, monkeypatch, width, height):
