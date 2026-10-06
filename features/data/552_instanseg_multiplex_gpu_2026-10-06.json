@@ -1,0 +1,177 @@
+{
+  "item": 552,
+  "one_and_three_channel_normal_mask_ingest_and_cuda_inference_accepted": true,
+  "terminal_turn_returncode": 0,
+  "turn_label": "552-instanseg-multiplex-cuda-20261006-r1",
+  "same_acquired_intensity_inputs_models_source_and_worker_parameters": true,
+  "normal_preprocessing_independently_verified_with_matching_channel_roles": true,
+  "generated_reference_mask_plane_5_never_sent": true,
+  "explicit_acquired_crop_yx": [
+    0,
+    384,
+    0,
+    384
+  ],
+  "fields": [
+    {
+      "case": "one_channel",
+      "selected_acquired_intensity_planes": [
+        0
+      ],
+      "actual_worker_input_shape": [
+        384,
+        384,
+        1
+      ],
+      "cuda_kernel_events": 1411,
+      "original_worker_output": {
+        "exact_label_array_equal": false,
+        "foreground_pixel_agreement": 0.9997355143229166,
+        "cpu_to_cuda_instance_match": {
+          "tp50": 2,
+          "fp50": 0,
+          "fn50": 0,
+          "f1_50": 1.0,
+          "precision50": 1.0,
+          "recall50": 1.0,
+          "iou_sum": 1.969814241486068,
+          "iou_mean": 0.9849,
+          "n_truth": 2,
+          "n_pred": 2,
+          "tp75": 2,
+          "fp75": 0,
+          "fn75": 0,
+          "f1_75": 1.0,
+          "precision75": 1.0,
+          "recall75": 1.0
+        }
+      },
+      "normal_filtered_pipeline_output": {
+        "exact_label_array_equal": false,
+        "foreground_pixel_agreement": 0.9997355143229166,
+        "cpu_to_cuda_instance_match": {
+          "tp50": 2,
+          "fp50": 0,
+          "fn50": 0,
+          "f1_50": 1.0,
+          "precision50": 1.0,
+          "recall50": 1.0,
+          "iou_sum": 1.969814241486068,
+          "iou_mean": 0.9849,
+          "n_truth": 2,
+          "n_pred": 2,
+          "tp75": 2,
+          "fp75": 0,
+          "fn75": 0,
+          "f1_75": 1.0,
+          "precision75": 1.0,
+          "recall75": 1.0
+        }
+      }
+    },
+    {
+      "case": "three_channels",
+      "selected_acquired_intensity_planes": [
+        0,
+        1,
+        2
+      ],
+      "actual_worker_input_shape": [
+        384,
+        384,
+        3
+      ],
+      "cuda_kernel_events": 1356,
+      "original_worker_output": {
+        "exact_label_array_equal": false,
+        "foreground_pixel_agreement": 0.9998575846354166,
+        "cpu_to_cuda_instance_match": {
+          "tp50": 5,
+          "fp50": 0,
+          "fn50": 0,
+          "f1_50": 1.0,
+          "precision50": 1.0,
+          "recall50": 1.0,
+          "iou_sum": 4.967587352681584,
+          "iou_mean": 0.9935,
+          "n_truth": 5,
+          "n_pred": 5,
+          "tp75": 5,
+          "fp75": 0,
+          "fn75": 0,
+          "f1_75": 1.0,
+          "precision75": 1.0,
+          "recall75": 1.0
+        }
+      },
+      "normal_filtered_pipeline_output": {
+        "exact_label_array_equal": false,
+        "foreground_pixel_agreement": 0.9998575846354166,
+        "cpu_to_cuda_instance_match": {
+          "tp50": 5,
+          "fp50": 0,
+          "fn50": 0,
+          "f1_50": 1.0,
+          "precision50": 1.0,
+          "recall50": 1.0,
+          "iou_sum": 4.967587352681584,
+          "iou_mean": 0.9935,
+          "n_truth": 5,
+          "n_pred": 5,
+          "tp75": 5,
+          "fp75": 0,
+          "fn75": 0,
+          "f1_75": 1.0,
+          "precision75": 1.0,
+          "recall75": 1.0
+        }
+      }
+    }
+  ],
+  "exact_final_cpu_cuda_label_parity": false,
+  "one_crop_execution_and_cpu_cuda_agreement_not_independent_biological_accuracy": true,
+  "no_original_failed_cpu_verifier_attempt_accepted": true,
+  "brightfield_acceptance_pending": true,
+  "artifacts": {
+    "features/data/552_instanseg_multiplex_gpu_2026-10-06/accept_instanseg_multiplex.py": {
+      "sha256": "e825ac319f74ca9833575efaf77f76ef4a7cbff80fd4f5ca1ab55d81efe8d33e",
+      "bytes": 7873
+    },
+    "features/data/552_instanseg_multiplex_gpu_2026-10-06/actual-inputs-controls-profiles-and-paired-labels.zip": {
+      "sha256": "3c91d8203797696c18fd62d874d63d9d010608a86b3546d43a0d789595be4d8b",
+      "bytes": 11805801
+    },
+    "features/data/552_instanseg_multiplex_gpu_2026-10-06/benchmark_instanseg_multiplex.py": {
+      "sha256": "e08ceaec7cc3d2714a51545d4e7816991265956c7eb3527276c87294fe44c6a5",
+      "bytes": 8364
+    },
+    "features/data/552_instanseg_multiplex_gpu_2026-10-06/cpu-r3-acceptance.json": {
+      "sha256": "2c1cd31c94dfafcbb75344cae5f361e9f66b25ab6f233271c6efb694991801fe",
+      "bytes": 8042
+    },
+    "features/data/552_instanseg_multiplex_gpu_2026-10-06/cuda-acceptance.json": {
+      "sha256": "1f657faa52e8c93cd97dfdb8ae5f0afe227648b662308a0a4c7853d57a01f745",
+      "bytes": 135478
+    },
+    "features/data/552_instanseg_multiplex_gpu_2026-10-06/instanseg-multiplex-cpu-r1.log.gz": {
+      "sha256": "f6d6fe2ce575d99f5c8559dc0124b2ef71300f7a1f73a9d339d7e40946cf57eb",
+      "bytes": 758
+    },
+    "features/data/552_instanseg_multiplex_gpu_2026-10-06/instanseg-multiplex-cpu-r2.log.gz": {
+      "sha256": "193467ab6942db0e5f01f0e7511c2ef1af3d6733334c6b4d6f8d9fcd37bc06dd",
+      "bytes": 1410
+    },
+    "features/data/552_instanseg_multiplex_gpu_2026-10-06/instanseg-multiplex-cpu-r3.log.gz": {
+      "sha256": "1b6856fbb8e55be5eae6d22956b63601a9cdb9f7f9e120cfb3c7ae4d5c0d0d5b",
+      "bytes": 1336
+    },
+    "features/data/552_instanseg_multiplex_gpu_2026-10-06/instanseg-multiplex-cuda-r1.log.gz": {
+      "sha256": "7a3466ccb29b53d84dd2ad91f29b8b43fe3d9a77435bbf366d5480298b293bb1",
+      "bytes": 1510
+    },
+    "features/data/552_instanseg_multiplex_gpu_2026-10-06/instanseg_multiplex_worker.py": {
+      "sha256": "050e665cf1fe9cf239077276a879b38f6c234dd426d5b4763d277db344de549c",
+      "bytes": 2907
+    }
+  }
+}
