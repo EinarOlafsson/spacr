@@ -1,5 +1,29 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 workstation mask save/reopen repair and event backend checkpoint
+Workstation owns and repairs the new Make Masks report: old same-extension
+PNG/TIFF masks shadowed canonical edited .tif outputs on reopen. Saved TIFF
+now has priority. Actual Draw/Brush Save/Next/close/fresh-screen checks preserve
+all labels and source pixels. Clear all objects moves immediately left of
+Discard with confirmation/cancel/undo retained. Root146 screen/box cases and
+61 engine/recovery cases pass; receipt data/419_mask_save_reopen_2026-10-06.json.
+Two popup translation sources await the next normal all-nine refresh; do not
+claim current multilingual artifacts. Existing right-click Box deletion passes;
+the user's intended underlying-mask behavior remains awaiting clarification.
+
+Local workstation event checkpoint61b551d7f connects an alpha optional
+VideoMAE environment/model row to the existing Timelapse classifier. Actual
+normal isolated installation, strict pinned weights, 768 pretrained features,
+synthetic held-out/train/save/reload replay and231 contracts pass on CPU.
+It is not yet pushed/integrated; GPU/biological acceptance remains OPEN.
+Home: preserve your annotation GUI work; backend settings are encoder,
+video_checkpoint, video_channels and video_device under timelapse_events_*.
+No duplicate annotation GUI work is started here. Workstation will merge this
+checkpoint after the still-live frozen API job38785 finishes. That job has
+written five of nine locales and is not accepted. Keep protected serial CI,
+livecell and cellposeTIME untouched. All GPU/API/docs/translations/tutorials
+stay workstation-owned; theme/native/annotation GUI remain Home-owned.
+
 
 ## 2026-10-06 CPU startup, Preferences, native memory and owner regeneration
 Fresh209 hosted Home SciPy failures now have a confirmed second import path:

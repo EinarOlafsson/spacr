@@ -8838,6 +8838,15 @@ class MakeMasksScreen(QWidget):
         self._btn_next.setCursor(Qt.PointingHandCursor)
         self._btn_next.clicked.connect(self._on_next)
 
+        self._btn_clear = QPushButton(tr("Clear all objects"))
+        self._btn_clear.setObjectName("DangerButton")
+        self._btn_clear.setCursor(Qt.PointingHandCursor)
+        self._btn_clear.setToolTip(tr(
+            "Remove every object from this field. It asks first, and it is "
+            "one undo step, so a press by accident costs one Ctrl+Z."))
+        self._btn_clear.clicked.connect(self._on_clear_mask)
+        curate_row.addWidget(self._btn_clear)
+
         self._btn_discard = QPushButton(tr("Discard"))
         self._btn_discard.setIcon(iconset.icon("trash"))
         self._btn_discard.setCheckable(True)
@@ -11327,14 +11336,6 @@ class MakeMasksScreen(QWidget):
         ops_col.addWidget(detect_wrap)
         from ..i18n import tr
 
-        self._btn_clear = QPushButton(tr("Clear all objects"))
-        self._btn_clear.setObjectName("DangerButton")
-        self._btn_clear.setCursor(Qt.PointingHandCursor)
-        self._btn_clear.setToolTip(
-            "Remove every object from this field. It asks first, and it is "
-            "one undo step, so a press by accident costs one Ctrl+Z.")
-        self._btn_clear.clicked.connect(self._on_clear_mask)
-        ops_col.addWidget(self._btn_clear)
         obj_ops_wrap = QWidget(); obj_ops_wrap.setLayout(ops_col)
         obj_card.body_layout.addWidget(obj_ops_wrap)
         col.addWidget(obj_card)
@@ -17056,13 +17057,15 @@ class MakeMasksScreen(QWidget):
         the current mask?" alone did not, and the count is the one fact that
         decides the question.
         """
+        from ..i18n import tr
+
         if self._canvas.mask is None:
             return
         count = self._objects_now()
         if not self._confirm(
-                "Clear mask",
-                f"Remove all {count} object(s) from this field? The field "
-                f"itself is untouched, and Undo brings the objects back."):
+                tr("Clear mask"),
+                tr("Remove all {count} object(s) from this field? The field "
+                   "itself is untouched, and Undo brings the objects back.", count=count)):
             return
         self.clear_mask()
 
