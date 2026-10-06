@@ -524,6 +524,10 @@ def embed_array(crops: np.ndarray, spec: Optional[EmbeddingSpec] = None, *,
         spec.channel_scale if spec.normalize else (None,) * len(channels))
     run = encoder if encoder is not None else _backbone_encoder(spec)
     width = getattr(run, "in_channels", 3)
+    if spec.backbone == "subcell_rybg" and width != 4:
+        raise EmbeddingError(
+            "subcell_rybg encoder must accept exactly four planes in "
+            "r, y, b, g order")
 
     if spec.channel_policy == CHANNEL_PROJECT:
         planes = [_scaled(array[..., c], s) for c, s in zip(channels, scales)]

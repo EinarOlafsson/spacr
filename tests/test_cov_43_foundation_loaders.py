@@ -166,6 +166,25 @@ def test_subcell_rybg_refuses_ambiguous_planes_before_model_load(
         emb.embed_array(np.zeros((1, 8, 8, 4), dtype=np.float32), spec)
 
 
+@pytest.mark.parametrize("width", [3, None, "missing"])
+def test_subcell_rybg_refuses_an_encoder_that_would_drop_a_plane(width):
+    calls = []
+
+    def wrong_encoder(stack):
+        calls.append(stack.shape)
+        raise AssertionError("a wrong-width encoder must never be called")
+
+    if width != "missing":
+        wrong_encoder.in_channels = width
+    spec = emb.EmbeddingSpec(
+        backbone="subcell_rybg", channel_policy=emb.CHANNEL_PROJECT,
+        channels=(0, 1, 2, 3), normalize=False)
+    with pytest.raises(emb.EmbeddingError, match="exactly four planes"):
+        emb.embed_array(np.ones((1, 8, 8, 4), dtype=np.float32), spec,
+                        encoder=wrong_encoder)
+    assert calls == []
+
+
 def test_subcell_rybg_uses_explicit_plane_order_and_whole_crop_scale(
         monkeypatch, tmp_path):
     seen = []
