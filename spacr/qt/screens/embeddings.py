@@ -1277,6 +1277,9 @@ class EmbeddingsScreen(QWidget):
             widget.setEnabled(not loading)
         self._run.setEnabled(
             False if loading else getattr(self, "_crops", None) is not None)
+        self._save_similar.setEnabled(
+            not loading and self._result_identity is not None
+            and self._result is not None)
         if not loading:
             self._on_source_changed()
 
@@ -1334,9 +1337,10 @@ class EmbeddingsScreen(QWidget):
         if plan is not None and plan.query.source == CROP_SOURCE_DATABASE:
             rows = plan.rows[:int(crops.shape[0])]
             keys = tuple(row.get("prcfo") for row in rows)
-            if len(keys) == len(crops) and all(
+            if (len(keys) == len(crops) and all(
                     key is not None and not pd.isna(key)
-                    and str(key).strip() for key in keys):
+                    and str(key).strip() for key in keys)
+                    and len(set(map(str, keys))) == len(keys)):
                 self._crop_identity = (
                     os.path.abspath(os.path.expanduser(plan.query.path)),
                     tuple(str(key) for key in keys))
@@ -1513,11 +1517,19 @@ class EmbeddingsScreen(QWidget):
             """
             from ...embeddings import _embed_plate
 
-            return _embed_plate(crops, spec, record=record)
+            try:
+                return _embed_plate(crops, spec, record=record), ""
+            except Exception as exc:
+                return None, f"{type(exc).__name__}: {exc}"
 
-        def finished(result):
+        def finished(answer):
             """Publish only to the crop selection that produced the vectors."""
             if generation != self._crop_generation:
+                return
+            result, error = answer
+            if error:
+                if not self._loading:
+                    self._status.setText(error)
                 return
             self._result_identity = identity
             self._on_embedded(result)
@@ -1558,13 +1570,20 @@ class EmbeddingsScreen(QWidget):
             """Persist vectors without blocking the graphical thread."""
             from ...active_learning import _store_crop_embeddings
 
-            _store_crop_embeddings(database, keys, result)
-            return len(keys)
+            try:
+                _store_crop_embeddings(database, keys, result)
+                return len(keys), ""
+            except Exception as exc:
+                return 0, f"{type(exc).__name__}: {exc}"
 
-        def finished(count):
+        def finished(answer):
             """A newer crop selection keeps its own status and controls."""
-            if self._result is result:
+            if self._result is result and not self._loading:
+                count, error = answer
                 self._save_similar.setEnabled(True)
+                if error:
+                    self._status.setText(error)
+                    return
                 self._status.setText(tr(
                     "Saved {count} crop embeddings. Open this database in "
                     "Annotate and use Like this.").format(count=count))
