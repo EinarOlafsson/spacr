@@ -381,12 +381,35 @@ def test_reusable_suite_resets_sharding_for_the_serial_qt_tail():
 
 
 def test_informational_windows_sweep_cannot_cancel_the_matrix():
-    """Expected Windows failures must finish before the job-level timeout."""
-    workflow = (ROOT / ".github" / "workflows" /
-                "compat-matrix.yml").read_text(encoding="utf-8")
-    assert "Full suite (informational, never decides)" in workflow
-    assert "--maxfail=25" in workflow
-    assert "continue-on-error: true" in workflow
+    """Slow advisory audits retain their own margin and skip ordinary pushes."""
+    import yaml
+
+    workflow = yaml.safe_load((ROOT / ".github" / "workflows" /
+                               "compat-matrix.yml").read_text(encoding="utf-8"))
+    job = workflow["jobs"]["install"]
+    steps = {step.get("name"): step for step in job["steps"]}
+    sweep = steps["Full suite (informational, never decides)"]
+    assert sweep["continue-on-error"] is True
+    assert sweep["timeout-minutes"] < job["timeout-minutes"]
+    assert "--maxfail=25" in sweep["run"]
+    assert "python -m pytest tests/" in sweep["run"]
+    assert "python -m pytest tests/test_perf_guard.py" in sweep["run"]
+    triggers = workflow.get("on", workflow.get(True))
+    assert "schedule" in triggers and "workflow_dispatch" in triggers
+    expression = sweep["if"].replace("runner.os", "platform").replace(
+        "github.event_name", "event").replace("&&", " and ").replace(
+        "||", " or ")
+    for platform in ("Linux", "Windows", "macOS"):
+        for event in ("push", "pull_request", "schedule", "workflow_dispatch"):
+            allowed = eval(expression, {"__builtins__": {}},
+                           {"platform": platform, "event": event})
+            assert allowed == (platform != "Linux" and event in (
+                "schedule", "workflow_dispatch"))
+    for name in ("Install and smoke the exact wheel and sdist",
+                 "Packaging + smoke subset (decides this cell)"):
+        step = steps[name]
+        assert not step.get("if")
+        assert not step.get("continue-on-error", False)
 
 
 def test_timelapse_does_not_download_btrack_data_during_collection():
