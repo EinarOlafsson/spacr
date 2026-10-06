@@ -752,3 +752,13 @@ portable replay scripts, source-bound worker JSON and full-dimension
 review stills are in data/663_advection_gravity_cpu_2026-10-06/. User
 aesthetic acceptance, reported Save SIGSEGV and remaining N663 work stay
 open.
+
+2026-10-06 — integrated user revisions accepted; broader performance OPEN
+    Common-origin mycelial fans and inward-history advection are implemented
+    and verified in their exact source-bound archives, closing those children
+    at100%. Paper1%radius audit is complete: cursor on real native4Ktile
+    changes5452pixels, restoring pointer returns original bytes; between
+    tile centers it may legitimately affect no tile. Root56density/radius/
+    Preferences cases pass. Parent663still retains Random colors, universal
+    high-detail/max-density frame-budget limitations and unreproducedSave
+    SIGSEGV. Paired live native timings are averages, not hard24FPS promises.

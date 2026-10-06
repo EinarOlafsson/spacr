@@ -200,3 +200,12 @@ shared machine; no GPU turn; scripts in /mnt/wd4tb/scratch/571/scripts)
     identified on October 2. F567 remains OPEN for pretrained application
     backend, real annotated Toxoplasma events and GPU acceptance; synthetic
     GUI table acceptance is not scientific event detection acceptance.
+
+2026-10-06 — ROOT GUI INTEGRATION ACCEPTED (GUI CHILD100%)
+    Seven affected GUI/event files pass126under4GiB/offscreen/CUDAhidden,
+    after all alias/read-race/tracker/conflicting-observation protections.
+    Terminal source-bound root receipt:
+    data/43_cpu_acceptance_checkpoint_2026-10-06/f567-root-integration.log.gz.
+    This closes the requested annotation GUI only. Parent567still requires
+    pretrained backend integration and real annotated Toxoplasma/GPU evidence;
+    workstation's VideoMAE checkpoint remains separately owned.

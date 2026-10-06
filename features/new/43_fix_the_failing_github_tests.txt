@@ -2767,3 +2767,17 @@ installed-wheel andsdist Home probes pass with16painted controls andzero
 heavy imports. Source-matched64renderer,83callback/timing and87docstring
 cases pass. Receipts: data/43_home_compiler_boundary_cpu_2026-10-06/.
 Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
+
+2026-10-06 — source-bound current hosted startup and CPU guard checkpoint
+    ALL8 deciding installed wheel/sdist and packaging smoke platform steps
+    succeed on3ca2bff536 in37511791550. Parent CANCELLED on newer nightly push
+    during two informational full sweeps; no terminal green verdict claimed.
+    Native Windows startup contrast37511791573 is terminal SUCCESS on3ca.
+    Current27ordinary jobs are active; protected b779serial remains untouched.
+    Official Cellpose4.0.7's one-to-three-channel zero padding is now accepted
+    only with rawZYXC/axes/originalpixel/zeropadding checks; root47cases pass.
+    Resource opacity uses exact same animated pixels and retained layout,
+    keeps0.85dimming/0.15equality budgets, and detects injected doubledRAM
+    fill.10cases pass across lens/waves/blobs; no product opacity bug claimed.
+    Exact local logs/current compat/pre-cancel obsolete ordinary state:
+    data/43_cpu_acceptance_checkpoint_2026-10-06/. Parent43 remains OPEN.
