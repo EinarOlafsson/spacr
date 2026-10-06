@@ -1,0 +1,98 @@
+{
+  "item": 419,
+  "base_commit": "711999b77d1da51ca189fdf43f470021d1048037",
+  "scope": "Single Wand button: default intensity-region addition; Ctrl+left bounded intensity-region removal",
+  "final_exit_code": 0,
+  "final_test_count": 269,
+  "invariants": [
+    "Acquired image pixels unchanged",
+    "No unrelated label or whole-object removal by Ctrl+Wand",
+    "Exactly one undoable edit per click",
+    "Ctrl release does not emit an extra stroke",
+    "Default addition resumes without Ctrl",
+    "Undo/redo, Save, Next, close and reopening preserve edits",
+    "No second Wand toolbar widget"
+  ],
+  "validation": "Real offscreen Qt gestures and real bounded intensity detector; actual screen save/reload on synthetic uint16 TIFFs. No neural accuracy or GPU inference claim.",
+  "environment": "CUDA hidden; offscreen Qt; capped 8 GiB; CPU threads 2; seven named affected test files; fatal Ruff capped 2 GiB",
+  "baseline": "Three new regressions fail against unchanged base app with exactly the accepted regression sources; baseline app bytes independently match git show. Setup refusal and corrected test assumptions are separate.",
+  "sources": {
+    "spacr/qt/screens/make_masks.py": {
+      "uncompressed_sha256": "84bbbf5cc9156229e17f30b1a8720292775a252593e75a3e98d33be653481d5c",
+      "archive_sha256": "ee92fe3db557d70696ca990c60e95c916d91447aeff3c52fb851f34565deb598",
+      "bytes": 802083
+    },
+    "docs/source/make_masks.rst": {
+      "uncompressed_sha256": "04ffdd2366e1ed46276ee1757d98031fdce50d1076364b297d588aefe4f97c53",
+      "archive_sha256": "4dae19d80e40ba078b3987ac3fe9a2de1c1bd451b7d566dfba112daffbb60a10",
+      "bytes": 35112
+    },
+    "tests/qt/test_make_masks_canvas.py": {
+      "uncompressed_sha256": "5c32acc9951520a2947d12de454d620e5b4f9b1e5f70b7e9fc62ca2ad6a2b3dc",
+      "archive_sha256": "5d65e04780f7b5b5a11d9558385e5e27a662d8e992157e92387de6474424436e",
+      "bytes": 45562
+    },
+    "tests/qt/test_make_masks_toolbar.py": {
+      "uncompressed_sha256": "1ecd162ab126d032e46d71d90dc6cbc8126778448329f77f096d0147d71cdc99",
+      "archive_sha256": "1c9675076714e12f13523048528501da690b96bc20a27e6b0da3e6229c9e5e9d",
+      "bytes": 16748
+    },
+    "tests/qt/test_make_masks_v2.py": {
+      "uncompressed_sha256": "df011bbceb0bff9b62f122359e724e39343979844af4543414cf46393c5e57b8",
+      "archive_sha256": "faa2c5881b5d97368c2efd1007199d7a77d138350d0435c32456a02467f1adf2",
+      "bytes": 5885
+    }
+  },
+  "complete_logs": {
+    "wand-modifier-affected-tests-r1.log": {
+      "exit_code": 1,
+      "result": "267 passed, 1 obsolete test expectation for the removed separate erase button",
+      "uncompressed_sha256": "f93412f301ee53532fa524c27227fe63f1b7a1d7e0def5e99a451275c8d65f23",
+      "archive_sha256": "05c463ecf3eb4c04d08585e7248261eeca8a1f36a647462ab87287dfae62c6d5",
+      "bytes": 1487
+    },
+    "wand-modifier-save-reopen-r1.log": {
+      "exit_code": 1,
+      "result": "Wand edit, undo/redo and persistence succeeded; test incorrectly expected Brush on reopening instead of NONE",
+      "uncompressed_sha256": "7186fc1c5e42431c21b310c5b796cd6d02b950df77ea857a294625e3dda72993",
+      "archive_sha256": "3aa690ccfc3fb06fb1f9a2c5bd41affb3e1c7d8ff63c652e13b1f16554242cb7",
+      "bytes": 3266
+    },
+    "wand-modifier-save-reopen-r2.log": {
+      "exit_code": 0,
+      "result": "1 passed in 2.56s, corrected actual screen persistence and normal addition",
+      "uncompressed_sha256": "9979b1710bb9c7c72ffc4f2a475b1c4d1c4a6e0ddb97fd534e788f61a149d74b",
+      "archive_sha256": "111f08fb2615afeadd00750aeb5649cefa21a0b663ba94632d4fa24a49c0b5b6",
+      "bytes": 208
+    },
+    "wand-modifier-affected-tests-r2.log": {
+      "exit_code": 0,
+      "result": "269 passed in 84.75s, final complete affected cohort",
+      "uncompressed_sha256": "dfd15247509c9e942dea1d193e1478486b02d2137e293641458f9ed31b74498c",
+      "archive_sha256": "144329dd6779697b69689967c8d1ade8412d34c8568f381b652d31e510af6128",
+      "bytes": 461
+    },
+    "wand-modifier-before-fix-regressions-r1.log": {
+      "exit_code": 4,
+      "result": "wrong-checkout import guard refusal, not a product failure",
+      "uncompressed_sha256": "e75df7ca4c13d09a17dfc577f1a09689d6e25ab7a5e7f6effec5dd6a5a347080",
+      "archive_sha256": "933aec11e511a04d374ec32363e43ab530399c613323d7a5dc425f8803e94ccb",
+      "bytes": 547
+    },
+    "wand-modifier-before-fix-regressions-r2.log": {
+      "exit_code": 1,
+      "result": "3 genuine product failures on unchanged 711999b77 app source",
+      "uncompressed_sha256": "06080813c7009591ec644a99856355697b02315dc3d9bf4cd2836bf1aa2c9dd3",
+      "archive_sha256": "6ff90c179593063577df23e51de27cd95703f7f1419a86527048161f73f9ad1e",
+      "bytes": 6552
+    },
+    "wand-modifier-fatal-ruff-r1.log": {
+      "exit_code": 0,
+      "result": "fatal Ruff checks pass",
+      "uncompressed_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "archive_sha256": "f3af4d142827f5aad2eb0c72d556d325488a57fb6219aac10afeb51085667d53",
+      "bytes": 19
+    }
+  },
+  "followup": "Normal source-current all-nine runtime/API/guide refresh and current tutorial capture remain open; no latest-source multilingual publication claim."
+}

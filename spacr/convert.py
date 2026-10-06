@@ -126,6 +126,8 @@ __all__ = [
     'reader_requirement',
     'reader_available',
     'missing_reader_message',
+    'read_scn',
+    'scn_to_rgb8',
     'target_name',
     'assign_wells',
     'normalise_well',
@@ -153,7 +155,7 @@ __all__ = [
 IMAGE_EXTENSIONS: Tuple[str, ...] = (
     '.tif', '.tiff', '.ome.tif', '.ome.tiff',
     '.png', '.jpg', '.jpeg', '.bmp',
-    '.nd2', '.czi', '.lif',
+    '.nd2', '.czi', '.lif', '.scn',
 )
 
 #: Name of the map file written into the destination folder.
@@ -1223,6 +1225,283 @@ def _describe_lif(path: str) -> Dict[str, Any]:
             'axes_assumed': '', 'reader': 'readlif'}
 
 
+_SCN_BOUNDARY = re.compile(rb'boundary\s*=\s*"?([^";\r\n]+)"?', re.IGNORECASE)
+
+
+def _scn_headers(block: bytes) -> Dict[str, str]:
+    """Parse one MIME header block into ``{lower-case name: value}``."""
+    headers: Dict[str, str] = {}
+    for line in block.decode('latin-1').splitlines():
+        name, sep, value = line.partition(':')
+        if sep and name.strip():
+            headers[name.strip().lower()] = value.strip()
+    return headers
+
+
+def _scn_split(data: bytes, start: int, end: int,
+               boundary: bytes) -> List[Tuple[Dict[str, str], int, int]]:
+    """Split ``data[start:end]`` into the parts of one multipart level.
+
+    A part's body is ``Content-Length`` bytes when the header states it, so
+    binary pixel data is never searched for a boundary; otherwise it runs to
+    the next boundary line of this level.
+
+    :returns: ``(headers, body_start, body_end)`` per part, in file order.
+    """
+    delimiter = b'--' + boundary
+    parts: List[Tuple[Dict[str, str], int, int]] = []
+    pos = data.find(delimiter, start, end)
+    while pos != -1:
+        pos += len(delimiter)
+        if data[pos:pos + 2] == b'--':
+            break
+        crlf = data.find(b'\r\n\r\n', pos, end)
+        lf = data.find(b'\n\n', pos, end)
+        if crlf == -1 and lf == -1:
+            break
+        if crlf != -1 and (lf == -1 or crlf <= lf):
+            head_end, body_start = crlf, crlf + 4
+        else:
+            head_end, body_start = lf, lf + 2
+        headers = _scn_headers(data[pos:head_end])
+        length = headers.get('content-length', '')
+        if length.isdigit() and body_start + int(length) <= end:
+            body_end = body_start + int(length)
+            nxt = data.find(delimiter, body_end, end)
+        else:
+            nxt = data.find(delimiter, body_start, end)
+            body_end = end if nxt == -1 else nxt
+            while body_end > body_start and data[body_end - 1:body_end] in (b'\r', b'\n'):
+                body_end -= 1
+        parts.append((headers, body_start, body_end))
+        pos = nxt
+    return parts
+
+
+def _scn_boundary(content_type: str) -> Optional[bytes]:
+    """The boundary a ``multipart/*`` Content-Type declares, or None."""
+    match = _SCN_BOUNDARY.search(content_type.encode('latin-1', 'replace'))
+    return match.group(1).strip() if match else None
+
+
+def _scn_xml(text: bytes):
+    """Parse an Image Lab XML header, or None when it is not well formed."""
+    import xml.etree.ElementTree as ElementTree
+
+    try:
+        return ElementTree.fromstring(text.decode('utf-8', 'replace'))
+    except ElementTree.ParseError:
+        return None
+
+
+def _scn_attr(root, xml_text: bytes, tag: str, attribute: str) -> Optional[str]:
+    """One attribute of one tag, whatever order the attributes were written in.
+
+    Image Lab versions write attributes in different orders (``width`` then
+    ``height`` in some files, ``height`` first in others), so the tag is found
+    first and each attribute is then looked up on its own. Malformed XML falls
+    back to finding the tag's text and searching inside it.
+    """
+    if root is not None:
+        node = root.find('.//' + tag)
+        return None if node is None else node.get(attribute)
+    text = xml_text.decode('utf-8', 'replace')
+    tag_match = re.search(r'<' + re.escape(tag) + r'\b([^>]*)>', text)
+    if not tag_match:
+        return None
+    value = re.search(r'\b' + re.escape(attribute) + r'\s*=\s*"([^"]*)"',
+                      tag_match.group(1))
+    return value.group(1) if value else None
+
+
+def _scn_text(root, xml_text: bytes, tag: str) -> Optional[str]:
+    """The text of one element, or None."""
+    if root is not None:
+        node = root.find('.//' + tag)
+        return None if node is None or node.text is None else node.text.strip()
+    match = re.search(r'<' + re.escape(tag) + r'\b[^>]*>([^<]*)<',
+                      xml_text.decode('utf-8', 'replace'))
+    return match.group(1).strip() if match else None
+
+
+def _scn_number(value: Optional[str]) -> Optional[float]:
+    """``value`` as a finite float, or None."""
+    try:
+        number = float(str(value).strip())
+    except (TypeError, ValueError):
+        return None
+    return number if np.isfinite(number) else None
+
+
+def _scn_images(data: bytes) -> List[Tuple[bytes, bytes]]:
+    """Every ``(ImageData bytes, ImageHeader XML)`` pair, in ScanImageTag order.
+
+    :raises ValueError: when ``data`` is not an Image Lab MIME document.
+    """
+    head_end = data.find(b'\r\n\r\n')
+    if head_end == -1:
+        head_end = data.find(b'\n\n')
+    preamble = _scn_headers(data[:max(head_end, 0)])
+    boundary = _scn_boundary(preamble.get('content-type', ''))
+    if 'mime-version' not in preamble or boundary is None:
+        raise ValueError('not a Bio-Rad Image Lab .scn file: no MIME '
+                         'multipart header')
+    scans = []
+    for headers, start, end in _scn_split(data, 0, len(data), boundary):
+        description = headers.get('content-description', '')
+        if not description.startswith('ScanImageTag'):
+            continue
+        inner = _scn_boundary(headers.get('content-type', ''))
+        if inner is None:
+            continue
+        suffix = description[len('ScanImageTag'):]
+        order = int(suffix) if suffix.isdigit() else len(scans)
+        pixels, header = None, None
+        for sub, sub_start, sub_end in _scn_split(data, start, end, inner):
+            kind = sub.get('content-description', '')
+            if kind == 'ImageData':
+                pixels = data[sub_start:sub_end]
+            elif kind == 'ImageHeader':
+                header = data[sub_start:sub_end]
+        if pixels is not None and header is not None:
+            scans.append((order, pixels, header))
+    scans.sort(key=lambda item: item[0])
+    return [(pixels, header) for _, pixels, header in scans]
+
+
+def _scn_decode(pixels: bytes, header: bytes, path: str,
+                index: int) -> Tuple[np.ndarray, Dict[str, Any]]:
+    """Turn one ScanImageTag's bytes into ``(uint16 image, metadata)``."""
+    root = _scn_xml(header)
+    width = _scn_number(_scn_attr(root, header, 'size_pix', 'width'))
+    height = _scn_number(_scn_attr(root, header, 'size_pix', 'height'))
+    if not width or not height:
+        raise ValueError(f'{path}: image {index} has no size_pix width/height')
+    width, height = int(width), int(height)
+    endian = (_scn_text(root, header, 'endian') or 'little').lower()
+    order = '>' if endian.startswith('big') else '<'
+    expected = width * height * 2
+    if len(pixels) < expected:
+        raise ValueError(f'{path}: image {index} holds {len(pixels)} bytes, '
+                         f'{width}x{height} uint16 needs {expected}')
+    raw = np.frombuffer(pixels[:expected], dtype=order + 'u2')
+    raw = raw.reshape(height, width).astype(np.uint16)
+    ceiling = _scn_number(_scn_attr(root, header, 'scanner', 'data_ceiling'))
+    if not ceiling:
+        ceiling = _scn_number(_scn_attr(root, header, 'scanner', 'max_value'))
+    if not ceiling:
+        ceiling = float(raw.max()) if raw.size else 65535.0
+    ceiling = int(min(max(ceiling, 1), 65535))
+    zero_is = (_scn_attr(root, header, 'image', 'zero_is') or 'black').lower()
+    if zero_is == 'white':
+        image = (ceiling - np.minimum(raw, ceiling).astype(np.int32)).astype(np.uint16)
+    else:
+        image = raw
+    known = (_scn_attr(root, header, 'size_mm', 'known') or 'true').lower()
+    width_mm = _scn_number(_scn_attr(root, header, 'size_mm', 'width'))
+    height_mm = _scn_number(_scn_attr(root, header, 'size_mm', 'height'))
+    pixel_mm = None
+    if known != 'false' and width_mm and height_mm and width_mm > 0 and height_mm > 0:
+        pixel_mm = (width_mm / width, height_mm / height)
+    meta: Dict[str, Any] = {
+        'path': str(path), 'index': index, 'width': width, 'height': height,
+        'endian': 'big' if order == '>' else 'little',
+        'data_ceiling': ceiling, 'zero_is': zero_is,
+        'inverted': zero_is == 'white',
+        'size_mm': (width_mm, height_mm) if pixel_mm else None,
+        'pixel_size_mm': pixel_mm,
+        'pixels_per_um': (1.0 / (1000.0 * (pixel_mm[0] + pixel_mm[1]) / 2.0)
+                          if pixel_mm else None),
+    }
+    for key in ('imager', 'image_date', 'exposure_time', 'application',
+                'excitation_source', 'emission_filter', 'serial_number'):
+        value = _scn_attr(root, header, key, 'value')
+        if value is not None:
+            meta[key] = value
+    exposure = _scn_number(meta.get('exposure_time'))
+    if exposure is not None:
+        meta['exposure_time'] = exposure
+    return image, meta
+
+
+def scn_to_rgb8(image: np.ndarray, meta: TMapping[str, Any]) -> np.ndarray:
+    """Render a :func:`read_scn` image as ``H x W x 3`` uint8 RGB.
+
+    The scale is linear from 0 to the scanner's ``data_ceiling``, never a
+    per-image stretch, so every plate photographed on one imager keeps the
+    same grey levels.
+
+    :param image: the uint16 array :func:`read_scn` returned.
+    :param meta: its metadata.
+    :returns: grey RGB pixels.
+    """
+    ceiling = float(meta.get('data_ceiling') or 65535)
+    grey = np.clip(np.asarray(image, dtype=np.float32) * (255.0 / ceiling), 0, 255)
+    grey = np.rint(grey).astype(np.uint8)
+    return np.repeat(grey[..., None], 3, axis=-1)
+
+
+def read_scn(path: Any, index: Optional[int] = 0
+             ) -> Tuple[np.ndarray, Dict[str, Any]]:
+    """Read a Bio-Rad Image Lab ``.scn`` (Gel Doc, ChemiDoc) image.
+
+    Pure numpy and the standard library: the file is a MIME multipart
+    document whose ``ScanImageTagN`` parts each hold raw ``ImageData``
+    (width x height uint16 in the stated endianness) and an XML
+    ``ImageHeader``. Image Lab stores ``zero_is="white"`` data, so such an
+    image is inverted as ``data_ceiling - raw``; the result then looks like
+    Image Lab's own PDF and TIFF exports (dark objects on a light
+    background). ``zero_is="black"`` data is returned as stored.
+
+    :param path: the ``.scn`` file.
+    :param index: which image of a multi-image file; ``None`` stacks every
+        image into ``(N, H, W)`` (they must share one size).
+    :returns: ``(image, meta)``. ``image`` is ``uint16``. ``meta`` holds
+        ``width``, ``height``, ``endian``, ``data_ceiling``, ``zero_is``,
+        ``inverted``, ``size_mm`` and ``pixel_size_mm`` (``(x, y)`` mm or
+        None when the file does not know its physical size),
+        ``pixels_per_um`` (or None), ``n_images``, and the scan attributes
+        Image Lab recorded (``imager``, ``image_date``, ``exposure_time`` in
+        seconds, ``application``, ``excitation_source``, ...). With
+        ``index=None`` it is the first image's metadata plus ``images``, a
+        list of every image's.
+    :raises ValueError: for a file that is not an Image Lab document, holds
+        no image, or is truncated.
+    :raises IndexError: for an ``index`` past the last image.
+    """
+    data = Path(path).read_bytes()
+    scans = _scn_images(data)
+    if not scans:
+        raise ValueError(f'{path}: no ScanImageTag image in this .scn file')
+    if index is None:
+        decoded = [_scn_decode(p, h, str(path), i) for i, (p, h) in enumerate(scans)]
+        shapes = {img.shape for img, _ in decoded}
+        if len(shapes) != 1:
+            raise ValueError(f'{path}: images of different sizes {sorted(shapes)} '
+                             'cannot be stacked; read them one index at a time')
+        meta = dict(decoded[0][1], n_images=len(scans),
+                    images=[m for _, m in decoded])
+        return np.stack([img for img, _ in decoded]), meta
+    if not -len(scans) <= int(index) < len(scans):
+        raise IndexError(f'{path}: image {index} requested, file holds {len(scans)}')
+    position = int(index) % len(scans)
+    image, meta = _scn_decode(*scans[position], str(path), position)
+    meta['n_images'] = len(scans)
+    return image, meta
+
+
+def _describe_scn(path: str) -> Dict[str, Any]:
+    """Read a Bio-Rad Image Lab ``.scn``'s dimensions, every image a series."""
+    data = Path(path).read_bytes()
+    scans = _scn_images(data)
+    if not scans:
+        raise ConfigurationError(f'{path} contains no images')
+    image, _ = _scn_decode(*scans[0], str(path), 0)
+    return {'shape': image.shape, 'axes': 'YX', 'dtype': 'uint16',
+            'n_t': 1, 'n_z': 1, 'n_c': 1, 'n_series': len(scans),
+            'axes_assumed': '', 'reader': 'spacr.convert.read_scn'}
+
+
 def _describe(path: str, ext: str) -> Dict[str, Any]:
     """Dispatch to the right describer for ``ext``."""
     if ext in ('.tif', '.tiff', '.ome.tif', '.ome.tiff'):
@@ -1235,6 +1514,8 @@ def _describe(path: str, ext: str) -> Dict[str, Any]:
         return _describe_czi(path)
     if ext == '.lif':
         return _describe_lif(path)
+    if ext == '.scn':
+        return _describe_scn(path)
     raise ConfigurationError(f'{ext} is not a supported input format')
 
 
@@ -1992,6 +2273,12 @@ def _read_lif(source: SourceImage) -> np.ndarray:
                            + stacked.shape[-2:])
 
 
+def _read_scn(source: SourceImage) -> np.ndarray:
+    """Read the declared image of a Bio-Rad ``.scn`` as 5-D data."""
+    image, _ = read_scn(source.path, int(source.meta.get('series', 0) or 0))
+    return image[None, None, None, ...]
+
+
 def _read_source(source: SourceImage) -> np.ndarray:
     """Return ``source``'s pixels as a ``(T, Z, C, Y, X)`` array."""
     ext = source.ext
@@ -2005,6 +2292,8 @@ def _read_source(source: SourceImage) -> np.ndarray:
         return _read_czi(source)
     if ext == '.lif':
         return _read_lif(source)
+    if ext == '.scn':
+        return _read_scn(source)
     raise ConfigurationError(f'{ext} is not a supported input format')
 
 

@@ -1225,3 +1225,15 @@ final268 affected checks pass, including32 independent Box cases. Complete
 before/after logs and source identities are retained in
 data/419_417_manual_merge_drag_2026-10-06.json. Normal multilingual source
 refresh and current tutorial recording remain workstation follow-up work.
+
+2026-10-06 workstation single Wand modifier request accepted:
+One Wand button adds the intensity region by default. Ctrl+left removes only
+the bounded intensity region using the existing tolerance/rescue settings;
+releasing Ctrl restores normal addition. The shortcut panel and tooltip
+describe the selected tool. The legacy erase-mode screen entry normalizes to
+the single button; it cannot create a second toolbar widget. Actual gestures,
+undo/redo, Save, Next, close and fresh-screen reopening pass along with all269
+affected Qt checks. Before-fix product failures, test-assumption corrections
+and final complete logs are distinct in
+data/419_single_wand_ctrl_2026-10-06.json. Normal all-nine translations/API
+owner regeneration and current tutorial capture remain workstation-owned.
