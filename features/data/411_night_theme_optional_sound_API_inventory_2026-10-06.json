@@ -1,0 +1,18 @@
+{
+  "item": 411,
+  "actual_inherited_API_inventory_failure_explained": true,
+  "sole_changed_existing_boundary": "spacr.qt.night_themes.NightTheme",
+  "one_new_optional_sound_key_parameter": true,
+  "full_inverse_digest_exact": true,
+  "source_guard_repair_not_started": true,
+  "artifacts": {
+    "features/data/411_night_theme_optional_sound_API_inventory_2026-10-06/derive_inherited_API_inventory_delta_r1.py": {
+      "sha256": "e5c7d74e7959cc3ce7e3dc03b56851c7f7707b33ae25649da361b5249dd4042e",
+      "bytes": 3997
+    },
+    "features/data/411_night_theme_optional_sound_API_inventory_2026-10-06/foundation-inherited-API-inventory-delta-r1.json": {
+      "sha256": "9bb73c2002a397275236c28bf699250cd78d70f5f9c06fc970eee42b81fb9853",
+      "bytes": 5026
+    }
+  }
+}
