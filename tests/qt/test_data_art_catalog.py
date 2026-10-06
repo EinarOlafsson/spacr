@@ -195,6 +195,22 @@ def test_extra_performance_keeps_a_new_preset_static(private_store):
     assert private_store.get_sound_enabled() is False
 
 
+def test_plain_theme_keeps_the_data_art_resources_as_the_user_last_set_them(private_store):
+    private_store.set_theme_choice("data_art_point_atlas")
+    before = (
+        private_store.get_ambient_animation(),
+        private_store.get_ambient_palette(),
+        private_store.get_sound_theme(),
+    )
+    private_store.set_theme_choice("dark")
+    assert private_store.get_theme_choice() == "dark"
+    assert (
+        private_store.get_ambient_animation(),
+        private_store.get_ambient_palette(),
+        private_store.get_sound_theme(),
+    ) == before
+
+
 def test_dialog_shows_data_art_preset_and_respects_no_animation(
     private_store, qtbot, qt_theme_applied, monkeypatch
 ):
