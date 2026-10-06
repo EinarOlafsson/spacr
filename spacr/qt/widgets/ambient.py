@@ -749,7 +749,7 @@ DEFAULT_SIZE = 1.0
 #: for the top of this range once, at construction, and then paints a prefix
 #: of it — so turning the slider never re-rolls the field and never makes the
 #: animation jump.
-DENSITY_RANGE = (0.25, 3.0)
+DENSITY_RANGE = (0.01, 3.0)
 DEFAULT_DENSITY = 1.0
 
 #: The shared account resolution and density both draw on, as a multiple of
@@ -1009,7 +1009,7 @@ class AmbientEngine:
     :param resolution: scale of the buffer painted through, 0.25 to 2.0.
         Below 1.0 paints fewer pixels and scales them up, which is the lever
         that makes the backdrop affordable on a weak GPU.
-    :param density: how many shapes are rolled, 0.25 to 3.0.
+    :param density: how many shapes are rolled, 0.01 to 3.0.
     :param direction: which way the animation drifts. An unrecognised name
         falls back to the default rather than raising, for the same reason
         the numbers are clamped.
@@ -1388,10 +1388,11 @@ class _BufferedEngine(AmbientEngine):
     def paint(self, painter: QPainter, width: int, height: int) -> None:
         """Shade a frame and put it on the canvas, both here and now.
 
-        Exactly :meth:`shade` followed by :meth:`blit`, minus the copy — the
-        buffer goes straight to the canvas, so this path still allocates once
-        on resize and never per frame. That is what a widget with no shading
-        thread does, and it is what every engine test measures.
+        This calls :meth:`_shade` followed by :meth:`blit` directly. The
+        default buffered path reuses its image until the canvas size changes.
+        Native point, growth and rain subclasses return a freshly owned
+        image each frame. Both paths can draw synchronously without an
+        additional publication copy.
         """
         if width <= 0 or height <= 0:
             return
@@ -1400,9 +1401,10 @@ class _BufferedEngine(AmbientEngine):
     def _shade(self, width: int, height: int) -> QImage:
         """The finished field, in the engine's *own* buffer.
 
-        Returns the buffer itself when the blur is off (which is the
-        default), so the result is only valid until the next call. Callers
-        that keep it want :meth:`shade`.
+        The default implementation returns its reusable buffer when blur is
+        off, so that result is only valid until the next call. Native point,
+        growth and rain overrides return freshly owned images. Callers that
+        keep a frame use :meth:`shade`, which handles either ownership path.
         """
         buf = self._ensure_buffer(width, height)
         inner = QPainter(buf)
@@ -1432,9 +1434,10 @@ class _BufferedEngine(AmbientEngine):
         ``test_the_backdrop_survives_a_run.py`` asserts for every buffered
         theme rather than trusting this paragraph.
 
-        Returns ``None`` for an empty canvas. The copy is what makes the
-        image the caller's: the producer publishes it and immediately starts
-        shading the next frame into the buffer underneath. It costs 0.003 ms
+        Returns ``None`` for an empty canvas. A reusable buffer is copied
+        before publication so a later shade cannot change the caller's frame.
+        A freshly owned subclass image is returned directly. On the default
+        buffered path, the copy costs 0.003 ms
         for ``blobs``, 0.035 ms for the aurora's 2 MiB buffer — 2 % of the
         shading pass it protects.
         """
