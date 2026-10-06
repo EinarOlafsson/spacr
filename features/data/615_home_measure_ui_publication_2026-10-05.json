@@ -1,6 +1,6 @@
 {
   "hosted_publication_verified": true,
-  "nightly_deployment_verified": false,
+  "nightly_deployment_verified": true,
   "lessons": [
     "05_home",
     "08_measure"
@@ -3343,5 +3343,6 @@
       "sha256": "2106e72e5107d086a30898db97c8fbf24b43d97ff5fe728318c75e661662bbe4",
       "bytes": 131117
     }
-  }
+  },
+  "nightly_acceptance_receipt": "features/data/615_home_measure_ui_nightly_2026-10-05.json"
 }
