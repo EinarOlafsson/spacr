@@ -40,32 +40,58 @@
     "latest-source merge, normal API/docs/translations and publication"
   ],
   "sha256": {
-    "567-event-video-backend-cpu-r1.log": "154b7bfcd857d2fd594036c6b82e374f2ecbabaa024b6488157e45aa878a60a7",
-    "567-event-video-contracts-r2.log": "7dc27a7e25e947273df3ec91056f3c99a4136c220f83a77a9af09de179b4aa69",
-    "567-event-video-pipeline-cpu-r1.log": "29ddfcf23468b28b30783cafd828c4f2ba4119e58b393d8b200036a4f1f2e33f",
-    "567-event-video-pipeline-cpu-r2.log": "94c505c4559ef87cf153f9a22988354658512c4cac56cd764b30c642ea78d905",
-    "567-event-video-pipeline-cpu-r3.log": "94c505c4559ef87cf153f9a22988354658512c4cac56cd764b30c642ea78d905",
-    "567-event-video-source-contracts-r1.log": "c4fbd968159239ae32857c5ddb88093c2f39dbdab68d38fe3edb4d45a921729b",
-    "567-event-video-source-contracts-r2.log": "b62fda68e8bef1fe03db9eb8e9858d7a16e75bffea0bace8d029244577ad8615",
-    "567-event-video-source-contracts-r3.log": "ece826eb6e579f2f291342730daabdad305102e3224ba4b4100faba370cccf56",
+    "run_event_video_pipeline_cpu_r3.py": "94298e45c887e73442f7637349cb5534e9fda7ee3eef251e30f35ba26eb175ec",
+    "567-event-video-pipeline-cpu-r3.log.gz": "f40c8975f8f580109eaa273010baf2b732615013336f6e2cb01a80c4e8a79a66",
+    "567-event-video-backend-cpu-r1.log.gz": "deaf52c92fd222e13a1bab7860f33e10c6ae63191469ef0b186dac9487a4ed6b",
     "567-source-contracts-r1-spawn-import-artifact.txt": "29ddfcf23468b28b30783cafd828c4f2ba4119e58b393d8b200036a4f1f2e33f",
-    "backend-acceptance.json": "95fb76566b71b3b476b7814fb19348aafe67f217ce8292c443e89c3b1bf74ddc",
-    "original-fixtures-models-outputs.zip": "9676121d91d9ac72dcf852cb310b2b6f3136eac071b23a56b0565c42381c6a66",
-    "pipeline-acceptance.json": "645128a8ed021a8e21fdc648e1804640b346569fd8e3e5b45b1f9814fa43e27e",
-    "run_event_video_backend_cpu_r1.py": "80a3f5cb37b90a1204b31e699f5aca2f4409ae0226f70f8c499849434aae4d1c",
+    "run_foundation_api_tool_r2.py": "d177b5a1da4cb184e9846edacd23ff2a016191812092fca740e23a00c4476251",
+    "567-event-video-pipeline-cpu-r2.log.gz": "f40c8975f8f580109eaa273010baf2b732615013336f6e2cb01a80c4e8a79a66",
+    "567-event-video-source-contracts-r3.log.gz": "0ea65b7a02ef2ed3b29d201e0798a206123e468d691086f7b9ccd975d67dae56",
     "run_event_video_pipeline_cpu_r1.py": "c2b9fae5b13474cce6608eac44b95b04c2cc0af9623404d80147ac2aae7559df",
     "run_event_video_pipeline_cpu_r2.py": "23011f1730efe2f25e844179594f4d0eca9e7de8d32a56797ab5b896bd10eb9b",
-    "run_event_video_pipeline_cpu_r3.py": "94298e45c887e73442f7637349cb5534e9fda7ee3eef251e30f35ba26eb175ec",
-    "run_foundation_api_tool_r2.py": "d177b5a1da4cb184e9846edacd23ff2a016191812092fca740e23a00c4476251",
+    "backend-acceptance.json": "95fb76566b71b3b476b7814fb19348aafe67f217ce8292c443e89c3b1bf74ddc",
     "run_foundation_api_tool_r3.py": "97397df8e7b78d01848383773cda4fd228da65231920d8be0038389dafbdda76",
-    "source/spacr/_segmentation_backends.py": "4c99802ab54cf694b6d40bbbbf1ebba8ad191bba2fdf64af165c092956530143",
-    "source/spacr/qt/screens/settings_model.py": "bdfaf769e7f353101f0b908630a958713555df1de8f4aa9a42743464819a9c07",
+    "567-event-video-source-contracts-r2.log.gz": "a85a210c046896e27391405d717348617491c363874c590dd9374650ad652f74",
+    "run_event_video_backend_cpu_r1.py": "80a3f5cb37b90a1204b31e699f5aca2f4409ae0226f70f8c499849434aae4d1c",
+    "567-event-video-source-contracts-r1.log.gz": "277cea5eb40b4ffb8e354e99612c9f27cba596c0e809b133ebff7f427e3f723a",
+    "567-event-video-pipeline-cpu-r1.log.gz": "444af8f41094ee6766217845c036b702a0fb8a570d44e4ac237a13db64cee50c",
+    "original-fixtures-models-outputs.zip": "9676121d91d9ac72dcf852cb310b2b6f3136eac071b23a56b0565c42381c6a66",
+    "pipeline-acceptance.json": "645128a8ed021a8e21fdc648e1804640b346569fd8e3e5b45b1f9814fa43e27e",
+    "567-event-video-contracts-r2.log.gz": "05c561f60fdab8e4a33edb72053ab4fac30efdd6fe9acbb22d435eb78c527e08",
     "source/spacr/settings.py": "646c722bae63ee2321540e250c38c6ed07182216c20243e8cd09316e4dc68471",
-    "source/spacr/settings_spec.py": "a46fe17eeb8e4580f96d4657cab4a5b9da7d57a18eb7269a67456ab030554dea",
+    "source/spacr/_segmentation_backends.py": "4c99802ab54cf694b6d40bbbbf1ebba8ad191bba2fdf64af165c092956530143",
     "source/spacr/timelapse.py": "df54908687d66cecc1971a463afe116194e0454e8387c05d0e2bb5569ce2d88d",
-    "source/tests/qt/test_event_detection_alpha_gate.py": "091ee75cdd9392600834a9d9f727257b792d3c52568d709d4a27bcb9be0a1877",
-    "source/tests/test_backends_live_in_their_own_environment.py": "3a360a19c03c64aae91118ef3b48a6daefebe0257a26bcdd03208065bdd6fe23",
+    "source/spacr/settings_spec.py": "a46fe17eeb8e4580f96d4657cab4a5b9da7d57a18eb7269a67456ab030554dea",
     "source/tests/test_event_detection_on_tracks.py": "4ebf975f0163cca46a17f04b9255135a5dd85e280640a8b63977634e044ba6ed",
-    "source/tests/test_event_video_backend.py": "5270b317cc7e26bca4132c61aecc9a8657c4f6441496a4dd8b163829b5de5285"
+    "source/tests/test_event_video_backend.py": "5270b317cc7e26bca4132c61aecc9a8657c4f6441496a4dd8b163829b5de5285",
+    "source/tests/test_backends_live_in_their_own_environment.py": "3a360a19c03c64aae91118ef3b48a6daefebe0257a26bcdd03208065bdd6fe23",
+    "source/tests/qt/test_event_detection_alpha_gate.py": "091ee75cdd9392600834a9d9f727257b792d3c52568d709d4a27bcb9be0a1877",
+    "source/spacr/qt/screens/settings_model.py": "bdfaf769e7f353101f0b908630a958713555df1de8f4aa9a42743464819a9c07"
+  },
+  "complete_original_logs": {
+    "567-event-video-pipeline-cpu-r1.log.gz": {
+      "uncompressed_sha256": "29ddfcf23468b28b30783cafd828c4f2ba4119e58b393d8b200036a4f1f2e33f"
+    },
+    "567-event-video-source-contracts-r3.log.gz": {
+      "uncompressed_sha256": "ece826eb6e579f2f291342730daabdad305102e3224ba4b4100faba370cccf56"
+    },
+    "567-event-video-source-contracts-r2.log.gz": {
+      "uncompressed_sha256": "b62fda68e8bef1fe03db9eb8e9858d7a16e75bffea0bace8d029244577ad8615"
+    },
+    "567-event-video-source-contracts-r1.log.gz": {
+      "uncompressed_sha256": "c4fbd968159239ae32857c5ddb88093c2f39dbdab68d38fe3edb4d45a921729b"
+    },
+    "567-event-video-contracts-r2.log.gz": {
+      "uncompressed_sha256": "7dc27a7e25e947273df3ec91056f3c99a4136c220f83a77a9af09de179b4aa69"
+    },
+    "567-event-video-pipeline-cpu-r2.log.gz": {
+      "uncompressed_sha256": "94c505c4559ef87cf153f9a22988354658512c4cac56cd764b30c642ea78d905"
+    },
+    "567-event-video-pipeline-cpu-r3.log.gz": {
+      "uncompressed_sha256": "94c505c4559ef87cf153f9a22988354658512c4cac56cd764b30c642ea78d905"
+    },
+    "567-event-video-backend-cpu-r1.log.gz": {
+      "uncompressed_sha256": "154b7bfcd857d2fd594036c6b82e374f2ecbabaa024b6488157e45aa878a60a7"
+    }
   }
 }
