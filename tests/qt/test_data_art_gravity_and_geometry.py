@@ -148,7 +148,8 @@ def test_non_gravity_material_ignores_clicks_and_future_events():
     assert _digest(_render(lens)) == _digest(_render(fresh))
 
 
-@pytest.mark.parametrize("family", ["point_atlas", "tissue_facets", "impulse_lens"])
+@pytest.mark.parametrize("family", ["point_atlas", "tissue_facets", "impulse_lens",
+                                    "chromatin_ribbon"])
 def test_geometry_controls_remain_reproducible_and_cache_is_bounded(family):
     engine = _engine(family)
     engine.set_time(6.0)
@@ -162,3 +163,26 @@ def test_geometry_controls_remain_reproducible_and_cache_is_bounded(family):
     engine.set_density(3.0)
     assert _digest(_render(engine)) != before
     assert len(engine._material_cache) == 1
+
+
+@pytest.mark.parametrize("background", ["#101418", "#f6f7f9"])
+def test_chromatin_retains_native_fibres_and_moves_seeded_folds(background):
+    engine = ambient.make_engine("data_art_chromatin_ribbon", "spacr",
+                                 background, seed=42, resolution=2.0)
+    engine.set_max_pixels(640 * 360)
+    engine.set_time(3.0)
+    first = _digest(engine.shade(640, 360))
+    retained = next(iter(engine._material_cache.values()))
+    assert all(tile.width() > 640 for _, _, tile, _, _ in retained)
+    assert all(tile.format() == QImage.Format_ARGB32_Premultiplied
+               for _, _, tile, _, _ in retained)
+    assert len(retained) == 7
+    assert engine.buffer_size(640, 360) == (640, 360)
+    engine.set_time(3.2)
+    assert _digest(engine.shade(640, 360)) != first
+    assert next(iter(engine._material_cache.values())) is retained
+    engine.set_time(3.0)
+    assert _digest(engine.shade(640, 360)) == first
+    engine.set_resolution(1.0)
+    assert not engine._material_cache
+    assert _digest(engine.shade(640, 360)) != first

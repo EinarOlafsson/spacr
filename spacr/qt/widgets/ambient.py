@@ -4903,75 +4903,92 @@ class _DataArtEngine(_BufferedEngine):
                                   tile, extent_x, extent_y))
             material = tuple(cells)
             self._material_cache[key] = material
-        painter.save()
         for cx, cy, rx, ry, phase, tile, extent_x, extent_y in material:
             drift = self.time * 0.30 + phase
             dx = rx * 0.23 * math.sin(drift + cy / max(1, height) * 3.0)
             dy = ry * 0.21 * math.cos(drift * 0.83 + cx / max(1, width) * 4.0)
-            breath = 1.0 + 0.035 * math.sin(drift * 0.73)
-            painter.save()
-            painter.translate(cx + dx, cy + dy)
-            painter.rotate(2.2 * math.sin(drift * 0.64))
-            painter.scale(breath, breath)
-            painter.drawImage(QPointF(-extent_x, -extent_y), tile)
-            painter.restore()
-        painter.restore()
+            painter.drawImage(QPointF(cx + dx - extent_x,
+                                      cy + dy - extent_y), tile)
 
 
 
     def _paint_chromatin_ribbon(self, painter: QPainter, width: int,
                                 height: int) -> None:
-        """Fold broad satin surfaces and etch fine fibres along each fold."""
-        count = self.element_count(7, 15)
-        seed_phase = self._anchors[1][0] * math.tau
-        for ribbon in range(count):
-            centre = height * (0.16 + 0.115 * ribbon)
-            thickness = height * (0.042 + 0.013 * (ribbon % 3)) * self.size
-            slope = height * (0.19 * ((ribbon % 3) - 1))
-            upper = []
-            lower = []
+        """Glide native satin folds with cached fine antialiased fibres."""
+        np = _numpy()
+        key = ("chromatin_native_folds", width, height, self.resolution,
+               self.size, self.density)
+        ribbons = self._material_cache.get(key)
+        if ribbons is None:
+            count = self.element_count(7, 15)
+            seed_phase = self._anchors[1][0] * math.tau
             samples = max(128, min(640, int(width / 5)))
-            for step in range(samples):
-                along = step / (samples - 1)
-                x = width * along
-                wave = (math.sin(7.0 * along + ribbon * 1.19 + seed_phase
-                                 + self.time * 0.045)
-                        + 0.47 * math.sin(19.0 * along - ribbon * 0.66
-                                          + seed_phase * 0.71
-                                          - self.time * 0.026))
-                y = centre + slope * (along - 0.5) + height * 0.058 * wave
-                fold = thickness * (0.55 + 0.45 * math.cos(
-                    11.0 * along + ribbon * 1.7 + self.time * 0.035))
-                upper.append(QPointF(x, y - fold))
-                lower.append(QPointF(x, y + fold))
-            path = QPainterPath(upper[0])
-            for point in upper[1:]:
-                path.lineTo(point)
-            for point in reversed(lower):
-                path.lineTo(point)
-            path.closeSubpath()
-            shade = QLinearGradient(0, centre - thickness * 2.1,
-                                    0, centre + thickness * 2.1)
-            shade.setColorAt(0.0, self._ink(ribbon, 0.02))
-            shade.setColorAt(0.22, self._ink(ribbon, 0.42))
-            shade.setColorAt(0.47, self._ink(ribbon + 1, 0.15))
-            shade.setColorAt(0.74, self._ink(ribbon + 2, 0.50))
-            shade.setColorAt(1.0, self._ink(ribbon, 0.015))
-            painter.setPen(Qt.NoPen)
-            painter.setBrush(QBrush(shade))
-            painter.drawPath(path)
-            painter.setBrush(Qt.NoBrush)
-            painter.setPen(QPen(self._ink(ribbon + 2, 0.51),
-                                max(0.5, self.size * 0.75)))
-            painter.drawPolyline(QPolygonF(upper))
+            along = np.linspace(-0.08, 1.08, samples, dtype=np.float32)
+            x = along * width
             fibres = max(20, int(28 * self.resolution))
-            for fibre in range(1, fibres):
-                ratio = fibre / fibres
-                painter.setPen(QPen(self._ink(ribbon + fibre, 0.11), 0.55))
-                painter.drawPolyline(QPolygonF([
-                    QPointF(a.x(), a.y() * (1.0 - ratio) + b.y() * ratio)
-                    for a, b in zip(upper, lower)]))
-
+            ratios = np.arange(1, fibres, dtype=np.float32)[:, None] / fibres
+            ribbons = []
+            for ribbon in range(count):
+                centre = height * (0.16 + 0.115 * ribbon)
+                thickness = height * (0.042 + 0.013 * (ribbon % 3)) * self.size
+                slope = height * (0.19 * ((ribbon % 3) - 1))
+                wave = (np.sin(7.0 * along + ribbon * 1.19 + seed_phase)
+                        + 0.47 * np.sin(19.0 * along - ribbon * 0.66
+                                        + seed_phase * 0.71))
+                middle = slope * (along - 0.5) + height * 0.058 * wave
+                fold = thickness * (0.55 + 0.45 * np.cos(
+                    11.0 * along + ribbon * 1.7))
+                upper_y, lower_y = middle - fold, middle + fold
+                upper = QPolygonF([QPointF(float(xx), float(yy))
+                                   for xx, yy in zip(x, upper_y)])
+                lower = [QPointF(float(xx), float(yy))
+                         for xx, yy in zip(x[::-1], lower_y[::-1])]
+                origin_x = math.floor(float(x[0])) - 2
+                origin_y = math.floor(float(np.minimum(upper_y, lower_y).min())) - 2
+                tile_width = math.ceil(float(x[-1])) - origin_x + 3
+                tile_height = math.ceil(float(np.maximum(upper_y, lower_y).max())) - origin_y + 3
+                picture = QImage(tile_width, tile_height,
+                                 QImage.Format_ARGB32_Premultiplied)
+                picture.fill(Qt.transparent)
+                inner = QPainter(picture)
+                inner.setRenderHint(QPainter.Antialiasing, True)
+                inner.setCompositionMode(self.mode)
+                inner.translate(-origin_x, -origin_y)
+                shade = QLinearGradient(0, -thickness * 2.1,
+                                        0, thickness * 2.1)
+                shade.setColorAt(0.0, self._ink(ribbon, 0.02))
+                shade.setColorAt(0.22, self._ink(ribbon, 0.42))
+                shade.setColorAt(0.47, self._ink(ribbon + 1, 0.15))
+                shade.setColorAt(0.74, self._ink(ribbon + 2, 0.50))
+                shade.setColorAt(1.0, self._ink(ribbon, 0.015))
+                inner.setPen(Qt.NoPen)
+                inner.setBrush(QBrush(shade))
+                inner.drawPolygon(QPolygonF(list(upper) + lower))
+                inner.setBrush(Qt.NoBrush)
+                inner.setPen(QPen(self._ink(ribbon + 2, 0.51),
+                                  max(0.5, self.size * 0.75)))
+                inner.drawPolyline(upper)
+                positions = upper_y[None, :] + ratios * (2.0 * fold[None, :])
+                for fibre, ys in enumerate(positions, 1):
+                    inner.setPen(QPen(self._ink(ribbon + fibre, 0.11), 0.55))
+                    inner.drawPolyline(QPolygonF([
+                        QPointF(float(xx), float(yy)) for xx, yy in zip(x, ys)]))
+                inner.end()
+                ribbons.append((centre, ribbon * 1.19 + seed_phase,
+                                picture, origin_x, origin_y))
+            ribbons = tuple(ribbons)
+            self._material_cache[key] = ribbons
+        painter.save()
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        for centre, phase, picture, origin_x, origin_y in ribbons:
+            drift = self.time * 0.15
+            dx = width * 0.018 * math.sin(drift * 0.71 + phase)
+            dy = height * 0.017 * math.sin(drift + phase * 0.63)
+            painter.save()
+            painter.translate(dx, centre + dy)
+            painter.drawImage(QPointF(origin_x, origin_y), picture)
+            painter.restore()
+        painter.restore()
 
 
 
