@@ -420,25 +420,27 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
         QTest.mouseClick(button, Qt.LeftButton)
         settle()
 
-    def gesture(points):
+    def gesture(points, *, button=Qt.LeftButton, modifiers=Qt.NoModifier):
         positions = [canvas._image_to_canvas(x, y) for x, y in points]
         if any(p is None or not canvas.rect().contains(p) or
                canvas._canvas_to_image(p.x(), p.y()) is None for p in positions):
             raise RuntimeError('The intended gesture is outside the visible image')
         QTest.mouseMove(canvas, positions[0])
         settle(0.08)
-        QTest.mousePress(canvas, Qt.LeftButton, pos=positions[0])
+        QTest.mousePress(canvas, button, modifiers, pos=positions[0])
         settle(0.08)
         for position in positions[1:]:
             QTest.mouseMove(canvas, position, delay=40)
             settle(0.08)
         if canvas.mode == 'divide':
-            write_json(captures / 'divide_gesture.json', {
+            name = 'merge' if button == Qt.RightButton else 'divide'
+            write_json(captures / f'{name}_gesture.json', {
+                'button': 'right' if button == Qt.RightButton else 'left',
                 'requested_points': [[int(x), int(y)] for x, y in points],
                 'observed_points': [list(canvas._canvas_to_image(p.x(), p.y()))
                                     for p in canvas._gesture_points]})
-            capture('08_divide_gesture')
-        QTest.mouseRelease(canvas, Qt.LeftButton, pos=positions[-1])
+            capture(f'08_{name}_gesture')
+        QTest.mouseRelease(canvas, button, modifiers, pos=positions[-1])
         settle()
 
     counts = np.bincount(original.ravel())
@@ -494,6 +496,31 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
         raise RuntimeError('The actual Divide gesture did not split a label')
     capture('08_divide_demo')
     steps.append({'action': 'divide', 'before': original_count, 'after': divided_count})
+    divided = canvas.mask.copy()
+    pieces = [int(value) for value in np.unique(divided[original == label]) if value > 0]
+    if len(pieces) < 2:
+        raise RuntimeError('The chosen real object has no two divided pieces to merge')
+    join_points = []
+    for value in pieces[:2]:
+        inside = distance_transform_edt((divided == value) & (original == label))
+        py, px = np.unravel_index(np.argmax(inside), inside.shape)
+        join_points.append((int(px), int(py)))
+    gesture(join_points, button=Qt.RightButton)
+    if not canvas.manual_ids or not np.array_equal(canvas.mask > 0, divided > 0):
+        raise RuntimeError('Right-drag did not merge without painting background')
+    if canvas.mask[join_points[0][1], join_points[0][0]] != canvas.mask[join_points[1][1], join_points[1][0]]:
+        raise RuntimeError('The two crossed pieces did not retain one shared identity')
+    if not np.array_equal(canvas.image, pixels):
+        raise RuntimeError('Manual merge changed the acquired image')
+    capture('08b_merge_demo')
+    steps.append({'action': 'merge', 'button': 'right', 'demonstration_only': True,
+                  'foreground_pixels_unchanged': True, 'acquired_image_unchanged': True,
+                  'before': divided_count,
+                  'after': int(np.count_nonzero(np.unique(canvas.mask)))})
+    QTest.mouseClick(screen._btn_undo, Qt.LeftButton)
+    settle()
+    if not np.array_equal(canvas.mask, divided) or canvas.manual_ids:
+        raise RuntimeError('Undo did not restore the pre-merge labels and identity policy')
     undo()
 
     def expose(widget):
@@ -521,6 +548,40 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
         # Keep the QImage alive while reading its owned pixel buffer.
         image = canvas.pixmap().toImage().copy()
         return hashlib.sha256(image.bits().tobytes()).hexdigest()
+
+    mode('wand_add')
+    if 'wand_erase' in screen._mode_buttons or screen._btn_wand.text() != 'Wand':
+        raise RuntimeError('The current editor must offer exactly one Wand button')
+    old_wand_pct, old_wand_max = screen._wand_pct.value(), screen._wand_max.value()
+    number(screen._wand_pct, 0.5)
+    number(screen._wand_max, 256)
+    if screen._btn_settings.isChecked():
+        QTest.mouseClick(screen._btn_settings, Qt.LeftButton)
+        settle()
+    gesture([(int(x), int(y))])
+    added = canvas.mask.copy()
+    changed = added != original
+    if (not changed.any() or np.any(original[changed] != 0)
+            or np.any(added[changed] == 0) or not np.array_equal(canvas.image, pixels)):
+        raise RuntimeError('Default Wand did not add only a bounded real intensity region')
+    capture('07b_wand_add')
+    gesture([(int(x), int(y))], modifiers=Qt.ControlModifier)
+    if not np.array_equal(canvas.mask, original) or not np.array_equal(canvas.image, pixels):
+        raise RuntimeError('Ctrl+Wand did not remove exactly its added region')
+    if screen._shortcut_rows['Ctrl + left click'][1].text() != 'Remove the intensity region':
+        raise RuntimeError('The selected Wand shortcut help describes the wrong operation')
+    capture('07c_wand_ctrl_remove')
+    steps.append({'action': 'wand', 'add_button': 'left', 'remove_modifier': 'Ctrl',
+                  'demonstration_only': True, 'added_pixels': int(changed.sum()),
+                  'exact_original_labels_restored': True, 'acquired_image_unchanged': True,
+                  'tolerance_percent': 0.5, 'max_pixels': 256, 'single_toolbar_button': True})
+    QTest.mouseClick(screen._btn_undo, Qt.LeftButton)
+    settle()
+    if not np.array_equal(canvas.mask, added):
+        raise RuntimeError('Undo did not restore the Wand addition')
+    undo()
+    number(screen._wand_pct, old_wand_pct)
+    number(screen._wand_max, old_wand_max)
 
     expose(screen._norm_lo)
     before_display = display_digest()

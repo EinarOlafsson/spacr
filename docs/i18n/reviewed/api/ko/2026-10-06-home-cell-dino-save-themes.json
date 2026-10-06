@@ -83,6 +83,8 @@
     {
       "context": "Offer custom colours for the six procedural data-art scenes.",
       "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors#0",
+      "retired": true,
+      "retired_reason": "2026-10-06 final integrated Home/SCN/Wand source replaces this exact block; complete original review archived byte-exact.",
       "source": "Offer custom colours for the six procedural data-art scenes.",
       "source_sha256": "b909f4a7577a09c584074396f7c10ebab346d1196dab90042b165982a7f4ddc2",
       "translation": "여섯 가지 절차적 데이터 아트 장면에 사용자 색상을 제공합니다."
@@ -152,7 +154,7 @@
     },
     {
       "context": "spaCR ships several themes, and a blob set tuned only for a near-black page turns to mud on a white one. So the *composition mode follows the background*:",
-      "label": "spacr.qt.widgets.ambient#11",
+      "label": "spacr.qt.widgets.ambient#10",
       "source": "spaCR ships several themes, and a blob set tuned only for a near-black page turns to mud on a white one. So the *composition mode follows the background*:",
       "source_sha256": "4589ef5131fad8eb75ae52ff32c51ed2b3edb481945e5b697f6e44b0f3e54742",
       "translation": "spaCR는 여러 테마를 제공합니다. 거의 검은 페이지에만 맞춘 블롭은 흰 페이지에서 흐릿해집니다. 따라서 *합성 모드는 배경을 따릅니다*:"
@@ -160,6 +162,8 @@
     {
       "context": "Five classic themes remain in the menu alongside six data-art materials, each chosen to read as a different kind of movement:",
       "label": "spacr.qt.widgets.ambient#2",
+      "retired": true,
+      "retired_reason": "2026-10-06 final integrated Home/SCN/Wand source replaces this exact block; complete original review archived byte-exact.",
       "source": "Five classic themes remain in the menu alongside six data-art materials, each chosen to read as a different kind of movement:",
       "source_sha256": "bab01d52b8ab4d7ad2275976062103995d5e3d0aab50ab79cdb5f23985c0c1b7",
       "translation": "메뉴에는 클래식 테마 다섯 가지와 데이터 아트 재질 여섯 가지가 남아 있으며, 각각 서로 다른 움직임을 나타내도록 선택했습니다:"
@@ -167,13 +171,15 @@
     {
       "context": "``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``ripple`` Concentric rings expanding out of three fixed sources and fading as they grow, like rain on water. Soft-edged, so it never reads as line work. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`. ``cells`` Cells drifting through the field, turning as they go — a soft body, a slightly brighter membrane where the edge is seen nearly edge-on, and a distinctly brighter nucleus set off centre. The older :class:`BokehEngine` and :class:`ResonanceEngine` remain importable for direct callers, but are no longer menu choices or factory entries.",
       "label": "spacr.qt.widgets.ambient#5",
+      "retired": true,
+      "retired_reason": "2026-10-06 final integrated Home/SCN/Wand source replaces this exact block; complete original review archived byte-exact.",
       "source": "``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``ripple`` Concentric rings expanding out of three fixed sources and fading as they grow, like rain on water. Soft-edged, so it never reads as line work. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`. ``cells`` Cells drifting through the field, turning as they go — a soft body, a slightly brighter membrane where the edge is seen nearly edge-on, and a distinctly brighter nucleus set off centre. The older :class:`BokehEngine` and :class:`ResonanceEngine` remain importable for direct callers, but are no longer menu choices or factory entries.",
       "source_sha256": "9f8ebf5cd677f5ef47e1da4d6fdafec8fdf0b1baa30d1f1cc5dfaa93ae1e3012",
       "translation": "``aurora`` 세로 광선으로 된 세 겹의 커튼이 자신의 길이를 따라 접힙니다. 접힘은 진행파 — 호를 따라 길이 방향으로 흐르는 여러 겹친 주파수 — 이며, 별도의 일정으로 밝기가 솟구치고, 아래 가장자리는 선명하고 위쪽은 흐릿하며, 실제 오로라처럼 세로 색 순서를 따릅니다: 몸통은 녹색, 높은 곳은 빨강, 아래쪽은 보라색 테두리. ``ripple`` 고정된 세 원천에서 퍼져 나가며 커질수록 옅어지는 동심원으로, 물 위의 비와 같습니다. 가장자리가 부드러워 선 그림으로 보이지 않습니다. ``drift`` 세 개의 시차 층으로 된 느린 별 무리: 뒤에는 작고 어둡고 느린 별, 앞에는 크고 밝고 빠른 별. 유일하게 선명한 테마입니다. 위로, 아래로, 또는 사방으로 이동합니다 — :data:`DRIFT_DIRECTIONS` 를 참조하십시오. ``cells`` 현미경 시야를 떠다니며 회전하는 세포 — 부드러운 몸통, 가장자리가 거의 옆면으로 보이는 곳에서 조금 더 밝은 막, 그리고 중심에서 벗어나 뚜렷하게 더 밝은 핵. 이전의 :class:`BokehEngine` 및 :class:`ResonanceEngine`은 직접 호출할 경우 계속 가져올 수 있지만, 더 이상 메뉴 옵션이나 생성 레지스트리 항목은 아닙니다."
     },
     {
       "context": "There is also a private ``fractal`` engine: it is not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it, and the only way to see it is to start the application with the ``spaceout`` command instead of ``spacr``. See :data:`SPACEOUT_THEME` and :class:`FractalEngine`.",
-      "label": "spacr.qt.widgets.ambient#6",
+      "label": "spacr.qt.widgets.ambient#5",
       "source": "There is also a private ``fractal`` engine: it is not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it, and the only way to see it is to start the application with the ``spaceout`` command instead of ``spacr``. See :data:`SPACEOUT_THEME` and :class:`FractalEngine`.",
       "source_sha256": "5cd70fb1942de055b76f914c68f1c3150eaec5ad056f43177191453c8f6a3e8c",
       "translation": "비공개 ``fractal`` 엔진도 있습니다. :data:`AMBIENT_THEMES`에 없고, 메뉴에 표시되지 않으며, 환경설정에 저장할 수 없습니다. 이를 보려면 애플리케이션을 ``spaceout`` 명령으로 시작해야 하며, ``spacr``로는 볼 수 없습니다. :data:`SPACEOUT_THEME` 및 :class:`FractalEngine`을 참조하세요."

@@ -174,7 +174,9 @@ mask with more connected objects, or an existing multi-label mask whose IDs
 exceed that range; it does not wrap oversized IDs into smaller numbers.
 A refused save preserves an existing TIFF or Cellpose bundle and its metadata.
 In ordinary mode, a mask with one foreground value is interpreted as binary
-and its connected components receive separate IDs. For primary/secondary
+and its connected components receive separate IDs. Deliberate groups created
+with Divide / Merge or a magnifier drag retain their shared IDs when saved
+and reopened with their matching curation history. For primary/secondary
 relationships, use the exact-ID path described below. See
 :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions.
 
@@ -199,9 +201,11 @@ Canvas tools and navigation
        remove that region.
    * - Draw
      - Trace an outline and fill its interior as one object.
-   * - Divide
-     - Draw a cut through a merged object. The larger component retains its
-       ID; the smaller receives a new ID.
+   * - Divide / Merge
+     - Left-drag a cut through an object to divide it. The larger component
+       retains its ID; the smaller receives a new ID. Right-drag a line across
+       objects to merge them under the first crossed ID without painting the
+       background between them.
    * - Zoom
      - Drag a rectangle to change the view without changing labels.
    * - Recrop
@@ -213,10 +217,15 @@ Canvas tools and navigation
 
 **Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets
 zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes
-or redoes an edit. **Ctrl + left click** splits an object at its waist;
-**Ctrl + right click** removes the object under the cursor. The shortcut
-panel beside the view lists the current gestures, including magnifier
-controls.
+or redoes an edit. With Wand selected, **Ctrl + left click** removes the
+bounded intensity region. Outside Wand, **Ctrl + left click** splits an
+object at its waist; **Ctrl + right click** removes the object under the
+cursor. The shortcut panel beside the view lists the current gestures,
+including magnifier controls.
+
+**Clear all objects**, immediately left of **Discard**, asks for confirmation
+before removing every segmentation object in the current image. Cancelling
+keeps the masks; undo restores them. The acquired image is unchanged.
 
 Recrop creates files and changes the field queue. Objects cut by a crop's
 boundary are omitted, and retained objects are renumbered within the new
@@ -491,8 +500,12 @@ pointer. Its wheel changes box zoom; **Shift + wheel** changes box size.
 before accepting its objects.
 
 **Objects added** selects every object in the zoom area or only objects
-under the mouse. In ordinary modes, dragging can join encountered pieces
-into one object. Whole-image preview accepts objects under the pointer;
+under the mouse. In ordinary modes, including Otsu and Cellpose, click and
+drag to add encountered detections to the object under the initial click.
+Starting on background creates one new object. Separate detections share
+that object's ID without filling the background between them; one undo step
+reverses the drag, and the shared ID survives Save, Next and reopening.
+Whole-image preview accepts objects under the pointer;
 secondary mode preserves primary identities instead of joining them.
 
 The corner readout identifies the pixel and object under the cursor. The

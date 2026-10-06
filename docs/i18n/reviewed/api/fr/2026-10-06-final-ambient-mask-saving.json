@@ -1,0 +1,34 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "Offer custom colours for the seven procedural data-art scenes.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors#0",
+      "source": "Offer custom colours for the seven procedural data-art scenes.",
+      "source_sha256": "875ce591de4e782259b4c84d60e72691fe055e89c31b4266d933a0b4b07bc525",
+      "translation": "Proposer des couleurs personnalisées pour les sept scènes procédurales d’art de données."
+    },
+    {
+      "context": "Seven data-art materials and three classic themes remain in the menu. The default is ``data_art_impulse_lens`` (spaCR field). The other data-art choices are advection, growth, Thore, waves, tissue facets and chromatin satin. The classic choices provide softer motion:",
+      "label": "spacr.qt.widgets.ambient#2",
+      "source": "Seven data-art materials and three classic themes remain in the menu. The default is ``data_art_impulse_lens`` (spaCR field). The other data-art choices are advection, growth, Thore, waves, tissue facets and chromatin satin. The classic choices provide softer motion:",
+      "source_sha256": "7a184a977d3ef97b1524a3b3a282f3b7da20ae1c6eb4ae68427247a95fb102b2",
+      "translation": "Le menu conserve sept matières d’art de données et trois thèmes classiques. Le choix par défaut est ``data_art_impulse_lens`` (spaCR field). Les autres choix d’art de données sont advection, growth, Thore, waves, facettes de tissu et satin de chromatine. Les choix classiques offrent des mouvements plus doux :"
+    },
+    {
+      "context": "``blobs`` Big and small colour blobs drifting over the page, each pulsing in size on its own period. They overlap and blend, so the result reads as soft colour *fields* rather than as a bag of circles. ``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`.",
+      "label": "spacr.qt.widgets.ambient#3",
+      "source": "``blobs`` Big and small colour blobs drifting over the page, each pulsing in size on its own period. They overlap and blend, so the result reads as soft colour *fields* rather than as a bag of circles. ``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`.",
+      "source_sha256": "b48295f637f6c0b9ca0a209a5e85fca16c2824e33de8faed0c36b1312a0ec768",
+      "translation": "``blobs`` De grandes et petites taches de couleur glissent sur la page, chacune faisant varier sa taille selon sa propre période. Elles se superposent et se mélangent ; le résultat évoque de doux *champs* de couleur plutôt qu’un ensemble de cercles. ``aurora`` Trois rideaux superposés de rayons verticaux se plient sur leur longueur. Les plis sont des ondes voyageuses — plusieurs fréquences superposées parcourent l’arc — avec des poussées de luminosité selon un rythme distinct, un bord inférieur net, un sommet diffus et l’ordre vertical des couleurs d’une vraie aurore : vert dans le corps, rouge en hauteur et frange violette en dessous. ``drift`` Un champ d’étoiles lent en trois couches de parallaxe : petites, faibles et lentes derrière ; plus grandes, plus brillantes et plus rapides devant. Le seul thème net. Il se déplace vers le haut, vers le bas ou dans toutes les directions — voir :data:`DRIFT_DIRECTIONS`."
+    },
+    {
+      "context": "The older :class:`RippleEngine`, :class:`CellsEngine`, :class:`BokehEngine` and :class:`ResonanceEngine` remain importable for direct callers, but are no longer menu choices or factory entries.",
+      "label": "spacr.qt.widgets.ambient#4",
+      "source": "The older :class:`RippleEngine`, :class:`CellsEngine`, :class:`BokehEngine` and :class:`ResonanceEngine` remain importable for direct callers, but are no longer menu choices or factory entries.",
+      "source_sha256": "944c41970d3670c97f007f04b78b93d8072f339999ad7ef320dd57f5b5527c64",
+      "translation": "Les anciens :class:`RippleEngine`, :class:`CellsEngine`, :class:`BokehEngine` et :class:`ResonanceEngine` restent importables pour les appels directs, mais ne figurent plus dans les choix du menu ni dans la fabrique."
+    }
+  ],
+  "schema": 1
+}

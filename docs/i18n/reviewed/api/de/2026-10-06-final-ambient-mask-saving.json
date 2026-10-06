@@ -1,0 +1,34 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "Offer custom colours for the seven procedural data-art scenes.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors#0",
+      "source": "Offer custom colours for the seven procedural data-art scenes.",
+      "source_sha256": "875ce591de4e782259b4c84d60e72691fe055e89c31b4266d933a0b4b07bc525",
+      "translation": "Benutzerdefinierte Farben für die sieben prozeduralen Datenkunstszenen anbieten."
+    },
+    {
+      "context": "Seven data-art materials and three classic themes remain in the menu. The default is ``data_art_impulse_lens`` (spaCR field). The other data-art choices are advection, growth, Thore, waves, tissue facets and chromatin satin. The classic choices provide softer motion:",
+      "label": "spacr.qt.widgets.ambient#2",
+      "source": "Seven data-art materials and three classic themes remain in the menu. The default is ``data_art_impulse_lens`` (spaCR field). The other data-art choices are advection, growth, Thore, waves, tissue facets and chromatin satin. The classic choices provide softer motion:",
+      "source_sha256": "7a184a977d3ef97b1524a3b3a282f3b7da20ae1c6eb4ae68427247a95fb102b2",
+      "translation": "Sieben Datenkunstmaterialien und drei klassische Themen bleiben im Menü. Standard ist ``data_art_impulse_lens`` (spaCR field). Die weiteren Datenkunstoptionen sind advection, growth, Thore, waves, Gewebefacetten und Chromatinsatin. Die klassischen Optionen bieten weichere Bewegung:"
+    },
+    {
+      "context": "``blobs`` Big and small colour blobs drifting over the page, each pulsing in size on its own period. They overlap and blend, so the result reads as soft colour *fields* rather than as a bag of circles. ``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`.",
+      "label": "spacr.qt.widgets.ambient#3",
+      "source": "``blobs`` Big and small colour blobs drifting over the page, each pulsing in size on its own period. They overlap and blend, so the result reads as soft colour *fields* rather than as a bag of circles. ``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`.",
+      "source_sha256": "b48295f637f6c0b9ca0a209a5e85fca16c2824e33de8faed0c36b1312a0ec768",
+      "translation": "``blobs`` Große und kleine Farbflächen gleiten über die Seite und pulsieren jeweils mit ihrer eigenen Periode in der Größe. Sie überlappen und vermischen sich, sodass das Ergebnis als weiche Farb*felder* statt als Ansammlung von Kreisen erscheint. ``aurora`` Drei überlappende Vorhänge vertikaler Strahlen falten sich entlang ihrer Länge. Die Falten sind wandernde Wellen — mehrere überlagerte Frequenzen laufen längs des Bogens — mit Helligkeitsschüben nach einem eigenen Zeitplan, einer scharfen Unterkante, einem diffusen oberen Rand und der vertikalen Farbreihenfolge echten Nordlichts: Grün im Hauptbereich, Rot hoch oben und ein violetter Saum darunter. ``drift`` Ein langsames Sternfeld in drei Parallaxenebenen: kleine, schwache, langsame Sterne hinten; größere, hellere, schnellere vorne. Das einzige scharfe Thema. Es bewegt sich nach oben, unten oder in beliebige Richtungen — siehe :data:`DRIFT_DIRECTIONS`."
+    },
+    {
+      "context": "The older :class:`RippleEngine`, :class:`CellsEngine`, :class:`BokehEngine` and :class:`ResonanceEngine` remain importable for direct callers, but are no longer menu choices or factory entries.",
+      "label": "spacr.qt.widgets.ambient#4",
+      "source": "The older :class:`RippleEngine`, :class:`CellsEngine`, :class:`BokehEngine` and :class:`ResonanceEngine` remain importable for direct callers, but are no longer menu choices or factory entries.",
+      "source_sha256": "944c41970d3670c97f007f04b78b93d8072f339999ad7ef320dd57f5b5527c64",
+      "translation": "Die älteren :class:`RippleEngine`, :class:`CellsEngine`, :class:`BokehEngine` und :class:`ResonanceEngine` bleiben für direkte Aufrufer importierbar, sind aber keine Menüoptionen oder Factory-Einträge mehr."
+    }
+  ],
+  "schema": 1
+}

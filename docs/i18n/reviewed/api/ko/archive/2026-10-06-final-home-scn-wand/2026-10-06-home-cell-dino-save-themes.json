@@ -1,0 +1,184 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "local official Cell-DINO weights file.",
+      "label": "spacr.embeddings.EmbeddingSpec#10",
+      "source": "local official Cell-DINO weights file.",
+      "source_sha256": "53386e74c46b50cecda27126272be98357fd9ec1dabc41b1648d3073357f9684",
+      "translation": "로컬 공식 Cell-DINO 가중치 파일."
+    },
+    {
+      "context": "expected SHA-256 of those weights.",
+      "label": "spacr.embeddings.EmbeddingSpec#11",
+      "source": "expected SHA-256 of those weights.",
+      "source_sha256": "077f55c09feda8470f10dc7d6e501ae69fb13b4409ac44016562db19ff6be7cb",
+      "translation": "해당 가중치의 예상 SHA-256 다이제스트."
+    },
+    {
+      "context": "pinned official Cell-DINO hub factory.",
+      "label": "spacr.embeddings.EmbeddingSpec#9",
+      "source": "pinned official Cell-DINO hub factory.",
+      "source_sha256": "4a20d4766be923e679f6f5357cc9fd026f1a0a738a64970aa498fa4164da2052",
+      "translation": "고정된 리비전의 공식 Cell-DINO 허브 모델 생성 함수."
+    },
+    {
+      "context": "Return the official DINOv2 head output for each declared extracted image region.",
+      "label": "spacr.embeddings._cell_dino_model.forward#0",
+      "source": "Return the official DINOv2 head output for each declared crop.",
+      "source_sha256": "c0dbc7964439937a20c641ca29b2d0a200a527c6409e5608df3e4a04d6ac910d",
+      "translation": "지정한 각 크롭에 대해 공식 DINOv2 헤드 출력을 반환합니다."
+    },
+    {
+      "context": "Encode declared Cell-DINO image layers at the official extracted image region size.",
+      "label": "spacr.embeddings._foundation_encoder.run#0",
+      "source": "Encode declared Cell-DINO planes at the official crop size.",
+      "source_sha256": "a374c657c27f1dd319a48f3905e3f63345f9292de80490a1a0607491219fd0c2",
+      "translation": "지정한 Cell-DINO 영상 평면을 공식 크롭 크기로 인코딩합니다."
+    },
+    {
+      "context": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Cell-DINO uses the declared local checkpoint only when stable regular-file bytes match its expected SHA-256; changed or mismatched files leave no digest. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+      "label": "spacr.embeddings.encoder_entry#2",
+      "source": "The entry records the backbone, channel policy and digest of readable local checkpoint bytes without downloading or loading a model. Public backbones use timm cache metadata; OpenPhenom and ChAda-ViT use pinned Hugging Face revisions; SubCell uses its official torch hub checkpoint; a local DINO encoder uses its configured checkpoint path. Cell-DINO uses the declared local checkpoint only when stable regular-file bytes match its expected SHA-256; changed or mismatched files leave no digest. Foundation entries name the original provider and checkpoint URL. A checksum alone does not verify a model or establish its training-data provenance.",
+      "source_sha256": "756fd05b01a6407877721c11629ead97cc0c6add53dd8e0c4ca22768eabee756",
+      "translation": "이 항목은 모델을 다운로드하거나 로드하지 않고 백본, 채널 정책 및 읽을 수 있는 로컬 체크포인트 바이트의 해시를 기록합니다. 공개 백본은 timm 캐시 메타데이터를 사용하고, OpenPhenom과 ChAda-ViT는 고정된 Hugging Face 리비전을 사용하며, SubCell은 공식 torch hub 체크포인트를 사용합니다. 로컬 DINO 인코더는 설정된 체크포인트 경로를 사용합니다. 파운데이션 모델 항목에는 원래 제공자와 체크포인트 URL이 표시됩니다. 체크섬만으로는 모델이 검증되지 않으며 학습 데이터의 출처도 입증되지 않습니다. Cell-DINO는 일반 파일의 바이트가 안정적이고 예상 SHA-256과 일치할 때만 지정된 로컬 체크포인트를 사용합니다. 변경되었거나 일치하지 않는 파일에는 다이제스트를 기록하지 않습니다."
+    },
+    {
+      "context": "Ten night palettes and six separate data-art presets.",
+      "label": "spacr.qt.night_themes#0",
+      "retired": true,
+      "retired_reason": "2026-10-06 Home radius/native-watch source replaces this exact block; complete original review is archived byte-exact.",
+      "source": "Ten night palettes and six separate data-art presets.",
+      "source_sha256": "6a3c505fd2f2c4c4dc8ecd8bbf827ae5dcba1a9d17f440d47a480cf1889d35eb",
+      "translation": "열 가지 야간 팔레트와 별도의 데이터 아트 프리셋 여섯 가지."
+    },
+    {
+      "context": "The data-art catalog appends six independent palette presets. Its keys select distinct ambient producers and existing sound sets without changing the ten original night identities. Its explicit colour overrides retain the night palettes' stable status hues and are checked by the same contrast and page-separation rules.",
+      "label": "spacr.qt.night_themes#7",
+      "source": "The data-art catalog appends six independent palette presets. Its keys select distinct ambient producers and existing sound sets without changing the ten original night identities. Its explicit colour overrides retain the night palettes' stable status hues and are checked by the same contrast and page-separation rules.",
+      "source_sha256": "09a39a86949b19824039f60e3527119b3a05dcbc42c6ca0a9dd37d9c9e7ba1e5",
+      "translation": "데이터 아트 카탈로그는 독립적인 팔레트 프리셋 여섯 가지를 추가합니다. 각 키는 서로 다른 동적 배경 생성기와 기존 사운드 세트를 선택하며 원래 야간 테마 열 가지의 식별자를 바꾸지 않습니다. 명시적인 색상 재정의는 야간 팔레트의 안정적인 상태 색상을 유지하며 동일한 대비 및 페이지 구분 규칙으로 검사됩니다."
+    },
+    {
+      "context": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | the six data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night or data-art preset also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+      "label": "spacr.qt.preferences#7",
+      "source": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | the six data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night or data-art preset also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+      "source_sha256": "cefb6727bdbc0558f7a7bdd4f51a2d7a06cf3da8e52906872c11ca5b516a0c3c",
+      "translation": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` 의 야간 테마 열 가지 중 하나 | :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` 의 데이터 아트 프리셋 여섯 가지 | ``\"system\"`` (기본값 ``\"dark\"``). ``\"system\"`` 은 운영 체제의 색상 구성을 따르지만 사용자가 선택한 이후에만 적용됩니다. 어두운 테마가 기본값이 되기 전(2026-09-21)에 저장된 ``\"system\"`` 은 사용자의 선택이 아닌 이전 기본값이므로 ``\"dark\"`` 로 읽습니다. :func:`get_theme` 을 참조하세요. ``\"cell\"`` 은 형광 이미지를 사용하고 ``\"glass\"`` 는 내장된 라이트 필드 위에 중립적인 다층 재질을 사용합니다. 야간 또는 데이터 아트 프리셋은 배경과 사운드 세트도 포함하며 선택 시 :func:`apply_night_theme` 이 이를 저장합니다. Space는 선택할 수 있는 테마가 아닙니다. 폐기된 ``space_variant`` 및 ``space_seed`` 값은 테마를 처음 읽을 때 이전 저장 설정에서 제거됩니다. :func:`get_theme` 을 참조하세요."
+    },
+    {
+      "context": "Select a local colour and activate the custom palette on save.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_color#0",
+      "source": "Select a local colour and activate the custom palette on save.",
+      "source_sha256": "46d2013e31dda9b983a76b58e64b1bd21edcc18923acfb82b7920bb95c7b5cc9",
+      "translation": "로컬 색상을 선택하고 저장할 때 사용자 팔레트를 활성화합니다."
+    },
+    {
+      "context": "Show the pending colour pair while preserving dialog cancellation.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._refresh_custom_colors#0",
+      "source": "Show the pending colour pair while preserving dialog cancellation.",
+      "source_sha256": "3a1d9b7ed75dca141d330c4b70bd187fd97d2d9c0a86010261a356c2c4edb71f",
+      "translation": "대기 중인 색상 쌍을 표시하면서 대화상자 취소 동작을 유지합니다."
+    },
+    {
+      "context": "Offer custom colours for the six procedural data-art scenes.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors#0",
+      "source": "Offer custom colours for the six procedural data-art scenes.",
+      "source_sha256": "b909f4a7577a09c584074396f7c10ebab346d1196dab90042b165982a7f4ddc2",
+      "translation": "여섯 가지 절차적 데이터 아트 장면에 사용자 색상을 제공합니다."
+    },
+    {
+      "context": "Rebuild the new plate's grid before presenting its matches.",
+      "label": "spacr.qt.screens.annotate.AnnotateScreen._on_similar_result_plate.show_source_hits#0",
+      "source": "Rebuild the new plate's grid before presenting its matches.",
+      "source_sha256": "b1454aa1cc23aff76b0d84ddfdb1a6079a902c719575dbf90257aad6feba83c5",
+      "translation": "일치 결과를 표시하기 전에 새 플레이트의 영상 격자를 다시 만듭니다."
+    },
+    {
+      "context": "A screen, not a script. The upstream Cell-DINO, OpenPhenom and SubCell models expose Python interfaces. This screen also accepts an explicitly mapped, digest-verified local official Cell-DINO checkpoint.",
+      "label": "spacr.qt.screens.embeddings#1",
+      "source": "A SCREEN, NOT A SCRIPT. The upstream Cell-DINO, OpenPhenom and SubCell models expose Python interfaces. This screen also accepts an explicitly mapped, digest-verified local official Cell-DINO checkpoint.",
+      "source_sha256": "86683c03831d2716325ffbd47fd72776568cdfa410d85311d5c17dfe44d296c7",
+      "translation": "스크립트가 아닌 화면입니다. 원래 Cell-DINO, OpenPhenom, SubCell 모델은 Python 인터페이스를 제공합니다. 이 화면은 명시적 채널 매핑과 검증된 다이제스트가 있는 로컬 공식 Cell-DINO 체크포인트도 받습니다."
+    },
+    {
+      "context": "**What it produces.** One row per object and one column per dimension, named ``emb_c<channel>_<dimension>`` under the per-channel policy and ``emb_<dimension>`` under projection, with the model-zoo entry that made them -- backbone, policy and the checksum of the weights on this machine. Two processing sessions' dimension 17 are the same number and not the same thing unless all three match, which is why the entry is part of the result rather than a log line. The preview shows the first few dimensions of the first fifty objects. The alpha Save for Similar extracted image regions action stores the complete matrix in the database that supplied the loaded objects, so Annotate can search those vectors. Folder and programmatically supplied extracted image regions have no database object identity and cannot use this action.",
+      "label": "spacr.qt.screens.embeddings#5",
+      "source": "**What it produces.** One row per object and one column per dimension, named ``emb_c<channel>_<dimension>`` under the per-channel policy and ``emb_<dimension>`` under projection, with the model-zoo entry that made them -- backbone, policy and the checksum of the weights on this machine. Two runs' dimension 17 are the same number and not the same thing unless all three match, which is why the entry is part of the result rather than a log line. The preview shows the first few dimensions of the first fifty objects. The alpha Save for Similar crops action stores the complete matrix in the database that supplied the loaded objects, so Annotate can search those vectors. Folder and programmatically supplied crops have no database object identity and cannot use this action.",
+      "source_sha256": "4ccc404722a0e9d9e860e72721d87359477adb0fd4f13a1685ca53ece8c63875",
+      "translation": "**생성 결과.** 객체마다 한 행, 차원마다 한 열이며, 채널별 정책에서는 ``emb_c<channel>_<dimension>``, 투영에서는 ``emb_<dimension>``으로 이름을 붙입니다. 이를 만든 모델 카탈로그 항목에는 백본, 정책, 이 컴퓨터에 있는 가중치의 체크섬이 담깁니다. 두 실행의 차원 17은 이름이 같아도 세 가지가 모두 일치해야 의미가 같습니다. 그래서 모델 항목은 단순한 로그가 아니라 결과의 일부입니다. 미리보기는 처음 오십 객체의 처음 몇 차원을 보여 줍니다. 알파 기능인 유사 크롭용 저장은 불러온 객체의 원본 데이터베이스에 전체 행렬을 저장하여 Annotate가 해당 벡터를 검색하도록 합니다. 폴더나 프로그램 코드에서 제공한 크롭에는 데이터베이스 객체 식별 정보가 없으므로 이 기능을 사용할 수 없습니다."
+    },
+    {
+      "context": "Keep only plain configuration values after the form closes.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.accept_mapping#0",
+      "source": "Keep only plain configuration values after the form closes.",
+      "source_sha256": "8591452059e7055f6313220c494a847dadf8ba8e8e73a88687ff09ba6a66a06d",
+      "translation": "양식이 닫힌 뒤 일반 설정값만 유지합니다."
+    },
+    {
+      "context": "Choose local weights without downloading or accepting terms.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.choose_file#0",
+      "source": "Choose local weights without downloading or accepting terms.",
+      "source_sha256": "11671e83d848d13acaf37d53c326e92ad29195643eba89c59259c7be4d86a9c9",
+      "translation": "다운로드하거나 약관을 수락하지 않고 로컬 가중치를 선택합니다."
+    },
+    {
+      "context": "The fifth image layer belongs only to the Cell Painting factory.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width#0",
+      "source": "The fifth plane belongs only to the Cell Painting factory.",
+      "source_sha256": "2b3cd3083193a0145b3b93d59a33553eca839b71741859d2a73464058843bd8d",
+      "translation": "다섯 번째 평면은 Cell Painting 모델 생성 함수에만 해당합니다."
+    },
+    {
+      "context": "A newer extracted image region selection keeps its own status and controls.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.finished#0",
+      "source": "A newer crop selection keeps its own status and controls.",
+      "source_sha256": "036efa6e9a1898f018f2c164935673cc64590df8e21756a1c55c2d7da9cc94c0",
+      "translation": "새로운 크롭 선택은 자체 상태와 컨트롤을 유지합니다."
+    },
+    {
+      "context": "Persist vectors without blocking the graphical thread.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.work#0",
+      "source": "Persist vectors without blocking the graphical thread.",
+      "source_sha256": "2cc5102e4547028891243e8bfd3e32b2122ef8c632d9f1d0d278361fe65bfd59",
+      "translation": "그래픽 인터페이스 스레드를 막지 않고 벡터를 영구 저장합니다."
+    },
+    {
+      "context": "Publish only to the extracted image region selection that produced the vectors.",
+      "label": "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.finished#0",
+      "source": "Publish only to the crop selection that produced the vectors.",
+      "source_sha256": "9b7c14669caf17d81909e0a80fc7e9091732a8af382f0f601b76259e28a95f6a",
+      "translation": "벡터를 생성한 크롭 선택에만 결과를 게시합니다."
+    },
+    {
+      "context": "spaCR ships several themes, and a blob set tuned only for a near-black page turns to mud on a white one. So the *composition mode follows the background*:",
+      "label": "spacr.qt.widgets.ambient#11",
+      "source": "spaCR ships several themes, and a blob set tuned only for a near-black page turns to mud on a white one. So the *composition mode follows the background*:",
+      "source_sha256": "4589ef5131fad8eb75ae52ff32c51ed2b3edb481945e5b697f6e44b0f3e54742",
+      "translation": "spaCR는 여러 테마를 제공합니다. 거의 검은 페이지에만 맞춘 블롭은 흰 페이지에서 흐릿해집니다. 따라서 *합성 모드는 배경을 따릅니다*:"
+    },
+    {
+      "context": "Five classic themes remain in the menu alongside six data-art materials, each chosen to read as a different kind of movement:",
+      "label": "spacr.qt.widgets.ambient#2",
+      "source": "Five classic themes remain in the menu alongside six data-art materials, each chosen to read as a different kind of movement:",
+      "source_sha256": "bab01d52b8ab4d7ad2275976062103995d5e3d0aab50ab79cdb5f23985c0c1b7",
+      "translation": "메뉴에는 클래식 테마 다섯 가지와 데이터 아트 재질 여섯 가지가 남아 있으며, 각각 서로 다른 움직임을 나타내도록 선택했습니다:"
+    },
+    {
+      "context": "``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``ripple`` Concentric rings expanding out of three fixed sources and fading as they grow, like rain on water. Soft-edged, so it never reads as line work. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`. ``cells`` Cells drifting through the field, turning as they go — a soft body, a slightly brighter membrane where the edge is seen nearly edge-on, and a distinctly brighter nucleus set off centre. The older :class:`BokehEngine` and :class:`ResonanceEngine` remain importable for direct callers, but are no longer menu choices or factory entries.",
+      "label": "spacr.qt.widgets.ambient#5",
+      "source": "``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``ripple`` Concentric rings expanding out of three fixed sources and fading as they grow, like rain on water. Soft-edged, so it never reads as line work. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`. ``cells`` Cells drifting through the field, turning as they go — a soft body, a slightly brighter membrane where the edge is seen nearly edge-on, and a distinctly brighter nucleus set off centre. The older :class:`BokehEngine` and :class:`ResonanceEngine` remain importable for direct callers, but are no longer menu choices or factory entries.",
+      "source_sha256": "9f8ebf5cd677f5ef47e1da4d6fdafec8fdf0b1baa30d1f1cc5dfaa93ae1e3012",
+      "translation": "``aurora`` 세로 광선으로 된 세 겹의 커튼이 자신의 길이를 따라 접힙니다. 접힘은 진행파 — 호를 따라 길이 방향으로 흐르는 여러 겹친 주파수 — 이며, 별도의 일정으로 밝기가 솟구치고, 아래 가장자리는 선명하고 위쪽은 흐릿하며, 실제 오로라처럼 세로 색 순서를 따릅니다: 몸통은 녹색, 높은 곳은 빨강, 아래쪽은 보라색 테두리. ``ripple`` 고정된 세 원천에서 퍼져 나가며 커질수록 옅어지는 동심원으로, 물 위의 비와 같습니다. 가장자리가 부드러워 선 그림으로 보이지 않습니다. ``drift`` 세 개의 시차 층으로 된 느린 별 무리: 뒤에는 작고 어둡고 느린 별, 앞에는 크고 밝고 빠른 별. 유일하게 선명한 테마입니다. 위로, 아래로, 또는 사방으로 이동합니다 — :data:`DRIFT_DIRECTIONS` 를 참조하십시오. ``cells`` 현미경 시야를 떠다니며 회전하는 세포 — 부드러운 몸통, 가장자리가 거의 옆면으로 보이는 곳에서 조금 더 밝은 막, 그리고 중심에서 벗어나 뚜렷하게 더 밝은 핵. 이전의 :class:`BokehEngine` 및 :class:`ResonanceEngine`은 직접 호출할 경우 계속 가져올 수 있지만, 더 이상 메뉴 옵션이나 생성 레지스트리 항목은 아닙니다."
+    },
+    {
+      "context": "There is also a private ``fractal`` engine: it is not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it, and the only way to see it is to start the application with the ``spaceout`` command instead of ``spacr``. See :data:`SPACEOUT_THEME` and :class:`FractalEngine`.",
+      "label": "spacr.qt.widgets.ambient#6",
+      "source": "There is also a private ``fractal`` engine: it is not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it, and the only way to see it is to start the application with the ``spaceout`` command instead of ``spacr``. See :data:`SPACEOUT_THEME` and :class:`FractalEngine`.",
+      "source_sha256": "5cd70fb1942de055b76f914c68f1c3150eaec5ad056f43177191453c8f6a3e8c",
+      "translation": "비공개 ``fractal`` 엔진도 있습니다. :data:`AMBIENT_THEMES`에 없고, 메뉴에 표시되지 않으며, 환경설정에 저장할 수 없습니다. 이를 보려면 애플리케이션을 ``spaceout`` 명령으로 시작해야 하며, ``spacr``로는 볼 수 없습니다. :data:`SPACEOUT_THEME` 및 :class:`FractalEngine`을 참조하세요."
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff",
+  "schema": 1
+}

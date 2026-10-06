@@ -1,0 +1,2013 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.channel_sorting#0",
+      "source": "Sort a folder of images (and their masks) into channels, rename, and merge.",
+      "source_sha256": "458486111a916fa7f202695e21a73c8a966addc639b4f85fedced23026a42feb",
+      "context": "Sort a folder of images (and their masks) into image data channels, rename, and merge.",
+      "translation": "이미지 폴더(와 그 마스크)를 채널별로 정리하고 이름을 바꾼 뒤 병합합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting#1",
+      "source": "The case this module exists for: masks were drawn in Make Masks on a folder holding two kinds of image at once -- nucleus-stain images with nucleus masks and cell-stain images with cell masks, say -- and those have to become one multi-channel field per position, in the layout spaCR's Mask/Measure pipeline reads.",
+      "source_sha256": "1434b3d91d4e9a6b2d0a0b02c5dd84aad621be24cdc3bc9f182b24d1a49a3db3",
+      "context": "The case this module exists for: masks were drawn in Make Masks on a folder holding two kinds of image at once -- nucleus-stain images with nucleus masks and cell-stain images with cell masks, say -- and those have to become one multi-image data channel microscope field of view per position, in the layout spaCR's Mask/Measure workflow reads.",
+      "translation": "이 모듈이 필요한 경우는 이렇습니다. Make Masks 에서 두 종류의 이미지가 한꺼번에 든 폴더에 마스크를 그렸고(예를 들어 핵 마스크가 있는 핵 염색 이미지와 세포 마스크가 있는 세포 염색 이미지), 이것을 spaCR 의 Mask/Measure 파이프라인이 읽는 구조대로 위치마다 하나의 다채널 시야로 만들어야 합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting#2",
+      "source": "It happens in three separate steps, and nothing is moved until the last:",
+      "source_sha256": "0336d5e9eaf39d7e23221368495964995f8d2aad7b920afe462d0e1fd0a68b48",
+      "context": "It happens in three separate steps, and nothing is moved until the last:",
+      "translation": "이 작업은 세 단계로 나뉘며, 마지막 단계 전에는 아무것도 옮기지 않습니다:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting#3",
+      "source": "1. **Channels and sets.** Each image gets a CHANNEL, and images that show the same field in different channels share a SET. Channels come from the user's selection (:func:`parse_names` ``channels=``) or from a regex's ``chanID`` group; sets come from the regex's other named groups (:func:`parse_names`, checked by :func:`check_sets`), from a regex spaCR proposes (:func:`infer_regex`), or, ignoring names, from pairing each image with the most similar image of the same size in every other channel (:func:`detect_sets`). 2. **The plan.** :func:`build_plan` names every set in the Yokogawa / CellVoyager form ``plate1_A01_T0001F001L01A01Z01C01.tif`` -- exactly what ``spacr.utils._get_regex('cellvoyager', ...)`` parses -- and lists every move. It writes nothing. 3. **Apply.** :func:`apply_plan` moves each image into ``C01/``, ``C02/``... under a new folder, its mask into that channel folder's ``masks/`` under the new name (and its ``.curation.json`` ledger with it, so the pairing survives), records every move in ``channel_sorting_manifest.csv``, and then :func:`merge_sorted` builds ``stack/``, ``masks/<role>_mask_stack/`` and ``merged/`` with spaCR's own functions (:func:`spacr.utils._extract_filename_metadata`, :func:`spacr.io._escaped_field_stem` and :func:`spacr.io._load_and_concatenate_arrays`), so each merged array has the pipeline's own layout: intensity channels first, then one label plane per mask role in the order cell, nucleus, pathogen.",
+      "source_sha256": "d5befb1360f1394b0ee9ab328fd16c648a682117f96041ecd2d89ac63d8f3b8d",
+      "context": "1. **Image data channels and sets.** Each image gets an image data channel, and images that show the same microscope field of view in different image data channels share a SET. image data channels come from the user's selection (:func:`parse_names` ``channels=``) or from a regex's ``chanID`` group; sets come from the regex's other named groups (:func:`parse_names`, checked by :func:`check_sets`), from a regex spaCR proposes (:func:`infer_regex`), or, ignoring names, from pairing each image with the most similar image of the same size in every other image data channel (:func:`detect_sets`). 2. **The plan.** :func:`build_plan` names every set in the Yokogawa / CellVoyager form ``plate1_A01_T0001F001L01A01Z01C01.tif`` -- exactly what ``spacr.utils._get_regex('cellvoyager', ...)`` parses -- and lists every move. It writes nothing. 3. **Apply.** :func:`apply_plan` moves each image into ``C01/``, ``C02/``... under a new folder, its mask into that image data channel folder's ``masks/`` under the new name (and its ``.curation.json`` ledger with it, so the pairing survives), records every move in ``channel_sorting_manifest.csv``, and then :func:`merge_sorted` builds ``stack/``, ``masks/<role>_mask_stack/`` and ``merged/`` with spaCR's own functions (:func:`spacr.utils._extract_filename_metadata`, :func:`spacr.io._escaped_field_stem` and :func:`spacr.io._load_and_concatenate_arrays`), so each merged array has the workflow's own layout: intensity image data channels first, then one label image layer per mask role in the order cell, nucleus, pathogen.",
+      "translation": "1. **채널과 세트.** 각 이미지는 채널을 하나 받고, 같은 시야를 서로 다른 채널로 보여 주는 이미지들은 하나의 세트를 공유합니다. 채널은 사용자의 선택(:func:`parse_names` ``channels=``) 또는 정규식의 ``chanID`` 그룹에서 오고, 세트는 정규식의 다른 이름 있는 그룹(:func:`parse_names`, :func:`check_sets` 로 검사), spaCR 이 제안하는 정규식(:func:`infer_regex`), 또는 이름을 무시하고 다른 모든 채널에서 크기가 같은 가장 비슷한 이미지와 각 이미지를 짝지은 결과(:func:`detect_sets`)에서 옵니다. 2. **계획.** :func:`build_plan` 은 모든 세트에 Yokogawa / CellVoyager 형식 ``plate1_A01_T0001F001L01A01Z01C01.tif`` 로 이름을 붙이고(정확히 ``spacr.utils._get_regex('cellvoyager', ...)`` 가 해석하는 형식) 모든 이동을 나열합니다. 아무것도 기록하지 않습니다. 3. **적용.** :func:`apply_plan` 은 각 이미지를 새 폴더 아래 ``C01/``, ``C02/``... 로, 그 마스크는 새 이름으로 해당 채널 폴더의 ``masks/`` 로 옮기고(짝이 유지되도록 ``.curation.json`` 기록도 함께), 모든 이동을 ``channel_sorting_manifest.csv`` 에 기록한 다음, :func:`merge_sorted` 가 ``stack/``, ``masks/<role>_mask_stack/``, ``merged/`` 를 spaCR 자체 함수(:func:`spacr.utils._extract_filename_metadata`, :func:`spacr.io._escaped_field_stem`, :func:`spacr.io._load_and_concatenate_arrays`)로 만듭니다. 그래서 병합된 각 배열은 파이프라인 고유의 구조를 가집니다. 먼저 강도 채널이 오고, 그다음 세포, 핵, 병원체 순서로 마스크 역할마다 레이블 평면 하나가 옵니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting#4",
+      "source": "Regex conventions: ``chanID`` is the channel; ``plateID``, ``wellID``, ``fieldID`` and ``timeID`` say where a set goes; any other named group only helps tell sets apart. A group that did not take part in a match counts as the empty string, so an optional ``(?:_(?P<fieldID>\\d+))?`` reads the numbered copies :mod:`spacr.folder_consolidation` makes.",
+      "source_sha256": "56bf30057b1bd4c91b78b73e1297955ec3d9606b193049ede87afcc859d56685",
+      "context": "Regex conventions: ``chanID`` is the channel; ``plateID``, ``wellID``, ``fieldID`` and ``timeID`` say where a set goes; any other named group only helps tell sets apart. A group that did not take part in a match counts as the empty string, so an optional ``(?:_(?P<fieldID>\\d+))?`` reads the numbered copies :mod:`spacr.folder_consolidation` makes.",
+      "translation": "정규식 규칙: ``chanID`` 는 채널이고, ``plateID``, ``wellID``, ``fieldID``, ``timeID`` 는 세트가 들어갈 위치를 나타내며, 그 밖의 이름 있는 그룹은 세트를 구분하는 데만 도움이 됩니다. 일치에 참여하지 않은 그룹은 빈 문자열로 취급하므로, 선택적인 ``(?:_(?P<fieldID>\\d+))?`` 는 :mod:`spacr.folder_consolidation` 이 만드는 번호 붙은 사본을 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ApplyResult#0",
+      "source": "What :func:`apply_plan` did.",
+      "source_sha256": "90477d55cb26b1a9986a6668ff4e6d077c2a3feb8375cc741acbeb8112d25a6e",
+      "context": "What :func:`apply_plan` did.",
+      "translation": ":func:`apply_plan` 이 한 일입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ApplyResult#1",
+      "source": "the folder written.",
+      "source_sha256": "6a8e2856439fbdadc0e6aa818324bbe5fe2b1a401e86dd047e82c294343ec8fa",
+      "context": "the folder written.",
+      "translation": "기록된 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ApplyResult#2",
+      "source": "the move/rename record.",
+      "source_sha256": "0340678cb12ae9ed1a71ba972d0cad25cc37508e93c460cee5825afc011c9190",
+      "context": "the move/rename record.",
+      "translation": "이동 및 이름 변경 기록입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ApplyResult#3",
+      "source": "files moved (images, masks and ledgers).",
+      "source_sha256": "65f1f7d074d5e1ded795ffe1e3e4217a15f3873980832a88c61e608630e49574",
+      "context": "files moved (images, masks and ledgers).",
+      "translation": "옮긴 파일(이미지, 마스크, 기록)입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ApplyResult#4",
+      "source": "``stack/*.npy`` written.",
+      "source_sha256": "f272dbcb8b6307c55afa36956f61a949145f0eb12a83bfa7202804176e813555",
+      "context": "``stack/*.npy`` written.",
+      "translation": "기록된 ``stack/*.npy`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ApplyResult#5",
+      "source": "``merged/*.npy`` written.",
+      "source_sha256": "9942dcfc9a2604567dd386208bbe44bda76e2657347b59304f593a5fe80b4d11",
+      "context": "``merged/*.npy`` written.",
+      "translation": "기록된 ``merged/*.npy`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.DetectedSets#0",
+      "source": "What :func:`detect_sets` paired.",
+      "source_sha256": "c71eef9afa1dc57fae88e6678160741152450c9a3bac0b37729be532386e6356",
+      "context": "What :func:`detect_sets` paired.",
+      "translation": ":func:`detect_sets` 가 짝지은 결과입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.DetectedSets#1",
+      "source": "``{set key: {channel: name}}``, keyed ``((\"set\", \"000001\"),)``.",
+      "source_sha256": "a9b74a246e5ab8bbd8883957a4149829b5b149d128696d338f4c983fc72384bc",
+      "context": "``{set key: {channel: name}}``, keyed ``((\"set\", \"000001\"),)``.",
+      "translation": "``{set key: {channel: name}}`` 이며, 키는 ``((\"set\", \"000001\"),)`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.DetectedSets#2",
+      "source": "images left without a partner in some channel.",
+      "source_sha256": "0f1fbe5b2695ea02260205298bad78a95cee4ea45442b6565821f07904f4d96f",
+      "context": "images left without a partner in some image data channel.",
+      "translation": "어떤 채널에서 짝을 찾지 못한 이미지입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.DetectedSets#3",
+      "source": "reasons the pairing cannot be used as it is.",
+      "source_sha256": "d18ca06cab2ffe0f689b55c93f55d364320b3aa9f06fa870d9369b184c1b2f4a",
+      "context": "reasons the pairing cannot be used as it is.",
+      "translation": "짝지은 결과를 그대로 쓸 수 없는 이유입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ParsedName#0",
+      "source": "One image name read through a regex.",
+      "source_sha256": "6f1d9cc0ab2be05fb75ed49260c4eedd624b5535b029e97db6c5ed4defcbe418",
+      "context": "One image name read through a regex.",
+      "translation": "정규식으로 읽은 이미지 이름 하나입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ParsedName#1",
+      "source": "the file name.",
+      "source_sha256": "984ff85dca71135cfe899d5268967048467c5263f66252c94aabeb06bf728333",
+      "context": "the file name.",
+      "translation": "파일 이름입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ParsedName#2",
+      "source": "whether the regex matched it.",
+      "source_sha256": "4590707f4c7f60df9680c624f8a4501d6624a871a05b8db2964c44778f17e7d4",
+      "context": "whether the regex matched it.",
+      "translation": "정규식이 이 이름과 일치했는지 여부입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ParsedName#3",
+      "source": "every named group's value; one that did not take part is the empty string.",
+      "source_sha256": "68a9e1b701354398d0315e348cc07b55cbb63197323eed2de17a5b559e7dee0e",
+      "context": "every named group's value; one that did not take part is the empty string.",
+      "translation": "이름 있는 각 그룹의 값입니다. 참여하지 않은 그룹은 빈 문자열입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ParsedName#4",
+      "source": "the 1-based channel, from the selection or ``chanID``; None when neither gives one.",
+      "source_sha256": "e4ec6b68aa18e0907527b7f5c6a6855791db18c2a4af808077fd8e5285a9e4e4",
+      "context": "the 1-based channel, from the selection or ``chanID``; None when neither gives one.",
+      "translation": "1 부터 센 채널로, 선택 또는 ``chanID`` 에서 옵니다. 둘 다 없으면 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.ParsedName#5",
+      "source": "the set the image belongs to; None when unmatched.",
+      "source_sha256": "3f3e78ebaf1d2e57167e56fca69089eb61ad8c6d3f90f0bc76c36cb3f3bb2fca",
+      "context": "the set the image belongs to; None when unmatched.",
+      "translation": "이미지가 속한 세트입니다. 일치하지 않으면 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#0",
+      "source": "One image to move, with its mask and the mask's ledger.",
+      "source_sha256": "2c06b49eee676f7b73d7ba4d3ef99dc71fafb14d90486b08267ff405787e18a5",
+      "context": "One image to move, with its mask and the mask's ledger.",
+      "translation": "옮길 이미지 하나와 그 마스크, 마스크의 기록입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#1",
+      "source": "1-based channel.",
+      "source_sha256": "f9b85205a521c8b78d55322be64e766a83972789f54fc28e7834dc714009ed5d",
+      "context": "1-based channel.",
+      "translation": "1 부터 센 채널입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#10",
+      "source": "``\"rgb\"`` or ``\"zstack\"`` when the image is written as one converted 2-D plane (the original is kept under ``originals/``).",
+      "source_sha256": "f621f5a3acf1478b90563db5517900225e5c163e92139602dce88d3796205fcc",
+      "context": "``\"rgb\"`` or ``\"zstack\"`` when the image is written as one converted 2-D image layer (the original is kept under ``originals/``).",
+      "translation": "이미지를 변환된 2-D 평면 하나로 기록할 때 ``\"rgb\"`` 또는 ``\"zstack\"`` 입니다(원본은 ``originals/`` 아래에 보관).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#2",
+      "source": "the set's place.",
+      "source_sha256": "5853d75e7105622c7e1021adae830466adb9b67a41fd898828f8bde15656a57c",
+      "context": "the set's place.",
+      "translation": "세트의 자리입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#3",
+      "source": "the set the image is in.",
+      "source_sha256": "53b7dd7a7246224f4ba3dfc2b430ebd0e963f08eb51d682093499db519732f94",
+      "context": "the set the image is in.",
+      "translation": "이미지가 속한 세트입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#4",
+      "source": "current image path.",
+      "source_sha256": "3016071957a2806f20ff98f29071af1d90b41fdeeb159484807600e94a1eb87c",
+      "context": "current image path.",
+      "translation": "현재 이미지 경로입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#5",
+      "source": "where it goes.",
+      "source_sha256": "33831bee7a9e78464fbd7503df8522b1d205fce7da415b3123107f7b366c6aad",
+      "context": "where it goes.",
+      "translation": "이미지가 갈 곳입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#6",
+      "source": "current mask path, or None.",
+      "source_sha256": "65d0bccb8efb9116009324ba4facefb49f833760a3f43eb9b04040f288daaec6",
+      "context": "current mask path, or None.",
+      "translation": "현재 마스크 경로, 또는 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#7",
+      "source": "where the mask goes, or None.",
+      "source_sha256": "a0c6e24419f745c52cc2a10a1874c4ee86d14b6d91a7f46ec0220c6ab267ae68",
+      "context": "where the mask goes, or None.",
+      "translation": "마스크가 갈 곳, 또는 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#8",
+      "source": "the mask's ``.curation.json``, or None.",
+      "source_sha256": "10484b5526c41557b5e92888836c03cfde7a3f541aafb1a98a34513494239e3f",
+      "context": "the mask's ``.curation.json``, or None.",
+      "translation": "마스크의 ``.curation.json``, 또는 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.PlanRow#9",
+      "source": "where the ledger goes, or None.",
+      "source_sha256": "0353d9672c27d58b4057366015f793fb0a3e503a6eb4d4395afc771fed6a75b6",
+      "context": "where the ledger goes, or None.",
+      "translation": "기록이 갈 곳, 또는 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetName#0",
+      "source": "Where one set goes in the Yokogawa naming.",
+      "source_sha256": "1a9aceb126aff211f6f2cd19a3750e03ac924768927d31d41cd754f8c6d1d1e1",
+      "context": "Where one set goes in the Yokogawa naming.",
+      "translation": "Yokogawa 이름 체계에서 세트 하나가 들어갈 위치입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetName#1",
+      "source": "the plate token, with no underscore.",
+      "source_sha256": "c271aae260b307c480bee7992690adc17ec559e47d6586895fad4d5dd084fe9c",
+      "context": "the plate token, with no underscore.",
+      "translation": "밑줄 없는 플레이트 식별자입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetName#3",
+      "source": "1-based field.",
+      "source_sha256": "ed478660d8fa9467a2cb0ca052fe16b0705451e4e5f413fd69cfe44fe9854114",
+      "context": "1-based field.",
+      "translation": "1 부터 센 시야입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetName#4",
+      "source": "1-based timepoint.",
+      "source_sha256": "b929bd5886ecd32a67096c98062d34badffcf7c48abb8e02cd49ad82793fe111",
+      "context": "1-based timepoint.",
+      "translation": "1 부터 센 시점입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetReport#0",
+      "source": "Whether a set of parsed names forms complete, unique sets.",
+      "source_sha256": "1df44e54e74ad587726f61da20f83fddab66f9ad4b6ec0aa080d4d93726dddf8",
+      "context": "Whether a set of parsed names forms complete, unique sets.",
+      "translation": "해석된 이름들이 완전하고 고유한 세트를 이루는지 여부입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetReport#1",
+      "source": "the channels present, sorted.",
+      "source_sha256": "830087af73577638d0dd6483f4f4bd7357a75c85b6bff1c74ecdb744b2197f95",
+      "context": "the channels present, sorted.",
+      "translation": "존재하는 채널이며, 정렬되어 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetReport#2",
+      "source": "``{set key: {channel: name}}`` for sets with exactly one image in every channel.",
+      "source_sha256": "1c9fbe92bb387f05625615f89c923ce68185a9777bb29b7d0c1eda8b855d1657",
+      "context": "``{set key: {channel: name}}`` for sets with exactly one image in every image data channel.",
+      "translation": "채널마다 이미지가 정확히 하나인 세트에 대한 ``{set key: {channel: name}}`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetReport#4",
+      "source": "``{(set key, channel): [names]}`` -- two images claiming the same place.",
+      "source_sha256": "a682cd1fe2a15697b1c1c2628bbc6a97bb852de89380e9a265775df83512bfd6",
+      "context": "``{(set key, channel): [names]}`` -- two images claiming the same place.",
+      "translation": "``{(set key, channel): [names]}``: 같은 자리를 차지하려는 두 이미지입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetReport#5",
+      "source": "names the regex did not match.",
+      "source_sha256": "271e0a04123a0369f04673cb4c7fdd52b7101f8329ae1d6204c276427cbcad83",
+      "context": "names the regex did not match.",
+      "translation": "정규식과 일치하지 않은 이름입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetReport#6",
+      "source": "matched names with no channel.",
+      "source_sha256": "a6faa9069bb07496a266bdc962c70333bf901251c8f05a7f9053bd1310826b67",
+      "context": "matched names with no channel.",
+      "translation": "일치했지만 채널이 없는 이름입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetReport.ok#0",
+      "source": "True when every image is in exactly one complete set.",
+      "source_sha256": "b556f7c7439955a4b311efa2b57a3273a8b1be65e99a04454947c37a92dbd0b7",
+      "context": "True when every image is in exactly one complete set.",
+      "translation": "모든 이미지가 완전한 세트 하나에만 들어 있으면 True 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SetReport.summary#0",
+      "source": "A few plain lines saying what is and is not right.",
+      "source_sha256": "611d695256be70f7e171f6718b596c633ad25697a2b210d1c159565c9c4fd622",
+      "context": "A few plain lines saying what is and is not right.",
+      "translation": "무엇이 맞고 무엇이 틀린지 알려 주는 간단한 몇 줄입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan#0",
+      "source": "Everything :func:`apply_plan` will do, decided before it does any.",
+      "source_sha256": "00b7c899bc315c108addc02e2113ee9be18958bd699e5c6b2bb5eef34dd8f6f0",
+      "context": "Everything :func:`apply_plan` will do, decided before it does any.",
+      "translation": ":func:`apply_plan` 이 할 모든 일로, 실제로 무언가를 하기 전에 정해집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan#1",
+      "source": "the image folder.",
+      "source_sha256": "6afc3375424d15b350108eb683e32927fee20f17a3d76875c82427d4376b3c47",
+      "context": "the image folder.",
+      "translation": "이미지 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan#2",
+      "source": "the new folder the channels, stacks and ``merged/`` go in.",
+      "source_sha256": "f3bb66bd32cd74675df52cf3dfa919c284df43a3eee51fcae739d557256552d9",
+      "context": "the new folder the channels, stacks and ``merged/`` go in.",
+      "translation": "채널, 스택, ``merged/`` 가 들어갈 새 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan#3",
+      "source": "one per image.",
+      "source_sha256": "c9c9c7bd76336bdf8cbc99e2f75a1281fb8027e70bb197e5f667cf17c706843e",
+      "context": "one per image.",
+      "translation": "이미지마다 하나입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan#4",
+      "source": "channels, sorted.",
+      "source_sha256": "b29d1877be33def0a3f0489ebf16630a17487afd874a466686d315dc34082aa4",
+      "context": "channels, sorted.",
+      "translation": "채널이며, 정렬되어 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan#5",
+      "source": "``{channel: role}`` for channels whose masks are merged.",
+      "source_sha256": "c960491cebcac2488ab96a021f0186cc6d4eb8bd6c7aa5e289361e43c36b6b43",
+      "context": "``{channel: role}`` for image data channels whose masks are merged.",
+      "translation": "마스크를 병합하는 채널에 대한 ``{channel: role}`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan#6",
+      "source": "reasons the plan cannot be applied.",
+      "source_sha256": "f36d4ede262bf84048aa9c123ff72a9e6c7862cf93cea075ff319c74939ae80a",
+      "context": "reasons the plan cannot be applied.",
+      "translation": "계획을 적용할 수 없는 이유입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan#7",
+      "source": "things the user should know before it is.",
+      "source_sha256": "f3b1687c55cc4cb4ab0921f2d25783f4dedf97b2cef335d4b95cf1a91d7866cc",
+      "context": "things the user should know before it is.",
+      "translation": "적용하기 전에 사용자가 알아야 할 사항입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan#8",
+      "source": "RGB images and z-stacks that :func:`build_plan` would convert when asked to (``convert=True``).",
+      "source_sha256": "9fe0cdb630b97ba90463a7cb01b94795995928a57ab6d029796f9bb5ef067d32",
+      "context": "RGB images and z-stacks that :func:`build_plan` would convert when asked to (``convert=True``).",
+      "translation": "RGB 이미지와 z 스택으로, :func:`build_plan` 이 요청받으면(``convert=True``) 변환할 대상입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan.n_sets#0",
+      "source": "How many sets the plan holds.",
+      "source_sha256": "8875d59ceb04b8a5cdbb2d3a3c874eac4d02d4669b34309cda418db6ea3af874",
+      "context": "How many sets the plan holds.",
+      "translation": "계획에 든 세트의 수입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan.ok#0",
+      "source": "True when there is something to do and nothing stops it.",
+      "source_sha256": "548496a9ed91d86260889b50d60ad4c27e1553b905c3af08e4ca5b95b6778e86",
+      "context": "True when there is something to do and nothing stops it.",
+      "translation": "할 일이 있고 막는 것이 없으면 True 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.SortPlan.summary#0",
+      "source": "Plain lines saying what applying the plan will do.",
+      "source_sha256": "7d26a047d111c56705ea146362e8def7fd7cebcc268291ab8568cbcbb80ef5c2",
+      "context": "Plain lines saying what applying the plan will do.",
+      "translation": "계획을 적용하면 무엇이 일어나는지 알려 주는 간단한 줄입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.apply_plan#0",
+      "source": "MOVE the images and masks as planned, then merge.",
+      "source_sha256": "146c0eae586d5ec99dd028c688bb6398ef7b1740aa9a69d1981a9d40eab49308",
+      "context": "MOVE the images and masks as planned, then merge.",
+      "translation": "계획대로 이미지와 마스크를 옮긴 뒤 병합합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.apply_plan#1",
+      "source": "Every move is written to ``<dest>/channel_sorting_manifest.csv`` as it happens, so a run that stops half-way still says which file went where. Nothing is overwritten: every target is checked to be free before the first move.",
+      "source_sha256": "29e95e789da46b73db83881f87758d927a88132bfdbf975d3addbef5b47efc79",
+      "context": "Every move is written to ``<dest>/channel_sorting_manifest.csv`` as it happens, so a run that stops half-way still says which file went where. Nothing is overwritten: every target is checked to be free before the first move.",
+      "translation": "모든 이동은 일어나는 즉시 ``<dest>/channel_sorting_manifest.csv`` 에 기록되므로, 중간에 멈춘 실행도 어느 파일이 어디로 갔는지 알려 줍니다. 아무것도 덮어쓰지 않습니다. 첫 이동 전에 모든 대상이 비어 있는지 확인합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.apply_plan#2",
+      "source": "an ``ok`` plan from :func:`build_plan`.",
+      "source_sha256": "6bd783ca5a7672e861143095394733fc9e7ff1b070dceeea311dec1bba64a113",
+      "context": "an ``ok`` plan from :func:`build_plan`.",
+      "translation": "``ok`` 상태인 :func:`build_plan` 의 계획입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.apply_plan#3",
+      "source": "run :func:`merge_sorted` afterwards.",
+      "source_sha256": "b8fdc5843edc99fc4edf71528d753be7b1a73b18a99e37c7f2b582c0f5217ed1",
+      "context": "run :func:`merge_sorted` afterwards.",
+      "translation": "이후 :func:`merge_sorted` 를 실행합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.apply_plan#4",
+      "source": "called with progress lines; default prints.",
+      "source_sha256": "7db6a5d784a8d50ce0ccef93d7fa6d2b21e2d9e096079a1e6fed6a260d4f5fea",
+      "context": "called with progress lines; default prints.",
+      "translation": "진행 줄과 함께 호출되며, 기본값은 출력입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.apply_plan#6",
+      "source": "when the plan has problems, a source is gone or a target is taken.",
+      "source_sha256": "198dfe1289bda4c083fec92fa4a3c937fbf9957a63a93ba531f9d941b9a9f760",
+      "context": "when the plan has problems, a source is gone or a target is taken.",
+      "translation": "계획에 문제가 있거나, 원본이 없어졌거나, 대상이 이미 차 있을 때 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.apply_plan#7",
+      "source": "when a move fails; the manifest records it and every move before it.",
+      "source_sha256": "81bc508e57c25673eed13005edc46e6b5faf1a6cf1dab33914121d000b8a48a1",
+      "context": "when a move fails; the manifest records it and every move before it.",
+      "translation": "이동이 실패할 때 발생합니다. 매니페스트에는 그 이동과 이전의 모든 이동이 기록됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.build_plan#0",
+      "source": "Decide every move, name and check before anything is touched.",
+      "source_sha256": "a4878591d46edd1a888afa468dcea279bb5a76e69222a995801d21e23e401987",
+      "context": "Decide every move, name and check before anything is touched.",
+      "translation": "아무것도 건드리기 전에 모든 이동, 이름, 검사를 정합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.build_plan#2",
+      "source": "``{set key: {channel: name}}``, complete sets only.",
+      "source_sha256": "2361736aef7fa63deaec9192bdd5133b7327747c69b9093a1b49a11ba8453b88",
+      "context": "``{set key: {channel: name}}``, complete sets only.",
+      "translation": "``{set key: {channel: name}}`` 이며, 완전한 세트만 포함합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.build_plan#3",
+      "source": "an explicit masks folder.",
+      "source_sha256": "03d9ff28d57d5453ff99df39aa4e590eba57d1831246b380b43a22730c5c816e",
+      "context": "an explicit masks folder.",
+      "translation": "명시적으로 지정한 마스크 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.build_plan#4",
+      "source": "``{channel: role}``; ``None`` guesses (:func:`default_mask_roles`); a channel missing from it, or given ``\"none\"``, has its masks moved but not merged.",
+      "source_sha256": "f011c1f5a9daa343616645b60eb89f588c990bbc270384ae28621846dc27a5a1",
+      "context": "``{channel: role}``; ``None`` guesses (:func:`default_mask_roles`); an image data channel missing from it, or given ``\"none\"``, has its masks moved but not merged.",
+      "translation": "``{channel: role}`` 입니다. ``None`` 이면 추측합니다(:func:`default_mask_roles`). 여기에 없는 채널, 또는 ``\"none\"`` 이 지정된 채널은 마스크를 옮기기만 하고 병합하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.build_plan#5",
+      "source": "the new folder; default ``<folder>/sorted_channels``.",
+      "source_sha256": "f4e6a46f4fba0f5d82c2a794dddbd6efd63779d65a04e2552f6201b4286570d8",
+      "context": "the new folder; default ``<folder>/sorted_channels``.",
+      "translation": "새 폴더이며, 기본값은 ``<folder>/sorted_channels`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.build_plan#6",
+      "source": "read each image's and mask's size and refuse a set whose images differ in size, a mask that is not its image's size or an image that is not 2-D.",
+      "source_sha256": "d5ec331991d19d64869eb3b1a422dd5c23c09f03def5404e799d913e04c4091e",
+      "context": "read each image's and mask's size and refuse a set whose images differ in size, a mask that is not its image's size or an image that is not 2-D.",
+      "translation": "각 이미지와 마스크의 크기를 읽고, 이미지 크기가 서로 다른 세트, 이미지와 크기가 다른 마스크, 2-D 가 아닌 이미지를 거부합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.build_plan#8",
+      "source": "write RGB images as grey and z-stacks as their maximum projection instead of refusing them; without it they are listed in :attr:`SortPlan.convertible` so the caller can ask.",
+      "source_sha256": "ea3bd380a00d79b11341a3863a9d3b4ab4d88d1ecdd52bf5eb716a8d9f768202",
+      "context": "write RGB images as grey and z-stacks as their maximum projection instead of refusing them; without it they are listed in :attr:`SortPlan.convertible` so the caller can ask.",
+      "translation": "RGB 이미지는 회색조로, z 스택은 최대 투영으로 기록하며 거부하지 않습니다. 이 옵션이 없으면 호출자가 물어볼 수 있도록 :attr:`SortPlan.convertible` 에 나열됩니다.",
+      "review_basis": "written from the English (no current MT draft)",
+      "rebound_from": "spacr.channel_sorting.build_plan#7"
+    },
+    {
+      "label": "spacr.channel_sorting.canonical_well#0",
+      "source": "``A1``, ``a01`` or ``r01c01`` as ``A01``; None for anything else.",
+      "source_sha256": "73f7258541a9b7c9ee26ceb32cc3e4c7b423593684397f119354222427a60783",
+      "context": "``A1``, ``a01`` or ``r01c01`` as ``A01``; None for anything else.",
+      "translation": "``A1``, ``a01``, ``r01c01`` 을 ``A01`` 로 바꾸며, 그 밖의 것은 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.canonical_well#1",
+      "source": "a well token.",
+      "source_sha256": "d77d1af5cdd15ce1518ae4a02dbe1a5e905783c9a03ce114b2bcc8189cbc3c8f",
+      "context": "a microplate sample position token.",
+      "translation": "웰 식별자입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.check_sets#0",
+      "source": "Group parsed names into sets and report every way they fail to fit.",
+      "source_sha256": "87a6faab11c3cb5374f04d6132ded08777fe346fbc15364f40cb8d4bd484bca9",
+      "context": "Group parsed names into sets and report every way they fail to fit.",
+      "translation": "해석된 이름을 세트로 묶고, 맞지 않는 모든 경우를 보고합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.check_sets#1",
+      "source": "the output of :func:`parse_names`.",
+      "source_sha256": "fb0c1977dcf105a63a130577cdafe0255515d75ee60eb16d0957d55e642ef864",
+      "context": "the output of :func:`parse_names`.",
+      "translation": ":func:`parse_names` 의 출력입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.compile_regex#0",
+      "source": "Compile ``pattern``, or return the error message.",
+      "source_sha256": "8c5ed2493404ad3aa4facb11375b8e12112825aa5c1a36beb41577a5d0b14d35",
+      "context": "Compile ``pattern``, or return the error message.",
+      "translation": "``pattern`` 을 컴파일하거나 오류 메시지를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.compile_regex#1",
+      "source": "the regex text.",
+      "source_sha256": "e993152778207493e9524d9759f22b5f8f0cd4a60bb45b1146cd5e6d76412595",
+      "context": "the regex text.",
+      "translation": "정규식 텍스트입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.compile_regex#2",
+      "source": "``(compiled, None)`` or ``(None, message)``.",
+      "source_sha256": "5e51075ccdc7efc3a21cf1e7584b0530b9d07c24a1815b6f004f84c7c6bba4a3",
+      "context": "``(compiled, None)`` or ``(None, message)``.",
+      "translation": "``(compiled, None)`` 또는 ``(None, message)`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.default_mask_roles#0",
+      "source": "Guess which role each masked channel's masks have.",
+      "source_sha256": "f244e57c58ef4dcda34d41ce41a522c8254e33adb8dc57bfa93e9e041dc5bd87",
+      "context": "Guess which role each masked image data channel's masks have.",
+      "translation": "마스크가 있는 각 채널의 마스크가 어떤 역할인지 추측합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.default_mask_roles#1",
+      "source": "A channel whose names say ``nuc``/``dapi``/``hoechst`` is ``nucleus``, ``cell``/``cyto`` is ``cell``, ``parasite``/``pathogen`` is ``pathogen``; the rest take the first unused of cell, nucleus, pathogen.",
+      "source_sha256": "4b2428cdcdbf1972b9b4c99a95889c8e15d12a7985ed4b33a16c35244e275c0a",
+      "context": "A channel whose names say ``nuc``/``dapi``/``hoechst`` is ``nucleus``, ``cell``/``cyto`` is ``cell``, ``parasite``/``pathogen`` is ``pathogen``; the rest take the first unused of cell, nucleus, pathogen.",
+      "translation": "이름에 ``nuc``/``dapi``/``hoechst`` 가 있는 채널은 ``nucleus``, ``cell``/``cyto`` 는 ``cell``, ``parasite``/``pathogen`` 은 ``pathogen`` 입니다. 나머지는 세포, 핵, 병원체 중 아직 쓰지 않은 첫 번째 역할을 받습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.default_mask_roles#3",
+      "source": "the channels that have masks.",
+      "source_sha256": "1607faaee5736e94371dfe9dd60d3d2c0ac3f0542abe0e262b40b30473b14398",
+      "context": "the image data channels that have masks.",
+      "translation": "마스크가 있는 채널입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.default_mask_roles#4",
+      "source": "``{channel: role}`` for those channels, roles distinct.",
+      "source_sha256": "f6aa06d1ff7451eca90569d8d280d64a5c2500b245412d0988123cbe210221aa",
+      "context": "``{channel: role}`` for those channels, roles distinct.",
+      "translation": "해당 채널들에 대한 ``{channel: role}`` 이며, 역할은 서로 다릅니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.detect_sets#0",
+      "source": "Pair images across channels by name similarity, order and size.",
+      "source_sha256": "1920afd86b004ff6ea2fd6f030b41c48cd8d474dae8b2e5cd5067f3935b64fb6",
+      "context": "Pair images across image data channels by name similarity, order and size.",
+      "translation": "이름 유사도, 순서, 크기에 따라 채널 간 이미지를 짝짓습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.detect_sets#1",
+      "source": "The channel with the most images is the reference. Each other channel's images are matched one-to-one to the reference images by the smallest total cost, where the cost is :func:`name_distance` plus a small term for how far apart the two sit in their channel's sorted order, and a pair whose images differ in size is not allowed. Names play no other part: each resulting set is keyed by its number alone. A mask whose size is not its image's is reported as a problem.",
+      "source_sha256": "5968d486cfbbdc170803a4bf11729f3d05e7fbca7fa6a4b7d66491f9a25aab3f",
+      "context": "The image data channel with the most images is the reference. Each other image data channel's images are matched one-to-one to the reference images by the smallest total cost, where the cost is :func:`name_distance` plus a small term for how far apart the two sit in their image data channel's sorted order, and a pair whose images differ in size is not allowed. Names play no other part: each resulting set is keyed by its number alone. A mask whose size is not its image's is reported as a problem.",
+      "translation": "이미지가 가장 많은 채널이 기준입니다. 다른 각 채널의 이미지는 총비용이 가장 작도록 기준 이미지와 일대일로 짝지어지며, 비용은 :func:`name_distance` 에 두 이미지가 각 채널의 정렬 순서에서 얼마나 떨어져 있는지를 나타내는 작은 항을 더한 값입니다. 이미지 크기가 다른 쌍은 허용되지 않습니다. 이름은 그 밖의 역할이 없습니다. 만들어진 각 세트는 번호만을 키로 가집니다. 크기가 이미지와 다른 마스크는 문제로 보고됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.detect_sets#3",
+      "source": "``{name: channel}`` for every image to pair.",
+      "source_sha256": "5517301b321ea3987a4d3cc263f55d461e7fb917bd5fe838ac5afffefd337fe3",
+      "context": "``{name: channel}`` for every image to pair.",
+      "translation": "짝지을 모든 이미지에 대한 ``{name: channel}`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.detect_sets#5",
+      "source": "``{name: shape}`` already read; read here otherwise.",
+      "source_sha256": "4d16b2a984bbe53670b24226253e64679926d633048c17a5ce4775956c33b97f",
+      "context": "``{name: shape}`` already read; read here otherwise.",
+      "translation": "이미 읽은 ``{name: shape}`` 이며, 없으면 여기서 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.image_shape#0",
+      "source": "Read an image's pixel shape from its header, without its pixels.",
+      "source_sha256": "52ececac93c1d260398500e120df3c6fd4deb17b213e7daefd7bcac169a1ffa4",
+      "context": "Read an image's pixel shape from its header, without its pixels.",
+      "translation": "픽셀을 읽지 않고 헤더에서 이미지의 픽셀 모양을 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.image_shape#1",
+      "source": "Singleton axes are dropped, so a ``(1, H, W)`` TIFF and an ``(H, W)`` PNG compare equal.",
+      "source_sha256": "0dd22743ce78b3421195a6cd1a0abe6da3654cbe75a1829652b91de9c140234b",
+      "context": "Singleton axes are dropped, so a ``(1, H, W)`` TIFF and an ``(H, W)`` PNG compare equal.",
+      "translation": "크기가 1 인 축은 제거되므로 ``(1, H, W)`` TIFF 와 ``(H, W)`` PNG 는 같다고 비교됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.image_shape#2",
+      "source": "an image file.",
+      "source_sha256": "b1b9371f7b8de2eb0074dd89574bb5cde631d19150b21963e927795cdbbf2202",
+      "context": "an image file.",
+      "translation": "이미지 파일입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.image_shape#3",
+      "source": "the shape, or None when the file cannot be read.",
+      "source_sha256": "aad02169536c1c17428acfa3370c91f00582681cd7d76207b05111ad78f8f025",
+      "context": "the shape, or None when the file cannot be read.",
+      "translation": "모양이며, 파일을 읽을 수 없으면 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.infer_regex#0",
+      "source": "Propose a regex that maps every image to a unique, complete set.",
+      "source_sha256": "300206768e4e9f0bb5d788194a6c44ad6f6125e5f7373436d30a9706754cf070",
+      "context": "Propose a regex that maps every image to a unique, complete set.",
+      "translation": "모든 이미지를 고유하고 완전한 세트에 대응시키는 정규식을 제안합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.infer_regex#1",
+      "source": "Names are split into tokens (at ``_ - . space``, and failing that into digit and letter runs); the tokens that vary are found; one is tried as the channel -- or, when the user assigned channels, the tokens that only follow the channel are set aside -- and the rest must identify a set that holds exactly one image per channel. Each candidate is checked with :func:`check_sets` before it is returned. spaCR's own Yokogawa pattern is tried first, and :func:`spacr.regex_infer.propose` last. Of the candidates that pass, the one with the FEWEST channels wins: any name can be read as a channel of its own in a single set, which passes and means nothing.",
+      "source_sha256": "6c67fca6f45364075dbfb42ff14a0728aebb8069fa4632f9eb9ff9815c3a7366",
+      "context": "Names are split into tokens (at ``_ - . space``, and failing that into digit and letter runs); the tokens that vary are found; one is tried as the image data channel -- or, when the user assigned image data channels, the tokens that only follow the image data channel are set aside -- and the rest must identify a set that holds exactly one image per image data channel. Each candidate is checked with :func:`check_sets` before it is returned. spaCR's own Yokogawa pattern is tried first, and :func:`spacr.regex_infer.propose` last. Of the candidates that pass, the one with the FEWEST image data channels wins: any name can be read as an image data channel of its own in a single set, which passes and means nothing.",
+      "translation": "이름은 토큰으로 나뉩니다(``_ - . space`` 에서 나누고, 그게 안 되면 숫자와 문자 덩어리로 나눔). 값이 바뀌는 토큰을 찾고, 그중 하나를 채널로 시도합니다. 사용자가 채널을 지정한 경우에는 채널 뒤에만 오는 토큰을 따로 둡니다. 나머지는 채널마다 이미지가 정확히 하나인 세트를 식별해야 합니다. 각 후보는 반환하기 전에 :func:`check_sets` 로 검사합니다. spaCR 자체의 Yokogawa 패턴을 먼저 시도하고 :func:`spacr.regex_infer.propose` 를 마지막에 시도합니다. 통과한 후보 중 채널이 가장 적은 것이 선택됩니다. 어떤 이름이든 단일 세트 안의 독립 채널로 읽을 수 있고, 그러면 통과는 하지만 아무 의미가 없기 때문입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.infer_regex#2",
+      "source": "image file names.",
+      "source_sha256": "9fc1e60082e3b59380b1a2ffe027609650fb4412615f2ee8aa826348c4f04242",
+      "context": "image file names.",
+      "translation": "이미지 파일 이름입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.infer_regex#3",
+      "source": "``{name: channel}`` from the selection strategy; when every name has one, the regex needs no ``chanID`` group.",
+      "source_sha256": "f58656d665ee2aa2f2c061411c7ac790b00d29aa6151c13e3fe93058d2eb294d",
+      "context": "``{name: channel}`` from the selection strategy; when every name has one, the regex needs no ``chanID`` group.",
+      "translation": "선택 전략에서 온 ``{name: channel}`` 입니다. 모든 이름에 채널이 있으면 정규식에 ``chanID`` 그룹이 필요 없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.infer_regex#4",
+      "source": "the first regex that passes, or None.",
+      "source_sha256": "af5fd94f3da97b7b7cfee3269c527b158678ed30469ae914d25b422bee4ee791",
+      "context": "the first regex that passes, or None.",
+      "translation": "처음 통과한 정규식, 또는 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.list_folder_images#0",
+      "source": "Return the image file names directly in ``folder``, naturally sorted.",
+      "source_sha256": "b79e04ddd944ecdc7a05a2554fe1a061b477f32e4284d4ebf473ad6eeca8e545",
+      "context": "Return the image file names directly in ``folder``, naturally sorted.",
+      "translation": "``folder`` 바로 아래의 이미지 파일 이름을 자연 순서로 정렬해 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.list_folder_images#1",
+      "source": "the folder; a missing one holds none.",
+      "source_sha256": "0836ada670697d679cb99cf7e5c7eae699c3226d23435073a58dfd072f1ab931",
+      "context": "the folder; a missing one holds none.",
+      "translation": "폴더입니다. 없는 폴더에는 아무것도 없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.mask_for#0",
+      "source": "Return the path of the saved mask of image ``name``, or None.",
+      "source_sha256": "3f60fea989d2144394e9ab9f1355f4ec274fdef66c60e9f501fdcb86a93a6ced",
+      "context": "Return the path of the saved mask of image ``name``, or None.",
+      "translation": "이미지 ``name`` 의 저장된 마스크 경로, 또는 None 을 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.mask_for#1",
+      "source": "Make Masks saves every mask as ``<masks folder>/<stem>.tif`` (:func:`spacr.qt.mask_engine.mask_save_path`).",
+      "source_sha256": "cc247a3038010bdcb359ad9ed4187c4df5217f0b6b60b6466e224d4cb5229923",
+      "context": "Make Masks saves every mask as ``<masks folder>/<stem>.tif`` (:func:`spacr.qt.mask_engine.mask_save_path`).",
+      "translation": "Make Masks 는 모든 마스크를 ``<masks folder>/<stem>.tif`` 로 저장합니다(:func:`spacr.qt.mask_engine.mask_save_path`).",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
+    },
+    {
+      "label": "spacr.channel_sorting.mask_for#3",
+      "source": "the image file name.",
+      "source_sha256": "295bc1804dac96cf8a9c75de5cafe5496c163eff3e68e61d59c8400f5967d55c",
+      "context": "the image file name.",
+      "translation": "이미지 파일 이름입니다.",
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-09-30: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
+    },
+    {
+      "label": "spacr.channel_sorting.mask_thumbnail#0",
+      "source": "A small preview of a label mask: 255 where any object is, else 0.",
+      "source_sha256": "4f351d5edd65ef7e8e492d7c9d2a150e3ff4fbc1afcc73ebd65b65779d2c1ebf",
+      "context": "A small preview of a label mask: 255 where any object is, else 0.",
+      "translation": "레이블 마스크의 작은 미리 보기로, 객체가 있는 곳은 255, 나머지는 0 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.mask_thumbnail#1",
+      "source": "the mask file.",
+      "source_sha256": "d188a54dceae17fb3ac90948c18a69c9568cc18071af399a81d6bc8e580d7efe",
+      "context": "the mask file.",
+      "translation": "마스크 파일입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.mask_thumbnail#2",
+      "source": "the longest side, in pixels.",
+      "source_sha256": "70f5dab4f5133d102f1c5d1bce6e32049dd6728958baff6691a1caed01b1459e",
+      "context": "the longest side, in pixels.",
+      "translation": "가장 긴 변의 길이(픽셀)입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.mask_thumbnail#3",
+      "source": "a 2-D ``uint8`` array, or None when it cannot be read.",
+      "source_sha256": "1d138b9df4463f630aefa59dc510193964accfdce83f3805c1b5090d03f2e228",
+      "context": "a 2-D ``uint8`` array, or None when it cannot be read.",
+      "translation": "2-D ``uint8`` 배열이며, 읽을 수 없으면 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.masks_folder#0",
+      "source": "Where Make Masks keeps the masks of ``folder``'s images.",
+      "source_sha256": "8cb00d31f62ff762b71776aa9354cfd89472265e44be819b86754455c0dae44e",
+      "context": "Where Make Masks keeps the masks of ``folder``'s images.",
+      "translation": "Make Masks 가 ``folder`` 이미지의 마스크를 보관하는 위치입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.masks_folder#2",
+      "source": "an explicit masks folder, when not ``<folder>/masks``.",
+      "source_sha256": "f11ee1e19937390f66c259eb008b021803c5e598b66937c5ea4c20a20db5ddfc",
+      "context": "an explicit masks folder, when not ``<folder>/masks``.",
+      "translation": "``<folder>/masks`` 가 아닐 때 명시적으로 지정한 마스크 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.merge_sorted#0",
+      "source": "Build ``stack/``, the mask stacks and ``merged/`` from sorted channels.",
+      "source_sha256": "876c5666d20a4c091ef3f4d5afb6dfe24b2b1432b5f0f26071ee78f9d3c8feee",
+      "context": "Build ``stack/``, the mask stacks and ``merged/`` from sorted image data channels.",
+      "translation": "정리된 채널에서 ``stack/``, 마스크 스택, ``merged/`` 를 만듭니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.merge_sorted#1",
+      "source": "The Yokogawa names in ``C01/``, ``C02/``... are read with spaCR's own ``cellvoyager`` pattern and :func:`spacr.utils._extract_filename_metadata`, each field's stem is :func:`spacr.io._escaped_field_stem` -- the stem the pipeline gives it -- and its channels are stacked in channel order into ``stack/<stem>.npy``. Each channel's masks are copied to ``masks/<role>_mask_stack/<stem>.tif``, and :func:`spacr.io._load_and_concatenate_arrays` writes ``merged/``.",
+      "source_sha256": "cd30c90d72b008acf1c788c6b961a79391844ec4cddf9b8eb3926141ece3af1d",
+      "context": "The Yokogawa names in ``C01/``, ``C02/``... are read with spaCR's own ``cellvoyager`` pattern and :func:`spacr.utils._extract_filename_metadata`, each microscope field of view's stem is :func:`spacr.io._escaped_field_stem` -- the stem the workflow gives it -- and its image data channels are stacked in image data channel order into ``stack/<stem>.npy``. Each image data channel's masks are copied to ``masks/<role>_mask_stack/<stem>.tif``, and :func:`spacr.io._load_and_concatenate_arrays` writes ``merged/``.",
+      "translation": "``C01/``, ``C02/``... 안의 Yokogawa 이름은 spaCR 자체의 ``cellvoyager`` 패턴과 :func:`spacr.utils._extract_filename_metadata` 로 읽고, 각 시야의 기본 이름은 :func:`spacr.io._escaped_field_stem`(파이프라인이 붙이는 기본 이름)이며, 그 채널들은 채널 순서대로 ``stack/<stem>.npy`` 에 쌓입니다. 각 채널의 마스크는 ``masks/<role>_mask_stack/<stem>.tif`` 로 복사되고, :func:`spacr.io._load_and_concatenate_arrays` 가 ``merged/`` 를 기록합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.merge_sorted#2",
+      "source": "the folder :func:`apply_plan` filled.",
+      "source_sha256": "467e5c8e0d8b30d2fe01f90201764bc06e752d8467404d50cf2ee53f0e1d801b",
+      "context": "the folder :func:`apply_plan` filled.",
+      "translation": ":func:`apply_plan` 이 채운 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.merge_sorted#4",
+      "source": "called with progress lines.",
+      "source_sha256": "af180464f5ebfea75d9e56d72c11bffddd7076d26203a4795a1c157ff419a14c",
+      "context": "called with progress lines.",
+      "translation": "진행 줄과 함께 호출됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.name_distance#0",
+      "source": "How different two names are, 0 (same tokens) to 1 (nothing shared).",
+      "source_sha256": "690f081719d4745a85dfcb9f139beb93d8438e33a2597ee064faec8bbdc1620f",
+      "context": "How different two names are, 0 (same tokens) to 1 (nothing shared).",
+      "translation": "두 이름이 얼마나 다른지를 0(같은 토큰)부터 1(공통점 없음)까지로 나타냅니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.name_distance#1",
+      "source": "a file name.",
+      "source_sha256": "86608a7bd77f1988e802f8bbd89a0d5d1d8d9a9d2c915c161e7c7b84a012105d",
+      "context": "a file name.",
+      "translation": "파일 이름입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.name_distance#2",
+      "source": "another.",
+      "source_sha256": "b2ae3b35a2cf24018c375f618fee617d0d562d4be32250c6398450418dd05b36",
+      "context": "another.",
+      "translation": "다른 파일 이름입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.name_sets#0",
+      "source": "Give every set a unique plate, well, field and time.",
+      "source_sha256": "766c925c14d11b16e734485815618926e3ad104dcbbf4e9d7e7fb51a6359dbcd",
+      "context": "Give every set a unique laboratory microplate, microplate sample position, microscope field of view and time.",
+      "translation": "각 세트에 고유한 플레이트, 웰, 시야, 시간을 부여합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.name_sets#1",
+      "source": "Sets keyed by :func:`detect_sets` get one well each, ``A01`` onward, field 1, 384 wells to a plate. Otherwise the plate is ``plateID`` (or ``plate1``); the well is ``wellID`` when every value reads as a well, else wells are numbered in natural order; the field is ``fieldID`` when it is the only other group and every value is a whole number from 1 to 999, else fields are numbered within their well; without a ``wellID`` group the fields fill ``A01`` to 999 and then move on to ``A02``. The time is ``timeID`` when every value is a whole number from 1, else numbered; 1 without one.",
+      "source_sha256": "62af1d1797c84a5f5068a473b6cf7bcaf58dec6b3016c18d4fc6687930df9efb",
+      "context": "Sets keyed by :func:`detect_sets` get one well each, ``A01`` onward, microscope field of view 1, 384 microplate sample positions to a laboratory microplate. Otherwise the laboratory microplate is ``plateID`` (or ``plate1``); the well is ``wellID`` when every value reads as a well, else microplate sample positions are numbered in natural order; the microscope field of view is ``fieldID`` when it is the only other group and every value is a whole number from 1 to 999, else microscope fields of view are numbered within their well; without a ``wellID`` group the microscope fields of view fill ``A01`` to 999 and then move on to ``A02``. The time is ``timeID`` when every value is a whole number from 1, else numbered; 1 without one.",
+      "translation": ":func:`detect_sets` 의 키를 가진 세트는 각각 웰 하나를 받으며, ``A01`` 부터 시작하고 시야는 1, 플레이트당 384 웰입니다. 그렇지 않으면 플레이트는 ``plateID``(또는 ``plate1``)이고, 웰은 모든 값이 웰로 읽히면 ``wellID``, 아니면 자연 순서로 번호를 매깁니다. 시야는 그것이 유일한 다른 그룹이고 모든 값이 1 부터 999 까지의 정수이면 ``fieldID``, 아니면 웰 안에서 번호를 매깁니다. ``wellID`` 그룹이 없으면 시야가 ``A01`` 을 999 까지 채운 뒤 ``A02`` 로 넘어갑니다. 시간은 모든 값이 1 이상의 정수이면 ``timeID``, 아니면 번호를 매기며, 없으면 1 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.name_sets#2",
+      "source": "set keys, as :func:`check_sets` or :func:`detect_sets` return them.",
+      "source_sha256": "b4b4600a7831a0335b08789f0d9c06a9e5fbd16ccd943a3bf66c0bd44d804940",
+      "context": "set keys, as :func:`check_sets` or :func:`detect_sets` return them.",
+      "translation": ":func:`check_sets` 나 :func:`detect_sets` 가 반환하는 형태의 세트 키입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.name_sets#4",
+      "source": "when two sets would get one name.",
+      "source_sha256": "e1ff2328f1cf090fc31d6fe044233e587f5a2f1dd974f56baf657047b76d4e48",
+      "context": "when two sets would get one name.",
+      "translation": "두 세트가 같은 이름을 받게 될 때 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.natural_key#0",
+      "source": "Sort key that orders ``img2`` before ``img10``.",
+      "source_sha256": "588ffefa0368d6ed340f041cfa5cef2a0a42933beb2dc05c4c28df05645db61e",
+      "context": "Sort key that orders ``img2`` before ``img10``.",
+      "translation": "``img2`` 를 ``img10`` 앞에 두는 정렬 키입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.natural_key#1",
+      "source": "a name.",
+      "source_sha256": "7e33a7be63ba84a14eb94de960afb77da917fa9b6d9e7cfc8d09d3f0aea8d58b",
+      "context": "a name.",
+      "translation": "이름입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.natural_key#2",
+      "source": "a tuple comparing numbers numerically and text case-blind.",
+      "source_sha256": "332e6cf528c29fb091eb324c972c5b433940d150c26c97bde7cc15360b936568",
+      "context": "a tuple comparing numbers numerically and text case-blind.",
+      "translation": "숫자는 수치로, 텍스트는 대소문자 구분 없이 비교하는 튜플입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.parse_names#0",
+      "source": "Read each name's channel and set through ``pattern``.",
+      "source_sha256": "56311c12a57ec81ed05b83917f7d0b26c88cfc57316ec37a5917d6091eff0be0",
+      "context": "Read each name's channel and set through ``pattern``.",
+      "translation": "``pattern`` 으로 각 이름의 채널과 세트를 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.parse_names#1",
+      "source": "The channel of a name the user assigned (``channels``) is that assignment; otherwise it is its ``chanID`` value's position among all ``chanID`` values, naturally sorted, from 1. The set key is every other named group, in the pattern's order. A name the pattern does not match has no set.",
+      "source_sha256": "b53c94632baea7fba0f0d31d8c50399bb2a63eaef639956aa3a318140861885b",
+      "context": "The channel of a name the user assigned (``channels``) is that assignment; otherwise it is its ``chanID`` value's position among all ``chanID`` values, naturally sorted, from 1. The set structured-data name is every other named group, in the pattern's order. A name the pattern does not match has no set.",
+      "translation": "사용자가 지정한 이름(``channels``)의 채널은 그 지정 값입니다. 그렇지 않으면 모든 ``chanID`` 값을 자연 순서로 정렬했을 때 그 ``chanID`` 값의 위치(1 부터)입니다. 세트 키는 패턴 순서대로 나열한 나머지 모든 이름 있는 그룹입니다. 패턴과 일치하지 않는 이름에는 세트가 없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.parse_names#3",
+      "source": "the regex, matched from the start of each name; empty or None matches nothing.",
+      "source_sha256": "9c6bc6d3b2d34146a64bfdca1c59740f1c941b8ae9928ab8e10d4daf35fe8472",
+      "context": "the regex, matched from the start of each name; empty or None matches nothing.",
+      "translation": "각 이름의 처음부터 맞춰 보는 정규식입니다. 비어 있거나 None 이면 아무것도 일치하지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.parse_names#4",
+      "source": "``{name: channel}`` from the selection strategy.",
+      "source_sha256": "3aec1d760fc41c58075bedf3b6bfee93d5091c8bce41cc1576fb9f0838281043",
+      "context": "``{name: channel}`` from the selection strategy.",
+      "translation": "선택 전략에서 온 ``{name: channel}`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.parse_names#5",
+      "source": "one :class:`ParsedName` per name, in order.",
+      "source_sha256": "514259c61036debd3fc830490d2a8731e4b2413961783e7527abba3066ff939e",
+      "context": "one :class:`ParsedName` per name, in order.",
+      "translation": "이름마다 :class:`ParsedName` 하나이며, 순서대로입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.set_label#0",
+      "source": "A set key as short text, ``wellID=A01 fieldID=2``.",
+      "source_sha256": "3bfed329d65f70c5b33dcbdd8a745ec4a2f200cfc4698d8e46ce888ca96aa044",
+      "context": "A set key as short text, ``wellID=A01 fieldID=2``.",
+      "translation": "세트 키를 짧은 텍스트로 나타낸 것으로, ``wellID=A01 fieldID=2`` 와 같습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.set_label#1",
+      "source": "the set key.",
+      "source_sha256": "89d19183b8564f538b3c293d0850f89613f115b8324475f4d3f4e26f136da75b",
+      "context": "the set key.",
+      "translation": "세트 키입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.split_extension#0",
+      "source": "Split ``name`` into stem and extension, keeping ``.ome.tif`` whole.",
+      "source_sha256": "249403f564bc3ff84af60bc175dc8e35d35d999523482e0e9201bdad377d9801",
+      "context": "Split ``name`` into stem and extension, keeping ``.ome.tif`` whole.",
+      "translation": "``name`` 을 기본 이름과 확장자로 나누되, ``.ome.tif`` 는 통째로 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.split_extension#2",
+      "source": "``(stem, extension)``; the extension keeps its dot.",
+      "source_sha256": "952832eadb2db786496f53e41975b809dd7c4e1aca277231639a2cf9483f5c66",
+      "context": "``(stem, extension)``; the extension keeps its dot.",
+      "translation": "``(stem, extension)`` 이며, 확장자는 점을 포함합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.thumbnail#0",
+      "source": "A small 8-bit grey preview of an image, contrast-stretched.",
+      "source_sha256": "7b2b0309faa45ba0f7eddef6063af65e9c38edbc18b6fe992ce217d776d2d262",
+      "context": "A small 8-bit grey preview of an image, contrast-stretched.",
+      "translation": "대비를 늘린 이미지의 작은 8비트 회색조 미리 보기입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.unused_folder#0",
+      "source": "``parent/name``, or ``name_2``, ``name_3``... when that exists.",
+      "source_sha256": "b65ef497225b7f10afd3c2c1b2eed87909f9b23405e118f89b9ba9aa17e88720",
+      "context": "``parent/name``, or ``name_2``, ``name_3``... when that exists.",
+      "translation": "``parent/name``, 또는 이미 있으면 ``name_2``, ``name_3``... 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.unused_folder#1",
+      "source": "the folder to create in.",
+      "source_sha256": "f1410ec00870000a995b714810daa4bb8ceeff4cf6d441547b47897ac0180250",
+      "context": "the folder to create in.",
+      "translation": "만들 위치의 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.unused_folder#2",
+      "source": "the name wanted.",
+      "source_sha256": "548e0b26bdd1d74286db31a21116dd524d1b259007662c232fee600e0f32dc2a",
+      "context": "the name wanted.",
+      "translation": "원하는 이름입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.well_name#0",
+      "source": "The ``index``-th well of a 384-well plate, row by row: 0 is ``A01``.",
+      "source_sha256": "e02937db95dc0741552a76a88333f031d00f8ec8252e12ffdd2de117fccc8402",
+      "context": "The ``index``-th microplate sample position of a 384-position laboratory microplate, row by row: 0 is ``A01``.",
+      "translation": "384 웰 플레이트의 행 순서 기준 ``index`` 번째 웰로, 0 은 ``A01`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.well_name#1",
+      "source": "0-based, below :data:`WELLS_PER_PLATE`.",
+      "source_sha256": "62e8b2a556fdb8a9ab5acf2707cd540d5ab88328a4f33a054363739fe15977f9",
+      "context": "0-based, below :data:`WELLS_PER_PLATE`.",
+      "translation": "0 부터 세며, :data:`WELLS_PER_PLATE` 보다 작습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.yokogawa_name#0",
+      "source": "The Yokogawa file name of one channel of one set.",
+      "source_sha256": "ef301ec27d623573fe7a97095350fe8dcd5618249a35172f61983f6119dbcc10",
+      "context": "The Yokogawa file name of one channel of one set.",
+      "translation": "세트 하나의 채널 하나에 대한 Yokogawa 파일 이름입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.yokogawa_name#1",
+      "source": "Built by :func:`spacr.convert.target_name`, so it is the exact form ``spacr.utils._get_regex('cellvoyager', ...)`` parses.",
+      "source_sha256": "70acb511f1b2d3540d3b2f48d38657b770cd8c2e958b4d56deea228aca4f89e7",
+      "context": "Built by :func:`spacr.convert.target_name`, so it is the exact form ``spacr.utils._get_regex('cellvoyager', ...)`` parses.",
+      "translation": ":func:`spacr.convert.target_name` 이 만들므로 정확히 ``spacr.utils._get_regex('cellvoyager', ...)`` 가 해석하는 형식입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.channel_sorting.yokogawa_name#4",
+      "source": "the image's own extension, kept.",
+      "source_sha256": "6cc340a7296d2c258357d68319a831dc271e1e37c91fd24dc4f31128d4493627",
+      "context": "the image's own extension, kept.",
+      "translation": "이미지 고유의 확장자로, 그대로 유지됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.deep_spacr.generate_activation_map#2",
+      "source": "Settings dict — see ``settings.get_default_generate_activation_map_settings`` for keys (``dataset``, ``model_path``, ``cam_type``, ``target_layer``, ``image_size``, ``batch_size``, ``channels``, ``normalize``, ``save``, ``plot``, ``correlation``, ...). With ``counterfactuals`` on, up to ``counterfactual_crops`` of the crops also train a small class-conditional generator against the loaded model, and the held-out crops are morphed toward the other class with the classifier's score written at every step (see ``_run_counterfactuals``).",
+      "source_sha256": "b3dd69507a77b03f78ff76dbe97552d3268883ad31189f02fe0349e85a98a4df",
+      "context": "Settings key-value mapping — see ``settings.get_default_generate_activation_map_settings`` for structured-data names (``dataset``, ``model_path``, ``cam_type``, ``target_layer``, ``image_size``, ``batch_size``, ``channels``, ``normalize``, ``save``, ``plot``, ``correlation``, ...). With ``counterfactuals`` on, up to ``counterfactual_crops`` of the extracted image regions also train a small class-conditional generator against the loaded model, and the held-out extracted image regions are morphed toward the other class with the machine-learning classification model's score written at every step (see ``_run_counterfactuals``).",
+      "translation": "설정 사전입니다. 키는 ``settings.get_default_generate_activation_map_settings`` 를 보세요(``dataset``, ``model_path``, ``cam_type``, ``target_layer``, ``image_size``, ``batch_size``, ``channels``, ``normalize``, ``save``, ``plot``, ``correlation``, ...). ``counterfactuals`` 가 켜져 있으면 크롭 중 최대 ``counterfactual_crops`` 개가 불러온 모델을 상대로 작은 클래스 조건부 생성기도 학습시키고, 따로 남겨 둔 크롭은 다른 클래스 쪽으로 변형되며 단계마다 분류기의 점수가 기록됩니다(``_run_counterfactuals`` 참조).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation#0",
+      "source": "Copy a folder tree into ONE folder, naming each copy after its folder path.",
+      "source_sha256": "49d79b30728e105050438986a645748b5da6b0bdc4059177bc6a492cf22a9385",
+      "context": "Copy a folder tree into ONE folder, naming each copy after its folder path.",
+      "translation": "폴더 트리를 하나의 폴더로 복사하고, 각 사본에 폴더 경로에 따른 이름을 붙입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation#1",
+      "source": "A tree like",
+      "source_sha256": "0bbdc3a960a8dad1e516a89957347a7b755196539554281770ff2bdaeea695a0",
+      "context": "A tree like",
+      "translation": "다음과 같은 트리",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation#2",
+      "source": "becomes ``exp_renamed/`` holding ``exp_nucleus.tif``, ``exp_nucleus_2.tif``, ``exp_cell.tif`` and ``exp_cell_2.tif``: every copy is named after the folders it sat in, joined by ``_``, and a second file from the same folder is numbered. A ``rename_manifest.csv`` beside the copies maps each original path to its new name, so nothing about where a file came from is lost.",
+      "source_sha256": "97d612ede5ea20d959e2428d9f8749662f08dcbcf157cac4654487e8cfc3be19",
+      "context": "becomes ``exp_renamed/`` holding ``exp_nucleus.tif``, ``exp_nucleus_2.tif``, ``exp_cell.tif`` and ``exp_cell_2.tif``: every copy is named after the folders it sat in, joined by ``_``, and a second file from the same folder is numbered. A ``rename_manifest.csv`` beside the copies maps each original path to its new name, so nothing about where a file came from is lost.",
+      "translation": "는 ``exp_renamed/`` 가 되며 그 안에 ``exp_nucleus.tif``, ``exp_nucleus_2.tif``, ``exp_cell.tif``, ``exp_cell_2.tif`` 가 들어갑니다. 각 사본은 원래 있던 폴더 이름을 ``_`` 로 이어 붙인 이름을 받고, 같은 폴더의 두 번째 파일에는 번호가 붙습니다. 사본 옆의 ``rename_manifest.csv`` 가 각 원래 경로를 새 이름에 대응시키므로 파일의 출처 정보가 사라지지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation#3",
+      "source": "It needs only the standard library. The originals are COPIED, never moved; symbolic links, to files or folders, are skipped and listed; names are made safe for Windows; a name too long for a typical filesystem is shortened with a hash of the full name so two long names cannot collide; and the output folder must not exist yet. Two options were added for Make Masks, which offers this on a dropped folder: ``extensions`` limits the copy to image files and ``skip_dirs`` leaves out folders such as ``masks`` whose contents are not images to edit. With neither, every file is copied, as the script did.",
+      "source_sha256": "e54c9034fbc1ef8add9ccf0a6283d4bc82d04734bc668584c9bda815b536e985",
+      "context": "It needs only the standard library. The originals are COPIED, never moved; symbolic links, to files or folders, are skipped and listed; names are made safe for Windows; a name too long for a typical filesystem is shortened with a hash of the full name so two long names cannot collide; and the output folder must not exist yet. Two options were added for Make Masks, which offers this on a dropped folder: ``extensions`` limits the copy to image files and ``skip_dirs`` leaves out folders such as ``masks`` whose contents are not images to edit. With neither, every file is copied, as the script did.",
+      "translation": "표준 라이브러리만 필요합니다. 원본은 복사만 하고 절대 옮기지 않습니다. 파일이나 폴더를 가리키는 심볼릭 링크는 건너뛰고 목록에 남깁니다. 이름은 Windows 에서 안전하도록 바꿉니다. 일반 파일 시스템에 비해 너무 긴 이름은 전체 이름의 해시로 줄여 두 긴 이름이 충돌하지 않게 합니다. 출력 폴더는 아직 없어야 합니다. 폴더를 끌어다 놓을 때 이 기능을 제공하는 Make Masks 를 위해 옵션 두 개가 추가되었습니다. ``extensions`` 는 복사를 이미지 파일로 제한하고, ``skip_dirs`` 는 ``masks`` 처럼 편집할 이미지가 아닌 내용을 담은 폴더를 제외합니다. 둘 다 없으면 원래 스크립트처럼 모든 파일을 복사합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation#4",
+      "source": "Run as a program",
+      "source_sha256": "d1410bfc5063793653b1c83c5ac4ac3029b7e847cff3f45f45853d4a653f492d",
+      "context": "Run as a program",
+      "translation": "프로그램으로 실행",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.ConsolidationResult#0",
+      "source": "What :func:`consolidate_folder` did.",
+      "source_sha256": "7fbd2840be89d34315e4a63ddab52d36eb5310bdb8e70e2401e1e0fe17717729",
+      "context": "What :func:`consolidate_folder` did.",
+      "translation": ":func:`consolidate_folder` 가 한 일입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.ConsolidationResult#1",
+      "source": "the new folder holding the copies.",
+      "source_sha256": "dc3870ef28358fb8c993060bcda4feaddfb8a20b6345dc8a94d7f888d8bb5e34",
+      "context": "the new folder holding the copies.",
+      "translation": "사본이 든 새 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.ConsolidationResult#2",
+      "source": "the ``rename_manifest.csv`` inside it.",
+      "source_sha256": "e942d925cca908c8d9b6f8805f9cab0b6413cf137ba919d971f581d1e192c429",
+      "context": "the ``rename_manifest.csv`` inside it.",
+      "translation": "그 안의 ``rename_manifest.csv`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.ConsolidationResult#3",
+      "source": "files copied.",
+      "source_sha256": "b09a29ad1e3db6aaa6f63c1a437c27a1787149755f79068f7d063bb42f35c6b8",
+      "context": "files copied.",
+      "translation": "복사된 파일입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.ConsolidationResult#4",
+      "source": "files or folders that could not be read or copied.",
+      "source_sha256": "e46c7e22cf367eca997f7bb8f020737834dc16d41b50a3a511384119d0a85746",
+      "context": "files or folders that could not be read or copied.",
+      "translation": "읽거나 복사할 수 없었던 파일이나 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.ConsolidationResult#5",
+      "source": "symbolic links left out.",
+      "source_sha256": "ab575276aa559b5ce37359b97b89126b15520b8f47c02d1f937679954f23da07",
+      "context": "symbolic links left out.",
+      "translation": "제외된 심볼릭 링크입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.ConsolidationResult#6",
+      "source": "the manifest rows, ``(original, new name, status, error)``.",
+      "source_sha256": "035a53e3a28a83fc8fc7de68c39827f249724f60b4fef5a35bdee847d92dd31d",
+      "context": "the manifest rows, ``(original, new name, status, error)``.",
+      "translation": "매니페스트 행으로, ``(original, new name, status, error)`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.available_filename#0",
+      "source": "Pick the next free name for ``stem`` in ``output``.",
+      "source_sha256": "4c4cf8d0cbceed599596995a5b890d61c15c84894262041f226d27686ce8d4ea",
+      "context": "Pick the next free name for ``stem`` in ``output``.",
+      "translation": "``stem`` 에 쓸 다음 빈 이름을 ``output`` 에서 고릅니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.available_filename#1",
+      "source": "Collisions are numbered ``_2``, ``_3`` and so on; names are compared case-insensitively so the folder survives a move to Windows or macOS. A name longer than 240 bytes is cut and ends in a 12-character hash of the full stem. Windows' reserved device names are prefixed with ``_``.",
+      "source_sha256": "d0242cdc327547c90698f929be5a7e4564d907143b1bc27a5ffb7037eb9e08c2",
+      "context": "Collisions are numbered ``_2``, ``_3`` and so on; names are compared case-insensitively so the folder survives a move to Windows or macOS. A name longer than 240 bytes is cut and ends in a 12-character hash of the full stem. Windows' reserved device names are prefixed with ``_``.",
+      "translation": "충돌은 ``_2``, ``_3`` 등으로 번호를 매깁니다. 폴더를 Windows 나 macOS 로 옮겨도 문제없도록 이름은 대소문자 구분 없이 비교합니다. 240 바이트보다 긴 이름은 잘리고 전체 기본 이름의 12 자 해시로 끝납니다. Windows 의 예약된 장치 이름에는 ``_`` 접두사가 붙습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.available_filename#2",
+      "source": "the output folder.",
+      "source_sha256": "abd7566a9b76a9d5e92b91426b9bb15dc374b41d618c17768c53049a69f70d0c",
+      "context": "the output folder.",
+      "translation": "출력 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.available_filename#3",
+      "source": "the name wanted, without extension.",
+      "source_sha256": "f2d76e7bb4c8e37fd1af180a83cbd2f2ea2c9cb45d993dcff064cb3aab08d2fa",
+      "context": "the name wanted, without extension.",
+      "translation": "확장자를 뺀 원하는 이름입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.available_filename#4",
+      "source": "the extension, with its dot.",
+      "source_sha256": "79980a2a4574379974a60f20c7fe82baa5f5becdae0ab44668208991f5d0c98d",
+      "context": "the extension, with its dot.",
+      "translation": "점을 포함한 확장자입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.available_filename#5",
+      "source": "case-folded names already handed out; updated.",
+      "source_sha256": "b23ce30daacd3521f7d58ce036a437175bca1e02f425e94583308ede38c5b011",
+      "context": "case-folded names already handed out; updated.",
+      "translation": "이미 배정된 소문자 이름으로, 갱신됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.available_filename#6",
+      "source": "the next number per ``(stem, extension)``; updated.",
+      "source_sha256": "7672223e78b0e1fa52734e9e1074a34513c99dd9353af1e7e6255d96be234e61",
+      "context": "the next number per ``(stem, extension)``; updated.",
+      "translation": "``(stem, extension)`` 별 다음 번호로, 갱신됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.available_filename#7",
+      "source": "the path to copy to.",
+      "source_sha256": "868a26285a2313fbd4ca84f12994459f06f24596570d04690113092a335f9730",
+      "context": "the path to copy to.",
+      "translation": "복사할 경로입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.available_filename#8",
+      "source": "when the extension alone leaves no room for a name.",
+      "source_sha256": "6ccae8299b97de8c20bc437f5d51c198f36bdba03e8db38d1163218e48fc9211",
+      "context": "when the extension alone leaves no room for a name.",
+      "translation": "확장자만으로 이름 자리가 남지 않을 때 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder#0",
+      "source": "Copy every file under ``source`` into one new folder, named by folder path.",
+      "source_sha256": "22109e86e59c3e9a38b5ebf5af1fba59e8dda3845e37a4ca862d9c0ad004f67a",
+      "context": "Copy every file under ``source`` into one new folder, named by folder path.",
+      "translation": "``source`` 아래의 모든 파일을 폴더 경로에 따른 이름으로 새 폴더 하나에 복사합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder#1",
+      "source": "Each copy is named after the folder path it came from, from ``source``'s own name down, parts joined by ``_``; a file directly in ``source`` is named after ``source``. Several files in one folder are numbered ``_2``, ``_3``..., in sorted file-name order. The originals are never touched.",
+      "source_sha256": "3cbc514729cf686ff05895c8a4c060fd2e87a149479aabaf83e48917538a2db7",
+      "context": "Each copy is named after the folder path it came from, from ``source``'s own name down, parts joined by ``_``; a file directly in ``source`` is named after ``source``. Several files in one folder are numbered ``_2``, ``_3``..., in sorted file-name order. The originals are never touched.",
+      "translation": "각 사본은 원래 있던 폴더 경로를 따라 ``source`` 자체의 이름부터 아래로 이어서, 각 부분을 ``_`` 로 연결한 이름을 받습니다. ``source`` 바로 아래의 파일은 ``source`` 의 이름을 받습니다. 한 폴더의 여러 파일은 파일 이름 순서대로 ``_2``, ``_3``... 번호가 붙습니다. 원본은 절대 건드리지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder#2",
+      "source": "the folder to consolidate.",
+      "source_sha256": "9cefdeaf2bc4ef6b9f238b391336f9d14e81c8747ea64396784c356577a69fe1",
+      "context": "the folder to consolidate.",
+      "translation": "통합할 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder#3",
+      "source": "the NEW folder to create; default :func:`default_output_folder`.",
+      "source_sha256": "c13576f065150c47f7c54b32a9dc335313ab5a2b5cf373aedb3b903720ae6de7",
+      "context": "the NEW folder to create; default :func:`default_output_folder`.",
+      "translation": "만들 새 폴더이며, 기본값은 :func:`default_output_folder` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder#4",
+      "source": "copy only these extensions (e.g. image types); None, the script's behaviour, copies every file.",
+      "source_sha256": "f391b1dc17b67aea517aab7ed8a542db018a24f2f7870d0b27ab1a174fb54415",
+      "context": "copy only these extensions (e.g. image types); None, the script's behaviour, copies every file.",
+      "translation": "이 확장자만 복사합니다(예: 이미지 형식). 스크립트의 동작인 None 이면 모든 파일을 복사합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder#5",
+      "source": "folder names not descended into, case-insensitively and with or without a numbered ``_2`` suffix.",
+      "source_sha256": "bdc8023e8f99cc8437cefb81189f5f1ad08db7edf24ddc48665ae2b490dc6180",
+      "context": "folder names not descended into, case-insensitively and with or without a numbered ``_2`` suffix.",
+      "translation": "들어가지 않을 폴더 이름으로, 대소문자를 구분하지 않고 ``_2`` 같은 번호 접미사가 있든 없든 적용됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder#6",
+      "source": "called with progress lines; default prints them.",
+      "source_sha256": "97371ab6955aa002845b3a4526c365963a36aead7429a0d339f706ad9daf2c70",
+      "context": "called with progress lines; default prints them.",
+      "translation": "진행 줄과 함께 호출되며, 기본값은 출력입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder#8",
+      "source": "when ``source`` is not a folder or ``output`` exists.",
+      "source_sha256": "bc953981765e6b4dc27f61e5bb7fb94cf20ceff5e9805075855da142e2ba6c08",
+      "context": "when ``source`` is not a folder or ``output`` exists.",
+      "translation": "``source`` 가 폴더가 아니거나 ``output`` 이 이미 있을 때 발생합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.copy_and_rename#0",
+      "source": "The script's entry point: consolidate and return an exit status.",
+      "source_sha256": "5e5ceaf941a2131e3a7e9404f9588d3ccb77e1777dfc7a64ad02f31f7b25f855",
+      "context": "The script's entry point: consolidate and return an exit status.",
+      "translation": "스크립트의 진입점으로, 통합한 뒤 종료 상태를 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.copy_and_rename#2",
+      "source": "the NEW output folder.",
+      "source_sha256": "1fe1c7601bc6abdc1a6b9cd58e3f10a9ca9206dc5ad304e203ab48dc23f0be7d",
+      "context": "the NEW output folder.",
+      "translation": "새 출력 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.copy_and_rename#3",
+      "source": "1 when any file failed, else 0.",
+      "source_sha256": "388d6c5c41bd9876c344ea7499505f3eb777716227912f4fe19cb6bc11ea6bab",
+      "context": "1 when any file failed, else 0.",
+      "translation": "실패한 파일이 있으면 1, 아니면 0 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.default_output_folder#0",
+      "source": "Return the unused ``<parent>/<name>_renamed`` beside ``source``.",
+      "source_sha256": "6a1a5d33616dcd76ccfd2c60556f1ba979f9c46939030c598385aa6130610915",
+      "context": "Return the unused ``<parent>/<name>_renamed`` beside ``source``.",
+      "translation": "``<parent>/<name>_renamed`` 중 아직 쓰이지 않은 것을 ``source`` 옆에서 찾아 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.file_extension#0",
+      "source": "Return the extension of ``path``, keeping a compound one whole.",
+      "source_sha256": "273c809d1578454e19b5d58cd283dee43a506ab8b0dae00a06af3cef1d1ab79e",
+      "context": "Return the extension of ``path``, keeping a compound one whole.",
+      "translation": "``path`` 의 확장자를 반환하되, 복합 확장자는 통째로 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.file_extension#1",
+      "source": "a file path.",
+      "source_sha256": "1c3215b7bee4ffee22dffea163459d36d3fc83a738b4f399beb3783fb47c1032",
+      "context": "a file path.",
+      "translation": "파일 경로입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.file_extension#2",
+      "source": "e.g. ``.ome.tif`` for ``x.ome.tif`` and ``.tif`` for ``x.tif``.",
+      "source_sha256": "f2bc1ccb893f96a67c524e59aba85772a56adb39fe5155273e9c4d7d6b94d3cb",
+      "context": "e.g. ``.ome.tif`` for ``x.ome.tif`` and ``.tif`` for ``x.tif``.",
+      "translation": "예: ``.ome.tif`` 는 ``x.ome.tif`` 의 확장자, ``.tif`` 는 ``x.tif`` 의 확장자입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.main#0",
+      "source": "Command line: ``python -m spacr.folder_consolidation SOURCE [OUTPUT]``.",
+      "source_sha256": "bfcdbbd918652aad7d3a28306266ae5a7c015a15abc457320bb8999316fb3cb4",
+      "context": "Command line: ``python -m spacr.folder_consolidation SOURCE [OUTPUT]``.",
+      "translation": "명령줄: ``python -m spacr.folder_consolidation SOURCE [OUTPUT]``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.main#1",
+      "source": "the arguments; default ``sys.argv[1:]``.",
+      "source_sha256": "dd20436de1483a6cc9f48a7248b1f81a0c99606cb37bd604905a5f19afd75fc1",
+      "context": "the arguments; default ``sys.argv[1:]``.",
+      "translation": "인수이며, 기본값은 ``sys.argv[1:]`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.nested_file_count#0",
+      "source": "Count the files that sit in SUBFOLDERS of ``source``, recursively.",
+      "source_sha256": "669feae1b1a6ff61599ca1fcf2adcb3078a574834633970dd0fa78399453ebe1",
+      "context": "Count the files that sit in SUBFOLDERS of ``source``, recursively.",
+      "translation": "``source`` 의 하위 폴더에 있는 파일을 재귀적으로 셉니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.nested_file_count#1",
+      "source": "Make Masks asks whether to consolidate only when this is not zero: files directly in ``source`` open as they are.",
+      "source_sha256": "c8db997d9b72cc1d14bc853804eac0064d3744712a8ca6dbd223b5e56d4c8771",
+      "context": "Make Masks asks whether to consolidate only when this is not zero: files directly in ``source`` open as they are.",
+      "translation": "Make Masks 는 이 값이 0 이 아닐 때만 통합할지 묻습니다. ``source`` 바로 아래의 파일은 그대로 열립니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.nested_file_count#3",
+      "source": "count only these extensions; None counts every file.",
+      "source_sha256": "9b6b87182cc69b3f747aa73c54ff78c3b084ae37a7e85ca6e39e4f63fd976170",
+      "context": "count only these extensions; None counts every file.",
+      "translation": "이 확장자만 셉니다. None 이면 모든 파일을 셉니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.nested_file_count#4",
+      "source": "folder names not descended into (case-insensitive), such as ``masks``; hidden folders are never descended into.",
+      "source_sha256": "d11715be701d1c58867e18c38536dccce5e4b5bbfada04978779946fecc1a1bd",
+      "context": "folder names not descended into (case-insensitive), such as ``masks``; hidden folders are never descended into.",
+      "translation": "들어가지 않을 폴더 이름(대소문자 구분 없음)으로, 예를 들어 ``masks`` 입니다. 숨김 폴더에는 절대 들어가지 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.nested_file_count#5",
+      "source": "``(files, folders)`` -- how many files lie below the top level and how many distinct subfolders hold them. Symbolic links are not counted or followed.",
+      "source_sha256": "ed6b40e942f41e85a8ecdc9ab84313f8ffe137bbccf192b20860baabb8b5de3f",
+      "context": "``(files, folders)`` -- how many files lie below the top level and how many distinct subfolders hold them. Symbolic links are not counted or followed.",
+      "translation": "``(files, folders)``: 최상위 아래에 있는 파일 수와 그것들을 담은 서로 다른 하위 폴더 수입니다. 심볼릭 링크는 세지도 따라가지도 않습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.safe_part#0",
+      "source": "Replace characters Windows forbids in a filename; keep spaces.",
+      "source_sha256": "2d155c52bda8ebab5ac5cd146f41e5d4f68d757fbe5f1f8454171f5fc2e551fc",
+      "context": "Replace characters Windows forbids in a filename; keep spaces.",
+      "translation": "Windows 가 파일 이름에 금지하는 문자를 바꾸되 공백은 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.safe_part#1",
+      "source": "one folder name.",
+      "source_sha256": "9aa0208a3c31c5876434ddd7d5d9f1ccb173e3fc443e54fda178ecd1e5443795",
+      "context": "one folder name.",
+      "translation": "폴더 이름 하나입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.safe_part#2",
+      "source": "the name with ``<>:\"/\\|?*`` and control characters replaced by ``_`` and trailing spaces and dots removed; ``folder`` when nothing is left.",
+      "source_sha256": "697b2740c5d9b9e8852bb22e1dc0f6f814f2217a6fb65d9e810779d8c67b2b97",
+      "context": "the name with ``<>:\"/\\|?*`` and control characters replaced by ``_`` and trailing spaces and dots removed; ``folder`` when nothing is left.",
+      "translation": "``<>:\"/\\|?*`` 와 제어 문자를 ``_`` 로 바꾸고 끝의 공백과 점을 없앤 이름입니다. 아무것도 남지 않으면 ``folder`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.unused_output_folder#0",
+      "source": "Return ``parent/name``, or ``name_2``, ``name_3``... when it exists.",
+      "source_sha256": "d3ffd10136b4da79605fbcf9d981f989f74a81ce2b58f52c4da84023d5bf5586",
+      "context": "Return ``parent/name``, or ``name_2``, ``name_3``... when it exists.",
+      "translation": "``parent/name``, 또는 이미 있으면 ``name_2``, ``name_3``... 을 반환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.unused_output_folder#1",
+      "source": "the folder to create the output in.",
+      "source_sha256": "e0f8d66b7b7e96ad6a6d88c21ba4362beb8f689bad4300a17d3a7087932a2991",
+      "context": "the folder to create the output in.",
+      "translation": "출력을 만들 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.folder_consolidation.unused_output_folder#3",
+      "source": "a path that does not exist yet.",
+      "source_sha256": "cd83d1e909378720c01c7ebdc67f1df41b746a18699c5a8b067e4e1ba5b045b0",
+      "context": "a path that does not exist yet.",
+      "translation": "아직 존재하지 않는 경로입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline#4",
+      "source": "SELF-SUPERVISED DENOISING COMES BEFORE THE CHAIN. With ``n2v_denoise`` on, a Noise2Void (N2V2) model per segmentation channel is trained by CAREamics, in its own environment, on a sample of the run's own raw fields -- no clean images are needed -- or read from ``n2v_model``. Each field's selected channels are denoised after illumination correction and before the PSF and the chain, while the noise is still independent from pixel to pixel, which is what Noise2Void assumes. The checkpoints' hashes and the training record join the same provenance record.",
+      "source_sha256": "053a6f3ea879abe3f0597364d142db70df217b383995dcc2b937bb41187efb63",
+      "context": "Self-supervised denoising comes before the chain. With ``n2v_denoise`` on, a Noise2Void (N2V2) model per segmentation image data channel is trained by CAREamics, in its own environment, on a sample of the processing session's own raw microscope fields of view -- no clean images are needed -- or read from ``n2v_model``. Each microscope field of view's selected image data channels are denoised after illumination correction and before the PSF and the chain, while the noise is still independent from pixel to pixel, which is what Noise2Void assumes. The checkpoints' hashes and the training record join the same provenance record.",
+      "translation": "자기 지도 노이즈 제거는 체인보다 먼저 옵니다. ``n2v_denoise`` 가 켜져 있으면 CAREamics 가 자체 환경에서, 이번 처리 자체의 원시 시야 표본으로 분할 채널마다 Noise2Void(N2V2) 모델을 학습시키거나(깨끗한 이미지는 필요 없음) ``n2v_model`` 에서 읽어 옵니다. 각 시야의 선택된 채널은 조명 보정 후, PSF 와 체인 전에 노이즈를 제거하는데, 이때는 노이즈가 아직 픽셀마다 독립적이며 이것이 Noise2Void 의 가정입니다. 체크포인트의 해시와 학습 기록은 같은 출처 기록에 합쳐집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.psf_pipeline.processing_requested#2",
+      "source": "the run's ``psf_*``, ``enhance_*``, ``unmix`` and ``n2v_denoise`` settings.",
+      "source_sha256": "229b6786bd16520e9192474e27a864aa92c75af0624df37f2b9629d3dcbcd04c",
+      "context": "the processing session's ``psf_*``, ``enhance_*``, ``unmix`` and ``n2v_denoise`` settings.",
+      "translation": "이번 처리의 ``psf_*``, ``enhance_*``, ``unmix``, ``n2v_denoise`` 설정입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.prerun.install_qc_banner#0",
+      "source": "Put a QC switch on ``screen``'s action row that opens the verdict.",
+      "source_sha256": "8053ef0a2c0de301207113ca1bf92ce2540c0daaf3ca4cd99d13c3a66b390285",
+      "context": "Put a QC switch on ``screen``'s action row that opens the verdict.",
+      "translation": "``screen`` 의 작업 행에 판정을 여는 QC 스위치를 놓습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.prerun.install_qc_banner#1",
+      "source": "The switch sits left of the 3D and Time switches; the banner lives in its popup, so the Run row keeps its place whatever the verdict says.",
+      "source_sha256": "4ae3d89a22e65b1a5ed09fec04d461f4f01c98fb2895f186f270d9419731f128",
+      "context": "The switch sits left of the 3D and Time switches; the banner lives in its popup, so the Run row keeps its place whatever the verdict says.",
+      "translation": "스위치는 3D 와 시간 스위치의 왼쪽에 있고, 배너는 그 팝업 안에 있으므로 판정이 무엇이든 Run 행은 제자리를 지킵니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.settings_section_maturity#1",
+      "source": "An alpha or beta module colours every one of its settings. A stable module can still contain an explicitly experimental category -- an alpha one is named with a trailing ``α`` (\"Confluency α\"), a beta one with ``(Beta)`` -- in which case that section receives the more cautious stage.",
+      "source_sha256": "6ae1a111029f0c7b00467fcf35924614cdf2c17b7042b29cf5e35307c0b80bb2",
+      "context": "An alpha or beta module colours every one of its settings. A stable module can still contain an explicitly experimental category -- an alpha one is named with a trailing ``α`` (\"Confluency α\"), a beta one with ``(Beta)`` -- in which case that section receives the more cautious stage.",
+      "translation": "알파 또는 베타 모듈은 모든 설정에 색을 입힙니다. 안정 모듈에도 명시적으로 실험적인 범주가 있을 수 있는데, 알파 범주는 끝에 ``α`` 를 붙여(\"Confluency α\"), 베타 범주는 ``(Beta)`` 를 붙여 이름을 짓습니다. 이 경우 해당 섹션은 더 신중한 단계를 받습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.settings_section_maturity#3",
+      "source": "the section heading; compared case-insensitively, it is alpha when it is ``\"alpha\"``, ends with ``α`` or contains ``\"(alpha)\"``, beta when it is ``\"beta\"`` or contains ``\"(beta)\"``, and stable otherwise.",
+      "source_sha256": "d8bf2920971d132b38c6c8c64d3a1f864deef7df5b11eb8af28e46781d3da929",
+      "context": "the section heading; compared case-insensitively, it is alpha when it is ``\"alpha\"``, ends with ``α`` or contains ``\"(alpha)\"``, beta when it is ``\"beta\"`` or contains ``\"(beta)\"``, and stable otherwise.",
+      "translation": "섹션 제목입니다. 대소문자 구분 없이 비교해 ``\"alpha\"`` 이거나 ``α`` 로 끝나거나 ``\"(alpha)\"`` 를 포함하면 알파, ``\"beta\"`` 이거나 ``\"(beta)\"`` 를 포함하면 베타, 그 밖에는 안정입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.essential_keys#3",
+      "source": "Classify's first group is only the family switch, so its extras carry what training either family needs: the classes, the splits, the image model and its schedule, and the tabular algorithm and its main hyperparameters. The family switch greys whichever half does not apply.",
+      "source_sha256": "e176b8e2748dfa8182c17f642ff2209408fbbe523c9c925a100a157d277804fc",
+      "context": "Classify's first group is only the family switch, so its extras carry what training either family needs: the classes, the splits, the image model and its schedule, and the tabular algorithm and its main hyperparameters. The family switch greys whichever half does not apply.",
+      "translation": "Classify 의 첫 그룹은 모델 계열 스위치뿐이므로, 그 추가 항목에는 어느 계열의 학습이든 필요한 것이 들어 있습니다. 클래스, 분할, 이미지 모델과 그 일정, 표 형식 알고리즘과 주요 하이퍼파라미터입니다. 모델 계열 스위치는 해당하지 않는 절반을 회색으로 표시합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog#0",
+      "source": "Make Masks' \"Sort into channels…\" dialog, its regex window and its set check.",
+      "source_sha256": "8f5d2f64eb10bc685ef72f8261fb87602302e11fac6d2db8f4c670dd3d702d68",
+      "context": "Make Masks' \"Sort into channels…\" dialog, its regex window and its set check.",
+      "translation": "Make Masks 의 \"Sort into channels…\" 대화 상자와 그 정규식 창, 세트 검사입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog#1",
+      "source": "Thin Qt over :mod:`spacr.channel_sorting`, which holds every decision:",
+      "source_sha256": "38a92d896bd02d1ee365ac19101402041ee66a5d06a7cb215e56f6458a99a8c8",
+      "context": "Thin Qt over :mod:`spacr.channel_sorting`, which holds every decision:",
+      "translation": "모든 결정을 내리는 :mod:`spacr.channel_sorting` 위의 얇은 Qt 계층입니다:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog#2",
+      "source": ":class:`ChannelSortDialog` lists the open folder's images with thumbnails and whether each has a mask. Images are selected (click, Shift, Ctrl, Select all) and assigned to a channel -- the SELECTION strategy -- and a regex can assign every image instead -- the REGEX strategy. Apply builds a :class:`spacr.channel_sorting.SortPlan`; when the names cannot be turned into sets, the user is asked to change the regex.",
+      "source_sha256": "94f3cc9027bc8055bd60bdb1bb9d6c2fc87ffe82342ef00dc089ee04f2411741",
+      "context": ":class:`ChannelSortDialog` lists the open folder's images with thumbnails and whether each has a mask. Images are selected (click, Shift, Ctrl, Select all) and assigned to an image data channel -- the SELECTION strategy -- and a regex can assign every image instead -- the REGEX strategy. Apply builds a :class:`spacr.channel_sorting.SortPlan`; when the names cannot be turned into sets, the user is asked to change the regex.",
+      "translation": ":class:`ChannelSortDialog` 는 열린 폴더의 이미지를 썸네일과 함께 나열하고 각각에 마스크가 있는지 보여 줍니다. 이미지를 선택해(클릭, Shift, Ctrl, 모두 선택) 채널에 지정하는 것이 선택 전략이고, 대신 정규식으로 모든 이미지를 지정하는 것이 정규식 전략입니다. Apply 는 :class:`spacr.channel_sorting.SortPlan` 을 만들며, 이름을 세트로 바꿀 수 없으면 사용자에게 정규식을 바꾸라고 요청합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog#3",
+      "source": ":class:`RegexWindow` explains the named groups, tests a regex live against every file name, proposes one (\"Auto regex\") or pairs images by similarity and size, ignoring names (\"Detect sets\").",
+      "source_sha256": "07f8795ade366f95d91a6a943e7407d7a3518da2f629f63be48e6f8671029d19",
+      "context": ":class:`RegexWindow` explains the named groups, tests a regex live against every file name, proposes one (\"Auto regex\") or pairs images by similarity and size, ignoring names (\"Detect sets\").",
+      "translation": ":class:`RegexWindow` 는 이름 있는 그룹을 설명하고, 정규식을 모든 파일 이름에 실시간으로 시험하며, 정규식을 제안하거나(\"Auto regex\") 이름을 무시하고 유사도와 크기로 이미지를 짝짓습니다(\"Detect sets\").",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog#4",
+      "source": ":class:`ExampleSetsDialog` shows three detected sets side by side, every channel with its mask, and asks whether they are right.",
+      "source_sha256": "3ae268dbc3a757fde425a28c99e6ffdbad3757470d17741af8e6f3449004e57b",
+      "context": ":class:`ExampleSetsDialog` shows three detected sets side by side, every image data channel with its mask, and asks whether they are right.",
+      "translation": ":class:`ExampleSetsDialog` 는 감지된 세트 세 개를 나란히, 채널마다 마스크와 함께 보여 주고 맞는지 묻습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog#5",
+      "source": "Nothing here moves a file. The dialog hands back a plan; the screen applies it off the GUI thread.",
+      "source_sha256": "468d8bebcd4980752b4eebfed956ce4258ac3c5a2a83b2600f864602233d2c33",
+      "context": "Nothing here moves a file. The dialog hands back a plan; the application view applies it off the main GUI execution path.",
+      "translation": "여기서는 어떤 파일도 옮기지 않습니다. 대화 상자는 계획을 돌려주고, 뷰가 GUI 스레드 밖에서 그것을 적용합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#0",
+      "source": "Assign the folder's images to channels, check the sets, plan the move.",
+      "source_sha256": "69d8a6d49fbf27e2f72823f13a87b5aaee37cb7544adccffe12f35d53e9b6370",
+      "context": "Assign the folder's images to image data channels, check the sets, plan the move.",
+      "translation": "폴더의 이미지를 채널에 지정하고, 세트를 검사하고, 이동을 계획합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#1",
+      "source": "the confirmed :class:`spacr.channel_sorting.SortPlan` once the dialog is accepted, else None.",
+      "source_sha256": "7ee838bf58d9792485c18c0718ae75b87afe0f8b4d5fe89a0842a269d30f4341",
+      "context": "the confirmed :class:`spacr.channel_sorting.SortPlan` once the dialog is accepted, else None.",
+      "translation": "대화 상자가 승인되면 확정된 :class:`spacr.channel_sorting.SortPlan`, 아니면 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#2",
+      "source": "List the folder and propose a regex.",
+      "source_sha256": "38ef8aa67cbb3947298d01fff71fe35123c3086263bf500b49c7edd303fe60a8",
+      "context": "List the folder and propose a regex.",
+      "translation": "폴더 내용을 나열하고 정규식을 제안합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#3",
+      "source": "the folder Make Masks has open.",
+      "source_sha256": "bde9edcb091e3c4b46fbd326c5744444f9a71d185be697a17120c4ff7163d25c",
+      "context": "the folder Make Masks has open.",
+      "translation": "Make Masks 가 열어 둔 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog#4",
+      "source": "its masks folder, when not ``<folder>/masks``.",
+      "source_sha256": "c4b6fc70669ef7259feec3d1cdc375b673767a229c1bbe57a9e6172e36aa8bb1",
+      "context": "its masks folder, when not ``<folder>/masks``.",
+      "translation": "``<folder>/masks`` 가 아닐 때의 마스크 폴더입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.add_channel#0",
+      "source": "Offer one more channel.",
+      "source_sha256": "9b18349e02774ce8ad0070d9f47b70f221e13358a9a37faf0f51c68b83c33550",
+      "context": "Offer one more channel.",
+      "translation": "채널을 하나 더 제공합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.add_channel#1",
+      "source": "the new channel's number.",
+      "source_sha256": "3e22cca5152c29889a0c813bfd77eb11d262f5d8dc261f15accf75dbf1ff538f",
+      "context": "the new channel's number.",
+      "translation": "새 채널의 번호입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.assign_selected#0",
+      "source": "Assign the selected images to ``channel``; None clears them.",
+      "source_sha256": "f6c17c1c6947b31146963d9d88de33226c4650a05a623b14d4c2231e6e05ce05",
+      "context": "Assign the selected images to ``channel``; None clears them.",
+      "translation": "선택한 이미지를 ``channel`` 에 지정합니다. None 이면 지정을 지웁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.assign_selected#1",
+      "source": "Assigning by hand replaces any sets \"Detect sets\" found.",
+      "source_sha256": "c7b6129de5657c7736777210e5d1fce00ef2c9cfa338253de354c362fcabe404",
+      "context": "Assigning by hand replaces any sets \"Detect sets\" found.",
+      "translation": "직접 지정하면 \"Detect sets\" 가 찾은 세트는 모두 대체됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.assign_selected#2",
+      "source": "the 1-based channel, or None.",
+      "source_sha256": "3b8677fd02d8759158bdeb460391f04af4b82bc3511dbdfed958a2aad3392b08",
+      "context": "the 1-based channel, or None.",
+      "translation": "1 부터 센 채널, 또는 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.current_sets#0",
+      "source": "The sets Apply would use, and what is wrong when there are none.",
+      "source_sha256": "d41fd81a3bba9f43b2490955c001fd10c1a149a706dd0b9f8b7f821e470d0856",
+      "context": "The sets Apply would use, and what is wrong when there are none.",
+      "translation": "Apply 가 사용할 세트와, 세트가 없을 때 무엇이 잘못되었는지입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.mask_roles#0",
+      "source": "``{channel: role}`` as chosen, leaving out ``none``.",
+      "source_sha256": "7bbff65b6cda04d1f551366139bc790fa2b6fff782fbdcb70b7b6fa8a5d97b7a",
+      "context": "``{channel: role}`` as chosen, leaving out ``none``.",
+      "translation": "선택한 대로의 ``{channel: role}`` 이며, ``none`` 은 제외합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.parsed#0",
+      "source": "Every image read through the regex, with the selection's channels.",
+      "source_sha256": "8bb54aedae13e4989097a4041698a9bc3eb76a8d35ee681c5102e161e4cb3d1d",
+      "context": "Every image read through the regex, with the selection's image data channels.",
+      "translation": "정규식으로 읽은 모든 이미지로, 선택의 채널이 반영되어 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.prepare_plan#0",
+      "source": "Build the plan from the current sets, or None when there are none.",
+      "source_sha256": "2bd52c6680719917979df604164efe23969826ecfdf7206e86fe0d994842e2f8",
+      "context": "Build the plan from the current sets, or None when there are none.",
+      "translation": "현재 세트로 계획을 만들며, 세트가 없으면 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.prepare_plan#1",
+      "source": "convert RGB images and z-stacks to one plane.",
+      "source_sha256": "4b415e01f3f299799068a41ac06a10ee2360d49c1a4b92b6bdb25780831a1da7",
+      "context": "convert RGB images and z-stacks to one image layer.",
+      "translation": "RGB 이미지와 z 스택을 하나의 평면으로 변환합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.prepare_plan#2",
+      "source": "the plan, which may still carry problems.",
+      "source_sha256": "ee34f95d670f4acd170c298e14397d489fa5f0d5a88dcac9588072f9106ba6f9",
+      "context": "the plan, which may still carry problems.",
+      "translation": "아직 문제가 남아 있을 수 있는 계획입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.refresh#0",
+      "source": "Redraw the list texts, the mask-role choices and the status line.",
+      "source_sha256": "0e1e67bf9fff672514f32602b6cc9dff31f7f293123760d49c42f8e1b301c444",
+      "context": "Redraw the list texts, the mask-role choices and the status line.",
+      "translation": "목록 텍스트, 마스크 역할 선택, 상태 줄을 다시 그립니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.selected_names#0",
+      "source": "The selected images' names, in list order.",
+      "source_sha256": "b729d7adc763a59d30e813cad522e24209d3c7229b4495ea25c58eab490ffff3",
+      "context": "The selected images' names, in list order.",
+      "translation": "선택한 이미지의 이름으로, 목록 순서대로입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.set_regex#0",
+      "source": "Use ``regex`` for channels and sets from now on.",
+      "source_sha256": "430b091f9ccde3afa3d507b9d961965b9c47756665612ef76ee14495e3d46476",
+      "context": "Use ``regex`` for channels and sets from now on.",
+      "translation": "이제부터 채널과 세트에 ``regex`` 를 사용합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ChannelSortDialog.set_regex#1",
+      "source": "the pattern.",
+      "source_sha256": "f2bb5e9e9ca4f92a7a87c8a6c6bda96762df65a7c8a95928287f3b601e24cc8d",
+      "context": "the pattern.",
+      "translation": "패턴입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.ExampleSetsDialog#0",
+      "source": "Three sets side by side -- every channel and its mask -- and a question. Lay out up to three sets: the first, the middle and the last.",
+      "source_sha256": "dd2e726e1cde5d46efc870a113c92884a8c2754136bee3681e0161ec1e1ea844",
+      "context": "Three sets side by side -- every image data channel and its mask -- and a question. Lay out up to three sets: the first, the middle and the last.",
+      "translation": "세트 세 개를 나란히(각 채널과 그 마스크) 보여 주고 질문합니다. 첫 번째, 가운데, 마지막 세트까지 최대 세 개를 배치합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#0",
+      "source": "Write, test, infer or bypass the regex that sorts images into sets.",
+      "source_sha256": "795a733b8cbd01d897c01bfd1581905066538a0e7e2f158462e7456495f82969",
+      "context": "Write, test, infer or bypass the regex that sorts images into sets.",
+      "translation": "이미지를 세트로 정리하는 정규식을 작성, 시험, 추론하거나 우회합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#1",
+      "source": "the regex when the window is accepted with \"Use this regex\".",
+      "source_sha256": "f5b1a51ab1c9f25518654e89962f20c313b2f0c27899cc78ff9bcaa27af37641",
+      "context": "the regex when the window is accepted with \"Use this regex\".",
+      "translation": "창이 \"Use this regex\" 로 승인되었을 때의 정규식입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#2",
+      "source": "the sets \"Detect sets\" found and the user confirmed, or None.",
+      "source_sha256": "107482455e6b6402654997e09ca5e54c0698839afc77df9c2f062308538db195",
+      "context": "the sets \"Detect sets\" found and the user confirmed, or None.",
+      "translation": "\"Detect sets\" 가 찾고 사용자가 확인한 세트, 또는 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#3",
+      "source": "Build the window and run the test once.",
+      "source_sha256": "9231afb40f7ab7299acc6514eb246b633f0ad9cffda95150bd8e16846cd1ba83",
+      "context": "Build the window and run the test once.",
+      "translation": "창을 만들고 시험을 한 번 실행합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#5",
+      "source": "the image names to test against.",
+      "source_sha256": "0f9aec885e9cd40d7f4a084b55aa87f03447eba70799cde091d63d2a6d709b1d",
+      "context": "the image names to test against.",
+      "translation": "시험에 쓸 이미지 이름입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#6",
+      "source": "``{name: channel}`` from the selection.",
+      "source_sha256": "2b008a15ca6df83ec6832997cf999264afe449c717193b145508e370ef19ce18",
+      "context": "``{name: channel}`` from the selection.",
+      "translation": "선택에서 온 ``{name: channel}`` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow#7",
+      "source": "the regex to start from.",
+      "source_sha256": "548ed99ee975f3f085bce90e8830fb18bdac46769a62d1882427619e880e8f10",
+      "context": "the regex to start from.",
+      "translation": "시작할 정규식입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.auto_regex#0",
+      "source": "Propose a regex, put it in the field and test it.",
+      "source_sha256": "4e2293e6dff9a897bb51f0ef1512d7dff623562dbbc56a80bf1c2eb3e403ca28",
+      "context": "Propose a regex, put it in the field and test it.",
+      "translation": "정규식을 제안하고 입력란에 넣은 뒤 시험합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.auto_regex#1",
+      "source": "the regex, or None when none was found.",
+      "source_sha256": "d19406193a833a7f5fb2384d12f2a6c8f6d04d93ec964a2b083ff324ef2ad896",
+      "context": "the regex, or None when none was found.",
+      "translation": "정규식이며, 찾지 못하면 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.detect#0",
+      "source": "Pair images into sets, show three, and keep them when confirmed.",
+      "source_sha256": "fa84d183b8ee0b474a291a2160e5e1f8b6cf630af1606fb18b6a06065e9c21fd",
+      "context": "Pair images into sets, show three, and keep them when confirmed.",
+      "translation": "이미지를 세트로 짝짓고 세 개를 보여 준 뒤, 확인되면 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.detect#1",
+      "source": "the sets when the user said they are right, else None.",
+      "source_sha256": "3be796ad37238353afe4825b02f6d7ae75227f1a48e41d70b6464beb44223585",
+      "context": "the sets when the user said they are right, else None.",
+      "translation": "사용자가 맞다고 한 세트, 아니면 None 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.run_test#0",
+      "source": "Parse every name with the regex and fill the table and summary.",
+      "source_sha256": "a7acd577cbbe584a5fc6cabac27569d6f15413aa0154bcdec249e8ec75b3beb0",
+      "context": "Parse every name with the regex and fill the table and summary.",
+      "translation": "모든 이름을 정규식으로 해석하고 표와 요약을 채웁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.channel_sort_dialog.RegexWindow.run_test#1",
+      "source": "the set report.",
+      "source_sha256": "b676266db7f4d328ad22edd4d7b3c7ef63deef3a77ce407ae6b8384356001737",
+      "context": "the set report.",
+      "translation": "세트 보고서입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_filter#0",
+      "source": "Add a filter row for regionprop ``name``, every cell empty.",
+      "source_sha256": "b82dc728f624555ebc67f6b45c5a47ec2f5bf09b70407692bd7704c470b96681",
+      "context": "Add a filter row for regionprop ``name``, every cell empty.",
+      "translation": "regionprop ``name`` 에 대한 필터 행을 추가하며, 모든 칸은 비어 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_filter#1",
+      "source": "a scalar scikit-image regionprop, e.g. ``\"area\"`` or ``\"intensity_mean\"``; legacy spellings are accepted.",
+      "source_sha256": "c5265f16228c6399bae94f1c10102b8d4dfd3da5c0105e9d0d5a19535ae7ff9e",
+      "context": "a scalar scikit-image regionprop, e.g. ``\"area\"`` or ``\"intensity_mean\"``; legacy spellings are accepted.",
+      "translation": "scikit-image 의 스칼라 regionprop 으로, 예를 들어 ``\"area\"`` 나 ``\"intensity_mean\"`` 입니다. 예전 표기도 허용됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_filter#2",
+      "source": "False when the name is not a filterable property or the row is already there.",
+      "source_sha256": "38cedd18b410dcb4ca0cbdbb991cfc0830cb4bbf20636c8506c98489f64d3970",
+      "context": "False when the name is not a filterable property or the row is already there.",
+      "translation": "이름이 필터링 가능한 속성이 아니거나 행이 이미 있으면 False 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.filter_properties#0",
+      "source": "The properties the table has a filter row for, in order.",
+      "source_sha256": "f51c533c12699430380adf7a451ca233e890cd79c76e02de87ecb4c7c2b373b3",
+      "context": "The properties the table has a filter row for, in order.",
+      "translation": "표에 필터 행이 있는 속성으로, 순서대로입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_filters#0",
+      "source": "Show ``object_filters`` as it now stands, e.g. after a file load.",
+      "source_sha256": "2ab7f9ad0082668696ca59253081e99fefaf2ec62c14a7f807f0b9b1daae96c6",
+      "context": "Show ``object_filters`` as it now stands, e.g. after a file load.",
+      "translation": "``object_filters`` 를 현재 상태대로 보여 줍니다. 예를 들어 파일을 불러온 뒤입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_filters#1",
+      "source": "the setting's value, a mapping or its text.",
+      "source_sha256": "2b394f47bfee2a64c3bbcf5b94029fb95b57905c409602353a6cb8d223fddbd1",
+      "context": "the setting's value, a mapping or its text.",
+      "translation": "설정의 값으로, 매핑이나 그 텍스트입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.settings#1",
+      "source": "The filter rows are written back into ``object_filters``: each shown object's list is rebuilt from its cells, in row order, and an object the table does not show keeps the list it had.",
+      "source_sha256": "fb2e34371e7e2e84b030934935782c6528aad45e4be896160595bea8efedf000",
+      "context": "The filter rows are written back into ``object_filters``: each shown object's list is rebuilt from its cells, in row order, and an object the table does not show keeps the list it had.",
+      "translation": "필터 행은 ``object_filters`` 에 다시 기록됩니다. 표시된 각 객체의 목록은 그 칸들로부터 행 순서대로 다시 만들어지고, 표가 표시하지 않는 객체는 원래 목록을 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.tabular#16",
+      "source": "``pandas``, ``sqlite3`` and :mod:`spacr.schema`. The alternative measurement stores import ``duckdb`` or ``psycopg`` only when a DuckDB, Parquet or PostgreSQL store is opened. Nothing else at module scope -- no ``spacr.utils``, no matplotlib, no torch. That is a requirement rather than tidiness: the CSV picker and the SQL column list have to be able to import this to get canonical names, and they cannot pay for a torch import to do it.",
+      "source_sha256": "310ef96d74acab287944d13d7e99c17e93a8c87d2d0a4aea8f2d1e883224ab58",
+      "context": "``pandas``, ``sqlite3`` and :mod:`spacr.schema`. The alternative measurement stores import ``duckdb`` or ``psycopg`` only when a DuckDB, Parquet or PostgreSQL store is opened. Nothing else at module scope -- no ``spacr.utils``, no matplotlib, no torch. That is a requirement rather than tidiness: the CSV picker and the SQL column list have to be able to import this to get canonical names, and they cannot pay for a torch import to do it.",
+      "translation": "``pandas``, ``sqlite3``, :mod:`spacr.schema` 입니다. 대체 측정 저장소는 DuckDB, Parquet, PostgreSQL 저장소를 열 때만 ``duckdb`` 나 ``psycopg`` 를 가져옵니다. 모듈 범위에는 그 밖의 것이 없습니다. ``spacr.utils`` 도, matplotlib 도, torch 도 없습니다. 이는 깔끔함의 문제가 아니라 요구 사항입니다. CSV 선택기와 SQL 열 목록은 표준 이름을 얻기 위해 이 모듈을 가져올 수 있어야 하며, 그 때문에 torch 를 가져오는 비용을 치를 수는 없습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.tabular.database_tables#1",
+      "source": "path to the database, or any store :func:`read_database` reads. ``~`` and ``$VARS`` are expanded.",
+      "source_sha256": "370c2c69e8d397bbf0327cfd4e97db9061f5b666592f84afc854fdfda670f5be",
+      "context": "path to the database, or any store :func:`read_database` reads. ``~`` and ``$VARS`` are expanded.",
+      "translation": "데이터베이스 경로, 또는 :func:`read_database` 가 읽는 모든 저장소입니다. ``~`` 와 ``$VARS`` 는 확장됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.tabular.read_database#0",
+      "source": "Read one or more tables out of a measurement database.",
+      "source_sha256": "eb907b4863e0f587e88670c516346a060305bf9311af586600eb08b80767eea7",
+      "context": "Read one or more tables out of a measurement database.",
+      "translation": "측정 데이터베이스에서 하나 이상의 표를 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.tabular.read_database#2",
+      "source": "SQLite is the default store. A ``.duckdb`` file, a ``.parquetdb`` folder of Parquet parts or a ``postgresql://`` connection string is read the same way, through duckdb or psycopg imported only then; the schema migration, ``read_only`` and ``kwargs`` apply to SQLite alone.",
+      "source_sha256": "1787c9c2bb11571bf276f2d53dbf652598ee2a72532a6f693b505dd5be46a5a3",
+      "context": "SQLite is the default store. A ``.duckdb`` file, a ``.parquetdb`` folder of Parquet parts or a ``postgresql://`` connection string is read the same way, through duckdb or psycopg imported only then; the schema migration, ``read_only`` and ``kwargs`` apply to SQLite alone.",
+      "translation": "SQLite 가 기본 저장소입니다. ``.duckdb`` 파일, Parquet 조각으로 된 ``.parquetdb`` 폴더, ``postgresql://`` 연결 문자열도 같은 방식으로 읽으며, 이때만 가져오는 duckdb 나 psycopg 를 통합니다. 스키마 마이그레이션, ``read_only``, ``kwargs`` 는 SQLite 에만 적용됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.tabular.read_database#3",
+      "source": "path to the database, or a PostgreSQL connection string.",
+      "source_sha256": "35c9bc9bcd414fa2270f7982384da08e73c9675a7b5f6b23384d0767e769a825",
+      "context": "path to the database, or a PostgreSQL connection string.",
+      "translation": "데이터베이스 경로, 또는 PostgreSQL 연결 문자열입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.tabular.read_table#1",
+      "source": "CSV, TSV, SQLite, Parquet, Feather and Excel, chosen by suffix. A database -- SQLite, a ``.duckdb`` file, a ``.parquetdb`` store or a ``postgresql://`` string -- needs ``table``; every other format ignores it.",
+      "source_sha256": "7b8a5a108ef08e81c6ea4037d836c9638cfaa6eb667f3beb3b38a4b888cb9194",
+      "context": "CSV, TSV, SQLite, Parquet, Feather and Excel, chosen by suffix. A database -- SQLite, a ``.duckdb`` file, a ``.parquetdb`` store or a ``postgresql://`` string -- needs ``table``; every other format ignores it.",
+      "translation": "CSV, TSV, SQLite, Parquet, Feather, Excel 이며 확장자로 고릅니다. 데이터베이스(SQLite, ``.duckdb`` 파일, ``.parquetdb`` 저장소 또는 ``postgresql://`` 문자열)에는 ``table`` 이 필요하고, 다른 형식은 모두 이를 무시합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.tabular.write_database#0",
+      "source": "Write one frame into a database table, with canonical column names.",
+      "source_sha256": "8bc9607578d8c0e61f0df9e5a85e8124b72e9ecc5bd5766fb1d1c05dd70298fe",
+      "context": "Write one frame into a database table, with canonical column names.",
+      "translation": "데이터 프레임 하나를 표준 열 이름으로 데이터베이스 표에 기록합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.tabular.write_database#1",
+      "source": "SQLite by default; a ``.duckdb`` path, a ``.parquetdb`` path or a ``postgresql://`` string writes to that store instead, where ``append`` also adds columns the table lacks and ``migrate`` and ``kwargs`` are ignored.",
+      "source_sha256": "ca159092c99aa585d9402b7033d5d70bce5f8d1da2520632f79f3c0a84dedac5",
+      "context": "SQLite by default; a ``.duckdb`` path, a ``.parquetdb`` path or a ``postgresql://`` string writes to that store instead, where ``append`` also adds columns the table lacks and ``migrate`` and ``kwargs`` are ignored.",
+      "translation": "기본값은 SQLite 이며, ``.duckdb`` 경로, ``.parquetdb`` 경로 또는 ``postgresql://`` 문자열이면 대신 그 저장소에 기록합니다. 이 경우 ``append`` 는 표에 없는 열도 추가하고 ``migrate`` 와 ``kwargs`` 는 무시됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.tabular.write_database#3",
+      "source": "path to the database, or a PostgreSQL connection string; created if absent, ``~`` expanded.",
+      "source_sha256": "712d7de416953159084c363aa825659c0be1df1457ae8108beb63ebd46a300f9",
+      "context": "path to the database, or a PostgreSQL connection string; created if absent, ``~`` expanded.",
+      "translation": "데이터베이스 경로, 또는 PostgreSQL 연결 문자열입니다. 없으면 만들어지고 ``~`` 는 확장됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}

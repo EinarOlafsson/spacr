@@ -1915,6 +1915,24 @@ ViaAlias = TupleAlias("ViaAlias", [("value", int)])
     )
 
 
+def _validated_prior_scn_callables(callables):
+    """Validate each new reader's full contract before reproducing old pins."""
+    expected = {
+        "spacr.convert.read_scn": ({"path", "index"}, {"path"}),
+        "spacr.convert.scn_to_rgb8": ({"image", "meta"}, {"image", "meta"}),
+        "spacr.qt.mask_engine.read_image": ({"path"}, {"path"}),
+    }
+    by_symbol = {item.symbol: item for item in callables}
+    for symbol, (parameters, required) in expected.items():
+        item = by_symbol[symbol]
+        assert item.category == "function" and item.exposure == "autoapi"
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.parameters == parameters
+        assert item.required_parameters == required
+        assert item.accepted_documented_parameters == parameters
+    return [item for item in callables if item.symbol not in expected]
+
+
 def _validated_prior_radius_callables(callables):
     """Check the exact new radius API before retaining every old boundary pin."""
     by_symbol = {item.symbol: item for item in callables}
@@ -1953,7 +1971,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     parameter becoming optional (or the reverse) without changing counts.
     """
     before_modules = set(sys.modules)
-    callables = _validated_prior_radius_callables(list(_public_callables()))
+    callables = _validated_prior_scn_callables(
+        _validated_prior_radius_callables(list(_public_callables())))
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")
@@ -3393,7 +3412,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {symbol: docs[symbol] for symbol in radius_symbols} == radius_docs
     rendered_documented_callables = {
         item.symbol: item.docstring
-        for item in _validated_prior_radius_callables(actual_callables)
+        for item in _validated_prior_scn_callables(
+            _validated_prior_radius_callables(actual_callables))
         if item.exposure == "autoapi" and item.docstring
     }
     # The gap between the two is the entries AutoAPI never renders: the
@@ -3597,7 +3617,24 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert len(private_additions) == 11
     assert {key: docs[key] for key in private_additions} == private_additions
     assert not private_additions.keys() & rendered_documented_callables.keys()
-    assert len(docs.keys() - private_additions.keys() - radius_symbols) == 13182
+    channel_additions = json.loads(additions_path.with_name(
+        "548_native_channel_private_api_arrival_2026-10-06.json").read_text())
+    assert channel_additions == {
+        "spacr.io._preprocess_mapped_volume_series.load_channel":
+        "Read one private channel from verified staged stacks."}
+    assert {key: docs[key] for key in channel_additions} == channel_additions
+    assert not channel_additions.keys() & rendered_documented_callables.keys()
+    assert not channel_additions.keys() & private_additions.keys()
+    scn_additions = json.loads(additions_path.with_name(
+        "424_scn_public_api_arrivals_2026-10-06.json").read_text())
+    assert scn_additions.keys() == {
+        "spacr.convert.read_scn", "spacr.convert.scn_to_rgb8",
+        "spacr.qt.mask_engine.read_image"}
+    assert {key: docs[key] for key in scn_additions} == scn_additions
+    actual_by_symbol = {item.symbol: item for item in actual_callables}
+    assert {key: actual_by_symbol[key].docstring for key in scn_additions} == scn_additions
+    assert len(docs.keys() - private_additions.keys() - radius_symbols
+               - channel_additions.keys() - scn_additions.keys()) == 13182
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every

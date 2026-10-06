@@ -33,7 +33,8 @@ A settings template is one module's settings saved under a name you choose,
 for example ``Toxo PVM, 40x``. Open a module with a settings panel and press
 **Ctrl+Shift+R** to open **Settings templates** for that module.
 
-* **Save current settings…** stores the form as a new template.
+* **Save current settings…** stores the form as a new template, selects it
+  in the list and shows its full saved path as text you can select and copy.
 * **Apply** fills the form from the selected template. A template saved with
   another spaCR version lists the settings that no longer exist and the ones
   added since. A template for a different module is refused.

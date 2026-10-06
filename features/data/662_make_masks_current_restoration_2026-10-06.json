@@ -1,0 +1,82 @@
+{
+  "accepted": true,
+  "capture": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-restoration-r1/captures/make_masks_final_restoration_r1",
+  "provenance": {
+    "commit": "d3d5d8ddca7a402ac87eb6bb94f9c878c6bfc803",
+    "version": "1.5.1.3",
+    "module": "make_masks",
+    "download_requested": false,
+    "dataset_cache": "/tmp/spacr-tutorials/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "native_acceptance": {
+    "accepted": true,
+    "scope": "Actual CPU restoration loading, comparison and Apply; no accuracy claim",
+    "native_controls": true,
+    "application_monkeypatches": false,
+    "source_label_rewritten": false,
+    "source": "/tmp/spacr-tutorials/restoration/images/plate1_E01_10_1_ER.tif",
+    "source_sha256": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67",
+    "shape": [
+      1994,
+      1994
+    ],
+    "plan": {
+      "env": "/tmp/spacr-tutorials/backends/cellpose3",
+      "model": "denoise_cyto3",
+      "diameter": 30.0,
+      "device": "cpu",
+      "weights_sha256": "2d78729118f7ab0a4463c948c0ef305c1e5a5e7dade9cba5b3ef828348ee676e",
+      "cellpose_version": "3.1.1.3"
+    },
+    "load_seconds": 4.227464789990336,
+    "compare_seconds": 41.47693988104584,
+    "apply_seconds": 43.672406985017005,
+    "comparison_caption": "deep image restoration",
+    "enhanced_array_sha256": "cec26c5dbffaf942573d2f0dc680b01d8e1ac48c0f06481496232f491d7a4abd",
+    "original_image_and_labels_unchanged": true,
+    "measurements_generated": false,
+    "biological_ground_truth_claimed": false
+  },
+  "frame_sha256": {
+    "00_home": "fb8ea3ecf93a42353e4bdb7fccad73a1e7f01460253ddebcf8f563ddbc560803",
+    "01_module": "416fcbed65f1ccf2e9e603b6f62cbf41239cc5db6179aa1e02ba1bfee9bbe10e",
+    "restoration_01_restoration_row": "7ebb9d8b8442196e2b1e18f82f72c7a81728bc8fa3c3202de2dec331efb48c1b",
+    "restoration_02_denoise_settings": "ac146f06536f716fb0f8d98d017c91c020ae15a0c283e7fe9797d02829f13f9d",
+    "restoration_03_model_ready": "68021d4ca856e9bb954dcc523e6a72f5caea3dcf0297d9e214772f366c565b80",
+    "restoration_04_compare": "a67dee767b6655f5556bf9fe597085f58ac97dc9c8c9c63e72c49fe1b3a8faae",
+    "restoration_05_apply": "316d653bd8b5d008d8710f461d77e9a66a017da4a9d7aadb753269176dd9efab"
+  },
+  "application_source_sha256": {
+    "spacr/qt/screens/make_masks.py": "ade519db269661793672c863e9c19c04acc3d2c34569949582a79fcc7179611b",
+    "spacr/qt/mask_engine.py": "f286c466dd779dc9864a7898d5dd97db2eb8eb20a540fa8cfd3daa29155e75e3",
+    "spacr/qt/cpu_modes.py": "09989fe347ed7edf9d6ba36006dde942b39e7a5040acb1ec9fe8cfc9427f5a0e",
+    "spacr/qt/detect_chain.py": "4d4a499c949fe01d563f634c6de4abf7538a42c7774b2c26af6439891a931770",
+    "spacr/_segmentation_backends.py": "6910e462f324941a69bfd1d32740a83e681181e99a946dd3be95acd96886c23b",
+    "spacr/point_spread.py": "ae8a73268b6dd9c50c560056ca2641f1b78f6a69238e141325803c1b1e7f7f0a"
+  },
+  "biological_ground_truth_claimed": false,
+  "narration_video_publication_complete": false,
+  "scope": "Fresh native actual CPU restoration, comparison and Apply, with exact acquired source plane and genuine unchanged weights independently checked.",
+  "previous_enhanced_array_sha256_equal": true,
+  "source_file_sha256": {
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-restoration-r1/captures/make_masks_final_restoration_r1/00_home.png": "fb8ea3ecf93a42353e4bdb7fccad73a1e7f01460253ddebcf8f563ddbc560803",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-restoration-r1/captures/make_masks_final_restoration_r1/01_module.png": "416fcbed65f1ccf2e9e603b6f62cbf41239cc5db6179aa1e02ba1bfee9bbe10e",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-restoration-r1/captures/make_masks_final_restoration_r1/restoration_01_restoration_row.png": "7ebb9d8b8442196e2b1e18f82f72c7a81728bc8fa3c3202de2dec331efb48c1b",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-restoration-r1/captures/make_masks_final_restoration_r1/restoration_02_denoise_settings.png": "ac146f06536f716fb0f8d98d017c91c020ae15a0c283e7fe9797d02829f13f9d",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-restoration-r1/captures/make_masks_final_restoration_r1/restoration_03_model_ready.png": "68021d4ca856e9bb954dcc523e6a72f5caea3dcf0297d9e214772f366c565b80",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-restoration-r1/captures/make_masks_final_restoration_r1/restoration_04_compare.png": "a67dee767b6655f5556bf9fe597085f58ac97dc9c8c9c63e72c49fe1b3a8faae",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-restoration-r1/captures/make_masks_final_restoration_r1/restoration_05_apply.png": "316d653bd8b5d008d8710f461d77e9a66a017da4a9d7aadb753269176dd9efab",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-restoration-r1/restoration/images/plate1_E01_10_1_ER.tif": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-final-restoration-r1/backend-models/denoise_cyto3": "2d78729118f7ab0a4463c948c0ef305c1e5a5e7dade9cba5b3ef828348ee676e",
+    "/home/carruthers/.cache/spacr/example_data/plate1/merged/plate1_E01_10_1.npy": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-integration-20261006/spacr/qt/screens/make_masks.py": "ade519db269661793672c863e9c19c04acc3d2c34569949582a79fcc7179611b",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-integration-20261006/spacr/qt/mask_engine.py": "f286c466dd779dc9864a7898d5dd97db2eb8eb20a540fa8cfd3daa29155e75e3",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-integration-20261006/spacr/qt/cpu_modes.py": "09989fe347ed7edf9d6ba36006dde942b39e7a5040acb1ec9fe8cfc9427f5a0e",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-integration-20261006/spacr/qt/detect_chain.py": "4d4a499c949fe01d563f634c6de4abf7538a42c7774b2c26af6439891a931770",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-integration-20261006/spacr/_segmentation_backends.py": "6910e462f324941a69bfd1d32740a83e681181e99a946dd3be95acd96886c23b",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-integration-20261006/spacr/point_spread.py": "ae8a73268b6dd9c50c560056ca2641f1b78f6a69238e141325803c1b1e7f7f0a"
+  }
+}

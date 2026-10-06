@@ -1,0 +1,41 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "context": "A mask saved by :func:`save_mask` is found even when the source image had a non-TIFF extension. Its canonical TIFF takes precedence over an older mask under the source image's extension.",
+      "label": "spacr.qt.mask_engine.load_image_and_mask#4",
+      "source": "A mask saved by :func:`save_mask` is found even when the source image had a non-TIFF extension. Its canonical TIFF takes precedence over an older mask under the source image's extension.",
+      "source_sha256": "60333f44c4b3978c83ca11a5c3b453bb32b31e9f710c7a81beb7633783af0f82",
+      "translation": "En mask som sparas med :func:`save_mask` hittas även om källbilden har ett annat filnamnstillägg än TIFF. Dess kanoniska TIFF-fil har företräde framför en äldre mask med källbildens filnamnstillägg."
+    },
+    {
+      "context": "Offer custom colours for the seven procedural data-art scenes.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors#0",
+      "source": "Offer custom colours for the seven procedural data-art scenes.",
+      "source_sha256": "875ce591de4e782259b4c84d60e72691fe055e89c31b4266d933a0b4b07bc525",
+      "translation": "Erbjud anpassade färger för de sju procedurgenererade data-konstscenerna."
+    },
+    {
+      "context": "Seven data-art materials and three classic themes remain in the menu. The default is ``data_art_impulse_lens`` (spaCR field). The other data-art choices are advection, growth, Thore, waves, tissue facets and chromatin satin. The classic choices provide softer motion:",
+      "label": "spacr.qt.widgets.ambient#2",
+      "source": "Seven data-art materials and three classic themes remain in the menu. The default is ``data_art_impulse_lens`` (spaCR field). The other data-art choices are advection, growth, Thore, waves, tissue facets and chromatin satin. The classic choices provide softer motion:",
+      "source_sha256": "7a184a977d3ef97b1524a3b3a282f3b7da20ae1c6eb4ae68427247a95fb102b2",
+      "translation": "Sju datakonstmaterial och tre klassiska teman finns kvar i menyn. Förvalet är ``data_art_impulse_lens`` (spaCR field). De övriga datakonstvalen är advection, growth, Thore, waves, vävnadsfasetter och kromatinsatin. De klassiska valen ger mjukare rörelse:"
+    },
+    {
+      "context": "``blobs`` Big and small colour blobs drifting over the page, each pulsing in size on its own period. They overlap and blend, so the result reads as soft colour *fields* rather than as a bag of circles. ``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`.",
+      "label": "spacr.qt.widgets.ambient#3",
+      "source": "``blobs`` Big and small colour blobs drifting over the page, each pulsing in size on its own period. They overlap and blend, so the result reads as soft colour *fields* rather than as a bag of circles. ``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`.",
+      "source_sha256": "b48295f637f6c0b9ca0a209a5e85fca16c2824e33de8faed0c36b1312a0ec768",
+      "translation": "``blobs`` Stora och små färgfläckar glider över sidan och pulserar i storlek med var sin period. De överlappar och blandas, så att resultatet uppfattas som mjuka färg*fält* snarare än en samling cirklar. ``aurora`` Tre överlappande ridåer av lodräta strålar veckas längs sin längd. Vecken är vandrande vågor — flera överlagrade frekvenser löper längs bågen — med ljusstyrkepulser enligt ett separat schema, en skarp nederkant, en diffus överdel och verkligt norrskens lodräta färgordning: grönt genom huvudpartiet, rött högt upp och en violett kant nedtill. ``drift`` Ett långsamt stjärnfält i tre parallaxlager: små, svaga och långsamma stjärnor bakom; större, ljusare och snabbare framför. Det enda skarpa temat. Det rör sig uppåt, nedåt eller i alla riktningar — se :data:`DRIFT_DIRECTIONS`."
+    },
+    {
+      "context": "The older :class:`RippleEngine`, :class:`CellsEngine`, :class:`BokehEngine` and :class:`ResonanceEngine` remain importable for direct callers, but are no longer menu choices or factory entries.",
+      "label": "spacr.qt.widgets.ambient#4",
+      "source": "The older :class:`RippleEngine`, :class:`CellsEngine`, :class:`BokehEngine` and :class:`ResonanceEngine` remain importable for direct callers, but are no longer menu choices or factory entries.",
+      "source_sha256": "944c41970d3670c97f007f04b78b93d8072f339999ad7ef320dd57f5b5527c64",
+      "translation": "De äldre :class:`RippleEngine`, :class:`CellsEngine`, :class:`BokehEngine` och :class:`ResonanceEngine` kan fortfarande importeras av direkta anropare, men finns inte längre som menyval eller fabriksposter."
+    }
+  ],
+  "schema": 1
+}

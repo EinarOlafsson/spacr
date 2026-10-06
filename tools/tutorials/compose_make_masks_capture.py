@@ -12,11 +12,14 @@ from compose_report_capture import _frame, _read, _same_hash
 from stage_lesson import REPO, write
 
 
-def compose(*, editor, restoration, puncta, destination, yolo=None, receipt_item=615):
+def compose(*, editor, restoration, puncta, destination, yolo=None, receipt_item=615,
+            receipt_date='2026-10-05'):
     roots = {key: Path(path).resolve() for key, path in
              [('editor', editor), ('restoration', restoration), ('puncta', puncta)]}
     if receipt_item not in (615, 662):
         raise ValueError('Use an existing independently checked receipt set')
+    if receipt_date not in ('2026-10-05', '2026-10-06'):
+        raise ValueError('Use an independently checked recording date')
     if yolo is not None:
         roots['yolo'] = Path(yolo).resolve()
     destination = Path(destination).resolve()
@@ -24,7 +27,7 @@ def compose(*, editor, restoration, puncta, destination, yolo=None, receipt_item
         raise ValueError('Preserve distinct accepted captures and use a new destination')
     hashes, sources, available, proofs = {}, [], {}, {}
     for key, root in roots.items():
-        proof = _read(REPO / f'features/data/{receipt_item}_make_masks_current_{key}_2026-10-05.json', hashes)
+        proof = _read(REPO / f'features/data/{receipt_item}_make_masks_current_{key}_{receipt_date}.json', hashes)
         if proof.get('accepted') is not True or Path(proof['capture']).resolve() != root:
             raise ValueError('The independent evidence must name this exact accepted capture')
         for path, digest in proof['source_file_sha256'].items():
@@ -102,4 +105,6 @@ if __name__ == '__main__':
         parser.add_argument('--' + name, type=Path, required=True)
     parser.add_argument('--yolo', type=Path, help='Independently accepted native Box interaction recording')
     parser.add_argument('--receipt-item', type=int, choices=(615, 662), default=615)
+    parser.add_argument('--receipt-date', choices=('2026-10-05', '2026-10-06'),
+                        default='2026-10-05')
     compose(**vars(parser.parse_args()))

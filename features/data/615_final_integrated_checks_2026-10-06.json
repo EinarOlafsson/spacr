@@ -1,0 +1,269 @@
+{
+  "schema": 1,
+  "item": 615,
+  "integration_commit": "3216fb9b7624587123376a46e8c36b5330854a1a",
+  "scope": "Accepted integrated application, named source contracts, native tutorial staging and normal generated owners. The actual pretrained CPU pipeline is a declared synthetic plumbing check, not biological accuracy. Complete original contract failures remain archived. Current nine-locale catalogs, narration, video, browser checks and publication remain required; later Home native archive changes need their own integrated validation.",
+  "accepted_counts": {
+    "mask_event_scn_cli": 622,
+    "docstring_api": 142,
+    "tutorial_staging": 114,
+    "generated_owners": 498
+  },
+  "real_scn_skipped": "No native Gel Doc scanner acquisition available",
+  "synthetic_pretrained_pipeline": {
+    "item": 567,
+    "passed": true,
+    "CPU_only": true,
+    "scope": "Declared synthetic two-field plumbing test; not biological accuracy",
+    "actual_model_classes": [
+      "none",
+      "host_death",
+      "mitosis"
+    ],
+    "video_feature_width": 768,
+    "actual_saved_provenance": {
+      "model": "MCG-NJU/videomae-base-finetuned-kinetics",
+      "revision": "488eb9a0565f257b32866000305c8178965eb9f6",
+      "files_sha256": {
+        "model.safetensors": "065cfde56f97671da4d196e1a3a6d3cf9304dcad92eb671e3632a6c6cdd04f73",
+        "config.json": "6d3c7afb3d1430fa478757425cc9be2fcc50a17bfbf58921e8a9e65bb3b5c568",
+        "preprocessor_config.json": "c3aa722f22a7ff0d234d407862025fe47672f74f46f92c91f757f7a7354107c2"
+      },
+      "weights_license": "CC-BY-NC-4.0",
+      "frames": 16,
+      "feature_width": 768,
+      "intensity": "clip field-normalized intensities to [0,1]; no rescaling",
+      "frame_sampling": "rounded evenly spaced indices including endpoints",
+      "pooling": "mean patch tokens followed by pretrained fc_norm",
+      "channel_map": [
+        0,
+        0,
+        0
+      ],
+      "device": "cpu",
+      "CUDA_convolution_precision": "IEEE float32",
+      "transformers": "4.48.3",
+      "torch": "2.11.0+cpu"
+    },
+    "held_out_scores": [
+      {
+        "event": "host_death",
+        "annotated": 2,
+        "detected": 0,
+        "true_positives": 0,
+        "precision": NaN,
+        "recall": 0.0,
+        "f1": 0.0,
+        "mean_abs_timing_error": NaN,
+        "max_abs_timing_error": NaN,
+        "tolerance_frames": 2
+      },
+      {
+        "event": "mitosis",
+        "annotated": 2,
+        "detected": 0,
+        "true_positives": 0,
+        "precision": NaN,
+        "recall": 0.0,
+        "f1": 0.0,
+        "mean_abs_timing_error": NaN,
+        "max_abs_timing_error": NaN,
+        "tolerance_frames": 2
+      },
+      {
+        "event": "all",
+        "annotated": 4,
+        "detected": 0,
+        "true_positives": 0,
+        "precision": NaN,
+        "recall": 0.0,
+        "f1": 0.0,
+        "mean_abs_timing_error": NaN,
+        "max_abs_timing_error": NaN,
+        "tolerance_frames": 2
+      }
+    ],
+    "saved_model_weights_only_reload": true,
+    "trained_reload_events_exact": true,
+    "wrong_source_channel_rejected": "VideoMAE needs three explicit ordered source-channel indices",
+    "seconds": 80.69192576408386,
+    "source_sha256": {
+      "spacr/_segmentation_backends.py": "6910e462f324941a69bfd1d32740a83e681181e99a946dd3be95acd96886c23b",
+      "spacr/timelapse.py": "954c51e8f5903705204d25ccc258070607c488fa4cd30758f4ad041ddf374cc4"
+    }
+  },
+  "artifacts": {
+    "features/data/615_final_integrated_checks_2026-10-06/567-event-video-final-CPU-pipeline-r2.log.gz": {
+      "bytes": 195,
+      "sha256": "a60ac68bc1b47fb66449ba85f69b576702a993b5631db5cf253be16bec982c03"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/accepted-source/spacr/_segmentation_backends.py.gz": {
+      "bytes": 79487,
+      "sha256": "334f83c1b150c02dae0618b9e607bda59d2e2797206ad7d7fa7a9fd0e3eca60f"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/accepted-source/spacr/qt/widgets/setup_slides.py.gz": {
+      "bytes": 30694,
+      "sha256": "d3483d7964d6e35968a36c7b845bf7f6e928bf34671e80d0abc3358c5319d90b"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/accepted-source/spacr/timelapse.py.gz": {
+      "bytes": 94181,
+      "sha256": "fef23df337d33aaf8f4662febad9dd67efe06cbf65094e1ff2601690287f567c"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/accepted-source/tests/data/release_contracts/424_scn_public_api_arrivals_2026-10-06.json.gz": {
+      "bytes": 1087,
+      "sha256": "b2591491b00f6df4cc741c468e17f7a3fac2914ecef59a610b003973f18a857f"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/accepted-source/tests/data/release_contracts/548_native_channel_private_api_arrival_2026-10-06.json.gz": {
+      "bytes": 118,
+      "sha256": "1cb85e2d19e26ecfafe72d935bbcaa706a84ff9fc45aac0baa3a60e5b33d96ca"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/accepted-source/tests/data/release_contracts/663_565_560_private_api_arrivals_2026-10-06.json.gz": {
+      "bytes": 626,
+      "sha256": "5089d7c3959d6e812951f86bfa46af915cea05a118b080e733bc28ce6acb022e"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/accepted-source/tests/test_docstring_correctness.py.gz": {
+      "bytes": 59520,
+      "sha256": "09ae91df87fd86a86959ada93c8203c12a1b2ebdf8bfca757abb30700f6a29ab"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/before-contracts/663_565_560_private_api_arrivals_2026-10-06.json.gz": {
+      "bytes": 624,
+      "sha256": "a64c6f57f57e4b34465c95f382d341cb953f9f26ada49d1e6b7c92eadcc4a3dc"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/final-api-arrivals-r1.json.gz": {
+      "bytes": 555,
+      "sha256": "dd110caea9f32b6ae016177b107a85dd04224cc54d9f8b7b2c5c7e1d501e3cbf"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/final-api-arrivals-r1.log.gz": {
+      "bytes": 97,
+      "sha256": "f6f87c6985f92168e11ee5692c8bfe68685a76f588a6eec78b0fb5e2101afca4"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/final-generated-artifact-contracts-r1.log.gz": {
+      "bytes": 466,
+      "sha256": "006fbf4d0788f2cf3057face0f9baea16fd968b84693fc17bfa406ed1817d501"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/final-generated-artifacts-normal-refresh-r1.log.gz": {
+      "bytes": 679,
+      "sha256": "1b676fe6ab01742ae2951a190e3c1976767ceb320175f31d3ea774131d7ab498"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/final-integrated-docstring-contracts-r1.log.gz": {
+      "bytes": 13465,
+      "sha256": "881df2f2cea4370a3b6a7f50fccbf3f51242cb34ff9e2054f67c788dbba55bc7"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/final-integrated-docstring-contracts-r2.log.gz": {
+      "bytes": 5614,
+      "sha256": "b12c7cc3955b12a94641927ff831f5d2b68fc47e87f51f409914171a88e97d09"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/final-integrated-docstring-contracts-r3.log.gz": {
+      "bytes": 168,
+      "sha256": "edf11bb771a4cd2031172bb738b0d04709ba73fdcd36d212a31d9ef98a43033c"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/final-integrated-fatal-ruff-r1.log.gz": {
+      "bytes": 39,
+      "sha256": "f3af4d142827f5aad2eb0c72d556d325488a57fb6219aac10afeb51085667d53"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/final-integrated-mask-event-scn-cli-r1.log.gz": {
+      "bytes": 499,
+      "sha256": "148c810968987c147635947503e3cf460d22bf8589d12137ec772e456fa36c6f"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/final-root-authored-guides-r1.patch.gz": {
+      "bytes": 2807,
+      "sha256": "7b8a1df7cbbd61f62fe4d6258befc023e5164e561a4e73121b244fd09317f869"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/final-tutorial-staging-contracts-r1.log.gz": {
+      "bytes": 62,
+      "sha256": "f6ed30aaa716f3db2d1ef217e9e6e9e2e5b0f0d780718fc6285951f6cad72368"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/record_final_api_arrivals_r1.py.gz": {
+      "bytes": 1001,
+      "sha256": "a0ff3649c97bb0e666ab19ac8277c3eebacbb4af96eb26d6f3306dc0c3269386"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/run_event_video_pipeline_final_CPU_r2.py.gz": {
+      "bytes": 1822,
+      "sha256": "fb43a39e4c998d3f03202196348ed47a28ee2edf867369580d2b549c1cf9336f"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/acceptance.json.gz": {
+      "bytes": 1084,
+      "sha256": "c963ce3527fb48eb08481a06a06fec5fd8bb5e15a6034e7e7e5aef5bd8c94ffd"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/annotations.csv.gz": {
+      "bytes": 93,
+      "sha256": "c8dec4d4767489e7afe1db8340d45f49cdf47966335f409cbc3674abd0360940"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/events/event_detection_scores.csv.gz": {
+      "bytes": 135,
+      "sha256": "bfc4227a150cc18b27ab49cb680f55e42be5c0fb1fff97499bf4145d9fa3c481"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/events/event_model.pt.gz": {
+      "bytes": 26400,
+      "sha256": "93dddf2a6423050b20e4f5a6e0785753fc60352dd37ba68edcafe10ae26e6804"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/events/events.csv.gz": {
+      "bytes": 59,
+      "sha256": "d79685b659973e878d6f9bb0513ea6cb631c9602ba9fbf4f8d2b24b8c9dca265"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/events/lineage/trackpy_tracks_cell_plate1_r1_c1_f1_corrected.nwk.gz": {
+      "bytes": 32,
+      "sha256": "a7ffbe438706a16a3cdae59cf5a04f1decccc5755ba23adfceef1e93baae21b3"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/events/lineage/trackpy_tracks_cell_plate1_r1_c1_f1_corrected_lineage_stats.csv.gz": {
+      "bytes": 199,
+      "sha256": "02cbf164d2aa4f8a44fd7896799a40cb3bdb3029aac8a7dda87d4be01a97920f"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/events/lineage/trackpy_tracks_cell_plate1_r1_c1_f1_corrected_segments.csv.gz": {
+      "bytes": 178,
+      "sha256": "ffe441ea80f174203ee28fa0e0c210716efcf3658166d0c6cd71e07112ae1152"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/events/lineage/trackpy_tracks_cell_plate1_r1_c2_f1_corrected.nwk.gz": {
+      "bytes": 32,
+      "sha256": "a7ffbe438706a16a3cdae59cf5a04f1decccc5755ba23adfceef1e93baae21b3"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/events/lineage/trackpy_tracks_cell_plate1_r1_c2_f1_corrected_lineage_stats.csv.gz": {
+      "bytes": 199,
+      "sha256": "02cbf164d2aa4f8a44fd7896799a40cb3bdb3029aac8a7dda87d4be01a97920f"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/events/lineage/trackpy_tracks_cell_plate1_r1_c2_f1_corrected_segments.csv.gz": {
+      "bytes": 178,
+      "sha256": "ffe441ea80f174203ee28fa0e0c210716efcf3658166d0c6cd71e07112ae1152"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/events/trackpy_tracks_cell_plate1_r1_c1_f1_corrected.csv.gz": {
+      "bytes": 100,
+      "sha256": "98f1169001d965b5cdf7b9db1cd4ba16ebf4ee7d1e7661d996a11df84397b9ff"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/events/trackpy_tracks_cell_plate1_r1_c1_f1_crops.npz.gz": {
+      "bytes": 579,
+      "sha256": "9466b9a5edd6ffa35cb2123d51ff34e83aa307c103b3e51d98723fb7810d2515"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/events/trackpy_tracks_cell_plate1_r1_c1_f1_events.csv.gz": {
+      "bytes": 59,
+      "sha256": "d79685b659973e878d6f9bb0513ea6cb631c9602ba9fbf4f8d2b24b8c9dca265"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/events/trackpy_tracks_cell_plate1_r1_c1_f1_features.csv.gz": {
+      "bytes": 115,
+      "sha256": "9d88cf797cbcd41e195d17fe68bfdaca01c77410c52e63a53765ff5f142f956b"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/events/trackpy_tracks_cell_plate1_r1_c2_f1_corrected.csv.gz": {
+      "bytes": 100,
+      "sha256": "98f1169001d965b5cdf7b9db1cd4ba16ebf4ee7d1e7661d996a11df84397b9ff"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/events/trackpy_tracks_cell_plate1_r1_c2_f1_crops.npz.gz": {
+      "bytes": 567,
+      "sha256": "01d9d5c2503b144e9ec99eff7b65417e96ec00b29c65bcb161395b6974053f94"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/events/trackpy_tracks_cell_plate1_r1_c2_f1_events.csv.gz": {
+      "bytes": 59,
+      "sha256": "d79685b659973e878d6f9bb0513ea6cb631c9602ba9fbf4f8d2b24b8c9dca265"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/events/trackpy_tracks_cell_plate1_r1_c2_f1_features.csv.gz": {
+      "bytes": 115,
+      "sha256": "9d88cf797cbcd41e195d17fe68bfdaca01c77410c52e63a53765ff5f142f956b"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/trackpy_tracks_cell_plate1_r1_c1_f1.csv.gz": {
+      "bytes": 118,
+      "sha256": "2b359e1b88ddd18df0e22f1a4edca80684aa641b4c921df7ee78ade7c80f94fe"
+    },
+    "features/data/615_final_integrated_checks_2026-10-06/synthetic-pipeline/tracks/trackpy_tracks_cell_plate1_r1_c2_f1.csv.gz": {
+      "bytes": 118,
+      "sha256": "2b359e1b88ddd18df0e22f1a4edca80684aa641b4c921df7ee78ade7c80f94fe"
+    }
+  }
+}

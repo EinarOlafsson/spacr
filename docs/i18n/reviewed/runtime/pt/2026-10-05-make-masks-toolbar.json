@@ -1,58 +1,37 @@
 {
-  "schema": 1,
-  "language": "pt",
   "date": "2026-10-05",
-  "review_kind": "Codex AI technical translation and review; no native-speaker signoff",
+  "language": "pt",
   "note": "Actual Make Masks tool-row registry labels and fallback MODE constants now enter normal extraction. Seven previously omitted labels translated with drawing, erasing, recropping and zoom semantics; plus/minus symbols preserved. Four existing covered tool labels retain their catalog ownership.",
   "records": [
     {
-      "table": "ui",
       "key": "Box",
       "source": "Box",
       "source_sha256": "512fd3c6042cd1d9150d46fa59b5911a1f97b8275d73eb0a841daa31e93bd349",
+      "table": "ui",
       "translation": "Caixa"
     },
     {
-      "table": "ui",
-      "key": "Divide",
-      "source": "Divide",
-      "source_sha256": "2972ba5864ffcce707a64d6fab4b4c6c464e19451f63a6120160842d5fe022af",
-      "translation": "Dividir"
-    },
-    {
-      "table": "ui",
       "key": "Draw",
       "source": "Draw",
       "source_sha256": "61517c08b3bf84b42ac5a38367a9ca07dbc54e9c00ee92df09debe4f38df34d4",
+      "table": "ui",
       "translation": "Desenhar"
     },
     {
-      "table": "ui",
       "key": "Erase object",
       "source": "Erase object",
       "source_sha256": "455ab0e0ade57fdeb8aa728b88d9d9309c54a1821ed4f1d39a84de1b7a27013e",
+      "table": "ui",
       "translation": "Apagar objeto"
     },
     {
-      "table": "ui",
       "key": "Recrop",
       "source": "Recrop",
       "source_sha256": "c529fbddfbec86471fb0fab86131765948c5b1406f13765625555ad9dd3ca23d",
+      "table": "ui",
       "translation": "Recortar novamente"
-    },
-    {
-      "table": "ui",
-      "key": "Wand +",
-      "source": "Wand +",
-      "source_sha256": "b50656bc4702bad79ae9042c140991654ab185a356d9c161bd39f29993befec3",
-      "translation": "Varinha +"
-    },
-    {
-      "table": "ui",
-      "key": "Wand −",
-      "source": "Wand −",
-      "source_sha256": "e93b0eba7792eff6baea639b335a226aef867994b5809e21c43c4b38c918b679",
-      "translation": "Varinha −"
     }
-  ]
+  ],
+  "review_kind": "Codex AI technical translation and review; no native-speaker signoff",
+  "schema": 1
 }

@@ -9,7 +9,7 @@
   "description": "Open image-mask pairs, correct objects, record verdicts, organize images and masks for Measure and create paired training crops. Draw, edit and export separate class-labelled YOLO boxes without changing the image or segmentation mask.",
   "objectives": [
     "Open images with matching instance masks and inspect objects in the magnifier.",
-    "Correct labels with Undo, drawing, division and object filters.",
+    "Correct labels with Undo, drawing, division, merging and object filters.",
     "Save curated masks, record Keep or Discard verdicts and create image-mask crops for training.",
     "Organize images and masks for Measure, and share curated pairs with Upload data.",
     "Draw and edit separate class-labelled boxes, save their project and export normalized YOLO labels."
@@ -18,7 +18,7 @@
   "scenes": [
     {
       "visual": "01_module",
-      "narration": "From Home, open Make Masks in Tools. The buttons along the bottom left bring images in: Open folder, Organize for Measure and Load test data. On the right, Discard, Keep, Skip and Upload data decide what happens to each field once it is edited.",
+      "narration": "From Home, open Make Masks in Tools. The buttons along the bottom left bring images in: Open folder, Organize for Measure and Load test data. On the right, Discard, Keep, Skip and Upload data decide what happens to each field once it is edited. Clear masks, immediately left of Discard, asks for confirmation before removing every mask in the current image.",
       "hold_after": 0.7,
       "related_lessons": [
         "07_mask"
@@ -60,7 +60,7 @@
     },
     {
       "visual": "03_real_labels",
-      "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Draw adds an outlined object; Divide splits one. Zoom helps you inspect boundaries before making changes.",
+      "narration": "Choose the tool that matches the correction. Brush adds pixels, Erase removes pixels and Erase object removes a whole label. Wand adds an intensity region by default; hold Ctrl and click to remove that region. Draw adds an outlined object; Divide / Merge splits with a left drag or joins objects with a right drag. Zoom helps you inspect boundaries before making changes.",
       "hold_after": 0.7,
       "focus": [
         345,
@@ -85,8 +85,23 @@
       "hold_after": 0.7
     },
     {
+      "visual": "07b_wand_add",
+      "narration": "Select Wand and click to add a connected intensity region. Set the tolerance and maximum pixels in Magic wand settings to control its extent. This background example demonstrates the gesture; use real object boundaries when preparing training masks.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07c_wand_ctrl_remove",
+      "narration": "Keep Wand selected, hold Ctrl and click to remove the intensity region. Release Ctrl to add again with the same button. Undo restores the previous edit. Here both practice clicks are undone before saving the original mask.",
+      "hold_after": 0.7
+    },
+    {
       "visual": "08_divide_demo",
       "narration": "Use Divide when two touching objects share one label. Draw a cut across the whole joined region and inspect the separated labels. Undo the split if it cuts through one object or leaves an incorrect boundary.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08b_merge_demo",
+      "narration": "Keep Divide / Merge selected and right-drag a line across the objects to join. They share the first crossed object’s label without filling the background between them. Undo restores the separate labels. Saved groups retain their shared label when you reopen the image.",
       "hold_after": 0.7
     },
     {

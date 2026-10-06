@@ -3510,7 +3510,7 @@
     },
     {
       "context": "1.072 -> see below",
-      "label": "spacr.qt.widgets.ambient#52",
+      "label": "spacr.qt.widgets.ambient#51",
       "review_basis": "written from the English (no current MT draft)",
       "source": "1.072 -> see below",
       "source_sha256": "170bdde39fa8b39b2d4e9b3b9350ccc9e31c4f7abe761854a86f280da0662ef5",
@@ -3518,7 +3518,7 @@
     },
     {
       "context": "``resonance`` is the one row whose contended figure is a range rather than a number, and the shape of its shading is the reason. The others are one long pass of ``QPainter`` calls; the laboratory microplate is dozens of small NumPy calls, and each one gives the lock back and then software job lists for it again, so what the cell would measure is how often the shading independent execution path was descheduled rather than how much work the theme does. Four nine-round repeats of the protocol above gave medians of 10, 174, 286 and 407 ms on the same machine. Two things make that liveable and both are already here: the cost is paid on the producer independent execution path, so a late frame is a *repeated* frame (:attr:`AmbientWidget.repeated_frames`) and never a slow interface; and while a processing session is going the process holds :data:`spacr.qt.gil_priority.BUSY_INTERVAL`, where the same measurement is 6 to 24 ms. Its row was taken later than the rest and on a busier machine — ``blobs`` read 0.262 and 0.749 -> 1.002 in the same processing session — so read it against those rather than against the table.",
-      "label": "spacr.qt.widgets.ambient#54",
+      "label": "spacr.qt.widgets.ambient#53",
       "review_basis": "written from the English (no current MT draft)",
       "source": "``resonance`` is the one row whose contended figure is a range rather than a number, and the shape of its shading is the reason. The others are one long pass of ``QPainter`` calls; the plate is dozens of small NumPy calls, and each one gives the lock back and then queues for it again, so what the cell would measure is how often the shading thread was descheduled rather than how much work the theme does. Four nine-round repeats of the protocol above gave medians of 10, 174, 286 and 407 ms on the same machine. Two things make that liveable and both are already here: the cost is paid on the producer thread, so a late frame is a *repeated* frame (:attr:`AmbientWidget.repeated_frames`) and never a slow interface; and while a run is going the process holds :data:`spacr.qt.gil_priority.BUSY_INTERVAL`, where the same measurement is 6 to 24 ms. Its row was taken later than the rest and on a busier machine — ``blobs`` read 0.262 and 0.749 -> 1.002 in the same run — so read it against those rather than against the table.",
       "source_sha256": "037ca37af9f7d1f972d858c8986975b4ef2e6331d9821a5ef71e1391c86c9992",

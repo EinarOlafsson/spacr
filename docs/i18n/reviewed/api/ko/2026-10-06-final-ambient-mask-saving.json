@@ -1,0 +1,34 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "Offer custom colours for the seven procedural data-art scenes.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors#0",
+      "source": "Offer custom colours for the seven procedural data-art scenes.",
+      "source_sha256": "875ce591de4e782259b4c84d60e72691fe055e89c31b4266d933a0b4b07bc525",
+      "translation": "절차적으로 생성되는 일곱 데이터 아트 장면에 사용자 지정 색상을 제공합니다."
+    },
+    {
+      "context": "Seven data-art materials and three classic themes remain in the menu. The default is ``data_art_impulse_lens`` (spaCR field). The other data-art choices are advection, growth, Thore, waves, tissue facets and chromatin satin. The classic choices provide softer motion:",
+      "label": "spacr.qt.widgets.ambient#2",
+      "source": "Seven data-art materials and three classic themes remain in the menu. The default is ``data_art_impulse_lens`` (spaCR field). The other data-art choices are advection, growth, Thore, waves, tissue facets and chromatin satin. The classic choices provide softer motion:",
+      "source_sha256": "7a184a977d3ef97b1524a3b3a282f3b7da20ae1c6eb4ae68427247a95fb102b2",
+      "translation": "메뉴에는 일곱 가지 데이터 아트 재질과 세 가지 클래식 테마가 남아 있습니다. 기본값은 ``data_art_impulse_lens`` (spaCR field)입니다. 나머지 데이터 아트 선택지는 advection, growth, Thore, waves, 조직 면 및 염색질 새틴입니다. 클래식 선택지는 더 부드러운 움직임을 제공합니다."
+    },
+    {
+      "context": "``blobs`` Big and small colour blobs drifting over the page, each pulsing in size on its own period. They overlap and blend, so the result reads as soft colour *fields* rather than as a bag of circles. ``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`.",
+      "label": "spacr.qt.widgets.ambient#3",
+      "source": "``blobs`` Big and small colour blobs drifting over the page, each pulsing in size on its own period. They overlap and blend, so the result reads as soft colour *fields* rather than as a bag of circles. ``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`.",
+      "source_sha256": "b48295f637f6c0b9ca0a209a5e85fca16c2824e33de8faed0c36b1312a0ec768",
+      "translation": "``blobs`` 크고 작은 색 얼룩이 페이지 위를 이동하며 각자 고유한 주기로 크기가 변합니다. 서로 겹치고 섞여 원의 모음보다 부드러운 색 *장* 으로 보입니다. ``aurora`` 세 겹의 수직 광선 커튼이 길이 방향으로 접힙니다. 접힌 부분은 진행파이며 여러 중첩 주파수가 호를 따라 이동합니다. 밝기는 별도의 주기로 변하고 아래 가장자리는 선명하며 위쪽은 퍼집니다. 실제 오로라의 수직 색 순서를 따라 몸체는 녹색, 높은 부분은 빨간색, 아래 테두리는 보라색입니다. ``drift`` 느린 별빛 배경은 세 개의 시차 층으로 구성됩니다. 뒤쪽 별은 작고 희미하고 느리며 앞쪽 별은 더 크고 밝고 빠릅니다. 유일하게 선명한 테마입니다. 위, 아래 또는 임의의 방향으로 움직입니다. :data:`DRIFT_DIRECTIONS` 를 참조하세요."
+    },
+    {
+      "context": "The older :class:`RippleEngine`, :class:`CellsEngine`, :class:`BokehEngine` and :class:`ResonanceEngine` remain importable for direct callers, but are no longer menu choices or factory entries.",
+      "label": "spacr.qt.widgets.ambient#4",
+      "source": "The older :class:`RippleEngine`, :class:`CellsEngine`, :class:`BokehEngine` and :class:`ResonanceEngine` remain importable for direct callers, but are no longer menu choices or factory entries.",
+      "source_sha256": "944c41970d3670c97f007f04b78b93d8072f339999ad7ef320dd57f5b5527c64",
+      "translation": "이전 :class:`RippleEngine`, :class:`CellsEngine`, :class:`BokehEngine` 및 :class:`ResonanceEngine` 은 직접 호출용으로 계속 가져올 수 있지만 더 이상 메뉴 선택지나 팩터리 항목이 아닙니다."
+    }
+  ],
+  "schema": 1
+}

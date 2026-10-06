@@ -1278,8 +1278,9 @@ class SetupSlides(QDialog):
         finds the motion distracting can say so on the way in rather than
         going looking for it afterwards.
 
-        IT OPENS ON WHAT IS ALREADY TRUE. The default is Blobs because that
-        is :data:`spacr.qt.widgets.ambient.DEFAULT_THEME` and what
+        IT OPENS ON WHAT IS ALREADY TRUE. The default is spaCR field
+        (``data_art_impulse_lens``), as defined by
+        :data:`spacr.qt.widgets.ambient.DEFAULT_THEME` and what
         :func:`spacr.qt.preferences.get_ambient_animation` falls back to --
         the slide shows the application's own default rather than a second
         opinion about it.

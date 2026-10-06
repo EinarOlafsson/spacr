@@ -378,7 +378,7 @@
     },
     {
       "context": "1.072 -> see below",
-      "label": "spacr.qt.widgets.ambient#52",
+      "label": "spacr.qt.widgets.ambient#51",
       "review_basis": "written from the English (no current MT draft)",
       "source": "1.072 -> see below",
       "source_sha256": "170bdde39fa8b39b2d4e9b3b9350ccc9e31c4f7abe761854a86f280da0662ef5",
@@ -386,7 +386,7 @@
     },
     {
       "context": "``resonance`` is the one row whose contended figure is a range rather than a number, and the shape of its shading is the reason. The others are one long pass of ``QPainter`` calls; the laboratory microplate is dozens of small NumPy calls, and each one gives the lock back and then software job lists for it again, so what the cell would measure is how often the shading independent execution path was descheduled rather than how much work the theme does. Four nine-round repeats of the protocol above gave medians of 10, 174, 286 and 407 ms on the same machine. Two things make that liveable and both are already here: the cost is paid on the producer independent execution path, so a late frame is a *repeated* frame (:attr:`AmbientWidget.repeated_frames`) and never a slow interface; and while a processing session is going the process holds :data:`spacr.qt.gil_priority.BUSY_INTERVAL`, where the same measurement is 6 to 24 ms. Its row was taken later than the rest and on a busier machine — ``blobs`` read 0.262 and 0.749 -> 1.002 in the same processing session — so read it against those rather than against the table.",
-      "label": "spacr.qt.widgets.ambient#54",
+      "label": "spacr.qt.widgets.ambient#53",
       "review_basis": "written from the English (no current MT draft)",
       "source": "``resonance`` is the one row whose contended figure is a range rather than a number, and the shape of its shading is the reason. The others are one long pass of ``QPainter`` calls; the plate is dozens of small NumPy calls, and each one gives the lock back and then queues for it again, so what the cell would measure is how often the shading thread was descheduled rather than how much work the theme does. Four nine-round repeats of the protocol above gave medians of 10, 174, 286 and 407 ms on the same machine. Two things make that liveable and both are already here: the cost is paid on the producer thread, so a late frame is a *repeated* frame (:attr:`AmbientWidget.repeated_frames`) and never a slow interface; and while a run is going the process holds :data:`spacr.qt.gil_priority.BUSY_INTERVAL`, where the same measurement is 6 to 24 ms. Its row was taken later than the rest and on a busier machine — ``blobs`` read 0.262 and 0.749 -> 1.002 in the same run — so read it against those rather than against the table.",
       "source_sha256": "037ca37af9f7d1f972d858c8986975b4ef2e6331d9821a5ef71e1391c86c9992",
@@ -394,7 +394,7 @@
     },
     {
       "context": "``drift`` keeps the synchronous path, and its row above is the reason: it is the one engine with no buffer, it degrades the least of the seven (2.1x against 48.7x for ``cells``), and execution concurrency it would mean publishing a full-resolution frame — 7.91 MiB a slot against 126.6 KiB for ``blobs`` — to buy the smallest improvement on the list.",
-      "label": "spacr.qt.widgets.ambient#58",
+      "label": "spacr.qt.widgets.ambient#57",
       "review_basis": "written from the English (no current MT draft)",
       "source": "``drift`` keeps the synchronous path, and its row above is the reason: it is the one engine with no buffer, it degrades the least of the seven (2.1x against 48.7x for ``cells``), and threading it would mean publishing a full-resolution frame — 7.91 MiB a slot against 126.6 KiB for ``blobs`` — to buy the smallest improvement on the list.",
       "source_sha256": "a1355976eea48ed77fefa2ca3105552777d3be0592166e82fafefc302dd0a52a",
@@ -402,7 +402,7 @@
     },
     {
       "context": "Performance depends on hardware, display size, theme, and concurrent work. The settings have predictable relative costs: detail is approximately quadratic, density is approximately linear, and blur is inexpensive for the six buffered themes. ``drift`` has no buffer, so its blur is a second wider pass per dot and is capped by :data:`DRIFT_HALO_MAX_PX`. The :data:`WORK_BUDGET` limits combinations of density and detail that would make the backdrop compete with analysis work. Hidden widgets stop rendering entirely.",
-      "label": "spacr.qt.widgets.ambient#59",
+      "label": "spacr.qt.widgets.ambient#58",
       "review_basis": "written from the English (no current MT draft)",
       "source": "Performance depends on hardware, display size, theme, and concurrent work. The settings have predictable relative costs: detail is approximately quadratic, density is approximately linear, and blur is inexpensive for the six buffered themes. ``drift`` has no buffer, so its blur is a second wider pass per dot and is capped by :data:`DRIFT_HALO_MAX_PX`. The :data:`WORK_BUDGET` limits combinations of density and detail that would make the backdrop compete with analysis work. Hidden widgets stop rendering entirely.",
       "source_sha256": "0e6640726db7450a0eca04b3cca77fecf63e57b5c80d0ff5bc3a34e6ac40c958",

@@ -301,7 +301,7 @@
     },
     {
       "context": "So **CPU saturation is not a cause**: numpy releases the interpreter lock and a core burning flat out costs this module nothing. **A signal flood is not a cause on its own**: 200 lines a second are free, and it only bites in the thousands, where the console's own per-line work saturates the main GUI execution path and nothing in *this* module can help. What is left is **the interpreter lock**: identical drawing work, eleven times slower, because the shading pass is Python and numpy and something else is holding the lock.",
-      "label": "spacr.qt.widgets.ambient#34",
+      "label": "spacr.qt.widgets.ambient#33",
       "source": "So **CPU saturation is not a cause**: numpy releases the interpreter lock and a core burning flat out costs this module nothing. **A signal flood is not a cause on its own**: 200 lines a second are free, and it only bites in the thousands, where the console's own per-line work saturates the GUI thread and nothing in *this* module can help. What is left is **the interpreter lock**: identical drawing work, eleven times slower, because the shading pass is Python and numpy and something else is holding the lock.",
       "source_sha256": "9bc5f29be26264b9d7a8f4d51af3602f846dda925cee9e96e7d069bb22a4beb5",
       "translation": "Þannig að **CPU mettun er ekki orsök**: numpy losar túlklásinn og kjarnabrennsla kostar þessa einingu ekkert. **Merkjaflóð er ekki orsök ein og sér**: 200 línur á sekúndu eru ókeypis, og það bítur aðeins í þúsundum, þar sem eigin per-línu vinnu stjórnborðsins mettar aðal GUI framkvæmdarleiðina og ekkert í *þessu* einingu getur hjálpað. Það sem er eftir er **túlkalásinn**: samskonar teiknivinna, ellefu sinnum hægari, því skyggingin er Python og numpy og eitthvað annað heldur lásnum."
@@ -309,15 +309,15 @@
     {
       "context": "``blobs``, the default, goes 17.3 fps to 24.7 on the same worker. What this does **not** address is a genuinely chatty run: at 200 lines a second both land at about 4 fps, because by then the main GUI execution path is inside ``ConsolePanel`` and not in here at all. Two levers finish the job and neither is in this file — ``sys.setswitchinterval(0.001)`` in the Qt bootstrap (measured independently: 32 % of the frame rate to 99 %, for about 6 % of the worker's throughput) and coalescing ``PipelineWorker.line_ready``.",
       "label": "spacr.qt.widgets.ambient#53",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.widgets.ambient's documentation, which was rewritten by '427 part C: ten night themes, each a palette, a backdrop and a sound set of its own' (a615e5eba, 2026-09-20). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence.",
       "source": "``blobs``, the default, goes 17.3 fps to 24.7 on the same worker. What this does **not** address is a genuinely chatty run: at 200 lines a second both land at about 4 fps, because by then the GUI thread is inside ``ConsolePanel`` and not in here at all. Two levers finish the job and neither is in this file — ``sys.setswitchinterval(0.001)`` in the Qt bootstrap (measured independently: 32 % of the frame rate to 99 %, for about 6 % of the worker's throughput) and coalescing ``PipelineWorker.line_ready``.",
       "source_sha256": "471928276242c9505c8bb8361803ab80385b175ee7261b865a18d422aea51407",
-      "translation": "``blobs``, sjálfgefið, fer 17,3 fps í 24,7 á sama starfsmanni. Það sem þetta tekur **ekki** á er virkilega spjallað keyrsla: á 200 línum á sekúndu lenda báðar á um 4 ramma á sekúndu, því þá er aðal GUI framkvæmdarslóðin inni í ``ConsolePanel`` og alls ekki hér inni. Tvær stangir klára verkið og hvorug er í þessari skrá — ``sys.setswitchinterval(0.001)`` í Qt ræsibandinu (mælt óháð: 32% af rammahraða í 99%, fyrir um 6% af afköstum starfsmanns) og sameinast ``PipelineWorker.line_ready``.",
-      "retired": "2026-09-20",
-      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.widgets.ambient's documentation, which was rewritten by '427 part C: ten night themes, each a palette, a backdrop and a sound set of its own' (a615e5eba, 2026-09-20). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
+      "translation": "``blobs``, sjálfgefið, fer 17,3 fps í 24,7 á sama starfsmanni. Það sem þetta tekur **ekki** á er virkilega spjallað keyrsla: á 200 línum á sekúndu lenda báðar á um 4 ramma á sekúndu, því þá er aðal GUI framkvæmdarslóðin inni í ``ConsolePanel`` og alls ekki hér inni. Tvær stangir klára verkið og hvorug er í þessari skrá — ``sys.setswitchinterval(0.001)`` í Qt ræsibandinu (mælt óháð: 32% af rammahraða í 99%, fyrir um 6% af afköstum starfsmanns) og sameinast ``PipelineWorker.line_ready``."
     },
     {
       "context": "The ``random`` direction of ``drift`` produces Brownian-style motion without duplicating the starfield as a separate theme. Themes dominated by many antialiased lines or per-pixel noise are omitted because their raster cost is too high for an always-running backdrop.",
-      "label": "spacr.qt.widgets.ambient#7",
+      "label": "spacr.qt.widgets.ambient#6",
       "source": "The ``random`` direction of ``drift`` produces Brownian-style motion without duplicating the starfield as a separate theme. Themes dominated by many antialiased lines or per-pixel noise are omitted because their raster cost is too high for an always-running backdrop.",
       "source_sha256": "d6b764c7a9dca4d893136d0347784a48b4be67bcf60f9f0c77b33b03ba10c2ea",
       "translation": "Stefna ``random`` á ``drift`` framleiðir hreyfingu í Brown-stíl án þess að afrita stjörnusviðið sem sérstakt þema. Þemu sem einkennist af mörgum hliðstæðum línum eða hávaða á pixla er sleppt vegna þess að rasterkostnaður þeirra er of hár fyrir bakgrunn sem er alltaf í gangi."
@@ -661,11 +661,11 @@
     {
       "context": "WHERE it goes. The processing-session folder, under :data:`spacr.ml.SUMMARY_FILENAME` — the file :func:`spacr.qt.widgets.regression_results.find_summary_file` already reads back, so re-opening a processing session from disk shows this summary with no GUI change. The statsmodels text, where there is one, is appended VERBATIM at the end rather than replaced.",
       "label": "spacr.regression_summary#12",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded.",
       "source": "WHERE IT GOES. The run folder, under :data:`spacr.ml.SUMMARY_FILENAME` — the file :func:`spacr.qt.widgets.regression_results.find_summary_file` already reads back, so re-opening a run from disk shows this summary with no GUI change. The statsmodels text, where there is one, is appended VERBATIM at the end rather than replaced.",
       "source_sha256": "89044fd753e29774a4026d8d0aad0a36d80d76f5866a53dd4d2a3df32e0be1f8",
-      "translation": "WHERE ÞAÐ FER. Processing-session mappan, undir :data:`spacr.ml.SUMMARY_FILENAME` — skráin :func:`spacr.qt.widgets.regression_results.find_summary_file` les nú þegar til baka, svo að enduropna vinnslulotu af diski sýnir þessa samantekt án GUI breytingu. statsmodels textanum, þar sem það er einn, er bætt við VERBATIM í lokin frekar en skipt út.",
-      "retired": true,
-      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
+      "translation": "WHERE ÞAÐ FER. Processing-session mappan, undir :data:`spacr.ml.SUMMARY_FILENAME` — skráin :func:`spacr.qt.widgets.regression_results.find_summary_file` les nú þegar til baka, svo að enduropna vinnslulotu af diski sýnir þessa samantekt án GUI breytingu. statsmodels textanum, þar sem það er einn, er bætt við VERBATIM í lokin frekar en skipt út."
     },
     {
       "context": "The warning goes first, where the Summary tab already puts it: a rank-deficient fit prints a full table of standard errors regardless, and it looks exactly like a summary of a microplate sample position-posed one.",

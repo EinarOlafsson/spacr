@@ -83,6 +83,8 @@
     {
       "context": "Offer custom colours for the six procedural data-art scenes.",
       "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors#0",
+      "retired": true,
+      "retired_reason": "2026-10-06 final integrated Home/SCN/Wand source replaces this exact block; complete original review archived byte-exact.",
       "source": "Offer custom colours for the six procedural data-art scenes.",
       "source_sha256": "b909f4a7577a09c584074396f7c10ebab346d1196dab90042b165982a7f4ddc2",
       "translation": "Erbjud egna färger för de sex procedurgenererade datakonstscenerna."
@@ -152,7 +154,7 @@
     },
     {
       "context": "spaCR ships several themes, and a blob set tuned only for a near-black page turns to mud on a white one. So the *composition mode follows the background*:",
-      "label": "spacr.qt.widgets.ambient#11",
+      "label": "spacr.qt.widgets.ambient#10",
       "source": "spaCR ships several themes, and a blob set tuned only for a near-black page turns to mud on a white one. So the *composition mode follows the background*:",
       "source_sha256": "4589ef5131fad8eb75ae52ff32c51ed2b3edb481945e5b697f6e44b0f3e54742",
       "translation": "spaCR har flera teman, och en uppsättning blobbar anpassad enbart för en nästan svart sida blir grumlig på en vit. Därför *följer kompositionsläget bakgrunden*:"
@@ -160,6 +162,8 @@
     {
       "context": "Five classic themes remain in the menu alongside six data-art materials, each chosen to read as a different kind of movement:",
       "label": "spacr.qt.widgets.ambient#2",
+      "retired": true,
+      "retired_reason": "2026-10-06 final integrated Home/SCN/Wand source replaces this exact block; complete original review archived byte-exact.",
       "source": "Five classic themes remain in the menu alongside six data-art materials, each chosen to read as a different kind of movement:",
       "source_sha256": "bab01d52b8ab4d7ad2275976062103995d5e3d0aab50ab79cdb5f23985c0c1b7",
       "translation": "Fem klassiska teman finns kvar i menyn tillsammans med sex datakonstmaterial, vart och ett valt för att uttrycka en egen sorts rörelse:"
@@ -167,13 +171,15 @@
     {
       "context": "``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``ripple`` Concentric rings expanding out of three fixed sources and fading as they grow, like rain on water. Soft-edged, so it never reads as line work. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`. ``cells`` Cells drifting through the field, turning as they go — a soft body, a slightly brighter membrane where the edge is seen nearly edge-on, and a distinctly brighter nucleus set off centre. The older :class:`BokehEngine` and :class:`ResonanceEngine` remain importable for direct callers, but are no longer menu choices or factory entries.",
       "label": "spacr.qt.widgets.ambient#5",
+      "retired": true,
+      "retired_reason": "2026-10-06 final integrated Home/SCN/Wand source replaces this exact block; complete original review archived byte-exact.",
       "source": "``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``ripple`` Concentric rings expanding out of three fixed sources and fading as they grow, like rain on water. Soft-edged, so it never reads as line work. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`. ``cells`` Cells drifting through the field, turning as they go — a soft body, a slightly brighter membrane where the edge is seen nearly edge-on, and a distinctly brighter nucleus set off centre. The older :class:`BokehEngine` and :class:`ResonanceEngine` remain importable for direct callers, but are no longer menu choices or factory entries.",
       "source_sha256": "9f8ebf5cd677f5ef47e1da4d6fdafec8fdf0b1baa30d1f1cc5dfaa93ae1e3012",
       "translation": "``aurora`` Tre överlappande draperier av vertikala strålar, som veckar sig längs sin egen längd. Vecken är vandrande vågor — flera överlagrade frekvenser som löper längs bågen — med ljusstyrkeutbrott enligt ett separat schema, en skarp nederkant, en diffus topp och verklighetens vertikala färgordning: grönt genom kroppen, rött högt upp, en violett bård under. ``ripple`` Koncentriska ringar som expanderar ut från tre fasta källor och bleknar medan de växer, som regn på vatten. Mjukkantade, så att det aldrig uppfattas som linjeteckning. ``drift`` Ett långsamt stjärnfält i tre parallaxlager: små, svaga, långsamma bakom; större, ljusare, snabbare framför. Det enda skarpa temat. Det färdas uppåt, nedåt eller åt alla håll — se :data:`DRIFT_DIRECTIONS`. ``cells`` Celler som driver genom fältet och vänder sig under tiden — en mjuk kropp, ett något ljusare membran där kanten ses nästan från sidan, och en tydligt ljusare kärna placerad utanför centrum. De äldre :class:`BokehEngine` och :class:`ResonanceEngine` kan fortfarande importeras av direkta anropare, men finns inte längre som menyval eller i fabrikregistret."
     },
     {
       "context": "There is also a private ``fractal`` engine: it is not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it, and the only way to see it is to start the application with the ``spaceout`` command instead of ``spacr``. See :data:`SPACEOUT_THEME` and :class:`FractalEngine`.",
-      "label": "spacr.qt.widgets.ambient#6",
+      "label": "spacr.qt.widgets.ambient#5",
       "source": "There is also a private ``fractal`` engine: it is not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it, and the only way to see it is to start the application with the ``spaceout`` command instead of ``spacr``. See :data:`SPACEOUT_THEME` and :class:`FractalEngine`.",
       "source_sha256": "5cd70fb1942de055b76f914c68f1c3150eaec5ad056f43177191453c8f6a3e8c",
       "translation": "Det finns också en privat ``fractal``-motor: den finns inte i :data:`AMBIENT_THEMES`, ingen meny listar den, ingen inställning kan lagra den och det enda sättet att se den är att starta programmet med kommandot ``spaceout`` i stället för ``spacr``. Se :data:`SPACEOUT_THEME` och :class:`FractalEngine`."

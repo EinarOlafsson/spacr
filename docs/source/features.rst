@@ -362,6 +362,35 @@ which axis is z. ``timelapse`` declares a time axis and reveals tracking; a
 single-timepoint plate ignores it. The 4D settings apply only when the data is
 both a z-stack and a time series, and appear only then.
 
+Timelapse event annotations and pretrained features (alpha)
+-----------------------------------------------------------
+
+Enable **Show alpha features** in Preferences to use **Event annotations…**
+in Timelapse. Choose an existing spaCR tracks CSV and its matching image
+sequence, open the tracked field and confirm the pairing. Select an observed
+track and zero-based frame, enter an event name and press **Add or update**.
+**Save** writes the staged labels to an annotations CSV and selects it for
+event detection; closing without saving leaves the file unchanged. One track
+at one frame can have only one event label. Changed tracker or annotation
+files must be reopened before saving.
+
+The annotation table names ``field``, ``track_id``, ``frame`` and ``event``;
+an ``object`` column identifies the tracked object type. Label every event
+in fields used for training. The event detector evaluates held-out annotated
+fields, reports precision, recall and timing error, then trains and saves a
+model for reuse. Event classes come from the experiment's annotations.
+
+The default ``small`` encoder runs on CPU. The optional ``videomae`` encoder
+uses pretrained video features from **VideoMAE event encoder** in Model Zoo,
+installed in its own environment. Supply the verified local official
+checkpoint folder and exactly three ordered source-channel indices; use
+``[0,0,0]`` only when deliberately repeating a monochrome channel. The frozen
+encoder can use CUDA, Metal or CPU; the small event classifier trains on CPU.
+The checkpoint's Kinetics classes are not microscopy event labels, and
+pretrained features require held-out evaluation on the intended microscopy
+experiment. The checkpoint is licensed CC-BY-NC-4.0; inference downloads no
+weights. These controls remain alpha.
+
 Figure settings
 ---------------
 
