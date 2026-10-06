@@ -480,8 +480,7 @@ class EmbeddingsScreen(QWidget):
             self._policy.setEnabled(True)
             if self._policy_before_subcell is not None:
                 previous = self._policy.findData(self._policy_before_subcell)
-                if previous >= 0:
-                    self._policy.setCurrentIndex(previous)
+                self._policy.setCurrentIndex(max(previous, 0))
                 self._policy_before_subcell = None
         crops = getattr(self, "_crops", None)
         count = 0 if crops is None else int(crops.shape[-1])
@@ -551,8 +550,7 @@ class EmbeddingsScreen(QWidget):
                     position=index + 1, index=index), index)
             if self._subcell_channels is not None:
                 matching = selector.findData(self._subcell_channels[role])
-                if matching >= 0:
-                    selector.setCurrentIndex(matching)
+                selector.setCurrentIndex(max(matching, 0))
             form.addRow(label, selector)
         layout.addLayout(form)
         problem = QLabel("", dialog)
@@ -1469,12 +1467,7 @@ class EmbeddingsScreen(QWidget):
             if reason:
                 self._status.setText(reason)
                 return
-        try:
-            spec = self.spec()
-        except ValueError as exc:
-            self._status.setText(tr(
-                "Cannot start embedding: {reason}").format(reason=str(exc)))
-            return
+        spec = self.spec()
         record = self._scale_record
         self._status.setText(f"Embedding {crops.shape[0]} objects…")
 
