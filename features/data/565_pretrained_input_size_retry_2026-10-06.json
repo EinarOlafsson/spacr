@@ -1,0 +1,50 @@
+{
+  "item": 565,
+  "actual_normal_CPU_pretrained_encoder_input_shape_preflight_passed": true,
+  "required_input_shape": [
+    518,
+    518,
+    3
+  ],
+  "dimensions": 384,
+  "GPU_batch_size": 32,
+  "first_GPU_224_vs_518_shape_failure_preserved": true,
+  "original_17092_images_17074_unique_labels_and_pretrained_weights_unchanged": true,
+  "no_application_source_or_normal_encoder_repair": true,
+  "actual_GPU_retry_and_FAISS_scoring_pending": true,
+  "normal_turn_label": "565-pbc-dinov2-embeddings-20261006-r2",
+  "artifacts": {
+    "features/data/565_pretrained_input_size_retry_2026-10-06/565-pretrained-input-size-CPU-verification-r2.json": {
+      "sha256": "3e49c1124abf514f8bbaad4028d69e43eed8a02e6dd082bd0bb11ea5959d5dd9",
+      "bytes": 565
+    },
+    "features/data/565_pretrained_input_size_retry_2026-10-06/FAISS-GPU-freeze-518-r2.json": {
+      "sha256": "0302672031edf884997f7876789acfe9daa44197e1d541228fcea3a3401a775c",
+      "bytes": 282
+    },
+    "features/data/565_pretrained_input_size_retry_2026-10-06/GPU-freeze-518-r2.json": {
+      "sha256": "c336243f6fd5e91b853c256876b56b331b2fbabc36e36c26e1910df10ad1c87c",
+      "bytes": 1191
+    },
+    "features/data/565_pretrained_input_size_retry_2026-10-06/benchmark_pbc_embeddings_gpu_r2.py": {
+      "sha256": "6583281402f4a1dfacbf7006ee0a7345b419ed6cef7e615e8324ca5952b81d60",
+      "bytes": 6854
+    },
+    "features/data/565_pretrained_input_size_retry_2026-10-06/benchmark_pbc_faiss_gpu_r2.py": {
+      "sha256": "4ef3b1af8f0c86b5588ba29f2ea14944674503f82a3be6eeb00179f8a664df59",
+      "bytes": 8424
+    },
+    "features/data/565_pretrained_input_size_retry_2026-10-06/pbc-dinov2-embeddings-gpu-r1.log.gz": {
+      "sha256": "69ee1cd43368bbb423d793b4c4c5955620e1a5591ac3871762595deb4caa074a",
+      "bytes": 1012
+    },
+    "features/data/565_pretrained_input_size_retry_2026-10-06/plan-518-r2.json.gz": {
+      "sha256": "066a95b0797fcab2a46e14605fb54d1d50e72ee883091316a4af3bd5ccd4ee66",
+      "bytes": 3276514
+    },
+    "features/data/565_pretrained_input_size_retry_2026-10-06/prepare_retrieval_input_size_retry_r2.py": {
+      "sha256": "06e3c447268dcad021c71fc002e6fc5973a9266401ad5e7077c3cd67b1b4298f",
+      "bytes": 6205
+    }
+  }
+}

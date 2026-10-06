@@ -1,0 +1,17 @@
+{
+  "actual_normal_pretrained_model_input_size": [
+    518,
+    518
+  ],
+  "timm_pretrained_cfg_input_size": [
+    3,
+    518,
+    518
+  ],
+  "actual_normal_CPU_embed_array_first_original_cell_passed": true,
+  "dimensions": 384,
+  "image_key": "basophil/BA_100102.jpg",
+  "derived_RGB_pixels_sha256": "2e36175acf23253a8b7d73f3eb1b9a6ed53d1948feaf5f2374c0391f8ecdcff8",
+  "normal_encoder_state_CPU_frozen_same_as_previous_preparation_pending_verification": true,
+  "failed_GPU_224_vs_518_shape_preflight_preserved_no_completed_embedding_or_FAISS_acceptance": true
+}
