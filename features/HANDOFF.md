@@ -1,5 +1,16 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 workstation frozen API audit accepted
+2026-10-06 workstation frozen API acceptance completed:
+Fresh stable-source normal audit49565 exits0: all nine locales/13,193 symbols.
+Full ten-catalog check preserves13,175 unrelated complete records each, all225
+new reviewed blocks, all1,087 original API/1,990 runtime review files and629
+accepted tutorial files. Original failed initial audit remains archived.
+Receipt:data/615_home_API_acceptance_2026-10-06.json. Latest Home1f3e4a240
+seven-theme/radius/native-watcher source still needs integration and normal
+refresh; Help/settings/workflows/guides/Sphinx/browser/publication remain.
+N615 stays OPEN; no new native crash fix or GPU acceptance is claimed.
+
 ## 2026-10-06 workstation runtime and README acceptance checkpoint
 The older frozen Home Cell-DINO/Save/multi-plate/six-theme source now passes
 normal nine-language runtime generation: 9,918 entries per locale, 7,150 UI

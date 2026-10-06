@@ -1494,3 +1494,13 @@ full audit. A fresh normal --audit against stable source checkpoint 0d4d0acdc
 is live as handle 49565. The initial terminal log and actual follow-up ledger
 are archived under data/615_home_API_written_checkpoint_2026-10-06/.
 No final API acceptance claimed. Do not restart on an observation timeout.
+
+2026-10-06 workstation frozen API acceptance completed:
+Fresh stable-source normal audit49565 exits0: all nine locales/13,193 symbols.
+Full ten-catalog check preserves13,175 unrelated complete records each, all225
+new reviewed blocks, all1,087 original API/1,990 runtime review files and629
+accepted tutorial files. Original failed initial audit remains archived.
+Receipt:data/615_home_API_acceptance_2026-10-06.json. Latest Home1f3e4a240
+seven-theme/radius/native-watcher source still needs integration and normal
+refresh; Help/settings/workflows/guides/Sphinx/browser/publication remain.
+N615 stays OPEN; no new native crash fix or GPU acceptance is claimed.

@@ -1,0 +1,364 @@
+{
+  "schema": 1,
+  "scope": "Frozen six-theme/Cell-DINO/Save source: full normal nine-language API audit passes, all ten catalogs preserve complete unrelated records, all 225 reviewed blocks are exact and all original reviews and accepted tutorial files remain preserved.",
+  "source_commit": "0d5473e5ba3c6c0a332fccbc286ee9ce8416c5c3",
+  "full_normal_audit": {
+    "session_handle": 49565,
+    "exit_code": 0,
+    "languages": 9,
+    "symbols": 13193
+  },
+  "preservation": {
+    "schema": 1,
+    "scope": "Full ten-catalog complete-record preservation, exact new review readback and original review file preservation. Website/native Qt/publication acceptance remains separate.",
+    "languages": {
+      "en": {
+        "symbols": 13193,
+        "complete_records_preserved": 13175,
+        "changed_symbols": [
+          "spacr.embeddings.EmbeddingSpec",
+          "spacr.embeddings._foundation_encoder.run",
+          "spacr.embeddings.encoder_entry",
+          "spacr.qt.night_themes",
+          "spacr.qt.preferences",
+          "spacr.qt.screens.embeddings",
+          "spacr.qt.widgets.ambient"
+        ],
+        "added_symbols": [
+          "spacr.embeddings._cell_dino_model.forward",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_color",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._refresh_custom_colors",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors",
+          "spacr.qt.screens.annotate.AnnotateScreen._on_similar_result_plate.show_source_hits",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.accept_mapping",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.choose_file",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.finished",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.work",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.finished"
+        ],
+        "removed_symbols": [],
+        "catalog_sha256": "0a17ebc6685bcb6ccb985303d13c38520f0679c545ee527127c95537458b3f85"
+      },
+      "sv": {
+        "symbols": 13193,
+        "complete_records_preserved": 13175,
+        "changed_symbols": [
+          "spacr.embeddings.EmbeddingSpec",
+          "spacr.embeddings._foundation_encoder.run",
+          "spacr.embeddings.encoder_entry",
+          "spacr.qt.night_themes",
+          "spacr.qt.preferences",
+          "spacr.qt.screens.embeddings",
+          "spacr.qt.widgets.ambient"
+        ],
+        "added_symbols": [
+          "spacr.embeddings._cell_dino_model.forward",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_color",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._refresh_custom_colors",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors",
+          "spacr.qt.screens.annotate.AnnotateScreen._on_similar_result_plate.show_source_hits",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.accept_mapping",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.choose_file",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.finished",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.work",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.finished"
+        ],
+        "removed_symbols": [],
+        "catalog_sha256": "1bdb53c229dcf0225e9ace07b565b53c52542a6ae8b4cf471a958c512d39cd74",
+        "new_reviewed_blocks_exact_in_catalog": 25,
+        "strict_normal_generator_output": "sv: API blocks reused=49131 historical_reused=99 generated=0 unresolved=0 review_recovered=143 cache_recovered=0 decoded=0 relaid_symbols=18 history_from_head=7 history_unproven=0"
+      },
+      "de": {
+        "symbols": 13193,
+        "complete_records_preserved": 13175,
+        "changed_symbols": [
+          "spacr.embeddings.EmbeddingSpec",
+          "spacr.embeddings._foundation_encoder.run",
+          "spacr.embeddings.encoder_entry",
+          "spacr.qt.night_themes",
+          "spacr.qt.preferences",
+          "spacr.qt.screens.embeddings",
+          "spacr.qt.widgets.ambient"
+        ],
+        "added_symbols": [
+          "spacr.embeddings._cell_dino_model.forward",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_color",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._refresh_custom_colors",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors",
+          "spacr.qt.screens.annotate.AnnotateScreen._on_similar_result_plate.show_source_hits",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.accept_mapping",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.choose_file",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.finished",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.work",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.finished"
+        ],
+        "removed_symbols": [],
+        "catalog_sha256": "99dae32bf52a1f7726382111cc4aed6d3c0db49520ef001dd9cb8aedf139b644",
+        "new_reviewed_blocks_exact_in_catalog": 25,
+        "strict_normal_generator_output": "de: API blocks reused=49167 historical_reused=99 generated=0 unresolved=0 review_recovered=107 cache_recovered=0 decoded=0 relaid_symbols=18 history_from_head=7 history_unproven=0"
+      },
+      "es": {
+        "symbols": 13193,
+        "complete_records_preserved": 13175,
+        "changed_symbols": [
+          "spacr.embeddings.EmbeddingSpec",
+          "spacr.embeddings._foundation_encoder.run",
+          "spacr.embeddings.encoder_entry",
+          "spacr.qt.night_themes",
+          "spacr.qt.preferences",
+          "spacr.qt.screens.embeddings",
+          "spacr.qt.widgets.ambient"
+        ],
+        "added_symbols": [
+          "spacr.embeddings._cell_dino_model.forward",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_color",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._refresh_custom_colors",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors",
+          "spacr.qt.screens.annotate.AnnotateScreen._on_similar_result_plate.show_source_hits",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.accept_mapping",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.choose_file",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.finished",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.work",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.finished"
+        ],
+        "removed_symbols": [],
+        "catalog_sha256": "0945b65e46388836e8f09ae3522b46a1f4efc83d5b09630d1f91b8e0d4ba0733",
+        "new_reviewed_blocks_exact_in_catalog": 25,
+        "strict_normal_generator_output": "es: API blocks reused=49176 historical_reused=99 generated=0 unresolved=0 review_recovered=96 cache_recovered=0 decoded=0 relaid_symbols=18 history_from_head=7 history_unproven=0"
+      },
+      "zh_CN": {
+        "symbols": 13193,
+        "complete_records_preserved": 13175,
+        "changed_symbols": [
+          "spacr.embeddings.EmbeddingSpec",
+          "spacr.embeddings._foundation_encoder.run",
+          "spacr.embeddings.encoder_entry",
+          "spacr.qt.night_themes",
+          "spacr.qt.preferences",
+          "spacr.qt.screens.embeddings",
+          "spacr.qt.widgets.ambient"
+        ],
+        "added_symbols": [
+          "spacr.embeddings._cell_dino_model.forward",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_color",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._refresh_custom_colors",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors",
+          "spacr.qt.screens.annotate.AnnotateScreen._on_similar_result_plate.show_source_hits",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.accept_mapping",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.choose_file",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.finished",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.work",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.finished"
+        ],
+        "removed_symbols": [],
+        "catalog_sha256": "62384d13fc285a70ccf5a1b29bd7a3961ccaf93be5cc93ae0ab7ea1a22218264",
+        "new_reviewed_blocks_exact_in_catalog": 25,
+        "strict_normal_generator_output": "zh_CN: API blocks reused=49189 historical_reused=99 generated=0 unresolved=0 review_recovered=83 cache_recovered=0 decoded=0 relaid_symbols=18 history_from_head=7 history_unproven=0"
+      },
+      "pt": {
+        "symbols": 13193,
+        "complete_records_preserved": 13175,
+        "changed_symbols": [
+          "spacr.embeddings.EmbeddingSpec",
+          "spacr.embeddings._foundation_encoder.run",
+          "spacr.embeddings.encoder_entry",
+          "spacr.qt.night_themes",
+          "spacr.qt.preferences",
+          "spacr.qt.screens.embeddings",
+          "spacr.qt.widgets.ambient"
+        ],
+        "added_symbols": [
+          "spacr.embeddings._cell_dino_model.forward",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_color",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._refresh_custom_colors",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors",
+          "spacr.qt.screens.annotate.AnnotateScreen._on_similar_result_plate.show_source_hits",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.accept_mapping",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.choose_file",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.finished",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.work",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.finished"
+        ],
+        "removed_symbols": [],
+        "catalog_sha256": "69e1a0b525899c83c2c5d65e1f61e24dff98724e3c90fe8fddf037ee54797e35",
+        "new_reviewed_blocks_exact_in_catalog": 25,
+        "strict_normal_generator_output": "pt: API blocks reused=49149 historical_reused=99 generated=0 unresolved=0 review_recovered=125 cache_recovered=0 decoded=0 relaid_symbols=18 history_from_head=7 history_unproven=0"
+      },
+      "hi": {
+        "symbols": 13193,
+        "complete_records_preserved": 13175,
+        "changed_symbols": [
+          "spacr.embeddings.EmbeddingSpec",
+          "spacr.embeddings._foundation_encoder.run",
+          "spacr.embeddings.encoder_entry",
+          "spacr.qt.night_themes",
+          "spacr.qt.preferences",
+          "spacr.qt.screens.embeddings",
+          "spacr.qt.widgets.ambient"
+        ],
+        "added_symbols": [
+          "spacr.embeddings._cell_dino_model.forward",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_color",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._refresh_custom_colors",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors",
+          "spacr.qt.screens.annotate.AnnotateScreen._on_similar_result_plate.show_source_hits",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.accept_mapping",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.choose_file",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.finished",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.work",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.finished"
+        ],
+        "removed_symbols": [],
+        "catalog_sha256": "b96b521f47616c182b5dfb59c11fd86218ed54a2e1aece27b928eb750359bfd9",
+        "new_reviewed_blocks_exact_in_catalog": 25,
+        "strict_normal_generator_output": "hi: API blocks reused=49166 historical_reused=99 generated=0 unresolved=0 review_recovered=106 cache_recovered=0 decoded=0 relaid_symbols=18 history_from_head=7 history_unproven=0"
+      },
+      "ko": {
+        "symbols": 13193,
+        "complete_records_preserved": 13175,
+        "changed_symbols": [
+          "spacr.embeddings.EmbeddingSpec",
+          "spacr.embeddings._foundation_encoder.run",
+          "spacr.embeddings.encoder_entry",
+          "spacr.qt.night_themes",
+          "spacr.qt.preferences",
+          "spacr.qt.screens.embeddings",
+          "spacr.qt.widgets.ambient"
+        ],
+        "added_symbols": [
+          "spacr.embeddings._cell_dino_model.forward",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_color",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._refresh_custom_colors",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors",
+          "spacr.qt.screens.annotate.AnnotateScreen._on_similar_result_plate.show_source_hits",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.accept_mapping",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.choose_file",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.finished",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.work",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.finished"
+        ],
+        "removed_symbols": [],
+        "catalog_sha256": "aff61a31a3f016541366ff9b9b6193f60d1d773aa74badba282e1428a6ce4384",
+        "new_reviewed_blocks_exact_in_catalog": 25,
+        "strict_normal_generator_output": "ko: API blocks reused=49176 historical_reused=99 generated=0 unresolved=0 review_recovered=96 cache_recovered=0 decoded=0 relaid_symbols=18 history_from_head=7 history_unproven=0"
+      },
+      "is": {
+        "symbols": 13193,
+        "complete_records_preserved": 13175,
+        "changed_symbols": [
+          "spacr.embeddings.EmbeddingSpec",
+          "spacr.embeddings._foundation_encoder.run",
+          "spacr.embeddings.encoder_entry",
+          "spacr.qt.night_themes",
+          "spacr.qt.preferences",
+          "spacr.qt.screens.embeddings",
+          "spacr.qt.widgets.ambient"
+        ],
+        "added_symbols": [
+          "spacr.embeddings._cell_dino_model.forward",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_color",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._refresh_custom_colors",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors",
+          "spacr.qt.screens.annotate.AnnotateScreen._on_similar_result_plate.show_source_hits",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.accept_mapping",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.choose_file",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.finished",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.work",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.finished"
+        ],
+        "removed_symbols": [],
+        "catalog_sha256": "91e58b7db9703ef73611f5b35ed881a56ba620d3a6b11f8e2c43a1f97a02f110",
+        "new_reviewed_blocks_exact_in_catalog": 25,
+        "strict_normal_generator_output": "is: API blocks reused=49164 historical_reused=99 generated=0 unresolved=0 review_recovered=110 cache_recovered=0 decoded=0 relaid_symbols=18 history_from_head=7 history_unproven=0"
+      },
+      "fr": {
+        "symbols": 13193,
+        "complete_records_preserved": 13175,
+        "changed_symbols": [
+          "spacr.embeddings.EmbeddingSpec",
+          "spacr.embeddings._foundation_encoder.run",
+          "spacr.embeddings.encoder_entry",
+          "spacr.qt.night_themes",
+          "spacr.qt.preferences",
+          "spacr.qt.screens.embeddings",
+          "spacr.qt.widgets.ambient"
+        ],
+        "added_symbols": [
+          "spacr.embeddings._cell_dino_model.forward",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_color",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._refresh_custom_colors",
+          "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors",
+          "spacr.qt.screens.annotate.AnnotateScreen._on_similar_result_plate.show_source_hits",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.accept_mapping",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.choose_file",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.finished",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.work",
+          "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.finished"
+        ],
+        "removed_symbols": [],
+        "catalog_sha256": "606191b2cc916a5a231e10783ce67d447e60ea47ad9fe6bcfaad0057f6d85335",
+        "new_reviewed_blocks_exact_in_catalog": 25,
+        "strict_normal_generator_output": "fr: API blocks reused=49054 historical_reused=99 generated=0 unresolved=0 review_recovered=219 cache_recovered=0 decoded=0 relaid_symbols=18 history_from_head=7 history_unproven=0"
+      }
+    },
+    "original_complete_review_files": [
+      {
+        "lane": "api",
+        "complete_original_files_unchanged_in_place": 1033,
+        "complete_original_files_preserved_in_dated_archive": 54
+      },
+      {
+        "lane": "runtime",
+        "complete_original_files_unchanged_in_place": 1944,
+        "complete_original_files_preserved_in_dated_archive": 46
+      }
+    ],
+    "tutorial_files_unchanged_to_accepted_6caf72d8a": 629,
+    "partial_during_live_normal_generator": false
+  },
+  "historical_failure": "Initial generator 61808 exited 1 on Swedish README link targets during a concurrent README rebuild. Original terminal stdout/stderr is preserved in 615_home_API_written_checkpoint_2026-10-06/initial-normal-refresh-terminal.log.gz; this receipt records the separate fresh stable-source audit.",
+  "limits": "Latest Home seven-theme/radius/native-watcher source is not integrated at this checkpoint. Its regeneration, Help/settings/workflows/guides, Sphinx/browser/publication, native Save crash and GPU work remain separate; N615 stays OPEN.",
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff.",
+  "artifacts": {
+    "features/data/615_home_API_acceptance_2026-10-06/Home-current-API-fresh-audit-r1.log.gz": {
+      "stored_sha256": "4b7cad338e296dac999a767fbe13911c3ea0b198f762a2015c6016c7162a7c85",
+      "original_sha256": "17f53964e8239ea576c2b6ff1fd1db820cbd87e76b61c41325d4f263f712f11e",
+      "original_bytes": 161
+    },
+    "features/data/615_home_API_acceptance_2026-10-06/Home-current-API-normal-refresh-r2.log.gz": {
+      "stored_sha256": "85b51da0760c98e76e9beebe1766743549e91dfc7abdd0f533f1e29b3854f3aa",
+      "original_sha256": "b21b9ac4d70cdb5773073db7f79980da7de2fc06f8e178bfbfb7f3e5154ab332",
+      "original_bytes": 1810
+    },
+    "features/data/615_home_API_acceptance_2026-10-06/Home-current-API-preservation-r3.log.gz": {
+      "stored_sha256": "b222bce35a73d4cc763d0488e0af32b84398fda206c9c8b6ce79ee4ea5be11a3",
+      "original_sha256": "c580874551f46b2c8f7afa8153d064d2beebf6099238da09f77f17ba89df5651",
+      "original_bytes": 955
+    },
+    "features/data/615_home_API_acceptance_2026-10-06/Home-current-API-preservation-r3.json.gz": {
+      "stored_sha256": "d20868790980ce7c25820e177ad8e956f2b07a5122f1c1cceb76528ab91855cc",
+      "original_sha256": "8c8cc3cd70026b2022d5025da960c48968eb2cbbc9803ceffd949c0a5faeab96",
+      "original_bytes": 17776
+    },
+    "features/data/615_home_API_acceptance_2026-10-06/check_Home_current_API_preservation_r3.py.gz": {
+      "stored_sha256": "13fe023bf2dfba7c04cf91aba6642c1c9fcbf7471fa527c26e5e9fc03a5447a7",
+      "original_sha256": "392a617926724d4e453a50dbc1fc27ccd89325fb25cf8f1b1991df66852806f4",
+      "original_bytes": 5217
+    },
+    "features/data/615_home_API_acceptance_2026-10-06/run_foundation_api_tool_r2.py.gz": {
+      "stored_sha256": "beb7ed22a9b1f6bd7017d4a1ebd6271b045b43e8f28de30dfa9b92089b82d032",
+      "original_sha256": "d177b5a1da4cb184e9846edacd23ff2a016191812092fca740e23a00c4476251",
+      "original_bytes": 1369
+    }
+  }
+}
