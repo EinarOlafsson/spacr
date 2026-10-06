@@ -19,8 +19,8 @@ The older frozen API generator has written all ten 13,193-symbol catalogs;
 all 225 new reviewed blocks and 13,175 unchanged complete records per catalog
 are exact, with all 1,087 original API/1,990 runtime review files preserved.
 Its full normal API audit remains live and is not yet accepted. Coverage and
-review-scope reports have been normally regenerated; existing exact report
-checks are live. Home 1f3e4a240's seven-theme/radius/native-watcher source is
+review-scope reports have been normally regenerated; both existing exact
+report checks pass. Receipt: data/615_localization_reports_2026-10-06.json. Home 1f3e4a240's seven-theme/radius/native-watcher source is
 NOT yet integrated here and needs the subsequent normal refresh. N615 stays
 OPEN. Preserve Home's corrected native crash interpretation: collection is a
 GUI QTimer callback under app.exec; Detail/Save causality remains unproven.

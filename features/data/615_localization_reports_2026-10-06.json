@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "scope": "Normal live-source localization report regeneration, with existing exact report and source-bound review-scope CI checks both passing. Frozen older Home source only; latest Home 1f3e4a240 is not yet integrated.",
+  "generated_by": "tools/audit_i18n_coverage.py --write --write-review-scope",
+  "normal_generation_observed_exit_code": 0,
+  "existing_exact_CI_contracts_passed": 2,
+  "runtime_entries_per_language": 9918,
+  "fresh_API_docs_per_language": 13193,
+  "orphan_runtime_and_API_entries": 0,
+  "older_2026_08_30_report_unchanged": true,
+  "dated_2026_09_04_report_history_preserved": true,
+  "review_scope": "Source-bound Codex technical review evidence. No native-speaker signoff or fully reviewed-page percentage is claimed. Historical block-count/symbol-count ratios are explicitly identified.",
+  "limits": "A source/checked-in report acceptance; full API semantic audit, latest source integration, Sphinx/browser/publication and native crash acceptance remain separate. N615 stays OPEN.",
+  "artifacts": {
+    "features/data/615_localization_reports_2026-10-06/Home-current-localization-reports-r2.log.gz": {
+      "stored_sha256": "9c37e400aa0ff9c19febba39977ddd5175b11ac2bae0852f44f106dd5c50df4b",
+      "original_sha256": "19630ee0d6475c1bc7793c9122e3b3c5da00741d974469785b65ea0124b47ff5",
+      "original_bytes": 311
+    },
+    "features/data/615_localization_reports_2026-10-06/Home-current-localization-report-existing-contracts-r1.log.gz": {
+      "stored_sha256": "e8f62d0f4ed0822edd254ecdb55d8b7627e1e8f71d00ffea004c37f238c56a98",
+      "original_sha256": "ec63fecfe4107561cdceda2d52ff91446161e5a913a093f1ca66d9f1ad50c494",
+      "original_bytes": 222
+    },
+    "features/data/615_localization_reports_2026-10-06/COVERAGE.md.before.gz": {
+      "stored_sha256": "dd1dce5452ddc95216ac81058eb685ce134ac797af55d4e494fa76c67c9b3463",
+      "original_sha256": "ab76a66b88031b68aa54da3bcb1fcae036fda703108fa31faa7db26dd2735aa9",
+      "original_bytes": 1479
+    },
+    "features/data/615_localization_reports_2026-10-06/COVERAGE.md.current.gz": {
+      "stored_sha256": "e2c37b1305874215e09b32a43a5b71371ffdfc9a00896e0afc0885a74e43ed9e",
+      "original_sha256": "30504136513779254e7461a63d6ab4c8f85dfd2421556f33cb517533a0a4e81f",
+      "original_bytes": 1479
+    },
+    "features/data/615_localization_reports_2026-10-06/REVIEW_SCOPE_2026-09-04.md.before.gz": {
+      "stored_sha256": "986da66f9c6fb9f4f853be871c726cf10e8cb5189f49881b2fcb1bcfd5f99e90",
+      "original_sha256": "4d610d05830aa489611c7ee7dc3960a65068e4fa82819cea6208359d0d61a52e",
+      "original_bytes": 28577
+    },
+    "features/data/615_localization_reports_2026-10-06/REVIEW_SCOPE_2026-09-04.md.current.gz": {
+      "stored_sha256": "851fab59bbea7c05449bf8d207213eaf7d8cae0b8bbb9a7c035a4017b314a2ca",
+      "original_sha256": "da97d603089adf3c8a92f81e9141f0049a0941e1ac46bc95577da8a09c369442",
+      "original_bytes": 28447
+    },
+    "features/data/615_localization_reports_2026-10-06/audit_i18n_coverage.py.gz": {
+      "stored_sha256": "d0db409e0dffe919e345c42d1c824025e790dbca9eec07fd1e4575922503da56",
+      "original_sha256": "040f1f280d07257d1315fedf607f940ff58b3f290b305b6e38263beacdd1eb36",
+      "original_bytes": 9654
+    }
+  }
+}

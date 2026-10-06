@@ -1457,3 +1457,14 @@ unchanged, and every original review file remains byte-exact. Three existing
 README contracts plus the exact English referral check pass. Receipt:
 data/615_readme_referral_2026-10-06.json. This is not a website publication or
 newer Home theme acceptance; broader N615 stays OPEN.
+
+2026-10-06 — CURRENT LOCALIZATION REPORT CI CONTRACTS REPAIRED
+The normal audit tool now derives the live source-bound review-scope table
+with --write-review-scope, preserving the report's complete dated history and
+the unedited 2026-08-30 snapshot. Normal --write coverage reports all nine
+locales at 9,918/9,918 runtime and 13,193/13,193 fresh API documents, with zero
+orphans. Both existing exact report CI checks pass. Source-bound technical
+review counts retain the historical block-count/symbol-count caveat and no
+native-speaker claim. Receipt: data/615_localization_reports_2026-10-06.json.
+Latest Home 1f3e4a240 source, full API semantic audit, browser/publication and
+native crash acceptance remain separate. Broader N615 remains OPEN.
