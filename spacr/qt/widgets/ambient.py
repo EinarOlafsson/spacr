@@ -5880,9 +5880,10 @@ class AmbientWidget(QWidget):
             *RESOLUTION_RANGE)
         self._density = _clamp(
             stored.density if density is None else density, *DENSITY_RANGE)
+        radius = float(_preferred_gravity_radius()
+                       if gravity_radius is None else gravity_radius)
         self._gravity_radius = _clamp(
-            _preferred_gravity_radius() if gravity_radius is None else gravity_radius,
-            0.0, 1.0)
+            radius if math.isfinite(radius) else 0.0, 0.0, 1.0)
         wanted = stored.direction if direction is None else direction
         self._direction = wanted if is_valid_drift_direction(wanted) \
             else DEFAULT_DRIFT_DIRECTION
@@ -6125,7 +6126,8 @@ class AmbientWidget(QWidget):
         :param value: fraction of the shorter screen edge, clamped to [0, 1];
             zero disables mouse influence.
         """
-        radius = _clamp(value, 0.0, 1.0)
+        radius = float(value)
+        radius = _clamp(radius if math.isfinite(radius) else 0.0, 0.0, 1.0)
         if radius == self._gravity_radius:
             return
         self._gravity_radius = radius

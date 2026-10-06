@@ -8,6 +8,7 @@ from PySide6.QtCore import QSettings
 from PySide6.QtWidgets import QComboBox, QDialogButtonBox, QSlider
 
 from spacr.qt import preferences as prefs
+from spacr.qt.widgets.ambient import AmbientWidget
 
 
 @pytest.fixture
@@ -35,6 +36,21 @@ def test_gravity_radius_saved_value_is_finite_and_bounded(radius_store, value, e
     prefs._set_ambient_gravity_radius(value)
     assert prefs._ambient_gravity_radius() == expected
     assert float(radius_store.value("prefs/ambient_gravity_radius")) == expected
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
+def test_nonfinite_widget_radius_cannot_enable_mouse_capture(qtbot, value):
+    widget = AmbientWidget(theme="data_art_impulse_lens", gravity_radius=value)
+    qtbot.addWidget(widget)
+    widget.resize(200, 120)
+    widget.show()
+    assert widget.gravity_radius() == 0
+    assert widget._interaction_app is None
+    widget.set_gravity_radius(0.5)
+    assert widget._interaction_app is not None
+    widget.set_gravity_radius(value)
+    assert widget.gravity_radius() == 0
+    assert widget._interaction_app is None
 
 
 def test_gravity_radius_defaults_off_cancel_preserves_and_save_persists(
