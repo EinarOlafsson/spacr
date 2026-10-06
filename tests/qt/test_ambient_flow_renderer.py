@@ -109,6 +109,27 @@ def test_pointer_bends_only_its_mouse_variant_at_a_fixed_clock(family):
     assert mouse.geometry(320, 180) == original
 
 
+def test_invalid_flow_inputs_and_control_updates_fail_or_rebuild_safely():
+    """Bad families and pointers do not corrupt the cached drawing state."""
+    with pytest.raises(ValueError, match="unknown flow family"):
+        amb._FlowEngine(amb.palette_colors("flow_wind", "ocean"), DARK,
+                        family="unlisted", seed=27)
+    engine = _engine("wind", mouse=True)
+    assert engine.geometry(0, 180) == ()
+    assert engine.geometry(320, -1) == ()
+    assert engine._bend_at_pointer(0.25, 0.75) == (0.25, 0.75)
+    original = engine.geometry(320, 180)
+    engine.set_pointer((math.nan, 0.5))
+    assert engine.pointer is None
+    assert engine.geometry(320, 180) == original
+    engine.set_pointer((-1.0, 2.0))
+    assert engine.pointer == (0.0, 1.0)
+    engine.set_density(1.5)
+    engine.set_size(1.5)
+    assert engine.geometry(320, 180) != original
+    assert engine.shade(320, 180) is not None
+
+
 @pytest.mark.parametrize("background", (DARK, LIGHT))
 def test_flow_filaments_are_visible_over_dark_and_light_pages(background):
     """The compositing mode leaves a soft but visible field on either page."""
@@ -155,6 +176,10 @@ def test_local_cursor_polling_requires_the_active_window_and_widget(qtbot,
     assert flow._flow_pointer_for_tick() is None
     state["cursor"] = centre
     flow._animating = False
+    assert flow._flow_pointer_for_tick() is None
+    flow._animating = True
+    monkeypatch.setattr(amb, "QCursor", SimpleNamespace(
+        pos=lambda: (_ for _ in ()).throw(RuntimeError("widget deleted"))))
     assert flow._flow_pointer_for_tick() is None
     flow.stop()
 
