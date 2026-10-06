@@ -737,5 +737,15 @@
   "narration_and_4k_in_git": false,
   "browser_checks_complete": true,
   "published": false,
-  "release_hold": true
+  "release_hold": false,
+  "media_uploaded": true,
+  "pages_tree_ready": true,
+  "media_revision": {
+    "repository": "datasets/einarolafsson/spacr-tutorials",
+    "branch": "installation-current-20261006-r2",
+    "tag": "installation-current-20261006-r2-verified",
+    "commit": "0889ee14f5a7368a791df27c7331862a6c7741b4",
+    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0889ee14f5a7368a791df27c7331862a6c7741b4"
+  },
+  "publication_note": "Media revision uploaded and read back; docs.yml publishes the committed Pages tree to the matching nightly or main channel."
 }

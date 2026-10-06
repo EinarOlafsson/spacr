@@ -73,7 +73,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -298,18 +321,12 @@
           "hold_after": 0.7
         },
         {
-          "visual": "06_installed_home",
-          "narration": "Home opnast með flokkunum Core, Data, Tools og Assays. Haltu áfram með Home-kennsluna til að finna einingu, hlaða inn sýnigögnum og opna yfirlit yfir greiningarferli.",
+          "visual": "13_current_nightly_home",
+          "narration": "Þessi upptaka setur upp spaCR útgáfu eitt punktur fimm punktur eitt punktur þrjú. Útgefnar útgáfur geta sýnt eldra Home-skipulag. Hér sést Home í núverandi nightly-útgáfu, með Core, Data, Tools og Assays. Haltu áfram í Home screen and navigation til að kynnast núverandi einingum.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7,
-          "focus": [
-            48,
-            318,
-            2712,
-            1332
-          ]
+          "hold_after": 0.7
         },
         {
           "visual": "11_update_intentionally",
@@ -323,7 +340,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -419,27 +459,21 @@
           "hold_after": 0.7
         },
         {
-          "visual": "09_performance",
-          "narration": "Í Preferences velurðu Performance-snið fyrir tölvuna þína. Laptop notar minni tilföng; hærri sniðin leyfa meiri skyndiminnisnotkun og bakgrunnsvinnu. Byrjaðu á hóflegu sniði ef minni er takmarkað. Greiningarstillingarnar eru áfram á þínu valdi í hverri einingu.",
+          "visual": "14_current_nightly_performance",
+          "narration": "Opnaðu Preferences í núverandi nightly-viðmóti og veldu Performance. Veldu snið fyrir tölvuna þína. Laptop notar færri tilföng; hærri snið leyfa meira skyndiminni og bakgrunnsvinnu. Byrjaðu á hóflegu sniði ef minni er takmarkað.",
           "hold_after": 0.7
         },
         {
-          "visual": "06_installed_home",
-          "narration": "Þegar Home opnast heldurðu áfram með Home-kennsluna. Hún sýnir hvernig á að opna einingu, finna prófunargögn og velja greiningarferli fyrir tilraunina þína.",
+          "visual": "13_current_nightly_home",
+          "narration": "Þessi upptaka setur upp spaCR útgáfu eitt punktur fimm punktur eitt punktur þrjú. Útgefnar útgáfur geta sýnt eldra Home-skipulag. Hér sést Home í núverandi nightly-útgáfu, með Core, Data, Tools og Assays. Haltu áfram í Home screen and navigation til að kynnast núverandi einingum.",
           "related_lessons": [
             "05_home"
           ],
-          "hold_after": 0.7,
-          "focus": [
-            48,
-            318,
-            2712,
-            1332
-          ]
+          "hold_after": 0.7
         },
         {
           "visual": "05_doctor",
-          "narration": "Ef ræsing eða skráarsnið þarfnast athygli skaltu keyra spacr-doctor úr uppsetta keyrsluumhverfinu. Það listar hverja athugun ásamt tillögu að lagfæringu. Í þessari uppsetningu, sem notar aðeins CPU, mistekst GPU-athugunin eins og búast mátti við, og PATH-athugunin merkir eigin spacr-ræsi uppsetningarforritsins, sem ræsir þetta sama keyrsluumhverfi, svo hvorugt þarf að breyta hér.",
+          "narration": "Keyrðu spacr-doctor úr uppsetta keyrsluumhverfinu ef ræsing eða skráarsnið þarfnast athugunar. Í þessari upptöku af CPU-uppsetningu stenst bakendaprófunin og GPU-prófuninni er sleppt. Viðvörunin segir að valfrjálsan CZI-lesara vanti; settu aðeins upp þá viðbót ef þú þarft CZI-skrár.",
           "hold_after": 0.7
         },
         {
@@ -455,7 +489,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

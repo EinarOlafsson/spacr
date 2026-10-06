@@ -102,7 +102,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -345,19 +368,13 @@
           "speech_text": "从已激活的环境启动斯佩克尔。首次启动时，按照设置提示选择您的偏好。"
         },
         {
-          "visual": "06_installed_home",
-          "narration": "Home打开后显示Core、Data、Tools和Assays类别。继续学习Home教程，查找模块、加载示例数据并打开流程概览。",
+          "visual": "13_current_nightly_home",
+          "narration": "这段录像安装的是 spaCR 一点五点一点三版。已发布的版本可能显示较旧的 Home 布局。这里展示的是当前每夜开发版的 Home，包含 Core、Data、Tools 和 Assays。请继续观看主页与导航教程，了解当前的模块。",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "focus": [
-            48,
-            318,
-            2712,
-            1332
-          ],
-          "speech_text": "主页打开后显示Core、Data、Tools和Assays类别。继续学习主页教程，查找模块、加载示例数据并打开流程概览。"
+          "speech_text": "这段录像安装的是 斯佩克尔 一点五点一点三版。已发布的版本可能显示较旧的 主页 布局。这里展示的是当前每夜开发版的 主页，包含 Core、Data、Tools 和 Assays。请继续观看主页与导航教程，了解当前的模块。"
         },
         {
           "visual": "11_update_intentionally",
@@ -372,7 +389,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -475,31 +515,25 @@
           "speech_text": "设置过程会询问是否可选地共享诊断信息以及是否设置账户。只对您想要的选项回答y；默认的n会让每一项保持关闭。Windows安装程序以复选框形式显示同样的选项。"
         },
         {
-          "visual": "09_performance",
-          "narration": "在Preferences中，为您的电脑选择一个Performance配置。Laptop占用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请从较低的配置开始。每个模块中的分析设置仍由您自己掌控。",
+          "visual": "14_current_nightly_performance",
+          "narration": "在当前每夜开发版界面中，打开 Preferences 并选择 Performance。选择适合自己电脑的配置。Laptop 使用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请先选用较节省资源的配置。",
           "hold_after": 0.7,
-          "speech_text": "在Preferences中，为您的电脑选择一个Performance配置。Laptop占用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请从较低的配置开始。每个模块中的分析设置仍由您自己掌控。"
+          "speech_text": "在当前每夜开发版界面中，打开 Preferences 并选择 Performance。选择适合自己电脑的配置。Laptop 使用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请先选用较节省资源的配置。"
         },
         {
-          "visual": "06_installed_home",
-          "narration": "Home打开后，继续学习Home教程。它介绍如何打开模块、查找测试数据，以及为您的实验选择流程。",
+          "visual": "13_current_nightly_home",
+          "narration": "这段录像安装的是 spaCR 一点五点一点三版。已发布的版本可能显示较旧的 Home 布局。这里展示的是当前每夜开发版的 Home，包含 Core、Data、Tools 和 Assays。请继续观看主页与导航教程，了解当前的模块。",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "focus": [
-            48,
-            318,
-            2712,
-            1332
-          ],
-          "speech_text": "主页打开后，继续学习主页教程。它介绍如何打开模块、查找测试数据，以及为您的实验选择流程。"
+          "speech_text": "这段录像安装的是 斯佩克尔 一点五点一点三版。已发布的版本可能显示较旧的 主页 布局。这里展示的是当前每夜开发版的 主页，包含 Core、Data、Tools 和 Assays。请继续观看主页与导航教程，了解当前的模块。"
         },
         {
           "visual": "05_doctor",
-          "narration": "如果启动或某种文件格式出现问题，请从已安装的运行时运行spacr-doctor。它会列出每项检查及建议的修复方法。在这个仅CPU的安装中，GPU检查按预期失败；PATH检查标记了安装程序自带的spacr启动器，它启动的正是同一个运行时，因此这里两者都无需更改。",
+          "narration": "如果启动或文件格式需要处理，请从安装的运行环境执行 spacr-doctor。在这段录像的 CPU 安装中，后端检查通过，GPU 检查被跳过。警告说明缺少可选的 CZI 读取器；只有需要 CZI 文件时，才安装这个额外组件。",
           "hold_after": 0.7,
-          "speech_text": "如果启动或某种文件格式出现问题，请从已安装的运行时运行斯佩克尔-doctor。它会列出每项检查及建议的修复方法。在这个仅CPU的安装中，GPU检查按预期失败；PATH检查标记了安装程序自带的斯佩克尔启动器，它启动的正是同一个运行时，因此这里两者都无需更改。"
+          "speech_text": "如果启动或文件格式需要处理，请从安装的运行环境执行 斯佩克尔-doctor。在这段录像的 CPU 安装中，后端检查通过，GPU 检查被跳过。警告说明缺少可选的 CZI 读取器；只有需要 CZI 文件时，才安装这个额外组件。"
         },
         {
           "visual": "12_logs_and_versions",
@@ -515,7 +549,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

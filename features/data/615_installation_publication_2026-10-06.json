@@ -1,0 +1,61 @@
+{
+  "item": 615,
+  "immutable_hosted_publication_accepted": true,
+  "lessons": [
+    "01_pypi_github",
+    "03_pip_install",
+    "04_platform_installers"
+  ],
+  "media_files_fully_downloaded_and_hash_verified": 5036,
+  "media_bytes_downloaded_and_verified": 5573313724,
+  "immutable_media_commit": "0889ee14f5a7368a791df27c7331862a6c7741b4",
+  "hosted_routes_passed": 85,
+  "current_150_audio_tracks_and_30_native_scene_source_media_freeze_verified": true,
+  "all_82_other_complete_lessons_per_fourteen_catalogs_preserved": true,
+  "unchanged_other_media_records": 4730,
+  "Mask_07_Home_05_Measure_08_Conda_02_YOLO_14_preserved": true,
+  "prior_privacy_dialog_old_Home_r1_visual_not_published": true,
+  "native_Windows_macOS_or_native_speaker_review_not_claimed": true,
+  "actual_nightly_deployment_and_phone_readback_pending": true,
+  "artifacts": {
+    "features/data/615_installation_publication_2026-10-06/finish_installation_publication_r2.py": {
+      "sha256": "ed933e69473f03f54cf35f4e46a75a72c027b3fd1240452e357474ad9d610e84",
+      "bytes": 5015
+    },
+    "features/data/615_installation_publication_2026-10-06/installation-current-pages-r2.log.gz": {
+      "sha256": "35d196891278c6023584a1c9e777b0d6fa7493b2ba5524aa55e4d2c149457f5c",
+      "bytes": 504
+    },
+    "features/data/615_installation_publication_2026-10-06/installation-current-upload-r2.log.gz": {
+      "sha256": "4d8a4d832e323f94b76bb61515f5405dca19ad2e02d35691d11292ae5821d733",
+      "bytes": 4314
+    },
+    "features/data/615_installation_publication_2026-10-06/installation-hosted-playback-r2.log.gz": {
+      "sha256": "9598fa22ecb2fdb3f5322df4bf495a3dc5330269dfa4d98c976b4d27988d0e89",
+      "bytes": 231
+    },
+    "features/data/615_installation_publication_2026-10-06/installation-hosted-playback-r3.log.gz": {
+      "sha256": "80fe9cb87d55d6df8f76fe95b614c17db2a97a5c7ed039dbf6e035b2ad072ad6",
+      "bytes": 859
+    },
+    "features/data/615_installation_publication_2026-10-06/installation-published-guards-r2.log.gz": {
+      "sha256": "45687ab1a236e77f2d4217fba600534d032dd3131de9845c9c05159cb0bdd23a",
+      "bytes": 1110
+    },
+    "features/data/615_installation_publication_2026-10-06/installation-published-guards-r3.log.gz": {
+      "sha256": "475f07ef4f0e0e2ce39e16ff1a602536bae4fc1eb5e85db6f9da6ad07d488a61",
+      "bytes": 52
+    },
+    "features/data/615_installation_publication_2026-10-06/publication-receipt.json": {
+      "sha256": "3bc3b57305993d2f5d79d8ba39551c8d3dfedb8f33133861d44a6450066e5578",
+      "bytes": 145957
+    },
+    "features/data/615_installation_publication_2026-10-06/published-media-browser-checks.json": {
+      "sha256": "ed0f9bdfbcda1da1a921872c3d9b3d7e245cb8c480609cfbea1c43cd6019a5e1",
+      "bytes": 131839
+    }
+  },
+  "publication_guard_tests_passed": 10,
+  "actual_Node_player_contract_executed": true,
+  "exact_inventory_1214_scenes_including_58_Make_Masks_and_1156_unchanged_others": true
+}

@@ -102,7 +102,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -345,19 +368,13 @@
           "speech_text": "有効にした環境からスペーカーを起動します。初回起動時は、セットアップの案内に従って設定を選びます。"
         },
         {
-          "visual": "06_installed_home",
-          "narration": "HomeはCore、Data、Tools、Assaysのカテゴリーとともに開きます。Homeのチュートリアルに進み、モジュールを探し、例データを読み込み、パイプラインの概要を開きましょう。",
+          "visual": "13_current_nightly_home",
+          "narration": "この録画では、spaCRのバージョン一・五・一・三をインストールしています。公開済みのバージョンでは、Homeの配置が古い場合があります。ここに示すのは現在のナイトリービルドのHomeで、Core、Data、Tools、Assaysがあります。現在のモジュールについては、ホーム画面とナビゲーションのチュートリアルに進んでください。",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "focus": [
-            48,
-            318,
-            2712,
-            1332
-          ],
-          "speech_text": "ホームはCore、Data、Tools、Assaysのカテゴリーとともに開きます。ホームのチュートリアルに進み、モジュールを探し、例データを読み込み、パイプラインの概要を開きましょう。"
+          "speech_text": "この録画では、スペーカーのバージョン一・五・一・三をインストールしています。公開済みのバージョンでは、ホームの配置が古い場合があります。ここに示すのは現在のナイトリービルドのホームで、Core、Data、Tools、Assaysがあります。現在のモジュールについては、ホーム画面とナビゲーションのチュートリアルに進んでください。"
         },
         {
           "visual": "11_update_intentionally",
@@ -372,7 +389,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -475,31 +515,25 @@
           "speech_text": "セットアップでは、診断情報の任意の共有とアカウント設定について尋ねられます。希望するオプションにだけyと答えます。既定のnでは、それぞれがオフのままになります。Windowsのインストーラーでは、同じ選択肢がチェックボックスで表示されます。"
         },
         {
-          "visual": "09_performance",
-          "narration": "Preferencesで、お使いのコンピューターに合ったPerformanceプロファイルを選びます。Laptopは使用するリソースが少なく、上位のプロファイルほどキャッシュやバックグラウンド処理を多く使えます。メモリが限られている場合は、控えめなプロファイルから始めましょう。解析の設定は、各モジュールで引き続き自分で管理できます。",
+          "visual": "14_current_nightly_performance",
+          "narration": "現在のナイトリー版の画面でPreferencesを開き、Performanceを選びます。お使いのコンピューターに合うプロファイルを選んでください。Laptopは使うリソースが少なく、上位のプロファイルではキャッシュとバックグラウンド処理をより多く使えます。メモリが限られている場合は、控えめなプロファイルから始めましょう。",
           "hold_after": 0.7,
-          "speech_text": "Preferencesで、お使いのコンピューターに合ったPerformanceプロファイルを選びます。Laptopは使用するリソースが少なく、上位のプロファイルほどキャッシュやバックグラウンド処理を多く使えます。メモリが限られている場合は、控えめなプロファイルから始めましょう。解析の設定は、各モジュールで引き続き自分で管理できます。"
+          "speech_text": "現在のナイトリー版の画面でPreferencesを開き、Performanceを選びます。お使いのコンピューターに合うプロファイルを選んでください。Laptopは使うリソースが少なく、上位のプロファイルではキャッシュとバックグラウンド処理をより多く使えます。メモリが限られている場合は、控えめなプロファイルから始めましょう。"
         },
         {
-          "visual": "06_installed_home",
-          "narration": "Homeが開いたら、Homeのチュートリアルに進みます。モジュールの開き方、テストデータの見つけ方、実験に合ったパイプラインの選び方を説明しています。",
+          "visual": "13_current_nightly_home",
+          "narration": "この録画では、spaCRのバージョン一・五・一・三をインストールしています。公開済みのバージョンでは、Homeの配置が古い場合があります。ここに示すのは現在のナイトリービルドのHomeで、Core、Data、Tools、Assaysがあります。現在のモジュールについては、ホーム画面とナビゲーションのチュートリアルに進んでください。",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "focus": [
-            48,
-            318,
-            2712,
-            1332
-          ],
-          "speech_text": "ホームが開いたら、ホームのチュートリアルに進みます。モジュールの開き方、テストデータの見つけ方、実験に合ったパイプラインの選び方を説明しています。"
+          "speech_text": "この録画では、スペーカーのバージョン一・五・一・三をインストールしています。公開済みのバージョンでは、ホームの配置が古い場合があります。ここに示すのは現在のナイトリービルドのホームで、Core、Data、Tools、Assaysがあります。現在のモジュールについては、ホーム画面とナビゲーションのチュートリアルに進んでください。"
         },
         {
           "visual": "05_doctor",
-          "narration": "起動やファイル形式に問題がある場合は、インストールされたランタイムからspacr-doctorを実行します。各チェックが修正案とともに一覧表示されます。このCPUのみのインストールでは、GPUのチェックは想定どおり失敗します。PATHのチェックはインストーラー自身のspacrランチャーを指摘しますが、これは同じランタイムを起動するものなので、ここではどちらも変更は不要です。",
+          "narration": "起動やファイル形式に問題があれば、インストールされたランタイムからspacr-doctorを実行します。この録画のCPUインストールでは、バックエンドのチェックは合格し、GPUのチェックはスキップされています。警告は、オプションのCZIリーダーがないことを示しています。CZIファイルが必要な場合だけ、この追加パッケージをインストールしてください。",
           "hold_after": 0.7,
-          "speech_text": "起動やファイル形式に問題がある場合は、インストールされたランタイムからスペーカー-doctorを実行します。各チェックが修正案とともに一覧表示されます。このCPUのみのインストールでは、GPUのチェックは想定どおり失敗します。PATHのチェックはインストーラー自身のスペーカーランチャーを指摘しますが、これは同じランタイムを起動するものなので、ここではどちらも変更は不要です。"
+          "speech_text": "起動やファイル形式に問題があれば、インストールされたランタイムからスペーカー-doctorを実行します。この録画のCPUインストールでは、バックエンドのチェックは合格し、GPUのチェックはスキップされています。警告は、オプションのCZIリーダーがないことを示しています。CZIファイルが必要な場合だけ、この追加パッケージをインストールしてください。"
         },
         {
           "visual": "12_logs_and_versions",
@@ -515,7 +549,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

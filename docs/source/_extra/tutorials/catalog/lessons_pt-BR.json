@@ -102,7 +102,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -345,19 +368,13 @@
           "speech_text": "Abra o espáquer a partir do ambiente ativado. Na primeira inicialização, siga as instruções de configuração e escolha suas preferências."
         },
         {
-          "visual": "06_installed_home",
-          "narration": "A tela Home abre com as categorias Core, Data, Tools e Assays. Continue no tutorial de Home para encontrar um módulo, carregar dados de exemplo e abrir a visão geral de um pipeline.",
+          "visual": "13_current_nightly_home",
+          "narration": "Esta gravação instala o spaCR versão um ponto cinco ponto um ponto três. As versões publicadas podem mostrar um layout anterior de Home. Aqui é mostrado Home na versão nightly atual, com Core, Data, Tools e Assays. Continue em Home screen and navigation para conhecer os módulos atuais.",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "focus": [
-            48,
-            318,
-            2712,
-            1332
-          ],
-          "speech_text": "A tela Home abre com as categorias Core, Data, Tools e Assays. Continue no tutorial de Home para encontrar um módulo, carregar dados de exemplo e abrir a visão geral de um pipeline."
+          "speech_text": "Esta gravação instala o espáquer versão um ponto cinco ponto um ponto três. As versões publicadas podem mostrar um layout anterior de Home. Aqui é mostrado Home na versão nightly atual, com Core, Data, Tools e Assays. Continue em Home screen and navigation para conhecer os módulos atuais."
         },
         {
           "visual": "11_update_intentionally",
@@ -372,7 +389,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
@@ -475,31 +515,25 @@
           "speech_text": "A configuração pergunta sobre o compartilhamento opcional de diagnósticos e a configuração de conta. Responda y apenas para as opções que você quer; n, o padrão, mantém cada uma desativada. O instalador do Windows mostra as mesmas escolhas como caixas de seleção."
         },
         {
-          "visual": "09_performance",
-          "narration": "Em Preferences, escolha um perfil de Performance para o seu computador. Laptop usa menos recursos; os perfis mais altos permitem mais cache e mais trabalho em segundo plano. Comece com um perfil modesto se a memória for limitada. As configurações das suas análises continuam sob o seu controle em cada módulo.",
+          "visual": "14_current_nightly_performance",
+          "narration": "Na interface nightly atual, abra Preferences e escolha Performance. Selecione um perfil para o seu computador. Laptop usa menos recursos; os perfis superiores permitem mais cache e trabalho em segundo plano. Comece com um perfil moderado se houver pouca memória.",
           "hold_after": 0.7,
-          "speech_text": "Em Preferences, escolha um perfil de Performance para o seu computador. Laptop usa menos recursos; os perfis mais altos permitem mais cache e mais trabalho em segundo plano. Comece com um perfil modesto se a memória for limitada. As configurações das suas análises continuam sob o seu controle em cada módulo."
+          "speech_text": "Na interface nightly atual, abra Preferences e escolha Performance. Selecione um perfil para o seu computador. Laptop usa menos recursos; os perfis superiores permitem mais cache e trabalho em segundo plano. Comece com um perfil moderado se houver pouca memória."
         },
         {
-          "visual": "06_installed_home",
-          "narration": "Quando a tela Home abrir, continue com o tutorial de Home. Ele mostra como abrir um módulo, encontrar dados de teste e escolher um pipeline para o seu experimento.",
+          "visual": "13_current_nightly_home",
+          "narration": "Esta gravação instala o spaCR versão um ponto cinco ponto um ponto três. As versões publicadas podem mostrar um layout anterior de Home. Aqui é mostrado Home na versão nightly atual, com Core, Data, Tools e Assays. Continue em Home screen and navigation para conhecer os módulos atuais.",
           "related_lessons": [
             "05_home"
           ],
           "hold_after": 0.7,
-          "focus": [
-            48,
-            318,
-            2712,
-            1332
-          ],
-          "speech_text": "Quando a tela Home abrir, continue com o tutorial de Home. Ele mostra como abrir um módulo, encontrar dados de teste e escolher um pipeline para o seu experimento."
+          "speech_text": "Esta gravação instala o espáquer versão um ponto cinco ponto um ponto três. As versões publicadas podem mostrar um layout anterior de Home. Aqui é mostrado Home na versão nightly atual, com Core, Data, Tools e Assays. Continue em Home screen and navigation para conhecer os módulos atuais."
         },
         {
           "visual": "05_doctor",
-          "narration": "Se a inicialização ou um formato de arquivo precisar de atenção, execute o spacr-doctor a partir do runtime instalado. Ele lista cada verificação com uma correção sugerida. Nesta instalação só com CPU, a verificação de GPU falha como esperado, e a verificação do PATH aponta o próprio inicializador spacr do instalador, que abre este mesmo runtime; por isso nenhuma das duas exige mudança aqui.",
+          "narration": "Execute spacr-doctor a partir do ambiente instalado se a inicialização ou um formato de arquivo precisar de atenção. Nesta instalação de CPU gravada, a verificação do backend passa e a verificação da GPU é ignorada. O aviso informa que o leitor CZI opcional está ausente; instale esse extra apenas se precisar de arquivos CZI.",
           "hold_after": 0.7,
-          "speech_text": "Se a inicialização ou um formato de arquivo precisar de atenção, execute o espáquer-doctor a partir do runtime instalado. Ele lista cada verificação com uma correção sugerida. Nesta instalação só com CPU, a verificação de GPU falha como esperado, e a verificação do PATH aponta o próprio inicializador espáquer do instalador, que abre este mesmo runtime; por isso nenhuma das duas exige mudança aqui."
+          "speech_text": "Execute espáquer-doctor a partir do ambiente instalado se a inicialização ou um formato de arquivo precisar de atenção. Nesta instalação de CPU gravada, a verificação do backend passa e a verificação da GPU é ignorada. O aviso informa que o leitor CZI opcional está ausente; instale esse extra apenas se precisar de arquivos CZI."
         },
         {
           "visual": "12_logs_and_versions",
@@ -515,7 +549,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",
