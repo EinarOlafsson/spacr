@@ -19,6 +19,7 @@ import warnings
 from cellpose import models as cp_models
 
 from functools import partial
+from contextlib import contextmanager
 from skimage.segmentation import watershed
 from skimage.measure import label as sk_label, regionprops
 from scipy.ndimage import distance_transform_edt
@@ -1102,6 +1103,158 @@ def _segmentation_input_channels(channels, extracted_count, model):
                       if index != first]
 
 
+def _write_native_mask_chunk(descriptor, chunk):
+    """Write one bounded private payload chunk, checking cancellation on short writes."""
+    import errno
+
+    from .cancellation import checkpoint
+
+    remaining = memoryview(chunk)
+    while remaining:
+        checkpoint()
+        written = os.write(descriptor, remaining)
+        if written <= 0:
+            from .qt.i18n import tr
+            raise OSError(errno.ENOSPC, tr('Native mask workspace write failed'))
+        remaining = remaining[written:]
+
+
+def _reserve_native_mask_file(descriptor, size):
+    """Reserve physical space before extracting a native archive's numeric member."""
+    import errno
+
+    from .cancellation import checkpoint
+
+    checkpoint()
+    if hasattr(os, 'posix_fallocate'):
+        try:
+            os.posix_fallocate(descriptor, 0, size)
+            checkpoint()
+            return
+        except OSError as error:
+            if error.errno not in (errno.ENOSYS, errno.EOPNOTSUPP):
+                raise
+    remaining = size
+    block = bytes(1024 * 1024)
+    while remaining:
+        chunk = block[:min(len(block), remaining)]
+        _write_native_mask_chunk(descriptor, chunk)
+        remaining -= len(chunk)
+    os.fsync(descriptor)
+    checkpoint()
+
+
+def _close_native_mask_workspace(handle, workspace):
+    """Close the raw mapping before removing its private directory on last-owner death.
+
+    :param handle: raw mmap handle; it must not retain the NumPy map owner.
+    :param workspace: TemporaryDirectory kept alive by the owner's finalizer.
+    :returns: None.
+    """
+    try:
+        handle.close()
+    finally:
+        workspace.cleanup()
+
+
+@contextmanager
+def _mask_archive_arrays(path, *, native=False, workspace=None):
+    """Borrow an archive's arrays until its complete Mask processing scope exits.
+
+    Ordinary and legacy timelapse archives keep their eager loader. Native
+    Z or T archives stream the original numeric NPY member to a physically
+    reserved private file in the selected workspace, verify its ZIP CRC and NPY
+    header/payload length, then expose a read-only plain ndarray view and its
+    owning map. Retained source views and diagnostic tracebacks keep the map
+    and private workspace alive until their last owner reference dies. Normal
+    processing clears source aliases before completion; selected-channel
+    batches remain independently writable copies.
+
+    :param path: source NPZ archive to read without modifying it.
+    :param native: enable private mapped storage only for native Z or T Mask.
+    :param workspace: writable private staging parent; defaults to the archive
+        directory. The generator supplies its already-created output folder.
+    :returns: a context yielding the source array, filenames and optional owner.
+    """
+    if not native:
+        with np.load(path) as archive:
+            stack, filenames = archive['data'], archive['filenames']
+        yield stack, filenames, None
+        return
+
+    import errno
+    import shutil
+    import tempfile
+    import weakref
+    import zipfile
+
+    from .cancellation import checkpoint
+    from .qt.i18n import tr
+
+    checkpoint()
+    workspace = (os.path.dirname(os.path.abspath(path)) if workspace is None
+                 else os.fspath(workspace))
+    stage = tempfile.TemporaryDirectory(prefix='.spacr-native-mask-', dir=workspace)
+    mapped = None
+    try:
+        target = os.path.join(stage.name, 'data.npy')
+        with zipfile.ZipFile(path) as archive:
+            members = set(archive.namelist())
+            member = archive.getinfo('data' if 'data' in members else 'data.npy')
+            if shutil.disk_usage(stage.name).free < member.file_size:
+                raise OSError(errno.ENOSPC,
+                              tr('Native mask workspace needs more free disk space'), stage.name)
+            descriptor = os.open(target, os.O_RDWR | os.O_CREAT | os.O_EXCL, 0o600)
+            try:
+                _reserve_native_mask_file(descriptor, member.file_size)
+                os.lseek(descriptor, 0, os.SEEK_SET)
+                written = 0
+                with archive.open(member) as source:
+                    while chunk := source.read(1024 * 1024):
+                        _write_native_mask_chunk(descriptor, chunk)
+                        written += len(chunk)
+                if written != member.file_size:
+                    raise ValueError(tr('Native mask numeric member is incomplete'))
+                os.fsync(descriptor)
+                checkpoint()
+            finally:
+                os.close(descriptor)
+            filenames_member = 'filenames' if 'filenames' in members else 'filenames.npy'
+            with archive.open(filenames_member) as source:
+                filenames = np.load(source, allow_pickle=False)
+        with open(target, 'rb') as source:
+            np.lib.format.read_magic(source)
+        mapped = np.load(target, mmap_mode='r', allow_pickle=False)
+        weakref.finalize(mapped, _close_native_mask_workspace, mapped._mmap, stage)
+        if mapped.dtype.hasobject or mapped.offset + mapped.nbytes != member.file_size:
+            raise ValueError(tr('Native mask NPY header and numeric payload disagree'))
+        checkpoint()
+        yield np.asarray(mapped), filenames, mapped
+    finally:
+        if mapped is None:
+            stage.cleanup()
+        mapped = None
+
+
+def _release_native_mask_pages(mapped, batch):
+    """Optionally discard only private clean read-only source pages after an owned copy."""
+    if mapped is None:
+        return
+    if (mapped.mode != 'r' or mapped.flags.writeable or not batch.flags.writeable
+            or np.shares_memory(mapped, batch)):
+        from .qt.i18n import tr
+        raise ValueError(tr('Native mask batches must own writable data before releasing source pages'))
+    import mmap
+
+    advice = getattr(mmap, 'MADV_DONTNEED', None)
+    release = getattr(mapped._mmap, 'madvise', None)
+    if advice is not None and release is not None:
+        try:
+            release(advice)
+        except (OSError, ValueError):
+            pass
+
+
 def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                                 on_batch_done=None, run_qc=True):
     """Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.
@@ -1168,20 +1321,20 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                    if file.endswith('.npz')])
     if batch_paths is not None and not paths:
         return
-    
+
     gc.collect()
     if not torch.cuda.is_available():
         print(f'Torch CUDA is not available, using CPU')
-        
+
     settings['src'] = src
-    
+
     settings = set_default_settings_preprocess_generate_masks(settings)
 
     if settings['verbose']:
         settings_df = pd.DataFrame(list(settings.items()), columns=['setting_key', 'setting_value'])
         settings_df['setting_value'] = settings_df['setting_value'].apply(str)
         display(settings_df)
-        
+
     figuresize=10
     timelapse = settings.get('timelapse', False)
 
@@ -1192,9 +1345,9 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         timelapse_remove_transient = settings['timelapse_remove_transient']
         timelapse_mode = settings['timelapse_mode']
         timelapse_objects = settings['timelapse_objects']
-    
+
     batch_size = settings['batch_size']
-    
+
     cellprob_threshold = settings[f'{object_type}_cellprob_threshold']
     flow_threshold = settings[f'{object_type}_flow_threshold']
     object_settings = _get_object_settings(object_type, settings)
@@ -1224,10 +1377,10 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
 
     channels_to_extract, cellpose_channels = _get_cellpose_channels(settings)
     channels = cellpose_channels.get(object_type, [])
-    
+
     if len(channels) == 0:
         raise ValueError(f"No valid channels defined for object_type '{object_type}'.")
-        
+
     if settings['verbose']:
         print(channels)
 
@@ -1261,7 +1414,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     count_loc = os.path.dirname(src)+'/measurements/measurements.db'
     os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)
     _create_database(count_loc)
-    
+
     average_sizes = []
     average_count = []
     for file_index, path in enumerate(paths):
@@ -1271,342 +1424,340 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         output_folder = os.path.join(os.path.dirname(path), object_type+'_mask_stack')
         os.makedirs(output_folder, exist_ok=True)
         overall_average_size = 0
-        
-        with np.load(path) as data:
-            stack = data['data']
-            filenames = data['filenames']
 
-        archive_t_plan = t_plan
-        if t_plan is not None:
-            _require_t_axis(stack, t_plan, path)
-            stack = as_t_first(stack, t_plan)
-            if filenames.ndim != 1 or len(filenames) != stack.shape[0]:
-                raise ValueError(
-                    f"t_stack requires one filename per timepoint in "
-                    f"{os.path.basename(path)}: time axis has length "
-                    f"{stack.shape[0]}, filenames have shape {filenames.shape}")
-            archive_t_plan = replace(
-                t_plan, t_axis=0,
-                z_axis=1 if t_plan.z_axis is not None else None)
-        elif z_plan is not None:
-            _require_z_axis(stack, z_plan, path)
-
-        for filename in filenames:
-            output_path = os.path.join(output_folder, filename)
-            if os.path.exists(output_path):
-                print(f"File {filename} already exists in the output folder. Skipping...")
-                
-        if timelapse:
-            trackable_objects = ['cell','nucleus','pathogen']
-            if not all_elements_match(settings['timelapse_objects'], trackable_objects):
-                print(f'timelapse_objects {settings["timelapse_objects"]} must be a subset of {trackable_objects}')
-                return
-
-            if len(stack) != batch_size:
-                print(f'Changed batch_size:{batch_size} to {len(stack)}, data length:{len(stack)}')
-                settings['timelapse_batch_size'] = len(stack)
-                batch_size = len(stack)
-            if isinstance(timelapse_frame_limits, list):
-                if len(timelapse_frame_limits) >= 2:
-                    stack = stack[timelapse_frame_limits[0]: timelapse_frame_limits[1]]
-                    filenames = filenames[timelapse_frame_limits[0]: timelapse_frame_limits[1]]
-                    batch_size = len(stack)
-                    print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
-
-        if len(stack) == 0:
-            del stack, filenames
-            if on_batch_done is not None:
-                on_batch_done(path)
-            continue
-
-        for i in range(0, stack.shape[0], batch_size):
-            cancellation_checkpoint()
-            mask_stack = []
-            selected_channels = (channels if z_plan is not None or t_plan is not None
-                                 or stack.shape[-1] != 1 else [0])
-            batch = np.take(stack[i:i + batch_size], selected_channels, axis=-1)
-
-
-            batch_filenames = filenames[i: i+batch_size].tolist()
-            from .image_quality import filter_batch
-            batch, batch_filenames = filter_batch(batch, batch_filenames, settings)
-
-            if not settings['plot']:
-                batch, batch_filenames = _check_masks(
-                    batch, batch_filenames, output_folder,
-                    resume=settings.get('resume', False))
-            if batch.size == 0:
-                del batch
-                continue
-            
-            cp_batch = prepare_batch_for_segmentation(batch)
-            batch_list = [cp_batch[i] for i in range(cp_batch.shape[0])]
-
-            if timelapse:
-                movie_path = os.path.join(os.path.dirname(src), 'movies')
-                os.makedirs(movie_path, exist_ok=True)
-                save_path = os.path.join(movie_path, f'timelapse_{object_type}_{name}.mp4')
-                _npz_to_movie(cp_batch, batch_filenames, save_path, fps=2)
-                
-            
-            beta_intensity = t_result = z_results = result = None
-            if z_plan is None and t_plan is None and segmentation_backend == _CELLPOSE3:
-                masks, flows = _cellpose3_masks(
-                    model, batch_list, settings, object_type,
-                    min_size=object_settings['min_size'],
-                    default_diameter=object_settings['diameter'],
-                    batch_size=max(8, len(batch_list)))
-            elif z_plan is None and t_plan is None:
-                output = model.eval(
-                    x=batch_list,
-                    batch_size=len(batch_list),
-                    normalize=False,
-                    channel_axis=-1,
-                    min_size=object_settings['min_size'],
-                    progress=True,
-                    diameter=_eval_diameter(
-                        settings.get(f'{object_type}_diameter'),
-                        object_type),
-                    flow_threshold=flow_threshold,
-                    cellprob_threshold=cellprob_threshold,
-                    resample=object_settings['resample']
-                    )
-
-                masks, flows = parse_cellpose4_output(output)[:2]
-                del output
-            else:
-                z_eval_kwargs = dict(
-                    batch_size=1,
-                    normalize=False,
-                    channel_axis=-1,
-                    min_size=object_settings['min_size'],
-                    progress=True,
-                    diameter=_eval_diameter(
-                        settings.get(f'{object_type}_diameter'),
-                        object_type),
-                    flow_threshold=flow_threshold,
-                    cellprob_threshold=cellprob_threshold,
-                    resample=object_settings['resample'],
-                )
+        with _mask_archive_arrays(
+                path, native=(t_plan is not None or z_plan is not None)
+                and not timelapse, workspace=output_folder) as (stack, filenames, source_map):
+            try:
+                archive_t_plan = t_plan
                 if t_plan is not None:
-                    masks, t_result, beta_intensity = _segment_timepoints_with_t(
-                        cp_batch, model, archive_t_plan, z_eval_kwargs
-                    )
-                    if settings['verbose']:
-                        for note in t_result.notes:
-                            print(f"[4D] {name}: {note}")
-                        for filename, result in zip(batch_filenames,
-                                                    t_result.z_results):
-                            for note in result.notes:
-                                print(f"[4D] {filename}: {note}")
-                else:
-                    masks, z_results, beta_intensity = _segment_volumes_with_z(
-                        batch_list, model, z_plan, z_eval_kwargs
-                    )
-                    if settings['verbose']:
-                        for filename, result in zip(batch_filenames, z_results):
-                            for note in result.notes:
-                                print(f"[3D] {filename}: {note}")
-                flows = None
+                    _require_t_axis(stack, t_plan, path)
+                    stack = as_t_first(stack, t_plan)
+                    if filenames.ndim != 1 or len(filenames) != stack.shape[0]:
+                        raise ValueError(
+                            f"t_stack requires one filename per timepoint in "
+                            f"{os.path.basename(path)}: time axis has length "
+                            f"{stack.shape[0]}, filenames have shape {filenames.shape}")
+                    archive_t_plan = replace(
+                        t_plan, t_axis=0,
+                        z_axis=1 if t_plan.z_axis is not None else None)
+                elif z_plan is not None:
+                    _require_z_axis(stack, z_plan, path)
 
-            filter_images = batch if beta_mode is None else beta_intensity
-            if filter_by_raw_intensity:
-                filter_z_axis = (0 if archive_t_plan is not None and archive_t_plan.z_axis is not None
-                                 else (z_plan.z_axis or 0) if z_plan is not None
-                                 else None)
-                projection = (archive_t_plan.projection if archive_t_plan is not None
-                              else z_plan.projection if z_plan is not None else None)
-                filter_images = _raw_filter_images(
-                    src, batch_filenames, batch_list, masks,
-                    settings.get(f'{object_type}_channel'),
-                    z_axis=filter_z_axis, projection=projection)
+                for filename in filenames:
+                    output_path = os.path.join(output_folder, filename)
+                    if os.path.exists(output_path):
+                        print(f"File {filename} already exists in the output folder. Skipping...")
 
-            if beta_mode is None or beta_mode == 'project' or all(
-                    np.ndim(mask) == 2 for mask in masks):
-                masks = merge_split_filter_masks(
-                    masks=masks,
-                    intensity_images=filter_images,
-                    settings=settings,
-                    object_type=object_type,
-                    batch_filenames=batch_filenames,
-                )
-            else:
-                print(
-                    f"merge_split_filter_masks({object_type}): skipped — the "
-                    f"perimeter and area operations are 2-D only and would be "
-                    f"applied per z plane, breaking the 3-D labels that "
-                    f"z_segmentation_mode='{beta_mode}' just produced"
-                )
-                if filter_by_raw_intensity or object_filters:
-                    from .utils import _filter_objects
-                    planes = (filter_images if filter_images is not None
-                              else [None] * len(masks))
-                    masks = [_filter_objects(
-                        np.asarray(mask).copy(), plane,
-                        min_intensity=intensity_bounds[0], max_intensity=intensity_bounds[1],
-                        filters=object_filters)
-                        for mask, plane in zip(masks, planes)]
-            
-            if timelapse:
-                if settings['plot']:
-                    plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=1, print_object_number=True)
+                if timelapse:
+                    trackable_objects = ['cell','nucleus','pathogen']
+                    if not all_elements_match(settings['timelapse_objects'], trackable_objects):
+                        print(f'timelapse_objects {settings["timelapse_objects"]} must be a subset of {trackable_objects}')
+                        return
 
-                _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_timelapse')
-                if object_type in timelapse_objects:
-                    if timelapse_mode == 'btrack':
-                        if not timelapse_displacement is None:
-                            radius = timelapse_displacement
+                    if len(stack) != batch_size:
+                        print(f'Changed batch_size:{batch_size} to {len(stack)}, data length:{len(stack)}')
+                        settings['timelapse_batch_size'] = len(stack)
+                        batch_size = len(stack)
+                    if isinstance(timelapse_frame_limits, list):
+                        if len(timelapse_frame_limits) >= 2:
+                            stack = stack[timelapse_frame_limits[0]: timelapse_frame_limits[1]]
+                            filenames = filenames[timelapse_frame_limits[0]: timelapse_frame_limits[1]]
+                            batch_size = len(stack)
+                            print(f'Cut batch at indecies: {timelapse_frame_limits}, New batch_size: {batch_size} ')
+
+                batch_starts = range(0, stack.shape[0], batch_size) if len(stack) else ()
+                for i in batch_starts:
+                    cancellation_checkpoint()
+                    mask_stack = []
+                    selected_channels = (channels if z_plan is not None or t_plan is not None
+                                         or stack.shape[-1] != 1 else [0])
+                    batch = np.take(stack[i:i + batch_size], selected_channels, axis=-1)
+                    _release_native_mask_pages(source_map, batch)
+
+
+                    batch_filenames = filenames[i: i+batch_size].tolist()
+                    from .image_quality import filter_batch
+                    batch, batch_filenames = filter_batch(batch, batch_filenames, settings)
+
+                    if not settings['plot']:
+                        batch, batch_filenames = _check_masks(
+                            batch, batch_filenames, output_folder,
+                            resume=settings.get('resume', False))
+                    if batch.size == 0:
+                        del batch
+                        continue
+
+                    cp_batch = prepare_batch_for_segmentation(batch)
+                    batch_list = [cp_batch[i] for i in range(cp_batch.shape[0])]
+
+                    if timelapse:
+                        movie_path = os.path.join(os.path.dirname(src), 'movies')
+                        os.makedirs(movie_path, exist_ok=True)
+                        save_path = os.path.join(movie_path, f'timelapse_{object_type}_{name}.mp4')
+                        _npz_to_movie(cp_batch, batch_filenames, save_path, fps=2)
+
+
+                    beta_intensity = t_result = z_results = result = None
+                    if z_plan is None and t_plan is None and segmentation_backend == _CELLPOSE3:
+                        masks, flows = _cellpose3_masks(
+                            model, batch_list, settings, object_type,
+                            min_size=object_settings['min_size'],
+                            default_diameter=object_settings['diameter'],
+                            batch_size=max(8, len(batch_list)))
+                    elif z_plan is None and t_plan is None:
+                        output = model.eval(
+                            x=batch_list,
+                            batch_size=len(batch_list),
+                            normalize=False,
+                            channel_axis=-1,
+                            min_size=object_settings['min_size'],
+                            progress=True,
+                            diameter=_eval_diameter(
+                                settings.get(f'{object_type}_diameter'),
+                                object_type),
+                            flow_threshold=flow_threshold,
+                            cellprob_threshold=cellprob_threshold,
+                            resample=object_settings['resample']
+                            )
+
+                        masks, flows = parse_cellpose4_output(output)[:2]
+                        del output
+                    else:
+                        z_eval_kwargs = dict(
+                            batch_size=1,
+                            normalize=False,
+                            channel_axis=-1,
+                            min_size=object_settings['min_size'],
+                            progress=True,
+                            diameter=_eval_diameter(
+                                settings.get(f'{object_type}_diameter'),
+                                object_type),
+                            flow_threshold=flow_threshold,
+                            cellprob_threshold=cellprob_threshold,
+                            resample=object_settings['resample'],
+                        )
+                        if t_plan is not None:
+                            masks, t_result, beta_intensity = _segment_timepoints_with_t(
+                                cp_batch, model, archive_t_plan, z_eval_kwargs
+                            )
+                            if settings['verbose']:
+                                for note in t_result.notes:
+                                    print(f"[4D] {name}: {note}")
+                                for filename, result in zip(batch_filenames,
+                                                            t_result.z_results):
+                                    for note in result.notes:
+                                        print(f"[4D] {filename}: {note}")
                         else:
-                            radius = 100
+                            masks, z_results, beta_intensity = _segment_volumes_with_z(
+                                batch_list, model, z_plan, z_eval_kwargs
+                            )
+                            if settings['verbose']:
+                                for filename, result in zip(batch_filenames, z_results):
+                                    for note in result.notes:
+                                        print(f"[3D] {filename}: {note}")
+                        flows = None
 
-                        n_jobs = os.cpu_count()-2
-                        if n_jobs < 1:
-                            n_jobs = 1
-                            
-                        mask_stack = _btrack_track_cells(src=src,
-                                                         name=name,
-                                                         batch_filenames=batch_filenames,
-                                                         object_type=object_type,
-                                                         plot=settings['plot'],
-                                                         save=settings['save'],
-                                                         masks_3D=masks,
-                                                         mode=timelapse_mode,
-                                                         timelapse_remove_transient=timelapse_remove_transient,
-                                                         radius=radius,
-                                                         n_jobs=n_jobs,
-                                                         batch_list=None,
-                                                         optimizer_time_limit_s=120,
-                                                         optimizer_mip_gap=0.01,
-                                                         run_optimization=True,
-                                                         max_objects_for_optimization=20000)
-                    
-                    if timelapse_mode == 'trackastra':
-                        mask_stack = _trackastra_track_cells(
-                            src=src,
-                            name=name,
-                            batch_filenames=batch_filenames,
-                            object_type=object_type,
+                    filter_images = batch if beta_mode is None else beta_intensity
+                    if filter_by_raw_intensity:
+                        filter_z_axis = (0 if archive_t_plan is not None and archive_t_plan.z_axis is not None
+                                         else (z_plan.z_axis or 0) if z_plan is not None
+                                         else None)
+                        projection = (archive_t_plan.projection if archive_t_plan is not None
+                                      else z_plan.projection if z_plan is not None else None)
+                        filter_images = _raw_filter_images(
+                            src, batch_filenames, batch_list, masks,
+                            settings.get(f'{object_type}_channel'),
+                            z_axis=filter_z_axis, projection=projection)
+
+                    if beta_mode is None or beta_mode == 'project' or all(
+                            np.ndim(mask) == 2 for mask in masks):
+                        masks = merge_split_filter_masks(
                             masks=masks,
-                            images=batch,
-                            timelapse_remove_transient=timelapse_remove_transient,
-                            plot=settings['plot'],
-                            save=settings['save'],
-                            mode=timelapse_mode,
-                            model_name=settings.get('trackastra_model', 'general_2d'),
-                            linking_mode=settings.get('trackastra_linking', 'greedy'))
-
-                    elif timelapse_mode == 'ultrack':
-                        mask_stack = _ultrack_track_cells(
-                            src=src,
-                            name=name,
-                            batch_filenames=batch_filenames,
+                            intensity_images=filter_images,
+                            settings=settings,
                             object_type=object_type,
-                            masks=masks,
-                            images=batch,
-                            timelapse_remove_transient=timelapse_remove_transient,
-                            plot=settings['plot'],
-                            save=settings['save'],
-                            mode=timelapse_mode,
-                            max_distance=settings.get('ultrack_max_distance', 25.0),
-                            division_weight=settings.get('ultrack_division_weight', -0.1),
-                            contour_sigma=settings.get('ultrack_contour_sigma', 0.0),
-                            n_workers=settings.get('ultrack_n_workers', 1))
-
-                    elif timelapse_mode == 'timeflows':
-                        mask_stack = _timeflows_track_cells(
-                            src=src,
-                            name=name,
                             batch_filenames=batch_filenames,
-                            object_type=object_type,
-                            masks=masks,
-                            images=batch,
-                            timelapse_remove_transient=timelapse_remove_transient,
-                            plot=settings['plot'],
-                            save=settings['save'],
-                            mode=timelapse_mode,
-                            model_path=settings.get('timeflows_model'))
-
-                    elif timelapse_mode == 'sam2':
-                        mask_stack = _sam2_track_cells(
-                            src=src,
-                            name=name,
-                            batch_filenames=batch_filenames,
-                            object_type=object_type,
-                            masks=masks,
-                            images=batch,
-                            timelapse_remove_transient=timelapse_remove_transient,
-                            plot=settings['plot'],
-                            save=settings['save'],
-                            mode=timelapse_mode)
-
-                    if timelapse_mode == 'trackpy' or timelapse_mode == 'iou':
-                        if timelapse_mode == 'iou':
-                            track_by_iou = True
-                        else:
-                            track_by_iou = False
-                        
-                        mask_stack = _trackpy_track_cells(src=src,
-                                                          name=name,
-                                                          batch_filenames=batch_filenames,
-                                                          object_type=object_type,
-                                                          masks=masks,
-                                                          timelapse_displacement=timelapse_displacement,
-                                                          timelapse_memory=timelapse_memory,
-                                                          timelapse_remove_transient=timelapse_remove_transient,
-                                                          plot=settings['plot'],
-                                                          save=settings['save'],
-                                                          mode=timelapse_mode,
-                                                          track_by_iou=track_by_iou)
-                    if settings.get('timelapse_lineage'):
-                        from .timelapse import _run_lineage_step
-                        _run_lineage_step(src, name, object_type, timelapse_mode, settings,
-                                          frame_sources=batch_filenames, label_stack=mask_stack)
-                    if settings.get('timelapse_events'):
-                        from .timelapse import _run_event_features_step
-                        _run_event_features_step(src, name, object_type, mask_stack, batch, timelapse_mode, settings)
-                else:
-                    mask_stack = _masks_to_masks_stack(masks)
-            else:
-                print("saving to DB")
-                _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_before_filtration')
-                mask_stack = _masks_to_masks_stack(masks)
-        
-            if not np.any(mask_stack):
-                avg_num_objects_per_image, average_obj_size = 0, 0
-            else:
-                avg_num_objects_per_image, average_obj_size = _get_avg_object_size(mask_stack)
-            
-            average_count.append(avg_num_objects_per_image)
-            average_sizes.append(average_obj_size) 
-            overall_average_size = np.mean(average_sizes) if len(average_sizes) > 0 else 0
-            overall_average_count = np.mean(average_count) if len(average_count) > 0 else 0
-            print(f'Found {overall_average_count} {object_type}/FOV. average size: {overall_average_size:.3f} px2')
-
-            if not timelapse:
-                if settings['plot']:
-                    if flows is None:
-                        reason = (f"z_segmentation_mode='{beta_mode}'"
-                                  if beta_mode else "the 4D path")
-                        print(
-                            f"plot skipped: {reason} does not produce the "
-                            f"per-image flow images this plot needs. Inspect the "
-                            f"saved .npy masks instead."
                         )
                     else:
-                        plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=len(batch_list))
+                        print(
+                            f"merge_split_filter_masks({object_type}): skipped — the "
+                            f"perimeter and area operations are 2-D only and would be "
+                            f"applied per z plane, breaking the 3-D labels that "
+                            f"z_segmentation_mode='{beta_mode}' just produced"
+                        )
+                        if filter_by_raw_intensity or object_filters:
+                            from .utils import _filter_objects
+                            planes = (filter_images if filter_images is not None
+                                      else [None] * len(masks))
+                            masks = [_filter_objects(
+                                np.asarray(mask).copy(), plane,
+                                min_intensity=intensity_bounds[0], max_intensity=intensity_bounds[1],
+                                filters=object_filters)
+                                for mask, plane in zip(masks, planes)]
 
-            if settings['save']:
-                mask_stack = [_as_uint16_mask(mask) for mask in mask_stack]
-                for mask_index, mask in enumerate(mask_stack):
-                    output_filename = os.path.join(output_folder, batch_filenames[mask_index])
-                    _save_array_atomic(output_filename, mask)
-                mask_stack = []
-                batch_filenames = []
+                    if timelapse:
+                        if settings['plot']:
+                            plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=1, print_object_number=True)
 
-            del batch, cp_batch, batch_list, masks, flows, filter_images, mask_stack
-            beta_intensity = t_result = z_results = result = mask = planes = None
+                        _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_timelapse')
+                        if object_type in timelapse_objects:
+                            if timelapse_mode == 'btrack':
+                                if not timelapse_displacement is None:
+                                    radius = timelapse_displacement
+                                else:
+                                    radius = 100
 
-        del stack, filenames
+                                n_jobs = os.cpu_count()-2
+                                if n_jobs < 1:
+                                    n_jobs = 1
+
+                                mask_stack = _btrack_track_cells(src=src,
+                                                                 name=name,
+                                                                 batch_filenames=batch_filenames,
+                                                                 object_type=object_type,
+                                                                 plot=settings['plot'],
+                                                                 save=settings['save'],
+                                                                 masks_3D=masks,
+                                                                 mode=timelapse_mode,
+                                                                 timelapse_remove_transient=timelapse_remove_transient,
+                                                                 radius=radius,
+                                                                 n_jobs=n_jobs,
+                                                                 batch_list=None,
+                                                                 optimizer_time_limit_s=120,
+                                                                 optimizer_mip_gap=0.01,
+                                                                 run_optimization=True,
+                                                                 max_objects_for_optimization=20000)
+
+                            if timelapse_mode == 'trackastra':
+                                mask_stack = _trackastra_track_cells(
+                                    src=src,
+                                    name=name,
+                                    batch_filenames=batch_filenames,
+                                    object_type=object_type,
+                                    masks=masks,
+                                    images=batch,
+                                    timelapse_remove_transient=timelapse_remove_transient,
+                                    plot=settings['plot'],
+                                    save=settings['save'],
+                                    mode=timelapse_mode,
+                                    model_name=settings.get('trackastra_model', 'general_2d'),
+                                    linking_mode=settings.get('trackastra_linking', 'greedy'))
+
+                            elif timelapse_mode == 'ultrack':
+                                mask_stack = _ultrack_track_cells(
+                                    src=src,
+                                    name=name,
+                                    batch_filenames=batch_filenames,
+                                    object_type=object_type,
+                                    masks=masks,
+                                    images=batch,
+                                    timelapse_remove_transient=timelapse_remove_transient,
+                                    plot=settings['plot'],
+                                    save=settings['save'],
+                                    mode=timelapse_mode,
+                                    max_distance=settings.get('ultrack_max_distance', 25.0),
+                                    division_weight=settings.get('ultrack_division_weight', -0.1),
+                                    contour_sigma=settings.get('ultrack_contour_sigma', 0.0),
+                                    n_workers=settings.get('ultrack_n_workers', 1))
+
+                            elif timelapse_mode == 'timeflows':
+                                mask_stack = _timeflows_track_cells(
+                                    src=src,
+                                    name=name,
+                                    batch_filenames=batch_filenames,
+                                    object_type=object_type,
+                                    masks=masks,
+                                    images=batch,
+                                    timelapse_remove_transient=timelapse_remove_transient,
+                                    plot=settings['plot'],
+                                    save=settings['save'],
+                                    mode=timelapse_mode,
+                                    model_path=settings.get('timeflows_model'))
+
+                            elif timelapse_mode == 'sam2':
+                                mask_stack = _sam2_track_cells(
+                                    src=src,
+                                    name=name,
+                                    batch_filenames=batch_filenames,
+                                    object_type=object_type,
+                                    masks=masks,
+                                    images=batch,
+                                    timelapse_remove_transient=timelapse_remove_transient,
+                                    plot=settings['plot'],
+                                    save=settings['save'],
+                                    mode=timelapse_mode)
+
+                            if timelapse_mode == 'trackpy' or timelapse_mode == 'iou':
+                                if timelapse_mode == 'iou':
+                                    track_by_iou = True
+                                else:
+                                    track_by_iou = False
+
+                                mask_stack = _trackpy_track_cells(src=src,
+                                                                  name=name,
+                                                                  batch_filenames=batch_filenames,
+                                                                  object_type=object_type,
+                                                                  masks=masks,
+                                                                  timelapse_displacement=timelapse_displacement,
+                                                                  timelapse_memory=timelapse_memory,
+                                                                  timelapse_remove_transient=timelapse_remove_transient,
+                                                                  plot=settings['plot'],
+                                                                  save=settings['save'],
+                                                                  mode=timelapse_mode,
+                                                                  track_by_iou=track_by_iou)
+                            if settings.get('timelapse_lineage'):
+                                from .timelapse import _run_lineage_step
+                                _run_lineage_step(src, name, object_type, timelapse_mode, settings,
+                                                  frame_sources=batch_filenames, label_stack=mask_stack)
+                            if settings.get('timelapse_events'):
+                                from .timelapse import _run_event_features_step
+                                _run_event_features_step(src, name, object_type, mask_stack, batch, timelapse_mode, settings)
+                        else:
+                            mask_stack = _masks_to_masks_stack(masks)
+                    else:
+                        print("saving to DB")
+                        _save_object_counts_to_database(masks, object_type, batch_filenames, count_loc, added_string='_before_filtration')
+                        mask_stack = _masks_to_masks_stack(masks)
+
+                    if not np.any(mask_stack):
+                        avg_num_objects_per_image, average_obj_size = 0, 0
+                    else:
+                        avg_num_objects_per_image, average_obj_size = _get_avg_object_size(mask_stack)
+
+                    average_count.append(avg_num_objects_per_image)
+                    average_sizes.append(average_obj_size)
+                    overall_average_size = np.mean(average_sizes) if len(average_sizes) > 0 else 0
+                    overall_average_count = np.mean(average_count) if len(average_count) > 0 else 0
+                    print(f'Found {overall_average_count} {object_type}/FOV. average size: {overall_average_size:.3f} px2')
+
+                    if not timelapse:
+                        if settings['plot']:
+                            if flows is None:
+                                reason = (f"z_segmentation_mode='{beta_mode}'"
+                                          if beta_mode else "the 4D path")
+                                print(
+                                    f"plot skipped: {reason} does not produce the "
+                                    f"per-image flow images this plot needs. Inspect the "
+                                    f"saved .npy masks instead."
+                                )
+                            else:
+                                plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=len(batch_list))
+
+                    if settings['save']:
+                        mask_stack = [_as_uint16_mask(mask) for mask in mask_stack]
+                        for mask_index, mask in enumerate(mask_stack):
+                            output_filename = os.path.join(output_folder, batch_filenames[mask_index])
+                            _save_array_atomic(output_filename, mask)
+                        mask_stack = []
+                        batch_filenames = []
+
+                    del batch, cp_batch, batch_list, masks, flows, filter_images, mask_stack
+                    beta_intensity = t_result = z_results = result = mask = planes = None
+
+                del stack, filenames
+            finally:
+                stack = source_map = None
         gc.collect()
         if on_batch_done is not None:
             on_batch_done(path)

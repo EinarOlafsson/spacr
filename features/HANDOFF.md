@@ -1,5 +1,50 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 combined native memory source and exact CI owner freeze
+Home CPU source now freezes at IO
+ e0cac6ae179e2dc1bbc5f3dd27c634f03f07d814195dfad9aead44bf37e35e0d,
+object
+ 5ad3bc52b1da94945ad128495836ea0f76eca044c4b1e7490819c2af4fa9126e,
+and core
+ 7dd588247aa6c55d458eee90d90d7900989acc38cf0940b95a54c9a75fbe4ab2.
+App 5fc990e6, ambient 08815be8 and Preferences 733f9af0 remain unchanged.
+The two native map lifetime fixes are combined safely; the unsafe intermediate
+explicit-close Mask candidate was never published alone. Native archives stream
+through physically reserved private files; batch size, channel order and all
+scientific/model/filter/save/DB operations are preserved. Ordinary 2D and legacy
+timelapse remain on their prior eager path. Both native archive and normalization
+error tracebacks retain readable pixels until their last array owner dies, then
+maps close before private file removal. Watch excludes only the reserved private
+mask scratch prefix after preserving the linked-directory rejection.
+
+All 262 final integrated native/Watch cases pass under 4 GiB, hidden CUDA and
+offscreen Qt. A separate 174-case ordinary Mask/T-stack/backend/raw-intensity
+cohort also passes on this final source. IO adds 42 exercised statements/12 touching arcs; independent
+11-case review observes 22 map owners and 20 unlinks, all after closure. Actual
+2T/2Z/4C 1280 native preprocessing preserves full stack and compressed archive
+bytes and channel mapping. Exact T/Z CPU model-double Mask results, inputs and
+DB rows match at unchanged batch size 2, with about 133/130 MiB lower process
+VmHWM; cgroup memory is essentially unchanged. No actual Cellpose/GPU, timing,
+whole-pipeline or arbitrary large-volume acceptance is claimed. IO and archive
+proofs are in data/548_native_map_lifetime_cpu_2026-10-06/ and
+data/548_native_mask_archive_cpu_2026-10-06/. Parent F548 remains open.
+
+CI priority for the workstation's next normal source-current regeneration:
+246 coverage shards 6 and 5 fail only the reviewed/catalog ownership lane.
+Exact evidence binds 289 stale reviewed runtime records (prior 262 plus 27
+retired Divide/Wand entries), 149 missing en.UI_SOURCES candidates and 21
+indirect ownership ambiguities. No guards or ratchet ceilings were weakened.
+The API delta is now proved exactly: convert.read_scn, convert.scn_to_rgb8,
+and qt.mask_engine.read_image are the only three new boundary rows; scratch
+subtraction restores every previous inventory bucket and signature digest.
+The production guard is untouched. Preserve the truthful seven-scene
+_sync_custom_colors prose and account for this source-current API growth
+normally. New private native helpers/docstrings and five tr sources also
+need the normal owner refresh. Existing frozen runtime7712/API45424 jobs and
+protected serial b779/45f remain untouched. All GPU/API/docs/translations/
+tutorials stay with the workstation; its isolated accepted event worker and
+current mask/tutorial changes must be retained when it next integrates.
+
 ## 2026-10-06 workstation GPU accepted and final native lesson recorded
 The actual pinned VideoMAE worker now passes its normal real-HOME GPU turn:
 RGB and declared repeated-monochrome CPU/CUDA parity meet the unchanged
@@ -28,6 +73,33 @@ repair. Continue CPU/native/CI ownership. Frozen runtime/API refresh jobs still
 progress; final nine-locale catalogs, guides, Help/artifact owners, shared video,
 browser/media publication and held-out biological inputs remain workstation
 work. No broad completion, current-source deployment or crash closure is claimed.
+
+## 2026-10-06 exact 246 coverage-6 reviewed-runtime owner relay
+Ordinary tests run 37531397394 targets
+24601d5924e72221b4e8ffc1c7f5e14ea5e9c69b. Coverage shard 6 job
+112502081095 failed only the source-bound reviewed-runtime check; its other
+focused batches passed. The untruncated reporter on that exact source finds
+289 of 55,989 reviewed runtime records stale. This is the prior 262 records
+plus exactly 27: `ui/Divide`, `ui/Wand +` and `ui/Wand −` in each of nine
+locale files named `2026-10-05-make-masks-toolbar.json`. No old stale record
+disappeared. Coverage shard 5 independently fails on the same owner drift,
+including 149 missing generated UI source hashes and 21 ambiguous indirect
+caption owners; their exact keys and complete hosted log are archived too.
+Full job logs, all 289 file/key identities, the 27-key delta,
+source hashes and verifier are in
+`features/data/43_hosted_246_reviewed_runtime_2026-10-06/`. The workstation
+owns normal reviewed-record and generated-catalog regeneration; do not edit
+records by hand, weaken the guard or credit this failed shard as a numerical
+coverage verdict. The truthful Preferences `_sync_custom_colors` docstring
+now describes seven scenes, so its reviewed private-contract six-scene prose
+pin also needs the workstation's normal source-current refresh, not a source
+reversion. A separate current-source public callable inventory check reports
+9,994 versus the pinned 9,991. The candidate SCN additions are
+`spacr.convert.read_scn`, `spacr.convert.scn_to_rgb8`, and
+`spacr.qt.mask_engine.read_image`; the workstation must verify the exact
+source-derived inventory subtraction before regenerating the reviewed API
+contract. Do not raise or silently rebaseline the pin. Items 43/288/47 remain open
+until current-source hosted acceptance.
 
 ## 2026-10-06 workstation owns GitHub issue137 CSV boolean repair
 The user explicitly requested the newly posted GitHub issue be fixed:

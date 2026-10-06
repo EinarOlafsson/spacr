@@ -2819,3 +2819,16 @@ Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
     CUDAhidden/offscreen. No guard/ceiling or required CI condition is lifted.
     Full failedlog/current platform states/source receipts:
     data/43_hosted_711_sampling_layout_2026-10-06/. Parent43/288/47remainOPEN.
+
+2026-10-06 — exact 246 owner failures and current combined CPU checkpoint
+    All 17 compatibility jobs pass on 246. Ordinary shards 6 and 5 fail on
+    source-current localization ownership: 289 stale reviewed runtime records,
+    149 missing UI-source candidates and 21 indirect-caption ambiguities.
+    Exact full job logs, all identities and source hashes are preserved in
+    data/43_hosted_246_reviewed_runtime_2026-10-06/. The SCN API delta is exactly
+    three functions; scratch subtraction restores all original boundary pins
+    and signature digests without changing the production guard. Workstation
+    owns the normal source-current catalog/API refresh. Final native IO/Mask
+    lifetime and memory changes pass all 262 affected integrated cases locally.
+    No test condition, threshold or ratchet ceiling is lifted. Parent N43/F288/
+    N47 remain OPEN pending final-source hosted/coverage/serial acceptance.

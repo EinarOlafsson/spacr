@@ -1,0 +1,123 @@
+{
+  "additional_failed_job_ids": [
+    112502081075
+  ],
+  "checked_records": 55989,
+  "files": {
+    "README.md": {
+      "raw_sha256": "68f2cc9cbbb839649a87837e4d41dbc687c56f2f98dc2d88fff0d09bdc11aadf",
+      "raw_size": 3035,
+      "stored_sha256": "68f2cc9cbbb839649a87837e4d41dbc687c56f2f98dc2d88fff0d09bdc11aadf",
+      "stored_size": 3035
+    },
+    "VERIFY.py": {
+      "raw_sha256": "784fe34fac0c6f429a9ea64c490fb739eaa3505ed59885e9824d5a3511f40733",
+      "raw_size": 836,
+      "stored_sha256": "784fe34fac0c6f429a9ea64c490fb739eaa3505ed59885e9824d5a3511f40733",
+      "stored_size": 836
+    },
+    "logs/112502081075.log.gz": {
+      "raw_sha256": "881cec8d637d9e989efe21249c02bc1eee752a08ec9e894a366c1c670dfd7a27",
+      "raw_size": 2182640,
+      "stored_sha256": "b2c06f67805c658d342cd8ccde600fd55d253c520f0d0ec3753a7e610df455ba",
+      "stored_size": 293665
+    },
+    "logs/112502081095.log.gz": {
+      "raw_sha256": "2045d3fca0538451ec3f6360d99475c73db7dd4d573dbf80847658ee4c0912ae",
+      "raw_size": 2113147,
+      "stored_sha256": "a1690ac9725745d7f359b10c46d9c8f7d44eb9014952df88efce24721ab2d9b8",
+      "stored_size": 281073
+    },
+    "owner/missing-ui-and-indirect-246.json.gz": {
+      "raw_sha256": "23d89b9e28e703fa0fb90dc89dafd176d61f1da3d2881ae7be7ef0bb656f3b4b",
+      "raw_size": 10358,
+      "stored_sha256": "f1971669c3dddb1be85ac08fcfc91831d4a8535646436e4c044c8e16a2885778",
+      "stored_size": 3442
+    },
+    "owner/reporter-exact-246.log.gz": {
+      "raw_sha256": "c8b5989c14643a22d5d18a75ae8af6db56a1b49cba45554726c4c14942a77b57",
+      "raw_size": 41482,
+      "stored_sha256": "c1570f62aea88b94ee609bc024c7ebd52ffb5d2b4d23d8f6dcbf9c4ca0a8c09b",
+      "stored_size": 3142
+    },
+    "owner/stale-records-and-delta.json.gz": {
+      "raw_sha256": "a813b9870cc825bcfe83144652d4803619b12ca283e704ca233359ff8b05d51e",
+      "raw_size": 73343,
+      "stored_sha256": "e991f78fca1747387dffd6cddf9095736f4e3cd721bda39c1c0fb21cfdd0e60d",
+      "stored_size": 3906
+    }
+  },
+  "job_id": 112502081095,
+  "new_since_3ca": 27,
+  "previous_source_sha": "3ca2bff5366ac30fdabb783698a3e2664b35423e",
+  "removed_since_3ca": 0,
+  "run_id": 37531397394,
+  "source_git_blobs": {
+    "docs/i18n/reviewed/runtime/de/2026-09-15-integration-review.json": "de9803310aa408cfe7ffc6eda33b06f9211e282f",
+    "docs/i18n/reviewed/runtime/de/2026-09-21-runtime-refresh.json": "67bce94ca2002145349f9fa839a22b52fe38b843",
+    "docs/i18n/reviewed/runtime/de/2026-10-05-data-art-replacement.json": "ec84a26db90962957fcd737a14c7d732c0419489",
+    "docs/i18n/reviewed/runtime/de/2026-10-05-make-masks-toolbar.json": "a8e9e3d09ab4d6e22b133b2a0cad739f8d63b041",
+    "docs/i18n/reviewed/runtime/de/2026-10-05-theme-descriptions.json": "c127c01ec61c1c27ec7036f847526084c3ea7101",
+    "docs/i18n/reviewed/runtime/de/2026-10-06-subcell-rybg.json": "a7a1fb9779a6911d1df60d9fcd3388b41c704102",
+    "docs/i18n/reviewed/runtime/es/2026-09-15-integration-review.json": "55a5802e45efd7029f4a5c8f8dc8241ca56bdfd7",
+    "docs/i18n/reviewed/runtime/es/2026-09-21-runtime-ui-third-slice.json": "69aeeb959ef977b0bc2cb60447292389ad117f8b",
+    "docs/i18n/reviewed/runtime/es/2026-10-05-data-art-replacement.json": "943f6ceb3051cda55f20e850d66260a95091737c",
+    "docs/i18n/reviewed/runtime/es/2026-10-05-make-masks-toolbar.json": "9abb4d12375809a9927e66f65393188ca7ea3338",
+    "docs/i18n/reviewed/runtime/es/2026-10-05-theme-descriptions.json": "040abecceab83d7154d59754148a613f51d5c5da",
+    "docs/i18n/reviewed/runtime/es/2026-10-06-subcell-rybg.json": "d5c9cbfa30d78931fc4f5f357cee5f649289088a",
+    "docs/i18n/reviewed/runtime/fr/2026-09-15-integration-review.json": "a49519de76dfdb46e6c0e5450507c20abe85e19b",
+    "docs/i18n/reviewed/runtime/fr/2026-09-21-runtime-third-slice.json": "27e25afca3058b47c46a08124d1cbb8dd3adf240",
+    "docs/i18n/reviewed/runtime/fr/2026-10-05-data-art-replacement.json": "95f63b4cacdb48981f93045471f418b848823a7d",
+    "docs/i18n/reviewed/runtime/fr/2026-10-05-make-masks-toolbar.json": "97f76ba6d18353d5bb00cf30026e07558f04e074",
+    "docs/i18n/reviewed/runtime/fr/2026-10-05-theme-descriptions.json": "17e192414ddfee3fab22a0ff8e24761d2a5781b0",
+    "docs/i18n/reviewed/runtime/fr/2026-10-06-subcell-rybg.json": "41c547ff043ac1ba22f073668a67afa912f36c09",
+    "docs/i18n/reviewed/runtime/hi/2026-09-15-integration-review.json": "c1d86d52767db32a07850cbcffca9b61f50c9181",
+    "docs/i18n/reviewed/runtime/hi/2026-09-22-indirect-caption-gaps.json": "bf87d29f08b9b8447be089d3b658d0fe75dfc3c5",
+    "docs/i18n/reviewed/runtime/hi/2026-10-05-data-art-replacement.json": "ceb6fb55eaad8862681702fb97d4e33a6b7f87c9",
+    "docs/i18n/reviewed/runtime/hi/2026-10-05-make-masks-toolbar.json": "7db57d6776a158afdbe71721ef2685e4caddf720",
+    "docs/i18n/reviewed/runtime/hi/2026-10-05-theme-descriptions.json": "93c4238d1f2b5d46c71526ba6077e8a88faf46f7",
+    "docs/i18n/reviewed/runtime/hi/2026-10-06-subcell-rybg.json": "f1fbfc2c4488e124e70769ea7925fc4e7fddeafd",
+    "docs/i18n/reviewed/runtime/is/2026-09-15-integration-review.json": "b3f49b10db5a4f47c5733aab589bb551de0d2694",
+    "docs/i18n/reviewed/runtime/is/2026-09-22-indirect-caption-gaps.json": "40195f2926fed4856b4b23f1785515a81517f467",
+    "docs/i18n/reviewed/runtime/is/2026-10-05-data-art-replacement.json": "eb2bb067bc2c3552ce80b5f7ffc193a8aacccfdb",
+    "docs/i18n/reviewed/runtime/is/2026-10-05-make-masks-toolbar.json": "6147a5d701bddd1f334c254212a681cc17287ea8",
+    "docs/i18n/reviewed/runtime/is/2026-10-05-theme-descriptions.json": "a150d44f565659d56569c21973b4f62648c68de2",
+    "docs/i18n/reviewed/runtime/is/2026-10-06-subcell-rybg.json": "489b96905aeced66497aa70b62e83a2e7d6cfb85",
+    "docs/i18n/reviewed/runtime/ko/2026-09-15-integration-review.json": "f7cfa196007540a8fa873399282741c799ac7d6b",
+    "docs/i18n/reviewed/runtime/ko/2026-09-22-indirect-caption-gaps.json": "e5435f5d8f6df47250675fd78782cc947a69ce4e",
+    "docs/i18n/reviewed/runtime/ko/2026-10-05-data-art-replacement.json": "41fe35d291db4bfb6dc143f619263fa6d1375e72",
+    "docs/i18n/reviewed/runtime/ko/2026-10-05-make-masks-toolbar.json": "723a794c4e7a56b4675f179026e940a39ecaefd3",
+    "docs/i18n/reviewed/runtime/ko/2026-10-05-theme-descriptions.json": "4f338853b285f9331381d8e266c7f37c8995207a",
+    "docs/i18n/reviewed/runtime/ko/2026-10-06-subcell-rybg.json": "1591ad0253ee167609c75509fe0d86c5dbf05b8d",
+    "docs/i18n/reviewed/runtime/pt/2026-09-15-integration-review.json": "c14fd103f66c16d9085ced909c81ea9fe6183770",
+    "docs/i18n/reviewed/runtime/pt/2026-09-21-runtime-third-slice.json": "4e0c8aa75ac24761fdea9f9ce6ee85cc171e034a",
+    "docs/i18n/reviewed/runtime/pt/2026-10-05-data-art-replacement.json": "fc9d6c85d25e1a1c5976c19c6f1c4ffd924137bd",
+    "docs/i18n/reviewed/runtime/pt/2026-10-05-make-masks-toolbar.json": "01cd79e89a9e0e6d422fdf97713f25f0c478994a",
+    "docs/i18n/reviewed/runtime/pt/2026-10-05-theme-descriptions.json": "8b99acad62e0490620d7a1003737f3b1e245a7f1",
+    "docs/i18n/reviewed/runtime/pt/2026-10-06-subcell-rybg.json": "e843e7249b97014c03c81962e3f014a918ffc992",
+    "docs/i18n/reviewed/runtime/sv/2026-09-15-integration-review.json": "e40ae0dd77b125b0ab562d6787cc6eb2f959f1a9",
+    "docs/i18n/reviewed/runtime/sv/2026-09-21-runtime-ui-refresh.json": "d71a5573c8f176f715a2291eac843a4328ccc471",
+    "docs/i18n/reviewed/runtime/sv/2026-10-05-data-art-replacement.json": "b7b337946bcd55ce7888ef21cb33a23cd03a6ab8",
+    "docs/i18n/reviewed/runtime/sv/2026-10-05-make-masks-toolbar.json": "316e3d96bbb3476131ddeff232076060dd1070ab",
+    "docs/i18n/reviewed/runtime/sv/2026-10-05-theme-descriptions.json": "d3ebaf4a024c1c0cf904c120807a262eda1ad783",
+    "docs/i18n/reviewed/runtime/sv/2026-10-06-subcell-rybg.json": "b81e0b76679b50f600fbbd56a83276aee509ea66",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-08-26-post-fallback-residuals.json": "03e0c0c297535d5b8590ad8e741150f61ea614f9",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-09-15-integration-review.json": "b33cfc9afb7f1bc56b56ac515926ea7b64ee313b",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-09-21-runtime-fifth-slice.json": "c0e463d4af89f35ff338d10da02ef80ecd99a740",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-05-data-art-replacement.json": "ee0bd28f46ed55ce74919a5d5b1c0cb0e1548316",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-05-make-masks-toolbar.json": "8fb04bb1202eaa297f8487ed54aa111a8ff18113",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-05-theme-descriptions.json": "bd299526a3d3c5c00fd51038222128217fbf8412",
+    "docs/i18n/reviewed/runtime/zh_CN/2026-10-06-subcell-rybg.json": "b7f384816cdc34b22ddadf890912bc3900b49aa5",
+    "spacr/convert.py": "ffdeb7267203da749882f1c2fd8f244fec3ba328",
+    "spacr/qt/mask_engine.py": "f5f354e1c5141b29c1be4112972be57b6630c55a",
+    "spacr/qt/preferences.py": "f8ab3779f4663fd6abb14ea129ef92f947ff717e",
+    "spacr/qt/screens/make_masks.py": "fc6a4ec6ed7e838cd2fe0f6d174dae2efbad00a6",
+    "spacr/submodules.py": "95f2a100b2df8159ffd2494fa7e28efb553ad8d0",
+    "tests/qt/test_i18n_caption_ratchet.py": "42484b973f0d1700f0039b4148bd767c7c5b8327",
+    "tests/test_the_two_settings_tables_agree.py": "e9989d54e7d02ba4ab1f28c85ebb38f30d5e8169",
+    "tools/build_i18n_catalogs.py": "d90322162d61e43db6072da38ea167aa2c129883",
+    "tools/check_reviewed_runtime_evidence.py": "e6d58e8c76d014f8af92473d1f66e370d98dd08b"
+  },
+  "source_sha": "24601d5924e72221b4e8ffc1c7f5e14ea5e9c69b",
+  "stale_records": 289
+}

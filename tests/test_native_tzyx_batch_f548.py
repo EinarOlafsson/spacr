@@ -416,6 +416,16 @@ def test_native_tzyx_disk_reservation_failure_closes_private_maps(
     with pytest.raises(OSError) as error:
         io.preprocess_img_data(_settings(source))
     assert error.value.errno == errno.ENOSPC
+    from tests.test_native_tzyx_map_lifetime_f548 import _frame_array, _map_handle
+    import gc
+
+    diagnostic = _frame_array(error.value, '_reserve_private_memmap', 'mapped')
+    handle = _map_handle(diagnostic)
+    assert not handle.closed
+    assert np.isfinite(diagnostic).all()
+    del diagnostic, error
+    gc.collect()
+    assert handle.closed
     assert calls == reservation
     assert 'selected.npy' in closed
     if reservation > 1:

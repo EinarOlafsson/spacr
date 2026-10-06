@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 from collections import defaultdict, Counter
+from contextlib import contextmanager
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from matplotlib.animation import FuncAnimation
@@ -1767,6 +1768,10 @@ def _normalize_img_channels(normalized_stack, channels, save_dtype, settings,
                 remove_background = role_remove_background
 
         single_channel = load_channel(channel)
+        if workspace_dir is not None and not hasattr(single_channel, '_spacr_native_cleanup'):
+            _retain_native_memmap(
+                single_channel, remove_path=os.path.join(
+                    workspace_dir, f'channel-{channel}.npy'))
         try:
             print(f'Processing channel {channel}: background={background}, signal_threshold={signal_threshold}, remove_background={remove_background}')
 
@@ -1805,8 +1810,6 @@ def _normalize_img_channels(normalized_stack, channels, save_dtype, settings,
                         _close_private_memmap(non_zero_single_channel)
                 finally:
                     del non_zero_single_channel
-                    if quantile_path is not None:
-                        os.unlink(quantile_path)
 
             if workspace_dir is not None:
                 checkpoint()
@@ -1841,18 +1844,78 @@ def _normalize_img_channels(normalized_stack, channels, save_dtype, settings,
                 try:
                     _close_private_memmap(single_channel)
                 finally:
-                    os.unlink(os.path.join(workspace_dir,
-                                           f'channel-{channel}.npy'))
+                    del single_channel
 
     return normalized_stack.astype(save_dtype, copy=False)
 
 
+@contextmanager
+def _native_map_workspace(*, prefix, dir, parent=None):
+    """Retain private directories while borrowed native arrays still exist.
+
+    :param prefix: private temporary-directory prefix.
+    :param dir: existing writable parent directory.
+    :param parent: optional outer workspace retained by the same arrays.
+    :returns: context yielding the private path and directory-owner tuple.
+    """
+    directory = tempfile.TemporaryDirectory(prefix=prefix, dir=dir)
+    workspace = {
+        'name': directory.name,
+        'owners': (directory, *(parent['owners'] if parent is not None else ())),
+    }
+    try:
+        yield workspace
+    finally:
+        workspace['owners'] = ()
+        directory = None
+
+
+def _finalize_native_memmap(handle, path, owners):
+    """Close before unlink while keeping private parent directories alive.
+
+    :param handle: raw mmap handle that does not retain its NumPy owner.
+    :param path: private disposable file, or None for a staged source.
+    :param owners: temporary directories retained until the handle closes.
+    :returns: None.
+    """
+    try:
+        handle.close()
+    finally:
+        if path is not None and os.path.exists(path):
+            os.unlink(path)
+
+
+def _retain_native_memmap(mapped, owners=(), *, remove_path=None):
+    """Bind private-map cleanup to the last array owner instead of scope exit.
+
+    :param mapped: newly opened native normalization map.
+    :param owners: temporary directories to retain for diagnostic array views.
+    :param remove_path: optional private disposable file to unlink after closing.
+    :returns: the unchanged map, with its original dtype, shape and data.
+    """
+    import weakref
+
+    mapped._spacr_native_owners = owners
+    mapped._spacr_native_cleanup = weakref.finalize(
+        mapped, _finalize_native_memmap, mapped._mmap,
+        os.fspath(remove_path) if remove_path is not None else None, owners)
+    return mapped
+
+
 def _close_private_memmap(mapped):
-    """Flush and close one private native-ingest map before workspace removal."""
+    """Flush private writes and close maps without registered lifetime ownership.
+
+    Registered native maps remain valid until their last borrowed array dies;
+    their callers drop local references after flushing.
+
+    :param mapped: private writable native map to flush and release.
+    :returns: None.
+    """
     try:
         mapped.flush()
     finally:
-        mapped._mmap.close()
+        if not hasattr(mapped, '_spacr_native_cleanup'):
+            mapped._mmap.close()
 
 
 def _native_workspace_preflight(workspace, output_shape, selected_count,
@@ -1933,8 +1996,9 @@ def _native_nonzero_vector(single_channel, workspace_dir, channel,
     path = os.path.join(workspace_dir, f'channel-{channel}-quantiles.bin')
     vector = None
     try:
-        vector = np.memmap(path, mode='w+', dtype=single_channel.dtype,
-                           shape=(count,))
+        vector = _retain_native_memmap(
+            np.memmap(path, mode='w+', dtype=single_channel.dtype, shape=(count,)),
+            getattr(single_channel, '_spacr_native_owners', ()), remove_path=path)
         _reserve_private_memmap(vector)
         offset = 0
         for time_index in range(single_channel.shape[0]):
@@ -1947,12 +2011,13 @@ def _native_nonzero_vector(single_channel, workspace_dir, channel,
                 del plane, values
         return vector, path
     except BaseException:
-        try:
-            if vector is not None:
+        if vector is not None:
+            try:
                 _close_private_memmap(vector)
-        finally:
-            if os.path.exists(path):
-                os.unlink(path)
+            finally:
+                vector = None
+        elif os.path.exists(path):
+            os.unlink(path)
         raise
 
 _PARTIAL_SUFFIX = '.partial'
@@ -3757,7 +3822,8 @@ def _preprocess_mapped_volume_series(settings):
         raise ValueError('Existing outputs have no native T-by-Z source receipt; '
                          'use a fresh output folder.')
     else:
-        with tempfile.TemporaryDirectory(prefix='.spacr-volume-series-', dir=src) as stage:
+        with _native_map_workspace(prefix='.spacr-volume-series-', dir=src) as stage_owner:
+            stage = stage_owner['name']
             stage_stack = os.path.join(stage, 'stack')
             stage_masks = os.path.join(stage, 'masks')
             os.mkdir(stage_stack)
@@ -3818,29 +3884,37 @@ def _preprocess_mapped_volume_series(settings):
                     if os.path.islink(path) or _volume_file_hash(path) != stacks[name]:
                         raise ValueError(f'Native T-by-Z staged stack changed: {name}')
                 output_shape = (len(filenames), *frame_shape)
-                with tempfile.TemporaryDirectory(
-                        prefix='.spacr-normalize-', dir=stage) as workspace:
+                with _native_map_workspace(
+                        prefix='.spacr-normalize-', dir=stage,
+                        parent=stage_owner) as workspace_owner:
+                    workspace = workspace_owner['name']
                     _native_workspace_preflight(
                         workspace, output_shape, len(selected), dtype, filenames)
-                    normalized = np.lib.format.open_memmap(
-                        os.path.join(workspace, 'selected.npy'), mode='w+',
-                        dtype=np.float32,
-                        shape=(*output_shape[:-1], len(selected)))
+                    normalized = _retain_native_memmap(
+                        np.lib.format.open_memmap(
+                            os.path.join(workspace, 'selected.npy'), mode='w+',
+                            dtype=np.float32,
+                            shape=(*output_shape[:-1], len(selected))),
+                        workspace_owner['owners'],
+                        remove_path=os.path.join(workspace, 'selected.npy'))
                     try:
                         _reserve_private_memmap(normalized)
                         def load_channel(channel):
                             """Read one private channel from verified staged stacks."""
                             channel_path = os.path.join(
                                 workspace, f'channel-{channel}.npy')
-                            values = np.lib.format.open_memmap(
-                                channel_path, mode='w+', dtype=np.dtype(dtype),
-                                shape=output_shape[:-1])
+                            values = _retain_native_memmap(
+                                np.lib.format.open_memmap(
+                                    channel_path, mode='w+', dtype=np.dtype(dtype),
+                                    shape=output_shape[:-1]),
+                                workspace_owner['owners'], remove_path=channel_path)
                             try:
                                 _reserve_private_memmap(values)
                                 for index, path in enumerate(staged_paths):
                                     checkpoint()
-                                    mapped = np.load(path, mmap_mode='r',
-                                                     allow_pickle=False)
+                                    mapped = _retain_native_memmap(
+                                        np.load(path, mmap_mode='r', allow_pickle=False),
+                                        stage_owner['owners'])
                                     try:
                                         if (mapped.shape != frame_shape
                                                 or mapped.dtype.str != dtype):
@@ -3851,13 +3925,13 @@ def _preprocess_mapped_volume_series(settings):
                                             values[index, z_index] = (
                                                 mapped[z_index, ..., channel])
                                     finally:
-                                        mapped._mmap.close()
+                                        del mapped
                                 return values
                             except BaseException:
                                 try:
                                     _close_private_memmap(values)
                                 finally:
-                                    os.unlink(channel_path)
+                                    values = None
                                 raise
 
                         normalized = _normalize_img_channels(
@@ -3876,7 +3950,10 @@ def _preprocess_mapped_volume_series(settings):
                                          filenames=filenames)
                         archives[archive_name] = _volume_file_hash(archive)
                     finally:
-                        _close_private_memmap(normalized)
+                        try:
+                            _close_private_memmap(normalized)
+                        finally:
+                            del normalized
             if (hashlib.sha256(core._watch_map_bytes(src)).hexdigest() != map_sha256
                     or any(core._watch_file_identity(os.path.join(src, name))
                            != row['identity'] or core._watch_artifact_sha256(os.path.join(src, name))
