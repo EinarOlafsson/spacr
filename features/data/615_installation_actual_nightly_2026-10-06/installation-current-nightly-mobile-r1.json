@@ -1,0 +1,267 @@
+{
+  "scope": "Live Pages playback at a 390x844 phone viewport (touch, 3x DPR) against the deployed index and its pinned hosted media; not a listening review",
+  "url": "https://einarolafsson.github.io/spacr/nightly/tutorials/",
+  "index_sha256": "899ec1dccf2a5b361604551be3dc521764d3bf4fc5be90964a601f05b597f61f",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0889ee14f5a7368a791df27c7331862a6c7741b4",
+  "synthetic_tap_timeout_ms": 1500,
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "is_mobile": true,
+    "has_touch": true,
+    "device_scale_factor": 3
+  },
+  "hosted_requests": 28,
+  "hosted_hosts": [
+    "huggingface.co",
+    "us.aws.cdn.hf.co"
+  ],
+  "cases": [
+    {
+      "lesson": "01_pypi_github",
+      "audio_sha256": "d07367b454da6294eca05c393ea5fa3268827b12d736a124de6dedd945b146b0",
+      "narration_url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0889ee14f5a7368a791df27c7331862a6c7741b4/01_pypi_github/audio/en/af_heart.m4a",
+      "start": "video.play() after the tap did not start playback",
+      "playing_after_start": {
+        "audio": 1.001491,
+        "video": 1.096327,
+        "expected": 1.0013906602544835,
+        "video_paused": false
+      },
+      "clocks_after_seek": {
+        "audio": 29.597564,
+        "video": 29.759204,
+        "expected": 29.594598609357774,
+        "width": 2560,
+        "height": 1440,
+        "error": null,
+        "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0889ee14f5a7368a791df27c7331862a6c7741b4/01_pypi_github/web/01_pypi_github_silent.mp4",
+        "requested_audio_time": 28.279999999999998,
+        "seek_elapsed_seconds": 1.5048292850260623
+      },
+      "layout": {
+        "scroll_width": 390,
+        "inner_width": 390,
+        "video_box": [
+          17,
+          416.4375,
+          356,
+          200.25
+        ],
+        "player_visible": true
+      },
+      "passed": true
+    },
+    {
+      "lesson": "03_pip_install",
+      "audio_sha256": "0a3b94f18bad4634bb6a12dd0f642e1ceecbea7c8e99c50c3df0505f3acb58af",
+      "narration_url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0889ee14f5a7368a791df27c7331862a6c7741b4/03_pip_install/audio/en/af_heart.m4a",
+      "start": "video.play() after the tap did not start playback",
+      "playing_after_start": {
+        "audio": 1.004795,
+        "video": 1.150048,
+        "expected": 1.0047538552884812,
+        "video_paused": false
+      },
+      "clocks_after_seek": {
+        "audio": 23.9059,
+        "video": 24.04404,
+        "expected": 23.904921092502352,
+        "width": 2560,
+        "height": 1440,
+        "error": null,
+        "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0889ee14f5a7368a791df27c7331862a6c7741b4/03_pip_install/web/03_pip_install_silent.mp4",
+        "requested_audio_time": 22.584999999999997,
+        "seek_elapsed_seconds": 1.5046116370358504
+      },
+      "layout": {
+        "scroll_width": 390,
+        "inner_width": 390,
+        "video_box": [
+          17,
+          379.71875,
+          356,
+          200.25
+        ],
+        "player_visible": true
+      },
+      "passed": true
+    },
+    {
+      "lesson": "04_platform_installers",
+      "audio_sha256": "6113aa10ab6e0b64f35b735728c7a847baad13ef0fd94d0cfe105d614b26cfc5",
+      "narration_url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0889ee14f5a7368a791df27c7331862a6c7741b4/04_platform_installers/audio/en/af_heart.m4a",
+      "start": "video.play() after the tap did not start playback",
+      "playing_after_start": {
+        "audio": 1.001747,
+        "video": 1.149917,
+        "expected": 1.0016485849263246,
+        "video_paused": false
+      },
+      "clocks_after_seek": {
+        "audio": 36.254011,
+        "video": 36.396124,
+        "expected": 36.25044928115923,
+        "width": 2560,
+        "height": 1440,
+        "error": null,
+        "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0889ee14f5a7368a791df27c7331862a6c7741b4/04_platform_installers/web/04_platform_installers_silent.mp4",
+        "requested_audio_time": 34.915,
+        "seek_elapsed_seconds": 1.5048764900420792
+      },
+      "layout": {
+        "scroll_width": 390,
+        "inner_width": 390,
+        "video_box": [
+          17,
+          395.4375,
+          356,
+          200.25
+        ],
+        "player_visible": true
+      },
+      "passed": true
+    },
+    {
+      "lesson": "02_conda_install",
+      "audio_sha256": "c8f975ada4b0548db84197230bb8e4e9e88176a682bda11120f71df5e43376b9",
+      "narration_url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0889ee14f5a7368a791df27c7331862a6c7741b4/02_conda_install/audio/en/af_heart.m4a",
+      "start": "video.play() after the tap did not start playback",
+      "playing_after_start": {
+        "audio": 1.002436,
+        "video": 1.151541,
+        "expected": 1.002436,
+        "video_paused": false
+      },
+      "clocks_after_seek": {
+        "audio": 24.172501,
+        "video": 24.315801,
+        "expected": 24.172501,
+        "width": 2560,
+        "height": 1440,
+        "error": null,
+        "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0889ee14f5a7368a791df27c7331862a6c7741b4/02_conda_install/web/02_conda_install_silent.mp4",
+        "requested_audio_time": 22.855,
+        "seek_elapsed_seconds": 1.5039401560206898
+      },
+      "layout": {
+        "scroll_width": 390,
+        "inner_width": 390,
+        "video_box": [
+          17,
+          358.71875,
+          356,
+          200.25
+        ],
+        "player_visible": true
+      },
+      "passed": true
+    },
+    {
+      "lesson": "05_home",
+      "audio_sha256": "27b949c20219dbf19252e799dfa3ab2251273325ad2fa4975f747a6b39df3079",
+      "narration_url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0889ee14f5a7368a791df27c7331862a6c7741b4/05_home/audio/en/af_heart.m4a",
+      "start": "video.play() after the tap did not start playback",
+      "playing_after_start": {
+        "audio": 1.016495,
+        "video": 1.180346,
+        "expected": 1.0164907862479888,
+        "video_paused": false
+      },
+      "clocks_after_seek": {
+        "audio": 36.753002,
+        "video": 36.908485,
+        "expected": 36.75284964505867,
+        "width": 2560,
+        "height": 1440,
+        "error": null,
+        "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0889ee14f5a7368a791df27c7331862a6c7741b4/05_home/web/05_home_silent.mp4",
+        "requested_audio_time": 35.42,
+        "seek_elapsed_seconds": 1.5054015789646655
+      },
+      "layout": {
+        "scroll_width": 390,
+        "inner_width": 390,
+        "video_box": [
+          17,
+          395.4375,
+          356,
+          200.25
+        ],
+        "player_visible": true
+      },
+      "passed": true
+    },
+    {
+      "lesson": "07_mask",
+      "audio_sha256": "d7af5da17a827c984ccca5c133acfa3de2114d89962a0fcb367ac5ad0d88cc5f",
+      "narration_url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0889ee14f5a7368a791df27c7331862a6c7741b4/07_mask/audio/en/af_heart.m4a",
+      "start": "video.play() after the tap did not start playback",
+      "playing_after_start": {
+        "audio": 1.002057,
+        "video": 1.148985,
+        "expected": 1.002057,
+        "video_paused": false
+      },
+      "clocks_after_seek": {
+        "audio": 40.414948,
+        "video": 40.561512,
+        "expected": 40.414948,
+        "width": 2560,
+        "height": 1440,
+        "error": null,
+        "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0889ee14f5a7368a791df27c7331862a6c7741b4/07_mask/web/07_mask_silent.mp4",
+        "requested_audio_time": 39.075,
+        "seek_elapsed_seconds": 1.50546882400522
+      },
+      "layout": {
+        "scroll_width": 390,
+        "inner_width": 390,
+        "video_box": [
+          17,
+          416.4375,
+          356,
+          200.25
+        ],
+        "player_visible": true
+      },
+      "passed": true
+    },
+    {
+      "lesson": "08_measure",
+      "audio_sha256": "10fe8d2a4c15d88a40e9b21d578e827cfc8c7ed56032dbbbb7f37420714dad91",
+      "narration_url": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0889ee14f5a7368a791df27c7331862a6c7741b4/08_measure/audio/en/af_heart.m4a",
+      "start": "video.play() after the tap did not start playback",
+      "playing_after_start": {
+        "audio": 1.016052,
+        "video": 1.179832,
+        "expected": 1.016098122229729,
+        "video_paused": false
+      },
+      "clocks_after_seek": {
+        "audio": 49.850612,
+        "video": 49.989362,
+        "expected": 49.852874897350524,
+        "width": 2560,
+        "height": 1440,
+        "error": null,
+        "video_src": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0889ee14f5a7368a791df27c7331862a6c7741b4/08_measure/web/08_measure_silent.mp4",
+        "requested_audio_time": 48.52,
+        "seek_elapsed_seconds": 1.5035554599598981
+      },
+      "layout": {
+        "scroll_width": 390,
+        "inner_width": 390,
+        "video_box": [
+          17,
+          416.4375,
+          356,
+          200.25
+        ],
+        "player_visible": true
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}
