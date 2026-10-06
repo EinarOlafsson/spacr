@@ -1192,3 +1192,14 @@ review, crop-specific detector corpus and the other acceptance items remain
 open; these controls do not close all of 424.
 
 VERIFIED 2026-10-04: 3 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
+
+2026-10-06: Bio-Rad Image Lab .scn (Gel Doc) input. spacr.convert.read_scn
+(path, index=0) -> (uint16 array, meta) parses the MIME multipart document in
+pure numpy/stdlib (order-independent XML attributes, either endianness,
+zero_is white/black, multi-image index or stack, missing/unknown size_mm).
+.scn is in plaque_papers.IMAGE_SUFFIXES, so a .scn or a folder of them is a
+Figure/Plaque source (drop, picker, preview, run); Figure mode calibrates from
+the file's known field size (scale source "image metadata") below manual and
+settings scales. Also wired into the Format Converter, Make Masks/curation
+queue and channel sorting (rewritten as TIFF). tests/test_scn_reader.py: 16
+pass incl. the real-file check; docs: plaque_assay.rst section.

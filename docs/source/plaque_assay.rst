@@ -87,6 +87,22 @@ current mode, a prompt offers to switch; when it holds both images and PDFs,
 choose which mode to run. If the figure reader needs installing or
 reinstalling, the prompt installs it in place and reports the result.
 
+Bio-Rad Gel Doc images (``.scn``)
+---------------------------------
+
+Image Lab ``.scn`` files from a Gel Doc or ChemiDoc imager are read directly,
+without exporting them first, wherever a TIFF is accepted: Plaque Assay in
+both modes, Make Masks and its curation queue, and the Format Converter. A
+folder of ``.scn`` files is a source like a folder of figures. Image Lab
+stores these images with zero as white, so spaCR inverts them to look like
+Image Lab's own PDF and TIFF exports (dark wells on light plastic) and keeps
+the 12-bit values. Plaque Assay shows them as 8-bit grey scaled linearly to
+the imager's ceiling. When the file records its physical field size, that
+pixel size calibrates Figure-mode plaque areas (scale source
+``image metadata``) unless a pixel scale is set in the settings or on a well.
+In Python, :func:`spacr.convert.read_scn` returns the image and its metadata:
+pixel size, imager, acquisition date, exposure and application.
+
 Inspect the result views
 -------------------------
 

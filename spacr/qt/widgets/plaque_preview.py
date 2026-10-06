@@ -361,6 +361,10 @@ def load_display_image(path: Any) -> np.ndarray:
     """
     path = Path(path)
     array: Optional[np.ndarray] = None
+    if path.suffix.lower() == ".scn":
+        from ...convert import read_scn, scn_to_rgb8
+
+        return scn_to_rgb8(*read_scn(path))
     if path.suffix.lower() in (".tif", ".tiff"):
         try:
             import tifffile
@@ -1076,8 +1080,8 @@ def _colony_preview_pass(path, settings):
         weights[key] = local
     if "colony_detector" in weights:
         settings["colony_detector"] = weights["colony_detector"]
-    image = imread(str(path))
     rgb = load_display_image(path)
+    image = rgb if path.suffix.lower() == ".scn" else imread(str(path))
     wells = (detect_wells(image, weights["well_detection"],
                           confidence=float(settings.get("well_confidence", 0.25)))
              if "well_detection" in weights else [])
@@ -1232,7 +1236,7 @@ def _figure_scales(result: Dict[str, Any], annotations: Sequence[Any],
     :returns: :class:`spacr.plaque_papers._Scale` per region; empty when the
         result has no image.
     """
-    from ...plaque_papers import _scales_for_regions
+    from ...plaque_papers import _image_pixels_per_um, _scales_for_regions
 
     image = result.get("image")
     if image is None or not result.get("regions"):
@@ -1240,7 +1244,9 @@ def _figure_scales(result: Dict[str, Any], annotations: Sequence[Any],
     fmt = str(plate_format).strip() if plate_format not in (None, "", "None") else None
     return _scales_for_regions(image, result["regions"], result.get("words", []),
                               caption=caption, annotations=annotations,
-                              plate_format=fmt)
+                              plate_format=fmt,
+                              image_pixels_per_um=_image_pixels_per_um(
+                                  result.get("path", "")))
 
 
 def prepare_figure_review(result, settings, *, caption=None, previous=()):
