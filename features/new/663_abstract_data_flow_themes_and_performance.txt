@@ -1,0 +1,34 @@
+ABSTRACT DATA FLOW THEMES AND BACKDROP PERFORMANCE
+Status: OPEN — implementation and visual/performance verification in progress.
+Requested: 2026-10-05 by the maintainer: performance-optimize themes and add
+10–20 abstract high-resolution continuously flowing backgrounds, including
+weather-like wind, mouse-influenced flows, biology, spatial data, DNA and space.
+Owner: CPU feature/CI session; generated API/docs/translations/tutorials and
+every GPU process remain with the workstation session.
+
+Deliver 16 regular Appearance themes: eight distinct continuously animated
+flow families, each paired with a mouse-responsive counterpart. Families:
+cytoplasm, synapse, wind, atlas, helix, chromatin, nebula and cosmic silk.
+Stable identifiers are flow_cytoplasm, flow_synapse, flow_wind, flow_atlas,
+flow_helix, flow_chromatin, flow_nebula, flow_silk and their _mouse variants.
+The existing ten night themes and their sounds stay compatible. New flow
+presets may select an existing fitting sound set but never turn sound on.
+
+Flows remain decorative, not scientific output. Preserve readable text and
+controls, contrast and page-separation rules, animation-off choices, Extra
+Performance and launch-recovery suppression. Pointer-responsive variants
+must bend nearby flow without consuming clicks, grabbing the cursor or
+affecting images, masks, plots or measurements.
+
+Use the existing buffered background renderer and publication thread.
+Bound line/particle work, buffer dimensions and outstanding frames; never
+allocate a full-display simulation grid per frame or accumulate frame
+queues. GUI paints use ready frames; hidden/minimized/disabled backgrounds
+stop timers and retire render workers. Keep the existing memory/work/CI
+ceilings. Verify both moving output and all lifecycle failure boundaries.
+
+2026-10-05 — ACCEPTANCE WORK IN PROGRESS
+Three reused agents split renderer/mouse integration, catalog/preset state
+and contrast, and independent profiling/lifecycle tests. Root reviews actual
+rendered 1080p/4K output and publishes source-current workstation handoff.
+No GPU work or new module under spacr is authorized by this feature.

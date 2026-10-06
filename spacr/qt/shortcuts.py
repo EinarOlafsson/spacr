@@ -157,6 +157,8 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
                  "the Make Masks screen"),
     ShortcutSpec("E",            "Erase",                  "Make Masks",
                  "the Make Masks screen"),
+    ShortcutSpec("X",            "Box tool",               "Make Masks",
+                 "the Make Masks screen"),
     ShortcutSpec("W",            "Magic wand — add",       "Make Masks",
                  "the Make Masks screen"),
     ShortcutSpec("D",            "Draw an object",         "Make Masks",

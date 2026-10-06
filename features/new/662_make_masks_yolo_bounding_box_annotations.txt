@@ -32,6 +32,10 @@ this annotation feature does not select train/validation splits or train a
 YOLO model.
 
 2026-10-05 — IMPLEMENTED AND VERIFIED ON CPU
+Hosted CI follow-up: the X binding is now recorded in the central screen
+ShortcutSpec registry, so Keyboard shortcuts documents the Box tool and the
+whole-map binding guard agrees with the actual Make Masks shortcut.
+
 The integrated functional/index cohort passes 270 cases under 4 GiB with
 CUDA hidden, including genuine TIFFs, mouse gestures, positive/negative
 YOLO exports, Draw, toolbar, shortcuts, Recrop, queue layouts, blinding and
