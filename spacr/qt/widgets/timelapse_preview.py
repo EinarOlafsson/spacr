@@ -65,6 +65,7 @@ from PySide6.QtWidgets import (
     QSlider, QSpinBox, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 from ..i18n import tr
+from ..hidpi import scaled_for
 from .preview_controls import (
     DEFAULT_MAX_SETS, MAX_SETS_TOOLTIP, FlatButton, FlatComboBox, FlatSpinBox,
     ImageSetSampler, apply_sample_to_combo, populate_channel_combo,
@@ -1557,8 +1558,8 @@ class _EventAnnotationDialog(QDialog):
             rgb = render_frame(image, tracks=track, frame=frame,
                                channel=int(self._channel.value()))
             pixmap = numpy_to_qpixmap(rgb)
-            self._preview.setPixmap(pixmap.scaled(
-                640, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            self._preview.setPixmap(scaled_for(pixmap, self._preview,
+                                               (640, 300)))
             self._shown_observation = (int(track_id), frame)
             if (int(track_id), frame) not in field["observed"]:
                 self._status.setText(tr("This track has no observation at this frame."))
