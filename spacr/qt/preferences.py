@@ -10424,8 +10424,7 @@ def set_rim_period(seconds) -> float:
 #: here at the same time as there.
 _KEY_POPUP_BACKDROP = "rim/popup_backdrop"
 POPUP_BACKDROPS = ("off",) + tuple(sorted(
-    ("aurora", "blobs", "cells", "drift", "ripple")
-    + DATA_ART_THEME_KEYS
+    ("aurora", "blobs", "drift") + DATA_ART_THEME_KEYS
 ))
 #: NO MOVING BACKDROP BEHIND A SETTINGS WINDOW unless the user asks for
 #: one. The card and the rim stay either way -- 'off' drops only the

@@ -239,15 +239,18 @@ __all__ = [
 #: Every theme, in the order a menu should list them.
 #:
 #: These are the *paintable* ones — every name here has an engine behind it.
-#: The menu the user sees is :data:`ANIMATION_CHOICES`, which is this list
-#: with "no animation at all" in front of it; keeping the two apart is what
-#: lets ``make_engine``, ``_require_theme`` and every engine test go on
-#: meaning "a thing that can be drawn".
-AMBIENT_THEMES: Tuple[str, ...] = ("blobs", "aurora", "ripple", "drift", "cells",
-                                   "data_art_point_atlas", "data_art_tissue_facets",
-                                   "data_art_chromatin_ribbon",
-                                   "data_art_genetic_advection", "data_art_impulse_lens",
-                                   "data_art_fungal_growth")
+AMBIENT_THEMES: Tuple[str, ...] = (
+    "data_art_impulse_lens",
+    "data_art_genetic_advection",
+    "data_art_fungal_growth",
+    "data_art_thore",
+    "data_art_point_atlas",
+    "blobs",
+    "aurora",
+    "drift",
+    "data_art_tissue_facets",
+    "data_art_chromatin_ribbon",
+)
 
 #: The animation the ``spaceout`` entry point paints, and the palette it
 #: paints it in.
@@ -275,10 +278,10 @@ SPACEOUT_PALETTE = "rainbow"
 #: of zero worth claiming.
 NO_ANIMATION = "none"
 
-ANIMATION_CHOICES: Tuple[str, ...] = (NO_ANIMATION,) + AMBIENT_THEMES
+ANIMATION_CHOICES: Tuple[str, ...] = AMBIENT_THEMES + (NO_ANIMATION,)
 
 #: Default ambient animation theme.
-DEFAULT_THEME = "blobs"
+DEFAULT_THEME = "data_art_impulse_lens"
 
 #: spaCR's own colours, likewise.
 DEFAULT_PALETTE = "spacr"
@@ -286,39 +289,28 @@ DEFAULT_PALETTE = "spacr"
 _THEME_LABELS = {
     "blobs": "Blobs",
     "aurora": "Aurora",
-    "ripple": "Ripples",
     "drift": "Starfield",
-    "cells": "Cells",
-    "data_art_point_atlas": "Spatial point atlas",
+    "data_art_impulse_lens": "spaCR field",
+    "data_art_genetic_advection": "spaCR advection",
+    "data_art_fungal_growth": "spaCR growth",
+    "data_art_thore": "spaCR Thore",
+    "data_art_point_atlas": "spaCR waves",
     "data_art_tissue_facets": "Tissue facets",
     "data_art_chromatin_ribbon": "Chromatin satin",
-    "data_art_genetic_advection": "Genetic advection",
-    "data_art_impulse_lens": "Perturbation lens",
-    "data_art_fungal_growth": "Fungal growth",
     SPACEOUT_THEME: "Fractals",
 }
 
 _THEME_NOTES = {
-    "blobs": ("Soft colour blobs, large and small, drifting and slowly "
-              "changing size."),
-    "aurora": ("Folded curtains of vertical rays, rippling along their own "
-               "length the way the northern lights do."),
-    "ripple": "Rings spreading out from a few points and fading as they grow.",
-    "drift": "A slow starfield in three layers of depth.",
-    "cells": ("Cells drifting through the field — soft bodies with a "
-              "brighter nucleus, turning slowly as they go."),
-    "data_art_point_atlas": ("A finely sampled three-dimensional point "
-                             "landscape with depth and cursor-driven parallax."),
-    "data_art_tissue_facets": ("A crystalline tissue mosaic of shaded geometric "
-                               "facets, with slowly changing local relief."),
-    "data_art_chromatin_ribbon": ("Folded satin-like chromatin ribbons carry fine "
-                                  "fibres through soft, interwoven surfaces."),
-    "data_art_genetic_advection": ("Thousands of fine genetic-flow particles move "
-                                    "through a continuous wind-like field that bends near the cursor."),
-    "data_art_impulse_lens": ("A precision dot lattice bends around moving "
-                              "impulses and the cursor, revealing local perturbation."),
-    "data_art_fungal_growth": ("Fine fungal branches extend continuously across "
-                               "at most 30% of the backdrop, leaving the field clear."),
+    "blobs": 'Soft colour blobs, large and small, drifting and slowly changing size.',
+    "aurora": 'Fine curtains of northern light ripple through softly layered folds.',
+    "drift": 'A slow starfield in three layers of depth.',
+    "data_art_impulse_lens": 'A crisp gravitational dot field with optional local mouse influence and expanding ripples.',
+    "data_art_genetic_advection": 'Fine particles form evolving vortices and branching currents, with optional mouse gravity.',
+    "data_art_fungal_growth": 'A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.',
+    "data_art_thore": 'Fine background rain and branching lightning briefly illuminate the scene.',
+    "data_art_point_atlas": 'An edge-free landscape of round points carries wide travelling waves.',
+    "data_art_tissue_facets": 'Fine paper facets move gently and respond locally to the mouse.',
+    "data_art_chromatin_ribbon": 'Fine chromatin fibres undulate in travelling waves across folded ribbons.',
     SPACEOUT_THEME: ("A Julia set that morphs, turns and cycles colour — "
                      "the backdrop the spaceout launcher dresses the "
                      "application in."),
@@ -428,7 +420,7 @@ _THEME_PALETTES: Dict[str, Tuple[str, ...]] = {
               "lowsun", "deepwater"),
     SPACEOUT_THEME: (SPACEOUT_PALETTE,),
 }
-for _data_art_key in AMBIENT_THEMES[5:]:
+for _data_art_key in (key for key in AMBIENT_THEMES if key.startswith("data_art_")):
     _THEME_PALETTES[_data_art_key] = tuple(
         palette for palette in PALETTE_SETS
         if palette != SPACEOUT_PALETTE)
@@ -5339,6 +5331,7 @@ _ENGINES = {
     "data_art_genetic_advection": partial(_DataArtEngine, family="genetic_advection"),
     "data_art_impulse_lens": partial(_DataArtEngine, family="impulse_lens"),
     "data_art_fungal_growth": _FungalGrowthEngine,
+    "data_art_thore": _ThoreEngine,
     SPACEOUT_THEME: FractalEngine,
 }
 

@@ -336,10 +336,10 @@ NIGHT_THEMES: Dict[str, NightTheme] = {
             key="lantern",
             label="Lantern",
             description=("A lit window in the dark: warm orange on near-"
-                         "black, crisp cells drifting behind it, "
+                         "black, fine paper facets behind it, "
                          "and a sound set in G minor at 118 BPM."),
             palette=LANTERN_PALETTE,
-            ambient="cells",
+            ambient="data_art_tissue_facets",
             ambient_palette="ember"),
         NightTheme(
             key="halcyon",
@@ -354,19 +354,19 @@ NIGHT_THEMES: Dict[str, NightTheme] = {
             key="solstice",
             label="Solstice",
             description=("The long low light of a year's turn: olive and "
-                         "pale gold, cells drifting through it, and a "
+                         "pale gold, fine paper facets through it, and a "
                          "sound set in G Lydian at 112 BPM."),
             palette=SOLSTICE_PALETTE,
-            ambient="cells",
+            ambient="data_art_tissue_facets",
             ambient_palette="lowsun"),
         NightTheme(
             key="undertow",
             label="Undertow",
-            description=("Deep water, green-black and slow: rings spreading "
-                         "and fading, and a sound set in E minor at 116 BPM "
+            description=("Deep water, green-black and slow: waves travelling "
+                         "through points, and a sound set in E minor at 116 BPM "
                          "with the heaviest sub of the ten."),
             palette=UNDERTOW_PALETTE,
-            ambient="ripple",
+            ambient="data_art_point_atlas",
             ambient_palette="deepwater"),
         NightTheme(
             key="meridian",
@@ -398,11 +398,11 @@ NIGHT_THEMES: Dict[str, NightTheme] = {
         NightTheme(
             key="aphelion",
             label="Aphelion",
-            description=("Furthest from the sun: cold violet, rings spreading "
+            description=("Furthest from the sun: cold violet, point waves travelling "
                          "through the dark, and a tense sound set in D "
                          "harmonic minor at 128 BPM."),
             palette=APHELION_PALETTE,
-            ambient="ripple",
+            ambient="data_art_point_atlas",
             ambient_palette="midnight"),
         NightTheme(
             key="pulsar",
@@ -487,44 +487,61 @@ DATA_ART_PALETTES: Dict[str, Dict[str, str]] = {
 }
 
 
+DATA_ART_PALETTES["data_art_thore"] = {
+    **NOCTURNE_PALETTE, "bg": "#080e17", "page": "#263549",
+    "surface": "#101b2c", "surface_alt": "#19283b",
+    "surface_hi": "#263c51", "border": "#465f78",
+    "border_soft": "#2e435b", "fg_muted": "#d4e0eb",
+    "fg_dim": "#acbed0", "accent": "#b8d7eb",
+    "accent_hi": "#deeff9", "accent_lo": "#8aafcf",
+    "accent_soft": "#304963", "info": "#b8d7eb",
+}
+
+
 DATA_ART_THEMES: Dict[str, NightTheme] = {
     theme.key: theme for theme in (
         NightTheme(
-            key="data_art_point_atlas", label="Spatial point atlas",
-            description="A finely sampled three-dimensional point landscape with depth and cursor-driven parallax.",
+            key="data_art_impulse_lens", label="spaCR field",
+            description='A crisp gravitational dot field with optional local mouse influence and expanding ripples.',
+            palette=DATA_ART_PALETTES["data_art_impulse_lens"],
+            ambient="data_art_impulse_lens", ambient_palette="mono",
+            sound_key="cirrus"),
+        NightTheme(
+            key="data_art_genetic_advection", label="spaCR advection",
+            description='Fine particles form evolving vortices and branching currents, with optional mouse gravity.',
+            palette=DATA_ART_PALETTES["data_art_genetic_advection"],
+            ambient="data_art_genetic_advection", ambient_palette="ocean",
+            sound_key="meridian"),
+        NightTheme(
+            key="data_art_fungal_growth", label="spaCR growth",
+            description='A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.',
+            palette=DATA_ART_PALETTES["data_art_fungal_growth"],
+            ambient="data_art_fungal_growth", ambient_palette="deepwater",
+            sound_key="undertow"),
+        NightTheme(
+            key="data_art_thore", label="spaCR Thore",
+            description='Fine background rain and branching lightning briefly illuminate the scene.',
+            palette=DATA_ART_PALETTES["data_art_thore"],
+            ambient="data_art_thore", ambient_palette="midnight",
+            sound_key="nocturne"),
+        NightTheme(
+            key="data_art_point_atlas", label="spaCR waves",
+            description='An edge-free landscape of round points carries wide travelling waves.',
             palette=DATA_ART_PALETTES["data_art_point_atlas"],
             ambient="data_art_point_atlas", ambient_palette="midnight",
             sound_key="nocturne"),
         NightTheme(
             key="data_art_tissue_facets", label="Tissue facets",
-            description="A crystalline tissue mosaic of shaded geometric facets, with slowly changing local relief.",
+            description='Fine paper facets move gently and respond locally to the mouse.',
             palette=DATA_ART_PALETTES["data_art_tissue_facets"],
             ambient="data_art_tissue_facets", ambient_palette="lowsun",
             sound_key="halcyon"),
         NightTheme(
             key="data_art_chromatin_ribbon", label="Chromatin satin",
-            description="Folded satin-like chromatin ribbons carry fine fibres through soft, interwoven surfaces.",
+            description='Fine chromatin fibres undulate in travelling waves across folded ribbons.',
             palette=DATA_ART_PALETTES["data_art_chromatin_ribbon"],
             ambient="data_art_chromatin_ribbon", ambient_palette="dusk",
             sound_key="vesper"),
-        NightTheme(
-            key="data_art_genetic_advection", label="Genetic advection",
-            description="Thousands of fine genetic-flow particles move through a continuous wind-like field that bends near the cursor.",
-            palette=DATA_ART_PALETTES["data_art_genetic_advection"],
-            ambient="data_art_genetic_advection", ambient_palette="ocean",
-            sound_key="meridian"),
-        NightTheme(
-            key="data_art_impulse_lens", label="Perturbation lens",
-            description="A precision dot lattice bends around moving impulses and the cursor, revealing local perturbation.",
-            palette=DATA_ART_PALETTES["data_art_impulse_lens"],
-            ambient="data_art_impulse_lens", ambient_palette="mono",
-            sound_key="cirrus"),
-        NightTheme(
-            key="data_art_fungal_growth", label="Fungal growth",
-            description="Fine fungal branches extend continuously across at most 30% of the backdrop, leaving the field clear.",
-            palette=DATA_ART_PALETTES["data_art_fungal_growth"],
-            ambient="data_art_fungal_growth", ambient_palette="deepwater",
-            sound_key="undertow"),
     )
 }
 
