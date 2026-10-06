@@ -194,3 +194,14 @@ candidate allowance was added. README's two size/exclusion facts also still
 need owner correction. All twelve instruction-index checks pass. The UI
 catalog replay is recorded as a failure, separate from the 689 passing
 artwork/lifecycle cases.
+
+2026-10-06 — POPUP AND PALETTE REGISTRY FOLLOW-UP
+The same twelve distinct styles remain implemented. Focused hosted failures
+exposed two integration omissions: Preferences' popup now includes every
+new style, and ordinary data-art palette choices exclude Spaceout's reserved
+rainbow. The integrated choice/fixture cohort passes 62 cases; independent
+renderer/catalog checks pass 81 and palette checks pass 94. Existing caps,
+artistic presets and renderer composition are unchanged. Current artwork
+translations were accepted by the workstation; the earlier missing-string
+note is historical. This follow-up does not claim maintainer aesthetic
+approval, whole-suite memory acceptance or final-source GitHub green.

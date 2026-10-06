@@ -6,7 +6,11 @@ NOT BLOCKING. Since 2026-09-12 spaCR keeps two lists -- what it has
 gained and what it might gain next -- and neither gates a release.
 The words below were written when a single instructions list did.
 
-Status:    OPEN 2026-10-04 — the per-module coverage gate is still red (work
+Status:    OPEN 2026-10-06 — the prior complete 664-module aggregate passes
+           the absolute-count ratchet, but required passed-shard acceptance
+           and the final-source hosted verdict remain incomplete.
+
+Previous status (superseded 2026-10-06): OPEN 2026-10-04 — the per-module coverage gate is still red (work
            tracked in 43: 11 modules under 90%, 57 regressed). The i18n sv/fr
            failures were fixed in 9f80fe5bf; zero open GitHub issues since
            2026-10-01.
@@ -5634,3 +5638,22 @@ The candidate also passes 225 integrated CPU checks. These focused receipts
 do not replace a complete GitHub aggregate at the pushed final SHA. No
 ratchet ceiling, exemption, branch allowance or integrity rule changes.
 Item 288 remains OPEN.
+
+2026-10-06 — COMPLETE PRIOR RATCHET; CURRENT PASSED-SHARD GATE OPEN
+  The completed e9fa source run 37426363112 has all twelve shard records and
+  all 664 modules, a passing absolute-count ratchet, no failed module, no
+  global issue and complete measurement integrity. Its aggregate correctly
+  fails the required passed-shard condition because test shards failed.
+  This is a verified improvement, not current-source CI acceptance.
+  Older 47a run 37438733806 still has unfinished shards 1/7 at the audit.
+
+  CPU repairs address the data-art popup/palette assertions, optional
+  coverage absence and strict timm crop sizing. The independent b39c55531
+  NightTheme contract repair preserves every old inventory count/digest.
+  Root's bounded choice cohort passes 62 cases; embedding/inventory passes
+  23 with one optional timm skip, with genuine timm CPU behavior separately
+  passing all three focused cases. New timm statements and branches are
+  fully covered. Keep README/API generation failures assigned to the
+  workstation and preserve its coordinated scorecard/provenance functions.
+  No ceiling, inventory pin, README allowance or passed-shard check changes.
+  This item stays OPEN until all final-source shards and aggregate pass.

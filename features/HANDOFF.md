@@ -1,4 +1,49 @@
-# CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-05)
+# CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
+
+## 2026-10-06 CPU CI follow-up and exact documentation owner actions
+Continue from nightly 11d3a451b9fc49fb822213859c040b3a090298d6 and retain
+the workstation's accepted current runtime translations, tutorial/deployed
+readbacks and full-cohort numerical receipts. No GPU process is started here.
+Five bounded CPU repairs are integrated: settings-popup choices include all
+twelve data-art keys; ordinary data-art palettes exclude Spaceout's rainbow;
+the coverage-specific fixture skips only when its optional package is absent;
+and NightTheme.sound_key's exact optional constructor contract is checked
+separately before reproducing every old public-inventory count and digest.
+Strict timm patch encoders now resize mismatched crop batches to the loaded
+model's required image dimensions; already-correct and dynamic inputs retain
+their original dimensions. The workstation published the inventory repair
+independently in b39c55531; keep that accepted version, not two normalizations.
+Neither a coverage ceiling nor an inventory/README allowance is increased.
+
+Hosted tests 37438733806 targets older 47a19ab6 and is still running at the
+audit. Its current remaining documentation owner scopes are precise:
+normal Help-search regeneration must include the published
+spacr.qt.mask_engine.load_yolo_boxes (present in en.json, absent from
+help_api_index.API_ENTRIES); re-measure the checkout claim now that 1029 MB
+differs from that run's 1414 MB tree; trim the README's 1792 prose words
+below its unchanged 1750-word curated-summary bound; retire/update the
+obsolete reviewed source "For a server, cluster or CI runner, omit Qt:" in
+build_documentation_i18n.py and rebuild localized README artifacts normally.
+Replacement runtime captions already pass; do not redo their accepted work.
+
+The prior completed e9fa run 37426363112 has all twelve records, all 664
+modules, no failed module/global/integrity issue and a passing ratchet. Its
+aggregate correctly failed the required passed-shard condition. That receipt
+does not replace a final-source green verdict. Current coverage/serial Qt
+remain items 43/288/47, OPEN. The full local or full Qt suite is not run.
+
+The workstation retains _retrieval_scorecard, _weights_on_disk and
+encoder_entry's coordinated chance-AP/provenance/API repair. The CPU lane
+handles _timm_encoder's required input size separately, preserving those
+functions and the source-frozen benchmark inputs. Cell-DINO loading still
+needs an obtained official checkpoint; the old unpublished-weights claim
+is already corrected. Preserve every GPU/docs/translation/tutorial lane.
+
+An opt-in hosted uninterrupted serial Qt acceptance workflow is being prepared
+for item 47, with the same 10.8 GiB pytest guard and 12 GiB hard cap, original
+collection order and a passive durable per-file RSS journal. This is separate
+from ordinary CI's batched Qt shards. Do not claim acceptance before its full
+terminal summary and source-bound journal; never run the full Qt suite locally.
 
 ## 2026-10-05 CPU replacement checkpoint — twelve distinct data-art themes
 All sixteen rejected flow_* styles remain removed. Item 663 now implements
