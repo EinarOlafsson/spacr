@@ -1,0 +1,1659 @@
+{
+  "lesson": "14_make_masks",
+  "scope": "en/af_heart playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "db6a8dca3c815ca6144c2d4a2b2772d7681cbe0e39a1d56631258a2ce9e2c712",
+  "scene_count": 58,
+  "seek_playback_clocks": {
+    "audio": 77.249351,
+    "video": 77.281988,
+    "expectedVideo": 77.25045569161568,
+    "audioDuration": 815.855,
+    "videoDuration": 815.866667,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "298de947435690fa9b119b978a8325575a442863ddbe169651e4c2ad26bbc0e0",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "06_api",
+    "07_mask",
+    "08_measure",
+    "09_annotate",
+    "19_train_cellpose",
+    "20_cellpose_masks",
+    "21_model_compare",
+    "22_model_zoo",
+    "42_curate",
+    "46_napari_bridge"
+  ],
+  "sentence_cue_checks": [
+    {
+      "requested_audio_time": 1.2525,
+      "text": "From Home, open Make Masks in Tools.",
+      "audio": 1.2525,
+      "video": 1.252517,
+      "cues": [
+        "From Home, open Make Masks in Tools."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 5.9675,
+      "text": "The buttons along the bottom left bring images in: Open folder, Organize for Measure and Load test data.",
+      "audio": 5.9675,
+      "video": 5.967585,
+      "cues": [
+        "The buttons along the bottom left bring images in: Open folder, Organize for Measure and Load test data."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 12.6175,
+      "text": "On the right, Discard, Keep, Skip and Upload data decide what happens to each field once it is edited.",
+      "audio": 12.6175,
+      "video": 12.61768,
+      "cues": [
+        "On the right, Discard, Keep, Skip and Upload data decide what happens to each field once it is edited."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 18.395,
+      "text": "Load test data opens ten example Toxoplasma images.",
+      "audio": 18.395,
+      "video": 18.395263,
+      "cues": [
+        "Load test data opens ten example Toxoplasma images."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 25.2725,
+      "text": "Its arrow also offers a sample of each training dataset a published model learned from, with its masks, so you can see what good training pairs look like.",
+      "audio": 25.2725,
+      "video": 25.272861,
+      "cues": [
+        "Its arrow also offers a sample of each training dataset a published model learned from, with its masks, so you can see what good training pairs look like."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 31.924999999999997,
+      "text": "Click Open folder and select the image folder.",
+      "audio": 31.924999,
+      "video": 31.925456,
+      "cues": [
+        "Click Open folder and select the image folder."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 36.7225,
+      "text": "For this example, use the ER intensity images and corresponding cell masks from the Measure sample.",
+      "audio": 36.7225,
+      "video": 36.723025,
+      "cues": [
+        "For this example, use the ER intensity images and corresponding cell masks from the Measure sample."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 42.0,
+      "text": "Keep the image and mask dimensions equal and their filenames paired.",
+      "audio": 42,
+      "video": 42.0006,
+      "cues": [
+        "Keep the image and mask dimensions equal and their filenames paired."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 46.635000000000005,
+      "text": "The editor loads the image and its matching mask from the masks subfolder.",
+      "audio": 46.635,
+      "video": 46.635666,
+      "cues": [
+        "The editor loads the image and its matching mask from the masks subfolder."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 50.4925,
+      "text": "Coloured labels identify individual objects.",
+      "audio": 50.4925,
+      "video": 50.493222,
+      "cues": [
+        "Coloured labels identify individual objects."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 53.555,
+      "text": "Check that the outlines follow the image boundaries.",
+      "audio": 53.555,
+      "video": 53.555765,
+      "cues": [
+        "Check that the outlines follow the image boundaries."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 57.715,
+      "text": "If a companion mask is missing, start with an empty mask and draw the objects you need.",
+      "audio": 57.715,
+      "video": 57.715825,
+      "cues": [
+        "If a companion mask is missing, start with an empty mask and draw the objects you need."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 63.125,
+      "text": "Open the Live magnifier settings and keep Segment on Region under the mouse.",
+      "audio": 63.125,
+      "video": 63.125902,
+      "cues": [
+        "Open the Live magnifier settings and keep Segment on Region under the mouse."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 68.155,
+      "text": "The method comes from the Detection method category, here Otsu, which runs on the CPU.",
+      "audio": 68.155,
+      "video": 68.155974,
+      "cues": [
+        "The method comes from the Detection method category, here Otsu, which runs on the CPU."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 73.33250000000001,
+      "text": "Choose a model-based method when thresholding does not separate your objects well.",
+      "audio": 73.3325,
+      "video": 73.333548,
+      "cues": [
+        "Choose a model-based method when thresholding does not separate your objects well."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 78.2825,
+      "text": "Turn on Magnifier and hover over an object to preview its outline.",
+      "audio": 78.2825,
+      "video": 78.283619,
+      "cues": [
+        "Turn on Magnifier and hover over an object to preview its outline."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 84.08250000000001,
+      "text": "The readout at the top left gives the pixel position and intensity, and the label and area of the object under the cursor.",
+      "audio": 84.0825,
+      "video": 84.083702,
+      "cues": [
+        "The readout at the top left gives the pixel position and intensity, and the label and area of the object under the cursor."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 90.6725,
+      "text": "Click to add outlined objects when they look correct, or switch Magnifier off to continue editing.",
+      "audio": 90.6725,
+      "video": 90.673796,
+      "cues": [
+        "Click to add outlined objects when they look correct, or switch Magnifier off to continue editing."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 95.145,
+      "text": "Choose the tool that matches the correction.",
+      "audio": 95.145,
+      "video": 95.14636,
+      "cues": [
+        "Choose the tool that matches the correction."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 99.065,
+      "text": "Brush adds pixels, Erase removes pixels and Erase object removes a whole label.",
+      "audio": 99.065,
+      "video": 99.066416,
+      "cues": [
+        "Brush adds pixels, Erase removes pixels and Erase object removes a whole label."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 103.43,
+      "text": "Draw adds an outlined object; Divide splits one.",
+      "audio": 103.43,
+      "video": 103.431479,
+      "cues": [
+        "Draw adds an outlined object; Divide splits one."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 106.82749999999999,
+      "text": "Zoom helps you inspect boundaries before making changes.",
+      "audio": 106.827499,
+      "video": 106.829027,
+      "cues": [
+        "Zoom helps you inspect boundaries before making changes."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 111.04749999999999,
+      "text": "Choose Erase object and click inside the object you want to remove.",
+      "audio": 111.047499,
+      "video": 111.049088,
+      "cues": [
+        "Choose Erase object and click inside the object you want to remove."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 114.41499999999999,
+      "text": "Check the updated outline and object count.",
+      "audio": 114.414999,
+      "video": 114.416636,
+      "cues": [
+        "Check the updated outline and object count."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 118.79249999999999,
+      "text": "Use this for an unwanted label, such as debris or an object outside your analysis criteria.",
+      "audio": 118.792499,
+      "video": 118.794198,
+      "cues": [
+        "Use this for an unwanted label, such as debris or an object outside your analysis criteria."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 123.33249999999998,
+      "text": "Click Undo to restore the deletion.",
+      "audio": 123.332499,
+      "video": 123.334263,
+      "cues": [
+        "Click Undo to restore the deletion."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 125.23999999999998,
+      "text": "Redo applies it again.",
+      "audio": 125.239999,
+      "video": 125.24179,
+      "cues": [
+        "Redo applies it again."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 129.30749999999998,
+      "text": "Use these history controls to compare an edit with the previous mask, then return to the version you want to keep.",
+      "audio": 129.307499,
+      "video": 129.309349,
+      "cues": [
+        "Use these history controls to compare an edit with the previous mask, then return to the version you want to keep."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 135.01749999999998,
+      "text": "Select Draw and trace a closed boundary around a missing object.",
+      "audio": 135.017499,
+      "video": 135.01943,
+      "cues": [
+        "Select Draw and trace a closed boundary around a missing object."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 138.20999999999998,
+      "text": "The editor fills it with a new label.",
+      "audio": 138.209999,
+      "video": 138.211976,
+      "cues": [
+        "The editor fills it with a new label."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 141.795,
+      "text": "In this practice step the outline is in the background, so undo it before saving.",
+      "audio": 141.795,
+      "video": 141.797027,
+      "cues": [
+        "In this practice step the outline is in the background, so undo it before saving."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 145.9275,
+      "text": "For training data, trace the actual object boundary.",
+      "audio": 145.9275,
+      "video": 145.929586,
+      "cues": [
+        "For training data, trace the actual object boundary."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 149.6325,
+      "text": "Use Divide when two touching objects share one label.",
+      "audio": 149.6325,
+      "video": 149.634639,
+      "cues": [
+        "Use Divide when two touching objects share one label."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 153.59,
+      "text": "Draw a cut across the whole joined region and inspect the separated labels.",
+      "audio": 153.59,
+      "video": 153.592196,
+      "cues": [
+        "Draw a cut across the whole joined region and inspect the separated labels."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 158.20499999999998,
+      "text": "Undo the split if it cuts through one object or leaves an incorrect boundary.",
+      "audio": 158.204999,
+      "video": 158.207262,
+      "cues": [
+        "Undo the split if it cuts through one object or leaves an incorrect boundary."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 163.1425,
+      "text": "Adjust Display percentiles to make dim structures easier to inspect.",
+      "audio": 163.1425,
+      "video": 163.144832,
+      "cues": [
+        "Adjust Display percentiles to make dim structures easier to inspect."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 168.12,
+      "text": "These controls change the image view while preserving raw intensity values and labels.",
+      "audio": 168.12,
+      "video": 168.122404,
+      "cues": [
+        "These controls change the image view while preserving raw intensity values and labels."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 172.53000000000003,
+      "text": "Return to a consistent display when comparing fields.",
+      "audio": 172.53,
+      "video": 172.532467,
+      "cues": [
+        "Return to a consistent display when comparing fields."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 177.77500000000003,
+      "text": "To remove objects by size or shape, choose a property in the Filter category and click Add a filter.",
+      "audio": 177.775,
+      "video": 177.777542,
+      "cues": [
+        "To remove objects by size or shape, choose a property in the Filter category and click Add a filter."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 184.16500000000002,
+      "text": "Any regionprop that scikit-image measures can be a filter, such as area, solidity or mean intensity.",
+      "audio": 184.165,
+      "video": 184.167633,
+      "cues": [
+        "Any regionprop that scikit-image measures can be a filter, such as area, solidity or mean intensity."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 190.27750000000003,
+      "text": "Here an area row with a minimum hides the smaller cells; press Filter to apply the list again.",
+      "audio": 190.2775,
+      "video": 190.280221,
+      "cues": [
+        "Here an area row with a minimum hides the smaller cells; press Filter to apply the list again."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 194.8,
+      "text": "The ledger below names every object the filters hid.",
+      "audio": 194.8,
+      "video": 194.802785,
+      "cues": [
+        "The ledger below names every object the filters hid."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 198.20250000000001,
+      "text": "Remove a row to bring back the objects it hid.",
+      "audio": 198.2025,
+      "video": 198.205334,
+      "cues": [
+        "Remove a row to bring back the objects it hid."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 203.5575,
+      "text": "The filters apply as you edit them and again whenever a field opens, so remove the rows you no longer want before moving on.",
+      "audio": 203.5575,
+      "video": 203.56041,
+      "cues": [
+        "The filters apply as you edit them and again whenever a field opens, so remove the rows you no longer want before moving on."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 208.82500000000002,
+      "text": "Undo also reverses a filter step.",
+      "audio": 208.825,
+      "video": 208.827986,
+      "cues": [
+        "Undo also reverses a filter step."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 212.26750000000004,
+      "text": "After reviewing the edits, click Save mask in the toolbar.",
+      "audio": 212.2675,
+      "video": 212.270535,
+      "cues": [
+        "After reviewing the edits, click Save mask in the toolbar."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 216.3675,
+      "text": "Keep the source images together with the saved masks and their curation record.",
+      "audio": 216.3675,
+      "video": 216.370594,
+      "cues": [
+        "Keep the source images together with the saved masks and their curation record."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 221.22500000000005,
+      "text": "Choose Box beside Draw to annotate separate YOLO bounding boxes.",
+      "audio": 221.225,
+      "video": 221.228163,
+      "cues": [
+        "Choose Box beside Draw to annotate separate YOLO bounding boxes."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 227.07750000000004,
+      "text": "These boxes have their own classes and history; they do not replace the segmentation mask or change the acquired image.",
+      "audio": 227.0775,
+      "video": 227.080747,
+      "cues": [
+        "These boxes have their own classes and history; they do not replace the segmentation mask or change the acquired image."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 233.07750000000004,
+      "text": "Here the boxes demonstrate interaction, not biological training truth.",
+      "audio": 233.0775,
+      "video": 233.080833,
+      "cues": [
+        "Here the boxes demonstrate interaction, not biological training truth."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 236.93250000000003,
+      "text": "Click Add class and enter a class name.",
+      "audio": 236.9325,
+      "video": 236.935888,
+      "cues": [
+        "Click Add class and enter a class name."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 239.39000000000004,
+      "text": "This example uses demonstration.",
+      "audio": 239.39,
+      "video": 239.393423,
+      "cues": [
+        "This example uses demonstration."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 244.68500000000003,
+      "text": "Select the intended class before drawing; keep class names and their numeric identifiers consistent across your training dataset.",
+      "audio": 244.685,
+      "video": 244.688499,
+      "cues": [
+        "Select the intended class before drawing; keep class names and their numeric identifiers consistent across your training dataset."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 250.30250000000004,
+      "text": "Drag across the image to draw a box.",
+      "audio": 250.3025,
+      "video": 250.306079,
+      "cues": [
+        "Drag across the image to draw a box."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 253.07500000000005,
+      "text": "The outline and class label show the new annotation.",
+      "audio": 253.075,
+      "video": 253.078619,
+      "cues": [
+        "The outline and class label show the new annotation."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 258.35,
+      "text": "For real training data, enclose the target object accurately; this practice rectangle is only a gesture example.",
+      "audio": 258.35,
+      "video": 258.353694,
+      "cues": [
+        "For real training data, enclose the target object accurately; this practice rectangle is only a gesture example."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 263.72249999999997,
+      "text": "Drag inside an existing box to move it.",
+      "audio": 263.722499,
+      "video": 263.726271,
+      "cues": [
+        "Drag inside an existing box to move it."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 266.685,
+      "text": "The box keeps its class while its image coordinates change.",
+      "audio": 266.685,
+      "video": 266.688812,
+      "cues": [
+        "The box keeps its class while its image coordinates change."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 269.53,
+      "text": "Inspect its position before saving.",
+      "audio": 269.53,
+      "video": 269.533854,
+      "cues": [
+        "Inspect its position before saving."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 272.28499999999997,
+      "text": "Drag a corner of the box to resize it.",
+      "audio": 272.284999,
+      "video": 272.288893,
+      "cues": [
+        "Drag a corner of the box to resize it."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 276.5925,
+      "text": "Place the edges around the intended object and check that the rectangle remains inside the image.",
+      "audio": 276.5925,
+      "video": 276.596455,
+      "cues": [
+        "Place the edges around the intended object and check that the rectangle remains inside the image."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 282.505,
+      "text": "Hold Control while dragging to draw another box inside an existing one.",
+      "audio": 282.505,
+      "video": 282.509039,
+      "cues": [
+        "Hold Control while dragging to draw another box inside an existing one."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 287.03,
+      "text": "This creates a separate annotation rather than moving the outer box.",
+      "audio": 287.03,
+      "video": 287.034104,
+      "cues": [
+        "This creates a separate annotation rather than moving the outer box."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 290.60999999999996,
+      "text": "Both boxes keep their own coordinates and class.",
+      "audio": 290.609999,
+      "video": 290.614155,
+      "cues": [
+        "Both boxes keep their own coordinates and class."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 293.45249999999993,
+      "text": "Right-click a box to delete it.",
+      "audio": 293.452499,
+      "video": 293.456696,
+      "cues": [
+        "Right-click a box to delete it."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 296.4624999999999,
+      "text": "Check which outline disappears, especially when boxes overlap.",
+      "audio": 296.462499,
+      "video": 296.466739,
+      "cues": [
+        "Check which outline disappears, especially when boxes overlap."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 300.6449999999999,
+      "text": "Removing a box does not erase pixels from the segmentation mask.",
+      "audio": 300.644999,
+      "video": 300.649299,
+      "cues": [
+        "Removing a box does not erase pixels from the segmentation mask."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 304.4624999999999,
+      "text": "Click Undo to restore the deleted box.",
+      "audio": 304.462499,
+      "video": 304.466853,
+      "cues": [
+        "Click Undo to restore the deleted box."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 307.0849999999999,
+      "text": "The two independent annotations return.",
+      "audio": 307.084999,
+      "video": 307.089391,
+      "cues": [
+        "The two independent annotations return."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 310.3599999999999,
+      "text": "Use history to recover a mistaken edit before saving.",
+      "audio": 310.359999,
+      "video": 310.364438,
+      "cues": [
+        "Use history to recover a mistaken edit before saving."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 313.76249999999993,
+      "text": "Redo applies the deletion again.",
+      "audio": 313.762499,
+      "video": 313.766986,
+      "cues": [
+        "Redo applies the deletion again."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 316.88749999999993,
+      "text": "Undo once more to keep both demonstration boxes for the export.",
+      "audio": 316.887499,
+      "video": 316.892031,
+      "cues": [
+        "Undo once more to keep both demonstration boxes for the export."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 320.7599999999999,
+      "text": "Review the final annotations before writing them to disk.",
+      "audio": 320.759999,
+      "video": 320.764586,
+      "cues": [
+        "Review the final annotations before writing them to disk."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 325.6049999999999,
+      "text": "Click Save boxes to store the annotations in the project file beside the images.",
+      "audio": 325.604999,
+      "video": 325.609656,
+      "cues": [
+        "Click Save boxes to store the annotations in the project file beside the images."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 330.10749999999985,
+      "text": "This saves box coordinates and classes separately from the mask.",
+      "audio": 330.107499,
+      "video": 330.11222,
+      "cues": [
+        "This saves box coordinates and classes separately from the mask."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 333.72249999999985,
+      "text": "Keep the project file with its corresponding source images.",
+      "audio": 333.722499,
+      "video": 333.727272,
+      "cues": [
+        "Keep the project file with its corresponding source images."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 337.8874999999999,
+      "text": "Click Export YOLO labels and choose the text-file destination.",
+      "audio": 337.887499,
+      "video": 337.892331,
+      "cues": [
+        "Click Export YOLO labels and choose the text-file destination."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 343.7874999999999,
+      "text": "Each row contains a class identifier and normalized center X, center Y, width and height relative to the full image.",
+      "audio": 343.787499,
+      "video": 343.792416,
+      "cues": [
+        "Each row contains a class identifier and normalized center X, center Y, width and height relative to the full image."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 349.52999999999986,
+      "text": "The class-name companion preserves the identifier mapping.",
+      "audio": 349.529999,
+      "video": 349.534998,
+      "cues": [
+        "The class-name companion preserves the identifier mapping."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 354.08749999999986,
+      "text": "A field with no annotated boxes exports an empty label file.",
+      "audio": 354.087499,
+      "video": 354.092563,
+      "cues": [
+        "A field with no annotated boxes exports an empty label file."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 359.0649999999998,
+      "text": "This second microscopy field illustrates that file format, not a biological negative.",
+      "audio": 359.064999,
+      "video": 359.070134,
+      "cues": [
+        "This second microscopy field illustrates that file format, not a biological negative."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 364.4499999999999,
+      "text": "Use negative training examples only after checking that no target objects are present.",
+      "audio": 364.449999,
+      "video": 364.455211,
+      "cues": [
+        "Use negative training examples only after checking that no target objects are present."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 368.4224999999999,
+      "text": "Return to the first image.",
+      "audio": 368.422499,
+      "video": 368.427768,
+      "cues": [
+        "Return to the first image."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 373.34249999999986,
+      "text": "The saved boxes reload with the same classes and coordinates, while the acquired image and segmentation mask remain unchanged.",
+      "audio": 373.342499,
+      "video": 373.347838,
+      "cues": [
+        "The saved boxes reload with the same classes and coordinates, while the acquired image and segmentation mask remain unchanged."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 379.6249999999999,
+      "text": "Keep the YOLO labels, class mapping and source images together for training.",
+      "audio": 379.624999,
+      "video": 379.630428,
+      "cues": [
+        "Keep the YOLO labels, class mapping and source images together for training."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 384.1899999999998,
+      "text": "The icons at the top right open the rest of the mask toolkit.",
+      "audio": 384.189999,
+      "video": 384.195494,
+      "cues": [
+        "The icons at the top right open the rest of the mask toolkit."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 390.9424999999999,
+      "text": "Cellpose Workbench trains a model on curated pairs and applies it to a folder, and the next icon runs detection on every field of the open folder.",
+      "audio": 390.942499,
+      "video": 390.94809,
+      "cues": [
+        "Cellpose Workbench trains a model on curated pairs and applies it to a folder, and the next icon runs detection on every field of the open folder."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 399.1324999999998,
+      "text": "Model Compare puts two sets of masks side by side and Model Zoo finds and tests weights.",
+      "audio": 399.132499,
+      "video": 399.138207,
+      "cues": [
+        "Model Compare puts two sets of masks side by side and Model Zoo finds and tests weights."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 404.59749999999985,
+      "text": "When more examples need fixing, Curate and Napari Bridge take you back into editing.",
+      "audio": 404.597499,
+      "video": 404.603285,
+      "cues": [
+        "When more examples need fixing, Curate and Napari Bridge take you back into editing."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 410.0899999999998,
+      "text": "Choose Recrop and drag a box around the objects you want in a smaller training field.",
+      "audio": 410.089999,
+      "video": 410.095864,
+      "cues": [
+        "Choose Recrop and drag a box around the objects you want in a smaller training field."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 413.9049999999998,
+      "text": "This writes a new image and matching mask.",
+      "audio": 413.904999,
+      "video": 413.910918,
+      "cues": [
+        "This writes a new image and matching mask."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 418.2449999999998,
+      "text": "Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop.",
+      "audio": 418.244999,
+      "video": 418.250981,
+      "cues": [
+        "Objects cut by the boundary are dropped, so leave space around complete objects and inspect the crop."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 423.3699999999998,
+      "text": "Click Next image in the toolbar to open the new crop.",
+      "audio": 423.369999,
+      "video": 423.376054,
+      "cues": [
+        "Click Next image in the toolbar to open the new crop."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 427.33749999999975,
+      "text": "The parent image and mask are retained in recropped_originals for recovery.",
+      "audio": 427.337499,
+      "video": 427.343611,
+      "cues": [
+        "The parent image and mask are retained in recropped_originals for recovery."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 431.76499999999976,
+      "text": "Review the crop and its labels before adding it to your training dataset.",
+      "audio": 431.764999,
+      "video": 431.771174,
+      "cues": [
+        "Review the crop and its labels before adding it to your training dataset."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 435.88499999999976,
+      "text": "Image enhancement ends with Deep image enhancement.",
+      "audio": 435.884999,
+      "video": 435.891233,
+      "cues": [
+        "Image enhancement ends with Deep image enhancement."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 441.25249999999977,
+      "text": "It restores the selected channel with a Cellpose 3 model in its own environment; the image on disk is never changed.",
+      "audio": 441.252499,
+      "video": 441.25881,
+      "cues": [
+        "It restores the selected channel with a Cellpose 3 model in its own environment; the image on disk is never changed."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 448.25999999999976,
+      "text": "Choose Denoise, Deblur or One-click restoration, then open Restoration model settings.",
+      "audio": 448.259999,
+      "video": 448.26641,
+      "cues": [
+        "Choose Denoise, Deblur or One-click restoration, then open Restoration model settings."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 453.72749999999974,
+      "text": "Pick weights for cells or nuclei and set the typical object diameter in pixels.",
+      "audio": 453.727499,
+      "video": 453.733988,
+      "cues": [
+        "Pick weights for cells or nuclei and set the typical object diameter in pixels."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 457.34749999999974,
+      "text": "Load the model.",
+      "audio": 457.347499,
+      "video": 457.35404,
+      "cues": [
+        "Load the model."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 461.07999999999976,
+      "text": "On the CPU a whole field takes tens of seconds; the original intensities are kept for measurements.",
+      "audio": 461.079999,
+      "video": 461.086593,
+      "cues": [
+        "On the CPU a whole field takes tens of seconds; the original intensities are kept for measurements."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 466.4899999999998,
+      "text": "Compare raw and enhanced shows both pictures side by side.",
+      "audio": 466.489999,
+      "video": 466.49667,
+      "cues": [
+        "Compare raw and enhanced shows both pictures side by side."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 471.57249999999976,
+      "text": "The restored picture is model output, not new structure: check it before trusting masks drawn on it.",
+      "audio": 471.572499,
+      "video": 471.579243,
+      "cues": [
+        "The restored picture is model output, not new structure: check it before trusting masks drawn on it."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 477.3249999999997,
+      "text": "Apply uses the restored picture for display and detection only.",
+      "audio": 477.324999,
+      "video": 477.331825,
+      "cues": [
+        "Apply uses the restored picture for display and detection only."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 480.83249999999975,
+      "text": "Measurements still read the original pixels.",
+      "audio": 480.832499,
+      "video": 480.839376,
+      "cues": [
+        "Measurements still read the original pixels."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 485.71749999999975,
+      "text": "To detect objects with a model, choose Cellpose in the Detection method category and review its settings.",
+      "audio": 485.717499,
+      "video": 485.724445,
+      "cues": [
+        "To detect objects with a model, choose Cellpose in the Detection method category and review its settings."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 492.7549999999997,
+      "text": "This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four.",
+      "audio": 492.754999,
+      "video": 492.762046,
+      "cues": [
+        "This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 498.85249999999974,
+      "text": "Check whether detections will replace existing labels or be added to them.",
+      "audio": 498.852499,
+      "video": 498.859633,
+      "cues": [
+        "Check whether detections will replace existing labels or be added to them."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 502.2874999999997,
+      "text": "Click Object detection.",
+      "audio": 502.287499,
+      "video": 502.294682,
+      "cues": [
+        "Click Object detection."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 505.64499999999975,
+      "text": "The model runs in the background, and the result replaces the labels when it arrives.",
+      "audio": 505.644999,
+      "video": 505.65223,
+      "cues": [
+        "The model runs in the background, and the result replaces the labels when it arrives."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 512.1149999999997,
+      "text": "Compare the new outlines with the image, and undo a result that does not follow the object boundaries before adjusting the settings.",
+      "audio": 512.114999,
+      "video": 512.122323,
+      "cues": [
+        "Compare the new outlines with the image, and undo a result that does not follow the object boundaries before adjusting the settings."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 518.3324999999996,
+      "text": "Open Cell probability to inspect the foreground score map.",
+      "audio": 518.332499,
+      "video": 518.339912,
+      "cues": [
+        "Open Cell probability to inspect the foreground score map."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 521.6049999999996,
+      "text": "Use it to see which regions the model supports.",
+      "audio": 521.604999,
+      "video": 521.612458,
+      "cues": [
+        "Use it to see which regions the model supports."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 525.8699999999997,
+      "text": "Change the foreground threshold when useful, then run detection again to produce a new result.",
+      "audio": 525.869999,
+      "video": 525.87752,
+      "cues": [
+        "Change the foreground threshold when useful, then run detection again to produce a new result."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 530.4849999999997,
+      "text": "Open Flows to inspect the directional view.",
+      "audio": 530.484999,
+      "video": 530.492585,
+      "cues": [
+        "Open Flows to inspect the directional view."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 536.1774999999996,
+      "text": "The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check.",
+      "audio": 536.177499,
+      "video": 536.185167,
+      "cues": [
+        "The flow-consistency threshold controls which detected objects are retained: lower values are stricter, and zero disables this check."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 542.0399999999995,
+      "text": "Compare the final masks after each setting change.",
+      "audio": 542.039999,
+      "video": 542.047751,
+      "cues": [
+        "Compare the final masks after each setting change."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 545.5449999999995,
+      "text": "Undo restores the labels from before the detection.",
+      "audio": 545.544999,
+      "video": 545.552801,
+      "cues": [
+        "Undo restores the labels from before the detection."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 550.2424999999995,
+      "text": "Keep the mask that best follows the image, and inspect each field's result before including it in training.",
+      "audio": 550.242499,
+      "video": 550.250368,
+      "cues": [
+        "Keep the mask that best follows the image, and inspect each field's result before including it in training."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 558.6824999999994,
+      "text": "To detect faint puncta inside cysts, open the original single-channel image and keep the cyst instance masks in a separate folder with matching filenames.",
+      "audio": 558.682499,
+      "video": 558.690489,
+      "cues": [
+        "To detect faint puncta inside cysts, open the original single-channel image and keep the cyst instance masks in a separate folder with matching filenames."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 566.1099999999994,
+      "text": "These punctum masks represent centre pixels, not complete object boundaries.",
+      "audio": 566.109999,
+      "video": 566.118095,
+      "cues": [
+        "These punctum masks represent centre pixels, not complete object boundaries."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 570.5549999999995,
+      "text": "Choose Centre-pixel puncta within parent masks.",
+      "audio": 570.554999,
+      "video": 570.563159,
+      "cues": [
+        "Choose Centre-pixel puncta within parent masks."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 575.5649999999995,
+      "text": "Set the primary class to cyst and the secondary class to punctum, choose the parent-mask folder and press Reload.",
+      "audio": 575.564999,
+      "video": 575.57323,
+      "cues": [
+        "Set the primary class to cyst and the secondary class to punctum, choose the parent-mask folder and press Reload."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 582.5049999999994,
+      "text": "Review spot scales, the noise threshold, centre pixels, corrected intensity, peak spacing and edge margin.",
+      "audio": 582.504999,
+      "video": 582.51333,
+      "cues": [
+        "Review spot scales, the noise threshold, centre pixels, corrected intensity, peak spacing and edge margin."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 589.3549999999996,
+      "text": "Choose replace in Object operations, then click Object detection to process the whole image.",
+      "audio": 589.354999,
+      "video": 589.363427,
+      "cues": [
+        "Choose replace in Object operations, then click Object detection to process the whole image."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 594.7824999999996,
+      "text": "This field yields 150 candidates and 46 included puncta.",
+      "audio": 594.782499,
+      "video": 594.791005,
+      "cues": [
+        "This field yields 150 candidates and 46 included puncta."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 600.6674999999996,
+      "text": "Detection uses original intensities; display normalization and enhancement do not alter this mode.",
+      "audio": 600.667499,
+      "video": 600.676089,
+      "cues": [
+        "Detection uses original intensities; display normalization and enhancement do not alter this mode."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 611.6574999999996,
+      "text": "Save mask writes the label TIFF and a puncta CSV beside it. center20 is the mean of twenty centre pixels; local_bg records local background and center_corrected subtracts it from the configured centre mean.",
+      "audio": 611.657499,
+      "video": 611.666246,
+      "cues": [
+        "Save mask writes the label TIFF and a puncta CSV beside it. center20 is the mean of twenty centre pixels; local_bg records local background and center_corrected subtracts it from the configured centre mean."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 622.4799999999996,
+      "text": "Inspect included and mask_pixels: shared pixels have one label owner, so a mask can contain fewer pixels.",
+      "audio": 622.479999,
+      "video": 622.488901,
+      "cues": [
+        "Inspect included and mask_pixels: shared pixels have one label owner, so a mask can contain fewer pixels."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 627.8399999999995,
+      "text": "Original images and parent masks remain unchanged.",
+      "audio": 627.839999,
+      "video": 627.848978,
+      "cues": [
+        "Original images and parent masks remain unchanged."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 632.8924999999995,
+      "text": "While you work through a folder, Keep and Discard record a verdict for each field and move on to the next.",
+      "audio": 632.892499,
+      "video": 632.90155,
+      "cues": [
+        "While you work through a folder, Keep and Discard record a verdict for each field and move on to the next."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 640.8149999999994,
+      "text": "Nothing is deleted: the verdict goes to keep_discard.csv in the folder's csv subfolder, with the image, its mask and its current object count.",
+      "audio": 640.814999,
+      "video": 640.824163,
+      "cues": [
+        "Nothing is deleted: the verdict goes to keep_discard.csv in the folder's csv subfolder, with the image, its mask and its current object count."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 647.8649999999994,
+      "text": "Discard marks a field you do not want in a training set.",
+      "audio": 647.864999,
+      "video": 647.874264,
+      "cues": [
+        "Discard marks a field you do not want in a training set."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 654.6649999999995,
+      "text": "Skip belongs to curation sessions started from the terminal with spacr-make-masks: it marks a field that cannot be curated, so the next session does not offer it again.",
+      "audio": 654.664999,
+      "video": 654.674361,
+      "cues": [
+        "Skip belongs to curation sessions started from the terminal with spacr-make-masks: it marks a field that cannot be curated, so the next session does not offer it again."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 661.9224999999994,
+      "text": "When your curated pairs could help others, click Upload data.",
+      "audio": 661.922499,
+      "video": 661.931965,
+      "cues": [
+        "When your curated pairs could help others, click Upload data."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 667.8799999999994,
+      "text": "Choose the field on screen, every curated image with its saved mask, or an images folder and a masks folder, then name the dataset.",
+      "audio": 667.879999,
+      "video": 667.88955,
+      "cues": [
+        "Choose the field on screen, every curated image with its saved mask, or an images folder and a masks folder, then name the dataset."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 673.6199999999994,
+      "text": "The link shows the Hugging Face dataset it will join.",
+      "audio": 673.619999,
+      "video": 673.629632,
+      "cues": [
+        "The link shows the Hugging Face dataset it will join."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 676.8624999999995,
+      "text": "Nothing is sent until you press Upload and agree to share.",
+      "audio": 676.862499,
+      "video": 676.872179,
+      "cues": [
+        "Nothing is sent until you press Upload and agree to share."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 680.7324999999994,
+      "text": "Microscopes often save images in nested folders.",
+      "audio": 680.732499,
+      "video": 680.742234,
+      "cues": [
+        "Microscopes often save images in nested folders."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 687.0974999999994,
+      "text": "When you open a folder whose images sit in subfolders, Make Masks offers to copy them into one new folder, each named after the folders it was in.",
+      "audio": 687.097499,
+      "video": 687.107325,
+      "cues": [
+        "When you open a folder whose images sit in subfolders, Make Masks offers to copy them into one new folder, each named after the folders it was in."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 693.6524999999995,
+      "text": "The originals are not touched, and No opens the folder as it is.",
+      "audio": 693.652499,
+      "video": 693.662419,
+      "cues": [
+        "The originals are not touched, and No opens the folder as it is."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 698.6024999999994,
+      "text": "The copies open in the editor, and a rename manifest records where each one came from.",
+      "audio": 698.602499,
+      "video": 698.61249,
+      "cues": [
+        "The copies open in the editor, and a rename manifest records where each one came from."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 703.6249999999993,
+      "text": "A field without a mask starts with an empty mask, ready for drawing or detection.",
+      "audio": 703.624999,
+      "video": 703.635062,
+      "cues": [
+        "A field without a mask starts with an empty mask, ready for drawing or detection."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 707.9224999999993,
+      "text": "To measure your fields, click Organize for Measure.",
+      "audio": 707.922499,
+      "video": 707.932623,
+      "cues": [
+        "To measure your fields, click Organize for Measure."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 711.9249999999993,
+      "text": "Measure reads each field as one merged array that holds every channel and its masks.",
+      "audio": 711.924999,
+      "video": 711.93518,
+      "cues": [
+        "Measure reads each field as one merged array that holds every channel and its masks."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 716.7199999999993,
+      "text": "Give a source folder here, or drop files and folders into the table below.",
+      "audio": 716.719999,
+      "video": 716.730249,
+      "cues": [
+        "Give a source folder here, or drop files and folders into the table below."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 724.3199999999993,
+      "text": "If Consolidate subfolders is on and a copy fails, the popup says how many files failed and where the manifest is, and stops without changing the source or the table.",
+      "audio": 724.319999,
+      "video": 724.330358,
+      "cues": [
+        "If Consolidate subfolders is on and a copy fails, the popup says how many files failed and where the manifest is, and stops without changing the source or the table."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 733.2799999999993,
+      "text": "Drop each channel folder into the table: every folder becomes a column, and every row is one field.",
+      "audio": 733.279999,
+      "video": 733.290486,
+      "cues": [
+        "Drop each channel folder into the table: every folder becomes a column, and every row is one field."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 739.7324999999994,
+      "text": "Add a mask column, set its role, here the cell masks of channel two, and drop the masks folder onto it.",
+      "audio": 739.732499,
+      "video": 739.743078,
+      "cues": [
+        "Add a mask column, set its role, here the cell masks of channel two, and drop the masks folder onto it."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 744.2549999999993,
+      "text": "Files are matched across the columns by name.",
+      "audio": 744.254999,
+      "video": 744.265643,
+      "cues": [
+        "Files are matched across the columns by name."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 748.8674999999994,
+      "text": "Detect sets matches the images by name, order and size, then shows three example sets.",
+      "audio": 748.867499,
+      "video": 748.878209,
+      "cues": [
+        "Detect sets matches the images by name, order and size, then shows three example sets."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 755.0999999999993,
+      "text": "Confirm them only when every set really belongs together; otherwise fix the regex or the columns first.",
+      "audio": 755.099999,
+      "video": 755.110798,
+      "cues": [
+        "Confirm them only when every set really belongs together; otherwise fix the regex or the columns first."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 763.6024999999993,
+      "text": "Set Show to Image plus text and Thumbnail quality to High to check the rows by eye; the quality changes only the display, never the masks or measurements.",
+      "audio": 763.602499,
+      "video": 763.613419,
+      "cues": [
+        "Set Show to Image plus text and Thumbnail quality to High to check the rows by eye; the quality changes only the display, never the masks or measurements."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 771.4749999999992,
+      "text": "A cell that nothing matched stays empty and is flagged, and Apply waits until every row is complete.",
+      "audio": 771.474999,
+      "video": 771.486032,
+      "cues": [
+        "A cell that nothing matched stays empty and is flagged, and Apply waits until every row is complete."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 775.5449999999993,
+      "text": "Click Apply.",
+      "audio": 775.544999,
+      "video": 775.55609,
+      "cues": [
+        "Click Apply."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 780.2199999999993,
+      "text": "The summary says what will happen: images and masks move into Yokogawa-named channel folders and are merged into merged.",
+      "audio": 780.219999,
+      "video": 780.231157,
+      "cues": [
+        "The summary says what will happen: images and masks move into Yokogawa-named channel folders and are merged into merged."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 786.5999999999992,
+      "text": "Files are moved, not copied, and every move is written to a manifest.",
+      "audio": 786.599999,
+      "video": 786.611248,
+      "cues": [
+        "Files are moved, not copied, and every move is written to a manifest."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 793.5274999999992,
+      "text": "When sorting finishes, Make Masks opens the first channel folder, and the console notes that the result is first in Measure's recent sources.",
+      "audio": 793.527499,
+      "video": 793.538847,
+      "cues": [
+        "When sorting finishes, Make Masks opens the first channel folder, and the console notes that the result is first in Measure's recent sources."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 799.8674999999992,
+      "text": "Open Measure and use it as the source to extract object features.",
+      "audio": 799.867499,
+      "video": 799.878938,
+      "cues": [
+        "Open Measure and use it as the source to extract object features."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 804.1074999999992,
+      "text": "Keep curated images and their same-stem masks together.",
+      "audio": 804.107499,
+      "video": 804.118999,
+      "cues": [
+        "Keep curated images and their same-stem masks together."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 809.2924999999991,
+      "text": "Use Cellpose Workbench to train on those pairs, or Organize for Measure and then Measure to extract measurements.",
+      "audio": 809.292499,
+      "video": 809.304073,
+      "cues": [
+        "Use Cellpose Workbench to train on those pairs, or Organize for Measure and then Measure to extract measurements."
+      ],
+      "seek_attempts": 1
+    },
+    {
+      "requested_audio_time": 814.0624999999991,
+      "text": "The related tutorials show each next step.",
+      "audio": 814.062499,
+      "video": 814.074141,
+      "cues": [
+        "The related tutorials show each next step."
+      ],
+      "seek_attempts": 1
+    }
+  ],
+  "passed": true
+}

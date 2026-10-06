@@ -1,0 +1,38 @@
+{
+  "lesson": "14_make_masks",
+  "scope": "fr/ff_siwis playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "a61344fa50aedeea24085f8285c59cba4f3a8e4b50d82fbc985fa1b8c12eac66",
+  "narration_language_scenes_match_staging": true,
+  "scene_count": 58,
+  "seek_playback_clocks": {
+    "audio": 78.173674,
+    "video": 77.242368,
+    "expectedVideo": 77.19581406993525,
+    "audioDuration": 869.14,
+    "videoDuration": 815.866667,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "298de947435690fa9b119b978a8325575a442863ddbe169651e4c2ad26bbc0e0",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "06_api",
+    "07_mask",
+    "08_measure",
+    "09_annotate",
+    "19_train_cellpose",
+    "20_cellpose_masks",
+    "21_model_compare",
+    "22_model_zoo",
+    "42_curate",
+    "46_napari_bridge"
+  ],
+  "passed": true
+}

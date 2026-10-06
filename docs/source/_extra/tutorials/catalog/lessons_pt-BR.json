@@ -2441,12 +2441,13 @@
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Abra pares de imagem e máscara, corrija objetos, registre vereditos, organize imagens e máscaras para Measure e crie recortes pareados para treinamento.",
+      "description": "Abra pares de imagem e máscara, corrija objetos, registre vereditos, organize imagens e máscaras para Measure e crie recortes pareados para treinamento. Desenhe, edite e exporte caixas YOLO separadas com suas classes sem alterar a imagem ou a máscara de segmentação.",
       "objectives": [
         "Abrir imagens com as máscaras de instâncias correspondentes e inspecionar objetos na lupa.",
         "Corrigir rótulos com Undo, desenho, divisão e filtros de objetos.",
         "Salvar máscaras revisadas, registrar vereditos Keep ou Discard e criar recortes de imagem e máscara para treinamento.",
-        "Organizar imagens e máscaras para Measure e compartilhar pares revisados com Upload data."
+        "Organizar imagens e máscaras para Measure e compartilhar pares revisados com Upload data.",
+        "Desenhar e editar caixas separadas com suas classes, salvar seu projeto e exportar rótulos YOLO normalizados."
       ],
       "prerequisite": "Prepare uma pasta de imagens bidimensionais com os TIFFs de rótulos de instância correspondentes em uma subpasta masks. Cada máscara usa o nome base do arquivo de imagem. Trabalhe em uma cópia ao praticar edições e recortes. O exemplo usa imagens de ER e máscaras de células do projeto de microscopia disponível para download em Measure.",
       "scenes": [
@@ -2557,6 +2558,156 @@
           "narration": "Depois de revisar as edições, clique em Save mask, na barra de ferramentas. Mantenha as imagens de origem junto com as máscaras salvas e o registro de revisão delas.",
           "hold_after": 0.7,
           "speech_text": "Depois de revisar as edições, clique em Save mask, na barra de ferramentas. Mantenha as imagens de origem junto com as máscaras salvas e o registro de revisão delas."
+        },
+        {
+          "visual": "yolo_04_box_controls",
+          "narration": "Escolha Box ao lado de Draw para anotar caixas delimitadoras YOLO separadas. Essas caixas têm classes e histórico próprios; não substituem a máscara de segmentação nem alteram a imagem adquirida. Aqui as caixas demonstram a interação, não uma referência biológica para treinamento.",
+          "hold_after": 0.7,
+          "focus": [
+            1060,
+            150,
+            820,
+            130
+          ],
+          "speech_text": "Escolha Box ao lado de Draw para anotar caixas delimitadoras YOLO separadas. Essas caixas têm classes e histórico próprios; não substituem a máscara de segmentação nem alteram a imagem adquirida. Aqui as caixas demonstram a interação, não uma referência biológica para treinamento."
+        },
+        {
+          "visual": "yolo_05_add_class",
+          "narration": "Clique em Add class e digite um nome de classe. Este exemplo usa demonstration. Selecione a classe desejada antes de desenhar; mantenha os nomes de classe e seus identificadores numéricos consistentes em todo o conjunto de treinamento.",
+          "hold_after": 0.7,
+          "focus": [
+            1786,
+            972,
+            248,
+            136
+          ],
+          "speech_text": "Clique em Add class e digite um nome de classe. Este exemplo usa demonstration. Selecione a classe desejada antes de desenhar; mantenha os nomes de classe e seus identificadores numéricos consistentes em todo o conjunto de treinamento."
+        },
+        {
+          "visual": "yolo_06_drawn_box",
+          "narration": "Arraste sobre a imagem para desenhar uma caixa. O contorno e o rótulo de classe mostram a nova anotação. Para dados reais de treinamento, delimite o objeto-alvo com precisão; este retângulo de prática apenas demonstra o gesto.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Arraste sobre a imagem para desenhar uma caixa. O contorno e o rótulo de classe mostram a nova anotação. Para dados reais de treinamento, delimite o objeto-alvo com precisão; este retângulo de prática apenas demonstra o gesto."
+        },
+        {
+          "visual": "yolo_07_moved_box",
+          "narration": "Arraste dentro de uma caixa existente para movê-la. A caixa mantém sua classe enquanto suas coordenadas na imagem mudam. Confira a posição antes de salvar.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Arraste dentro de uma caixa existente para movê-la. A caixa mantém sua classe enquanto suas coordenadas na imagem mudam. Confira a posição antes de salvar."
+        },
+        {
+          "visual": "yolo_08_resized_box",
+          "narration": "Arraste um canto da caixa para redimensioná-la. Posicione as bordas ao redor do objeto desejado e verifique se o retângulo permanece dentro da imagem.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Arraste um canto da caixa para redimensioná-la. Posicione as bordas ao redor do objeto desejado e verifique se o retângulo permanece dentro da imagem."
+        },
+        {
+          "visual": "yolo_09_contained_box",
+          "narration": "Segure Control enquanto arrasta para desenhar outra caixa dentro de uma existente. Isso cria uma anotação separada em vez de mover a caixa externa. As duas caixas mantêm suas próprias coordenadas e classe.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Segure Control enquanto arrasta para desenhar outra caixa dentro de uma existente. Isso cria uma anotação separada em vez de mover a caixa externa. As duas caixas mantêm suas próprias coordenadas e classe."
+        },
+        {
+          "visual": "yolo_10_deleted_box",
+          "narration": "Clique com o botão direito em uma caixa para excluí-la. Confira qual contorno desaparece, principalmente quando as caixas se sobrepõem. Remover uma caixa não apaga pixels da máscara de segmentação.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Clique com o botão direito em uma caixa para excluí-la. Confira qual contorno desaparece, principalmente quando as caixas se sobrepõem. Remover uma caixa não apaga pixels da máscara de segmentação."
+        },
+        {
+          "visual": "yolo_11_undo_boxes",
+          "narration": "Clique em Undo para restaurar a caixa excluída. As duas anotações independentes retornam. Use o histórico para recuperar uma edição acidental antes de salvar.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Clique em Undo para restaurar a caixa excluída. As duas anotações independentes retornam. Use o histórico para recuperar uma edição acidental antes de salvar."
+        },
+        {
+          "visual": "yolo_12_redo_boxes",
+          "narration": "Redo aplica a exclusão novamente. Desfaça mais uma vez para manter as duas caixas de demonstração na exportação. Revise as anotações finais antes de gravá-las no disco.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Redo aplica a exclusão novamente. Desfaça mais uma vez para manter as duas caixas de demonstração na exportação. Revise as anotações finais antes de gravá-las no disco."
+        },
+        {
+          "visual": "yolo_13_saved_boxes",
+          "narration": "Clique em Save boxes para armazenar as anotações no arquivo de projeto ao lado das imagens. As coordenadas e classes das caixas são salvas separadamente da máscara. Mantenha o arquivo de projeto com as imagens originais correspondentes.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Clique em Save boxes para armazenar as anotações no arquivo de projeto ao lado das imagens. As coordenadas e classes das caixas são salvas separadamente da máscara. Mantenha o arquivo de projeto com as imagens originais correspondentes."
+        },
+        {
+          "visual": "yolo_14_export_picker",
+          "narration": "Clique em Export YOLO labels e escolha o destino do arquivo de texto. Cada linha contém um identificador de classe e valores normalizados de centro X, centro Y, largura e altura em relação à imagem inteira. O arquivo complementar de nomes de classe preserva a correspondência dos identificadores.",
+          "hold_after": 0.7,
+          "focus": [
+            1389,
+            812,
+            1300,
+            950
+          ],
+          "speech_text": "Clique em Export YOLO labels e escolha o destino do arquivo de texto. Cada linha contém um identificador de classe e valores normalizados de centro X, centro Y, largura e altura em relação à imagem inteira. O arquivo complementar de nomes de classe preserva a correspondência dos identificadores."
+        },
+        {
+          "visual": "yolo_17_negative_exported",
+          "narration": "Um campo sem caixas anotadas exporta um arquivo de rótulos vazio. Este segundo campo de microscopia ilustra esse formato de arquivo, não um negativo biológico. Use exemplos negativos de treinamento somente após verificar que não há objetos-alvo.",
+          "hold_after": 0.7,
+          "speech_text": "Um campo sem caixas anotadas exporta um arquivo de rótulos vazio. Este segundo campo de microscopia ilustra esse formato de arquivo, não um negativo biológico. Use exemplos negativos de treinamento somente após verificar que não há objetos-alvo."
+        },
+        {
+          "visual": "yolo_18_reloaded_boxes",
+          "narration": "Retorne à primeira imagem. As caixas salvas são recarregadas com as mesmas classes e coordenadas, enquanto a imagem adquirida e a máscara de segmentação permanecem inalteradas. Mantenha os rótulos YOLO, o mapeamento de classes e as imagens originais juntos para o treinamento.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Retorne à primeira imagem. As caixas salvas são recarregadas com as mesmas classes e coordenadas, enquanto a imagem adquirida e a máscara de segmentação permanecem inalteradas. Mantenha os rótulos YOLO, o mapeamento de classes e as imagens originais juntos para o treinamento."
         },
         {
           "visual": "09_fold_train_cellpose",
@@ -2766,7 +2917,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

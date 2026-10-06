@@ -2253,12 +2253,13 @@
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Åpne bilde- og maskepar, rett objekter, registrer vurderinger, organiser bilder og masker for Measure og lag parede treningsutsnitt.",
+      "description": "Åpne bilde- og maskepar, rett objekter, registrer vurderinger, organiser bilder og masker for Measure og lag parede treningsutsnitt. Tegn, rediger og eksporter separate YOLO-bokser med klasser uten å endre bildet eller segmenteringsmasken.",
       "objectives": [
         "Åpne bilder med tilhørende instansmasker og undersøke objekter i forstørrelsesglasset.",
         "Rette merkelapper med Undo, tegning, deling og objektfiltre.",
         "Lagre kuraterte masker, registrere Keep- eller Discard-vurderinger og lage bilde- og maskeutsnitt for trening.",
-        "Organisere bilder og masker for Measure og dele kuraterte par med Upload data."
+        "Organisere bilder og masker for Measure og dele kuraterte par med Upload data.",
+        "Tegn og rediger separate bokser med klasser, lagre prosjektet og eksporter normaliserte YOLO-etiketter."
       ],
       "prerequisite": "Klargjør en mappe med todimensjonale bilder og tilhørende TIFF-filer med instansmerkelapper i en undermappe kalt masks. Hver maske bruker filnavnstammen til bildet. Arbeid på en kopi når du øver på redigering og ny beskjæring. Eksemplet bruker ER-bilder og cellemasker fra det nedlastbare mikroskopiprosjektet i Measure.",
       "scenes": [
@@ -2354,6 +2355,143 @@
           "visual": "11_saved_restored_mask",
           "narration": "Når du har gått gjennom endringene, klikker du på Save mask i verktøylinjen. Behold kildebildene sammen med de lagrede maskene og kurasjonsposten deres.",
           "hold_after": 0.7
+        },
+        {
+          "visual": "yolo_04_box_controls",
+          "narration": "Velg Box ved siden av Draw for å annotere separate YOLO-avgrensningsbokser. Boksene har egne klasser og egen historikk; de erstatter ikke segmenteringsmasken og endrer ikke det innsamlede bildet. Her demonstrerer boksene betjeningen og er ikke en biologisk treningsfasit.",
+          "hold_after": 0.7,
+          "focus": [
+            1060,
+            150,
+            820,
+            130
+          ]
+        },
+        {
+          "visual": "yolo_05_add_class",
+          "narration": "Klikk på Add class og skriv inn et klassenavn. Dette eksemplet bruker demonstration. Velg den tiltenkte klassen før du tegner; hold klassenavn og numeriske identifikatorer konsistente i hele treningsdatasettet.",
+          "hold_after": 0.7,
+          "focus": [
+            1786,
+            972,
+            248,
+            136
+          ]
+        },
+        {
+          "visual": "yolo_06_drawn_box",
+          "narration": "Dra over bildet for å tegne en boks. Omrisset og klasseetiketten viser den nye annoteringen. For virkelige treningsdata skal målobjektet avgrenses nøyaktig; dette øvelsesrektangelet viser bare bevegelsen.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_07_moved_box",
+          "narration": "Dra inne i en eksisterende boks for å flytte den. Boksen beholder klassen mens bildekoordinatene endres. Kontroller plasseringen før du lagrer.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_08_resized_box",
+          "narration": "Dra et hjørne av boksen for å endre størrelsen. Plasser kantene rundt det tiltenkte objektet og kontroller at rektangelet holder seg innenfor bildet.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_09_contained_box",
+          "narration": "Hold Control mens du drar for å tegne en ny boks inne i en eksisterende. Dette oppretter en separat annotering i stedet for å flytte den ytre boksen. Begge boksene beholder egne koordinater og egen klasse.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_10_deleted_box",
+          "narration": "Høyreklikk på en boks for å slette den. Kontroller hvilket omriss som forsvinner, særlig når boksene overlapper. Å fjerne en boks sletter ingen piksler fra segmenteringsmasken.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_11_undo_boxes",
+          "narration": "Klikk på Undo for å gjenopprette den slettede boksen. De to uavhengige annoteringene kommer tilbake. Bruk historikken til å rette en feilaktig redigering før du lagrer.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_12_redo_boxes",
+          "narration": "Redo utfører slettingen på nytt. Angre én gang til for å beholde begge demonstrasjonsboksene til eksporten. Gå gjennom de endelige annoteringene før du skriver dem til disk.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_13_saved_boxes",
+          "narration": "Klikk på Save boxes for å lagre annoteringene i prosjektfilen ved siden av bildene. Bokskoordinater og klasser lagres separat fra masken. Oppbevar prosjektfilen sammen med de tilhørende kildebildene.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_14_export_picker",
+          "narration": "Klikk på Export YOLO labels og velg hvor tekstfilen skal lagres. Hver rad inneholder en klasseidentifikator og normaliserte verdier for sentrum X, sentrum Y, bredde og høyde i forhold til hele bildet. Den tilhørende filen med klassenavn bevarer koblingen mellom identifikatorer og navn.",
+          "hold_after": 0.7,
+          "focus": [
+            1389,
+            812,
+            1300,
+            950
+          ]
+        },
+        {
+          "visual": "yolo_17_negative_exported",
+          "narration": "Et bildefelt uten annoterte bokser eksporterer en tom etikettfil. Dette andre mikroskopifeltet illustrerer filformatet og er ikke et biologisk negativt eksempel. Bruk negative treningseksempler bare etter å ha kontrollert at ingen målobjekter finnes.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "yolo_18_reloaded_boxes",
+          "narration": "Gå tilbake til det første bildet. De lagrede boksene lastes inn med de samme klassene og koordinatene, mens det innsamlede bildet og segmenteringsmasken er uendret. Oppbevar YOLO-etiketter, klassekobling og kildebilder samlet til trening.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
         },
         {
           "visual": "09_fold_train_cellpose",
@@ -2533,7 +2671,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

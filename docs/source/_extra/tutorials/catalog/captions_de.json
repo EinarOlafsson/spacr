@@ -2253,12 +2253,13 @@
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Öffnen Sie Bild-Masken-Paare, korrigieren Sie Objekte, halten Sie Urteile fest, organisieren Sie Bilder und Masken für Measure und erstellen Sie gepaarte Trainingsausschnitte.",
+      "description": "Öffnen Sie Bild-Masken-Paare, korrigieren Sie Objekte, halten Sie Urteile fest, organisieren Sie Bilder und Masken für Measure und erstellen Sie gepaarte Trainingsausschnitte. Separate YOLO-Boxen mit Klassenbezeichnungen zeichnen, bearbeiten und exportieren, ohne das Bild oder die Segmentierungsmaske zu verändern.",
       "objectives": [
         "Bilder mit passenden Instanzmasken öffnen und Objekte in der Lupe prüfen.",
         "Labels mit Undo, Zeichnen, Teilen und Objektfiltern korrigieren.",
         "Kuratierte Masken speichern, Keep- oder Discard-Urteile festhalten und Bild-Masken-Ausschnitte für das Training erstellen.",
-        "Bilder und Masken für Measure organisieren und kuratierte Paare mit Upload data teilen."
+        "Bilder und Masken für Measure organisieren und kuratierte Paare mit Upload data teilen.",
+        "Separate Boxen mit Klassenbezeichnungen zeichnen und bearbeiten, ihr Projekt speichern und normalisierte YOLO-Labels exportieren."
       ],
       "prerequisite": "Bereiten Sie einen Ordner mit zweidimensionalen Bildern und passenden Instanz-Label-TIFFs in einem Unterordner masks vor. Jede Maske trägt den Dateinamenstamm des Bildes. Arbeiten Sie beim Üben von Bearbeitungen und Neuzuschnitten mit einer Kopie. Das Beispiel verwendet ER-Bilder und Zellmasken aus dem herunterladbaren Mikroskopieprojekt von Measure.",
       "scenes": [
@@ -2354,6 +2355,143 @@
           "visual": "11_saved_restored_mask",
           "narration": "Klicken Sie nach dem Prüfen der Änderungen in der Werkzeugleiste auf Save mask. Bewahren Sie die Quellbilder zusammen mit den gespeicherten Masken und ihrem Kurationsprotokoll auf.",
           "hold_after": 0.7
+        },
+        {
+          "visual": "yolo_04_box_controls",
+          "narration": "Wählen Sie Box neben Draw, um separate YOLO-Begrenzungsrahmen zu annotieren. Diese Boxen haben eigene Klassen und einen eigenen Verlauf; sie ersetzen weder die Segmentierungsmaske noch verändern sie das aufgenommene Bild. Hier dienen die Boxen als Bedienungsbeispiele, nicht als biologische Trainingsreferenz.",
+          "hold_after": 0.7,
+          "focus": [
+            1060,
+            150,
+            820,
+            130
+          ]
+        },
+        {
+          "visual": "yolo_05_add_class",
+          "narration": "Klicken Sie auf Add class und geben Sie einen Klassennamen ein. Dieses Beispiel verwendet demonstration. Wählen Sie vor dem Zeichnen die gewünschte Klasse; halten Sie Klassennamen und numerische Kennungen im gesamten Trainingsdatensatz konsistent.",
+          "hold_after": 0.7,
+          "focus": [
+            1786,
+            972,
+            248,
+            136
+          ]
+        },
+        {
+          "visual": "yolo_06_drawn_box",
+          "narration": "Ziehen Sie über das Bild, um eine Box zu zeichnen. Umriss und Klassenbezeichnung zeigen die neue Annotation. Für echte Trainingsdaten umschließen Sie das Zielobjekt genau; dieses Übungsrechteck demonstriert nur die Geste.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_07_moved_box",
+          "narration": "Ziehen Sie innerhalb einer vorhandenen Box, um sie zu verschieben. Die Box behält ihre Klasse, während sich ihre Bildkoordinaten ändern. Prüfen Sie die Position vor dem Speichern.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_08_resized_box",
+          "narration": "Ziehen Sie eine Ecke der Box, um ihre Größe zu ändern. Legen Sie die Ränder um das gewünschte Objekt und prüfen Sie, dass das Rechteck innerhalb des Bildes bleibt.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_09_contained_box",
+          "narration": "Halten Sie Control beim Ziehen gedrückt, um eine weitere Box innerhalb einer vorhandenen zu zeichnen. Dadurch entsteht eine separate Annotation, statt die äußere Box zu verschieben. Beide Boxen behalten eigene Koordinaten und Klassen.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_10_deleted_box",
+          "narration": "Klicken Sie mit der rechten Maustaste auf eine Box, um sie zu löschen. Prüfen Sie, welcher Umriss verschwindet, besonders bei überlappenden Boxen. Das Entfernen einer Box löscht keine Pixel aus der Segmentierungsmaske.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_11_undo_boxes",
+          "narration": "Klicken Sie auf Undo, um die gelöschte Box wiederherzustellen. Die beiden unabhängigen Annotationen kehren zurück. Nutzen Sie den Verlauf, um eine versehentliche Bearbeitung vor dem Speichern rückgängig zu machen.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_12_redo_boxes",
+          "narration": "Redo führt die Löschung erneut aus. Machen Sie sie noch einmal rückgängig, um beide Beispielboxen für den Export zu behalten. Prüfen Sie die endgültigen Annotationen, bevor Sie sie auf die Festplatte schreiben.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_13_saved_boxes",
+          "narration": "Klicken Sie auf Save boxes, um die Annotationen in der Projektdatei neben den Bildern zu speichern. Boxkoordinaten und Klassen werden getrennt von der Maske gespeichert. Bewahren Sie die Projektdatei zusammen mit den zugehörigen Quellbildern auf.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_14_export_picker",
+          "narration": "Klicken Sie auf Export YOLO labels und wählen Sie das Ziel für die Textdatei. Jede Zeile enthält eine Klassenkennung und normalisierte Werte für Mittelpunkt X, Mittelpunkt Y, Breite und Höhe relativ zum gesamten Bild. Die zugehörige Klassennamendatei bewahrt die Kennungszuordnung.",
+          "hold_after": 0.7,
+          "focus": [
+            1389,
+            812,
+            1300,
+            950
+          ]
+        },
+        {
+          "visual": "yolo_17_negative_exported",
+          "narration": "Ein Bildfeld ohne annotierte Boxen exportiert eine leere Labeldatei. Dieses zweite Mikroskopiebild zeigt das Dateiformat und ist kein biologisches Negativbeispiel. Verwenden Sie negative Trainingsbeispiele erst, nachdem Sie geprüft haben, dass keine Zielobjekte vorhanden sind.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "yolo_18_reloaded_boxes",
+          "narration": "Kehren Sie zum ersten Bild zurück. Die gespeicherten Boxen werden mit denselben Klassen und Koordinaten geladen, während aufgenommenes Bild und Segmentierungsmaske unverändert bleiben. Bewahren Sie YOLO-Labels, Klassenzuordnung und Quellbilder für das Training zusammen auf.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
         },
         {
           "visual": "09_fold_train_cellpose",
@@ -2533,7 +2671,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

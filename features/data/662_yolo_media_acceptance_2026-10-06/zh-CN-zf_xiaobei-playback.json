@@ -1,0 +1,38 @@
+{
+  "lesson": "14_make_masks",
+  "scope": "zh-CN/zf_xiaobei playback and scene links only",
+  "uploaded": false,
+  "translation_or_listening_review": false,
+  "repository_player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+  "navigation_contains_staged_lesson": true,
+  "example_files": [],
+  "loaded_audio_sha256": "df0c50bad4bb7cad9e0bda29b46358be148ad7fe4e2256459e4c1243bae56a9f",
+  "narration_language_scenes_match_staging": true,
+  "scene_count": 58,
+  "seek_playback_clocks": {
+    "audio": 75.336599,
+    "video": 77.268643,
+    "expectedVideo": 77.21319258395576,
+    "audioDuration": 853.3,
+    "videoDuration": 815.866667,
+    "mediaError": null
+  },
+  "checked_web_rendition": {
+    "sha256": "298de947435690fa9b119b978a8325575a442863ddbe169651e4c2ad26bbc0e0",
+    "width": 2560,
+    "height": 1440
+  },
+  "chapter_and_transcript_links": [
+    "06_api",
+    "07_mask",
+    "08_measure",
+    "09_annotate",
+    "19_train_cellpose",
+    "20_cellpose_masks",
+    "21_model_compare",
+    "22_model_zoo",
+    "42_curate",
+    "46_napari_bridge"
+  ],
+  "passed": true
+}

@@ -2253,12 +2253,13 @@
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Opnaðu pör af myndum og grímum, leiðréttu hluti, skráðu úrskurði, skipulegðu myndir og grímur fyrir Measure og búðu til pöruð þjálfunarúrklipp.",
+      "description": "Opnaðu pör af myndum og grímum, leiðréttu hluti, skráðu úrskurði, skipulegðu myndir og grímur fyrir Measure og búðu til pöruð þjálfunarúrklipp. Teiknaðu, breyttu og fluttu út aðskilda YOLO-ramma með flokkum án þess að breyta myndinni eða hlutunarmaskannum.",
       "objectives": [
         "Opna myndir með samsvarandi tilvikagrímum og skoða hluti í stækkunarglerinu.",
         "Leiðrétta merkingar með Undo, teikningu, skiptingu og hlutasíum.",
         "Vista yfirfarnar grímur, skrá Keep- eða Discard-úrskurði og búa til úrklipp af myndum og grímum til þjálfunar.",
-        "Skipuleggja myndir og grímur fyrir Measure og deila yfirförnum pörum með Upload data."
+        "Skipuleggja myndir og grímur fyrir Measure og deila yfirförnum pörum með Upload data.",
+        "Teikna og breyta aðskildum römmum með flokkum, vista verkefni þeirra og flytja út staðlaðar YOLO-merkingar."
       ],
       "prerequisite": "Útbúðu möppu með tvívíðum myndum og samsvarandi TIFF-skrám með tilvikamerkingum í undirmöppu sem heitir masks. Hver gríma notar sama nafnstofn og myndskráin. Vinndu í afriti þegar þú æfir breytingar og nýja skurði. Dæmið notar ER-myndir og frumugrímur úr niðurhalanlegu smásjárverkefni Measure.",
       "scenes": [
@@ -2354,6 +2355,143 @@
           "visual": "11_saved_restored_mask",
           "narration": "Þegar þú hefur farið yfir breytingarnar smellirðu á Save mask á tækjastikunni. Geymdu upprunamyndirnar með vistuðu grímunum og yfirferðarskrá þeirra.",
           "hold_after": 0.7
+        },
+        {
+          "visual": "yolo_04_box_controls",
+          "narration": "Veldu Box við hlið Draw til að merkja aðskilda YOLO-afmörkunarramma. Rammarnir hafa eigin flokka og feril; þeir koma ekki í stað hlutunarmaskans og breyta ekki upprunalegu myndinni. Hér sýna rammarnir notkunina, ekki líffræðilegt þjálfunarviðmið.",
+          "hold_after": 0.7,
+          "focus": [
+            1060,
+            150,
+            820,
+            130
+          ]
+        },
+        {
+          "visual": "yolo_05_add_class",
+          "narration": "Smelltu á Add class og sláðu inn flokksheiti. Þetta dæmi notar demonstration. Veldu réttan flokk áður en þú teiknar; hafðu flokksheiti og töluleg auðkenni þeirra samræmd í öllu þjálfunargagnasafninu.",
+          "hold_after": 0.7,
+          "focus": [
+            1786,
+            972,
+            248,
+            136
+          ]
+        },
+        {
+          "visual": "yolo_06_drawn_box",
+          "narration": "Dragðu yfir myndina til að teikna ramma. Útlínan og flokksheitið sýna nýju merkinguna. Fyrir raunveruleg þjálfunargögn skaltu afmarka markhlutinn nákvæmlega; þessi æfingarétthyrningur sýnir aðeins hreyfinguna.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_07_moved_box",
+          "narration": "Dragðu innan fyrirliggjandi ramma til að færa hann. Ramminn heldur flokki sínum en myndhnitin breytast. Skoðaðu staðsetninguna áður en þú vistar.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_08_resized_box",
+          "narration": "Dragðu horn rammans til að breyta stærð hans. Settu brúnirnar utan um tilætlaðan hlut og athugaðu að rétthyrningurinn haldist innan myndarinnar.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_09_contained_box",
+          "narration": "Haltu Control niðri meðan þú dregur til að teikna annan ramma innan fyrirliggjandi ramma. Þá verður til aðskilin merking í stað þess að ytri ramminn færist. Báðir rammar halda eigin hnitum og flokki.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_10_deleted_box",
+          "narration": "Hægrismelltu á ramma til að eyða honum. Athugaðu hvaða útlína hverfur, einkum þegar rammar skarast. Að fjarlægja ramma eyðir ekki pixlum úr hlutunarmaskanum.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_11_undo_boxes",
+          "narration": "Smelltu á Undo til að endurheimta eydda rammann. Báðar sjálfstæðu merkingarnar birtast aftur. Notaðu ferilinn til að afturkalla ranga breytingu áður en þú vistar.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_12_redo_boxes",
+          "narration": "Redo framkvæmir eyðinguna aftur. Afturkallaðu enn einu sinni til að halda báðum sýnirömmunum fyrir útflutninginn. Skoðaðu endanlegar merkingar áður en þú skrifar þær á disk.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_13_saved_boxes",
+          "narration": "Smelltu á Save boxes til að geyma merkingarnar í verkefnisskránni við hlið myndanna. Hnit og flokkar rammanna eru vistuð aðskilin frá maskanum. Geymdu verkefnisskrána með samsvarandi upprunamyndum.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_14_export_picker",
+          "narration": "Smelltu á Export YOLO labels og veldu áfangastað textaskrárinnar. Hver lína inniheldur flokksauðkenni og stöðluð gildi fyrir miðju X, miðju Y, breidd og hæð miðað við alla myndina. Fylgiskrá flokksheita varðveitir vörpun auðkennanna.",
+          "hold_after": 0.7,
+          "focus": [
+            1389,
+            812,
+            1300,
+            950
+          ]
+        },
+        {
+          "visual": "yolo_17_negative_exported",
+          "narration": "Myndsvið án merktra ramma flytur út tóma merkingaskrá. Þetta annað smásjármyndsvið sýnir skráarsniðið, ekki líffræðilegt neikvætt dæmi. Notaðu neikvæð þjálfunardæmi aðeins eftir að hafa athugað að engir markhlutir séu til staðar.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "yolo_18_reloaded_boxes",
+          "narration": "Farðu aftur í fyrstu myndina. Vistaðir rammar hlaðast með sömu flokkum og hnitum, en upprunalega myndin og hlutunarmaskinn eru óbreytt. Geymdu YOLO-merkingar, flokksvörpun og upprunamyndir saman fyrir þjálfun.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
         },
         {
           "visual": "09_fold_train_cellpose",
@@ -2533,7 +2671,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

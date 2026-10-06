@@ -2441,12 +2441,13 @@
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Apri coppie immagine-maschera, correggi gli oggetti, registra i verdetti, organizza immagini e maschere per Measure e crea ritagli appaiati per l’addestramento.",
+      "description": "Apri coppie immagine-maschera, correggi gli oggetti, registra i verdetti, organizza immagini e maschere per Measure e crea ritagli appaiati per l’addestramento. Disegna, modifica ed esporta riquadri YOLO separati con le relative classi senza cambiare l’immagine o la maschera di segmentazione.",
       "objectives": [
         "Aprire immagini con le relative maschere di istanza ed esaminare gli oggetti con la lente.",
         "Correggere le etichette con Undo, disegno, divisione e filtri sugli oggetti.",
         "Salvare le maschere revisionate, registrare i verdetti Keep o Discard e creare ritagli immagine-maschera per l’addestramento.",
-        "Organizzare immagini e maschere per Measure e condividere coppie revisionate con Upload data."
+        "Organizzare immagini e maschere per Measure e condividere coppie revisionate con Upload data.",
+        "Disegnare e modificare riquadri separati con le relative classi, salvare il progetto ed esportare etichette YOLO normalizzate."
       ],
       "prerequisite": "Prepara una cartella di immagini bidimensionali con i TIFF di etichette di istanza corrispondenti in una sottocartella masks. Ogni maschera usa il nome base del file immagine. Lavora su una copia quando ti eserciti con modifiche e ritagli. L’esempio usa immagini di ER e maschere cellulari dal progetto di microscopia scaricabile di Measure.",
       "scenes": [
@@ -2557,6 +2558,156 @@
           "narration": "Dopo aver rivisto le modifiche, fai clic su Save mask nella barra degli strumenti. Conserva le immagini di origine insieme alle maschere salvate e al loro registro di revisione.",
           "hold_after": 0.7,
           "speech_text": "Dopo aver rivisto le modifiche, fai clic su Save mask nella barra degli strumenti. Conserva le immagini di origine insieme alle maschere salvate e al loro registro di revisione."
+        },
+        {
+          "visual": "yolo_04_box_controls",
+          "narration": "Scegli Box accanto a Draw per annotare riquadri di delimitazione YOLO separati. Questi riquadri hanno classi e cronologia proprie; non sostituiscono la maschera di segmentazione né cambiano l’immagine acquisita. Qui i riquadri illustrano l’interazione, non costituiscono un riferimento biologico per l’addestramento.",
+          "hold_after": 0.7,
+          "focus": [
+            1060,
+            150,
+            820,
+            130
+          ],
+          "speech_text": "Scegli Box accanto a Draw per annotare riquadri di delimitazione YOLO separati. Questi riquadri hanno classi e cronologia proprie; non sostituiscono la maschera di segmentazione né cambiano l’immagine acquisita. Qui i riquadri illustrano l’interazione, non costituiscono un riferimento biologico per l’addestramento."
+        },
+        {
+          "visual": "yolo_05_add_class",
+          "narration": "Fai clic su Add class e inserisci un nome di classe. Questo esempio usa demonstration. Seleziona la classe desiderata prima di disegnare; mantieni coerenti nomi di classe e identificatori numerici nell’intero dataset di addestramento.",
+          "hold_after": 0.7,
+          "focus": [
+            1786,
+            972,
+            248,
+            136
+          ],
+          "speech_text": "Fai clic su Add class e inserisci un nome di classe. Questo esempio usa demonstration. Seleziona la classe desiderata prima di disegnare; mantieni coerenti nomi di classe e identificatori numerici nell’intero dataset di addestramento."
+        },
+        {
+          "visual": "yolo_06_drawn_box",
+          "narration": "Trascina sull’immagine per disegnare un riquadro. Il contorno e l’etichetta della classe mostrano la nuova annotazione. Per dati reali di addestramento, racchiudi accuratamente l’oggetto bersaglio; questo rettangolo di prova illustra solo il gesto.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Trascina sull’immagine per disegnare un riquadro. Il contorno e l’etichetta della classe mostrano la nuova annotazione. Per dati reali di addestramento, racchiudi accuratamente l’oggetto bersaglio; questo rettangolo di prova illustra solo il gesto."
+        },
+        {
+          "visual": "yolo_07_moved_box",
+          "narration": "Trascina all’interno di un riquadro esistente per spostarlo. Il riquadro mantiene la classe mentre cambiano le sue coordinate nell’immagine. Controlla la posizione prima di salvare.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Trascina all’interno di un riquadro esistente per spostarlo. Il riquadro mantiene la classe mentre cambiano le sue coordinate nell’immagine. Controlla la posizione prima di salvare."
+        },
+        {
+          "visual": "yolo_08_resized_box",
+          "narration": "Trascina un angolo del riquadro per ridimensionarlo. Posiziona i bordi attorno all’oggetto desiderato e verifica che il rettangolo rimanga dentro l’immagine.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Trascina un angolo del riquadro per ridimensionarlo. Posiziona i bordi attorno all’oggetto desiderato e verifica che il rettangolo rimanga dentro l’immagine."
+        },
+        {
+          "visual": "yolo_09_contained_box",
+          "narration": "Tieni premuto Control mentre trascini per disegnare un altro riquadro dentro uno esistente. Questo crea un’annotazione separata invece di spostare il riquadro esterno. Entrambi mantengono coordinate e classe proprie.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Tieni premuto Control mentre trascini per disegnare un altro riquadro dentro uno esistente. Questo crea un’annotazione separata invece di spostare il riquadro esterno. Entrambi mantengono coordinate e classe proprie."
+        },
+        {
+          "visual": "yolo_10_deleted_box",
+          "narration": "Fai clic con il pulsante destro su un riquadro per eliminarlo. Controlla quale contorno scompare, soprattutto quando i riquadri si sovrappongono. Rimuovere un riquadro non cancella pixel dalla maschera di segmentazione.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Fai clic con il pulsante destro su un riquadro per eliminarlo. Controlla quale contorno scompare, soprattutto quando i riquadri si sovrappongono. Rimuovere un riquadro non cancella pixel dalla maschera di segmentazione."
+        },
+        {
+          "visual": "yolo_11_undo_boxes",
+          "narration": "Fai clic su Undo per ripristinare il riquadro eliminato. Tornano le due annotazioni indipendenti. Usa la cronologia per correggere una modifica accidentale prima di salvare.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Fai clic su Undo per ripristinare il riquadro eliminato. Tornano le due annotazioni indipendenti. Usa la cronologia per correggere una modifica accidentale prima di salvare."
+        },
+        {
+          "visual": "yolo_12_redo_boxes",
+          "narration": "Redo applica nuovamente l’eliminazione. Annulla ancora una volta per conservare entrambi i riquadri dimostrativi per l’esportazione. Controlla le annotazioni finali prima di scriverle su disco.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Redo applica nuovamente l’eliminazione. Annulla ancora una volta per conservare entrambi i riquadri dimostrativi per l’esportazione. Controlla le annotazioni finali prima di scriverle su disco."
+        },
+        {
+          "visual": "yolo_13_saved_boxes",
+          "narration": "Fai clic su Save boxes per memorizzare le annotazioni nel file di progetto accanto alle immagini. Coordinate e classi dei riquadri vengono salvate separatamente dalla maschera. Conserva il file di progetto con le immagini sorgente corrispondenti.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Fai clic su Save boxes per memorizzare le annotazioni nel file di progetto accanto alle immagini. Coordinate e classi dei riquadri vengono salvate separatamente dalla maschera. Conserva il file di progetto con le immagini sorgente corrispondenti."
+        },
+        {
+          "visual": "yolo_14_export_picker",
+          "narration": "Fai clic su Export YOLO labels e scegli la destinazione del file di testo. Ogni riga contiene un identificatore di classe e i valori normalizzati di centro X, centro Y, larghezza e altezza rispetto all’intera immagine. Il file associato con i nomi delle classi conserva la corrispondenza degli identificatori.",
+          "hold_after": 0.7,
+          "focus": [
+            1389,
+            812,
+            1300,
+            950
+          ],
+          "speech_text": "Fai clic su Export YOLO labels e scegli la destinazione del file di testo. Ogni riga contiene un identificatore di classe e i valori normalizzati di centro X, centro Y, larghezza e altezza rispetto all’intera immagine. Il file associato con i nomi delle classi conserva la corrispondenza degli identificatori."
+        },
+        {
+          "visual": "yolo_17_negative_exported",
+          "narration": "Un campo senza riquadri annotati esporta un file di etichette vuoto. Questo secondo campo di microscopia illustra il formato del file, non un negativo biologico. Usa esempi negativi di addestramento solo dopo aver verificato l’assenza di oggetti bersaglio.",
+          "hold_after": 0.7,
+          "speech_text": "Un campo senza riquadri annotati esporta un file di etichette vuoto. Questo secondo campo di microscopia illustra il formato del file, non un negativo biologico. Usa esempi negativi di addestramento solo dopo aver verificato l’assenza di oggetti bersaglio."
+        },
+        {
+          "visual": "yolo_18_reloaded_boxes",
+          "narration": "Torna alla prima immagine. I riquadri salvati vengono ricaricati con le stesse classi e coordinate, mentre l’immagine acquisita e la maschera di segmentazione restano invariate. Conserva insieme etichette YOLO, corrispondenza delle classi e immagini sorgente per l’addestramento.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Torna alla prima immagine. I riquadri salvati vengono ricaricati con le stesse classi e coordinate, mentre l’immagine acquisita e la maschera di segmentazione restano invariate. Conserva insieme etichette YOLO, corrispondenza delle classi e immagini sorgente per l’addestramento."
         },
         {
           "visual": "09_fold_train_cellpose",
@@ -2766,7 +2917,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

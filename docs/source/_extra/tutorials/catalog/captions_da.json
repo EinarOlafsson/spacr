@@ -2253,12 +2253,13 @@
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Åbn billed- og maskepar, ret objekter, registrer vurderinger, organiser billeder og masker til Measure, og opret parrede træningsudsnit.",
+      "description": "Åbn billed- og maskepar, ret objekter, registrer vurderinger, organiser billeder og masker til Measure, og opret parrede træningsudsnit. Tegn, rediger og eksportér separate YOLO-bokse med klasser uden at ændre billedet eller segmenteringsmasken.",
       "objectives": [
         "Åbne billeder med matchende instansmasker og undersøge objekter i forstørrelsesglasset.",
         "Rette labels med Undo, tegning, deling og objektfiltre.",
         "Gemme kuraterede masker, registrere Keep- eller Discard-vurderinger og oprette billed- og maskeudsnit til træning.",
-        "Organisere billeder og masker til Measure og dele kuraterede par med Upload data."
+        "Organisere billeder og masker til Measure og dele kuraterede par med Upload data.",
+        "Tegn og rediger separate bokse med klasser, gem deres projekt og eksportér normaliserede YOLO-etiketter."
       ],
       "prerequisite": "Forbered en mappe med todimensionelle billeder og matchende TIFF-filer med instanslabels i en undermappe ved navn masks. Hver maske bruger billedfilens navnestamme. Arbejd på en kopi, når du øver redigering og genbeskæring. Eksemplet bruger ER-billeder og cellemasker fra Measures downloadbare mikroskopiprojekt.",
       "scenes": [
@@ -2354,6 +2355,143 @@
           "visual": "11_saved_restored_mask",
           "narration": "Når du har gennemgået ændringerne, klikker du på Save mask i værktøjslinjen. Opbevar kildebillederne sammen med de gemte masker og deres kurateringspost.",
           "hold_after": 0.7
+        },
+        {
+          "visual": "yolo_04_box_controls",
+          "narration": "Vælg Box ved siden af Draw for at annotere separate YOLO-afgrænsningsbokse. Boksene har deres egne klasser og deres egen historik; de erstatter ikke segmenteringsmasken og ændrer ikke det optagne billede. Her demonstrerer boksene betjeningen og er ikke et biologisk træningsfacit.",
+          "hold_after": 0.7,
+          "focus": [
+            1060,
+            150,
+            820,
+            130
+          ]
+        },
+        {
+          "visual": "yolo_05_add_class",
+          "narration": "Klik på Add class, og indtast et klassenavn. Dette eksempel bruger demonstration. Vælg den ønskede klasse, før du tegner; hold klassenavne og deres numeriske identifikatorer ensartede i hele træningsdatasættet.",
+          "hold_after": 0.7,
+          "focus": [
+            1786,
+            972,
+            248,
+            136
+          ]
+        },
+        {
+          "visual": "yolo_06_drawn_box",
+          "narration": "Træk hen over billedet for at tegne en boks. Omridset og klassens navn viser den nye annotering. For rigtige træningsdata skal målobjektet afgrænses præcist; dette øvelsesrektangel viser kun bevægelsen.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_07_moved_box",
+          "narration": "Træk inde i en eksisterende boks for at flytte den. Boksen beholder sin klasse, mens dens billedkoordinater ændres. Kontrollér placeringen, før du gemmer.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_08_resized_box",
+          "narration": "Træk i et hjørne af boksen for at ændre størrelsen. Placér kanterne omkring det ønskede objekt, og kontrollér, at rektanglet bliver inden for billedet.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_09_contained_box",
+          "narration": "Hold Control nede, mens du trækker, for at tegne endnu en boks inde i en eksisterende. Det opretter en separat annotering i stedet for at flytte den ydre boks. Begge bokse beholder deres egne koordinater og deres klasse.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_10_deleted_box",
+          "narration": "Højreklik på en boks for at slette den. Kontrollér, hvilket omrids der forsvinder, især når boksene overlapper. Fjernelse af en boks sletter ingen pixels fra segmenteringsmasken.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_11_undo_boxes",
+          "narration": "Klik på Undo for at gendanne den slettede boks. De to uafhængige annoteringer kommer tilbage. Brug historikken til at fortryde en fejlagtig redigering, før du gemmer.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_12_redo_boxes",
+          "narration": "Redo udfører sletningen igen. Fortryd endnu en gang for at beholde begge demonstrationsbokse til eksporten. Gennemgå de endelige annoteringer, før du skriver dem til disk.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_13_saved_boxes",
+          "narration": "Klik på Save boxes for at gemme annoteringerne i projektfilen ved siden af billederne. Bokskoordinater og klasser gemmes adskilt fra masken. Opbevar projektfilen sammen med de tilsvarende kildebilleder.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
+        },
+        {
+          "visual": "yolo_14_export_picker",
+          "narration": "Klik på Export YOLO labels, og vælg tekstfilens destination. Hver række indeholder en klasseidentifikator og normaliserede værdier for centrum X, centrum Y, bredde og højde i forhold til hele billedet. Den tilhørende fil med klassenavne bevarer identifikatorernes tilknytning.",
+          "hold_after": 0.7,
+          "focus": [
+            1389,
+            812,
+            1300,
+            950
+          ]
+        },
+        {
+          "visual": "yolo_17_negative_exported",
+          "narration": "Et billedfelt uden annoterede bokse eksporterer en tom etiketfil. Dette andet mikroskopifelt illustrerer filformatet og er ikke et biologisk negativt eksempel. Brug kun negative træningseksempler efter at have kontrolleret, at der ikke er målobjekter.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "yolo_18_reloaded_boxes",
+          "narration": "Gå tilbage til det første billede. De gemte bokse indlæses med de samme klasser og koordinater, mens det optagne billede og segmenteringsmasken er uændrede. Opbevar YOLO-etiketter, klassetilknytning og kildebilleder samlet til træning.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ]
         },
         {
           "visual": "09_fold_train_cellpose",
@@ -2533,7 +2671,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

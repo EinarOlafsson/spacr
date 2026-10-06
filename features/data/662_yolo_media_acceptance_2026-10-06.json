@@ -1,0 +1,179 @@
+{
+  "accepted_prepublication_media": true,
+  "lesson": "14_make_masks",
+  "scenes": 58,
+  "source_bound_voices_verified": 50,
+  "spoken_languages": 8,
+  "reviewed_translation_languages": 13,
+  "native_unique_images_path_checked": 56,
+  "private_path_regions_found": 0,
+  "exact_4k_scene_start_frames": 58,
+  "desktop_mobile_language_cases": 14,
+  "candidate_player_routes_passed": 85,
+  "placeholder_mutation_guards_observed_red": 2,
+  "catalog_languages_preserving_84_other_lessons": 14,
+  "unchanged_other_media_records": 4796,
+  "candidate_media_files": 4898,
+  "actual_decoded_web_box_and_class_label_visually_inspected": true,
+  "Mask_07_unchanged": true,
+  "Home_05_Measure_08_and_Conda_02_preserved": true,
+  "native_speaker_or_independent_listening_review_claimed": false,
+  "biological_training_truth_claimed_for_demonstration_boxes": false,
+  "deck_acceptance_receipt": "features/data/662_yolo_deck_refresh_2026-10-06.json",
+  "candidate": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-yolo-current-r1/release-candidate-append-7_xl1_9q",
+  "hosted_and_deployed_acceptance_recorded_separately": true,
+  "artifacts": {
+    "features/data/662_yolo_media_acceptance_2026-10-06/14_make_masks.detect.json": {
+      "sha256": "60af00d77a72ca939fd4f1bc2aee98ff9be9afd3e86e90e34a5b7a72171d6039",
+      "bytes": 17462
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/archive_yolo_media.py": {
+      "sha256": "ad0c29cd1a256bc86d0ad4fb47b8d084c006ec446ee9fcd11dc81f75afb1cb43",
+      "bytes": 6508
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/candidate-browser-checks.json": {
+      "sha256": "5d5684893a6f0de5c31d51f046bbcff712b41f6bde802d3f706e2ef548432553",
+      "bytes": 124133
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/check_yolo_video_frames.py": {
+      "sha256": "90bda769f1e1d55be1a80c0dd1afb9c8ff2e11e2c7c3bdd329d460678004c6be",
+      "bytes": 4036
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/current-complete-audio-acceptance.json": {
+      "sha256": "d88e70a3f02f97468163900a5423350fb8580c4d78ae9b12aea34b817d647dbf",
+      "bytes": 13632
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/current-frame-fidelity.json": {
+      "sha256": "d7309044a133089f8d9e0884514858c5dd5dfc31579439b42b334a0d31cc9f44",
+      "bytes": 32380
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/current-video-acceptance.json": {
+      "sha256": "f1f98abc8237333f74cdec895ccc98cca0a8a9d25333d4de08e470fe3901e22b",
+      "bytes": 3902
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/en-af_heart-captions-da-playback.json": {
+      "sha256": "7ebcf9ba6efb5cde968916608543c3a2cd4111fd4fba381ff37d5de366f669b1",
+      "bytes": 1216
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/en-af_heart-captions-de-playback.json": {
+      "sha256": "36006fe5f394a408b55085286ad7c0adb6e71b9157ccc6e3981fce1b21e6b0b0",
+      "bytes": 1216
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/en-af_heart-captions-is-playback.json": {
+      "sha256": "f5222a515f1b87f689215371d8139aca6a6ed35f82f5ec2977e9d1def9a86bce",
+      "bytes": 1216
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/en-af_heart-captions-ko-playback.json": {
+      "sha256": "db6ea64e5746e6233fb60e202ae0c068ce3f33fcc10caaae0599bc5de96faa1a",
+      "bytes": 1215
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/en-af_heart-captions-nb-playback.json": {
+      "sha256": "7330daad5b4eb4daa07be9067e0bfd2d78298adc37206cb10ef6369371ddf088",
+      "bytes": 1215
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/en-af_heart-captions-sv-playback.json": {
+      "sha256": "e3ab8927cb0d3e719634c00f51f7dc5a530b56295a948055a254cfefafafd287",
+      "bytes": 1215
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/en-af_heart-sentence-cues-playback.json": {
+      "sha256": "767afe87cc065a9cad78fb0bdb4f2e929ed3ab69b03f22edaf794e4765a8fdac",
+      "bytes": 57061
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/es-ef_dora-playback.json": {
+      "sha256": "594506842e96092a620c8b82e4692907aafe346068c2a83ab5d1ae67a0a9b745",
+      "bytes": 1101
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/finish_yolo_reference_video.py": {
+      "sha256": "790aa1c965d9fb48a78eee3eafb517d6265b82b9ecbed0c3c3796217de604984",
+      "bytes": 3290
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/fr-ff_siwis-playback.json": {
+      "sha256": "ed8f006725a2711d2a96c8dc9b704d63aa25e47e71a447614a06991229a90192",
+      "bytes": 1103
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/hi-hf_alpha-playback.json": {
+      "sha256": "356c782491885d05afb699861d3f7dc2849f9ca66c7e4fd40975601d8ee1abd5",
+      "bytes": 1103
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/it-if_sara-playback.json": {
+      "sha256": "6ae06f3349ff109b412d89cfe3f18003f6b965494ddfd9d40e5a86329aceacd9",
+      "bytes": 1103
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/ja-jf_alpha-playback.json": {
+      "sha256": "e70eb51afba5eff35dcd7eed84bad2f61ccc63ce79752f9c775eb07af1276745",
+      "bytes": 1104
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/placeholder-mutation-checks.json": {
+      "sha256": "4f6c6c5b06fca0ddff03ecf20fb5663550295a8e088d8b81d54c8f7b17c61bb8",
+      "bytes": 510
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/prepare_yolo_candidate.py": {
+      "sha256": "c88d63c3dc8a4e8c4fe95914e87c3ac26be765289f1744331dab9dff50384d00",
+      "bytes": 3147
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/pt-BR-pf_dora-playback.json": {
+      "sha256": "04269938847e056fa619ae91a03a76b6980609e81dda82adf1e01a5bde0d1300",
+      "bytes": 1106
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/verify_yolo_complete_audio.py": {
+      "sha256": "4320210f88023e4903befcc6f956c9e4d79cc9c75b2dc7483eba3ddf4663c21c",
+      "bytes": 1359
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/visually-reviewed-redo-web.png": {
+      "sha256": "74a9bc77b31ea14e9e19bdc552946acf84ff32cde5e69f18b85930628531da4f",
+      "bytes": 1087439
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/yolo-complete-audio-verification-r1.log.gz": {
+      "sha256": "0e5e60f7197e684d73ac03591b8b09cb60b6c903b13346e090f4e0511c1f7d73",
+      "bytes": 500
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/yolo-complete-audio-verification-r2.log.gz": {
+      "sha256": "2d2e85058bcb60c2eb869f30e3eb9aec03cc18391292b9e16fe436a512758249",
+      "bytes": 119
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/yolo-current-candidate-preservation-r3.log.gz": {
+      "sha256": "39db7fccd9e128cf29ea2e3b49d7715dd0834b91aca1d5b5fce84d5fe63eb1e4",
+      "bytes": 116
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/yolo-current-candidate-r1.log.gz": {
+      "sha256": "f2f70184d70f5076d62501ae7b473d211b152aa867fc25e76ba42ef0fc80838b",
+      "bytes": 498
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/yolo-current-candidate-r2.log.gz": {
+      "sha256": "d87210d5b6b55591e88138a79e56e614dec53cedf369a2ee6338c946883bf31f",
+      "bytes": 1048
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/yolo-narration-complete-r1.log.gz": {
+      "sha256": "ce1c52420ed8459f6967c0143120e9e221b2d80152dafd662c600396bd997d22",
+      "bytes": 1409
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/yolo-narration-reference-r1.log.gz": {
+      "sha256": "2cea1cdf8b103e38e4ca2765d44bb40d3e69656636ed4d3c774ac57c4af59140",
+      "bytes": 944
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/yolo-native-path-audit-r1.log.gz": {
+      "sha256": "e38b48d985522ce38099bfe9f4cd2e425f91daba082d1535d7e235d1fc9daf04",
+      "bytes": 390
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/yolo-native-path-audit-r2.log.gz": {
+      "sha256": "e1ffe10dca633d2053a5997c51b38a23ede2048d573316d9cab232e67d8be400",
+      "bytes": 638
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/yolo-preservation.json": {
+      "sha256": "77359ee03e17a18a67f184a9b5e9f5439bc25ecb90c85f4c52e8fa1ecf0594b2",
+      "bytes": 1009
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/yolo-reference-video-r1.log.gz": {
+      "sha256": "badd3360d84e41f7a741692b830ebb51ef6d69de2d67ee79c31e24fdc17cd2bc",
+      "bytes": 12238
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/yolo-video-frame-fidelity-r1.log.gz": {
+      "sha256": "79fd9da1279c64495e30f27c740eebdcfa8d691349a9ed241c578a4c0547805a",
+      "bytes": 106
+    },
+    "features/data/662_yolo_media_acceptance_2026-10-06/zh-CN-zf_xiaobei-playback.json": {
+      "sha256": "703bb5ccac2ea9dacb6609f972796260464e9319526d339b9c5df8a86e723200",
+      "bytes": 1107
+    }
+  }
+}

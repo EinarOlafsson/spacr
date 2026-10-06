@@ -2441,12 +2441,13 @@
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Ouvrez des paires image-masque, corrigez les objets, consignez des verdicts, organisez les images et les masques pour Measure et créez des vignettes appariées pour l’entraînement.",
+      "description": "Ouvrez des paires image-masque, corrigez les objets, consignez des verdicts, organisez les images et les masques pour Measure et créez des vignettes appariées pour l’entraînement. Dessinez, modifiez et exportez des boîtes YOLO distinctes avec leurs classes, sans modifier l’image ni le masque de segmentation.",
       "objectives": [
         "Ouvrir des images avec leurs masques d’instances et inspecter les objets à la loupe.",
         "Corriger les étiquettes avec Undo, le dessin, la division et les filtres d’objets.",
         "Enregistrer les masques revus, consigner les verdicts Keep ou Discard et créer des vignettes image-masque pour l’entraînement.",
-        "Organiser les images et les masques pour Measure, et partager des paires revues avec Upload data."
+        "Organiser les images et les masques pour Measure, et partager des paires revues avec Upload data.",
+        "Dessiner et modifier des boîtes distinctes avec leurs classes, enregistrer leur projet et exporter des annotations YOLO normalisées."
       ],
       "prerequisite": "Préparez un dossier d’images bidimensionnelles avec les TIFF d’étiquettes d’instances correspondants dans un sous-dossier masks. Chaque masque reprend le nom de base du fichier image. Travaillez sur une copie lorsque vous vous entraînez aux modifications et aux recadrages. L’exemple utilise des images d’ER et des masques de cellules du projet de microscopie téléchargeable de Measure.",
       "scenes": [
@@ -2557,6 +2558,156 @@
           "narration": "Après avoir revu les modifications, cliquez sur Save mask dans la barre d’outils. Conservez les images d’origine avec les masques enregistrés et leur enregistrement de révision.",
           "hold_after": 0.7,
           "speech_text": "Après avoir revu les modifications, cliquez sur Save mask dans la barre d’outils. Conservez les images d’origine avec les masques enregistrés et leur enregistrement de révision."
+        },
+        {
+          "visual": "yolo_04_box_controls",
+          "narration": "Choisissez Box à côté de Draw pour annoter des boîtes englobantes YOLO distinctes. Ces boîtes ont leurs propres classes et leur propre historique ; elles ne remplacent pas le masque de segmentation et ne modifient pas l’image acquise. Ici, elles illustrent l’interaction, pas une référence biologique d’entraînement.",
+          "hold_after": 0.7,
+          "focus": [
+            1060,
+            150,
+            820,
+            130
+          ],
+          "speech_text": "Choisissez Box à côté de Draw pour annoter des boîtes englobantes YOLO distinctes. Ces boîtes ont leurs propres classes et leur propre historique ; elles ne remplacent pas le masque de segmentation et ne modifient pas l’image acquise. Ici, elles illustrent l’interaction, pas une référence biologique d’entraînement."
+        },
+        {
+          "visual": "yolo_05_add_class",
+          "narration": "Cliquez sur Add class et saisissez un nom de classe. Cet exemple utilise demonstration. Sélectionnez la classe voulue avant de dessiner ; gardez les noms de classe et leurs identifiants numériques cohérents dans tout le jeu d’entraînement.",
+          "hold_after": 0.7,
+          "focus": [
+            1786,
+            972,
+            248,
+            136
+          ],
+          "speech_text": "Cliquez sur Add class et saisissez un nom de classe. Cet exemple utilise demonstration. Sélectionnez la classe voulue avant de dessiner ; gardez les noms de classe et leurs identifiants numériques cohérents dans tout le jeu d’entraînement."
+        },
+        {
+          "visual": "yolo_06_drawn_box",
+          "narration": "Faites glisser sur l’image pour dessiner une boîte. Le contour et le libellé de classe indiquent la nouvelle annotation. Pour de vraies données d’entraînement, encadrez précisément l’objet cible ; ce rectangle d’exercice illustre seulement le geste.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Faites glisser sur l’image pour dessiner une boîte. Le contour et le libellé de classe indiquent la nouvelle annotation. Pour de vraies données d’entraînement, encadrez précisément l’objet cible ; ce rectangle d’exercice illustre seulement le geste."
+        },
+        {
+          "visual": "yolo_07_moved_box",
+          "narration": "Faites glisser à l’intérieur d’une boîte existante pour la déplacer. La boîte conserve sa classe tandis que ses coordonnées dans l’image changent. Vérifiez sa position avant d’enregistrer.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Faites glisser à l’intérieur d’une boîte existante pour la déplacer. La boîte conserve sa classe tandis que ses coordonnées dans l’image changent. Vérifiez sa position avant d’enregistrer."
+        },
+        {
+          "visual": "yolo_08_resized_box",
+          "narration": "Faites glisser un coin de la boîte pour la redimensionner. Placez les bords autour de l’objet voulu et vérifiez que le rectangle reste dans l’image.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Faites glisser un coin de la boîte pour la redimensionner. Placez les bords autour de l’objet voulu et vérifiez que le rectangle reste dans l’image."
+        },
+        {
+          "visual": "yolo_09_contained_box",
+          "narration": "Maintenez Control pendant le glissement pour dessiner une autre boîte à l’intérieur d’une boîte existante. Vous créez ainsi une annotation distincte au lieu de déplacer la boîte extérieure. Les deux boîtes gardent leurs propres coordonnées et leur classe.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Maintenez Control pendant le glissement pour dessiner une autre boîte à l’intérieur d’une boîte existante. Vous créez ainsi une annotation distincte au lieu de déplacer la boîte extérieure. Les deux boîtes gardent leurs propres coordonnées et leur classe."
+        },
+        {
+          "visual": "yolo_10_deleted_box",
+          "narration": "Faites un clic droit sur une boîte pour la supprimer. Vérifiez quel contour disparaît, surtout si les boîtes se chevauchent. Supprimer une boîte n’efface aucun pixel du masque de segmentation.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Faites un clic droit sur une boîte pour la supprimer. Vérifiez quel contour disparaît, surtout si les boîtes se chevauchent. Supprimer une boîte n’efface aucun pixel du masque de segmentation."
+        },
+        {
+          "visual": "yolo_11_undo_boxes",
+          "narration": "Cliquez sur Undo pour restaurer la boîte supprimée. Les deux annotations indépendantes réapparaissent. Utilisez l’historique pour corriger une modification accidentelle avant d’enregistrer.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Cliquez sur Undo pour restaurer la boîte supprimée. Les deux annotations indépendantes réapparaissent. Utilisez l’historique pour corriger une modification accidentelle avant d’enregistrer."
+        },
+        {
+          "visual": "yolo_12_redo_boxes",
+          "narration": "Redo applique de nouveau la suppression. Annulez encore une fois pour conserver les deux boîtes de démonstration pour l’export. Vérifiez les annotations finales avant de les écrire sur disque.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Redo applique de nouveau la suppression. Annulez encore une fois pour conserver les deux boîtes de démonstration pour l’export. Vérifiez les annotations finales avant de les écrire sur disque."
+        },
+        {
+          "visual": "yolo_13_saved_boxes",
+          "narration": "Cliquez sur Save boxes pour enregistrer les annotations dans le fichier de projet à côté des images. Les coordonnées et classes des boîtes sont enregistrées séparément du masque. Conservez le fichier de projet avec les images sources correspondantes.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Cliquez sur Save boxes pour enregistrer les annotations dans le fichier de projet à côté des images. Les coordonnées et classes des boîtes sont enregistrées séparément du masque. Conservez le fichier de projet avec les images sources correspondantes."
+        },
+        {
+          "visual": "yolo_14_export_picker",
+          "narration": "Cliquez sur Export YOLO labels et choisissez la destination du fichier texte. Chaque ligne contient un identifiant de classe et les valeurs normalisées du centre X, du centre Y, de la largeur et de la hauteur par rapport à l’image entière. Le fichier associé de noms de classe conserve la correspondance des identifiants.",
+          "hold_after": 0.7,
+          "focus": [
+            1389,
+            812,
+            1300,
+            950
+          ],
+          "speech_text": "Cliquez sur Export YOLO labels et choisissez la destination du fichier texte. Chaque ligne contient un identifiant de classe et les valeurs normalisées du centre X, du centre Y, de la largeur et de la hauteur par rapport à l’image entière. Le fichier associé de noms de classe conserve la correspondance des identifiants."
+        },
+        {
+          "visual": "yolo_17_negative_exported",
+          "narration": "Un champ sans boîte annotée exporte un fichier d’annotations vide. Ce deuxième champ de microscopie illustre le format du fichier, pas un négatif biologique. Utilisez des exemples négatifs d’entraînement seulement après avoir vérifié l’absence d’objets cibles.",
+          "hold_after": 0.7,
+          "speech_text": "Un champ sans boîte annotée exporte un fichier d’annotations vide. Ce deuxième champ de microscopie illustre le format du fichier, pas un négatif biologique. Utilisez des exemples négatifs d’entraînement seulement après avoir vérifié l’absence d’objets cibles."
+        },
+        {
+          "visual": "yolo_18_reloaded_boxes",
+          "narration": "Revenez à la première image. Les boîtes enregistrées se rechargent avec les mêmes classes et coordonnées, tandis que l’image acquise et le masque de segmentation restent inchangés. Gardez ensemble les annotations YOLO, la correspondance des classes et les images sources pour l’entraînement.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Revenez à la première image. Les boîtes enregistrées se rechargent avec les mêmes classes et coordonnées, tandis que l’image acquise et le masque de segmentation restent inchangés. Gardez ensemble les annotations YOLO, la correspondance des classes et les images sources pour l’entraînement."
         },
         {
           "visual": "09_fold_train_cellpose",
@@ -2766,7 +2917,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

@@ -2441,12 +2441,13 @@
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "打开图像与掩膜对，修正对象，记录判定，为Measure组织图像和掩膜，并创建成对的训练裁剪图。",
+      "description": "打开图像与掩膜对，修正对象，记录判定，为Measure组织图像和掩膜，并创建成对的训练裁剪图。 绘制、编辑并导出带类别标签的独立 YOLO 框，不改变图像或分割掩膜。",
       "objectives": [
         "打开带有对应实例掩膜的图像，并在放大镜中检查对象。",
         "用Undo、绘制、分割和对象过滤修正标签。",
         "保存整理好的掩膜，记录Keep或Discard判定，并创建用于训练的图像与掩膜裁剪图。",
-        "为Measure组织图像和掩膜，并用Upload data共享整理好的图像对。"
+        "为Measure组织图像和掩膜，并用Upload data共享整理好的图像对。",
+        "绘制并编辑带类别标签的独立框，保存其项目，并导出归一化的 YOLO 标签。"
       ],
       "prerequisite": "准备一个二维图像文件夹，并在masks子文件夹中放入对应的实例标签TIFF。每个掩膜使用图像文件的基本名。练习编辑和重新裁剪时请使用副本。示例使用Measure可下载显微项目中的ER图像和细胞掩膜。",
       "scenes": [
@@ -2557,6 +2558,156 @@
           "narration": "检查完编辑后，点击工具栏中的Save mask。将源图像与保存的掩膜及其整理记录放在一起。",
           "hold_after": 0.7,
           "speech_text": "检查完编辑后，点击工具栏中的Save mask。将源图像与保存的掩膜及其整理记录放在一起。"
+        },
+        {
+          "visual": "yolo_04_box_controls",
+          "narration": "选择 Draw 旁边的 Box，标注独立的 YOLO 边界框。这些框有各自的类别和历史记录，不会替代分割掩膜或改变采集的图像。这里的框用于演示交互操作，并非用于训练的生物学真值。",
+          "hold_after": 0.7,
+          "focus": [
+            1060,
+            150,
+            820,
+            130
+          ],
+          "speech_text": "选择 Draw 旁边的 Box，标注独立的 YOLO 边界框。这些框有各自的类别和历史记录，不会替代分割掩膜或改变采集的图像。这里的框用于演示交互操作，并非用于训练的生物学真值。"
+        },
+        {
+          "visual": "yolo_05_add_class",
+          "narration": "点击 Add class，输入类别名称。本例使用 demonstration。绘制前选择所需类别；在整个训练数据集中保持类别名称及其数字标识一致。",
+          "hold_after": 0.7,
+          "focus": [
+            1786,
+            972,
+            248,
+            136
+          ],
+          "speech_text": "点击 Add class，输入类别名称。本例使用 demonstration。绘制前选择所需类别；在整个训练数据集中保持类别名称及其数字标识一致。"
+        },
+        {
+          "visual": "yolo_06_drawn_box",
+          "narration": "在图像上拖动以绘制框。轮廓和类别标签显示新的标注。对真实训练数据，应准确框住目标对象；此练习矩形仅演示操作手势。",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "在图像上拖动以绘制框。轮廓和类别标签显示新的标注。对真实训练数据，应准确框住目标对象；此练习矩形仅演示操作手势。"
+        },
+        {
+          "visual": "yolo_07_moved_box",
+          "narration": "在已有框内部拖动以移动它。框的类别保持不变，图像坐标随之改变。保存前检查其位置。",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "在已有框内部拖动以移动它。框的类别保持不变，图像坐标随之改变。保存前检查其位置。"
+        },
+        {
+          "visual": "yolo_08_resized_box",
+          "narration": "拖动框的一个角以调整大小。将边缘放置在所需对象周围，并检查矩形仍位于图像内部。",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "拖动框的一个角以调整大小。将边缘放置在所需对象周围，并检查矩形仍位于图像内部。"
+        },
+        {
+          "visual": "yolo_09_contained_box",
+          "narration": "按住 Control 拖动，可在已有框内部绘制另一个框。这会创建独立标注，而非移动外框。两个框分别保留各自的坐标和类别。",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "按住 Control 拖动，可在已有框内部绘制另一个框。这会创建独立标注，而非移动外框。两个框分别保留各自的坐标和类别。"
+        },
+        {
+          "visual": "yolo_10_deleted_box",
+          "narration": "右键点击框以删除它。检查哪个轮廓消失，尤其是在框重叠时。删除框不会擦除分割掩膜中的像素。",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "右键点击框以删除它。检查哪个轮廓消失，尤其是在框重叠时。删除框不会擦除分割掩膜中的像素。"
+        },
+        {
+          "visual": "yolo_11_undo_boxes",
+          "narration": "点击 Undo，恢复已删除的框。两个独立标注重新出现。保存前可用历史记录恢复误操作。",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "点击 Undo，恢复已删除的框。两个独立标注重新出现。保存前可用历史记录恢复误操作。"
+        },
+        {
+          "visual": "yolo_12_redo_boxes",
+          "narration": "Redo 会再次执行删除。再撤销一次，以保留两个演示框用于导出。写入磁盘前检查最终标注。",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Redo 会再次执行删除。再撤销一次，以保留两个演示框用于导出。写入磁盘前检查最终标注。"
+        },
+        {
+          "visual": "yolo_13_saved_boxes",
+          "narration": "点击 Save boxes，将标注存储到图像旁的项目文件。框的坐标和类别与掩膜分开保存。将项目文件与对应的源图像保存在一起。",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "点击 Save boxes，将标注存储到图像旁的项目文件。框的坐标和类别与掩膜分开保存。将项目文件与对应的源图像保存在一起。"
+        },
+        {
+          "visual": "yolo_14_export_picker",
+          "narration": "点击 Export YOLO labels，选择文本文件的目标位置。每行包含一个类别标识，以及相对于完整图像归一化的中心 X、中心 Y、宽度和高度。附带的类别名称文件保留标识对应关系。",
+          "hold_after": 0.7,
+          "focus": [
+            1389,
+            812,
+            1300,
+            950
+          ],
+          "speech_text": "点击 Export YOLO labels，选择文本文件的目标位置。每行包含一个类别标识，以及相对于完整图像归一化的中心 X、中心 Y、宽度和高度。附带的类别名称文件保留标识对应关系。"
+        },
+        {
+          "visual": "yolo_17_negative_exported",
+          "narration": "没有标注框的视野会导出空标签文件。这里的第二个显微视野用于说明该文件格式，并非生物学阴性样本。只有确认不存在目标对象后，才将样本用作训练负例。",
+          "hold_after": 0.7,
+          "speech_text": "没有标注框的视野会导出空标签文件。这里的第二个显微视野用于说明该文件格式，并非生物学阴性样本。只有确认不存在目标对象后，才将样本用作训练负例。"
+        },
+        {
+          "visual": "yolo_18_reloaded_boxes",
+          "narration": "返回第一张图像。已保存的框会重新加载，类别和坐标保持一致，采集的图像及分割掩膜保持不变。将 YOLO 标签、类别映射和源图像一起保留用于训练。",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "返回第一张图像。已保存的框会重新加载，类别和坐标保持一致，采集的图像及分割掩膜保持不变。将 YOLO 标签、类别映射和源图像一起保留用于训练。"
         },
         {
           "visual": "09_fold_train_cellpose",
@@ -2766,7 +2917,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

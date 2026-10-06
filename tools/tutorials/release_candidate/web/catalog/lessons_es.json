@@ -2441,12 +2441,13 @@
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Abre pares de imagen y máscara, corrige objetos, registra veredictos, organiza imágenes y máscaras para Measure y crea recortes emparejados para entrenamiento.",
+      "description": "Abre pares de imagen y máscara, corrige objetos, registra veredictos, organiza imágenes y máscaras para Measure y crea recortes emparejados para entrenamiento. Dibuje, edite y exporte cajas YOLO independientes con sus clases sin cambiar la imagen ni la máscara de segmentación.",
       "objectives": [
         "Abrir imágenes con sus máscaras de instancias y revisar los objetos con la lupa.",
         "Corregir etiquetas con Undo, el dibujo, la división y los filtros de objetos.",
         "Guardar máscaras revisadas, registrar veredictos Keep o Discard y crear recortes de imagen y máscara para entrenamiento.",
-        "Organizar imágenes y máscaras para Measure y compartir pares revisados con Upload data."
+        "Organizar imágenes y máscaras para Measure y compartir pares revisados con Upload data.",
+        "Dibujar y editar cajas independientes con sus clases, guardar su proyecto y exportar etiquetas YOLO normalizadas."
       ],
       "prerequisite": "Prepara una carpeta de imágenes bidimensionales con TIFF de etiquetas de instancia correspondientes en una subcarpeta masks. Cada máscara usa el nombre base del archivo de imagen. Trabaja sobre una copia cuando practiques ediciones y recortes. El ejemplo usa imágenes de ER y máscaras de células del proyecto de microscopía descargable de Measure.",
       "scenes": [
@@ -2557,6 +2558,156 @@
           "narration": "Después de revisar las ediciones, haz clic en Save mask, en la barra de herramientas. Conserva las imágenes de origen junto con las máscaras guardadas y su registro de revisión.",
           "hold_after": 0.7,
           "speech_text": "Después de revisar las ediciones, haz clic en Save mask, en la barra de herramientas. Conserva las imágenes de origen junto con las máscaras guardadas y su registro de revisión."
+        },
+        {
+          "visual": "yolo_04_box_controls",
+          "narration": "Seleccione Box junto a Draw para anotar cajas delimitadoras YOLO independientes. Estas cajas tienen sus propias clases e historial; no sustituyen la máscara de segmentación ni cambian la imagen adquirida. Aquí las cajas demuestran la interacción y no son una referencia biológica para entrenamiento.",
+          "hold_after": 0.7,
+          "focus": [
+            1060,
+            150,
+            820,
+            130
+          ],
+          "speech_text": "Seleccione Box junto a Draw para anotar cajas delimitadoras YOLO independientes. Estas cajas tienen sus propias clases e historial; no sustituyen la máscara de segmentación ni cambian la imagen adquirida. Aquí las cajas demuestran la interacción y no son una referencia biológica para entrenamiento."
+        },
+        {
+          "visual": "yolo_05_add_class",
+          "narration": "Pulse Add class e introduzca un nombre de clase. Este ejemplo usa demonstration. Seleccione la clase prevista antes de dibujar; mantenga los nombres de clase y sus identificadores numéricos coherentes en todo el conjunto de entrenamiento.",
+          "hold_after": 0.7,
+          "focus": [
+            1786,
+            972,
+            248,
+            136
+          ],
+          "speech_text": "Pulse Add class e introduzca un nombre de clase. Este ejemplo usa demonstration. Seleccione la clase prevista antes de dibujar; mantenga los nombres de clase y sus identificadores numéricos coherentes en todo el conjunto de entrenamiento."
+        },
+        {
+          "visual": "yolo_06_drawn_box",
+          "narration": "Arrastre sobre la imagen para dibujar una caja. El contorno y el rótulo de clase muestran la nueva anotación. Para datos reales de entrenamiento, encierre el objeto objetivo con precisión; este rectángulo de práctica solo demuestra el gesto.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Arrastre sobre la imagen para dibujar una caja. El contorno y el rótulo de clase muestran la nueva anotación. Para datos reales de entrenamiento, encierre el objeto objetivo con precisión; este rectángulo de práctica solo demuestra el gesto."
+        },
+        {
+          "visual": "yolo_07_moved_box",
+          "narration": "Arrastre dentro de una caja existente para moverla. La caja conserva su clase mientras cambian sus coordenadas de imagen. Revise la posición antes de guardar.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Arrastre dentro de una caja existente para moverla. La caja conserva su clase mientras cambian sus coordenadas de imagen. Revise la posición antes de guardar."
+        },
+        {
+          "visual": "yolo_08_resized_box",
+          "narration": "Arrastre una esquina de la caja para cambiar su tamaño. Coloque los bordes alrededor del objeto previsto y compruebe que el rectángulo permanece dentro de la imagen.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Arrastre una esquina de la caja para cambiar su tamaño. Coloque los bordes alrededor del objeto previsto y compruebe que el rectángulo permanece dentro de la imagen."
+        },
+        {
+          "visual": "yolo_09_contained_box",
+          "narration": "Mantenga Control mientras arrastra para dibujar otra caja dentro de una existente. Esto crea una anotación independiente en lugar de mover la caja exterior. Ambas cajas conservan sus propias coordenadas y clase.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Mantenga Control mientras arrastra para dibujar otra caja dentro de una existente. Esto crea una anotación independiente en lugar de mover la caja exterior. Ambas cajas conservan sus propias coordenadas y clase."
+        },
+        {
+          "visual": "yolo_10_deleted_box",
+          "narration": "Haga clic con el botón derecho en una caja para eliminarla. Compruebe qué contorno desaparece, especialmente cuando las cajas se solapan. Eliminar una caja no borra píxeles de la máscara de segmentación.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Haga clic con el botón derecho en una caja para eliminarla. Compruebe qué contorno desaparece, especialmente cuando las cajas se solapan. Eliminar una caja no borra píxeles de la máscara de segmentación."
+        },
+        {
+          "visual": "yolo_11_undo_boxes",
+          "narration": "Pulse Undo para restaurar la caja eliminada. Vuelven las dos anotaciones independientes. Use el historial para recuperar una edición accidental antes de guardar.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Pulse Undo para restaurar la caja eliminada. Vuelven las dos anotaciones independientes. Use el historial para recuperar una edición accidental antes de guardar."
+        },
+        {
+          "visual": "yolo_12_redo_boxes",
+          "narration": "Redo vuelve a aplicar la eliminación. Deshágala una vez más para conservar ambas cajas de demostración para la exportación. Revise las anotaciones finales antes de escribirlas en disco.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Redo vuelve a aplicar la eliminación. Deshágala una vez más para conservar ambas cajas de demostración para la exportación. Revise las anotaciones finales antes de escribirlas en disco."
+        },
+        {
+          "visual": "yolo_13_saved_boxes",
+          "narration": "Pulse Save boxes para almacenar las anotaciones en el archivo de proyecto junto a las imágenes. Las coordenadas y clases de las cajas se guardan por separado de la máscara. Conserve el archivo de proyecto con sus imágenes originales correspondientes.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Pulse Save boxes para almacenar las anotaciones en el archivo de proyecto junto a las imágenes. Las coordenadas y clases de las cajas se guardan por separado de la máscara. Conserve el archivo de proyecto con sus imágenes originales correspondientes."
+        },
+        {
+          "visual": "yolo_14_export_picker",
+          "narration": "Pulse Export YOLO labels y elija el destino del archivo de texto. Cada fila contiene un identificador de clase y valores normalizados de centro X, centro Y, anchura y altura respecto a la imagen completa. El archivo complementario de nombres de clase conserva la correspondencia de identificadores.",
+          "hold_after": 0.7,
+          "focus": [
+            1389,
+            812,
+            1300,
+            950
+          ],
+          "speech_text": "Pulse Export YOLO labels y elija el destino del archivo de texto. Cada fila contiene un identificador de clase y valores normalizados de centro X, centro Y, anchura y altura respecto a la imagen completa. El archivo complementario de nombres de clase conserva la correspondencia de identificadores."
+        },
+        {
+          "visual": "yolo_17_negative_exported",
+          "narration": "Un campo sin cajas anotadas exporta un archivo de etiquetas vacío. Este segundo campo de microscopía ilustra ese formato de archivo, no un negativo biológico. Use ejemplos negativos de entrenamiento solo después de comprobar que no hay objetos objetivo.",
+          "hold_after": 0.7,
+          "speech_text": "Un campo sin cajas anotadas exporta un archivo de etiquetas vacío. Este segundo campo de microscopía ilustra ese formato de archivo, no un negativo biológico. Use ejemplos negativos de entrenamiento solo después de comprobar que no hay objetos objetivo."
+        },
+        {
+          "visual": "yolo_18_reloaded_boxes",
+          "narration": "Vuelva a la primera imagen. Las cajas guardadas se cargan con las mismas clases y coordenadas, mientras que la imagen adquirida y la máscara de segmentación permanecen sin cambios. Conserve juntas las etiquetas YOLO, la correspondencia de clases y las imágenes originales para entrenar.",
+          "hold_after": 0.7,
+          "focus": [
+            2030,
+            760,
+            1050,
+            880
+          ],
+          "speech_text": "Vuelva a la primera imagen. Las cajas guardadas se cargan con las mismas clases y coordenadas, mientras que la imagen adquirida y la máscara de segmentación permanecen sin cambios. Conserve juntas las etiquetas YOLO, la correspondencia de clases y las imágenes originales para entrenar."
         },
         {
           "visual": "09_fold_train_cellpose",
@@ -2766,7 +2917,30 @@
       ],
       "narration_voices": {
         "en": [
-          "af_heart"
+          "af_aoede",
+          "af_bella",
+          "af_heart",
+          "af_jessica",
+          "af_river",
+          "af_sarah",
+          "af_sky",
+          "am_adam",
+          "am_echo",
+          "am_eric",
+          "am_fenrir",
+          "am_liam",
+          "am_michael",
+          "am_onyx",
+          "am_puck",
+          "am_santa",
+          "bf_alice",
+          "bf_emma",
+          "bf_isabella",
+          "bf_lily",
+          "bm_daniel",
+          "bm_fable",
+          "bm_george",
+          "bm_lewis"
         ],
         "es": [
           "ef_dora",

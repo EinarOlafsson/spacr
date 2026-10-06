@@ -1,0 +1,455 @@
+{
+ "lesson": "14_make_masks",
+ "images": [
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/01_module.png",
+   "sha256": "859de345573cf7ae58896decde7c6e5a73a759b513b02d25c2073c79c6a8790f",
+   "scenes": [
+    0
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/01b_test_data_menu.png",
+   "sha256": "68d0ff9e09855cf3be8dddd0602d9f38d3ba9eb492d689351589d66aebb8fb5c",
+   "scenes": [
+    1
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/02_folder_picker.png",
+   "sha256": "bb87307083854ac28ea2fc3a0e61f7e314ff4133c8d831f47da0ec63e9986add",
+   "scenes": [
+    2
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/03_real_labels.png",
+   "sha256": "e29abd34389b83c7934a431e419ae5b1013c225e233be67f5c8e518fd96872f6",
+   "scenes": [
+    3,
+    6,
+    57
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/readouts_04_otsu_magnifier_settings.png",
+   "sha256": "018ea40a4bc976e26bc8ac52307d46e0cdded0438f8e52346888e0962139e49b",
+   "scenes": [
+    4
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/readouts_05_live_otsu_magnifier.png",
+   "sha256": "2df5b476e88024b5936c7b205b6ff6830454fd9962ac6f7616c8dba620e4a071",
+   "scenes": [
+    5
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/04_erase_one_object.png",
+   "sha256": "e26e2a78b1295ba94b91ab3d4bd310d6502388056f22ddab8ce17cb7fc8d001e",
+   "scenes": [
+    7
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/06_redo.png",
+   "sha256": "218f3aab8f4c442b1088b090ae6d340a80603a05be26e3d40a4f669141de1ceb",
+   "scenes": [
+    8
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/07_draw_demo_not_annotation.png",
+   "sha256": "b8144759af5f9f99518094a205788083d5bed11c38998bd79a897e498bfad44e",
+   "scenes": [
+    9
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/08_divide_demo.png",
+   "sha256": "ebb767b93e21c1483e3da6c6c751a7318fa8646dc17ecdd48a2c26904afe6d43",
+   "scenes": [
+    10
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/08b_contrast_only.png",
+   "sha256": "6f13ddf9d9992e9940185a70594df0840678afe9f78bc8fab4d51e1d98924634",
+   "scenes": [
+    11
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/08c_filter_edits_labels.png",
+   "sha256": "9543d238a681aa2d27b9db2cc0bf4ee382357986e3ed855c8ebaa19f32caa4e3",
+   "scenes": [
+    12
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/08d_filter_removed.png",
+   "sha256": "52a35f9fe221d5956b46302b5fc7d89d7ec7def2a582093d48b4e583b0237730",
+   "scenes": [
+    13
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/11_saved_restored_mask.png",
+   "sha256": "b2eb9b966c59db01c848f64f69f8ca30fd48d139574886e7ef20e5e5cca99a24",
+   "scenes": [
+    14
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-yolo-r2-current/captures/make_masks_yolo_662_r2/yolo_04_box_controls.png",
+   "sha256": "e03a8e1d9f7fe94b31d52d3e6ee67e359943eb161739a9111fc7403bbd745d47",
+   "scenes": [
+    15
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-yolo-r2-current/captures/make_masks_yolo_662_r2/yolo_05_add_class.png",
+   "sha256": "ebb7c2ad4b1a08b26bda566a42828fc99ac377f5a5f1d9eee13b3f9b36af44a3",
+   "scenes": [
+    16
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-yolo-r2-current/captures/make_masks_yolo_662_r2/yolo_06_drawn_box.png",
+   "sha256": "74299fd65ce75559cdefcb92b9c95036373a9b6f7824e0aafaacb63223a904fe",
+   "scenes": [
+    17
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-yolo-r2-current/captures/make_masks_yolo_662_r2/yolo_07_moved_box.png",
+   "sha256": "038a44c44092e1d0c3cc25c110faae7eba255f0e2d6f7b019df685e2560426b4",
+   "scenes": [
+    18
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-yolo-r2-current/captures/make_masks_yolo_662_r2/yolo_08_resized_box.png",
+   "sha256": "800ec69d293129dda7705c015f4392642f74e9efb7ce72d0705b85fbc4b8c09e",
+   "scenes": [
+    19
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-yolo-r2-current/captures/make_masks_yolo_662_r2/yolo_09_contained_box.png",
+   "sha256": "1af10ed8e43f56b50f83469f5c6b5b68f9fed03537b7eb8f1d97dd55f8a429c3",
+   "scenes": [
+    20
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-yolo-r2-current/captures/make_masks_yolo_662_r2/yolo_10_deleted_box.png",
+   "sha256": "40fb18370e09e9196117aabff676024bcc10f075f39d2ee81f60705c5dbcbde8",
+   "scenes": [
+    21
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-yolo-r2-current/captures/make_masks_yolo_662_r2/yolo_11_undo_boxes.png",
+   "sha256": "65f30c43cf9046a7117784de4df95d252b111b5399f523963df34d6a96925bac",
+   "scenes": [
+    22
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-yolo-r2-current/captures/make_masks_yolo_662_r2/yolo_12_redo_boxes.png",
+   "sha256": "1df0c812749baf815d2fe88e98b0785e8fc086988a39cddef449869a357fe8a6",
+   "scenes": [
+    23
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-yolo-r2-current/captures/make_masks_yolo_662_r2/yolo_13_saved_boxes.png",
+   "sha256": "c3d0b3018be2c0f5920fa874d3e99345966fa42f3f66238045e85c35bb1ed416",
+   "scenes": [
+    24
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-yolo-r2-current/captures/make_masks_yolo_662_r2/yolo_14_export_picker.png",
+   "sha256": "eb8aa4efe1d5542bcce43fc93a6cd5b137f16c5763f0479b8d21d030ba86a6e7",
+   "scenes": [
+    25
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-yolo-r2-current/captures/make_masks_yolo_662_r2/yolo_17_negative_exported.png",
+   "sha256": "392f2abc46b229df47149133620f27984a23ad1912e833cf54b1aa11615cca2a",
+   "scenes": [
+    26
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-yolo-r2-current/captures/make_masks_yolo_662_r2/yolo_18_reloaded_boxes.png",
+   "sha256": "9bab68ed1a9459835243497e80d9f795695e181f201ee71e75caeb692431a245",
+   "scenes": [
+    27
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/09_fold_train_cellpose.png",
+   "sha256": "0478c874c2c3649081bd858af739c966098041fd0559f82797308be84d920c9b",
+   "scenes": [
+    28
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/09_fold_model_zoo.png",
+   "sha256": "e11c63b91ec8943778adf52d647df5523dea8c23ae972559e15c74a637110843",
+   "scenes": [
+    29
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/12_recrop_written.png",
+   "sha256": "d04e77ac75eed8bc4dbed89663787f449760b577b5823eef9024c8fa5394ffa4",
+   "scenes": [
+    30
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/13_child_and_recovery_archive.png",
+   "sha256": "856c2e57d9f68449310c98e0769990854fbe33cab962d4738e23934b66654903",
+   "scenes": [
+    31
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-restoration-current/captures/make_masks_restoration_662_r1/restoration_01_restoration_row.png",
+   "sha256": "c1adc620e9bf9cb727e1e22f9c4f843bb7e2afd1fd4c9fd6b7e8685215461593",
+   "scenes": [
+    32
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-restoration-current/captures/make_masks_restoration_662_r1/restoration_02_denoise_settings.png",
+   "sha256": "74e98a774295d0e9754cf2a3149c778b3ade70734de0257a79d5e1be489a8b08",
+   "scenes": [
+    33
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-restoration-current/captures/make_masks_restoration_662_r1/restoration_03_model_ready.png",
+   "sha256": "dfb3c1f8a7b6b1406ef677fe001b1d9b1591282e4382f6d3d842b516c8441039",
+   "scenes": [
+    34
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-restoration-current/captures/make_masks_restoration_662_r1/restoration_04_compare.png",
+   "sha256": "483873a0effd91d135cf8bd1234299052ded2baefe39ead626e5cbbd92493bc0",
+   "scenes": [
+    35
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-restoration-current/captures/make_masks_restoration_662_r1/restoration_05_apply.png",
+   "sha256": "0498c8217a3207385744652c456d8b5fd6850bfb89cfb0689b2347fd65e6439b",
+   "scenes": [
+    36
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/14_cellpose_settings.png",
+   "sha256": "ec9cb4f35aba4d678e15996e5d110c462269caa680cf0c9b35430a9868991c82",
+   "scenes": [
+    37
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/15_cellpose_detected.png",
+   "sha256": "41338b6a7f0241a0966ddf17b4facd0aabde0218be6a3e21890d292b55b13913",
+   "scenes": [
+    38
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/16_cell_probability.png",
+   "sha256": "5c3f2c4fcbc2608727d169e8992a5a5a159ec26547e248ca33f2f77878f5b814",
+   "scenes": [
+    39
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/17_flows.png",
+   "sha256": "cba4961961d98628daccb2810a676c3b84944c75ca2bff45ae4fd6d4bddf9a88",
+   "scenes": [
+    40
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/19_detection_undone.png",
+   "sha256": "3e0c6bb260d0286f9abc97ffd24f90a9f651af8ba97d0352eb2d6b603dbcb136",
+   "scenes": [
+    41
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-puncta-current/captures/make_masks_puncta_662_r1/puncta_01_raw_input.png",
+   "sha256": "b6313d119608146c1ab39a0f83082fed981b3da86dd164acad71ad7f2512139a",
+   "scenes": [
+    42
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-puncta-current/captures/make_masks_puncta_662_r1/puncta_02_parent_and_settings.png",
+   "sha256": "fdbe4a1254cf10d31475e58822794c054ac7fa398499bd9ce8de6db11f781e9b",
+   "scenes": [
+    43
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-puncta-current/captures/make_masks_puncta_662_r1/puncta_03_detected_centres.png",
+   "sha256": "b87f5a8959414089af8afbd85b1840577e03316151eccbd6fc5082d63f9d084a",
+   "scenes": [
+    44
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-puncta-current/captures/make_masks_puncta_662_r1/puncta_04_saved_mask_and_measurements.png",
+   "sha256": "27d79cc73e1aa94413b988abf5f2ac679de73aa5f9efbd42c751f8a8a0d53bd0",
+   "scenes": [
+    45
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/20_curate_keep.png",
+   "sha256": "964a02d225a52c12be64e5f1d4c3cd38723468d2e5bb69ef4c45c71e9efa0ce8",
+   "scenes": [
+    46
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/21_curate_discard.png",
+   "sha256": "dcddbcdf763fa10ad7e29421252813b4bcaedb32c8a91ea4e4fee4863fc22959",
+   "scenes": [
+    47
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/22_upload_data.png",
+   "sha256": "ee401912069f2362f5971c58c4d2ab027dc80a72cbaf50e6a24e31770f3fbd95",
+   "scenes": [
+    48
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/23_consolidate_offer.png",
+   "sha256": "58e41bc335fc020a10c6014a44158bee575568d5dee4d82879a2ed1dd2986713",
+   "scenes": [
+    49
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/24_consolidated_opened.png",
+   "sha256": "eb161670885bd0bb1a4ebbf2a89a215bb8f70ac1ef00955b78fadb8d1d7d391c",
+   "scenes": [
+    50
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/25_organize_open.png",
+   "sha256": "64434fdf578b5c8fda8f4ab129e631034e0ea3f68a0691b0b7e15bd2566ad68b",
+   "scenes": [
+    51
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/26_organize_table.png",
+   "sha256": "05626aff9fa07415e6dd993c4929f7d59bce1484acfed0921f76b0d6837125c1",
+   "scenes": [
+    52
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/27_detect_sets_check.png",
+   "sha256": "d5259a52b3ccb430bdbbda3a7ac8b77c0254f75b9c45e67fbcf7d26ee3832fcc",
+   "scenes": [
+    53
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/28_organize_images.png",
+   "sha256": "0bef6e9244062e88cfc3f6fef6274967bc38a1ad53b504e32dd9986c26cda0d5",
+   "scenes": [
+    54
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/29_move_and_merge.png",
+   "sha256": "5152eb1e33ebadd65465c70a377397de9c5c06eeb9695c81734d04efa655498b",
+   "scenes": [
+    55
+   ],
+   "regions": []
+  },
+  {
+   "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/captures/make_masks_editor_662_r5/30_organized_for_measure.png",
+   "sha256": "cd35ea783066b8c4a58a152a8caef9a4ccfdd86f9e34ae449e85aca2d4267def",
+   "scenes": [
+    56
+   ],
+   "regions": []
+  }
+ ]
+}

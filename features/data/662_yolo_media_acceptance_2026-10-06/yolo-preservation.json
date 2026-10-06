@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "baseline": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-home-measure-ui-current-r1/release-candidate-append-ke3jjmi6",
+  "baseline_revision": "7eb26504d883fc92ac8c6ecc0bbd514b6c90dd27",
+  "selected_lessons": [
+    "14_make_masks"
+  ],
+  "unchanged_complete_lesson_objects": {
+    "captions_da.json": 84,
+    "captions_de.json": 84,
+    "captions_is.json": 84,
+    "captions_ko.json": 84,
+    "captions_nb.json": 84,
+    "captions_sv.json": 84,
+    "lessons_en.json": 84,
+    "lessons_es.json": 84,
+    "lessons_fr.json": 84,
+    "lessons_hi.json": 84,
+    "lessons_it.json": 84,
+    "lessons_ja.json": 84,
+    "lessons_pt-BR.json": 84,
+    "lessons_zh-CN.json": 84
+  },
+  "unchanged_other_media_records": 4796,
+  "Mask_07_unchanged": true,
+  "Measure_08_current_opening_preserved": true,
+  "Home_05_current_navigation_preserved": true,
+  "Conda_02_verified_single_scene_replacement_retained": true,
+  "before_media_files": 4852,
+  "after_media_files": 4898
+}

@@ -1,0 +1,62 @@
+{
+  "item": 552,
+  "normal_isolated_installer_complete": true,
+  "installer_selected_default_torch_index": "https://download.pytorch.org/whl/cu128",
+  "actual_private_torch": "2.11.0+cu128",
+  "cpu_baseline_normal_mask_pipeline_passed": true,
+  "acquired_fields": 4,
+  "saved_reference_objects": 223,
+  "predicted_objects": 209,
+  "cpu_f1_50": 0.9167,
+  "cpu_f1_75": 0.8657,
+  "reference_labels_from_Cellpose_SAM_not_independent_human_truth": true,
+  "reference_label_diameters_used_for_reproducible_execution": true,
+  "actual_cpu_outputs_retained_for_cuda_comparison": true,
+  "cuda_inference_accepted": false,
+  "queued_label": "552-instanseg-current-cuda-20261006-r1",
+  "queue_scope": "Normal four-field Mask pipeline, isolated real worker, actual torch.profiler CUDA events; no model double.",
+  "brightfield_model_validated": false,
+  "multiplex_gpu_validated": false,
+  "artifacts": {
+    "features/data/552_instanseg_gpu_preparation_2026-10-06/archive_instanseg_preparation.py": {
+      "sha256": "a228d52fbe917776b8db1b739cdadea4099ed8881cac758cde55bc7664368296",
+      "bytes": 4807
+    },
+    "features/data/552_instanseg_gpu_preparation_2026-10-06/benchmark_instanseg_current.py": {
+      "sha256": "3d7506c29bed77cb4df8159dea1faa01ce037ab17ebf4af7d7c3cf92a397bd89",
+      "bytes": 5100
+    },
+    "features/data/552_instanseg_gpu_preparation_2026-10-06/cpu-acceptance.json": {
+      "sha256": "30e984405c5724223797dd478ff8756f3729390b05ce60972106c3240c28e0eb",
+      "bytes": 11310
+    },
+    "features/data/552_instanseg_gpu_preparation_2026-10-06/fresh-cpu-reference.zip": {
+      "sha256": "bf5f300fc66ba530f18fe59d1d8c9ae366f0a621608b1e2fd91d3d03e00b22d5",
+      "bytes": 478633
+    },
+    "features/data/552_instanseg_gpu_preparation_2026-10-06/installation.json": {
+      "sha256": "a31f28c8470d474aad7c95b78fbad4233bb470d60918062ac140d33d935436ea",
+      "bytes": 936
+    },
+    "features/data/552_instanseg_gpu_preparation_2026-10-06/instanseg-current-cpu-r1.log.gz": {
+      "sha256": "8652091922e03f2db8dfec6ab35aebb648c84aa99f216d3955c4e8f068978aa3",
+      "bytes": 587
+    },
+    "features/data/552_instanseg_gpu_preparation_2026-10-06/instanseg-current-cpu-r2.log.gz": {
+      "sha256": "938efde3a70cf3d348692ca7e9bc4929bd202737db03477e70e6bba7ae7a6cec",
+      "bytes": 587
+    },
+    "features/data/552_instanseg_gpu_preparation_2026-10-06/instanseg-gpu-environment-r1.log.gz": {
+      "sha256": "e73a43e91afdadf24e61c2dcd490f87d70974ae3554044b97d6a564690b90af6",
+      "bytes": 3246
+    },
+    "features/data/552_instanseg_gpu_preparation_2026-10-06/instanseg_worker_profile.py": {
+      "sha256": "e9c8fbd0b7c1a39716a236993daafafbbc635428851e85490ceb09160634c5f6",
+      "bytes": 2264
+    },
+    "features/data/552_instanseg_gpu_preparation_2026-10-06/prepare_instanseg_gpu_environment.py": {
+      "sha256": "55d1621d14ac7c3030368573b5ed7b07d1cb182439133b2c0f38dcc2e54bde23",
+      "bytes": 1225
+    }
+  }
+}
