@@ -497,9 +497,24 @@ def test_native_tzyx_refuses_unproved_modes_before_outputs(tmp_path, change):
     assert not (source / 'masks').exists()
 
 
+@pytest.mark.parametrize('conversion', ['installed', 'three_channels'])
 def test_real_mask_pipeline_receives_each_native_volume_with_z_axis(
-        tmp_path, fake_model, monkeypatch):
+        tmp_path, fake_model, monkeypatch, conversion):
+    """Cellpose 4.0.7 pads one native channel to three without changing it."""
+    from cellpose import transforms
     import spacr.object as spacr_object
+
+    if conversion == 'three_channels':
+        installed_convert = transforms.convert_image
+
+        def padded_conversion(*args, **kwargs):
+            """Exercise Cellpose's supported three-channel converted layout."""
+            converted = installed_convert(*args, **kwargs)
+            first = converted[..., :1]
+            return np.concatenate((first, np.zeros_like(first),
+                                   np.zeros_like(first)), axis=-1)
+
+        monkeypatch.setattr(transforms, 'convert_image', padded_conversion)
 
     source, rows = _converted_series(tmp_path)
     seen = []
@@ -513,11 +528,18 @@ def test_real_mask_pipeline_receives_each_native_volume_with_z_axis(
                     min_size=15, max_size_fraction=0.4, niter=None,
                     augment=False, tile_overlap=0.1, bsize=256,
                     compute_masks=True, progress=None):
+        native = np.asarray(x)
         converted = check_cellpose_eval_call(
             x, channel_axis, z_axis=z_axis, do_3D=do_3D)
         assert do_3D and z_axis == 0 and channel_axis == -1
         assert anisotropy == 2 and len(converted) == 1
-        assert converted[0].shape == (2, 64, 64, 1)
+        assert native.shape == (2, 64, 64, 1)
+        assert converted[0].shape in ((2, 64, 64, 1), (2, 64, 64, 3))
+        if conversion == 'three_channels':
+            assert converted[0].shape[-1] == 3
+        np.testing.assert_array_equal(converted[0][..., 0], native[..., 0])
+        if converted[0].shape[-1] == 3:
+            assert not np.any(converted[0][..., 1:])
         seen.append(converted[0].copy())
         labels = np.zeros((2, 64, 64), np.uint16)
         labels[:, 5:17, 5:17] = 1
@@ -526,12 +548,11 @@ def test_real_mask_pipeline_receives_each_native_volume_with_z_axis(
     monkeypatch.setattr(model_class, 'eval', volume_eval)
     core.preprocess_generate_masks(_settings(source, cell_channel=None))
     assert len(seen) == 2
-    for time, frame in enumerate(seen, start=1):
-        assert frame.shape == (2, 64, 64, 1)
+    for time, converted in enumerate(seen, start=1):
         raw_first = tifffile.imread(source / next(
             row['target'] for row in rows if int(row['t']) == time
             and int(row['z']) == 1 and int(row['channel']) == 1))
-        assert np.array_equal(frame[0, :, :, 0] > frame[0, :, :, 0].min(),
+        assert np.array_equal(converted[0, :, :, 0] > converted[0, :, :, 0].min(),
                               raw_first > raw_first.min())
         merged = np.load(source / f'merged/plate1_A01_1_{time}.npy')
         assert merged.shape == (2, 64, 64, 3)
