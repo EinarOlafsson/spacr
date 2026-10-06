@@ -1,0 +1,71 @@
+{
+  "item": 557,
+  "public_paired_image_original_metadata_alignment_and_manual_mask_identity_audit_complete": true,
+  "paired_dataset_URL": "https://zenodo.org/records/5750174",
+  "paired_dataset_DOI": "10.5281/zenodo.5750174",
+  "original_archive_sha256": "e9e5ad6b3d66f32590e7eb770edf55149b8420a5f95f940b8a9062b9fd063a2d",
+  "original_archive_MD5": "5af4937e6a43d5bce5e6119abb118a2a",
+  "original_archive_bytes": 85328966,
+  "original_TIFFs": 50,
+  "training_pairs": 20,
+  "test_pairs": 5,
+  "all_original_TIFF_pixels_file_hashes_and_pair_basenames_exact": true,
+  "exact_pixel_duplicate_groups": {},
+  "diagnostic_shift_max_absolute_px": 0.30000001192092896,
+  "diagnostic_unshifted_blurred_Pearson_range": [
+    0.7016957047035802,
+    0.9588166882283997
+  ],
+  "no_masks_exposure_laser_photon_or_gain_calibration_in_original_archive": true,
+  "related_manual_annotation_dataset_URL": "https://zenodo.org/records/3715492",
+  "related_manual_annotation_archive_sha256": "aec767afae76942b7c97e31c500284f8b5862150d8e81b57f513e66d7258c05e",
+  "related_manual_annotation_original_TIFFs": 98,
+  "related_manual_annotation_exact_original_pixel_match_count": 0,
+  "same_cell_line_and_microscope_do_not_authorize_transferring_masks": true,
+  "diagnostic_alignment_only_no_resampling_or_transferred_mask_claim": true,
+  "archive_originals_retained_in_scratch_primary_immutable_urls_and_exact_hashes_in_repository": true,
+  "no_training_GPU_denoising_F1_or_calibrated_low_light_acceptance_claim": true,
+  "second_calibrated_low_light_dataset_requirement_remains_open": true,
+  "artifacts": {
+    "features/data/557_public_paired_image_audit_2026-10-06/archive_noisy_nuclei_pair_audit_r1.py": {
+      "sha256": "41eda699edcd6e16968a63284ff68e0d3d8d9eb89c3e45885948a7a24c56aa86",
+      "bytes": 5954
+    },
+    "features/data/557_public_paired_image_audit_2026-10-06/audit_noisy_nuclei_pairs_r1.py": {
+      "sha256": "ccdaddfd8c934d42019b9212a831939fc140a27ae6230278ff0c41374cbfcdd0",
+      "bytes": 6022
+    },
+    "features/data/557_public_paired_image_audit_2026-10-06/inspect_real_noisy_nuclei_metadata_r1.py": {
+      "sha256": "d18a1775055c0519139d1aca7110b5eaed2bbf0603fe3b9960511289499007ad",
+      "bytes": 2737
+    },
+    "features/data/557_public_paired_image_audit_2026-10-06/inspection.json.gz": {
+      "sha256": "2a8a8c03edd715f5571ed61f1b40ed603e055a3a8953b9f2260ed08863552857",
+      "bytes": 6246
+    },
+    "features/data/557_public_paired_image_audit_2026-10-06/manual-mask-identity-check.json": {
+      "sha256": "f231eede718f906ee073f68e5097dddcdf421e2ca42c75aa148ca56122844d3d",
+      "bytes": 40457
+    },
+    "features/data/557_public_paired_image_audit_2026-10-06/manual-mask-primary-record.html.gz": {
+      "sha256": "b005f339c51e6f12f3d94dd5b8f72af97cba611eeb921f5b9ebcdf8de03a4f7e",
+      "bytes": 14006
+    },
+    "features/data/557_public_paired_image_audit_2026-10-06/noisy-nuclei-pair-audit-r1.log.gz": {
+      "sha256": "72ac4df13356cebd15bd2b1e429b35073e7cc25c7c539fe6a5a02ecb9b403ac5",
+      "bytes": 209
+    },
+    "features/data/557_public_paired_image_audit_2026-10-06/pairs.json": {
+      "sha256": "49572d0045d0bbfe366bd30801acfbce9903449e23bb91ab0d48ffd9dbf03bba",
+      "bytes": 92909
+    },
+    "features/data/557_public_paired_image_audit_2026-10-06/primary-record.html.gz": {
+      "sha256": "86363bb0d1ae08875bc71bfe51d722502ca76505b6ca2f354507ad30b6860a9b",
+      "bytes": 12681
+    },
+    "features/data/557_public_paired_image_audit_2026-10-06/real-noisy-nuclei-inspection-r1.log.gz": {
+      "sha256": "193a29519332353ac6f9c3acea05d716a066d220097ee2406dda8f5a68f47181",
+      "bytes": 179
+    }
+  }
+}
