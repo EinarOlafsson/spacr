@@ -9,7 +9,7 @@ from spacr.qt.widgets import ambient
 
 def _engine(monkeypatch, width, height):
     engine = ambient.make_engine(
-        'data_art_genetic_advection', 'spacr', '#101418', seed=42)
+        'data_art_genetic_advection', 'spacr', '#101418', seed=42, density=1)
     engine.set_max_pixels(width * height)
     snapshots = []
 
@@ -105,7 +105,6 @@ def test_attraction_depends_on_the_recent_path_not_only_the_current_point(
         engine.shade(width, height)
         engine.set_pointer((.5, .5))
         engine.shade(width, height)
-    count = len(frames[0][0]) // 12
     for first, second in zip(frames[0], frames[2]):
-        assert np.array_equal(first[:count], second[:count])
-    assert np.count_nonzero(frames[1][0][:count] != frames[3][0][:count]) > 100
+        assert np.array_equal(first[0], second[0])
+    assert np.count_nonzero(frames[1][0][0] != frames[3][0][0]) > 100

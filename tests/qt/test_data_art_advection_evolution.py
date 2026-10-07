@@ -6,7 +6,7 @@ from spacr.qt.widgets import ambient
 
 
 def test_advection_structure_and_velocity_change_without_changing_seed(monkeypatch):
-    engine = ambient.make_engine('data_art_genetic_advection', 'spacr', '#101418', seed=42)
+    engine = ambient.make_engine('data_art_genetic_advection', 'spacr', '#101418', seed=42, density=1)
     snapshots = []
 
     def capture(width, height, x, y, intensity, spread=False):

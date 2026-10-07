@@ -178,6 +178,7 @@ def test_canvas_resizes_release_previous_material_images_and_grids(family):
 def test_density_changes_grain_population_and_restores_default_frame(family):
     """Density adds actual points and can return to its seeded composition."""
     engine = _engine(family, seed=11, palette="mono")
+    initial_density = engine.density
     engine.set_time(7.0)
     default = _digest(_frame(engine))
     engine.set_density(0.25)
@@ -185,13 +186,16 @@ def test_density_changes_grain_population_and_restores_default_frame(family):
     engine.set_density(3.0)
     dense = _digest(_frame(engine))
     assert len({sparse, default, dense}) == 3
-    engine.set_density(1.0)
+    engine.set_density(initial_density)
     assert _digest(_frame(engine)) == default
 
 
 def test_geometry_and_isolated_grain_material_have_bounded_edges():
     """Empty canvases stay empty and an isolated grain clips at the edge."""
     engine = _engine("point_atlas")
+    assert engine.density == ambient.DEFAULT_DENSITY
+    assert len(engine.geometry(320, 200)) == round(64 * ambient.DEFAULT_DENSITY)
+    engine.set_density(1.0)
     assert engine.geometry(0, 20) == ()
     assert engine.geometry(20, 0) == ()
     assert len(engine.geometry(320, 200)) == 64

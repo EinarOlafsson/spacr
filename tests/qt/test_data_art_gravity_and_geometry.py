@@ -13,6 +13,11 @@ from spacr.qt.widgets import ambient
 
 
 def _engine(family, **kwargs):
+    kwargs.setdefault("density", 1.0)
+    if family == "chromatin_ribbon":
+        return ambient._DataArtEngine(
+            ambient.palette_colors("data_art_tissue_facets", "spacr"),
+            "#101418", family=family, seed=42, **kwargs)
     return ambient.make_engine(f"data_art_{family}", "spacr", "#101418",
                                seed=42, **kwargs)
 
@@ -61,9 +66,12 @@ def test_atlas_terrain_extends_beyond_every_viewport_edge(monkeypatch, pointer):
 
 
 def _uncropped_atlas_coordinates(engine, width, height):
-    spacing = max(2.4, 4.6 * engine.size / np.sqrt(engine.effective_density()))
+    spacing = max(2.4, 4.6 * engine.size / np.sqrt(ambient.DENSITY_RANGE[1]))
     columns = min(900, max(48, int(np.ceil(width * 1.65 / spacing))))
     rows = min(520, max(32, int(np.ceil(height * 1.85 / spacing))))
+    population = np.sqrt(engine.effective_density() / ambient.DENSITY_RANGE[1])
+    columns = max(3, int(np.ceil(columns * population)))
+    rows = max(3, int(np.ceil(rows * population)))
     xx, zz = np.meshgrid(np.linspace(-0.33, 1.33, columns, dtype=np.float32),
                          np.linspace(-0.43, 1.43, rows, dtype=np.float32))
     rng = np.random.default_rng(engine._art_seed)
@@ -235,13 +243,17 @@ def test_geometry_controls_remain_reproducible_and_cache_is_bounded(family):
     assert _digest(_render(engine)) != before
     engine.set_density(3.0)
     assert _digest(_render(engine)) != before
-    assert len(engine._material_cache) == (2 if family == "chromatin_ribbon" else 1)
+    assert len(engine._material_cache) == (
+        2 if family in ("chromatin_ribbon", "tissue_facets") else 1)
+    assert all(key[-2:] == (engine.size, engine.density)
+               for key in engine._material_cache)
 
 
 @pytest.mark.parametrize("background", ["#101418", "#f6f7f9"])
 def test_chromatin_retains_native_fibres_and_moves_seeded_folds(background):
-    engine = ambient.make_engine("data_art_chromatin_ribbon", "spacr",
-                                 background, seed=42, resolution=2.0)
+    engine = ambient._DataArtEngine(
+        ambient.palette_colors("data_art_tissue_facets", "spacr"),
+        background, family="chromatin_ribbon", seed=42, resolution=2.0, density=1)
     engine.set_max_pixels(640 * 360)
     engine.set_time(3.0)
     first = _digest(engine.shade(640, 360))

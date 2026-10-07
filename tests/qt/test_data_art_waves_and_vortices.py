@@ -35,7 +35,7 @@ def _compiler(kernel=None):
 def _engine(background='#101418', detail=2):
     engine = ambient._DataArtEngine(
         ambient.palette_colors('data_art_tissue_facets', 'spacr'), background,
-        family='chromatin_ribbon', seed=42, resolution=detail, blur=0)
+        family='chromatin_ribbon', seed=42, resolution=detail, blur=0, density=1)
     engine.set_max_pixels(960 * 540)
     return engine
 

@@ -35,8 +35,10 @@ def _paint(engine, width=320, height=200) -> QImage:
     image = QImage(width, height, QImage.Format_RGB32)
     painter = QPainter(image)
     painter.fillRect(image.rect(), QColor(DARK))
-    engine.paint(painter, width, height)
-    painter.end()
+    try:
+        engine.paint(painter, width, height)
+    finally:
+        painter.end()
     return image
 
 
@@ -239,15 +241,22 @@ def test_a_surge_pulse_stays_inside_its_own_brightness_range():
 
 
 def test_resizing_the_aurora_drops_both_of_its_pixel_caches():
-    """Both caches are keyed on pixel sizes derived from the size setting."""
-    engine = _engine("aurora", "borealis")
+    """Legacy tiles reset while current native ray samples stay bounded."""
+    engine = _engine("aurora", "borealis", density=1)
     _paint(engine)
-    assert engine._tiles or engine._surges
-
+    assert engine._ray_material
+    curtain = engine.curtains[0]
+    engine._tile(curtain, 1.0, 64, 48)
+    engine._surge(curtain, 1.0)
+    assert engine._tiles and engine._surges
+    prior = _paint(engine)
     engine.set_size(2.0)
-
     assert engine._tiles == {}
     assert engine._surges == {}
+    assert _paint(engine) != prior
+    for width in range(240, 600, 13):
+        _paint(engine, width, 200)
+        assert len(engine._ray_material) <= 24
 
 
 def test_the_aurora_caches_reset_instead_of_growing_without_bound():
@@ -356,7 +365,7 @@ def test_every_speck_goes_its_own_way_in_the_random_direction():
     travels; under ``random`` the headings are isotropic and the field
     spreads and mixes instead.
     """
-    engine = _engine("drift", "spacr", direction="random")
+    engine = _engine("drift", "spacr", direction="random", density=1)
     engine.set_time(4.0)
 
     moved = engine.geometry(320, 200)
