@@ -65,12 +65,17 @@ def qt_plugin(monkeypatch):
 
 
 def test_plugin_settings_use_declared_tabs_labels_tooltips_and_docs(
-    qapp, qt_plugin,
+    qapp, qtbot, qt_plugin,
 ):
+    from PySide6.QtWidgets import QWidget
+
     from spacr.qt.screens.settings_model import (
-        SettingsWidgets, api_docs_url,
+        SettingsWidgets,
+        api_docs_url,
     )
-    model = SettingsWidgets("qt_test_assay")
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    model = SettingsWidgets("qt_test_assay", parent=owner)
     sections = model.build_sections()
     assert [name for name, _rows in sections] == ["Input", "Analysis", "Output"]
     labels = [label for _name, rows in sections for label, _widget in rows]

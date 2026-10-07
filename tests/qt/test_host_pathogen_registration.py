@@ -1,15 +1,16 @@
 """Host–Pathogen Analysis is accessible with typed settings and CLI dispatch."""
 import pytest
+
 pytest.importorskip('PySide6')
 pytestmark = pytest.mark.qt
 
 
 def test_toxoplasma_route_cli_and_settings_share_one_entry(qapp):
-    from spacr.qt.app import APPS
-    from spacr.qt.organisms import ORGANISMS
-    from spacr.qt.screens.settings_model import resolve_default_settings, categories_for_app
     from spacr import settings
     from spacr.cli import MODULES
+    from spacr.qt.app import APPS
+    from spacr.qt.organisms import ORGANISMS
+    from spacr.qt.screens.settings_model import categories_for_app, resolve_default_settings
     assert 'host_pathogen' in {row[0] for row in ORGANISMS['toxoplasma']['modules']}
     assert 'host_pathogen' in {row[0] for row in APPS}
     defaults = resolve_default_settings('host_pathogen')
@@ -22,8 +23,12 @@ def test_toxoplasma_route_cli_and_settings_share_one_entry(qapp):
 
 
 def test_host_pathogen_settings_widgets_are_buildable(qapp, qtbot):
+    from PySide6.QtWidgets import QWidget
+
     from spacr.qt.screens.settings_model import SettingsWidgets
-    widgets = SettingsWidgets('host_pathogen')
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    widgets = SettingsWidgets('host_pathogen', parent=owner)
     widgets.build_sections()
     assert 'hp_marker_channels' in widgets._widgets
     assert 'hp_parasite_parent' in widgets._widgets
