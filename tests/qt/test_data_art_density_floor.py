@@ -29,7 +29,7 @@ def test_density_percentages_survive_construct_set_and_widget_boundary(density, 
 
 def test_density_minimum_preserves_default_maximum_and_actual_advection_counts():
     engine = ambient.make_engine('data_art_genetic_advection', 'spacr', '#101418', seed=42)
-    assert engine.density == 1.0
+    assert engine.density == ambient.DEFAULT_DENSITY == .1
     counts = []
     for density in [.01, .10, .50]:
         engine.set_density(density)

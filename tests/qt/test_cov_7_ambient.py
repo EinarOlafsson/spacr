@@ -390,10 +390,11 @@ def test_the_halo_pass_is_painted_only_when_the_blur_is_on():
 # ---------------------------------------------------------------------------
 
 def test_the_widget_reports_back_every_control_it_was_given(qtbot):
-    """Preferences reads these to fill its sliders in.
+    """Preferences reads the active controls to fill its sliders in.
 
     A getter that did not reflect the setter beside it would show the user a
-    control in one position and animate in another.
+    control in one position and animate in another. Retired blur remains inert
+    on the widget even when an older caller supplies a nonzero value.
     """
     widget = AmbientWidget(theme="drift", palette="spacr", background=DARK,
                            seed=3)
@@ -407,7 +408,8 @@ def test_the_widget_reports_back_every_control_it_was_given(qtbot):
     widget.set_size_scale(1.75)
     widget.set_direction("down")
 
-    assert widget.blur() == 1.25
+    assert widget.blur() == amb.DEFAULT_BLUR
+    assert widget.engine.blur == amb.DEFAULT_BLUR
     assert widget.resolution() == 0.75
     assert widget.density() == 2.0
     assert widget.speed() == 1.5

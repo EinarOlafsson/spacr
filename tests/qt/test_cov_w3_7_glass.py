@@ -444,7 +444,7 @@ def test_the_user_who_turned_the_backdrop_off_keeps_it_off(dialog,
     assert glass._install_the_backdrop(dialog) is None
 
 
-def test_an_unreadable_preference_still_leaves_a_backdrop_to_install(
+def test_an_unreadable_preference_does_not_invent_a_backdrop(
         dialog, monkeypatch):
     from spacr.qt import preferences
 
@@ -454,8 +454,13 @@ def test_an_unreadable_preference_still_leaves_a_backdrop_to_install(
     monkeypatch.setattr("spacr.qt.widgets.ambient.install_ambient",
                         lambda dlg, **kwargs: installed.append(kwargs) or
                         QWidget(dlg))
+    assert glass._install_the_backdrop(dialog) is None
+    assert installed == []
+
+    monkeypatch.setattr(preferences, "get_ambient_enabled", lambda: True)
+    monkeypatch.setattr(preferences, "get_popup_backdrop", lambda: "drift")
     assert glass._install_the_backdrop(dialog) is not None
-    assert installed[0]["theme"] == "aurora"
+    assert installed[0]["theme"] == "drift"
     assert installed[0]["corner_radius"] == glass.CARD_RADIUS
 
 

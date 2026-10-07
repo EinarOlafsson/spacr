@@ -345,7 +345,8 @@ def test_a_reapplied_control_repairs_a_changed_engine_and_keeps_ready_pixels(
     assert getattr(widget.engine, field) == expected_value
     assert bytes(producer.latest().constBits()) == bytes(before.constBits())
     getattr(widget, setter)(changed)
-    assert getattr(widget.engine, field) == changed
+    applied = amb.DEFAULT_BLUR if field == "blur" else changed
+    assert getattr(widget.engine, field) == applied
     if field == "speed":
         widget.advance_frame(0.5)
         assert widget.time() == pytest.approx(4.0 + 0.5 * changed)
@@ -353,7 +354,7 @@ def test_a_reapplied_control_repairs_a_changed_engine_and_keeps_ready_pixels(
         reference = make_engine("blobs", "spacr", DARK, seed=7)
         reference.set_max_pixels(widget.engine.max_pixels)
         reference.set_time(4.0)
-        getattr(reference, "set_" + field)(changed)
+        getattr(reference, "set_" + field)(applied)
         expected = reference.shade(320, 200)
         assert bytes(producer.latest().constBits()) == bytes(expected.constBits())
 

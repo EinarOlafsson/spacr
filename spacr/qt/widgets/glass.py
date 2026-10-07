@@ -910,6 +910,7 @@ def _install_the_backdrop(dialog: QDialog) -> Optional[QWidget]:
             return None
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not read the ambient preference", exc_info=True)
+        return None
     try:
         from .ambient import install_ambient
         from .setup_slides import BACKDROP_SPEED

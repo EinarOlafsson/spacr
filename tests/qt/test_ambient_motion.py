@@ -306,23 +306,22 @@ def _repo_root():
 #: ``bokeh`` and ``cells`` are out because they did not exist to be shipped.
 #:
 #: Everything else — blobs, ripples, the starfield — is still held to the
-#: original frame, byte for byte, on both kinds of page. Resolution, blur and
-#: density all default to the identity, so a user who never opens the new
-#: controls cannot tell they exist.
+#: original frame, byte for byte, on both kinds of page at Density 1.
+#: The current user-selected Density default is one tenth.
 UNCHANGED_THEMES = ("blobs", "ripple", "drift")
 
 
 @pytest.mark.parametrize("background", [DARK, LIGHT])
 @pytest.mark.parametrize("theme", UNCHANGED_THEMES)
-def test_the_defaults_are_the_animation_that_shipped(shipped_module, theme,
-                                                     background):
+def test_density_one_is_the_animation_that_shipped(shipped_module, theme,
+                                                  background):
     """Byte for byte, over several frames, on both kinds of page.
 
-    This is the promise the whole feature rests on: a user who never opens
-    the three new controls must not be able to tell they exist.
+    The current default Density is intentionally sparse; setting it to one
+    must still reproduce the old material without moving existing geometry.
     """
     was = shipped_module.make_engine(theme, "spacr", background, seed=7)
-    now = make_engine(theme, "spacr", background, seed=7)
+    now = make_engine(theme, "spacr", background, seed=7, density=1.0)
     assert (now.blur, now.speed, now.size) == (DEFAULT_BLUR, DEFAULT_SPEED,
                                                DEFAULT_SIZE)
     for _ in range(6):
@@ -347,13 +346,14 @@ def test_the_aurora_is_deliberately_not_what_shipped(shipped_module):
 
 @pytest.mark.parametrize("theme", AMBIENT_THEMES)
 def test_the_default_multipliers_are_the_identity(theme):
-    """Each mechanism, checked against the constant it is a multiple of.
+    """Each mechanism at identity, checked against its own base constant.
 
     Separate from the frame comparison above because this one keeps working
     when there is no git history to compare against, and because it says
     *which* mechanism broke.
     """
-    engine = make_engine(theme, "spacr", DARK, seed=3)
+    assert DEFAULT_DENSITY == 0.1
+    engine = make_engine(theme, "spacr", DARK, seed=3, density=1.0)
 
     # Resolution: the buffer is this theme's own declared one.
     if isinstance(engine, amb._BufferedEngine):
@@ -496,7 +496,7 @@ def test_the_aurora_is_no_longer_pixelated_at_1080p():
     pixels per ray and was being resolved at four and a half.
     """
     def frame(edge=None):
-        engine = make_engine("aurora", "spacr", DARK, seed=7)
+        engine = make_engine("aurora", "spacr", DARK, seed=7, density=1.0)
         if edge is not None:
             engine.base_edge = edge
             engine.buffer_size = types.MethodType(amb._BufferedEngine.buffer_size, engine)
@@ -819,7 +819,7 @@ def test_density_changes_how_many_things_are_drawn(theme, noun, count,
     the frame from — so this is the number of things in the picture, not a
     field on the engine that might or might not be read."""
     sparse = make_engine(theme, "spacr", DARK, seed=5, density=0.5)
-    normal = make_engine(theme, "spacr", DARK, seed=5)
+    normal = make_engine(theme, "spacr", DARK, seed=5, density=1.0)
     dense = make_engine(theme, "spacr", DARK, seed=5, density=3.0)
     assert count(normal) == shipped
     assert count(sparse) < count(normal) < count(dense)
@@ -843,7 +843,7 @@ def test_density_moves_the_starfield_too():
     """Drift counts its particles from the canvas area rather than from a
     constant, so it needs its own check that the multiplier is applied."""
     sparse = make_engine("drift", "spacr", DARK, seed=5, density=0.5)
-    normal = make_engine("drift", "spacr", DARK, seed=5)
+    normal = make_engine("drift", "spacr", DARK, seed=5, density=1.0)
     dense = make_engine("drift", "spacr", DARK, seed=5, density=3.0)
     assert len(sparse.geometry(W, H)) < len(normal.geometry(W, H)) \
         < len(dense.geometry(W, H))
@@ -937,7 +937,7 @@ def test_the_starfields_budget_ignores_resolution():
 
 def starfield(direction, seed=5):
     engine = make_engine("drift", "spacr", DARK, seed=seed,
-                         direction=direction)
+                         direction=direction, density=1.0)
     engine.set_time(0.0)
     return engine
 
@@ -1050,6 +1050,7 @@ def test_the_direction_survives_a_theme_switch(qtbot):
 # ---------------------------------------------------------------------------
 
 def aurora(palette="borealis", seed=7, curtains=None, **kwargs):
+    kwargs.setdefault("density", 1.0)
     engine = make_engine("aurora", palette, DARK, seed=seed, **kwargs)
     if curtains is not None:
         engine.curtains = engine.curtains[:curtains]

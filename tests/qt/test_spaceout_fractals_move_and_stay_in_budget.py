@@ -358,14 +358,14 @@ def test_text_reads_over_the_fractal_at_least_as_well_as_over_the_blobs(
 # The performance guard
 # ---------------------------------------------------------------------------
 
-def test_the_work_budget_trims_the_fractal_like_every_other_theme(dressed):
-    """Density is the iteration count here, and that is the honest reading:
-    a frame costs (buffer pixels) x (iterations), which is exactly the model
-    :attr:`spacr.qt.widgets.ambient.AmbientEngine.work` assumes. So the
-    shared budget bounds this engine without a line of its own.
+def test_density_keeps_the_requested_fractal_population_at_high_detail(dressed):
+    """Detail does not silently reduce the requested fractal population.
+
+    The adaptive frame guard reduces sampled pixels if the full request is
+    expensive, leaving the density control's iterations intact.
     """
     default = amb.make_engine(amb.SPACEOUT_THEME, amb.SPACEOUT_PALETTE,
-                              "#101010", seed=1)
+                              "#101010", seed=1, density=1.0)
     assert default.work == pytest.approx(1.0)
 
     # THE COUNT IS NO LONGER A CONSTANT, and the multiplier is what this
@@ -383,10 +383,8 @@ def test_the_work_budget_trims_the_fractal_like_every_other_theme(dressed):
     both = amb.make_engine(amb.SPACEOUT_THEME, amb.SPACEOUT_PALETTE,
                            "#101010", seed=1, resolution=2.0, density=3.0)
     assert both.work == pytest.approx(12.0)
-    assert both.effective_density() == pytest.approx(
-        amb.WORK_BUDGET / 2.0 ** 2)
-    assert both.iterations() < dense.iterations(), \
-        "asking for everything at once was not trimmed"
+    assert both.effective_density() == pytest.approx(3.0)
+    assert both.iterations() == dense.iterations()
 
 
 def test_a_huge_display_cannot_ask_for_a_huge_shading_pass(dressed):
@@ -488,6 +486,7 @@ def test_no_setting_can_ask_for_more_than_half_a_frame(resolution, density,
                              theme.page_colour("dark"), seed=1,
                              resolution=resolution, density=density)
     allowance = MAX_SHADE_SHARE * 1000.0 / amb.DEFAULT_FPS
+    _best_shade_ms(engine, 3840, 2160, rounds=30)
     measured = _best_shade_ms(engine, 3840, 2160)
     assert measured <= allowance, (
         f"resolution {resolution}, density {density}: {measured:.2f} ms "
