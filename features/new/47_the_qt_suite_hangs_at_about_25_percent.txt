@@ -1898,3 +1898,12 @@ restarts hosted acceptance through the workflow-file trigger. Item stays OPEN.
     and runtime binding. Small/mixed RSS changes are not whole-suite savings.
     Busy UMAP JobRunner warnings are separately retained, not claimed fixed.
     Protected45f and final serial acceptance remain OPEN.
+
+2026-10-06 — sixth temporary settings owner repaired
+    UMAP reducer helper now parents every temporary control to a qtbot-owned
+    QWidget rather than registering only its reducer field. All5 matched
+    file/sentinel cases pass. Post-sentinel widget/top-level counts106/13
+    become2/1; RSS540.1 to539.7MiB is not material process-memory closure.
+    Two busy JobRunner warnings are absent in this pair; their timing sensitivity
+    prevents a worker-fix claim. Original reducer assertions remain. Proof:
+    data/47_umap_reducer_owner_2026-10-07/. Parent full serial remains OPEN.
