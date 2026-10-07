@@ -2331,7 +2331,6 @@ class AuroraEngine(_BufferedEngine):
         stride = AURORA_COLUMNS + 1
         top_f, bottom_f = AURORA_TILE_RAMP
         rays_per_tile = len(AURORA_TILE_RAYS)
-        pulse_w, pulse_h = AURORA_PULSE_TEXTURE
         ray_px = max(AURORA_RAY_MIN_PX,
                      AURORA_RAY_SPACING * self.size * width)
         for index, curtain in enumerate(self.curtains[:self.count()]):
@@ -2358,14 +2357,14 @@ class AuroraEngine(_BufferedEngine):
 
             left, right = columns[0][0], columns[-1][0]
             band = ray * (1.0 + 2 * AURORA_PULSE_PAD)
-            surge = QBrush(self._surge(curtain, peak))
-            surge.setTransform(QTransform(
-                (right - left) / pulse_w, 0.0, 0.0, band / pulse_h,
-                left, top - ray * AURORA_PULSE_PAD))
-            painter.setBrush(surge)
-            painter.drawPath(self._sheet(
+            surge = self._surge(curtain, peak)
+            painter.save()
+            painter.setClipPath(self._sheet(
                 columns, zero - ray * (AURORA_PULSE_HEIGHT
                                        + AURORA_PULSE_PAD)))
+            painter.drawImage(QRectF(left, top - ray * AURORA_PULSE_PAD,
+                                     right - left, band), surge)
+            painter.restore()
             roles = self.ramp_colors(curtain, quantised=True)
             for offset, weight, strength, role in (
                     (0.105, 1.8, 0.23, "main"),
