@@ -488,13 +488,13 @@ def test_resolution_reduces_pixelation(theme):
 
 def test_the_aurora_is_no_longer_pixelated_at_1080p():
     """The specific report — "the aurora looks super pixelated" — with a
-    number on it, against the buffer it used to be shaded into.
+    native raster and seeded irregular rays versus its old small buffer.
 
-    Two measurements, because the theme has two kinds of structure that a
-    small buffer wrecks: the upscale lattice over the band its lower edge
-    runs through, and the contrast of the ray comb, which is 36 screen
-    pixels per ray and was being resolved at four and a half.
+    Lattice energy still detects upscale blocks. The new shader samples
+    more distinct rays at native width, preserving its fine curtain detail.
     """
+    import numpy as np
+
     def frame(edge=None):
         engine = make_engine("aurora", "spacr", DARK, seed=7, density=1.0)
         if edge is not None:
@@ -516,9 +516,15 @@ def test_the_aurora_is_no_longer_pixelated_at_1080p():
     assert after < 1.15, f"the new one still measures {after:.3f}"
     assert after < before / 1.4
 
-    # ...and the rays are actually there now rather than smeared into the
-    # sheet. Contrast of the horizontal profile through a curtain.
-    assert comb_contrast(now_image) > comb_contrast(was_image) * 1.15
+    native_material = next(iter(now._ray_material.values()))
+    coarse_material = next(iter(was._ray_material.values()))
+    assert len(native_material[0]) > len(coarse_material[0]) * 4
+    native_rays = np.unique(native_material[2], axis=0)
+    coarse_rays = np.unique(coarse_material[2], axis=0)
+    assert len(native_rays) > len(coarse_rays) * 4
+    assert len(native_rays) > 400
+    assert now.buffer_size(1920, 1080) == (1920, 1080)
+    assert now.max_pixels == amb.BUFFER_MAX_PIXELS
 
 
 @pytest.mark.parametrize("theme", BUFFERED_THEMES)
@@ -1199,26 +1205,26 @@ def _agreement(a, b, tolerance=1):
                if any(abs(i - j) <= tolerance for j in b)) / len(a)
 
 
-def test_the_rays_do_not_slide_sideways():
-    """The folds travel; the curtain does not.
+def test_seeded_rays_remain_attached_while_the_fold_and_lean_move():
+    """The new folded shader fans its rays without re-seeding their texture."""
+    import numpy as np
 
-    The rays come from a brush that is never translated horizontally, so the
-    striations must stay in the same columns of the frame while the folds run
-    along them. If the whole band were sliding — the thing this animation was
-    asked *not* to do — this is what would move.
-
-    The last two lines are the control: displace the same measurement by four
-    pixels and the agreement collapses, which is what says the first
-    assertion is measuring position and not merely counting rays.
-    """
     engine = aurora(curtains=1)
     engine.set_time(0.0)
-    first = _ray_columns(render(engine))
+    first = render(engine)
+    geometry = engine.geometry(W, H)
+    key, material = next(iter(engine._ray_material.items()))
+    original = tuple(array.copy() for array in material)
     engine.set_time(23.0)
-    later = _ray_columns(render(engine))
-    assert len(first) > 20, "no rays to track"
-    assert _agreement(first, later) > 0.8, "the ray pattern slid sideways"
-    assert _agreement(first, [c + 4 for c in later]) < 0.5
+    later = render(engine)
+    assert first != later
+    assert engine.geometry(W, H) != geometry
+    assert engine._ray_material[key] is material
+    assert all(np.array_equal(before, after)
+               for before, after in zip(original, material))
+    assert len(np.unique(material[2], axis=0)) > 80
+    engine.set_time(0.0)
+    assert render(engine).bits().tobytes() == first.bits().tobytes()
 
 
 def _striation(image: QImage):
@@ -1314,30 +1320,37 @@ def test_the_colour_runs_green_through_the_body_and_red_at_the_top():
         f"the top is not redder than the body ({crown:.1f} vs {body:.1f})"
 
 
-def test_the_lower_edge_is_sharp_and_the_top_is_diffuse():
-    """The asymmetry is as recognisable as the colour: the bottom is where
-    the particles run out of altitude, the top is where the emission just
-    thins away."""
+def test_folded_curtain_textures_taper_at_both_ends(monkeypatch):
+    """Native rays emit within their sheet and fade before both boundaries."""
+    import numpy as np
+
     engine = aurora(curtains=1)
     engine.set_time(9.0)
-    grid = rows(render(engine))
-    page = luminance(QColor(DARK).getRgb()[:3])
-    # Above the page, not above zero: a fifth of the peak is below the page
-    # colour itself, so thresholding raw luminance selects the whole frame.
-    column = [sum(luminance(p) for p in row) / len(row) - page for row in grid]
-    peak = max(column)
-    lit = [y for y, v in enumerate(column) if v > peak * 0.2]
-    lowest, highest = max(lit), min(lit)
+    textures = []
+    original_draw = QPainter.drawImage
 
-    def steepest(y0, y1):
-        y0, y1 = max(0, y0), min(len(column), y1)
-        return max(abs(b - a)
-                   for a, b in zip(column[y0:y1], column[y0 + 1:y1]))
+    def observe(painter, destination, image, source):
+        if not textures:
+            textures.append(image.copy())
+        return original_draw(painter, destination, image, source)
 
-    bottom_edge = steepest(lowest - 10, lowest + 8)
-    top_edge = steepest(highest - 8, highest + 10)
-    assert bottom_edge > top_edge * 2.5, \
-        f"lower edge {bottom_edge:.2f}/px, upper edge {top_edge:.2f}/px"
+    monkeypatch.setattr(QPainter, "drawImage", observe)
+    image = QImage(W, H, QImage.Format_RGB32)
+    image.fill(engine.identity)
+    painter = QPainter(image)
+    try:
+        painter.setCompositionMode(engine.mode)
+        engine._paint_field(painter, W, H)
+    finally:
+        painter.end()
+    assert textures
+    for texture in textures:
+        words = np.frombuffer(texture.constBits(), np.uint32).reshape(
+            texture.height(), texture.bytesPerLine() // 4)
+        assert np.all(words[0] == engine.identity.rgba())
+        assert np.all(words[-1] == engine.identity.rgba())
+        assert np.count_nonzero(words[1:-1] != engine.identity.rgba()) > texture.width()
+    assert lit_pixels(image) > 0
 
 
 def test_three_curtains_at_different_depths():
