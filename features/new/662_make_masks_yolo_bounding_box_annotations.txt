@@ -130,3 +130,17 @@ publication and15 contracts pass; all84 other whole lessons remain intact,
 including Mask07 and current Home/Measure/Conda/installation lessons.
 Receipt:615_final_native61_publication_2026-10-07_r6.json. Actual deployed
 nightly/current-source browser and full-video checks remain required.
+
+2026-10-07 final latest-source actual deployed native61 acceptance:
+Successful workflow37559626331 deploys exact sourcee1f54c80650f60942ba6c98d4e999b36a3fa2846.
+The complete actual lesson14 video matches immutable5b331d434e997e70264afd35b993b0ecc988d8e8,
+with all61 native scenes/50 voices and accepted master fidelity retained.
+Actual hosted player/catalog checks and phone playback/seek/sync/layout pass.
+Decoded Wand add/Ctrl removal, filter settings and Box class-name popup frames
+are visually inspected with correct scene identities; no filter-frame drawn-Box
+claim is made. Complete native normalized-box/export/empty-label/save/reload
+acceptance remains independently archived. Current Home/Measure/Conda/Mask
+and installation lessons also pass complete actual deployed video checks.
+Receipt:615_final_actual_deployment_2026-10-07_r1.json. Available current-source
+API/docs/translations/video/deck/publication/deployment scopes are accepted;
+demonstration annotations are not expert biological training truth.

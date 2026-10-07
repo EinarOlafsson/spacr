@@ -1622,3 +1622,24 @@ for73 modules and15 publication contracts pass. Complete50/61/28-case/
 API/runtime/guides and tutorial assets are being published together after
 retaining latest Home source. Actual successful source-bound nightly workflow,
 API/guide browser and phone/full-video deployment readback remain required.
+
+2026-10-07 final actual deployed-source acceptance:
+Successful docs workflow37559626331 builds and deploys exact nightly source
+e1f54c80650f60942ba6c98d4e999b36a3fa2846 with latest Home and all final owners.
+Strict English/all-nine guides, API links, compatibility and publication pass.
+All ten live API catalogs are exact; actual browsers pass37 API panels/55
+reviewed blocks and126 reviewed guide messages. Eight complete actual hosted
+videos match candidate hashes at immutable5b331d434e997e70264afd35b993b0ecc988d8e8;
+actual player/all14 catalogs and eight phone playback/seek/sync/layout checks
+pass. Synthetic tap/direct-play fallback scope is retained, not physical-device
+gesture acceptance. All11 decoded frames are visually inspected, including
+current Conda Home, Home Embeddings/Power/Dose Response, Measure and Make Masks.
+Full completed workflow log, all receipts, actual frames and complete local
+artifact identities are preserved in615_final_actual_deployment_2026-10-07_r1.json.
+This closes available current-source API/docs/translations/tutorial publication
+and deployment work. Home source freeze is released; its installed Save crash,
+hard24FPS and N43/F288/N47/protected45f CI remain open. Remaining scientific
+parent scopes require real external datasets, expert labels/weights or host
+access; see current HANDOFF. No biological, native-speaker, listening, human
+theme-aesthetic or full N615 completion claim. This update changes evidence
+and handoff only; app/docs/catalog/tool source remains verified e1.

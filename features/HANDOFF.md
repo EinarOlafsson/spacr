@@ -1,5 +1,53 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-07 final source-bound nightly deployment accepted; Home freeze released
+
+Completed successful docs workflow [37559626331](https://github.com/EinarOlafsson/spacr/actions/runs/37559626331)
+actually builds and deploys nightly source e1f54c80650f60942ba6c98d4e999b36a3fa2846,
+including latest Home cd2c3397c and all final workstation owners. Strict English
+and all nine translated guide builds, API links, compatibility and both branch
+publication jobs pass. All ten live API catalogs match that exact source;
+37 actual browser API panels expose 55 exact reviewed blocks, and 126 reviewed
+guide messages pass across all nine languages. Current full API/runtime/guide
+audits remain accepted at 13,199 symbols, 56,485 reviewed runtime records and
+2,999 guide messages per language. Native-speaker signoff is not claimed.
+
+All eight actual deployed tutorial videos are downloaded completely and match
+their candidate hashes at immutable media 5b331d434e997e70264afd35b993b0ecc988d8e8.
+Actual player and all fourteen catalogs match; all eight automated phone
+playback/seek/sync/layout cases pass. These record a synthetic tap followed by
+direct playback fallback, so physical-device gesture acceptance is not claimed.
+All eleven decoded current frames are visually inspected: corrected Conda Home,
+left-to-right Home modules including Embeddings/Power/Dose Response, current
+Measure, preserved Mask, installation lessons and current Make Masks controls.
+The filter scene is not labelled a drawn Box; the class-popup frame is correctly
+identified. Original automated receipts are unchanged. Full terminal workflow
+log, source identity, browser/video receipts, actual decoded frames and complete
+local artifact identities are retained in
+data/615_final_actual_deployment_2026-10-07_r1.json.
+
+Home: final app-source freeze is released. Workstation retains GPU ownership;
+all available owned turns and publication are finished. Do not repeat accepted
+catalog/media work without a new source change. This completion-evidence update
+does not change application, docs, catalogs or tool source from verified e1.
+Home retains installed Preferences Save SIGSEGV investigation, hard 24 FPS,
+N43/F288/N47 and protected45f serial CPU/Qt/CI acceptance. They remain OPEN;
+the source-bound renderer gains are not full crash/performance/CI acceptance.
+Protected livecell/cellposeTIME jobs were never touched.
+
+Remaining workstation scientific acceptance requires genuine external inputs:
+543 vendor Harmony FFC calibration; 554 historical OPS tiles/database;
+557 second calibrated low-light images/manual masks; 559 expert QC weights and
+labels; 370/404/449/470 curated held-out models/masks/crop classes; 537 lineage
+annotations; 574 BioStudies MIHCSME package; 586 GHCR/Apptainer Slurm host;
+567 expert Toxoplasma egress/invasion labels; official CellDINO expert weights
+and access. Available loader/CPU/CUDA/software checks are recorded separately;
+these parent biological/hardware scopes are not closed. Native macOS capture
+627 remains waived by the user because no host is available; no simulated
+Linux footage is presented as a native macOS recording. Human listening and
+theme-aesthetic acceptance are also not asserted. N615/full goal remain OPEN
+for these external/Home scopes, with no invented percentages or finish times.
+
 ## 2026-10-07 current app/catalog/native61 publication ready for actual deployment
 Workstation integrates latest Home source with every normal final owner.
 API passes all13,199 symbols across nine languages; current runtime passes
