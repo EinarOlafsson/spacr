@@ -16,10 +16,10 @@ old = (scratch / 'before_make_masks.py').read_bytes()
 current = (repo / path).read_bytes()
 assert hashlib.sha256(old).hexdigest() == '8ff012eff063bbaa9915ad5853a9e07f53aa6d59d43aaf4eb9f0b1601246b933'
 needle = b'            drain_thread(worker, timeout_ms=5000)\n        self._loading = False\n'
-replacement = b'            drain_thread(worker, timeout_ms=5000)\n            if worker.isRunning():\n                worker.setParent(None)\n        self._loading = False\n'
+replacement = b'            if not drain_thread(worker, timeout_ms=5000):\n                worker.setParent(None)\n        self._loading = False\n'
 assert old.count(needle) == 1 and current == old.replace(needle, replacement)
 assert subprocess.check_output(['git', 'show', '0324166b59:' + path], cwd=repo) == old
-focused = json.loads((scratch / 'coverage.json').read_text())['files'][path]
+focused = json.loads((scratch / 'coverage-final.json').read_text())['files'][path]
 prior_prefix = 'features/data/43_six_module_coverage_cpu_2026-10-06/'
 def git_bytes(name):
     return subprocess.check_output(['git', 'show', 'HEAD:' + name], cwd=repo)
@@ -40,17 +40,23 @@ for label, source, record in records:
     left, right = source.decode().splitlines(), current.decode().splitlines()
     matching = difflib.SequenceMatcher(None, left, right, autojunk=False).get_matching_blocks()
     mapping = {a + i + 1: b + i + 1 for a, b, size in matching for i in range(size)}
-    assert len(mapping) == len(left), (label, 'all prior source lines must be byte-identical')
+    changed = sorted(set(range(1, len(left) + 1)) - set(mapping))
+    if label == 'focused_now':
+        assert changed == []
+    else:
+        assert len(changed) == 1 and left[changed[0] - 1] == '            drain_thread(worker, timeout_ms=5000)'
+    assert 16643 not in mapping.values() or label == 'focused_now', 'Never inherit the changed drain condition'
     def mapped(n):
-        return mapping[abs(n)] * (1 if n > 0 else -1)
-    old_lines = {mapped(n) for n in record['executed_lines'] + record['missing_lines']}
-    old_arcs = {tuple(mapped(n) for n in edge) for edge in record['executed_branches'] + record['missing_branches']}
+        value = mapping.get(abs(n))
+        return None if value is None else value * (1 if n > 0 else -1)
+    old_lines = {mapped(n) for n in record['executed_lines'] + record['missing_lines'] if mapped(n) is not None}
+    old_arcs = {tuple(mapped(n) for n in edge) for edge in record['executed_branches'] + record['missing_branches'] if all(mapped(n) is not None for n in edge)}
     assert old_lines <= lines
     ignored_arcs = sorted(old_arcs - arcs)
-    executed |= {mapped(n) for n in record['executed_lines']}
-    taken |= {tuple(mapped(n) for n in edge) for edge in record['executed_branches']} & arcs
+    executed |= {mapped(n) for n in record['executed_lines'] if mapped(n) is not None}
+    taken |= {tuple(mapped(n) for n in edge) for edge in record['executed_branches'] if all(mapped(n) is not None for n in edge)} & arcs
     mapping_receipts[label] = {'source_sha256': hashlib.sha256(source).hexdigest(),
-        'all_old_lines_identical': True, 'statements': len(old_lines), 'branches': len(old_arcs),
+        'all_other_old_lines_identical': True, 'changed_drain_lines_not_inherited': changed, 'statements': len(old_lines), 'branches': len(old_arcs),
         'discarded_arcs_outside_current_universe': ignored_arcs}
     compressed = gzip.compress(json.dumps({'files': {path: record}}, sort_keys=True).encode(), mtime=0)
     (out / (label + '.json.gz')).write_bytes(compressed)
@@ -59,9 +65,9 @@ baseline = json.loads((repo / 'tools/coverage_baseline.json').read_text())
 allowance = baseline['modules'][path]
 assert len(missing_lines) <= allowance['uncovered_statements']
 assert len(missing_arcs) <= allowance['uncovered_branches']
-assert {16644, 16645} <= set(focused['executed_lines'])
-assert {(16644, 16645), (16644, 16646)} <= set(map(tuple, focused['executed_branches']))
-for name in ('native_probe.py', 'run_probe.py', 'before.json', 'before.log', 'after.json', 'after.log', 'focused-tests.log'):
+assert {16643, 16644} <= set(focused['executed_lines'])
+assert {(16643, 16644), (16643, 16645)} <= set(map(tuple, focused['executed_branches']))
+for name in ('native_probe.py', 'run_probe.py', 'before.json', 'before.log', 'after-final.json', 'after-final.log', 'focused-final-tests.log'):
     shutil.copy2(scratch / name, out / name)
 (out / 'before_make_masks.py.gz').write_bytes(gzip.compress(old, mtime=0))
 (out / 'after_make_masks.py.gz').write_bytes(gzip.compress(current, mtime=0))
@@ -82,8 +88,8 @@ for before, after in zip(old_ruff, new_ruff):
     assert before['code'] == after['code'] and before['message'] == after['message']
     for field in ('location', 'end_location'):
         assert after[field]['column'] == before[field]['column']
-        assert after[field]['row'] == before[field]['row'] + (2 if before[field]['row'] > 16643 else 0)
-receipt = {'source_parent': '0324166b59', 'source_commit': '79cf17bd6b',
+        assert after[field]['row'] == before[field]['row'] + (1 if before[field]['row'] > 16643 else 0)
+receipt = {'source_parent': '0324166b59', 'source_commit': 'd1cb435487', 'initial_superseded_candidate': '79cf17bd6b',
     'before_sha256': hashlib.sha256(old).hexdigest(), 'after_sha256': hashlib.sha256(current).hexdigest(),
     'test_sha256': hashlib.sha256((repo / 'tests/qt/test_make_masks_loader_shutdown.py').read_bytes()).hexdigest(),
     'runtime_sources': {name: hashlib.sha256((repo / name).read_bytes()).hexdigest() for name in (
@@ -94,9 +100,9 @@ receipt = {'source_parent': '0324166b59', 'source_commit': '79cf17bd6b',
     'prior_focused_archive': prior_prefix, 'prior_focused_git_blob_sha256': hashlib.sha256(git_bytes(prior_prefix + 'focused222.json.gz')).hexdigest(),
     'mapping': mapping_receipts, 'statements': len(lines), 'branches': len(arcs),
     'missing_lines': missing_lines, 'missing_branches': missing_arcs,
-    'new_guard_lines_covered': [16644, 16645], 'new_guard_branches_covered': [[16644,16645], [16644,16646]],
+    'new_guard_lines_covered': [16643, 16644], 'new_guard_branches_covered': [[16643,16644], [16643,16645]], 'changed_drain_line_inherited': False,
     'callable_docstrings_unchanged': True, 'unchanged_existing_ruff_findings': len(old_ruff),
-    'focused_result': '4 passed in24.85s; three new shutdown tests plus existing large decode GUI-responsiveness case',
+    'focused_result': '5 passed in25.16s; four shutdown tests including real deleted wrapper plus existing large decode GUI-responsiveness case',
     'native_before_exit': -6, 'native_after_exit': 0,
     'scope': 'Independent busy field-loader native ownership repair; no claim to resolve small-image Shiboken SIGSEGV, installed Save or full serial suite.'}
 (out / 'receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')

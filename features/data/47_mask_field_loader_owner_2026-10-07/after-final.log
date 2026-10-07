@@ -1,0 +1,5 @@
+{"checkpoint": "close_returned", "module_path": "/mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/make_masks.py", "source_sha256": "24cbc534a78939817fd4913cb258b3abb5a9d4ad166ebf84a6d7e110c4807898", "parent_is_screen": false, "parked_threads": 1}
+screen_deleted_loader_still_running
+loader_stopped_cleanly
+This plugin does not support propagateSizeHints()
+A worker thread did not stop within 5000 ms; it is parked rather than terminated so the process is not left with a corrupt heap.

@@ -15,7 +15,7 @@ for name, record in manifest['files'].items():
 before = gzip.decompress((archive / 'before_make_masks.py.gz').read_bytes())
 after = gzip.decompress((archive / 'after_make_masks.py.gz').read_bytes())
 needle = b'            drain_thread(worker, timeout_ms=5000)\n        self._loading = False\n'
-replacement = b'            drain_thread(worker, timeout_ms=5000)\n            if worker.isRunning():\n                worker.setParent(None)\n        self._loading = False\n'
+replacement = b'            if not drain_thread(worker, timeout_ms=5000):\n                worker.setParent(None)\n        self._loading = False\n'
 assert after == before.replace(needle, replacement)
 receipt = json.loads((archive / 'receipt.json').read_text())
 path = 'spacr/qt/screens/make_masks.py'
@@ -32,15 +32,21 @@ for label, record in records.items():
     mapping = {a + i + 1: b + i + 1
                for a, b, size in difflib.SequenceMatcher(None, left, right, autojunk=False).get_matching_blocks()
                for i in range(size)}
-    assert len(mapping) == len(left)
+    changed = sorted(set(range(1, len(left) + 1)) - set(mapping))
+    if label == 'focused_now':
+        assert changed == []
+    else:
+        assert len(changed) == 1 and left[changed[0] - 1] == '            drain_thread(worker, timeout_ms=5000)'
+        assert 16643 not in mapping.values()
     def mapped(n):
-        return mapping[abs(n)] * (1 if n > 0 else -1)
-    executed |= {mapped(n) for n in record['executed_lines']}
-    taken |= {tuple(mapped(n) for n in edge) for edge in record['executed_branches']} & arcs
+        value = mapping.get(abs(n))
+        return None if value is None else value * (1 if n > 0 else -1)
+    executed |= {mapped(n) for n in record['executed_lines'] if mapped(n) is not None}
+    taken |= {tuple(mapped(n) for n in edge) for edge in record['executed_branches'] if all(mapped(n) is not None for n in edge)} & arcs
 assert sorted(lines - executed) == receipt['missing_lines']
 assert sorted(map(list, arcs - taken)) == receipt['missing_branches']
-assert {16644, 16645} <= set(current['executed_lines'])
-assert {(16644, 16645), (16644, 16646)} <= set(map(tuple, current['executed_branches']))
+assert {16643, 16644} <= set(current['executed_lines'])
+assert {(16643, 16644), (16643, 16645)} <= set(map(tuple, current['executed_branches']))
 assert len(lines - executed) <= receipt['original_allowance']['uncovered_statements']
 assert len(arcs - taken) <= receipt['original_allowance']['uncovered_branches']
 print(json.dumps({'payloads_verified': len(manifest['files']), 'uncovered_statements': len(lines - executed), 'uncovered_branches': len(arcs - taken)}))

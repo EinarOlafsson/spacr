@@ -1985,3 +1985,14 @@ Compact source-bound evidence: data/47_queue_runner_owner_2026-10-07/.
     This is distinct from the small-image Shiboken deferred-deletion SIGSEGV,
     which remains OPEN along with installed Save and full serial acceptance.
 
+2026-10-07 — loader guard review correction and deleted-wrapper regression
+    The first loader candidate's second isRunning() call could raise after
+    close had already tolerated a native-deleted worker. Final d1cb435487
+    branches on drain_thread's result instead, preserving that original path
+    and normal stopped ownership. A real native-deleted wrapper closes safely.
+    Five final focused cases pass; real five-second native destruction still
+    exits0. The changed drain condition and both edges execute directly; no
+    old execution is inherited for that changed line. Final conservative
+    coverage stays11/28 within unchanged59/28 allowances. The same bounded
+    archive now binds final24cbc534 source; initial logs are superseded.
+    The separate small-image Shiboken SIGSEGV and full serial remain OPEN.

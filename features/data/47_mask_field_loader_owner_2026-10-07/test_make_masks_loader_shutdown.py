@@ -142,3 +142,21 @@ def test_native_screen_deletion_preserves_decoder_after_real_drain_timeout(tmp_p
     assert result.returncode == 0, result.stdout + result.stderr
     assert 'native-screen-deleted-decoder-finished' in result.stdout
     assert 'QThread: Destroyed while thread' not in result.stderr
+
+
+def test_already_deleted_decoder_is_tolerated_by_screen_close(qtbot, qt_theme_applied):
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QApplication
+    from shiboken6 import isValid
+
+    screen = module.MakeMasksScreen()
+    qtbot.addWidget(screen)
+    worker = module._MaskLoadWorker('/controlled', 'one.tif', screen._load_token, screen)
+    screen._load_worker = worker
+    screen._loading = True
+    worker.deleteLater()
+    QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    assert not isValid(worker)
+    assert screen.close()
+    assert screen._load_worker is None and screen._pending_load is None
+    assert not screen._loading

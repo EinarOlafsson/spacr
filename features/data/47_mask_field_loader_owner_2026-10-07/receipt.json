@@ -1,9 +1,10 @@
 {
   "source_parent": "0324166b59",
-  "source_commit": "79cf17bd6b",
+  "source_commit": "d1cb435487",
+  "initial_superseded_candidate": "79cf17bd6b",
   "before_sha256": "8ff012eff063bbaa9915ad5853a9e07f53aa6d59d43aaf4eb9f0b1601246b933",
-  "after_sha256": "63fb512e45ca18f57aeac8b1a95c6670b7b7c8fc64f6809d1af358c7e51e6b2e",
-  "test_sha256": "ea004bd5ea0b2217bff6b2fdee4d86a4d253a790a506f0b01aa7c3111a1a8dcc",
+  "after_sha256": "24cbc534a78939817fd4913cb258b3abb5a9d4ad166ebf84a6d7e110c4807898",
+  "test_sha256": "31295f1e467acd672d979e063e9e667ab04bcc5ea6d0ad4611559f9535157cc9",
   "runtime_sources": {
     "spacr/qt/bridge.py": "11a988e3dc1e45d83abaa9eb0512dcdd1c971f3436186bcaab4eb37c19d39143",
     "spacr/qt/widgets/primary_mask_selector.py": "eaeb0e6867861dfaefbff29b32138e71d5f144a2eb3fd76b83e3364914be4dc6",
@@ -24,23 +25,30 @@
   "prior_focused_git_blob_sha256": "22f3167011e267b2271706c9d38f6bf7f87dcfbdfd15092d1b72649285b0fc70",
   "mapping": {
     "focused_now": {
-      "source_sha256": "63fb512e45ca18f57aeac8b1a95c6670b7b7c8fc64f6809d1af358c7e51e6b2e",
-      "all_old_lines_identical": true,
-      "statements": 8805,
+      "source_sha256": "24cbc534a78939817fd4913cb258b3abb5a9d4ad166ebf84a6d7e110c4807898",
+      "all_other_old_lines_identical": true,
+      "changed_drain_lines_not_inherited": [],
+      "statements": 8804,
       "branches": 2328,
       "discarded_arcs_outside_current_universe": []
     },
     "focused222": {
       "source_sha256": "8ff012eff063bbaa9915ad5853a9e07f53aa6d59d43aaf4eb9f0b1601246b933",
-      "all_old_lines_identical": true,
-      "statements": 8803,
+      "all_other_old_lines_identical": true,
+      "changed_drain_lines_not_inherited": [
+        16643
+      ],
+      "statements": 8802,
       "branches": 2326,
       "discarded_arcs_outside_current_universe": []
     },
     "hosted_e1": {
       "source_sha256": "2134801f703bf5e13a382027472b2a057c056ba326cd33682d3b37874d9eda96",
-      "all_old_lines_identical": true,
-      "statements": 8800,
+      "all_other_old_lines_identical": true,
+      "changed_drain_lines_not_inherited": [
+        16638
+      ],
+      "statements": 8799,
       "branches": 2324,
       "discarded_arcs_outside_current_universe": [
         [
@@ -50,7 +58,7 @@
       ]
     }
   },
-  "statements": 8805,
+  "statements": 8804,
   "branches": 2328,
   "missing_lines": [
     12109,
@@ -175,27 +183,28 @@
       16410
     ],
     [
-      17246,
-      -17240
+      17245,
+      -17239
     ]
   ],
   "new_guard_lines_covered": [
-    16644,
-    16645
+    16643,
+    16644
   ],
   "new_guard_branches_covered": [
     [
-      16644,
-      16645
+      16643,
+      16644
     ],
     [
-      16644,
-      16646
+      16643,
+      16645
     ]
   ],
+  "changed_drain_line_inherited": false,
   "callable_docstrings_unchanged": true,
   "unchanged_existing_ruff_findings": 31,
-  "focused_result": "4 passed in24.85s; three new shutdown tests plus existing large decode GUI-responsiveness case",
+  "focused_result": "5 passed in25.16s; four shutdown tests including real deleted wrapper plus existing large decode GUI-responsiveness case",
   "native_before_exit": -6,
   "native_after_exit": 0,
   "scope": "Independent busy field-loader native ownership repair; no claim to resolve small-image Shiboken SIGSEGV, installed Save or full serial suite."
