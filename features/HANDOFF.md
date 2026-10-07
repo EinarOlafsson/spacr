@@ -1,8 +1,8 @@
-# CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
+# CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
 ## 2026-10-07 overnight CI: four concrete workstation owner fixes remain
 
-Home is continuing CPU/Qt/CI work. The current published source is
+Home is continuing CPU/Qt/CI work. An earlier verified published source is
 `b557c46d585d28a97c8e60b0bf2c3e43a0a2040f`; compatibility run
 37568878125 is terminal SUCCESS, all seventeen jobs successful. Ordinary
 tests 37568878426 are still pending, so that is not a green full-suite claim.
@@ -22,8 +22,13 @@ through its existing workflow, keeping every original guard:
 Exact failed jobs/nodes and source hashes are recorded in the dated sections
 below. Home has not edited README, guides, catalogs, or tutorial artifacts.
 CPU test contracts for accepted source inventories are already synchronized.
-Home is fixing repeated live-extraction cost in the review audit and the new
-seventh numerical regression in `spacr/timelapse.py` with CPU-only tests.
+Home has repaired the seventh numerical regression in `spacr/timelapse.py`
+with CPU-only tests and independent 51-case integration. The review audit now
+checks all nine locales independently against one actual source snapshot per
+worker, retaining all original assertions and deadlines. Nine covered cases
+pass; the slowest individual call is 83 seconds. Current-root Swedish also
+passes independently. Source-bound proofs are in the dated N43 item notes.
+No generator/catalog or helper-policy cache was changed.
 Protected 45f serial remains in progress and must not be cancelled. Partial
 running-job logs stop exposing output around 2 MiB, so they do not establish
 that the job is stalled or reveal its current test/RSS. Installed Save and
