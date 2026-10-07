@@ -1063,3 +1063,26 @@ Compact immutable source/test/coverage/probe receipts and two lossless stills:
     Ten hash-bound payloads (~26 KiB), including fresh script/receipt/log and
     separately labelled historical receipts, with filesystem/Git verifier:
     data/663_rejected_fungal_tile_gil_cpu_2026-10-07/.
+
+2026-10-07 — deforming waves and local paper spin, functional CPU checkpoint
+    Individual source 7e457e35ab (parent bb2d3ddbf5, ambient a72bae23) adds
+    spatially warped oscillating waves with correctly differentiated normals;
+    pointer gravity repels waves only within the existing finite radius.
+    Lens attraction remains unchanged. Paper uses original native cached tiles
+    and bounded per-element angles: only nearby facets spin, faster near the
+    pointer and at higher radius; zero radius/pointer leave restores exact
+    original resting pixels. No global clocked lighting sweep is introduced.
+    59 focused tests pass18.31s, including four full native4K safe-crop pairs,
+    locality/palette/owned-frame/failure/cache checks; all143 executable
+    statements/branch destinations in the three changed methods are covered.
+    Separate callable/nested-doc guards113pass80.70s. Actual dark/light4K
+    screenshots and source-bound receipts are archived. Resting facet images
+    remain byte-identical; stationary input moves792282/771403native pixels.
+    Native bilinear rotation preserves edges but costs76.04ms median in the
+    bounded facet-only diagnostic vs old static lift48.10ms; nearest64.27ms
+    aliases and direct vector142.40ms are rejected. Hard24FPS remainsOPEN;
+    no aesthetic/installed-crash/GPU acceptance claim. This proof precedes
+    root's shared Detail/density change: maximum-control integrated counts
+    require separate review, not acceptance from the older density helper.
+    Compact proof with frozen source/test/log/image hashes and verifier:
+    data/663_waves_local_spin_cpu_2026-10-07/.

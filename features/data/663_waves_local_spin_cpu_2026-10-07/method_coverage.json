@@ -1,0 +1,29 @@
+{
+  "_bend_pointer": {
+    "range": [
+      4999,
+      5009
+    ],
+    "statements": 9,
+    "missing_statements": [],
+    "missing_branches": []
+  },
+  "_frame_point_atlas": {
+    "range": [
+      5180,
+      5239
+    ],
+    "statements": 43,
+    "missing_statements": [],
+    "missing_branches": []
+  },
+  "_paint_tissue_facets": {
+    "range": [
+      5241,
+      5352
+    ],
+    "statements": 91,
+    "missing_statements": [],
+    "missing_branches": []
+  }
+}
