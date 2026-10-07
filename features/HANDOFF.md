@@ -1,5 +1,154 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 11:55 UTC: workstation restart and division of remaining work
+
+The maintainer reports that Workstation has no remaining work and asks Home
+to divide the remaining tasks. This section is the current assignment; older
+handoffs below retain their historical source scope. Workstation should fetch
+`origin/nightly` and read this section before resuming. API, documentation,
+translations, tutorials and every GPU process remain Workstation-owned.
+Home owns application CPU/Qt fixes, GitHub test triage, numerical coverage,
+the full Qt acceptance run and renderer implementation. Work in separate
+worktrees; preserve both sessions' dated notes when integrating. Push only
+`git push origin HEAD:nightly`; no force push, stash or shared-checkout reset.
+
+### First queue: four real GitHub failures, owned by Workstation
+
+These are open even though the earlier deployment and its complete API/media
+readback succeeded. They are small source/evidence gaps found by later tests,
+not a request to repeat all accepted API/tutorial work. Complete them locally
+as one coherent owner change before another complete hosted test cycle.
+
+| Order | Item / file | Required change and acceptance | Owner |
+|---|---|---|---|
+| 1 | N43 README length: `README.rst` | Prose is 1757 words; existing guard is strictly below 1750. Trim at least eight words, preserving installation commands and links. Run `tests/test_readme_presentation.py::test_readme_keeps_the_feature_catalog_curated_and_points_to_detail`. | Workstation |
+| 2 | N43 Make Masks guide: `docs/source/features.rst` | Name the actual **Divide / Merge** control and explain left-drag split/right-drag merge. The README already points readers here. Run `tests/test_the_readme_describes_the_build_that_ships.py::TestTheProseMatchesTheScreens::test_every_make_masks_tool_is_named_where_the_readme_sends_the_reader`. Regenerate affected translated guides through their normal tools. | Workstation |
+| 3 | N43 Swedish/French reviewed runtime evidence | Review the current expanded `setting_tooltips/timelapse_events` source, write source-bound sv/fr records, and regenerate catalogs. Update the precise historical retirement contract in `tests/test_runtime_i18n_syntax.py` as part of this same evidence change: archive has 131 records, current has 129, with exactly the old Cell-DINO and old Timelapse tooltip removed. Keep all other rows exact and the current Timelapse label reviewed. Run the two reviewed-runtime tests named below and normal evidence/catalog audits. | Workstation, including this narrow translation-contract test |
+| 4 | N43 checkout-size measurement: `README.rst` | Rerun normal `packaging/measure_clone_forms.sh` against **nightly**, update actual clone-form numbers and measurement date, then regenerate localized READMEs. Latest completed d7 coverage shard 6 measured 2838 MB versus stated 1710 MB, exceeding the unchanged 15% guard. That is source-specific evidence, not a measurement of later commits. Run `tests/test_the_light_install_numbers_are_honest.py::test_the_checkout_size_in_the_readme_matches_the_tree` on a full checkout. | Workstation |
+
+The exact retired tooltip hashes are:
+
+* Cell-DINO: `d25bb244df4fcf08909bd1d860d55646aa14346420a9fc0dcace7c696cbce162`.
+* Old Timelapse: `f7770d466133e7f859c6a59b6865c566414a2190f4e70670291a2b3a0f194478`,
+  beginning "After the run, detect events on every tracked object".
+
+Use the existing source-bound writer, with an actually reviewed translation:
+`python tools/write_reviewed_api_record.py --language sv --table setting_tooltips --key timelapse_events --show`
+shows the live English source; use `--translation-file` and a dated `--name`
+to write the reviewed record, and repeat for fr. Run
+`python tools/check_reviewed_runtime_evidence.py sv fr` and normal catalog
+generation/audits. The focused nodes are
+`tests/test_runtime_i18n_syntax.py::test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean`
+and
+`tests/test_runtime_i18n_syntax.py::test_french_reviewed_runtime_text_is_source_bound_and_gate_clean`.
+Do not restore stale prose, fabricate a review, remove assertions or raise a
+ratchet/count/word/size ceiling. Home will not edit these four owner artifacts.
+
+For real clone measurements, use a fresh scratch directory, for example:
+`packaging/measure_clone_forms.sh --branch nightly --dir /mnt/wd4tb/scratch/workstation-nightly-clone-measure-20261007 --keep`.
+Its default branch is main, so **pass nightly explicitly**. Record the actual
+remote source measured. Run local affected tests under the standard cap with
+CUDA hidden and offscreen Qt; no entire local suite. After edits, regenerate
+only affected README/guide/runtime/Help artifacts with their normal tools,
+run their original strict contracts, retain source-bound receipts and failure
+logs, then commit and push nightly. Add an owner-completion note here naming
+the commit, exact checks and any remaining gaps. Home then integrates and
+owns the current ordinary CI verdict. Do not call N43 green from local checks.
+
+### Remaining acceptance work: one implementation owner per lane
+
+Percentages in chat are planning estimates; the dated evidence in each item
+defines completion. Input-dependent rows have no honest fixed finish time.
+
+| Item | Owner | Next concrete action / actual remaining input |
+|---|---|---|
+| N43 / F288: full GitHub green and coverage | Home | Triage current complete hosted jobs, retain raw failures and unchanged numerical allowances; integrate the four Workstation corrections before final ordinary acceptance. Both earlier completed numerical merges passed 664 modules and 12 artifacts. |
+| N47: full original-order Qt acceptance and memory | Home | Monitor protected final-source serial run 37615889146, archive its complete terminal verdict and RSS/OOM journal. Investigate actual remaining failures with focused local cohorts. Bounded fixture repairs do not close full serial acceptance. |
+| N43 / N47: native puncta and deferred parent QThread crashes | Home | Identify application causation of the real native faults. Installed Shiboken 6.11.2 upstream defect is reproduced; a matching fault PC alone does not identify the spaCR worker or establish an application fix. |
+| N663: Preferences Save native crash | Home | Keep this separate from proven worker-timeout repairs. Request source/environment-bound native-display reproduction evidence from Workstation if it can reproduce on its normal installation; Home owns any implementation change. No historical-crash closure from negative probes. |
+| N663: crisp accepted themes and hard native 24 FPS | Home | Preserve accepted theme geometry, detail, colors, work and cache budget. Current native 4K fungal frame rate is below target; rejected stroke/alpha/tile experiments must not be shipped. Workstation may provide native-display measurements, but renderer edits remain Home-owned. |
+| N663: theme visual approval | Maintainer, prepared by Home | Human acceptance of the retained themes; Workstation can capture current native-display examples if available. Do not present automated pixel parity as aesthetic approval. |
+| F560: Cell-DINO scientific acceptance | Workstation | Obtain an official pretrained checkpoint with verifiable identity/access, then run the declared expert-label/four-stain evaluation through the normal GPU queue. Strict local loader/provenance, four-channel parity and other backbone scorecards are already complete; synthetic state is not a substitute. |
+| F370: curated published-model scorecards | Workstation after maintainer curation | Live PV queue has 15/43 decided fields; plaque has 22/105. Readiness check first; freeze truth and rescore only when all fields are decided by the maintainer. Never invent or edit ground truth to finish this row. |
+| F404: DINOCell comparison | Workstation after F370 | Compare DINOCell and toxoplasma_pv_v1 on that same frozen, genuinely curated PV holdout. Windows/macOS acceptance requires those actual hosts; earlier live-cell negative results remain recorded. |
+| F470: crop-label classifiers | Workstation after expert labels | Current pathogen/cell/nucleus annotation-sample databases each have 1000 rows and all `real` values NULL. Acquire actual labels, then train and score with held-out wells. Older 272-PV-call notes do not identify labels in these current sample databases. |
+| N449: parasite-count / merge heads | Workstation after expert labels/data | Need hand counts including 1/2/4/8/16 parasites, independently labelled split/merge pairs and verified parasite-stain planes. Existing 8882-row MTOC database lacks the annotation column; preserve the area baseline and rejected model-derived-label results. |
+| F554: historical OPS replay | Workstation after original data | Obtain exact OPS tiles, measurements.db and pool10 library; use the existing strict replay. Real MERFISH CPU/GPU evaluation is already accepted and is not the missing OPS dataset. |
+| F557: second calibrated denoising dataset | Workstation after original data | Need low-light paired images with exposure/calibration metadata and matching manual segmentation masks. GOWT1 GPU improvement is accepted; acquired noisy-nuclei/StarDist archives cannot supply the missing matched calibration/masks. |
+| F559: real QC classes and shipped weights | Workstation after labels/maintainer decision | Need real debris/bubble/saturation/empty labels and a package-data choice. Blur/BBBC006 acceptance, alpha field-QC editor and classifier card are complete. Train/calibrate only against real labels. |
+| F534: cell-resolution spatial validation | Workstation after data/decision | Need infected Visium HD/Xenium bundle, paired H&E-IF sections for registration and optional SpatialData dependency choice. Existing 3.5 micrometre/px Visium evidence supports spots only. |
+| F537: parasite lineage biology | Workstation after original movie | Need parasite masks/tracks from >=40x, >=12-hour replication movies at <=30-minute intervals. Current short motility movies cannot establish endodyogeny accuracy. |
+| F543: vendor reference acceptance | Workstation after vendor data | Need Harmony Foreground+Background profile with corrected export, and vendor files actually embedding shading references. Background-only and metadata-flag examples already audited; no substitute calibration. |
+| F567: biological event accuracy | Workstation after expert labels | Need held-out manually annotated Toxoplasma egress/invasion/etc. events for precision/recall/timing. Dedicated alpha event editor, CPU VideoMAE backend and fixture CPU/CUDA precision are already implemented/accepted. No missing Home annotation-GUI task. |
+| F574: archive service acceptance | Workstation prepares, service/maintainer supplies acceptance | Local multi-screen alpha package and combined PageTab validation are complete. Need authorized real submission and curator accession/acceptance; preparation does not authorize publication to an external service. |
+| F586: container/cluster acceptance | Workstation after host/publication access | Apptainer CPU and real --nv Mask+Measure already passed. Remaining: workflow adoption/GHCR visibility and actual SingularityCE/Slurm host. No required cluster binaries are in Home PATH. Preserve existing SIF receipts; do not repeat the accepted GPU smoke. |
+| N615: final owner deployment and remaining human acceptance | Workstation | Refresh/publish affected docs/localizations from the four fixes and verify actual deployed source. Existing complete API/catalog/video receipts remain accepted at their recorded source. Human listening/physical-phone gesture acceptance need actual people/devices; do not repeat unchanged tutorials or claim broader human signoff. |
+
+Live curation queues checked read-only on 2026-10-07 are:
+`/mnt/wd4tb/af3/projects/toxoplasma_pv_model/curation/pv_literature_stock_queue_2026-09-15`
+and
+`/mnt/wd4tb/af3/projects/automated_plaque_assay/curation/plaque_literature_vanilla_queue_2026-09-14`.
+The crop sample is `ground_truth_crops/annotation_sample/{pathogen,cell,nucleus}/measurements/measurements.db`.
+These current observations supersede old prose saying no curate_status exists.
+
+Workstation native-display diagnostics can help Home without taking application
+ownership. For the reported installed Save crash, reproduce Genetic advection
+Detail/Save in the actual installed environment with `PYTHONFAULTHANDLER=1 spacr`,
+retaining package versions, launch/source identity and any native crash evidence.
+For bounded current-source automation, the existing
+`data/663_unchanged_preferences_cpu_2026-10-06/repro_mainwindow_random_alpha_20261006.py`
+uses live imports and source hashes; prepare its private scratch destination and
+fresh settings, then run on the real display with `SPACR_SOURCE_ROOT`,
+`PYTHONPATH`, `QT_QPA_PLATFORM=xcb`, CUDA hidden and the 4-GiB cap. It navigates
+Home/Mask/Measure/Annotate and performs three actual modal Saves; a negative
+result does not fix the originally reported installed crash. Renderer cadence
+measurement must distinguish produced and distinct displayed frames, retain
+cold/steady p95, GUI heartbeat, RSS and hide/worker retirement, and identify
+the actual native display. GPU availability does not accelerate the current
+CPU QPainter implementation. Do not reuse a software-Xvfb label for a native
+receipt or infer visual approval from an automatic probe.
+
+### Completed or excluded from the remaining queue
+
+F558's required genuine JUMP paired-data GPU Cellpose scorecard is complete:
+48 training fields, 20 plate-held-out fields, predicted F1 0.930977 at IoU
+0.5 and 0.787011 at 0.75, independently rescored. Receipt:
+`data/558_jump_GPU_execution_2026-10-06.json`. Second cell line and published
+weights are optional extensions, not blockers. Strict CPU/CUDA pixel parity
+failed as a separately retained diagnostic; no parity closure is claimed.
+Do not queue another required F558 GPU run. F567's dedicated event editor is
+in `spacr/qt/widgets/timelapse_preview.py` (`_EventAnnotationDialog`,
+`TimelapseEventAnnotationButton`, `_open_event_annotations`), with existing
+112 editor / 126 integration evidence. Older GUI-open notes are superseded.
+
+The user has already accepted F493, N627 native scene, native-language review,
+N53, N633 and F490 at 100%; do not reopen them without a new actual failure.
+Accepted livecell/cellposeTIME jobs remain the other session's property and
+must never be touched. All GPU work uses `tools/gpu_turn.sh`; no parallel
+unscheduled GPU processes. RAM remains capped, at most four pytest workers,
+and no local full Qt/suite run. No new modules or hash comments in `spacr/`.
+
+### Current hosted source and protected run
+
+App/test source is frozen at `a44ef399af52bb7f39eb0136c369f6603ff8dc02`.
+Protected final serial [37615889146](https://github.com/EinarOlafsson/spacr/actions/runs/37615889146)
+is running: job 112773999602 started 11:46:58 UTC, original test process
+started 11:50:54 UTC on 2026-10-07. **Do not cancel or replace this run.**
+Original command/order/selection, 360-minute limit, 10.8-GiB pytest guard,
+12-GiB host cgroup and zero-swap limits are unchanged. Workstation's four
+README/guide/catalog corrections may proceed; coordinate any application/test
+change with Home because it changes the serial source scope.
+
+Current ordinary tests are [37615878285](https://github.com/EinarOlafsson/spacr/actions/runs/37615878285),
+compatibility 37615877720 and docs 37615877750, all at a44 and not yet a
+terminal green verdict. Superseded ordinary d7 run 37611716683 was explicitly
+cancelled by Home after retaining its Coverage6 actual failure and job/artifact
+snapshots, to free the pending a44 queue. Terminal status is CANCELLED, not
+SUCCESS. Raw retained failure:
+`/mnt/wd4tb/scratch/d7-final-cancellation-20261007/coverage6.log`.
+Do not cancel Workstation docs or the protected serial when publishing owner
+fixes. Home will retain and triage current source-bound acceptance evidence.
+
 ## 2026-10-07 current CPU integration and completed hosted verdicts
 
 Home has integrated Annotate timeout ownership, successful-loader test doubles,
@@ -23,8 +172,8 @@ fixture owners are now integrated: family/analysis-unit matched412/129→0/0,
 host/plugin and signal-less selector actual next-test controls reach zero.
 Independent root102/102 full fixture+field-fade and68/68 synthetic-helper cases
 pass under4GiB. External Masks/r5 audits already reach zero and are left
-unchanged; no precautionary or claimed RSS fix. Final app/test source is ready
-for one original hosted serial dispatch; no order, guard or selection change.
+unchanged; no precautionary or claimed RSS fix. Final app/test source a44 is
+now running original hosted serial37615889146; no order, guard or selection change.
 
 Both completed ordinary runs37573419011 (032) and37574709966 (2d4) PASS the
 numerical ratchet:664 modules,12 artifacts, zero regressions, zero unconfirmed
@@ -45,7 +194,7 @@ limit,63% with27 recorded failures. It did not hit the memory/OOM guard; no
 native traceback was recorded. Remaining37% is unverified. The full raw logs,
 source/environment provenance, failed nodes and memory journal are archived in
 data/47_45f_serial_terminal_2026-10-07/. Final-source original serial acceptance
-is not dispatched yet; current fixes and failure classification must finish.
+37615889146 is now running; its terminal verdict remains required.
 
 Installed Shiboken6.11.2 independently reproduces the official upstream weakref
 resurrection defect at releaseWrapper, matching the contextual crash PC. This

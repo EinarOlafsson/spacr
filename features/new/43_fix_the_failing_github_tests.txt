@@ -3016,3 +3016,17 @@ Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
     Overall tests remain red: native puncta plus four workstation owner modes
     and loader-double/queue-retention failures now repaired locally. No native
     crash or owner review waived; fresh complete-source ordinary run required.
+
+2026-10-07 11:55 UTC — remaining work explicitly divided between sessions
+    Maintainer requests a new Workstation handoff after its completion report.
+    Current HANDOFF assigns it exactly four immediate CI owner repairs: README
+    prose below 1750, actual Divide / Merge guide text, reviewed current sv/fr
+    timelapse_events plus exactly two historical retirements, and normal nightly
+    clone-size/date measurement. Latest d7 Coverage6 actual log says 2838 MB vs
+    stated 1710 MB; raw log and pre-cancel run/job/artifact snapshots are retained
+    in /mnt/wd4tb/scratch/d7-final-cancellation-20261007/. Superseded ordinary
+    run 37611716683 is terminal CANCELLED, not green; cancellation frees the
+    pending final-source ordinary 37615878285. Home owns CI/Qt/native/coverage;
+    Workstation retains API/docs/translations/tutorials and all GPU processes.
+    Final-source serial 37615889146 must not be cancelled. Parent N43 remains
+    OPEN until complete current hosted acceptance, not four local checks.

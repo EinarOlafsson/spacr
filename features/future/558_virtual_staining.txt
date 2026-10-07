@@ -1,6 +1,9 @@
 VIRTUAL STAINING: PREDICT A FLUORESCENT CHANNEL FROM BRIGHTFIELD/PHASE
 
-Status: DONE (alpha) 2026-10-03 — CPU-validated, GPU run 2026-09-28. Not yet
+Status: DONE (alpha), 100% at required scope 2026-10-07 — real paired-data
+        held-out Cellpose GPU scorecard and independent rescoring accepted.
+
+Previous status (superseded 2026-10-07): DONE (alpha) 2026-10-03 — CPU-validated, GPU run 2026-09-28. Not yet
         measured: the Cellpose-cpsam scorecard on GPU.
 
 Previous status (superseded 2026-10-04): DONE 2026-10-03 (alpha-gated; CPU-validated, GPU run 2026-09-28); only external point left: the Cellpose-cpsam scorecard on GPU.
@@ -189,3 +192,14 @@ WHAT IS LEFT
 2026-10-06 workstation virtual staining GPU preparation: 272 original acquired Cell Painting Gallery cpg0016-jump/source_4 images are downloaded with recorded S3 ETags/SHA256 and independently checked metadata. Every original plane is byte/pixel checked in 68 complete 1080x1080 four-channel fields: Hoechst target plus three brightfield inputs. The predeclared first twenty-four BR00117035 wells/sites 1-2 supply 48 training fields; the first ten BR00117036 wells/sites 1-2 supply 20 held-out fields, with plates disjoint and no image/score-based selection. The historical trained model is unavailable on this host, so this is explicitly fresh reproducible training, not reuse of that checkpoint. The normal U-Net twenty-epoch/seed-zero/scale-two setup and default Cellpose-SAM real/predicted/input scorecard are source/model/input frozen. Receipt 558_jump_GPU_preparation_2026-10-06.json archives raw metadata, all original/export hashes, split, benchmark and terminal preparation. Planned turn 558-jump-virtual-stain-cuda-20261006-r1 follows robustness retry r2 through normal tools/gpu_turn.sh, real HOME, 24 GiB and unchanged six-minute idle/ten-minute handoff. Training, CUDA profiles, original labels and independent item-532 rescoring remain pending. Real-stain Cellpose predictions are reference, not human gold; no four-replicate or new-cell-line accuracy claim is made. Home retains CPU/Qt/CI/source ownership and protected jobs remain untouched.
 
 2026-10-06 workstation virtual staining real GPU acceptance: normal turn 558-jump-virtual-stain-cuda-20261006-r1 is terminal rc=0. Fresh normal U-Net training completes all twenty predeclared epochs on 48 acquired brightfield/Hoechst paired fields from BR00117035; all twenty BR00117036 fields are held out by plate. The same actual default Cellpose-SAM CUDA segmenter runs on real, predicted and first-brightfield arms, with positive training and first/last segmentation CUDA profiles. Mean predicted F1 is 0.930977 at IoU 0.5 and 0.787011 at 0.75, versus brightfield 0.328579/0.141889; Pearson/SSIM are 0.929126/0.864450 versus 0.169027/0.072088. Separate CPU item-532 matching and pixel rescoring reproduce all forty actual report rows and the canonical CSV from all sixty original GPU masks and twenty predictions. Source/model/input/plan hashes remain exact. The saved normal model also runs on all twenty CPU fields, but strict 2e-5 CPU/CUDA pixel parity fails (maximum absolute difference 0.000235394); this is preserved as a separate diagnostic, not waived or claimed equivalent. The first private verifier additionally expected crop metadata that the normal checkpoint does not store; the original failed logs are retained and frozen invocation/epoch losses verify training parameters separately from actual checkpoint metadata. Receipt 558_jump_GPU_execution_2026-10-06.json archives the full trained checkpoint, all original predictions/masks, complete compressed CUDA traces, terminal execution and independent scoring. This closes the outstanding normal Cellpose GPU scorecard on genuine held-out label-free paired data. Real-stain Cellpose labels are algorithmic reference, not human gold; this is fresh training, not reuse of the unavailable historical checkpoint. Second cell line/published weights remain optional as recorded on 2026-10-03. DINOv2 human-labelled retrieval remains queued next; Home retains CPU CI/Qt/source and protected jobs stay untouched.
+
+2026-10-07 — remaining-queue reconciliation: 100% at required accepted scope
+    Home reads the dated 2026-10-06 real GPU acceptance and committed receipt
+    data/558_jump_GPU_execution_2026-10-06.json (blob 01d1f91bbf52841662b12752a68c9083494a3d16).
+    Required normal paired JUMP/held-out Cellpose scorecard is already complete:
+    48 training fields, 20 plate-held-out fields, 20 epochs, original predictions
+    and 60 original segmentations; all 40 rows independently rescored. Optional
+    second cell line/pretrained weights are not required DONE WHEN blockers.
+    Remove the stale required-GPU task from both sessions' queues. No new run,
+    model/default or biological claim. Original strict CPU/CUDA pixel-parity
+    diagnostic remains failed and recorded separately, not waived or closed.

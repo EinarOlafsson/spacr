@@ -2121,3 +2121,14 @@ destruction; its exact Python thread instance and cause remain unresolved.
     memory fix is promoted. RSS does not measurably fall in these small probes.
     Current app/test source is ready for one original uninterrupted hosted
     serial dispatch; full-source CI/native and sustained memory remain OPEN.
+
+2026-10-07 11:55 UTC — final original serial acceptance running, source frozen
+    Protected run 37615889146 binds actual app/test source
+    a44ef399af52bb7f39eb0136c369f6603ff8dc02. Job 112773999602 starts 11:46:58 UTC;
+    its original single Qt test process starts 11:50:54 UTC. Original order,
+    selection, 360-minute limit, 10.8 GiB pytest guard, 12 GiB cgroup and zero swap
+    are unchanged. Do not cancel/replace it. Full terminal verdict and sustained
+    memory evidence remain pending. Workstation may repair assigned README,
+    guide and translation-owner evidence, coordinating any source/test change
+    with Home; Home retains serial acceptance and native crash implementation.
+    No completion claim from earlier bounded 102/68-case ownership evidence.
