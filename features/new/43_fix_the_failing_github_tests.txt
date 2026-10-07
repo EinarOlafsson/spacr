@@ -2979,3 +2979,24 @@ Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
     Seventh-module union leaves zero statements/one destination within 1/1.
     Earlier six source-bound repairs remain valid; no ceiling or scientific
     acceptance is lifted. Fresh ordinary GitHub and full serial stay OPEN.
+
+2026-10-07 — live review audit split by locale, all original gates retained
+    Nine locale cases share one genuinely extracted source/report inventory
+    per worker. Each runs its original review loaders, hashes, published-symbol
+    assertions, exact report row and narrative contract; independent AST review
+    confirms the full original locale body and six assertions are unchanged.
+    No helper-policy caching, generator/catalog edit or timeout increase.
+    All nine cases pass under branch coverage in 526.07 seconds total; slowest
+    individual call is 83.23 seconds and initial fixture setup 47.31 seconds.
+    Full proof and declared source differences: data/43_i18n_review_timeout_cpu_2026-10-07/.
+    Root verifies five payloads, twenty pinned Git objects and current review
+    input/builder identity. Independent current-root Swedish case passes in
+    46.23 seconds under 4 GiB after materializing checked-in sparse docs.
+    Receipt: data/43_i18n_root_locale_integration_2026-10-07/.
+
+    Separate old e1 Qt0 parent-source SIGSEGV remains OPEN: exact current file
+    passes eight cases and exact old sixteen-file batch passes 110, so these
+    negative replays do not establish a fix. Low RSS/OOM0 distinguishes it from
+    memory-guard failure. Full log and original source/options are archived in
+    data/43_qt0_parent_source_sigsegv_2026-10-07/. A later focused mixed cohort
+    reproduces a similar local SIGSEGV and is undergoing native-stack diagnosis.
