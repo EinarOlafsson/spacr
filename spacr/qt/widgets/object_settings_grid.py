@@ -557,6 +557,9 @@ def _parsed_filters(raw) -> Dict[str, Any]:
 
     :param raw: the setting's value, a mapping or its JSON/literal text.
     """
+    if (raw is None or (isinstance(raw, dict) and not raw)
+            or (isinstance(raw, str) and raw.strip() in ("", "{}"))):
+        return {}
     try:
         from ..mask_engine import parse_object_filters
 

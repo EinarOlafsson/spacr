@@ -18,6 +18,8 @@ tooltip table and translation catalog had to learn.
 """
 from __future__ import annotations
 
+import builtins
+
 import pytest
 
 pytest.importorskip("PySide6")
@@ -26,7 +28,10 @@ pytest.importorskip("PySide6")
 # "remove background" is spelled object-last (remove_background_cell) and
 # "adjust cells" names no object (adjust_cells).
 from spacr.object_settings_table import (  # noqa: E402
-    _SINGLE_OBJECT_QUESTIONS, _settings_key, to_table)
+    _SINGLE_OBJECT_QUESTIONS,
+    _settings_key,
+    to_table,
+)
 from spacr.organelle_types import NUMBER_OF_ORGANELLES, organelle_role  # noqa: E402
 from spacr.qt.widgets.object_settings_grid import (  # noqa: E402
     AUTO_TEXT,
@@ -73,6 +78,26 @@ def grid(qtbot, qt_theme_applied, mask_settings):
     qtbot.addWidget(widget)
     widget.set_settings(mask_settings)
     return widget
+
+
+def test_an_empty_filter_table_does_not_import_the_image_reader(
+        qtbot, qt_theme_applied, mask_settings, monkeypatch):
+    assert mask_settings["object_filters"] == {}
+    imported = []
+    original_import = builtins.__import__
+
+    def recording_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "mask_engine" and level == 2:
+            imported.append(name)
+        return original_import(name, globals, locals, fromlist, level)
+
+    widget = ObjectSettingsGrid()
+    qtbot.addWidget(widget)
+    with monkeypatch.context() as patch:
+        patch.setattr(builtins, "__import__", recording_import)
+        widget.set_settings(mask_settings)
+    assert imported == []
+    assert widget.settings()["object_filters"] == {}
 
 
 # ---------------------------------------------------------------------------

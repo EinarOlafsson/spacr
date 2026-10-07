@@ -1891,6 +1891,55 @@ class _BuiltOnFirstUse:
         return screen.__dict__.get(self.slot)
 
 
+class _DeferredWatchLivePlate(QWidget):
+    """Own Mask's live plate without loading plate analysis until watch begins."""
+
+    def __init__(self, parent: QWidget) -> None:
+        """Keep the alpha-visible widget slot empty until a watch starts."""
+        super().__init__(parent)
+        self.setObjectName("WatchLivePlate")
+        self._plate = None
+        self.setVisible(False)
+
+    def is_active(self) -> bool:
+        """Report the underlying watch state without constructing it."""
+        return self._plate is not None and self._plate.is_active()
+
+    def setVisible(self, visible: bool) -> None:
+        """Apply alpha visibility to an existing plate as well as its slot."""
+        if self._plate is not None:
+            self._plate.setVisible(visible)
+        super().setVisible(visible)
+
+    def begin(self, source: str, pipeline: str) -> None:
+        """Build the plate on first use, then start polling its source."""
+        if self._plate is None:
+            from .plate_view import _WatchLivePlate
+
+            self._plate = _WatchLivePlate(self)
+            layout = QVBoxLayout(self)
+            layout.setContentsMargins(0, 0, 0, 0)
+            layout.addWidget(self._plate)
+        self._plate.begin(source, pipeline)
+        self.setVisible(not self._plate.isHidden())
+
+    def refresh(self) -> None:
+        """Refresh an active watch without constructing an unused plate."""
+        if self._plate is not None:
+            self._plate.refresh()
+
+    def finish(self) -> None:
+        """Stop a watch if one was started."""
+        if self._plate is not None:
+            self._plate.finish()
+
+    def reset(self) -> None:
+        """Hide any previous watch results without building a plate."""
+        if self._plate is not None:
+            self._plate.reset()
+        self.setVisible(False)
+
+
 class AppScreen(QWidget):
     """Generic settings + runtime screen used by every non-interactive app.
 
@@ -7410,9 +7459,7 @@ class AppScreen(QWidget):
         console_card.body_layout.addWidget(self._console, 1)
         self._watch_live_plate = None
         if self.app_key == "mask":
-            from .plate_view import _WatchLivePlate
-
-            self._watch_live_plate = _WatchLivePlate(console_wrap)
+            self._watch_live_plate = _DeferredWatchLivePlate(console_wrap)
             console_col.addWidget(self._watch_live_plate)
         _breathe_while_a_window_opens()
         from ..widgets.foldable import make_foldable

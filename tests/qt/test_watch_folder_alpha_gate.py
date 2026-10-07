@@ -7,6 +7,7 @@ a watch value saved while hidden still reaches the run.
 """
 from __future__ import annotations
 
+import builtins
 import os
 
 import pytest
@@ -16,7 +17,7 @@ pytest.importorskip("pytestqt")
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from PySide6.QtCore import QSettings                              # noqa: E402
+from PySide6.QtCore import QSettings  # noqa: E402
 
 WATCH_SETTINGS = ("watch_folder", "watch_pipeline", "watch_normalization_pool", "watch_measure_settings",
                   "watch_classify_settings",
@@ -89,6 +90,69 @@ def test_the_watch_settings_and_progress_follow_the_switch(qtbot, prefs, tmp_pat
         retire_pyqtgraph_menus(screen)
         screen.close()
         screen.deleteLater()
+
+
+def test_an_unstarted_watch_does_not_load_the_plate_analysis(qtbot, prefs,
+                                                            monkeypatch):
+    from spacr.qt.screens.app_screen import AppScreen
+
+    imported = []
+    original_import = builtins.__import__
+
+    def recording_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "plate_view" and level == 1:
+            imported.append(name)
+        return original_import(name, globals, locals, fromlist, level)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(builtins, "__import__", recording_import)
+        screen = AppScreen("mask")
+        qtbot.addWidget(screen)
+        plate = screen._watch_live_plate
+        plate.refresh()
+        plate.finish()
+        plate.reset()
+        screen.close()
+    assert imported == []
+    assert plate.parent() is screen._console_wrap
+    assert not plate.is_active()
+
+
+def test_the_first_watch_builds_an_owned_plate_and_stops_it_on_close(
+        qtbot, prefs, tmp_path):
+    from spacr.qt.screens.app_screen import AppScreen
+
+    prefs._set_show_alpha_features(True)
+    screen = AppScreen("mask")
+    qtbot.addWidget(screen)
+    plate = screen._watch_live_plate
+    assert plate.isHidden()
+    plate.begin(str(tmp_path), "mask")
+    assert plate.is_active()
+    assert not plate.isHidden()
+    assert plate._plate.parent() is plate
+    assert plate._plate._timer.isActive()
+    screen.close()
+    assert not plate._plate._timer.isActive()
+
+
+def test_a_watch_started_while_alpha_is_hidden_appears_when_enabled(
+        qtbot, prefs, tmp_path):
+    from spacr.qt.screens.app_screen import AppScreen
+
+    prefs._set_show_alpha_features(False)
+    screen = AppScreen("mask")
+    qtbot.addWidget(screen)
+    plate = screen._watch_live_plate
+    plate.begin(str(tmp_path), "mask")
+    assert plate.is_active()
+    assert plate.isHidden()
+    assert plate._plate.isHidden()
+    prefs._set_show_alpha_features(True)
+    screen._refresh_alpha_visibility()
+    assert not plate.isHidden()
+    assert not plate._plate.isHidden()
+    screen.close()
 
 
 def test_output_without_a_watch_line_leaves_the_label_alone(qtbot, prefs):
