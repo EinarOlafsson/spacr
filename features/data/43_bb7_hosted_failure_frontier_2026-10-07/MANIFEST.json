@@ -1,0 +1,81 @@
+{
+  "source_sha": "bb7f7585cd9fa2a886e4509010b35f258c529f77",
+  "run_id": 37681965976,
+  "snapshot": "2026-10-07T22:23:01Z",
+  "partial": true,
+  "note": "Nine terminal failed jobs captured while 11 jobs were still in progress; no full-run or numerical-coverage verdict is claimed.",
+  "logs": [
+    {
+      "path": "logs/113019199428.log.gz",
+      "job_id": 113019199428,
+      "raw_sha256": "1bf7daf18dea257aaa84e594411df2666831d49ca9093b30d5001851bd29d37c",
+      "raw_bytes": 4003345,
+      "gzip_sha256": "fc71933f5f4c0176e1d75f1910a9d7f0c0a3af902c83c4c16e52c3c8aa0203e9",
+      "gzip_bytes": 499790
+    },
+    {
+      "path": "logs/113019199439.log.gz",
+      "job_id": 113019199439,
+      "raw_sha256": "253347b4891e19cf849ad99dcd45de35546d14b35e0e5d9f4cd06a89801d67ad",
+      "raw_bytes": 2419697,
+      "gzip_sha256": "baa372822c3a547b1f9b89742d2d0e7d939414effb9f2fc987507a7f95f2ebc9",
+      "gzip_bytes": 301770
+    },
+    {
+      "path": "logs/113019199463.log.gz",
+      "job_id": 113019199463,
+      "raw_sha256": "a463bfd3779e91a8e9d342c175dab21730101fd09214711a840c012a55af8a08",
+      "raw_bytes": 2325828,
+      "gzip_sha256": "27ef6df298ee47dfdf9414f7295797b2d5e8d28360dd170d08837a99b6732c73",
+      "gzip_bytes": 317412
+    },
+    {
+      "path": "logs/113019199536.log.gz",
+      "job_id": 113019199536,
+      "raw_sha256": "b5af8a9d2b8e133fc63241f170eaf92ac94598725519064ab36c6e13c82ba04a",
+      "raw_bytes": 2069564,
+      "gzip_sha256": "1a039e73fd02e40c6f442b787443dc9c83d2ec66ac41224aec81ec85e294ca02",
+      "gzip_bytes": 288687
+    },
+    {
+      "path": "logs/113019199576.log.gz",
+      "job_id": 113019199576,
+      "raw_sha256": "06914ae433ce32b1dfb556680763d27702b1ad6d071bf77ee7889f6577e4ec90",
+      "raw_bytes": 2130041,
+      "gzip_sha256": "f83a3d4708877bd7d36dd88a4e797caf3885ad98c5c4ca6a0a3874207e19a67c",
+      "gzip_bytes": 286923
+    },
+    {
+      "path": "logs/113019199630.log.gz",
+      "job_id": 113019199630,
+      "raw_sha256": "6c84cd9d87e517cb374d37f20d1da8666068db3e88af12c6e2ce632d0af69e28",
+      "raw_bytes": 1841884,
+      "gzip_sha256": "c36bed1afa4863bd193ac88335454437c487833da4d22680b8a0e2a69c4b6fb7",
+      "gzip_bytes": 263604
+    },
+    {
+      "path": "logs/113019199651.log.gz",
+      "job_id": 113019199651,
+      "raw_sha256": "36d86361745d350b97d18458ffa8ed864b7cbabe1a565a3e49bee1c6948f4ffd",
+      "raw_bytes": 2173183,
+      "gzip_sha256": "219f06dbaff106a657da73692d33067b5282ffea8d093a71b3f368292fa0018c",
+      "gzip_bytes": 296214
+    },
+    {
+      "path": "logs/113019199666.log.gz",
+      "job_id": 113019199666,
+      "raw_sha256": "e03664439fcfb12d489853ebfe0119b6fdd8e00bda18cc3dc4d33778f2d2ee51",
+      "raw_bytes": 2229087,
+      "gzip_sha256": "506290bc9b3ffe27270a67470f3f13f0e73640d4d3f3de3d9edd4ebc014f3f23",
+      "gzip_bytes": 302163
+    },
+    {
+      "path": "logs/113019199814.log.gz",
+      "job_id": 113019199814,
+      "raw_sha256": "8ee39171469520fa36c046ac2463aac403199bfc46460680c3ca1ef225b675df",
+      "raw_bytes": 2370854,
+      "gzip_sha256": "f957c0466a023db34fed1386e0cdc21a409231ef55ba04fe3ed31d6887fd2499",
+      "gzip_bytes": 320295
+    }
+  ]
+}

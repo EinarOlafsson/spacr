@@ -1,0 +1,561 @@
+{
+  "run_id": 37681965976,
+  "head_sha": "bb7f7585cd9fa2a886e4509010b35f258c529f77",
+  "jobs": [
+    {
+      "job_id": 113019199428,
+      "log_sha256": "1bf7daf18dea257aaa84e594411df2666831d49ca9093b30d5001851bd29d37c",
+      "failures": [
+        {
+          "node": "tests/qt/test_cov_7_ambient.py::test_resizing_the_aurora_drops_both_of_its_pixel_caches",
+          "error": "assert ({} or {})"
+        },
+        {
+          "node": "tests/qt/test_cov_7_ambient.py::test_a_curtain_with_too_few_samples_is_skipped",
+          "error": "IndexError: tuple index out of range"
+        },
+        {
+          "node": "tests/qt/test_cov_7_ambient.py::test_every_speck_goes_its_own_way_in_the_random_direction",
+          "error": "assert 4 > 4"
+        },
+        {
+          "node": "tests/qt/test_cov_7_ambient.py::test_the_widget_reports_back_every_control_it_was_given",
+          "error": "assert 0.0 == 1.25"
+        },
+        {
+          "node": "tests/qt/test_data_art_advection_gravity.py::test_stationary_cursor_pull_fades_outside_reach_and_follows_motion[0.01]",
+          "error": "assert np.int64(2) > 10"
+        },
+        {
+          "node": "tests/qt/test_spaceout_looks_alive.py::test_a_buds_pixels_are_the_pixels_a_bud_accounts_for",
+          "error": "AssertionError: taking the buds away changed nothing"
+        },
+        {
+          "node": "tests/qt/test_spaceout_looks_alive.py::test_the_middle_of_a_form_turns_rather_than_merely_changing",
+          "error": "AssertionError: the forms do not turn: median ratio 0.728"
+        },
+        {
+          "node": "tests/qt/test_spaceout_looks_alive.py::test_the_cursor_accent_oscillates_under_the_dressing",
+          "error": "AssertionError: the rim did not repaint"
+        },
+        {
+          "node": "tests/qt/test_the_resonance_plate_answers_the_music.py::test_it_idles_beautifully_in_silence",
+          "error": "assert 130 == 1300"
+        },
+        {
+          "node": "tests/test_runtime_i18n_syntax.py::test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean",
+          "error": "assert [{'key': 'How...i', ...}, ...] == [{'key': 'How...i', ...}, ...]"
+        },
+        {
+          "node": "tests/test_runtime_i18n_syntax.py::test_french_reviewed_runtime_text_is_source_bound_and_gate_clean",
+          "error": "AssertionError: assert (70 + 0) == 71"
+        }
+      ],
+      "native_faults": 3
+    },
+    {
+      "job_id": 113019199439,
+      "log_sha256": "253347b4891e19cf849ad99dcd45de35546d14b35e0e5d9f4cd06a89801d67ad",
+      "failures": [
+        {
+          "node": "tests/qt/test_data_art_waves_and_vortices.py::test_wave_deforms_columns_without_rerolling_or_interpolating_fibres",
+          "error": "KeyError: ('chromatin_native_folds', 960, 540, 2, 1, 1)"
+        },
+        {
+          "node": "tests/qt/test_preferences_tabs.py::test_every_control_is_still_there_and_on_the_right_tab[SettingAnimationsEnabled-Appearance]",
+          "error": "AssertionError: no control named SettingAnimationsEnabled"
+        },
+        {
+          "node": "tests/qt/test_preferences_tabs.py::test_no_control_is_on_two_tabs",
+          "error": "AssertionError: SettingAnimationsEnabled appears on []"
+        },
+        {
+          "node": "tests/qt/test_preferences_tabs.py::test_a_walk_of_the_dialog_sees_every_page",
+          "error": "AssertionError: assert {'AiProvider'...Palette', ...} <= {'', 'AiProvi...ntValue', ...}"
+        }
+      ],
+      "native_faults": 0
+    },
+    {
+      "job_id": 113019199463,
+      "log_sha256": "a463bfd3779e91a8e9d342c175dab21730101fd09214711a840c012a55af8a08",
+      "failures": [
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_terrain_extends_beyond_every_viewport_edge[None]",
+          "error": "assert np.int64(668) > 3000"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_terrain_extends_beyond_every_viewport_edge[pointer1]",
+          "error": "assert np.int64(668) > 3000"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_terrain_extends_beyond_every_viewport_edge[pointer2]",
+          "error": "assert np.int64(668) > 3000"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_terrain_extends_beyond_every_viewport_edge[pointer3]",
+          "error": "assert np.int64(668) > 3000"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_terrain_extends_beyond_every_viewport_edge[pointer4]",
+          "error": "assert np.int64(668) > 3000"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[0-1-1-1-None]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[0-1-1-1-pointer1]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[0-1-1-1-pointer2]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[0-1-1-1-pointer3]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[0-1-1-1-pointer4]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[0-2.5-0.25-1-None]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[0-2.5-0.25-1-pointer1]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[0-2.5-0.25-1-pointer2]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[0-2.5-0.25-1-pointer3]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[0-2.5-0.25-1-pointer4]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[1-1-1-1-None]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[1-1-1-1-pointer1]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[1-1-1-1-pointer2]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[1-1-1-1-pointer3]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[1-1-1-1-pointer4]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[1-2.5-0.25-1-None]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[1-2.5-0.25-1-pointer1]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[1-2.5-0.25-1-pointer2]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[1-2.5-0.25-1-pointer3]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_atlas_culling_keeps_exact_native_4k_pixels[1-2.5-0.25-1-pointer4]",
+          "error": "AssertionError: assert False"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_facets_stay_still_then_mouse_moves_cached_paper_without_rerolling",
+          "error": "assert 126 > 400"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_geometry_controls_remain_reproducible_and_cache_is_bounded[tissue_facets]",
+          "error": "AssertionError: assert 2 == 1"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_geometry_controls_remain_reproducible_and_cache_is_bounded[chromatin_ribbon]",
+          "error": "ValueError: unknown ambient theme 'data_art_chromatin_ribbon'; expected one of data_art_impulse_lens, data_art_genetic_advection, data_art_fungal_growth, data_art_point_atlas, blobs, aurora, drift, data_art_tissue_facets, fractal"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_chromatin_retains_native_fibres_and_moves_seeded_folds[#101418]",
+          "error": "ValueError: unknown ambient theme 'data_art_chromatin_ribbon'; expected one of data_art_impulse_lens, data_art_genetic_advection, data_art_fungal_growth, data_art_point_atlas, blobs, aurora, drift, data_art_tissue_facets, fractal"
+        },
+        {
+          "node": "tests/qt/test_data_art_gravity_and_geometry.py::test_chromatin_retains_native_fibres_and_moves_seeded_folds[#f6f7f9]",
+          "error": "ValueError: unknown ambient theme 'data_art_chromatin_ribbon'; expected one of data_art_impulse_lens, data_art_genetic_advection, data_art_fungal_growth, data_art_point_atlas, blobs, aurora, drift, data_art_tissue_facets, fractal"
+        },
+        {
+          "node": "tests/qt/test_thore_engine.py::test_rain_is_visible_on_dark_and_light_pages[#09121b]",
+          "error": "assert 0.001 < 0.00078125"
+        },
+        {
+          "node": "tests/qt/test_thore_engine.py::test_rain_is_visible_on_dark_and_light_pages[#f0f1ed]",
+          "error": "assert 0.001 < 0.0005859375"
+        },
+        {
+          "node": "tests/test_api_i18n_extractor.py::test_public_docstrings_matches_reviewed_visible_coverage",
+          "error": "AssertionError: the public API surface is 13214, reviewed at 13199 (+15). A public docstring addition must bump this count, name what it admitted in the comment above, and regenerate the target catalogs with tools/build_documentation_i18n.py -- otherwise the localized API pages silently omit the new contract."
+        }
+      ],
+      "native_faults": 1
+    },
+    {
+      "job_id": 113019199536,
+      "log_sha256": "b5af8a9d2b8e133fc63241f170eaf92ac94598725519064ab36c6e13c82ba04a",
+      "failures": [
+        {
+          "node": "tests/qt/test_make_masks_shortcuts_otsu_and_object_edits.py::test_the_mode_is_called_otsu_and_the_category_object_detection",
+          "error": "AssertionError: item 473 folded Otsu and Object detection into one category"
+        },
+        {
+          "node": "tests/qt/test_make_masks_shortcuts_otsu_and_object_edits.py::test_a_layout_that_folded_the_old_category_folds_the_new_one",
+          "error": "AssertionError: assert {'Brush', 'Object detection'} == {'Brush', 'Detection method'}"
+        },
+        {
+          "node": "tests/qt/test_make_masks_shortcuts_otsu_and_object_edits.py::test_the_otsu_category_holds_six_settings_and_drives_the_magnifier",
+          "error": "KeyError: 'Detection method'"
+        },
+        {
+          "node": "tests/test_cellpose_api_contract.py::test_every_converted_double_declares_the_installed_signature",
+          "error": "AssertionError: these Cellpose doubles do not declare the installed cellpose 4.2.1.1 eval signature:"
+        }
+      ],
+      "native_faults": 0
+    },
+    {
+      "job_id": 113019199576,
+      "log_sha256": "06914ae433ce32b1dfb556680763d27702b1ad6d071bf77ee7889f6577e4ec90",
+      "failures": [
+        {
+          "node": "tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py::test_the_backdrop_really_is_a_rainbow[light]",
+          "error": "AssertionError: light: only 6 of 12 hue families: [0, 7, 8, 9, 10, 11]"
+        },
+        {
+          "node": "tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py::test_text_reads_over_the_fractal_at_least_as_well_as_over_the_blobs[dark]",
+          "error": "AssertionError: dark: text reads at 0.524 of what it owes over the fractal against 0.942 over the shipped blobs"
+        },
+        {
+          "node": "tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py::test_text_reads_over_the_fractal_at_least_as_well_as_over_the_blobs[light]",
+          "error": "AssertionError: light: text reads at 0.720 of what it owes over the fractal against 0.905 over the shipped blobs"
+        },
+        {
+          "node": "tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py::test_the_work_budget_trims_the_fractal_like_every_other_theme",
+          "error": "assert 0.1 == 1.0 \u00b1 1.0e-06"
+        },
+        {
+          "node": "tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py::test_no_setting_can_ask_for_more_than_half_a_frame[2.0-3.0]",
+          "error": "AssertionError: resolution 2.0, density 3.0: 24.73 ms against a 20.83 ms allowance"
+        }
+      ],
+      "native_faults": 0
+    },
+    {
+      "job_id": 113019199630,
+      "log_sha256": "6c84cd9d87e517cb374d37f20d1da8666068db3e88af12c6e2ce632d0af69e28",
+      "failures": [
+        {
+          "node": "tests/qt/test_cov_w3_7_glass.py::test_an_unreadable_preference_still_leaves_a_backdrop_to_install",
+          "error": "AssertionError: assert 'off' == 'aurora'"
+        },
+        {
+          "node": "tests/qt/test_data_art_density_floor.py::test_density_minimum_preserves_default_maximum_and_actual_advection_counts",
+          "error": "assert 0.1 == 1.0"
+        },
+        {
+          "node": "tests/qt/test_data_art_advection_evolution.py::test_advection_structure_and_velocity_change_without_changing_seed",
+          "error": "assert False"
+        }
+      ],
+      "native_faults": 0
+    },
+    {
+      "job_id": 113019199651,
+      "log_sha256": "36d86361745d350b97d18458ffa8ed864b7cbabe1a565a3e49bee1c6948f4ffd",
+      "failures": [
+        {
+          "node": "tests/qt/test_cov_r4_ambient.py::test_a_reapplied_control_repairs_a_changed_engine_and_keeps_ready_pixels[set_blur-blur-1.5]",
+          "error": "AssertionError: assert 0.0 == 1.5"
+        },
+        {
+          "node": "tests/qt/test_setting_tooltip_layout.py::test_the_preferences_dialog_offers_the_toggle",
+          "error": "AssertionError: no control for the setting-animation switch"
+        },
+        {
+          "node": "tests/test_docstring_correctness.py::test_public_callable_inventory_is_source_derived_not_docstring_derived",
+          "error": "AssertionError: assert frozenset({'b...ensity', ...}) == {'backdrop', ...rection', ...}"
+        },
+        {
+          "node": "tests/test_coverage_fill_cellpose_gpu_funcs.py::TestIdentifyMasksFinetune::test_custom_model_not_found_returns",
+          "error": "FileNotFoundError: Cellpose model '/tmp/pytest-of-runner/pytest-6/popen-gw0/test_custom_model_not_found_re0/nope.pth' looks like a checkpoint path but no file is there. Cellpose would quietly fall back to the stock cpsam weights, so this stops instead. Check the path, or use 'cpsam' for the stock model."
+        },
+        {
+          "node": "tests/test_docstring_correctness.py::test_callable_boundary_is_cross_checked_with_i18n_extractor",
+          "error": "AssertionError: assert frozenset({'b...ensity', ...}) == {'backdrop', ...rection', ...}"
+        },
+        {
+          "node": "tests/test_docstring_correctness.py::test_no_new_undocumented_required_public_parameters",
+          "error": "AssertionError: spacr.qt.widgets.ambient.AmbientWidget.set_blink_percent:value"
+        },
+        {
+          "node": "tests/test_guide_i18n.py::test_glossary_matches_the_runtime_catalogs",
+          "error": "AssertionError: ('sv', 'Animation detail')"
+        }
+      ],
+      "native_faults": 0
+    },
+    {
+      "job_id": 113019199666,
+      "log_sha256": "e03664439fcfb12d489853ebfe0119b6fdd8e00bda18cc3dc4d33778f2d2ee51",
+      "failures": [
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_the_default_multipliers_are_the_identity[data_art_impulse_lens]",
+          "error": "assert 0.1 == 1.0"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_the_default_multipliers_are_the_identity[data_art_genetic_advection]",
+          "error": "assert 0.1 == 1.0"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_the_default_multipliers_are_the_identity[data_art_fungal_growth]",
+          "error": "assert 0.1 == 1.0"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_the_default_multipliers_are_the_identity[data_art_point_atlas]",
+          "error": "assert 0.1 == 1.0"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_the_default_multipliers_are_the_identity[blobs]",
+          "error": "assert 0.1 == 1.0"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_the_default_multipliers_are_the_identity[aurora]",
+          "error": "assert 0.1 == 1.0"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_the_default_multipliers_are_the_identity[drift]",
+          "error": "assert 0.1 == 1.0"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_the_default_multipliers_are_the_identity[data_art_tissue_facets]",
+          "error": "assert 0.1 == 1.0"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_the_aurora_is_no_longer_pixelated_at_1080p",
+          "error": "assert 0.9924541163106275 > (2.3277838103724116 * 1.15)"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_density_changes_how_many_things_are_drawn[blobs-blobs-<lambda>-14]",
+          "error": "assert 1 == 14"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_density_changes_how_many_things_are_drawn[aurora-curtains-<lambda>-3]",
+          "error": "assert 1 == 3"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_density_changes_how_many_things_are_drawn[ripple-sources-<lambda>-3]",
+          "error": "assert 1 == 3"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_density_changes_how_many_things_are_drawn[bokeh-discs-<lambda>-11]",
+          "error": "assert 1 == 11"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_density_changes_how_many_things_are_drawn[cells-cells-<lambda>-9]",
+          "error": "assert 1 == 9"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_density_moves_the_starfield_too",
+          "error": "assert 20 < 4"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_random_gives_every_speck_its_own_direction",
+          "error": "AssertionError: only 2 quadrants of heading are represented"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_the_rays_do_not_slide_sideways",
+          "error": "AssertionError: the ray pattern slid sideways"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_the_lower_edge_is_sharp_and_the_top_is_diffuse",
+          "error": "AssertionError: lower edge 0.26/px, upper edge 0.21/px"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_three_curtains_at_different_depths",
+          "error": "assert 1 == 3"
+        },
+        {
+          "node": "tests/qt/test_ambient_motion.py::test_the_dialog_offers_the_controls_and_saves_them",
+          "error": "AssertionError: AmbientDensity does not open on the default"
+        },
+        {
+          "node": "tests/qt/test_data_art_renderer.py::test_density_changes_grain_population_and_restores_default_frame[point_atlas]",
+          "error": "AssertionError: assert 'ac6bbd2ded38...1b8d7873b2a43' == '98598894353c...7cd3c8717c3dc'"
+        },
+        {
+          "node": "tests/qt/test_data_art_renderer.py::test_density_changes_grain_population_and_restores_default_frame[impulse_lens]",
+          "error": "AssertionError: assert '5bf89e68ed88...bef177de992da' == 'b397ffdde8a1...7a35ac3f99f2c'"
+        },
+        {
+          "node": "tests/qt/test_data_art_renderer.py::test_geometry_and_isolated_grain_material_have_bounded_edges",
+          "error": "assert 6 == 64"
+        },
+        {
+          "node": "tests/qt/test_data_art_renderer.py::test_a_failed_worker_shade_releases_its_qpainter",
+          "error": "TypeError: 'PySide6.QtGui.QPainter.__init__' called with wrong argument types:"
+        },
+        {
+          "node": "tests/test_test_suite_hygiene.py::test_the_cellpose_mocks_do_not_swallow_channel_axis",
+          "error": "AssertionError: these CellposeModel doubles do not honour the channel_axis contract:"
+        },
+        {
+          "node": "tests/test_test_suite_hygiene.py::test_the_cellpose_mock_ratchet_is_empty_and_stays_that_way",
+          "error": "AssertionError: assert not [('test_plaque_segmentation_diagnostics.py', 'Model', 81, 'swallows channel_axis into **kwargs'), ('test_plaque_segmentation_diagnostics.py', 'Model', 169, 'swallows channel_axis into **kwargs')]"
+        }
+      ],
+      "native_faults": 0
+    },
+    {
+      "job_id": 113019199814,
+      "log_sha256": "8ee39171469520fa36c046ac2463aac403199bfc46460680c3ca1ef225b675df",
+      "failures": [
+        {
+          "node": "tests/qt/test_ambient.py::test_a_frame_is_not_just_the_background[data_art_impulse_lens-#101418]",
+          "error": "AssertionError: data_art_impulse_lens on #101418 painted only 874 of 64000 px"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_a_frame_is_not_just_the_background[data_art_impulse_lens-#f6f7f9]",
+          "error": "AssertionError: data_art_impulse_lens on #f6f7f9 painted only 874 of 64000 px"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_a_frame_is_not_just_the_background[data_art_genetic_advection-#101418]",
+          "error": "AssertionError: data_art_genetic_advection on #101418 painted only 21950 of 64000 px"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_a_frame_is_not_just_the_background[data_art_genetic_advection-#f6f7f9]",
+          "error": "AssertionError: data_art_genetic_advection on #f6f7f9 painted only 21950 of 64000 px"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_a_frame_is_not_just_the_background[data_art_point_atlas-#101418]",
+          "error": "AssertionError: data_art_point_atlas on #101418 painted only 2573 of 64000 px"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_a_frame_is_not_just_the_background[data_art_point_atlas-#f6f7f9]",
+          "error": "AssertionError: data_art_point_atlas on #f6f7f9 painted only 2573 of 64000 px"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_a_frame_is_not_just_the_background[blobs-#101418]",
+          "error": "AssertionError: blobs on #101418 painted only 1719 of 64000 px"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_a_frame_is_not_just_the_background[blobs-#f6f7f9]",
+          "error": "AssertionError: blobs on #f6f7f9 painted only 1890 of 64000 px"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_a_frame_is_not_just_the_background[aurora-#101418]",
+          "error": "AssertionError: aurora on #101418 painted only 11383 of 64000 px"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_a_frame_is_not_just_the_background[aurora-#f6f7f9]",
+          "error": "AssertionError: aurora on #f6f7f9 painted only 11818 of 64000 px"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_a_frame_is_not_just_the_background[drift-#101418]",
+          "error": "AssertionError: drift on #101418 painted only 36 of 64000 px"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_a_frame_is_not_just_the_background[drift-#f6f7f9]",
+          "error": "AssertionError: drift on #f6f7f9 painted only 36 of 64000 px"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_a_frame_is_not_just_the_background[cells-#101418]",
+          "error": "AssertionError: cells on #101418 painted only 1655 of 64000 px"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_a_frame_is_not_just_the_background[cells-#f6f7f9]",
+          "error": "AssertionError: cells on #f6f7f9 painted only 1655 of 64000 px"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_the_frame_changes_between_two_animation_times[data_art_impulse_lens-#101418]",
+          "error": "AssertionError: data_art_impulse_lens moved only 790 of 64000 px in seven seconds"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_the_frame_changes_between_two_animation_times[data_art_impulse_lens-#f6f7f9]",
+          "error": "AssertionError: data_art_impulse_lens moved only 755 of 64000 px in seven seconds"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_the_frame_changes_between_two_animation_times[data_art_point_atlas-#101418]",
+          "error": "AssertionError: data_art_point_atlas moved only 5006 of 64000 px in seven seconds"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_the_frame_changes_between_two_animation_times[data_art_point_atlas-#f6f7f9]",
+          "error": "AssertionError: data_art_point_atlas moved only 5003 of 64000 px in seven seconds"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_the_frame_changes_between_two_animation_times[blobs-#101418]",
+          "error": "AssertionError: blobs moved only 2006 of 64000 px in seven seconds"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_the_frame_changes_between_two_animation_times[blobs-#f6f7f9]",
+          "error": "AssertionError: blobs moved only 2157 of 64000 px in seven seconds"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_the_frame_changes_between_two_animation_times[aurora-#101418]",
+          "error": "AssertionError: aurora moved only 17150 of 64000 px in seven seconds"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_the_frame_changes_between_two_animation_times[aurora-#f6f7f9]",
+          "error": "AssertionError: aurora moved only 17402 of 64000 px in seven seconds"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_the_frame_changes_between_two_animation_times[drift-#101418]",
+          "error": "AssertionError: drift moved only 79 of 64000 px in seven seconds"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_the_frame_changes_between_two_animation_times[drift-#f6f7f9]",
+          "error": "AssertionError: drift moved only 79 of 64000 px in seven seconds"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_the_frame_changes_between_two_animation_times[cells-#101418]",
+          "error": "AssertionError: cells moved only 1925 of 64000 px in seven seconds"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_the_frame_changes_between_two_animation_times[cells-#f6f7f9]",
+          "error": "AssertionError: cells moved only 1910 of 64000 px in seven seconds"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_blobs_vary_in_size_and_pulse_over_time",
+          "error": "AssertionError: no size variety"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_blobs_spread_over_the_whole_canvas",
+          "error": "assert 86.10273825413248 > 700"
+        },
+        {
+          "node": "tests/qt/test_ambient.py::test_drift_thins_out_on_a_small_canvas_and_fills_a_big_one",
+          "error": "AssertionError: a small screen went bare"
+        },
+        {
+          "node": "tests/test_documentation_i18n.py::test_documentation_api_catalog_inventory_and_hashes_are_current[en]",
+          "error": "AssertionError: The public documentation inventory changed. Regenerate every API catalog, review the diff, and update DOCUMENTATION_API_SYMBOL_COUNT_RATCHET in the same change."
+        }
+      ],
+      "native_faults": 0
+    }
+  ]
+}
