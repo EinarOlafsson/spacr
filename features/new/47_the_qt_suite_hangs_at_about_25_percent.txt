@@ -1951,3 +1951,10 @@ restarts hosted acceptance through the workflow-file trigger. Item stays OPEN.
     Shiboken releaseWrapper during deferred QObject deletion. That crash
     persists with this independent ownership fix and is NOT claimed repaired.
     Hosted/native crash and full serial N47 acceptance remain OPEN.
+
+2026-10-07 root integration: primary reader owner repair independently verifies
+all 18 proof payload hashes, the current source/test and four runtime bindings,
+and exact insertion-only coverage union (0 statement/0 branch gaps). Current
+selector file passes 10 checks in 7.39s with CUDA hidden/offscreen under 4 GiB.
+This closes the distinct parked-reader parent SIGABRT only. The reproduced
+Shiboken deferred-wrapper-deletion SIGSEGV and full serial acceptance stay OPEN.

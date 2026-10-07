@@ -29,6 +29,13 @@ worker, retaining all original assertions and deadlines. Nine covered cases
 pass; the slowest individual call is 83 seconds. Current-root Swedish also
 passes independently. Source-bound proofs are in the dated N43 item notes.
 No generator/catalog or helper-policy cache was changed.
+Home also fixed a distinct slow primary-reader shutdown abort: a still-running
+reader parked after the existing five-second drain is detached from its closing
+selector. The native before/after is SIGABRT versus clean exit; twenty-three
+focused checks and ten independent root selector checks pass. All eighteen
+proof payloads, current runtime bindings, and a zero-gap coverage union are
+verified. The separate deferred Shiboken wrapper-deletion SIGSEGV remains OPEN;
+it now reproduces locally and is under native object identification.
 Protected 45f serial remains in progress and must not be cancelled. Partial
 running-job logs stop exposing output around 2 MiB, so they do not establish
 that the job is stalled or reveal its current test/RSS. Installed Save and
