@@ -879,3 +879,34 @@ Compact immutable source/test/coverage/probe receipts and two lossless stills:
     selected cases pass on integrated source under4GiB. Evidence:
     data/663_fungal_phase_cpu_2026-10-06/. This closes the stale census repair;
     final hosted acceptance and hard24FPS performance remain OPEN.
+
+2026-10-06 — exact mature-mycelium raster reuse CPU candidate
+    Source/test 555323f6db keeps native pixels, density, geometry, original
+    Qt group insertion order, colours and alpha. Only the fungal class
+    changes against published22413/ambient08815be8; final rendererb2a19147.
+    Dark owned native RGB32 frames reuse unchanged mature-group pixels only
+    below a conservative channel-saturation boundary. External, light and
+    higher-effective-density contexts keep the original Qt path. Sparse
+    arrays are bounded8MiB/64entries plus64observed paths; one new group per
+    frame after three stable observations. Native staging image is transient.
+    Optional failure restores painter state, clears/disables the cache and
+    repaints identical groups/tips before publication. Owned arrays/frames,
+    retained traceback readability/eventual collection and control contexts
+    pass. Final41focused and277source/doc/quality phases pass (overlapping);
+    154statements in12touched methods and reported branch destinations are
+    reached. Ratchet ceilings and maintained-code target list are unchanged.
+    Final144native4K complete-raster pairs are byte-identical across default,
+    Random, white/RGB16 custom, dark/light and density/detail settings;40frames
+    exercise166cache hits. Source-bound software-Xvfb worker pairs under
+    recordedload4.7–4.9 improve default12.929->16.128FPS and Random reversed
+    order16.539->19.564FPS. Shader/heartbeat tails improve; hard24FPS remains
+    OPEN. WholeRSS is about16MiB higher, not a memory-improvement claim.
+    All four producers stop on hide. No GPU/full-suite/crash-fix/aesthetic
+    or generated API/docs acceptance is claimed; hosted integration pending.
+    Separate tests-only d93816f44e restores Python3.9 adjacent-lineage tests;
+    4b1c86bda5 replaces obsolete fungal style coverage pins with visible early
+    advancing roots and mature/hour-later motion, <=30%screen ink, and
+    explicit empty/frozen/mature-frozen/overfilled defect rejection. Existing
+    linked-branch/bright-tip/density/<=25%raster guards remain;59focused cases
+    pass. Compact23payload proof (~1.2MiB):
+    data/663_fungal_mature_raster_cpu_2026-10-06/.

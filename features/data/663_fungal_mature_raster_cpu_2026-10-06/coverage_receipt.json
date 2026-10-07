@@ -1,0 +1,283 @@
+{
+  "ambient_sha256": "b2a191470947a2f832e7fe135835f05527e0a9e6fa1e7f41408108a4c412d855",
+  "test_phase": "41focused cases;18newcache+14branchowned+9fungal; phases overlap prior source/doc tests",
+  "functions": [
+    {
+      "name": "_shade",
+      "lines": [
+        5626,
+        5640
+      ],
+      "executed_statements": 13,
+      "missing_statements": [],
+      "executed_branch_destinations": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "name": "_configure",
+      "lines": [
+        5642,
+        5650
+      ],
+      "executed_statements": 8,
+      "missing_statements": [],
+      "executed_branch_destinations": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "name": "_resize",
+      "lines": [
+        5652,
+        5656
+      ],
+      "executed_statements": 4,
+      "missing_statements": [],
+      "executed_branch_destinations": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "name": "_fungal_paths",
+      "lines": [
+        5787,
+        5814
+      ],
+      "executed_statements": 22,
+      "missing_statements": [],
+      "executed_branch_destinations": [
+        [
+          5794,
+          5796
+        ],
+        [
+          5794,
+          5814
+        ],
+        [
+          5807,
+          5808
+        ],
+        [
+          5807,
+          5810
+        ],
+        [
+          5812,
+          5794
+        ],
+        [
+          5812,
+          5813
+        ]
+      ],
+      "missing_branch_destinations": []
+    },
+    {
+      "name": "_can_reuse_fungal_raster",
+      "lines": [
+        5816,
+        5827
+      ],
+      "executed_statements": 3,
+      "missing_statements": [],
+      "executed_branch_destinations": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "name": "_reuse_fungal_raster",
+      "lines": [
+        5829,
+        5850
+      ],
+      "executed_statements": 18,
+      "missing_statements": [],
+      "executed_branch_destinations": [
+        [
+          5833,
+          5834
+        ],
+        [
+          5833,
+          5835
+        ],
+        [
+          5840,
+          5842
+        ],
+        [
+          5840,
+          5843
+        ],
+        [
+          5844,
+          5845
+        ],
+        [
+          5844,
+          5847
+        ]
+      ],
+      "missing_branch_destinations": []
+    },
+    {
+      "name": "_observe_fungal_path",
+      "lines": [
+        5852,
+        5859
+      ],
+      "executed_statements": 7,
+      "missing_statements": [],
+      "executed_branch_destinations": [
+        [
+          5857,
+          5858
+        ],
+        [
+          5857,
+          5859
+        ]
+      ],
+      "missing_branch_destinations": []
+    },
+    {
+      "name": "_warm_fungal_raster",
+      "lines": [
+        5861,
+        5894
+      ],
+      "executed_statements": 28,
+      "missing_statements": [],
+      "executed_branch_destinations": [
+        [
+          5867,
+          5868
+        ],
+        [
+          5867,
+          5869
+        ],
+        [
+          5890,
+          5893
+        ],
+        [
+          5890,
+          5894
+        ]
+      ],
+      "missing_branch_destinations": []
+    },
+    {
+      "name": "_paint_fungal_paths",
+      "lines": [
+        5896,
+        5903
+      ],
+      "executed_statements": 6,
+      "missing_statements": [],
+      "executed_branch_destinations": [
+        [
+          5899,
+          -5896
+        ],
+        [
+          5899,
+          5900
+        ]
+      ],
+      "missing_branch_destinations": []
+    },
+    {
+      "name": "_paint_cached_fungal_paths",
+      "lines": [
+        5905,
+        5923
+      ],
+      "executed_statements": 16,
+      "missing_statements": [],
+      "executed_branch_destinations": [
+        [
+          5913,
+          -5905
+        ],
+        [
+          5913,
+          5914
+        ],
+        [
+          5919,
+          5920
+        ],
+        [
+          5919,
+          5921
+        ],
+        [
+          5922,
+          5913
+        ],
+        [
+          5922,
+          5923
+        ]
+      ],
+      "missing_branch_destinations": []
+    },
+    {
+      "name": "_paint_fungal_tips",
+      "lines": [
+        5925,
+        5934
+      ],
+      "executed_statements": 8,
+      "missing_statements": [],
+      "executed_branch_destinations": [
+        [
+          5929,
+          5930
+        ],
+        [
+          5929,
+          5934
+        ]
+      ],
+      "missing_branch_destinations": []
+    },
+    {
+      "name": "_paint_field",
+      "lines": [
+        5936,
+        5959
+      ],
+      "executed_statements": 21,
+      "missing_statements": [],
+      "executed_branch_destinations": [
+        [
+          5941,
+          5942
+        ],
+        [
+          5941,
+          5958
+        ]
+      ],
+      "missing_branch_destinations": []
+    }
+  ],
+  "complexity": {
+    "_shade": 1,
+    "_configure": 1,
+    "_resize": 1,
+    "_fungal_paths": 6,
+    "_can_reuse_fungal_raster": 14,
+    "_reuse_fungal_raster": 7,
+    "_observe_fungal_path": 4,
+    "_warm_fungal_raster": 5,
+    "_paint_fungal_paths": 2,
+    "_paint_cached_fungal_paths": 6,
+    "_paint_fungal_tips": 2,
+    "_paint_field": 3
+  },
+  "strict_maintained_target_xenon": "PASS B absolute/Bmodule/Aaverage; unchanged target list; ambient not in maintained target list",
+  "repo_fatal_ruff": "PASS E9,F63,F7,F82",
+  "new_test_full_ruff": "PASS"
+}
