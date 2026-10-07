@@ -2,11 +2,10 @@
 THE FULL tests/qt RUN HANGS PART-WAY THROUGH
 
 
-Status:    OPEN 2026-10-07 — latest protected serial reached63% before its
-           six-hour timeout, without an OOM or memory-guard trip. Historical
-           failures now have bounded current-source classification/repairs;
-           final uninterrupted serial and native crash acceptance remain open.
-
+Status:    OPEN 2026-10-07 — protected original-order run37615889146
+           failed with native SIGSEGV near56%, at puncta False parameter.
+           Maximum recorded process HWM5.152GiB, below the10.8GiB guard;
+           eight earlier failed call reports and full serial acceptance remain open.
 Previous status (superseded 2026-10-07):    OPEN 2026-10-02 — the whole-suite serial Qt run stops at the 10.8
            GiB memory guard (about 71%); the growth has to be found and one
            full uninterrupted run recorded. The three remaining real items are
@@ -2132,3 +2131,25 @@ destruction; its exact Python thread instance and cause remain unresolved.
     guide and translation-owner evidence, coordinating any source/test change
     with Home; Home retains serial acceptance and native crash implementation.
     No completion claim from earlier bounded 102/68-case ownership evidence.
+
+
+2026-10-07 14:20 UTC — TERMINAL a44 PROTECTED SERIAL; NATIVE FAULT
+The protected run37615889146, job112773999602, was never cancelled/replaced.
+It finished FAILURE14:20:06UTC on exact a44ef399af52bb7f39eb0136c369f6603ff8dc02.
+The original serial process began11:50:54UTC and ended with SIGSEGV at
+Make Masks puncta[False], the same node as ordinary Qt shard1. It reached
+about56%; there is no complete pytest summary. Maximum recorded process
+HWM5531549696bytes(5.152GiB), below the unchanged10.8GiB process guard.
+No memory-guard failure or OOM is recorded. Latest cached Qt census was
+404 top levels/18902 widgets; this does not prove all owner leaks resolved.
+Eight earlier failed call reports remain: tooltip invalidation, four crash-log/
+marker fallback cases, real distribution measurement and two LivePreview GUI
+thread affinity cases. Their prior bounded passes do not establish original-
+order correctness. Failure details were not printed before the native fault.
+The collector recorded an893160240-byte compressed systemd core but did not
+extract it, so the uploaded artifact has no native C++ stack. Do not infer
+application worker causation from the Python waitUntil frame or upstream PC.
+Complete original artifact files, hosted failed log, ordinary terminal jobs/log
+and digest metadata are retained under
+data/47_a44_serial_terminal_2026-10-07/receipt.json (10 verified gzip payloads).
+The source predates this turn's themes; it cannot accept their new implementation.

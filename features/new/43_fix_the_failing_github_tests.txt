@@ -2,10 +2,10 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 ================================================================================
 
-Status:    OPEN 2026-10-07 — completed hosted numerical ratchet passes664
-           modules and all12 artifacts; ordinary tests remain red from native
-           Qt and four workstation owner modes. Fresh source verdict pending.
-
+Status:    OPEN 2026-10-07 — ordinary a44 run37615878285 is terminal FAILURE.
+           Numerical ratchet passed; native puncta and Mask first-open failures
+           remain. Four Workstation owner corrections are integrated locally;
+           latest theme source needs owner-generated refresh and hosted acceptance.
 Previous status (superseded 2026-10-07):    OPEN 2026-10-06 — CPU registry/dependency/inventory repairs are
            locally verified; current hosted tests and owner documentation
            corrections remain outstanding. See the dated trailing notes.
@@ -3048,3 +3048,21 @@ Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
     evidence: data/43_workstation_owner_fixes_2026-10-07.json and associated ZIP.
     Actual deployed readback next; Home retains complete ordinary CI verdict,
     native/Qt/coverage. Protected serial37615889146 remains untouched. N43 OPEN.
+
+
+2026-10-07 14:02 UTC — TERMINAL ORDINARY a44 VERDICT
+Run37615878285 is FAILURE on a44ef399af52bb7f39eb0136c369f6603ff8dc02.
+The numerical per-module coverage ratchet itself passed; the coverage aggregate
+failed its separate requirement that every shard's tests pass. Release gate
+correctly failed. Real modes: Mask first-open10.21s in coverage7; Qt1 native
+puncta[False] fault; README1757-word strict ceiling; Make Masks Divide/Merge
+missing from linked guide; sv/fr exact reviewed runtime archive mismatch;
+checkout1710MB stated versus2839MB tracked. Workstation b6c1a18efe corrects
+four owner groups and is merged in Home bb7df9f7fc; this is not a new hosted
+success. The latest theme controls/names remove/change reviewed source and
+need a new normal Workstation catalog/API/Help refresh. Six stale sv/fr runtime
+records each were found after integration; do not delete review guards or
+pretend earlier source-bound evidence accepts new strings.
+Full ordinary jobs/failure logs are archived with the protected serial under
+data/47_a44_serial_terminal_2026-10-07/receipt.json. Report-only translation
+XFAIL inventory/docstring mismatches are not additional blocking failures.

@@ -1,0 +1,98 @@
+{
+  "artifact_id": 11489486153,
+  "artifact_sha256_reported_by_github": "2462ea02743bf57d65036d12081208cc73c6b0ca277ec789ce35f909f099b495",
+  "classification": "Original-order protected serial terminated with native SIGSEGV at puncta False parameter near 56%; not a terminal pytest pass, timeout, or recorded memory-guard failure. Compressed systemd core was recorded but not extracted by hosted collector, so no native C++ backtrace is available from this artifact. Application causation remains open.",
+  "earlier_failed_node_lines": [
+    "tests/qt/test_cov_g2_tooltip_policy.py::test_invalidating_forgets_a_hover_whose_object_is_gone FAILED [ 22%]",
+    "tests/qt/test_cov_w2_2_app.py::test_a_build_with_no_logging_helper_still_writes_a_crash_dump FAILED [ 33%]",
+    "tests/qt/test_cov_wf_qt_crash_recovery.py::test_a_log_folder_that_raises_falls_back_under_the_home_directory FAILED [ 36%]",
+    "tests/qt/test_cov_wf_qt_crash_recovery.py::test_a_log_folder_that_answers_with_nothing_falls_back_too FAILED [ 36%]",
+    "tests/qt/test_crash_recovery_drops_the_backdrop.py::test_the_marker_folder_falls_back_when_the_log_dir_is_unavailable FAILED [ 37%]",
+    "tests/qt/test_distribution_smoke.py::test_source_ui_integration_runs_real_measurement FAILED [ 40%]",
+    "tests/qt/test_live_preview_coverage.py::TestWorkerLifecycle::test_the_completion_handler_runs_on_the_gui_thread FAILED [ 55%]",
+    "tests/qt/test_live_preview_coverage.py::TestWorkerLifecycle::test_all_worker_handlers_keep_gui_affinity_with_plain_spies FAILED [ 55%]"
+  ],
+  "job_completed_at": "2026-10-07T14:20:06Z",
+  "job_id": 112773999602,
+  "last_file_rss_record": {
+    "cached_qt_top_levels": 404,
+    "cached_qt_widgets": 18902,
+    "event": "file_begin",
+    "file": "tests/qt/test_make_masks_center_pixel_puncta.py",
+    "first_nodeid": "tests/qt/test_make_masks_center_pixel_puncta.py::test_region_requires_parents_and_bypasses_display_enhancement",
+    "hwm_bytes": 5531549696,
+    "pid": 3887,
+    "rss_bytes": 5400416256,
+    "threads": 25,
+    "time_ns": 1791382743161230444
+  },
+  "last_recorded_node": "tests/qt/test_make_masks_center_pixel_puncta.py::test_choose_detect_save_and_undo_keeps_parents_and_exports_exact_values[False] Segmentation fault (core dumped)",
+  "max_recorded_process_hwm_bytes": 5531549696,
+  "ordinary_classification": "Ordinary run 37615878285 failed. Numerical coverage ratchet passed; aggregate requires successful shard tests. Real failures include mask first-open 10.21s, puncta native fault, README length, Make Masks guide control text, sv/fr reviewed runtime archive contract and checkout size. Workstation fixes four owner groups in b6c1a18efe; not a current hosted green verdict.",
+  "payloads": {
+    "fatal-python.log.gz": {
+      "gzip_bytes": 3665,
+      "gzip_sha256": "9b11f2866e8aacb237ed2b00b77f98d5b23c5b6c567cb2a6a996fafc8f3bc875",
+      "source_bytes": 24975,
+      "source_sha256": "0297c07404192c4ac6df24867e7eb9cbae54d66d41ba3d6c48e18bfbe8f9fea9"
+    },
+    "file-rss.jsonl.gz": {
+      "gzip_bytes": 72570,
+      "gzip_sha256": "57efd7253ccea43bb0695676cfadd11f5c24bf8151c68a067bd4dd4588fc08b1",
+      "source_bytes": 548072,
+      "source_sha256": "0e3df925c570e82b4a64b80a5dcbf57d2ac8b8cb0d19e1191d8b435d622e3320"
+    },
+    "host-memory.log.gz": {
+      "gzip_bytes": 22406,
+      "gzip_sha256": "44bf7cc0de3a7cd11015b4e97910c61751a889173f448d1443463792f76729b3",
+      "source_bytes": 408587,
+      "source_sha256": "df34dd985a95885a388135b804332bcd3eba4ae109602a585b61f181e54033a5"
+    },
+    "hosted-failed.log.gz": {
+      "gzip_bytes": 501329,
+      "gzip_sha256": "ee36c271abb9498cb696c9904e898fc1bc8125de4e8164e77bf30c48130db869",
+      "source_bytes": 3924061,
+      "source_sha256": "13ce5b0f2fad6c827cb31a280cbaa457015144dd02cb2099dd682b6921f28ec7"
+    },
+    "native-core-backtrace.txt.gz": {
+      "gzip_bytes": 424,
+      "gzip_sha256": "a371c0c97b4165c2f9d04155b9b42d5e241440beb62194bed9ad152f5a4a87aa",
+      "source_bytes": 629,
+      "source_sha256": "4a0292646481afa5b88baeb7924d064c21706a250df5d889ec8a15dd6e7b11ce"
+    },
+    "ordinary-failed.log.gz": {
+      "gzip_bytes": 4934539,
+      "gzip_sha256": "a1df1f1bb8411c472b0ec3907720b3830f69aa81637c111616062a6ab650f731",
+      "source_bytes": 55359062,
+      "source_sha256": "9444cdc00418ec109dc0f5d573b8c7c34bee73b24d7fe816a8a77aeca2999231"
+    },
+    "ordinary-run.json.gz": {
+      "gzip_bytes": 4775,
+      "gzip_sha256": "327e74994011a2a2b079a9c7bba6c9cad9661ad0e3be4d1df503f91b5122db35",
+      "source_bytes": 67187,
+      "source_sha256": "4524fec7e7a4d1d25b4b15db7a9d801293f6b9e026c4be64023044a6a0b3f91e"
+    },
+    "pytest.log.gz": {
+      "gzip_bytes": 300452,
+      "gzip_sha256": "8c1977d54bc70a3acddec64674f1d73a7f461bb254d51d0327808501bb652a11",
+      "source_bytes": 2007576,
+      "source_sha256": "ffcad904b4d409f32b1352a510c642db9cd03f68c3bca6101d381a1e791fc033"
+    },
+    "run.json.gz": {
+      "gzip_bytes": 655,
+      "gzip_sha256": "792afc7d7892dd2fec520e4561f6d2a8bf7e51949629eaac9287c62cb6a835af",
+      "source_bytes": 2479,
+      "source_sha256": "ad150b8d4a3f2b6f2bbea108e7cf4efdd36ee43f269e5070c28cacc623a2e514"
+    },
+    "source-provenance.json.gz": {
+      "gzip_bytes": 120138,
+      "gzip_sha256": "66f6f1338284d8dfc3f7c1e37f0398d85c7aa5308422c55acf173245e1d325b2",
+      "source_bytes": 272126,
+      "source_sha256": "38ac6442443e31bcefe97a458ce6d1b2c77960736599b93078cbdf3efb32dcfd"
+    }
+  },
+  "run_conclusion": "failure",
+  "run_id": 37615889146,
+  "run_status": "completed",
+  "source_sha": "a44ef399af52bb7f39eb0136c369f6603ff8dc02"
+}

@@ -78,3 +78,15 @@ receive solid blue fill, white outline in dark themes and black in light.
 Non-Wayland moves/resizes use original press coordinates and clamp geometry,
 preserving the opposite edge without accumulated drift. Wayland must retain
 its compositor operation. Focused gesture and color/silhouette tests pass.
+
+
+2026-10-07 — MAINTAINER REQUEST: POPUPS REMAIN ABOVE MAIN WINDOW
+The shared detached-dialog policy and glass fallback now apply
+Qt.WindowStaysOnTopHint before showing a popup. The availability Tool popup
+uses the same foreground hint. Clicking the main window keeps modeless popups
+open; normal ownership, transient parent, modality, drag behavior, reopening,
+acceptance and Escape dismissal are preserved. The main window receives no
+foreground hint. Focused integration passes71 dialog/popup checks and44
+availability checks under offscreen Qt with CUDA hidden and a4GiB cap.
+The Qt ownership/window-flag policy is verified; the offscreen plugin cannot
+establish actual desktop window-manager stacking on Windows/macOS/X11/Wayland.

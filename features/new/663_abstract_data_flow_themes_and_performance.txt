@@ -1,8 +1,8 @@
 ABSTRACT DATA FLOW THEMES AND BACKDROP PERFORMANCE
-Status: OPEN 2026-10-07 — six-theme refinement and measured CPU optimizations
-are integrated; native hard24FPS, installed Save crash and final aesthetic
-acceptance remain open. Rejected experiments are archived without app changes.
-
+Status: OPEN 2026-10-07 — current controls, catalog, waves/repulsion, local
+spin, native aurora and popup integration are implemented and locally checked.
+Biological growth is being revised to the latest maintainer direction;
+native hard24FPS, installed Save crash and final aesthetic acceptance remain open.
 Previous status (superseded 2026-10-07): OPEN 2026-10-06 — requested six-theme refinement; final live motion checks pending.
 Requested: 2026-10-05 by the maintainer: performance-optimize themes and add
 10–20 abstract high-resolution continuously flowing backgrounds, including
@@ -10,16 +10,20 @@ weather-like wind, mouse-influenced flows, biology, spatial data, DNA and space.
 Owner: CPU feature/CI session; generated API/docs/translations/tutorials and
 every GPU process remain with the workstation session.
 
-Current maintainer direction retains five replacements: Spatial point atlas,
-Tissue facets, Chromatin satin, Genetic advection and Perturbation lens, and
-adds continuous branching Fungal growth. Remove the other seven replacement
-presets and Bokeh/Resonance from selectable themes and animations. Stable
-identifiers use data_art_ plus the family names from the source catalog.
-Pointer response is an interaction within selected artworks and does not
-count as an additional style. The sixteen rejected flow_* keys stay retired.
-The existing ten night themes and their sounds stay compatible. New art
-presets may select an existing fitting sound set but never turn sound on.
-
+Current maintainer direction (2026-10-07) retains eight selectable backgrounds:
+spaCR field, spaCR advection, spaCR growth, spaCR waves, spaCR blobs,
+spaCR aurora, spaCR stratified and spaCR spinn. Remove selectable Thor/Thore
+and Chromatin strain/satin/ribbon; earlier rejected families remain retired.
+Settings backdrop choices match the main ambient choices, plus explicit Off;
+the Settings backdrop defaults to spaCR stratified (stable key drift).
+Every background label begins spaCR; the Blur control is removed. Density
+controls actual population independently of Detail, which controls physical
+sampling under the existing buffer/work cap. Private legacy renderers and
+whole-interface palette identifiers remain available for regression/API use.
+Growth should resemble a biological mycelium timelapse: persistent irregular
+tip extension, recursive daughter branches, several active fronts, exploratory
+and directional phases followed by smooth direction changes, and increasingly
+abundant branching near the advancing front. Never exceed 30% raster occupancy.
 Flows remain decorative, not scientific output. Preserve readable text and
 controls, contrast and page-separation rules, animation-off choices, Extra
 Performance and launch-recovery suppression. Pointer-responsive variants

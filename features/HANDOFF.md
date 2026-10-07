@@ -1,5 +1,77 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+
+## 2026-10-07 14:33 UTC — Home theme revisions and terminal CI; Workstation refresh queue
+
+The maintainer authorized new application theme revisions after the frozen
+serial source. Home has integrated independent Detail/Density, removed the
+Blur UI, matched main/Settings ambient catalogs, default Settings spaCR
+stratified, native shimmering Aurora, moving repulsive waves and local facet
+spin (spaCR spinn), plus popup foreground window flags. Retained background
+labels are exactly spaCR field/advection/growth/waves/blobs/aurora/stratified/spinn;
+Settings has these plus Off. Thor/Thore and Chromatin strain/satin/ribbon are
+removed from public selectors/factories; private retired renderers remain for
+regression/API use. The legacy ten whole-interface palettes remain separate.
+Root integrated product source is through ce58f867e4; current commit appends
+acceptance/terminal records. New biological growth and bounded field hold-drag
+are ACTIVE Home lanes; neither is accepted or complete yet. Main ambient
+field default remains; Settings backdrop default drift = spaCR stratified.
+
+Workstation: your b6c1a18efe four-owner fixes are merged in bb7df9f7fc. Thank
+you; README length and actual Divide/Merge guard pass independently (2/2).
+New themes change English runtime/API source and need normal owner refresh
+from this published nightly, then again only affected outputs after growth/
+field commits. Do not reuse earlier source-bound review as current acceptance.
+In sv/fr, six stale records each currently fail strict reviewed-source checks:
+old Animation blur, Tissue facets, Chromatin satin, combined Density/Detail
+prose, Thor/rain note and chromatin note. Review current live replacements;
+retire only actual removed keys with precise historical retirement accounting,
+then normally regenerate/audit catalogs. All nine languages and current captions
+must reflect actual retained labels. Remove stale Blur help and describe
+independent Density/Detail, stratified default and local mouse spin/repulsive
+waves. Regenerate English/localized API and Help through normal tools: new
+AuroraEngine.buffer_size/buffer_scale/_shade; DriftEngine.buffer_size/_paint_dots;
+shared density/docs; new popup flags. Keep exact inventory/ratchet guards;
+no hand-merges or ceiling raises. Tutorials remain yours; capture only changed
+current layout with --fresh, no unrelated re-recording. Every GPU process
+remains yours. Home owns implementation and CI/native-fault diagnosis.
+
+Home acceptance: source-current focused main/catalog/Settings/Detail-Density/
+crisp/popup/card-rim cohort353/353; motion/control cohort174/174; gravity/waves/
+controls72/72; dedicated popup/dialog71/71 and availability44/44. These cohorts
+overlap; do not sum them into a unique-test claim. Filesystem AND Git-blob
+verification of waves/spin23 payloads and wave-density24 payloads pass. Wave
+native4K actual grain counts at Density1/2/3 are85871/171675/257047; maximum-
+density old pixels remain exact in eight paired frames. True Density is never
+trimmed by Detail. No native-display or aesthetic acceptance is inferred.
+Aurora4K producer medians66.29/89.17ms default/max; spinn native local spin
+76.04ms in the recorded default-case probe. Hard24FPS is still OPEN. Settings
+Save historical native crash remains OPEN. Offscreen verifies popup ownership/
+modality/foreground hints but cannot prove desktop window-manager stacking.
+
+Both frozen a44 hosted runs are now terminal FAILURE. Ordinary37615878285
+completed14:02UTC; numerical coverage ratchet PASSED, but shard tests and
+release gate FAILED. Remaining actual new first-open Mask budget failure is
+10.211s against unchanged10.0s; source-current focused coverage replay passes,
+so neither causation nor a fix is established. Other ordinary real failures
+are puncta native fault and the four owner groups corrected in b6. Report-only
+API/docstring translation XFAIL text is not another blocking mode.
+
+Protected serial37615889146/job112773999602 was NEVER cancelled/replaced.
+It completed14:20:06UTC on a44ef399af52bb7f39eb0136c369f6603ff8dc02 with native
+SIGSEGV at puncta False parameter around56%, the same ordinary Qt1 node.
+Maximum recorded process HWM5.152GiB is below unchanged10.8GiB guard; no
+memory-guard/OOM failure is recorded. Eight pre-crash failed call reports remain:
+tooltip cleanup, four crash-log/marker fallback cases, distribution measurement,
+and two LivePreview GUI-affinity cases. Prior bounded passes do not accept
+original-order behavior. The collector saw an893MB compressed systemd core
+but did not extract it, so uploaded evidence has no native C++ stack.
+Original artifact files, complete logs/jobs and digests: data/
+47_a44_serial_terminal_2026-10-07/receipt.json,10 verified gzip payloads.
+No full Qt/N43 green or application worker-causation claim is justified.
+The a44 serial source is historical and cannot accept new theme application
+changes. Do not cancel any ongoing Workstation docs or other owner's jobs.
+
 ## 2026-10-07 13:53 UTC — Workstation four owner corrections accepted locally
 
 All four first-queue corrections assigned in the 11:55 UTC handoff are implemented
