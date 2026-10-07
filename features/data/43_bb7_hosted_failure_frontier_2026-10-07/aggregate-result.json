@@ -1,0 +1,43 @@
+{
+  "source_sha": "bb7f7585cd9fa2a886e4509010b35f258c529f77",
+  "run_id": 37681965976,
+  "job_id": 113052273277,
+  "job_status": "completed",
+  "job_conclusion": "failure",
+  "job_started_at": "2026-10-07T22:38:49Z",
+  "job_completed_at": "2026-10-07T22:44:16Z",
+  "job_url": "https://github.com/EinarOlafsson/spacr/actions/runs/37681965976/job/113052273277",
+  "measurement_status": "incomplete",
+  "numerical_ratchet_pass": null,
+  "shipped_modules": 664,
+  "checked_modules": 664,
+  "confirmed_regression_modules": 0,
+  "unconfirmed_rise_modules": [
+    "spacr/deep_spacr.py",
+    "spacr/model_zoo.py",
+    "spacr/plaque.py",
+    "spacr/qt/mask_engine.py",
+    "spacr/qt/preferences.py",
+    "spacr/qt/screens/make_masks.py",
+    "spacr/qt/screens/plate_view.py",
+    "spacr/qt/widgets/ambient.py",
+    "spacr/qt/widgets/setup_card.py",
+    "spacr/submodules.py",
+    "spacr/torch_artifacts.py",
+    "spacr/validate.py"
+  ],
+  "unconfirmed_rise_count": 12,
+  "shard_integrity_problems": 1,
+  "recovered_batches": 3,
+  "lost_file": "tests/qt/test_cov_7_ambient.py",
+  "lost_file_recovery_attempts": 2,
+  "lost_file_recovery_outcomes": [
+    "SIGSEGV",
+    "SIGSEGV"
+  ],
+  "required_shard_gate": "failure",
+  "required_shard_result": "failure",
+  "module_report_artifact_id": 11515444619,
+  "module_report_artifact_bytes": 5720362,
+  "interpretation": "Zero confirmed regressions is not a coverage pass because the lost file leaves twelve module rises unconfirmed."
+}

@@ -3,7 +3,7 @@
   "run_id": 37681965976,
   "snapshot": "2026-10-07T22:44:17Z",
   "partial": true,
-  "note": "Eleven terminal failed coverage shards captured; shard 9 succeeded and aggregate remained in progress at this snapshot. No numerical coverage verdict or full-run success is claimed.",
+  "note": "Eleven terminal failed coverage shards captured. Aggregate job 113052273277 later failed on incomplete measurement and required-shard integrity: 0 confirmed regressions, 12 unconfirmed module rises, no numerical pass.",
   "logs": [
     {
       "path": "logs/113019199428.log.gz",
@@ -95,11 +95,26 @@
     }
   ],
   "snapshot_files": {
-    "README.txt": "47622b0e4d68949857b558775ba5742451e7cdc3bfd43b2b407bad13f8cf4245",
+    "README.txt": "dee1696fe587139a16fce95777f73743985eaeb52a4d56a70b309c9950afff7a",
     "failed-node-inventory.json": "884186609e2e424a3e8f6327ccb7ffe86bafa676ee70bfcd08dc32a79e60ee19",
     "jobs-snapshot-before-coverage4.json": "8f6f48f40808bad37f425b46a49c447c41c8e5c9d0f78e70b5aec6a9060ddcda",
     "jobs-snapshot.json": "2b42d7bf7fd2dc19dcf8d814846d91519531595d3a40323dbb15821b7d95ff90",
     "run-snapshot.json": "7518d11c5eb40eb5295af8f394953962b99520eb9e10620682378b7c8182ce2c",
     "active-fast-min-qt-snapshot.json": "685a767cbc9820be157a7084353fb565c14acca89d0ee0b4f9c837c90a8e3974"
+  },
+  "aggregate_result": {
+    "path": "aggregate-result.json",
+    "sha256": "dc4584eab3fa4c6520e99940b2cc97a27aa5cbdba6776913100a1327084f3f7e",
+    "job_id": 113052273277,
+    "status": "completed",
+    "conclusion": "failure"
+  },
+  "aggregate_log": {
+    "path": "logs/113052273277.log.gz",
+    "job_id": 113052273277,
+    "raw_sha256": "05ad021a46bd8c19b84cf8fe62033a453d58f4e91a153679d3cef8d9ad4f7cf1",
+    "raw_bytes": 185629,
+    "gzip_sha256": "366b7d2af5e6f8b562458be2746c6dc9519e1db9fe0f22589a743ce35518ea83",
+    "gzip_bytes": 40711
   }
 }
