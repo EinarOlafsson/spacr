@@ -663,6 +663,7 @@ def make_frameless(dialog: QDialog) -> bool:
         dialog.setWindowFlags((dialog.windowFlags()
                                & ~Qt.WindowType.Dialog)
                               | Qt.WindowType.Window
+                              | Qt.WindowType.WindowStaysOnTopHint
                               | Qt.FramelessWindowHint)
         _ensure_alpha_surface(dialog)
         dialog.setProperty(DETACHED, True)
@@ -892,7 +893,7 @@ def _install_the_backdrop(dialog: QDialog) -> Optional[QWidget]:
     first-run screen are recognisably the same surface rather than two
     takes on one idea.
     """
-    theme = "aurora"
+    theme = "drift"
     try:
         from ..preferences import get_ambient_enabled, get_popup_backdrop
 

@@ -124,7 +124,8 @@ def detach_from_window_manager(dialog: Any) -> Any:
     try:
         flags = dialog.windowFlags()
         dialog.setWindowFlags((flags & ~Qt.WindowType.Dialog)
-                              | Qt.WindowType.Window)
+                              | Qt.WindowType.Window
+                              | Qt.WindowType.WindowStaysOnTopHint)
     except Exception:
         pass
     return dialog
