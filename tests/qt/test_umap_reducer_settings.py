@@ -1,16 +1,17 @@
 """Reducer-specific Image UMAP settings stay explicit, typed and preserved."""
 from __future__ import annotations
 
-from PySide6.QtWidgets import QComboBox
+from PySide6.QtWidgets import QComboBox, QWidget
 
 from spacr.hyperparam import UMAP_METRICS
 from spacr.qt.screens.settings_model import SettingsWidgets
 
 
 def _model(qtbot):
-    model = SettingsWidgets("umap")
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    model = SettingsWidgets("umap", parent=owner)
     model.build_sections()
-    qtbot.addWidget(model._widgets["reduction_method"])
     return model
 
 
