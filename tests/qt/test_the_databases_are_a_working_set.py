@@ -207,9 +207,12 @@ def test_what_the_user_chose_about_a_collision_is_recorded(screen,
 
 @pytest.fixture
 def umap_panel(qtbot, qt_theme_applied):
+    from PySide6.QtWidgets import QWidget
     from spacr.qt.screens.settings_model import SettingsWidgets
 
-    panel = SettingsWidgets("umap")
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    panel = SettingsWidgets("umap", parent=owner)
     panel.build_sections()
     return panel
 
