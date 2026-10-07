@@ -366,6 +366,28 @@ class TestTheSettingsBackdrop:
         assert own_config.POPUP_BACKDROPS == ("off",) + tuple(
             sorted(AMBIENT_THEMES))
 
+    def test_fresh_settings_offer_matching_labels_and_keep_explicit_off(
+            self, own_config, monkeypatch, tmp_path, qtbot):
+        from PySide6.QtCore import QSettings
+        from spacr.qt.widgets.ambient import animation_label
+        from spacr.qt.preferences import PreferencesDialog
+
+        store = QSettings(str(tmp_path / "fresh.ini"), QSettings.IniFormat)
+        monkeypatch.setattr(own_config, "_settings", lambda: store)
+        assert own_config.get_popup_backdrop() == "drift"
+        dialog = PreferencesDialog()
+        qtbot.addWidget(dialog)
+        box = dialog.findChild(QComboBox, "PopupBackdrop")
+        assert box.currentData() == "drift"
+        assert tuple(box.itemData(i) for i in range(box.count())) == \
+            own_config.POPUP_BACKDROPS
+        for index in range(box.count()):
+            key = box.itemData(index)
+            if key != "off":
+                assert box.itemText(index) == animation_label(key)
+        own_config.set_popup_backdrop("off")
+        assert own_config.get_popup_backdrop() == "off"
+
     def test_every_offered_backdrop_survives_being_chosen(self, own_config,
                                                           glassed):
         """A name in the list that the installer cannot build is a setting

@@ -9,9 +9,9 @@ from PySide6.QtGui import QImage, QPainter
 from spacr.qt.widgets import ambient
 
 OFFERED = ('blobs', 'aurora', 'drift', 'data_art_point_atlas',
-           'data_art_tissue_facets', 'data_art_chromatin_ribbon',
+           'data_art_tissue_facets',
            'data_art_genetic_advection', 'data_art_impulse_lens',
-           'data_art_fungal_growth', 'data_art_thore')
+           'data_art_fungal_growth')
 
 
 @pytest.mark.parametrize('theme', OFFERED)
@@ -75,7 +75,8 @@ def test_aurora_density_roundtrip_rebuilds_alpha_dependent_cached_textures(qapp)
 
 
 def test_rain_and_facets_have_distinct_low_density_populations(qapp):
-    rain = ambient.make_engine('data_art_thore', 'spacr', '#101418', seed=42)
+    rain = ambient._ThoreEngine(ambient.palette_colors('aurora', 'spacr'),
+                               '#101418', seed=42)
     paper = ambient.make_engine('data_art_tissue_facets', 'spacr', '#101418', seed=42)
     rain_counts = []
     tile_counts = []
@@ -95,8 +96,9 @@ def test_rain_and_facets_have_distinct_low_density_populations(qapp):
 def test_satin_fractional_opacity_is_restored_after_draw_failure(qapp, monkeypatch):
     monkeypatch.setattr(ambient, '_SATIN_COMPILER',
                         SimpleNamespace(ready=lambda: None))
-    engine = ambient.make_engine('data_art_chromatin_ribbon', 'spacr', '#101418',
-                                 seed=42, density=.01)
+    engine = ambient._DataArtEngine(
+        ambient.palette_colors('data_art_tissue_facets', 'spacr'), '#101418',
+        family='chromatin_ribbon', seed=42, density=.01)
 
     class FailingPainter:
         def __init__(self):

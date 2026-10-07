@@ -38,7 +38,6 @@ CONTROLS = {
     "AmbientPalette": "Appearance",
     "AmbientDriftDirection": "Appearance",
     "AmbientResolution": "Appearance",
-    "AmbientBlur": "Appearance",
     "AmbientSpeed": "Appearance",
     "AmbientSize": "Appearance",
     "AmbientDensity": "Appearance",

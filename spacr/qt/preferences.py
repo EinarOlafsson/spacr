@@ -58,7 +58,7 @@ Values:
 * ``theme``: ``"dark"`` | ``"light"`` | ``"cell"`` | ``"glass"`` |
   ``"high_contrast"`` | one of
   the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` |
-  the six data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` |
+  the five data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` |
   ``"system"`` (default ``"dark"``). ``"system"`` follows the operating
   system color scheme, and only once somebody has picked it: a stored
   ``"system"`` written before dark became the default (2026-09-21) was
@@ -137,12 +137,11 @@ Values:
   user who never touches them sees no change. Clamped on read and on write
   to the ranges the engines declare
   (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` and friends).
-* ``ambient_blur``: float, default ``0.0`` — how much the finished picture
-  is softened, in units of eight screen pixels. Image detail is controlled
-  separately by ``ambient_resolution``. Values stored under the legacy blur
-  scale are translated once on read by :func:`_migrate_ambient_motion`.
+* ``ambient_blur``: a legacy float retained for reading older preferences.
+  Current animation widgets render without this saved blur setting. Image
+  detail is controlled by ``ambient_resolution``.
 * ``ambient_drift_direction``: ``"up"`` | ``"down"`` | ``"random"``
-  (default ``"up"``). Which way the Starfield animation travels. A
+  (default ``"up"``). Which way spaCR stratified travels. A
   preference rather than three entries in the animation menu; see
   :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS` for why.
 * ``spinner_delay``: float seconds, default ``2.0``. How long background
@@ -1684,7 +1683,7 @@ def theme_choices() -> tuple:
     The ten night themes follow the older palettes, in
     :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the
     application has always had stay where a returning user looks for them
-    and read as one family. Twelve data-art presets follow them in a
+    and read as one family. Five data-art presets follow them in a
     separate block. Their tokens are plain keys with no variant, so
     there is nothing to compose into the token the way Cell does.
     """
@@ -2388,9 +2387,8 @@ def get_ambient_density() -> float:
     ripple sources, stars, discs, cells — as a multiplier on each
     animation's own count. 1.0 is as designed.
 
-    Density and resolution share one cost budget in the engines
-    (:data:`spacr.qt.widgets.ambient.WORK_BUDGET`), so asking for the top of
-    both ranges at once gets a trimmed density rather than a stalled frame.
+    Density determines the population independently of detail. Render
+    sampling and the native screen-pixel budget bound the combined work.
     """
     return _ambient_multiplier(_KEY_AMBIENT_DENSITY, 4)
 
@@ -2407,7 +2405,7 @@ def set_ambient_density(value: float) -> None:
 
 
 def get_ambient_drift_direction() -> str:
-    """Which way the Starfield animation travels.
+    """Which way spaCR stratified travels.
 
     Validated on read against
     :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS`, so a value from a
@@ -2685,7 +2683,7 @@ LAPTOP_MODE_CHOICES = ("automatic", "on", "off")
 #: What the dialog calls each one.
 LAPTOP_MODE_LABELS = {
     "automatic": "Automatic (decide from this machine)",
-    "on": "On (turn the animation and blur down)",
+    "on": "On (reduce animation work)",
     "off": "Off (keep everything on)",
 }
 
@@ -3112,8 +3110,8 @@ def set_laptop_mode(choice: str) -> None:
     :raises ValueError: on an unknown choice.
 
     Applied immediately rather than at the next launch, because the two
-    things it changes -- the ambient animation and the backdrop blur -- are
-    both visible in the window behind the dialog. A performance setting
+    animation it changes is visible in the window behind the dialog. A
+    performance setting
     that needs a restart to show its effect cannot be judged by the person
     setting it.
     """
@@ -3146,7 +3144,7 @@ def laptop_mode_note(choice: str) -> str:
     if choice == "on":
         return (f"Turns down {turns_down}. Only the drawing changes: a run "
                 f"computes exactly the same answer either way.")
-    return "Keeps the animation and the blur on, whatever this machine is."
+    return "Keeps the animation at its chosen settings, whatever this machine is."
 
 
 def get_idle_minutes() -> float:
@@ -7369,7 +7367,6 @@ PREFERENCE_TIPS = {
     "Dream": "How much the pattern warps, drifts and shears as it travels. 0.0 is a still camera moving straight in; 1.5 is the default, and higher values exaggerate the motion without a fixed ceiling. It costs nothing extra to raise.",
     "Variable speed": "Let the travel speed breathe instead of holding one value. It modulates the speed above rather than replacing it, so the number you set is still the middle of the range.",
     "Interface font": "The weight the interface is drawn in. spaCR ships Open Sans and uses it everywhere, so the application looks the same whatever fonts the machine has. Light is thinner and suits a large high-resolution display; Regular is easier to read on a small or low-resolution one. Bold stays available to anything that asks for emphasis.",
-    "Animation blur": "Blur applied to background shapes.",
     "Animation speed": "Background-animation speed.",
     "Animation size": "Size of background shapes.",
     "Animation density": "Number of background shapes.",
@@ -8044,7 +8041,7 @@ class PreferencesDialog:
         animation.addRow(tr("Animation colours"), _hbox_wrap(color_row))
 
         def _sync_custom_colors(*_args):
-            """Offer custom colours for the seven procedural data-art scenes."""
+            """Offer custom colours for the retained procedural data-art scenes."""
             available = "custom" in palettes_for(ambient_theme_combo.currentData()) \
                 if ambient_theme_combo.currentData() != NO_ANIMATION else False
             for button in color_buttons:
@@ -8068,7 +8065,7 @@ class PreferencesDialog:
         for i in range(ambient_dir_combo.count()):
             if ambient_dir_combo.itemData(i) == current_dir:
                 ambient_dir_combo.setCurrentIndex(i); break
-        dir_label = QLabel(tr("Starfield direction"))
+        dir_label = QLabel(tr("spaCR stratified direction"))
         animation.addRow(dir_label, ambient_dir_combo)
 
         def _sync_direction_row(*_args):
@@ -8084,7 +8081,6 @@ class PreferencesDialog:
         ambient_dir_combo.currentIndexChanged.connect(_sync_direction_row)
         _sync_direction_row()
 
-        (blur_lo, blur_hi) = _ambient_ranges()[0][0]
         (speed_lo, speed_hi) = _ambient_ranges()[1][0]
         (size_lo, size_hi) = _ambient_ranges()[2][0]
         (res_lo, res_hi) = _ambient_ranges()[3][0]
@@ -8131,15 +8127,6 @@ class PreferencesDialog:
             "fill the page. Costs roughly the square of what it says — "
             "200 % is four times the work — so turn it down on a machine "
             "that is busy.")
-        blur_slider = _percent_row(
-            "AmbientBlur", "Animation blur",
-            blur_lo, blur_hi, get_ambient_blur(),
-            "How out of focus the animation is, on top of whatever detail "
-            "it was drawn with. 0 % leaves it as sharp as the detail "
-            "setting allows; 100 % is the softness the animations used to "
-            "ship with. Unlike detail, this one is nearly free — and the "
-            "two together are what let the backdrop be soft without being "
-            "blocky.", designed=0.0)
         speed_slider = _percent_row(
             "AmbientSpeed", "Animation speed",
             speed_lo, speed_hi, get_ambient_speed(),
@@ -8158,9 +8145,9 @@ class PreferencesDialog:
             "AmbientDensity", "Animation density",
             den_lo, den_hi, get_ambient_density(),
             "How many things there are: blobs, aurora curtains, ripple "
-            "sources, stars and cells. Density and detail share "
-            "one cost budget, so asking for the most of both trims the "
-            "density rather than dropping frames.")
+            "sources, stars and cells. Density changes their population "
+            "independently of detail; rendering stays within the screen's "
+            "pixel budget.")
 
         gravity_slider = _percent_row(
             "AmbientGravityRadius", "Mouse gravity radius",
@@ -8182,7 +8169,6 @@ class PreferencesDialog:
             ambient_palette_combo.setEnabled(on)
             ambient_dir_combo.setEnabled(on)
             resolution_slider.setEnabled(on)
-            blur_slider.setEnabled(on)
             speed_slider.setEnabled(on)
             size_slider.setEnabled(on)
             density_slider.setEnabled(on)
@@ -8591,7 +8577,7 @@ class PreferencesDialog:
         popup_backdrop_combo.setObjectName("PopupBackdrop")
         for key in POPUP_BACKDROPS:
             popup_backdrop_combo.addItem(
-                tr("None") if key == "off" else tr(key.capitalize()), key)
+                tr("None") if key == "off" else tr(animation_label(key)), key)
         index = popup_backdrop_combo.findData(get_popup_backdrop())
         popup_backdrop_combo.setCurrentIndex(index if index >= 0 else 0)
         popup_backdrop_combo.setToolTip(
@@ -9664,7 +9650,6 @@ class PreferencesDialog:
 
                 resolution_slider.setValue(
                     int(round(get_ambient_resolution() * 100)))
-                blur_slider.setValue(int(round(get_ambient_blur() * 100)))
                 speed_slider.setValue(int(round(get_ambient_speed() * 100)))
                 size_slider.setValue(int(round(get_ambient_size() * 100)))
                 density_slider.setValue(
@@ -9739,7 +9724,6 @@ class PreferencesDialog:
             if palette_choice is not None:
                 set_ambient_palette(palette_choice)
             _set_ambient_custom_colors(custom_colors)
-            set_ambient_blur(blur_slider.value() / 100.0)
             set_ambient_speed(speed_slider.value() / 100.0)
             set_ambient_size(size_slider.value() / 100.0)
             set_ambient_resolution(resolution_slider.value() / 100.0)
@@ -10439,11 +10423,7 @@ _KEY_POPUP_BACKDROP = "rim/popup_backdrop"
 POPUP_BACKDROPS = ("off",) + tuple(sorted(
     ("aurora", "blobs", "drift") + DATA_ART_THEME_KEYS
 ))
-#: NO MOVING BACKDROP BEHIND A SETTINGS WINDOW unless the user asks for
-#: one. The card and the rim stay either way -- 'off' drops only the
-#: movement, which is what is distracting behind a form you are reading
-#: rather than behind a screen of figures.
-DEFAULT_POPUP_BACKDROP = "off"
+DEFAULT_POPUP_BACKDROP = "drift"
 
 
 def get_popup_backdrop() -> str:

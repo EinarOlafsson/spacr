@@ -40,6 +40,57 @@ def test_native_4k_detail_respects_real_screen_budget_and_lower_detail():
     assert ambient.BUFFER_EDGE_CEILING == 2048
 
 
+def test_aurora_detail_reaches_native_screen_pixels_without_exceeding_budget():
+    engine = ambient.make_engine("aurora", "spacr", "#101418", seed=7)
+    engine.set_max_pixels(3840 * 2160)
+    assert engine.buffer_size(3840, 2160) == (3840, 2160)
+    assert engine.buffer_scale(3840, 2160) == 1.0
+    engine.set_resolution(2.0)
+    assert engine.buffer_size(3840, 2160) == (3840, 2160)
+    engine.set_resolution(0.25)
+    assert engine.buffer_size(3840, 2160) == (960, 540)
+    engine.set_resolution(1.0)
+    engine.set_max_pixels(1920 * 1080)
+    assert engine.buffer_size(3840, 2160) == (1920, 1080)
+    assert engine.buffer_scale(3840, 2160) == 2.0
+
+
+def test_aurora_publishes_owned_native_frames_across_clock_changes():
+    engine = ambient.make_engine("aurora", "spacr", "#101418", seed=7)
+    engine.set_max_pixels(640 * 360)
+    engine.set_time(9.0)
+    first = engine.shade(640, 360)
+    original = first.bits().tobytes()
+    engine.set_time(11.0)
+    second = engine.shade(640, 360)
+    assert engine._buffer is None
+    assert second is not first
+    assert first.bits().tobytes() == original
+    assert second.bits().tobytes() != original
+
+
+def test_aurora_draw_failure_ends_painter_without_changing_published_frame(monkeypatch):
+    engine = ambient.make_engine("aurora", "spacr", "#101418", seed=7)
+    engine.set_time(9.0)
+    first = engine.shade(640, 360)
+    original = first.bits().tobytes()
+    paint_field = engine._paint_field
+    painters = []
+
+    def fail_after_partial_draw(painter, _width, _height):
+        painter.fillRect(0, 0, 10, 10, "red")
+        painters.append(painter)
+        raise RuntimeError("injected aurora draw failure")
+
+    monkeypatch.setattr(engine, "_paint_field", fail_after_partial_draw)
+    with pytest.raises(RuntimeError, match="injected aurora draw failure"):
+        engine.shade(640, 360)
+    assert painters and not painters[0].isActive()
+    assert first.bits().tobytes() == original
+    monkeypatch.setattr(engine, "_paint_field", paint_field)
+    assert engine.shade(640, 360).bits().tobytes() == original
+
+
 def test_high_dpi_worker_uses_physical_pixels_and_keeps_budget_on_theme_switch(
     qtbot, monkeypatch
 ):
@@ -53,7 +104,7 @@ def test_high_dpi_worker_uses_physical_pixels_and_keeps_budget_on_theme_switch(
     qtbot.waitUntil(lambda: widget.frames_shaded() > 0)
     assert widget._producer_box[0].size == (640, 400)
     assert widget._producer_box[0].latest().width() == 640
-    widget.set_theme("data_art_chromatin_ribbon")
+    widget.set_theme("data_art_tissue_facets")
     assert widget.engine.max_pixels == 3840 * 2160
     assert widget._producer_box[0].size == (640, 400)
     widget.close()
@@ -72,7 +123,7 @@ def test_installed_art_uses_smooth_idle_rate_but_preserves_explicit_caps(qtbot):
     widget._run_paced = True
     assert widget._rate() == ambient._RUN_FPS
     widget.set_fps(8)
-    widget.set_theme("data_art_chromatin_ribbon")
+    widget.set_theme("data_art_tissue_facets")
     assert widget.fps() == 8
 
 

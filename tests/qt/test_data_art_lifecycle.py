@@ -1,4 +1,4 @@
-"""The six offered data-art backdrops respect the bounded worker lifecycle."""
+"""The offered data-art backdrops respect the bounded worker lifecycle."""
 
 from __future__ import annotations
 
@@ -11,7 +11,6 @@ from spacr.qt.widgets import ambient
 ART_KEYS = (
     "data_art_point_atlas",
     "data_art_tissue_facets",
-    "data_art_chromatin_ribbon",
     "data_art_genetic_advection",
     "data_art_impulse_lens",
     "data_art_fungal_growth",

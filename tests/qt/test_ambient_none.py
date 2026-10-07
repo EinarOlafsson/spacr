@@ -61,14 +61,17 @@ def test_none_is_offered_alongside_every_animation():
     """
     ambient = _ambient()
     offered = ("data_art_impulse_lens", "data_art_genetic_advection",
-               "data_art_fungal_growth", "data_art_thore",
-               "data_art_point_atlas", "blobs", "aurora", "drift",
-               "data_art_tissue_facets", "data_art_chromatin_ribbon")
+               "data_art_fungal_growth", "data_art_point_atlas",
+               "blobs", "aurora", "drift", "data_art_tissue_facets")
     assert ambient.NO_ANIMATION == "none"
     assert ambient.ANIMATION_CHOICES == offered + (ambient.NO_ANIMATION,)
     assert ambient.AMBIENT_THEMES == offered, (
         "None must not join the paintable themes: make_engine, "
         "_require_theme and every engine test mean 'can be drawn' by it")
+    assert all(ambient.animation_label(key).startswith("spaCR ")
+               for key in offered + (ambient.SPACEOUT_THEME,))
+    assert ambient.animation_label("drift") == "spaCR stratified"
+    assert ambient.animation_label("data_art_tissue_facets") == "spaCR spinn"
 
 
 def test_none_has_a_label_and_a_note_that_states_the_cost():

@@ -354,17 +354,13 @@ MIN_PAINTED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.003,
                "cells": 0.08,
                "data_art_point_atlas": 0.22,
                "data_art_tissue_facets": 0.47,
-               "data_art_chromatin_ribbon": 0.19,
                "data_art_genetic_advection": 0.46,
-               "data_art_impulse_lens": 0.02,
-               "data_art_thore": 0.009}
+               "data_art_impulse_lens": 0.02}
 MIN_CHANGED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.006,
                "cells": 0.11,
                "data_art_point_atlas": 0.17,
-               "data_art_chromatin_ribbon": 0.21,
                "data_art_genetic_advection": 0.47,
-               "data_art_impulse_lens": 0.02,
-               "data_art_thore": 0.019}
+               "data_art_impulse_lens": 0.02}
 
 
 def all_pixels(image: QImage):

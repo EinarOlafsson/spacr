@@ -287,7 +287,7 @@ def test_pointer_poll_is_limited_to_active_window_and_widget(qtbot, monkeypatch)
 
 def test_static_material_tick_never_polls_cursor(qtbot, monkeypatch):
     """A noninteractive material advances without cursor or window work."""
-    widget = ambient.AmbientWidget(theme="data_art_chromatin_ribbon",
+    widget = ambient.AmbientWidget(theme="data_art_fungal_growth",
                                    palette="lowsun", background=BACKGROUND)
     qtbot.addWidget(widget)
     widget.stop()

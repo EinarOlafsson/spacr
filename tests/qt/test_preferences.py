@@ -1109,7 +1109,7 @@ def test_dialog_disables_the_pickers_when_the_animation_is_off(
     theme_combo = dlg.findChild(QComboBox, "AmbientTheme")
     palette_combo = dlg.findChild(QComboBox, "AmbientPalette")
     sliders = [dlg.findChild(QSlider, name) for name in
-               ("AmbientResolution", "AmbientBlur", "AmbientSpeed",
+               ("AmbientResolution", "AmbientSpeed",
                 "AmbientSize", "AmbientDensity")]
     keys = [theme_combo.itemData(i) for i in range(theme_combo.count())]
 

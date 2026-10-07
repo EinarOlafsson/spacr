@@ -735,7 +735,7 @@ _RUNTIME_IDENTITY_CAPTIONS = {
     "spaCR field",
     "spaCR advection",
     "spaCR growth",
-    "spaCR Thore",
+    "spaCR stratified",
     "spaCR waves",
     "%d px",
     "3D",

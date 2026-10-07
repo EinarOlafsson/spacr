@@ -1,4 +1,4 @@
-"""Seven independent data-art presets keep their visual and settings contract."""
+"""The retained data-art presets keep their visual and settings contract."""
 
 from __future__ import annotations
 
@@ -19,10 +19,8 @@ SPEC = (
     ('data_art_impulse_lens', 'spaCR field', 'A crisp gravitational dot field with optional local mouse influence and expanding ripples.', 'mono'),
     ('data_art_genetic_advection', 'spaCR advection', 'Fine particles form evolving vortices and branching currents, with optional mouse gravity.', 'ocean'),
     ('data_art_fungal_growth', 'spaCR growth', 'A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.', 'deepwater'),
-    ('data_art_thore', 'spaCR Thore', 'Fine background rain and branching lightning briefly illuminate the scene.', 'midnight'),
     ('data_art_point_atlas', 'spaCR waves', 'An edge-free landscape of round points carries wide travelling waves.', 'midnight'),
-    ('data_art_tissue_facets', 'Tissue facets', 'Fine paper facets move gently and respond locally to the mouse.', 'lowsun'),
-    ('data_art_chromatin_ribbon', 'Chromatin satin', 'Fine chromatin fibres undulate in travelling waves across folded ribbons.', 'dusk'),
+    ('data_art_tissue_facets', 'spaCR spinn', 'Fine paper facets move gently and respond locally to the mouse.', 'lowsun'),
 )
 
 RETIRED = (
@@ -30,6 +28,7 @@ RETIRED = (
     "data_art_molecular_helix", "data_art_sequence_matrix",
     "data_art_transcript_rain", "data_art_regulatory_circuit",
     "data_art_interference", "data_art_morphogenesis",
+    "data_art_thore", "data_art_chromatin_ribbon",
 )
 
 
@@ -40,7 +39,7 @@ def private_store(monkeypatch, tmp_path):
     return prefs
 
 
-def test_seven_data_art_choices_are_separate_from_ten_night_themes():
+def test_retained_data_art_choices_are_separate_from_ten_night_themes():
     expected = tuple(row[0] for row in SPEC)
     assert catalog.DATA_ART_THEME_KEYS == expected
     assert len(catalog.NIGHT_THEME_KEYS) == 10
@@ -48,8 +47,8 @@ def test_seven_data_art_choices_are_separate_from_ten_night_themes():
     assert not any(key.startswith("flow_") for key in theme.THEMES)
     assert tuple(theme.THEMES) == tuple(prefs.PALETTE_THEMES)
     assert {token for _label, token in prefs.theme_choices()} >= set(expected)
-    assert len({theme.palette_for(key)["page"] for key in expected}) == 7
-    assert len({theme.palette_for(key)["accent"] for key in expected}) == 7
+    assert len({theme.palette_for(key)["page"] for key in expected}) == len(expected)
+    assert len({theme.palette_for(key)["accent"] for key in expected}) == len(expected)
 
 
 @pytest.mark.parametrize("key", RETIRED)
@@ -66,7 +65,7 @@ def test_retired_art_and_classics_cannot_reenter_user_choices(private_store, key
     settings.setValue(private_store._KEY_POPUP_BACKDROP, key)
     settings.sync()
     assert private_store.get_ambient_theme() == ambient.DEFAULT_THEME
-    assert private_store.get_popup_backdrop() == "off"
+    assert private_store.get_popup_backdrop() == prefs.DEFAULT_POPUP_BACKDROP
     if key.startswith("data_art_"):
         with pytest.raises(ValueError):
             private_store.set_theme_choice(key)
@@ -144,8 +143,8 @@ def test_motion_off_and_crash_suppression_do_not_rewrite_one_another(private_sto
     assert private_store.get_ambient_enabled() is False
     private_store.set_ambient_enabled(True)
     monkeypatch.setenv("SPACR_NO_BACKDROP", "1")
-    private_store.set_theme_choice("data_art_chromatin_ribbon")
-    assert private_store.get_ambient_animation() == "data_art_chromatin_ribbon"
+    private_store.set_theme_choice("data_art_tissue_facets")
+    assert private_store.get_ambient_animation() == "data_art_tissue_facets"
     assert private_store.get_ambient_enabled() is False
     monkeypatch.delenv("SPACR_NO_BACKDROP")
     assert private_store.get_ambient_enabled() is True
@@ -215,8 +214,8 @@ def test_unknown_data_art_key_is_rejected_without_changing_a_choice(private_stor
 def test_requested_animation_order_and_default_reach_the_actual_dialog(
     private_store, qtbot, qt_theme_applied,
 ):
-    labels = ("spaCR field", "spaCR advection", "spaCR growth", "spaCR Thore",
-              "spaCR waves", "Blobs")
+    labels = ("spaCR field", "spaCR advection", "spaCR growth", "spaCR waves",
+              "spaCR blobs", "spaCR aurora")
     assert tuple(ambient.animation_label(key) for key in ambient.AMBIENT_THEMES[:6]) == labels
     assert ambient.DEFAULT_THEME == "data_art_impulse_lens"
     assert not private_store._settings().contains(private_store._KEY_AMBIENT_THEME)

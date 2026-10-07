@@ -298,13 +298,9 @@ def _repo_root():
 #: Which themes the byte-for-byte comparison against the shipped engine can
 #: still be made for, and why the other two are out.
 #:
-#: ``aurora`` is out because it is a deliberate redesign — twice over now.
-#: The first was the curtains themselves; the second is its buffer, which
-#: went from 240x135 to 960x540 at 1080p because the old one was measured to
-#: throw away a quarter of its own ray comb (see ``AURORA_BUFFER_EDGE``).
-#: That is the one shipped default this change moves, it is moved on
-#: measurement rather than taste, and it is stated here rather than papered
-#: over by loosening the comparison.
+#: ``aurora`` is out because it is a deliberate curtain and native-raster
+#: redesign. Its original 240x135 buffer discarded measured ray detail;
+#: the current frame is independently owned at screen resolution.
 #:
 #: ``bokeh`` and ``cells`` are out because they did not exist to be shipped.
 #:
@@ -361,8 +357,12 @@ def test_the_default_multipliers_are_the_identity(theme):
     # Resolution: the buffer is this theme's own declared one.
     if isinstance(engine, amb._BufferedEngine):
         assert engine.resolution_edge() == engine.base_edge
-        scale = max(1, int(math.ceil(max(1920, 1080) / engine.base_edge)))
-        assert engine.buffer_size(1920, 1080) == (1920 // scale, 1080 // scale)
+        if isinstance(engine, (amb.AuroraEngine, amb._DataArtEngine,
+                               amb._FungalGrowthEngine)):
+            assert engine.buffer_size(1920, 1080) == (1920, 1080)
+        else:
+            scale = max(1, int(math.ceil(max(1920, 1080) / engine.base_edge)))
+            assert engine.buffer_size(1920, 1080) == (1920 // scale, 1080 // scale)
         # Blur: nothing is done to the buffer at all.
         assert engine.blur_scale(1920, 1080) == 1.0
 
@@ -458,7 +458,7 @@ def test_resolution_reduces_pixelation(theme):
         engine = make_engine(theme, "spacr", DARK, seed=5,
                              resolution=resolution)
         engine.set_time(9.0)
-        period = engine.buffer_scale(1920, 1080)
+        period = int(round(engine.buffer_scale(1920, 1080)))
         # The three settings below are chosen so the buffer divides the
         # canvas exactly. At a scale that does not (101 buffer pixels over
         # 1920) the upscale factor is 19.01 and the block grid slides a
@@ -471,8 +471,12 @@ def test_resolution_reduces_pixelation(theme):
         return lattice_ratio(render(engine, 1920, 1080), period)
 
     coarse, shipped, fine = (lattice(r) for r in (0.5, 1.0, 2.0))
-    assert coarse > shipped > fine, \
-        f"{theme}: lattice went {coarse:.3f} -> {shipped:.3f} -> {fine:.3f}"
+    if theme == "aurora":
+        assert coarse > shipped >= fine, \
+            f"{theme}: lattice went {coarse:.3f} -> {shipped:.3f} -> {fine:.3f}"
+    else:
+        assert coarse > shipped > fine, \
+            f"{theme}: lattice went {coarse:.3f} -> {shipped:.3f} -> {fine:.3f}"
     # Measured in *excess over none*: 1.0 is a picture with no findable
     # grid in it, so the quantity that has to fall is the part above 1, and
     # a theme that is already almost clean at its default has almost nothing
@@ -490,21 +494,23 @@ def test_the_aurora_is_no_longer_pixelated_at_1080p():
     runs through, and the contrast of the ray comb, which is 36 screen
     pixels per ray and was being resolved at four and a half.
     """
-    def frame(edge):
+    def frame(edge=None):
         engine = make_engine("aurora", "spacr", DARK, seed=7)
-        engine.base_edge = edge
-        engine._buffer = None
+        if edge is not None:
+            engine.base_edge = edge
+            engine.buffer_size = types.MethodType(amb._BufferedEngine.buffer_size, engine)
+            engine.buffer_scale = types.MethodType(amb._BufferedEngine.buffer_scale, engine)
         engine.set_time(11.0)
         return engine, render(engine, 1920, 1080)
 
     was, was_image = frame(256)          # the buffer that shipped
-    now, now_image = frame(amb.AURORA_BUFFER_EDGE)
+    now, now_image = frame()
     assert was.buffer_scale(1920, 1080) == 8
-    assert now.buffer_scale(1920, 1080) == 2
+    assert now.buffer_scale(1920, 1080) == 1
 
     band = (0.40, 0.98)
     before = lattice_ratio(was_image, 8, band)
-    after = lattice_ratio(now_image, 2, band)
+    after = lattice_ratio(now_image, 1, band)
     assert before > 1.5, f"the old buffer measured clean at {before:.3f}"
     assert after < 1.15, f"the new one still measures {after:.3f}"
     assert after < before / 1.4
@@ -768,7 +774,7 @@ def test_the_blur_never_enlarges_anything(theme):
     engine = make_engine(theme, "spacr", DARK, seed=5, blur=BLUR_RANGE[1])
     engine.set_time(4.0)
     render(engine, 1920, 1080)
-    shaded = engine._buffer
+    shaded = engine._buffer or engine._shade(1920, 1080)
     softened = engine._soften(shaded, 1920, 1080)
     assert softened.width() <= shaded.width()
     assert softened.height() <= shaded.height()
@@ -776,12 +782,10 @@ def test_the_blur_never_enlarges_anything(theme):
 
 
 def test_the_auroras_buffer_is_the_size_its_docstring_claims():
-    """The one shipped default this change moves, pinned to the number the
-    module documents it as. If it is ever changed again, the docstring's
-    cost table and its measurement table both have to move with it."""
+    """Aurora samples native screen pixels within the display budget."""
     engine = make_engine("aurora", "spacr", DARK, seed=5)
     assert engine.base_edge == amb.AURORA_BUFFER_EDGE == 960
-    assert engine.buffer_size(1920, 1080) == (960, 540)
+    assert engine.buffer_size(1920, 1080) == (1920, 1080)
     # ... and it really is the only one that moved.
     for theme in ("blobs", "ripple"):
         other = make_engine(theme, "spacr", DARK, seed=5)
@@ -1491,16 +1495,14 @@ def test_the_dialog_offers_the_controls_and_saves_them(prefs, qtbot,
     dialog = prefs.PreferencesDialog()
     qtbot.addWidget(dialog)
     sliders = {s.objectName(): s for s in dialog.findChildren(QSlider)}
-    # Every one opens on its designed value — which for blur is 0 %, because
-    # the animation ships unsoftened and this control only adds softening.
-    designed = {"AmbientBlur": 0, "AmbientSpeed": 100, "AmbientSize": 100,
+    designed = {"AmbientSpeed": 100, "AmbientSize": 100,
                 "AmbientResolution": 100, "AmbientDensity": 100}
     for name, mark in designed.items():
         assert name in sliders, sorted(sliders)
         assert sliders[name].value() == mark, \
             f"{name} does not open on the default"
 
-    sliders["AmbientBlur"].setValue(180)
+    assert "AmbientBlur" not in sliders
     sliders["AmbientSpeed"].setValue(60)
     sliders["AmbientSize"].setValue(140)
     sliders["AmbientResolution"].setValue(150)
@@ -1512,7 +1514,7 @@ def test_the_dialog_offers_the_controls_and_saves_them(prefs, qtbot,
     dialog.findChild(QDialogButtonBox).button(
         QDialogButtonBox.Save).click()
 
-    assert prefs.get_ambient_blur() == pytest.approx(1.8)
+    assert prefs.get_ambient_blur() == DEFAULT_BLUR
     assert prefs.get_ambient_speed() == pytest.approx(0.6)
     assert prefs.get_ambient_size() == pytest.approx(1.4)
     assert prefs.get_ambient_resolution() == pytest.approx(1.5)
@@ -1579,10 +1581,10 @@ def test_the_controls_grey_out_with_the_animation(prefs, qtbot,
     qtbot.addWidget(dialog)
     theme_combo = dialog.findChild(QComboBox, "AmbientTheme")
     sliders = [s for s in dialog.findChildren(QSlider)
-               if s.objectName() in ("AmbientBlur", "AmbientSpeed",
+               if s.objectName() in ("AmbientSpeed",
                                      "AmbientResolution", "AmbientDensity",
                                      "AmbientSize")]
-    assert len(sliders) == 5
+    assert len(sliders) == 4
     keys = [theme_combo.itemData(i) for i in range(theme_combo.count())]
 
     theme_combo.setCurrentIndex(keys.index(NO_ANIMATION))

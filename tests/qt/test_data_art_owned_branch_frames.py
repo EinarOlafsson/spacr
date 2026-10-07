@@ -7,7 +7,7 @@ from PySide6.QtGui import QPainter
 
 from spacr.qt.widgets import ambient
 
-KEYS = ('data_art_fungal_growth', 'data_art_thore')
+KEYS = ('data_art_fungal_growth',)
 
 
 def _engine(key, background='#101418', blur=0.0):

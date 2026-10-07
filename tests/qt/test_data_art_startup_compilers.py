@@ -82,7 +82,7 @@ def test_close_between_scheduling_and_worker_entry_defers_without_import_or_fail
 
 
 @pytest.mark.parametrize('theme', ['data_art_impulse_lens', 'data_art_point_atlas',
-                                  'data_art_chromatin_ribbon'])
+                                  'data_art_tissue_facets'])
 def test_first_frames_while_blocked_equal_exact_numpy_fallback(
         theme, qapp, cold_compilers, monkeypatch):
     compiler, threads = cold_compilers

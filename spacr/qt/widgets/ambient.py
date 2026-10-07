@@ -5,9 +5,9 @@ the ATGC cascade). This is the one for *everything else*: a slow, diffuse
 animation that sits behind the settings form and the console, takes no focus
 and no mouse events, and can be switched off entirely in Preferences.
 
-Seven data-art materials and three classic themes remain in the menu.
+Five data-art materials and three classic themes remain in the menu.
 The default is ``data_art_impulse_lens`` (spaCR field). The other data-art choices
-are advection, growth, Thore, waves, tissue facets and chromatin satin.
+are advection, growth, waves and tissue facets.
 The classic choices provide softer motion:
 
 ``blobs``
@@ -75,16 +75,13 @@ requirement rather than a nicety. Two things get it there:
 1. *The timer stops whenever the widget is not on screen* — hidden, on another
    tab, or in a minimised window. Zero frames, zero CPU. These screens stay
    open for hours, so this is the whole ball game.
-2. *The soft themes are painted into a small reusable QImage and scaled up*,
-   never at full resolution. The buffer's long edge is whatever the theme
-   declares (:attr:`_BufferedEngine.base_edge`) times the user's resolution
-   setting, so the diffuse fields shade ~37 000 pixels instead of ~2 000 000
-   and the aurora, which has real structure in it, shades ~520 000. On the
-   synchronous path the one allocation happens on resize and never per
-   frame; the shading thread copies the finished buffer once a frame so the
-   GUI thread can blit it while the next one is being drawn, which measures
-   0.003 ms for ``blobs`` and 0.035 for the aurora's 2 MiB — 2 % of the
-   shading pass it makes safe.
+2. *Diffuse themes are painted into a small reusable QImage and scaled up*.
+   The buffer's long edge is whatever the theme declares
+   (:attr:`_BufferedEngine.base_edge`) times the user's resolution setting,
+   so diffuse fields shade ~37 000 pixels instead of ~2 000 000. The aurora
+   and data-art materials preserve native display detail within the actual
+   screen-pixel budget. Aurora returns an owned frame, avoiding a second
+   full-size copy when a shading worker publishes it.
 3. *The shading happens on its own thread* (:class:`_FrameProducer`), so the
    GUI thread's whole share of a frame is one ``drawImage``. That is the next
    section, and it is the one that matters while a pipeline is running.
@@ -119,9 +116,10 @@ The console sits over this widget, so each new line can expose it and request
 a full frame even while the animation timer is stopped. Expensive shading must
 therefore remain off the GUI thread even when the frame rate is capped.
 
-The frame is split at the seam where the cost occurs. Per
-theme, milliseconds, idle against one Python thread, min of nine interleaved
-rounds:
+The frame is split at the seam where the cost occurs. The following historical
+measurements predate native-resolution Aurora and serve as a comparison, not
+as a current frame-rate claim. Per theme, milliseconds, idle against one
+Python thread, min of nine interleaved rounds:
 
 =========  =====================  =====================
 theme      shading (moved)        soften + blit (stays)
@@ -240,13 +238,11 @@ AMBIENT_THEMES: Tuple[str, ...] = (
     "data_art_impulse_lens",
     "data_art_genetic_advection",
     "data_art_fungal_growth",
-    "data_art_thore",
     "data_art_point_atlas",
     "blobs",
     "aurora",
     "drift",
     "data_art_tissue_facets",
-    "data_art_chromatin_ribbon",
 )
 
 #: The animation the ``spaceout`` entry point paints, and the palette it
@@ -284,17 +280,15 @@ DEFAULT_THEME = "data_art_impulse_lens"
 DEFAULT_PALETTE = "spacr"
 
 _THEME_LABELS = {
-    "blobs": "Blobs",
-    "aurora": "Aurora",
-    "drift": "Starfield",
+    "blobs": "spaCR blobs",
+    "aurora": "spaCR aurora",
+    "drift": "spaCR stratified",
     "data_art_impulse_lens": "spaCR field",
     "data_art_genetic_advection": "spaCR advection",
     "data_art_fungal_growth": "spaCR growth",
-    "data_art_thore": "spaCR Thore",
     "data_art_point_atlas": "spaCR waves",
-    "data_art_tissue_facets": "Tissue facets",
-    "data_art_chromatin_ribbon": "Chromatin satin",
-    SPACEOUT_THEME: "Fractals",
+    "data_art_tissue_facets": "spaCR spinn",
+    SPACEOUT_THEME: "spaCR fractals",
 }
 
 _THEME_NOTES = {
@@ -304,10 +298,8 @@ _THEME_NOTES = {
     "data_art_impulse_lens": 'A crisp gravitational dot field with optional local mouse influence and expanding ripples.',
     "data_art_genetic_advection": 'Fine particles form evolving vortices and branching currents, with optional mouse gravity.',
     "data_art_fungal_growth": 'A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.',
-    "data_art_thore": 'Fine background rain and branching lightning briefly illuminate the scene.',
     "data_art_point_atlas": 'An edge-free landscape of round points carries wide travelling waves.',
     "data_art_tissue_facets": 'Fine paper facets move gently and respond locally to the mouse.',
-    "data_art_chromatin_ribbon": 'Fine chromatin fibres undulate in travelling waves across folded ribbons.',
     SPACEOUT_THEME: ("A Julia set that morphs, turns and cycles colour — "
                      "the backdrop the spaceout launcher dresses the "
                      "application in."),
@@ -1391,7 +1383,7 @@ class _BufferedEngine(AmbientEngine):
 
         This calls :meth:`_shade` followed by :meth:`blit` directly. The
         default buffered path reuses its image until the canvas size changes.
-        Native point, growth and rain subclasses return a freshly owned
+        Aurora, point, growth and rain subclasses return a freshly owned
         image each frame. Both paths can draw synchronously without an
         additional publication copy.
         """
@@ -1403,7 +1395,7 @@ class _BufferedEngine(AmbientEngine):
         """The finished field, in the engine's *own* buffer.
 
         The default implementation returns its reusable buffer when blur is
-        off, so that result is only valid until the next call. Native point,
+        off, so that result is only valid until the next call. Aurora, point,
         growth and rain overrides return freshly owned images. Callers that
         keep a frame use :meth:`shade`, which handles either ownership path.
         """
@@ -1439,8 +1431,8 @@ class _BufferedEngine(AmbientEngine):
         before publication so a later shade cannot change the caller's frame.
         A freshly owned subclass image is returned directly. On the default
         buffered path, the copy costs 0.003 ms
-        for ``blobs``, 0.035 ms for the aurora's 2 MiB buffer — 2 % of the
-        shading pass it protects.
+        for a soft theme such as ``blobs``. Native Aurora returns an owned
+        image instead of paying for a second full-screen copy.
         """
         if width <= 0 or height <= 0:
             return None
@@ -1649,53 +1641,18 @@ class BlobsEngine(_BufferedEngine):
 #: four stop being separable at these alphas.
 AURORA_CURTAINS = 3
 
-#: The aurora shades into a buffer four times the linear resolution the
-#: diffuse themes use, and this is the measurement that says why.
-#:
-#: It is the one soft theme with hard structure in it: a sharp lower edge,
-#: and a ray comb whose period at 1920 px wide is 36 screen pixels. In the
-#: 240x135 buffer the others are happy with, that comb is 4.6 *buffer* pixels
-#: across and each ray inside it is one and a half — quantised to whole
-#: pixels when the tile is built, then stretched eight-fold. Measured at
-#: 1920x1080 against the same frame shaded at full resolution:
-#:
-#: ===========  =======  ==================  ========================
-#:  buffer       scale    ray-comb contrast   lattice on lower edge
-#: ===========  =======  ==================  ========================
-#:  240x135      8x       77.4 %              1.724
-#:  480x270      4x       92.8 %              1.326
-#:  960x540      2x       97.8 %              1.033
-#:  1920x1080    1x       100 %               1.000
-#: ===========  =======  ==================  ========================
-#:
-#: "Ray-comb contrast" is the RMS of the high-frequency part of a horizontal
-#: luminance profile through a curtain, as a share of the same measurement on
-#: the fully-resolved frame. Under-resolving a comb does not move the rays,
-#: it *smears* them, so this is the number that says whether they survived —
-#: and nearly a quarter of them did not.
-#:
-#: "Lattice" is the block-boundary energy ratio: how much more second-
-#: difference energy sits on one phase of the upscale grid than on the
-#: others, phase-searched, over the band the front curtain's lower edge runs
-#: through. 1.000 means the grid cannot be found in the picture at all.
-#:
-#: 960 is where both numbers stop moving. Odd scale factors are deliberately
-#: skipped over: 3x measured *worse* than 4x (1.580 against 1.326), because
-#: an odd upscale beats against the ray comb, and 960 gives an even 2x at
-#: 1080p. ``test_the_aurora_is_no_longer_pixelated_at_1080p`` is this table
-#: asserted rather than remembered.
 AURORA_BUFFER_EDGE = 960
 
 #: Ray length — how far up the sheet is lit — as a fraction of the canvas
 #: height, scaled by the size setting. Comfortably deeper than the fold
 #: reaches, or a fold crest would lift the sheet's lower edge past the green
 #: and out of the top of its own colour ramp.
-AURORA_THICKNESS = (0.42, 0.70)
+AURORA_THICKNESS = (0.58, 0.86)
 
 #: Where each curtain's lower edge rests, as a fraction of the canvas height,
 #: and the jitter around it. Spread down the frame so the three overlap in
 #: depth rather than sitting on top of one another.
-AURORA_BASE = (0.62, 0.76, 0.90)
+AURORA_BASE = (0.50, 0.67, 0.84)
 AURORA_BASE_JITTER = 0.05
 
 #: How far down the extra curtains a raised density asks for are pushed,
@@ -1879,8 +1836,8 @@ AURORA_RAMP = (
     (0.05, "fringe", 0.92),
     (0.11, "main", 1.00),
     (0.42, "main", 0.74),
-    (0.62, "blend", 0.36),
-    (0.82, "high", 0.15),
+    (0.62, "blend", 0.48),
+    (0.82, "high", 0.27),
     (1.00, "high", 0.00),
 )
 
@@ -1927,8 +1884,11 @@ class AuroraEngine(_BufferedEngine):
 
     See the block comment above for the phenomenon, for why the colour ramp
     is anchored to the frame rather than to the curtain, and for why it is
-    painted as two brush fills per curtain rather than as a few hundred
-    sprites.
+    painted as layered brush fills per curtain rather than as hundreds of
+    sprites. The frame raster is native at ordinary Detail, within the
+    physical screen-pixel budget, and is returned with independent ownership.
+    :data:`AURORA_BUFFER_EDGE` remains the legacy comparison edge; it no
+    longer caps the active buffer.
 
     :meth:`geometry` yields ``(x, y_bottom, visible_height, brightness)`` per
     sampled column of every curtain, in pixels, ``AURORA_COLUMNS + 1`` of them
@@ -1949,6 +1909,32 @@ class AuroraEngine(_BufferedEngine):
         self._surges: Dict[int, QImage] = {}
         self._pulse_mask: Optional[QImage] = None
         super().__init__(*args, **kwargs)
+
+    def buffer_size(self, width: int, height: int) -> Tuple[int, int]:
+        """Sample native display pixels within the actual screen budget."""
+        detail = min(1.0, self.resolution)
+        bw, bh = max(1, int(width * detail)), max(1, int(height * detail))
+        scale = min(1.0, math.sqrt(self.max_pixels / (bw * bh)))
+        return max(1, int(bw * scale)), max(1, int(bh * scale))
+
+    def buffer_scale(self, width: int, height: int) -> float:
+        """Report the aurora sampling ratio for explicit detail controls."""
+        bw, bh = self.buffer_size(width, height)
+        return max(1.0, width / bw, height / bh)
+
+    def _shade(self, width: int, height: int) -> QImage:
+        """Clear the owned raster before painting the current curtains."""
+        bw, bh = self.buffer_size(width, height)
+        buf = QImage(bw, bh, QImage.Format_RGB32)
+        buf.fill(self.identity)
+        inner = QPainter(buf)
+        try:
+            inner.setCompositionMode(self.mode)
+            inner.setPen(Qt.NoPen)
+            self._paint_field(inner, buf.width(), buf.height())
+        finally:
+            inner.end()
+        return self._soften(buf, width, height)
 
     def _configure(self, rng: random.Random) -> None:
         """Roll this theme's constants from the seed.
@@ -2383,17 +2369,21 @@ class AuroraEngine(_BufferedEngine):
             roles = self.ramp_colors(curtain, quantised=True)
             for offset, weight, strength, role in (
                     (0.105, 1.8, 0.23, "main"),
-                    (0.255, 1.1, 0.11, "blend")):
+                    (0.255, 1.1, 0.14, "blend"),
+                    (0.43, 0.8, 0.13, "high")):
                 contour = QPainterPath(QPointF(
                     columns[0][0], columns[0][1] - ray * offset))
                 for x, y, _height, _bright in columns[1:]:
                     contour.lineTo(x, y - ray * offset)
                 fade = QLinearGradient(left, 0.0, right, 0.0)
+                glint = 0.78 + 0.22 * math.sin(
+                    self.time * self._rate(curtain) * 0.29
+                    + curtain.hue_phase + offset * 19.0)
                 fade.setColorAt(0.0, _with_alpha(roles[role], 0.0))
                 fade.setColorAt(0.18, _with_alpha(
-                    roles[role], peak * strength))
+                    roles[role], peak * strength * glint))
                 fade.setColorAt(0.76, _with_alpha(
-                    roles[role], peak * strength * 0.75))
+                    roles[role], peak * strength * 0.75 * glint))
                 fade.setColorAt(1.0, _with_alpha(roles[role], 0.0))
                 painter.setBrush(Qt.NoBrush)
                 painter.setPen(QPen(QBrush(fade), max(0.7, weight * self.size),
@@ -6199,11 +6189,9 @@ _ENGINES = {
     "cells": CellsEngine,
     "data_art_point_atlas": partial(_DataArtEngine, family="point_atlas"),
     "data_art_tissue_facets": partial(_DataArtEngine, family="tissue_facets"),
-    "data_art_chromatin_ribbon": partial(_DataArtEngine, family="chromatin_ribbon"),
     "data_art_genetic_advection": partial(_DataArtEngine, family="genetic_advection"),
     "data_art_impulse_lens": partial(_DataArtEngine, family="impulse_lens"),
     "data_art_fungal_growth": _FungalGrowthEngine,
-    "data_art_thore": _ThoreEngine,
     SPACEOUT_THEME: FractalEngine,
 }
 

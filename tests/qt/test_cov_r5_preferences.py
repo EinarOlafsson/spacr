@@ -406,7 +406,7 @@ def test_the_laptop_note_says_what_this_machine_will_do_before_it_is_saved(
 
     assert automatic and automatic not in (on, off)
     assert "Turns down" in on and "same answer either way" in on
-    assert off == ("Keeps the animation and the blur on, whatever this "
+    assert off == ("Keeps the animation at its chosen settings, whatever this "
                    "machine is.")
 
     from spacr.qt.laptop_mode import what_it_turns_down

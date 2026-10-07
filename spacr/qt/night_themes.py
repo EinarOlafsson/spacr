@@ -1,4 +1,4 @@
-"""Ten night palettes and seven separate data-art presets.
+"""Ten night palettes and five separate data-art presets.
 
 A night theme is one choice that moves three things at once: the colours
 the interface is painted in (:data:`spacr.qt.theme.THEMES` grows by ten
@@ -43,7 +43,7 @@ night palette wants it: every surface here is dark.
 to rose, so the Theme menu reads as one family rather than ten unrelated
 entries.
 
-The data-art catalog appends six independent palette presets. Its keys
+The data-art catalog appends five independent palette presets. Its keys
 select distinct ambient producers and existing sound sets without changing
 the ten original night identities. Its explicit colour overrides retain the
 night palettes' stable status hues and are checked by the same contrast and
@@ -448,15 +448,6 @@ DATA_ART_PALETTES: Dict[str, Dict[str, str]] = {
         "accent_hi": "#f6dbb1", "accent_lo": "#e5ae68",
         "accent_soft": "#543921", "info": "#f0c88b",
     },
-    "data_art_chromatin_ribbon": {
-        **VESPER_PALETTE, "bg": "#150c13", "page": "#492b3a",
-        "surface": "#22121e", "surface_alt": "#301b2a",
-        "surface_hi": "#432637", "border": "#6c4659",
-        "border_soft": "#4c3040", "fg_muted": "#e5d1d9",
-        "fg_dim": "#c0aab4", "accent": "#f4a5bf",
-        "accent_hi": "#ffd1dc", "accent_lo": "#e59fb7",
-        "accent_soft": "#603048", "info": "#f4a5bf",
-    },
     "data_art_genetic_advection": {
         **MERIDIAN_PALETTE, "bg": "#071218", "page": "#253f48",
         "surface": "#0d1d25", "surface_alt": "#162d35",
@@ -487,17 +478,6 @@ DATA_ART_PALETTES: Dict[str, Dict[str, str]] = {
 }
 
 
-DATA_ART_PALETTES["data_art_thore"] = {
-    **NOCTURNE_PALETTE, "bg": "#080e17", "page": "#263549",
-    "surface": "#101b2c", "surface_alt": "#19283b",
-    "surface_hi": "#263c51", "border": "#465f78",
-    "border_soft": "#2e435b", "fg_muted": "#d4e0eb",
-    "fg_dim": "#acbed0", "accent": "#b8d7eb",
-    "accent_hi": "#deeff9", "accent_lo": "#8aafcf",
-    "accent_soft": "#304963", "info": "#b8d7eb",
-}
-
-
 DATA_ART_THEMES: Dict[str, NightTheme] = {
     theme.key: theme for theme in (
         NightTheme(
@@ -519,29 +499,17 @@ DATA_ART_THEMES: Dict[str, NightTheme] = {
             ambient="data_art_fungal_growth", ambient_palette="deepwater",
             sound_key="undertow"),
         NightTheme(
-            key="data_art_thore", label="spaCR Thore",
-            description='Fine background rain and branching lightning briefly illuminate the scene.',
-            palette=DATA_ART_PALETTES["data_art_thore"],
-            ambient="data_art_thore", ambient_palette="midnight",
-            sound_key="nocturne"),
-        NightTheme(
             key="data_art_point_atlas", label="spaCR waves",
             description='An edge-free landscape of round points carries wide travelling waves.',
             palette=DATA_ART_PALETTES["data_art_point_atlas"],
             ambient="data_art_point_atlas", ambient_palette="midnight",
             sound_key="nocturne"),
         NightTheme(
-            key="data_art_tissue_facets", label="Tissue facets",
+            key="data_art_tissue_facets", label="spaCR spinn",
             description='Fine paper facets move gently and respond locally to the mouse.',
             palette=DATA_ART_PALETTES["data_art_tissue_facets"],
             ambient="data_art_tissue_facets", ambient_palette="lowsun",
             sound_key="halcyon"),
-        NightTheme(
-            key="data_art_chromatin_ribbon", label="Chromatin satin",
-            description='Fine chromatin fibres undulate in travelling waves across folded ribbons.',
-            palette=DATA_ART_PALETTES["data_art_chromatin_ribbon"],
-            ambient="data_art_chromatin_ribbon", ambient_palette="dusk",
-            sound_key="vesper"),
     )
 }
 
