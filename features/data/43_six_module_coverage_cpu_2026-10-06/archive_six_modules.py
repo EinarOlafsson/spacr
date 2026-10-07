@@ -20,9 +20,11 @@ dense = json.loads(subprocess.check_output(['git','show','HEAD:features/data/663
 report = json.loads(Path('/mnt/wd4tb/scratch/ci-392-ratchet-20261007/module-coverage-ratchet.json').read_text())
 baselines = {m['path']:m['baseline'] for m in report['modules']}
 inputs = {'hosted392':old,'focused42':scn,'focused222':qt,'dense51':{'spacr/qt/widgets/ambient.py':dense}}
+expected_source_hashes = {'spacr/convert.py': '3646ee0163bb8fe093f7cd2b1588bb3e0a9feaae6a28555877c4e0b953e38011', 'spacr/io.py': 'e0cac6ae179e2dc1bbc5f3dd27c634f03f07d814195dfad9aead44bf37e35e0d', 'spacr/qt/recipes.py': '67b8c5e6a1fa0c313498c155e11c8afe2208979b1f80324066a66f6b83af661e', 'spacr/qt/screens/make_masks.py': '8ff012eff063bbaa9915ad5853a9e07f53aa6d59d43aaf4eb9f0b1601246b933', 'spacr/qt/timing.py': '21de43993d1f34469df0971771823f58dd0b74b747e37537539fcc3e35a5d426', 'spacr/qt/widgets/ambient.py': 'f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225'}
 result = {}
 for path in paths:
  current = (repo/path).read_bytes()
+ assert hashlib.sha256(current).hexdigest() == expected_source_hashes[path], path
  records = [(old_sha,old[path])]
  if path in scn: records.append((None,scn[path]))
  if path in qt: records.append((qt_sha,qt[path]))
