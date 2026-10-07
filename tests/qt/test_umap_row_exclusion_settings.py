@@ -27,6 +27,7 @@ import time
 import pandas as pd
 import pytest
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget
 
 from spacr.qt.screens.settings_model import SettingsWidgets
 from spacr.qt.widgets import row_exclusion as row_exclusion_mod
@@ -98,6 +99,12 @@ def _editor(qtbot, **kw):
     return editor
 
 
+def _model(qtbot):
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    return SettingsWidgets("umap", parent=owner)
+
+
 def _settled(qtbot, editor, timeout=30000):
     """Pump until every queued, running and undelivered read is done."""
     qtbot.waitUntil(lambda: not editor.is_busy(), timeout=timeout)
@@ -114,7 +121,7 @@ def _drive(qtbot, dog, done, budget_s=30.0):
 
 
 def test_umap_input_section_contains_only_general_exclusion(qtbot):
-    model = SettingsWidgets("umap")
+    model = _model(qtbot)
     sections = dict(model.build_sections())
 
     input_labels = [label for label, _widget in sections["Input Data"]]
@@ -137,7 +144,7 @@ def test_umap_input_section_contains_only_general_exclusion(qtbot):
 
 def test_umap_display_embedding_plot_and_runtime_settings_are_panel_sections(
         qtbot):
-    model = SettingsWidgets("umap")
+    model = _model(qtbot)
     sections = dict(model.build_sections())
 
     assert {"Points & Images", "UMAP", "Clustering", "Runtime"} <= set(
@@ -157,7 +164,7 @@ def test_exclusion_editor_loads_columns_and_values_from_dropped_source(
     tmp_path,
 ):
     source = _measurements_source(tmp_path)
-    model = SettingsWidgets("umap")
+    model = _model(qtbot)
     model.build_sections()
     assert model.set_value_for_key("tables", ["cell"])
     assert model.set_value_for_key("src", str(source))
@@ -186,7 +193,7 @@ def test_exclusion_editor_loads_columns_and_values_from_dropped_source(
 
 def test_exclusion_editor_round_trips_imported_rules(qtbot, tmp_path):
     source = _measurements_source(tmp_path)
-    model = SettingsWidgets("umap")
+    model = _model(qtbot)
     model.build_sections()
     model.set_value_for_key("tables", ["cell"])
     model.set_value_for_key("src", str(source))
@@ -202,7 +209,7 @@ def test_exclusion_editor_round_trips_imported_rules(qtbot, tmp_path):
 
 
 def test_umap_none_filter_text_collects_as_no_filter(qtbot):
-    model = SettingsWidgets("umap")
+    model = _model(qtbot)
     model.build_sections()
 
     assert model.set_value_for_key("filter_by", "None")
