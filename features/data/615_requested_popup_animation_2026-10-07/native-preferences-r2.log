@@ -1,0 +1,28 @@
+Command: ['bash', 'tools/tutorials/run_neutral_capture.sh', '/media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/native-preferences-r2', '/home/carruthers/anaconda3/envs/spacr/bin/python', '--module', 'home', '--home-preferences-only', '--capture-name', 'requested_popup_controls_20261007_r2']
+Source: 6555ad670b2392ad4329be61ac7c5dbe466f4bd9
+alpha features off: /media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/native-preferences-r2/profile/.config/spacr/qt.conf
+no remembered session or drafts: /media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/native-preferences-r2/profile/.config/spacr/qt.conf
+qt.qpa.theme.dbus: Session DBus not running.
+qt.qpa.theme.dbus: Application will not react to setting changes.
+ Check your DBus installation.
+qt.qpa.theme.gnome: dbus connection failed. Last error:  QDBusError("org.freedesktop.DBus.Error.NoReply", "Did not receive a reply. Possible causes include: the remote application did not send a reply, the message bus security policy blocked the reply, the reply timeout expired, or the network connection was broken.")
+qt.qpa.theme.dbus: Session DBus not running.
+qt.qpa.theme.dbus: Application will not react to setting changes.
+ Check your DBus installation.
+qt.qpa.theme.gnome: dbus connection failed. Last error:  QDBusError("org.freedesktop.DBus.Error.NoReply", "Did not receive a reply. Possible causes include: the remote application did not send a reply, the message bus security policy blocked the reply, the reply timeout expired, or the network connection was broken.")
+captured home/00_home
+captured home/09_performance
+captured home/10_appearance_categories
+captured home/11_appearance_theme
+captured home/12_appearance_animation
+captured home/13_preferences_general
+captured home/13b_preferences_appearance
+captured home/13c_appearance_theme
+captured home/13d_appearance_animation
+captured home/13e_session_updates
+captured home/13f_storage
+captured home/13g_storage_prune
+captured home/13h_preferences_apply
+captured home/13i_preferences_kept
+
+Terminal exit status: 0

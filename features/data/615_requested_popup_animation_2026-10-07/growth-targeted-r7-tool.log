@@ -1,0 +1,33 @@
+Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/__init__.py
+...F..                                                                   [100%]
+=================================== FAILURES ===================================
+___ test_visible_front_has_more_connected_forks_later_and_at_higher_density ____
+
+    def test_visible_front_has_more_connected_forks_later_and_at_higher_density():
+        """Density adds live tips while visible daughter paths retain their parents."""
+        counts = []
+        for density in (1.0, 3.0):
+            engine = _engine(density=density)
+            engine.set_time(31.0)
+            lineage = engine._lineage(0, 960, 540)
+            by_path = {edge[1:7]: edge for edge in lineage}
+            visible = {edge[:6] for edge in engine.geometry(960, 540)
+                       if edge[:6] in by_path}
+            endpoints = {edge[5:7] for edge in lineage}
+            origins = {edge[1:3] for edge in lineage if edge[1:3] not in endpoints}
+            parent_ends = {path[4:6] for path in visible}
+            assert all(path[:2] in parent_ends or path[:2] in origins for path in visible)
+            children = {}
+            for path in visible:
+                children[path[:2]] = children.get(path[:2], 0) + 1
+            forks = [by_path[path] for path in visible if path in by_path
+                     and children.get(path[4:6], 0) > 1]
+            assert forks
+            counts.append(len(forks))
+>       assert counts[0] < counts[1]
+E       assert 292 < 265
+
+tests/qt/test_fungal_growth_engine.py:233: AssertionError
+=========================== short test summary info ============================
+FAILED tests/qt/test_fungal_growth_engine.py::test_visible_front_has_more_connected_forks_later_and_at_higher_density
+1 failed, 5 passed, 8 deselected in 5.08s

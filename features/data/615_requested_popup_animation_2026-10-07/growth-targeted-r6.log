@@ -1,0 +1,9 @@
+Command: ['tools/run_capped.sh', '8G', '/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_current_source_tool_r4.py', '/media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/growth-targeted-r6-tool.log', 'pytest', '-q', 'tests/qt/test_fungal_growth_engine.py', '-k', 'wandering or first_front or visible_front or native_4k or density_changes or default_density']
+Source: 6555ad670b2392ad4329be61ac7c5dbe466f4bd9
+Traceback (most recent call last):
+  File "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_current_source_tool_r4.py", line 7, in <module>
+    assert os.environ.get('CUDA_VISIBLE_DEVICES') == ''
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+
+Terminal exit status: 1

@@ -1,0 +1,32 @@
+Command: ['tools/run_capped.sh', '8G', '/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_current_source_tool_r4.py', '/media/carruthers/mnt3/codex/scratch/magnifier-acceptance-20261007/runtime-all-nine-r3-tool.log', 'tools/build_i18n_catalogs.py', '--repair-invalid-only', '--device', 'cpu', '--threads', '2']
+Source: 6555ad670b2392ad4329be61ac7c5dbe466f4bd9
+Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/__init__.py
+wrote /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr/qt/i18n_catalogs/en.py: settings=1243 categories=237 ui=7239
+Traceback (most recent call last):
+  File "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_current_source_tool_r4.py", line 45, in <module>
+    runpy.run_path(script, run_name='__main__')
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 294, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "tools/build_i18n_catalogs.py", line 7576, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "tools/build_i18n_catalogs.py", line 7544, in main
+    forced.update(_invalid_catalog_sources(language, sources))
+                  ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "tools/build_i18n_catalogs.py", line 5713, in _invalid_catalog_sources
+    reviewed = _reviewed_translation(source, language)
+  File "tools/build_i18n_catalogs.py", line 3330, in _reviewed_translation
+    record = reviewed_runtime_translations(language).get(str(source))
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "tools/build_i18n_catalogs.py", line 4549, in reviewed_runtime_translations
+    raise ValueError(
+    ...<4 lines>...
+    )
+ValueError: stale reviewed runtime source ui/What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.: /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/docs/i18n/reviewed/runtime/sv/2026-09-21-runtime-ui-refresh.json
+...and 2 more reviewed runtime problems in sv:
+  stale reviewed runtime source ui/Detection method: /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/docs/i18n/reviewed/runtime/sv/2026-09-22-detection-panel.json
+  stale reviewed runtime source ui/Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.: /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/docs/i18n/reviewed/runtime/sv/2026-09-25-runtime-debt-messages.json
+
+Terminal exit status: 1

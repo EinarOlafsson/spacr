@@ -1,0 +1,5 @@
+Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/plaque-diagnostics-20261007/spacr/__init__.py
+ImportError while loading conftest '/media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/tests/conftest.py'.
+../magnifier-acceptance-20261007/tests/conftest.py:297: in <module>
+    raise RuntimeError(
+E   RuntimeError: pytest imported spaCR from the wrong checkout: /media/carruthers/mnt3/codex/spacr-worktrees/plaque-diagnostics-20261007/spacr (expected /media/carruthers/mnt3/codex/spacr-worktrees/magnifier-acceptance-20261007/spacr)
