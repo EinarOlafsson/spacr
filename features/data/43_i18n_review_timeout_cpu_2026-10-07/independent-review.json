@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "candidate_test_sha256": "d659d3d2ce81cdbc33eb59785699b6ff590f30bcf8a9871d168699c94d1d0ef7",
+  "original_parent": "392b905212a6987ebffbbaecfa1254fbfd236eab",
+  "all_original_assert_ast_identical": true,
+  "assertions": 6,
+  "entire_original_locale_loop_body_ast_identical": true,
+  "entire_trailing_report_contract_ast_identical": true,
+  "all_display_names_parametrized": true,
+  "actual_module_fixture_live_extraction": true,
+  "helper_memoization_absent": true,
+  "limits": "Read-only source proof, not another full execution. Existing loaders read mappings; actual nine-case execution is owned by coverage agent."
+}
