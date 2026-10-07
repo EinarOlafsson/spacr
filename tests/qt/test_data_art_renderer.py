@@ -1,4 +1,4 @@
-"""Image and pointer contracts for the seven offered data-art materials."""
+"""Image and pointer contracts for retained and private data-art materials."""
 
 from __future__ import annotations
 
@@ -19,14 +19,24 @@ FAMILIES = (
     "point_atlas", "tissue_facets", "chromatin_ribbon",
     "genetic_advection", "impulse_lens", "fungal_growth", "thore",
 )
+OFFERED_FAMILIES = tuple(family for family in FAMILIES
+                         if family not in ("chromatin_ribbon", "thore"))
 INTERACTIVE = frozenset(("point_atlas", "tissue_facets", "genetic_advection",
                          "impulse_lens"))
 BACKGROUND = "#101418"
 
 
-def _engine(family: str, *, seed: int = 41, palette: str = "spacr"):
+def _engine(family: str, *, seed: int = 41, palette: str = "spacr",
+            background: str = BACKGROUND):
     """Build one deterministic material with explicit backdrop controls."""
-    return ambient.make_engine(f"data_art_{family}", palette, BACKGROUND,
+    if family == "chromatin_ribbon":
+        return ambient._DataArtEngine(
+            ambient.palette_colors("data_art_tissue_facets", palette),
+            background, family=family, seed=seed)
+    if family == "thore":
+        return ambient._ThoreEngine(
+            ambient.palette_colors("aurora", palette), background, seed=seed)
+    return ambient.make_engine(f"data_art_{family}", palette, background,
                                seed=seed)
 
 
@@ -45,18 +55,16 @@ def _digest(image: QImage) -> str:
     return hashlib.sha256(image.bits().tobytes()).hexdigest()
 
 
-def test_data_art_registry_has_seven_distinct_named_materials():
-    """The catalog exposes seven families without pointer duplicates."""
+def test_data_art_registry_has_five_distinct_named_materials():
+    """The catalog exposes retained families without pointer duplicates."""
     keys = {theme for theme in ambient.AMBIENT_THEMES
             if theme.startswith("data_art_")}
-    assert keys == {f"data_art_{family}" for family in FAMILIES}
-    for family in FAMILIES:
+    assert keys == {f"data_art_{family}" for family in OFFERED_FAMILIES}
+    for family in OFFERED_FAMILIES:
         key = f"data_art_{family}"
         engine = _engine(family)
-        if family not in ("fungal_growth", "thore"):
+        if family != "fungal_growth":
             assert engine.family == family
-        elif family == "thore":
-            assert isinstance(engine, ambient._ThoreEngine)
         assert engine.name == key
         assert getattr(engine, "interactive", False) is (family in INTERACTIVE)
         assert ambient.animation_label(key) != key
@@ -200,8 +208,7 @@ def test_geometry_and_isolated_grain_material_have_bounded_edges():
 @pytest.mark.parametrize("family", ("tissue_facets", "chromatin_ribbon"))
 def test_light_page_material_preserves_multiplicative_identity(family):
     """A material remains visible while its light buffer stays page-safe."""
-    engine = ambient.make_engine(f"data_art_{family}", "mono", "#f6f7f9",
-                                 seed=41)
+    engine = _engine(family, palette="mono", background="#f6f7f9")
     engine.set_time(7.0)
     image = QImage(384, 216, QImage.Format_RGB32)
     image.fill(QColor("#f6f7f9"))
