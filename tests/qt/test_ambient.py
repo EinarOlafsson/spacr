@@ -634,7 +634,8 @@ def test_the_buffer_is_small_and_reused_across_frames():
 
 
 def test_the_buffer_is_reallocated_only_when_the_canvas_changes():
-    engine = make_engine("aurora", "spacr", DARK, seed=2)
+    """The diffuse reusable raster follows canvas size, not the clock."""
+    engine = make_engine("blobs", "spacr", DARK, seed=2)
     render(engine, 800, 600)
     first = engine._buffer
     render(engine, 1600, 900)
