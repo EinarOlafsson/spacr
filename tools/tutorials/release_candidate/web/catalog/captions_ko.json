@@ -2313,7 +2313,7 @@
       "description": "이미지와 마스크 쌍을 열어 객체를 수정하고, 판정을 기록하고, Measure용으로 이미지와 마스크를 구성하고, 학습용 짝 크롭을 만듭니다. 이미지나 분할 마스크를 변경하지 않고 클래스 레이블이 있는 독립적인 YOLO 박스를 그리고 편집하고 내보냅니다.",
       "objectives": [
         "일치하는 인스턴스 마스크와 함께 이미지를 열고 돋보기로 객체를 검토합니다.",
-        "Undo, 그리기, 분할, 객체 필터로 라벨을 수정합니다.",
+        "Undo, 그리기, 분할, 병합, 객체 필터로 라벨을 수정합니다.",
         "정리한 마스크를 저장하고, Keep 또는 Discard 판정을 기록하고, 학습용 이미지-마스크 크롭을 만듭니다.",
         "Measure용으로 이미지와 마스크를 구성하고, Upload data로 정리한 쌍을 공유합니다.",
         "클래스 레이블이 있는 독립적인 박스를 그리고 편집하고, 프로젝트를 저장하고 정규화된 YOLO 레이블을 내보내기."
@@ -2322,7 +2322,7 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Home에서 Tools의 Make Masks를 여세요. 왼쪽 아래 버튼으로 이미지를 불러옵니다: Open folder, Organize for Measure, Load test data. 오른쪽의 Discard, Keep, Skip, Upload data는 편집을 마친 각 시야를 어떻게 처리할지 정합니다.",
+          "narration": "Home에서 Tools의 Make Masks를 여세요. 왼쪽 아래 버튼으로 이미지를 불러옵니다: Open folder, Organize for Measure, Load test data. 오른쪽의 Discard, Keep, Skip, Upload data는 편집을 마친 각 시야를 어떻게 처리할지 정합니다. Discard 바로 왼쪽의 Clear masks는 현재 이미지의 모든 마스크를 제거하기 전에 확인을 요청합니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -2364,7 +2364,7 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "수정할 내용에 맞는 도구를 고르세요. Brush는 픽셀을 추가하고, Erase는 픽셀을 지우며, Erase object는 라벨 전체를 제거합니다. Draw는 윤곽을 그린 객체를 추가하고, Divide는 객체 하나를 나눕니다. 변경하기 전에 Zoom으로 경계를 살펴볼 수 있습니다.",
+          "narration": "수정할 내용에 맞는 도구를 고르세요. Brush는 픽셀을 추가하고, Erase는 픽셀을 지우며, Erase object는 라벨 전체를 제거합니다. Draw는 윤곽을 그린 객체를 추가하고, Divide / Merge는 왼쪽 버튼으로 드래그하면 분할하고, 오른쪽 버튼으로 드래그하면 객체를 병합합니다. 변경하기 전에 Zoom으로 경계를 살펴볼 수 있습니다. Wand는 기본적으로 강도 영역을 추가합니다. Ctrl을 누른 채 클릭하면 해당 영역을 제거합니다.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -2389,8 +2389,23 @@
           "hold_after": 0.7
         },
         {
+          "visual": "07b_wand_add",
+          "narration": "Wand를 선택하고 클릭하여 연결된 강도 영역을 추가하세요. Magic wand 설정의 허용 오차와 최대 픽셀 수로 영역의 범위를 조절합니다. 이 배경 예시는 조작을 보여 주기 위한 것입니다. 학습용 마스크를 준비할 때는 실제 객체 경계를 따르세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07c_wand_ctrl_remove",
+          "narration": "Wand를 선택한 상태에서 Ctrl을 누른 채 클릭하여 강도 영역을 제거하세요. Ctrl을 놓으면 같은 버튼으로 다시 추가할 수 있습니다. Undo는 이전 편집을 복원합니다. 여기서는 원래 마스크를 저장하기 전에 두 연습 클릭을 모두 취소합니다.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "08_divide_demo",
           "narration": "맞닿은 두 객체가 한 라벨을 공유할 때는 Divide를 사용하세요. 붙어 있는 영역 전체를 가로지르는 절단선을 그리고 분리된 라벨을 확인하세요. 하나의 객체를 자르거나 경계가 잘못 남으면 분할을 취소하세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08b_merge_demo",
+          "narration": "Divide / Merge를 선택한 상태에서 오른쪽 버튼으로 병합할 객체들을 가로지르는 선을 그리세요. 처음 통과한 객체의 라벨을 공유하며, 객체 사이의 배경은 채우지 않습니다. Undo로 별도의 라벨을 복원할 수 있습니다. 저장한 그룹은 이미지를 다시 열어도 공통 라벨을 유지합니다.",
           "hold_after": 0.7
         },
         {

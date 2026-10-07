@@ -2313,7 +2313,7 @@
       "description": "Opnaðu pör af myndum og grímum, leiðréttu hluti, skráðu úrskurði, skipulegðu myndir og grímur fyrir Measure og búðu til pöruð þjálfunarúrklipp. Teiknaðu, breyttu og fluttu út aðskilda YOLO-ramma með flokkum án þess að breyta myndinni eða hlutunarmaskannum.",
       "objectives": [
         "Opna myndir með samsvarandi tilvikagrímum og skoða hluti í stækkunarglerinu.",
-        "Leiðrétta merkingar með Undo, teikningu, skiptingu og hlutasíum.",
+        "Leiðrétta merkingar með Undo, teikningu, skiptingu, sameiningu og hlutasíum.",
         "Vista yfirfarnar grímur, skrá Keep- eða Discard-úrskurði og búa til úrklipp af myndum og grímum til þjálfunar.",
         "Skipuleggja myndir og grímur fyrir Measure og deila yfirförnum pörum með Upload data.",
         "Teikna og breyta aðskildum römmum með flokkum, vista verkefni þeirra og flytja út staðlaðar YOLO-merkingar."
@@ -2322,7 +2322,7 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Frá Home opnarðu Make Masks undir Tools. Hnapparnir neðst til vinstri sækja myndir: Open folder, Organize for Measure og Load test data. Hægra megin ráða Discard, Keep, Skip og Upload data því hvað verður um hvert sjónsvið þegar búið er að breyta því.",
+          "narration": "Frá Home opnarðu Make Masks undir Tools. Hnapparnir neðst til vinstri sækja myndir: Open folder, Organize for Measure og Load test data. Hægra megin ráða Discard, Keep, Skip og Upload data því hvað verður um hvert sjónsvið þegar búið er að breyta því. Clear masks, beint vinstra megin við Discard, biður um staðfestingu áður en allar grímur í núverandi mynd eru fjarlægðar.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -2364,7 +2364,7 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "Veldu tólið sem hentar leiðréttingunni. Brush bætir við dílum, Erase fjarlægir díla og Erase object fjarlægir heila merkingu. Draw bætir við afmörkuðum hlut; Divide skiptir einum í tvennt. Zoom hjálpar þér að skoða mörkin áður en þú breytir.",
+          "narration": "Veldu tólið sem hentar leiðréttingunni. Brush bætir við dílum, Erase fjarlægir díla og Erase object fjarlægir heila merkingu. Draw bætir við afmörkuðum hlut; Divide / Merge skiptir með vinstri músarhnappi eða sameinar hluti með hægri músarhnappi þegar þú dregur. Zoom hjálpar þér að skoða mörkin áður en þú breytir. Wand bætir sjálfgefið við styrkleikasvæði; haltu Ctrl niðri og smelltu til að fjarlægja svæðið.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -2389,8 +2389,23 @@
           "hold_after": 0.7
         },
         {
+          "visual": "07b_wand_add",
+          "narration": "Veldu Wand og smelltu til að bæta við samfelldu styrkleikasvæði. Stilltu vikmörk og hámarksfjölda pixla í Magic wand til að stjórna stærð þess. Þetta dæmi í bakgrunninum sýnir aðgerðina; fylgdu raunverulegum mörkum hluta þegar þú útbýrð þjálfunargrímur.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07c_wand_ctrl_remove",
+          "narration": "Hafðu Wand áfram valið, haltu Ctrl niðri og smelltu til að fjarlægja styrkleikasvæðið. Slepptu Ctrl til að bæta aftur við með sama hnappi. Undo endurheimtir fyrri breytingu. Hér eru báðir æfingasmellirnir afturkallaðir áður en upprunalega gríman er vistuð.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "08_divide_demo",
           "narration": "Notaðu Divide þegar tveir hlutir sem snertast deila einni merkingu. Teiknaðu skurð þvert yfir allt samtengda svæðið og skoðaðu aðskildu merkingarnar. Afturkallaðu skiptinguna ef hún sker í gegnum einn hlut eða skilur eftir röng mörk.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08b_merge_demo",
+          "narration": "Hafðu Divide / Merge áfram valið og dragðu línu með hægri músarhnappi yfir hlutina sem á að sameina. Þeir fá merkingu fyrsta hlutarins sem línan sker án þess að fylla bakgrunninn á milli þeirra. Undo endurheimtir aðskildar merkingar. Vistaðir hópar halda sameiginlegri merkingu þegar þú opnar myndina aftur.",
           "hold_after": 0.7
         },
         {

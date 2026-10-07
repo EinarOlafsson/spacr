@@ -1611,3 +1611,14 @@ Immutable media5b331d434e997e70264afd35b993b0ecc988d8e8 passes all5,036
 metadata/full downloaded SHA checks:5,704,492,980 bytes. Normal Pages and
 all85 hosted-route promotion are in progress. Actual source push/nightly
 workflow/site readback remain separate pending steps; N615 stays open.
+
+2026-10-07 normal final current native61 publication accepted:
+All85 hosted player routes pass against immutable media
+5b331d434e997e70264afd35b993b0ecc988d8e8. Normal Pages promotion and
+manifest-preserving hold release pass; bundled tutorial index remains fresh
+for73 modules and15 publication contracts pass. Complete50/61/28-case/
+85-route/5036-file provenance is archived in
+615_final_native61_publication_2026-10-07_r6.json. Current app, all-nine
+API/runtime/guides and tutorial assets are being published together after
+retaining latest Home source. Actual successful source-bound nightly workflow,
+API/guide browser and phone/full-video deployment readback remain required.

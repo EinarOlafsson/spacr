@@ -2313,7 +2313,7 @@
       "description": "Öffnen Sie Bild-Masken-Paare, korrigieren Sie Objekte, halten Sie Urteile fest, organisieren Sie Bilder und Masken für Measure und erstellen Sie gepaarte Trainingsausschnitte. Separate YOLO-Boxen mit Klassenbezeichnungen zeichnen, bearbeiten und exportieren, ohne das Bild oder die Segmentierungsmaske zu verändern.",
       "objectives": [
         "Bilder mit passenden Instanzmasken öffnen und Objekte in der Lupe prüfen.",
-        "Labels mit Undo, Zeichnen, Teilen und Objektfiltern korrigieren.",
+        "Labels mit Undo, Zeichnen, Teilen, Zusammenführen und Objektfiltern korrigieren.",
         "Kuratierte Masken speichern, Keep- oder Discard-Urteile festhalten und Bild-Masken-Ausschnitte für das Training erstellen.",
         "Bilder und Masken für Measure organisieren und kuratierte Paare mit Upload data teilen.",
         "Separate Boxen mit Klassenbezeichnungen zeichnen und bearbeiten, ihr Projekt speichern und normalisierte YOLO-Labels exportieren."
@@ -2322,7 +2322,7 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Öffnen Sie von Home aus Make Masks unter Tools. Die Schaltflächen unten links laden Bilder: Open folder, Organize for Measure und Load test data. Rechts legen Discard, Keep, Skip und Upload data fest, was mit jedem Bildfeld nach der Bearbeitung geschieht.",
+          "narration": "Öffnen Sie von Home aus Make Masks unter Tools. Die Schaltflächen unten links laden Bilder: Open folder, Organize for Measure und Load test data. Rechts legen Discard, Keep, Skip und Upload data fest, was mit jedem Bildfeld nach der Bearbeitung geschieht. Clear masks, direkt links von Discard, fragt nach einer Bestätigung, bevor alle Masken im aktuellen Bild entfernt werden.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -2364,7 +2364,7 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "Wählen Sie das Werkzeug, das zur Korrektur passt. Brush fügt Pixel hinzu, Erase entfernt Pixel und Erase object entfernt ein ganzes Label. Draw fügt ein umrandetes Objekt hinzu; Divide teilt eines. Mit Zoom prüfen Sie Grenzen, bevor Sie etwas ändern.",
+          "narration": "Wählen Sie das Werkzeug, das zur Korrektur passt. Brush fügt Pixel hinzu, Erase entfernt Pixel und Erase object entfernt ein ganzes Label. Draw fügt ein umrandetes Objekt hinzu; Divide / Merge teilt beim Ziehen mit der linken Maustaste und führt Objekte beim Ziehen mit der rechten Maustaste zusammen. Mit Zoom prüfen Sie Grenzen, bevor Sie etwas ändern. Wand fügt standardmäßig einen Intensitätsbereich hinzu; halten Sie Ctrl gedrückt und klicken Sie, um diesen Bereich zu entfernen.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -2389,8 +2389,23 @@
           "hold_after": 0.7
         },
         {
+          "visual": "07b_wand_add",
+          "narration": "Wählen Sie Wand und klicken Sie, um einen zusammenhängenden Intensitätsbereich hinzuzufügen. Toleranz und maximale Pixelzahl in Magic wand bestimmen seine Ausdehnung. Dieses Beispiel im Hintergrund zeigt die Geste; orientieren Sie sich bei Trainingsmasken an den tatsächlichen Objektgrenzen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07c_wand_ctrl_remove",
+          "narration": "Lassen Sie Wand ausgewählt, halten Sie Ctrl gedrückt und klicken Sie, um den Intensitätsbereich zu entfernen. Lassen Sie Ctrl los, um mit derselben Schaltfläche wieder hinzuzufügen. Undo stellt die vorherige Bearbeitung wieder her. Hier werden beide Übungsklicks rückgängig gemacht, bevor die ursprüngliche Maske gespeichert wird.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "08_divide_demo",
           "narration": "Verwenden Sie Divide, wenn sich zwei berührende Objekte ein Label teilen. Ziehen Sie einen Schnitt quer durch die gesamte verbundene Region und prüfen Sie die getrennten Labels. Machen Sie die Teilung rückgängig, wenn sie ein einzelnes Objekt durchschneidet oder eine falsche Grenze hinterlässt.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08b_merge_demo",
+          "narration": "Lassen Sie Divide / Merge ausgewählt und ziehen Sie mit der rechten Maustaste eine Linie über die zu verbindenden Objekte. Sie erhalten das Label des zuerst gekreuzten Objekts, ohne dass der Hintergrund dazwischen gefüllt wird. Undo stellt die getrennten Labels wieder her. Gespeicherte Gruppen behalten ihr gemeinsames Label beim erneuten Öffnen des Bildes.",
           "hold_after": 0.7
         },
         {

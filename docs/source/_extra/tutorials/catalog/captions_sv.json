@@ -2313,7 +2313,7 @@
       "description": "Öppna bild- och maskpar, rätta objekt, registrera omdömen, organisera bilder och masker för Measure och skapa parade träningsutsnitt. Rita, redigera och exportera separata klassmärkta YOLO-rutor utan att ändra bilden eller segmenteringsmasken.",
       "objectives": [
         "Öppna bilder med matchande instansmasker och granska objekt i förstoringsglaset.",
-        "Rätta etiketter med Undo, ritning, delning och objektfilter.",
+        "Rätta etiketter med Undo, ritning, delning, sammanslagning och objektfilter.",
         "Spara granskade masker, registrera Keep- eller Discard-omdömen och skapa bild- och maskutsnitt för träning.",
         "Organisera bilder och masker för Measure och dela granskade par med Upload data.",
         "Rita och redigera separata klassmärkta rutor, spara deras projekt och exportera normaliserade YOLO-etiketter."
@@ -2322,7 +2322,7 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Från Home öppnar du Make Masks under Tools. Knapparna längst ned till vänster hämtar in bilder: Open folder, Organize for Measure och Load test data. Till höger avgör Discard, Keep, Skip och Upload data vad som händer med varje synfält när det har redigerats.",
+          "narration": "Från Home öppnar du Make Masks under Tools. Knapparna längst ned till vänster hämtar in bilder: Open folder, Organize for Measure och Load test data. Till höger avgör Discard, Keep, Skip och Upload data vad som händer med varje synfält när det har redigerats. Clear masks, direkt till vänster om Discard, ber om bekräftelse innan alla masker i den aktuella bilden tas bort.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -2364,7 +2364,7 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "Välj det verktyg som passar rättelsen. Brush lägger till pixlar, Erase tar bort pixlar och Erase object tar bort en hel etikett. Draw lägger till ett avgränsat objekt; Divide delar ett. Zoom hjälper dig att granska gränser innan du gör ändringar.",
+          "narration": "Välj det verktyg som passar rättelsen. Brush lägger till pixlar, Erase tar bort pixlar och Erase object tar bort en hel etikett. Draw lägger till ett avgränsat objekt; Divide / Merge delar med vänster musknapp och slår samman objekt med höger musknapp när du drar. Zoom hjälper dig att granska gränser innan du gör ändringar. Wand lägger till ett intensitetsområde som standard; håll Ctrl nedtryckt och klicka för att ta bort området.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -2389,8 +2389,23 @@
           "hold_after": 0.7
         },
         {
+          "visual": "07b_wand_add",
+          "narration": "Välj Wand och klicka för att lägga till ett sammanhängande intensitetsområde. Ställ in toleransen och det högsta antalet pixlar i Magic wand för att styra områdets storlek. Detta bakgrundsexempel visar gesten; följ verkliga objektgränser när du förbereder träningsmasker.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07c_wand_ctrl_remove",
+          "narration": "Behåll Wand valt, håll Ctrl nedtryckt och klicka för att ta bort intensitetsområdet. Släpp Ctrl för att lägga till igen med samma knapp. Undo återställer föregående redigering. Här ångras båda övningsklicken innan den ursprungliga masken sparas.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "08_divide_demo",
           "narration": "Använd Divide när två objekt som rör vid varandra delar en etikett. Rita ett snitt tvärs över hela det sammanhängande området och granska de separerade etiketterna. Ångra delningen om den skär genom ett enda objekt eller lämnar en felaktig gräns.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08b_merge_demo",
+          "narration": "Behåll Divide / Merge valt och dra en linje med höger musknapp över objekten som ska slås samman. De får det första korsade objektets etikett utan att bakgrunden mellan dem fylls i. Undo återställer de separata etiketterna. Sparade grupper behåller sin gemensamma etikett när du öppnar bilden igen.",
           "hold_after": 0.7
         },
         {

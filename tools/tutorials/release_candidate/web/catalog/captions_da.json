@@ -2313,7 +2313,7 @@
       "description": "Åbn billed- og maskepar, ret objekter, registrer vurderinger, organiser billeder og masker til Measure, og opret parrede træningsudsnit. Tegn, rediger og eksportér separate YOLO-bokse med klasser uden at ændre billedet eller segmenteringsmasken.",
       "objectives": [
         "Åbne billeder med matchende instansmasker og undersøge objekter i forstørrelsesglasset.",
-        "Rette labels med Undo, tegning, deling og objektfiltre.",
+        "Rette labels med Undo, tegning, deling, sammenfletning og objektfiltre.",
         "Gemme kuraterede masker, registrere Keep- eller Discard-vurderinger og oprette billed- og maskeudsnit til træning.",
         "Organisere billeder og masker til Measure og dele kuraterede par med Upload data.",
         "Tegn og rediger separate bokse med klasser, gem deres projekt og eksportér normaliserede YOLO-etiketter."
@@ -2322,7 +2322,7 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Fra Home åbner du Make Masks under Tools. Knapperne nederst til venstre henter billeder ind: Open folder, Organize for Measure og Load test data. Til højre bestemmer Discard, Keep, Skip og Upload data, hvad der sker med hvert synsfelt, når det er redigeret.",
+          "narration": "Fra Home åbner du Make Masks under Tools. Knapperne nederst til venstre henter billeder ind: Open folder, Organize for Measure og Load test data. Til højre bestemmer Discard, Keep, Skip og Upload data, hvad der sker med hvert synsfelt, når det er redigeret. Clear masks, lige til venstre for Discard, beder om bekræftelse, før alle masker i det aktuelle billede fjernes.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -2364,7 +2364,7 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "Vælg det værktøj, der passer til rettelsen. Brush tilføjer pixels, Erase fjerner pixels, og Erase object fjerner en hel label. Draw tilføjer et afgrænset objekt; Divide deler et. Zoom hjælper dig med at undersøge grænserne, før du ændrer noget.",
+          "narration": "Vælg det værktøj, der passer til rettelsen. Brush tilføjer pixels, Erase fjerner pixels, og Erase object fjerner en hel label. Draw tilføjer et afgrænset objekt; Divide / Merge deler ved at trække med venstre museknap eller sammenfletter objekter ved at trække med højre. Zoom hjælper dig med at undersøge grænserne, før du ændrer noget. Wand tilføjer et intensitetsområde som standard; hold Ctrl nede og klik for at fjerne området.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -2389,8 +2389,23 @@
           "hold_after": 0.7
         },
         {
+          "visual": "07b_wand_add",
+          "narration": "Vælg Wand og klik for at tilføje et sammenhængende intensitetsområde. Indstil tolerancen og det maksimale antal pixels i Magic wand for at styre områdets størrelse. Dette baggrundseksempel viser bevægelsen; følg de virkelige objektgrænser, når du forbereder træningsmasker.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07c_wand_ctrl_remove",
+          "narration": "Behold Wand valgt, hold Ctrl nede og klik for at fjerne intensitetsområdet. Slip Ctrl for at tilføje igen med samme knap. Undo gendanner den foregående redigering. Her fortrydes begge øvelsesklik, før den oprindelige maske gemmes.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "08_divide_demo",
           "narration": "Brug Divide, når to objekter, der rører hinanden, deler én label. Tegn et snit hen over hele det sammenhængende område, og undersøg de adskilte labels. Fortryd delingen, hvis den skærer gennem et enkelt objekt eller efterlader en forkert grænse.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08b_merge_demo",
+          "narration": "Behold Divide / Merge valgt, og træk en linje med højre museknap over de objekter, der skal sammenflettes. De får det første krydsede objekts label uden at udfylde baggrunden mellem dem. Undo gendanner de separate labels. Gemte grupper beholder deres fælles label, når du åbner billedet igen.",
           "hold_after": 0.7
         },
         {

@@ -2313,7 +2313,7 @@
       "description": "Åpne bilde- og maskepar, rett objekter, registrer vurderinger, organiser bilder og masker for Measure og lag parede treningsutsnitt. Tegn, rediger og eksporter separate YOLO-bokser med klasser uten å endre bildet eller segmenteringsmasken.",
       "objectives": [
         "Åpne bilder med tilhørende instansmasker og undersøke objekter i forstørrelsesglasset.",
-        "Rette merkelapper med Undo, tegning, deling og objektfiltre.",
+        "Rette merkelapper med Undo, tegning, deling, sammenslåing og objektfiltre.",
         "Lagre kuraterte masker, registrere Keep- eller Discard-vurderinger og lage bilde- og maskeutsnitt for trening.",
         "Organisere bilder og masker for Measure og dele kuraterte par med Upload data.",
         "Tegn og rediger separate bokser med klasser, lagre prosjektet og eksporter normaliserte YOLO-etiketter."
@@ -2322,7 +2322,7 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Fra Home åpner du Make Masks under Tools. Knappene nederst til venstre henter inn bilder: Open folder, Organize for Measure og Load test data. Til høyre bestemmer Discard, Keep, Skip og Upload data hva som skjer med hvert synsfelt når det er redigert.",
+          "narration": "Fra Home åpner du Make Masks under Tools. Knappene nederst til venstre henter inn bilder: Open folder, Organize for Measure og Load test data. Til høyre bestemmer Discard, Keep, Skip og Upload data hva som skjer med hvert synsfelt når det er redigert. Clear masks, rett til venstre for Discard, ber om bekreftelse før alle masker i det gjeldende bildet fjernes.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
@@ -2364,7 +2364,7 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "Velg verktøyet som passer rettelsen. Brush legger til piksler, Erase fjerner piksler og Erase object fjerner en hel merkelapp. Draw legger til et avgrenset objekt; Divide deler et. Zoom hjelper deg å undersøke grensene før du gjør endringer.",
+          "narration": "Velg verktøyet som passer rettelsen. Brush legger til piksler, Erase fjerner piksler og Erase object fjerner en hel merkelapp. Draw legger til et avgrenset objekt; Divide / Merge deler når du drar med venstre museknapp, eller slår sammen objekter når du drar med høyre. Zoom hjelper deg å undersøke grensene før du gjør endringer. Wand legger til et intensitetsområde som standard; hold Ctrl nede og klikk for å fjerne området.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -2389,8 +2389,23 @@
           "hold_after": 0.7
         },
         {
+          "visual": "07b_wand_add",
+          "narration": "Velg Wand og klikk for å legge til et sammenhengende intensitetsområde. Still inn toleransen og det maksimale antallet piksler i Magic wand for å styre størrelsen. Dette bakgrunnseksemplet viser handlingen; følg de virkelige objektgrensene når du lager treningsmasker.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "07c_wand_ctrl_remove",
+          "narration": "Behold Wand valgt, hold Ctrl nede og klikk for å fjerne intensitetsområdet. Slipp Ctrl for å legge til igjen med samme knapp. Undo gjenoppretter den forrige redigeringen. Her angres begge øvingsklikkene før den opprinnelige masken lagres.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "08_divide_demo",
           "narration": "Bruk Divide når to objekter som berører hverandre, deler én merkelapp. Tegn et snitt tvers over hele det sammenhengende området, og undersøk de adskilte merkelappene. Angre delingen hvis den skjærer gjennom ett objekt eller etterlater en feil grense.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08b_merge_demo",
+          "narration": "Behold Divide / Merge valgt og dra en linje med høyre museknapp over objektene som skal slås sammen. De får merkelappen til det første objektet linjen krysser, uten at bakgrunnen mellom dem fylles. Undo gjenoppretter de separate merkelappene. Lagrede grupper beholder sin felles merkelapp når du åpner bildet igjen.",
           "hold_after": 0.7
         },
         {

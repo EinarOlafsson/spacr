@@ -2501,7 +2501,7 @@
       "description": "Apri coppie immagine-maschera, correggi gli oggetti, registra i verdetti, organizza immagini e maschere per Measure e crea ritagli appaiati per l’addestramento. Disegna, modifica ed esporta riquadri YOLO separati con le relative classi senza cambiare l’immagine o la maschera di segmentazione.",
       "objectives": [
         "Aprire immagini con le relative maschere di istanza ed esaminare gli oggetti con la lente.",
-        "Correggere le etichette con Undo, disegno, divisione e filtri sugli oggetti.",
+        "Correggere le etichette con Undo, disegno, divisione, unione e filtri sugli oggetti.",
         "Salvare le maschere revisionate, registrare i verdetti Keep o Discard e creare ritagli immagine-maschera per l’addestramento.",
         "Organizzare immagini e maschere per Measure e condividere coppie revisionate con Upload data.",
         "Disegnare e modificare riquadri separati con le relative classi, salvare il progetto ed esportare etichette YOLO normalizzate."
@@ -2510,12 +2510,12 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Da Home, apri Make Masks in Tools. I pulsanti in basso a sinistra caricano le immagini: Open folder, Organize for Measure e Load test data. A destra, Discard, Keep, Skip e Upload data decidono cosa succede a ogni campo dopo la modifica.",
+          "narration": "Da Home, apri Make Masks in Tools. I pulsanti in basso a sinistra caricano le immagini: Open folder, Organize for Measure e Load test data. A destra, Discard, Keep, Skip e Upload data decidono cosa succede a ogni campo dopo la modifica. Clear masks, subito a sinistra di Discard, chiede conferma prima di rimuovere tutte le maschere nell’immagine corrente.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ],
-          "speech_text": "Da Home, apri Make Masks in Tools. I pulsanti in basso a sinistra caricano le immagini: Open folder, Organize for Measure e Load test data. A destra, Discard, Keep, Skip e Upload data decidono cosa succede a ogni campo dopo la modifica."
+          "speech_text": "Da Home, apri Make Masks in Tools. I pulsanti in basso a sinistra caricano le immagini: Open folder, Organize for Measure e Load test data. A destra, Discard, Keep, Skip e Upload data decidono cosa succede a ogni campo dopo la modifica. Clear masks, subito a sinistra di Discard, chiede conferma prima di rimuovere tutte le maschere nell’immagine corrente."
         },
         {
           "visual": "01b_test_data_menu",
@@ -2558,7 +2558,7 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "Scegli lo strumento adatto alla correzione. Brush aggiunge pixel, Erase rimuove pixel ed Erase object rimuove un’intera etichetta. Draw aggiunge un oggetto delineato; Divide ne divide uno. Zoom ti aiuta a esaminare i bordi prima di apportare modifiche.",
+          "narration": "Scegli lo strumento adatto alla correzione. Brush aggiunge pixel, Erase rimuove pixel ed Erase object rimuove un’intera etichetta. Draw aggiunge un oggetto delineato; Divide / Merge divide trascinando con il pulsante sinistro o unisce gli oggetti trascinando con il destro. Zoom ti aiuta a esaminare i bordi prima di apportare modifiche. Wand aggiunge una regione di intensità per impostazione predefinita; tieni premuto Ctrl e fai clic per rimuovere quella regione.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -2566,7 +2566,7 @@
             2500,
             65
           ],
-          "speech_text": "Scegli lo strumento adatto alla correzione. Brush aggiunge pixel, Erase rimuove pixel ed Erase object rimuove un’intera etichetta. Draw aggiunge un oggetto delineato; Divide ne divide uno. Zoom ti aiuta a esaminare i bordi prima di apportare modifiche."
+          "speech_text": "Scegli lo strumento adatto alla correzione. Brush aggiunge pixel, Erase rimuove pixel ed Erase object rimuove un’intera etichetta. Draw aggiunge un oggetto delineato; Divide / Merge divide trascinando con il pulsante sinistro o unisce gli oggetti trascinando con il destro. Zoom ti aiuta a esaminare i bordi prima di apportare modifiche. Wand aggiunge una regione di intensità per impostazione predefinita; tieni premuto Ctrl e fai clic per rimuovere quella regione."
         },
         {
           "visual": "04_erase_one_object",
@@ -2587,10 +2587,28 @@
           "speech_text": "Seleziona Draw e traccia un contorno chiuso intorno a un oggetto mancante. L’editor lo riempie con una nuova etichetta. In questo esercizio il contorno è sullo sfondo, quindi annullalo prima di salvare. Per i dati di addestramento, traccia il bordo reale dell’oggetto."
         },
         {
+          "visual": "07b_wand_add",
+          "narration": "Seleziona Wand e fai clic per aggiungere una regione di intensità connessa. Imposta la tolleranza e il numero massimo di pixel in Magic wand per controllarne l’estensione. Questo esempio sullo sfondo mostra il gesto; segui i contorni reali degli oggetti quando prepari le maschere di addestramento.",
+          "hold_after": 0.7,
+          "speech_text": "Seleziona Wand e fai clic per aggiungere una regione di intensità connessa. Imposta la tolleranza e il numero massimo di pixel in Magic wand per controllarne l’estensione. Questo esempio sullo sfondo mostra il gesto; segui i contorni reali degli oggetti quando prepari le maschere di addestramento."
+        },
+        {
+          "visual": "07c_wand_ctrl_remove",
+          "narration": "Lascia selezionato Wand, tieni premuto Ctrl e fai clic per rimuovere la regione di intensità. Rilascia Ctrl per aggiungere nuovamente con lo stesso pulsante. Undo ripristina la modifica precedente. Qui entrambi i clic di prova vengono annullati prima di salvare la maschera originale.",
+          "hold_after": 0.7,
+          "speech_text": "Lascia selezionato Wand, tieni premuto Ctrl e fai clic per rimuovere la regione di intensità. Rilascia Ctrl per aggiungere nuovamente con lo stesso pulsante. Undo ripristina la modifica precedente. Qui entrambi i clic di prova vengono annullati prima di salvare la maschera originale."
+        },
+        {
           "visual": "08_divide_demo",
           "narration": "Usa Divide quando due oggetti a contatto condividono un’etichetta. Traccia un taglio attraverso tutta la regione unita ed esamina le etichette separate. Annulla la divisione se taglia un unico oggetto o lascia un bordo errato.",
           "hold_after": 0.7,
           "speech_text": "Usa Divide quando due oggetti a contatto condividono un’etichetta. Traccia un taglio attraverso tutta la regione unita ed esamina le etichette separate. Annulla la divisione se taglia un unico oggetto o lascia un bordo errato."
+        },
+        {
+          "visual": "08b_merge_demo",
+          "narration": "Lascia selezionato Divide / Merge e traccia una linea con il pulsante destro sugli oggetti da unire. Condividono l’etichetta del primo oggetto attraversato senza riempire lo sfondo tra loro. Undo ripristina le etichette separate. I gruppi salvati mantengono la propria etichetta comune quando riapri l’immagine.",
+          "hold_after": 0.7,
+          "speech_text": "Lascia selezionato Divide / Merge e traccia una linea con il pulsante destro sugli oggetti da unire. Condividono l’etichetta del primo oggetto attraversato senza riempire lo sfondo tra loro. Undo ripristina le etichette separate. I gruppi salvati mantengono la propria etichetta comune quando riapri l’immagine."
         },
         {
           "visual": "08b_contrast_only",

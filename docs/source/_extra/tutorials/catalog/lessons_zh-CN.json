@@ -2501,7 +2501,7 @@
       "description": "打开图像与掩膜对，修正对象，记录判定，为Measure组织图像和掩膜，并创建成对的训练裁剪图。 绘制、编辑并导出带类别标签的独立 YOLO 框，不改变图像或分割掩膜。",
       "objectives": [
         "打开带有对应实例掩膜的图像，并在放大镜中检查对象。",
-        "用Undo、绘制、分割和对象过滤修正标签。",
+        "用Undo、绘制、分割、合并和对象过滤修正标签。",
         "保存整理好的掩膜，记录Keep或Discard判定，并创建用于训练的图像与掩膜裁剪图。",
         "为Measure组织图像和掩膜，并用Upload data共享整理好的图像对。",
         "绘制并编辑带类别标签的独立框，保存其项目，并导出归一化的 YOLO 标签。"
@@ -2510,12 +2510,12 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "从Home打开Tools中的Make Masks。左下角的按钮用于载入图像：Open folder、Organize for Measure和Load test data。右侧的Discard、Keep、Skip和Upload data决定每个视野编辑完成后如何处理。",
+          "narration": "从Home打开Tools中的Make Masks。左下角的按钮用于载入图像：Open folder、Organize for Measure和Load test data。右侧的Discard、Keep、Skip和Upload data决定每个视野编辑完成后如何处理。 Discard左侧紧邻的Clear masks会先请求确认，再删除当前图像中的所有掩膜。",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ],
-          "speech_text": "从主页打开Tools中的Make Masks。左下角的按钮用于载入图像：Open folder、Organize for Measure和Load test data。右侧的Discard、Keep、Skip和Upload data决定每个视野编辑完成后如何处理。"
+          "speech_text": "从主页打开Tools中的Make Masks。左下角的按钮用于载入图像：Open folder、Organize for Measure和Load test data。右侧的Discard、Keep、Skip和Upload data决定每个视野编辑完成后如何处理。 Discard左侧紧邻的Clear masks会先请求确认，再删除当前图像中的所有掩膜。"
         },
         {
           "visual": "01b_test_data_menu",
@@ -2558,7 +2558,7 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "根据要做的修正选择工具。Brush添加像素，Erase删除像素，Erase object删除整个标签。Draw添加一个勾勒出的对象；Divide把一个对象分开。修改之前，可以用Zoom检查边界。",
+          "narration": "根据要做的修正选择工具。Brush添加像素，Erase删除像素，Erase object删除整个标签。Draw添加一个勾勒出的对象；Divide / Merge在用左键拖动时分割对象，用右键拖动时合并对象。修改之前，可以用Zoom检查边界。 Wand默认添加强度区域；按住Ctrl并单击可删除该区域。",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -2566,7 +2566,7 @@
             2500,
             65
           ],
-          "speech_text": "根据要做的修正选择工具。Brush添加像素，Erase删除像素，Erase object删除整个标签。Draw添加一个勾勒出的对象；Divide把一个对象分开。修改之前，可以用Zoom检查边界。"
+          "speech_text": "根据要做的修正选择工具。Brush添加像素，Erase删除像素，Erase object删除整个标签。Draw添加一个勾勒出的对象；Divide / Merge在用左键拖动时分割对象，用右键拖动时合并对象。修改之前，可以用Zoom检查边界。 Wand默认添加强度区域；按住Ctrl并单击可删除该区域。"
         },
         {
           "visual": "04_erase_one_object",
@@ -2587,10 +2587,28 @@
           "speech_text": "选择Draw，围绕一个遗漏的对象画出闭合边界。编辑器会用新标签填充它。在这个练习步骤中，轮廓画在背景上，所以保存前请撤销它。制作训练数据时，请沿对象的真实边界描画。"
         },
         {
+          "visual": "07b_wand_add",
+          "narration": "选择Wand并单击，添加连通的强度区域。在Magic wand设置中调整容差和最大像素数，以控制区域范围。这个背景示例仅演示操作；准备训练掩膜时，应沿真实对象的边界进行编辑。",
+          "hold_after": 0.7,
+          "speech_text": "选择Wand并单击，添加连通的强度区域。在Magic wand设置中调整容差和最大像素数，以控制区域范围。这个背景示例仅演示操作；准备训练掩膜时，应沿真实对象的边界进行编辑。"
+        },
+        {
+          "visual": "07c_wand_ctrl_remove",
+          "narration": "保持选择Wand，按住Ctrl并单击，删除强度区域。松开Ctrl后，同一个按钮会恢复添加操作。Undo可恢复上一次编辑。这里在保存原始掩膜之前，会撤销两次练习单击。",
+          "hold_after": 0.7,
+          "speech_text": "保持选择Wand，按住Ctrl并单击，删除强度区域。松开Ctrl后，同一个按钮会恢复添加操作。Undo可恢复上一次编辑。这里在保存原始掩膜之前，会撤销两次练习单击。"
+        },
+        {
           "visual": "08_divide_demo",
           "narration": "当两个相互接触的对象共用一个标签时，使用Divide。画一条穿过整个相连区域的切线，然后检查分开后的标签。如果切线穿过了单个对象或留下错误的边界，请撤销这次分割。",
           "hold_after": 0.7,
           "speech_text": "当两个相互接触的对象共用一个标签时，使用Divide。画一条穿过整个相连区域的切线，然后检查分开后的标签。如果切线穿过了单个对象或留下错误的边界，请撤销这次分割。"
+        },
+        {
+          "visual": "08b_merge_demo",
+          "narration": "保持选择Divide / Merge，用右键画一条穿过待合并对象的线。它们共享第一个被穿过对象的标签，但不会填充对象之间的背景。Undo可恢复各自的标签。保存后的组在重新打开图像时仍保留共同标签。",
+          "hold_after": 0.7,
+          "speech_text": "保持选择Divide / Merge，用右键画一条穿过待合并对象的线。它们共享第一个被穿过对象的标签，但不会填充对象之间的背景。Undo可恢复各自的标签。保存后的组在重新打开图像时仍保留共同标签。"
         },
         {
           "visual": "08b_contrast_only",

@@ -119,3 +119,14 @@ all 84 other complete lessons in 14 catalogs and all 50 accepted narration
 tracks exactly. Final scene fidelity/browser/candidate/immutable readback,
 Pages and actual current-source deployment remain pending; earlier accepted
 published tutorials remain intact. Demonstration boxes are not training truth.
+
+2026-10-07 normal latest-source native61 hosted publication accepted:
+Fresh editor/puncta/restoration/Box native frames produce the accepted61-scene
+4K/browser-compatible master and web video; unchanged30dB full/focus gates,
+all50 narration,28 browser cases/sentence cues and all85 candidate/hosted
+routes pass. Immutable5036-file full-SHA readback passes at
+5b331d434e997e70264afd35b993b0ecc988d8e8. Normal Pages/hold/bundled-index
+publication and15 contracts pass; all84 other whole lessons remain intact,
+including Mask07 and current Home/Measure/Conda/installation lessons.
+Receipt:615_final_native61_publication_2026-10-07_r6.json. Actual deployed
+nightly/current-source browser and full-video checks remain required.

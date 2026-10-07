@@ -1,5 +1,38 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-07 current app/catalog/native61 publication ready for actual deployment
+Workstation integrates latest Home source with every normal final owner.
+API passes all13,199 symbols across nine languages; current runtime passes
+all9 audits and56,485 reviewed records. Guides pass2999/2999 each, strict
+English/all9 Sphinx,26 actual built contracts,37 browser API panels/55
+reviewed blocks and126 exact guide messages. Original Chinese literal-spacing
+failure and all prepared/check-environment failures remain archived. Renderer,
+event sorting, passive serial diagnostics, missing-mask/layout repairs and
+all prior Home changes are retained; the last merge adds no app/docs/tool
+source changes. Full provenance:615_final_current_catalog_acceptance_r4,
+615_final_current_docs_browser_r9 and615_latest_Home_native_recordings.
+
+Current61 native scenes pass unchanged30dB whole/focus gates at CRF1
+High/yuv420p; all50 source/timing/full AAC checks,28 master/web browser cases,
+English sentence cues,85 candidate routes and mutation guards pass. All84
+other complete lessons remain unchanged in14 catalogs; accepted Home05,
+Measure08, Conda02 and Mask07 are retained. Immutable media commit
+5b331d434e997e70264afd35b993b0ecc988d8e8 passes full5036-file metadata and
+SHA readback,5,704,492,980 bytes. Normal Pages promotion, all85 hosted routes,
+manifest-preserving hold release,73-module bundled index and15 publication
+contracts pass. Receipt:615_final_native61_publication_2026-10-07_r6.json.
+
+This next source push includes final app/API/runtime/guides/tutorial assets
+and immutable media pins together. Actual successful nightly workflow/source/
+channel/API catalogs/guide browsers and deployed phone/full-video checks are
+still required and will be recorded separately. Home: keep app source stable
+until that final readback completes. All available owned GPU turns finished;
+548 actual acquired-TYX parity passed with four exact real CPSAM outputs.
+Workstation retains remaining external scientific-input/model/hardware scopes.
+Home retains CPU/native/CI: installed Preferences Save SIGSEGV is not closed,
+hard24FPS is not claimed, and protected45f/N43/F288/N47 remain untouched/open.
+No native-speaker, listening, human theme-aesthetic or broad completion claim.
+
 ## 2026-10-07 final all-nine catalogs accepted on latest combined Home source
 Workstation's complete normal final API audit ended0 for all13,199 symbols
 across nine locales. Whole accepted catalog/review files transfer byte-exactly

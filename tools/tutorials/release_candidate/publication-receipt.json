@@ -1,19 +1,19 @@
 {
   "repository": "datasets/einarolafsson/spacr-tutorials",
-  "branch": "installation-current-20261006-r2",
+  "branch": "tutorial-make-masks-native61-20261007-r3",
   "base_commit": "003f4c8e88e6050dab5aad7750fb2f990974b636",
-  "commit": "0889ee14f5a7368a791df27c7331862a6c7741b4",
-  "tag": "installation-current-20261006-r2-verified",
-  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/0889ee14f5a7368a791df27c7331862a6c7741b4",
-  "manifest_sha256": "e0fbdadada20f9c3717899cc604fa99e292ad69f89b3cf6c8c861a3dfdba38d3",
+  "commit": "5b331d434e997e70264afd35b993b0ecc988d8e8",
+  "tag": "tutorial-make-masks-native61-20261007-r3-verified",
+  "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/5b331d434e997e70264afd35b993b0ecc988d8e8",
+  "manifest_sha256": "4a1cc06446204604c2912cd2f694d5f100376185dd6551a924a1e7dfcfb357c1",
   "media_files": 5036,
-  "media_bytes": 5573313724,
+  "media_bytes": 5704492980,
   "readback": {
-    "commit": "0889ee14f5a7368a791df27c7331862a6c7741b4",
+    "commit": "5b331d434e997e70264afd35b993b0ecc988d8e8",
     "files_expected": 5036,
     "metadata_matched": 5036,
     "metadata_failures": [],
-    "bytes_read_back": 5573313724,
+    "bytes_read_back": 5704492980,
     "downloaded_sha256_matched": 5036,
     "download_failures": [],
     "files_on_revision_not_in_candidate": [
@@ -3102,16 +3102,16 @@
       "73_parameter_sweep/audio/en/bm_lewis.m4a",
       "README.md"
     ],
-    "seconds": 232.8,
+    "seconds": 223.0,
     "passed": true
   },
   "pages": {
     "destination": "docs/source/_extra/tutorials",
     "files_from_candidate": 143,
     "bundled_tutorial_index_sha256": "2c91959ee209b0aded5659413e57d1146c892256664d7f056268cbb5bc091d1e",
-    "index_sha256": "4f825f7df71d682c8dbce81d72d3ebbc829aed4c0e32569adf1e8f974118fdac",
-    "candidate_index_sha256": "b7242f5e59f272ff466616b1c5203851daea7223ded5a085c7840dc01fedc6d0",
-    "cache_key": "installation-current-20261006-r2",
+    "index_sha256": "8d8010120bb16a3b1f9ee7e60b5073d12ee46dcf3110c41adf6b8709ec0c10f0",
+    "candidate_index_sha256": "79a09024a4d6db990c075624eb17e627ca01ff33ad3af9135b1c3f685fb0c158",
+    "cache_key": "make-masks-native61-20261007-r3",
     "unchanged_versioned_assets": [
       "app_v2.js",
       "styles.css",
@@ -3120,8 +3120,8 @@
     "versioned_assets": {
       "app_v2.js": "20261002-home-landscape",
       "styles.css": "20261002-home-landscape",
-      "lesson_catalog.js": "installation-current-20261006-r2",
-      "module_navigation.js": "installation-current-20261006-r2",
+      "lesson_catalog.js": "make-masks-native61-20261007-r3",
+      "module_navigation.js": "make-masks-native61-20261007-r3",
       "voice_catalog.js": "20260811-50-voices"
     },
     "hosted_web_copies": 85,

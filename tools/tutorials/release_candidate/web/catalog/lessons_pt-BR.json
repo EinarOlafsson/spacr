@@ -2501,7 +2501,7 @@
       "description": "Abra pares de imagem e máscara, corrija objetos, registre vereditos, organize imagens e máscaras para Measure e crie recortes pareados para treinamento. Desenhe, edite e exporte caixas YOLO separadas com suas classes sem alterar a imagem ou a máscara de segmentação.",
       "objectives": [
         "Abrir imagens com as máscaras de instâncias correspondentes e inspecionar objetos na lupa.",
-        "Corrigir rótulos com Undo, desenho, divisão e filtros de objetos.",
+        "Corrigir rótulos com Undo, desenho, divisão, união e filtros de objetos.",
         "Salvar máscaras revisadas, registrar vereditos Keep ou Discard e criar recortes de imagem e máscara para treinamento.",
         "Organizar imagens e máscaras para Measure e compartilhar pares revisados com Upload data.",
         "Desenhar e editar caixas separadas com suas classes, salvar seu projeto e exportar rótulos YOLO normalizados."
@@ -2510,12 +2510,12 @@
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Na tela Home, abra Make Masks em Tools. Os botões no canto inferior esquerdo trazem as imagens: Open folder, Organize for Measure e Load test data. À direita, Discard, Keep, Skip e Upload data decidem o que acontece com cada campo depois de editado.",
+          "narration": "Na tela Home, abra Make Masks em Tools. Os botões no canto inferior esquerdo trazem as imagens: Open folder, Organize for Measure e Load test data. À direita, Discard, Keep, Skip e Upload data decidem o que acontece com cada campo depois de editado. Clear masks, imediatamente à esquerda de Discard, pede confirmação antes de remover todas as máscaras da imagem atual.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ],
-          "speech_text": "Na tela Home, abra Make Masks em Tools. Os botões no canto inferior esquerdo trazem as imagens: Open folder, Organize for Measure e Load test data. À direita, Discard, Keep, Skip e Upload data decidem o que acontece com cada campo depois de editado."
+          "speech_text": "Na tela Home, abra Make Masks em Tools. Os botões no canto inferior esquerdo trazem as imagens: Open folder, Organize for Measure e Load test data. À direita, Discard, Keep, Skip e Upload data decidem o que acontece com cada campo depois de editado. Clear masks, imediatamente à esquerda de Discard, pede confirmação antes de remover todas as máscaras da imagem atual."
         },
         {
           "visual": "01b_test_data_menu",
@@ -2558,7 +2558,7 @@
         },
         {
           "visual": "03_real_labels",
-          "narration": "Escolha a ferramenta adequada à correção. Brush adiciona pixels, Erase remove pixels e Erase object remove um rótulo inteiro. Draw adiciona um objeto contornado; Divide divide um objeto em dois. Zoom ajuda a inspecionar as bordas antes de fazer mudanças.",
+          "narration": "Escolha a ferramenta adequada à correção. Brush adiciona pixels, Erase remove pixels e Erase object remove um rótulo inteiro. Draw adiciona um objeto contornado; Divide / Merge divide ao arrastar com o botão esquerdo ou une objetos ao arrastar com o direito. Zoom ajuda a inspecionar as bordas antes de fazer mudanças. Wand adiciona uma região de intensidade por padrão; mantenha Ctrl pressionado e clique para remover essa região.",
           "hold_after": 0.7,
           "focus": [
             345,
@@ -2566,7 +2566,7 @@
             2500,
             65
           ],
-          "speech_text": "Escolha a ferramenta adequada à correção. Brush adiciona pixels, Erase remove pixels e Erase object remove um rótulo inteiro. Draw adiciona um objeto contornado; Divide divide um objeto em dois. Zoom ajuda a inspecionar as bordas antes de fazer mudanças."
+          "speech_text": "Escolha a ferramenta adequada à correção. Brush adiciona pixels, Erase remove pixels e Erase object remove um rótulo inteiro. Draw adiciona um objeto contornado; Divide / Merge divide ao arrastar com o botão esquerdo ou une objetos ao arrastar com o direito. Zoom ajuda a inspecionar as bordas antes de fazer mudanças. Wand adiciona uma região de intensidade por padrão; mantenha Ctrl pressionado e clique para remover essa região."
         },
         {
           "visual": "04_erase_one_object",
@@ -2587,10 +2587,28 @@
           "speech_text": "Selecione Draw e trace uma borda fechada em volta de um objeto que está faltando. O editor o preenche com um novo rótulo. Neste passo de prática o contorno está no fundo, então desfaça-o antes de salvar. Para dados de treinamento, trace a borda real do objeto."
         },
         {
+          "visual": "07b_wand_add",
+          "narration": "Selecione Wand e clique para adicionar uma região de intensidade conectada. Ajuste a tolerância e o máximo de pixels em Magic wand para controlar sua extensão. Este exemplo no fundo demonstra o gesto; siga os limites reais dos objetos ao preparar máscaras de treinamento.",
+          "hold_after": 0.7,
+          "speech_text": "Selecione Wand e clique para adicionar uma região de intensidade conectada. Ajuste a tolerância e o máximo de pixels em Magic wand para controlar sua extensão. Este exemplo no fundo demonstra o gesto; siga os limites reais dos objetos ao preparar máscaras de treinamento."
+        },
+        {
+          "visual": "07c_wand_ctrl_remove",
+          "narration": "Mantenha Wand selecionado, pressione Ctrl e clique para remover a região de intensidade. Solte Ctrl para voltar a adicionar com o mesmo botão. Undo restaura a edição anterior. Aqui, os dois cliques de prática são desfeitos antes de salvar a máscara original.",
+          "hold_after": 0.7,
+          "speech_text": "Mantenha Wand selecionado, pressione Ctrl e clique para remover a região de intensidade. Solte Ctrl para voltar a adicionar com o mesmo botão. Undo restaura a edição anterior. Aqui, os dois cliques de prática são desfeitos antes de salvar a máscara original."
+        },
+        {
           "visual": "08_divide_demo",
           "narration": "Use Divide quando dois objetos encostados compartilham um rótulo. Trace um corte que atravesse toda a região unida e inspecione os rótulos separados. Desfaça a divisão se ela cortar um único objeto ou deixar uma borda incorreta.",
           "hold_after": 0.7,
           "speech_text": "Use Divide quando dois objetos encostados compartilham um rótulo. Trace um corte que atravesse toda a região unida e inspecione os rótulos separados. Desfaça a divisão se ela cortar um único objeto ou deixar uma borda incorreta."
+        },
+        {
+          "visual": "08b_merge_demo",
+          "narration": "Mantenha Divide / Merge selecionado e arraste uma linha com o botão direito sobre os objetos que deseja unir. Eles compartilham o rótulo do primeiro objeto atravessado sem preencher o fundo entre eles. Undo restaura os rótulos separados. Os grupos salvos mantêm seu rótulo compartilhado quando você reabre a imagem.",
+          "hold_after": 0.7,
+          "speech_text": "Mantenha Divide / Merge selecionado e arraste uma linha com o botão direito sobre os objetos que deseja unir. Eles compartilham o rótulo do primeiro objeto atravessado sem preencher o fundo entre eles. Undo restaura os rótulos separados. Os grupos salvos mantêm seu rótulo compartilhado quando você reabre a imagem."
         },
         {
           "visual": "08b_contrast_only",
