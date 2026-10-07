@@ -21,6 +21,41 @@ data/663_fungal_phase_cpu_2026-10-06/. The measured exact-pixel mature-raster
 cache remains a separate performance candidate until integration review.
 All final hosted/coverage/serial, installed Save crash and hard 24 FPS remain
 open. Workstation ownership and native IO/object/core GPU freeze are unchanged.
+## 2026-10-06 final original API preserved and independent repair active
+The first final source-current API GPU run ended1 after its complete all-nine
+audit: exactly eight SCN prose blocks remain unresolved (Swedish2, German1,
+Hindi2, Korean2, Icelandic1). Spanish, Chinese, Portuguese and French had zero
+unresolved blocks. All are the two prepared exact SCN source labels. The
+complete original 13,199-symbol API/catalog/review/history/frozen-source
+checkpoint preserves1,925 files plus its full failure log in three bounded
+byte-exact ZIP parts. Only after that complete preservation did the normal
+strict source/context factory admit18 SCN records across all nine languages.
+Receipt:data/615_final_independent_API_context_2026-10-06_r2.json.
+
+API CPU repair/audit now runs independently in its own36GiB scope against the
+unchanged8e60f24b source-input fingerprint. Runtime GPU r2 started normally at
+2026-10-06T20:08:20-04:00 after its360s idle/600s gap, on actual RTX3090Ti,
+with24GiB and the unchangedb36c87fe source-input fingerprint. It owns a
+separate runtime catalog/review store:7228 UI captions,1243 settings and237
+categories. Both full all-nine zero-terminal gates remain required. Chinese
+runtime generation has88 entries to repair and its fallback is active; no
+partial locale is credited as accepted. The nine prepared encoder runtime
+reviews remain deferred until that original runtime writer ends and its
+complete checkpoint is preserved.
+
+Only the exact idle combined recovery controller was interrupted before any
+writer/checkpoint phase. Its two idle dependent continuations then correctly
+failed absent preconditions, without app or catalog writes. Replacement
+controllers retain every normal review, guide, five-owner, strict Sphinx,
+all-nine guide and actual-browser requirement while using the independent
+lanes. All source writers, original runtime/narration/native GPU queues and
+CPU narration remain untouched. Final immutable tutorial upload/full-file
+readback is separately guarded by complete50-track/61-scene/browser/all85
+candidate acceptance; deployed API/guide verification also requires exact
+successful workflow/source/channel identity and all ten hosted catalogs.
+Home: preserve the combined source freeze. Workstation retains all GPU/API/
+docs/translations/tutorials; Home retains CPU/native/CI. Final source/media
+publication, native theme crash closure and broad completion remain pending.
 
 ## 2026-10-06 current hosted CPU repairs and preserved GPU native freeze
 Home integrates the tested event-preview HiDPI, missing-mask edit and actual
