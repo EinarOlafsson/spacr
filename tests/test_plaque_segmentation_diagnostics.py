@@ -17,7 +17,8 @@ def _prediction():
     labels[4:16, 4:14] = 3
     labels[4:16, 14:24] = 41
     dense = np.where(labels == 41, 2, labels > 0).astype(np.int32)
-    flow = dynamics.masks_to_flows_gpu(dense, device=torch.device('cpu')) * 5
+    flow, _ = dynamics.masks_to_flows_gpu(dense, device=torch.device('cpu'))
+    flow *= 5
     prob = np.where(labels == 3, 2.0, -1.0).astype(np.float32)
     return labels, [None, flow, prob], None
 
@@ -80,8 +81,7 @@ def _run(tmp_path, monkeypatch, output=None):
 
     class Model:
         def eval(self, image, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
-            check_cellpose_eval_call(image, channel_axis,
-                                     require_channel_axis=False)
+            check_cellpose_eval_call(image, channel_axis)
             calls.append({"channel_axis": channel_axis, **kwargs})
             return output
 
@@ -110,7 +110,7 @@ def test_database_csv_and_mask_only_rerun_keep_same_diagnostics(tmp_path, monkey
         details = pd.read_sql('SELECT * FROM details ORDER BY plaque_id', db)
     assert details['cell_probability_mean'].tolist() == [2, -1]
     assert len(calls) == 1
-    assert calls[0]["channel_axis"] is MISSING_CHANNEL_AXIS
+    assert calls[0]["channel_axis"] is None
     submodules.analyze_plaques({**settings, 'masks': False})
     pd.testing.assert_frame_equal(_saved(tmp_path), saved)
     assert len(calls) == 1
