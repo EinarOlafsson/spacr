@@ -12,7 +12,7 @@ from spacr.qt.widgets import glass
 
 
 @pytest.mark.parametrize("treatment", ["detached", "glassed", "filtered"])
-def test_popup_keeps_top_hint_owner_and_modeless_main_interaction(qtbot, treatment):
+def test_popup_keeps_transient_owner_without_global_top_hint(qtbot, treatment):
     main = QWidget()
     qtbot.addWidget(main)
     layout = QVBoxLayout(main)
@@ -24,6 +24,7 @@ def test_popup_keeps_top_hint_owner_and_modeless_main_interaction(qtbot, treatme
     popup = QDialog(main)
     qtbot.addWidget(popup)
     popup.setWindowModality(Qt.NonModal)
+    popup.setWindowFlag(Qt.WindowStaysOnTopHint, True)
     if treatment == "detached":
         dialogs.detach_from_window_manager(popup)
     elif treatment == "glassed":
@@ -41,8 +42,9 @@ def test_popup_keeps_top_hint_owner_and_modeless_main_interaction(qtbot, treatme
         qtbot.mouseClick(button, Qt.LeftButton)
         assert popup.isVisible()
         assert popup.parentWidget() is main
-        assert popup.windowFlags() & Qt.WindowStaysOnTopHint
-        assert popup.windowHandle().flags() & Qt.WindowStaysOnTopHint
+        assert not popup.windowFlags() & Qt.WindowStaysOnTopHint
+        assert not popup.windowHandle().flags() & Qt.WindowStaysOnTopHint
+        assert popup.windowHandle().transientParent() is main.windowHandle()
         popup.hide()
         popup.show()
         qtbot.waitExposed(popup)
@@ -62,7 +64,7 @@ def test_top_popup_preserves_modal_verdict_and_dismissal(qtbot):
     assert popup.windowModality() == Qt.WindowModal
     popup.accept()
     assert popup.result() == QDialog.Accepted
-    assert popup.windowFlags() & Qt.WindowStaysOnTopHint
+    assert not popup.windowFlags() & Qt.WindowStaysOnTopHint
     popup.show()
     qtbot.keyClick(popup, Qt.Key_Escape)
     assert not popup.isVisible()

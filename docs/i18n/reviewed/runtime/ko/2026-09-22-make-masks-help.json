@@ -116,13 +116,6 @@
     },
     {
       "table": "ui",
-      "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
-      "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
-      "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb",
-      "translation": "마스크에 이미 객체가 있는 곳에서 새 객체를 처리하는 방식입니다. 잘라내기는 새 객체의 레이블 없는 픽셀만 유지하여 기존 객체가 픽셀을 잃지 않게 합니다. 건너뛰기는 기존 객체에 닿는 새 객체를 통째로 제외합니다. 교체는 새 객체가 덮는 모든 픽셀을 차지하게 합니다. 마우스 아래 영역의 미리보기 상자에는 이 규칙의 결과가 나타납니다. 클릭으로 추가될 부분은 불투명하게, 제거될 부분은 흐리게 표시됩니다."
-    },
-    {
-      "table": "ui",
       "key": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
       "source": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
       "source_sha256": "442f48373af356249b2681ce360c695bb1e258d823306192dd1f27ab5390671d",
@@ -193,6 +186,19 @@
         "translation": "이 시야의 강도 히스토그램에 위 설정이 적용하는 임계값을 표시합니다. 버튼이 사용하는 것과 같은 함수에서 가져온 동일한 값입니다. 표시선이 히스토그램 골짜기에서 한쪽으로 치우쳐 있다면 임계값 보정을 조정하세요."
       },
       "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    }
+  ],
+  "retired_records": [
+    {
+      "date": "2026-10-07",
+      "reason": "Maintainer requested Object detection/Magnification settings and whole-object Fuse/Replace semantics; the prior English row is absent from the current canonical source.",
+      "record": {
+        "table": "ui",
+        "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+        "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+        "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb",
+        "translation": "마스크에 이미 객체가 있는 곳에서 새 객체를 처리하는 방식입니다. 잘라내기는 새 객체의 레이블 없는 픽셀만 유지하여 기존 객체가 픽셀을 잃지 않게 합니다. 건너뛰기는 기존 객체에 닿는 새 객체를 통째로 제외합니다. 교체는 새 객체가 덮는 모든 픽셀을 차지하게 합니다. 마우스 아래 영역의 미리보기 상자에는 이 규칙의 결과가 나타납니다. 클릭으로 추가될 부분은 불투명하게, 제거될 부분은 흐리게 표시됩니다."
+      }
     }
   ]
 }

@@ -152,6 +152,7 @@ def test_wandering_tips_fork_recursively_more_often_near_the_front():
         endpoints = {edge[5:7] for edge in colony}
         roots = [edge for edge in colony if edge[1:3] not in endpoints]
         assert len(roots) == 3
+        assert len({edge[1:3] for edge in roots}) == 1
         assert all(edge[1:3] in endpoints or edge in roots for edge in colony)
         assert max(edge[10] for edge in colony) >= 3
         starts = {}
@@ -209,7 +210,7 @@ def test_child_filaments_wait_for_their_parent_to_reach_the_fork():
 
 
 def test_visible_front_has_more_connected_forks_later_and_at_higher_density():
-    """Density prunes children while leaving primary paths and their parents."""
+    """Density adds live tips while visible daughter paths retain their parents."""
     counts = []
     for density in (1.0, 3.0):
         engine = _engine(density=density)
@@ -230,6 +231,25 @@ def test_visible_front_has_more_connected_forks_later_and_at_higher_density():
         assert forks
         counts.append(len(forks))
     assert counts[0] < counts[1]
+
+
+def test_default_density_starts_at_one_point_and_keeps_forking_in_short_segments():
+    engine = _engine(density=.1)
+    lineage = engine._lineage(0, 960, 540)
+    endpoints = {edge[5:7] for edge in lineage}
+    roots = {edge[1:3] for edge in lineage if edge[1:3] not in endpoints}
+    assert len(roots) == 1
+    starts = {}
+    for edge in lineage:
+        starts[edge[1:3]] = starts.get(edge[1:3], 0) + 1
+        length = math.hypot(edge[5] - edge[1], edge[6] - edge[2])
+        assert length < 960 * .013
+        middle = ((edge[1] + edge[5]) / 2, (edge[2] + edge[6]) / 2)
+        assert math.hypot(edge[3] - middle[0], edge[4] - middle[1]) <= length * .016
+    for start in (0, 10, 20):
+        forks = [edge for edge in lineage if start <= edge[7] < start + 10
+                 and starts.get(edge[5:7], 0) > 1]
+        assert len(forks) >= 20
 
 
 def test_live_tips_are_brighter_than_established_branches_and_density_adds_forks():

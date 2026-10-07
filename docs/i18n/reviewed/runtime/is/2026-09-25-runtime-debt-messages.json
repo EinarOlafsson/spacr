@@ -1791,13 +1791,6 @@
     },
     {
       "table": "ui",
-      "key": "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
-      "source": "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
-      "source_sha256": "91850b67178e62d14d61e02477e6545b6f67658b78b9938d3a763cb90ab415d3",
-      "translation": "Keyra CPU-aðferðina sem valin er undir Greiningaraðferð á alla myndina og merkja það sem hún finnur, með tilliti til lágmarksflatarmálsins hér að ofan. Allt sem aðferðin les er í þeim flokki: reiknirit stigsins, leiðréttingin, mýkingin, hvor hliðin er hluturinn, fylling gata, skipting pars sem snertist og brottfelling þess sem ramminn skar. Ef Cellpose eða bakendi er valinn fellur þessi hnappur aftur á Otsu, því þeir hafa eigin hnapp fyrir Hlutagreiningu."
-    },
-    {
-      "table": "ui",
       "key": "Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately.",
       "source": "Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately.",
       "source_sha256": "dcca464e6947ecaf6148f3655f0fb920bd208d2493de370bbde26f6f9137f025",
@@ -3400,6 +3393,17 @@
       "source": "spaCR settings template (*.json);;All files (*)",
       "source_sha256": "3d266d93552cc353f5bb8643bedcfd7c7cc3a580c80add225e59bafb8f083160",
       "translation": "spaCR-stillingasniðmát (*.json);;Allar skrár (*)"
+    },
+    {
+      "date": "2026-10-07",
+      "reason": "Maintainer requested Object detection/Magnification settings and whole-object Fuse/Replace semantics; the prior English row is absent from the current canonical source.",
+      "record": {
+        "table": "ui",
+        "key": "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
+        "source": "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
+        "source_sha256": "91850b67178e62d14d61e02477e6545b6f67658b78b9938d3a763cb90ab415d3",
+        "translation": "Keyra CPU-aðferðina sem valin er undir Greiningaraðferð á alla myndina og merkja það sem hún finnur, með tilliti til lágmarksflatarmálsins hér að ofan. Allt sem aðferðin les er í þeim flokki: reiknirit stigsins, leiðréttingin, mýkingin, hvor hliðin er hluturinn, fylling gata, skipting pars sem snertist og brottfelling þess sem ramminn skar. Ef Cellpose eða bakendi er valinn fellur þessi hnappur aftur á Otsu, því þeir hafa eigin hnapp fyrir Hlutagreiningu."
+      }
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

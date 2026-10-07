@@ -158,13 +158,6 @@
     },
     {
       "table": "ui",
-      "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
-      "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
-      "translation": "Determina qué hace un objeto nuevo donde la máscara ya contiene otro. Recortar conserva solo los píxeles sin etiqueta, por lo que ningún objeto existente pierde píxeles. Omitir descarta cualquier objeto que toque uno existente. Reemplazar permite que el nuevo objeto ocupe todos los píxeles que cubre. En Región bajo el ratón, el recuadro muestra el resultado de esta regla: lo que se añadiría al hacer clic aparece sólido y lo que se quitaría aparece atenuado.",
-      "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb"
-    },
-    {
-      "table": "ui",
       "key": "What the fields are filed under in the measurements database. These images did not come from a plate, so this names where they did come from rather than claiming a plate that was never run. Every row becomes one field of well A01 unless you change its well below.",
       "source": "What the fields are filed under in the measurements database. These images did not come from a plate, so this names where they did come from rather than claiming a plate that was never run. Every row becomes one field of well A01 unless you change its well below.",
       "translation": "Nombre con el que se guardan los campos en la base de datos de mediciones. Estas imágenes no proceden de una placa; el nombre identifica su origen sin atribuirlas a una placa inexistente. Cada fila corresponde a un campo del pocillo A01, salvo que cambie el pocillo abajo.",
@@ -527,6 +520,17 @@
         "source_sha256": "dbb376ca82127ffe8116e82d7e8cbce3b7f2a3c6b8b939d3e5f77f87029dfc35"
       },
       "reason": "2026-09-25, instruction 316: this caption moved to the compact layer (spacr.qt.i18n._ROWS) when the setup screen routed it through the onboarding caption surface; the compact and source-bound layers must be disjoint. The translation was carried into its _ROWS row unless that row notes a correction."
+    },
+    {
+      "date": "2026-10-07",
+      "reason": "Maintainer requested Object detection/Magnification settings and whole-object Fuse/Replace semantics; the prior English row is absent from the current canonical source.",
+      "record": {
+        "table": "ui",
+        "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+        "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+        "translation": "Determina qué hace un objeto nuevo donde la máscara ya contiene otro. Recortar conserva solo los píxeles sin etiqueta, por lo que ningún objeto existente pierde píxeles. Omitir descarta cualquier objeto que toque uno existente. Reemplazar permite que el nuevo objeto ocupe todos los píxeles que cubre. En Región bajo el ratón, el recuadro muestra el resultado de esta regla: lo que se añadiría al hacer clic aparece sólido y lo que se quitaría aparece atenuado.",
+        "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb"
+      }
     }
   ]
 }

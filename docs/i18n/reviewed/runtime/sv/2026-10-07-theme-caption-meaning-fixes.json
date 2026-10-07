@@ -1,0 +1,13 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "key": "Animation detail",
+      "source": "Animation detail",
+      "source_sha256": "ce836d8fd2dcfba2b6a9cdd27a1fb4d2a78ae04040ea4538f0f1d88bcd8c93cc",
+      "table": "ui",
+      "translation": "Animationsdetaljer"
+    }
+  ],
+  "schema": 1
+}

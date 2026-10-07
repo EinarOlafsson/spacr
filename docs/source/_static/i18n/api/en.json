@@ -54473,6 +54473,13 @@
       "source_sha256": "4472c77b3e283df5d3066f4d3d193be112dd963ca4600627fc4f0130cd72cbf1",
       "text": "Apply the two scales now and ask whether to keep them."
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._blink_value_changed": {
+      "source_blocks_sha256": [
+        "448398b16ec80a05ba19818838b0b3ae55ad63b5a668dd1e5c3c14ac841ce806"
+      ],
+      "source_sha256": "448398b16ec80a05ba19818838b0b3ae55ad63b5a668dd1e5c3c14ac841ce806",
+      "text": "Keep the logarithmic slider aligned with an exact percentage."
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._category": {
       "source_blocks_sha256": [
         "254eebc394c45c71502e8003580bb31159f9506e458da05b51e1c73103dc5682",
@@ -75993,6 +76000,13 @@
       "source_sha256": "6168cd38be9d5b94ecf1a0d2d2a4baf7399d3c8cfb69bf9dc7c2f447a4cf32ee",
       "text": "Tell the engine what it is painting onto — this is what decides\nadditive versus multiply, so it must be called on a theme switch."
     },
+    "spacr.qt.widgets.ambient.AmbientEngine.set_blink_percent": {
+      "source_blocks_sha256": [
+        "bb08b4ca1797ac8a91ab72ce393c783228bce07be684a9399ba3745492439135"
+      ],
+      "source_sha256": "bb08b4ca1797ac8a91ab72ce393c783228bce07be684a9399ba3745492439135",
+      "text": "Set the percentage of dot centres flashing white, without reseeding."
+    },
     "spacr.qt.widgets.ambient.AmbientEngine.set_blur": {
       "source_blocks_sha256": [
         "340add5096871ff6b16309d8fbe26f4fcfdf74ae11fae08c37a4395dbffb512f",
@@ -76030,6 +76044,13 @@
       ],
       "source_sha256": "7150c27bc75dc6b65a5197e7950231bc71865ef0fa5ba86678aababcc628010d",
       "text": "Set the display-pixel ceiling used to size the render buffer."
+    },
+    "spacr.qt.widgets.ambient.AmbientEngine.set_popup_wave_frequency": {
+      "source_blocks_sha256": [
+        "d7c686fccd3ed08d22446df4fa0ce528c8eb96f25291068c6194d5768711d668"
+      ],
+      "source_sha256": "d7c686fccd3ed08d22446df4fa0ce528c8eb96f25291068c6194d5768711d668",
+      "text": "Set popup-origin waves per minute; zero disables automatic waves."
     },
     "spacr.qt.widgets.ambient.AmbientEngine.set_resolution": {
       "source_blocks_sha256": [
@@ -76117,6 +76138,13 @@
       ],
       "source_sha256": "912fcc23a352b6a0b4ef172e8b1606ff6a288405d9cf37d68527f73e0b22fb42",
       "text": "The colour painted behind the animation.\n\nA copy, so a caller cannot recolour this widget in place.\n\n:returns: the background colour."
+    },
+    "spacr.qt.widgets.ambient.AmbientWidget.blink_percent": {
+      "source_blocks_sha256": [
+        "44823758ce909fbc8166fca584fa2b8b4062b7b8fc6de01e32f662332b5dc559"
+      ],
+      "source_sha256": "44823758ce909fbc8166fca584fa2b8b4062b7b8fc6de01e32f662332b5dc559",
+      "text": "The selected percentage of visible dots that flash white."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.blur": {
       "source_blocks_sha256": [
@@ -76241,6 +76269,13 @@
       "source_sha256": "9855f3f98f30ca48f20ed83a4cc875bae9929d593e8d3559299e77f35f8bd075",
       "text": "The ambient palette's name.\n\nNot ``palette()`` — :class:`QWidget` already owns that name and it\nreturns a ``QPalette``."
     },
+    "spacr.qt.widgets.ambient.AmbientWidget.popup_wave_frequency": {
+      "source_blocks_sha256": [
+        "52d75e3e9c710f999419908c90b565909759b7bdaf8380ff2b220be0f6c9e616"
+      ],
+      "source_sha256": "52d75e3e9c710f999419908c90b565909759b7bdaf8380ff2b220be0f6c9e616",
+      "text": "Automatic waves per minute from the centre of an open popup."
+    },
     "spacr.qt.widgets.ambient.AmbientWidget.resolution": {
       "source_blocks_sha256": [
         "1d3b1bcb9abed43e6ae11b9b00172bf0b32e6852d06a35d8d5e25d2b595a3d44"
@@ -76274,6 +76309,13 @@
       ],
       "source_sha256": "5cf88c1e9a843fd3e2f54f3208fcb555015b1396b54df5c0de0187266a1eefc5",
       "text": "Set the flat fill under the animation.\n\nThis is also what tells the engine whether it is painting on a dark\nor a light page, which picks additive versus multiply compositing —\nso it must be called on a live theme switch, or a dark-tuned frame\nends up on a white page.\n\n:param color: a ``QColor`` or any string ``QColor`` accepts; an\n    invalid colour keeps the current one, and alpha is forced opaque.\n    The widget then stops following the application theme."
+    },
+    "spacr.qt.widgets.ambient.AmbientWidget.set_blink_percent": {
+      "source_blocks_sha256": [
+        "2d463ef858679b72b029f252a8ae8bfe0eca815bdf566e0610daddbc66e5f68b"
+      ],
+      "source_sha256": "2d463ef858679b72b029f252a8ae8bfe0eca815bdf566e0610daddbc66e5f68b",
+      "text": "Update dot flashes through the normal serialized engine mutation."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_blur": {
       "source_blocks_sha256": [
@@ -76323,6 +76365,13 @@
       ],
       "source_sha256": "1edb86cdc5b4fc825e0e5617a178fa2b47fac91b9d15c3af7e5da2d49b3f28e4",
       "text": "Switch colour set, live, keeping the motion exactly where it is.\n\nRaises :class:`ValueError` if the current theme does not offer\n``name`` — an explicit request for a palette is not something to\nsilently substitute. The one exception is the ``spaceout`` dressing,\nwhere the request is replaced rather than refused, for the reason\ngiven in :func:`dressed`.\n\n:param name: a palette the current theme offers."
+    },
+    "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency": {
+      "source_blocks_sha256": [
+        "26a044f01b39376310a6f39c590b3d98df1845fb0fe367d0f5bc3f17f34e6cd1"
+      ],
+      "source_sha256": "26a044f01b39376310a6f39c590b3d98df1845fb0fe367d0f5bc3f17f34e6cd1",
+      "text": "Change popup waves without changing pointer reach or dot population."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_resolution": {
       "source_blocks_sha256": [
@@ -76432,11 +76481,11 @@
     "spacr.qt.widgets.ambient.AuroraEngine": {
       "source_blocks_sha256": [
         "27f5baba53471fa1768c6d962e50db9fad4c6409979ed805b3738052e068e377",
-        "045be32437024fad5acc21392ab1f8ee8e3ea0189c47ef8d5909afe29b0874e4",
-        "44a8ec53fe7cd326f1034e52332af2c06f497293047bfd6870572880d4be144d"
+        "d3307b8feadcc3bab241b2c18921eec8762dda94fd5b07bc02989984f15793e4",
+        "38983a0167f917e06dec5400735db7230497e55fce005caa6a7f0b76cd85216f"
       ],
-      "source_sha256": "2ad66d89b6c89ac005ae60af595b268fc8875c3e581edb5e4339f43ea86f1ad4",
-      "text": "Folded curtains of vertical rays, rippling along their own length.\n\nSee the block comment above for the phenomenon, for why the colour ramp\nis anchored to the frame rather than to the curtain, and for why it is\npainted as layered brush fills per curtain rather than as hundreds of\nsprites. The frame raster is native at ordinary Detail, within the\nphysical screen-pixel budget, and is returned with independent ownership.\n:data:`AURORA_BUFFER_EDGE` remains the legacy comparison edge; it no\nlonger caps the active buffer.\n\n:meth:`geometry` yields ``(x, y_bottom, visible_height, brightness)`` per\nsampled column of every curtain, in pixels, ``AURORA_COLUMNS + 1`` of them\nper curtain in curtain order. The painter builds its paths from exactly\nthose numbers, so a test that tracks a fold crest through ``geometry`` is\ntracking the crest that is on screen. ``brightness`` is the surge, and it\nis the *model's* value: what gets painted is the same function with its\nphase quantised into :data:`AURORA_PULSE_STEPS` so the surge texture can\nbe cached (see :meth:`_surge`).\nRoll the aurora's bands and their drift."
+      "source_sha256": "61bea08aca92876808f62efc27ae34c96575b0f59f079b90d437b224872b6091",
+      "text": "Folded curtains of vertical rays, rippling along their own length.\n\nRays rise from an irregular folded lower edge, fan gently toward the\nsky, and breathe at different rates. A diffuse sheet joins the rays\nwithout a flat rectangular top or repeated texture tiles. The frame\nraster is native at ordinary Detail, within the\nphysical screen-pixel budget, and is returned with independent ownership.\n:data:`AURORA_BUFFER_EDGE` remains the legacy comparison edge; it no\nlonger caps the active buffer.\n\n:meth:`geometry` yields ``(x, y_bottom, visible_height, brightness)`` per\nsampled column of every curtain, in pixels, ``AURORA_COLUMNS + 1`` of them\nper curtain in curtain order. The painter builds its paths from exactly\nthose numbers, so a test that tracks a fold crest through ``geometry`` is\ntracking the crest that is on screen. ``brightness`` is the travelling\nsurge. Seeded irregular ray positions and independent continuous length\nand brightness cycles modulate the sampled sheet, with tapered tops.\nRoll the aurora's bands and their drift."
     },
     "spacr.qt.widgets.ambient.AuroraEngine.anchor": {
       "source_blocks_sha256": [

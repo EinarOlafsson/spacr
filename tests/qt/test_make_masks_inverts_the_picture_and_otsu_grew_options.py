@@ -524,7 +524,7 @@ def test_each_new_otsu_control_is_in_the_otsu_category_with_help(screen, name):
     from spacr.qt.screens.settings_model import _sibling_label_for
 
     control = getattr(screen, name)
-    category = dict(screen._settings_categories)["Detection method"]
+    category = dict(screen._settings_categories)["Object detection"]
     assert category.isAncestorOf(control), name
     label = _sibling_label_for(control)
     helped = control.toolTip() or (label is not None and label.toolTip())
@@ -621,7 +621,7 @@ def test_the_minimum_area_after_the_threshold_is_the_one_box_there_was(screen):
     screen._btn_otsu.click()
     assert int(screen._canvas.mask.max()) < small
 
-    category = dict(screen._settings_categories)["Detection method"]
+    category = dict(screen._settings_categories)["Object detection"]
     said = [label.text() for label in category.findChildren(QLabel)]
     assert any("Min area" in text and "Object operations" in text
                for text in said), said

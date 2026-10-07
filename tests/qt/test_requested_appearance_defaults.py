@@ -1,4 +1,4 @@
-"""Requested defaults, relative blue rims and palette-specific field flicker."""
+"""Requested defaults, relative blue rims and configurable dot flicker."""
 
 import pytest
 import numpy as np
@@ -23,6 +23,7 @@ def test_fresh_requested_defaults(empty_store, qapp):
     assert prefs.get_ambient_animation() == "data_art_impulse_lens"
     assert prefs.get_ambient_palette() == "spacr"
     assert prefs.get_ambient_density() == 0.1
+    assert prefs._ambient_blink_percent() == 0.0
     assert prefs._ambient_gravity_radius() == 0.1
     assert prefs.get_ambient_resolution() == 1.0
     assert prefs.get_ambient_speed() == 1.0
@@ -66,17 +67,14 @@ def test_relative_rim_fraction_is_identical_across_sizes(empty_store, qapp):
 
 
 @pytest.mark.parametrize("palette", ["spacr", "ocean", "random"])
-def test_only_spacr_field_palette_flickers_one_percent(qapp, palette):
+def test_dot_palettes_flicker_the_selected_percentage(qapp, palette):
     engine = ambient.make_engine("data_art_impulse_lens", palette, "#101010",
-                                 seed=42, density=1.0)
+                                 seed=42, density=1.0, blink_percent=1.0)
     frame = engine.shade(640, 480)
     assert frame is not None
-    if palette != "spacr":
-        assert not hasattr(engine, "_field_flicker")
-        return
     key, first = engine._field_flicker
     _tick, visible, count = key
-    assert count == visible // 100
+    assert abs(count - visible / 100) <= 1
     assert len(first) == len(np.unique(first)) == count
     assert np.any(np.frombuffer(frame.constBits(), dtype=np.uint32)
                   == 0xffffffff)
@@ -101,7 +99,7 @@ def test_home_tile_description_is_instant(empty_store, qtbot):
 
 def test_flicker_lights_exactly_one_percent_of_visible_centres(qapp):
     engine = ambient.make_engine("data_art_impulse_lens", "spacr", "#101010",
-                                 seed=19)
+                                 seed=19, blink_percent=1.0)
     image = QImage(320, 320, QImage.Format_RGB32)
     image.fill(QColor("black"))
     x, y = np.meshgrid(np.arange(8, 308, 10), np.arange(8, 308, 10))

@@ -1637,13 +1637,6 @@
     },
     {
       "table": "ui",
-      "key": "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
-      "source": "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
-      "source_sha256": "91850b67178e62d14d61e02477e6545b6f67658b78b9938d3a763cb90ab415d3",
-      "translation": "검출 방법에서 선택한 CPU 방법을 이미지 전체에 실행하고, 위의 최소 면적을 지키며 찾은 것에 레이블을 지정합니다. 방법이 읽는 모든 항목은 그 범주의 설정입니다: 수준 알고리즘, 보정, 평활화, 어느 쪽이 객체인지, 구멍 채우기, 맞닿은 쌍 분할, 프레임에 잘린 객체 제외. Cellpose나 백엔드를 선택한 경우 이 버튼은 Otsu로 대체됩니다. 그것들에는 자체 객체 검출 버튼이 있기 때문입니다."
-    },
-    {
-      "table": "ui",
       "key": "Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately.",
       "source": "Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately.",
       "source_sha256": "dcca464e6947ecaf6148f3655f0fb920bd208d2493de370bbde26f6f9137f025",
@@ -3239,6 +3232,17 @@
       "source": "spaCR settings template (*.json);;All files (*)",
       "source_sha256": "3d266d93552cc353f5bb8643bedcfd7c7cc3a580c80add225e59bafb8f083160",
       "translation": "spaCR 설정 템플릿 (*.json);;모든 파일 (*)"
+    },
+    {
+      "date": "2026-10-07",
+      "reason": "Maintainer requested Object detection/Magnification settings and whole-object Fuse/Replace semantics; the prior English row is absent from the current canonical source.",
+      "record": {
+        "table": "ui",
+        "key": "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
+        "source": "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
+        "source_sha256": "91850b67178e62d14d61e02477e6545b6f67658b78b9938d3a763cb90ab415d3",
+        "translation": "검출 방법에서 선택한 CPU 방법을 이미지 전체에 실행하고, 위의 최소 면적을 지키며 찾은 것에 레이블을 지정합니다. 방법이 읽는 모든 항목은 그 범주의 설정입니다: 수준 알고리즘, 보정, 평활화, 어느 쪽이 객체인지, 구멍 채우기, 맞닿은 쌍 분할, 프레임에 잘린 객체 제외. Cellpose나 백엔드를 선택한 경우 이 버튼은 Otsu로 대체됩니다. 그것들에는 자체 객체 검출 버튼이 있기 때문입니다."
+      }
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",

@@ -466,10 +466,9 @@ def test_the_default_is_centred(own_config):
     assert own_config.DEFAULT_RIM_ALIGNMENT == "centre"
 
 
-def test_the_default_chase_is_slower_than_it_was(own_config):
-    """"it should allign slower than now" -- 0.34 was the value being
-    described."""
-    assert own_config.DEFAULT_RIM_LAG < 0.34
+def test_the_requested_default_chase_is_fifty_percent(own_config):
+    """The maintainer subsequently requested a 50% default rim chase."""
+    assert own_config.DEFAULT_RIM_LAG == 0.5
 
 
 def test_the_filter_can_be_taken_back_off(app):

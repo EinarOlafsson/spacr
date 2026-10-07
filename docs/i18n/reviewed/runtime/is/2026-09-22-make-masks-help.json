@@ -130,13 +130,6 @@
     },
     {
       "table": "ui",
-      "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
-      "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
-      "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb",
-      "translation": "Hvað nýr hlutur gerir þar sem maskinn inniheldur þegar hlut. Klipping heldur aðeins ómerktum myndpunktum hans, svo enginn eldri hlutur tapar myndpunkti. Slepping útilokar alla nýja hluti sem snerta eldri hlut. Útskipting leyfir nýja hlutnum að taka alla myndpunkta sem hann þekur. Í forskoðun svæðisins undir bendlinum sýnir reiturinn hvað reglan skilur eftir: það sem smellur myndi bæta við er sýnt með heilum lit og það sem hann myndi fjarlægja er sýnt dauflega."
-    },
-    {
-      "table": "ui",
       "key": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
       "source": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
       "source_sha256": "442f48373af356249b2681ce360c695bb1e258d823306192dd1f27ab5390671d",
@@ -217,6 +210,19 @@
         "translation": "Teiknaðu tíðnirit styrkgilda þessa myndsviðs og merktu þröskuldinn sem stillingarnar hér að ofan gefa. Þetta er sama gildi og hnappurinn notar, fengið úr sama falli. Ef merkið liggur til hliðar við dal í tíðniritinu er leiðréttingarstuðullinn það sem á að breyta."
       },
       "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    }
+  ],
+  "retired_records": [
+    {
+      "date": "2026-10-07",
+      "reason": "Maintainer requested Object detection/Magnification settings and whole-object Fuse/Replace semantics; the prior English row is absent from the current canonical source.",
+      "record": {
+        "table": "ui",
+        "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+        "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+        "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb",
+        "translation": "Hvað nýr hlutur gerir þar sem maskinn inniheldur þegar hlut. Klipping heldur aðeins ómerktum myndpunktum hans, svo enginn eldri hlutur tapar myndpunkti. Slepping útilokar alla nýja hluti sem snerta eldri hlut. Útskipting leyfir nýja hlutnum að taka alla myndpunkta sem hann þekur. Í forskoðun svæðisins undir bendlinum sýnir reiturinn hvað reglan skilur eftir: það sem smellur myndi bæta við er sýnt með heilum lit og það sem hann myndi fjarlægja er sýnt dauflega."
+      }
     }
   ]
 }

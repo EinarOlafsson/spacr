@@ -130,13 +130,6 @@
     },
     {
       "table": "ui",
-      "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
-      "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
-      "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb",
-      "translation": "मास्क में पहले से ऑब्जेक्ट होने पर नया ऑब्जेक्ट क्या करे। काटने का नियम केवल उसके बिना लेबल वाले पिक्सेल रखता है, इसलिए पुराने ऑब्जेक्ट का कोई पिक्सेल नहीं जाता। छोड़ने का नियम पुराने ऑब्जेक्ट को छूते किसी भी नए ऑब्जेक्ट को छोड़ देता है। बदलने का नियम नए ऑब्जेक्ट को उसके ढके सभी पिक्सेल लेने देता है। माउस के नीचे के क्षेत्र की झलक में बॉक्स नियम का परिणाम दिखाता है: क्लिक से जोड़े जाने वाले भाग ठोस रंग में और हटने वाले भाग धुँधले दिखते हैं।"
-    },
-    {
-      "table": "ui",
       "key": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
       "source": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
       "source_sha256": "442f48373af356249b2681ce360c695bb1e258d823306192dd1f27ab5390671d",
@@ -217,6 +210,19 @@
         "translation": "इस दृश्य क्षेत्र की तीव्रता का हिस्टोग्राम बनाएँ और उस पर ऊपर की सेटिंग्स से तय सीमा दिखाएँ। यह उसी फ़ंक्शन से प्राप्त स्तर है जिसे बटन उपयोग करता है। यदि निशान हिस्टोग्राम की घाटी के एक ओर है, तो सीमा सुधार गुणक बदलें।"
       },
       "reason": "2026-09-22: threshold formulas, scope and histogram semantics changed in source; original review preserved verbatim."
+    }
+  ],
+  "retired_records": [
+    {
+      "date": "2026-10-07",
+      "reason": "Maintainer requested Object detection/Magnification settings and whole-object Fuse/Replace semantics; the prior English row is absent from the current canonical source.",
+      "record": {
+        "table": "ui",
+        "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+        "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+        "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb",
+        "translation": "मास्क में पहले से ऑब्जेक्ट होने पर नया ऑब्जेक्ट क्या करे। काटने का नियम केवल उसके बिना लेबल वाले पिक्सेल रखता है, इसलिए पुराने ऑब्जेक्ट का कोई पिक्सेल नहीं जाता। छोड़ने का नियम पुराने ऑब्जेक्ट को छूते किसी भी नए ऑब्जेक्ट को छोड़ देता है। बदलने का नियम नए ऑब्जेक्ट को उसके ढके सभी पिक्सेल लेने देता है। माउस के नीचे के क्षेत्र की झलक में बॉक्स नियम का परिणाम दिखाता है: क्लिक से जोड़े जाने वाले भाग ठोस रंग में और हटने वाले भाग धुँधले दिखते हैं।"
+      }
     }
   ]
 }

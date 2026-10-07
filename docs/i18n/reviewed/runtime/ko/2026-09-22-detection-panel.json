@@ -5,13 +5,6 @@
   "records": [
     {
       "table": "ui",
-      "key": "Detection method",
-      "source": "Detection method",
-      "translation": "검출 방법",
-      "source_sha256": "387d0bbbdb7c27141233c0533693cb6f8073e9b75cf7319ca211334bb0209858"
-    },
-    {
-      "table": "ui",
       "key": "Method",
       "source": "Method",
       "translation": "방법",
@@ -44,6 +37,19 @@
       "source": "Which algorithm finds the objects, for the detect buttons and for the Live magnifier alike. Otsu and the threshold algorithms under it cut the field at one level and need nothing installed; Maxima + propagate grows an object out of each bright centre, which is how two touching objects come apart; the organelle methods are the ones organelle detection runs, through the same code; Cellpose and the backends are models. Choosing a row changes which settings this category shows, and the row's own tooltip says what it suits.",
       "translation": "객체를 찾는 알고리즘은 검출 버튼과 실시간 돋보기에 동일하게 적용됩니다. Otsu와 그 아래의 임계값 알고리즘은 하나의 수준을 기준으로 시야를 나누며 별도 설치가 필요하지 않습니다. 극대값 및 전파 방법은 각 밝은 중심에서 객체를 확장하여 서로 닿은 두 객체를 분리합니다. 세포소기관 방법은 세포소기관 검출과 같은 코드를 사용합니다. Cellpose와 백엔드는 모델을 사용합니다. 행을 선택하면 이 범주에 표시되는 설정이 바뀌며, 각 행의 도구 설명에서 적합한 용도를 확인할 수 있습니다.",
       "source_sha256": "ea95731b1b53d915a2a7b82ef71b3d45bf4ff895a2081c2d166de23bb8ccf5b3"
+    }
+  ],
+  "retired_records": [
+    {
+      "date": "2026-10-07",
+      "reason": "Maintainer requested Object detection/Magnification settings and whole-object Fuse/Replace semantics; the prior English row is absent from the current canonical source.",
+      "record": {
+        "table": "ui",
+        "key": "Detection method",
+        "source": "Detection method",
+        "translation": "검출 방법",
+        "source_sha256": "387d0bbbdb7c27141233c0533693cb6f8073e9b75cf7319ca211334bb0209858"
+      }
     }
   ]
 }

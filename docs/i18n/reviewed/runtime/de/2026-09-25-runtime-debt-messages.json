@@ -720,13 +720,6 @@
     },
     {
       "table": "ui",
-      "key": "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
-      "source": "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
-      "source_sha256": "91850b67178e62d14d61e02477e6545b6f67658b78b9938d3a763cb90ab415d3",
-      "translation": "Das unter Erkennungsmethode gewählte CPU-Verfahren auf das ganze Bild anwenden und das Gefundene labeln, unter Beachtung der obigen Mindestfläche. Alles, was das Verfahren liest, gehört zu dieser Kategorie: der Algorithmus der Schwelle, die Korrektur, die Glättung, welche Seite das Objekt ist, das Füllen von Löchern, das Trennen eines sich berührenden Paars und das Verwerfen dessen, was der Bildrand abschneidet. Ist Cellpose oder ein Backend gewählt, greift diese Schaltfläche auf Otsu zurück, da diese ihre eigene Schaltfläche Objekterkennung haben."
-    },
-    {
-      "table": "ui",
       "key": "Save the picture as it is drawn here, at its full size: the outlines and well boxes keep the line weights and colours chosen for them.",
       "source": "Save the picture as it is drawn here, at its full size: the outlines and well boxes keep the line weights and colours chosen for them.",
       "source_sha256": "d8489aa62282116687b69c66325d52dfc8c825f10f3f314fcdd372b50bec94e8",
@@ -1629,6 +1622,17 @@
       "source": "spaCR settings template (*.json);;All files (*)",
       "source_sha256": "3d266d93552cc353f5bb8643bedcfd7c7cc3a580c80add225e59bafb8f083160",
       "translation": "spaCR-Einstellungsvorlage (*.json);;Alle Dateien (*)"
+    },
+    {
+      "date": "2026-10-07",
+      "reason": "Maintainer requested Object detection/Magnification settings and whole-object Fuse/Replace semantics; the prior English row is absent from the current canonical source.",
+      "record": {
+        "table": "ui",
+        "key": "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
+        "source": "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
+        "source_sha256": "91850b67178e62d14d61e02477e6545b6f67658b78b9938d3a763cb90ab415d3",
+        "translation": "Das unter Erkennungsmethode gewählte CPU-Verfahren auf das ganze Bild anwenden und das Gefundene labeln, unter Beachtung der obigen Mindestfläche. Alles, was das Verfahren liest, gehört zu dieser Kategorie: der Algorithmus der Schwelle, die Korrektur, die Glättung, welche Seite das Objekt ist, das Füllen von Löchern, das Trennen eines sich berührenden Paars und das Verwerfen dessen, was der Bildrand abschneidet. Ist Cellpose oder ein Backend gewählt, greift diese Schaltfläche auf Otsu zurück, da diese ihre eigene Schaltfläche Objekterkennung haben."
+      }
     }
   ],
   "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text.",

@@ -163,8 +163,8 @@ def test_one_category_shows_one_family_and_hides_the_rest(screen):
     group inside it follows the method.
     """
     titles = [title for title, _section in screen._settings_categories]
-    assert "Detection method" in titles
-    assert not {"Otsu", "Object detection", "Detection methods"} & set(titles)
+    assert "Object detection" in titles
+    assert not {"Otsu", "Detection method", "Detection methods"} & set(titles)
 
     for mode, family in (("otsu", "threshold"), ("li", "threshold"),
                          ("sauvola", "threshold"),
@@ -183,9 +183,9 @@ def test_one_category_shows_one_family_and_hides_the_rest(screen):
 
 def test_a_folded_old_category_stays_folded_after_the_rename():
     """Three titles a user folded become the one that replaced them."""
-    for old in ("Otsu", "Object detection", "Detection methods",
+    for old in ("Otsu", "Detection method", "Detection methods",
                 "Cellpose-SAM"):
-        assert mm._RENAMED_CATEGORIES[old] == "Detection method"
+        assert mm._RENAMED_CATEGORIES[old] == "Object detection"
 
 
 def test_the_guidance_a_method_shows_comes_from_legal_methods():

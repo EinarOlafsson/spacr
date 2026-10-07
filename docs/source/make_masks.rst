@@ -497,7 +497,30 @@ Live magnifier, filtering and measurement
 Toggle **Magnifier** or press **M** to inspect proposed objects around the
 pointer. Its wheel changes box zoom; **Shift + wheel** changes box size.
 **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview
-before accepting its objects.
+before manually accepting its objects.
+
+Under **Object detection** → **Magnification settings**, turn on
+**Instantly accept proposed objects** to accept a current proposal without
+clicking. This is off by default. Region mode follows **Objects added**;
+whole-image mode accepts only the object under the pointer. Moving outside
+the image or disabling the magnifier prevents automatic acceptance. Each
+acceptance is undoable, and an undo does not immediately accept the same
+proposal again. Use **Save** or **Save & Next** to write accepted masks.
+
+**Overlap** chooses what happens when a proposal overlaps an existing mask:
+
+* **Fuse with existing object** adds the proposal to the existing ID and
+  retains the old object's pixels, including pixels outside the box. A
+  proposal overlapping several objects joins them into the smallest old ID.
+  A proposal on background becomes a new object.
+* **Add non-overlapping pixels** preserves existing objects and adds the
+  proposal's largest remaining connected piece as a new object.
+* **Replace overlapping object** removes overlapping old objects in full
+  before adding the proposal. Rejected small proposals remove nothing.
+* **Skip overlapping objects** ignores proposals that overlap existing masks.
+
+Secondary mode preserves primary IDs and does not allow fusing identities.
+Explicit click-and-drag editing retains its single undo step.
 
 **Objects added** selects every object in the zoom area or only objects
 under the mouse. In ordinary modes, including Otsu and Cellpose, click and

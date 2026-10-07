@@ -766,6 +766,8 @@ DEFAULT_SIZE = 1.0
 #: animation jump.
 DENSITY_RANGE = (0.01, 3.0)
 DEFAULT_DENSITY = 0.1
+BLINK_PERCENT_RANGE = (0.0, 10.0)
+DEFAULT_BLINK_PERCENT = 0.0
 
 WORK_BUDGET = 4.0
 
@@ -1052,6 +1054,9 @@ class AmbientEngine:
         self.size = _clamp(size, *SIZE_RANGE)
         self.resolution = _clamp(resolution, *RESOLUTION_RANGE)
         self.density = _clamp(density, *DENSITY_RANGE)
+        self.blink_percent = DEFAULT_BLINK_PERCENT
+        self.popup_wave_frequency = 0.0
+        self._blink_seed = random.Random(seed).randrange(2 ** 32)
         self.direction = direction if is_valid_drift_direction(direction) \
             else DEFAULT_DRIFT_DIRECTION
         self._colors = self._coerce_colors(colors)
@@ -1061,6 +1066,37 @@ class AmbientEngine:
 
     def _configure(self, rng: random.Random) -> None:
         """Roll the per-element constants. Called exactly once."""
+
+    def set_blink_percent(self, value: float) -> None:
+        """Set the percentage of dot centres flashing white, without reseeding."""
+        value = float(value)
+        self.blink_percent = _clamp(
+            value if math.isfinite(value) else DEFAULT_BLINK_PERCENT,
+            *BLINK_PERCENT_RANGE)
+
+    def _blinking_indices(self, count: int):
+        """Select dot identities with fractional counts and a seeded clock."""
+        np = _numpy()
+        tick = int(math.floor(self.time * 4.0))
+        key = (tick, int(count), self.blink_percent)
+        cached = getattr(self, "_blink_selection", None)
+        if cached is None or cached[0] != key:
+            rng = np.random.default_rng((self._blink_seed + tick) % (2 ** 32))
+            expected = count * self.blink_percent / 100.0
+            amount = int(expected) + int(rng.random() < expected % 1.0)
+            cached = (key, rng.choice(count, size=amount, replace=False))
+            self._blink_selection = cached
+        return cached[1]
+
+    def set_popup_wave_frequency(self, value: float) -> None:
+        """Set popup-origin waves per minute; zero disables automatic waves."""
+        value = float(value)
+        value = _clamp(value if math.isfinite(value) else 0.0, 0.0, 60.0)
+        if value != self.popup_wave_frequency:
+            self.popup_wave_frequency = value
+            if hasattr(self, "_popup_waves"):
+                self._popup_waves.clear()
+                self._popup_wave_elapsed = 0.0
 
     def _restyle(self) -> None:
         """Re-derive everything that depends on the colours or background."""
@@ -1664,12 +1700,12 @@ AURORA_BUFFER_EDGE = 960
 #: height, scaled by the size setting. Comfortably deeper than the fold
 #: reaches, or a fold crest would lift the sheet's lower edge past the green
 #: and out of the top of its own colour ramp.
-AURORA_THICKNESS = (0.58, 0.86)
+AURORA_THICKNESS = (0.32, 0.57)
 
 #: Where each curtain's lower edge rests, as a fraction of the canvas height,
 #: and the jitter around it. Spread down the frame so the three overlap in
 #: depth rather than sitting on top of one another.
-AURORA_BASE = (0.50, 0.67, 0.84)
+AURORA_BASE = (0.67, 0.48, 0.84)
 AURORA_BASE_JITTER = 0.05
 
 #: How far down the extra curtains a raised density asks for are pushed,
@@ -1700,9 +1736,9 @@ AURORA_HUE_PERIOD = (18.0, 46.0)
 #: ripple — the ratio between them is what stops it reading as a single sine,
 #: and the speeds differ so the pattern never repeats itself.
 AURORA_FOLDS = (
-    (0.055, 0.85, 0.020),
-    (0.022, 0.33, 0.052),
-    (0.009, 0.17, 0.088),
+    (0.080, 0.85, 0.012),
+    (0.043, 0.33, 0.027),
+    (0.018, 0.17, 0.043),
 )
 
 #: How far the fold can reach either way, which is what the colour ramp has
@@ -1899,10 +1935,10 @@ class Curtain:
 class AuroraEngine(_BufferedEngine):
     """Folded curtains of vertical rays, rippling along their own length.
 
-    See the block comment above for the phenomenon, for why the colour ramp
-    is anchored to the frame rather than to the curtain, and for why it is
-    painted as layered brush fills per curtain rather than as hundreds of
-    sprites. The frame raster is native at ordinary Detail, within the
+    Rays rise from an irregular folded lower edge, fan gently toward the
+    sky, and breathe at different rates. A diffuse sheet joins the rays
+    without a flat rectangular top or repeated texture tiles. The frame
+    raster is native at ordinary Detail, within the
     physical screen-pixel budget, and is returned with independent ownership.
     :data:`AURORA_BUFFER_EDGE` remains the legacy comparison edge; it no
     longer caps the active buffer.
@@ -1911,10 +1947,9 @@ class AuroraEngine(_BufferedEngine):
     sampled column of every curtain, in pixels, ``AURORA_COLUMNS + 1`` of them
     per curtain in curtain order. The painter builds its paths from exactly
     those numbers, so a test that tracks a fold crest through ``geometry`` is
-    tracking the crest that is on screen. ``brightness`` is the surge, and it
-    is the *model's* value: what gets painted is the same function with its
-    phase quantised into :data:`AURORA_PULSE_STEPS` so the surge texture can
-    be cached (see :meth:`_surge`).
+    tracking the crest that is on screen. ``brightness`` is the travelling
+    surge. Seeded irregular ray positions and independent continuous length
+    and brightness cycles modulate the sampled sheet, with tapered tops.
     """
 
     name = "aurora"
@@ -1925,6 +1960,7 @@ class AuroraEngine(_BufferedEngine):
         self._tiles: Dict[Tuple[int, int], QImage] = {}
         self._surges: Dict[int, QImage] = {}
         self._pulse_mask: Optional[QImage] = None
+        self._ray_material = {}
         super().__init__(*args, **kwargs)
 
     def buffer_size(self, width: int, height: int) -> Tuple[int, int]:
@@ -1960,6 +1996,7 @@ class AuroraEngine(_BufferedEngine):
         the same call sequence always produce the same animation.
         """
         self.curtains: List[Curtain] = []
+        self._aurora_seed = rng.randrange(2 ** 32)
         for i in range(_pool_size(AURORA_CURTAINS)):
             base = (AURORA_BASE[i % len(AURORA_BASE)]
                     + (i // len(AURORA_BASE)) * AURORA_TIER_OFFSET)
@@ -2334,79 +2371,110 @@ class AuroraEngine(_BufferedEngine):
             0.5 + 0.5 * math.sin(2 * math.pi * u / wavelength + phase))
 
     def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
-        """Draw one frame's field of shapes.
+        """Draw an irregular ray texture warped along the luminous folds.
 
-        :param painter: the painter to draw with.
-        :param width: the widget's width in pixels.
-        :param height: its height in pixels.
+        The texture has native horizontal sampling and a smooth vertical
+        emission profile. Affine strips bend it along the sheet without
+        painting hundreds of separate full-height gradients.
         """
-        peak = (AURORA_ALPHA_DARK if self.dark else AURORA_ALPHA_LIGHT) \
-            * self._fractional_alpha_scale(AURORA_CURTAINS)
-        painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        np = _numpy()
+        peak = (0.80 if self.dark else 0.65) * self.alpha_scale() * math.sqrt(
+            min(1.0, AURORA_CURTAINS * self.effective_density()))
         samples = self.geometry(width, height)
         stride = AURORA_COLUMNS + 1
-        top_f, bottom_f = AURORA_TILE_RAMP
-        rays_per_tile = len(AURORA_TILE_RAYS)
-        ray_px = max(AURORA_RAY_MIN_PX,
-                     AURORA_RAY_SPACING * self.size * width)
+        texture_height = 192
+        vertical = np.linspace(1.0, 0.0, texture_height, dtype=np.float32)[:, None]
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
         for index, curtain in enumerate(self.curtains[:self.count()]):
             columns = samples[index * stride:(index + 1) * stride]
-            if len(columns) < 2:
-                continue
-            zero, ray = self.anchor(curtain, height)
-            top = zero - ray
-            sheet = self._sheet(columns, top)
-
-            spacing = ray_px * AURORA_DEPTHS[
-                curtain.depth % len(AURORA_DEPTHS)][1]
-            tile = self._tile(
-                curtain, peak,
-                max(AURORA_TILE_MIN_PX,
-                    int(round(spacing * rays_per_tile))),
-                max(AURORA_TILE_MIN_PX,
-                    int(round(ray / (bottom_f - top_f)))))
-            brush = QBrush(tile)
-            brush.setTransform(QTransform.fromTranslate(
-                0.0, zero - bottom_f * tile.height()))
-            painter.setBrush(brush)
-            painter.drawPath(sheet)
-
             left, right = columns[0][0], columns[-1][0]
-            band = ray * (1.0 + 2 * AURORA_PULSE_PAD)
-            surge = self._surge(curtain, peak)
-            painter.save()
-            painter.setClipPath(self._sheet(
-                columns, zero - ray * (AURORA_PULSE_HEIGHT
-                                       + AURORA_PULSE_PAD)), Qt.IntersectClip)
-            painter.drawImage(QRectF(left, top - ray * AURORA_PULSE_PAD,
-                                     right - left, band), surge)
-            painter.restore()
-            roles = self.ramp_colors(curtain, quantised=True)
-            for offset, weight, strength, role in (
-                    (0.105, 1.8, 0.23, "main"),
-                    (0.255, 1.1, 0.14, "blend"),
-                    (0.43, 0.8, 0.13, "high")):
-                contour = QPainterPath(QPointF(
-                    columns[0][0], columns[0][1] - ray * offset))
-                for x, y, _height, _bright in columns[1:]:
-                    contour.lineTo(x, y - ray * offset)
-                fade = QLinearGradient(left, 0.0, right, 0.0)
-                glint = 0.78 + 0.22 * math.sin(
-                    self.time * self._rate(curtain) * 0.29
-                    + curtain.hue_phase + offset * 19.0)
-                fade.setColorAt(0.0, _with_alpha(roles[role], 0.0))
-                fade.setColorAt(0.18, _with_alpha(
-                    roles[role], peak * strength * glint))
-                fade.setColorAt(0.76, _with_alpha(
-                    roles[role], peak * strength * 0.75 * glint))
-                fade.setColorAt(1.0, _with_alpha(roles[role], 0.0))
-                painter.setBrush(Qt.NoBrush)
-                painter.setPen(QPen(QBrush(fade), max(0.7, weight * self.size),
-                                    Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-                painter.drawPath(contour)
-                painter.setPen(Qt.NoPen)
-        painter.setRenderHint(QPainter.Antialiasing, False)
+            texture_width = max(1, math.ceil(right - left))
+            count = max(96, min(960, int(width / max(2.0, self.size * 4.0))))
+            key = (index, texture_width, count)
+            material = self._ray_material.get(key)
+            if material is None:
+                rng = random.Random(f"aurora:{self._aurora_seed}:{index}:{count}")
+                positions = np.array([(i + rng.uniform(0.1, 0.9)) / count
+                                      for i in range(count)], dtype=np.float32)
+                coordinates = (np.arange(texture_width, dtype=np.float32) + 0.5) / texture_width
+                upper = np.clip(np.searchsorted(positions, coordinates), 0, count - 1)
+                lower = np.maximum(0, upper - 1)
+                nearest = np.where(abs(coordinates - positions[lower]) <
+                                   abs(coordinates - positions[upper]), lower, upper)
+                distance = (coordinates - positions[nearest]) * count
+                constants = np.array([(rng.uniform(0.50, 1.0),
+                                       rng.uniform(0.4, 1.35),
+                                       rng.uniform(0.0, math.tau),
+                                       rng.uniform(0.045, 0.19))
+                                      for _ in range(count)], dtype=np.float32)
+                material = (coordinates, distance, constants[nearest])
+                if len(self._ray_material) >= 24:
+                    self._ray_material.clear()
+                self._ray_material[key] = material
+            coordinates, distance, constants = material
+            length, weight, phase, rate = constants.T
+            ray_length = length * (0.82 + 0.18 * np.sin(self.time * rate + phase))
+            rise = vertical / ray_length[None, :]
+            beam_width = 0.14 + 0.28 * (1.0 - np.clip(rise, 0.0, 1.0))
+            rays = np.exp(-(distance[None, :] / beam_width) ** 2)
+            emission = (0.15 + 0.85 * np.maximum(0.0, 1.0 - rise) ** 0.8)
+            emission *= np.clip((1.0 - rise) / 0.12, 0.0, 1.0)
+            emission *= np.minimum(1.0, rise / 0.045)
+            shimmer = 0.72 + 0.28 * np.sin(self.time * rate * 1.7 + phase)
+            surge = np.interp(coordinates, np.linspace(0.0, 1.0, stride),
+                              [column[3] for column in columns]).astype(np.float32)
+            alpha = emission * (0.20 + 0.80 * rays) * (
+                peak * weight * shimmer * surge * np.sin(math.pi * coordinates) ** 0.65)[None, :]
+            roles = self.ramp_colors(curtain, quantised=False)
+            if self._spacr_palette:
+                roles = {"main": QColor("#6dff9d"), "blend": QColor("#b6ffc8"),
+                         "high": QColor("#df69c6")}
+            colors = [roles[role] for role in ("blend", "main", "main", "high", "high")]
+            ramp = np.array([[color.red(), color.green(), color.blue()]
+                             for color in colors], dtype=np.float32)
+            ramp_positions = (0.0, 0.12, 0.42, 0.75, 1.0)
+            values = np.arange(256, dtype=np.float32) / 255.0
+            lookup = np.stack([np.interp(values, ramp_positions, ramp[:, channel])
+                               for channel in range(3)], axis=1).astype(np.float32)
+            color_index = np.clip(rise * 255.0, 0, 255).astype(np.uint8)
+            if not self.dark:
+                lookup = 255.0 - lookup
+            if self._random_palette:
+                colors = np.array([[color.red(), color.green(), color.blue()]
+                                   for color in self.paint_colors], dtype=np.float32)
+                color_ids = (phase * 1000).astype(np.int32) % len(colors)
+                lookup = colors
+                color_index = np.broadcast_to(color_ids, alpha.shape)
+                if not self.dark:
+                    lookup = 255.0 - lookup
+            levels = np.arange(256, dtype=np.float32) / 255.0
+            rgb = (lookup[None, :, :] * levels[:, None, None]).astype(np.uint32)
+            packed = (np.uint32(0xff000000) | (rgb[:, :, 0] << 16)
+                      | (rgb[:, :, 1] << 8) | rgb[:, :, 2])
+            if not self.dark:
+                packed = packed ^ np.uint32(0x00ffffff)
+            alpha_index = np.clip(alpha * 255.0, 0, 255).astype(np.uint8)
+            words = packed[alpha_index, color_index]
+            words = np.ascontiguousarray(words)
+            texture = QImage(words.data, texture_width, texture_height,
+                             words.strides[0], QImage.Format_RGB32)
+            _, ray_height = self.anchor(curtain, height)
+            lean = width * 0.12 * math.sin(curtain.phase + self.time * 0.04)
+            for first, second in zip(columns, columns[1:]):
+                x0, bottom0 = first[:2]
+                x1, bottom1 = second[:2]
+                extent = x1 - x0
+                shear = (bottom1 - bottom0) / extent
+                source_x = (x0 - left) / (right - left) * texture_width
+                source_width = extent / (right - left) * texture_width
+                painter.save()
+                painter.setTransform(QTransform(
+                    extent / source_width, shear * extent / source_width,
+                    -lean / texture_height, ray_height / texture_height,
+                    x0 + lean, bottom0 - ray_height), True)
+                painter.drawImage(QRectF(0.0, 0.0, source_width + 0.5, texture_height),
+                                  texture, QRectF(source_x, 0.0, source_width + 0.5, texture_height))
+                painter.restore()
 
     @staticmethod
     def _sheet(columns, top: float) -> QPainterPath:
@@ -2867,8 +2935,14 @@ class DriftEngine(AmbientEngine):
         n_colors = len(self.paint_colors)
         steps = [self._alpha_step(i) for i in range(len(DRIFT_LAYERS))]
         buckets: Dict[Tuple[int, int, int], List[QPointF]] = {}
-        for particle, (x, y, _size) in zip(
-                self.particles, self.geometry(width, height)):
+        geometry = self.geometry(width, height)
+        blinking = set(int(value) for value in self._blinking_indices(len(geometry)))
+        flashes = {}
+        for index, (particle, (x, y, _size)) in enumerate(zip(
+                self.particles, geometry)):
+            if index in blinking:
+                flashes.setdefault(particle.layer, []).append(QPointF(x, y))
+                continue
             key = (particle.color % n_colors, particle.layer,
                    steps[particle.layer])
             buckets.setdefault(key, []).append(QPointF(x, y))
@@ -2878,6 +2952,12 @@ class DriftEngine(AmbientEngine):
                 painter.drawPoints(points)
         for key, points in buckets.items():
             painter.setPen(self._pen(*key))
+            painter.drawPoints(points)
+        for layer, points in flashes.items():
+            pen = QPen(QColor("white"))
+            pen.setWidthF(self.dot_size(layer))
+            pen.setCapStyle(Qt.RoundCap)
+            painter.setPen(pen)
             painter.drawPoints(points)
 
 
@@ -4904,6 +4984,9 @@ class _DataArtEngine(_BufferedEngine):
                               for _ in range(192))
         self._material_cache: Dict[tuple, object] = {}
         self._gravity_impulses = []
+        self._popup_waves = []
+        self._popup_wave_origin = None
+        self._popup_wave_elapsed = 0.0
         self._pointer_impulse_time = -math.inf
         self._pointer_impulse_origin = None
         self._field_grab_origin = None
@@ -5055,6 +5138,32 @@ class _DataArtEngine(_BufferedEngine):
                   if 0.0 <= self.time - event[0] < 5.0]
         self._gravity_impulses = (recent + [(self.time, point, strength)])[-24:]
 
+    def _set_popup_wave_origin(self, point) -> None:
+        """Accept a GUI-resolved popup centre without reading Qt on the worker."""
+        if point is not None:
+            x, y = point
+            point = ((float(x), float(y)) if all(
+                math.isfinite(value) and 0.0 <= value <= 1.0 for value in (x, y)) else None)
+        if point is None:
+            self._popup_wave_elapsed = 0.0
+        self._popup_wave_origin = point
+
+    def advance(self, dt: float) -> None:
+        """Advance material motion and bounded popup waves at their real-time rate."""
+        super().advance(dt)
+        self._popup_waves = [wave for wave in self._popup_waves
+                             if 0.0 <= self.time - wave[0] < 5.0]
+        if (dt <= 0.0 or self.family != "impulse_lens"
+                or self.popup_wave_frequency <= 0.0
+                or self._popup_wave_origin is None):
+            return
+        period = 60.0 / self.popup_wave_frequency
+        self._popup_wave_elapsed += dt
+        if self._popup_wave_elapsed >= period:
+            self._popup_wave_elapsed %= period
+            self._popup_waves = (self._popup_waves + [
+                (self.time, self._popup_wave_origin)])[-6:]
+
     def set_gravity_radius(self, radius: float) -> None:
         """Set finite mouse reach in fractions of the shorter screen edge."""
         radius = float(radius)
@@ -5118,7 +5227,9 @@ class _DataArtEngine(_BufferedEngine):
                         spread: bool = False) -> QImage:
         """Stamp circular antialiased grains without a full-size float field."""
         if self._random_palette:
-            return self._colored_point_material(width, height, x, y, light, spread)
+            image = self._colored_point_material(width, height, x, y, light, spread)
+            self._flicker_field_dots(image, x, y)
+            return image
         np = _numpy()
         px = np.asarray(x, dtype=np.int32)
         py = np.asarray(y, dtype=np.int32)
@@ -5148,6 +5259,7 @@ class _DataArtEngine(_BufferedEngine):
                 diagonal = np.rint(level_ids * 0.24).astype(np.uint8)
                 kernel(flat, px, py, intensities, lookup, lookup[axial], lookup[diagonal],
                        width, height, self.dark)
+                self._flicker_field_dots(image, px, py)
                 return image
         combine = np.maximum.at if self.dark else np.minimum.at
         combine(flat, py * width + px, lookup[intensities])
@@ -5163,6 +5275,7 @@ class _DataArtEngine(_BufferedEngine):
                 intensity = np.rint(intensities[valid] * coverage).astype(np.uint8)
                 destinations = shifted_y[valid] * width + shifted_x[valid]
                 combine(flat, destinations, lookup[intensity])
+        self._flicker_field_dots(image, px, py)
         return image
 
     def _colored_point_material(self, width, height, x, y, light, spread):
@@ -5456,8 +5569,8 @@ class _DataArtEngine(_BufferedEngine):
                     lift = reach * (0.55 + 0.15 * math.sin(phase))
                     dx = -distance_x * rx * lift
                     dy = -distance_y * ry * lift - ry * 0.28 * reach
-                    angles[index] = (angles[index] + step * reach
-                                     * (30.0 + 150.0 * self.gravity_radius)) % 360.0
+                    proximity = max(0.0, 1.0 - math.sqrt(squared) / self.gravity_radius)
+                    angles[index] = (angles[index] + step * 240.0 * proximity ** 2) % 360.0
             if angles[index] == 0.0:
                 painter.drawImage(QPointF(cx + dx - extent_x,
                                           cy + dy - extent_y), tile)
@@ -5713,9 +5826,9 @@ class _DataArtEngine(_BufferedEngine):
                                            dtype=np.float32),
                                  np.arange(-side, height + side, side,
                                            dtype=np.float32))
-            lattice = (xx.ravel() / width, yy.ravel() / height, {})
+            lattice = (xx.ravel() / width, yy.ravel() / height, {}, {})
             self._material_cache[key] = lattice
-        x, y, impulse_fields = lattice
+        x, y, impulse_fields, popup_fields = lattice
         shorter = max(1, min(width, height))
         aspect_x, aspect_y = width / shorter, height / shorter
         cx = 0.5 + 0.20 * math.sin(
@@ -5762,6 +5875,31 @@ class _DataArtEngine(_BufferedEngine):
             px[selected] += ex * displacement
             py[selected] += ey * displacement
             energy[selected] += decay * packet * 0.40
+        active_popups = {origin for started, origin in self._popup_waves
+                         if 0.0 <= self.time - started < 5.0}
+        for origin in tuple(popup_fields):
+            if origin not in active_popups:
+                del popup_fields[origin]
+        for started, origin in self._popup_waves:
+            age = self.time - started
+            if not 0.0 <= age < 5.0:
+                continue
+            field = popup_fields.get(origin)
+            if field is None:
+                ex = (x - origin[0]) * aspect_x
+                ey = (y - origin[1]) * aspect_y
+                distance = np.sqrt(ex * ex + ey * ey + 1e-6)
+                field = (ex / aspect_x, ey / aspect_y, distance)
+                popup_fields[origin] = field
+            ex, ey, distance = field
+            front = distance - age * 0.26
+            packet = np.exp(-(front / 0.06) ** 2)
+            decay = math.exp(-age * 0.65)
+            displacement = (0.025 * decay * packet * np.sin(front * 58.0)
+                            / np.maximum(distance, 0.055))
+            px += ex * displacement
+            py += ey * displacement
+            energy += decay * packet * 0.30
         if self._field_grab_offset != (0.0, 0.0):
             center_x, center_y = self._field_grab_center
             gx, gy = (x - center_x) * aspect_x, (y - center_y) * aspect_y
@@ -5773,26 +5911,29 @@ class _DataArtEngine(_BufferedEngine):
         image = self._point_material(
             width, height, px * width, py * height, brilliance * gain,
             spread=True)
-        if self._spacr_palette:
-            self._flicker_field_dots(image, px * width, py * height)
         return image
 
     def _flicker_field_dots(self, image, x, y) -> None:
-        """Flash a seeded random one percent of visible field dots white."""
+        """Flash the selected percentage of visible point-theme dots white.
+
+        Fractional expected counts are sampled rather than rounded up to one
+        dot. Very low percentages therefore give rare flashes, even in a
+        sparse field. Selection changes at four ticks per animation second.
+        """
         np = _numpy()
         width, height = image.width(), image.height()
         px, py = np.asarray(x, dtype=np.int32), np.asarray(y, dtype=np.int32)
         visible = np.flatnonzero((px >= 0) & (px < width)
                                  & (py >= 0) & (py < height))
-        count = len(visible) // 100
+        tick = int(math.floor(self.time * 4.0))
+        selection = self._blinking_indices(len(visible))
+        count = len(selection)
         if not count:
             return
-        tick = int(math.floor(self.time * 4.0))
         key = (tick, len(visible), count)
         cached = getattr(self, "_field_flicker", None)
         if cached is None or cached[0] != key:
-            rng = np.random.default_rng((self._art_seed + tick) % (2 ** 32))
-            cached = (key, rng.choice(len(visible), size=count, replace=False))
+            cached = (key, selection)
             self._field_flicker = cached
         chosen = visible[cached[1]]
         px, py = px[chosen], py[chosen]
@@ -5868,7 +6009,7 @@ class _FungalGrowthEngine(_BufferedEngine):
 
     def _lineage(self, block: int, width: int, height: int) -> tuple:
         """Index persistent wandering tips and their recursive front forks."""
-        key = (block, width, height, self.size)
+        key = (block, width, height, self.size, self.density)
         cached = self._lineage_cache.get(key)
         if cached is not None:
             return cached
@@ -5885,7 +6026,7 @@ class _FungalGrowthEngine(_BufferedEngine):
         along = math.cos(start_heading), math.sin(start_heading)
         frontier = []
         for front, lane in enumerate((center - 0.05, center, center + 0.05)):
-            lane = max(0.10, min(0.90, lane + rng.uniform(-0.02, 0.02)))
+            lane = center
             if direction == 0:
                 x, y = 0.05 * width, lane * height
             elif direction == 1:
@@ -5899,11 +6040,12 @@ class _FungalGrowthEngine(_BufferedEngine):
                              -1, front, 0, front * 128 + 1, -math.inf))
         edges = []
         axis = width if direction < 2 else height
-        for tick in range(48):
+        tip_limit = max(5, min(96, round(48 * math.sqrt(self.effective_density()))))
+        for tick in range(144):
             following = []
-            progress = min(1.0, tick / 35.0)
-            bias = 0.07 + 0.35 * progress ** 1.5
-            transition = max(0.0, min(1.0, (tick - 14) / 34.0))
+            progress = min(1.0, tick / 105.0)
+            bias = 0.16 + 0.36 * progress
+            transition = max(0.0, min(1.0, (tick - 84) / 60.0))
             transition = transition * transition * (3.0 - 2.0 * transition)
             heading = start_heading + colony_turn * transition
             target_x, target_y = math.cos(heading), math.sin(heading)
@@ -5911,7 +6053,7 @@ class _FungalGrowthEngine(_BufferedEngine):
             for x0, y0, vx, vy, rank, front, depth, code, ready in frontier:
                 branch_rng = random.Random(seed ^ (code * 0x9E3779B97F4A7C15)
                                            ^ (tick * 0xD1B54A32D192ED03))
-                local_bias = bias / (1.0 + 0.15 * depth)
+                local_bias = bias / (1.0 + 0.03 * min(depth, 12))
                 step_turn = branch_rng.uniform(-0.58, 0.58) * (1.0 - 0.40 * local_bias)
                 cosine, sine = math.cos(step_turn), math.sin(step_turn)
                 turned_x, turned_y = vx * cosine - vy * sine, vx * sine + vy * cosine
@@ -5925,7 +6067,7 @@ class _FungalGrowthEngine(_BufferedEngine):
                              + 1.8 * edge_y)
                 norm = math.hypot(heading_x, heading_y)
                 heading_x, heading_y = heading_x / norm, heading_y / norm
-                length = axis * self.size ** 0.3 / 43.0 * branch_rng.uniform(0.85, 1.45)
+                length = axis * self.size ** 0.3 / 120.0 * branch_rng.uniform(0.85, 1.45)
                 x1, y1 = x0 + heading_x * length, y0 + heading_y * length
                 if x1 < width * 0.025:
                     x1 = width * 0.05 - x1
@@ -5944,32 +6086,39 @@ class _FungalGrowthEngine(_BufferedEngine):
                         following.append((x0, y0, target_x, target_y,
                                           rank, front, depth, code, ready))
                     continue
-                bend = branch_rng.uniform(-0.25, 0.25)
+                bend = branch_rng.uniform(-0.015, 0.015)
                 control_x = (x0 + x1) * 0.5 - (y1 - y0) * bend
                 control_y = (y0 + y1) * 0.5 + (x1 - x0) * bend
                 born = max(ready, block * self._interval - 0.55
-                           + tick * self._interval / 36.0
-                           + branch_rng.uniform(-0.04, 0.04))
-                duration = branch_rng.uniform(0.68, 0.82)
+                           + tick * self._interval / 108.0
+                           + branch_rng.uniform(-0.012, 0.012))
+                duration = branch_rng.uniform(0.26, 0.30)
                 edges.append((rank, x0, y0, control_x, control_y, x1, y1,
                               born, duration, front, depth))
                 following.append((x1, y1, heading_x, heading_y,
                                   rank, front, depth, code, born + duration))
-                chance = 0.10 + 0.34 * progress ** 1.5 if tick < 44 else 0.0
-                if depth < 9 and branch_rng.random() < chance:
+                chance = 0.42 + 0.24 * progress ** 1.5 if tick < 140 else 0.0
+                if branch_rng.random() < chance:
                     side = -1 if branch_rng.random() < 0.5 else 1
                     fork = side * branch_rng.uniform(0.42, 1.05)
                     cosine, sine = math.cos(fork), math.sin(fork)
                     child_x = heading_x * cosine - heading_y * sine
                     child_y = heading_x * sine + heading_y * cosine
-                    child_rank = max(rank, int(branch_rng.random() * 1000))
+                    cosine, sine = math.cos(-fork * 0.55), math.sin(-fork * 0.55)
+                    continuation_x = heading_x * cosine - heading_y * sine
+                    continuation_y = heading_x * sine + heading_y * cosine
+                    following[-1] = (x1, y1, continuation_x, continuation_y,
+                                     rank, front, depth + 1, code * 131 + tick + 7,
+                                     born + duration)
+                    child_rank = min(999, max(0, rank) + branch_rng.randrange(8, 65))
                     proposals.append((x1, y1, child_x, child_y, child_rank,
                                       front, depth + 1, code * 131 + tick + 1,
                                       born + duration))
             rng.shuffle(proposals)
-            quota = min(len(proposals), round(1 + 7 * progress ** 1.5))
+            quota = min(len(proposals), max(1, round(
+                (1 + 7 * progress ** 1.5) * tip_limit / 48)))
             for child in proposals[:quota]:
-                if len(following) >= 48:
+                if len(following) >= tip_limit:
                     replace = min((i for i, tip in enumerate(following)
                                    if tip[4] != -1),
                                   key=lambda i: (following[i][6], following[i][8]),
@@ -5996,9 +6145,6 @@ class _FungalGrowthEngine(_BufferedEngine):
         stroke = max(0.65, min(2.0, 1.45 * self.size
                               * (min(width, height) / 1080.0) ** 0.35))
         density = self.density
-        branch_count = round(50 + 800 * density) if density <= 1.0 else round(
-            850 + (density - 1.0) * 75)
-        branch_count = max(1, min(1000, branch_count))
         density_alpha = min(1.0, 60.0 * density) / math.sqrt(max(1.0, density))
         candidates = []
         for block in range(earliest, latest + 1):
@@ -6008,8 +6154,6 @@ class _FungalGrowthEngine(_BufferedEngine):
                 continue
             for (index, x0, y0, cx, cy, x1, y1, born, duration,
                  hue, depth) in self._lineage(block, width, height):
-                if index >= branch_count:
-                    continue
                 age = self.time - born
                 if age <= 0.0:
                     continue
@@ -6021,9 +6165,12 @@ class _FungalGrowthEngine(_BufferedEngine):
                 if alpha >= 0.006:
                     candidates.append((x0, y0, cx, cy, x1, y1, progress,
                                        alpha, max(0.4, stroke * 0.90 ** depth), hue))
-        budget = width * height * 0.26
-        selected = []
-        for edge in reversed(candidates):
+        budget = width * height * 0.22 * min(
+            1.0, 0.5 + 0.5 * math.sqrt(self.effective_density() / 3.0))
+        costs = []
+        by_endpoint = {}
+        by_origin = {}
+        for index, edge in enumerate(candidates):
             x0, y0, cx, cy, x1, y1, progress, _, thick, _ = edge
             control_x = x0 + progress * (cx - x0)
             control_y = y0 + progress * (cy - y0)
@@ -6039,11 +6186,24 @@ class _FungalGrowthEngine(_BufferedEngine):
             footprint = 2.0 * radius * length + math.pi * radius ** 2
             if progress < 1.0:
                 footprint += math.pi * (thick * 0.8 + 1.5) ** 2
-            if footprint > budget:
-                continue
-            selected.append(edge)
-            budget -= footprint
-        return tuple(reversed(selected))
+            costs.append(footprint)
+            by_endpoint[(x1, y1)] = index
+            by_origin.setdefault((x0, y0), []).append(index)
+        selected = set()
+        for index in reversed(range(len(candidates))):
+            chain = []
+            seen = set()
+            for sibling in by_origin[candidates[index][:2]]:
+                cursor = sibling
+                while cursor is not None and cursor not in selected and cursor not in seen:
+                    seen.add(cursor)
+                    chain.append(cursor)
+                    cursor = by_endpoint.get(candidates[cursor][:2])
+            footprint = sum(costs[item] for item in chain)
+            if footprint <= budget:
+                selected.update(chain)
+                budget -= footprint
+        return tuple(candidates[index] for index in sorted(selected))
 
     def _fungal_paths(self, width: int, height: int) -> tuple:
         """Group the unchanged partial Béziers in their original paint order."""
@@ -6379,7 +6539,9 @@ def make_engine(theme: str, palette: str, background: Union[QColor, str],
                 size: float = DEFAULT_SIZE,
                 resolution: float = DEFAULT_RESOLUTION,
                 density: float = DEFAULT_DENSITY,
-                direction: str = DEFAULT_DRIFT_DIRECTION) -> AmbientEngine:
+                direction: str = DEFAULT_DRIFT_DIRECTION,
+                blink_percent: float = DEFAULT_BLINK_PERCENT,
+                popup_wave_frequency: float = 0.0) -> AmbientEngine:
     """Build the engine for ``theme``/``palette``. Raises on unknown names.
 
     Everything after ``seed`` is a user control; the defaults are the shipped
@@ -6387,10 +6549,13 @@ def make_engine(theme: str, palette: str, background: Union[QColor, str],
     """
     _require_theme(theme)
     _require_palette(theme, palette)
-    return _ENGINES[theme](palette_colors(theme, palette), background,
+    engine = _ENGINES[theme](palette_colors(theme, palette), background,
                            seed=seed, blur=blur, speed=speed, size=size,
                            resolution=resolution, density=density,
                            direction=direction)
+    engine.set_blink_percent(blink_percent)
+    engine.set_popup_wave_frequency(popup_wave_frequency)
+    return engine
 
 
 class Motion(NamedTuple):
@@ -6509,8 +6674,9 @@ class _QueuedArtInput:
         self._applied_click_serial = 0
         self._grab_snapshot = (0, None)
         self._applied_grab_serial = 0
+        self._popup_snapshot = (0, None)
 
-    def _offer(self, step, pointer, clicks, *, grab=None) -> None:
+    def _offer(self, step, pointer, clicks, *, grab=None, popup_origin=None) -> None:
         """Publish one GUI tick without taking or waiting for an engine lock."""
         self._elapsed += step
         for point in clicks:
@@ -6518,6 +6684,7 @@ class _QueuedArtInput:
             self._clicks = (self._clicks + ((self._click_serial, point),))[-16:]
         self._serial += 1
         self._grab_snapshot = (self._serial, grab)
+        self._popup_snapshot = (self._serial, popup_origin)
         self._snapshot = (self._serial, self._elapsed, pointer, self._clicks)
 
     def _consume(self, engine, *, discard_clicks=False, preserve_grab=False) -> None:
@@ -6528,6 +6695,11 @@ class _QueuedArtInput:
         """
         serial, elapsed, pointer, clicks = self._snapshot
         if isinstance(engine, _DataArtEngine) and engine.family == "impulse_lens":
+            popup_serial, popup_origin = self._popup_snapshot
+            if discard_clicks and not preserve_grab:
+                engine._set_popup_wave_origin(None)
+            elif popup_serial == serial:
+                engine._set_popup_wave_origin(popup_origin)
             grab_serial, grab = self._grab_snapshot
             if discard_clicks and not preserve_grab:
                 engine._set_field_grab(None, reset=True)
@@ -6562,13 +6734,13 @@ class _FrameProducer:
     the GUI thread is undefined behaviour, and a ``QImage`` painted off it is
     supported and is the whole reason this works.
 
-    The GUI owns elapsed time and input. Data art publishes bounded immutable
+    The GUI owns elapsed time and input. Buffered themes publish bounded immutable
     tick snapshots, which either the GUI or this producer consumes under the
     engine lock before shading. Numbered cumulative counters prevent double
     advancement. Consuming on the producer lets the clock and pointer keep
     changing even when every shade exceeds the frame interval; a nonblocking
-    GUI lock attempt alone can otherwise lose every opportunity to advance.
-    No wall clock, widget or application is queried by this thread. Explicit
+        GUI lock attempt alone can otherwise lose every opportunity to advance.
+        No wall clock, widget or application is queried by this thread. Explicit
     clock changes and controls flush offered input under the same lock.
 
     A plain :class:`threading.Thread` and not a ``QThread``: it owns no
@@ -6768,6 +6940,8 @@ class AmbientWidget(QWidget):
                  resolution: Optional[float] = None,
                  density: Optional[float] = None,
                  gravity_radius: Optional[float] = None,
+                 blink_percent: Optional[float] = None,
+                 popup_wave_frequency: Optional[float] = None,
                  direction: Optional[str] = None,
                  corner_radius: int = 0):
         """Build the widget and start its engine.
@@ -6801,6 +6975,7 @@ class AmbientWidget(QWidget):
         #: Clock time a tick could not apply because the shading thread had
         #: the engine, carried to the next tick. See :meth:`_on_tick`.
         self._pending_dt = 0.0
+        self._legacy_input = _QueuedArtInput()
         self._art_input = None
         self._pending_art_impulses: List[Tuple[float, float]] = []
         self._interaction_app = None
@@ -6827,6 +7002,22 @@ class AmbientWidget(QWidget):
                        if gravity_radius is None else gravity_radius)
         self._gravity_radius = _clamp(
             radius if math.isfinite(radius) else 0.0, 0.0, 1.0)
+        if blink_percent is None:
+            from ..preferences import _ambient_blink_percent
+
+            blink_percent = _ambient_blink_percent()
+        blink_percent = float(blink_percent)
+        self._blink_percent = _clamp(
+            blink_percent if math.isfinite(blink_percent) else DEFAULT_BLINK_PERCENT,
+            *BLINK_PERCENT_RANGE)
+        if popup_wave_frequency is None:
+            from ..preferences import _field_popup_wave_frequency
+
+            popup_wave_frequency = _field_popup_wave_frequency()
+        popup_wave_frequency = float(popup_wave_frequency)
+        self._popup_wave_frequency = _clamp(
+            popup_wave_frequency if math.isfinite(popup_wave_frequency) else 0.0,
+            0.0, 60.0)
         wanted = stored.direction if direction is None else direction
         self._direction = wanted if is_valid_drift_direction(wanted) \
             else DEFAULT_DRIFT_DIRECTION
@@ -6845,6 +7036,8 @@ class AmbientWidget(QWidget):
                                    size=self._size,
                                    resolution=self._resolution,
                                    density=self._density,
+                                   blink_percent=self._blink_percent,
+                                   popup_wave_frequency=self._popup_wave_frequency,
                                    direction=self._direction)
         radius_setter = getattr(self._engine, "set_gravity_radius", None)
         if radius_setter is not None:
@@ -6970,6 +7163,9 @@ class AmbientWidget(QWidget):
         with self._engine_lock:
             if self._art_input is not None:
                 self._art_input._consume(self._engine)
+            else:
+                self._legacy_input._consume(self._engine)
+                self._pending_dt = 0.0
             change()
             self._republish()
         self.update()
@@ -7004,11 +7200,15 @@ class AmbientWidget(QWidget):
         with self._engine_lock:
             if self._art_input is not None:
                 self._art_input._consume(self._engine, discard_clicks=True)
+            else:
+                self._legacy_input._consume(self._engine)
         engine = make_engine(self._theme, self._palette, self._background,
                              seed=self._seed, blur=self._blur,
                              speed=self._speed, size=self._size,
                              resolution=self._resolution,
                              density=self._density,
+                             blink_percent=self._blink_percent,
+                             popup_wave_frequency=self._popup_wave_frequency,
                              direction=self._direction)
         radius_setter = getattr(engine, "set_gravity_radius", None)
         if radius_setter is not None:
@@ -7019,6 +7219,7 @@ class AmbientWidget(QWidget):
             self._engine = engine
             self._art_input = (_QueuedArtInput()
                                if self._theme.startswith("data_art_") else None)
+            self._legacy_input = _QueuedArtInput()
             self._pending_dt = 0.0
         self._last_frame = None
         self._pending_art_impulses.clear()
@@ -7068,6 +7269,31 @@ class AmbientWidget(QWidget):
     def gravity_radius(self) -> float:
         """The normalized reach of local pointer gravity; zero disables it."""
         return self._gravity_radius
+
+    def blink_percent(self) -> float:
+        """The selected percentage of visible dots that flash white."""
+        return self._blink_percent
+
+    def popup_wave_frequency(self) -> float:
+        """Automatic waves per minute from the centre of an open popup."""
+        return self._popup_wave_frequency
+
+    def set_popup_wave_frequency(self, value: float) -> None:
+        """Change popup waves without changing pointer reach or dot population."""
+        value = float(value)
+        value = _clamp(value if math.isfinite(value) else 0.0, 0.0, 60.0)
+        if value != self._popup_wave_frequency:
+            self._popup_wave_frequency = value
+            self._mutate_engine(lambda: self._engine.set_popup_wave_frequency(value))
+
+    def set_blink_percent(self, value: float) -> None:
+        """Update dot flashes through the normal serialized engine mutation."""
+        value = float(value)
+        value = _clamp(value if math.isfinite(value) else DEFAULT_BLINK_PERCENT,
+                       *BLINK_PERCENT_RANGE)
+        if value != self._blink_percent:
+            self._blink_percent = value
+            self._mutate_engine(lambda: self._engine.set_blink_percent(value))
 
     def set_gravity_radius(self, value: float) -> None:
         """Apply local pointer reach while excluding a concurrent shade pass.
@@ -7347,6 +7573,14 @@ class AmbientWidget(QWidget):
                 finally:
                     self._engine_lock.release()
             self._art_input = _QueuedArtInput()
+        else:
+            if self._engine_lock.acquire(blocking=False):
+                try:
+                    self._legacy_input._consume(self._engine)
+                finally:
+                    self._engine_lock.release()
+            self._legacy_input = _QueuedArtInput()
+            self._pending_dt = 0.0
         self._last_frame = None
 
     def _start_producer(self) -> None:
@@ -7372,7 +7606,7 @@ class AmbientWidget(QWidget):
             return
         size = self._art_render_size(self.width(), self.height())
         producer = _FrameProducer(engine, self._engine_lock, self._rate(),
-                                  size, queued_input=self._art_input)
+                                  size, queued_input=self._art_input or self._legacy_input)
         if size[0] > 0 and size[1] > 0:
             with self._engine_lock:
                 if engine.name == "data_art_impulse_lens" and self._field_grab is None:
@@ -7454,7 +7688,8 @@ class AmbientWidget(QWidget):
         if self._art_input is None:
             return
         self._art_input._offer(0.0, self._art_input._snapshot[2], (),
-                               grab=self._field_grab)
+                               grab=self._field_grab,
+                               popup_origin=self._art_input._popup_snapshot[1])
         if self._engine_lock.acquire(blocking=False):
             try:
                 self._art_input._consume(self._engine)
@@ -7619,6 +7854,30 @@ class AmbientWidget(QWidget):
         except RuntimeError:
             return None
 
+    def _popup_wave_origin_for_tick(self):
+        """Resolve this window's active popup centre on the GUI thread only."""
+        from PySide6.QtWidgets import QDialog
+
+        if (self._theme != "data_art_impulse_lens"
+                or self._popup_wave_frequency <= 0.0 or not self._should_run()):
+            return None
+        popup = QApplication.activePopupWidget() or QApplication.activeModalWidget()
+        if popup is None:
+            active = QApplication.activeWindow()
+            popup = active if isinstance(active, QDialog) else None
+        if popup is None or not popup.isVisible() or popup is self.window():
+            return None
+        parent = popup.parentWidget()
+        while parent is not None and parent is not self.window():
+            parent = parent.parentWidget()
+        if parent is None:
+            return None
+        centre = self.mapFromGlobal(popup.mapToGlobal(popup.rect().center()))
+        if not self.rect().contains(centre):
+            return None
+        return ((centre.x() + 0.5) / max(1, self.width()),
+                (centre.y() + 0.5) / max(1, self.height()))
+
     def _on_tick(self) -> None:
         """One beat: step the clock, ask for a repaint. Never waits.
 
@@ -7632,8 +7891,9 @@ class AmbientWidget(QWidget):
         elapsed time, the latest pointer and bounded numbered clicks as one
         immutable snapshot. The GUI consumes it immediately when it can;
         otherwise the producer consumes it before its next frame, so slow
-        shading cannot starve clock advancement or mouse feedback. Legacy
-        engines retain their existing pending-time path.
+        shading cannot starve clock advancement or mouse feedback. Classic
+        themes offer elapsed time through a separate queue consumed by the
+        GUI or shading worker, including when shading overruns its interval.
         """
         self._follow_the_run()
         dt = self._clock.restart() / 1000.0
@@ -7644,7 +7904,8 @@ class AmbientWidget(QWidget):
                    and self._engine.interactive and self._gravity_radius > 0.0 else None)
         if self._art_input is not None:
             self._art_input._offer(step, pointer, tuple(self._pending_art_impulses),
-                                   grab=self._field_grab)
+                                   grab=self._field_grab,
+                                   popup_origin=self._popup_wave_origin_for_tick())
             self._pending_art_impulses.clear()
             if self._engine_lock.acquire(blocking=False):
                 try:
@@ -7653,9 +7914,10 @@ class AmbientWidget(QWidget):
                     self._engine_lock.release()
         else:
             self._pending_dt += step
+            self._legacy_input._offer(step, None, ())
             if self._engine_lock.acquire(blocking=False):
                 try:
-                    self._engine.advance(self._pending_dt)
+                    self._legacy_input._consume(self._engine)
                     self._pending_dt = 0.0
                 finally:
                     self._engine_lock.release()

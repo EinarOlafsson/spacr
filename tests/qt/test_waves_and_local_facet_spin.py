@@ -1,6 +1,7 @@
 """Deforming native waves repel the pointer; cached facets spin only locally."""
 
 import hashlib
+import math
 
 import numpy as np
 import pytest
@@ -199,6 +200,25 @@ def test_facet_angular_speed_scales_with_animation_speed():
         _shade(engine)
     assert np.array(_rotation(engines[1])[1]) == pytest.approx(
         np.array(_rotation(engines[0])[1]) * 4)
+
+
+def test_facet_rotation_is_fastest_at_pointer_and_fades_to_radius():
+    engine = _engine("tissue_facets")
+    engine.set_gravity_radius(.6)
+    engine.set_pointer((.5, .5))
+    _shade(engine)
+    material = next(value for key, value in engine._material_cache.items()
+                    if key[0] == "tissue_facets")
+    engine.advance(.1)
+    _shade(engine)
+    angles = np.asarray(_rotation(engine)[1])
+    distance = np.array([math.hypot(cell[0] - 320, cell[1] - 180) / 360
+                         for cell in material])
+    expected = 24 * np.maximum(0, 1 - distance / .6) ** 2
+    assert angles == pytest.approx(expected)
+    assert np.max(angles) > 18
+    assert np.count_nonzero((angles > 0) & (angles < 1)) > 0
+    assert np.all(angles[distance >= .6] == 0)
 
 
 def test_facet_clock_jump_clears_rotation_instead_of_integrating_backwards():
@@ -419,7 +439,7 @@ def test_resting_tick_entry_leave_and_reentry_match_original_rotation_clock(back
     assert np.array_equal(_words(_shade(direct)),
                           _words(_buffered_facet_frame(reference)))
     assert _rotation(direct)[1] == _rotation(reference)[1]
-    assert 0 < max(_rotation(direct)[1]) < 1.1
+    assert 0 < max(_rotation(direct)[1]) <= .01 * 240
     for engine in (direct, reference):
         engine.set_pointer(None)
     assert np.array_equal(resting, _words(_shade(direct)))

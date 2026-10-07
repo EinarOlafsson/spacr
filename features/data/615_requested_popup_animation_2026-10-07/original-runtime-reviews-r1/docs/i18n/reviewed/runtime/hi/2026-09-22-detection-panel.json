@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI-assisted linguistic and technical review against the consolidated detection panel; no native-speaker sign-off",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Detection method",
+      "source": "Detection method",
+      "translation": "पहचान विधि",
+      "source_sha256": "387d0bbbdb7c27141233c0533693cb6f8073e9b75cf7319ca211334bb0209858"
+    },
+    {
+      "table": "ui",
+      "key": "Method",
+      "source": "Method",
+      "translation": "विधि",
+      "source_sha256": "52a0f9b65b278850b53aad23136b5d574299e8fb92311304346d19736b7e9cce"
+    },
+    {
+      "table": "ui",
+      "key": "What finds the objects, and the settings that method reads. Drives the detect buttons and the Live magnifier alike.",
+      "source": "What finds the objects, and the settings that method reads. Drives the detect buttons and the Live magnifier alike.",
+      "translation": "वस्तुओं को खोजने की विधि और उसके द्वारा उपयोग की जाने वाली सेटिंग। यह पहचान बटनों और लाइव आवर्धक, दोनों को नियंत्रित करती है।",
+      "source_sha256": "0ae7e6ba12cd1c6ea2256fff604320bab483fccda5888c76a826b481e8f831b9"
+    },
+    {
+      "table": "ui",
+      "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. Choosing another method above shows that method's settings here instead.",
+      "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. Choosing another method above shows that method's settings here instead.",
+      "translation": "लाइव आवर्धक भी इन सेटिंग का उपयोग करता है: Cellpose मोड मॉडल, दोनों सीमा मानों, व्यास और सामान्यीकरण का उपयोग करता है, जबकि DINOCell कोशिका की प्रायिकता का उपयोग करता है। ऊपर कोई दूसरी विधि चुनने पर यहाँ उसकी सेटिंग दिखाई जाती हैं।",
+      "source_sha256": "1a647d07653a25d8a80c82004d9b6df1cafb925cad3ac77924b9d49b87b12237"
+    },
+    {
+      "table": "ui",
+      "key": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "source": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "translation": "खुले दृश्य क्षेत्र का विभाजन ऑब्जेक्ट पहचान मॉडल से करें और बदलने या मिलाने की सेटिंग के अनुसार परिणाम जोड़ें। कोशिका प्रायिकता और प्रवाह वाले टैब में प्रक्रिया के मध्यवर्ती परिणाम भरते हैं।",
+      "source_sha256": "0755fe4a30ce8e9803c8fa5aa479865a6776752afc876a0416c8ca315150ae88"
+    },
+    {
+      "table": "ui",
+      "key": "Which algorithm finds the objects, for the detect buttons and for the Live magnifier alike. Otsu and the threshold algorithms under it cut the field at one level and need nothing installed; Maxima + propagate grows an object out of each bright centre, which is how two touching objects come apart; the organelle methods are the ones organelle detection runs, through the same code; Cellpose and the backends are models. Choosing a row changes which settings this category shows, and the row's own tooltip says what it suits.",
+      "source": "Which algorithm finds the objects, for the detect buttons and for the Live magnifier alike. Otsu and the threshold algorithms under it cut the field at one level and need nothing installed; Maxima + propagate grows an object out of each bright centre, which is how two touching objects come apart; the organelle methods are the ones organelle detection runs, through the same code; Cellpose and the backends are models. Choosing a row changes which settings this category shows, and the row's own tooltip says what it suits.",
+      "translation": "वस्तुओं को खोजने वाला एल्गोरिदम पहचान बटनों और लाइव आवर्धक, दोनों के लिए है। Otsu और उसके नीचे दिए सीमा-आधारित एल्गोरिदम दृश्य क्षेत्र को एक स्तर पर विभाजित करते हैं और उन्हें कुछ स्थापित करने की आवश्यकता नहीं होती। अधिकतम बिंदु और प्रसार विधि प्रत्येक चमकीले केंद्र से एक वस्तु बढ़ाती है, जिससे एक-दूसरे को छूती दो वस्तुएँ अलग होती हैं। कोशिकांग विधियाँ कोशिकांग पहचान के समान कोड का उपयोग करती हैं। Cellpose और बैकएंड मॉडल हैं। कोई पंक्ति चुनने से इस श्रेणी में दिखाई जाने वाली सेटिंग बदल जाती हैं; उस पंक्ति का टूलटिप बताता है कि विधि किन स्थितियों के लिए उपयुक्त है।",
+      "source_sha256": "ea95731b1b53d915a2a7b82ef71b3d45bf4ff895a2081c2d166de23bb8ccf5b3"
+    }
+  ]
+}

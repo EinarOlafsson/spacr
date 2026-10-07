@@ -181,8 +181,8 @@ def test_a_shift_wheel_step_is_proportional_and_at_least_a_pixel(
 # ---------------------------------------------------------------------------
 
 CATEGORIES = ("Brush", "Magic wand", "Display", "Filter",
-              "Object operations", "Detection method",
-              "Image enhancement", "Live magnifier")
+              "Object operations", "Object detection",
+              "Magnification settings", "Image enhancement")
 
 
 def _categories(made):
@@ -216,9 +216,9 @@ def test_every_category_is_the_core_applications_folding_section(
             "Display": made._norm_hi,
             "Filter": made._filter_add,
             "Object operations": made._btn_otsu,
-            "Detection method": made._otsu_correction,
+            "Object detection": made._otsu_correction,
             "Image enhancement": made._enh_gamma,
-            "Live magnifier": made._mag_size,
+            "Magnification settings": made._mag_size,
         }
         for title, section in categories.items():
             assert type(section) is Section
@@ -248,7 +248,7 @@ def test_what_is_folded_is_remembered_for_the_next_visit(
     try:
         cats = _categories(first)
         cats["Magic wand"].header().click()
-        cats["Live magnifier"].header().click()
+        cats["Magnification settings"].header().click()
     finally:
         first._magnifier.close()
         first.close_folded()
@@ -259,7 +259,7 @@ def test_what_is_folded_is_remembered_for_the_next_visit(
         cats = _categories(second)
         shut = {title for title, section in cats.items()
                 if not section.is_expanded()}
-        assert shut == {"Magic wand", "Live magnifier"}
+        assert shut == {"Magic wand", "Magnification settings"}
         assert not second._wand_pct.isVisibleTo(second._settings_scroll)
 
         cats["Magic wand"].set_expanded(True)
@@ -272,7 +272,7 @@ def test_what_is_folded_is_remembered_for_the_next_visit(
     try:
         shut = {title for title, section in _categories(third).items()
                 if not section.is_expanded()}
-        assert shut == {"Live magnifier"}, "unfolding is remembered as well"
+        assert shut == {"Magnification settings"}, "unfolding is remembered as well"
     finally:
         third._magnifier.close()
         third.close_folded()
@@ -544,7 +544,7 @@ def test_the_thresholds_live_in_the_detection_method_category(screen):
     read by the same run, and only the ones being read are on screen.
     """
     categories = dict(screen._settings_categories)
-    detection = categories["Detection method"]
+    detection = categories["Object detection"]
     for control in (screen._cp_model, screen._cp_model_zoo_btn,
                     screen._cp_flow, screen._cp_cellprob,
                     screen._cp_diameter, screen._cp_normalize):
@@ -562,7 +562,7 @@ def test_the_thresholds_live_in_the_detection_method_category(screen):
     # Cellpose's own GUI offers -6..6 and 0..3; both fit inside these.
     assert screen._cp_cellprob.minimum() <= -6 and screen._cp_cellprob.maximum() >= 6
     assert screen._cp_flow.minimum() == 0 and screen._cp_flow.maximum() >= 3
-    assert not categories["Live magnifier"].isAncestorOf(screen._cp_flow), (
+    assert not categories["Magnification settings"].isAncestorOf(screen._cp_flow), (
         "no second set of thresholds on the magnifier's own category")
 
 

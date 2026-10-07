@@ -1,0 +1,191 @@
+[
+  {
+    "file": "docs/i18n/reviewed/runtime/de/2026-09-21-runtime-refresh.json",
+    "original_sha256": "ca8fc3b2df00bfe4e6cb5060c6c5a6cf02b9b4c35e258d613af938d57eb85645",
+    "keys": [
+      "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted."
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/de/2026-09-22-detection-panel.json",
+    "original_sha256": "da77357db4a42323e32fa2f2c05aa73b020141c2f4337944497cb4aadc2bce5c",
+    "keys": [
+      "Detection method"
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/de/2026-09-25-runtime-debt-messages.json",
+    "original_sha256": "ef2d9853fe25559f5530cef52e3cf2393d3630e02d6f34a130522383269474e6",
+    "keys": [
+      "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own."
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/es/2026-09-21-runtime-ui-fourth-slice.json",
+    "original_sha256": "ff5118816c38216f56302e03f169eea348f7d0e8202df59dd4426bb1366efcfe",
+    "keys": [
+      "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted."
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/es/2026-09-22-detection-panel.json",
+    "original_sha256": "22416278bc7ee9d3aea613817034e0373980ff6949e11d518d0695d3a60c9dd1",
+    "keys": [
+      "Detection method"
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/es/2026-09-25-runtime-debt-messages.json",
+    "original_sha256": "b0868596d6deb96d03bddc27ab16f46647e3d0706f9ffabaf7d92abf662666c8",
+    "keys": [
+      "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own."
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/fr/2026-09-21-runtime-fourth-slice.json",
+    "original_sha256": "b754f3e4e4232bf0bed1ead8e10ccb8f8c825281fcada7bd5d24c3414dbe043a",
+    "keys": [
+      "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted."
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/fr/2026-09-22-detection-panel.json",
+    "original_sha256": "7ca250d762f88acee1884678a136563a9c681166e332cc7c7345227f74e30811",
+    "keys": [
+      "Detection method"
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/fr/2026-09-25-runtime-debt-messages.json",
+    "original_sha256": "183a5985cd431995104d8ac9977bc9202d96db62b1ee0643315cffb8d88dd434",
+    "keys": [
+      "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own."
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/hi/2026-09-22-detection-panel.json",
+    "original_sha256": "65dcd9abad76a749b2a78f562f8fb9007052ada4c3f7b614f3aebc9aa4a56c6c",
+    "keys": [
+      "Detection method"
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/hi/2026-09-22-make-masks-help.json",
+    "original_sha256": "78e07a585f4bae9d0b0c90bfbc23eba6ed05cb039941e540a7c9dfc1bcba7991",
+    "keys": [
+      "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted."
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/hi/2026-09-25-runtime-debt-messages.json",
+    "original_sha256": "5cb1ce7b23b5e78aaef3fb18d02be3f0be98f4cabe2eb118659dd0851064f8ff",
+    "keys": [
+      "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own."
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/is/2026-09-22-detection-panel.json",
+    "original_sha256": "770b29f90522fd465453b1e63beb4f06ff7505062926bfcf9e46bd891ec655ba",
+    "keys": [
+      "Detection method"
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/is/2026-09-22-make-masks-help.json",
+    "original_sha256": "bea7f5c6a2f5c2150490059aed85c8f8e269853f81d65551874df4de53c63617",
+    "keys": [
+      "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted."
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/is/2026-09-25-runtime-debt-messages.json",
+    "original_sha256": "afee51479ef7ab6d850083dddbb79623eba8b823e71be3610d6d3718b227f59c",
+    "keys": [
+      "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own."
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/ko/2026-09-22-detection-panel.json",
+    "original_sha256": "6f96bf299bbbe66d156270cda5fc1e13fdce4702fdf3a62013cde44e9d5ab8e2",
+    "keys": [
+      "Detection method"
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/ko/2026-09-22-make-masks-help.json",
+    "original_sha256": "f2b765808befb0b395ae53cd578dbeb835d44592ed0d1474e4fc33eb7df4207e",
+    "keys": [
+      "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted."
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/ko/2026-09-25-runtime-debt-messages.json",
+    "original_sha256": "e4134989ad05b15afa8eeb934a0e1f4d0d762e8c16ee2d2f3604f694d367221a",
+    "keys": [
+      "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own."
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/pt/2026-09-21-runtime-fourth-slice.json",
+    "original_sha256": "d0bb69231b30db95fae766ba640d76e31d24a361b48a430295b864d8710ba6cd",
+    "keys": [
+      "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted."
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/pt/2026-09-22-detection-panel.json",
+    "original_sha256": "6f123814f05219980bfa334718fba07a51b0eaf41668421ff94c34ce39801edd",
+    "keys": [
+      "Detection method"
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/pt/2026-09-25-runtime-debt-messages.json",
+    "original_sha256": "b522c34b73f637775e774fbc4e41284fe0d77b3ccd144c3f6cf3c8d6eb19db98",
+    "keys": [
+      "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own."
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/sv/2026-09-21-runtime-ui-refresh.json",
+    "original_sha256": "ccbfb7c4709f78f74b100753bb64ec99bde2a654636d515e67c5ec9e28178892",
+    "keys": [
+      "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted."
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/sv/2026-09-22-detection-panel.json",
+    "original_sha256": "b91cdfb0e68538a74d169117ad170c01e1dbe94b3f94d957dcc0c1076bbb616c",
+    "keys": [
+      "Detection method"
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/sv/2026-09-25-runtime-debt-messages.json",
+    "original_sha256": "40223899c021586bb0a89a055e1a043701e451a79eba8fa0ba7f7019c4c1472b",
+    "keys": [
+      "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own."
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-21-runtime-seventh-slice.json",
+    "original_sha256": "d9a210b5cc87c9e77b12dd43caf1af69c5628b0598e2a7ee4f61919f74746994",
+    "keys": [
+      "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted."
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-22-detection-panel.json",
+    "original_sha256": "f573e8a4740e5fc4a58061cf9cfd8cb789fa3e0f3da93a577c7d3b40f39b1f06",
+    "keys": [
+      "Detection method"
+    ]
+  },
+  {
+    "file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-25-runtime-debt-messages.json",
+    "original_sha256": "97d83f632e5322d6d679d97f60b05e37d5623b929f0106b887678e8858e36bad",
+    "keys": [
+      "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own."
+    ]
+  }
+]

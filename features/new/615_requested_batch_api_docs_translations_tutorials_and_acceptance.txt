@@ -1669,3 +1669,23 @@ subject to existing scientific-input and human acceptance requirements.
     data/615_requested_preferences_models_2026-10-07/receipt.json.
     Current translated API, five guide paragraphs per language and final Home
     narration/video/player publication remain ACTIVE; N615 is not closed.
+
+2026-10-07 — requested popup, magnifier and animation revisions
+Root implements the maintainer's latest theme requests: short continuously
+forking growth with an advancing connected front; folded aurora curtains;
+mouse-proportional spinn rotation; and the Blobs elapsed-time fix. Popup
+ownership replaces global always-on-top flags. Apply preserves independent
+None/backdrop choices, rim layering and a separate card darkness setting.
+Dot blinking and popup-origin field waves both default to zero. Magnification
+settings add instant acceptance and whole-object Fuse/Replace alongside
+Add non-overlap/Skip, with delayed drag-preview duplicate suppression.
+Final38 growth/Aurora/magnifier and34 raster-neighbour tests pass. Earlier
+386 integration passes are source-frozen and overlap. Native private3840x2160
+Preferences capture, original failures and unchanged occupancy/motion guards
+are retained in data/615_requested_popup_animation_2026-10-07/receipt.json.
+Current English API/Help are normally refreshed. The normal all-nine runtime
+writer finishes0:1,243 settings/237 categories/7,239 UI rows/77 modules.
+Its complete original log and technical review evidence are archived. Translated
+API/guides and updated Home tutorial publication remain active. Home's native
+faults, hard24FPS and source-current hosted acceptance remain open; no Home
+acknowledgment or full N615 closure is inferred from this commit handoff.

@@ -432,13 +432,14 @@ _SETTINGS_LAYOUT_KEY = "make_masks/settings"
 #: reading the stored list through this keeps their arrangement.
 #: Cellpose-SAM became Object detection and Auto-filter objects became the
 #: Filter category; item 473 then folded Otsu, Object detection and its own
-#: Detection methods into ONE "Detection method" category, because they
+#: Object detections into ONE "Object detection" category, because they
 #: were three categories answering one question -- what finds the objects
 #: -- and only one of them was ever being read.
-_RENAMED_CATEGORIES = {"Cellpose-SAM": "Detection method",
-                       "Object detection": "Detection method",
-                       "Otsu": "Detection method",
-                       "Detection methods": "Detection method",
+_RENAMED_CATEGORIES = {"Cellpose-SAM": "Object detection",
+                       "Detection method": "Object detection",
+                       "Otsu": "Object detection",
+                       "Detection methods": "Object detection",
+                       "Live magnifier": "Magnification settings",
                        "Auto-filter objects": "Filter"}
 
 #: The two inks this screen cannot take from the shipped stylesheet: the
@@ -1013,7 +1014,7 @@ class _MasksConsole(QWidget):
 
 
 class _MethodGroup(QWidget):
-    """One family of detection settings inside the Detection method category.
+    """One family of detection settings inside the Object detection category.
 
     The category holds four of these -- the threshold family's, Cellpose's,
     the organelle methods' and the propagation's -- and shows the one the
@@ -5568,6 +5569,9 @@ class _LiveMagnifier(QObject):
         #: What a click would add where the mask already has objects; the
         #: Overlap rule the screen's box is on. See :func:`_ghosted_overlay`.
         self.overlap = _MAGNIFIER_OVERLAP_DEFAULT
+        self.auto_accept = False
+        self._auto_accepted = None
+        self._auto_explicit_key = None
         #: The mask the canvas was last seen holding, and how many different
         #: ones it has held. See :meth:`mask_generation`.
         self._mask_seen = None
@@ -5734,6 +5738,66 @@ class _LiveMagnifier(QObject):
         self.refresh()
         self.canvas.update()
 
+    def set_auto_accept(self, on: bool) -> None:
+        """Accept current proposals without a click while enabled.
+
+        Region mode follows Objects added; whole-image mode accepts only
+        the object under the pointer. Explicit drags retain one undo step.
+        A mask repaint or undo does not accept the same proposal again.
+        """
+        self.auto_accept = bool(on)
+        self._auto_accepted = None
+        self._auto_explicit_key = None
+        self._accept_proposed()
+
+    def _accept_proposed(self, *, commit: bool = True) -> bool:
+        """Commit a current hover proposal once, without consuming a drag.
+
+        Disabled, superseded, off-image and old-field answers never qualify.
+        Remember the proposal before emitting: committing refreshes the mask
+        synchronously and can trigger another preview delivery.
+        """
+        if (not self.auto_accept or not self.enabled or self._cursor is None
+                or self._stroke is not None or self._waiting):
+            return False
+        whole = self.scope == "image"
+        expected = self._image_key_now() if whole else self._requested_key
+        explicit = (expected, self.overlap, self.save_mode, self._cursor)
+        if not commit:
+            self._auto_explicit_key = explicit
+        result = self._image_result if whole else self._shown
+        if result is None or result.request.key[0] != self._field:
+            return False
+        if result.request.key != expected:
+            return False
+        label = None
+        if whole or self.save_mode == "touching":
+            x0, y0 = result.request.box[:2]
+            x, y = self._cursor
+            x, y = x - x0, y - y0
+            if not (0 <= y < result.labels.shape[0]
+                    and 0 <= x < result.labels.shape[1]):
+                return False
+            label = int(result.labels[y, x])
+            if label <= 0:
+                return False
+        marker = (result.request.key, self.overlap, self.save_mode, label)
+        if marker == self._auto_accepted:
+            return False
+        self._auto_accepted = marker
+        if not commit or self._auto_explicit_key == explicit:
+            return False
+        if whole:
+            accepted = _single_object(result, label)
+        elif label is not None:
+            accepted = result._replace(
+                labels=np.where(result.labels == label, result.labels, 0),
+                count=1, overlay=None, ghost=None, extents=None)
+        else:
+            accepted = result
+        self.commit_ready.emit(accepted)
+        return True
+
     def size_range(self) -> tuple:
         """``(smallest, largest)`` side for the field on screen; see
         :func:`_magnifier_size_range`."""
@@ -5817,6 +5881,8 @@ class _LiveMagnifier(QObject):
         self._said_diameter_note = False
         self._shown = None
         self._shown_image = None
+        self._auto_accepted = None
+        self._auto_explicit_key = None
         self._waiting.clear()
         self._requested_key = None
         self._requested_stamp = None
@@ -5894,6 +5960,7 @@ class _LiveMagnifier(QObject):
         self._requested_stamp = self._stamp(request)
         if (self._shown is not None
                 and self._stamp(self._shown.request) == self._requested_stamp):
+            self._accept_proposed()
             return
         self._worker.submit(request)
 
@@ -6200,6 +6267,7 @@ class _LiveMagnifier(QObject):
         self._requested_key = request.key
         self._requested_stamp = self._stamp(request)
         if self._shown is not None and self._shown.request.key == request.key:
+            self._accept_proposed(commit=False)
             self.commit_ready.emit(self._shown)
             return True
         self._waiting.add(request.key)
@@ -6349,6 +6417,7 @@ class _LiveMagnifier(QObject):
             return
         result = self._image_result
         if result is not None and result.request.key == key:
+            self._accept_proposed()
             return
         if key in (self._image_key, self._image_halted):
             return
@@ -6357,6 +6426,7 @@ class _LiveMagnifier(QObject):
             self._stop_image()
             self._image_result = kept
             self._image_view = None
+            self._accept_proposed()
             self.status.emit(tr(
                 "Magnifier: {n} object(s) found in the whole image. Click one "
                 "to add it; right-click an object in the mask to remove it.",
@@ -6556,6 +6626,7 @@ class _LiveMagnifier(QObject):
                 "Magnifier: there is no object under the click — nothing was "
                 "added."))
             return True
+        self._accept_proposed(commit=False)
         self.commit_ready.emit(_single_object(result, label))
         return True
 
@@ -6746,6 +6817,8 @@ class _LiveMagnifier(QObject):
             self._stroke = None
             self._stroke_timer.stop()
         if not gone:
+            if final:
+                self._accept_proposed(commit=False)
             self.drag_ready.emit((stroke.outcome(), bool(final)))
 
 
@@ -6837,7 +6910,10 @@ class _LiveMagnifier(QObject):
             result.overlay if result.ghost is None else result.ghost)
         if request.key in self._waiting:
             self._waiting.discard(request.key)
+            self._accept_proposed(commit=False)
             self.commit_ready.emit(result)
+        else:
+            self._accept_proposed()
         self.canvas.update()
 
     def _note_fallback(self, request, result) -> bool:
@@ -6898,7 +6974,8 @@ class _LiveMagnifier(QObject):
         self._image_result = result._replace(request=stored)
         self._image_view = None
         self._keep_image_result(self._image_result)
-        if not noted:
+        accepted = self._accept_proposed()
+        if not noted and not accepted:
             self.status.emit(tr(
                 "Magnifier: {n} object(s) found in the whole image. Click one "
                 "to add it; right-click an object in the mask to remove it.",
@@ -9600,7 +9677,7 @@ class MakeMasksScreen(QWidget):
             "the most uncertain fields first and saves the scores as "
             "curate_uncertainty.csv for spacr-make-masks --order uncertain. "
             "Takes four detection runs per field, or eight when an optional "
-            "ensemble model is selected in Detection method."))
+            "ensemble model is selected in Object detection."))
         button.setMenu(self._uncertainty_menu())
         _apply_alpha_widgets(button)
         self._btn_uncertainty = button
@@ -11400,7 +11477,7 @@ class MakeMasksScreen(QWidget):
         self._btn_otsu = QPushButton("Otsu detect")
         self._btn_otsu.setCursor(Qt.PointingHandCursor)
         self._btn_otsu.setToolTip(
-            "Run the CPU method chosen under Detection method on the whole "
+            "Run the CPU method chosen under Object detection on the whole "
             "image and label what it finds, honouring the minimum area "
             "above. Everything the method reads is that category: the "
             "level's algorithm, the correction, the smoothing, which side "
@@ -11435,8 +11512,6 @@ class MakeMasksScreen(QWidget):
         self._sync_method_controls()
         _screens_package._breathe_while_a_window_opens()
         col.addWidget(self._build_enhance_card())
-        _screens_package._breathe_while_a_window_opens()
-        col.addWidget(self._build_magnifier_card())
         _screens_package._breathe_while_a_window_opens()
         col.addWidget(self._build_prompt_card())
 
@@ -13442,8 +13517,8 @@ class MakeMasksScreen(QWidget):
         """Build the shared detection-mode selector and its method controls.
 
         The mode drives the detect buttons, whole-image runs and Live
-        magnifier. The magnifier's size, zoom, scope, overlap rule and
-        sensitivity remain in its own category.
+        magnifier. Magnification settings nest here and control size, zoom,
+        scope, overlap, sensitivity and optional instant acceptance.
 
         Inside, four :class:`_MethodGroup` s, of which one is shown:
         the threshold family's settings (Otsu's own, and every algorithm in
@@ -13452,7 +13527,7 @@ class MakeMasksScreen(QWidget):
         what shows one and hides three.
         """
         card = self._settings_category(
-            "Detection method",
+            "Object detection",
             "What finds the objects, and the settings that method reads. "
             "Drives the detect buttons and the Live magnifier alike.",
         )
@@ -13514,6 +13589,8 @@ class MakeMasksScreen(QWidget):
         for group in self._method_groups.values():
             card.body_layout.addWidget(group)
         card.body_layout.addWidget(self._build_uncertainty_ensemble_setting())
+        self._magnification_card = self._build_magnifier_card()
+        card.body_layout.addWidget(self._magnification_card)
         return card
 
     def _mode_guidance(self, mode: str) -> str:
@@ -13848,7 +13925,7 @@ class MakeMasksScreen(QWidget):
                           method=_magnifier_mode_label(named)))
 
     def _method_params(self) -> "organelle_modes.MethodParams":
-        """The Detection methods card as the engine's parameters.
+        """The Object detections card as the engine's parameters.
 
         Read on the GUI thread whenever a request is built, like every
         other setting a model reads, so the box under the mouse and the
@@ -14995,17 +15072,15 @@ class MakeMasksScreen(QWidget):
         whole image once), whether objects cut by the box are offered, and
         the progress and Cancel of a whole-image run.
 
-        THE METHOD IS NOT HERE ANY MORE. It moved to the Detection method
-        category with item 473, because it is not the box's: the same
-        choice drives the detect buttons and the whole-image run, and the
-        category whose settings it changes is the one that should hold it.
+        This subsection is nested inside Object detection. The shared method
+        selector above it drives the detect buttons and magnifier workers.
         Min area is still Object operations', for the same reason it
         always was. No value here persists between sessions, like every
         other setting on this panel; only which categories are folded does.
         """
         magnifier = self._magnifier
         card = self._settings_category(
-            "Live magnifier",
+            "Magnification settings",
             "Segments the region under the mouse, or the whole image "
             "once, and shows its objects magnified. A click adds "
             "objects to the mask.",
@@ -15104,22 +15179,29 @@ class MakeMasksScreen(QWidget):
         self._mag_sensitivity.setEnabled(
             self._mag_mode.currentData() == "otsu")
 
+        self._mag_auto_accept = Toggle(tr("Instantly accept proposed objects"))
+        self._mag_auto_accept.setChecked(False)
+        self._mag_auto_accept.setToolTip(tr(
+            "Accept proposals without clicking. Region mode follows Objects added; "
+            "Whole image accepts only the object under the pointer. Undo is "
+            "available; Save or Save & Next writes the masks."))
+        self._mag_auto_accept.toggled.connect(magnifier.set_auto_accept)
+        form.addRow(self._mag_auto_accept)
+
         self._mag_overlap = QComboBox()
-        self._mag_overlap.addItem("Clip", "clip")
-        self._mag_overlap.addItem("Skip", "skip")
-        self._mag_overlap.addItem("Replace", "replace")
-        self._mag_overlap.setToolTip(
-            "What a new object does where the mask already has an object. "
-            "Clip keeps only its unlabelled pixels, so no existing object "
-            "loses a pixel. Skip leaves out any object that touches an "
-            "existing one. Replace lets the new object take every pixel it "
-            "covers. Under Region under the mouse the box shows what the "
-            "rule leaves: what a click would add is drawn solid, and what it "
-            "would take away is ghosted.")
+        self._mag_overlap.addItem(tr("Add non-overlapping pixels"), "clip")
+        self._mag_overlap.addItem(tr("Fuse with existing object"), "merge")
+        self._mag_overlap.addItem(tr("Replace overlapping object"), "replace")
+        self._mag_overlap.addItem(tr("Skip overlapping objects"), "skip")
+        self._mag_overlap.setToolTip(tr(
+            "Fuse retains and extends the existing ID. Add non-overlapping pixels "
+            "creates a new object from unlabelled pixels. Replace removes "
+            "overlapping old objects in full. Skip ignores overlapping "
+            "proposals. Secondary mode cannot fuse primary IDs."))
         self._mag_overlap.currentIndexChanged.connect(
             lambda _index: magnifier.set_overlap(
                 self._mag_overlap.currentData()))
-        form.addRow("Overlap", self._mag_overlap)
+        form.addRow(tr("Overlap"), self._mag_overlap)
         card.body_layout.addLayout(form)
 
         progress = QHBoxLayout()
@@ -15179,8 +15261,8 @@ class MakeMasksScreen(QWidget):
             "joined from the pieces found in each box where they lie in the "
             "image. Whole image always adds only the objects under the mouse.")
         box.currentIndexChanged.connect(
-            lambda _index: setattr(self._magnifier, "save_mode",
-                                   box.currentData()))
+            lambda _index: (setattr(self._magnifier, "save_mode", box.currentData()),
+                            self._magnifier.refresh()))
         form.addRow(QLabel("Objects added"), box)
 
     def _magnifier_context(self) -> dict:
@@ -15222,7 +15304,7 @@ class MakeMasksScreen(QWidget):
     def _on_magnifier_mode(self, mode) -> None:
         """Choose the magnifier's model; Sensitivity is the Otsu mode's.
 
-        The Detection methods card follows the mode, so the parameters on
+        The Object detections card follows the mode, so the parameters on
         screen are the ones the mode just chosen reads and no others.
         """
         name = canonical_magnifier_mode(mode)
@@ -15891,10 +15973,15 @@ class MakeMasksScreen(QWidget):
                 self._status_label.setText(str(exc))
                 return []
         overlap = self._mag_overlap.currentData() or "clip"
+        if exact_ids and overlap == "merge":
+            self._status_label.setText(tr(
+                "Secondary mode preserves primary IDs; Fuse is unavailable."))
+            return []
         try:
             out, added = engine._paste_region_objects(
                 mask, result.labels, request.box[:2], overlap=overlap,
-                min_area=self._detect_min_area(), preserve_ids=exact_ids)
+                min_area=self._detect_min_area(), preserve_ids=exact_ids,
+                replace_whole=overlap == "replace")
         except ValueError as exc:
             self._status_label.setText(tr(
                 "Magnifier could not add objects: {error}", error=exc))
@@ -15910,6 +15997,11 @@ class MakeMasksScreen(QWidget):
                 "every object it outlines overlaps one already in the mask."))
             return []
         changed = self._pixels_changed(out)
+        if not changed:
+            return []
+        if overlap == "merge":
+            self._manual_id_history[self._manual_mask_key(mask)] = self._canvas.manual_ids
+            self._canvas.manual_ids = True
         self._canvas.mask = out
         self._canvas.refresh()
         if exact_ids:
@@ -16012,7 +16104,8 @@ class MakeMasksScreen(QWidget):
                 mapped[incoming == value] = target
             pasted, added = engine._paste_region_objects(
                 base, mapped, found.origin, overlap=overlap,
-                min_area=self._detect_min_area(), preserve_ids=True)
+                min_area=self._detect_min_area(), preserve_ids=True,
+                replace_whole=overlap == "replace")
             out = pasted if added else base
         canvas.mask = out
         canvas.refresh()

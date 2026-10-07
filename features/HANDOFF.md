@@ -1,5 +1,58 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Root: requested popup, magnifier and animation revisions
+
+Root owns the maintainer's latest explicit theme and popup requests. Growth
+now uses short, nearly straight segments from one common colony origin,
+frequent recursive forks that redirect the continuing tip, and a front that
+advances across the screen. Density controls live tips and a bounded visible
+footprint; ancestors and sibling forks survive footprint selection. The
+unchanged actual rendered occupancy guard remains at 25 percent. Aurora is
+rebuilt around folded curtains with seeded irregular rays and green/pink
+emission in the spaCR palette. Spinn angular speed now increases with mouse
+proximity; gravity controls its radius. Blobs consumes queued elapsed time
+when GUI ticks cannot acquire the renderer lock.
+
+Popups retain their spaCR transient owner and clear the global always-on-top
+flag. Apply treats Settings backdrop None independently of the main animation,
+and updates popup themes without duplicate backdrops. The blue card rim stays
+over an animated backdrop. Settings backdrop darkness controls card opacity
+independently of Page opacity and participates in Apply/Keep/Revert/Reset.
+Dot blinking defaults to zero, with the requested .00001–10 percent nonzero
+range. This supersedes the earlier fixed one-percent flicker request. Popup
+wave frequency defaults to zero; field waves originate at an open popup's
+centre and move with that popup.
+
+Make Masks adds Magnification settings with opt-in instant acceptance and
+Fuse, Add non-overlap, Replace or Skip handling. Fusion relabels entire
+overlapping objects; replacement removes the entire prior object. Explicit
+clicks and completed drag endpoints suppress duplicate late automatic
+acceptance. Secondary objects preserve their primary object IDs. Actual TIFF
+saves/reopens, undo/redo, stale previews and delayed endpoints are tested.
+
+The earlier frozen integration cohort has 386 passes/one deselection. The
+final growth/Aurora/magnifier cohort has 38 passes and growth raster neighbours
+have 34 passes; overlapping cohorts are not summed. Original failed growth
+guards are retained and now pass without relaxed thresholds. The same Blobs
+lock-contention reproducer fails on the preceding source and passes here.
+Fresh private native 3840x2160 Preferences capture verifies Apply/Keep/Revert
+and the visible controls. Final rendered growth/Aurora frames, source hashes,
+complete logs, earlier frozen source and original retired translation evidence
+are in data/615_requested_popup_animation_2026-10-07/receipt.json.
+
+Normal all-nine runtime generation completes with 1,243 settings, 237
+categories, 7,239 UI rows and 77 modules. New controls have source-bound
+technical reviews; retired superseded rows retain their original evidence.
+English API and the Help index are normally regenerated and audited.
+
+Home: please include these explicitly requested Root changes in your next
+source-current hosted/native checks and preserve all hard timing, memory,
+coverage and source guards. This handoff does not claim receipt by Home,
+cross-application native stacking, original installed Save/puncta causation,
+native 24 FPS, or user aesthetic approval. Home retains those checks and the
+external scientific input work. Current translated API/guides and revised
+Home tutorial publication remain Root's continuing work; N615 stays open.
+
 ## 2026-10-07 — Root: saved per-plaque probability and flow diagnostics
 
 The maintainer explicitly requested saved mean cell probability and flow

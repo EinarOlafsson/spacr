@@ -1,0 +1,13 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "Animation density",
+      "source": "Animation density",
+      "source_sha256": "a3c56b3b87f45cf9dbe6294877f282b65eb7ca56343ae0992bd43f1b1d917e58",
+      "table": "ui",
+      "translation": "एनिमेशन घनत्व"
+    }
+  ],
+  "schema": 1
+}

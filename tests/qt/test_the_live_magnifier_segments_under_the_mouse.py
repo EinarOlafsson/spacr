@@ -306,7 +306,7 @@ def test_the_paste_rules_at_the_engine():
         "a region hanging off the image is clipped, not wrapped")
 
     with pytest.raises(ValueError):
-        engine._paste_region_objects(mask, labels, (0, 0), overlap="merge")
+        engine._paste_region_objects(mask, labels, (0, 0), overlap="unknown")
 
 
 def test_the_box_and_the_cut_rule_at_the_engine():
