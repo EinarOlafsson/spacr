@@ -1,9 +1,9 @@
 {
   "source_sha": "bb7f7585cd9fa2a886e4509010b35f258c529f77",
   "run_id": 37681965976,
-  "snapshot": "2026-10-07T22:23:01Z",
+  "snapshot": "2026-10-07T22:29:42Z",
   "partial": true,
-  "note": "Nine terminal failed jobs captured while 11 jobs were still in progress; no full-run or numerical-coverage verdict is claimed.",
+  "note": "Ten terminal failed jobs captured while other jobs were still in progress; no full-run or numerical-coverage verdict is claimed.",
   "logs": [
     {
       "path": "logs/113019199428.log.gz",
@@ -28,6 +28,14 @@
       "raw_bytes": 2325828,
       "gzip_sha256": "27ef6df298ee47dfdf9414f7295797b2d5e8d28360dd170d08837a99b6732c73",
       "gzip_bytes": 317412
+    },
+    {
+      "path": "logs/113019199506.log.gz",
+      "job_id": 113019199506,
+      "raw_sha256": "87725906d33fb492586b0927ea5b00176724b9b4b870f6bbdcbcf2e0064ea774",
+      "raw_bytes": 2024401,
+      "gzip_sha256": "c7f86b0ac6f21e1b5ce099a8660d17512105113483b02990d9f47bc93b2c50b2",
+      "gzip_bytes": 284341
     },
     {
       "path": "logs/113019199536.log.gz",

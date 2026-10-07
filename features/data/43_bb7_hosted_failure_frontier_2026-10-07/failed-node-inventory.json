@@ -216,6 +216,41 @@
       "native_faults": 1
     },
     {
+      "job_id": 113019199506,
+      "log_sha256": "87725906d33fb492586b0927ea5b00176724b9b4b870f6bbdcbcf2e0064ea774",
+      "failures": [
+        {
+          "node": "tests/qt/test_ambient_gravity_radius_preferences.py::test_gravity_radius_read_does_not_rewrite_saved_settings[None-0.0]",
+          "error": "assert 0.1 == 0.0"
+        },
+        {
+          "node": "tests/qt/test_ambient_gravity_radius_preferences.py::test_gravity_radius_defaults_off_cancel_preserves_and_save_persists",
+          "error": "assert (0, 100, 10) == (0, 100, 0)"
+        },
+        {
+          "node": "tests/qt/test_missing_performance_interactions.py::test_pointer_actions_have_real_state_witnesses",
+          "error": "assert False"
+        },
+        {
+          "node": "tests/qt/test_i18n_caption_ratchet.py::test_custom_widgets_and_indirect_registries_enter_one_i18n_layer",
+          "error": "AssertionError: custom/indirect runtime captions bypass both i18n layers:"
+        },
+        {
+          "node": "tests/qt/test_the_setup_screen_reads_and_moves_well.py::test_an_arrived_rim_stops_repainting",
+          "error": "assert [1] == []"
+        },
+        {
+          "node": "tests/qt/test_the_settings_windows_are_one_rounded_card.py::TestTheBackdropIsStratifiedByDefault::test_the_shipped_default_is_stratified",
+          "error": "AssertionError: assert 'off' == 'drift'"
+        },
+        {
+          "node": "tests/test_a_button_says_what_it_does_at_the_foot.py::test_crossing_between_two_buttons_does_not_flash_the_default",
+          "error": "AttributeError: 'HintBar' object has no attribute '_hover_delay'"
+        }
+      ],
+      "native_faults": 0
+    },
+    {
       "job_id": 113019199536,
       "log_sha256": "b5af8a9d2b8e133fc63241f170eaf92ac94598725519064ab36c6e13c82ba04a",
       "failures": [
