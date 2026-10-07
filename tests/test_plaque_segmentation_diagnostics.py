@@ -9,6 +9,7 @@ import torch
 from cellpose import dynamics
 
 from spacr import plaque, plaque_papers, submodules
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 
 
 def _prediction():
@@ -78,8 +79,10 @@ def _run(tmp_path, monkeypatch, output=None):
     calls = []
 
     class Model:
-        def eval(self, image, **kwargs):
-            calls.append(kwargs)
+        def eval(self, image, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+            check_cellpose_eval_call(image, channel_axis,
+                                     require_channel_axis=False)
+            calls.append({"channel_axis": channel_axis, **kwargs})
             return output
 
     monkeypatch.setattr(submodules, '_resolve_plaque_model', lambda *args, **kwargs: 'model')
@@ -107,6 +110,7 @@ def test_database_csv_and_mask_only_rerun_keep_same_diagnostics(tmp_path, monkey
         details = pd.read_sql('SELECT * FROM details ORDER BY plaque_id', db)
     assert details['cell_probability_mean'].tolist() == [2, -1]
     assert len(calls) == 1
+    assert calls[0]["channel_axis"] is MISSING_CHANNEL_AXIS
     submodules.analyze_plaques({**settings, 'masks': False})
     pd.testing.assert_frame_equal(_saved(tmp_path), saved)
     assert len(calls) == 1
@@ -166,7 +170,9 @@ def test_figure_workflow_saves_metrics_and_upgrades_old_database(tmp_path, monke
         def __init__(self, **kwargs):
             pass
 
-        def eval(self, image, **kwargs):
+        def eval(self, image, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+            check_cellpose_eval_call(image, channel_axis,
+                                     require_channel_axis=False)
             return output
 
     monkeypatch.setattr(cellpose.models, 'CellposeModel', Model)

@@ -201,10 +201,12 @@ class TestIdentifyMasksFinetune:
     def _settings(self, src, **over):
         return _settings(src, **over)
 
-    def test_custom_model_not_found_returns(self, tmp_path, _mock_cellpose):
+    def test_custom_model_not_found_refuses_stock_fallback(self, tmp_path,
+                                                           _mock_cellpose):
         s = self._settings(tmp_path, custom_model=str(tmp_path / "nope.pth"))
-        # Custom model missing → early return (lines 100-102).
-        assert SC.identify_masks_finetune(s) is None
+        with pytest.raises(FileNotFoundError, match="nope.pth"):
+            SC.identify_masks_finetune(s)
+        assert not _mock_cellpose.models
 
     def test_no_images_returns(self, tmp_path, _mock_cellpose):
         (tmp_path / "masks").mkdir(exist_ok=True)
