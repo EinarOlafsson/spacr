@@ -1,6 +1,6 @@
 {
   "date": "2026-10-07",
-  "environment": {
+  "operator_reported_environment_not_captured_in_raw_log": {
     "CUDA_VISIBLE_DEVICES": "",
     "MKL_NUM_THREADS": "1",
     "MPLBACKEND": "Agg",
@@ -60,6 +60,7 @@
     "selectors": 26
   },
   "initial_source_commit": "04968c06fed9d61ab0e95d0e5d5a8ac16142549d",
+  "argv_capture": "No original shell argv was retained. nodes.txt preserves all 26 initial selectors. The exact focused-followup selectors were not retained; its terminal log proves only the 161-pass count. No reconstructed command is presented as an exact receipt.",
   "executable": "/home/olafsson/anaconda3/envs/spacr/bin/python",
   "executable_evidence": "The initial pytest failure header in pytest.log.gz records Python 3.12.13 and this absolute executable. The logs do not capture the complete shell argv or package versions; reported flags are operator notes, not independently archived argv.",
   "python": "3.12.13",
