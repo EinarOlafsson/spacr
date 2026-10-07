@@ -302,9 +302,9 @@ def test_the_mode_is_called_otsu_and_the_category_object_detection(screen):
     assert not [row for row in modes if row[1] == "classical"]
     assert "Classical" not in [text for text, _data in modes]
     titles = [title for title, _section in screen._settings_categories]
-    assert "Detection method" in titles, (
+    assert "Object detection" in titles, (
         "item 473 folded Otsu and Object detection into one category")
-    assert not {"Object detection", "Otsu", "Cellpose-SAM"} & set(titles)
+    assert not {"Detection method", "Otsu", "Cellpose-SAM"} & set(titles)
     assert screen._btn_cellpose.text() == "Object detection"
 
 
@@ -323,21 +323,22 @@ def test_set_mode_takes_the_old_name_and_stores_the_new_one(screen):
         screen._magnifier.build_request().mode == "otsu")
 
 
+@pytest.mark.parametrize("old_title", ("Cellpose-SAM", "Detection method", "Otsu"))
 def test_a_layout_that_folded_the_old_category_folds_the_new_one(
-        qtbot, qt_theme_applied, monkeypatch):
+        qtbot, qt_theme_applied, monkeypatch, old_title):
     """The stored layout is a list of TITLES, so a rename loses the user's
     arrangement unless the old title is read as the new one."""
     from spacr.qt import preferences
 
     monkeypatch.setattr(
         preferences, "get_section_layout",
-        lambda panel: {"folded": ["Cellpose-SAM", "Brush"]})
+        lambda panel: {"folded": [old_title, "Brush"]})
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     try:
         folded = {title for title, section in made._settings_categories
                   if not section.is_expanded()}
-        assert folded == {"Detection method", "Brush"}
+        assert folded == {"Object detection", "Brush"}
     finally:
         made._magnifier.close()
         made.close_folded()
@@ -345,7 +346,7 @@ def test_a_layout_that_folded_the_old_category_folds_the_new_one(
 
 def test_the_otsu_category_holds_six_settings_and_drives_the_magnifier(screen):
     categories = dict(screen._settings_categories)
-    otsu = categories["Detection method"]
+    otsu = categories["Object detection"]
     for control in (screen._otsu_correction, screen._otsu_smoothing,
                     screen._otsu_bright, screen._otsu_fill_holes,
                     screen._otsu_split, screen._otsu_exclude_border):
