@@ -130,11 +130,11 @@ Values:
   are *per theme*, so see :func:`get_ambient_palette` for how the two
   keys stay consistent with each other.
 * ``ambient_speed`` / ``ambient_size`` / ``ambient_resolution`` /
-  ``ambient_density``: floats, all default ``1.0``, all *multipliers* on
+  ``ambient_density``: floats; speed, size and detail default to ``1.0``,
+  density to ``0.1``. All are *multipliers* on
   what the chosen animation already does — how fast it moves, how large its
   elements are, how much detail it is drawn with and how many elements
-  there are. 1.0 is the shipped animation in every theme, exactly, so a
-  user who never touches them sees no change. Clamped on read and on write
+  there are. Clamped on read and on write
   to the ranges the engines declare
   (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` and friends).
 * ``ambient_blur``: a legacy float retained for reading older preferences.
@@ -2198,7 +2198,7 @@ def _ambient_gravity_radius() -> float:
     import math
 
     try:
-        value = float(_settings().value(_KEY_AMBIENT_GRAVITY_RADIUS, 0.0))
+        value = float(_settings().value(_KEY_AMBIENT_GRAVITY_RADIUS, 0.1))
     except (TypeError, ValueError):
         return 0.0
     return max(0.0, min(1.0, value)) if math.isfinite(value) else 0.0
@@ -2239,7 +2239,7 @@ def _ambient_ranges():
                 (DENSITY_RANGE, DEFAULT_DENSITY))
     except Exception:
         return (((0.0, 3.0), 0.0), ((0.1, 4.0), 1.0), ((0.25, 2.5), 1.0),
-                ((0.25, 2.0), 1.0), ((0.01, 3.0), 1.0))
+                ((0.25, 2.0), 1.0), ((0.01, 3.0), 0.1))
 
 
 def _migrate_ambient_motion() -> None:
@@ -7768,6 +7768,7 @@ class PreferencesDialog:
         from .widgets.toggle import Toggle
 
         dlg = _preferences_window_class()(parent)
+        dlg._apply_confirmation = None
         from .dialogs import detach_from_window_manager
         detach_from_window_manager(dlg)
         dlg.setWindowTitle(tr("spaCR — Preferences"))
@@ -8154,7 +8155,7 @@ class PreferencesDialog:
             0.0, 1.0, _ambient_gravity_radius(),
             tr("How far mouse gravity reaches, as a percentage of the shorter "
                "screen edge. Zero disables mouse influence. Applies to "
-               "backgrounds that respond to the mouse."), designed=0.0)
+               "backgrounds that respond to the mouse."), designed=0.1)
 
         def _sync_ambient_enabled(*_args):
             """Grey out the shaping controls when there is nothing to paint.
@@ -8176,18 +8177,6 @@ class PreferencesDialog:
 
         ambient_theme_combo.currentIndexChanged.connect(_sync_ambient_enabled)
         _sync_ambient_enabled()
-
-        setting_anim_check = Toggle(tr("Animate setting tooltips"))
-        setting_anim_check.setObjectName("SettingAnimationsEnabled")
-        setting_anim_check.setToolTip(
-            "Hovering a setting shows a short animation of what it does, "
-            "beside the explanation, without being asked. Cleared — the "
-            "default — every tooltip is text only until you press the "
-            "Animation word in its footer, and pressing it shows that one "
-            "setting's animation only."
-        )
-        setting_anim_check.setChecked(get_setting_animations_enabled())
-        animation.addRow(tr("Setting animations"), setting_anim_check)
 
         tooltips_all_check = Toggle(tr("Show tooltips"))
         tooltips_all_check.setObjectName("TooltipsEnabled")
@@ -8473,20 +8462,18 @@ class PreferencesDialog:
 
         rim_length_slider = QSlider(Qt.Horizontal)
         rim_length_slider.setObjectName("RimLength")
-        rim_length_slider.setRange(*RIM_LENGTH_RANGE)
-        rim_length_slider.setSingleStep(10)
-        rim_length_slider.setPageStep(40)
-        rim_length_slider.setValue(get_rim_length())
+        rim_length_slider.setRange(4, 62)
+        rim_length_slider.setSingleStep(1)
+        rim_length_slider.setPageStep(5)
+        rim_length_slider.setValue(int(round(_rim_length_fraction() * 100)))
         rim_length_slider.setToolTip(
-            "How far the accent runs along the edge of a settings card, in "
-            "pixels. Short reads as a dash sitting on one edge; past about "
-            "half the perimeter it stops being a highlight and becomes a "
-            "border.")
+            "The percentage of a settings card's perimeter lit by the rim. "
+            "The same percentage is used at every window size and resolution.")
         rim_length_value = QLabel()
 
-        def _rim_length_says(px):
-            """Show the rim length in pixels."""
-            rim_length_value.setText(tr("%d px") % int(px))
+        def _rim_length_says(percent):
+            """Show the rim length as a percentage of the perimeter."""
+            rim_length_value.setText(f"{int(percent)}%")
 
         _rim_length_says(rim_length_slider.value())
         rim_length_slider.valueChanged.connect(_rim_length_says)
@@ -9580,9 +9567,13 @@ class PreferencesDialog:
 
         buttons = QDialogButtonBox(
             QDialogButtonBox.Save | QDialogButtonBox.Cancel
+            | QDialogButtonBox.Apply
         )
         save_button = buttons.button(QDialogButtonBox.Save)
         cancel_button = buttons.button(QDialogButtonBox.Cancel)
+        apply_button = buttons.button(QDialogButtonBox.Apply)
+        apply_button.setObjectName("PreferencesApply")
+        apply_button.setText(tr("Apply"))
         if save_button is not None:
             save_button.setText(tr("Save"))
         if cancel_button is not None:
@@ -9592,8 +9583,7 @@ class PreferencesDialog:
         reset_button.setObjectName("PreferencesReset")
         reset_button.setToolTip(tr(
             "Put every preference back to the value a fresh install has. "
-            "Nothing is written until you press Save, so Cancel still "
-            "undoes it."))
+            "Nothing is written until you press Apply or Save."))
         outer.addWidget(buttons)
 
         def _select(combo, value) -> None:
@@ -9656,6 +9646,13 @@ class PreferencesDialog:
                     int(round(get_ambient_density() * 100)))
                 gravity_slider.setValue(
                     int(round(_ambient_gravity_radius() * 100)))
+                rim_length_slider.setValue(
+                    int(round(_rim_length_fraction() * 100)))
+                rim_lag_slider.setValue(int(round(get_rim_lag() * 100)))
+                _select(rim_align_combo, get_rim_alignment())
+                _select(rim_mode_combo, get_rim_mode())
+                rim_period_slider.setValue(int(round(get_rim_period() * 10)))
+                _select(popup_backdrop_combo, get_popup_backdrop())
                 spinner_slider.setValue(
                     int(round(get_spinner_delay() * 10)))
                 scale_slider.setValue(int(round(get_font_scale() * 100)))
@@ -9663,8 +9660,6 @@ class PreferencesDialog:
                 opacity_slider.setValue(
                     int(round(get_pane_opacity() * 100)))
 
-                setting_anim_check.setChecked(
-                    get_setting_animations_enabled())
                 tooltips_all_check.setChecked(get_tooltips_enabled())
                 tooltip_delay_slider.setValue(
                     int(round(_get_tooltip_delay() * 10)))
@@ -9703,13 +9698,13 @@ class PreferencesDialog:
 
         reset_button.clicked.connect(_reset_to_defaults)
 
-        def _save():
+        def _save(*, close=True, save_secrets=True):
             """Write every preference this dialog owns, rim first.
 
             THE RIM GOES FIRST because every open card rereads it: doing it before
             the theme work means one repaint rather than two.
             """
-            set_rim_length(rim_length_slider.value())
+            _set_rim_length_fraction(rim_length_slider.value() / 100.0)
             dlg._storage_page.save()
             set_rim_lag(rim_lag_slider.value() / 100.0)
             set_rim_alignment(rim_align_combo.currentData())
@@ -9733,7 +9728,6 @@ class PreferencesDialog:
             if direction_choice is not None:
                 set_ambient_drift_direction(direction_choice)
             set_spinner_delay(spinner_slider.value() / 10.0)
-            set_setting_animations_enabled(setting_anim_check.isChecked())
             set_tooltips_enabled(tooltips_all_check.isChecked())
             _set_tooltip_delay(tooltip_delay_slider.value() / 10.0)
             set_tooltips_box_enabled(tooltips_box_check.isChecked())
@@ -9861,16 +9855,138 @@ class PreferencesDialog:
                 sound_page.save()
             if notifications_page is not None:
                 try:
-                    notifications_page.save()
+                    if save_secrets:
+                        notifications_page.save()
+                    else:
+                        _set_run_notifications(notifications_page.values())
                 except Exception as exc:                     # noqa: BLE001
                     LOG.warning("could not save the notification settings "
                                 "(%s)", type(exc).__name__)
             _settings().sync()
             apply_preferences_to_app()
             _refresh_owner_window(parent)
-            dlg.accept()
+            if close:
+                dlg.accept()
+
+        def _apply():
+            """Preview the edits and ask separately, keeping this dialog open.
+
+            Only keys changed by this application are rolled back. New
+            notification secrets are written only after Keep, so Revert
+            cannot leave a replacement password in an external keyring.
+            Edited controls remain available as a draft after Revert.
+            """
+            from PySide6.QtWidgets import QMessageBox
+            from spacr.updater import (
+                _apply_network_settings, _network_config_path,
+            )
+
+            def _snapshot():
+                store = _settings()
+                store = getattr(store, "_real", store)
+                return {key: store.value(key) for key in store.allKeys()}
+
+            network_path = _network_config_path()
+
+            def _network_bytes():
+                try:
+                    return network_path.read_bytes()
+                except FileNotFoundError:
+                    return None
+
+            before = _snapshot()
+            old_network = _network_bytes()
+            missing = object()
+
+            def _restore():
+                after = _snapshot()
+                store = _settings()
+                for key in before.keys() | after.keys():
+                    if before.get(key, missing) != applied.get(key, missing):
+                        if key in before:
+                            store.setValue(key, before[key])
+                        else:
+                            store.remove(key)
+                store.sync()
+                if (_network_bytes() == applied_network
+                        and applied_network != old_network):
+                    if old_network is None:
+                        network_path.unlink(missing_ok=True)
+                    else:
+                        network_path.write_bytes(old_network)
+                _apply_network_settings()
+                from .gui_scale import set_gui_scale_live
+                set_gui_scale_live(get_gui_scale())
+                _tell_the_cards_the_rim_changed()
+                _backdrop_follows_the_level(get_performance_level())
+                if spaceout_enabled():
+                    from .widgets.fractal_travel import (
+                        apply_saved_controls, restart_the_dive,
+                    )
+                    from .widgets.ambient import rebuild_the_spaceout_backdrops
+                    apply_saved_controls()
+                    restart_the_dive()
+                    rebuild_the_spaceout_backdrops()
+                apply_preferences_to_app()
+                _refresh_owner_window(parent)
+
+            try:
+                _in_one_store(lambda: _save(close=False, save_secrets=False))
+            except Exception:
+                applied = _snapshot()
+                applied_network = _network_bytes()
+                _in_one_store(_restore)
+                LOG.exception("could not apply the preferences")
+                QMessageBox.warning(dlg, tr("Preferences"), tr(
+                    "Could not apply settings. Previous settings restored."))
+                return
+            applied = _snapshot()
+            applied_network = _network_bytes()
+            question = QMessageBox(dlg)
+            question.setObjectName("PreferencesKeepOrRevert")
+            question.setWindowTitle(tr("Keep these settings?"))
+            question.setText(tr("Your settings have been applied."))
+            question.setInformativeText(tr(
+                "Keep these settings or revert to the previous settings. "
+                "Preferences stays open. After Revert, your edits remain "
+                "available to change or apply again."))
+            keep = question.addButton(tr("Keep"), QMessageBox.AcceptRole)
+            revert = question.addButton(tr("Revert"), QMessageBox.RejectRole)
+            question.setDefaultButton(revert)
+            question.setEscapeButton(revert)
+            question.setWindowModality(Qt.WindowModal)
+            apply_button.setEnabled(False)
+            dlg._apply_confirmation = question
+            answered = False
+
+            def _answered(_result):
+                nonlocal answered
+                if answered:
+                    return
+                answered = True
+                try:
+                    if question.clickedButton() is keep:
+                        if notifications_page is not None:
+                            try:
+                                _in_one_store(notifications_page.save)
+                            except Exception as exc:
+                                LOG.warning(
+                                    "could not save the notification settings "
+                                    "(%s)", type(exc).__name__)
+                    else:
+                        _in_one_store(_restore)
+                finally:
+                    dlg.finished.disconnect(question.reject)
+                    apply_button.setEnabled(True)
+                    dlg._apply_confirmation = None
+                    question.deleteLater()
+
+            question.finished.connect(_answered)
+            dlg.finished.connect(question.reject)
+            question.open()
 
         buttons.accepted.connect(lambda: _in_one_store(_save))
+        apply_button.clicked.connect(_apply)
         buttons.rejected.connect(dlg.reject)
         from .widgets.hint_bar import HintBar
         hints = HintBar(parent=dlg)
@@ -10184,6 +10300,38 @@ def apply_workspace_preference() -> str:
 
 
 _KEY_RIM_LENGTH = "rim/length_px"
+_KEY_RIM_LENGTH_FRACTION = "rim/length_fraction"
+
+
+def _rim_length_fraction() -> float:
+    """Read relative rim length, retaining the appearance of legacy pixels."""
+    import math
+    raw = _settings().value(_KEY_RIM_LENGTH_FRACTION, None)
+    if raw is None:
+        from PySide6.QtCore import QRectF
+        from PySide6.QtGui import QPainterPath
+        from .widgets.setup_card import REFERENCE_CARD
+        path = QPainterPath()
+        path.addRoundedRect(QRectF(0.0, 0.0, *REFERENCE_CARD), 18, 18)
+        return min(0.62, max(0.04, get_rim_length() * 2.0 / path.length()))
+    try:
+        value = float(raw)
+    except (TypeError, ValueError):
+        value = 0.17
+    if not math.isfinite(value):
+        value = 0.17
+    return min(0.62, max(0.04, value))
+
+
+def _set_rim_length_fraction(fraction) -> None:
+    """Store the perimeter fraction used by every default settings card."""
+    import math
+    value = float(fraction)
+    if not math.isfinite(value):
+        value = 0.17
+    _settings().setValue(_KEY_RIM_LENGTH_FRACTION, min(0.62, max(0.04, value)))
+
+
 #: How many cells the montage puts on a row, per well.
 _KEY_MONTAGE_COLUMNS = "montage/columns"
 
@@ -10237,7 +10385,7 @@ _KEY_RIM_ALIGNMENT = "rim/alignment"
 DEFAULT_RIM_LENGTH = 280
 
 #: How hard the accent chases the pointer, per frame. Smaller is slower.
-DEFAULT_RIM_LAG = 0.16
+DEFAULT_RIM_LAG = 0.5
 
 #: Where the run sits relative to the pointer.
 RIM_ALIGNMENTS = ("centre", "head")
@@ -10277,6 +10425,7 @@ def set_rim_length(pixels) -> int:
         value = DEFAULT_RIM_LENGTH
     settings = _settings()
     settings.setValue(_KEY_RIM_LENGTH, value)
+    settings.remove(_KEY_RIM_LENGTH_FRACTION)
     settings.sync()
     return value
 
@@ -10348,11 +10497,11 @@ def set_rim_alignment(name: str) -> str:
 #: colour and PULSES it, brightening and dimming on a steady cycle.
 _KEY_RIM_MODE = "rim/mode"
 RIM_MODES = ("glow", "rainbow", "beat")
-DEFAULT_RIM_MODE = "glow"
+DEFAULT_RIM_MODE = "beat"
 
 #: Seconds for one full pulse of `beat`, or one full hue turn of `rainbow`.
 _KEY_RIM_PERIOD = "rim/period_s"
-DEFAULT_RIM_PERIOD = 2.4
+DEFAULT_RIM_PERIOD = 1.5
 RIM_PERIOD_RANGE = (0.4, 12.0)
 
 
@@ -10423,7 +10572,7 @@ _KEY_POPUP_BACKDROP = "rim/popup_backdrop"
 POPUP_BACKDROPS = ("off",) + tuple(sorted(
     ("aurora", "blobs", "drift") + DATA_ART_THEME_KEYS
 ))
-DEFAULT_POPUP_BACKDROP = "drift"
+DEFAULT_POPUP_BACKDROP = "off"
 
 
 def get_popup_backdrop() -> str:

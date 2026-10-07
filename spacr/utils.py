@@ -6491,6 +6491,13 @@ def _resolve_cellpose_pretrained(model_name, object_type=None, restore_type=None
                 ('checkpoint', name, object_type),
                 f"Loading fine-tuned Cellpose checkpoint{clause}: {name}")
             return name
+        from .model_zoo import _ensure_model_file
+        downloaded = _ensure_model_file(name, kinds=("cellpose",))
+        if downloaded is not None:
+            _report_cellpose_once(
+                ('checkpoint', name, object_type),
+                f"Loading model-zoo Cellpose checkpoint{clause}: {downloaded}")
+            return str(downloaded)
         if os.sep in name or name.endswith(('.pth', '.pt')):
             raise FileNotFoundError(
                 f"Cellpose model {name!r}{clause} looks like a "

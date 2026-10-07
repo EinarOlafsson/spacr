@@ -1947,6 +1947,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--list", "-l", action="store_true",
         help="List every module that can run headless, and exit.")
     parser.add_argument(
+        "--list-models", "--models", action="store_true",
+        help="List local and downloadable model-zoo entries, and exit. "
+             "Use a model key in settings to download missing weights on use.")
+    parser.add_argument(
         "--describe", metavar="MODULE",
         help="Describe one module: what it runs, what it needs, what it "
              "writes; then exit.")
@@ -1983,6 +1987,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     if args.list:
         return cmd_list(args)
+
+    if args.list_models:
+        from .model_zoo import catalogue, format_zoo
+        print(format_zoo(catalogue(remote=True)))
+        return EXIT_OK
 
     if args.describe:
         return cmd_describe(args.describe)

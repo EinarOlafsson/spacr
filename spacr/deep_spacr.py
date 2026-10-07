@@ -2630,8 +2630,13 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     loaded_payload = None
     if initialization_path:
         if not os.path.isfile(initialization_path):
-            raise FileNotFoundError(
-                f"Training checkpoint does not exist: {initialization_path}")
+            from .model_zoo import _ensure_model_file
+            downloaded = _ensure_model_file(
+                initialization_path, kinds=("classifier",))
+            if downloaded is None:
+                raise FileNotFoundError(
+                    f"Training checkpoint does not exist: {initialization_path}")
+            initialization_path = str(downloaded)
         loaded_model, loaded_payload = load_model_artifact(
             initialization_path, map_location=device, model=model)
         loaded_classes = int(getattr(loaded_model, 'num_classes', head_dim))

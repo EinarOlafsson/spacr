@@ -1,5 +1,41 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Root requested Preferences and headless-model changes accepted locally
+
+The maintainer explicitly assigned Root the new Apply/Keep/Revert flow and
+requested appearance/default/model changes. Apply uses the normal Save path
+without closing Preferences. A separate modal Keep/Revert question remains
+above the visible Preferences window; dismissing the question reverts. Revert
+restores persisted/live values while edited controls remain available as drafts.
+New notification secrets are deferred until Keep, and network bytes/exports
+are restored on Revert. The original Save-and-close flow remains available.
+
+Fresh profiles and Reset use Dark, spaCR field/spaCR, Density10%, Gravity10%,
+Detail/Speed/Size100%, opacity60%, Settings backdrop None, field fade on,
+rim chase50%, centre/Beat/1.5s. The rim keeps its blue hue across interface
+themes and length is a perimeter percentage. The obsolete Settings animation
+checkbox is removed. In spaCR palette only, one percent of visible field dots
+are selected for changing white flickers. Fixed Home/Preferences hints show
+immediately; popup tooltip delays remain. Existing saved choices are retained.
+
+Missing registered models resolve and checksum-download through the normal
+Model Zoo fetch path in non-GUI masking/classifier workflows; verified cached
+bytes are reused, preflight does not download, invalid/wrong-kind selections
+fail closed and missing local paths are not substituted. CLI --list-models
+(--models) offers registered models including uncached entries. Built-in
+foundation model downloads retain their existing backend behavior.
+
+Local Apply cohort31passes; appearance/model cohort130passes; final focused
+cohort115passes. These overlap and must not be summed. The broad cohort has
+540 passes and one old Settings-backdrop default assertion, corrected in the
+final passing cohort. Original failures and complete logs are archived at
+features/data/615_requested_preferences_models_2026-10-07/receipt.json.
+Native Preferences recording, current nine-language/runtime/API/Help/guides,
+tutorial narration/publication and final hosted verdict remain pending.
+Home's protected serial37639050274 and all external scientific/GPU jobs remain
+untouched. Root is incorporating the latest lazy Mask source before pushing;
+this entry does not claim that these local changes are already published.
+
 
 ## 2026-10-07 — completed source published and lazy Mask proof retained
 

@@ -189,11 +189,6 @@ def identify_masks_finetune(settings):
     dst = os.path.join(settings['src'], 'masks')
     os.makedirs(dst, exist_ok=True)
 
-    if not settings['custom_model'] is None:
-        if not os.path.exists(settings['custom_model']):
-            print(f"Custom model not found: {settings['custom_model']}")
-            return 
-
     from .accelerator import cellpose_gpu, cellpose_kwargs, describe
 
     if not cellpose_gpu():
@@ -204,7 +199,7 @@ def identify_masks_finetune(settings):
     if settings['custom_model'] is None:
         pretrained = _resolve_cellpose_pretrained(settings['model_name'])
     else:
-        pretrained = settings['custom_model']
+        pretrained = _resolve_cellpose_pretrained(settings['custom_model'])
 
     model = cp_models.CellposeModel(pretrained_model=pretrained,
                                     **cellpose_kwargs())

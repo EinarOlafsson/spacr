@@ -66,6 +66,8 @@ class _RecordingCellposeModel:
 def fake_cellpose(monkeypatch):
     """Swap the Cellpose constructor for a recorder (no weights, no GPU)."""
     monkeypatch.setattr(U.cp_models, "CellposeModel", _RecordingCellposeModel)
+    from spacr import model_zoo
+    monkeypatch.setattr(model_zoo, "catalogue", lambda **_kwargs: [])
     return _RecordingCellposeModel
 
 

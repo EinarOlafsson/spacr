@@ -261,6 +261,11 @@ def load_model_artifact(
         ``model`` was supplied.
     :returns: ``(model, metadata)``.
     """
+    if not os.path.isfile(path):
+        from .model_zoo import _ensure_model_file
+        downloaded = _ensure_model_file(path, kinds=("classifier",))
+        if downloaded is not None:
+            path = downloaded
     raw = torch.load(os.fspath(path), map_location=map_location,
                      weights_only=False)
     if isinstance(raw, nn.Module):

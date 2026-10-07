@@ -3036,6 +3036,54 @@ def resolve(key_or_path: Any,
 
 
 
+def _ensure_model_file(requested, *, kinds=(), download=True):
+    """Resolve a catalogue checkpoint and fetch missing verified weights.
+
+    Local paths win. Unknown identifiers return None for the caller's
+    existing stock-model or missing-path handling. With download=False,
+    return the intended cache path without fetching checkpoint bytes.
+    A Qt GUI-thread caller must use the model picker for a missing model.
+    """
+    text = os.fspath(requested).strip() if requested is not None else ""
+    if not text:
+        return None
+    local = Path(text).expanduser()
+    if local.is_file():
+        return local
+    if os.sep in text or text.startswith("~"):
+        return None
+    entry = next((item for item in catalogue(remote=True)
+                  if item.key == text or item.name == text), None)
+    if entry is None:
+        return None
+    if kinds and entry.kind not in kinds:
+        raise ModelZooError(
+            f"{text!r} is a {entry.kind} model; this operation requires "
+            f"one of {', '.join(kinds)}")
+    if entry.path and Path(entry.path).is_file():
+        return Path(entry.path)
+    if not entry.uri:
+        return None
+    destination = _spacr_home() / "models"
+    cached = destination / Path(entry.name).name
+    if cached.is_file():
+        if entry.sha256 and sha256_file(cached) == entry.sha256.lower():
+            return cached
+    if entry.sha256 and destination.is_dir():
+        for version in sorted(destination.glob(
+                f"{cached.stem}_v*{cached.suffix}")):
+            if version.is_file() and sha256_file(version) == entry.sha256.lower():
+                return version
+    if not download:
+        return cached
+    if _on_the_qt_gui_thread():
+        raise ModelUnreadable(
+            f"{text!r} is not cached. Download it in Model Zoo, or run "
+            f"the operation through spacr-run or Python without a GUI.")
+    LOG.info("Downloading requested model %s into %s", entry.key, destination)
+    return fetch(entry, destination)
+
+
 def versioned_path(dest: Any, filename: str) -> Path:
     """The first free destination for ``filename`` in ``dest``.
 

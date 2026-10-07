@@ -1117,6 +1117,11 @@ def _cellpose3_model(model_name=None, object_type=None):
     path = os.path.expanduser(name)
     if name and os.path.isfile(path):
         return os.path.abspath(path)
+    if name and name != "cpsam":
+        from .model_zoo import _ensure_model_file
+        downloaded = _ensure_model_file(name, kinds=("cellpose3",))
+        if downloaded is not None:
+            return str(downloaded)
     if name and (os.sep in name or "/" in name or os.path.splitext(name)[1]):
         raise FileNotFoundError(
             f"no Cellpose 3 model at {name!r}: the file is not there. Name "
@@ -1212,6 +1217,11 @@ def _cellpose_dino_model(model_name):
     name = chosen if chosen is not None else str(model_name or "").strip()
     path = os.path.expanduser(name)
     if not name or not os.path.isfile(path):
+        if name:
+            from .model_zoo import _ensure_model_file
+            downloaded = _ensure_model_file(name, kinds=("cellpose_dino",))
+            if downloaded is not None:
+                return str(downloaded)
         raise FileNotFoundError(
             f"no Cellpose-DINO checkpoint at {name!r}: the file is not "
             f"there. Download a Cellpose-DINO model from the model zoo and "
@@ -1288,7 +1298,7 @@ def _prefixed_split(name, model_name):
     return model.strip(), target.strip().lower()
 
 
-def _prefixed_model(name, model_name):
+def _prefixed_model(name, model_name, *, download=True):
     """The model a prefixed backend's setting selects.
 
     One of the backend's own model names is used as it is, a blank one is
@@ -1310,6 +1320,10 @@ def _prefixed_model(name, model_name):
     path = os.path.expanduser(model)
     if os.path.exists(path):
         return os.path.abspath(path)
+    from .model_zoo import _ensure_model_file
+    downloaded = _ensure_model_file(model, kinds=(name,), download=download)
+    if downloaded is not None:
+        return str(downloaded)
     raise FileNotFoundError(
         f"no {spec.label} model called {model!r}: it is not one of "
         f"{', '.join(spec.models)}, and no file or folder is there.")
@@ -1325,9 +1339,10 @@ def _prefixed_model_ok(value):
     name = _prefixed_backend(value)
     if name is None:
         return None
+    from .model_zoo import ModelZooError
     try:
-        _prefixed_model(name, value)
-    except FileNotFoundError:
+        _prefixed_model(name, value, download=False)
+    except (FileNotFoundError, ModelZooError):
         return False
     return True
 

@@ -680,6 +680,11 @@ def _real_classifier_bundles(location: str) -> Dict[str, Dict[str, Any]]:
     import joblib
 
     location = os.path.expanduser(str(location))
+    if not os.path.exists(location):
+        from .model_zoo import _ensure_model_file
+        downloaded = _ensure_model_file(location, kinds=("classifier",))
+        if downloaded is not None:
+            location = str(downloaded)
     if os.path.isdir(location):
         paths = [os.path.join(location, f"{kind}.joblib") for kind in _REAL_TYPES]
         paths = [path for path in paths if os.path.isfile(path)]

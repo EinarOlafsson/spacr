@@ -750,7 +750,7 @@ DEFAULT_SIZE = 1.0
 #: of it — so turning the slider never re-rolls the field and never makes the
 #: animation jump.
 DENSITY_RANGE = (0.01, 3.0)
-DEFAULT_DENSITY = 1.0
+DEFAULT_DENSITY = 0.1
 
 WORK_BUDGET = 4.0
 
@@ -1058,6 +1058,8 @@ class AmbientEngine:
         self.paint_colors = [self._tint(c) for c in self._colors]
         self._random_palette = tuple(c.name() for c in self._colors) \
             == PALETTE_SETS["random"].colors
+        self._spacr_palette = tuple(c.name() for c in self._colors) \
+            == tuple(color.lower() for color in PALETTE_SETS["spacr"].colors)
 
     def _tint(self, color: QColor) -> QColor:
         """The colour as actually painted, given the background."""
@@ -5753,9 +5755,41 @@ class _DataArtEngine(_BufferedEngine):
             py += self._field_grab_offset[1] / aspect_y * reach
         brilliance = np.clip(0.57 + energy, 0.48, 1.0)
         gain = max(1.0, self.effective_density())
-        return self._point_material(
+        image = self._point_material(
             width, height, px * width, py * height, brilliance * gain,
             spread=True)
+        if self._spacr_palette:
+            self._flicker_field_dots(image, px * width, py * height)
+        return image
+
+    def _flicker_field_dots(self, image, x, y) -> None:
+        """Flash a seeded random one percent of visible field dots white."""
+        np = _numpy()
+        width, height = image.width(), image.height()
+        px, py = np.asarray(x, dtype=np.int32), np.asarray(y, dtype=np.int32)
+        visible = np.flatnonzero((px >= 0) & (px < width)
+                                 & (py >= 0) & (py < height))
+        count = len(visible) // 100
+        if not count:
+            return
+        tick = int(math.floor(self.time * 4.0))
+        key = (tick, len(visible), count)
+        cached = getattr(self, "_field_flicker", None)
+        if cached is None or cached[0] != key:
+            rng = np.random.default_rng((self._art_seed + tick) % (2 ** 32))
+            cached = (key, rng.choice(len(visible), size=count, replace=False))
+            self._field_flicker = cached
+        chosen = visible[cached[1]]
+        px, py = px[chosen], py[chosen]
+        flat = np.frombuffer(image.bits(), dtype=np.uint32, count=width * height)
+        np.maximum.at(flat, py * width + px, np.uint32(0xffffffff))
+        for dx, dy, ink in ((-1, 0, 0xffadadad), (1, 0, 0xffadadad),
+                            (0, -1, 0xffadadad), (0, 1, 0xffadadad),
+                            (-1, -1, 0xff3d3d3d), (1, -1, 0xff3d3d3d),
+                            (-1, 1, 0xff3d3d3d), (1, 1, 0xff3d3d3d)):
+            nx, ny = px + dx, py + dy
+            inside = (nx >= 0) & (nx < width) & (ny >= 0) & (ny < height)
+            np.maximum.at(flat, ny[inside] * width + nx[inside], np.uint32(ink))
 
 
 class _FungalGrowthEngine(_BufferedEngine):

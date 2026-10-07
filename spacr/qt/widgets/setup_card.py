@@ -64,7 +64,7 @@ class SetupCard(QWidget):
     #: THE PREFERENCE IS THE REAL ONE -- see `spacr.qt.preferences.
     #: get_rim_lag`. This is what the card uses when there is no settings
     #: store to ask, which is the case in a bare widget test.
-    EASE = 0.16
+    EASE = 0.5
 
     #: Frames the tail is smeared over, as a fraction of the arc.
     #:
@@ -125,6 +125,7 @@ class SetupCard(QWidget):
         self._phase = 0.0
         self._radius = int(radius)
         self._arc = int(arc) if arc is not None else self._preferred_arc()
+        self._relative_arc = arc is None
         self._lag = float(lag) if lag is not None else None
         self._align = str(align or "").strip().lower()
         self._corner = 0
@@ -397,7 +398,7 @@ class SetupCard(QWidget):
 
             return str(get_rim_mode())
         except Exception:                                    # noqa: BLE001
-            return "glow"
+            return "beat"
 
     def period(self) -> float:
         """Seconds for one pulse, or one turn of the hue."""
@@ -414,7 +415,7 @@ class SetupCard(QWidget):
 
             return float(get_rim_period())
         except Exception:                                    # noqa: BLE001
-            return 2.4
+            return 1.5
 
     #: The two theme functions the dressing needs, resolved once.
     #:
@@ -559,7 +560,7 @@ class SetupCard(QWidget):
             painter.setPen(QPen(edge, 1.0))
             painter.drawRoundedRect(rect, self._radius, self._radius)
 
-            self._paint_accent(painter, QColor(palette["accent"]), rect)
+            self._paint_accent(painter, QColor("#4A9EFF"), rect)
         finally:
             self._frame = None
             painter.end()
@@ -601,6 +602,9 @@ class SetupCard(QWidget):
             fraction is measured on the reference card size so every card's rim
             looks alike.
         """
+        if self._relative_arc:
+            from ..preferences import _rim_length_fraction
+            return self._held("span", _rim_length_fraction)
         key = (self._radius, self._arc)
         cached = self._span_cache
         if cached is None or cached[0] != key:
@@ -683,11 +687,11 @@ class SetupCard(QWidget):
     def ink_at(self, along: float, accent: QColor) -> QColor:
         """The colour of the run at ``along`` (0 at the tail, 1 at the head).
 
-        `glow` and `beat` are the theme's accent the whole way; `rainbow`
+        `glow` and `beat` retain the blue rim in every interface theme; `rainbow`
         walks the hue along the run and turns it over time, so the light
         carries a spectrum that moves rather than a band that sits still.
 
-        UNDER ``spaceout`` EVERY MODE OSCILLATES, whichever one is set. The
+        UNDER ``spaceout`` THE RAINBOW MODE OSCILLATES. The
         mark that follows the pointer is the one thing on a card that is
         already moving, and leaving it a fixed blue under a theme whose
         whole point is a moving spectrum is what the request is about. Its
@@ -696,8 +700,7 @@ class SetupCard(QWidget):
         the rest of the window is travelling through instead of being a
         second unrelated rainbow.
 
-        Under an ordinary start with the shipped mode this returns the
-        theme's accent and returns it unchanged, frame after frame.
+        The shipped Beat mode retains its blue hue while brightness pulses.
 
         :param along: position along the lit run, 0 at the tail and 1 at the
             head.
@@ -705,7 +708,7 @@ class SetupCard(QWidget):
             plain modes, and its saturation and value set the floor for the
             spectral ones.
         """
-        if self.spaceout():
+        if self.spaceout() and self.mode() == "rainbow":
             spectral = QColor()
             spectral.setHsvF(self.spaceout_hue(along),
                              min(1.0, accent.saturationF() + 0.35),

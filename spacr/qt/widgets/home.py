@@ -1941,8 +1941,6 @@ class HomePage(QWidget):
         self._categories = self._grouping(categories)
         self._bands = self._grouping(bands)
         self._names = {k: n for k, n, _d, _s in self._apps}
-        from ..tooltip_policy import HoverDelay
-        self._tile_hover_delay = HoverDelay(self)
         self._tile_hints: dict = {}
         #: (holder, grid, tiles, tile_width) per grid, so a resize can
         #: rewrap each one at its own column width.
@@ -2922,10 +2920,8 @@ class HomePage(QWidget):
                 summary = module_summary(key, source)
                 mark = STAGE_LABEL.get(
                     str(obj.property("stage") or "stable"), "")
-                self._tile_hover_delay.schedule(
-                    obj, lambda: self._hint_bar.show_module(key, summary, mark))
+                self._hint_bar.show_module(key, summary, mark)
         elif event.type() == QEvent.Leave:
-            self._tile_hover_delay.cancel_for(obj)
             if not self._hint_bar.is_holding():
                 self._hint_bar.release()
         return super().eventFilter(obj, event)

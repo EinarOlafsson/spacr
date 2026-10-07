@@ -1,0 +1,48 @@
+{
+  "scope": "Preferences Apply/Keep/Revert, requested defaults and rim, instant fixed hints, missing registered model downloads",
+  "state": "local acceptance; publication and native capture pending",
+  "evidence": [
+    {
+      "file": "apply-focused-r1.log.gz",
+      "sha256": "52584ae8eef4ac513a818bf6be6acaa0dab3b569558645c4316c0f5b5cae2ef9",
+      "uncompressed_sha256": "5e31cead32c94e71ef23b32abe5e4b6f07ed0963babfc90bf5587c880bd25b2f"
+    },
+    {
+      "file": "apply-focused-r2.log.gz",
+      "sha256": "aed73b37b15d6ea5306f9a042a350e4279e96535ccc7c5e49080ed2d13c26eee",
+      "uncompressed_sha256": "48d4643c95c989fbec3ad4cf683c3ea440b630847c7d15b63dfda3feb05092b3"
+    },
+    {
+      "file": "apply-regressions-r3.log.gz",
+      "sha256": "07e8676b8da7e5c03babfb7ddce3c237cbdbcca2499bff8d68a0500ce2308d5c",
+      "uncompressed_sha256": "92260e601b79c83c93bb616136037a5dc179dd85ed1dd5fe357e4a11e5c042d1"
+    },
+    {
+      "file": "requested-appearance-models-r1.log.gz",
+      "sha256": "c3329a7a2ed043f881b10aa56cd70007a3d5ee5142fb32cdc39a6aeae8cd93d2",
+      "uncompressed_sha256": "70fa742bab2fbce1d6ff07d45af454ebf8d15145d5be12fecfb8a297441841db"
+    },
+    {
+      "file": "model-CLI-regressions-r2.log.gz",
+      "sha256": "5ab6429f9039e17ef688c0cdd2bee3f98546e4febcb80a552872d68aea6cb762",
+      "uncompressed_sha256": "59460d456bdbdc04a34b92224b6bcdfc9bca52db2383c1b00563a5797ff6fbc7"
+    },
+    {
+      "file": "final-appearance-model-checks-r3.log.gz",
+      "sha256": "e5ef70101edb833108d0b124c9042a39177e01ebe351dd37d0cd1302c247a7ad",
+      "uncompressed_sha256": "c33300f47f22253d6055923985ebd4821d7ed5839838111e250c632900c19454"
+    }
+  ],
+  "limitations": [
+    "Overlapping test cohorts are not added together.",
+    "First Apply test attempt used an invalid fixture value and failed; corrected fixture passes.",
+    "Broad model/CLI cohort passed 540 cases with one obsolete backdrop default expectation; corrected expectation is included in final 115-case passing cohort.",
+    "Download tests use verified toy checkpoint bytes, not GPU model inference.",
+    "This does not close Home native Save-crash, puncta fault, native 24FPS or final hosted acceptance."
+  ],
+  "source_sha256": {
+    "spacr/qt/preferences.py": "f519c231b4a6fdc220ec2e0dbe5462c25d37c57c2954aa7faef9688eeef895c6",
+    "spacr/qt/widgets/ambient.py": "41162c5e6a3e60b34dcf54524f9f1d5d668676f4d7a7a4f10d57f87f41bb242e",
+    "spacr/model_zoo.py": "a2b2eed4a2dcfd14ae4e391f4cc3a8d790b6764cfe9cb0ce047abbeda0b48829"
+  }
+}

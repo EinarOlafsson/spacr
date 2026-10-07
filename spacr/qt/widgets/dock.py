@@ -321,8 +321,14 @@ class Dock(QWidget):
             self._hover_help_delay = HoverDelay(self)
         row = next((row for row in self._rows if row.key == key), None)
         if entered and row is not None:
-            self._hover_help_delay.schedule(
-                row, lambda: self.module_hovered.emit(key))
+            stack = getattr(self.window(), "_stack", None)
+            page = stack.currentWidget() if stack is not None else None
+            if page is not None and getattr(page, "_hint_bar", None) is not None:
+                self._hover_help_delay.cancel()
+                self.module_hovered.emit(key)
+            else:
+                self._hover_help_delay.schedule(
+                    row, lambda: self.module_hovered.emit(key))
         elif row is not None:
             self._hover_help_delay.cancel_for(row)
 

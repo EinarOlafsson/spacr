@@ -1486,6 +1486,14 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
                 ERROR, key, f"{key} is not set, but {purpose}.", fix))
             return
         if isinstance(value, str) and not os.path.isfile(value):
+            if key == "model_path":
+                from .model_zoo import ModelZooError, _ensure_model_file
+                try:
+                    if _ensure_model_file(
+                            value, kinds=("classifier",), download=False) is not None:
+                        return
+                except ModelZooError:
+                    pass
             problems.append(Problem(
                 ERROR, key, f"{key} points at a file that does not exist: {value}", fix))
 
@@ -1565,10 +1573,17 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
     custom_model = settings.get("custom_model")
     if isinstance(custom_model, str) and custom_model.strip():
         if not os.path.exists(custom_model):
-            problems.append(Problem(
-                ERROR, "custom_model",
-                f"custom_model points at a path that does not exist: {custom_model}",
-                "Point custom_model at the saved Cellpose model file, or clear it to use the stock model."))
+            from .model_zoo import ModelZooError, _ensure_model_file
+            try:
+                downloadable = _ensure_model_file(
+                    custom_model, kinds=("cellpose",), download=False) is not None
+            except ModelZooError:
+                downloadable = False
+            if not downloadable:
+                problems.append(Problem(
+                    ERROR, "custom_model",
+                    f"custom_model points at a path that does not exist: {custom_model}",
+                    "Point custom_model at the saved Cellpose model file, or clear it to use the stock model."))
 
     for organelle_role in SEGMENTED_ROLES[3:]:
         method_key = f"{organelle_role}_method"

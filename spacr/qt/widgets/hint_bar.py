@@ -55,8 +55,6 @@ class HintBar(QLabel):
         :param parent: parent widget, or ``None``.
         """
         super().__init__(default, parent)
-        from ..tooltip_policy import HoverDelay
-        self._hover_delay = HoverDelay(self)
         self._default = default
         self._hints: Dict[QWidget, str] = {}
         self.setObjectName(BAR_NAME)
@@ -129,10 +127,8 @@ class HintBar(QLabel):
         if kind == QEvent.Enter:
             sentence = self._hints.get(obj)
             if sentence:
-                self._hover_delay.schedule(
-                    obj, lambda: self.setText(self._translated(sentence)))
+                self.setText(self._translated(sentence))
         elif kind in (QEvent.Leave, QEvent.HoverLeave):
-            self._hover_delay.cancel_for(obj)
             if self._hints.get(obj) and \
                     self.text() == self._translated(self._hints[obj]):
                 self.reset()

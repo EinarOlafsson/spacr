@@ -148,16 +148,16 @@ def test_availability_hover_waits_but_keyboard_help_does_not(hovered, qtbot):
     assert panel.isVisible() and panel.is_pinned()
 
 
-def test_hint_bar_waits_before_changing_visible_text(hovered, qtbot):
+def test_fixed_hint_bar_is_immediate_despite_popup_delay(hovered, qtbot):
     from spacr.qt.widgets.hint_bar import HintBar
-    prefs._set_tooltip_delay(.2)
+    prefs._set_tooltip_delay(4)
     bar = HintBar('Waiting', hovered.parent())
-    bar.explain(hovered, 'A delayed explanation')
+    bar.explain(hovered, 'An immediate explanation')
     bar.show()
     QApplication.sendEvent(hovered, QEvent(QEvent.Enter))
-    qtbot.wait(120)
+    assert bar.text() == 'An immediate explanation'
+    QApplication.sendEvent(hovered, QEvent(QEvent.Leave))
     assert bar.text() == 'Waiting'
-    qtbot.waitUntil(lambda: bar.text() == 'A delayed explanation', timeout=200)
 
 
 def test_test_data_descriptions_follow_global_delay(qtbot):
