@@ -2849,3 +2849,19 @@ Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
     a single row for every font and all alpha buttons. Python3.9 fungal lineage
     checks use equivalent zip adjacency instead of unavailable itertools.pairwise.
     Evidence: data/43_cpu_replay_repairs_2026-10-06/. Parent43/288/47remainOPEN.
+
+2026-10-06 — sorting identity, isolated retry sleeps and full224 evidence
+    Event annotation uses the shared sortable cells and three-state header.
+    Stable first-column event indices preserve edit/remove targets after a
+    descending sort; refill explicitly suspends sorting to prevent partial
+    cells moving into another track's row. Review reproduced that corruption
+    before the safe combined repair. The settled edit/remove/save regression
+    and all81 affected sorting/event/retry cases pass on integratedaee source.
+    The retry fixture records only its calling thread's sleeps; background
+    workers keep real sleeps and the production retry policy is unchanged.
+    All19 failed224job logs,20th downstream release failure, full states,
+    cancellation202, source blobs and root81case log are archived byte-exact
+    in data/43_hosted_224_cpu_failures_2026-10-06/. All31payload hashes pass,
+    including decompressed logs. Coverage combine rejected failed shards
+    before numerical evaluation, so no ratchet acceptance is claimed.
+    Parent43/288/47remainOPEN; workstation owns generated artifact failures.

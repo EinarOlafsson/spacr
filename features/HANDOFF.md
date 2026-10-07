@@ -1,5 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 easy CPU repairs completed before performance integration
+Event annotation now follows the shared sorting contract and retains stable
+event identity during sorted edit/remove/save. Review caught and reproduced
+partial-row corruption; the safe combined fix disables sorting during refill.
+The retry fixture counts sleeps only on its test thread, preserving actual
+worker sleeps and all production retry policies. All 81 affected checks pass
+on integrated aee source. The full 19 failed ordinary224 logs, downstream
+release failure, states and normal-cancellation receipt are archived in
+data/43_hosted_224_cpu_failures_2026-10-06/: all 31 committed payload hashes
+and every decompressed log pass independent verification. Numerical coverage
+has no verdict because the combine job rejected failed shard prerequisites.
+
+The unchanged fine common-origin mycelium now has phase-aware rendered guards
+for visible early growth, mature and hour-later motion, and at most 30 percent
+screen ink. Empty, frozen and overfilled injections are rejected; all 59
+selected cases pass. This replaces the obsolete style-specific young-frame
+ink census without changing the renderer. Full source/log receipt:
+data/663_fungal_phase_cpu_2026-10-06/. The measured exact-pixel mature-raster
+cache remains a separate performance candidate until integration review.
+All final hosted/coverage/serial, installed Save crash and hard 24 FPS remain
+open. Workstation ownership and native IO/object/core GPU freeze are unchanged.
+
 ## 2026-10-06 current hosted CPU repairs and preserved GPU native freeze
 Home integrates the tested event-preview HiDPI, missing-mask edit and actual
 advection-population test repairs; all81 combined checks pass under4GiB.

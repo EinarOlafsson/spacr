@@ -868,3 +868,14 @@ Compact immutable source/test/coverage/probe receipts and two lossless stills:
     alphaFF, nine naturalGUI-thread GC callbacks and0widgets/0ambient/0workers
     after close. No whole-RSS/crash fix/hard24FPS/aesthetic acceptance claim.
     Exact sources/probes/logs: data/663_unchanged_preferences_cpu_2026-10-06/.
+2026-10-06 — rendered mycelium growth across actual lifecycle phases
+    The fine common-origin renderer is unchanged. Its old young-frame painted
+    fraction pin predates this requested connected geometry. Rendered checks
+    now require nonempty expanding/upward/widening early growth at2/9/30s,
+    substantial mature90/97s and hour-later3600.33/3607.33s motion, and at most
+    the user's30percent screen ink at all phases. Dark/light320/960px frames
+    pass, and empty/frozen-clock/mature-only-frozen/overfilled injected defects
+    fail. Existing linked-parent/fork/bright-tip/density guards remain. All59
+    selected cases pass on integrated source under4GiB. Evidence:
+    data/663_fungal_phase_cpu_2026-10-06/. This closes the stale census repair;
+    final hosted acceptance and hard24FPS performance remain OPEN.
