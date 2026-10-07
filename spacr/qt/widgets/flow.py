@@ -125,7 +125,7 @@ class FlowLayout(QLayout):
         for item in self._items:
             hint = item.sizeHint()
             next_x = x + hint.width() + self._space
-            if next_x - self._space > area.right() and line_height > 0:
+            if next_x - self._space > area.right() + 1 and line_height > 0:
                 x = area.x()
                 y = y + line_height + self._space
                 next_x = x + hint.width() + self._space

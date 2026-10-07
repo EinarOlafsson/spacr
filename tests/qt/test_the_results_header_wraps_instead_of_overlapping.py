@@ -197,3 +197,32 @@ def test_the_wrapping_row_reports_a_height_that_grows(app):
         flow.addWidget(box)
     assert host.hasHeightForWidth()
     assert host.heightForWidth(200) > host.heightForWidth(1200)
+
+
+@pytest.mark.parametrize("margin", [0, 3])
+def test_a_flow_row_uses_its_last_pixel_before_wrapping(app, margin):
+    """Exact-fit captions stay on one row; one pixel less wraps them."""
+    from PySide6.QtCore import QRect
+    from PySide6.QtWidgets import QWidget
+    from spacr.qt.widgets.flow import FlowLayout
+
+    host = QWidget()
+    flow = FlowLayout(host, spacing=4)
+    flow.setContentsMargins(margin, margin, margin, margin)
+    buttons = [QWidget(host), QWidget(host)]
+    for button in buttons:
+        button.setFixedSize(40, 20)
+        flow.addWidget(button)
+    host.show()
+    try:
+        width = 84 + 2 * margin
+        flow.setGeometry(QRect(10, 20, width, 100))
+        assert buttons[0].y() == buttons[1].y()
+        assert buttons[1].geometry().right() == 10 + width - margin - 1
+        assert flow.heightForWidth(width) == 20 + 2 * margin
+        flow.setGeometry(QRect(10, 20, width - 1, 100))
+        assert buttons[1].y() > buttons[0].y()
+        assert flow.heightForWidth(width - 1) == 44 + 2 * margin
+    finally:
+        host.close()
+        host.deleteLater()

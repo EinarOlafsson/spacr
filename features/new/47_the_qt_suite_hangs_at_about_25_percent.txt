@@ -1824,3 +1824,15 @@ restarts hosted acceptance through the workflow-file trigger. Item stays OPEN.
     probe does not resolve the reported installedSaveSIGSEGV or substitute
     for full original-order hosted Qt. Exact final log/source hashes are in
     data/663_random_palette_save_gc_2026-10-06/. Parent47 stays OPEN.
+
+2026-10-06 — protected original-order run is time-limited, not OOM
+    Old-source b779 run37503577012 reached GitHub's unchanged360minute job
+    timeout at63percent, after1053 completed Qt files. Peak journal RSS5933MiB
+    and zero OOM kills stay below the10.8GiB guard. Twenty-two old-source
+    failed-node labels lack finalized assertion tracebacks. The unfinished
+    test_page_is_never_black file ran over66minutes; field_fade took34.5minutes.
+    Full serial acceptance is not achieved; elapsed runtime and partial RSS
+    do not accept the unobserved tail or current source. Protected45f successor
+    started automatically and is left untouched. Root agents are examining
+    bounded timing causes and current224 terminal failures, without running
+    the full local suite, increasing limits or cancelling protected serial.
