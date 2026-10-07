@@ -5477,7 +5477,10 @@ class _DataArtEngine(_BufferedEngine):
                       rng.random(60000, dtype=np.float32))
             self._material_cache[key] = grains
         u, v, depth = grains
-        count = self.element_count(34000, len(u))
+        density = self.density
+        count = round(34000 * density) if density <= 1.0 else round(
+            34000 + (density - 1.0) * 13000)
+        count = max(1, min(len(u), count))
         u, v, depth = u[:count], v[:count], depth[:count]
         phase = self._anchors[0][0] * math.tau
         travel = (self.time * (0.013 + 0.009 * depth)
@@ -5535,7 +5538,9 @@ class _DataArtEngine(_BufferedEngine):
             y -= dy * pull * shorter / height
         columns = np.clip((x * width).astype(np.int32), 0, width - 1)
         rows = np.clip((y * height).astype(np.int32), 0, height - 1)
-        intensity = (0.25 + 0.60 * depth) * ((12 - trails) / 12) ** 1.3
+        gain = 1.0 if density <= 1.0 else 34000 * density / count
+        intensity = ((0.25 + 0.60 * depth) * ((12 - trails) / 12) ** 1.3
+                     * gain)
         return self._point_material(
             width, height, columns, rows, intensity)
 
@@ -5628,7 +5633,7 @@ class _FungalGrowthEngine(_BufferedEngine):
     name = "data_art_fungal_growth"
     base_edge = 2048
     _interval = 30.0
-    _edge_lifetime = 110.0
+    _edge_lifetime = 72.0
 
     def _shade(self, width: int, height: int) -> QImage:
         """Render the unchanged native field into a freshly owned image."""
@@ -5649,7 +5654,7 @@ class _FungalGrowthEngine(_BufferedEngine):
     def _configure(self, rng: random.Random) -> None:
         """Roll the first common origin and a seed for all indexed colonies."""
         self._fungal_seed = rng.randrange(2 ** 63)
-        self._origin = (rng.uniform(0.46, 0.54), rng.uniform(0.85, 0.95))
+        self._origin = (0.05, rng.uniform(0.43, 0.57))
         self._lineage_cache: Dict[tuple, tuple] = {}
         self._fungal_rasters: Dict[tuple, tuple] = {}
         self._fungal_observed: Dict[tuple, tuple] = {}
@@ -5678,7 +5683,7 @@ class _FungalGrowthEngine(_BufferedEngine):
     def _step(self, rng: random.Random, x: float, y: float,
               angle: float, width: int, height: int) -> tuple:
         """Bend one fine irregular filament step while retaining its live tip."""
-        length = min(width, height) * self.size * rng.uniform(0.009, 0.019)
+        length = min(width, height) * self.size * rng.uniform(0.016, 0.030)
         dx, dy = length * math.cos(angle), length * math.sin(angle)
         margin = max(2.0, min(width, height) * 0.025)
         if x + dx < margin or x + dx > width - margin:
@@ -5694,35 +5699,80 @@ class _FungalGrowthEngine(_BufferedEngine):
             end_y - y, end_x - x)
 
     def _lineage(self, block: int, width: int, height: int) -> tuple:
-        """Build one finite connected tree; retain at most eight colonies."""
+        """Grow three connected fronts across one of four alternating axes."""
         key = (block, width, height, self.size)
         cached = self._lineage_cache.get(key)
         if cached is not None:
             return cached
         seed = (self._fungal_seed ^ (block * 0xD1B54A32D192ED03)) & (2 ** 128 - 1)
         rng = random.Random(seed)
-        origin = self._origin if block == 0 else (
-            rng.uniform(0.25, 0.75), rng.uniform(0.85, 0.95))
-        branches = [(origin[0] * width, origin[1] * height,
-                     -math.pi / 2 + rng.uniform(-0.18, 0.18),
-                     block * self._interval - 0.55, 0)]
+        direction = block % 4
+        if direction == 0:
+            origin = self._origin if block == 0 else (0.05, rng.uniform(0.43, 0.57))
+        elif direction == 1:
+            origin = (0.95, rng.uniform(0.43, 0.57))
+        elif direction == 2:
+            origin = (rng.uniform(0.43, 0.57), 0.05)
+        else:
+            origin = (rng.uniform(0.43, 0.57), 0.95)
         edges = []
-        for index in range(240):
-            x, y, angle, born, depth = branches[index]
-            rng = random.Random(seed ^ (index * 0x9E3779B97F4A7C15))
-            hue = rng.randrange(5)
-            for _ in range(6):
-                angle += rng.uniform(-0.23, 0.23)
-                end_x, end_y, cx, cy, angle = self._step(
-                    rng, x, y, angle, width, height)
-                duration = rng.uniform(1.25, 1.7)
-                edges.append((index, x, y, cx, cy, end_x, end_y,
-                              born, duration, hue, depth))
-                born += duration
+        for front, lane in enumerate((0.23, 0.50, 0.77)):
+            lane += rng.uniform(-0.035, 0.035)
+            if direction == 0:
+                destination = (0.95, lane)
+            elif direction == 1:
+                destination = (0.05, lane)
+            elif direction == 2:
+                destination = (lane, 0.95)
+            else:
+                destination = (lane, 0.05)
+            x, y = origin[0] * width, origin[1] * height
+            phase = rng.uniform(0.0, math.tau)
+            phase2 = rng.uniform(0.0, math.tau)
+            spacing = [rng.uniform(0.65, 1.35) for _ in range(36)]
+            extent = sum(spacing)
+            travelled = 0.0
+            for step, distance in enumerate(spacing):
+                started = travelled / extent
+                travelled += distance
+                fraction = travelled / extent
+                shift = (0.028 * min(width, height)
+                         * (0.65 * math.sin(fraction * 2.0 * math.pi + phase)
+                            + 0.35 * math.sin(fraction * 4.6 * math.pi + phase2))
+                         * math.sin(fraction * math.pi))
+                end_x = ((origin[0] * (1.0 - fraction)
+                          + destination[0] * fraction) * width)
+                end_y = ((origin[1] * (1.0 - fraction)
+                          + destination[1] * fraction) * height)
+                if direction < 2:
+                    end_y += shift
+                else:
+                    end_x += shift
+                control_x = (x + end_x) * 0.5
+                control_y = (y + end_y) * 0.5
+                angle = math.atan2(end_y - y, end_x - x)
+                born = block * self._interval - 0.55 + started * self._interval
+                duration = 1.12
+                edges.append((-1, x, y, control_x, control_y, end_x, end_y,
+                              born, duration, front, 0))
+                rank = ((front * 36 + step) * 73) % 108
+                fork_seed = seed ^ ((front * 36 + step) * 0x9E3779B97F4A7C15)
+                fork_rng = random.Random(fork_seed)
+                for side in (-1, 1):
+                    tip_x, tip_y = end_x, end_y
+                    fork_angle = angle + side * fork_rng.uniform(0.56, 0.96)
+                    fork_born = born + duration + fork_rng.uniform(0.06, 0.18)
+                    for segment in range(2):
+                        fork_angle += fork_rng.uniform(-0.25, 0.25)
+                        next_x, next_y, cx, cy, fork_angle = self._step(
+                            fork_rng, tip_x, tip_y, fork_angle, width, height)
+                        fork_duration = fork_rng.uniform(1.15, 1.40)
+                        edges.append((rank, tip_x, tip_y, cx, cy,
+                                      next_x, next_y, fork_born,
+                                      fork_duration, (front + segment + 1) % 5, 1))
+                        tip_x, tip_y = next_x, next_y
+                        fork_born += fork_duration
                 x, y = end_x, end_y
-            for direction in (-1, 1):
-                branches.append((x, y, angle + direction * rng.uniform(0.32, 0.72),
-                                 born + rng.uniform(0.10, 0.35), depth + 1))
         result = tuple(edges)
         self._lineage_cache[key] = result
         if len(self._lineage_cache) > 8:
@@ -5744,9 +5794,12 @@ class _FungalGrowthEngine(_BufferedEngine):
         latest = max(0, math.floor((self.time + 0.55) / self._interval))
         earliest = max(0, math.floor((self.time - self._edge_lifetime)
                                      / self._interval))
-        stroke = max(0.45, min(1.7, 0.66 * self.size
+        stroke = max(0.45, min(1.7, 1.2 * self.size
                               * (min(width, height) / 1080.0) ** 0.35))
-        branch_count = self.element_count(90, 240)
+        density = self.density
+        branch_count = round(60 * density) if density <= 1.0 else round(
+            60 + (density - 1.0) * 24)
+        branch_count = max(1, min(108, branch_count))
         candidates = []
         for block in range(earliest, latest + 1):
             colony_age = self.time - (block * self._interval - 0.55)
@@ -5762,8 +5815,10 @@ class _FungalGrowthEngine(_BufferedEngine):
                     continue
                 progress = min(1.0, age / duration)
                 fade = min(1.0, age / 0.35) * colony_fade
-                alpha = (0.20 + 0.38 * max(0.0, 1.0 - max(0.0, age - duration) / 9.0)) \
-                    * fade * self._fractional_alpha_scale(90)
+                trailing_age = max(0.0, age - duration)
+                fade *= max(0.0, 1.0 - max(0.0, trailing_age - 14.0) / 22.0)
+                alpha = (0.45 + 0.50 * max(0.0, 1.0 - trailing_age / 9.0)) \
+                    * fade * self._fractional_alpha_scale(60)
                 if alpha >= 0.006:
                     candidates.append((x0, y0, cx, cy, x1, y1, progress,
                                        alpha, max(0.4, stroke * 0.93 ** depth), hue))
@@ -5796,7 +5851,7 @@ class _FungalGrowthEngine(_BufferedEngine):
         colors = self.paint_colors
         paths = {}
         mature = {}
-        stable_alpha = 0.20 * self._fractional_alpha_scale(90)
+        stable_alpha = 0.45 * self._fractional_alpha_scale(60)
         tips = []
         for (x0, y0, cx, cy, x1, y1, progress,
              alpha, stroke, hue) in self.geometry(width, height):

@@ -140,28 +140,60 @@ def test_arbitrary_hour_later_clock_is_seeded_and_history_stays_bounded():
 
 
 def test_each_colony_has_a_common_origin_and_progressive_connected_forks():
-    """Every branch starts at its parent's completed tip and grows from it."""
+    """Three connected fronts cross the screen and fork after their parent."""
     engine = _engine()
     width, height = 640, 360
-    first = engine._lineage(0, width, height)
-    second = engine._lineage(1, width, height)
-    assert first[0][1:3] == (engine._origin[0] * width, engine._origin[1] * height)
-    assert first[0][1:3] != second[0][1:3]
-    for colony in (first, second):
-        assert len(colony) == 240 * 6
-        for index in range(240):
-            branch = colony[index * 6:(index + 1) * 6]
-            assert all(edge[0] == index for edge in branch)
-            assert all(before[5:7] == after[1:3]
-                       for before, after in zip(branch, branch[1:]))
-            if index:
-                parent = colony[((index - 1) // 2) * 6 + 5]
-                assert branch[0][1:3] == parent[5:7]
-                assert branch[0][7] > parent[7] + parent[8]
+    for block in range(4):
+        colony = engine._lineage(block, width, height)
+        assert len(colony) == 3 * 36 * 5
+        fronts = []
+        for front in range(3):
+            branch = colony[front * 36 * 5:(front + 1) * 36 * 5]
+            trunk = branch[::5]
+            fronts.append(trunk)
+            assert len(trunk) == 36
+            assert all(edge[0] == -1 for edge in trunk)
+            assert all(trunk[i][5:7] == trunk[i + 1][1:3]
+                       for i in range(len(trunk) - 1))
+            for step in range(36):
+                parent, left_a, left_b, right_a, right_b = branch[step * 5:(step + 1) * 5]
+                assert left_a[1:3] == right_a[1:3] == parent[5:7]
+                assert left_b[1:3] == left_a[5:7]
+                assert right_b[1:3] == right_a[5:7]
+                assert left_a[7] > parent[7] + parent[8]
+                assert right_a[7] > parent[7] + parent[8]
+        assert len({front[0][1:3] for front in fronts}) == 1
+        if block == 0:
+            assert fronts[0][0][1:3] == (engine._origin[0] * width,
+                                         engine._origin[1] * height)
+        for front in fronts:
+            start = front[0][1:3]
+            end = front[-1][5:7]
+            if block == 0:
+                assert start[0] < width * .1 and end[0] > width * .9
+            elif block == 1:
+                assert start[0] > width * .9 and end[0] < width * .1
+            elif block == 2:
+                assert start[1] < height * .1 and end[1] > height * .9
+            else:
+                assert start[1] > height * .9 and end[1] < height * .1
     engine.set_time(3600.33)
     visible = engine.geometry(width, height)
     assert visible
     assert len(engine._lineage_cache) <= 8
+
+
+def test_first_front_actually_advances_across_the_rendered_screen():
+    """Later frames paint new distant growth rather than recolouring old ink."""
+    engine = _engine(density=2.0, size=1.25)
+    farthest = []
+    for second in (7.0, 21.0):
+        engine.set_time(second)
+        image = engine.shade(640, 360)
+        pixels = np.frombuffer(image.constBits(), dtype=np.uint8).reshape(360, 640, 4)
+        _, columns = np.nonzero(np.any(pixels[:, :, :3] != 0, axis=2))
+        farthest.append(int(np.quantile(columns, 0.99)))
+    assert farthest[1] > farthest[0] + 200
 
 
 def test_live_tips_are_brighter_than_established_branches_and_density_adds_forks():
@@ -178,6 +210,21 @@ def test_live_tips_are_brighter_than_established_branches_and_density_adds_forks
         engine.set_density(density)
         counts.append(len(engine.geometry(1920, 1080)))
     assert 0 < counts[0] < counts[1] < counts[2]
+
+
+def test_density_changes_fork_population_at_both_detail_settings():
+    """More detail changes pixel sampling, not whether Density adds branches."""
+    populations = []
+    for resolution in (1.0, 2.0):
+        engine = _engine(resolution=resolution)
+        engine.set_time(80.0)
+        counts = []
+        for density in (1.0, 2.0, 3.0):
+            engine.set_density(density)
+            counts.append(len(engine.geometry(1920, 1080)))
+        assert counts[0] < counts[1] < counts[2]
+        populations.append(counts)
+    assert populations[0][0] == populations[1][0]
 
 
 def test_density_size_speed_and_palette_change_the_actual_frame():
