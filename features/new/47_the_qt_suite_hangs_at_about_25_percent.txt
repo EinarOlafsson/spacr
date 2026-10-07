@@ -1824,3 +1824,30 @@ restarts hosted acceptance through the workflow-file trigger. Item stays OPEN.
     probe does not resolve the reported installedSaveSIGSEGV or substitute
     for full original-order hosted Qt. Exact final log/source hashes are in
     data/663_random_palette_save_gc_2026-10-06/. Parent47 stays OPEN.
+
+2026-10-06 — protected original-order run is time-limited, not OOM
+    Old-source b779 run37503577012 reached GitHub's unchanged360minute job
+    timeout at63percent, after1053 completed Qt files. Peak journal RSS5933MiB
+    and zero OOM kills stay below the10.8GiB guard. Twenty-two old-source
+    failed-node labels lack finalized assertion tracebacks. The unfinished
+    test_page_is_never_black file ran over66minutes; field_fade took34.5minutes.
+    Full serial acceptance is not achieved; elapsed runtime and partial RSS
+    do not accept the unobserved tail or current source. Protected45f successor
+    started automatically and is left untouched. Root agents are examining
+    bounded timing causes and current224 terminal failures, without running
+    the full local suite, increasing limits or cancelling protected serial.
+
+2026-10-06 — bounded style diagnosis and passive cached-widget telemetry
+    Hosted slow files pass locally: field_fade 30 cases in 3.74 seconds and
+    page_is_never_black 115 in 41.14 seconds. A bounded measured benchmark
+    shows changed-style cost scales with Qt widgets, not unrelated Python
+    objects; unchanged saves already skip expensive stylesheet application.
+    This does not prove the cause of hosted multi-minute stalls. Raw profile,
+    benchmark and historical serial evidence are preserved in
+    data/47_qt_style_hotspot_2026-10-07/ (UTC archive date).
+    File-boundary serial records now read only the existing root fixture's
+    cached widget/top-level integer counts. Unknown/invalid values are null;
+    no Qt import/query, event processing, GC or ordering changes. All 16
+    focused journal cases pass, including PySide sentinels and hard exits.
+    This closes a diagnostic child, not memory or full serial acceptance.
+    Protected45f remains untouched; final-source acceptance stays OPEN.

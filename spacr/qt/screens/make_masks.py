@@ -12093,7 +12093,10 @@ class MakeMasksScreen(QWidget):
         if kind in ("undo", "redo"):
             self._filter_baseline = None
             self._filter_shown = None
-        key = self._manual_mask_key(self._canvas.mask)
+        mask = self._canvas.mask
+        if mask is None:
+            return None
+        key = self._manual_mask_key(mask)
         self._manual_id_history[key] = self._canvas.manual_ids
         if any(self._manual_id_history.values()):
             detail.update(manual_ids=bool(self._canvas.manual_ids), manual_mask_sha256=key)

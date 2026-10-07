@@ -62,9 +62,11 @@ from PySide6.QtCore import Qt, QThread, QTimer, Signal
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QDialog, QDoubleSpinBox, QFileDialog, QFormLayout,
     QAbstractItemView, QGroupBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSizePolicy,
-    QSlider, QSpinBox, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
+    QSlider, QSpinBox, QTableWidget, QVBoxLayout, QWidget,
 )
 from ..i18n import tr
+from ..hidpi import scaled_for
+from .sortable_table import install_sorting, table_item
 from .preview_controls import (
     DEFAULT_MAX_SETS, MAX_SETS_TOOLTIP, FlatButton, FlatComboBox, FlatSpinBox,
     ImageSetSampler, apply_sample_to_combo, populate_channel_combo,
@@ -1427,6 +1429,7 @@ class _EventAnnotationDialog(QDialog):
         self._rows.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._rows.setSelectionMode(QAbstractItemView.SingleSelection)
         self._rows.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        install_sorting(self._rows)
         self._rows.itemSelectionChanged.connect(self._select_event)
         root.addWidget(self._rows)
         actions = QHBoxLayout()
@@ -1557,8 +1560,8 @@ class _EventAnnotationDialog(QDialog):
             rgb = render_frame(image, tracks=track, frame=frame,
                                channel=int(self._channel.value()))
             pixmap = numpy_to_qpixmap(rgb)
-            self._preview.setPixmap(pixmap.scaled(
-                640, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            self._preview.setPixmap(scaled_for(pixmap, self._preview,
+                                               (640, 300)))
             self._shown_observation = (int(track_id), frame)
             if (int(track_id), frame) not in field["observed"]:
                 self._status.setText(tr("This track has no observation at this frame."))
@@ -1569,7 +1572,8 @@ class _EventAnnotationDialog(QDialog):
     def _select_event(self) -> None:
         """Copy the selected event into the edit controls."""
         selected = self._rows.selectionModel().selectedRows()
-        row = selected[0].row() if selected else -1
+        cell = self._rows.item(selected[0].row(), 0) if selected else None
+        row = cell.data(Qt.UserRole) if cell is not None else -1
         if not 0 <= row < len(self._events):
             return
         event = self._events[row]
@@ -1579,11 +1583,15 @@ class _EventAnnotationDialog(QDialog):
 
     def _refresh_rows(self) -> None:
         """Show in-memory edits without touching the annotation CSV."""
+        self._rows.setSortingEnabled(False)
         self._rows.setRowCount(len(self._events))
         for index, event in enumerate(self._events):
             for column, key in enumerate(("track_id", "frame", "event")):
-                self._rows.setItem(index, column,
-                                   QTableWidgetItem(str(event[key])))
+                item = table_item(event[key])
+                if column == 0:
+                    item.setData(Qt.UserRole, index)
+                self._rows.setItem(index, column, item)
+        self._rows.setSortingEnabled(True)
         self._rows.clearSelection()
 
     def _add_event(self) -> None:
@@ -1610,7 +1618,8 @@ class _EventAnnotationDialog(QDialog):
             return
         event = {"track_id": int(track_id), "frame": frame, "event": name}
         selection = self._rows.selectionModel().selectedRows()
-        selected = selection[0].row() if selection else -1
+        cell = self._rows.item(selection[0].row(), 0) if selection else None
+        selected = cell.data(Qt.UserRole) if cell is not None else -1
         if any(all(item[key] == event[key]
                    for key in ("track_id", "frame"))
                for index, item in enumerate(self._events) if index != selected):
@@ -1628,7 +1637,8 @@ class _EventAnnotationDialog(QDialog):
     def _remove_event(self) -> None:
         """Remove one selected staged row, leaving the file unchanged."""
         selection = self._rows.selectionModel().selectedRows()
-        selected = selection[0].row() if selection else -1
+        cell = self._rows.item(selection[0].row(), 0) if selection else None
+        selected = cell.data(Qt.UserRole) if cell is not None else -1
         if not 0 <= selected < len(self._events):
             return
         del self._events[selected]

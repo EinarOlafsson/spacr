@@ -1,0 +1,156 @@
+{
+  "scope": "Complete terminal preceding-source API/runtime failure logs, source-bound contextual draft preparation and guarded final continuation code. No live writer log or current partial catalog is archived. Both preceding original owners exited1; subsequent historical repair and all final owners remain pending. Technical draft gate validation is not all-nine catalog or browser acceptance.",
+  "preceding_original_writer_exit_codes": {
+    "API": 1,
+    "runtime": 1
+  },
+  "prepared_exact_SCN_API_targets": 18,
+  "prepared_exact_encoder_runtime_targets": 9,
+  "original_preceding_catalog_archive_receipt": "features/data/615_preceding_terminal_catalogs_2026-10-06.json",
+  "current_final_source_commit": "d326d20a01fe6b4ecc1b40c435e98f078345f143",
+  "current_API_owned_live_cap_GiB": 24,
+  "all9_current_catalog_acceptance": false,
+  "published": false,
+  "artifacts": [
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/archive_final_catalog_context_r1.py",
+      "original_bytes": 3088,
+      "original_sha256": "55b72605534b68e15017a81607d1aff9b281289fee3044d4ccad042a79661d5c",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/archive_final_catalog_context_r1.py.gz",
+      "archive_sha256": "377dda2c3a175f189e1806266357be9672c52f845e8e384a3d1997d078826a50"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/archive_final_catalog_context_r2.py",
+      "original_bytes": 3179,
+      "original_sha256": "a3f731b4a67aab737bdd03b9e75df1ad19e5d7d6786dd64aeffa8f7cef34ba0f",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/archive_final_catalog_context_r2.py.gz",
+      "archive_sha256": "b6f7784090bc7b2ce201b23303191e44ce9b9be6cd3daf07e769b0f131d05315"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/integrated-API-normal-refresh-r1.log",
+      "original_bytes": 5419,
+      "original_sha256": "d2483a6ce7734c0d13d7b99bbe86738cba1cbe650915c690259752adcdc16e03",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/integrated-API-normal-refresh-r1.log.gz",
+      "archive_sha256": "64d62e445ea55b95ece43aaeefdb21b5f273caf6853a783c596b2fba3f227b86"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/integrated-runtime-normal-refresh-r1.log",
+      "original_bytes": 5642,
+      "original_sha256": "b135c915920f0d26dbe236e438329197395f3c1e1e51d0f6140533160a9ecd30",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/integrated-runtime-normal-refresh-r1.log.gz",
+      "archive_sha256": "ddc466bbe190a1765d1b12d8bcd69e3c0b6a02c60f953d4a8a54aa0982fcc456"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-API-live-resource-adjustment-r1.txt",
+      "original_bytes": 62,
+      "original_sha256": "82b1c3427495258a7fccb450a004574ace8d851162ea3d7ca7ef9eb0a4430725",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/final-API-live-resource-adjustment-r1.txt.gz",
+      "archive_sha256": "9884354bcd5158dc7af92543cb729a9f6233892b81fc0b5c46db08777284fa82"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/prepare_final_scn_brand_reviews_r1.py",
+      "original_bytes": 4864,
+      "original_sha256": "66c4f0bafbb66263a74482eed1f1f5166e78c2224b4705ac6bd4ab8c442cb431",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/prepare_final_scn_brand_reviews_r1.py.gz",
+      "archive_sha256": "278807916f880d5f8de09aaf2edf79d0a84b0765920cd5c7e09153da0d1de890"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-SCN-brand-review-preparation-r1.log",
+      "original_bytes": 242,
+      "original_sha256": "6ab4c484f77e8b07fe5c15769b419e2b8242144fd183c995ae11266f0fee3476",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/final-SCN-brand-review-preparation-r1.log.gz",
+      "archive_sha256": "6ec46464a398d66205865f5804fe2ca94d0bbafd9911cd20896d5618c0c6726a"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-SCN-brand-reviewed-inputs-r1.json",
+      "original_bytes": 12221,
+      "original_sha256": "6b3b4b2b9abbb915202864a8469e9e9b019d35b2db25aada1b1fe3eb0e2ae685",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/final-SCN-brand-reviewed-inputs-r1.json.gz",
+      "archive_sha256": "516efbf99465ef3a25d8fef5f826e9a77de2cf2b8df899e5e17184ee56058963"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/prepare_final_video_encoder_tip_reviews_r1.py",
+      "original_bytes": 6446,
+      "original_sha256": "6c8befbcf3f6488024fd33990a8bfd27cb8d6af607e0a6e524fe6bb0768274d3",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/prepare_final_video_encoder_tip_reviews_r1.py.gz",
+      "archive_sha256": "331309dbc47707a7539b5e24ec18c2e9faaa35aa4e3384ba86fcb19385badce0"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-video-encoder-tip-review-preparation-r1.log",
+      "original_bytes": 244,
+      "original_sha256": "9326259d9a2a7e95fd82c741f0baa7ee0076e89e1b61d8b9907688df6f8385ef",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/final-video-encoder-tip-review-preparation-r1.log.gz",
+      "archive_sha256": "0046c42f19b5e58d28c1d466319bbed7d1c75cfc57743d9611236d19ac29af82"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/final-video-encoder-tip-reviewed-inputs-r1.json",
+      "original_bytes": 10577,
+      "original_sha256": "585a65723ae022972a6c3180768ba772c28a4bb3bec9bec0718c5d33bb019dae",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/final-video-encoder-tip-reviewed-inputs-r1.json.gz",
+      "archive_sha256": "213b78e60835cffd7c9ca717102b12bf964e7e783b8b9a25ba29586448b090d6"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/repair_preceding_terminal_catalog_checkpoint_r1.py",
+      "original_bytes": 4706,
+      "original_sha256": "1eeec49d5487b88e67d93bb027769d5f660f549d01e76f28958e600472d06e6f",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/repair_preceding_terminal_catalog_checkpoint_r1.py.gz",
+      "archive_sha256": "0e20c9b4a64f96f6f284834410fd43621d53e0e53102f4740f810a0ae8e967b7"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/continue_final_contextual_catalog_recovery_r1.py",
+      "original_bytes": 3818,
+      "original_sha256": "88614d1f29928e1bbe85d8e42b2f1bdebb78ee3fd578b50e75e591719c827786",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/continue_final_contextual_catalog_recovery_r1.py.gz",
+      "archive_sha256": "a419d14fba7eaff63c55935a4da1998be9099e7fa583cfaaba6c9fd6b6df0b82"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/admit_final_contextual_recovery_reviews_r1.py",
+      "original_bytes": 2556,
+      "original_sha256": "2bec42fb6f631d3fa58c0f593abf5f483132b6909ff080dcddd2e40b5f04628a",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/admit_final_contextual_recovery_reviews_r1.py.gz",
+      "archive_sha256": "d322396d6311c41e7733d5eca63fb4bd3db7a3201cdb1d01a0e57441519625b4"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_final_cpu_catalog_recovery_r1.py",
+      "original_bytes": 1713,
+      "original_sha256": "18bd39632bda11023c7f54c1c6a7cb9cdac6d4621f93baf49961a883406ab936",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/run_final_cpu_catalog_recovery_r1.py.gz",
+      "archive_sha256": "04c670465b17f56408c1faff0dc3d19956b40c7942cd48c8df7d92ec7fb19426"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/continue_final_post_recovery_docs_r1.py",
+      "original_bytes": 2841,
+      "original_sha256": "1877a11ee71e44b0b8c6c766757ae0be935beefa77a45c2d8c20163bd5e3b2c6",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/continue_final_post_recovery_docs_r1.py.gz",
+      "archive_sha256": "c10fca5516dc643ec90e76a84e570ecdbcdd391f2313d5d5952dfa344920e194"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/complete_final_guide_reviews_r2.py",
+      "original_bytes": 4290,
+      "original_sha256": "426cbe5b13d69bb884e3f29936709e57caa169887d8fc2b2bca2cad36f47612a",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/complete_final_guide_reviews_r2.py.gz",
+      "archive_sha256": "1f04e12d34d7f464dbf8ebe1e86549175838534b46bfcbe881ff77d55ee8f11b"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/continue_final_generated_docs_r2.py",
+      "original_bytes": 4239,
+      "original_sha256": "133ed868672c96a78ccc68a04512a9780aea903acbaca4e72cecf25bc993c520",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/continue_final_generated_docs_r2.py.gz",
+      "archive_sha256": "36dd68135946e9a0067d05811405652f0e41287eecac227321e8675dc00a7142"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/verify_final_current_API_guide_browsers_r1.py",
+      "original_bytes": 8094,
+      "original_sha256": "cec2401844149a6464d804a745e56a27fe01c9f23e744b42590868565d67d105",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/verify_final_current_API_guide_browsers_r1.py.gz",
+      "archive_sha256": "4c99025b86418ca505e6bc7f8d9ebdeef08bccac584d3c4f4b5c0b3507b79304"
+    },
+    {
+      "original_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/continue_final_current_docs_browsers_r1.py",
+      "original_bytes": 1819,
+      "original_sha256": "7f92f98ab6c8e0f242f9f95637e28b7423d06a7b5cc2951889258d0338554757",
+      "archive_path": "features/data/615_final_catalog_context_2026-10-06_r2/continue_final_current_docs_browsers_r1.py.gz",
+      "archive_sha256": "ab634a0eae831acffebcef69b5c27f1fef75c144c59598682f96a41c8be81ff4"
+    }
+  ]
+}

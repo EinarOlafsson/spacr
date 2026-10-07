@@ -1,5 +1,231 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 final CPU renderer and passive serial diagnostic freeze
+Home's final renderer is b2a19147. Exact mature-mycelium raster reuse preserves
+native geometry, density, colour, alpha and original Qt drawing order. The
+private sparse cache is bounded to 8 MiB/64 entries; error recovery repaints
+the original frame. Final source-bound 4K pairs improve default 12.929 to
+16.128 FPS and Random 16.539 to 19.564 under recorded load. RSS rises about
+16 MiB: no whole-memory, hard24FPS, crash or aesthetic acceptance is claimed.
+All 49 integrated ownership/geometry/phase checks pass. Actual native maximum
+controls exercise cache hits through three modal Saves and 11 natural GUI
+GC callbacks; prior frames remain independent and close leaves no widgets or
+workers. Both complete proof archives are verified from committed Git blobs:
+data/663_fungal_mature_raster_cpu_2026-10-06/ and
+data/663_fungal_mature_mainwindow_cpu_2026-10-06/.
+
+The serial journal now reads only existing fixture-cached widget/top-level
+integers at file boundaries. No Qt call/import, GC, order or limit changes;
+16 focused cases pass. This enables a future final-source run to measure the
+retained-widget correlation, not to claim a cause now. Final root logs/hashes:
+data/43_mature_cache_final_checkpoint_2026-10-06/. Protected45f is untouched;
+do not dispatch another serial before it finishes and owner source integrates.
+Native IO/object/core, app5fc and Preferences733 are unchanged. Preserve the
+workstation's source-pinned native GPU turn and all live API/runtime/narration
+writers. Its next normal final integration must retain these CPU changes and
+normally account for new private helper documentation without changing live
+writer source. Overall N43/F288/N47, installed crash and hard24FPS stay open.
+
+## 2026-10-06 easy CPU repairs completed before performance integration
+Event annotation now follows the shared sorting contract and retains stable
+event identity during sorted edit/remove/save. Review caught and reproduced
+partial-row corruption; the safe combined fix disables sorting during refill.
+The retry fixture counts sleeps only on its test thread, preserving actual
+worker sleeps and all production retry policies. All 81 affected checks pass
+on integrated aee source. The full 19 failed ordinary224 logs, downstream
+release failure, states and normal-cancellation receipt are archived in
+data/43_hosted_224_cpu_failures_2026-10-06/: all 31 committed payload hashes
+and every decompressed log pass independent verification. Numerical coverage
+has no verdict because the combine job rejected failed shard prerequisites.
+
+The unchanged fine common-origin mycelium now has phase-aware rendered guards
+for visible early growth, mature and hour-later motion, and at most 30 percent
+screen ink. Empty, frozen and overfilled injections are rejected; all 59
+selected cases pass. This replaces the obsolete style-specific young-frame
+ink census without changing the renderer. Full source/log receipt:
+data/663_fungal_phase_cpu_2026-10-06/. The measured exact-pixel mature-raster
+cache remains a separate performance candidate until integration review.
+All final hosted/coverage/serial, installed Save crash and hard 24 FPS remain
+open. Workstation ownership and native IO/object/core GPU freeze are unchanged.
+## 2026-10-06 final original API preserved and independent repair active
+The first final source-current API GPU run ended1 after its complete all-nine
+audit: exactly eight SCN prose blocks remain unresolved (Swedish2, German1,
+Hindi2, Korean2, Icelandic1). Spanish, Chinese, Portuguese and French had zero
+unresolved blocks. All are the two prepared exact SCN source labels. The
+complete original 13,199-symbol API/catalog/review/history/frozen-source
+checkpoint preserves1,925 files plus its full failure log in three bounded
+byte-exact ZIP parts. Only after that complete preservation did the normal
+strict source/context factory admit18 SCN records across all nine languages.
+Receipt:data/615_final_independent_API_context_2026-10-06_r2.json.
+
+API CPU repair/audit now runs independently in its own36GiB scope against the
+unchanged8e60f24b source-input fingerprint. Runtime GPU r2 started normally at
+2026-10-06T20:08:20-04:00 after its360s idle/600s gap, on actual RTX3090Ti,
+with24GiB and the unchangedb36c87fe source-input fingerprint. It owns a
+separate runtime catalog/review store:7228 UI captions,1243 settings and237
+categories. Both full all-nine zero-terminal gates remain required. Chinese
+runtime generation has88 entries to repair and its fallback is active; no
+partial locale is credited as accepted. The nine prepared encoder runtime
+reviews remain deferred until that original runtime writer ends and its
+complete checkpoint is preserved.
+
+Only the exact idle combined recovery controller was interrupted before any
+writer/checkpoint phase. Its two idle dependent continuations then correctly
+failed absent preconditions, without app or catalog writes. Replacement
+controllers retain every normal review, guide, five-owner, strict Sphinx,
+all-nine guide and actual-browser requirement while using the independent
+lanes. All source writers, original runtime/narration/native GPU queues and
+CPU narration remain untouched. Final immutable tutorial upload/full-file
+readback is separately guarded by complete50-track/61-scene/browser/all85
+candidate acceptance; deployed API/guide verification also requires exact
+successful workflow/source/channel identity and all ten hosted catalogs.
+Home: preserve the combined source freeze. Workstation retains all GPU/API/
+docs/translations/tutorials; Home retains CPU/native/CI. Final source/media
+publication, native theme crash closure and broad completion remain pending.
+
+## 2026-10-06 current hosted CPU repairs and preserved GPU native freeze
+Home integrates the tested event-preview HiDPI, missing-mask edit and actual
+advection-population test repairs; all81 combined checks pass under4GiB.
+Shared FlowLayout now handles QRect's inclusive right edge: exact-fit rows
+stay together, one pixel less still wraps. Both boundary cases fail the old
+method; all190 affected layout/flow checks pass. Make Masks' one-row fixture
+reserves actual preferred width with an additional wider-caption case while
+retaining parent/order/y alignment. Fixed1600px cannot hold all alpha buttons
+for arbitrary fonts; narrow production windows still wrap. Python3.9 lineage
+checks use equivalent zip adjacency; nine cases pass. The preferences proof
+brand spelling and its manifest are regenerated. Exact source/log archive:
+data/43_cpu_replay_repairs_2026-10-06/.
+
+Native IO/object/core hashes in the existing combined freeze remain unchanged:
+leave the workstation's source-pinned acquired GPU comparison undisturbed.
+All API/docs/catalog/tutorial/GPU owners remain with the workstation. This
+CPU checkpoint does not publish its isolated app or its latest-source catalogs;
+normal final integration must retain both sides and refresh changed sources.
+Current224 hosted failures are being archived and classified. Protected b779
+serial timed out after six hours at63percent, peak5933MiB with zero OOM kills;
+this is not full acceptance. Its protected45f successor began automatically
+and remains untouched. No ceilings are increased or hosted failure waived.
+
+## 2026-10-06 preceding all-nine catalog recovery accepted
+The preceding frozen Root source now passes both unchanged normal all-nine
+runtime and API terminal audits after exactly two source-bound technical
+records repaired Swedish canonical mask-saving prose and the Hindi VideoMAE
+encoder tip. Scope is 13,196 API symbols, 1,243 settings, 237 categories,
+7,224 UI captions and 77 external modules. It is not the newer final source.
+The complete original failed catalog/review/history checkpoint contains 3,372
+files; the complete accepted catalog/review/history/source checkpoint contains
+4,039 files. Both ZIPs are preserved as bounded byte-exact parts, alongside
+full original failures, strict repair logs and source/code/input provenance in
+615_preceding_terminal_catalogs_2026-10-06.json,
+615_preceding_catalog_recovery_2026-10-06_r2.json and
+615_final_catalog_context_2026-10-06_r2.json. Concatenate each numbered ZIP
+part in order to recover its exact original archive. No historical catalogs
+were copied over the newer final integration.
+
+The final 13,199-symbol API GPU owner still runs on the frozen combined Home
+source. Exact prepared 18 SCN API and nine encoder runtime targets will be
+normally admitted only after both original owners terminate and their complete
+checkpoints are preserved. A guarded continuation then requires all-nine
+runtime/API audits, normal guide admission, five generated owners, strict
+Sphinx/all-nine guides and actual API/guide browser verification. Current
+narration has written 26 of 50 tracks; full decoding, native61-frame rendered
+fidelity, browser matrices and all85 candidate routes remain pending. Normal
+immutable upload/full hosted-byte readback is queued only after those gates.
+All GPU turns retain the real queue and source freeze. Home continues CPU,
+native and CI ownership; workstation retains GPU/API/docs/translations/
+tutorials. Final app/media deployment and Home crash closure are not claimed.
+
+## 2026-10-06 contained native tutorial composer published
+The optional normal --copy-frames composer is now independently accepted:
+all59 native frame bytes and61 stage-contained scene paths match, all84
+unrelated lesson objects across14 catalogs remain exact, and114 affected
+staging/review/preservation/candidate cases plus fatal Ruff pass. The default
+composer behavior is preserved. Source-bound proof, original guide/review
+checkpoints and genuine resource failure history are retained in
+data/615_final_prepublication_checkpoint_2026-10-06/ and its receipt.
+This publishes only the packaging utility/evidence; current final app source,
+full50 narration, rendering/browser/media and final catalogs remain pending.
+
+## 2026-10-06 issue137 closed and native acquired GPU comparison prepared
+Issue137 is now CLOSED at2026-10-06T22:36:44Z after its already-published
+uppercase/padded CSV boolean repair,358 affected checks and the actual
+installed spacr-run65-flag dry-run acceptance. No issue comment was sent;
+cluster inference is not claimed.
+
+Workstation has prepared an additional source-pinned GPU comparison for the
+combined Home native archive source. All original acquired GOWT1 t021-t024
+uint8 pixels are retained exactly in a private flat TYX archive; the original
+eager Mask function is preserved byte-for-byte. Real pretrained CPSAM CUDA
+calls will compare every normalized input, all four nonempty mask files,
+SQLite count rows and completion identity against the current mapped path
+at the same outer batch_size2. The initial private preparation's mistaken
+uint16 assertion is preserved; corrected preparation uses original uint8
+without casting or rewriting pixels. Scope is derived acquired flat TYX,
+not vendor-native T/Z volumes, biological accuracy, speed or whole-RSS proof.
+Label548-final-native-TYX-CUDA-20261006-r2 will use the unchanged normal
+shared GPU queue behind final API/runtime/narration. Source remains frozen;
+Home must leave io/object/core source unchanged during this owned check.
+
+The ongoing final API owner has correctly rejected two Swedish and one German
+SCN brand-name paragraphs so far. Eighteen exact SCN technical targets and
+nine complete VideoMAE encoder setting targets pass their unchanged strict
+source/context or runtime gates in private preparation. They are not yet
+admitted into the live writer's review store. Original normal runs, rejection
+history and complete checkpoints remain preserved; all-nine acceptance is
+still required before publication. Workstation retains every GPU/API/docs/
+translation/tutorial owner and Home retains CPU/native/CI investigation.
+
+## 2026-10-06 final catalog resource recovery and narration handoff
+The normal final runtime GPU r1 exited137: the kernel confirmed an8GiB
+cgroup OOM while loading its fallback. Its original failure is preserved;
+three written locales are a checkpoint, not all-nine acceptance. The unchanged
+normal owner is queued again as615-final-runtime-catalogs-20261006-r2 with24GiB.
+Final API6994 is ahead of it; both retain real360s idle/600s queue gaps.
+The older frozen CPU runtime7712 had a confirmed8GiB reclaim bottleneck;
+only its owned live scope limit was raised to36GiB, without restarting it,
+changing source or exposing CUDA. It now advances beyond Chinese. Total host
+RAM remains below the110GiB rule. API45424 remains untouched.
+
+Final native tutorial packaging now byte-copies all59 original PNGs through
+an optional normal composer flag into its private stage. All61 scene paths
+are contained, all original focus/pointer/source hashes and scientific proofs
+match, and all84 unrelated lessons in14 catalogs remain unchanged. All13
+caption reviews are normally repromoted; no new or edited pixels are claimed.
+Normal final guides preserve the previous full checkpoint and now contain
+2999 messages per locale,2983 translated and16 pending. Strict technical
+admission of those final messages waits for the successful all-nine runtime.
+
+CPU50-voice28564 continues while GPU narration
+615-final-missing-voices-20261006-r1 waits behind both catalog owners. That
+wrapper may interrupt only the exact owned CPU writer, and only after actual
+pinned Kokoro CUDA synthesis succeeds. It preserves the complete CPU terminal
+checkpoint and copies only complete hash/source-verified tracks, then normally
+renders missing voices. Full50 decoding,61-frame video fidelity, browser/media
+publication and current-source deployment remain required. Home: preserve the
+combined source freeze; workstation owns these GPU/API/docs/tutorial tasks.
+
+## 2026-10-06 final combined source owner refresh queued
+Workstation has merged the complete Home22413aa native IO/object/core freeze
+into its isolated final integration d326d20a0, retaining the accepted event
+worker, Cell-DINO provenance, current single-Wand tutorial and all Home work.
+The new combined source passes all142 API/docstring checks and196 targeted
+native archive/event cases. The preceding final checkpoint separately passes
+all498 normal generated-owner contracts,622 mask/event/SCN/CLI cases and114
+tutorial staging checks. Actual pretrained CPU train/save/tensor-only reload/
+replay passes with IEEE precision provenance on declared synthetic fields;
+no biological event accuracy is claimed.
+
+All nine locales strictly admitted108 source-pinned runtime and37 API review
+targets, including Random, Wand/Ctrl and Swedish canonical mask-saving prose.
+No source-owned API/runtime delta is introduced by the later Home native
+archive freeze. The final source is now frozen for two normal GPU owners,
+615-final-runtime-catalogs-20261006-r1 and615-final-api-catalogs-20261006-r1,
+through the real shared queue, with360s idle and600s between turns. Existing
+frozen CPU7712/API45424 and50-voice28564 jobs remain untouched. Home: preserve
+this source freeze while final catalogs, guides, generated artifacts and
+publication checks complete; all GPU/API/docs/translations/tutorials remain
+workstation-owned. Full application and media publication is still pending.
+
 ## 2026-10-06 combined native memory source and exact CI owner freeze
 Home CPU source now freezes at IO
  e0cac6ae179e2dc1bbc5f3dd27c634f03f07d814195dfad9aead44bf37e35e0d,

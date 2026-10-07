@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 import tifffile
-from PySide6.QtCore import QSettings
+from PySide6.QtCore import QSettings, Qt
 
 from spacr.qt.widgets.timelapse_preview import (
     _EventAnnotationDialog, _annotation_field_payload, render_frame, track_colour,
@@ -107,6 +107,46 @@ def test_cancel_does_not_publish_staged_annotations(qtbot, tmp_path):
     assert not target.exists()
     assert dialog._field is None
     assert dialog._preview.pixmap().isNull()
+
+
+def test_sorted_event_rows_edit_and_remove_the_selected_observation(
+        qtbot, tmp_path):
+    sequence, tracks, target = _field_files(tmp_path)
+    dialog = _dialog(qtbot, sequence, tracks, target)
+    dialog._confirm.setChecked(True)
+    dialog._events = [
+        {"track_id": 7, "frame": 1, "event": "mitosis"},
+        {"track_id": 9, "frame": 2, "event": "death"},
+    ]
+    dialog._refresh_rows()
+    qtbot.wait(25)
+    dialog._rows.sortItems(0, Qt.DescendingOrder)
+    qtbot.wait(25)
+    assert dialog._rows.horizontalHeader().sortIndicatorSection() == 0
+    assert dialog._rows.item(0, 0).text() == "9"
+    assert dialog._rows.item(0, 1).text() == "2"
+    assert dialog._rows.item(0, 2).text() == "death"
+    assert dialog._rows.item(0, 0).data(Qt.UserRole) == 1
+    dialog._rows.selectRow(0)
+    assert dialog._track.currentData() == 9
+    assert dialog._frame.value() == 2
+    dialog._event.setText("egress")
+    dialog._add_event()
+    qtbot.wait(25)
+    assert dialog._events == [
+        {"track_id": 7, "frame": 1, "event": "mitosis"},
+        {"track_id": 9, "frame": 2, "event": "egress", "extra": {}},
+    ]
+    assert dialog._rows.item(0, 0).text() == "9"
+    assert dialog._rows.item(0, 1).text() == "2"
+    assert dialog._rows.item(0, 2).text() == "egress"
+    assert dialog._rows.item(0, 0).data(Qt.UserRole) == 1
+    dialog._rows.selectRow(0)
+    dialog._remove_event()
+    assert dialog._events == [{"track_id": 7, "frame": 1, "event": "mitosis"}]
+    dialog._save()
+    assert _event_read_annotations(str(target))["event"].tolist() == ["mitosis"]
+    dialog.close()
 
 
 def test_existing_other_field_is_preserved_and_external_change_is_refused(

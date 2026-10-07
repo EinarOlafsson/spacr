@@ -52,6 +52,22 @@ def _rss_sample() -> dict[str, int | None]:
     return values
 
 
+def _cached_qt_counts(config: pytest.Config) -> dict[str, int | None]:
+    """Read only the root test fixture's last safe widget-count snapshot."""
+    counts = {"cached_qt_widgets": None, "cached_qt_top_levels": None}
+    name = str((config.rootpath / "tests" / "conftest.py").resolve())
+    plugin = config.pluginmanager.get_plugin(name)
+    if plugin is None:
+        return counts
+    cached = vars(plugin).get("_LAST_LIVE_WIDGET_COUNT")
+    if not isinstance(cached, tuple) or len(cached) != 2:
+        return counts
+    for key, value in zip(counts, cached):
+        if type(value) is int and value >= 0:
+            counts[key] = value
+    return counts
+
+
 def _write(event: str, **details: object) -> None:
     """Append and sync one complete record without retaining pytest objects."""
     assert _journal is not None
@@ -149,10 +165,11 @@ def pytest_runtest_setup(item: pytest.Item) -> None:
     if name == _active_file:
         return
     if _active_file is not None:
-        _write("file_end", file=_active_file)
+        _write("file_end", file=_active_file, **_cached_qt_counts(item.config))
         _completed_files += 1
     _active_file = name
-    _write("file_begin", file=name, first_nodeid=item.nodeid[:512])
+    _write("file_begin", file=name, first_nodeid=item.nodeid[:512],
+           **_cached_qt_counts(item.config))
 
 
 @pytest.hookimpl(tryfirst=True)
@@ -177,7 +194,8 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     """Mark a normal terminal result; abrupt exits deliberately lack it."""
     global _active_file, _completed_files
     if _active_file is not None:
-        _write("file_end", file=_active_file)
+        _write("file_end", file=_active_file,
+               **_cached_qt_counts(session.config))
         _completed_files += 1
         _active_file = None
     _write(
