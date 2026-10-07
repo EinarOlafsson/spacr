@@ -3201,3 +3201,11 @@ data/43_current_source_contracts_2026-10-07/receipt.json. The all-nine API
 writer, source inventory pins and guide/publication refresh remain Root work.
 Home retains hosted ordinary/full original-order Qt/native acceptance.
 This checkpoint does not close43,47 or615; current hosted green remains OPEN.
+
+2026-10-07 — EXACT683 COVERAGE7 FAILURE AND DIAGNOSTIC RECEIPT
+Run37698599898/job113058129395 has one test failure: API visible inventory
+13214 vs reviewed13199(+15). This belongs to the catalog owner; native route
+initialization, collector and artifact upload succeed.33 identity-only journals
+are complete and no native fault occurs. Evidence/source/run/job provenance:
+data/47_ordinary_native_hosted_route_2026-10-07/. This is one shard receipt,
+not whole GitHub green or a waiver of the original API guard.

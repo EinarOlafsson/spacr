@@ -2285,3 +2285,33 @@ Exact argv, debugger command and compressed complete raw log are retained in
 This cold file check neither reproduces nor closes protectedb688 original-
 order QEventLoop fault or bb7 puncta worker fault. No app fix is inferred.
 Current683 ordinary hosted tests remain running; full native/CI stay OPEN.
+
+2026-10-07 — FIRST ORDINARY HOSTED NATIVE ROUTE/IDENTITY RECEIPT
+Exact683 Coverage7 job113058129395 completes failure-only collector and upload
+successfully. Artifact11517807991 contains33 distinct-PID identity-only journals,
+all with exact source/root/executable provenance and session start/end only:
+no RSS/Qt/fault fields. Actual pytest shell core ceiling is16GiB; executable
+systemd handler and readable storage route are verified. Collector correctly
+reports no unfinished owned process/core. Full log has no native crash; the
+sole failure is older API inventory13214 vs13199(+15), handled by catalog owner.
+This accepts hosted diagnostic initialization/artifact delivery, not actual
+SIGSEGV recovery or a native Qt fix. The later fault-frame diagnostic update
+is absent from683. Raw ZIP/metadata, compressed full log, source hashes and
+verified manifest: data/47_ordinary_native_hosted_route_2026-10-07/.
+Original puncta/protected QEventLoop native faults remain OPEN.
+
+The named puncta True case PASSES in the primary hosted run at23:06:43.6002252Z
+(raw full-log line6014), independently of recovery. This single pass does not
+identify the historical native cause or establish whole Qt suite acceptance.
+Run provenance and raw-log SHA are included in the same receipt.
+
+2026-10-07 — BOUNDED ORIGINAL-ORDER GUI THREAD PREDECESSOR PAIR
+Currentc771b4627c distributed_jobs_screen then distribution_smoke files pass
+27/27 in45.25s under8GiB, CUDA-hidden/offscreen gdb with original1200s
+per-test timeout. A scratch observer adds no event pumping, GC or deletion.
+Of108 boundary rows,107 post-application samples show one valid application
+and GUI QThread C++ pointer, including both sides of the two suspect tests.
+This negative pair neither tests the13,590-widget original context nor rules
+out transient native corruption between hooks. Protectedb688 cause stays OPEN.
+Raw gdb,108 identities, observer and exact argv/env/source receipt are retained
+in data/47_b688_gui_thread_predecessor_2026-10-07/. No app patch is inferred.

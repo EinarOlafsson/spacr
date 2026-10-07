@@ -1,0 +1,56 @@
+{
+  "source_sha": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+  "run_id": 37698599898,
+  "job_id": 113058129395,
+  "artifact_id": 11517807991,
+  "source_hashes": {
+    "tools/collect_qt_native_backtrace.py": "25195720d40ee5fcdf59b498783a563643f5b04b262025281f200bdeb888f750",
+    "tools/pytest_plugins/qt_serial_rss_journal.py": "5bce9646a7624968f84a460e4d4d77dbcfec1adaa8c7f846aaf604b3035e4291",
+    ".github/workflows/_pytest-suite.yml": "e616e9704de9e5bfba0508edb5151d3d8814e8eb6ae5bdd4c67d081c6e9e77a4",
+    ".github/workflows/tests.yml": "f516711a6281449af4f0db90912321c5231e5e7b0bc0b81f7a8cd68fd81be5f8"
+  },
+  "route": {
+    "core_pattern": "|/usr/lib/systemd/systemd-coredump %P %u %g %s %t 9223372036854775808 %h %d",
+    "core_limit_soft_bytes": 17179869184,
+    "core_limit_hard_bytes": -1,
+    "core_limit_ceiling_bytes": 17179869184,
+    "route": "systemd",
+    "handler": "/usr/lib/systemd/systemd-coredump",
+    "handler_executable": true,
+    "storage": "/var/lib/systemd/coredump",
+    "storage_readable": true,
+    "kernel_pipe_ignores_rlimit": true,
+    "route_verified": true,
+    "capture_guaranteed": false,
+    "scope": "route preflight; core existence and ELF identity are checked after failure"
+  },
+  "identity_journals": 33,
+  "unique_pids": 33,
+  "complete_identity_only_journals": true,
+  "rss_qt_fault_fields": 0,
+  "python_executable": "/opt/hostedtoolcache/Python/3.12.15/x64/bin/python3.12",
+  "python_sha256": "53dab24bf9e0e9c490088a53d71770b6f027b057678b313648e75f7fc87a675e",
+  "root": "/home/runner/work/spacr/spacr",
+  "collector_step": "success",
+  "upload_step": "success",
+  "native_core_available": false,
+  "native_fault_found_in_full_log": false,
+  "test_failure": "test_api_i18n_extractor.py::test_public_docstrings_matches_reviewed_visible_coverage:13214 vs13199(+15)",
+  "scope": "actual hosted route/plugin/collector initialization and textual artifact success; no SIGSEGV recovery or application repair acceptance",
+  "limits": [
+    "No native fault occurred; actual crash-to-core hosted recovery remains untested.",
+    "The collector subprocess rlimit is0; core-route.json records the actual pytest shell16GiB soft limit.",
+    "Systemd pipe ignores RLIMIT_CORE; route preflight does not guarantee future core storage.",
+    "Later ordinary-only fault-frame diagnostics are absent from source683 and are separately proved."
+  ],
+  "full_raw_log_sha256": "de252d60694f7d2d651f00b40c2d826949ae81dfbc0f6c6e8f87417726cac680",
+  "full_raw_log_matches_root_download": true,
+  "named_puncta_test": {
+    "nodeid": "tests/qt/test_make_masks_center_pixel_puncta.py::test_choose_detect_save_and_undo_keeps_parents_and_exports_exact_values[True]",
+    "result": "PASSED",
+    "timestamp_utc": "2026-10-07T23:06:43.6002252Z",
+    "raw_log_line": 6014,
+    "scope": "one primary hosted pass only; historical native cause and whole Qt acceptance remain open"
+  },
+  "run_url": "https://github.com/EinarOlafsson/spacr/actions/runs/37698599898"
+}
