@@ -362,3 +362,102 @@ def test_owned_leader_matches_even_when_the_recorded_lwp_is_different(tmp_path, 
     lines = []
     assert collector._ordinary_core(tmp_path, evidence, [session], executable, lines) == (core, None)
     assert any(line.startswith('matched_process=') for line in lines)
+
+
+@pytest.mark.parametrize('mode', ['signal', 'direct', 'bounded', 'unsupported', 'missing_original'])
+def test_original_fault_diagnostic_selects_restored_frame_with_bounded_fallback(monkeypatch, mode):
+    from types import SimpleNamespace
+
+    selected = []
+    commands = []
+    messages = []
+
+    class Frame:
+        def __init__(self, index, kind):
+            self.index, self.kind = index, kind
+            self.next = None
+
+        def type(self):
+            if mode == 'unsupported':
+                raise RuntimeError('unwinding unavailable')
+            return self.kind
+
+        def older(self):
+            return self.next
+
+        def select(self):
+            selected.append(self.index)
+
+        def level(self):
+            return self.index
+
+        def name(self):
+            return 'original_fault' if self.index == 2 else 'signal_raise'
+
+    frames = [Frame(index, 1 if index == (24 if mode == 'bounded' else 1) else 0)
+              for index in range(26 if mode == 'bounded' else 3)]
+    for first, second in zip(frames, frames[1:]):
+        first.next = second
+    if mode == 'direct':
+        frames[1].kind = 0
+    elif mode == 'missing_original':
+        frames[1].next = None
+
+    def execute(command):
+        commands.append(command)
+        if mode == 'unsupported' and command == 'p $_siginfo':
+            raise RuntimeError('siginfo unavailable')
+
+    gdb = SimpleNamespace(execute=execute, write=messages.append, newest_frame=lambda: frames[0],
+                          SIGTRAMP_FRAME=1)
+    monkeypatch.setitem(sys.modules, 'gdb', gdb)
+    exec(collector._ORDINARY_FAULT_SCRIPT, {})
+    assert commands[:4] == ['set print elements 32', 'set print max-depth 4',
+                            'p $_siginfo', 'bt full 24']
+    output = ''.join(messages)
+    if mode == 'signal':
+        assert selected == [2, 0]
+        assert 'selection=after_sigtramp level=2 name=original_fault' in output
+    elif mode in {'direct', 'bounded'}:
+        assert selected == [0, 0]
+        assert 'selection=current_fault_frame' in output
+    else:
+        assert 'unsupported' in output
+        assert not selected or selected == [0]
+    if mode in {'signal', 'direct', 'bounded'}:
+        assert commands[-2:] == ['info registers', 'x/16i $pc']
+
+
+def test_serial_gdb_command_remains_the_original_bounded_backtrace(tmp_path, monkeypatch):
+    import json
+
+    executable, evidence, session = _identity(tmp_path)
+    core = evidence / 'core.3456'
+    core.write_bytes(_native_note_core(3456, executable))
+    (evidence / 'file-rss.jsonl').write_text(json.dumps(session) + '\n')
+    monkeypatch.setenv('GITHUB_WORKSPACE', str(tmp_path))
+    monkeypatch.setenv('RUNNER_TEMP', str(tmp_path))
+    monkeypatch.setenv('GITHUB_SHA', 'source')
+    monkeypatch.setattr(collector.sys, 'executable', str(executable))
+    monkeypatch.setattr(collector.shutil, 'which', lambda name: '/usr/bin/' + name)
+    monkeypatch.setattr(collector, '_candidate_files', lambda *args: iter([(core, core.stat().st_size)]))
+    monkeypatch.setattr(collector, '_apport_reports', lambda *args: [])
+    expected = ['gdb', '-q', '-nx', '-nh', '-batch',
+                '-iex', 'set auto-load safe-path /dev/null',
+                '-iex', 'set debuginfod enabled off', '-ex', 'set pagination off',
+                '-ex', 'info proc', '-ex', 'info threads', '-ex', 'thread apply all bt 24',
+                str(executable), str(core)]
+
+    def command(argv, **kwargs):
+        if argv[0] == 'git':
+            return subprocess.CompletedProcess(argv, 0, stdout='source\n')
+        assert argv == expected
+        assert kwargs['timeout'] == 90
+        assert kwargs['preexec_fn'] is collector._cap_backtrace_file
+        kwargs['stdout'].write(b'unchanged serial trace\n')
+        return subprocess.CompletedProcess(argv, 0)
+
+    monkeypatch.setattr(collector.subprocess, 'run', command)
+    assert collector.main(['--evidence-dir', str(evidence)]) == 0
+    assert core.exists()
+    assert collector.MAX_BACKTRACE_BYTES == 4 * 1024 ** 2

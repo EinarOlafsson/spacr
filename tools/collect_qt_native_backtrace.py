@@ -29,6 +29,46 @@ GDB_TIMEOUT_SECONDS = 90
 CORE_EXTRACT_TIMEOUT_SECONDS = 60
 CORE_DISK_RESERVE_BYTES = 512 * 1024 * 1024
 
+_ORDINARY_FAULT_SCRIPT = r"""
+import gdb
+
+def diagnostic(command):
+    try:
+        gdb.execute(command)
+    except Exception as error:
+        gdb.write("ordinary fault diagnostic unsupported: " + command + ": " + str(error) + "\n")
+
+diagnostic("set print elements 32")
+diagnostic("set print max-depth 4")
+diagnostic("p $_siginfo")
+diagnostic("bt full 24")
+try:
+    newest = gdb.newest_frame()
+    frame = newest
+    original = newest
+    selection = "current_fault_frame"
+    for depth in range(24):
+        if frame is None:
+            break
+        if frame.type() == gdb.SIGTRAMP_FRAME:
+            original = frame.older()
+            selection = "after_sigtramp"
+            break
+        frame = frame.older()
+    if original is None:
+        gdb.write("ordinary fault diagnostic unsupported: no original frame\n")
+    else:
+        original.select()
+        gdb.write("ordinary_fault_frame selection=" + selection + " level=" + str(original.level())
+                  + " name=" + str(original.name()) + "\n")
+        diagnostic("info registers")
+        diagnostic("x/16i $pc")
+    if newest is not None:
+        newest.select()
+except Exception as error:
+    gdb.write("ordinary fault diagnostic unsupported: original frame: " + str(error) + "\n")
+"""
+
 
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
@@ -442,10 +482,14 @@ def main(argv: list[str] | None = None) -> int:
             "-iex", "set debuginfod enabled off",
             "-ex", "set pagination off",
             "-ex", "info proc",
+        ]
+        if options.ordinary:
+            command.extend(["-ex", "python exec(" + repr(_ORDINARY_FAULT_SCRIPT) + ")"])
+        command.extend([
             "-ex", "info threads",
             "-ex", "thread apply all bt 24",
             str(executable), str(core),
-        ]
+        ])
         with report.open("ab") as output:
             output.write(f"\ncommand={' '.join(command)}\n".encode())
             output.flush()
