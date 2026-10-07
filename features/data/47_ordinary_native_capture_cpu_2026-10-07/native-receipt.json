@@ -1,0 +1,13 @@
+{
+  "git_head": "8e5dead63eee3f9b44b7a314fece2a3877be4338",
+  "collector_sha256": "25195720d40ee5fcdf59b498783a563643f5b04b262025281f200bdeb888f750",
+  "journal_sha256": "5bce9646a7624968f84a460e4d4d77dbcfec1adaa8c7f846aaf604b3035e4291",
+  "executable": "/home/olafsson/anaconda3/envs/spacr/bin/python3.12",
+  "core_bytes": 13086152,
+  "core_generated_in_owned_gdb_child": true,
+  "global_core_settings_changed": false,
+  "core_upload": false,
+  "matched_owned_process": true,
+  "gdb_exit": 0,
+  "native_fault": "controlled SIGSEGV; no spaCR causation or hosted-crash repair claim"
+}

@@ -1,0 +1,161 @@
+{
+  "scope": "ordinary Qt/Coverage native diagnostics, no application repair",
+  "base_git_sha": "b2c8cd0f06f4030c73203487e656aafb424bfb06",
+  "implementation_git_sha": "4c27c26ae5ca2dd6f2f2fa1657546e7744508aef",
+  "sources": {
+    ".github/workflows/_pytest-suite.yml": {
+      "before": {
+        "git_sha": "b2c8cd0f06f4030c73203487e656aafb424bfb06",
+        "sha256": "f607b75a0ac1499843f1760f43ade46f68b531d8330d904bbf8b5151ce8166db",
+        "payload": "before/github__workflows___pytest-suite.yml.gz"
+      },
+      "after": {
+        "git_sha": "4c27c26ae5ca2dd6f2f2fa1657546e7744508aef",
+        "sha256": "e616e9704de9e5bfba0508edb5151d3d8814e8eb6ae5bdd4c67d081c6e9e77a4",
+        "payload": "after/github__workflows___pytest-suite.yml.gz"
+      }
+    },
+    ".github/workflows/tests.yml": {
+      "before": {
+        "git_sha": "b2c8cd0f06f4030c73203487e656aafb424bfb06",
+        "sha256": "63c04fa16ccb2f1a90000a05aa03b672d8924977ba2caf3de59cf2c5ab16d046",
+        "payload": "before/github__workflows__tests.yml.gz"
+      },
+      "after": {
+        "git_sha": "4c27c26ae5ca2dd6f2f2fa1657546e7744508aef",
+        "sha256": "f516711a6281449af4f0db90912321c5231e5e7b0bc0b81f7a8cd68fd81be5f8",
+        "payload": "after/github__workflows__tests.yml.gz"
+      }
+    },
+    "tools/collect_qt_native_backtrace.py": {
+      "before": {
+        "git_sha": "b2c8cd0f06f4030c73203487e656aafb424bfb06",
+        "sha256": "979f78dcf0bf28fc77d185df6e1b4ea15ce32b13cd13283e37fc4ee4a94cf918",
+        "payload": "before/tools__collect_qt_native_backtrace.py.gz"
+      },
+      "after": {
+        "git_sha": "4c27c26ae5ca2dd6f2f2fa1657546e7744508aef",
+        "sha256": "25195720d40ee5fcdf59b498783a563643f5b04b262025281f200bdeb888f750",
+        "payload": "after/tools__collect_qt_native_backtrace.py.gz"
+      }
+    },
+    "tools/pytest_plugins/qt_serial_rss_journal.py": {
+      "before": {
+        "git_sha": "b2c8cd0f06f4030c73203487e656aafb424bfb06",
+        "sha256": "257deae48f9eb2372540bde0c7b2a0115725cc8c2c83f39bc57f4cf9be7e98e7",
+        "payload": "before/tools__pytest_plugins__qt_serial_rss_journal.py.gz"
+      },
+      "after": {
+        "git_sha": "4c27c26ae5ca2dd6f2f2fa1657546e7744508aef",
+        "sha256": "5bce9646a7624968f84a460e4d4d77dbcfec1adaa8c7f846aaf604b3035e4291",
+        "payload": "after/tools__pytest_plugins__qt_serial_rss_journal.py.gz"
+      }
+    },
+    "tests/test_qt_native_core_extraction.py": {
+      "before": {
+        "git_sha": "b2c8cd0f06f4030c73203487e656aafb424bfb06",
+        "sha256": "9e544f0dae11e5013d83b1f50e2b4c6637a3ca480ed2b3858f5446339aee5eda",
+        "payload": "before/tests__test_qt_native_core_extraction.py.gz"
+      },
+      "after": {
+        "git_sha": "4c27c26ae5ca2dd6f2f2fa1657546e7744508aef",
+        "sha256": "e30c22d6e6ac4063e58fc4fd55c5f35989ce2421a3842438d890b1fce65bd492",
+        "payload": "after/tests__test_qt_native_core_extraction.py.gz"
+      }
+    },
+    "tests/test_qt_serial_rss_journal.py": {
+      "before": {
+        "git_sha": "b2c8cd0f06f4030c73203487e656aafb424bfb06",
+        "sha256": "58ab6adf877c47631ac86f864ca9f248d7c961e6d1950f53981520ab46267154",
+        "payload": "before/tests__test_qt_serial_rss_journal.py.gz"
+      },
+      "after": {
+        "git_sha": "4c27c26ae5ca2dd6f2f2fa1657546e7744508aef",
+        "sha256": "3d60c58f131eaa2946f6cbb2c238a044cea5f5ce40f498e8fee2905e0c5d16f1",
+        "payload": "after/tests__test_qt_serial_rss_journal.py.gz"
+      }
+    }
+  },
+  "validation": [
+    {
+      "log": "ordinary-collector-final.log",
+      "passed": 78,
+      "seconds": 13.02,
+      "scope": "collector/journal plus original suite-classification contracts"
+    },
+    {
+      "log": "ordinary-core-route.log",
+      "passed": 3,
+      "seconds": 0.55,
+      "scope": "disabled/unsupported and writable core route provenance"
+    },
+    {
+      "log": "ordinary-systemd-identity.log",
+      "passed": 5,
+      "seconds": 0.65,
+      "scope": "real zstd extraction bound to boot/time/PID/executable notes"
+    },
+    {
+      "log": "ordinary-ci-plugin-mode.log",
+      "passed": 19,
+      "seconds": 9.28,
+      "scope": "journal tests under actual ordinary-plugin opt-in; overlaps first cohort"
+    }
+  ],
+  "controlled_native_proof": {
+    "git_head": "8e5dead63eee3f9b44b7a314fece2a3877be4338",
+    "collector_sha256": "25195720d40ee5fcdf59b498783a563643f5b04b262025281f200bdeb888f750",
+    "journal_sha256": "5bce9646a7624968f84a460e4d4d77dbcfec1adaa8c7f846aaf604b3035e4291",
+    "executable": "/home/olafsson/anaconda3/envs/spacr/bin/python3.12",
+    "core_bytes": 13086152,
+    "core_generated_in_owned_gdb_child": true,
+    "global_core_settings_changed": false,
+    "core_upload": false,
+    "matched_owned_process": true,
+    "gdb_exit": 0,
+    "native_fault": "controlled SIGSEGV; no spaCR causation or hosted-crash repair claim"
+  },
+  "source_binding_note": "Native proof ran before the final leader correction commit, with git HEAD 8e5dead63e and final collector/journal bytes on disk. Their hashes equal the committed after payloads.",
+  "leader_validation": [
+    {
+      "log": "ordinary-leader-identity.log",
+      "passed": 47,
+      "seconds": 1.93,
+      "scope": "final leader decoder and all extraction/identity cases; overlaps prior phases"
+    },
+    {
+      "log": "ordinary-owned-leader.log",
+      "passed": 1,
+      "scope": "owned process leader with different LWP; added after the 47-case phase"
+    }
+  ],
+  "observer": "two fsynced process identity records; no ordinary RSS/Qt/test observations or fatal-handler rebinding",
+  "core_route": "actual pytest shell soft ceiling 16 GiB; inherited pattern recorded; no sysctl or global core-pattern changes; unsupported routes reported explicitly",
+  "capture_bounds": {
+    "core_bytes": 17179869184,
+    "disk_reserve_bytes": 536870912,
+    "zstd_seconds": 60,
+    "gdb_seconds": 90,
+    "text_bytes": 4194304,
+    "maximum_extractions_per_failed_job": 1
+  },
+  "guard_policy": "duplicate PIDs refused; source/root/executable hash/boot/start identity and unique NT_PRPSINFO process leader/mapped executable required; PRSTATUS LWP IDs cannot attribute a core; stale and symlinked cores rejected",
+  "unchanged": [
+    "application source",
+    "protected serial workflow",
+    "test selection/order",
+    "workers",
+    "test/RAM/time budgets",
+    "failure/recovery policy",
+    "ratchets"
+  ],
+  "limits": [
+    "Core availability depends on the hosted kernel handler/storage configuration.",
+    "Ordinary ELF-note attribution supports Linux x86 ELF32/64; unsupported machines are refused.",
+    "A route preflight does not prove core storage; existing ELF identity is checked after failure.",
+    "Unfinished journal alone does not prove SIGSEGV.",
+    "At most one matching native core is traced per failed job; other faults remain recorded by pytest.",
+    "Controlled SIGSEGV proves diagnostics only, not spaCR or hosted-crash causation.",
+    "Hosted ordinary integration and the original puncta/protected QEventLoop faults remain open."
+  ]
+}

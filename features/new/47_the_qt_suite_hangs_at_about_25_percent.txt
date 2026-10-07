@@ -2229,3 +2229,30 @@ The bounded25-file Home cohort reports1071 passes/one obsolete initial-density
 failure; that assertion is repaired and its full file/default neighbors pass
 161. It excludes the full Qt suite and does not establish serial stability.
 All original memory/test/coverage gates stay active; full acceptance OPEN.
+
+2026-10-07 — ORDINARY QT/COVERAGE OWNED NATIVE CORE DIAGNOSTICS
+Existing collector/plugin now opt into ordinary identity-only journals. Each
+process writes only PID/start/boot/source/executable provenance and a terminal
+record, without RSS sampling, Qt queries, per-test observation or fatal-handler
+rebinding. Ordinary Qt and Coverage shells record their inherited core route
+and enable a soft core ceiling within the existing16GiB diagnostic bound.
+They never change global core_pattern. Failure-only collection refuses reused
+PID identities, stale/unrelated source/executable/boot records and symlinks.
+A unique NT_PRPSINFO process leader plus mapped executable must match; a
+PRSTATUS thread ID cannot attribute another process's core. Only one owned
+core is extracted/traced within existing60s/90s/4MiB/disk bounds, then removed.
+Artifacts include bounded text/identity JSON only, never raw cores. The
+protected serial workflow, test selection/order/workers/budgets/recovery policy
+and every application source remain unchanged.
+Source8e5dead63e requires follow-up4c27c26ae5 (leader attribution correction).
+Validation phases pass78 plus3 route plus5 systemd-identity cases;19 ordinary-
+plugin replay cases overlap. Final leader/extraction cohort passes47 plus a
+separate owned-leader case. A controlled owned Python SIGSEGV generated a
+13,086,152-byte core; actual leader/executable checks and gdb stack recovery
+pass, and the raw core is deleted. This proves diagnostics, not a spaCR crash
+fix. The preflight does not guarantee hosted handler storage; unsupported
+ordinary ELF architectures are explicitly refused. Hosted ordinary capture,
+puncta SIGSEGV and protected b688 QEventLoop SIGSEGV remain OPEN.
+Frozen6before/after files, source hashes, raw phase logs, bounded native trace,
+portable reproduction and verified manifest are archived in
+  data/47_ordinary_native_capture_cpu_2026-10-07/.
