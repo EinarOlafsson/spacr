@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-07",
+  "environment": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "QT_QPA_PLATFORM": "offscreen",
+    "SPACR_TEST_MEMORY_GB": "6",
+    "cgroup_hard_limit_GiB": 8
+  },
+  "files": [
+    {
+      "bytes": 95,
+      "path": "ambient-motion-fixed.log.gz",
+      "sha256": "f1233d0b7650c2f8a5aa7e3b33ee4f5eda6a7223e9a93e0a0ea133a7890a8b6e"
+    },
+    {
+      "bytes": 1238,
+      "path": "nodes.txt",
+      "sha256": "15b061e1005cf9067fb156e2c0f0a63bfe5578b7038c997f06d48f7805f40059"
+    },
+    {
+      "bytes": 1599,
+      "path": "pytest.log.gz",
+      "sha256": "a40f049697ba4bb88fa9d68a84cf47923cc09d018eb6918b1af6639d2de104b5"
+    }
+  ],
+  "focused_followup": {
+    "coverage": "full package branch instrumentation",
+    "duration_seconds": 37.05,
+    "failed": 0,
+    "full_cohort_repeated": false,
+    "passed": 161,
+    "scope": "full tests/qt/test_ambient_motion.py plus the sparse-default and theme-default tests in tests/qt/test_ambient.py"
+  },
+  "initial_cohort": {
+    "cause": "obsolete expected AmbientDensity slider value 100; intentional default 0.1 maps to 10",
+    "distinct_files": 25,
+    "duration_seconds": 205.87,
+    "failed": 1,
+    "failing_node": "tests/qt/test_ambient_motion.py::test_the_dialog_offers_the_controls_and_saves_them",
+    "flags": [
+      "-q",
+      "-p no:randomly",
+      "-n 2",
+      "--dist loadfile",
+      "-m not gui",
+      "--timeout=600",
+      "--timeout-method=thread",
+      "--cov=spacr",
+      "--cov-branch",
+      "--cov-report=",
+      "--cov-config=.coveragerc"
+    ],
+    "not_run": "whole Qt suite, native four-file reproduction, workstation docs/API/runtime/guide blockers",
+    "passed": 1071,
+    "selectors": 26
+  },
+  "initial_source_commit": "04968c06fed9d61ab0e95d0e5d5a8ac16142549d",
+  "python": "3.12.4",
+  "test_fix_commit": "6d09e0cb94f37b923dded4372feeb56d81ea431a",
+  "versions": {
+    "PySide6": "6.10.0",
+    "cellpose": "4.2.1.1",
+    "numpy": "1.26.4",
+    "pytest": "8.4.2",
+    "pytest-cov": "7.1.0",
+    "pytest-qt": "4.5.0",
+    "pytest-xdist": "3.8.0"
+  }
+}
