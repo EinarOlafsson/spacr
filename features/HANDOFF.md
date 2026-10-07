@@ -19,7 +19,12 @@ unchanged exact API inventory. All27 historical serial failures are classified:
 pins the same Blobs animation its original25% threshold measured; valid software
 Xvfb and serial offscreen both pass. Application default stays impulse lens.
 Another classifier-test screen903/22 widget leak is repaired to0/0. More small
-fixture-owner repairs are being integrated before final serial dispatch.
+fixture owners are now integrated: family/analysis-unit matched412/129→0/0,
+host/plugin and signal-less selector actual next-test controls reach zero.
+Independent root102/102 full fixture+field-fade and68/68 synthetic-helper cases
+pass under4GiB. External Masks/r5 audits already reach zero and are left
+unchanged; no precautionary or claimed RSS fix. Final app/test source is ready
+for one original hosted serial dispatch; no order, guard or selection change.
 
 Both completed ordinary runs37573419011 (032) and37574709966 (2d4) PASS the
 numerical ratchet:664 modules,12 artifacts, zero regressions, zero unconfirmed

@@ -2103,3 +2103,21 @@ destruction; its exact Python thread instance and cause remain unresolved.
     data/47_family_analysis_fixture_owners_2026-10-07/.
     These two ownership children are complete; full serial/memory acceptance
     and the separate deferred Shiboken native SIGSEGV remain OPEN.
+
+2026-10-07 — final bounded fixture integration and synthetic-selector owner
+    Seven affected fixture files plus the entire field-fade file independently
+    pass102/102 in12.07s under4GiB, CUDA hidden, original ordered assertions.
+    Small global7/7 widget/top-level baseline remains in that mixed cohort;
+    no zero-global-widget or equivalent whole-serial speedup is claimed. Log
+    and current source hashes: data/47_root_settings_owner_integration_2026-10-07/.
+    A separate signal-less selector test retains20 composite controls at every
+    later boundary. Give its synthetic controls and model a qtbot-owned host:
+    matched12 checks pass before/after and actual sentinel drops20→0. r5-only
+    helpers already retain0, so the precautionary r5 candidate is excluded;
+    its original blob is unchanged. Root independently passes both complete
+    r4/r5 files+sentinel68/68 in3.38s, actual sentinel0 widgets/0 top levels.
+    Source-bound raw proofs: data/47_signal_less_selector_owner_2026-10-07/.
+    External Masks audit likewise finds actual0/0 before and after; no false
+    memory fix is promoted. RSS does not measurably fall in these small probes.
+    Current app/test source is ready for one original uninterrupted hosted
+    serial dispatch; full-source CI/native and sustained memory remain OPEN.
