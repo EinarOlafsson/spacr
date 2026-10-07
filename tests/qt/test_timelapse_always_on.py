@@ -17,10 +17,17 @@ import pytest
 
 
 @pytest.fixture()
-def model():
+def model(qtbot):
+    return _owned_model(qtbot, "timelapse")
+
+
+def _owned_model(qtbot, app_key):
+    from PySide6.QtWidgets import QWidget
     from spacr.qt.screens.settings_model import SettingsWidgets
 
-    return SettingsWidgets("timelapse")
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    return SettingsWidgets(app_key, parent=owner)
 
 
 def _rendered_keys(sections):
@@ -97,25 +104,24 @@ def test_the_search_index_does_not_offer_it_either(qapp):
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("app_key", ["measure", "mask"])
-def test_other_modules_are_untouched(app_key, qapp):
+def test_other_modules_are_untouched(app_key, qtbot):
     """Measure legitimately offers it -- it decides how crops are grouped.
 
     Mask drops the key in `resolve_default_settings` for its own reasons,
     so this asserts what each module actually does rather than assuming
     they agree.
     """
-    from spacr.qt.screens.settings_model import (SettingsWidgets,
-                                                 resolve_default_settings)
+    from spacr.qt.screens.settings_model import resolve_default_settings
 
     settings = resolve_default_settings(app_key)
-    model = SettingsWidgets(app_key)
+    model = _owned_model(qtbot, app_key)
     shown = "timelapse" in _rendered_keys(model.build_sections())
     assert shown is ("timelapse" in settings), (
         f"{app_key}: the key is {'in' if 'timelapse' in settings else 'not in'} "
         f"its settings but {'is' if shown else 'is not'} rendered")
 
 
-def test_hiding_is_declared_in_one_place(qapp):
+def test_hiding_is_declared_in_one_place(qtbot):
     """So the next module that needs it does not invent a second mechanism.
 
     2026-09-26: this used to assert that ``timelapse`` was the ONLY key the
@@ -128,7 +134,6 @@ def test_hiding_is_declared_in_one_place(qapp):
     still in the module's settings, and not rendered.
     """
     from spacr.qt.screens.settings_model import (_APP_HIDDEN_KEYS,
-                                                 SettingsWidgets,
                                                  resolve_default_settings)
 
     declared = _APP_HIDDEN_KEYS.get("timelapse", set())
@@ -139,6 +144,6 @@ def test_hiding_is_declared_in_one_place(qapp):
     assert not dropped, (
         f"declared hidden on Timelapse but absent from its settings: {dropped}")
 
-    rendered = _rendered_keys(SettingsWidgets("timelapse").build_sections())
+    rendered = _rendered_keys(_owned_model(qtbot, "timelapse").build_sections())
     shown = sorted(declared & rendered)
     assert not shown, f"declared hidden on Timelapse but rendered: {shown}"
