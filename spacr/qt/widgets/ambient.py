@@ -5216,20 +5216,52 @@ class _DataArtEngine(_BufferedEngine):
         return image
 
     def _shade(self, width: int, height: int) -> QImage:
-        """Publish a fresh native point image without redundant raster copies."""
-        if self.family not in ("point_atlas", "impulse_lens", "genetic_advection"):
+        """Publish owned native points or a copy-on-write resting paper frame.
+
+        Paper has no autonomous motion at zero pointer influence. Reusing its
+        exact resting image does not skip clock/input acknowledgement: the
+        rotation timestamp follows each shade. Active paper is always drawn
+        into a fresh image, so previously published frames remain untouched.
+        The resting marker adds no raster storage and existing material-cache
+        invalidations discard it with palette, size, density or resolution.
+        """
+        if self.family not in ("point_atlas", "impulse_lens", "genetic_advection",
+                               "tissue_facets"):
             return super()._shade(width, height)
         bw, bh = self.buffer_size(width, height)
         previous = self._buffer
         if previous is None or previous.width() != bw or previous.height() != bh:
             self._material_cache.clear()
+        if self.family == "tissue_facets":
+            resting = self.pointer is None or self.gravity_radius == 0.0
+            key = ("tissue_resting", bw, bh, self.size, self.density)
+            if resting and key in self._material_cache:
+                rotation_key = ("tissue_rotation", bw, bh, self.size, self.density)
+                _, angles = self._material_cache[rotation_key]
+                self._material_cache[rotation_key] = (self.time, angles)
+                return self._soften(QImage(previous), width, height)
+            self._material_cache.pop(key, None)
+            image = QImage(bw, bh, QImage.Format_RGB32)
+            inner = QPainter(image)
+            try:
+                inner.fillRect(image.rect(), self.identity)
+                inner.setCompositionMode(self.mode)
+                inner.setPen(Qt.NoPen)
+                self._paint_field(inner, bw, bh)
+            finally:
+                inner.end()
+            self._buffer = image
+            if resting:
+                self._material_cache[key] = True
+            return self._soften(QImage(image), width, height)
         image = getattr(self, f"_frame_{self.family}")(bw, bh)
         self._buffer = image
         return self._soften(image, width, height)
 
     def shade(self, width: int, height: int) -> Optional[QImage]:
         """Return an independently owned point frame or the buffered material."""
-        if self.family not in ("point_atlas", "impulse_lens", "genetic_advection"):
+        if self.family not in ("point_atlas", "impulse_lens", "genetic_advection",
+                               "tissue_facets"):
             return super().shade(width, height)
         if width <= 0 or height <= 0:
             return None

@@ -359,3 +359,140 @@ def test_new_motion_resize_and_controls_do_not_accumulate_material(family):
     assert not engine._material_cache
     engine.set_size(1.5)
     assert not engine._material_cache
+
+
+def _buffered_facet_frame(engine, width=640, height=360):
+    image = QImage(width, height, QImage.Format_RGB32)
+    painter = ambient.QPainter(image)
+    try:
+        painter.fillRect(image.rect(), engine.identity)
+        painter.setCompositionMode(engine.mode)
+        painter.setPen(ambient.Qt.NoPen)
+        engine._paint_field(painter, width, height)
+    finally:
+        painter.end()
+    return image
+
+
+@pytest.mark.parametrize("background", ["#101418", "#f6f7f9"])
+def test_resting_facet_frames_use_copy_on_write_and_never_share_caller_mutation(
+        background, monkeypatch):
+    engine = _engine("tissue_facets", background, density=3, resolution=2)
+    first = _shade(engine)
+    original = _words(first)
+    material = _cells(engine)
+    original_cache_bytes = sum(cell[5].sizeInBytes() for cell in material)
+
+    def no_identical_redraw(*_args):
+        raise AssertionError("resting facets must not be rerasterized")
+
+    monkeypatch.setattr(engine, "_paint_field", no_identical_redraw)
+    engine.advance(100)
+    second = _shade(engine)
+    assert first is not second and second is not engine._buffer
+    assert np.array_equal(original, _words(second))
+    assert _rotation(engine)[0] == engine.time
+    first.fill("red")
+    words = np.frombuffer(second.bits(), dtype=np.uint32)
+    words[:] = 0xff00ff00
+    assert np.array_equal(original, _words(_shade(engine)))
+    assert _cells(engine) is material
+    assert sum(cell[5].sizeInBytes() for cell in material) == original_cache_bytes
+    assert sum(isinstance(value, QImage) for value in engine._material_cache.values()) == 0
+
+
+@pytest.mark.parametrize("background", ["#101418", "#f6f7f9"])
+def test_resting_tick_entry_leave_and_reentry_match_original_rotation_clock(background):
+    direct, reference = [_engine("tissue_facets", background, density=3)
+                         for _ in range(2)]
+    resting = _words(_shade(direct))
+    _buffered_facet_frame(reference)
+    for elapsed in (.01, 20, 100, .02):
+        direct.advance(elapsed)
+        reference.advance(elapsed)
+        assert np.array_equal(_words(_shade(direct)),
+                              _words(_buffered_facet_frame(reference)))
+    for engine in (direct, reference):
+        engine.set_gravity_radius(.5)
+        engine.set_pointer((.5, .5))
+        engine.advance(.01)
+    assert np.array_equal(_words(_shade(direct)),
+                          _words(_buffered_facet_frame(reference)))
+    assert _rotation(direct)[1] == _rotation(reference)[1]
+    assert 0 < max(_rotation(direct)[1]) < 1.1
+    for engine in (direct, reference):
+        engine.set_pointer(None)
+    assert np.array_equal(resting, _words(_shade(direct)))
+    _buffered_facet_frame(reference)
+    for engine in (direct, reference):
+        engine.advance(100)
+    _shade(direct)
+    _buffered_facet_frame(reference)
+    for engine in (direct, reference):
+        engine.set_pointer((.5, .5))
+        engine.advance(.01)
+    assert np.array_equal(_words(_shade(direct)),
+                          _words(_buffered_facet_frame(reference)))
+
+
+@pytest.mark.parametrize("change", ["density", "size", "resolution", "colors", "background"])
+def test_resting_facet_control_changes_invalidate_exact_completed_material(change):
+    engine = _engine("tissue_facets", density=3, resolution=2)
+    first = _shade(engine)
+    original = _words(first)
+    getattr(engine, "set_" + change)({
+        "density": .5, "size": 2, "resolution": .75,
+        "colors": ("#ffa500", "#00ffff"), "background": "#f6f7f9",
+    }[change])
+    assert not engine._material_cache
+    actual = engine.shade(640, 360)
+    bw, bh = engine.buffer_size(640, 360)
+    reference = _engine("tissue_facets", density=engine.density, size=engine.size,
+                         resolution=engine.resolution, background=engine._background)
+    reference.set_colors(engine._colors)
+    expected = _buffered_facet_frame(reference, bw, bh)
+    assert np.array_equal(_words(actual), _words(expected))
+    assert np.array_equal(original, _words(first))
+
+
+def test_failed_active_facet_render_ends_owned_painter_and_preserves_published_frame(
+        monkeypatch):
+    engine = _engine("tissue_facets")
+    first = _shade(engine)
+    original = _words(first)
+    engine.set_gravity_radius(.5)
+    engine.set_pointer((.5, .5))
+    painters = []
+    paint_field = engine._paint_field
+
+    def fail(painter, *_args):
+        painters.append(painter)
+        painter.fillRect(0, 0, 50, 50, ambient.QColor("red"))
+        raise RuntimeError("injected owned facet failure")
+
+    monkeypatch.setattr(engine, "_paint_field", fail)
+    with pytest.raises(RuntimeError, match="owned facet failure"):
+        engine.shade(640, 360)
+    assert all(not painter.isActive() for painter in painters)
+    assert np.array_equal(original, _words(first))
+    assert not any(key[0] == "tissue_resting" for key in engine._material_cache)
+    monkeypatch.setattr(engine, "_paint_field", paint_field)
+    assert _shade(engine) is not None
+    engine.set_pointer(None)
+    assert np.array_equal(original, _words(_shade(engine)))
+    assert engine.shade(0, 360) is None and engine.shade(640, 0) is None
+
+
+def test_legacy_material_still_copies_its_reusable_buffer_without_resting_cache(monkeypatch):
+    monkeypatch.setattr(ambient._SATIN_COMPILER, "ready", lambda: None)
+    engine = ambient._DataArtEngine(
+        ambient.palette_colors("data_art_tissue_facets", "spacr"), "#101418",
+        family="chromatin_ribbon", seed=42, resolution=1, blur=0)
+    engine.set_max_pixels(640 * 360)
+    first = engine.shade(640, 360)
+    original = _words(first)
+    engine.advance(.2)
+    second = engine.shade(640, 360)
+    assert first is not second and second is not engine._buffer
+    assert np.array_equal(original, _words(first))
+    assert not any(key[0] == "tissue_resting" for key in engine._material_cache)
