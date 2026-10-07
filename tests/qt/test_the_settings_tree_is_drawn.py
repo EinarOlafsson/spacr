@@ -24,6 +24,7 @@ What is pinned here:
 from __future__ import annotations
 
 import pytest
+from PySide6.QtWidgets import QWidget
 
 from spacr.qt.screens.app_screen import AppScreen
 from spacr.qt.screens.settings_model import SettingsWidgets, section_tooltip
@@ -60,15 +61,17 @@ def _closest_section(widget):
     return None
 
 
-def _model_tree(app_key: str = "mask"):
-    return SettingsWidgets(app_key).build_sections()
+def _model_tree(qtbot, app_key: str = "mask"):
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    return SettingsWidgets(app_key, parent=owner).build_sections()
 
 
 def test_the_umbrella_draws_a_section_for_every_family_and_object(qtbot):
     """Every ``children`` entry of the model becomes a heading on screen."""
     screen = _screen(qtbot)
     drawn = _sections_by_source(screen)
-    tree = {spec.title: spec for spec in _model_tree()}
+    tree = {spec.title: spec for spec in _model_tree(qtbot)}
     umbrella_spec = tree["Advanced settings"]
     assert umbrella_spec.children, (
         "the model no longer nests anything under Advanced settings")
@@ -128,7 +131,7 @@ def test_drawing_the_tree_renders_every_key_exactly_once(qtbot):
     assert len(keys) == len(set(keys)), "a setting was drawn under two headings"
 
     expected = []
-    for spec in _model_tree():
+    for spec in _model_tree(qtbot):
         expected.extend(label for label, _widget in spec.rows)
     assert len(keys) == len(expected), (
         "the tree renders a different number of rows than the flat reading")
@@ -146,7 +149,7 @@ def test_a_sub_heading_is_described_by_its_path_not_by_its_word(qtbot):
 
     spec = next(
         grandchild
-        for child in next(spec for spec in _model_tree()
+        for child in next(spec for spec in _model_tree(qtbot)
                           if spec.title == "Advanced settings").children
         if child.title == family.property("settingsCategorySource")
         for grandchild in child.children
@@ -201,7 +204,7 @@ def test_the_innermost_heading_is_the_one_a_consumer_finds(qtbot):
 
 @pytest.mark.parametrize(
     "code", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
-def test_every_heading_of_the_tree_has_an_exact_translation(code):
+def test_every_heading_of_the_tree_has_an_exact_translation(code, qtbot):
     """A heading the panel now draws must not be half-translated.
 
     Drawing the tree put three headings on screen that nothing rendered
@@ -213,7 +216,7 @@ def test_every_heading_of_the_tree_has_an_exact_translation(code):
     """
     from spacr.qt.i18n import _exact_translation
 
-    for spec in _model_tree():
+    for spec in _model_tree(qtbot):
         for section in spec.walk():
             if section is spec and not section.children:
                 continue    # a leaf top-level category is not new here
@@ -232,6 +235,6 @@ def test_a_module_with_no_nesting_is_drawn_exactly_as_before(qtbot, app_key):
     screen = _screen(qtbot, app_key)
     titles = [str(section.property("settingsCategorySource"))
               for section in screen._settings_sections]
-    assert titles == [spec.title for spec in _model_tree(app_key)]
+    assert titles == [spec.title for spec in _model_tree(qtbot, app_key)]
     for section in screen._settings_sections:
         assert not _nested_sections(section)
