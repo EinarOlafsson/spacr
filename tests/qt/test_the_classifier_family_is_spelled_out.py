@@ -22,7 +22,9 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from spacr.qt.screens import settings_model as SM     # noqa: E402
+from PySide6.QtWidgets import QWidget  # noqa: E402
+
+from spacr.qt.screens import settings_model as SM  # noqa: E402
 
 #: What the two entries must read, in order.
 EXPECTED = (("Computer Vision (Torch)", "cv"),
@@ -30,9 +32,11 @@ EXPECTED = (("Computer Vision (Torch)", "cv"),
 
 
 @pytest.fixture
-def family(qapp):
+def family(qapp, qtbot):
     """The built classifier-family control from the Classify panel."""
-    widgets = SM.SettingsWidgets("classify_merged")
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    widgets = SM.SettingsWidgets("classify_merged", parent=owner)
     widgets.build_sections()
     control = widgets._widgets.get("classifier_family")
     if control is None:

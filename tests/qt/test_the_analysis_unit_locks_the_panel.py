@@ -12,7 +12,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QApplication  # noqa: E402
+from PySide6.QtWidgets import QApplication, QWidget  # noqa: E402
 
 from spacr.settings_advisor import refusals, requirements_for_unit
 
@@ -23,10 +23,12 @@ def app():
 
 
 @pytest.fixture
-def panel(app):
+def panel(app, qtbot):
     from spacr.qt.screens.settings_model import SettingsWidgets
 
-    model = SettingsWidgets("regression")
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    model = SettingsWidgets("regression", parent=owner)
     model.build_sections()
     return model
 
