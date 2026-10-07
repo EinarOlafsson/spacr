@@ -3134,3 +3134,27 @@ Historical57b Coverage7 Mask node PASSED unchanged<10s.664 numerical modules
 have zero ratchet failures; incomplete aggregate is failed-shard propagation.
 Newbb7 ordinary37681965976 has actual executing/failed jobs despite a queued
 run summary; use jobs API. Native serial139 remains under separate diagnosis.
+
+2026-10-07 — CURRENT THEME GUARDS AND AURORA INCOMPLETE-SAMPLE FIX
+Source a5838b2634 restores the Aurora len(columns)<2 defensive skip before
+indexing/texture work. Original injected sample test plus owned empty/single
+frames pass; both inserted statements and both guard arcs are directly covered.
+The old exception left the test helper's painter active and produced a separate
+terminal-GC QPaintDevice SIGSEGV139; the helper now always ends it in finally,
+without hiding the exception. This does NOT establish historical protected
+b688 QEventLoop fault causation; that original native crash remains OPEN.
+Tests04b183d8ca explicitly use Density1 for geometric baseline populations,
+restore actual default0.1 frames, preserve all40 full-native culling/perimeter
+cases using the current bounded sampler and exercise removed chromatin only
+privately. Advection guards use actual trail-head axes; facet caches remain
+strictly bound to current size/density. The sixfile cohort passes147 with one
+separately owned control case deselected. Tests9ce35eae13 replace3 obsolete
+Aurora texture assumptions with unchanged native lattice/cap, fine irregular
+ray population, stable seeded material with moving folded pixels and actual
+both-end texture taper checks;3pass. The covered Aurora cohort11pass overlaps
+these checks; counts are phases, not a union. The bounded original-order
+fourfile native diagnosis50pass is only a negative reproduction bound.
+Compact frozen source/tests/logs/native trace and hashes are in
+features/data/43_current_theme_guards_cpu_2026-10-07/receipt.json (32payloads).
+No ceiling/skip/xfail/publicfactory/quality changes, whole-suite hosted green,
+GPU, aesthetic or hard24FPS acceptance is claimed.
