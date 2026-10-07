@@ -248,6 +248,162 @@ def test_channel_sort_rewrites_scn_as_tiff(tmp_path):
     np.testing.assert_array_equal(cs._convert_plane(raw, "scn"), raw)
 
 
+def _write_scn_validation_document(path, scans, *, newline=b"\r\n",
+                                   trailing=b""):
+    outer = b"SCN_VALIDATION_OUTER"
+    blocks = [newline.join((
+        b"MIME-Version: 1.0",
+        b'Content-Type: multipart/mixed; boundary="' + outer + b'"',
+        b"", b""))]
+    for index, (pixels, header, options) in enumerate(scans):
+        inner = f"SCN_VALIDATION_INNER_{index}".encode()
+        content_type = (b'multipart/mixed; boundary="' + inner + b'"'
+                        if options.get("boundary", True)
+                        else b"multipart/mixed")
+        blocks.append(b"--" + outer + newline + newline.join((
+            b"Content-Type: " + content_type,
+            b"Content-Description: ScanImageTag" +
+            str(options.get("suffix", index)).encode(), b"", b"")))
+        parts = [(b"ImageData", pixels), (b"ImageHeader", header)]
+        if options.get("extra"):
+            parts.append((b"ImageDisplaySettings", b"<display/>"))
+        for label, body in parts:
+            if label == options.get("omit"):
+                continue
+            fields = [b"Content-Description: " + label]
+            if options.get("lengths", True):
+                fields.append(b"Content-Length: " + str(len(body)).encode())
+            blocks.append(b"--" + inner + newline +
+                          newline.join(fields) + newline * 2 + body + newline)
+        blocks.append(b"--" + inner + b"--" + newline)
+    blocks.append(trailing + b"--" + outer + b"--" + newline)
+    path.write_bytes(b"".join(blocks))
+    return path
+
+
+@pytest.mark.parametrize("newline", [b"\r\n", b"\n"])
+@pytest.mark.parametrize("lengths", [False, True])
+def test_scn_mime_newlines_and_optional_lengths_preserve_pixels(
+        tmp_path, newline, lengths):
+    raw = np.array([[1, 200, 301], [17, 55, 12]], dtype="<u2")
+    header = _image_header(3, 2, zero_is="black")
+    path = _write_scn_validation_document(
+        tmp_path / "mime.scn", [(raw.tobytes(), header, {"lengths": lengths})],
+        newline=newline)
+    original = path.read_bytes()
+    image, meta = read_scn(path)
+    np.testing.assert_array_equal(image, raw)
+    assert meta["n_images"] == 1 and meta["endian"] == "little"
+    assert path.read_bytes() == original
+
+
+@pytest.mark.parametrize("endian", ["big", None])
+def test_scn_malformed_xml_uses_available_attributes_without_inventing_metadata(
+        tmp_path, endian):
+    raw = np.array([[1, 128], [300, 11]], dtype="<u2")
+    byte_order = ">u2" if endian == "big" else "<u2"
+    header = (b'<root><size_pix height="2" width="2"/>'
+              b'<scanner max_value="1023"/><image zero_is="white"/>')
+    if endian:
+        header += b"<endian>big</endian>"
+    path = _write_scn_validation_document(
+        tmp_path / "xml.scn", [(raw.astype(byte_order).tobytes(), header, {})])
+    original = path.read_bytes()
+    image, meta = read_scn(path)
+    np.testing.assert_array_equal(image, 1023 - raw)
+    assert meta["endian"] == (endian or "little")
+    assert meta["data_ceiling"] == 1023
+    assert meta["pixel_size_mm"] is None and meta["pixels_per_um"] is None
+    assert "imager" not in meta and "exposure_time" not in meta
+    assert path.read_bytes() == original
+
+
+@pytest.mark.parametrize("scanner, ceiling", [
+    (b'<scanner max_value="1000"/>', 1000),
+    (b'<scanner data_ceiling="nan" max_value="1000"/>', 1000),
+    (b"", 301),
+    (b'<scanner data_ceiling="0" max_value="0"/>', 301),
+])
+def test_scn_missing_or_invalid_ceiling_uses_documented_fallback(
+        tmp_path, scanner, ceiling):
+    raw = np.array([[1, 200, 301], [17, 55, 12]], dtype="<u2")
+    header = b'<root><size_pix width="3" height="2"/>' + scanner + b"</root>"
+    path = _write_scn_validation_document(
+        tmp_path / "ceiling.scn", [(raw.tobytes(), header, {})])
+    image, meta = read_scn(path)
+    np.testing.assert_array_equal(image, raw)
+    assert meta["data_ceiling"] == ceiling
+    assert meta["zero_is"] == "black" and not meta["inverted"]
+
+
+@pytest.mark.parametrize("header", [
+    b"<root/>",
+    b'<root><size_pix height="2"/></root>',
+    b'<root><size_pix width="0" height="2"/></root>',
+    b'<root><size_pix width="nan" height="2"/></root>',
+    b'<root><size_pix height="2"/>',
+])
+def test_scn_missing_or_invalid_pixel_dimensions_are_refused(tmp_path, header):
+    path = _write_scn_validation_document(
+        tmp_path / "size.scn", [(b"\0" * 8, header, {})])
+    original = path.read_bytes()
+    with pytest.raises(ValueError, match="no size_pix width/height"):
+        read_scn(path)
+    assert path.read_bytes() == original
+
+
+@pytest.mark.parametrize("options", [
+    {"boundary": False}, {"omit": b"ImageData"}, {"omit": b"ImageHeader"},
+])
+def test_scn_incomplete_scan_is_refused_by_reader_and_describer(tmp_path, options):
+    from spacr.convert import ConfigurationError, _describe_scn
+
+    path = _write_scn_validation_document(
+        tmp_path / "missing.scn", [(b"\0" * 8, _image_header(2, 2), options)])
+    with pytest.raises(ValueError, match="no ScanImageTag image"):
+        read_scn(path)
+    with pytest.raises(ConfigurationError, match="contains no images"):
+        _describe_scn(str(path))
+
+
+def test_scn_truncated_mime_header_has_no_image(tmp_path):
+    path = tmp_path / "truncated.scn"
+    path.write_bytes(b'MIME-Version: 1.0\r\nContent-Type: multipart/mixed; '
+                     b'boundary="outer"\r\n\r\n--outer\r\n'
+                     b"Content-Description: ScanImageTag0")
+    with pytest.raises(ValueError, match="no ScanImageTag image"):
+        read_scn(path)
+
+
+def test_scn_declared_multipart_without_parts_has_no_image(tmp_path):
+    path = tmp_path / "no-parts.scn"
+    path.write_bytes(b'MIME-Version: 1.0\nContent-Type: multipart/mixed; '
+                     b'boundary="outer"\n\n')
+    with pytest.raises(ValueError, match="no ScanImageTag image"):
+        read_scn(path)
+
+
+def test_scn_unknown_image_part_does_not_change_pixel_data(tmp_path):
+    raw = np.array([[23, 44], [200, 30]], dtype="<u2")
+    path = _write_scn_validation_document(
+        tmp_path / "display.scn",
+        [(raw.tobytes(), _image_header(2, 2), {"extra": True})])
+    image, meta = read_scn(path)
+    np.testing.assert_array_equal(image, 4095 - raw)
+    assert meta["n_images"] == 1
+
+
+def test_scn_unequal_scans_remain_individually_readable(tmp_path):
+    first, second = _ramp(2, 3), _ramp(4, 5)
+    path = write_scn(tmp_path / "sizes.scn", [first, second])
+    original = path.read_bytes()
+    with pytest.raises(ValueError, match="different sizes.*cannot be stacked"):
+        read_scn(path, None)
+    np.testing.assert_array_equal(read_scn(path, 0)[0], 4095 - first)
+    np.testing.assert_array_equal(read_scn(path, -1)[0], 4095 - second)
+    assert path.read_bytes() == original
+
+
 @pytest.mark.skipif(not glob.glob(REAL_SCN_GLOB),
                     reason="real Gel Doc .scn files are not on this machine")
 def test_real_gel_doc_file_reads():
