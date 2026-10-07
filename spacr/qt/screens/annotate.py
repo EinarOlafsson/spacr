@@ -7662,6 +7662,8 @@ class AnnotateScreen(QWidget):
                 pass
             if stopped:
                 _retire(similar)
+            else:
+                similar.setParent(None)
         retrain = self._retrain_worker
         if retrain is not None:
             retrain.requestInterruption()
@@ -7675,6 +7677,8 @@ class AnnotateScreen(QWidget):
                 pass
             if stopped:
                 _retire(retrain)
+            else:
+                retrain.setParent(None)
         suggest = self._suggest_worker
         if suggest is not None:
             suggest.requestInterruption()
@@ -7691,6 +7695,8 @@ class AnnotateScreen(QWidget):
                     pass
             if stopped:
                 _retire(suggest)
+            else:
+                suggest.setParent(None)
         if self._worker:
             self._worker.stop(wait=True)
             self._worker = None
