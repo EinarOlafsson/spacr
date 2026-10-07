@@ -92,23 +92,23 @@ def test_an_unreadable_folder_is_not_portable_and_data_may_be_unwritable(
     lu._portable_root_for.cache_clear()
     monkeypatch.undo()
     monkeypatch.setattr(lu, "_portable_root", lambda: tmp_path)
-    for name in ("SPACR_HOME", "SPACR_LOG_DIR", "SPACR_BACKENDS_DIR",
-                 "SPACR_PLUGIN_HOME", "XDG_CACHE_HOME", "XDG_STATE_HOME",
-                 "TORCH_HOME", "HF_HOME", "MPLCONFIGDIR",
-                 "CELLPOSE_LOCAL_MODELS_PATH"):
+    names = ("SPACR_HOME", "SPACR_LOG_DIR", "SPACR_BACKENDS_DIR",
+             "SPACR_PLUGIN_HOME", "XDG_CACHE_HOME", "XDG_STATE_HOME",
+             "TORCH_HOME", "HF_HOME", "MPLCONFIGDIR",
+             "CELLPOSE_LOCAL_MODELS_PATH")
+    for name in names:
         monkeypatch.delenv(name, raising=False)
 
     def refuse_mkdir(self, *a, **k):
         raise OSError("read-only")
 
     monkeypatch.setattr(Path, "mkdir", refuse_mkdir)
-    data = lu._apply_portable_mode()
-    assert data == tmp_path / lu._PORTABLE_DATA
-    for name in ("SPACR_HOME", "SPACR_LOG_DIR", "SPACR_BACKENDS_DIR",
-                 "SPACR_PLUGIN_HOME", "XDG_CACHE_HOME", "XDG_STATE_HOME",
-                 "TORCH_HOME", "HF_HOME", "MPLCONFIGDIR",
-                 "CELLPOSE_LOCAL_MODELS_PATH"):
-        monkeypatch.delenv(name, raising=False)
+    try:
+        data = lu._apply_portable_mode()
+        assert data == tmp_path / lu._PORTABLE_DATA
+    finally:
+        for name in names:
+            os.environ.pop(name, None)
     assert os
 
 
