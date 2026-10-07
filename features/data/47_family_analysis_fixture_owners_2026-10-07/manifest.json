@@ -2,8 +2,8 @@
   "schema": 1,
   "files": {
     "README.md": {
-      "bytes": 2159,
-      "sha256": "e798bf07448ffee0a65be54e785af1cd11e2e428b9b4307393ff84447e1c66da"
+      "bytes": 2386,
+      "sha256": "11c6247be2a0aac48c2d6e5c64892d0898b0ce0e281848f4bf9807adeb5db68f"
     },
     "after.jsonl": {
       "bytes": 2427,
@@ -54,8 +54,8 @@
       "sha256": "5eef1e3ed8c80691b7b5cd7d51784bdb283985bca528b7ba19724fc0f4f57926"
     },
     "verify_proof.py": {
-      "bytes": 2640,
-      "sha256": "b5132c56a738fb17eaf43b13cafc5528c96dc993ed64a1451a4be22f32da134f"
+      "bytes": 2819,
+      "sha256": "0de84ec9ceb5dd517416eca9b54fe5080d53481e179b38daa5729c12ee5f315f"
     }
   }
 }

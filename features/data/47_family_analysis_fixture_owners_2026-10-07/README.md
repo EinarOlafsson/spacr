@@ -30,7 +30,10 @@ Verify archive bytes and semantic/source bindings without rerunning:
 tools/run_capped.sh 2G python features/data/47_family_analysis_fixture_owners_2026-10-07/verify_proof.py
 ```
 
-Add `--git HEAD` to read committed blobs. Production bindings identify the
+Add `--git HEAD` to read committed blobs and `--check-source HEAD` to compare
+runtime source bindings against the calling revision. The original isolated
+test commit is provenance, so verification does not require that private
+commit to be available after cherry-pick. Production bindings identify the
 measured checkpoint; later unrelated source changes require their own
 acceptance. Optional replay uses the exact nodes, environment, unchanged
 journal plugin and capped command in the receipt. Create fresh journal paths

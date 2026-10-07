@@ -9,6 +9,7 @@ from pathlib import Path
 root = Path(__file__).resolve().parent
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--git', metavar='REV')
+parser.add_argument('--check-source', metavar='REV', help='Also check runtime bindings against an available source revision.')
 args = parser.parse_args()
 
 def read(name):
@@ -37,8 +38,10 @@ for path, entry in receipt['bindings'].items():
 assert total == receipt['unchanged_test_function_AST_count'] == 18
 for path, digest in receipt['unchanged_source_sha256'].items():
     before = subprocess.check_output(['git', 'show', receipt['baseline_commit'] + ':' + path], cwd=root)
-    after = subprocess.check_output(['git', 'show', receipt['tests_commit'] + ':' + path], cwd=root)
-    assert hashlib.sha256(before).hexdigest() == hashlib.sha256(after).hexdigest() == digest, path
+    assert hashlib.sha256(before).hexdigest() == digest, path
+    if args.check_source:
+        after = subprocess.check_output(['git', 'show', args.check_source + ':' + path], cwd=root)
+        assert hashlib.sha256(after).hexdigest() == digest, path
 for phase in ('before', 'after', 'final'):
     journal = [json.loads(line) for line in read(phase + '.jsonl').splitlines()]
     finish = next(row for row in journal if row['event'] == 'session_finish')
