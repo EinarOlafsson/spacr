@@ -168,7 +168,7 @@ class AvailabilityPanel(QFrame):
         rather than a claim about a string.
         """
         super().__init__(None, Qt.Tool | Qt.FramelessWindowHint
-                         | Qt.NoDropShadowWindowHint)
+                         | Qt.WindowStaysOnTopHint | Qt.NoDropShadowWindowHint)
         self.setObjectName("AvailabilityPanel")
         self.setFocusPolicy(Qt.StrongFocus)
 
