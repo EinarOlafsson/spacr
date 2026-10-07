@@ -2969,3 +2969,13 @@ Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
     data/43_timelapse_video_boundaries_cpu_2026-10-07/. This is local focused
     repair evidence, not a fresh hosted/full serial success or pretrained model
     evaluation. Previous six module receipts are not rerun or recounted.
+
+2026-10-07 — independent seventh-module CPU integration
+    Root independently verifies all seven committed Timelapse proof payloads,
+    exact live/hosted source identity, statement/destination universes and
+    original baseline hash/allowances. Its three-file CPU integration passes
+    51 tests in 5.78 seconds under 4 GiB, CUDA hidden and Qt offscreen.
+    Source-bound raw log/receipt: data/43_timelapse_root_integration_2026-10-07/.
+    Seventh-module union leaves zero statements/one destination within 1/1.
+    Earlier six source-bound repairs remain valid; no ceiling or scientific
+    acceptance is lifted. Fresh ordinary GitHub and full serial stay OPEN.
