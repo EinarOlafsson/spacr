@@ -1,0 +1,511 @@
+{
+  "pairs": [
+    {
+      "palette": "spacr",
+      "groups": {
+        "before": {
+          "runs": [
+            {
+              "file": "data_art_fungal_growth-before-spacr-A1.json",
+              "fps": 18.92825007180113,
+              "shade": {
+                "median_ms": 51.499244989827275,
+                "p95_ms": 64.79286201647483,
+                "max_ms": 125.59055900783278,
+                "samples": 95
+              },
+              "gui_paint": {
+                "median_ms": 5.534121009986848,
+                "p95_ms": 6.613420002395287,
+                "max_ms": 13.786052004434168,
+                "samples": 122
+              },
+              "heartbeat": {
+                "median_ms": 10.073192999698222,
+                "p95_ms": 28.902026009745896,
+                "max_ms": 36.06419698917307,
+                "samples": 449
+              },
+              "load": [
+                2.64794921875,
+                2.5146484375,
+                2.02685546875
+              ],
+              "hide_stopped": true
+            },
+            {
+              "file": "data_art_fungal_growth-before-spacr-A2.json",
+              "fps": 18.786010565072306,
+              "shade": {
+                "median_ms": 51.5596705081407,
+                "p95_ms": 64.32323998888023,
+                "max_ms": 116.66227100067772,
+                "samples": 94
+              },
+              "gui_paint": {
+                "median_ms": 5.407913995441049,
+                "p95_ms": 6.094819022109732,
+                "max_ms": 13.385247002588585,
+                "samples": 122
+              },
+              "heartbeat": {
+                "median_ms": 10.072205986944027,
+                "p95_ms": 27.820560993859544,
+                "max_ms": 53.123910998692736,
+                "samples": 436
+              },
+              "load": [
+                2.85498046875,
+                2.5712890625,
+                2.09228515625
+              ],
+              "hide_stopped": true
+            }
+          ],
+          "mean_fps": 18.857130318436717
+        },
+        "after": {
+          "runs": [
+            {
+              "file": "data_art_fungal_growth-after-spacr-B1.json",
+              "fps": 19.944451722194433,
+              "shade": {
+                "median_ms": 49.26139900635462,
+                "p95_ms": 60.04009800381027,
+                "max_ms": 64.29619999835268,
+                "samples": 100
+              },
+              "gui_paint": {
+                "median_ms": 5.674159008776769,
+                "p95_ms": 6.265228992560878,
+                "max_ms": 10.975177981890738,
+                "samples": 122
+              },
+              "heartbeat": {
+                "median_ms": 10.256064997520298,
+                "p95_ms": 35.043095995206386,
+                "max_ms": 47.721887996885926,
+                "samples": 375
+              },
+              "load": [
+                2.57373046875,
+                2.51953125,
+                2.0517578125
+              ],
+              "hide_stopped": true
+            },
+            {
+              "file": "data_art_fungal_growth-after-spacr-B2.json",
+              "fps": 18.978157905223032,
+              "shade": {
+                "median_ms": 50.98377802642062,
+                "p95_ms": 62.833543022861704,
+                "max_ms": 128.1320309790317,
+                "samples": 95
+              },
+              "gui_paint": {
+                "median_ms": 5.540416983421892,
+                "p95_ms": 6.227862002560869,
+                "max_ms": 23.01619600621052,
+                "samples": 123
+              },
+              "heartbeat": {
+                "median_ms": 10.085715999593958,
+                "p95_ms": 34.92365701822564,
+                "max_ms": 72.56591698387638,
+                "samples": 373
+              },
+              "load": [
+                2.54443359375,
+                2.5048828125,
+                2.0654296875
+              ],
+              "hide_stopped": true
+            }
+          ],
+          "mean_fps": 19.461304813708733
+        }
+      },
+      "fps_gain_percent": 3.2039577871576297
+    },
+    {
+      "palette": "random",
+      "groups": {
+        "before": {
+          "runs": [
+            {
+              "file": "data_art_fungal_growth-before-random-A1.json",
+              "fps": 21.798263602697524,
+              "shade": {
+                "median_ms": 45.48491301829927,
+                "p95_ms": 53.75307201757096,
+                "max_ms": 61.60317198373377,
+                "samples": 109
+              },
+              "gui_paint": {
+                "median_ms": 5.813523501274176,
+                "p95_ms": 6.552776001626626,
+                "max_ms": 10.197001014603302,
+                "samples": 122
+              },
+              "heartbeat": {
+                "median_ms": 10.077726488816552,
+                "p95_ms": 24.442775000352412,
+                "max_ms": 30.20417201332748,
+                "samples": 464
+              },
+              "load": [
+                3.03759765625,
+                2.63232421875,
+                2.12255859375
+              ],
+              "hide_stopped": true
+            },
+            {
+              "file": "data_art_fungal_growth-before-random-A2.json",
+              "fps": 21.955844232853362,
+              "shade": {
+                "median_ms": 45.129007994546555,
+                "p95_ms": 52.18534401501529,
+                "max_ms": 56.81110100704245,
+                "samples": 110
+              },
+              "gui_paint": {
+                "median_ms": 5.576107490924187,
+                "p95_ms": 6.32750999648124,
+                "max_ms": 10.337476007407531,
+                "samples": 122
+              },
+              "heartbeat": {
+                "median_ms": 10.072849006974138,
+                "p95_ms": 24.759474996244535,
+                "max_ms": 32.885612978134304,
+                "samples": 468
+              },
+              "load": [
+                2.84033203125,
+                2.6953125,
+                2.18994140625
+              ],
+              "hide_stopped": true
+            }
+          ],
+          "mean_fps": 21.87705391777544
+        },
+        "after": {
+          "runs": [
+            {
+              "file": "data_art_fungal_growth-after-random-B1.json",
+              "fps": 23.198718762546097,
+              "shade": {
+                "median_ms": 41.78516048705205,
+                "p95_ms": 47.93465699185617,
+                "max_ms": 52.51378400134854,
+                "samples": 116
+              },
+              "gui_paint": {
+                "median_ms": 5.753011515480466,
+                "p95_ms": 6.289148994255811,
+                "max_ms": 8.332834986504167,
+                "samples": 122
+              },
+              "heartbeat": {
+                "median_ms": 10.139232996152714,
+                "p95_ms": 31.119184015551582,
+                "max_ms": 35.022605006815866,
+                "samples": 395
+              },
+              "load": [
+                2.95751953125,
+                2.6025390625,
+                2.107421875
+              ],
+              "hide_stopped": true
+            },
+            {
+              "file": "data_art_fungal_growth-after-random-B2.json",
+              "fps": 22.897656392289086,
+              "shade": {
+                "median_ms": 42.5806239945814,
+                "p95_ms": 50.29890200239606,
+                "max_ms": 53.14713800908066,
+                "samples": 115
+              },
+              "gui_paint": {
+                "median_ms": 5.573187503614463,
+                "p95_ms": 6.119210011092946,
+                "max_ms": 9.067970997421071,
+                "samples": 122
+              },
+              "heartbeat": {
+                "median_ms": 10.08058998559136,
+                "p95_ms": 31.665265996707603,
+                "max_ms": 36.52629000134766,
+                "samples": 394
+              },
+              "load": [
+                3.03173828125,
+                2.73876953125,
+                2.208984375
+              ],
+              "hide_stopped": true
+            }
+          ],
+          "mean_fps": 23.048187577417593
+        }
+      },
+      "fps_gain_percent": 5.353251237775614
+    },
+    {
+      "palette": "custom",
+      "groups": {
+        "before": {
+          "runs": [
+            {
+              "file": "data_art_fungal_growth-before-custom-A1.json",
+              "fps": 17.755766539647613,
+              "shade": {
+                "median_ms": 54.772506991866976,
+                "p95_ms": 71.42914299038239,
+                "max_ms": 76.31236701854505,
+                "samples": 89
+              },
+              "gui_paint": {
+                "median_ms": 5.689356999937445,
+                "p95_ms": 6.813545012846589,
+                "max_ms": 7.680770999286324,
+                "samples": 122
+              },
+              "heartbeat": {
+                "median_ms": 10.088084512972273,
+                "p95_ms": 21.603296016110107,
+                "max_ms": 37.38007799256593,
+                "samples": 444
+              },
+              "load": [
+                2.953125,
+                2.73095703125,
+                2.2119140625
+              ],
+              "hide_stopped": true
+            }
+          ],
+          "mean_fps": 17.755766539647613
+        },
+        "after": {
+          "runs": [
+            {
+              "file": "data_art_fungal_growth-after-custom-B1.json",
+              "fps": 18.59636061407414,
+              "shade": {
+                "median_ms": 51.86993500683457,
+                "p95_ms": 67.52062399755232,
+                "max_ms": 71.77970799966715,
+                "samples": 93
+              },
+              "gui_paint": {
+                "median_ms": 5.473933008033782,
+                "p95_ms": 6.211695988895372,
+                "max_ms": 6.848102988442406,
+                "samples": 123
+              },
+              "heartbeat": {
+                "median_ms": 9.036202012794092,
+                "p95_ms": 27.587013988522813,
+                "max_ms": 46.47760800435208,
+                "samples": 419
+              },
+              "load": [
+                2.80615234375,
+                2.70654296875,
+                2.208984375
+              ],
+              "hide_stopped": true
+            }
+          ],
+          "mean_fps": 18.59636061407414
+        }
+      },
+      "fps_gain_percent": 4.7342032378581145
+    }
+  ],
+  "controls": "native3840x2160, detail2/density3/size2.5/blur0,24requested",
+  "hard24fps": "OPEN",
+  "scope": "fresh-process ABBA default and BAAB Random, one custom pair; software Xvfb no inference or GPU; recorded load varies",
+  "profile": {
+    "before": {
+      "inclusive_stages": {
+        "Qt.setPen": {
+          "median_ms": 0.11448707664385438,
+          "p95_ms": 0.1301611482631415,
+          "max_ms": 0.137980910949409,
+          "samples": 95
+        },
+        "_reuse_fungal_raster": {
+          "median_ms": 8.401928964303806,
+          "p95_ms": 9.444740047911182,
+          "max_ms": 13.687551079783589,
+          "samples": 95
+        },
+        "_paint_cached_fungal_paths": {
+          "median_ms": 43.18098601652309,
+          "p95_ms": 52.2939249931369,
+          "max_ms": 54.70182400313206,
+          "samples": 95
+        },
+        "_paint_fungal_tips": {
+          "median_ms": 0.09721500100567937,
+          "p95_ms": 0.32989299506880343,
+          "max_ms": 5.977368011372164,
+          "samples": 95
+        },
+        "_fungal_paths": {
+          "median_ms": 4.867863986873999,
+          "p95_ms": 11.210552998818457,
+          "max_ms": 12.486858991906047,
+          "samples": 95
+        },
+        "geometry": {
+          "median_ms": 2.1707600099034607,
+          "p95_ms": 2.480633993400261,
+          "max_ms": 2.6545760047156364,
+          "samples": 95
+        },
+        "Qt.drawEllipse": {
+          "median_ms": 0.024849025066941977,
+          "p95_ms": 0.040678976802155375,
+          "max_ms": 0.06112898699939251,
+          "samples": 95
+        },
+        "_warm_fungal_raster": {
+          "median_ms": 3.215847013052553,
+          "p95_ms": 11.2488410086371,
+          "max_ms": 16.583531978540123,
+          "samples": 95
+        },
+        "Qt.drawPath": {
+          "median_ms": 30.120152048766613,
+          "p95_ms": 34.16545203072019,
+          "max_ms": 36.889656010316685,
+          "samples": 95
+        }
+      },
+      "shade": {
+        "median_ms": 52.83543700352311,
+        "p95_ms": 62.224563997006044,
+        "max_ms": 68.52358501055278,
+        "samples": 95
+      },
+      "gui_paint": {
+        "median_ms": 5.621000484097749,
+        "p95_ms": 6.154418981168419,
+        "max_ms": 7.516109995776787,
+        "samples": 122
+      },
+      "publication_intervals": {
+        "median_ms": 52.90900399268139,
+        "p95_ms": 62.24351198761724,
+        "max_ms": 68.54209399898537,
+        "samples": 94
+      },
+      "heartbeat": {
+        "median_ms": 10.062410990940407,
+        "p95_ms": 29.5032279973384,
+        "max_ms": 36.79084900068119,
+        "samples": 434
+      },
+      "load": [
+        2.8486328125,
+        2.71630859375,
+        2.21728515625
+      ]
+    },
+    "after": {
+      "inclusive_stages": {
+        "Qt.setPen": {
+          "median_ms": 0.11245370842516422,
+          "p95_ms": 0.13129384024068713,
+          "max_ms": 0.16036976012401283,
+          "samples": 97
+        },
+        "Qt.drawPath": {
+          "median_ms": 29.95620999718085,
+          "p95_ms": 35.53160818410106,
+          "max_ms": 37.33982890844345,
+          "samples": 97
+        },
+        "_reuse_fungal_raster": {
+          "median_ms": 8.357055950909853,
+          "p95_ms": 10.282346775056794,
+          "max_ms": 14.574786968296394,
+          "samples": 97
+        },
+        "geometry": {
+          "median_ms": 2.135362010449171,
+          "p95_ms": 2.496863016858697,
+          "max_ms": 2.7885690215043724,
+          "samples": 97
+        },
+        "Qt.drawEllipse": {
+          "median_ms": 0.025626999558880925,
+          "p95_ms": 0.043696025386452675,
+          "max_ms": 0.05804802640341222,
+          "samples": 97
+        },
+        "_warm_fungal_raster": {
+          "median_ms": 3.0644350044894964,
+          "p95_ms": 12.640200991882011,
+          "max_ms": 16.95065398234874,
+          "samples": 97
+        },
+        "_paint_cached_fungal_paths": {
+          "median_ms": 43.83876401698217,
+          "p95_ms": 53.890176001004875,
+          "max_ms": 56.77687001298182,
+          "samples": 97
+        },
+        "_fungal_paths": {
+          "median_ms": 3.3334509935230017,
+          "p95_ms": 3.7318720133043826,
+          "max_ms": 3.9821090176701546,
+          "samples": 97
+        },
+        "_paint_fungal_tips": {
+          "median_ms": 0.10149498120881617,
+          "p95_ms": 5.431436002254486,
+          "max_ms": 6.0513940115924925,
+          "samples": 97
+        }
+      },
+      "shade": {
+        "median_ms": 50.69757701130584,
+        "p95_ms": 61.97594801778905,
+        "max_ms": 64.5990350167267,
+        "samples": 97
+      },
+      "gui_paint": {
+        "median_ms": 5.38868700095918,
+        "p95_ms": 6.556209002155811,
+        "max_ms": 8.522579009877518,
+        "samples": 122
+      },
+      "publication_intervals": {
+        "median_ms": 50.77187348797452,
+        "p95_ms": 62.00172699755058,
+        "max_ms": 64.62045398075134,
+        "samples": 96
+      },
+      "heartbeat": {
+        "median_ms": 10.407683992525563,
+        "p95_ms": 34.74740401725285,
+        "max_ms": 43.65864399005659,
+        "samples": 367
+      },
+      "load": [
+        2.64404296875,
+        2.67578125,
+        2.208984375
+      ]
+    }
+  }
+}

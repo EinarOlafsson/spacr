@@ -1,0 +1,8 @@
+{
+  "source_sha256": "ade8062fc41ba4b1f6798d54f5aa1fbcb24e7d6450bb1f27a4d250dce1c0e0ae",
+  "current_two_overload_lines": {
+    "5810": true,
+    "5811": true
+  },
+  "scope": "20 passed: nine exact-overload tests/eight refusals/three documentation guards; existing cache and geometry cases ran separately; no complete-suite claim"
+}
