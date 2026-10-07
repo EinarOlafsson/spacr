@@ -1,5 +1,28 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 exact CI inventories and measured Qt test owners repaired
+
+CPU tests now name the existing VideoMAE zoo row, the seventeen owner-accepted
+API additions and three accepted native Make Masks scenes. Exact inventories,
+locale hashes, other-lesson totals and all quality/debt guards remain. Zoo51,
+API10 and parser2 checks pass; root independent bounded cohort70 also passes.
+No API/docs/translation/tutorial generated artifact was edited by Home.
+
+Five concrete temporary SettingsWidgets test owners are repaired: Measure
+headings, settings tree, Timelapse, module defaults and Regression panel.
+Matched sentinel widget/top-level counts fall respectively449/167,5818/2550,
+928/379,1020/385,1227/136 to2/1. Settings-tree bounded RSS drops89MiB; other
+small/mixed RSS values do not establish full-suite memory closure. All original
+behavior/scientific assertions are kept. Protected45f remains untouched.
+
+Workstation still needs normal README size refresh and reviewed sv/fr records
+for the expanded timelapse_events tooltip plus its exact historical retirement
+pin update. Those cannot be closed by inventing translations or lifting guards.
+Native Save/puncta crashes remain OPEN; isolated upstream undo-stack GC fault
+is reproduced, but production stack factories are already parented and no
+matching native spaCR backtrace establishes causation. Hard24FPS remains OPEN.
+
+
 ## 2026-10-06 CPU numerical repairs integrated; fresh hosted acceptance next
 
 All six numerical regressions from complete hosted392 now fit their unchanged

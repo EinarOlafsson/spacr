@@ -2927,3 +2927,17 @@ Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
     Exact new tests37566910457 is pending, compatibility37566910208 and
     docs37566910157 queued at first readback. Earlier649 compatibility and docs
     are successful; this does not predict the new source's ordinary result.
+
+2026-10-06 — three further exact CI inventory contracts synchronized
+    Legitimate VideoMAE backend enters the exact zoo set/count with explicit
+    state/URI/license/weight-term assertions; all51 cases pass. Previously
+    accepted owner API inventory adds exactly17 named symbols without removals;
+    all10 locale inventory/hash guards pass. Accepted native Make Masks adds
+    exactly07b_wand_add,07c_wand_ctrl_remove,08b_merge_demo; strict scene totals
+    become61/1217, preserving1156 scenes in every other lesson; both parser
+    guards pass. These are source-backed exact inventories, not loosened debt
+    or coverage ceilings. No API/catalog/tutorial artifact changed.
+    Root independent ownership/zoo/caption cohort passes70 cases in20.31s
+    under4GiB, archived in data/43_ownership_zoo_caption_integration_2026-10-06/.
+    Current sv/fr new timelapse_events tooltip lacks reviewed records; owner
+    translation/review remains required before historical retirement pin changes.

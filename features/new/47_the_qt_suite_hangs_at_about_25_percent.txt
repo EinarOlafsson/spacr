@@ -1884,3 +1884,17 @@ restarts hosted acceptance through the workflow-file trigger. Item stays OPEN.
     sustained process memory savings. Full journals/logs and source bindings:
     data/47_measure_headings_owner_2026-10-07/. This concrete ownership repair
     closes a child; final uninterrupted serial/memory acceptance remains OPEN.
+
+2026-10-06 — three additional bounded test ownership repairs
+    Temporary Timelapse controls now have a qtbot-owned QWidget parent; all9
+    cases pass and post-sentinel widget/top-level counts928/379 become2/1.
+    Temporary module-default controls are owned similarly; all153 affected
+    cases pass, file-boundary counts0/0, and matched sentinel1020/385 becomes2/1.
+    Regression fixture controls now belong to a Qt owner; all35 cases pass and
+    matched sentinel1227/136 becomes2/1. Scientific/default assertions remain
+    unchanged. Source-bound journals are in data/47_timelapse_settings_owner,
+    47_panel_defaults_owner and47_regression_panel_owner_2026-10-07/ archives
+    (all three directory names end_2026-10-07). Root verifies every payload
+    and runtime binding. Small/mixed RSS changes are not whole-suite savings.
+    Busy UMAP JobRunner warnings are separately retained, not claimed fixed.
+    Protected45f and final serial acceptance remain OPEN.
