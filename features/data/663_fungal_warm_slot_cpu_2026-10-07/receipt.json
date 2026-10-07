@@ -1,0 +1,63 @@
+{
+  "decision": "No actionable duplicate-warm optimization found; production unchanged",
+  "source_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+  "probes": [
+    {
+      "receipt": "data_art_fungal_growth-before-custom-1.0-3.0-counts.json",
+      "palette": "custom",
+      "detail": 1.0,
+      "density": 3.0,
+      "counted_frames": 60,
+      "counts": {
+        "reuse_hit": 548,
+        "reuse_missing_or_changed": 42259,
+        "warm_missing_or_changed": 23
+      },
+      "worker_stopped_after_hide": true,
+      "source_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+      "diagnostic_stage_median_ms": {
+        "_fungal_paths": 7.1410639939131215,
+        "_warm_fungal_raster": 0.0,
+        "Qt.drawEllipse": 0.24325147387571633,
+        "_paint_cached_fungal_paths": 61.52248400030658,
+        "_reuse_fungal_raster": 8.98481160402298,
+        "geometry": 4.9803889996837825,
+        "Qt.drawPath": 40.76469056599308,
+        "_paint_fungal_tips": 6.265214004088193,
+        "Qt.setPen": 0.5627490900224075
+      }
+    },
+    {
+      "receipt": "data_art_fungal_growth-before-spacr-2.0-3.0-counts.json",
+      "palette": "spacr",
+      "detail": 2.0,
+      "density": 3.0,
+      "counted_frames": 93,
+      "counts": {
+        "reuse_hit": 1471,
+        "warm_missing_or_changed": 53,
+        "reuse_missing_or_changed": 12894
+      },
+      "worker_stopped_after_hide": true,
+      "source_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+      "diagnostic_stage_median_ms": {
+        "_warm_fungal_raster": 3.3508340129628778,
+        "_paint_cached_fungal_paths": 44.551945000421256,
+        "Qt.drawPath": 29.264578100992367,
+        "Qt.setPen": 0.14201682643033564,
+        "_fungal_paths": 3.4832190140150487,
+        "_reuse_fungal_raster": 9.50856419513002,
+        "geometry": 2.2272130008786917,
+        "_paint_fungal_tips": 0.10728600318543613,
+        "Qt.drawEllipse": 0.027150032110512257
+      }
+    }
+  ],
+  "limits": [
+    "Exactly two read-only actual native4K CPU widget/worker probes; software Xvfb under4G.",
+    "Inclusive timing/counters add overhead; diagnostic FPS is not uninstrumented acceptance.",
+    "Both measured recipes have zero duplicate warms and zero matching-cache refusals. This does not prove impossibility across every seed/palette/clock.",
+    "Dominant current drawPath groups are missing/changed entries; no justified cheap exact-quality production change from this lead.",
+    "Do not weaken quality, density, native rasterization, conservative headroom, rendering order or cache bounds; hard24FPS remainsOPEN."
+  ]
+}

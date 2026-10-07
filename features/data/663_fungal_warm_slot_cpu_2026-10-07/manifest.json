@@ -1,0 +1,34 @@
+{
+  "README.md": {
+    "bytes": 2203,
+    "sha256": "81f8becbacc9e7115a925552da05b3e5a96731501d7f28a15579f8636267754c"
+  },
+  "before.py": {
+    "bytes": 356086,
+    "sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225"
+  },
+  "counter_worker.py": {
+    "bytes": 11722,
+    "sha256": "dbd69e6df9e88afc645cdbce24c2f9b2df754c8fdee926a52db020c5e688af69"
+  },
+  "counts-custom1.log": {
+    "bytes": 12276,
+    "sha256": "004a9ed2bef187133b7469803c1e7cf31c8b0ee18d72bbe7c2527e6dddaec301"
+  },
+  "counts-default2.log": {
+    "bytes": 12307,
+    "sha256": "257ba162633b4353d5c9233ec9a2de7d0b5de29fbf05693d94a36b84db16b9ed"
+  },
+  "data_art_fungal_growth-before-custom-1.0-3.0-counts.json": {
+    "bytes": 5488,
+    "sha256": "7d8341a4adf53b48ce62a9068f84287413cbd8fdb2c11ec5dd4c7bf97737d93b"
+  },
+  "data_art_fungal_growth-before-spacr-2.0-3.0-counts.json": {
+    "bytes": 5531,
+    "sha256": "12d5b8f091234b00114fd0ed62cefc02c3219c8bd9fdb070cefe6a6fbcdfe26a"
+  },
+  "receipt.json": {
+    "bytes": 2667,
+    "sha256": "1b41c8167b05260a23fad14da41006fe26ef8732fd5a629acec00401f146464e"
+  }
+}

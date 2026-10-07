@@ -993,3 +993,13 @@ Compact immutable source/test/coverage/probe receipts and two lossless stills:
     stilldominant. REJECTED/no production patch, quality/guards/cache unchanged.
     Native24FPS remainsOPEN. Source/scripts/JSON/logs and compressed root proof:
     data/663_rejected_packed_rgb_cpu_2026-10-07/.
+
+2026-10-07 — bounded duplicate-warm-slot audit, no app change
+    Unchanged f36 source, actual native4K defaultdetail2 andcustomdetail1,
+    density3:93/60steady frames,1471/548reusehits,12894/42259missing-or-changed
+    attempts and53/23true warmups. Bothrecipes0duplicate warms and0valid-entry
+    headroom refusals; workers retire onhide. No observed duplicate-slot waste
+    or justified cheap exact-quality optimization from this lead. Counters/
+    inclusive timings arediagnostic, not uninstrumented FPS acceptance; two
+    recipes do not prove everyclock/seed. Native24FPS remainsOPEN. Compactproof:
+    data/663_fungal_warm_slot_cpu_2026-10-07/.
