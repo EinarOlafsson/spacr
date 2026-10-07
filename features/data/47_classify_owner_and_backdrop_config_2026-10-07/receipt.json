@@ -1,0 +1,82 @@
+{
+  "app_default_unchanged": true,
+  "before_test_blobs": {
+    "tests/qt/test_one_backdrop_for_the_window.py": "b7237cb2c434dc13e29734601d1c5efd02a588ed",
+    "tests/qt/test_the_merged_classify_kept_both_halves.py": "b92ccac4acc6d82ce60ee9832a5c668d386779c9"
+  },
+  "cap_gib": 4,
+  "cuda_hidden": true,
+  "display_marker_share_percent": 100,
+  "gui_fixed_config": "blobs",
+  "gui_fixed_offscreen_result": "1 passed in5.09s",
+  "gui_fixed_xvfb_result": "1 passed in5.18s",
+  "gui_old_default": "data_art_impulse_lens",
+  "gui_old_xvfb_result": "failed14.568352% chromatic versus original>25%",
+  "gui_thresholds_unchanged": true,
+  "limits": [
+    "Before owner command accidentally allowed default randomized order, but recorded owner first and sentinel second; final full-file command explicitly disables randomly and records matching order.",
+    "after.log from initial randomized positive attempt is not counted: sentinel ran first.",
+    "GUI measurements use private software-only Xvfb and valid100% marker, not a physical display or GPU acceptance.",
+    "A helper-only opaque-window-block override still passed (software-display-opaque-negative.log); this attempted control does not reproduce the historical opaque-container defect and is not a causal negative proof.",
+    "No full serial or hosted acceptance; existing thresholds/scientific assertions unchanged."
+  ],
+  "original_test_commit": "d7a4d4ad4c6a464130a988c732f7add1abe83076",
+  "owner_after_next_test": {
+    "top_levels": 0,
+    "widgets": 0
+  },
+  "owner_after_ordered_result": "7 passed in2.01s",
+  "owner_before_next_test": {
+    "top_levels": 22,
+    "widgets": 903
+  },
+  "parent": "4754d5bf00cad44db974f6f8864bd6b3b7e4f6c7",
+  "payloads": {
+    "after-ordered.log.gz": {
+      "gzip_sha256": "8ebec991f3c4ca18f47c54622feac1675dca55adb08113b3094782018749f546",
+      "raw_bytes": 1103,
+      "raw_sha256": "28e31dc63fb076d8afebb754b5de51ce33e7a3595d9f49a673df771839c975a1"
+    },
+    "before.log.gz": {
+      "gzip_sha256": "def84d92beb57165743a7bea82e7f055684b695daffe82d8e46e056d81157d98",
+      "raw_bytes": 319,
+      "raw_sha256": "06bb576c0fa01c8b0385f1dd6990d2c6efcd990dd3d17a0e234fc40668d1292f"
+    },
+    "gui_probe.py": {
+      "bytes": 525,
+      "sha256": "9bde8c774681651ac956a38d7cda14501f7a23de7c3b74802da3fb2864d88da4"
+    },
+    "offscreen-blobs.log.gz": {
+      "gzip_sha256": "45f7c4d8a8c6980dbdbd7a767d263da9d651b78739c348932a758aef963c8350",
+      "raw_bytes": 98,
+      "raw_sha256": "a5eaa24c3a839f90c27c27994f94a6119e26a23c2bc1999710ef5af40039c2f2"
+    },
+    "opaque_probe.py": {
+      "bytes": 366,
+      "sha256": "378fa1d60f1b3a4ea89916d75a88154ecb3dc65a649073c7ab88dce79402e989"
+    },
+    "owner_probe.py": {
+      "bytes": 298,
+      "sha256": "be0e66726f9509a0db50b45899b3df4641d73fc1d1c1be24a99dc7e5e4a6c234"
+    },
+    "software-display-blobs.log.gz": {
+      "gzip_sha256": "ca7c3062e70f0fe1298f8cf33484052b570df6a18c17f664fd2815fdb568c35a",
+      "raw_bytes": 10998,
+      "raw_sha256": "fe6bf222b3e78df5c3d4de4eb937b770e5f7c6f9634ac8e9b50f01a7478b449f"
+    },
+    "software-display-opaque-negative.log.gz": {
+      "gzip_sha256": "cf08dadf0e133c43510f27648dc0e9bbdb1afb287f8e6d46329b71bfd45b35fe",
+      "raw_bytes": 718,
+      "raw_sha256": "0d076bfded1918e39d49668fb195b014b8357ccb0696664d7bda88817218392b"
+    },
+    "software-display.log.gz": {
+      "gzip_sha256": "76248a5d688d3278369ecaa41440375c81baa53da0ea53d14fb76bbaaf4bea86",
+      "raw_bytes": 25268,
+      "raw_sha256": "f4e39dfcbd3103039107cbfd4882fefbd89b0935b0c709aed81c64383f27f7e2"
+    }
+  },
+  "source_sha256": {
+    "tests/qt/test_one_backdrop_for_the_window.py": "389d6a34cb1c876f6b38d5dc9c4b0360e53679a58a25e2b1b6106569719d5517",
+    "tests/qt/test_the_merged_classify_kept_both_halves.py": "d1d0ce9c8fc63a74609c1617f6b1751072d1499564ed1f7ed47d897c09a77977"
+  }
+}

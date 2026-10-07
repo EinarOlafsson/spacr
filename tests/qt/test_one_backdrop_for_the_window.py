@@ -222,6 +222,7 @@ def test_the_home_screen_is_not_black_on_a_real_display(qtbot):
     if not preferences.get_ambient_enabled():
         pytest.skip("the ambient backdrop is off in this configuration")
 
+    preferences.set_ambient_animation("blobs")
     app = QApplication.instance()
     # THROUGH THE REAL PATH, or this measures an unthemed window. The
     # stylesheet is what makes the containers transparent over the

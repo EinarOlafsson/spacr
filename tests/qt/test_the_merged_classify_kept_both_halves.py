@@ -91,7 +91,7 @@ def test_the_preflight_refusals_still_fire(qapp):
         "scoring a dataset with no model_path is no longer refused")
 
 
-def test_the_hyperparameter_search_has_a_panel_again(qapp):
+def test_the_hyperparameter_search_has_a_panel_again(qapp, qtbot):
     """There is no other door to the cross-validated search."""
     import spacr.qt
     spacr.qt.register_self_registering_modules()
@@ -105,4 +105,5 @@ def test_the_hyperparameter_search_has_a_panel_again(qapp):
     from spacr.qt.screens.app_screen import AppScreen
 
     screen = AppScreen(MERGED)
+    qtbot.addWidget(screen)
     assert screen._hyperparam is not None, "the search panel is missing"
