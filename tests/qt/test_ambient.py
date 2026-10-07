@@ -15,6 +15,7 @@ from __future__ import annotations
 import gc
 import weakref
 
+import numpy as np
 import pytest
 
 from PySide6.QtCore import QEvent, QPoint, Qt, QTimer
@@ -39,6 +40,10 @@ LEGACY_THEMES = ("blobs", "aurora", "ripple", "drift", "cells")
 RENDERED_THEMES = AMBIENT_THEMES + ("ripple", "cells")
 AUTONOMOUS_THEMES = tuple(theme for theme in RENDERED_THEMES
                           if theme != "data_art_tissue_facets")
+VISIBILITY_CENSUS_THEMES = tuple(theme for theme in RENDERED_THEMES
+                                 if theme != "data_art_fungal_growth")
+MOTION_CENSUS_THEMES = tuple(theme for theme in AUTONOMOUS_THEMES
+                             if theme != "data_art_fungal_growth")
 
 
 def make_engine(theme, palette, background, *args, **kwargs):
@@ -352,7 +357,6 @@ MIN_PAINTED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.003,
                "data_art_chromatin_ribbon": 0.19,
                "data_art_genetic_advection": 0.46,
                "data_art_impulse_lens": 0.02,
-               "data_art_fungal_growth": 0.009,
                "data_art_thore": 0.009}
 MIN_CHANGED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.006,
                "cells": 0.11,
@@ -360,7 +364,6 @@ MIN_CHANGED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.006,
                "data_art_chromatin_ribbon": 0.21,
                "data_art_genetic_advection": 0.47,
                "data_art_impulse_lens": 0.02,
-               "data_art_fungal_growth": 0.006,
                "data_art_thore": 0.019}
 
 
@@ -371,7 +374,7 @@ def all_pixels(image: QImage):
 
 
 @pytest.mark.parametrize("background", [DARK, LIGHT])
-@pytest.mark.parametrize("theme", RENDERED_THEMES)
+@pytest.mark.parametrize("theme", VISIBILITY_CENSUS_THEMES)
 def test_a_frame_is_not_just_the_background(theme, background):
     """Both pages, because a blob set tuned for dark reads as nothing at all
     on light — which is a bug you cannot see in a construction test."""
@@ -385,7 +388,7 @@ def test_a_frame_is_not_just_the_background(theme, background):
 
 
 @pytest.mark.parametrize("background", [DARK, LIGHT])
-@pytest.mark.parametrize("theme", AUTONOMOUS_THEMES)
+@pytest.mark.parametrize("theme", MOTION_CENSUS_THEMES)
 def test_the_frame_changes_between_two_animation_times(theme, background):
     engine = make_engine(theme, "spacr", background, seed=7)
     engine.set_time(2.0)
@@ -395,6 +398,57 @@ def test_the_frame_changes_between_two_animation_times(theme, background):
     differing = sum(1 for a, b in zip(first, second) if a != b)
     assert differing > len(first) * MIN_CHANGED[theme], \
         f"{theme} moved only {differing} of {len(first)} px in seven seconds"
+
+
+def _assert_visible_growth_phases(engine, background, width, height, paint=render):
+    """Measure advancing early roots and sparse, moving mature/hour-later ink."""
+    frames, counts, extents = [], [], []
+    flat = QColor(background).rgb()
+    for stamp in (2.0, 9.0, 30.0, 90.0, 97.0, 3600.33, 3607.33):
+        engine.set_time(stamp)
+        image = paint(engine, width, height, background)
+        pixels = np.frombuffer(image.constBits(), dtype=np.uint32).reshape(height, width).copy()
+        ink = pixels != flat
+        count = int(np.count_nonzero(ink))
+        assert 0 < count <= width * height * .30, (stamp, count)
+        yy, xx = np.nonzero(ink)
+        frames.append(pixels)
+        counts.append(count)
+        extents.append((int(yy.min()), int(xx.max() - xx.min())))
+    assert counts[0] < counts[1] < counts[2], counts[:3]
+    assert extents[2][0] < extents[1][0] < extents[0][0], extents[:3]
+    assert extents[2][1] > extents[0][1], extents[:3]
+    for first, second in ((3, 4), (5, 6)):
+        changed = int(np.count_nonzero(frames[first] != frames[second]))
+        assert changed >= min(counts[first], counts[second]) * .5, changed
+
+
+@pytest.mark.parametrize("background", [DARK, LIGHT])
+@pytest.mark.parametrize("canvas", [(320, 200), (960, 600)])
+def test_connected_growth_is_visible_advancing_and_continuous_across_phases(background, canvas):
+    engine = make_engine("data_art_fungal_growth", "spacr", background, seed=7)
+    _assert_visible_growth_phases(engine, background, *canvas)
+
+
+@pytest.mark.parametrize("defect", ["empty", "frozen_clock", "frozen_mature", "overfilled"])
+def test_growth_phase_contract_rejects_empty_frozen_and_overfilled_rendering(defect, monkeypatch):
+    engine = make_engine("data_art_fungal_growth", "spacr", DARK, seed=7)
+    if defect == "frozen_clock":
+        engine.set_time(2)
+        monkeypatch.setattr(engine, "set_time", lambda value: None)
+    elif defect == "frozen_mature":
+        set_time = engine.set_time
+        monkeypatch.setattr(engine, "set_time", lambda value: set_time(min(value, 90)))
+
+    def faulty_paint(current, width, height, background):
+        if defect in ("empty", "overfilled"):
+            image = QImage(width, height, QImage.Format_RGB32)
+            image.fill(QColor(background if defect == "empty" else "red"))
+            return image
+        return render(current, width, height, background)
+
+    with pytest.raises(AssertionError):
+        _assert_visible_growth_phases(engine, DARK, 320, 200, paint=faulty_paint)
 
 
 @pytest.mark.parametrize("background", [DARK, LIGHT])
