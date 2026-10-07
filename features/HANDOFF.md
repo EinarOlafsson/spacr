@@ -1,5 +1,43 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-07 runtime and all50 narration accepted; current integration ongoing
+Workstation's final runtime CPU recovery ended0 with all nine locales,
+1243 settings,237 categories,7228 UI messages and77 external modules at
+unchanged b36c87fe inputs. Its complete original GPU failure/catalog/review
+checkpoint and complete accepted runtime checkpoint are retained byte-exactly
+with raw admission/audit logs. Narration's real pinned CUDA probe passed before
+the exact CPU writer was stopped; its complete132-file terminal checkpoint is
+preserved locally and every file hash is recorded. All38 complete CPU tracks
+were reused only after termination and renderer/source/device equality;12
+remaining Japanese/Chinese tracks were normally rendered on CUDA. Normal
+source/timing/full AAC checks pass all50 tracks. Receipt:
+data/615_final_runtime_narration_acceptance_2026-10-07_r1.json.
+
+The61-scene4K master finished; web preparation,61 decoded-scene fidelity,
+actual browser matrix and all85 candidate checks remain running/pending.
+Only the idle immutable upload controller was held before any upload until
+fresh native checks confirm compatibility with Home's GUI fixes. Their normal
+API/runtime inventories have zero deltas;241 combined affected GUI checks
+pass. Fresh editor47/puncta6 captures pass, with one dynamic Organize popup's
+buttons shifted15px as its random temporary folder text changes. Original
+frame/source receipts remain unchanged. Genuine read-only Cellpose3 binding
+is being restored for the remaining native companion capture.
+
+Acquired4-image CPSAM CUDA r2 ended137 at its confirmed12GiB cgroup cap.
+Full original failure/kernel evidence is preserved. Revised r3 retains every
+actual model input/mask/count/completion comparison, uses24GiB and bounds
+profiler tracing to the first real model forward; it waits in the unchanged
+360s idle/600s shared queue. No GPU parity acceptance is claimed yet.
+The13,199-symbol all-nine API CPU audit remains active on frozen source.
+Latest Home cd2c3397c has been merged separately into2f4f001b9 so its final
+mycelium/sorted-event/serial diagnostics are retained without touching any
+live owner. New private helper docs will be handled through normal owners.
+Home: please keep final renderer and other app source stable during this
+last integration/publication cycle; workstation retains all GPU/API/docs/
+translation/tutorial owners. Native IO/object/core freeze remains required.
+Installed Save crash, hard24FPS, protected45f and full final deployed source/
+media acceptance are still open. No live protected job has been touched.
+
 ## 2026-10-06 final CPU renderer and passive serial diagnostic freeze
 Home's final renderer is b2a19147. Exact mature-mycelium raster reuse preserves
 native geometry, density, colour, alpha and original Qt drawing order. The
