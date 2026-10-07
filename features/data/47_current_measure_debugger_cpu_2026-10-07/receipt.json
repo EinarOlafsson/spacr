@@ -1,0 +1,43 @@
+{
+  "source_commit": "a47e499ec5ecbc4eea5aa5431c978d23fb60dd8d",
+  "scope": "Current source direct distribution smoke file, cold process; not protected original-order acceptance",
+  "argv": [
+    "tools/run_capped.sh",
+    "8G",
+    "gdb",
+    "-q",
+    "-batch",
+    "-x",
+    "/mnt/wd4tb/scratch/progress-report-20261007/current-distribution-gdb.cmd",
+    "--args",
+    "/home/olafsson/anaconda3/envs/spacr/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-rA",
+    "tests/qt/test_distribution_smoke.py"
+  ],
+  "env": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "PYTHONPATH": "."
+  },
+  "result": {
+    "tests_passed": 17,
+    "pytest_seconds": 41.91,
+    "capped_command_exit": 0,
+    "inferior_exited_normally": true
+  },
+  "payloads": {
+    "debugger.log.gz": {
+      "sha256": "e0c0b7a2a5b6b0b61cc4a553b0a86154b8aa2e18a7e2be00d42cd91656f9f57c",
+      "bytes": 3542
+    },
+    "debugger.cmd": {
+      "sha256": "9e5017feaf55779771b7f1ac8a8aa32090efec0f415ac3655cb5a69e373076cf",
+      "bytes": 363
+    }
+  },
+  "original_log_sha256": "0fc5058b1e24628b3b02256586c4d04ad74595ec15f25236c387412143a08778",
+  "native_causes_closed": false
+}

@@ -2275,3 +2275,13 @@ checks without another core run. No spaCR or hosted-crash fix is inferred.
 Proof/source hashes, raw output, portable corrected reproduction and verified
 manifest: data/47_ordinary_fault_context_cpu_2026-10-07/.
 Current683 hosted execution stays untouched; native Qt faults remain OPEN.
+
+2026-10-07 — CURRENT MEASURE/UI FILE UNDER BOUNDED DEBUGGER
+Currenta47e499ec5 direct distribution_smoke file passes17/17 in41.91s
+under8GiB, CUDA-hidden/offscreen gdb. The real source Measure/Run/SQLite and
+layout check completes; inferior exits normally and noSIGSEGV is observed.
+Exact argv, debugger command and compressed complete raw log are retained in
+  data/47_current_measure_debugger_cpu_2026-10-07/.
+This cold file check neither reproduces nor closes protectedb688 original-
+order QEventLoop fault or bb7 puncta worker fault. No app fix is inferred.
+Current683 ordinary hosted tests remain running; full native/CI stay OPEN.
