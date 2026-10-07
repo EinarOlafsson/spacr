@@ -37,8 +37,9 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QSettings                            # noqa: E402
-from PySide6.QtGui import QColor, QImage, QPainter              # noqa: E402
+from PySide6.QtCore import QSettings, QRectF, Qt                # noqa: E402
+from PySide6.QtGui import (QColor, QImage, QPainter,
+                           QPainterPath)                         # noqa: E402
 
 from spacr.qt.widgets import ambient as amb                     # noqa: E402
 from spacr.qt.widgets.ambient import (AMBIENT_THEMES,           # noqa: E402
@@ -1053,6 +1054,46 @@ def aurora(palette="borealis", seed=7, curtains=None, **kwargs):
     if curtains is not None:
         engine.curtains = engine.curtains[:curtains]
     return engine
+
+
+@pytest.mark.parametrize("clip_kind", ("rect", "path"))
+def test_aurora_surge_respects_an_existing_painter_clip(clip_kind):
+    engine = aurora()
+    engine.set_time(9.0)
+    width, height = 400, 260
+    owned = engine.shade(width, height)
+    owned_pixels = owned.bits().tobytes()
+    image = QImage(width, height, QImage.Format_RGB32)
+    image.fill(QColor(DARK))
+    bounds = QRectF(80, 70, 240, 170)
+    painter = QPainter(image)
+    painter.setCompositionMode(engine.mode)
+    painter.setPen(Qt.NoPen)
+    if clip_kind == "rect":
+        painter.setClipRect(bounds)
+    else:
+        path = QPainterPath()
+        path.moveTo(200, 70)
+        path.lineTo(320, 155)
+        path.lineTo(200, 240)
+        path.lineTo(80, 155)
+        path.closeSubpath()
+        painter.setClipPath(path)
+    engine._paint_field(painter, width, height)
+    background = QColor(DARK).rgb()
+    assert any(image.pixel(x, y) != background
+               for y in range(100, 220) for x in range(120, 280))
+    assert all(image.pixel(x, y) == background
+               for y in range(height) for x in range(width)
+               if x < 80 or x >= 320 or y < 70 or y >= 240)
+    assert painter.hasClipping()
+    painter.setCompositionMode(QPainter.CompositionMode_Source)
+    painter.fillRect(image.rect(), QColor("#db00fe"))
+    painter.end()
+    assert image.pixel(0, 0) == background
+    assert image.pixel(200, 155) == QColor("#db00fe").rgb()
+    assert owned.bits().tobytes() == owned_pixels
+    assert engine.shade(width, height).bits().tobytes() == owned_pixels
 
 
 def lower_edge(engine, curtain_index=0, samples=240):

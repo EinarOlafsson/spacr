@@ -2361,7 +2361,7 @@ class AuroraEngine(_BufferedEngine):
             painter.save()
             painter.setClipPath(self._sheet(
                 columns, zero - ray * (AURORA_PULSE_HEIGHT
-                                       + AURORA_PULSE_PAD)))
+                                       + AURORA_PULSE_PAD)), Qt.IntersectClip)
             painter.drawImage(QRectF(left, top - ray * AURORA_PULSE_PAD,
                                      right - left, band), surge)
             painter.restore()
