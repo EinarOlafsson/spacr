@@ -7,7 +7,7 @@ Source57b33a67de includes completed field drag/return, biological growth,
 Aurora clipping, spinn resting/owned rendering, five serial fixture repairs
 and lazy Mask watch/empty-filter work. All finished implementation batches
 were committed and pushed to nightly. Additional source-bound proof for Mask
-is retained in data/43_mask_lazy_watch_cpu_2026-10-07/manifest.json;24 payloads
+is retained in data/43_mask_lazy_watch_cpu_2026-10-07/manifest.json;25 payloads
 verify from Git and both changed app source hashes match current files.
 Raw67 integration/113 source guards,106 behavior/14 Watch logs, final8-case
 new-branch coverage, original32-file collection and matched bounded coverage
