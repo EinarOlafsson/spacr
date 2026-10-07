@@ -2153,3 +2153,20 @@ Complete original artifact files, hosted failed log, ordinary terminal jobs/log
 and digest metadata are retained under
 data/47_a44_serial_terminal_2026-10-07/receipt.json (10 verified gzip payloads).
 The source predates this turn's themes; it cannot accept their new implementation.
+
+
+2026-10-07 — COMPRESSED NATIVE CORE DIAGNOSTIC PATH IMPLEMENTED
+The hosted collector previously found the real systemd zstd report but could
+only read regular ELF cores. It now temporarily expands only a matching PID-
+field, recent, non-symlink systemd core after verifying the dispatched source
+and gdb availability. Streaming extraction has a60-second deadline, an output
+file-size ceiling no larger than the existing16GiB core ceiling or actual free
+disk minus512MiB reserve, and rejects failed decoders/non-core ELF. Temporary
+cores are removed after gdb and never included in the uploaded evidence paths.
+The hosted dependency list explicitly includes zstd. Eight tests use genuine
+compressed payloads to check exact extraction, unrelated PID/UID collision,
+stale reports, symlinks, corrupt frames, non-core output and output-limit failure.
+All8 pass locally under4GiB; fatal Ruff and whitespace checks pass. This repairs
+missing native diagnostic collection, not the original puncta crash. No new
+hosted native stack or full serial success is claimed, and no test selection,
+order, memory guard or timeout allowance is changed.

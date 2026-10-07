@@ -1,8 +1,8 @@
 """Collect a bounded native backtrace after a failed serial Qt run, if possible.
 
-This never creates, copies, extracts, or uploads a core. Ubuntu may route a
-crash to Apport instead of retaining a regular ELF core; in that case the
-report records why gdb could not run.
+Read existing ELF cores in place. A matching systemd zstd core may be
+temporarily extracted with disk, size and time bounds, then removed after
+gdb. Only the text backtrace is uploaded; Apport reports are not extracted.
 """
 
 from __future__ import annotations
@@ -17,12 +17,15 @@ import shutil
 import struct
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
 MAX_BACKTRACE_BYTES = 4 * 1024 * 1024
 MAX_CORE_BYTES = 16 * 1024 * 1024 * 1024
 GDB_TIMEOUT_SECONDS = 90
+CORE_EXTRACT_TIMEOUT_SECONDS = 60
+CORE_DISK_RESERVE_BYTES = 512 * 1024 * 1024
 
 
 def _sha256(path: Path) -> str:
@@ -106,7 +109,7 @@ def _apport_reports(started_ns: int) -> list[str]:
                     continue
                 stat = path.stat()
                 if stat.st_mtime_ns >= started_ns - 60_000_000_000:
-                    reports.append(f"{path} ({stat.st_size} bytes, not extracted)")
+                    reports.append(f"{path} ({stat.st_size} compressed bytes)")
         except OSError:
             continue
     return reports
@@ -115,6 +118,64 @@ def _apport_reports(started_ns: int) -> list[str]:
 def _cap_backtrace_file() -> None:
     resource.setrlimit(resource.RLIMIT_FSIZE,
                        (MAX_BACKTRACE_BYTES, MAX_BACKTRACE_BYTES))
+
+
+def _extract_systemd_core(directory: Path, scratch: Path, pid: int | None,
+                          started_ns: int, lines: list[str]) -> Path | None:
+    """Expand only this process's recent zstd core into a bounded private file."""
+    decoder = shutil.which("zstd")
+    if pid is None or decoder is None:
+        lines.append("systemd extraction unavailable: missing process identity or zstd")
+        return None
+    candidates = []
+    try:
+        for path in itertools.islice(directory.glob("core*.zst"), 2000):
+            parts = path.name.split(".")
+            if path.is_symlink() or len(parts) < 6 or parts[-3] != str(pid):
+                continue
+            stat = path.stat()
+            if (path.is_file() and stat.st_mtime_ns >= started_ns - 60_000_000_000
+                    and 0 < stat.st_size <= MAX_CORE_BYTES):
+                candidates.append(path)
+    except OSError as error:
+        lines.append(f"systemd extraction discovery failed: {error}")
+        return None
+    if not candidates:
+        return None
+    source = max(candidates, key=lambda path: path.stat().st_mtime_ns)
+    available = shutil.disk_usage(scratch).free - CORE_DISK_RESERVE_BYTES
+    limit = min(MAX_CORE_BYTES, available)
+    if limit < source.stat().st_size:
+        lines.append("systemd extraction skipped: insufficient scratch disk")
+        return None
+    temporary = None
+    accepted = False
+    try:
+        with tempfile.NamedTemporaryFile(prefix="qt-native-", suffix=".elf",
+                                         dir=scratch, delete=False) as output:
+            temporary = Path(output.name)
+
+            def cap_extraction() -> None:
+                resource.setrlimit(resource.RLIMIT_FSIZE, (limit, limit))
+
+            result = subprocess.run(
+                [decoder, "--decompress", "--stdout", "--quiet", "--", str(source)],
+                stdout=output, stderr=subprocess.PIPE, check=False,
+                timeout=CORE_EXTRACT_TIMEOUT_SECONDS, preexec_fn=cap_extraction,
+            )
+        size = temporary.stat().st_size
+        lines.append(f"systemd extraction source={source} exit={result.returncode} "
+                     f"bytes={size} limit={limit}")
+        if result.returncode == 0 and 0 < size <= limit and _core_type(temporary):
+            accepted = True
+            return temporary
+        lines.append("systemd extraction rejected: failed decoder or non-core ELF")
+    except (OSError, subprocess.TimeoutExpired) as error:
+        lines.append(f"systemd extraction failed: {error}")
+    finally:
+        if temporary is not None and not accepted:
+            temporary.unlink(missing_ok=True)
+    return None
 
 
 def main() -> int:
@@ -146,6 +207,12 @@ def main() -> int:
     lines.extend(f"candidate={path} size={size}" for path, size in cores)
     lines.extend(f"compressed_report={entry}"
                  for entry in _apport_reports(started_ns))
+    extracted = None
+    if not cores and source_sha == expected_sha and shutil.which("gdb"):
+        extracted = _extract_systemd_core(
+            Path("/var/lib/systemd/coredump"), evidence.parent, pid, started_ns, lines)
+        if extracted is not None:
+            cores.append((extracted, extracted.stat().st_size))
     if not cores:
         lines.append("No regular ELF core was available; no native backtrace can be recovered.")
     elif source_sha != expected_sha:
@@ -153,7 +220,7 @@ def main() -> int:
     elif not shutil.which("gdb"):
         lines.append("gdb is unavailable; native backtrace skipped.")
     else:
-        lines.append("gdb reads the core in place; the core is never uploaded.")
+        lines.append("gdb reads the core locally; the core is never uploaded.")
     report.write_text("\n".join(lines) + "\n", encoding="utf-8")
     if cores and source_sha == expected_sha and shutil.which("gdb"):
         core = max(cores, key=lambda candidate: candidate[0].stat().st_mtime_ns)[0]
@@ -178,6 +245,9 @@ def main() -> int:
                 status = f"gdb_exit={result.returncode}"
             except subprocess.TimeoutExpired:
                 status = f"gdb_timeout={GDB_TIMEOUT_SECONDS}s"
+            finally:
+                if extracted is not None:
+                    extracted.unlink(missing_ok=True)
             with report.open("a", encoding="utf-8") as output:
                 output.write(status + "\n")
             print(status)

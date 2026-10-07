@@ -1,6 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
 
+## 2026-10-07 — Home native collector improvement and current 4K limitation
+
+Home has repaired the compressed-core diagnostic gap: matched recent systemd
+zstd core is streamed to bounded temporary scratch, gdb reads it, and the file
+is deleted without upload. Existing source identity, core-size/backtrace/time
+bounds remain; actual free disk adds a512MiB reserve. zstd is explicitly installed
+in the serial workflow. Eight genuine compressed-payload tests pass. This is a
+diagnostic improvement, not an application crash fix or hosted acceptance.
+Three further bounded original-order canvas+puncta local attempts all pass89/89;
+no signal recurred, and native wrapper/application causation remains OPEN.
+
+Source-current ae7269a08c native Aurora profiling with independent Density now
+shows all nine curtains at Density3: about59ms default and293ms at Size3,
+Density3, Detail2. The older66/89ms receipt below is historical to the old
+combined-work-density helper and cannot accept maximum controls on current
+source. Home is profiling equivalent painting only; no density/resolution/
+quality reduction or native24FPS closure is authorized by those measurements.
+Biological growth and field hold-drag remain active lanes; their source will
+be committed/pushed upon focused acceptance as the maintainer requested.
+
+
 ## 2026-10-07 14:33 UTC — Home theme revisions and terminal CI; Workstation refresh queue
 
 The maintainer authorized new application theme revisions after the frozen
