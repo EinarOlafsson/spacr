@@ -1,0 +1,169 @@
+{
+  "affected_selection": [
+    "tests/qt/test_recipes_dialog.py",
+    "tests/qt/test_make_masks_draw_divide.py",
+    "tests/qt/test_568_make_masks_uncertainty.py",
+    "tests/qt/test_cov_g2_make_masks_uncertainty_edges.py",
+    "tests/qt/test_make_masks_ported_tools.py::test_a_right_drag_deletes_every_object_it_crosses",
+    "tests/qt/test_make_masks_ported_tools.py::test_a_sweep_emits_one_stroke_however_many_objects_it_takes",
+    "tests/qt/test_make_masks_ported_tools.py::test_a_sweep_is_a_single_undo_step_and_a_single_ledger_entry",
+    "tests/qt/test_make_masks_ported_tools.py::test_a_right_click_on_background_leaves_no_undo_step",
+    "tests/qt/test_make_masks_ported_tools.py::test_the_sweep_works_from_whatever_tool_is_selected"
+  ],
+  "affected_test_count": 125,
+  "capped_memory": "4G",
+  "cuda_visible_devices": "",
+  "focused_coverage_gzip_sha256": "0a576758fcc56b1bad990e348a0a6921588e8f0072abaaa5fca430591c2013e3",
+  "focused_nodeids": [
+    "tests/qt/test_recipes_dialog.py::test_a_template_removed_between_save_and_reload_is_not_selected",
+    "tests/qt/test_recipes_dialog.py::test_an_unsaved_recipe_preview_never_claims_a_disk_location",
+    "tests/qt/test_make_masks_draw_divide.py::test_a_right_press_during_draw_cannot_erase_or_replace_the_outline",
+    "tests/qt/test_make_masks_draw_divide.py::test_a_right_press_during_divide_cannot_erase_or_replace_the_line",
+    "tests/qt/test_make_masks_draw_divide.py::test_a_left_press_during_merge_cannot_start_a_dividing_line",
+    "tests/qt/test_make_masks_draw_divide.py::test_a_merge_press_in_the_letterbox_never_starts_an_edit",
+    "tests/qt/test_568_make_masks_uncertainty.py::test_a_blank_field_reports_zero_objects_without_naming_a_worst_one",
+    "tests/qt/test_568_make_masks_uncertainty.py::test_a_saved_custom_ensemble_choice_survives_a_cancelled_browse",
+    "tests/qt/test_cov_g2_make_masks_uncertainty_edges.py::test_all_unreadable_fields_leave_the_prior_ranking_file_untouched"
+  ],
+  "focused_test_count": 9,
+  "modules": {
+    "spacr/qt/recipes.py": {
+      "baseline_allowed_uncovered_branches": 0,
+      "baseline_allowed_uncovered_statements": 0,
+      "focused_old_missing_arcs_executed": [
+        {
+          "current": [
+            620,
+            623
+          ],
+          "old": [
+            620,
+            623
+          ]
+        },
+        {
+          "current": [
+            646,
+            -626
+          ],
+          "old": [
+            646,
+            -626
+          ]
+        }
+      ],
+      "old_392_missing_branches": 2,
+      "old_392_missing_statements": 0
+    },
+    "spacr/qt/screens/make_masks.py": {
+      "baseline_allowed_uncovered_branches": 28,
+      "baseline_allowed_uncovered_statements": 59,
+      "focused_old_missing_arcs_executed": [
+        {
+          "current": [
+            2604,
+            2605
+          ],
+          "old": [
+            2599,
+            2600
+          ]
+        },
+        {
+          "current": [
+            2607,
+            2611
+          ],
+          "old": [
+            2602,
+            2606
+          ]
+        },
+        {
+          "current": [
+            2648,
+            2649
+          ],
+          "old": [
+            2643,
+            2644
+          ]
+        },
+        {
+          "current": [
+            9696,
+            9699
+          ],
+          "old": [
+            9691,
+            9694
+          ]
+        },
+        {
+          "current": [
+            9736,
+            -9731
+          ],
+          "old": [
+            9731,
+            -9726
+          ]
+        },
+        {
+          "current": [
+            9942,
+            9945
+          ],
+          "old": [
+            9937,
+            9940
+          ]
+        },
+        {
+          "current": [
+            9979,
+            9984
+          ],
+          "old": [
+            9974,
+            9979
+          ]
+        }
+      ],
+      "old_392_missing_branches": 35,
+      "old_392_missing_statements": 16
+    }
+  },
+  "new_guard_executed_arcs": [
+    [
+      2598,
+      2600
+    ],
+    [
+      2598,
+      2603
+    ],
+    [
+      2603,
+      2604
+    ],
+    [
+      2603,
+      2613
+    ]
+  ],
+  "old_report_sha256": "349591903dcec4e72da1b6f0b308b87bf290141eab5b710e7d70395c76123b60",
+  "python": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+  "qt_platform": "offscreen",
+  "raw_log_sha256": "58158d9676ca0d4b2a6e75fd706c79fe9847c9014312fc107fc62d093a62a37a",
+  "source_commit": "b87a3c38aa09936c157c4bded6627c6e6342f713",
+  "source_sha256": {
+    "spacr/qt/recipes.py": "67b8c5e6a1fa0c313498c155e11c8afe2208979b1f80324066a66f6b83af661e",
+    "spacr/qt/screens/make_masks.py": "8ff012eff063bbaa9915ad5853a9e07f53aa6d59d43aaf4eb9f0b1601246b933",
+    "tests/qt/test_568_make_masks_uncertainty.py": "2fba24422f733236b74ce3adf091db257e00abda9059da698ba32de259ec9d28",
+    "tests/qt/test_cov_g2_make_masks_uncertainty_edges.py": "69297db51e86fe1f276cf0bcd2f127658160b0c1fa7091738e47402f8a789d17",
+    "tests/qt/test_make_masks_draw_divide.py": "bd45d2a21520dd73a27f368f1ee951cf83177f9219761db1fab1f4f8b1e9016c",
+    "tests/qt/test_recipes_dialog.py": "3f1e0523a97e4a85bcd6659df6e5afbab98eadcb7ccb560d17d529280918b219",
+    "tools/coverage_baseline.json": "7d4f27acf453f79006b7acd809a592fccec8267b9fe4142635873bca142ddf0a"
+  }
+}
