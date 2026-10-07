@@ -24,7 +24,7 @@ import sqlite3
 import pandas as pd
 import pytest
 
-from PySide6.QtWidgets import QDialog, QLineEdit
+from PySide6.QtWidgets import QDialog, QLineEdit, QWidget
 
 from spacr.qt.screens.settings_model import (
     EXCLUDE_LIST_KEYS,
@@ -88,6 +88,12 @@ def _settled(qtbot, dialog, timeout=20000):
     return dialog
 
 
+def _owned_settings(qtbot, app_key):
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    return SettingsWidgets(app_key, parent=owner)
+
+
 # ---------------------------------------------------------------------------
 # The field is a chip strip
 # ---------------------------------------------------------------------------
@@ -95,7 +101,7 @@ def _settled(qtbot, dialog, timeout=20000):
 @pytest.mark.qt
 @pytest.mark.parametrize("app_key", ["ml_analyze", "umap"])
 def test_exclude_is_a_chip_strip_not_a_text_box(qtbot, app_key):
-    widgets = SettingsWidgets(app_key)
+    widgets = _owned_settings(qtbot, app_key)
     widgets.build_sections()
 
     field = widgets._widgets.get("exclude")
@@ -107,7 +113,7 @@ def test_exclude_is_a_chip_strip_not_a_text_box(qtbot, app_key):
 
 @pytest.mark.qt
 def test_exclude_round_trips_several_columns(qtbot):
-    widgets = SettingsWidgets("ml_analyze")
+    widgets = _owned_settings(qtbot, "ml_analyze")
     widgets.build_sections()
     names = ["cell_area", "nucleus_area", "cell_channel_0_mean_intensity"]
 
@@ -120,7 +126,7 @@ def test_exclude_round_trips_several_columns(qtbot):
 def test_an_untouched_exclude_is_still_none(qtbot):
     """The default is None, and a field nobody touched must still say None --
     an empty list would change what every consumer sees."""
-    widgets = SettingsWidgets("ml_analyze")
+    widgets = _owned_settings(qtbot, "ml_analyze")
     widgets.build_sections()
 
     assert widgets.collect()["exclude"] is None
@@ -129,7 +135,7 @@ def test_an_untouched_exclude_is_still_none(qtbot):
 @pytest.mark.qt
 def test_a_single_name_still_loads_from_an_old_settings_csv(qtbot):
     """Settings written before this took one bare name. It still loads."""
-    widgets = SettingsWidgets("ml_analyze")
+    widgets = _owned_settings(qtbot, "ml_analyze")
     widgets.build_sections()
 
     widgets.set_value_for_key("exclude", "cell_area")

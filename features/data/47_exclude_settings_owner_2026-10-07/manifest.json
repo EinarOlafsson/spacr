@@ -1,0 +1,32 @@
+{
+  "files": {
+    "after.jsonl.gz": {
+      "bytes": 636,
+      "sha256": "a3562aa4f67e72cf9262a0f50978c0ccf5bd469d6a9bd12625e78a63a2a10e0f"
+    },
+    "after.log.gz": {
+      "bytes": 52,
+      "sha256": "1f4c7823a6e025670d09a965edfa47aca38b9bc368f0b4d90dc09d5722b6fcca"
+    },
+    "archive.py": {
+      "bytes": 2569,
+      "sha256": "883e53c935cfa6be60f8dfe050038a77d34c3ad8c1de0d298d82293123a94181"
+    },
+    "before.jsonl.gz": {
+      "bytes": 644,
+      "sha256": "edb3fdc768b746f0392d38d7adcbdcb7243a5eba7f272f323b9f32039e691c05"
+    },
+    "before.log.gz": {
+      "bytes": 52,
+      "sha256": "804fa882b44e5358a2c2cf393086a8b49019c361c00b1c80f494e84546cff867"
+    },
+    "before.py.gz": {
+      "bytes": 3762,
+      "sha256": "f1e42fcc0b43dc308b6e2d047ffbe9f841ff762dbef6ff15da4b490824116e03"
+    },
+    "receipt.json": {
+      "bytes": 2671,
+      "sha256": "672c2120da38c55669343a3392dd93231bc37d659d1a90b9c452dfdb7e1168d8"
+    }
+  }
+}

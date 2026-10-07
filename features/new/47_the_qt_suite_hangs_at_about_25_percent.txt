@@ -1925,3 +1925,14 @@ restarts hosted acceptance through the workflow-file trigger. Item stays OPEN.
     silenced or claimed fixed. Source hashes/full log:
     data/47_seven_owner_integration_2026-10-06/. Final full serial/memory
     acceptance remains OPEN; protected45f remains uncancelled.
+
+2026-10-07 — ninth concrete owner, Exclude controls
+    Five Exclude settings cases now build their temporary forms under a
+    qtbot-owned QWidget. Original multi-column/default/round-trip assertions
+    and all remaining picker/database tests are unchanged. Matched complete
+    file plus one field-fade sentinel passes 21/21 before and after under 4 GiB.
+    File-end widget/top-level counts fall 60/4 to 0/0; sentinel-end 28/4 to 2/1.
+    RSS differs by only about 0.3 MiB, not meaningful whole-suite savings.
+    Source-bound raw journals/logs: data/47_exclude_settings_owner_2026-10-07/.
+    No production, forced-GC, collection-order or memory-limit change. Protected
+    45f remains untouched; native-crash/full serial acceptance stays OPEN.
