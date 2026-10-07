@@ -1,0 +1,10 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 28.618570097984048,
+  "failed_test_ids": [],
+  "source_changed": false,
+  "helper_changed": false,
+  "interruption": null,
+  "cleanup_complete": null,
+  "scope": "one batch; not a full-suite or coverage-gate verdict"
+}
