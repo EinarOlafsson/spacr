@@ -6,7 +6,7 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QSettings, Qt
 from PySide6.QtGui import QColor
-from PySide6.QtWidgets import QComboBox, QColorDialog, QDialogButtonBox, QPushButton, QWidget
+from PySide6.QtWidgets import QColorDialog, QComboBox, QDialogButtonBox, QPushButton, QWidget
 
 from spacr.qt import preferences
 from spacr.qt.widgets import ambient
@@ -225,7 +225,10 @@ def test_zero_gravity_keeps_clicks_out_and_rebuild_preserves_user_radius(qtbot):
     host.show()
     qtbot.waitExposed(host)
     assert backdrop.gravity_radius() == 0.0
-    assert backdrop._interaction_app is None
+    assert backdrop._interaction_app is not None
+    qtbot.mouseClick(host, Qt.LeftButton)
+    assert not backdrop._pending_art_impulses
+    assert not backdrop.engine._gravity_impulses
 
     backdrop.set_gravity_radius(0.4)
     assert backdrop._interaction_app is not None
@@ -236,7 +239,7 @@ def test_zero_gravity_keeps_clicks_out_and_rebuild_preserves_user_radius(qtbot):
     assert backdrop._interaction_app is not None
 
     backdrop.set_gravity_radius(0.0)
-    assert backdrop._interaction_app is None
+    assert backdrop._interaction_app is not None
     assert not backdrop._pending_art_impulses
     host.close()
     assert not backdrop.shading_thread_alive()

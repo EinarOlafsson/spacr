@@ -205,7 +205,7 @@ from PySide6.QtCore import (QElapsedTimer, QEvent, QObject, QPoint, QPointF,
 from PySide6.QtGui import (QBrush, QColor, QCursor, QImage,
                            QLinearGradient, QPainter, QPainterPath, QPen,
                            QPixmap, QPolygonF, QRadialGradient, QTransform)
-from PySide6.QtWidgets import QApplication, QSizePolicy, QWidget
+from PySide6.QtWidgets import QApplication, QFrame, QSizePolicy, QWidget
 
 from ..theme import (advance_spaceout_drift, page_colour, palette_for,
                      relative_luminance, spaceout_enabled)
@@ -4889,6 +4889,78 @@ class _DataArtEngine(_BufferedEngine):
         self._gravity_impulses = []
         self._pointer_impulse_time = -math.inf
         self._pointer_impulse_origin = None
+        self._field_grab_origin = None
+        self._field_grab_center = None
+        self._field_grab_offset = (0.0, 0.0)
+        self._field_grab_velocity = (0.0, 0.0)
+        self._field_grab_target = (0.0, 0.0)
+        self._field_grab_held = False
+        self._field_grab_time = self.time
+
+    def _set_field_grab(self, grab, *, reset=False) -> None:
+        """Offer a finite local handle without moving or reseeding material.
+
+        ``grab`` is a normalized origin and shorter-edge displacement pair.
+        The displacement is bounded to 18 percent of that edge. A release
+        changes only the spring target; lifecycle cancellation clears state.
+        The caller holds the engine lock, including queued worker consumers.
+        """
+        if self.family != "impulse_lens":
+            return
+        if reset:
+            self._field_grab_origin = self._field_grab_center = None
+            self._field_grab_offset = self._field_grab_velocity = (0.0, 0.0)
+            self._field_grab_time = self.time
+        self._field_grab_held = grab is not None
+        self._field_grab_target = (0.0, 0.0)
+        if grab is None:
+            return
+        origin, target = grab
+        if not all(math.isfinite(value) for value in (*origin, *target)):
+            self._field_grab_held = False
+            return
+        origin = tuple(max(0.0, min(1.0, value)) for value in origin)
+        length = math.hypot(*target)
+        scale = min(1.0, 0.18 / length) if length else 1.0
+        self._field_grab_target = tuple(value * scale for value in target)
+        if self._field_grab_center is None:
+            self._field_grab_center = origin
+            self._field_grab_time = self.time
+        self._field_grab_origin = origin
+
+    def _step_field_grab(self) -> None:
+        """Evolve a bounded critically damped handle in animation seconds.
+
+        The exact constant-target spring solution uses frequency 6/s and
+        retained velocity, so release is continuous and splitting elapsed
+        time does not change it. A new handle center eases toward its origin
+        instead of teleporting a returning patch. No Qt objects are touched.
+        """
+        elapsed = self.time - self._field_grab_time
+        self._field_grab_time = self.time
+        if self._field_grab_center is None or elapsed <= 0.0:
+            return
+        if not math.isfinite(elapsed) or elapsed > 120.0:
+            elapsed = 120.0
+        decay = math.exp(-6.0 * elapsed)
+        values, velocities = [], []
+        for value, velocity, target in zip(self._field_grab_offset,
+                                           self._field_grab_velocity,
+                                           self._field_grab_target):
+            difference = value - target
+            tangent = velocity + 6.0 * difference
+            values.append(target + (difference + tangent * elapsed) * decay)
+            velocities.append((velocity - 6.0 * tangent * elapsed) * decay)
+        length = math.hypot(*values)
+        scale = min(1.0, 0.18 / length) if length else 1.0
+        self._field_grab_offset = tuple(value * scale for value in values)
+        self._field_grab_velocity = tuple(value * scale for value in velocities)
+        self._field_grab_center = tuple(
+            target + (value - target) * decay
+            for value, target in zip(self._field_grab_center, self._field_grab_origin))
+        if (not self._field_grab_held and length < 1e-6
+                and math.hypot(*velocities) < 1e-6):
+            self._set_field_grab(None, reset=True)
 
     def _restyle(self) -> None:
         """Invalidate rendered material when its palette or page changes."""
@@ -5581,6 +5653,7 @@ class _DataArtEngine(_BufferedEngine):
     def _frame_impulse_lens(self, width: int,
                             height: int) -> QImage:
         """Bend a round-dot gravity field with cursor wakes and burst waves."""
+        self._step_field_grab()
         np = _numpy()
         key = ("impulse_lens", width, height, self.size, self.density)
         lattice = self._material_cache.get(key)
@@ -5640,6 +5713,12 @@ class _DataArtEngine(_BufferedEngine):
             px[selected] += ex * displacement
             py[selected] += ey * displacement
             energy[selected] += decay * packet * 0.40
+        if self._field_grab_offset != (0.0, 0.0):
+            center_x, center_y = self._field_grab_center
+            gx, gy = (x - center_x) * aspect_x, (y - center_y) * aspect_y
+            reach = np.maximum(0.0, 1.0 - (gx * gx + gy * gy) / 0.34 ** 2) ** 3
+            px += self._field_grab_offset[0] / aspect_x * reach
+            py += self._field_grab_offset[1] / aspect_y * reach
         brilliance = np.clip(0.57 + energy, 0.48, 1.0)
         gain = max(1.0, self.effective_density())
         return self._point_material(
@@ -6347,19 +6426,33 @@ class _QueuedArtInput:
         self._applied_serial = 0
         self._applied_elapsed = 0.0
         self._applied_click_serial = 0
+        self._grab_snapshot = (0, None)
+        self._applied_grab_serial = 0
 
-    def _offer(self, step, pointer, clicks) -> None:
+    def _offer(self, step, pointer, clicks, *, grab=None) -> None:
         """Publish one GUI tick without taking or waiting for an engine lock."""
         self._elapsed += step
         for point in clicks:
             self._click_serial += 1
             self._clicks = (self._clicks + ((self._click_serial, point),))[-16:]
         self._serial += 1
+        self._grab_snapshot = (self._serial, grab)
         self._snapshot = (self._serial, self._elapsed, pointer, self._clicks)
 
-    def _consume(self, engine, *, discard_clicks=False) -> None:
-        """Apply newly offered GUI input while the caller owns the engine lock."""
+    def _consume(self, engine, *, discard_clicks=False, preserve_grab=False) -> None:
+        """Apply newly offered GUI input while the caller owns the engine lock.
+
+        Lifecycle discards reset the handle; turning hover gravity off can
+        discard clicks while preserving an explicitly held material patch.
+        """
         serial, elapsed, pointer, clicks = self._snapshot
+        if isinstance(engine, _DataArtEngine) and engine.family == "impulse_lens":
+            grab_serial, grab = self._grab_snapshot
+            if discard_clicks and not preserve_grab:
+                engine._set_field_grab(None, reset=True)
+            elif self._applied_grab_serial < grab_serial <= serial:
+                engine._set_field_grab(grab)
+                self._applied_grab_serial = grab_serial
         if serial <= self._applied_serial:
             return
         if (isinstance(engine, _DataArtEngine) and engine.interactive
@@ -6630,6 +6723,7 @@ class AmbientWidget(QWidget):
         self._art_input = None
         self._pending_art_impulses: List[Tuple[float, float]] = []
         self._interaction_app = None
+        self._field_grab = None
         box = self._producer_box
         self.destroyed.connect(lambda *_: _retire_producer(box))
 
@@ -6847,6 +6941,7 @@ class AmbientWidget(QWidget):
             self._pending_dt = 0.0
         self._last_frame = None
         self._pending_art_impulses.clear()
+        self._field_grab = None
         self._sync_interaction_filter()
         if self._auto_art_fps:
             self._fps = DEFAULT_FPS if self._theme.startswith("data_art_") else _INSTALLED_FPS
@@ -6897,7 +6992,7 @@ class AmbientWidget(QWidget):
         """Apply local pointer reach while excluding a concurrent shade pass.
 
         :param value: fraction of the shorter screen edge, clamped to [0, 1];
-            zero disables mouse influence.
+            zero disables hover gravity; the explicit field handle remains available.
         """
         radius = float(value)
         radius = _clamp(radius if math.isfinite(radius) else 0.0, 0.0, 1.0)
@@ -6908,7 +7003,8 @@ class AmbientWidget(QWidget):
             self._pending_art_impulses.clear()
         with self._engine_lock:
             if self._art_input is not None:
-                self._art_input._consume(self._engine, discard_clicks=radius == 0.0)
+                self._art_input._consume(self._engine, discard_clicks=radius == 0.0,
+                                         preserve_grab=True)
             radius_setter = getattr(self._engine, "set_gravity_radius", None)
             if radius_setter is not None:
                 radius_setter(radius)
@@ -7159,6 +7255,7 @@ class AmbientWidget(QWidget):
         for the aurora. The next :meth:`start` shades a replacement before it
         starts the thread, so there is nothing to show for it.
         """
+        self._field_grab = None
         self._timer.stop()
         self._sync_interaction_filter()
         _retire_producer(self._producer_box)
@@ -7197,6 +7294,8 @@ class AmbientWidget(QWidget):
                                   size, queued_input=self._art_input)
         if size[0] > 0 and size[1] > 0:
             with self._engine_lock:
+                if engine.name == "data_art_impulse_lens" and self._field_grab is None:
+                    engine._set_field_grab(None, reset=True)
                 first = engine.shade(*size)
             if first is not None:
                 producer.publish(first)
@@ -7253,9 +7352,9 @@ class AmbientWidget(QWidget):
         return max(0, round(width * ratio)), max(0, round(height * ratio))
 
     def _sync_interaction_filter(self) -> None:
-        """Observe clicks only while the visible gravitational field runs."""
+        """Observe unconsumed field input while its visible animation runs."""
         app = QApplication.instance()
-        wanted = (self._theme == "data_art_impulse_lens" and self._gravity_radius > 0.0
+        wanted = (self._theme == "data_art_impulse_lens"
                   and self._should_run()
                   and self._timer.isActive())
         if wanted and self._interaction_app is None and app is not None:
@@ -7267,6 +7366,35 @@ class AmbientWidget(QWidget):
                 observed.removeEventFilter(self)
             self._interaction_app = None
             self._pending_art_impulses.clear()
+            self._field_grab = None
+
+    def _offer_field_grab(self) -> None:
+        """Publish the latest bounded handle without waiting for shading."""
+        if self._art_input is None:
+            return
+        self._art_input._offer(0.0, self._art_input._snapshot[2], (),
+                               grab=self._field_grab)
+        if self._engine_lock.acquire(blocking=False):
+            try:
+                self._art_input._consume(self._engine)
+            finally:
+                self._engine_lock.release()
+        self.update()
+
+    def _field_grab_background(self, obj) -> bool:
+        """Permit host or plain container space, excluding interactive ancestors.
+
+        Custom scientific canvases, controls, clickable cards and scroll
+        viewports are not backdrop space. No event is captured or consumed.
+        """
+        host = self.parentWidget()
+        while obj is not host:
+            if type(obj) not in (QWidget, QFrame) or obj.focusPolicy() != Qt.NoFocus:
+                return False
+            obj = obj.parentWidget()
+            if obj is None:
+                return False
+        return host is not None
 
     def showEvent(self, event):
         """Start animating, and follow the window this widget belongs to.
@@ -7330,16 +7458,49 @@ class AmbientWidget(QWidget):
         etype = event.type()
         ref = getattr(self, "_watched", None)
         watched = ref() if ref is not None else None
-        if (etype == QEvent.MouseButtonPress and self._interaction_app is not None
+        grab = getattr(self, "_field_grab", None)
+        if (etype == QEvent.MouseButtonPress
+                and getattr(self, "_interaction_app", None) is not None
                 and isinstance(obj, QWidget) and obj.window() is self.window()
                 and self._should_run() and event.button() == Qt.LeftButton):
             local = self.mapFromGlobal(event.globalPosition().toPoint())
             if self.rect().contains(local):
                 point = ((local.x() + 0.5) / max(1, self.width()),
                          (local.y() + 0.5) / max(1, self.height()))
-                if not self._pending_art_impulses or self._pending_art_impulses[-1] != point:
+                if (self._gravity_radius > 0.0 and (not self._pending_art_impulses
+                        or self._pending_art_impulses[-1] != point)):
                     self._pending_art_impulses = (self._pending_art_impulses + [point])[-16:]
+                hit = self.window().childAt(
+                    self.window().mapFromGlobal(event.globalPosition().toPoint()))
+                if (self._field_grab_background(obj)
+                        and self._field_grab_background(hit if hit is not None else obj)):
+                    self._field_grab = (point, (0.0, 0.0))
+                    self._offer_field_grab()
+        elif etype == QEvent.MouseMove and grab is not None:
+            if event.buttons() & Qt.LeftButton:
+                origin, _ = grab
+                local = self.mapFromGlobal(event.globalPosition().toPoint())
+                shorter = max(1, min(self.width(), self.height()))
+                target = ((local.x() + .5 - origin[0] * self.width()) / shorter,
+                          (local.y() + .5 - origin[1] * self.height()) / shorter)
+                length = math.hypot(*target)
+                scale = min(1.0, .18 / length) if length else 1.0
+                self._field_grab = (origin, tuple(value * scale for value in target))
+            else:
+                self._field_grab = None
+            self._offer_field_grab()
+        elif (etype == QEvent.MouseButtonRelease and grab is not None
+              and event.button() == Qt.LeftButton):
+            self._field_grab = None
+            self._offer_field_grab()
+        elif (etype == QEvent.WindowDeactivate and obj is watched
+              and grab is not None):
+            self._field_grab = None
+            self._offer_field_grab()
         elif etype == QEvent.Resize and obj is self.parent():
+            if grab is not None:
+                self._field_grab = None
+                self._offer_field_grab()
             self.setGeometry(obj.rect())
         elif watched is not None and obj is watched and etype in (
                 QEvent.WindowStateChange, QEvent.Hide, QEvent.Show):
@@ -7401,7 +7562,8 @@ class AmbientWidget(QWidget):
                    if isinstance(self._engine, _DataArtEngine)
                    and self._engine.interactive and self._gravity_radius > 0.0 else None)
         if self._art_input is not None:
-            self._art_input._offer(step, pointer, tuple(self._pending_art_impulses))
+            self._art_input._offer(step, pointer, tuple(self._pending_art_impulses),
+                                   grab=self._field_grab)
             self._pending_art_impulses.clear()
             if self._engine_lock.acquire(blocking=False):
                 try:
