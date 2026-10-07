@@ -1003,3 +1003,25 @@ Compact immutable source/test/coverage/probe receipts and two lossless stills:
     inclusive timings arediagnostic, not uninstrumented FPS acceptance; two
     recipes do not prove everyclock/seed. Native24FPS remainsOPEN. Compactproof:
     data/663_fungal_warm_slot_cpu_2026-10-07/.
+
+2026-10-07 — stroke-cache and admission investigation complete, rejected
+    Frozen production f36b33c9 and private candidate 708b4f91 remain distinct.
+    Unrestricted stroker fill matches native 4K at size 2.5 but changes 61,750
+    pixels at size 1; that unrestricted path is rejected. The candidate
+    bypasses thin strokes and unsupported painter contexts and matches twelve
+    full native 4K pairs (nine eligible, three thin-bypass controls), but the
+    eligible balanced shader medians worsen 4.73–9.86 percent. These are direct
+    shader timings, not live worker/widget FPS or all-context acceptance.
+    One bounded 72-frame admission sequence per native recipe finds original
+    default/Random sparse caches with 19/28 entries, 760,976/766,952 owned bytes,
+    1,005/1,378 reuse hits and zero evictions or headroom refusals. Observation
+    caches also remain below 64 entries. Candidate stroke cache has 12,964
+    lookups, zero hits and 12,900 evictions, explaining extra work; its native
+    path storage is outside the original sparse-array 8 MiB accounting.
+    Restricting outlines to unchanged mature groups would duplicate existing
+    sparse reuse, so this lead offers no justified next optimization.
+    REJECTED; no app source change. Original 64-entry/8 MiB guards and quality
+    remain. Hard 24 FPS remains OPEN. Fifteen manifest-bound payloads (~252 KiB)
+    include both compressed renderers, original scripts/receipts, actual
+    admission log, portable replay and filesystem/Git blob hash verification:
+    data/663_rejected_fungal_stroker_cpu_2026-10-07/.

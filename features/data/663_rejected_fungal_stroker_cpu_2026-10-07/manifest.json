@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "files": {
+    "README.md": {
+      "bytes": 3529,
+      "sha256": "62d44493b84d0669bac3ed0cbb768fa50689baf8b016e089f662c765d767b960"
+    },
+    "admission.log": {
+      "bytes": 8631,
+      "sha256": "dda5fc7653916af18abd1f68a0fbf2cc4f3105826e4000cfa7bc3918b56f007a"
+    },
+    "admission_probe.py": {
+      "bytes": 4597,
+      "sha256": "e5ee51943109d524bda34d6e684c1a30b2e48f42b5b2a11969d9d86b335ded47"
+    },
+    "admission_receipt.json": {
+      "bytes": 14439,
+      "sha256": "0a8471ef984d941691ca3c1630bc28706886fef4c7c5065a89f8af6ab0b63578"
+    },
+    "archive_proof.py": {
+      "bytes": 3619,
+      "sha256": "6f6a87439c4dede4a216dcef3a72d6e2ddbd7aef3598ab58b582c45c9381f9d3"
+    },
+    "before_ambient.py.gz": {
+      "bytes": 100957,
+      "sha256": "461c0ab5a2415b39a956763bfe1255c0d0cd13f496b40faabea46c9fc5c6bf98"
+    },
+    "build_candidate.py": {
+      "bytes": 1911,
+      "sha256": "4271d854de270944484c6d08eaa717e1618238d8bb667df310c0bf8251d08107"
+    },
+    "cached_probe.py": {
+      "bytes": 2314,
+      "sha256": "837ff860e6d62e801dbda30c39e5bf70ce08d957970d08df80daa407d0e651e9"
+    },
+    "cached_receipt.json": {
+      "bytes": 5629,
+      "sha256": "7a81fe086d8ab76835456a8c4350f60dfafd3f1090668cbc5eea0f74ffcd0d3f"
+    },
+    "candidate_ambient.py.gz": {
+      "bytes": 101198,
+      "sha256": "7de5d343dbb8d67008cd5a897850868709db0c6bcfb536b32c3e6935fbeacdfa"
+    },
+    "receipt.json": {
+      "bytes": 3198,
+      "sha256": "89aec3ffb9cc837eedcc03ebf3d93b7594eaea4f48fdd5c3e3cae16c4970c6d4"
+    },
+    "reproduce.py": {
+      "bytes": 1916,
+      "sha256": "34b531039f0aac85db727dad08fe7269892f7d7aac670f62613c6d81ac1f341d"
+    },
+    "unrestricted_probe.py": {
+      "bytes": 1973,
+      "sha256": "c020408716e4e5193a995c399545a3f3dd99a48eb3af526b25d93d2d201631cc"
+    },
+    "unrestricted_receipt.json": {
+      "bytes": 1289,
+      "sha256": "f5722fdacf4c7f0fad075943516ed7200ed2450cc761ea5400b49938210a225d"
+    },
+    "verify_proof.py": {
+      "bytes": 2585,
+      "sha256": "3bf3ed58e15049294244128f11182d3a52e342ffdf5af15c5a4c898fd431d827"
+    }
+  }
+}
