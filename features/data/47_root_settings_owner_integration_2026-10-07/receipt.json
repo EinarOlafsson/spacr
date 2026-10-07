@@ -1,0 +1,35 @@
+{
+  "cap_gib": 4,
+  "cuda_hidden": true,
+  "field_fade_first_boundary": {
+    "node": "tests/qt/test_field_fade.py::test_the_curve_is_a_cubic_ease_in_on_transparency",
+    "top_levels": 7,
+    "widgets": 7
+  },
+  "gzip_log_sha256": "88a95f20a14489684526684dae0abe032e31f10728182967eaeabf688f4739c0",
+  "limits": [
+    "Bounded eight-file integration, not complete serial acceptance.",
+    "7 small widgets/top levels remain at the first full field-fade boundary; no zero-global-widget or whole-memory claim.",
+    "No explicit collection, global widget cleanup or behavior assertion change.",
+    "Standalone timing does not quantify an equivalent full-serial improvement from the old2106-second accumulated-state run."
+  ],
+  "qt_platform": "offscreen",
+  "randomly_disabled": true,
+  "raw_log_bytes": 15868,
+  "raw_log_sha256": "a4d0e962edda64e51a298bb947f2460910720c5e239bd73f1d48ced0030379a7",
+  "result": "102 passed in12.07s",
+  "source_commit": "d4418a57cc0a5e137ff0ec2496d80c3f59be1ee5",
+  "source_sha256": {
+    "spacr/qt/screens/settings_model.py": "52e97665d0e0f7735f5587c7d4f78fedab9d69e670029bc1f1cc90de298a4305",
+    "tests/conftest.py": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9",
+    "tests/qt/conftest.py": "f1bd57898d2188fc8a5c67b3a29681cbd1e13caf0949acf0a7f4473e77a3e1cf",
+    "tests/qt/test_field_fade.py": "4a9ea2550b81124e84f585ec7f167123e3cbb2a4d5c0a66a05cc99891bf5ad15",
+    "tests/qt/test_host_pathogen_registration.py": "04cc6fd476c35948cff34deced70a458c6011d6781fd93afb204aa2dd6eb991f",
+    "tests/qt/test_no_control_is_inert.py": "8befc3acd2e511b1cc64fd261cca83e5fe1bbc6d7aec01fd8c74be882a44bdd6",
+    "tests/qt/test_plugin_sdk.py": "b25eaeca325316cf3e2c4515ad6e27c564b323d6ef981d28bdcbae472a917c8b",
+    "tests/qt/test_the_analysis_unit_locks_the_panel.py": "75013cb63b2226a2c568021c62f240f26db916397b02fe19c36cf03b7f0c64a1",
+    "tests/qt/test_the_classifier_family_is_spelled_out.py": "377d86b45383359b29b4149050ce08fa78a8c5fde26ef7339f0d59e6781bd1d7",
+    "tests/qt/test_the_merged_classify_kept_both_halves.py": "d1d0ce9c8fc63a74609c1617f6b1751072d1499564ed1f7ed47d897c09a77977",
+    "tests/qt/test_widgets.py": "e6d4bdd466231ee2678c79991f5c81fe9703be016654867918780858020545d9"
+  }
+}
