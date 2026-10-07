@@ -1,0 +1,28 @@
+{
+  "item": "N663",
+  "payload_sha256": {
+    "README.md": "8e9a96384e5e5fa372669319b18019d7f5a1add10a783843c7a7eda3a5ea8365",
+    "aurora-baseline.py": "bf23a9cbcf9bc4e77491a71907de405952621af3e164d7f3e5e5382585e7438e",
+    "aurora-final.py": "fd8e30ffc66ef183c0edfc8ce601eac4f1113ba3fc87a5aa22403b6e1789e3c5",
+    "before-paths.json": "d9d7621177ea36cd05ee454d1a1f2f4e30e20a6f17d0d6a9b82e0d073abd3918",
+    "before-profile.json": "22d14fad7b0a404e7b72ce73fec64fe1ea6923d461892e482ca4b6d2de895255",
+    "benchmark_source_abba.py": "4b292d923089d57f19f58ec6fadf14c2fc8f6b8aa86e800698ae40c8ca273a34",
+    "clip-and-ownership.log": "e822657af7a3f1e0ebcd1cec4be10693a6e90b8dbbb7342ced3f4ff20639e63c",
+    "clip-coverage.json": "3b18d30337fed8240e200709106f2696df436cf320e3cf9e3e1fcabf69c94914",
+    "clip-negative.log": "e51fe1863b945db5ae3f2f0dc4643f7820d42ade22fb172b2e2c627164e3d5ce",
+    "clip-positive.log": "9678b50fd6586598d071a1789969ab17acf00943dbd79225ff9d4b23c4cea044",
+    "focused-tests.log": "b80d44e7044db5bca834ca3b711ec2e0a992ecf861cb4f5c5b5df4c9785ec11d",
+    "make_manifest.py": "eb5be15d8c4999927971dde218027e1f1770cd8d45ae4798d948169641d3b2a1",
+    "parity-clip.json": "d4f4b5761de4e57031f0e6b1c724943e62ae6b74631a630a04c8cf6983bf1f5f",
+    "parity-final-079.json": "f8686b558dab4ede1c46756f70f8925196a1ad0ad91a4fd8f8e9e7ff2fcedabb",
+    "parity_clip.py": "a4c8ad3dcc437ae5625c9054d19ea9a81ccf609bb7f8adfa0dd0a3e72630864c",
+    "parity_final.py": "c025d14c857cbbd4564ea902de6fd12b55e33ce83953726047bb9e80f0d83e35",
+    "profile_current.py": "cb8f3eeb2e389e5ce682351b9aa9054c153145d0e26062c20f5b38298c59d01e",
+    "profile_paths.py": "a9e02841a2e9b9c1f0af9aca99684fc411437dbd98ad0ad79159b09ebb0a5344",
+    "prototype_clip.py": "d67e9932299b4ae9d580a0c3a2bcb52ae2482f7cf57e5ead34525fb47e5baf66",
+    "receipt.json": "30d49fa1a60e6c0b571f8eb57a6678ec1e1ab329676be9f2dd0480ed7d72a499",
+    "source-abba-final-079.json": "d2de60c21efb17b3790af8695c56f076c457cac54864b3f94003d00fce0df31b",
+    "source-abba.json": "e9b62562bf0adb57470c9bcc02d761c38ad4f39df62725d651d4afeec1682e7a",
+    "verify_manifest.py": "c24d3229ba99c3d89a8e4c21dce8ec6fdc81acb53d38b05cbc690404053c89d3"
+  }
+}

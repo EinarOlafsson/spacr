@@ -1196,3 +1196,17 @@ root-field-biological-aurora-integrated-20261007.log is retained in task scratch
 All21 field proof payloads verify from filesystem and Git onbd56da521f.
 Behavior is implemented; native24FPS, installed Save crash and user aesthetics
 remain OPEN. Workstation normal source-bound API/Help/catalog refresh queued.
+
+2026-10-07 — EQUIVALENT AURORA SOURCE-BOUND PROOF ARCHIVED
+The original scripts, profiling receipts, final source-exact ABBA/parity,
+44-case focused log, incoming-clip negative/positive logs, branch coverage,
+baseline/final class snapshots and a regenerable 23-payload hash manifest are
+at data/663_aurora_native_clip_cpu_2026-10-07/. The final Aurora class at
+079591b7dd is AST-identical in integrated11fc2f2a1b. Against the exact
+ae7269a08c original method, all24 final native3840x2160 scenes match every
+byte; the12 smaller scenes differ by no more than47pixels of one byte.
+Final-class native4K ABBA medians are old42.31/45.29ms versus new39.26/39.76ms
+at default and old213.68/221.25ms versus new192.54/196.05ms at Density3,
+Size3, Detail2. This improves a direct shader call but does not establish
+live-widget smoothness or the requested native24FPS; both human visual
+approval and installed Save-crash resolution remain OPEN.

@@ -1,0 +1,16 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+__________ test_aurora_surge_respects_an_existing_painter_clip[rect] ___________
+tests/qt/test_ambient_motion.py:1086: in test_aurora_surge_respects_an_existing_painter_clip
+    assert all(image.pixel(x, y) == background
+E   assert False
+E    +  where False = all(<generator object test_aurora_surge_respects_an_existing_painter_clip.<locals>.<genexpr> at 0x7b45c97a8640>)
+__________ test_aurora_surge_respects_an_existing_painter_clip[path] ___________
+tests/qt/test_ambient_motion.py:1086: in test_aurora_surge_respects_an_existing_painter_clip
+    assert all(image.pixel(x, y) == background
+E   assert False
+E    +  where False = all(<generator object test_aurora_surge_respects_an_existing_painter_clip.<locals>.<genexpr> at 0x7b45b2d7dd40>)
+=========================== short test summary info ============================
+FAILED tests/qt/test_ambient_motion.py::test_aurora_surge_respects_an_existing_painter_clip[rect]
+FAILED tests/qt/test_ambient_motion.py::test_aurora_surge_respects_an_existing_painter_clip[path]
+2 failed in 2.25s
