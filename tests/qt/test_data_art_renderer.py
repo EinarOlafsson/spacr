@@ -236,20 +236,40 @@ def test_raster_materials_survive_tiny_and_narrow_canvases(family):
     assert _frame(engine).width() == 384
 
 
-def test_a_failed_worker_shade_releases_its_qpainter(monkeypatch):
-    """A rendering exception leaves the reusable QImage safe to repaint."""
+@pytest.mark.parametrize("published", (False, True))
+def test_a_failed_worker_shade_releases_its_qpainter(monkeypatch, published):
+    """Failed owned frames release their painter and preserve publication."""
     engine = _engine("tissue_facets")
+    engine.set_gravity_radius(0.5)
+    engine.set_pointer((0.5, 0.5))
+    if published:
+        engine.shade(32, 32)
+    previous = engine._buffer
+    previous_digest = _digest(previous) if previous is not None else None
+    failed_images = []
+    failed_painters = []
+    paint_field = engine._paint_field
 
     def fail_field(painter, width, height):
         """Simulate one failed material calculation inside an active painter."""
+        assert painter.isActive()
+        failed_images.append(painter.device())
+        failed_painters.append(painter)
         raise RuntimeError("injected shade failure")
 
     monkeypatch.setattr(engine, "_paint_field", fail_field)
     with pytest.raises(RuntimeError, match="injected shade failure"):
         engine.shade(32, 32)
-    painter = QPainter(engine._buffer)
+    assert engine._buffer is previous
+    if previous is not None:
+        assert _digest(previous) == previous_digest
+    assert len(failed_painters) == len(failed_images) == 1
+    assert not failed_painters[0].isActive()
+    painter = QPainter(failed_images[0])
     assert painter.isActive()
     painter.end()
+    monkeypatch.setattr(engine, "_paint_field", paint_field)
+    assert not engine.shade(32, 32).isNull()
 
 
 def test_pointer_poll_is_limited_to_active_window_and_widget(qtbot, monkeypatch):

@@ -1,5 +1,37 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home: GitHub green is the sole immediate priority
+
+The maintainer rejected further speculative completion dates and explicitly
+requires GitHub green now. Home has paused unrelated feature/performance work
+and reused three agents for current ordinary failures, native Qt diagnostics,
+and startup/test isolation. Workstation: prioritize current-source API/runtime/
+Help/guide generation and their original blocking contracts before further
+664/665 application changes; this request is communicated through this commit,
+not a claim that the other session has received it. Preserve all hard guards.
+
+Home source is fast-forwarded to b7d085e6ca. Historical57b33 ordinary failed;
+its Coverage7 Mask first-open node actually PASSED under the unchanged<10s
+assertion. Numerical aggregate checked664 modules, with zero ratchet failures;
+its required shard-success verdict failed because shard tests failed. Those
+are separate findings, not complete ordinary CI success.
+
+Newerbb7 ordinary37681965976 has real jobs already executing, despite the
+run-list/run-object reporting queued. Query its jobs endpoint for actual
+progress. Coverage0/2/3/6/10/11 have terminal failures and are being inventoried
+against current source; do not wait on the stale top-level queue label.
+Protectedb688 serial37639050274 is terminal139, during distribution integration
+at39%, not the earlier puncta node. Last RSS~4048MiB and OOM0; the new native
+backtrace is being examined. This historical source predates later repairs.
+
+The current failed-painter regression is reproduced exactly: its assertion
+tries to paint engine._buffer=None after an unpublished owned frame fails.
+The replacement captures the actual failed paint device, proves the painter
+ends, verifies any prior publication remains byte-exact and checks successful
+retry. Both cold and previously-published variants plus owned-frame neighbors
+pass17/17. Product rendering/ownership/timing remain unchanged. Raw negative
+and positive logs are in scratch/progress-report-20261007. No CI green claim.
+
 ## 2026-10-07 — Root: immediate popup waves, popup opacity and saved defaults
 
 Root owns the latest popup follow-up. With popup waves enabled, opening a

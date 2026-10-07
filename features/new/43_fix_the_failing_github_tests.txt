@@ -3122,3 +3122,15 @@ Fresh-config cold build1.535→1.187s; exact original32-file Coverage7 collectio
 already loads pandas. Matched bounded two-node coverage calls5.73→5.66s both
 pass, so actual hosted10.58s breach remainsOPEN pending new hosted evidence.
 No threshold/coverage/quality changes or full-serial success are inferred.
+
+
+2026-10-07 — CURRENT CI ONLY; FAILED OWNED-PAINTER CONTRACT REPAIRED
+Maintainer requires GitHub green as sole immediate priority; no further dates
+are promised. Exact current painter node reproduced QPainter(NoneType) after
+an unpublished failed owned frame. Test now captures the failed device,
+checks inactive painter, intact previous publication and successful retry,
+for cold/published frames.17 focused/ownership cases pass; renderer unchanged.
+Historical57b Coverage7 Mask node PASSED unchanged<10s.664 numerical modules
+have zero ratchet failures; incomplete aggregate is failed-shard propagation.
+Newbb7 ordinary37681965976 has actual executing/failed jobs despite a queued
+run summary; use jobs API. Native serial139 remains under separate diagnosis.
