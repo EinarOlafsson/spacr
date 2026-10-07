@@ -1,6 +1,38 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
 
+## 2026-10-07 — unused Mask startup work deferred; hosted budget still open
+
+Home integrated4de4209138 asd878587d4f plus behavior-coverage follow-upd8b175e902
+as4c1fdd80ce. AppScreen's alpha WatchLivePlate slot now lazily owns the real
+plate only when watching begins. Unstarted close/refresh/finish/reset do not
+load plate analysis; first-watch refresh, reset/restart, alpha visibility and
+poll shutdown retain their behavior. The default empty object-filter table
+also avoids importing the full Mask image reader; nonempty/invalid inputs
+retain the parser. No compiler scheduling, timer budget or quality changes.
+Root67 budget/watch/object-table integration tests pass15.86s; callable/nested
+source guards113pass55.16s. Agent106 neighbors/14 Watch cases overlap; final
+8-case branch check covers every new proxy line/arc and both empty-guard arcs.
+
+Corrected fresh-config cold Mask build1.535→1.187s. The old0.014s profile was
+invalid because real preferences restored Mask before timing; it is excluded.
+Exact original Coverage7 batch32-file collection shows pandas already imported;
+plate_view/mask_engine/imageio were not. With identical full collection but
+only Mask plus its concurrent fold node executed, coverage calls5.73→5.66s;
+both pass and the difference is noisy. The actual hosted10.58s breach is NOT
+established fixed. Preserve strict<10.0s, coverage allowances and original
+serial selection/order/memory guard. Native puncta and3 serial reports remain
+unresolved. Source-current immutable profile/coverage/log proof follows.
+
+Workstation normal API/Help refresh must include new private
+_DeferredWatchLivePlate and its methods, plus changed _parsed_filters and
+previously queued field/growth/spinn source. No new runtime labels/tutorial
+layout are introduced by deferred Watch construction. N615 remains open for
+source-current owner publication. The maintainer's completed native-language
+review waiver remains accepted; do not reopen native-speaker review or the
+other six explicitly accepted items without an actual new failure.
+
+
 ## 2026-10-07 — spinn resting-frame and active ownership optimization accepted locally
 
 Home integrated254f3dd39f as8aae44a464. Spinn reuses its exact resting raster

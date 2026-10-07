@@ -2185,3 +2185,16 @@ failure details while preserving assertions. No application crash causation
 is established. Protected37639050274/b6885af4fe remains untouched, predates
 these fixes and cannot accept current field/growth. Native fault/full serial
 acceptance remain OPEN. Original10.8GiB guard/order/selection remain unchanged.
+
+
+2026-10-07 — MASK EAGER WORK DEFERRED, NOT A HOSTED BUDGET CLOSURE
+Source4de4209138 integratedd878587d4f defers the hidden live Watch plate until
+begin and avoids full Mask-reader import for the default empty filter table.
+Follow-up4c1fdd80ce tests actual ledger refresh, reset/restart, alpha visibility,
+owned-child close and unchanged nonempty parsing. Root67 integration/113
+source guards pass; final8-case focused branch check covers all new proxy
+lines/arcs and both empty-guard arcs (overlapping scopes, not a unique sum).
+Fresh-config cold build1.535→1.187s; exact original32-file Coverage7 collection
+already loads pandas. Matched bounded two-node coverage calls5.73→5.66s both
+pass, so actual hosted10.58s breach remainsOPEN pending new hosted evidence.
+No threshold/coverage/quality changes or full-serial success are inferred.
