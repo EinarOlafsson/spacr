@@ -8,7 +8,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``drift`` keeps the synchronous path, and its row above is the reason: it is the one engine with no buffer, it degrades the least of the seven (2.1x against 48.7x for ``cells``), and threading it would mean publishing a full-resolution frame — 7.91 MiB a slot against 126.6 KiB for ``blobs`` — to buy the smallest improvement on the list.",
       "source_sha256": "a1355976eea48ed77fefa2ca3105552777d3be0592166e82fafefc302dd0a52a",
-      "translation": "``drift`` behåller den synkrona vägen, och dess rad ovan är skälet: det är den enda motorn utan buffert, den försämras minst av de sju (2.1x mot 48.7x för ``cells``), och att tråda den skulle innebära att publicera en bildruta i full upplösning — 7.91 MiB per plats mot 126.6 KiB för ``blobs`` — för att köpa den minsta förbättringen på listan."
+      "translation": "``drift`` behåller den synkrona vägen, och dess rad ovan är skälet: det är den enda motorn utan buffert, den försämras minst av de sju (2.1x mot 48.7x för ``cells``), och att tråda den skulle innebära att publicera en bildruta i full upplösning — 7.91 MiB per plats mot 126.6 KiB för ``blobs`` — för att köpa den minsta förbättringen på listan.",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "context": "Performance depends on hardware, display size, theme, and concurrent work. The settings have predictable relative costs: detail is approximately quadratic, density is approximately linear, and blur is inexpensive for the six buffered themes. ``drift`` has no buffer, so its blur is a second wider pass per dot and is capped by :data:`DRIFT_HALO_MAX_PX`. The :data:`WORK_BUDGET` limits combinations of density and detail that would make the backdrop compete with analysis work. Hidden widgets stop rendering entirely.",
@@ -16,7 +18,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Performance depends on hardware, display size, theme, and concurrent work. The settings have predictable relative costs: detail is approximately quadratic, density is approximately linear, and blur is inexpensive for the six buffered themes. ``drift`` has no buffer, so its blur is a second wider pass per dot and is capped by :data:`DRIFT_HALO_MAX_PX`. The :data:`WORK_BUDGET` limits combinations of density and detail that would make the backdrop compete with analysis work. Hidden widgets stop rendering entirely.",
       "source_sha256": "0e6640726db7450a0eca04b3cca77fecf63e57b5c80d0ff5bc3a34e6ac40c958",
-      "translation": "Prestandan beror på hårdvara, skärmstorlek, tema och samtidigt arbete. Inställningarna har förutsägbara relativa kostnader: detalj är ungefär kvadratisk, täthet är ungefär linjär, och oskärpa är billig för de sex buffrade temana. ``drift`` har ingen buffert, så dess oskärpa är ett andra, bredare pass per punkt och begränsas av :data:`DRIFT_HALO_MAX_PX`. :data:`WORK_BUDGET` begränsar kombinationer av täthet och detalj som skulle få bakgrunden att konkurrera med analysarbete. Dolda widgetar slutar rendera helt."
+      "translation": "Prestandan beror på hårdvara, skärmstorlek, tema och samtidigt arbete. Inställningarna har förutsägbara relativa kostnader: detalj är ungefär kvadratisk, täthet är ungefär linjär, och oskärpa är billig för de sex buffrade temana. ``drift`` har ingen buffert, så dess oskärpa är ett andra, bredare pass per punkt och begränsas av :data:`DRIFT_HALO_MAX_PX`. :data:`WORK_BUDGET` begränsar kombinationer av täthet och detalj som skulle få bakgrunden att konkurrera med analysarbete. Dolda widgetar slutar rendera helt.",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "context": "seconds to step; the engine scales the step by its speed, and a step that is not positive leaves the clock where it is.",
@@ -106,7 +110,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the blur amount, converted with ``float``.",
       "source_sha256": "f7c072d39e413ffeb3b9aedeee9f39cdd7f8b3d9b90d0f9ac8d8aa66c2af876a",
-      "translation": "oskärpans mängd, konverterad med ``float``."
+      "translation": "oskärpans mängd, konverterad med ``float``.",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "context": "the density multiplier, converted with ``float``.",

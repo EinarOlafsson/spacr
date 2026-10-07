@@ -2665,13 +2665,6 @@
       "translation": "कोशिकांग 4 — वाटरशेड स्पॉट"
     },
     {
-      "table": "ui",
-      "key": "Setting animations",
-      "source": "Setting animations",
-      "source_sha256": "6308b3b70bfe7256ef3b4924d2114c27abc6c13feb31e5df1f979937a539b037",
-      "translation": "सेटिंग एनिमेशन"
-    },
-    {
       "table": "setting_labels",
       "key": "anndata_compression",
       "source": "Anndata compression",

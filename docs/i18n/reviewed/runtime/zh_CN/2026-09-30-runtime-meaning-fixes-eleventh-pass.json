@@ -2770,13 +2770,6 @@
       "translation": "细胞器 4 — 分水岭斑点"
     },
     {
-      "table": "ui",
-      "key": "Setting animations",
-      "source": "Setting animations",
-      "source_sha256": "6308b3b70bfe7256ef3b4924d2114c27abc6c13feb31e5df1f979937a539b037",
-      "translation": "设置项动画"
-    },
-    {
       "table": "setting_labels",
       "key": "anndata_compute_umap",
       "source": "Anndata compute UMAP",

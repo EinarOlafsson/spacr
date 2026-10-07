@@ -6,14 +6,18 @@
       "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors#0",
       "source": "Offer custom colours for the seven procedural data-art scenes.",
       "source_sha256": "875ce591de4e782259b4c84d60e72691fe055e89c31b4266d933a0b4b07bc525",
-      "translation": "절차적으로 생성되는 일곱 데이터 아트 장면에 사용자 지정 색상을 제공합니다."
+      "translation": "절차적으로 생성되는 일곱 데이터 아트 장면에 사용자 지정 색상을 제공합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "context": "Seven data-art materials and three classic themes remain in the menu. The default is ``data_art_impulse_lens`` (spaCR field). The other data-art choices are advection, growth, Thore, waves, tissue facets and chromatin satin. The classic choices provide softer motion:",
       "label": "spacr.qt.widgets.ambient#2",
       "source": "Seven data-art materials and three classic themes remain in the menu. The default is ``data_art_impulse_lens`` (spaCR field). The other data-art choices are advection, growth, Thore, waves, tissue facets and chromatin satin. The classic choices provide softer motion:",
       "source_sha256": "7a184a977d3ef97b1524a3b3a282f3b7da20ae1c6eb4ae68427247a95fb102b2",
-      "translation": "메뉴에는 일곱 가지 데이터 아트 재질과 세 가지 클래식 테마가 남아 있습니다. 기본값은 ``data_art_impulse_lens`` (spaCR field)입니다. 나머지 데이터 아트 선택지는 advection, growth, Thore, waves, 조직 면 및 염색질 새틴입니다. 클래식 선택지는 더 부드러운 움직임을 제공합니다."
+      "translation": "메뉴에는 일곱 가지 데이터 아트 재질과 세 가지 클래식 테마가 남아 있습니다. 기본값은 ``data_art_impulse_lens`` (spaCR field)입니다. 나머지 데이터 아트 선택지는 advection, growth, Thore, waves, 조직 면 및 염색질 새틴입니다. 클래식 선택지는 더 부드러운 움직임을 제공합니다.",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "context": "``blobs`` Big and small colour blobs drifting over the page, each pulsing in size on its own period. They overlap and blend, so the result reads as soft colour *fields* rather than as a bag of circles. ``aurora`` Three overlapping curtains of vertical rays, folding along their own length. The folds are travelling waves — several superposed frequencies running lengthwise along the arc — with brightness surges on a separate schedule, a sharp lower edge, a diffuse top, and the real thing's vertical colour order: green through the body, red high up, a violet fringe underneath. ``drift`` A slow starfield in three parallax layers: small, dim, slow ones behind; bigger, brighter, faster ones in front. The one crisp theme. It travels up, down, or every which way — see :data:`DRIFT_DIRECTIONS`.",

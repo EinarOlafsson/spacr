@@ -255,7 +255,7 @@ Data-art themes
 
 Under **Preferences** → **Appearance**, **Theme** selects the interface
 palette; the ten night palettes remain available. **Animation** chooses a
-decorative background independently, or **Off** to stop it. These backgrounds
+decorative background independently, or **None** to stop it. These backgrounds
 do not display project measurements. The main window defaults to **spaCR field**;
 the Settings backdrop defaults to **None**.
 
@@ -275,7 +275,7 @@ The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**,
 **Mouse gravity radius** sets the affected area as a percentage of the shorter
 screen edge. Its default is **10%**; set it to **0** to disable mouse influence.
 **Animation density** changes the number of elements independently of
-**Animation detail**, which changes drawing resolution. Density starts at
+**Animation detail**, which changes drawing resolution. Density has a minimum of
 **1%**; increasing Detail does not trim the chosen population. The renderer
 bounds its sampling work within the screen's pixel budget. Select **Random**
 in **Animation palette** for per-element colours. Fresh installations use

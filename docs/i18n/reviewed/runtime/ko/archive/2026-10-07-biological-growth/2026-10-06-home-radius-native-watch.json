@@ -1,0 +1,140 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "watch_normalization_pool",
+      "source": "Watch normalization pool",
+      "source_sha256": "5052904087571f3a1fc34be8bfe0a92af9adb8afb7466e3f99dc7b4d63b22768",
+      "table": "setting_labels",
+      "translation": "감시 정규화 그룹"
+    },
+    {
+      "key": "watch_normalization_pool",
+      "source": "'per_field' analyses arriving fields independently. 'fixed_map' waits for every image declared in conversion_map.csv, then runs the ordinary static projected v1 Mask or Mask/Measure batch pipeline with shared legacy percentile normalization and padding. Requires randomize False and batch_size greater than 1. Incomplete cohorts remain waiting; timeouts never release partial pools. Membership, recipes and original input hashes bind one restart-safe checkpoint. Default 'per_field'.",
+      "source_sha256": "de0c2055c7f4dd327b6fff9c7d387f803174a0948f5ecb6cce9b17a495707839",
+      "table": "setting_tooltips",
+      "translation": "'per_field' 는 도착하는 시야를 독립적으로 분석합니다. 'fixed_map' 은 conversion_map.csv 파일에 선언된 모든 이미지를 기다린 뒤, 공유된 기존 백분위 정규화와 패딩으로 일반적인 정적 투영 v1 Mask 또는 Mask/Measure 배치 파이프라인을 실행합니다. randomize False 및 1보다 큰 batch_size 가 필요합니다. 불완전한 그룹은 계속 기다리며, 시간 초과로 부분 그룹을 처리하지 않습니다. 구성원, 처리 설정 및 원본 입력 해시가 재시작에도 안전한 하나의 체크포인트에 묶입니다. 기본값은 'per_field' 입니다."
+    },
+    {
+      "key": "A crisp gravitational dot field with optional local mouse influence and expanding ripples.",
+      "source": "A crisp gravitational dot field with optional local mouse influence and expanding ripples.",
+      "source_sha256": "8e702b854416cca6276204171d4e0828ad85b6dc1a33ceefb2c3b0ffdad503f8",
+      "table": "ui",
+      "translation": "선명한 중력 점장으로 선택적인 국소 마우스 영향과 퍼져 나가는 파문을 제공합니다."
+    },
+    {
+      "key": "A lit window in the dark: warm orange on near-black, fine paper facets behind it, and a sound set in G minor at 118 BPM.",
+      "source": "A lit window in the dark: warm orange on near-black, fine paper facets behind it, and a sound set in G minor at 118 BPM.",
+      "source_sha256": "eaa25b12c2e20dc6b718fd3444dc16b84a2131bde0c2a5d52a393fd3fdf2d2fb",
+      "table": "ui",
+      "translation": "어둠 속 밝은 창: 거의 검은 배경의 따뜻한 주황색, 뒤편의 섬세한 종이 면과 G단조 118 BPM의 사운드 구성입니다."
+    },
+    {
+      "key": "A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.",
+      "source": "A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.",
+      "source_sha256": "ef0e18c550b8167db762aec41a0c7213d1531f97f6e71aa74fad48b2b331dbd6",
+      "table": "ui",
+      "translation": "하나의 갈라지는 성장 전선이 계속 전진하고 지나온 흔적은 사라지며, 배경의 최대 25%만 차지합니다."
+    },
+    {
+      "key": "An edge-free landscape of round points carries wide travelling waves.",
+      "source": "An edge-free landscape of round points carries wide travelling waves.",
+      "source_sha256": "05a626ed88903e9a88b19129497ae559af7b946763ee6d2a400385f8f1664d32",
+      "table": "ui",
+      "translation": "경계가 없는 둥근 점들의 풍경에 넓은 진행파가 흐릅니다."
+    },
+    {
+      "key": "Deep water, green-black and slow: waves travelling through points, and a sound set in E minor at 116 BPM with the heaviest sub of the ten.",
+      "source": "Deep water, green-black and slow: waves travelling through points, and a sound set in E minor at 116 BPM with the heaviest sub of the ten.",
+      "source_sha256": "767db727546ca892462da114adc5160be5b62a1dba55782344b8c150d0ab0091",
+      "table": "ui",
+      "translation": "깊은 물 같은 느린 녹흑색: 점 사이를 지나가는 파도와 E단조 116 BPM의 사운드 구성으로, 열 가지 중 서브베이스가 가장 묵직합니다."
+    },
+    {
+      "key": "Fine curtains of northern light ripple through softly layered folds.",
+      "source": "Fine curtains of northern light ripple through softly layered folds.",
+      "source_sha256": "0c92998b1a1f322980df88dca0564ca99e7413a83ec0f192bc9b0e58a9469fb6",
+      "table": "ui",
+      "translation": "섬세한 북극광 커튼이 부드럽게 겹친 주름 사이로 물결칩니다."
+    },
+    {
+      "key": "Fine paper facets move gently and respond locally to the mouse.",
+      "source": "Fine paper facets move gently and respond locally to the mouse.",
+      "source_sha256": "abba4d2fba15b7bcdfbeb94e0b71dca363d97abf83ab24413c45c823fc1648fd",
+      "table": "ui",
+      "translation": "섬세한 종이 면이 부드럽게 움직이고 마우스에 국소적으로 반응합니다."
+    },
+    {
+      "key": "Fine particles form evolving vortices and branching currents, with optional mouse gravity.",
+      "source": "Fine particles form evolving vortices and branching currents, with optional mouse gravity.",
+      "source_sha256": "42b4152ec0eed604e11894f1f31a513a00b56b62a6500000241557f1bf538cfa",
+      "table": "ui",
+      "translation": "섬세한 입자들이 변화하는 소용돌이와 갈라지는 흐름을 만들며, 마우스 중력을 선택적으로 사용할 수 있습니다."
+    },
+    {
+      "key": "Furthest from the sun: cold violet, point waves travelling through the dark, and a tense sound set in D harmonic minor at 128 BPM.",
+      "source": "Furthest from the sun: cold violet, point waves travelling through the dark, and a tense sound set in D harmonic minor at 128 BPM.",
+      "source_sha256": "4b0c37e6d8dd70e22150df78f460eaba29847b33d85649aa7d2a4874a935912c",
+      "table": "ui",
+      "translation": "태양에서 가장 먼 곳: 차가운 보라색, 어둠을 가로지르는 점 파도와 D화성단조 128 BPM의 긴장된 사운드 구성입니다."
+    },
+    {
+      "key": "How far mouse gravity reaches, as a percentage of the shorter screen edge. Zero disables mouse influence. Applies to backgrounds that respond to the mouse.",
+      "source": "How far mouse gravity reaches, as a percentage of the shorter screen edge. Zero disables mouse influence. Applies to backgrounds that respond to the mouse.",
+      "source_sha256": "96132acd15f69460ce7b15a4f28f2789e8bcbb2140dd86772bf5d3129d596f44",
+      "table": "ui",
+      "translation": "화면의 짧은 변에 대한 백분율로 나타낸 마우스 중력의 범위입니다. 0은 마우스 영향을 끕니다. 마우스에 반응하는 배경에 적용됩니다."
+    },
+    {
+      "key": "Mouse gravity radius",
+      "source": "Mouse gravity radius",
+      "source_sha256": "dbad9e180510994be6ba363d888bb3df37cf0864e686c84c9fb33a02ce70c725",
+      "table": "ui",
+      "translation": "마우스 중력 반경"
+    },
+    {
+      "key": "The long low light of a year's turn: olive and pale gold, fine paper facets through it, and a sound set in G Lydian at 112 BPM.",
+      "source": "The long low light of a year's turn: olive and pale gold, fine paper facets through it, and a sound set in G Lydian at 112 BPM.",
+      "source_sha256": "dad7ee5de0f47c634524d3698a855e4dcd4a3db7aee71697b99628a5984dc52e",
+      "table": "ui",
+      "translation": "한 해의 전환점에 드리운 길고 낮은 빛: 올리브색과 연한 금색, 그 사이의 섬세한 종이 면과 G리디안 112 BPM의 사운드 구성입니다."
+    },
+    {
+      "key": "spaCR Thore",
+      "source": "spaCR Thore",
+      "source_sha256": "1fb83525ce414a51d5bee5b1214c4d17fff4dfba8541856c228b646845234fd3",
+      "table": "ui",
+      "translation": "spaCR Thore"
+    },
+    {
+      "key": "spaCR advection",
+      "source": "spaCR advection",
+      "source_sha256": "fe76111d4c68aee9ed2c6396d124cdc7797637eca1e1ee26b5d5b44ffc6d4a45",
+      "table": "ui",
+      "translation": "spaCR advection"
+    },
+    {
+      "key": "spaCR field",
+      "source": "spaCR field",
+      "source_sha256": "d64d69d08413b1b2f6a2d73d6e3cd51d591181dcecc5c5ec731a36a4ded9bb43",
+      "table": "ui",
+      "translation": "spaCR field"
+    },
+    {
+      "key": "spaCR growth",
+      "source": "spaCR growth",
+      "source_sha256": "d90b24b6cd4b3d026cbca323757134a92100c498bdcfe91ce6688fe089e3d36a",
+      "table": "ui",
+      "translation": "spaCR growth"
+    },
+    {
+      "key": "spaCR waves",
+      "source": "spaCR waves",
+      "source_sha256": "08673cd104d2efcf170c0c0a857afa28cb634eeab907185e97a0334f58fd55a4",
+      "table": "ui",
+      "translation": "spaCR waves"
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff.",
+  "schema": 1
+}

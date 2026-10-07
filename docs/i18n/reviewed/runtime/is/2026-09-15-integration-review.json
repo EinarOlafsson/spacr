@@ -352,13 +352,6 @@
       "translation": "Hversu mikil smáatriði hreyfimyndin er teiknuð með. Þessi stilling ræður því hvort hún virðist kornótt: hún ákveður í hversu mörgum dílum myndin er reiknuð áður en hún er teygð til að fylla síðuna. Kostnaðurinn er um það bil gildið í öðru veldi — 200 % er fjórföld vinna — svo lækkaðu hana á vél sem er undir álagi."
     },
     {
-      "key": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
-      "source": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
-      "source_sha256": "ab388434f351b32a1a3bd22c13c65396a1c054d164983bd5fc2683dc718f85a4",
-      "table": "ui",
-      "translation": "Hversu úr fókus hreyfimyndin er, ofan á þau smáatriði sem hún var teiknuð með. 0 % skilur hana eftir eins skarpa og smáatriðastillingin leyfir; 100 % er sú mýkt sem hreyfimyndirnar voru áður afhentar með. Ólíkt smáatriðum kostar þessi stilling nánast ekkert — og saman gera þær bakgrunninum kleift að vera mjúkur án þess að verða kubbóttur."
-    },
-    {
       "key": "How the effect-size cut is derived",
       "source": "How the effect-size cut is derived",
       "source_sha256": "4bc0c7bdaa4b5b47e36e7f5617080a119bfe9c1e6dc339f17ad1f20e0136ddf8",

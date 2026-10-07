@@ -30,13 +30,6 @@
       "translation": "黑暗中明亮的窗：近黑底色上的暖橙色，背后是精细的纸张刻面，并配有 G 小调、118 BPM 的音效组合。"
     },
     {
-      "key": "A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.",
-      "source": "A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.",
-      "source_sha256": "ef0e18c550b8167db762aec41a0c7213d1531f97f6e71aa74fad48b2b331dbd6",
-      "table": "ui",
-      "translation": "单一分支生长前沿持续推进，后方轨迹逐渐淡出，任意时刻占据的背景不超过 25%。"
-    },
-    {
       "key": "An edge-free landscape of round points carries wide travelling waves.",
       "source": "An edge-free landscape of round points carries wide travelling waves.",
       "source_sha256": "05a626ed88903e9a88b19129497ae559af7b946763ee6d2a400385f8f1664d32",
@@ -49,20 +42,6 @@
       "source_sha256": "767db727546ca892462da114adc5160be5b62a1dba55782344b8c150d0ab0091",
       "table": "ui",
       "translation": "深水般的缓慢绿黑色：波浪穿过点阵，并配有 E 小调、116 BPM 的音效组合，低音是十组中最厚重的。"
-    },
-    {
-      "key": "Fine background rain and branching lightning briefly illuminate the scene.",
-      "source": "Fine background rain and branching lightning briefly illuminate the scene.",
-      "source_sha256": "d0f4b6fac5d44a8d3b68861467589cad74c96d711fa890a86cbb73841ac90d2a",
-      "table": "ui",
-      "translation": "背景细雨与分支闪电短暂照亮场景。"
-    },
-    {
-      "key": "Fine chromatin fibres undulate in travelling waves across folded ribbons.",
-      "source": "Fine chromatin fibres undulate in travelling waves across folded ribbons.",
-      "source_sha256": "aa0e5b3ba2ce1a6fbcd45d94c5aa11fa64a4049ad6866af6967abb27f2498458",
-      "table": "ui",
-      "translation": "精细的染色质纤维随行进波在折叠带状结构上起伏。"
     },
     {
       "key": "Fine curtains of northern light ripple through softly layered folds.",

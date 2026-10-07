@@ -30,13 +30,6 @@
       "translation": "Ein beleuchtetes Fenster im Dunkeln: warmes Orange auf fast Schwarz, feine Papierfacetten dahinter und eine Klangfolge in g-Moll bei 118 BPM."
     },
     {
-      "key": "A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.",
-      "source": "A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.",
-      "source_sha256": "ef0e18c550b8167db762aec41a0c7213d1531f97f6e71aa74fad48b2b331dbd6",
-      "table": "ui",
-      "translation": "Eine einzelne verzweigte Wachstumsfront bewegt sich kontinuierlich vorwärts, während ihre Spur verblasst und höchstens 25% des Hintergrunds belegt."
-    },
-    {
       "key": "An edge-free landscape of round points carries wide travelling waves.",
       "source": "An edge-free landscape of round points carries wide travelling waves.",
       "source_sha256": "05a626ed88903e9a88b19129497ae559af7b946763ee6d2a400385f8f1664d32",
@@ -49,20 +42,6 @@
       "source_sha256": "767db727546ca892462da114adc5160be5b62a1dba55782344b8c150d0ab0091",
       "table": "ui",
       "translation": "Tiefes Wasser, grünschwarz und langsam: Wellen, die durch Punkte wandern, und eine Klangfolge in e-Moll bei 116 BPM mit dem schwersten Subbass der zehn."
-    },
-    {
-      "key": "Fine background rain and branching lightning briefly illuminate the scene.",
-      "source": "Fine background rain and branching lightning briefly illuminate the scene.",
-      "source_sha256": "d0f4b6fac5d44a8d3b68861467589cad74c96d711fa890a86cbb73841ac90d2a",
-      "table": "ui",
-      "translation": "Feiner Hintergrundregen und verzweigte Blitze erhellen die Szene kurz."
-    },
-    {
-      "key": "Fine chromatin fibres undulate in travelling waves across folded ribbons.",
-      "source": "Fine chromatin fibres undulate in travelling waves across folded ribbons.",
-      "source_sha256": "aa0e5b3ba2ce1a6fbcd45d94c5aa11fa64a4049ad6866af6967abb27f2498458",
-      "table": "ui",
-      "translation": "Feine Chromatinfasern schwingen in wandernden Wellen über gefaltete Bänder."
     },
     {
       "key": "Fine curtains of northern light ripple through softly layered folds.",

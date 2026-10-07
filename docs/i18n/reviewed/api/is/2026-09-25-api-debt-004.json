@@ -3188,7 +3188,9 @@
       "source_sha256": "7d098d51d4bca1619c27c201e3b04d053867cf978eb42be4716dd633175d5c6a",
       "context": "the blur, in units of eight application view pixels of area averaging (0.0 is as designed); clamped to ``BLUR_RANGE`` from :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores ``DEFAULT_BLUR``.",
       "translation": "mýkingin, í einingum af átta skjápixla flatarmálsmeðaltali (0.0 er eins og hannað); klemmd við ``BLUR_RANGE`` úr :mod:`spacr.qt.widgets.ambient`, og gildi sem ekki er hægt að þátta eða NaN vistar ``DEFAULT_BLUR``.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "label": "spacr.qt.preferences.set_ambient_density#1",

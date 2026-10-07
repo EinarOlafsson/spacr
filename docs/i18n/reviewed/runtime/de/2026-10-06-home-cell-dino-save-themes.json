@@ -198,13 +198,6 @@
       "translation": "HPA ViT-L/16 · vier Bildebenen · 224 Pixel"
     },
     {
-      "key": "How many things there are: blobs, aurora curtains, ripple sources, stars and cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
-      "source": "How many things there are: blobs, aurora curtains, ripple sources, stars and cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
-      "source_sha256": "c01a61297df226345fbe0874de09cbb7f0a02452367938f9eacbecb26c9c27ea",
-      "table": "ui",
-      "translation": "Die Anzahl der Elemente: Blobs, Polarlichtvorhänge, Wellenquellen, Sterne und Zellen. Dichte und Detail teilen sich ein Rechenbudget; beide auf Maximum zu setzen verringert daher die Dichte, statt Bilder auszulassen."
-    },
-    {
       "key": "Input plane {number}",
       "source": "Input plane {number}",
       "source_sha256": "a4e459ad29a076b4c98d053f9ca8a4a9d48ce3db753fd93f8c6e3a4dc0716511",

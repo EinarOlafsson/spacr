@@ -170,13 +170,6 @@
       "translation": "Mit wie viel Detail die Animation gezeichnet wird. Dieser Wert entscheidet, ob sie verpixelt aussieht: Er legt fest, in wie vielen Pixeln das Bild berechnet wird, bevor es auf die Seitengröße gestreckt wird. Kostet etwa das Quadrat des Werts — 200 % sind viermal so viel Arbeit —, also verringern Sie ihn auf einem ausgelasteten Rechner."
     },
     {
-      "key": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
-      "source": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
-      "source_sha256": "ab388434f351b32a1a3bd22c13c65396a1c054d164983bd5fc2683dc718f85a4",
-      "table": "ui",
-      "translation": "Wie unscharf die Animation ist, zusätzlich zu dem Detailgrad, mit dem sie gezeichnet wurde. 0 % lässt sie so scharf, wie die Detaileinstellung erlaubt; 100 % ist die Weichheit, mit der die Animationen früher ausgeliefert wurden. Anders als das Detail kostet dieser Wert fast nichts — und beide zusammen lassen den Hintergrund weich wirken, ohne dass er blockig wird."
-    },
-    {
       "key": "Invert x axis",
       "source": "Invert x axis",
       "source_sha256": "5873a95affc691a3547c03fb6c3c7a0de77b1eb9eca56d08eb3587937cdecb5c",

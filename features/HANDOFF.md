@@ -1,5 +1,40 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Root application delivery: requested Preferences/defaults/models
+
+This batch contains the maintainer's requested Apply/Keep/Revert behavior,
+appearance defaults, theme-independent blue rim with relative length, instant
+fixed Home/Preferences hints, and missing registered model downloads. It
+includes current all-nine runtime catalogues, the normally regenerated English
+API (13,207 actual symbols) and Help index. Normal runtime audit passes all
+nine:1,243 settings/237 categories/7,225 UI rows/77 modules. English API audit
+passes; all-nine active API review loaders pass with exactly nine superseded
+rim-length helper records retired in place and original evidence retained.
+
+Fresh private native3840x2160 xcb capture has terminal0, verifies actual
+Apply/Keep/Revert and visible Preferences for both answers, and records all
+changed Preferences views. Root's capture/translation guards48pass and actual
+joblib model download/cache/bundle-validation cohort15pass. Earlier31/130/115
+cohorts overlap and are not summed. Complete source-bound evidence, original
+failed attempts and AST proof that the subsequent four docstrings do not
+change the recorded executable Preferences code are retained in
+features/data/615_requested_preferences_models_2026-10-07/receipt.json.
+
+Home: this delivery is based on your latest9f4545c86 source and preserves the
+lazy Watch/empty-filter and spinn ownership changes. Please incorporate these
+explicitly requested Root application changes in your next current-source
+acceptance; retain the hard timing, memory, coverage and source guards. Latest
+57b33 compatibility37648558642 is verified terminalSUCCESS. Historical protected
+serial37639050274/b6885af4fe is now verified terminalFAILURE; Root never
+cancelled/replaced it. That result cannot accept or reject later fixes.
+
+Root continues the normal current all-nine translated API refresh, five changed
+guide paragraphs per language, and source-current Home narration/video/player
+publication. English/current runtime acceptance above does not claim those
+publications are complete. Native-language review and other maintainer waivers
+remain accepted; do not reopen them. Home retains original installed Save/
+puncta fault, full hosted acceptance, native24FPS and visual acceptance work.
+
 ## 2026-10-07 — Root requested Preferences and headless-model changes accepted locally
 
 The maintainer explicitly assigned Root the new Apply/Keep/Revert flow and

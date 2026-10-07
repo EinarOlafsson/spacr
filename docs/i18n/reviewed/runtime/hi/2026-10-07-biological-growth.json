@@ -1,0 +1,13 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "key": "Connected mycelial filaments grow from common origins, with wandering tips and recursively branching fronts. Older trails fade as new colonies begin.",
+      "source": "Connected mycelial filaments grow from common origins, with wandering tips and recursively branching fronts. Older trails fade as new colonies begin.",
+      "source_sha256": "adda87da601c47d193203035cffb1827663a2b42d6eefe6764b94ea831e57829",
+      "table": "ui",
+      "translation": "जुड़े हुए कवक-जाल के तंतु साझा उद्गमों से बढ़ते हैं; उनके सिरे घुमावदार रास्तों पर आगे बढ़ते हैं और विकास के अग्रभाग बार-बार शाखाएँ बनाते हैं। नई बस्तियों के बढ़ना शुरू करने पर पुराने निशान धीरे-धीरे मिट जाते हैं।"
+    }
+  ],
+  "schema": 1
+}

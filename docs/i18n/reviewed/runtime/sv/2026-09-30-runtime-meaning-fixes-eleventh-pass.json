@@ -2071,13 +2071,6 @@
     },
     {
       "table": "ui",
-      "key": "Setting animations",
-      "source": "Setting animations",
-      "source_sha256": "6308b3b70bfe7256ef3b4924d2114c27abc6c13feb31e5df1f979937a539b037",
-      "translation": "Animeringar i inställningar"
-    },
-    {
-      "table": "ui",
       "key": "Cell probability",
       "source": "Cell probability",
       "source_sha256": "51fb70326b24ffb0f861fb590d152e736c8e999df776087efe53c5a83dfd1162",

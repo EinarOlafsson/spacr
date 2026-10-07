@@ -1263,3 +1263,14 @@ the safe optimization, not hard24FPS/Save-crash/aesthetic acceptance.
     OPEN. Separatecompact source/scripts/receipts/rawlogs/hashverifier: data/
     663_spinn_gui_worker_diagnostic_cpu_2026-10-07/. Avoid repeating unchanged
     no-blit/pool experiments without a new causal lead.
+
+2026-10-07 — maintainer's requested fresh appearance defaults and perimeter
+    Root delivery: Dark/spaCR field/spaCR palette, Density10%, Gravity10%,
+    Detail/Speed/Size100%, page opacity60%, Settings backdrop None, field fade
+    on; rim chase50%, centre/Beat/1.5s and relative length. Existing saved
+    choices are retained. Removed Settings animation checkbox; fixed hint text
+    is immediate. Blue rim is independent of the interface theme. In spaCR
+    palette only, one percent of visible field dots flicker white. Source-bound
+    native Preferences proof and focused tests are archived in the N615 receipt.
+    This does not close hard native24FPS, installed Save/puncta crashes or
+    human visual acceptance. Home retains those open acceptance lanes.

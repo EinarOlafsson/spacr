@@ -30,13 +30,6 @@
       "translation": "어둠 속 밝은 창: 거의 검은 배경의 따뜻한 주황색, 뒤편의 섬세한 종이 면과 G단조 118 BPM의 사운드 구성입니다."
     },
     {
-      "key": "A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.",
-      "source": "A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.",
-      "source_sha256": "ef0e18c550b8167db762aec41a0c7213d1531f97f6e71aa74fad48b2b331dbd6",
-      "table": "ui",
-      "translation": "하나의 갈라지는 성장 전선이 계속 전진하고 지나온 흔적은 사라지며, 배경의 최대 25%만 차지합니다."
-    },
-    {
       "key": "An edge-free landscape of round points carries wide travelling waves.",
       "source": "An edge-free landscape of round points carries wide travelling waves.",
       "source_sha256": "05a626ed88903e9a88b19129497ae559af7b946763ee6d2a400385f8f1664d32",
@@ -49,20 +42,6 @@
       "source_sha256": "767db727546ca892462da114adc5160be5b62a1dba55782344b8c150d0ab0091",
       "table": "ui",
       "translation": "깊은 물 같은 느린 녹흑색: 점 사이를 지나가는 파도와 E단조 116 BPM의 사운드 구성으로, 열 가지 중 서브베이스가 가장 묵직합니다."
-    },
-    {
-      "key": "Fine background rain and branching lightning briefly illuminate the scene.",
-      "source": "Fine background rain and branching lightning briefly illuminate the scene.",
-      "source_sha256": "d0f4b6fac5d44a8d3b68861467589cad74c96d711fa890a86cbb73841ac90d2a",
-      "table": "ui",
-      "translation": "배경의 가는 빗줄기와 갈라지는 번개가 장면을 잠시 밝힙니다."
-    },
-    {
-      "key": "Fine chromatin fibres undulate in travelling waves across folded ribbons.",
-      "source": "Fine chromatin fibres undulate in travelling waves across folded ribbons.",
-      "source_sha256": "aa0e5b3ba2ce1a6fbcd45d94c5aa11fa64a4049ad6866af6967abb27f2498458",
-      "table": "ui",
-      "translation": "섬세한 염색질 섬유가 접힌 띠 위를 지나가는 파도처럼 물결칩니다."
     },
     {
       "key": "Fine curtains of northern light ripple through softly layered folds.",

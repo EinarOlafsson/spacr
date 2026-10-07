@@ -103,7 +103,9 @@
       "label": "spacr.qt.preferences.theme_choices#2",
       "source": "The ten night themes follow the older palettes, in :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the application has always had stay where a returning user looks for them and read as one family. Twelve data-art presets follow them in a separate block. Their tokens are plain keys with no variant, so there is nothing to compose into the token the way Cell does.",
       "source_sha256": "365b4e26992b3354102dadcd9219e23f0aa009e36ea36e44078d3b71e19acab1",
-      "translation": "十种夜间主题按 :data:`spacr.qt.night_themes.NIGHT_THEMES` 的顺序排列在旧配色之后，使应用一直提供的四种配色保留在熟悉的位置，并作为同一系列显示。随后是单独一组十二种数据艺术预设。它们的标记值是没有变体的简单键，因此无需像 Cell 那样组合各部分来形成标记值。"
+      "translation": "十种夜间主题按 :data:`spacr.qt.night_themes.NIGHT_THEMES` 的顺序排列在旧配色之后，使应用一直提供的四种配色保留在熟悉的位置，并作为同一系列显示。随后是单独一组十二种数据艺术预设。它们的标记值是没有变体的简单键，因此无需像 Cell 那样组合各部分来形成标记值。",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "context": "Night and data-art themes each carry a sentence saying what colours, backdrop and sound set come with them; that sentence is what the Theme control shows as the entry's tooltip, the way the Sound set control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`.",

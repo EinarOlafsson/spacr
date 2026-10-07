@@ -94,7 +94,9 @@
       "label": "spacr.qt.preferences.get_ambient_density#1",
       "source": "Density and resolution share one cost budget in the engines (:data:`spacr.qt.widgets.ambient.WORK_BUDGET`), so asking for the top of both ranges at once gets a trimmed density rather than a stalled frame.",
       "source_sha256": "78831cbd724855c128fce982964d2d67b5264270338da8555a2f16d79018b5b0",
-      "translation": "Þéttni og upplausn deila einu kostnaðarhámarki í vélunum (:data:`spacr.qt.widgets.ambient.WORK_BUDGET`), svo að það að biðja um efstur hluta beggja sviða í einu fær þétta sem hefur verið skorin frekar en stöðvaða ramma."
+      "translation": "Þéttni og upplausn deila einu kostnaðarhámarki í vélunum (:data:`spacr.qt.widgets.ambient.WORK_BUDGET`), svo að það að biðja um efstur hluta beggja sviða í einu fær þétta sem hefur verið skorin frekar en stöðvaða ramma.",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "context": "**Bounded size.** ``spacr.log`` rotates but a single run can still write hundreds of megabytes. The bundle takes the *tail* of it, capped by :data:`MAX_LOG_BYTES`, and the manifest records how much was dropped. An attachment nobody can upload is not evidence.",

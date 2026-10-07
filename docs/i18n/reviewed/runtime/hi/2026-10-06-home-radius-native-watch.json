@@ -30,13 +30,6 @@
       "translation": "अंधेरे में रोशन खिड़की: लगभग काली पृष्ठभूमि पर गर्म नारंगी रंग, पीछे कागज़ जैसे महीन फलक और G माइनर में 118 BPM का ध्वनि समूह।"
     },
     {
-      "key": "A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.",
-      "source": "A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.",
-      "source_sha256": "ef0e18c550b8167db762aec41a0c7213d1531f97f6e71aa74fad48b2b331dbd6",
-      "table": "ui",
-      "translation": "एक ही शाखित वृद्धि अग्रभाग लगातार आगे बढ़ता है और पीछे का निशान फीका पड़ता जाता है; पृष्ठभूमि का अधिकतम 25% भाग घिरता है।"
-    },
-    {
       "key": "An edge-free landscape of round points carries wide travelling waves.",
       "source": "An edge-free landscape of round points carries wide travelling waves.",
       "source_sha256": "05a626ed88903e9a88b19129497ae559af7b946763ee6d2a400385f8f1664d32",
@@ -49,20 +42,6 @@
       "source_sha256": "767db727546ca892462da114adc5160be5b62a1dba55782344b8c150d0ab0091",
       "table": "ui",
       "translation": "गहरे पानी जैसा धीमा हरा-काला रंग: बिंदुओं से गुजरती लहरें और E माइनर में 116 BPM का ध्वनि समूह, जिसका सब-बास दसों में सबसे भारी है।"
-    },
-    {
-      "key": "Fine background rain and branching lightning briefly illuminate the scene.",
-      "source": "Fine background rain and branching lightning briefly illuminate the scene.",
-      "source_sha256": "d0f4b6fac5d44a8d3b68861467589cad74c96d711fa890a86cbb73841ac90d2a",
-      "table": "ui",
-      "translation": "पृष्ठभूमि की महीन बारिश और शाखित बिजली दृश्य को थोड़ी देर के लिए रोशन करती हैं।"
-    },
-    {
-      "key": "Fine chromatin fibres undulate in travelling waves across folded ribbons.",
-      "source": "Fine chromatin fibres undulate in travelling waves across folded ribbons.",
-      "source_sha256": "aa0e5b3ba2ce1a6fbcd45d94c5aa11fa64a4049ad6866af6967abb27f2498458",
-      "table": "ui",
-      "translation": "महीन क्रोमैटिन तंतु मुड़ी हुई पट्टियों पर आगे बढ़ती लहरों में लहराते हैं।"
     },
     {
       "key": "Fine curtains of northern light ripple through softly layered folds.",

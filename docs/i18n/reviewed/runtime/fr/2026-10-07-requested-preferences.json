@@ -1,0 +1,41 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "key": "Could not apply settings. Previous settings restored.",
+      "source": "Could not apply settings. Previous settings restored.",
+      "source_sha256": "6ece68cc4aeab9c9b053929f8075eeb9337d4d5cbcd1908d333f2be2c321d332",
+      "table": "ui",
+      "translation": "Impossible d’appliquer les paramètres. Les paramètres précédents ont été restaurés."
+    },
+    {
+      "key": "Keep these settings or revert to the previous settings. Preferences stays open. After Revert, your edits remain available to change or apply again.",
+      "source": "Keep these settings or revert to the previous settings. Preferences stays open. After Revert, your edits remain available to change or apply again.",
+      "source_sha256": "31d4828818ebe265a5b41d0df3a860d4fbce060e8a96087597b37ed3a6d2cbcf",
+      "table": "ui",
+      "translation": "Conservez ces paramètres ou rétablissez les précédents. La fenêtre des préférences reste ouverte. Après le rétablissement, vos modifications restent disponibles pour être modifiées ou appliquées à nouveau."
+    },
+    {
+      "key": "Put every preference back to the value a fresh install has. Nothing is written until you press Apply or Save.",
+      "source": "Put every preference back to the value a fresh install has. Nothing is written until you press Apply or Save.",
+      "source_sha256": "98cc36254c7a4a45aa91934714e75a739943154ddc4700c4af81a0a6195077b7",
+      "table": "ui",
+      "translation": "Rétablissez les valeurs d’une nouvelle installation pour toutes les préférences. Rien n’est enregistré avant d’appuyer sur Appliquer ou Enregistrer."
+    },
+    {
+      "key": "The percentage of a settings card's perimeter lit by the rim. The same percentage is used at every window size and resolution.",
+      "source": "The percentage of a settings card's perimeter lit by the rim. The same percentage is used at every window size and resolution.",
+      "source_sha256": "6da44a43103c8b6e87f7466080ec5947b1c6ea99991b2fecf2f3df38ebdd0615",
+      "table": "ui",
+      "translation": "Le pourcentage du périmètre d’une carte de paramètres éclairé par la bordure. Le même pourcentage est utilisé pour toutes les tailles de fenêtre et résolutions."
+    },
+    {
+      "key": "Your settings have been applied.",
+      "source": "Your settings have been applied.",
+      "source_sha256": "6946120c88b9f7e97251ec48ed7702b4fd7b3609871a3166409980574a67c5e6",
+      "table": "ui",
+      "translation": "Vos paramètres ont été appliqués."
+    }
+  ],
+  "schema": 1
+}

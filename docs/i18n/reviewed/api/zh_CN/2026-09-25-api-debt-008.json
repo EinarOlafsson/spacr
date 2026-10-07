@@ -3275,7 +3275,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``drift`` keeps the synchronous path, and its row above is the reason: it is the one engine with no buffer, it degrades the least of the seven (2.1x against 48.7x for ``cells``), and threading it would mean publishing a full-resolution frame — 7.91 MiB a slot against 126.6 KiB for ``blobs`` — to buy the smallest improvement on the list.",
       "source_sha256": "a1355976eea48ed77fefa2ca3105552777d3be0592166e82fafefc302dd0a52a",
-      "translation": "``drift`` 保留同步路径，理由就在上面它那一行：它是唯一没有缓冲区的引擎，在七个引擎中性能下降最少（2.1x，而 ``cells`` 为 48.7x），而对它使用多线程就意味着要发布一整帧全分辨率画面——每个槽位 7.91 MiB，而 ``blobs`` 只需 126.6 KiB——换来的却是列表中最小的改进。"
+      "translation": "``drift`` 保留同步路径，理由就在上面它那一行：它是唯一没有缓冲区的引擎，在七个引擎中性能下降最少（2.1x，而 ``cells`` 为 48.7x），而对它使用多线程就意味着要发布一整帧全分辨率画面——每个槽位 7.91 MiB，而 ``blobs`` 只需 126.6 KiB——换来的却是列表中最小的改进。",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "context": "Performance depends on hardware, display size, theme, and concurrent work. The settings have predictable relative costs: detail is approximately quadratic, density is approximately linear, and blur is inexpensive for the six buffered themes. ``drift`` has no buffer, so its blur is a second wider pass per dot and is capped by :data:`DRIFT_HALO_MAX_PX`. The :data:`WORK_BUDGET` limits combinations of density and detail that would make the backdrop compete with analysis work. Hidden widgets stop rendering entirely.",
@@ -3283,7 +3285,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Performance depends on hardware, display size, theme, and concurrent work. The settings have predictable relative costs: detail is approximately quadratic, density is approximately linear, and blur is inexpensive for the six buffered themes. ``drift`` has no buffer, so its blur is a second wider pass per dot and is capped by :data:`DRIFT_HALO_MAX_PX`. The :data:`WORK_BUDGET` limits combinations of density and detail that would make the backdrop compete with analysis work. Hidden widgets stop rendering entirely.",
       "source_sha256": "0e6640726db7450a0eca04b3cca77fecf63e57b5c80d0ff5bc3a34e6ac40c958",
-      "translation": "性能取决于硬件、显示尺寸、主题以及同时进行的工作。各项设置的相对开销是可预测的：细节大致呈二次增长，密度大致呈线性增长，而对于六个带缓冲区的主题，模糊的开销很小。``drift`` 没有缓冲区，因此其模糊是对每个点再做一次更宽的绘制，并受 :data:`DRIFT_HALO_MAX_PX` 限制。:data:`WORK_BUDGET` 会限制那些会使背景动画与分析工作争夺资源的密度和细节组合。隐藏的控件会完全停止渲染。"
+      "translation": "性能取决于硬件、显示尺寸、主题以及同时进行的工作。各项设置的相对开销是可预测的：细节大致呈二次增长，密度大致呈线性增长，而对于六个带缓冲区的主题，模糊的开销很小。``drift`` 没有缓冲区，因此其模糊是对每个点再做一次更宽的绘制，并受 :data:`DRIFT_HALO_MAX_PX` 限制。:data:`WORK_BUDGET` 会限制那些会使背景动画与分析工作争夺资源的密度和细节组合。隐藏的控件会完全停止渲染。",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "context": "There is an eighth engine, ``fractal``, and it is not one of the seven: it is not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it, and the only way to see it is to start the application with the ``spaceout`` command instead of ``spacr``. See :data:`SPACEOUT_THEME` and :class:`FractalEngine`.",
@@ -3383,7 +3387,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the blur amount, converted with ``float``.",
       "source_sha256": "f7c072d39e413ffeb3b9aedeee9f39cdd7f8b3d9b90d0f9ac8d8aa66c2af876a",
-      "translation": "模糊量，通过 ``float`` 转换。"
+      "translation": "模糊量，通过 ``float`` 转换。",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "context": "the density multiplier, converted with ``float``.",

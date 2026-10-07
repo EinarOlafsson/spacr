@@ -1,22 +1,7 @@
 {
   "language": "sv",
   "note": "Twelve distinct data-art labels and descriptions from the actual replacement registry. These describe decorative artwork, not measurements or biological simulation. Four descriptions retain cursor interaction. The removed flow registry is not reintroduced; all earlier complete catalog records are preserved.",
-  "records": [
-    {
-      "key": "Tissue facets",
-      "source": "Tissue facets",
-      "source_sha256": "3b5391060739ab881bebb8e4133802b832804c6f50f18459ce7f1c4051750981",
-      "table": "ui",
-      "translation": "Vävnadsfacetter"
-    },
-    {
-      "key": "Chromatin satin",
-      "source": "Chromatin satin",
-      "source_sha256": "50034da660d85c393f7cdb76309c64679d1204c636b436fd373fcfe5b4608f80",
-      "table": "ui",
-      "translation": "Kromatinsatin"
-    }
-  ],
+  "records": [],
   "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff",
   "schema": 1,
   "source_commit": "3053b081512d6f598a1aba76dac2393de31ba48a"

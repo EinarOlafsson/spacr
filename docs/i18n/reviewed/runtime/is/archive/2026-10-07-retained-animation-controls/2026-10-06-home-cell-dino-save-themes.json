@@ -1,0 +1,393 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "key": "A Cell-DINO channel is outside the loaded crops. Reopen the mapping and choose valid planes.",
+      "source": "A Cell-DINO channel is outside the loaded crops. Reopen the mapping and choose valid planes.",
+      "source_sha256": "eb3c0c43da77619f300f80c528195b3edc39d30f4331d3595d7102d4c32a0027",
+      "table": "ui",
+      "translation": "Cell-DINO-rás vantar í innlesnu myndskurðina. Opnaðu vörpunina aftur og veldu gild myndplön."
+    },
+    {
+      "key": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains. SubCell's two-plane model takes DNA then protein; its four-plane model needs explicit microtubules, ER, DNA and protein mapping. Other weights download once. Cell-DINO requires a local official checkpoint, declared SHA-256 and explicit model-plane mapping. Default None (use the backbone).",
+      "source": "A model trained on microscopy rather than photographs. OpenPhenom and ChAda-ViT take any number of stains. SubCell's two-plane model takes DNA then protein; its four-plane model needs explicit microtubules, ER, DNA and protein mapping. Other weights download once. Cell-DINO requires a local official checkpoint, declared SHA-256 and explicit model-plane mapping. Default None (use the backbone).",
+      "source_sha256": "f56f8ca9fc07e6461b525f0b74eece2a38a93b32d6147da646a6abecdc143498",
+      "table": "ui",
+      "translation": "Líkan þjálfað á smásjármyndum fremur en ljósmyndum. OpenPhenom og ChAda-ViT taka við hvaða fjölda litunarása sem er. Tveggja plana líkan SubCell tekur DNA og síðan prótein; fjögurra plana líkanið krefst skýrrar vörpunar örpípla, ER, DNA og próteins. Aðrar vigtir eru sóttar einu sinni. Cell-DINO krefst staðbundinnar opinberrar vistunar, uppgefins SHA-256 og skýrrar vörpunar myndplana líkansins. Sjálfgefið None (nota grunnnetið)."
+    },
+    {
+      "key": "Accent",
+      "source": "Accent",
+      "source_sha256": "a5c6fb18c9af89b22a791ba484c9cbc622ffa2af4267d0067883cf6a78d685ac",
+      "table": "ui",
+      "translation": "Áherslulitur"
+    },
+    {
+      "key": "Add plate…",
+      "source": "Add plate…",
+      "source_sha256": "e6fb1fe39db55951a12842da5b04e5e308902125d4c814a36ef389ee8393868f",
+      "table": "ui",
+      "translation": "Bæta við plötu…"
+    },
+    {
+      "key": "All selected plates must use the same feature columns. Stored embeddings must also have the same model settings and weight checksum.",
+      "source": "All selected plates must use the same feature columns. Stored embeddings must also have the same model settings and weight checksum.",
+      "source_sha256": "b5d68801527aef0bb2606580d508e90139d84921c980648a45c965897ce4c1b7",
+      "table": "ui",
+      "translation": "Allar valdar plötur verða að nota sömu eiginleikadálka. Geymdir innfellingarvigrar verða einnig að hafa sömu líkanstillingar og gátsummu vigta."
+    },
+    {
+      "key": "Animation colour",
+      "source": "Animation colour",
+      "source_sha256": "ff2c488510dc5eb76b098a62d715aae39f1c6af4bf38e7ae5a061eb836b0d72f",
+      "table": "ui",
+      "translation": "Litur hreyfimyndar"
+    },
+    {
+      "key": "Animation colours",
+      "source": "Animation colours",
+      "source_sha256": "13b95c9f950f86f643e79079de0e75bfca71e8a24fa3c7fce420c6410e0fd3a4",
+      "table": "ui",
+      "translation": "Litir hreyfimyndar"
+    },
+    {
+      "key": "Auto features",
+      "source": "Auto features",
+      "source_sha256": "84b46b4e080c79cc9072a1eea6b1debf027fdb09e31e28babefa043438a5abd7",
+      "table": "ui",
+      "translation": "Sjálfvirkir eiginleikar"
+    },
+    {
+      "key": "Cell Painting ViT-S/8 · five planes · 128 pixels",
+      "source": "Cell Painting ViT-S/8 · five planes · 128 pixels",
+      "source_sha256": "18668a11840f4eec76b413e8d33b025b8fff6232c2779ecb9cff0a19d5661b5a",
+      "table": "ui",
+      "translation": "Cell Painting ViT-S/8 · fimm myndplön · 128 pixlar"
+    },
+    {
+      "key": "Cell-DINO checkpoint and input-plane order saved. The file digest will be checked before model loading.",
+      "source": "Cell-DINO checkpoint and input-plane order saved. The file digest will be checked before model loading.",
+      "source_sha256": "07bfa131a7e31784b02b050fe97143118b976d85be61c66d13a3c4678a2c5cd1",
+      "table": "ui",
+      "translation": "Cell-DINO-vistun og röð inntaksplana vistuð. Gátsumma skráarinnar verður athuguð áður en líkanið er hlaðið."
+    },
+    {
+      "key": "Cell-DINO checkpoint and model planes",
+      "source": "Cell-DINO checkpoint and model planes",
+      "source_sha256": "8001229712f7cbb5fb7689ee4036549bb3a491a95b9ead62d1f9f147609b387b",
+      "table": "ui",
+      "translation": "Cell-DINO-vistun og myndplön líkans"
+    },
+    {
+      "key": "Checkpoint and channels…",
+      "source": "Checkpoint and channels…",
+      "source_sha256": "d00218b6fdda8af6a06ab4694453233078e6274e6373772e640050529ced02cd",
+      "table": "ui",
+      "translation": "Vistun og rásir…"
+    },
+    {
+      "key": "Choose a crisp data-art animation colour.",
+      "source": "Choose a crisp data-art animation colour.",
+      "source_sha256": "c8116cd7bac66b416b6e6036fbdbffbf6b5f3e693b7dd8624b272070ed8b2fbf",
+      "table": "ui",
+      "translation": "Veldu lit fyrir skýra gagnalistahreyfimynd."
+    },
+    {
+      "key": "Choose a crop channel for every Cell-DINO input plane.",
+      "source": "Choose a crop channel for every Cell-DINO input plane.",
+      "source_sha256": "f3417d648593fa8c4a4f192c779dc633ac4efb43b71e5be33e8adcd131a3ac9d",
+      "table": "ui",
+      "translation": "Veldu myndskurðarrás fyrir hvert Cell-DINO-inntaksplan."
+    },
+    {
+      "key": "Choose a local official Cell-DINO checkpoint file.",
+      "source": "Choose a local official Cell-DINO checkpoint file.",
+      "source_sha256": "6d611c1a6503200a0163da826871f1649d4784f9da1f79f2d9fa896250e1e9c6",
+      "table": "ui",
+      "translation": "Veldu staðbundna opinbera Cell-DINO-vistunarskrá."
+    },
+    {
+      "key": "Choose a plate's measurements/measurements.db file.",
+      "source": "Choose a plate's measurements/measurements.db file.",
+      "source_sha256": "c360257bd9aa175918c54ecc065260ec8582a4cd2e9aaf048a015e4c28c115c8",
+      "table": "ui",
+      "translation": "Veldu measurements/measurements.db-skrá plötu."
+    },
+    {
+      "key": "Choose an official Cell-DINO model factory.",
+      "source": "Choose an official Cell-DINO model factory.",
+      "source_sha256": "019e10652a3a025cd644ba75b9ac5525dd0f5bf5a7e67afc68865112ec49cba5",
+      "table": "ui",
+      "translation": "Veldu opinbert Cell-DINO-smíðafall."
+    },
+    {
+      "key": "Choose another measurements.db to include in the next similarity search.",
+      "source": "Choose another measurements.db to include in the next similarity search.",
+      "source_sha256": "fdf4d886202129ceb1ccd354c66b47a20ef4ed11f0c191bc936234787799e9d2",
+      "table": "ui",
+      "translation": "Veldu aðra measurements.db til að hafa með í næstu líkaleit."
+    },
+    {
+      "key": "Choose another plate database",
+      "source": "Choose another plate database",
+      "source_sha256": "cd5d30a830a5bec2409e58df9b5d95fdcdb51e9a336896cbb4ef9d98febc211f",
+      "table": "ui",
+      "translation": "Velja gagnagrunn annarrar plötu"
+    },
+    {
+      "key": "Choose different crop channels for every Cell-DINO plane.",
+      "source": "Choose different crop channels for every Cell-DINO plane.",
+      "source_sha256": "0a046b8664a7b9a629fda45732f5034f5e62fd10c70302a5ce82e044daa6dbce",
+      "table": "ui",
+      "translation": "Veldu mismunandi myndskurðarrásir fyrir hvert Cell-DINO-myndplan."
+    },
+    {
+      "key": "Choose model…",
+      "source": "Choose model…",
+      "source_sha256": "7c78d5e5a647ad23d03de8b3a3818ecc5d0a3c4021104bbcdc684b776e52ab0a",
+      "table": "ui",
+      "translation": "Velja líkan…"
+    },
+    {
+      "key": "Choose official Cell-DINO checkpoint",
+      "source": "Choose official Cell-DINO checkpoint",
+      "source_sha256": "afee858e3db81b7eb0cec25b28eda5486aaa9704040f71b0e0aff5b7f5acf01e",
+      "table": "ui",
+      "translation": "Velja opinbera Cell-DINO-vistun"
+    },
+    {
+      "key": "Clear plates",
+      "source": "Clear plates",
+      "source_sha256": "6d299773969c9c40862ef2519c9b85ce56a934b07a0e51fde7678cc8c1bf1a9f",
+      "table": "ui",
+      "translation": "Hreinsa plötuval"
+    },
+    {
+      "key": "Custom colours",
+      "source": "Custom colours",
+      "source_sha256": "f239a4870e32f77fc46b1e9336e022614b21c7f51f14975e0510cdbe69c440f0",
+      "table": "ui",
+      "translation": "Sérsniðnir litir"
+    },
+    {
+      "key": "Enter the checkpoint's 64-character SHA-256 digest.",
+      "source": "Enter the checkpoint's 64-character SHA-256 digest.",
+      "source_sha256": "f3e2e42fe9eef07986e7dee78e0027fb2a3c882bdc07fe1da8eec52b938b3853",
+      "table": "ui",
+      "translation": "Sláðu inn 64 stafa SHA-256-gátsummu vistunarinnar."
+    },
+    {
+      "key": "Expected SHA-256",
+      "source": "Expected SHA-256",
+      "source_sha256": "ab3fab52492acd28d5bca729dd9453f0216cb11530401ff3722073030a62be4d",
+      "table": "ui",
+      "translation": "Vænt SHA-256"
+    },
+    {
+      "key": "HPA ViT-L/14 · four planes · 518 pixels",
+      "source": "HPA ViT-L/14 · four planes · 518 pixels",
+      "source_sha256": "552bcc910232837ce05cc6c35a88181008a53728f9b90963214d6560636b9974",
+      "table": "ui",
+      "translation": "HPA ViT-L/14 · fjögur myndplön · 518 pixlar"
+    },
+    {
+      "key": "HPA ViT-L/16 · four planes · 224 pixels",
+      "source": "HPA ViT-L/16 · four planes · 224 pixels",
+      "source_sha256": "4bc07165685851ff22956be6d3cfba9c1444e6342f8e268893a72b89803f2510",
+      "table": "ui",
+      "translation": "HPA ViT-L/16 · fjögur myndplön · 224 pixlar"
+    },
+    {
+      "key": "How many things there are: blobs, aurora curtains, ripple sources, stars and cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
+      "source": "How many things there are: blobs, aurora curtains, ripple sources, stars and cells. Density and detail share one cost budget, so asking for the most of both trims the density rather than dropping frames.",
+      "source_sha256": "c01a61297df226345fbe0874de09cbb7f0a02452367938f9eacbecb26c9c27ea",
+      "table": "ui",
+      "translation": "Fjöldi atriða: blettir, norðurljósatjöld, gárulindir, stjörnur og frumur. Þéttleiki og smáatriði deila einni kostnaðaráætlun, svo hámark beggja minnkar þéttleikann í stað þess að sleppa römmum."
+    },
+    {
+      "key": "Input plane {number}",
+      "source": "Input plane {number}",
+      "source_sha256": "a4e459ad29a076b4c98d053f9ca8a4a9d48ce3db753fd93f8c6e3a4dc0716511",
+      "table": "ui",
+      "translation": "Inntaksplan {number}"
+    },
+    {
+      "key": "Leave blind mode before searching across plates.",
+      "source": "Leave blind mode before searching across plates.",
+      "source_sha256": "40a38aeb08eada2e7c6cdb2c4e29c0d26b337bed0869d6fcfc756d4ab1cb29be",
+      "table": "ui",
+      "translation": "Farðu úr blindham áður en leitað er á mörgum plötum."
+    },
+    {
+      "key": "Load database crops and embed them before saving vectors.",
+      "source": "Load database crops and embed them before saving vectors.",
+      "source_sha256": "a8bf596491b84a04dad531dbcd1057441d66997791c10e49697e85c286cb0dcd",
+      "table": "ui",
+      "translation": "Lestu myndskurði úr gagnagrunni og reiknaðu innfellingar þeirra áður en vigrar eru vistaðir."
+    },
+    {
+      "key": "Local checkpoint",
+      "source": "Local checkpoint",
+      "source_sha256": "f4bf8783b54bf3f6910cce284646ff403158e3e6aa056cfb1873e9b1e0bd75fb",
+      "table": "ui",
+      "translation": "Staðbundin vistun"
+    },
+    {
+      "key": "Mapped model planes (one pass)",
+      "source": "Mapped model planes (one pass)",
+      "source_sha256": "eddc67f81a46b9cc20c7d4a99741330bb7cc04c78d788d5bd5fc33d2218625e1",
+      "table": "ui",
+      "translation": "Vörpuð myndplön líkans (ein umferð)"
+    },
+    {
+      "key": "Official model",
+      "source": "Official model",
+      "source_sha256": "a761fa1e6530acc7245e6741606cc18e637bcc1b38aae134825c9b9fea6ee0a5",
+      "table": "ui",
+      "translation": "Opinbert líkan"
+    },
+    {
+      "key": "Open matching crops from this plate in Annotate before assigning labels.",
+      "source": "Open matching crops from this plate in Annotate before assigning labels.",
+      "source_sha256": "0cf1b32438713f89065a1023d44c7c797b8e7be1ca5278474740b04b8993af09",
+      "table": "ui",
+      "translation": "Opnaðu samsvarandi myndskurði af þessari plötu í Annotate áður en merkjum er úthlutað."
+    },
+    {
+      "key": "Primary",
+      "source": "Primary",
+      "source_sha256": "efe10c80ec8a9f38624cbb47103010a8cf32488a503e4b4bfe4f92307a9cefa7",
+      "table": "ui",
+      "translation": "Aðallitur"
+    },
+    {
+      "key": "PyTorch checkpoints (*.pth *.pt);;All files (*)",
+      "source": "PyTorch checkpoints (*.pth *.pt);;All files (*)",
+      "source_sha256": "7b449981e6f83d92c56061482e88463594e2e90d33072099eb9883a58579b6d8",
+      "table": "ui",
+      "translation": "PyTorch-vistanir (*.pth *.pt);;Allar skrár (*)"
+    },
+    {
+      "key": "Results by plate",
+      "source": "Results by plate",
+      "source_sha256": "f76e1d4d6d0501846dfed5442e10ed6069a3b2cf6084850997e23ce1548b75b7",
+      "table": "ui",
+      "translation": "Niðurstöður eftir plötu"
+    },
+    {
+      "key": "SQLite databases (*.db)",
+      "source": "SQLite databases (*.db)",
+      "source_sha256": "948360c38f60134e3fc70a8401f95d7ade866e6d61b8e9205f42bd62392b1a19",
+      "table": "ui",
+      "translation": "SQLite-gagnagrunnar (*.db)"
+    },
+    {
+      "key": "Save for Similar crops",
+      "source": "Save for Similar crops",
+      "source_sha256": "fdd58dd12165cc9dc87e797fedff32601a3066a13c83918d58966b4d7a5b5775",
+      "table": "ui",
+      "translation": "Vista fyrir svipaða myndskurði"
+    },
+    {
+      "key": "Save these vectors in their source database for Annotate's Like this search. Load crops from a database first.",
+      "source": "Save these vectors in their source database for Annotate's Like this search. Load crops from a database first.",
+      "source_sha256": "742dcf02396f8ac9aad31da2dc9efc8b366f31403b91713d604c054f7b191a8a",
+      "table": "ui",
+      "translation": "Vistaðu þessa vigra í upprunagagnagrunni þeirra fyrir Líkar þessum-leit Annotate. Lestu fyrst myndskurði úr gagnagrunni."
+    },
+    {
+      "key": "Saved {count} crop embeddings. Open this database in Annotate and use Like this.",
+      "source": "Saved {count} crop embeddings. Open this database in Annotate and use Like this.",
+      "source_sha256": "68f21585109446995cd6ebed8c0773366a032c6aa16c133e2dc0aba9f9b61910",
+      "table": "ui",
+      "translation": "Vistaði {count} innfellingar myndskurða. Opnaðu þennan gagnagrunn í Annotate og notaðu Líkar þessum."
+    },
+    {
+      "key": "Saving crop embeddings…",
+      "source": "Saving crop embeddings…",
+      "source_sha256": "b2498375244499b29fad8ea13e1b9f5b56718ab5708cb4090f4ac5b3aae47bd7",
+      "table": "ui",
+      "translation": "Vista innfellingar myndskurða…"
+    },
+    {
+      "key": "Search settings changed; run Like this again before opening another plate.",
+      "source": "Search settings changed; run Like this again before opening another plate.",
+      "source_sha256": "a8d409372556d1bdc843168e53c04bcc2178c70551024e1d726162d8ac0e146e",
+      "table": "ui",
+      "translation": "Leitarstillingar breyttust; keyrðu Líkar þessum aftur áður en önnur plata er opnuð."
+    },
+    {
+      "key": "Searched {n} crops across {plates} plates in {ms} ms.",
+      "source": "Searched {n} crops across {plates} plates in {ms} ms.",
+      "source_sha256": "35b196f6cd14957c78a7b301096f18ff89a0e3261ee733f440abc8325d46ca29",
+      "table": "ui",
+      "translation": "Leitaði í {n} myndskurðum á {plates} plötum á {ms} ms."
+    },
+    {
+      "key": "Similar crops",
+      "source": "Similar crops",
+      "source_sha256": "029c55a9ff720d1c1db402487b3973129ee5b3df48099bffd485d132a8197471",
+      "table": "ui",
+      "translation": "Svipaðir myndskurðir"
+    },
+    {
+      "key": "Similarity search will use the open source.",
+      "source": "Similarity search will use the open source.",
+      "source_sha256": "7d75c0b41a1fd010f71fa0da4d2e0f33959c7fc679540c1d0956b03aae2a44da",
+      "table": "ui",
+      "translation": "Líkaleitin notar opna gagnauppsprettu."
+    },
+    {
+      "key": "The new crops have fewer channels. Reopen Cell-DINO checkpoint and channels to map its input planes.",
+      "source": "The new crops have fewer channels. Reopen Cell-DINO checkpoint and channels to map its input planes.",
+      "source_sha256": "93044980f1d511edb4afa9d4a458d70d2d6bbab27ac7652a8f6b0eb65569dac9",
+      "table": "ui",
+      "translation": "Nýju myndskurðirnir hafa færri rásir. Opnaðu Cell-DINO-vistun og rásir aftur til að varpa inntaksplönunum."
+    },
+    {
+      "key": "The selected plate database is no longer available.",
+      "source": "The selected plate database is no longer available.",
+      "source_sha256": "ad24ac6acb5383b842c957693f9b9a0d00319a85abae46c6f43429d5bbccb36f",
+      "table": "ui",
+      "translation": "Valinn plötugagnagrunnur er ekki lengur tiltækur."
+    },
+    {
+      "key": "Use an official checkpoint obtained from Meta. Choose its exact factory and SHA-256, then map crop channels in model-input order. No stain identity is inferred.",
+      "source": "Use an official checkpoint obtained from Meta. Choose its exact factory and SHA-256, then map crop channels in model-input order. No stain identity is inferred.",
+      "source_sha256": "a51d075268444dfe1c31c701f8f6a7691d08030b8ea6df8efd81dfa335d5bbd9",
+      "table": "ui",
+      "translation": "Notaðu opinbera vistun frá Meta. Veldu nákvæmt smíðafall hennar og SHA-256 og varpaðu síðan myndskurðarrásum í inntaksröð líkansins. Litunarauðkenni er ekki ályktað."
+    },
+    {
+      "key": "Your chosen primary and accent colours.",
+      "source": "Your chosen primary and accent colours.",
+      "source_sha256": "8dddf1833c5a847c4ea4b422499400c268bf4175dc57deec7fe43a12a4d9bdee",
+      "table": "ui",
+      "translation": "Valdir aðal- og áherslulitir þínir."
+    },
+    {
+      "key": "{name} · {n} matches",
+      "source": "{name} · {n} matches",
+      "source_sha256": "fe9037d58744baeeea2e7d173593a301ef392bde1050293e8a525927a2430ad1",
+      "table": "ui",
+      "translation": "{name} · {n} samsvaranir"
+    },
+    {
+      "key": "{n} additional plate(s) selected for the next search.",
+      "source": "{n} additional plate(s) selected for the next search.",
+      "source_sha256": "3329670c4900cad00ff93d3aaf8bc451ed24fcc35a6248959a4fda39ec70b531",
+      "table": "ui",
+      "translation": "{n} viðbótarplata/plötur valdar fyrir næstu leit."
+    },
+    {
+      "key": "{n} similar crops in {source}; results stay with their source database.",
+      "source": "{n} similar crops in {source}; results stay with their source database.",
+      "source_sha256": "8b02030b6214883ffdc4491fca9a962a20c88ffcdeca86e3ec9dd096ccdbbf54",
+      "table": "ui",
+      "translation": "{n} svipaðir myndskurðir í {source}; niðurstöður fylgja upprunagagnagrunni sínum."
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff",
+  "schema": 1,
+  "source_reviewed_input_sha256": "4da212731304cf33df1e2664a33eb36b376447cbb7f804f2b091e7d7f3067a25"
+}

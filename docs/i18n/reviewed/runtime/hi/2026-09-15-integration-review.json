@@ -212,13 +212,6 @@
       "translation": "एनीमेशन कितने विवरण के साथ बनाया जाता है। यही तय करता है कि वह पिक्सेलयुक्त दिखे या नहीं: यह निर्धारित करता है कि पृष्ठ भरने के लिए खींचे जाने से पहले चित्र कितने पिक्सेल में बनाया जाता है। इसकी लागत लगभग इस मान के वर्ग के बराबर होती है — 200 % यानी चार गुना काम — इसलिए व्यस्त मशीन पर इसे कम करें।"
     },
     {
-      "key": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
-      "source": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
-      "source_sha256": "ab388434f351b32a1a3bd22c13c65396a1c054d164983bd5fc2683dc718f85a4",
-      "table": "ui",
-      "translation": "एनीमेशन कितना धुंधला है, उस विवरण के ऊपर जिसके साथ वह बनाया गया था। 0 % उसे उतना ही तेज़ रखता है जितना विवरण सेटिंग अनुमति देती है; 100 % वह कोमलता है जिसके साथ एनीमेशन पहले आते थे। विवरण के विपरीत, इसकी लागत लगभग शून्य है — और दोनों मिलकर पृष्ठभूमि को बिना खुरदुरे पिक्सेल के कोमल बनाते हैं।"
-    },
-    {
       "key": "How the effect-size cut is derived",
       "source": "How the effect-size cut is derived",
       "source_sha256": "4bc0c7bdaa4b5b47e36e7f5617080a119bfe9c1e6dc339f17ad1f20e0136ddf8",

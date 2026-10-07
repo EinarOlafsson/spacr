@@ -247,13 +247,6 @@
       "translation": "动画绘制的细节程度。它决定画面是否显得有像素感：它设定图像在拉伸填满页面之前以多少像素计算。开销大约是该值的平方 — 200 % 就是四倍的工作量 — 所以在繁忙的机器上请调低它。"
     },
     {
-      "key": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
-      "source": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
-      "source_sha256": "ab388434f351b32a1a3bd22c13c65396a1c054d164983bd5fc2683dc718f85a4",
-      "table": "ui",
-      "translation": "动画的失焦程度，叠加在其绘制细节之上。0 % 保持细节设置所允许的清晰度；100 % 是动画以前默认的柔和程度。与细节不同，这项设置几乎没有开销 — 两者结合才能让背景柔和而不出现块状。"
-    },
-    {
       "key": "How the effect-size cut is derived",
       "source": "How the effect-size cut is derived",
       "source_sha256": "4bc0c7bdaa4b5b47e36e7f5617080a119bfe9c1e6dc339f17ad1f20e0136ddf8",

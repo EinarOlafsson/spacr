@@ -247,13 +247,6 @@
       "translation": "애니메이션을 얼마나 세밀하게 그릴지 정합니다. 픽셀이 깨져 보일지를 결정하는 설정으로, 페이지를 채우도록 늘리기 전에 그림을 몇 픽셀로 계산할지 정합니다. 비용은 대략 설정값의 제곱입니다 — 200 % 는 작업량이 네 배입니다 — 그러니 바쁜 컴퓨터에서는 낮추십시오."
     },
     {
-      "key": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
-      "source": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
-      "source_sha256": "ab388434f351b32a1a3bd22c13c65396a1c054d164983bd5fc2683dc718f85a4",
-      "table": "ui",
-      "translation": "애니메이션이 얼마나 흐릿한지를 정하며, 그려진 디테일 위에 추가로 적용됩니다. 0 % 는 디테일 설정이 허용하는 만큼 선명하게 두고, 100 % 는 예전에 애니메이션이 기본으로 제공되던 부드러움입니다. 디테일과 달리 이 설정은 비용이 거의 들지 않으며, 둘을 함께 쓰면 배경을 계단 현상 없이 부드럽게 만들 수 있습니다."
-    },
-    {
       "key": "How the effect-size cut is derived",
       "source": "How the effect-size cut is derived",
       "source_sha256": "4bc0c7bdaa4b5b47e36e7f5617080a119bfe9c1e6dc339f17ad1f20e0136ddf8",

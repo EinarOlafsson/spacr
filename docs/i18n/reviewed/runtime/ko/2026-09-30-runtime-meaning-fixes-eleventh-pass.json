@@ -2756,13 +2756,6 @@
       "translation": "세포소기관 4 — 워터셰드 스폿"
     },
     {
-      "table": "ui",
-      "key": "Setting animations",
-      "source": "Setting animations",
-      "source_sha256": "6308b3b70bfe7256ef3b4924d2114c27abc6c13feb31e5df1f979937a539b037",
-      "translation": "설정 항목 애니메이션"
-    },
-    {
       "table": "setting_labels",
       "key": "anndata_compression",
       "source": "Anndata compression",

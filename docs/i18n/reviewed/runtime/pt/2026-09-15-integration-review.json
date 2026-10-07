@@ -114,13 +114,6 @@
       "translation": "Com quanto detalhe a animação é desenhada. É esta configuração que decide se ela parece pixelizada: define em quantos pixels a imagem é calculada antes de ser esticada para preencher a página. Custa aproximadamente o quadrado do valor — 200 % é quatro vezes o trabalho —, portanto reduza-a em uma máquina ocupada."
     },
     {
-      "key": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
-      "source": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
-      "source_sha256": "ab388434f351b32a1a3bd22c13c65396a1c054d164983bd5fc2683dc718f85a4",
-      "table": "ui",
-      "translation": "O quanto a animação está desfocada, além do detalhe com que foi desenhada. 0 % deixa-a tão nítida quanto a configuração de detalhe permite; 100 % é a suavidade com que as animações vinham antes. Ao contrário do detalhe, esta quase não custa nada — e as duas juntas permitem que o fundo seja suave sem ficar pixelizado."
-    },
-    {
       "key": "No gene number could be parsed out of this term, so there is no annotation to look up.",
       "source": "No gene number could be parsed out of this term, so there is no annotation to look up.",
       "source_sha256": "9aa561c8948ae747f3deacf1b7f6fca5122cde68394efe18651ace144ad10741",

@@ -1655,3 +1655,17 @@ source verification follow. Previously accepted unchanged API and tutorial media
 receipts retain their source scope; no repeated tutorial regeneration or human
 listening/native-speaker/physical-phone acceptance claim. Parent N615 remains
 subject to existing scientific-input and human acceptance requirements.
+
+2026-10-07 — requested Preferences/default/model delivery accepted locally
+    Root implemented Apply with a separate Keep/Revert question while
+    Preferences stays open; normal Save remains available. Requested fresh
+    defaults, blue/relative rim, one-percent white field flickers and instant
+    fixed hints are included. Non-GUI registered models download/checksum/cache
+    normally, and CLI --list-models offers uncached entries. All-nine runtime
+    audit passes; current English API13,207 and Help are normally regenerated.
+    Native4K private Preferences capture verifies both answers;48 capture/source
+    guards and15 actual classifier-loader cases pass (overlapping earlier
+    cohorts are not summed). Original failures and exact proof are in
+    data/615_requested_preferences_models_2026-10-07/receipt.json.
+    Current translated API, five guide paragraphs per language and final Home
+    narration/video/player publication remain ACTIVE; N615 is not closed.

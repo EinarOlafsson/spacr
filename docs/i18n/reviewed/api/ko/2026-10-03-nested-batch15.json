@@ -1177,7 +1177,9 @@
       "source_sha256": "be36760d1f41222a570aa1e24705998e74a52a3b39686e5f6f16c3410c98fc23",
       "context": "Show the rim length in pixels.",
       "translation": "테두리 길이를 픽셀로 보여 줍니다.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-07: requested Apply workflow, relative rim length and fresh appearance defaults replaced this English block. Original translation, source and attribution remain unchanged; the current wording requires a new translation."
     },
     {
       "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._rim_period_says#0",

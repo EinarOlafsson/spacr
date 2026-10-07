@@ -8,7 +8,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "``drift`` keeps the synchronous path, and its row above is the reason: it is the one engine with no buffer, it degrades the least of the seven (2.1x against 48.7x for ``cells``), and threading it would mean publishing a full-resolution frame — 7.91 MiB a slot against 126.6 KiB for ``blobs`` — to buy the smallest improvement on the list.",
       "source_sha256": "a1355976eea48ed77fefa2ca3105552777d3be0592166e82fafefc302dd0a52a",
-      "translation": "``drift`` सिंक्रोनस पथ रखता है, और ऊपर दी गई उसकी पंक्ति इसका कारण है: यह बिना बफ़र वाला एकमात्र इंजन है, सातों में इसका प्रदर्शन सबसे कम गिरता है (``cells`` के 48.7x की तुलना में 2.1x), और इसे थ्रेड पर चलाने का अर्थ होगा पूर्ण-रिज़ॉल्यूशन फ़्रेम प्रकाशित करना — ``blobs`` के 126.6 KiB की तुलना में प्रति स्लॉट 7.91 MiB — ताकि सूची का सबसे छोटा सुधार मिल सके।"
+      "translation": "``drift`` सिंक्रोनस पथ रखता है, और ऊपर दी गई उसकी पंक्ति इसका कारण है: यह बिना बफ़र वाला एकमात्र इंजन है, सातों में इसका प्रदर्शन सबसे कम गिरता है (``cells`` के 48.7x की तुलना में 2.1x), और इसे थ्रेड पर चलाने का अर्थ होगा पूर्ण-रिज़ॉल्यूशन फ़्रेम प्रकाशित करना — ``blobs`` के 126.6 KiB की तुलना में प्रति स्लॉट 7.91 MiB — ताकि सूची का सबसे छोटा सुधार मिल सके।",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "context": "Performance depends on hardware, display size, theme, and concurrent work. The settings have predictable relative costs: detail is approximately quadratic, density is approximately linear, and blur is inexpensive for the six buffered themes. ``drift`` has no buffer, so its blur is a second wider pass per dot and is capped by :data:`DRIFT_HALO_MAX_PX`. The :data:`WORK_BUDGET` limits combinations of density and detail that would make the backdrop compete with analysis work. Hidden widgets stop rendering entirely.",
@@ -16,7 +18,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "Performance depends on hardware, display size, theme, and concurrent work. The settings have predictable relative costs: detail is approximately quadratic, density is approximately linear, and blur is inexpensive for the six buffered themes. ``drift`` has no buffer, so its blur is a second wider pass per dot and is capped by :data:`DRIFT_HALO_MAX_PX`. The :data:`WORK_BUDGET` limits combinations of density and detail that would make the backdrop compete with analysis work. Hidden widgets stop rendering entirely.",
       "source_sha256": "0e6640726db7450a0eca04b3cca77fecf63e57b5c80d0ff5bc3a34e6ac40c958",
-      "translation": "प्रदर्शन हार्डवेयर, डिस्प्ले आकार, थीम और समवर्ती कार्य पर निर्भर करता है। सेटिंग्स की सापेक्ष लागतें पूर्वानुमेय हैं: डिटेल लगभग द्विघाती है, घनत्व लगभग रैखिक है, और छह बफ़र वाली थीमों के लिए ब्लर सस्ता है। ``drift`` के पास कोई बफ़र नहीं है, इसलिए इसका ब्लर प्रति बिंदु एक दूसरा, अधिक चौड़ा पास है और इसकी ऊपरी सीमा :data:`DRIFT_HALO_MAX_PX` तय करता है। :data:`WORK_BUDGET` घनत्व और डिटेल के उन संयोजनों को सीमित करता है जो बैकड्रॉप को विश्लेषण कार्य से होड़ करने पर मजबूर करते। छिपे हुए विजेट रेंडर करना पूरी तरह बंद कर देते हैं।"
+      "translation": "प्रदर्शन हार्डवेयर, डिस्प्ले आकार, थीम और समवर्ती कार्य पर निर्भर करता है। सेटिंग्स की सापेक्ष लागतें पूर्वानुमेय हैं: डिटेल लगभग द्विघाती है, घनत्व लगभग रैखिक है, और छह बफ़र वाली थीमों के लिए ब्लर सस्ता है। ``drift`` के पास कोई बफ़र नहीं है, इसलिए इसका ब्लर प्रति बिंदु एक दूसरा, अधिक चौड़ा पास है और इसकी ऊपरी सीमा :data:`DRIFT_HALO_MAX_PX` तय करता है। :data:`WORK_BUDGET` घनत्व और डिटेल के उन संयोजनों को सीमित करता है जो बैकड्रॉप को विश्लेषण कार्य से होड़ करने पर मजबूर करते। छिपे हुए विजेट रेंडर करना पूरी तरह बंद कर देते हैं।",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "context": "seconds to step; the engine scales the step by its speed, and a step that is not positive leaves the clock where it is.",
@@ -106,7 +110,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the blur amount, converted with ``float``.",
       "source_sha256": "f7c072d39e413ffeb3b9aedeee9f39cdd7f8b3d9b90d0f9ac8d8aa66c2af876a",
-      "translation": "ब्लर की मात्रा, ``float`` से परिवर्तित।"
+      "translation": "ब्लर की मात्रा, ``float`` से परिवर्तित।",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "context": "the density multiplier, converted with ``float``.",

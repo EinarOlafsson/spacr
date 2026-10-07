@@ -1,6 +1,6 @@
 {
   "scope": "Preferences Apply/Keep/Revert, requested defaults and rim, instant fixed hints, missing registered model downloads",
-  "state": "local acceptance; publication and native capture pending",
+  "state": "application, nine runtime catalogues, English API and Help accepted locally; delivery prepared for nightly; translated API/guides/tutorial publication still active",
   "evidence": [
     {
       "file": "apply-focused-r1.log.gz",
@@ -31,6 +31,105 @@
       "file": "final-appearance-model-checks-r3.log.gz",
       "sha256": "e5ef70101edb833108d0b124c9042a39177e01ebe351dd37d0cd1302c247a7ad",
       "uncompressed_sha256": "c33300f47f22253d6055923985ebd4821d7ed5839838111e250c632900c19454"
+    },
+    {
+      "file": "runtime-reviews-r1.log.gz",
+      "sha256": "d7ded18b71bdd973b555f2ce166a8d5ccabc47dbeb2e21a22485f34c4b3308e6",
+      "uncompressed_sha256": "c6e04f3e60055d3b8cd3a479e07c63c21b8d7bf36fee5cf5f0c59a5a1f4172a6"
+    },
+    {
+      "file": "native-capture-guards-r1.log.gz",
+      "sha256": "0279ecbf0c0fad084f85b7c5e37ab06aab5cc38bb65b6aebd5c573a87a53bfbe",
+      "uncompressed_sha256": "c5e70dc5103424c04cd8995ccb43044a1d47af8e8c6d41aef83c739382c95fe5"
+    },
+    {
+      "file": "native-capture-guards-r2.log.gz",
+      "sha256": "f8e53ccc3c15647eec823fd141edb6bc1503412b3bd6b8745bf5e8b1c85a7d1d",
+      "uncompressed_sha256": "753d3b19b20febc8813f3ab473517a2ee40907e68001307291ac67bf18df8b0f"
+    },
+    {
+      "file": "real-classifier-model-r1.log.gz",
+      "sha256": "3c1893b8a6632a0831e549c9555eaa113db9c1d2fed4235e8c85f00d0a070a03",
+      "uncompressed_sha256": "646d6dc4d7bb4b9aee0031d150139a672bac2a820216e1273a79c2d803d24fa8"
+    },
+    {
+      "file": "native-preferences-capture-r1.log.gz",
+      "sha256": "b3c6f63688385857ee7ac8edede050308a23291de53ed045e2a51a32ccc8807a",
+      "uncompressed_sha256": "2ff2c21db800cb8e497eb1ffb9df464902c20db38e9d70f3dfe409199f42b7af"
+    },
+    {
+      "file": "native-preferences-capture-r2.log.gz",
+      "sha256": "9499a5f648d113ee0091f069f9e3145f8321effef3bf0856fd56dbffc719d947",
+      "uncompressed_sha256": "bba30e079c0d5708defdd5d11e68111f8ccaf0d527561e6cee7a25259d0b8c08"
+    },
+    {
+      "file": "requested-runtime-review-receipt.json.gz",
+      "sha256": "8a3a0e0cd57df24e91cde0c46cf2303a3f6308b3d23453b868a65aedc9e5c396",
+      "uncompressed_sha256": "a2305f88dc1cd1b1af1938c0d4acce3c765ef79a71422cea1f9d69a2fa6afd47"
+    },
+    {
+      "file": "API-all-nine-current-r1.log.gz",
+      "sha256": "7c314c5326b68c155c558a663cb4c9e30d02035bef191a63814424cdbbc0e7b9",
+      "uncompressed_sha256": "6ba2b906d3eb3c55eec3085a6fc7a2a7cd3ed6fc9a1f84ccfa344455f47f710e"
+    },
+    {
+      "file": "native-frames.json",
+      "sha256": "bf24e3e52353f20700e9d9606324af50e948c735c8263dd1b3952ae6f436689b"
+    },
+    {
+      "file": "native-home_focus.json",
+      "sha256": "71365270031b5157eeed4e908af1b7956dc9dda92e94021a449997f3c9e38d5e"
+    },
+    {
+      "file": "native-provenance.json",
+      "sha256": "f2030602ec178200cee58ac57b2e66dd97cc2409f8e88e513d8e3e7765263ab0"
+    },
+    {
+      "file": "native-13d_appearance_animation.png",
+      "sha256": "7e43e7f1a4e41089904ea347ab96ba67fd719fef9aa0e059ad278d96e84bb524"
+    },
+    {
+      "file": "native-13h_preferences_apply.png",
+      "sha256": "5154cb8ff977f06b4da0ac24f732020b4483fc476e51add8358df5cc604a4a0a"
+    },
+    {
+      "file": "native-13i_preferences_kept.png",
+      "sha256": "091c15abd5a3cbb13916a0c12bf61023f05fd095af300f998181bffc0ca8b4c0"
+    },
+    {
+      "file": "runtime-all-nine-current-r1.log.gz",
+      "sha256": "463b297b236db39b8629dde4608b430ddd56943ab32827e3506769a1aa7363cd",
+      "uncompressed_sha256": "da6aa762620bb9895d37a9d5fb1af51dd611beb9752d696c9a6cc80c9fe244f5"
+    },
+    {
+      "file": "API-English-current-r1.log.gz",
+      "sha256": "c538e4ab2ba0841b210b827fd6c49ff31a4dc75baf7099fb71d2ecf942d688d9",
+      "uncompressed_sha256": "8cbab36cb9eca581ccff64237b09b5e3f5e84a3751647746774079d65d9dd698"
+    },
+    {
+      "file": "API-English-audit-r1.log.gz",
+      "sha256": "3b47cb8878d69adaf77d3897105fad606626f95ed5256f63eb95717f2f2c1580",
+      "uncompressed_sha256": "f1d9eec8767edc6da8de52d7b3dcd3848e2ea9c340e98ade26b232d978bf73d5"
+    },
+    {
+      "file": "help-index-current-r1.log.gz",
+      "sha256": "61a76ff3e3172ce763879c16619589c2683478bbc49d43f8ea32ebc7bbad0cba",
+      "uncompressed_sha256": "28b55a03acfb92a8815a8b87f8a31504c53acec893e2c3add3196afff3de35f6"
+    },
+    {
+      "file": "help-index-current-r2.log.gz",
+      "sha256": "12001c6d61ee4f024ca7cc88d6204412f7a8156ecc39e07233c06bb91b5b7199",
+      "uncompressed_sha256": "4750c99ab649c4cd8ed7540d57b5c5740264577d6f4d1a3351d5840fc9ff7c99"
+    },
+    {
+      "file": "API-all-nine-current-r2.log.gz",
+      "sha256": "6f6a52de527753a227e643ff275b71415af95830fdaf2f8a21a9f06c5a3d3a88",
+      "uncompressed_sha256": "656250b93f8b18aea4fb966714cbb47a90cd45a3a3ed98f33117701f65285500"
+    },
+    {
+      "file": "requested-api-retirement-receipt-r3.json.gz",
+      "sha256": "7f819cb34ca163dd6d067d1d105c95cd692c50aa6e85dd13a10765eddf0c1f26",
+      "uncompressed_sha256": "968d99b2ac5d96dd8d12a7e215071e30a86978ebf025fde49f78084af31b3565"
     }
   ],
   "limitations": [
@@ -38,11 +137,48 @@
     "First Apply test attempt used an invalid fixture value and failed; corrected fixture passes.",
     "Broad model/CLI cohort passed 540 cases with one obsolete backdrop default expectation; corrected expectation is included in final 115-case passing cohort.",
     "Download tests use verified toy checkpoint bytes, not GPU model inference.",
-    "This does not close Home native Save-crash, puncta fault, native 24FPS or final hosted acceptance."
+    "This does not close Home native Save-crash, puncta fault, native 24FPS or final hosted acceptance.",
+    "First native capture was refused because owner refresh restored historical News; the corrected recorder hides that history again and passes every unchanged visible-source guard.",
+    "Capture guard first attempt overlapped unfinished review-file updates and used an obsolete exact call signature; the final source-pinned 48-case run passes.",
+    "API guard found missing docstrings on four Apply helpers; docstrings were added and normal API generation restarted."
   ],
   "source_sha256": {
     "spacr/qt/preferences.py": "f519c231b4a6fdc220ec2e0dbe5462c25d37c57c2954aa7faef9688eeef895c6",
     "spacr/qt/widgets/ambient.py": "41162c5e6a3e60b34dcf54524f9f1d5d668676f4d7a7a4f10d57f87f41bb242e",
+    "spacr/model_zoo.py": "a2b2eed4a2dcfd14ae4e391f4cc3a8d790b6764cfe9cb0ce047abbeda0b48829"
+  },
+  "native_preferences_capture": {
+    "recorded_commit": "01488ce388991ad7e5db66bfd50251c1290c30d2",
+    "platform": "xcb / native 3840x2160 Xvfb; isolated account and fresh private profile",
+    "accepted_exit": 0,
+    "verified": [
+      "separate actual Apply question",
+      "Preferences visible for both answers",
+      "Revert restores opacity",
+      "Keep persists applied opacity",
+      "no scientific data/model run",
+      "alpha rows hidden"
+    ],
+    "later_preferences_change": "Four helper docstrings only; full executable AST equals the recorded source.",
+    "published_tutorial": false
+  },
+  "runtime_acceptance": {
+    "languages": 9,
+    "settings": 1243,
+    "categories": 237,
+    "ui": 7225,
+    "modules": 77,
+    "terminal_exit": 0
+  },
+  "english_api_acceptance": {
+    "symbols": 13207,
+    "terminal_exit": 0,
+    "new_helper_symbols": 5,
+    "ratchet_changed": false
+  },
+  "current_application_sha256": {
+    "spacr/qt/preferences.py": "13c2f2c4aaa2465f5cd17d6bfc82f98a94f20890c2786514878a790a48cb8802",
+    "spacr/qt/widgets/ambient.py": "f18c0c0faf530c76cd3ff8eba9933f0f741fa5b95c79b5100fe6456a7eb6c2fc",
     "spacr/model_zoo.py": "a2b2eed4a2dcfd14ae4e391f4cc3a8d790b6764cfe9cb0ce047abbeda0b48829"
   }
 }

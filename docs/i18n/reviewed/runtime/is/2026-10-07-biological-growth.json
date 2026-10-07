@@ -1,0 +1,13 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "key": "Connected mycelial filaments grow from common origins, with wandering tips and recursively branching fronts. Older trails fade as new colonies begin.",
+      "source": "Connected mycelial filaments grow from common origins, with wandering tips and recursively branching fronts. Older trails fade as new colonies begin.",
+      "source_sha256": "adda87da601c47d193203035cffb1827663a2b42d6eefe6764b94ea831e57829",
+      "table": "ui",
+      "translation": "Samtengdir sveppþræðir vaxa frá sameiginlegum upphafsstöðum, með ráfandi oddum og vaxtarfröntum sem greinast endurtekið. Eldri slóðir dofna þegar nýjar þyrpingar byrja að vaxa."
+    }
+  ],
+  "schema": 1
+}

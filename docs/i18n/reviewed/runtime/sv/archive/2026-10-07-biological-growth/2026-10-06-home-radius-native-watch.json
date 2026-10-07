@@ -1,0 +1,140 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "key": "watch_normalization_pool",
+      "source": "Watch normalization pool",
+      "source_sha256": "5052904087571f3a1fc34be8bfe0a92af9adb8afb7466e3f99dc7b4d63b22768",
+      "table": "setting_labels",
+      "translation": "Normaliseringsgrupp för övervakning"
+    },
+    {
+      "key": "watch_normalization_pool",
+      "source": "'per_field' analyses arriving fields independently. 'fixed_map' waits for every image declared in conversion_map.csv, then runs the ordinary static projected v1 Mask or Mask/Measure batch pipeline with shared legacy percentile normalization and padding. Requires randomize False and batch_size greater than 1. Incomplete cohorts remain waiting; timeouts never release partial pools. Membership, recipes and original input hashes bind one restart-safe checkpoint. Default 'per_field'.",
+      "source_sha256": "de0c2055c7f4dd327b6fff9c7d387f803174a0948f5ecb6cce9b17a495707839",
+      "table": "setting_tooltips",
+      "translation": "'per_field' analyserar inkommande bildfält separat. 'fixed_map' väntar på varje bild som anges i conversion_map.csv och kör sedan den vanliga statiska projicerade v1-bearbetningen med Mask eller Mask/Measure med gemensam äldre percentilnormalisering och utfyllnad. Kräver randomize False och batch_size större än 1. Ofullständiga grupper fortsätter vänta; tidsgränser släpper aldrig igenom ofullständiga grupper. Medlemskap, bearbetningsrecept och kontrollsummor för originalindata binds till en kontrollpunkt som tål omstart. Standardvärde 'per_field'."
+    },
+    {
+      "key": "A crisp gravitational dot field with optional local mouse influence and expanding ripples.",
+      "source": "A crisp gravitational dot field with optional local mouse influence and expanding ripples.",
+      "source_sha256": "8e702b854416cca6276204171d4e0828ad85b6dc1a33ceefb2c3b0ffdad503f8",
+      "table": "ui",
+      "translation": "Ett skarpt gravitationsfält av punkter med valfri lokal muspåverkan och växande ringvågor."
+    },
+    {
+      "key": "A lit window in the dark: warm orange on near-black, fine paper facets behind it, and a sound set in G minor at 118 BPM.",
+      "source": "A lit window in the dark: warm orange on near-black, fine paper facets behind it, and a sound set in G minor at 118 BPM.",
+      "source_sha256": "eaa25b12c2e20dc6b718fd3444dc16b84a2131bde0c2a5d52a393fd3fdf2d2fb",
+      "table": "ui",
+      "translation": "Ett upplyst fönster i mörkret: varm orange mot nästan svart, fina pappersfasetter bakom det och en ljuduppsättning i g-moll vid 118 BPM."
+    },
+    {
+      "key": "A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.",
+      "source": "A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.",
+      "source_sha256": "ef0e18c550b8167db762aec41a0c7213d1531f97f6e71aa74fad48b2b331dbd6",
+      "table": "ui",
+      "translation": "En enda förgrenad växtfront går kontinuerligt framåt medan spåret tonar bort och täcker högst 25% av bakgrunden."
+    },
+    {
+      "key": "An edge-free landscape of round points carries wide travelling waves.",
+      "source": "An edge-free landscape of round points carries wide travelling waves.",
+      "source_sha256": "05a626ed88903e9a88b19129497ae559af7b946763ee6d2a400385f8f1664d32",
+      "table": "ui",
+      "translation": "Ett landskap av runda punkter utan synliga kanter bär breda vandrande vågor."
+    },
+    {
+      "key": "Deep water, green-black and slow: waves travelling through points, and a sound set in E minor at 116 BPM with the heaviest sub of the ten.",
+      "source": "Deep water, green-black and slow: waves travelling through points, and a sound set in E minor at 116 BPM with the heaviest sub of the ten.",
+      "source_sha256": "767db727546ca892462da114adc5160be5b62a1dba55782344b8c150d0ab0091",
+      "table": "ui",
+      "translation": "Djupt vatten, grönsvart och långsamt: vågor som färdas genom punkter och en ljuduppsättning i e-moll vid 116 BPM med den tyngsta subbasen av de tio."
+    },
+    {
+      "key": "Fine curtains of northern light ripple through softly layered folds.",
+      "source": "Fine curtains of northern light ripple through softly layered folds.",
+      "source_sha256": "0c92998b1a1f322980df88dca0564ca99e7413a83ec0f192bc9b0e58a9469fb6",
+      "table": "ui",
+      "translation": "Fina ridåer av norrsken böljar genom mjukt skiktade veck."
+    },
+    {
+      "key": "Fine paper facets move gently and respond locally to the mouse.",
+      "source": "Fine paper facets move gently and respond locally to the mouse.",
+      "source_sha256": "abba4d2fba15b7bcdfbeb94e0b71dca363d97abf83ab24413c45c823fc1648fd",
+      "table": "ui",
+      "translation": "Fina pappersfasetter rör sig försiktigt och reagerar lokalt på musen."
+    },
+    {
+      "key": "Fine particles form evolving vortices and branching currents, with optional mouse gravity.",
+      "source": "Fine particles form evolving vortices and branching currents, with optional mouse gravity.",
+      "source_sha256": "42b4152ec0eed604e11894f1f31a513a00b56b62a6500000241557f1bf538cfa",
+      "table": "ui",
+      "translation": "Fina partiklar bildar föränderliga virvlar och förgrenade strömmar, med valfri musgravitation."
+    },
+    {
+      "key": "Furthest from the sun: cold violet, point waves travelling through the dark, and a tense sound set in D harmonic minor at 128 BPM.",
+      "source": "Furthest from the sun: cold violet, point waves travelling through the dark, and a tense sound set in D harmonic minor at 128 BPM.",
+      "source_sha256": "4b0c37e6d8dd70e22150df78f460eaba29847b33d85649aa7d2a4874a935912c",
+      "table": "ui",
+      "translation": "Längst från solen: kall violett, punktvågor som färdas genom mörkret och en spänd ljuduppsättning i d harmonisk moll vid 128 BPM."
+    },
+    {
+      "key": "How far mouse gravity reaches, as a percentage of the shorter screen edge. Zero disables mouse influence. Applies to backgrounds that respond to the mouse.",
+      "source": "How far mouse gravity reaches, as a percentage of the shorter screen edge. Zero disables mouse influence. Applies to backgrounds that respond to the mouse.",
+      "source_sha256": "96132acd15f69460ce7b15a4f28f2789e8bcbb2140dd86772bf5d3129d596f44",
+      "table": "ui",
+      "translation": "Hur långt musens gravitation når, som procent av skärmens kortare sida. Noll stänger av musens påverkan. Gäller bakgrunder som reagerar på musen."
+    },
+    {
+      "key": "Mouse gravity radius",
+      "source": "Mouse gravity radius",
+      "source_sha256": "dbad9e180510994be6ba363d888bb3df37cf0864e686c84c9fb33a02ce70c725",
+      "table": "ui",
+      "translation": "Musgravitationens radie"
+    },
+    {
+      "key": "The long low light of a year's turn: olive and pale gold, fine paper facets through it, and a sound set in G Lydian at 112 BPM.",
+      "source": "The long low light of a year's turn: olive and pale gold, fine paper facets through it, and a sound set in G Lydian at 112 BPM.",
+      "source_sha256": "dad7ee5de0f47c634524d3698a855e4dcd4a3db7aee71697b99628a5984dc52e",
+      "table": "ui",
+      "translation": "Det långa låga ljuset vid årets vändning: olivgrönt och blekt guld, fina pappersfasetter genom det och en ljuduppsättning i G lydisk vid 112 BPM."
+    },
+    {
+      "key": "spaCR Thore",
+      "source": "spaCR Thore",
+      "source_sha256": "1fb83525ce414a51d5bee5b1214c4d17fff4dfba8541856c228b646845234fd3",
+      "table": "ui",
+      "translation": "spaCR Thore"
+    },
+    {
+      "key": "spaCR advection",
+      "source": "spaCR advection",
+      "source_sha256": "fe76111d4c68aee9ed2c6396d124cdc7797637eca1e1ee26b5d5b44ffc6d4a45",
+      "table": "ui",
+      "translation": "spaCR advection"
+    },
+    {
+      "key": "spaCR field",
+      "source": "spaCR field",
+      "source_sha256": "d64d69d08413b1b2f6a2d73d6e3cd51d591181dcecc5c5ec731a36a4ded9bb43",
+      "table": "ui",
+      "translation": "spaCR field"
+    },
+    {
+      "key": "spaCR growth",
+      "source": "spaCR growth",
+      "source_sha256": "d90b24b6cd4b3d026cbca323757134a92100c498bdcfe91ce6688fe089e3d36a",
+      "table": "ui",
+      "translation": "spaCR growth"
+    },
+    {
+      "key": "spaCR waves",
+      "source": "spaCR waves",
+      "source_sha256": "08673cd104d2efcf170c0c0a857afa28cb634eeab907185e97a0334f58fd55a4",
+      "table": "ui",
+      "translation": "spaCR waves"
+    }
+  ],
+  "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff.",
+  "schema": 1
+}

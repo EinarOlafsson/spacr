@@ -744,7 +744,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "``drift`` keeps the synchronous path, and its row above is the reason: it is the one engine with no buffer, it degrades the least of the seven (2.1x against 48.7x for ``cells``), and threading it would mean publishing a full-resolution frame — 7.91 MiB a slot against 126.6 KiB for ``blobs`` — to buy the smallest improvement on the list.",
       "source_sha256": "a1355976eea48ed77fefa2ca3105552777d3be0592166e82fafefc302dd0a52a",
-      "translation": "``drift`` conserve le chemin synchrone, et sa ligne ci-dessus en est la raison : c’est le seul moteur sans tampon, celui des sept qui se dégrade le moins (2.1x contre 48.7x pour ``cells``), et le passer sur un fil d’exécution obligerait à publier une image en pleine résolution — 7.91 MiB par emplacement contre 126.6 KiB pour ``blobs`` — pour obtenir la plus petite amélioration de la liste."
+      "translation": "``drift`` conserve le chemin synchrone, et sa ligne ci-dessus en est la raison : c’est le seul moteur sans tampon, celui des sept qui se dégrade le moins (2.1x contre 48.7x pour ``cells``), et le passer sur un fil d’exécution obligerait à publier une image en pleine résolution — 7.91 MiB par emplacement contre 126.6 KiB pour ``blobs`` — pour obtenir la plus petite amélioration de la liste.",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "context": "Performance depends on hardware, display size, theme, and concurrent work. The settings have predictable relative costs: detail is approximately quadratic, density is approximately linear, and blur is inexpensive for the six buffered themes. ``drift`` has no buffer, so its blur is a second wider pass per dot and is capped by :data:`DRIFT_HALO_MAX_PX`. The :data:`WORK_BUDGET` limits combinations of density and detail that would make the backdrop compete with analysis work. Hidden widgets stop rendering entirely.",
@@ -752,7 +754,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "Performance depends on hardware, display size, theme, and concurrent work. The settings have predictable relative costs: detail is approximately quadratic, density is approximately linear, and blur is inexpensive for the six buffered themes. ``drift`` has no buffer, so its blur is a second wider pass per dot and is capped by :data:`DRIFT_HALO_MAX_PX`. The :data:`WORK_BUDGET` limits combinations of density and detail that would make the backdrop compete with analysis work. Hidden widgets stop rendering entirely.",
       "source_sha256": "0e6640726db7450a0eca04b3cca77fecf63e57b5c80d0ff5bc3a34e6ac40c958",
-      "translation": "Les performances dépendent du matériel, de la taille de l’affichage, du thème et du travail concurrent. Les réglages ont des coûts relatifs prévisibles : le détail est à peu près quadratique, la densité à peu près linéaire, et le flou est peu coûteux pour les six thèmes à tampon. ``drift`` n’a pas de tampon, si bien que son flou est une seconde passe plus large par point et qu’il est plafonné par :data:`DRIFT_HALO_MAX_PX`. :data:`WORK_BUDGET` limite les combinaisons de densité et de détail qui mettraient l’arrière-plan en concurrence avec le travail d’analyse. Les widgets masqués cessent entièrement leur rendu."
+      "translation": "Les performances dépendent du matériel, de la taille de l’affichage, du thème et du travail concurrent. Les réglages ont des coûts relatifs prévisibles : le détail est à peu près quadratique, la densité à peu près linéaire, et le flou est peu coûteux pour les six thèmes à tampon. ``drift`` n’a pas de tampon, si bien que son flou est une seconde passe plus large par point et qu’il est plafonné par :data:`DRIFT_HALO_MAX_PX`. :data:`WORK_BUDGET` limite les combinaisons de densité et de détail qui mettraient l’arrière-plan en concurrence avec le travail d’analyse. Les widgets masqués cessent entièrement leur rendu.",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "context": "There is an eighth engine, ``fractal``, and it is not one of the seven: it is not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it, and the only way to see it is to start the application with the ``spaceout`` command instead of ``spacr``. See :data:`SPACEOUT_THEME` and :class:`FractalEngine`.",
@@ -852,7 +856,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "the blur amount, converted with ``float``.",
       "source_sha256": "f7c072d39e413ffeb3b9aedeee9f39cdd7f8b3d9b90d0f9ac8d8aa66c2af876a",
-      "translation": "la quantité de flou, convertie avec ``float``."
+      "translation": "la quantité de flou, convertie avec ``float``.",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "context": "the density multiplier, converted with ``float``.",

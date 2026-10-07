@@ -128,13 +128,6 @@
       "translation": "Le niveau de détail avec lequel l'animation est dessinée. C'est ce réglage qui décide si elle paraît pixélisée : il fixe en combien de pixels l'image est calculée avant d'être étirée pour remplir la page. Coûte environ le carré de sa valeur — 200 % représente quatre fois plus de travail — alors baissez-le sur une machine occupée."
     },
     {
-      "key": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
-      "source": "How out of focus the animation is, on top of whatever detail it was drawn with. 0 % leaves it as sharp as the detail setting allows; 100 % is the softness the animations used to ship with. Unlike detail, this one is nearly free — and the two together are what let the backdrop be soft without being blocky.",
-      "source_sha256": "ab388434f351b32a1a3bd22c13c65396a1c054d164983bd5fc2683dc718f85a4",
-      "table": "ui",
-      "translation": "Le degré de flou de l'animation, en plus du niveau de détail avec lequel elle a été dessinée. 0 % la laisse aussi nette que le permet le réglage de détail ; 100 % correspond à la douceur avec laquelle les animations étaient livrées auparavant. Contrairement au détail, ce réglage ne coûte presque rien — et les deux ensemble permettent un arrière-plan doux sans effet de blocs."
-    },
-    {
       "key": "How the effect-size cut is derived",
       "source": "How the effect-size cut is derived",
       "source_sha256": "4bc0c7bdaa4b5b47e36e7f5617080a119bfe9c1e6dc339f17ad1f20e0136ddf8",

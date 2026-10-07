@@ -30,13 +30,6 @@
       "translation": "Ett upplyst fönster i mörkret: varm orange mot nästan svart, fina pappersfasetter bakom det och en ljuduppsättning i g-moll vid 118 BPM."
     },
     {
-      "key": "A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.",
-      "source": "A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.",
-      "source_sha256": "ef0e18c550b8167db762aec41a0c7213d1531f97f6e71aa74fad48b2b331dbd6",
-      "table": "ui",
-      "translation": "En enda förgrenad växtfront går kontinuerligt framåt medan spåret tonar bort och täcker högst 25% av bakgrunden."
-    },
-    {
       "key": "An edge-free landscape of round points carries wide travelling waves.",
       "source": "An edge-free landscape of round points carries wide travelling waves.",
       "source_sha256": "05a626ed88903e9a88b19129497ae559af7b946763ee6d2a400385f8f1664d32",
@@ -49,20 +42,6 @@
       "source_sha256": "767db727546ca892462da114adc5160be5b62a1dba55782344b8c150d0ab0091",
       "table": "ui",
       "translation": "Djupt vatten, grönsvart och långsamt: vågor som färdas genom punkter och en ljuduppsättning i e-moll vid 116 BPM med den tyngsta subbasen av de tio."
-    },
-    {
-      "key": "Fine background rain and branching lightning briefly illuminate the scene.",
-      "source": "Fine background rain and branching lightning briefly illuminate the scene.",
-      "source_sha256": "d0f4b6fac5d44a8d3b68861467589cad74c96d711fa890a86cbb73841ac90d2a",
-      "table": "ui",
-      "translation": "Fint regn i bakgrunden och förgrenade blixtar lyser kort upp scenen."
-    },
-    {
-      "key": "Fine chromatin fibres undulate in travelling waves across folded ribbons.",
-      "source": "Fine chromatin fibres undulate in travelling waves across folded ribbons.",
-      "source_sha256": "aa0e5b3ba2ce1a6fbcd45d94c5aa11fa64a4049ad6866af6967abb27f2498458",
-      "table": "ui",
-      "translation": "Fina kromatinfibrer böljar i vandrande vågor över vikta band."
     },
     {
       "key": "Fine curtains of northern light ripple through softly layered folds.",

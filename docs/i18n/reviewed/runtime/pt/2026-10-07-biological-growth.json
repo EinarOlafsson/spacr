@@ -1,0 +1,13 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "key": "Connected mycelial filaments grow from common origins, with wandering tips and recursively branching fronts. Older trails fade as new colonies begin.",
+      "source": "Connected mycelial filaments grow from common origins, with wandering tips and recursively branching fronts. Older trails fade as new colonies begin.",
+      "source_sha256": "adda87da601c47d193203035cffb1827663a2b42d6eefe6764b94ea831e57829",
+      "table": "ui",
+      "translation": "Filamentos miceliais conectados crescem a partir de origens comuns, com pontas sinuosas e frentes que se ramificam recursivamente. Os traços antigos desaparecem gradualmente quando novas colônias começam a crescer."
+    }
+  ],
+  "schema": 1
+}

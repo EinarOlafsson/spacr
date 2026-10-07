@@ -53574,17 +53574,17 @@
     },
     "spacr.qt.night_themes": {
       "source_blocks_sha256": [
-        "3b717ab1b4ff3670f7e576b318990b7236a59a2eee7ebfe8546aad1131f28dc4",
+        "00a0faab31f86432392fcf7220c9f8d7ed9bae57a515c626c37f54fc43865f68",
         "49ce420028c6eb5eaf9d09cfb9403595e41462862cce337273428410717c1611",
         "e2ae18a447fd3e2c22c635ff634345d154df191d541e9a9e492ce13478ac7d00",
         "9e416ff9a6db162726dfb91a00e8b61ff0fa6476d05142c39c4c7ba3da2c3633",
         "f6dd7419e49258f93302b0be03ae57fb97083eeef18d64539a755988b2ea3ddd",
         "552e6586e46573d11229cdea62271291a2f6c657ccd3f6e8d7d5a5eb8241b01c",
         "a36a6ba9d297a7db56d4b926e15ad78a98d1f438aa96723f15517149a8ed2555",
-        "09a39a86949b19824039f60e3527119b3a05dcbc42c6ca0a9dd37d9c9e7ba1e5"
+        "98b3cbf8fd18b9fa7d2d9943f2f5265903f318a7b3ed0e80b33c794909f58a54"
       ],
-      "source_sha256": "742e28626ca4ed69ed9da91c29bd52e6a91a15e20bc00edc91e424ce4e5f8979",
-      "text": "Ten night palettes and seven separate data-art presets.\n\nA night theme is one choice that moves three things at once: the colours\nthe interface is painted in (:data:`spacr.qt.theme.THEMES` grows by ten\nbecause of this module), which ambient animation runs behind it and in\nwhich colours (:mod:`spacr.qt.widgets.ambient`), and which set of sounds\nspaCR plays if the user has ever switched sound on\n(:mod:`spacr.qt.sound_synth`). Choosing one in Preferences therefore\nchanges how spaCR looks *and* how it sounds, which is the whole point of\nthe family.\n\nThis module is Qt-free on purpose, the same way\n:mod:`spacr.qt.sound_synth` is: :mod:`spacr.qt.preferences` imports it to\nvalidate a stored theme name and must not pull QtGui or QtWidgets in\nwhile doing so. It holds data and three lookups and imports nothing from\nthe rest of spaCR, so :mod:`spacr.qt.theme`,\n:mod:`spacr.qt.widgets.ambient` and :mod:`spacr.qt.sound_synth` can all\nread from it without a cycle.\n\nTHE PALETTES ARE LITERALS RATHER THAN A RECIPE. Each one was generated\nfrom a hue and a saturation over a shared lightness ramp, then checked\nagainst :func:`spacr.qt.theme.contrast_failures` and\n:func:`spacr.qt.theme.page_separation_failures` and written down. Keeping\nthe numbers here rather than the recipe means the published colours are\nthe reviewed colours, no solver runs at import, and\n``tests/qt/test_ten_night_themes.py`` judges what actually ships.\n\nTHREE COLOURS WERE MOVED OFF THE RECIPE BY MEASUREMENT, and they are the\nonly three. Nocturne's and Aphelion's ``accent_lo`` failed ``bg`` against\n``accent_lo`` at 4.5:1 undressed — a deep blue and a deep violet are simply\ntoo dark at the recipe's lightness — and Vesper's failed it at 4.49:1 at\none of the sixty hue offsets the ``spaceout`` dressing can reach. All three\nwere raised until they passed, and nothing else was touched. See\n``docs/notes/spacr/qt/night_themes.md``.\n\nTHREE ROLES ARE THE SAME IN ALL TEN, and deliberately: ``success``,\n``warning`` and ``error``. A red that means *this run failed* must not\nbecome a theme decision, so the status hues do not follow the palette\naround the colour wheel. ``fg`` is white in all ten for the same reason a\nnight palette wants it: every surface here is dark.\n\n:data:`NIGHT_THEMES` is ordered by hue, warm through cool and back round\nto rose, so the Theme menu reads as one family rather than ten unrelated\nentries.\n\nThe data-art catalog appends six independent palette presets. Its keys\nselect distinct ambient producers and existing sound sets without changing\nthe ten original night identities. Its explicit colour overrides retain the\nnight palettes' stable status hues and are checked by the same contrast and\npage-separation rules."
+      "source_sha256": "4d0ccf5cb828323d010a37163b705e40a5ad41a6da21232ea5c85f48f92f6925",
+      "text": "Ten night palettes and five separate data-art presets.\n\nA night theme is one choice that moves three things at once: the colours\nthe interface is painted in (:data:`spacr.qt.theme.THEMES` grows by ten\nbecause of this module), which ambient animation runs behind it and in\nwhich colours (:mod:`spacr.qt.widgets.ambient`), and which set of sounds\nspaCR plays if the user has ever switched sound on\n(:mod:`spacr.qt.sound_synth`). Choosing one in Preferences therefore\nchanges how spaCR looks *and* how it sounds, which is the whole point of\nthe family.\n\nThis module is Qt-free on purpose, the same way\n:mod:`spacr.qt.sound_synth` is: :mod:`spacr.qt.preferences` imports it to\nvalidate a stored theme name and must not pull QtGui or QtWidgets in\nwhile doing so. It holds data and three lookups and imports nothing from\nthe rest of spaCR, so :mod:`spacr.qt.theme`,\n:mod:`spacr.qt.widgets.ambient` and :mod:`spacr.qt.sound_synth` can all\nread from it without a cycle.\n\nTHE PALETTES ARE LITERALS RATHER THAN A RECIPE. Each one was generated\nfrom a hue and a saturation over a shared lightness ramp, then checked\nagainst :func:`spacr.qt.theme.contrast_failures` and\n:func:`spacr.qt.theme.page_separation_failures` and written down. Keeping\nthe numbers here rather than the recipe means the published colours are\nthe reviewed colours, no solver runs at import, and\n``tests/qt/test_ten_night_themes.py`` judges what actually ships.\n\nTHREE COLOURS WERE MOVED OFF THE RECIPE BY MEASUREMENT, and they are the\nonly three. Nocturne's and Aphelion's ``accent_lo`` failed ``bg`` against\n``accent_lo`` at 4.5:1 undressed — a deep blue and a deep violet are simply\ntoo dark at the recipe's lightness — and Vesper's failed it at 4.49:1 at\none of the sixty hue offsets the ``spaceout`` dressing can reach. All three\nwere raised until they passed, and nothing else was touched. See\n``docs/notes/spacr/qt/night_themes.md``.\n\nTHREE ROLES ARE THE SAME IN ALL TEN, and deliberately: ``success``,\n``warning`` and ``error``. A red that means *this run failed* must not\nbecome a theme decision, so the status hues do not follow the palette\naround the colour wheel. ``fg`` is white in all ten for the same reason a\nnight palette wants it: every surface here is dark.\n\n:data:`NIGHT_THEMES` is ordered by hue, warm through cool and back round\nto rose, so the Theme menu reads as one family rather than ten unrelated\nentries.\n\nThe data-art catalog appends five independent palette presets. Its keys\nselect distinct ambient producers and existing sound sets without changing\nthe ten original night identities. Its explicit colour overrides retain the\nnight palettes' stable status hues and are checked by the same contrast and\npage-separation rules."
     },
     "spacr.qt.night_themes.NightTheme": {
       "source_blocks_sha256": [
@@ -54383,7 +54383,7 @@
         "8c0ffabb9533d0ceeda8b279c8bea0ceb461a19081b578103ce479b2cd3cae20",
         "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
         "5cc0279aece897e1cc3c9d2441a8760656b5a35c8da09522ab236b23413869e8",
-        "cefb6727bdbc0558f7a7bdd4f51a2d7a06cf3da8e52906872c11ca5b516a0c3c",
+        "f89178238c45065cf9de9b63d9a10f8f37359ec3efb7f19229d5d68bf1573741",
         "67e2eba58f8bc035a69d08714935640c9cff8e6eddb6da5ff95cdb313e6c0f03",
         "eeccbe7ee0aa5b83848a946db48b3f74d068c919723dfa65f6050f3d1580f2ba",
         "41c931441e9f96645bac069a9c14ba394abe73b62bdab0739f6fe7569c1648cc",
@@ -54398,15 +54398,15 @@
         "58821147e03a9d2347f36be8d596c017e7f4929598a98a9b066eb58f618ad741",
         "06ded6c96f113c4c790355e1ecc562e496eab579ed94084a76003148771afa7a",
         "4f8f006cf5360b4594877bdba76bc38b0d5bc9e30b74a6ac810a2410af40671e",
-        "c4f34200381b40161efff90549148a47d1997508d40e7b9b45de1734603cadca",
-        "43b81cf0550ece1b20095902e20f68f6b5a433af1ce44b6a23c19ca041e5b428",
-        "da52dffb17d3352d59d433b2f21680afcf62bb48573e2b0bf81bb367c657dc6d",
+        "c24fa4f1d8676cf5c9e5de7d692e5136b451e243bad70f23256761af31cf3ca8",
+        "b777d1dba7c3a703158efeffd1191216679a7f79125f2b4479d8a235191aacc5",
+        "20f3a68053707660f1c3d88ecd2484c97aaeea03729fbdc858c6756c3502eb03",
         "b30347fcdf8bbd974afb927cdf4584f55f4fcdbc440328444ba016a8a161c2e8",
         "8af42943d1d1af2aba07a4cfc2782231682f5301394f99a0967fcfed571f4c35",
         "fb04228cdb186b5d2a893ae59213e5a81e4b9832ca2bcd52336771c187e56217"
       ],
-      "source_sha256": "6a49f360ff70466ba1de7fab32d2bce1db33ef00d1a5c15010d47ef8032747d6",
-      "text": "User-facing preferences — language, theme, font scale and accessibility.\n\nPersistent settings backed by :class:`PySide6.QtCore.QSettings`, so\nthey survive app restarts. New knobs can slot in alongside the existing\nones without changing consumers thanks to the small typed API\n(``get_theme()`` / ``set_theme(...)`` etc.).\n\nWire-up:\n\n* :func:`apply_preferences_to_app` — call once at startup and again\n  whenever a setting changes; reapplies the stylesheet with the\n  current theme + font scale.\n* :class:`PreferencesDialog` — the modal Settings dialog opened by\n  Ctrl+P (see :mod:`spacr.qt.shortcuts`).\n\nPublic API::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_cell_variant, set_cell_variant,\n        cell_background_path,\n        theme_background_path,\n        get_sound_music_file, set_sound_music_file,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_tooltips_enabled, set_tooltips_enabled,\n        get_font_scale, set_font_scale,\n        get_gui_scale, set_gui_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\nValues:\n\n* ``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` |\n  ``\"high_contrast\"`` | one of\n  the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` |\n  the six data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` |\n  ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating\n  system color scheme, and only once somebody has picked it: a stored\n  ``\"system\"`` written before dark became the default (2026-09-21) was\n  the old default, not a choice, and reads as ``\"dark\"``; see\n  :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"``\n  uses neutral layered materials over a built-in light field. A night\n  or data-art preset also carries a backdrop and a sound set, written by\n  :func:`apply_night_theme` when it is chosen. Space is not a selectable\n  theme. The retired ``space_variant`` and ``space_seed`` values are\n  removed from an older store the first time the theme is read; see\n  :func:`get_theme`.\n* ``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].\n* ``gui_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].\n  Scales every size of the interface, not only text, and applies live.\n  See :mod:`spacr.qt.gui_scale`.\n* ``figure_save_mode``: ``\"print\"`` | ``\"screen\"`` | ``\"transparent\"``\n  (default ``\"print\"``). Controls the page and figure-element colours used\n  for saved figures. ``SPACR_FIGURE_SAVE_MODE`` remains a process-local\n  override; see :func:`spacr.figure_style.figure_save_mode`.\n* ``color_blind_mode``: ``\"off\"`` | ``\"deuteranopia\"`` | ``\"protanopia\"``\n  | ``\"tritanopia\"`` (default ``\"off\"``). Swaps matplotlib rainbow /\n  red-green palettes for perceptually-uniform + colour-blind-safe\n  alternatives (viridis for continuous, Okabe-Ito for categorical).\n* ``performance_logging``: ``\"off\"`` | ``\"summary\"`` | ``\"detailed\"``\n  (default ``\"summary\"``). Records process-tree resource use independently\n  of verbose call tracing; see :func:`get_performance_logging` and\n  :mod:`spacr.resource_log`.\n* ``db_browser_editable``: bool, default ``False``. Permits the\n  Database Browser to open a read-write connection at all; see\n  :func:`get_db_browser_editable`.\n* ``dock_mode``: ``\"locked\"`` | ``\"hidden\"`` (default\n  ``\"locked\"``). Whether the left app dock reveals on hover, is pinned\n  open as a permanent column, or is not there at all.\n* ``pane_opacity``: int percent, default ``60``. How solid shared surfaces\n  are, or the relative material strength in Glass. Clamped up to\n  :func:`spacr.qt.theme.pane_alpha_floor` at paint time — the\n  preference is a request, legibility is not negotiable.\n* ``field_fade``: bool, default ``True``. Whether an input field's\n  container and outline ramp from solid on the left to fully transparent\n  on the right. Fields are **exempt from** ``pane_opacity`` while this is\n  on — see :func:`get_field_fade_enabled` and\n  :mod:`spacr.qt.widgets.field_fade`.\n* ``show_alpha`` / ``show_beta``: bool, both default ``True``. Control\n  whether modules and settings at that maturity are shown. Stable features\n  are always visible.\n* ``sound/music_file``: str, default ``\"\"``. A WAV of the user's own that\n  the music bed plays instead of the synthesized one, and that the\n  Resonance backdrop is driven by. See :func:`get_sound_music_file`.\n* ``ambient_enabled``: bool, default ``True``. Whether module screens\n  paint the animated background at all. Turning it off is a first-class\n  choice — see :func:`get_ambient_enabled`. The user-facing control is the\n  ``None`` entry in the Animation list rather than a second switch: one\n  row, one meaning. Choosing an animation turns it back on.\n* ``spacr_mode``: ``\"extra_performance\"`` | ``\"performance\"`` |\n  ``\"balanced\"`` (default ``\"balanced\"``). How hard spaCR tries to stay out\n  of the machine's way — when it frees its own caches, and whether it\n  overrides the visual settings. Balanced does neither. See\n  :func:`set_spacr_mode` and :mod:`spacr.qt.resource_cleanup`, which owns\n  what a cleanup is allowed to touch (spaCR's own memory, and nothing\n  else — no other process, ever).\n* ``ambient_theme`` / ``ambient_palette``: which animation, and in which\n  colours. ``ambient_theme`` also holds\n  :data:`spacr.qt.widgets.ambient.NO_ANIMATION` — read it with\n  :func:`get_ambient_animation`, which can answer ``\"none\"``, or with\n  :func:`get_ambient_theme`, whose answer is always something paintable.\n  Validated against\n  :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` and\n  :func:`spacr.qt.widgets.ambient.palettes_for` respectively; palettes\n  are *per theme*, so see :func:`get_ambient_palette` for how the two\n  keys stay consistent with each other.\n* ``ambient_speed`` / ``ambient_size`` / ``ambient_resolution`` /\n  ``ambient_density``: floats, all default ``1.0``, all *multipliers* on\n  what the chosen animation already does — how fast it moves, how large its\n  elements are, how much detail it is drawn with and how many elements\n  there are. 1.0 is the shipped animation in every theme, exactly, so a\n  user who never touches them sees no change. Clamped on read and on write\n  to the ranges the engines declare\n  (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` and friends).\n* ``ambient_blur``: float, default ``0.0`` — how much the finished picture\n  is softened, in units of eight screen pixels. Image detail is controlled\n  separately by ``ambient_resolution``. Values stored under the legacy blur\n  scale are translated once on read by :func:`_migrate_ambient_motion`.\n* ``ambient_drift_direction``: ``\"up\"`` | ``\"down\"`` | ``\"random\"``\n  (default ``\"up\"``). Which way the Starfield animation travels. A\n  preference rather than three entries in the animation menu; see\n  :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS` for why.\n* ``spinner_delay``: float seconds, default ``2.0``. How long background\n  work has to run before the activity spinner appears at all — see\n  :func:`get_spinner_delay`.\n* ``setting_animations``: bool, default ``False``. Whether setting tooltips\n  play their animations automatically. When disabled, hover remains text-only\n  until the user activates **Animation** in that tooltip's footer; see\n  :func:`get_setting_animations_enabled`.\n* ``language``: one of the bundled language codes from\n  :mod:`spacr.qt.i18n`; defaults to English and falls back safely when a\n  persisted value is invalid."
+      "source_sha256": "c7ff6c7b818e2e0f134823ac564540eaee99e2aad05b60d6b2da3af81e2c58cf",
+      "text": "User-facing preferences — language, theme, font scale and accessibility.\n\nPersistent settings backed by :class:`PySide6.QtCore.QSettings`, so\nthey survive app restarts. New knobs can slot in alongside the existing\nones without changing consumers thanks to the small typed API\n(``get_theme()`` / ``set_theme(...)`` etc.).\n\nWire-up:\n\n* :func:`apply_preferences_to_app` — call once at startup and again\n  whenever a setting changes; reapplies the stylesheet with the\n  current theme + font scale.\n* :class:`PreferencesDialog` — the modal Settings dialog opened by\n  Ctrl+P (see :mod:`spacr.qt.shortcuts`).\n\nPublic API::\n\n    from spacr.qt.preferences import (\n        get_theme, set_theme, get_theme_choice, set_theme_choice,\n        get_language, set_language,\n        get_cell_variant, set_cell_variant,\n        cell_background_path,\n        theme_background_path,\n        get_sound_music_file, set_sound_music_file,\n        get_ambient_enabled, set_ambient_enabled,\n        get_ambient_animation, set_ambient_animation,\n        get_ambient_theme, set_ambient_theme,\n        get_spacr_mode, set_spacr_mode, mode_label, mode_note, mode_warning,\n        confirm_resource_action, run_resource_action,\n        get_ambient_palette, set_ambient_palette,\n        get_ambient_blur, set_ambient_blur,\n        get_ambient_speed, set_ambient_speed,\n        get_ambient_size, set_ambient_size,\n        get_ambient_resolution, set_ambient_resolution,\n        get_ambient_density, set_ambient_density,\n        get_ambient_drift_direction, set_ambient_drift_direction,\n        get_spinner_delay, set_spinner_delay,\n        ambient_default_palette, apply_ambient_preferences,\n        get_setting_animations_enabled, set_setting_animations_enabled,\n        get_tooltips_enabled, set_tooltips_enabled,\n        get_font_scale, set_font_scale,\n        get_gui_scale, set_gui_scale,\n        get_figure_save_mode, set_figure_save_mode,\n        get_color_blind_mode, set_color_blind_mode,\n        get_db_browser_editable, set_db_browser_editable,\n        get_dock_mode, set_dock_mode,\n        get_pane_opacity, set_pane_opacity, effective_pane_alpha,\n        get_field_fade_enabled, set_field_fade_enabled,\n        get_show_alpha, set_show_alpha,\n        get_show_beta, set_show_beta, maturity_is_visible,\n        apply_preferences_to_app,\n        PreferencesDialog,\n    )\n\nValues:\n\n* ``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` |\n  ``\"high_contrast\"`` | one of\n  the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` |\n  the five data-art presets in :data:`spacr.qt.night_themes.DATA_ART_THEME_KEYS` |\n  ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating\n  system color scheme, and only once somebody has picked it: a stored\n  ``\"system\"`` written before dark became the default (2026-09-21) was\n  the old default, not a choice, and reads as ``\"dark\"``; see\n  :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"``\n  uses neutral layered materials over a built-in light field. A night\n  or data-art preset also carries a backdrop and a sound set, written by\n  :func:`apply_night_theme` when it is chosen. Space is not a selectable\n  theme. The retired ``space_variant`` and ``space_seed`` values are\n  removed from an older store the first time the theme is read; see\n  :func:`get_theme`.\n* ``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].\n* ``gui_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].\n  Scales every size of the interface, not only text, and applies live.\n  See :mod:`spacr.qt.gui_scale`.\n* ``figure_save_mode``: ``\"print\"`` | ``\"screen\"`` | ``\"transparent\"``\n  (default ``\"print\"``). Controls the page and figure-element colours used\n  for saved figures. ``SPACR_FIGURE_SAVE_MODE`` remains a process-local\n  override; see :func:`spacr.figure_style.figure_save_mode`.\n* ``color_blind_mode``: ``\"off\"`` | ``\"deuteranopia\"`` | ``\"protanopia\"``\n  | ``\"tritanopia\"`` (default ``\"off\"``). Swaps matplotlib rainbow /\n  red-green palettes for perceptually-uniform + colour-blind-safe\n  alternatives (viridis for continuous, Okabe-Ito for categorical).\n* ``performance_logging``: ``\"off\"`` | ``\"summary\"`` | ``\"detailed\"``\n  (default ``\"summary\"``). Records process-tree resource use independently\n  of verbose call tracing; see :func:`get_performance_logging` and\n  :mod:`spacr.resource_log`.\n* ``db_browser_editable``: bool, default ``False``. Permits the\n  Database Browser to open a read-write connection at all; see\n  :func:`get_db_browser_editable`.\n* ``dock_mode``: ``\"locked\"`` | ``\"hidden\"`` (default\n  ``\"locked\"``). Whether the left app dock reveals on hover, is pinned\n  open as a permanent column, or is not there at all.\n* ``pane_opacity``: int percent, default ``60``. How solid shared surfaces\n  are, or the relative material strength in Glass. Clamped up to\n  :func:`spacr.qt.theme.pane_alpha_floor` at paint time — the\n  preference is a request, legibility is not negotiable.\n* ``field_fade``: bool, default ``True``. Whether an input field's\n  container and outline ramp from solid on the left to fully transparent\n  on the right. Fields are **exempt from** ``pane_opacity`` while this is\n  on — see :func:`get_field_fade_enabled` and\n  :mod:`spacr.qt.widgets.field_fade`.\n* ``show_alpha`` / ``show_beta``: bool, both default ``True``. Control\n  whether modules and settings at that maturity are shown. Stable features\n  are always visible.\n* ``sound/music_file``: str, default ``\"\"``. A WAV of the user's own that\n  the music bed plays instead of the synthesized one, and that the\n  Resonance backdrop is driven by. See :func:`get_sound_music_file`.\n* ``ambient_enabled``: bool, default ``True``. Whether module screens\n  paint the animated background at all. Turning it off is a first-class\n  choice — see :func:`get_ambient_enabled`. The user-facing control is the\n  ``None`` entry in the Animation list rather than a second switch: one\n  row, one meaning. Choosing an animation turns it back on.\n* ``spacr_mode``: ``\"extra_performance\"`` | ``\"performance\"`` |\n  ``\"balanced\"`` (default ``\"balanced\"``). How hard spaCR tries to stay out\n  of the machine's way — when it frees its own caches, and whether it\n  overrides the visual settings. Balanced does neither. See\n  :func:`set_spacr_mode` and :mod:`spacr.qt.resource_cleanup`, which owns\n  what a cleanup is allowed to touch (spaCR's own memory, and nothing\n  else — no other process, ever).\n* ``ambient_theme`` / ``ambient_palette``: which animation, and in which\n  colours. ``ambient_theme`` also holds\n  :data:`spacr.qt.widgets.ambient.NO_ANIMATION` — read it with\n  :func:`get_ambient_animation`, which can answer ``\"none\"``, or with\n  :func:`get_ambient_theme`, whose answer is always something paintable.\n  Validated against\n  :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` and\n  :func:`spacr.qt.widgets.ambient.palettes_for` respectively; palettes\n  are *per theme*, so see :func:`get_ambient_palette` for how the two\n  keys stay consistent with each other.\n* ``ambient_speed`` / ``ambient_size`` / ``ambient_resolution`` /\n  ``ambient_density``: floats; speed, size and detail default to ``1.0``,\n  density to ``0.1``. All are *multipliers* on\n  what the chosen animation already does — how fast it moves, how large its\n  elements are, how much detail it is drawn with and how many elements\n  there are. Clamped on read and on write\n  to the ranges the engines declare\n  (:data:`spacr.qt.widgets.ambient.SPEED_RANGE` and friends).\n* ``ambient_blur``: a legacy float retained for reading older preferences.\n  Current animation widgets render without this saved blur setting. Image\n  detail is controlled by ``ambient_resolution``.\n* ``ambient_drift_direction``: ``\"up\"`` | ``\"down\"`` | ``\"random\"``\n  (default ``\"up\"``). Which way spaCR stratified travels. A\n  preference rather than three entries in the animation menu; see\n  :data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS` for why.\n* ``spinner_delay``: float seconds, default ``2.0``. How long background\n  work has to run before the activity spinner appears at all — see\n  :func:`get_spinner_delay`.\n* ``setting_animations``: bool, default ``False``. Whether setting tooltips\n  play their animations automatically. When disabled, hover remains text-only\n  until the user activates **Animation** in that tooltip's footer; see\n  :func:`get_setting_animations_enabled`.\n* ``language``: one of the bundled language codes from\n  :mod:`spacr.qt.i18n`; defaults to English and falls back safely when a\n  persisted value is invalid."
     },
     "spacr.qt.preferences.PreferencesDialog": {
       "source_blocks_sha256": [
@@ -54428,6 +54428,42 @@
       ],
       "source_sha256": "eef7455d7645dc94e2f12a5a210b7af6e111d7f1eceb17392cbd860247586086",
       "text": "Build the dialog with the UI language resolved once.\n\nThe scope is the whole reason this wrapper exists. Building this\ndialog was measured asking the preference store what language the\ninterface is in 346 times, through 415 ``QSettings`` reads, and none\nof those answers could differ: nothing runs between them.\n\n:param parent: parent widget, or ``None``.\n:returns: the dialog, ready to ``exec``."
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply": {
+      "source_blocks_sha256": [
+        "d04d414af71b02010b7948e0c109699fe6fe18900ca3730aa78db848011eeb38",
+        "8faa3777e4f3b6d97ba22d7919e9f4e64f5236b931b38fe9c04c830f48fbece3"
+      ],
+      "source_sha256": "e56bba911be0674fd7e7d220f1372a4c5f42ca06b36631a73d1d1113e1258a9d",
+      "text": "Preview the edits and ask separately, keeping this dialog open.\n\nOnly keys changed by this application are rolled back. New\nnotification secrets are written only after Keep, so Revert\ncannot leave a replacement password in an external keyring.\nEdited controls remain available as a draft after Revert."
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._answered": {
+      "source_blocks_sha256": [
+        "79631e61ec077a4bef2af9cc1cfbacff11e0561b55a2496e937ec26b6bd681f9"
+      ],
+      "source_sha256": "79631e61ec077a4bef2af9cc1cfbacff11e0561b55a2496e937ec26b6bd681f9",
+      "text": "Keep or revert once, then release the question and enable another Apply."
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._network_bytes": {
+      "source_blocks_sha256": [
+        "9ae21a6e96c1c1d8fcd6ed3ff8009c316def332d423a99f0af0a1c51361e4d24"
+      ],
+      "source_sha256": "9ae21a6e96c1c1d8fcd6ed3ff8009c316def332d423a99f0af0a1c51361e4d24",
+      "text": "Read the network configuration bytes, or None when no file exists."
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._restore": {
+      "source_blocks_sha256": [
+        "611944a58c77c3bc7f86446cd5a81331aa2af0d7c751270755ca0fbf117fe29a"
+      ],
+      "source_sha256": "611944a58c77c3bc7f86446cd5a81331aa2af0d7c751270755ca0fbf117fe29a",
+      "text": "Restore this preview's changed keys, network configuration and live appearance."
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._snapshot": {
+      "source_blocks_sha256": [
+        "dfb76f68e74cb7ea50c0f5b25b968da4aeee0f435ced2c01005bc6b18180f2eb"
+      ],
+      "source_sha256": "dfb76f68e74cb7ea50c0f5b25b968da4aeee0f435ced2c01005bc6b18180f2eb",
+      "text": "Copy persisted preference values, bypassing any temporary store shadow."
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply_the_scales_live": {
       "source_blocks_sha256": [
@@ -54558,10 +54594,10 @@
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._rim_length_says": {
       "source_blocks_sha256": [
-        "be36760d1f41222a570aa1e24705998e74a52a3b39686e5f6f16c3410c98fc23"
+        "63689190ec44e5b56f817921fd3ef5afc0411378e5d3f6be3c267965b4bcc14d"
       ],
-      "source_sha256": "be36760d1f41222a570aa1e24705998e74a52a3b39686e5f6f16c3410c98fc23",
-      "text": "Show the rim length in pixels."
+      "source_sha256": "63689190ec44e5b56f817921fd3ef5afc0411378e5d3f6be3c267965b4bcc14d",
+      "text": "Show the rim length as a percentage of the perimeter."
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._rim_period_says": {
       "source_blocks_sha256": [
@@ -54624,10 +54660,10 @@
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors": {
       "source_blocks_sha256": [
-        "875ce591de4e782259b4c84d60e72691fe055e89c31b4266d933a0b4b07bc525"
+        "d0f1cbd2d8734b55b6f8cdc5f96fdbf6608eba4c20f797fd9c745390ca183507"
       ],
-      "source_sha256": "875ce591de4e782259b4c84d60e72691fe055e89c31b4266d933a0b4b07bc525",
-      "text": "Offer custom colours for the seven procedural data-art scenes."
+      "source_sha256": "d0f1cbd2d8734b55b6f8cdc5f96fdbf6608eba4c20f797fd9c745390ca183507",
+      "text": "Offer custom colours for the retained procedural data-art scenes."
     },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_direction_row": {
       "source_blocks_sha256": [
@@ -55051,28 +55087,28 @@
     },
     "spacr.qt.preferences.get_ambient_blur": {
       "source_blocks_sha256": [
-        "279fc22c37a66a9ae2aa2f00041f3a465f8e78b2103357d1943ed5a8d006fe30",
-        "0bc819666f32b21c8eff0ce6aa50659c0fcfc7bcefb97f206c244e4772a17152",
-        "4b649130330df55f0a69f65e77e0e5871ec6d3baefd83c6bf2e0fdfc3981947e"
+        "f2471196c6008af6169f120cb8c945869f8f47cfba3d88b7813d94eada59dbd0",
+        "f36fd31981eaf6f56b531011e1ced8ddb0a8cc8d8d056f8e1129451913f93eee",
+        "175b383dbe36c139eb8e8b73dcd412b6e9f95b9e17eb8f0dca3418d218dd82aa"
       ],
-      "source_sha256": "e05f512b2702327c18e6ca46857ec672a428bff856176eb48c8db6ecf13bea86",
-      "text": "How much the animated background is softened. 0.0 is as designed.\n\nIn units of eight screen pixels of area averaging, which is exactly the\nsoftness the buffered animations shipped with — so 1.0 asks for the old\nlook at whatever detail :func:`get_ambient_resolution` is set to.\n\nClamped to ``spacr.qt.widgets.ambient.BLUR_RANGE`` on read, so a value\nfrom a newer build or a hand-edited file cannot ask for a blur the\nengines will not paint."
+      "source_sha256": "6b7fbb35c974fbce152d2021860ed572e68de52f73cc1869fc5c50072f6f7cf3",
+      "text": "Read the retained legacy animation-blur preference.\n\nCurrent animation widgets do not apply this value, and Settings has no\nBlur control. Drawing detail is controlled by\n:func:`get_ambient_resolution`.\n\nThe legacy value is clamped to\n``spacr.qt.widgets.ambient.BLUR_RANGE`` on read."
     },
     "spacr.qt.preferences.get_ambient_density": {
       "source_blocks_sha256": [
         "9ca3ee27ffcf099c52562fc4a852e4dfdc56af41eb605bfbc9ef0ed84a58dd17",
-        "78831cbd724855c128fce982964d2d67b5264270338da8555a2f16d79018b5b0"
+        "26cfac6563d9baabecd17f1a95a01a2e124c827d4451a439105fd50b0e2f5f4e"
       ],
-      "source_sha256": "e476277bfe776cc32759890ef61e7140c901a30305b8d2abc8e96faf9360110b",
-      "text": "How many elements the animated background draws — blobs, curtains,\nripple sources, stars, discs, cells — as a multiplier on each\nanimation's own count. 1.0 is as designed.\n\nDensity and resolution share one cost budget in the engines\n(:data:`spacr.qt.widgets.ambient.WORK_BUDGET`), so asking for the top of\nboth ranges at once gets a trimmed density rather than a stalled frame."
+      "source_sha256": "405fb13696e6ec0d2fc66b30c874143f085505994666a57dc790c65606c54f5e",
+      "text": "How many elements the animated background draws — blobs, curtains,\nripple sources, stars, discs, cells — as a multiplier on each\nanimation's own count. 1.0 is as designed.\n\nDensity determines the population independently of detail. Render\nsampling and the native screen-pixel budget bound the combined work."
     },
     "spacr.qt.preferences.get_ambient_drift_direction": {
       "source_blocks_sha256": [
-        "f6263cb3a4de1ea22f5fc37513cd4e629007484289c280c0402012efa0cb2810",
+        "f43b78c1c2190aea6abb63d0f63d84b388439ce8f761a1393ac1e7403d6f1d51",
         "9cb4232576621f27a5197c42a951d16fcac8099769f297187627a21d0e9108d6"
       ],
-      "source_sha256": "bc1004e202d3a3edbb212714b3cce94c918037426efaa3a9546dbb7555dd30c6",
-      "text": "Which way the Starfield animation travels.\n\nValidated on read against\n:data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS`, so a value from a\nnewer build or a hand-edited file falls back to the default rather than\nreaching an engine that cannot honour it."
+      "source_sha256": "3f982cc2ac5ee8252261668d34849d6c7a4ffb6de40309487e5d55e621ea2e47",
+      "text": "Which way spaCR stratified travels.\n\nValidated on read against\n:data:`spacr.qt.widgets.ambient.DRIFT_DIRECTIONS`, so a value from a\nnewer build or a hand-edited file falls back to the default rather than\nreaching an engine that cannot honour it."
     },
     "spacr.qt.preferences.get_ambient_enabled": {
       "source_blocks_sha256": [
@@ -55095,11 +55131,11 @@
     },
     "spacr.qt.preferences.get_ambient_resolution": {
       "source_blocks_sha256": [
-        "c5c69bd84f6306101980e8e670949cd0986989d8ee7ad11561b38ef6428b01a4",
-        "c9c4b8bba2757c1c52e412e0ca6c19f46a69d8013abba1be3eb2a47a38563e55"
+        "7d183672e2b2e00e413f351355566be6cf4b237c4d4fd7dcffc95d6888b024c7",
+        "ddf7058141eab3388489959871ff8e12d0ab9094eb62a83b54bbfb8e4df5f066"
       ],
-      "source_sha256": "21c9b338b77ecd4cf99828b102cfd98815c3babb88aef70c4db14a2341796b48",
-      "text": "How much detail the animated background is drawn with, as a\nmultiplier on each animation's own shading buffer. 1.0 is as designed.\n\nSeparate from :func:`get_ambient_blur` on purpose: this decides how much\nof the geometry is computed, blur decides how much of it is then thrown\naway, and having one control do both was the reason the aurora could\nonly be soft *and* blocky. Costs quadratically — 2.0 is four times the\npixels — which is why the range stops where it does."
+      "source_sha256": "a5f69bc8dadae30f7f464c9f666c5c5531afe68d63a325726e6ceda779db6c73",
+      "text": "The drawing-detail multiplier on each animation's working grid.\n\n1.0 is as designed. Higher detail increases sampling work within the\nengine's screen-pixel limits. :func:`get_ambient_density` controls the\nselected population independently; increasing detail does not reduce\nthat population. Current widgets apply no animation blur."
     },
     "spacr.qt.preferences.get_ambient_size": {
       "source_blocks_sha256": [
@@ -55894,11 +55930,11 @@
     },
     "spacr.qt.preferences.set_ambient_blur": {
       "source_blocks_sha256": [
-        "8feb86dbf0d9fc68d53950576d90d2fc4de479779f70f64618b3034a8b9aec88",
-        "7d098d51d4bca1619c27c201e3b04d053867cf978eb42be4716dd633175d5c6a"
+        "4a2dc63a59a1d27170bb5cac391a7b655edf4904a52429e5c84cd2e6ab97345c",
+        "140406511dc7ecd416341d0791e43821e3012cccde58d549f9bd37f35ea309b3"
       ],
-      "source_sha256": "391ba94cd49f6ccbc5db1c45437d9a68a1402a8f0bae6e356ac535a403b00f36",
-      "text": "Set the softening. Out-of-range values are clamped, not refused:\nthis is a slider, and there is no user error to report.\n\n:param value: the blur, in units of eight screen pixels of area averaging\n    (0.0 is as designed); clamped to ``BLUR_RANGE`` from\n    :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores\n    ``DEFAULT_BLUR``."
+      "source_sha256": "4906232d5ea9563bbd50c25b31bd8e56d21fa25322a516d959bd196f55bd98ab",
+      "text": "Store the legacy animation-blur preference. Current widgets ignore it.\n\n:param value: the retained legacy blur value; clamped to ``BLUR_RANGE``\n    from :mod:`spacr.qt.widgets.ambient`. An unparseable value or NaN\n    stores ``DEFAULT_BLUR``."
     },
     "spacr.qt.preferences.set_ambient_density": {
       "source_blocks_sha256": [
@@ -56254,10 +56290,10 @@
         "e7d11210160ac2d3613f39e05d00e8e12982e1dfde541b1a03ce906fd4cbd49e",
         "212f21708f373180b12743d315de0530be8104a72d71c5fe83846fe5f4046e68",
         "b617442b3aa2938b7ecf16ac8fea31d1d7463011bfc01933b87001d4d9b80415",
-        "cccc0cfe95a4472a730f5411adf83c25626e27f2891568468d9818aacba54ad1"
+        "0bb7f4367668168753a26d7941922316e76823540d04ae8544741f0b97024c20"
       ],
-      "source_sha256": "3859abbd7e237f1c4c3132831b25ecc97e4646a248979f01eee52d9406ebb80d",
-      "text": "Persist the laptop-mode preference and apply it now.\n\n:param choice: one of :data:`LAPTOP_MODE_CHOICES`: ``\"on\"`` selects the\n    Laptop performance level, ``\"off\"`` moves a Laptop level back to the\n    default level, and ``\"automatic\"`` changes nothing.\n:raises ValueError: on an unknown choice.\n\nApplied immediately rather than at the next launch, because the two\nthings it changes -- the ambient animation and the backdrop blur -- are\nboth visible in the window behind the dialog. A performance setting\nthat needs a restart to show its effect cannot be judged by the person\nsetting it."
+      "source_sha256": "957580e71142ae86e8c4b8f18a3300196e78d5b4e0c79f22848bad82e2ddf03e",
+      "text": "Persist the laptop-mode preference and apply it now.\n\n:param choice: one of :data:`LAPTOP_MODE_CHOICES`: ``\"on\"`` selects the\n    Laptop performance level, ``\"off\"`` moves a Laptop level back to the\n    default level, and ``\"automatic\"`` changes nothing.\n:raises ValueError: on an unknown choice.\n\nApplied immediately rather than at the next launch, because the two\nanimation it changes is visible in the window behind the dialog. A\nperformance setting\nthat needs a restart to show its effect cannot be judged by the person\nsetting it."
     },
     "spacr.qt.preferences.set_log_levels": {
       "source_blocks_sha256": [
@@ -56625,10 +56661,10 @@
       "source_blocks_sha256": [
         "50386be4cc3450aaad0c952262cbe7c3442383c40a11a84b3e3a7d1fecf8f02a",
         "85beeac903811c13530b5e99206f3aa10a7862d28747ba2d8a9451dfa8d78e65",
-        "365b4e26992b3354102dadcd9219e23f0aa009e36ea36e44078d3b71e19acab1"
+        "920af8257dab892131c81bebbb121f32656211d2262fd94f40df17b0f2f5fe19"
       ],
-      "source_sha256": "4be810db7981bd11392886314295019b7cf4e0e05d22e96255223b5661371ffc",
-      "text": "Return ``(label, token)`` choices for the single Theme control.\n\nImage variants are represented as composite tokens in the UI while the\npersisted keys remain backward compatible.\n\nThe ten night themes follow the older palettes, in\n:data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the\napplication has always had stay where a returning user looks for them\nand read as one family. Twelve data-art presets follow them in a\nseparate block. Their tokens are plain keys with no variant, so\nthere is nothing to compose into the token the way Cell does."
+      "source_sha256": "7ae9ec981a6d4fe6e003a4e82e9fa989ca35117d6a55aa902533162ea189e064",
+      "text": "Return ``(label, token)`` choices for the single Theme control.\n\nImage variants are represented as composite tokens in the UI while the\npersisted keys remain backward compatible.\n\nThe ten night themes follow the older palettes, in\n:data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the\napplication has always had stay where a returning user looks for them\nand read as one family. Five data-art presets follow them in a\nseparate block. Their tokens are plain keys with no variant, so\nthere is nothing to compose into the token the way Cell does."
     },
     "spacr.qt.preferences.theme_description": {
       "source_blocks_sha256": [
@@ -75786,7 +75822,7 @@
       "source_blocks_sha256": [
         "a7de5036184a3f72e1e33dc0991cc9be9622d8ab6dd0ad7f440032e89ee7566c",
         "072e24897ecd4de6783cfce620a2641a9095883dbc50ceccbc994a2796127119",
-        "7a184a977d3ef97b1524a3b3a282f3b7da20ae1c6eb4ae68427247a95fb102b2",
+        "a2a62ba9e46aa9659fb054d670af1cc3cefcf440356e1900a53d69d5da6110c3",
         "b48295f637f6c0b9ca0a209a5e85fca16c2824e33de8faed0c36b1312a0ec768",
         "944c41970d3670c97f007f04b78b93d8072f339999ad7ef320dd57f5b5527c64",
         "5cd70fb1942de055b76f914c68f1c3150eaec5ad056f43177191453c8f6a3e8c",
@@ -75800,7 +75836,7 @@
         "61d98097b7dec638a3f245ddf55ca4e613b19382500ff8b95b5bb81e5d5c85b0",
         "204a5eb2cd28bcfdf3be9f8c765948e9e831609e3c57048cdbd6b8a94cf49126",
         "fb1fcb9a268f76c4431dd3f418fb6cbdd31b1c2d725450b5d07893b83e1f02f0",
-        "4943f59745f210869d6a0203f58a1f8b11b03f99d939a5e7dd500446f2d45d6b",
+        "57132cc350dadb1e793c8e5b6869e18e68a227cc5630a50d9ef038cbca486877",
         "2a205cfbd2f575a359a6ee7d139e96f2ddd1c315197ec287d3d931aacfedff0e",
         "969cd0a4de9fe6cd5d7b22d15a2fad71d590fbb74e7c6949affc8afd5eacdc01",
         "596d40a4ed24c02a31b19d6e633f46f64304a672b40f793d8c6deab868beb0e2",
@@ -75819,7 +75855,7 @@
         "12e608e9ef2cbab0bb45a06269da762ab8552f531bf314ec06595a2c021b6c11",
         "9bc5f29be26264b9d7a8f4d51af3602f846dda925cee9e96e7d069bb22a4beb5",
         "b774b77fe66152bc75abea2862ae74160d4954835eb1747f55cfecdc1678e9f2",
-        "3a1d2779e24fd63d5e6f55d0f8d512569eed8c9b2dc300b606f7c2596510047b",
+        "b0d99d470e3214d792d423e24c9abb73ddc0a575de872410c9d15e91e5857f11",
         "3cb8201e7ff1e7777446032ef1bf4338535aadbabe464c15411cdce8c2317590",
         "45a0c4fcb89d5df39db28725573ec80f85594ceeb01a73fa941c8d0bffc2944c",
         "fac103102d513a116ef9a8b86962cc001e83e82c30d13b2d995c486833a86245",
@@ -75839,13 +75875,16 @@
         "4b1f2a9b3075df4afd90de6d87d629ec93d30fe5881a605a165c9fe6a856d416",
         "037ca37af9f7d1f972d858c8986975b4ef2e6331d9821a5ef71e1391c86c9992",
         "f833b469deb34d9dfbf8101a5b1763f82e14cafe4bdbfa29a6f489d24bf38dde",
-        "471928276242c9505c8bb8361803ab80385b175ee7261b865a18d422aea51407",
+        "f5a2c26fdd8ebbeb947cefb6e5896bf29239ff3cec8248276cd3313017006c88",
         "c12835c6fadefa25c950d6b519206a8d927542809243c1751b35746437d3fe5e",
-        "a1355976eea48ed77fefa2ca3105552777d3be0592166e82fafefc302dd0a52a",
-        "0e6640726db7450a0eca04b3cca77fecf63e57b5c80d0ff5bc3a34e6ac40c958"
+        "c1289b2f18f74da78ebd508417e7d2dd9b6eef9975782f984edac0dc53bfb1e7",
+        "4976c14fc6bd700bfba7f0d9b3a2638f9e2914de995441465ee423ef47e3e731",
+        "766d7115ef19668749064e09211387d025ac8533a94b508e125455c51732249a",
+        "25751ccf00f7e3b37417661f9130d55c79acc9cb2581ecf9e0739d9d41fa3d88",
+        "a3f95171fc35cd36feda729734b29fcb2f9d84915d2edfc197412b0ac44e0f5e"
       ],
-      "source_sha256": "fa4e165bb0a659113319c2d50fda622484605e4380006ec00d5a5f4d0f481cc0",
-      "text": "Ambient animated backdrop — soft motion behind every module screen.\n\nThe sequencing screen has its own backdrop (:mod:`spacr.qt.widgets.dna_rain`,\nthe ATGC cascade). This is the one for *everything else*: a slow, diffuse\nanimation that sits behind the settings form and the console, takes no focus\nand no mouse events, and can be switched off entirely in Preferences.\n\nSeven data-art materials and three classic themes remain in the menu.\nThe default is ``data_art_impulse_lens`` (spaCR field). The other data-art choices\nare advection, growth, Thore, waves, tissue facets and chromatin satin.\nThe classic choices provide softer motion:\n\n``blobs``\n    Big and small colour blobs drifting over the page, each pulsing in size on\n    its own period. They overlap and blend, so the result reads as soft colour\n    *fields* rather than as a bag of circles.\n``aurora``\n    Three overlapping curtains of vertical rays, folding along their own\n    length. The folds are travelling waves — several superposed frequencies\n    running lengthwise along the arc — with brightness surges on a separate\n    schedule, a sharp lower edge, a diffuse top, and the real thing's\n    vertical colour order: green through the body, red high up, a violet\n    fringe underneath.\n``drift``\n    A slow starfield in three parallax layers: small, dim, slow ones behind;\n    bigger, brighter, faster ones in front. The one crisp theme. It travels\n    up, down, or every which way — see :data:`DRIFT_DIRECTIONS`.\n\nThe older :class:`RippleEngine`, :class:`CellsEngine`, :class:`BokehEngine`\nand :class:`ResonanceEngine` remain importable for direct callers, but are\nno longer menu choices or factory entries.\n\nThere is also a private ``fractal`` engine: it is\nnot in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it,\nand the only way to see it is to start the application with the ``spaceout``\ncommand instead of ``spacr``. See :data:`SPACEOUT_THEME` and\n:class:`FractalEngine`.\n\nThe ``random`` direction of ``drift`` produces Brownian-style motion without\nduplicating the starfield as a separate theme. Themes dominated by many\nantialiased lines or per-pixel noise are omitted because their raster cost is\ntoo high for an always-running backdrop.\n\nPalettes\n--------\nEvery theme declares the palettes it offers (:func:`palettes_for`), because a\npalette that works as a 400 px blob does not necessarily work as a 2 px star.\n:data:`PALETTE_SETS` holds the colours themselves; ``spacr`` uses the three\nbrand hues from the module-maturity legend, and ``okabe`` is the Okabe–Ito set\nfor red–green colour deficiency (see its note).\n\nBoth dark and light\n-------------------\nspaCR ships several themes, and a blob set tuned only for a near-black page turns\nto mud on a white one. So the *composition mode follows the background*:\n\n* dark page  -> ``CompositionMode_Plus``. Overlapping blobs add up and glow,\n  which is what makes two circles read as one colour field. Additive over a\n  light page just clips to white and the whole effect vanishes.\n* light page -> ``CompositionMode_Multiply``, with the palette colour mixed\n  toward white first. Multiply is the exact dual: overlaps get *darker* and\n  still blend hue-wise, so the same geometry reads the same way.\n  ``SourceOver`` would let later blobs cover earlier ones, producing discrete\n  discs instead of a blended field.\n\n:func:`AmbientWidget.set_background_color` re-derives all of that, so a live\ntheme switch is one call.\n\nCost\n----\nThis paints behind every module screen, on machines that are simultaneously\nrunning Cellpose on a GPU and a 40-plate pipeline, so cost is a correctness\nrequirement rather than a nicety. Two things get it there:\n\n1. *The timer stops whenever the widget is not on screen* — hidden, on another\n   tab, or in a minimised window. Zero frames, zero CPU. These screens stay\n   open for hours, so this is the whole ball game.\n2. *The soft themes are painted into a small reusable QImage and scaled up*,\n   never at full resolution. The buffer's long edge is whatever the theme\n   declares (:attr:`_BufferedEngine.base_edge`) times the user's resolution\n   setting, so the diffuse fields shade ~37 000 pixels instead of ~2 000 000\n   and the aurora, which has real structure in it, shades ~520 000. On the\n   synchronous path the one allocation happens on resize and never per\n   frame; the shading thread copies the finished buffer once a frame so the\n   GUI thread can blit it while the next one is being drawn, which measures\n   0.003 ms for ``blobs`` and 0.035 for the aurora's 2 MiB — 2 % of the\n   shading pass it makes safe.\n3. *The shading happens on its own thread* (:class:`_FrameProducer`), so the\n   GUI thread's whole share of a frame is one ``drawImage``. That is the next\n   section, and it is the one that matters while a pipeline is running.\n\nWhile a run is going\n--------------------\nThe animation can lag while a job is running, and the cause is not the obvious\none. Measurements on a real X server at 1920x1080 with a real ``ConsolePanel``\nunder the real stylesheet and a real Qt event loop, ``blobs`` at the shipped\n24 fps cap, best of five interleaved rounds:\n\n==============================================  ==========  ==========\n condition                                       delivered   GUI paint\n==============================================  ==========  ==========\n idle                                             25.0 fps     2.04 ms\n a numpy thread (1024² matmul + FFT), flat out    24.5 fps     2.10 ms\n 200 console lines a second, nothing else         24.9 fps     1.27 ms\n **one pure-Python thread**                       24.5 fps  **17.21 ms**\n a worker doing Python work *and* printing        17.3 fps    17.16 ms\n==============================================  ==========  ==========\n\nSo **CPU saturation is not a cause**: numpy releases the interpreter lock and\na core burning flat out costs this module nothing. **A signal flood is not a\ncause on its own**: 200 lines a second are free, and it only bites in the\nthousands, where the console's own per-line work saturates the GUI thread and\nnothing in *this* module can help. What is left is **the interpreter lock**:\nidentical drawing work, eleven times slower, because the shading pass is\nPython and numpy and something else is holding the lock.\n\nTranslucent overlays can also trigger repaints outside the animation timer.\nThe console sits over this widget, so each new line can expose it and request\na full frame even while the animation timer is stopped. Expensive shading must\ntherefore remain off the GUI thread even when the frame rate is capped.\n\nThe frame is split at the seam where the cost occurs. Per\ntheme, milliseconds, idle against one Python thread, min of nine interleaved\nrounds:\n\n=========  =====================  =====================\ntheme      shading (moved)        soften + blit (stays)\n=========  =====================  =====================\nblobs      0.240 ->  0.572        0.651 -> 1.097\naurora     1.396 ->  7.176        0.797 -> 1.043\nripple     0.367 ->  0.589        0.644 -> 1.196\nbokeh      0.663 ->  3.533        0.679 -> 1.008\ncells      0.538 -> 26.179        0.663 -> 0.909\ndrift      0.528 ->  1.084        (no buffer)\nresonance  1.072 -> see below     0.842 -> 1.115\n=========  =====================  =====================\n\n``resonance`` is the one row whose contended figure is a range rather than a\nnumber, and the shape of its shading is the reason. The others are one long\npass of ``QPainter`` calls; the plate is dozens of small NumPy calls, and\neach one gives the lock back and then queues for it again, so what the cell\nwould measure is how often the shading thread was descheduled rather than\nhow much work the theme does. Four nine-round repeats of the protocol above\ngave medians of 10, 174, 286 and 407 ms on the same machine. Two things make\nthat liveable and both are already here: the cost is paid on the producer\nthread, so a late frame is a *repeated* frame\n(:attr:`AmbientWidget.repeated_frames`) and never a slow interface; and\nwhile a run is going the process holds\n:data:`spacr.qt.gil_priority.BUSY_INTERVAL`, where the same measurement is 6\nto 24 ms. Its row was taken later than the rest and on a busier machine —\n``blobs`` read 0.262 and 0.749 -> 1.002 in the same run — so read it against\nthose rather than against the table.\n\nThe shading pass is sensitive to interpreter-lock contention, whereas the Qt\nblit remains inexpensive. :meth:`_BufferedEngine.shade` therefore runs in\n:class:`_FrameProducer`, while :meth:`_BufferedEngine.blit` stays on the GUI\nthread. If a shaded frame is not ready, the widget repeats the previous frame\ninstead of blocking the interface.\n\n``blobs``, the default, goes 17.3 fps to 24.7 on the same worker. What this\ndoes **not** address is a genuinely chatty run: at 200 lines a second both\nland at about 4 fps, because by then the GUI thread is inside ``ConsolePanel``\nand not in here at all. Two levers finish the job and neither is in this file —\n``sys.setswitchinterval(0.001)`` in the Qt bootstrap (measured independently:\n32 % of the frame rate to 99 %, for about 6 % of the worker's throughput) and\ncoalescing ``PipelineWorker.line_ready``.\n\nThree constraints shape the implementation. Animation periods are sampled\nfrom continuous ranges rather than replayed from a precomputed loop, avoiding\nvisible jumps and large frame caches. Shading runs outside the GUI thread; if\na frame is late, the previous frame is repeated and counted by\n:attr:`AmbientWidget.repeated_frames`. The animation clock remains on the GUI\nthread, and rendered frames remain deterministic functions of\n``(seed, clock, size)``.\n\n``drift`` keeps the synchronous path, and its row above is the reason: it is\nthe one engine with no buffer, it degrades the least of the seven (2.1x against\n48.7x for ``cells``), and threading it would mean publishing a full-resolution\nframe — 7.91 MiB a slot against 126.6 KiB for ``blobs`` — to buy the smallest\nimprovement on the list.\n\nPerformance depends on hardware, display size, theme, and concurrent work.\nThe settings have predictable relative costs: detail is approximately\nquadratic, density is approximately linear, and blur is inexpensive for the\nsix buffered themes. ``drift`` has no buffer, so its blur is a second wider\npass per dot and is capped by :data:`DRIFT_HALO_MAX_PX`. The\n:data:`WORK_BUDGET` limits combinations of density and detail that would make\nthe backdrop compete with analysis work. Hidden widgets stop rendering\nentirely."
+      "source_sha256": "da05e24da5ced5e56047c833023f36610447e8b94c03386c2cad3d2e4ec8faf6",
+      "text": "Ambient animated backdrop — soft motion behind every module screen.\n\nThe sequencing screen has its own backdrop (:mod:`spacr.qt.widgets.dna_rain`,\nthe ATGC cascade). This is the one for *everything else*: a slow, diffuse\nanimation that sits behind the settings form and the console, takes no focus\nand no mouse events, and can be switched off entirely in Preferences.\n\nFive data-art materials and three classic themes remain in the menu.\nThe default is ``data_art_impulse_lens`` (spaCR field). The other data-art choices\nare spaCR advection, spaCR growth, spaCR waves and spaCR spinn.\nThe classic choices provide softer motion:\n\n``blobs``\n    Big and small colour blobs drifting over the page, each pulsing in size on\n    its own period. They overlap and blend, so the result reads as soft colour\n    *fields* rather than as a bag of circles.\n``aurora``\n    Three overlapping curtains of vertical rays, folding along their own\n    length. The folds are travelling waves — several superposed frequencies\n    running lengthwise along the arc — with brightness surges on a separate\n    schedule, a sharp lower edge, a diffuse top, and the real thing's\n    vertical colour order: green through the body, red high up, a violet\n    fringe underneath.\n``drift``\n    A slow starfield in three parallax layers: small, dim, slow ones behind;\n    bigger, brighter, faster ones in front. The one crisp theme. It travels\n    up, down, or every which way — see :data:`DRIFT_DIRECTIONS`.\n\nThe older :class:`RippleEngine`, :class:`CellsEngine`, :class:`BokehEngine`\nand :class:`ResonanceEngine` remain importable for direct callers, but are\nno longer menu choices or factory entries.\n\nThere is also a private ``fractal`` engine: it is\nnot in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it,\nand the only way to see it is to start the application with the ``spaceout``\ncommand instead of ``spacr``. See :data:`SPACEOUT_THEME` and\n:class:`FractalEngine`.\n\nThe ``random`` direction of ``drift`` produces Brownian-style motion without\nduplicating the starfield as a separate theme. Themes dominated by many\nantialiased lines or per-pixel noise are omitted because their raster cost is\ntoo high for an always-running backdrop.\n\nPalettes\n--------\nEvery theme declares the palettes it offers (:func:`palettes_for`), because a\npalette that works as a 400 px blob does not necessarily work as a 2 px star.\n:data:`PALETTE_SETS` holds the colours themselves; ``spacr`` uses the three\nbrand hues from the module-maturity legend, and ``okabe`` is the Okabe–Ito set\nfor red–green colour deficiency (see its note).\n\nBoth dark and light\n-------------------\nspaCR ships several themes, and a blob set tuned only for a near-black page turns\nto mud on a white one. So the *composition mode follows the background*:\n\n* dark page  -> ``CompositionMode_Plus``. Overlapping blobs add up and glow,\n  which is what makes two circles read as one colour field. Additive over a\n  light page just clips to white and the whole effect vanishes.\n* light page -> ``CompositionMode_Multiply``, with the palette colour mixed\n  toward white first. Multiply is the exact dual: overlaps get *darker* and\n  still blend hue-wise, so the same geometry reads the same way.\n  ``SourceOver`` would let later blobs cover earlier ones, producing discrete\n  discs instead of a blended field.\n\n:func:`AmbientWidget.set_background_color` re-derives all of that, so a live\ntheme switch is one call.\n\nCost\n----\nThis paints behind every module screen, on machines that are simultaneously\nrunning Cellpose on a GPU and a 40-plate pipeline, so cost is a correctness\nrequirement rather than a nicety. Two things get it there:\n\n1. *The timer stops whenever the widget is not on screen* — hidden, on another\n   tab, or in a minimised window. Zero frames, zero CPU. These screens stay\n   open for hours, so this is the whole ball game.\n2. *Diffuse themes are painted into a small reusable QImage and scaled up*.\n   The buffer's long edge is whatever the theme declares\n   (:attr:`_BufferedEngine.base_edge`) times the user's resolution setting,\n   so diffuse fields shade ~37 000 pixels instead of ~2 000 000. The aurora\n   and data-art materials preserve native display detail within the actual\n   screen-pixel budget. Aurora returns an owned frame, avoiding a second\n   full-size copy when a shading worker publishes it.\n3. *The shading happens on its own thread* (:class:`_FrameProducer`), so the\n   GUI thread's whole share of a frame is one ``drawImage``. That is the next\n   section, and it is the one that matters while a pipeline is running.\n\nWhile a run is going\n--------------------\nThe animation can lag while a job is running, and the cause is not the obvious\none. Measurements on a real X server at 1920x1080 with a real ``ConsolePanel``\nunder the real stylesheet and a real Qt event loop, ``blobs`` at the shipped\n24 fps cap, best of five interleaved rounds:\n\n==============================================  ==========  ==========\n condition                                       delivered   GUI paint\n==============================================  ==========  ==========\n idle                                             25.0 fps     2.04 ms\n a numpy thread (1024² matmul + FFT), flat out    24.5 fps     2.10 ms\n 200 console lines a second, nothing else         24.9 fps     1.27 ms\n **one pure-Python thread**                       24.5 fps  **17.21 ms**\n a worker doing Python work *and* printing        17.3 fps    17.16 ms\n==============================================  ==========  ==========\n\nSo **CPU saturation is not a cause**: numpy releases the interpreter lock and\na core burning flat out costs this module nothing. **A signal flood is not a\ncause on its own**: 200 lines a second are free, and it only bites in the\nthousands, where the console's own per-line work saturates the GUI thread and\nnothing in *this* module can help. What is left is **the interpreter lock**:\nidentical drawing work, eleven times slower, because the shading pass is\nPython and numpy and something else is holding the lock.\n\nTranslucent overlays can also trigger repaints outside the animation timer.\nThe console sits over this widget, so each new line can expose it and request\na full frame even while the animation timer is stopped. Expensive shading must\ntherefore remain off the GUI thread even when the frame rate is capped.\n\nThe frame is split at the seam where the cost occurs. The following historical\nmeasurements predate native-resolution Aurora and serve as a comparison, not\nas a current frame-rate claim. Per theme, milliseconds, idle against one\nPython thread, min of nine interleaved rounds:\n\n=========  =====================  =====================\ntheme      shading (moved)        soften + blit (stays)\n=========  =====================  =====================\nblobs      0.240 ->  0.572        0.651 -> 1.097\naurora     1.396 ->  7.176        0.797 -> 1.043\nripple     0.367 ->  0.589        0.644 -> 1.196\nbokeh      0.663 ->  3.533        0.679 -> 1.008\ncells      0.538 -> 26.179        0.663 -> 0.909\ndrift      0.528 ->  1.084        (no buffer)\nresonance  1.072 -> see below     0.842 -> 1.115\n=========  =====================  =====================\n\n``resonance`` is the one row whose contended figure is a range rather than a\nnumber, and the shape of its shading is the reason. The others are one long\npass of ``QPainter`` calls; the plate is dozens of small NumPy calls, and\neach one gives the lock back and then queues for it again, so what the cell\nwould measure is how often the shading thread was descheduled rather than\nhow much work the theme does. Four nine-round repeats of the protocol above\ngave medians of 10, 174, 286 and 407 ms on the same machine. Two things make\nthat liveable and both are already here: the cost is paid on the producer\nthread, so a late frame is a *repeated* frame\n(:attr:`AmbientWidget.repeated_frames`) and never a slow interface; and\nwhile a run is going the process holds\n:data:`spacr.qt.gil_priority.BUSY_INTERVAL`, where the same measurement is 6\nto 24 ms. Its row was taken later than the rest and on a busier machine —\n``blobs`` read 0.262 and 0.749 -> 1.002 in the same run — so read it against\nthose rather than against the table.\n\nThe shading pass is sensitive to interpreter-lock contention, whereas the Qt\nblit remains inexpensive. :meth:`_BufferedEngine.shade` therefore runs in\n:class:`_FrameProducer`, while :meth:`_BufferedEngine.blit` stays on the GUI\nthread. If a shaded frame is not ready, the widget repeats the previous frame\ninstead of blocking the interface.\n\nIn that historical ``blobs`` benchmark, the rate goes from 17.3 fps to 24.7 on\nthe same worker. What this\ndoes **not** address is a genuinely chatty run: at 200 lines a second both\nland at about 4 fps, because by then the GUI thread is inside ``ConsolePanel``\nand not in here at all. Two levers finish the job and neither is in this file —\n``sys.setswitchinterval(0.001)`` in the Qt bootstrap (measured independently:\n32 % of the frame rate to 99 %, for about 6 % of the worker's throughput) and\ncoalescing ``PipelineWorker.line_ready``.\n\nThree constraints shape the implementation. Animation periods are sampled\nfrom continuous ranges rather than replayed from a precomputed loop, avoiding\nvisible jumps and large frame caches. Shading runs outside the GUI thread; if\na frame is late, the previous frame is repeated and counted by\n:attr:`AmbientWidget.repeated_frames`. The animation clock remains on the GUI\nthread, and rendered frames remain deterministic functions of\n``(seed, clock, size)``.\n\n``drift`` keeps synchronous drawing at full Detail. Lower Detail renders the\nsame particle population through a bounded image buffer; it does not reduce\nDensity. Its historical row above predates that buffer path.\n\nPerformance depends on hardware, display size, theme, and concurrent work.\nDensity controls population independently of Detail. Detail controls sampling\nresolution, and buffers stay within the actual screen-pixel budget. Increasing\nDetail does not trim the selected population. Legacy direct engine callers may\nstill set blur, but Preferences exposes no Blur control. Hidden widgets stop\nrendering entirely. Historical timings above do not establish native 24 FPS\nat current maximum controls.\n\nThe private growth producer uses ``_lineage`` to index reproducible wandering\ntips and recursive front forks. Daughter branches remain connected to their\nparent filaments; older trails recede as new colonies begin. This is decorative\nmycelial artwork, not a model fitted to project measurements.\n\nThe field's background-only left drag uses ``_set_field_grab`` and\n``_step_field_grab`` for a bounded local spring with continuous release\nvelocity. ``AmbientWidget._offer_field_grab`` publishes the latest handle\nwithout waiting for shading, and ``AmbientWidget._field_grab_background``\nexcludes scientific canvases and interactive controls. Release returns the\npatch without moving or reseeding its underlying material.\n\nAurora's ``buffer_size`` and ``buffer_scale`` retain crisp display sampling;\nits private ``_shade`` returns a freshly owned frame. Drift's ``buffer_size``\nbounds lower-Detail drawing, while its private ``_paint_dots`` paints the same\nselected population into that buffer or directly at full Detail."
     },
     "spacr.qt.widgets.ambient.AmbientEngine": {
       "source_blocks_sha256": [
@@ -75915,11 +75954,11 @@
     },
     "spacr.qt.widgets.ambient.AmbientEngine.effective_density": {
       "source_blocks_sha256": [
-        "032a9f8e9b65e81630954e054a7eed9c1618469a908a960f6f4d4619b28307d5",
-        "f34fc286e75fe208e83f2cce60d6d4ad10ba75a993bf1f4c6805444f0811c2f5"
+        "e3717bc1e313f1ab3128cfc3043ca7eb3998636e26c008a88cbf469ead4e3566",
+        "c9d741e62e66377e7dcc3f52fe0f65da636f2afb5f58f39227d959d1def3e424"
       ],
-      "source_sha256": "aa06256717f96b112f29e729dba684e95f96e88827f799c9098926b89566413e",
-      "text": ":attr:`density`, trimmed to keep :attr:`work` inside\n:data:`WORK_BUDGET`.\n\nA function of the two settings alone, never of the canvas, so what a\ntest measures on ``geometry()`` is what gets painted."
+      "source_sha256": "da20e316b10a5419292cf0ef5b351c3edf33845c60529df5fd99c77a413cc25d",
+      "text": "The requested population, independently of render resolution.\n\nBuffered engines enforce the work budget on pixel sampling instead\nof removing elements when the user increases Detail."
     },
     "spacr.qt.widgets.ambient.AmbientEngine.element_count": {
       "source_blocks_sha256": [
@@ -76039,7 +76078,7 @@
         "58d86b8559f10ce79c3c6697263bd7a1573f845db40e9f87adbc9dab12747178",
         "9c095c0957ba926ffdda1d6336136cf787cf79fc65510951f406213b042d9974",
         "ee7b6e523eeb28e935fde38622534b6bb80386992c32fcae4248493041b3f92c",
-        "fe265ec0c2957c833fd6f126224c0998ccb3877e0d889168ab3d42e0c9e9689e",
+        "b367530976520bf318bec12a5607bfeeabbca1675c1a53c06122ae0c10f8f78d",
         "68c785e320d99271b58908e1bbe069ce0c300cc509667a046bb401f441330a40",
         "0cef3b36e6d08d961e8486542fcd614d3abedfb044b1f8c6a05256faa1e004a5",
         "580223628aa3fcd8efc7e5386ac7cf28a96a05cb0f9366f435f21792d9692c1f",
@@ -76050,8 +76089,8 @@
         "e3308d2b706272c5c0e7b9d59bb06d7b6cee728a9e6d3ccfd3f9671c539d7b9c",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
       ],
-      "source_sha256": "20fa58f839470344716678293571a6962bafce7393951f7353918548caf87bda",
-      "text": "The live backdrop: paints an :class:`AmbientEngine` at a capped rate.\n\nScreen content sits in front of it, so it never takes focus, is\ntransparent to mouse events, and lowers itself to the bottom of the\nsibling stacking order. It is fully opaque — it paints the page colour (or\nthe theme wallpaper) itself and the animation on top — so the widget it\ncovers has nothing to repaint underneath.\n\n:param parent: parent widget; :meth:`follow_parent` sizes it to that.\n:param theme: one of :data:`AMBIENT_THEMES`.\n:param palette: one of :func:`palettes_for` for that theme. A palette\n    that exists but is not offered by the theme is downgraded to the\n    theme's default (stale preferences must not break a screen); an\n    unknown name raises.\n:param background: the flat colour under the animation; defaults to the\n    current theme's page colour.\n:param backdrop: an image to paint under the animation instead of the\n    flat colour — a path, a ``QPixmap``/``QImage``, or ``None``. Give it\n    the Space/Cell wallpaper and the animation composites over the\n    picture rather than replacing it.\n:param fps: frame-rate cap.\n:param seed: RNG seed, for a reproducible animation.\n:param blur: how much the finished picture is softened; ``None`` reads\n    Preferences.\n:param speed: motion multiplier; ``None`` reads Preferences.\n:param size: element-size multiplier; ``None`` reads Preferences.\n:param resolution: how much detail is shaded, as a multiplier on the\n    theme's own buffer; ``None`` reads Preferences.\n:param density: how many elements are drawn, as a multiplier on the\n    theme's own count; ``None`` reads Preferences.\n:param gravity_radius: pointer influence radius, as a fraction of the\n    shorter screen edge; zero disables it. ``None`` reads Preferences.\n:param direction: which way the starfield travels, one of\n    :data:`DRIFT_DIRECTIONS`; ``None`` reads Preferences. Meaningless to\n    the other themes, and kept anyway so switching away and back does\n    not lose it.\n:param corner_radius: round the backdrop's own corners by this many px;\n    ``0`` leaves it square. CLIPPED, not masked -- a mask region gives\n    stair-stepped corners against the card's anti-aliased rim -- and\n    applied before the base fill so the flat page colour is rounded with\n    the animation rather than showing at the corners behind it.\nBuild the widget and start its engine.\n\n:param parent: parent widget."
+      "source_sha256": "cb12671d370bdbfdc3889dbd7200b9b466ba0948961f189313c3638ea72d3412",
+      "text": "The live backdrop: paints an :class:`AmbientEngine` at a capped rate.\n\nScreen content sits in front of it, so it never takes focus, is\ntransparent to mouse events, and lowers itself to the bottom of the\nsibling stacking order. It is fully opaque — it paints the page colour (or\nthe theme wallpaper) itself and the animation on top — so the widget it\ncovers has nothing to repaint underneath.\n\n:param parent: parent widget; :meth:`follow_parent` sizes it to that.\n:param theme: one of :data:`AMBIENT_THEMES`.\n:param palette: one of :func:`palettes_for` for that theme. A palette\n    that exists but is not offered by the theme is downgraded to the\n    theme's default (stale preferences must not break a screen); an\n    unknown name raises.\n:param background: the flat colour under the animation; defaults to the\n    current theme's page colour.\n:param backdrop: an image to paint under the animation instead of the\n    flat colour — a path, a ``QPixmap``/``QImage``, or ``None``. Give it\n    the Space/Cell wallpaper and the animation composites over the\n    picture rather than replacing it.\n:param fps: frame-rate cap.\n:param seed: RNG seed, for a reproducible animation.\n:param blur: retained for older callers; displayed themes ignore blur.\n:param speed: motion multiplier; ``None`` reads Preferences.\n:param size: element-size multiplier; ``None`` reads Preferences.\n:param resolution: how much detail is shaded, as a multiplier on the\n    theme's own buffer; ``None`` reads Preferences.\n:param density: how many elements are drawn, as a multiplier on the\n    theme's own count; ``None`` reads Preferences.\n:param gravity_radius: pointer influence radius, as a fraction of the\n    shorter screen edge; zero disables it. ``None`` reads Preferences.\n:param direction: which way the starfield travels, one of\n    :data:`DRIFT_DIRECTIONS`; ``None`` reads Preferences. Meaningless to\n    the other themes, and kept anyway so switching away and back does\n    not lose it.\n:param corner_radius: round the backdrop's own corners by this many px;\n    ``0`` leaves it square. CLIPPED, not masked -- a mask region gives\n    stair-stepped corners against the card's anti-aliased rim -- and\n    applied before the base fill so the flat page colour is rounded with\n    the animation rather than showing at the corners behind it.\nBuild the widget and start its engine.\n\n:param parent: parent widget."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.advance_frame": {
       "source_blocks_sha256": [
@@ -76237,11 +76276,11 @@
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_blur": {
       "source_blocks_sha256": [
-        "518edb4ad61a46a1163e50cf9b2391423ccd040750a6c973116921e6bf0282b2",
-        "f7c072d39e413ffeb3b9aedeee9f39cdd7f8b3d9b90d0f9ac8d8aa66c2af876a"
+        "d8e1ee2da970b910cfa81e43e581dd1d8938fe7d2da2fcb4bc163e87bf1323e1",
+        "13abe22d9969b02d885aafeadc22cb9981addc13d9278cad7cc8a13890514595"
       ],
-      "source_sha256": "02ba4a6dc303da33bd20c769e6e7f0b1c9e67452de2b1d57d0723bfd466d7149",
-      "text": "Set the softening. Clamped to :data:`BLUR_RANGE`.\n\n:param value: the blur amount, converted with ``float``."
+      "source_sha256": "fa5efe1d00cae0ed932b59884e4096fc5cb5d3bcbfa1ff7c03007a3eb122e475",
+      "text": "Keep the retired softening control compatible with older callers.\n\n:param value: a legacy value; displayed themes remain unsoftened."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_density": {
       "source_blocks_sha256": [
@@ -76270,10 +76309,10 @@
     "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius": {
       "source_blocks_sha256": [
         "b560c667834411b99831f78c33d36fbe5dc69937966474bc941c172276dd3ffd",
-        "89bda7c32d295da522bff3c65db2b29515436a4cdd570f7e2fa1bade22b6c8c7"
+        "519b4a4d2c80b049c7b08b21bdf8b58353c55a9008edb8aa30f8009df0e27cf5"
       ],
-      "source_sha256": "31a03572c8dcc26fd44cfdf09ccb3c4a01c67799c37183a45933e27fdfaaab1e",
-      "text": "Apply local pointer reach while excluding a concurrent shade pass.\n\n:param value: fraction of the shorter screen edge, clamped to [0, 1];\n    zero disables mouse influence."
+      "source_sha256": "97d3914cae36eaf394f65313faa10c857e5405e1576adf9f1879995796d701c6",
+      "text": "Apply local pointer reach while excluding a concurrent shade pass.\n\n:param value: fraction of the shorter screen edge, clamped to [0, 1];\n    zero disables hover gravity; the explicit field handle remains available."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_palette": {
       "source_blocks_sha256": [
@@ -76392,11 +76431,11 @@
     "spacr.qt.widgets.ambient.AuroraEngine": {
       "source_blocks_sha256": [
         "27f5baba53471fa1768c6d962e50db9fad4c6409979ed805b3738052e068e377",
-        "469e428fbbfb536a56bb1bfeb10717e39ed965ecbb5e815b982a4fe7ff8de674",
+        "045be32437024fad5acc21392ab1f8ee8e3ea0189c47ef8d5909afe29b0874e4",
         "44a8ec53fe7cd326f1034e52332af2c06f497293047bfd6870572880d4be144d"
       ],
-      "source_sha256": "83a327ea172d00b56eb4ca2e8db5dea06212509adda88ff601966bd55e3bf4c3",
-      "text": "Folded curtains of vertical rays, rippling along their own length.\n\nSee the block comment above for the phenomenon, for why the colour ramp\nis anchored to the frame rather than to the curtain, and for why it is\npainted as two brush fills per curtain rather than as a few hundred\nsprites.\n\n:meth:`geometry` yields ``(x, y_bottom, visible_height, brightness)`` per\nsampled column of every curtain, in pixels, ``AURORA_COLUMNS + 1`` of them\nper curtain in curtain order. The painter builds its paths from exactly\nthose numbers, so a test that tracks a fold crest through ``geometry`` is\ntracking the crest that is on screen. ``brightness`` is the surge, and it\nis the *model's* value: what gets painted is the same function with its\nphase quantised into :data:`AURORA_PULSE_STEPS` so the surge texture can\nbe cached (see :meth:`_surge`).\nRoll the aurora's bands and their drift."
+      "source_sha256": "2ad66d89b6c89ac005ae60af595b268fc8875c3e581edb5e4339f43ea86f1ad4",
+      "text": "Folded curtains of vertical rays, rippling along their own length.\n\nSee the block comment above for the phenomenon, for why the colour ramp\nis anchored to the frame rather than to the curtain, and for why it is\npainted as layered brush fills per curtain rather than as hundreds of\nsprites. The frame raster is native at ordinary Detail, within the\nphysical screen-pixel budget, and is returned with independent ownership.\n:data:`AURORA_BUFFER_EDGE` remains the legacy comparison edge; it no\nlonger caps the active buffer.\n\n:meth:`geometry` yields ``(x, y_bottom, visible_height, brightness)`` per\nsampled column of every curtain, in pixels, ``AURORA_COLUMNS + 1`` of them\nper curtain in curtain order. The painter builds its paths from exactly\nthose numbers, so a test that tracks a fold crest through ``geometry`` is\ntracking the crest that is on screen. ``brightness`` is the surge, and it\nis the *model's* value: what gets painted is the same function with its\nphase quantised into :data:`AURORA_PULSE_STEPS` so the surge texture can\nbe cached (see :meth:`_surge`).\nRoll the aurora's bands and their drift."
     },
     "spacr.qt.widgets.ambient.AuroraEngine.anchor": {
       "source_blocks_sha256": [
@@ -76405,6 +76444,20 @@
       ],
       "source_sha256": "9f2ab6649d1df2ea38b58302ca7d59eb8a32726132e720028779575ec656c4cb",
       "text": "``(ramp zero, ray length)`` for one curtain, in pixels.\n\nThe ramp's zero is the altitude the emission stops at, so it sits\nbelow everything the fold and the tilt can do — that is what keeps\nevery column of the sheet inside its own colour ramp."
+    },
+    "spacr.qt.widgets.ambient.AuroraEngine.buffer_scale": {
+      "source_blocks_sha256": [
+        "d42a5c7f00a6d247d74b2a703c1d855bf5eb7336440e28a09f72e2630b03925e"
+      ],
+      "source_sha256": "d42a5c7f00a6d247d74b2a703c1d855bf5eb7336440e28a09f72e2630b03925e",
+      "text": "Report the aurora sampling ratio for explicit detail controls."
+    },
+    "spacr.qt.widgets.ambient.AuroraEngine.buffer_size": {
+      "source_blocks_sha256": [
+        "03a821840080d7fbc41c911a45759f1fd09e682d71e23bb5e5a5bdbb71d86a62"
+      ],
+      "source_sha256": "03a821840080d7fbc41c911a45759f1fd09e682d71e23bb5e5a5bdbb71d86a62",
+      "text": "Sample native display pixels within the actual screen budget."
     },
     "spacr.qt.widgets.ambient.AuroraEngine.count": {
       "source_blocks_sha256": [
@@ -76581,11 +76634,11 @@
     "spacr.qt.widgets.ambient.DriftEngine": {
       "source_blocks_sha256": [
         "b621949bd1611c828e842543041448e4b5faf9eb016afc997c7981991ddd21d0",
-        "23a305513a7b9c12a045504046691d369f9a72c72e1489e95b82bd9b9fb4ed68",
+        "a48ead105e91efc59dc030aa8cbeebd860ef1653511227abad4a928330ea4ccc",
         "1cc99551438e5196875f2e80537d89d4ed75e7a340fea453c367fb57c0c85dad"
       ],
-      "source_sha256": "6e024304146d7ab9b1e23613f0a5d1a6f1969f65672c4c4f9335c2028ba67cb6",
-      "text": "A slow starfield in three parallax layers.\n\nThe one theme painted at full resolution, because dots have to be crisp\nto read as dots — and it is affordable exactly because a couple of\nhundred dots of 1-4 px touch almost no pixels (0.65 % of the page).\nEverything is batched into one ``drawPoints`` call per (colour, layer,\nalpha step) bucket with a cached pen; the per-call overhead of a pen\nchange dominates this theme, not the pixels.\n\n:meth:`geometry` yields ``(x, y, diameter)`` per painted particle, in\npixels.\nRoll the starfield's three parallax layers."
+      "source_sha256": "ddc7c221f0d90c1dae8cc3f1e8d884c2157a01dafa326a391954d0778731ccc3",
+      "text": "A slow starfield in three parallax layers.\n\nAt full Detail dots are drawn directly and stay crisp. Lower Detail\nsamples the same canvas population through a bounded image buffer.\nEverything is batched into one ``drawPoints`` call per (colour, layer,\nalpha step) bucket with a cached pen; the per-call overhead of a pen\nchange dominates this theme, not the pixels.\n\n:meth:`geometry` yields ``(x, y, diameter)`` per painted particle, in\npixels.\nRoll the starfield's three parallax layers."
     },
     "spacr.qt.widgets.ambient.DriftEngine._configure.roll": {
       "source_blocks_sha256": [
@@ -76601,6 +76654,13 @@
       ],
       "source_sha256": "9d170531ef3225c4dc8604c8c5757bd803988a0bbcfeb162417f1f65f606f178",
       "text": "Untouched, unlike every buffered theme.\n\nThe compensation on the base class exists because overlapping\ntranslucent *fields* pile up additively. A starfield does not have\nthat problem — measured, its mean frame lightness moves from 0.076\nto 0.077 across the whole density range, because a couple of hundred\ndots light 0.65 % of the page and almost never land on each other.\nDividing their alpha by three would not un-brighten anything; it\nwould hide two thirds of the stars in the background."
+    },
+    "spacr.qt.widgets.ambient.DriftEngine.buffer_size": {
+      "source_blocks_sha256": [
+        "49bd6c339b9f9c70b74f4ef2098e217daeceb24678734567ed5899e720fb188e"
+      ],
+      "source_sha256": "49bd6c339b9f9c70b74f4ef2098e217daeceb24678734567ed5899e720fb188e",
+      "text": "Sample dots at the chosen Detail within the display pixel ceiling."
     },
     "spacr.qt.widgets.ambient.DriftEngine.count_for": {
       "source_blocks_sha256": [
@@ -76635,21 +76695,17 @@
     },
     "spacr.qt.widgets.ambient.DriftEngine.paint": {
       "source_blocks_sha256": [
-        "189f4915dde6d7269886c7f1b081d04d12a74021cbd42864b24cbf44a6f4470a",
-        "c9e6719d600b9315b1054221343f73783dab80b4245c5df11b7acccf5a8e09c6",
-        "5946df653be153d72e7a63df57d06e55648fb12e4361e4c5b2cad1204150d0bc",
-        "38e257ec9aa67577e8fafacf2a35d0b17aaeb36d99812a6540e622bd451b3bda",
-        "e716a7525acc16daf77d1dc2261b999815ed2dde904cc2f2aa2a0159a90e5755"
+        "893bc777527bbedea6366d4d9c6bfd2d70ad9f25115b8244986384c8b5513910"
       ],
-      "source_sha256": "1c493b6aa5e0e181a33ccbf77ea2572c78482f42ae1bb592c7bed555ac458ca2",
-      "text": "Draw the starfield, refusing a zero-sized widget.\n\nPAINTS DIRECTLY rather than going through `geometry`, because this is\nthe one theme drawn at full resolution -- dots have to be crisp to\nread as dots, and rounding them through a shape list would blur them.\n\n:param painter: the painter to draw with.\n:param width: the widget's width in pixels.\n:param height: its height in pixels."
+      "source_sha256": "893bc777527bbedea6366d4d9c6bfd2d70ad9f25115b8244986384c8b5513910",
+      "text": "Draw the same population through the selected pixel resolution."
     },
     "spacr.qt.widgets.ambient.DriftEngine.work": {
       "source_blocks_sha256": [
-        "f69c56b370f8e8e3150f4d8967454355fb18a2216fbedf7f8bd05a0dc17225b4"
+        "d7bd5dd85e2ed09f630cea9ff8819bf279cc568c68f855f01cb6e7834469ada5"
       ],
-      "source_sha256": "7ca9745b831faf2f2cf2ae91843bbf95707f44a42075f1d853dba564fee552e1",
-      "text": "Density only. This is the one theme with no buffer, so the\nresolution setting costs it nothing and must not be allowed to\nspend its density budget."
+      "source_sha256": "d7bd5dd85e2ed09f630cea9ff8819bf279cc568c68f855f01cb6e7834469ada5",
+      "text": "Density only: sampling is capped at native display resolution."
     },
     "spacr.qt.widgets.ambient.Form": {
       "source_blocks_sha256": [
@@ -107208,14 +107264,14 @@
     "spacr.qt.widgets.setup_card.SetupCard.ink_at": {
       "source_blocks_sha256": [
         "6dafddbfafcdad4bd5812dcd0f52a6907e9f73ae0a3f8a281c7d532643dfb6eb",
-        "061bb20bdbe617040533f612d0a5f97d1197c837683a34cb3a3f577ce07d8546",
-        "17f7f454da3caeb54ba05f41f65b4dd5c76e0ee2a61a1e6ef56bc5f5f18335cb",
-        "962e1f0719d5a0fee98d547da4093f9c37cef07b3dcbd2fce8427196efaca583",
+        "0d582bbd6108f166dcf6a3931407c015ecec8df812c082a378508dc8f09866a5",
+        "1e26359689434c82af3467f52d1f49c21f332e8a6d7d575a36dda224d9a90cab",
+        "3ce810dafe4fd36039c0bfb1fe5348318546ae6af19555c28bea823625010d0d",
         "00dfeca0887d7830e6223fc8498f8022408145454b3e09c246d6ed06ab0c2108",
         "1aaa01a2bcaf414a8b9b7f845c2cc91fc27f87dcede4eb7344b163a50cdff21c"
       ],
-      "source_sha256": "fc0b10ff75a4afb3b5e443900d4367ce7c042bb6ff3d648b7d6e01dfa40908e3",
-      "text": "The colour of the run at ``along`` (0 at the tail, 1 at the head).\n\n`glow` and `beat` are the theme's accent the whole way; `rainbow`\nwalks the hue along the run and turns it over time, so the light\ncarries a spectrum that moves rather than a band that sits still.\n\nUNDER ``spaceout`` EVERY MODE OSCILLATES, whichever one is set. The\nmark that follows the pointer is the one thing on a card that is\nalready moving, and leaving it a fixed blue under a theme whose\nwhole point is a moving spectrum is what the request is about. Its\nhue is the palette's own drift plus a much faster cycle of its own\n(:data:`SPACEOUT_RIM_PERIOD`), so it belongs to the same spectrum\nthe rest of the window is travelling through instead of being a\nsecond unrelated rainbow.\n\nUnder an ordinary start with the shipped mode this returns the\ntheme's accent and returns it unchanged, frame after frame.\n\n:param along: position along the lit run, 0 at the tail and 1 at the\n    head.\n:param accent: the theme's accent colour; returned as a copy in the\n    plain modes, and its saturation and value set the floor for the\n    spectral ones."
+      "source_sha256": "c0c6208b03c9ffd8dbe06616dfc44cd4f4e4a041172d6d38575d7c62a1ce4803",
+      "text": "The colour of the run at ``along`` (0 at the tail, 1 at the head).\n\n`glow` and `beat` retain the blue rim in every interface theme; `rainbow`\nwalks the hue along the run and turns it over time, so the light\ncarries a spectrum that moves rather than a band that sits still.\n\nUNDER ``spaceout`` THE RAINBOW MODE OSCILLATES. The\nmark that follows the pointer is the one thing on a card that is\nalready moving, and leaving it a fixed blue under a theme whose\nwhole point is a moving spectrum is what the request is about. Its\nhue is the palette's own drift plus a much faster cycle of its own\n(:data:`SPACEOUT_RIM_PERIOD`), so it belongs to the same spectrum\nthe rest of the window is travelling through instead of being a\nsecond unrelated rainbow.\n\nThe shipped Beat mode retains its blue hue while brightness pulses.\n\n:param along: position along the lit run, 0 at the tail and 1 at the\n    head.\n:param accent: the theme's accent colour; returned as a copy in the\n    plain modes, and its saturation and value set the floor for the\n    spectral ones."
     },
     "spacr.qt.widgets.setup_card.SetupCard.mode": {
       "source_blocks_sha256": [

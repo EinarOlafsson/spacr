@@ -103,7 +103,9 @@
       "label": "spacr.qt.preferences.theme_choices#2",
       "source": "The ten night themes follow the older palettes, in :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the application has always had stay where a returning user looks for them and read as one family. Twelve data-art presets follow them in a separate block. Their tokens are plain keys with no variant, so there is nothing to compose into the token the way Cell does.",
       "source_sha256": "365b4e26992b3354102dadcd9219e23f0aa009e36ea36e44078d3b71e19acab1",
-      "translation": "दस रात्रि थीम पुराने पैलेट के बाद :data:`spacr.qt.night_themes.NIGHT_THEMES` के क्रम में आती हैं, ताकि ऐप में हमेशा से मौजूद चार पैलेट परिचित उपयोगकर्ता की अपेक्षित जगह पर बने रहें और एक समूह के रूप में दिखें। उनके बाद बारह डेटा कला प्रीसेट एक अलग खंड में आते हैं। उनके टोकन बिना किसी वैरिएंट वाली साधारण कुंजियाँ हैं, इसलिए Cell की तरह टोकन बनाने के लिए कोई घटक जोड़ना नहीं पड़ता।"
+      "translation": "दस रात्रि थीम पुराने पैलेट के बाद :data:`spacr.qt.night_themes.NIGHT_THEMES` के क्रम में आती हैं, ताकि ऐप में हमेशा से मौजूद चार पैलेट परिचित उपयोगकर्ता की अपेक्षित जगह पर बने रहें और एक समूह के रूप में दिखें। उनके बाद बारह डेटा कला प्रीसेट एक अलग खंड में आते हैं। उनके टोकन बिना किसी वैरिएंट वाली साधारण कुंजियाँ हैं, इसलिए Cell की तरह टोकन बनाने के लिए कोई घटक जोड़ना नहीं पड़ता।",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "context": "Night and data-art themes each carry a sentence saying what colours, backdrop and sound set come with them; that sentence is what the Theme control shows as the entry's tooltip, the way the Sound set control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`.",

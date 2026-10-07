@@ -528,7 +528,9 @@
       "source_sha256": "7d098d51d4bca1619c27c201e3b04d053867cf978eb42be4716dd633175d5c6a",
       "context": "the blur, in units of eight application view pixels of area averaging (0.0 is as designed); clamped to ``BLUR_RANGE`` from :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores ``DEFAULT_BLUR``.",
       "translation": "흐림 정도이며, 화면 픽셀 여덟 개 면적의 평균화 단위입니다(0.0 이 설계값). ``BLUR_RANGE`` (:mod:`spacr.qt.widgets.ambient` 의 값)로 제한되며, 구문 분석할 수 없는 값이나 NaN 이면 ``DEFAULT_BLUR`` 를 저장합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "label": "spacr.qt.preferences.set_ambient_density#1",

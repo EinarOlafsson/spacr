@@ -20,7 +20,9 @@
       "label": "spacr.qt.night_themes#0",
       "source": "Ten night palettes and seven separate data-art presets.",
       "source_sha256": "3b717ab1b4ff3670f7e576b318990b7236a59a2eee7ebfe8546aad1131f28dc4",
-      "translation": "Diez paletas nocturnas y siete preajustes independientes de arte de datos."
+      "translation": "Diez paletas nocturnas y siete preajustes independientes de arte de datos.",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     },
     {
       "context": "pointer influence radius, as a fraction of the shorter application view edge; zero disables it. ``None`` reads Preferences.",
@@ -48,7 +50,9 @@
       "label": "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius#1",
       "source": "fraction of the shorter screen edge, clamped to [0, 1]; zero disables mouse influence.",
       "source_sha256": "89bda7c32d295da522bff3c65db2b29515436a4cdd570f7e2fa1bade22b6c8c7",
-      "translation": "fracción del lado más corto de la pantalla, limitada a [0, 1]; cero desactiva la influencia del ratón."
+      "translation": "fracción del lado más corto de la pantalla, limitada a [0, 1]; cero desactiva la influencia del ratón.",
+      "retired": true,
+      "retired_reason": "2026-10-07: retained theme controls, independent Density/Detail and current growth documentation replaced this English block. Original source, context, translation and attribution remain unchanged; current wording requires a new translation."
     }
   ],
   "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff.",
