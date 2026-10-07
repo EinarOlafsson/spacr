@@ -843,6 +843,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "timelapse_events", "timelapse_events_annotations",
     "timelapse_events_model", "timelapse_events_window",
     "timelapse_events_threshold", "timelapse_events_conditions",
+    # Item 567 (2026-10-07): explicit VideoMAE encoder, local checkpoint,
+    # ordered channels and device, under the same Event Detection heading.
+    "timelapse_events_encoder", "timelapse_events_video_checkpoint",
+    "timelapse_events_video_channels", "timelapse_events_video_device",
     # NEW SETTINGS, not a regrouping (item 536, 2026-09-26): Measure's
     # scratch-wound closure switch, its source, channel, texture window,
     # frame interval and well-to-condition map, under their own "Wound
