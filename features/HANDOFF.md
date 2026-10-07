@@ -140,6 +140,20 @@ historical retirement assertion and normal review evidence; restoring stale
 prose or relaxing the gate would obscure the source change. Full hosted log:
 `/mnt/wd4tb/scratch/ci-224-failures-20261007/112602607360-e1f.log.gz`.
 
+## 2026-10-07 Make Masks feature-guide tool name
+
+The e1f ordinary run's coverage shard 7 failed
+`test_every_make_masks_tool_is_named_where_the_readme_sends_the_reader`
+(job 112602607345): current Make Masks offers `Divide / Merge`, while
+neither `README.rst` nor its linked `docs/source/features.rst` names that
+exact tool. The owner should add the real tool and its behavior to the
+linked feature guide through the normal documentation workflow; the
+assertion and the visible control should stay. The accepted 61-scene
+Make Masks tutorial already demonstrates left-drag split and right-drag
+merge, but tutorial captions are not the page the README links for each
+tool. Full hosted log:
+`/mnt/wd4tb/scratch/ci-224-failures-20261007/112602607345-e1f.log.gz`.
+
 ## 2026-10-07 current app/catalog/native61 publication ready for actual deployment
 Workstation integrates latest Home source with every normal final owner.
 API passes all13,199 symbols across nine languages; current runtime passes
