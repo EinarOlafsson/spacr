@@ -143,11 +143,14 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     panel = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
                         "2026-09-22-detection-panel.json").read_text())
     panel_sources = {record["source"] for record in panel["records"]}
-    assert len(panel["records"]) == len(panel_sources) == 6
+    panel_retired = _requested_detection_retirements(
+        language, '2026-09-22-detection-panel.json')
+    assert len(panel['records']) == len(panel_sources)
+    assert len(panel_sources) + len(panel_retired) == 6
     assert panel_sources <= reviewed.keys()
     assert not panel_sources & sources
     sources.update(panel_sources)
-    assert len(sources) == (159 if language == "sv" else 158)
+    assert len(sources) + len(panel_retired) == (159 if language == "sv" else 158)
     # Instruction 316 retired the one sign-in-status record to _ROWS.
     for filename, expected in (("form-labels-a", 77), ("sign-in-status", 0),
                                ("enhancement-and-scale", 9),
@@ -164,7 +167,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
             added.remove("Crop size")
         assert not added & sources
         sources.update(added)
-    assert len(sources) == (259 if language == "sv" else 258)
+    assert len(sources) + len(panel_retired) == (259 if language == "sv" else 258)
     report = json.loads((ROOT / "tests/data/release_contracts/411_runtime_review_cohorts_2026-09-23.json").read_text())["languages"][language]
     folder = ROOT / "docs/i18n/reviewed/runtime" / language
     later_sources: set[str] = set()
@@ -231,6 +234,38 @@ _RETIRED_BY_600B = {
 }
 
 
+def _requested_detection_retirements(language, filename):
+    """Validate the preserved October 7 records against their exact originals."""
+    from build_i18n_catalogs import reviewed_runtime_translations
+
+    evidence = ROOT / 'features/data/615_requested_popup_animation_2026-10-07'
+    originals = evidence / 'original-runtime-reviews-r1'
+    receipt = originals / 'receipt.json'
+    assert hashlib.sha256(receipt.read_bytes()).hexdigest() == (
+        '6760071e677058dcb4ea46a55510793e7195b9b0c89f72b8bda3ad1cb62ced3d')
+    relative = f'docs/i18n/reviewed/runtime/{language}/{filename}'
+    entries = [entry for entry in json.loads(receipt.read_text())
+               if entry['file'] == relative]
+    if not entries:
+        return set()
+    assert len(entries) == 1
+    entry = entries[0]
+    archived = originals / relative
+    assert hashlib.sha256(archived.read_bytes()).hexdigest() == entry['original_sha256']
+    original = json.loads(archived.read_text())['records']
+    current = json.loads((ROOT / relative).read_text())
+    retired = [row for row in original if row['key'] in entry['keys']]
+    assert len(retired) == len(entry['keys'])
+    assert all(hashlib.sha256(row['source'].encode()).hexdigest()
+               == row['source_sha256'] for row in retired)
+    assert current['records'] == [row for row in original if row not in retired]
+    assert all(any(item.get('date') == '2026-10-07' and item.get('record') == row
+                   for item in current.get('retired_records', [])) for row in retired)
+    values = {row['source'] for row in retired}
+    assert not values & reviewed_runtime_translations(language).keys()
+    return values
+
+
 def _theme_cohort_retirements(language, filename):
     """Prove the exact source retirements without changing historical pins."""
     hashes = {
@@ -241,8 +276,9 @@ def _theme_cohort_retirements(language, filename):
         "2026-09-21-runtime-third-slice.json":
             "87207bbab69e5a41953bdd89ebdac39d93f4c990e26a5b7ca8a0a715c58bbcf1",
     }
+    requested = _requested_detection_retirements(language, filename)
     if filename not in hashes:
-        return set()
+        return requested
     folder = ROOT / "docs/i18n/reviewed/runtime" / language
     original = json.loads((folder / "archive/2026-10-06-home-cell-dino-save-themes"
                            / filename).read_text())["records"]
@@ -256,8 +292,9 @@ def _theme_cohort_retirements(language, filename):
     assert {row["source_sha256"] for row in retired} == retired_hashes
     assert all(hashlib.sha256(row["source"].encode()).hexdigest()
                == row["source_sha256"] for row in retired)
-    assert current == [row for row in original if row not in retired]
-    return {row["source"] for row in retired}
+    assert current == [row for row in original if row not in retired
+                       and row['source'] not in requested]
+    return {row["source"] for row in retired} | requested
 
 
 def _with_training_sample_replacements(document, language, filename):
@@ -345,7 +382,10 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     second = [record for path in paths if "-second-pass-" in path.name
               for record in json.loads(path.read_text())["records"]]
     sources = {record["source"] for record in first}
-    assert len(first) == len(sources) == expected
+    retired = set().union(*(_requested_detection_retirements(language, path.name)
+                            for path in paths if '-second-pass-' not in path.name))
+    assert len(first) == len(sources)
+    assert len(sources) + len(retired) == expected
     later = {record["source"] for record in second}
     assert len(second) == len(later) and not later & sources
     sources |= later
@@ -538,7 +578,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     base_retired = _theme_cohort_retirements("sv", "2026-09-15-integration-review.json")
     refresh_retired = _theme_cohort_retirements("sv", "2026-09-21-runtime-ui-refresh.json")
     cohort_retired = base_retired | refresh_retired
-    assert len(base_retired) == 2 and len(refresh_retired) == 1
+    assert len(base_retired) == 2 and len(refresh_retired) == 2
     assert not cohort_retired & reviewed.keys()
     # +269 distinct UI/category sources, with three OPS descriptions shared
     # between both tables (272 records). The detection-panel consolidation
@@ -770,7 +810,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # Item463 retired one superseded download tooltip; its full old evidence
     # and exact set difference are checked by _new_download_sources above.
     assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) + len(cohort_retired) == 625  # 600b (2026-09-29): -1, the Features tooltip retired.
-    assert len(all_reviewed.keys() - debt_sources - inherited_sources) + len(cohort_retired) == 1679  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) + len(cohort_retired) + len(_requested_detection_retirements('sv', '2026-09-22-detection-panel.json')) == 1679  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -792,8 +832,9 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     all_reviewed = reviewed_runtime_translations("fr")
     base_retired = _theme_cohort_retirements("fr", "2026-09-15-integration-review.json")
     refresh_retired = _theme_cohort_retirements("fr", "2026-09-21-runtime-third-slice.json")
+    refresh_retired |= _theme_cohort_retirements("fr", "2026-09-21-runtime-fourth-slice.json")
     cohort_retired = base_retired | refresh_retired
-    assert len(base_retired) == 2 and len(refresh_retired) == 1
+    assert len(base_retired) == 2 and len(refresh_retired) == 2
     assert not cohort_retired & all_reviewed.keys()
     refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-runtime-first-slice.json").read_text())
@@ -1030,7 +1071,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources - inherited_sources) + len(base_retired) == 338
     # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
     assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) + len(cohort_retired) == 619  # 600b (2026-09-29): -1, the Features tooltip retired.
-    assert len(all_reviewed.keys() - debt_sources - inherited_sources) + len(cohort_retired) == 1672  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
+    assert len(all_reviewed.keys() - debt_sources - inherited_sources) + len(cohort_retired) + len(_requested_detection_retirements('fr', '2026-09-22-detection-panel.json')) == 1672  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

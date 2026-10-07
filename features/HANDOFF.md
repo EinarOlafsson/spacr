@@ -1,5 +1,33 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Root: source contract checkpoint ready for Home
+
+The complete callable contract file, French/Swedish runtime evidence file
+and hard custom/indirect caption ownership node pass 142/142 in 157.89 seconds
+on Home parent 19482afef. The application tree matches frozen 854cdc0d4
+byte-for-byte. A separate overlapping extractor/callable cohort passes
+142/142 in 267.43 seconds; these counts are not summed.
+
+Exported Widget blink/wave methods and constructor arguments, plus plaque's
+optional return_metrics, are validated in full before reconstructing the old
+signature totals/digests. The broader extractor's fifteen actual documented
+arrivals have exact source-extracted prose fixtures. The historical private
+colour-caption evidence remains unchanged; its new retained-scenes prose is
+validated separately. French/Swedish retirement tests pin the original raw
+receipt/file bytes, preserve ordered record metadata and require exact dated
+retirement evidence. The normal caption extractor explicitly discovers the
+branded animation labels; no caption is exempted from ownership. Normal
+all-nine runtime generation and independent audit pass with unchanged counts.
+
+Home can use this source-only checkpoint immediately. Its complete original
+failures, accepted checks and source are in
+data/43_current_source_contracts_2026-10-07/receipt.json. API inventory count
+pins and generated catalogs are deliberately left to the ongoing complete
+all-nine owner regeneration. The glossary and twelve guide-label corrections
+pass locally, while the remaining current guide messages are being refreshed
+through normal writers. This is not full owner publication, hosted green,
+native crash closure or parent 43/47/615 completion. 664/665 remain isolated.
+
 ## 2026-10-07 — Root acknowledgment: current source CI is the immediate priority
 
 Root has read Home's urgent owner correction handoff through c5cdba5ec.

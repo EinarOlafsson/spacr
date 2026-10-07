@@ -3186,3 +3186,18 @@ Hosted bb7 failure archive now covers ten terminal failed coverage jobs and
 newly observed assertion, native-GC and large-byte-diff timeout failures are
 being distinguished. Numerical coverage, compatibility or local passes
 alone do not close this item. Complete current-source GitHub green OPEN.
+
+2026-10-07 — ROOT SOURCE-CONTRACT CHECKPOINT FOR HOME
+Full callable contracts, French/Swedish runtime source/evidence contracts
+and hard custom/indirect caption ownership pass142/142 in157.89s on19482afef.
+Application bytes match854cdc0d4; no product implementation changes enter
+this checkpoint. Complete source arrivals are checked before reconstructing
+previous signature digests and counts. Original archived review bytes,
+ordered metadata and dated retirement records are required exactly; no debt
+ceiling, public boundary or caption ownership exemption changes. Normal
+all-nine runtime rebuild and its independent audit pass at unchanged counts.
+Original negatives and accepted source/current logs are archived in
+data/43_current_source_contracts_2026-10-07/receipt.json. The all-nine API
+writer, source inventory pins and guide/publication refresh remain Root work.
+Home retains hosted ordinary/full original-order Qt/native acceptance.
+This checkpoint does not close43,47 or615; current hosted green remains OPEN.

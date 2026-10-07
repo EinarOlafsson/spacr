@@ -1,0 +1,17 @@
+{
+  "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply": "Preview the edits and ask separately, keeping this dialog open.\n\nOnly keys changed by this application are rolled back. New\nnotification secrets are written only after Keep, so Revert\ncannot leave a replacement password in an external keyring.\nEdited controls remain available as a draft after Revert.",
+  "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._answered": "Keep or revert once, then release the question and enable another Apply.",
+  "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._network_bytes": "Read the network configuration bytes, or None when no file exists.",
+  "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._restore": "Restore this preview's changed keys, network configuration and live appearance.",
+  "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._snapshot": "Copy persisted preference values, bypassing any temporary store shadow.",
+  "spacr.qt.preferences.PreferencesDialog._build_the_dialog._blink_value_changed": "Keep the logarithmic slider aligned with an exact percentage.",
+  "spacr.qt.widgets.ambient.AmbientEngine.set_blink_percent": "Set the percentage of dot centres flashing white, without reseeding.",
+  "spacr.qt.widgets.ambient.AmbientEngine.set_popup_wave_frequency": "Set popup-origin waves per minute; zero disables automatic waves.",
+  "spacr.qt.widgets.ambient.AmbientWidget.blink_percent": "The selected percentage of visible dots that flash white.",
+  "spacr.qt.widgets.ambient.AmbientWidget.popup_wave_frequency": "Automatic waves per minute from the centre of an open popup.",
+  "spacr.qt.widgets.ambient.AmbientWidget.set_blink_percent": "Update dot flashes through the normal serialized engine mutation.\n\n:param value: percentage of visible dots flashing white, clamped to\n    zero through ten; zero disables blinking.",
+  "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency": "Change popup waves without changing pointer reach or dot population.\n\n:param value: popup waves per minute, clamped to zero through sixty;\n    zero disables popup waves.",
+  "spacr.qt.widgets.ambient.AuroraEngine.buffer_scale": "Report the aurora sampling ratio for explicit detail controls.",
+  "spacr.qt.widgets.ambient.AuroraEngine.buffer_size": "Sample native display pixels within the actual screen budget.",
+  "spacr.qt.widgets.ambient.DriftEngine.buffer_size": "Sample dots at the chosen Detail within the display pixel ceiling."
+}

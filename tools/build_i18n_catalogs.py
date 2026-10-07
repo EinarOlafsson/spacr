@@ -4040,6 +4040,7 @@ def _indirect_runtime_ui_sources() -> set[str]:
             if str(spec.tooltip).strip()
             else "Show a preview of what these settings produce."
         )
+    animation_captions = {animation_label(name) for name in ANIMATION_CHOICES}
     for name in ANIMATION_CHOICES:
         found.update((animation_label(name), animation_note(name)))
     for spec in PALETTE_SETS.values():
@@ -4055,7 +4056,7 @@ def _indirect_runtime_ui_sources() -> set[str]:
     return {value.strip() for value in chooser_sources | preview_sources | _workflow_ui_sources() | presentation_sources
             if value.strip() and value not in _IDENTITY_TEXT} | {
         value.strip() for value in found if _looks_translatable(value)
-    }
+    } | {value for value in animation_captions if value.startswith('spaCR ')}
 
 
 def extract_static_ui_sources() -> tuple[str, ...]:

@@ -1731,3 +1731,14 @@ translation/tutorial edits. Workstation acknowledged this priority in
 pass locally against854cdc0d4, while complete normal API/catalog generation
 and exported callable admission validation remain in progress. The frozen
 local check is not current hosted green or native-language acceptance.
+
+2026-10-07 — current-source contract checkpoint, full owner refresh continues
+Root publishes complete callable arrival validation, original-byte/runtime
+retirement proof and normal indirect animation-caption extraction for Home.
+Current-source142/142 pass157.89s; a different overlapping extractor/callable
+cohort142/142 passes267.43s. Normal all-nine runtime generation/audit pass
+without changed catalog counts. Receipt43_current_source_contracts_2026-10-07
+retains actual initial/broader failures and accepted source/logs. All-nine
+API regeneration, source inventory pins, updated guides/tutorial publication
+and deployed readback continue separately. No full615 or hosted/native
+acceptance is inferred;664/665 shipping remains paused for the CI priority.

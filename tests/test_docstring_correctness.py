@@ -1934,11 +1934,15 @@ def _validated_prior_scn_callables(callables):
 
 
 def _validated_prior_radius_callables(callables):
-    """Check the exact new radius API before retaining every old boundary pin."""
+    """Validate the exported radius, blink and popup-wave callable arrivals."""
     by_symbol = {item.symbol: item for item in callables}
     prefix = "spacr.qt.widgets.ambient.AmbientWidget"
     arrivals = {prefix + ".gravity_radius": set(),
-                prefix + ".set_gravity_radius": {"value"}}
+                prefix + ".set_gravity_radius": {"value"},
+                prefix + ".blink_percent": set(),
+                prefix + ".popup_wave_frequency": set(),
+                prefix + ".set_blink_percent": {"value"},
+                prefix + ".set_popup_wave_frequency": {"value"}}
     for symbol, parameters in arrivals.items():
         item = by_symbol[symbol]
         assert item.category == "method" and item.exposure == "autoapi"
@@ -1950,16 +1954,34 @@ def _validated_prior_radius_callables(callables):
     assert widget.parameters == {
         "parent", "theme", "palette", "background", "backdrop", "fps", "seed",
         "blur", "speed", "size", "resolution", "density", "direction",
-        "corner_radius", "gravity_radius",
+        "corner_radius", "gravity_radius", "blink_percent", "popup_wave_frequency",
     }
     assert widget.required_parameters == set()
     assert widget.variant_count == 1 and widget.docless_variant_count == 0
-    assert "gravity_radius" in widget.accepted_documented_parameters
-    return [replace(item, parameters=item.parameters - {"gravity_radius"},
+    additions = {"gravity_radius", "blink_percent", "popup_wave_frequency"}
+    assert additions <= widget.accepted_documented_parameters
+    return [replace(item, parameters=item.parameters - additions,
                     accepted_documented_parameters=(
-                        item.accepted_documented_parameters - {"gravity_radius"}))
+                        item.accepted_documented_parameters - additions))
             if item.symbol == prefix else item for item in callables
             if item.symbol not in arrivals]
+
+
+def _validated_prior_plaque_callables(callables):
+    """Validate the optional diagnostics return before reproducing old pins."""
+    symbol = "spacr.plaque.segment_plaque_image"
+    item = next(item for item in callables if item.symbol == symbol)
+    assert item.category == "function" and item.exposure == "autoapi"
+    assert item.variant_count == 1 and item.docless_variant_count == 0
+    assert item.parameters == {
+        "image", "model", "settings", "return_flows", "return_metrics"}
+    assert item.required_parameters == {"image", "model", "settings"}
+    assert item.accepted_documented_parameters == item.parameters
+    assert "return_metrics" in _documented_parameter_names(item.docstring)
+    return [replace(item, parameters=item.parameters - {"return_metrics"},
+                    accepted_documented_parameters=(
+                        item.accepted_documented_parameters - {"return_metrics"}))
+            if item.symbol == symbol else item for item in callables]
 
 
 def test_public_callable_inventory_is_source_derived_not_docstring_derived():
@@ -1972,7 +1994,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     """
     before_modules = set(sys.modules)
     callables = _validated_prior_scn_callables(
-        _validated_prior_radius_callables(list(_public_callables())))
+        _validated_prior_plaque_callables(
+            _validated_prior_radius_callables(list(_public_callables()))))
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")
@@ -3615,7 +3638,15 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
 
     private_additions = json.loads(additions_path.read_text())
     assert len(private_additions) == 11
-    assert {key: docs[key] for key in private_additions} == private_additions
+    recolored = (
+        "spacr.qt.preferences.PreferencesDialog._build_the_dialog."
+        "_sync_custom_colors")
+    assert private_additions[recolored] == (
+        "Offer custom colours for the seven procedural data-art scenes.")
+    assert docs[recolored] == (
+        "Offer custom colours for the retained procedural data-art scenes.")
+    assert {key: docs[key] for key in private_additions if key != recolored} == {
+        key: value for key, value in private_additions.items() if key != recolored}
     assert not private_additions.keys() & rendered_documented_callables.keys()
     channel_additions = json.loads(additions_path.with_name(
         "548_native_channel_private_api_arrival_2026-10-06.json").read_text())
@@ -3633,8 +3664,16 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in scn_additions} == scn_additions
     actual_by_symbol = {item.symbol: item for item in actual_callables}
     assert {key: actual_by_symbol[key].docstring for key in scn_additions} == scn_additions
+    popup_additions = json.loads(additions_path.with_name(
+        "615_popup_api_arrivals_2026-10-07.json").read_text())
+    assert len(popup_additions) == 15
+    assert {key: docs[key] for key in popup_additions} == popup_additions
+    assert not popup_additions.keys() & (
+        private_additions.keys() | radius_symbols | channel_additions.keys()
+        | scn_additions.keys())
     assert len(docs.keys() - private_additions.keys() - radius_symbols
-               - channel_additions.keys() - scn_additions.keys()) == 13182
+               - channel_additions.keys() - scn_additions.keys()
+               - popup_additions.keys()) == 13182
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every

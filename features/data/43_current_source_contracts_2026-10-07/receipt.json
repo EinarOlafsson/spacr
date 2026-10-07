@@ -1,0 +1,148 @@
+{
+  "schema": 1,
+  "date": "2026-10-07",
+  "owner": "Root/workstation",
+  "scope": "Source-only callable, retired-runtime-evidence and indirect caption ownership corrections. Generated API count/publication corrections remain separate.",
+  "parent": "19482afeffd0d598a6966b37de5897ecb4e54108",
+  "application_source_matches_frozen_854cdc0d4": true,
+  "full_source_boundary_cohort": {
+    "passed": 142,
+    "seconds": 267.43
+  },
+  "current_home_source_checkpoint": {
+    "passed": 142,
+    "seconds": 157.89,
+    "files": [
+      "tests/test_docstring_correctness.py",
+      "tests/test_runtime_i18n_syntax.py",
+      "tests/qt/test_i18n_caption_ratchet.py::test_custom_widgets_and_indirect_registries_enter_one_i18n_layer"
+    ],
+    "cohorts_overlap_and_are_not_summed": true
+  },
+  "normal_runtime_all_nine_and_independent_audit_exit": 0,
+  "runtime_inventory": {
+    "settings": 1243,
+    "categories": 237,
+    "ui": 7239,
+    "modules": 77
+  },
+  "guards": "Original module/callable boundary, debt ceilings, old signature digests, original review bytes, record metadata/order and source-binding gates are retained. No caption exemption added.",
+  "pending": [
+    "Current all-nine API regeneration/audit and source inventory pins.",
+    "Current translated guides, tutorial publication and deployment.",
+    "Full hosted ordinary/original-order Qt/native crash acceptance remains Home-owned.",
+    "664/665 integration remains isolated and unshipped."
+  ],
+  "artifacts": {
+    "logs/contracts-negative-r1.log.gz": {
+      "raw_bytes": 4364,
+      "raw_sha256": "b13fb9679bd0bb90f7770079834c1ec2c7042f584dbd190247de4bab13441fd3",
+      "gzip_sha256": "2b9c1905c4f98e0a6f1036cc0b64d46e36b47dacceb4b037707a3e1ff7e0e890"
+    },
+    "logs/runtime-retirements-r2.log.gz": {
+      "raw_bytes": 6075,
+      "raw_sha256": "d220ca4a2512e2b2208517f93163f0b9ddcab2c13aff3777f56c7b4c1b0fec3c",
+      "gzip_sha256": "607337bbb3e5c008b6f89e702ea8fc80a666a24f58e2d354cfd86b31c6d7af2c"
+    },
+    "logs/contracts-positive-r3.log.gz": {
+      "raw_bytes": 984,
+      "raw_sha256": "d52320825aadfbb3ee53e4a81bccb4998ae68562f9c3b9b45ea3bc181415e385",
+      "gzip_sha256": "d55b2f6d878c42c1f1d013b31bd20553a7441b3206d77a2d9329219831d27a5d"
+    },
+    "logs/callable-arrivals-r1.log.gz": {
+      "raw_bytes": 2427,
+      "raw_sha256": "922d4c677682330ac4e7ba98141ad4ee66498ad7d45715dc103150506fe6b5d5",
+      "gzip_sha256": "feae4ddc4105052d1817c570a66a4323aa4ad94d207ab69d736023585ea4b51b"
+    },
+    "logs/callable-arrivals-r2.log.gz": {
+      "raw_bytes": 2598,
+      "raw_sha256": "cb075a58425ecc31f4dabbe768abd604a65a514ead228faadba71ac977231118",
+      "gzip_sha256": "0542e64d570c2e85d7190638a9b080a3a20e1768ab9a17df9dbcc655e9b162b5"
+    },
+    "logs/source-boundaries-r3.log.gz": {
+      "raw_bytes": 768,
+      "raw_sha256": "1b7256a41d156284e5bb38f2dda914b15e3c0a180c3d60e91b3ed690349c1467",
+      "gzip_sha256": "5f908e5bc1d3a2900234c7bed0644e4acca0a33bde959c75e0e412681e108cc8"
+    },
+    "logs/runtime-registry-r1.log.gz": {
+      "raw_bytes": 1972,
+      "raw_sha256": "c41cc46717a4a15491d2613ff9cf9d9f687aaacc196c59280c3ce7555a9acb8a",
+      "gzip_sha256": "04151e8fe3bb25d4fbe53e6a44fcd6bd21af0a0ce92dcf0e51fb9c4867d36bed"
+    },
+    "logs/runtime-audit-r2.log.gz": {
+      "raw_bytes": 606,
+      "raw_sha256": "0a9909cbba1a8bb0938e8c006b0a4029a08996e00492881ca1806fc481e0fca7",
+      "gzip_sha256": "36f2ed19ac6a2262087c763511bf7bdbf7a3641cb2c9197c8588080f64fe56bb"
+    },
+    "logs/runtime-caption-r2.log.gz": {
+      "raw_bytes": 8055,
+      "raw_sha256": "3f5292080ddbd987588c972f985a8bab6acf8e4f167350aa1b3be521addea698",
+      "gzip_sha256": "31add7165f31806562d74ed4120a448892b2c20ce1b0645f010be2e4773fd80c"
+    },
+    "logs/guide-positive-r3.log.gz": {
+      "raw_bytes": 733,
+      "raw_sha256": "38b884ab72fefd0d87b6208e1d2219c7790c1a521d877dc27c601a48f955266c",
+      "gzip_sha256": "5918ff6ed95edecfc8f1ef801b952a6eae9d2c24cde3385699c9efcbb6d37ede"
+    },
+    "logs/source-only-checkpoint-r1.log.gz": {
+      "raw_bytes": 878,
+      "raw_sha256": "f21089e90d8e7f437735c12bf22ac772c7f091f6d628ed2fb72cee9dd2d639fb",
+      "gzip_sha256": "6275764ca4b497d7fc65be88a61c506a23513d42fc462bc1e88e4f747d432cd9"
+    },
+    "logs/callable-source-delta-r1.log.gz": {
+      "raw_bytes": 1243,
+      "raw_sha256": "799e54cf2aaa31056aed14754562f1b3e8d8d915d50977eb7aa9c52f397d4856",
+      "gzip_sha256": "9588d22465be145db3c9c374b7ec28028828e5121b4ad0e096a81fa0b121ce8e"
+    },
+    "scripts/archive_source_contract_checkpoint.py.gz": {
+      "raw_bytes": 4203,
+      "raw_sha256": "4172ea1f9e65c7374cd54e392d13d7d1f3fe68310385dc43a30fa96c711112d3",
+      "gzip_sha256": "7255ad2960326ff03371f257be93aea21f9ba70c898f3177e6099a58cbd599ff"
+    },
+    "scripts/compare_callable_source.py.gz": {
+      "raw_bytes": 1607,
+      "raw_sha256": "ae0a83652959f12adaa4790012ecb281bd14323e9eb3f2f9e3b780d796741bbe",
+      "gzip_sha256": "55bdf9cf26659f1ac23c6c1458ebaf4139dc589e23c85e9e50e031a7565616d0"
+    },
+    "scripts/write_arrival_fixture.py.gz": {
+      "raw_bytes": 1275,
+      "raw_sha256": "cc29ce68a3ffc31c58b66440c40945934aa7f9fefc2aed448c965da5927cd07d",
+      "gzip_sha256": "0847c1a745bbc9575debde1b7f856af77b5715dfcb7b2f13d6e49fcb7235d710"
+    },
+    "accepted-source/tests__test_docstring_correctness.py.gz": {
+      "raw_bytes": 223211,
+      "raw_sha256": "8dd5fed8d597411d36991d99dbd29d8eb50b5f4a4dc8c8f53e88a50c5ae29eb0",
+      "gzip_sha256": "0627c816ddb1aa8524f7c44036b43ed8fb0292adb4426e11b9aa2b28266d9e77"
+    },
+    "original-source/tests__test_docstring_correctness.py.gz": {
+      "raw_bytes": 220998,
+      "raw_sha256": "9e5c9cbc7a571d2d002104d6aa68e1df5fa12b4329894370a1b69df6e72d6eed",
+      "gzip_sha256": "09ae91df87fd86a86959ada93c8203c12a1b2ebdf8bfca757abb30700f6a29ab"
+    },
+    "accepted-source/tests__test_runtime_i18n_syntax.py.gz": {
+      "raw_bytes": 69434,
+      "raw_sha256": "689e46efdd3074fa07b185146c458403365da175b3789dc291f80ceb870f689d",
+      "gzip_sha256": "6efe572e5feabc086a72598a62a80af48ad661d8a61617e46ad81152ea038630"
+    },
+    "original-source/tests__test_runtime_i18n_syntax.py.gz": {
+      "raw_bytes": 66962,
+      "raw_sha256": "0cf8d8d3eadcf5371cc82440d43feb0f0fde819f601207c85f43e6b66ea7184e",
+      "gzip_sha256": "3f155c2af7dbe602cd41d20b50905afbe376a611621a8b6406679c6f4ec74d8c"
+    },
+    "accepted-source/tools__build_i18n_catalogs.py.gz": {
+      "raw_bytes": 345359,
+      "raw_sha256": "be5907913341649cb84a3d6c2c0896f494998f8983f0db94a19dc26f62786776",
+      "gzip_sha256": "a30a83768cee8b7debc2999562d2f5344a7b758b9669ea3ed393dfa3f0032c51"
+    },
+    "original-source/tools__build_i18n_catalogs.py.gz": {
+      "raw_bytes": 345208,
+      "raw_sha256": "917375159d90b866f1eed10134924749ee4056ebc246b0cdf02fc9b521eee2df",
+      "gzip_sha256": "94d66b04a0cdea130c17f4082f99fe9acca69e1a761223df51030db515e5afc4"
+    },
+    "accepted-source/tests__data__release_contracts__615_popup_api_arrivals_2026-10-07.json.gz": {
+      "raw_bytes": 2534,
+      "raw_sha256": "ab0f70827e5ea4ea820406a0da0ec8a6bb80f65ab205aa12a5ea9643d3eac1b2",
+      "gzip_sha256": "479bdb492805f0afa6b973c0953cf675580398931e91124c2cd532c744c6e207"
+    }
+  }
+}
