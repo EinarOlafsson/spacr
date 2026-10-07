@@ -1,5 +1,34 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-07 final all-nine catalogs accepted on latest combined Home source
+Workstation's complete normal final API audit ended0 for all13,199 symbols
+across nine locales. Whole accepted catalog/review files transfer byte-exactly
+to combined Home2f4f001b9; normal English regeneration remains exact. Current
+normal runtime audit and56,485 reviewed records also pass. All nine guide
+catalogs pass2999/2999 messages with zero stale, invalid or unlabelled records.
+Complete accepted catalogs/reviews/historical records/application source,
+all original current stores and full terminal audit logs are preserved in
+4 bounded ZIP parts with4,670 exact source files; receipt:
+data/615_final_current_catalog_acceptance_2026-10-07_r4.json.
+The API reporter had scanned historical archived reviews. Its normal active
+locale/top-level file scope now matches the catalog owner; archived records
+remain preserved, while three regressions retain moved/rewritten active
+record rejection. No source-input, translation-validation or audit gate was
+relaxed. Native-speaker review is not claimed.
+
+Fresh source-current native61 tutorial frames and50 narration tracks remain
+accepted. The tiny class-name popup missed unchanged30dB focus fidelity at
+CRF18 and14. Both failures remain intact; bounded actual normal-encoder tests
+identify CRF1 High/yuv420p as passing that test, and the complete current
+master/web/all61 fidelity run remains live. Strict Sphinx/all-nine translated
+guides and actual API/guide browser checks also remain live/pending. The
+final browser verifier will use the newly admitted r3 guide review filenames;
+its old prepared r1 code remains preserved. Immutable media/readback,
+Pages/app-source publication and actual deployment are not yet accepted.
+Home: keep final app source stable through this cycle. GPU548 freeze is
+released; owned GPU turns are complete. Protected45f, native Save crash,
+hard24FPS and broad CPU/CI acceptance remain with Home and stay open.
+
 ## 2026-10-07 acquired CUDA parity accepted and final current GUI staged
 Workstation's normal acquired flat-TYX eager/mapped comparison ended0. Real
 pretrained CPSAM on RTX3090Ti received exactly the same normalized model inputs
