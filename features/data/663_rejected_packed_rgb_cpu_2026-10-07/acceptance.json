@@ -1,0 +1,113 @@
+{
+  "decision": "REJECTED as a production FPS optimization; candidate unshipped",
+  "parent_commit": "2e40cd2102",
+  "before_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+  "candidate_sha256": "3b9f1cbc2920d64d59542be100e24bbc8c27f1d83b0e47423d811f829cd8dff3",
+  "root_native_proof": {
+    "pairs": 108,
+    "source": "before.py f36",
+    "candidate": "serialized candidate_method in compressed root JSON matches after.py method",
+    "source_bound_checks": 252,
+    "payloads": {
+      "root_native_probe.py.gz": {
+        "raw_sha256": "422d13fe866d373532b65fca7aa34b9029bd2a3141af0ffe974bd7b989a60b2e",
+        "raw_bytes": 3215
+      },
+      "root_native_probe.json.gz": {
+        "raw_sha256": "6a4819a04e5fb1cc7dddb934b84fde652dd196cd55114fdbee693f7f7e8ae17c",
+        "raw_bytes": 11635
+      },
+      "root_native_probe.log.gz": {
+        "raw_sha256": "b5c2fc0d2b9089de9b8148e078e586a92c83ef6498de7afe337fe99c0676e0bc",
+        "raw_bytes": 949
+      }
+    }
+  },
+  "headroom_tests": {
+    "passed": 12,
+    "seconds": 0.2,
+    "source": "after.py candidate3b9",
+    "scope": "9 RGB headroom/output/refusal combinations plus3 actual Qt contribution shape bounds; separate from108 native frame pairs"
+  },
+  "live_probes": {
+    "count": 20,
+    "recipe": "Five palette/detail blocks with balanced ABBA or BAAB fresh processes; native4K full detail and original repaint cadence, requested24fps",
+    "decision": "Small dense gains and default-detail regressions; no reliable general native worker/display improvement"
+  },
+  "profiles": [
+    {
+      "receipt": "data_art_fungal_growth-after-random-1.0-3.0-profile.json",
+      "palette": "random",
+      "detail": 1.0,
+      "variant": "after",
+      "inclusive_stage_median_ms": {
+        "Qt.drawPath": 30.337351199705154,
+        "Qt.setPen": 0.46404270688071847,
+        "_warm_fungal_raster": 3.2126559817697853,
+        "_paint_fungal_tips": 6.267936987569556,
+        "_paint_cached_fungal_paths": 52.58381899329834,
+        "_reuse_fungal_raster": 7.807967107510194,
+        "geometry": 4.76570098544471,
+        "_fungal_paths": 6.689322006423026,
+        "Qt.drawEllipse": 0.2397677453700453
+      }
+    },
+    {
+      "receipt": "data_art_fungal_growth-after-spacr-2.0-3.0-profile.json",
+      "palette": "spacr",
+      "detail": 2.0,
+      "variant": "after",
+      "inclusive_stage_median_ms": {
+        "Qt.drawPath": 28.432676670490764,
+        "Qt.drawEllipse": 0.024508481146767735,
+        "Qt.setPen": 0.1027264806907624,
+        "_fungal_paths": 3.391119505977258,
+        "_paint_fungal_tips": 0.09638149640522897,
+        "geometry": 2.143703502952121,
+        "_warm_fungal_raster": 2.3289215023396537,
+        "_reuse_fungal_raster": 7.64441849605646,
+        "_paint_cached_fungal_paths": 40.71586500504054
+      }
+    },
+    {
+      "receipt": "data_art_fungal_growth-before-random-1.0-3.0-profile.json",
+      "palette": "random",
+      "detail": 1.0,
+      "variant": "before",
+      "inclusive_stage_median_ms": {
+        "_reuse_fungal_raster": 8.488194551318884,
+        "geometry": 4.657584999222308,
+        "_warm_fungal_raster": 2.728864026721567,
+        "Qt.setPen": 0.42985763866454363,
+        "_fungal_paths": 6.562736991327256,
+        "Qt.drawPath": 30.99031950114295,
+        "Qt.drawEllipse": 0.2341921499464661,
+        "_paint_fungal_tips": 5.955567990895361,
+        "_paint_cached_fungal_paths": 51.71096199774183
+      }
+    },
+    {
+      "receipt": "data_art_fungal_growth-before-spacr-2.0-3.0-profile.json",
+      "palette": "spacr",
+      "detail": 2.0,
+      "variant": "before",
+      "inclusive_stage_median_ms": {
+        "_paint_cached_fungal_paths": 43.18260098807514,
+        "_fungal_paths": 3.3386909926775843,
+        "geometry": 2.1331740135792643,
+        "_paint_fungal_tips": 0.10118700447492301,
+        "Qt.setPen": 0.11021585669368505,
+        "Qt.drawPath": 29.98653016402386,
+        "_reuse_fungal_raster": 7.979204208822921,
+        "_warm_fungal_raster": 3.6520599969662726,
+        "Qt.drawEllipse": 0.02478901296854019
+      }
+    }
+  ],
+  "limits": [
+    "Inclusive profile timings overlap and add instrumentation overhead; not acceptance FPS.",
+    "No production source retained; existing cache bounds, guards, ownership, quality and density unchanged.",
+    "Native hard24FPS remains OPEN.",
+    "One preparation run used an incomplete test constructor and failed12 before rendering; corrected complete constructor is the archived12PASS phase. No failed test run counted as acceptance."
+  ]
+}

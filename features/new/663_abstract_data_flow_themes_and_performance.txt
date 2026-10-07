@@ -982,3 +982,14 @@ Compact immutable source/test/coverage/probe receipts and two lossless stills:
     Existing clock/filter/None25cases pass13.26s under capped4G, not cadence
     acceptance. Native24FPS remainsOPEN. Compact31payload proof (<1MiB):
     data/663_rejected_buffered_repaint_cpu_2026-10-07/.
+
+2026-10-07 — rejected exact packed-RGB FPS experiment
+    Private f36->3b9 only replaces guarded sparse RGB arithmetic with packed
+    addition. Root108complete native4K pairs/252source-bound checks match
+    directQt; separate12edge/headroom/real-Qt-shape cases pass0.20s. Twenty
+    balanced fresh native worker probes show small dense gains but negative
+    default-detail producer/display cadence; no robust live benefit. Four
+    inclusive profiles show only0.34-0.68ms reuse savings, Qt.drawPath28-31ms
+    stilldominant. REJECTED/no production patch, quality/guards/cache unchanged.
+    Native24FPS remainsOPEN. Source/scripts/JSON/logs and compressed root proof:
+    data/663_rejected_packed_rgb_cpu_2026-10-07/.

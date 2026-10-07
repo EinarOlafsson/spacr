@@ -1,0 +1,200 @@
+{
+  "source_commit": "packed-add-private-proof / Current scalar ambient ade8062f vs density-domain-only private candidate",
+  "source_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+  "source_path": "/mnt/wd4tb/scratch/theme-refinement-20261006/fungal-packed-add-worker-20261007/before.py",
+  "variant": "before",
+  "theme": "data_art_fungal_growth",
+  "label": "spaCR growth",
+  "viewport": [
+    3840,
+    2160
+  ],
+  "screen_pixels": 8294400,
+  "buffer": [
+    3840,
+    2160
+  ],
+  "max_pixels": 8294400,
+  "controls": {
+    "fps": 24,
+    "active_rate_cap": 24,
+    "resolution": 1.0,
+    "density": 3.0,
+    "size": 2.5,
+    "speed": 1.0,
+    "blur": 0.0,
+    "gravity_radius": 0,
+    "seed": 42,
+    "background": "#101418",
+    "palette": "random",
+    "colors": [
+      "#e17247",
+      "#46e29e",
+      "#cb45e3",
+      "#cfe445",
+      "#44a2e5",
+      "#e64474",
+      "#46e743",
+      "#6f42e8",
+      "#e99e42",
+      "#41eace",
+      "#eb41d7",
+      "#a7ec40",
+      "#3f76ed",
+      "#ee3f44",
+      "#3eef6a",
+      "#9d3df0",
+      "#f1d03c",
+      "#3ce0f2",
+      "#f33bac",
+      "#78f43a",
+      "#3a43f5",
+      "#f66539",
+      "#38f79b",
+      "#d137f8",
+      "#e9f937",
+      "#36b2fa",
+      "#fb357a",
+      "#42fc34",
+      "#5f34fd",
+      "#fe9833",
+      "#2ce1ba",
+      "#e22bd6"
+    ]
+  },
+  "qt_platform": "xcb",
+  "profile_enabled": true,
+  "profile_scope": "inclusive wrappers overlap and introduce overhead; timing is diagnostic, not an uninstrumented performance acceptance",
+  "scope": "actual software Xvfb native4K AmbientWidget/FrameProducer/QTimer; fresh Python process per theme; no inference or GPU; end grabs outside steady timing; requested controls unchanged",
+  "cold": {
+    "current_rss_kib": 224564,
+    "widget_show_ms": 135.402065992821,
+    "post_show_seconds": 2.0009442509908695,
+    "post_show_published_frames": 48,
+    "post_show_published_fps": 23.98867433524465,
+    "worker_shade": {
+      "median_ms": 3.929084981791675,
+      "p95_ms": 6.4072220120579,
+      "max_ms": 16.65945799322799,
+      "samples": 48
+    },
+    "heartbeat_10ms": {
+      "median_ms": 10.064842004794627,
+      "p95_ms": 14.886040007695556,
+      "max_ms": 43.0132909968961,
+      "samples": 195
+    },
+    "compile_ready": false,
+    "compile_failed": false,
+    "rss_peak_kib": 220820
+  },
+  "records": [
+    {
+      "repeat": 1,
+      "steady_seconds": 5.016181457991479,
+      "published_frames": 71,
+      "published_fps": 14.154192904422759,
+      "distinct_published_clocks": 71,
+      "first_clock": 97.27599999999995,
+      "clock_advance": 4.894999999999982,
+      "painted_fps": 24.321289216050374,
+      "repeated_frame_objects": 50,
+      "worker_shade": {
+        "median_ms": 67.74604300153442,
+        "p95_ms": 87.74470200296491,
+        "max_ms": 99.46806597872637,
+        "samples": 71
+      },
+      "gui_paint": {
+        "median_ms": 5.716662009945139,
+        "p95_ms": 7.0982580073177814,
+        "max_ms": 23.692988994298503,
+        "samples": 122
+      },
+      "heartbeat_10ms": {
+        "median_ms": 10.719399491790682,
+        "p95_ms": 39.8568139935378,
+        "max_ms": 48.55355399195105,
+        "samples": 354
+      },
+      "publication_intervals": {
+        "median_ms": 67.6896599761676,
+        "p95_ms": 87.78718099347316,
+        "max_ms": 99.49909499846399,
+        "samples": 70
+      },
+      "lightning_worker_shades": null,
+      "inclusive_profile_stages": {
+        "_reuse_fungal_raster": {
+          "median_ms": 8.488194551318884,
+          "p95_ms": 14.838152477750555,
+          "max_ms": 16.46275815437548,
+          "samples": 71
+        },
+        "geometry": {
+          "median_ms": 4.657584999222308,
+          "p95_ms": 5.387899000197649,
+          "max_ms": 5.540262995054945,
+          "samples": 71
+        },
+        "_warm_fungal_raster": {
+          "median_ms": 2.728864026721567,
+          "p95_ms": 27.439405006589368,
+          "max_ms": 44.731170986779034,
+          "samples": 71
+        },
+        "Qt.setPen": {
+          "median_ms": 0.42985763866454363,
+          "p95_ms": 0.510594283696264,
+          "max_ms": 0.5366789118852466,
+          "samples": 71
+        },
+        "_fungal_paths": {
+          "median_ms": 6.562736991327256,
+          "p95_ms": 7.352289016125724,
+          "max_ms": 9.450613986700773,
+          "samples": 71
+        },
+        "Qt.drawPath": {
+          "median_ms": 30.99031950114295,
+          "p95_ms": 34.37226818641648,
+          "max_ms": 41.51743109105155,
+          "samples": 71
+        },
+        "Qt.drawEllipse": {
+          "median_ms": 0.2341921499464661,
+          "p95_ms": 0.40009309304878116,
+          "max_ms": 0.550105090951547,
+          "samples": 71
+        },
+        "_paint_fungal_tips": {
+          "median_ms": 5.955567990895361,
+          "p95_ms": 7.154226012062281,
+          "max_ms": 7.621329015819356,
+          "samples": 71
+        },
+        "_paint_cached_fungal_paths": {
+          "median_ms": 51.71096199774183,
+          "p95_ms": 75.53776699933223,
+          "max_ms": 88.24274499784224,
+          "samples": 71
+        }
+      },
+      "load_average": [
+        2.66455078125,
+        2.97705078125,
+        2.494140625
+      ],
+      "current_rss_kib": 326652
+    }
+  ],
+  "frame_sha256": "db80c4238c259e2bc448b8fec16db38f3c1bffe2a6cf0f5bf1b005fb7ae03b31",
+  "worker_stopped_immediately_after_hide": true,
+  "worker_stopped_200ms_after_hide": true,
+  "peak_rss_kib": 372336,
+  "dependency_source_sha256": {
+    "spacr/qt/theme.py": "85e4d7ab5dd1853f3d8c1b60b8dba965202cdaa0c61e9bc170c445758b3aadb9",
+    "spacr/qt/preferences.py": "733f9af071745b2d170ed743fe96130b6b346d5f101c8a87d0e3b3b758ff21ee",
+    "spacr/qt/gil_priority.py": "40c6fb95f75009cc223771385eb1c283b161a905e04b9c64ecdab035d817c3b2"
+  }
+}
