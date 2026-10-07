@@ -9877,6 +9877,7 @@ class PreferencesDialog:
             )
 
             def _snapshot():
+                """Copy persisted preference values, bypassing any temporary store shadow."""
                 store = _settings()
                 store = getattr(store, "_real", store)
                 return {key: store.value(key) for key in store.allKeys()}
@@ -9884,6 +9885,7 @@ class PreferencesDialog:
             network_path = _network_config_path()
 
             def _network_bytes():
+                """Read the network configuration bytes, or None when no file exists."""
                 try:
                     return network_path.read_bytes()
                 except FileNotFoundError:
@@ -9894,6 +9896,7 @@ class PreferencesDialog:
             missing = object()
 
             def _restore():
+                """Restore this preview's changed keys, network configuration and live appearance."""
                 after = _snapshot()
                 store = _settings()
                 for key in before.keys() | after.keys():
@@ -9955,6 +9958,7 @@ class PreferencesDialog:
             answered = False
 
             def _answered(_result):
+                """Keep or revert once, then release the question and enable another Apply."""
                 nonlocal answered
                 if answered:
                     return
