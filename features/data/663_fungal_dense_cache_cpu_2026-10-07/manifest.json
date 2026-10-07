@@ -5,8 +5,8 @@
   "test_sha256": "dddaaa9e0f11862f6192470ac9f4fda674887ac642bb4868e6fe8ab562137be2",
   "files": {
     "README.md": {
-      "bytes": 4158,
-      "sha256": "1613514df050f98b516f3003c08e53de81310796dcf5a0f06ab3cfc1f4f7ef48"
+      "bytes": 4998,
+      "sha256": "0f17152a5de2e11ef84125583d0fdbf4ce265674c8b403ace5f7168b842c8c4f"
     },
     "before.py": {
       "bytes": 356138,
@@ -111,6 +111,26 @@
     "worker_probe.py": {
       "bytes": 9355,
       "sha256": "7f0e43be9b3903a02381edfd3e642c3f59425f6dedcb5aa1ff0ceb855d45ca59"
+    },
+    "profile_worker.py": {
+      "bytes": 10701,
+      "sha256": "c88eee948de67e1e37064585e89e801e41a16380c50ce56d3d9a74c240a81672"
+    },
+    "data_art_fungal_growth-after-spacr-3.0-profile.json": {
+      "bytes": 5307,
+      "sha256": "c2bc91a0a52939a5ea5ee682977014eff4e1d4e5a114551094213e5db3f4347b"
+    },
+    "data_art_fungal_growth-after-custom-3.0-profile.json": {
+      "bytes": 5285,
+      "sha256": "1f2c4357a26b5ca11c2db41a5c616a16779b26269d421c187aef3920d2afc7b5"
+    },
+    "profile-spacr-3.log": {
+      "bytes": 12152,
+      "sha256": "ad14956cb5e86996f9ba0c746c08ed591ed9f7c674405b449f8fbb89b09da4d7"
+    },
+    "profile-custom-3.log": {
+      "bytes": 12145,
+      "sha256": "54065e57f8bd84ab44f34d81b0030b4ae211ca00e95811369f914eef037c1703"
     }
   }
 }

@@ -60,3 +60,15 @@ Use density3 and Random for the other pairs; custom palette selection is
 covered by the native tests and high-channel direct parity, not an extra
 live custom worker run. Cold/full-stage work is retained separately from the
 five-second warmed interval. No failed parity prototype is credited here.
+
+Supplementary exact-f36 live diagnostic cases at detail1/density3 measure
+default/custom inclusive Qt.drawPath medians37.34/40.08ms, sparse reuse8.13/7.61,
+geometry4.81/4.68 (inside paths6.67/6.58), tips5.71/5.38 and GUI paint5.47/5.42.
+GUI paints about24.3 times/s while producer publishes about12.8 distinct
+frames/s, repeating57-59 old frame objects over five seconds. These wrappers
+include scheduling pauses and overlap: tip arithmetic is not established as a
+5ms cost, and the diagnostic FPS is not the uninstrumented acceptance figure.
+All published clocks differ and both producers stop on hide. A later separate
+investigation can test avoiding timer repaint of unchanged buffered frames
+while preserving clock/input offers and all explicit or unbuffered updates.
+No such scheduling change is included in this renderer checkpoint.
