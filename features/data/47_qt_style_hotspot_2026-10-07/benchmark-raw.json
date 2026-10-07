@@ -1,0 +1,110 @@
+[
+  {
+    "command": [
+      "/mnt/wd4tb/spacr-worktrees/qt-224-triage-20261007/tools/run_capped.sh",
+      "4G",
+      "/home/olafsson/anaconda3/envs/spacr/bin/python",
+      "/mnt/wd4tb/scratch/qt-field-fade-scan-unchanged-20261007.py",
+      "--widgets",
+      "0",
+      "--python-objects",
+      "0"
+    ],
+    "returncode": 0,
+    "stdout": "{\"widgets\": 0, \"python_objects\": 0, \"all_widgets\": 1, \"unchanged\": false, \"seconds\": [0.08423688900074922, 0.002037090001977049, 0.0015838170074857771, 0.001588266997714527, 0.0015878780104685575], \"warm_median_s\": 0.0015880725040915422, \"teardown_seconds\": [0.0002679910103324801, 0.0002007709990721196, 0.00019571099255699664, 0.00019573100144043565, 0.00019668998720590025], \"teardown_warm_median_s\": 0.00019621049432316795}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/mnt/wd4tb/spacr-worktrees/qt-224-triage-20261007/tools/run_capped.sh",
+      "4G",
+      "/home/olafsson/anaconda3/envs/spacr/bin/python",
+      "/mnt/wd4tb/scratch/qt-field-fade-scan-unchanged-20261007.py",
+      "--widgets",
+      "0",
+      "--python-objects",
+      "200000"
+    ],
+    "returncode": 0,
+    "stdout": "{\"widgets\": 0, \"python_objects\": 200000, \"all_widgets\": 1, \"unchanged\": false, \"seconds\": [0.08551145299861673, 0.0020105190051253885, 0.0016215779905905947, 0.0015696280024712905, 0.0015795369981788099], \"warm_median_s\": 0.0016005574943847023, \"teardown_seconds\": [0.0002576809929450974, 0.00019659099052660167, 0.00019404999329708517, 0.00019343099847901613, 0.00019522100046742707], \"teardown_warm_median_s\": 0.00019463549688225612}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/mnt/wd4tb/spacr-worktrees/qt-224-triage-20261007/tools/run_capped.sh",
+      "4G",
+      "/home/olafsson/anaconda3/envs/spacr/bin/python",
+      "/mnt/wd4tb/scratch/qt-field-fade-scan-unchanged-20261007.py",
+      "--widgets",
+      "500",
+      "--python-objects",
+      "0"
+    ],
+    "returncode": 0,
+    "stdout": "{\"widgets\": 500, \"python_objects\": 0, \"all_widgets\": 501, \"unchanged\": false, \"seconds\": [0.12893931299913675, 0.03301153199572582, 0.032527328992728144, 0.03423449699766934, 0.03277489999891259], \"warm_median_s\": 0.0328932159973192, \"teardown_seconds\": [0.017172388994367793, 0.01545141100359615, 0.01226110699644778, 0.014991618998465128, 0.013141169998561963], \"teardown_warm_median_s\": 0.014066394498513546}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/mnt/wd4tb/spacr-worktrees/qt-224-triage-20261007/tools/run_capped.sh",
+      "4G",
+      "/home/olafsson/anaconda3/envs/spacr/bin/python",
+      "/mnt/wd4tb/scratch/qt-field-fade-scan-unchanged-20261007.py",
+      "--widgets",
+      "1500",
+      "--python-objects",
+      "0"
+    ],
+    "returncode": 0,
+    "stdout": "{\"widgets\": 1500, \"python_objects\": 0, \"all_widgets\": 1501, \"unchanged\": false, \"seconds\": [0.20115837699268013, 0.09609691800142173, 0.10065688900067471, 0.09548393500153907, 0.08907791299861856], \"warm_median_s\": 0.0957904265014804, \"teardown_seconds\": [0.03768580200267024, 0.043066505997558124, 0.05635899600747507, 0.03867776600236539, 0.03747904900228605], \"teardown_warm_median_s\": 0.040872135999961756}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/mnt/wd4tb/spacr-worktrees/qt-224-triage-20261007/tools/run_capped.sh",
+      "4G",
+      "/home/olafsson/anaconda3/envs/spacr/bin/python",
+      "/mnt/wd4tb/scratch/qt-field-fade-scan-unchanged-20261007.py",
+      "--widgets",
+      "0",
+      "--python-objects",
+      "0",
+      "--unchanged"
+    ],
+    "returncode": 0,
+    "stdout": "{\"widgets\": 0, \"python_objects\": 0, \"all_widgets\": 1, \"unchanged\": true, \"seconds\": [0.08509229500486981, 0.00037966099625919014, 0.0002740420022746548, 0.0002696010051295161, 0.00025463099882472306], \"warm_median_s\": 0.00027182150370208547, \"teardown_seconds\": [1.8199934856966138e-06, 3.7001154851168394e-07, 2.299930201843381e-07, 2.2001040633767843e-07, 1.600128598511219e-07], \"teardown_warm_median_s\": 2.2500171326100826e-07}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/mnt/wd4tb/spacr-worktrees/qt-224-triage-20261007/tools/run_capped.sh",
+      "4G",
+      "/home/olafsson/anaconda3/envs/spacr/bin/python",
+      "/mnt/wd4tb/scratch/qt-field-fade-scan-unchanged-20261007.py",
+      "--widgets",
+      "500",
+      "--python-objects",
+      "0",
+      "--unchanged"
+    ],
+    "returncode": 0,
+    "stdout": "{\"widgets\": 500, \"python_objects\": 0, \"all_widgets\": 501, \"unchanged\": true, \"seconds\": [0.1259397789981449, 0.0019292090000817552, 0.0018691880104597658, 0.0018567189981695265, 0.0018425180023768917], \"warm_median_s\": 0.0018629535043146461, \"teardown_seconds\": [1.3300013961270452e-06, 3.500026650726795e-07, 1.8998980522155762e-07, 2.299930201843381e-07, 2.400047378614545e-07], \"teardown_warm_median_s\": 2.349988790228963e-07}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/mnt/wd4tb/spacr-worktrees/qt-224-triage-20261007/tools/run_capped.sh",
+      "4G",
+      "/home/olafsson/anaconda3/envs/spacr/bin/python",
+      "/mnt/wd4tb/scratch/qt-field-fade-scan-unchanged-20261007.py",
+      "--widgets",
+      "1500",
+      "--python-objects",
+      "0",
+      "--unchanged"
+    ],
+    "returncode": 0,
+    "stdout": "{\"widgets\": 1500, \"python_objects\": 0, \"all_widgets\": 1501, \"unchanged\": true, \"seconds\": [0.2024060280091362, 0.005058712005848065, 0.004957582990755327, 0.004950232003466226, 0.004970541995135136], \"warm_median_s\": 0.0049640624929452315, \"teardown_seconds\": [1.8499995348975062e-06, 3.500026650726795e-07, 2.500019036233425e-07, 1.9998697098344564e-07, 2.0999868866056204e-07], \"teardown_warm_median_s\": 2.3000029614195228e-07}\n",
+    "stderr": ""
+  }
+]
