@@ -1582,7 +1582,8 @@ class PipelineWorker(QObject):
         except PipelineCancelled as exc:
             self.was_cancelled = True
             message = f"Cancelled safely: {exc}\n"
-            LOG.info("Pipeline %s cancelled: %s", self.app_key or self._fn, exc)
+            LOG.info("Pipeline %s cancelled: %s", self.app_key or self._fn,
+                     str(exc))
             if journal_run is not None:
                 journal_run.set_status("cancelled")
                 journal_run.record_warning(message.strip())
