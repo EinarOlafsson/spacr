@@ -216,6 +216,52 @@
       "native_faults": 1
     },
     {
+      "job_id": 113019199471,
+      "log_sha256": "e32a37980166ed78d9fc08e175b9e3069ed8adbeeff7097f2362a59c733db0cb",
+      "failures": [
+        {
+          "node": "tests/qt/test_cov_w2_6_setup_card.py::test_without_a_settings_store_every_rim_setting_has_a_shipped_default",
+          "error": "AssertionError: assert 'beat' == 'glow'"
+        },
+        {
+          "node": "tests/qt/test_data_art_catalog.py::test_catalog_preset_names_exact_renderer_and_colour_resources[data_art_fungal_growth-spaCR growth-A single branching front...[108:3b93436316]-deepwater]",
+          "error": "AssertionError: assert 'Connected my...lonies begin.' == 'A single bra...the backdrop.'"
+        },
+        {
+          "node": "tests/qt/test_data_art_catalog.py::test_requested_animation_order_and_default_reach_the_actual_dialog",
+          "error": "AssertionError: assert 0.1 == 0"
+        },
+        {
+          "node": "tests/qt/test_preferences.py::test_apply_ambient_preferences_when_the_widget_list_fails",
+          "error": "AssertionError: the widget list was never asked for"
+        },
+        {
+          "node": "tests/qt/test_preferences.py::test_apply_preferences_to_app_applies_the_ambient_prefs",
+          "error": "AssertionError: assert {'blur': 1.5,...ze': 2.0, ...} == {'blur': 1.5,...n': 1.75, ...}"
+        },
+        {
+          "node": "tests/test_plaque_segmentation_diagnostics.py::test_flow_error_detects_a_merge_and_preserves_original_ids",
+          "error": "assert None == 0 ± 1.0e-12"
+        },
+        {
+          "node": "tests/test_plaque_segmentation_diagnostics.py::test_partial_nonfinite_outputs_report_coverage_without_false_flow_error",
+          "error": "TypeError: 'tuple' object does not support item assignment"
+        },
+        {
+          "node": "tests/test_plaque_segmentation_diagnostics.py::test_database_csv_and_mask_only_rerun_keep_same_diagnostics",
+          "error": "TypeError: unsupported operand type(s) for -: 'NoneType' and 'float'"
+        },
+        {
+          "node": "tests/test_plaque_segmentation_diagnostics.py::test_failed_flow_comparison_retains_probability_and_magnitude",
+          "error": "TypeError: '>' not supported between instances of 'NoneType' and 'int'"
+        },
+        {
+          "node": "tests/test_plaque_segmentation_diagnostics.py::test_figure_workflow_saves_metrics_and_upgrades_old_database",
+          "error": "TypeError: unsupported operand type(s) for -: 'NoneType' and 'float'"
+        }
+      ]
+    },
+    {
       "job_id": 113019199506,
       "log_sha256": "87725906d33fb492586b0927ea5b00176724b9b4b870f6bbdcbcf2e0064ea774",
       "failures": [
@@ -291,7 +337,7 @@
         },
         {
           "node": "tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py::test_the_work_budget_trims_the_fractal_like_every_other_theme",
-          "error": "assert 0.1 == 1.0 \u00b1 1.0e-06"
+          "error": "assert 0.1 == 1.0 ± 1.0e-06"
         },
         {
           "node": "tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py::test_no_setting_can_ask_for_more_than_half_a_frame[2.0-3.0]",
