@@ -8,6 +8,10 @@ from spacr.qt.widgets import ambient
 
 
 def _engine(family):
+    if family == 'chromatin_ribbon':
+        return ambient._DataArtEngine(
+            ambient.PALETTE_SETS['spacr'].colors, '#101418',
+            family=family, seed=42, resolution=2, blur=0)
     return ambient.make_engine('data_art_' + family, 'spacr', '#101418',
                                seed=42, resolution=2, blur=0)
 
