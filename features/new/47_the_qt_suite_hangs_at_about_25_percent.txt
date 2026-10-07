@@ -2,10 +2,11 @@
 THE FULL tests/qt RUN HANGS PART-WAY THROUGH
 
 
-Status:    OPEN 2026-10-07 — protected original-order run37615889146
-           failed with native SIGSEGV near56%, at puncta False parameter.
-           Maximum recorded process HWM5.152GiB, below the10.8GiB guard;
-           eight earlier failed call reports and full serial acceptance remain open.
+Status:    OPEN 2026-10-07 — protected b688 run37639050274 failed with
+           native SIGSEGV near39% in real distribution measurement;
+           last recorded RSS~4048MiB with zero OOM kills. Its retained native
+           trace reaches QEventLoop::exec. Ordinary bb7 separately crashes
+           in puncta; complete current-source native/serial acceptance is open.
 Previous status (superseded 2026-10-07):    OPEN 2026-10-02 — the whole-suite serial Qt run stops at the 10.8
            GiB memory guard (about 71%); the growth has to be found and one
            full uninterrupted run recorded. The three remaining real items are
@@ -2212,3 +2213,19 @@ hosted-log-bound excerpt are in data/47_puncta_predecessor_native_cpu_2026-10-07
 This is a negative local bound, not complete xdist history or crash acceptance.
 The original hosted puncta SIGSEGV and protected b688 QEventLoop SIGSEGV remain
 OPEN pending an actual fault's native C stack; no skip/pin/global suppression.
+
+2026-10-07 — CURRENT CI DIAGNOSIS WITHOUT A SPECULATIVE CRASH PATCH
+Protected b688 run37639050274 is terminal139 in real distribution measurement
+near39%; its actual C trace reaches QEventLoop::exec, with RSS~4048MiB/OOM0.
+This is distinct from bb7 Coverage7 puncta and the Qt0 fixture-GC fault.
+Read-only puncta source review finds no demonstrated unowned/running worker:
+the selector owns its QThread, completion holds a local worker reference,
+and shutdown drains or parks a timed-out child. No source patch is justified
+from a Python waitUntil stack alone. Ordinary source-bound native collection
+is being added with unique PID/start/executable identity journals and bounded
+failure-only text extraction; it is diagnostic work, not a crash fix.
+
+The bounded25-file Home cohort reports1071 passes/one obsolete initial-density
+failure; that assertion is repaired and its full file/default neighbors pass
+161. It excludes the full Qt suite and does not establish serial stability.
+All original memory/test/coverage gates stay active; full acceptance OPEN.

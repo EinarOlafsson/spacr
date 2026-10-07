@@ -2,10 +2,12 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 ================================================================================
 
-Status:    OPEN 2026-10-07 — ordinary a44 run37615878285 is terminal FAILURE.
-           Numerical ratchet passed; native puncta and Mask first-open failures
-           remain. Four Workstation owner corrections are integrated locally;
-           latest theme source needs owner-generated refresh and hosted acceptance.
+Status:    OPEN 2026-10-07 — ordinary bb7 run37681965976 has ten failed
+           coverage shards and continuing Fast/Minimum/Qt jobs. Home repairs
+           through36ec5c57f4 are pushed and checked in bounded local cohorts.
+           Current API/runtime/guide owner contracts and native Qt crashes
+           remain open; a complete current-source GitHub pass is required.
+           Mask first-open passed its unchanged hosted budget on bb7.
 Previous status (superseded 2026-10-07):    OPEN 2026-10-06 — CPU registry/dependency/inventory repairs are
            locally verified; current hosted tests and owner documentation
            corrections remain outstanding. See the dated trailing notes.
@@ -3158,3 +3160,29 @@ Compact frozen source/tests/logs/native trace and hashes are in
 features/data/43_current_theme_guards_cpu_2026-10-07/receipt.json (32payloads).
 No ceiling/skip/xfail/publicfactory/quality changes, whole-suite hosted green,
 GPU, aesthetic or hard24FPS acceptance is claimed.
+
+2026-10-07 — INTEGRATED HOME CHECK AND NEW LIVE FAILURE TRIAGE
+Twenty-five affected files/26 selectors on04968c06fe produce1071 passes and
+one stale Density100 versus current10 assertion. Source36ec5c57f4 repairs
+only that initial expected value; the complete ambient-motion file and
+default-density neighbors pass161/161. These are separate phases, not a
+repeated1072-case pass. Logs, selectors and provenance limits are archived
+in data/43_integrated_ci_cpu_2026-10-07/manifest.json. Operator-reported
+arguments and runtime versions sampled after execution are labeled as such.
+
+Six additional Coverage5 failures are repaired incd542043b0; the five full
+affected files pass99/99. The actual saved defaults are gravity15% and
+Settings backdrop None. Home HintBar is immediate independent of tooltip
+delay, and real Enter/Leave replaces its removed private delay test hook.
+The ordinary arrived glow-rim test explicitly disables Spaceout and retains
+its no-repaint assertion. All original hard thresholds remain unchanged.
+
+Current owner blockers are explicitly relayed in HANDOFF: source-derived
+API admissions/signature boundary, French/Swedish retirement accounting,
+Swedish guide glossary, English documentation API inventory and indirect
+captions spaCR aurora/spaCR blobs/spaCR spinn. Workstation retains ownership.
+Hosted bb7 failure archive now covers ten terminal failed coverage jobs and
+130 summary nodes. Live Fast/Minimum/Qt logs are partial evidence only;
+newly observed assertion, native-GC and large-byte-diff timeout failures are
+being distinguished. Numerical coverage, compatibility or local passes
+alone do not close this item. Complete current-source GitHub green OPEN.
