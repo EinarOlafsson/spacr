@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 13:33-0400\n"
+"POT-Creation-Date: 2026-10-06 18:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
@@ -81,6 +81,14 @@ msgstr "Soltar imagens, PDFs e pastas"
 
 msgid "Drop any number of images, PDFs or folders onto Plaque Assay. Images are read in **Plaque** mode and PDFs in **Figure** mode; every PDF is read in turn, with progress naming the paper being read, and a paper that cannot be read is reported by name without stopping the others. Files that are neither images nor PDFs are left out and counted once. When the drop does not match the current mode, a prompt offers to switch; when it holds both images and PDFs, choose which mode to run. If the figure reader needs installing or reinstalling, the prompt installs it in place and reports the result."
 msgstr "Solte qualquer número de imagens, PDFs ou pastas sobre o Ensaio de placas. As imagens são lidas no modo **Placa** e os PDFs no modo **Figura**; cada PDF é lido por vez, com o progresso indicando o artigo que está sendo lido, e um artigo que não pode ser lido é informado pelo nome sem interromper os demais. Arquivos que não são imagens nem PDFs são deixados de fora e contados uma vez. Quando o conteúdo solto não corresponde ao modo atual, um aviso oferece a troca; quando contém imagens e PDFs, escolha qual modo executar. Se o leitor de figuras precisar ser instalado ou reinstalado, o aviso o instala no local e informa o resultado."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Bio-Rad Gel Doc images (``.scn``)"
+msgstr "Imagens do Bio-Rad Gel Doc (``.scn``)"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Image Lab ``.scn`` files from a Gel Doc or ChemiDoc imager are read directly, without exporting them first, wherever a TIFF is accepted: Plaque Assay in both modes, Make Masks and its curation queue, and the Format Converter. A folder of ``.scn`` files is a source like a folder of figures. Image Lab stores these images with zero as white, so spaCR inverts them to look like Image Lab's own PDF and TIFF exports (dark wells on light plastic) and keeps the 12-bit values. Plaque Assay shows them as 8-bit grey scaled linearly to the imager's ceiling. When the file records its physical field size, that pixel size calibrates Figure-mode plaque areas (scale source ``image metadata``) unless a pixel scale is set in the settings or on a well. In Python, :func:`spacr.convert.read_scn` returns the image and its metadata: pixel size, imager, acquisition date, exposure and application."
+msgstr "Arquivos ``.scn`` do Image Lab obtidos com um equipamento Gel Doc ou ChemiDoc são lidos diretamente, sem exportação prévia, onde TIFF é aceito: Plaque Assay nos dois modos, Make Masks e sua fila de curadoria, e Format Converter. Uma pasta de arquivos ``.scn`` é uma fonte como uma pasta de figuras. O Image Lab armazena essas imagens com zero como branco; por isso spaCR as inverte para corresponder às exportações PDF e TIFF do Image Lab (poços escuros em plástico claro) e preserva os valores de 12 bits. Plaque Assay as exibe em cinza de 8 bits, escalado linearmente até o valor máximo do equipamento. Quando o arquivo registra o tamanho físico do campo, esse tamanho de pixel calibra as áreas de placas no modo Figure (origem da escala ``image metadata``), exceto se uma escala de pixel for definida nos ajustes ou em um poço. Em Python, :func:`spacr.convert.read_scn` retorna a imagem e seus metadados: tamanho de pixel, equipamento, data de aquisição, exposição e aplicativo."
 
 msgid "Inspect the result views"
 msgstr "Inspecionar as visualizações de resultados"

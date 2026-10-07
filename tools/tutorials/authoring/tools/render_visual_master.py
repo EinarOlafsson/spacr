@@ -99,13 +99,13 @@ def validate_geometry(spec: dict, root: Path) -> tuple[int, int]:
     return width, height
 
 
-def encode_still(image: Path, duration: float, output: Path, fps: int) -> None:
+def encode_still(image: Path, duration: float, output: Path, fps: int, crf: int = 18) -> None:
     run([
         "ffmpeg", "-y", "-loglevel", "error",
         "-filter_threads", "2", "-filter_complex_threads", "2", "-loop", "1",
         "-framerate", str(fps), "-i", str(image), "-t", f"{duration:.6f}",
         "-an", "-c:v", "libx264", "-preset", "veryfast", "-tune", "stillimage",
-        "-threads", "2", "-crf", "18",
+        "-threads", "2", "-crf", str(crf),
         "-pix_fmt", "yuv420p", "-r", str(fps),
         "-video_track_timescale", TRACK_TIMESCALE, str(output),
     ])
@@ -119,6 +119,7 @@ def encode_pointer_scene(
     output: Path,
     work: Path,
     fps: int,
+    crf: int = 18,
 ) -> None:
     travel = min(2.4, max(1.6, duration * 0.22))
     moving_frames = max(1, int(round(travel * fps)))
@@ -140,7 +141,7 @@ def encode_pointer_scene(
         "ffmpeg", "-y", "-loglevel", "error",
         "-filter_threads", "2", "-filter_complex_threads", "2", "-framerate", str(fps),
         "-i", str(sequence / "%04d.jpg"), "-an", "-c:v", "libx264",
-        "-preset", "veryfast", "-threads", "2", "-crf", "18", "-pix_fmt", "yuv420p",
+        "-preset", "veryfast", "-threads", "2", "-crf", str(crf), "-pix_fmt", "yuv420p",
         "-r", str(fps), "-video_track_timescale", TRACK_TIMESCALE, str(moving),
     ])
     hold = max(0.0, duration - moving_frames / fps)
@@ -152,7 +153,7 @@ def encode_pointer_scene(
     pointer(final, target)
     final.convert("RGB").save(final_image, compress_level=2)
     held = work / f"{output.stem}_held.mp4"
-    encode_still(final_image, hold, held, fps)
+    encode_still(final_image, hold, held, fps, crf)
     concat([moving, held], output, work / f"{output.stem}_concat.txt")
 
 
@@ -207,6 +208,8 @@ def main() -> int:
     parser.add_argument("scenes", type=Path)
     parser.add_argument("--timings", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--crf", type=int, choices=range(52), default=18,
+                        help="H.264 quality: lower values preserve more native detail (default: 18)")
     args = parser.parse_args()
 
     spec = json.loads(args.scenes.read_text())
@@ -238,13 +241,13 @@ def main() -> int:
                 if scene.get("pointer") and scene.get("target"):
                     target = tuple(float(v) for v in scene["target"])
                     encode_pointer_scene(
-                        base, previous, target, duration, part, work, fps
+                        base, previous, target, duration, part, work, fps, args.crf
                     )
                     previous = target
                 else:
                     image = work / f"scene_{index:02d}.png"
                     base.convert("RGB").save(image, compress_level=2)
-                    encode_still(image, duration, part, fps)
+                    encode_still(image, duration, part, fps, args.crf)
                 parts.append(part)
             concat(parts, staged_output, work / "master_concat.txt")
         staged_output.replace(args.output)

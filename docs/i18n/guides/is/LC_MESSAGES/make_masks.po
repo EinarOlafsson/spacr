@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 13:33-0400\n"
+"POT-Creation-Date: 2026-10-06 18:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -151,8 +151,9 @@ msgstr "Allt sem ekki er notað er talið upp í stjórnborðinu ásamt ástæð
 msgid "A saved edit history is stored beside the mask as ``<mask>.curation.json``. Opening an image without editing it does not create evidence of manual curation. Existing history is retained when editing a previously curated mask. See :func:`spacr.qt.mask_engine.save_mask` and :class:`spacr.curation.CurationLog` for the file contract."
 msgstr "Vistuð breytingasaga er geymd við hlið grímunnar sem ``<mask>.curation.json``. Að opna mynd án þess að breyta henni býr ekki til vísbendingu um handvirka grisjun. Fyrirliggjandi saga er varðveitt þegar áður grisjaðri grímu er breytt. Sjá :func:`spacr.qt.mask_engine.save_mask` og :class:`spacr.curation.CurationLog` fyrir skráasamninginn."
 
-msgid "The saved format has at most 65,535 positive labels. Saving refuses a binary mask with more connected objects, or an existing multi-label mask whose IDs exceed that range; it does not wrap oversized IDs into smaller numbers. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
-msgstr "Vistaða sniðið hefur að hámarki 65.535 jákvæð merki. Vistun hafnar tvíundargrímu með fleiri samtengdum hlutum, eða fyrirliggjandi fjölmerkjagrímu þar sem auðkenni fara yfir það bil; hún vefur ekki of stórum auðkennum í lægri tölur. Höfnuð vistun varðveitir fyrirliggjandi TIFF eða Cellpose-pakka og lýsigögn hans. Í venjulegum ham er gríma með einu forgrunnsgildi túlkuð sem tvíundargríma og samtengdir hlutar hennar fá aðskilin auðkenni. Fyrir tengsl frum- og afleiddra hluta skaltu nota leiðina með nákvæmum auðkennum sem lýst er hér að neðan. Sjá :func:`spacr.qt.mask_engine.canonical_labels` fyrir þessar aðgreindu venjur."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The saved format has at most 65,535 positive labels. Saving refuses a binary mask with more connected objects, or an existing multi-label mask whose IDs exceed that range; it does not wrap oversized IDs into smaller numbers. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. Deliberate groups created with Divide / Merge or a magnifier drag retain their shared IDs when saved and reopened with their matching curation history. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
+msgstr "Vistaða sniðið hefur að hámarki 65.535 jákvæð merki. Vistun hafnar tvíundargrímu með fleiri samtengdum hlutum, eða fyrirliggjandi fjölmerkjagrímu þar sem auðkenni fara yfir það bil; hún vefur ekki of stórum auðkennum í lægri tölur. Höfnuð vistun varðveitir fyrirliggjandi TIFF eða Cellpose-pakka og lýsigögn hans. Í venjulegum ham er gríma með einu forgrunnsgildi túlkuð sem tvíundargríma og samtengdir hlutar hennar fá aðskilin auðkenni. Fyrir tengsl frum- og afleiddra hluta skaltu nota leiðina með nákvæmum auðkennum sem lýst er hér að neðan. Sjá :func:`spacr.qt.mask_engine.canonical_labels` fyrir þessar aðgreindu venjur. Hópar sem eru vísvitandi búnir til með Skipta / Sameina eða drætti í stækkunargleri halda sameiginlegum auðkennum sínum þegar þeir eru vistaðir og opnaðir aftur með samsvarandi yfirferðarsögu."
 
 msgid "Canvas tools and navigation"
 msgstr "Verkfæri strigans og leiðsögn"
@@ -181,11 +182,12 @@ msgstr "Erase object"
 msgid "Remove the complete label clicked."
 msgstr "Fjarlægja allt merkið sem smellt er á."
 
-msgid "Wand + / Wand −"
-msgstr "Wand + / Wand −"
+msgid "Wand"
+msgstr "Galdrastafur"
 
-msgid "Flood from the clicked pixel within the chosen intensity tolerance; add or remove the resulting region."
-msgstr "Flæða frá pixlinum sem smellt er á innan valinna styrkleikavikmarka; bæta svæðinu sem verður til við eða fjarlægja það."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Flood from the clicked pixel within the chosen intensity tolerance; add the resulting region by default. Hold Ctrl while clicking to remove that region."
+msgstr "Fylltu út frá pixlinum sem smellt var á innan valinna vikmarka fyrir styrk; svæðinu sem fæst er bætt við sjálfgefið. Haltu Ctrl niðri þegar þú smellir til að fjarlægja svæðið."
 
 msgid "Draw"
 msgstr "Draw"
@@ -193,11 +195,12 @@ msgstr "Draw"
 msgid "Trace an outline and fill its interior as one object."
 msgstr "Rekja útlínu og fylla innra svæði hennar sem einn hlut."
 
-msgid "Divide"
-msgstr "Divide"
+msgid "Divide / Merge"
+msgstr "Skipta / Sameina"
 
-msgid "Draw a cut through a merged object. The larger component retains its ID; the smaller receives a new ID."
-msgstr "Draga skurð í gegnum samrunninn hlut. Stærri hlutinn heldur auðkenni sínu; sá minni fær nýtt auðkenni."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Left-drag a cut through an object to divide it. The larger component retains its ID; the smaller receives a new ID. Right-drag a line across objects to merge them under the first crossed ID without painting the background between them."
+msgstr "Dragðu skurð með vinstri músarhnappi í gegnum hlut til að skipta honum. Stærri hlutinn heldur auðkenni sínu; sá minni fær nýtt. Dragðu línu með hægri músarhnappi yfir hluti til að sameina þá undir fyrsta auðkenninu sem línan fer yfir, án þess að mála bakgrunninn á milli þeirra."
 
 msgid "Zoom"
 msgstr "Aðdráttur"
@@ -217,8 +220,13 @@ msgstr "Reglustika"
 msgid "Drag a line to measure image-pixel distance. Right-click with Ruler selected to clear it. Zooming and panning preserve the measurement."
 msgstr "Draga línu til að mæla fjarlægð í myndpixlum. Hægrismelltu með Reglustika valda til að hreinsa hana. Aðdráttur og hliðrun varðveita mælinguna."
 
-msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
-msgstr "**Shift eða Alt + draga** hliðrar. Hjólið þysjar um bendilinn; **Esc** endurstillir aðdrátt. **Left/Right** velur fyrra/næsta sjónsvið. **Ctrl+Z/Ctrl+Y** afturkallar eða endurtekur breytingu. **Ctrl + vinstrismellur** skiptir hlut við mittið; **Ctrl + hægrismellur** fjarlægir hlutinn undir bendlinum. Flýtilyklaspjaldið við hlið sýnarinnar sýnir núverandi bendingar, þar á meðal stýringar stækkunarglersins."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. With Wand selected, **Ctrl + left click** removes the bounded intensity region. Outside Wand, **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
+msgstr "**Shift eða Alt + draga** hliðrar. Hjólið þysjar um bendilinn; **Esc** endurstillir aðdrátt. **Left/Right** velur fyrra/næsta sjónsvið. **Ctrl+Z/Ctrl+Y** afturkallar eða endurtekur breytingu. Þegar Galdrastafur er valið fjarlægir **Ctrl + vinstrismellur** afmarkaða styrksvæðið. Utan Galdrastafur **Ctrl + vinstrismellur** skiptir hlut við mittið; **Ctrl + hægrismellur** fjarlægir hlutinn undir bendlinum. Flýtilyklaspjaldið við hlið sýnarinnar sýnir núverandi bendingar, þar á meðal stýringar stækkunarglersins."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Clear all objects**, immediately left of **Discard**, asks for confirmation before removing every segmentation object in the current image. Cancelling keeps the masks; undo restores them. The acquired image is unchanged."
+msgstr "**Hreinsa alla hluti**, beint vinstra megin við **Henda**, biður um staðfestingu áður en allir hlutunarhlutir í núverandi mynd eru fjarlægðir. Að hætta við heldur möskunum; afturköllun endurheimtir þá. Upprunalega myndin er óbreytt."
 
 msgid "Recrop creates files and changes the field queue. Objects cut by a crop's boundary are omitted, and retained objects are renumbered within the new crop. Very small crops and near-duplicates are refused. Completed originals move into ``recropped_originals/``. Use the original image and mask when maintaining primary/secondary IDs across the full field; a renumbered crop is a different pairing context. The precise limits and paths are documented by :func:`spacr.qt.mask_engine.write_recrop`."
 msgstr "Recrop býr til skrár og breytir biðröð sjónsviða. Hlutum sem jaðar skurðarins sker er sleppt og hlutir sem haldast eru endurnúmeraðir innan nýja skurðarins. Mjög litlum skurðum og nær tvíteknum skurðum er hafnað. Fullunnin upprunaleg sjónsvið færast í ``recropped_originals/``. Notaðu upprunalegu myndina og grímuna þegar auðkennum frum- og afleiddra hluta er viðhaldið yfir allt sjónsviðið; endurnúmeraður skurður er annað pörunarsamhengi. Nákvæm mörk og slóðir eru skjalfest í :func:`spacr.qt.mask_engine.write_recrop`."
@@ -418,8 +426,9 @@ msgstr "Lifandi stækkunargler, síun og mæling"
 msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before accepting its objects."
 msgstr "Kveiktu á **Stækkunargler** eða ýttu á **M** til að skoða tillagða hluti í kringum bendilinn. Hjól þess breytir aðdrætti rammans; **Shift + wheel** breytir stærð rammans. **Ctrl+L+hægrismellur** læsir eða aflæsir rammanum. Bíddu eftir forskoðun sem er að uppfærast áður en þú samþykkir hluti hennar."
 
-msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, dragging can join encountered pieces into one object. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."
-msgstr "**Hlutir sem bætt er við** velur alla hluti á aðdráttarsvæðinu eða aðeins hluti undir músinni. Í venjulegum hömum getur drag tengt saman hluta sem verða á vegi þess í einn hlut. Forskoðun fyrir alla myndina samþykkir hluti undir bendlinum; hamur afleiddra hluta varðveitir auðkenni frumhluta í stað þess að tengja þá saman."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, including Otsu and Cellpose, click and drag to add encountered detections to the object under the initial click. Starting on background creates one new object. Separate detections share that object's ID without filling the background between them; one undo step reverses the drag, and the shared ID survives Save, Next and reopening. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."
+msgstr "**Hlutir sem bætt er við** velur alla hluti á stækkaða svæðinu eða aðeins hluti undir músinni. Í venjulegum ham, þar á meðal Otsu og Cellpose, smellirðu og dregur til að bæta greiningum á leiðinni við hlutinn undir fyrsta smellinum. Ef byrjað er á bakgrunni verður til einn nýr hlutur. Aðskildar greiningar deila auðkenni hans án þess að fylla bakgrunninn á milli þeirra; ein afturköllun snýr drættinum við og sameiginlega auðkennið helst eftir Save, Next og enduropnun. Forskoðun allrar myndarinnar tekur við hlutum undir bendlinum; aukahamur varðveitir aðalauðkenni í stað þess að sameina þau."
 
 msgid "The corner readout identifies the pixel and object under the cursor. The **Filter** category starts empty: choose a property and **Add a filter** to add a row with a minimum and a maximum. Every scalar :func:`skimage.measure.regionprops` property is offered, such as area, eccentricity or solidity; intensity statistics are offered only while an intensity image is open and use the original loaded values. A blank bound is off. The list applies as you edit it and when a field opens; the log below it names each hidden object and the bound that hid it, and removing a row brings back what it hid. The same list is the ``object_filters`` setting of Mask generation. See :func:`spacr.qt.mask_engine.filter_properties`. Object operations also offer hole filling, dilation, shrinking, relabeling and clearing; shrinking can remove thin or small objects entirely."
 msgstr "Hornaflesturinn auðkennir pixlann og hlutinn undir bendlinum. Flokkurinn **Sía** byrjar tómur: veldu eiginleika og **Bæta við síu** til að bæta við röð með lágmarki og hámarki. Allir einvíðir :func:`skimage.measure.regionprops`-eiginleikar eru í boði, svo sem flatarmál, miðskekkja eða þéttleiki; styrkleikatölfræði er aðeins í boði á meðan styrkleikamynd er opin og notar upphaflegu hlöðnu gildin. Autt mark er óvirkt. Listanum er beitt á meðan þú breytir honum og þegar sjónsvið opnast; annállinn fyrir neðan hann nefnir hvern falinn hlut og markið sem faldi hann, og ef röð er fjarlægð kemur aftur það sem hún faldi. Sami listi er stillingin ``object_filters`` í grímugerð. Sjá :func:`spacr.qt.mask_engine.filter_properties`. Hlutaaðgerðir bjóða einnig upp á fyllingu gata, víkkun, rýrnun, endurmerkingu og hreinsun; rýrnun getur fjarlægt þunna eða litla hluti alveg."

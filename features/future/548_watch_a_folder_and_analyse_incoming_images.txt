@@ -934,3 +934,17 @@ and parent548 scientific/external-data acceptance remainOPEN.
     remain rejected. Source/evidence: data/548_native_map_lifetime_cpu_2026-10-06/
     and data/548_native_mask_archive_cpu_2026-10-06/. Parent F548 remains OPEN
     for raw/vendor completion, large-volume and scientific acceptance.
+
+2026-10-07 workstation actual acquired flat-TYX CUDA parity accepted:
+Normal queued eager/mapped comparison on real RTX3090Ti and pretrained CPSAM
+receives byte-identical normalized inputs at outer batch_size2. All four
+nonempty masks match exactly with 23/22/23/23 objects; SQLite counts and
+completion identity match. Both first real model forwards record 707 actual
+non-memcpy CUDA kernel events. Four original acquired GOWT1 fields supply
+unchanged uint8 pixels to the derived 4x1024x1024x1 flat TYX input.
+Complete original 12GiB OOM and accepted 24GiB runs, actual profiler traces,
+all inputs/outputs and frozen source are retained in
+data/548_final_acquired_TYX_CUDA_2026-10-07_r3.json and its archive.
+This closes the actual-model parity child for acquired flat TYX only.
+Vendor-native T/Z volumes, arbitrary large volumes and biological accuracy
+remain open. No improved speed or whole-memory claim; alpha scope unchanged.

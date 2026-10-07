@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 13:33-0400\n"
+"POT-Creation-Date: 2026-10-06 18:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
@@ -151,8 +151,9 @@ msgstr "Alles, was nicht verwendet wird, wird mit dem Grund in der Konsole aufge
 msgid "A saved edit history is stored beside the mask as ``<mask>.curation.json``. Opening an image without editing it does not create evidence of manual curation. Existing history is retained when editing a previously curated mask. See :func:`spacr.qt.mask_engine.save_mask` and :class:`spacr.curation.CurationLog` for the file contract."
 msgstr "Ein gespeicherter Bearbeitungsverlauf wird neben der Maske als ``<mask>.curation.json`` abgelegt. Das Öffnen eines Bildes ohne Bearbeitung erzeugt keinen Nachweis einer manuellen Kuratierung. Beim Bearbeiten einer bereits kuratierten Maske bleibt der vorhandene Verlauf erhalten. Den Dateivertrag finden Sie unter :func:`spacr.qt.mask_engine.save_mask` und :class:`spacr.curation.CurationLog`."
 
-msgid "The saved format has at most 65,535 positive labels. Saving refuses a binary mask with more connected objects, or an existing multi-label mask whose IDs exceed that range; it does not wrap oversized IDs into smaller numbers. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
-msgstr "Das gespeicherte Format hat höchstens 65.535 positive Labels. Das Speichern verweigert eine Binärmaske mit mehr zusammenhängenden Objekten oder eine vorhandene Mehrlabelmaske, deren IDs diesen Bereich überschreiten; übergroße IDs werden nicht auf kleinere Zahlen umgebrochen. Ein verweigertes Speichern bewahrt ein vorhandenes TIFF oder Cellpose-Bündel samt Metadaten. Im gewöhnlichen Modus wird eine Maske mit nur einem Vordergrundwert als binär interpretiert, und ihre zusammenhängenden Komponenten erhalten separate IDs. Für Beziehungen zwischen primären und sekundären Objekten verwenden Sie den unten beschriebenen Weg mit exakten IDs. Zu diesen unterschiedlichen Konventionen siehe :func:`spacr.qt.mask_engine.canonical_labels`."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The saved format has at most 65,535 positive labels. Saving refuses a binary mask with more connected objects, or an existing multi-label mask whose IDs exceed that range; it does not wrap oversized IDs into smaller numbers. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. Deliberate groups created with Divide / Merge or a magnifier drag retain their shared IDs when saved and reopened with their matching curation history. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
+msgstr "Das gespeicherte Format hat höchstens 65.535 positive Labels. Das Speichern verweigert eine Binärmaske mit mehr zusammenhängenden Objekten oder eine vorhandene Mehrlabelmaske, deren IDs diesen Bereich überschreiten; übergroße IDs werden nicht auf kleinere Zahlen umgebrochen. Ein verweigertes Speichern bewahrt ein vorhandenes TIFF oder Cellpose-Bündel samt Metadaten. Im gewöhnlichen Modus wird eine Maske mit nur einem Vordergrundwert als binär interpretiert, und ihre zusammenhängenden Komponenten erhalten separate IDs. Für Beziehungen zwischen primären und sekundären Objekten verwenden Sie den unten beschriebenen Weg mit exakten IDs. Zu diesen unterschiedlichen Konventionen siehe :func:`spacr.qt.mask_engine.canonical_labels`. Bewusst mit Teilen / Zusammenführen oder einem Ziehen in der Lupe erstellte Gruppen behalten ihre gemeinsamen IDs beim Speichern und erneuten Öffnen mit ihrer zugehörigen Kuratierungshistorie."
 
 msgid "Canvas tools and navigation"
 msgstr "Werkzeuge der Zeichenfläche und Navigation"
@@ -181,11 +182,12 @@ msgstr "Erase object"
 msgid "Remove the complete label clicked."
 msgstr "Entfernt das gesamte angeklickte Label."
 
-msgid "Wand + / Wand −"
-msgstr "Wand + / Wand −"
+msgid "Wand"
+msgstr "Zauberstab"
 
-msgid "Flood from the clicked pixel within the chosen intensity tolerance; add or remove the resulting region."
-msgstr "Flutet vom angeklickten Pixel aus innerhalb der gewählten Intensitätstoleranz; fügt den entstehenden Bereich hinzu oder entfernt ihn."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Flood from the clicked pixel within the chosen intensity tolerance; add the resulting region by default. Hold Ctrl while clicking to remove that region."
+msgstr "Fülle ausgehend vom angeklickten Pixel innerhalb der gewählten Intensitätstoleranz; der entstandene Bereich wird standardmäßig hinzugefügt. Halte beim Klicken Ctrl gedrückt, um den Bereich zu entfernen."
 
 msgid "Draw"
 msgstr "Draw"
@@ -193,11 +195,12 @@ msgstr "Draw"
 msgid "Trace an outline and fill its interior as one object."
 msgstr "Zeichnet einen Umriss nach und füllt sein Inneres als ein Objekt."
 
-msgid "Divide"
-msgstr "Divide"
+msgid "Divide / Merge"
+msgstr "Teilen / Zusammenführen"
 
-msgid "Draw a cut through a merged object. The larger component retains its ID; the smaller receives a new ID."
-msgstr "Zieht einen Schnitt durch ein verschmolzenes Objekt. Die größere Komponente behält ihre ID; die kleinere erhält eine neue ID."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Left-drag a cut through an object to divide it. The larger component retains its ID; the smaller receives a new ID. Right-drag a line across objects to merge them under the first crossed ID without painting the background between them."
+msgstr "Ziehen Sie mit der linken Maustaste einen Schnitt durch ein Objekt, um es zu teilen. Die größere Komponente behält ihre ID; die kleinere erhält eine neue ID. Ziehen Sie mit der rechten Maustaste eine Linie über Objekte, um sie unter der zuerst gekreuzten ID zusammenzuführen, ohne den Hintergrund dazwischen zu bemalen."
 
 msgid "Zoom"
 msgstr "Zoom"
@@ -217,8 +220,13 @@ msgstr "Lineal"
 msgid "Drag a line to measure image-pixel distance. Right-click with Ruler selected to clear it. Zooming and panning preserve the measurement."
 msgstr "Ziehen Sie eine Linie, um einen Abstand in Bildpixeln zu messen. Klicken Sie bei ausgewähltem Lineal mit der rechten Maustaste, um sie zu löschen. Zoomen und Verschieben behalten die Messung bei."
 
-msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
-msgstr "**Shift oder Alt + ziehen** verschiebt die Ansicht. Das Mausrad zoomt um den Cursor; **Esc** setzt den Zoom zurück. **Left/Right** wählt das vorherige/nächste Bildfeld. **Ctrl+Z/Ctrl+Y** macht eine Bearbeitung rückgängig bzw. stellt sie wieder her. **Ctrl + Linksklick** teilt ein Objekt an seiner Taille; **Ctrl + Rechtsklick** entfernt das Objekt unter dem Cursor. Der Kurzbefehlsbereich neben der Ansicht listet die aktuellen Gesten auf, einschließlich der Lupensteuerung."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. With Wand selected, **Ctrl + left click** removes the bounded intensity region. Outside Wand, **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
+msgstr "**Shift oder Alt + ziehen** verschiebt die Ansicht. Das Mausrad zoomt um den Cursor; **Esc** setzt den Zoom zurück. **Left/Right** wählt das vorherige/nächste Bildfeld. **Ctrl+Z/Ctrl+Y** macht eine Bearbeitung rückgängig bzw. stellt sie wieder her. Wenn Zauberstab ausgewählt ist, entfernt **Ctrl + Linksklick** den begrenzten Intensitätsbereich. Außerhalb von Zauberstab **Ctrl + Linksklick** teilt ein Objekt an seiner Taille; **Ctrl + Rechtsklick** entfernt das Objekt unter dem Cursor. Der Kurzbefehlsbereich neben der Ansicht listet die aktuellen Gesten auf, einschließlich der Lupensteuerung."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Clear all objects**, immediately left of **Discard**, asks for confirmation before removing every segmentation object in the current image. Cancelling keeps the masks; undo restores them. The acquired image is unchanged."
+msgstr "**Alle Objekte entfernen**, unmittelbar links von **Verwerfen**, verlangt eine Bestätigung, bevor alle Segmentierungsobjekte im aktuellen Bild entfernt werden. Abbrechen erhält die Masken; Rückgängig stellt sie wieder her. Das aufgenommene Bild bleibt unverändert."
 
 msgid "Recrop creates files and changes the field queue. Objects cut by a crop's boundary are omitted, and retained objects are renumbered within the new crop. Very small crops and near-duplicates are refused. Completed originals move into ``recropped_originals/``. Use the original image and mask when maintaining primary/secondary IDs across the full field; a renumbered crop is a different pairing context. The precise limits and paths are documented by :func:`spacr.qt.mask_engine.write_recrop`."
 msgstr "Recrop erzeugt Dateien und verändert die Bildfeld-Warteschlange. Objekte, die von der Grenze eines Ausschnitts durchschnitten werden, werden ausgelassen, und beibehaltene Objekte werden innerhalb des neuen Ausschnitts neu nummeriert. Sehr kleine Ausschnitte und Beinahe-Duplikate werden abgelehnt. Abgeschlossene Originale werden nach ``recropped_originals/`` verschoben. Verwenden Sie das ursprüngliche Bild und die ursprüngliche Maske, wenn Sie primäre/sekundäre IDs über das gesamte Bildfeld pflegen; ein neu nummerierter Ausschnitt ist ein anderer Paarungskontext. Die genauen Grenzen und Pfade dokumentiert :func:`spacr.qt.mask_engine.write_recrop`."
@@ -418,8 +426,9 @@ msgstr "Live-Lupe, Filterung und Messung"
 msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before accepting its objects."
 msgstr "Schalten Sie die **Lupe** um oder drücken Sie **M**, um vorgeschlagene Objekte um den Zeiger herum zu prüfen. Ihr Mausrad ändert den Zoom des Rahmens; **Shift + wheel** ändert die Rahmengröße. **Ctrl+L+Rechtsklick** sperrt den Rahmen oder gibt ihn frei. Warten Sie auf eine sich aktualisierende Vorschau, bevor Sie ihre Objekte übernehmen."
 
-msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, dragging can join encountered pieces into one object. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."
-msgstr "**Hinzugefügte Objekte** wählt jedes Objekt im Zoombereich oder nur Objekte unter der Maus aus. In gewöhnlichen Modi kann das Ziehen angetroffene Teile zu einem Objekt verbinden. Die Vorschau für das ganze Bild übernimmt Objekte unter dem Zeiger; der sekundäre Modus bewahrt primäre Identitäten, statt sie zu verbinden."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, including Otsu and Cellpose, click and drag to add encountered detections to the object under the initial click. Starting on background creates one new object. Separate detections share that object's ID without filling the background between them; one undo step reverses the drag, and the shared ID survives Save, Next and reopening. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."
+msgstr "**Hinzugefügte Objekte** wählt alle Objekte im Zoombereich oder nur Objekte unter der Maus. In normalen Modi, einschließlich Otsu und Cellpose, klicken und ziehen Sie, um angetroffene Detektionen dem Objekt unter dem ersten Klick hinzuzufügen. Ein Start auf dem Hintergrund erzeugt ein neues Objekt. Getrennte Detektionen teilen dessen ID, ohne den Hintergrund dazwischen zu füllen; ein Rückgängig-Schritt macht das Ziehen rückgängig, und die gemeinsame ID bleibt nach Save, Next und erneutem Öffnen erhalten. Die Ganzbildvorschau übernimmt Objekte unter dem Zeiger; der Sekundärmodus erhält primäre Identitäten, statt sie zusammenzuführen."
 
 msgid "The corner readout identifies the pixel and object under the cursor. The **Filter** category starts empty: choose a property and **Add a filter** to add a row with a minimum and a maximum. Every scalar :func:`skimage.measure.regionprops` property is offered, such as area, eccentricity or solidity; intensity statistics are offered only while an intensity image is open and use the original loaded values. A blank bound is off. The list applies as you edit it and when a field opens; the log below it names each hidden object and the bound that hid it, and removing a row brings back what it hid. The same list is the ``object_filters`` setting of Mask generation. See :func:`spacr.qt.mask_engine.filter_properties`. Object operations also offer hole filling, dilation, shrinking, relabeling and clearing; shrinking can remove thin or small objects entirely."
 msgstr "Die Eckanzeige nennt das Pixel und das Objekt unter dem Cursor. Die Kategorie **Filtern** beginnt leer: Wählen Sie eine Eigenschaft und **Filter hinzufügen**, um eine Zeile mit einem Minimum und einem Maximum hinzuzufügen. Jede skalare Eigenschaft von :func:`skimage.measure.regionprops` wird angeboten, etwa Fläche, Exzentrizität oder Solidität; Intensitätsstatistiken werden nur angeboten, solange ein Intensitätsbild geöffnet ist, und verwenden die ursprünglich geladenen Werte. Eine leere Grenze ist ausgeschaltet. Die Liste wird beim Bearbeiten und beim Öffnen eines Bildfelds angewendet; das Protokoll darunter nennt jedes ausgeblendete Objekt und die Grenze, die es ausgeblendet hat, und das Entfernen einer Zeile bringt zurück, was sie ausgeblendet hat. Dieselbe Liste ist die Einstellung ``object_filters`` der Maskenerzeugung. Siehe :func:`spacr.qt.mask_engine.filter_properties`. Die Objektoperationen bieten außerdem Füllen von Löchern, Dilatation, Schrumpfen, Neunummerieren und Löschen; Schrumpfen kann dünne oder kleine Objekte vollständig entfernen."

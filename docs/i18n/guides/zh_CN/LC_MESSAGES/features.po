@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 13:33-0400\n"
+"POT-Creation-Date: 2026-10-06 18:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -325,6 +325,22 @@ msgstr "属于某种形态的设置不会出现在其他形态的槽位中：点
 
 msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
 msgstr "3D 和时间开关声明孔板具有哪些维度。``z_stack`` 声明存在 z 轴并启用体数据设置——分割模式、各向异性和体素大小——并且会以错误停止，而不是猜测哪个轴是 z。``timelapse`` 声明存在时间轴并显示跟踪设置；单时间点的孔板会忽略它。4D 设置仅在数据既是 z 栈又是时间序列时适用，也只在那时出现。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Timelapse event annotations and pretrained features (alpha)"
+msgstr "Timelapse 事件标注与预训练特征（alpha）"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Enable **Show alpha features** in Preferences to use **Event annotations…** in Timelapse. Choose an existing spaCR tracks CSV and its matching image sequence, open the tracked field and confirm the pairing. Select an observed track and zero-based frame, enter an event name and press **Add or update**. **Save** writes the staged labels to an annotations CSV and selects it for event detection; closing without saving leaves the file unchanged. One track at one frame can have only one event label. Changed tracker or annotation files must be reopened before saving."
+msgstr "在 Preferences 中启用 **显示 Alpha 功能**，即可使用 Timelapse 中的 **事件记录...**。选择现有的 spaCR 轨迹 CSV 及其对应图像序列，打开已跟踪的视野并确认配对。选择实际观测到的轨迹和从零开始编号的帧，输入事件名称，然后点击 **添加或更新**。**保存** 将暂存标签写入标注 CSV，并为事件检测选中该文件；关闭而不保存会保持文件不变。同一轨迹在同一帧只能有一个事件标签。轨迹或标注文件发生更改后，必须重新打开才能保存。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The annotation table names ``field``, ``track_id``, ``frame`` and ``event``; an ``object`` column identifies the tracked object type. Label every event in fields used for training. The event detector evaluates held-out annotated fields, reports precision, recall and timing error, then trains and saves a model for reuse. Event classes come from the experiment's annotations."
+msgstr "标注表包含 ``field``、``track_id``、``frame`` 和 ``event``；``object`` 列标识被跟踪对象的类型。请标注训练视野中的每个事件。事件检测器先在保留于训练之外的已标注视野上评估，报告精确率、召回率和时间误差，再训练并保存可复用模型。事件类别来自实验标注。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The default ``small`` encoder runs on CPU. The optional ``videomae`` encoder uses pretrained video features from **VideoMAE event encoder** in Model Zoo, installed in its own environment. Supply the verified local official checkpoint folder and exactly three ordered source-channel indices; use ``[0,0,0]`` only when deliberately repeating a monochrome channel. The frozen encoder can use CUDA, Metal or CPU; the small event classifier trains on CPU. The checkpoint's Kinetics classes are not microscopy event labels, and pretrained features require held-out evaluation on the intended microscopy experiment. The checkpoint is licensed CC-BY-NC-4.0; inference downloads no weights. These controls remain alpha."
+msgstr "默认编码器 ``small`` 在 CPU 上运行。可选编码器 ``videomae`` 使用 Model Zoo 中 **VideoMAE 事件编码器** 提供的预训练视频特征，该后端安装在独立环境中。提供经过验证的本地官方检查点文件夹，以及恰好三个有顺序的源通道索引；仅在有意重复单色通道时使用 ``[0,0,0]``。冻结的编码器可使用 CUDA、Metal 或 CPU；小型事件分类器在 CPU 上训练。检查点的 Kinetics 类别不是显微事件标签，预训练特征必须在目标显微实验的独立保留数据上评估。检查点采用 CC-BY-NC-4.0 许可；推理不会下载权重。这些控件仍属于 alpha。"
 
 msgid "Figure settings"
 msgstr "图设置"

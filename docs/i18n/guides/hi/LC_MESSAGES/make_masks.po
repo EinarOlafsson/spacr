@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 13:33-0400\n"
+"POT-Creation-Date: 2026-10-06 18:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -151,8 +151,9 @@ msgstr "जो कुछ उपयोग नहीं होता वह का
 msgid "A saved edit history is stored beside the mask as ``<mask>.curation.json``. Opening an image without editing it does not create evidence of manual curation. Existing history is retained when editing a previously curated mask. See :func:`spacr.qt.mask_engine.save_mask` and :class:`spacr.curation.CurationLog` for the file contract."
 msgstr "सहेजा गया संपादन इतिहास मास्क के बगल में ``<mask>.curation.json`` के रूप में संग्रहीत होता है। संपादन किए बिना छवि खोलने से मैन्युअल क्यूरेशन का साक्ष्य नहीं बनता। पहले क्यूरेट किए गए मास्क को संपादित करने पर मौजूदा इतिहास बना रहता है। फ़ाइल अनुबंध के लिए :func:`spacr.qt.mask_engine.save_mask` और :class:`spacr.curation.CurationLog` देखें।"
 
-msgid "The saved format has at most 65,535 positive labels. Saving refuses a binary mask with more connected objects, or an existing multi-label mask whose IDs exceed that range; it does not wrap oversized IDs into smaller numbers. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
-msgstr "सहेजे गए प्रारूप में अधिकतम 65,535 धनात्मक लेबल होते हैं। अधिक जुड़े ऑब्जेक्ट वाले द्विआधारी मास्क, या उस सीमा से अधिक ID वाले मौजूदा बहु-लेबल मास्क को सहेजना अस्वीकार करता है; यह बहुत बड़े ID को छोटी संख्याओं में नहीं लपेटता। अस्वीकृत सहेजना मौजूदा TIFF या Cellpose बंडल और उसके मेटाडेटा को सुरक्षित रखता है। सामान्य मोड में एक अग्रभूमि मान वाले मास्क को द्विआधारी माना जाता है और उसके जुड़े घटकों को अलग ID मिलती हैं। प्राथमिक/द्वितीयक संबंधों के लिए नीचे वर्णित सटीक-ID मार्ग का उपयोग करें। इन भिन्न परंपराओं के लिए :func:`spacr.qt.mask_engine.canonical_labels` देखें।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The saved format has at most 65,535 positive labels. Saving refuses a binary mask with more connected objects, or an existing multi-label mask whose IDs exceed that range; it does not wrap oversized IDs into smaller numbers. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. Deliberate groups created with Divide / Merge or a magnifier drag retain their shared IDs when saved and reopened with their matching curation history. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
+msgstr "सहेजे गए प्रारूप में अधिकतम 65,535 धनात्मक लेबल होते हैं। अधिक जुड़े ऑब्जेक्ट वाले द्विआधारी मास्क, या उस सीमा से अधिक ID वाले मौजूदा बहु-लेबल मास्क को सहेजना अस्वीकार करता है; यह बहुत बड़े ID को छोटी संख्याओं में नहीं लपेटता। अस्वीकृत सहेजना मौजूदा TIFF या Cellpose बंडल और उसके मेटाडेटा को सुरक्षित रखता है। सामान्य मोड में एक अग्रभूमि मान वाले मास्क को द्विआधारी माना जाता है और उसके जुड़े घटकों को अलग ID मिलती हैं। प्राथमिक/द्वितीयक संबंधों के लिए नीचे वर्णित सटीक-ID मार्ग का उपयोग करें। इन भिन्न परंपराओं के लिए :func:`spacr.qt.mask_engine.canonical_labels` देखें। विभाजित करें / मिलाएँ या आवर्धक में ड्रैग करके जानबूझकर बनाए गए समूह अपने मिलते हुए क्यूरेशन इतिहास के साथ सहेजने और फिर खोलने पर साझा ID बनाए रखते हैं।"
 
 msgid "Canvas tools and navigation"
 msgstr "कैनवास उपकरण और नेविगेशन"
@@ -181,11 +182,12 @@ msgstr "Erase object"
 msgid "Remove the complete label clicked."
 msgstr "क्लिक किया गया पूरा लेबल हटाएँ।"
 
-msgid "Wand + / Wand −"
-msgstr "Wand + / Wand −"
+msgid "Wand"
+msgstr "जादुई छड़ी"
 
-msgid "Flood from the clicked pixel within the chosen intensity tolerance; add or remove the resulting region."
-msgstr "क्लिक किए गए पिक्सेल से चुनी गई तीव्रता सहनशीलता के भीतर भरें; परिणामी क्षेत्र जोड़ें या हटाएँ।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Flood from the clicked pixel within the chosen intensity tolerance; add the resulting region by default. Hold Ctrl while clicking to remove that region."
+msgstr "क्लिक किए गए पिक्सेल से चुनी गई तीव्रता सहनशीलता के भीतर क्षेत्र भरें; बने क्षेत्र को डिफ़ॉल्ट रूप से जोड़ें। उस क्षेत्र को हटाने के लिए क्लिक करते समय Ctrl दबाए रखें।"
 
 msgid "Draw"
 msgstr "Draw"
@@ -193,11 +195,12 @@ msgstr "Draw"
 msgid "Trace an outline and fill its interior as one object."
 msgstr "एक रूपरेखा बनाएँ और उसके भीतरी भाग को एक ऑब्जेक्ट के रूप में भरें।"
 
-msgid "Divide"
-msgstr "Divide"
+msgid "Divide / Merge"
+msgstr "विभाजित करें / मिलाएँ"
 
-msgid "Draw a cut through a merged object. The larger component retains its ID; the smaller receives a new ID."
-msgstr "जुड़े हुए ऑब्जेक्ट के आर-पार एक कट खींचें। बड़ा घटक अपनी ID रखता है; छोटे को नई ID मिलती है।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Left-drag a cut through an object to divide it. The larger component retains its ID; the smaller receives a new ID. Right-drag a line across objects to merge them under the first crossed ID without painting the background between them."
+msgstr "ऑब्जेक्ट को बाँटने के लिए बाएँ बटन से उसके आर-पार कट खींचें। बड़ा भाग अपना ID रखता है; छोटे भाग को नया ID मिलता है। ऑब्जेक्ट के ऊपर दाएँ बटन से रेखा खींचकर उन्हें पहले पार किए गए ID में मिलाएँ, बीच की पृष्ठभूमि को रंगे बिना।"
 
 msgid "Zoom"
 msgstr "ज़ूम"
@@ -217,8 +220,13 @@ msgstr "रूलर"
 msgid "Drag a line to measure image-pixel distance. Right-click with Ruler selected to clear it. Zooming and panning preserve the measurement."
 msgstr "छवि-पिक्सेल दूरी मापने के लिए एक रेखा खींचें। इसे साफ़ करने के लिए रूलर चुने होने पर राइट-क्लिक करें। ज़ूम और पैन करने से माप बना रहता है।"
 
-msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
-msgstr "**Shift या Alt + खींचें** पैन करता है। व्हील कर्सर के चारों ओर ज़ूम करता है; **Esc** ज़ूम रीसेट करता है। **Left/Right** पिछला/अगला फ़ील्ड चुनता है। **Ctrl+Z/Ctrl+Y** संपादन पूर्ववत या फिर से करता है। **Ctrl + बायाँ क्लिक** किसी ऑब्जेक्ट को उसकी कमर पर विभाजित करता है; **Ctrl + दायाँ क्लिक** कर्सर के नीचे का ऑब्जेक्ट हटाता है। दृश्य के बगल का शॉर्टकट पैनल आवर्धक नियंत्रणों सहित वर्तमान जेस्चर सूचीबद्ध करता है।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. With Wand selected, **Ctrl + left click** removes the bounded intensity region. Outside Wand, **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
+msgstr "**Shift या Alt + खींचें** पैन करता है। व्हील कर्सर के चारों ओर ज़ूम करता है; **Esc** ज़ूम रीसेट करता है। **Left/Right** पिछला/अगला फ़ील्ड चुनता है। **Ctrl+Z/Ctrl+Y** संपादन पूर्ववत या फिर से करता है। जादुई छड़ी चुने होने पर **Ctrl + बायाँ क्लिक** सीमाबद्ध तीव्रता क्षेत्र हटाता है। जादुई छड़ी के बाहर, **Ctrl + बायाँ क्लिक** किसी ऑब्जेक्ट को उसकी कमर पर विभाजित करता है; **Ctrl + दायाँ क्लिक** कर्सर के नीचे का ऑब्जेक्ट हटाता है। दृश्य के बगल का शॉर्टकट पैनल आवर्धक नियंत्रणों सहित वर्तमान जेस्चर सूचीबद्ध करता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Clear all objects**, immediately left of **Discard**, asks for confirmation before removing every segmentation object in the current image. Cancelling keeps the masks; undo restores them. The acquired image is unchanged."
+msgstr "**त्यागें** के ठीक बाएँ स्थित **सभी ऑब्जेक्ट साफ़ करें** वर्तमान इमेज के सभी सेगमेंटेशन ऑब्जेक्ट हटाने से पहले पुष्टि माँगता है। रद्द करने पर मास्क बने रहते हैं; पूर्ववत करने पर वे लौट आते हैं। अधिग्रहित इमेज नहीं बदलती।"
 
 msgid "Recrop creates files and changes the field queue. Objects cut by a crop's boundary are omitted, and retained objects are renumbered within the new crop. Very small crops and near-duplicates are refused. Completed originals move into ``recropped_originals/``. Use the original image and mask when maintaining primary/secondary IDs across the full field; a renumbered crop is a different pairing context. The precise limits and paths are documented by :func:`spacr.qt.mask_engine.write_recrop`."
 msgstr "Recrop फ़ाइलें बनाता है और फ़ील्ड कतार बदलता है। क्रॉप की सीमा से कटे ऑब्जेक्ट छोड़ दिए जाते हैं, और बचे ऑब्जेक्ट नए क्रॉप के भीतर फिर से क्रमांकित होते हैं। बहुत छोटे क्रॉप और लगभग डुप्लिकेट क्रॉप अस्वीकार किए जाते हैं। पूर्ण मूल ``recropped_originals/`` में चले जाते हैं। पूरे फ़ील्ड में प्राथमिक/द्वितीयक ID बनाए रखते समय मूल छवि और मास्क का उपयोग करें; फिर से क्रमांकित क्रॉप एक भिन्न युग्मन संदर्भ है। सटीक सीमाएँ और पथ :func:`spacr.qt.mask_engine.write_recrop` में प्रलेखित हैं।"
@@ -418,8 +426,9 @@ msgstr "लाइव आवर्धक, फ़िल्टरिंग और �
 msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before accepting its objects."
 msgstr "सूचक के आसपास प्रस्तावित ऑब्जेक्ट की जाँच के लिए **आवर्धक** चालू करें या **M** दबाएँ। इसका व्हील बॉक्स ज़ूम बदलता है; **Shift + wheel** बॉक्स का आकार बदलता है। **Ctrl+L+दायाँ क्लिक** बॉक्स को लॉक या अनलॉक करता है। किसी अद्यतन हो रहे पूर्वावलोकन के ऑब्जेक्ट स्वीकार करने से पहले उसकी प्रतीक्षा करें।"
 
-msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, dragging can join encountered pieces into one object. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."
-msgstr "**जोड़े जाने वाले ऑब्जेक्ट** ज़ूम क्षेत्र के हर ऑब्जेक्ट को या केवल माउस के नीचे के ऑब्जेक्ट को चुनता है। सामान्य मोड में खींचने से रास्ते में आए टुकड़े एक ऑब्जेक्ट में जुड़ सकते हैं। पूरी-छवि पूर्वावलोकन सूचक के नीचे के ऑब्जेक्ट स्वीकार करता है; द्वितीयक मोड उन्हें जोड़ने के बजाय प्राथमिक पहचानें बनाए रखता है।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, including Otsu and Cellpose, click and drag to add encountered detections to the object under the initial click. Starting on background creates one new object. Separate detections share that object's ID without filling the background between them; one undo step reverses the drag, and the shared ID survives Save, Next and reopening. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."
+msgstr "**जोड़े जाने वाले ऑब्जेक्ट** ज़ूम क्षेत्र के सभी ऑब्जेक्ट या केवल माउस के नीचे के ऑब्जेक्ट चुनता है। Otsu और Cellpose सहित सामान्य मोड में क्लिक और ड्रैग करने पर रास्ते में मिले डिटेक्शन शुरुआती क्लिक के नीचे के ऑब्जेक्ट में जुड़ते हैं। पृष्ठभूमि से शुरू करने पर एक नया ऑब्जेक्ट बनता है। अलग-अलग डिटेक्शन बीच की पृष्ठभूमि भरे बिना उस ऑब्जेक्ट का ID साझा करते हैं; एक पूर्ववत चरण पूरा ड्रैग लौटाता है, और साझा ID Save, Next तथा फिर खोलने के बाद भी बना रहता है। पूरी इमेज की प्रीव्यू पॉइंटर के नीचे के ऑब्जेक्ट स्वीकार करती है; सेकंडरी मोड उन्हें जोड़ने के बजाय प्राइमरी पहचान सुरक्षित रखता है।"
 
 msgid "The corner readout identifies the pixel and object under the cursor. The **Filter** category starts empty: choose a property and **Add a filter** to add a row with a minimum and a maximum. Every scalar :func:`skimage.measure.regionprops` property is offered, such as area, eccentricity or solidity; intensity statistics are offered only while an intensity image is open and use the original loaded values. A blank bound is off. The list applies as you edit it and when a field opens; the log below it names each hidden object and the bound that hid it, and removing a row brings back what it hid. The same list is the ``object_filters`` setting of Mask generation. See :func:`spacr.qt.mask_engine.filter_properties`. Object operations also offer hole filling, dilation, shrinking, relabeling and clearing; shrinking can remove thin or small objects entirely."
 msgstr "कोने का रीडआउट कर्सर के नीचे के पिक्सेल और ऑब्जेक्ट की पहचान करता है। **फ़िल्टर** श्रेणी खाली से शुरू होती है: कोई गुण चुनें और न्यूनतम तथा अधिकतम वाली पंक्ति जोड़ने के लिए **फ़िल्टर जोड़ें** दबाएँ। हर अदिश :func:`skimage.measure.regionprops` गुण उपलब्ध है, जैसे क्षेत्रफल, उत्केंद्रता या ठोसता; तीव्रता सांख्यिकी केवल तब उपलब्ध होती है जब कोई तीव्रता छवि खुली हो, और मूल लोड किए गए मानों का उपयोग करती है। खाली सीमा बंद होती है। सूची संपादन करते समय और फ़ील्ड खुलते समय लागू होती है; उसके नीचे का लॉग हर छिपे ऑब्जेक्ट और उसे छिपाने वाली सीमा का नाम बताता है, और कोई पंक्ति हटाने से वह जो छिपा रही थी वह वापस आ जाता है। यही सूची मास्क निर्माण की ``object_filters`` सेटिंग है। :func:`spacr.qt.mask_engine.filter_properties` देखें। ऑब्जेक्ट संक्रियाएँ छिद्र भरना, फैलाव, संकुचन, पुनः-लेबलिंग और साफ़ करना भी देती हैं; संकुचन पतले या छोटे ऑब्जेक्ट को पूरी तरह हटा सकता है।"

@@ -1,0 +1,200 @@
+{
+  "schema": 1,
+  "item": 615,
+  "source_commit": "2f4f001b99b1490ecf094daab8d87176ff695650",
+  "accepted_native_captures": {
+    "editor": {
+      "receipt": "features/data/662_make_masks_current_editor_2026-10-07.json",
+      "sha256": "f65d7c9a8eeacdaca700a1b6130840e12ec0d3f1d48c4e922b00be96b2716786",
+      "frames": 47
+    },
+    "puncta": {
+      "receipt": "features/data/662_make_masks_current_puncta_2026-10-07.json",
+      "sha256": "50e1ce56c7902ce31e27b2c3d9d192889d4352358d84053be8d3997e6f1e9942",
+      "frames": 6
+    },
+    "yolo": {
+      "receipt": "features/data/662_make_masks_current_yolo_2026-10-07.json",
+      "sha256": "0221ea48f70804c82dfac2f42fd39de88d83f237810458ba6ee26c0799b08caa",
+      "frames": 19
+    },
+    "restoration": {
+      "receipt": "features/data/662_make_masks_current_restoration_2026-10-07.json",
+      "sha256": "65dc153fc8e1f2e991b8a47ded8b4ae0f5f9a2e4a981512122b9f32584fc102f",
+      "frames": 7
+    }
+  },
+  "application_source_sha256": {
+    "spacr/qt/screens/make_masks.py": "2134801f703bf5e13a382027472b2a057c056ba326cd33682d3b37874d9eda96",
+    "spacr/qt/mask_engine.py": "f286c466dd779dc9864a7898d5dd97db2eb8eb20a540fa8cfd3daa29155e75e3",
+    "spacr/qt/cpu_modes.py": "09989fe347ed7edf9d6ba36006dde942b39e7a5040acb1ec9fe8cfc9427f5a0e",
+    "spacr/qt/detect_chain.py": "4d4a499c949fe01d563f634c6de4abf7538a42c7774b2c26af6439891a931770",
+    "spacr/_segmentation_backends.py": "6910e462f324941a69bfd1d32740a83e681181e99a946dd3be95acd96886c23b",
+    "spacr/point_spread.py": "ae8a73268b6dd9c50c560056ca2641f1b78f6a69238e141325803c1b1e7f7f0a"
+  },
+  "scope": "Four same-source fresh native Make Masks recordings with the single Wand button, left-add/Ctrl-remove, complete readouts and all61 lesson scenes. The six native Make Masks application sources match the latest combined Home integration exactly. Its fungal-only renderer cache and event sorting do not change these native Make Masks sources. Original preceding frames/source receipts remain preserved separately. Narration, shared video master and publication remain required.",
+  "artifacts": {
+    "features/data/615_latest_Home_native_recordings_2026-10-07/capture_remaining_companions.py.gz": {
+      "bytes": 1928,
+      "sha256": "cc165e4225e1623b9555c8335054c974392e695bce3a879cc75db7fd892dc6a5"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/editor/curation_acceptance.json.gz": {
+      "bytes": 192,
+      "sha256": "05374a437e32a0382adaa6be20d260a0195b7c53fca8bcea58c4515d5c0ed7c5"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/editor/editor_acceptance.json.gz": {
+      "bytes": 1077,
+      "sha256": "7fed0debfdc7e9a15863e6a1efeeee8c44d52cdf06f5b6778d4da671e8580682"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/editor/frames.json.gz": {
+      "bytes": 64705,
+      "sha256": "85ead75e7b377103877f2e2964a1b97af001e25ab7c5f21ed4c78bd342f28b9a"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/editor/native-capture.log.gz": {
+      "bytes": 1187,
+      "sha256": "e33da4eae640878d9a296cba849e2f3894cb215d9048096e079f88df338fca93"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/editor/organize_acceptance.json.gz": {
+      "bytes": 371,
+      "sha256": "204bd8417cfec30b5d5f3dd8ea80bab78e2ed0b62f37e1c5555c0e16bba036eb"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/editor/provenance.json.gz": {
+      "bytes": 218,
+      "sha256": "bcc4c3188b0e9462b6afd298ed9520603d46863dc68a24ab367d9d3354ad6b68"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/editor/readouts_acceptance.json.gz": {
+      "bytes": 150,
+      "sha256": "064e162b1e47acb8da0a85b4b3a54c23a5287a7582c3bb470ffb19d40f6af418"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/editor/upload_acceptance.json.gz": {
+      "bytes": 102,
+      "sha256": "52303815c7137654d0b60d1d1614e1c03d20a3f210ef016551fec71a2a471ffd"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/editor-native-frames.zip": {
+      "bytes": 70055114,
+      "sha256": "4a7d825333475e2ecc238e21eb6946bfe45916a3662f42c6aa26c33d7f10b178"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/independent_checker_r1.py.gz": {
+      "bytes": 4770,
+      "sha256": "39a8b57c16d53077b08dd1f2de56dd443d696aef7cdec01cbf42a0b1982e7032"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/prepare_companions.py.gz": {
+      "bytes": 923,
+      "sha256": "bbf789a5136c5a7434478761105d5592d0b17bea2a422b018528d31b89a97f9a"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/prepare_editor.py.gz": {
+      "bytes": 709,
+      "sha256": "7441bf8708cff6fcb24fcc91ad4eb42280a9bfef53aeb1ced27b7fb2b6749d93"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/puncta/frames.json.gz": {
+      "bytes": 8369,
+      "sha256": "8966d7743b88dfba1a9fbc89dacb55280ca4413b9aec4efbd5109797bacd7e9b"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/puncta/native-capture.log.gz": {
+      "bytes": 533,
+      "sha256": "f06e4217f9b6c9e62d81375664802d4523025caffe1c1d012f7a5c44ed1d1a38"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/puncta/provenance.json.gz": {
+      "bytes": 218,
+      "sha256": "bcc4c3188b0e9462b6afd298ed9520603d46863dc68a24ab367d9d3354ad6b68"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/puncta/puncta_acceptance.json.gz": {
+      "bytes": 517,
+      "sha256": "b9b7ac83aa73ceefad2f5d799d24da048b0bca793b5dd9db65fa38df8a3e0ad5"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/puncta-native-frames.zip": {
+      "bytes": 13618441,
+      "sha256": "358d1bebd7269ed8bc1ac4448087ddcfa1115747629e104e5c4f4f361f38124b"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/restoration/frames.json.gz": {
+      "bytes": 14034,
+      "sha256": "dacb8537b3bf8d3433cd5189f252330421514cd4674d7299b4c5e8380de2b074"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/restoration/native-capture.log.gz": {
+      "bytes": 538,
+      "sha256": "a39692c7c0259872c21f6804717a99d2bc56a0e731704517f4e64eeb6227ad6f"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/restoration/provenance.json.gz": {
+      "bytes": 218,
+      "sha256": "bcc4c3188b0e9462b6afd298ed9520603d46863dc68a24ab367d9d3354ad6b68"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/restoration/restoration_acceptance.json.gz": {
+      "bytes": 618,
+      "sha256": "786db2c103f2f865229b4d7c29a6006c2e8ab017c5c1527ef89180569791cc57"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/restoration-native-frames.zip": {
+      "bytes": 9664141,
+      "sha256": "eada252174caaa4b40a63305ed929b81897f7864e0ce7c4b72e8facf6d58d50b"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/source/spacr/_segmentation_backends.py.gz": {
+      "bytes": 79487,
+      "sha256": "334f83c1b150c02dae0618b9e607bda59d2e2797206ad7d7fa7a9fd0e3eca60f"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/source/spacr/point_spread.py.gz": {
+      "bytes": 12000,
+      "sha256": "18f3d37152cedf299e9aa3ccb77d15f1a6414aac300366a2e36de9e4e0a60e9b"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/source/spacr/qt/cpu_modes.py.gz": {
+      "bytes": 6418,
+      "sha256": "8d77aeab015de5d6b8c8a3127171de201cf67c84e1276ce3abeddaf5f20d4b3d"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/source/spacr/qt/detect_chain.py.gz": {
+      "bytes": 12349,
+      "sha256": "a348ea32f768f3ef4e9142e6a464b160cc87bff7457836ef5859ad37f2bdd285"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/source/spacr/qt/mask_engine.py.gz": {
+      "bytes": 64685,
+      "sha256": "881c0b95e24d45b695adde6bb9b02e1538b1ba35bbcaebc38aabd7994ea61d6b"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/source/spacr/qt/screens/make_masks.py.gz": {
+      "bytes": 213313,
+      "sha256": "c35a867a040d175748b3da243ecf7dceec418c1d875e303bf8f818362aa5f2a7"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/source/tools/tutorials/capture_make_masks.py.gz": {
+      "bytes": 9654,
+      "sha256": "be304d6f58c90d88f97a06b0638d53fb2fa575759af26a0348000ca0db4c1a33"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/source/tools/tutorials/capture_puncta.py.gz": {
+      "bytes": 2738,
+      "sha256": "a4f9c4b3f895f47c977499632e30002e76bd8ef9b7ec0fd4dfd6c1664f90538a"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/source/tools/tutorials/capture_refresh.py.gz": {
+      "bytes": 25041,
+      "sha256": "ac52058d44c438ef320a1bea207d0dd050389637e35fe1331a75ca74e9e0bd8b"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/source/tools/tutorials/capture_restoration.py.gz": {
+      "bytes": 2457,
+      "sha256": "fc22bf3f793f3ccc359a7930bf3a673efd538278154c335410df79892f67f30c"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/source/tools/tutorials/compose_make_masks_capture.py.gz": {
+      "bytes": 2583,
+      "sha256": "4824202dd5b3bf4c5b1766f3a5865b5d7e8726a83aa8de31a07969bd1be4807a"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/source/tools/tutorials/lessons/14_make_masks.json.gz": {
+      "bytes": 6870,
+      "sha256": "80ee530915e9c58085037e4b9bcd33f5f82663771fbac9f4496c1c6b08c616e0"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/yolo/frames.json.gz": {
+      "bytes": 12866,
+      "sha256": "3c246fbe7feaef1cf06b1de8b700f962c167f1dd79aba61a152a52d429142e3b"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/yolo/native-capture.log.gz": {
+      "bytes": 622,
+      "sha256": "09423e875e2c44a5a21b1f0deb97983fe9e9a62da47122ec7039c06ed1316c1b"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/yolo/provenance.json.gz": {
+      "bytes": 218,
+      "sha256": "bcc4c3188b0e9462b6afd298ed9520603d46863dc68a24ab367d9d3354ad6b68"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/yolo/yolo_acceptance.json.gz": {
+      "bytes": 968,
+      "sha256": "9eb184ca3dfd1a0f00ce94bb31b90d439419ac79b2b59203a33e094831bf913d"
+    },
+    "features/data/615_latest_Home_native_recordings_2026-10-07/yolo-native-frames.zip": {
+      "bytes": 29038993,
+      "sha256": "da0e56d6e1cf76258408a33585b11322fd5ea99c9efab9737b842c74f68970c6"
+    }
+  },
+  "scientific_scope": "No new biological ground truth or accuracy claim. Puncta retains all150 reference rows and46 included objects. Demonstration Wand, merge and boxes are interaction examples only.",
+  "narration_video_publication_complete": false
+}

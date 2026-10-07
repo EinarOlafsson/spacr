@@ -42,7 +42,10 @@ def main() -> int:
     docs = api.public_docstrings()
     moved: list[str] = []
     stale: list[str] = []
-    for path in sorted((ROOT / "docs" / "i18n" / "reviewed" / "api").rglob("*.json")):
+    review_root = ROOT / "docs" / "i18n" / "reviewed" / "api"
+    paths = sorted(path for language in api.MODEL_SPECS
+                   for path in (review_root / language).glob("*.json"))
+    for path in paths:
         payload = json.loads(path.read_text(encoding="utf-8"))
         for record in payload.get("records", []):
             if not isinstance(record, dict) or record.get("retired"):

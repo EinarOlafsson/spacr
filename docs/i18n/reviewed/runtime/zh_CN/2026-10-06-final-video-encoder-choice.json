@@ -1,0 +1,13 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "key": "timelapse_events_encoder",
+      "source": "small retains the original CPU crop encoder. videomae uses frozen pretrained video features from its separately installed Model Zoo backend, combined with track features in a classifier trained on the experiment's event annotations. Its Kinetics labels are not biological event labels. Held-out microscopy evaluation remains required. Default small.",
+      "source_sha256": "3e2f686734386af541e8aae329e8786e35824920e63759813aca3795c1db163b",
+      "table": "setting_tooltips",
+      "translation": "(str) - small 保留原始 CPU 裁剪图像编码器。videomae 使用其单独安装的 Model Zoo 后端提取的冻结预训练视频特征，并与轨迹特征组合，供基于实验事件标注训练的分类器使用。其 Kinetics 类别不是生物学事件类别。仍然需要在未参与训练的显微图像数据上评估。默认值 small."
+    }
+  ],
+  "schema": 1
+}

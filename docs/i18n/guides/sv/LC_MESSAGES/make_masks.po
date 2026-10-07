@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 13:33-0400\n"
+"POT-Creation-Date: 2026-10-06 18:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -151,8 +151,9 @@ msgstr "Allt som inte används listas i konsolen med orsaken."
 msgid "A saved edit history is stored beside the mask as ``<mask>.curation.json``. Opening an image without editing it does not create evidence of manual curation. Existing history is retained when editing a previously curated mask. See :func:`spacr.qt.mask_engine.save_mask` and :class:`spacr.curation.CurationLog` for the file contract."
 msgstr "En sparad ändringshistorik lagras bredvid masken som ``<mask>.curation.json``. Att öppna en bild utan att redigera den skapar inga belägg för manuell kurering. Befintlig historik behålls när en tidigare kurerad mask redigeras. Se :func:`spacr.qt.mask_engine.save_mask` och :class:`spacr.curation.CurationLog` för filkontraktet."
 
-msgid "The saved format has at most 65,535 positive labels. Saving refuses a binary mask with more connected objects, or an existing multi-label mask whose IDs exceed that range; it does not wrap oversized IDs into smaller numbers. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
-msgstr "Det sparade formatet har högst 65 535 positiva etiketter. Sparandet vägrar en binär mask med fler sammanhängande objekt, eller en befintlig mask med flera etiketter vars ID överskrider intervallet; det lindar inte om för stora ID till mindre tal. Ett vägrat sparande bevarar en befintlig TIFF eller ett befintligt Cellpose-paket och dess metadata. I vanligt läge tolkas en mask med ett enda förgrundsvärde som binär, och dess sammanhängande komponenter får separata ID. För relationer mellan primära och sekundära objekt, använd vägen med exakta ID som beskrivs nedan. Se :func:`spacr.qt.mask_engine.canonical_labels` för dessa olika konventioner."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The saved format has at most 65,535 positive labels. Saving refuses a binary mask with more connected objects, or an existing multi-label mask whose IDs exceed that range; it does not wrap oversized IDs into smaller numbers. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. Deliberate groups created with Divide / Merge or a magnifier drag retain their shared IDs when saved and reopened with their matching curation history. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
+msgstr "Det sparade formatet har högst 65 535 positiva etiketter. Sparandet vägrar en binär mask med fler sammanhängande objekt, eller en befintlig mask med flera etiketter vars ID överskrider intervallet; det lindar inte om för stora ID till mindre tal. Ett vägrat sparande bevarar en befintlig TIFF eller ett befintligt Cellpose-paket och dess metadata. I vanligt läge tolkas en mask med ett enda förgrundsvärde som binär, och dess sammanhängande komponenter får separata ID. För relationer mellan primära och sekundära objekt, använd vägen med exakta ID som beskrivs nedan. Se :func:`spacr.qt.mask_engine.canonical_labels` för dessa olika konventioner. Avsiktliga grupper skapade med Dela / Slå samman eller en magnifier-dragning behåller sina gemensamma ID när de sparas och öppnas igen med sin motsvarande kurateringshistorik."
 
 msgid "Canvas tools and navigation"
 msgstr "Verktyg på arbetsytan och navigering"
@@ -181,11 +182,12 @@ msgstr "Erase object"
 msgid "Remove the complete label clicked."
 msgstr "Ta bort hela den etikett som klickas."
 
-msgid "Wand + / Wand −"
-msgstr "Wand + / Wand −"
+msgid "Wand"
+msgstr "Trollstav"
 
-msgid "Flood from the clicked pixel within the chosen intensity tolerance; add or remove the resulting region."
-msgstr "Fyll från den klickade pixeln inom den valda intensitetstoleransen; lägg till eller ta bort det resulterande området."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Flood from the clicked pixel within the chosen intensity tolerance; add the resulting region by default. Hold Ctrl while clicking to remove that region."
+msgstr "Fyll från den klickade pixeln inom den valda intensitetstoleransen; lägg till det resulterande området som standard. Håll Ctrl nedtryckt när du klickar för att ta bort området."
 
 msgid "Draw"
 msgstr "Draw"
@@ -193,11 +195,12 @@ msgstr "Draw"
 msgid "Trace an outline and fill its interior as one object."
 msgstr "Rita en kontur och fyll dess insida som ett objekt."
 
-msgid "Divide"
-msgstr "Divide"
+msgid "Divide / Merge"
+msgstr "Dela / Slå samman"
 
-msgid "Draw a cut through a merged object. The larger component retains its ID; the smaller receives a new ID."
-msgstr "Rita ett snitt genom ett sammanslaget objekt. Den större komponenten behåller sitt ID; den mindre får ett nytt ID."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Left-drag a cut through an object to divide it. The larger component retains its ID; the smaller receives a new ID. Right-drag a line across objects to merge them under the first crossed ID without painting the background between them."
+msgstr "Dra med vänster musknapp genom ett objekt för att dela det. Den större delen behåller sitt ID; den mindre får ett nytt ID. Dra med höger musknapp över objekt för att slå ihop dem under det första korsade ID:t utan att måla bakgrunden mellan dem."
 
 msgid "Zoom"
 msgstr "Zooma"
@@ -217,8 +220,13 @@ msgstr "Linjal"
 msgid "Drag a line to measure image-pixel distance. Right-click with Ruler selected to clear it. Zooming and panning preserve the measurement."
 msgstr "Dra en linje för att mäta avstånd i bildpixlar. Högerklicka med Linjal vald för att rensa den. Zoomning och panorering bevarar mätningen."
 
-msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
-msgstr "**Shift eller Alt + dra** panorerar. Hjulet zoomar kring markören; **Esc** återställer zoomen. **Left/Right** väljer föregående/nästa fält. **Ctrl+Z/Ctrl+Y** ångrar eller gör om en ändring. **Ctrl + vänsterklick** delar ett objekt vid dess midja; **Ctrl + högerklick** tar bort objektet under markören. Genvägspanelen bredvid vyn listar de aktuella gesterna, inklusive förstoringsglasets kontroller."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. With Wand selected, **Ctrl + left click** removes the bounded intensity region. Outside Wand, **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
+msgstr "**Shift eller Alt + dra** panorerar. Hjulet zoomar kring markören; **Esc** återställer zoomen. **Left/Right** väljer föregående/nästa fält. **Ctrl+Z/Ctrl+Y** ångrar eller gör om en ändring. När Trollstav är valt tar **Ctrl + vänsterklick** bort det avgränsade intensitetsområdet. Utanför Trollstav **Ctrl + vänsterklick** delar ett objekt vid dess midja; **Ctrl + högerklick** tar bort objektet under markören. Genvägspanelen bredvid vyn listar de aktuella gesterna, inklusive förstoringsglasets kontroller."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Clear all objects**, immediately left of **Discard**, asks for confirmation before removing every segmentation object in the current image. Cancelling keeps the masks; undo restores them. The acquired image is unchanged."
+msgstr "**Rensa alla objekt**, direkt till vänster om **Kassera**, ber om bekräftelse innan alla segmenteringsobjekt i den aktuella bilden tas bort. Avbryt behåller maskerna; ångra återställer dem. Den insamlade bilden är oförändrad."
 
 msgid "Recrop creates files and changes the field queue. Objects cut by a crop's boundary are omitted, and retained objects are renumbered within the new crop. Very small crops and near-duplicates are refused. Completed originals move into ``recropped_originals/``. Use the original image and mask when maintaining primary/secondary IDs across the full field; a renumbered crop is a different pairing context. The precise limits and paths are documented by :func:`spacr.qt.mask_engine.write_recrop`."
 msgstr "Recrop skapar filer och ändrar fältkön. Objekt som skärs av utsnittets kant utelämnas, och behållna objekt numreras om inom det nya utsnittet. Mycket små utsnitt och nära dubbletter avvisas. Färdiga original flyttas till ``recropped_originals/``. Använd originalbilden och originalmasken när primära/sekundära ID ska behållas över hela fältet; ett omnumrerat utsnitt är ett annat parningssammanhang. De exakta gränserna och sökvägarna dokumenteras av :func:`spacr.qt.mask_engine.write_recrop`."
@@ -418,8 +426,9 @@ msgstr "Live-förstoringsglas, filtrering och mätning"
 msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before accepting its objects."
 msgstr "Slå på **Förstoringsglas** eller tryck **M** för att granska föreslagna objekt runt pekaren. Dess hjul ändrar rutans zoom; **Shift + wheel** ändrar rutans storlek. **Ctrl+L+högerklick** låser eller låser upp rutan. Vänta på en förhandsvisning som uppdateras innan du godtar dess objekt."
 
-msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, dragging can join encountered pieces into one object. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."
-msgstr "**Objekt som läggs till** väljer alla objekt i zoomområdet eller bara objekt under musen. I vanliga lägen kan dragning slå ihop påträffade delar till ett objekt. Förhandsvisningen för hela bilden godtar objekt under pekaren; sekundärt läge bevarar primära identiteter i stället för att slå ihop dem."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, including Otsu and Cellpose, click and drag to add encountered detections to the object under the initial click. Starting on background creates one new object. Separate detections share that object's ID without filling the background between them; one undo step reverses the drag, and the shared ID survives Save, Next and reopening. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."
+msgstr "**Objekt som läggs till** väljer alla objekt i zoomområdet eller bara objekt under musen. I vanliga lägen, inklusive Otsu och Cellpose, klickar du och drar för att lägga till påträffade detektioner i objektet under den första klickningen. Om dragningen börjar på bakgrunden skapas ett nytt objekt. Separata detektioner delar objektets ID utan att bakgrunden mellan dem fylls; ett ångrasteg återställer dragningen, och det gemensamma ID:t överlever Save, Next och återöppning. Förhandsvisningen av hela bilden tar emot objekt under pekaren; sekundärt läge bevarar primära identiteter i stället för att slå ihop dem."
 
 msgid "The corner readout identifies the pixel and object under the cursor. The **Filter** category starts empty: choose a property and **Add a filter** to add a row with a minimum and a maximum. Every scalar :func:`skimage.measure.regionprops` property is offered, such as area, eccentricity or solidity; intensity statistics are offered only while an intensity image is open and use the original loaded values. A blank bound is off. The list applies as you edit it and when a field opens; the log below it names each hidden object and the bound that hid it, and removing a row brings back what it hid. The same list is the ``object_filters`` setting of Mask generation. See :func:`spacr.qt.mask_engine.filter_properties`. Object operations also offer hole filling, dilation, shrinking, relabeling and clearing; shrinking can remove thin or small objects entirely."
 msgstr "Hörnavläsningen identifierar pixeln och objektet under markören. Kategorin **Filtrera** börjar tom: välj en egenskap och **Lägg till ett filter** för att lägga till en rad med ett minimum och ett maximum. Varje skalär egenskap i :func:`skimage.measure.regionprops` erbjuds, till exempel area, excentricitet eller soliditet; intensitetsstatistik erbjuds bara medan en intensitetsbild är öppen och använder de ursprungliga inlästa värdena. En tom gräns är avstängd. Listan tillämpas medan du redigerar den och när ett fält öppnas; loggen under den anger varje dolt objekt och den gräns som dolde det, och om en rad tas bort visas det den dolde igen. Samma lista är inställningen ``object_filters`` i Maskgenerering. Se :func:`spacr.qt.mask_engine.filter_properties`. Objektoperationerna erbjuder också fyllning av hål, dilatation, krympning, omnumrering och rensning; krympning kan helt ta bort tunna eller små objekt."

@@ -1,5 +1,5 @@
 # spaCR user guide translation (hi).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 13:33-0400\n"
+"POT-Creation-Date: 2026-10-06 18:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -66,6 +66,10 @@ msgstr "शेल से वही अनुबंध चलाएँ"
 
 msgid "The headless command is useful in a scheduler because it validates setting names and values before importing the heavy pipeline stack."
 msgstr "हेडलेस कमांड शेड्यूलर में उपयोगी है क्योंकि यह भारी पाइपलाइन स्टैक आयात करने से पहले सेटिंग नामों और मानों का सत्यापन करती है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Boolean values in settings CSV files are case-insensitive. ``TRUE`` and ``FALSE``, including surrounding whitespace, load as Python booleans, so spreadsheet-exported settings can pass the same preflight checks on a cluster."
+msgstr "सेटिंग CSV फ़ाइलों के बूलियन मानों में बड़े और छोटे अक्षरों का भेद नहीं किया जाता। ``TRUE`` और ``FALSE`` आसपास की रिक्तियों सहित Python बूलियन के रूप में लोड होते हैं, इसलिए स्प्रेडशीट से निर्यात की गई सेटिंग क्लस्टर पर भी वही पूर्व-जाँच पास कर सकती है।"
 
 msgid "Command-line overrides are applied after the file:"
 msgstr "कमांड-लाइन ओवरराइड फ़ाइल के बाद लागू होते हैं:"

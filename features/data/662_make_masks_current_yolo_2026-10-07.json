@@ -1,0 +1,194 @@
+{
+  "accepted": true,
+  "capture": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3",
+  "provenance": {
+    "commit": "d326d20a01fe6b4ecc1b40c435e98f078345f143",
+    "version": "1.5.1.3",
+    "module": "make_masks",
+    "download_requested": false,
+    "dataset_cache": "/tmp/spacr-tutorials/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "native_acceptance": {
+    "accepted": true,
+    "demonstration_boxes_are_not_biological_ground_truth": true,
+    "source_images_and_masks_unchanged": true,
+    "inputs": [
+      {
+        "source": "/tmp/spacr-tutorials/example_data/plate1/merged/plate1_E01_10_1.npy",
+        "source_sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+        "image": "/tmp/spacr-tutorials/make_masks_runs/example-yp3w4mg9/plate1_E01_10_1_ER.tif",
+        "image_sha256": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67",
+        "mask": "/tmp/spacr-tutorials/make_masks_runs/example-yp3w4mg9/masks/plate1_E01_10_1_ER.tif",
+        "mask_sha256": "8f6e99d963b58f483ff88de44270ab45a3d265a71891a8f3be2b1d8e6914df29",
+        "image_plane": 1,
+        "cell_mask_plane": 4,
+        "objects": 63,
+        "shape": [
+          1994,
+          1994
+        ]
+      },
+      {
+        "source": "/tmp/spacr-tutorials/example_data/plate1/merged/plate1_E01_11_1.npy",
+        "source_sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+        "image": "/tmp/spacr-tutorials/make_masks_runs/example-yp3w4mg9/plate1_E01_11_1_ER.tif",
+        "image_sha256": "0ce34c658d93ada05d738e542dbac82225aafe09d99b83056a1b9eb15e3daead",
+        "mask": "/tmp/spacr-tutorials/make_masks_runs/example-yp3w4mg9/masks/plate1_E01_11_1_ER.tif",
+        "mask_sha256": "4790aac50a70c17c9f5e3241c871b76a0c994d45d23078ebe346f47660163e1b",
+        "image_plane": 1,
+        "cell_mask_plane": 4,
+        "objects": 51,
+        "shape": [
+          1994,
+          1994
+        ]
+      }
+    ],
+    "classes": [
+      "object",
+      "demonstration"
+    ],
+    "boxes": [
+      [
+        1,
+        795,
+        795,
+        1275,
+        1275
+      ],
+      [
+        1,
+        914,
+        914,
+        1059,
+        1059
+      ]
+    ],
+    "drawn": [
+      1,
+      696,
+      696,
+      1097,
+      1097
+    ],
+    "moved": [
+      1,
+      795,
+      795,
+      1196,
+      1196
+    ],
+    "resized": [
+      1,
+      795,
+      795,
+      1275,
+      1275
+    ],
+    "independent_xywh_export_check": true,
+    "undo_redo_and_reload_exact": true,
+    "project": "/tmp/spacr-tutorials/make_masks_runs/example-yp3w4mg9/.spacr_yolo_annotations.json",
+    "project_sha256": "4872232ca42b8aa9b1c82eb5d66a222e10e8b78533b86673b98bcc30635ba311",
+    "labels": "/tmp/spacr-tutorials/make_masks_runs/example-yp3w4mg9/plate1_E01_10_1_ER.txt",
+    "labels_sha256": "7d0c119122cbc70037ac0d5df4433b26b83ab9697ef5e188a148edafcbbb3265",
+    "class_names": "/tmp/spacr-tutorials/make_masks_runs/example-yp3w4mg9/.classes.json",
+    "class_names_sha256": "cb3f06beac341f566511a342f1779d17b6fe5f3456651fa162228525c660daad",
+    "negative_labels": "/tmp/spacr-tutorials/make_masks_runs/example-yp3w4mg9/plate1_E01_11_1_ER.txt",
+    "negative_labels_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "frame_sha256": {
+    "00_home": "f4b1a11c78f91034672babf69c1ea2bc579558d83795a7a0247c3e3ea0287682",
+    "01_module": "23cf2b123e64a19df1277547ba73501a23a92dcf07917c873b6279aab413dfb4",
+    "yolo_02_folder_picker": "4a321aade84b1e13289d39bfd92d8123ea9343c1d8a5379b78a1819ebafb7c30",
+    "yolo_03_source_and_mask": "d0c5869b008f856a4492ce67a59b63c03d0c9ea8898be4794a4d49323f416eef",
+    "yolo_04_box_controls": "ce18f5a630f85600e5c047b54d5d18580ba01729f509dc34b2d54872a47b4866",
+    "yolo_05_add_class": "58c20e0506cbefb209d3f0ee01a2d4e8f5a9cad9dbcd6556d950d9a7781f1d27",
+    "yolo_06_drawn_box": "dd40005c0629ede2cc568be7d951352af011bfd8ef1738b455c02e35c815e393",
+    "yolo_07_moved_box": "fd57075cdea8b780e80cf1567b7f9fb70e812f7cca6b0e5268ad7d4c981d3558",
+    "yolo_08_resized_box": "29f446ed62041bea373d691c0b8bf8e8451bf1ed800303c3ad9c04d74d9a80c0",
+    "yolo_09_contained_box": "98c29a2a2077d0653565f2839ab30a46399f3ac6807b524c0087de20cd4268d3",
+    "yolo_10_deleted_box": "aba3e5af00000c7da20e248c818bd5eb7b9c457a72f93452ff5881df708c60d4",
+    "yolo_11_undo_boxes": "1a9f53d3d6698e21a5c9f9038ddf9ba8752dd89218d975aac5a77427ca33a267",
+    "yolo_12_redo_boxes": "ad9234210f7cfa639f8d506ccfb072d376f73d2584a13d9ee280fefaca826726",
+    "yolo_13_saved_boxes": "da358b5ea2446f473f9c82c7b7674af6d174d9cf3c672dce6f4135e3bda7b54c",
+    "yolo_14_export_picker": "01e7979a87caa0310a4a13237f01033491ffa80bfa236dc8b5a74155774dc9bf",
+    "yolo_15_exported": "869450a654749c6bb7da27fe6245816c93777337a6bcf9a52236ffe532127885",
+    "yolo_16_negative_export_picker": "ba3f269e5f24022d6f0cfd018dcb961bf42dd70b25abab09505128560263564a",
+    "yolo_17_negative_exported": "8506a2bba30177d185b7016a3ceaf92af4d6b2631e11dcec44c8cbfc65c30336",
+    "yolo_18_reloaded_boxes": "8996e4768ae359970c0ec1e779580a867ba62f81c782f3241342fd9a5fdd5061"
+  },
+  "application_source_sha256": {
+    "spacr/qt/screens/make_masks.py": "2134801f703bf5e13a382027472b2a057c056ba326cd33682d3b37874d9eda96",
+    "spacr/qt/mask_engine.py": "f286c466dd779dc9864a7898d5dd97db2eb8eb20a540fa8cfd3daa29155e75e3",
+    "spacr/qt/cpu_modes.py": "09989fe347ed7edf9d6ba36006dde942b39e7a5040acb1ec9fe8cfc9427f5a0e",
+    "spacr/qt/detect_chain.py": "4d4a499c949fe01d563f634c6de4abf7538a42c7774b2c26af6439891a931770",
+    "spacr/_segmentation_backends.py": "6910e462f324941a69bfd1d32740a83e681181e99a946dd3be95acd96886c23b",
+    "spacr/point_spread.py": "ae8a73268b6dd9c50c560056ca2641f1b78f6a69238e141325803c1b1e7f7f0a"
+  },
+  "biological_ground_truth_claimed": false,
+  "narration_video_publication_complete": false,
+  "independent_input_checks": [
+    {
+      "source_sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+      "image_sha256": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67",
+      "mask_sha256": "8f6e99d963b58f483ff88de44270ab45a3d265a71891a8f3be2b1d8e6914df29",
+      "exact_source_planes": [
+        1,
+        4
+      ]
+    },
+    {
+      "source_sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+      "image_sha256": "0ce34c658d93ada05d738e542dbac82225aafe09d99b83056a1b9eb15e3daead",
+      "mask_sha256": "4790aac50a70c17c9f5e3241c871b76a0c994d45d23078ebe346f47660163e1b",
+      "exact_source_planes": [
+        1,
+        4
+      ]
+    }
+  ],
+  "scope": "Fresh native Box gestures and real save/reload/YOLO exports; exact full-image coordinates and unchanged acquired images/masks independently checked.",
+  "independent_yolo_coordinate_verification": true,
+  "source_file_sha256": {
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/00_home.png": "f4b1a11c78f91034672babf69c1ea2bc579558d83795a7a0247c3e3ea0287682",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/01_module.png": "23cf2b123e64a19df1277547ba73501a23a92dcf07917c873b6279aab413dfb4",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/yolo_02_folder_picker.png": "4a321aade84b1e13289d39bfd92d8123ea9343c1d8a5379b78a1819ebafb7c30",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/yolo_03_source_and_mask.png": "d0c5869b008f856a4492ce67a59b63c03d0c9ea8898be4794a4d49323f416eef",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/yolo_04_box_controls.png": "ce18f5a630f85600e5c047b54d5d18580ba01729f509dc34b2d54872a47b4866",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/yolo_05_add_class.png": "58c20e0506cbefb209d3f0ee01a2d4e8f5a9cad9dbcd6556d950d9a7781f1d27",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/yolo_06_drawn_box.png": "dd40005c0629ede2cc568be7d951352af011bfd8ef1738b455c02e35c815e393",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/yolo_07_moved_box.png": "fd57075cdea8b780e80cf1567b7f9fb70e812f7cca6b0e5268ad7d4c981d3558",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/yolo_08_resized_box.png": "29f446ed62041bea373d691c0b8bf8e8451bf1ed800303c3ad9c04d74d9a80c0",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/yolo_09_contained_box.png": "98c29a2a2077d0653565f2839ab30a46399f3ac6807b524c0087de20cd4268d3",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/yolo_10_deleted_box.png": "aba3e5af00000c7da20e248c818bd5eb7b9c457a72f93452ff5881df708c60d4",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/yolo_11_undo_boxes.png": "1a9f53d3d6698e21a5c9f9038ddf9ba8752dd89218d975aac5a77427ca33a267",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/yolo_12_redo_boxes.png": "ad9234210f7cfa639f8d506ccfb072d376f73d2584a13d9ee280fefaca826726",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/yolo_13_saved_boxes.png": "da358b5ea2446f473f9c82c7b7674af6d174d9cf3c672dce6f4135e3bda7b54c",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/yolo_14_export_picker.png": "01e7979a87caa0310a4a13237f01033491ffa80bfa236dc8b5a74155774dc9bf",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/yolo_15_exported.png": "869450a654749c6bb7da27fe6245816c93777337a6bcf9a52236ffe532127885",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/yolo_16_negative_export_picker.png": "ba3f269e5f24022d6f0cfd018dcb961bf42dd70b25abab09505128560263564a",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/yolo_17_negative_exported.png": "8506a2bba30177d185b7016a3ceaf92af4d6b2631e11dcec44c8cbfc65c30336",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/captures/make_masks_Home_compatibility_yolo_r3/yolo_18_reloaded_boxes.png": "8996e4768ae359970c0ec1e779580a867ba62f81c782f3241342fd9a5fdd5061",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/example_data/plate1/merged/plate1_E01_10_1.npy": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/example_data/plate1/merged/plate1_E01_10_1.npy": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/make_masks_runs/example-yp3w4mg9/plate1_E01_10_1_ER.tif": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/make_masks_runs/example-yp3w4mg9/masks/plate1_E01_10_1_ER.tif": "8f6e99d963b58f483ff88de44270ab45a3d265a71891a8f3be2b1d8e6914df29",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/example_data/plate1/merged/plate1_E01_11_1.npy": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-662-editor-current/example_data/plate1/merged/plate1_E01_11_1.npy": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/make_masks_runs/example-yp3w4mg9/plate1_E01_11_1_ER.tif": "0ce34c658d93ada05d738e542dbac82225aafe09d99b83056a1b9eb15e3daead",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/make_masks_runs/example-yp3w4mg9/masks/plate1_E01_11_1_ER.tif": "4790aac50a70c17c9f5e3241c871b76a0c994d45d23078ebe346f47660163e1b",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/make_masks_runs/example-yp3w4mg9/.spacr_yolo_annotations.json": "4872232ca42b8aa9b1c82eb5d66a222e10e8b78533b86673b98bcc30635ba311",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/make_masks_runs/example-yp3w4mg9/plate1_E01_10_1_ER.txt": "7d0c119122cbc70037ac0d5df4433b26b83ab9697ef5e188a148edafcbbb3265",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/make_masks_runs/example-yp3w4mg9/.classes.json": "cb3f06beac341f566511a342f1779d17b6fe5f3456651fa162228525c660daad",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-Home-compatibility-yolo-r1/make_masks_runs/example-yp3w4mg9/plate1_E01_11_1_ER.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-current-Home-20261007/spacr/qt/screens/make_masks.py": "2134801f703bf5e13a382027472b2a057c056ba326cd33682d3b37874d9eda96",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-current-Home-20261007/spacr/qt/mask_engine.py": "f286c466dd779dc9864a7898d5dd97db2eb8eb20a540fa8cfd3daa29155e75e3",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-current-Home-20261007/spacr/qt/cpu_modes.py": "09989fe347ed7edf9d6ba36006dde942b39e7a5040acb1ec9fe8cfc9427f5a0e",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-current-Home-20261007/spacr/qt/detect_chain.py": "4d4a499c949fe01d563f634c6de4abf7538a42c7774b2c26af6439891a931770",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-current-Home-20261007/spacr/_segmentation_backends.py": "6910e462f324941a69bfd1d32740a83e681181e99a946dd3be95acd96886c23b",
+    "/media/carruthers/mnt3/codex/spacr-worktrees/docs-final-current-Home-20261007/spacr/point_spread.py": "ae8a73268b6dd9c50c560056ca2641f1b78f6a69238e141325803c1b1e7f7f0a"
+  }
+}

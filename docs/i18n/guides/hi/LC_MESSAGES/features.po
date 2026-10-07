@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 13:33-0400\n"
+"POT-Creation-Date: 2026-10-06 18:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -325,6 +325,22 @@ msgstr "किसी एक आकृति की सेटिंग किस�
 
 msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
 msgstr "3D और समय स्विच घोषित करते हैं कि प्लेट के कौन-से आयाम हैं। ``z_stack`` z अक्ष घोषित करता है और आयतनात्मक सेटिंग्स -- विभाजन मोड, विषमदिशिकता और वॉक्सेल आकार -- सक्षम करता है, और यह अनुमान लगाने के बजाय कि कौन-सा अक्ष z है, त्रुटि के साथ रुक जाता है। ``timelapse`` समय अक्ष घोषित करता है और ट्रैकिंग दिखाता है; एकल-समय-बिंदु वाली प्लेट इसे अनदेखा करती है। 4D सेटिंग्स केवल तब लागू होती हैं जब डेटा z-स्टैक और समय-श्रृंखला दोनों हो, और केवल तभी दिखाई देती हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Timelapse event annotations and pretrained features (alpha)"
+msgstr "Timelapse घटना एनोटेशन और पूर्व-प्रशिक्षित विशेषताएँ (अल्फ़ा)"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Enable **Show alpha features** in Preferences to use **Event annotations…** in Timelapse. Choose an existing spaCR tracks CSV and its matching image sequence, open the tracked field and confirm the pairing. Select an observed track and zero-based frame, enter an event name and press **Add or update**. **Save** writes the staged labels to an annotations CSV and selects it for event detection; closing without saving leaves the file unchanged. One track at one frame can have only one event label. Changed tracker or annotation files must be reopened before saving."
+msgstr "Timelapse में **घटनाओं की घोषणा...** का उपयोग करने के लिए Preferences में **अल्फ़ा सुविधाएँ दिखाएँ** सक्षम करें। मौजूदा spaCR ट्रैक CSV और उससे मेल खाता इमेज अनुक्रम चुनें, ट्रैक किया गया फ़ील्ड खोलें और जोड़ी की पुष्टि करें। देखे गए ट्रैक और शून्य से क्रमांकित फ़्रेम को चुनें, घटना का नाम लिखें और **जोड़ें या अपडेट करें** दबाएँ। **सहेजें** तैयार लेबल को एनोटेशन CSV में लिखता है और घटना पहचान के लिए उसे चुनता है; बिना सहेजे बंद करने पर फ़ाइल नहीं बदलती। एक फ़्रेम में एक ट्रैक का केवल एक घटना लेबल हो सकता है। बदली हुई ट्रैकिंग या एनोटेशन फ़ाइल को सहेजने से पहले फिर खोलना ज़रूरी है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The annotation table names ``field``, ``track_id``, ``frame`` and ``event``; an ``object`` column identifies the tracked object type. Label every event in fields used for training. The event detector evaluates held-out annotated fields, reports precision, recall and timing error, then trains and saves a model for reuse. Event classes come from the experiment's annotations."
+msgstr "एनोटेशन तालिका में ``field``, ``track_id``, ``frame`` और ``event`` होते हैं; ``object`` स्तंभ ट्रैक किए गए ऑब्जेक्ट का प्रकार बताता है। प्रशिक्षण में उपयोग होने वाले फ़ील्ड की हर घटना को लेबल करें। घटना डिटेक्टर प्रशिक्षण से अलग रखे गए एनोटेटेड फ़ील्ड का मूल्यांकन करता है, प्रिसिजन, रिकॉल और समय त्रुटि बताता है, फिर पुनः उपयोग के लिए मॉडल प्रशिक्षित करके सहेजता है। घटना वर्ग प्रयोग के एनोटेशन से आते हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The default ``small`` encoder runs on CPU. The optional ``videomae`` encoder uses pretrained video features from **VideoMAE event encoder** in Model Zoo, installed in its own environment. Supply the verified local official checkpoint folder and exactly three ordered source-channel indices; use ``[0,0,0]`` only when deliberately repeating a monochrome channel. The frozen encoder can use CUDA, Metal or CPU; the small event classifier trains on CPU. The checkpoint's Kinetics classes are not microscopy event labels, and pretrained features require held-out evaluation on the intended microscopy experiment. The checkpoint is licensed CC-BY-NC-4.0; inference downloads no weights. These controls remain alpha."
+msgstr "डिफ़ॉल्ट एनकोडर ``small`` CPU पर चलता है। वैकल्पिक एनकोडर ``videomae`` Model Zoo के **VideoMAE घटना एन्कोडर** की पूर्व-प्रशिक्षित वीडियो विशेषताओं का उपयोग करता है, जो अपने अलग वातावरण में स्थापित होता है। सत्यापित स्थानीय आधिकारिक चेकपॉइंट फ़ोल्डर और स्रोत चैनलों के ठीक तीन क्रमबद्ध इंडेक्स दें; ``[0,0,0]`` केवल तब उपयोग करें जब जानबूझकर मोनोक्रोम चैनल दोहरा रहे हों। स्थिर एनकोडर CUDA, Metal या CPU उपयोग कर सकता है; छोटा घटना क्लासिफ़ायर CPU पर प्रशिक्षित होता है। चेकपॉइंट के Kinetics वर्ग माइक्रोस्कोपी घटना लेबल नहीं हैं, और पूर्व-प्रशिक्षित विशेषताओं का लक्षित माइक्रोस्कोपी प्रयोग के अलग रखे गए डेटा पर मूल्यांकन आवश्यक है। चेकपॉइंट का लाइसेंस CC-BY-NC-4.0 है; इंफ़रेंस कोई वज़न डाउनलोड नहीं करता। ये नियंत्रण अल्फ़ा बने रहते हैं।"
 
 msgid "Figure settings"
 msgstr "चित्र सेटिंग्स"

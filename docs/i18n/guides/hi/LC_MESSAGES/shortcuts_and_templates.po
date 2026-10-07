@@ -1,5 +1,5 @@
 # spaCR user guide translation (hi).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 13:33-0400\n"
+"POT-Creation-Date: 2026-10-06 18:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -43,8 +43,9 @@ msgstr "सेटिंग टेम्पलेट"
 msgid "A settings template is one module's settings saved under a name you choose, for example ``Toxo PVM, 40x``. Open a module with a settings panel and press **Ctrl+Shift+R** to open **Settings templates** for that module."
 msgstr "सेटिंग टेम्पलेट किसी एक मॉड्यूल की सेटिंग्स है जिसे आपके चुने नाम से सहेजा गया हो, उदाहरण के लिए ``Toxo PVM, 40x``। सेटिंग पैनल वाला कोई मॉड्यूल खोलें और उस मॉड्यूल के **सेटिंग टेम्पलेट** खोलने के लिए **Ctrl+Shift+R** दबाएँ।"
 
-msgid "**Save current settings…** stores the form as a new template."
-msgstr "**वर्तमान सेटिंग्स सहेजें…** फ़ॉर्म को नए टेम्पलेट के रूप में सहेजता है।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Save current settings…** stores the form as a new template, selects it in the list and shows its full saved path as text you can select and copy."
+msgstr "**वर्तमान सेटिंग्स सहेजें…** फ़ॉर्म को नए टेम्पलेट के रूप में सहेजता है, सूची में उसे चुनता है और सहेजी गई फ़ाइल का पूरा पथ ऐसे टेक्स्ट के रूप में दिखाता है जिसे चुनकर कॉपी कर सकते हैं।"
 
 msgid "**Apply** fills the form from the selected template. A template saved with another spaCR version lists the settings that no longer exist and the ones added since. A template for a different module is refused."
 msgstr "**लागू करें** चुने गए टेम्पलेट से फ़ॉर्म भरता है। किसी दूसरे spaCR संस्करण से सहेजा गया टेम्पलेट उन सेटिंग्स को सूचीबद्ध करता है जो अब मौजूद नहीं हैं और जो बाद में जोड़ी गईं। किसी दूसरे मॉड्यूल का टेम्पलेट अस्वीकार किया जाता है।"

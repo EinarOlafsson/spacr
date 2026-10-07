@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 13:33-0400\n"
+"POT-Creation-Date: 2026-10-06 18:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -81,6 +81,14 @@ msgstr "Sleppa myndum, PDF-skrám og möppum"
 
 msgid "Drop any number of images, PDFs or folders onto Plaque Assay. Images are read in **Plaque** mode and PDFs in **Figure** mode; every PDF is read in turn, with progress naming the paper being read, and a paper that cannot be read is reported by name without stopping the others. Files that are neither images nor PDFs are left out and counted once. When the drop does not match the current mode, a prompt offers to switch; when it holds both images and PDFs, choose which mode to run. If the figure reader needs installing or reinstalling, the prompt installs it in place and reports the result."
 msgstr "Slepptu hvaða fjölda mynda, PDF-skráa eða mappa sem er á Skellugreining. Myndir eru lesnar í **Skella**-ham og PDF-skrár í **Mynd**-ham; hver PDF-skrá er lesin í röð, framvindan nefnir greinina sem verið er að lesa og tilkynnt er um grein sem ekki er hægt að lesa með nafni án þess að stöðva hinar. Skrár sem eru hvorki myndir né PDF eru skildar eftir og taldar einu sinni. Þegar það sem er sleppt passar ekki við núverandi ham býður gluggi upp á að skipta; þegar það inniheldur bæði myndir og PDF-skrár velur þú hvaða ham á að keyra. Ef setja þarf upp myndalesarann eða setja hann upp aftur setur glugginn hann upp á staðnum og tilkynnir niðurstöðuna."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Bio-Rad Gel Doc images (``.scn``)"
+msgstr "Myndir úr Bio-Rad Gel Doc (``.scn``)"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Image Lab ``.scn`` files from a Gel Doc or ChemiDoc imager are read directly, without exporting them first, wherever a TIFF is accepted: Plaque Assay in both modes, Make Masks and its curation queue, and the Format Converter. A folder of ``.scn`` files is a source like a folder of figures. Image Lab stores these images with zero as white, so spaCR inverts them to look like Image Lab's own PDF and TIFF exports (dark wells on light plastic) and keeps the 12-bit values. Plaque Assay shows them as 8-bit grey scaled linearly to the imager's ceiling. When the file records its physical field size, that pixel size calibrates Figure-mode plaque areas (scale source ``image metadata``) unless a pixel scale is set in the settings or on a well. In Python, :func:`spacr.convert.read_scn` returns the image and its metadata: pixel size, imager, acquisition date, exposure and application."
+msgstr "Image Lab-skrár á ``.scn``-sniði úr Gel Doc- eða ChemiDoc-myndatæki eru lesnar beint, án þess að flytja þær fyrst út, alls staðar þar sem TIFF er samþykkt: í báðum stillingum Plaque Assay, í Make Masks og yfirferðarröð þess og í Format Converter. Mappa með ``.scn``-skrám er gagnagjafi eins og mappa með myndum. Image Lab geymir þessar myndir með núll sem hvítt; spaCR snýr þeim því við til að samsvara PDF- og TIFF-útflutningi Image Lab (dökkir brunnar á ljósu plasti) og varðveitir 12 bita gildin. Plaque Assay sýnir þær í 8 bita grátónum með línulegri kvörðun að hámarksgildi myndatækisins. Þegar skráin skráir raunverulega stærð myndsviðsins kvarðar pixlastærðin flatarmál skella í Figure-stillingu (kvarðauppruni ``image metadata``), nema pixlakvarði sé stilltur í stillingum eða fyrir brunn. Í Python skilar :func:`spacr.convert.read_scn` myndinni og lýsigögnum hennar: pixlastærð, myndatæki, tökudegi, lýsingartíma og forriti."
 
 msgid "Inspect the result views"
 msgstr "Skoða niðurstöðusýnirnar"

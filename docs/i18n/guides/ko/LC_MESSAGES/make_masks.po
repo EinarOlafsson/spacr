@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 13:33-0400\n"
+"POT-Creation-Date: 2026-10-06 18:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -151,8 +151,9 @@ msgstr "사용하지 않은 항목은 이유와 함께 콘솔에 나열됩니다
 msgid "A saved edit history is stored beside the mask as ``<mask>.curation.json``. Opening an image without editing it does not create evidence of manual curation. Existing history is retained when editing a previously curated mask. See :func:`spacr.qt.mask_engine.save_mask` and :class:`spacr.curation.CurationLog` for the file contract."
 msgstr "저장된 편집 기록은 마스크 옆에 ``<mask>.curation.json`` 으로 저장됩니다. 이미지를 열기만 하고 편집하지 않으면 수동 선별 증거가 만들어지지 않습니다. 이전에 선별한 마스크를 편집하면 기존 기록이 유지됩니다. 파일 규약은 :func:`spacr.qt.mask_engine.save_mask` 와 :class:`spacr.curation.CurationLog` 를 참조합니다."
 
-msgid "The saved format has at most 65,535 positive labels. Saving refuses a binary mask with more connected objects, or an existing multi-label mask whose IDs exceed that range; it does not wrap oversized IDs into smaller numbers. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
-msgstr "저장 형식에는 양의 레이블이 최대 65,535개까지 들어갑니다. 연결된 객체가 이보다 많은 이진 마스크나 ID가 이 범위를 넘는 기존 다중 레이블 마스크는 저장이 거부되며, 너무 큰 ID를 작은 숫자로 되감지 않습니다. 저장이 거부되면 기존 TIFF나 Cellpose 번들과 그 메타데이터가 보존됩니다. 일반 모드에서는 전경값이 하나뿐인 마스크를 이진 마스크로 해석하여 연결 성분마다 별도의 ID를 부여합니다. 1차/2차 관계에는 아래에 설명한 정확한 ID 경로를 사용합니다. 이러한 서로 다른 규칙은 :func:`spacr.qt.mask_engine.canonical_labels` 를 참조합니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The saved format has at most 65,535 positive labels. Saving refuses a binary mask with more connected objects, or an existing multi-label mask whose IDs exceed that range; it does not wrap oversized IDs into smaller numbers. A refused save preserves an existing TIFF or Cellpose bundle and its metadata. In ordinary mode, a mask with one foreground value is interpreted as binary and its connected components receive separate IDs. Deliberate groups created with Divide / Merge or a magnifier drag retain their shared IDs when saved and reopened with their matching curation history. For primary/secondary relationships, use the exact-ID path described below. See :func:`spacr.qt.mask_engine.canonical_labels` for these distinct conventions."
+msgstr "저장 형식에는 양의 레이블이 최대 65,535개까지 들어갑니다. 연결된 객체가 이보다 많은 이진 마스크나 ID가 이 범위를 넘는 기존 다중 레이블 마스크는 저장이 거부되며, 너무 큰 ID를 작은 숫자로 되감지 않습니다. 저장이 거부되면 기존 TIFF나 Cellpose 번들과 그 메타데이터가 보존됩니다. 일반 모드에서는 전경값이 하나뿐인 마스크를 이진 마스크로 해석하여 연결 성분마다 별도의 ID를 부여합니다. 1차/2차 관계에는 아래에 설명한 정확한 ID 경로를 사용합니다. 이러한 서로 다른 규칙은 :func:`spacr.qt.mask_engine.canonical_labels` 를 참조합니다. 분할 / 병합 또는 돋보기 드래그로 의도적으로 만든 그룹은 일치하는 큐레이션 기록과 함께 저장하고 다시 열 때 공유 ID를 유지합니다."
 
 msgid "Canvas tools and navigation"
 msgstr "캔버스 도구와 탐색"
@@ -181,11 +182,12 @@ msgstr "Erase object"
 msgid "Remove the complete label clicked."
 msgstr "클릭한 레이블 전체를 제거합니다."
 
-msgid "Wand + / Wand −"
-msgstr "Wand + / Wand −"
+msgid "Wand"
+msgstr "마술봉"
 
-msgid "Flood from the clicked pixel within the chosen intensity tolerance; add or remove the resulting region."
-msgstr "클릭한 픽셀에서 선택한 강도 허용 범위 안으로 채워 나가고, 그 영역을 추가하거나 제거합니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Flood from the clicked pixel within the chosen intensity tolerance; add the resulting region by default. Hold Ctrl while clicking to remove that region."
+msgstr "클릭한 픽셀에서 선택한 강도 허용오차 안의 영역을 채웁니다. 기본적으로 결과 영역을 추가합니다. 클릭할 때 Ctrl을 누르면 해당 영역을 제거합니다."
 
 msgid "Draw"
 msgstr "Draw"
@@ -193,11 +195,12 @@ msgstr "Draw"
 msgid "Trace an outline and fill its interior as one object."
 msgstr "윤곽을 따라 그리고 내부를 하나의 객체로 채웁니다."
 
-msgid "Divide"
-msgstr "Divide"
+msgid "Divide / Merge"
+msgstr "분할 / 병합"
 
-msgid "Draw a cut through a merged object. The larger component retains its ID; the smaller receives a new ID."
-msgstr "합쳐진 객체를 가로지르는 절단선을 그립니다. 큰 부분은 ID를 유지하고 작은 부분은 새 ID를 받습니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Left-drag a cut through an object to divide it. The larger component retains its ID; the smaller receives a new ID. Right-drag a line across objects to merge them under the first crossed ID without painting the background between them."
+msgstr "왼쪽 버튼으로 객체를 가로지르는 절단선을 드래그하면 객체가 나뉩니다. 큰 부분은 ID를 유지하고 작은 부분은 새 ID를 받습니다. 오른쪽 버튼으로 객체들을 가로지르는 선을 드래그하면 사이의 배경을 칠하지 않고 처음 가로지른 ID로 병합합니다."
 
 msgid "Zoom"
 msgstr "확대/축소"
@@ -217,8 +220,13 @@ msgstr "자"
 msgid "Drag a line to measure image-pixel distance. Right-click with Ruler selected to clear it. Zooming and panning preserve the measurement."
 msgstr "선을 끌어 이미지 픽셀 거리를 측정합니다. 자를 선택한 상태에서 마우스 오른쪽 버튼을 클릭하면 지워집니다. 확대/축소와 이동을 해도 측정이 유지됩니다."
 
-msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
-msgstr "**Shift 또는 Alt + 드래그** 로 화면을 이동합니다. 휠은 커서를 중심으로 확대/축소하며, **Esc** 는 확대/축소를 초기화합니다. **Left/Right** 는 이전/다음 시야를 선택합니다. **Ctrl+Z/Ctrl+Y** 는 편집을 실행 취소하거나 다시 실행합니다. **Ctrl + 왼쪽 클릭** 은 객체를 잘록한 부분에서 나누고, **Ctrl + 오른쪽 클릭** 은 커서 아래의 객체를 제거합니다. 보기 옆의 바로 가기 패널에는 돋보기 컨트롤을 포함한 현재 제스처가 나열됩니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Shift or Alt + drag** pans. The wheel zooms about the cursor; **Esc** resets zoom. **Left/Right** selects the previous/next field. **Ctrl+Z/Ctrl+Y** undoes or redoes an edit. With Wand selected, **Ctrl + left click** removes the bounded intensity region. Outside Wand, **Ctrl + left click** splits an object at its waist; **Ctrl + right click** removes the object under the cursor. The shortcut panel beside the view lists the current gestures, including magnifier controls."
+msgstr "**Shift 또는 Alt + 드래그** 로 화면을 이동합니다. 휠은 커서를 중심으로 확대/축소하며, **Esc** 는 확대/축소를 초기화합니다. **Left/Right** 는 이전/다음 시야를 선택합니다. **Ctrl+Z/Ctrl+Y** 는 편집을 실행 취소하거나 다시 실행합니다. 마술봉을 선택하면 **Ctrl + 왼쪽 클릭** 이 경계가 있는 강도 영역을 제거합니다. 마술봉 이외에서는 **Ctrl + 왼쪽 클릭** 은 객체를 잘록한 부분에서 나누고, **Ctrl + 오른쪽 클릭** 은 커서 아래의 객체를 제거합니다. 보기 옆의 바로 가기 패널에는 돋보기 컨트롤을 포함한 현재 제스처가 나열됩니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Clear all objects**, immediately left of **Discard**, asks for confirmation before removing every segmentation object in the current image. Cancelling keeps the masks; undo restores them. The acquired image is unchanged."
+msgstr "**버리기** 바로 왼쪽의 **모든 객체 지우기** 는 현재 이미지의 모든 분할 객체를 제거하기 전에 확인을 요청합니다. 취소하면 마스크가 유지되고 실행 취소하면 복원됩니다. 획득한 이미지는 바뀌지 않습니다."
 
 msgid "Recrop creates files and changes the field queue. Objects cut by a crop's boundary are omitted, and retained objects are renumbered within the new crop. Very small crops and near-duplicates are refused. Completed originals move into ``recropped_originals/``. Use the original image and mask when maintaining primary/secondary IDs across the full field; a renumbered crop is a different pairing context. The precise limits and paths are documented by :func:`spacr.qt.mask_engine.write_recrop`."
 msgstr "Recrop은 파일을 만들고 시야 대기열을 바꿉니다. 자른 영역의 경계에 걸린 객체는 빠지고, 남은 객체는 새 크롭 안에서 다시 번호가 매겨집니다. 너무 작은 크롭과 거의 중복되는 크롭은 거부됩니다. 처리가 끝난 원본은 ``recropped_originals/`` 로 옮겨집니다. 전체 시야에 걸쳐 1차/2차 ID를 유지할 때는 원래 이미지와 마스크를 사용합니다. 번호가 다시 매겨진 크롭은 다른 짝짓기 맥락입니다. 정확한 제한과 경로는 :func:`spacr.qt.mask_engine.write_recrop` 에 문서화되어 있습니다."
@@ -418,8 +426,9 @@ msgstr "실시간 돋보기, 필터링, 측정"
 msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before accepting its objects."
 msgstr "**돋보기** 를 켜거나 **M** 을 누르면 포인터 주변의 제안된 객체를 검사할 수 있습니다. 휠은 상자 배율을, **Shift + wheel** 은 상자 크기를 바꿉니다. **Ctrl+L+오른쪽 클릭** 은 상자를 잠그거나 잠금 해제합니다. 객체를 수락하기 전에 업데이트 중인 미리보기가 끝날 때까지 기다립니다."
 
-msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, dragging can join encountered pieces into one object. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."
-msgstr "**추가할 객체** 는 확대 영역의 모든 객체 또는 마우스 아래의 객체만 선택합니다. 일반 모드에서는 끌면 지나가는 조각들을 하나의 객체로 합칠 수 있습니다. 전체 이미지 미리보기는 포인터 아래의 객체를 수락하며, 2차 모드는 1차 식별 정보를 합치지 않고 유지합니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, including Otsu and Cellpose, click and drag to add encountered detections to the object under the initial click. Starting on background creates one new object. Separate detections share that object's ID without filling the background between them; one undo step reverses the drag, and the shared ID survives Save, Next and reopening. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."
+msgstr "**추가할 객체** 는 확대 영역의 모든 객체 또는 마우스 아래의 객체만 선택합니다. Otsu와 Cellpose를 포함한 일반 모드에서 클릭하고 드래그하면 경로에서 검출된 객체가 최초 클릭 아래의 객체에 추가됩니다. 배경에서 시작하면 새 객체 하나를 만듭니다. 분리된 검출 결과는 사이의 배경을 채우지 않고 해당 객체의 ID를 공유합니다. 실행 취소 한 번으로 드래그를 되돌리며 공유 ID는 Save, Next 및 다시 열기 후에도 유지됩니다. 전체 이미지 미리보기는 포인터 아래의 객체를 받아들이고, 보조 모드는 객체를 합치는 대신 기본 ID를 보존합니다."
 
 msgid "The corner readout identifies the pixel and object under the cursor. The **Filter** category starts empty: choose a property and **Add a filter** to add a row with a minimum and a maximum. Every scalar :func:`skimage.measure.regionprops` property is offered, such as area, eccentricity or solidity; intensity statistics are offered only while an intensity image is open and use the original loaded values. A blank bound is off. The list applies as you edit it and when a field opens; the log below it names each hidden object and the bound that hid it, and removing a row brings back what it hid. The same list is the ``object_filters`` setting of Mask generation. See :func:`spacr.qt.mask_engine.filter_properties`. Object operations also offer hole filling, dilation, shrinking, relabeling and clearing; shrinking can remove thin or small objects entirely."
 msgstr "모서리 표시는 커서 아래의 픽셀과 객체를 알려 줍니다. **필터** 범주는 처음에 비어 있습니다. 속성을 선택하고 **필터 추가** 로 최솟값과 최댓값이 있는 행을 추가합니다. 면적, 이심률, 고형도 같은 모든 스칼라 :func:`skimage.measure.regionprops` 속성을 제공하며, 강도 통계는 강도 이미지가 열려 있을 때만 제공되고 처음 불러온 값을 사용합니다. 빈 경계값은 사용하지 않음을 뜻합니다. 목록은 편집하는 동안과 시야를 열 때 적용되며, 아래의 로그에는 숨겨진 각 객체와 그것을 숨긴 경계값이 표시되고, 행을 제거하면 그 행이 숨긴 객체가 다시 나타납니다. 같은 목록이 마스크 생성의 ``object_filters`` 설정입니다. :func:`spacr.qt.mask_engine.filter_properties` 를 참조합니다. 객체 작업에서는 구멍 채우기, 팽창, 축소, 레이블 번호 재부여, 지우기도 제공하며, 축소하면 가늘거나 작은 객체가 완전히 사라질 수 있습니다."

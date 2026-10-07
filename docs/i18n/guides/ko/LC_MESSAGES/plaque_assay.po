@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 13:33-0400\n"
+"POT-Creation-Date: 2026-10-06 18:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -81,6 +81,14 @@ msgstr "이미지, PDF, 폴더 끌어다 놓기"
 
 msgid "Drop any number of images, PDFs or folders onto Plaque Assay. Images are read in **Plaque** mode and PDFs in **Figure** mode; every PDF is read in turn, with progress naming the paper being read, and a paper that cannot be read is reported by name without stopping the others. Files that are neither images nor PDFs are left out and counted once. When the drop does not match the current mode, a prompt offers to switch; when it holds both images and PDFs, choose which mode to run. If the figure reader needs installing or reinstalling, the prompt installs it in place and reports the result."
 msgstr "플라크 분석에 이미지, PDF, 폴더를 개수 제한 없이 끌어다 놓을 수 있습니다. 이미지는 **플라크** 모드로, PDF는 **그림** 모드로 읽습니다. 각 PDF는 차례로 읽히고 진행 상황에 읽고 있는 논문 이름이 표시되며, 읽을 수 없는 논문은 나머지를 멈추지 않고 이름으로 보고됩니다. 이미지도 PDF도 아닌 파일은 제외되고 한 번에 집계됩니다. 끌어다 놓은 항목이 현재 모드와 맞지 않으면 모드 전환을 제안하는 창이 나타나고, 이미지와 PDF가 섞여 있으면 실행할 모드를 선택합니다. 그림 판독기를 설치하거나 다시 설치해야 하면 창에서 바로 설치하고 결과를 보고합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Bio-Rad Gel Doc images (``.scn``)"
+msgstr "Bio-Rad Gel Doc 이미지 (``.scn``)"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Image Lab ``.scn`` files from a Gel Doc or ChemiDoc imager are read directly, without exporting them first, wherever a TIFF is accepted: Plaque Assay in both modes, Make Masks and its curation queue, and the Format Converter. A folder of ``.scn`` files is a source like a folder of figures. Image Lab stores these images with zero as white, so spaCR inverts them to look like Image Lab's own PDF and TIFF exports (dark wells on light plastic) and keeps the 12-bit values. Plaque Assay shows them as 8-bit grey scaled linearly to the imager's ceiling. When the file records its physical field size, that pixel size calibrates Figure-mode plaque areas (scale source ``image metadata``) unless a pixel scale is set in the settings or on a well. In Python, :func:`spacr.convert.read_scn` returns the image and its metadata: pixel size, imager, acquisition date, exposure and application."
+msgstr "Gel Doc 또는 ChemiDoc 영상 장비에서 생성된 Image Lab ``.scn`` 파일은 TIFF가 허용되는 곳에서 먼저 내보낼 필요 없이 직접 읽습니다. Plaque Assay의 두 모드, Make Masks와 큐레이션 대기열, Format Converter가 해당합니다. ``.scn`` 파일 폴더는 그림 폴더처럼 데이터 소스로 사용됩니다. Image Lab은 이 이미지에서 0을 흰색으로 저장하므로 spaCR은 Image Lab 자체의 PDF 및 TIFF 내보내기와 같은 모습이 되도록 반전하며(밝은 플라스틱 위의 어두운 웰), 12비트 값을 유지합니다. Plaque Assay는 장비의 최댓값까지 선형으로 스케일링한 8비트 회색조로 표시합니다. 파일에 실제 시야 크기가 기록되어 있으면 해당 픽셀 크기가 Figure 모드의 플라크 면적을 보정합니다(스케일 출처 ``image metadata``). 다만 설정이나 웰에 픽셀 스케일이 지정되어 있으면 그 값을 사용합니다. Python에서 :func:`spacr.convert.read_scn` 함수는 이미지와 메타데이터를 반환합니다. 메타데이터에는 픽셀 크기, 영상 장비, 획득 날짜, 노출 및 애플리케이션이 포함됩니다."
 
 msgid "Inspect the result views"
 msgstr "결과 뷰 검사"

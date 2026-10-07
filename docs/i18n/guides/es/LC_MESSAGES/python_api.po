@@ -1,5 +1,5 @@
 # spaCR user guide translation (es).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 13:33-0400\n"
+"POT-Creation-Date: 2026-10-06 18:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -66,6 +66,10 @@ msgstr "Ejecutar el mismo contrato desde una terminal"
 
 msgid "The headless command is useful in a scheduler because it validates setting names and values before importing the heavy pipeline stack."
 msgstr "El comando sin interfaz gráfica es útil en un planificador porque valida los nombres y valores de configuración antes de importar la pesada pila de la canalización."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Boolean values in settings CSV files are case-insensitive. ``TRUE`` and ``FALSE``, including surrounding whitespace, load as Python booleans, so spreadsheet-exported settings can pass the same preflight checks on a cluster."
+msgstr "Los valores booleanos de los archivos CSV de ajustes no distinguen entre mayúsculas y minúsculas. ``TRUE`` y ``FALSE``, incluso con espacios alrededor, se cargan como booleanos de Python, por lo que los ajustes exportados desde hojas de cálculo pueden superar las mismas comprobaciones previas en un clúster."
 
 msgid "Command-line overrides are applied after the file:"
 msgstr "Las anulaciones de línea de comandos se aplican después del archivo:"

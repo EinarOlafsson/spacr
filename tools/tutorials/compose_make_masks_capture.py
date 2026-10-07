@@ -19,7 +19,7 @@ def compose(*, editor, restoration, puncta, destination, yolo=None, receipt_item
              [('editor', editor), ('restoration', restoration), ('puncta', puncta)]}
     if receipt_item not in (615, 662):
         raise ValueError('Use an existing independently checked receipt set')
-    if receipt_date not in ('2026-10-05', '2026-10-06'):
+    if receipt_date not in ('2026-10-05', '2026-10-06', '2026-10-07'):
         raise ValueError('Use an independently checked recording date')
     if yolo is not None:
         roots['yolo'] = Path(yolo).resolve()
@@ -119,7 +119,7 @@ if __name__ == '__main__':
         parser.add_argument('--' + name, type=Path, required=True)
     parser.add_argument('--yolo', type=Path, help='Independently accepted native Box interaction recording')
     parser.add_argument('--receipt-item', type=int, choices=(615, 662), default=615)
-    parser.add_argument('--receipt-date', choices=('2026-10-05', '2026-10-06'),
+    parser.add_argument('--receipt-date', choices=('2026-10-05', '2026-10-06', '2026-10-07'),
                         default='2026-10-05')
     parser.add_argument('--copy-frames', action='store_true',
                         help='Copy byte-verified native frames into the new composition directory')

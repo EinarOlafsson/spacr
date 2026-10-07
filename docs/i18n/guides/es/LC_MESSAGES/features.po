@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 13:33-0400\n"
+"POT-Creation-Date: 2026-10-06 18:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
@@ -325,6 +325,22 @@ msgstr "un ajuste que pertenece a una morfología se omite para una ranura de ot
 
 msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
 msgstr "Los interruptores 3D y Tiempo declaran qué dimensiones tiene la placa. ``z_stack`` declara un eje z y activa los ajustes volumétricos -- modo de segmentación, anisotropía y tamaño de vóxel -- y se detiene con un error en lugar de adivinar cuál es el eje z. ``timelapse`` declara un eje temporal y muestra el seguimiento; una placa con un solo punto temporal lo ignora. Los ajustes 4D solo se aplican cuando los datos son a la vez una pila z y una serie temporal, y solo entonces aparecen."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Timelapse event annotations and pretrained features (alpha)"
+msgstr "Anotaciones de eventos de Timelapse y características preentrenadas (alfa)"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Enable **Show alpha features** in Preferences to use **Event annotations…** in Timelapse. Choose an existing spaCR tracks CSV and its matching image sequence, open the tracked field and confirm the pairing. Select an observed track and zero-based frame, enter an event name and press **Add or update**. **Save** writes the staged labels to an annotations CSV and selects it for event detection; closing without saving leaves the file unchanged. One track at one frame can have only one event label. Changed tracker or annotation files must be reopened before saving."
+msgstr "Active **Mostrar funciones alfa** en Preferences para usar **Anotaciones de eventos...** en Timelapse. Elija un CSV de trayectorias de spaCR existente y su secuencia de imágenes correspondiente, abra el campo seguido y confirme la correspondencia. Seleccione una trayectoria observada y un fotograma numerado desde cero, introduzca un nombre de evento y pulse **Añadir o actualizar**. **Guardar** escribe las etiquetas preparadas en un CSV de anotaciones y lo selecciona para la detección de eventos; cerrar sin guardar deja el archivo sin cambios. Una trayectoria en un fotograma solo puede tener una etiqueta de evento. Los archivos de seguimiento o anotaciones que hayan cambiado deben volver a abrirse antes de guardar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The annotation table names ``field``, ``track_id``, ``frame`` and ``event``; an ``object`` column identifies the tracked object type. Label every event in fields used for training. The event detector evaluates held-out annotated fields, reports precision, recall and timing error, then trains and saves a model for reuse. Event classes come from the experiment's annotations."
+msgstr "La tabla de anotaciones contiene ``field``, ``track_id``, ``frame`` y ``event``; una columna ``object`` identifica el tipo de objeto seguido. Etiquete todos los eventos de los campos usados para entrenar. El detector evalúa campos anotados reservados fuera del entrenamiento, informa de precisión, exhaustividad y error temporal, y después entrena y guarda un modelo reutilizable. Las clases de eventos proceden de las anotaciones del experimento."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The default ``small`` encoder runs on CPU. The optional ``videomae`` encoder uses pretrained video features from **VideoMAE event encoder** in Model Zoo, installed in its own environment. Supply the verified local official checkpoint folder and exactly three ordered source-channel indices; use ``[0,0,0]`` only when deliberately repeating a monochrome channel. The frozen encoder can use CUDA, Metal or CPU; the small event classifier trains on CPU. The checkpoint's Kinetics classes are not microscopy event labels, and pretrained features require held-out evaluation on the intended microscopy experiment. The checkpoint is licensed CC-BY-NC-4.0; inference downloads no weights. These controls remain alpha."
+msgstr "El codificador predeterminado ``small`` se ejecuta en CPU. El codificador opcional ``videomae`` usa características de vídeo preentrenadas de **Codificador de eventos VideoMAE** en Model Zoo, instalado en su propio entorno. Indique la carpeta local verificada del punto de control oficial y exactamente tres índices ordenados de canales de origen; use ``[0,0,0]`` solo si repite deliberadamente un canal monocromo. El codificador congelado puede usar CUDA, Metal o CPU; el pequeño clasificador de eventos se entrena en CPU. Las clases Kinetics del punto de control no son etiquetas de eventos de microscopía, y las características preentrenadas requieren evaluación con datos reservados del experimento de microscopía previsto. El punto de control tiene licencia CC-BY-NC-4.0; la inferencia no descarga pesos. Estos controles siguen siendo alfa."
 
 msgid "Figure settings"
 msgstr "Configuración de la figura"

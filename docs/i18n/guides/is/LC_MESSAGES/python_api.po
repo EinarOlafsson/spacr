@@ -1,5 +1,5 @@
 # spaCR user guide translation (is).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 13:33-0400\n"
+"POT-Creation-Date: 2026-10-06 18:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -66,6 +66,10 @@ msgstr "Keyra sama samning úr skel"
 
 msgid "The headless command is useful in a scheduler because it validates setting names and values before importing the heavy pipeline stack."
 msgstr "Skipunin án myndræns viðmóts er gagnleg í tímaáætlunarkerfi vegna þess að hún sannprófar heiti og gildi stillinga áður en þungi vinnslustaflinn er fluttur inn."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Boolean values in settings CSV files are case-insensitive. ``TRUE`` and ``FALSE``, including surrounding whitespace, load as Python booleans, so spreadsheet-exported settings can pass the same preflight checks on a cluster."
+msgstr "Bool-gildi í CSV-stillingaskrám eru óháð hástöfum og lágstöfum. ``TRUE`` og ``FALSE``, einnig með bilum í kring, eru lesin sem bool-gildi í Python. Stillingar sem eru fluttar út úr töflureikni geta því staðist sömu forprófanir á reikniklasa."
 
 msgid "Command-line overrides are applied after the file:"
 msgstr "Yfirskriftum á skipanalínu er beitt á eftir skránni:"

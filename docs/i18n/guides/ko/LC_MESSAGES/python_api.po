@@ -1,5 +1,5 @@
 # spaCR user guide translation (ko).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 13:33-0400\n"
+"POT-Creation-Date: 2026-10-06 18:04-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -66,6 +66,10 @@ msgstr "셸에서 같은 규약 실행하기"
 
 msgid "The headless command is useful in a scheduler because it validates setting names and values before importing the heavy pipeline stack."
 msgstr "헤드리스 명령은 무거운 파이프라인 스택을 가져오기 전에 설정 이름과 값을 검증하므로 스케줄러에서 유용합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Boolean values in settings CSV files are case-insensitive. ``TRUE`` and ``FALSE``, including surrounding whitespace, load as Python booleans, so spreadsheet-exported settings can pass the same preflight checks on a cluster."
+msgstr "설정 CSV 파일의 불리언 값은 대소문자를 구분하지 않습니다. ``TRUE`` 및 ``FALSE`` 값은 앞뒤 공백이 있어도 Python 불리언으로 불러오므로 스프레드시트에서 내보낸 설정은 클러스터에서도 같은 사전 검사를 통과할 수 있습니다."
 
 msgid "Command-line overrides are applied after the file:"
 msgstr "명령줄 재정의는 파일 다음에 적용됩니다."

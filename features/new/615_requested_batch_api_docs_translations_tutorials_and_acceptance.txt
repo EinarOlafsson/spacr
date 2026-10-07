@@ -1566,3 +1566,48 @@ and final nine-locale catalog/guides/current-source deployment remain OPEN.
 2026-10-06 workstation preceding frozen-source completion: both normal all-nine runtime and API audits now pass after exact two-record technical admission. Complete original failed checkpoint (3,372 files) and accepted catalog/review/history/source checkpoint (4,039 files) are byte-preserved in bounded ZIP parts with full failures, strict repair logs and source provenance. Scope is historical 13,196 API symbols, 1,243 settings, 237 categories, 7,224 UI captions and 77 external modules; it does not accept or overwrite the later final 13,199-symbol integration. Receipts 615_preceding_terminal_catalogs_2026-10-06.json, 615_preceding_catalog_recovery_2026-10-06_r2.json and 615_final_catalog_context_2026-10-06_r2.json distinguish originals, acceptance and prepared final technical targets. Final GPU owners/current catalogs, guides, generated documentation, actual browser checks, fifty-track/native61 tutorial publication and current deployment remain pending. The guarded normal immutable upload/full-byte readback continuation follows successful all85 candidate routes; no partial current writer was archived or credited as accepted. Home retains CPU/native/CI and workstation retains all GPU/API/docs/translation/tutorial ownership.
 
 2026-10-06 workstation final API original and independent recovery: the complete first final GPU run ended1 on exactly eight SCN blocks across five locales. Its full 13,199-symbol API/catalog/review/history/frozen-source checkpoint preserves 1,925 files plus the original terminal failure in three bounded byte-exact ZIP parts. Eighteen exact SCN source/context reviews were normally admitted afterward; current all-nine CPU API repair is live and not yet accepted. The untouched runtime GPU r2 started through the actual 360s/600s shared queue at20:08:20 local with24GiB, source fingerprintb36c87fe and7,228 UI captions; Chinese88-entry repair/fallback is live. Runtime-only nine-record admission remains deferred until its original writer ends and full checkpoint is retained. Revised idle controllers preserve both full all-nine gates, normal guides/generated owners/strict Sphinx/browsers and guarded immutable media/deployment verification. Only an exact idle control process was interrupted, with no source/writer/checkpoint phase; dependent absent-precondition failures are distinct from product acceptance. Receipt 615_final_independent_API_context_2026-10-06_r2.json retains complete originals and prepared-code provenance. Home retains CPU/native/CI and source freeze; workstation retains all GPU/API/docs/translation/tutorial work. No live log or partial current acceptance is published.
+
+2026-10-07 workstation final current-source catalogs accepted:
+Normal complete API audit passes all 13,199 symbols across nine languages.
+Latest combined Home source preserves API/runtime canonical input hashes;
+whole accepted files transfer exactly and normal English regeneration agrees.
+Current runtime audit and 56,485 reviewed records pass: 1,243 settings,
+237 categories, 7,228 UI messages and 77 external modules. All nine guide
+catalogs pass 2,999/2,999 messages with no stale/invalid/unlabelled entries.
+Complete accepted catalogs/reviews/history/application source and original
+current stores are retained with full terminal logs: 4,670 files in four
+bounded byte-exact archive parts. Receipt:
+data/615_final_current_catalog_acceptance_2026-10-07_r4.json.
+The active API review reporter now uses normal top-level locale scope;
+historical archived reviews remain preserved and three regressions retain
+rejection of moved/rewritten active records. No validation threshold changes.
+All 498 generated-owner, 241 GUI, 112 final Home and 93 tutorial checks pass.
+Fresh current editor/puncta/restoration/Box captures independently pass,
+with all 79 native frames retained and 59 used for 61 composed scenes.
+All 50 narration tracks pass normal checks. Strict Sphinx/translated-guide
+builds and actual browsers remain live/pending. The current CRF1 4K master
+must still pass all 61 unchanged 30dB scene gates; original failed CRF18/14
+renders remain preserved. Immutable readback, normal Pages/source
+publication and actual deployment remain separate pending steps. No native
+speaker/listening signoff, native Save-crash fix or full N615 closure claimed.
+
+2026-10-07 workstation final strict documentation and tutorial media accepted:
+Strict full English Sphinx and all nine translated guide builds now pass.
+One Chinese inline-literal delimiter-spacing issue was reproduced, normally
+reviewed/imported and rebuilt; the original complete guide store is retained.
+All nine guide audits remain 2,999/2,999 with no stale/invalid/unlabelled rows.
+The exact fresh canonical built tree passes 26 API-link/constructor/helper
+contracts; actual browsers pass all 37 API panels/55 exact reviewed blocks
+and all 126 reviewed guide messages. Complete original failed orchestration,
+rendered-text diagnostics and exact accepted pages are preserved in
+data/615_final_current_docs_browser_2026-10-07_r9.json.
+All 61 native scene midpoints pass unchanged 30dB whole/focus gates after
+normal CRF1 High/yuv420p encoding; lowest whole39.470dB/focus30.003dB.
+Original CRF18/14 failed stages remain complete locally with full identities,
+failure logs and bounded encoding diagnostics. All50 narration tracks and
+28 master/web browser cases plus sentence cues pass. All85 candidate routes
+and mutation guards pass, with all84 unrelated lessons preserved whole.
+Immutable media5b331d434e997e70264afd35b993b0ecc988d8e8 passes all5,036
+metadata/full downloaded SHA checks:5,704,492,980 bytes. Normal Pages and
+all85 hosted-route promotion are in progress. Actual source push/nightly
+workflow/site readback remain separate pending steps; N615 stays open.
