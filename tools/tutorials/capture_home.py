@@ -363,6 +363,54 @@ def record_session_and_updates(window, capture, settle, name="13e_session_update
         settle()
 
 
+def record_preferences_apply(window, capture, settle):
+    """Record the real preview question and verify Keep and Revert with Preferences open."""
+    from capture_geometry import capture_rect
+    from PySide6.QtWidgets import QDialogButtonBox, QMessageBox, QSlider
+    from spacr.qt import preferences
+
+    dialog, _page = _open_preferences_tab(window, settle, "PreferencesTabAppearance", 1500)
+    original = preferences.get_pane_opacity()
+    proof = {"original_opacity": original}
+    try:
+        slider = dialog.findChild(QSlider, "PaneOpacity")
+        buttons = dialog.findChild(QDialogButtonBox)
+        if slider is None or buttons is None:
+            raise RuntimeError("Preferences has no opacity slider or buttons")
+        preview = 55 if original != 0.55 else 60
+        slider.setValue(preview)
+        buttons.button(QDialogButtonBox.Apply).click()
+        settle(1)
+        question = dialog._apply_confirmation
+        if not isinstance(question, QMessageBox) or not question.isVisible() or not dialog.isVisible():
+            raise RuntimeError("Apply must show a separate question above visible Preferences")
+        if abs(preferences.get_pane_opacity() - preview / 100) > 1e-9:
+            raise RuntimeError("Apply did not preview the edited setting")
+        proof["question"] = capture_rect(question, window)
+        proof["preferences"] = capture_rect(dialog, window)
+        capture("13h_preferences_apply")
+        next(button for button in question.buttons() if button.text() == "Revert").click()
+        settle(1)
+        if preferences.get_pane_opacity() != original or not dialog.isVisible():
+            raise RuntimeError("Revert must restore the saved value and keep Preferences open")
+        proof["revert_verified"] = True
+        slider.setValue(round(original * 100))
+        buttons.button(QDialogButtonBox.Apply).click()
+        settle(1)
+        question = dialog._apply_confirmation
+        next(button for button in question.buttons() if button.text() == "Keep").click()
+        settle(1)
+        if preferences.get_pane_opacity() != original or not dialog.isVisible():
+            raise RuntimeError("Keep must preserve the applied value and keep Preferences open")
+        proof["keep_verified"] = True
+        capture("13i_preferences_kept")
+        return proof
+    finally:
+        dialog.close()
+        dialog.deleteLater()
+        settle()
+
+
 def record_storage(window, capture, settle):
     """Storage tab at its defaults, then Prune now's list and question, cancelled (643)."""
     from PySide6.QtCore import QTimer

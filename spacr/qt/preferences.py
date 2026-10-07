@@ -2333,40 +2333,35 @@ def _set_ambient_multiplier(key: str, index: int, value: float) -> None:
 
 
 def get_ambient_blur() -> float:
-    """How much the animated background is softened. 0.0 is as designed.
+    """Read the retained legacy animation-blur preference.
 
-    In units of eight screen pixels of area averaging, which is exactly the
-    softness the buffered animations shipped with — so 1.0 asks for the old
-    look at whatever detail :func:`get_ambient_resolution` is set to.
+    Current animation widgets do not apply this value, and Settings has no
+    Blur control. Drawing detail is controlled by
+    :func:`get_ambient_resolution`.
 
-    Clamped to ``spacr.qt.widgets.ambient.BLUR_RANGE`` on read, so a value
-    from a newer build or a hand-edited file cannot ask for a blur the
-    engines will not paint.
+    The legacy value is clamped to
+    ``spacr.qt.widgets.ambient.BLUR_RANGE`` on read.
     """
     return _ambient_multiplier(_KEY_AMBIENT_BLUR, 0)
 
 
 def set_ambient_blur(value: float) -> None:
-    """Set the softening. Out-of-range values are clamped, not refused:
-    this is a slider, and there is no user error to report.
+    """Store the legacy animation-blur preference. Current widgets ignore it.
 
-    :param value: the blur, in units of eight screen pixels of area averaging
-        (0.0 is as designed); clamped to ``BLUR_RANGE`` from
-        :mod:`spacr.qt.widgets.ambient`, and an unparseable value or NaN stores
-        ``DEFAULT_BLUR``.
+    :param value: the retained legacy blur value; clamped to ``BLUR_RANGE``
+        from :mod:`spacr.qt.widgets.ambient`. An unparseable value or NaN
+        stores ``DEFAULT_BLUR``.
     """
     _set_ambient_multiplier(_KEY_AMBIENT_BLUR, 0, value)
 
 
 def get_ambient_resolution() -> float:
-    """How much detail the animated background is drawn with, as a
-    multiplier on each animation's own shading buffer. 1.0 is as designed.
+    """The drawing-detail multiplier on each animation's working grid.
 
-    Separate from :func:`get_ambient_blur` on purpose: this decides how much
-    of the geometry is computed, blur decides how much of it is then thrown
-    away, and having one control do both was the reason the aurora could
-    only be soft *and* blocky. Costs quadratically — 2.0 is four times the
-    pixels — which is why the range stops where it does.
+    1.0 is as designed. Higher detail increases sampling work within the
+    engine's screen-pixel limits. :func:`get_ambient_density` controls the
+    selected population independently; increasing detail does not reduce
+    that population. Current widgets apply no animation blur.
     """
     return _ambient_multiplier(_KEY_AMBIENT_RESOLUTION, 3)
 

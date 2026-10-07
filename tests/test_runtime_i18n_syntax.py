@@ -12,6 +12,41 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 
+def test_physical_screen_pixel_budget_preserves_display_sense(monkeypatch):
+    import build_i18n_catalogs as builder
+
+    monkeypatch.setattr(builder, "_reviewed_translation", lambda *_: None)
+    targets = {
+        "es": "El renderizado se mantiene dentro del presupuesto de píxeles de la pantalla.",
+        "pt": "A renderização permanece dentro do orçamento de píxeis da tela.",
+        "fr": "Le rendu reste dans le budget de pixels de l’écran.",
+        "zh_CN": "渲染工作保持在屏幕的像素预算内。",
+        "hi": "रेंडरिंग स्क्रीन के पिक्सेल बजट के भीतर रहती है।",
+    }
+    for source in ("Rendering stays within the screen's pixel budget.",
+                   "Rendering stays within the screen’s pixel budget."):
+        assert builder._gui_screen_source(source)
+        for language, target in targets.items():
+            assert builder._contextualize(target, language, source) == target
+            assert not builder._translation_rejection_reasons(source, target, language, force=True)
+    assert not builder._gui_screen_source("A pooled CRISPR screen identifies genes.")
+    assert builder._contextualize("A tela identifica genes.", "pt",
+                                  "A pooled CRISPR screen identifies genes.") == "A triagem identifica genes."
+
+
+def test_retained_branded_theme_titles_preserve_names_without_allowing_prose(monkeypatch):
+    import build_i18n_catalogs as builder
+
+    monkeypatch.setattr(builder, "_reviewed_translation", lambda *_: None)
+    for name in ("spaCR blobs", "spaCR aurora", "spaCR stratified", "spaCR spinn"):
+        assert name in builder._IDENTITY_TEXT
+        assert not builder._looks_translatable(name)
+        for language in builder.MODEL_SPECS:
+            assert not builder._translation_rejection_reasons(name, name, language)
+    source = "The backdrop contains moving dots."
+    assert "exact" in builder._translation_rejection_reasons(source, source, "sv", force=True)
+
+
 def test_make_masks_tool_registry_and_fallback_names_enter_extraction(monkeypatch) -> None:
     from build_i18n_catalogs import _indirect_runtime_ui_sources
     from spacr.qt.screens import make_masks
@@ -197,7 +232,7 @@ _RETIRED_BY_600B = {
 
 
 def _theme_cohort_retirements(language, filename):
-    """Prove the two source retirements without changing historical pins."""
+    """Prove the exact source retirements without changing historical pins."""
     hashes = {
         "2026-09-15-integration-review.json":
             "ecf8d5190cb2844a1a90174e483138118389e7e9f0d67c99282adfb7f09203e1",
@@ -212,9 +247,15 @@ def _theme_cohort_retirements(language, filename):
     original = json.loads((folder / "archive/2026-10-06-home-cell-dino-save-themes"
                            / filename).read_text())["records"]
     current = json.loads((folder / filename).read_text())["records"]
-    retired = [row for row in original if row["source_sha256"] == hashes[filename]]
-    assert len(retired) == 1
-    assert hashlib.sha256(retired[0]["source"].encode()).hexdigest() == hashes[filename]
+    retired_hashes = {hashes[filename]}
+    if filename == "2026-09-15-integration-review.json":
+        retired_hashes.add(
+            "ab388434f351b32a1a3bd22c13c65396a1c054d164983bd5fc2683dc718f85a4")
+    retired = [row for row in original if row["source_sha256"] in retired_hashes]
+    assert len(retired) == len(retired_hashes)
+    assert {row["source_sha256"] for row in retired} == retired_hashes
+    assert all(hashlib.sha256(row["source"].encode()).hexdigest()
+               == row["source_sha256"] for row in retired)
     assert current == [row for row in original if row not in retired]
     return {row["source"] for row in retired}
 
@@ -497,7 +538,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     base_retired = _theme_cohort_retirements("sv", "2026-09-15-integration-review.json")
     refresh_retired = _theme_cohort_retirements("sv", "2026-09-21-runtime-ui-refresh.json")
     cohort_retired = base_retired | refresh_retired
-    assert len(base_retired) == len(refresh_retired) == 1
+    assert len(base_retired) == 2 and len(refresh_retired) == 1
     assert not cohort_retired & reviewed.keys()
     # +269 distinct UI/category sources, with three OPS descriptions shared
     # between both tables (272 records). The detection-panel consolidation
@@ -752,7 +793,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     base_retired = _theme_cohort_retirements("fr", "2026-09-15-integration-review.json")
     refresh_retired = _theme_cohort_retirements("fr", "2026-09-21-runtime-third-slice.json")
     cohort_retired = base_retired | refresh_retired
-    assert len(base_retired) == len(refresh_retired) == 1
+    assert len(base_retired) == 2 and len(refresh_retired) == 1
     assert not cohort_retired & all_reviewed.keys()
     refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-runtime-first-slice.json").read_text())

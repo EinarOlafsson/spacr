@@ -337,7 +337,7 @@ def verify_alpha_features_off(*, allow_alpha_toggle_scene=False, alpha_lesson=No
     return shown
 
 
-def configure_appearance(theme=CAPTURE_THEME, backdrop=CAPTURE_BACKDROP):
+def configure_appearance(theme=CAPTURE_THEME, backdrop=CAPTURE_BACKDROP, *, home_preferences=False):
     """Set the requested recording appearance in the isolated Qt store.
 
     Also turns Show alpha features off: no recording shows alpha features.
@@ -345,7 +345,8 @@ def configure_appearance(theme=CAPTURE_THEME, backdrop=CAPTURE_BACKDROP):
     drafts; Preferences -> Session stays at its default): no recording
     reopens a remembered session.
     """
-    if (theme, backdrop) != (CAPTURE_THEME, CAPTURE_BACKDROP):
+    expected = "data_art_impulse_lens" if home_preferences else CAPTURE_BACKDROP
+    if (theme, backdrop) != (CAPTURE_THEME, expected):
         raise ValueError("Tutorial captures require dark mode and the Blobs backdrop")
     from spacr.qt import preferences as prefs
 
@@ -355,7 +356,8 @@ def configure_appearance(theme=CAPTURE_THEME, backdrop=CAPTURE_BACKDROP):
     force_fresh_start()
 
 
-def verify_appearance(window, *, allow_alpha_toggle_scene=False, alpha_lesson=None):
+def verify_appearance(window, *, allow_alpha_toggle_scene=False, alpha_lesson=None,
+                      home_preferences=False):
     """Check the effective palette and the backdrop widgets being painted.
 
     Also refuses the frame while Show alpha features is on, unless
@@ -372,18 +374,19 @@ def verify_appearance(window, *, allow_alpha_toggle_scene=False, alpha_lesson=No
     verify_fresh_start(window)
     if prefs.resolve_effective_theme() != CAPTURE_THEME:
         raise RuntimeError("Capture refused: the effective theme is not dark")
-    if not prefs.get_ambient_enabled() or prefs.get_ambient_animation() != CAPTURE_BACKDROP:
+    expected = "data_art_impulse_lens" if home_preferences else CAPTURE_BACKDROP
+    if not prefs.get_ambient_enabled() or prefs.get_ambient_animation() != expected:
         raise RuntimeError("Capture refused: Blobs is disabled or another backdrop is selected")
     if window.palette().color(QPalette.Window).lightness() >= 128:
         raise RuntimeError("Capture refused: the window is painting a light palette")
     visible = [widget for widget in window.findChildren(AmbientWidget) if widget.isVisible()]
-    if not visible or any(widget.theme() != CAPTURE_BACKDROP for widget in visible):
+    if not visible or any(widget.theme() != expected for widget in visible):
         raise RuntimeError("Capture refused: visible backdrop widgets are not Blobs")
     if not any(widget.frames_painted > 0 for widget in visible):
         raise RuntimeError("Capture refused: the Blobs backdrop has not painted a frame")
     if any(widget.isVisible() for widget in window.findChildren(DnaRainWidget)):
         raise RuntimeError("Capture refused: DNA rain covers the requested Blobs backdrop")
-    receipt = {"theme": CAPTURE_THEME, "backdrop": CAPTURE_BACKDROP,
+    receipt = {"theme": CAPTURE_THEME, "backdrop": expected,
                "painted_frames": sum(widget.frames_painted for widget in visible)}
     if alpha_shown:
         receipt["alpha_features_shown_for_toggle_scene"] = True

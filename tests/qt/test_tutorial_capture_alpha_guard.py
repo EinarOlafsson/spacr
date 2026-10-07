@@ -177,13 +177,14 @@ def test_the_neutral_wrapper_turns_alpha_off_before_it_launches_spacr(
 
 def test_capture_refresh_forces_off_before_the_window_and_passes_only_the_opt_in():
     source = (TUTORIALS / "capture_refresh.py").read_text()
-    assert source.index("configure_appearance(args.theme, args.backdrop)") < \
+    assert source.index("configure_appearance(args.theme, args.backdrop,") < \
         source.index("window = gui.MainWindow()")
     assert "'--preferences-alpha-toggle-scene', action='store_true'" in source
     calls = re.findall(r"verify_appearance\(([^)]*)\)", source)
     # 624134261 also passes the one allow-listed alpha lesson through.
     assert calls == ["\n            window, allow_alpha_toggle_scene=args.preferences_alpha_toggle_scene,"
-                     "\n            alpha_lesson=args.alpha_lesson"]
+                     "\n            alpha_lesson=args.alpha_lesson,"
+                     "\n            home_preferences=args.home_preferences_only"]
 
 
 def test_authoring_capture_sessions_refuse_frames_while_alpha_is_on(prefs):

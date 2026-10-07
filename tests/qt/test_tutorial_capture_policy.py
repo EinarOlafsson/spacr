@@ -42,6 +42,21 @@ def test_a_real_dark_window_with_painted_blobs_is_accepted(recording):
                        "painted_frames": backdrop.frames_painted}
 
 
+def test_home_preferences_explicitly_records_field_and_default_policy_stays_strict(recording, qtbot):
+    window, backdrop, _prefs = recording
+    with pytest.raises(ValueError):
+        configure_appearance("dark", "data_art_impulse_lens")
+    configure_appearance("dark", "data_art_impulse_lens", home_preferences=True)
+    backdrop.set_theme("data_art_impulse_lens")
+    qtbot.waitUntil(lambda: backdrop.frames_painted > 0)
+    assert verify_appearance(window, home_preferences=True)["backdrop"] == "data_art_impulse_lens"
+    with pytest.raises(RuntimeError):
+        verify_appearance(window)
+    backdrop.set_theme("blobs")
+    with pytest.raises(RuntimeError):
+        verify_appearance(window, home_preferences=True)
+
+
 def test_a_module_specific_animation_cannot_hide_behind_the_global_blobs_check(recording):
     from spacr.qt.widgets.dna_rain import DnaRainWidget
 

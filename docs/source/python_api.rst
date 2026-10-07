@@ -108,6 +108,17 @@ names and values before importing the heavy pipeline stack.
    spacr-run validate --module mask --settings mask_settings.csv
    spacr-run mask --settings mask_settings.csv
 
+Use ``spacr-run --list-models`` (or ``--models``) to list registered models,
+including models that have not been downloaded. Supply the registered key or
+filename in ``custom_model`` for masking or ``model_path`` for classifier
+inference. Python and notebook entry points use the same resolver. A missing
+registered checkpoint is downloaded through Model Zoo when the workflow runs,
+verified against its catalogue checksum, and cached for reuse. Preflight
+recognizes registered downloadable selections without downloading the weights.
+Existing local paths take precedence; an unknown missing local path or a model
+of the wrong kind raises an error rather than selecting another model.
+Built-in foundation models retain their backend's normal download behavior.
+
 Boolean values in settings CSV files are case-insensitive. ``TRUE`` and
 ``FALSE``, including surrounding whitespace, load as Python booleans, so
 spreadsheet-exported settings can pass the same preflight checks on a cluster.

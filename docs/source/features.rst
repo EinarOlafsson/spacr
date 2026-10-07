@@ -253,30 +253,49 @@ all text has a contrast ratio of at least 7:1 against its background.
 Data-art themes
 ---------------
 
-Under **Preferences** → **Appearance** → **Theme**, seven data-art presets
-each select an interface palette and an animated background. The ten night
-themes remain available.
-**Animation** lets you choose a background independently; select **None**
-for a static background. These backgrounds are decorative and do not
-display project measurements.
+Under **Preferences** → **Appearance**, **Theme** selects the interface
+palette; the ten night palettes remain available. **Animation** chooses a
+decorative background independently, or **Off** to stop it. These backgrounds
+do not display project measurements. The main window defaults to **spaCR field**;
+the Settings backdrop defaults to **None**.
 
-The animation menu begins with **spaCR field** (the default), **spaCR advection**,
-**spaCR growth**, **spaCR Thore**, **spaCR waves**, and **Blobs**, followed by the
-remaining backgrounds.
+The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**,
+**spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and
+**spaCR spinn**, in that order.
 
 - **spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples.
 - **spaCR advection** — Fine particles form evolving vortices and branching currents, with optional mouse gravity.
-- **spaCR growth** — A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.
-- **spaCR Thore** — Fine background rain and branching lightning briefly illuminate the scene.
-- **spaCR waves** — An edge-free landscape of round points carries wide travelling waves.
-- **Tissue facets** — Fine paper facets move gently and respond locally to the mouse.
-- **Chromatin satin** — Fine chromatin fibres undulate in travelling waves across folded ribbons.
+- **spaCR growth** — Connected mycelial filaments grow from common origins, with wandering tips and recursively branching fronts. Older trails fade as new colonies begin.
+- **spaCR waves** — Round points carry travelling waves and move away from the mouse within its enabled radius.
+- **spaCR blobs** — Soft colour blobs, large and small, drift and slowly change size.
+- **spaCR aurora** — Layered curtains of northern light shimmer and ripple.
+- **spaCR stratified** — A slow starfield moves in three depth layers; **spaCR stratified direction** selects up, down or random travel.
+- **spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse.
 
 **Mouse gravity radius** sets the affected area as a percentage of the shorter
-screen edge. Its default is **0**, which disables mouse influence. Use
-**Animation density** to change the number of elements and **Animation detail**
-to change drawing resolution. Density and detail share the renderer's work
-budget. Press **Save** to keep preference changes.
+screen edge. Its default is **10%**; set it to **0** to disable mouse influence.
+**Animation density** changes the number of elements independently of
+**Animation detail**, which changes drawing resolution. Density starts at
+**1%**; increasing Detail does not trim the chosen population. The renderer
+bounds its sampling work within the screen's pixel budget. Select **Random**
+in **Animation palette** for per-element colours. Fresh installations use
+**Dark**, **spaCR field** and the **spaCR** animation palette, with Density
+**10%**, Gravity **10%**, Detail, Speed and Size **100%**, and Page opacity
+**60%**. In the spaCR palette, one percent of visible field dots randomly
+flicker white. Field fade is on. The blue rim uses a relative perimeter
+length, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle.
+Existing saved preferences remain in effect until changed or reset.
+
+Press **Apply** to preview changes while Preferences stays open. A separate
+question offers **Keep** or **Revert**. Revert restores the saved and live
+settings; your edited controls remain available to change or apply again.
+Closing the question also reverts. **Save** keeps changes and closes Preferences.
+
+In **spaCR field**, left-drag an unoccupied background area to pull a local
+patch of dots. Releasing the button lets it spring back smoothly without
+restarting the pattern. This background gesture leaves scientific canvas
+and control gestures available.
+
 
 Arranging the window
 --------------------
@@ -294,8 +313,9 @@ Arranging the window
 - **Tooltips** appear once the pointer has rested on a control for the
   **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default;
   0 shows them at once) and stay while the pointer is on them. The same
-  delay applies to setting help, hint strips and other hover help. Turn
-  tooltips off with **Show tooltips** on the same page.
+  delay applies to popup tooltips. Fixed hint text at the bottom of Home
+  and Preferences appears immediately. Turn popup tooltips off with
+  **Show tooltips** on the same page.
 
 These sizes are remembered between sessions.
 

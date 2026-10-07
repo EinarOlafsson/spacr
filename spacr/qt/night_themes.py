@@ -494,7 +494,7 @@ DATA_ART_THEMES: Dict[str, NightTheme] = {
             sound_key="meridian"),
         NightTheme(
             key="data_art_fungal_growth", label="spaCR growth",
-            description='A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.',
+            description='Connected mycelial filaments grow from common origins, with wandering tips and recursively branching fronts. Older trails fade as new colonies begin.',
             palette=DATA_ART_PALETTES["data_art_fungal_growth"],
             ambient="data_art_fungal_growth", ambient_palette="deepwater",
             sound_key="undertow"),

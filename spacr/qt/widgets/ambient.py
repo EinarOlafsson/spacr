@@ -7,7 +7,7 @@ and no mouse events, and can be switched off entirely in Preferences.
 
 Five data-art materials and three classic themes remain in the menu.
 The default is ``data_art_impulse_lens`` (spaCR field). The other data-art choices
-are advection, growth, waves and tissue facets.
+are spaCR advection, spaCR growth, spaCR waves and spaCR spinn.
 The classic choices provide softer motion:
 
 ``blobs``
@@ -155,7 +155,8 @@ blit remains inexpensive. :meth:`_BufferedEngine.shade` therefore runs in
 thread. If a shaded frame is not ready, the widget repeats the previous frame
 instead of blocking the interface.
 
-``blobs``, the default, goes 17.3 fps to 24.7 on the same worker. What this
+In that historical ``blobs`` benchmark, the rate goes from 17.3 fps to 24.7 on
+the same worker. What this
 does **not** address is a genuinely chatty run: at 200 lines a second both
 land at about 4 fps, because by then the GUI thread is inside ``ConsolePanel``
 and not in here at all. Two levers finish the job and neither is in this file —
@@ -171,20 +172,34 @@ a frame is late, the previous frame is repeated and counted by
 thread, and rendered frames remain deterministic functions of
 ``(seed, clock, size)``.
 
-``drift`` keeps the synchronous path, and its row above is the reason: it is
-the one engine with no buffer, it degrades the least of the seven (2.1x against
-48.7x for ``cells``), and threading it would mean publishing a full-resolution
-frame — 7.91 MiB a slot against 126.6 KiB for ``blobs`` — to buy the smallest
-improvement on the list.
+``drift`` keeps synchronous drawing at full Detail. Lower Detail renders the
+same particle population through a bounded image buffer; it does not reduce
+Density. Its historical row above predates that buffer path.
 
 Performance depends on hardware, display size, theme, and concurrent work.
-The settings have predictable relative costs: detail is approximately
-quadratic, density is approximately linear, and blur is inexpensive for the
-six buffered themes. ``drift`` has no buffer, so its blur is a second wider
-pass per dot and is capped by :data:`DRIFT_HALO_MAX_PX`. The
-:data:`WORK_BUDGET` limits combinations of density and detail that would make
-the backdrop compete with analysis work. Hidden widgets stop rendering
-entirely.
+Density controls population independently of Detail. Detail controls sampling
+resolution, and buffers stay within the actual screen-pixel budget. Increasing
+Detail does not trim the selected population. Legacy direct engine callers may
+still set blur, but Preferences exposes no Blur control. Hidden widgets stop
+rendering entirely. Historical timings above do not establish native 24 FPS
+at current maximum controls.
+
+The private growth producer uses ``_lineage`` to index reproducible wandering
+tips and recursive front forks. Daughter branches remain connected to their
+parent filaments; older trails recede as new colonies begin. This is decorative
+mycelial artwork, not a model fitted to project measurements.
+
+The field's background-only left drag uses ``_set_field_grab`` and
+``_step_field_grab`` for a bounded local spring with continuous release
+velocity. ``AmbientWidget._offer_field_grab`` publishes the latest handle
+without waiting for shading, and ``AmbientWidget._field_grab_background``
+excludes scientific canvases and interactive controls. Release returns the
+patch without moving or reseeding its underlying material.
+
+Aurora's ``buffer_size`` and ``buffer_scale`` retain crisp display sampling;
+its private ``_shade`` returns a freshly owned frame. Drift's ``buffer_size``
+bounds lower-Detail drawing, while its private ``_paint_dots`` paints the same
+selected population into that buffer or directly at full Detail.
 """
 from __future__ import annotations
 
@@ -297,7 +312,7 @@ _THEME_NOTES = {
     "drift": 'A slow starfield in three layers of depth.',
     "data_art_impulse_lens": 'A crisp gravitational dot field with optional local mouse influence and expanding ripples.',
     "data_art_genetic_advection": 'Fine particles form evolving vortices and branching currents, with optional mouse gravity.',
-    "data_art_fungal_growth": 'A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.',
+    "data_art_fungal_growth": 'Connected mycelial filaments grow from common origins, with wandering tips and recursively branching fronts. Older trails fade as new colonies begin.',
     "data_art_point_atlas": 'An edge-free landscape of round points carries wide travelling waves.',
     "data_art_tissue_facets": 'Fine paper facets move gently and respond locally to the mouse.',
     SPACEOUT_THEME: ("A Julia set that morphs, turns and cycles colour — "

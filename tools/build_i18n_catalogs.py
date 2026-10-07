@@ -285,6 +285,7 @@ _INPUT_DIALOG_METHODS = {"getText", "getInt", "getDouble", "getItem"}
 _IDENTITY_TEXT = {
     # The maintainer's exact branded theme titles retain their spelling.
     "spaCR field", "spaCR advection", "spaCR growth", "spaCR Thore", "spaCR waves",
+    "spaCR blobs", "spaCR aurora", "spaCR stratified", "spaCR spinn",
     # Scientific genus names and the Latin plural abbreviation stay exact
     # on organism Home tiles; they are not untranslated English prose.
     "Candida spp.", "Plasmodium spp.",
@@ -1475,6 +1476,7 @@ _UI_SCREEN_SOURCE = (
     r"Plate View|Home|Pipeline Graph|QC)\s+screens?\b|"
     r"\bscreens?\s+(?:itself|filter|dropdown|dialog|button|form|panel|picker|"
     r"view|GUI|route|module|navigation|sidebar|tab)\b|"
+    r"\bscreens?(?:['’]s)?\s+pixel\s+budget\b|"
     r"\b(?:on[- ]screen|screen edges?|screen width|screen height|full screen|startup screen|"
     r"screen nobody|screen crashes?|screen opens?|screen closes?|screen is "
     r"seeded|screen was seeded|screen currently|screen exposes?|screen "
@@ -5191,7 +5193,8 @@ def _contextualize(value: str, language: str, source: str = "") -> str:
         language, ()
     ):
         if (source_pattern == r"\bscreens?\b"
-                and re.search(r"\bscreens?\s+edges?\b", str(source), re.I)):
+                and re.search(r"\bscreens?(?:['’]s)?\s+(?:edges?|pixel\s+budget)\b",
+                              str(source), re.I)):
             continue
         # Documentation guides are not molecular guides. In a paragraph that
         # names both, leave the choice of target occurrences to its reviewer.

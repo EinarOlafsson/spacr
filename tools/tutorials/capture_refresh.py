@@ -34,6 +34,8 @@ def write_json(path: Path, value) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--module', default='home')
+    parser.add_argument('--home-preferences-only', action='store_true',
+                        help='Refresh only Home Preferences scenes and the real Apply/Keep/Revert flow, using the default spaCR field backdrop')
     parser.add_argument('--stage', type=Path,
                         default=Path(tempfile.gettempdir()) / 'spacr-tutorials-current')
     parser.add_argument('--theme', choices=('dark',), default='dark')
@@ -119,6 +121,10 @@ def main() -> int:
                         help='Opt-in for a Preferences lesson scene that shows the Show alpha features toggle itself; '
                              'every other recording is refused while alpha features are on')
     args = parser.parse_args()
+    if args.home_preferences_only and (args.module != 'home' or args.openings):
+        parser.error('--home-preferences-only requires --module home without --openings')
+    if args.home_preferences_only:
+        args.backdrop = 'data_art_impulse_lens'
     if args.mask_yolo_tour and (args.module != 'make_masks' or args.run or args.download
                               or args.mask_editor_tour or args.mask_readouts_tour
                               or args.puncta_tour or args.restoration_tour or args.editor_detect):
@@ -365,7 +371,8 @@ def main() -> int:
     set_preload_policy('on_demand')
     set_ai_on_by_default(False)
     # Also turns Show alpha features off: alpha features get no tutorials.
-    configure_appearance(args.theme, args.backdrop)
+    configure_appearance(args.theme, args.backdrop,
+                         home_preferences=args.home_preferences_only)
     set_font_scale(args.font_scale)
     if args.module in ('regression', 'queue', 'train_cellpose'):
         from spacr.qt.preferences import set_figure_format
@@ -411,7 +418,8 @@ def main() -> int:
             settle(.2)
         appearance = verify_appearance(
             window, allow_alpha_toggle_scene=args.preferences_alpha_toggle_scene,
-            alpha_lesson=args.alpha_lesson)
+            alpha_lesson=args.alpha_lesson,
+            home_preferences=args.home_preferences_only)
         try:
             verify_visible_paths([w for w in app.topLevelWidgets() if w.isVisible()], stage)
         except RuntimeError:
@@ -499,7 +507,7 @@ def main() -> int:
             capture_openings.record_align_test_data(app, window, stage, captures, capture, settle, write_json, args.timeout)
     else:
         capture('00_home')
-    if args.module == 'home' and not args.openings:
+    if args.module == 'home' and not args.openings and not args.home_preferences_only:
         home = window._startup
         tabs = home._tabs
         for index in range(1, tabs.count()):
@@ -539,6 +547,19 @@ def main() -> int:
         home_focus['13e_session_updates'] = record_session_and_updates(window, capture, settle)
         home_focus['13g_storage_prune'] = record_storage(window, capture, settle)
         write_json(captures / 'home_focus.json', home_focus)
+    if args.home_preferences_only:
+        from capture_home import (record_performance, record_preferences_page,
+                                  record_appearance_sections, record_session_and_updates,
+                                  record_storage, record_preferences_apply)
+        record_performance(window, capture, settle)
+        record_preferences_page(window, capture, settle)
+        record_preferences_page(window, capture, settle, 'PreferencesTabAppearance',
+                                '13b_preferences_appearance')
+        record_appearance_sections(window, capture, settle)
+        focus = {'13e_session_updates': record_session_and_updates(window, capture, settle),
+                 '13g_storage_prune': record_storage(window, capture, settle),
+                 '13h_preferences_apply': record_preferences_apply(window, capture, settle)}
+        write_json(captures / 'home_focus.json', focus)
     if args.workflow_overview:
         from capture_workflow_overview import record_overview
         browser = None
