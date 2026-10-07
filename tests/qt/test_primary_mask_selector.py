@@ -159,3 +159,147 @@ def test_saved_custom_classes_restore_with_explicit_field_binding(qtbot, selecto
     assert selector.snapshot.primary_class == 'primary custom'
     assert selector.snapshot.secondary_class == 'secondary custom'
     assert selector.snapshot.identity == source.identity
+
+
+def test_timeout_parks_an_independent_reader_without_publishing_after_close(
+        qtbot, selector, tmp_path, monkeypatch):
+    import threading
+    import weakref
+
+    from spacr.qt import bridge
+    from spacr.qt.widgets import primary_mask_selector as module
+
+    primary = tmp_path / 'primary'
+    primary.mkdir()
+    for name in ('one', 'two'):
+        write_tiff(primary / (name + '.tif'), np.full((10, 10), 7, np.uint16))
+    entered, finish = threading.Event(), threading.Event()
+    calls, changes = [], []
+    original = module.read_primary_source
+
+    def blocked(**request):
+        calls.append(request)
+        entered.set()
+        assert finish.wait(5)
+        return original(**request)
+
+    def immediate_timeout(worker, *, timeout_ms):
+        assert timeout_ms == 5000
+        return bridge.drain_thread(worker, timeout_ms=0)
+
+    monkeypatch.setattr(module, 'read_primary_source', blocked)
+    monkeypatch.setattr(module, 'drain_thread', immediate_timeout)
+    selector.changed.connect(lambda: changes.append('changed'))
+    selector.path.setText(str(primary))
+    selector.bind_field(tmp_path / 'one.tif', (10, 10), tmp_path / 'out/one.tif')
+    qtbot.waitUntil(entered.is_set)
+    worker = selector._worker
+    reference = weakref.ref(worker)
+    try:
+        selector.bind_field(tmp_path / 'two.tif', (10, 10), tmp_path / 'out/two.tif')
+        selector.shutdown()
+        assert worker.isRunning() and worker.parent() is None
+        assert selector._worker is None and selector._pending is None
+        assert selector.snapshot is None
+        assert bridge.parked_thread_count() >= 1
+        change_count, status = len(changes), selector.status.text()
+        finish.set()
+        assert worker.wait(2000)
+        qtbot.wait(10)
+        assert len(calls) == 1 and len(changes) == change_count
+        assert selector.snapshot is None and selector.status.text() == status
+        selector.reload()
+        qtbot.wait(10)
+        assert len(calls) == 1 and selector._worker is None
+    finally:
+        finish.set()
+        assert worker.wait(2000)
+        bridge.prune_parked_threads()
+    del worker
+    assert reference() is None
+
+
+def test_successful_shutdown_keeps_normal_worker_ownership(
+        qtbot, selector, tmp_path, monkeypatch):
+    import threading
+
+    from spacr.qt.widgets import primary_mask_selector as module
+
+    entered, finish = threading.Event(), threading.Event()
+
+    def blocked(**_request):
+        entered.set()
+        assert finish.wait(5)
+        raise OSError('source disconnected')
+
+    monkeypatch.setattr(module, 'read_primary_source', blocked)
+    selector.path.setText(str(tmp_path))
+    selector.bind_field(tmp_path / 'one.tif', (10, 10), tmp_path / 'mask.tif')
+    qtbot.waitUntil(entered.is_set)
+    worker = selector._worker
+    finish.set()
+    selector.shutdown()
+    assert not worker.isRunning() and worker.parent() is selector
+    selector.shutdown()
+    qtbot.wait(10)
+    assert selector.snapshot is None and selector._worker is None
+
+
+def test_native_selector_deletion_preserves_reader_past_real_shutdown_timeout(tmp_path):
+    import os
+    import subprocess
+    import sys
+    import textwrap
+    from pathlib import Path
+
+    code = textwrap.dedent('''
+        import threading
+        from types import SimpleNamespace
+        import numpy as np
+        from PySide6.QtCore import QEvent
+        from PySide6.QtWidgets import QApplication
+        from shiboken6 import isValid
+        from spacr.qt import bridge
+        from spacr.qt.widgets import primary_mask_selector as module
+        try:
+            import resource
+        except ImportError:
+            pass
+        else:
+            resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+        app = QApplication([])
+        entered, finish = threading.Event(), threading.Event()
+        def blocked(**_request):
+            entered.set()
+            assert finish.wait(20)
+            return SimpleNamespace(labels=np.ones((10, 10), dtype=np.uint16))
+        module.read_primary_source = blocked
+        selector = module.PrimaryMaskSelector()
+        selector.path.setText('/controlled/source')
+        selector.bind_field('/controlled/one.tif', (10, 10), '/controlled/out.tif')
+        assert entered.wait(2)
+        worker = selector._worker
+        selector.shutdown()
+        assert worker.isRunning() and worker.parent() is None
+        assert bridge.parked_thread_count() == 1
+        selector.deleteLater()
+        QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        assert not isValid(selector) and isValid(worker) and worker.isRunning()
+        finish.set()
+        assert worker.wait(2000)
+        assert bridge.prune_parked_threads() == 0
+        worker.deleteLater()
+        QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        assert not isValid(worker)
+        print('native-owner-deleted-reader-finished')
+    ''')
+    environment = dict(os.environ, CUDA_VISIBLE_DEVICES='', QT_QPA_PLATFORM='offscreen',
+                       XDG_CONFIG_HOME=str(tmp_path / 'child-config'))
+    root = Path(__file__).resolve().parents[2]
+    environment['PYTHONPATH'] = str(root)
+    result = subprocess.run([sys.executable, '-X', 'faulthandler', '-c', code],
+                            cwd=root, env=environment, capture_output=True,
+                            text=True, timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert 'native-owner-deleted-reader-finished' in result.stdout
+    assert 'QThread: Destroyed while thread' not in result.stderr

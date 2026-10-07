@@ -224,3 +224,5 @@ class PrimaryMaskSelector(QWidget):
         if worker is not None:
             worker.requestInterruption()
             drain_thread(worker, timeout_ms=5000)
+            if worker.isRunning():
+                worker.setParent(None)
