@@ -1,0 +1,16 @@
+{
+  "artifacts_sha256": {
+    "seven-predecessors-after.jsonl.gz": "47c33f12ce54d7c8b956e09c455be521a3d5c08fbac64d9c6f6f98dbb608dc30",
+    "seven-predecessors-after.log.gz": "6a5221c6685c476213270a89da1d91f5c12d374f50bbbb571cd8153c755ea3ac",
+    "two-node-after.jsonl.gz": "a5fdc1540e78484e155749b3b53ac8ef1d7a0abe02d7fcaef35221feff022a6e",
+    "two-node-before.jsonl.gz": "aa08acae8e5b05651a9a18b3e09a8cbd5ea98922eb3445a6841c53f6ac077695"
+  },
+  "runtime_source_sha256": {
+    "spacr/qt/screens/settings_model.py": "52e97665d0e0f7735f5587c7d4f78fedab9d69e670029bc1f1cc90de298a4305",
+    "tests/conftest.py": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9",
+    "tools/pytest_plugins/qt_serial_rss_journal.py": "257deae48f9eb2372540bde0c7b2a0115725cc8c2c83f39bc57f4cf9be7e98e7"
+  },
+  "source_parent_commit": "56473414a6885b7e69e66d79b3e6c8b296b05946",
+  "source_test_after_sha256": "4a63de255477e32fcc888c806812420101a1ae3e534974ccee141ab7b89156cb",
+  "source_test_before_sha256": "d6508718b411855fd6b6629be97f572ed848536dc5d2dd27bf89189a3966f995"
+}
