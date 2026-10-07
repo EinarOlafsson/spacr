@@ -11,6 +11,16 @@
   ],
   "changed_lines_missing": [],
   "changed_origin_missing_arcs": [],
+  "final_source_focused": {
+    "branches_covered": 30,
+    "branches_total": 30,
+    "missing_branches": [],
+    "missing_lines": [],
+    "statements_covered": 146,
+    "statements_total": 146,
+    "tests_passed": 12
+  },
+  "final_test_commit": "35182d4aa9e2ff8039c28ca469b1429defb184eb",
   "focused_module_summary": {
     "covered_branches": 29,
     "covered_lines": 143,
@@ -27,6 +37,7 @@
     "percent_statements_covered": 97.94520547945206,
     "percent_statements_covered_display": "97.95"
   },
+  "initial_test_sha256": "e2107db930a7f15796c49fd914d8e0a4b92e8746a6ad16e85b493caf417a0091",
   "limits": [
     "The old hosted puncta SIGSEGV had no identified Python QThread instance; this fixes only the demonstrated shutdown contract violation.",
     "Focused coverage proves changed lines/arcs, not full hosted module coverage.",
@@ -45,13 +56,23 @@
       "source_bytes": 1598,
       "source_sha256": "b62065b5d23f789a057bea83624eae32d6c53b2c5723c2144e84689ea640d852"
     },
+    "coverage-final.json.gz": {
+      "gzip_sha256": "a640d4e38c27fa83ef0391ff9a89e6ce7d8937f3e13328bc61002cdc3c432220",
+      "source_bytes": 14635,
+      "source_sha256": "12a83d9d5db9424111101ec1f2e9e04ae9a491e7e71954622a635d356cb6b1bc"
+    },
     "coverage.json.gz": {
       "gzip_sha256": "129f1aa5ace8e09f862be4d91c61a3199a13fca3fa4c6980b6aee2140ae42410",
       "source_bytes": 14732,
       "source_sha256": "ba2e88db2114e91f5e56982a38638722eb2f05835ca242973b462d58c1fcefd2"
+    },
+    "final.log.gz": {
+      "gzip_sha256": "8305343a43621fae47334c07be3eddfecd7b5a7c3d0a4450ce0db197c879e976",
+      "source_bytes": 100,
+      "source_sha256": "88d09cb85d242629cb31501aef9d66791910fd9656581eb955b51a23999104a0"
     }
   },
   "positive": "11 passed: direct native-deleted regression plus original normal and timed-out reader controls",
   "repair_commit": "df1fa5348f606676c4dbcaf34d5ef9def968c134",
-  "test_sha256": "e2107db930a7f15796c49fd914d8e0a4b92e8746a6ad16e85b493caf417a0091"
+  "test_sha256": "9132865518946b81af758a144c28a97d80ffc37224f01e9dc01e095026667f51"
 }
