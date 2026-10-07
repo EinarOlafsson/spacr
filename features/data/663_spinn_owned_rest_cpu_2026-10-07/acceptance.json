@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "source_commit": "254f3dd39f",
+  "parent_commit": "368e2cdf1d",
+  "ambient_sha256": "a3d1fed1d18b323fec6859e6ea72bad4ce273c8b60e8e87823ed751d7965eaff",
+  "native_candidate_byte_identical_to_final_source": true,
+  "focused": {
+    "files": [
+      "tests/qt/test_waves_and_local_facet_spin.py",
+      "tests/qt/test_data_art_owned_point_frames.py",
+      "tests/qt/test_field_grab_physics_and_input.py",
+      "tests/qt/test_data_art_clock_handoff.py"
+    ],
+    "passed": 86,
+    "seconds": 21.8,
+    "log": "focused-final.log.gz",
+    "coverage": "coverage.json.gz"
+  },
+  "source_guards": {
+    "files": [
+      "tests/test_every_callable_in_the_package_is_documented.py",
+      "tests/test_nested_functions_are_documented.py"
+    ],
+    "passed": 90,
+    "seconds": 24.09,
+    "log": "source-guards.log.gz"
+  },
+  "methods": [
+    {
+      "name": "_shade",
+      "statements": 31,
+      "missing_lines": [],
+      "missing_branches": []
+    },
+    {
+      "name": "shade",
+      "statements": 6,
+      "missing_lines": [],
+      "missing_branches": []
+    }
+  ],
+  "native_pairs": {
+    "state_transition_pairs": 60,
+    "alternating_shader_pairs": 24,
+    "format_experiment_pairs": 24,
+    "counts_are_separate_phases_not_unique_states": true
+  },
+  "limits": [
+    "Offscreen CPU/source-current native pixels only; no actual desktop/GPU/human aesthetic acceptance.",
+    "Resting scene intentionally does not animate; slot FPS is not scene-change FPS.",
+    "Hard native24FPS remains open; active live10\u201312FPS in the balanced probe.",
+    "No alpha/geometry/bilinear/density/sample/resolution changes.",
+    "No extra cached raster; one metadata marker, original native facet tiles and existing engine buffer.",
+    "No total RSS reduction inferred from mixed-case process peak."
+  ],
+  "root_integration": "root-integration.json"
+}

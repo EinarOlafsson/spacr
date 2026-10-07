@@ -1224,3 +1224,26 @@ pass12.83s (overlapping scopes).60 native paired scenes remain exact. Measured
 rest shader16.58→0.029ms; active53.23→47.83ms. Balanced live native workers
 remain~10–12FPS when active, and retire with0widgets/0workers. This completes
 the safe optimization, not hard24FPS/Save-crash/aesthetic acceptance.
+
+2026-10-07 — exact native spinn resting/active ownership optimization
+    Source254f3dd39f (parent368e2cdf1d, ambienta3d1fed1) reuses the existing
+    exactly static resting image via distinct Qt copy-on-write wrappers. Active
+    spin paints into a fresh owned native image. Resting timestamps still
+    advance, avoiding catch-up spin on entry; controls invalidate the existing
+    material cache. No extra raster cache/count/detail/AA/color/physics changes.
+    At native4K Density3/Detail2,2652facets/1082spinning keep42.08MBtiles.
+    Sixty full native transition pairs across dark/light/default/Random/custom
+    and controls match every pixel;24alternating timing pairs also exact.
+    Rest shader median16.576→0.029ms; active53.233→47.827ms. Actual balanced
+    widget/worker rests cap-paced≈23.7–24.3FPS; activebefore9.84/11.40 vsafter
+    10.81/11.67FPS is modest and heartbeat tails mixed. Hardnative24remainsOPEN.
+    All8workers retire, retained frames remainopaque/owned, natural deletion
+    reaches0widgets. 86focused cases pass21.80s; changed dispatchers37statements
+    and everybranchdestination covered; callable/nested-doc90pass24.09s.
+    Source-current profile/pairedrepro/frozenfiles/logs/coverage archived.
+    Separate RGB32→ARGB32_Premultiplied tile experiment is REJECTED:24native
+    pairs exact butdark65.81→76.10ms slower/lightunchanged. No format edit ships.
+    No actualdesktop/GPU/humanvisual/nativeSavecrash acceptance inferred.
+    Compacthashbound proof: data/663_spinn_owned_rest_cpu_2026-10-07/.
+    Root integrationd6cbd/source8aae separatelypasses83cases12.83s; rawlog
+    and exactdispatcherASTbinding archived. Cohorts overlap; do notsum86+83.
