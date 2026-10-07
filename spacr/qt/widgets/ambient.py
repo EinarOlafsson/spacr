@@ -2387,6 +2387,8 @@ class AuroraEngine(_BufferedEngine):
         painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
         for index, curtain in enumerate(self.curtains[:self.count()]):
             columns = samples[index * stride:(index + 1) * stride]
+            if len(columns) < 2:
+                continue
             left, right = columns[0][0], columns[-1][0]
             texture_width = max(1, math.ceil(right - left))
             count = max(96, min(960, int(width / max(2.0, self.size * 4.0))))

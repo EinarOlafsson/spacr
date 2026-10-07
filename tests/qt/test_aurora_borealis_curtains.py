@@ -45,3 +45,17 @@ def test_density_and_detail_keep_native_sampling_and_owned_frames(qapp):
         engine.set_time(second * 3)
         engine.shade(300 + second * 2, 240)
     assert len(engine._ray_material) <= 24
+
+
+@pytest.mark.parametrize("background", ["#101010", "#fafafa"])
+@pytest.mark.parametrize("samples", [(), ((0.0, 0.0),)])
+def test_incomplete_curtain_samples_leave_the_owned_identity_frame(
+        monkeypatch, background, samples):
+    engine = ambient.make_engine("aurora", "spacr", background, density=1)
+    monkeypatch.setattr(engine, "geometry", lambda width, height: samples)
+    image = engine.shade(128, 72)
+    assert not image.isNull()
+    words = np.frombuffer(image.constBits(), dtype=np.uint32)
+    assert np.all(words == engine.identity.rgba())
+    assert np.all(words >> 24 == 255)
+    assert not engine._ray_material
