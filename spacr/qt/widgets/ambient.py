@@ -1186,14 +1186,12 @@ class AmbientEngine:
         return self.resolution ** 2 * self.density
 
     def effective_density(self) -> float:
-        """:attr:`density`, trimmed to keep :attr:`work` inside
-        :data:`WORK_BUDGET`.
+        """The requested population, independently of render resolution.
 
-        A function of the two settings alone, never of the canvas, so what a
-        test measures on ``geometry()`` is what gets painted.
+        Buffered engines enforce the work budget on pixel sampling instead
+        of removing elements when the user increases Detail.
         """
-        over = self.work / WORK_BUDGET
-        return self.density / over if over > 1.0 else self.density
+        return self.density
 
     def element_count(self, base: int, pool: int) -> int:
         """How many of a pool of ``pool`` elements to draw, when the theme's
@@ -1340,7 +1338,8 @@ class _BufferedEngine(AmbientEngine):
 
     def resolution_edge(self) -> int:
         """Longest buffer edge under the current resolution setting."""
-        return _clamp_int(round(self.base_edge * self.resolution),
+        detail = min(self.resolution, math.sqrt(WORK_BUDGET / self.density))
+        return _clamp_int(int(self.base_edge * detail),
                           BUFFER_MIN_EDGE, BUFFER_EDGE_CEILING)
 
     def buffer_scale(self, width: int, height: int) -> int:
@@ -2641,9 +2640,8 @@ class Particle:
 class DriftEngine(AmbientEngine):
     """A slow starfield in three parallax layers.
 
-    The one theme painted at full resolution, because dots have to be crisp
-    to read as dots — and it is affordable exactly because a couple of
-    hundred dots of 1-4 px touch almost no pixels (0.65 % of the page).
+    At full Detail dots are drawn directly and stay crisp. Lower Detail
+    samples the same canvas population through a bounded image buffer.
     Everything is batched into one ``drawPoints`` call per (colour, layer,
     alpha step) bucket with a cached pen; the per-call overhead of a pen
     change dominates this theme, not the pixels.
@@ -2657,6 +2655,7 @@ class DriftEngine(AmbientEngine):
     def __init__(self, *args, **kwargs):
         """Roll the starfield's three parallax layers."""
         self._pens: Dict[Tuple[int, int, int], QPen] = {}
+        self._detail_buffer: Optional[QImage] = None
         super().__init__(*args, **kwargs)
 
     def _configure(self, rng: random.Random) -> None:
@@ -2710,6 +2709,7 @@ class DriftEngine(AmbientEngine):
     def _reresolve(self) -> None:
         """Rebuild the buffers after a resolution change."""
         self._pens = {}
+        self._detail_buffer = None
 
     def _resize(self) -> None:
         """Re-lay the layers for a new widget size."""
@@ -2738,9 +2738,7 @@ class DriftEngine(AmbientEngine):
 
     @property
     def work(self) -> float:
-        """Density only. This is the one theme with no buffer, so the
-        resolution setting costs it nothing and must not be allowed to
-        spend its density budget."""
+        """Density only: sampling is capped at native display resolution."""
         return self.density
 
     def alpha_scale(self) -> float:
@@ -2836,19 +2834,40 @@ class DriftEngine(AmbientEngine):
             self._pens[key] = pen
         return pen
 
+    def buffer_size(self, width: int, height: int) -> Tuple[int, int]:
+        """Sample dots at the chosen Detail within the display pixel ceiling."""
+        detail = min(1.0, self.resolution)
+        bw, bh = max(1, int(width * detail)), max(1, int(height * detail))
+        scale = min(1.0, math.sqrt(self.max_pixels / (bw * bh)))
+        return max(1, int(bw * scale)), max(1, int(bh * scale))
+
     def paint(self, painter: QPainter, width: int, height: int) -> None:
-        """Draw the starfield, refusing a zero-sized widget.
-
-        PAINTS DIRECTLY rather than going through `geometry`, because this is
-        the one theme drawn at full resolution -- dots have to be crisp to
-        read as dots, and rounding them through a shape list would blur them.
-
-        :param painter: the painter to draw with.
-        :param width: the widget's width in pixels.
-        :param height: its height in pixels.
-        """
+        """Draw the same population through the selected pixel resolution."""
         if width <= 0 or height <= 0:
             return
+        bw, bh = self.buffer_size(width, height)
+        if (bw, bh) == (width, height):
+            self._paint_dots(painter, width, height)
+            return
+        image = self._detail_buffer
+        if image is None or (image.width(), image.height()) != (bw, bh):
+            image = QImage(bw, bh, QImage.Format_RGB32)
+            self._detail_buffer = image
+        inner = QPainter(image)
+        try:
+            inner.fillRect(image.rect(), self.identity)
+            inner.setCompositionMode(self.mode)
+            inner.scale(bw / width, bh / height)
+            self._paint_dots(inner, width, height)
+        finally:
+            inner.end()
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        painter.setCompositionMode(self.mode)
+        painter.drawImage(QRect(0, 0, int(width), int(height)), image)
+        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+
+    def _paint_dots(self, painter: QPainter, width: int, height: int) -> None:
+        """Batch dots in canvas coordinates so Detail never changes population."""
         painter.setRenderHint(QPainter.Antialiasing,
                               self.resolution > DRIFT_HARD_EDGE_RESOLUTION)
         n_colors = len(self.paint_colors)
@@ -6173,11 +6192,11 @@ def preferred_motion() -> Motion:
                       DEFAULT_RESOLUTION, DEFAULT_DENSITY,
                       DEFAULT_DRIFT_DIRECTION)
     try:
-        from ..preferences import (get_ambient_blur, get_ambient_density,
+        from ..preferences import (get_ambient_density,
                                    get_ambient_drift_direction,
                                    get_ambient_resolution, get_ambient_size,
                                    get_ambient_speed)
-        return Motion(get_ambient_blur(), get_ambient_speed(),
+        return Motion(DEFAULT_BLUR, get_ambient_speed(),
                       get_ambient_size(), get_ambient_resolution(),
                       get_ambient_density(), get_ambient_drift_direction())
     except Exception:
@@ -6540,8 +6559,7 @@ class AmbientWidget(QWidget):
         self._seed = seed
         asked = (blur, speed, size, resolution, density, direction)
         stored = preferred_motion() if None in asked else None
-        self._blur = _clamp(stored.blur if blur is None else blur,
-                            *BLUR_RANGE)
+        self._blur = DEFAULT_BLUR
         self._speed = _clamp(stored.speed if speed is None else speed,
                              *SPEED_RANGE)
         self._size = _clamp(stored.size if size is None else size, *SIZE_RANGE)
@@ -6762,15 +6780,14 @@ class AmbientWidget(QWidget):
         return self._blur
 
     def set_blur(self, value: float) -> None:
-        """Set the softening. Clamped to :data:`BLUR_RANGE`.
+        """Keep the retired softening control compatible with older callers.
 
-        :param value: the blur amount, converted with ``float``.
+        :param value: a legacy value; displayed themes remain unsoftened.
         """
-        value = _clamp(value, *BLUR_RANGE)
-        if value == self._blur and value == self._engine.blur:
+        if self._blur == DEFAULT_BLUR and self._engine.blur == DEFAULT_BLUR:
             return
-        self._blur = value
-        self._mutate_engine(lambda: self._engine.set_blur(self._blur))
+        self._blur = DEFAULT_BLUR
+        self._mutate_engine(lambda: self._engine.set_blur(DEFAULT_BLUR))
 
     def resolution(self) -> float:
         """How much detail is shaded; 1.0 is each theme's own buffer."""

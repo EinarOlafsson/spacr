@@ -725,7 +725,7 @@ def test_the_widget_exposes_them_all_and_they_reach_the_engine(qtbot):
         return (source.blur, source.speed, source.size, source.resolution,
                 source.density, source.direction)
 
-    wanted = (2.0, 0.5, 1.5, 1.5, 2.0, "down")
+    wanted = (0.0, 0.5, 1.5, 1.5, 2.0, "down")
     assert (widget.blur(), widget.speed(), widget.size_scale(),
             widget.resolution(), widget.density(),
             widget.direction()) == wanted
@@ -860,24 +860,16 @@ def test_density_never_re_rolls_what_is_already_on_screen(theme, noun, count,
 
 
 @pytest.mark.parametrize("theme,noun,count,shipped", ELEMENT_COUNTS)
-def test_density_and_resolution_share_one_budget(theme, noun, count, shipped):
-    """The clamp that stops the two controls multiplying into a frame nobody
-    can afford: 2.0 detail is four times the pixels, 3.0 density is three
-    times the elements, and twelve times the work behind every screen in the
-    app is not a setting, it is a bug with a slider on it."""
+def test_detail_keeps_population_and_bounds_buffer_work(theme, noun, count, shipped):
+    """Detail changes sampling without silently reducing Density."""
     alone = make_engine(theme, "spacr", DARK, seed=5, density=3.0)
-    assert alone.effective_density() == pytest.approx(3.0), \
-        "density on its own was trimmed"
-    detailed = make_engine(theme, "spacr", DARK, seed=5, resolution=2.0)
-    assert detailed.effective_density() == pytest.approx(1.0), \
-        "detail on its own was trimmed"
-
     both = make_engine(theme, "spacr", DARK, seed=5, density=3.0,
                        resolution=2.0)
-    assert both.effective_density() < 3.0
-    assert both.work / both.density * both.effective_density() \
-        == pytest.approx(amb.WORK_BUDGET)
-    assert count(both) < count(alone)
+    assert both.effective_density() == pytest.approx(3.0)
+    assert count(both) == count(alone)
+    assert both.resolution_edge() > alone.resolution_edge()
+    sampled_work = (both.resolution_edge() / both.base_edge) ** 2 * both.density
+    assert sampled_work <= amb.WORK_BUDGET
 
 
 @pytest.mark.parametrize("background", [DARK, LIGHT])
@@ -1487,8 +1479,8 @@ def test_a_new_backdrop_picks_the_preferences_up(prefs, qtbot):
     qtbot.addWidget(widget)
     assert (widget.blur(), widget.speed(), widget.size_scale(),
             widget.resolution(), widget.density(), widget.direction()) == \
-        (2.0, 0.5, 1.5, 1.5, 2.0, "down")
-    assert widget.engine.blur == 2.0
+        (0.0, 0.5, 1.5, 1.5, 2.0, "down")
+    assert widget.engine.blur == 0.0
     assert widget.engine.resolution == 1.5
 
 
