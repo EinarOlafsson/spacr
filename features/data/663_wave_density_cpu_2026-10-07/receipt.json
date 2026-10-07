@@ -1,0 +1,51 @@
+{
+  "source_commit": "a57965350c",
+  "parent_commit": "57544560ec",
+  "source_sha256": "95d55c192d6d7bde70fa671666d3a2138fe30e5cb7e9bb0805c526c85b57f0e2",
+  "before_sha256": "63786b70d3082148db9d53a616957c4ad9c294b61ee5df31824a2433123f0437",
+  "phase_results": [
+    {
+      "scope": "current offered theme Detail/density and waves/local spin tests",
+      "passed": 50,
+      "seconds": 10.52,
+      "raw_log": "final_focused.log.gz"
+    },
+    {
+      "scope": "final bound recorder callback native cases",
+      "passed": 2,
+      "seconds": 2.1,
+      "raw_log": "bound_callback.log.gz",
+      "overlaps_previous_phase": true
+    }
+  ],
+  "unrelated_prior_failures": [
+    {
+      "raw_log": "focused.log.gz",
+      "passed": 71,
+      "failed": 1,
+      "reason": "retired chromatin factory pin in existing gravity test; reported to catalog owner, not waived or modified here"
+    },
+    {
+      "raw_log": "review_before_focused.log.gz",
+      "passed": 65,
+      "failed": 1,
+      "reason": "generic geometry len on Thore nested(rain,lightning) tuple; reported to root, fixed separately in parent575"
+    }
+  ],
+  "default_native_population_before": 257047,
+  "default_native_population_after": 85871,
+  "maximum_native_population_before_and_after": 257047,
+  "maximum_pixels_unchanged": true,
+  "maximum_pool_unchanged": [
+    900,
+    520
+  ],
+  "native_raster_unchanged": [
+    3840,
+    2160
+  ],
+  "hard_24fps_acceptance": false,
+  "human_aesthetic_acceptance": false,
+  "production_scope": "quantity correction only; new lower default population is explicit and intentional, not an exact-frame optimization",
+  "integration_review_scope": "review_before_* binds earlier root712a38c37e ambient02779760; not candidate/current quantity source. Popup hashes unchanged by this renderer fix."
+}

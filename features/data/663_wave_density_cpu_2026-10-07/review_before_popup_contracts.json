@@ -1,0 +1,27 @@
+{
+  "source_sha256": {
+    "spacr/qt/dialogs.py": "8c889b7c42c07d2ce843b3369e29ff3dc94e92fcecc9ba844c0890fd528df9bd",
+    "spacr/qt/widgets/glass.py": "41e37eaf780fc3b01ff177b34bb5820759a1834237adc8c70b15010fc6dbb9d9",
+    "spacr/qt/widgets/availability_panel.py": "996a3094e7bfdd78bf31a5de4d3454895791f705b3dedd9ca554e7b6b6052ec6"
+  },
+  "records": [
+    {
+      "treatment": "detach",
+      "exec_accept": true,
+      "active_modal_during_exec": true,
+      "modeless_after": true,
+      "parent_destruction_owns_popup": true
+    },
+    {
+      "treatment": "glass",
+      "exec_accept": true,
+      "active_modal_during_exec": true,
+      "modeless_after": true,
+      "parent_destruction_owns_popup": true
+    }
+  ],
+  "availability_reopens": 2,
+  "availability_escape_unwatches_app": true,
+  "native_desktop_stacking_acceptance": false,
+  "scope": "Actual offscreen native flags/exec/ownership; no desktop WM z-order proof"
+}

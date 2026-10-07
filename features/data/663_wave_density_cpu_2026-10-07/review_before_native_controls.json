@@ -1,0 +1,170 @@
+{
+  "source_root": "/mnt/wd4tb/spacr-worktrees/codex-cpu-final-20261006",
+  "source_sha256": {
+    "spacr/qt/widgets/ambient.py": "02779760c2997e238bb9060280723f4d083b190c86b735f938cd886a3e33127b",
+    "spacr/qt/dialogs.py": "8c889b7c42c07d2ce843b3369e29ff3dc94e92fcecc9ba844c0890fd528df9bd",
+    "spacr/qt/widgets/glass.py": "41e37eaf780fc3b01ff177b34bb5820759a1834237adc8c70b15010fc6dbb9d9",
+    "spacr/qt/widgets/availability_panel.py": "996a3094e7bfdd78bf31a5de4d3454895791f705b3dedd9ca554e7b6b6052ec6"
+  },
+  "scope": "8 actual native4K Random engines; population/cache/retained frames, not worker FPS",
+  "records": [
+    {
+      "family": "point_atlas",
+      "density": 1,
+      "detail": 1,
+      "effective_density": 1.0,
+      "buffer": [
+        3840,
+        2160
+      ],
+      "cache_keys": 3,
+      "cache_names": [
+        "('point_atlas', 3840, 2160, 1.0, 1.0)",
+        "random_grain_identities",
+        "('random_grain_palette', True)"
+      ],
+      "frame_sha256": "8e50397023561457c8018bced091caa42be9957fd05b69557d1d2094d7a527ca",
+      "samples": 257047,
+      "coordinate_bytes": 5140940
+    },
+    {
+      "family": "point_atlas",
+      "density": 1,
+      "detail": 2,
+      "effective_density": 1.0,
+      "buffer": [
+        3840,
+        2160
+      ],
+      "cache_keys": 3,
+      "cache_names": [
+        "('point_atlas', 3840, 2160, 1.0, 1.0)",
+        "random_grain_identities",
+        "('random_grain_palette', True)"
+      ],
+      "frame_sha256": "8e50397023561457c8018bced091caa42be9957fd05b69557d1d2094d7a527ca",
+      "samples": 257047,
+      "coordinate_bytes": 5140940
+    },
+    {
+      "family": "point_atlas",
+      "density": 3,
+      "detail": 1,
+      "effective_density": 3.0,
+      "buffer": [
+        3840,
+        2160
+      ],
+      "cache_keys": 3,
+      "cache_names": [
+        "('point_atlas', 3840, 2160, 1.0, 3.0)",
+        "random_grain_identities",
+        "('random_grain_palette', True)"
+      ],
+      "frame_sha256": "8e50397023561457c8018bced091caa42be9957fd05b69557d1d2094d7a527ca",
+      "samples": 257047,
+      "coordinate_bytes": 5140940
+    },
+    {
+      "family": "point_atlas",
+      "density": 3,
+      "detail": 2,
+      "effective_density": 3.0,
+      "buffer": [
+        3840,
+        2160
+      ],
+      "cache_keys": 3,
+      "cache_names": [
+        "('point_atlas', 3840, 2160, 1.0, 3.0)",
+        "random_grain_identities",
+        "('random_grain_palette', True)"
+      ],
+      "frame_sha256": "8e50397023561457c8018bced091caa42be9957fd05b69557d1d2094d7a527ca",
+      "samples": 257047,
+      "coordinate_bytes": 5140940
+    },
+    {
+      "family": "tissue_facets",
+      "density": 1,
+      "detail": 1,
+      "effective_density": 1.0,
+      "buffer": [
+        3840,
+        2160
+      ],
+      "cache_keys": 2,
+      "cache_names": [
+        "('tissue_facets', 3840, 2160, 1.0, 1.0)",
+        "('tissue_rotation', 3840, 2160, 1.0, 1.0)"
+      ],
+      "frame_sha256": "5fe2951c804afd2e96ffe8ae2c28282c782dbd9a5069791f3b5669d68ba47e1e",
+      "facets": 920,
+      "angle_count": 920,
+      "spinning_facets": 354,
+      "tile_bytes": 40941680
+    },
+    {
+      "family": "tissue_facets",
+      "density": 1,
+      "detail": 2,
+      "effective_density": 1.0,
+      "buffer": [
+        3840,
+        2160
+      ],
+      "cache_keys": 2,
+      "cache_names": [
+        "('tissue_facets', 3840, 2160, 1.0, 1.0)",
+        "('tissue_rotation', 3840, 2160, 1.0, 1.0)"
+      ],
+      "frame_sha256": "5fe2951c804afd2e96ffe8ae2c28282c782dbd9a5069791f3b5669d68ba47e1e",
+      "facets": 920,
+      "angle_count": 920,
+      "spinning_facets": 354,
+      "tile_bytes": 40941680
+    },
+    {
+      "family": "tissue_facets",
+      "density": 3,
+      "detail": 1,
+      "effective_density": 3.0,
+      "buffer": [
+        3840,
+        2160
+      ],
+      "cache_keys": 2,
+      "cache_names": [
+        "('tissue_facets', 3840, 2160, 1.0, 3.0)",
+        "('tissue_rotation', 3840, 2160, 1.0, 3.0)"
+      ],
+      "frame_sha256": "d10883b1fa27f2cdc08b974bd4f6479fc4281b44c171d88715069afe85660e47",
+      "facets": 2652,
+      "angle_count": 2652,
+      "spinning_facets": 1082,
+      "tile_bytes": 42081168
+    },
+    {
+      "family": "tissue_facets",
+      "density": 3,
+      "detail": 2,
+      "effective_density": 3.0,
+      "buffer": [
+        3840,
+        2160
+      ],
+      "cache_keys": 2,
+      "cache_names": [
+        "('tissue_facets', 3840, 2160, 1.0, 3.0)",
+        "('tissue_rotation', 3840, 2160, 1.0, 3.0)"
+      ],
+      "frame_sha256": "d10883b1fa27f2cdc08b974bd4f6479fc4281b44c171d88715069afe85660e47",
+      "facets": 2652,
+      "angle_count": 2652,
+      "spinning_facets": 1082,
+      "tile_bytes": 42081168
+    }
+  ],
+  "peak_rss_kib": 307472,
+  "hard_24fps_acceptance": false
+}

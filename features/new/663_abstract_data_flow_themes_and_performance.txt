@@ -1086,3 +1086,25 @@ Compact immutable source/test/coverage/probe receipts and two lossless stills:
     require separate review, not acceptance from the older density helper.
     Compact proof with frozen source/test/log/image hashes and verifier:
     data/663_waves_local_spin_cpu_2026-10-07/.
+
+2026-10-07 — native wave density saturation corrected
+    Read-only integrated root712a review found actual native4K Random waves
+    byte-identical at Density1/3: both hit the existing900x520 grid ceiling
+    and alpha compensation cancels gain. This is a quantity-control defect,
+    not accepted density behaviour. Source a57965350c (parent57544560ec,
+    ambient95d55c19) allocates requested population within the original
+    maximum grid across.01→3; no native pixel/detail or maximum pool reduction.
+    Explicit default change: sampled native grains257047→85871 at Density1,
+    Density2=171675, Density3=257047. Eight default/Random dark/light radius0/.5
+    complete4K pairs preserve every original Density3 pixel. Twelve actual
+    native density/detail frames prove distinct Density1/2/3 pixels and exact
+    Detail1/2 equality per density; retained frames/alphaFF preserved.
+    50focused tests pass10.52s, two overlapping final callback cases pass2.10s;
+    atlas46statements/branch destinations havezero gaps. Four safely cropped
+    versus full native grid pairs stillpass. Peak native proofRSS400136KiB.
+    Tiny-grid3x3floor remains a finite-count quantization limit; graded1%,10%,
+    50%,1,2,3 counts are verified at640and3840width. Hard24FPS/human visual/
+    installed crash/GPU acceptance remainOPEN. No FPSclaim from quantity proof.
+    Source, rawlogs, receipts, three actual native density stills and explicitly
+    separate before-integration popup/ownership review are hash-bound:
+    data/663_wave_density_cpu_2026-10-07/.
