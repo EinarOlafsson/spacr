@@ -1,6 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
 
+## 2026-10-07 — completed source published and lazy Mask proof retained
+
+Source57b33a67de includes completed field drag/return, biological growth,
+Aurora clipping, spinn resting/owned rendering, five serial fixture repairs
+and lazy Mask watch/empty-filter work. All finished implementation batches
+were committed and pushed to nightly. Additional source-bound proof for Mask
+is retained in data/43_mask_lazy_watch_cpu_2026-10-07/manifest.json;24 payloads
+verify from Git and both changed app source hashes match current files.
+Raw67 integration/113 source guards,106 behavior/14 Watch logs, final8-case
+new-branch coverage, original32-file collection and matched bounded coverage
+logs are retained. Different fresh-config probes distinguish component build
+1.535→1.187s from total module-open2.432→1.576s; each is bounded local evidence,
+not a hosted budget verdict. All new proxy statements/arcs and the empty
+parser guard are hit; existing parser-exception gaps are not hidden.
+
+Last accepted compatibility is d6cbd/37645101592 SUCCESS17/17. New57b33 source
+needs its own hosted verdict; ordinary push suite waits behind the existing
+run. Protected serial37639050274/b6885af4fe is still historical to the newer
+repairs and must finish untouched. No full GitHub/N47 green, native puncta
+causation, native24FPS, installed Save-crash or human-aesthetic claim is made.
+Workstation queued source-current normal docs/API/catalog refresh remains
+necessary. Native-language review and the other expressly waived items stay
+complete at the accepted scope.
+
+
 ## 2026-10-07 — unused Mask startup work deferred; hosted budget still open
 
 Home integrated4de4209138 asd878587d4f plus behavior-coverage follow-upd8b175e902
@@ -30,7 +55,7 @@ previously queued field/growth/spinn source. No new runtime labels/tutorial
 layout are introduced by deferred Watch construction. N615 remains open for
 source-current owner publication. The maintainer's completed native-language
 review waiver remains accepted; do not reopen native-speaker review or the
-other six explicitly accepted items without an actual new failure.
+other explicitly accepted items without an actual new failure.
 
 
 ## 2026-10-07 — spinn resting-frame and active ownership optimization accepted locally
