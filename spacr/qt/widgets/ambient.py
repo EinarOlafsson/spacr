@@ -5807,8 +5807,8 @@ class _FungalGrowthEngine(_BufferedEngine):
             if path is None:
                 path = QPainterPath()
                 paths[key] = path
-            path.moveTo(QPointF(x0, y0))
-            path.quadTo(QPointF(control_x, control_y), QPointF(end_x, end_y))
+            path.moveTo(x0, y0)
+            path.quadTo(control_x, control_y, end_x, end_y)
             if progress < 1.0:
                 tips.append((end_x, end_y, stroke, hue, alpha))
         return paths, mature, tips
