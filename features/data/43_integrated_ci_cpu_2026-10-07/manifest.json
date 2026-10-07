@@ -1,14 +1,8 @@
 {
+  "argv_capture": "No original shell argv was retained. nodes.txt preserves all 26 initial selectors. The exact focused-followup selectors were not retained; its terminal log proves only the 161-pass count. No reconstructed command is presented as an exact receipt.",
   "date": "2026-10-07",
-  "operator_reported_environment_not_captured_in_raw_log": {
-    "CUDA_VISIBLE_DEVICES": "",
-    "MKL_NUM_THREADS": "1",
-    "MPLBACKEND": "Agg",
-    "OMP_NUM_THREADS": "1",
-    "OPENBLAS_NUM_THREADS": "1",
-    "QT_QPA_PLATFORM": "offscreen",
-    "SPACR_TEST_MEMORY_GB": "6"
-  },
+  "executable": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+  "executable_evidence": "The initial pytest failure header in pytest.log.gz records Python 3.12.13 and this absolute executable. runtime-sampled-after-run.txt records package versions from that executable after the cohort; they were not logged during it. The logs do not capture complete shell argv.",
   "files": [
     {
       "bytes": 95,
@@ -24,6 +18,11 @@
       "bytes": 1599,
       "path": "pytest.log.gz",
       "sha256": "a40f049697ba4bb88fa9d68a84cf47923cc09d018eb6918b1af6639d2de104b5"
+    },
+    {
+      "bytes": 241,
+      "path": "runtime-sampled-after-run.txt",
+      "sha256": "14b1ba4a72e4b81fbd66ab7041ff8a33b58d2ac414f08d8eef175a385c075479"
     }
   ],
   "focused_followup": {
@@ -36,12 +35,13 @@
     "scope": "full tests/qt/test_ambient_motion.py plus the sparse-default and theme-default tests in tests/qt/test_ambient.py"
   },
   "initial_cohort": {
-    "cgroup_hard_limit_GiB": 8,
     "cause": "obsolete expected AmbientDensity slider value 100; intentional default 0.1 maps to 10",
+    "cgroup_hard_limit_GiB": 8,
     "distinct_files": 25,
     "duration_seconds": 205.87,
     "failed": 1,
     "failing_node": "tests/qt/test_ambient_motion.py::test_the_dialog_offers_the_controls_and_saves_them",
+    "not_run": "whole Qt suite, native four-file reproduction, workstation docs/API/runtime/guide blockers",
     "operator_reported_flags_not_captured_in_raw_log": [
       "-q",
       "-p no:randomly",
@@ -55,14 +55,19 @@
       "--cov-report=",
       "--cov-config=.coveragerc"
     ],
-    "not_run": "whole Qt suite, native four-file reproduction, workstation docs/API/runtime/guide blockers",
     "passed": 1071,
     "selectors": 26
   },
   "initial_source_commit": "04968c06fed9d61ab0e95d0e5d5a8ac16142549d",
-  "argv_capture": "No original shell argv was retained. nodes.txt preserves all 26 initial selectors. The exact focused-followup selectors were not retained; its terminal log proves only the 161-pass count. No reconstructed command is presented as an exact receipt.",
-  "executable": "/home/olafsson/anaconda3/envs/spacr/bin/python",
-  "executable_evidence": "The initial pytest failure header in pytest.log.gz records Python 3.12.13 and this absolute executable. The logs do not capture the complete shell argv or package versions; reported flags are operator notes, not independently archived argv.",
+  "operator_reported_environment_not_captured_in_raw_log": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "MKL_NUM_THREADS": "1",
+    "MPLBACKEND": "Agg",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "QT_QPA_PLATFORM": "offscreen",
+    "SPACR_TEST_MEMORY_GB": "6"
+  },
   "python": "3.12.13",
   "test_fix_commit": "6d09e0cb94f37b923dded4372feeb56d81ea431a",
   "versions_sampled_after_run_from_recorded_executable": {

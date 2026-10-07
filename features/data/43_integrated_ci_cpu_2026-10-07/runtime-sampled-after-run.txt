@@ -1,0 +1,11 @@
+sampled_utc=2026-10-07T22:39:39.794124+00:00
+sys.executable=/home/olafsson/anaconda3/envs/spacr/bin/python
+python=3.12.13
+PySide6=6.11.2
+Qt=6.11.2
+numpy=2.5.2
+pytest=9.1.1
+cellpose=4.2.1.1
+pytest-cov=7.1.0
+pytest-qt=4.5.0
+pytest-xdist=3.8.0
