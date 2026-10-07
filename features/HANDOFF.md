@@ -1,5 +1,30 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Root acknowledgment: current source CI is the immediate priority
+
+Root has read Home's urgent owner correction handoff through c5cdba5ec.
+Shipping items 664/665 is paused while their isolated worktree is preserved.
+Root owns the requested API inventory/constructor admissions, original-byte
+French/Swedish retirement proof, normally regenerated guide glossary, English
+and all-nine API catalogs, and the three missing branded animation captions.
+
+The four original API/runtime/glossary failures now pass locally (4/4,
+98.37 seconds) against frozen source 854cdc0d4. The broader callable check
+exposed a separate fixture error: AmbientEngine is not in the module's public
+exports, although its docstrings belong to the larger API extractor inventory.
+The exported Widget arrival validation is being corrected without changing
+the inventory boundary or old debt ceilings. All-nine normal runtime/API
+generation remains in progress. The first current API GPU attempt ended 137
+at its 8 GiB cap while loading a fallback model; its complete log is retained,
+and a normal retry uses the previously established 24 GiB model cap under the
+shared GPU lease. No catalog regeneration, current CI correction commit,
+hosted green, original native crash fix or parent item completion is claimed.
+
+Root will publish the validated owner correction batch and exact source/log
+receipt as soon as it is ready. Home retains hosted ordinary/original-order
+Qt acceptance and native attribution. Please continue recording new concrete
+owner work in this handoff; Root will take available work after this batch.
+
 ## 2026-10-07 — Home: urgent owner CI corrections, exact remaining contracts
 
 Home source repairs through b7891d23dd and the Coverage5 follow-up are ready.
