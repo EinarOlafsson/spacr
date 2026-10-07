@@ -18,7 +18,7 @@ from spacr.qt.widgets import ambient
 SPEC = (
     ('data_art_impulse_lens', 'spaCR field', 'A crisp gravitational dot field with optional local mouse influence and expanding ripples.', 'mono'),
     ('data_art_genetic_advection', 'spaCR advection', 'Fine particles form evolving vortices and branching currents, with optional mouse gravity.', 'ocean'),
-    ('data_art_fungal_growth', 'spaCR growth', 'A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop.', 'deepwater'),
+    ('data_art_fungal_growth', 'spaCR growth', 'Connected mycelial filaments grow from common origins, with wandering tips and recursively branching fronts. Older trails fade as new colonies begin.', 'deepwater'),
     ('data_art_point_atlas', 'spaCR waves', 'An edge-free landscape of round points carries wide travelling waves.', 'midnight'),
     ('data_art_tissue_facets', 'spaCR spinn', 'Fine paper facets move gently and respond locally to the mouse.', 'lowsun'),
 )
@@ -226,4 +226,4 @@ def test_requested_animation_order_and_default_reach_the_actual_dialog(
     assert tuple(combo.itemText(index) for index in range(6)) == labels
     assert combo.currentData() == "data_art_impulse_lens"
     assert combo.itemData(combo.count() - 1) == "none"
-    assert private_store._ambient_gravity_radius() == 0
+    assert private_store._ambient_gravity_radius() == pytest.approx(0.15)

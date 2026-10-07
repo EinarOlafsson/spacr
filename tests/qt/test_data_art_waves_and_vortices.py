@@ -445,4 +445,14 @@ def test_cropped_strip_composite_matches_complete_native_layers(
         reference.set_time(stamp)
         observed = actual.shade(width, height)
         expected = reference.shade(width, height)
-        assert observed.bits().tobytes() == expected.bits().tobytes()
+        observed_bytes = observed.bits().tobytes()
+        expected_bytes = expected.bits().tobytes()
+        same_pixels = observed_bytes == expected_bytes
+        if not same_pixels:
+            different = np.frombuffer(observed_bytes, dtype=np.uint8) != np.frombuffer(
+                expected_bytes, dtype=np.uint8)
+            first = int(np.argmax(different))
+            pytest.fail(
+                f'first differing byte at {first} for {width}x{height} '
+                f'at t={stamp}: {observed_bytes[first]} != {expected_bytes[first]}',
+                pytrace=False)

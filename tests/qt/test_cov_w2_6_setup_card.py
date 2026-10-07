@@ -136,10 +136,10 @@ def test_without_a_settings_store_every_rim_setting_has_a_shipped_default(
     try:
         assert bare._preferred_arc() == 280
         assert bare.ease() == pytest.approx(SetupCard.EASE)
-        assert bare.mode() == "glow"
-        assert bare.period() == pytest.approx(2.4)
+        assert bare.mode() == "beat"
+        assert bare.period() == pytest.approx(1.5)
         assert bare.alignment() == "centre"
-        assert bare.animates() is False
+        assert bare.animates() is True
     finally:
         bare._timer.stop()
         bare.deleteLater()
