@@ -1,0 +1,47 @@
+{
+  "date": "2026-10-07",
+  "source_run_id": 37698599898,
+  "source_sha": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+  "job_id": 113058129349,
+  "job_name": "Coverage shard 1 of 12",
+  "job_conclusion": "failure",
+  "original_failures": [
+    "tests/test_coverage_ratchet_rules.py::test_the_gate_reads_the_records_where_the_combine_job_downloads_them",
+    "tests/test_module_coverage_ratchet.py::test_coverage_workflow_is_sharded_artifact_safe_and_blocking"
+  ],
+  "root_cause": "Both guards selected the first actions/upload-artifact@v7 step, now the failure-only native artifact before the unchanged coverage-data artifact.",
+  "source_fix_commit": "790ae080db0c0532ec0a5cd6dcd0f0dbead65b27",
+  "integrated_commit": "d4f5fca3081c418531872f6b34e0e26123755e5e",
+  "workflow_blob_sha256": "f516711a6281449af4f0db90912321c5231e5e7b0bc0b81f7a8cd68fd81be5f8",
+  "test_source_sha256_before": {
+    "tests/test_coverage_ratchet_rules.py": "7d921dee1c90c69459a878ad5d2f69ba8a69069f3e178f4e0ca880fd922f3303",
+    "tests/test_module_coverage_ratchet.py": "6c5c9128bc857ad474b7eba664088a0962b0650fac47d0b0dc97aa5f237f3104"
+  },
+  "test_source_sha256_after": {
+    "tests/test_coverage_ratchet_rules.py": "884b7c517370e81b2ccef6436f7d42dd76341f028dcb822e17000c36b2ae34a2",
+    "tests/test_module_coverage_ratchet.py": "0a5021b33e89d8f39581efd9e359267614db099b96d0a8070cb04bf13dbe79a2"
+  },
+  "test_source_sha256_integrated": {
+    "tests/test_coverage_ratchet_rules.py": "884b7c517370e81b2ccef6436f7d42dd76341f028dcb822e17000c36b2ae34a2",
+    "tests/test_module_coverage_ratchet.py": "0a5021b33e89d8f39581efd9e359267614db099b96d0a8070cb04bf13dbe79a2"
+  },
+  "validation": [
+    {
+      "command": "CUDA_VISIBLE_DEVICES='' SPACR_DEVICE=cpu QT_QPA_PLATFORM=offscreen MPLBACKEND=Agg tools/run_capped.sh 4G /mnt/wd4tb/scratch/item47-memory-codex-20261005/ci-near-parity-venv/bin/python -m pytest -q -p no:randomly -p no:cacheprovider tests/test_coverage_ratchet_rules.py::test_the_gate_reads_the_records_where_the_combine_job_downloads_them tests/test_module_coverage_ratchet.py::test_coverage_workflow_is_sharded_artifact_safe_and_blocking",
+      "exit_code": 0,
+      "observed_output": "2 passed in 0.94s"
+    },
+    {
+      "command": "CUDA_VISIBLE_DEVICES='' SPACR_DEVICE=cpu QT_QPA_PLATFORM=offscreen MPLBACKEND=Agg tools/run_capped.sh 4G /mnt/wd4tb/scratch/item47-memory-codex-20261005/ci-near-parity-venv/bin/python -m pytest -q -p no:randomly -p no:cacheprovider tests/test_coverage_ratchet_rules.py tests/test_module_coverage_ratchet.py",
+      "exit_code": 0,
+      "observed_output": "73 passed in 13.70s"
+    },
+    {
+      "command": "/mnt/wd4tb/scratch/item47-memory-codex-20261005/ci-near-parity-venv/bin/python -m ruff check tests/test_coverage_ratchet_rules.py tests/test_module_coverage_ratchet.py --output-format concise",
+      "exit_code": 0,
+      "observed_output": "All checks passed!"
+    }
+  ],
+  "scope": "Test selector only. Existing hard 12-shard, hidden coverage file, data-routing, combine-input and release-gate assertions remain.",
+  "limit": "These focused local checks do not establish full hosted CI or numerical coverage acceptance."
+}

@@ -1,6 +1,6 @@
-================================================================================
+=========================================================================
 GET THE GITHUB ACTIONS RUNS GREEN
-================================================================================
+=========================================================================
 
 Status:    OPEN 2026-10-07 — ordinary bb7 run37681965976 has ten failed
            coverage shards and continuing Fast/Minimum/Qt jobs. Home repairs
@@ -3209,3 +3209,17 @@ initialization, collector and artifact upload succeed.33 identity-only journals
 are complete and no native fault occurs. Evidence/source/run/job provenance:
 data/47_ordinary_native_hosted_route_2026-10-07/. This is one shard receipt,
 not whole GitHub green or a waiver of the original API guard.
+
+2026-10-07 — COVERAGE ARTIFACT GUARDS FOLLOW THE NAMED UPLOAD
+Hosted source 6836512a98, run 37698599898, Coverage shard 1 failed two
+workflow-contract tests because both chose the first artifact upload. The
+failure-only native diagnostic upload now precedes the unchanged coverage-data
+upload. Tests select the named spacr-coverage-data artifact and still assert
+all twelve shards, hidden process files, runner-to-upload and download-to-gate
+routing, and the blocking release gate. Selector commit 790ae080db
+integrated as d4f5fca308. The two original nodes pass, and their complete
+guard-file cohort passes 73/73 under the 4 GiB cap; Ruff passes. Original full
+hosted log, exact source/test hashes and local results are in
+data/43_683_coverage_artifact_contract_cpu_2026-10-07/receipt.json. This
+repairs test selection, not the numerical ratchet result or full GitHub green;
+N43 remains OPEN.
