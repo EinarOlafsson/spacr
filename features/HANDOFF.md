@@ -1,6 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
 
+## 2026-10-07 — spinn resting-frame and active ownership optimization accepted locally
+
+Home integrated254f3dd39f as8aae44a464. Spinn reuses its exact resting raster
+through distinct copy-on-write QImage wrappers while still acknowledging every
+clock/input tick. Active spin paints a fresh owned raster and avoids the deep
+publication copy. No extra cached raster, fewer facets or reduced resolution;
+caller fill/bits mutations detach safely. Idle120s then pointer entry retains
+original angular timing, and controls/background/palette invalidate material.
+Root integrated83 field/spinn/ownership/cache cases pass12.83s; agent86 focused
+and90 source guards overlap and must not be summed. Native60 paired scenes are
+exact. Direct high-density rest16.58→0.029ms, active53.23→47.83ms; live active
+probe remains~10–12FPS. Hard native24FPS/Save crash/aesthetics remain OPEN.
+Workstation normal API refresh includes revised existing _DataArtEngine._shade
+and shade docs; no new API methods or runtime labels in this optimization.
+Immutable performance proof follows separately from the source acceptance.
+
+Compatibility37642528354 on368e2cdf1d is terminalSUCCESS,17/17. Earlier11fc
+compatibility failure is GitHub runner acquisition (actual annotations: five
+failed attempts), not app assertions. Ordinary368e tests and protectedb688
+serial have no accepted terminal verdict yet. Never cancel/replace serial.
+Proof-only410cbee8e1/bc509dacf7 deliberately avoid duplicate hosted cycles;
+application/test code at those revisions equals368e. New spinn source needs
+its own ordinary verdict; none is inferred from earlier compatibility.
+
+
 ## 2026-10-07 — field grab complete; five serial test-isolation failures repaired
 
 Home integrated field hold-drag397c8acb5d as5d851b33e9 and its immutable

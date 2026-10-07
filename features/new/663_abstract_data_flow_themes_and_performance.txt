@@ -1210,3 +1210,17 @@ at default and old213.68/221.25ms versus new192.54/196.05ms at Density3,
 Size3, Detail2. This improves a direct shader call but does not establish
 live-widget smoothness or the requested native24FPS; both human visual
 approval and installed Save-crash resolution remain OPEN.
+
+
+2026-10-07 — SPINN RESTING RASTER AND ACTIVE FRAME OWNERSHIP OPTIMIZED
+Source254f3dd39f integrated8aae44a464 returns distinct copy-on-write wrappers
+for the exactly static resting raster while maintaining every rotation-clock
+and input tick. Active spin paints a fresh owned image, removing the previous
+deep publication copy. No additional raster retention or facet/detail changes.
+Caller mutation isolation,120s idle then entry, failed paint cleanup, retained
+outputs, resize, palette/background/Density/Size/Detail are verified. Agent86
+focused/90 source guards pass; root83 integrated field/spinn/owned/cache cases
+pass12.83s (overlapping scopes).60 native paired scenes remain exact. Measured
+rest shader16.58→0.029ms; active53.23→47.83ms. Balanced live native workers
+remain~10–12FPS when active, and retire with0widgets/0workers. This completes
+the safe optimization, not hard24FPS/Save-crash/aesthetic acceptance.
