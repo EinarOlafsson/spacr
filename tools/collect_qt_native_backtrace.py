@@ -189,7 +189,7 @@ def _extract_systemd_core(directory: Path, scratch: Path, pid: int | None,
 
 
 def _core_process_ids(path: Path, executable: Path) -> set[int]:
-    """Read bounded Linux thread identities only for the recorded executable."""
+    """Read the unique Linux x86 process leader, never an LWP, for this executable."""
     try:
         with path.open("rb") as source:
             header = source.read(64)
@@ -199,6 +199,9 @@ def _core_process_ids(path: Path, executable: Path) -> set[int]:
             if order is None or struct.unpack_from(order + "H", header, 16)[0] != 4:
                 return set()
             wide = header[4] == 2
+            machine = struct.unpack_from(order + "H", header, 18)[0]
+            if machine != (62 if wide else 3):
+                return set()
             word = "Q" if wide else "I"
             offset = struct.unpack_from(order + word, header, 32 if wide else 28)[0]
             stride, count = struct.unpack_from(order + "HH", header, 54 if wide else 42)
@@ -237,9 +240,9 @@ def _core_process_ids(path: Path, executable: Path) -> set[int]:
                     if notes[name_end - names:name_end].rstrip(b"\0") != b"CORE":
                         continue
                     payload = notes[begin:end]
-                    if kind == 1 and len(payload) >= (36 if wide else 28):
+                    if kind == 3 and len(payload) >= (28 if wide else 16):
                         process_ids.add(struct.unpack_from(order + "i", payload,
-                                                           32 if wide else 24)[0])
+                                                           24 if wide else 12)[0])
                     elif kind == 0x46494C45 and len(payload) >= (16 if wide else 8):
                         maps = struct.unpack_from(order + word, payload)[0]
                         start = (2 + 3 * maps) * (8 if wide else 4)
@@ -247,7 +250,7 @@ def _core_process_ids(path: Path, executable: Path) -> set[int]:
                             return set()
                         names = payload[start:].split(b"\0")
                         found_executable |= os.fsencode(executable) in names[:maps]
-            return process_ids if found_executable else set()
+            return process_ids if found_executable and len(process_ids) == 1 else set()
     except (OSError, ValueError, struct.error, OverflowError):
         return set()
 

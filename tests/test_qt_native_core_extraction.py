@@ -82,8 +82,8 @@ def test_unrelated_or_invalid_core_never_survives_in_scratch(compressed_core, mo
     assert not list(scratch.iterdir())
 
 
-def _native_note_core(pid, executable, *, wide=True, order='<'):
-    """Build genuine PRSTATUS/NT_FILE note layouts without a large process core."""
+def _native_note_core(pid, executable, *, wide=True, order='<', leader_pid=None):
+    """Build PRSTATUS/PRPSINFO/NT_FILE layouts without a large process core."""
     def note(kind, payload):
         name = b'CORE\0'
         return (struct.pack(order + 'III', len(name), len(payload), kind) + name
@@ -94,10 +94,14 @@ def _native_note_core(pid, executable, *, wide=True, order='<'):
     struct.pack_into(order + 'i', status, 32 if wide else 24, pid)
     mappings = (struct.pack(order + word * 5, 1, 4096, 4096, 8192, 0)
                 + os.fsencode(executable) + b'\0')
-    notes = note(1, status) + note(0x46494C45, mappings)
+    process = bytearray(136 if wide else 124)
+    struct.pack_into(order + 'i', process, 24 if wide else 12,
+                     pid if leader_pid is None else leader_pid)
+    notes = note(1, status) + note(3, process) + note(0x46494C45, mappings)
     header = bytearray(64)
     header[:6] = b'\x7fELF' + bytes([2 if wide else 1, 1 if order == '<' else 2])
     struct.pack_into(order + 'H', header, 16, 4)
+    struct.pack_into(order + 'H', header, 18, 62 if wide else 3)
     struct.pack_into(order + word, header, 32 if wide else 28, 64)
     stride = 56 if wide else 32
     struct.pack_into(order + 'HH', header, 54 if wide else 42, stride, 1)
@@ -109,7 +113,7 @@ def _native_note_core(pid, executable, *, wide=True, order='<'):
 
 
 @pytest.mark.parametrize('wide,order', [(True, '<'), (False, '<'), (True, '>'), (False, '>')])
-def test_elf_notes_bind_actual_thread_pid_and_executable(tmp_path, wide, order):
+def test_elf_notes_bind_actual_process_leader_and_executable(tmp_path, wide, order):
     executable = tmp_path / 'python'
     core = tmp_path / 'core'
     core.write_bytes(_native_note_core(3456, executable, wide=wide, order=order))
@@ -133,7 +137,7 @@ def test_malformed_native_notes_never_bind_a_worker(tmp_path, defect):
     elif defect == 'huge_program_table':
         struct.pack_into('<H', raw, 56, 1025)
     elif defect == 'wrong_owner':
-        raw[132:136] = b'BAD!'
+        raw = bytearray(raw.replace(b'CORE\0', b'BAD!\0'))
     core = tmp_path / 'core'
     core.write_bytes(raw)
     assert not collector._core_process_ids(core, executable)
@@ -336,3 +340,25 @@ def test_ordinary_systemd_core_requires_current_session_and_native_identity(
         if temporary is not None:
             temporary.unlink()
     assert not list(evidence.parent.glob('qt-native-*.elf'))
+
+
+def test_foreign_process_leader_cannot_match_a_reused_thread_identifier(tmp_path, monkeypatch):
+    executable, evidence, session = _identity(tmp_path)
+    core = evidence / 'core.3456'
+    core.write_bytes(_native_note_core(3456, executable, leader_pid=7890))
+    assert collector._core_process_ids(core, executable) == {7890}
+    monkeypatch.setattr(collector, '_extract_systemd_core', lambda *args, **kwargs: None)
+    lines = []
+    assert collector._ordinary_core(tmp_path, evidence, [session], executable, lines) == (None, None)
+    assert not any(line.startswith('matched_process=') for line in lines)
+
+
+def test_owned_leader_matches_even_when_the_recorded_lwp_is_different(tmp_path, monkeypatch):
+    executable, evidence, session = _identity(tmp_path)
+    core = evidence / 'core.3456'
+    core.write_bytes(_native_note_core(7890, executable, leader_pid=3456))
+    assert collector._core_process_ids(core, executable) == {3456}
+    monkeypatch.setattr(collector, '_extract_systemd_core', lambda *args, **kwargs: None)
+    lines = []
+    assert collector._ordinary_core(tmp_path, evidence, [session], executable, lines) == (core, None)
+    assert any(line.startswith('matched_process=') for line in lines)
