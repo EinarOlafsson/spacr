@@ -8,6 +8,7 @@ import pytest
 from PySide6.QtCore import QPointF
 from PySide6.QtGui import QColor, QImage, QPainter, QPainterPath
 
+from spacr.qt import preferences
 from spacr.qt.widgets import ambient
 
 
@@ -109,7 +110,7 @@ def test_partial_optional_failure_repaints_once_and_keeps_traceback_pixels_alive
 
 
 @pytest.mark.parametrize('variant', ['unowned', 'transform', 'device_ratio', 'opacity',
-                                     'clip', 'ARGB32', 'size', 'density', 'light', 'failed',
+                                     'clip', 'ARGB32', 'size', 'light', 'failed',
                                      'dimensions', 'composition'])
 def test_unsupported_context_keeps_original_qt_paths(variant, qapp, monkeypatch):
     engine = _engine(background='#f6f7f9' if variant == 'light' else '#101418')
@@ -118,8 +119,6 @@ def test_unsupported_context_keeps_original_qt_paths(variant, qapp, monkeypatch)
     for current in [reference, engine]:
         if variant == 'size':
             current.set_size(1)
-        elif variant == 'density':
-            current.set_resolution(1)
         elif variant == 'failed':
             current._fungal_raster_failed = True
         frame = QImage(480, 270, QImage.Format_ARGB32 if variant == 'ARGB32'
@@ -150,6 +149,52 @@ def test_unsupported_context_keeps_original_qt_paths(variant, qapp, monkeypatch)
         frames.append(frame)
         assert not current._fungal_rasters
     assert frames[0].constBits().tobytes() == frames[1].constBits().tobytes()
+
+
+@pytest.mark.parametrize('palette', ['spacr', 'random', 'custom', 'white'])
+@pytest.mark.parametrize('density', [2, 3])
+def test_native_dense_growth_reuses_exact_pixels_and_preserves_owned_memory_bounds(
+        palette, density, qapp, monkeypatch):
+    monkeypatch.setattr(preferences, '_ambient_custom_colors',
+                        lambda: ('#fffe00017777', '#0303fffefefe'))
+    engine = _engine('spacr' if palette == 'white' else palette)
+    reference = _engine('spacr' if palette == 'white' else palette)
+    for current in (engine, reference):
+        current.set_resolution(1)
+        current.set_density(density)
+        if palette == 'white':
+            current.set_colors(['white'])
+    reference._fungal_raster_failed = True
+    assert engine.effective_density() == density
+    hits = []
+    reuse = engine._reuse_fungal_raster
+
+    def record(*args):
+        result = reuse(*args)
+        hits.append(result)
+        return result
+
+    monkeypatch.setattr(engine, '_reuse_fungal_raster', record)
+    for _ in range(32):
+        frame = engine.shade(3840, 2160)
+    assert any(hits)
+    before = _bytes(frame)
+    assert before == _bytes(reference.shade(3840, 2160))
+    assert frame.width() == 3840 and frame.height() == 2160
+    for clock in (95.125, 98):
+        engine.set_time(clock)
+        reference.set_time(clock)
+        actual = engine.shade(3840, 2160)
+        assert _bytes(actual) == _bytes(reference.shade(3840, 2160))
+        assert _bytes(frame) == before
+    entries = engine._fungal_rasters
+    assert len(entries) <= 64 and len(engine._fungal_observed) <= 64
+    assert sum(entry[1].nbytes + entry[2].nbytes for entry in entries.values()) <= 8 * 1024**2
+    assert all(entry[1].base is None and entry[2].base is None for entry in entries.values())
+    assert engine._owned_fungal_image is None
+    engine.set_size(1)
+    assert not engine._fungal_rasters and not engine._fungal_observed
+    assert _bytes(frame) == before
 
 
 def test_saturation_guard_preserves_destination_and_unsaturated_addition_is_opaque(qapp):

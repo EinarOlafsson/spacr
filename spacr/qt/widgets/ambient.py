@@ -5817,7 +5817,6 @@ class _FungalGrowthEngine(_BufferedEngine):
         """Allow exact sparse additions only within this frame's private native image."""
         device = painter.device()
         return (not self._fungal_raster_failed and self.dark and self.size >= 2.0
-                and self.effective_density() <= 1.0
                 and device is self._owned_fungal_image
                 and isinstance(device, QImage) and device.format() == QImage.Format_RGB32
                 and device.width() == width and device.height() == height
