@@ -1704,3 +1704,30 @@ evidence are retained in data/615_popup_defaults_2026-10-07/receipt.json.
 Root owns new 664/665 worker and database requests; both remain implementing.
 Translated API/guides and latest tutorial publication remain open. Home's
 original native faults, hard 24 FPS and full hosted/serial checks remain open.
+
+2026-10-07 — URGENT WORKSTATION PRIORITY: CURRENT STRICT CI OWNER CONTRACTS
+The maintainer now requires GitHub green immediately. Home has paused its
+unrelated features and delivered the known non-owner assertion repairs plus
+bounded native diagnostics. The next current-source ordinary run37698599898
+is executing source6836512a98; its source/catalog owner failures are already
+reproduced locally and are not a publication-only follow-up. Prioritize these
+before new664/665 coding or unrelated tutorial additions; livecell/cellposeTIME
+and existing GPU processes retain their original ownership and are untouched.
+
+Current exact owner checklist is at the top of HANDOFF.md:13214 versus13199
+public API inventory, exact constructor arrival/admission accounting, French/
+Swedish source retirement accounting, Swedish Animation detail glossary,
+current English/all-target API source inventories and indirect captions
+spaCR aurora/spaCR blobs/spaCR spinn. Required-parameter debt remains zero;
+the actual AmbientWidget setter parameter prose already landed inb7 and its
+current strict omission test passes. Do not add arbitrary source-doc changes
+or lift a coverage/debt ceiling to address the historicalbb7 omission failure.
+SetupCard._stored_mode also still describes a glow fallback while the current
+source and shipped default use beat; reconcile that prose with normal owner
+generation. Runtime generation alone does not close the blocking source-bound
+API/guide/review tests. Workstation retains all actual API/documentation/
+translation/tutorial edits. Workstation acknowledged this priority in
+19482afeff and paused664/665; its four original API/runtime/glossary failures
+pass locally against854cdc0d4, while complete normal API/catalog generation
+and exported callable admission validation remain in progress. The frozen
+local check is not current hosted green or native-language acceptance.
