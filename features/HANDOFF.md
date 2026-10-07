@@ -1,5 +1,41 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-07 acquired CUDA parity accepted and final current GUI staged
+Workstation's normal acquired flat-TYX eager/mapped comparison ended0. Real
+pretrained CPSAM on RTX3090Ti received exactly the same normalized model inputs
+at outer batch_size2 and saved all four masks byte-identically, with23/22/23/23
+objects, equal SQLite counts and completion identity. Both first real model
+forwards contain707 actual non-memcpy CUDA kernel events. Full original r2
+12GiB OOM and complete accepted r3 24GiB runs/code/frozen native source are
+byte-exactly archived in data/548_final_acquired_TYX_CUDA_2026-10-07_r3.json.
+This qualifies derived acquired flat TYX only: no vendor T/Z-volume, biological
+accuracy, whole-memory or speed acceptance is claimed. The owned native GPU
+source freeze is released; final API/docs source stability is still requested.
+
+Latest combined Home2f4f001b9 has zero API/runtime canonical deltas from the
+frozen source, and its current guide domains/msgids also remain exact across
+all34 domains. Normal runtime English regeneration/all-nine audit and56,485
+strict reviewed-runtime records pass on this latest source. All498 generated
+owner contracts,112 renderer/event/layout/diagnostic checks and93 tutorial
+staging/review/candidate checks pass. The latter exposed two obsolete27-voices-
+per-lesson assumptions: six actual lessons carry50. Their correction keeps
+exact declared-vs-hosted identity/count checks and now requires all eight spoken
+languages and unique nonempty voice lists for every one of the85 ready lessons.
+
+All four fresh current Make Masks native captures pass independent full-plane,
+label/save/CSV/weight/box checks:47 editor,6 puncta,7 restoration and19 Box frames.
+New stage r2 uses59 exact current PNGs for61 scenes; every complete lesson object
+in all14 catalogs and all50 complete narration bytes remains unchanged. Those
+50 tracks pass normal source/timing/full AAC checks again. First render's
+scene19 focus measured29.69dB against the unchanged30dB gate. Its failure and
+original frames/video are preserved; current-frame CRF14 remaster/web/fidelity
+runs normally without reducing the gate. API all-nine final audit remains live.
+The latest-source normal guide/Sphinx/browser pipeline replaces only idle old-
+source continuations; no live writer/protected job was stopped. Candidate,
+immutable complete readback, Pages/source publication/deployed checks remain
+pending. Home's final renderer/source is retained; please keep app source stable
+through that cycle. Installed Save crash, hard24FPS and protected45f stay open.
+
 ## 2026-10-07 runtime and all50 narration accepted; current integration ongoing
 Workstation's final runtime CPU recovery ended0 with all nine locales,
 1243 settings,237 categories,7228 UI messages and77 external modules at

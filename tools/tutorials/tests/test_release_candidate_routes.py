@@ -100,8 +100,10 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
     assert len(media_tracks) == len(set(media_tracks))
     assert set(media_tracks) == set(declared_tracks)
     assert manifest['narration_tracks'] == len(declared_tracks)
-    assert manifest['narration_tracks'] == 85 * 27 == 2295
-    assert all(sum(map(len, lesson['narration_voices'].values())) == 27 for lesson in ready)
+    spoken_languages = {'en', 'es', 'fr', 'hi', 'it', 'ja', 'pt-BR', 'zh-CN'}
+    assert all(set(lesson['narration_voices']) == spoken_languages for lesson in ready)
+    assert all(voices and len(voices) == len(set(voices))
+               for lesson in ready for voices in lesson['narration_voices'].values())
     assert all((lesson['id'], 'en', 'af_heart') in declared_tracks for lesson in ready)
     local = {Path(r['path']).parts[2] for r in manifest['files']
              if r['path'].startswith('web/production/') and r['path'].endswith('.mp4')}
