@@ -98,10 +98,11 @@ def test_every_backend_is_listed_with_its_state_reason_and_licence(tmp_path):
     # for timelapse_mode='sam2'.
     # + careamics_v1 (item 557, 2026-09-28): CAREamics, which trains the
     # Noise2Void denoiser in Mask generation.
+    # + videomae_v1 (item 567): optional event encoder with its own weights.
     assert set(rows) == {"cellpose3_v1", "cellpose_dino_v1", "dinocell_v1",
                          "microsam_v1", "papers_v1", "samcell_v1",
                          "spotnet_v1", "cellprofiler_v1", "sam2_v1",
-                         "careamics_v1"} | {
+                         "careamics_v1", "videomae_v1"} | {
                              f"{name}_v1" for name in zoo.PREFIXED_KINDS}
     cellpose3 = rows["cellpose3_v1"]
     assert (cellpose3.kind, cellpose3.source) == ("backend", "installable")
@@ -111,6 +112,10 @@ def test_every_backend_is_listed_with_its_state_reason_and_licence(tmp_path):
                                          "environment of its own")
     assert "Howard Hughes Medical Institute" in cellpose3.notes[1]
     assert rows["samcell_v1"].licence == rows["dinocell_v1"].licence == "MIT"
+    video = rows["videomae_v1"]
+    assert (video.kind, video.source, video.uri, video.licence) == (
+        "backend", "installable", "backend:videomae", "Apache-2.0")
+    assert "noncommercial weight terms apply" in video.notes[1]
 
     env = _finish(tmp_path, "cellpose3")
     ready = {e.key: e for e in zoo.installable_backend_entries()}
@@ -207,7 +212,8 @@ def test_the_catalogue_lists_them_without_the_network(tmp_path):
     # 7 -> 8 (item 546, 2026-09-27): the CellProfiler backend's row.
     # 8 -> 9 (item 556, 2026-09-27): the SAM2 backend's row.
     # 9 -> 10 (item 557, 2026-09-28): the CAREamics backend's row.
-    assert kinds.count("backend") == 10 + len(zoo.PREFIXED_KINDS)
+    # 10 -> 11 (item 567): the optional VideoMAE event encoder's row.
+    assert kinds.count("backend") == 11 + len(zoo.PREFIXED_KINDS)
 
 
 def test_a_row_names_the_backend_it_needs():
