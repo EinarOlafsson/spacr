@@ -5628,12 +5628,14 @@ class _FungalGrowthEngine(_BufferedEngine):
         bw, bh = self.buffer_size(width, height)
         image = QImage(bw, bh, QImage.Format_RGB32)
         painter = QPainter(image)
+        self._owned_fungal_image = image
         try:
             painter.fillRect(image.rect(), self.identity)
             painter.setCompositionMode(self.mode)
             painter.setPen(Qt.NoPen)
             self._paint_field(painter, bw, bh)
         finally:
+            self._owned_fungal_image = None
             painter.end()
         return self._soften(image, width, height)
 
@@ -5642,10 +5644,16 @@ class _FungalGrowthEngine(_BufferedEngine):
         self._fungal_seed = rng.randrange(2 ** 63)
         self._origin = (rng.uniform(0.46, 0.54), rng.uniform(0.85, 0.95))
         self._lineage_cache: Dict[tuple, tuple] = {}
+        self._fungal_rasters: Dict[tuple, tuple] = {}
+        self._fungal_observed: Dict[tuple, tuple] = {}
+        self._fungal_raster_failed = False
+        self._owned_fungal_image = None
 
     def _resize(self) -> None:
         """Rebuild paths at the chosen physical branch length."""
         self._lineage_cache.clear()
+        self._fungal_rasters.clear()
+        self._fungal_observed.clear()
 
     def buffer_scale(self, width: int, height: int) -> int:
         """Draw crisp native pixels when the physical screen budget allows."""
@@ -5776,12 +5784,12 @@ class _FungalGrowthEngine(_BufferedEngine):
             budget -= footprint
         return tuple(reversed(selected))
 
-    def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
-        """Trace antialiased partial Béziers and their live growing tips."""
-        painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setBrush(Qt.NoBrush)
+    def _fungal_paths(self, width: int, height: int) -> tuple:
+        """Group the unchanged partial Béziers in their original paint order."""
         colors = self.paint_colors
         paths = {}
+        mature = {}
+        stable_alpha = 0.20 * self._fractional_alpha_scale(90)
         tips = []
         for (x0, y0, cx, cy, x1, y1, progress,
              alpha, stroke, hue) in self.geometry(width, height):
@@ -5794,6 +5802,7 @@ class _FungalGrowthEngine(_BufferedEngine):
                      + 2.0 * (1.0 - progress) * progress * cy
                      + progress ** 2 * y1)
             key = (hue % len(colors), stroke, alpha)
+            mature[key] = mature.get(key, True) and progress == 1.0 and alpha == stable_alpha
             path = paths.get(key)
             if path is None:
                 path = QPainterPath()
@@ -5802,11 +5811,120 @@ class _FungalGrowthEngine(_BufferedEngine):
             path.quadTo(QPointF(control_x, control_y), QPointF(end_x, end_y))
             if progress < 1.0:
                 tips.append((end_x, end_y, stroke, hue, alpha))
+        return paths, mature, tips
+
+    def _can_reuse_fungal_raster(self, painter: QPainter, width: int, height: int) -> bool:
+        """Allow exact sparse additions only within this frame's private native image."""
+        device = painter.device()
+        return (not self._fungal_raster_failed and self.dark and self.size >= 2.0
+                and self.effective_density() <= 1.0
+                and device is self._owned_fungal_image
+                and isinstance(device, QImage) and device.format() == QImage.Format_RGB32
+                and device.width() == width and device.height() == height
+                and painter.worldTransform().isIdentity()
+                and painter.deviceTransform().isIdentity()
+                and painter.opacity() == 1.0 and not painter.hasClipping()
+                and painter.compositionMode() == self.mode)
+
+    def _reuse_fungal_raster(self, key: tuple, path: QPainterPath,
+                            color: QColor, target) -> bool:
+        """Add an owned contribution only when Qt Plus cannot reach saturation."""
+        entry = self._fungal_rasters.get(key)
+        if entry is None or entry[0] != path:
+            return False
+        np = _numpy()
+        indices, source = entry[1], entry[2]
+        destination = target[indices]
+        ceiling = tuple(math.ceil(channel * color.alphaF() * 255.0) + 1
+                        for channel in (color.blueF(), color.greenF(), color.redF()))
+        if not all(np.all(((destination >> shift) & 255) <= 255 - high)
+                   for shift, high in zip((0, 8, 16), ceiling)):
+            return False
+        output = np.full(destination.shape, 0xff000000, dtype=np.uint32)
+        for shift in (0, 8, 16):
+            channel = ((destination >> shift) & 255) + ((source >> shift) & 255)
+            output |= np.minimum(channel, 255) << shift
+        target[indices] = output
+        del self._fungal_rasters[key]
+        self._fungal_rasters[key] = entry
+        return True
+
+    def _observe_fungal_path(self, key: tuple, path: QPainterPath) -> bool:
+        """Require three unchanged observations and retain at most sixty-four paths."""
+        previous = self._fungal_observed.get(key)
+        stable = previous[1] + 1 if previous is not None and previous[0] == path else 1
+        self._fungal_observed[key] = (QPainterPath(path), stable)
+        if len(self._fungal_observed) > 64:
+            del self._fungal_observed[next(iter(self._fungal_observed))]
+        return stable >= 3
+
+    def _warm_fungal_raster(self, key: tuple, path: QPainterPath,
+                           color: QColor, stroke: float, width: int, height: int) -> bool:
+        """Cache exact native Qt pixels as owned sparse arrays within eight MiB."""
+        margin = math.ceil(stroke) + 2
+        region = path.boundingRect().toAlignedRect().adjusted(-margin, -margin, margin, margin)
+        region = region.intersected(QRect(0, 0, width, height))
+        if region.isEmpty():
+            return False
+        stage = QImage(width, height, QImage.Format_RGB32)
+        warm = QPainter(stage)
+        try:
+            warm.setClipRect(region)
+            warm.setCompositionMode(QPainter.CompositionMode_Source)
+            warm.fillRect(region, self.identity)
+            warm.setCompositionMode(self.mode)
+            warm.setRenderHint(QPainter.Antialiasing, True)
+            warm.setBrush(Qt.NoBrush)
+            warm.setPen(QPen(color, stroke, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+            warm.drawPath(path)
+        finally:
+            warm.end()
+        np = _numpy()
+        pixels = np.frombuffer(stage.constBits(), dtype=np.uint32).reshape(height, width)
+        crop = pixels[region.y():region.y() + region.height(),
+                      region.x():region.x() + region.width()]
+        yy, xx = np.nonzero(crop & 0x00ffffff)
+        indices = ((yy + region.y()) * width + xx + region.x()).astype(np.int32)
+        values = (crop[yy, xx] & 0x00ffffff).astype(np.uint32)
+        self._fungal_rasters[key] = (QPainterPath(path), indices, values)
+        while (len(self._fungal_rasters) > 64
+               or sum(v[1].nbytes + v[2].nbytes for v in self._fungal_rasters.values())
+               > 8 * 1024 ** 2):
+            del self._fungal_rasters[next(iter(self._fungal_rasters))]
+        return True
+
+    def _paint_fungal_paths(self, painter: QPainter, paths: dict) -> None:
+        """Draw every original group using its unmodified Qt pen and insertion order."""
+        colors = self.paint_colors
         for (hue, stroke, alpha), path in paths.items():
             color = _with_alpha(colors[hue], alpha)
             painter.setPen(QPen(color, stroke, Qt.SolidLine,
                                 Qt.RoundCap, Qt.RoundJoin))
             painter.drawPath(path)
+
+    def _paint_cached_fungal_paths(self, painter: QPainter, width: int, height: int,
+                                   paths: dict, mature: dict) -> None:
+        """Reuse stable contributions or draw their original Qt groups, in order."""
+        device = painter.device()
+        np = _numpy()
+        target = np.frombuffer(device.bits(), dtype=np.uint32).reshape(height, width).ravel()
+        created = 0
+        colors = self.paint_colors
+        for group, path in paths.items():
+            hue, stroke, alpha = group
+            color = _with_alpha(colors[hue], alpha)
+            painter.setPen(QPen(color, stroke, Qt.SolidLine,
+                                Qt.RoundCap, Qt.RoundJoin))
+            key = (group, color.getRgbF(), width, height)
+            if self._reuse_fungal_raster(key, path, color, target):
+                continue
+            painter.drawPath(path)
+            if (created < 1 and mature[group] and self._observe_fungal_path(key, path)):
+                created += self._warm_fungal_raster(key, path, color, stroke, width, height)
+
+    def _paint_fungal_tips(self, painter: QPainter, tips: list) -> None:
+        """Paint the original live-tip discs after all of their filament groups."""
+        colors = self.paint_colors
         painter.setPen(Qt.NoPen)
         for end_x, end_y, stroke, hue, alpha in tips:
             painter.setBrush(_with_alpha(colors[(hue + 1) % len(colors)],
@@ -5814,6 +5932,31 @@ class _FungalGrowthEngine(_BufferedEngine):
             radius = max(0.45, stroke * 0.8)
             painter.drawEllipse(QPointF(end_x, end_y), radius, radius)
         painter.setBrush(Qt.NoBrush)
+
+    def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+        """Trace the original native filaments, recovering from optional-cache errors."""
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setBrush(Qt.NoBrush)
+        paths, mature, tips = self._fungal_paths(width, height)
+        if self._can_reuse_fungal_raster(painter, width, height):
+            device = painter.device()
+            try:
+                painter.save()
+                try:
+                    self._paint_cached_fungal_paths(painter, width, height, paths, mature)
+                finally:
+                    painter.restore()
+            except Exception:
+                self._fungal_raster_failed = True
+                self._fungal_rasters.clear()
+                self._fungal_observed.clear()
+                painter.setCompositionMode(QPainter.CompositionMode_Source)
+                painter.fillRect(device.rect(), self.identity)
+                painter.setCompositionMode(self.mode)
+                self._paint_fungal_paths(painter, paths)
+        else:
+            self._paint_fungal_paths(painter, paths)
+        self._paint_fungal_tips(painter, tips)
 
 
 class _ThoreEngine(_BufferedEngine):
