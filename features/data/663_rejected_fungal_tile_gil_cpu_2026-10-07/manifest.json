@@ -1,0 +1,47 @@
+{
+  "status": "REJECTED",
+  "production_changes": false,
+  "hard_24fps_acceptance": false,
+  "payloads": {
+    "README.md": {
+      "bytes": 2078,
+      "sha256": "38b6541900ceadaf0e3ddd7664c632624e09833082cbcaba627724ee68ae98dc"
+    },
+    "archive.py": {
+      "bytes": 4481,
+      "sha256": "307b398a51b2319629bcd75885557b04a4efcd7fc617bbc1d626de7eb5e2fe64"
+    },
+    "decision.json": {
+      "bytes": 2474,
+      "sha256": "3d43cb2195e91ade08b6406c3d449ad7515ec7c642d250b7ac312b62458f933a"
+    },
+    "gil_probe.log": {
+      "bytes": 545,
+      "sha256": "3f7ba45a67d045bcbf09f7f7d7ad38d205358c816de8c94f666bf8151f2a2b02"
+    },
+    "gil_probe.py": {
+      "bytes": 2318,
+      "sha256": "0762e1db0e065162055b096bb43503a5e53d891cb535ed586a03c301fe0cb94b"
+    },
+    "gil_receipt.json": {
+      "bytes": 571,
+      "sha256": "807a46b3aa83684a3bfa9b5dbdcdb41ac84956a3d1c3a4a9f93a94fb84ccd4da"
+    },
+    "tile_full_expanded.json": {
+      "bytes": 7875,
+      "sha256": "0d679609317ef458b776c25d2c71c34d8110606656a9869c646328942a164e60"
+    },
+    "tile_full_timing.json": {
+      "bytes": 3567,
+      "sha256": "daf01b476066eea790cbdd00128d91533621be75399b33075acdd24ffcb6f6a9"
+    },
+    "tile_two_gate.json": {
+      "bytes": 1151,
+      "sha256": "ffec5c25f98f44e7892cb63f902088a710936bd86cbde9138c7536914873de17"
+    },
+    "verify_proof.py": {
+      "bytes": 1052,
+      "sha256": "7c2e53287d6c5104dfb743cefa5561abc0b69b47f61665a900bb52696d83ce23"
+    }
+  }
+}

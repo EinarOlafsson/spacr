@@ -1,0 +1,142 @@
+{
+  "source_sha256": "ac146d3c61bb73def9a08857eeb1fca8e7163de30b1b8892ba3720857244ec20",
+  "scope": "balanced full native shader and scratch 2/4 temporary threads; no GUI cadence",
+  "records": [
+    {
+      "background": "#101418",
+      "resolution": 1,
+      "size": 2.5,
+      "density": 3,
+      "effective_density": 3.0,
+      "native_size": [
+        3840,
+        2160
+      ],
+      "seed": 42,
+      "exact_three_way_frames": 24,
+      "shader": {
+        "original": {
+          "samples": 24,
+          "median_ms": 86.54054150247248,
+          "p95_ms": 98.36632299993653,
+          "max_ms": 105.34831399854738
+        },
+        "parallel2": {
+          "samples": 24,
+          "median_ms": 142.89805149746826,
+          "p95_ms": 160.91829299693927,
+          "max_ms": 178.3261970122112
+        },
+        "parallel4": {
+          "samples": 24,
+          "median_ms": 235.904417510028,
+          "p95_ms": 250.6120070029283,
+          "max_ms": 255.2058279979974
+        }
+      },
+      "peak_rss_kib": 939528
+    },
+    {
+      "background": "#101418",
+      "resolution": 2,
+      "size": 2.5,
+      "density": 3,
+      "effective_density": 1.0,
+      "native_size": [
+        3840,
+        2160
+      ],
+      "seed": 42,
+      "exact_three_way_frames": 24,
+      "shader": {
+        "original": {
+          "samples": 24,
+          "median_ms": 59.490534506039694,
+          "p95_ms": 67.68894100969192,
+          "max_ms": 71.06111600296572
+        },
+        "parallel2": {
+          "samples": 24,
+          "median_ms": 98.07910400559194,
+          "p95_ms": 110.14556699956302,
+          "max_ms": 119.53552899649367
+        },
+        "parallel4": {
+          "samples": 24,
+          "median_ms": 162.28154500277014,
+          "p95_ms": 170.8229989890242,
+          "max_ms": 172.33107100764755
+        }
+      },
+      "peak_rss_kib": 939528
+    },
+    {
+      "background": "#f6f7f9",
+      "resolution": 1,
+      "size": 2.5,
+      "density": 3,
+      "effective_density": 3.0,
+      "native_size": [
+        3840,
+        2160
+      ],
+      "seed": 42,
+      "exact_three_way_frames": 24,
+      "shader": {
+        "original": {
+          "samples": 24,
+          "median_ms": 83.35542649729177,
+          "p95_ms": 96.54653200414032,
+          "max_ms": 99.12282600998878
+        },
+        "parallel2": {
+          "samples": 24,
+          "median_ms": 139.9919429968577,
+          "p95_ms": 155.53359600016847,
+          "max_ms": 157.3079600057099
+        },
+        "parallel4": {
+          "samples": 24,
+          "median_ms": 234.015083500708,
+          "p95_ms": 266.13716599240433,
+          "max_ms": 269.926305001718
+        }
+      },
+      "peak_rss_kib": 939528
+    },
+    {
+      "background": "#f6f7f9",
+      "resolution": 2,
+      "size": 2.5,
+      "density": 3,
+      "effective_density": 1.0,
+      "native_size": [
+        3840,
+        2160
+      ],
+      "seed": 42,
+      "exact_three_way_frames": 24,
+      "shader": {
+        "original": {
+          "samples": 24,
+          "median_ms": 57.90490949584637,
+          "p95_ms": 68.5898990050191,
+          "max_ms": 69.12312899657991
+        },
+        "parallel2": {
+          "samples": 24,
+          "median_ms": 96.15493749151938,
+          "p95_ms": 106.55327200947795,
+          "max_ms": 114.70383100095205
+        },
+        "parallel4": {
+          "samples": 24,
+          "median_ms": 164.1084145012428,
+          "p95_ms": 180.13288600195665,
+          "max_ms": 181.08873099845368
+        }
+      },
+      "peak_rss_kib": 939528
+    }
+  ]
+}

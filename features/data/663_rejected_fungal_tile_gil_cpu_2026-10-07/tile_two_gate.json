@@ -1,0 +1,65 @@
+[
+  {
+    "background": "#101418",
+    "seed": 17,
+    "size": 2.5,
+    "clock": 95,
+    "tiles": 2,
+    "changed_pixels": 0,
+    "changed_y_range": null,
+    "changed_near_seam": 0
+  },
+  {
+    "background": "#101418",
+    "seed": 17,
+    "size": 2.5,
+    "clock": 110,
+    "tiles": 2,
+    "changed_pixels": 0,
+    "changed_y_range": null,
+    "changed_near_seam": 0
+  },
+  {
+    "background": "#101418",
+    "seed": 17,
+    "size": 2.5,
+    "clock": 120.01,
+    "tiles": 2,
+    "changed_pixels": 0,
+    "changed_y_range": null,
+    "changed_near_seam": 0
+  },
+  {
+    "background": "#101418",
+    "seed": 17,
+    "size": 2.5,
+    "clock": 30.01,
+    "tiles": 2,
+    "changed_pixels": 0,
+    "changed_y_range": null,
+    "changed_near_seam": 0
+  },
+  {
+    "background": "#101418",
+    "seed": 17,
+    "size": 2.5,
+    "clock": 5,
+    "tiles": 2,
+    "changed_pixels": 0,
+    "changed_y_range": null,
+    "changed_near_seam": 0
+  },
+  {
+    "background": "#101418",
+    "seed": 17,
+    "size": 2.5,
+    "clock": 3600.33,
+    "tiles": 2,
+    "changed_pixels": 6,
+    "changed_y_range": [
+      1080,
+      1082
+    ],
+    "changed_near_seam": 6
+  }
+]

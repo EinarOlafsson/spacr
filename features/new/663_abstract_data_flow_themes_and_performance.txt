@@ -1045,3 +1045,21 @@ Compact immutable source/test/coverage/probe receipts and two lossless stills:
     frozen sources, scripts, original parity/stage/live JSON and logs, source
     and load provenance, plus filesystem/Git blob verification:
     data/663_rejected_fungal_alpha_hoist_cpu_2026-10-07/.
+
+2026-10-07 — native tile/GIL feasibility complete, rejected
+    One bounded installed PySide6 6.11.2/Python 3.12.13 probe observes no
+    Python heartbeat ticks strictly within a 4,523.50 ms native drawPath call;
+    a subsequent 100 ms sleep control permits 76 interior ticks. The heartbeat
+    joins. This is a local binding/GIL fact, not production FPS acceptance or
+    a universal claim about other versions. No application is imported by the
+    probe. Current f36 source still requires an unclipped private owned frame
+    for mature raster reuse, so independent tile painters bypass that cache.
+    Earlier ac146 full-coordinate tile receipts are retained, not rerun:
+    48 expanded exact sequential comparisons, but two-thread medians worsen
+    59.49 to 98.08 ms at detail 2 and 86.54 to 142.90 ms at detail 1. Translated
+    two-tile images differ at six seam pixels. Earlier timing is not claimed
+    for current source. REJECTED; no production, quality or cache-budget change.
+    No new tile/live benchmark is justified. Hard native 24 FPS remains OPEN.
+    Ten hash-bound payloads (~26 KiB), including fresh script/receipt/log and
+    separately labelled historical receipts, with filesystem/Git verifier:
+    data/663_rejected_fungal_tile_gil_cpu_2026-10-07/.
