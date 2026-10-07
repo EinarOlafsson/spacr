@@ -101,6 +101,22 @@ original spelling. No generated catalog, translation policy, or guard
 ceiling changed. The full hosted failure log is archived at
 `/mnt/wd4tb/scratch/ci-224-failures-20261007/112602607297-e1f.log.gz`.
 
+## 2026-10-07 Swedish and French runtime retirement inventory
+
+The same e1f ordinary run's coverage shard 0 failed the Swedish and French
+reviewed-runtime tests (job 112602607360). Each current
+`2026-09-27-runtime-codex-delta.json` has 129 records; the archived
+`2026-10-06-subcell-rybg` version has 131. The test pins removal of only
+the old Cell-DINO tooltip (hash `d25bb244...`) and therefore expects 130.
+The other missing row is the older `timelapse_events` tooltip beginning
+"After the run, detect events on every tracked object" (source hash
+`f7770d466133e7f859c6a59b6865c566414a2190f4e70670291a2b3a0f194478`).
+Its separate "Timelapse events" label remains current. The reviewed-runtime
+owner should verify the intended F567 tooltip replacement, then update the
+historical retirement assertion and normal review evidence; restoring stale
+prose or relaxing the gate would obscure the source change. Full hosted log:
+`/mnt/wd4tb/scratch/ci-224-failures-20261007/112602607360-e1f.log.gz`.
+
 ## 2026-10-07 current app/catalog/native61 publication ready for actual deployment
 Workstation integrates latest Home source with every normal final owner.
 API passes all13,199 symbols across nine languages; current runtime passes
