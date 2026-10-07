@@ -37,6 +37,7 @@ on the way is pinned here.
 """
 from __future__ import annotations
 
+import logging
 import os
 import threading
 import time
@@ -955,7 +956,8 @@ def test_queue_screen_close_stops_the_runner(
 
 
 def test_queue_timeout_detaches_the_runner_and_preserves_safe_cancellation(
-        qtbot, tmp_path, monkeypatch):
+        qtbot, tmp_path, monkeypatch, caplog):
+    """A retained cancellation log cannot retain the runner's traceback."""
     import weakref
 
     from spacr.qt import bridge
@@ -993,10 +995,13 @@ def test_queue_timeout_detaches_the_runner_and_preserves_safe_cancellation(
         assert parked_thread_count() == 1
         assert first.status == Status.RUNNING
     finally:
-        release.set()
-        assert runner.wait(2000)
-        assert prune_parked_threads() == 0
+        with caplog.at_level(logging.INFO, logger='spacr.qt.queue_screen'):
+            release.set()
+            assert runner.wait(2000)
+            assert prune_parked_threads() == 0
     assert called == ['first']
+    assert any(record.name == 'spacr.qt.queue_screen' and
+               'cancelled' in record.getMessage() for record in caplog.records)
     assert first.status == second.status == Status.QUEUED
     assert not first.error and first.end_ts is None
     del runner

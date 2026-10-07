@@ -118,7 +118,7 @@ class _QueueRunner(QThread):
             except PipelineCancelled as e:
                 self._queue.update(item.id, status=Status.QUEUED,
                                       end_ts=None, error="")
-                LOG.info("queue item %s cancelled: %s", item.id, e)
+                LOG.info("queue item %s cancelled: %s", item.id, str(e))
                 emit_safely(self.item_state_changed, item.id)
                 break
             except Exception as e:
