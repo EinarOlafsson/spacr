@@ -1,0 +1,112 @@
+{
+  "artifact_id": 11463164186,
+  "artifact_sha256_reported_by_github": "4acf5af8888d8100a35387a2ac948089209c2014fa1713568c0412ae79f215d5",
+  "classification": "Cancelled at the six-hour protected job limit around 63%, with 27 test failures already recorded; no terminal pytest summary or green serial verdict. Uploaded artifact and log show no native faulthandler traceback. Cancellation does not establish the cause of any individual failure.",
+  "failed_nodes": [
+    "tests/qt/test_600_popup_layout_and_selection.py::test_the_maintainers_button_layout",
+    "tests/qt/test_a_folded_module_stays_in_the_localization_inventory.py::test_no_reviewed_translation_is_bound_to_a_key_that_left_the_inventory",
+    "tests/qt/test_ambient.py::test_a_frame_is_not_just_the_background[data_art_fungal_growth-#101418]",
+    "tests/qt/test_ambient.py::test_a_frame_is_not_just_the_background[data_art_fungal_growth-#f6f7f9]",
+    "tests/qt/test_ambient.py::test_the_frame_changes_between_two_animation_times[data_art_fungal_growth-#101418]",
+    "tests/qt/test_ambient.py::test_the_frame_changes_between_two_animation_times[data_art_fungal_growth-#f6f7f9]",
+    "tests/qt/test_cov_g2_tooltip_policy.py::test_invalidating_forgets_a_hover_whose_object_is_gone",
+    "tests/qt/test_cov_w2_2_app.py::test_a_build_with_no_logging_helper_still_writes_a_crash_dump",
+    "tests/qt/test_cov_wf_qt_crash_recovery.py::test_a_log_folder_that_raises_falls_back_under_the_home_directory",
+    "tests/qt/test_cov_wf_qt_crash_recovery.py::test_a_log_folder_that_answers_with_nothing_falls_back_too",
+    "tests/qt/test_crash_recovery_drops_the_backdrop.py::test_the_marker_folder_falls_back_when_the_log_dir_is_unavailable",
+    "tests/qt/test_data_art_gravity_radius.py::test_density_changes_actual_sample_population[genetic_advection]",
+    "tests/qt/test_distribution_smoke.py::test_source_ui_integration_runs_real_measurement",
+    "tests/qt/test_every_picture_is_drawn_for_the_screen_it_is_on.py::test_every_scaled_site_goes_through_the_helper_or_is_named",
+    "tests/qt/test_every_table_asks_for_the_sorting_contract.py::test_every_view_in_the_source_asks_for_the_sorting_contract",
+    "tests/qt/test_every_table_asks_for_the_sorting_contract.py::test_nothing_builds_a_bare_table_cell_any_more",
+    "tests/qt/test_external_i18n_catalogs.py::test_runtime_source_inventory_is_complete_before_optional_module_imports",
+    "tests/qt/test_external_i18n_catalogs.py::test_runtime_source_inventory_is_stable_after_runctx_import",
+    "tests/qt/test_external_i18n_catalogs.py::test_theme_descriptions_have_source_bound_translations",
+    "tests/qt/test_external_i18n_catalogs.py::test_empty_flowchart_caption_translates_without_changing_python_none",
+    "tests/qt/test_i18n_caption_ratchet.py::test_every_generated_catalog_candidate_has_a_source_hash",
+    "tests/qt/test_i18n_caption_ratchet.py::test_custom_widgets_and_indirect_registries_enter_one_i18n_layer",
+    "tests/qt/test_live_preview_coverage.py::TestWorkerLifecycle::test_the_completion_handler_runs_on_the_gui_thread",
+    "tests/qt/test_live_preview_coverage.py::TestWorkerLifecycle::test_all_worker_handlers_keep_gui_affinity_with_plain_spies",
+    "tests/qt/test_loaded_schema_rules_do_not_overlap_n637.py::test_loaded_schema_rows_have_disjoint_geometry",
+    "tests/qt/test_make_masks_verdicts_folds_and_workers_after_the_window.py::test_an_edit_with_no_field_has_no_ledger",
+    "tests/qt/test_one_backdrop_for_the_window.py::test_the_home_screen_is_not_black_on_a_real_display"
+  ],
+  "fatal_python_log_bytes": 0,
+  "job_completed_at": "2026-10-07T05:43:07Z",
+  "job_conclusion": "cancelled",
+  "job_id": 112556704860,
+  "job_started_at": "2026-10-06T23:42:45Z",
+  "job_status": "completed",
+  "job_timeout_minutes": 360,
+  "last_file_rss_record": {
+    "event": "file_begin",
+    "file": "tests/qt/test_page_is_never_black.py",
+    "first_nodeid": "tests/qt/test_page_is_never_black.py::test_no_theme_resolves_its_page_to_black[dark]",
+    "hwm_bytes": 6356869120,
+    "pid": 4243,
+    "rss_bytes": 6356869120,
+    "threads": 29,
+    "time_ns": 1791348122543584860
+  },
+  "last_recorded_node": "tests/qt/test_page_is_never_black.py::test_the_page_is_the_page_colour[mask-animation=none-1.0]",
+  "payloads": {
+    "fatal-python.log.gz": {
+      "gzip_bytes": 20,
+      "gzip_sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "source_bytes": 0,
+      "source_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "file-rss.jsonl.gz": {
+      "gzip_bytes": 86260,
+      "gzip_sha256": "149c2f01812497ff403ef092a4f1cd39be4f46fa4c4a9c35b33f3904ba382761",
+      "source_bytes": 582419,
+      "source_sha256": "0564653faf56e85ef9cbc9267d7012e528a5a3c092701254eae6562831bbbe34"
+    },
+    "host-memory.log.gz": {
+      "gzip_bytes": 47775,
+      "gzip_sha256": "d5e69b417e1af115939b6179febb7ec9b6c8e65c194d26c568ea0fe2689575fd",
+      "source_bytes": 978999,
+      "source_sha256": "aa8cd1ecf70a247d5957df5a135c066a9ccacefdcb260467b3ef7f371781ad92"
+    },
+    "jobs.json.gz": {
+      "gzip_bytes": 839,
+      "gzip_sha256": "98a6f0dbb8146063581f0f21124b3a516f815e145a0aec8c8cb2b4519c0f8b89",
+      "source_bytes": 3064,
+      "source_sha256": "05beae10a3348870da9d8817ca291ae081efe2a8e00fad31597d185ab6f09e81"
+    },
+    "pytest.log.gz": {
+      "gzip_bytes": 336883,
+      "gzip_sha256": "337fd8830b7604817fd2961bfe2fcb08f27629dc4e697e81139816bf88ea622b",
+      "source_bytes": 2266161,
+      "source_sha256": "78350e01325803ac22e25b1e10d5b1126485ebdc24fa8c035d900feed7475788"
+    },
+    "run.json.gz": {
+      "gzip_bytes": 1554,
+      "gzip_sha256": "8fff589fbc5d1d41777250b77b04da79389bb52f3be9e6358040c6263c6f1ec1",
+      "source_bytes": 12435,
+      "source_sha256": "a4407fe24747131fec8cb5a66808a6ea18aa2d4d42834b805744f93c1fd2c583"
+    },
+    "serial.log.gz": {
+      "gzip_bytes": 550112,
+      "gzip_sha256": "8aca85f4dee3f586313b629f4e85a0d8e1b7a9d8ea3924649022e99f5f1b453b",
+      "source_bytes": 3234617,
+      "source_sha256": "9576ec762aae87186bc1259bcf2f19ceaeeb1e43532a7b55ae48352669b59363"
+    },
+    "source-provenance.json.gz": {
+      "gzip_bytes": 119733,
+      "gzip_sha256": "aca0b21572804935caafdc16c37cf5432b6a804415972047a5ea23d1043f6cd3",
+      "source_bytes": 271153,
+      "source_sha256": "97809d9970ee1d9943814b3511c22ccf31628a7ce2ee0f88dd92139381a3d159"
+    }
+  },
+  "recorded_test_results": {
+    "ERROR": 0,
+    "FAILED": 27,
+    "PASSED": 18891,
+    "SKIPPED": 30
+  },
+  "run_conclusion": "cancelled",
+  "run_id": 37521372347,
+  "run_status": "completed",
+  "source_commit": "45f3cb1ec0ec5df9e10bb6bcf788c5939d2cc1a3"
+}

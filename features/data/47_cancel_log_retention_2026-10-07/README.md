@@ -1,0 +1,5 @@
+# Retained cancellation records, 2026-10-07
+
+Exact parent source `6f4cb32b61f6adccd3647a58ce9ff6b477a23df9`; repair commit `58aa9f7eae`. Reverting only the QueueScreen log argument to the exception makes the direct runner test fail because its retained INFO record keeps the runner traceback alive. Reverting only the analogous bridge argument makes the direct PipelineWorker test fail for the same reason. Both corrected lines preserve the emitted message and release the worker.
+
+The focused two-test branch-coverage run passes and directly executes QueueScreen line 121. The QThread lifetime test passes but does not record its native thread body in coverage, even with coverage's thread option. The original 37-case mixed cohort had one thread-census failure; the corrected bridge source passes the same conda/pytest-cov cohort 37/37. This is a real retention fix, but the intermittent census result alone does not prove a single cause. The archived logs and receipt bind each claim to its source. No threshold or test guard changed.
