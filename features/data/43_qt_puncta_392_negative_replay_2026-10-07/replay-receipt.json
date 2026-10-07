@@ -1,0 +1,34 @@
+{
+  "batch": 59,
+  "cuda_visible_devices": "",
+  "current_relevant_blobs": "test_make_masks_center_pixel_puncta.py, make_masks.py, and tests/conftest.py identical from 392 through 649",
+  "hosted_failure": "SIGSEGV in puncta [True] at qtbot.waitUntil line 55",
+  "hosted_job": 112567504138,
+  "hosted_python": "3.12.14",
+  "hosted_run": 37550980965,
+  "interpretation": "Hosted crash remains genuine and unreproduced locally; no product fix inferred.",
+  "local_cap": "4G",
+  "local_python": "3.12.13 (Anaconda)",
+  "local_results": {
+    "batch58_then_59": [
+      "252 passed",
+      "144 passed"
+    ],
+    "batch59": "144 passed"
+  },
+  "local_workers": 2,
+  "logs": {
+    "exact-batch59.log": {
+      "path": "/mnt/wd4tb/scratch/qt392-puncta-replay/exact-batch59.log",
+      "sha256": "cd784bd8f1ddf458c19d89ea5e336aa7630b004c35f5e87307f7f67652c776df"
+    },
+    "order58-59.log": {
+      "path": "/mnt/wd4tb/scratch/qt392-puncta-replay/order58-59.log",
+      "sha256": "d5178142ee880391e64fb2b65da8a313a0cb0e42e9bbfcd9a567eee9a5142050"
+    }
+  },
+  "qt_runtime": "6.11.2",
+  "schema": "spacr.qt.puncta-hosted-crash-local-replay/v1",
+  "shard": 1,
+  "source_sha": "392ca4d6a2319fd88c2d352b1a0b021682123d6b"
+}

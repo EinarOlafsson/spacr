@@ -1,0 +1,28 @@
+{
+  "hosted_job": 112567504138,
+  "hosted_run": 37550980965,
+  "hosted_source": "392ca4d6a2319fd88c2d352b1a0b021682123d6b",
+  "payloads": {
+    "README.md": {
+      "bytes": 1454,
+      "sha256": "a5c3ab93757e0ce5d9caeb910caf80b16302d440ecb3154c13af87efd16602d7"
+    },
+    "batch59.log.gz": {
+      "bytes": 4543,
+      "sha256": "c8a35e2ef7866a032e4e88f216373ff19f9b1bc68cf083f699cf4ade79db481e"
+    },
+    "batches58-59.log.gz": {
+      "bytes": 12408,
+      "sha256": "7c9ca35b8af4a1021185935afd82808dc7fcfec7d9866ec11ae152cd1a57b87b"
+    },
+    "hosted-112567504138.log.gz": {
+      "bytes": 652414,
+      "sha256": "f57ac6710506ab6a5d22e016183312d907fa20500b6cf0205b1264bcada5f925"
+    },
+    "replay-receipt.json": {
+      "bytes": 1214,
+      "sha256": "f0ad7e2f66dbc8f4386fa138fadb0eba06e3d56376d6e8d33f02c2c877d55003"
+    }
+  },
+  "schema": "spacr.qt.puncta-negative-replay-archive/v1"
+}
