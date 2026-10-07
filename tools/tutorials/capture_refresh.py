@@ -413,6 +413,8 @@ def main() -> int:
         return capture_rect(widget, window)
 
     def capture(name, *, desktop=False):
+        if args.home_preferences_only:
+            exclude_release_history(window)
         hidden_backdrops = exclude_special_backdrops(window)
         if hidden_backdrops:
             settle(.2)

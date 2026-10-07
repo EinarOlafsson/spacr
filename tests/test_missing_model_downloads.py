@@ -157,6 +157,37 @@ def test_classifier_artifact_loader_accepts_remote_key(remote_model, monkeypatch
     assert requests == [entry.uri]
 
 
+@pytest.mark.parametrize("object_type", ["cell", "invalid"])
+def test_missing_real_object_classifier_downloads_then_uses_normal_bundle_validation(
+        remote_model, monkeypatch, object_type):
+    import io
+    import joblib
+    from dataclasses import replace
+    from spacr.object_classifier import _real_classifier_bundles
+
+    entry, _payload, requests = remote_model
+    bundle = {"object_type": object_type, "roles": ["cell"]}
+    buffer = io.BytesIO()
+    joblib.dump(bundle, buffer)
+    payload = buffer.getvalue()
+    entry = replace(entry, kind="classifier", name="real_cells.joblib",
+                    sha256=hashlib.sha256(payload).hexdigest())
+    monkeypatch.setattr(zoo, "catalogue", lambda **_kwargs: [entry])
+
+    def open_bundle(uri, **_kwargs):
+        requests.append(uri)
+        return iter([payload]), len(payload)
+
+    monkeypatch.setattr(zoo, "open_uri", open_bundle)
+    if object_type == "cell":
+        assert _real_classifier_bundles(entry.key) == {"cell": bundle}
+        assert _real_classifier_bundles(entry.key) == {"cell": bundle}
+    else:
+        with pytest.raises(ValueError, match="not a real / not-real classifier"):
+            _real_classifier_bundles(entry.key)
+    assert requests == [entry.uri]
+
+
 def test_cli_lists_models_that_are_not_downloaded(remote_model, capsys):
     from spacr.cli import main
     entry, _payload, requests = remote_model
