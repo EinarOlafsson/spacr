@@ -16640,8 +16640,7 @@ class MakeMasksScreen(QWidget):
                 worker.requestInterruption()
             except (AttributeError, RuntimeError):
                 pass
-            drain_thread(worker, timeout_ms=5000)
-            if worker.isRunning():
+            if not drain_thread(worker, timeout_ms=5000):
                 worker.setParent(None)
         self._loading = False
         super().closeEvent(event)
