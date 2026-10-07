@@ -1424,6 +1424,9 @@ def test_the_gate_reads_the_records_where_the_combine_job_downloads_them():
     upload = next(
         step for step in shards["steps"]
         if step.get("uses") == "actions/upload-artifact@v7"
+        and str(step.get("with", {}).get("name", "")).startswith(
+            "spacr-coverage-data-"
+        )
     )
 
     assert '--shard-integrity "$SPACR_COVERAGE_INPUT"' in gate["run"]

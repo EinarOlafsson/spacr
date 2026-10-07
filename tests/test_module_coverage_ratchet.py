@@ -742,6 +742,9 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     upload = next(
         step for step in shards["steps"]
         if step.get("uses") == "actions/upload-artifact@v7"
+        and str(step.get("with", {}).get("name", "")).startswith(
+            "spacr-coverage-data-"
+        )
     )
     assert "${{ matrix.shard }}" in upload["with"]["name"]
     assert upload["with"]["include-hidden-files"] is True
