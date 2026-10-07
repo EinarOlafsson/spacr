@@ -36,6 +36,29 @@ Home: preserve the combined source freeze. Workstation retains all GPU/API/
 docs/translations/tutorials; Home retains CPU/native/CI. Final source/media
 publication, native theme crash closure and broad completion remain pending.
 
+## 2026-10-06 current hosted CPU repairs and preserved GPU native freeze
+Home integrates the tested event-preview HiDPI, missing-mask edit and actual
+advection-population test repairs; all81 combined checks pass under4GiB.
+Shared FlowLayout now handles QRect's inclusive right edge: exact-fit rows
+stay together, one pixel less still wraps. Both boundary cases fail the old
+method; all190 affected layout/flow checks pass. Make Masks' one-row fixture
+reserves actual preferred width with an additional wider-caption case while
+retaining parent/order/y alignment. Fixed1600px cannot hold all alpha buttons
+for arbitrary fonts; narrow production windows still wrap. Python3.9 lineage
+checks use equivalent zip adjacency; nine cases pass. The preferences proof
+brand spelling and its manifest are regenerated. Exact source/log archive:
+data/43_cpu_replay_repairs_2026-10-06/.
+
+Native IO/object/core hashes in the existing combined freeze remain unchanged:
+leave the workstation's source-pinned acquired GPU comparison undisturbed.
+All API/docs/catalog/tutorial/GPU owners remain with the workstation. This
+CPU checkpoint does not publish its isolated app or its latest-source catalogs;
+normal final integration must retain both sides and refresh changed sources.
+Current224 hosted failures are being archived and classified. Protected b779
+serial timed out after six hours at63percent, peak5933MiB with zero OOM kills;
+this is not full acceptance. Its protected45f successor began automatically
+and remains untouched. No ceilings are increased or hosted failure waived.
+
 ## 2026-10-06 preceding all-nine catalog recovery accepted
 The preceding frozen Root source now passes both unchanged normal all-nine
 runtime and API terminal audits after exactly two source-bound technical

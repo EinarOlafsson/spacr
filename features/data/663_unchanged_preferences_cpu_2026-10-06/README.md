@@ -19,7 +19,7 @@ process. Unchanged apply_ambient_preferences medians 599/587 ms become 0.145/
 step, not the full dialog's Save time, and not a universal timing guarantee.
 
 The final actual MainWindow probe visits Home/Mask/Measure/Annotate and
-performs three modal Saves at 200->100->200%, Random->Spacr->Random and radius
+performs three modal Saves at 200->100->200%, Random->spaCR->Random and radius
 0->65%->0. Checked producer frames retain alpha FF; nine natural GC callbacks
 run on the GUI thread. Deferred close leaves 0 widgets/0 ambient/0 workers.
 Peak 1331836 KiB and retained anonymous 1032636 KiB are not lower-memory claims.

@@ -78,8 +78,9 @@ def _mouse(kind, pos, button, buttons, modifiers=Qt.NoModifier):
 
 # -- Make Masks' navigation row --------------------------------------------
 
+@pytest.mark.parametrize("extra_caption_width", [0, 20])
 def test_the_maintainers_button_layout(qtbot, qt_theme_applied, monkeypatch,
-                                      tmp_path):
+                                      tmp_path, extra_caption_width):
     """The Make Masks button layout the maintainer asked for (2026-09-30).
 
     Bottom row, left: Open folder, Organize for Measure, Load test data,
@@ -87,6 +88,9 @@ def test_the_maintainers_button_layout(qtbot, qt_theme_applied, monkeypatch,
     Bottom row, right, under the console: Clear all objects, Discard, Keep,
     Skip, Blind, ROIs, Upload data -- Keep and Discard no longer on a row of
     their own.
+
+    Reserve the row's actual preferred width, including wider captions:
+    a smaller window deliberately wraps the left-hand navigation strip.
     """
     from spacr.qt import preferences
     from spacr.qt.screens import make_masks as mm
@@ -120,18 +124,24 @@ def test_the_maintainers_button_layout(qtbot, qt_theme_applied, monkeypatch,
     import imageio.v2 as imageio
     import numpy as np
 
+    toolbar = [screen._btn_open, screen._btn_organize,
+               screen._btn_test_data, screen._btn_uncertainty]
+    for button in toolbar + widgets(curate):
+        button.setMinimumWidth(button.sizeHint().width() + extra_caption_width)
     (tmp_path / "masks").mkdir()
     imageio.imwrite(tmp_path / "field.tif", np.zeros((48, 48), np.uint16))
     screen._open_folder(str(tmp_path))
-    screen.resize(1600, 900)
+    margins = screen.layout().contentsMargins()
+    nav = screen._btn_open.parentWidget()
+    one_row_width = nav.sizeHint().width() + margins.left() + margins.right()
+    screen.resize(max(1600, one_row_width), 900)
     screen.show()
     qtbot.waitExposed(screen)
+
 
     def top_left(button):
         return button.mapTo(screen, button.rect().topLeft())
 
-    toolbar = [screen._btn_open, screen._btn_organize,
-               screen._btn_test_data, screen._btn_uncertainty]
     xs = [top_left(button).x() for button in toolbar]
     assert xs == sorted(xs)
     row_y = {top_left(button).y() for button in toolbar + widgets(curate)}

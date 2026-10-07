@@ -2832,3 +2832,20 @@ Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
     lifetime and memory changes pass all 262 affected integrated cases locally.
     No test condition, threshold or ratchet ceiling is lifted. Parent N43/F288/
     N47 remain OPEN pending final-source hosted/coverage/serial acceptance.
+
+2026-10-06 — final hosted replay repairs and exact-fit navigation
+    Hosted224 exposes distinct CPU problems beyond owner catalogs. Event
+    annotation pictures now use the established target-device scaling helper;
+    Make Masks returns before hashing a missing mask while retaining valid
+    pre-ledger manual identity history. Advection density tests count the
+    actual trail population rather than the fixed12trail rows; shape equality
+    and strict increasing density assertions remain. All81 combined cases pass.
+    The shared flow layout now uses QRect's inclusive right boundary correctly:
+    exact-fit captions stay on one row, and one pixel less still wraps. Both
+    new boundary cases fail the original method; all190 affected layout/flow
+    cases pass. The Make Masks one-row test reserves the actual preferred row
+    width, including a wider-caption case; parent/order/alignment assertions
+    remain. Narrow windows deliberately wrap, so fixed1600px cannot promise
+    a single row for every font and all alpha buttons. Python3.9 fungal lineage
+    checks use equivalent zip adjacency instead of unavailable itertools.pairwise.
+    Evidence: data/43_cpu_replay_repairs_2026-10-06/. Parent43/288/47remainOPEN.
