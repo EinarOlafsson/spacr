@@ -27,7 +27,7 @@ def _global_rect(widget):
     return QRect(widget.mapTo(widget.window(), widget.rect().topLeft()), widget.size())
 
 
-def test_loaded_schema_rows_have_disjoint_geometry(qtbot, tmp_path, monkeypatch):
+def test_loaded_schema_rows_have_disjoint_geometry(qtbot, qt_theme_applied, tmp_path, monkeypatch):
     path = tmp_path / 'genotype.json'
     _schema(path)
     monkeypatch.setattr(ui.QFileDialog, 'getOpenFileName', lambda *_a, **_k: (str(path), 'JSON'))

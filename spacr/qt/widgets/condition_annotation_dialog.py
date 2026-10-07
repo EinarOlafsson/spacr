@@ -29,6 +29,7 @@ from PySide6.QtWidgets import (
     QGridLayout,
     QHBoxLayout,
     QLabel,
+    QLayout,
     QLineEdit,
     QListView,
     QListWidget,
@@ -882,6 +883,7 @@ class ConditionAnnotationDialog(QDialog):
         scroll.setWidgetResizable(True)
         boxes_panel = QWidget(self)
         self.box_layout = QVBoxLayout(boxes_panel)
+        self.box_layout.setSizeConstraint(QLayout.SetMinAndMaxSize)
         self.regex_guide = self._build_regex_guide(boxes_panel)
         self.box_layout.addWidget(self.regex_guide)
         self.box_layout.addStretch()
