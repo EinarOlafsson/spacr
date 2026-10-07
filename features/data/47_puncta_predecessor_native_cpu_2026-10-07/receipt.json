@@ -1,0 +1,38 @@
+{
+  "schema": "spacr-bounded-native-predecessor-diagnosis-v1",
+  "date": "2026-10-07",
+  "runtime_worktree": "/mnt/wd4tb/spacr-worktrees/codex-native-qt-crash-20261007",
+  "checkout_head": "b6807d3efa",
+  "base": "b7d085e6ca40f056bd70910057edf453cada7a92",
+  "product_and_test_hashes": {
+    "spacr/qt/screens/make_masks.py": "e2005ac93e9acc79bfe823cf01decdd7d1dfe637339ad50ab9db807037d7fadc",
+    "spacr/qt/widgets/primary_mask_selector.py": "38a79dea542ff89b96264d00878f73349f9b1fc58bfe288ae5579d611ecc481b",
+    "spacr/qt/bridge.py": "8e6b210ff34086fb45ff0d5445af39d14a3ca228bd98de3c899531dd5da9987a",
+    "tests/qt/test_make_masks_loader_shutdown.py": "31295f1e467acd672d979e063e9e667ab04bcc5ea6d0ad4611559f9535157cc9",
+    "tests/qt/test_model_sharing_dialog.py": "552254ec1ff4bb959d92588436bcff49b3e35de1c527d70eb3acf4332cd2b0c7",
+    "tests/qt/test_every_table_asks_for_the_sorting_contract.py": "979316ecf626cab8c44ba5ed44cd2f3583b054ef8538e84e85811021158ec796",
+    "tests/qt/test_make_masks_center_pixel_puncta.py": "1aae3e7bf3626d0f72bdcbda0c66fd06aa6f3a26a13f057e1fc5cd2cbd2835f4"
+  },
+  "mask_selector_bridge_same_as_hosted_bb7": true,
+  "result": "14 passed in26.76s; GDB inferior exitednormally; no nativefault reproduced",
+  "scope": "One condensed serial4file originalgw1 predecessor order underGDB, not originalcomplete xdist worker history",
+  "platform": "Qt/PySide6.11.2, localPython3.12, Linuxoffscreen, CUDAhidden, CPU, cap8G; auto-load/debuginfod off; ownedprocess corelimit0",
+  "hosted": {
+    "run": 37681965976,
+    "job": 113019199463,
+    "source_sha": "bb7f7585cd9fa2a886e4509010b35f258c529f77",
+    "full_log_sha256": "a463bfd3779e91a8e9d342c175dab21730101fd09214711a840c012a55af8a08",
+    "node": "tests/qt/test_make_masks_center_pixel_puncta.py::test_choose_detect_save_and_undo_keeps_parents_and_exports_exact_values[True]",
+    "python_location": "line55 primaryselector snapshot waitUntil\u2192QEventLoop wrapper",
+    "prior_failed_gw1_tests": 0,
+    "native_c_stack_available": false,
+    "subsequent_serial_recovery": "all3puncta nodes pass inhostedrecovery; not a crashwaiver"
+  },
+  "read_only_findings": [
+    "No failed painthelper traceback ongw1 beforefault; cov7 Aurora malformedgeometry exception was absent fromthisworker.",
+    "Preceding injected ownedbranch paintfailure ends painter in finally and checksinactive; no concrete activepaintdevice exposure identified.",
+    "Primaryselector result owns read-only uint16 pixels, token/closedguard, localworker reference survives changed.emit, deletion is deferred; replacement starts onlyafterretirement.",
+    "Shutdown clears activeworker/pending beforedrain and failed-drain detaches nativeparent; latefinished cannot publish into closed selector."
+  ],
+  "conclusion": "No demonstrated app fault or justifiedpatch fromthisnegativebound. Nativepuncta and historicalb688QEventLoop SIGSEGV remainOPEN; actualhostednativeCstack needed. No unchangedrepeat/versionpin/global suppression/GPU/fullsuite."
+}

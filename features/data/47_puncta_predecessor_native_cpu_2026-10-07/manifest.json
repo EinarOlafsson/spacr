@@ -1,0 +1,18 @@
+{
+  "schema": "spacr-evidence-manifest-v1",
+  "payloads": {
+    "README.txt": "6456bb65dd2ddfb19bbbc7758ae0ae6c1592b4081fb358c759d1d9d0081a9bd5",
+    "command.txt": "f349d30e68828e5b97ebc41524bbb80604da0c941af51bed98d2ab20270af39d",
+    "gdb.log.gz": "299dfd10a7b9e3ce3c7c79649630902377faf528651f6316df8f47ca4b44e603",
+    "hosted-puncta-excerpt.log.gz": "1b5c262a827f2ea8f515b394306766f10368035497ebadff79a1a91c8c4e68c2",
+    "receipt.json": "50dca8528da8cf24563b5a264b48e56f9ecf7a3129fcb844512cf362081262db",
+    "spacr__qt__bridge.py.gz": "b37c79cb109dbbea724d26004ace87aeeca17e98bf944c2887bbec0b74b2a341",
+    "spacr__qt__screens__make_masks.py.gz": "c528571efbe61ac81141d2798f2bb5da34af9a386614d72396a41d5547d0eaaa",
+    "spacr__qt__widgets__primary_mask_selector.py.gz": "9b5e85ed75d250ce469de66bd698f280cf8d3e543c89811c295f196e6a46e072",
+    "tests__qt__test_every_table_asks_for_the_sorting_contract.py.gz": "8997b1ed3998cf69d6a114162cf77cdd12154e4c765f3ce23307af6121f8abcf",
+    "tests__qt__test_make_masks_center_pixel_puncta.py.gz": "1241b17ac726ba7d12f24b35bc5b7b4db6d291cd8f1fc9619593fa9316880f04",
+    "tests__qt__test_make_masks_loader_shutdown.py.gz": "2a16dec7317612d6ebfd76f1c6ecd693060186178d455592fbe625514f4236bd",
+    "tests__qt__test_model_sharing_dialog.py.gz": "c71e1352e892cf37f6da537e51a5002aeae1da76910c381dd22d016ed787b77b",
+    "verify_manifest.py": "0a393c8fa333479dd32a659ba54bea25e07623503166c0fb4017119576b3b758"
+  }
+}

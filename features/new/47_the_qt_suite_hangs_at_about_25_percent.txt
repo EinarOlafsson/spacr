@@ -2198,3 +2198,17 @@ Fresh-config cold build1.535→1.187s; exact original32-file Coverage7 collectio
 already loads pandas. Matched bounded two-node coverage calls5.73→5.66s both
 pass, so actual hosted10.58s breach remainsOPEN pending new hosted evidence.
 No threshold/coverage/quality changes or full-serial success are inferred.
+
+2026-10-07 — DISTINCT BB7 PUNCTA NATIVE FAULT, BOUNDED GDB NEGATIVE
+Coverage7 job113019199463 crashed at primary-source snapshot waitUntil55 in
+puncta[True], through the Qt event-loop wrapper. gw1 had no failed tests before
+this fault; the independently fixed Aurora failed-paint helper is not shown to
+cause it. One condensed original predecessor order (loader shutdown, sharing
+form, sorting contract, puncta) passes14 in26.76s under owned-process GDB,
+Qt/PySide6.11.2, cap8G CPU/CUDA-hidden. No identical rerun or source patch.
+Read-only selector/decoder review found no proved late-publication or native
+parent lifetime defect. Evidence/command/frozen7source-test hashes and full
+hosted-log-bound excerpt are in data/47_puncta_predecessor_native_cpu_2026-10-07.
+This is a negative local bound, not complete xdist history or crash acceptance.
+The original hosted puncta SIGSEGV and protected b688 QEventLoop SIGSEGV remain
+OPEN pending an actual fault's native C stack; no skip/pin/global suppression.
