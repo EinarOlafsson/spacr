@@ -301,10 +301,7 @@ def test_the_backdrop_honours_the_ambient_preference(glassed, monkeypatch):
 
 def test_the_backdrop_is_installed_when_it_is_asked_for(glassed,
                                                         monkeypatch):
-    """A MOVING BACKDROP IS OPT-IN NOW. The default is 'off', asked for on
-    2026-08-22 -- what belongs behind a screen of figures is not what
-    belongs behind a form you are reading. Choosing one still works, which
-    is what this checks."""
+    """Choosing a named backdrop still installs movement behind the card."""
     from spacr.qt import preferences
     from spacr.qt.widgets.ambient import AmbientWidget
 
@@ -318,14 +315,15 @@ def test_the_backdrop_is_installed_when_it_is_asked_for(glassed,
         dialog.deleteLater()
 
 
-def test_no_backdrop_is_installed_by_default(glassed):
-    """'off' drops the MOVEMENT and keeps the card and the rim."""
+def test_explicit_off_drops_the_backdrop_but_keeps_the_card_and_rim(glassed):
+    """An explicit saved ``off`` overrides the stratified default."""
     from spacr.qt import preferences
     from spacr.qt.widgets.ambient import AmbientWidget
 
     before = preferences.get_popup_backdrop()
-    preferences.set_popup_backdrop(preferences.DEFAULT_POPUP_BACKDROP)
+    preferences.set_popup_backdrop("off")
     try:
+        assert preferences.get_popup_backdrop() == "off"
         dialog = _popup(glassed)
         try:
             assert not dialog.findChildren(AmbientWidget)
