@@ -10,6 +10,17 @@ No assertion, scientific result, numerical allowance or timeout was relaxed.
 Annotate has 13 independent root changed-case passes; the agent repaired mixed
 cohort passes37/37. Root final mixed integration passes39/39 in31.67s under4GiB, CUDA hidden.
 
+Additional current CPU repairs: reaped primary-selector wrapper shutdown
+has12 focused passes and direct146/30 zero-gap coverage; loaded styled condition
+boxes now honor their minimum height, with16 independent root checks and
+unchanged exact API inventory. All27 historical serial failures are classified:
+21 pass current focused replay,4 have22 passing current fungal replacements,
+1 is repaired geometry and1 is fixed test configuration. Home chroma test now
+pins the same Blobs animation its original25% threshold measured; valid software
+Xvfb and serial offscreen both pass. Application default stays impulse lens.
+Another classifier-test screen903/22 widget leak is repaired to0/0. More small
+fixture-owner repairs are being integrated before final serial dispatch.
+
 Both completed ordinary runs37573419011 (032) and37574709966 (2d4) PASS the
 numerical ratchet:664 modules,12 artifacts, zero regressions, zero unconfirmed
 rises and zero stale entries. Overall ordinary CI is still FAILURE. Actual2d4

@@ -2050,3 +2050,35 @@ destruction; its exact Python thread instance and cause remain unresolved.
     cohort, without count relaxation or forced collection. Agent causal negative
     log tests and root positive integration support the actual log retention
     fixes; intermittent census sole causation and native crash are not claimed.
+
+2026-10-07 — remaining historical serial failures classified and easy repairs
+    Of27 old45f failed IDs,21 pass in a bounded current-source replay; four
+    obsolete fungal cases have22 passing current visible-growth replacements;
+    one is the actual styled condition-row overlap, now repaired; one is a
+    backdrop test assuming the former Blobs default. The popup node expands
+    into two cases, so exact replay is22 passed/2 failed across24 cases.
+    Source-bound classification/logs: data/47_protected_serial_failure_recheck_2026-10-07/.
+    Loaded condition scroll content now honors its layout minimum: previously
+    a280px box compressed to191px and its40px button overlapped the next editor.
+    Existing geometry test now applies the real spaCR theme and retains every
+    assertion. Agent19 cases/root16 related condition cases pass4.37s, new
+    constraint line directly covered, no added branch. Exact API guard also
+    passes20.79s; no public inventory/catalog change.
+    Primary selector now tolerates a natively reaped reader's interruption
+    request and follows the unchanged drain bool contract. Old direct native
+    wrapper test fails, fixed12 cases pass; independent root12 pass7.57s.
+    All5 proof payloads/live bindings verified, exact146/146 statements and
+    30/30 branches directly covered, original0/0 allowance untouched. Proof:
+    data/47_primary_selector_reaped_worker_2026-10-07/. Not a nativeSIGSEGV fix.
+    Another unowned classifier screen left903 widgets/22 top levels into
+    field-fade sentinel. qtbot ownership leaves0/0 without forced collection;
+    full classifier file+sentinel7/7 passes2.01s. Backdrop screenshot threshold
+    was measured for Blobs; new impulse-lens default produces14.6% chromatic
+    under valid100% software-Xvfb marker capture. Pin only test animation to
+    Blobs: original25% threshold passes actual software Xvfb5.18s and serial
+    offscreen5.09s. Application default/serial command/selection unchanged.
+    Proof: data/47_classify_owner_and_backdrop_config_2026-10-07/. Helper-only
+    opaque-window-block control passed and is explicitly not causal evidence.
+    Further standalone comparison/classify/measure fixture ownership changes
+    have37 focused passes; independent combined integration follows. Whole
+    memory/runtime, native crash and final original serial acceptance stay OPEN.
