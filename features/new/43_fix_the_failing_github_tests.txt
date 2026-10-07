@@ -3000,3 +3000,15 @@ Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
     memory-guard failure. Full log and original source/options are archived in
     data/43_qt0_parent_source_sigsegv_2026-10-07/. A later focused mixed cohort
     reproduces a similar local SIGSEGV and is undergoing native-stack diagnosis.
+
+2026-10-07 — actual hosted numerical ratchet success, ordinary CI still red
+    Completed032 run37573419011 and2d4 run37574709966 both pass unchanged
+    numerical gate664 modules/12 artifacts,0 regressions/unconfirmed rises/
+    stale entries. This supersedes local-only numerical acceptance. Source-bound
+    full job logs, digest-verified reports and terminal APIs are archived in
+    data/43_hosted_032_numerical_pass_2026-10-07/ and
+    data/43_hosted_2d4_numerical_pass_2026-10-07/. Root verifies13 and17 payloads.
+    Hosted2d4 compatibility37574709815 and docs37574709706 also succeed.
+    Overall tests remain red: native puncta plus four workstation owner modes
+    and loader-double/queue-retention failures now repaired locally. No native
+    crash or owner review waived; fresh complete-source ordinary run required.

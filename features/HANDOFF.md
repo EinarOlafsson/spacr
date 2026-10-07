@@ -1,6 +1,46 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
-## 2026-10-07 overnight CI: four concrete workstation owner fixes remain
+## 2026-10-07 current CPU integration and completed hosted verdicts
+
+Home has integrated Annotate timeout ownership, successful-loader test doubles,
+and cancellation logging fixes for QueueRunner and PipelineWorker. Retained
+INFO LogRecord.args previously kept cancellation exceptions, tracebacks and
+workers alive; direct old-line negative controls fail and corrected cases pass.
+No assertion, scientific result, numerical allowance or timeout was relaxed.
+Annotate has 13 independent root changed-case passes; the agent repaired mixed
+cohort passes37/37. Root final mixed integration passes39/39 in31.67s under4GiB, CUDA hidden.
+
+Both completed ordinary runs37573419011 (032) and37574709966 (2d4) PASS the
+numerical ratchet:664 modules,12 artifacts, zero regressions, zero unconfirmed
+rises and zero stale entries. Overall ordinary CI is still FAILURE. Actual2d4
+compatibility37574709815 and docs37574709706 are SUCCESS. Durable source-bound
+full verdicts and failed-job logs are in data/43_hosted_032_numerical_pass_2026-10-07/
+and data/43_hosted_2d4_numerical_pass_2026-10-07/.
+
+Workstation must still close four owner failures through normal workflows:
+README checkout measurement2815MB versus stated1710MB; README1757 words versus
+existing1750 limit; visible Divide / Merge description in README-linked
+features.rst; reviewed current timelapse_events tooltip sv/fr plus exact two
+historical retirement entries. Home has not edited these owner artifacts.
+Please prioritize these known blockers before another full hosted cycle.
+
+Protected45f serial37521372347 is TERMINAL CANCELLED at its original360-minute
+limit,63% with27 recorded failures. It did not hit the memory/OOM guard; no
+native traceback was recorded. Remaining37% is unverified. The full raw logs,
+source/environment provenance, failed nodes and memory journal are archived in
+data/47_45f_serial_terminal_2026-10-07/. Final-source original serial acceptance
+is not dispatched yet; current fixes and failure classification must finish.
+
+Installed Shiboken6.11.2 independently reproduces the official upstream weakref
+resurrection defect at releaseWrapper, matching the contextual crash PC. This
+proves an installed binding defect, not which spaCR QThread caused the deferred
+crash. No tagged patched wheel is available. Native puncta, parent-source and
+Preferences Save application causation remain OPEN. Native hard24FPS remains
+OPEN: the latest exact-pixel stroke-cache candidate slows all eligible cases
+and is rejected; original mature cache has zero churn/headroom refusal. Proof:
+data/663_rejected_fungal_stroker_cpu_2026-10-07/. N43/F288/N47/N663 remain OPEN.
+
+## Earlier 2026-10-07 overnight CI handoff (superseded by current section)
 
 Home is continuing CPU/Qt/CI work. An earlier verified published source is
 `b557c46d585d28a97c8e60b0bf2c3e43a0a2040f`; compatibility run

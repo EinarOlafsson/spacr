@@ -5737,3 +5737,11 @@ Protected serial 37503577012 on b779 remains live and untouched.
     cases, with unchanged-source inheritance restricted and documented. Receipt:
     data/43_six_module_coverage_cpu_2026-10-06/. These are local numerical repairs,
     not a new complete hosted gate or serial-suite verdict. Parent remains OPEN.
+
+2026-10-07 — hosted coverage ratchet succeeds, zero-issues parent stays OPEN
+    Actual032 and2d4 completed ordinary aggregates confirm664-module numerical
+    ratchet success with0 regressions,0 unconfirmed rises,0 stale entries and
+    all12 artifacts. Actual2d4 compatibility and docs also succeed. Ordinary
+    tests still fail native Qt and owner README/guide/sv-fr review modes. See
+    item43 exact terminal proofs. No aggregate/shard failure is waived and this
+    is not a whole-CI or uninterrupted-serial success.

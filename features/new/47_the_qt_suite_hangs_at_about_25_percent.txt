@@ -2021,3 +2021,32 @@ destruction; its exact Python thread instance and cause remain unresolved.
     Source-bound proof: data/47_annotate_worker_owner_2026-10-07/.
     Separate Shiboken crash, installed Save and full serial remain OPEN.
 
+
+2026-10-07 — protected original serial terminal timeout and proven log retention
+    Protected45f run37521372347/job112556704860 is cancelled at original360min,
+    63%,27 recorded failed nodes; remaining37% unverified. Original memory guard
+    does not trip, OOM kills0, fatal-Python artifact empty. Full logs, memory,
+    source/environment provenance and failed-node inventory are archived in
+    data/47_45f_serial_terminal_2026-10-07/. This is not green acceptance.
+    QueueRunner and PipelineWorker INFO logs retained cancellation exceptions
+    and worker traceback frames in LogRecord.args. Format each exception to
+    string before logging, preserving cancellation messages/status. Direct
+    old-line controls fail weakref release and fixed cases pass; unchanged
+    scientific/teardown assertions remain. Both direct cases pass fresh branch
+    coverage; mixed agent cohort37/37. The prior mixed thread census is
+    intermittent and is not claimed to have this sole cause. Bridge still924
+    statements/262 branches, changed line directly exercised,0/0 allowance
+    unchanged. Source-bound proof data/47_cancel_log_retention_2026-10-07/.
+    Root independently passes13 changed shutdown cases and verifies17 Annotate
+    proof payloads, strict169/68 union within unchanged219/77. Native binding
+    crash, installed Save and final uninterrupted serial acceptance remain OPEN.
+
+2026-10-07 — independent root final mixed worker integration
+    Final source50004f3d20 passes39/39 in31.67s under4GiB, CUDA hidden/offscreen:
+    full original worker teardown25, Annotate ownership6, loader lifetime4,
+    original loader contracts2 and direct INFO-log release2. Fifteen artificial
+    unwired-signal disconnect warnings remain visible; no assertion suppressed.
+    This also exercises the unchanged census that failed in the earlier mixed
+    cohort, without count relaxation or forced collection. Agent causal negative
+    log tests and root positive integration support the actual log retention
+    fixes; intermittent census sole causation and native crash are not claimed.
