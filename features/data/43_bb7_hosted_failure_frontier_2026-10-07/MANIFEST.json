@@ -95,7 +95,7 @@
     }
   ],
   "snapshot_files": {
-    "README.txt": "dee1696fe587139a16fce95777f73743985eaeb52a4d56a70b309c9950afff7a",
+    "README.txt": "5d6b5908366c97615af055a9e3b4ff419e34113f2e2824eb0958425c3eea8275",
     "failed-node-inventory.json": "884186609e2e424a3e8f6327ccb7ffe86bafa676ee70bfcd08dc32a79e60ee19",
     "jobs-snapshot-before-coverage4.json": "8f6f48f40808bad37f425b46a49c447c41c8e5c9d0f78e70b5aec6a9060ddcda",
     "jobs-snapshot.json": "2b42d7bf7fd2dc19dcf8d814846d91519531595d3a40323dbb15821b7d95ff90",
@@ -116,5 +116,12 @@
     "raw_bytes": 185629,
     "gzip_sha256": "366b7d2af5e6f8b562458be2746c6dc9519e1db9fe0f22589a743ce35518ea83",
     "gzip_bytes": 40711
+  },
+  "before_cancel_archive": {
+    "path": "before-cancel/MANIFEST.json",
+    "sha256": "14339c797a5e26bc2f5205608da3f57fac5125bd20718de0f57edf3715b1b397",
+    "source_sha": "bb7f7585cd9fa2a886e4509010b35f258c529f77",
+    "captured_at": "2026-10-07T22:53:17.486740+00:00",
+    "partial": true
   }
 }

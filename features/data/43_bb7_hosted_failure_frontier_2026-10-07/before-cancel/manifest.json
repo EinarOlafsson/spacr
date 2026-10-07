@@ -1,0 +1,54 @@
+{
+  "captured_at": "2026-10-07T22:53:17.486740+00:00",
+  "source_sha": "bb7f7585cd9fa2a886e4509010b35f258c529f77",
+  "event": "push",
+  "run_id": 37681965976,
+  "logs_are_snapshots_of_possibly_running_jobs": true,
+  "files": [
+    {
+      "path": "113019198929.log",
+      "bytes": 4844937,
+      "sha256": "12631cdedcfac8dd68a30162e02a8b8dd9514d9ecc89026d7e696c26430670d5"
+    },
+    {
+      "path": "113019199268.log",
+      "bytes": 4226334,
+      "sha256": "796263c3ff72435b25a2050b030f33ff4591b461edf52f7a55b79ca16ebe3369"
+    },
+    {
+      "path": "113019199281.log",
+      "bytes": 2113186,
+      "sha256": "b686003e27ae8987fb735d4b6ce98327828cd01f0d64529fe856aec58f1d6888"
+    },
+    {
+      "path": "113019199461.log",
+      "bytes": 4262775,
+      "sha256": "d7d35ba500757951b529cc8b3a994035b3abf8dc2b47c71bff37ed1b69570d99"
+    },
+    {
+      "path": "113019199519.log",
+      "bytes": 7218924,
+      "sha256": "9f5278f9532bd60d20eb60fa52937e16fb4ebb9c704db2ee3f755ba21244f52e"
+    },
+    {
+      "path": "113019199535.log",
+      "bytes": 2112574,
+      "sha256": "8483119bb4c5f39651131b878ca67ca04cdcc4cc9433904c92089aeba5228f8e"
+    },
+    {
+      "path": "113019199602.log",
+      "bytes": 5110691,
+      "sha256": "691bd3560b52ab8fd4778c57a5680bede3752ddd42ec3768cdfb5db5e3a4c7da"
+    },
+    {
+      "path": "113019199668.log",
+      "bytes": 2113573,
+      "sha256": "f96eb3b1c4f7db2c4c989336023ce99686fb8c99449791fe43e7e139ff995447"
+    },
+    {
+      "path": "113019199786.log",
+      "bytes": 2112880,
+      "sha256": "068992edcd4fa23a57d1cbfa3f1588c7af3393a65aa0457da8093316330c7696"
+    }
+  ]
+}
