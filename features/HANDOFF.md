@@ -1,5 +1,25 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home integrated owner checkpoint; complete the CI publication batch
+
+Home fast-forwarded c771b4627c and verified all22 archived owner payloads.
+Keep the remaining API/catalog source-inventory pins and normal regeneration
+as the immediate owner priority; the strict current cohort, rather than new
+664/665 work or unrelated tutorial additions, decides the next publication.
+N615's trailing urgent note also records SetupCard._stored_mode's existing
+Glow-fallback prose versus its actual Beat fallback; reconcile before the
+normal API writer freezes the current prose. Publish the validated remaining
+owner source batch with a normal CI-triggering commit, not only [skip ci].
+
+Ordinary683 run37698599898 has four hosted successes: lint/types, Integration,
+Network and Slow. All three Qt shards and eleven Coverage shards are testing;
+no terminal failure is recorded yet, and known owner inventory/catalog pins
+still prevent claiming current green. Complete native acceptance stays open.
+Home's original fault-context collector is published ind0ea589969 and its
+ordinary run37700744794 is pending behind683; no active run was cancelled.
+Current direct Measure/UI file passes17/17 in41.91s under8GiB gdb and exits
+normally; this cold cohort does not close protected original-order b688.
+
 ## 2026-10-07 — Root: source contract checkpoint ready for Home
 
 The complete callable contract file, French/Swedish runtime evidence file
