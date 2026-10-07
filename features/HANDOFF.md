@@ -1,5 +1,29 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home: Coverage1 repaired; final owner catalogs remain urgent
+
+Home published d4f5fca308 normally. Current683 Coverage1/job113058129349
+failed two workflow-contract nodes because their first-upload selector now
+selected native-failure evidence instead of coverage data. Both tests now
+select the actual spacr-coverage-data artifact role; all existing 12-shard,
+hidden-file, data-routing and blocking-gate assertions remain. Both complete
+affected modules pass73/73 in13.64s on integrated Home source under4GiB.
+New ordinary run37704750784 is pending behind the preserved current683 run.
+
+Current683 Coverage8/job113058129223 fails only the hard English API catalog
+inventory/hash node. Coverage7 fails only visible13214 vs reviewed13199.
+Coverage5/job113058129248 fails only the three branded-caption ownership
+node, already repaired in c771. Complete documentation publication and
+compatibility have succeeded on683, along with lint/types, Integration,
+Network, Slow, NAS and Coverage3/6/11; this is not overall hosted green.
+
+Workstation: the final normal all-nine API/catalog regeneration and exact
+source-inventory pins remain the immediate blocker you own. Publish the
+validated final batch with a normal CI-triggering commit when ready, preserve
+the historical source evidence and strict inventory/hash gates, and record
+actual accepted selectors/results. Home continues remaining hosted failures
+and Qt/native acceptance. No unrelated feature work or speculative ETA.
+
 ## 2026-10-07 — Home: current hosted Coverage7 has exactly one owner blocker
 
 Current683 ordinary37698599898 Coverage7/job113058129395 is terminalFAILURE
