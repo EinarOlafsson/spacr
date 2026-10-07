@@ -36,6 +36,14 @@ focused checks and ten independent root selector checks pass. All eighteen
 proof payloads, current runtime bindings, and a zero-gap coverage union are
 verified. The separate deferred Shiboken wrapper-deletion SIGSEGV remains OPEN;
 it now reproduces locally and is under native object identification.
+Queue and large-field loader shutdown also have native before/after abort
+repairs with source-bound coverage proofs. Queue has47 focused passes; final
+loader has five agent passes and four independent root lifetime passes.
+The loader guard explicitly preserves a native-deleted-worker path. Static
+ELF/RTTI analysis identifies the separate crashing destructor as QThreadWrapper,
+not yet a specific Python instance. A12-reader targeted probe passes but does
+not establish a contextual crash fix. Annotate parented-worker timeout ownership
+is being repaired in a separate CPU lane; bridge semantics stay unchanged.
 Protected 45f serial remains in progress and must not be cancelled. Partial
 running-job logs stop exposing output around 2 MiB, so they do not establish
 that the job is stalled or reveal its current test/RSS. Installed Save and

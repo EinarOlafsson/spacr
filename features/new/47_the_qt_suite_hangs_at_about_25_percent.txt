@@ -1996,3 +1996,11 @@ Compact source-bound evidence: data/47_queue_runner_owner_2026-10-07/.
     coverage stays11/28 within unchanged59/28 allowances. The same bounded
     archive now binds final24cbc534 source; initial logs are superseded.
     The separate small-image Shiboken SIGSEGV and full serial remain OPEN.
+
+2026-10-07 root corrected loader integration: all21 archive payloads and strict
+line/branch map independently verified (11/28 uncovered within original59/28).
+Current full loader-lifetime file passes4 cases10.42s under CUDA-hidden/offscreen
+4GiB, including real five-second native owner deletion and native-deleted wrapper.
+Source24cbc534a78939817fd4913cb258b3abb5a9d4ad166ebf84a6d7e110c4807898.
+The separate deferred crash is now statically identified as QThreadWrapper
+destruction; its exact Python thread instance and cause remain unresolved.
