@@ -43,7 +43,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QComboBox
+from PySide6.QtWidgets import QComboBox, QWidget
 
 from spacr.qt.app import APPS
 from spacr.qt.screens.settings_model import SettingsWidgets
@@ -58,9 +58,11 @@ def _normal(value):
     return str(value).replace(" ", "")
 
 
-def _built(app_key, *, current=None):
+def _built(qtbot, app_key, *, current=None):
     """The panel's widgets plus the spec they were built from."""
-    model = SettingsWidgets(app_key, current=current)
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    model = SettingsWidgets(app_key, parent=owner, current=current)
     model.build_sections()
     return model, convert_settings_dict_for_gui(model._defaults)
 
@@ -75,9 +77,9 @@ def _combo_value(widget):
     return widget.currentText() if data is None else data
 
 
-def _overrides(app_key):
+def _overrides(qtbot, app_key):
     """(key, declared, canned) for every combo the canned table overrides."""
-    model, spec = _built(app_key)
+    model, spec = _built(qtbot, app_key)
     found = []
     for key, widget in model._widgets.items():
         if not isinstance(widget, QComboBox) or key not in model._defaults:
@@ -96,7 +98,7 @@ def _overrides(app_key):
 @pytest.mark.parametrize("app_key", APP_KEYS)
 def test_every_panel_combo_shows_the_module_s_own_default(qtbot, app_key):
     """The whole point of a defaults factory is that it decides."""
-    model, _ = _built(app_key)
+    model, _ = _built(qtbot, app_key)
 
     drift = {
         key: (model._defaults[key], _combo_value(widget))
@@ -119,7 +121,7 @@ def test_the_canned_table_really_does_override_something(qtbot):
     """
     overridden = []
     for app_key in APP_KEYS:
-        _, found = _overrides(app_key)
+        _, found = _overrides(qtbot, app_key)
         overridden.extend((app_key, key) for key, _, _ in found)
     assert overridden, (
         "no module's declared default differs from the shared special_cases "
@@ -138,7 +140,7 @@ def test_the_known_overrides_are_each_named(qtbot, app_key, key):
     """Named individually, so a regression says WHICH module came back."""
     current = ({"number_of_organelles": 1}
                if key == "summarize_organelles_by" else None)
-    model, spec = _built(app_key, current=current)
+    model, spec = _built(qtbot, app_key, current=current)
     assert key in model._widgets, f"{app_key} no longer offers {key}"
 
     declared = model._defaults[key]
@@ -161,7 +163,7 @@ def test_a_restored_default_is_offered_rather_than_substituted(qtbot, app_key):
     index 0 -- a value the module never asked for -- so the default has to be
     IN the list, not merely aimed at.
     """
-    model, _ = _built(app_key)
+    model, _ = _built(qtbot, app_key)
     missing = []
     for key, widget in model._widgets.items():
         if not isinstance(widget, QComboBox) or key not in model._defaults:
@@ -184,7 +186,7 @@ def test_a_spelling_difference_does_not_add_a_duplicate_option(qtbot, app_key):
     Those are one choice, and a correction that could not see that would
     insert a second entry differing only in spaces.
     """
-    model, _ = _built(app_key)
+    model, _ = _built(qtbot, app_key)
     duplicated = {}
     for key, widget in model._widgets.items():
         if not isinstance(widget, QComboBox):
