@@ -1997,6 +1997,7 @@ Compact source-bound evidence: data/47_queue_runner_owner_2026-10-07/.
     archive now binds final24cbc534 source; initial logs are superseded.
     The separate small-image Shiboken SIGSEGV and full serial remain OPEN.
 
+
 2026-10-07 root corrected loader integration: all21 archive payloads and strict
 line/branch map independently verified (11/28 uncovered within original59/28).
 Current full loader-lifetime file passes4 cases10.42s under CUDA-hidden/offscreen
@@ -2004,3 +2005,19 @@ Current full loader-lifetime file passes4 cases10.42s under CUDA-hidden/offscree
 Source24cbc534a78939817fd4913cb258b3abb5a9d4ad166ebf84a6d7e110c4807898.
 The separate deferred crash is now statically identified as QThreadWrapper
 destruction; its exact Python thread instance and cause remain unresolved.
+
+2026-10-07 — Annotate parented worker ownership after the unchanged15s drain
+    Similarity, retrain and suggestion workers now detach from the closing
+    screen only when their existing drain returns false. Normal retirement
+    and native-deleted paths are preserved; page worker and bridge unchanged.
+    Actual retrain QThread plus blocked CPU model double reproduces native
+    screen-destruction SIGABRT before and clean exit after at the full15s
+    deadline, then completes parking cleanup. Twelve focused checks pass for
+    all three worker classes, interruption, late-publication disconnection,
+    normal parent ownership, deleted wrapper and parentless page controls.
+    Strict old-line inheritance discards three obsolete false-target arcs;
+    new target edges and statements are directly covered. Coverage union
+    169/68 stays within original219/77 allowances; no ratchet change.
+    Source-bound proof: data/47_annotate_worker_owner_2026-10-07/.
+    Separate Shiboken crash, installed Save and full serial remain OPEN.
+

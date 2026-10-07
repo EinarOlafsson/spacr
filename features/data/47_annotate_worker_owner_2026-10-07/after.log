@@ -1,0 +1,10 @@
+{"checkpoint": "close_returned", "timeout_ms": 15000, "parent_is_screen": false, "parked_threads": 1, "source_sha256": "b482da8a4e9201c373e0d570975bb8f50701308b4a1a7deff9fa3e4ca54b5644"}
+annotate_deleted_retrain_still_running
+retrain_stopped_cleanly
+A worker thread did not stop within 15000 ms; it is parked rather than terminated so the process is not left with a corrupt heap.
+/mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7673: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_retrain_done of <spacr.qt.screens.annotate.AnnotateScreen(0x5b0aec8ccb20) at 0x7e3bbd3d8500>>) from signal "done(PyObject)".
+  retrain.done.disconnect(self._on_retrain_done)
+/mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7674: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_retrain_failed of <spacr.qt.screens.annotate.AnnotateScreen(0x5b0aec8ccb20) at 0x7e3bbd3d8500>>) from signal "failed(QString)".
+  retrain.failed.disconnect(self._on_retrain_failed)
+/mnt/wd4tb/spacr-worktrees/codex-mask-load-drain-20261007/spacr/qt/screens/annotate.py:7675: RuntimeWarning: libpyside: Failed to disconnect (<bound method AnnotateScreen._on_retrain_finished of <spacr.qt.screens.annotate.AnnotateScreen(0x5b0aec8ccb20) at 0x7e3bbd3d8500>>) from signal "finished()".
+  retrain.finished.disconnect(self._on_retrain_finished)
