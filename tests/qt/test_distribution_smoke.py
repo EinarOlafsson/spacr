@@ -1,7 +1,6 @@
 """Behavioral guards for real installed-application acceptance, not native receipts."""
 import json
 import sqlite3
-from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -171,7 +170,23 @@ def test_source_ui_integration_runs_real_measurement(qapp, qtbot, monkeypatch, t
     try:
         qtbot.waitUntil(lambda: bool(completed), timeout=300000)
         record = json.loads((tmp_path / 'source-unit.json').read_text())
-        assert completed == [0], record
+        layout = record.get('layout', {})
+        failure = {
+            'analysis_status': record.get('analysis_status'),
+            'visual_layout_status': record.get('visual_layout_status'),
+            'status': record.get('status'),
+            'error': record.get('error'),
+            'layout_status': layout.get('status'),
+            'raw_viewport_status': layout.get('raw_viewport_status'),
+            'violations': [
+                {key: control.get(key) for key in (
+                    'pane', 'object_name', 'clipped', 'undersized')}
+                for control in layout.get('violations', [])
+            ][:5],
+            'unreachable': [row.get('before') for row in layout.get('reachability', [])
+                            if not row.get('reachable')][:5],
+        }
+        assert completed == [0], failure
         assert record['module_constructed'] and record['real_run_clicked']
         assert record['run_status'] == ['complete', 1, 0] and record['cells'] > 0
         assert record['worker_finished']

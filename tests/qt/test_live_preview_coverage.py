@@ -21,6 +21,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 import tifffile
+from shiboken6 import getCppPointer
 
 from PySide6.QtCore import QEvent, QPoint, QPointF, QThread, Qt, QMimeData, QUrl
 from PySide6.QtGui import QMouseEvent, QWheelEvent
@@ -107,6 +108,17 @@ def _panel(qtbot):
     # tests/qt/test_live_preview_view_sync.py owns the default itself.
     p._outline_colour.setCurrentText("auto")
     return p
+
+
+def _live_thread_identity() -> dict:
+    """Capture the executing OS and Qt thread while its wrapper is live."""
+    thread = QThread.currentThread()
+    return {
+        "python_ident": threading.get_ident(),
+        "native_id": threading.get_native_id(),
+        "qt_pointer": getCppPointer(thread)[0],
+        "qt_name": thread.objectName(),
+    }
 
 
 def _wait_loaded(qtbot, panel, timeout=5000):
@@ -1658,11 +1670,19 @@ class TestWorkerLifecycle:
         p = _panel(qtbot)
         p.load_image(gray_tif)
         threads = []
+        identities = []
+        gui_identity = _live_thread_identity()
+
+        def observed(_m):
+            """Retain the live thread identity before Qt can delete its wrapper."""
+            threads.append(QThread.currentThread())
+            identities.append(_live_thread_identity())
+
         p.preview_ready.connect(
-            lambda _m: threads.append(QThread.currentThread()))
+            observed)
         p.run_preview()
         qtbot.waitUntil(lambda: len(threads) == 1, timeout=5000)
-        assert threads[0] is p.thread()
+        assert threads[0] is p.thread(), (identities[0], gui_identity)
         assert threads[0] is QThread.currentThread()
 
     def test_all_worker_handlers_keep_gui_affinity_with_plain_spies(
@@ -1681,6 +1701,7 @@ class TestWorkerLifecycle:
         flow = np.full((48, 48, 3), 175, np.uint8)
         cellprob = np.full((48, 48), 0.25, np.float32)
         compute_threads = []
+        compute_identities = []
 
         def segment(req):
             """Return identifiable results from the actual worker thread.
@@ -1689,6 +1710,7 @@ class TestWorkerLifecycle:
             :returns: masks, flow images and probability maps.
             """
             compute_threads.append(QThread.currentThread())
+            compute_identities.append(_live_thread_identity())
             req.provenance = {"identity": "thread-regression"}
             return {"cell": mask}, {"cell": flow}, {"cell": cellprob}
 
@@ -1697,6 +1719,8 @@ class TestWorkerLifecycle:
                     "_on_flows_ready", "_on_cellprob_ready",
                     "_on_worker_finished")
         seen = []
+        identities = []
+        gui_identity = _live_thread_identity()
         for name in handlers:
             handler = getattr(p, name)
 
@@ -1709,6 +1733,7 @@ class TestWorkerLifecycle:
                 :returns: the original handler's return value.
                 """
                 seen.append((_name, QThread.currentThread(), args))
+                identities.append((_name, _live_thread_identity()))
                 return _handler(*args)
 
             monkeypatch.setattr(p, name, spy)
@@ -1732,8 +1757,11 @@ class TestWorkerLifecycle:
         qtbot.waitUntil(lambda: len(seen) == len(handlers), timeout=5000)
         assert compute_threads == [p._worker]
         assert p._worker is not p.thread()
+        assert compute_identities[0]["qt_pointer"] != gui_identity["qt_pointer"]
+        assert compute_identities[0]["native_id"] != gui_identity["native_id"]
         assert [name for name, _thread, _args in seen] == list(handlers)
-        assert all(thread is p.thread() for _name, thread, _args in seen)
+        assert all(thread is p.thread() for _name, thread, _args in seen), (
+            identities, gui_identity)
         assert overlay_threads and all(
             thread is p.thread() for thread in overlay_threads)
         assert all(args[-1] == p._run_token for _name, _thread, args in seen[:-1])
