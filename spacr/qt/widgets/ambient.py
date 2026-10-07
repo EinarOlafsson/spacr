@@ -5009,7 +5009,8 @@ class _DataArtEngine(_BufferedEngine):
             return x, y
         np = _numpy()
         dx, dy, squared, weight = self._pointer_field(x, y, width, height)
-        strength = -0.055 * weight / np.sqrt(squared + 0.013)
+        direction = 1.0 if self.family == "point_atlas" else -1.0
+        strength = direction * 0.055 * weight / np.sqrt(squared + 0.013)
         shorter = max(1, min(width, height))
         return (x + dx * strength * shorter / width,
                 y + dy * strength * shorter / height)
@@ -5204,7 +5205,7 @@ class _DataArtEngine(_BufferedEngine):
             zz = zz.ravel() + jitter[1] / rows
             shorter = max(1, min(width, height))
             reach = 0.055 if self.gravity_radius > 0.0 else 0.0
-            margin_x = 0.047074 + 1.0 / width + reach * shorter / width
+            margin_x = 0.062370 + 1.0 / width + reach * shorter / width
             margin_z = 0.161001 + 1.0 / height + reach * shorter / height
             visible = ((xx >= -margin_x) & (xx <= 1.0 + margin_x)
                        & (zz >= -margin_z) & (zz <= 1.0 + margin_z))
@@ -5214,16 +5215,26 @@ class _DataArtEngine(_BufferedEngine):
                       18.0 * xx + 8.0 * zz + self._anchors[0][0] * math.tau)
             self._material_cache[key] = points
         xx, zz, base_a, base_b, base_c = points
-        phase_a = base_a + self.time * 0.25
-        phase_b = base_b - self.time * 0.17
+        warp_a = base_b - self.time * 0.11
+        warp_b = base_c + self.time * 0.09
+        phase_a = base_a + self.time * 0.25 + 0.32 * np.sin(warp_a)
+        phase_b = base_b - self.time * 0.17 + 0.24 * np.sin(warp_b)
         phase_c = base_c + self.time * 0.12
+        amplitude_a = 0.085 * (0.80 + 0.20 * math.sin(self.time * 0.21))
+        amplitude_b = 0.060 * (0.78 + 0.22 * math.cos(self.time * 0.17))
         sine_b = np.sin(phase_b)
         cosine_c = np.cos(phase_c)
-        crest = (0.085 * np.sin(phase_a) + 0.060 * np.cos(phase_b)
+        crest = (amplitude_a * np.sin(phase_a) + amplitude_b * np.cos(phase_b)
                  + 0.016 * np.sin(phase_c))
         cosine_a = np.cos(phase_a)
-        slope_x = (0.765 * cosine_a + 0.252 * sine_b + 0.288 * cosine_c)
-        slope_z = (0.5185 * cosine_a - 0.738 * sine_b + 0.128 * cosine_c)
+        warp_cosine_a = np.cos(warp_a)
+        warp_cosine_b = np.cos(warp_b)
+        slope_x = (amplitude_a * cosine_a * (9.0 - 1.344 * warp_cosine_a)
+                   - amplitude_b * sine_b * (-4.2 + 4.32 * warp_cosine_b)
+                   + 0.288 * cosine_c)
+        slope_z = (amplitude_a * cosine_a * (6.1 + 3.936 * warp_cosine_a)
+                   - amplitude_b * sine_b * (12.3 + 1.92 * warp_cosine_b)
+                   + 0.128 * cosine_c)
         normal = (0.90 - 0.30 * slope_x - 0.48 * slope_z) / np.sqrt(
             1.0 + slope_x * slope_x + slope_z * slope_z)
         light = np.clip(0.30 + 0.62 * normal, 0.20, 0.95)
@@ -5236,7 +5247,7 @@ class _DataArtEngine(_BufferedEngine):
 
     def _paint_tissue_facets(self, painter: QPainter, width: int,
                              height: int) -> None:
-        """Keep crisp paper relief still until local mouse gravity lifts it."""
+        """Spin crisp cached paper locally while mouse gravity is enabled."""
         key = ("tissue_facets", width, height, self.size, self.density)
         material = self._material_cache.get(key)
         if material is None:
@@ -5309,9 +5320,20 @@ class _DataArtEngine(_BufferedEngine):
                                   tile, extent_x, extent_y))
             material = tuple(cells)
             self._material_cache[key] = material
-        for cx, cy, rx, ry, phase, tile, extent_x, extent_y in material:
+        rotation_key = ("tissue_rotation", width, height, self.size, self.density)
+        rotation = self._material_cache.get(rotation_key)
+        if rotation is None:
+            rotation = (self.time, [0.0] * len(material))
+        previous_time, angles = rotation
+        step = max(0.0, min(MAX_DT * self.speed, self.time - previous_time))
+        active = self.pointer is not None and self.gravity_radius > 0.0
+        if not active or self.time < previous_time:
+            angles[:] = [0.0] * len(material)
+        self._material_cache[rotation_key] = (self.time, angles)
+        for index, cell in enumerate(material):
+            cx, cy, rx, ry, phase, tile, extent_x, extent_y = cell
             dx = dy = 0.0
-            if self.pointer is not None and self.gravity_radius > 0.0:
+            if active:
                 shorter = max(1, min(width, height))
                 distance_x = (cx - self.pointer[0] * width) / shorter
                 distance_y = (cy - self.pointer[1] * height) / shorter
@@ -5321,8 +5343,20 @@ class _DataArtEngine(_BufferedEngine):
                     lift = reach * (0.55 + 0.15 * math.sin(phase))
                     dx = -distance_x * rx * lift
                     dy = -distance_y * ry * lift - ry * 0.28 * reach
-            painter.drawImage(QPointF(cx + dx - extent_x,
-                                      cy + dy - extent_y), tile)
+                    angles[index] = (angles[index] + step * reach
+                                     * (30.0 + 150.0 * self.gravity_radius)) % 360.0
+            if angles[index] == 0.0:
+                painter.drawImage(QPointF(cx + dx - extent_x,
+                                          cy + dy - extent_y), tile)
+            else:
+                painter.save()
+                try:
+                    painter.translate(cx + dx, cy + dy)
+                    painter.rotate(angles[index])
+                    painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+                    painter.drawImage(QPointF(-extent_x, -extent_y), tile)
+                finally:
+                    painter.restore()
 
 
 

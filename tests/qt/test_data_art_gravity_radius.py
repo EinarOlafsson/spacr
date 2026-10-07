@@ -105,7 +105,7 @@ def test_click_wake_has_finite_reach_and_zero_clears_cached_input(
         idle, _coordinates(engine, monkeypatch, width, height)))
 
 
-def test_enabled_paper_lifts_locally_and_returns_to_exact_still_geometry():
+def test_enabled_paper_spins_locally_and_returns_to_exact_still_geometry():
     engine = _engine('tissue_facets')
     baseline = _frame(engine)
     material = next(iter(engine._material_cache.values()))
@@ -114,7 +114,7 @@ def test_enabled_paper_lifts_locally_and_returns_to_exact_still_geometry():
     lifted = _frame(engine)
     assert lifted != baseline
     engine.set_time(123)
-    assert _frame(engine) == lifted
+    assert _frame(engine) != lifted
     assert next(iter(engine._material_cache.values())) is material
     engine.set_gravity_radius(0)
     assert _frame(engine) == baseline
