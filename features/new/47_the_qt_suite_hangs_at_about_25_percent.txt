@@ -1836,3 +1836,18 @@ restarts hosted acceptance through the workflow-file trigger. Item stays OPEN.
     started automatically and is left untouched. Root agents are examining
     bounded timing causes and current224 terminal failures, without running
     the full local suite, increasing limits or cancelling protected serial.
+
+2026-10-06 — bounded style diagnosis and passive cached-widget telemetry
+    Hosted slow files pass locally: field_fade 30 cases in 3.74 seconds and
+    page_is_never_black 115 in 41.14 seconds. A bounded measured benchmark
+    shows changed-style cost scales with Qt widgets, not unrelated Python
+    objects; unchanged saves already skip expensive stylesheet application.
+    This does not prove the cause of hosted multi-minute stalls. Raw profile,
+    benchmark and historical serial evidence are preserved in
+    data/47_qt_style_hotspot_2026-10-07/ (UTC archive date).
+    File-boundary serial records now read only the existing root fixture's
+    cached widget/top-level integer counts. Unknown/invalid values are null;
+    no Qt import/query, event processing, GC or ordering changes. All 16
+    focused journal cases pass, including PySide sentinels and hard exits.
+    This closes a diagnostic child, not memory or full serial acceptance.
+    Protected45f remains untouched; final-source acceptance stays OPEN.

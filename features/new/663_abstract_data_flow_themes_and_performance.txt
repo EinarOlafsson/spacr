@@ -927,3 +927,15 @@ Compact immutable source/test/coverage/probe receipts and two lossless stills:
     with no whole-RSS/crashfix/hard24FPS/aesthetic/platform-wide claim.
     Unmodified rawreceipt, clarifiedreceipt, exactscript/fullog/manifest:
     data/663_fungal_mature_mainwindow_cpu_2026-10-06/.
+
+2026-10-06 — exact mature raster optimization child 100 percent
+    Root integrates renderer b2a19147 and independently verifies all 23
+    native pixel/worker proof payloads. All 49 final cache ownership, branch
+    geometry and phase cases pass. Actual native MainWindow maximum controls
+    exercise real cache hits; three modal Saves preserve owned frame bytes
+    and alpha, all 11 natural GC callbacks run on the GUI thread, and close
+    leaves no widgets or shading workers. The measured speed improvement
+    closes this exact optimization child. It adds about 16 MiB process RSS;
+    it does not accept hard 24 FPS, installed Save crash or all aesthetics.
+    Final root focused log/source hashes:
+    data/43_mature_cache_final_checkpoint_2026-10-06/.

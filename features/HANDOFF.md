@@ -1,5 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 final CPU renderer and passive serial diagnostic freeze
+Home's final renderer is b2a19147. Exact mature-mycelium raster reuse preserves
+native geometry, density, colour, alpha and original Qt drawing order. The
+private sparse cache is bounded to 8 MiB/64 entries; error recovery repaints
+the original frame. Final source-bound 4K pairs improve default 12.929 to
+16.128 FPS and Random 16.539 to 19.564 under recorded load. RSS rises about
+16 MiB: no whole-memory, hard24FPS, crash or aesthetic acceptance is claimed.
+All 49 integrated ownership/geometry/phase checks pass. Actual native maximum
+controls exercise cache hits through three modal Saves and 11 natural GUI
+GC callbacks; prior frames remain independent and close leaves no widgets or
+workers. Both complete proof archives are verified from committed Git blobs:
+data/663_fungal_mature_raster_cpu_2026-10-06/ and
+data/663_fungal_mature_mainwindow_cpu_2026-10-06/.
+
+The serial journal now reads only existing fixture-cached widget/top-level
+integers at file boundaries. No Qt call/import, GC, order or limit changes;
+16 focused cases pass. This enables a future final-source run to measure the
+retained-widget correlation, not to claim a cause now. Final root logs/hashes:
+data/43_mature_cache_final_checkpoint_2026-10-06/. Protected45f is untouched;
+do not dispatch another serial before it finishes and owner source integrates.
+Native IO/object/core, app5fc and Preferences733 are unchanged. Preserve the
+workstation's source-pinned native GPU turn and all live API/runtime/narration
+writers. Its next normal final integration must retain these CPU changes and
+normally account for new private helper documentation without changing live
+writer source. Overall N43/F288/N47, installed crash and hard24FPS stay open.
+
 ## 2026-10-06 easy CPU repairs completed before performance integration
 Event annotation now follows the shared sorting contract and retains stable
 event identity during sorted edit/remove/save. Review caught and reproduced
