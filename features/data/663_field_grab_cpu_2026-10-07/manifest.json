@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "source_commit": "397c8acb5d",
+  "base_commit": "ce58f867e4",
+  "ambient_sha256": "07225441bdce84a1347bdcab2b7c611f1dff108372c25db10edcc36f49c6b452",
+  "payloads": [
+    {
+      "path": "README.txt",
+      "sha256": "cff52a37e553a792c92753866605b4a255068e6ce19ea2d9df98799e266c9992",
+      "bytes": 4553
+    },
+    {
+      "path": "acceptance.json",
+      "sha256": "e9932a46cea97e2c5f357c5a9adc5340afe87851310c8e028da079855c9885e6",
+      "bytes": 2008
+    },
+    {
+      "path": "ambient-after.py.gz",
+      "sha256": "f2022d937c4862e4347aafc33fa3e17bb05247441459a0abbd3819f34b7ad854",
+      "bytes": 103257
+    },
+    {
+      "path": "ambient-before.py.gz",
+      "sha256": "d0c0650702798bee51b09a2315b8fa3b7e219219a8dfd9a153d2872a3279553f",
+      "bytes": 101442
+    },
+    {
+      "path": "coverage.json.gz",
+      "sha256": "8830ac049de3c7ce9e1ef3fbd4ab9ca9d27c92145113346969b2b96cb920e80f",
+      "bytes": 47803
+    },
+    {
+      "path": "field-held-native.png",
+      "sha256": "650e13619682ac0a655508b4bc66fd34c8c932c4e4e493f468ccbfa581ff824f",
+      "bytes": 637354
+    },
+    {
+      "path": "field-idle-native.png",
+      "sha256": "ed7b1b287529494dbce74c814d82c706faf7370c89179e8c92d4100da440884f",
+      "bytes": 578709
+    },
+    {
+      "path": "field-returned-native.png",
+      "sha256": "c2743f20f9aa263fa01477e985319818cda2282ca00cb870543a4ff3972a3970",
+      "bytes": 586527
+    },
+    {
+      "path": "focused-final.log",
+      "sha256": "d5855678c78e06543f505911ff2919a611c77fbc246fb562a154e84fadb315bc",
+      "bytes": 511
+    },
+    {
+      "path": "native.log",
+      "sha256": "f5a829ff3efc867398ee1af372069bad48de9b695759543d26817bcb94336228",
+      "bytes": 3129
+    },
+    {
+      "path": "native_probe.py",
+      "sha256": "d82ce74cb2d08db62560f744c43ee3d5ac2183847c5f8890dfb8ae2260324232",
+      "bytes": 6882
+    },
+    {
+      "path": "native_receipt.json",
+      "sha256": "e9835709c1d5d1dc4419461a5ef0293d76532e8622c3f4b76d99373486dfa03e",
+      "bytes": 2716
+    },
+    {
+      "path": "source-guards-final.log",
+      "sha256": "0141ecf90e1f49d2c211a94c241094ff25510c16e42f2f35cf7cb4ce92721e09",
+      "bytes": 180
+    },
+    {
+      "path": "test_ambient_cache_and_cleanup_refusals.py.gz",
+      "sha256": "cc3f265b8a041a1a0f34e366cc90b5065110e0e4d3c0eae52bab37d11377f0fd",
+      "bytes": 1324
+    },
+    {
+      "path": "test_ambient_gravity_radius_preferences.py.gz",
+      "sha256": "cd66a59c47f840c6e089536d0f6a117415e20b863f667b1bb5de802f88800c62",
+      "bytes": 1100
+    },
+    {
+      "path": "test_data_art_clock_handoff.py.gz",
+      "sha256": "6cb17aa4491c2ab3351b43fc02f806fd78aa87dadc431d200f138ba397b86673",
+      "bytes": 2505
+    },
+    {
+      "path": "test_data_art_crisp_controls.py.gz",
+      "sha256": "dc917447893fec4f7a9408b306e1adc53fb1371846d727adb1c6195726cf1e60",
+      "bytes": 3531
+    },
+    {
+      "path": "test_data_art_filter_boundaries.py.gz",
+      "sha256": "ae06081341dfca16c7a8acc14dd21748c5e375d3ddbd8cfebf965c3de113d1b5",
+      "bytes": 860
+    },
+    {
+      "path": "test_data_art_owned_point_frames.py.gz",
+      "sha256": "4758992818f5955c794be60c532142de7748ac32b72b704849f6c612f8fac7f7",
+      "bytes": 958
+    },
+    {
+      "path": "test_field_grab_physics_and_input.py.gz",
+      "sha256": "8085f7e34f8efb48343f8bb5ebcd0da554bb5fbcb996bf5be6680957c8d3d2f8",
+      "bytes": 3825
+    },
+    {
+      "path": "verify_manifest.py",
+      "sha256": "ea7f1b79d53a7da0599bda6765a59fc845d2b6712631811c5ec5416bd695f796",
+      "bytes": 1069
+    }
+  ]
+}

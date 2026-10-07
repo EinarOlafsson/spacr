@@ -1165,3 +1165,25 @@ Density3/Size3/Detail2 medians226.18/248.70ms before vs225.56/218.05ms after.
 This is a modest speed improvement, not hard24FPS acceptance. Older66/89ms
 measurements used the old combined-work-density helper and cannot accept
 current maximum controls. Installed Save crash remains a separateOPEN scope.
+
+2026-10-07 — explicit field hold-drag and spring return, CPU implementation
+    Source397c8acb5d (parentce58f867e4, ambient07225441) adds a bounded local
+    material handle on background left hold-drag; release retains velocity
+    and returns through an analytic critically damped spring without reseeding.
+    Maximum18% shorter-edge displacement and compact34% reach; hover gravity
+    remains independent, including zero. Actual hit-widget exclusion protects
+    ignored scientific canvas events that propagate to their screen. Controls
+    keep their events; real MaskCanvas box gesture passes. Custom Screen host,
+    DPR1/2, lost buttons, leave/outside release, resize, deactivation, busy
+    worker, hide/restart and theme change are verified. 93 affected cases pass
+    20.43s; all62 new-helper statements/branch destinations covered. Separate
+    callable/nested-doc guards90pass25.29s. Cohorts overlap; no unique sum.
+    Eight default/Random/custom/dark/light complete native4K idle pairs keep
+    exact old pixels and grain controls. Held patch changes375871pixels;
+    same-clock release and returned seeded material are exact, owned/alphaFF.
+    Actual native-size Random widget input0.394ms, cold show67.44ms, heartbeat
+    p95/max14.84/24.11ms; close retires worker, peakRSS387272KiB under4GiB.
+    This is offscreen CPU/fallback-scatter input and lifetime proof, not hard
+    24FPS, native Save SIGSEGV, GPU or human aesthetic acceptance; those remain
+    OPEN. Frozen source/tests/coverage/logs/repro/three actual native stills
+    and filesystem/Git hash verifier: data/663_field_grab_cpu_2026-10-07/.

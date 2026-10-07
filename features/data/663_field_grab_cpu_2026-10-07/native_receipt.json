@@ -1,0 +1,92 @@
+{
+  "base_commit": "ce58f867e4",
+  "source_before_sha256": "95d55c192d6d7bde70fa671666d3a2138fe30e5cb7e9bb0805c526c85b57f0e2",
+  "source_after_sha256": "07225441bdce84a1347bdcab2b7c611f1dff108372c25db10edcc36f49c6b452",
+  "import_path": "/mnt/wd4tb/spacr-worktrees/codex-field-grab-20261007/spacr/qt/widgets/ambient.py",
+  "parity_pairs": [
+    {
+      "background": "#101418",
+      "palette": "spacr",
+      "density": 1,
+      "sha256": "ab8e8eb6286430403e52f850d3fc2feb9428bc4111c7bfbe9be01ccc769dcad5",
+      "exact": true
+    },
+    {
+      "background": "#101418",
+      "palette": "random",
+      "density": 1,
+      "sha256": "7e54b0f69260a6ced4fd5d983377552453f5ab094d492c3c7dee1ec7139fc773",
+      "exact": true
+    },
+    {
+      "background": "#101418",
+      "palette": "custom",
+      "density": 1,
+      "sha256": "e0a1cc96996a57bbbdfabed12391f6761bbbaf6b0b3a006781fdc23eca95f84e",
+      "exact": true
+    },
+    {
+      "background": "#101418",
+      "palette": "random",
+      "density": 3,
+      "sha256": "a7a61730884678c260114b9231f47a007eb813e9710aecbd144dc790b8f21805",
+      "exact": true
+    },
+    {
+      "background": "#f4f4f0",
+      "palette": "spacr",
+      "density": 1,
+      "sha256": "c148ef919f6f196793fd4d760c7b98cdbcb857225c21757a99c6dba219aacb7a",
+      "exact": true
+    },
+    {
+      "background": "#f4f4f0",
+      "palette": "random",
+      "density": 1,
+      "sha256": "931bb1ca3223cb53dbf43bbd2c9c768b26f5a6098e5d3fc7b25e9630e815de04",
+      "exact": true
+    },
+    {
+      "background": "#f4f4f0",
+      "palette": "custom",
+      "density": 1,
+      "sha256": "bdb6f7d46882618398f70d8014d9721ee10f6f2bfe98705f81a34671ba7d495c",
+      "exact": true
+    },
+    {
+      "background": "#f4f4f0",
+      "palette": "random",
+      "density": 3,
+      "sha256": "865068ec3e2c65e5320f1663fc652d657f22e8f7381321315d87c8b9a2438600",
+      "exact": true
+    }
+  ],
+  "native_size": [
+    3840,
+    2160
+  ],
+  "held_changed_pixels_same_clock": 375871,
+  "release_same_clock_exact": true,
+  "return_same_clock_exact": true,
+  "retained_frame_owned_alpha_ff": true,
+  "actual_widget": {
+    "palette": "random",
+    "density": 1,
+    "resolution": 2,
+    "hover_gravity": 0,
+    "requested_fps": 24,
+    "cold_show_ms": 67.43572998675518,
+    "press_move_delivery_ms": 0.3939010202884674,
+    "held_offset": [
+      0.13464446455117793,
+      0.04488148818372596
+    ],
+    "heartbeat_count": 469,
+    "heartbeat_p95_ms": 14.838909258833153,
+    "heartbeat_max_ms": 24.110464000841603,
+    "completed_frames": 113,
+    "worker_retired": true
+  },
+  "max_rss_kib": 387272,
+  "limits": "Offscreen CPU fallback point scatter, no native-display/GPU/aesthetic or 24 FPS acceptance."
+}
