@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "payloads": {
+    "README.md": {
+      "bytes": 2449,
+      "sha256": "6cbe130ed778dd336aa62715f47071b6780656efb314e6d83f6bfce48df39eb1"
+    },
+    "focused-tests.log": {
+      "bytes": 353,
+      "sha256": "97d42b77d240b16253eda234c60ea64a0bdbedf33ebb0f9e1a4fc0dac4be3231"
+    },
+    "focused_timelapse.json": {
+      "bytes": 125477,
+      "sha256": "6579df72d4312e9fbc7ae720b2d287f370f0d68a9144d5f2ccc69ecc1332bc39"
+    },
+    "hosted_timelapse.json": {
+      "bytes": 125477,
+      "sha256": "5b6871e071fcc808c1096492b35ee7b6d847d103e0a9ded91af4295625127cd9"
+    },
+    "receipt.json": {
+      "bytes": 4199,
+      "sha256": "963452ebe1dd58783a00bffc601a9d46d234ff5734c072c31aa277c206b29099"
+    },
+    "test_timelapse_video_feature_boundaries_cpu.py": {
+      "bytes": 10647,
+      "sha256": "c1ec694a152740bae4c66815273de2bd98004cac4be8a2c669a0ecac70717907"
+    },
+    "verify_union.py": {
+      "bytes": 2703,
+      "sha256": "cf445b496add585a36c4d9e7f29da08127be444f641ec3386601de3496cc60bf"
+    }
+  }
+}

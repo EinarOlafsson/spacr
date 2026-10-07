@@ -2950,3 +2950,22 @@ Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
     which accepted tutorial footage does not replace. Documentation owner must
     add accurate behavior through its normal workflow; guard remains. Current
     final hosted tests still await queue/execution, no green parent claim.
+
+2026-10-07 — seventh numerical regression closed with exact CPU boundary tests
+    Current timelapse source is byte-identical to complete hosted e1f source
+    (SHA256954c51e8f5903705204d25ccc258070607c488fa4cd30758f4ad041ddf374cc4).
+    Add21 meaningful CPU cases for fusion-vector validation, crop/cache identity,
+    empty clips, fit/persistence routing, every saved pretrained provenance
+    component, checkpoint/channel selection and stored-versus-explicit overrides.
+    The real small CPU fusion head and deterministic encoder/training/scoring
+    doubles preserve model ownership and refusal checks; no GPU acceptance claim.
+    Together with30 existing event-backend/provenance cases, final51 pass11.80s
+    under4GiB. All21 hosted missing statements and17/18 branch destinations are
+    covered. Identical4535-statement/1616-destination universes permit strict
+    unchanged-source union:0 missing statements/1 destination, inside unchanged
+    original1/1 allowance. The remaining nonempty-worker false branch is retained
+    within allowance; no source/exclusion/ceiling or impossible-input waiver.
+    Compact reports, raw log, test/source bindings and portable strict verifier:
+    data/43_timelapse_video_boundaries_cpu_2026-10-07/. This is local focused
+    repair evidence, not a fresh hosted/full serial success or pretrained model
+    evaluation. Previous six module receipts are not rerun or recounted.

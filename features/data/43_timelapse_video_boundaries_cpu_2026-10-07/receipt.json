@@ -1,0 +1,156 @@
+{
+  "schema": 1,
+  "date": "2026-10-07",
+  "scope": "CPU tests only; no application changes",
+  "module": "spacr/timelapse.py",
+  "source_sha256": "954c51e8f5903705204d25ccc258070607c488fa4cd30758f4ad041ddf374cc4",
+  "hosted_commit": "e1f54c80650f60942ba6c98d4e999b36a3fa2846",
+  "parent_commit": "b557c46d585d28a97c8e60b0bf2c3e43a0a2040f",
+  "hosted_full_report_sha256": "3ac8a0565f91df8c193b1027ca50fb606a941022632bccce54aac4c76240e2eb",
+  "focused_full_report_sha256": "2c9208a4f3a85265f90a75747d5056a25f2eeffd1059d87d3f60d2f880a3cf63",
+  "coverage_versions": {
+    "hosted": "7.16.2",
+    "focused": "7.15.4"
+  },
+  "possible_statements": 4535,
+  "possible_branch_destinations": 1616,
+  "old_missing_statements": [
+    1965,
+    2287,
+    2310,
+    2337,
+    2346,
+    2347,
+    2353,
+    2356,
+    2373,
+    2374,
+    2375,
+    2376,
+    2378,
+    2379,
+    2596,
+    2599,
+    2600,
+    2601,
+    2646,
+    2648,
+    2649
+  ],
+  "old_missing_branches": [
+    [
+      1964,
+      1965
+    ],
+    [
+      2286,
+      2287
+    ],
+    [
+      2308,
+      2310
+    ],
+    [
+      2336,
+      2337
+    ],
+    [
+      2345,
+      2346
+    ],
+    [
+      2352,
+      2353
+    ],
+    [
+      2372,
+      2373
+    ],
+    [
+      2376,
+      2378
+    ],
+    [
+      2376,
+      2380
+    ],
+    [
+      2378,
+      2376
+    ],
+    [
+      2378,
+      2379
+    ],
+    [
+      2595,
+      2596
+    ],
+    [
+      2598,
+      2599
+    ],
+    [
+      2599,
+      2600
+    ],
+    [
+      2599,
+      2601
+    ],
+    [
+      2645,
+      2646
+    ],
+    [
+      2647,
+      2648
+    ],
+    [
+      9323,
+      9328
+    ]
+  ],
+  "union_missing_statements": [],
+  "union_missing_branches": [
+    [
+      9323,
+      9328
+    ]
+  ],
+  "baseline_sha256": "7d4f27acf453f79006b7acd809a592fccec8267b9fe4142635873bca142ddf0a",
+  "unchanged_allowance": {
+    "uncovered_statements": 1,
+    "uncovered_branches": 1
+  },
+  "phase": {
+    "cases": 51,
+    "new_cases": 21,
+    "existing_cases": 30,
+    "seconds": 11.8,
+    "overlap": "Single final run; earlier 50-case intermediate run is superseded, not added."
+  },
+  "tests": {
+    "tests/test_timelapse_video_feature_boundaries_cpu.py": "c1ec694a152740bae4c66815273de2bd98004cac4be8a2c669a0ecac70717907",
+    "tests/test_event_video_backend.py": "5270b317cc7e26bca4132c61aecc9a8657c4f6441496a4dd8b163829b5de5285",
+    "tests/test_timelapse_event_annotation_provenance.py": "fc4a8590ae1d5877f124749c2397c6a7bb43123b4d9d841b25751cb5232944df"
+  },
+  "named_new_tests": [
+    "test_cpu_fusion_head_refuses_missing_or_misaligned_video_vectors",
+    "test_clip_cache_requires_images_and_revalidates_cached_checkpoint",
+    "test_empty_clip_request_keeps_verified_width_without_encoding",
+    "test_video_fit_refuses_a_field_without_crops_before_training",
+    "test_video_fit_routes_owned_vectors_and_persists_explicit_configuration",
+    "test_saved_video_detector_checks_every_provenance_component_before_scores",
+    "test_video_selection_requires_both_checkpoint_and_channel_map",
+    "test_unknown_event_encoder_is_refused_before_reading_tracks",
+    "test_saved_model_loading_refuses_wrong_head_and_reuses_declared_cpu_encoder"
+  ],
+  "command": "env CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q -p no:randomly --cov=spacr.timelapse --cov-branch --cov-report=json:<scratch>/coverage.json tests/test_timelapse_video_feature_boundaries_cpu.py tests/test_event_video_backend.py tests/test_timelapse_event_annotation_provenance.py",
+  "limits": [
+    "Real event-head PyTorch CPU forward plus deterministic pretrained-encoder/training/scoring doubles; no downloaded model, real pretrained inference, GPU or scientific model acceptance.",
+    "Whole-suite coverage is an exact unchanged-source union with the hosted report, not a new hosted or full-suite run.",
+    "Remaining false branch of the already nonempty multiprocessing-worker guard is left inside its original allowance; no impossible worker structure is fabricated.",
+    "Previous six module receipts belong to the parent integration archive and are not rerun or duplicated here."
+  ]
+}
