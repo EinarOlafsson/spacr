@@ -1,0 +1,79 @@
+{
+  "source_sha256": "a3d1fed1d18b323fec6859e6ea72bad4ce273c8b60e8e87823ed751d7965eaff",
+  "elapsed_seconds": 0.8915708770218771,
+  "process_cpu_seconds": 1.838048772,
+  "threads": [
+    {
+      "tid": 3039196,
+      "name": "python",
+      "cpu_seconds": 0.57,
+      "role": "producer"
+    },
+    {
+      "tid": 3039192,
+      "name": "Thread (pooled)",
+      "cpu_seconds": 0.17,
+      "role": "other"
+    },
+    {
+      "tid": 3039193,
+      "name": "Thread (pooled)",
+      "cpu_seconds": 0.17,
+      "role": "other"
+    },
+    {
+      "tid": 3039198,
+      "name": "Thread (pooled)",
+      "cpu_seconds": 0.17,
+      "role": "other"
+    },
+    {
+      "tid": 3039199,
+      "name": "Thread (pooled)",
+      "cpu_seconds": 0.17,
+      "role": "other"
+    },
+    {
+      "tid": 3039194,
+      "name": "Thread (pooled)",
+      "cpu_seconds": 0.16,
+      "role": "other"
+    },
+    {
+      "tid": 3039197,
+      "name": "Thread (pooled)",
+      "cpu_seconds": 0.16,
+      "role": "other"
+    },
+    {
+      "tid": 3039200,
+      "name": "Thread (pooled)",
+      "cpu_seconds": 0.16,
+      "role": "other"
+    },
+    {
+      "tid": 3039201,
+      "name": "Thread (pooled)",
+      "cpu_seconds": 0.16,
+      "role": "other"
+    },
+    {
+      "tid": 3039189,
+      "name": "python",
+      "cpu_seconds": 0.14,
+      "role": "gui"
+    },
+    {
+      "tid": 3039190,
+      "name": "QDBusConnection",
+      "cpu_seconds": 0.0,
+      "role": "other"
+    }
+  ],
+  "own_cgroup_cpu": {
+    "cpu.stat": "usage_usec 3735362\nuser_usec 2906241\nsystem_usec 829121\nnice_usec 0\ncore_sched.force_idle_usec 0\n"
+  },
+  "worker_retired": true,
+  "widgets_after_delete": 0,
+  "scope": "900ms own-process accounting only, native3840x2160 Density3/Detail2/Radius.5; not a native cadence/performance candidate."
+}

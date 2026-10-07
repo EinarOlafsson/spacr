@@ -1247,3 +1247,19 @@ the safe optimization, not hard24FPS/Save-crash/aesthetic acceptance.
     Compacthashbound proof: data/663_spinn_owned_rest_cpu_2026-10-07/.
     Root integrationd6cbd/source8aae separatelypasses83cases12.83s; rawlog
     and exactdispatcherASTbinding archived. Cohorts overlap; do notsum86+83.
+
+2026-10-07 — native spinn GUI/producer gap investigated, no product change
+    Same254renderer/a3d1fed1 source: actualnative4K Density3/Detail2 normal
+    shaderwallmedians86.84/77.05ms vsproducerthreadCPU43.17/38.81ms.
+    Scratch-only no-GUI-blit diagnostic gives69.00ms/14.60producerFPS vs
+    normal13.37/12.49; it is NOT displayed-frame acceptance or a shippable fix.
+    Producer pacing already subtracts shade time. One900ms own-process probe
+    shows1.838processCPU seconds over0.892elapsed; eightThread(pooled) workers
+    accrue≈.16–.17CPU each. ThreadCPU excludes helpers, so the large wall-minus-
+    threadCPU gap cannot all be called GIL waiting. Sequential10ms-tick readings
+    are approximate, not an exact simultaneous sum; native stacks not captured.
+    Bothprobes keepnativecounts/ticks, retireambientproducer/reach0widgets.
+    No source/globalQtpool/quality change justified; hardnative24FPS remains
+    OPEN. Separatecompact source/scripts/receipts/rawlogs/hashverifier: data/
+    663_spinn_gui_worker_diagnostic_cpu_2026-10-07/. Avoid repeating unchanged
+    no-blit/pool experiments without a new causal lead.
