@@ -7,8 +7,7 @@
     "OMP_NUM_THREADS": "1",
     "OPENBLAS_NUM_THREADS": "1",
     "QT_QPA_PLATFORM": "offscreen",
-    "SPACR_TEST_MEMORY_GB": "6",
-    "cgroup_hard_limit_GiB": 8
+    "SPACR_TEST_MEMORY_GB": "6"
   },
   "files": [
     {
@@ -28,6 +27,7 @@
     }
   ],
   "focused_followup": {
+    "cgroup_hard_limit_GiB": 4,
     "coverage": "full package branch instrumentation",
     "duration_seconds": 37.05,
     "failed": 0,
@@ -36,12 +36,13 @@
     "scope": "full tests/qt/test_ambient_motion.py plus the sparse-default and theme-default tests in tests/qt/test_ambient.py"
   },
   "initial_cohort": {
+    "cgroup_hard_limit_GiB": 8,
     "cause": "obsolete expected AmbientDensity slider value 100; intentional default 0.1 maps to 10",
     "distinct_files": 25,
     "duration_seconds": 205.87,
     "failed": 1,
     "failing_node": "tests/qt/test_ambient_motion.py::test_the_dialog_offers_the_controls_and_saves_them",
-    "flags": [
+    "operator_reported_flags_not_captured_in_raw_log": [
       "-q",
       "-p no:randomly",
       "-n 2",
@@ -59,13 +60,15 @@
     "selectors": 26
   },
   "initial_source_commit": "04968c06fed9d61ab0e95d0e5d5a8ac16142549d",
-  "python": "3.12.4",
+  "executable": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+  "executable_evidence": "The initial pytest failure header in pytest.log.gz records Python 3.12.13 and this absolute executable. The logs do not capture the complete shell argv or package versions; reported flags are operator notes, not independently archived argv.",
+  "python": "3.12.13",
   "test_fix_commit": "6d09e0cb94f37b923dded4372feeb56d81ea431a",
-  "versions": {
-    "PySide6": "6.10.0",
+  "versions_sampled_after_run_from_recorded_executable": {
+    "PySide6": "6.11.2",
     "cellpose": "4.2.1.1",
-    "numpy": "1.26.4",
-    "pytest": "8.4.2",
+    "numpy": "2.5.2",
+    "pytest": "9.1.1",
     "pytest-cov": "7.1.0",
     "pytest-qt": "4.5.0",
     "pytest-xdist": "3.8.0"
