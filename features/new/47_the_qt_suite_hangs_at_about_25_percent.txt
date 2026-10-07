@@ -1,6 +1,6 @@
-================================================================================
+
 THE FULL tests/qt RUN HANGS PART-WAY THROUGH
-================================================================================
+
 
 Status:    OPEN 2026-10-02 — the whole-suite serial Qt run stops at the 10.8
            GiB memory guard (about 71%); the growth has to be found and one
@@ -1959,6 +1959,7 @@ selector file passes 10 checks in 7.39s with CUDA hidden/offscreen under 4 GiB.
 This closes the distinct parked-reader parent SIGABRT only. The reproduced
 Shiboken deferred-wrapper-deletion SIGSEGV and full serial acceptance stay OPEN.
 
+
 2026-10-07 queue runner ownership repair: a blocked real queue pipeline survives
 the existing 5000 ms close drain only if detached from its native screen owner.
 Controlled before owner deletion SIGABRT -6 becomes clean exit0; safe cancellation
@@ -1968,3 +1969,19 @@ runner handling. Both new guard branches are directly covered; strict inherited
 hosted source union has0 statement/0 branch gaps without a changed allowance.
 Independent review accepted this distinct fix; no full-suite/crash-parent closure.
 Compact source-bound evidence: data/47_queue_runner_owner_2026-10-07/.
+
+2026-10-07 — large-field loader native owner after shutdown timeout
+    Independently reproduced a second timed-out parented-QThread SIGABRT:
+    the real _MaskLoadWorker outlasted the unchanged five-second drain, was
+    Python-parked, and was still native-owned by the destroyed editor screen.
+    MakeMasksScreen.closeEvent now detaches only an actually running loader
+    after the drain. Before native screen destruction exits -6, after exits0;
+    the detached reader then finishes, parked ownership drops and it is deleted.
+    Four focused cases pass, preserving stopped ownership, queued-load discard,
+    no late publication and existing large-decode responsiveness. Both inserted
+    guard paths execute; strict source-line coverage union retains11/28 gaps
+    within unchanged59/28 allowances. No new callable, user string or docstring.
+    Source-bound proof: data/47_mask_field_loader_owner_2026-10-07/.
+    This is distinct from the small-image Shiboken deferred-deletion SIGSEGV,
+    which remains OPEN along with installed Save and full serial acceptance.
+

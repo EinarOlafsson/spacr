@@ -1,0 +1,202 @@
+{
+  "source_parent": "0324166b59",
+  "source_commit": "79cf17bd6b",
+  "before_sha256": "8ff012eff063bbaa9915ad5853a9e07f53aa6d59d43aaf4eb9f0b1601246b933",
+  "after_sha256": "63fb512e45ca18f57aeac8b1a95c6670b7b7c8fc64f6809d1af358c7e51e6b2e",
+  "test_sha256": "ea004bd5ea0b2217bff6b2fdee4d86a4d253a790a506f0b01aa7c3111a1a8dcc",
+  "runtime_sources": {
+    "spacr/qt/bridge.py": "11a988e3dc1e45d83abaa9eb0512dcdd1c971f3436186bcaab4eb37c19d39143",
+    "spacr/qt/widgets/primary_mask_selector.py": "eaeb0e6867861dfaefbff29b32138e71d5f144a2eb3fd76b83e3364914be4dc6",
+    "tests/conftest.py": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9",
+    "tests/qt/conftest.py": "f1bd57898d2188fc8a5c67b3a29681cbd1e13caf0949acf0a7f4473e77a3e1cf"
+  },
+  "baseline_sha256": "7d4f27acf453f79006b7acd809a592fccec8267b9fe4142635873bca142ddf0a",
+  "original_allowance": {
+    "excluded_lines": 0,
+    "pragma_no_cover": 1,
+    "since": "2026-09-15T11:54:08Z",
+    "uncovered_branches": 28,
+    "uncovered_statements": 59
+  },
+  "hosted_sha": "e1f54c80650f60942ba6c98d4e999b36a3fa2846",
+  "original_hosted_report_sha256": "3ac8a0565f91df8c193b1027ca50fb606a941022632bccce54aac4c76240e2eb",
+  "prior_focused_archive": "features/data/43_six_module_coverage_cpu_2026-10-06/",
+  "prior_focused_git_blob_sha256": "22f3167011e267b2271706c9d38f6bf7f87dcfbdfd15092d1b72649285b0fc70",
+  "mapping": {
+    "focused_now": {
+      "source_sha256": "63fb512e45ca18f57aeac8b1a95c6670b7b7c8fc64f6809d1af358c7e51e6b2e",
+      "all_old_lines_identical": true,
+      "statements": 8805,
+      "branches": 2328,
+      "discarded_arcs_outside_current_universe": []
+    },
+    "focused222": {
+      "source_sha256": "8ff012eff063bbaa9915ad5853a9e07f53aa6d59d43aaf4eb9f0b1601246b933",
+      "all_old_lines_identical": true,
+      "statements": 8803,
+      "branches": 2326,
+      "discarded_arcs_outside_current_universe": []
+    },
+    "hosted_e1": {
+      "source_sha256": "2134801f703bf5e13a382027472b2a057c056ba326cd33682d3b37874d9eda96",
+      "all_old_lines_identical": true,
+      "statements": 8800,
+      "branches": 2324,
+      "discarded_arcs_outside_current_universe": [
+        [
+          2590,
+          2603
+        ]
+      ]
+    }
+  },
+  "statements": 8805,
+  "branches": 2328,
+  "missing_lines": [
+    12109,
+    13752,
+    13753,
+    14510,
+    14609,
+    15353,
+    15354,
+    15511,
+    15514,
+    15516,
+    15518
+  ],
+  "missing_branches": [
+    [
+      7699,
+      -7696
+    ],
+    [
+      7869,
+      -7867
+    ],
+    [
+      7874,
+      -7872
+    ],
+    [
+      9668,
+      9666
+    ],
+    [
+      9821,
+      9824
+    ],
+    [
+      10019,
+      -10014
+    ],
+    [
+      10071,
+      10070
+    ],
+    [
+      10181,
+      -10165
+    ],
+    [
+      10213,
+      10215
+    ],
+    [
+      10219,
+      -10185
+    ],
+    [
+      12108,
+      12109
+    ],
+    [
+      14320,
+      14322
+    ],
+    [
+      14509,
+      14510
+    ],
+    [
+      14608,
+      14609
+    ],
+    [
+      15321,
+      15330
+    ],
+    [
+      15343,
+      15334
+    ],
+    [
+      15510,
+      15511
+    ],
+    [
+      15513,
+      15514
+    ],
+    [
+      15515,
+      15516
+    ],
+    [
+      15517,
+      15518
+    ],
+    [
+      15684,
+      15686
+    ],
+    [
+      15687,
+      -15680
+    ],
+    [
+      16002,
+      16006
+    ],
+    [
+      16004,
+      16006
+    ],
+    [
+      16284,
+      -16256
+    ],
+    [
+      16389,
+      16385
+    ],
+    [
+      16392,
+      16410
+    ],
+    [
+      17246,
+      -17240
+    ]
+  ],
+  "new_guard_lines_covered": [
+    16644,
+    16645
+  ],
+  "new_guard_branches_covered": [
+    [
+      16644,
+      16645
+    ],
+    [
+      16644,
+      16646
+    ]
+  ],
+  "callable_docstrings_unchanged": true,
+  "unchanged_existing_ruff_findings": 31,
+  "focused_result": "4 passed in24.85s; three new shutdown tests plus existing large decode GUI-responsiveness case",
+  "native_before_exit": -6,
+  "native_after_exit": 0,
+  "scope": "Independent busy field-loader native ownership repair; no claim to resolve small-image Shiboken SIGSEGV, installed Save or full serial suite."
+}
