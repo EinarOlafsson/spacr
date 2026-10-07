@@ -910,3 +910,20 @@ Compact immutable source/test/coverage/probe receipts and two lossless stills:
     linked-branch/bright-tip/density/<=25%raster guards remain;59focused cases
     pass. Compact23payload proof (~1.2MiB):
     data/663_fungal_mature_raster_cpu_2026-10-06/.
+
+2026-10-06 — integrated mature-cache MainWindow Save/GC check
+    Actual root1534cf84 imports ambientb2a19147/app5fc990e6/Preferences733f9af0,
+    stable before/after. FreshsoftwareXvfb3840x2160 Home/Mask/Measure/Annotate
+    and three real modal Preferences Saves at density3/size2.5/blur0,
+    detail200/100/200 and Random/spacr/Random pass under CUDA-hidden4G.
+    First max-controls native3840x2104viewport shades on8294400pixel budget
+    with16real cachehits; every sampled frame matches its native viewport.
+    Final3200x1744 is an intentionalwindowresize. Laterhit totals are cumulative,
+    not claims that detail1/high-effective-density is eligible for cache.
+    Three retained owned frames remain alphaFF/raw-SHA-independent across
+    palette/detail/navigation/resizes;11natural GCcallbacks all run onGUI.
+    Close/deferred delete leaves0widgets/0ambient/0renderthreads. Peak1264156KiB,
+    aftercloseRSS1130688/RssAnon976416 include three retained native frames,
+    with no whole-RSS/crashfix/hard24FPS/aesthetic/platform-wide claim.
+    Unmodified rawreceipt, clarifiedreceipt, exactscript/fullog/manifest:
+    data/663_fungal_mature_mainwindow_cpu_2026-10-06/.
