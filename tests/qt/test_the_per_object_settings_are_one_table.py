@@ -98,6 +98,12 @@ def test_an_empty_filter_table_does_not_import_the_image_reader(
         widget.set_settings(mask_settings)
     assert imported == []
     assert widget.settings()["object_filters"] == {}
+    with_filters = dict(mask_settings)
+    with_filters["object_filters"] = {
+        "cell": [{"property": "solidity", "min": 0.9, "max": None}],
+    }
+    widget.set_settings(with_filters)
+    assert widget.settings()["object_filters"] == with_filters["object_filters"]
 
 
 # ---------------------------------------------------------------------------

@@ -8,6 +8,7 @@ a watch value saved while hidden still reaches the run.
 from __future__ import annotations
 
 import builtins
+import json
 import os
 
 import pytest
@@ -132,6 +133,21 @@ def test_the_first_watch_builds_an_owned_plate_and_stops_it_on_close(
     assert not plate.isHidden()
     assert plate._plate.parent() is plate
     assert plate._plate._timer.isActive()
+    work = tmp_path / "spacr_watch"
+    work.mkdir()
+    (work / "watch_ledger.json").write_text(json.dumps({
+        "fields": {"plate_A01_field": {"status": "done"}},
+    }))
+    plate.refresh()
+    assert plate._plate._summary.text() == "1 completed fields on plate"
+    owned = plate._plate
+    plate.reset()
+    assert plate.isHidden()
+    assert not plate.is_active()
+    assert not owned._timer.isActive()
+    plate.begin(str(tmp_path), "mask")
+    assert plate._plate is owned
+    assert plate.is_active()
     screen.close()
     assert not plate._plate._timer.isActive()
 
