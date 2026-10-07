@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
+import builtins
 import json
 import os
 import subprocess
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
+
+from tools.pytest_plugins import qt_serial_rss_journal as journal_plugin
 
 ROOT = Path(__file__).resolve().parents[1]
 pytestmark = pytest.mark.skipif(sys.platform != "linux", reason="journal reads /proc")
@@ -80,6 +84,125 @@ def test_a_normal_failure_records_both_completed_file_boundaries(tmp_path):
     assert records[-1]["exitstatus"] == 1
     assert records[-1]["completed_files"] == 2
     assert all(row["rss_bytes"] > 0 for row in records)
+    for row in records:
+        if row["event"] in ("file_begin", "file_end"):
+            assert row["cached_qt_widgets"] is None
+            assert row["cached_qt_top_levels"] is None
+
+
+def test_the_root_fixture_snapshot_is_read_without_querying_qt(request, monkeypatch):
+    """The real pytest plugin registration exposes only cached Python ints."""
+    name = str((request.config.rootpath / "tests" / "conftest.py").resolve())
+    root_fixture = request.config.pluginmanager.get_plugin(name)
+    assert root_fixture is not None
+
+    class ForbiddenQt:
+        def __getattr__(self, name):
+            raise AssertionError(f"Qt was queried for {name}")
+
+    original_import = builtins.__import__
+
+    def forbidden_import(name, *args, **kwargs):
+        if name == "PySide6" or name.startswith("PySide6."):
+            raise AssertionError(f"Qt was imported for {name}")
+        return original_import(name, *args, **kwargs)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(root_fixture, "_LAST_LIVE_WIDGET_COUNT", (41, 7))
+        patch.setitem(sys.modules, "PySide6.QtWidgets", ForbiddenQt())
+        patch.setattr(builtins, "__import__", forbidden_import)
+        assert journal_plugin._cached_qt_counts(request.config) == {
+            "cached_qt_widgets": 41,
+            "cached_qt_top_levels": 7,
+        }
+
+
+@pytest.mark.parametrize(
+    ("cached", "expected"),
+    [
+        ((0, 0), (0, 0)),
+        ((-1, 3), (None, 3)),
+        ((12, -1), (12, None)),
+        ((True, 4), (None, 4)),
+        (("12", 4), (None, 4)),
+        ((1,), (None, None)),
+        (None, (None, None)),
+    ],
+)
+def test_only_nonnegative_cached_integers_are_recorded(tmp_path, cached, expected):
+    """Unknown or malformed fixture snapshots never become live Qt queries."""
+    expected_name = str((tmp_path / "tests" / "conftest.py").resolve())
+    names = []
+
+    def get_plugin(name):
+        names.append(name)
+        return SimpleNamespace(_LAST_LIVE_WIDGET_COUNT=cached)
+
+    config = SimpleNamespace(
+        rootpath=tmp_path,
+        pluginmanager=SimpleNamespace(get_plugin=get_plugin),
+    )
+    counts = journal_plugin._cached_qt_counts(config)
+    assert names == [expected_name]
+    assert (counts["cached_qt_widgets"], counts["cached_qt_top_levels"]) == expected
+
+
+def test_an_unregistered_root_fixture_reports_unknown_counts(tmp_path):
+    """External tests with no root conftest still get explicit null fields."""
+    config = SimpleNamespace(
+        rootpath=tmp_path,
+        pluginmanager=SimpleNamespace(get_plugin=lambda name: None),
+    )
+    assert journal_plugin._cached_qt_counts(config) == {
+        "cached_qt_widgets": None,
+        "cached_qt_top_levels": None,
+    }
+
+
+def test_a_root_fixture_without_a_snapshot_reports_unknown_counts(tmp_path):
+    """A loaded conftest without the optional count leaves both fields null."""
+    config = SimpleNamespace(
+        rootpath=tmp_path,
+        pluginmanager=SimpleNamespace(get_plugin=lambda name: SimpleNamespace()),
+    )
+    assert journal_plugin._cached_qt_counts(config) == {
+        "cached_qt_widgets": None,
+        "cached_qt_top_levels": None,
+    }
+
+
+def test_file_boundaries_record_the_snapshot_from_the_prior_teardown(
+    tmp_path, monkeypatch
+):
+    """A new file sees the last safe fixture snapshot without asking Qt."""
+    root_fixture = SimpleNamespace(_LAST_LIVE_WIDGET_COUNT=(1, 0))
+    config = SimpleNamespace(
+        rootpath=tmp_path,
+        pluginmanager=SimpleNamespace(get_plugin=lambda name: root_fixture),
+    )
+    records = []
+    with monkeypatch.context() as patch:
+        patch.setattr(journal_plugin, "_write", lambda event, **data:
+                      records.append((event, data)))
+        patch.setattr(journal_plugin, "_active_file", None)
+        patch.setattr(journal_plugin, "_completed_files", 0)
+        first = SimpleNamespace(path=tmp_path / "test_first.py", config=config,
+                                nodeid="test_first.py::test_first")
+        second = SimpleNamespace(path=tmp_path / "test_second.py", config=config,
+                                 nodeid="test_second.py::test_second")
+        journal_plugin.pytest_runtest_setup(first)
+        root_fixture._LAST_LIVE_WIDGET_COUNT = (12, 3)
+        journal_plugin.pytest_runtest_setup(second)
+        root_fixture._LAST_LIVE_WIDGET_COUNT = (8, 2)
+        journal_plugin.pytest_sessionfinish(SimpleNamespace(config=config), 0)
+    assert [(event, data.get("cached_qt_widgets"),
+             data.get("cached_qt_top_levels")) for event, data in records] == [
+        ("file_begin", 1, 0),
+        ("file_end", 12, 3),
+        ("file_begin", 12, 3),
+        ("file_end", 8, 2),
+        ("session_finish", None, None),
+    ]
 
 
 def test_a_hard_exit_preserves_the_previous_file_and_running_file(tmp_path):
