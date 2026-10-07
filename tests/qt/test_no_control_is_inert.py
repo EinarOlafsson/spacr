@@ -20,7 +20,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QApplication  # noqa: E402
+from PySide6.QtWidgets import QApplication, QWidget  # noqa: E402
 
 
 @pytest.fixture(scope="module")
@@ -31,7 +31,7 @@ def app():
 class TestTheMergeBoxesAreRead:
 
     @pytest.fixture
-    def panel(self, app):
+    def panel(self, app, qtbot):
         import pandas as pd
 
         from spacr.qt.widgets.measurement_compare_dialog import (
@@ -41,7 +41,9 @@ class TestTheMergeBoxesAreRead:
             "prcfo": ["p1_r1_c1_f1_o1", "p1_r1_c2_f1_o1"],
             "area": [10.0, 20.0], "gene": ["a", "b"],
         })
-        return MeasurementComparePanel(objects, {"a": ["a"], "b": ["b"]})
+        panel = MeasurementComparePanel(objects, {"a": ["a"], "b": ["b"]})
+        qtbot.addWidget(panel)
+        return panel
 
     def test_the_png_list_box_reaches_the_joiner(self, panel):
         """It was created, laid out and never consulted."""
@@ -96,10 +98,12 @@ class TestTheClassifyPanelHasNoSupersededControl:
     disagree with the thing it is derived from and lose."""
 
     @pytest.fixture
-    def panel(self, app):
+    def panel(self, app, qtbot):
         from spacr.qt.screens.settings_model import SettingsWidgets
 
-        model = SettingsWidgets("classify")
+        owner = QWidget()
+        qtbot.addWidget(owner)
+        model = SettingsWidgets("classify", parent=owner)
         model.build_sections()
         return model
 

@@ -196,7 +196,9 @@ def test_toggle_knob_can_be_dragged_between_states(qtbot):
 
 def test_all_settings_booleans_use_switches(qtbot):
     from spacr.qt.screens.settings_model import SettingsWidgets
-    model = SettingsWidgets("measure")
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    model = SettingsWidgets("measure", parent=owner)
     model.build_sections()
     boolean_widgets = [
         widget for key, widget in model._widgets.items()
