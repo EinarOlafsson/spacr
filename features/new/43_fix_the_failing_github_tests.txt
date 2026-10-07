@@ -3091,3 +3091,21 @@ failures still require evidence:205/27 bounded neighbors pass, so20e2be3002 adds
 live OS/Qt thread and layout-phase detail without claiming a product fix.
 Native puncta crash, Mask timing, current owner refresh and hosted green remain
 OPEN. Field/growth/Aurora integration228/228 passes; not full-CI acceptance.
+
+
+2026-10-07 — RAW NEGATIVE/POSITIVE FIXTURE RECEIPTS RETAINED
+Exact portable ordered-pair replays disable pytest-randomly to pin order:
+11fc before1 pass/1 failure;f782 after2 passes. A preliminary unordered pair
+passed when pytest-randomly reversed it and is not acceptance evidence.
+Original72-case tool result has no raw saved log and was not repeated simply
+to manufacture one. Tooltip actual negative/43-case positive logs, frozen
+positive source, portable before/after sources and separate228-case combined
+theme log are digest-bound in data/43_serial_fixture_repairs_2026-10-07/.
+The negative tooltip source text is in its log; no original full negative
+file was saved. Native/full hosted acceptance stillOPEN.
+
+Hosted11fc compatibility37641145034 failed ten jobs before any runner or step.
+GitHub's actual annotations state repeated acquisition failure after5 attempts;
+these are infrastructure failures, not product assertions. New368e compatibility
+37642528354 acquired real runners and began passing jobs, but is not yet accepted
+as a complete run. Protected b688 serial remains untouched/in progress.
