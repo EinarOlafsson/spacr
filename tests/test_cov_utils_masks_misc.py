@@ -15,6 +15,7 @@ from __future__ import annotations
 import os
 import sqlite3
 import subprocess
+import threading
 
 import numpy as np
 import pandas as pd
@@ -248,7 +249,16 @@ def fake_models_pkg(tmp_path, monkeypatch):
     pkg.mkdir()
     monkeypatch.setattr(U, "spacr_path", str(pkg / "__init__.py"))
     slept = []
-    monkeypatch.setattr(U.time, "sleep", lambda s: slept.append(s))
+    original_sleep = U.time.sleep
+    test_thread = threading.get_ident()
+
+    def record_test_retry(seconds):
+        if threading.get_ident() == test_thread:
+            slept.append(seconds)
+        else:
+            original_sleep(seconds)
+
+    monkeypatch.setattr(U.time, "sleep", record_test_retry)
     return {"local_dir": pkg / "resources" / "models", "slept": slept}
 
 
