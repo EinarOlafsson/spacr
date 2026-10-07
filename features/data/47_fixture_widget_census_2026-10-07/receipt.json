@@ -1,0 +1,45 @@
+{
+  "CUDA_VISIBLE_DEVICES": "",
+  "PySide6": "6.11.2",
+  "QT_QPA_PLATFORM": "offscreen",
+  "after": {
+    "after_sentinel_all_widgets": 0,
+    "after_sentinel_top_level_widgets": 0,
+    "sentinel_all_widgets": 449,
+    "sentinel_top_level_widgets": 1
+  },
+  "before": {
+    "after_sentinel_all_widgets": 447,
+    "after_sentinel_top_level_widgets": 149,
+    "sentinel_all_widgets": 447,
+    "sentinel_top_level_widgets": 149
+  },
+  "capped_memory": "4G",
+  "fixture_blobs": {
+    "tests/qt/test_no_control_is_inert.py": {
+      "after": "06d594eac26f7544c4bf31bb8670f14645cedede",
+      "before": "52e010e10e51484ff093a2b6393c31a8c844df8f"
+    },
+    "tests/qt/test_widgets.py": {
+      "after": "441413c4398788f6d48807b0515d1f2b8c8bf52e",
+      "before": "9e5af2a6ef121d2656a43fb278168d0ae8ffb89a"
+    }
+  },
+  "old_fixture_commit": "c4fafe25b8e4c6248d7829260d93f9e955eae8f9",
+  "ownership_fix_commit": "35d395b6e72f1bdd47ff17f7d8a74e8d966f9225",
+  "payload_sha256": {
+    "census-after.jsonl": "93bae6279025d08a1395eac2006959cbcc79602b608f3ac50f1e10e322960840",
+    "census-after.log": "7a0d6e187f8fbc28d31311f9579912f6fdc5910b90f424a0996680c863598980",
+    "census-before.jsonl": "95cd56eea070069408594f30d7b516fdf5adce4c0e6b0693364ea22d3a324db9",
+    "census-before.log": "016e8f346675589bec50ba42fdce66f383d556b8ead8df64c5e2a3b9a0c4b7c0",
+    "census_plugin.py": "ae9e676929a2be43a51a166d84bb7e28e05ab9b531deb741f68a3342e5108cd0"
+  },
+  "pytest": "8.4.2",
+  "python": "3.12.13",
+  "repo_head": "54f8dfdee2212f7e987a45919e2d526366644aef",
+  "shiboken6": "6.11.2",
+  "source_blobs": {
+    "spacr/qt/screens/settings_model.py": "b85bb32a3a67ea10f9651bbeb36b5fe198586a27",
+    "tests/qt/test_field_fade.py": "87a2798a513987d67de7de1b2b8ad0a164163a2e"
+  }
+}
