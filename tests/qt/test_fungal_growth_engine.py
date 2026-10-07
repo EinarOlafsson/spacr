@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import math
 
 import numpy as np
 import pytest
@@ -105,9 +106,12 @@ def test_fractional_tip_growth_and_cycle_boundaries_are_continuous():
     after = {edge[:6] + edge[-1:]: edge[6]
              for edge in engine.geometry(width, height)
              if 0.0 < edge[6] < 1.0}
-    growing = [after[key] - progress for key, progress in before.items()
+    growing = [((after[key] - progress)
+                * (math.hypot(key[2] - key[0], key[3] - key[1])
+                   + math.hypot(key[4] - key[2], key[5] - key[3])))
+               for key, progress in before.items()
                if key in after and after[key] > progress]
-    assert growing and max(growing) < 0.1
+    assert growing and max(growing) < 3.0
 
     engine.set_time(29.999)
     old = _frame(engine, width, height)
@@ -139,44 +143,41 @@ def test_arbitrary_hour_later_clock_is_seeded_and_history_stays_bounded():
     assert _digest(_frame(other, 384, 216)) != expected
 
 
-def test_each_colony_has_a_common_origin_and_progressive_connected_forks():
-    """Three connected fronts cross the screen and fork after their parent."""
+def test_wandering_tips_fork_recursively_more_often_near_the_front():
+    """Three nearby roots explore and their offspring fork in turn."""
     engine = _engine()
-    width, height = 640, 360
+    width, height = 960, 540
     for block in range(4):
         colony = engine._lineage(block, width, height)
-        assert len(colony) == 3 * 36 * 5
-        fronts = []
-        for front in range(3):
-            branch = colony[front * 36 * 5:(front + 1) * 36 * 5]
-            trunk = branch[::5]
-            fronts.append(trunk)
-            assert len(trunk) == 36
-            assert all(edge[0] == -1 for edge in trunk)
-            assert all(trunk[i][5:7] == trunk[i + 1][1:3]
-                       for i in range(len(trunk) - 1))
-            for step in range(36):
-                parent, left_a, left_b, right_a, right_b = branch[step * 5:(step + 1) * 5]
-                assert left_a[1:3] == right_a[1:3] == parent[5:7]
-                assert left_b[1:3] == left_a[5:7]
-                assert right_b[1:3] == right_a[5:7]
-                assert left_a[7] > parent[7] + parent[8]
-                assert right_a[7] > parent[7] + parent[8]
-        assert len({front[0][1:3] for front in fronts}) == 1
-        if block == 0:
-            assert fronts[0][0][1:3] == (engine._origin[0] * width,
-                                         engine._origin[1] * height)
-        for front in fronts:
-            start = front[0][1:3]
-            end = front[-1][5:7]
-            if block == 0:
-                assert start[0] < width * .1 and end[0] > width * .9
-            elif block == 1:
-                assert start[0] > width * .9 and end[0] < width * .1
-            elif block == 2:
-                assert start[1] < height * .1 and end[1] > height * .9
-            else:
-                assert start[1] > height * .9 and end[1] < height * .1
+        endpoints = {edge[5:7] for edge in colony}
+        roots = [edge for edge in colony if edge[1:3] not in endpoints]
+        assert len(roots) == 3
+        assert all(edge[1:3] in endpoints or edge in roots for edge in colony)
+        assert max(edge[10] for edge in colony) >= 3
+        starts = {}
+        for edge in colony:
+            starts[edge[1:3]] = starts.get(edge[1:3], 0) + 1
+        forks = [edge for edge in colony
+                 if starts.get(edge[5:7], 0) > 1
+                 and block * 30 <= edge[7] < block * 30 + 30]
+        thirds = [sum(block * 30 + start <= edge[7] < block * 30 + start + 10
+                      for edge in forks) for start in (0, 10, 20)]
+        assert thirds[0] < thirds[1] < thirds[2]
+        early = [edge for edge in colony if block * 30 <= edge[7] < block * 30 + 5]
+        late = [edge for edge in colony if block * 30 + 18 <= edge[7] < block * 30 + 25]
+        primary = [edge for edge in colony if edge[0] == -1]
+        if block < 2:
+            shift = (sum(edge[5] for edge in late) / len(late)
+                     - sum(edge[1] for edge in early) / len(early))
+            assert (shift if block == 0 else -shift) > width * 0.4
+            assert (max(edge[5] for edge in primary) if block == 0 else
+                    width - min(edge[5] for edge in primary)) > width * 0.8
+        else:
+            shift = (sum(edge[6] for edge in late) / len(late)
+                     - sum(edge[2] for edge in early) / len(early))
+            assert (shift if block == 2 else -shift) > height * 0.4
+            assert (max(edge[6] for edge in primary) if block == 2 else
+                    height - min(edge[6] for edge in primary)) > height * 0.8
     engine.set_time(3600.33)
     visible = engine.geometry(width, height)
     assert visible
@@ -194,6 +195,41 @@ def test_first_front_actually_advances_across_the_rendered_screen():
         _, columns = np.nonzero(np.any(pixels[:, :, :3] != 0, axis=2))
         farthest.append(int(np.quantile(columns, 0.99)))
     assert farthest[1] > farthest[0] + 200
+
+
+def test_child_filaments_wait_for_their_parent_to_reach_the_fork():
+    """A daughter never appears disconnected ahead of its growing parent."""
+    engine = _engine()
+    for block in range(4):
+        lineage = engine._lineage(block, 960, 540)
+        arrival = {edge[5:7]: edge[7] + edge[8] for edge in lineage}
+        for edge in lineage:
+            if edge[1:3] in arrival:
+                assert edge[7] >= arrival[edge[1:3]] - 1e-9
+
+
+def test_visible_front_has_more_connected_forks_later_and_at_higher_density():
+    """Density prunes children while leaving primary paths and their parents."""
+    counts = []
+    for density in (1.0, 3.0):
+        engine = _engine(density=density)
+        engine.set_time(31.0)
+        lineage = engine._lineage(0, 960, 540)
+        by_path = {edge[1:7]: edge for edge in lineage}
+        visible = {edge[:6] for edge in engine.geometry(960, 540)
+                   if edge[:6] in by_path}
+        endpoints = {edge[5:7] for edge in lineage}
+        origins = {edge[1:3] for edge in lineage if edge[1:3] not in endpoints}
+        parent_ends = {path[4:6] for path in visible}
+        assert all(path[:2] in parent_ends or path[:2] in origins for path in visible)
+        children = {}
+        for path in visible:
+            children[path[:2]] = children.get(path[:2], 0) + 1
+        forks = [by_path[path] for path in visible if path in by_path
+                 and children.get(path[4:6], 0) > 1]
+        assert forks
+        counts.append(len(forks))
+    assert counts[0] < counts[1]
 
 
 def test_live_tips_are_brighter_than_established_branches_and_density_adds_forks():

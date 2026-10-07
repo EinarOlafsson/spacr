@@ -5659,7 +5659,7 @@ class _FungalGrowthEngine(_BufferedEngine):
     name = "data_art_fungal_growth"
     base_edge = 2048
     _interval = 30.0
-    _edge_lifetime = 72.0
+    _edge_lifetime = 75.0
 
     def _shade(self, width: int, height: int) -> QImage:
         """Render the unchanged native field into a freshly owned image."""
@@ -5706,26 +5706,8 @@ class _FungalGrowthEngine(_BufferedEngine):
         """Allow a little softness without turning filaments into a wash."""
         return min(1.3, super().blur_scale(width, height))
 
-    def _step(self, rng: random.Random, x: float, y: float,
-              angle: float, width: int, height: int) -> tuple:
-        """Bend one fine irregular filament step while retaining its live tip."""
-        length = min(width, height) * self.size * rng.uniform(0.016, 0.030)
-        dx, dy = length * math.cos(angle), length * math.sin(angle)
-        margin = max(2.0, min(width, height) * 0.025)
-        if x + dx < margin or x + dx > width - margin:
-            dx = -dx
-        if y + dy < margin or y + dy > height - margin:
-            dy = -dy
-        end_x = max(margin, min(width - margin, x + dx))
-        end_y = max(margin, min(height - margin, y + dy))
-        bend = rng.uniform(-0.20, 0.20)
-        control_x = (x + end_x) * 0.5 - (end_y - y) * bend
-        control_y = (y + end_y) * 0.5 + (end_x - x) * bend
-        return end_x, end_y, control_x, control_y, math.atan2(
-            end_y - y, end_x - x)
-
     def _lineage(self, block: int, width: int, height: int) -> tuple:
-        """Grow three connected fronts across one of four alternating axes."""
+        """Index persistent wandering tips and their recursive front forks."""
         key = (block, width, height, self.size)
         cached = self._lineage_cache.get(key)
         if cached is not None:
@@ -5733,72 +5715,110 @@ class _FungalGrowthEngine(_BufferedEngine):
         seed = (self._fungal_seed ^ (block * 0xD1B54A32D192ED03)) & (2 ** 128 - 1)
         rng = random.Random(seed)
         direction = block % 4
-        if direction == 0:
-            origin = self._origin if block == 0 else (0.05, rng.uniform(0.43, 0.57))
-        elif direction == 1:
-            origin = (0.95, rng.uniform(0.43, 0.57))
-        elif direction == 2:
-            origin = (rng.uniform(0.43, 0.57), 0.05)
-        else:
-            origin = (rng.uniform(0.43, 0.57), 0.95)
-        edges = []
-        for front, lane in enumerate((0.23, 0.50, 0.77)):
-            lane += rng.uniform(-0.035, 0.035)
+        center = self._origin[1] if block == 0 else rng.uniform(0.43, 0.57)
+        headings = (0.0, math.pi, math.pi / 2.0, -math.pi / 2.0)
+        start_heading = headings[direction]
+        colony_turn = (headings[(direction + 1) % 4] - start_heading
+                       + math.pi) % math.tau - math.pi
+        if abs(colony_turn + math.pi) < 1e-9 and block % 2 == 0:
+            colony_turn = math.pi
+        along = math.cos(start_heading), math.sin(start_heading)
+        frontier = []
+        for front, lane in enumerate((center - 0.05, center, center + 0.05)):
+            lane = max(0.10, min(0.90, lane + rng.uniform(-0.02, 0.02)))
             if direction == 0:
-                destination = (0.95, lane)
+                x, y = 0.05 * width, lane * height
             elif direction == 1:
-                destination = (0.05, lane)
+                x, y = 0.95 * width, lane * height
             elif direction == 2:
-                destination = (lane, 0.95)
+                x, y = lane * width, 0.05 * height
             else:
-                destination = (lane, 0.05)
-            x, y = origin[0] * width, origin[1] * height
-            phase = rng.uniform(0.0, math.tau)
-            phase2 = rng.uniform(0.0, math.tau)
-            spacing = [rng.uniform(0.65, 1.35) for _ in range(36)]
-            extent = sum(spacing)
-            travelled = 0.0
-            for step, distance in enumerate(spacing):
-                started = travelled / extent
-                travelled += distance
-                fraction = travelled / extent
-                shift = (0.028 * min(width, height)
-                         * (0.65 * math.sin(fraction * 2.0 * math.pi + phase)
-                            + 0.35 * math.sin(fraction * 4.6 * math.pi + phase2))
-                         * math.sin(fraction * math.pi))
-                end_x = ((origin[0] * (1.0 - fraction)
-                          + destination[0] * fraction) * width)
-                end_y = ((origin[1] * (1.0 - fraction)
-                          + destination[1] * fraction) * height)
-                if direction < 2:
-                    end_y += shift
-                else:
-                    end_x += shift
-                control_x = (x + end_x) * 0.5
-                control_y = (y + end_y) * 0.5
-                angle = math.atan2(end_y - y, end_x - x)
-                born = block * self._interval - 0.55 + started * self._interval
-                duration = 1.12
-                edges.append((-1, x, y, control_x, control_y, end_x, end_y,
-                              born, duration, front, 0))
-                rank = ((front * 36 + step) * 73) % 108
-                fork_seed = seed ^ ((front * 36 + step) * 0x9E3779B97F4A7C15)
-                fork_rng = random.Random(fork_seed)
-                for side in (-1, 1):
-                    tip_x, tip_y = end_x, end_y
-                    fork_angle = angle + side * fork_rng.uniform(0.56, 0.96)
-                    fork_born = born + duration + fork_rng.uniform(0.06, 0.18)
-                    for segment in range(2):
-                        fork_angle += fork_rng.uniform(-0.25, 0.25)
-                        next_x, next_y, cx, cy, fork_angle = self._step(
-                            fork_rng, tip_x, tip_y, fork_angle, width, height)
-                        fork_duration = fork_rng.uniform(1.15, 1.40)
-                        edges.append((rank, tip_x, tip_y, cx, cy,
-                                      next_x, next_y, fork_born,
-                                      fork_duration, (front + segment + 1) % 5, 1))
-                        tip_x, tip_y = next_x, next_y
-                        fork_born += fork_duration
-                x, y = end_x, end_y
+                x, y = lane * width, 0.95 * height
+            angle = math.atan2(along[1], along[0]) + rng.uniform(-1.1, 1.1)
+            frontier.append((x, y, math.cos(angle), math.sin(angle),
+                             -1, front, 0, front * 128 + 1, -math.inf))
+        edges = []
+        axis = width if direction < 2 else height
+        for tick in range(48):
+            following = []
+            progress = min(1.0, tick / 35.0)
+            bias = 0.07 + 0.35 * progress ** 1.5
+            transition = max(0.0, min(1.0, (tick - 14) / 34.0))
+            transition = transition * transition * (3.0 - 2.0 * transition)
+            heading = start_heading + colony_turn * transition
+            target_x, target_y = math.cos(heading), math.sin(heading)
+            proposals = []
+            for x0, y0, vx, vy, rank, front, depth, code, ready in frontier:
+                branch_rng = random.Random(seed ^ (code * 0x9E3779B97F4A7C15)
+                                           ^ (tick * 0xD1B54A32D192ED03))
+                local_bias = bias / (1.0 + 0.15 * depth)
+                step_turn = branch_rng.uniform(-0.58, 0.58) * (1.0 - 0.40 * local_bias)
+                cosine, sine = math.cos(step_turn), math.sin(step_turn)
+                turned_x, turned_y = vx * cosine - vy * sine, vx * sine + vy * cosine
+                edge_x = (max(0.0, (0.20 * width - x0) / (0.20 * width))
+                          - max(0.0, (x0 - 0.80 * width) / (0.20 * width)))
+                edge_y = (max(0.0, (0.20 * height - y0) / (0.20 * height))
+                          - max(0.0, (y0 - 0.80 * height) / (0.20 * height)))
+                heading_x = ((1.0 - local_bias) * turned_x + local_bias * target_x
+                             + 1.8 * edge_x)
+                heading_y = ((1.0 - local_bias) * turned_y + local_bias * target_y
+                             + 1.8 * edge_y)
+                norm = math.hypot(heading_x, heading_y)
+                heading_x, heading_y = heading_x / norm, heading_y / norm
+                length = axis * self.size ** 0.3 / 43.0 * branch_rng.uniform(0.85, 1.45)
+                x1, y1 = x0 + heading_x * length, y0 + heading_y * length
+                if x1 < width * 0.025:
+                    x1 = width * 0.05 - x1
+                    heading_x = abs(heading_x)
+                elif x1 > width * 0.975:
+                    x1 = width * 1.95 - x1
+                    heading_x = -abs(heading_x)
+                if y1 < height * 0.025:
+                    y1 = height * 0.05 - y1
+                    heading_y = abs(heading_y)
+                elif y1 > height * 0.975:
+                    y1 = height * 1.95 - y1
+                    heading_y = -abs(heading_y)
+                if math.hypot(x1 - x0, y1 - y0) < 0.4:
+                    if rank == -1:
+                        following.append((x0, y0, target_x, target_y,
+                                          rank, front, depth, code, ready))
+                    continue
+                bend = branch_rng.uniform(-0.25, 0.25)
+                control_x = (x0 + x1) * 0.5 - (y1 - y0) * bend
+                control_y = (y0 + y1) * 0.5 + (x1 - x0) * bend
+                born = max(ready, block * self._interval - 0.55
+                           + tick * self._interval / 36.0
+                           + branch_rng.uniform(-0.04, 0.04))
+                duration = branch_rng.uniform(0.68, 0.82)
+                edges.append((rank, x0, y0, control_x, control_y, x1, y1,
+                              born, duration, front, depth))
+                following.append((x1, y1, heading_x, heading_y,
+                                  rank, front, depth, code, born + duration))
+                chance = 0.10 + 0.34 * progress ** 1.5 if tick < 44 else 0.0
+                if depth < 9 and branch_rng.random() < chance:
+                    side = -1 if branch_rng.random() < 0.5 else 1
+                    fork = side * branch_rng.uniform(0.42, 1.05)
+                    cosine, sine = math.cos(fork), math.sin(fork)
+                    child_x = heading_x * cosine - heading_y * sine
+                    child_y = heading_x * sine + heading_y * cosine
+                    child_rank = max(rank, int(branch_rng.random() * 1000))
+                    proposals.append((x1, y1, child_x, child_y, child_rank,
+                                      front, depth + 1, code * 131 + tick + 1,
+                                      born + duration))
+            rng.shuffle(proposals)
+            quota = min(len(proposals), round(1 + 7 * progress ** 1.5))
+            for child in proposals[:quota]:
+                if len(following) >= 48:
+                    replace = min((i for i, tip in enumerate(following)
+                                   if tip[4] != -1),
+                                  key=lambda i: (following[i][6], following[i][8]),
+                                  default=None)
+                    if replace is None:
+                        break
+                    following.pop(replace)
+                following.append(child)
+            frontier = following
         result = tuple(edges)
         self._lineage_cache[key] = result
         if len(self._lineage_cache) > 8:
@@ -5806,30 +5826,24 @@ class _FungalGrowthEngine(_BufferedEngine):
         return result
 
     def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
-        """Visible front-first edges below a conservative 18 percent footprint.
-
-        The bound sums Bézier control-polygon lengths, round caps and live
-        tips. Five extra buffer pixels cover raster antialiasing, the
-        at-most-1.3 area-averaging blur, smooth-blit support and a final
-        output pixel square. The 18 percent budget leaves seven percentage
-        points beneath the screen's 25 percent ink limit.
-        """
+        """Visible front-first branches within a sparse pixel footprint."""
         if width <= 0 or height <= 0:
             return ()
         width, height = int(width), int(height)
         latest = max(0, math.floor((self.time + 0.55) / self._interval))
         earliest = max(0, math.floor((self.time - self._edge_lifetime)
                                      / self._interval))
-        stroke = max(0.45, min(1.7, 1.2 * self.size
+        stroke = max(0.65, min(2.0, 1.45 * self.size
                               * (min(width, height) / 1080.0) ** 0.35))
         density = self.density
-        branch_count = round(60 * density) if density <= 1.0 else round(
-            60 + (density - 1.0) * 24)
-        branch_count = max(1, min(108, branch_count))
+        branch_count = round(50 + 800 * density) if density <= 1.0 else round(
+            850 + (density - 1.0) * 75)
+        branch_count = max(1, min(1000, branch_count))
+        density_alpha = min(1.0, 60.0 * density) / math.sqrt(max(1.0, density))
         candidates = []
         for block in range(earliest, latest + 1):
             colony_age = self.time - (block * self._interval - 0.55)
-            colony_fade = min(1.0, (self._edge_lifetime - colony_age) / 35.0)
+            colony_fade = min(1.0, (self._edge_lifetime - colony_age) / 32.0)
             if colony_fade <= 0.0:
                 continue
             for (index, x0, y0, cx, cy, x1, y1, born, duration,
@@ -5842,13 +5856,12 @@ class _FungalGrowthEngine(_BufferedEngine):
                 progress = min(1.0, age / duration)
                 fade = min(1.0, age / 0.35) * colony_fade
                 trailing_age = max(0.0, age - duration)
-                fade *= max(0.0, 1.0 - max(0.0, trailing_age - 14.0) / 22.0)
-                alpha = (0.45 + 0.50 * max(0.0, 1.0 - trailing_age / 9.0)) \
-                    * fade * self._fractional_alpha_scale(60)
+                alpha = (0.50 + 0.75 * max(0.0, 1.0 - trailing_age / 9.0)) \
+                    * fade * density_alpha
                 if alpha >= 0.006:
                     candidates.append((x0, y0, cx, cy, x1, y1, progress,
-                                       alpha, max(0.4, stroke * 0.93 ** depth), hue))
-        budget = width * height * 0.18
+                                       alpha, max(0.4, stroke * 0.90 ** depth), hue))
+        budget = width * height * 0.26
         selected = []
         for edge in reversed(candidates):
             x0, y0, cx, cy, x1, y1, progress, _, thick, _ = edge
@@ -5862,10 +5875,10 @@ class _FungalGrowthEngine(_BufferedEngine):
                      + progress ** 2 * y1)
             length = math.hypot(control_x - x0, control_y - y0) \
                 + math.hypot(end_x - control_x, end_y - control_y)
-            radius = thick * 0.5 + 5.0
+            radius = thick * 0.5 + 1.5
             footprint = 2.0 * radius * length + math.pi * radius ** 2
             if progress < 1.0:
-                footprint += math.pi * (thick * 0.8 + 5.0) ** 2
+                footprint += math.pi * (thick * 0.8 + 1.5) ** 2
             if footprint > budget:
                 continue
             selected.append(edge)
@@ -5877,7 +5890,8 @@ class _FungalGrowthEngine(_BufferedEngine):
         colors = self.paint_colors
         paths = {}
         mature = {}
-        stable_alpha = 0.45 * self._fractional_alpha_scale(60)
+        stable_alpha = (0.50 * min(1.0, 60.0 * self.density)
+                        / math.sqrt(max(1.0, self.density)))
         tips = []
         for (x0, y0, cx, cy, x1, y1, progress,
              alpha, stroke, hue) in self.geometry(width, height):

@@ -410,9 +410,9 @@ def _assert_visible_growth_phases(engine, background, width, height, paint=rende
         yy, xx = np.nonzero(ink)
         frames.append(pixels)
         counts.append(count)
-        extents.append((int(yy.min()), int(xx.max() - xx.min())))
+        extents.append((int(xx.max()), int(xx.max() - xx.min())))
     assert counts[0] < counts[1] < counts[2], counts[:3]
-    assert extents[2][0] < extents[1][0] < extents[0][0], extents[:3]
+    assert extents[0][0] < extents[1][0] < extents[2][0], extents[:3]
     assert extents[2][1] > extents[0][1], extents[:3]
     for first, second in ((3, 4), (5, 6)):
         changed = int(np.count_nonzero(frames[first] != frames[second]))
