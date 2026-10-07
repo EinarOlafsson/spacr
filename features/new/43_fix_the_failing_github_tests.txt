@@ -2,7 +2,11 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 ================================================================================
 
-Status:    OPEN 2026-10-06 — CPU registry/dependency/inventory repairs are
+Status:    OPEN 2026-10-07 — completed hosted numerical ratchet passes664
+           modules and all12 artifacts; ordinary tests remain red from native
+           Qt and four workstation owner modes. Fresh source verdict pending.
+
+Previous status (superseded 2026-10-07):    OPEN 2026-10-06 — CPU registry/dependency/inventory repairs are
            locally verified; current hosted tests and owner documentation
            corrections remain outstanding. See the dated trailing notes.
 

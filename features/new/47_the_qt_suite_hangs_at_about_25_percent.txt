@@ -2,7 +2,12 @@
 THE FULL tests/qt RUN HANGS PART-WAY THROUGH
 
 
-Status:    OPEN 2026-10-02 — the whole-suite serial Qt run stops at the 10.8
+Status:    OPEN 2026-10-07 — latest protected serial reached63% before its
+           six-hour timeout, without an OOM or memory-guard trip. Historical
+           failures now have bounded current-source classification/repairs;
+           final uninterrupted serial and native crash acceptance remain open.
+
+Previous status (superseded 2026-10-07):    OPEN 2026-10-02 — the whole-suite serial Qt run stops at the 10.8
            GiB memory guard (about 71%); the growth has to be found and one
            full uninterrupted run recorded. The three remaining real items are
            green (2026-10-02).

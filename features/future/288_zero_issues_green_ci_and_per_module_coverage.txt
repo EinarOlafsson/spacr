@@ -6,7 +6,11 @@ NOT BLOCKING. Since 2026-09-12 spaCR keeps two lists -- what it has
 gained and what it might gain next -- and neither gates a release.
 The words below were written when a single instructions list did.
 
-Status:    OPEN 2026-10-06 — the prior complete 664-module aggregate passes
+Status:    OPEN 2026-10-07 — completed hosted numerical and compatibility
+           gates pass; full ordinary CI and final-source serial remain open.
+           No failed test shard or native crash is waived.
+
+Previous status (superseded 2026-10-07):    OPEN 2026-10-06 — the prior complete 664-module aggregate passes
            the absolute-count ratchet, but required passed-shard acceptance
            and the final-source hosted verdict remain incomplete.
 

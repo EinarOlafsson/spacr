@@ -1,5 +1,9 @@
 ABSTRACT DATA FLOW THEMES AND BACKDROP PERFORMANCE
-Status: OPEN 2026-10-06 — requested six-theme refinement; final live motion checks pending.
+Status: OPEN 2026-10-07 — six-theme refinement and measured CPU optimizations
+are integrated; native hard24FPS, installed Save crash and final aesthetic
+acceptance remain open. Rejected experiments are archived without app changes.
+
+Previous status (superseded 2026-10-07): OPEN 2026-10-06 — requested six-theme refinement; final live motion checks pending.
 Requested: 2026-10-05 by the maintainer: performance-optimize themes and add
 10–20 abstract high-resolution continuously flowing backgrounds, including
 weather-like wind, mouse-influenced flows, biology, spatial data, DNA and space.
