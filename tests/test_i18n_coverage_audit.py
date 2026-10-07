@@ -6,6 +6,8 @@ import sys
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
 if str(TOOLS) not in sys.path:
@@ -124,7 +126,23 @@ def test_checked_in_coverage_report_is_the_live_source_report():
     assert checked_in == coverage.build_report()
 
 
-def test_written_review_scope_matches_current_source_bound_evidence():
+@pytest.fixture(scope="module")
+def live_review_scope():
+    """Extract one live source snapshot shared by the nine locale checks."""
+    import build_documentation_i18n as api_builder
+    import build_i18n_catalogs as runtime_builder
+
+    docs = api_builder.public_docstrings()
+    report = (ROOT / "docs" / "i18n" / "REVIEW_SCOPE_2026-09-04.md").read_text(
+        encoding="utf-8",
+    )
+    sources = runtime_builder.canonical_sources()
+    return api_builder, runtime_builder, docs, report, sources
+
+
+@pytest.mark.parametrize(("language", "display"), tuple(DISPLAY_NAMES.items()))
+def test_written_review_scope_matches_current_source_bound_evidence(
+        monkeypatch, live_review_scope, language, display):
     """The written review scope must reproduce the LIVE evidence, not a memory.
 
     THIS TEST USED TO PIN THE TREE: 8,861 docstrings, 113 API doc aliases and a
@@ -142,14 +160,10 @@ def test_written_review_scope_matches_current_source_bound_evidence():
     fails until the report is regenerated.  That is the contract that was
     wanted; the pins were only standing in for it.
     """
-    import build_documentation_i18n as api_builder
-    import build_i18n_catalogs as runtime_builder
-
-    docs = api_builder.public_docstrings()
-    report = (ROOT / "docs" / "i18n" / "REVIEW_SCOPE_2026-09-04.md").read_text(
-        encoding="utf-8",
-    )
-    sources = runtime_builder.canonical_sources()
+    api_builder, runtime_builder, docs, report, sources = live_review_scope
+    # Each locale validates its own review evidence against the same live
+    # source snapshot, without repeating Qt AST extraction in this worker.
+    monkeypatch.setattr(runtime_builder, "canonical_sources", lambda: sources)
     # Installer strings ship as standalone JSON beside the app, so the runtime
     # denominator is every catalog table EXCEPT that one -- the same split
     # COVERAGE.md reports, which keeps the two documents comparable.
@@ -159,53 +173,52 @@ def test_written_review_scope_matches_current_source_bound_evidence():
     api_total = len(docs)
     assert runtime_total > 0 and api_total > 0
 
-    for language, display in DISPLAY_NAMES.items():
-        runtime_count = len(
-            runtime_builder.reviewed_runtime_translations(language)
-        )
-        reviewed_api = api_builder.reviewed_api_block_translations(
-            docs, language,
-        )
-        api_count = len(reviewed_api)
-        payload = json.loads((
-            ROOT / "docs" / "source" / "_static" / "i18n" / "api"
-            / f"{language}.json"
-        ).read_text(encoding="utf-8"))
-        for symbol in (
-            "spacr.__main__.main",
-            "spacr.qt.widgets.home.SystemPanel",
-        ):
-            source_blocks, _ = api_builder.translatable_blocks(docs[symbol])
-            published = payload["symbols"][symbol]["text"]
-            # WHAT THIS CAN AND CANNOT CHECK TODAY, said plainly rather than
-            # asserted around.  It used to require the published blocks to
-            # equal the reviewed translation of every source block.  Two
-            # separate things broke that, and neither is a translation fault:
-            # 368 added blocks these symbols did not have (`main` gained the
-            # Qt launcher's exit status, `SystemPanel` a build caption), and
-            # the published catalogs are 8,966 of 10,230 because generating
-            # the missing blocks needs an OPUS checkpoint that is not on this
-            # machine.  So the published payload is legitimately SHORTER than
-            # the live docstring and a shape assertion would only restate that.
-            #
-            # What must be true regardless of staleness: where a block has a
-            # reviewed translation, the shipped page carries THAT text and not
-            # a model's. A reviewed sentence silently replaced is the failure
-            # this is here to catch, and it is still caught.
-            for source_block in source_blocks:
-                reviewed = reviewed_api.get(source_block)
-                if reviewed is None:
-                    continue
-                assert reviewed in published, (symbol, language, source_block)
-                assert source_block not in published, (symbol, language)
-        row = (
-            f"| {display} | {runtime_count:,} | "
-            f"{runtime_count / runtime_total:.2%} | "
-            f"{runtime_total - runtime_count:,} | "
-            f"{api_count:,} | {api_count / api_total:.2%} | "
-            f"{api_total - api_count:,} |"
-        )
-        assert row in report, (language, row)
+    runtime_count = len(
+        runtime_builder.reviewed_runtime_translations(language)
+    )
+    reviewed_api = api_builder.reviewed_api_block_translations(
+        docs, language,
+    )
+    api_count = len(reviewed_api)
+    payload = json.loads((
+        ROOT / "docs" / "source" / "_static" / "i18n" / "api"
+        / f"{language}.json"
+    ).read_text(encoding="utf-8"))
+    for symbol in (
+        "spacr.__main__.main",
+        "spacr.qt.widgets.home.SystemPanel",
+    ):
+        source_blocks, _ = api_builder.translatable_blocks(docs[symbol])
+        published = payload["symbols"][symbol]["text"]
+        # WHAT THIS CAN AND CANNOT CHECK TODAY, said plainly rather than
+        # asserted around.  It used to require the published blocks to
+        # equal the reviewed translation of every source block.  Two
+        # separate things broke that, and neither is a translation fault:
+        # 368 added blocks these symbols did not have (`main` gained the
+        # Qt launcher's exit status, `SystemPanel` a build caption), and
+        # the published catalogs are 8,966 of 10,230 because generating
+        # the missing blocks needs an OPUS checkpoint that is not on this
+        # machine.  So the published payload is legitimately SHORTER than
+        # the live docstring and a shape assertion would only restate that.
+        #
+        # What must be true regardless of staleness: where a block has a
+        # reviewed translation, the shipped page carries THAT text and not
+        # a model's. A reviewed sentence silently replaced is the failure
+        # this is here to catch, and it is still caught.
+        for source_block in source_blocks:
+            reviewed = reviewed_api.get(source_block)
+            if reviewed is None:
+                continue
+            assert reviewed in published, (symbol, language, source_block)
+            assert source_block not in published, (symbol, language)
+    row = (
+        f"| {display} | {runtime_count:,} | "
+        f"{runtime_count / runtime_total:.2%} | "
+        f"{runtime_total - runtime_count:,} | "
+        f"{api_count:,} | {api_count / api_total:.2%} | "
+        f"{api_total - api_count:,} |"
+    )
+    assert row in report, (language, row)
 
     # Checked on normalized whitespace: both sentences wrap in the file, and a
     # raw substring would miss them for a reason that has nothing to do with
