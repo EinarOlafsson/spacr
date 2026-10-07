@@ -1,0 +1,29 @@
+{
+  "files": {
+    "README.md": {
+      "sha256": "ec6a037ca528599bc77ef60fd5371aeb0f18515d9db909b6255dda77863efa95",
+      "bytes": 2113
+    },
+    "cache41.json": {
+      "sha256": "5b8bdcafbb6a01d63b05cd1f3f1431fe4abb7e96ba55f9fe4e579c8706df4bb2",
+      "bytes": 26256
+    },
+    "comparison.json": {
+      "sha256": "43d0ea51bc6ac81d22888278d1c58a897698db773006dfebebbf3b8cdcf9fe54",
+      "bytes": 443
+    },
+    "hosted392.json": {
+      "sha256": "970186cfc7242cd5c51fb9daf18db00edbc6547c72935620534b133b4abf9582",
+      "bytes": 25473
+    },
+    "refusals8.json": {
+      "sha256": "3e3f208a5f7f5525fe0c6faa067aa2e4b2953d1798ad822a8d1fb7649ddb0200",
+      "bytes": 26256
+    },
+    "reproduce.py": {
+      "sha256": "2b7d683c5ad592dbc40b58b7b4c84b6a6e344e209c9f00d55c3d169e9be3fa4a",
+      "bytes": 3116
+    }
+  },
+  "test_sha256": "1bcbb5e4f38378dc6fb3bca483242dc10cf39238a361a05d602f78811d3ce5fe"
+}
