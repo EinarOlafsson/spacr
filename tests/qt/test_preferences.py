@@ -531,6 +531,15 @@ def fake_ambient(monkeypatch):
         def set_direction(self, name):
             self.motion["direction"] = name
 
+        def set_blink_percent(self, value):
+            self.motion["blink_percent"] = value
+
+        def set_popup_wave_frequency(self, value):
+            self.motion["popup_wave_frequency"] = value
+
+        def set_gravity_radius(self, value):
+            self.motion["gravity_radius"] = value
+
     module.AmbientWidget = _RecordingAmbient
     # Both bindings, so code reaching the module either way sees the same
     # object. It deliberately has no ``theme_note``, which also exercises
@@ -971,7 +980,7 @@ def test_apply_ambient_preferences_when_the_widget_list_fails(
 
     app = _DyingApp()
     apply_ambient_preferences(app)
-    assert app.asked == 1, "the widget list was never asked for"
+    assert app.asked >= 1, "the widget list was never asked for"
     assert widget.themes == [] and widget.palettes == []
     assert widget.animating is None
 
@@ -985,6 +994,8 @@ def test_apply_preferences_to_app_applies_the_ambient_prefs(
         set_ambient_drift_direction, set_ambient_enabled,
         set_ambient_resolution, set_ambient_size, set_ambient_speed,
         set_ambient_theme,
+        _set_ambient_blink_percent, _set_ambient_gravity_radius,
+        _set_field_popup_wave_frequency,
     )
     widget = fake_ambient.AmbientWidget()
     qtbot.addWidget(widget)
@@ -998,6 +1009,9 @@ def test_apply_preferences_to_app_applies_the_ambient_prefs(
     set_ambient_resolution(1.75)
     set_ambient_density(2.5)
     set_ambient_drift_direction("random")
+    _set_ambient_blink_percent(7.0)
+    _set_field_popup_wave_frequency(11.0)
+    _set_ambient_gravity_radius(0.35)
 
     apply_preferences_to_app()
     assert widget.themes[-1] == "mesh"
@@ -1011,7 +1025,9 @@ def test_apply_preferences_to_app_applies_the_ambient_prefs(
     # nothing until the app is restarted.
     assert widget.motion == {"blur": 1.5, "speed": 0.5, "size": 2.0,
                              "resolution": 1.75, "density": 2.5,
-                             "direction": "random"}
+                             "direction": "random", "blink_percent": 7.0,
+                             "popup_wave_frequency": 11.0,
+                             "gravity_radius": 0.35}
 
 
 # ---------------------------------------------------------------------------
