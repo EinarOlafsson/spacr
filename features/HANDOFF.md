@@ -1,5 +1,42 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home: urgent owner CI corrections, exact remaining contracts
+
+Home source repairs through b7891d23dd and the Coverage5 follow-up are ready.
+Workstation: pause unrelated features and complete the following blocking
+owner refresh against current nightly, including their strict source-bound
+test admissions. Preserve historical evidence and all original hard gates.
+
+- API extractor visible inventory: current 13214 versus reviewed 13199.
+- Callable constructor boundary: new blink_percent and popup_wave_frequency;
+  validate the complete arrival cohort, not just the first failed signature.
+- French/Swedish runtime review: exact later source retirements/replacements
+  must be accounted while keeping original evidence bytes intact.
+- Guide glossary: Swedish Animation detail currently disagrees with runtime
+  (Animeringsuppgifter versus Animationsdetaljer).
+- English documentation API catalog: regenerate and validate current source
+  inventory/hashes normally; Coverage8 exposes its stale inventory pin.
+- Indirect caption registry: the hard ownership guard is missing precisely
+  spaCR aurora, spaCR blobs and spaCR spinn. Refresh via the normal extractor
+  and catalog tools, then rerun the hard guard. Do not exempt these captions.
+
+Commands/selectors: tests/test_api_i18n_extractor.py,
+tests/test_docstring_correctness.py, tests/test_runtime_i18n_syntax.py,
+tests/test_guide_i18n.py, tests/test_documentation_i18n.py and
+tests/qt/test_i18n_caption_ratchet.py. Run bounded cohorts with the usual
+CUDA-hidden/offscreen/cgroup limits. Home raw current failures are recorded
+under /mnt/wd4tb/scratch/progress-report-20261007; hosted Coverage5 is archived
+in features/data/43_bb7_hosted_failure_frontier_2026-10-07. Report exact
+source hashes and results; neither a compatibility pass nor a generator
+exit alone is a full CI verdict. No owner acknowledgment is claimed.
+
+Home Coverage5 fixes preserve actual visible behavior: default gravity 15%,
+immediate Home hints independent of tooltip delay, ordinary arrived glow rim
+stops repainting, saved settings backdrop None and HintBar Enter/Leave
+without the removed private delay object. The six original failing nodes
+now pass; all five affected files pass 99/99 in 22.58s under 4 GiB.
+One combined Home check is still running; full GitHub tests remain red.
+
 ## 2026-10-07 — Home: current CI owner blockers and Preferences controls
 
 Currentb7 strict API/runtime/nested/Help cohort124pass,3FAIL; complete raw log
