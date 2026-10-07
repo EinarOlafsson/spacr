@@ -357,8 +357,7 @@ class QueueScreen(QWidget):
                 runner.abort()
             except (AttributeError, RuntimeError):
                 pass
-            if not drain_thread(runner, timeout_ms=5000):
-                runner.setParent(None)
+            drain_thread(runner, timeout_ms=5000)
         super().closeEvent(event)
 
     def _on_item_changed(self, item_id: str):

@@ -1958,3 +1958,13 @@ and exact insertion-only coverage union (0 statement/0 branch gaps). Current
 selector file passes 10 checks in 7.39s with CUDA hidden/offscreen under 4 GiB.
 This closes the distinct parked-reader parent SIGABRT only. The reproduced
 Shiboken deferred-wrapper-deletion SIGSEGV and full serial acceptance stay OPEN.
+
+2026-10-07 queue runner ownership repair: a blocked real queue pipeline survives
+the existing 5000 ms close drain only if detached from its native screen owner.
+Controlled before owner deletion SIGABRT -6 becomes clean exit0; safe cancellation
+returns both plates to QUEUED and parked/native runner ownership is released.
+Forty-seven focused checks pass10.67s, including already-deleted and normal
+runner handling. Both new guard branches are directly covered; strict inherited
+hosted source union has0 statement/0 branch gaps without a changed allowance.
+Independent review accepted this distinct fix; no full-suite/crash-parent closure.
+Compact source-bound evidence: data/47_queue_runner_owner_2026-10-07/.

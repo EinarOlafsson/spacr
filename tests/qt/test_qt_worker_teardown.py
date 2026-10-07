@@ -951,3 +951,118 @@ def test_queue_screen_close_stops_the_runner(
     # Cancelled at a safe boundary, so the item is left runnable rather than
     # marked failed — Stop is not an error.
     assert plate_queue.items()[0].status == Status.QUEUED
+    assert runner.parent() is screen
+
+
+def test_queue_timeout_detaches_the_runner_and_preserves_safe_cancellation(
+        qtbot, tmp_path, monkeypatch):
+    import weakref
+
+    from spacr.qt import bridge
+    from spacr.qt.plate_queue import PlateQueue, Status
+    from spacr.qt.screens.queue import QueueScreen
+
+    entered, release = threading.Event(), threading.Event()
+    called = []
+
+    def blocked(settings):
+        called.append(settings['src'])
+        entered.set()
+        assert release.wait(10)
+        cancellation_checkpoint()
+
+    def immediate_timeout(thread, *, timeout_ms):
+        assert timeout_ms == 5000
+        return drain_thread(thread, timeout_ms=0)
+
+    monkeypatch.setattr(bridge, 'resolve_pipeline_entry', lambda _key: blocked)
+    monkeypatch.setattr(bridge, 'drain_thread', immediate_timeout)
+    queue = PlateQueue(path=tmp_path / 'queue.json')
+    screen = QueueScreen(queue)
+    qtbot.addWidget(screen)
+    first = screen.add_item('mask', {'src': 'first'})
+    second = screen.add_item('mask', {'src': 'second'})
+    screen.start_runner()
+    runner = screen._runner
+    reference = weakref.ref(runner)
+    try:
+        assert entered.wait(2)
+        screen.close()
+        assert screen._runner is None and not screen._tick.isActive()
+        assert runner.isRunning() and runner.parent() is None
+        assert parked_thread_count() == 1
+        assert first.status == Status.RUNNING
+    finally:
+        release.set()
+        assert runner.wait(2000)
+        assert prune_parked_threads() == 0
+    assert called == ['first']
+    assert first.status == second.status == Status.QUEUED
+    assert not first.error and first.end_ts is None
+    del runner
+    assert reference() is None
+
+
+def test_native_queue_owner_deletion_keeps_a_slow_runner_alive(tmp_path):
+    import subprocess
+    import sys
+    import textwrap
+    from pathlib import Path
+
+    code = textwrap.dedent('''
+        import threading
+        from pathlib import Path
+        from PySide6.QtCore import QEvent
+        from PySide6.QtWidgets import QApplication
+        from shiboken6 import isValid
+        from spacr.cancellation import checkpoint
+        from spacr.qt import bridge
+        from spacr.qt.plate_queue import PlateQueue, Status
+        from spacr.qt.screens.queue import QueueScreen
+        try:
+            import resource
+        except ImportError:
+            pass
+        else:
+            resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+        app = QApplication([])
+        entered, release = threading.Event(), threading.Event()
+        called = []
+        def blocked(settings):
+            called.append(settings['src'])
+            entered.set()
+            assert release.wait(20)
+            checkpoint()
+        bridge.resolve_pipeline_entry = lambda _: blocked
+        queue = PlateQueue(path=Path('queue.json'))
+        screen = QueueScreen(queue)
+        first = screen.add_item('mask', {'src': 'first'})
+        second = screen.add_item('mask', {'src': 'second'})
+        screen.start_runner()
+        assert entered.wait(2)
+        runner = screen._runner
+        screen.close()
+        assert runner.isRunning() and runner.parent() is None
+        assert bridge.parked_thread_count() == 1
+        screen.deleteLater()
+        QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        assert not isValid(screen) and isValid(runner) and runner.isRunning()
+        release.set()
+        assert runner.wait(2000)
+        assert bridge.prune_parked_threads() == 0
+        assert called == ['first']
+        assert first.status == second.status == Status.QUEUED
+        runner.deleteLater()
+        QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        assert not isValid(runner)
+        print('queue-owner-deleted-runner-retired')
+    ''')
+    root = Path(__file__).resolve().parents[2]
+    environment = dict(os.environ, CUDA_VISIBLE_DEVICES='', QT_QPA_PLATFORM='offscreen',
+                       XDG_CONFIG_HOME=str(tmp_path / 'child-config'), PYTHONPATH=str(root))
+    result = subprocess.run([sys.executable, '-X', 'faulthandler', '-c', code],
+                            cwd=tmp_path, env=environment, capture_output=True,
+                            text=True, timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert 'queue-owner-deleted-runner-retired' in result.stdout
+    assert 'QThread: Destroyed while thread' not in result.stderr
