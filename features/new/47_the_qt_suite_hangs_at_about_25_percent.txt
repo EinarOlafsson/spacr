@@ -2256,3 +2256,22 @@ puncta SIGSEGV and protected b688 QEventLoop SIGSEGV remain OPEN.
 Frozen6before/after files, source hashes, raw phase logs, bounded native trace,
 portable reproduction and verified manifest are archived in
   data/47_ordinary_native_capture_cpu_2026-10-07/.
+
+2026-10-07 — ORDINARY ORIGINAL FAULT CONTEXT UNDER FAULTHANDLER RERAISE
+Collector882f2dcd1a adds ordinary-only bounded siginfo/current full bt24 before
+all-thread traces. A maximum24-frame SIGTRAMP walk selects the saved original
+fault frame, prints restored registers and16 instructions, then restores the
+current frame. Unsupported details are reported rather than killing collection.
+Protected serial gdb commands, all-thread bt24,90s/4MiB bounds, owned-core
+identity checks and all application/test policy remain unchanged.
+Five frame-selection/error/bound cases plus two cleanup cases pass7; original
+serial-command guard passes1. The controlled ctypes null-pointer probe actually
+reraises through CPython faulthandler: final siginfo is SI_TKILL(-6), whereas
+selected original frame5 is strlen with rdi=0 and faulting vpcmpeqb (%rdi).
+Gdb returns0 and the raw core is removed. The probe harness's final assertion
+erroneously matches a literal word in its logged script and exits1; the failed
+script is retained and existing output passes separate diagnostic-prefix
+checks without another core run. No spaCR or hosted-crash fix is inferred.
+Proof/source hashes, raw output, portable corrected reproduction and verified
+manifest: data/47_ordinary_fault_context_cpu_2026-10-07/.
+Current683 hosted execution stays untouched; native Qt faults remain OPEN.

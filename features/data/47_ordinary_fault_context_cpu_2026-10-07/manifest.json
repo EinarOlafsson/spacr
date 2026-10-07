@@ -1,0 +1,66 @@
+{
+  "README.txt": {
+    "bytes": 1732,
+    "sha256": "881afa4b0d6cb948d4bbc5e21f2bdd4cef31071565b24387a52c062eb01c93da"
+  },
+  "acceptance.json": {
+    "bytes": 3536,
+    "sha256": "6e39d72adb962487b4b222da56e8da9b190fcc20b4fd55b14a9fc8119b94fcb3"
+  },
+  "after-tests__test_qt_native_core_extraction.py.gz": {
+    "bytes": 5446,
+    "sha256": "6258f63fc18e3e9ca27748e889a3c74e25edd59a0f56cb02d84586c14bef8e8b"
+  },
+  "after-tools__collect_qt_native_backtrace.py.gz": {
+    "bytes": 6617,
+    "sha256": "536b70ef693177dc1aef3af0888043b3fdf5092ff17c48491d56f6644a1bf905"
+  },
+  "before-tests__test_qt_native_core_extraction.py.gz": {
+    "bytes": 4490,
+    "sha256": "efa6621ff9469e17ac4f89642d446982a88ff0db729be77714208b2f804e745c"
+  },
+  "before-tools__collect_qt_native_backtrace.py.gz": {
+    "bytes": 6183,
+    "sha256": "cf47e01c7a8d90bd2b229ac403e7602218e3bd0dc82b4e2052d551587e0a459a"
+  },
+  "native-collector.log": {
+    "bytes": 132,
+    "sha256": "f1fcdab375d88a3e5195fa7c38e5a13b02ed547986141fe81afbd58596f65b20"
+  },
+  "native-generate.log": {
+    "bytes": 1035,
+    "sha256": "d13877c4f0b562a04b4fae465db5769077e4960ef25e8a404326bd654d933dd3"
+  },
+  "native-native-core-backtrace.txt": {
+    "bytes": 19142,
+    "sha256": "d8a7403c48f2b79b92d0f75a853d65705484d9df487b166416d6a8b9169c54cb"
+  },
+  "native-probe.py": {
+    "bytes": 876,
+    "sha256": "018de5e7b96aa8910b36ce1f0454d27ab1f5ebd3d19e82884bce962476c3515a"
+  },
+  "native-receipt.json": {
+    "bytes": 939,
+    "sha256": "1a7794ae5305451eacc185f54972162968f0cc5cab0d6dc6ce938a0774002bbb"
+  },
+  "native-run_proof.py": {
+    "bytes": 2929,
+    "sha256": "6354130caeca994ea62845edecb9d712191ab12f435732d0cc953173a4647b0f"
+  },
+  "ordinary-original-frame-focused.log": {
+    "bytes": 98,
+    "sha256": "a073d88c1b947ec34432fbe034bdc858d9ae3a3e36e10925ba62442f94fc64c7"
+  },
+  "ordinary-serial-command-unchanged.log": {
+    "bytes": 98,
+    "sha256": "63203b4ec2b29e7ab8c45616e4d500960794bb60488784fb13fb7fe05b0386bf"
+  },
+  "reproduce.py": {
+    "bytes": 3158,
+    "sha256": "8ac507b0bd8414d7f2e38955df5a1cc764c2b3f188e2b4e480d0f208c8d90443"
+  },
+  "verify.py": {
+    "bytes": 824,
+    "sha256": "eb9ed24ca2e1f9714bc52c6c67ab490b0a9c2db795660cbf54bc8da9355d693d"
+  }
+}

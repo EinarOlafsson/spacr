@@ -1,0 +1,18 @@
+{
+  "git_head": "5f6b82119a777ec2984564c3632efb95632fbf30",
+  "collector_sha256": "a8853e2a229aab9d0f6a6c72cfa0f10fc27ee0ef20e445f425fc24d46fd0797a",
+  "original_fault_frame": "ordinary_fault_frame selection=after_sigtramp level=5 name=__strlen_avx2",
+  "siginfo_code": -6,
+  "original_rdi": 0,
+  "original_instruction": "vpcmpeqb (%rdi),%ymm0,%ymm1",
+  "gdb_exit": 0,
+  "core_removed": true,
+  "core_bytes": null,
+  "core_bytes_note": "Harness exited before writing size receipt; size is not invented.",
+  "executed_harness_exit": 1,
+  "harness_failure": "Final substring assertion incorrectly matched unsupported literal in logged gdb script; no actual unsupported diagnostic line.",
+  "verification": "Existing-output prefix checks passed; no additional core generated.",
+  "core_source": "controlled ctypes null-pointer fault reraised by CPython faulthandler",
+  "app_causation_claim": false,
+  "global_core_settings_changed": false
+}

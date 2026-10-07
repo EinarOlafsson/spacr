@@ -1,0 +1,83 @@
+{
+  "implementation_git_sha": "882f2dcd1a0374f0b1fe1804c8f5d8e97f0d24dc",
+  "scope": "ordinary-only original fault-thread diagnostic; no application repair",
+  "sources": {
+    "tools/collect_qt_native_backtrace.py": {
+      "before": {
+        "git_sha": "5f6b82119a777ec2984564c3632efb95632fbf30",
+        "sha256": "25195720d40ee5fcdf59b498783a563643f5b04b262025281f200bdeb888f750",
+        "payload": "before-tools__collect_qt_native_backtrace.py.gz"
+      },
+      "after": {
+        "git_sha": "882f2dcd1a0374f0b1fe1804c8f5d8e97f0d24dc",
+        "sha256": "a8853e2a229aab9d0f6a6c72cfa0f10fc27ee0ef20e445f425fc24d46fd0797a",
+        "payload": "after-tools__collect_qt_native_backtrace.py.gz"
+      }
+    },
+    "tests/test_qt_native_core_extraction.py": {
+      "before": {
+        "git_sha": "5f6b82119a777ec2984564c3632efb95632fbf30",
+        "sha256": "e30c22d6e6ac4063e58fc4fd55c5f35989ce2421a3842438d890b1fce65bd492",
+        "payload": "before-tests__test_qt_native_core_extraction.py.gz"
+      },
+      "after": {
+        "git_sha": "882f2dcd1a0374f0b1fe1804c8f5d8e97f0d24dc",
+        "sha256": "2fc9b76867b937530847046e4e89c287ca2abcf03b80ba63d05d484c1bf14175",
+        "payload": "after-tests__test_qt_native_core_extraction.py.gz"
+      }
+    }
+  },
+  "unit_validation": [
+    {
+      "log": "ordinary-original-frame-focused.log",
+      "passed": 7,
+      "seconds": 0.56
+    },
+    {
+      "log": "ordinary-serial-command-unchanged.log",
+      "passed": 1,
+      "seconds": 0.56
+    }
+  ],
+  "native_evidence": {
+    "git_head": "5f6b82119a777ec2984564c3632efb95632fbf30",
+    "collector_sha256": "a8853e2a229aab9d0f6a6c72cfa0f10fc27ee0ef20e445f425fc24d46fd0797a",
+    "original_fault_frame": "ordinary_fault_frame selection=after_sigtramp level=5 name=__strlen_avx2",
+    "siginfo_code": -6,
+    "original_rdi": 0,
+    "original_instruction": "vpcmpeqb (%rdi),%ymm0,%ymm1",
+    "gdb_exit": 0,
+    "core_removed": true,
+    "core_bytes": null,
+    "core_bytes_note": "Harness exited before writing size receipt; size is not invented.",
+    "executed_harness_exit": 1,
+    "harness_failure": "Final substring assertion incorrectly matched unsupported literal in logged gdb script; no actual unsupported diagnostic line.",
+    "verification": "Existing-output prefix checks passed; no additional core generated.",
+    "core_source": "controlled ctypes null-pointer fault reraised by CPython faulthandler",
+    "app_causation_claim": false,
+    "global_core_settings_changed": false
+  },
+  "preserved": [
+    "serial gdb command",
+    "all-thread bt 24",
+    "90 second gdb ceiling",
+    "4 MiB text bound",
+    "ELF process-leader/source/executable checks",
+    "test ordering/workers/gates/recovery",
+    "application source"
+  ],
+  "print_bounds": {
+    "elements": 32,
+    "maximum_depth": 4,
+    "current_full_backtrace_frames": 24,
+    "original_frame_walk": 24,
+    "original_disassembly_instructions": 16
+  },
+  "limitations": [
+    "$_siginfo describes the final reraised signal; its union si_addr is not the original fault address.",
+    "Saved signal-context registers may be unavailable; the collector reports unsupported and keeps the ordinary trace.",
+    "Controlled probe proves selection of a known null-pointer fault, not spaCR or hosted-crash causation.",
+    "The harness exited 1 on a flawed final substring assertion; actual diagnostic output passed separate prefix checks without another core run.",
+    "Current683 hosted run is preserved and does not contain this pending collector update."
+  ]
+}
