@@ -1,0 +1,16 @@
+{"checkpoint": "shutdown_returned", "module_path": "/mnt/wd4tb/spacr-worktrees/codex-primary-source-drain-20261007/spacr/qt/widgets/primary_mask_selector.py", "source_sha256": "01f816ccf9f3fc93b3ee0fb5e3a80faf930c56de7e7e05db08130d0fed660a8d", "parent_is_selector": true, "parked_threads": 1}
+
+A worker thread did not stop within 5000 ms; it is parked rather than terminated so the process is not left with a corrupt heap.
+QThread: Destroyed while thread '' is still running
+Fatal Python error: Aborted
+
+Thread 0x000071231d0f56c0 (most recent call first):
+  File "/home/olafsson/anaconda3/envs/spacr/lib/python3.12/threading.py", line 359 in wait
+  File "/home/olafsson/anaconda3/envs/spacr/lib/python3.12/threading.py", line 655 in wait
+  File "/mnt/wd4tb/scratch/primary-source-drain-20261007/native_probe.py", line 22 in blocked
+  File "/mnt/wd4tb/spacr-worktrees/codex-primary-source-drain-20261007/spacr/qt/widgets/primary_mask_selector.py", line 40 in run
+
+Current thread 0x0000712332668740 (most recent call first):
+  File "/mnt/wd4tb/scratch/primary-source-drain-20261007/native_probe.py", line 38 in <module>
+
+Extension modules: numpy._core._multiarray_umath, numpy.linalg._umath_linalg, shiboken6.Shiboken, PySide6.QtCore, PySide6.QtGui, PySide6.QtWidgets (total: 6)

@@ -1,0 +1,157 @@
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[Detaching after vfork from child process 2231960]
+[New Thread 0x7fffaf9ff6c0 (LWP 2231961)]
+[New Thread 0x7fff9f9ff6c0 (LWP 2231973)]
+[New Thread 0x7fff9e0ff6c0 (LWP 2231974)]
+[Detaching after vfork from child process 2231975]
+[Detaching after vfork from child process 2231976]
+[Detaching after vfork from child process 2231977]
+[Detaching after vfork from child process 2231978]
+[Detaching after vfork from child process 2231979]
+Type conversion already registered from type PySide::PyObjectWrapper to type int
+[New Thread 0x7fff954546c0 (LWP 2232010)]
+[New Thread 0x7fff807ff6c0 (LWP 2232082)]
+[Thread 0x7fff807ff6c0 (LWP 2232082) exited]
+[New Thread 0x7fff807ff6c0 (LWP 2232083)]
+[Thread 0x7fff807ff6c0 (LWP 2232083) exited]
+.[New Thread 0x7fff807ff6c0 (LWP 2232084)]
+[Thread 0x7fff807ff6c0 (LWP 2232084) exited]
+[New Thread 0x7fff807ff6c0 (LWP 2232085)]
+[Thread 0x7fff807ff6c0 (LWP 2232085) exited]
+.[New Thread 0x7fff807ff6c0 (LWP 2232087)]
+[Thread 0x7fff807ff6c0 (LWP 2232087) exited]
+[New Thread 0x7fff807ff6c0 (LWP 2232094)]
+[Thread 0x7fff807ff6c0 (LWP 2232094) exited]
+.[New Thread 0x7fff807ff6c0 (LWP 2232096)]
+[Thread 0x7fff807ff6c0 (LWP 2232096) exited]
+[New Thread 0x7fff807ff6c0 (LWP 2232097)]
+[Thread 0x7fff807ff6c0 (LWP 2232097) exited]
+.[New Thread 0x7fff807ff6c0 (LWP 2232098)]
+[New Thread 0x7fff7fffe6c0 (LWP 2232099)]
+[Thread 0x7fff7fffe6c0 (LWP 2232099) exited]
+[Thread 0x7fff807ff6c0 (LWP 2232098) exited]
+..[New Thread 0x7fff807ff6c0 (LWP 2232100)]
+[Thread 0x7fff807ff6c0 (LWP 2232100) exited]
+.[New Thread 0x7fff807ff6c0 (LWP 2232101)]
+[Thread 0x7fff807ff6c0 (LWP 2232101) exited]
+.[New Thread 0x7fff807ff6c0 (LWP 2232102)]
+[Thread 0x7fff807ff6c0 (LWP 2232102) exited]
+.[Detaching after vfork from child process 2232103]
+.[New Thread 0x7fff807ff6c0 (LWP 2232375)]
+.[New Thread 0x7fff7fffe6c0 (LWP 2232376)]
+[Thread 0x7fff7fffe6c0 (LWP 2232376) exited]
+.[New Thread 0x7fff7fffe6c0 (LWP 2232385)]
+[Thread 0x7fff7fffe6c0 (LWP 2232385) exited]
+
+Thread 1 "python" received signal SIGSEGV, Segmentation fault.
+0x00007ffff5c4c670 in Shiboken::BindingManager::releaseWrapper(SbkObject*) () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/shiboken6/libshiboken6.abi3.so.6.11
+
+Thread 19 (Thread 0x7fff807ff6c0 (LWP 2232375) "python"):
+#0  0x00007ffff7d1b79d in __GI___poll (fds=fds@entry=0x7fff807fe280, nfds=nfds@entry=1, timeout=timeout@entry=30000) at ../sysdeps/unix/sysv/linux/poll.c:29
+#1  0x00007ffff71e3f9c in poll (__fds=0x7fff807fe280, __nfds=1, __timeout=<optimized out>) at /home/task_a9LjGuP7SLSzS_0/croot/python-split_1783607227258/_build_env/x86_64-conda-linux-gnu/sysroot/usr/include/bits/poll2.h:38
+#2  internal_select (writing=writing@entry=1, interval=<optimized out>, connect=connect@entry=1, s=0x7fff740b6900) at /usr/local/src/conda/python-3.12.13/Modules/socketmodule.c:836
+#3  0x00007ffff71e4072 in sock_call_ex (s=s@entry=0x7fff740b6900, writing=writing@entry=1, sock_func=sock_func@entry=0x7ffff71e034f <sock_connect_impl>, data=data@entry=0x0, connect=connect@entry=1, err=err@entry=0x0, timeout=30000000000) at /usr/local/src/conda/python-3.12.13/Modules/socketmodule.c:931
+#4  0x00007ffff71e46ce in internal_connect (s=s@entry=0x7fff740b6900, addr=addr@entry=0x7fff807fe370, addrlen=16, raise=raise@entry=1) at /usr/local/src/conda/python-3.12.13/Modules/socketmodule.c:3515
+#5  0x00007ffff71e484b in sock_connect (s=0x7fff740b6900, addro=0x7fff741a6900) at /usr/local/src/conda/python-3.12.13/Modules/socketmodule.c:3545
+#6  0x0000555555783d45 in method_vectorcall_O (func=0x7ffff6c3bce0, args=0x7fffbf622080, nargsf=<optimized out>, kwnames=<optimized out>) at /usr/local/src/conda/python-3.12.13/Objects/descrobject.c:482
+#7  0x000055555576894e in _PyObject_VectorcallTstate (tstate=0x55555b4eb780, callable=0x7ffff6c3bce0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /usr/local/src/conda/python-3.12.13/Include/internal/pycore_call.h:92
+#8  PyObject_Vectorcall (callable=0x7ffff6c3bce0, args=<optimized out>, nargsf=<optimized out>, kwnames=<optimized out>) at /usr/local/src/conda/python-3.12.13/Objects/call.c:325
+#9  0x00005555557536ef in _PyEval_EvalFrameDefault (tstate=tstate@entry=0x55555b4eb780, frame=<optimized out>, frame@entry=0x7fffbf6219c0, throwflag=throwflag@entry=0) at Python/bytecodes.c:2715
+#10 0x000055555579cd94 in _PyEval_EvalFrame (tstate=0x55555b4eb780, frame=0x7fffbf6219c0, throwflag=0) at /usr/local/src/conda/python-3.12.13/Include/internal/pycore_ceval.h:89
+#11 _PyEval_Vector (tstate=0x55555b4eb780, func=0x7fff7d816d40, locals=0x0, args=<optimized out>, argcount=<optimized out>, kwnames=0x0) at /usr/local/src/conda/python-3.12.13/Python/ceval.c:1685
+#12 _PyFunction_Vectorcall (func=0x7fff7d816d40, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /usr/local/src/conda/python-3.12.13/Objects/call.c:419
+#13 _PyObject_VectorcallTstate (tstate=0x55555b4eb780, callable=0x7fff7d816d40, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /usr/local/src/conda/python-3.12.13/Include/internal/pycore_call.h:92
+#14 method_vectorcall (method=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /usr/local/src/conda/python-3.12.13/Objects/classobject.c:91
+#15 0x0000555555757a7f in PyCFunction_Call (callable=0x7fff7ee7dc40, args=0x7fff7d7b9780, kwargs=0x0) at /usr/local/src/conda/python-3.12.13/Objects/call.c:387
+#16 _PyEval_EvalFrameDefault (tstate=tstate@entry=0x55555b4eb780, frame=<optimized out>, frame@entry=0x7fffbf6216b8, throwflag=throwflag@entry=0) at Python/bytecodes.c:3263
+#17 0x000055555579cd94 in _PyEval_EvalFrame (tstate=0x55555b4eb780, frame=0x7fffbf6216b8, throwflag=0) at /usr/local/src/conda/python-3.12.13/Include/internal/pycore_ceval.h:89
+#18 _PyEval_Vector (tstate=0x55555b4eb780, func=0x7fff7d8151c0, locals=0x0, args=<optimized out>, argcount=<optimized out>, kwnames=0x0) at /usr/local/src/conda/python-3.12.13/Python/ceval.c:1685
+#19 _PyFunction_Vectorcall (func=0x7fff7d8151c0, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /usr/local/src/conda/python-3.12.13/Objects/call.c:419
+#20 _PyObject_VectorcallTstate (tstate=0x55555b4eb780, callable=0x7fff7d8151c0, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /usr/local/src/conda/python-3.12.13/Include/internal/pycore_call.h:92
+#21 method_vectorcall (method=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /usr/local/src/conda/python-3.12.13/Objects/classobject.c:91
+#22 0x0000555555757a7f in PyCFunction_Call (callable=0x7fff7d78df00, args=0x7fff7c077830, kwargs=0x0) at /usr/local/src/conda/python-3.12.13/Objects/call.c:387
+#23 _PyEval_EvalFrameDefault (tstate=tstate@entry=0x55555b4eb780, frame=<optimized out>, frame@entry=0x7fffbf621600, throwflag=throwflag@entry=0) at Python/bytecodes.c:3263
+#24 0x000055555579cd94 in _PyEval_EvalFrame (tstate=0x55555b4eb780, frame=0x7fffbf621600, throwflag=0) at /usr/local/src/conda/python-3.12.13/Include/internal/pycore_ceval.h:89
+#25 _PyEval_Vector (tstate=0x55555b4eb780, func=0x7fff7d814a40, locals=0x0, args=<optimized out>, argcount=<optimized out>, kwnames=0x0) at /usr/local/src/conda/python-3.12.13/Python/ceval.c:1685
+#26 _PyFunction_Vectorcall (func=0x7fff7d814a40, stack=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /usr/local/src/conda/python-3.12.13/Objects/call.c:419
+#27 _PyObject_VectorcallTstate (tstate=0x55555b4eb780, callable=0x7fff7d814a40, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /usr/local/src/conda/python-3.12.13/Include/internal/pycore_call.h:92
+#28 method_vectorcall (method=<optimized out>, args=<optimized out>, nargsf=<optimized out>, kwnames=0x0) at /usr/local/src/conda/python-3.12.13/Objects/classobject.c:91
+#29 0x0000555555757a7f in PyCFunction_Call (callable=0x7fff74083540, args=0x7fff7f7a2ea0, kwargs=0x0) at /usr/local/src/conda/python-3.12.13/Objects/call.c:387
+
+Thread 5 (Thread 0x7fff954546c0 (LWP 2232010) "QDBusConnection"):
+#0  0x00007ffff7d1b79d in __GI___poll (fds=0x7fff8c001450, nfds=1, timeout=-1) at ../sysdeps/unix/sysv/linux/poll.c:29
+#1  0x00007fffc0f73b4e in ?? () from /lib/x86_64-linux-gnu/libglib-2.0.so.0
+#2  0x00007fffc0f13ad3 in g_main_context_iteration () from /lib/x86_64-linux-gnu/libglib-2.0.so.0
+#3  0x00007fffae08fffe in QEventDispatcherGlib::processEvents(QFlags<QEventLoop::ProcessEventsFlag>) () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#4  0x00007fffadd95d1b in QEventLoop::exec(QFlags<QEventLoop::ProcessEventsFlag>) () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#5  0x00007fffadea4153 in QThread::exec() () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#6  0x00007fffc1a657ce in ?? () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/Qt/lib/libQt6DBus.so.6
+#7  0x00007fffadf57c4e in ?? () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#8  0x00007ffff7c9cb84 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#9  0x00007ffff7d29ecc in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 4 (Thread 0x7fff9e0ff6c0 (LWP 2231974) "python"):
+#0  0x00007ffff7cecbdf in __GI___clock_nanosleep (clock_id=clock_id@entry=1, flags=flags@entry=1, req=req@entry=0x7fff9e0feb80, rem=rem@entry=0x0) at ../sysdeps/unix/sysv/linux/clock_nanosleep.c:78
+#1  0x0000555555890c8e in pysleep (timeout=<optimized out>) at /usr/local/src/conda/python-3.12.13/Modules/timemodule.c:2239
+#2  time_sleep (self=<optimized out>, timeout_obj=<optimized out>) at /usr/local/src/conda/python-3.12.13/Modules/timemodule.c:425
+#3  0x0000555555753c34 in _PyEval_EvalFrameDefault (tstate=tstate@entry=0x555557c00410, frame=<optimized out>, frame@entry=0x7ffff71cd020, throwflag=throwflag@entry=0) at Python/bytecodes.c:2913
+#4  0x000055555579d263 in _PyEval_EvalFrame (tstate=0x555557c00410, frame=0x7ffff71cd020, throwflag=0) at /usr/local/src/conda/python-3.12.13/Include/internal/pycore_ceval.h:89
+#5  _PyEval_Vector (tstate=0x555557c00410, func=0x7ffff6df6e80, locals=0x0, args=0x7fff9e0fee18, argcount=<optimized out>, kwnames=<optimized out>) at /usr/local/src/conda/python-3.12.13/Python/ceval.c:1685
+#6  _PyFunction_Vectorcall (func=0x7ffff6df6e80, stack=0x7fff9e0fee18, nargsf=<optimized out>, kwnames=<optimized out>) at /usr/local/src/conda/python-3.12.13/Objects/call.c:419
+#7  _PyObject_VectorcallTstate (tstate=0x555557c00410, callable=0x7ffff6df6e80, args=0x7fff9e0fee18, nargsf=<optimized out>, kwnames=<optimized out>) at /usr/local/src/conda/python-3.12.13/Include/internal/pycore_call.h:92
+#8  0x000055555579ce30 in method_vectorcall (method=<optimized out>, args=0x555555b89e08 <_PyRuntime+75624>, nargsf=<optimized out>, kwnames=0x0) at /usr/local/src/conda/python-3.12.13/Objects/classobject.c:69
+#9  0x0000555555881cb2 in thread_run (boot_raw=0x5555580bc9b0) at /usr/local/src/conda/python-3.12.13/Modules/_threadmodule.c:1116
+#10 0x0000555555881c64 in pythread_wrapper (arg=<optimized out>) at /usr/local/src/conda/python-3.12.13/Python/thread_pthread.h:237
+#11 0x00007ffff7c9cb84 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#12 0x00007ffff7d29ecc in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 3 (Thread 0x7fff9f9ff6c0 (LWP 2231973) "jemalloc_bg_thd"):
+#0  0x00007ffff7c98e51 in __futex_abstimed_wait_common64 (private=32767, cancel=true, abstime=0x0, op=393, expected=0, futex_word=0x7fffa0016630) at ./nptl/futex-internal.c:57
+#1  __futex_abstimed_wait_common (cancel=true, private=32767, abstime=0x0, clockid=0, expected=0, futex_word=0x7fffa0016630) at ./nptl/futex-internal.c:87
+#2  __GI___futex_abstimed_wait_cancelable64 (futex_word=futex_word@entry=0x7fffa0016630, expected=expected@entry=0, clockid=clockid@entry=0, abstime=abstime@entry=0x0, private=private@entry=0) at ./nptl/futex-internal.c:139
+#3  0x00007ffff7c9b8cd in __pthread_cond_wait_common (abstime=0x0, clockid=0, mutex=0x7fffa0016678, cond=0x7fffa0016608) at ./nptl/pthread_cond_wait.c:503
+#4  ___pthread_cond_wait (cond=0x7fffa0016608, mutex=0x7fffa0016678) at ./nptl/pthread_cond_wait.c:627
+#5  0x00007fffa1888142 in background_thread_entry () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/pyarrow/libarrow.so.2500
+#6  0x00007ffff7c9cb84 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#7  0x00007ffff7d29ecc in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 2 (Thread 0x7fffaf9ff6c0 (LWP 2231961) "cuda00001400006"):
+#0  0x00007ffff7d1b79d in __GI___poll (fds=0x555556c15540, nfds=2, timeout=-1) at ../sysdeps/unix/sysv/linux/poll.c:29
+#1  0x00007fffc4b19fa7 in ?? () from /lib/x86_64-linux-gnu/libcuda.so.1
+#2  0x00007fffc4c069e7 in ?? () from /lib/x86_64-linux-gnu/libcuda.so.1
+#3  0x00007fffc4b06de3 in ?? () from /lib/x86_64-linux-gnu/libcuda.so.1
+#4  0x00007ffff7c9cb84 in start_thread (arg=<optimized out>) at ./nptl/pthread_create.c:447
+#5  0x00007ffff7d29ecc in clone3 () at ../sysdeps/unix/sysv/linux/x86_64/clone3.S:78
+
+Thread 1 (Thread 0x7ffff7ea2740 (LWP 2231957) "python"):
+#0  0x00007ffff5c4c670 in Shiboken::BindingManager::releaseWrapper(SbkObject*) () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/shiboken6/libshiboken6.abi3.so.6.11
+#1  0x00007ffff5c57868 in Shiboken::Object::destroy(SbkObject*, void*) () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/shiboken6/libshiboken6.abi3.so.6.11
+#2  0x00007fffae52ca00 in ?? () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/QtCore.abi3.so
+#3  0x00007fffae52ca18 in ?? () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/QtCore.abi3.so
+#4  0x00007fffadde4714 in QObject::event(QEvent*) () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#5  0x00007fffae5436bb in ?? () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/QtCore.abi3.so
+#6  0x00007fffa539571b in QApplicationPrivate::notify_helper(QObject*, QEvent*) () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/Qt/lib/libQt6Widgets.so.6
+#7  0x00007fffa5e3b3df in ?? () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/QtWidgets.abi3.so
+#8  0x00007fffadd89d90 in QCoreApplication::notifyInternal2(QObject*, QEvent*) () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#9  0x00007fffadd8d9f4 in QCoreApplicationPrivate::sendPostedEvents(QObject*, int, QThreadData*) () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#10 0x00007fffae090c37 in ?? () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#11 0x00007fffc0f14635 in ?? () from /lib/x86_64-linux-gnu/libglib-2.0.so.0
+#12 0x00007fffc0f73bf7 in ?? () from /lib/x86_64-linux-gnu/libglib-2.0.so.0
+#13 0x00007fffc0f13ad3 in g_main_context_iteration () from /lib/x86_64-linux-gnu/libglib-2.0.so.0
+#14 0x00007fffae08fffe in QEventDispatcherGlib::processEvents(QFlags<QEventLoop::ProcessEventsFlag>) () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#15 0x00007fffadd95d1b in QEventLoop::exec(QFlags<QEventLoop::ProcessEventsFlag>) () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/Qt/lib/libQt6Core.so.6
+#16 0x00007fffae6190fc in ?? () from /home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/QtCore.abi3.so
+#17 0x0000555555772758 in cfunction_call (func=0x7fff7c7d0810, args=<optimized out>, kwargs=<optimized out>) at /usr/local/src/conda/python-3.12.13/Objects/methodobject.c:537
+#18 0x0000555555785a15 in _PyObject_Call (tstate=0x555555be7790 <_PyRuntime+458992>, callable=0x7fff7c7d0810, args=0x555555b89df0 <_PyRuntime+75600>, kwargs=<optimized out>) at /usr/local/src/conda/python-3.12.13/Objects/call.c:367
+#19 0x0000555555757a7f in PyCFunction_Call (callable=0x7fff7c7d0810, args=0x555555b89df0 <_PyRuntime+75600>, kwargs=0x7fff6dedad00) at /usr/local/src/conda/python-3.12.13/Objects/call.c:387
+#20 _PyEval_EvalFrameDefault (tstate=<optimized out>, frame=<optimized out>, throwflag=<optimized out>) at Python/bytecodes.c:3263
+#21 0x000055555574c183 in _PyObject_FastCallDictTstate (tstate=0x555555be7790 <_PyRuntime+458992>, callable=0x7ffff72ee200, args=<optimized out>, nargsf=<optimized out>, kwargs=<optimized out>) at /usr/local/src/conda/python-3.12.13/Objects/call.c:144
+#22 0x0000555555783007 in _PyObject_Call_Prepend (tstate=tstate@entry=0x555555be7790 <_PyRuntime+458992>, callable=callable@entry=0x7ffff72ee200, obj=obj@entry=0x7ffff69294e0, args=args@entry=0x555555b89df0 <_PyRuntime+75600>, kwargs=kwargs@entry=0x7fff7f7b2240) at /usr/local/src/conda/python-3.12.13/Objects/call.c:508
+#23 0x0000555555854b19 in slot_tp_call (self=0x7ffff69294e0, args=0x555555b89df0 <_PyRuntime+75600>, kwds=0x7fff7f7b2240) at /usr/local/src/conda/python-3.12.13/Objects/typeobject.c:8791
+#24 0x000055555574946c in _PyObject_MakeTpCall (tstate=0x555555be7790 <_PyRuntime+458992>, callable=0x7ffff69294e0, args=<optimized out>, nargs=<optimized out>, keywords=<optimized out>) at /usr/local/src/conda/python-3.12.13/Objects/call.c:240
+#25 0x00005555557536ef in _PyEval_EvalFrameDefault (tstate=<optimized out>, frame=<optimized out>, throwflag=<optimized out>) at Python/bytecodes.c:2715
+#26 0x000055555574c183 in _PyObject_FastCallDictTstate (tstate=0x555555be7790 <_PyRuntime+458992>, callable=0x7ffff72ee200, args=<optimized out>, nargsf=<optimized out>, kwargs=<optimized out>) at /usr/local/src/conda/python-3.12.13/Objects/call.c:144
+#27 0x0000555555783007 in _PyObject_Call_Prepend (tstate=tstate@entry=0x555555be7790 <_PyRuntime+458992>, callable=callable@entry=0x7ffff72ee200, obj=obj@entry=0x7ffff69296c0, args=args@entry=0x555555b89df0 <_PyRuntime+75600>, kwargs=kwargs@entry=0x7fff7f7b0080) at /usr/local/src/conda/python-3.12.13/Objects/call.c:508
+#28 0x0000555555854b19 in slot_tp_call (self=0x7ffff69296c0, args=0x555555b89df0 <_PyRuntime+75600>, kwds=0x7fff7f7b0080) at /usr/local/src/conda/python-3.12.13/Objects/typeobject.c:8791
+#29 0x0000555555785a15 in _PyObject_Call (tstate=0x555555be7790 <_PyRuntime+458992>, callable=0x7ffff69296c0, args=0x555555b89df0 <_PyRuntime+75600>, kwargs=<optimized out>) at /usr/local/src/conda/python-3.12.13/Objects/call.c:367

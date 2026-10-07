@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "scope": "primary source reader ownership, native before/after and independent unresolved SIGSEGV diagnostics",
+  "files": {
+    "README.md": {
+      "bytes": 3804,
+      "sha256": "47fa51c55f8f3dd71d31a888e6a6099eace3d4e0816f07654c224b6244022d80"
+    },
+    "after.json": {
+      "bytes": 402,
+      "sha256": "9028960da38e2eceb64ea16baf049148e32aee79770f1b1be3e930f38a2a04d1"
+    },
+    "after.log": {
+      "bytes": 485,
+      "sha256": "d9ac293fd8b9b7aacfe34a82d0bb83517dbfe27265131ff491120d55b484c027"
+    },
+    "after_primary_mask_selector.py": {
+      "bytes": 9833,
+      "sha256": "eaeb0e6867861dfaefbff29b32138e71d5f144a2eb3fd76b83e3364914be4dc6"
+    },
+    "after_test_primary_mask_selector.py": {
+      "bytes": 12693,
+      "sha256": "e7b20595ee1b13011391bd4e16b233bbfc07348746379bb8b084d4e45a945b93"
+    },
+    "archive_proof.py": {
+      "bytes": 5534,
+      "sha256": "c0540ceaf4af98f245a301334d4725f55fa1e68f4cab1dd6c1d541a34e2a4073"
+    },
+    "before.json": {
+      "bytes": 406,
+      "sha256": "804251d8b164519d9a3ecce20c42db5c8a03a3481fe1a9ac5b7bf980480c848a"
+    },
+    "before.log": {
+      "bytes": 1277,
+      "sha256": "5ab88e450022808b20ed22f3ff6e2d3e16d1730f0a794ee3d6bd09611153977f"
+    },
+    "before_primary_mask_selector.py": {
+      "bytes": 9759,
+      "sha256": "01f816ccf9f3fc93b3ee0fb5e3a80faf930c56de7e7e05db08130d0fed660a8d"
+    },
+    "combined-sigsegv.log": {
+      "bytes": 9857,
+      "sha256": "ac124517e334250acc30a365b557ecbb9e81275dbf1aa83194685bc989cf1365"
+    },
+    "coverage.json": {
+      "bytes": 14701,
+      "sha256": "693526fdc4d29d41b3b7f803dcf810cfb822fd82811469692ba028a47a0fce55"
+    },
+    "focused-tests.log": {
+      "bytes": 437,
+      "sha256": "aaae7adf4a3e1364fd046b0d4a13ecb37cc3524b0bdec4921959d28e1123b031"
+    },
+    "gdb-reproducing-cohort.log": {
+      "bytes": 18721,
+      "sha256": "7bc001ca07d806927d3e3046cc333e019878c310710fbb616f687b3298852b88"
+    },
+    "hosted_module_coverage.json": {
+      "bytes": 25702,
+      "sha256": "cc9343ae38c45e645da2bf8605dec9900532d286859007864514672fc9ee5b2c"
+    },
+    "native_probe.py": {
+      "bytes": 1724,
+      "sha256": "150b8cd013e36e23f07c564fce04ab36a6a267820a9a55877e98683e0d13993e"
+    },
+    "receipt.json": {
+      "bytes": 3277,
+      "sha256": "b015e40768af5b53089aaeb18ea5320fb005db0e9fd7a0f6c04a1cf492fe30e8"
+    },
+    "reproduce_native.py": {
+      "bytes": 520,
+      "sha256": "0579e2c6ec140cfc488720978c3972e168d474362af8a048a35b0542311175f8"
+    },
+    "verify_proof.py": {
+      "bytes": 1645,
+      "sha256": "0d4603ebce3b918d89b11310cd0c50316fd60ce4313ad4f0a186c0844a3ae427"
+    }
+  }
+}

@@ -1936,3 +1936,18 @@ restarts hosted acceptance through the workflow-file trigger. Item stays OPEN.
     Source-bound raw journals/logs: data/47_exclude_settings_owner_2026-10-07/.
     No production, forced-GC, collection-order or memory-limit change. Protected
     45f remains untouched; native-crash/full serial acceptance stays OPEN.
+
+2026-10-07 — primary source reader native ownership, distinct crash boundary
+    A controlled source read exceeding the existing 5000 ms drain reproduced
+    a separate SIGABRT: Python parked the QThread, but the destroyed selector
+    still native-owned it. Shutdown now detaches only an actually running
+    worker after the drain. Completed readers retain normal parent ownership.
+    Real native owner destruction exits -6 before and 0 after; 23 focused
+    selector/source tests pass, including late publication rejection and both
+    new guard paths. The strictly inserted two-line guard plus exact old hosted
+    coverage retains 0 missing statements/0 missing branches without ratchets.
+    Source-bound proof: data/47_primary_source_reader_owner_2026-10-07/.
+    A DIFFERENT parent-loading SIGSEGV reproduced locally under GDB in
+    Shiboken releaseWrapper during deferred QObject deletion. That crash
+    persists with this independent ownership fix and is NOT claimed repaired.
+    Hosted/native crash and full serial N47 acceptance remain OPEN.

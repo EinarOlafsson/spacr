@@ -1,0 +1,5 @@
+{"checkpoint": "shutdown_returned", "module_path": "/mnt/wd4tb/spacr-worktrees/codex-primary-source-drain-20261007/spacr/qt/widgets/primary_mask_selector.py", "source_sha256": "eaeb0e6867861dfaefbff29b32138e71d5f144a2eb3fd76b83e3364914be4dc6", "parent_is_selector": false, "parked_threads": 1}
+selector_deleted_reader_still_running
+reader_stopped_cleanly
+
+A worker thread did not stop within 5000 ms; it is parked rather than terminated so the process is not left with a corrupt heap.
