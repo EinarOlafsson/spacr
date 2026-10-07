@@ -36,15 +36,19 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import (QEvent, QPointF, Qt,                  # noqa: E402
-                            QStringListModel)
-from PySide6.QtGui import QStandardItemModel                      # noqa: E402
-from PySide6.QtWidgets import (QApplication, QComboBox,           # noqa: E402
-                               QFormLayout, QLabel, QLineEdit,
-                               QVBoxLayout, QWidget)
+from PySide6.QtCore import QEvent, QPointF, QStringListModel, Qt  # noqa: E402
+from PySide6.QtGui import QStandardItemModel  # noqa: E402
+from PySide6.QtWidgets import (  # noqa: E402
+    QApplication,
+    QComboBox,
+    QFormLayout,
+    QLabel,
+    QLineEdit,
+    QVBoxLayout,
+    QWidget,
+)
 
-from spacr.qt.screens import settings_model as SM                 # noqa: E402
-
+from spacr.qt.screens import settings_model as SM  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # module defaults and the plane-clearing rule
@@ -636,9 +640,11 @@ class _Voiceless(QWidget):
     """A control with none of the three value-changed signals."""
 
 
-def test_a_selector_with_no_signal_is_left_unconnected_rather_than_fatal():
+def test_a_selector_with_no_signal_is_left_unconnected_rather_than_fatal(qtbot):
     """Three spellings are tried; a control with none is simply not followed."""
-    widgets = SM.SettingsWidgets("classify_merged")
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    widgets = SM.SettingsWidgets("classify_merged", parent=owner)
     # Only the three selectors the connection block looks for, so the panel
     # is four widgets rather than four hundred.
     widgets._defaults = {"classifier_family": "torch",
@@ -648,8 +654,8 @@ def test_a_selector_with_no_signal_is_left_unconnected_rather_than_fatal():
 
     def _voiceless(kind, options, default, key):
         if key == "regression_backend":
-            return SM._RegressionBackendField()
-        return _Voiceless()
+            return SM._RegressionBackendField(parent=owner)
+        return _Voiceless(owner)
 
     widgets._widget_for = _voiceless
     widgets.build_sections()
