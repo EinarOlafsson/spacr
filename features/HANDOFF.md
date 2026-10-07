@@ -1,6 +1,30 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
 
+## 2026-10-07 14:58 UTC — biological growth and equivalent Aurora paint complete locally
+
+Home integrated biological growth604269d248 as259e1568bc and equivalent Aurora
+surge/clip changes1e05/07959 as76de/1b06. Growth now has recursively wandering
+tips, connected daughter births, front-enriched branching and gradual direction
+changes with boundary steering. The rejected fern/cable draft is superseded.
+Root growth/clipping integration39passes; agent71case scope overlaps. Source-
+bound contact/timelapse/checkpoint and root log retained under data/
+663_biological_growth_cpu_2026-10-07/receipt.json; fungal class equals frozen
+checkpoint exactly. User visual acceptance and native24FPS remain OPEN:
+actual native growth default~65ms, high controls~169ms. Native Aurora equivalent
+surge drawing improves modestly, but max actual9curtains still~218ms. No density,
+resolution, geometry, antialiasing or material cuts. Field bounded hold-drag is
+still ACTIVE, with40 passing focused cases and final input integration pending.
+Workstation normal source refresh must include new growth description/API
+_lineage helper and retired old growth helpers, plus later field input changes.
+
+Protected new serial37639050274 runs on b6885af4feb45d9c88c1aaa84ff9d3b49ce9c40c,
+started automatically from the collector workflow edit. Never cancel/replace
+it; it predates this biological growth/Aurora/field batch and cannot accept them.
+Its unchanged original-order selection/memory limits remain separate from
+ordinary current-source acceptance. Old a44 serial remains terminalFAILURE.
+
+
 ## 2026-10-07 — Home native collector improvement and current 4K limitation
 
 Home has repaired the compressed-core diagnostic gap: matched recent systemd

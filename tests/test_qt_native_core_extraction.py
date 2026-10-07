@@ -8,6 +8,8 @@ import time
 
 import pytest
 
+pytest.importorskip('resource', reason='systemd core diagnostics require POSIX resource limits')
+
 from tools import collect_qt_native_backtrace as collector
 
 

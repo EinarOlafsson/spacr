@@ -1,7 +1,7 @@
 ABSTRACT DATA FLOW THEMES AND BACKDROP PERFORMANCE
 Status: OPEN 2026-10-07 — current controls, catalog, waves/repulsion, local
 spin, native aurora and popup integration are implemented and locally checked.
-Biological growth is being revised to the latest maintainer direction;
+Biological growth paths implement the latest maintainer direction;
 native hard24FPS, installed Save crash and final aesthetic acceptance remain open.
 Previous status (superseded 2026-10-07): OPEN 2026-10-06 — requested six-theme refinement; final live motion checks pending.
 Requested: 2026-10-05 by the maintainer: performance-optimize themes and add
@@ -1127,3 +1127,41 @@ Environment is PySide6/Shiboken6 6.11.1, NumPy2.4.3, Torch2.10.0; Home's reporte
 source/environment evidence: data/663_workstation_native_Save_diagnostic_2026-10-07.json.
 This does not reproduce or close the original installed-user Save crash, claim
 24FPS, or imply human aesthetic acceptance. Implementation remains Home-owned.
+
+
+2026-10-07 — BIOLOGICAL MYCELIUM-STYLE GROWTH IMPLEMENTED
+Corrective source604269d248 (integrated259e1568bc) replaces the rejected fern/
+parallel-cable topology with seeded persistent wandering tips. Three nearby
+inoculation roots produce recursively growing lateral fronts. Fork births
+become more abundant later in every directional phase; daughter segments wait
+for parent-tip arrival, and active frontier is bounded at48. Exploration yields
+to directional bias, then smoothly bends toward the next screen direction.
+Tips steer/reflect before screen boundaries; old trails fade without a blank
+reset. Density selects actual daughter population without shortening primary
+travel. Pixel-footprint budget and real occupancy checks retain the30% ceiling.
+71 agent focused cases pass in recorded tool output; no raw71 logfile was
+retained. Root integration passes39 growth/clipping cases in12.20s (overlapping
+scope, not110 unique tests). Root reviewed actual final contacti and verified
+the integrated fungal class exactly matches the frozen checkpoint class.
+Retained25 digest-verified source/script/image/movie/root-log payloads:
+data/663_biological_growth_cpu_2026-10-07/receipt.json.
+The actual timelapse contains61 rendered960x540frames sampled0–120 animation
+seconds at2-second intervals and encoded12playbackFPS; it is not a real-time
+FPS benchmark. Invalid f/g captures that imported shared source are excluded.
+Native4K checkpoint direct shade: default about65ms; Density3/Size2.5 about169ms.
+A4K-host960x540-buffer widget probe near23FPS is explicitly lower-resolution,
+not native4K acceptance. Human aesthetics and hard native24FPS remainOPEN.
+
+2026-10-07 — EQUIVALENT AURORA SURGE PAINT OPTIMIZATION
+Source1e05cd4e0e/079591b7dd, integrated76de5c6de6/1b06fcadaf, draws the same
+cached surge image through the same antialiased path using IntersectClip.
+Caller rectangle/path clips and painter state are preserved; negative control
+fails2/2 before clip correction and passes2/2 after, four ownership neighbors
+pass, and44 Aurora focused checks pass. Actual native4K24 paired scenes are
+byte-exact;12 smaller scenes differ by at most47pixels of one byte. Geometry,
+all9 maximum-density curtains, native Detail, material and colors are preserved.
+ABBA native4K default medians45.39/46.33ms before vs40.78/44.27ms after; max
+Density3/Size3/Detail2 medians226.18/248.70ms before vs225.56/218.05ms after.
+This is a modest speed improvement, not hard24FPS acceptance. Older66/89ms
+measurements used the old combined-work-density helper and cannot accept
+current maximum controls. Installed Save crash remains a separateOPEN scope.

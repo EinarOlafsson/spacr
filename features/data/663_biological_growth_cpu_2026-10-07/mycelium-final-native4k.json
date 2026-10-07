@@ -1,0 +1,93 @@
+{
+  "source_commit": "604269d2487ab2513989736415047465b9432ff9",
+  "ambient_sha256": "766aed5afbe443e7240b522c4f914b454356e07c32cb1dc5ee3cc9ad4037f4b8",
+  "source_path": "/mnt/wd4tb/spacr-worktrees/codex-theme-growth-advection-20261007/spacr/qt/widgets/ambient.py",
+  "renderer": "actual _FungalGrowthEngine.shade, 3 sequential frames per setting",
+  "qt_platform": "offscreen",
+  "records": [
+    {
+      "density": 1,
+      "size": 1,
+      "detail": 1,
+      "screen": [
+        3840,
+        2160
+      ],
+      "buffer": [
+        3840,
+        2160
+      ],
+      "shade_ms": [
+        77.20856898231432,
+        60.502668988192454,
+        65.33891599974595
+      ],
+      "median_ms": 65.33891599974595,
+      "frame": "/mnt/wd4tb/scratch/theme-growth-advection-20261007/mycelium-final-native4k-d1-s1-detail1.png",
+      "peak_rss_kib": 939528
+    },
+    {
+      "density": 1,
+      "size": 1,
+      "detail": 2,
+      "screen": [
+        3840,
+        2160
+      ],
+      "buffer": [
+        3840,
+        2160
+      ],
+      "shade_ms": [
+        74.97498899465427,
+        63.56397701893002,
+        58.11122598242946
+      ],
+      "median_ms": 63.56397701893002,
+      "frame": "/mnt/wd4tb/scratch/theme-growth-advection-20261007/mycelium-final-native4k-d1-s1-detail2.png",
+      "peak_rss_kib": 939528
+    },
+    {
+      "density": 3,
+      "size": 2.5,
+      "detail": 1,
+      "screen": [
+        3840,
+        2160
+      ],
+      "buffer": [
+        3840,
+        2160
+      ],
+      "shade_ms": [
+        230.05245500826277,
+        168.76354801934212,
+        145.1428270083852
+      ],
+      "median_ms": 168.76354801934212,
+      "frame": "/mnt/wd4tb/scratch/theme-growth-advection-20261007/mycelium-final-native4k-d3-s2.5-detail1.png",
+      "peak_rss_kib": 939528
+    },
+    {
+      "density": 3,
+      "size": 2.5,
+      "detail": 2,
+      "screen": [
+        3840,
+        2160
+      ],
+      "buffer": [
+        3840,
+        2160
+      ],
+      "shade_ms": [
+        151.3524640176911,
+        142.7645100047812,
+        150.1564719947055
+      ],
+      "median_ms": 150.1564719947055,
+      "frame": "/mnt/wd4tb/scratch/theme-growth-advection-20261007/mycelium-final-native4k-d3-s2.5-detail2.png",
+      "peak_rss_kib": 939528
+    }
+  ]
+}

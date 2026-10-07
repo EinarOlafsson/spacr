@@ -1,0 +1,117 @@
+{
+  "agent_result_scope": "71 passed,412 deselected in79.37s reported in actual tool output; no raw agent71 log retained or fabricated. Root39 cohort overlaps.",
+  "checkpoint_ambient_sha256": "766aed5afbe443e7240b522c4f914b454356e07c32cb1dc5ee3cc9ad4037f4b8",
+  "checkpoint_commit": "604269d2487ab2513989736415047465b9432ff9",
+  "class_matches_checkpoint": true,
+  "excluded_invalid_captures": [
+    "mycelium-f",
+    "mycelium-g"
+  ],
+  "integrated_fungal_class_sha256": "ceafdc839e846281d92ab4054e0a4fd293aa40c1f7e28ce371f6722dd0d0b1d6",
+  "integrated_source_commit": "1b06fcadaf0a1510a0f0b59da7c4d9a2e249d4b1",
+  "native_receipt_scope": "Native direct shade checkpoint604 and own measured controls; separate 4K-host widget960x540 buffer receipt is not native4K acceptance. Whole module includes older shared helpers; native combined renderer acceptance still separately required.",
+  "payloads": {
+    "ambient.checkpoint.py.gz": {
+      "bytes": 101891,
+      "sha256": "5af419f344bd00e0c1d640d5d7998480804eba4898b65661f2c51d75d8b0ef6b"
+    },
+    "capture_mycelium_i.py": {
+      "bytes": 1020,
+      "sha256": "d4c6363493021774d491bdabb66dd7ee6fa8d59c8d9469d272b575ee12dfa446"
+    },
+    "capture_mycelium_native4k.py": {
+      "bytes": 1838,
+      "sha256": "a5b64998576998f1fb1fd4911e8611bba40acfd62c72b29ae3136dbf4ccc0a31"
+    },
+    "capture_mycelium_timelapse.py": {
+      "bytes": 1121,
+      "sha256": "c0bba07683b0904dec581d951d8cae1f067754857cadb1cc1fac94af91be3b60"
+    },
+    "mycelium-final-native4k-d1-s1-detail1.png": {
+      "bytes": 669468,
+      "sha256": "1220b1dfc11e076cc5b2506d1603598e58eb30c3de879f3214be8bc86b45a541"
+    },
+    "mycelium-final-native4k-d1-s1-detail2.png": {
+      "bytes": 669468,
+      "sha256": "1220b1dfc11e076cc5b2506d1603598e58eb30c3de879f3214be8bc86b45a541"
+    },
+    "mycelium-final-native4k-d3-s2.5-detail1.png": {
+      "bytes": 1815847,
+      "sha256": "6a24a56159f5eda875937ac622fb0420483ebc9a2feab4500b8f90520e0d4453"
+    },
+    "mycelium-final-native4k-d3-s2.5-detail2.png": {
+      "bytes": 1815847,
+      "sha256": "6a24a56159f5eda875937ac622fb0420483ebc9a2feab4500b8f90520e0d4453"
+    },
+    "mycelium-final-native4k.json": {
+      "bytes": 2267,
+      "sha256": "b6fbea373ff548e9e7c4d90133b53e91f09ecdac4ee7f3edadc9667a38a14dea"
+    },
+    "mycelium-final-timelapse.json": {
+      "bytes": 455,
+      "sha256": "1f68c10741e461cb569e3c1f47651185177bc9a572101f1346247ee5137bf3d8"
+    },
+    "mycelium-final-timelapse.webm": {
+      "bytes": 310548,
+      "sha256": "bada3ed6f81d71e161869b88c4e8ae2adde26416bb2224f9b04a6a9c41dfeaec"
+    },
+    "mycelium-i-105.png": {
+      "bytes": 94626,
+      "sha256": "d49a04c498350dea0089ffd7a4800ce03779d8991665a7a7d3a02205bd178977"
+    },
+    "mycelium-i-117.png": {
+      "bytes": 124920,
+      "sha256": "d02b5640bd9ae2492a1110a10fd8f71f7e41ac785e210840eac61521ac2679ad"
+    },
+    "mycelium-i-15.png": {
+      "bytes": 26044,
+      "sha256": "2d0aeb7d76211b33b394103ea1fd62c94ca007457e64019158b1614a63a2c9e4"
+    },
+    "mycelium-i-27.png": {
+      "bytes": 68066,
+      "sha256": "4099a58026a8970eb2c5b592a54b36003d82fdcb9034908ec88ab8a059b33b35"
+    },
+    "mycelium-i-37.png": {
+      "bytes": 82782,
+      "sha256": "833b930ef81e382f48f7a64b5703f385f744458d1faab9a8385564faa5d7e153"
+    },
+    "mycelium-i-45.png": {
+      "bytes": 95232,
+      "sha256": "0c404f4c12584ca95cd37c6e5158c08739eb80335168c79cc2049b8847732118"
+    },
+    "mycelium-i-57.png": {
+      "bytes": 118264,
+      "sha256": "0ca7b3cfc875898457dc3eb3e8e664ea6eb16898a47fa76349a95fba32d0e6d3"
+    },
+    "mycelium-i-67.png": {
+      "bytes": 128199,
+      "sha256": "bfbd5b592691116b3b2324bab4449a3038d3d094dfba87d64843af8bda5a012c"
+    },
+    "mycelium-i-7.png": {
+      "bytes": 8437,
+      "sha256": "d17b03ee5f98f7b5f6d14c582a0b6ce94556a94949cba0e886d26b13867c5e44"
+    },
+    "mycelium-i-75.png": {
+      "bytes": 92787,
+      "sha256": "5290596a5bcf8f6023fc13973246034dcae534938a808e301d87b951e17ab1de"
+    },
+    "mycelium-i-87.png": {
+      "bytes": 121448,
+      "sha256": "54bc46289a368c02471707c287d4fa1aa77152cdf89b33f27f064c8399fd4112"
+    },
+    "mycelium-i-97.png": {
+      "bytes": 132934,
+      "sha256": "25bfd451bbaea49267f5c7006fcaaf5757208a69b0abaf63cc7168b4eef685db"
+    },
+    "mycelium-i-contact.png": {
+      "bytes": 410018,
+      "sha256": "bd454d31d39c477998eed119ac2b0b15eb940c788e770e9ad94c924c2c8cdb44"
+    },
+    "root-integration.log.gz": {
+      "bytes": 69,
+      "sha256": "1e8b6a21ca904ebdac9466e95ea9c8d56cab805a03cdb8985e8ed60ae1da1cdd"
+    }
+  },
+  "root_scoped_result": ".......................................                                  [100%]\n39 passed, 372 deselected in 12.20s",
+  "visual_scope": "Root reviewed actual final contacti; generative mycelium style, not scientific simulation. Human aesthetic acceptance and hard native24FPS remain open."
+}
