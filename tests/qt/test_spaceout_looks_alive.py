@@ -278,7 +278,7 @@ def test_a_buds_pixels_are_the_pixels_a_bud_accounts_for(dressed):
     has to be inside a disc some bud reported, and there have to BE changed
     pixels or the population is decoration that draws nothing.
     """
-    engine = _engine()
+    engine = _engine(density=1.0)
     wide, tall = engine.buffer_size(W, H)
     buds = []
     for step in range(4000):
@@ -328,7 +328,7 @@ def test_the_middle_of_a_form_turns_rather_than_merely_changing(dressed):
     """
     ratios = []
     for seed in (1, 2, 5, 7, 9, 13, 21):
-        engine = _engine(seed)
+        engine = _engine(seed, density=1.0)
         wide, tall = engine.buffer_size(W, H)
         for base in (0.0, 40.0, 90.0, 200.0, 350.0, 500.0, 700.0):
             engine.set_time(base)
@@ -343,7 +343,8 @@ def test_the_middle_of_a_form_turns_rather_than_merely_changing(dressed):
                 _ring(after, end.cx, end.cy, radius)))
     turning = float(np.median(ratios))
 
-    still = amb.make_engine("blobs", "spacr", "#101010", seed=1)
+    still = amb.make_engine("blobs", "spacr", "#101010", seed=1,
+                            density=1.0)
     wide, tall = still.buffer_size(W, H)
     still.set_time(0.0)
     before = _frame(still)

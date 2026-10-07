@@ -693,11 +693,11 @@ class SetupCard(QWidget):
     def ink_at(self, along: float, accent: QColor) -> QColor:
         """The colour of the run at ``along`` (0 at the tail, 1 at the head).
 
-        `glow` and `beat` retain the blue rim in every interface theme; `rainbow`
+        Outside `spaceout`, `glow` and `beat` retain the blue rim; `rainbow`
         walks the hue along the run and turns it over time, so the light
         carries a spectrum that moves rather than a band that sits still.
 
-        UNDER ``spaceout`` THE RAINBOW MODE OSCILLATES. The
+        UNDER ``spaceout`` THE RIM OSCILLATES IN EVERY MODE. The
         mark that follows the pointer is the one thing on a card that is
         already moving, and leaving it a fixed blue under a theme whose
         whole point is a moving spectrum is what the request is about. Its
@@ -714,7 +714,7 @@ class SetupCard(QWidget):
             plain modes, and its saturation and value set the floor for the
             spectral ones.
         """
-        if self.spaceout() and self.mode() == "rainbow":
+        if self.spaceout():
             spectral = QColor()
             spectral.setHsvF(self.spaceout_hue(along),
                              min(1.0, accent.saturationF() + 0.35),

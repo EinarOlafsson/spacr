@@ -303,7 +303,7 @@ def test_the_backdrop_really_is_a_rainbow(theme_name, dressed):
     """
     page = theme.page_colour(theme_name)
     engine = amb.make_engine(amb.SPACEOUT_THEME, amb.SPACEOUT_PALETTE,
-                             page, seed=3)
+                             page, seed=3, density=1.0)
     best = set()
     for seconds in (0.0, 17.0, 44.0):
         engine.set_time(seconds)
@@ -331,7 +331,8 @@ def test_text_reads_over_the_fractal_at_least_as_well_as_over_the_blobs(
     try:
         theme.disable_spaceout()
         page = theme.page_colour(theme_name)
-        blobs = amb.make_engine("blobs", amb.DEFAULT_PALETTE, page, seed=3)
+        blobs = amb.make_engine("blobs", amb.DEFAULT_PALETTE, page, seed=3,
+                                density=1.0)
         shipped = min(
             legibility_margin(theme_name, rgb(paint(blobs, page)))
             for seconds in clocks if not blobs.set_time(seconds))
@@ -339,7 +340,7 @@ def test_text_reads_over_the_fractal_at_least_as_well_as_over_the_blobs(
         theme.enable_spaceout()
         page = theme.page_colour(theme_name)
         fractal = amb.make_engine(amb.SPACEOUT_THEME, amb.SPACEOUT_PALETTE,
-                                  page, seed=3)
+                                  page, seed=3, density=1.0)
         dressing = min(
             legibility_margin(theme_name, rgb(paint(fractal, page)))
             for seconds in clocks if not fractal.set_time(seconds))

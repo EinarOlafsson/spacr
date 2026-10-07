@@ -376,7 +376,7 @@ def test_resonance_engine_remains_directly_available_but_not_offered():
 
 def test_it_idles_beautifully_in_silence(qapp):
     """Nothing playing still has to be worth looking at, and to move."""
-    engine = _plate(seed=7)
+    engine = _plate(seed=7, density=1.0)
     engine.set_time(4.0)
     assert engine.drive == rs.silence()
     assert engine.energy() > 0.2, "the plate went out"

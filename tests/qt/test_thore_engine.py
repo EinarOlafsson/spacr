@@ -58,7 +58,7 @@ def test_rain_continues_and_lightning_is_local_without_a_full_screen_flash():
 @pytest.mark.parametrize("background", ("#09121b", "#f0f1ed"))
 def test_rain_is_visible_on_dark_and_light_pages(background):
     """The composition mode leaves a sparse legible field on either page."""
-    engine = _engine(background)
+    engine = _engine(background, density=1.0)
     frame = _pixels(_frame(engine, 1.0))
     page = np.array([engine.background.blue(), engine.background.green(),
                      engine.background.red()])
