@@ -2082,3 +2082,19 @@ destruction; its exact Python thread instance and cause remain unresolved.
     Further standalone comparison/classify/measure fixture ownership changes
     have37 focused passes; independent combined integration follows. Whole
     memory/runtime, native crash and final original serial acceptance stay OPEN.
+
+2026-10-07 — two more concrete SettingsWidgets fixture owners
+    Classifier-family and Regression analysis-unit fixtures now build their
+    controls beneath a qtbot-owned QWidget. All 18 original test-function
+    ASTs/assertions and parameter cases remain unchanged; no GC/style/guard
+    modifications. Matched two real nodes plus the existing field-fade
+    stylesheet sentinel pass 3/3 before and after under 4 GiB. Post-sentinel
+    cached widget/top-level counts change 412/129 -> 0/0; sampled RSS changes
+    775,503,872 -> 568,664,064 bytes, a bounded observation only. The final
+    two complete files plus the same sentinel pass 27 cases in 3.46 seconds,
+    final counts 0/0. Earlier cached snapshots can precede deferred teardown.
+    Tests-only source 8e1ef7d23c; source-bound logs/journals, unchanged-source
+    bindings, assertion AST checks and Git/filesystem hash verification:
+    data/47_family_analysis_fixture_owners_2026-10-07/.
+    These two ownership children are complete; full serial/memory acceptance
+    and the separate deferred Shiboken native SIGSEGV remain OPEN.

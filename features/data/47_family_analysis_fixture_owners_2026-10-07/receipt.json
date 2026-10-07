@@ -1,0 +1,202 @@
+{
+  "baseline_commit": "e2983466b15a875b07d978b15cb19dd7c9576670",
+  "tests_commit": "8e1ef7d23c206a7ef838b41dcf6e04e1ee366d3f",
+  "app_source_changed": false,
+  "guard_or_gc_changes": false,
+  "bindings": {
+    "tests/qt/test_the_classifier_family_is_spelled_out.py": {
+      "before_sha256": "ca0767ce64bbb44a20183119005b85a69a3b6239fa325bf54f5a21be2abf2ba0",
+      "after_sha256": "377d86b45383359b29b4149050ce08fa78a8c5fde26ef7339f0d59e6781bd1d7",
+      "unchanged_test_functions": 6
+    },
+    "tests/qt/test_the_analysis_unit_locks_the_panel.py": {
+      "before_sha256": "67cf52019d745781eb21e94bc308392b8b3d849feb557d338c9f05fead0ab446",
+      "after_sha256": "75013cb63b2226a2c568021c62f240f26db916397b02fe19c36cf03b7f0c64a1",
+      "unchanged_test_functions": 12
+    }
+  },
+  "unchanged_source_sha256": {
+    "spacr/qt/screens/settings_model.py": "52e97665d0e0f7735f5587c7d4f78fedab9d69e670029bc1f1cc90de298a4305",
+    "spacr/qt/widgets/ambient.py": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+    "spacr/qt/theme.py": "85e4d7ab5dd1853f3d8c1b60b8dba965202cdaa0c61e9bc170c445758b3aadb9",
+    "spacr/qt/preferences.py": "733f9af071745b2d170ed743fe96130b6b346d5f101c8a87d0e3b3b758ff21ee",
+    "tests/conftest.py": "9015588bd4fa807078dd041210d4a4a10e8fd515f89ed674d69b6b51e74126d9",
+    "tests/qt/conftest.py": "f1bd57898d2188fc8a5c67b3a29681cbd1e13caf0949acf0a7f4473e77a3e1cf",
+    "tools/pytest_plugins/qt_serial_rss_journal.py": "257deae48f9eb2372540bde0c7b2a0115725cc8c2c83f39bc57f4cf9be7e98e7",
+    "tests/qt/test_field_fade.py": "4a9ea2550b81124e84f585ec7f167123e3cbb2a4d5c0a66a05cc99891bf5ad15"
+  },
+  "unchanged_test_function_AST_count": 18,
+  "phases": [
+    {
+      "phase": "before",
+      "boundaries": [
+        {
+          "cached_qt_top_levels": 127,
+          "cached_qt_widgets": 370,
+          "event": "file_end",
+          "file": "tests/qt/test_the_classifier_family_is_spelled_out.py",
+          "hwm_bytes": 610033664,
+          "pid": 2474277,
+          "rss_bytes": 610033664,
+          "threads": 5,
+          "time_ns": 1791371859307943379
+        },
+        {
+          "cached_qt_top_levels": 222,
+          "cached_qt_widgets": 755,
+          "event": "file_end",
+          "file": "tests/qt/test_the_analysis_unit_locks_the_panel.py",
+          "hwm_bytes": 611233792,
+          "pid": 2474277,
+          "rss_bytes": 611233792,
+          "threads": 5,
+          "time_ns": 1791371859396480885
+        },
+        {
+          "cached_qt_top_levels": 129,
+          "cached_qt_widgets": 412,
+          "event": "file_end",
+          "file": "tests/qt/test_field_fade.py",
+          "hwm_bytes": 775503872,
+          "pid": 2474277,
+          "rss_bytes": 775503872,
+          "threads": 10,
+          "time_ns": 1791371859961492954
+        }
+      ],
+      "session_finish": {
+        "completed_files": 3,
+        "event": "session_finish",
+        "exitstatus": 0,
+        "hwm_bytes": 775503872,
+        "pid": 2474277,
+        "rss_bytes": 775503872,
+        "threads": 10,
+        "time_ns": 1791371859969559378
+      }
+    },
+    {
+      "phase": "after",
+      "boundaries": [
+        {
+          "cached_qt_top_levels": 19,
+          "cached_qt_widgets": 372,
+          "event": "file_end",
+          "file": "tests/qt/test_the_classifier_family_is_spelled_out.py",
+          "hwm_bytes": 561082368,
+          "pid": 2475175,
+          "rss_bytes": 561082368,
+          "threads": 5,
+          "time_ns": 1791371909295928894
+        },
+        {
+          "cached_qt_top_levels": 19,
+          "cached_qt_widgets": 387,
+          "event": "file_end",
+          "file": "tests/qt/test_the_analysis_unit_locks_the_panel.py",
+          "hwm_bytes": 566460416,
+          "pid": 2475175,
+          "rss_bytes": 565055488,
+          "threads": 5,
+          "time_ns": 1791371909403518692
+        },
+        {
+          "cached_qt_top_levels": 0,
+          "cached_qt_widgets": 0,
+          "event": "file_end",
+          "file": "tests/qt/test_field_fade.py",
+          "hwm_bytes": 568664064,
+          "pid": 2475175,
+          "rss_bytes": 568664064,
+          "threads": 10,
+          "time_ns": 1791371909452804103
+        }
+      ],
+      "session_finish": {
+        "completed_files": 3,
+        "event": "session_finish",
+        "exitstatus": 0,
+        "hwm_bytes": 568664064,
+        "pid": 2475175,
+        "rss_bytes": 568664064,
+        "threads": 10,
+        "time_ns": 1791371909455782363
+      }
+    },
+    {
+      "phase": "final",
+      "boundaries": [
+        {
+          "cached_qt_top_levels": 19,
+          "cached_qt_widgets": 372,
+          "event": "file_end",
+          "file": "tests/qt/test_the_classifier_family_is_spelled_out.py",
+          "hwm_bytes": 568893440,
+          "pid": 2476009,
+          "rss_bytes": 568893440,
+          "threads": 5,
+          "time_ns": 1791371945166491899
+        },
+        {
+          "cached_qt_top_levels": 0,
+          "cached_qt_widgets": 0,
+          "event": "file_end",
+          "file": "tests/qt/test_the_analysis_unit_locks_the_panel.py",
+          "hwm_bytes": 575012864,
+          "pid": 2476009,
+          "rss_bytes": 575012864,
+          "threads": 5,
+          "time_ns": 1791371946595389833
+        },
+        {
+          "cached_qt_top_levels": 0,
+          "cached_qt_widgets": 0,
+          "event": "file_end",
+          "file": "tests/qt/test_field_fade.py",
+          "hwm_bytes": 577392640,
+          "pid": 2476009,
+          "rss_bytes": 577392640,
+          "threads": 10,
+          "time_ns": 1791371946646585463
+        }
+      ],
+      "session_finish": {
+        "completed_files": 3,
+        "event": "session_finish",
+        "exitstatus": 0,
+        "hwm_bytes": 577392640,
+        "pid": 2476009,
+        "rss_bytes": 577392640,
+        "threads": 10,
+        "time_ns": 1791371946649492470
+      }
+    }
+  ],
+  "acceptance": {
+    "before_matched_cases": 3,
+    "after_matched_cases": 3,
+    "final_full_files_and_sentinel_cases": 27
+  },
+  "commands": {
+    "environment": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen OMP_NUM_THREADS=1 MKL_NUM_THREADS=1",
+    "runner": "tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q -p no:randomly -p tools.pytest_plugins.qt_serial_rss_journal",
+    "matched_nodes": [
+      "tests/qt/test_the_classifier_family_is_spelled_out.py::test_both_families_are_spelled_out",
+      "tests/qt/test_the_analysis_unit_locks_the_panel.py::TestChoosingCellLocksThem::test_the_values_are_applied",
+      "tests/qt/test_field_fade.py::test_a_rendered_field_follows_the_cubic_across_its_width"
+    ],
+    "final_nodes": [
+      "tests/qt/test_the_classifier_family_is_spelled_out.py",
+      "tests/qt/test_the_analysis_unit_locks_the_panel.py",
+      "tests/qt/test_field_fade.py::test_a_rendered_field_follows_the_cubic_across_its_width"
+    ],
+    "cwd": "/mnt/wd4tb/spacr-worktrees/codex-settings-fixture-owners-20261007",
+    "journal_environment": "SPACR_QT_SERIAL_RSS_JOURNAL=/mnt/wd4tb/scratch/settings-fixture-owners-20261007/{phase}.jsonl"
+  },
+  "limitations": [
+    "Cached fixture snapshots are not a direct fresh Qt census at every journal boundary.",
+    "Matched after run predates import-whitespace formatting; final27-case run binds final source. Fixture/test AST is unchanged by formatting.",
+    "RSS is a bounded sampled observation, not whole-suite memory acceptance or native crash causation.",
+    "No injected GC, test order, stylesheet, memory/assertion guard, or production changes."
+  ]
+}
