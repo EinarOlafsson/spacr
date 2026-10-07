@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import os
+from pathlib import Path
 
 import pytest
 from PySide6.QtWidgets import (
@@ -132,6 +133,45 @@ def test_save_reports_a_screen_it_cannot_capture(dialog, monkeypatch,
     (title, text), = warnings
     assert title == "Could not save template"
     assert "no settings to capture" in text
+
+
+def test_a_template_removed_between_save_and_reload_is_not_selected(
+        dialog, mask_screen, monkeypatch, warnings):
+    """An external deletion cannot leave a vanished file selected for Apply."""
+    R.save_recipe(R.capture_recipe(mask_screen, "Keep"))
+    dialog.reload()
+    original_save = R.save_recipe
+
+    def save_then_remove(recipe):
+        path = original_save(recipe)
+        Path(path).unlink()
+        return path
+
+    monkeypatch.setattr(R, "save_recipe", save_then_remove)
+    monkeypatch.setattr(QInputDialog, "getText",
+                        staticmethod(lambda *args, **kwargs: ("Vanished", True)))
+
+    dialog._on_save()
+
+    assert _stored_names() == ["Keep"]
+    assert [recipe.name for recipe in dialog.recipes()] == ["Keep"]
+    assert dialog.selected().name == "Keep"
+    assert "Saved to: " + os.path.abspath(dialog.selected().path) in dialog.detail_text()
+    assert not warnings
+
+
+def test_an_unsaved_recipe_preview_never_claims_a_disk_location(
+        dialog, mask_screen, monkeypatch):
+    """A valid captured draft has settings to preview but no saved path."""
+    draft = R.capture_recipe(mask_screen, "Draft")
+    assert not draft.path
+    monkeypatch.setattr(R, "list_recipes", lambda app_key: [draft])
+
+    dialog.reload()
+
+    assert dialog.selected() is draft
+    assert "settings, saved" in dialog.detail_text()
+    assert "Saved to:" not in dialog.detail_text()
 
 
 # ---------------------------------------------------------------------------

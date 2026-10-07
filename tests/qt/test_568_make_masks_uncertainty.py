@@ -91,6 +91,45 @@ def test_the_map_opens_on_its_own_tab(screen):
     assert screen._view_tabs.count() == tabs + 1
 
 
+def test_a_blank_field_reports_zero_objects_without_naming_a_worst_one(
+        screen, qtbot):
+    """An empty segmentation still gives a readable uncertainty map."""
+    assert screen._on_map_uncertainty(
+        segment=lambda image: np.zeros(image.shape, dtype=np.uint16),
+        threaded=True,
+    )
+    qtbot.waitUntil(lambda: screen._uncertainty_request is None, timeout=10000)
+    assert screen._uncertainty_pane.has_image()
+    status = screen._status_label.text()
+    assert "0 objects" in status
+    assert "least certain" not in status.lower()
+
+
+def test_a_saved_custom_ensemble_choice_survives_a_cancelled_browse(
+        qtbot, qt_theme_applied, tmp_path, monkeypatch):
+    """Reopening an unlisted checkpoint keeps the user's editable choice."""
+    from PySide6.QtCore import QSettings
+    from PySide6.QtWidgets import QFileDialog
+
+    from spacr.qt import prefs
+    from spacr.qt.screens.make_masks import MakeMasksScreen
+
+    settings = QSettings(str(tmp_path / "settings.ini"), QSettings.IniFormat)
+    path = str(tmp_path / "models" / "custom.pt")
+    settings.setValue("make_masks/uncertainty_second_model", path)
+    monkeypatch.setattr(prefs, "_s", lambda: settings)
+    screen = MakeMasksScreen()
+    qtbot.addWidget(screen)
+    monkeypatch.setattr(QFileDialog, "getOpenFileName",
+                        staticmethod(lambda *args, **kwargs: ("", "")))
+
+    assert screen._uncertainty_ensemble.currentText() == path
+    assert screen._uncertainty_ensemble_model() == path
+    screen._pick_uncertainty_ensemble()
+    assert screen._uncertainty_ensemble_model() == path
+    assert str(settings.value("make_masks/uncertainty_second_model")) == path
+
+
 def test_ranking_is_refused_while_blind(screen):
     screen._blind = {"codes": {}}
     assert not screen._on_rank_uncertainty(segment=_blind_corner,

@@ -2595,6 +2595,11 @@ class _MaskCanvas(QLabel):
             self.update()
             return
 
+        if (self.mode == MODE_DRAW and event.button() == Qt.RightButton
+                and self._gesture_points):
+            self._swallowed.add(event.button())
+            return
+
         if self.mode == MODE_DIVIDE and event.button() == Qt.RightButton:
             if self._gesture_points:
                 self._swallowed.add(event.button())

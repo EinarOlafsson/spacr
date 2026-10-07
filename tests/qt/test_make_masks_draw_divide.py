@@ -370,6 +370,105 @@ def test_the_dividing_line_is_drawn_while_it_is_aimed(canvas):
     assert accent_pixels(canvas) == quiet
 
 
+def test_a_right_press_during_draw_cannot_erase_or_replace_the_outline(
+        canvas, strokes):
+    """A second button cannot turn a live outline into an object deletion."""
+    canvas.mode = MODE_DRAW
+    before = canvas.mask.copy()
+    canvas.mousePressEvent(press(*canvas_xy(*OUTLINE[0])))
+    for point in OUTLINE[1:4]:
+        canvas.mouseMoveEvent(move(*canvas_xy(*point)))
+    competing = canvas_xy(32, 32)
+    canvas.mousePressEvent(_evt(
+        QEvent.Type.MouseButtonPress, *competing,
+        buttons=Qt.LeftButton | Qt.RightButton, button=Qt.RightButton))
+    canvas.mouseReleaseEvent(_evt(
+        QEvent.Type.MouseButtonRelease, *competing,
+        buttons=Qt.LeftButton, button=Qt.RightButton))
+    for point in OUTLINE[4:]:
+        canvas.mouseMoveEvent(move(*canvas_xy(*point)))
+    canvas.mouseReleaseEvent(release(*canvas_xy(*OUTLINE[-1])))
+
+    np.testing.assert_array_equal(canvas.mask[16:44], before[16:44])
+    assert int(canvas.mask[50, 18]) > 0
+    assert strokes == {"started": 1, "finished": 1}
+    assert not canvas._gesture_points
+
+
+def test_a_right_press_during_divide_cannot_erase_or_replace_the_line(
+        canvas, strokes):
+    """A second button leaves the split and neighboring objects intact."""
+    canvas.mode = MODE_DIVIDE
+    before = canvas.mask.copy()
+    canvas.mousePressEvent(press(*canvas_xy(30, 16)))
+    canvas.mouseMoveEvent(move(*canvas_xy(30, 48)))
+    competing = canvas_xy(32, 32)
+    canvas.mousePressEvent(_evt(
+        QEvent.Type.MouseButtonPress, *competing,
+        buttons=Qt.LeftButton | Qt.RightButton, button=Qt.RightButton))
+    canvas.mouseReleaseEvent(_evt(
+        QEvent.Type.MouseButtonRelease, *competing,
+        buttons=Qt.LeftButton, button=Qt.RightButton))
+    canvas.mouseReleaseEvent(release(*canvas_xy(30, 48)))
+
+    assert int(canvas.mask[32, 20]) != int(canvas.mask[32, 40])
+    assert int(canvas.mask[32, 20]) and int(canvas.mask[32, 40])
+    np.testing.assert_array_equal(canvas.mask[before == 3], before[before == 3])
+    np.testing.assert_array_equal(canvas.mask[before == 9], before[before == 9])
+    assert len(counts_by_label(canvas.mask)) == len(counts_by_label(before)) + 1
+    assert strokes == {"started": 1, "finished": 1}
+    assert not canvas._gesture_points
+
+
+def test_a_left_press_during_merge_cannot_start_a_dividing_line(canvas, strokes):
+    """The merge in flight remains the only edit when buttons overlap."""
+    canvas.mode = MODE_DIVIDE
+    canvas.mask, splits = engine.divide_object(canvas.mask, (30, 16), (30, 48))
+    assert splits
+    before = canvas.mask.copy()
+    left, right = int(before[32, 20]), int(before[32, 40])
+    canvas.mousePressEvent(_evt(
+        QEvent.Type.MouseButtonPress, *canvas_xy(20, 32),
+        buttons=Qt.RightButton, button=Qt.RightButton))
+    competing = canvas_xy(30, 32)
+    canvas.mousePressEvent(_evt(
+        QEvent.Type.MouseButtonPress, *competing,
+        buttons=Qt.LeftButton | Qt.RightButton, button=Qt.LeftButton))
+    canvas.mouseReleaseEvent(_evt(
+        QEvent.Type.MouseButtonRelease, *competing,
+        buttons=Qt.RightButton, button=Qt.LeftButton))
+    canvas.mouseMoveEvent(_evt(
+        QEvent.Type.MouseMove, *canvas_xy(40, 32),
+        buttons=Qt.RightButton, button=Qt.NoButton))
+    canvas.mouseReleaseEvent(_evt(
+        QEvent.Type.MouseButtonRelease, *canvas_xy(40, 32),
+        buttons=Qt.NoButton, button=Qt.RightButton))
+
+    expected = before.copy()
+    expected[expected == right] = left
+    np.testing.assert_array_equal(canvas.mask, expected)
+    assert strokes == {"started": 1, "finished": 1}
+    assert not canvas._gesture_points
+
+
+def test_a_merge_press_in_the_letterbox_never_starts_an_edit(canvas, strokes):
+    """A right click outside the image leaves the mask and tool ready."""
+    canvas.mode = MODE_DIVIDE
+    before = canvas.mask.copy()
+    margin = (20, 200)
+    canvas.mousePressEvent(_evt(
+        QEvent.Type.MouseButtonPress, *margin,
+        buttons=Qt.RightButton, button=Qt.RightButton))
+    canvas.mouseReleaseEvent(_evt(
+        QEvent.Type.MouseButtonRelease, *margin,
+        buttons=Qt.NoButton, button=Qt.RightButton))
+
+    np.testing.assert_array_equal(canvas.mask, before)
+    assert strokes == {"started": 0, "finished": 0}
+    assert not canvas._gesture_points
+    assert canvas._gesture_button is None
+
+
 def test_the_other_tools_are_left_as_they_were(canvas, strokes):
     """A brush stroke still paints — the new branches did not swallow it."""
     canvas.mode = MODE_BRUSH

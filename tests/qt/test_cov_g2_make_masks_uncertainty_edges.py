@@ -105,6 +105,29 @@ def test_one_unreadable_field_does_not_discard_the_other_scores(
     assert "uncertainty of doubtful.tif could not be scored" in caplog.text
 
 
+def test_all_unreadable_fields_leave_the_prior_ranking_file_untouched(
+        screen, monkeypatch, caplog):  # noqa: F811
+    """A failed batch cannot replace valid scores with an empty export."""
+    from pathlib import Path
+
+    from spacr.qt.screens import make_masks as mm
+
+    ranking = Path(screen._folder) / "curate_uncertainty.csv"
+    ranking.write_text("stem,uncertainty\nprior,0.8\n", encoding="utf-8")
+    before = ranking.read_bytes()
+    pairs = screen._field_pairs()
+
+    def unreadable(*args, **kwargs):
+        raise OSError("field unreadable")
+
+    monkeypatch.setattr(mm.engine, "load_image_and_mask", unreadable)
+    assert screen._on_rank_uncertainty(segment=_blind_corner, threaded=False)
+    assert ranking.read_bytes() == before
+    assert screen._field_pairs() == pairs
+    assert "uncertainty of calm.tif could not be scored" in caplog.text
+    assert "uncertainty of doubtful.tif could not be scored" in caplog.text
+
+
 def test_blind_helpers_without_their_buttons(screen, monkeypatch):  # noqa: F811
     screen._btn_blind = None
     screen._set_blind_checked(True)
