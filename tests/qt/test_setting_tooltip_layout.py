@@ -294,22 +294,21 @@ def test_the_preference_survives_a_round_trip():
     assert prefs.get_setting_animations_enabled() is True
 
 
-def test_the_preferences_dialog_offers_the_toggle(qtbot, monkeypatch):
-    """A preference nobody can reach is not a preference."""
-    from PySide6.QtWidgets import QDialogButtonBox, QWidget
+def test_the_removed_preferences_toggle_keeps_manual_animation_reveal(
+        qtbot, monkeypatch, tooltip):
+    """Removing the global control retains opt-in reveal on each tooltip."""
+    from PySide6.QtWidgets import QWidget
 
     monkeypatch.setattr(prefs, "apply_preferences_to_app", lambda *a: None)
     prefs.set_setting_animations_enabled(False)
 
     dialog = prefs.PreferencesDialog()
     qtbot.addWidget(dialog)
-    toggle = dialog.findChild(QWidget, "SettingAnimationsEnabled")
-    assert toggle is not None, "no control for the setting-animation switch"
-    assert toggle.isChecked() is False, "the dialog ignored the stored value"
-
-    toggle.setChecked(True)
-    dialog.findChild(QDialogButtonBox).accepted.emit()
-    assert prefs.get_setting_animations_enabled() is True
+    assert dialog.findChild(QWidget, "SettingAnimationsEnabled") is None
+    _reveal(tooltip, _anchor(qtbot))
+    assert tooltip.animation_view().isVisible()
+    assert tooltip.animation() is not None
+    assert prefs.get_setting_animations_enabled() is False
 
 
 # ---------------------------------------------------------------------------

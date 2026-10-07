@@ -1,5 +1,34 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home: current CI owner blockers and Preferences controls
+
+Currentb7 strict API/runtime/nested/Help cohort124pass,3FAIL; complete raw log
+scratch/progress-report-20261007/current-source-contracts.log. Workstation owns
+these three remaining corrections, including their strict contract fixtures:
+1. tests/test_api_i18n_extractor.py::test_public_docstrings_matches_reviewed_visible_coverage:
+   actual13214 versus reviewed13199; account the15 intentional source admissions
+   and normally regenerate all current target catalogs before accepting count.
+2. tests/test_runtime_i18n_syntax.py::test_french_reviewed_runtime_text_is_source_bound_and_gate_clean:
+   later evidence retirement leaves62 versus original63 in second slice.
+3. tests/test_runtime_i18n_syntax.py::test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean:
+   exact historical-retirement comparison must account later actual source
+   replacements/retirements while preserving original evidence byte-for-byte.
+Newbb7 also fails tests/test_guide_i18n.py::test_glossary_matches_the_runtime_catalogs
+on sv Animation detail; current replay is running. Existing source-signature
+constructor pins need exact new blink/popup arguments admitted separately;
+newsetter descriptions are already supplied in b7. Do not raise debt/coverage
+ceilings or hide obsolete Help rows. Full current owner source refresh is a
+blocking prerequisite for green, not merely a publication follow-up.
+
+Home Preferences inventory now verifies AmbientBlinkPercent,
+FieldPopupWaveFrequency, PopupBackdrop and PopupBackdropDarkness in Appearance
+instead of the explicitly removed SettingAnimationsEnabled checkbox. A real
+HoverTooltip still manually reveals its animation while global preference is
+false.121 related controls/layout tests pass34.31s. The current painter repair
+is publishedec193ace8e. Three reused Home agents are delivering focused actual
+Aurora guard, default-control baseline and Cellpose protocol fixes separately.
+No ordinary/full Qt green is claimed, and no original hard guard is relaxed.
+
 ## 2026-10-07 — Home: GitHub green is the sole immediate priority
 
 The maintainer rejected further speculative completion dates and explicitly
