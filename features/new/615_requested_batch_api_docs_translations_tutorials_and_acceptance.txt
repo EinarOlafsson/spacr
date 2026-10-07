@@ -1689,3 +1689,18 @@ Its complete original log and technical review evidence are archived. Translated
 API/guides and updated Home tutorial publication remain active. Home's native
 faults, hard24FPS and source-current hosted acceptance remain open; no Home
 acknowledgment or full N615 closure is inferred from this commit handoff.
+
+2026-10-07 — latest popup/default follow-up
+Root applies Page opacity to settings-card surfaces, including Settings
+backdrop None, and combines it with animated Settings backdrop darkness.
+With popup waves enabled, the first wave starts on opening; popup identity
+prevents movement from creating extra opening waves. Fresh/Reset defaults
+adopt the maintainer's saved 15% gravity, 5 waves/min and 17% relative rim.
+Other appearance values already match and saved choices remain unchanged.
+Focused 52 popup/default/Apply and 72 clock/card/rim checks pass and overlap.
+Fresh native private 4K Preferences capture completes at 0. English API/Help
+are normally regenerated; original failures and sanitized appearance-key
+evidence are retained in data/615_popup_defaults_2026-10-07/receipt.json.
+Root owns new 664/665 worker and database requests; both remain implementing.
+Translated API/guides and latest tutorial publication remain open. Home's
+original native faults, hard 24 FPS and full hosted/serial checks remain open.

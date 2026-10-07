@@ -186,3 +186,31 @@ def test_darkness_changes_the_rendered_card_without_changing_page_opacity(privat
         pixels.append(popup.grab().toImage().pixelColor(40, 90).lightness())
     assert pixels[0] > pixels[1] > pixels[2]
     assert prefs.get_pane_opacity() == page_opacity
+
+
+@pytest.mark.parametrize('theme', ['off', 'blobs'])
+def test_page_opacity_changes_the_popup_card_with_and_without_animation(
+        private_preferences, qtbot, theme):
+    prefs.set_ambient_animation('blobs')
+    prefs.set_popup_backdrop(theme)
+    prefs.set_theme_choice('dark')
+    prefs.apply_preferences_to_app()
+    dialog, owner, _ = _dialog(qtbot)
+    popup = _popup(qtbot, owner)
+    backdrop = getattr(popup, '_spacr_popup_backdrop', None)
+    if backdrop is not None:
+        backdrop.set_animating(False)
+        backdrop.set_background_color('#808080')
+    card = popup.findChild(SetupCard)
+    card._paint_accent = lambda *_args: None
+    pixels = []
+    for opacity in (.2, .6, 1):
+        prefs.set_pane_opacity(opacity)
+        prefs.apply_preferences_to_app()
+        card.update()
+        pixel = popup.grab().toImage().pixelColor(40, 90)
+        pixels.append((pixel.lightness(), pixel.alpha()))
+    if theme == 'off':
+        assert pixels[0][1] < pixels[1][1] < pixels[2][1], pixels
+    else:
+        assert pixels[0][0] > pixels[1][0] > pixels[2][0], pixels

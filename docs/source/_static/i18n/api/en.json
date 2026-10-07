@@ -76312,10 +76312,11 @@
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_blink_percent": {
       "source_blocks_sha256": [
-        "2d463ef858679b72b029f252a8ae8bfe0eca815bdf566e0610daddbc66e5f68b"
+        "2d463ef858679b72b029f252a8ae8bfe0eca815bdf566e0610daddbc66e5f68b",
+        "e2fd97e8baf2807f996960c866c3297764d5cb50250ea9d9c256bffc3438decd"
       ],
-      "source_sha256": "2d463ef858679b72b029f252a8ae8bfe0eca815bdf566e0610daddbc66e5f68b",
-      "text": "Update dot flashes through the normal serialized engine mutation."
+      "source_sha256": "5155596192f7aab1b0abde388f3a1c3ccc764fde90a9917406e50e530260ce43",
+      "text": "Update dot flashes through the normal serialized engine mutation.\n\n:param value: percentage of visible dots flashing white, clamped to\n    zero through ten; zero disables blinking."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_blur": {
       "source_blocks_sha256": [
@@ -76368,10 +76369,11 @@
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency": {
       "source_blocks_sha256": [
-        "26a044f01b39376310a6f39c590b3d98df1845fb0fe367d0f5bc3f17f34e6cd1"
+        "26a044f01b39376310a6f39c590b3d98df1845fb0fe367d0f5bc3f17f34e6cd1",
+        "60a4a0ccf971ad5d4b20041e03f6bf2c0504c4bcc0e5eba53e37b80a02a713b3"
       ],
-      "source_sha256": "26a044f01b39376310a6f39c590b3d98df1845fb0fe367d0f5bc3f17f34e6cd1",
-      "text": "Change popup waves without changing pointer reach or dot population."
+      "source_sha256": "a1423718ae7a109ebd1ad89bae2f3baabfd19c213b2262f8df3b0f7b47ef6882",
+      "text": "Change popup waves without changing pointer reach or dot population.\n\n:param value: popup waves per minute, clamped to zero through sixty;\n    zero disables popup waves."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_resolution": {
       "source_blocks_sha256": [

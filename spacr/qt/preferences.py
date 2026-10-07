@@ -2200,7 +2200,7 @@ def _ambient_gravity_radius() -> float:
     import math
 
     try:
-        value = float(_settings().value(_KEY_AMBIENT_GRAVITY_RADIUS, 0.1))
+        value = float(_settings().value(_KEY_AMBIENT_GRAVITY_RADIUS, 0.15))
     except (TypeError, ValueError):
         return 0.0
     return max(0.0, min(1.0, value)) if math.isfinite(value) else 0.0
@@ -2435,7 +2435,7 @@ def _field_popup_wave_frequency() -> float:
     import math
 
     try:
-        value = float(_settings().value(_KEY_FIELD_POPUP_WAVES, 0.0))
+        value = float(_settings().value(_KEY_FIELD_POPUP_WAVES, 5.0))
     except (TypeError, ValueError):
         value = 0.0
     return max(0.0, min(60.0, value)) if math.isfinite(value) else 0.0
@@ -7436,7 +7436,7 @@ PREFERENCE_TIPS = {
     "Animation density": "Number of background shapes.",
     "Dot blinking": "Percentage of visible dots that flash white. Applies to dot animations; density and movement stay unchanged.",
     "Popup wave frequency": "Waves per minute spreading from the centre of an open popup window into spaCR field. Zero disables automatic waves; mouse gravity is independent.",
-    "Settings backdrop darkness": "Opacity of the settings card over its animation. Higher values cover more of the backdrop so text is easier to read. Independent of Page opacity.",
+    "Settings backdrop darkness": "Opacity of the settings card over its animation. Higher values cover more of the backdrop so text is easier to read. Combined with Page opacity.",
     "Rim length": "Fraction of a card border covered by the moving highlight.",
     "Rim chase": "Responsiveness of the border highlight to pointer movement.",
     "Rim cycle": "Duration of one border-highlight cycle.",
@@ -8288,7 +8288,7 @@ class PreferencesDialog:
             0.0, 1.0, _ambient_gravity_radius(),
             tr("How far mouse gravity reaches, as a percentage of the shorter "
                "screen edge. Zero disables mouse influence. Applies to "
-               "backgrounds that respond to the mouse."), designed=0.1)
+               "backgrounds that respond to the mouse."), designed=0.15)
 
         def _sync_ambient_enabled(*_args):
             """Grey out the shaping controls when there is nothing to paint.
@@ -8718,7 +8718,7 @@ class PreferencesDialog:
         popup_darkness_slider.setRange(0, 100)
         popup_darkness_slider.setValue(int(round(_popup_backdrop_darkness() * 100)))
         popup_darkness_slider.setToolTip(tr(
-            "Opacity of the settings card over its animation. Higher values cover more of the backdrop so text is easier to read. Independent of Page opacity."))
+            "Opacity of the settings card over its animation. Higher values cover more of the backdrop so text is easier to read. Combined with Page opacity."))
         popup_darkness_value = QLabel()
         popup_darkness_slider.valueChanged.connect(
             lambda value: popup_darkness_value.setText(f"{value}%"))
@@ -10477,6 +10477,8 @@ def _rim_length_fraction() -> float:
     import math
     raw = _settings().value(_KEY_RIM_LENGTH_FRACTION, None)
     if raw is None:
+        if not _settings().contains(_KEY_RIM_LENGTH):
+            return 0.17
         from PySide6.QtCore import QRectF
         from PySide6.QtGui import QPainterPath
         from .widgets.setup_card import REFERENCE_CARD

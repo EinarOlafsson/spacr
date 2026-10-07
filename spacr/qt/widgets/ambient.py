@@ -4986,6 +4986,7 @@ class _DataArtEngine(_BufferedEngine):
         self._gravity_impulses = []
         self._popup_waves = []
         self._popup_wave_origin = None
+        self._popup_wave_window = None
         self._popup_wave_elapsed = 0.0
         self._pointer_impulse_time = -math.inf
         self._pointer_impulse_origin = None
@@ -5138,15 +5139,22 @@ class _DataArtEngine(_BufferedEngine):
                   if 0.0 <= self.time - event[0] < 5.0]
         self._gravity_impulses = (recent + [(self.time, point, strength)])[-24:]
 
-    def _set_popup_wave_origin(self, point) -> None:
+    def _set_popup_wave_origin(self, point, *, popup_id=None) -> None:
         """Accept a GUI-resolved popup centre without reading Qt on the worker."""
         if point is not None:
             x, y = point
             point = ((float(x), float(y)) if all(
                 math.isfinite(value) and 0.0 <= value <= 1.0 for value in (x, y)) else None)
+        opened = point is not None and (
+            self._popup_wave_origin is None or
+            (popup_id is not None and popup_id != self._popup_wave_window))
         if point is None:
             self._popup_wave_elapsed = 0.0
+        elif opened and self.popup_wave_frequency > 0.0:
+            self._popup_wave_elapsed = 0.0
+            self._popup_waves = (self._popup_waves + [(self.time, point)])[-6:]
         self._popup_wave_origin = point
+        self._popup_wave_window = popup_id if point is not None else None
 
     def advance(self, dt: float) -> None:
         """Advance material motion and bounded popup waves at their real-time rate."""
@@ -6674,9 +6682,10 @@ class _QueuedArtInput:
         self._applied_click_serial = 0
         self._grab_snapshot = (0, None)
         self._applied_grab_serial = 0
-        self._popup_snapshot = (0, None)
+        self._popup_snapshot = (0, None, None)
 
-    def _offer(self, step, pointer, clicks, *, grab=None, popup_origin=None) -> None:
+    def _offer(self, step, pointer, clicks, *, grab=None, popup_origin=None,
+               popup_id=None) -> None:
         """Publish one GUI tick without taking or waiting for an engine lock."""
         self._elapsed += step
         for point in clicks:
@@ -6684,7 +6693,7 @@ class _QueuedArtInput:
             self._clicks = (self._clicks + ((self._click_serial, point),))[-16:]
         self._serial += 1
         self._grab_snapshot = (self._serial, grab)
-        self._popup_snapshot = (self._serial, popup_origin)
+        self._popup_snapshot = (self._serial, popup_origin, popup_id)
         self._snapshot = (self._serial, self._elapsed, pointer, self._clicks)
 
     def _consume(self, engine, *, discard_clicks=False, preserve_grab=False) -> None:
@@ -6695,11 +6704,11 @@ class _QueuedArtInput:
         """
         serial, elapsed, pointer, clicks = self._snapshot
         if isinstance(engine, _DataArtEngine) and engine.family == "impulse_lens":
-            popup_serial, popup_origin = self._popup_snapshot
+            popup_serial, popup_origin, popup_id = self._popup_snapshot
             if discard_clicks and not preserve_grab:
                 engine._set_popup_wave_origin(None)
             elif popup_serial == serial:
-                engine._set_popup_wave_origin(popup_origin)
+                engine._set_popup_wave_origin(popup_origin, popup_id=popup_id)
             grab_serial, grab = self._grab_snapshot
             if discard_clicks and not preserve_grab:
                 engine._set_field_grab(None, reset=True)
@@ -7279,7 +7288,11 @@ class AmbientWidget(QWidget):
         return self._popup_wave_frequency
 
     def set_popup_wave_frequency(self, value: float) -> None:
-        """Change popup waves without changing pointer reach or dot population."""
+        """Change popup waves without changing pointer reach or dot population.
+
+        :param value: popup waves per minute, clamped to zero through sixty;
+            zero disables popup waves.
+        """
         value = float(value)
         value = _clamp(value if math.isfinite(value) else 0.0, 0.0, 60.0)
         if value != self._popup_wave_frequency:
@@ -7287,7 +7300,11 @@ class AmbientWidget(QWidget):
             self._mutate_engine(lambda: self._engine.set_popup_wave_frequency(value))
 
     def set_blink_percent(self, value: float) -> None:
-        """Update dot flashes through the normal serialized engine mutation."""
+        """Update dot flashes through the normal serialized engine mutation.
+
+        :param value: percentage of visible dots flashing white, clamped to
+            zero through ten; zero disables blinking.
+        """
         value = float(value)
         value = _clamp(value if math.isfinite(value) else DEFAULT_BLINK_PERCENT,
                        *BLINK_PERCENT_RANGE)
@@ -7858,6 +7875,7 @@ class AmbientWidget(QWidget):
         """Resolve this window's active popup centre on the GUI thread only."""
         from PySide6.QtWidgets import QDialog
 
+        self._popup_wave_popup_id = None
         if (self._theme != "data_art_impulse_lens"
                 or self._popup_wave_frequency <= 0.0 or not self._should_run()):
             return None
@@ -7875,6 +7893,7 @@ class AmbientWidget(QWidget):
         centre = self.mapFromGlobal(popup.mapToGlobal(popup.rect().center()))
         if not self.rect().contains(centre):
             return None
+        self._popup_wave_popup_id = id(popup)
         return ((centre.x() + 0.5) / max(1, self.width()),
                 (centre.y() + 0.5) / max(1, self.height()))
 
@@ -7905,7 +7924,8 @@ class AmbientWidget(QWidget):
         if self._art_input is not None:
             self._art_input._offer(step, pointer, tuple(self._pending_art_impulses),
                                    grab=self._field_grab,
-                                   popup_origin=self._popup_wave_origin_for_tick())
+                                   popup_origin=self._popup_wave_origin_for_tick(),
+                                   popup_id=self._popup_wave_popup_id)
             self._pending_art_impulses.clear()
             if self._engine_lock.acquire(blocking=False):
                 try:

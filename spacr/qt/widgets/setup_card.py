@@ -548,11 +548,13 @@ class SetupCard(QWidget):
             rect = QRectF(self.rect()).adjusted(1.0, 1.0, -1.0, -1.0)
 
             body = QColor(palette.get("surface", palette["bg"]))
-            body.setAlpha(216)
+            from ..preferences import effective_pane_alpha
+            opacity = effective_pane_alpha()
             backdrop = getattr(self.parentWidget(), "_spacr_popup_backdrop", None)
             if backdrop is not None and not backdrop.isHidden():
                 from ..preferences import _popup_backdrop_darkness
-                body.setAlpha(int(round(_popup_backdrop_darkness() * 255)))
+                opacity *= _popup_backdrop_darkness()
+            body.setAlpha(int(round(opacity * 255)))
             painter.setPen(Qt.NoPen)
             painter.setBrush(body)
             painter.drawRoundedRect(QRectF(self.rect()),

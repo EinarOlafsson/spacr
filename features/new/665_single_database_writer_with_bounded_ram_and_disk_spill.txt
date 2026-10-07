@@ -1,0 +1,28 @@
+665. Single database writer with bounded queue RAM and disk spill
+
+Requested: 2026-10-07 by the maintainer
+Owner: Root workstation session
+Status: IMPLEMENTING
+
+Parallel processing workers must enqueue their central-database results for
+one dedicated writer instead of competing for SQLite write locks. Add a
+Preferences value for the queue's RAM allowance in GiB. Overflow entries go
+to a temporary spool folder on disk. Measure's folder must live beneath its
+measurements directory, beside the eventual measurements.db destination.
+Keep queued payloads bounded; queue metadata must also be bounded. Preserve
+uncommitted spool files on interruption or failure, and never report a field
+saved before its writes commit. A committed ticket must not be replayed as
+duplicate appended rows. Stop/cancel, disk-full, writer failure, zero-RAM
+mode, oversized entries and reader access require focused verification.
+
+This complements item664. The writer drains the primary work before giving
+exhausted SQL overloads one additional serial attempt in its final queue.
+Existing SQLite filesystem/journal safety, schema, units, provenance,
+measurement resume and external-table contracts must be preserved.
+
+2026-10-07 — source audit
+Measure currently writes object tables, crop indices, intensity provenance
+and confluency directly from each process. database_concurrency already
+provides thread/process-owned connections and bounded lock retries, but no
+shared RAM-budgeted scientific write queue. Root is extending that existing
+module; no implementation or completion is claimed by this initial note.

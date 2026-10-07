@@ -18,7 +18,8 @@ def engine(frequency=0):
 
 
 def test_default_and_disabled_frequency_emit_no_waves(qapp, empty_store):
-    assert prefs._field_popup_wave_frequency() == 0
+    assert prefs._field_popup_wave_frequency() == 5
+    prefs._set_field_popup_wave_frequency(0)
     made = engine()
     made._set_popup_wave_origin((0.3, 0.7))
     made.advance(120)
@@ -35,14 +36,16 @@ def test_default_and_disabled_frequency_emit_no_waves(qapp, empty_store):
 def test_frequency_tracks_elapsed_time_and_popup_centre_without_mouse_gravity(qapp):
     made = engine(30)
     made._set_popup_wave_origin((0.3, 0.7))
+    assert made._popup_waves == [(0, (0.3, 0.7))]
     made.advance(1.9)
-    assert made._popup_waves == []
-    made.advance(0.1)
     assert len(made._popup_waves) == 1
+    made.advance(0.1)
+    assert len(made._popup_waves) == 2
     assert made._popup_waves[0][1] == (0.3, 0.7)
     made._set_popup_wave_origin((0.6, 0.4))
     made.advance(2)
-    assert [row[1] for row in made._popup_waves] == [(0.3, 0.7), (0.6, 0.4)]
+    assert [row[1] for row in made._popup_waves] == [
+        (0.3, 0.7), (0.3, 0.7), (0.6, 0.4)]
     assert made.gravity_radius == 0
     made._set_popup_wave_origin(None)
     made.advance(5)
@@ -77,12 +80,32 @@ def test_queue_retains_popup_origin_even_when_gravity_is_disabled(qapp):
     queue = ambient._QueuedArtInput()
     queue._offer(1, None, (), popup_origin=(0.25, 0.75))
     queue._consume(made)
-    assert len(made._popup_waves) == 1
+    assert len(made._popup_waves) == 2
     assert made._popup_waves[0][1] == (0.25, 0.75)
     queue._consume(made)
-    assert len(made._popup_waves) == 1
+    assert len(made._popup_waves) == 2
     queue._consume(made, discard_clicks=True)
     assert made._popup_wave_origin is None
+
+
+def test_each_new_popup_emits_once_and_moving_the_same_popup_does_not(qapp):
+    made = engine(5)
+    queue = ambient._QueuedArtInput()
+    queue._offer(.04, None, (), popup_origin=(.25, .75), popup_id=1)
+    queue._consume(made)
+    assert made._popup_waves == [(0, (.25, .75))]
+    queue._consume(made)
+    queue._offer(.04, None, (), popup_origin=(.3, .7), popup_id=1)
+    queue._consume(made)
+    assert len(made._popup_waves) == 1
+    queue._offer(.04, None, (), popup_origin=(.3, .7), popup_id=2)
+    queue._consume(made)
+    assert len(made._popup_waves) == 2
+    queue._offer(.04, None, (), popup_origin=None)
+    queue._consume(made)
+    queue._offer(.04, None, (), popup_origin=(.3, .7), popup_id=2)
+    queue._consume(made)
+    assert len(made._popup_waves) == 3
 
 
 def test_origin_resolves_the_visible_popup_in_this_window(qtbot, monkeypatch):
@@ -120,12 +143,12 @@ def test_frequency_apply_revert_keeps_preferences_open(private_preferences, qtbo
     prefs.set_ambient_animation('data_art_impulse_lens')
     dialog, _, _ = _dialog(qtbot)
     value = dialog.findChild(QDoubleSpinBox, 'FieldPopupWaveFrequencyValue')
-    assert value.value() == 0
+    assert value.value() == 5
     value.setValue(12.3)
     question = _apply(dialog, qtbot)
     assert prefs._field_popup_wave_frequency() == 12.3
     _answer(question, 'Revert', qtbot)
-    assert prefs._field_popup_wave_frequency() == 0
+    assert prefs._field_popup_wave_frequency() == 5
     assert value.value() == 12.3 and dialog.isVisible()
     question = _apply(dialog, qtbot)
     _answer(question, 'Keep', qtbot)

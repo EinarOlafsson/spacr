@@ -1274,3 +1274,14 @@ the safe optimization, not hard24FPS/Save-crash/aesthetic acceptance.
     native Preferences proof and focused tests are archived in the N615 receipt.
     This does not close hard native24FPS, installed Save/puncta crashes or
     human visual acceptance. Home retains those open acceptance lanes.
+
+2026-10-07 — latest Root requested revisions supersede earlier defaults
+Dot blinking uses a slider with default 0, superseding fixed one-percent flickering.
+Opening an owned popup immediately emits its first field wave when waves
+are enabled; movement only updates the origin. Latest saved-profile defaults
+are 15% gravity, 5 popup waves/min and 17% relative rim. Page opacity applies to
+settings cards, including None, and combines with animated backdrop darkness.
+Focused 52 and 72 overlapping checks pass; fresh private native 4K capture exits 0.
+Receipt data/615_popup_defaults_2026-10-07/receipt.json retains original
+failures, source hashes and sanitized appearance keys. Original native
+faults, hard 24 FPS and human visual acceptance remain Home's open lanes.

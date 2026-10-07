@@ -273,24 +273,25 @@ The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**,
 - **spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse. Rotation is fastest beside the pointer and fades smoothly to zero at the Mouse gravity radius; changing the radius changes the affected area.
 
 **Mouse gravity radius** sets the affected area as a percentage of the shorter
-screen edge. Its default is **10%**; set it to **0** to disable mouse influence.
+screen edge. Its default is **15%**; set it to **0** to disable mouse influence.
 **Animation density** changes the number of elements independently of
 **Animation detail**, which changes drawing resolution. Density has a minimum of
 **1%**; increasing Detail does not trim the chosen population. The renderer
 bounds its sampling work within the screen's pixel budget. Select **Random**
 in **Animation palette** for per-element colours. Fresh installations use
 **Dark**, **spaCR field** and the **spaCR** animation palette, with Density
-**10%**, Gravity **10%**, Detail, Speed and Size **100%**, and Page opacity
+**10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity
 **60%**. **Dot blinking** controls the percentage of visible dots that flash white:
 **0** switches it off (the default), and nonzero values range from
 0.00001% to 10%. The setting applies to spaCR field, spaCR advection,
 spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter
-length, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle.
+length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle.
 Existing saved preferences remain in effect until changed or reset.
 
 **Popup wave frequency** sets automatic waves per minute in **spaCR field**.
-The default is **0** (off). When enabled, waves spread from the centre of
-this application's open popup window. Moving the popup moves the origin of
+The default is **5 waves/minute**; **0** disables popup waves. When enabled,
+opening a popup immediately starts the first wave from its centre, followed
+by waves at the selected rate. Moving the popup moves the origin of
 new waves; closing it stops new waves while existing waves fade. This control
 is independent of mouse gravity, dot blinking, density and drawing detail.
 
@@ -302,8 +303,9 @@ Closing the question also reverts. **Save** keeps changes and closes Preferences
 **Settings backdrop** remains independent of the main animation during both
 Apply and Save. **None** disables popup motion while retaining the blue rim.
 **Settings backdrop darkness** controls the settings card's opacity over its
-animation, from **0%** to **100%** (default **85%**), independently of Page
-opacity. Higher values cover more of the animation to make text easier to
+animation, from **0%** to **100%** (default **85%**), combined with **Page
+opacity**. Page opacity also applies when Settings backdrop is **None**.
+Higher darkness values cover more of the animation to make text easier to
 read. Popups remain above their owning spaCR window without using a global
 always-on-top flag, so other applications can cover them.
 

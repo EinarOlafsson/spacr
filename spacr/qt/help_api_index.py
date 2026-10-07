@@ -14033,7 +14033,7 @@ PREFERENCE_ENTRIES = (
     ('Rim length', 'Appearance', 'PreferencesTabTheme', 'Fraction of a card border covered by the moving highlight.'),
     ('Rim mode', 'Appearance', 'PreferencesTabTheme', "Glow is the theme's accent with a fading tail. Rainbow walks the hue along the light and turns it over time. Beat keeps the accent and pulses it. Rainbow and Beat repaint every frame; Glow only repaints when the light moves."),
     ('Settings backdrop', 'Appearance', 'PreferencesTabAnimation', "Which animation drifts behind a settings window. Separate from the module screens' own backdrop above: what belongs behind a screen of figures is not necessarily what belongs behind a form you are reading. None keeps the card and the rim and drops only the movement."),
-    ('Settings backdrop darkness', 'Appearance', 'PreferencesTabAnimation', 'Opacity of the settings card over its animation. Higher values cover more of the backdrop so text is easier to read. Independent of Page opacity.'),
+    ('Settings backdrop darkness', 'Appearance', 'PreferencesTabAnimation', 'Opacity of the settings card over its animation. Higher values cover more of the backdrop so text is easier to read. Combined with Page opacity.'),
     ('Show busy spinner after', 'Appearance', 'PreferencesTabAppearance', 'Delay before displaying the busy indicator for a running task.'),
     ('Theme', 'Appearance', 'PreferencesTabTheme', "Application colour scheme. 'Follow system' uses the desktop colour scheme."),
     ('Tooltip delay', 'Appearance', 'PreferencesTabAppearance', 'Seconds the pointer rests on a control before its tooltip appears. 0 shows tooltips at once. Default 2.0 s.'),

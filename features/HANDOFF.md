@@ -1,5 +1,48 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Root: immediate popup waves, popup opacity and saved defaults
+
+Root owns the latest popup follow-up. With popup waves enabled, opening a
+popup immediately emits its first spaCR field wave; subsequent waves follow
+the selected frequency. Moving the same popup updates the origin without
+emitting extra waves. Zero still disables popup waves. The renderer receives
+only a GUI-resolved centre and identity, and never reads Qt on its worker.
+
+Page opacity now controls settings-card surfaces, including Settings backdrop
+None. Animated settings combine Page opacity with Settings backdrop darkness;
+the control's wording is updated through the normal runtime writer. The blue
+rim retains its separate opacity. Fresh/default-reset appearance adopts the
+maintainer's saved profile: gravity 15%, popup waves 5/min and relative rim 17%.
+Other requested appearance settings already match; saved preferences are not
+overwritten. Only appearance keys are included in the profile evidence.
+
+Focused popup/default/Apply checks (52 passes) and clock/card/rim neighbours
+(72 passes) overlap. Fresh private native 3840x2160 capture completes at 0 and
+shows the new defaults, with visible Apply/Keep/Revert. Original failed
+pixel assertions and the nonexistent-file collection attempt are retained;
+the accepted tests inspect actual alpha or composited lightness. This is
+not a native compositor stacking, performance or installed-crash verdict.
+All-nine runtime generation and its independent audit complete at 0 with
+1,243 settings, 237 categories, 7,239 UI rows and 77 modules. English API
+and Help are regenerated normally. The source guard exposed two missing
+public setter parameter descriptions; those are added and all 18 scoped
+source/index guards now pass without changing the zero-debt guard. The
+native executable AST matches the final source after these prose additions.
+Evidence is in data/615_popup_defaults_2026-10-07/receipt.json. The two changed
+API documents join Root's continuing all-nine API refresh; this is not full
+translated API acceptance.
+
+Root also owns new items 664 (ten-second initial worker deployment plus one
+serial final overload retry queue) and 665 (one database writer with bounded
+queue RAM and measurement-folder disk spill). These remain in implementation:
+the helper tests pass, but not every asynchronous processing caller is wired,
+and the single-writer integration is unfinished. Root will continue all
+available GPU/API/docs/translations/tutorial work after these requests.
+Home retains original native Save/puncta faults, hard 24 FPS, full hosted
+coverage and original-order Qt acceptance. Please include the latest pushed
+source in those checks, preserve hard guards, and record any new assignments
+in the item files/HANDOFF. No Home acknowledgment is claimed.
+
 ## 2026-10-07 — Root: requested popup, magnifier and animation revisions
 
 Root owns the maintainer's latest explicit theme and popup requests. Growth

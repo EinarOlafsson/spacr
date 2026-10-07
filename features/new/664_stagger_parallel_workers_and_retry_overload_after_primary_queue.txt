@@ -1,0 +1,31 @@
+664. Stagger parallel workers and defer one final overload retry
+
+Requested: 2026-10-07 by the maintainer
+Owner: Root workstation session
+Status: IMPLEMENTING
+
+General processing rule: start the first worker immediately, then stagger
+initial worker deployment by 10 seconds between workers. Apply to parallel
+batch processing in GUI and non-GUI workflows; keep existing CPU/GPU/RAM
+limits and cancellation. This is worker startup pacing, not a 10-second delay
+before every task performed by an already-running worker.
+
+When an overload failure exhausts the primary queue's existing retry budget,
+retain the task in a distinct deferred retry queue. Start that queue only
+after every primary task has finished or reached its final failure verdict.
+Give each deferred task exactly one additional attempt; process this queue
+serially to avoid recreating the overload. Never recursively enqueue its
+failures. Preserve task identity, report final failures accurately and avoid
+duplicate output/database commits. Cancellation and invalid inputs are not
+transient overloads. SQL BUSY/LOCKED, out-of-memory and resource-exhaustion
+errors must be classified explicitly, with original exceptions retained.
+
+2026-10-07 — Root scope audit started
+Existing parallel runners include multiprocessing pools for Measure, masks,
+barcodes, timelapse, simulation and augmentation; thread pools for image
+loading/intensity/OPS; process executors for sweeps/OPS; and persistent
+isolated mask workers. Measure already has per-field retry policy; the extra
+deferred attempt must follow its exhaustion rather than replace it. Mask
+workers currently stop peers on failure; transient overloads require a
+separate final queue without concealing invalid model/input errors. No
+implementation or hosted acceptance is claimed by this initial item.
