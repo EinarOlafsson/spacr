@@ -73,10 +73,14 @@ def test_release_audit_parsers_pin_the_current_inventory():
     # Current four-lesson refresh: 08 has 17 (was 13), 14 has 45 (was 41),
     # 37 has 14 (was 13), and 38 retains all nine scenes: 1192 + 4 + 4 + 1.
     # Item 662 adds thirteen independently recorded YOLO Box scenes to Make Masks.
+    # The accepted native revision then adds Wand add, Ctrl-remove and Merge.
     make_masks = next(lesson for lesson in catalog["lessons"] if lesson["id"] == "14_make_masks")
-    assert len(make_masks["scenes"]) == 58
+    assert len(make_masks["scenes"]) == 61
+    assert {"07b_wand_add", "07c_wand_ctrl_remove", "08b_merge_demo"} <= {
+        scene["visual"] for scene in make_masks["scenes"]
+    }
     assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"] if lesson["id"] != "14_make_masks") == 1156
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1214
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1217
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))

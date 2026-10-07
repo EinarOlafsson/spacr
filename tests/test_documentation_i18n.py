@@ -261,7 +261,28 @@ TOOLS = ROOT / "tools"
 # Item 662: +4 public mask_engine YOLO helpers, no removals.
 # All 13,177 prior English records preserved; 662_yolo_support receipt.
 # 2026-10-06 560: +1/-0, EmbeddingsScreen._subcell_channels_dialog.accept_mapping.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_182
+# 2026-10-07: the source-reviewed SCN, Cell-DINO, GUI and ambient additions
+# add these 17 symbols without removing any of the prior 13,182.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_199
+SOURCE_REVIEWED_SYMBOLS_2026_10_07 = frozenset({
+    "spacr.convert.read_scn",
+    "spacr.convert.scn_to_rgb8",
+    "spacr.embeddings._cell_dino_model.forward",
+    "spacr.io._preprocess_mapped_volume_series.load_channel",
+    "spacr.qt.mask_engine.read_image",
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_color",
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._refresh_custom_colors",
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_custom_colors",
+    "spacr.qt.screens.annotate.AnnotateScreen._on_similar_result_plate.show_source_hits",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.accept_mapping",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.choose_file",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.sync_width",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.finished",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.work",
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.finished",
+    "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius",
+    "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius",
+})
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
@@ -3227,6 +3248,8 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     import build_documentation_i18n as builder
 
     docs, source_contracts = current_documentation_api_contracts
+    assert len(SOURCE_REVIEWED_SYMBOLS_2026_10_07) == 17
+    assert SOURCE_REVIEWED_SYMBOLS_2026_10_07 <= set(docs)
     assert len(docs) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Regenerate every API "
         "catalog, review the diff, and update "
