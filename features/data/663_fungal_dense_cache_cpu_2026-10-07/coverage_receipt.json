@@ -1,0 +1,109 @@
+{
+  "source_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+  "final_phase": "51 passed in48.37s under branch coverage; native dense/default/Random/custom/white, scalar geometry/palettes, ownership/recovery/context/saturation/limit and refusal cases",
+  "fungal_methods": [
+    {
+      "method": "_shade",
+      "executed_statements": 13,
+      "missing_lines": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "method": "_configure",
+      "executed_statements": 8,
+      "missing_lines": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "method": "_resize",
+      "executed_statements": 4,
+      "missing_lines": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "method": "buffer_scale",
+      "executed_statements": 7,
+      "missing_lines": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "method": "blur_scale",
+      "executed_statements": 2,
+      "missing_lines": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "method": "_step",
+      "executed_statements": 14,
+      "missing_lines": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "method": "_lineage",
+      "executed_statements": 28,
+      "missing_lines": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "method": "geometry",
+      "executed_statements": 43,
+      "missing_lines": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "method": "_fungal_paths",
+      "executed_statements": 22,
+      "missing_lines": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "method": "_can_reuse_fungal_raster",
+      "executed_statements": 3,
+      "missing_lines": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "method": "_reuse_fungal_raster",
+      "executed_statements": 18,
+      "missing_lines": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "method": "_observe_fungal_path",
+      "executed_statements": 7,
+      "missing_lines": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "method": "_warm_fungal_raster",
+      "executed_statements": 28,
+      "missing_lines": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "method": "_paint_fungal_paths",
+      "executed_statements": 6,
+      "missing_lines": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "method": "_paint_cached_fungal_paths",
+      "executed_statements": 16,
+      "missing_lines": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "method": "_paint_fungal_tips",
+      "executed_statements": 8,
+      "missing_lines": [],
+      "missing_branch_destinations": []
+    },
+    {
+      "method": "_paint_field",
+      "executed_statements": 21,
+      "missing_lines": [],
+      "missing_branch_destinations": []
+    }
+  ],
+  "scope": "targeted coverage, not whole-package or hosted acceptance"
+}
