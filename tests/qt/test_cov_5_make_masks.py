@@ -8,7 +8,6 @@ one field's correction onto another field's mask.
 """
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import imageio.v2 as imageio
@@ -17,7 +16,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QEvent, QPoint, QPointF, Qt
+from PySide6.QtCore import QPoint, QPointF, Qt
 from PySide6.QtGui import QWheelEvent
 
 from spacr.qt import mask_engine as engine
@@ -508,8 +507,11 @@ def test_closing_the_screen_stops_the_loader_before_qt_destroys_it(
         def requestInterruption(self):
             interrupted.append(True)
 
-    monkeypatch.setattr("spacr.qt.bridge.drain_thread",
-                        lambda worker, timeout_ms=0: drained.append(worker))
+    def drained_loader(worker, timeout_ms=0):
+        drained.append(worker)
+        return True
+
+    monkeypatch.setattr("spacr.qt.bridge.drain_thread", drained_loader)
     worker = _Running()
     widget._load_worker = worker
     widget._pending_load = (str(folder_3), "img_02.tif", 5)
@@ -540,8 +542,11 @@ def test_a_loader_that_cannot_be_interrupted_is_still_drained(
         def requestInterruption(self):
             raise RuntimeError("Internal C++ object already deleted")
 
-    monkeypatch.setattr("spacr.qt.bridge.drain_thread",
-                        lambda worker, timeout_ms=0: drained.append(worker))
+    def drained_loader(worker, timeout_ms=0):
+        drained.append(worker)
+        return True
+
+    monkeypatch.setattr("spacr.qt.bridge.drain_thread", drained_loader)
     widget._load_worker = _Gone()
 
     widget.close()
