@@ -374,7 +374,7 @@ def all_pixels(image: QImage):
 def test_a_frame_is_not_just_the_background(theme, background):
     """Both pages, because a blob set tuned for dark reads as nothing at all
     on light — which is a bug you cannot see in a construction test."""
-    engine = make_engine(theme, "spacr", background, seed=7)
+    engine = make_engine(theme, "spacr", background, seed=7, density=1.0)
     engine.set_time(11.0)
     every = all_pixels(render(engine, background=background))
     flat = QColor(background).rgb()
@@ -386,7 +386,7 @@ def test_a_frame_is_not_just_the_background(theme, background):
 @pytest.mark.parametrize("background", [DARK, LIGHT])
 @pytest.mark.parametrize("theme", MOTION_CENSUS_THEMES)
 def test_the_frame_changes_between_two_animation_times(theme, background):
-    engine = make_engine(theme, "spacr", background, seed=7)
+    engine = make_engine(theme, "spacr", background, seed=7, density=1.0)
     engine.set_time(2.0)
     first = all_pixels(render(engine, background=background))
     engine.set_time(9.0)
@@ -394,6 +394,21 @@ def test_the_frame_changes_between_two_animation_times(theme, background):
     differing = sum(1 for a, b in zip(first, second) if a != b)
     assert differing > len(first) * MIN_CHANGED[theme], \
         f"{theme} moved only {differing} of {len(first)} px in seven seconds"
+
+
+@pytest.mark.parametrize("theme", ["blobs", "drift"])
+def test_the_sparse_default_still_paints_and_moves(theme):
+    sparse = make_engine(theme, "spacr", DARK, seed=7)
+    dense = make_engine(theme, "spacr", DARK, seed=7, density=1.0)
+    assert sparse.density == pytest.approx(0.1)
+    assert 0 < len(sparse.geometry(320, 200)) < len(dense.geometry(320, 200))
+    sparse.set_time(2.0)
+    first = all_pixels(render(sparse))
+    sparse.set_time(9.0)
+    second = all_pixels(render(sparse))
+    flat = QColor(DARK).rgb()
+    assert any(pixel != flat for pixel in first)
+    assert first != second
 
 
 def _assert_visible_growth_phases(engine, background, width, height, paint=render):
@@ -527,7 +542,7 @@ def test_dark_background_detection(colour, expected):
 
 def test_blobs_vary_in_size_and_pulse_over_time():
     """'big and small and changing size' — the user's words, asserted."""
-    engine = make_engine("blobs", "spacr", DARK, seed=21)
+    engine = make_engine("blobs", "spacr", DARK, seed=21, density=1.0)
     radii = [r for _, _, r in engine.geometry(1000, 800)]
     assert max(radii) > 3 * min(radii), "no size variety"
 
@@ -547,7 +562,7 @@ def test_blobs_vary_in_size_and_pulse_over_time():
 
 def test_blobs_spread_over_the_whole_canvas():
     """A field that clumps in one corner is not a backdrop."""
-    engine = make_engine("blobs", "spacr", DARK, seed=21)
+    engine = make_engine("blobs", "spacr", DARK, seed=21, density=1.0)
     centres = engine.geometry(1000, 800)
     assert min(x for x, _, _ in centres) < 300
     assert max(x for x, _, _ in centres) > 700
@@ -562,7 +577,7 @@ def test_every_palette_colour_gets_used_by_the_blob_field():
 
 
 def test_drift_thins_out_on_a_small_canvas_and_fills_a_big_one():
-    engine = make_engine("drift", "ocean", DARK, seed=8)
+    engine = make_engine("drift", "ocean", DARK, seed=8, density=1.0)
     small = engine.geometry(400, 300)
     big = engine.geometry(1920, 1080)
     assert len(small) < len(big), "a laptop screen is not a wall display"
