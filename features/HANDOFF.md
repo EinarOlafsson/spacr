@@ -1,5 +1,18 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-07 README checkout-size measurement needs normal owner refresh
+
+The exact e1f54c80650f60942ba6c98d4e999b36a3fa2846 ordinary coverage
+shard 6 failed `tests/test_the_light_install_numbers_are_honest.py::test_the_checkout_size_in_the_readme_matches_the_tree`.
+The hosted test measured 2,797 MB of tracked checkout files while README
+still says 1,710 MB, a 39% difference. Full job log: GitHub Actions job
+112602607248 in run 37559626498. The documentation owner should rerun
+`packaging/measure_clone_forms.sh` on the final published source, update the
+README number and date through its normal workflow, and keep the size guard.
+The hosted 2,797 MB is evidence for e1f, not a substitute measurement for
+later source commits. No README, generated artifact, or test threshold was
+changed in the CPU lane.
+
 ## 2026-10-07 final source-bound nightly deployment accepted; Home freeze released
 
 Completed successful docs workflow [37559626331](https://github.com/EinarOlafsson/spacr/actions/runs/37559626331)
