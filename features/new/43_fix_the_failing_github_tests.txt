@@ -3048,3 +3048,13 @@ Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
     evidence: data/43_workstation_owner_fixes_2026-10-07.json and associated ZIP.
     Actual deployed readback next; Home retains complete ordinary CI verdict,
     native/Qt/coverage. Protected serial37615889146 remains untouched. N43 OPEN.
+
+2026-10-07 14:33 UTC — owner correction source published, normal hosted builds pass
+    Four corrections/source-bound local proof are pushed inb6c1a18ef.
+    Compatibility37632168729 is terminalSUCCESS. Docs37632168964 both branch
+    builds pass strict English/nine guides/translation compatibility/API links.
+    Publication job112838640576 remains queued without runner or approval;
+    actual Pages source is still05302. Normal downloaded artifacts are assembled
+    at exactb6 for later live readback. No deployed-source or full CI green claim.
+    Native Save diagnostic is available for Home in N663; source implementations
+    remain unchanged. This proof-only update skips duplicate hosted execution.
