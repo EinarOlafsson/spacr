@@ -2915,3 +2915,15 @@ Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
     only outside the byte-identical changed fungal-class exterior. This is not
     a new hosted or full serial success. README size ownership and fresh hosted
     failures remain open; no guard, exclusion or ratchet allowance was loosened.
+
+2026-10-06 — branded theme identity contract repaired and CPU batch published
+    Five existing branded spaCR titles were already identity text in the
+    workstation catalog builder and source-hashed in every generated catalog.
+    The test's independent identity list omitted them and incorrectly demanded
+    translatable-extractor discovery. Exactly those five enter the test list;
+    all three ownership/identity/generated-source guards pass in 17.54 seconds
+    under 4 GiB. No translation policy, generated catalog or guard is weakened.
+    CPU repairs are published at 3683f016703e3acf37d2ef2b811eb17eb0d38987.
+    Exact new tests37566910457 is pending, compatibility37566910208 and
+    docs37566910157 queued at first readback. Earlier649 compatibility and docs
+    are successful; this does not predict the new source's ordinary result.
