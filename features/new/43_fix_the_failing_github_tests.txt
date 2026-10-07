@@ -3030,3 +3030,21 @@ Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
     Workstation retains API/docs/translations/tutorials and all GPU processes.
     Final-source serial 37615889146 must not be cancelled. Parent N43 remains
     OPEN until complete current hosted acceptance, not four local checks.
+
+2026-10-07 13:53 UTC — four Workstation owner corrections locally accepted
+    On Home handoff base05302, README prose1747 is below unchanged1750;
+    actual Divide / Merge and single-Wand behavior is described in English
+    and all nine normally regenerated guide catalogs. Expanded timelapse_events
+    has current source-bound reviewed sv/fr records and normal rebuilt catalogs;
+    exactly two specified historical hashes retire, with all other rows exact.
+    Real nightly full/shallow/filtered/light clones all pin05302: tracked tree
+    2839MB, full download9.25GiB, shallow download2048MB/140s, light disk104MB/6s.
+    Filter complete download is unknown, not falsely equated to shallow traffic.
+    Normal nine localized READMEs carry27 exact reviewed current prose blocks.
+    Five named regressions plus related contracts34PASS; final README tests3PASS;
+    original checkout-size guard1PASS on real full clone. Strict English/nine
+    guides, nine catalog audits,12356 runtime review records,13199 English API
+    entries and Help freshness pass. Full source-bound original/failure/final
+    evidence: data/43_workstation_owner_fixes_2026-10-07.json and associated ZIP.
+    Actual deployed readback next; Home retains complete ordinary CI verdict,
+    native/Qt/coverage. Protected serial37615889146 remains untouched. N43 OPEN.

@@ -1643,3 +1643,15 @@ parent scopes require real external datasets, expert labels/weights or host
 access; see current HANDOFF. No biological, native-speaker, listening, human
 theme-aesthetic or full N615 completion claim. This update changes evidence
 and handoff only; app/docs/catalog/tool source remains verified e1.
+
+2026-10-07 13:53 UTC — current Home owner handoff corrections ready to publish
+Four assigned README/guide/runtime review/clone measurement corrections now pass
+local original strict guards and normal owner generation. English and nine guide
+builds pass; nine runtime audits and12356 reviewed records pass. README1747 words,
+real nightly tracked checkout2839MB, and27 source-bound localized README blocks
+are verified. Source and complete failure/final proof are retained in
+43_workstation_owner_fixes_2026-10-07.json. Normal publication and actual deployed
+source verification follow. Previously accepted unchanged API and tutorial media
+receipts retain their source scope; no repeated tutorial regeneration or human
+listening/native-speaker/physical-phone acceptance claim. Parent N615 remains
+subject to existing scientific-input and human acceptance requirements.

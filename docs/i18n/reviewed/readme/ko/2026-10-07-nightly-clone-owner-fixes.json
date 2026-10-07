@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_method": "Direct Codex AI technical translation review against original nightly clone logs, source identity, exact numeric measurements and installation semantics. No native-speaker signoff.",
+  "records": [
+    {
+      "label": "editable-reinstall-guidance",
+      "source": "Reinstall when dependencies or entry points change. Python edits take effect directly; ``spacr-doctor`` identifies the active installation.",
+      "source_sha256": "eeb7b9d9a68fc74f825b86b2a1571aedf25c56b18a9d4bb0d2cdbc2fcf950f01",
+      "translation": "의존성이나 진입점이 바뀌면 다시 설치하세요. Python 코드 변경은 바로 적용되며, ``spacr-doctor`` 로 현재 사용 중인 설치를 확인할 수 있습니다."
+    },
+    {
+      "label": "measured-nightly-clone-source",
+      "source": "Contributors need history; to run spaCR, choose below. Measurements: ``nightly`` at ``05302fd5c`` on 2026-10-07, using ``packaging/measure_clone_forms.sh``",
+      "source_sha256": "cce5b081538356db403d56efebaff3be50030b4e733dfa044a07f9768a82849a",
+      "translation": "기여자는 버전 이력이 필요합니다. spaCR를 실행하기만 하려면 아래 방법 중 하나를 선택하세요. ``packaging/measure_clone_forms.sh`` 를 사용하여 2026-10-07에 ``nightly`` 의 ``05302fd5c`` 커밋을 측정했습니다"
+    },
+    {
+      "label": "measured-clone-and-checkout-costs",
+      "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not help shrink the checkout: its object store still weighs 2032 MB. Quiet lazy fetches prevent a complete measured download total. The nightly tracked tree is a 2839 MB checkout (measured 2026-10-07), excluding Git history. Download sizes and times vary with the branch.",
+      "source_sha256": "2dc2723f4c4ee58e6621032faec477c88d8b666860a43b68442b7e343f069c20",
+      "translation": "nightly 전체 클론은 9.25 GiB를 다운로드했습니다. 얕은 클론에 ``--filter=blob:none`` 을 추가해도 체크아웃한 파일의 크기는 줄어들지 않습니다. Git 객체 저장소는 여전히 2032 MB입니다. 출력 없이 필요할 때 객체를 가져오므로 전체 다운로드 총량을 측정할 수 없습니다. nightly의 버전 관리 파일을 체크아웃하면 Git 이력을 제외하고 2839 MB를 차지합니다(2026-10-07 측정). 다운로드 크기와 시간은 브랜치에 따라 달라집니다."
+    }
+  ]
+}

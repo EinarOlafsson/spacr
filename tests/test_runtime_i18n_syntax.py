@@ -361,14 +361,21 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     # 2026-10-05: the watch_folder microscope-feedback tooltip was rewritten.
     original = json.loads((folder / "archive/2026-10-06-subcell-rybg/"
                            "2026-09-27-runtime-codex-delta.json").read_text())["records"]
-    retired = [record for record in original if record["source_sha256"] ==
-               "d25bb244df4fcf08909bd1d860d55646aa14346420a9fc0dcace7c696cbce162"]
-    assert len(retired) == 1
+    retired_hashes = {
+        "d25bb244df4fcf08909bd1d860d55646aa14346420a9fc0dcace7c696cbce162",
+        "f7770d466133e7f859c6a59b6865c566414a2190f4e70670291a2b3a0f194478",
+    }
+    retired = [record for record in original
+               if record["source_sha256"] in retired_hashes]
+    assert len(retired) == 2
+    assert {record["source_sha256"] for record in retired} == retired_hashes
+    assert all(hashlib.sha256(record["source"].encode()).hexdigest()
+               == record["source_sha256"] for record in retired)
     assert seventh == [record for record in original if record not in retired]
     assert len(original) == len({record["source"] for record in original}) == (
         166 if language == "hi" else 131)
     assert len(seventh) == len(latest7) == len(original) - len(retired)
-    assert retired[0]["source"] not in reviewed
+    assert not {record["source"] for record in retired} & reviewed.keys()
     replacements = json.loads((folder / "2026-10-06-home-cell-dino-save-themes.json"
                                ).read_text())["records"]
     replacement = [record for record in replacements if record["source"].startswith(
@@ -376,6 +383,12 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     assert len(replacement) == 1
     assert "local official checkpoint, declared SHA-256" in replacement[0]["source"]
     assert reviewed[replacement[0]["source"]] == replacement[0]["translation"]
+    from tools.build_i18n_catalogs import canonical_sources
+
+    current_timelapse = canonical_sources()["setting_tooltips"]["timelapse_events"]
+    assert current_timelapse.startswith("After the run, detect events on every tracked object")
+    assert "optional videomae encoder" in current_timelapse
+    assert current_timelapse in reviewed
     assert not latest7 & sources
     sources |= latest7
     discovery = json.loads((folder / "2026-09-27-gpu-discovery.json").read_text())["records"]

@@ -288,34 +288,34 @@ To pull later changes, from inside the clone::
     git pull
     pip install -e .
 
-The second line is only needed when dependencies or entry points changed;
-Python code is picked up without it. If a command still runs old code after
-pulling, ``spacr-doctor`` reports which ``spacr`` is actually on your path,
-which is the usual cause.
+Reinstall when dependencies or entry points change. Python edits take effect
+directly; ``spacr-doctor`` identifies the active installation.
 
 Install from source (light)
 ---------------------------
 
-Contributors need the history; to only run spaCR, take one of these,
-measured 2026-09-15 by ``packaging/measure_clone_forms.sh``::
+Contributors need history; to run spaCR, choose below. Measurements:
+``nightly`` at ``05302fd5c`` on 2026-10-07, using
+``packaging/measure_clone_forms.sh``::
 
-    # One commit instead of every version: 540 MB downloaded, 69 s.
+    # One commit instead of every version: 2048 MB downloaded, 140 s.
     # No history, so no git log, no git blame and no git bisect.
     # git pull still works, but stays shallow until git fetch --unshallow.
-    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
     cd spacr && pip install -e .
 
-    # Only the files spaCR runs from: 81 MB on disk, 39 s. No history
-    # either, and no docs, tests, tools, features or example data.
+    # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
+    # No history, docs, tests, tools, features or example data.
     # --with-docs, --with-tests and --with-translations put those back;
     # --dir, --branch, --no-install and --help do the obvious things.
     # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-On 2026-09-15, the full clone downloaded 5.8 GB. Adding
-``--filter=blob:none`` to the shallow clone did not reduce its measured download.
-The nightly tracked tree is a 1710 MB checkout (measured 2026-10-06),
+The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none``
+to the shallow clone does not help shrink the checkout: its object store
+still weighs 2032 MB. Quiet lazy fetches prevent a complete measured download
+total. The nightly tracked tree is a 2839 MB checkout (measured 2026-10-07),
 excluding Git history. Download sizes and times vary with the branch.
 
 

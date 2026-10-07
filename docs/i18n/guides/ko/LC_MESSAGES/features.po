@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 18:04-0400\n"
+"POT-Creation-Date: 2026-10-07 09:12-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -292,15 +292,16 @@ msgid "To resize a popup, point at one of its edges or corners. A thin blue guid
 msgstr "팝업 크기를 바꾸려면 가장자리나 모서리 중 하나를 가리킵니다. 끌 수 있는 각 변의 가운데 절반에 얇은 파란색 안내선이 나타납니다. 그 가장자리나 모서리의 어느 지점에서든 끌면 되며, 안내선은 변을 표시할 뿐입니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has eleven tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Box, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
-msgstr "Make Masks는 마스크를 수동으로 수정하고 상단에 Cellpose 반복 학습 기능을 제공합니다. 캔버스에는 Brush, Erase, Erase object, Wand +, Wand −, 그리기, 상자, Divide, Zoom, 다시 자르기, 자의 열한 가지 도구가 있습니다. :doc:`Make Masks 참고 문서 <make_masks>` 항목에서는 이 도구들, Levels, 검출 설정, 주/보조 객체 짝짓기, 저장과 측정을 설명합니다."
+msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
+msgstr "Make Masks는 마스크를 수동으로 수정하며 머리글에 Cellpose 반복 과정을 표시합니다. 캔버스에는 Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop, Ruler의 열 가지 도구가 있습니다. Wand는 기본적으로 영역을 추가하며, Ctrl을 누른 채 클릭하면 해당 영역을 제거합니다. :doc:`Make Masks 참조 <make_masks>` 에서는 이 도구들, Levels, 검출 설정, 기본/보조 데이터 짝짓기, 저장과 측정을 설명합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
 msgstr "**상자** 도구는 YOLO 주석을 위해 클래스 라벨이 있는 독립적인 사각형을 그립니다. 상자를 이동하거나 크기를 조절하고, 편집을 실행 취소하거나 다시 실행할 수 있습니다. **상자 저장** 기능으로 프로젝트를 보존하거나 **Export YOLO…** 기능으로 정규화된 라벨과 순서가 지정된 클래스 메타데이터를 저장하세요. 원본 이미지와 분할 마스크는 변경되지 않습니다."
 
-msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. Divide drags a line across a merged object and makes it two, leaving every other object's label untouched; it is the commonest correction a segmentation needs."
-msgstr "Draw는 자유형 윤곽을 따라 그린 뒤 닫고 채워 하나의 객체로 만듭니다. 이는 브러시로는 할 수 없는 일입니다. 브러시는 경로를 따라 원판을 찍기 때문에 가장자리를 따라 그리면 가장자리만 레이블되고 가운데는 배경으로 남습니다. Divide는 합쳐진 객체를 가로질러 선을 그어 둘로 나누며, 다른 객체의 레이블은 건드리지 않습니다. 분할에서 가장 흔히 필요한 수정입니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. **Divide / Merge** splits an object with a left-dragged line: the larger component retains its ID and the smaller receives a new one. Right-drag a line across objects to merge them under the first crossed ID, without painting the background between them. Other objects keep their labels."
+msgstr "Draw는 자유형 윤곽선을 닫고 내부를 하나의 객체로 채웁니다 -- 브러시는 경로를 따라 원판을 찍으므로 가장자리를 따라 그리면 가장자리만 라벨링되고 중앙은 배경으로 남습니다. **Divide / Merge** 는 왼쪽 버튼을 누르고 드래그한 선으로 객체를 나눕니다. 큰 부분은 기존 ID를 유지하고 작은 부분은 새 ID를 받습니다. 오른쪽 버튼을 누르고 여러 객체를 가로지르는 선을 드래그하면 처음 가로지른 ID 아래로 객체가 병합되며, 객체 사이의 배경은 칠하지 않습니다. 다른 객체는 라벨을 유지합니다."
 
 msgid "Recrop is the only tool that changes which field is on screen rather than what is painted on it. A staged crop holding several cells is not one training example, and curating it as one teaches a network that two objects are one picture -- so a box round an object writes that region of both the image and the mask as a field of its own, queued straight after the current one, and the multi-object original is retired into ``recropped_originals/`` rather than curated. A box smaller than the minimum side, or one repeating a cut already made, is refused; objects the box cuts through are dropped, because an object whose boundary is where the mouse was released is not that object; and the labels that survive are renumbered from one."
 msgstr "Recrop은 화면에 그려진 내용이 아니라 화면에 표시되는 시야 자체를 바꾸는 유일한 도구입니다. 여러 세포가 담긴 준비된 크롭은 하나의 학습 예제가 아니며, 이를 하나로 큐레이트하면 네트워크가 두 객체를 한 장의 그림으로 학습하게 됩니다. 따라서 객체 주위에 상자를 그리면 이미지와 마스크의 해당 영역이 별도의 시야로 기록되어 현재 시야 바로 다음 대기열에 들어가고, 여러 객체가 담긴 원본은 큐레이트되지 않고 ``recropped_originals/`` 로 옮겨집니다. 최소 변보다 작은 상자나 이미 만든 잘라내기를 반복하는 상자는 거부됩니다. 상자가 가로지르는 객체는 제외됩니다. 경계가 마우스를 놓은 위치에 있는 객체는 원래의 그 객체가 아니기 때문입니다. 남은 레이블은 1부터 다시 번호가 매겨집니다."

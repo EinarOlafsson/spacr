@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_method": "Direct Codex AI technical translation review against original nightly clone logs, source identity, exact numeric measurements and installation semantics. No native-speaker signoff.",
+  "records": [
+    {
+      "label": "editable-reinstall-guidance",
+      "source": "Reinstall when dependencies or entry points change. Python edits take effect directly; ``spacr-doctor`` identifies the active installation.",
+      "source_sha256": "eeb7b9d9a68fc74f825b86b2a1571aedf25c56b18a9d4bb0d2cdbc2fcf950f01",
+      "translation": "Réinstallez lorsque les dépendances ou les points d’entrée changent. Les modifications du code Python prennent effet directement ; ``spacr-doctor`` identifie l’installation active."
+    },
+    {
+      "label": "measured-nightly-clone-source",
+      "source": "Contributors need history; to run spaCR, choose below. Measurements: ``nightly`` at ``05302fd5c`` on 2026-10-07, using ``packaging/measure_clone_forms.sh``",
+      "source_sha256": "cce5b081538356db403d56efebaff3be50030b4e733dfa044a07f9768a82849a",
+      "translation": "Les contributeurs ont besoin de l’historique des versions ; pour simplement exécuter spaCR, choisissez une option ci-dessous. Mesures de ``nightly`` à ``05302fd5c`` le 2026-10-07, effectuées avec ``packaging/measure_clone_forms.sh``"
+    },
+    {
+      "label": "measured-clone-and-checkout-costs",
+      "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not help shrink the checkout: its object store still weighs 2032 MB. Quiet lazy fetches prevent a complete measured download total. The nightly tracked tree is a 2839 MB checkout (measured 2026-10-07), excluding Git history. Download sizes and times vary with the branch.",
+      "source_sha256": "2dc2723f4c4ee58e6621032faec477c88d8b666860a43b68442b7e343f069c20",
+      "translation": "Le clone complet de nightly a téléchargé 9.25 GiB. Ajouter ``--filter=blob:none`` au clone superficiel ne réduit pas la taille de la copie de travail : son magasin d’objets Git pèse encore 2032 MB. Les téléchargements silencieux à la demande empêchent de mesurer le total complet transféré. Les fichiers suivis de nightly occupent 2839 MB dans la copie de travail (mesurés le 2026-10-07), hors historique Git. La taille et la durée du téléchargement varient selon la branche."
+    }
+  ]
+}

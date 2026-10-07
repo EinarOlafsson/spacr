@@ -1,0 +1,169 @@
+{
+  "schema": 1,
+  "owner": "Workstation",
+  "scope": "Four first-queue Home handoff corrections; local acceptance only",
+  "base_source_commit": "05302fd5c86be76b1812abf213b2a58561b16b1d",
+  "clone_measurement": {
+    "full": {
+      "source_commit": "05302fd5c86be76b1812abf213b2a58561b16b1d",
+      "visible_tracked_files": 19220,
+      "visible_tracked_bytes": 2976598426,
+      "shallow": "false",
+      "log_sha256": "2f5611f94434e7f4476787bcb38d75f86d5fca90a5a716eb6d52b92a68b32783"
+    },
+    "depth1": {
+      "source_commit": "05302fd5c86be76b1812abf213b2a58561b16b1d",
+      "visible_tracked_files": 19220,
+      "visible_tracked_bytes": 2976598426,
+      "shallow": "true",
+      "log_sha256": "bcae0d65bc975d7d485fa590a28c3a1f1861b9af040ed366a54d1650230cb113"
+    },
+    "depth1-filter": {
+      "source_commit": "05302fd5c86be76b1812abf213b2a58561b16b1d",
+      "visible_tracked_files": 19220,
+      "visible_tracked_bytes": 2976598426,
+      "shallow": "true",
+      "log_sha256": "4b1fe2af26780c5c6f13135742ab735b9b6f0c0d6d012503b2f8d89896ccffdd"
+    },
+    "light": {
+      "source_commit": "05302fd5c86be76b1812abf213b2a58561b16b1d",
+      "visible_tracked_files": 1082,
+      "visible_tracked_bytes": 69319086,
+      "shallow": "true",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "local_acceptance": {
+    "passed": true,
+    "base_source_commit": "05302fd5c86be76b1812abf213b2a58561b16b1d",
+    "README_prose_words": 1747,
+    "original_word_ceiling": 1750,
+    "all_27_reviewed_README_blocks_exact": {
+      "sv": {
+        "exact_reviewed_blocks": 3,
+        "sha256": "7658fcc4d25bcbaf425e23584a251e8abced601169360f204315c3558e6c3806"
+      },
+      "de": {
+        "exact_reviewed_blocks": 3,
+        "sha256": "15703dcc7996f9596d511b7b18df93e5fb3be4734419b0d8ae953fd21251a6f2"
+      },
+      "es": {
+        "exact_reviewed_blocks": 3,
+        "sha256": "a122186241f347a5561319acb650a6fa4a6f5748e944fc22fc84c79be6a79383"
+      },
+      "pt": {
+        "exact_reviewed_blocks": 3,
+        "sha256": "6a229bd3e9f3ee3fb45f5a80d148426fc107aa2c2f7e4bde5050e6c4a241defb"
+      },
+      "fr": {
+        "exact_reviewed_blocks": 3,
+        "sha256": "86ddf8c8bf5bbb5f3f5fa624f9a710a86246e27f585f8216f683c1cffacecf61"
+      },
+      "is": {
+        "exact_reviewed_blocks": 3,
+        "sha256": "803d0ff5133efcb18d30446d6c197841319e0861b393d6dfe324ba7f9f7fbf3e"
+      },
+      "zh_CN": {
+        "exact_reviewed_blocks": 3,
+        "sha256": "f93695c7d647ef3384358cd91ee333fb5c1d007226158b8411359bb824efe1ae"
+      },
+      "ko": {
+        "exact_reviewed_blocks": 3,
+        "sha256": "548680fed8fb29871c25af6f8acc53b25dfbae958f90d34bd65a15a8fb970af4"
+      },
+      "hi": {
+        "exact_reviewed_blocks": 3,
+        "sha256": "37cf0cbba36283ed52f4c92d9cf08a5eaa9ea9b30c27bdc7e9f7109d2d0dbde7"
+      }
+    },
+    "all_18_rendered_guide_paragraphs_exact": {
+      "sv": {
+        "exact_reviewed_paragraphs": 2,
+        "html_sha256": "8d2627f020ccb733178da2ca005d9e258a2f74ddf9196293d2c0efd57eaa45a8"
+      },
+      "de": {
+        "exact_reviewed_paragraphs": 2,
+        "html_sha256": "a98989602e9432c405cf48135409d6eed3342c234fb3fd83bffb65769b71fcb2"
+      },
+      "es": {
+        "exact_reviewed_paragraphs": 2,
+        "html_sha256": "c1442f9ceccf076b9fa50c74e74f975b15461e3ea23bc63dc81652994726fe85"
+      },
+      "pt": {
+        "exact_reviewed_paragraphs": 2,
+        "html_sha256": "76c14c47fab65d38d6c5c0ac640d0879ebc9d4ab398779f5d331aa91efdf0881"
+      },
+      "fr": {
+        "exact_reviewed_paragraphs": 2,
+        "html_sha256": "0360a78c811a4f21b7e6089d25a39a68375bd58e1cd37220001f7564b7757597"
+      },
+      "is": {
+        "exact_reviewed_paragraphs": 2,
+        "html_sha256": "ef4a232de66bd8fe61628485c33baf102612fc3aa1aaa9d35e9bfe317f25293e"
+      },
+      "zh_CN": {
+        "exact_reviewed_paragraphs": 2,
+        "html_sha256": "59c224f8a105d5c8a53b8013344b0af7dbda5e0d420f8736a391b6c2d900919b"
+      },
+      "ko": {
+        "exact_reviewed_paragraphs": 2,
+        "html_sha256": "f8f86d3bfc50d818dc5e3d4152181e1f2251046a9975852604776456ceefd83c"
+      },
+      "hi": {
+        "exact_reviewed_paragraphs": 2,
+        "html_sha256": "073cf1ce6ff3cec85ce484afcb38fbd0a1e6651192153d772599ceafaa19d3e6"
+      }
+    },
+    "runtime_retirements_exact": {
+      "sv": {
+        "original": 131,
+        "current": 129,
+        "only_retired_hashes": [
+          "d25bb244df4fcf08909bd1d860d55646aa14346420a9fc0dcace7c696cbce162",
+          "f7770d466133e7f859c6a59b6865c566414a2190f4e70670291a2b3a0f194478"
+        ]
+      },
+      "fr": {
+        "original": 131,
+        "current": 129,
+        "only_retired_hashes": [
+          "d25bb244df4fcf08909bd1d860d55646aa14346420a9fc0dcace7c696cbce162",
+          "f7770d466133e7f859c6a59b6865c566414a2190f4e70670291a2b3a0f194478"
+        ]
+      }
+    },
+    "original_clone_measurement_source": "05302fd5c86be76b1812abf213b2a58561b16b1d",
+    "native_speaker_signoff": false,
+    "hosted_acceptance_or_full_CI_claimed": false
+  },
+  "acceptance_logs": {
+    "final-five-owner-checks-r2.log": "Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/home-owner-fixes-20261007/spacr/__init__.py\n..................................                                       [100%]\n34 passed in 589.63s (0:09:49)\n",
+    "affected-localized-readme-contracts-r3.log": "Command: ['tools/run_capped.sh', '8G', '/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_current_source_tool_r4.py', '/media/carruthers/mnt3/codex/scratch/home-owner-fixes-20261007/affected-localized-readme-tests-r3.log', 'pytest', '-q', 'tests/test_the_light_install_numbers_are_honest.py', 'tests/test_documentation_i18n.py', 'tests/test_readme_presentation.py', '-k', 'readme or checkout or light or helper or source']\nSource: 05302fd5c86be76b1812abf213b2a58561b16b1d\nActual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/home-owner-fixes-20261007/spacr/__init__.py\n.F.................................................................      [100%]\n=================================== FAILURES ===================================\n__ test_both_source_install_sections_read_as_reviewed_prose_in_every_language __\n\n    def test_both_source_install_sections_read_as_reviewed_prose_in_every_language():\n        \"\"\"The nine READMEs carry these sections as reviewed text, not a draft.\n    \n        Until 2026-09-19 they carried the translation model's first draft: the\n        German heading read \"(Licht)\" for \"(light)\" and called the checkout a\n        \"Kasse\" -- a till -- and the French a \"caisse\". 328's DONE MEANS asked\n        for reviewed prose here, so every paragraph and heading of the two\n        sections must have a source-bound record in every language, and that\n        record must be what the localized README actually shows.\n    \n        A new English sentence in either section fails here until it has been\n        translated, rather than reaching the nine READMEs as model output on\n        the next rebuild.\n        \"\"\"\n        import sys\n    \n        tools = REPO / \"tools\"\n        if str(tools) not in sys.path:\n            sys.path.insert(0, str(tools))\n        from build_documentation_i18n import (\n            REVIEWED_README_BLOCKS,\n            translatable_blocks,\n        )\n    \n        blocks, _layout = translatable_blocks(README.read_text(encoding=\"utf-8\"))\n        first = blocks.index(\"Install from source\")\n        last = blocks.index(\"Command-line entry points\")\n        section = blocks[first:last]\n        assert \"Install from source (light)\" in section\n        assert len(section) >= 8, section\n        for source in section:\n            reviewed = REVIEWED_README_BLOCKS.get(source, {})\n            assert set(reviewed) == set(LANGUAGES), (\n                f\"no reviewed translation in \"\n                f\"{sorted(set(LANGUAGES) - set(reviewed))} for {source[:60]!r}\")\n            for language, target in reviewed.items():\n                localized = (LOCALIZED / f\"README.{language}.rst\").read_text(\n                    encoding=\"utf-8\").replace(\"<../../source/\", \"<docs/source/\")\n>               assert target in localized, (language, source[:60])\nE               AssertionError: ('de', 'The full nightly clone downloaded 9.25 GiB. Adding ``--filte')\nE               assert 'Der vollst\u00e4ndige nightly-Klon lud 9.25 GiB herunter. ``--filter=blob:none`` zum flachen Klon hinzuzuf\u00fcgen verkleinert... Arbeitsverzeichnis 2839 MB (gemessen am 2026-10-07), ohne Git-Historie. Downloadgr\u00f6\u00dfe und Dauer h\u00e4ngen vom Branch ab.' in '|Platforms| |Python| |Qt| |Tests| |Release| |Issues| |Source| |Conda| |PyPI| |Conda Downloads| |PyPI Downloads| |Docs...taloge verwendeten Modelle sind in der `Attribution der \u00dcbersetzungsmodelle <../TRANSLATION_MODELS.md>`_ aufgef\u00fchrt.\\n'\n\ntests/test_the_light_install_numbers_are_honest.py:609: AssertionError\n=============================== warnings summary ===============================\ntests/test_readme_presentation.py::test_every_module_is_one_tile_of_one_size_in_one_grid\n  /media/carruthers/mnt3/codex/spacr-worktrees/home-owner-fixes-20261007/tests/test_readme_presentation.py:555: PendingDeprecationWarning: Argument \"writer_name\" will be removed in Docutils 2.0.  Specify writer name in the \"writer\" argument.\n    parsed.feed(publish_parts(\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED tests/test_the_light_install_numbers_are_honest.py::test_both_source_install_sections_read_as_reviewed_prose_in_every_language\n1 failed, 66 passed, 139 deselected, 1 warning in 301.54s (0:05:01)\n\nTerminal exit status: 1\n",
+    "final-README-after-generation-r1.log": "Command: ['tools/run_capped.sh', '8G', '/home/carruthers/anaconda3/envs/spacr/bin/python', '/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/run_current_source_tool_r4.py', '/media/carruthers/mnt3/codex/scratch/home-owner-fixes-20261007/final-README-after-generation-tests-r1.log', 'pytest', '-q', 'tests/test_the_light_install_numbers_are_honest.py::test_both_source_install_sections_read_as_reviewed_prose_in_every_language', 'tests/test_the_light_install_numbers_are_honest.py::test_the_readme_does_not_sell_a_filter_that_saved_nothing', 'tests/test_readme_presentation.py::test_readme_keeps_the_feature_catalog_curated_and_points_to_detail']\nSource: 05302fd5c86be76b1812abf213b2a58561b16b1d\nActual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/home-owner-fixes-20261007/spacr/__init__.py\n...                                                                      [100%]\n3 passed in 0.44s\n\nTerminal exit status: 0\n",
+    "real-full-checkout-final-size-test-r3.log": "Actual imported source: /media/carruthers/mnt3/codex/scratch/home-owner-fixes-20261007/clone-forms-r1/full/spacr/__init__.py\n.                                                                        [100%]\n1 passed in 0.52s\n",
+    "guides-all-nine-strict-audit-r1.log": "Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/home-owner-fixes-20261007/spacr/__init__.py\nsv: 2999/2999 (100.0%), stale 0, invalid 0, unlabelled 0\nde: 2999/2999 (100.0%), stale 0, invalid 0, unlabelled 0\nes: 2999/2999 (100.0%), stale 0, invalid 0, unlabelled 0\npt: 2999/2999 (100.0%), stale 0, invalid 0, unlabelled 0\nfr: 2999/2999 (100.0%), stale 0, invalid 0, unlabelled 0\nis: 2999/2999 (100.0%), stale 0, invalid 0, unlabelled 0\nzh_CN: 2999/2999 (100.0%), stale 0, invalid 0, unlabelled 0\nko: 2999/2999 (100.0%), stale 0, invalid 0, unlabelled 0\nhi: 2999/2999 (100.0%), stale 0, invalid 0, unlabelled 0\n",
+    "runtime-all-nine-audit-r1.log": "Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/home-owner-fixes-20261007/spacr/__init__.py\nverified external runtime catalogs: languages=9 settings=1243 categories=237 ui=7228 modules=77\n",
+    "runtime-reviewed-evidence-r1.log": "Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/home-owner-fixes-20261007/spacr/__init__.py\nevery reviewed runtime record still matches its source (12356 checked)\n",
+    "current-English-API-audit-r1.log": "Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/home-owner-fixes-20261007/spacr/__init__.py\nverified API catalogs: languages=0 symbols=13199\n",
+    "Help-owner-freshness-r1.log": "Actual imported source: /media/carruthers/mnt3/codex/spacr-worktrees/home-owner-fixes-20261007/spacr/__init__.py\nspacr/qt/help_api_index.py is current\n"
+  },
+  "complete_evidence": {
+    "path": "features/data/43_workstation_owner_fixes_2026-10-07/complete-local-evidence.zip",
+    "bytes": 6756121,
+    "sha256": "ab89455b1f1778cd3561b0a0e3626e3c1cbfb4a8ebfea333e5b94ae7d2babe93",
+    "payload_count": 160
+  },
+  "preserved_failures": [
+    "four-owner-baseline-r1",
+    "README filter explanation r2",
+    "source-bound localized README read during r3 regeneration; final completed outputs retested",
+    "private helper RST/HTML dash mismatch r2"
+  ],
+  "unchanged_constraints": [
+    "word ceiling 1750",
+    "checkout drift 15%",
+    "all other review rows",
+    "Home application and protected serial"
+  ],
+  "remaining": "Publish nightly and verify exact deployed source; Home retains ordinary CI/native/Qt/scientific or human acceptance scopes."
+}

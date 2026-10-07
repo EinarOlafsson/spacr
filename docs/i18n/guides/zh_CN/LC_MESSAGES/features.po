@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 18:04-0400\n"
+"POT-Creation-Date: 2026-10-07 09:12-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -292,15 +292,16 @@ msgid "To resize a popup, point at one of its edges or corners. A thin blue guid
 msgstr "要调整弹出窗口的大小，请将指针指向其任一边缘或角。可拖动的每条边的中间一半会出现一条细蓝色参考线。可沿该边缘或角的任意位置拖动；参考线只是标示出可拖动的边。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has eleven tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Box, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
-msgstr "Make Masks 用于手动修正掩膜，并在标题栏中提供 Cellpose 循环。画布包含十一种工具：Brush、Erase、Erase object、Wand +、Wand −、绘制、边界框、Divide、Zoom、重新裁剪 和 标尺。:doc:`Make Masks 参考指南 <make_masks>` 介绍这些工具、Levels、检测设置、主次对象配对、保存和测量。"
+msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand, Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by default; hold Ctrl while clicking to remove it. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
+msgstr "Make Masks 用于手动修正掩码，并在页眉显示 Cellpose 循环。画布有十种工具：Brush、Erase、Erase object、Wand、Draw、Box、Divide / Merge、Zoom、Recrop 和 Ruler。Wand 默认添加区域；按住 Ctrl 单击即可删除该区域。:doc:`Make Masks 参考 <make_masks>` 介绍这些工具、Levels、检测设置、主/次数据配对、保存和测量。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Box** draws independent class-labelled rectangles for YOLO annotation. Move or resize a box, undo or redo edits, and use **Save boxes** to preserve the project or **Export YOLO…** to write normalized labels and ordered class metadata. Source images and segmentation masks remain unchanged."
 msgstr "**边界框** 为 YOLO 标注绘制带类别标签的独立矩形。可以移动或调整框的大小、撤销或重做编辑，并使用 **保存边界框** 保存项目，或使用 **Export YOLO…** 写出归一化标签和有序的类别元数据。源图像和分割掩膜保持不变。"
 
-msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. Divide drags a line across a merged object and makes it two, leaving every other object's label untouched; it is the commonest correction a segmentation needs."
-msgstr "Draw 描绘一个自由形状的轮廓，并将其闭合、填充为单个对象——这是画笔做不到的，因为画笔沿路径盖印圆盘，用它描绘边缘只会标记边缘，而中间仍为背景。Divide 在合并的对象上拖出一条线，将其分为两个，而不影响其他任何对象的标签；这是分割最常需要的校正。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. **Divide / Merge** splits an object with a left-dragged line: the larger component retains its ID and the smaller receives a new one. Right-drag a line across objects to merge them under the first crossed ID, without painting the background between them. Other objects keep their labels."
+msgstr "Draw 描绘自由轮廓，将其闭合并填充为单个对象 -- 画笔则沿路径盖印圆盘，因此沿边缘描绘只会标记边缘，中央仍为背景。**Divide / Merge** 用按住鼠标左键拖出的线分割对象：较大的部分保留原 ID，较小的部分获得新 ID。按住鼠标右键拖线跨过多个对象，可将它们合并到第一个被穿过的 ID 下，而不涂绘它们之间的背景。其他对象保留各自的标签。"
 
 msgid "Recrop is the only tool that changes which field is on screen rather than what is painted on it. A staged crop holding several cells is not one training example, and curating it as one teaches a network that two objects are one picture -- so a box round an object writes that region of both the image and the mask as a field of its own, queued straight after the current one, and the multi-object original is retired into ``recropped_originals/`` rather than curated. A box smaller than the minimum side, or one repeating a cut already made, is refused; objects the box cuts through are dropped, because an object whose boundary is where the mouse was released is not that object; and the labels that survive are renumbered from one."
 msgstr "Recrop 是唯一会改变屏幕上显示哪个视野、而不是改变其上所绘内容的工具。包含多个细胞的阶段性裁剪图不是一个训练样本，把它当作一个样本校正会让网络误认为两个对象是一张图——因此，围绕某个对象的框会将图像和掩膜的该区域写为一个单独的视野，排在当前视野之后，而多对象的原图会被移入 ``recropped_originals/``，而不是被校正。小于最小边长的框，或重复已有裁剪的框，会被拒绝；被框切到的对象会被丢弃，因为边界落在鼠标释放处的对象已不是原来的对象；保留下来的标签从一开始重新编号。"

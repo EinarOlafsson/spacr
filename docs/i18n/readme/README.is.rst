@@ -253,28 +253,28 @@ Til að sækja síðari breytingar skaltu keyra inni í klóninu::
     git pull
     pip install -e .
 
-Seinni línan er aðeins nauðsynleg þegar pakkar sem spaCR er háð eða inngangspunktar hafa breyst; Python-kóði skilar sér án hennar. Ef skipun keyrir enn gamlan kóða eftir að breytingar hafa verið sóttar sýnir ``spacr-doctor`` hvaða ``spacr`` er í raun í leitarslóðinni þinni, en þar liggur orsökin oftast.
+Settu upp aftur þegar háðir pakkar eða inngangspunktar breytast. Breytingar á Python-kóða taka gildi beint; ``spacr-doctor`` sýnir hvaða uppsetning er virk.
 
 Uppsetning frá frumkóða (létt)
 ------------------------------
 
-Þeir sem leggja til kóða þurfa alla söguna; til að keyra spaCR eingöngu dugar ein af þessum leiðum. Tölurnar voru mældar 2026-09-15 með ``packaging/measure_clone_forms.sh``::
+Þátttakendur þurfa útgáfusöguna; veldu einn af kostunum hér fyrir neðan ef þú vilt aðeins keyra spaCR. Mælingar á ``nightly`` við ``05302fd5c`` þann 2026-10-07 með ``packaging/measure_clone_forms.sh``::
 
-    # One commit instead of every version: 540 MB downloaded, 69 s.
+    # One commit instead of every version: 2048 MB downloaded, 140 s.
     # No history, so no git log, no git blame and no git bisect.
     # git pull still works, but stays shallow until git fetch --unshallow.
-    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
     cd spacr && pip install -e .
 
-    # Only the files spaCR runs from: 81 MB on disk, 39 s. No history
-    # either, and no docs, tests, tools, features or example data.
+    # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
+    # No history, docs, tests, tools, features or example data.
     # --with-docs, --with-tests and --with-translations put those back;
     # --dir, --branch, --no-install and --help do the obvious things.
     # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Í mælingunni 2026-09-15 sótti fullt klón 5,8 GB. Í grunna klóninu minnkaði ``--filter=blob:none`` ekki mælt niðurhal. Skrárnar sem Git fylgist með í nightly taka 1710 MB í vinnutrénu (mælt 2026-10-06), án Git-ferilsins. Stærð niðurhals og tími fara eftir greininni.
+Full klónun nightly sótti 9.25 GiB. Að bæta ``--filter=blob:none`` við grunna klónið minnkar ekki vinnueintakið: Git-hlutasafnið tekur enn 2032 MB. Hljóðlausar niðurhalssóknir eftir þörfum koma í veg fyrir fullkomna mælingu á heildarniðurhali. Útgáfustýrðu skrárnar í nightly taka 2839 MB í vinnueintakinu (mælt 2026-10-07), án Git-sögunnar. Stærð og tími niðurhals eru mismunandi eftir grein.
 
 
 Skipanalínuskipanir

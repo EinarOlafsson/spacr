@@ -253,28 +253,28 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
     git pull
     pip install -e .
 
-只有在依赖项或入口点发生变化时才需要第二行；Python 代码无需它即可生效。如果拉取后某个命令仍在运行旧代码，``spacr-doctor`` 会报告路径中实际使用的是哪个 ``spacr``，这通常就是原因所在。
+依赖项或入口点变化时才需重新安装。Python 代码修改会直接生效； ``spacr-doctor`` 可确定当前使用的安装。
 
 从源代码安装（精简版）
 ---------------------------
 
-贡献者需要完整的提交历史；如果只想运行 spaCR，请选用以下任一方式。数据于 2026-09-15 由 ``packaging/measure_clone_forms.sh`` 测得::
+贡献者需要版本历史；如果只需运行 spaCR，可选择下列方式。测量于 2026-10-07 对 ``nightly`` 的 ``05302fd5c`` 提交进行，使用 ``packaging/measure_clone_forms.sh``::
 
-    # One commit instead of every version: 540 MB downloaded, 69 s.
+    # One commit instead of every version: 2048 MB downloaded, 140 s.
     # No history, so no git log, no git blame and no git bisect.
     # git pull still works, but stays shallow until git fetch --unshallow.
-    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
     cd spacr && pip install -e .
 
-    # Only the files spaCR runs from: 81 MB on disk, 39 s. No history
-    # either, and no docs, tests, tools, features or example data.
+    # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
+    # No history, docs, tests, tools, features or example data.
     # --with-docs, --with-tests and --with-translations put those back;
     # --dir, --branch, --no-install and --help do the obvious things.
     # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-在 2026-09-15 的测量中，完整克隆下载了 5.8 GB。向浅克隆添加 ``--filter=blob:none`` 没有减少其测得的下载量。nightly 中受 Git 跟踪的文件检出后共占 1710 MB（2026-10-06 测量），不含 Git 历史。下载大小和耗时随分支而变化。
+nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 ``--filter=blob:none`` 无助于缩小检出文件的大小：其 Git 对象存储仍占用 2032 MB。静默按需获取对象使完整下载总量无法测得。nightly 的版本控制文件检出后占用 2839 MB（2026-10-07 测得），不含 Git 历史。下载大小和耗时随分支而变化。
 
 
 命令行入口

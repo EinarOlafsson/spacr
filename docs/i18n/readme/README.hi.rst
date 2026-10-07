@@ -253,28 +253,28 @@ NVIDIA GPU के लिए संबंधित इमेज ``ghcr.io/einarol
     git pull
     pip install -e .
 
-दूसरी पंक्ति की ज़रूरत तभी होती है जब निर्भरताएँ या एंट्री पॉइंट बदले हों; Python कोड इसके बिना भी लागू हो जाता है। अगर pull करने के बाद भी कोई कमांड पुराना कोड चलाता है, तो ``spacr-doctor`` बताता है कि आपके पाथ पर असल में कौन-सा ``spacr`` है; आम तौर पर यही कारण होता है।
+निर्भरताएँ या प्रवेश बिंदु बदलने पर फिर से इंस्टॉल करें। Python कोड में बदलाव सीधे लागू होते हैं; ``spacr-doctor`` सक्रिय इंस्टॉलेशन की पहचान करता है।
 
 सोर्स कोड से इंस्टॉलेशन (हल्का)
 ----------------------------
 
-योगदानकर्ताओं को इतिहास चाहिए; केवल spaCR चलाने के लिए इनमें से कोई एक तरीका चुनें, जिन्हें 2026-09-15 को ``packaging/measure_clone_forms.sh`` से मापा गया::
+योगदानकर्ताओं को संस्करण इतिहास चाहिए; केवल spaCR चलाने के लिए नीचे दिए विकल्पों में से चुनें। ``nightly`` के ``05302fd5c`` कमिट की माप 2026-10-07 को ``packaging/measure_clone_forms.sh`` से की गई::
 
-    # One commit instead of every version: 540 MB downloaded, 69 s.
+    # One commit instead of every version: 2048 MB downloaded, 140 s.
     # No history, so no git log, no git blame and no git bisect.
     # git pull still works, but stays shallow until git fetch --unshallow.
-    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
     cd spacr && pip install -e .
 
-    # Only the files spaCR runs from: 81 MB on disk, 39 s. No history
-    # either, and no docs, tests, tools, features or example data.
+    # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
+    # No history, docs, tests, tools, features or example data.
     # --with-docs, --with-tests and --with-translations put those back;
     # --dir, --branch, --no-install and --help do the obvious things.
     # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-2026-09-15 के मापन में पूरे क्लोन ने 5.8 GB डाउनलोड किया। एक कमिट वाले क्लोन में ``--filter=blob:none`` जोड़ने से उसके मापे गए डाउनलोड में कमी नहीं आई। nightly की ट्रैक की गई फ़ाइलों का चेकआउट 1710 MB है (मापन: 2026-10-06), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और समय शाखा के अनुसार बदलते हैं।
+nightly के पूर्ण क्लोन ने 9.25 GiB डाउनलोड किया। उथले क्लोन में ``--filter=blob:none`` जोड़ने से चेकआउट का आकार कम नहीं होता: उसका Git ऑब्जेक्ट भंडार अब भी 2032 MB है। बिना प्रगति दिखाए आवश्यकतानुसार डाउनलोड होने से पूरा डाउनलोड कुल मापा नहीं जा सकता। nightly की संस्करण-नियंत्रित फ़ाइलें चेकआउट में 2839 MB लेती हैं (2026-10-07 को मापी गईं), जिसमें Git इतिहास शामिल नहीं है। डाउनलोड का आकार और समय शाखा के अनुसार बदलते हैं।
 
 
 कमांड-लाइन प्रवेश बिंदु

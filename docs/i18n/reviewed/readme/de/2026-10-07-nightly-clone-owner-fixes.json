@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_method": "Direct Codex AI technical translation review against original nightly clone logs, source identity, exact numeric measurements and installation semantics. No native-speaker signoff.",
+  "records": [
+    {
+      "label": "editable-reinstall-guidance",
+      "source": "Reinstall when dependencies or entry points change. Python edits take effect directly; ``spacr-doctor`` identifies the active installation.",
+      "source_sha256": "eeb7b9d9a68fc74f825b86b2a1571aedf25c56b18a9d4bb0d2cdbc2fcf950f01",
+      "translation": "Installieren Sie neu, wenn sich Abhängigkeiten oder Einstiegspunkte ändern. Änderungen am Python-Code gelten direkt; ``spacr-doctor`` zeigt die aktive Installation an."
+    },
+    {
+      "label": "measured-nightly-clone-source",
+      "source": "Contributors need history; to run spaCR, choose below. Measurements: ``nightly`` at ``05302fd5c`` on 2026-10-07, using ``packaging/measure_clone_forms.sh``",
+      "source_sha256": "cce5b081538356db403d56efebaff3be50030b4e733dfa044a07f9768a82849a",
+      "translation": "Mitwirkende benötigen die Versionshistorie; um spaCR nur auszuführen, wählen Sie eine der folgenden Optionen. Messungen von ``nightly`` bei ``05302fd5c`` am 2026-10-07 mit ``packaging/measure_clone_forms.sh``"
+    },
+    {
+      "label": "measured-clone-and-checkout-costs",
+      "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not help shrink the checkout: its object store still weighs 2032 MB. Quiet lazy fetches prevent a complete measured download total. The nightly tracked tree is a 2839 MB checkout (measured 2026-10-07), excluding Git history. Download sizes and times vary with the branch.",
+      "source_sha256": "2dc2723f4c4ee58e6621032faec477c88d8b666860a43b68442b7e343f069c20",
+      "translation": "Der vollständige nightly-Klon lud 9.25 GiB herunter. ``--filter=blob:none`` zum flachen Klon hinzuzufügen verkleinert das ausgecheckte Arbeitsverzeichnis nicht: Sein Git-Objektspeicher umfasst weiterhin 2032 MB. Stille Abrufe bei Bedarf verhindern eine vollständige Messung der übertragenen Daten. Die versionierten Dateien von nightly belegen im ausgecheckten Arbeitsverzeichnis 2839 MB (gemessen am 2026-10-07), ohne Git-Historie. Downloadgröße und Dauer hängen vom Branch ab."
+    }
+  ]
+}
