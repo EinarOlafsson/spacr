@@ -732,6 +732,11 @@ _CUSTOM_WIDGET_ARGUMENTS = {
 # backend, field-name or interpolation contract; the separate assertion below
 # prevents a term fallback from rewriting them.
 _RUNTIME_IDENTITY_CAPTIONS = {
+    "spaCR field",
+    "spaCR advection",
+    "spaCR growth",
+    "spaCR Thore",
+    "spaCR waves",
     "%d px",
     "3D",
     '<a href="api">API</a>',

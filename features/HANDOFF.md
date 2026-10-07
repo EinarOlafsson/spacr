@@ -85,6 +85,21 @@ these parent biological/hardware scopes are not closed. Native macOS capture
 Linux footage is presented as a native macOS recording. Human listening and
 theme-aesthetic acceptance are also not asserted. N615/full goal remain OPEN
 for these external/Home scopes, with no invented percentages or finish times.
+## 2026-10-07 branded theme identity caption guard
+
+The e1f54c80650f60942ba6c98d4e999b36a3fa2846 ordinary run
+37559626498 coverage shard 5 failed
+`test_custom_widgets_and_indirect_registries_enter_one_i18n_layer` for
+`spaCR field`, `spaCR advection`, `spaCR growth`, `spaCR Thore`, and
+`spaCR waves` (job 112602607297). The catalog builder already lists these
+five exact brand titles in `_IDENTITY_TEXT` and writes source-hashed UI
+records for them. Its static translatable-source extractor intentionally
+excludes identity text. The independent test identity list omitted the five,
+so it incorrectly expected extractor discovery. The test list now names
+exactly those five and retains the check that every language returns their
+original spelling. No generated catalog, translation policy, or guard
+ceiling changed. The full hosted failure log is archived at
+`/mnt/wd4tb/scratch/ci-224-failures-20261007/112602607297-e1f.log.gz`.
 
 ## 2026-10-07 current app/catalog/native61 publication ready for actual deployment
 Workstation integrates latest Home source with every normal final owner.
