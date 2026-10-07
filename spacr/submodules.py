@@ -1662,8 +1662,27 @@ def analyze_plaques(settings):
         if filepath.endswith('.tif') and os.path.isfile(filepath):
             print(f"Analyzing: {filepath}")
             image = cellpose.io.imread(filepath)
-            labeled_image = label(image)
+            labeled_image = np.asarray(image, dtype=np.int32)
+            if labeled_image.max() <= 1:
+                labeled_image = label(labeled_image)
             regions = regionprops(labeled_image)
+            from .plaque import _PLAQUE_METRIC_COLUMNS, _plaque_mask_digest
+            from .tabular import read_table
+
+            diagnostics = {}
+            metrics_path = os.path.splitext(filepath)[0] + '.diagnostics.csv'
+            if os.path.isfile(metrics_path):
+                try:
+                    saved_metrics = read_table(metrics_path)
+                    mask_digest = _plaque_mask_digest(image)
+                    if not saved_metrics.empty and saved_metrics['mask_sha256'].eq(mask_digest).all():
+                        diagnostics = {
+                            int(row['plaque_id']): {key: row.get(key) for key in _PLAQUE_METRIC_COLUMNS}
+                            for row in saved_metrics.to_dict('records')}
+                    elif not saved_metrics.empty:
+                        LOG_PLAQUE.warning("Ignoring stale plaque diagnostics for %s", filename)
+                except (ValueError, KeyError, OSError):
+                    LOG_PLAQUE.warning("Could not read plaque diagnostics for %s", filename, exc_info=True)
             
             object_count = len(regions)
             sizes = [region.area for region in regions]
@@ -1695,9 +1714,11 @@ def analyze_plaques(settings):
                                'px_per_mm': px_per_mm,
                                'average_size_mm2': mm2(average_size),
                                'std_dev_size_mm2': mm2(std_dev_size)})
-            for size in sizes:
-                details_data.append({**calibration, 'file': filename, 'plaque_size': size,
-                                     'plaque_size_mm2': mm2(size)})
+            for region in regions:
+                metrics = diagnostics.get(int(region.label), dict.fromkeys(_PLAQUE_METRIC_COLUMNS))
+                details_data.append({**calibration, **metrics, 'file': filename,
+                                     'plaque_id': int(region.label), 'plaque_size': region.area,
+                                     'plaque_size_mm2': mm2(region.area)})
             median = float(np.median(sizes)) if sizes else 0.0
             per_image.append({
                 **calibration, 'file': filename, 'plaque_count': object_count,
@@ -1711,7 +1732,9 @@ def analyze_plaques(settings):
                 'plaque_model': settings.get('plaque_model')})
             for region in regions:
                 per_plaque.append({
-                    **calibration, 'file': filename, 'plaque_id': int(region.label),
+                    **calibration,
+                    **diagnostics.get(int(region.label), dict.fromkeys(_PLAQUE_METRIC_COLUMNS)),
+                    'file': filename, 'plaque_id': int(region.label),
                     'area_px': int(region.area),
                     'area_mm2': mm2(region.area),
                     'area_vs_image_median': (float(region.area) / median
@@ -1737,20 +1760,25 @@ def analyze_plaques(settings):
         for row in table:
             row.update(growth.get(row['file'], {}))
     summary_df = pd.DataFrame(summary_data)
-    details_df = pd.DataFrame(details_data)
+    from .plaque import _PLAQUE_METRIC_COLUMNS
+    details_df = pd.DataFrame(details_data, columns=list(details_data[0]) if details_data else
+                              ['file', 'plaque_id', 'plaque_size', 'plaque_size_mm2', *_PLAQUE_METRIC_COLUMNS])
     stats_df = pd.DataFrame(stats_data)
     
     db_name = os.path.join(folder, 'plaques_analysis.db')
-    conn = sqlite3.connect(db_name, timeout=30)
-    
-    summary_df.to_sql('summary', conn, if_exists='replace', index=False)
-    details_df.to_sql('details', conn, if_exists='replace', index=False)
-    stats_df.to_sql('stats', conn, if_exists='replace', index=False)
-    conn.close()
+    write_database(summary_df, db_name, 'summary', if_exists='replace')
+    write_database(details_df, db_name, 'details', if_exists='replace')
+    write_database(stats_df, db_name, 'stats', if_exists='replace')
     write_database(pd.DataFrame(per_image), db_name, 'per_image',
                    if_exists='replace')
-    write_database(pd.DataFrame(per_plaque), db_name, 'per_plaque',
+    plaque_df = pd.DataFrame(per_plaque, columns=list(per_plaque[0]) if per_plaque else
+                             ['file', 'plaque_id', 'area_px', 'area_mm2', 'area_vs_image_median',
+                              'perimeter_px', 'equivalent_diameter_px', 'eccentricity', 'solidity',
+                              'centroid_y', 'centroid_x', *_PLAQUE_METRIC_COLUMNS])
+    write_database(plaque_df, db_name, 'per_plaque',
                    if_exists='replace')
+    from .tabular import write_table
+    write_table(plaque_df, os.path.join(folder, 'per_plaque.csv'))
     
     print(f"Analysis completed and saved to database '{db_name}'.")
 
@@ -1799,8 +1827,9 @@ def _segment_plaque_folder(settings, model_path):
     :param model_path: the plaque checkpoint.
     :returns: how many images were segmented.
     """
-    from .plaque import segment_plaque_image
+    from .plaque import segment_plaque_image, _PLAQUE_METRIC_COLUMNS, _plaque_mask_digest
     from .tiff_io import write_tiff
+    from .tabular import write_table
 
     src, dst = settings['src'], settings['dst']
     os.makedirs(dst, exist_ok=True)
@@ -1812,10 +1841,17 @@ def _segment_plaque_folder(settings, model_path):
     model = _plaque_cellpose_model(model_path)
     for index, name in enumerate(names, start=1):
         image = _plaque_imread(os.path.join(src, name))
-        labels = segment_plaque_image(model, image, settings)
+        labels, metrics = segment_plaque_image(model, image, settings, return_metrics=True)
+        labels = np.asarray(labels)
         stem = os.path.splitext(name)[0]
         write_tiff(os.path.join(dst, f"{stem}.tif"),
-                   np.asarray(labels).astype(np.uint16))
+                   labels.astype(np.uint32 if labels.max() > 65535 else np.uint16))
+        mask_digest = _plaque_mask_digest(labels)
+        write_table(pd.DataFrame([
+            {'plaque_id': object_id, 'mask_sha256': mask_digest, **values}
+            for object_id, values in metrics.items()
+        ], columns=['plaque_id', 'mask_sha256', *_PLAQUE_METRIC_COLUMNS]),
+            os.path.join(dst, f'{stem}.diagnostics.csv'))
         print(f"segmented {index}/{len(names)}: {name}, "
               f"{int(np.asarray(labels).max())} plaque(s)")
     return len(names)

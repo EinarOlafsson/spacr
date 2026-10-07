@@ -37184,10 +37184,11 @@
         "0f380eb11d06c4e96ddb9501c06b1f9448907c5b918f90b5eebf952eaa42085b",
         "2fb9fc9640c7040a9ae2f57f4aaf78809c09f02f4d24ec87b21d183eb27b797a",
         "9f364a4ce8a85d0ebbf9eb1e40525c6fea103df12d16f13e1dc19b66e654af2b",
+        "ed9a19f6e2e24f930bbc7c643838609eb452252e5638256dde0e94386ec7cb1b",
         "04887c85893e6dc2a04a61ab6e38cde76b46e7af3bc371ae82a581cdca9ab92e"
       ],
-      "source_sha256": "0d63f8d86b858f09d598dc6341295badef137301c77805bf4803da096228f53d",
-      "text": "Segment one plaque image the way both Plaque mode's preview and run do.\n\nThe image goes to Cellpose as it is, RGB or grey, and Cellpose normalises\nit. It is NOT sent through the run's historical loader\n(``_load_normalized_images_and_labels`` with ``background=200``): on an\n8-bit crop that loader saturated every pixel to 1.0 -- measured on\n``malnio__2.tif``, min = max = 1.0 in every channel -- so the run found\nno plaques while the preview, reading the image as it is, found 67. One\nfunction for both is what keeps them from disagreeing again.\n\n:param model: a Cellpose model.\n:param image: ``H x W`` or ``H x W x 3``.\n:param settings: ``diameter``, ``flow_threshold`` and ``CP_prob``.\n:param return_flows: also hand back what the live preview's Flows and\n    Cell probability tabs show, from the same call.\n:returns: the label image; with ``return_flows``, ``(labels, flows)``\n    where ``flows`` is :func:`plaque_flow_outputs`."
+      "source_sha256": "2008777c4263dbaf3a9798a81a348a4a488cab8a8d0da8ca50b51da05b655962",
+      "text": "Segment one plaque image the way both Plaque mode's preview and run do.\n\nThe image goes to Cellpose as it is, RGB or grey, and Cellpose normalises\nit. It is NOT sent through the run's historical loader\n(``_load_normalized_images_and_labels`` with ``background=200``): on an\n8-bit crop that loader saturated every pixel to 1.0 -- measured on\n``malnio__2.tif``, min = max = 1.0 in every channel -- so the run found\nno plaques while the preview, reading the image as it is, found 67. One\nfunction for both is what keeps them from disagreeing again.\n\n:param model: a Cellpose model.\n:param image: ``H x W`` or ``H x W x 3``.\n:param settings: ``diameter``, ``flow_threshold`` and ``CP_prob``.\n:param return_flows: also hand back what the live preview's Flows and\n    Cell probability tabs show, from the same call.\n:param return_metrics: Return ``(labels, per_label_metrics)`` for saved\n    assay tables. Mutually exclusive with ``return_flows``.\n:returns: the label image; with ``return_flows``, ``(labels, flows)``\n    where ``flows`` is :func:`plaque_flow_outputs`."
     },
     "spacr.plaque_growth": {
       "source_blocks_sha256": [
@@ -37686,12 +37687,12 @@
     "spacr.plaque_papers.measure_region": {
       "source_blocks_sha256": [
         "429ed306a9416ec8209f852f9cf0732b1113131e9920f0e94c463603021b889a",
-        "301605201b28d6731835bed2394b9a33a8495ce0c53a5a67e28e7ad2e590290b",
+        "a7f770a3651d2d8a218231d6f154df44c1ee91a379828f6311c33fe48ecfa8ac",
         "ec996f3ef7d8a8d92039dd4f7de1d7c9983bcf9a9f94b550c6ea6ab33ff1e4db",
         "5324b789dbcb1ee0665abbfe04536b76d22662ac029cab343eeaec7ac8c5ca3a"
       ],
-      "source_sha256": "2674ee9cb3a15b3409a78a28c37fdb81a2b5b8c64e7053d8fded7b21d374948e",
-      "text": "One row per plaque in a segmented plaque image.\n\n:param labels: the segmenter's label image, 0 = background.\n:param px_per_mm: the image's scale, when it has a ruler.\n:returns: ``[{'label', 'area_px', 'area_mm2'}]``; ``area_mm2`` is None\n    without a ruler."
+      "source_sha256": "36e37689998354dde1ac860b76d5fe8548730a93241a3246f42fb90b6c8be04e",
+      "text": "One row per plaque in a segmented plaque image.\n\n:param labels: the segmenter's label image, 0 = background, or\n    ``(labels, per_label_metrics)`` from a diagnostic segmenter.\n:param px_per_mm: the image's scale, when it has a ruler.\n:returns: ``[{'label', 'area_px', 'area_mm2'}]``; ``area_mm2`` is None\n    without a ruler."
     },
     "spacr.plaque_papers.open_database": {
       "source_blocks_sha256": [

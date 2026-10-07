@@ -1540,18 +1540,24 @@ def measure_region(labels: np.ndarray, *, px_per_mm: Optional[float] = None
                    ) -> List[Dict[str, Any]]:
     """One row per plaque in a segmented plaque image.
 
-    :param labels: the segmenter's label image, 0 = background.
+    :param labels: the segmenter's label image, 0 = background, or
+        ``(labels, per_label_metrics)`` from a diagnostic segmenter.
     :param px_per_mm: the image's scale, when it has a ruler.
     :returns: ``[{'label', 'area_px', 'area_mm2'}]``; ``area_mm2`` is None
         without a ruler.
     """
+    metrics = {}
+    if isinstance(labels, tuple):
+        labels, metrics = labels
+    from .plaque import _PLAQUE_METRIC_COLUMNS
     ids, counts = np.unique(np.asarray(labels), return_counts=True)
     rows = []
     for label, area in zip(ids.tolist(), counts.tolist()):
         if label == 0:
             continue
         mm2 = float(area) / (px_per_mm ** 2) if px_per_mm else None
-        rows.append({"label": int(label), "area_px": int(area), "area_mm2": mm2})
+        rows.append({"label": int(label), "area_px": int(area), "area_mm2": mm2,
+                     **metrics.get(int(label), dict.fromkeys(_PLAQUE_METRIC_COLUMNS))})
     return rows
 
 
@@ -2040,7 +2046,10 @@ TABLES: Dict[str, Tuple[Tuple[str, str], ...]] = {
         ("run_id", "INTEGER")),
     "plaques": (
         ("region_id", "INTEGER"), ("label", "INTEGER"), ("area_px", "INTEGER"),
-        ("area_mm2", "REAL"), ("area_vs_panel_median", "REAL")),
+        ("area_mm2", "REAL"), ("area_vs_panel_median", "REAL"),
+        ("cell_probability_mean", "REAL"), ("cell_probability_pixel_fraction", "REAL"),
+        ("flow_error", "REAL"), ("flow_magnitude_mean", "REAL"),
+        ("flow_alignment_mean", "REAL"), ("flow_pixel_fraction", "REAL")),
     "duplicates": (
         ("figure_sha256", "TEXT"), ("paper_key", "TEXT"), ("path", "TEXT"),
         ("label", "TEXT"), ("match", "TEXT"), ("distance", "INTEGER"),
@@ -2331,7 +2340,7 @@ def _zoo_path(key: str, cache: Path) -> Tuple[str, str]:
     return str(path), f"{entry.name} {entry.sha256 or ''}".strip()
 
 
-def _cellpose_segmenter(path: str) -> Callable[[np.ndarray], np.ndarray]:
+def _cellpose_segmenter(path: str, *, return_metrics: bool = False) -> Callable:
     """A plaque segmenter from a Cellpose checkpoint.
 
     A Cellpose 3 checkpoint, which Cellpose 4 refuses, segments through the
@@ -2339,7 +2348,8 @@ def _cellpose_segmenter(path: str) -> Callable[[np.ndarray], np.ndarray]:
     it is not.
 
     :param path: the checkpoint.
-    :returns: ``fn(crop) -> labels``.
+    :param return_metrics: Include raw probability and flow diagnostics.
+    :returns: ``fn(crop) -> labels`` or, with metrics, ``(labels, metrics)``.
     """
     from cellpose import models
 
@@ -2364,10 +2374,12 @@ def _cellpose_segmenter(path: str) -> Callable[[np.ndarray], np.ndarray]:
         if model is None:
             raise explained from exc
 
-    def segment(crop: np.ndarray) -> np.ndarray:
+    def segment(crop: np.ndarray) -> Any:
         """The Cellpose label mask of one plaque image crop."""
-        masks = model.eval(crop)[0]
-        return np.asarray(masks)
+        from .plaque import _plaque_segmentation_metrics, _host_array
+        output = model.eval(crop)
+        masks = _host_array(output[0])
+        return (masks, _plaque_segmentation_metrics(masks, output)) if return_metrics else masks
     return segment
 
 
@@ -2450,7 +2462,7 @@ def measure_plaques_from_papers(
     segmenter_id = str(segmenter)
     if segment is None:
         segmenter_path, segmenter_id = _zoo_path(segmenter, dst / "models")
-        segment = _cellpose_segmenter(segmenter_path)
+        segment = _cellpose_segmenter(segmenter_path, return_metrics=True)
     references = list(references)
     run_id = _start_run(
         connection, entry="papers", source=json.dumps([str(r) for r in references]),
@@ -2799,11 +2811,10 @@ def _measure_figure(connection: sqlite3.Connection, paper: Paper,
                 (values['estimated_pixels_per_um'], values['estimated_formation_hours'],
                  values['estimation_source'], values['growth_estimate_provenance'], region_id))
         median = medians.get(a.panel) or 0.0
-        connection.executemany(
-            "INSERT INTO plaques (region_id, label, area_px, area_mm2, "
-            "area_vs_panel_median) VALUES (?,?,?,?,?)",
-            [(region_id, row["label"], row["area_px"], row["area_mm2"],
-              row["area_px"] / median if median else None) for row in rows])
+        for row in rows:
+            _insert(connection, "plaques", {
+                "region_id": region_id, **row,
+                "area_vs_panel_median": row["area_px"] / median if median else None})
         summary["regions"] += 1
         summary["plaques"] += len(rows)
         summary["conflicts"] += int(a.conflict)
@@ -3193,7 +3204,7 @@ def measure_figure_folder(
     segmenter_id = str(segmenter)
     if segment is None:
         segmenter_path, segmenter_id = _zoo_path(segmenter, dst / "models")
-        segment = _cellpose_segmenter(segmenter_path)
+        segment = _cellpose_segmenter(segmenter_path, return_metrics=True)
     run_id = _start_run(
         connection, entry="folder", source=str(src.resolve()),
         detector=detector_id, segmenter=segmenter_id,

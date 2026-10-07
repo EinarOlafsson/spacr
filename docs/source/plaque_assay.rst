@@ -115,6 +115,56 @@ and fill colours, fill opacity and the **Line weight** of the **Well boxes**.
 **Ruler** measures a distance on the image, in µm when the pixel size is
 known and in pixels otherwise; right-click clears it.
 
+Saved segmentation diagnostics
+-------------------------------
+
+Plaque mode writes these columns for each plaque in ``per_plaque`` and
+``details`` in ``<src>/masks/plaques_analysis.db``, and exports
+``<src>/masks/per_plaque.csv``. Figure mode writes the same columns in the
+``plaques`` table of ``plaque_figures.db``.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - Column
+     - Meaning
+   * - ``cell_probability_mean``
+     - Mean raw Cellpose cell-probability score across the plaque's pixels.
+       These scores are logits, can be negative and are not calibrated
+       probabilities or confidence percentages.
+   * - ``flow_error``
+     - Cellpose's sum of the two component mean squared errors between
+       mask-derived diffusion flows and predicted flows divided by five.
+       Lower values mean better flow agreement with the saved mask.
+   * - ``flow_magnitude_mean``
+     - Mean predicted flow-vector length within the plaque, divided by five
+       to use Cellpose's mask-flow scale. This describes flow strength;
+       higher values alone do not imply a better segmentation.
+   * - ``flow_alignment_mean``
+     - Mean directional cosine between predicted and mask-derived flows,
+       excluding zero-length vectors. Values range from -1 to 1;
+       1 means matching directions and -1 means opposite directions.
+   * - ``cell_probability_pixel_fraction``, ``flow_pixel_fraction``
+     - Fraction of plaque pixels with finite probability scores or finite
+       two-component flow vectors. These describe output coverage.
+
+Flow agreement can help flag merged or poorly divided plaques, but does
+not establish biological accuracy; inspect the image and mask together.
+Missing outputs, incompatible output grids and unavailable comparisons are
+saved as blank CSV cells or SQL NULL, rather than zero. Probability and flow
+magnitude means use finite pixels. Flow error and alignment require finite
+predicted flows throughout the foreground; a comparison failure leaves them
+blank. Comparisons run on CPU and do not change the model's segmentation.
+
+Each generated mask also has a ``<image>.diagnostics.csv`` sidecar carrying
+the original per-plaque diagnostics and a mask fingerprint. A run with
+``masks=False`` reuses it only when the saved mask still matches. Editing a
+mask invalidates these model diagnostics; regenerate masks to obtain fresh
+ones. Existing masks without a sidecar retain their measurements and have
+blank diagnostic columns. Figure workflows with a custom callback returning
+only labels also leave the diagnostic columns blank.
+
 Contribute training data
 -------------------------
 

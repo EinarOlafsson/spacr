@@ -55,12 +55,13 @@
       "review_basis": "MT draft edited in AI review"
     },
     {
-      "label": "spacr.plaque.segment_plaque_image#6",
+      "label": "spacr.plaque.segment_plaque_image#7",
       "source": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
       "source_sha256": "04887c85893e6dc2a04a61ab6e38cde76b46e7af3bc371ae82a581cdca9ab92e",
       "context": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
       "translation": "das Labelbild; mit ``return_flows`` ``(labels, flows)``, wobei ``flows`` :func:`plaque_flow_outputs` ist.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "previous_label": "spacr.plaque.segment_plaque_image#6"
     },
     {
       "label": "spacr.plaque_growth#0",
@@ -1126,7 +1127,9 @@
       "source_sha256": "301605201b28d6731835bed2394b9a33a8495ce0c53a5a67e28e7ad2e590290b",
       "context": "the segmenter's label image, 0 = background.",
       "translation": "das Labelbild des Segmentierers, 0 = Hintergrund.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-07: saved plaque probability and flow diagnostics changed this API contract. Original source, translation and review attribution remain intact; new source requires current translation."
     },
     {
       "label": "spacr.plaque_papers.measure_region#2",

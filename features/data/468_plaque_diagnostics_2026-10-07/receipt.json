@@ -1,0 +1,106 @@
+{
+  "schema": 1,
+  "date": "2026-10-07",
+  "owner": "Root",
+  "base_commit": "a9b0ee3ded9290f25af446044ad2e4db8d53ca86",
+  "source_sha256": {
+    "spacr/plaque.py": "c3988be90964e58429fffeef6d19229e8d4bfbb39a0ab671383f289f7538f8ff",
+    "spacr/plaque_papers.py": "3edc94cdf582f464460666c43edf6e1203f038a6e07a6f4e7e915b8c6bf3449f",
+    "spacr/submodules.py": "aef3ca2a6bb8864850624a2d06e0a73d99f5e7f2b1df038e1f5cd848678e09e6",
+    "docs/source/plaque_assay.rst": "e668449b5477c8349293d5f4280807968123a4d908e5f15c28321daeb08bc6a9",
+    "tests/test_plaque_segmentation_diagnostics.py": "d63d26cd3e535ca977fb357f82a6ce6f294f094af32b987e6883729ca883c721",
+    "docs/source/_static/i18n/api/en.json": "7e809a3aa4472293c614e20ae18aa6f3221984f9f977fc910a957fd52e465b93"
+  },
+  "cohorts": {
+    "initial": {
+      "passed": 53,
+      "superseded": true
+    },
+    "broader": {
+      "passed": 105,
+      "skipped": 1,
+      "skip": "pdfplumber unavailable",
+      "preceded_final_tabular_writer_refactor": true
+    },
+    "final_saved_outputs": {
+      "passed": 45,
+      "source_matches_receipt": true
+    },
+    "note": "Overlapping cohorts; never sum these counts. Model inference is an injected boundary; numerical Cellpose diffusion and persisted TIFF/CSV/SQLite are real."
+  },
+  "diagnostics": [
+    "cell_probability_mean",
+    "cell_probability_pixel_fraction",
+    "flow_error",
+    "flow_magnitude_mean",
+    "flow_alignment_mean",
+    "flow_pixel_fraction"
+  ],
+  "scope": "Plaque-mode per_plaque/details/CSV and Figure-mode plaques; mask fingerprint protects reuse; old figure databases migrate without data loss.",
+  "english_api_audit": {
+    "passed": true,
+    "symbols": 13207
+  },
+  "all_nine_api_review_loaders": {
+    "passed": true,
+    "changed_or_rebound_records": 18,
+    "receipt": "api-review-retirement.json",
+    "original_evidence": "original-api-reviews"
+  },
+  "original_guide_only_failure": "English was incorrectly run in translated-guide-only mode, which omits API targets and intentionally does not resolve English cross references. Original terminal-1/79-warning log is retained. The normal full English build is a separate running check, not claimed by this receipt.",
+  "pending": [
+    "Current translated API/guide publication and Home tutorial publication remain Root work.",
+    "Full English HTML acceptance must refresh parsed source link offsets after the final tabular-writer refactor."
+  ],
+  "external_gpu_jobs": "Untouched; mask-flow comparison explicitly uses CPU.",
+  "logs": [
+    {
+      "file": "plaque-diagnostics-focused-r1.log.gz",
+      "sha256": "919f6327b0cb2fa0335d9bb705d51436a89599abad39de992c8e98873534e491",
+      "uncompressed_sha256": "e53ca886f7432eefec0514466ab8ca8ac6971d13ae490d30d762659715a204c2",
+      "exit_status": 0
+    },
+    {
+      "file": "plaque-diagnostics-final-r2.log.gz",
+      "sha256": "755a96f2fc6580363c78e2223077c40212672ad31f65263e735517f1df501411",
+      "uncompressed_sha256": "e9c829e961b972a08f034a9e232898a91bd48790703a7b7f27092bada3851612",
+      "exit_status": 0
+    },
+    {
+      "file": "plaque-tabular-save-r3.log.gz",
+      "sha256": "d25b4c9c69d4a6fba271bd6adedeeb3ae00442ff10c988c474cef217edf9cde1",
+      "uncompressed_sha256": "8af43b76f464987b2791d2f4a28abbe44dacb6fb19847686ccd2ddc1e5c27570",
+      "exit_status": 0
+    },
+    {
+      "file": "plaque-api-English-r1.log.gz",
+      "sha256": "886ca67fe63d1ed04aa3d0fca328b82b769c49836cf853fc2eea0b4ad5aecfa4",
+      "uncompressed_sha256": "6ead9cf84a47641ac0098ba6e5cbc98dbc2692baa1f966bf025449b6a6b205f8",
+      "exit_status": 0
+    },
+    {
+      "file": "plaque-help-r1.log.gz",
+      "sha256": "151fe95dffcc4961388872324dd5f8069b6548afc7aa9eaec94f6467c6e5c739",
+      "uncompressed_sha256": "6dc06ff84174adb23c70a9f5eddb32be25c0ad97e343779f6a5938689bda81d6",
+      "exit_status": 0
+    },
+    {
+      "file": "plaque-English-api-audit-r1.log.gz",
+      "sha256": "0caae2bcd496e8db3383bfd65ba2fb251110a823aa37f85c74b443d5145ad154",
+      "uncompressed_sha256": "66d558bf20433ce409be2a2f35d66370be0674a88dc1c1970bc81bbe0ba28735",
+      "exit_status": 0
+    },
+    {
+      "file": "plaque-api-review-retirement-r1.log.gz",
+      "sha256": "8f6e1a45444ffcfeab78247b0616f3e9639970b0de58ebbb5743a9ea4f0f225d",
+      "uncompressed_sha256": "52493515bfd0d5a9e790508b18def5d292445d276f65f24c5843956d15bc8ac8",
+      "exit_status": 0
+    },
+    {
+      "file": "plaque-guide-English-r1.log.gz",
+      "sha256": "07e612828230cf141da99d29e4aa2fb3ff4c0ade325a17d330ee3db2d8d991f8",
+      "uncompressed_sha256": "c20cd5e69178c475b0a8bc7e9b46a5a0af91e47190bc117076ffb0aff8d11d6e",
+      "exit_status": 1
+    }
+  ]
+}

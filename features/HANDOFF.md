@@ -1,5 +1,40 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Root: saved per-plaque probability and flow diagnostics
+
+The maintainer explicitly requested saved mean cell probability and flow
+metrics for how well plaques were divided. Root owns this application change.
+Plaque mode now saves cell_probability_mean (raw Cellpose logit), flow_error
+(normal Cellpose mask diffusion comparison on CPU), flow_magnitude_mean
+(network vectors /5), flow_alignment_mean (directional cosine), and finite
+pixel fractions in per_plaque/details plus per_plaque.csv. Figure mode saves
+the same columns in plaques and upgrades existing databases without dropping
+rows. Missing diagnostics are NULL, never fabricated confidence or zero.
+Per-mask diagnostics sidecars carry mask geometry/label fingerprints; mask-only
+reruns preserve matching diagnostics and reject edited masks. Original model
+label IDs are preserved in measurements, including sparse IDs. Zero-plaque
+images retain empty tables with diagnostic headers. Segmentation thresholds
+and model inference are unchanged; comparisons use CPU, not external GPU jobs.
+
+Broader cohort105pass/1skip (uninstalled pdfplumber) includes numerical
+diffusion against an intentionally merged mask, actual TIFF/CSV/SQLite writes,
+reopening masks, stale fingerprints, missing/malformed/nonfinite outputs,
+figure ingestion, old database migration, CP3 compatibility and assay/growth
+neighbors. Final45pass verifies all saves through spacr.tabular; earlier53pass
+and the broader cohort overlap. This is bounded injected-model acceptance,
+not a new pretrained-model accuracy or original native crash verdict.
+English API/Help and the column guide are refreshed with normal tools.
+All-nine reviewed API loaders pass;18 actual superseded/moved contract records
+are retired or rebound with original translations/attribution and byte-exact
+original review files retained. Source hashes, complete test/generation logs
+and the original unsupported English guide-only build failure are archived in
+features/data/468_plaque_diagnostics_2026-10-07/receipt.json. Full English HTML
+acceptance must refresh source-link offsets after the final table-writer
+refactor; no full HTML/publication or hosted verdict is claimed here.
+Current nine-language API/guide refresh and Home tutorial publication remain
+Root's continuing work. Home should include this source in its next hosted
+acceptance; its original native faults, visuals and performance remain open.
+
 ## 2026-10-07 — Root application delivery: requested Preferences/defaults/models
 
 This batch contains the maintainer's requested Apply/Keep/Revert behavior,

@@ -389,9 +389,102 @@ def plaque_flow_outputs(output: Any) -> Dict[str, Optional[np.ndarray]]:
     return found
 
 
+_PLAQUE_METRIC_COLUMNS = (
+    "cell_probability_mean", "cell_probability_pixel_fraction",
+    "flow_error", "flow_magnitude_mean", "flow_alignment_mean",
+    "flow_pixel_fraction",
+)
+
+
+def _plaque_segmentation_metrics(labels, output):
+    """Measure raw Cellpose scores and agreement with each labelled mask.
+
+    :param labels: Two-dimensional integer labels, zero for background.
+    :param output: The original Cellpose evaluation tuple.
+    :returns: Metrics keyed by original positive label. Missing or invalid
+        outputs remain None. Cell probability is a raw logit, not calibrated
+        confidence. Flow error uses Cellpose's mask-derived diffusion on CPU;
+        magnitude is divided by Cellpose's network-flow scale of five, and
+        alignment is the mean cosine against those mask-derived flows.
+        Pixel fractions report finite coverage, not segmentation accuracy.
+    """
+    import torch
+    from cellpose import dynamics
+    from scipy.ndimage import find_objects
+
+    labels = np.asarray(labels)
+    ids = np.unique(labels[labels > 0])
+    rows = {int(i): dict.fromkeys(_PLAQUE_METRIC_COLUMNS) for i in ids}
+    if not rows:
+        return rows
+    components = output[1] if isinstance(output, (tuple, list)) and len(output) > 1 else ()
+    if not isinstance(components, (list, tuple)):
+        return rows
+    arrays = {}
+    for key, index, shape in (("prob", 2, labels.shape),
+                               ("flow", 1, (2, *labels.shape))):
+        if len(components) <= index or components[index] is None:
+            continue
+        try:
+            value = np.asarray(_host_array(components[index]), dtype=np.float64)
+            if value.shape == shape:
+                arrays[key] = value
+        except (TypeError, ValueError, RuntimeError):
+            LOG.debug("Plaque %s output unavailable", key, exc_info=True)
+    prob, flow = arrays.get("prob"), arrays.get("flow")
+    mask_flows, errors = None, None
+    dense = np.zeros(labels.shape, dtype=np.int32)
+    foreground = labels > 0
+    dense[foreground] = np.searchsorted(ids, labels[foreground]) + 1
+    boxes = find_objects(dense)
+    if flow is not None and np.isfinite(flow[:, foreground]).all():
+        try:
+            errors, mask_flows = dynamics.flow_error(dense, flow, device=torch.device("cpu"))
+        except Exception:
+            LOG.warning("Plaque mask-flow agreement could not be calculated", exc_info=True)
+    for index, object_id in enumerate(ids):
+        box = boxes[index]
+        pixels = dense[box] == index + 1
+        row = rows[int(object_id)]
+        if prob is not None:
+            values = prob[box][pixels]
+            finite = np.isfinite(values)
+            row["cell_probability_pixel_fraction"] = float(finite.mean())
+            if finite.any():
+                row["cell_probability_mean"] = float(values[finite].mean())
+        if flow is not None:
+            vectors = flow[(slice(None), *box)][:, pixels] / 5.0
+            finite = np.isfinite(vectors).all(axis=0)
+            row["flow_pixel_fraction"] = float(finite.mean())
+            magnitudes = np.linalg.norm(vectors[:, finite], axis=0)
+            if finite.any():
+                row["flow_magnitude_mean"] = float(magnitudes.mean())
+            if errors is not None and np.isfinite(errors[index]):
+                row["flow_error"] = float(errors[index])
+            if mask_flows is not None:
+                reference = mask_flows[(slice(None), *box)][:, pixels][:, finite]
+                denominators = magnitudes * np.linalg.norm(reference, axis=0)
+                moving = denominators > 0
+                if moving.any():
+                    cosine = (vectors[:, finite] * reference).sum(axis=0)[moving] / denominators[moving]
+                    row["flow_alignment_mean"] = float(np.clip(cosine, -1, 1).mean())
+    return rows
+
+
+def _plaque_mask_digest(labels):
+    """Hash mask geometry and labels independently of TIFF storage dtype."""
+    import hashlib
+
+    array = np.asarray(labels, dtype="<u4", order="C")
+    digest = hashlib.sha256(np.asarray(array.shape, dtype="<u8").tobytes())
+    digest.update(array.tobytes())
+    return digest.hexdigest()
+
+
 def segment_plaque_image(model: Any, image: np.ndarray,
                          settings: Dict[str, Any], *,
-                         return_flows: bool = False) -> Any:
+                         return_flows: bool = False,
+                         return_metrics: bool = False) -> Any:
     """Segment one plaque image the way both Plaque mode's preview and run do.
 
     The image goes to Cellpose as it is, RGB or grey, and Cellpose normalises
@@ -407,17 +500,26 @@ def segment_plaque_image(model: Any, image: np.ndarray,
     :param settings: ``diameter``, ``flow_threshold`` and ``CP_prob``.
     :param return_flows: also hand back what the live preview's Flows and
         Cell probability tabs show, from the same call.
+    :param return_metrics: Return ``(labels, per_label_metrics)`` for saved
+        assay tables. Mutually exclusive with ``return_flows``.
     :returns: the label image; with ``return_flows``, ``(labels, flows)``
         where ``flows`` is :func:`plaque_flow_outputs`.
     """
     from .spacr_cellpose import cellpose_channel_axis
 
+    if return_flows and return_metrics:
+        raise ValueError("Choose flow images or per-plaque metrics, not both.")
     diameter = _number(settings, "diameter", None)
     output = model.eval(image, channel_axis=cellpose_channel_axis(image),
                         diameter=diameter if diameter else None,
                         flow_threshold=_number(settings, "flow_threshold", 0.4),
                         cellprob_threshold=_number(settings, "CP_prob", 0.0))
     labels = _host_array(output[0])
+    if return_metrics:
+        if labels.max() <= 1:
+            from skimage.measure import label
+            labels = label(labels)
+        return labels, _plaque_segmentation_metrics(labels, output)
     if return_flows:
         return labels, plaque_flow_outputs(output)
     return labels

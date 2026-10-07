@@ -1651,12 +1651,13 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.plaque.segment_plaque_image#6",
+      "label": "spacr.plaque.segment_plaque_image#7",
       "source": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
       "source_sha256": "04887c85893e6dc2a04a61ab6e38cde76b46e7af3bc371ae82a581cdca9ab92e",
       "context": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
       "translation": "레이블 이미지입니다. ``return_flows`` 를 사용하면 ``(labels, flows)`` 이며, 여기서 ``flows`` 는 :func:`plaque_flow_outputs` 입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "previous_label": "spacr.plaque.segment_plaque_image#6"
     },
     {
       "label": "spacr.plaque_growth#0",
@@ -3226,7 +3227,9 @@
       "source_sha256": "301605201b28d6731835bed2394b9a33a8495ce0c53a5a67e28e7ad2e590290b",
       "context": "the segmenter's label image, 0 = background.",
       "translation": "분할기의 레이블 이미지이며, 0 = 배경입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-07: saved plaque probability and flow diagnostics changed this API contract. Original source, translation and review attribution remain intact; new source requires current translation."
     },
     {
       "label": "spacr.plaque_papers.measure_region#2",

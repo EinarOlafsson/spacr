@@ -42,7 +42,9 @@
       "source_sha256": "301605201b28d6731835bed2394b9a33a8495ce0c53a5a67e28e7ad2e590290b",
       "context": "the segmenter's label image, 0 = background.",
       "translation": "segmenterarens etikettbild, 0 = bakgrund.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-07: saved plaque probability and flow diagnostics changed this API contract. Original source, translation and review attribution remain intact; new source requires current translation."
     },
     {
       "label": "spacr.plaque_papers.measure_region#2",

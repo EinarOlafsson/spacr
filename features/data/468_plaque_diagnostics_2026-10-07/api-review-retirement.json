@@ -1,0 +1,236 @@
+[
+  {
+    "language": "sv",
+    "file": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-001.json",
+    "action": "exact unchanged block rebound to current index",
+    "original": {
+      "label": "spacr.plaque.segment_plaque_image#6",
+      "source": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "source_sha256": "04887c85893e6dc2a04a61ab6e38cde76b46e7af3bc371ae82a581cdca9ab92e",
+      "context": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "translation": "etikettbilden; med ``return_flows``, ``(labels, flows)`` där ``flows`` är :func:`plaque_flow_outputs`.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  },
+  {
+    "language": "sv",
+    "file": "docs/i18n/reviewed/api/sv/2026-09-25-api-debt-002.json",
+    "action": "superseded block retired in place",
+    "original": {
+      "label": "spacr.plaque_papers.measure_region#1",
+      "source": "the segmenter's label image, 0 = background.",
+      "source_sha256": "301605201b28d6731835bed2394b9a33a8495ce0c53a5a67e28e7ad2e590290b",
+      "context": "the segmenter's label image, 0 = background.",
+      "translation": "segmenterarens etikettbild, 0 = bakgrund.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  },
+  {
+    "language": "de",
+    "file": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-001.json",
+    "action": "exact unchanged block rebound to current index",
+    "original": {
+      "label": "spacr.plaque.segment_plaque_image#6",
+      "source": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "source_sha256": "04887c85893e6dc2a04a61ab6e38cde76b46e7af3bc371ae82a581cdca9ab92e",
+      "context": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "translation": "das Labelbild; mit ``return_flows`` ``(labels, flows)``, wobei ``flows`` :func:`plaque_flow_outputs` ist.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  },
+  {
+    "language": "de",
+    "file": "docs/i18n/reviewed/api/de/2026-09-25-api-debt-001.json",
+    "action": "superseded block retired in place",
+    "original": {
+      "label": "spacr.plaque_papers.measure_region#1",
+      "source": "the segmenter's label image, 0 = background.",
+      "source_sha256": "301605201b28d6731835bed2394b9a33a8495ce0c53a5a67e28e7ad2e590290b",
+      "context": "the segmenter's label image, 0 = background.",
+      "translation": "das Labelbild des Segmentierers, 0 = Hintergrund.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  },
+  {
+    "language": "es",
+    "file": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-001.json",
+    "action": "exact unchanged block rebound to current index",
+    "original": {
+      "label": "spacr.plaque.segment_plaque_image#6",
+      "source": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "source_sha256": "04887c85893e6dc2a04a61ab6e38cde76b46e7af3bc371ae82a581cdca9ab92e",
+      "context": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "translation": "la imagen de etiquetas; con ``return_flows``, ``(labels, flows)``, donde ``flows`` es :func:`plaque_flow_outputs`.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  },
+  {
+    "language": "es",
+    "file": "docs/i18n/reviewed/api/es/2026-09-25-api-debt-001.json",
+    "action": "superseded block retired in place",
+    "original": {
+      "label": "spacr.plaque_papers.measure_region#1",
+      "source": "the segmenter's label image, 0 = background.",
+      "source_sha256": "301605201b28d6731835bed2394b9a33a8495ce0c53a5a67e28e7ad2e590290b",
+      "context": "the segmenter's label image, 0 = background.",
+      "translation": "la imagen de etiquetas del segmentador, 0 = fondo.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  },
+  {
+    "language": "zh_CN",
+    "file": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-002.json",
+    "action": "exact unchanged block rebound to current index",
+    "original": {
+      "label": "spacr.plaque.segment_plaque_image#6",
+      "source": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "source_sha256": "04887c85893e6dc2a04a61ab6e38cde76b46e7af3bc371ae82a581cdca9ab92e",
+      "context": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "translation": "标签图像；启用 ``return_flows`` 时返回 ``(labels, flows)``，其中 ``flows`` 为 :func:`plaque_flow_outputs`。",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  },
+  {
+    "language": "zh_CN",
+    "file": "docs/i18n/reviewed/api/zh_CN/2026-09-25-api-debt-002.json",
+    "action": "superseded block retired in place",
+    "original": {
+      "label": "spacr.plaque_papers.measure_region#1",
+      "source": "the segmenter's label image, 0 = background.",
+      "source_sha256": "301605201b28d6731835bed2394b9a33a8495ce0c53a5a67e28e7ad2e590290b",
+      "context": "the segmenter's label image, 0 = background.",
+      "translation": "分割器的标签图像，0 = 背景。",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  },
+  {
+    "language": "pt",
+    "file": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-001.json",
+    "action": "exact unchanged block rebound to current index",
+    "original": {
+      "label": "spacr.plaque.segment_plaque_image#6",
+      "source": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "source_sha256": "04887c85893e6dc2a04a61ab6e38cde76b46e7af3bc371ae82a581cdca9ab92e",
+      "context": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "translation": "a imagem de rótulos; com ``return_flows``, ``(labels, flows)``, em que ``flows`` é :func:`plaque_flow_outputs`.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  },
+  {
+    "language": "pt",
+    "file": "docs/i18n/reviewed/api/pt/2026-09-25-api-debt-001.json",
+    "action": "superseded block retired in place",
+    "original": {
+      "label": "spacr.plaque_papers.measure_region#1",
+      "source": "the segmenter's label image, 0 = background.",
+      "source_sha256": "301605201b28d6731835bed2394b9a33a8495ce0c53a5a67e28e7ad2e590290b",
+      "context": "the segmenter's label image, 0 = background.",
+      "translation": "a imagem de rótulos do segmentador, 0 = fundo.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  },
+  {
+    "language": "hi",
+    "file": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-001.json",
+    "action": "exact unchanged block rebound to current index",
+    "original": {
+      "label": "spacr.plaque.segment_plaque_image#6",
+      "source": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "source_sha256": "04887c85893e6dc2a04a61ab6e38cde76b46e7af3bc371ae82a581cdca9ab92e",
+      "context": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "translation": "लेबल छवि; ``return_flows`` के साथ, ``(labels, flows)``, जहाँ ``flows`` :func:`plaque_flow_outputs` है।",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  },
+  {
+    "language": "hi",
+    "file": "docs/i18n/reviewed/api/hi/2026-09-25-api-debt-001.json",
+    "action": "superseded block retired in place",
+    "original": {
+      "label": "spacr.plaque_papers.measure_region#1",
+      "source": "the segmenter's label image, 0 = background.",
+      "source_sha256": "301605201b28d6731835bed2394b9a33a8495ce0c53a5a67e28e7ad2e590290b",
+      "context": "the segmenter's label image, 0 = background.",
+      "translation": "सेगमेंटर की लेबल छवि, 0 = पृष्ठभूमि।",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  },
+  {
+    "language": "ko",
+    "file": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-001.json",
+    "action": "exact unchanged block rebound to current index",
+    "original": {
+      "label": "spacr.plaque.segment_plaque_image#6",
+      "source": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "source_sha256": "04887c85893e6dc2a04a61ab6e38cde76b46e7af3bc371ae82a581cdca9ab92e",
+      "context": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "translation": "레이블 이미지입니다. ``return_flows`` 를 사용하면 ``(labels, flows)`` 이며, 여기서 ``flows`` 는 :func:`plaque_flow_outputs` 입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  },
+  {
+    "language": "ko",
+    "file": "docs/i18n/reviewed/api/ko/2026-09-25-api-debt-001.json",
+    "action": "superseded block retired in place",
+    "original": {
+      "label": "spacr.plaque_papers.measure_region#1",
+      "source": "the segmenter's label image, 0 = background.",
+      "source_sha256": "301605201b28d6731835bed2394b9a33a8495ce0c53a5a67e28e7ad2e590290b",
+      "context": "the segmenter's label image, 0 = background.",
+      "translation": "분할기의 레이블 이미지이며, 0 = 배경입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  },
+  {
+    "language": "is",
+    "file": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-001.json",
+    "action": "exact unchanged block rebound to current index",
+    "original": {
+      "label": "spacr.plaque.segment_plaque_image#6",
+      "source": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "source_sha256": "04887c85893e6dc2a04a61ab6e38cde76b46e7af3bc371ae82a581cdca9ab92e",
+      "context": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "translation": "merkjamyndin; með ``return_flows``, ``(labels, flows)`` þar sem ``flows`` er :func:`plaque_flow_outputs`.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  },
+  {
+    "language": "is",
+    "file": "docs/i18n/reviewed/api/is/2026-09-25-api-debt-001.json",
+    "action": "superseded block retired in place",
+    "original": {
+      "label": "spacr.plaque_papers.measure_region#1",
+      "source": "the segmenter's label image, 0 = background.",
+      "source_sha256": "301605201b28d6731835bed2394b9a33a8495ce0c53a5a67e28e7ad2e590290b",
+      "context": "the segmenter's label image, 0 = background.",
+      "translation": "merkjamynd hlutunarlíkansins, 0 = bakgrunnur.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  },
+  {
+    "language": "fr",
+    "file": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-001.json",
+    "action": "exact unchanged block rebound to current index",
+    "original": {
+      "label": "spacr.plaque.segment_plaque_image#6",
+      "source": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "source_sha256": "04887c85893e6dc2a04a61ab6e38cde76b46e7af3bc371ae82a581cdca9ab92e",
+      "context": "the label image; with ``return_flows``, ``(labels, flows)`` where ``flows`` is :func:`plaque_flow_outputs`.",
+      "translation": "l’image d’étiquettes ; avec ``return_flows``, ``(labels, flows)`` où ``flows`` est le résultat de :func:`plaque_flow_outputs`.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  },
+  {
+    "language": "fr",
+    "file": "docs/i18n/reviewed/api/fr/2026-09-25-api-debt-001.json",
+    "action": "superseded block retired in place",
+    "original": {
+      "label": "spacr.plaque_papers.measure_region#1",
+      "source": "the segmenter's label image, 0 = background.",
+      "source_sha256": "301605201b28d6731835bed2394b9a33a8495ce0c53a5a67e28e7ad2e590290b",
+      "context": "the segmenter's label image, 0 = background.",
+      "translation": "l’image d’étiquettes du segmenteur, 0 = fond.",
+      "review_basis": "MT draft edited in AI review"
+    }
+  }
+]

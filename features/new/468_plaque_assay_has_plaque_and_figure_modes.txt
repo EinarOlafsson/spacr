@@ -333,3 +333,19 @@ unchanged; behavior now matches the stated settings contract. Receipt:
 boundaries; this does not replace real pretrained acceptance.
 
 VERIFIED 2026-10-04: 1 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
+
+2026-10-07 — SAVED PLAQUE SEGMENTATION DIAGNOSTICS (Root)
+Maintainer requested mean cell probability and flow metrics in the saved
+assay table. Plaque mode persists raw Cellpose cell_probability_mean,
+flow_error, flow_magnitude_mean, flow_alignment_mean and finite-pixel fractions
+in per_plaque/details and per_plaque.csv. Figure mode adds the same columns
+to plaques with non-destructive schema migration. Mask-only reruns reuse
+per-mask diagnostic sidecars only when their saved mask fingerprint matches;
+edited or older masks have NULL diagnostics. Original sparse label IDs remain
+intact. CPU Cellpose diffusion measures flow agreement; it never certifies
+biological accuracy or a calibrated confidence percentage. No model masks,
+thresholds or external scientific GPU jobs are modified by these comparisons.
+Broader cohort105pass/1skip (pdfplumber unavailable), final tabular-save cohort
+45pass; earlier53pass overlaps. Actual saved TIFF/CSV/SQLite, stale sidecars, zero plaques,
+missing/malformed outputs, numerical merge detection and figure migration
+are covered. Column meanings are documented in docs/source/plaque_assay.rst.
