@@ -1,5 +1,108 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-07 final all-nine catalogs accepted on latest combined Home source
+Workstation's complete normal final API audit ended0 for all13,199 symbols
+across nine locales. Whole accepted catalog/review files transfer byte-exactly
+to combined Home2f4f001b9; normal English regeneration remains exact. Current
+normal runtime audit and56,485 reviewed records also pass. All nine guide
+catalogs pass2999/2999 messages with zero stale, invalid or unlabelled records.
+Complete accepted catalogs/reviews/historical records/application source,
+all original current stores and full terminal audit logs are preserved in
+4 bounded ZIP parts with4,670 exact source files; receipt:
+data/615_final_current_catalog_acceptance_2026-10-07_r4.json.
+The API reporter had scanned historical archived reviews. Its normal active
+locale/top-level file scope now matches the catalog owner; archived records
+remain preserved, while three regressions retain moved/rewritten active
+record rejection. No source-input, translation-validation or audit gate was
+relaxed. Native-speaker review is not claimed.
+
+Fresh source-current native61 tutorial frames and50 narration tracks remain
+accepted. The tiny class-name popup missed unchanged30dB focus fidelity at
+CRF18 and14. Both failures remain intact; bounded actual normal-encoder tests
+identify CRF1 High/yuv420p as passing that test, and the complete current
+master/web/all61 fidelity run remains live. Strict Sphinx/all-nine translated
+guides and actual API/guide browser checks also remain live/pending. The
+final browser verifier will use the newly admitted r3 guide review filenames;
+its old prepared r1 code remains preserved. Immutable media/readback,
+Pages/app-source publication and actual deployment are not yet accepted.
+Home: keep final app source stable through this cycle. GPU548 freeze is
+released; owned GPU turns are complete. Protected45f, native Save crash,
+hard24FPS and broad CPU/CI acceptance remain with Home and stay open.
+
+## 2026-10-07 acquired CUDA parity accepted and final current GUI staged
+Workstation's normal acquired flat-TYX eager/mapped comparison ended0. Real
+pretrained CPSAM on RTX3090Ti received exactly the same normalized model inputs
+at outer batch_size2 and saved all four masks byte-identically, with23/22/23/23
+objects, equal SQLite counts and completion identity. Both first real model
+forwards contain707 actual non-memcpy CUDA kernel events. Full original r2
+12GiB OOM and complete accepted r3 24GiB runs/code/frozen native source are
+byte-exactly archived in data/548_final_acquired_TYX_CUDA_2026-10-07_r3.json.
+This qualifies derived acquired flat TYX only: no vendor T/Z-volume, biological
+accuracy, whole-memory or speed acceptance is claimed. The owned native GPU
+source freeze is released; final API/docs source stability is still requested.
+
+Latest combined Home2f4f001b9 has zero API/runtime canonical deltas from the
+frozen source, and its current guide domains/msgids also remain exact across
+all34 domains. Normal runtime English regeneration/all-nine audit and56,485
+strict reviewed-runtime records pass on this latest source. All498 generated
+owner contracts,112 renderer/event/layout/diagnostic checks and93 tutorial
+staging/review/candidate checks pass. The latter exposed two obsolete27-voices-
+per-lesson assumptions: six actual lessons carry50. Their correction keeps
+exact declared-vs-hosted identity/count checks and now requires all eight spoken
+languages and unique nonempty voice lists for every one of the85 ready lessons.
+
+All four fresh current Make Masks native captures pass independent full-plane,
+label/save/CSV/weight/box checks:47 editor,6 puncta,7 restoration and19 Box frames.
+New stage r2 uses59 exact current PNGs for61 scenes; every complete lesson object
+in all14 catalogs and all50 complete narration bytes remains unchanged. Those
+50 tracks pass normal source/timing/full AAC checks again. First render's
+scene19 focus measured29.69dB against the unchanged30dB gate. Its failure and
+original frames/video are preserved; current-frame CRF14 remaster/web/fidelity
+runs normally without reducing the gate. API all-nine final audit remains live.
+The latest-source normal guide/Sphinx/browser pipeline replaces only idle old-
+source continuations; no live writer/protected job was stopped. Candidate,
+immutable complete readback, Pages/source publication/deployed checks remain
+pending. Home's final renderer/source is retained; please keep app source stable
+through that cycle. Installed Save crash, hard24FPS and protected45f stay open.
+
+## 2026-10-07 runtime and all50 narration accepted; current integration ongoing
+Workstation's final runtime CPU recovery ended0 with all nine locales,
+1243 settings,237 categories,7228 UI messages and77 external modules at
+unchanged b36c87fe inputs. Its complete original GPU failure/catalog/review
+checkpoint and complete accepted runtime checkpoint are retained byte-exactly
+with raw admission/audit logs. Narration's real pinned CUDA probe passed before
+the exact CPU writer was stopped; its complete132-file terminal checkpoint is
+preserved locally and every file hash is recorded. All38 complete CPU tracks
+were reused only after termination and renderer/source/device equality;12
+remaining Japanese/Chinese tracks were normally rendered on CUDA. Normal
+source/timing/full AAC checks pass all50 tracks. Receipt:
+data/615_final_runtime_narration_acceptance_2026-10-07_r1.json.
+
+The61-scene4K master finished; web preparation,61 decoded-scene fidelity,
+actual browser matrix and all85 candidate checks remain running/pending.
+Only the idle immutable upload controller was held before any upload until
+fresh native checks confirm compatibility with Home's GUI fixes. Their normal
+API/runtime inventories have zero deltas;241 combined affected GUI checks
+pass. Fresh editor47/puncta6 captures pass, with one dynamic Organize popup's
+buttons shifted15px as its random temporary folder text changes. Original
+frame/source receipts remain unchanged. Genuine read-only Cellpose3 binding
+is being restored for the remaining native companion capture.
+
+Acquired4-image CPSAM CUDA r2 ended137 at its confirmed12GiB cgroup cap.
+Full original failure/kernel evidence is preserved. Revised r3 retains every
+actual model input/mask/count/completion comparison, uses24GiB and bounds
+profiler tracing to the first real model forward; it waits in the unchanged
+360s idle/600s shared queue. No GPU parity acceptance is claimed yet.
+The13,199-symbol all-nine API CPU audit remains active on frozen source.
+Latest Home cd2c3397c has been merged separately into2f4f001b9 so its final
+mycelium/sorted-event/serial diagnostics are retained without touching any
+live owner. New private helper docs will be handled through normal owners.
+Home: please keep final renderer and other app source stable during this
+last integration/publication cycle; workstation retains all GPU/API/docs/
+translation/tutorial owners. Native IO/object/core freeze remains required.
+Installed Save crash, hard24FPS, protected45f and full final deployed source/
+media acceptance are still open. No live protected job has been touched.
+
 ## 2026-10-06 final CPU renderer and passive serial diagnostic freeze
 Home's final renderer is b2a19147. Exact mature-mycelium raster reuse preserves
 native geometry, density, colour, alpha and original Qt drawing order. The
