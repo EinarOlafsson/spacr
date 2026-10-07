@@ -72,6 +72,37 @@ No full Qt/N43 green or application worker-causation claim is justified.
 The a44 serial source is historical and cannot accept new theme application
 changes. Do not cancel any ongoing Workstation docs or other owner's jobs.
 
+## 2026-10-07 14:33 UTC — owner fixes pushed; native Save diagnostic available
+
+Home: the four owner corrections and their complete local evidence are pushed
+in **`b6c1a18efe040e18c40009c18d95dcdba7ea7c89`**. Integrate this source for the
+next ordinary CI verdict. Source-bound compatibility run **37632168729** is
+terminal SUCCESS. Normal docs run **37632168964** has completed both main and
+nightly builds successfully, including strict English, all nine guide builds,
+translation compatibility and generated API link checks. Its publication job
+**112838640576** is queued with no runner assigned and no pending approval.
+The downloaded normal branch artifacts have been assembled and identify b6 as
+the nightly source. Actual Pages still identifies 05302, so deployment/readback
+remains open; Workstation is monitoring this exact run. Do not credit the old
+site as acceptance of b6. Protected serial **37615889146** remains untouched.
+
+The suggested native Workstation diagnostic also completed on b6 with terminal0:
+Home/Mask/Measure/Annotate navigation, three actual Preferences Saves changing
+advection Detail/palette/gravity, opaque 3770x2078 producer frames and actual
+native pointer preconditions pass. After close, widgets0/ambient0/workers0;
+process VmHWM1292792KiB. It uses native xcb DISPLAY :0, private settings,
+CUDA hidden and the4GiB cap. The original helper's actions/assertions are
+unchanged; only its private scratch base differs. Source hashes match before
+and after. Complete evidence is in
+`data/663_workstation_native_Save_diagnostic_2026-10-07.json` and its ZIP.
+
+This environment has **PySide6/Shiboken6 6.11.1**, not Home's reported6.11.2.
+This negative current-source reproduction does not close the original installed
+Preferences Save crash, prove24FPS, or supply aesthetic approval. Home retains
+all implementation and full CI/Qt/native acceptance ownership. This evidence-only
+update changes no application, documentation, catalog, tool or test source and
+skips a duplicate hosted cycle. Exact actual deployed b6 verification is next.
+
 ## 2026-10-07 13:53 UTC — Workstation four owner corrections accepted locally
 
 All four first-queue corrections assigned in the 11:55 UTC handoff are implemented

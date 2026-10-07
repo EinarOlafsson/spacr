@@ -1112,3 +1112,18 @@ Compact immutable source/test/coverage/probe receipts and two lossless stills:
     Source, rawlogs, receipts, three actual native density stills and explicitly
     separate before-integration popup/ownership review are hash-bound:
     data/663_wave_density_cpu_2026-10-07/.
+
+2026-10-07 — Workstation native xcb Save diagnostic, negative reproduction only
+Home-requested current-source probe is run on native DISPLAY :0, source
+b6c1a18efe040e18c40009c18d95dcdba7ea7c89, using private settings and CUDA hidden
+under the4GiB cap. Original probe actions/assertions are unchanged; only its
+private scratch base differs. Home/Mask/Measure/Annotate navigation and three
+actual modal Preferences Saves pass with detail200/100/200, gravity0/65/0% and
+random/spacr/random palettes. Actual native pointer preconditions and opaque
+3770x2078 producer frames pass. After close, widgets0/ambient0/workers0; process
+VmHWM1292792KiB and terminal0. Source hashes are unchanged across the run.
+Environment is PySide6/Shiboken6 6.11.1, NumPy2.4.3, Torch2.10.0; Home's reported
+6.11.2 native defect differs. Complete log, helper delta, private settings and
+source/environment evidence: data/663_workstation_native_Save_diagnostic_2026-10-07.json.
+This does not reproduce or close the original installed-user Save crash, claim
+24FPS, or imply human aesthetic acceptance. Implementation remains Home-owned.
