@@ -1359,7 +1359,20 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         "_subcell_channels_dialog.accept_mapping"
     ] == "Store only a complete four-index choice, then close."
     # 2026-10-06 560: +1/-0, EmbeddingsScreen._subcell_channels_dialog.accept_mapping.
-    expected = 13_182
+    # 2026-10-07: +17/-0, exactly the reviewed additions also pinned by
+    # test_documentation_i18n: convert.read_scn, convert.scn_to_rgb8,
+    # embeddings._cell_dino_model.forward,
+    # io._preprocess_mapped_volume_series.load_channel,
+    # qt.mask_engine.read_image,
+    # qt.preferences.PreferencesDialog._build_the_dialog.{_pick_ambient_color,
+    # _refresh_custom_colors,_sync_custom_colors},
+    # qt.screens.annotate.AnnotateScreen._on_similar_result_plate.show_source_hits,
+    # qt.screens.embeddings.EmbeddingsScreen._cell_dino_dialog.{accept_mapping,
+    # choose_file,sync_width},
+    # qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.{finished,work},
+    # qt.screens.embeddings.EmbeddingsScreen.embed.finished,
+    # qt.widgets.ambient.AmbientWidget.{gravity_radius,set_gravity_radius}.
+    expected = 13_199
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1408,7 +1421,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 13_182
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 13_199
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
