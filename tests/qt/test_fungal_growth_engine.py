@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import hashlib
-from itertools import pairwise
 
 import numpy as np
 import pytest
@@ -154,7 +153,7 @@ def test_each_colony_has_a_common_origin_and_progressive_connected_forks():
             branch = colony[index * 6:(index + 1) * 6]
             assert all(edge[0] == index for edge in branch)
             assert all(before[5:7] == after[1:3]
-                       for before, after in pairwise(branch))
+                       for before, after in zip(branch, branch[1:]))
             if index:
                 parent = colony[((index - 1) // 2) * 6 + 5]
                 assert branch[0][1:3] == parent[5:7]
