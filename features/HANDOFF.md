@@ -16,7 +16,8 @@ Network and Slow. All three Qt shards and eleven Coverage shards are testing;
 no terminal failure is recorded yet, and known owner inventory/catalog pins
 still prevent claiming current green. Complete native acceptance stays open.
 Home's original fault-context collector is published ind0ea589969 and its
-ordinary run37700744794 is pending behind683; no active run was cancelled.
+ordinary run37700744794 is pending behind683, which remains preserved.
+The older failedbb7 run was cancelled after its partial logs were archived.
 Current direct Measure/UI file passes17/17 in41.91s under8GiB gdb and exits
 normally; this cold cohort does not close protected original-order b688.
 
