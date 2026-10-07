@@ -1,0 +1,72 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+____________ test_a_flow_row_uses_its_last_pixel_before_wrapping[0] ____________
+
+app = <PySide6.QtWidgets.QApplication(0x5b9548d28c50) at 0x7c6a07b73bc0>
+margin = 0
+
+    @pytest.mark.parametrize("margin", [0, 3])
+    def test_a_flow_row_uses_its_last_pixel_before_wrapping(app, margin):
+        """Exact-fit captions stay on one row; one pixel less wraps them."""
+        from PySide6.QtCore import QRect
+        from PySide6.QtWidgets import QWidget
+        from spacr.qt.widgets.flow import FlowLayout
+    
+        host = QWidget()
+        flow = FlowLayout(host, spacing=4)
+        flow.setContentsMargins(margin, margin, margin, margin)
+        buttons = [QWidget(host), QWidget(host)]
+        for button in buttons:
+            button.setFixedSize(40, 20)
+            flow.addWidget(button)
+        host.show()
+        try:
+            width = 84 + 2 * margin
+            flow.setGeometry(QRect(10, 20, width, 100))
+>           assert buttons[0].y() == buttons[1].y()
+E           assert 20 == 44
+E            +  where 20 = <built-in method y of PySide6.QtWidgets.QWidget object at 0x7c6a072e39c0>()
+E            +    where <built-in method y of PySide6.QtWidgets.QWidget object at 0x7c6a072e39c0> = <PySide6.QtWidgets.QWidget(0x5b954a76dd00) at 0x7c6a072e39c0>.y
+E            +  and   44 = <built-in method y of PySide6.QtWidgets.QWidget object at 0x7c6a072e3b80>()
+E            +    where <built-in method y of PySide6.QtWidgets.QWidget object at 0x7c6a072e3b80> = <PySide6.QtWidgets.QWidget(0x5b954a2bad90) at 0x7c6a072e3b80>.y
+
+tests/qt/test_the_results_header_wraps_instead_of_overlapping.py:220: AssertionError
+----------------------------- Captured Qt messages -----------------------------
+QtWarningMsg: This plugin does not support propagateSizeHints()
+____________ test_a_flow_row_uses_its_last_pixel_before_wrapping[3] ____________
+
+app = <PySide6.QtWidgets.QApplication(0x5b9548d28c50) at 0x7c6a07b73bc0>
+margin = 3
+
+    @pytest.mark.parametrize("margin", [0, 3])
+    def test_a_flow_row_uses_its_last_pixel_before_wrapping(app, margin):
+        """Exact-fit captions stay on one row; one pixel less wraps them."""
+        from PySide6.QtCore import QRect
+        from PySide6.QtWidgets import QWidget
+        from spacr.qt.widgets.flow import FlowLayout
+    
+        host = QWidget()
+        flow = FlowLayout(host, spacing=4)
+        flow.setContentsMargins(margin, margin, margin, margin)
+        buttons = [QWidget(host), QWidget(host)]
+        for button in buttons:
+            button.setFixedSize(40, 20)
+            flow.addWidget(button)
+        host.show()
+        try:
+            width = 84 + 2 * margin
+            flow.setGeometry(QRect(10, 20, width, 100))
+>           assert buttons[0].y() == buttons[1].y()
+E           assert 23 == 47
+E            +  where 23 = <built-in method y of PySide6.QtWidgets.QWidget object at 0x7c69fcc902c0>()
+E            +    where <built-in method y of PySide6.QtWidgets.QWidget object at 0x7c69fcc902c0> = <PySide6.QtWidgets.QWidget(0x5b9547abe850) at 0x7c69fcc902c0>.y
+E            +  and   47 = <built-in method y of PySide6.QtWidgets.QWidget object at 0x7c69febd8f80>()
+E            +    where <built-in method y of PySide6.QtWidgets.QWidget object at 0x7c69febd8f80> = <PySide6.QtWidgets.QWidget(0x5b954b10be80) at 0x7c69febd8f80>.y
+
+tests/qt/test_the_results_header_wraps_instead_of_overlapping.py:220: AssertionError
+----------------------------- Captured Qt messages -----------------------------
+QtWarningMsg: This plugin does not support propagateSizeHints()
+=========================== short test summary info ============================
+FAILED tests/qt/test_the_results_header_wraps_instead_of_overlapping.py::test_a_flow_row_uses_its_last_pixel_before_wrapping[0]
+FAILED tests/qt/test_the_results_header_wraps_instead_of_overlapping.py::test_a_flow_row_uses_its_last_pixel_before_wrapping[3]
+2 failed in 1.52s
