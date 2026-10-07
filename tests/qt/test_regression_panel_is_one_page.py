@@ -70,7 +70,11 @@ EXPECTED_SECTIONS = [
 @pytest.fixture()
 def panel(qtbot):
     """A built regression settings model, widgets and all."""
-    model = SettingsWidgets("regression")
+    from PySide6.QtWidgets import QWidget
+
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    model = SettingsWidgets("regression", parent=owner)
     model.build_sections()
     return model
 
@@ -106,7 +110,7 @@ def test_nothing_falls_into_the_ungrouped_bucket(panel):
     assert "Other" not in _sections(panel)
 
 
-def test_the_deleted_sections_keep_their_values_rather_than_dropping_them():
+def test_the_deleted_sections_keep_their_values_rather_than_dropping_them(panel):
     """Hidden is not absent (INVARIANTS 6).
 
     `parameter_sweep` does `settings.setdefault("regression_qc", False)` so a
@@ -114,8 +118,7 @@ def test_the_deleted_sections_keep_their_values_rather_than_dropping_them():
     the key and there is nothing for it to set; hide it and the sweep is
     unchanged while the panel stops asking.
     """
-    model = SettingsWidgets("regression")
-    model.build_sections()
+    model = panel
     collected = model.collect()
     defaults = resolve_default_settings("regression")
     for key in _APP_HIDDEN_KEYS["regression"]:
