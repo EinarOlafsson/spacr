@@ -233,16 +233,17 @@ class TestEverySettingsWindow:
 # ---------------------------------------------------------------------------
 # No theme unless asked for
 # ---------------------------------------------------------------------------
-class TestTheBackdropIsStratifiedByDefault:
-    def test_the_shipped_default_is_stratified(self):
+class TestTheBackdropIsOffByDefault:
+    def test_the_shipped_default_is_off(self):
         from spacr.qt.preferences import DEFAULT_POPUP_BACKDROP
 
-        assert DEFAULT_POPUP_BACKDROP == "drift"
+        assert DEFAULT_POPUP_BACKDROP == "off"
 
     def test_off_is_still_one_of_the_choices(self):
         from spacr.qt.preferences import POPUP_BACKDROPS
 
         assert "off" in POPUP_BACKDROPS
+        assert "drift" in POPUP_BACKDROPS
         assert len(POPUP_BACKDROPS) > 1, "there is nothing to change it to"
 
     def test_the_card_and_the_rim_stay_when_the_theme_is_off(self, glassed):

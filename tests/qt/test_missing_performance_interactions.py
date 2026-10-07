@@ -55,7 +55,7 @@ def test_a_failed_input_witness_fails_the_instrument(qtbot, qapp, harness):
 
 
 def test_pointer_actions_have_real_state_witnesses(qtbot, qapp, harness):
-    """Exercise the actual module splitter and canonical Home-grid hover."""
+    """Exercise splitter movement and Home hints despite the tooltip delay."""
     from spacr.qt import preferences
 
     with harness._settings_elsewhere():
@@ -68,7 +68,7 @@ def test_pointer_actions_have_real_state_witnesses(qtbot, qapp, harness):
     assert all(r["pane_sizes_before"] != r["pane_sizes_after"] for r in drags)
     assert len({r["module"] for r in hovers}) == 2
     assert all(r["configured_hint_delay_ms"] == 2000 for r in hovers)
-    assert all(r["hint_witness_elapsed_ms"] >= 2000 for r in hovers)
+    assert all(0 <= r["hint_witness_elapsed_ms"] < 1000 for r in hovers)
     assert all(r["input_dispatch_and_events_ms"] is not None for r in rows)
 
 

@@ -596,20 +596,28 @@ def test_the_segment_count_is_capped(app):
     assert steps <= SetupCard.MAX_STEPS
 
 
-def test_an_arrived_rim_stops_repainting(app):
+def test_an_arrived_rim_stops_repainting(app, qtbot):
     """The timer stays alive to notice the cursor moving, but a repaint of
     a card that has not changed is sixty needless composites a second over
     a live backdrop."""
     from spacr.qt.widgets.setup_card import SetupCard
+    from spacr.qt import theme
 
-    card = SetupCard()
-    card.resize(600, 420)
-    card._aim_at_the_cursor = lambda: False
-    card._towards = card._at = 0.3
-    painted = []
-    card.update = lambda *a: painted.append(1)
-    card._tick()
-    assert painted == []
+    was_spaceout = theme.spaceout_enabled()
+    theme.disable_spaceout()
+    try:
+        card = SetupCard(mode="glow")
+        qtbot.addWidget(card)
+        card.resize(600, 420)
+        card._aim_at_the_cursor = lambda: False
+        card._towards = card._at = 0.3
+        painted = []
+        card.update = lambda *a: painted.append(1)
+        card._tick()
+        assert painted == []
+    finally:
+        if was_spaceout:
+            theme.enable_spaceout()
 
 
 # ---------------------------------------------------------------------------

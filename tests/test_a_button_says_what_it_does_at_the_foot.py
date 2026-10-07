@@ -89,13 +89,13 @@ def test_crossing_between_two_buttons_does_not_flash_the_default(qtbot, monkeypa
     window.show()
     assert first.isVisible() and second.isVisible()
 
-    bar.eventFilter(first, QEvent(QEvent.Enter))
-    bar._hover_delay._deliver()
+    QApplication.sendEvent(first, QEvent(QEvent.Enter))
+    qtbot.waitUntil(lambda: bar.text() == "Does the first thing.")
     assert bar.text() == "Does the first thing."
-    bar.eventFilter(second, QEvent(QEvent.Enter))
-    bar._hover_delay._deliver()
+    QApplication.sendEvent(second, QEvent(QEvent.Enter))
+    qtbot.waitUntil(lambda: bar.text() == "Does the second thing.")
     assert bar.text() == "Does the second thing."
-    bar.eventFilter(first, QEvent(QEvent.Leave))
+    QApplication.sendEvent(first, QEvent(QEvent.Leave))
     assert bar.text() == "Does the second thing.", (
         "the bar showed the button the pointer had left, then blanked")
 
