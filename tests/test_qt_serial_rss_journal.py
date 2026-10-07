@@ -182,6 +182,7 @@ def test_file_boundaries_record_the_snapshot_from_the_prior_teardown(
     )
     records = []
     with monkeypatch.context() as patch:
+        patch.setattr(journal_plugin, "_identity_only", False)
         patch.setattr(journal_plugin, "_write", lambda event, **data:
                       records.append((event, data)))
         patch.setattr(journal_plugin, "_active_file", None)
@@ -301,3 +302,58 @@ def test_a_normal_run_restores_the_prior_disabled_fault_handler(tmp_path):
     )
     assert result.returncode == 0, result.stdout + result.stderr
     assert (tmp_path / "normal-fault.log").exists()
+
+
+@pytest.mark.parametrize('workers,hard_exit', [(0, False), (2, False), (0, True)])
+def test_ordinary_mode_records_unique_identity_without_rss_qt_or_fault_hooks(tmp_path, workers, hard_exit):
+    """Normal, xdist and abrupt workers each own a minimal durable identity."""
+    evidence = tmp_path / 'native'
+    (tmp_path / 'conftest.py').write_text(
+        "import pytest\n"
+        "from tools.pytest_plugins import qt_serial_rss_journal as plugin\n"
+        "def forbidden(*args, **kwargs):\n"
+        "    raise AssertionError('ordinary mode touched serial observer')\n"
+        "@pytest.hookimpl(tryfirst=True)\n"
+        "def pytest_configure(config):\n"
+        "    plugin._rss_sample = forbidden\n"
+        "    plugin._cached_qt_counts = forbidden\n"
+        "    plugin._arm_fault_log = forbidden\n",
+        encoding='utf-8',
+    )
+    body = 'import os\ndef test_first():\n    os._exit(3)\n' if hard_exit else (
+        'def test_first():\n    assert True\n')
+    (tmp_path / 'test_first.py').write_text(body, encoding='utf-8')
+    (tmp_path / 'test_second.py').write_text('def test_second():\n    assert True\n', encoding='utf-8')
+    env = os.environ.copy()
+    env['PYTHONPATH'] = str(ROOT) + os.pathsep + env.get('PYTHONPATH', '')
+    env['SPACR_QT_NATIVE_EVIDENCE_DIR'] = str(evidence)
+    env['GITHUB_SHA'] = 'exact-source'
+    env.pop('SPACR_QT_SERIAL_RSS_JOURNAL', None)
+    env.pop('SPACR_QT_SERIAL_FAULT_LOG', None)
+    env.pop('PYTEST_ADDOPTS', None)
+    argv = [sys.executable, '-m', 'pytest', '-q', '-p', 'no:randomly', '-p',
+            'tools.pytest_plugins.qt_serial_rss_journal', 'test_first.py', 'test_second.py']
+    if workers:
+        argv += ['-n', str(workers), '--dist', 'loadfile']
+    result = subprocess.run(argv, cwd=tmp_path, env=env, capture_output=True, text=True,
+                            timeout=30, check=False)
+    assert result.returncode == (3 if hard_exit else 0), result.stdout + result.stderr
+    journals = list(evidence.glob('process-*.jsonl'))
+    assert len(journals) == (3 if workers else 1)
+    pids = set()
+    for path in journals:
+        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        assert [row['event'] for row in rows] == (
+            ['session_start'] if hard_exit else ['session_start', 'session_finish'])
+        first = rows[0]
+        pids.add(first['pid'])
+        assert first['source_sha'] == 'exact-source'
+        assert first['root'] == str(tmp_path.resolve())
+        assert first['mode'] == 'identity_only'
+        assert Path(first['executable']).resolve() == Path(sys.executable).resolve()
+        assert len(first['executable_sha256']) == 64
+        assert int(first['process_start_ticks']) > 0
+        assert first['boot_id']
+        assert all(not any('rss' in key or 'qt' in key or 'fault' in key for key in row)
+                   for row in rows)
+    assert len(pids) == len(journals)

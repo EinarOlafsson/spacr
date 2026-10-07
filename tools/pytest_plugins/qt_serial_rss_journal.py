@@ -8,6 +8,9 @@ observer neither touches Qt objects nor changes test order, garbage collection,
 or event processing. ``SPACR_QT_SERIAL_FAULT_LOG`` optionally names a separate
 owned file descriptor for native stacks; it is rearmed after test teardown
 because in-process application launches can redirect Python's fatal handler.
+Ordinary jobs may instead set ``SPACR_QT_NATIVE_EVIDENCE_DIR``. That mode writes
+only unique process identity and terminal records, without RSS sampling, Qt
+counts, fatal-handler changes or per-test observations.
 """
 
 from __future__ import annotations
@@ -24,6 +27,7 @@ from typing import TextIO
 import pytest
 
 _journal: Path | None = None
+_identity_only = False
 _active_file: str | None = None
 _completed_files = 0
 _fault_file: TextIO | None = None
@@ -75,7 +79,7 @@ def _write(event: str, **details: object) -> None:
         "event": event,
         "time_ns": time.time_ns(),
         "pid": os.getpid(),
-        **_rss_sample(),
+        **({} if _identity_only else _rss_sample()),
         **details,
     }
     payload = (json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n").encode(
@@ -94,9 +98,13 @@ def _write(event: str, **details: object) -> None:
 @pytest.hookimpl(trylast=True)
 def pytest_configure(config: pytest.Config) -> None:
     """Create a fresh journal so separate acceptance attempts cannot mix."""
-    global _journal, _active_file, _completed_files
+    global _journal, _active_file, _completed_files, _identity_only
     global _fault_file, _prior_fault_enabled
     name = os.environ.get("SPACR_QT_SERIAL_RSS_JOURNAL")
+    evidence = os.environ.get("SPACR_QT_NATIVE_EVIDENCE_DIR")
+    _identity_only = bool(evidence and not name)
+    if _identity_only:
+        name = str(Path(evidence) / f"process-{os.getpid()}-{time.time_ns()}.jsonl")
     if not name:
         raise pytest.UsageError("SPACR_QT_SERIAL_RSS_JOURNAL is required")
     _journal = Path(name).expanduser().absolute()
@@ -109,6 +117,24 @@ def pytest_configure(config: pytest.Config) -> None:
         os.close(fd)
     _active_file = None
     _completed_files = 0
+    if _identity_only:
+        executable = Path(sys.executable).resolve()
+        digest = hashlib.sha256()
+        with executable.open("rb") as source:
+            for block in iter(lambda: source.read(1024 * 1024), b""):
+                digest.update(block)
+        _write(
+            "session_start",
+            mode="identity_only",
+            source_sha=os.environ.get("GITHUB_SHA"),
+            root=str(config.rootpath.resolve()),
+            executable=str(executable),
+            executable_sha256=digest.hexdigest(),
+            process_start_ticks=Path("/proc/self/stat").read_text().rsplit(") ", 1)[1].split()[19],
+            boot_id=Path("/proc/sys/kernel/random/boot_id").read_text().strip(),
+            worker=os.environ.get("PYTEST_XDIST_WORKER", "controller"),
+        )
+        return
     _write(
         "session_start",
         source_sha=os.environ.get("GITHUB_SHA"),
@@ -136,6 +162,8 @@ def pytest_configure(config: pytest.Config) -> None:
 
 def pytest_collection_finish(session: pytest.Session) -> None:
     """Bind the ordered test and file manifests without storing either."""
+    if _identity_only:
+        return
     nodes = hashlib.sha256()
     files = hashlib.sha256()
     last_file = None
@@ -161,6 +189,8 @@ def pytest_collection_finish(session: pytest.Session) -> None:
 def pytest_runtest_setup(item: pytest.Item) -> None:
     """Record the prior file's completed teardown before starting this one."""
     global _active_file, _completed_files
+    if _identity_only:
+        return
     name = os.path.relpath(str(item.path), item.config.rootpath)
     if name == _active_file:
         return
@@ -175,6 +205,8 @@ def pytest_runtest_setup(item: pytest.Item) -> None:
 @pytest.hookimpl(tryfirst=True)
 def pytest_runtest_logreport(report: pytest.TestReport) -> None:
     """Sync failure details before a later native crash skips pytest's summary."""
+    if _identity_only:
+        return
     if report.failed:
         detail = report.longreprtext
         limit = 65536
@@ -193,6 +225,9 @@ def pytest_runtest_logreport(report: pytest.TestReport) -> None:
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
     """Mark a normal terminal result; abrupt exits deliberately lack it."""
     global _active_file, _completed_files
+    if _identity_only:
+        _write("session_finish", exitstatus=int(exitstatus))
+        return
     if _active_file is not None:
         _write("file_end", file=_active_file,
                **_cached_qt_counts(session.config))

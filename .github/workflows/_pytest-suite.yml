@@ -114,6 +114,10 @@ jobs:
             libxdamage1 libxi6 libxtst6 libasound2t64 \
             libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg
 
+      - name: Install ordinary Qt native diagnostics
+        if: startsWith(inputs.suite_name, 'Qt')
+        run: sudo apt-get install --no-install-recommends -y gdb zstd
+
       - name: Install spacr and hardware-appropriate PyTorch
         run: |
           python -m pip install --upgrade pip
@@ -189,7 +193,16 @@ jobs:
           SPACR_PYTEST_FILE_SHARD_INDEX: ${{ inputs.file_shard_index }}
           SPACR_PYTEST_FILE_SHARD_COUNT: ${{ inputs.file_shard_count }}
           PYTHONFAULTHANDLER: "1"
+          SPACR_QT_NATIVE_EVIDENCE_DIR: ${{ startsWith(inputs.suite_name, 'Qt') && format('{0}/spacr-qt-native', runner.temp) || '' }}
         run: |
+          if [ -n "$SPACR_QT_NATIVE_EVIDENCE_DIR" ]; then
+            if ! ulimit -S -c 16777216; then
+              echo "Native core soft limit could not be enabled; retaining inherited limit"
+            fi
+            python tools/collect_qt_native_backtrace.py --record-core-route \
+              --evidence-dir "$SPACR_QT_NATIVE_EVIDENCE_DIR"
+            export PYTEST_ADDOPTS="${PYTEST_ADDOPTS:-} -p tools.pytest_plugins.qt_serial_rss_journal"
+          fi
           if [ "${{ inputs.memory_telemetry_seconds }}" -gt 0 ]; then
             # A LOST RUNNER KEEPS ONLY WHAT IT HAS ALREADY LOGGED. Qt shard 0
             # lost its runner twice on 2026-09-15 inside its budget, and a
@@ -276,6 +289,26 @@ jobs:
               tests/qt/test_the_backdrop_survives_a_run.py \
               -m '${{ inputs.marker_expression }}' -v --tb=short
           fi
+
+      - name: Recover an ordinary Qt worker native backtrace
+        if: failure() && startsWith(inputs.suite_name, 'Qt')
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          python tools/collect_qt_native_backtrace.py --ordinary \
+            --evidence-dir "$RUNNER_TEMP/spacr-qt-native"
+
+      - name: Upload ordinary Qt native failure evidence
+        if: failure() && startsWith(inputs.suite_name, 'Qt')
+        uses: actions/upload-artifact@v7
+        with:
+          name: qt-native-${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.file_shard_index }}
+          path: |
+            ${{ runner.temp }}/spacr-qt-native/process-*.jsonl
+            ${{ runner.temp }}/spacr-qt-native/native-core-backtrace.txt
+            ${{ runner.temp }}/spacr-qt-native/core-route.json
+          if-no-files-found: ignore
+          retention-days: 3
 
       - name: Show memory telemetry after a failure
         if: failure() && inputs.memory_telemetry_seconds > 0

@@ -366,7 +366,7 @@ jobs:
             libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
             libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
             libxdamage1 libxi6 libxtst6 libasound2t64 \
-            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg
+            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg gdb zstd
 
       - name: Install spaCR and branch-coverage tooling
         run: |
@@ -399,7 +399,14 @@ jobs:
         env:
           SPACR_COVERAGE_DATA_DIR: ${{ runner.temp }}/spacr-coverage-data
           SPACR_COVERAGE_SHARD: ${{ matrix.shard }}
+          SPACR_QT_NATIVE_EVIDENCE_DIR: ${{ runner.temp }}/spacr-qt-native
         run: |
+          if ! ulimit -S -c 16777216; then
+            echo "Native core soft limit could not be enabled; retaining inherited limit"
+          fi
+          python tools/collect_qt_native_backtrace.py --record-core-route \
+            --evidence-dir "$SPACR_QT_NATIVE_EVIDENCE_DIR"
+          export PYTEST_ADDOPTS="${PYTEST_ADDOPTS:-} -p tools.pytest_plugins.qt_serial_rss_journal"
           python tools/run_coverage_batches.py tests \
             --marker "not gui" \
             --shard-index "$SPACR_COVERAGE_SHARD" \
@@ -414,6 +421,26 @@ jobs:
             --exclude-file tests/qt/test_home_stage_and_dock.py \
             --exclude-file tests/qt/test_figure_queue.py \
             --exclude-file tests/qt/test_pca.py
+
+      - name: Recover a coverage worker native backtrace
+        if: failure()
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          python tools/collect_qt_native_backtrace.py --ordinary \
+            --evidence-dir "$RUNNER_TEMP/spacr-qt-native"
+
+      - name: Upload coverage native failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-native-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.shard }}
+          path: |
+            ${{ runner.temp }}/spacr-qt-native/process-*.jsonl
+            ${{ runner.temp }}/spacr-qt-native/native-core-backtrace.txt
+            ${{ runner.temp }}/spacr-qt-native/core-route.json
+          if-no-files-found: ignore
+          retention-days: 3
 
       - name: Upload coverage process data
         if: always()
