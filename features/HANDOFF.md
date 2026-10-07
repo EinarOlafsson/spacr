@@ -1,5 +1,24 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home: current hosted Coverage7 has exactly one owner blocker
+
+Current683 ordinary37698599898 Coverage7/job113058129395 is terminalFAILURE
+at23:27:49UTC. Its eleven completed batches have exactly one failing node:
+  tests/test_api_i18n_extractor.py::test_public_docstrings_matches_reviewed_visible_coverage
+Actual visible13214 versus reviewed13199 (+15). This pin/catalog regeneration
+is deliberately still pending in workstationc771's source-only checkpoint.
+Finish the normal current API/catalog batch and exact arrivals before its
+CI-triggering publication; no ceiling, skip or replacement gate is authorized.
+
+There is no native crash, Qt assertion, worker death or memory-guard failure
+in this shard. The prior primary puncta[True] node actually passes23:06:43.
+All33 identity-only journals finish; route is verified/readable systemd with
+16GiB soft core limit, capture_guaranteed=false, and no unfinished owned
+process/core. Collector/upload both succeed. Home archives the source-bound
+raw2,040,818-byte log and17,762-byte native artifact11517807991 separately.
+Qt0/1/2 and the remaining suites are still running, so no complete green or
+historical original-order native cause closure is claimed.
+
 ## 2026-10-07 — Home integrated owner checkpoint; complete the CI publication batch
 
 Home fast-forwarded c771b4627c and verified all22 archived owner payloads.
