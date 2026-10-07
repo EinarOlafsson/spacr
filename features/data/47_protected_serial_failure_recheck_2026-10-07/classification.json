@@ -1,0 +1,133 @@
+{
+  "cap_gib": 4,
+  "cuda_hidden": true,
+  "fungal_replacements": "22 passed, 261 deselected",
+  "geometry_after_neighbors": "19 passed in 6.04 seconds across four condition-annotation files",
+  "geometry_before": "1 failed, current test with applied spaCR theme and old product source",
+  "geometry_new_product_blob": "63ebe20a02cf6b63a11fbfed1f30793c67fe6427",
+  "geometry_new_test_blob": "4e80d551d24188db3a7ff123f34690fa8dc41c86",
+  "geometry_old_product_blob": "ebc3c9a331ca9e857d5c216e03bb6d8ed2b19916",
+  "new_line_coverage": {
+    "added_branches": 0,
+    "executed": true,
+    "file": "spacr/qt/widgets/condition_annotation_dialog.py",
+    "line": 886
+  },
+  "old_failed_nodes": [
+    {
+      "node": "tests/qt/test_600_popup_layout_and_selection.py::test_the_maintainers_button_layout",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_a_folded_module_stays_in_the_localization_inventory.py::test_no_reviewed_translation_is_bound_to_a_key_that_left_the_inventory",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_ambient.py::test_a_frame_is_not_just_the_background[data_art_fungal_growth-#101418]",
+      "status": "replaced_current_fungal_checks_passed"
+    },
+    {
+      "node": "tests/qt/test_ambient.py::test_a_frame_is_not_just_the_background[data_art_fungal_growth-#f6f7f9]",
+      "status": "replaced_current_fungal_checks_passed"
+    },
+    {
+      "node": "tests/qt/test_ambient.py::test_the_frame_changes_between_two_animation_times[data_art_fungal_growth-#101418]",
+      "status": "replaced_current_fungal_checks_passed"
+    },
+    {
+      "node": "tests/qt/test_ambient.py::test_the_frame_changes_between_two_animation_times[data_art_fungal_growth-#f6f7f9]",
+      "status": "replaced_current_fungal_checks_passed"
+    },
+    {
+      "node": "tests/qt/test_cov_g2_tooltip_policy.py::test_invalidating_forgets_a_hover_whose_object_is_gone",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_cov_w2_2_app.py::test_a_build_with_no_logging_helper_still_writes_a_crash_dump",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_cov_wf_qt_crash_recovery.py::test_a_log_folder_that_raises_falls_back_under_the_home_directory",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_cov_wf_qt_crash_recovery.py::test_a_log_folder_that_answers_with_nothing_falls_back_too",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_crash_recovery_drops_the_backdrop.py::test_the_marker_folder_falls_back_when_the_log_dir_is_unavailable",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_data_art_gravity_radius.py::test_density_changes_actual_sample_population[genetic_advection]",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_distribution_smoke.py::test_source_ui_integration_runs_real_measurement",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_every_picture_is_drawn_for_the_screen_it_is_on.py::test_every_scaled_site_goes_through_the_helper_or_is_named",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_every_table_asks_for_the_sorting_contract.py::test_every_view_in_the_source_asks_for_the_sorting_contract",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_every_table_asks_for_the_sorting_contract.py::test_nothing_builds_a_bare_table_cell_any_more",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_external_i18n_catalogs.py::test_runtime_source_inventory_is_complete_before_optional_module_imports",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_external_i18n_catalogs.py::test_runtime_source_inventory_is_stable_after_runctx_import",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_external_i18n_catalogs.py::test_theme_descriptions_have_source_bound_translations",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_external_i18n_catalogs.py::test_empty_flowchart_caption_translates_without_changing_python_none",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_i18n_caption_ratchet.py::test_every_generated_catalog_candidate_has_a_source_hash",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_i18n_caption_ratchet.py::test_custom_widgets_and_indirect_registries_enter_one_i18n_layer",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_live_preview_coverage.py::TestWorkerLifecycle::test_the_completion_handler_runs_on_the_gui_thread",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_live_preview_coverage.py::TestWorkerLifecycle::test_all_worker_handlers_keep_gui_affinity_with_plain_spies",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_loaded_schema_rules_do_not_overlap_n637.py::test_loaded_schema_rows_have_disjoint_geometry",
+      "status": "failed_before_fixed_in_675ff1ec7c"
+    },
+    {
+      "node": "tests/qt/test_make_masks_verdicts_folds_and_workers_after_the_window.py::test_an_edit_with_no_field_has_no_ledger",
+      "status": "passed_current"
+    },
+    {
+      "node": "tests/qt/test_one_backdrop_for_the_window.py::test_the_home_screen_is_not_black_on_a_real_display",
+      "status": "failed_current_root_candidate_fix_separate"
+    }
+  ],
+  "old_source_sha": "45f3cb1ec0ec5df9e10bb6bcf788c5939d2cc1a3",
+  "platform": "offscreen",
+  "pyside6": "6.11.2",
+  "python": "3.12.13",
+  "replay_23_node_ids": "22 passed, 2 failed; popup node expanded to two current cases",
+  "replay_post_fix_source_sha": "675ff1ec7c1792ab8893f9cdc69200519d3076a1",
+  "replay_pre_fix_source_sha": "83a2bd3505"
+}

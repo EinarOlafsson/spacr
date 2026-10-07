@@ -1,0 +1,24 @@
+{
+  "raw_evidence": {
+    "current-23.log": {
+      "bytes": 9397,
+      "sha256": "5b74a83d8e713b63c69989692027a9140ee3025e8f8a754b23ee1f4d8442aa93"
+    },
+    "schema-after-neighbors.log": {
+      "bytes": 99,
+      "sha256": "c1e237291f598bbad1d69c5f058985fef10ed7971e61aa580db10312bcff9176"
+    },
+    "schema-before.log": {
+      "bytes": 3883,
+      "sha256": "851b1c1a8a8e596127f7550796513ac0c62c3642fa7ad36f14b070e55b34319c"
+    },
+    "schema-coverage.json": {
+      "bytes": 81638,
+      "sha256": "316d8b169ae94424feca22e2e3ef1c272bd47264fe9e167a94930ff2f62042a1"
+    },
+    "schema-coverage.log": {
+      "bytes": 179,
+      "sha256": "d2a01095daf75b29cf03c6514e0820464e3852958525714810e3709edec44fba"
+    }
+  }
+}
