@@ -1,0 +1,212 @@
+{
+  "scope": "Conservative source-bound union of an old hosted aggregate and bounded current behavior tests; not a fresh complete-suite, serial Qt, or hosted-success verdict. Old ambient coverage is inherited ONLY outside the byte-identical fungal-class exterior. Old Make Masks coverage is mapped across five inserted guard lines.",
+  "hosted_source": "392ca4d6a2319fd88c2d352b1a0b021682123d6b",
+  "qt222_source": "7a6c2c6f333a71996a972583be008e3e94a5c69b",
+  "scn_passed": 42,
+  "qt_passed": 222,
+  "dense_passed": 51,
+  "CUDA_VISIBLE_DEVICES": "",
+  "QT_QPA_PLATFORM": "offscreen",
+  "hard_memory_cap": "4G",
+  "modules": {
+    "spacr/convert.py": {
+      "source_sha256": "3646ee0163bb8fe093f7cd2b1588bb3e0a9feaae6a28555877c4e0b953e38011",
+      "statements": 1422,
+      "branches": 604,
+      "missing_lines": [],
+      "missing_branches": [],
+      "original_statement_allowance": 0,
+      "original_branch_allowance": 0,
+      "within_original_allowances": true
+    },
+    "spacr/io.py": {
+      "source_sha256": "e0cac6ae179e2dc1bbc5f3dd27c634f03f07d814195dfad9aead44bf37e35e0d",
+      "statements": 4730,
+      "branches": 1906,
+      "missing_lines": [],
+      "missing_branches": [
+        [
+          9660,
+          9665
+        ]
+      ],
+      "original_statement_allowance": 2,
+      "original_branch_allowance": 2,
+      "within_original_allowances": true
+    },
+    "spacr/qt/recipes.py": {
+      "source_sha256": "67b8c5e6a1fa0c313498c155e11c8afe2208979b1f80324066a66f6b83af661e",
+      "statements": 451,
+      "branches": 116,
+      "missing_lines": [],
+      "missing_branches": [],
+      "original_statement_allowance": 0,
+      "original_branch_allowance": 0,
+      "within_original_allowances": true
+    },
+    "spacr/qt/screens/make_masks.py": {
+      "source_sha256": "8ff012eff063bbaa9915ad5853a9e07f53aa6d59d43aaf4eb9f0b1601246b933",
+      "statements": 8803,
+      "branches": 2326,
+      "missing_lines": [
+        12109,
+        13752,
+        13753,
+        14510,
+        14609,
+        15353,
+        15354,
+        15511,
+        15514,
+        15516,
+        15518
+      ],
+      "missing_branches": [
+        [
+          7699,
+          -7696
+        ],
+        [
+          7869,
+          -7867
+        ],
+        [
+          7874,
+          -7872
+        ],
+        [
+          9668,
+          9666
+        ],
+        [
+          9821,
+          9824
+        ],
+        [
+          10019,
+          -10014
+        ],
+        [
+          10071,
+          10070
+        ],
+        [
+          10181,
+          -10165
+        ],
+        [
+          10213,
+          10215
+        ],
+        [
+          10219,
+          -10185
+        ],
+        [
+          12108,
+          12109
+        ],
+        [
+          14320,
+          14322
+        ],
+        [
+          14509,
+          14510
+        ],
+        [
+          14608,
+          14609
+        ],
+        [
+          15321,
+          15330
+        ],
+        [
+          15343,
+          15334
+        ],
+        [
+          15510,
+          15511
+        ],
+        [
+          15513,
+          15514
+        ],
+        [
+          15515,
+          15516
+        ],
+        [
+          15517,
+          15518
+        ],
+        [
+          15684,
+          15686
+        ],
+        [
+          15687,
+          -15680
+        ],
+        [
+          16002,
+          16006
+        ],
+        [
+          16004,
+          16006
+        ],
+        [
+          16284,
+          -16256
+        ],
+        [
+          16389,
+          16385
+        ],
+        [
+          16392,
+          16410
+        ],
+        [
+          17244,
+          -17238
+        ]
+      ],
+      "original_statement_allowance": 59,
+      "original_branch_allowance": 28,
+      "within_original_allowances": true
+    },
+    "spacr/qt/timing.py": {
+      "source_sha256": "21de43993d1f34469df0971771823f58dd0b74b747e37537539fcc3e35a5d426",
+      "statements": 538,
+      "branches": 144,
+      "missing_lines": [],
+      "missing_branches": [
+        [
+          393,
+          404
+        ],
+        [
+          695,
+          697
+        ]
+      ],
+      "original_statement_allowance": 2,
+      "original_branch_allowance": 2,
+      "within_original_allowances": true
+    },
+    "spacr/qt/widgets/ambient.py": {
+      "source_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+      "statements": 3451,
+      "branches": 726,
+      "missing_lines": [],
+      "missing_branches": [],
+      "original_statement_allowance": 1,
+      "original_branch_allowance": 0,
+      "within_original_allowances": true
+    }
+  }
+}

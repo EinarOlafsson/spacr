@@ -1,0 +1,40 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 615,
+      "sha256": "15bebf257269c9a28292f0fa7cc3f9998d3f36130c04c99da3f9cac325c2438e"
+    },
+    "archive_six_modules.py": {
+      "bytes": 5973,
+      "sha256": "3ad0ce4c1f85060ff9066a0605efeec6baf562d2d7340d407d939335b0d2cf19"
+    },
+    "dense51.json.gz": {
+      "bytes": 10963,
+      "sha256": "19d2715d11a07a078c70ab2251b6e8063ed1e74bc2a3ad77a88b91fcdee9fb09"
+    },
+    "focused222.json.gz": {
+      "bytes": 155450,
+      "sha256": "22f3167011e267b2271706c9d38f6bf7f87dcfbdfd15092d1b72649285b0fc70"
+    },
+    "focused42.json.gz": {
+      "bytes": 78199,
+      "sha256": "50da06885cc5df9eb7d00b8a002696eeae00207e5621e7e9ef6d5fdfe55ae065"
+    },
+    "hosted392.json.gz": {
+      "bytes": 219699,
+      "sha256": "1da52ce776944a669442b02aff98542351066e10140f24bf3b5a2a799d1b4041"
+    },
+    "qt-ratchet-final.log.gz": {
+      "bytes": 276,
+      "sha256": "67bdea4f7c298022ac1f3f0b5d28d601608d2a3fac93303b9d8cca0c2a6849c6"
+    },
+    "receipt.json": {
+      "bytes": 4611,
+      "sha256": "1b235383e9272102844e1eb097d463d496ffa89e9dac687a33a26691a62ec4b9"
+    },
+    "scn-portable-final.log.gz": {
+      "bytes": 193,
+      "sha256": "0f0bb64f85fdb45f2597c040c09fbd50137acbceebbbe9ee0445f73ffba043f0"
+    }
+  }
+}

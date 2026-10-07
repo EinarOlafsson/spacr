@@ -5716,3 +5716,24 @@ failed logs, source SHA and exact eight-cell summary:
 data/288_current_compat_failure_2026-10-06.json. Home owns the remaining
 installed import diagnosis; no guard is waived or cause/fix inferred.
 Protected serial 37503577012 on b779 remains live and untouched.
+
+2026-10-06 — final documented source compatibility and coverage follow-up
+    Actual compatibility37559626327 on integrated e1f54c8065 is terminal
+    success in all seventeen jobs. This supersedes the older f02 installed
+    Home-import failure at compatibility scope; ordinary CI remains open.
+    Workstation's successful current-source docs deployment and complete
+    catalog/media readbacks are recorded separately in item615/HANDOFF.
+    Complete older392 numerical coverage has twelve shard records and six
+    regressions. Focused source-bound CPU repairs now meet the unchanged
+    convert/io/timing/ambient allowances locally; recipes/Make Masks and the
+    new hosted README size claim are being resolved. See item43 and
+    data/43_scn_portable_ratchet_cpu_2026-10-06/. No whole-suite acceptance,
+    numerical ceiling change or failed-shard waiver is claimed.
+
+2026-10-06 — all six hosted392 numerical regressions repaired locally
+    The archived conservative source-bound union fits every original allowance
+    across convert/io/recipes/Make Masks/timing/ambient. Independent bounded
+    integration passes 42 CPU cases, 222 Qt cases and 51 current dense renderer
+    cases, with unchanged-source inheritance restricted and documented. Receipt:
+    data/43_six_module_coverage_cpu_2026-10-06/. These are local numerical repairs,
+    not a new complete hosted gate or serial-suite verdict. Parent remains OPEN.

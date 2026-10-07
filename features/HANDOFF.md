@@ -1,5 +1,30 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-06 CPU numerical repairs integrated; fresh hosted acceptance next
+
+All six numerical regressions from complete hosted392 now fit their unchanged
+original allowances in a conservative source-bound union. Full original inputs,
+42-case CPU/222-case Qt integration logs and strict line/class mapping are in
+`data/43_six_module_coverage_cpu_2026-10-06/`. Current dense fungal coverage has
+51 passing cases and no fungal statement/destination gaps. This is local repair
+evidence, not a fresh full hosted or uninterrupted serial-suite success.
+
+Make Masks gains a five-line active-outline right-press guard: an interrupted
+left Draw gesture no longer deletes an existing object. Regular right erasing
+remains. Recipe persistence/uncertainty/error branches have meaningful tests.
+Scalar path overloads and density-2/3 mature raster caching retain exact native
+pixels and original quality/work/memory safeguards; source-bound measured gains
+are archived. Current ambient SHA256 is
+`f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225`.
+Hard 24 FPS and installed Preferences Save SIGSEGV remain OPEN.
+
+Bounded actual Python3.13 native lens/GC and MainWindow/Preferences Save probes
+exit zero under 4 GiB; they do not reproduce or fix the historical native crash.
+Scripts/logs/source scope: `data/47_py313_gc_lifecycle_2026-10-07/`. Protected
+45f serial remains uncancelled; final-source serial must wait for its terminal
+state. Workstation retains README measurement/docs/translations/tutorials/GPU
+ownership. Its accepted deployed source/media are preserved.
+
 ## 2026-10-07 README checkout-size measurement needs normal owner refresh
 
 The exact e1f54c80650f60942ba6c98d4e999b36a3fa2846 ordinary coverage

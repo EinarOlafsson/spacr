@@ -2865,3 +2865,53 @@ Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
     including decompressed logs. Coverage combine rejected failed shards
     before numerical evaluation, so no ratchet acceptance is claimed.
     Parent43/288/47remainOPEN; workstation owns generated artifact failures.
+
+2026-10-06 — numerical coverage replay and portable input/error guards
+    Complete hosted392 coverage has twelve shard records and six genuine
+    numerical regressions: convert, io, recipes, Make Masks, timing and ambient.
+    This numerical result is separate from the correctly failed shard-prerequisite
+    condition. No ceiling, exclusion or required passed-shard check is lifted.
+
+    Source-unchanged CPU tests now cover all nineteen missing SCN statements
+    and seventeen destinations through actual MIME/XML/dimension/ceiling inputs.
+    Portable workspace checks exercise absent POSIX facilities and ENOSPC;
+    attribution checks an unavailable interpreter-path lookup. All forty-two
+    combined checks pass under 4 GiB. Their exact-source union reaches zero
+    missing SCN destinations, one remaining IO destination and two timing
+    destinations, within all three original allowances. Complete original
+    numerical reports, focused data/logs and source/test bindings are retained
+    in data/43_scn_portable_ratchet_cpu_2026-10-06/.
+
+    Eight ambient behavior/lifecycle cases pass. Conservative mapping inherits
+    old coverage only outside the changed fungal class and uses source-matched
+    cache/focused data inside it. Zero mapped statements/destinations remain,
+    within the original one-statement/zero-branch allowance. Root independently
+    verifies all six proof payloads and reproduces that comparison; receipt:
+    data/663_ambient_ratchet_cpu_2026-10-07/. This is not a fresh full-suite verdict.
+    Four legitimate VideoMAE setting keys are explicitly declared in the category
+    guard; all eighty-one category checks pass. Application source is unchanged.
+
+    New e1f hosted shard6 also finds README checkout drift: 1710 MB stated versus
+    2797 MB measured. Workstation owns the normal README measurement/date refresh;
+    the original fifteen-percent claim guard remains. Compatibility e1f is green
+    in all seventeen jobs. Ordinary tests, recipes/Make Masks coverage and final
+    serial acceptance remain open. Hosted392 puncta SIGSEGV remains unreproduced
+    after its exact 144-case batch and preceding 252-case batch both pass locally.
+
+2026-10-06 — six numerical module repairs and interrupted Draw guard complete locally
+    Independent integration passes 222 affected Qt cases in 211.81 seconds
+    under 4 GiB, CUDA hidden and Qt offscreen. Recipes now reaches both old
+    missing destinations. Make Masks reaches seven old missing destinations
+    and both outcomes of a new five-line guard: a right press during an active
+    left outline no longer deletes the existing object. Ordinary right erasing
+    is retained. The focused affected cohort passes 125 cases and nine coverage
+    cases; current dense renderer coverage passes 51 cases separately.
+
+    Conservative exact-source union now fits ALL SIX unchanged original
+    allowances: convert 0/0, io 0/1, recipes 0/0, Make Masks 11/28, timing 0/2,
+    ambient 0/0 missing statements/destinations. Full inputs, 42-case CPU and
+    222-case Qt logs, source bindings and strict mapping limits are retained in
+    data/43_six_module_coverage_cpu_2026-10-06/. Old ambient coverage is inherited
+    only outside the byte-identical changed fungal-class exterior. This is not
+    a new hosted or full serial success. README size ownership and fresh hosted
+    failures remain open; no guard, exclusion or ratchet allowance was loosened.

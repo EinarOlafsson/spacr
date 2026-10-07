@@ -939,3 +939,22 @@ Compact immutable source/test/coverage/probe receipts and two lossless stills:
     it does not accept hard 24 FPS, installed Save crash or all aesthetics.
     Final root focused log/source hashes:
     data/43_mature_cache_final_checkpoint_2026-10-06/.
+
+2026-10-06 — exact scalar path and dense mature-cache optimizations complete
+    Two QPointF allocations per quadratic segment become identical scalar
+    QPainterPath overloads. Nine new geometry/native palette checks and six
+    additional full 4K pixel comparisons pass. Paired actual worker measurements
+    improve default/Random/custom by 3.20/5.35/4.73 percent without changed curves
+    or resolution. Source-bound proof: data/663_fungal_scalar_path_cpu_2026-10-07/.
+
+    Mature-cache eligibility also removes only the density<=1 restriction.
+    All original painter context, alpha, memory/entry/warm-up safeguards and
+    original geometry/work budgets remain. Twenty-four native pixel comparisons
+    cover default/Random/white/custom at effective densities 2 and 3. Fifty-one
+    focused cases pass with every fungal method statement/destination reached.
+    Actual paired worker FPS improves 3.8-16 percent across measured presets;
+    cache stays approximately 0.94-1.10 MiB. Current source SHA256 is
+    f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225.
+    Proof: data/663_fungal_dense_cache_cpu_2026-10-07/. These implementation
+    children are complete; hard 24 FPS, installed Save crash, and human theme
+    aesthetic acceptance remain OPEN. No GPU or quality reduction was used.

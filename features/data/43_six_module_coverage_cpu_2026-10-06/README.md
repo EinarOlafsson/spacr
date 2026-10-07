@@ -1,0 +1,3 @@
+# Six numerical coverage repairs
+
+All six regressions in the complete hosted392 aggregate fit their unchanged original allowances in this conservative source-bound union. The archive retains the input module records and the full 42-case CPU and 222-case Qt integration logs. The current dense51 input and its original raw run/proofs are also archived in `../663_fungal_dense_cache_cpu_2026-10-07/`. Source, mapping restrictions, counts and unresolved scope are explicit in receipt.json. No ceiling, exclusion or failed-shard prerequisite was changed. This does not establish fresh hosted or full serial acceptance.

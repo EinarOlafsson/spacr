@@ -1,0 +1,36 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 948,
+      "sha256": "1ef096d55ec6ba20ec532e7293144a6c338c9a809a6f61b39e241bb70b964e4e"
+    },
+    "archive_scn_portable.py": {
+      "bytes": 5031,
+      "sha256": "d6fc3c0258525f4b86d4eafdeb755630913c829bdef8cd292f017e5762812703"
+    },
+    "focused-three-modules.json.gz": {
+      "bytes": 78199,
+      "sha256": "50da06885cc5df9eb7d00b8a002696eeae00207e5621e7e9ef6d5fdfe55ae065"
+    },
+    "hosted392-module-coverage-ratchet.json.gz": {
+      "bytes": 71677,
+      "sha256": "6492833309f2d850c22578504d5a179c14350005b08fa5eea2dc602442a27274"
+    },
+    "hosted392-module-coverage-ratchet.txt.gz": {
+      "bytes": 23327,
+      "sha256": "38ada1d855c132472218bb3b4280d8413bf23bd694bed0e33518f629ce8d749f"
+    },
+    "hosted392-three-modules.json.gz": {
+      "bytes": 75209,
+      "sha256": "aa67a88df805114da237364ee62d197c8fc7acc9e509e8ac7467dd2ab68372a5"
+    },
+    "receipt.json": {
+      "bytes": 3622,
+      "sha256": "0ce0513201254d286214e8c35dac7b2b8b34d756d8d992a63545f49c9aebeed7"
+    },
+    "scn-portable-final.log.gz": {
+      "bytes": 193,
+      "sha256": "0f0bb64f85fdb45f2597c040c09fbd50137acbceebbbe9ee0445f73ffba043f0"
+    }
+  }
+}

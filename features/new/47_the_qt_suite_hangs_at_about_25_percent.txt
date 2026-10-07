@@ -1851,3 +1851,25 @@ restarts hosted acceptance through the workflow-file trigger. Item stays OPEN.
     focused journal cases pass, including PySide sentinels and hard exits.
     This closes a diagnostic child, not memory or full serial acceptance.
     Protected45f remains untouched; final-source acceptance stays OPEN.
+
+2026-10-06 — bounded predecessor-file widget diagnostic
+    Seven exact immediate predecessor files plus one field-fade node pass
+    all164 cases in21.86seconds under4GiB on publishedcd2. The node starts
+    with447cached widgets/166top levels and takes1.161seconds, versus0.627
+    seconds alone. This shows a modest local context cost, not the cause of
+    the hosted34.5minute file. Raw adjacent/isolated journals, exact source
+    hashes and results are appended to data/47_qt_style_hotspot_2026-10-07/;
+    root independently verifies both committed journal hashes. No fixture,
+    application, memory ceiling or original collection order changes.
+    Protected45f stays untouched and full final-source acceptance stays OPEN.
+
+2026-10-06 — bounded Python 3.13 native GC/Save negative reproduction
+    Actual Python 3.13.14 / PySide6 6.11.2 probes exercise a native 4K impulse
+    lens with six natural GC callbacks and 2625 cyclic QWidget destructions
+    on the GUI thread, and actual MainWindow/modal Preferences Save with two
+    natural GC callbacks. Both exit zero and stop workers; peak recorded
+    VmHWM is 357392/590604 KiB. Full scripts, source hashes and logs:
+    data/47_py313_gc_lifecycle_2026-10-07/. Scope is minimal CPU UI dependencies
+    and Home/Preferences only. The historical trace is timer-driven GC inside
+    app.exec, not an identified native destructor or proven Save trigger.
+    No crash fix or uninterrupted full serial acceptance is claimed.
