@@ -971,3 +971,14 @@ Compact immutable source/test/coverage/probe receipts and two lossless stills:
     Original installed Save and hosted puncta lack a matching native C-stack;
     their causes remain OPEN. This is a reproduced upstream lead, not spaCR
     crash acceptance or a claim that earlier Home-only probes cover Mask undo.
+2026-10-07 — rejected buffered-frame repaint polling experiment
+    Private f36b33c9 -> 5fb2589a timer-only candidate suppressed repeated
+    buffered update() requests after preserving clock/pointer/click offers.
+    Twelve fresh software-Xvfb native4K worker/widget probes retain cold and
+    steady scopes. Initial high-density gain did not repeat; monotonic
+    publication identities show default detail2 distinct display19.80->19.19,
+    Random22.72->22.00, default detail1 13.79->13.58FPS. Polling can miss an
+    imminent publication and coalesce frames. REJECTED; no app source retained.
+    Existing clock/filter/None25cases pass13.26s under capped4G, not cadence
+    acceptance. Native24FPS remainsOPEN. Compact31payload proof (<1MiB):
+    data/663_rejected_buffered_repaint_cpu_2026-10-07/.

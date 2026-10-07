@@ -1,0 +1,131 @@
+{
+  "decision": "REJECTED: private experiment; not production",
+  "parent_commit": "b4cd5ee303",
+  "before_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+  "after_sha256": "5fb2589a0db1007ebeb6348bba8a5d05ec8a3dc0cd96bd904e5c51913302b61a",
+  "identity_measurements": [
+    {
+      "receipt": "data_art_fungal_growth-after-random-2.0-identity.json",
+      "variant": "after",
+      "palette": "random",
+      "detail": 2.0,
+      "published_fps": 22.598440911035286,
+      "distinct_painted_fps": 21.998482302777713,
+      "shader_median_ms": 42.14621099526994,
+      "load_average": [
+        2.30517578125,
+        1.83544921875,
+        1.908203125
+      ],
+      "retirement": {
+        "worker_stopped_immediately_after_hide": true,
+        "worker_stopped_200ms_after_hide": true
+      }
+    },
+    {
+      "receipt": "data_art_fungal_growth-after-spacr-1.0-identity.json",
+      "variant": "after",
+      "palette": "spacr",
+      "detail": 1.0,
+      "published_fps": 13.377387719995323,
+      "distinct_painted_fps": 13.577050223278835,
+      "shader_median_ms": 69.18879400473088,
+      "load_average": [
+        2.5595703125,
+        1.92724609375,
+        1.9375
+      ],
+      "retirement": {
+        "worker_stopped_immediately_after_hide": true,
+        "worker_stopped_200ms_after_hide": true
+      }
+    },
+    {
+      "receipt": "data_art_fungal_growth-after-spacr-2.0-identity.json",
+      "variant": "after",
+      "palette": "spacr",
+      "detail": 2.0,
+      "published_fps": 19.788465216485545,
+      "distinct_painted_fps": 19.188814755379923,
+      "shader_median_ms": 49.5573969965335,
+      "load_average": [
+        1.82421875,
+        1.7099609375,
+        1.8701171875
+      ],
+      "retirement": {
+        "worker_stopped_immediately_after_hide": true,
+        "worker_stopped_200ms_after_hide": true
+      }
+    },
+    {
+      "receipt": "data_art_fungal_growth-before-random-2.0-identity.json",
+      "variant": "before",
+      "palette": "random",
+      "detail": 2.0,
+      "published_fps": 23.51873207960245,
+      "distinct_painted_fps": 22.721486924361688,
+      "shader_median_ms": 40.415859504719265,
+      "load_average": [
+        2.09130859375,
+        1.7783203125,
+        1.89013671875
+      ],
+      "retirement": {
+        "worker_stopped_immediately_after_hide": true,
+        "worker_stopped_200ms_after_hide": true
+      }
+    },
+    {
+      "receipt": "data_art_fungal_growth-before-spacr-1.0-identity.json",
+      "variant": "before",
+      "palette": "spacr",
+      "detail": 1.0,
+      "published_fps": 13.588918516892464,
+      "distinct_painted_fps": 13.78875555390559,
+      "shader_median_ms": 72.10262598528061,
+      "load_average": [
+        2.47900390625,
+        1.89013671875,
+        1.92578125
+      ],
+      "retirement": {
+        "worker_stopped_immediately_after_hide": true,
+        "worker_stopped_200ms_after_hide": true
+      }
+    },
+    {
+      "receipt": "data_art_fungal_growth-before-spacr-2.0-identity.json",
+      "variant": "before",
+      "palette": "spacr",
+      "detail": 2.0,
+      "published_fps": 19.798054128362764,
+      "distinct_painted_fps": 19.798054128362764,
+      "shader_median_ms": 50.70481001166627,
+      "load_average": [
+        1.92529296875,
+        1.736328125,
+        1.87744140625
+      ],
+      "retirement": {
+        "worker_stopped_immediately_after_hide": true,
+        "worker_stopped_200ms_after_hide": true
+      }
+    }
+  ],
+  "focused_tests": {
+    "count": 25,
+    "seconds": 13.26,
+    "scope": [
+      "tests/qt/test_data_art_clock_handoff.py",
+      "tests/qt/test_data_art_filter_boundaries.py",
+      "tests/qt/test_ambient_none.py"
+    ],
+    "source": "after.py private candidate"
+  },
+  "limitations": [
+    "Fresh paired CPU measurements under recorded shared load, not a platform guarantee.",
+    "Initial high-density gain did not repeat; exact publication identity probes show fewer distinct displayed frames.",
+    "No production source changes retained. Native 24 FPS remains open."
+  ]
+}
