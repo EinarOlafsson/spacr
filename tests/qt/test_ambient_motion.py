@@ -1551,7 +1551,7 @@ def test_the_dialog_offers_the_controls_and_saves_them(prefs, qtbot,
     qtbot.addWidget(dialog)
     sliders = {s.objectName(): s for s in dialog.findChildren(QSlider)}
     designed = {"AmbientSpeed": 100, "AmbientSize": 100,
-                "AmbientResolution": 100, "AmbientDensity": 100}
+                "AmbientResolution": 100, "AmbientDensity": 10}
     for name, mark in designed.items():
         assert name in sliders, sorted(sliders)
         assert sliders[name].value() == mark, \
