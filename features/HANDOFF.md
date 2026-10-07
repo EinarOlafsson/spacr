@@ -154,6 +154,15 @@ merge, but tutorial captions are not the page the README links for each
 tool. Full hosted log:
 `/mnt/wd4tb/scratch/ci-224-failures-20261007/112602607345-e1f.log.gz`.
 
+The same source's coverage shard 4 also failed
+`test_readme_keeps_the_feature_catalog_curated_and_points_to_detail`
+(job 112602607288): README explanatory prose is 1,757 words against
+the existing strict `<1,750` guard. The current README and linked
+feature-guide source files are unchanged through b557c46d58. Trim
+unneeded README prose or move detail into that guide while naming the
+new tool; preserve the ceiling and code-block bounds. Full hosted log:
+`/mnt/wd4tb/scratch/ci-224-failures-20261007/112602607288-e1f.log.gz`.
+
 ## 2026-10-07 current app/catalog/native61 publication ready for actual deployment
 Workstation integrates latest Home source with every normal final owner.
 API passes all13,199 symbols across nine languages; current runtime passes
