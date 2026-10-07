@@ -1,0 +1,32 @@
+
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/PySide6/QtCore.abi3.so:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+000000000012c9c6 <std::enable_if<std::__and_<std::__not_<std::__is_tuple_like<QXmlStreamAttribute> >, std::is_move_constructible<QXmlStreamAttribute>, std::is_move_assignable<QXmlStreamAttribute> >::value, void>::type std::swap<QXmlStreamAttribute>(QXmlStreamAttribute&, QXmlStreamAttribute&)@@Base+0xc68e>:
+  12c9c6:	48 8d 05 4b 9d 26 00 	lea    0x269d4b(%rip),%rax        # 396718 <typeinfo name for QByteArray::FromBase64Result@@Base+0x94858>
+  12c9cd:	55                   	push   %rbp
+  12c9ce:	48 89 fd             	mov    %rdi,%rbp
+  12c9d1:	48 89 07             	mov    %rax,(%rdi)
+  12c9d4:	e8 17 0f f9 ff       	call   bd8f0 <Shiboken::BindingManager::instance()@plt>
+  12c9d9:	48 89 ee             	mov    %rbp,%rsi
+  12c9dc:	48 89 c7             	mov    %rax,%rdi
+  12c9df:	48 8d 05 5a fc 2a 00 	lea    0x2afc5a(%rip),%rax        # 3dc640 <QMetaType::registerConverterImpl<QList<QJsonObject>, QIterable<QMetaSequence> >(std::function<bool (void const*, void*)>, QMetaType, QMetaType)::unregister@@Base+0x4f0>
+  12c9e6:	48 8b 00             	mov    (%rax),%rax
+  12c9e9:	48 8b 90 a0 14 00 00 	mov    0x14a0(%rax),%rdx
+  12c9f0:	e8 1b f4 f8 ff       	call   bbe10 <Shiboken::BindingManager::retrieveWrapper(void const*, _typeobject*) const@plt>
+  12c9f5:	48 89 ee             	mov    %rbp,%rsi
+  12c9f8:	48 89 c7             	mov    %rax,%rdi
+  12c9fb:	e8 f0 3c f9 ff       	call   c06f0 <Shiboken::Object::destroy(SbkObject*, void*)@plt>
+  12ca00:	48 89 ef             	mov    %rbp,%rdi
+  12ca03:	5d                   	pop    %rbp
+  12ca04:	e9 27 91 f9 ff       	jmp    c5b30 <QThread::~QThread()@plt>
+  12ca09:	90                   	nop
+  12ca0a:	48 83 ec 18          	sub    $0x18,%rsp
+  12ca0e:	48 89 7c 24 08       	mov    %rdi,0x8(%rsp)
+  12ca13:	e8 ae ff ff ff       	call   12c9c6 <std::enable_if<std::__and_<std::__not_<std::__is_tuple_like<QXmlStreamAttribute> >, std::is_move_constructible<QXmlStreamAttribute>, std::is_move_assignable<QXmlStreamAttribute> >::value, void>::type std::swap<QXmlStreamAttribute>(QXmlStreamAttribute&, QXmlStreamAttribute&)@@Base+0xc68e>
+  12ca18:	48 8b 7c 24 08       	mov    0x8(%rsp),%rdi
+  12ca1d:	be 50 00 00 00       	mov    $0x50,%esi
+  12ca22:	48 83 c4 18          	add    $0x18,%rsp
+  12ca26:	e9 35 f3 f8 ff       	jmp    bbd60 <operator delete(void*, unsigned long)@plt>

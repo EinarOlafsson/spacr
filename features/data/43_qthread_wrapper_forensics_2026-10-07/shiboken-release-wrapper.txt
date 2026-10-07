@@ -1,0 +1,51 @@
+
+/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/shiboken6/libshiboken6.abi3.so.6.11:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000027620 <Shiboken::BindingManager::releaseWrapper(SbkObject*)@@Base>:
+   27620:	41 57                	push   %r15
+   27622:	41 56                	push   %r14
+   27624:	49 89 fe             	mov    %rdi,%r14
+   27627:	41 55                	push   %r13
+   27629:	41 54                	push   %r12
+   2762b:	55                   	push   %rbp
+   2762c:	48 89 f5             	mov    %rsi,%rbp
+   2762f:	53                   	push   %rbx
+   27630:	48 83 ec 18          	sub    $0x18,%rsp
+   27634:	48 8b 5e 08          	mov    0x8(%rsi),%rbx
+   27638:	48 89 df             	mov    %rbx,%rdi
+   2763b:	e8 e0 b1 fe ff       	call   12820 <PepType_SOTP@plt>
+   27640:	49 89 c4             	mov    %rax,%r12
+   27643:	48 85 c0             	test   %rax,%rax
+   27646:	0f 84 9c 00 00 00    	je     276e8 <Shiboken::BindingManager::releaseWrapper(SbkObject*)@@Base+0xc8>
+   2764c:	f6 40 70 01          	testb  $0x1,0x70(%rax)
+   27650:	75 5e                	jne    276b0 <Shiboken::BindingManager::releaseWrapper(SbkObject*)@@Base+0x90>
+   27652:	48 8b 45 20          	mov    0x20(%rbp),%rax
+   27656:	4d 8b 64 24 08       	mov    0x8(%r12),%r12
+   2765b:	41 bd 01 00 00 00    	mov    $0x1,%r13d
+   27661:	4c 8b 38             	mov    (%rax),%r15
+   27664:	31 db                	xor    %ebx,%ebx
+   27666:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
+   2766d:	00 00 00
+   27670:	49 8b 34 df          	mov    (%r15,%rbx,8),%rsi
+   27674:	48 85 f6             	test   %rsi,%rsi
+   27677:	74 0e                	je     27687 <Shiboken::BindingManager::releaseWrapper(SbkObject*)@@Base+0x67>
+   27679:	49 8b 3e             	mov    (%r14),%rdi
+   2767c:	4c 89 e1             	mov    %r12,%rcx
+   2767f:	48 89 ea             	mov    %rbp,%rdx
+   27682:	e8 c9 ac fe ff       	call   12350 <Shiboken::BindingManager::BindingManagerPrivate::releaseWrapper(void*, SbkObject*, int const*)@plt>
+   27687:	48 83 c3 01          	add    $0x1,%rbx
+   2768b:	41 39 dd             	cmp    %ebx,%r13d
+   2768e:	7f e0                	jg     27670 <Shiboken::BindingManager::releaseWrapper(SbkObject*)@@Base+0x50>
+   27690:	48 8b 45 20          	mov    0x20(%rbp),%rax
+   27694:	80 60 08 fb          	andb   $0xfb,0x8(%rax)
+   27698:	48 83 c4 18          	add    $0x18,%rsp
+   2769c:	5b                   	pop    %rbx
+   2769d:	5d                   	pop    %rbp
+   2769e:	41 5c                	pop    %r12
+   276a0:	41 5d                	pop    %r13
+   276a2:	41 5e                	pop    %r14
+   276a4:	41 5f                	pop    %r15
+   276a6:	c3                   	ret
