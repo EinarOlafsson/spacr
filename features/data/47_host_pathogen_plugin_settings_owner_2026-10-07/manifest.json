@@ -1,0 +1,77 @@
+{
+  "after_revision": "b182ad7a32",
+  "before_revision": "83a2bd3505",
+  "blobs": {
+    "83a2bd3505": {
+      "tests/qt/test_host_pathogen_registration.py": "2077d8457a6280cc12115496b0edcdfb8404f800",
+      "tests/qt/test_plugin_sdk.py": "ef3d876c9281800b932fc60654261ab70d1c2422"
+    },
+    "b182ad7a32": {
+      "tests/qt/test_host_pathogen_registration.py": "0610bf37c30fe4112abea093724f240ded31e8cb",
+      "tests/qt/test_plugin_sdk.py": "ec8e0f7b07f38fe14555ba3b32db48928bb56716"
+    }
+  },
+  "cap_gib": 4,
+  "cuda_hidden": true,
+  "pyside6": "6.11.2",
+  "python": "3.12.13",
+  "qt_platform": "offscreen",
+  "raw_files": {
+    "owner-baseline.jsonl": {
+      "bytes": 1860,
+      "sha256": "eaa6710d74adb046615d7ad6ff997edc9f249bb229e17c5d31a6007b396a4a44"
+    },
+    "owner-baseline.log": {
+      "bytes": 98,
+      "sha256": "bfb7345c62d7938734a2b10c1060fea3a9f5cff4ddb9e980aeabaf0904e7e05e"
+    },
+    "owner-final-files.jsonl": {
+      "bytes": 9322,
+      "sha256": "fae6fee8a0786a5fd81e701705ca2a7b8543665ad04f5cd82246ed2c357955d3"
+    },
+    "owner-final-files.log": {
+      "bytes": 98,
+      "sha256": "c232313debcc3d48360ae9fecbdb6c31e5bfc0eadc35206cfb8ace897910f165"
+    },
+    "owner-host-before.jsonl": {
+      "bytes": 3729,
+      "sha256": "d9de87fd9798a57addbf50b29cf1282125bc51844fb3de35feec9761e36c484b"
+    },
+    "owner-host-before.log": {
+      "bytes": 98,
+      "sha256": "02253135ad115901cf0e343bf6e2a724d1aa70d15eb6d61c8261f3e9989ae141"
+    },
+    "owner-import-only.jsonl": {
+      "bytes": 3735,
+      "sha256": "69318ef977cea1b09220bba39b30a83c238b4fc6194caed24f5aa97123000247"
+    },
+    "owner-import-only.log": {
+      "bytes": 98,
+      "sha256": "932544fa02d1434b8f3ce776f86d8d951ca789b062f146cc8b0c95dd42c70959"
+    },
+    "owner-plugin-before.jsonl": {
+      "bytes": 3727,
+      "sha256": "387843d23e235471a2ec4bd9c94c375f4815bf0b9f08ac82234c8bbf03cb1fcc"
+    },
+    "owner-plugin-before.log": {
+      "bytes": 98,
+      "sha256": "7cb0b55d126e6adb6021b7ad58bb65e13dac9a51a35c142748b2b85502302cdf"
+    },
+    "owner-repeated-after.jsonl": {
+      "bytes": 13076,
+      "sha256": "ad61729ef91585e0b33e589388a8a28392c60dab87ab4ba09649eda12335bf87"
+    },
+    "owner-repeated-after.log": {
+      "bytes": 98,
+      "sha256": "dd4ee813728ba2e36a3d2fa99644a00450d1844d79f247170fdf0294c61c64e3"
+    },
+    "owner-repeated-builds.jsonl": {
+      "bytes": 13760,
+      "sha256": "eb86b58ee677c4e611d96c64dcad1c902cfad878b0c6a78d27d7819d079721e7"
+    },
+    "owner-repeated-builds.log": {
+      "bytes": 98,
+      "sha256": "270228255989546527efa79d590653f4542fdade08110acdedefc1d42a2168ec"
+    }
+  }
+}
