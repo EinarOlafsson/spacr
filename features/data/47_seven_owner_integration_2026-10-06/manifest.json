@@ -1,0 +1,12 @@
+{
+  "files": {
+    "integration.log.gz": {
+      "bytes": 396,
+      "sha256": "007b86a9ac5274b55c0315a8bc277176782e080a6343a57c7f3c5ffc2de588e0"
+    },
+    "receipt.json": {
+      "bytes": 1518,
+      "sha256": "ee60ace32dffb6ec6bfefcf800e0a83245b9cab31a67f1d62893ec1301758f13"
+    }
+  }
+}

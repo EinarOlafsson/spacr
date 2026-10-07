@@ -2941,3 +2941,12 @@ Currentplatform matrix/tests/coverage andprotectedserial verdict remainOPEN.
     under4GiB, archived in data/43_ownership_zoo_caption_integration_2026-10-06/.
     Current sv/fr new timelapse_events tooltip lacks reviewed records; owner
     translation/review remains required before historical retirement pin changes.
+
+2026-10-06 — second exact API inventory guard and remaining owner guide omission
+    The API extractor guard also names all17 accepted additions and exact13199
+    symbols while preserving older13182 entries and alias checks; focused node
+    passes in24.63seconds under4GiB. No artifact or ceiling change. Current
+    README-linked docs/source/features.rst still omits visible Divide / Merge,
+    which accepted tutorial footage does not replace. Documentation owner must
+    add accurate behavior through its normal workflow; guard remains. Current
+    final hosted tests still await queue/execution, no green parent claim.

@@ -1907,3 +1907,21 @@ restarts hosted acceptance through the workflow-file trigger. Item stays OPEN.
     Two busy JobRunner warnings are absent in this pair; their timing sensitivity
     prevents a worker-fix claim. Original reducer assertions remain. Proof:
     data/47_umap_reducer_owner_2026-10-07/. Parent full serial remains OPEN.
+
+2026-10-06 — seventh/eighth owners and independent seven-file integration
+    UMAP row-exclusion helper now owns all five temporary model trees. All17
+    affected file/sentinel cases pass; sentinel156/18 widgets/top levels becomes
+    2/1. Working-set UMAP fixture gains its qtbot QWidget owner; all17 cases pass
+    and sentinel80/10 becomes2/1. RSS changes are small/mixed, not aggregate
+    savings. Receipts: data/47_umap_row_exclusion_owner_2026-10-07/ and
+    data/47_database_working_set_owner_2026-10-07/. Root independently verifies
+    every payload/runtime binding. Original database/filter/default assertions
+    remain. Negative screens for Map Barcodes and cov_r4 clear0/0 already;
+    no edits there or to the low-retention no-control cohort.
+
+    Root same-process bounded integration of seven repaired files plus one
+    field-fade sentinel passes250 cases in32.88seconds under4GiB. Four existing
+    Measure/project multi-threaded fork DeprecationWarnings are retained; not
+    silenced or claimed fixed. Source hashes/full log:
+    data/47_seven_owner_integration_2026-10-06/. Final full serial/memory
+    acceptance remains OPEN; protected45f remains uncancelled.
