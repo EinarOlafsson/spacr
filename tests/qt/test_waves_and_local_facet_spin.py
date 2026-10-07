@@ -10,8 +10,9 @@ from spacr.qt.widgets import ambient
 
 
 def _engine(family, background="#101418", palette="spacr", **kwargs):
+    kwargs.setdefault("resolution", 1)
     return ambient.make_engine("data_art_" + family, palette, background,
-                               seed=42, resolution=1, blur=0, **kwargs)
+                               seed=42, blur=0, **kwargs)
 
 
 def _shade(engine, width=640, height=360):
@@ -112,9 +113,12 @@ def test_deforming_native_waves_preserve_all_uncropped_edge_pixels(
         material.set_max_pixels(width * height)
         material.set_gravity_radius(1)
         material.set_pointer(pointer)
-    spacing = max(2.4, 4.6 * size / np.sqrt(full.effective_density()))
+    spacing = max(2.4, 4.6 * size / np.sqrt(ambient.DENSITY_RANGE[1]))
     columns = min(900, max(48, int(np.ceil(width * 1.65 / spacing))))
     rows = min(520, max(32, int(np.ceil(height * 1.85 / spacing))))
+    population = np.sqrt(full.effective_density() / ambient.DENSITY_RANGE[1])
+    columns = max(3, int(np.ceil(columns * population)))
+    rows = max(3, int(np.ceil(rows * population)))
     x, z = np.meshgrid(np.linspace(-.33, 1.33, columns, dtype=np.float32),
                        np.linspace(-.43, 1.43, rows, dtype=np.float32))
     rng = np.random.default_rng(full._art_seed)
@@ -132,6 +136,57 @@ def test_deforming_native_waves_preserve_all_uncropped_edge_pixels(
         assert np.array_equal(_words(first), _words(_shade(full, width, height)))
         assert hashlib.sha256(first.constBits()).hexdigest() == retained
         assert np.all((_words(first) >> 24) == 255)
+
+
+@pytest.mark.parametrize("palette", ["spacr", "random"])
+def test_native_wave_density_changes_grain_population_and_pixels_at_full_detail(
+        monkeypatch, palette):
+    width, height = 3840, 2160
+    images, counts = [], []
+    for density in (1, 2, 3):
+        engine = _engine("point_atlas", palette=palette, density=density, resolution=2)
+        engine.set_time(8)
+        engine.set_gravity_radius(.5)
+        engine.set_pointer((.5, .5))
+        material = engine._point_material
+
+        def counted(w, h, x, y, light, spread=False, _material=material):
+            counts.append(len(x))
+            return _material(w, h, x, y, light, spread=spread)
+
+        monkeypatch.setattr(engine, "_point_material", counted)
+        frame = _shade(engine, width, height)
+        images.append(_words(frame))
+        assert engine.effective_density() == density
+        assert np.all(images[-1] >> 24 == 255)
+    assert counts[0] < counts[1] < counts[2] <= 900 * 520
+    assert np.count_nonzero(images[0] != images[1]) > 1000
+    assert np.count_nonzero(images[1] != images[2]) > 1000
+
+
+@pytest.mark.parametrize("density", [.01, .1, .5, 1, 2, 3])
+def test_native_wave_grain_population_depends_on_density_and_not_extra_detail(
+        monkeypatch, density):
+    counts = []
+    for detail in (1, 2):
+        engine = _engine("point_atlas", density=density, resolution=detail)
+        engine.set_max_pixels(3840 * 2160)
+        engine.set_gravity_radius(.5)
+        captured = _capture(engine, monkeypatch, 3840, 2160)
+        counts.append(len(captured[0]))
+        assert engine.buffer_size(3840, 2160) == (3840, 2160)
+    assert counts[0] == counts[1]
+    assert 0 < counts[0] <= 900 * 520
+
+
+@pytest.mark.parametrize("width,height", [(640, 360), (3840, 2160)])
+def test_requested_wave_density_is_graded_across_full_range(monkeypatch, width, height):
+    counts = []
+    for density in (.01, .1, .5, 1, 2, 3):
+        engine = _engine("point_atlas", density=density)
+        counts.append(len(_capture(engine, monkeypatch, width, height)[0]))
+    assert all(left < right for left, right in zip(counts, counts[1:]))
+    assert counts[-1] <= 900 * 520
 
 
 def test_facet_angular_speed_scales_with_animation_speed():

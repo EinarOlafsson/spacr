@@ -5182,9 +5182,12 @@ class _DataArtEngine(_BufferedEngine):
         points = self._material_cache.get(key)
         if points is None:
             spacing = max(2.4, 4.6 * self.size
-                          / math.sqrt(self.effective_density()))
+                          / math.sqrt(DENSITY_RANGE[1]))
             columns = min(900, max(48, math.ceil(width * 1.65 / spacing)))
             rows = min(520, max(32, math.ceil(height * 1.85 / spacing)))
+            population = math.sqrt(self.effective_density() / DENSITY_RANGE[1])
+            columns = max(3, math.ceil(columns * population))
+            rows = max(3, math.ceil(rows * population))
             xx, zz = np.meshgrid(np.linspace(-0.33, 1.33, columns,
                                             dtype=np.float32),
                                  np.linspace(-0.43, 1.43, rows,
