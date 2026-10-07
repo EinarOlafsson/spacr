@@ -1,0 +1,145 @@
+{
+  "source_commit": "frame-invariant-alpha-private-proof / frozenf36 vs one alpha hoist",
+  "source_sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+  "source_path": "/mnt/wd4tb/scratch/fungal-frame-invariants-20261007/before.py",
+  "variant": "before",
+  "theme": "data_art_fungal_growth",
+  "label": "spaCR growth",
+  "viewport": [
+    3840,
+    2160
+  ],
+  "screen_pixels": 8294400,
+  "buffer": [
+    3840,
+    2160
+  ],
+  "max_pixels": 8294400,
+  "controls": {
+    "fps": 24,
+    "active_rate_cap": 24,
+    "resolution": 2.0,
+    "density": 3.0,
+    "size": 2.5,
+    "speed": 1.0,
+    "blur": 0.0,
+    "gravity_radius": 0,
+    "seed": 42,
+    "background": "#101418",
+    "palette": "random",
+    "colors": [
+      "#e17247",
+      "#46e29e",
+      "#cb45e3",
+      "#cfe445",
+      "#44a2e5",
+      "#e64474",
+      "#46e743",
+      "#6f42e8",
+      "#e99e42",
+      "#41eace",
+      "#eb41d7",
+      "#a7ec40",
+      "#3f76ed",
+      "#ee3f44",
+      "#3eef6a",
+      "#9d3df0",
+      "#f1d03c",
+      "#3ce0f2",
+      "#f33bac",
+      "#78f43a",
+      "#3a43f5",
+      "#f66539",
+      "#38f79b",
+      "#d137f8",
+      "#e9f937",
+      "#36b2fa",
+      "#fb357a",
+      "#42fc34",
+      "#5f34fd",
+      "#fe9833",
+      "#2ce1ba",
+      "#e22bd6"
+    ]
+  },
+  "qt_platform": "xcb",
+  "profile_enabled": false,
+  "profile_scope": "inclusive wrappers overlap and introduce overhead; timing is diagnostic, not an uninstrumented performance acceptance",
+  "scope": "actual software Xvfb native4K AmbientWidget/FrameProducer/QTimer; fresh Python process per theme; no inference or GPU; end grabs outside steady timing; requested controls unchanged",
+  "cold": {
+    "current_rss_kib": 224324,
+    "widget_show_ms": 92.18974498799071,
+    "post_show_seconds": 2.001047746016411,
+    "post_show_published_frames": 48,
+    "post_show_published_fps": 23.987433630984604,
+    "worker_shade": {
+      "median_ms": 2.9567450110334903,
+      "p95_ms": 4.976625990821049,
+      "max_ms": 19.684377999510616,
+      "samples": 48
+    },
+    "heartbeat_10ms": {
+      "median_ms": 10.066137998364866,
+      "p95_ms": 13.531233998946846,
+      "max_ms": 40.82338500302285,
+      "samples": 194
+    },
+    "compile_ready": false,
+    "compile_failed": false,
+    "rss_peak_kib": 220276
+  },
+  "records": [
+    {
+      "repeat": 1,
+      "steady_seconds": 5.012646126997424,
+      "published_frames": 118,
+      "published_fps": 23.540460868455924,
+      "distinct_published_clocks": 118,
+      "first_clock": 97.23100000000001,
+      "clock_advance": 4.942000000000007,
+      "painted_fps": 24.33844259281036,
+      "repeated_frame_objects": 5,
+      "worker_shade": {
+        "median_ms": 41.02844498993363,
+        "p95_ms": 48.36586199235171,
+        "max_ms": 49.974218010902405,
+        "samples": 118
+      },
+      "gui_paint": {
+        "median_ms": 5.630337502225302,
+        "p95_ms": 6.071285984944552,
+        "max_ms": 12.108502007322386,
+        "samples": 122
+      },
+      "heartbeat_10ms": {
+        "median_ms": 10.176394498557784,
+        "p95_ms": 31.046910007717088,
+        "max_ms": 32.65455600921996,
+        "samples": 396
+      },
+      "publication_intervals": {
+        "median_ms": 42.107430985197425,
+        "p95_ms": 48.981455009197816,
+        "max_ms": 53.821665002033114,
+        "samples": 117
+      },
+      "lightning_worker_shades": null,
+      "inclusive_profile_stages": {},
+      "load_average": [
+        4.14501953125,
+        3.2451171875,
+        2.50048828125
+      ],
+      "current_rss_kib": 324720
+    }
+  ],
+  "frame_sha256": "791c65c0fbccdb284d9cc1afa79623bf32fe09397d71e5bf9f9ceeb25b029822",
+  "worker_stopped_immediately_after_hide": true,
+  "worker_stopped_200ms_after_hide": true,
+  "peak_rss_kib": 352904,
+  "dependency_source_sha256": {
+    "spacr/qt/theme.py": "85e4d7ab5dd1853f3d8c1b60b8dba965202cdaa0c61e9bc170c445758b3aadb9",
+    "spacr/qt/preferences.py": "733f9af071745b2d170ed743fe96130b6b346d5f101c8a87d0e3b3b758ff21ee",
+    "spacr/qt/gil_priority.py": "40c6fb95f75009cc223771385eb1c283b161a905e04b9c64ecdab035d817c3b2"
+  }
+}

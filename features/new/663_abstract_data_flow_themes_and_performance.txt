@@ -1025,3 +1025,19 @@ Compact immutable source/test/coverage/probe receipts and two lossless stills:
     include both compressed renderers, original scripts/receipts, actual
     admission log, portable replay and filesystem/Git blob hash verification:
     data/663_rejected_fungal_stroker_cpu_2026-10-07/.
+
+2026-10-07 — frame-invariant alpha investigation complete, rejected
+    Private f36b33c9 -> 74d1de82 hoists one fractional-alpha calculation from
+    the visible-edge loop. Twenty-eight exact geometry cases and twelve full
+    native 4K pairs preserve all pixels, work, quality and cache safeguards.
+    Geometry saves 0.51–0.96 ms, but complete shader timings remain mixed.
+    Actual native 4K default and Random each run fresh-process ABBA with
+    unchanged requested 24 FPS/detail 2/density 3/size 2.5. Default publication
+    19.950 -> 19.691 FPS (-1.30%); Random 23.568 -> 23.596 (+0.12%). Mean
+    worker-shade medians save 0.394/0.691 ms, while both recipe mean p95 values
+    exceed 41.7 ms. All eight workers retire after hide. No robust live gain,
+    so REJECTED with no app changes; hard 24 FPS remains OPEN. No per-depth
+    cache was added. Twenty-six hash-bound compact payloads (~353 KiB) retain
+    frozen sources, scripts, original parity/stage/live JSON and logs, source
+    and load provenance, plus filesystem/Git blob verification:
+    data/663_rejected_fungal_alpha_hoist_cpu_2026-10-07/.

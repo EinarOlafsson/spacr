@@ -1,0 +1,155 @@
+{
+  "status": "rejected for production integration; stage savings do not demonstrate robust live cadence benefit",
+  "app_changed": false,
+  "source_sha256": {
+    "before": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225",
+    "candidate": "74d1de82ee8d0d8d82b37258364cc0752c66d97426a0d3cef25d34a99ddd82c4"
+  },
+  "geometry_equal_cases": 28,
+  "native_pairs": 12,
+  "actual_worker_runs": 8,
+  "all_workers_retired": true,
+  "live_recipe_means": [
+    {
+      "palette": "spacr",
+      "means": {
+        "before": {
+          "published_fps": 19.949739411868755,
+          "shader_median_ms": 50.48096150858328,
+          "shader_p95_ms": 59.54672850202769
+        },
+        "after": {
+          "published_fps": 19.690508465230685,
+          "shader_median_ms": 50.087003750377335,
+          "shader_p95_ms": 61.771004999172874
+        }
+      },
+      "fps_change_percent": -1.299420214400615
+    },
+    {
+      "palette": "random",
+      "means": {
+        "before": {
+          "published_fps": 23.567561384789038,
+          "shader_median_ms": 41.05216524476418,
+          "shader_p95_ms": 47.263727989047766
+        },
+        "after": {
+          "published_fps": 23.59627665435052,
+          "shader_median_ms": 40.361605504585896,
+          "shader_p95_ms": 45.589939516503364
+        }
+      },
+      "fps_change_percent": 0.12184234547072403
+    }
+  ],
+  "limits": {
+    "CUDA_VISIBLE_DEVICES": "",
+    "per_process_RAM_cap": "4G",
+    "QT_shader_probe": "offscreen",
+    "QT_worker_probe": "xcb on private Xvfb3840x2160x24",
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "actual_worker_ABBA": "Default A1 B1 B2 A2 then Random A1 B1 B2 A2; fresh process per sample, cold2s/warm2.2s/steady5s per sample; no concurrent rendering samples."
+  },
+  "hard24FPS_accepted": false,
+  "next_lead": "No additional cheap exact-quality renderer candidate justified by existing dominantQt path profile. Per-depth caching was proposed but not tested or added.",
+  "payloads": {
+    "after.py": {
+      "bytes": 356130,
+      "sha256": "74d1de82ee8d0d8d82b37258364cc0752c66d97426a0d3cef25d34a99ddd82c4"
+    },
+    "before.py": {
+      "bytes": 356086,
+      "sha256": "f36b33c9714b26a49de0e9d362aadaeee5d110a725e022c622d7eb659cf35225"
+    },
+    "candidate.py": {
+      "bytes": 356130,
+      "sha256": "74d1de82ee8d0d8d82b37258364cc0752c66d97426a0d3cef25d34a99ddd82c4"
+    },
+    "data_art_fungal_growth-after-random-2-3-B1.json": {
+      "bytes": 4096,
+      "sha256": "b4888928c4dc5203fc7704593e39af60835742e047e0bf5130e534a9f3cb1680"
+    },
+    "data_art_fungal_growth-after-random-2-3-B2.json": {
+      "bytes": 4107,
+      "sha256": "1728e9a1c2b5f8f575e819ca484af4cce484f8e343e5ebb1aeae6ef524388e31"
+    },
+    "data_art_fungal_growth-after-spacr-2-3-B1.json": {
+      "bytes": 3601,
+      "sha256": "a5783a2e9891df3c5090de7809ee9294c0acf0660982ae77e8299e108c431207"
+    },
+    "data_art_fungal_growth-after-spacr-2-3-B2.json": {
+      "bytes": 3608,
+      "sha256": "0343bf26441cadbeafec5903259c961f168f0f2edab2eaa8f9d3286a5acc71b7"
+    },
+    "data_art_fungal_growth-before-random-2-3-A1.json": {
+      "bytes": 4112,
+      "sha256": "815318658f09a88c070aa3697dd7c3d638e0a604dae06f65c1efb291812a6fbb"
+    },
+    "data_art_fungal_growth-before-random-2-3-A2.json": {
+      "bytes": 4109,
+      "sha256": "6c060e1fcd69119fa58624b4b6503952dc1cd3bad2deabaf6c6da704080a2aec"
+    },
+    "data_art_fungal_growth-before-spacr-2-3-A1.json": {
+      "bytes": 3609,
+      "sha256": "833226396107b89d5c30b2095806c0a50a58acd24431bdadb5cb8395f2648c03"
+    },
+    "data_art_fungal_growth-before-spacr-2-3-A2.json": {
+      "bytes": 3614,
+      "sha256": "6d69d053568049650a5fba9b3ca129b83f1a7adb37265af3f6cc8e9b50ce87bd"
+    },
+    "live_summary.json": {
+      "bytes": 5432,
+      "sha256": "1e7115a045425104c70543f66324d83c36367858556f451d1d95ab30f7ce2ade"
+    },
+    "probe.log": {
+      "bytes": 3697,
+      "sha256": "ffba7b2d9bb16c427b1944a4cfea4a4825fcbc087f4a6807b11aa430a331a4b5"
+    },
+    "probe.py": {
+      "bytes": 4678,
+      "sha256": "538e76464d2a0bb34131eea3a22ddd25269f40a684c0e5e1fdcb8b4acc9b4a45"
+    },
+    "profile_worker.py": {
+      "bytes": 10797,
+      "sha256": "8b4957f57aed269f943fc4e1b33d4fa30b39d0fb172d65736f37122f65cbc09c"
+    },
+    "receipt.json": {
+      "bytes": 5532,
+      "sha256": "d4c950121c3999936774ab591970127c695829cbe85dd40df16546043e2af2ae"
+    },
+    "worker-random-A1.log": {
+      "bytes": 10996,
+      "sha256": "0780c38157936f321be1e2fb745b5bc9e3aab19dad2f109d74f2abb1f0b434c6"
+    },
+    "worker-random-A2.log": {
+      "bytes": 10993,
+      "sha256": "e254c5f808289a5414f59e41b227917a3ed845ae99cd60e1afffca40fc52cd8c"
+    },
+    "worker-random-B1.log": {
+      "bytes": 10981,
+      "sha256": "f24703da0715e4063fe8ade4977373d78df45b449bc5eba713692f24c6d503e1"
+    },
+    "worker-random-B2.log": {
+      "bytes": 10995,
+      "sha256": "d57be6e1600dd90de495fb41af3d4b3319beacf8aa470773e43cd59e27fdb91c"
+    },
+    "worker-spacr-A1.log": {
+      "bytes": 10988,
+      "sha256": "4a0fcb87874ca24a89772d404485a6e9e5873d59d3c636390f036a9fefbb6c2a"
+    },
+    "worker-spacr-A2.log": {
+      "bytes": 10991,
+      "sha256": "8c69618751093db25afbd1f54932a88c57f55caed5777f04770bd3feda027aa5"
+    },
+    "worker-spacr-B1.log": {
+      "bytes": 10984,
+      "sha256": "6c78a2326bbdb7caeaa5b7484d999ee4e433663768a95f85550f63c8dfc0ab63"
+    },
+    "worker-spacr-B2.log": {
+      "bytes": 10989,
+      "sha256": "63d78bc988083417f78a6b7b814d80de50905e5fb45cad150d2c378b50afe053"
+    }
+  }
+}
