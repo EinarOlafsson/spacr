@@ -958,3 +958,16 @@ Compact immutable source/test/coverage/probe receipts and two lossless stills:
     Proof: data/663_fungal_dense_cache_cpu_2026-10-07/. These implementation
     children are complete; hard 24 FPS, installed Save crash, and human theme
     aesthetic acceptance remain OPEN. No GPU or quality reduction was used.
+
+2026-10-06 — upstream native undo/GC lead reproduced, causal match not established
+    Independent isolated PySide6/Shiboken6.11.2 probes reproduce parentless
+    command-before-stack cyclic-GC SIGSEGV on Python3.12.13 and3.13.14. GDB
+    reaches QUndoStack::clear/destructor through CPython GC. QObject parenting
+    passes thirty collections in both allocation orders even when the parent
+    is cyclic/unreachable. All four production settings-model callers already
+    supply a QWidget parent; GateEditorPanel parents its stack and Make Masks
+    uses snapshot history. No speculative production patch is applied.
+    Scripts/results/native trace: data/663_native_undo_gc_lead_2026-10-06/.
+    Original installed Save and hosted puncta lack a matching native C-stack;
+    their causes remain OPEN. This is a reproduced upstream lead, not spaCR
+    crash acceptance or a claim that earlier Home-only probes cover Mask undo.

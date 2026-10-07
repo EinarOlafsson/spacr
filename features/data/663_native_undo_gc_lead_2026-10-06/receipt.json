@@ -1,0 +1,28 @@
+{
+  "source": "a7c8ae7d9497bfcc16970dbeb7116ee20165a2d1",
+  "environment": [
+    "Python3.12.13 PySide6/Shiboken6.11.2",
+    "Python3.13.14 scratch overlay PySide6/Shiboken6.11.2"
+  ],
+  "memory_cap": "2G",
+  "CUDA_VISIBLE_DEVICES": "",
+  "core_dumps": "disabled",
+  "local_case_results": {
+    "parentless_command_before_stack": "SIGSEGV on both interpreters",
+    "parentless_stack_before_command": "30 collections pass on both",
+    "QObject_parent_same_unreachable_cycle_both_orders": "30 collections pass on both",
+    "explicit_clear_before_collection": "30 collections pass on Python3.12"
+  },
+  "native_gdb_frames": [
+    "QUndoStack::clear",
+    "QUndoStack::~QUndoStack",
+    "Shiboken wrapper destructor",
+    "CPython delete_garbage/gc_collect_main"
+  ],
+  "production_factory_audit": {
+    "spacr/qt/screens/settings_model.py": "QUndoStack(self._parent); four production model callers pass a QWidget parent",
+    "spacr/qt/widgets/gate_editor.py": "QUndoStack(self)",
+    "spacr/qt/screens/make_masks.py": "Own snapshot MaskHistory; no QUndoStack factory"
+  },
+  "scope": "Independent upstream binding bug reproduced. No native C-stack exists for the original spaCR Save/hosted puncta crashes, so no causal match or product fix is claimed."
+}

@@ -1873,3 +1873,14 @@ restarts hosted acceptance through the workflow-file trigger. Item stays OPEN.
     and Home/Preferences only. The historical trace is timer-driven GC inside
     app.exec, not an identified native destructor or proven Save trigger.
     No crash fix or uninterrupted full serial acceptance is claimed.
+
+2026-10-06 — one retained Measure test owner repaired
+    Temporary heading-comparison SettingsWidgets now belongs to the existing
+    qtbot-owned MeasureInputsScreen. Every behavior assertion is unchanged.
+    Matched two-node runs pass; after the field-fade sentinel live widget/top
+    level counts fall from449/167 to2/1. Original seven immediate predecessor
+    files plus sentinel pass all164 cases in19.60seconds; cached field-fade
+    setup counts fall447/166 to0/0. RSS1608.7 to1604.4MiB does not establish
+    sustained process memory savings. Full journals/logs and source bindings:
+    data/47_measure_headings_owner_2026-10-07/. This concrete ownership repair
+    closes a child; final uninterrupted serial/memory acceptance remains OPEN.

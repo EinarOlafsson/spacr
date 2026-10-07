@@ -1,0 +1,58 @@
+[
+  {
+    "interpreter": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+    "case": "plain_command_first",
+    "returncode": -11,
+    "stdout": "{\"python\": \"3.12.13 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:38:16) [GCC 14.3.0]\", \"qt_binding\": \"6.11.2\", \"case\": \"plain_command_first\"}\n",
+    "stderr": "Fatal Python error: Segmentation fault\n\nCurrent thread 0x000077963f4dd740 (most recent call first):\n  Garbage-collecting\n  File \"/mnt/wd4tb/scratch/ci-final-repairs-20261006/undo_gc_matrix.py\", line 24 in <module>\n\nExtension modules: shiboken6.Shiboken, PySide6.QtCore, PySide6.QtGui (total: 3)\n"
+  },
+  {
+    "interpreter": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+    "case": "plain_stack_first",
+    "returncode": 0,
+    "stdout": "{\"python\": \"3.12.13 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:38:16) [GCC 14.3.0]\", \"qt_binding\": \"6.11.2\", \"case\": \"plain_stack_first\"}\ncompleted 30 collections\n",
+    "stderr": ""
+  },
+  {
+    "interpreter": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+    "case": "parent_command_first",
+    "returncode": 0,
+    "stdout": "{\"python\": \"3.12.13 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:38:16) [GCC 14.3.0]\", \"qt_binding\": \"6.11.2\", \"case\": \"parent_command_first\"}\ncompleted 30 collections\n",
+    "stderr": ""
+  },
+  {
+    "interpreter": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+    "case": "parent_stack_first",
+    "returncode": 0,
+    "stdout": "{\"python\": \"3.12.13 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:38:16) [GCC 14.3.0]\", \"qt_binding\": \"6.11.2\", \"case\": \"parent_stack_first\"}\ncompleted 30 collections\n",
+    "stderr": ""
+  },
+  {
+    "interpreter": "/home/olafsson/anaconda3/envs/spacr13/bin/python",
+    "case": "plain_command_first",
+    "returncode": -11,
+    "stdout": "{\"python\": \"3.13.14 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:36:31) [GCC 14.3.0]\", \"qt_binding\": \"6.11.2\", \"case\": \"plain_command_first\"}\n",
+    "stderr": "Fatal Python error: Segmentation fault\n\nCurrent thread 0x000076ee37f99740 (most recent call first):\n  Garbage-collecting\n  File \"/mnt/wd4tb/scratch/ci-final-repairs-20261006/undo_gc_matrix.py\", line 24 in <module>\n\nExtension modules: shiboken6.Shiboken, PySide6.QtCore, PySide6.QtGui (total: 3)\n"
+  },
+  {
+    "interpreter": "/home/olafsson/anaconda3/envs/spacr13/bin/python",
+    "case": "plain_stack_first",
+    "returncode": 0,
+    "stdout": "{\"python\": \"3.13.14 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:36:31) [GCC 14.3.0]\", \"qt_binding\": \"6.11.2\", \"case\": \"plain_stack_first\"}\ncompleted 30 collections\n",
+    "stderr": ""
+  },
+  {
+    "interpreter": "/home/olafsson/anaconda3/envs/spacr13/bin/python",
+    "case": "parent_command_first",
+    "returncode": 0,
+    "stdout": "{\"python\": \"3.13.14 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:36:31) [GCC 14.3.0]\", \"qt_binding\": \"6.11.2\", \"case\": \"parent_command_first\"}\ncompleted 30 collections\n",
+    "stderr": ""
+  },
+  {
+    "interpreter": "/home/olafsson/anaconda3/envs/spacr13/bin/python",
+    "case": "parent_stack_first",
+    "returncode": 0,
+    "stdout": "{\"python\": \"3.13.14 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:36:31) [GCC 14.3.0]\", \"qt_binding\": \"6.11.2\", \"case\": \"parent_stack_first\"}\ncompleted 30 collections\n",
+    "stderr": ""
+  }
+]
