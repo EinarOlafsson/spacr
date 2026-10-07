@@ -43,8 +43,11 @@ def test_the_style_wake_up_is_never_negative_and_survives_no_style(monkeypatch):
 def test_invalidating_forgets_a_hover_whose_object_is_gone(qapp, monkeypatch):
     import shiboken6
 
+    prior = tp.HoverDelay()
+    shiboken6.delete(prior._timer)
     delay = tp.HoverDelay()
-    monkeypatch.setattr(shiboken6, "isValid", lambda obj: obj is not delay)
+    original_is_valid = shiboken6.isValid
+    monkeypatch.setattr(shiboken6, "isValid", lambda obj: obj is not delay and original_is_valid(obj))
     tp.invalidate_tooltip_policy()
     assert delay not in tp._hover_delays
 
