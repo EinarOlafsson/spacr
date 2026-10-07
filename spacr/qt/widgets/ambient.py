@@ -760,18 +760,6 @@ DEFAULT_SIZE = 1.0
 DENSITY_RANGE = (0.01, 3.0)
 DEFAULT_DENSITY = 1.0
 
-#: The shared account resolution and density both draw on, as a multiple of
-#: what the theme costs at its own defaults.
-#:
-#: Shading cost is (buffer pixels) x (elements), and both halves are now on a
-#: slider: 2.0 resolution is four times the pixels and 3.0 density is three
-#: times the elements, so the two together could ask for twelve times the
-#: work — 20-odd milliseconds a frame behind every screen in the app. Past
-#: this budget the *density* is scaled back rather than the resolution,
-#: because a backdrop that has lost a blob still looks right and a backdrop
-#: made of visible blocks does not. Four is chosen so that either control on
-#: its own reaches the top of its range untouched, and only the combination
-#: is trimmed. See :meth:`AmbientEngine.effective_density`.
 WORK_BUDGET = 4.0
 
 #: Which way the starfield goes.
@@ -6480,8 +6468,7 @@ class AmbientWidget(QWidget):
         picture rather than replacing it.
     :param fps: frame-rate cap.
     :param seed: RNG seed, for a reproducible animation.
-    :param blur: how much the finished picture is softened; ``None`` reads
-        Preferences.
+    :param blur: retained for older callers; displayed themes ignore blur.
     :param speed: motion multiplier; ``None`` reads Preferences.
     :param size: element-size multiplier; ``None`` reads Preferences.
     :param resolution: how much detail is shaded, as a multiplier on the
