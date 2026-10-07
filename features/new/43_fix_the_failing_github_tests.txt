@@ -3076,3 +3076,18 @@ XFAIL inventory/docstring mismatches are not additional blocking failures.
     at exactb6 for later live readback. No deployed-source or full CI green claim.
     Native Save diagnostic is available for Home in N663; source implementations
     remain unchanged. This proof-only update skips duplicate hosted execution.
+
+
+2026-10-07 — FIVE ORIGINAL SERIAL FAILURES REPAIRED IN TEST ISOLATION
+The a44 file-rss journal retains all eight test_failure details despite stdout
+ending at native SIGSEGV. Four fallback failures originate in portable-test
+teardown restoring application-written temporary SPACR_HOME/SPACR_LOG_DIR;
+f78291e194 integrated3fbf93da8c repairs cleanup, with failing original ordered
+pair before and5 original/72 relevant cases passing after. Tooltip mock lied
+about other deleted wrappers;56ea003f13 retains real isValid outside its intended
+object, verified by a dead-timer failing control and43 passing related cases.
+No application policy or assertion is relaxed. Distribution and two LivePreview
+failures still require evidence:205/27 bounded neighbors pass, so20e2be3002 adds
+live OS/Qt thread and layout-phase detail without claiming a product fix.
+Native puncta crash, Mask timing, current owner refresh and hosted green remain
+OPEN. Field/growth/Aurora integration228/228 passes; not full-CI acceptance.

@@ -2170,3 +2170,18 @@ All8 pass locally under4GiB; fatal Ruff and whitespace checks pass. This repairs
 missing native diagnostic collection, not the original puncta crash. No new
 hosted native stack or full serial success is claimed, and no test selection,
 order, memory guard or timeout allowance is changed.
+
+
+2026-10-07 — SERIAL JOURNAL DETAIL AND FIVE VERIFIED TEST-ISOLATION REPAIRS
+Clarification: a44 stdout had no final detailed reports, but file-rss.jsonl
+retains all eight test_failure details. Portable-test cleanup polluted four
+later HOME fallback cases;3fbf93da8c fixes teardown only, original ordered pair
+fails before and5 original/72 relevant cases pass after. Tooltip's overbroad
+mock declared other dead wrappers valid;56ea003f13 scopes it properly, with
+same RuntimeError in negative control and43 passing related cases after.
+Three remaining reports (distribution, two LivePreview) remain unresolved;
+20e2be3002 records live native/Python/Qt identities and distribution-phase
+failure details while preserving assertions. No application crash causation
+is established. Protected37639050274/b6885af4fe remains untouched, predates
+these fixes and cannot accept current field/growth. Native fault/full serial
+acceptance remain OPEN. Original10.8GiB guard/order/selection remain unchanged.

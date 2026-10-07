@@ -1,6 +1,38 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
 
+## 2026-10-07 — field grab complete; five serial test-isolation failures repaired
+
+Home integrated field hold-drag397c8acb5d as5d851b33e9 and its immutable
+acceptance archive asbd56da521f. The patch is bounded, preserves material,
+retains release velocity and springs home without reseeding; scientific canvas
+and control gestures retain their events. Integrated field/growth/Aurora cohort
+228/228 passes43.97s; raw root log is at scratch/root-field-biological-aurora-
+integrated-20261007.log. Field archive21 payloads verify from both filesystem
+and Git. Native24FPS, installed Save crash and human aesthetics remain OPEN.
+Workstation: normal API/Help refresh also needs the four field helpers and
+background gesture behavior; preserve actual English source/review guards.
+
+The original a44 serial stdout did not print its eight detailed reports, but
+its file-rss journal DOES retain full test_failure detail. Four fallback cases
+come from a portable test restoring application-written temporary SPACR_HOME/
+SPACR_LOG_DIR during teardown, not an application fallback-policy defect.
+Sourcef78291e194 integrated3fbf93da8c fixes the test's direct environment cleanup:
+original ordered pair fails before, all five original nodes and72 relevant cases
+pass after. Tooltip's mock claimed every other dead Qt wrapper was valid;
+56ea003f13 preserves real isValid for other objects. A real dead-timer negative
+control fails as hosted before;43 tooltip cases pass after. No guard is lifted.
+
+The remaining distribution and two LivePreview reports are unresolved. Exact
+source-order bounded205 LivePreview/27 distribution replays pass. Analysis
+already passed16 cells; its later layout/error detail is absent from artifact.
+20e2be3002 adds live Python/native/Qt identities and compact distribution-phase
+failure detail to existing assertions; no assertions relaxed or product fix
+claimed. Native puncta SIGSEGV, first-open Mask timing and hosted green remain
+OPEN. Protected serial37639050274 onb6885af4fe must not be cancelled/replaced;
+it predates these repairs/field/growth and cannot accept their final source.
+
+
 ## 2026-10-07 14:58 UTC — biological growth and equivalent Aurora paint complete locally
 
 Home integrated biological growth604269d248 as259e1568bc and equivalent Aurora
