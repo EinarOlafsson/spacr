@@ -538,6 +538,10 @@ def fake_ambient(monkeypatch):
     import spacr.qt.widgets as widgets_pkg
     monkeypatch.setitem(sys.modules, "spacr.qt.widgets.ambient", module)
     monkeypatch.setattr(widgets_pkg, "ambient", module, raising=False)
+    from spacr.qt import preferences
+    monkeypatch.setattr(preferences, "POPUP_BACKDROPS",
+                        ("off",) + tuple(sorted(module.AMBIENT_THEMES)))
+    monkeypatch.setattr(preferences, "DEFAULT_POPUP_BACKDROP", "blobs")
     return module
 
 
