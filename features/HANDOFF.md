@@ -1,5 +1,34 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-06)
 
+## 2026-10-07 overnight CI: four concrete workstation owner fixes remain
+
+Home is continuing CPU/Qt/CI work. The current published source is
+`b557c46d585d28a97c8e60b0bf2c3e43a0a2040f`; compatibility run
+37568878125 is terminal SUCCESS, all seventeen jobs successful. Ordinary
+tests 37568878426 are still pending, so that is not a green full-suite claim.
+
+The documentation/translation owner should handle these four actual failures
+through its existing workflow, keeping every original guard:
+
+* Remeasure checkout size with `packaging/measure_clone_forms.sh`, updating
+  README size/date. The old e1 hosted tree measured 2797 MB versus 1710 MB stated.
+* Shorten README prose below its existing 1750-word limit; old e1 has 1757.
+* Describe the visible Make Masks Divide / Merge tool in README-linked
+  `docs/source/features.rst`; accepted tutorial footage does not replace it.
+* Review the expanded `timelapse_events` tooltip for sv/fr and update the
+  exact historical retirement inventory for both old Cell-DINO and old
+  Timelapse tooltips. The new tooltip currently has no reviewed sv/fr record.
+
+Exact failed jobs/nodes and source hashes are recorded in the dated sections
+below. Home has not edited README, guides, catalogs, or tutorial artifacts.
+CPU test contracts for accepted source inventories are already synchronized.
+Home is fixing repeated live-extraction cost in the review audit and the new
+seventh numerical regression in `spacr/timelapse.py` with CPU-only tests.
+Protected 45f serial remains in progress and must not be cancelled. Partial
+running-job logs stop exposing output around 2 MiB, so they do not establish
+that the job is stalled or reveal its current test/RSS. Installed Save and
+puncta causes, native hard 24 FPS and final full serial acceptance remain OPEN.
+
 ## 2026-10-06 exact CI inventories and measured Qt test owners repaired
 
 CPU tests now name the existing VideoMAE zoo row, the seventeen owner-accepted
