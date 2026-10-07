@@ -253,28 +253,28 @@ Docker로 설치
     git pull
     pip install -e .
 
-두 번째 줄은 의존성이나 진입점이 바뀐 경우에만 필요하며, Python 코드는 이 줄 없이도 반영됩니다. pull 후에도 명령이 이전 코드를 실행한다면, ``spacr-doctor`` 명령이 경로에서 실제로 사용되는 ``spacr`` 실행 파일이 어느 것인지 알려 줍니다. 대개 이것이 원인입니다.
+의존성이나 진입점이 바뀌면 다시 설치하세요. Python 코드 변경은 바로 적용되며, ``spacr-doctor`` 로 현재 사용 중인 설치를 확인할 수 있습니다.
 
 소스 코드에서 설치 (경량)
 ---------------------------
 
-기여자에게는 전체 이력이 필요합니다. spaCR를 실행만 하려면 다음 중 하나를 사용하십시오. 수치는 2026-09-15에 ``packaging/measure_clone_forms.sh`` 스크립트로 측정했습니다::
+기여자는 버전 이력이 필요합니다. spaCR를 실행하기만 하려면 아래 방법 중 하나를 선택하세요. ``packaging/measure_clone_forms.sh`` 를 사용하여 2026-10-07에 ``nightly`` 의 ``05302fd5c`` 커밋을 측정했습니다::
 
-    # One commit instead of every version: 540 MB downloaded, 69 s.
+    # One commit instead of every version: 2048 MB downloaded, 140 s.
     # No history, so no git log, no git blame and no git bisect.
     # git pull still works, but stays shallow until git fetch --unshallow.
-    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
     cd spacr && pip install -e .
 
-    # Only the files spaCR runs from: 81 MB on disk, 39 s. No history
-    # either, and no docs, tests, tools, features or example data.
+    # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
+    # No history, docs, tests, tools, features or example data.
     # --with-docs, --with-tests and --with-translations put those back;
     # --dir, --branch, --no-install and --help do the obvious things.
     # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-2026-09-15 측정에서 전체 클론은 5.8 GB를 다운로드했습니다. 얕은 클론에 ``--filter=blob:none``을 추가해도 측정된 다운로드 크기는 줄지 않았습니다. nightly의 Git 추적 파일은 체크아웃에서 1710 MB를 차지합니다(2026-10-06 측정). Git 이력은 제외한 크기이며, 다운로드 크기와 시간은 브랜치에 따라 달라집니다.
+nightly 전체 클론은 9.25 GiB를 다운로드했습니다. 얕은 클론에 ``--filter=blob:none`` 을 추가해도 체크아웃한 파일의 크기는 줄어들지 않습니다. Git 객체 저장소는 여전히 2032 MB입니다. 출력 없이 필요할 때 객체를 가져오므로 전체 다운로드 총량을 측정할 수 없습니다. nightly의 버전 관리 파일을 체크아웃하면 Git 이력을 제외하고 2839 MB를 차지합니다(2026-10-07 측정). 다운로드 크기와 시간은 브랜치에 따라 달라집니다.
 
 
 명령줄 진입점

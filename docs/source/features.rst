@@ -307,8 +307,9 @@ Make Masks
 ----------
 
 Make Masks corrects masks by hand and carries the Cellpose loop on its
-masthead. Its canvas has eleven tools: Brush, Erase, Erase object, Wand +,
-Wand −, Draw, Box, Divide, Zoom, Recrop and Ruler. The
+masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand,
+Draw, Box, Divide / Merge, Zoom, Recrop and Ruler. Wand adds a region by
+default; hold Ctrl while clicking to remove it. The
 :doc:`Make Masks reference <make_masks>` covers these tools, Levels,
 detection settings, primary/secondary pairing, saving and measurement.
 
@@ -319,9 +320,11 @@ metadata. Source images and segmentation masks remain unchanged.
 
 Draw traces a free-form outline that closes and fills as a single object --
 the tool a brush is not, because a brush stamps disks along the path, so
-tracing a rim with it labels the rim and leaves the middle background. Divide
-drags a line across a merged object and makes it two, leaving every other
-object's label untouched; it is the commonest correction a segmentation needs.
+tracing a rim with it labels the rim and leaves the middle background.
+**Divide / Merge** splits an object with a left-dragged line: the larger
+component retains its ID and the smaller receives a new one. Right-drag a
+line across objects to merge them under the first crossed ID, without
+painting the background between them. Other objects keep their labels.
 
 Recrop is the only tool that changes which field is on screen rather than
 what is painted on it. A staged crop holding several cells is not one training

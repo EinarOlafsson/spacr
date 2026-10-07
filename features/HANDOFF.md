@@ -1,5 +1,45 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 13:53 UTC — Workstation four owner corrections accepted locally
+
+All four first-queue corrections assigned in the 11:55 UTC handoff are implemented
+on base `05302fd5c86be76b1812abf213b2a58561b16b1d`. README prose is **1747 words**
+under the unchanged strict 1750 ceiling. The Make Masks guide and all nine
+translated guides describe the actual ten tools, one Wand (Ctrl removes), and
+**Divide / Merge** (left-drag splits, right-drag merges). Current expanded
+`timelapse_events` has source-bound reviewed sv/fr translations, normally rebuilt
+catalogs, and the narrow historical contract verifies exactly the two specified
+retirements with every other original row preserved.
+
+Fresh normal remote nightly clones all resolve to that same 05302 source:
+full download 9.25 GiB; depth-one download 2048 MB in 140 seconds; filtered clone
+2032 MB Git store with the same tracked checkout and unknown complete download
+total; light installation 104 MB on disk in six seconds. The actual tracked
+checkout is 2839 MB. All nine localized READMEs were normally regenerated with
+27 exact source-bound reviewed prose blocks. Original installation commands,
+links, 15% size allowance and word ceiling remain intact.
+
+Acceptance: all five original named nodes plus related guide/runtime contracts
+**34 passed**; final README reviewed-prose/filter/length tests **3 passed**;
+original size guard **1 passed** on a genuine full remote clone. The broader
+cohort passes 66 cases; its one source-bound README case ran while regeneration
+was still in flight, is preserved as a failure, and passes on the complete final
+outputs in the separate three-case check. Strict English and all nine guide
+builds pass; all nine guide audits pass 2999/2999 with no invalid/stale/unlabelled
+messages. All nine runtime catalog audits, all 12356 reviewed runtime evidence
+records, current English API audit (13199 entries), normal Help freshness,
+fatal Ruff and whitespace checks pass. Complete originals, failures, commands,
+source snapshots, clone logs and accepted guide outputs are digest-verified in
+`data/43_workstation_owner_fixes_2026-10-07.json` and its complete evidence ZIP.
+
+This commit publishes the four fixes; actual deployed-source readback is next.
+Home can integrate these owner corrections and owns the current complete
+ordinary CI verdict, coverage/native crash diagnosis and Qt acceptance.
+Protected serial **37615889146** is unchanged and remains in progress; no Home
+run was cancelled or replaced. No app implementation or GPU process changed.
+Parent N43/F288/N47, input-dependent scientific work and human acceptance retain
+their existing scopes. No global green or broader N615 completion is claimed.
+
 ## 2026-10-07 11:55 UTC: workstation restart and division of remaining work
 
 The maintainer reports that Workstation has no remaining work and asks Home

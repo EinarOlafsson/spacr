@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_method": "Direct Codex AI technical translation review against original nightly clone logs, source identity, exact numeric measurements and installation semantics. No native-speaker signoff.",
+  "records": [
+    {
+      "label": "editable-reinstall-guidance",
+      "source": "Reinstall when dependencies or entry points change. Python edits take effect directly; ``spacr-doctor`` identifies the active installation.",
+      "source_sha256": "eeb7b9d9a68fc74f825b86b2a1571aedf25c56b18a9d4bb0d2cdbc2fcf950f01",
+      "translation": "依赖项或入口点变化时才需重新安装。Python 代码修改会直接生效； ``spacr-doctor`` 可确定当前使用的安装。"
+    },
+    {
+      "label": "measured-nightly-clone-source",
+      "source": "Contributors need history; to run spaCR, choose below. Measurements: ``nightly`` at ``05302fd5c`` on 2026-10-07, using ``packaging/measure_clone_forms.sh``",
+      "source_sha256": "cce5b081538356db403d56efebaff3be50030b4e733dfa044a07f9768a82849a",
+      "translation": "贡献者需要版本历史；如果只需运行 spaCR，可选择下列方式。测量于 2026-10-07 对 ``nightly`` 的 ``05302fd5c`` 提交进行，使用 ``packaging/measure_clone_forms.sh``"
+    },
+    {
+      "label": "measured-clone-and-checkout-costs",
+      "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not help shrink the checkout: its object store still weighs 2032 MB. Quiet lazy fetches prevent a complete measured download total. The nightly tracked tree is a 2839 MB checkout (measured 2026-10-07), excluding Git history. Download sizes and times vary with the branch.",
+      "source_sha256": "2dc2723f4c4ee58e6621032faec477c88d8b666860a43b68442b7e343f069c20",
+      "translation": "nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 ``--filter=blob:none`` 无助于缩小检出文件的大小：其 Git 对象存储仍占用 2032 MB。静默按需获取对象使完整下载总量无法测得。nightly 的版本控制文件检出后占用 2839 MB（2026-10-07 测得），不含 Git 历史。下载大小和耗时随分支而变化。"
+    }
+  ]
+}

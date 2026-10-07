@@ -253,28 +253,28 @@ Para obter alterações posteriores, execute de dentro do clone::
     git pull
     pip install -e .
 
-A segunda linha só é necessária quando dependências ou pontos de entrada mudaram; o código Python é atualizado sem ela. Se um comando ainda executar código antigo depois do pull, o ``spacr-doctor`` informa qual ``spacr`` está de fato no seu caminho de busca, o que costuma ser a causa.
+Reinstale quando as dependências ou os pontos de entrada mudarem. As alterações no código Python têm efeito direto; ``spacr-doctor`` identifica a instalação ativa.
 
 Instalação a partir do código-fonte (leve)
 ------------------------------------------
 
-Quem contribui precisa do histórico; para apenas executar o spaCR, use uma destas opções, medidas em 2026-09-15 com ``packaging/measure_clone_forms.sh``::
+Colaboradores precisam do histórico de versões; para executar o spaCR, escolha uma das opções abaixo. Medições de ``nightly`` em ``05302fd5c`` no dia 2026-10-07, feitas com ``packaging/measure_clone_forms.sh``::
 
-    # One commit instead of every version: 540 MB downloaded, 69 s.
+    # One commit instead of every version: 2048 MB downloaded, 140 s.
     # No history, so no git log, no git blame and no git bisect.
     # git pull still works, but stays shallow until git fetch --unshallow.
-    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
     cd spacr && pip install -e .
 
-    # Only the files spaCR runs from: 81 MB on disk, 39 s. No history
-    # either, and no docs, tests, tools, features or example data.
+    # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
+    # No history, docs, tests, tools, features or example data.
     # --with-docs, --with-tests and --with-translations put those back;
     # --dir, --branch, --no-install and --help do the obvious things.
     # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Na medição de 2026-09-15, o clone completo baixou 5,8 GB. No clone raso, ``--filter=blob:none`` não reduziu o download medido. Os arquivos versionados de nightly ocupam 1710 MB na cópia de trabalho (medidos em 2026-10-06), sem o histórico do Git. O tamanho e o tempo de download variam conforme a ramificação.
+O clone completo de nightly baixou 9.25 GiB. Adicionar ``--filter=blob:none`` ao clone superficial não reduz o tamanho da cópia de trabalho: seu armazenamento de objetos Git ainda ocupa 2032 MB. As transferências silenciosas sob demanda impedem medir todo o volume baixado. Os arquivos versionados de nightly ocupam 2839 MB na cópia de trabalho (medidos em 2026-10-07), sem o histórico do Git. O tamanho e a duração da transferência variam conforme o ramo.
 
 
 Comandos de linha de comando

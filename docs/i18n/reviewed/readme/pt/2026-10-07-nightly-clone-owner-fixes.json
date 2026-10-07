@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_method": "Direct Codex AI technical translation review against original nightly clone logs, source identity, exact numeric measurements and installation semantics. No native-speaker signoff.",
+  "records": [
+    {
+      "label": "editable-reinstall-guidance",
+      "source": "Reinstall when dependencies or entry points change. Python edits take effect directly; ``spacr-doctor`` identifies the active installation.",
+      "source_sha256": "eeb7b9d9a68fc74f825b86b2a1571aedf25c56b18a9d4bb0d2cdbc2fcf950f01",
+      "translation": "Reinstale quando as dependências ou os pontos de entrada mudarem. As alterações no código Python têm efeito direto; ``spacr-doctor`` identifica a instalação ativa."
+    },
+    {
+      "label": "measured-nightly-clone-source",
+      "source": "Contributors need history; to run spaCR, choose below. Measurements: ``nightly`` at ``05302fd5c`` on 2026-10-07, using ``packaging/measure_clone_forms.sh``",
+      "source_sha256": "cce5b081538356db403d56efebaff3be50030b4e733dfa044a07f9768a82849a",
+      "translation": "Colaboradores precisam do histórico de versões; para executar o spaCR, escolha uma das opções abaixo. Medições de ``nightly`` em ``05302fd5c`` no dia 2026-10-07, feitas com ``packaging/measure_clone_forms.sh``"
+    },
+    {
+      "label": "measured-clone-and-checkout-costs",
+      "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not help shrink the checkout: its object store still weighs 2032 MB. Quiet lazy fetches prevent a complete measured download total. The nightly tracked tree is a 2839 MB checkout (measured 2026-10-07), excluding Git history. Download sizes and times vary with the branch.",
+      "source_sha256": "2dc2723f4c4ee58e6621032faec477c88d8b666860a43b68442b7e343f069c20",
+      "translation": "O clone completo de nightly baixou 9.25 GiB. Adicionar ``--filter=blob:none`` ao clone superficial não reduz o tamanho da cópia de trabalho: seu armazenamento de objetos Git ainda ocupa 2032 MB. As transferências silenciosas sob demanda impedem medir todo o volume baixado. Os arquivos versionados de nightly ocupam 2839 MB na cópia de trabalho (medidos em 2026-10-07), sem o histórico do Git. O tamanho e a duração da transferência variam conforme o ramo."
+    }
+  ]
+}

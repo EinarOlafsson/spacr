@@ -253,28 +253,28 @@ För att hämta senare ändringar kör du inifrån klonen::
     git pull
     pip install -e .
 
-Den andra raden behövs bara när beroenden eller ingångspunkter har ändrats; Python-kod tas med även utan den. Om ett kommando fortfarande kör gammal kod efter en pull visar ``spacr-doctor`` vilken ``spacr`` som faktiskt ligger på din sökväg, vilket är den vanliga orsaken.
+Installera om när beroenden eller kommandostarter ändras. Ändringar i Python-koden gäller direkt; ``spacr-doctor`` visar vilken installation som används.
 
 Installation från källkod (lättviktig)
 --------------------------------------
 
-Den som bidrar behöver historiken; för att bara köra spaCR räcker ett av dessa alternativ, uppmätta 2026-09-15 med ``packaging/measure_clone_forms.sh``::
+Bidragsgivare behöver versionshistoriken; välj ett alternativ nedan om du bara vill köra spaCR. Mätningarna gäller ``nightly`` vid ``05302fd5c`` den 2026-10-07 och gjordes med ``packaging/measure_clone_forms.sh``::
 
-    # One commit instead of every version: 540 MB downloaded, 69 s.
+    # One commit instead of every version: 2048 MB downloaded, 140 s.
     # No history, so no git log, no git blame and no git bisect.
     # git pull still works, but stays shallow until git fetch --unshallow.
-    git clone --depth 1 https://github.com/EinarOlafsson/spacr.git
+    git clone --depth 1 --branch nightly https://github.com/EinarOlafsson/spacr.git
     cd spacr && pip install -e .
 
-    # Only the files spaCR runs from: 81 MB on disk, 39 s. No history
-    # either, and no docs, tests, tools, features or example data.
+    # Runtime files: 104 MB on disk, 6 s (Git: 38 MB; files: 66 MB).
+    # No history, docs, tests, tools, features or example data.
     # --with-docs, --with-tests and --with-translations put those back;
     # --dir, --branch, --no-install and --help do the obvious things.
     # packaging/source_install_excludes.txt lists every skipped path.
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Vid mätningen 2026-09-15 laddade den fullständiga klonen ner 5,8 GB. För den grunda klonen minskade ``--filter=blob:none`` inte den uppmätta nedladdningen. De versionshanterade filerna i nightly ger en utcheckning på 1710 MB (uppmätt 2026-10-06), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen.
+Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till ``--filter=blob:none`` till den grunda klonen hjälper inte till att minska utcheckningens storlek: dess Git-objektlager väger fortfarande 2032 MB. Tysta hämtningar vid behov gör att den totala nedladdningen inte kan mätas fullständigt. De versionshanterade filerna i nightly ger en utcheckning på 2839 MB (uppmätt 2026-10-07), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen.
 
 
 Kommandoradskommandon
