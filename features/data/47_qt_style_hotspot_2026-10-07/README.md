@@ -54,3 +54,30 @@ local artifacts. The published `origin/nightly` at archive time has identical
 `preferences.py`, `theme.py` and `test_field_fade.py` bytes. Full protected
 raw job logs remain in the GitHub Actions artifacts; this compact archive
 contains its file RSS journal and host memory log.
+
+## 2026-10-07 adjacent-file check on published `cd2c3397c5`
+
+The protected `45f3cb1e` job `112556704860` was still in progress at this
+check and was not interrupted. The `b779` journal places `test_field_fade.py`
+at file 770. Its seven immediately preceding files changed RSS very little,
+ending at 4,092.3 MiB; the field-fade file then took 2,071.7 s and ended at
+4,403.5 MiB. This points to a contextual cost inside or exercised by that
+file, not an adjacent-file RSS jump. The later `test_page_is_never_black.py`
+started at 5,933.2 MiB after seven ordinary 0.5–24.3 s files and has no end
+record before the six-hour timeout.
+
+One capped local process ran those same seven immediate predecessor files in
+order, followed by one `test_field_fade.py` QSpinBox node. All 164 selected
+tests passed in 21.86 s under the unchanged fixtures, hidden CUDA and a 4 GiB
+hard cap. The newly integrated journal's cached fixture snapshot showed the
+Measure-table predecessor ending at 1,224 widgets / 185 top levels. The next
+two files reduced that to 447 / 166; the field-fade node began with those
+counts and 1,608.7 MiB RSS, then took 1.161 s by file-boundary timestamps.
+The same node alone in a fresh capped process passed with 363.4 MiB at file
+begin and took 0.627 s. Its first-file cached widget values are null because
+no prior teardown filled them. These are distinct process contexts and do not
+establish which widget owner, if any, explains the hosted multi-minute delay.
+
+`adjacent-cd2-journal.jsonl.gz`, `isolated-node-cd2-journal.jsonl.gz` and
+`adjacent-cd2-manifest.json` preserve exact records and source hashes. No
+test fixture, product code, memory ceiling or serial workflow changed.
