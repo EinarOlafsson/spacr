@@ -50,7 +50,7 @@ def _window(qtbot, key, *, eager: bool = False, idle: bool = True):
     from spacr.qt.screens import app_screen as aps
 
     register_self_registering_modules()
-    window = MainWindow()
+    window = MainWindow(initial_app="__home__")
     qtbot.addWidget(window)
     window.resize(1400, 900)
     window.show()
@@ -174,11 +174,28 @@ def test_a_category_built_in_idle_time_equals_one_built_by_a_click(qtbot):
         _w3, eager, _ = _window(qtbot, key, eager=True, idle=False)
         _restore_idle(saved)
         _pump(0.2)
+        assert not _waiting(eager), key
         assert _rows(idle_built) == _rows(clicked) == _rows(eager), key
         assert (idle_built._settings_model.collect()
                 == clicked._settings_model.collect()
                 == eager._settings_model.collect()), key
         assert _search(idle_built) == _search(clicked) == _search(eager), key
+
+
+@pytest.mark.parametrize('saved_module', ('classify_merged', 'regression'))
+def test_the_eager_comparison_is_fresh_after_a_saved_session(qtbot, saved_module):
+    from spacr import restart_state
+    from spacr.qt import preferences
+
+    preferences._set_restore_session(True)
+    assert restart_state._save_session(saved_module, {})
+    window, screen, saved = _window(qtbot, saved_module, eager=True, idle=False)
+    try:
+        assert not _waiting(screen)
+        assert not screen._settings_model._widgets.keys_to_come()
+        assert not getattr(window, '_restored_session_settings', None)
+    finally:
+        _restore_idle(saved)
 
 
 def test_opening_a_prebuilt_category_builds_nothing(qtbot, monkeypatch):
