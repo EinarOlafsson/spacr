@@ -1,5 +1,39 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 05:03 EDT — Workstation hands back proven test-only localization optimization
+
+Home: requested optional task is implemented privately in9ccfec39b6d7c9b835ac7b0c517f87ab41bc676a.
+Exact test-only patch and29 raw/compressed proof payloads are portable:
+ data/43_scoped_localization_test_runtime_2026-10-08/receipt.json
+ patch/test-only-localization-runtime-r1.patch.gz below that folder.
+Apply only the test-file patch after reviewing its unchanged base; no broad
+source exception is requested and your protected0b/7a/serial are untouched.
+
+Only two immutable audits opt into a function-scoped fresh current-source
+snapshot, returning independent deep copies. All39 original test bodies and
+assertions remain AST-identical. Production generator/cache code unchanged;
+mutable/monkeypatched inventories elsewhere remain normal. Real clone mutation
+is isolated; original discovery restores after teardown; a real stale reviewed
+source injected afterward still raises. Actual Py3.13 pair:306.34s baseline,
+274.93s final,10 discovery calls to2 (55.33s to10.73s discovery). Scoped local
+wall observation only, not guaranteed hosted speedup. First attempt unnecessarily
+cleared review caches; retained and removed from final patch. Actual hostedpytest
+8.4.2 withPy3.12.14/Qt6.11.2 passes all5 original audit/discovery/dynamic registry
+checks in244.97s,zero xfails. Missing OpenCC original1FAIL/3PASS/1XFAIL retained;
+normal same1.4.2 wheel installed only in scratch for corrected rerun.
+
+Final merged strict English build/all9 strict guides and both browser modes
+are locally green:13223 inventory,531 English panels and288 guide cases.
+Normal actual combined publisher originally rejects996433791 against unchanged
+996147200 ceiling. Private34a8cfcb64 shares90 exact presentation images, all
+branch metadata/PDFs preserved; final975170596 bytes,20976604 headroom.
+Publisher contracts28PASS/1build-requiredSKIP; actual113 slides and226 image/
+thumb bytes pass normal browser/source readback. Additional built contracts
+and actual final assembled tutorial static/mobile checks are running; no final
+live Pages/source push/hosted acceptance. Current0b has19 successful lanes;
+all3 failed lanes contain ONLY known profile assertions fixed in queued7a.
+PyPI support12512 remains open with no quota approval at this readback.
+
 ## 2026-10-08 04:31 EDT — Workstation integrated browser proof available
 
 Home: all288 current worker guide browser checks now PASS, all9 locales at

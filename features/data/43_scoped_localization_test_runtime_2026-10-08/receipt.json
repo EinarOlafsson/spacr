@@ -1,0 +1,176 @@
+{
+  "passed": true,
+  "base_source_commit": "8d69c7895848ff6c6d0b38e413943c4528a6e0a0",
+  "baseline_seconds": 306.3364617880434,
+  "final_seconds": 274.9260201039724,
+  "baseline_discovery_calls": 10,
+  "final_discovery_calls": 2,
+  "original_test_bodies_preserved": 39,
+  "isolation": {
+    "passed": true,
+    "original_test_bodies_preserved": 39,
+    "function_scoped_clone_mutation_isolated": true,
+    "discovery_restored": true,
+    "real_stale_source_rejected_after_teardown": true,
+    "production_generator_unchanged": true,
+    "source_sha256": "be5907913341649cb84a3d6c2c0896f494998f8983f0db94a19dc26f62786776",
+    "test_sha256": "5a40be9216c72072c2fbb977692cf9d4ae545380aefb437a901ad02d2eaa098a"
+  },
+  "terminal_statuses": {
+    "baseline-r1.log": 0,
+    "hosted-pytest-parity-r1.log": 1,
+    "hosted-pytest-parity-r2.log": 0,
+    "isolation-r1.log": 0,
+    "opencc-py312-install-r1.log": 0,
+    "optimized-r1.log": 0,
+    "optimized-r2.log": 0
+  },
+  "payloads": {
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/logs/baseline-r1.log.gz": {
+      "raw_sha256": "d9ba0a571a50cbf33ac0e94d505fbdf10faa166621d8030b8f199ebeb6a05eec",
+      "raw_bytes": 1344,
+      "archive_sha256": "15ba3e971202844c4f4066401b501550a59513aeb030c4d336526327b7177bb4"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/logs/baseline-r1-tool.log.gz": {
+      "raw_sha256": "e9b149d2cbe72e43c404a2b2bf982007960bd4930a40deb94b9dad10afaf001b",
+      "raw_bytes": 896,
+      "archive_sha256": "03c2a296729f70d430fbb5743901738d96032748b9693d13c60d595ea909c86a"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/logs/hosted-pytest-parity-r1.log.gz": {
+      "raw_sha256": "3b1c6ce9baf3a5de0211961c0c06e4170fde74b9ea58a2f1f4e827da1d45c8dc",
+      "raw_bytes": 7330,
+      "archive_sha256": "9db3e7e44908596587e3d44e30f571e65ecf23f1791580508b4877f1b465bccc"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/logs/hosted-pytest-parity-r1-tool.log.gz": {
+      "raw_sha256": "3db294dfa692cf1c83254f895524e3b8c0242eb66ec9f740ad3999f9ce28671b",
+      "raw_bytes": 6362,
+      "archive_sha256": "b771b7ab26957d71036ef8492fb11c99f10339fb1db9eeab1bb40530dd743f21"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/logs/hosted-pytest-parity-r2.log.gz": {
+      "raw_sha256": "94c5198087048f356b7c21fcaeef2c547afcb2420840d104092ecc36730ef5f6",
+      "raw_bytes": 1867,
+      "archive_sha256": "831488e1fb40cd9feaf704c50ec1afc376dc9ef85044e7a666a9526e48997d39"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/logs/hosted-pytest-parity-r2-tool.log.gz": {
+      "raw_sha256": "e91f5f3b834fcbcacfdc64bea3d5ef5296d5c6cf65d6cb97e2fc136a0e0e56f9",
+      "raw_bytes": 899,
+      "archive_sha256": "1a0835bd5bb92f15b0062db883eae275106bc6aaf05e14eb3fe9d05e6f012f97"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/logs/isolation-r1.log.gz": {
+      "raw_sha256": "53794071ce24cef0e8c348c17bf2ab175ac73b4f34eb6235f128c816c697f72c",
+      "raw_bytes": 960,
+      "archive_sha256": "dd6c7c1257d7142b6dd9e4f03342ea5014e6eb0c6966e904524e41daae679f2b"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/logs/isolation-r1-tool.log.gz": {
+      "raw_sha256": "476a059719760094c222e9b1bb6e93ed6da919478560af41bb20d1aa71fc5786",
+      "raw_bytes": 505,
+      "archive_sha256": "fbda23bfe58e4f677b35e423b68ef946ff26e4992c5d4b436629937665892715"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/logs/opencc-py312-install-r1.log.gz": {
+      "raw_sha256": "637dfe03e421ed06e69add1e2de64f243deeda74ef7d442a4388ad44eaa0441d",
+      "raw_bytes": 1005,
+      "archive_sha256": "be5d73aa9ce5b5a74efded44d661ac38f42f45983d664302d8eb34b633cb0b4b"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/logs/optimized-r1.log.gz": {
+      "raw_sha256": "4259beaec737f6d10085cad9d779b9b555c0cae1b912385d31c83ea399a26d30",
+      "raw_bytes": 1325,
+      "archive_sha256": "0452444a6250317311e289fe09bb20ad49be4c6789efc625dd98f13bc8e20d5c"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/logs/optimized-r1-tool.log.gz": {
+      "raw_sha256": "bc00c59d8f7ee2bb02305024df59a77dccabd7e64cd93455b325a2c04a8a5e1b",
+      "raw_bytes": 876,
+      "archive_sha256": "ef41f8c66cd8322034ce18e0071b07a739088216391f0a3c04d5cdbf0ec456b2"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/logs/optimized-r2.log.gz": {
+      "raw_sha256": "4a3f44a4b99dcc4c86348e1c73d7cfaaa4bada821a7ccf94d2415f486868c144",
+      "raw_bytes": 1344,
+      "archive_sha256": "7b2ee7d0f13acd87c487e82546862bda75e9595573e1d59d9589a7849292352d"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/logs/optimized-r2-tool.log.gz": {
+      "raw_sha256": "807075e50e0fd6ccbc10cc98008ed632233e5da17efb953897fd7b7016f20cc7",
+      "raw_bytes": 895,
+      "archive_sha256": "c85b437653f55e13dfacb7c65dbe454a6874e50c1392788961d2d11641c050b3"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/scratch/archive_scoped_localization_runtime_r1.py.gz": {
+      "raw_sha256": "0c8835d8d0d147339753fa71e7280d2bd8e44fe2755690f8b3c869883a845f0e",
+      "raw_bytes": 3358,
+      "archive_sha256": "56af37f4b72abcb0639f32a06ed4e580cd7eb469733790254f368622ef93a8b9"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/scratch/baseline-r1.json.gz": {
+      "raw_sha256": "d6623a3d0846cdabec751603426037842b5a48da2b3cad10903dd9a16cdd744c",
+      "raw_bytes": 2517,
+      "archive_sha256": "3e8464f8be542515dd1dfc3cc63f2c75d78a54b51ecb03dfe5ebaa19e1baaec6"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/scratch/check_scoped_inventory_isolation_r1.py.gz": {
+      "raw_sha256": "63e5f7c4c8937ca3712a79bf9d54d2ea6c8f1a881b28c9cbc9f0e2868279f3d9",
+      "raw_bytes": 2723,
+      "archive_sha256": "ccff9f7fa5fb751a0b48b302f84b1249323e4b22e10a2b98ccd449925064046d"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/scratch/first-scoped-test-fixture-r1.py.gz.gz": {
+      "raw_sha256": "2f739ba7a4c86be849c622802f08373fcad29688505a2d221b1aa6f9eadb5a63",
+      "raw_bytes": 13955,
+      "archive_sha256": "2ba7aafdd9ee52e423075401f0d723bb7404ede1b2605076d4de7872a25bf1a3"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/scratch/optimized-r1.json.gz": {
+      "raw_sha256": "15deb9994e4a37f464cb38b65a7b2b723649d3655f5a63ab5e8c7fcb9ebc74e6",
+      "raw_bytes": 566,
+      "archive_sha256": "d8116170480b8b5dcec4cc602554d500555873f292f2f8c85d6a1abb22866c4c"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/scratch/optimized-r2.json.gz": {
+      "raw_sha256": "ef4802d328d59f8d6adbc1f6f9e52b20eb389b0b1e32b28894c89c3a8d43c2f4",
+      "raw_bytes": 565,
+      "archive_sha256": "ce3e36ccbbcd4978f2bc006d82bee236d29f9c0a30a4eb9d3c56068cefda597d"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/scratch/original-test-external-i18n-r1.py.gz.gz": {
+      "raw_sha256": "51ea13d0a568909469503fa81ee0599e752ccbf7583f8efba28b9095e54ba5ef",
+      "raw_bytes": 13710,
+      "archive_sha256": "62da0d293799a7e990d1bf811fec76a82ce945943b48b02fc42ddb04c8db05d2"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/scratch/prepare_test_scoped_inventory_r1.py.gz": {
+      "raw_sha256": "9f6b7ab866ecc13bbf74a273d95851107770a2f06b0fbfbad5435578745520c5",
+      "raw_bytes": 2375,
+      "archive_sha256": "90b70d7240a06c168c4a062cf7b591921a7df4b454a8360312fe4788e1a50900"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/scratch/profile_localization_tests_r1.py.gz": {
+      "raw_sha256": "9b32a6dbb2bf8def8b0dcce493434d778ffbf4a324c39e1e64411e05aa8ef9d9",
+      "raw_bytes": 986,
+      "archive_sha256": "c2d57b922b050dbad89627c4447f7286a1538598c2084dac4e28de116284f599"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/scratch/profile_localization_tests_r2.py.gz": {
+      "raw_sha256": "64cae1a58fe2c6d958220c5b9de741cd73a0cb7b73f0553384ee7f57f0e1b701",
+      "raw_bytes": 987,
+      "archive_sha256": "c0eb818a414eabbbdd5827b8e626cb2ab16d2aaa7b272c85b25659b25a50db25"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/scratch/profile_localization_tests_r3.py.gz": {
+      "raw_sha256": "4a380f924f7f160e9279216538a3f9756b3c239650c229053ebb621c994303ed",
+      "raw_bytes": 987,
+      "archive_sha256": "e9cc2a3f98171e5e9f777c51253b4da8ac11c016ccb348276a3b8aa8df06ddf4"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/scratch/scoped-inventory-isolation-r1.json.gz": {
+      "raw_sha256": "12f8a15eec40aace177f387d52716ac4b4644b6d7d682d15f6a8cc337db59d50",
+      "raw_bytes": 409,
+      "archive_sha256": "db04bebd472dc96fb232d223d44190586a1a556859d000914e113fcbd06011b7"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/scratch/test-scoped-inventory-edit-r1.json.gz": {
+      "raw_sha256": "c4917c26f389b8454e89bcee00dab83a194a4b5d553dac688649e098b8234656",
+      "raw_bytes": 557,
+      "archive_sha256": "1b06384bbb8d981ee6aaf6b7d6569910e2a53aed0343d5e348f7021f6e638781"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/patch/test-only-localization-runtime-r1.patch.gz": {
+      "raw_sha256": "f3dd831516db83425ca4a3fd7274c1691181ccb42d4155dd662d5fae0037b7af",
+      "raw_bytes": 1927,
+      "archive_sha256": "db71573e2052103d2476583f8e4274ef2959511e3e4d0f796b7a510559557a9b"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/source/tests/qt/test_external_i18n_catalogs.py.gz": {
+      "raw_sha256": "5a40be9216c72072c2fbb977692cf9d4ae545380aefb437a901ad02d2eaa098a",
+      "raw_bytes": 51262,
+      "archive_sha256": "d2b6b355a43798902f3d37464f287aadcad614a1f269db8e5ff393d27e342762"
+    },
+    "features/data/43_scoped_localization_test_runtime_2026-10-08/original-missing-OpenCC-diagnostics/349c374e3c9265b27e5ef085f4bd76fa6b4022ec68bb6a0e9c5930563065342c-4074828.json.gz": {
+      "raw_sha256": "70e6416f1efa9367643911d83b28fcaee07bd92b08d09daff0cdccd47a14de26",
+      "raw_bytes": 4669,
+      "archive_sha256": "92135d5b414f748b77270e8b3b68fcde193dfb8feec681e7a11873b71b9e20c4"
+    }
+  },
+  "scope": "Only two immutable audit tests use a fresh function-scoped current-source snapshot with deep copies; all39 original test bodies/assertions intact. Generator unchanged; original discovery restored; real stale source after teardown still rejected. Actual Py3.13 pair both passes; same-host local wall306.34 to274.93s is scoped observation, not hosted runtime guarantee. Py3.12.14/Qt6.11.2 with actual hostedpytest8.4.2 passes all5 original audit/discovery/dynamic-registry checks, zero xfails. Original missing-OpenCC failure retained, normal same1.4.2 wheel installed only in scratch. No production, generator cache, module-wide inventory cache, locale/hash allowance, worker/gate/budget or protected CI change."
+}

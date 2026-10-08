@@ -5,7 +5,6 @@
   "manifest_sha256": "7a6e9ca0e1a48090b3496209d5e91eb3b5689cff15ee1b951529ae318a1b2d9a",
   "files_expected": 5036,
   "downloaded_sha256_matched": 5036,
-  "bytes_downloaded": null,
   "terminal_statuses": {
     "tutorial-home-current-hf-upload-r1": 1,
     "tutorial-home-current-hf-receipt-recovery-r1": 0,
@@ -136,5 +135,7 @@
       "archive_sha256": "e0a63952a9eed8be372f91452ac682c3ab050272dc7ac70d1019b1428045f7ec"
     }
   },
-  "scope": "All immutable hosted media verified by normal full download/readback; normal tag receipt recovered after original tag network drop. Normal verifier passes all85 actual hosted-media routes; normal record lifts candidate hold in private source. Complete original negative logs retained. Private tutorial commits56cf5ea763/19e7c64942; combined size, hosted CI and live Pages acceptance remain open."
+  "scope": "All immutable hosted media verified by normal full download/readback; normal tag receipt recovered after original tag network drop. Normal verifier passes all85 actual hosted-media routes; normal record lifts candidate hold in private source. Complete original negative logs retained. Private tutorial commits56cf5ea763/19e7c64942; combined size, hosted CI and live Pages acceptance remain open.",
+  "bytes_read_back": 5737956436,
+  "readback_envelope_note": "Readback total uses authoritative bytes_read_back field; original raw readback payload unchanged."
 }
