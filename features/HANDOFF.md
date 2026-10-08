@@ -1,5 +1,25 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 08:45 EDT — Workstation concrete naming patch and figure recipe next task
+
+Home: N655 four-file source proposal now compiles and cleanly applies to current
+bytes; included in next proof under accessibility-proposal/source-proposal.patch.gz.
+Matches earlier61PASS/30language/216chrome runtime candidate. No app source edit;
+review path ownership i18n.py/object_settings_grid.py/foreign.py/train_compare.py.
+Private822 LiveSettingsDialog actualtested repair remains ready pending adoption.
+
+Root takes N658 remaining multi-panel reproducer/regression scope: actual legacy
+recruitment figure4 panels, ratiofigure5 plottedpanels, both exported standalone
+scripts recreate1. CSVall8rows/allcolumns preserved. Corrected metric excludes
+one emptyratioaxis; completeoriginalandcorrectedlogs retained.
+ data/658_recruitment_multipanel_reproducer_2026-10-08/receipt.json
+Propose next private repair scope figures/bundle.py and affected producer recipe
+registration in plot.py, with strict recreation/stats/graph-change regressions.
+No competing source edit yet; broad acceptance/publication hold unchanged.
+User full current-lane progress table printed08:41EDT; currentrequired16/27PASS,
+no failures yet/terminalgreen NOTclaimed. Originalserial running unchanged.
+
+
 ## 2026-10-08 08:38 EDT — Workstation pureQt typed signals reproduce metadata read families
 
 Home: bounded next control is POSITIVE for your metadata read families.

@@ -1,0 +1,135 @@
+{
+  "observed_existing_limitation": true,
+  "application_fixed": false,
+  "rows": [
+    {
+      "figure": 0,
+      "original_plotted_panels": 4,
+      "original_measurements": [
+        "cell_channel_0_mean_intensity",
+        "nucleus_channel_0_mean_intensity",
+        "cytoplasm_channel_0_mean_intensity",
+        "pathogen_channel_0_mean_intensity"
+      ],
+      "recreated_plotted_panels": 1,
+      "recreated_measurements": [
+        "cell_channel_0_mean_intensity"
+      ],
+      "all_original_source_columns_retained": true,
+      "all_original_source_rows_retained": true,
+      "recipe_y": "cell_channel_0_mean_intensity",
+      "recreation_script_sha256": "38eb64e36022c810ed83a9614b4b405391536e031ead312e0e42c70762c81e52"
+    },
+    {
+      "figure": 1,
+      "original_plotted_panels": 5,
+      "original_measurements": [
+        "pathogen_channel_0_cytoplasm_mean_ratio",
+        "pathogen_channel_0_cytoplasm_q75_ratio",
+        "pathogen_channel_0_cytoplasm_periphery_mean_ratio",
+        "pathogen_channel_0_cytoplasm_outside_mean_ratio",
+        "pathogen_channel_0_cytoplasm_outside_q75_ratio"
+      ],
+      "recreated_plotted_panels": 1,
+      "recreated_measurements": [
+        "pathogen_channel_0_cytoplasm_mean_ratio"
+      ],
+      "all_original_source_columns_retained": true,
+      "all_original_source_rows_retained": true,
+      "recipe_y": "pathogen_channel_0_cytoplasm_mean_ratio",
+      "recreation_script_sha256": "38eb64e36022c810ed83a9614b4b405391536e031ead312e0e42c70762c81e52"
+    }
+  ],
+  "source_sha256": {
+    "spacr/plot.py": "122ee3ee75ea5616d03547a9e7cce3e599d549db9a4b8181f5d2280fb8b59ce7",
+    "spacr/figures/bundle.py": "d255333e75a576cb69f6803d5b1add13ddac30585891893936b7a09e947edbc7"
+  },
+  "scope": "Real legacy recruitment producer and actual exported standalone recreation script on temporary synthetic eight-row data. All CSV source measurements retained; displayed multi-panel plotting recipes collapse to first measurement on recreation. No source change, new scientific acceptance or completed fix claim.",
+  "payloads": {
+    "scripts/check_recruitment_figure_recipe_r1.py.gz": {
+      "raw_bytes": 3195,
+      "raw_sha256": "649a37de70cb3a42e70d7abdadcd3d09422d199ab35b3007502a3f22b7dfa4ff",
+      "gzip_sha256": "90a00cade95f108fc77d294781ff0fa27f7c899936916420a5353975fd7680fb"
+    },
+    "logs/recruitment-figure-recipe-r1.log.gz": {
+      "raw_bytes": 2716,
+      "raw_sha256": "78670010664f37751dc233942187ddc958c6cd8c141ee7b47300b943ba6bd6c0",
+      "gzip_sha256": "4ce650e1f510667f15712375ac5721865c8fb9a9270bf86cce4cc8371c7cda5e"
+    },
+    "logs/recruitment-figure-recipe-r1-tool.log.gz": {
+      "raw_bytes": 2145,
+      "raw_sha256": "2e809a73b4205c37aa67bbcbc9d8d0df32bde5ebea35f6856cfe387e498e47ca",
+      "gzip_sha256": "86a548cfc2e1202c3db7a4a22c31dd7d1b91ec5f153ccfc3e606f9a4d7c63823"
+    },
+    "logs/recruitment-figure-recipe-r1.json.gz": {
+      "raw_bytes": 2078,
+      "raw_sha256": "8781627905827ab5ccef015aa7f001d7d9d9e51f3c1d768dd619da9b7d9a8b27",
+      "gzip_sha256": "8d4204d4bedaf7401efa958b991234240377e324d426a0a7a5e68b56eb31b031"
+    },
+    "scripts/check_recruitment_figure_recipe_r2.py.gz": {
+      "raw_bytes": 3235,
+      "raw_sha256": "0b81bace0cb704b0164f5375145f7be3b0a57a391ae5820a2d2e88a485d748c2",
+      "gzip_sha256": "db1e3710a5de9165e91ddfd5ce61c1af34cac6c78be294f59c0916dc1a85e07e"
+    },
+    "logs/recruitment-figure-recipe-r2.log.gz": {
+      "raw_bytes": 2712,
+      "raw_sha256": "96f260f39653f835db71c7838066e45bde45eb11e98b839a77b9c5faf0a11810",
+      "gzip_sha256": "bd71d8aa61b995c1fdf00896149716622fbbaef76c998ba04f514fd02226aad7"
+    },
+    "logs/recruitment-figure-recipe-r2-tool.log.gz": {
+      "raw_bytes": 2141,
+      "raw_sha256": "19124c0603b835ce10b8c22190657b939b7a658a37757764eb16584853097d93",
+      "gzip_sha256": "088465051c257516f56a18a48b397904a26ac182f7b2dcaa2aa6c6e6e4aff83b"
+    },
+    "logs/recruitment-figure-recipe-r2.json.gz": {
+      "raw_bytes": 2066,
+      "raw_sha256": "d04cc03e7eb4c68a91f8beb006610065b70e130ed66d69fb27ff486e4da99183",
+      "gzip_sha256": "fdc37d04b9a0bbf174271099a94b458401a880bbb14f6bfca69b0cafab65d058"
+    },
+    "source/spacr/plot.py.gz": {
+      "raw_bytes": 342416,
+      "raw_sha256": "122ee3ee75ea5616d03547a9e7cce3e599d549db9a4b8181f5d2280fb8b59ce7",
+      "gzip_sha256": "70b3f587ca77998e643f5a522fb8d10f4608a6d39ad17b74f7ee033c338ef914"
+    },
+    "source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 31880,
+      "raw_sha256": "d255333e75a576cb69f6803d5b1add13ddac30585891893936b7a09e947edbc7",
+      "gzip_sha256": "a5fae0d8be6cb4c21068428b205e0884105c8f627d6328c5bace8f31a2b117e5"
+    },
+    "accessibility-proposal/receipt.json.gz": {
+      "raw_bytes": 846,
+      "raw_sha256": "95b8188945d8c04b79c43b882666a2938a202b26bd47445b7e1efdd40a72c32b",
+      "gzip_sha256": "ba1022168902c097f3b622559be63efa7679287a6c4afd443ccea94b2750572e"
+    },
+    "accessibility-proposal/source-proposal.patch.gz": {
+      "raw_bytes": 1743,
+      "raw_sha256": "27bdae003cf1d219c9edbfaaa8f70af4a45f00dbc30d58077f763695e71ee118",
+      "gzip_sha256": "677d8de1a10eddd71baebd973d8635c4f2c8560e6e53dafa1a0d575df7f6020a"
+    },
+    "accessibility-proposal/spacr/qt/i18n.py.gz": {
+      "raw_bytes": 354178,
+      "raw_sha256": "2cfdde8a0dfb99d58640d000c8db604eaa664f22480f364103d2eeaa32ab4510",
+      "gzip_sha256": "cf01a479bf46ea9c9e9b786afcf3bcdb0ea7f44762f3c2990069d047335991ff"
+    },
+    "accessibility-proposal/spacr/qt/screens/foreign.py.gz": {
+      "raw_bytes": 60051,
+      "raw_sha256": "aeae51977d736ed245e5bbee8ffbf52617ad080d67328cb3a28fced1ab47b2ff",
+      "gzip_sha256": "dd19693913221ab4d84297b1d576583c54ac567522965cf29072d1afcddb28f3"
+    },
+    "accessibility-proposal/spacr/qt/screens/train_compare.py.gz": {
+      "raw_bytes": 44352,
+      "raw_sha256": "4230a80a7c7ad548a88505c6b151fad926d040a8f6f5bd2429c35940f3bc903c",
+      "gzip_sha256": "12f7e3676de7165e1b788adc6618939b769f0ea1e53bb0c2f01a476aadb59bf2"
+    },
+    "accessibility-proposal/spacr/qt/widgets/object_settings_grid.py.gz": {
+      "raw_bytes": 63695,
+      "raw_sha256": "391f0a7a319c3a042a644d3530ab31db75fc64356506ac6e08648edc41be9423",
+      "gzip_sha256": "a380223512df71c5925a7c09bc36c638e88335455766a9b0cd954e7683aa791b"
+    }
+  },
+  "limitations": [
+    "Original r1 counted visible axes including one empty ratio axis; corrected r2 counts only axes with plotted data. Both complete runs retained.",
+    "No source rows/columns lost in CSV; panel plotting recipe limited to first measurement.",
+    "Four-file accessibility proposal included here compiles and cleanly applies, but app source was not modified/adopted/tested; passing prototype evidence is in prior N655 proof."
+  ]
+}

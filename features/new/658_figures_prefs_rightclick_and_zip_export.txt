@@ -262,3 +262,12 @@ PART C — WHAT IS LEFT
   registers the source/resized images and labels so Save figure includes them
   with the rendered picture. A zip round-trip test compares the exported
   pixels and metadata with the originals; the focused figure cohort passes.
+
+2026-10-08 08:45 EDT — Workstation real multi-panel export reproducer
+  Actual _plot_recruitment produces4 measurement panels and5 ratio panels.
+  Exported standalone recreation script draws only1 panel for each. All8 source
+  rows and every CSV column are retained; this is recipe/layout loss, not source
+  data loss. r1 visible-axis count included one empty axis; r2 counts plotted
+  data only. Both complete logs/scripts retained. No app edit or fix acceptance.
+  Remaining multi-panel work is actionable and OPEN.
+  Proof: features/data/658_recruitment_multipanel_reproducer_2026-10-08/receipt.json.
