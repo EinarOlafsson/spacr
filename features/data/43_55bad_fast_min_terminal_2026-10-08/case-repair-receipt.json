@@ -1,0 +1,27 @@
+{
+  "scope": "Archived payload name/reference correction only; no app, test, gate or historical raw evidence edits.",
+  "source_sha": "55badc57ff25ef6a7e14721561773a412b515318",
+  "failed_run": 37720484173,
+  "failed_job": 113126751654,
+  "node": "tests/test_no_two_packaged_files_differ_only_in_case.py::test_no_two_tracked_paths_differ_only_in_case",
+  "old_path": "features/data/43_bb7_hosted_failure_frontier_2026-10-07/before-cancel/MANIFEST.json",
+  "new_path": "features/data/43_bb7_hosted_failure_frontier_2026-10-07/before-cancel/snapshot-receipt.json",
+  "moved_payload_sha256": "14339c797a5e26bc2f5205608da3f57fac5125bd20718de0f57edf3715b1b397",
+  "moved_payload_byte_identical": true,
+  "raw_original_manifest_sha256": "01eebc510000ac2249aea77d0dfc38b85c1f637fa88e83a39dd5e4a054b8707f",
+  "parent_manifest_after_sha256": "10e3eb44667cddee371141a4b992ff7c086da30606b03cadb9e60f3c0724a7fb",
+  "readme_after_sha256": "5cad6e6c4148142a8b6157af36c3408a30107d23765c8c3297ca791c989edeb1",
+  "writer": "Existing archive has no registered generator; references serialized with the same json.dumps(indent=2) format. Normal catalog/guide generators untouched.",
+  "repair_commit": "3c387ce24d2d5b9fa7061e37f9682c803be1cddd",
+  "unchanged_guard_sha256": "1357c29a19c562568a74f5a228a809ccce6fdc21a2d73ba2e8dfaef946c814fd",
+  "before_scope": "Actual exact55 hosted MinDeps Python3.9.25 log, sole blocking case-collision failure.",
+  "after_scope": "Existing unchanged exact guard locally under4G, Python 3.12.13,1passed/0.66s. Not a new hosted-green verdict.",
+  "archive_integrity": {
+    "compressed_and_raw_log_pairs": 21,
+    "parent_snapshot_files": 6,
+    "child_snapshot_files": 3,
+    "aggregate_and_nested_receipt_hashes": "pass"
+  },
+  "after_log_sha256": "41c3b06b1f0237013bf2a2d9555cfc394501d11435eed1ea4fe0a018aef42c2e",
+  "initial_local_setup_error": "Sparse checkout package absent; conftest provenance guard stopped collection. Package materialized, original guard rerun once; error log preserved."
+}
