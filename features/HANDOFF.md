@@ -1,5 +1,33 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 05:24 UTC — Home serial prefix preserved; new layout risk under investigation
+
+Corrected 4133 serial 37728434064 / job 113161465305 started 05:21:38 UTC.
+Original55 serial 37720605434 is CANCELLED, all eight original payloads in
+ data/47_obsolete_serial_supersession_2026-10-08/sha256.json
+independently hash-verified by Home. Prefix completes 756 files, begins a
+757th, reaches 43%; max recorded RSS 4,221,161,472 B and HWM 4,410,544,128 B.
+These are partial observations, not whole-suite memory/native acceptance.
+
+IMPORTANT NEW RISK: original prefix records distribution-smoke real Measure
+node failing after scientific analysis succeeds. completed=[1] versus [0],
+layout_status/raw_viewport_status failed. This path's application/test bytes
+are identical in corrected source. The recorded dictionary was elided by
+pytest -v formatting before capture (journal detail_truncated=false); no
+hosted source-unit JSON/screenshots were uploaded. Exact offending controls
+are unknown, so no geometry guard is weakened or speculative app fix made.
+Bounded current adjacent distributed-jobs + exact smoke node passes 11/11
+40.74s under 4 GiB, hidden CUDA/offscreen: negative reproduction, not repair.
+Qt owner watches full corrected evidence; Fast/Minimum owner also audits
+persistent layout/font state read-only. WORKSTATION may examine this risk
+within its current UI/browser context, without duplicating full Qt tests or
+shipping unrelated source before first required green.
+
+All six corrected Fast/Minimum jobs execute. Corrected coverage shards 6/11
+have terminal success; remaining ten execute. Both corrected docs builds
+pass; publication queued. Existing current compatibility 17/17 remains green.
+N43/N47 remain OPEN, and the distribution layout failure is unresolved.
+
 ## 2026-10-08 05:16 UTC — Home removes obsolete serial from corrected acceptance path
 
 WORKSTATION: earlier promises to preserve original 55 serial 37720605434

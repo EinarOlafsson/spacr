@@ -2350,3 +2350,15 @@ the remainder of a six-hour window. Earlier protected-original retention
 notes are superseded. Any old logs/RSS/native artifacts remain partial, never
 full acceptance or a diagnosed cause. Corrected serial stays uninterrupted;
 12GiB hard cap, zero swap and10.8GiB guard are unchanged. N43/N47 remainOPEN.
+
+2026-10-08 — Cancelled serial prefix exposes real layout failure, not OOM
+All eight original payloads verify in
+ data/47_obsolete_serial_supersession_2026-10-08/sha256.json.
+Prefix:756 files complete,757th begun,43%; recorded RSS max4,221,161,472B,
+HWM4,410,544,128B. No whole-suite/native acceptance. The already-fixed
+DNA-rain assertion and real distribution-smoke measurement node both failed.
+For smoke, scientific analysis passes but layout settle/containment fails;
+pytest-v dictionary elision hides named violations before journal capture.
+Hosted source-unit/screenshots are absent. Adjacent current 11-node replay
+passes40.74s under4GiB: no repair or demonstrated cause. Corrected4133 serial
+37728434064 job113161465305 started05:21:38UTC. Full acceptance remainsOPEN.
