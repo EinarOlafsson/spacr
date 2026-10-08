@@ -6211,6 +6211,8 @@ class _FungalGrowthEngine(_BufferedEngine):
         parents = [by_endpoint.get(edge[:2]) for edge in candidates]
         selected = set()
         for index in reversed(range(len(candidates))):
+            if index not in selected and costs[index] > budget:
+                continue
             chain = []
             seen = set()
             for sibling in by_origin[candidates[index][:2]]:

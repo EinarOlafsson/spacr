@@ -241,6 +241,42 @@ def test_colliding_endpoints_resolve_to_the_last_parent_before_budgeting(
     assert admitted == ([1, 2] if cheap_parent_last else [1])
 
 
+def test_selected_expensive_parent_still_admits_its_unselected_sibling(monkeypatch):
+    """An admitted ancestor must not hide a fitting sister from frontier order."""
+    engine = _engine(density=3.0)
+    lineage = (
+        (0, 0, 0, .25, 0, .5, 0, 0, 1, 0, 0),
+        (1, 0, 10, 1.5, 10, 3, 10, 0, 1, 1, 0),
+        (2, 0, 0, 6, 0, 12, 0, 0, 1, 2, 0),
+        (3, 12, 0, 12.05, 0, 12.1, 0, 0, 1, 3, 0),
+    )
+    monkeypatch.setattr(engine, "_lineage", lambda *_: lineage)
+    engine.set_time(10.0)
+    admitted = engine.geometry(20, 20)
+    assert [edge[-1] for edge in admitted] == [0, 2, 3]
+    assert admitted[-1][:2] == admitted[-2][4:6]
+
+
+@pytest.mark.parametrize("ulp_offset", (-8, 0, 8))
+def test_remaining_ink_budget_keeps_the_branch_on_the_fitting_side_of_equality(
+        monkeypatch, ulp_offset):
+    """A tiny fitting filament survives next to an almost budget-filling root."""
+    engine = _engine(density=3.0)
+    radius = .65 * .5 + 1.5
+    tiny_cost = 2.0 * radius * .01 + math.pi * radius ** 2
+    length = (88.0 - tiny_cost - math.pi * radius ** 2) / (2.0 * radius)
+    for _ in range(abs(ulp_offset)):
+        length = math.nextafter(length, math.inf if ulp_offset > 0 else -math.inf)
+    lineage = (
+        (0, 0, 0, .005, 0, .01, 0, 0, 1, 0, 0),
+        (1, 0, 10, length / 2.0, 10, length, 10, 0, 1, 1, 0),
+    )
+    monkeypatch.setattr(engine, "_lineage", lambda *_: lineage)
+    engine.set_time(10.0)
+    admitted = [edge[-1] for edge in engine.geometry(20, 20)]
+    assert admitted == ([0, 1] if ulp_offset <= 0 else [1])
+
+
 @pytest.mark.parametrize("canvas", ((20, 1000), (1000, 20)))
 def test_narrow_canvases_keep_reflected_filaments_connected_and_inside(canvas):
     """Tips can turn at either nearby wall without leaving a narrow view."""
