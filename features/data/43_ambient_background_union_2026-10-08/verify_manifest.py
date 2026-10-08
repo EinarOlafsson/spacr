@@ -32,7 +32,12 @@ def verify(git=False):
         "background-86.json.gz",
         "integrated-7.json.gz",
         "integrated-7.log.gz",
+        "integrated-86.json.gz",
+        "integrated-86.log.gz",
         "background-measured-ambient.py.gz",
+        "guard-source-ambient.py.gz",
+        "guard-focused.json.gz",
+        "guard-focused.log.gz",
     }
     for name, expected in hashes.items():
         assert hashlib.sha256(_read(name, git)).hexdigest() == expected, name

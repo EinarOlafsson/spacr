@@ -87,15 +87,18 @@ def _preference_tips(source):
     }
 
 
-def verify(git=False, api=False):
+def verify(git=False, api=False, revision="HEAD"):
     receipt = json.loads(_read("receipt.json", git))
-    assert receipt["target_revision"] == "0d8950bb6242cb08fd035056dc8d9ecd35a7180d"
-    current = {path: _source("HEAD", path) for path in PATHS}
+    assert receipt["target_revision"] == "237f649ad"
+    current = {path: _source(revision, path) for path in PATHS}
     assert {path: _sha(data) for path, data in current.items()} == receipt[
         "target_source_sha256"
     ]
-    assert _sha(_source("HEAD", "tests/qt/test_ambient_background_choice.py")) == receipt[
+    assert _sha(_source(revision, "tests/qt/test_ambient_background_choice.py")) == receipt[
         "current_test_source_sha256"
+    ]
+    assert _sha(_source(revision, "tests/qt/test_fungal_growth_engine.py")) == receipt[
+        "guard_test_source_sha256"
     ]
 
     prior = json.loads(_git("HEAD:" + receipt["prior_archive"] + "/receipt.json"))
@@ -126,6 +129,17 @@ def verify(git=False, api=False):
             1,
         )
 
+    def positive_cost_guard(source):
+        target = b"        for index in reversed(range(len(candidates))):\n"
+        assert source.count(target) == 1
+        return source.replace(
+            target,
+            target
+            + b"            if index not in selected and costs[index] > budget:\n"
+            + b"                continue\n",
+            1,
+        )
+
     assert parent_index(original_ambient) == fungal_after
     background_ambient_gz = _read("background-measured-ambient.py.gz", git)
     assert _sha(background_ambient_gz) == receipt[
@@ -135,7 +149,27 @@ def verify(git=False, api=False):
     assert _sha(background_ambient) == receipt[
         "background_measured_ambient_source_sha256"
     ]
-    assert parent_index(background_ambient) == current[AMBIENT]
+    integrated_ambient = parent_index(background_ambient)
+    assert positive_cost_guard(integrated_ambient) == current[AMBIENT]
+    for name in ("guard-source-ambient.py.gz", "guard-focused.json.gz", "guard-focused.log.gz"):
+        compressed = _read(name, git)
+        evidence = receipt[name]
+        assert _sha(compressed) == evidence["archive_sha256"]
+        assert _sha(gzip.decompress(compressed)) == evidence["raw_sha256"]
+    assert gzip.decompress(_read("guard-source-ambient.py.gz", git)) == current[AMBIENT]
+    guard_report = json.loads(gzip.decompress(_read("guard-focused.json.gz", git)))
+    assert set(guard_report["files"]) == {AMBIENT}
+    assert b"18 passed" in gzip.decompress(_read("guard-focused.log.gz", git))
+    guard_line = next(
+        number
+        for number, value in enumerate(current[AMBIENT].splitlines(), 1)
+        if value == b"            if index not in selected and costs[index] > budget:"
+    )
+    guard_row = guard_report["files"][AMBIENT]
+    assert {guard_line, guard_line + 1} <= set(guard_row["executed_lines"])
+    assert {(guard_line, guard_line + 1), (guard_line, guard_line + 2)} <= {
+        tuple(arc) for arc in guard_row["executed_branches"]
+    }
     assert _source("5b655f8c7a255fe2420840d102ba5b316a69d594", PATHS[0]) == _source(
         "6836512a98bea77e946dd941a9b4f8a0e38068b5", PATHS[0]
     )
@@ -148,8 +182,10 @@ def verify(git=False, api=False):
         "hosted-three": {path: _source("6836512a98bea77e946dd941a9b4f8a0e38068b5", path) for path in PATHS},
         "root-focused-two": {path: _source("11229945a6e803f5fa1d5ed6683d446a2b068132", path) for path in PATHS[:2]},
         "background-86": {PATHS[0]: current[PATHS[0]], AMBIENT: background_ambient, PATHS[2]: current[PATHS[2]]},
-        "integrated-7": current,
+        "integrated-7": {PATHS[0]: current[PATHS[0]], AMBIENT: integrated_ambient, PATHS[2]: current[PATHS[2]]},
+        "integrated-86": {PATHS[0]: current[PATHS[0]], AMBIENT: integrated_ambient, PATHS[2]: current[PATHS[2]]},
         "fungal-55": {AMBIENT: fungal_after},
+        "guard-18": {AMBIENT: current[AMBIENT]},
     }
     reports = {}
     for name in ("hosted-three", "root-focused-two", "background-86", "integrated-7"):
@@ -167,12 +203,24 @@ def verify(git=False, api=False):
         "HEAD:" + receipt["fungal_archive"] + "/final-focused-coverage.json.gz"
     )))
     reports["fungal-55"] = fungal_report
+    reports["guard-18"] = guard_report
     log = gzip.decompress(_read("integrated-7.log.gz", git))
     assert _sha(log) == receipt["integrated_log_sha256"]
     assert b"7 passed" in log
+    for label in ("integrated-86.log", "integrated-86.json"):
+        archived = _read(label + ".gz", git)
+        key = label.replace(".", "_")
+        assert _sha(archived) == receipt[key + "_archive_sha256"]
+        raw = gzip.decompress(archived)
+        assert _sha(raw) == receipt[key + "_sha256"]
+        if label.endswith(".log"):
+            assert b"86 passed" in raw
+        else:
+            assert set(json.loads(raw)["files"]) >= set(PATHS)
+            reports["integrated-86"] = json.loads(raw)
 
     for path in PATHS:
-        static = _row(reports["integrated-7"], path)
+        static = _row(reports["guard-18"] if path == AMBIENT else reports["integrated-7"], path)
         possible_lines = set(static["executed_lines"] + static["missing_lines"])
         possible_arcs = {tuple(arc) for arc in static["executed_branches"] + static["missing_branches"]}
         covered_lines = set()
@@ -228,5 +276,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--git", action="store_true")
     parser.add_argument("--api", action="store_true")
+    parser.add_argument("--revision", default="HEAD")
     args = parser.parse_args()
-    verify(git=args.git, api=args.api)
+    verify(git=args.git, api=args.api, revision=args.revision)

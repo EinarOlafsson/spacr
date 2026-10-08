@@ -1,12 +1,17 @@
 {
-  "README.md": "a0fc98a3c14bd9756128845af5000710f8f7350964adb26f9ea4cfbb67992177",
+  "README.md": "92c4aeb69c06ae2996835d69a965225f6655a298bed4f20a91e6c76cb763a047",
   "background-86.json.gz": "de8085399a4129c20064dc18a1a687b13cbcaafc0bdb3e8aeb9a7d1b926f0920",
   "background-measured-ambient.py.gz": "8364b7868758d8101e1feac8684e02dedf3169d32fba961cfa24779e90ef0d47",
+  "guard-focused.json.gz": "1ec2da690c0ac19819403c089191632234ebc8c6f9122c7cf7521a4baab14b26",
+  "guard-focused.log.gz": "8f0aeeb4bb01cd209b1a4bc7c545851649a8e8cd90e8e79a1069214ef6de122b",
+  "guard-source-ambient.py.gz": "f4aedb9a48453c0ecb38a05a17a1c4d1312a20d2be343a1a368a4df29573f37e",
   "hosted-three.json.gz": "b9a17306b85ea66b78988e13ad5d3769985ee26bae63ff070a819108603340e8",
   "integrated-7.json.gz": "af9ad36028e6823fb6cf39bed23a504e613bae4c1cc4fbfe01b513f0d649fd7f",
   "integrated-7.log.gz": "da2e99911f359c42073bb5ba2d6188e8a12d1c2a5b64d2f19dfafc2df05f9779",
-  "receipt.json": "1e304aca4c3eb623f5615422ccd829073f4e23fe3eed71a9535714e116658cc0",
+  "integrated-86.json.gz": "7a8d8bdb363ce5d0f29c3b69ca42d864fb347a97e18cf7f93e9eea08b4602221",
+  "integrated-86.log.gz": "ff9cb60d4696e345b4e797d6fe6fd44039e8df7f5c87dcad6e71a14b12cb118e",
+  "receipt.json": "e6909016f1c5a3d90ec3ae57147cf7c74ad101a7b8cdef460642edaac8983e83",
   "root-focused-two.json.gz": "f2ed25f01cf49fe8a643d215a0fbffdd5511456fb53ab2528ac68efdbea33012",
-  "verify_manifest.py": "3ab36f5e75e51e03f064d618b177f82294f24a93ae43f406aa50c85fd180b79f",
-  "verify_union.py": "9630b75c366c6171a85be6e093a2f2b4a7d99015930367d19d926375f68e32d5"
+  "verify_manifest.py": "2d86750f1144236392e3a3a752e1942ebab1140432923920050d19e4d769c11c",
+  "verify_union.py": "74eddd9cf0ad0bbaf4d1e03bd0b24b6f9bc29a19cd157c48d079fa9495a82b30"
 }

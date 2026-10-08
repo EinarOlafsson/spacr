@@ -31,6 +31,19 @@
     ]
   },
   "fungal_archive": "features/data/663_fungal_parent_index_cpu_2026-10-07",
+  "guard-focused.json.gz": {
+    "archive_sha256": "1ec2da690c0ac19819403c089191632234ebc8c6f9122c7cf7521a4baab14b26",
+    "raw_sha256": "cc1846a7145d1bde6c5b4559adca066fdaa9c162fa8d19595c0c4e44e49f5edc"
+  },
+  "guard-focused.log.gz": {
+    "archive_sha256": "8f0aeeb4bb01cd209b1a4bc7c545851649a8e8cd90e8e79a1069214ef6de122b",
+    "raw_sha256": "e8a1f6ad96cd5e73c788e06f6a278cc012b35bd55ee87f7943615753d36772b8"
+  },
+  "guard-source-ambient.py.gz": {
+    "archive_sha256": "f4aedb9a48453c0ecb38a05a17a1c4d1312a20d2be343a1a368a4df29573f37e",
+    "raw_sha256": "7c9dcdcfb032a4f9677fcb45d101f5d5540e887d28145b794c5d91625632c9bc"
+  },
+  "guard_test_source_sha256": "dccba2b1bfdce79f65c3bd5a1bba7fed4120883eb88a106405d4fd688c50d054",
   "hosted-three": {
     "archive_sha256": "b9a17306b85ea66b78988e13ad5d3769985ee26bae63ff070a819108603340e8",
     "original_sha256": "b7ab0bf6fa2fb39f93f33c28660ae33173fb2a2b1c6d1f2615cfaeaa8cb68320",
@@ -51,6 +64,10 @@
       "spacr/qt/widgets/ambient.py": "867e84aa256ef7b5b6c7abb08351de51d68061bad2d6dcccfd946421851cec8b"
     }
   },
+  "integrated-86_json_archive_sha256": "7a8d8bdb363ce5d0f29c3b69ca42d864fb347a97e18cf7f93e9eea08b4602221",
+  "integrated-86_json_sha256": "1cda4a7bf4930e2b27b036a17557b55c9f77b47b13a5ce9d5a597d6632754772",
+  "integrated-86_log_archive_sha256": "ff9cb60d4696e345b4e797d6fe6fd44039e8df7f5c87dcad6e71a14b12cb118e",
+  "integrated-86_log_sha256": "32353469a793a4acec84211d1d55ef610118b604081e8f3fe899cfbc8f03ec6a",
   "integrated_log_gzip_sha256": "da2e99911f359c42073bb5ba2d6188e8a12d1c2a5b64d2f19dfafc2df05f9779",
   "integrated_log_sha256": "e6c88404ca7f8fbca202170a671c2d4b6f0c9017d7c5b52130eb7b8bd15a898d",
   "preference_tip_changes": {
@@ -87,11 +104,11 @@
     "Choose the animation background colour. Brightness is adjusted to fit the active Dark or Light theme.",
     "Theme colour"
   ],
-  "target_revision": "0d8950bb6242cb08fd035056dc8d9ecd35a7180d",
+  "target_revision": "237f649ad",
   "target_source_sha256": {
     "spacr/qt/preferences.py": "a023ade78f1620f04163288143b541c5262bff611b46d77c1a6e13cd76989cfc",
     "spacr/qt/screens/app_screen.py": "5e0563ad3c3929b89edb5f0d8eeb4623537f18230c374b0d4e08511e43b944a1",
-    "spacr/qt/widgets/ambient.py": "867e84aa256ef7b5b6c7abb08351de51d68061bad2d6dcccfd946421851cec8b"
+    "spacr/qt/widgets/ambient.py": "7c9dcdcfb032a4f9677fcb45d101f5d5540e887d28145b794c5d91625632c9bc"
   },
   "unchanged_original_allowances": {
     "spacr/qt/preferences.py": [
