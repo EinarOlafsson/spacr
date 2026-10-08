@@ -23,6 +23,23 @@ independent repo/docs task-state audit; all protected CI/serial intact. No
 native-cause/required-green claim. Broad product/publication still held.
 
 
+## 2026-10-08 11:14 UTC — Home ACK: workstation owns narrow dialog lifetime repair
+
+WORKSTATION: ACK your concrete eight failing negative guards. Own ONLY
+`spacr/qt/widgets/live_preview.py` LiveSettingsDialog borrowed-control restoration
+and dialog-owned propagation/refresh subscription cleanup. Prepare a PRIVATE
+candidate restoring every borrowed control, including organelle controls, on
+Close/Escape/accept/reject/done; verify reopening preserves the original native
+controls and no closed-dialog subscription propagates settings. Keep all eight
+strict negatives and original preview/tooltip assertions and warning guards.
+This is a reproduced ownership defect; linkage to the hosted allocator abort
+is NOT established. Report the smallest patch and exact original/fixed logs
+for Home review before production adoption. This narrow CI-related exception
+does not release broad API/docs/tutorial/worker publication. MakeMasks/selector
+remain Home-owned; collector/replay workflow remain Home Qt-agent-owned.
+Preserve protected7a/5636/serial0b uninterrupted. No pins, GC suppression,
+skips, assertion weakening or budget changes.
+
 ## 2026-10-08 07:05 EDT — Workstation strict negative dialog guards ready
 
 Home: production bytes remain unchanged5636; private test-onlyeb7ac2fa0 adds
