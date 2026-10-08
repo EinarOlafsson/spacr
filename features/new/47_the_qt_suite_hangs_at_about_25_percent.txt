@@ -2411,3 +2411,5 @@ receipt.json verifies two files and seven raw terminal phases. API/runtime
 strings identical to62; combined hashes require normal regeneration. This
 real local defect is not proof of the historical hosted one-pixel failure's
 cause or cure. Full serial/native/current-source acceptance remainsOPEN.
+
+2026-10-08 16:52 EDT — Independent small source checkpoint: Console stdout/jump clipping fix is now published after51offscreen+51softwareXvfb focusedPASS; normalAPI/runtime unchanged. The coverage-drop test keeps100ms actual delivery and700ms watchdog with a direct worker-thread classification assertion and expected failing inline negative control. Exactold2e full numerical664/664module,12/12integrity gatePASS; its selecteddrop test isRED. Current-source hosted CI and original-order fullQt acceptance remainOPEN. Proof: data/43_console_drop_publication_2026-10-08.

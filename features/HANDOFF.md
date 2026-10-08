@@ -1,5 +1,36 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 16:57 EDT — Console publication confirmed; additional drop-test repair
+
+Workstation4d published the Console fix with the full coherent UI bundle.
+Home independently verified exact isolated18fd/private1260 source; identical
+Console source is omitted during rebase. Home now adds drop-test41e+f52.
+Console source changes five implementationlines only: stdout grows into its
+outer scroll; hidden Jump retains height so appearance never shrinks the
+viewport. Public-base acceptance51PASS44.45s offscreen and51PASS40.07s
+Qt6.12 softwareXvfb, including exact real measurement distribution node.
+Normal API13215records and all six runtime buckets are BYTE-EQUIVALENT to
+publicbase; no generated artifact refresh is needed for this small patch.
+Workstation frozen6fa already contains identical Console bytes; preserve it,
+not a new UI or API expansion. Do not wait on later N672/N673 integration.
+
+Exact2e attempt2 Coverage5 now terminalFAILED on one genuine test assertion:
+synthetic gesture total104.524565ms versus100ms. The committed repair times
+actual QDrop delivery only and DIRECTLY checks real filesystemclassification
+thread differs fromGUI. All100ms/700ms limits and100kfixture stay unchanged.
+Qt6.12 positive exactnodePASS9.97s; related3PASS; forcedinline negativefails
+at thread assertion7.34s. No test skip, ceiling increase or science waiver.
+
+The complete strict NUMERICAL gate now PASSES:664/664modules,12/12shard
+integrity,0ratchet failures,0unconfirmed rises,99improved,1existingfloor
+exemption,0stalebaselines. Aggregate remains correctlyRED because Coverage5
+selected-test statusfailed. No current-source hosted-green claim yet.
+Proofs source-bound in43_console_drop_publication_2026-10-08.
+
+A workspace mistake was disclosed: delegate initially cherry-picked Console
+into SHARED localnightly15ef; no push and oldtools/gpu_turn.sh edit untouched.
+No sharedreset/revert/checkout was attempted. Source delivery is isolated.
+
 ## 2026-10-08 16:54 EDT — Exact terminal coverage cause and documentation proof archive
 
 Original2e attempt2 completed all11Coverage5 batches; sole assertionFAIL
