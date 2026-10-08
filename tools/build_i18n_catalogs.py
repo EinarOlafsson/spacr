@@ -4088,6 +4088,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths = set((ROOT / "spacr" / "qt").rglob("*.py"))
     paths.add(ROOT / "spacr" / "model_compare.py")
     paths.add(ROOT / "spacr" / "embeddings.py")
+    source_root = ROOT / "spacr"
+    preferences_path = source_root / "qt" / "preferences.py"
     for path in sorted(paths):
         if "i18n_catalogs" in path.parts:
             continue
@@ -4095,6 +4097,9 @@ def extract_static_ui_sources() -> tuple[str, ...]:
             tree = ast.parse(path.read_text(encoding="utf-8"))
         except SyntaxError:
             continue
+        is_preferences = path == preferences_path
+        filename = path.name
+        helper_module = path.relative_to(source_root).as_posix().removeprefix("qt/")
         constants: dict[str, ast.AST] = {}
         for statement in tree.body:
             if (isinstance(statement, ast.Assign)
@@ -4107,7 +4112,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                 constants[statement.target.id] = statement.value
         for node in ast.walk(tree):
             if (
-                path == ROOT / "spacr" / "qt" / "preferences.py"
+                is_preferences
                 and isinstance(node, ast.For)
                 and isinstance(node.target, ast.Tuple)
                 and tuple(getattr(item, "id", None) for item in node.target.elts)
@@ -4156,7 +4161,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                                 if _looks_translatable(value):
                                     found.add(value.strip())
             if (
-                path.name == "measure_preview.py"
+                filename == "measure_preview.py"
                 and isinstance(node, (ast.Assign, ast.AnnAssign))
                 and (
                     (
@@ -4181,7 +4186,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                         if _looks_translatable(value):
                             found.add(value.strip())
             if (
-                path.name == "annotate.py"
+                filename == "annotate.py"
                 and isinstance(node, (ast.Assign, ast.AnnAssign))
                 and (
                     (
@@ -4206,7 +4211,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                 continue
             name = _call_name(node)
             for argument in _helper_caption_arguments(
-                node, path.relative_to(ROOT / "spacr").as_posix().removeprefix("qt/"), name,
+                node, helper_module, name,
             ):
                 for value in _literal_strings(argument, constants):
                     if _looks_translatable(value):

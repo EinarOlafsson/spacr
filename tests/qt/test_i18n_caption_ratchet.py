@@ -1343,6 +1343,7 @@ def test_external_caption_layer_is_complete_exclusive_and_pinned():
     sys.path.insert(0, tools_dir)
     try:
         builder = import_module("build_i18n_catalogs")
+        pinned_external_sources = import_module("i18n_caption_arrivals").pinned_external_sources
     finally:
         sys.path.remove(tools_dir)
 
@@ -1357,7 +1358,14 @@ def test_external_caption_layer_is_complete_exclusive_and_pinned():
         "UI": canonical["ui"],
         "MODULE_SUMMARIES": canonical["module_summaries"],
     }
-    counts = {table: len(records) for table, records in external.items()}
+    # Preserve the immutable catalog pin while requiring exact current source
+    # arrivals, retirements, body changes and all nine reviewed target bindings.
+    # This bounded adapter also documents the baseline's one stale hint.
+    pinned_external = pinned_external_sources(
+        external, original_counts=EXTERNAL_SOURCE_COUNTS,
+        original_identity_sha256=EXTERNAL_SOURCE_KEY_SHA256,
+    )
+    counts = {table: len(records) for table, records in pinned_external.items()}
     assert counts == EXTERNAL_SOURCE_COUNTS, (
         "external caption inventory changed; review every new/removed record "
         f"before moving the ratchet: {counts}"
@@ -1365,7 +1373,7 @@ def test_external_caption_layer_is_complete_exclusive_and_pinned():
 
     identities = sorted(
         (table, str(key))
-        for table, records in external.items()
+        for table, records in pinned_external.items()
         for key in records
     )
     digest = hashlib.sha256(
