@@ -1,0 +1,90 @@
+{
+  "api_counts": {
+    "base": 13232,
+    "final": 13232
+  },
+  "api_delta": {
+    "added": [],
+    "changed": [],
+    "removed": []
+  },
+  "base_commit": "c4c94a808a1d4ce79db3072d34cc52bf05b5f0b3",
+  "final_commit": "e113e3fdf48306b3433ba0773f2baf5601813364",
+  "private_helpers": {
+    "_move_next": {
+      "docstring": "Advance after optionally saving mask edits; Skip never writes one.",
+      "line": 17026,
+      "published_api_record": false,
+      "sha256": "a2bae0146178686223bd4de8e34af8342c0b1ac2b9571ff27ba4e7af6299ba95"
+    },
+    "_save_mask": {
+      "docstring": "Save the visible mask regardless of the selected editing tool.",
+      "line": 17129,
+      "published_api_record": false,
+      "sha256": "acb9d5f2f75c6b2fe5feff1622d6fb5b879fb3848ba3be366b19e80f01fa9075"
+    },
+    "_save_mask_if_needed": {
+      "docstring": "Save edited mask pixels before navigation when the user opted in.",
+      "line": 17061,
+      "published_api_record": false,
+      "sha256": "964d0ff307f1b0377518cf44fc51e5365589c3ae1ae2148d07258a96efc38154"
+    }
+  },
+  "runtime_counts": {
+    "base": {
+      "categories": 237,
+      "installer": 65,
+      "module_summaries": 77,
+      "setting_labels": 1221,
+      "setting_tooltips": 1243,
+      "ui": 7288
+    },
+    "final": {
+      "categories": 237,
+      "installer": 65,
+      "module_summaries": 77,
+      "setting_labels": 1221,
+      "setting_tooltips": 1243,
+      "ui": 7290
+    }
+  },
+  "runtime_delta": {
+    "categories": {
+      "added": [],
+      "changed": [],
+      "removed": []
+    },
+    "installer": {
+      "added": [],
+      "changed": [],
+      "removed": []
+    },
+    "module_summaries": {
+      "added": [],
+      "changed": [],
+      "removed": []
+    },
+    "setting_labels": {
+      "added": [],
+      "changed": [],
+      "removed": []
+    },
+    "setting_tooltips": {
+      "added": [],
+      "changed": [],
+      "removed": []
+    },
+    "ui": {
+      "added": [
+        "Save an edited mask before Keep, Discard, Next or Previous. If saving fails, stay on this image without recording a verdict. Off by default; Skip still writes no mask.",
+        "Save on navigation"
+      ],
+      "changed": [],
+      "removed": []
+    }
+  },
+  "source_blobs": {
+    "base": "88c3d1e4f91f33d4780827932150ed220e4839da",
+    "final": "e890956f0e353c549b6d5c9da9aad3dd4384cbd9"
+  }
+}
