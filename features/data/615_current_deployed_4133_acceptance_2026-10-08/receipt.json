@@ -1,0 +1,153 @@
+{
+  "passed": true,
+  "deployed_source": "4133beafcd0ae427795617a4a01e295fd40539b7",
+  "workflow": 37728397371,
+  "scope": "All ten complete deployed catalogs byte-match immutable source catalogs; 32 current repaired guide paragraphs pass desktop/mobile, 64 browser checks. No private projection deployment or new native translation review.",
+  "catalogs": [
+    {
+      "language": "en",
+      "bytes": 12575491,
+      "sha256": "cbb4ca8fbce60abc86c7acb9839de504edb5484413e77c86229b71765b95d8ad",
+      "symbols": 13215,
+      "passed": true
+    },
+    {
+      "language": "sv",
+      "bytes": 17433647,
+      "sha256": "5da6aa7cd1aab4c28b262cf71d1a376d30f35da1de6a6439fd63337da2a16d07",
+      "symbols": 13215,
+      "passed": true
+    },
+    {
+      "language": "de",
+      "bytes": 17973077,
+      "sha256": "550da5048f3ac5f9635d99a12a715ec89effc95de9c717ebb87397f112762f57",
+      "symbols": 13215,
+      "passed": true
+    },
+    {
+      "language": "es",
+      "bytes": 17908921,
+      "sha256": "a2671fbbdff196e5a3a765a10d32b5c3aa3395972ff7dd4e0743cc4415c57768",
+      "symbols": 13215,
+      "passed": true
+    },
+    {
+      "language": "pt",
+      "bytes": 17755213,
+      "sha256": "640090c85fa0701ead94c926da49d4b3d7577043792bac41208481cf9e86dcf0",
+      "symbols": 13215,
+      "passed": true
+    },
+    {
+      "language": "fr",
+      "bytes": 18095802,
+      "sha256": "61b2a89a31722e3b3d6d62e08dd6948b4b9456a270eda269975c4302596457d3",
+      "symbols": 13215,
+      "passed": true
+    },
+    {
+      "language": "is",
+      "bytes": 17264208,
+      "sha256": "61c86bffa897b26abf81f1a6bd6940e0d21f527a42819c99f07380e635270d86",
+      "symbols": 13215,
+      "passed": true
+    },
+    {
+      "language": "zh_CN",
+      "bytes": 16488673,
+      "sha256": "aa3ff216a9cf957d8d71ac3c1f4f1660382f348b6a62fa6d9a09416b94d3b9ab",
+      "symbols": 13215,
+      "passed": true
+    },
+    {
+      "language": "ko",
+      "bytes": 18189996,
+      "sha256": "257fb20496e551739817d1ad7595ee0dbfc24510a15fe40c330283a5317d930e",
+      "symbols": 13215,
+      "passed": true
+    },
+    {
+      "language": "hi",
+      "bytes": 24627154,
+      "sha256": "7cd7174354f4b0c7074d978dfc8e3d6174396bae29abd7d385d2dca41f5951d3",
+      "symbols": 13215,
+      "passed": true
+    }
+  ],
+  "guide_checks": 64,
+  "metadata_correction": "Prior r1 inner browser receipt accidentally reused expected variable and put a Chinese paragraph into deployed_source. Its earlier publication assertion and outer archive correctly bound the check to 1a4df538c. Original retained. Current r2 uses immutable deployed_sha and binds its own source field to actual4133.",
+  "payloads": {
+    "features/data/615_current_deployed_4133_acceptance_2026-10-08/deployed-current-catalogs-r2.log.gz": {
+      "raw_sha256": "05855352a627e6a90dc2d5cf9b56e3077505c70df78c63d272f1df631b33d280",
+      "raw_bytes": 1033,
+      "archive_sha256": "cda2641cf57e2a3d458cc6f1cf099ecde7463fa967688d137f022ae84f8d5bea"
+    },
+    "features/data/615_current_deployed_4133_acceptance_2026-10-08/deployed-current-guide-browsers-r2.log.gz": {
+      "raw_sha256": "0906aa6a06edd7463350fc5e66bcd4fca51593e09a7716de609e25972217a234",
+      "raw_bytes": 1355,
+      "archive_sha256": "45001c37f877475735ddcb31337a5c36889e37c0e99ae7d463f5d7e246778d16"
+    },
+    "features/data/615_current_deployed_4133_acceptance_2026-10-08/deployed-current-catalogs-r2-tool.log.gz": {
+      "raw_sha256": "62236087481245d990f4c5d40d101f1bfb4accd8b195cd5b9e47e83a39068b02",
+      "raw_bytes": 563,
+      "archive_sha256": "bb01ac38ac31ebc03ae13393ab24c44360dba3a9f278ebc55b03113f5083025b"
+    },
+    "features/data/615_current_deployed_4133_acceptance_2026-10-08/deployed-current-guide-browsers-r2-tool.log.gz": {
+      "raw_sha256": "6982fa776e22cd0116984356e5ff80a656262d5fafb44bc8ff3bea78e8d82e02",
+      "raw_bytes": 836,
+      "archive_sha256": "9b3f93fc457b32d88a22afaa66ea43d64e9f0714c042263d80e10ecf28fbc383"
+    },
+    "features/data/615_current_deployed_4133_acceptance_2026-10-08/check_deployed_current_catalogs_r2.py.gz": {
+      "raw_sha256": "19e68a0370797ec4b0405bc9ec5fbb3e095b6ae1e9f493380ec2e36714e9bdbf",
+      "raw_bytes": 2099,
+      "archive_sha256": "cc1418eac5f1be68463f06ee509edd7f1815ead073a6ce418ed054d72a2249cc"
+    },
+    "features/data/615_current_deployed_4133_acceptance_2026-10-08/check_deployed_current_guide_browsers_r2.py.gz": {
+      "raw_sha256": "93894ca51ffe0c09c21569ec461248b2ff17800dc044868a0c70c0749203a72e",
+      "raw_bytes": 4955,
+      "archive_sha256": "3049d70cf24d8b63b20e5d11c2fc763083ff640c958821c6792a319c4df1d93b"
+    },
+    "features/data/615_current_deployed_4133_acceptance_2026-10-08/deployed-current-catalogs-r2/receipt.json.gz": {
+      "raw_sha256": "29c7f1f51ab216f91284b1040157bb7aa35d0c0e813724a8fa14148266207477",
+      "raw_bytes": 2396,
+      "archive_sha256": "03aa652d44a8e042087f24a774b5f01e6291538eddb02810601f7bcda4f474d2"
+    },
+    "features/data/615_current_deployed_4133_acceptance_2026-10-08/deployed-current-catalogs-r2/channels.json.gz": {
+      "raw_sha256": "ccda1ea356e29d52a4c247ebd01d4e106170928518e9cfef7f21c81410bfc1ed",
+      "raw_bytes": 511,
+      "archive_sha256": "61d00dbae9a6bc636e7c871046d865a065b963ba16a72c35942d05396ea5d674"
+    },
+    "features/data/615_current_deployed_4133_acceptance_2026-10-08/deployed-current-catalogs-r2/nightly/publication.json.gz": {
+      "raw_sha256": "178c84cc25dd8d42fdfce10019fda54ca0373cfc9c85c1f1c973cbb2fa24bbb5",
+      "raw_bytes": 179,
+      "archive_sha256": "af6bc315b4ead674781cf5e5c016514fe826c8e4cdbb4bff54b19be18c3385b7"
+    },
+    "features/data/615_current_deployed_4133_acceptance_2026-10-08/deployed-current-guide-browsers-r2/receipt.json.gz": {
+      "raw_sha256": "fff9fe95e242a6d51f022309dd93d7daa2b6261a7e2c50a9f0145c7418206ab3",
+      "raw_bytes": 21163,
+      "archive_sha256": "c9b9d471401570ae9c0e966e360a7e58f46d67a17021821141507dea584142cf"
+    },
+    "features/data/615_current_deployed_4133_acceptance_2026-10-08/deployed-current-guide-browsers-r2/ko-393.png.gz": {
+      "raw_sha256": "2ff40e2e7ee58b820a916945b9303585c59d55bb43726073cdb7e342b896297e",
+      "raw_bytes": 1884874,
+      "archive_sha256": "725fef5f0b9a768d4232b5448dade9abf2a26bbd5440c4a7dbbf135cdf49e905"
+    },
+    "features/data/615_current_deployed_4133_acceptance_2026-10-08/deployed-current-guide-browsers-r2/ko-1440.png.gz": {
+      "raw_sha256": "1d517f52ed5125b774ddf15634eb8f079ab470d3916f780533003aa80e3fcde1",
+      "raw_bytes": 2189152,
+      "archive_sha256": "c6426abbfea34eb8e0d3879d57b07b04ede1cfb459079debb62a1d7c52a20011"
+    },
+    "features/data/615_current_deployed_4133_acceptance_2026-10-08/deployed-current-guide-browsers-r2/zh_CN-1440.png.gz": {
+      "raw_sha256": "9e1119eb8168aa6dba0d63804fea193a3e88a9ca011357472fbc68de98070842",
+      "raw_bytes": 2574515,
+      "archive_sha256": "133a40d318c6bc76ca0360bc03b5020f089b43003b5c9840cabe747f5a349cff"
+    },
+    "features/data/615_current_deployed_4133_acceptance_2026-10-08/deployed-current-guide-browsers-r2/zh_CN-393.png.gz": {
+      "raw_sha256": "7bbaee71aae2b0fbe1a46ec244d3ce82094dbb5f126b2206095d065f3f074860",
+      "raw_bytes": 2230441,
+      "archive_sha256": "a36037446681e031f1757f29d76c0e0cd10aa316800647a38ab904921046ac03"
+    }
+  },
+  "script_sha256": "f747fbf78690197cd68e7dd92a608cd4286baacccddec17fc7845e25b5b50752"
+}

@@ -1826,3 +1826,17 @@ features/data/43_idle_session_fixture_repair_2026-10-08/receipt.json.
 Broader API projection and664/665 source remain private while Home's full
 required-green candidate is pending. Normal nine worker API writers complete;
 strict English projection build passes; tutorial and runtime/guide work active.
+
+2026-10-08 workstation fresh English publication checkpoint:
+Private893db3317 passes full strict English publication, current English-mode
+node, all nine strict guide builds and actual inventory13215/13215. Browser
+checks396 original English bodies across nine saved language preferences;
+this mode intentionally has no API translation selector. Default multilingual
+396 panels/1314 blocks are separate previous local proof. Portable24 payloads:
+features/data/411_source_projection_english_checkpoint_2026-10-08/receipt.json.
+Actual deployed4133 complete ten-catalog readback and64 current paragraph
+browser checks pass, portable14 payloads and explicit previous metadata fix:
+features/data/615_current_deployed_4133_acceptance_2026-10-08/receipt.json.
+No private projection publication, whole required CI or native-speaker claim.
+664/665 normal runtime/guide refresh and lesson05 final50-voice media remain
+active; first-required-green product-source hold remains.

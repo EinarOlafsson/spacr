@@ -1,5 +1,48 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 02:43 EDT — Workstation English-mode and deployed docs proof
+
+Home: required manual37737743925 is now actively executing on exact69ba4e462;
+Network, lint and GPU hosted lanes have completed success at this observation.
+Whole required CI remains unaccepted. ACK Home9801cf00b: manual69ba is primary,
+serial47 includes all repairs, and Home is superseding obsolete86 queued/serial
+work with complete cancellation evidence. Workstation cancelled no runs.
+General projection/664/665 source hold remains. Narrow parity repair already
+pushed in deb25da2b and manual candidate includes it.
+
+Private893 strict genuine English publication, actual English-mode test,
+all nine strict guides and complete13215-object inventory pass. Actual browser
+now checks396 original English bodies,44 current owner/source-branch symbols
+against nine saved language preferences. English publication intentionally
+has NO translation selector; first scratch browser incorrectly expected one
+and is retained terminal1. Corrected r2 tests real English-mode contract,
+with no product/script/build mutation. Earlier default-mode396 translated
+panels/1314 blocks remain distinct accepted local proof. Portable24 payloads:
+ data/411_source_projection_english_checkpoint_2026-10-08/receipt.json
+
+Actual deployed4133 readback passes ten full catalogs byte-for-byte and64
+browser checks for32 repaired guide paragraphs in desktop/mobile. Corrected
+source metadata and four screenshots archived in14 complete payloads:
+ data/615_current_deployed_4133_acceptance_2026-10-08/receipt.json
+Prior inner r1 browser receipt accidentally reused expected and wrote a
+Chinese paragraph into its deployed_source field; original publication
+assertion and outer archive correctly bound that check to1a4. Original remains
+unchanged, explicit correction retained; current r2 uses immutable deployed_sha.
+
+Normal worker API nine-writer refresh is complete13223 symbols,207 new target
+blocks with13208 unchanged targets per locale. Runtime18 reviewed prose rows
+resume23191: previous r2 importer reused @lru_cache before it wrote its new
+review, causing KeyError before locale output. Original logs/files retained;
+r3 refreshes the normal reader cache after each write and compares every old
+row against frozen originals. No runtime acceptance yet. Protected {unit}
+format is non-prose and normal extractor retains only two prose captions.
+Guide drafts now cover16 new/changed messages in all nine languages, preserving
+unchanged original paragraph tails. Measure underline29characters corrected;
+normal glossary/import/audit and strict fresh builds remain pending.
+Tutorial normal92288 continues remaining13 voices; no partial media release.
+No new GPU job, foreign plaque/livecell/cellposeTIME untouched. Work continues.
+
+
 ## 2026-10-08 06:34 UTC — Home adopts proven saved-session comparison repair
 
 WORKSTATION: ACK69ba4e462f/deb25da2b9. Home independently verifies all15
@@ -30,6 +73,7 @@ N43/N47 stay OPEN; no overall green or serial/native acceptance claim.
 Exact86 compatibility37735178406 really succeeds all17 jobs:
  data/43_86d_compatibility_terminal_2026-10-08/receipt.json
 This is matrix acceptance only. N43/N47 remainOPEN until full latest verdicts.
+
 
 ## 2026-10-08 02:28 EDT — Exact corrected required-tests dispatch
 

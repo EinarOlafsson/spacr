@@ -1,0 +1,139 @@
+{
+  "passed": true,
+  "private_source": "893db331701854eb94b05967644ce51fcfb0281c",
+  "scope": "Actual strict fresh English publication, English-mode test, complete real inventory, all nine strict guide builds and actual 396 English browser bodies across saved-language preferences. Separate default multilingual proof remains earlier checkpoint; no product push, deployment or whole required CI acceptance.",
+  "api_symbols": 13215,
+  "reached": 13215,
+  "newly_reached_objects": 28,
+  "browser_checks": 396,
+  "source_sha256": {
+    "tools/api_visibility.py": "fe3a0b7faadc596799e602d637e40212ac06e355fcf339bc48bedb8b56c566b1",
+    "docs/source/conf.py": "c6068a57b626f952e0a909abdd8216f002a2b0960eab08da49b5c290452ddc13",
+    "docs/source/_autoapi_templates/python/module.rst": "cdae841b354b3ee5d3abd8e8f8bbad0bdadc08e89012651b5e2d7030dabf3a1f",
+    "tests/test_source_documentation_projection.py": "3b7ffd055dfe35a6e28dcfca8a0d01a865fcd6428a346d6ec49c91bb6e701e5e"
+  },
+  "excluded_proof": "English-browser r1 expected a translation selector although English publication mode intentionally has none. Terminal failure preserved; r2 checks the genuine English-mode contract without changing app or website source.",
+  "payloads": {
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/source-api-projection-english-publication-r1.log.gz": {
+      "raw_sha256": "dc48439396d4af67bd1f0cdf8024b52ca4d6e47b976182cd4f83c07ea28a03f3",
+      "raw_bytes": 343980,
+      "archive_sha256": "d3830fa7a29004cf75565dd14fff918e997fa544b9d5aad5f2c13f07c6e7a3e1"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/source-api-actual-english-mode-test-r1.log.gz": {
+      "raw_sha256": "420e860e0e62695f797ca65fae6d0b3064b101bd34f5c139bfda882fa4ae1c4d",
+      "raw_bytes": 729,
+      "archive_sha256": "ca1559686a8cff8b44c59c99c79dc770172498ec92499de669c21291f4013b6a"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/source-api-current-nine-guide-builds-r1.log.gz": {
+      "raw_sha256": "3e48dbf663ee49396e064ffbe627f33d497577e9bc7950e4f0528354efe87638",
+      "raw_bytes": 941,
+      "archive_sha256": "41fb0f55e1a8b65f44c0c29c06087f7b0c3ac5a314ed377625555e7d7fc643bd"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/source-api-projection-english-inventory-r1.log.gz": {
+      "raw_sha256": "552e1a1dcee2e722f99c04b7c2f8b8f8b50b319a4f134cc00d1d6476ee4227f1",
+      "raw_bytes": 2441,
+      "archive_sha256": "a2897225c3ea09e1f891d3f5db845fa13461addee1b7cf47207bd22fab188673"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/projection-english-api-browsers-r2.log.gz": {
+      "raw_sha256": "d6d51d7f07b0ed556f6ae105883c9f2412b9a71677a0a0658e231ff8de018056",
+      "raw_bytes": 5717,
+      "archive_sha256": "bceac262cceff15e572a166cfcd888d8a096707a214c1c71c137a804ab0daa9e"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/source-api-projection-english-publication-r1-tool.log.gz": {
+      "raw_sha256": "1b44b6f7999ddd246e498c64e6926714a9437e699bd50771c29e40bf242829fe",
+      "raw_bytes": 343414,
+      "archive_sha256": "b0524f2f67f93b48382e89f122c2a0f3a336fd3608b78788f4a15d89441055c0"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/source-api-actual-english-mode-test-r1-tool.log.gz": {
+      "raw_sha256": "2fd6aae495f48b2438dc5f47420e03d42d4a1cf07235ebc8ed508435ea919b83",
+      "raw_bytes": 215,
+      "archive_sha256": "41bcd3ecc537ce9a56feee32b10d230b2ee0cec7261c69fdd4d8e38d305d07f5"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/source-api-current-nine-guide-builds-r1-tool.log.gz": {
+      "raw_sha256": "cc2d2d6a6addf01708ab3c41a04109b29fc3a3281d63ada91868b179524d086e",
+      "raw_bytes": 282,
+      "archive_sha256": "4103dfa56157bd7b188b862825a5d2983087d9af8bbd95e79d6ff9f85aedc0cd"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/source-api-projection-english-inventory-r1-tool.log.gz": {
+      "raw_sha256": "c4fa3e1a28ac89352c663121a798eb853e6abbd887cadf8dc5755d529b64efdd",
+      "raw_bytes": 1952,
+      "archive_sha256": "a17b186b2f3849643e488b279d768449d294405546f5c8b6670946db3e2cb081"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/projection-english-api-browsers-r2-tool.log.gz": {
+      "raw_sha256": "5ace396f352016787ff864fced26eb6523ca06e976e81eefe269790699c35b25",
+      "raw_bytes": 5198,
+      "archive_sha256": "207594bb397b209967b318becfaf3a3e80f354a7d929bacbe70134adf5c1a34a"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/source-api-projection-english-inventory-r1.json.gz": {
+      "raw_sha256": "1f07bde50d99283d454a3b3dafb92226f45f14a296dae2a20e41ec5ac83a62bf",
+      "raw_bytes": 13723,
+      "archive_sha256": "c4af2e4d6f4e6e8b99fb7cbc6d8ec246e4920f7eed2fb7a38bf932c00f4f4ef8"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/inspect_projection_english_inventory_r1.py.gz": {
+      "raw_sha256": "1195f03ffed20ed2a0f37355f99b9f3c75e1994068be72f59596a97682fb3c59",
+      "raw_bytes": 2732,
+      "archive_sha256": "fb68bd4a1742dea9d15b23820f1e1d832e91cf874190a057e9e4237a31194002"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/projection-english-api-browsers-r2/receipt.json.gz": {
+      "raw_sha256": "d44e218e9035dc2ba4bc49c69ed31758b70859a7f78a3460df2bac87e5a9591f",
+      "raw_bytes": 113850,
+      "archive_sha256": "3c8c589596c575f4601311afdb0d70ae8daf18477b699ab2da7b326c54fa025d"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/check_projection_english_api_browsers_r2.py.gz": {
+      "raw_sha256": "42da363cfe19e36ce8d43efd7cc330c757345522e5a1eb9b25db0a0c18b0e1f0",
+      "raw_bytes": 5797,
+      "archive_sha256": "a889b9e766d033cd58e3ec5107b5bfa8c01869e64752d969f5bb48850cc64a4d"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/projection-english-api-browsers-r1.log.gz": {
+      "raw_sha256": "2e96fe94adec5517540754e501bd498818b85be131d31b538946482e853408b0",
+      "raw_bytes": 1310,
+      "archive_sha256": "c986764e46540e55264b311e868db2210d33a8ba83eafaeff350c086a3e70e9f"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/projection-english-api-browsers-r1-tool.log.gz": {
+      "raw_sha256": "5ac567fbcaaf165a4badcb21ba49a56e876cbc56934409ea69590d1cb97ab796",
+      "raw_bytes": 117,
+      "archive_sha256": "9227e48d6cf323c7ee0801e6c06b09dfe3bd2a64dd52a4e40a19e6f5f4834cae"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/check_projection_english_api_browsers_r1.py.gz": {
+      "raw_sha256": "7cd8120ebc9eac5c54ec1eb13211561b141d562baf1d83a10b16d94ea2448ea7",
+      "raw_bytes": 5843,
+      "archive_sha256": "d84633b6aeee089c27f233dd5c1c1164ca042bea567ffa795ac6645820fb4f97"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/source/tools/api_visibility.py.gz": {
+      "raw_sha256": "fe3a0b7faadc596799e602d637e40212ac06e355fcf339bc48bedb8b56c566b1",
+      "raw_bytes": 10031,
+      "archive_sha256": "155a4db8a3c92e11a10865a54fae8ed44504f37218a63043a1d244282b65bf84"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/source/docs/source/conf.py.gz": {
+      "raw_sha256": "c6068a57b626f952e0a909abdd8216f002a2b0960eab08da49b5c290452ddc13",
+      "raw_bytes": 17086,
+      "archive_sha256": "cc88d63734374ff0b8e081ce04db46a663154c38423fec78ce3a92a2c79239d2"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/source/docs/source/_autoapi_templates/python/module.rst.gz": {
+      "raw_sha256": "cdae841b354b3ee5d3abd8e8f8bbad0bdadc08e89012651b5e2d7030dabf3a1f",
+      "raw_bytes": 5445,
+      "archive_sha256": "df9b34946aaa705abed7c238f79c18efb9889c596d2921b61964d707dd1488a8"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/source/tests/test_source_documentation_projection.py.gz": {
+      "raw_sha256": "3b7ffd055dfe35a6e28dcfca8a0d01a865fcd6428a346d6ec49c91bb6e701e5e",
+      "raw_bytes": 10323,
+      "archive_sha256": "61e0ea83d7c5bf3f3267be9fa6cb04f1472f32cf6b31cbe6633130495e0d3936"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/source/tests/test_api_i18n_frontend.py.gz": {
+      "raw_sha256": "eb18fedc2c24f545590fd9d3d5f4d9499dc6fb2ec97c74bb962c696277366020",
+      "raw_bytes": 36111,
+      "archive_sha256": "5ea80988dcefddc692bf2db975476d1266d356b48c2958f3d5f34f4ff76eaf68"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/source/tests/data/release_contracts/615_api_browser_arrivals_2026-10-07.json.gz": {
+      "raw_sha256": "439dc165974338a921d4ba2565f5bc1aa4aa620c6859d3cbecf980a47230a34a",
+      "raw_bytes": 6957,
+      "archive_sha256": "64403c7c6e4f3404bff8f5dd535c4d6ad7e0f00a2fac051be224f3957ac376a9"
+    },
+    "features/data/411_source_projection_english_checkpoint_2026-10-08/objects.inv.gz": {
+      "raw_sha256": "3dae14eb6855c6a8fc7e91e124ebc74cfbf548c1a55e6384cf89347f86bff9ef",
+      "raw_bytes": 141576,
+      "archive_sha256": "0935c083ca1002cfe388f44a7e885e07c358c70523f41041559f7e207449f4b5"
+    }
+  },
+  "script_sha256": "f747fbf78690197cd68e7dd92a608cd4286baacccddec17fc7845e25b5b50752"
+}
