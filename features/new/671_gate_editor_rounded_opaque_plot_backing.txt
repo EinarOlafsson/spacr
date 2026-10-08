@@ -2,7 +2,7 @@
 ROUNDED PLOT BACKING IN THE GATE EDITOR
 ================================================================================
 
-Status:    DONE 2026-10-08 — published and locally accepted.
+Status:    DONE 2026-10-08 — rounded opaque 2D/3D graph backing published and verified.
 Requested: 2026-10-08
 Owner:     Home/root and delegated CPU UI lanes
 
@@ -23,5 +23,7 @@ Actual rendered 2D and 3D plot interiors remain independent of a contrasting ani
 2026-10-08 13:10 EDT — Private integrated source e31e19543a passes the final 313-case capped CPU/Qt interaction cohort. Source patch and exact bindings are transferred in data/666_671_ui_source_handoff_2026-10-08 for workstation normal catalog/inventory refresh. App publication and current-source CI are pending; this is not a 100% or native compositor acceptance claim. N674 is a separate follow-up, not included in this checkpoint.
 
 2026-10-08 16:43 EDT — Frozen checkpoint publication: accepted application source6fa8fd257 and matching API13232/runtime10066/UI7288/all9guide3050 catalogs are integrated into nightly with terminal local source/review/browser checks. See HANDOFF publication note and data/ui_publication_source_binding_2026-10-08/receipt.json. Later producer/3D/GPU continuations and matching hosted/native acceptance remain separate; this note does not close broader scope.
+
+2026-10-08 17:08 EDT — N671 accepted scope is complete in public application4d09944509a331ee8ac0f94a7856c1c980970bc3. Independent source readback matches Home standalone final327515830ae exactly after removing only the reviewed event/None-return documentation additions. Both focused test files are byte-identical to the Home packet; current published-source capped Qt6.12/normal coverage run4PASS9.46s confirms rounded opaque rendered 2D/3D interiors, resizing and painter cleanup. Canonical13232 API includes exact paintEvent source blocks and source-bound reviewed targets in allnine locales. Portable bindings/logs in data/671_published_application_acceptance_2026-10-08/receipt.json. N672/N673 are separate feature additions and do not block this completion. Matching hosted whole-suite and native compositor checks remain separately unverified; no scientific behavior was changed.
 
 2026-10-08 17:06 EDT — COMPLETION AUDIT: 100%. The full 2D/3D graph has an opaque rounded backing in the published GateCanvas. Actual rounded/mode/resize/theme-isolation checks pass; its public paintEvent documentation record is source-bound in all nine API locales. Current public application matches all669 frozen accepted Python hashes. Proof: data/667_671_677_published_completion_2026-10-08.json and the original source/documentation archives. Hosted CI N43, original-order N47, native/GPU termination N663/N668 and tutorial-media N676 remain independently open; their broader acceptance is not claimed by this closure.

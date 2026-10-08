@@ -1,0 +1,301 @@
+{
+  "source": "4a6d8aa923ae4cd1d00173f24e305d94a3ff5c0c",
+  "source_application_published": false,
+  "passing": true,
+  "memory_cap": "8G",
+  "normal_coverage": true,
+  "broad_acceptance": {
+    "passed": 312,
+    "skipped": 1,
+    "seconds": 193.32,
+    "qualification": "Immediately before the final scalar linewidth cast; final cast and all training exports are covered by the later selected22."
+  },
+  "final_selected_acceptance": {
+    "passed": 22,
+    "seconds": 21.64,
+    "scope": "Sixteen native training recipe cases plus complete existing six-case bundle module; four actual standalone PNG/SVG subprocesses explicitly reject any spaCR import and consume edited source CSV."
+  },
+  "native_training_scope": [
+    "Full logged metrics and fold support retained for drawn and unselected curves.",
+    "Selected series, epoch order, mean/fold distinctions, SD bands, best epoch markers, native notes and restyled colours/widths/markers retained.",
+    "Edited CSV changes curves and recomputes accuracy maximum/loss minimum best epoch.",
+    "Actual TrainCompareScreen producer retains its registered training recipe."
+  ],
+  "native_grouped_line_scope": "Object, well and plate aggregation; mean/median and SD/95%CI; log axes and source order; outlier hiding retains all raw exported rows and unfiltered statistical input.",
+  "negative_scope": [
+    "Missing training metadata regression retained.",
+    "First broad suite correctly rejected removal of the direct figure-registration call; fixed without weakening guard.",
+    "Actual standalone CLI rejected serialized string linewidth; numeric scalar conversion fixes rendering.",
+    "One wrong test filename is retained as an incomplete collection attempt, not a product failure."
+  ],
+  "callable_doc_contracts": {
+    "spacr/plot.py": {
+      "unchanged_class_function_contracts": 188,
+      "before_sha256": "a90b08dda022df6ef3343ee565533e76a5243edfb25623ac63a50338fe878e13",
+      "after_sha256": "a90b08dda022df6ef3343ee565533e76a5243edfb25623ac63a50338fe878e13"
+    },
+    "spacr/figures/bundle.py": {
+      "unchanged_class_function_contracts": 26,
+      "before_sha256": "3bffc9f017fc44cfc6efc5f04841b2a8a610695179dac018e5579a8326cbf5db",
+      "after_sha256": "8b1e124123fda3ad132cbbb8bae917bafc2c7e7573ab48527e490dfeb26fb43f"
+    },
+    "spacr/train_compare.py": {
+      "unchanged_class_function_contracts": 64,
+      "before_sha256": "2bf25ef0cd0acce806c70fd1afdadca305d46af2b2228abdccf9c2d488ab5d8a",
+      "after_sha256": "75c69f8ea1cc0800fdc065ff2acc17691e51b081d7676914a33d84590796eedd"
+    },
+    "spacr/qt/screens/train_compare.py": {
+      "unchanged_class_function_contracts": 61,
+      "before_sha256": "4230a80a7c7ad548a88505c6b151fad926d040a8f6f5bd2429c35940f3bc903c",
+      "after_sha256": "d71e16c94ed8f1ad63512a38c83e3f8607d3902b85155ae1b56453d053fb5821"
+    }
+  },
+  "limits": [
+    "One optional pingouin test is skipped because the dependency is absent.",
+    "Private source acceptance does not certify coherent later application publication or hosted CI.",
+    "Earlier and later test cohorts overlap; counts must not be added.",
+    "This continuation does not establish that every graph producer in the repository has complete native export parity."
+  ],
+  "payloads": {
+    "logs-and-coverage/training-line-recipe-r1-tool.log.gz": {
+      "raw_bytes": 3804,
+      "raw_sha256": "24ea1756acbed4de56265af878254554b5d50720c6b77d20b36242fe930cb6fe",
+      "gzip_bytes": 650,
+      "gzip_sha256": "a098b8bd6fd7ba8a7cb83ccc2d4bcf1bd5c093e4451ee1e0304ae113c1c3f277"
+    },
+    "logs-and-coverage/training-line-recipe-r1.data.carruthers.pid195713.XuMYwpex.HQ7xM2XEgVDh.gz": {
+      "raw_bytes": 610304,
+      "raw_sha256": "c2c37db45cad12621d9b70351d835c0d2a7053055fbda0493f3467618e318bb7",
+      "gzip_bytes": 258880,
+      "gzip_sha256": "1b61cb06cc177f37f75e42155a924319bf36f54303f3199698c231ed6c8e1210"
+    },
+    "logs-and-coverage/training-line-recipe-r1.log.gz": {
+      "raw_bytes": 4351,
+      "raw_sha256": "cd78127848df813ca0eb780a579c3844832bd1493c0298b00b1f3fe741736af1",
+      "gzip_bytes": 848,
+      "gzip_sha256": "0e3b972faf86f237827806db287a1172ea666b9b910662c92d6e483281fd509a"
+    },
+    "logs-and-coverage/training-line-recipe-r2-tool.log.gz": {
+      "raw_bytes": 3187,
+      "raw_sha256": "deae59898fbdee2ee98c5478e7d04b1874fa173058e3ad48fd53e908f29987fc",
+      "gzip_bytes": 618,
+      "gzip_sha256": "145875ba5bec1450dfc96fccb8f7041203059b519aa3f4997c71eada8ce755fa"
+    },
+    "logs-and-coverage/training-line-recipe-r2.data.carruthers.pid196550.XA4LJGdx.HfHtD9iK1nth.gz": {
+      "raw_bytes": 610304,
+      "raw_sha256": "1d98d572a00dd56c65832db8c60de981c9e886ef7f0d4cc06ba410550011adbe",
+      "gzip_bytes": 262368,
+      "gzip_sha256": "84697bc0c7dd9f252cd9b3369e4f193b173dfae7dda0d1d2c6132cf757836bcf"
+    },
+    "logs-and-coverage/training-line-recipe-r2.log.gz": {
+      "raw_bytes": 3734,
+      "raw_sha256": "191a68d39987f41153cc443847b013826f9529764953d78c138e0794d43be768",
+      "gzip_bytes": 816,
+      "gzip_sha256": "6f5c3164440f3b2919d0962ceb91a522a9dd264a1987b0f2e392e5640f5d3a41"
+    },
+    "logs-and-coverage/training-line-recipe-r3-tool.log.gz": {
+      "raw_bytes": 1030,
+      "raw_sha256": "8419d93136a88712074d4becb044a03fece75511447df779d441b01dfe5f50b4",
+      "gzip_bytes": 330,
+      "gzip_sha256": "1f61638892aaaaca1365c1442eaad46c2fe379760079e6c614002cef7bcfbe12"
+    },
+    "logs-and-coverage/training-line-recipe-r3.data.carruthers.pid197038.XKIj7uQx.HfHtD9iK1nth.gz": {
+      "raw_bytes": 610304,
+      "raw_sha256": "59e118eca60e48f78198e903a64cf84504cca8fa311bbf0ef888e00f198bae87",
+      "gzip_bytes": 262368,
+      "gzip_sha256": "cd60cea55b13e37a5fb8a6e656c29f0b6e00f56d84efe0f6db7496e586e53bee"
+    },
+    "logs-and-coverage/training-line-recipe-r3.log.gz": {
+      "raw_bytes": 1577,
+      "raw_sha256": "af0c5618e3c07b019dd9ef23074bd464912098303499492c2ab2b9458c054d20",
+      "gzip_bytes": 550,
+      "gzip_sha256": "1ee40f6b0a0aed50fc5d892e79153320e4110284cd7d34487b9a400284f0fa0c"
+    },
+    "logs-and-coverage/training-line-recipe-r4-tool.log.gz": {
+      "raw_bytes": 1961,
+      "raw_sha256": "f0c57bcd3666902275a43788ea53b70b64ae2aea8f76d61d116fb15c9e3cef3d",
+      "gzip_bytes": 575,
+      "gzip_sha256": "0fdbdccf5f1796a3d58d6c9a4647920ab3d5eaf6c9f5486d1a3be95f3936e45c"
+    },
+    "logs-and-coverage/training-line-recipe-r4.data.carruthers.pid198394.X9Ckzp6x.H1l3iwNOUvUh.gz": {
+      "raw_bytes": 663552,
+      "raw_sha256": "537ae2a116b81051ed1bd2ed0502fcfbdcc34e75d950d5492ad75053ae674757",
+      "gzip_bytes": 281875,
+      "gzip_sha256": "0bfaaa50fcdc9fadbfa7a9a4386060376261aee8f495013ce60917873bbd172c"
+    },
+    "logs-and-coverage/training-line-recipe-r4.log.gz": {
+      "raw_bytes": 2599,
+      "raw_sha256": "73946341f223ae46238150152ef09a3572a8bfd46cb7c23c3e317e1567babf34",
+      "gzip_bytes": 795,
+      "gzip_sha256": "d87119d3c910abc65dfa460fac77bc5950d3084b14b9860055b61294a7e594aa"
+    },
+    "logs-and-coverage/training-line-broad-r1-tool.log.gz": {
+      "raw_bytes": 4553,
+      "raw_sha256": "580ad633776de9593c50f343f8623c13d48ff2c95218dbb8e568ee5985da676e",
+      "gzip_bytes": 1460,
+      "gzip_sha256": "0ce590cf23c65de5a62fb80b63cdd194bebc0de3ccb77ed7ab358178420650c8"
+    },
+    "logs-and-coverage/training-line-broad-r1.data.carruthers.pid200247.XtHttpsx.HEcZFjSW4Byh.gz": {
+      "raw_bytes": 2506752,
+      "raw_sha256": "1e1cc20cd2c252a5516264fc793030cdf25d0fa02a116fa3b98aa6951f344853",
+      "gzip_bytes": 1040849,
+      "gzip_sha256": "ae0a97e31e9e5eeb7f30099433bfa82b80f611e26596e7c389d0edd9902a24aa"
+    },
+    "logs-and-coverage/training-line-broad-r1.log.gz": {
+      "raw_bytes": 5946,
+      "raw_sha256": "8d08612cec768d740a520e37b7f8ab3a90c53b1e0c9b5a6e62b95e8694ad3b5a",
+      "gzip_bytes": 1784,
+      "gzip_sha256": "b443d2f1e4d587a6e305b4798027b98abe074277d5b284a9df8a0400384545d2"
+    },
+    "logs-and-coverage/training-line-broad-r2-tool.log.gz": {
+      "raw_bytes": 3767,
+      "raw_sha256": "3f9b899401d4bf250d3c01df635448761e041b78dc758b60a24d987c8f8bb1b6",
+      "gzip_bytes": 1196,
+      "gzip_sha256": "fb8ac7f768f38049ef24aa19478a8ae3d24191de32458d29f23e4203394d5b58"
+    },
+    "logs-and-coverage/training-line-broad-r2.data.carruthers.pid203013.XDuZeiex.H1OTQHlrcRHh.gz": {
+      "raw_bytes": 2506752,
+      "raw_sha256": "5962de7456136f28b031096c6f197bed28fbfe8de1b0412d0276cad5a8071987",
+      "gzip_bytes": 1041868,
+      "gzip_sha256": "625be69fa13ac91520b14325a3dfb8c001c6f3502d722dc579eec5827deea7a8"
+    },
+    "logs-and-coverage/training-line-broad-r2.log.gz": {
+      "raw_bytes": 5160,
+      "raw_sha256": "23c873dbbb9778a0d57ad3bf31b3b5afdee6096db322eb13160ff58f3e1a421c",
+      "gzip_bytes": 1530,
+      "gzip_sha256": "99e79eb915fe230aad8775d00f87707b7d781a587f235629ffff9600b81ecb17"
+    },
+    "logs-and-coverage/training-line-cli-r1-tool.log.gz": {
+      "raw_bytes": 19877,
+      "raw_sha256": "2362905a9090bc3b6c827b6692263844a49dfdeb5e51457116bf52b3d4ceecd2",
+      "gzip_bytes": 1503,
+      "gzip_sha256": "9ee63b4f6f1fbcc8a43daaeca8df0a2d46e05ae73a2ced5699c99c52ce07770e"
+    },
+    "logs-and-coverage/training-line-cli-r1.data.carruthers.pid208407.XhzNu4yx.HUxkrbqpPODh.gz": {
+      "raw_bytes": 610304,
+      "raw_sha256": "15c83e2e0a14c685cb17f15f2bbd9288d5d768a52414474f46dad37fa4fb78fd",
+      "gzip_bytes": 261361,
+      "gzip_sha256": "4a94965845b9215b322436894dbcb00ebbde4c9c567a4aa18cf20ad4f8ada8db"
+    },
+    "logs-and-coverage/training-line-cli-r1.log.gz": {
+      "raw_bytes": 20421,
+      "raw_sha256": "46b522cabd4929f7364b61a0296ff8841614618eb268f36ba0605af557d09c81",
+      "gzip_bytes": 1672,
+      "gzip_sha256": "7859d7110984d8a0d06baaa7971056cf0155c330a08fd1428313df84f9ab4c55"
+    },
+    "logs-and-coverage/training-line-cli-r2-tool.log.gz": {
+      "raw_bytes": 1032,
+      "raw_sha256": "5961950e47e30051c4a802aa1f288b78642657ba42fa858ad8c8585d85a43386",
+      "gzip_bytes": 370,
+      "gzip_sha256": "120b4f9f46639cb66211321efaa558c3d1d23952e75a0475ed3b0d54db2aef0e"
+    },
+    "logs-and-coverage/training-line-cli-r2.data.carruthers.pid209960.XRkgSmwx.HT0fyYOX8nBh.gz": {
+      "raw_bytes": 126976,
+      "raw_sha256": "081ab6702cf5b03cb19f43bf6b6649e5541720b985fbef649436057df3612861",
+      "gzip_bytes": 33785,
+      "gzip_sha256": "c06f739ec3b85b5adc42429ffa8aee2e6a116501a460ccddeabb06d800c50b74"
+    },
+    "logs-and-coverage/training-line-cli-r2.log.gz": {
+      "raw_bytes": 1620,
+      "raw_sha256": "994bcc9fbc07da5636aae91e5066662885ab1bb4661924b0f529715aa09f57b4",
+      "gzip_bytes": 585,
+      "gzip_sha256": "b9ddc39c05c937a762756bdf59a2cfb4ebdb374a8282f20d4186e45ffb48daaf"
+    },
+    "logs-and-coverage/training-line-cli-r3-tool.log.gz": {
+      "raw_bytes": 1031,
+      "raw_sha256": "3c6d03311a6a62ea24d7927b284a5448346880f164195fb71cf1b556ba7927f7",
+      "gzip_bytes": 332,
+      "gzip_sha256": "583b21ec77537cfe1ee460fe5472b81d6c2f969f2e1b961fda0131ef0d7a3076"
+    },
+    "logs-and-coverage/training-line-cli-r3.data.carruthers.pid210136.XMm2HC8x.HZiQ7NLZag9h.gz": {
+      "raw_bytes": 618496,
+      "raw_sha256": "7c1d1f244ced6d2304f863e90a2ef6bef8039e6c60412681602497d88fef2deb",
+      "gzip_bytes": 263792,
+      "gzip_sha256": "0941844250752d0a280acb2498484b3c5323d69f8334fe06e960b116f4059353"
+    },
+    "logs-and-coverage/training-line-cli-r3.log.gz": {
+      "raw_bytes": 1613,
+      "raw_sha256": "1dc9c4f3d99cd4e145952ed7941e15e23a80851f0d69559c28429fc6da3bdefb",
+      "gzip_bytes": 566,
+      "gzip_sha256": "36f551a05c286c962b1e298ac5cdbe6f230cad2070aee51ae538f1cc095ccaec"
+    },
+    "contracts/training-line-contracts-r1.json.gz": {
+      "raw_bytes": 135,
+      "raw_sha256": "df13ff6494174657ec2b8cacda0716ecc7098b334fc14c3708ac8def64591499",
+      "gzip_bytes": 101,
+      "gzip_sha256": "511dea40871afc6f09a3f00c22d57871c05a100b82f407b4a07ec35b858cab03"
+    },
+    "contracts/training-line-contracts-r2.json.gz": {
+      "raw_bytes": 1035,
+      "raw_sha256": "d67d59d88fece4933f8114e2ccb2d7d44fd08841a72fb06a0f00bbdc28143298",
+      "gzip_bytes": 449,
+      "gzip_sha256": "2c2bbb069a625ab818ede2f14220d83d8c85f31860a0a4c87faf0a8699a50b22"
+    },
+    "contracts/training_source_contracts_r2.py.gz": {
+      "raw_bytes": 1543,
+      "raw_sha256": "72d22543999f468485370dd7802eebea623cc26a7fb4da7f1656d73502180e91",
+      "gzip_bytes": 738,
+      "gzip_sha256": "db503b345afe2d8696e2ab0fed0aecae951318cd4d15abd25c266b7d652f4650"
+    },
+    "source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 59754,
+      "raw_sha256": "8b1e124123fda3ad132cbbb8bae917bafc2c7e7573ab48527e490dfeb26fb43f",
+      "gzip_bytes": 17233,
+      "gzip_sha256": "c986dce6e2823f96be0e453ec5eba6f3a9160a6640960c0a5f493fffcfab3234"
+    },
+    "source/spacr/plot.py.gz": {
+      "raw_bytes": 348652,
+      "raw_sha256": "a90b08dda022df6ef3343ee565533e76a5243edfb25623ac63a50338fe878e13",
+      "gzip_bytes": 87602,
+      "gzip_sha256": "2c204dbbeb112875bb0cd8a435e627668e50ec14c3ac4cc192813f5ddea56e9f"
+    },
+    "source/spacr/train_compare.py.gz": {
+      "raw_bytes": 63381,
+      "raw_sha256": "75c69f8ea1cc0800fdc065ff2acc17691e51b081d7676914a33d84590796eedd",
+      "gzip_bytes": 19933,
+      "gzip_sha256": "aeb5282b4b3c863eac8c9a8edcb0ffd039394f11b923907491fb6e1a4153f9e1"
+    },
+    "source/spacr/qt/screens/train_compare.py.gz": {
+      "raw_bytes": 44312,
+      "raw_sha256": "d71e16c94ed8f1ad63512a38c83e3f8607d3902b85155ae1b56453d053fb5821",
+      "gzip_bytes": 13032,
+      "gzip_sha256": "b229bf7fd4f041e99bf660b1200b24dd6852b0b834e87a3fceef6b0eed4f3f57"
+    },
+    "source/tests/test_training_curve_figure_recipe.py.gz": {
+      "raw_bytes": 6434,
+      "raw_sha256": "c8353ef748779d4a0ad67ab4f83f0f4723df024152394e8ea2a93c0b588c14a7",
+      "gzip_bytes": 2108,
+      "gzip_sha256": "ab2634aab96b3fe04b49b9e2b8d0f9205de88f3fd9feb41b6fe83c60e14a81b9"
+    },
+    "source/tests/test_spacrgraph_line_figure_recipe.py.gz": {
+      "raw_bytes": 6769,
+      "raw_sha256": "aa6dcf279ac52f80c3e971cf7a7161b1ecd6756632ecf63c5f1a72b9d2a39194",
+      "gzip_bytes": 1794,
+      "gzip_sha256": "775ff4da733336ef6c4c83705fbf3405494eb3b257b112490946b7f04805845b"
+    },
+    "source/tests/test_numeric_line_figure_recipe.py.gz": {
+      "raw_bytes": 4046,
+      "raw_sha256": "e4a2a1381a62d7d0ae3433374ba0e90287a5b1ab8c5d731d07b00d3479009d9d",
+      "gzip_bytes": 1638,
+      "gzip_sha256": "a95b4024920063f978c86851c3e8182f12a6295bda5c82c9ad1ec0b5e8f44cf7"
+    },
+    "source/tests/qt/test_train_compare_screen.py.gz": {
+      "raw_bytes": 25231,
+      "raw_sha256": "32306d2d768f6b492b3dd5b6548d1b3cf8ad8e4e2f119a92ca6fff6c5d761acf",
+      "gzip_bytes": 7338,
+      "gzip_sha256": "7a04d03f60f30670857866febf01c57f49b3e1ef5d5deea2b9ca92ef817c92a3"
+    },
+    "source-and-tests.patch.gz": {
+      "raw_bytes": 38127,
+      "raw_sha256": "2f9f25a30119d7ded508631f9d31d0b0e88aa25c7bc5deaeafafac9edc112de7",
+      "gzip_bytes": 9206,
+      "gzip_sha256": "cc8c976f7b83d12dcef19eb7017189d0604fb073a457908bc94be198bf02cce7"
+    },
+    "scripts/archive_training_native_lines_r1.py.gz": {
+      "raw_bytes": 5359,
+      "raw_sha256": "caed0116eaa67d38f7d09de6d301bf386f5d8f59c295c7173aca7ad21afb2a1a",
+      "gzip_bytes": 2205,
+      "gzip_sha256": "10d91b29b28bf5cfcf19b1b60cd9dbb27c4c05c512d7ab2bb5220fd4ddae5b33"
+    }
+  }
+}

@@ -387,3 +387,14 @@ PART C — WHAT IS LEFT
   Further line/panel producers, coherent publication/current CI open.
 
 2026-10-08 16:43 EDT — Frozen checkpoint publication: accepted application source6fa8fd257 and matching API13232/runtime10066/UI7288/all9guide3050 catalogs are integrated into nightly with terminal local source/review/browser checks. See HANDOFF publication note and data/ui_publication_source_binding_2026-10-08/receipt.json. Later producer/3D/GPU continuations and matching hosted/native acceptance remain separate; this note does not close broader scope.
+
+2026-10-08 17:30 EDT — Private native training/line export continuation
+  PRIVATE4a6d8aa92: full training metadata, SD bands, selected curves,
+  best markers and actual TrainCompare registration retained. Broader
+  312PASS/1optionalSKIP193.32s; final22PASS21.64s includes four real
+  standalone PNG/SVG subprocesses rejecting spaCR imports and using
+  edited CSV. Actual numeric linewidth serialization defect fixed.
+  All339 callable/docs contracts unchanged; negatives retained.
+  Proof:data/658_training_and_native_line_exports_2026-10-08/receipt.json.
+  App source publication, remaining producer parity and current hosted
+  acceptance stay separate. No whole658 continuation closure claimed.
