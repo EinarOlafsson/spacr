@@ -1,0 +1,141 @@
+{
+  "source": "008dab8ad484c4864c0be71c391a19441f0b05dd",
+  "qt": "6.12.0",
+  "python": "3.12.13",
+  "pytest": "8.4.2",
+  "ram_cap": "8G",
+  "cohort": "12 original-order nodes from earlier hosted native family; seven app/test/conftest files byte-identical to published 0b. Exact commands/environment/source bindings in variant receipts.",
+  "uncapped_threads": {
+    "native_signal": "SIGABRT",
+    "passed_before_stop": 10,
+    "active_node": "test_native_sources_changed_during_detection_cannot_publish_a_result[image]",
+    "detection": "glibc malloc_consolidate unaligned fastbin; main-thread allocation in Python coverage update_instrumentation_data",
+    "gdb_exit": 0,
+    "verdict": "NATIVE FAILURE; GDB command exit0 is not inferior success."
+  },
+  "host_threads": {
+    "passed": 12,
+    "pytest_seconds": 11.31,
+    "inferior_exited_normally": true
+  },
+  "host_threads_debug_allocator": {
+    "passed": 12,
+    "pytest_seconds": 12.52,
+    "inferior_exited_normally": true
+  },
+  "direct_host_threads": {
+    "passed": 12,
+    "pytest_seconds": 11.0,
+    "exit": 0
+  },
+  "limitations": [
+    "Heap detection site does not establish corruption origin. One success per control is not proof thread caps cure it.",
+    "Uncapped initial GDB run spawned roughly88 threads, mostly OpenBLAS, unlike hosted OMP/MKL/OPENBLAS=1.",
+    "Earlier actual hosted parent-source SIGSEGV on Qt6.11.2 is separate from this local Qt6.12 image-node SIGABRT.",
+    "No full long-order/xdist reproduction or numerical coverage acceptance. No source/pin/GC/guard change."
+  ],
+  "payloads": {
+    "uncapped_threads-replay.py": {
+      "sha256": "fbf26027bb75f77393f5b66eb39148399414d6e80d505673698cbafc0acc5bcc",
+      "bytes": 3009,
+      "raw_sha256": "fbf26027bb75f77393f5b66eb39148399414d6e80d505673698cbafc0acc5bcc",
+      "raw_bytes": 3009
+    },
+    "uncapped_threads-gdb.commands": {
+      "sha256": "5ced19081a8ca17a7690c2268d37515a486bdc759fc77d94497002bf8884fbac",
+      "bytes": 326,
+      "raw_sha256": "5ced19081a8ca17a7690c2268d37515a486bdc759fc77d94497002bf8884fbac",
+      "raw_bytes": 326
+    },
+    "uncapped_threads-receipt.json": {
+      "sha256": "646d40135afb2915a785e3042c05155cc875cc2d5aeb228babe0adac91eed704",
+      "bytes": 2420,
+      "raw_sha256": "646d40135afb2915a785e3042c05155cc875cc2d5aeb228babe0adac91eed704",
+      "raw_bytes": 2420
+    },
+    "uncapped_threads-gdb.log.gz": {
+      "sha256": "bd118d2c669b7127b23eec89fb4e32b8f66b4eaaf878707fee1ac06835266bb0",
+      "bytes": 10608,
+      "raw_sha256": "392f51e20a71ccb68c866fb5de6d5a8b57f7a99d073b2dd430d24f7054926072",
+      "raw_bytes": 136840
+    },
+    "uncapped_threads-launcher.log.gz": {
+      "sha256": "4a2ca1d276f818d718be7d5e1efea3303d723fa087e0ec4bb91a61e1bf5611f5",
+      "bytes": 1165,
+      "raw_sha256": "b3853090d59160347d22568a62b738d25faef3bfe3c426040b7b1fe4d0a32e5f",
+      "raw_bytes": 2236
+    },
+    "host_threads-replay.py": {
+      "sha256": "978c8388233ccc79a36f31a8774b939f2e17e63f4bc90816e95049f3bfad48ab",
+      "bytes": 3189,
+      "raw_sha256": "978c8388233ccc79a36f31a8774b939f2e17e63f4bc90816e95049f3bfad48ab",
+      "raw_bytes": 3189
+    },
+    "host_threads-gdb.commands": {
+      "sha256": "5ced19081a8ca17a7690c2268d37515a486bdc759fc77d94497002bf8884fbac",
+      "bytes": 326,
+      "raw_sha256": "5ced19081a8ca17a7690c2268d37515a486bdc759fc77d94497002bf8884fbac",
+      "raw_bytes": 326
+    },
+    "host_threads-receipt.json": {
+      "sha256": "2e28452195a2b8e81f1f10245d7a366c71318b7247f86de1c8b510f11386dfbf",
+      "bytes": 2564,
+      "raw_sha256": "2e28452195a2b8e81f1f10245d7a366c71318b7247f86de1c8b510f11386dfbf",
+      "raw_bytes": 2564
+    },
+    "host_threads-gdb.log.gz": {
+      "sha256": "786aa2a9621230b6249c887d0f198c78a18c9fa46a5daea8c23333c722a0edb6",
+      "bytes": 1185,
+      "raw_sha256": "4998695135eddd5ea64af468c7ab6ee27288cf3e7b142f8b66b82dc4d1f694ab",
+      "raw_bytes": 3831
+    },
+    "host_threads-launcher.log.gz": {
+      "sha256": "0ee807e33fe02efa37b64dd252d28aad3f6163ab0037f5c9a417cabdbac442b5",
+      "bytes": 1226,
+      "raw_sha256": "7824f62003f4eb322931fbea1739a361ea0eacf7139760a034067fa666a2529a",
+      "raw_bytes": 2364
+    },
+    "host_threads_debug_allocator-replay.py": {
+      "sha256": "3f202a7efa25ffa62c04943857370aa25e35a8eb0aaaf3d6d973ca4f27f7221d",
+      "bytes": 3224,
+      "raw_sha256": "3f202a7efa25ffa62c04943857370aa25e35a8eb0aaaf3d6d973ca4f27f7221d",
+      "raw_bytes": 3224
+    },
+    "host_threads_debug_allocator-gdb.commands": {
+      "sha256": "5ced19081a8ca17a7690c2268d37515a486bdc759fc77d94497002bf8884fbac",
+      "bytes": 326,
+      "raw_sha256": "5ced19081a8ca17a7690c2268d37515a486bdc759fc77d94497002bf8884fbac",
+      "raw_bytes": 326
+    },
+    "host_threads_debug_allocator-receipt.json": {
+      "sha256": "cef5ecf287895a92d5057c14b38acf7b44c53836f4bfd2b58c06d7dd3ad25bc0",
+      "bytes": 2591,
+      "raw_sha256": "cef5ecf287895a92d5057c14b38acf7b44c53836f4bfd2b58c06d7dd3ad25bc0",
+      "raw_bytes": 2591
+    },
+    "host_threads_debug_allocator-gdb.log.gz": {
+      "sha256": "66a1025940a0663ba9ab86f9a83dd7a112f2b795dcb23c3203afe935b0591433",
+      "bytes": 1179,
+      "raw_sha256": "2891647718fee1dc081427a77f08cc06bb10478d013b84f21fe8447892aaa9ff",
+      "raw_bytes": 3831
+    },
+    "host_threads_debug_allocator-launcher.log.gz": {
+      "sha256": "ed518d9ebe0add3f120c5b052ec4d78b1c1f5e8a6910636292abff3f7291714d",
+      "bytes": 1236,
+      "raw_sha256": "82a1e995c395d442587b84a2649b4dfa7da72626cf18e02c4478842772b9868b",
+      "raw_bytes": 2387
+    },
+    "direct-host-threads.log.gz": {
+      "sha256": "3c0b25274975d8a18a89e64d6111960a863455beaad2e4938b3a4f3bb20c4bd8",
+      "bytes": 807,
+      "raw_sha256": "587f4ff0f5ba0b1793fccbf660b8f34151bfed75f460510081d1cae9e67317c2",
+      "raw_bytes": 2657
+    },
+    "direct-host-threads.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2,
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "raw_bytes": 2
+    }
+  }
+}

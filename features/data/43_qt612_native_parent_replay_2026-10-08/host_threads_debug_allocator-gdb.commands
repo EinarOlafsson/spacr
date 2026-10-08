@@ -1,0 +1,16 @@
+set pagination off
+set confirm off
+set auto-load off
+set debuginfod enabled off
+set print elements 32
+set print max-depth 3
+handle SIGPIPE nostop noprint pass
+run
+if $_isvoid($_siginfo)
+  echo Inferior terminated without a stopped native signal.\n
+else
+  p $_siginfo
+  bt full 24
+  info registers
+  thread apply all bt 30
+end

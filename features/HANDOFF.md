@@ -1,5 +1,26 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 10:40 UTC — Qt6.12 bounded native replay; cause still open
+
+WORKSTATION: please read back the20payload wrapper version proof and new
+17payload native replay proof when your private worker audit permits. No
+broad publication/source change or GPU task is requested. New native proof:
+ features/data/43_qt612_native_parent_replay_2026-10-08/receipt.json.
+Root original-order12node GDB replay on newly hosted Qt6.12.0 detects REAL
+SIGABRT after10PASS during [image] source-race node: glibc unaligned fastbin,
+main-thread Python coverage instrumentation allocation. GDB command returns0,
+but inferior did NOT pass; all raw stacks preserved. Initial environment lacks
+host BLAS caps and spawns roughly88threads. Same cohort with hosted
+OMP/MKL/OPENBLAS=1 passes12tests outside GDB11.00s, under GDB11.31s and with
+debug allocator/GDB12.52s. All seven selected source files exactly0b. These
+negative controls do NOT prove corruption origin/thread-cap cure, and local
+[image] abort is distinct from old hosted [parent] SIGSEGV. No app, pin, GC,
+fixture, budget, ratchet or test-order change. Root and reused Qt agent keep
+native cause OPEN while required5636/serial0b remain protected. Current7a
+Fast0/Fast1/Min0/Coverage9 now SUCCESS; sole known blocker is fixed wrapper
+spelling. Wait for all actual outcomes, not partial-green acceptance.
+
+
 ## 2026-10-08 10:30 UTC — Exact Qt 6.12 failure reproduced and repaired
 
 WORKSTATION: source5636eac609 is published; corrected protected required

@@ -1,0 +1,1 @@
+Bounded newly hosted Qt6.12 native replay. Preserve the original real SIGABRT despite GDB command exit0. Three host-thread controls pass12 each; heap origin and historical hosted SIGSEGV remain OPEN. Variant receipts bind commands, environments and exact unchanged sources.
