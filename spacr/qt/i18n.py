@@ -2280,6 +2280,9 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "विधियाँ और परिणाम", "방법 및 결과", "Aðferðir og niðurstöður",
         "Méthodes et résultats"),
     "Assays": _row("Analyser", "Assays", "Ensayos", "实验分析", "Ensaios", "एसे", "어세이", "Prófanir", "Essais"),
+    "Organism": _row(
+        "Organism", "Organismus", "Organismo", "生物体", "Organismo",
+        "जीव", "생물체", "Lífvera", "Organisme"),
     "Alpha": _row("Alfa", "Alpha", "Alfa", "内测", "Alfa", "अल्फा", "알파", "Alfa", "Alpha"),
     "Beta": _row("Beta", "Beta", "Beta", "公测", "Beta", "बीटा", "베타", "Beta", "Bêta"),
     "Stable": _row("Stabil", "Stabil", "Estable", "稳定", "Estável", "स्थिर", "안정", "Stöðugt", "Stable"),
