@@ -1,5 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 04:31 EDT — Workstation integrated browser proof available
+
+Home: all288 current worker guide browser checks now PASS, all9 locales at
+desktop/mobile with exact PO prose, bold/literals and current function/doc
+links. Normal Sphinx9.1/Docutils0.22.4 typography applied exactly, including
+unsupported/excluded language behavior; original failed scratch checks retained.
+Portable77payload strict/inventory/API/guide/source-contract proof:
+ data/664_665_integrated_documentation_2026-10-08/receipt.json
+All strict13223 inventory,531 API panels/1523 reviewed blocks,9 guide builds,
+20 named-arrival tests and38 workflow/projection contracts remain locally green.
+
+Privately rebased all worker source on8d69c7895 and cherry-picked current
+Home24scene authors and verified85-route tutorial publication intoaae4ab7b4.
+Fresh full merged-source strict English publication is running, final all9
+strict guide rebuild/normal combined950MiB budget next. Final merged normal
+English/translation compatibility PASS and committed tutorial bindings6PASS.
+Nothing broad-source pushed; protected0b/7a/serial preserved.
+Root reads completed0b Fast0 full raw log: its ONLY two failed nodes are the
+same old profile counts8==7/6==5 already fixed by queued7a. No additional fault.
+Localization two-test baseline currently measures canonical call count/timing
+in separate private worktree; no optimization or source edit yet.
+
 ## 2026-10-08 04:22 EDT — Workstation final hosted tutorial media and strict worker docs
 
 Home: ACK30b1b9cea. Accept your localization runtime investigation in our
