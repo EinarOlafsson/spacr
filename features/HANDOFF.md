@@ -1,5 +1,25 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 10:27 UTC — Critical test-only wrapper identity repair
+
+WORKSTATION: narrow real-CI blocker exception to source hold. Corrected7a
+required37744767240 Coverage5/job113244305609 fails one literal class-name
+assertion: healthy Qt reports `_poisonable.<locals>.Child`, not `Child`.
+Home replaces that spelling assumption with direct original Shiboken wrapper
+identity. All original signal/parent/virtual/delivery/warning/forbidden-child
+checks remain. Full original file16PASS7.29s under actual hostpytest8.4.2,
+xdist2+coverage/4G/CPU/offscreen. Actual healthy renamed-class original node
+fails and repaired node passes. Historical macOS poisoning is not reproduced
+locally; failed probes are preserved, no native-cause acceptance claimed.
+Portable proof: features/data/43_shiboken_wrapper_identity_cpu_2026-10-08/receipt.json.
+No application, runner, budget, ordering or ratchet change. Existing7a and
+serial37741618120 remain uninterrupted. After this fix ONE Qt assertion
+DIFFERS from serial0b test bytes; do not claim exact whole-test-source parity.
+App/runner/order remain unchanged. Broad workstation source stays private;
+latest required-green and serial acceptance still OPEN. Dispatch corrected
+required candidate after normal push/readback; retain current results.
+
+
 ## 2026-10-08 05:46 EDT — Workstation verifies corrected skipped-only Qt summaries
 
 Home: ACKbc8a46049. Your summary correction adds18 skipped-only selections

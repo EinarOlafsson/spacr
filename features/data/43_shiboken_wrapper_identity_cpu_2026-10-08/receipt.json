@@ -1,0 +1,96 @@
+{
+  "source_parent": "a6c54e07689fdc0489762095d6616b055c03e882",
+  "failed_run": 37744767240,
+  "failed_source": "7a51b6c921ea0d9b51ca3f5e6d28a68904ce2cab",
+  "failed_job": 113244305609,
+  "failed_node": "tests/qt/test_the_pyside_slot_warning_is_fixed_not_filtered.py::test_a_child_parented_into_a_watched_host_keeps_its_wrapper",
+  "repair": "Replace literal metaobject class-name spelling with original Shiboken C++ pointer/Python wrapper identity; retain own signal, parent, virtual, delivery, warning and forbidden event.child guards.",
+  "local_result": "16 passed in 7.29s, exit 0; pytest 8.4.2, Python 3.12.13, PySide6 6.11.2, xdist -n 2 --dist loadfile and coverage, 4G cap, CPU/offscreen",
+  "local_command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen PYTHONPATH=.:/mnt/wd4tb/scratch/ci-55bad-20261008/pytest842-overlay tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest tests/qt/test_the_pyside_slot_warning_is_fixed_not_filtered.py -n 2 --dist loadfile --cov=spacr.qt.screens.app_screen --cov-report=term-missing -q",
+  "control": "Actual original node rejects healthy renamed class; actual repaired node passes wrapper and original own-signal/parent guards. Control does not reproduce the exact hosted qualified-name spelling.",
+  "limitations": [
+    "Historical macOS wrapper poisoning was not reproduced on local Linux/PySide6 6.11.2. Original attempted negative probes exit 1 and remain preserved.",
+    "Small-cohort coverage is not complete numerical coverage acceptance. No ratchet changed.",
+    "Current original-order serial remains uninterrupted on 0b source. One Qt assertion now differs; application, runner and selected order unchanged.",
+    "Hosted required run remains unaccepted until actual final green."
+  ],
+  "unchanged_source_bindings": {
+    "spacr/qt/screens/app_screen.py": "5e0563ad3c3929b89edb5f0d8eeb4623537f18230c374b0d4e08511e43b944a1",
+    "tools/run_capped.sh": "875c64c77a75e9caa15b0366e1fde38ce5ac2917c58dee7916eba94185d8846a",
+    ".github/workflows/qt-serial-acceptance.yml": "a6ae7d305e8959aa66b644018a6f13c6ade74d849d79896ac037dd65a5a60535"
+  },
+  "payloads": {
+    "original-test.py.gz": {
+      "sha256": "94e07cd4096f1ffbcb1fa01ccea14194844147384cd631c952e7d16b1375e560",
+      "bytes": 3385,
+      "raw_sha256": "3d2c8e5bfd6bb4651dbd58a9a5fdfd6a50ee51786f9d98c8f3e01a183ec43b24",
+      "raw_bytes": 8418
+    },
+    "repaired-test.py.gz": {
+      "sha256": "78c177f27f996bd312558b9dc85f8697d12d961b5194da9e3f8f2716dfa27f61",
+      "bytes": 3419,
+      "raw_sha256": "6f669e57b218732f517334baa71f39ae0ab4c82670c86bbf76003796e6dedb9c",
+      "raw_bytes": 8494
+    },
+    "coverage5-full.log.gz": {
+      "sha256": "3eb678cf814daaba53925b3e15c64560a3e646e9f27b21e3fcb0b9013b2e19b2",
+      "bytes": 283751,
+      "raw_sha256": "e37f14a444697459fd2a42fc44b9c55c23638f633fc927f6a41e8c7e323583a4",
+      "raw_bytes": 2022169
+    },
+    "coverage5-job.json": {
+      "sha256": "6033cb1bcf1453b982c6e760e8a7384dd530238c56d7c2fb742813b8ea123b6b",
+      "bytes": 3106,
+      "raw_sha256": "6033cb1bcf1453b982c6e760e8a7384dd530238c56d7c2fb742813b8ea123b6b",
+      "raw_bytes": 3106
+    },
+    "full-file-host-pytest.log.gz": {
+      "sha256": "dc11cc19588bd203ff96267aee920de79c87fa23f4dab3e8c6b660ff8543259f",
+      "bytes": 2655,
+      "raw_sha256": "4987020252f2b8a5b8b69b53aceaa40817244e121b20116205562ba7d2f15171",
+      "raw_bytes": 5734
+    },
+    "healthy-renamed-control.py": {
+      "sha256": "0c93c72be1a044746232083fbe2c44d481ba03afae46b080f30ea38cf3c27f61",
+      "bytes": 1878,
+      "raw_sha256": "0c93c72be1a044746232083fbe2c44d481ba03afae46b080f30ea38cf3c27f61",
+      "raw_bytes": 1878
+    },
+    "healthy-renamed-control.log.gz": {
+      "sha256": "2df1e7d48d5e220da9bbea975941f3f30e52fd93c7bf93e7415cfa19fb9c749f",
+      "bytes": 287,
+      "raw_sha256": "9114f4a485b381df0ea6346b855a21c9683a3ab6a3a6b81149d65c66f7126e29",
+      "raw_bytes": 470
+    },
+    "initial-probe.py": {
+      "sha256": "c597c2d37d3bd5afa9e98cf7fe7cdb28e7e2f806f827bb4fbc3c18538f92654b",
+      "bytes": 2039,
+      "raw_sha256": "c597c2d37d3bd5afa9e98cf7fe7cdb28e7e2f806f827bb4fbc3c18538f92654b",
+      "raw_bytes": 2039
+    },
+    "initial-probe.log.gz": {
+      "sha256": "8e5cb148ca4445347d752183e301ed811e352bc0438acee5c943e372bdaa3779",
+      "bytes": 338,
+      "raw_sha256": "48d9bf673ebe49c8629d0e2df07c00f9d0440d0c01616405d3f782d7416f1e54",
+      "raw_bytes": 796
+    },
+    "poison-probe.py": {
+      "sha256": "db80696c551c2a0d5ed56b8a9920ff44bbd430312e9a888d4ae8b7c52664d546",
+      "bytes": 2276,
+      "raw_sha256": "db80696c551c2a0d5ed56b8a9920ff44bbd430312e9a888d4ae8b7c52664d546",
+      "raw_bytes": 2276
+    },
+    "poison-probe.log.gz": {
+      "sha256": "2c89a83d3ee0a15002bce4982cae9df4df21940bccddf5ccb7520df478d91dcd",
+      "bytes": 400,
+      "raw_sha256": "8ca22b6ef1a371e495ef9eac1e03e9fed3911177cda3cd2059163198c800b4ff",
+      "raw_bytes": 1267
+    },
+    "exact-part5-probe.py": {
+      "sha256": "fc4feaf63eb069c5a30dc252f69745bd4c2c935f6293740447b706678204a72c",
+      "bytes": 1939,
+      "raw_sha256": "fc4feaf63eb069c5a30dc252f69745bd4c2c935f6293740447b706678204a72c",
+      "raw_bytes": 1939
+    }
+  }
+}

@@ -29,6 +29,7 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QEvent, QObject, QTimer, Signal
 from PySide6.QtWidgets import QWidget
+from shiboken6 import getCppPointer, wrapInstance
 
 from spacr.qt import _QT_NOISE
 
@@ -123,9 +124,9 @@ def test_a_child_parented_into_a_watched_host_keeps_its_wrapper(qtbot):
     """
     host, _watcher, child = _poisonable(qtbot)
 
-    assert child.metaObject().className() == "Child", (
-        "the child was stripped of its dynamic metaobject -- something "
-        "called event.child() during ChildAdded and held the result")
+    assert wrapInstance(getCppPointer(child)[0], type(child)) is child, (
+        "the child's C++ pointer lost its original Python wrapper -- "
+        "something called event.child() during ChildAdded and held the result")
     assert child.metaObject().indexOfSignal("poked(int)") != -1
     assert len(host.findChildren(type(child))) == 1
 

@@ -1,0 +1,1 @@
+Source-bound Coverage5 wrapper-identity repair proof. See receipt.json for full commands and limitations. Original host failure and unsuccessful local probes are retained losslessly. The healthy renamed-class control proves a literal spelling is not a wrapper invariant; historical macOS poisoning is not certified. Application and all CI budgets remain unchanged.
