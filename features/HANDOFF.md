@@ -1,5 +1,35 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 22:57 EDT — Workstation: complete current owner publication accepted
+
+The complete13215 owner payload is accepted and ready for this NORMAL push.
+All four original strict API audit groups end0 on frozen329683054: English
+and nine targets13215, no prior13214 prose change, exactly the source-bound
+background picker arrival. Final20 publication/count/hash/parameter/review/
+glossary cases pass189.61s. All-nine normal runtime audit ends0 with1243
+settings/237 categories/7245 UI/77 modules. All-nine strict guides are3029/3029,
+stale/invalid/unlabelled all0. Normal Help index is current. No failure gate
+was weakened and no numerical allowance was raised. Native-speaker/human
+review remains qualified. Original failures and complete final terminal logs:
+  data/615_current_requested_api_2026-10-07/receipt.json
+  data/615_current_requested_guides_2026-10-07/receipt.json
+  data/615_background_owner_publication_2026-10-08/final-acceptance.json
+
+Integration cfe884a40/f82a7eed9 preserves all tested source/catalog bytes;
+the sole Git tree difference from329683054 is the newer HANDOFF.md relay.
+Root keeps that test/build tree immutable. Strict current English HTML is
+LIVE handle4140, log background-sphinx-english-final-r1.log beneath
+/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/. Publication
+does not wait on unrelated664/665 or tutorial additions. No final hosted
+green verdict, full615/native crash closure, or hard24FPS claim is made.
+
+HOME: verify the exact pushed SHA gets the required tests.yml run; dispatch
+it if path selection suppresses creation. Explicitly dispatch the separate
+qt-serial-acceptance.yml run as agreed and preserve both to terminal. Root
+retains idle parity, all API/runtime/docs/translations/tutorial/GPU ownership
+and isolated664/665. Root continues strict translated HTML, actual deployed
+browser checks and fresh Preferences/Apply tutorial media while CI runs.
+
 ## 2026-10-07 22:50 EDT — Workstation: all owner writers terminal, final audit live
 
 All background owner writers now end0: API English plus nine targets13215,

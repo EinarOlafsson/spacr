@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "date": "2026-10-08",
+  "owner": "Root/workstation",
+  "source_commit": "f82a7eed9fbbed9e760a876bdc9103c1438174c4",
+  "tested_source_commit": "329683054f1fe7ec679aba4386c59d5428d0957b",
+  "integration_delta": [
+    "features/HANDOFF.md"
+  ],
+  "source_sha256": {
+    "spacr/qt/preferences.py": "a023ade78f1620f04163288143b541c5262bff611b46d77c1a6e13cd76989cfc",
+    "spacr/qt/widgets/ambient.py": "fa95c6677bea19f66b4cfb5e4049ae8858269e5b9cc53e337653fe176301fbf4",
+    "tools/build_documentation_i18n.py": "65cfbc1dc8b7b5d80bbdb4cf58fe50f2ff03472189135ec7be9425185517c910",
+    "tools/build_i18n_catalogs.py": "be5907913341649cb84a3d6c2c0896f494998f8983f0db94a19dc26f62786776",
+    "docs/source/features.rst": "6dff85bb5b34a4a1fe8b8b2f6305a8f136ad898f76495596a26a039abf2db9db",
+    "tests/test_api_i18n_extractor.py": "139dd5183c03e58a5ea4170c36d55087b661ac389f38c8a8994572c3d194ef82",
+    "tests/test_documentation_i18n.py": "3afa641a6f99166f89d24c75573dda1aec5743838f6cd07826ee52751e586bf1"
+  },
+  "previous_api_commit": "cd6074f22",
+  "exact_delta": {
+    "prior_symbols": 13214,
+    "current_symbols": 13215,
+    "arrivals": [
+      "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background"
+    ],
+    "removals": [],
+    "changed_existing_texts": []
+  },
+  "acceptance": {
+    "strict_api": "Normal original full strict audit passes English and all nine languages in four staggered groups",
+    "publication_nodes": "Exact count/hash/parameter/review-publication/glossary nodes pass; complete terminal output retained",
+    "strict_runtime": "Normal all-nine audit passes1243 settings/237 categories/7245 UI/77 modules",
+    "guides": "Previous strict3029/3029 all-nine proof remains bound to identical guide/catalog/runtime source bytes"
+  },
+  "review_scope": "AI technical/source/context review; unchanged legacy qualification retained; no native-speaker signoff.",
+  "pending": [
+    "Final-source required hosted tests and original-order Qt serial acceptance",
+    "Strict current HTML/deployed browser verification and fresh Preferences tutorial publication"
+  ],
+  "artifacts": {
+    "logs/background-api-final-sv-de-es-r1.log.gz": {
+      "raw_bytes": 631,
+      "raw_sha256": "52ac219553fcd71b4c0c929833bd93f6e52ce8d1820dfa53a24cda2935244066",
+      "gzip_sha256": "41511b0edbccc7670e387646eabb1cb9042d95ca0745a801d05b7b9eb34def8e"
+    },
+    "logs/background-api-final-pt-fr-r1.log.gz": {
+      "raw_bytes": 622,
+      "raw_sha256": "dfdf1b12ba4a49f7d71dbccdee3af7b70ca972bfec1f7ddcc91bf06862c6debd",
+      "gzip_sha256": "5486fa926da6519904a7d28e2c707a9acbb1f2281656e18ba1d6091fbc72b898"
+    },
+    "logs/background-api-final-is-zh-r1.log.gz": {
+      "raw_bytes": 625,
+      "raw_sha256": "6c1c54da6e3dd774c7fecf9d7271f4bd4106c10d92901f823442daa69670e487",
+      "gzip_sha256": "0c21f787aedd7ac12c11e21c13b51647e8275691d560aace41336b42c09115b0"
+    },
+    "logs/background-api-final-ko-hi-r1.log.gz": {
+      "raw_bytes": 622,
+      "raw_sha256": "8471065332ceca169f566858e8f1c24320f7b41b4eeea02b2daa1e11f205681f",
+      "gzip_sha256": "5effe7c95e382e2951418159bac4a6ba2e4fb609e131dc7d7a53950b7364adac"
+    },
+    "logs/background-publication-nodes-final-r1.log.gz": {
+      "raw_bytes": 1427,
+      "raw_sha256": "a559a58bb4dc84e4fbf17256780a3003f2e48c709af1ff00c3d94e9f0671df59",
+      "gzip_sha256": "63d33127c813ebf4cc5ef5e12841c5d5998cc9f535adeebc81d392b00cc03190"
+    },
+    "logs/background-runtime-final-audit-r1.log.gz": {
+      "raw_bytes": 641,
+      "raw_sha256": "dd30ab68cccb0676f40693349b107c37bd151644e8cdd81aa545df9989d0cec5",
+      "gzip_sha256": "3b75a0a0428acdfe8e3e38972e152dff2750c944219afa3f3e7c574d556da9f9"
+    }
+  }
+}

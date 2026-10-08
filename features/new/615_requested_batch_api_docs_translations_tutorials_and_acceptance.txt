@@ -1742,3 +1742,19 @@ retains actual initial/broader failures and accepted source/logs. All-nine
 API regeneration, source inventory pins, updated guides/tutorial publication
 and deployed readback continue separately. No full615 or hosted/native
 acceptance is inferred;664/665 shipping remains paused for the CI priority.
+
+2026-10-07 22:57 EDT — complete current owner publication accepted
+Normal current strict API audits now pass English and all nine targets at
+13215 symbols. The exact background picker is the only arrival beyond13214;
+all previous API prose remains unchanged. Source/count/hash/parameter/review/
+glossary publication cohort20 passes189.61s. Normal runtime audit passes all
+nine at1243 settings/237 categories/7245 UI/77 modules. Strict guides all
+pass3029/3029 with stale/invalid/unlabelled all0; normal Help index is current.
+Accepted source329683054 is preserved byte-exact through cfe884a40/f82a7eed9;
+only the coordination HANDOFF differs. Complete originals, normal reviewed
+imports and final acceptance are in615_current_requested_api_2026-10-07,
+615_current_requested_guides_2026-10-07 and615_background_owner_publication_
+2026-10-08. This normal publication starts required hosted acceptance.
+Strict English HTML continues in the unchanged build tree. Final hosted
+green/serial-native acceptance, translated HTML/deployment and refreshed
+Preferences tutorial remain open; no full615 or human/native review closure.
