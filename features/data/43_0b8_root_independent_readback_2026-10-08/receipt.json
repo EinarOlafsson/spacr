@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "payloads_verified": 32,
+  "all_gzip_raw_logs_decoded": true,
+  "original_zip_integrity": true,
+  "numerical_status": "pass",
+  "source_commit": "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3",
+  "scope": "Independent complete payload/ZIP/tree readback plus normal git-bound verifier; current0b numerical664/664PASS only. Selected-test coverage9 failure and red combine remain; not overall/latest7a/serial/native acceptance."
+}
