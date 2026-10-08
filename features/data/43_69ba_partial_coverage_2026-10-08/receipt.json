@@ -1,0 +1,116 @@
+{
+  "available_log_shards": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "combine": "not run",
+  "coverage6": {
+    "artifact_archived_here": false,
+    "artifact_id": 11534155250,
+    "artifact_name": "spacr-coverage-data-37737743925-1-6",
+    "artifact_sha256": "6b9e8cfd7eb0daefa59654e57921be6d1645ae15d15b6e98481e61dbd7b6777e",
+    "failed": 0,
+    "passed": 6875,
+    "skipped": 30
+  },
+  "coverage_cancelled": 11,
+  "coverage_shards": [
+    {
+      "completed_at": "2026-10-08T07:10:02Z",
+      "conclusion": "cancelled",
+      "job_id": 113181069132,
+      "number": 0
+    },
+    {
+      "completed_at": "2026-10-08T07:10:46Z",
+      "conclusion": "cancelled",
+      "job_id": 113181068716,
+      "number": 1
+    },
+    {
+      "completed_at": "2026-10-08T07:09:57Z",
+      "conclusion": "cancelled",
+      "job_id": 113181069100,
+      "number": 2
+    },
+    {
+      "completed_at": "2026-10-08T07:10:39Z",
+      "conclusion": "cancelled",
+      "job_id": 113181069124,
+      "number": 3
+    },
+    {
+      "completed_at": "2026-10-08T07:10:51Z",
+      "conclusion": "cancelled",
+      "job_id": 113181069095,
+      "number": 4
+    },
+    {
+      "completed_at": "2026-10-08T07:09:39Z",
+      "conclusion": "cancelled",
+      "job_id": 113181069136,
+      "number": 5
+    },
+    {
+      "completed_at": "2026-10-08T07:00:33Z",
+      "conclusion": "success",
+      "job_id": 113181068795,
+      "number": 6
+    },
+    {
+      "completed_at": "2026-10-08T07:10:53Z",
+      "conclusion": "cancelled",
+      "job_id": 113181068789,
+      "number": 7
+    },
+    {
+      "completed_at": "2026-10-08T07:10:51Z",
+      "conclusion": "cancelled",
+      "job_id": 113181068824,
+      "number": 8
+    },
+    {
+      "completed_at": "2026-10-08T07:11:02Z",
+      "conclusion": "cancelled",
+      "job_id": 113181068835,
+      "number": 9
+    },
+    {
+      "completed_at": "2026-10-08T07:10:13Z",
+      "conclusion": "cancelled",
+      "job_id": 113181068781,
+      "number": 10
+    },
+    {
+      "completed_at": "2026-10-08T07:10:48Z",
+      "conclusion": "cancelled",
+      "job_id": 113181068832,
+      "number": 11
+    }
+  ],
+  "coverage_success": 1,
+  "interpretation": "One source-bound shard passed; eleven were cancelled. Partial test failures do not establish a numerical verdict or a full required-run conclusion other than cancelled.",
+  "numerical_verdict": "not measured because all required shard inputs were not completed",
+  "pre_cancel_observations": {
+    "coverage0": "A worker died by SIGSEGV while running the Make Masks parent-source race guard; recovery was still in progress when cancellation arrived.",
+    "coverage9": "Two CI replay-profile tests asserted old Qt and coverage exclusion counts (8 versus 7; 6 versus 5). Their job conclusion was cancelled, not failed."
+  },
+  "run_id": 37737743925,
+  "schema": 1,
+  "snapshot_scope": "parent run terminal cancelled; direct API coverage shard jobs terminal",
+  "source_sha": "69ba4e462f2ea60924a977b192d006ce9b70f42c",
+  "superseding_required_run_id": 37741615330,
+  "superseding_source_sha": "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3",
+  "unavailable_log_shards": [
+    5
+  ]
+}
