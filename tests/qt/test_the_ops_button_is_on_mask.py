@@ -39,7 +39,10 @@ def test_the_switch_sits_beside_dimensions_while_live_stays_on_the_preview(mask_
     assert isinstance(switch, AiToggleLabel), (
         "the OPS control is not in the format the rest of the row uses")
     assert switch.text() == OPS_TOGGLE_TEXT
-    assert switch.toolTip(), "the only place a user meets OPS says nothing"
+    assert switch.toolTip() == ""
+    explanation = mask_screen._action_hint(switch)
+    assert explanation, "the only place a user meets OPS says nothing"
+    assert switch.accessibleDescription() == explanation
 
     row = [label._full_text
            for label in mask_screen.findChildren(AiToggleLabel)]
