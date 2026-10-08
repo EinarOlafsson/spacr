@@ -127,6 +127,9 @@ class StubAmbient(QWidget):
         self.themes_set = []
         self.palettes_set = []
         self.backgrounds_set = []
+        self.ripples_set = []
+        self.effects_set = []
+        self.motion = {}
         self.animating = True
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self.setFocusPolicy(Qt.NoFocus)
@@ -145,6 +148,39 @@ class StubAmbient(QWidget):
     def set_animating(self, on):
         self.animating = bool(on)
 
+    def set_ripples_enabled(self, on):
+        self.ripples_set.append(bool(on))
+
+    def set_field_effects(self, effects):
+        self.effects_set.append(dict(effects))
+
+    def set_blur(self, value):
+        self.motion["blur"] = value
+
+    def set_speed(self, value):
+        self.motion["speed"] = value
+
+    def set_size_scale(self, value):
+        self.motion["size"] = value
+
+    def set_resolution(self, value):
+        self.motion["resolution"] = value
+
+    def set_density(self, value):
+        self.motion["density"] = value
+
+    def set_blink_percent(self, value):
+        self.motion["blink_percent"] = value
+
+    def set_popup_wave_frequency(self, value):
+        self.motion["popup_wave_frequency"] = value
+
+    def set_direction(self, value):
+        self.motion["direction"] = value
+
+    def set_gravity_radius(self, value):
+        self.motion["gravity_radius"] = value
+
 
 @pytest.fixture
 def fake_ambient(monkeypatch):
@@ -162,8 +198,18 @@ def fake_ambient(monkeypatch):
     module.palettes_for = lambda theme: palettes.get(theme, ())
     module.theme_label = lambda name: name.title()
     module.palette_label = lambda theme, palette: palette.title()
+    module.coerce_palette = lambda theme, palette: (
+        palette if palette in module.palettes_for(theme)
+        else module.palettes_for(theme)[0])
     module.AmbientWidget = StubAmbient
     module.calls = []
+    module.ripple_requests = []
+
+    def field_ripple_for_widget(widget, edge=None, rect=None, strength=1.0):
+        module.ripple_requests.append((widget, edge, rect, strength))
+
+    module.field_ripple_for_widget = field_ripple_for_widget
+    module._apply_spaceout_animation_choice = lambda app: None
 
     def install_ambient(host, layout=None, *, theme, palette, backdrop=None):
         module.calls.append({"host": host, "layout": layout, "theme": theme,
