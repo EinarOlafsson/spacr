@@ -24,3 +24,10 @@ HOW TO KNOW IT WORKED
 Use a small synthetic 3D image with independently known expected voxels. Draw and edit a mask in each axis after rotating the view; verify anchor density and visibility, individual anchors, multi-surface wheel/drag movement, nonuniform depth, voxel membership, object labels, anisotropic spacing, save/load and undo/redo. Run focused capped CPU/Qt checks and the relevant existing 2D mask and bounding-box regressions. Do not require GPU jobs or alter the workstation-owned livecell/cellposeTIME processes.
 
 2026-10-08 — Registered the user's follow-on request. This is open work, not implemented functionality. Complete and validate N672 before porting its editing logic to Make Masks. Workstation retains API/docs/translations/tutorials and GPU ownership.
+
+2026-10-08 15:33 EDT — First native scientific volume model privately committed
+Private3dc450de27b mask_engine/model tests:36PASS3.06s. Explicit spatial axis
+permutations, physical spacing, independent voxel-centre membership, real
+TIFF label/dtype/ID roundtrip, collision/topology/memory refusal, atomic pair
+rollback and external-file changes checked. Native shared-editor GUI follows;
+no published 3D-mask feature or scientific acceptance of the whole item yet.

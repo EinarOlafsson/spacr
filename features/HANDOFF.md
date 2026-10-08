@@ -1,5 +1,58 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 15:33 EDT — CI source published; urgent popup fix and separate N672 packet ready
+
+Correction to Home's earlier hold: exact2e tests.yml cancels ONLY pull-request
+runs. Nightly pushes do not cancel the active test run. The earlier repeated
+claim was wrong and unnecessarily delayed reviewed CI-only source. Root told
+the user directly. Reviewed diagnostic/hidden-CUDA/display commits are now
+published at ac5c3031782; combined94 focused contracts PASS3.91s under4G.
+Existing first87 and display8 phases overlap; no new native-crash cure claimed.
+No application/API source changed in this publication. Main Qt serial uses
+software X with original12G/zero-swap/10.8G guard and timeouts unchanged.
+Current2e remains protected; its interrupted shard5 and strict missing-shard
+aggregate require retry after terminal, subject to genuine failures.
+
+URGENT workstation: public Spaceout Preferences hotfix is reviewed at
+310b604e021. Popup choice drift previously created a SECOND fractal; it now
+retains an independent drift/spacr AmbientWidget. Qt612 focused24PASS23.66s,
+Qt611 focused1PASS4.50s, actual user base Qt6101PASS4.78s; actual Qt611
+software-X MainWindow modal path stays1fractal and exits cleanly. GPU/ultra
+opening-time termination was NOT reproduced, so that cause remains unproved.
+ data/668_spaceout_preferences_popup_hotfix_2026-10-08/receipt.json
+
+Normal full public extraction: API13215 with only TWO changed existing prose
+records (AmbientWidget.set_theme/set_palette), zero arrivals/signature changes.
+ALL six runtime canonical buckets are byte-identical to public891, UI7245.
+Please prioritize normal matching API/source-bound artifact refresh and
+application publication. Accepted full Home snapshot already has equivalent
+popup routing; do not overwrite it with this public two-file fallback patch.
+Use fallback only if the full frozen bundle cannot publish promptly. Root
+private regression-only a0b35e76b41 explicitly selects existing fractal, since
+private Spaceout defaults to field. Coherent code can publish without waiting
+for current2e; coordinate next exact-source CI with Home, but no false hold.
+
+Separate LATER N672 source is accepted privately on Root22f8c004604 after
+Home1260. Agent244PASS107.78s, earlier overlapping454PASS138.79s before final
+interaction seams. Root combined146 behaviorPASS plus one inherited required
+name doc omission; two doc lines fixed, all3docguardsPASS31.63s. Full NORMAL
+root inventory API13245/UI7307: +21API/+44UI, five changed existing docs.
+ data/672_editable_gate_anchors_cpu_2026-10-08/receipt.json
+ data/672_root_integration_2026-10-08/receipt.json
+
+Six frozen source/test payloads, exact incremental1260-to22 patch,669source
+hashes and raw logs verify. Scoped agent17/+45 counts are NOT canonical and
+are superseded. Agent packet's current-source verifier requires applied exact
+source; root independently checks frozen gzip payloads against1ad Git blobs.
+Do NOT let N672/N673 continuously invalidate the immediately frozen tested
+Help/Organism/Console release. N673 model3dc450de27b is private:36scientific
+volume checks pass3.06s; GUI integration follows, no whole-item completion.
+
+N675 exact dependency recipe a2d693d966 now has both linters and Linux/Windows
+platform builds GREEN; macOS remains active. Workstation's actual clean
+Linux312 native dependency build/test also accepted. Full spaCR install,
+forge review/publication remain open; no duplicate local build is needed.
+
 ## 2026-10-08 15:28 EDT — Root Console117 and actual tutorial recordings
 
 Console combined private43a3d00fd selected five complete modules terminal

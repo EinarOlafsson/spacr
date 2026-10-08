@@ -1,0 +1,100 @@
+{
+  "scope": "Normal public_docstrings/extract_static_ui_sources policies applied to four changed files only; unrelated API aliases, nested helper inventory and indirect runtime registries excluded equally in both passes. Not global canonical counts or regenerated catalogs.",
+  "before": "0527ae6fa0",
+  "after": "1ad258e625f",
+  "api_added": {
+    "spacr.qt.widgets.gate_editor.GateCanvas.volume_surface_at": "Pick the nearest actual boundary triangle after camera rotation.\n\n:param event: a Matplotlib pointer event in the current volume axes.\n:returns: ``(gate name, surface identifier)`` or ``None``.",
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate": "A closed editable piecewise-linear volume used by both drawing and gating.\n\n:param x_column: measurement along the first data axis.\n:param y_column: measurement along the second data axis.\n:param z_column: measurement along the third data axis.\n:param vertices: finite distinct three-dimensional boundary coordinates.\n:param faces: consistently oriented triangles indexing shared vertices.\n:param surface_groups: selectable surface identifier for each triangle;\n    triangles in one group move together. Empty assigns one group per triangle.",
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.__post_init__": "Freeze and validate every coordinate, boundary connection and surface.",
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.anchors": "Sample every surface and edge with uniformly spaced barycentric anchors.\n\nDensity changes only visible editing handles, never scientific geometry.\nShared edges and vertices expose one canonical handle.\n\n:param density: subdivisions per triangle edge, 1 to 8.\n:returns: unique anchors in deterministic surface order.",
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.centre": "Return the first two components of the vertex centroid for flat tools.",
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.columns": "The measurement columns matching every vertex coordinate.",
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.describe": "Describe the measurements and the actual editable boundary size.",
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.from_gate": "Make a shared boundary for a box, cylinder, prism, ellipsoid or view gate.\n\nCurved surfaces become an explicitly piecewise-linear boundary when\nedited; the original analytic gate remains unchanged until commit.\n\n:param gate: the existing three-dimensional gate and its hierarchy.\n:param limits: finite axis bounds used only for an unbounded original\n    side or a view gate's finite depth, in ``gate.columns`` order.\n    Omitting required bounds is refused. A view gate is bounded at the\n    nearest and farthest projected depths of these limits when edited.\n:param segments: circumference samples for curved shapes, 8 to 128.\n:param depth_steps: evenly spaced axial intervals, 1 to 16.\n:returns: the closed volume with shared selectable surfaces.",
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.kind": "The persisted editable-volume tag.",
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.mask": "Test measured points against this same closed mesh using signed solid angles.\n\nBoundary points are included. Nonfinite measurements are excluded. Work\nis bounded to 4096 points per triangle without allocating a voxel volume.\n\n:param frame: measurements containing all three gate columns.\n:returns: one boolean per row in the original order.",
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.moved_surfaces": "Move selected surfaces and their shared anchors once, maintaining connectivity.\n\n:param groups: existing surface identifiers; repetitions have no effect.\n:param delta: displacement in the three measurement dimensions.",
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.moved_vertices": "Displace each selected shared vertex once and validate the new boundary.\n\n:param indices: vertex indices; repeated indices are deduplicated.\n:param delta: displacement along each of the three data axes.\n:raises GateError: on invalid indices, nonfinite motion or invalid geometry.",
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.scaled": "Scale all three dimensions about the centroid or a supplied flat anchor.\n\n:param factor: positive finite scale factor.\n:param about: optional first/second-axis centre; depth uses its centroid.",
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.to_dict": "Serialize the exact mesh, grouped surfaces and gate hierarchy.",
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.translated": "Move the first two axes while preserving depth and all shared vertices.\n\n:param dx: first-axis displacement in measurement units.\n:param dy: second-axis displacement in measurement units.",
+    "spacr.qt.widgets.gate_spec.EditableVolumeGate.with_anchor": "Move an existing vertex or insert and move an edge/surface anchor.\n\nInserting an edge anchor splits every incident triangle together, so no\ncrack appears between surfaces. Repeated editing never changes columns.\n\n:param role: canonical role returned by :meth:`anchors`.\n:param point: target coordinate in the three measurement dimensions.\n:raises GateError: invalid roles, nonfinite targets or invalid deformations.",
+    "spacr.qt.widgets.gate_spec.VolumeAnchor": "A boundary point and its stable barycentric editing role.\n\n:param point: coordinates in the gate's three-column order.\n:param role: canonical vertex/edge/triangle weights consumed by edits."
+  },
+  "api_changed": {
+    "spacr.qt.screens.gate_editor.GateEditorScreen.load_gates": {
+      "before": "Read a gating strategy and apply it to the loaded table.\n\nA strategy naming a measurement this table does not carry loads anyway\nand reports the problem: the gates are still there to look at and fix,\nwhich is more use than refusing the file.\n\n:param path: a JSON gate file written by :meth:`save_gates`. A file\n    that cannot be read is reported on the source line and gives False.",
+      "after": "Read a gating strategy and apply it to the loaded table.\n\nA strategy naming a measurement this table does not carry loads anyway\nand reports the problem: the gates are still there to look at and fix,\nwhich is more use than refusing the file.\n\nSaved anchor density and visibility are restored without resampling\nany edited boundary. Older files keep the current editor controls.\n\n:param path: a JSON gate file written by :meth:`save_gates`. A file\n    that cannot be read is reported on the source line and gives False."
+    },
+    "spacr.qt.screens.gate_editor.GateEditorScreen.save_gates": {
+      "before": "Write the gating strategy to ``path``.\n\n:param path: the file to write the gating strategy to, as JSON; an\n    existing file is overwritten.",
+      "after": "Write the gating strategy to ``path``.\n\nEdited volume vertices and surfaces are saved with the anchor density\nand visibility controls; display settings do not approximate membership.\n\n:param path: the file to write the gating strategy to, as JSON; an\n    existing file is overwritten."
+    },
+    "spacr.qt.widgets.gate_editor.GateCanvas.drag_mode": {
+      "before": "What dragging does right now: spin the view, or draw.\n\n:returns: the mode's name, defaulting to ``spin``.",
+      "after": "What dragging does right now: spin, draw or edit a volume boundary.\n\n:returns: the mode's name, defaulting to ``spin``."
+    },
+    "spacr.qt.widgets.gate_editor.GateCanvas.set_drag_mode": {
+      "before": "``'spin'`` or ``'draw'``. They were competing for one button.\n\n:param mode: ``\"spin\"`` or ``\"draw\"``; anything else is taken as\n    ``\"spin\"``.",
+      "after": "Choose rotation, drawing or explicit boundary editing.\n\n:param mode: ``\"spin\"``, ``\"draw\"`` or ``\"edit\"``; anything else is taken as\n    ``\"spin\"``."
+    },
+    "spacr.qt.widgets.gate_settings.GateEditorSettings": {
+      "before": "Everything the Gate Editor is configured by.\n\nFrozen: settings are replaced wholesale rather than mutated, so a screen\ncan compare what it has against what it is given and re-read the table\nonly when something that actually costs a read has changed.",
+      "after": "Everything the Gate Editor is configured by.\n\nFrozen: settings are replaced wholesale rather than mutated, so a screen\ncan compare what it has against what it is given and re-read the table\nonly when something that actually costs a read has changed.\n\n:param anchor_density: edge subdivisions for visible editing anchors,\n    from 1 to 8; this never changes a gate's stored geometry.\n:param show_anchors: show and enable editable boundary anchors."
+    }
+  },
+  "ui_added": [
+    "A selected volume surface does not exist.",
+    "A view-drawn volume needs finite increasing view limits before editing.",
+    "A volume anchor needs three finite coordinates.",
+    "A volume must have nonzero extent on all three axes.",
+    "A volume scale must be positive and finite.",
+    "An editable volume needs 4 to 8192 vertices and at most 16384 triangles.",
+    "An editable volume requires three distinct measurement columns.",
+    "An edited outline must have distinct points and nonzero area.",
+    "An edited outline must have nonzero area.",
+    "An edited outline needs at least three finite points.",
+    "An unbounded gate needs explicit finite view limits before editing its volume.",
+    "Anchor density",
+    "Anchor density must be between 1 and 8.",
+    "Anchor visibility must be true or false.",
+    "Edit",
+    "Edit volume surfaces: Ctrl-click selects several. Edit axis constrains motion. Curved gates become piecewise-linear when edited. View-drawn and unbounded gates use the current view's finite depth at the first committed edit.",
+    "Edited outline edges must not cross or overlap.",
+    "Editing an outline anchor commits a piecewise-linear boundary; counts and exports use that same boundary.",
+    "Editing this anchor commits a piecewise-linear volume. View-drawn and unbounded gates use the current view's finite depth.",
+    "Evenly subdivide gate edges and surfaces into editable anchors. Density changes handles, not the gate's geometry or membership.",
+    "Every volume triangle must name three existing vertices.",
+    "Only a three-dimensional gate can become an editable volume.",
+    "Rotate the graph to expose that axis before dragging its anchors.",
+    "Saved anchor controls are invalid.",
+    "Show gate anchors",
+    "The editable view boundary must stay finite and in front of its camera.",
+    "The editable view volume must remain in front of its camera.",
+    "The selected volume anchor does not exist.",
+    "The view camera cannot resolve an editable volume boundary.",
+    "The view camera has no finite editable depth.",
+    "The volume footprint must be a simple nondegenerate polygon.",
+    "The volume footprint must have finite nonzero extent on both axes.",
+    "The volume must enclose a nonzero region.",
+    "This gate has no supported finite editable volume boundary.",
+    "View plane",
+    "Volume coordinates, triangles and surface groups are invalid.",
+    "Volume motion needs existing vertices and a finite three-axis displacement.",
+    "Volume sampling needs 8 to 128 circumference samples and 1 to 16 depth intervals.",
+    "Volume surfaces must be connected and use every vertex.",
+    "Volume surfaces must form one closed consistently oriented mesh.",
+    "Volume surfaces must not intersect or overlap.",
+    "Volume triangles must not collapse.",
+    "Volume vertex indices must be integers.",
+    "Volume vertices must be finite and distinct.",
+    "{x} × {y} × {z}: {count} volume anchors"
+  ],
+  "ui_removed": [],
+  "object_names_added": [
+    "GateAnchorDensity",
+    "GateAnchorVisibility",
+    "GateVolumeEditAxisPicker",
+    "GateVolumeEditButton"
+  ]
+}

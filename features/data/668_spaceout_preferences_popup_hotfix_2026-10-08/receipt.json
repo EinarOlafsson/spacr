@@ -1,0 +1,138 @@
+{
+  "baseline_revision": "891c9db2a17d7b1eda56f3a5b8d1f681790c2209",
+  "hotfix_revision": "310b604e0218a1cb0caf527dd7f4bad0445dd576",
+  "normal_api": {
+    "baseline_count": 13215,
+    "changed_prose_sha256": {
+      "spacr.qt.widgets.ambient.AmbientWidget.set_palette": {
+        "after": "627275d240f29285a01f5cc8e2fd3210d1aa3c3bea67984a58ba26e7c181658c",
+        "before": "1edb86cdc5b4fc825e0e5617a178fa2b47fac91b9d15c3af7e5da2d49b3f28e4"
+      },
+      "spacr.qt.widgets.ambient.AmbientWidget.set_theme": {
+        "after": "71d11b2a2ae0b1e76bbecc6d180afa7f2f64c78f8b1baef462141af4f766223e",
+        "before": "82c93d47d0fa615c45c940d916023e89712faeb21bcd01ff015b5b8c9b1bb654"
+      }
+    },
+    "hotfix_count": 13215,
+    "new_public_symbols": [],
+    "new_runtime_ui_strings": []
+  },
+  "payloads": {
+    "payloads/after-ambient.py.gz": {
+      "compressed_sha256": "d3183bd9a24125f64fe4c0f112f64129fd6ede832208ade0cce4e8ad2c988ea7",
+      "git_blob": "3aaac0074e64392ee34c4c596cc0c9517d72bf05",
+      "raw_bytes": 390123,
+      "raw_sha256": "f62aab6074dfc688532fc683f812a0a305b9096ce0fb4613dee358ee1584c98c"
+    },
+    "payloads/after-glass.py.gz": {
+      "compressed_sha256": "be1203b3ea75e2d271f5594d0943a8b468ec4ae624348910b5233fed52856219",
+      "git_blob": "e52f15c284d68787978ee5b983d29da4d63427d4",
+      "raw_bytes": 45690,
+      "raw_sha256": "52b434e5eb0f95cebac500bc5dfb1c1d4200a297834f4d655f5c35b048d6aa83"
+    },
+    "payloads/after-test_popup_backdrop_apply.py.gz": {
+      "compressed_sha256": "ca8919174f0aa3ef2dcaceb715d230951b6eb2ef362fc19e13f0ad02aa2bea29",
+      "git_blob": "017043adc1b4022491d2c23dc19ac34029519a7d",
+      "raw_bytes": 10909,
+      "raw_sha256": "0e59cf679b0fc2d139c74bfe1ae8fcf47feaf454e3d89c9b2c013042318372d1"
+    },
+    "payloads/before-ambient.py.gz": {
+      "compressed_sha256": "cfd32185a4d686ee532a735fa2eaf34ad59d7c904c221fe809d368b01caf4f49",
+      "git_blob": "b515e4cb9497758868fbac6fc636da9f1b796fb6",
+      "raw_bytes": 389729,
+      "raw_sha256": "512826ed720ff7c8a417a3f99175f6676db3da4907cf9415c3e68b1d64136806"
+    },
+    "payloads/before-glass.py.gz": {
+      "compressed_sha256": "6faa28b1017159cad46ce4374b635607e2188ad921ef8879ed360ffc0e5dac14",
+      "git_blob": "0f34817481c43aaeffd8aca0b48d5e9d40ec5bc6",
+      "raw_bytes": 45625,
+      "raw_sha256": "be425c7e58f6cfafe413d1cf76ed03d0c3e103f1c9dc6ec09dcc3fbb8323b834"
+    },
+    "payloads/before-test_popup_backdrop_apply.py.gz": {
+      "compressed_sha256": "c79be2f7f17eeb36ffa4dfd84163b715487108e7bea3c36dfe87e43a94df9d08",
+      "git_blob": "7070b16815ee156788a46954c44a710ce2e05d85",
+      "raw_bytes": 8531,
+      "raw_sha256": "45eb01073bbf4aecf48d543db17aa458ded280166a0caaace14806d7ce536b19"
+    },
+    "payloads/final-qt611-focused.log.gz": {
+      "compressed_sha256": "b7674af41ac0046591c62376d5aef1ec84bf3a46b0c8f5c617981b0ff9390a4d",
+      "meaning": "fixed source focused Qt 6.11.2 popup test passes",
+      "raw_bytes": 98,
+      "raw_sha256": "43fed8850c569b7431f344154ea7171c1d62ba89d0757b56b40ba23155fd743a"
+    },
+    "payloads/final-qt612-24.log.gz": {
+      "compressed_sha256": "0085d9539c2417ea9be39e92aa44ebff8dd1babed4221db5a162bc49e4669fd5",
+      "meaning": "fixed source 24 focused Qt 6.12 tests pass",
+      "raw_bytes": 100,
+      "raw_sha256": "5a48349029ccd6d1cdc9fbdc95c581458868836406c0eb8a245c598743c1b60e"
+    },
+    "payloads/fixed-xcb-611.log.gz": {
+      "compressed_sha256": "437d4fd55e40e467a2c933ff35bec874cb64cc496923c89dd63b716db7d7b9bf",
+      "meaning": "fixed public source Qt 6.11.2 Xvfb real CPU fractal one to one, clean exit",
+      "raw_bytes": 203,
+      "raw_sha256": "8c2d4adb79610ebef8eed17422d82f02a5e66481caeb46f0a34a397f03092677"
+    },
+    "payloads/hotfix.patch.gz": {
+      "compressed_sha256": "39d37b4879c61fd21d18ee032bd1b16cc694e53b8843cf080b92326906fa1803",
+      "raw_bytes": 7099,
+      "raw_sha256": "bbdefe38c2fced5545a84e07b9077f39282c860352e7c00d67755a2fcad97468"
+    },
+    "payloads/private-xcb-explicit-fractal.log.gz": {
+      "compressed_sha256": "591079fc40b7441f158520f4248a526042fcf70fb9bb25d29be9481d5bc93b03",
+      "meaning": "separate private 1260 source integration contrast, one fractal and drift popup",
+      "raw_bytes": 337,
+      "raw_sha256": "b020031fefdfa7cd29a298e1aabe02ef4479638fcdc2e04cbaf2cc299e5c2bec"
+    },
+    "payloads/public-offscreen-filters.log.gz": {
+      "compressed_sha256": "c0dc13a8dd59db991b6db28a06106a686fd48a684d9ccee135e789840f4a9a52",
+      "meaning": "baseline Qt 6.12 CPU process exits normally, one to two fractals",
+      "raw_bytes": 319,
+      "raw_sha256": "7810be3e9b49a1dc26df23cb4996c861df54ffa5c78d40c59e3a19e7eb567fcf"
+    },
+    "payloads/public-xcb-611.log.gz": {
+      "compressed_sha256": "cf8845dd9ebb2ef196ebee65a975afb77790fe938bc4568bcb1ae3ab0e0d8062",
+      "meaning": "baseline Qt 6.11.2 CPU Xvfb one to two; abbreviated teardown abort is not opening-time crash evidence",
+      "raw_bytes": 1480,
+      "raw_sha256": "2187055637581f945782bc0faf89f8fdf04967a4d4649d4157b2b2a33312008b"
+    }
+  },
+  "source_files": {
+    "spacr/qt/widgets/ambient.py": {
+      "after": {
+        "git_blob": "3aaac0074e64392ee34c4c596cc0c9517d72bf05",
+        "sha256": "f62aab6074dfc688532fc683f812a0a305b9096ce0fb4613dee358ee1584c98c"
+      },
+      "before": {
+        "git_blob": "b515e4cb9497758868fbac6fc636da9f1b796fb6",
+        "sha256": "512826ed720ff7c8a417a3f99175f6676db3da4907cf9415c3e68b1d64136806"
+      }
+    },
+    "spacr/qt/widgets/glass.py": {
+      "after": {
+        "git_blob": "e52f15c284d68787978ee5b983d29da4d63427d4",
+        "sha256": "52b434e5eb0f95cebac500bc5dfb1c1d4200a297834f4d655f5c35b048d6aa83"
+      },
+      "before": {
+        "git_blob": "0f34817481c43aaeffd8aca0b48d5e9d40ec5bc6",
+        "sha256": "be425c7e58f6cfafe413d1cf76ed03d0c3e103f1c9dc6ec09dcc3fbb8323b834"
+      }
+    },
+    "tests/qt/test_popup_backdrop_apply.py": {
+      "after": {
+        "git_blob": "017043adc1b4022491d2c23dc19ac34029519a7d",
+        "sha256": "0e59cf679b0fc2d139c74bfe1ae8fcf47feaf454e3d89c9b2c013042318372d1"
+      },
+      "before": {
+        "git_blob": "7070b16815ee156788a46954c44a710ce2e05d85",
+        "sha256": "45eb01073bbf4aecf48d543db17aa458ded280166a0caaace14806d7ce536b19"
+      }
+    }
+  },
+  "validation": {
+    "baseline_reproducer": "before 1, during 2; CpuFractalWidget; CPU backend",
+    "limit": "No original GPU/ultra crash reproduction or GPU acceptance",
+    "qt611_focused": "1 passed in 4.50s under 4 GiB",
+    "qt612_focused": "24 passed in 23.66s under 4 GiB",
+    "real_xvfb_qt611": "before 1, during 1, after 1; AmbientWidget drift; exit 0"
+  }
+}
