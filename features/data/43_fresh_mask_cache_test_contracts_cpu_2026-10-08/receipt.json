@@ -1,0 +1,45 @@
+{
+  "parent": "dac0fdc96f",
+  "implementation_commit": "7d44278c67",
+  "python": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+  "pytest": "8.4.2",
+  "pytest_overlay": "/mnt/wd4tb/scratch/ci-55bad-20261008/pytest842-overlay",
+  "RAM_cap": "4G",
+  "CUDA_VISIBLE_DEVICES": "",
+  "QT_QPA_PLATFORM": "offscreen",
+  "SPACR_DEVICE": "cpu",
+  "MPLBACKEND": "Agg",
+  "coverage": false,
+  "xdist": false,
+  "before": {
+    "failed": 2,
+    "seconds": 7.33,
+    "exit_code": 1
+  },
+  "after": {
+    "passed": 2,
+    "seconds": 5.53,
+    "exit_code": 0
+  },
+  "production_sha256": {
+    "spacr/qt/app.py": "5fc990e6904525432af3e6fb2b419342af2dabd2776cc371e0cd55ed3dc543f7",
+    "spacr/qt/screens/app_screen.py": "5e0563ad3c3929b89edb5f0d8eeb4623537f18230c374b0d4e08511e43b944a1",
+    "spacr/qt/preferences.py": "a023ade78f1620f04163288143b541c5262bff611b46d77c1a6e13cd76989cfc",
+    "spacr/restart_state.py": "30c9fe336b729a662104331d5829df8c016768868bcfc2d9e516a6ab5e030bc4"
+  },
+  "test_transition": [
+    {
+      "path": "tests/qt/test_main_window.py",
+      "before_sha256": "f20ade0ffbe12d7d88e0d1621a3b81186ffcb063836ca5c0f4f976dad2f42b9b",
+      "after_sha256": "852f270622cdf197ace83b61a60bdb1b097c3d89a04d492c6f0f9440b8feb691",
+      "replacements": 1
+    },
+    {
+      "path": "tests/qt/test_cov_wf_qt_app.py",
+      "before_sha256": "0a390835a4b99ad9289eb7885b04119389eda0b840938556644428c0db6941b7",
+      "after_sha256": "debd30f2fbc01063d180176b9e7c19b68c1f59bc241ea1d559323e5ef2b38c07",
+      "replacements": 1
+    }
+  ],
+  "limits": "Two targeted persisted-Mask correctness counterexamples only; no application mutation, altered assertion, changed limit, whole-suite/native-crash/memory/performance acceptance. Deliberate restore tests preserved. Existing F401 and import-layout Ruff findings unchanged."
+}

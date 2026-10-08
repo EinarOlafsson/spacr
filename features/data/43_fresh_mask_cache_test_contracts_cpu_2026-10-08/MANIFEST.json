@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "payloads": {
+    "README.txt": {
+      "bytes": 1203,
+      "sha256": "86da7cbcf5a4104e4a2e63a8497684ae055632d2e82f3e3e758eef290dd724b0"
+    },
+    "after-test_cov_wf_qt_app.py.gz": {
+      "bytes": 9177,
+      "sha256": "69caad720e0f5d673253463a10708d2222232f5d4f10affa21f538f2f8fb614e"
+    },
+    "after-test_main_window.py.gz": {
+      "bytes": 965,
+      "sha256": "d68cdae0b125c65a9223032dbf39dbae25f712df06ad5709b340d73fd6392091"
+    },
+    "after.log.gz": {
+      "bytes": 50,
+      "sha256": "5f38ce9d54043a5fb71795bc068cdb07ffb150ab76e29074458f1f911b5b686c"
+    },
+    "archive.py": {
+      "bytes": 7334,
+      "sha256": "e77111db90753ef924b70450ac705d7f8528ad7dc7d2ed84611e511f3fcf6347"
+    },
+    "baseline-lint.json": {
+      "bytes": 3204,
+      "sha256": "5aac87a05dc7ae96c50d3c82185c52153801f3970361d739c21b4e89f0f50749"
+    },
+    "before-test_cov_wf_qt_app.py.gz": {
+      "bytes": 9159,
+      "sha256": "c0536c402e9b1efbfb900c063dcfaf109450c7b2b883dac37cc4b66e3221f7d7"
+    },
+    "before-test_main_window.py.gz": {
+      "bytes": 956,
+      "sha256": "31319e06965fa9168b6694ec013969495110860f69380b570533876433542b32"
+    },
+    "before.log.gz": {
+      "bytes": 597,
+      "sha256": "2f9a0995ea6ea2001e734c0581408afd58a6eccb8dd224dcc463afb6f294b939"
+    },
+    "fatal-ruff.log": {
+      "bytes": 689,
+      "sha256": "98e4ac08cb7c1006b9b947a6951599050a9d5c8307c89f5fcd81da38ab4ee5ba"
+    },
+    "receipt.json": {
+      "bytes": 1817,
+      "sha256": "ba94a3a67107b13004b6aef1ccbe9af08bd0593efe76a1ef3d1ee25a0eb1f53b"
+    },
+    "reproduce_after.sh": {
+      "bytes": 689,
+      "sha256": "37c783e2ffe9d1a25c62635c0242927ad93f0082810d858d480f93a8e1305446"
+    },
+    "seed_mask_targets.py": {
+      "bytes": 1347,
+      "sha256": "11e469be24415af8e640bfdf18135a99fbff9287ff9c69a8b38c82cd56506ecf"
+    },
+    "seeded-after.json": {
+      "bytes": 466,
+      "sha256": "f7b7bd90eeab0fb61e04a89b1a9b626909cb564a1822e561933276a9964c0bfc"
+    },
+    "seeded-before.json": {
+      "bytes": 492,
+      "sha256": "201f5c88f8d01cc75f1baafa4aef634fc8feacfab0ea7fdd8f149d76297f480d"
+    },
+    "source-transition.json": {
+      "bytes": 509,
+      "sha256": "85868aa79bc380a79b987d8d2d7b0eaf56501aa83d5cb87b81c398a55964cb5a"
+    },
+    "verify_manifest.py": {
+      "bytes": 2036,
+      "sha256": "724a777b0fae1bae462d5f4a78380c7738b9347877fb9fc8f5a5dd2ce0c30ce7"
+    }
+  }
+}
