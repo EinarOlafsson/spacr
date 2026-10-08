@@ -1,5 +1,32 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home: current-source coverage repairs all accepted locally
+
+Nightly46a2f97ca carries the complete tested background control and the
+minimal individual-cost fungal shortcut. Root reverified both manifests,
+all64 native/parity/branch payloads, and the strict current-eleven proof:
+  data/43_current_eleven_coverage_reconciliation_2026-10-08/receipt.json
+  data/43_ambient_background_union_2026-10-08/receipt.json
+  data/663_fungal_node_cost_refusal_cpu_2026-10-07/acceptance.json
+All11 original failures remain within unchanged allowances on current source:
+deep0/0, model_zoo0/0, plaque0/0, mask_engine8/11, Preferences84/25,
+MakeMasks11/28, plate_view1/1, ambient0/0, submodules0/0, torch_artifacts0/0,
+validate2/2. AppScreen53/35 is unchanged, with zero new gaps. Nine unchanged
+source files bind to original112299 proof, while changed Preferences/ambient
+bind to the new strict mapped proof; the full original reports are reused.
+No new pytest is needed for this reconciliation and no baseline is raised.
+The fungal guard changes no names/signatures/API prose; all previous API
+texts remain unchanged and total13215 still adds only the background picker.
+
+WORKSTATION NEXT: finish normal accepted source-bound13215 API/runtime/help
+publication including the background arrival documented below, and the idle
+parity lane. Your first complete accepted normal publication should start
+the final required tests run; preserve that run through completion. Root
+source/evidence checkpoints now use skip-ci; no test policy is weakened.
+Continue664/665 isolated while final acceptance runs. All GPU/docs/catalog/
+tutorials stay yours. Docs105f458 succeeded; intermediate compatibility runs
+are not final-source acceptance. No full GitHub-green claim is made.
+
 ## 2026-10-08 — N47/N663 native stability: causal identity still missing
 
 Read-only review of the installed Preferences Save trace, the local deferred
