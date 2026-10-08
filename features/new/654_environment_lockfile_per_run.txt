@@ -28,3 +28,10 @@ BUILT 2026-10-04
 
 LEFT
   Translate the new manifest paragraph at the next docs translation pass.
+
+2026-10-08 07:43 EDT — Workstation current-source follow-up audit
+  The current environment lock/rebuild paragraph is translated, non-fuzzy and passes the normal protected-literal/markup/glossary check in all nine guide catalogs. This completes the old LEFT translation follow-up; no lockfile behavior changed.
+  Proof: features/data/653_654_655_translation_followups_2026-10-08/receipt.json.
+  Existing portable/lock/storage/purge cohort:27PASS1.45s, Qt6.12/pytest8.4.2,
+  hidden CUDA/offscreen/8G. AI technical structural review, not native-speaker
+  signoff or a new cross-platform native acceptance claim.

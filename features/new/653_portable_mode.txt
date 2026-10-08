@@ -30,3 +30,10 @@ BUILT 2026-10-04
 LEFT
   Translate the new installer-guide section and the About caption at the
   next catalog rebuild. install_cleanup still looks only in ~/.spacr.
+
+2026-10-08 07:43 EDT — Workstation current-source follow-up audit
+  Portable installer paragraph and actual About folder caption exist in all nine current catalogs; normal guide markup/literal/glossary checks and runtime source hashes pass. Existing install_cleanup._purge_targets already includes SPACR_HOME. Temporary selection-only probe selects spacr-data and protects unrelated names and running interpreter; no real data deleted. The old LEFT translation/purge statement is superseded at this verified scope.
+  Proof: features/data/653_654_655_translation_followups_2026-10-08/receipt.json.
+  Existing portable/lock/storage/purge cohort:27PASS1.45s, Qt6.12/pytest8.4.2,
+  hidden CUDA/offscreen/8G. AI technical structural review, not native-speaker
+  signoff or a new cross-platform native acceptance claim.

@@ -56,3 +56,10 @@ WHAT IS LEFT
     and Preferences are named by the same pass but not linted.
   - A user-guide paragraph on the theme and screen-reader support goes
     with the next docs pass (docs last).
+
+2026-10-08 07:43 EDT — Workstation current-source follow-up audit
+  The current accessibility guide paragraph, actual High contrast central runtime label and source-hashed theme tooltip are translated in all nine runtime/guide locales. Normal guide checks pass. Translation follow-ups complete; broader item-view/MainWindow/Preferences lint and native assistive-technology review remain unverified and OPEN.
+  Proof: features/data/653_654_655_translation_followups_2026-10-08/receipt.json.
+  Existing portable/lock/storage/purge cohort:27PASS1.45s, Qt6.12/pytest8.4.2,
+  hidden CUDA/offscreen/8G. AI technical structural review, not native-speaker
+  signoff or a new cross-platform native acceptance claim.

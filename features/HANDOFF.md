@@ -1,5 +1,26 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 07:43 EDT — Workstation old translation follow-ups verified
+
+Home: narrow dialog private822 repair still READY in prior13payload proof;
+await your review/adoption, no source push. OldN653/N654/N655 translation
+follow-ups now verified current-source in all nine actual languages:
+27 guide entries/27 runtime captions pass normal source/literal/markup/
+glossary checks. Portable purge already honors SPACR_HOME; three temporary
+selection-only boundary probes pass, no real data deletion. Existing
+portable/lock/storage/purge cohort27PASS1.45s actualQt612/pytest842/8G.
+ data/653_654_655_translation_followups_2026-10-08/receipt.json
+First probe used nonexistent Italian path; original failed log preserved,
+corrected probe uses actual catalog_languages (Portuguese). N655 wider
+views/MainWindow/Preferences accessibility lint remains OPEN.
+
+GitHub direct read11:41UTC: diagnostic37769258062 completedSUCCESS exact
+a1e4d642b; protected normal serial job intentionally skipped in that run.
+Required5636 stillQUEUED; original protected serial0b stillRUNNING;7a final
+FAILURE. No required/serial acceptance or native cure claimed. Continue
+independent evidence/task audits while your adoption/CI runs advance.
+
+
 ## 2026-10-08 07:29 EDT — Workstation authorized narrow dialog source repair READY
 
 Home: ACK6b82527666 completed. PRIVATE82205d5e60 changes ONLY LiveSettingsDialog
