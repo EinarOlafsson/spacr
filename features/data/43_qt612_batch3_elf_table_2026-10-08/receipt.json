@@ -1,0 +1,20 @@
+{
+  "batch_file_count": 32,
+  "batch_manifest_sha256": "d5f347bdb25b692cf207f18526b333d01e58a952a923842881367ad77ff65826",
+  "byte_budget_collector_diagnostic": "elf_identity={\"elf_class\": 64, \"executable_path_present\": true, \"machine\": 62, \"process_pid_count\": 1, \"process_pids\": [3969483], \"program_header_stride\": 56, \"program_header_table_bytes\": 61096, \"program_headers\": 1091, \"reason\": \"accepted\"}",
+  "collected_items": 503,
+  "core_in_git": false,
+  "core_sha256": "6a14b079b63fc96159134d16e87ea73341ce48a5965ef67f6c5eaec2baf6b0d7",
+  "core_size_bytes": 1407100200,
+  "elf_program_header_stride_bytes": 56,
+  "elf_program_header_table_bytes": 61096,
+  "elf_program_headers": 1091,
+  "original_collector_diagnostic": "elf_identity={\"elf_class\": 64, \"machine\": 62, \"program_header_stride\": 56, \"program_headers\": 1091, \"reason\": \"program_header_ceiling\"}",
+  "original_collector_source_sha": "a1e4d642b27f00b367bddef02f28942ed32ef89a",
+  "process_maps": 1627,
+  "process_pid": 3969483,
+  "purpose": "collection-only controlled local core; not the old hosted fault",
+  "python_executable": "/home/olafsson/anaconda3/envs/spacr/bin/python3.12",
+  "schema": "spacr.qt-native-elf-table-control/v1",
+  "source_sha": "7a51b6c921ea0d9b51ca3f5e6d28a68904ce2cab"
+}

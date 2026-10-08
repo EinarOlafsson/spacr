@@ -25,6 +25,7 @@ from pathlib import Path
 
 MAX_BACKTRACE_BYTES = 4 * 1024 * 1024
 MAX_CORE_BYTES = 16 * 1024 * 1024 * 1024
+MAX_PROGRAM_HEADER_TABLE_BYTES = 1024 * 256
 GDB_TIMEOUT_SECONDS = 90
 CORE_EXTRACT_TIMEOUT_SECONDS = 60
 CORE_DISK_RESERVE_BYTES = 512 * 1024 * 1024
@@ -261,13 +262,19 @@ def _core_process_ids(path: Path, executable: Path,
             stride, count = struct.unpack_from(order + "HH", header, 54 if wide else 42)
             observed.update(program_headers=count, program_header_stride=stride)
             minimum = 56 if wide else 32
-            if count > 1024:
-                return result("program_header_ceiling")
             if stride < minimum or stride > 256:
                 return result("invalid_program_header_stride")
+            table_bytes = stride * count
+            observed["program_header_table_bytes"] = table_bytes
+            if table_bytes > MAX_PROGRAM_HEADER_TABLE_BYTES:
+                return result("program_header_table_byte_ceiling")
+            source.seek(0, os.SEEK_END)
+            file_bytes = source.tell()
+            if offset > file_bytes or table_bytes > file_bytes - offset:
+                return result("truncated_program_headers")
             source.seek(offset)
-            entries = source.read(stride * count)
-            if len(entries) != stride * count:
+            entries = source.read(table_bytes)
+            if len(entries) != table_bytes:
                 return result("truncated_program_headers")
             process_ids = set()
             found_executable = False

@@ -1,0 +1,8 @@
+set pagination off
+set confirm off
+set auto-load off
+set debuginfod enabled off
+handle SIGUSR1 stop print nopass
+run
+generate-core-file /mnt/wd4tb/scratch/native-qt612-7a-collection-20261008/core.qt-batch3-collection.elf
+quit

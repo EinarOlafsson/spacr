@@ -196,6 +196,31 @@ def _native_note_core(pid, executable, *, wide=True, order='<', leader_pid=None)
     return bytes(header + entry) + notes
 
 
+def _native_many_header_core(pid, executable, count):
+    """Put one real PT_NOTE after a large table of bounded PT_NULL entries."""
+    original = _native_note_core(pid, executable)
+    table = bytearray(56 * count)
+    table[:56] = original[64:120]
+    struct.pack_into('<Q', table, 8, 64 + len(table))
+    header = bytearray(original[:64])
+    struct.pack_into('<H', header, 56, count)
+    return bytes(header + table) + original[120:]
+
+
+def test_realistic_1091_header_core_keeps_exact_pid_and_executable_guard(tmp_path):
+    """The observed 7a Qt batch needs more than 1,024 small ELF headers."""
+    assert collector.MAX_PROGRAM_HEADER_TABLE_BYTES == 1024 * 256
+    executable = tmp_path / 'python'
+    core = tmp_path / 'core'
+    core.write_bytes(_native_many_header_core(3456, executable, 1091))
+    diagnostics = []
+    assert collector._core_process_ids(core, executable, diagnostics) == {3456}
+    detail = json.loads(diagnostics[0].removeprefix('elf_identity='))
+    assert detail['reason'] == 'accepted'
+    assert detail['program_header_table_bytes'] == 1091 * 56
+    assert not collector._core_process_ids(core, tmp_path / 'wrong-python')
+
+
 @pytest.mark.parametrize('wide,order', [(True, '<'), (False, '<'), (True, '>'), (False, '>')])
 def test_elf_notes_bind_actual_process_leader_and_executable(tmp_path, wide, order):
     executable = tmp_path / 'python'
@@ -206,7 +231,8 @@ def test_elf_notes_bind_actual_process_leader_and_executable(tmp_path, wide, ord
 
 
 @pytest.mark.parametrize('defect', ['truncated', 'huge_notes', 'bad_class', 'not_core',
-                                   'huge_program_table', 'wrong_owner'])
+                                   'huge_program_table', 'truncated_program_table',
+                                   'out_of_file_table', 'invalid_stride', 'wrong_owner'])
 def test_malformed_native_notes_never_bind_a_worker(tmp_path, defect):
     executable = tmp_path / 'python'
     raw = bytearray(_native_note_core(3456, executable))
@@ -219,7 +245,13 @@ def test_malformed_native_notes_never_bind_a_worker(tmp_path, defect):
     elif defect == 'not_core':
         struct.pack_into('<H', raw, 16, 2)
     elif defect == 'huge_program_table':
-        struct.pack_into('<H', raw, 56, 1025)
+        struct.pack_into('<H', raw, 56, 5000)
+    elif defect == 'truncated_program_table':
+        struct.pack_into('<H', raw, 56, 1091)
+    elif defect == 'out_of_file_table':
+        struct.pack_into('<Q', raw, 32, len(raw) + 1)
+    elif defect == 'invalid_stride':
+        struct.pack_into('<H', raw, 54, 257)
     elif defect == 'wrong_owner':
         raw = bytearray(raw.replace(b'CORE\0', b'BAD!\0'))
     core = tmp_path / 'core'
@@ -228,7 +260,8 @@ def test_malformed_native_notes_never_bind_a_worker(tmp_path, defect):
 
 
 @pytest.mark.parametrize('defect,reason', [
-    ('program_headers', 'program_header_ceiling'),
+    ('program_headers', 'program_header_table_byte_ceiling'),
+    ('truncated_program_headers', 'truncated_program_headers'),
     ('note_bytes', 'note_byte_ceiling'),
     ('missing_pid', 'missing_process_pid'),
     ('conflicting_pid', 'conflicting_process_pids'),
@@ -241,7 +274,9 @@ def test_rejected_native_identity_reports_the_bounded_reason_without_accepting_i
     raw = bytearray(_native_note_core(3456, executable))
     notes_start = 64 + 56
     if defect == 'program_headers':
-        struct.pack_into('<H', raw, 56, 1025)
+        struct.pack_into('<H', raw, 56, 5000)
+    elif defect == 'truncated_program_headers':
+        struct.pack_into('<H', raw, 56, 1091)
     elif defect == 'note_bytes':
         struct.pack_into('<Q', raw, 64 + 32, 5 * 1024 * 1024)
     elif defect in ('missing_pid', 'conflicting_pid'):
@@ -272,7 +307,9 @@ def test_rejected_native_identity_reports_the_bounded_reason_without_accepting_i
     detail = json.loads(diagnostics[0].removeprefix('elf_identity='))
     assert detail['reason'] == reason
     assert detail['elf_class'] == 64
-    assert detail['program_headers'] == (1025 if defect == 'program_headers' else 1)
+    assert detail['program_headers'] == (
+        5000 if defect == 'program_headers' else
+        1091 if defect == 'truncated_program_headers' else 1)
     if defect == 'conflicting_pid':
         assert detail['process_pids'] == [3456, 7890]
         assert detail['executable_path_present'] is True
