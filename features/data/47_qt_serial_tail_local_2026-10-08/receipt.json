@@ -1,0 +1,56 @@
+{
+  "compressed_log_sha256": "08682ae82a44a8974121be587d702089b7ea64fc6e7645cecb12eea64e032112",
+  "environment": {
+    "ci": "true",
+    "cuda_visible_devices": "",
+    "file_shard_count": "1",
+    "file_shard_index": "0",
+    "github_actions": "true",
+    "interpreter": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+    "mkl_num_threads": "1",
+    "mplbackend": "Agg",
+    "native_evidence_dir": "/mnt/wd4tb/scratch/qt-serial-seven-20261008/native",
+    "omp_num_threads": "1",
+    "openblas_num_threads": "1",
+    "pytest_addopts": "-p tools.pytest_plugins.qt_serial_rss_journal",
+    "pythonfaulthandler": "1",
+    "qt_qpa_platform": "offscreen",
+    "resource_cap": "4G",
+    "xdg_config_home": "/mnt/wd4tb/scratch/qt-serial-seven-20261008/config"
+  },
+  "limitation": "This is a local standalone tail, not the full hosted serial Qt suite or acceptance of the original-order 10.8 GiB memory criterion.",
+  "purpose": "Standalone seven-file serial performance tail skipped by the old hosted Qt2 driver after a functional batch failure",
+  "pytest_flags": [
+    "-o",
+    "faulthandler_timeout=900",
+    "--timeout",
+    "1200",
+    "--timeout-method",
+    "thread",
+    "--max-worker-restart=0",
+    "-m",
+    "qt and not slow and not heavy and not gpu and not network and not nas and not gui",
+    "-v",
+    "--tb=short"
+  ],
+  "raw_log_sha256": "94571a5e9cb96fc18f82580623a6079ce6408ef8052ddf3c43268017aa125141",
+  "result": {
+    "deselected": 4,
+    "elapsed_seconds": 92.71,
+    "exit_code": 0,
+    "passed": 205,
+    "warnings": 2
+  },
+  "selectors": [
+    "tests/test_perf_guard.py",
+    "tests/qt/test_gui_responsiveness.py",
+    "tests/qt/test_home_stage_and_dock.py",
+    "tests/qt/test_figure_queue.py",
+    "tests/qt/test_pca.py",
+    "tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py",
+    "tests/qt/test_the_backdrop_survives_a_run.py"
+  ],
+  "source_checkout": "/mnt/wd4tb/spacr-worktrees/codex-b688-thread-id-20261007",
+  "source_commit": "d127b4a904e1ef4f5dee534f7e969b97006eff34",
+  "source_tree": "f8cfba42860d966136244f8631fff296e3fab591"
+}
