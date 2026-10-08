@@ -1,0 +1,161 @@
+{
+  "combine_conclusion": "failure",
+  "combine_job_id": 113275735664,
+  "combine_step_results": {
+    "Combine process data and write coverage.py JSON": "success",
+    "Gate on the per-module coverage ratchet baseline": "success",
+    "Require every coverage shard to have passed its tests": "failure"
+  },
+  "coverage_failure": 2,
+  "coverage_shards": [
+    {
+      "completed_at": "2026-10-08T10:38:39Z",
+      "conclusion": "failure",
+      "job_id": 113244305718,
+      "number": 0,
+      "raw_log_sha256": "1c9f8d5e77d9e739c6b6e37d961c440d8c57b312b92aad560591f2fb3e6c8cee"
+    },
+    {
+      "completed_at": "2026-10-08T10:08:22Z",
+      "conclusion": "success",
+      "job_id": 113244305673,
+      "number": 1,
+      "raw_log_sha256": "1939d2280fc33c4f54ce6090bc0b2b38ecddef4386e9214d813a47ded5ecf995"
+    },
+    {
+      "completed_at": "2026-10-08T10:35:24Z",
+      "conclusion": "success",
+      "job_id": 113244305741,
+      "number": 2,
+      "raw_log_sha256": "70afd541d34adea3d66fad00a4450e434f21158d681ef986783f57ac95e52f62"
+    },
+    {
+      "completed_at": "2026-10-08T10:21:56Z",
+      "conclusion": "success",
+      "job_id": 113244305734,
+      "number": 3,
+      "raw_log_sha256": "07f45235a25b3a0a2fccc4ff5ce160f2a2cc3b161acb66f9b4d4aa97694d798e"
+    },
+    {
+      "completed_at": "2026-10-08T10:55:00Z",
+      "conclusion": "success",
+      "job_id": 113244305884,
+      "number": 4,
+      "raw_log_sha256": "7e013032ed3b642ddfa025c09d5953d52c41a295c08de6f8c817670e94e9241d"
+    },
+    {
+      "completed_at": "2026-10-08T10:09:13Z",
+      "conclusion": "failure",
+      "job_id": 113244305609,
+      "number": 5,
+      "raw_log_sha256": "e37f14a444697459fd2a42fc44b9c55c23638f633fc927f6a41e8c7e323583a4"
+    },
+    {
+      "completed_at": "2026-10-08T10:08:33Z",
+      "conclusion": "success",
+      "job_id": 113244305418,
+      "number": 6,
+      "raw_log_sha256": "90474f42c88a946b532169d004848335305e0809d4d16e7d4cb879370db31a9b"
+    },
+    {
+      "completed_at": "2026-10-08T10:12:31Z",
+      "conclusion": "success",
+      "job_id": 113244305776,
+      "number": 7,
+      "raw_log_sha256": "96e51f1d2b64682f30f4ef21fc6205792131e2e4e501a5c1243bbd8594463188"
+    },
+    {
+      "completed_at": "2026-10-08T10:47:17Z",
+      "conclusion": "success",
+      "job_id": 113244305964,
+      "number": 8,
+      "raw_log_sha256": "9994b1ab1e2ac28e9fd042832c2c5b0c8d0c864aeda410be45a2c0c327567c43"
+    },
+    {
+      "completed_at": "2026-10-08T10:26:26Z",
+      "conclusion": "success",
+      "job_id": 113244305861,
+      "number": 9,
+      "raw_log_sha256": "18be0d061df72d0de21a72ccb1d12c33e343b4bf2430afaa2168a0a050a1b058"
+    },
+    {
+      "completed_at": "2026-10-08T10:07:10Z",
+      "conclusion": "success",
+      "job_id": 113244305944,
+      "number": 10,
+      "raw_log_sha256": "6a1bae1bd1aca8cad1e1c3f432c0df836a27276d032a914915a1670340cba580"
+    },
+    {
+      "completed_at": "2026-10-08T09:56:11Z",
+      "conclusion": "success",
+      "job_id": 113244306085,
+      "number": 11,
+      "raw_log_sha256": "1da9f6abe35b0e7418b314c3a9edc28f60e9d49d39674bce31ab69935f627a71"
+    }
+  ],
+  "coverage_success": 10,
+  "failure_kinds": {
+    "coverage0": "xdist gw1 SIGABRT; coverage recovery succeeded but selected test failed",
+    "coverage5": "PySide6 6.12.0 metaobject qualified-class-name assertion"
+  },
+  "failure_nodes": {
+    "coverage0": "tests/qt/test_make_masks_parent_source_race_guards.py::test_parent_invalidation_during_magnifier_teardown_updates_the_report",
+    "coverage5": "tests/qt/test_the_pyside_slot_warning_is_fixed_not_filtered.py::test_a_child_parented_into_a_watched_host_keeps_its_wrapper"
+  },
+  "guard_blobs": {
+    "tools/coverage_baseline.json": "6ae23a5bed2640d131125dff45cafa0baeeda0fb",
+    "tools/run_coverage_batches.py": "cbfe0d5149165a38dd6c106c3059f46f20fb9a4a",
+    "tools/verify_module_coverage.py": "7ac55a31327c11d8a78bd954c10ec07d44594d8f"
+  },
+  "interpretation": "The complete numerical ratchet passes unchanged; the required-shards step and this source run are red for one actual native SIGABRT and one version-sensitive Qt test assertion. A recovered file is measurement integrity only, not successful execution.",
+  "measurement_integrity": {
+    "checked": true,
+    "issues": [],
+    "loss_kinds": {
+      "signal": 1
+    },
+    "recovered": [
+      "coverage shard 0 batch 3: the batch: collected tests that no worker ever reported; worker gw1 was killed by SIGABRT [Not properly terminated] while running tests/qt/test_make_masks_parent_source_race_guards.py::test_parent_invalidation_during_magnifier_teardown_updates_the_report; 19 test file(s) re-run serially and their coverage recovered: tests/qt/test_detection_cleanup_empty_fields.py, tests/qt/test_dose_response_fits_an_asymmetric_curve.py, tests/qt/test_e2e_umap_search.py, tests/qt/test_embedding_use_for_alpha_gate.py, tests/qt/test_graph_spec_uncovered_paths.py, tests/qt/test_image_qc_classifier_alpha_gate.py, tests/qt/test_intensity_calibration_alpha_gate.py, tests/qt/test_linux_launch_identity.py, tests/qt/test_live_preview_remove_background.py, tests/qt/test_loaded_schema_rules_do_not_overlap_n637.py, tests/qt/test_lock_levels_installer_translations.py, tests/qt/test_magnifier_lock.py, tests/qt/test_make_masks_parent_source_race_guards.py, tests/qt/test_make_masks_psf_infers_and_folds.py, tests/qt/test_menu_roles.py, tests/qt/test_multi_instance_lock_and_jobs_dock.py, tests/qt/test_pca_model_uncovered_paths.py, tests/qt/test_pca_view_uncovered_paths.py, tests/qt/test_plaque_calibration_controls.py"
+    ],
+    "shard_count": 12,
+    "shards_with_records": 12,
+    "status": "complete"
+  },
+  "native_artifact": {
+    "diagnostic": "systemd extraction rejected ELF PID or executable; no native backtrace",
+    "id": 11544370598,
+    "zip_sha256": "2b804f30b8889cc4d1753e56dfab76e7a7a423d1d50c6571c8f5987e03a4d5bf"
+  },
+  "numerical_status": "pass",
+  "numerical_summary": {
+    "failed_modules": 0,
+    "global_issue_count": 0,
+    "improved_modules": 99,
+    "integrity_issue_count": 0,
+    "modules_at_100_percent": 455,
+    "modules_below_100_percent": 209,
+    "modules_below_floor": 1,
+    "modules_checked": 664,
+    "modules_exempt_from_floor": 1,
+    "shipped_modules": 664,
+    "stale_baseline_entries": 0,
+    "stale_exemptions": 0,
+    "unconfirmed_modules": 0
+  },
+  "report_artifact": {
+    "id": 11546025317,
+    "ratchet_json_sha256": "c33c78b4f1b881b5accff9d6b4e8976623f8d1a6c288840cb365fdbde5203cb2",
+    "zip_sha256": "8ed97240c2f634c160319bca4084e20284dd20865cca6bae687822e6ecb2e89b"
+  },
+  "run_attempt": 1,
+  "run_id": 37744767240,
+  "run_snapshot_status": "in_progress",
+  "schema": 1,
+  "scope": "complete 12-shard numerical coverage phase; required test gate remains failed",
+  "source_sha": "7a51b6c921ea0d9b51ca3f5e6d28a68904ce2cab",
+  "source_tree": "9b6b6f485d08e7db79342e945d0fd513513def7f",
+  "workflow_blobs": {
+    ".github/workflows/_pytest-suite.yml": "ca2f82eb9d4819a59227fec558dc4c3578f9c8ca",
+    ".github/workflows/tests.yml": "3d0d2574e1124e37d7d94755662c8b5a515c1d67"
+  }
+}
