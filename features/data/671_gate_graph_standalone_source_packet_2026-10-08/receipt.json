@@ -1,0 +1,48 @@
+{
+  "api_added": {
+    "spacr.qt.widgets.gate_editor.GateCanvas.paintEvent": "Keep the plotted 2D or 3D points over one solid rounded surface."
+  },
+  "api_changed": {},
+  "api_removed": {},
+  "base": "fb846a1d9922906689a8a777654119b5a8ca79f3",
+  "publication_blocker": "Normal API inventory/review artifact regeneration for one new GateCanvas.paintEvent callable; runtime canonical sources unchanged. No generated artifact hand edits.",
+  "runtime_delta": {
+    "categories": {
+      "added": [],
+      "removed": []
+    },
+    "installer": {
+      "added": {},
+      "changed": {},
+      "removed": {}
+    },
+    "module_summaries": {
+      "added": {},
+      "changed": {},
+      "removed": {}
+    },
+    "setting_labels": {
+      "added": {},
+      "changed": {},
+      "removed": {}
+    },
+    "setting_tooltips": {
+      "added": {},
+      "changed": {},
+      "removed": {}
+    },
+    "ui": {
+      "added": [],
+      "removed": []
+    }
+  },
+  "source_commit": "2a7c8b30d492075dd5a323b9ba858ec2756a4085",
+  "source_hashes": {
+    "spacr/qt/widgets/gate_editor.py": "327515830ae3fabfb45405725df35faf8e36c2e781f3c0af166045e391257071",
+    "tests/qt/test_gate_editor_rounded_graph.py": "6c40a17afcee6492db460425663a624ce671f706e74e048bcab6050c4bf1cc80",
+    "tests/qt/test_page_panels_backdrop.py": "191cadcb40de900d01b08c4426f40b7f0775b89df5d8d8fc05c2d55dc6d5c8ee"
+  },
+  "test_log_sha256": "e888816053b22c0bd85d1960b610f18d9fd2ce9816a2c728f357eace2c9fa891",
+  "test_result": "4 passed in 2.92s",
+  "tested_command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q tests/qt/test_gate_editor_rounded_graph.py tests/qt/test_page_panels_backdrop.py::test_gate_editor_graph_is_solid_above_the_animated_page"
+}
