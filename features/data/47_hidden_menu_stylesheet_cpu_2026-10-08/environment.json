@@ -1,0 +1,11 @@
+{
+  "python": "3.12.13 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:38:16) [GCC 14.3.0]",
+  "executable": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+  "PySide6": "6.12.0",
+  "pytest": "8.4.2",
+  "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.39",
+  "source_sha256": "af5bab6c0d44f2a29d0966d5ccc7864153e0db157e7d3429a288c99e95c803fb",
+  "cap": "4G",
+  "CUDA_VISIBLE_DEVICES": "",
+  "QT_QPA_PLATFORM": "offscreen"
+}

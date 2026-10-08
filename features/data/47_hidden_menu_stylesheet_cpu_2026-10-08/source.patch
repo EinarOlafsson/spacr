@@ -1,0 +1,73 @@
+diff --git a/spacr/qt/theme.py b/spacr/qt/theme.py
+index 02de9a479d5..c3d56330c66 100644
+--- a/spacr/qt/theme.py
++++ b/spacr/qt/theme.py
+@@ -4089,6 +4089,9 @@ def apply_stylesheet_per_window(app, sheet: str) -> int:
+ 
+     sheeted = 0
+     for window in list(app.topLevelWidgets()):
++        if (_sheets_itself_before_it_shows(window)
++                and not window.isVisible()):
++            continue
+         if getattr(window, "_spacr_detached_from", None) is not None:
+             continue
+         for root in _roots_for(window):
+diff --git a/tests/qt/test_a_dialog_never_opens_in_the_previous_theme.py b/tests/qt/test_a_dialog_never_opens_in_the_previous_theme.py
+index f802c408019..cbb02648da0 100644
+--- a/tests/qt/test_a_dialog_never_opens_in_the_previous_theme.py
++++ b/tests/qt/test_a_dialog_never_opens_in_the_previous_theme.py
+@@ -333,3 +333,54 @@ def test_the_windows_own_rules_are_not_folded_into_the_global_sheet(
+     after_two = len(window.styleSheet())
+ 
+     assert after_two == after_one - len(FIRST) + len(SECOND)
++
++
++@pytest.mark.parametrize("open_with", ["popup", "show"])
++def test_existing_hidden_menu_waits_and_opens_in_the_latest_theme(
++        per_window, qtbot, open_with):
++    """Closed menus incur no stylesheet work and resolve current ink on open."""
++    app = QApplication.instance()
++    menu = QMenu()
++    qtbot.addWidget(menu)
++    label = QLabel(menu)
++    menu.addAction("Existing action")
++    menu.ensurePolished()
++    before = menu.styleSheet()
++
++    per_window(app, FIRST)
++    per_window(app, SECOND)
++    assert menu.styleSheet() == before
++    if open_with == "popup":
++        menu.popup(menu.pos())
++    else:
++        menu.show()
++    app.processEvents()
++    assert _resolved(label) == SECOND_HEX
++    assert SECOND in menu.styleSheet()
++
++    menu.hide()
++    before = menu.styleSheet()
++    per_window(app, FIRST)
++    assert menu.styleSheet() == before
++    if open_with == "popup":
++        menu.popup(menu.pos())
++    else:
++        menu.show()
++    app.processEvents()
++    assert _resolved(label) == FIRST_HEX
++    assert FIRST in menu.styleSheet()
++
++
++def test_visible_menu_changes_theme_immediately(per_window, qtbot):
++    """An open menu is visible work and cannot wait for another opening."""
++    app = QApplication.instance()
++    menu = QMenu()
++    qtbot.addWidget(menu)
++    label = QLabel(menu)
++    menu.addAction("Visible action")
++    menu.show()
++    per_window(app, FIRST)
++    assert _resolved(label) == FIRST_HEX
++    per_window(app, SECOND)
++    assert _resolved(label) == SECOND_HEX
++    assert SECOND in menu.styleSheet()
