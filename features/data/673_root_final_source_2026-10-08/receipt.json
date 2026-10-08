@@ -1,0 +1,99 @@
+{
+  "baseline_commit": "22f8c0046041cec731344cb5df9505daeaad2c30",
+  "baseline_source_paths": {
+    "spacr/qt/mask_engine.py": {
+      "git_blob": "f780ecd3191f82432479a6f021be41abcb3d4cc5",
+      "sha256": "bc82fd12b84d33a8ace54a9fe3c577fb2b6048073ebe43f9e3dd54ffb7143253"
+    },
+    "spacr/qt/screens/make_masks.py": {
+      "git_blob": "88c3d1e4f91f33d4780827932150ed220e4839da",
+      "sha256": "e2005ac93e9acc79bfe823cf01decdd7d1dfe637339ad50ab9db807037d7fadc"
+    },
+    "tests/qt/test_make_masks_native_volume_editor.py": null,
+    "tests/qt/test_popup_backdrop_apply.py": {
+      "git_blob": "bcf8a169da52f119519bc08b5e67369fe667a30f",
+      "sha256": "9323d01ba94ea259f9aa6cc49f16da1fc15949651f3abb3a9140a37aaf00da67"
+    },
+    "tests/test_make_masks_native_volume.py": null
+  },
+  "canonical_inventory": {
+    "api_added": 11,
+    "api_after": 13256,
+    "api_before": 13245,
+    "api_changed": 0,
+    "api_removed": 0,
+    "other_buckets_unchanged": true,
+    "ui_added": 43,
+    "ui_after": 7350,
+    "ui_before": 7307,
+    "ui_removed": 0
+  },
+  "date": "2026-10-08",
+  "payloads": {
+    "canonical-inventories.json.gz": {
+      "bytes": 2557010,
+      "sha256": "1d1bf77a7e51760160b510bbc30dcc1710d78acae9d176b6dfc441b679505978"
+    },
+    "inventory-delta.json.gz": {
+      "bytes": 2996,
+      "sha256": "ebe7b4a99e61993235f89250dc26601aed788cff122da82cb44523af3357d3a4"
+    },
+    "inventory-generator.log.gz": {
+      "bytes": 233,
+      "sha256": "b4995f5904ea1c1958cd8d15ea071b5cefa37405d521ac9257208aefe3c68837"
+    },
+    "root-60.log.gz": {
+      "bytes": 53,
+      "sha256": "5b1f1ad877ddf756762aba5a0614d757bca2848f0b411f20b01c85ea271b8133"
+    },
+    "root-final-13.log.gz": {
+      "bytes": 53,
+      "sha256": "b75ae3b20018c3e2c772d605e778070491a9acc63402b99e44ffdd17bbf5d08a"
+    },
+    "source-and-tests.patch.gz": {
+      "bytes": 19661,
+      "sha256": "6d8b729aef753da0b1a63fffcceaa5b4e25d46763d78c3c6e0795651bde6797c"
+    },
+    "ux-help-1.log.gz": {
+      "bytes": 49,
+      "sha256": "b2850dbdfb047e07b2a4f2debffda434ce5f8f3aa9d4fd03b38ce6be0f57b505"
+    },
+    "ux-native-14.log.gz": {
+      "bytes": 53,
+      "sha256": "40408e496c75a0231031d299192b995a54cef3e3d50931995c2d03bc0980212a"
+    }
+  },
+  "safety_bounds": "The source declares exactly three spatial axes XYZ, refuses time/channel/RGB and >16,777,216 voxels or >256 MiB source data, preserves source dtype/shape/spacing/object IDs, uses a 64 MiB sparse undo budget, and refuses changed source/mask metadata before publication. These are source contracts, not a whole-suite or GPU acceptance claim.",
+  "schema": 1,
+  "scope": "Final root N673 Make Masks native volume source/tests for workstation integration after immediate UI publication; source patch includes the selected private popup regression test because it differs from this baseline. No generated artifacts or app source outside these five files.",
+  "source_paths": {
+    "spacr/qt/mask_engine.py": {
+      "git_blob": "547425b2a79d72ffde81dc0e829ba07c2a829b09",
+      "sha256": "556526b3893916ae3c8862cf84759c41342117c18eec44528da60930e70709f6"
+    },
+    "spacr/qt/screens/make_masks.py": {
+      "git_blob": "2e2ff6601d309371c237d2628655bf774005e96c",
+      "sha256": "3e72cd64b2f66e4b70ef8d87681b735ad1265369d5d0d5abe2ffcd1a31b7c00e"
+    },
+    "tests/qt/test_make_masks_native_volume_editor.py": {
+      "git_blob": "2746d9c53bf98c5150d9cf15766ef308e0476234",
+      "sha256": "6174892192405926b50a671e904e5608c703c3784e0dcea6f56d8f6c66854daa"
+    },
+    "tests/qt/test_popup_backdrop_apply.py": {
+      "git_blob": "85d5760b8977601a1e2724c859300abbc7ea7c29",
+      "sha256": "d0b987bf4ce07728ef123acd07e5b4670d62c150fad2319db663e9d74eb5274a"
+    },
+    "tests/test_make_masks_native_volume.py": {
+      "git_blob": "2d4e506e0476a07ec9a062274e93a44b1549ed7a",
+      "sha256": "63296a10b78c237da2770000d8cc06a44853d49b2c5dd818d969675bfc2230f1"
+    }
+  },
+  "target_commit": "1b575fdb37cb8be128b33a0dc114083730121a18",
+  "test_evidence": {
+    "count_note": "The 60/13/14/1 selected checks overlap across phases and are not additive.",
+    "root_final_native_editor": "13 passed in 11.24s",
+    "root_model_gui_docs": "60 passed in 30.54s",
+    "ux_footer_help": "1 passed in 4.05s",
+    "ux_native": "14 passed in 13.34s"
+  }
+}
