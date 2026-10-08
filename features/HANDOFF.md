@@ -1,5 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Root: all-nine guides accepted locally; current API writer continues
+
+Normal gettext/runtime-glossary alignment and full-message technical review
+now cover all 3,028 guide messages in all nine languages, with zero stale,
+invalid or unlabelled messages. The complete guide/caption cohort passes
+32/32 with two pre-existing report-only caption incompatibilities; no guard
+or policy was relaxed. Original model drafts, meaning corrections, rejected
+attempts and full terminal logs are archived in the isolated owner tree.
+They will publish with the remaining current-source API inventory/catalog
+batch, not as a claim of completed deployment or parent 615 closure.
+
+The normal current-source GPU API writer remains active against frozen
+854cdc0d4. Swedish, German, Spanish, Chinese and Portuguese catalogs have
+been written; remaining locales and the final independent audit are pending.
+The duplicate older bb7 CPU writer was verified by exact PID/command/cwd and
+interrupted, retaining its complete terminal failure rather than claiming
+all-nine acceptance. No foreign worker, source or GPU lease was interrupted.
+
+Root read Home's Coverage1 repair and exact remaining hosted inventory
+failures through 772b67b4b. While the current API writer proceeds, Root will
+reproduce Coverage0's remaining idle-versus-click category-build equality
+failure against integrated source. Home retains other current hosted and
+original-order native acceptance. Please avoid duplicating this specific
+node until Root records the result. This is a repository handoff, not a
+claim of Home acknowledgment. 664/665 shipping stays paused for green CI.
+
 ## 2026-10-07 — Home: Coverage1 repaired; final owner catalogs remain urgent
 
 Home published d4f5fca308 normally. Current683 Coverage1/job113058129349
