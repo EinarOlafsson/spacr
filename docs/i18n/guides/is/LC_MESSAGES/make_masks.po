@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 18:04-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -423,8 +423,37 @@ msgstr "Sjá :func:`spacr.qt.mask_engine.secondary_object_instances`, :class:`sp
 msgid "Live magnifier, filtering and measurement"
 msgstr "Lifandi stækkunargler, síun og mæling"
 
-msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before accepting its objects."
-msgstr "Kveiktu á **Stækkunargler** eða ýttu á **M** til að skoða tillagða hluti í kringum bendilinn. Hjól þess breytir aðdrætti rammans; **Shift + wheel** breytir stærð rammans. **Ctrl+L+hægrismellur** læsir eða aflæsir rammanum. Bíddu eftir forskoðun sem er að uppfærast áður en þú samþykkir hluti hennar."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before manually accepting its objects."
+msgstr "Kveiktu á **Stækkunargler** eða ýttu á **M** til að skoða tillögur að hlutum í kringum bendilinn. Músarhjólið breytir stækkun kassans; **Shift + wheel** breytir stærð hans. **Ctrl+L+hægrismellur** læsir kassanum eða opnar læsinguna. Bíddu eftir uppfærðri forskoðun áður en þú samþykkir hlutina handvirkt."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Under **Object detection** → **Magnification settings**, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save** or **Save & Next** to write accepted masks."
+msgstr "Í **Hlutagreining** → **Stækkunarstillingar** virkjarðu **Samþykkja tillögur að hlutum strax** til að samþykkja gildandi tillögu án þess að smella. Þetta er sjálfgefið óvirkt. Svæðishamurinn fylgir **Hlutir sem bætt er við**; hamurinn fyrir alla myndina samþykkir aðeins hlutinn undir bendlinum. Að fara út fyrir myndina eða slökkva á stækkunarglerinu stöðvar sjálfvirkt samþykki. Hægt er að afturkalla hvert samþykki, og afturköllun samþykkir ekki sömu tillögu strax aftur. Notaðu **Vista** eða **Save & Next** til að skrifa samþykktar grímur á disk."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Overlap** chooses what happens when a proposal overlaps an existing mask:"
+msgstr "**Skörun** velur hvað gerist þegar tillaga skarast við fyrirliggjandi grímu:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Fuse with existing object** adds the proposal to the existing ID and retains the old object's pixels, including pixels outside the box. A proposal overlapping several objects joins them into the smallest old ID. A proposal on background becomes a new object."
+msgstr "**Sameina við fyrirliggjandi hlut** bætir tillögunni við fyrirliggjandi auðkenni og varðveitir mynddíla gamla hlutarins, einnig utan kassans. Tillaga sem skarast við marga hluti sameinar þá undir lægsta gamla auðkenninu. Tillaga sem er eingöngu á bakgrunni verður nýr hlutur."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Add non-overlapping pixels** preserves existing objects and adds the proposal's largest remaining connected piece as a new object."
+msgstr "**Bæta við dílum án skörunar** varðveitir fyrirliggjandi hluti og bætir stærsta samhangandi hlutanum sem eftir er af tillögunni við sem nýjum hlut."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Replace overlapping object** removes overlapping old objects in full before adding the proposal. Rejected small proposals remove nothing."
+msgstr "**Skipta út hlut sem skarast** fjarlægir alla gamla hluti sem skarast við tillöguna í heild áður en henni er bætt við. Litlar tillögur sem er hafnað fjarlægja ekkert."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Skip overlapping objects** ignores proposals that overlap existing masks."
+msgstr "**Sleppa hlutum sem skarast** hunsar tillögur sem skarast við fyrirliggjandi grímur."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Secondary mode preserves primary IDs and does not allow fusing identities. Explicit click-and-drag editing retains its single undo step."
+msgstr "Aukahamurinn varðveitir aðalauðkenni og leyfir ekki sameiningu auðkenna. Handvirk breyting með smelli og drætti heldur sínu eina afturköllunarskrefi."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, including Otsu and Cellpose, click and drag to add encountered detections to the object under the initial click. Starting on background creates one new object. Separate detections share that object's ID without filling the background between them; one undo step reverses the drag, and the shared ID survives Save, Next and reopening. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."

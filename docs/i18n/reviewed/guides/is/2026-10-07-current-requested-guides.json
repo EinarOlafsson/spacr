@@ -1,0 +1,212 @@
+{
+  "schema": 1,
+  "language": "is",
+  "source_commit": "854cdc0d40bc227186ae2808aaab01a6c9966e81",
+  "method": "Codex AI technical review against each complete English source message, current UI labels, mask undo/identity/overlap behavior and probability/flow definitions. Model draft meaning errors corrected before normal import. No native-speaker signoff.",
+  "original_model_drafts_sha256": "eec29ded7157220018d83ae5f466eb1517edfa27d46a26d16ac0c3ad0e0b3625",
+  "records": [
+    {
+      "domain": "features",
+      "source": "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order.",
+      "source_sha256": "6fb84bd480f9e89ef3b07883c746de76e6c0ee12656701877c6dd6b0359c9df3",
+      "original_model_translation": "Áætlunin listar **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, og **spaCR spinn**, í þessum orðum.",
+      "target": "Hreyfimyndavalmyndin sýnir **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** og **spaCR spinn**, í þessari röð."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR growth** — Short mycelial segments grow from one starting point per colony and fork repeatedly. Each fork redirects the continuing tip and starts a daughter tip, so the branched front advances across the screen. Density controls the number of live tips. Older trails fade as new colonies begin; visible ink stays within a quarter of the screen.",
+      "source_sha256": "d58dcef411de016b2e4ed40ee79814985354d7bfa195d086fd58ed61d24e9552",
+      "original_model_translation": "**spaCR growth** — Stór mycelial segmentir vaxa frá einum upphafi punkti í hverri kolóni og fork aftur og aftur. Hver fork endurreiðar stöðugri smá og byrjar stúlka smá, þannig að grænt framan fer fram yfir skrinni. Density stjórnar fjölda lifandi smá. Gamlar leiðir fade eins og nýjar kolónir byrja; sýnilegur ink stendur innan þriðja skrinna.",
+      "target": "**spaCR growth** — Stuttir sveppþráðarhlutar vaxa frá einum upphafspunkti í hverri þyrpingu og greinast sífellt. Við hverja greiningu breytir áframhaldandi vaxtaroddurinn um stefnu og nýr dótturoddur verður til, þannig að greinóttur vaxtarjaðarinn færist yfir skjáinn. Þéttleikinn stjórnar fjölda virkra odda. Eldri slóðir dofna þegar nýjar þyrpingar byrja; sýnilegt mynstur þekur í mesta lagi fjórðung skjásins."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR waves** — Round points carry travelling waves and move away from the mouse within its enabled radius.",
+      "source_sha256": "6ae907186874ad1d8d67abe6cbc17d3c687afab0840db8dd2dc86dc61aaa17e4",
+      "original_model_translation": "**spaCR waves** — Round punkti búa ferðalög og flytja sig fjarlægð frá mynni innan viðhalda ráða.",
+      "target": "**spaCR waves** — Hringlaga punktar bera bylgjur sem færast áfram og víkja frá músinni innan virks áhrifaradíuss hennar."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR blobs** — Soft colour blobs, large and small, drift and slowly change size.",
+      "source_sha256": "f6142a51583ab29ac1bbc90e0ddf4e45ec9e4c71ba2b53f73640ea16d9013181",
+      "original_model_translation": "**spaCR blobs** — Mjög litur blóbur, stór og lítill, flýtur og langsamlega breyta stærð.",
+      "target": "**spaCR blobs** — Mjúkir litaflekkir, stórir og litlir, svífa áfram og breyta hægt um stærð."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR aurora** — Irregular curtains of fine rays rise from luminous folds, fan towards the sky, and change length and brightness independently. The spaCR palette uses green with pink upper light for this theme; other selected palettes remain available.",
+      "source_sha256": "05fbec1af1efc5636715a6a358398d589e36be2f82319aeeb41ccf3b9033ed78",
+      "original_model_translation": "**spaCR aurora** — Óreglulegar hár af fínum ljóðum stendur upp úr ljónu flöðum, fljótur til himins og breyta lengd og ljósi sjálfstætt. spaCR palettinn notar grænt með rosalega hár ljósið fyrir þetta efni; aðrar valda palettur eru enn til staðar.",
+      "target": "**spaCR aurora** — Óregluleg tjöld úr fíngerðum geislum rísa frá björtum fellingum, breiðast út í átt að himninum og breyta lengd og birtu óháð hvert öðru. Í þessu þema notar spaCR litapallettan grænan lit með bleiku ljósi efst; aðrar valdar litapallettur eru áfram tiltækar."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR stratified** — A slow starfield moves in three depth layers; **spaCR stratified direction** selects up, down or random travel.",
+      "source_sha256": "a1f74b899259cb37b049b1c165df96ef8c80b752d47dd238fc787f8ef3949fb6",
+      "original_model_translation": "**spaCR stratified** — Slow Starfield flytjar í þremur djúptilum; **Stefna spaCR stratified** velur upp, niður eða slæmt ferð.",
+      "target": "**spaCR stratified** — Hægt stjörnusvið færist í þremur dýptarlögum; **Stefna spaCR stratified** velur hreyfingu upp, niður eða í handahófskennda stefnu."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse. Rotation is fastest beside the pointer and fades smoothly to zero at the Mouse gravity radius; changing the radius changes the affected area.",
+      "source_sha256": "d6c57d8434371dbfd65e097e5dde3aab56fe6fbc246535bc005d7a1123a92480",
+      "original_model_translation": "**spaCR spinn** - Fínt pappíra aðstæður hreyfir mjúkt og snúa lokállega í svör við mus. Rótar er hraðar við sýnara og fljótur fljótt til null á mus gravity ráði; breyting á ráði breyta áhrifum svæðið.",
+      "target": "**spaCR spinn** — Fíngerðir pappírsfletir hreyfast mjúklega og snúast staðbundið til að bregðast við músinni. Snúningurinn er hraðastur næst bendlinum og minnkar mjúklega niður í núll við jaðar þyngdarsviðs músarinnar; radíusinn ákvarðar stærð svæðisins sem verður fyrir áhrifum."
+    },
+    {
+      "domain": "features",
+      "source": "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset.",
+      "source_sha256": "f1d600d93414e2c79b01d468668f3b6245b9ebae12d8c49bb9b0d7a19a2aba1d",
+      "original_model_translation": "**Radíus þyngdarsviðs músar** setur áhrifum sviði sem hlutverki af stuttri skreinn. Þessar staðsetningar eru **15%**; Sættu það á **0** til að slökkva á áhrif musa. **Þéttleiki hreyfimyndar** breytir fjölda hluti sjálfsögðu við **Smáatriði hreyfimyndar**, sem breyti skýrslun. Density hefur minnsta kosti **1%**; Stærri upplýsingar skynja ekki úrvalda fólksins. Renderinn takmarka prófunum sínum innan pikselsverðlauna á skjánum. Veldu **Handahófskennt** í **Litapalletta hreyfimyndar** fyrir lit á hlutinn. Fræri uppsetningar nota **Dökkt**, **spaCR field** og **spaCR** uppsetningu, með Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, og Page opacity **60%**. **Blikk punkta** stjórnar hlutfall sýnilega punkta sem blanda hvítur: **0** skiptir það út (þekkt), og nonzero reikningar eru frá 0.00001% til 10%. Áætlunin gildir um spaCR sviði, spaCR varning, spaCR völum og spaCR stratified. Fólkið er í gangi. Blau ríminn notar samræmi lengd af **17%**, Chase **50%**, miðjandi tengsl, **Beat** leið og **1.5 s** hjól. Núverandi sparað hönnunir eru í verku þar til breytist eða endursetur.",
+      "target": "**Radíus þyngdarsviðs músar** skilgreinir áhrifasvæðið sem hlutfall af styttri skjábrúninni. Sjálfgefið gildi er **15%**; veldu **0** til að slökkva á áhrifum músarinnar. **Þéttleiki hreyfimyndar** breytir fjölda eininga óháð **Smáatriði hreyfimyndar**, sem breytir upplausn teikningarinnar. Lágmarksþéttleiki er **1%**; aukin smáatriði fækka ekki þeim einingum sem voru valdar. Teiknarinn takmarkar sýnatökuvinnu sína við mynddílafjölda skjásins. Veldu **Handahófskennt** í **Litapalletta hreyfimyndar** til að fá lit fyrir hverja einingu. Nýjar uppsetningar nota **Dökkt**, **spaCR field** og **spaCR** litapallettuna, með þéttleika **10%**, þyngdarsvið **15%**, smáatriði, hraða og stærð **100%** og ógagnsæi síðu **60%**. **Blikk punkta** stjórnar hlutfalli sýnilegra punkta sem blikka hvítir: **0** slekkur á því (sjálfgefið), og önnur gildi eru frá 0,00001% til 10%. Stillingin á við spaCR field, spaCR advection, spaCR waves og spaCR stratified. Dofnun sviðsins er virk. Blái jaðarinn notar hlutfallslega lengd **17%** af ummáli, eftirfylgni **50%**, miðjaða staðsetningu, haminn **Beat** og lotu **1.5 s**. Vistaðar stillingar haldast þar til þeim er breytt eða þær endurstilltar."
+    },
+    {
+      "domain": "features",
+      "source": "**Popup wave frequency** sets automatic waves per minute in **spaCR field**. The default is **5 waves/minute**; **0** disables popup waves. When enabled, opening a popup immediately starts the first wave from its centre, followed by waves at the selected rate. Moving the popup moves the origin of new waves; closing it stops new waves while existing waves fade. This control is independent of mouse gravity, dot blinking, density and drawing detail.",
+      "source_sha256": "bc4b37e953592d552059f66aac7427eb3308a93996586bfe4b7300ad4e93c80d",
+      "original_model_translation": "**Tíðni bylgna frá sprettigluggum** setur sjálfkrafa waves á mínútu í **spaCR field**. Þannig er **5 bylgjur/mínútu**; **0** takmarka pop-up waves. Þegar opnað, opna pop-ups strax byrjar fyrstu wave frá miðjunni, fylgt með wave á ákveðnum hraði. Flytja pop-upp hreyfir uppruna nýja waves; loka það hættir nýjar waves þar sem núverandi waves fade. Þessi stjórnun er sjálfstætt frá þyngd muse, punkt blinking, þykkt og ritning upplýsingar.",
+      "target": "**Tíðni bylgna frá sprettigluggum** velur fjölda sjálfvirkra bylgna á mínútu í **spaCR field**. Sjálfgefið gildi er **5 bylgjur/mínútu**; **0** slekkur á bylgjum frá sprettigluggum. Þegar þær eru virkar byrjar fyrsta bylgjan strax frá miðju sprettigluggans þegar hann opnast, og næstu bylgjur fylgja valinni tíðni. Þegar glugginn er færður færist upptökustaður nýrra bylgna; lokun stöðvar nýjar bylgjur en þær sem þegar eru til dofna. Þessi stilling er óháð þyngdarsviði músarinnar, blikki punkta, þéttleika og smáatriðum teikningarinnar."
+    },
+    {
+      "domain": "features",
+      "source": "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them.",
+      "source_sha256": "d9cc029b023c5fe4479ee6c3ae3e01df08b323f2e9898fc2e15314b10b8b8986",
+      "original_model_translation": "**Sættuðu Backdrop** virðist vera sjálfstætt við höfuðinn á meðan á bæði Apply og Save. **Engin** inniheldur popup hreyfingu á meðan að halda bláum rímum. **Dökkvun bakgrunns stillinga** stjórnar opacity skilaboðskortina yfir uppsetningu, frá **0%** til **100%** (þekkt **85%**), ásamt **Ógagnsæi síðu**. Page opacity er einnig gildir þegar settar bakgrunni er **Engin**. Hærri myrkur verur dekka meira af lífinu til að gera texta auðveldara að lesa. Popups halda áfram yfir þeirra eigandi spaCR vetrur án þess að nota alþjóðleg alltaf á topp, svo aðra notkun geta dregið þá.",
+      "target": "**Sættuðu Backdrop** helst óháð aðalhreyfimyndinni bæði þegar stillingar eru notaðar og vistaðar. **Engin** slekkur á hreyfingu í sprettigluggum en heldur bláa jaðrinum. **Dökkvun bakgrunns stillinga** stjórnar ógagnsæi stillingaspjaldsins yfir hreyfimyndinni, frá **0%** til **100%** (sjálfgefið **85%**), ásamt **Ógagnsæi síðu**. Ógagnsæi síðu gildir einnig þegar bakgrunnur stillinga er **Engin**. Meiri dökkvun hylur meira af hreyfimyndinni svo auðveldara sé að lesa textann. Sprettigluggar haldast fyrir ofan spaCR gluggann sem þeir tilheyra, án almennrar stillingar sem heldur þeim yfir öllum gluggum; önnur forrit geta því hulið þá."
+    },
+    {
+      "domain": "features",
+      "source": "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available.",
+      "source_sha256": "d5e22805593c3cde4e6d34ff9dd279e1d192c5a8bc36e1cff2d3b64b9b9bb511",
+      "original_model_translation": "Í **spaCR field**, hægri rita óþekktu bakgrunni til að draga staðbundinn patch af punktur. Frelsað hnappinn gerir það að flýja aftur fljótt án að byrja aftur mönnunum. Þessi bakgróð gestur yfirgefur vísindalegar kanvas og stjórnun gestur til staðar.",
+      "target": "Í **spaCR field** heldurðu vinstri músarhnappnum niðri og dregur á auðu bakgrunnssvæði til að toga í staðbundinn hóp punkta. Þegar hnappnum er sleppt færist hópurinn mjúklega til baka án þess að mynstrið byrji upp á nýtt. Þessi bakgrunnsaðgerð heldur vísindalega teiknisvæðinu og aðgerðum stýrihluta tiltækum."
+    },
+    {
+      "domain": "make_masks",
+      "source": "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before manually accepting its objects.",
+      "source_sha256": "634a10eb8471b8a67bd4d81639c291ad3362d89ed1ce0990c72f3ea6f05cca7e",
+      "original_model_translation": "Toggle **Stækkunargler** eða þreyttu **M** til að athuga áætlað hlutum um sýninguna. hjólinn breytist boði zoom; **Shift + wheel** breyta boði stærð. **Ctrl+L+hægrismellur** loka eða opna boði.",
+      "target": "Kveiktu á **Stækkunargler** eða ýttu á **M** til að skoða tillögur að hlutum í kringum bendilinn. Músarhjólið breytir stækkun kassans; **Shift + wheel** breytir stærð hans. **Ctrl+L+hægrismellur** læsir kassanum eða opnar læsinguna. Bíddu eftir uppfærðri forskoðun áður en þú samþykkir hlutina handvirkt."
+    },
+    {
+      "domain": "make_masks",
+      "source": "Under **Object detection** → **Magnification settings**, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save** or **Save & Next** to write accepted masks.",
+      "source_sha256": "5a8bdbfe56a759b843b1b9637502650ca5d55525b059bb9540cb565cbacefcbc",
+      "original_model_translation": "Í **Hlutagreining** → **Stækkunarstillingar**, snúaðu á **Samþykkja tillögur að hlutum strax** til að samþykkja núverandi tilboð án þess að klikka. Þetta er óþekkt. svæðisnúmerið fylgir **Hlutir sem bætt er við**; full-myndarýmið samþykkir aðeins hlutinn undir sýnilegum. Flytja út úr myndinni eða deaktivera magnifier hindrar sjálfkrafa samþykki. Hver samþykki er ómögulegt, og undo samþykkir ekki strax sömu tilboð aftur. nota **Vista** eða **Save & Next** til þess að skrifa samþykktar maskar.",
+      "target": "Í **Hlutagreining** → **Stækkunarstillingar** virkjarðu **Samþykkja tillögur að hlutum strax** til að samþykkja gildandi tillögu án þess að smella. Þetta er sjálfgefið óvirkt. Svæðishamurinn fylgir **Hlutir sem bætt er við**; hamurinn fyrir alla myndina samþykkir aðeins hlutinn undir bendlinum. Að fara út fyrir myndina eða slökkva á stækkunarglerinu stöðvar sjálfvirkt samþykki. Hægt er að afturkalla hvert samþykki, og afturköllun samþykkir ekki sömu tillögu strax aftur. Notaðu **Vista** eða **Save & Next** til að skrifa samþykktar grímur á disk."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Overlap** chooses what happens when a proposal overlaps an existing mask:",
+      "source_sha256": "af54d2452c6f782e2b8ed4d97939a0a37a5fb5bf50bb8ec2f089c664967203d9",
+      "original_model_translation": "**Skörun** velur það sem gerist þegar forræðan yfirlifa núverandi maska:",
+      "target": "**Skörun** velur hvað gerist þegar tillaga skarast við fyrirliggjandi grímu:"
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Fuse with existing object** adds the proposal to the existing ID and retains the old object's pixels, including pixels outside the box. A proposal overlapping several objects joins them into the smallest old ID. A proposal on background becomes a new object.",
+      "source_sha256": "1f85feed35d5327911d4c26e71ad0211c01da0b25dacfeef4587ce720096d064",
+      "original_model_translation": "**Sameina við fyrirliggjandi hlut** bætir fyrirspurninn í núverandi ID og haldur gamall persónuleika, þar á meðal persónulegar út úr skálinu. Fyrirspurn sem yfirlappir nokkrum hlutum tengir þeim í smáast gamall ID. Tilspurn á bakgrunni verður nýja efni.",
+      "target": "**Sameina við fyrirliggjandi hlut** bætir tillögunni við fyrirliggjandi auðkenni og varðveitir mynddíla gamla hlutarins, einnig utan kassans. Tillaga sem skarast við marga hluti sameinar þá undir lægsta gamla auðkenninu. Tillaga sem er eingöngu á bakgrunni verður nýr hlutur."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Add non-overlapping pixels** preserves existing objects and adds the proposal's largest remaining connected piece as a new object.",
+      "source_sha256": "5c6740518691a9b115fac6f8c56f4f25206f0978e7d2615399ac3b1e426c82a9",
+      "original_model_translation": "**Bæta við dílum án skörunar** varðveita núverandi hlutum og bætir stærsta viðhaldandi hlut í forritið sem nýtt hlut.",
+      "target": "**Bæta við dílum án skörunar** varðveitir fyrirliggjandi hluti og bætir stærsta samhangandi hlutanum sem eftir er af tillögunni við sem nýjum hlut."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Replace overlapping object** removes overlapping old objects in full before adding the proposal. Rejected small proposals remove nothing.",
+      "source_sha256": "153e787e83bebe08d300e34f410af14ec52096d8c9e8eccc9e6d27ea26dafcd1",
+      "original_model_translation": "**Skipta út hlut sem skarast** fjarlægir yfirlapping gamla hlutum í fullu áður en viðbótin er lagt.",
+      "target": "**Skipta út hlut sem skarast** fjarlægir alla gamla hluti sem skarast við tillöguna í heild áður en henni er bætt við. Litlar tillögur sem er hafnað fjarlægja ekkert."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Skip overlapping objects** ignores proposals that overlap existing masks.",
+      "source_sha256": "94c92b2fd888685cb2c6bfe40f217d3e9b9997b017e1c6c49cf9d35570618fa1",
+      "original_model_translation": "**Sleppa hlutum sem skarast** fjarlægir tilboð sem flýja á núverandi maskar.",
+      "target": "**Sleppa hlutum sem skarast** hunsar tillögur sem skarast við fyrirliggjandi grímur."
+    },
+    {
+      "domain": "make_masks",
+      "source": "Secondary mode preserves primary IDs and does not allow fusing identities. Explicit click-and-drag editing retains its single undo step.",
+      "source_sha256": "f34e5e79f3c51a76c21475f5e6d2214e13b870ad02096d6b1a2a8a7e36891242",
+      "original_model_translation": "Sekundarröðin beitir primær IDs og leyfir ekki sameiginleika. útskýrt klikka- og drag-breyting beitir einn undo skref sitt.",
+      "target": "Aukahamurinn varðveitir aðalauðkenni og leyfir ekki sameiningu auðkenna. Handvirk breyting með smelli og drætti heldur sínu eina afturköllunarskrefi."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Saved segmentation diagnostics",
+      "source_sha256": "0638dcc7f961ff9681d512553184a84a0f4f7cc08c0d3434b71569b11878a011",
+      "original_model_translation": "Sjálfstæðar segmentaðarfræðingar",
+      "target": "Vistaðar greiningar á myndskiptingu"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Plaque mode writes these columns for each plaque in ``per_plaque`` and ``details`` in ``<src>/masks/plaques_analysis.db``, and exports ``<src>/masks/per_plaque.csv``. Figure mode writes the same columns in the ``plaques`` table of ``plaque_figures.db``.",
+      "source_sha256": "3822bf413fac16acc6f480cd9c20831605010b47254b8255401e416e3b461696",
+      "original_model_translation": "Plaque mode writes these columns for each plaque in ``per_plaque`` and ``details`` in ``<src>/masks/plaques_analysis.db``, and exports ``<src>/masks/per_plaque.csv``. Figure mode writes the same columns in the ``plaques`` table of ``plaque_figures.db``.",
+      "target": "Plaque-hamurinn skrifar þessa dálka fyrir hverja skellu í ``per_plaque`` og ``details`` í ``<src>/masks/plaques_analysis.db`` og flytur út ``<src>/masks/per_plaque.csv``. Myndagerðarhamurinn skrifar sömu dálka í töfluna ``plaques`` í ``plaque_figures.db``."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Meaning",
+      "source_sha256": "1f5d64b92820f8238635b90ae69a38c12661a7b03c6d0d7f689711f12af7b7f9",
+      "original_model_translation": "þýðing",
+      "target": "Merking"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Mean raw Cellpose cell-probability score across the plaque's pixels. These scores are logits, can be negative and are not calibrated probabilities or confidence percentages.",
+      "source_sha256": "e318e7b610960e98116b4586514c3d69a92460cc43942e3764ed67056e13513c",
+      "original_model_translation": "Mean raw Cellpose cell-probability score over the plaque's pixels. Þessar stigir eru logits, geta verið neikvæðar og eru ekki kalibrated sannleika eða öryggi hlutfall.",
+      "target": "Meðaltal óunninna Cellpose stiga fyrir líkur á frumu yfir mynddíla skellunnar. Þessi stig eru logits, geta verið neikvæð og eru hvorki kvarðaðar líkur né öryggisprósentur."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Cellpose's sum of the two component mean squared errors between mask-derived diffusion flows and predicted flows divided by five. Lower values mean better flow agreement with the saved mask.",
+      "source_sha256": "40cfc84921155fb9be3bc65f2ef3374f3cefc80885504d58e6b713c1f32343ce",
+      "original_model_translation": "Cellpose er sumurinn af tveimur hlutum sem mættir fjórum mistökum á milli maskaframleiðandi flutninga og áætlaðar flutningar, sem eru deildur af fimm.",
+      "target": "Cellpose-summa meðalkvaðratvillu beggja þátta milli dreifingarflæðis sem er leitt af grímunni og spáðs flæðis deilt með fimm. Lægri gildi sýna betra samræmi flæðisins við vistuðu grímuna."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Mean predicted flow-vector length within the plaque, divided by five to use Cellpose's mask-flow scale. This describes flow strength; higher values alone do not imply a better segmentation.",
+      "source_sha256": "e7829a710a5592ed2c033e1bbdbfbbdf0eb0bf491fa11adabddbb6131a300825",
+      "original_model_translation": "Mean áætlað flutning-vektar lengd innan plaque, uppdelti af fimm til að nota Cellpose maska flutnings skala. Þetta lýsir flutninga styrk; aðeins hærri gildi þýðir ekki betri segmenningu.",
+      "target": "Meðallengd spáðra flæðisvigra innan skellunnar, deilt með fimm til að nota grímuflæðiskvarða Cellpose. Þetta lýsir flæðisstyrk; hærri gildi ein og sér merkja ekki betri myndskiptingu."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Mean directional cosine between predicted and mask-derived flows, excluding zero-length vectors. Values range from -1 to 1; 1 means matching directions and -1 means opposite directions.",
+      "source_sha256": "c34d264d5cb90ea679181fb6f3e17b30ef9b41f736415493a1750723e2e6fd32",
+      "original_model_translation": "Miðar leiðsögn milli fyrirgefið og mask-framleiðandi flöðum, nema null lengd vektorar. verð eru frá -1 til 1; 1 þýðir samræmi stefnu og -1 þýðir á móti stefnu.",
+      "target": "Meðalkósínus stefnu milli spáðra flæðisvigra og flæðisvigra sem eru leiddir af grímunni, að undanskildum vigrum með lengd núll. Gildin eru frá -1 til 1; 1 merkir sömu stefnu og -1 gagnstæða stefnu."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Fraction of plaque pixels with finite probability scores or finite two-component flow vectors. These describe output coverage.",
+      "source_sha256": "7a7509927cc78bf11411b43bb20d108ef905242b56cdde33a7dad3207afe35ad",
+      "original_model_translation": "Fraction af plakkpiksli með finite sannleika stigum eða finite tvökomponent flutning vektor.",
+      "target": "Hlutfall mynddíla í skellunni með endanleg líkindastig eða endanlega tveggja þátta flæðisvigra. Þetta lýsir þekju úttaksins."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Flow agreement can help flag merged or poorly divided plaques, but does not establish biological accuracy; inspect the image and mask together. Missing outputs, incompatible output grids and unavailable comparisons are saved as blank CSV cells or SQL NULL, rather than zero. Probability and flow magnitude means use finite pixels. Flow error and alignment require finite predicted flows throughout the foreground; a comparison failure leaves them blank. Comparisons run on CPU and do not change the model's segmentation.",
+      "source_sha256": "deeb1d334a43acb08405a871ed67d62da48ee2e37d443352c172160ada75fc84",
+      "original_model_translation": "Flow samning getur hjálpað flagsamlegum eða slæmt deildum plakkum, en ekki búa til líffæri nákvæmni; Skoða myndina og maska saman. Mjög útgangar, óþekkt útgangarmál og óaðgengilegar samanburðir eru sparað sem hvít CSV celler eða SQL NULL, en ekki null. Sannsynda og flutning magn þýðir að nota finite pixels. Flóðgrein og samræmi krefjast endalega áætlaða flöðum í gegnum fyrstu sviði; Skammsögn yfirgefur þeim hvíld. Hugsanir fara á CPU og breyta ekki segmenningu móttunnar.",
+      "target": "Samræmi flæðis getur hjálpað til við að finna sameinaðar eða illa aðskildar skellur, en staðfestir ekki líffræðilega nákvæmni; skoðaðu myndina og grímuna saman. Úttak sem vantar, ósamrýmanleg úttaksnet og samanburður sem er ekki tiltækur eru vistuð sem auðir CSV reitir eða SQL NULL, en ekki núll. Meðaltöl líkindastiga og flæðismagns nota mynddíla með endanleg gildi. Flæðisvilla og stefnusamræmi krefjast endanlegs spáðs flæðis yfir allt forgrunnssvæðið; ef samanburður bregst eru þessir reitir auðir. Samanburðurinn keyrir á CPU og breytir ekki myndskiptingu líkansins."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Each generated mask also has a ``<image>.diagnostics.csv`` sidecar carrying the original per-plaque diagnostics and a mask fingerprint. A run with ``masks=False`` reuses it only when the saved mask still matches. Editing a mask invalidates these model diagnostics; regenerate masks to obtain fresh ones. Existing masks without a sidecar retain their measurements and have blank diagnostic columns. Figure workflows with a custom callback returning only labels also leave the diagnostic columns blank.",
+      "source_sha256": "938ae04b654aac15980290073541a5f9355ce5fbd450c3c6fe60f8901729c027",
+      "original_model_translation": "Hver generated maska hefur einnig ``<image>.diagnostics.csv`` sidecar með fyrstu per-plaque diagnostics og maska fingra. A run með ``masks=False`` notar það aðeins þegar bjargað maska er enn saman. Redigering maska neita þessar mönnunfræðingar; endurnýja maskar til að fá frænu. Existing masks án sidecara halda uppmynda sína og hafa blank diagnostiska stóru. Myndar vinnuflokkur með einstaka callback aftur aðeins tákn einnig yfirgefa diagnostiskir stóran blank.",
+      "target": "Hver mynduð gríma hefur einnig fylgiskrána ``<image>.diagnostics.csv`` með upphaflegum greiningum fyrir hverja skellu og fingrafari grímunnar. Keyrsla með ``masks=False`` endurnýtir hana aðeins ef vistaða gríman passar enn við fingrafarið. Breyting á grímu ógildir þessar líkangreiningar; myndaðu grímur aftur til að fá nýjar. Fyrirliggjandi grímur án fylgiskrár halda mælingum sínum og hafa auða greiningardálka. Myndagerðarferli með sérsniðnu endurkallsfalli sem skilar aðeins merkjum hafa einnig auða greiningardálka."
+    }
+  ]
+}

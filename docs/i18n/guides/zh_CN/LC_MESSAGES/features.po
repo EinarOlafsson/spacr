@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 09:12-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -237,12 +237,12 @@ msgid "Data-art themes"
 msgstr "数据艺术主题"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Under **Preferences** → **Appearance** → **Theme**, seven data-art presets each select an interface palette and an animated background. The ten night themes remain available. **Animation** lets you choose a background independently; select **None** for a static background. These backgrounds are decorative and do not display project measurements."
-msgstr "在 **偏好** → **外观** → **主题** 中，七种数据艺术预设分别选择一套界面配色和一个动态背景。十种夜间主题仍然可用。**动画** 可单独选择背景；选择 **无** 可使用静态背景。这些背景仅作装饰，不显示项目测量结果。"
+msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
+msgstr "在 **偏好** → **外观** 中，**主题** 选择界面的配色方案；十种夜间配色方案仍可使用。**动画** 独立选择装饰性背景，或选择 **无** 将其停止。这些背景不显示项目测量结果。主窗口默认使用 **spaCR field**；设置窗口的背景默认为 **无**。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The animation menu begins with **spaCR field** (the default), **spaCR advection**, **spaCR growth**, **spaCR Thore**, **spaCR waves**, and **Blobs**, followed by the remaining backgrounds."
-msgstr "动画菜单依次以 **spaCR field**（默认）、**spaCR advection**、**spaCR growth**、**spaCR Thore**、**spaCR waves** 和 **流动色块** 开头，其后为其余背景。"
+msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
+msgstr "动画菜单依次列出 **spaCR field**、**spaCR advection**、**spaCR growth**、**spaCR waves**、**spaCR blobs**、**spaCR aurora**、**spaCR stratified** 和 **spaCR spinn**。"
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — 清晰的引力点阵场，可选局部鼠标影响，并呈现向外扩散的波纹。"
@@ -250,25 +250,49 @@ msgstr "**spaCR field** — 清晰的引力点阵场，可选局部鼠标影响�
 msgid "**spaCR advection** — Fine particles form evolving vortices and branching currents, with optional mouse gravity."
 msgstr "**spaCR advection** — 精细粒子形成不断演变的涡旋和分支流，可选择启用鼠标引力。"
 
-#, python-format
-msgid "**spaCR growth** — A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop."
-msgstr "**spaCR growth** — 单一分支生长前沿持续推进，后方轨迹逐渐淡出，任意时刻占据的背景不超过 25%。"
-
-msgid "**spaCR Thore** — Fine background rain and branching lightning briefly illuminate the scene."
-msgstr "**spaCR Thore** — 背景细雨与分支闪电短暂照亮场景。"
-
-msgid "**spaCR waves** — An edge-free landscape of round points carries wide travelling waves."
-msgstr "**spaCR waves** — 无边界的圆点景观承载宽阔的行进波。"
-
-msgid "**Tissue facets** — Fine paper facets move gently and respond locally to the mouse."
-msgstr "**组织晶面** — 精细的纸张刻面轻柔移动，并局部响应鼠标。"
-
-msgid "**Chromatin satin** — Fine chromatin fibres undulate in travelling waves across folded ribbons."
-msgstr "**染色质缎带** — 精细的染色质纤维随行进波在折叠带状结构上起伏。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR growth** — Short mycelial segments grow from one starting point per colony and fork repeatedly. Each fork redirects the continuing tip and starts a daughter tip, so the branched front advances across the screen. Density controls the number of live tips. Older trails fade as new colonies begin; visible ink stays within a quarter of the screen."
+msgstr "**spaCR growth** — 每个菌落的短菌丝段从一个起点生长，并不断分叉。每次分叉都会改变原有生长尖端的方向，并产生一个新的子尖端，使分支前沿向屏幕其他区域推进。密度控制活跃尖端的数量。随着新菌落出现，旧轨迹逐渐消退；可见图案始终限制在屏幕面积的四分之一以内。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **0**, which disables mouse influence. Use **Animation density** to change the number of elements and **Animation detail** to change drawing resolution. Density and detail share the renderer's work budget. Press **Save** to keep preference changes."
-msgstr "**鼠标引力半径** 按屏幕较短边的百分比设置受影响区域。默认值为 **0**，表示禁用鼠标影响。使用 **动画密度** 调整元素数量，使用 **动画细节** 调整绘制分辨率。密度与细节共享渲染器的计算预算。点击 **保存** 可保留偏好设置的更改。"
+msgid "**spaCR waves** — Round points carry travelling waves and move away from the mouse within its enabled radius."
+msgstr "**spaCR waves** — 圆点承载传播的波纹，并在已启用的鼠标影响半径内远离鼠标。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR blobs** — Soft colour blobs, large and small, drift and slowly change size."
+msgstr "**spaCR blobs** — 大小不同的柔和色块缓慢漂移，并逐渐改变大小。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR aurora** — Irregular curtains of fine rays rise from luminous folds, fan towards the sky, and change length and brightness independently. The spaCR palette uses green with pink upper light for this theme; other selected palettes remain available."
+msgstr "**spaCR aurora** — 细光束组成不规则的帘幕，从明亮的褶皱处升起，朝天空呈扇形展开，并各自改变长度和亮度。此主题的 spaCR 调色板使用绿色和顶部的粉色光；也可以继续使用其他选定的调色板。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR stratified** — A slow starfield moves in three depth layers; **spaCR stratified direction** selects up, down or random travel."
+msgstr "**spaCR stratified** — 缓慢的星点场在三个深度层中移动；**spaCR stratified 方向**选择向上、向下或随机方向的运动。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse. Rotation is fastest beside the pointer and fades smoothly to zero at the Mouse gravity radius; changing the radius changes the affected area."
+msgstr "**spaCR spinn** — 细薄的纸片状面片轻柔移动，并根据鼠标位置局部旋转。越靠近指针，旋转越快；速度在鼠标引力半径的边缘平滑降至零。改变半径会改变受影响的区域。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
+msgstr "**鼠标引力半径**以屏幕较短边长的百分比设置影响区域。默认值为 **15%**；设为 **0** 可禁用鼠标影响。**动画密度**控制元素数量，与改变绘制分辨率的 **动画细节**相互独立。密度最低为 **1%**；增加细节不会减少已选定的元素数量。渲染器将采样工作限制在屏幕像素预算内。在 **动画调色板**中选择 **随机**可为每个元素使用随机颜色。新安装默认使用 **深色**、**spaCR field** 和 **spaCR** 动画调色板，密度为 **10%**，引力为 **15%**，细节、速度和大小均为 **100%**，页面不透明度为 **60%**。**点闪烁**控制闪烁为白色的可见点所占的百分比：**0** 禁用闪烁（默认值），非零范围为 0.00001% 至 10%。该设置适用于 spaCR field、spaCR advection、spaCR waves 和 spaCR stratified。场淡出已启用。蓝色边缘光使用周长的 **17%** 作为相对长度，跟随为 **50%**，以指针为中心对齐，模式为 **Beat**，周期为 **1.5 s**。已有的已保存偏好设置会保留，直到用户更改或重置。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Popup wave frequency** sets automatic waves per minute in **spaCR field**. The default is **5 waves/minute**; **0** disables popup waves. When enabled, opening a popup immediately starts the first wave from its centre, followed by waves at the selected rate. Moving the popup moves the origin of new waves; closing it stops new waves while existing waves fade. This control is independent of mouse gravity, dot blinking, density and drawing detail."
+msgstr "**弹窗波纹频率**设置 **spaCR field** 中每分钟自动生成的波纹数。默认值为 **5 波/分钟**；**0** 禁用弹窗波纹。启用后，打开弹窗会立即从其中心发出第一道波纹，后续波纹按所选频率生成。移动弹窗会移动新波纹的起点；关闭弹窗会停止产生新波纹，已有波纹则逐渐消退。此控制与鼠标引力、点闪烁、密度和绘制细节相互独立。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Apply** to preview changes while Preferences stays open. A separate question offers **Keep** or **Revert**. Revert restores the saved and live settings; your edited controls remain available to change or apply again. Closing the question also reverts. **Save** keeps changes and closes Preferences."
+msgstr "按 **应用** 预览更改，偏好设置窗口会保持打开。另一个对话框提供 **保留** 或 **还原**。还原会恢复已保存和当前生效的设置；您编辑过的控件仍可继续修改或再次应用。关闭该询问对话框也会还原。**保存** 保留更改并关闭偏好设置窗口。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
+msgstr "**设置 Backdrop**在应用或保存偏好设置时均与主窗口动画保持独立。**无**关闭弹窗动画，但保留蓝色边缘光。**设置背景暗度**控制设置卡片覆盖其动画的不透明度，范围为 **0%** 至 **100%**（默认 **85%**），并与 **页面不透明度**共同作用。当设置背景为 **无**时，页面不透明度仍然适用。较高的暗度覆盖更多动画，使文字更易阅读。弹窗只保持在所属 spaCR 窗口前方，不使用全局始终置顶标志，因此其他应用可以覆盖它们。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."
+msgstr "在 **spaCR field** 中，按住鼠标左键并在空白背景区域拖动，可拉动一小片局部点阵。松开鼠标后，点阵会平滑回弹，而不会重新启动整个图案。这个背景手势不会占用科学图像画布及控件的操作手势。"
 
 msgid "Arranging the window"
 msgstr "排列窗口"
@@ -282,8 +306,9 @@ msgstr "**停靠栏**：显示时，拖动其边缘可使其变宽或变窄；�
 msgid "**A module's right-hand column** (console, actions and the other panels) resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it to make its text larger or smaller; **Ctrl+0** over the column returns to the default size."
 msgstr "**模块的右侧列** （控制台、操作和其他面板）通过拖动其左边缘作为一个整体调整大小。按住 **Ctrl** 并在其上滚动可放大或缩小文字；在该列上按 **Ctrl+0** 可恢复默认大小。"
 
-msgid "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to setting help, hint strips and other hover help. Turn tooltips off with **Show tooltips** on the same page."
-msgstr "当指针在某个控件上停留达到 **偏好 → 外观** 中设置的 **工具提示延迟** （默认 2.0 秒；设为 0 则立即显示）后， **工具提示** 就会出现，并在指针停留其上时保持显示。同样的延迟也适用于设置帮助、提示条和其他悬停帮助。可在同一页面通过 **显示工具提示** 关闭工具提示。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to popup tooltips. Fixed hint text at the bottom of Home and Preferences appears immediately. Turn popup tooltips off with **Show tooltips** on the same page."
+msgstr "指针在控件上停留达到 **偏好 → 外观** 中设置的 **工具提示延迟** 后，**工具提示** 才会出现（默认 2.0 s；设为 0 会立即显示），并在指针停留期间保持显示。弹出式工具提示使用相同延迟。主页和偏好设置窗口底部的固定提示文字会立即显示。在同一页面通过 **显示工具提示** 可关闭弹出式工具提示。"
 
 msgid "These sizes are remembered between sessions."
 msgstr "这些尺寸会在会话之间被记住。"
@@ -301,7 +326,7 @@ msgstr "**边界框** 为 YOLO 标注绘制带类别标签的独立矩形。可�
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. **Divide / Merge** splits an object with a left-dragged line: the larger component retains its ID and the smaller receives a new one. Right-drag a line across objects to merge them under the first crossed ID, without painting the background between them. Other objects keep their labels."
-msgstr "Draw 描绘自由轮廓，将其闭合并填充为单个对象 -- 画笔则沿路径盖印圆盘，因此沿边缘描绘只会标记边缘，中央仍为背景。**Divide / Merge** 用按住鼠标左键拖出的线分割对象：较大的部分保留原 ID，较小的部分获得新 ID。按住鼠标右键拖线跨过多个对象，可将它们合并到第一个被穿过的 ID 下，而不涂绘它们之间的背景。其他对象保留各自的标签。"
+msgstr "Draw 描绘自由轮廓，将其闭合并填充为单个对象 -- 画笔则沿路径盖印圆盘，因此沿边缘描绘只会标记边缘，中央仍为背景。**分割 / 合并** 用按住鼠标左键拖出的线分割对象：较大的部分保留原 ID，较小的部分获得新 ID。按住鼠标右键拖线跨过多个对象，可将它们合并到第一个被穿过的 ID 下，而不涂绘它们之间的背景。其他对象保留各自的标签。"
 
 msgid "Recrop is the only tool that changes which field is on screen rather than what is painted on it. A staged crop holding several cells is not one training example, and curating it as one teaches a network that two objects are one picture -- so a box round an object writes that region of both the image and the mask as a field of its own, queued straight after the current one, and the multi-object original is retired into ``recropped_originals/`` rather than curated. A box smaller than the minimum side, or one repeating a cut already made, is refused; objects the box cuts through are dropped, because an object whose boundary is where the mouse was released is not that object; and the labels that survive are renumbered from one."
 msgstr "Recrop 是唯一会改变屏幕上显示哪个视野、而不是改变其上所绘内容的工具。包含多个细胞的阶段性裁剪图不是一个训练样本，把它当作一个样本校正会让网络误认为两个对象是一张图——因此，围绕某个对象的框会将图像和掩膜的该区域写为一个单独的视野，排在当前视野之后，而多对象的原图会被移入 ``recropped_originals/``，而不是被校正。小于最小边长的框，或重复已有裁剪的框，会被拒绝；被框切到的对象会被丢弃，因为边界落在鼠标释放处的对象已不是原来的对象；保留下来的标签从一开始重新编号。"

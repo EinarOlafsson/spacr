@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 18:04-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -95,6 +95,64 @@ msgstr "Granska resultatvyerna"
 
 msgid "The view selector above the preview offers **Overlay**, **Masks**, **Flows** and **Cell probability** in both modes. In Figure mode, each segmented well's outputs are placed at its box on the figure. Right-click the image for the overlay options: outlines or filled objects, random colours, **Overlay settings…** and **Save picture…**. The overlay settings include the outline and fill colours, fill opacity and the **Line weight** of the **Well boxes**. **Ruler** measures a distance on the image, in µm when the pixel size is known and in pixels otherwise; right-click clears it."
 msgstr "Vyväljaren ovanför förhandsvisningen erbjuder **Överlägg**, **Masker**, **Flöden** och **Cellsannolikhet** i båda lägena. I läget Figur placeras varje segmenterad brunns utdata vid dess ruta i figuren. Högerklicka på bilden för överläggsalternativen: konturer eller fyllda objekt, slumpmässiga färger, **Överlagringsinställningar…** och **Spara bild…**. Överlagringsinställningarna omfattar kontur- och fyllnadsfärger, fyllnadens opacitet och **Linjetjocklek** för **Brunnsrutor**. **Linjal** mäter ett avstånd i bilden, i µm när pixelstorleken är känd och annars i pixlar; högerklick rensar den."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Saved segmentation diagnostics"
+msgstr "Sparad segmenteringsdiagnostik"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Plaque mode writes these columns for each plaque in ``per_plaque`` and ``details`` in ``<src>/masks/plaques_analysis.db``, and exports ``<src>/masks/per_plaque.csv``. Figure mode writes the same columns in the ``plaques`` table of ``plaque_figures.db``."
+msgstr "Plackläget skriver dessa kolumner för varje plack till ``per_plaque`` och ``details`` i ``<src>/masks/plaques_analysis.db`` och exporterar ``<src>/masks/per_plaque.csv``. Figurläget skriver samma kolumner till tabellen ``plaques`` i ``plaque_figures.db``."
+
+msgid "Column"
+msgstr "Kolumn"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Meaning"
+msgstr "Betydelse"
+
+msgid "``cell_probability_mean``"
+msgstr "``cell_probability_mean``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mean raw Cellpose cell-probability score across the plaque's pixels. These scores are logits, can be negative and are not calibrated probabilities or confidence percentages."
+msgstr "Medelvärdet av Cellposes råa cellsannolikhetspoäng över plackets pixlar. Poängen är logiter, kan vara negativa och är varken kalibrerade sannolikheter eller konfidensprocent."
+
+msgid "``flow_error``"
+msgstr "``flow_error``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Cellpose's sum of the two component mean squared errors between mask-derived diffusion flows and predicted flows divided by five. Lower values mean better flow agreement with the saved mask."
+msgstr "Cellposes summa av de två komponenternas medelkvadratfel mellan diffusionsflöden härledda från masken och förutsagda flöden dividerade med fem. Lägre värden innebär bättre överensstämmelse mellan flödet och den sparade masken."
+
+msgid "``flow_magnitude_mean``"
+msgstr "``flow_magnitude_mean``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mean predicted flow-vector length within the plaque, divided by five to use Cellpose's mask-flow scale. This describes flow strength; higher values alone do not imply a better segmentation."
+msgstr "Medellängden för de förutsagda flödesvektorerna inom placket, dividerad med fem för att använda Cellposes maskflödesskala. Värdet beskriver flödesstyrkan; ett högre värde innebär inte i sig bättre segmentering."
+
+msgid "``flow_alignment_mean``"
+msgstr "``flow_alignment_mean``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mean directional cosine between predicted and mask-derived flows, excluding zero-length vectors. Values range from -1 to 1; 1 means matching directions and -1 means opposite directions."
+msgstr "Medelvärdet av riktningscosinus mellan förutsagda och maskhärledda flöden, med vektorer av längd noll uteslutna. Värdena ligger mellan -1 och 1; 1 betyder samma riktning och -1 motsatt riktning."
+
+msgid "``cell_probability_pixel_fraction``, ``flow_pixel_fraction``"
+msgstr "``cell_probability_pixel_fraction``, ``flow_pixel_fraction``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Fraction of plaque pixels with finite probability scores or finite two-component flow vectors. These describe output coverage."
+msgstr "Andelen plackpixlar med ändliga sannolikhetspoäng eller ändliga flödesvektorer med två komponenter. Värdena beskriver hur stor del av utdata som täcks."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Flow agreement can help flag merged or poorly divided plaques, but does not establish biological accuracy; inspect the image and mask together. Missing outputs, incompatible output grids and unavailable comparisons are saved as blank CSV cells or SQL NULL, rather than zero. Probability and flow magnitude means use finite pixels. Flow error and alignment require finite predicted flows throughout the foreground; a comparison failure leaves them blank. Comparisons run on CPU and do not change the model's segmentation."
+msgstr "Flödesöverensstämmelse kan hjälpa till att upptäcka sammanfogade eller dåligt uppdelade plack men fastställer inte biologisk noggrannhet; granska bild och mask tillsammans. Saknade utdata, inkompatibla utdataraster och jämförelser som inte kan göras sparas som tomma CSV-celler eller SQL NULL, inte som noll. Medelvärden för sannolikhet och flödesmagnitud beräknas från ändliga pixlar. Flödesfel och riktningsöverensstämmelse kräver ändliga förutsagda flöden över hela förgrunden; vid ett jämförelsefel lämnas värdena tomma. Jämförelserna körs på CPU och ändrar inte modellens segmentering."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each generated mask also has a ``<image>.diagnostics.csv`` sidecar carrying the original per-plaque diagnostics and a mask fingerprint. A run with ``masks=False`` reuses it only when the saved mask still matches. Editing a mask invalidates these model diagnostics; regenerate masks to obtain fresh ones. Existing masks without a sidecar retain their measurements and have blank diagnostic columns. Figure workflows with a custom callback returning only labels also leave the diagnostic columns blank."
+msgstr "Varje genererad mask har också en sidofil, ``<image>.diagnostics.csv``, med den ursprungliga diagnostiken per plack och ett maskfingeravtryck. En körning med ``masks=False`` återanvänder filen bara om den sparade masken fortfarande matchar. Redigering av en mask ogiltigförklarar modellens diagnostik; generera masker på nytt för att få nya värden. Befintliga masker utan sidofil behåller sina mätningar och har tomma diagnostikkolumner. Figurflöden med en egen callback som endast returnerar etiketter lämnar också diagnostikkolumnerna tomma."
 
 msgid "Contribute training data"
 msgstr "Bidra med träningsdata"

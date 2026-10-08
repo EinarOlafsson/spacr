@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 09:12-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
@@ -237,12 +237,12 @@ msgid "Data-art themes"
 msgstr "Temas de arte de dados"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Under **Preferences** → **Appearance** → **Theme**, seven data-art presets each select an interface palette and an animated background. The ten night themes remain available. **Animation** lets you choose a background independently; select **None** for a static background. These backgrounds are decorative and do not display project measurements."
-msgstr "Em **Preferências** → **Aparência** → **Tema**, cada uma das sete predefinições de arte de dados seleciona uma paleta da interface e um fundo animado. Os dez temas noturnos continuam disponíveis. **Animação** permite escolher o fundo separadamente; selecione **Nenhuma** para um fundo estático. Esses fundos são decorativos e não exibem medições do projeto."
+msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
+msgstr "Em **Preferências** → **Aparência**, **Tema** seleciona a paleta da interface; as dez paletas noturnas continuam disponíveis. **Animação** escolhe um fundo decorativo de forma independente, ou **Nenhuma** para interrompê-lo. Esses fundos não mostram medições do projeto. A janela principal usa **spaCR field** por padrão; o fundo das configurações usa **Nenhuma** por padrão."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The animation menu begins with **spaCR field** (the default), **spaCR advection**, **spaCR growth**, **spaCR Thore**, **spaCR waves**, and **Blobs**, followed by the remaining backgrounds."
-msgstr "O menu de animação começa com **spaCR field** (padrão), **spaCR advection**, **spaCR growth**, **spaCR Thore**, **spaCR waves** e **Formas fluidas**, seguidos dos demais fundos."
+msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
+msgstr "O menu de animação lista **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** e **spaCR spinn**, nessa ordem."
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — Um campo gravitacional de pontos nítidos com influência local opcional do mouse e ondas circulares em expansão."
@@ -250,25 +250,49 @@ msgstr "**spaCR field** — Um campo gravitacional de pontos nítidos com influ�
 msgid "**spaCR advection** — Fine particles form evolving vortices and branching currents, with optional mouse gravity."
 msgstr "**spaCR advection** — Partículas finas formam vórtices em evolução e correntes ramificadas, com gravidade opcional do mouse."
 
-#, python-format
-msgid "**spaCR growth** — A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop."
-msgstr "**spaCR growth** — Uma única frente ramificada avança continuamente enquanto seu rastro desaparece, ocupando no máximo 25% do fundo."
-
-msgid "**spaCR Thore** — Fine background rain and branching lightning briefly illuminate the scene."
-msgstr "**spaCR Thore** — Chuva fina ao fundo e relâmpagos ramificados iluminam brevemente a cena."
-
-msgid "**spaCR waves** — An edge-free landscape of round points carries wide travelling waves."
-msgstr "**spaCR waves** — Uma paisagem sem bordas de pontos redondos transporta ondas largas em movimento."
-
-msgid "**Tissue facets** — Fine paper facets move gently and respond locally to the mouse."
-msgstr "**Facetas teciduais** — Facetas finas de papel movem-se suavemente e respondem localmente ao mouse."
-
-msgid "**Chromatin satin** — Fine chromatin fibres undulate in travelling waves across folded ribbons."
-msgstr "**Cetim de cromatina** — Fibras finas de cromatina ondulam em ondas que percorrem fitas dobradas."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR growth** — Short mycelial segments grow from one starting point per colony and fork repeatedly. Each fork redirects the continuing tip and starts a daughter tip, so the branched front advances across the screen. Density controls the number of live tips. Older trails fade as new colonies begin; visible ink stays within a quarter of the screen."
+msgstr "**spaCR growth** — Segmentos miceliais curtos crescem a partir de um único ponto inicial por colónia e ramificam-se repetidamente. Cada bifurcação muda a direção da ponta que continua a crescer e inicia uma ponta filha, fazendo a frente ramificada avançar pelo ecrã. A densidade controla o número de pontas ativas. Os rastos antigos desaparecem à medida que surgem novas colónias; a área visível permanece limitada a um quarto do ecrã."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **0**, which disables mouse influence. Use **Animation density** to change the number of elements and **Animation detail** to change drawing resolution. Density and detail share the renderer's work budget. Press **Save** to keep preference changes."
-msgstr "**Raio da gravidade do mouse** define a área afetada como porcentagem do lado mais curto da tela. O padrão é **0**, que desativa a influência do mouse. Use **Densidade da animação** para alterar a quantidade de elementos e **Detalhe da animação** para alterar a resolução do desenho. Densidade e detalhe compartilham o orçamento de trabalho do renderizador. Pressione **Salvar** para manter as alterações de preferências."
+msgid "**spaCR waves** — Round points carry travelling waves and move away from the mouse within its enabled radius."
+msgstr "**spaCR waves** Os pontos redondos transportam ondas em movimento e afastam-se do rato dentro do seu raio ativado."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR blobs** — Soft colour blobs, large and small, drift and slowly change size."
+msgstr "**spaCR blobs** — Manchas de cor suaves, grandes e pequenas, deslocam-se e mudam lentamente de tamanho."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR aurora** — Irregular curtains of fine rays rise from luminous folds, fan towards the sky, and change length and brightness independently. The spaCR palette uses green with pink upper light for this theme; other selected palettes remain available."
+msgstr "**spaCR aurora** — Cortinas irregulares de raios finos emergem de dobras luminosas, abrem-se em leque em direção ao céu e variam de comprimento e brilho de forma independente. Neste tema, a paleta spaCR usa verde com luz rosa na parte superior; as outras paletas selecionadas continuam disponíveis."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR stratified** — A slow starfield moves in three depth layers; **spaCR stratified direction** selects up, down or random travel."
+msgstr "**spaCR stratified** Um campo estelar lento se move em três camadas de profundidade;  **Direção de spaCR stratified** seleciona para cima, para baixo ou viagem aleatória."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse. Rotation is fastest beside the pointer and fades smoothly to zero at the Mouse gravity radius; changing the radius changes the affected area."
+msgstr "**spaCR spinn** As facetas finas do papel movem-se suavemente e giram localmente em resposta ao mouse. A rotação é mais rápida ao lado do ponteiro e desaparece suavemente a zero no raio de gravidade do mouse; mudando o raio muda a área afetada."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
+msgstr "**Raio da gravidade do mouse** define a área afetada como percentagem do lado mais curto do ecrã. O valor padrão é **15%**; defina **0** para desativar a influência do rato. **Densidade da animação** altera o número de elementos independentemente de **Detalhe da animação**, que altera a resolução do desenho. A densidade tem um mínimo de **1%**; aumentar o detalhe não reduz a população escolhida. O renderizador limita o trabalho de amostragem ao orçamento de píxeis do ecrã. Selecione **Aleatório** em **Paleta de animação** para atribuir cores a cada elemento. As novas instalações usam **Escuro**, **spaCR field** e a paleta **spaCR**, com densidade **10%**, gravidade **15%**, detalhe, velocidade e tamanho **100%**, e opacidade da página **60%**. **Piscar dos pontos** controla a percentagem de pontos visíveis que piscam a branco: **0** desativa o efeito (o padrão), e os valores não nulos variam de 0,00001% a 10%. Esta definição aplica-se a spaCR field, spaCR advection, spaCR waves e spaCR stratified. O desvanecimento do campo está ativado. A borda azul usa um comprimento relativo ao perímetro de **17%**, acompanhamento **50%**, alinhamento centrado, modo **Beat** e um ciclo de **1.5 s**. As preferências já guardadas mantêm-se até serem alteradas ou repostas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Popup wave frequency** sets automatic waves per minute in **spaCR field**. The default is **5 waves/minute**; **0** disables popup waves. When enabled, opening a popup immediately starts the first wave from its centre, followed by waves at the selected rate. Moving the popup moves the origin of new waves; closing it stops new waves while existing waves fade. This control is independent of mouse gravity, dot blinking, density and drawing detail."
+msgstr "**Frequência das ondas das janelas** define o número de ondas automáticas por minuto em **spaCR field**. O padrão é **5 ondas/minuto**; **0** desativa as ondas dos pop-ups. Quando o efeito está ativado, abrir um pop-up inicia imediatamente a primeira onda a partir do seu centro, seguida de ondas à frequência selecionada. Mover o pop-up desloca a origem das novas ondas; fechá-lo interrompe novas ondas enquanto as existentes desaparecem. Este controlo é independente da gravidade do rato, do piscar dos pontos, da densidade e do detalhe do desenho."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Apply** to preview changes while Preferences stays open. A separate question offers **Keep** or **Revert**. Revert restores the saved and live settings; your edited controls remain available to change or apply again. Closing the question also reverts. **Save** keeps changes and closes Preferences."
+msgstr "Pressione **Aplicar** para experimentar as alterações enquanto Preferências permanece aberta. Uma pergunta separada oferece **Manter** ou **Reverter**. Ao reverter, as configurações salvas e ativas são restauradas; os controles editados continuam disponíveis para alterar ou aplicar novamente. Fechar a pergunta também reverte as alterações. **Salvar** mantém as alterações e fecha Preferências."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
+msgstr "**Fundo das configurações** mantém-se independente da animação principal tanto ao aplicar como ao guardar as preferências. **Nenhuma** desativa o movimento do pop-up e mantém a borda azul. **Escurecimento do fundo das definições** controla a opacidade do cartão de definições sobre a animação, de **0%** a **100%** (padrão **85%**), em combinação com **Opacidade da página**. A opacidade da página também se aplica quando o fundo das configurações é **Nenhuma**. Valores mais elevados de escurecimento cobrem mais a animação para facilitar a leitura. Os pop-ups permanecem acima da janela spaCR a que pertencem, sem uma opção global de estar sempre no topo, pelo que outras aplicações podem cobri-los."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."
+msgstr "Em **spaCR field**, mantenha o botão esquerdo do rato premido e arraste numa área de fundo desocupada para puxar um grupo local de pontos. Soltar o botão permite que o grupo regresse suavemente, sem reiniciar o padrão. Este gesto no fundo mantém disponíveis a área de trabalho científica e os gestos dos controlos."
 
 msgid "Arranging the window"
 msgstr "Organizar a janela"
@@ -282,8 +306,9 @@ msgstr "**O dock**: enquanto estiver visível, arraste sua borda para alargá-lo
 msgid "**A module's right-hand column** (console, actions and the other panels) resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it to make its text larger or smaller; **Ctrl+0** over the column returns to the default size."
 msgstr "**A coluna direita de um módulo** (console, ações e os outros painéis) é redimensionada como um todo arrastando sua borda esquerda. Mantenha **Ctrl** pressionada e role sobre ela para aumentar ou diminuir o texto; **Ctrl+0** sobre a coluna volta ao tamanho padrão."
 
-msgid "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to setting help, hint strips and other hover help. Turn tooltips off with **Show tooltips** on the same page."
-msgstr "As **Dicas de ferramenta** aparecem depois que o ponteiro permanece sobre um controle pelo **Atraso das dicas** definido em **Preferências → Aparência** (2,0 s por padrão; 0 as mostra imediatamente) e continuam visíveis enquanto o ponteiro estiver sobre elas. O mesmo atraso vale para a ajuda das configurações, as faixas de dicas e outras ajudas ao passar o ponteiro. Desative-as com **Mostrar dicas de ferramenta** na mesma página."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to popup tooltips. Fixed hint text at the bottom of Home and Preferences appears immediately. Turn popup tooltips off with **Show tooltips** on the same page."
+msgstr "**Dicas de ferramenta** aparecem depois que o ponteiro permanece sobre um controle durante o **Atraso das dicas** definido em **Preferências → Aparência** (2.0 s por padrão; 0 exibe imediatamente), e permanecem enquanto o ponteiro estiver ali. O mesmo atraso se aplica às dicas em janelas flutuantes. O texto fixo de ajuda na parte inferior de Início e Preferências aparece imediatamente. Desative as dicas flutuantes com **Mostrar dicas de ferramenta** na mesma página."
 
 msgid "These sizes are remembered between sessions."
 msgstr "Esses tamanhos são lembrados entre sessões."
@@ -301,7 +326,7 @@ msgstr "**Caixa** desenha retângulos independentes com rótulos de classe para 
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. **Divide / Merge** splits an object with a left-dragged line: the larger component retains its ID and the smaller receives a new one. Right-drag a line across objects to merge them under the first crossed ID, without painting the background between them. Other objects keep their labels."
-msgstr "Draw traça um contorno livre que se fecha e é preenchido como um único objeto -- ao contrário de um pincel, que aplica discos ao longo do caminho: ao seguir uma borda, a borda é rotulada e o centro permanece como fundo. **Divide / Merge** divide um objeto com uma linha arrastada com o botão esquerdo: a parte maior mantém seu ID e a menor recebe um novo. Arraste uma linha sobre os objetos com o botão direito para uni-los sob o primeiro ID cruzado, sem pintar o fundo entre eles. Os outros objetos mantêm seus rótulos."
+msgstr "Draw traça um contorno livre que se fecha e é preenchido como um único objeto -- ao contrário de um pincel, que aplica discos ao longo do caminho: ao seguir uma borda, a borda é rotulada e o centro permanece como fundo. **Dividir / Unir** divide um objeto com uma linha arrastada com o botão esquerdo: a parte maior mantém seu ID e a menor recebe um novo. Arraste uma linha sobre os objetos com o botão direito para uni-los sob o primeiro ID cruzado, sem pintar o fundo entre eles. Os outros objetos mantêm seus rótulos."
 
 msgid "Recrop is the only tool that changes which field is on screen rather than what is painted on it. A staged crop holding several cells is not one training example, and curating it as one teaches a network that two objects are one picture -- so a box round an object writes that region of both the image and the mask as a field of its own, queued straight after the current one, and the multi-object original is retired into ``recropped_originals/`` rather than curated. A box smaller than the minimum side, or one repeating a cut already made, is refused; objects the box cuts through are dropped, because an object whose boundary is where the mouse was released is not that object; and the labels that survive are renumbered from one."
 msgstr "Recrop é a única ferramenta que muda qual campo está na tela, em vez do que está pintado nele. Um recorte preparado com várias células não é um único exemplo de treinamento, e fazer a curadoria dele como tal ensina a uma rede que dois objetos são uma só imagem -- por isso, uma caixa em torno de um objeto grava essa região da imagem e da máscara como um campo próprio, enfileirado logo após o atual, e o original com vários objetos é retirado para ``recropped_originals/`` em vez de ser curado. Uma caixa menor que o lado mínimo, ou que repete um corte já feito, é recusada; os objetos que a caixa atravessa são descartados, porque um objeto cuja borda fica onde o mouse foi solto não é esse objeto; e os rótulos restantes são renumerados a partir de um."

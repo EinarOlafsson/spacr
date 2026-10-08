@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 18:04-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -423,8 +423,37 @@ msgstr "लेबल, स्रोत और निदान अनुबंध�
 msgid "Live magnifier, filtering and measurement"
 msgstr "लाइव आवर्धक, फ़िल्टरिंग और मापन"
 
-msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before accepting its objects."
-msgstr "सूचक के आसपास प्रस्तावित ऑब्जेक्ट की जाँच के लिए **आवर्धक** चालू करें या **M** दबाएँ। इसका व्हील बॉक्स ज़ूम बदलता है; **Shift + wheel** बॉक्स का आकार बदलता है। **Ctrl+L+दायाँ क्लिक** बॉक्स को लॉक या अनलॉक करता है। किसी अद्यतन हो रहे पूर्वावलोकन के ऑब्जेक्ट स्वीकार करने से पहले उसकी प्रतीक्षा करें।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before manually accepting its objects."
+msgstr "सूचक के आसपास प्रस्तावित वस्तुएँ देखने के लिए **आवर्धक** चालू करें या **M** दबाएँ। माउस का पहिया बॉक्स के भीतर ज़ूम बदलता है; **Shift + wheel** बॉक्स का आकार बदलता है। **Ctrl+L+दायाँ क्लिक** बॉक्स को लॉक या अनलॉक करता है। वस्तुओं को हाथ से स्वीकार करने से पहले अद्यतन पूर्वावलोकन की प्रतीक्षा करें।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Under **Object detection** → **Magnification settings**, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save** or **Save & Next** to write accepted masks."
+msgstr "**ऑब्जेक्ट पहचान** → **आवर्धन सेटिंग्स** में **प्रस्तावित वस्तुओं को तुरंत स्वीकार करें** चालू करके मौजूदा प्रस्ताव को बिना क्लिक किए स्वीकार करें। यह डिफ़ॉल्ट रूप से बंद है। क्षेत्र मोड **जोड़े जाने वाले ऑब्जेक्ट** का पालन करता है; पूरी छवि का मोड केवल सूचक के नीचे की वस्तु स्वीकार करता है। छवि से बाहर जाने या आवर्धक बंद करने पर स्वचालित स्वीकृति रुक जाती है। हर स्वीकृति पूर्ववत की जा सकती है, और पूर्ववत करने पर वही प्रस्ताव तुरंत दोबारा स्वीकार नहीं होता। स्वीकार किए गए मास्क डिस्क पर लिखने के लिए **सहेजें** या **Save & Next** उपयोग करें।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Overlap** chooses what happens when a proposal overlaps an existing mask:"
+msgstr "**ओवरलैप** तय करता है कि प्रस्ताव किसी मौजूदा मास्क से अतिव्यापित होने पर क्या होगा:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Fuse with existing object** adds the proposal to the existing ID and retains the old object's pixels, including pixels outside the box. A proposal overlapping several objects joins them into the smallest old ID. A proposal on background becomes a new object."
+msgstr "**मौजूदा वस्तु के साथ मिलाएँ** प्रस्ताव को मौजूदा ID में जोड़ता है और पुरानी वस्तु के पिक्सेल, बॉक्स के बाहर के पिक्सेल सहित, बनाए रखता है। कई वस्तुओं से अतिव्यापित प्रस्ताव उन्हें सबसे छोटे पुराने ID में मिलाता है। केवल पृष्ठभूमि पर स्थित प्रस्ताव नई वस्तु बनता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Add non-overlapping pixels** preserves existing objects and adds the proposal's largest remaining connected piece as a new object."
+msgstr "**बिना अतिव्यापन वाले पिक्सेल जोड़ें** मौजूदा वस्तुएँ बनाए रखता है और प्रस्ताव के बचे हुए सबसे बड़े जुड़े हिस्से को नई वस्तु के रूप में जोड़ता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Replace overlapping object** removes overlapping old objects in full before adding the proposal. Rejected small proposals remove nothing."
+msgstr "**अतिव्यापित वस्तु बदलें** प्रस्ताव जोड़ने से पहले सभी अतिव्यापित पुरानी वस्तुओं को पूरा हटाता है। अस्वीकार किए गए छोटे प्रस्ताव कुछ भी नहीं हटाते।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Skip overlapping objects** ignores proposals that overlap existing masks."
+msgstr "**अतिव्यापित वस्तुएँ छोड़ें** मौजूदा मास्क से अतिव्यापित प्रस्तावों को अनदेखा करता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Secondary mode preserves primary IDs and does not allow fusing identities. Explicit click-and-drag editing retains its single undo step."
+msgstr "द्वितीयक मोड प्राथमिक ID बनाए रखता है और अलग पहचानों को मिलाने की अनुमति नहीं देता। स्पष्ट क्लिक करके खींचने वाले संपादन का एक ही पूर्ववत चरण रहता है।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, including Otsu and Cellpose, click and drag to add encountered detections to the object under the initial click. Starting on background creates one new object. Separate detections share that object's ID without filling the background between them; one undo step reverses the drag, and the shared ID survives Save, Next and reopening. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."

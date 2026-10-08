@@ -390,7 +390,7 @@ class SetupCard(QWidget):
     def _stored_mode() -> str:
         """Return the saved rim mode.
 
-        :returns: the preference, or ``"glow"`` when it cannot be read -- a
+        :returns: the preference, or ``"beat"`` when it cannot be read -- a
             card with no rim would look broken, so the default is a real mode.
         """
         try:

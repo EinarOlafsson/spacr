@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 18:04-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
@@ -423,8 +423,37 @@ msgstr "Consulte :func:`spacr.qt.mask_engine.secondary_object_instances`, :class
 msgid "Live magnifier, filtering and measurement"
 msgstr "Lupa en vivo, filtrado y medición"
 
-msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before accepting its objects."
-msgstr "Active **Lupa** o pulse **M** para revisar los objetos propuestos alrededor del puntero. Su rueda cambia el zoom del recuadro; **Shift + wheel** cambia el tamaño del recuadro. **Ctrl+L+clic derecho** bloquea o desbloquea el recuadro. Espere a que se actualice la vista previa antes de aceptar sus objetos."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before manually accepting its objects."
+msgstr "Active **Lupa** o pulse **M** para examinar los objetos propuestos alrededor del puntero. La rueda del ratón cambia el zoom del recuadro; **Shift + wheel** cambia su tamaño. **Ctrl+L+clic derecho** bloquea o desbloquea el recuadro. Espere a que termine la actualización de la vista previa antes de aceptar sus objetos manualmente."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Under **Object detection** → **Magnification settings**, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save** or **Save & Next** to write accepted masks."
+msgstr "En **Detección de objetos** → **Ajustes de ampliación**, active **Aceptar inmediatamente los objetos propuestos** para aceptar una propuesta actual sin hacer clic. La opción está desactivada de forma predeterminada. El modo de región sigue **Objetos añadidos**; el modo de imagen completa acepta solo el objeto bajo el puntero. Salir de la imagen o desactivar la lupa impide la aceptación automática. Cada aceptación se puede deshacer; después de deshacerla, la misma propuesta no se acepta inmediatamente de nuevo. Use **Guardar** o **Save & Next** para escribir las máscaras aceptadas en disco."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Overlap** chooses what happens when a proposal overlaps an existing mask:"
+msgstr "**Superposición** elige lo que sucede cuando una propuesta se superpone a una máscara existente:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Fuse with existing object** adds the proposal to the existing ID and retains the old object's pixels, including pixels outside the box. A proposal overlapping several objects joins them into the smallest old ID. A proposal on background becomes a new object."
+msgstr "**Fusionar con el objeto existente** añade la propuesta al ID existente y conserva los píxeles del objeto anterior, incluidos los que están fuera del recuadro. Una propuesta que se superpone a varios objetos los fusiona bajo el menor ID anterior. Una propuesta sobre el fondo se convierte en un objeto nuevo."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Add non-overlapping pixels** preserves existing objects and adds the proposal's largest remaining connected piece as a new object."
+msgstr "**Añadir píxeles sin solapamiento** conserva los objetos existentes y añade la pieza conectada más grande restante de la propuesta como un nuevo objeto."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Replace overlapping object** removes overlapping old objects in full before adding the proposal. Rejected small proposals remove nothing."
+msgstr "**Reemplazar el objeto solapado** elimina los objetos antiguos superpuestos en su totalidad antes de añadir la propuesta. Las pequeñas propuestas rechazadas no eliminan nada."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Skip overlapping objects** ignores proposals that overlap existing masks."
+msgstr "**Omitir objetos solapados** ignora las propuestas que se superponen a las máscaras existentes."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Secondary mode preserves primary IDs and does not allow fusing identities. Explicit click-and-drag editing retains its single undo step."
+msgstr "El modo secundario conserva los ID primarios y no permite fusionar identidades. La edición explícita mediante clic y arrastre conserva un único paso para deshacer."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, including Otsu and Cellpose, click and drag to add encountered detections to the object under the initial click. Starting on background creates one new object. Separate detections share that object's ID without filling the background between them; one undo step reverses the drag, and the shared ID survives Save, Next and reopening. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."

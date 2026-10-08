@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 18:04-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -95,6 +95,64 @@ msgstr "परिणाम दृश्यों की जाँच करे�
 
 msgid "The view selector above the preview offers **Overlay**, **Masks**, **Flows** and **Cell probability** in both modes. In Figure mode, each segmented well's outputs are placed at its box on the figure. Right-click the image for the overlay options: outlines or filled objects, random colours, **Overlay settings…** and **Save picture…**. The overlay settings include the outline and fill colours, fill opacity and the **Line weight** of the **Well boxes**. **Ruler** measures a distance on the image, in µm when the pixel size is known and in pixels otherwise; right-click clears it."
 msgstr "पूर्वावलोकन के ऊपर का दृश्य चयनकर्ता दोनों मोड में **ओवरले**, **मास्क**, **प्रवाह** और **कोशिका प्रायिकता** देता है। चित्र मोड में हर विभाजित कूप के आउटपुट चित्र पर उसके बॉक्स में रखे जाते हैं। ओवरले विकल्पों के लिए छवि पर राइट-क्लिक करें: रूपरेखा या भरे हुए ऑब्जेक्ट, यादृच्छिक रंग, **ओवरले सेटिंग…** और **चित्र सहेजें…**। ओवरले सेटिंग्स में रूपरेखा और भराव के रंग, भराव की अपारदर्शिता और **वेल बॉक्स** की **रेखा की मोटाई** शामिल हैं। **रूलर** छवि पर दूरी मापता है, पिक्सेल आकार ज्ञात होने पर µm में और अन्यथा पिक्सेल में; राइट-क्लिक उसे साफ़ करता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Saved segmentation diagnostics"
+msgstr "सहेजे गए विभाजन निदान"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Plaque mode writes these columns for each plaque in ``per_plaque`` and ``details`` in ``<src>/masks/plaques_analysis.db``, and exports ``<src>/masks/per_plaque.csv``. Figure mode writes the same columns in the ``plaques`` table of ``plaque_figures.db``."
+msgstr "प्लाक मोड हर प्लाक के लिए ये कॉलम ``<src>/masks/plaques_analysis.db`` की ``per_plaque`` और ``details`` तालिकाओं में लिखता है और ``<src>/masks/per_plaque.csv`` निर्यात करता है। चित्र मोड यही कॉलम ``plaque_figures.db`` की ``plaques`` तालिका में लिखता है।"
+
+msgid "Column"
+msgstr "स्तंभ"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Meaning"
+msgstr "अर्थ"
+
+msgid "``cell_probability_mean``"
+msgstr "``cell_probability_mean``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mean raw Cellpose cell-probability score across the plaque's pixels. These scores are logits, can be negative and are not calibrated probabilities or confidence percentages."
+msgstr "प्लाक के पिक्सेल पर Cellpose के कच्चे सेल-प्रायिकता स्कोर का औसत। ये स्कोर logits हैं, ऋणात्मक हो सकते हैं और कैलिब्रेट की गई प्रायिकताएँ या विश्वास प्रतिशत नहीं हैं।"
+
+msgid "``flow_error``"
+msgstr "``flow_error``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Cellpose's sum of the two component mean squared errors between mask-derived diffusion flows and predicted flows divided by five. Lower values mean better flow agreement with the saved mask."
+msgstr "मास्क से निकाले गए प्रसरण प्रवाह और पाँच से विभाजित अनुमानित प्रवाह के बीच दोनों घटकों की औसत वर्ग त्रुटियों का Cellpose द्वारा गणना किया गया योग। कम मान सहेजे गए मास्क के साथ प्रवाह की बेहतर सहमति दर्शाते हैं।"
+
+msgid "``flow_magnitude_mean``"
+msgstr "``flow_magnitude_mean``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mean predicted flow-vector length within the plaque, divided by five to use Cellpose's mask-flow scale. This describes flow strength; higher values alone do not imply a better segmentation."
+msgstr "प्लाक के भीतर अनुमानित प्रवाह-वेक्टर की औसत लंबाई, Cellpose के मास्क-प्रवाह पैमाने का उपयोग करने के लिए पाँच से विभाजित। यह प्रवाह की तीव्रता बताता है; केवल ऊँचा मान बेहतर विभाजन का संकेत नहीं है।"
+
+msgid "``flow_alignment_mean``"
+msgstr "``flow_alignment_mean``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mean directional cosine between predicted and mask-derived flows, excluding zero-length vectors. Values range from -1 to 1; 1 means matching directions and -1 means opposite directions."
+msgstr "अनुमानित और मास्क से निकाले गए प्रवाह के बीच दिशात्मक कोसाइन का औसत, शून्य लंबाई वाले वेक्टर छोड़कर। मान -1 से 1 तक हैं; 1 समान दिशाएँ और -1 विपरीत दिशाएँ दर्शाता है।"
+
+msgid "``cell_probability_pixel_fraction``, ``flow_pixel_fraction``"
+msgstr "``cell_probability_pixel_fraction``, ``flow_pixel_fraction``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Fraction of plaque pixels with finite probability scores or finite two-component flow vectors. These describe output coverage."
+msgstr "प्लाक पिक्सेल का वह अनुपात जिसमें परिमित प्रायिकता स्कोर या दोनों घटकों वाला परिमित प्रवाह-वेक्टर है। ये मान आउटपुट की कवरेज दर्शाते हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Flow agreement can help flag merged or poorly divided plaques, but does not establish biological accuracy; inspect the image and mask together. Missing outputs, incompatible output grids and unavailable comparisons are saved as blank CSV cells or SQL NULL, rather than zero. Probability and flow magnitude means use finite pixels. Flow error and alignment require finite predicted flows throughout the foreground; a comparison failure leaves them blank. Comparisons run on CPU and do not change the model's segmentation."
+msgstr "प्रवाह की सहमति मिले हुए या ठीक से न बाँटे गए प्लाक को चिह्नित करने में मदद कर सकती है, लेकिन जैविक सटीकता सिद्ध नहीं करती; छवि और मास्क को साथ देखें। अनुपस्थित आउटपुट, असंगत आउटपुट ग्रिड और अनुपलब्ध तुलना शून्य के बजाय खाली CSV सेल या SQL NULL के रूप में सहेजे जाते हैं। प्रायिकता और प्रवाह परिमाण के औसत परिमित पिक्सेल उपयोग करते हैं। प्रवाह त्रुटि और दिशात्मक संरेखण के लिए पूरे अग्रभाग में परिमित अनुमानित प्रवाह आवश्यक है; तुलना विफल होने पर ये फ़ील्ड खाली रहते हैं। तुलना CPU पर चलती है और मॉडल का विभाजन नहीं बदलती।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each generated mask also has a ``<image>.diagnostics.csv`` sidecar carrying the original per-plaque diagnostics and a mask fingerprint. A run with ``masks=False`` reuses it only when the saved mask still matches. Editing a mask invalidates these model diagnostics; regenerate masks to obtain fresh ones. Existing masks without a sidecar retain their measurements and have blank diagnostic columns. Figure workflows with a custom callback returning only labels also leave the diagnostic columns blank."
+msgstr "हर बनाए गए मास्क के साथ ``<image>.diagnostics.csv`` सहायक फ़ाइल भी होती है, जिसमें मूल प्रति-प्लाक निदान और मास्क का फ़िंगरप्रिंट रहता है। ``masks=False`` वाली रन इसे केवल तब दोबारा उपयोग करती है जब सहेजा गया मास्क अभी भी मेल खाता हो। मास्क संपादित करने से ये मॉडल निदान अमान्य हो जाते हैं; नए निदान पाने के लिए मास्क दोबारा बनाएँ। सहायक फ़ाइल के बिना मौजूदा मास्क अपनी माप बनाए रखते हैं और निदान कॉलम खाली रखते हैं। केवल लेबल लौटाने वाले कस्टम कॉलबैक का उपयोग करने वाले चित्र कार्यप्रवाह भी निदान कॉलम खाली रखते हैं।"
 
 msgid "Contribute training data"
 msgstr "ट्रेनिंग डेटा योगदान करें"

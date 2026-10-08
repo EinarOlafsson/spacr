@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 18:04-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -66,6 +66,10 @@ msgstr "Keyra sama samning úr skel"
 
 msgid "The headless command is useful in a scheduler because it validates setting names and values before importing the heavy pipeline stack."
 msgstr "Skipunin án myndræns viðmóts er gagnleg í tímaáætlunarkerfi vegna þess að hún sannprófar heiti og gildi stillinga áður en þungi vinnslustaflinn er fluttur inn."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use ``spacr-run --list-models`` (or ``--models``) to list registered models, including models that have not been downloaded. Supply the registered key or filename in ``custom_model`` for masking or ``model_path`` for classifier inference. Python and notebook entry points use the same resolver. A missing registered checkpoint is downloaded through Model Zoo when the workflow runs, verified against its catalogue checksum, and cached for reuse. Preflight recognizes registered downloadable selections without downloading the weights. Existing local paths take precedence; an unknown missing local path or a model of the wrong kind raises an error rather than selecting another model. Built-in foundation models retain their backend's normal download behavior."
+msgstr "Notaðu ``spacr-run --list-models`` (eða ``--models``) til að birta skráð líkön, einnig þau sem hafa ekki verið sótt. Settu skráða lykilinn eða skráarnafnið í ``custom_model`` fyrir grímugerð eða ``model_path`` fyrir ályktun flokkunarlíkans. Python og vinnubækur nota sama líkansuppflettara. Þegar verkflæðið keyrir er skráð líkansskrá sem vantar sótt í gegnum Model Zoo, staðfest með gátsummunni sem skráð er í líkanaskránni og geymd í skyndiminni til endurnotkunar. Forkönnun þekkir skráð líkön sem hægt er að sækja án þess að sækja líkansvigtirnar. Fyrirliggjandi staðbundnar slóðir hafa forgang; óþekkt staðbundin slóð sem vantar eða líkan af rangri gerð veldur villu í stað þess að annað líkan sé valið. Innbyggð grunnlíkön halda venjulegri niðurhalshegðun bakenda síns."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Boolean values in settings CSV files are case-insensitive. ``TRUE`` and ``FALSE``, including surrounding whitespace, load as Python booleans, so spreadsheet-exported settings can pass the same preflight checks on a cluster."

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 18:04-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
@@ -66,6 +66,10 @@ msgstr "Executar o mesmo contrato a partir de um shell"
 
 msgid "The headless command is useful in a scheduler because it validates setting names and values before importing the heavy pipeline stack."
 msgstr "O comando sem interface gráfica é útil em um agendador porque valida os nomes e valores das configurações antes de importar a pesada pilha do pipeline."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use ``spacr-run --list-models`` (or ``--models``) to list registered models, including models that have not been downloaded. Supply the registered key or filename in ``custom_model`` for masking or ``model_path`` for classifier inference. Python and notebook entry points use the same resolver. A missing registered checkpoint is downloaded through Model Zoo when the workflow runs, verified against its catalogue checksum, and cached for reuse. Preflight recognizes registered downloadable selections without downloading the weights. Existing local paths take precedence; an unknown missing local path or a model of the wrong kind raises an error rather than selecting another model. Built-in foundation models retain their backend's normal download behavior."
+msgstr "Use ``spacr-run --list-models`` (ou ``--models``) para listar modelos registrados, incluindo os que ainda não foram baixados. Informe a chave registrada ou o nome do arquivo em ``custom_model`` para gerar máscaras, ou em ``model_path`` para a inferência do classificador. Os pontos de entrada de Python e dos notebooks usam o mesmo resolvedor. Um arquivo de modelo registrado ausente é baixado pelo Model Zoo ao executar o fluxo de trabalho, verificado contra a soma de verificação do catálogo e armazenado em cache para reutilização. A verificação prévia reconhece seleções registradas disponíveis para download sem baixar os pesos. Caminhos locais existentes têm prioridade; um caminho local desconhecido e ausente ou um modelo do tipo errado gera um erro em vez de selecionar outro modelo. Os modelos base integrados mantêm o comportamento normal de download do backend."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Boolean values in settings CSV files are case-insensitive. ``TRUE`` and ``FALSE``, including surrounding whitespace, load as Python booleans, so spreadsheet-exported settings can pass the same preflight checks on a cluster."

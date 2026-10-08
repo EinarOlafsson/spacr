@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 18:04-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -66,6 +66,10 @@ msgstr "शेल से वही अनुबंध चलाएँ"
 
 msgid "The headless command is useful in a scheduler because it validates setting names and values before importing the heavy pipeline stack."
 msgstr "हेडलेस कमांड शेड्यूलर में उपयोगी है क्योंकि यह भारी पाइपलाइन स्टैक आयात करने से पहले सेटिंग नामों और मानों का सत्यापन करती है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use ``spacr-run --list-models`` (or ``--models``) to list registered models, including models that have not been downloaded. Supply the registered key or filename in ``custom_model`` for masking or ``model_path`` for classifier inference. Python and notebook entry points use the same resolver. A missing registered checkpoint is downloaded through Model Zoo when the workflow runs, verified against its catalogue checksum, and cached for reuse. Preflight recognizes registered downloadable selections without downloading the weights. Existing local paths take precedence; an unknown missing local path or a model of the wrong kind raises an error rather than selecting another model. Built-in foundation models retain their backend's normal download behavior."
+msgstr "``spacr-run --list-models`` (या ``--models``) से पंजीकृत मॉडल सूचीबद्ध करें, जिनमें अभी डाउनलोड न हुए मॉडल भी शामिल हैं। मास्क बनाने के लिए ``custom_model`` में और वर्गीकारक अनुमान के लिए ``model_path`` में पंजीकृत कुंजी या फ़ाइलनाम दें। Python और notebook प्रवेश बिंदु एक ही मॉडल रिज़ॉल्वर उपयोग करते हैं। पंजीकृत मॉडल फ़ाइल उपलब्ध न हो तो कार्यप्रवाह चलने पर उसे Model Zoo से डाउनलोड किया जाता है, कैटलॉग की चेकसम से सत्यापित किया जाता है और फिर दोबारा उपयोग के लिए कैश में रखा जाता है। पूर्व-जाँच डाउनलोड योग्य पंजीकृत विकल्पों को पहचानती है, लेकिन मॉडल के वज़न डाउनलोड नहीं करती। मौजूद स्थानीय पथों को प्राथमिकता मिलती है; कोई अज्ञात और अनुपलब्ध स्थानीय पथ या गलत प्रकार का मॉडल मिलने पर दूसरा मॉडल चुनने के बजाय त्रुटि आती है। अंतर्निहित आधार मॉडल अपने बैकएंड का सामान्य डाउनलोड व्यवहार बनाए रखते हैं।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Boolean values in settings CSV files are case-insensitive. ``TRUE`` and ``FALSE``, including surrounding whitespace, load as Python booleans, so spreadsheet-exported settings can pass the same preflight checks on a cluster."

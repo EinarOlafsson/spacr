@@ -107316,14 +107316,14 @@
     "spacr.qt.widgets.setup_card.SetupCard.ink_at": {
       "source_blocks_sha256": [
         "6dafddbfafcdad4bd5812dcd0f52a6907e9f73ae0a3f8a281c7d532643dfb6eb",
-        "0d582bbd6108f166dcf6a3931407c015ecec8df812c082a378508dc8f09866a5",
-        "1e26359689434c82af3467f52d1f49c21f332e8a6d7d575a36dda224d9a90cab",
+        "9792d08ac3f229cf9222e2ee30979b02f4ac793bc12c4e6c039314ef0a011e00",
+        "4c05690d797a20dba56166277023eb344e34c6a480b55334274d03737786cbe4",
         "3ce810dafe4fd36039c0bfb1fe5348318546ae6af19555c28bea823625010d0d",
         "00dfeca0887d7830e6223fc8498f8022408145454b3e09c246d6ed06ab0c2108",
         "1aaa01a2bcaf414a8b9b7f845c2cc91fc27f87dcede4eb7344b163a50cdff21c"
       ],
-      "source_sha256": "c0c6208b03c9ffd8dbe06616dfc44cd4f4e4a041172d6d38575d7c62a1ce4803",
-      "text": "The colour of the run at ``along`` (0 at the tail, 1 at the head).\n\n`glow` and `beat` retain the blue rim in every interface theme; `rainbow`\nwalks the hue along the run and turns it over time, so the light\ncarries a spectrum that moves rather than a band that sits still.\n\nUNDER ``spaceout`` THE RAINBOW MODE OSCILLATES. The\nmark that follows the pointer is the one thing on a card that is\nalready moving, and leaving it a fixed blue under a theme whose\nwhole point is a moving spectrum is what the request is about. Its\nhue is the palette's own drift plus a much faster cycle of its own\n(:data:`SPACEOUT_RIM_PERIOD`), so it belongs to the same spectrum\nthe rest of the window is travelling through instead of being a\nsecond unrelated rainbow.\n\nThe shipped Beat mode retains its blue hue while brightness pulses.\n\n:param along: position along the lit run, 0 at the tail and 1 at the\n    head.\n:param accent: the theme's accent colour; returned as a copy in the\n    plain modes, and its saturation and value set the floor for the\n    spectral ones."
+      "source_sha256": "1e7d8213055d1078e1f78726e5864905b29d60be8919a0c6f76ebbb933713202",
+      "text": "The colour of the run at ``along`` (0 at the tail, 1 at the head).\n\nOutside `spaceout`, `glow` and `beat` retain the blue rim; `rainbow`\nwalks the hue along the run and turns it over time, so the light\ncarries a spectrum that moves rather than a band that sits still.\n\nUNDER ``spaceout`` THE RIM OSCILLATES IN EVERY MODE. The\nmark that follows the pointer is the one thing on a card that is\nalready moving, and leaving it a fixed blue under a theme whose\nwhole point is a moving spectrum is what the request is about. Its\nhue is the palette's own drift plus a much faster cycle of its own\n(:data:`SPACEOUT_RIM_PERIOD`), so it belongs to the same spectrum\nthe rest of the window is travelling through instead of being a\nsecond unrelated rainbow.\n\nThe shipped Beat mode retains its blue hue while brightness pulses.\n\n:param along: position along the lit run, 0 at the tail and 1 at the\n    head.\n:param accent: the theme's accent colour; returned as a copy in the\n    plain modes, and its saturation and value set the floor for the\n    spectral ones."
     },
     "spacr.qt.widgets.setup_card.SetupCard.mode": {
       "source_blocks_sha256": [

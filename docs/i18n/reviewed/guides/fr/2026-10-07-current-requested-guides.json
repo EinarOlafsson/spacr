@@ -1,0 +1,212 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "source_commit": "854cdc0d40bc227186ae2808aaab01a6c9966e81",
+  "method": "Codex AI technical review against each complete English source message, current UI labels, mask undo/identity/overlap behavior and probability/flow definitions. Model draft meaning errors corrected before normal import. No native-speaker signoff.",
+  "original_model_drafts_sha256": "874fd702106c453365aea930f1abc1db13dea3b54f9244ea36048e249fe59c02",
+  "records": [
+    {
+      "domain": "features",
+      "source": "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order.",
+      "source_sha256": "6fb84bd480f9e89ef3b07883c746de76e6c0ee12656701877c6dd6b0359c9df3",
+      "original_model_translation": "Le menu d'animation liste **spaCR field**, **spaCR advection**,**spaCR growth**, [**spaCR waves**,] **spaCR blobs**, (**spaCR aurora**), **spaCR stratified** et **spaCR spinn**, dans cet ordre.",
+      "target": "Le menu d'animation présente **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** et **spaCR spinn**, dans cet ordre."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR growth** — Short mycelial segments grow from one starting point per colony and fork repeatedly. Each fork redirects the continuing tip and starts a daughter tip, so the branched front advances across the screen. Density controls the number of live tips. Older trails fade as new colonies begin; visible ink stays within a quarter of the screen.",
+      "source_sha256": "d58dcef411de016b2e4ed40ee79814985354d7bfa195d086fd58ed61d24e9552",
+      "original_model_translation": "**spaCR growth** — De courts segments mycéliaux poussent à partir d'un point de départ par colonie et fourche à plusieurs reprises. Chaque fourche redirige la pointe continue et commence une pointe fille, de sorte que le front ramifié avance à travers le criblage. La densité contrôle le nombre de bouts vivants.",
+      "target": "**spaCR growth** — De courts segments de mycélium poussent à partir d'un point initial commun par colonie et se ramifient continuellement. Chaque bifurcation réoriente la pointe qui poursuit sa croissance et crée une pointe fille, de sorte que le front ramifié avance sur l'écran. La densité contrôle le nombre de pointes actives. Les traces anciennes s'estompent à mesure que de nouvelles colonies apparaissent ; les tracés visibles occupent au maximum un quart de l'écran."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR waves** — Round points carry travelling waves and move away from the mouse within its enabled radius.",
+      "source_sha256": "6ae907186874ad1d8d67abe6cbc17d3c687afab0840db8dd2dc86dc61aaa17e4",
+      "original_model_translation": "**spaCR waves** — Les points ronds transportent des ondes mobiles et s'éloignent de la souris dans son rayon autorisé.",
+      "target": "**spaCR waves** — Les points ronds transportent des ondes mobiles et s'éloignent de la souris dans son rayon autorisé."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR blobs** — Soft colour blobs, large and small, drift and slowly change size.",
+      "source_sha256": "f6142a51583ab29ac1bbc90e0ddf4e45ec9e4c71ba2b53f73640ea16d9013181",
+      "original_model_translation": "**spaCR blobs** — Blobs de couleur molle, grands et petits, dérivent et changent lentement de taille.",
+      "target": "**spaCR blobs** — Des taches de couleur aux contours doux, grandes et petites, dérivent et changent lentement de taille."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR aurora** — Irregular curtains of fine rays rise from luminous folds, fan towards the sky, and change length and brightness independently. The spaCR palette uses green with pink upper light for this theme; other selected palettes remain available.",
+      "source_sha256": "05fbec1af1efc5636715a6a358398d589e36be2f82319aeeb41ccf3b9033ed78",
+      "original_model_translation": "**spaCR aurora** — Les rideaux irréguliers de rayons fins se lèvent des plis lumineux, les ventilateurs vers le ciel et changent de longueur et de luminosité indépendamment. La palette spaCR utilise le vert avec la lumière supérieure rose pour ce thème; d'autres palettes sélectionnées restent disponibles.",
+      "target": "**spaCR aurora** — Des rideaux irréguliers de fins rayons s'élèvent depuis des plis lumineux, s'ouvrent en éventail vers le ciel et changent indépendamment de longueur et de luminosité. La palette spaCR utilise du vert avec une lumière rose dans la partie supérieure pour ce thème ; les autres palettes disponibles restent utilisables."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR stratified** — A slow starfield moves in three depth layers; **spaCR stratified direction** selects up, down or random travel.",
+      "source_sha256": "a1f74b899259cb37b049b1c165df96ef8c80b752d47dd238fc787f8ef3949fb6",
+      "original_model_translation": "**spaCR stratified** — Un champ d'étoiles lent se déplace en trois couches de profondeur; **Direction de spaCR stratified** sélectionne les déplacements vers le haut, vers le bas ou au hasard.",
+      "target": "**spaCR stratified** — Un champ d'étoiles lent se déplace en trois couches de profondeur; **Direction de spaCR stratified** sélectionne les déplacements vers le haut, vers le bas ou au hasard."
+    },
+    {
+      "domain": "features",
+      "source": "**spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse. Rotation is fastest beside the pointer and fades smoothly to zero at the Mouse gravity radius; changing the radius changes the affected area.",
+      "source_sha256": "d6c57d8434371dbfd65e097e5dde3aab56fe6fbc246535bc005d7a1123a92480",
+      "original_model_translation": "**spaCR spinn** — Les facettes de papier fin se déplacent doucement et tournent localement en réponse à la souris. La rotation est plus rapide à côté du pointeur et s'estompe facilement jusqu'à zéro au rayon de gravité de la souris; changer le rayon change la zone touchée.",
+      "target": "**spaCR spinn** — Les facettes de papier fin se déplacent doucement et tournent localement en réponse à la souris. La rotation est plus rapide à côté du pointeur et s'estompe facilement jusqu'à zéro au rayon de gravité de la souris; changer le rayon change la zone touchée."
+    },
+    {
+      "domain": "features",
+      "source": "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset.",
+      "source_sha256": "f1d600d93414e2c79b01d468668f3b6245b9ebae12d8c49bb9b0d7a19a2aba1d",
+      "original_model_translation": "**Rayon de gravité de la souris** définit la zone touchée comme un pourcentage du bord plus court de l'écran. Sa valeur par défaut est **15%**; définissez-la à **0** pour désactiver l'influence de la souris. **Densité d'animation** modifie le nombre d'éléments indépendamment de **Détails d'animation**, ce qui modifie la résolution de dessin. La densité a un minimum de **1%**; augmentant Detail ne réduit pas la population choisie. Le rendeur limite son travail d'échantillonnage dans le budget du pixel de l ́écran. Sélectionnez **Aléatoire** dans **Palette d'animation** pour les couleurs par élément. Les installations fraîches utilisent **Sombre**, **spaCR field** et la palette d'animation **spaCR**, avec Density **10%**, Gravity **15%**, Detail, Speed and Size **100%** et Page opacité **60%**. **Clignotement des points** contrôle le pourcentage de points visibles qui clignotent en blanc : **0** l'éteint (la valeur par défaut), et les valeurs non nulles vont de 0,00001 % à 10 %. Le réglage s'applique au champ spaCR, à l'advection spaCR, aux ondes spaCR et à la stratification spaCR. Le champ est fondu. La jante bleue utilise une longueur relative du périmètre **17%**, Chase **50%**, l'alignement centré, le mode **Beat** et un cycle **1.5 s**.",
+      "target": "**Rayon de gravité de la souris** définit la zone influencée en pourcentage du bord le plus court de l'écran. La valeur par défaut est **15%** ; choisissez **0** pour désactiver l'influence de la souris. **Densité d'animation** modifie le nombre d'éléments indépendamment de **Détails d'animation**, qui modifie la résolution de dessin. La densité minimale est **1%** ; augmenter les détails ne réduit pas la population choisie. Le moteur de rendu limite son échantillonnage au budget de pixels de l'écran. Choisissez **Aléatoire** dans **Palette d'animation** pour des couleurs individuelles. Les nouvelles installations utilisent **Sombre**, **spaCR field** et la palette d'animation **spaCR**, avec une densité de **10%**, une gravité de **15%**, des détails, une vitesse et une taille de **100%**, et une opacité de page de **60%**. **Clignotement des points** contrôle la proportion de points visibles qui clignotent en blanc : **0** le désactive et constitue la valeur par défaut ; les valeurs positives vont de 0.00001% à 10%. Le réglage s'applique à spaCR field, spaCR advection, spaCR waves et spaCR stratified. L'atténuation du champ est activée. Le bord bleu utilise une longueur relative du périmètre de **17%**, un suivi de **50%**, un alignement centré, le mode **Beat** et un cycle de **1.5 s**. Les préférences enregistrées restent actives jusqu'à leur modification ou réinitialisation."
+    },
+    {
+      "domain": "features",
+      "source": "**Popup wave frequency** sets automatic waves per minute in **spaCR field**. The default is **5 waves/minute**; **0** disables popup waves. When enabled, opening a popup immediately starts the first wave from its centre, followed by waves at the selected rate. Moving the popup moves the origin of new waves; closing it stops new waves while existing waves fade. This control is independent of mouse gravity, dot blinking, density and drawing detail.",
+      "source_sha256": "bc4b37e953592d552059f66aac7427eb3308a93996586bfe4b7300ad4e93c80d",
+      "original_model_translation": "**Fréquence des ondes des fenêtres** définit les ondes automatiques par minute dans **spaCR field**. La valeur par défaut est **5 vagues/minute**; **0** désactive les ondes popup. Lorsqu'elle est activée, l'ouverture d'une popup démarre immédiatement la première vague à partir de son centre, suivie d'ondes à la vitesse sélectionnée. Déplacement de la popup déplace l'origine des nouvelles ondes; fermeture il arrête les nouvelles ondes pendant que les vagues existantes se fanent.",
+      "target": "**Fréquence des ondes des fenêtres** définit le nombre d'ondes automatiques par minute dans **spaCR field**. La valeur par défaut est **5 vagues/minute** ; **0** désactive les ondes des fenêtres contextuelles. Lorsque la fonction est activée, l'ouverture d'une fenêtre démarre immédiatement une première onde depuis son centre, puis les ondes suivantes apparaissent à la fréquence choisie. Déplacer la fenêtre déplace l'origine des nouvelles ondes ; la fermer arrête les nouvelles ondes tandis que les anciennes s'estompent. Ce réglage est indépendant de la gravité de la souris, du clignotement des points, de la densité et des détails de dessin."
+    },
+    {
+      "domain": "features",
+      "source": "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them.",
+      "source_sha256": "d9cc029b023c5fe4479ee6c3ae3e01df08b323f2e9898fc2e15314b10b8b8986",
+      "original_model_translation": "**Contexte des paramètres** reste indépendant de l'animation principale pendant l'application et l'enregistrement. **Aucune** désactive le mouvement popup tout en conservant la jante bleue. **Assombrissement du fond des réglages** contrôle l'opacité de la carte sur son animation, de **0%** à **100%** (par défaut **85%**), combinée à **Opacité de page**. L'opacité de la page s'applique également lorsque le fond des paramètres est **Aucune**. Des valeurs d'obscurité plus élevées couvrent plus de l'animation pour rendre le texte plus facile à lire. Les popups restent au-dessus de leur propre fenêtre spaCR sans utiliser un drapeau mondial toujours sur le dessus, de sorte que d'autres applications peuvent les couvrir.",
+      "target": "**Contexte des paramètres** reste indépendant de l'animation principale lors de l'application comme de l'enregistrement. **Aucune** désactive le mouvement de la fenêtre contextuelle tout en conservant le bord bleu. **Assombrissement du fond des réglages** contrôle l'opacité de la carte des réglages devant son animation, de **0%** à **100%**, avec une valeur par défaut de **85%**, combinée à **Opacité de page**. L'opacité de page s'applique aussi lorsque le fond des réglages est **Aucune**. Des valeurs d'assombrissement plus élevées couvrent davantage l'animation et facilitent la lecture. Les fenêtres contextuelles restent au-dessus de leur propre fenêtre spaCR sans être placées globalement au-dessus de toutes les fenêtres ; les autres applications peuvent donc les couvrir."
+    },
+    {
+      "domain": "features",
+      "source": "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available.",
+      "source_sha256": "d5e22805593c3cde4e6d34ff9dd279e1d192c5a8bc36e1cff2d3b64b9b9bb511",
+      "original_model_translation": "Dans **spaCR field**, le mouvement gauche d'une zone de fond inoccupée pour tirer un patch local de points. Relâcher le bouton lui permet de revenir en douceur sans redémarrer le motif. Ce geste de fond laisse la toile scientifique et les gestes de contrôle disponibles.",
+      "target": "Dans **spaCR field**, faites glisser avec le bouton gauche dans une zone libre du fond pour tirer un groupe local de points. Relâcher le bouton les laisse revenir doucement sans redémarrer le motif. Ce geste sur le fond laisse disponibles les gestes du canevas scientifique et des commandes."
+    },
+    {
+      "domain": "make_masks",
+      "source": "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before manually accepting its objects.",
+      "source_sha256": "634a10eb8471b8a67bd4d81639c291ad3362d89ed1ce0990c72f3ea6f05cca7e",
+      "original_model_translation": "Vous basculez **Loupe** ou appuyez sur **M** pour inspecter les objets proposés autour du pointeur. Sa roue change de boîte zoom; **Shift + wheel** change la taille de la boîte. **Ctrl+L+clic droit** verrouille ou déverrouille la zone. Attendez une mise à jour avant d'accepter manuellement ses objets.",
+      "target": "Activez **Loupe** ou appuyez sur **M** pour examiner les objets proposés autour du pointeur. La molette modifie le zoom du cadre ; **Shift + wheel** modifie sa taille. **Ctrl+L+clic droit** verrouille ou déverrouille le cadre. Attendez la fin de l'actualisation de l'aperçu avant d'accepter manuellement ses objets."
+    },
+    {
+      "domain": "make_masks",
+      "source": "Under **Object detection** → **Magnification settings**, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save** or **Save & Next** to write accepted masks.",
+      "source_sha256": "5a8bdbfe56a759b843b1b9637502650ca5d55525b059bb9540cb565cbacefcbc",
+      "original_model_translation": "Sous **Détection d'objets** → **Réglages du grossissement**, activez **Accepter immédiatement les objets proposés** pour accepter une proposition courante sans cliquer. Le mode Région suit **Objets ajoutés**; le mode Image entière n'accepte que l'objet sous le pointeur. Déplacer hors de l'image ou désactiver le grossissement empêche l'acceptation automatique. Chaque acceptation est irréalisable, et un désuet n'acceptera pas immédiatement la même proposition à nouveau. Utilisez **Enregistrer** ou **Save & Next** pour écrire des masques acceptés.",
+      "target": "Dans **Détection d'objets** → **Réglages du grossissement**, activez **Accepter immédiatement les objets proposés** pour accepter une proposition courante sans cliquer. Cette option est désactivée par défaut. Le mode région suit **Objets ajoutés** ; le mode image entière n'accepte que l'objet sous le pointeur. Sortir de l'image ou désactiver la loupe empêche l'acceptation automatique. Chaque acceptation peut être annulée ; après l'annulation, la même proposition n'est pas immédiatement acceptée de nouveau. Utilisez **Enregistrer** ou **Save & Next** pour écrire les masques acceptés sur disque."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Overlap** chooses what happens when a proposal overlaps an existing mask:",
+      "source_sha256": "af54d2452c6f782e2b8ed4d97939a0a37a5fb5bf50bb8ec2f089c664967203d9",
+      "original_model_translation": "**Chevauchement** choisit ce qui se passe lorsqu'une proposition chevauche un masque existant :",
+      "target": "**Chevauchement** choisit ce qui se passe lorsqu'une proposition chevauche un masque existant :"
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Fuse with existing object** adds the proposal to the existing ID and retains the old object's pixels, including pixels outside the box. A proposal overlapping several objects joins them into the smallest old ID. A proposal on background becomes a new object.",
+      "source_sha256": "1f85feed35d5327911d4c26e71ad0211c01da0b25dacfeef4587ce720096d064",
+      "original_model_translation": "**Fusionner avec l’objet existant** ajoute la proposition à l'ID existant et conserve les pixels de l'ancien objet, y compris les pixels en dehors de la boîte. Une proposition qui chevauche plusieurs objets les rejoint dans le plus petit ancien ID. Une demande sur l'arrière-plan devient un nouvel objet.",
+      "target": "**Fusionner avec l’objet existant** ajoute la proposition à l'ID existant et conserve les pixels de l'ancien objet, y compris hors du cadre. Une proposition chevauchant plusieurs objets les réunit sous le plus petit ancien ID. Une proposition sur le fond devient un nouvel objet."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Add non-overlapping pixels** preserves existing objects and adds the proposal's largest remaining connected piece as a new object.",
+      "source_sha256": "5c6740518691a9b115fac6f8c56f4f25206f0978e7d2615399ac3b1e426c82a9",
+      "original_model_translation": "**Ajouter les pixels sans chevauchement** conserve les objets existants et ajoute la plus grande pièce connectée de la proposition comme nouvel objet.",
+      "target": "**Ajouter les pixels sans chevauchement** conserve les objets existants et ajoute la plus grande pièce connectée de la proposition comme nouvel objet."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Replace overlapping object** removes overlapping old objects in full before adding the proposal. Rejected small proposals remove nothing.",
+      "source_sha256": "153e787e83bebe08d300e34f410af14ec52096d8c9e8eccc9e6d27ea26dafcd1",
+      "original_model_translation": "**Remplacer l’objet chevauché** supprime complètement les anciens objets qui se chevauchent avant d'ajouter la proposition. Rejeté les petites propositions ne supprime rien.",
+      "target": "**Remplacer l’objet chevauché** supprime complètement les anciens objets qui se chevauchent avant d'ajouter la proposition. Rejeté les petites propositions ne supprime rien."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Skip overlapping objects** ignores proposals that overlap existing masks.",
+      "source_sha256": "94c92b2fd888685cb2c6bfe40f217d3e9b9997b017e1c6c49cf9d35570618fa1",
+      "original_model_translation": "**Ignorer les objets chevauchés** ignore les propositions qui chevauchent les masques existants.",
+      "target": "**Ignorer les objets chevauchés** ignore les propositions qui chevauchent les masques existants."
+    },
+    {
+      "domain": "make_masks",
+      "source": "Secondary mode preserves primary IDs and does not allow fusing identities. Explicit click-and-drag editing retains its single undo step.",
+      "source_sha256": "f34e5e79f3c51a76c21475f5e6d2214e13b870ad02096d6b1a2a8a7e36891242",
+      "original_model_translation": "Le mode secondaire préserve les identifiants primaires et n'autorise pas la fusion d'identités. L'édition explicite de clic-drag conserve sa seule étape de désactivation.",
+      "target": "Le mode secondaire préserve les ID primaires et ne permet pas de fusionner les identités. L'édition explicite par clic et glissement conserve une seule étape d'annulation."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Saved segmentation diagnostics",
+      "source_sha256": "0638dcc7f961ff9681d512553184a84a0f4f7cc08c0d3434b71569b11878a011",
+      "original_model_translation": "Diagnostic de segmentation sauvegardé",
+      "target": "Diagnostics de segmentation enregistrés"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Plaque mode writes these columns for each plaque in ``per_plaque`` and ``details`` in ``<src>/masks/plaques_analysis.db``, and exports ``<src>/masks/per_plaque.csv``. Figure mode writes the same columns in the ``plaques`` table of ``plaque_figures.db``.",
+      "source_sha256": "3822bf413fac16acc6f480cd9c20831605010b47254b8255401e416e3b461696",
+      "original_model_translation": "Le mode Plaque écrit ces colonnes pour chaque plaque dans ``per_plaque`` et ``details`` dans ``<src>/masks/plaques_analysis.db``, et exporte ``<src>/masks/per_plaque.csv``. Le mode Figure écrit les mêmes colonnes dans la table ``plaques`` de ``plaque_figures.db``.",
+      "target": "Le mode Plaque écrit ces colonnes pour chaque plaque dans ``per_plaque`` et ``details`` dans ``<src>/masks/plaques_analysis.db``, et exporte ``<src>/masks/per_plaque.csv``. Le mode Figure écrit les mêmes colonnes dans la table ``plaques`` de ``plaque_figures.db``."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Meaning",
+      "source_sha256": "1f5d64b92820f8238635b90ae69a38c12661a7b03c6d0d7f689711f12af7b7f9",
+      "original_model_translation": "Signification",
+      "target": "Signification"
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Mean raw Cellpose cell-probability score across the plaque's pixels. These scores are logits, can be negative and are not calibrated probabilities or confidence percentages.",
+      "source_sha256": "e318e7b610960e98116b4586514c3d69a92460cc43942e3764ed67056e13513c",
+      "original_model_translation": "Score brut moyen Cellpose de probabilité de cellules sur les pixels de la plaque. Ces scores sont logits, peuvent être négatifs et ne sont pas étalonnés probabilités ou pourcentages de confiance.",
+      "target": "Moyenne des scores bruts de probabilité cellulaire de Cellpose sur les pixels de la plaque. Ces scores sont des logits, peuvent être négatifs et ne constituent ni des probabilités calibrées ni des pourcentages de confiance."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Cellpose's sum of the two component mean squared errors between mask-derived diffusion flows and predicted flows divided by five. Lower values mean better flow agreement with the saved mask.",
+      "source_sha256": "40cfc84921155fb9be3bc65f2ef3374f3cefc80885504d58e6b713c1f32343ce",
+      "original_model_translation": "La somme de Cellpose des erreurs carrées moyennes des deux composantes entre les flux de diffusion dérivés du masque et les flux prévus divisés par cinq. Les valeurs inférieures signifient un meilleur accord de débit avec le masque sauvé.",
+      "target": "Somme calculée par Cellpose des erreurs quadratiques moyennes des deux composantes entre les flux de diffusion dérivés du masque et les flux prédits divisés par cinq. Des valeurs plus faibles indiquent une meilleure concordance des flux avec le masque enregistré."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Mean predicted flow-vector length within the plaque, divided by five to use Cellpose's mask-flow scale. This describes flow strength; higher values alone do not imply a better segmentation.",
+      "source_sha256": "e7829a710a5592ed2c033e1bbdbfbbdf0eb0bf491fa11adabddbb6131a300825",
+      "original_model_translation": "La longueur moyenne prédite du vecteur de flux dans la plaque, divisée par cinq pour utiliser l'échelle de flux masque de Cellpose. Ceci décrit la résistance du flux; des valeurs plus élevées à elles seules n'impliquent pas une meilleure segmentation.",
+      "target": "Longueur moyenne des vecteurs de flux prédits dans la plaque, divisée par cinq pour utiliser l'échelle des flux du masque de Cellpose. Elle décrit l'intensité du flux ; des valeurs plus élevées n'indiquent pas, à elles seules, une meilleure segmentation."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Mean directional cosine between predicted and mask-derived flows, excluding zero-length vectors. Values range from -1 to 1; 1 means matching directions and -1 means opposite directions.",
+      "source_sha256": "c34d264d5cb90ea679181fb6f3e17b30ef9b41f736415493a1750723e2e6fd32",
+      "original_model_translation": "Cosinus directionnel moyen entre les flux prévus et les flux dérivés du masque, à l'exclusion des vecteurs de longueur zéro. Les valeurs varient de -1 à 1; 1 signifie directions correspondantes et -1 signifie directions opposées.",
+      "target": "Cosinus directionnel moyen entre les flux prévus et les flux dérivés du masque, à l'exclusion des vecteurs de longueur zéro. Les valeurs varient de -1 à 1; 1 signifie directions correspondantes et -1 signifie directions opposées."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Fraction of plaque pixels with finite probability scores or finite two-component flow vectors. These describe output coverage.",
+      "source_sha256": "7a7509927cc78bf11411b43bb20d108ef905242b56cdde33a7dad3207afe35ad",
+      "original_model_translation": "Fraction de pixels de plaques avec des scores de probabilité finis ou des vecteurs de flux finis à deux composants.",
+      "target": "Fraction des pixels de la plaque possédant des scores de probabilité finis ou des vecteurs de flux finis à deux composantes. Ces valeurs décrivent la couverture des sorties."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Flow agreement can help flag merged or poorly divided plaques, but does not establish biological accuracy; inspect the image and mask together. Missing outputs, incompatible output grids and unavailable comparisons are saved as blank CSV cells or SQL NULL, rather than zero. Probability and flow magnitude means use finite pixels. Flow error and alignment require finite predicted flows throughout the foreground; a comparison failure leaves them blank. Comparisons run on CPU and do not change the model's segmentation.",
+      "source_sha256": "deeb1d334a43acb08405a871ed67d62da48ee2e37d443352c172160ada75fc84",
+      "original_model_translation": "Les sorties manquantes, les grilles de sortie incompatibles et les comparaisons non disponibles sont enregistrées sous forme de cellules vierges CSV ou SQL NULL, plutôt que de zéro. La probabilité et la magnitude du flux signifient utiliser des pixels finis. L'erreur de flux et l'alignement nécessitent des débits prévus finis tout au long du premier plan; une défaillance de comparaison les laisse vides. Les comparaisons fonctionnent sur CPU et ne changent pas la segmentation du modèle.",
+      "target": "La concordance des flux peut aider à repérer des plaques fusionnées ou mal séparées, mais ne démontre pas l'exactitude biologique ; examinez ensemble l'image et le masque. Les sorties absentes, les grilles de sortie incompatibles et les comparaisons indisponibles sont enregistrées comme cellules CSV vides ou SQL NULL, et non comme zéro. Les moyennes de probabilité et de magnitude du flux utilisent les pixels finis. L'erreur et l'alignement du flux exigent des flux prédits finis sur tout le premier plan ; un échec de comparaison laisse ces valeurs vides. Les comparaisons s'exécutent sur CPU et ne modifient pas la segmentation du modèle."
+    },
+    {
+      "domain": "plaque_assay",
+      "source": "Each generated mask also has a ``<image>.diagnostics.csv`` sidecar carrying the original per-plaque diagnostics and a mask fingerprint. A run with ``masks=False`` reuses it only when the saved mask still matches. Editing a mask invalidates these model diagnostics; regenerate masks to obtain fresh ones. Existing masks without a sidecar retain their measurements and have blank diagnostic columns. Figure workflows with a custom callback returning only labels also leave the diagnostic columns blank.",
+      "source_sha256": "938ae04b654aac15980290073541a5f9355ce5fbd450c3c6fe60f8901729c027",
+      "original_model_translation": "Chaque masque généré a également un sidecar ``<image>.diagnostics.csv`` portant le diagnostic original par plaque et une empreinte de masque. Une opération avec ``masks=False`` le réutilise seulement lorsque le masque enregistré correspond encore. Modifier un masque invalide ces diagnostics de modèle; régénérer les masques pour en obtenir de nouveaux. Les masques existants sans side-car conservent leurs mesures et ont des colonnes de diagnostic vierges.",
+      "target": "Chaque masque généré possède aussi un fichier associé ``<image>.diagnostics.csv`` contenant les diagnostics d'origine par plaque et une empreinte du masque. Une exécution avec ``masks=False`` ne le réutilise que si le masque enregistré correspond toujours. Modifier un masque invalide ces diagnostics du modèle ; régénérez les masques pour obtenir de nouvelles valeurs. Les masques existants sans fichier associé conservent leurs mesures et ont des colonnes de diagnostic vides. Les traitements de figures avec une fonction callback personnalisée qui renvoie uniquement les étiquettes laissent également les colonnes de diagnostic vides."
+    }
+  ]
+}

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 09:12-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -237,12 +237,12 @@ msgid "Data-art themes"
 msgstr "Teman med datakonst"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Under **Preferences** → **Appearance** → **Theme**, seven data-art presets each select an interface palette and an animated background. The ten night themes remain available. **Animation** lets you choose a background independently; select **None** for a static background. These backgrounds are decorative and do not display project measurements."
-msgstr "Under **Inställningar** → **Utseende** → **Tema** väljer vart och ett av sju datakonstförval en gränssnittspalett och en animerad bakgrund. De tio nattemana finns kvar. **Animation** låter dig välja bakgrund separat; välj **Ingen** för en stilla bakgrund. Bakgrunderna är dekorativa och visar inga projektmätningar."
+msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
+msgstr "Under **Inställningar** → **Utseende** väljer **Tema** gränssnittets palett; de tio nattpaletterna finns kvar. **Animation** väljer en dekorativ bakgrund oberoende av detta, eller **Ingen** för att stoppa den. Bakgrunderna visar inga projektmätningar. Huvudfönstret använder **spaCR field** som standard; inställningsfönstrets bakgrund använder **Ingen** som standard."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The animation menu begins with **spaCR field** (the default), **spaCR advection**, **spaCR growth**, **spaCR Thore**, **spaCR waves**, and **Blobs**, followed by the remaining backgrounds."
-msgstr "Animationsmenyn börjar med **spaCR field** (standardvalet), **spaCR advection**, **spaCR growth**, **spaCR Thore**, **spaCR waves** och **Blobbar**, följt av de övriga bakgrunderna."
+msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
+msgstr "Animeringsmenyn listar **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** och **spaCR spinn**, i den ordningen."
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — Ett skarpt gravitationsfält av punkter med valfri lokal muspåverkan och växande ringvågor."
@@ -250,25 +250,49 @@ msgstr "**spaCR field** — Ett skarpt gravitationsfält av punkter med valfri l
 msgid "**spaCR advection** — Fine particles form evolving vortices and branching currents, with optional mouse gravity."
 msgstr "**spaCR advection** — Fina partiklar bildar föränderliga virvlar och förgrenade strömmar, med valfri musgravitation."
 
-#, python-format
-msgid "**spaCR growth** — A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop."
-msgstr "**spaCR growth** — En enda förgrenad växtfront går kontinuerligt framåt medan spåret tonar bort och täcker högst 25% av bakgrunden."
-
-msgid "**spaCR Thore** — Fine background rain and branching lightning briefly illuminate the scene."
-msgstr "**spaCR Thore** — Fint regn i bakgrunden och förgrenade blixtar lyser kort upp scenen."
-
-msgid "**spaCR waves** — An edge-free landscape of round points carries wide travelling waves."
-msgstr "**spaCR waves** — Ett landskap av runda punkter utan synliga kanter bär breda vandrande vågor."
-
-msgid "**Tissue facets** — Fine paper facets move gently and respond locally to the mouse."
-msgstr "**Vävnadsfacetter** — Fina pappersfasetter rör sig försiktigt och reagerar lokalt på musen."
-
-msgid "**Chromatin satin** — Fine chromatin fibres undulate in travelling waves across folded ribbons."
-msgstr "**Kromatinsatin** — Fina kromatinfibrer böljar i vandrande vågor över vikta band."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR growth** — Short mycelial segments grow from one starting point per colony and fork repeatedly. Each fork redirects the continuing tip and starts a daughter tip, so the branched front advances across the screen. Density controls the number of live tips. Older trails fade as new colonies begin; visible ink stays within a quarter of the screen."
+msgstr "**spaCR growth** — Korta mycelsegment växer från en gemensam utgångspunkt per koloni och förgrenas upprepade gånger. Vid varje förgrening ändrar den fortsatta tillväxtspetsen riktning och en ny sidospets bildas, så att den förgrenade fronten rör sig över skärmen. Tätheten styr antalet aktiva tillväxtspetsar. Äldre spår bleknar när nya kolonier börjar växa; de synliga linjerna täcker högst en fjärdedel av skärmen."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **0**, which disables mouse influence. Use **Animation density** to change the number of elements and **Animation detail** to change drawing resolution. Density and detail share the renderer's work budget. Press **Save** to keep preference changes."
-msgstr "**Musgravitationens radie** anger det påverkade området som procent av skärmens kortare sida. Standardvärdet är **0**, vilket stänger av musens påverkan. Använd **Animationstäthet** för att ändra antalet element och **Animeringsuppgifter** för att ändra ritupplösningen. Täthet och detaljnivå delar renderarens arbetsbudget. Tryck på **Spara** för att behålla ändrade inställningar."
+msgid "**spaCR waves** — Round points carry travelling waves and move away from the mouse within its enabled radius."
+msgstr "**spaCR waves** — Runda punkter bär vandrande vågor och rör sig bort från muspekaren inom dess aktiverade påverkansradie."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR blobs** — Soft colour blobs, large and small, drift and slowly change size."
+msgstr "**spaCR blobs** — Mjuka färgfläckar i olika storlekar driver omkring och ändrar långsamt storlek."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR aurora** — Irregular curtains of fine rays rise from luminous folds, fan towards the sky, and change length and brightness independently. The spaCR palette uses green with pink upper light for this theme; other selected palettes remain available."
+msgstr "**spaCR aurora** — Oregelbundna draperier av fina ljusstrålar stiger från lysande veck, breder ut sig mot himlen och ändrar längd och ljusstyrka oberoende av varandra. spaCR-paletten använder grönt med rosa ljus upptill för detta tema; de andra valbara paletterna kan också användas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR stratified** — A slow starfield moves in three depth layers; **spaCR stratified direction** selects up, down or random travel."
+msgstr "**spaCR stratified** — Ett långsamt stjärnfält rör sig i tre djuplager; **Riktning för spaCR stratified** väljer rörelse uppåt, nedåt eller i slumpmässig riktning."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse. Rotation is fastest beside the pointer and fades smoothly to zero at the Mouse gravity radius; changing the radius changes the affected area."
+msgstr "**spaCR spinn** — Små pappersfacetter rör sig försiktigt och roterar lokalt som svar på muspekaren. Rotationen är snabbast nära pekaren och avtar jämnt till noll vid musgravitationens radie; radien bestämmer vilket område som påverkas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
+msgstr "**Musgravitationens radie** anger det påverkade området som en procentandel av skärmens kortare kant. Standardvärdet är **15%**; välj **0** för att stänga av musens påverkan. **Animationstäthet** ändrar antalet element oberoende av **Animationsdetaljer**, som ändrar ritupplösningen. Täthetens lägsta värde är **1%**; ökad detaljnivå minskar inte det valda antalet element. Renderaren begränsar sitt samplingsarbete till skärmens pixelbudget. Välj **Slumpmässig** i **Animeringspalett** för individuella färger. Nya installationer använder **Mörkt**, **spaCR field** och animeringspaletten **spaCR**, med täthet **10%**, gravitation **15%**, detaljnivå, hastighet och storlek **100%** samt sidopacitet **60%**. **Blinkande punkter** anger andelen synliga punkter som blinkar vitt: **0** stänger av blinkningen och är standardvärdet; värden över noll ligger mellan 0.00001% och 10%. Inställningen gäller spaCR field, spaCR advection, spaCR waves och spaCR stratified. Fältets toning är på. Den blå kanten använder en relativ omkretslängd på **17%**, följsamhet **50%**, centrerad placering, läget **Beat** och en cykel på **1.5 s**. Befintliga sparade inställningar gäller tills de ändras eller återställs."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Popup wave frequency** sets automatic waves per minute in **spaCR field**. The default is **5 waves/minute**; **0** disables popup waves. When enabled, opening a popup immediately starts the first wave from its centre, followed by waves at the selected rate. Moving the popup moves the origin of new waves; closing it stops new waves while existing waves fade. This control is independent of mouse gravity, dot blinking, density and drawing detail."
+msgstr "**Frekvens för popupvågor** anger antalet automatiska vågor per minut i **spaCR field**. Standardvärdet är **5 vågor/minut**; **0** stänger av popupvågor. När funktionen är på startar den första vågen direkt från mitten av ett popupfönster när det öppnas, följd av vågor med vald frekvens. Om fönstret flyttas följer ursprunget för nya vågor med; när fönstret stängs upphör nya vågor medan befintliga vågor tonas bort. Inställningen är oberoende av musgravitation, punktblinkning, täthet och ritdetaljer."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Apply** to preview changes while Preferences stays open. A separate question offers **Keep** or **Revert**. Revert restores the saved and live settings; your edited controls remain available to change or apply again. Closing the question also reverts. **Save** keeps changes and closes Preferences."
+msgstr "Tryck på **Verkställ** för att förhandsvisa ändringar medan inställningsfönstret förblir öppet. En separat fråga erbjuder **Behåll** eller **Återställ**. Återställning återför både sparade och aktiva inställningar; de redigerade reglagen finns kvar för ändring eller ny tillämpning. Om frågan stängs återställs inställningarna också. **Spara** behåller ändringarna och stänger inställningsfönstret."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
+msgstr "**Bakgrund för inställningar** är oberoende av huvudfönstrets animering både när Verkställ och Spara används. **Ingen** stänger av rörelse i popupfönstret men behåller den blå kanten. **Mörker i inställningsbakgrunden** styr inställningskortets opacitet över dess animering, från **0%** till **100%**, med standardvärdet **85%**, i kombination med **Sidopacitet**. Sidopacitet gäller även när inställningsbakgrunden är **Ingen**. Högre mörkervärden täcker mer av animeringen så att texten blir lättare att läsa. Popupfönster ligger över sitt eget spaCR-fönster utan en global inställning som håller dem över alla andra fönster; andra program kan därför täcka dem."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."
+msgstr "I **spaCR field** kan du dra med vänster musknapp i ett tomt bakgrundsområde för att dra i en lokal grupp punkter. När du släpper knappen återgår punkterna mjukt utan att mönstret startas om. Bakgrundsgesten hindrar inte gester i den vetenskapliga bildytan eller i kontrollerna."
 
 msgid "Arranging the window"
 msgstr "Ordna fönstret"
@@ -282,8 +306,9 @@ msgstr "**Dockan**: medan den visas kan du dra i dess kant för att göra den br
 msgid "**A module's right-hand column** (console, actions and the other panels) resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it to make its text larger or smaller; **Ctrl+0** over the column returns to the default size."
 msgstr "**En moduls högra kolumn** (konsol, åtgärder och de andra panelerna) ändrar storlek som en enhet när du drar i dess vänstra kant. Håll ned **Ctrl** och rulla över den för att göra texten större eller mindre; **Ctrl+0** över kolumnen återgår till standardstorleken."
 
-msgid "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to setting help, hint strips and other hover help. Turn tooltips off with **Show tooltips** on the same page."
-msgstr "**Verktygstips** visas när pekaren har vilat på en kontroll under den **Fördröjning för knappbeskrivningar** som anges i **Inställningar → Utseende** (2,0 s som standard; 0 visar dem direkt) och ligger kvar medan pekaren är på dem. Samma fördröjning gäller för inställningshjälp, tipsremsor och annan hovringshjälp. Stäng av verktygstips med **Visa verktygstips** på samma sida."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to popup tooltips. Fixed hint text at the bottom of Home and Preferences appears immediately. Turn popup tooltips off with **Show tooltips** on the same page."
+msgstr "**Verktygstips** visas när pekaren har vilat över ett reglage under den **Fördröjning för knappbeskrivningar** som anges i **Inställningar → Utseende** (2.0 s som standard; 0 visar dem direkt), och finns kvar medan pekaren är där. Samma fördröjning gäller för popupverktygstips. Den fasta hjälptexten längst ned på startsidan och i inställningsfönstret visas direkt. Stäng av popupverktygstips med **Visa verktygstips** på samma sida."
 
 msgid "These sizes are remembered between sessions."
 msgstr "Dessa storlekar sparas mellan sessionerna."
@@ -301,7 +326,7 @@ msgstr "**Ruta** ritar oberoende rektanglar med klassetiketter för YOLO-annoter
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. **Divide / Merge** splits an object with a left-dragged line: the larger component retains its ID and the smaller receives a new one. Right-drag a line across objects to merge them under the first crossed ID, without painting the background between them. Other objects keep their labels."
-msgstr "Draw ritar en frihandskontur som sluts och fylls som ett enda objekt -- till skillnad från en pensel, som stämplar skivor längs banan: när du följer en kant märks kanten, medan mitten förblir bakgrund. **Divide / Merge** delar ett objekt med en linje som dras med vänster musknapp: den större delen behåller sitt ID och den mindre får ett nytt. Dra en linje över objekt med höger musknapp för att slå samman dem under det först korsade ID:t, utan att måla bakgrunden mellan dem. Andra objekt behåller sina etiketter."
+msgstr "Draw ritar en frihandskontur som sluts och fylls som ett enda objekt -- till skillnad från en pensel, som stämplar skivor längs banan: när du följer en kant märks kanten, medan mitten förblir bakgrund. **Dela / Slå samman** delar ett objekt med en linje som dras med vänster musknapp: den större delen behåller sitt ID och den mindre får ett nytt. Dra en linje över objekt med höger musknapp för att slå samman dem under det först korsade ID:t, utan att måla bakgrunden mellan dem. Andra objekt behåller sina etiketter."
 
 msgid "Recrop is the only tool that changes which field is on screen rather than what is painted on it. A staged crop holding several cells is not one training example, and curating it as one teaches a network that two objects are one picture -- so a box round an object writes that region of both the image and the mask as a field of its own, queued straight after the current one, and the multi-object original is retired into ``recropped_originals/`` rather than curated. A box smaller than the minimum side, or one repeating a cut already made, is refused; objects the box cuts through are dropped, because an object whose boundary is where the mouse was released is not that object; and the labels that survive are renumbered from one."
 msgstr "Recrop är det enda verktyget som ändrar vilket fält som visas på skärmen snarare än vad som målas på det. Ett iscensatt utsnitt som innehåller flera celler är inte ett enda träningsexempel, och att kurera det som ett lär ett nätverk att två objekt är en bild -- så en ruta runt ett objekt skriver det området av både bilden och masken som ett eget fält, köat direkt efter det aktuella, och originalet med flera objekt flyttas till ``recropped_originals/`` i stället för att kureras. En ruta som är mindre än den minsta sidan, eller som upprepar ett snitt som redan gjorts, avvisas; objekt som rutan skär igenom tas bort, eftersom ett objekt vars gräns är där musknappen släpptes inte är det objektet; och de etiketter som finns kvar numreras om från ett."

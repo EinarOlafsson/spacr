@@ -1,0 +1,132 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "Preview the edits and ask separately, keeping this dialog open.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply#0",
+      "source": "Preview the edits and ask separately, keeping this dialog open.",
+      "source_sha256": "d04d414af71b02010b7948e0c109699fe6fe18900ca3730aa78db848011eeb38",
+      "translation": "बदलावों का पूर्वावलोकन करें और इस संवाद को खुला रखते हुए अलग से पूछें।"
+    },
+    {
+      "context": "Only keys changed by this application are rolled back. New notification secrets are written only after Keep, so Revert cannot leave a replacement password in an external keyring. Edited controls remain available as a draft after Revert.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply#1",
+      "source": "Only keys changed by this application are rolled back. New notification secrets are written only after Keep, so Revert cannot leave a replacement password in an external keyring. Edited controls remain available as a draft after Revert.",
+      "source_sha256": "8faa3777e4f3b6d97ba22d7919e9f4e64f5236b931b38fe9c04c830f48fbece3",
+      "translation": "केवल इस बार लागू किए गए बदलावों से बदली सेटिंग कुंजियाँ वापस की जाती हैं। नई सूचना संबंधी गुप्त जानकारी केवल Keep के बाद लिखी जाती है, इसलिए Revert बाहरी कीरिंग में प्रतिस्थापन पासवर्ड नहीं छोड़ सकता। Revert के बाद संपादित नियंत्रण मसौदे के रूप में उपलब्ध रहते हैं।"
+    },
+    {
+      "context": "Keep or revert once, then release the question and enable another Apply.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._answered#0",
+      "source": "Keep or revert once, then release the question and enable another Apply.",
+      "source_sha256": "79631e61ec077a4bef2af9cc1cfbacff11e0561b55a2496e937ec26b6bd681f9",
+      "translation": "केवल एक बार बदलाव रखें या वापस करें, फिर प्रश्न बंद करके दोबारा Apply की अनुमति दें।"
+    },
+    {
+      "context": "Read the network configuration bytes, or None when no file exists.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._network_bytes#0",
+      "source": "Read the network configuration bytes, or None when no file exists.",
+      "source_sha256": "9ae21a6e96c1c1d8fcd6ed3ff8009c316def332d423a99f0af0a1c51361e4d24",
+      "translation": "नेटवर्क कॉन्फ़िगरेशन के बाइट पढ़ें, या फ़ाइल न होने पर None लौटाएँ।"
+    },
+    {
+      "context": "Restore this preview's changed structured-data names, network configuration and live appearance.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._restore#0",
+      "source": "Restore this preview's changed keys, network configuration and live appearance.",
+      "source_sha256": "611944a58c77c3bc7f86446cd5a81331aa2af0d7c751270755ca0fbf117fe29a",
+      "translation": "इस पूर्वावलोकन में बदली सेटिंग कुंजियाँ, नेटवर्क कॉन्फ़िगरेशन और वर्तमान दृश्य रूप वापस स्थापित करें।"
+    },
+    {
+      "context": "Copy persisted preference values, bypassing any temporary store shadow.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._snapshot#0",
+      "source": "Copy persisted preference values, bypassing any temporary store shadow.",
+      "source_sha256": "dfb76f68e74cb7ea50c0f5b25b968da4aeee0f435ced2c01005bc6b18180f2eb",
+      "translation": "स्थायी रूप से सहेजे गए प्राथमिकता मान कॉपी करें, सेटिंग भंडार की किसी अस्थायी ओवरले परत को छोड़ते हुए।"
+    },
+    {
+      "context": "Keep the logarithmic slider aligned with an exact percentage.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._blink_value_changed#0",
+      "source": "Keep the logarithmic slider aligned with an exact percentage.",
+      "source_sha256": "448398b16ec80a05ba19818838b0b3ae55ad63b5a668dd1e5c3c14ac841ce806",
+      "translation": "लघुगणकीय स्लाइडर को सटीक प्रतिशत के साथ संगत रखें।"
+    },
+    {
+      "context": "Set the percentage of dot centres flashing white, without reseeding.",
+      "label": "spacr.qt.widgets.ambient.AmbientEngine.set_blink_percent#0",
+      "source": "Set the percentage of dot centres flashing white, without reseeding.",
+      "source_sha256": "bb08b4ca1797ac8a91ab72ce393c783228bce07be684a9399ba3745492439135",
+      "translation": "बिंदुओं को फिर से उत्पन्न किए बिना सफेद चमकने वाले बिंदु केंद्रों का प्रतिशत निर्धारित करें।"
+    },
+    {
+      "context": "Set popup-origin waves per minute; zero disables automatic waves.",
+      "label": "spacr.qt.widgets.ambient.AmbientEngine.set_popup_wave_frequency#0",
+      "source": "Set popup-origin waves per minute; zero disables automatic waves.",
+      "source_sha256": "d7c686fccd3ed08d22446df4fa0ce528c8eb96f25291068c6194d5768711d668",
+      "translation": "पॉपअप से शुरू होने वाली प्रति मिनट तरंगों की संख्या निर्धारित करें; शून्य स्वचालित तरंगें बंद करता है।"
+    },
+    {
+      "context": "The selected percentage of visible dots that flash white.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.blink_percent#0",
+      "source": "The selected percentage of visible dots that flash white.",
+      "source_sha256": "44823758ce909fbc8166fca584fa2b8b4062b7b8fc6de01e32f662332b5dc559",
+      "translation": "सफेद चमकने वाले दिखाई देने वाले बिंदुओं का चुना हुआ प्रतिशत।"
+    },
+    {
+      "context": "Automatic waves per minute from the centre of an open popup.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.popup_wave_frequency#0",
+      "source": "Automatic waves per minute from the centre of an open popup.",
+      "source_sha256": "52d75e3e9c710f999419908c90b565909759b7bdaf8380ff2b220be0f6c9e616",
+      "translation": "खुले पॉपअप के केंद्र से निकलने वाली प्रति मिनट स्वचालित तरंगें।"
+    },
+    {
+      "context": "Update dot flashes through the normal serialized engine mutation.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_blink_percent#0",
+      "source": "Update dot flashes through the normal serialized engine mutation.",
+      "source_sha256": "2d463ef858679b72b029f252a8ae8bfe0eca815bdf566e0610daddbc66e5f68b",
+      "translation": "इंजन के सामान्य क्रमिक बदलाव पथ से बिंदुओं की चमक अद्यतन करें।"
+    },
+    {
+      "context": "percentage of visible dots flashing white, clamped to zero through ten; zero disables blinking.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_blink_percent#1",
+      "source": "percentage of visible dots flashing white, clamped to zero through ten; zero disables blinking.",
+      "source_sha256": "e2fd97e8baf2807f996960c866c3297764d5cb50250ea9d9c256bffc3438decd",
+      "translation": "सफेद चमकने वाले दिखाई देने वाले बिंदुओं का प्रतिशत, शून्य से दस तक सीमित; शून्य चमक बंद करता है।"
+    },
+    {
+      "context": "Change popup waves without changing pointer reach or dot population.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency#0",
+      "source": "Change popup waves without changing pointer reach or dot population.",
+      "source_sha256": "26a044f01b39376310a6f39c590b3d98df1845fb0fe367d0f5bc3f17f34e6cd1",
+      "translation": "पॉइंटर की पहुँच या बिंदुओं की संख्या बदले बिना पॉपअप तरंगें बदलें।"
+    },
+    {
+      "context": "popup waves per minute, clamped to zero through sixty; zero disables popup waves.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency#1",
+      "source": "popup waves per minute, clamped to zero through sixty; zero disables popup waves.",
+      "source_sha256": "60a4a0ccf971ad5d4b20041e03f6bf2c0504c4bcc0e5eba53e37b80a02a713b3",
+      "translation": "प्रति मिनट पॉपअप तरंगें, शून्य से साठ तक सीमित; शून्य पॉपअप तरंगें बंद करता है।"
+    },
+    {
+      "context": "Report the aurora sampling ratio for explicit detail controls.",
+      "label": "spacr.qt.widgets.ambient.AuroraEngine.buffer_scale#0",
+      "source": "Report the aurora sampling ratio for explicit detail controls.",
+      "source_sha256": "d42a5c7f00a6d247d74b2a703c1d855bf5eb7336440e28a09f72e2630b03925e",
+      "translation": "स्पष्ट विवरण नियंत्रणों के लिए ऑरोरा का सैंपलिंग अनुपात बताएँ।"
+    },
+    {
+      "context": "Sample native display pixels within the actual application view budget.",
+      "label": "spacr.qt.widgets.ambient.AuroraEngine.buffer_size#0",
+      "source": "Sample native display pixels within the actual screen budget.",
+      "source_sha256": "03a821840080d7fbc41c911a45759f1fd09e682d71e23bb5e5a5bdbb71d86a62",
+      "translation": "वास्तविक अनुप्रयोग दृश्य के बजट के भीतर स्क्रीन के मूल पिक्सेल का सैंपल लें।"
+    },
+    {
+      "context": "Sample dots at the chosen Detail within the display pixel ceiling.",
+      "label": "spacr.qt.widgets.ambient.DriftEngine.buffer_size#0",
+      "source": "Sample dots at the chosen Detail within the display pixel ceiling.",
+      "source_sha256": "49bd6c339b9f9c70b74f4ef2098e217daeceb24678734567ed5899e720fb188e",
+      "translation": "चुने हुए विवरण स्तर पर बिंदुओं का सैंपल लें, स्क्रीन पिक्सेल सीमा के भीतर।"
+    }
+  ],
+  "schema": 1
+}

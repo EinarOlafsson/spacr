@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 18:04-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -423,8 +423,37 @@ msgstr "关于标签、来源和诊断约定，请参阅 :func:`spacr.qt.mask_en
 msgid "Live magnifier, filtering and measurement"
 msgstr "实时放大镜、过滤与测量"
 
-msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before accepting its objects."
-msgstr "切换 **放大镜** 或按 **M**，可检查指针周围的候选对象。其滚轮改变框的缩放；**Shift + wheel** 改变框的大小。**Ctrl+L+右键单击** 锁定或解锁该框。请等待正在更新的预览完成后再接受其对象。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before manually accepting its objects."
+msgstr "启用 **放大镜**或按 **M**，查看指针周围建议的对象。鼠标滚轮改变框内放大倍数；**Shift + wheel**改变框的大小。**Ctrl+L+右键单击**锁定或解锁框。手动接受对象前，请等待预览更新。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Under **Object detection** → **Magnification settings**, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save** or **Save & Next** to write accepted masks."
+msgstr "在 **对象检测** → **放大设置**中启用 **立即接受建议对象**，即可无需点击而接受当前建议。此选项默认关闭。区域模式遵循 **添加的对象**设置；整幅图像模式仅接受指针下方的对象。移出图像或关闭放大镜会停止自动接受。每次接受都可以撤销，撤销后不会立即重新接受同一建议。使用 **保存**或 **Save & Next**将已接受的掩膜写入磁盘。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Overlap** chooses what happens when a proposal overlaps an existing mask:"
+msgstr "**重叠**决定建议对象与现有掩膜重叠时的处理方式："
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Fuse with existing object** adds the proposal to the existing ID and retains the old object's pixels, including pixels outside the box. A proposal overlapping several objects joins them into the smallest old ID. A proposal on background becomes a new object."
+msgstr "**与现有对象合并**将建议区域添加到现有 ID，并保留原对象的全部像素，包括框外像素。如果建议区域与多个对象重叠，则将它们合并到最小的原有 ID 下。只位于背景上的建议会成为一个新对象。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Add non-overlapping pixels** preserves existing objects and adds the proposal's largest remaining connected piece as a new object."
+msgstr "**添加不重叠的像素**保留现有对象，并将建议区域中剩余的最大连通部分作为一个新对象添加。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Replace overlapping object** removes overlapping old objects in full before adding the proposal. Rejected small proposals remove nothing."
+msgstr "**替换重叠对象**先完整移除所有重叠的原对象，再添加建议对象。被拒绝的小建议不会移除任何对象。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Skip overlapping objects** ignores proposals that overlap existing masks."
+msgstr "**跳过重叠对象**忽略与现有掩膜重叠的建议。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Secondary mode preserves primary IDs and does not allow fusing identities. Explicit click-and-drag editing retains its single undo step."
+msgstr "次级模式保留主对象 ID，不允许合并不同身份。显式点击并拖动的编辑操作仍作为一个撤销步骤。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, including Otsu and Cellpose, click and drag to add encountered detections to the object under the initial click. Starting on background creates one new object. Separate detections share that object's ID without filling the background between them; one undo step reverses the drag, and the shared ID survives Save, Next and reopening. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."

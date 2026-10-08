@@ -1,0 +1,132 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "context": "Preview the edits and ask separately, keeping this dialog open.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply#0",
+      "source": "Preview the edits and ask separately, keeping this dialog open.",
+      "source_sha256": "d04d414af71b02010b7948e0c109699fe6fe18900ca3730aa78db848011eeb38",
+      "translation": "Mostra uma prévia das alterações e pergunta separadamente, mantendo esta caixa de diálogo aberta."
+    },
+    {
+      "context": "Only keys changed by this application are rolled back. New notification secrets are written only after Keep, so Revert cannot leave a replacement password in an external keyring. Edited controls remain available as a draft after Revert.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply#1",
+      "source": "Only keys changed by this application are rolled back. New notification secrets are written only after Keep, so Revert cannot leave a replacement password in an external keyring. Edited controls remain available as a draft after Revert.",
+      "source_sha256": "8faa3777e4f3b6d97ba22d7919e9f4e64f5236b931b38fe9c04c830f48fbece3",
+      "translation": "Somente as chaves de configuração alteradas por esta aplicação das mudanças são restauradas. Novos dados secretos de notificação são escritos somente após Keep, de modo que Revert não pode deixar uma senha de substituição em um chaveiro externo. Os controles editados permanecem disponíveis como rascunho após Revert."
+    },
+    {
+      "context": "Keep or revert once, then release the question and enable another Apply.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._answered#0",
+      "source": "Keep or revert once, then release the question and enable another Apply.",
+      "source_sha256": "79631e61ec077a4bef2af9cc1cfbacff11e0561b55a2496e937ec26b6bd681f9",
+      "translation": "Mantém ou reverte as alterações uma única vez; depois fecha a pergunta e permite outro Apply."
+    },
+    {
+      "context": "Read the network configuration bytes, or None when no file exists.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._network_bytes#0",
+      "source": "Read the network configuration bytes, or None when no file exists.",
+      "source_sha256": "9ae21a6e96c1c1d8fcd6ed3ff8009c316def332d423a99f0af0a1c51361e4d24",
+      "translation": "Lê os bytes da configuração de rede, ou None quando não existe arquivo."
+    },
+    {
+      "context": "Restore this preview's changed structured-data names, network configuration and live appearance.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._restore#0",
+      "source": "Restore this preview's changed keys, network configuration and live appearance.",
+      "source_sha256": "611944a58c77c3bc7f86446cd5a81331aa2af0d7c751270755ca0fbf117fe29a",
+      "translation": "Restaura as chaves de configuração alteradas nesta prévia, a configuração de rede e a aparência atual."
+    },
+    {
+      "context": "Copy persisted preference values, bypassing any temporary store shadow.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._snapshot#0",
+      "source": "Copy persisted preference values, bypassing any temporary store shadow.",
+      "source_sha256": "dfb76f68e74cb7ea50c0f5b25b968da4aeee0f435ced2c01005bc6b18180f2eb",
+      "translation": "Copia os valores de preferências salvos de forma persistente, ignorando qualquer sobreposição temporária do armazenamento de configurações."
+    },
+    {
+      "context": "Keep the logarithmic slider aligned with an exact percentage.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._blink_value_changed#0",
+      "source": "Keep the logarithmic slider aligned with an exact percentage.",
+      "source_sha256": "448398b16ec80a05ba19818838b0b3ae55ad63b5a668dd1e5c3c14ac841ce806",
+      "translation": "Mantém o controle deslizante logarítmico alinhado com uma porcentagem exata."
+    },
+    {
+      "context": "Set the percentage of dot centres flashing white, without reseeding.",
+      "label": "spacr.qt.widgets.ambient.AmbientEngine.set_blink_percent#0",
+      "source": "Set the percentage of dot centres flashing white, without reseeding.",
+      "source_sha256": "bb08b4ca1797ac8a91ab72ce393c783228bce07be684a9399ba3745492439135",
+      "translation": "Define a porcentagem de centros de pontos que piscam em branco sem gerar os pontos novamente."
+    },
+    {
+      "context": "Set popup-origin waves per minute; zero disables automatic waves.",
+      "label": "spacr.qt.widgets.ambient.AmbientEngine.set_popup_wave_frequency#0",
+      "source": "Set popup-origin waves per minute; zero disables automatic waves.",
+      "source_sha256": "d7c686fccd3ed08d22446df4fa0ce528c8eb96f25291068c6194d5768711d668",
+      "translation": "Define as ondas por minuto que se originam no popup; zero desativa as ondas automáticas."
+    },
+    {
+      "context": "The selected percentage of visible dots that flash white.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.blink_percent#0",
+      "source": "The selected percentage of visible dots that flash white.",
+      "source_sha256": "44823758ce909fbc8166fca584fa2b8b4062b7b8fc6de01e32f662332b5dc559",
+      "translation": "A porcentagem selecionada de pontos visíveis que piscam em branco."
+    },
+    {
+      "context": "Automatic waves per minute from the centre of an open popup.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.popup_wave_frequency#0",
+      "source": "Automatic waves per minute from the centre of an open popup.",
+      "source_sha256": "52d75e3e9c710f999419908c90b565909759b7bdaf8380ff2b220be0f6c9e616",
+      "translation": "Ondas automáticas por minuto a partir do centro de um popup aberto."
+    },
+    {
+      "context": "Update dot flashes through the normal serialized engine mutation.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_blink_percent#0",
+      "source": "Update dot flashes through the normal serialized engine mutation.",
+      "source_sha256": "2d463ef858679b72b029f252a8ae8bfe0eca815bdf566e0610daddbc66e5f68b",
+      "translation": "Atualiza o piscar dos pontos pela via habitual de alteração serial do motor."
+    },
+    {
+      "context": "percentage of visible dots flashing white, clamped to zero through ten; zero disables blinking.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_blink_percent#1",
+      "source": "percentage of visible dots flashing white, clamped to zero through ten; zero disables blinking.",
+      "source_sha256": "e2fd97e8baf2807f996960c866c3297764d5cb50250ea9d9c256bffc3438decd",
+      "translation": "Porcentagem de pontos visíveis que piscam em branco, limitada ao intervalo de zero a dez; zero desativa o piscar."
+    },
+    {
+      "context": "Change popup waves without changing pointer reach or dot population.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency#0",
+      "source": "Change popup waves without changing pointer reach or dot population.",
+      "source_sha256": "26a044f01b39376310a6f39c590b3d98df1845fb0fe367d0f5bc3f17f34e6cd1",
+      "translation": "Altera as ondas do popup sem mudar o alcance do ponteiro ou o número de pontos."
+    },
+    {
+      "context": "popup waves per minute, clamped to zero through sixty; zero disables popup waves.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency#1",
+      "source": "popup waves per minute, clamped to zero through sixty; zero disables popup waves.",
+      "source_sha256": "60a4a0ccf971ad5d4b20041e03f6bf2c0504c4bcc0e5eba53e37b80a02a713b3",
+      "translation": "Ondas do popup por minuto, limitadas ao intervalo de zero a sessenta; zero desativa as ondas do popup."
+    },
+    {
+      "context": "Report the aurora sampling ratio for explicit detail controls.",
+      "label": "spacr.qt.widgets.ambient.AuroraEngine.buffer_scale#0",
+      "source": "Report the aurora sampling ratio for explicit detail controls.",
+      "source_sha256": "d42a5c7f00a6d247d74b2a703c1d855bf5eb7336440e28a09f72e2630b03925e",
+      "translation": "Informa a proporção de amostragem da aurora para os controles explícitos de detalhe."
+    },
+    {
+      "context": "Sample native display pixels within the actual application view budget.",
+      "label": "spacr.qt.widgets.ambient.AuroraEngine.buffer_size#0",
+      "source": "Sample native display pixels within the actual screen budget.",
+      "source_sha256": "03a821840080d7fbc41c911a45759f1fd09e682d71e23bb5e5a5bdbb71d86a62",
+      "translation": "Amostra pixels nativos da tela dentro do orçamento da visualização real do aplicativo."
+    },
+    {
+      "context": "Sample dots at the chosen Detail within the display pixel ceiling.",
+      "label": "spacr.qt.widgets.ambient.DriftEngine.buffer_size#0",
+      "source": "Sample dots at the chosen Detail within the display pixel ceiling.",
+      "source_sha256": "49bd6c339b9f9c70b74f4ef2098e217daeceb24678734567ed5899e720fb188e",
+      "translation": "Amostra pontos no nível de detalhe escolhido dentro do limite de pixels da tela."
+    }
+  ],
+  "schema": 1
+}

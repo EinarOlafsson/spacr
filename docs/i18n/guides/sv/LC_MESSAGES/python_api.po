@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 18:04-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -66,6 +66,10 @@ msgstr "Kör samma kontrakt från ett skal"
 
 msgid "The headless command is useful in a scheduler because it validates setting names and values before importing the heavy pipeline stack."
 msgstr "Kommandot utan grafiskt gränssnitt är användbart i en schemaläggare eftersom det validerar inställningarnas namn och värden innan den tunga pipelinestacken importeras."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use ``spacr-run --list-models`` (or ``--models``) to list registered models, including models that have not been downloaded. Supply the registered key or filename in ``custom_model`` for masking or ``model_path`` for classifier inference. Python and notebook entry points use the same resolver. A missing registered checkpoint is downloaded through Model Zoo when the workflow runs, verified against its catalogue checksum, and cached for reuse. Preflight recognizes registered downloadable selections without downloading the weights. Existing local paths take precedence; an unknown missing local path or a model of the wrong kind raises an error rather than selecting another model. Built-in foundation models retain their backend's normal download behavior."
+msgstr "Använd ``spacr-run --list-models`` (eller ``--models``) för att lista registrerade modeller, även sådana som inte har laddats ned. Ange den registrerade nyckeln eller filnamnet i ``custom_model`` för maskgenerering eller ``model_path`` för klassificerarinferens. Python- och notebook-ingångarna använder samma modellupplösare. En saknad registrerad modellfil laddas ned via Model Zoo när arbetsflödet körs, verifieras mot katalogens kontrollsumma och cachelagras för återanvändning. Förkontrollen känner igen registrerade nedladdningsbara val utan att ladda ned modellvikterna. Befintliga lokala sökvägar har företräde; en okänd saknad lokal sökväg eller en modell av fel typ ger ett fel i stället för att välja en annan modell. Inbyggda grundmodeller behåller sin backends vanliga nedladdningsbeteende."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Boolean values in settings CSV files are case-insensitive. ``TRUE`` and ``FALSE``, including surrounding whitespace, load as Python booleans, so spreadsheet-exported settings can pass the same preflight checks on a cluster."

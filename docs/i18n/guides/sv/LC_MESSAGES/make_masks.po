@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 18:04-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -423,8 +423,37 @@ msgstr "Se :func:`spacr.qt.mask_engine.secondary_object_instances`, :class:`spac
 msgid "Live magnifier, filtering and measurement"
 msgstr "Live-förstoringsglas, filtrering och mätning"
 
-msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before accepting its objects."
-msgstr "Slå på **Förstoringsglas** eller tryck **M** för att granska föreslagna objekt runt pekaren. Dess hjul ändrar rutans zoom; **Shift + wheel** ändrar rutans storlek. **Ctrl+L+högerklick** låser eller låser upp rutan. Vänta på en förhandsvisning som uppdateras innan du godtar dess objekt."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before manually accepting its objects."
+msgstr "Slå på **Förstoringsglas** eller tryck **M** för att granska föreslagna objekt runt pekaren. Mushjulet ändrar rutans zoom; **Shift + wheel** ändrar rutans storlek. **Ctrl+L+högerklick** låser eller låser upp rutan. Vänta tills den uppdaterade förhandsgranskningen är klar innan du godkänner objekten manuellt."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Under **Object detection** → **Magnification settings**, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save** or **Save & Next** to write accepted masks."
+msgstr "Under **Objektdetektering** → **Förstoringsinställningar** kan du slå på **Godkänn föreslagna objekt direkt** för att godkänna ett aktuellt förslag utan att klicka. Funktionen är av som standard. Regionläget följer **Objekt som läggs till**; helbildsläget godkänner bara objektet under pekaren. Automatisk acceptans förhindras om pekaren flyttas utanför bilden eller förstoringsglaset stängs av. Varje godkännande går att ångra; efter en ångring godkänns inte samma förslag omedelbart igen. Använd **Spara** eller **Save & Next** för att skriva de godkända maskerna till disk."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Overlap** chooses what happens when a proposal overlaps an existing mask:"
+msgstr "**Överlappning** väljer vad som händer när ett förslag överlappar en befintlig mask:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Fuse with existing object** adds the proposal to the existing ID and retains the old object's pixels, including pixels outside the box. A proposal overlapping several objects joins them into the smallest old ID. A proposal on background becomes a new object."
+msgstr "**Sammanfoga med befintligt objekt** lägger till förslaget i det befintliga ID:t och behåller det gamla objektets pixlar, även dem utanför rutan. Ett förslag som överlappar flera objekt sammanfogar dem under det minsta gamla ID:t. Ett förslag på bakgrunden blir ett nytt objekt."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Add non-overlapping pixels** preserves existing objects and adds the proposal's largest remaining connected piece as a new object."
+msgstr "**Lägg till pixlar utan överlappning** bevarar befintliga objekt och lägger till den största återstående sammanhängande delen av förslaget som ett nytt objekt."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Replace overlapping object** removes overlapping old objects in full before adding the proposal. Rejected small proposals remove nothing."
+msgstr "**Ersätt överlappande objekt** tar bort överlappande gamla objekt helt innan förslaget läggs till. Små förslag som avvisas tar inte bort något."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Skip overlapping objects** ignores proposals that overlap existing masks."
+msgstr "**Hoppa över överlappande objekt** ignorerar förslag som överlappar befintliga masker."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Secondary mode preserves primary IDs and does not allow fusing identities. Explicit click-and-drag editing retains its single undo step."
+msgstr "Sekundärläget bevarar primära ID:n och tillåter inte sammanfogning av identiteter. Explicit redigering genom att klicka och dra behåller ett enda ångringssteg."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, including Otsu and Cellpose, click and drag to add encountered detections to the object under the initial click. Starting on background creates one new object. Separate detections share that object's ID without filling the background between them; one undo step reverses the drag, and the shared ID survives Save, Next and reopening. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."

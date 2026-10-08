@@ -1,47 +1,4 @@
 {
   "schema": 1,
-  "sources": {
-    "0d63f8d86b858f09d598dc6341295badef137301c77805bf4803da096228f53d": {
-      "source_blocks_sha256": [
-        "3f3c16f278e7348ccad383b17e8ce06d1112dec5461f68b48fbe2390973c2b42",
-        "6f883373e7ab7f88c3f892f4710310874a3ff3e1d488925c142d145685d06641",
-        "c3fef7ac42e98cb547c2f5f524229e6f748f404850a72522d289e8a8d6b6abb4",
-        "0f380eb11d06c4e96ddb9501c06b1f9448907c5b918f90b5eebf952eaa42085b",
-        "2fb9fc9640c7040a9ae2f57f4aaf78809c09f02f4d24ec87b21d183eb27b797a",
-        "9f364a4ce8a85d0ebbf9eb1e40525c6fea103df12d16f13e1dc19b66e654af2b",
-        "04887c85893e6dc2a04a61ab6e38cde76b46e7af3bc371ae82a581cdca9ab92e"
-      ],
-      "source_sha256": "0d63f8d86b858f09d598dc6341295badef137301c77805bf4803da096228f53d",
-      "text": "Segment one plaque image the way both Plaque mode's preview and run do.\n\nThe image goes to Cellpose as it is, RGB or grey, and Cellpose normalises\nit. It is NOT sent through the run's historical loader\n(``_load_normalized_images_and_labels`` with ``background=200``): on an\n8-bit crop that loader saturated every pixel to 1.0 -- measured on\n``malnio__2.tif``, min = max = 1.0 in every channel -- so the run found\nno plaques while the preview, reading the image as it is, found 67. One\nfunction for both is what keeps them from disagreeing again.\n\n:param model: a Cellpose model.\n:param image: ``H x W`` or ``H x W x 3``.\n:param settings: ``diameter``, ``flow_threshold`` and ``CP_prob``.\n:param return_flows: also hand back what the live preview's Flows and\n    Cell probability tabs show, from the same call.\n:returns: the label image; with ``return_flows``, ``(labels, flows)``\n    where ``flows`` is :func:`plaque_flow_outputs`."
-    },
-    "2674ee9cb3a15b3409a78a28c37fdb81a2b5b8c64e7053d8fded7b21d374948e": {
-      "source_blocks_sha256": [
-        "429ed306a9416ec8209f852f9cf0732b1113131e9920f0e94c463603021b889a",
-        "301605201b28d6731835bed2394b9a33a8495ce0c53a5a67e28e7ad2e590290b",
-        "ec996f3ef7d8a8d92039dd4f7de1d7c9983bcf9a9f94b550c6ea6ab33ff1e4db",
-        "5324b789dbcb1ee0665abbfe04536b76d22662ac029cab343eeaec7ac8c5ca3a"
-      ],
-      "source_sha256": "2674ee9cb3a15b3409a78a28c37fdb81a2b5b8c64e7053d8fded7b21d374948e",
-      "text": "One row per plaque in a segmented plaque image.\n\n:param labels: the segmenter's label image, 0 = background.\n:param px_per_mm: the image's scale, when it has a ruler.\n:returns: ``[{'label', 'area_px', 'area_mm2'}]``; ``area_mm2`` is None\n    without a ruler."
-    },
-    "be36760d1f41222a570aa1e24705998e74a52a3b39686e5f6f16c3410c98fc23": {
-      "source_blocks_sha256": [
-        "be36760d1f41222a570aa1e24705998e74a52a3b39686e5f6f16c3410c98fc23"
-      ],
-      "source_sha256": "be36760d1f41222a570aa1e24705998e74a52a3b39686e5f6f16c3410c98fc23",
-      "text": "Show the rim length in pixels."
-    },
-    "fc0b10ff75a4afb3b5e443900d4367ce7c042bb6ff3d648b7d6e01dfa40908e3": {
-      "source_blocks_sha256": [
-        "6dafddbfafcdad4bd5812dcd0f52a6907e9f73ae0a3f8a281c7d532643dfb6eb",
-        "061bb20bdbe617040533f612d0a5f97d1197c837683a34cb3a3f577ce07d8546",
-        "17f7f454da3caeb54ba05f41f65b4dd5c76e0ee2a61a1e6ef56bc5f5f18335cb",
-        "962e1f0719d5a0fee98d547da4093f9c37cef07b3dcbd2fce8427196efaca583",
-        "00dfeca0887d7830e6223fc8498f8022408145454b3e09c246d6ed06ab0c2108",
-        "1aaa01a2bcaf414a8b9b7f845c2cc91fc27f87dcede4eb7344b163a50cdff21c"
-      ],
-      "source_sha256": "fc0b10ff75a4afb3b5e443900d4367ce7c042bb6ff3d648b7d6e01dfa40908e3",
-      "text": "The colour of the run at ``along`` (0 at the tail, 1 at the head).\n\n`glow` and `beat` are the theme's accent the whole way; `rainbow`\nwalks the hue along the run and turns it over time, so the light\ncarries a spectrum that moves rather than a band that sits still.\n\nUNDER ``spaceout`` EVERY MODE OSCILLATES, whichever one is set. The\nmark that follows the pointer is the one thing on a card that is\nalready moving, and leaving it a fixed blue under a theme whose\nwhole point is a moving spectrum is what the request is about. Its\nhue is the palette's own drift plus a much faster cycle of its own\n(:data:`SPACEOUT_RIM_PERIOD`), so it belongs to the same spectrum\nthe rest of the window is travelling through instead of being a\nsecond unrelated rainbow.\n\nUnder an ordinary start with the shipped mode this returns the\ntheme's accent and returns it unchanged, frame after frame.\n\n:param along: position along the lit run, 0 at the tail and 1 at the\n    head.\n:param accent: the theme's accent colour; returned as a copy in the\n    plain modes, and its saturation and value set the floor for the\n    spectral ones."
-    }
-  }
+  "sources": {}
 }

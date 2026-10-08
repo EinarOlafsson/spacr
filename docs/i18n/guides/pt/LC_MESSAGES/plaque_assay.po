@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 18:04-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
@@ -95,6 +95,64 @@ msgstr "Inspecionar as visualizações de resultados"
 
 msgid "The view selector above the preview offers **Overlay**, **Masks**, **Flows** and **Cell probability** in both modes. In Figure mode, each segmented well's outputs are placed at its box on the figure. Right-click the image for the overlay options: outlines or filled objects, random colours, **Overlay settings…** and **Save picture…**. The overlay settings include the outline and fill colours, fill opacity and the **Line weight** of the **Well boxes**. **Ruler** measures a distance on the image, in µm when the pixel size is known and in pixels otherwise; right-click clears it."
 msgstr "O seletor de visualização acima da prévia oferece **Sobreposição**, **Máscaras**, **Fluxos** e **Probabilidade celular** nos dois modos. No modo Figura, as saídas de cada poço segmentado são posicionadas em sua caixa na figura. Clique com o botão direito na imagem para ver as opções de sobreposição: contornos ou objetos preenchidos, cores aleatórias, **Configurações de sobreposição…** e **Salvar imagem…**. As configurações de sobreposição incluem as cores de contorno e de preenchimento, a opacidade do preenchimento e a **Espessura da linha** das **Caixas dos poços**. **Régua** mede uma distância na imagem, em µm quando o tamanho do pixel é conhecido e em pixels caso contrário; um clique com o botão direito a apaga."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Saved segmentation diagnostics"
+msgstr "Diagnósticos de segmentação salvos"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Plaque mode writes these columns for each plaque in ``per_plaque`` and ``details`` in ``<src>/masks/plaques_analysis.db``, and exports ``<src>/masks/per_plaque.csv``. Figure mode writes the same columns in the ``plaques`` table of ``plaque_figures.db``."
+msgstr "O modo de placas grava estas colunas para cada placa nas tabelas ``per_plaque`` e ``details`` de ``<src>/masks/plaques_analysis.db`` e exporta ``<src>/masks/per_plaque.csv``. O modo de figuras grava as mesmas colunas na tabela ``plaques`` de ``plaque_figures.db``."
+
+msgid "Column"
+msgstr "Coluna"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Meaning"
+msgstr "Significado"
+
+msgid "``cell_probability_mean``"
+msgstr "``cell_probability_mean``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mean raw Cellpose cell-probability score across the plaque's pixels. These scores are logits, can be negative and are not calibrated probabilities or confidence percentages."
+msgstr "Média da pontuação bruta de probabilidade celular do Cellpose nos píxeis da placa. Estas pontuações são logits, podem ser negativas e não são probabilidades calibradas nem percentagens de confiança."
+
+msgid "``flow_error``"
+msgstr "``flow_error``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Cellpose's sum of the two component mean squared errors between mask-derived diffusion flows and predicted flows divided by five. Lower values mean better flow agreement with the saved mask."
+msgstr "Soma, calculada pelo Cellpose, dos erros quadráticos médios dos dois componentes entre os fluxos de difusão derivados da máscara e os fluxos previstos divididos por cinco. Valores menores indicam maior concordância dos fluxos com a máscara guardada."
+
+msgid "``flow_magnitude_mean``"
+msgstr "``flow_magnitude_mean``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mean predicted flow-vector length within the plaque, divided by five to use Cellpose's mask-flow scale. This describes flow strength; higher values alone do not imply a better segmentation."
+msgstr "O comprimento médio previsto do fluxo-vetor dentro da placa, dividido por cinco para usar a escala máscara-fluxo de Cellpose. Isso descreve a força do fluxo; valores mais altos por si só não implicam uma melhor segmentação."
+
+msgid "``flow_alignment_mean``"
+msgstr "``flow_alignment_mean``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mean directional cosine between predicted and mask-derived flows, excluding zero-length vectors. Values range from -1 to 1; 1 means matching directions and -1 means opposite directions."
+msgstr "Cosseno direcional médio entre fluxos previstos e derivados de máscara, excluindo vetores de comprimento zero. Os valores variam de -1 a 1; 1 significa direções correspondentes e -1 significa direções opostas."
+
+msgid "``cell_probability_pixel_fraction``, ``flow_pixel_fraction``"
+msgstr "``cell_probability_pixel_fraction``, ``flow_pixel_fraction``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Fraction of plaque pixels with finite probability scores or finite two-component flow vectors. These describe output coverage."
+msgstr "Fração de pixels de placa com pontuações de probabilidade finitas ou vetores de fluxo finitos de dois componentes. Estes descrevem a cobertura de saída."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Flow agreement can help flag merged or poorly divided plaques, but does not establish biological accuracy; inspect the image and mask together. Missing outputs, incompatible output grids and unavailable comparisons are saved as blank CSV cells or SQL NULL, rather than zero. Probability and flow magnitude means use finite pixels. Flow error and alignment require finite predicted flows throughout the foreground; a comparison failure leaves them blank. Comparisons run on CPU and do not change the model's segmentation."
+msgstr "A concordância dos fluxos pode ajudar a sinalizar placas fundidas ou mal divididas, mas não comprova a precisão biológica; inspecione a imagem e a máscara em conjunto. Saídas ausentes, grelhas de saída incompatíveis e comparações indisponíveis são guardadas como células CSV vazias ou SQL NULL, em vez de zero. As médias da probabilidade e da magnitude do fluxo usam píxeis com valores finitos. O erro e o alinhamento dos fluxos exigem fluxos previstos finitos em todo o primeiro plano; uma comparação que falhe deixa esses campos vazios. As comparações são executadas na CPU e não alteram a segmentação do modelo."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each generated mask also has a ``<image>.diagnostics.csv`` sidecar carrying the original per-plaque diagnostics and a mask fingerprint. A run with ``masks=False`` reuses it only when the saved mask still matches. Editing a mask invalidates these model diagnostics; regenerate masks to obtain fresh ones. Existing masks without a sidecar retain their measurements and have blank diagnostic columns. Figure workflows with a custom callback returning only labels also leave the diagnostic columns blank."
+msgstr "Cada máscara gerada tem também um ficheiro auxiliar ``<image>.diagnostics.csv`` com os diagnósticos originais por placa e uma impressão digital da máscara. Uma execução com ``masks=False`` reutiliza-o apenas quando a máscara guardada ainda corresponde. Editar uma máscara invalida estes diagnósticos do modelo; gere novamente as máscaras para obter novos diagnósticos. As máscaras existentes sem ficheiro auxiliar mantêm as suas medições e apresentam colunas de diagnóstico vazias. Os fluxos de trabalho de figuras com uma função de retorno personalizada que devolve apenas rótulos também deixam as colunas de diagnóstico vazias."
 
 msgid "Contribute training data"
 msgstr "Contribuir com dados de treinamento"

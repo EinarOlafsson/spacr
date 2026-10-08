@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 18:04-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -95,6 +95,64 @@ msgstr "检查结果视图"
 
 msgid "The view selector above the preview offers **Overlay**, **Masks**, **Flows** and **Cell probability** in both modes. In Figure mode, each segmented well's outputs are placed at its box on the figure. Right-click the image for the overlay options: outlines or filled objects, random colours, **Overlay settings…** and **Save picture…**. The overlay settings include the outline and fill colours, fill opacity and the **Line weight** of the **Well boxes**. **Ruler** measures a distance on the image, in µm when the pixel size is known and in pixels otherwise; right-click clears it."
 msgstr "预览上方的视图选择器在两种模式下都提供 **叠加**、**掩膜**、**流场** 和 **细胞概率**。在图模式下，每个已分割孔的输出会放置在图上该孔的框内。右键单击图像可使用叠加选项：轮廓或填充对象、随机颜色、**叠加设置…** 和 **保存图片…**。叠加设置包括轮廓和填充颜色、填充不透明度以及 **孔框** 的 **线宽**。**标尺** 测量图像上的距离，已知像素尺寸时以 µm 为单位，否则以像素为单位；右键单击可清除。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Saved segmentation diagnostics"
+msgstr "已保存的分割诊断指标"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Plaque mode writes these columns for each plaque in ``per_plaque`` and ``details`` in ``<src>/masks/plaques_analysis.db``, and exports ``<src>/masks/per_plaque.csv``. Figure mode writes the same columns in the ``plaques`` table of ``plaque_figures.db``."
+msgstr "斑块模式将每个斑块的这些列写入 ``<src>/masks/plaques_analysis.db`` 的 ``per_plaque`` 和 ``details`` 表，并导出 ``<src>/masks/per_plaque.csv``。图表模式将相同列写入 ``plaque_figures.db`` 的 ``plaques`` 表。"
+
+msgid "Column"
+msgstr "列"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Meaning"
+msgstr "含义"
+
+msgid "``cell_probability_mean``"
+msgstr "``cell_probability_mean``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mean raw Cellpose cell-probability score across the plaque's pixels. These scores are logits, can be negative and are not calibrated probabilities or confidence percentages."
+msgstr "斑块像素上 Cellpose 原始细胞概率评分的平均值。这些评分是 logits，可为负值，不是经过校准的概率或置信百分比。"
+
+msgid "``flow_error``"
+msgstr "``flow_error``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Cellpose's sum of the two component mean squared errors between mask-derived diffusion flows and predicted flows divided by five. Lower values mean better flow agreement with the saved mask."
+msgstr "Cellpose 计算的两个分量的均方误差之和，比较由掩膜生成的扩散流与除以五的预测流。数值越低，表示流与已保存掩膜的一致性越好。"
+
+msgid "``flow_magnitude_mean``"
+msgstr "``flow_magnitude_mean``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mean predicted flow-vector length within the plaque, divided by five to use Cellpose's mask-flow scale. This describes flow strength; higher values alone do not imply a better segmentation."
+msgstr "斑块内预测流向量长度的平均值，除以五以使用 Cellpose 的掩膜流尺度。它描述流的强度；仅有较高数值并不代表分割更好。"
+
+msgid "``flow_alignment_mean``"
+msgstr "``flow_alignment_mean``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mean directional cosine between predicted and mask-derived flows, excluding zero-length vectors. Values range from -1 to 1; 1 means matching directions and -1 means opposite directions."
+msgstr "预测流与掩膜生成的流之间方向余弦的平均值，不计入零长度向量。取值范围为 -1 至 1；1 表示同向，-1 表示反向。"
+
+msgid "``cell_probability_pixel_fraction``, ``flow_pixel_fraction``"
+msgstr "``cell_probability_pixel_fraction``, ``flow_pixel_fraction``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Fraction of plaque pixels with finite probability scores or finite two-component flow vectors. These describe output coverage."
+msgstr "斑块像素中具有有限概率评分或有限双分量流向量的比例。这些指标描述模型输出的覆盖率。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Flow agreement can help flag merged or poorly divided plaques, but does not establish biological accuracy; inspect the image and mask together. Missing outputs, incompatible output grids and unavailable comparisons are saved as blank CSV cells or SQL NULL, rather than zero. Probability and flow magnitude means use finite pixels. Flow error and alignment require finite predicted flows throughout the foreground; a comparison failure leaves them blank. Comparisons run on CPU and do not change the model's segmentation."
+msgstr "流的一致性可帮助标记被合并或分割不佳的斑块，但不能证明生物学准确性；应同时检查图像和掩膜。缺失输出、不兼容的输出网格以及无法进行的比较保存为空白 CSV 单元格或 SQL NULL，而不是零。概率和流幅值的平均值使用具有有限数值的像素。流误差和方向一致性要求整个前景内的预测流均为有限值；比较失败时，这些字段留空。比较在 CPU 上运行，不改变模型的分割结果。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each generated mask also has a ``<image>.diagnostics.csv`` sidecar carrying the original per-plaque diagnostics and a mask fingerprint. A run with ``masks=False`` reuses it only when the saved mask still matches. Editing a mask invalidates these model diagnostics; regenerate masks to obtain fresh ones. Existing masks without a sidecar retain their measurements and have blank diagnostic columns. Figure workflows with a custom callback returning only labels also leave the diagnostic columns blank."
+msgstr "每个生成的掩膜还附带 ``<image>.diagnostics.csv`` 文件，保存原始逐斑块诊断指标和掩膜指纹。使用 ``masks=False`` 运行时，只有已保存掩膜仍与指纹匹配才会复用该文件。编辑掩膜会使这些模型诊断指标失效；需重新生成掩膜才能得到新指标。没有附带文件的现有掩膜保留原测量值，诊断列为空。图表流程若使用仅返回标签的自定义回调函数，诊断列也会留空。"
 
 msgid "Contribute training data"
 msgstr "贡献训练数据"

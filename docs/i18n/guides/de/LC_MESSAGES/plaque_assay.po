@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 18:04-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
@@ -95,6 +95,64 @@ msgstr "Die Ergebnisansichten prüfen"
 
 msgid "The view selector above the preview offers **Overlay**, **Masks**, **Flows** and **Cell probability** in both modes. In Figure mode, each segmented well's outputs are placed at its box on the figure. Right-click the image for the overlay options: outlines or filled objects, random colours, **Overlay settings…** and **Save picture…**. The overlay settings include the outline and fill colours, fill opacity and the **Line weight** of the **Well boxes**. **Ruler** measures a distance on the image, in µm when the pixel size is known and in pixels otherwise; right-click clears it."
 msgstr "Die Ansichtsauswahl über der Vorschau bietet in beiden Modi **Überlagerung**, **Masken**, **Flüsse** und **Zellwahrscheinlichkeit**. Im Modus Abbildung werden die Ausgaben jedes segmentierten Wells an seinem Rahmen in der Abbildung platziert. Klicken Sie mit der rechten Maustaste auf das Bild, um die Overlay-Optionen aufzurufen: Umrisse oder gefüllte Objekte, zufällige Farben, **Überlagerungseinstellungen…** und **Bild speichern…**. Die Überlagerungseinstellungen umfassen die Umriss- und Füllfarben, die Deckkraft der Füllung und die **Linienstärke** der **Well-Rahmen**. **Lineal** misst eine Strecke im Bild, in µm, wenn die Pixelgröße bekannt ist, andernfalls in Pixeln; ein Rechtsklick löscht sie."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Saved segmentation diagnostics"
+msgstr "Gespeicherte Segmentierungsdiagnostik"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Plaque mode writes these columns for each plaque in ``per_plaque`` and ``details`` in ``<src>/masks/plaques_analysis.db``, and exports ``<src>/masks/per_plaque.csv``. Figure mode writes the same columns in the ``plaques`` table of ``plaque_figures.db``."
+msgstr "Der Plaque-Modus schreibt diese Spalten für jede Plaque in ``per_plaque`` und ``details`` in ``<src>/masks/plaques_analysis.db`` und exportiert ``<src>/masks/per_plaque.csv``. Der Abbildungsmodus schreibt dieselben Spalten in die Tabelle ``plaques`` in ``plaque_figures.db``."
+
+msgid "Column"
+msgstr "Spalte"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Meaning"
+msgstr "Bedeutung"
+
+msgid "``cell_probability_mean``"
+msgstr "``cell_probability_mean``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mean raw Cellpose cell-probability score across the plaque's pixels. These scores are logits, can be negative and are not calibrated probabilities or confidence percentages."
+msgstr "Mittelwert der rohen Cellpose-Zellwahrscheinlichkeitswerte über die Pixel der Plaque. Diese Werte sind Logits, können negativ sein und sind weder kalibrierte Wahrscheinlichkeiten noch Konfidenzprozentsätze."
+
+msgid "``flow_error``"
+msgstr "``flow_error``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Cellpose's sum of the two component mean squared errors between mask-derived diffusion flows and predicted flows divided by five. Lower values mean better flow agreement with the saved mask."
+msgstr "Cellposes Summe der mittleren quadratischen Fehler beider Komponenten zwischen aus der Maske abgeleiteten Diffusionsflüssen und den durch fünf geteilten vorhergesagten Flüssen. Kleinere Werte bedeuten eine bessere Übereinstimmung der Flüsse mit der gespeicherten Maske."
+
+msgid "``flow_magnitude_mean``"
+msgstr "``flow_magnitude_mean``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mean predicted flow-vector length within the plaque, divided by five to use Cellpose's mask-flow scale. This describes flow strength; higher values alone do not imply a better segmentation."
+msgstr "Mittlere Länge der vorhergesagten Flussvektoren innerhalb der Plaque, geteilt durch fünf, um Cellposes Maskenflussskala zu verwenden. Dies beschreibt die Flussstärke; höhere Werte allein bedeuten keine bessere Segmentierung."
+
+msgid "``flow_alignment_mean``"
+msgstr "``flow_alignment_mean``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mean directional cosine between predicted and mask-derived flows, excluding zero-length vectors. Values range from -1 to 1; 1 means matching directions and -1 means opposite directions."
+msgstr "Mittlerer Richtungskosinus zwischen vorhergesagten und aus der Maske abgeleiteten Flüssen; Vektoren der Länge null sind ausgeschlossen. Die Werte liegen zwischen -1 und 1; 1 bedeutet gleiche Richtungen und -1 entgegengesetzte Richtungen."
+
+msgid "``cell_probability_pixel_fraction``, ``flow_pixel_fraction``"
+msgstr "``cell_probability_pixel_fraction``, ``flow_pixel_fraction``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Fraction of plaque pixels with finite probability scores or finite two-component flow vectors. These describe output coverage."
+msgstr "Anteil der Plaquepixel mit endlichen Wahrscheinlichkeitswerten oder endlichen Flussvektoren mit zwei Komponenten. Diese Werte beschreiben die Abdeckung der Ausgabe."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Flow agreement can help flag merged or poorly divided plaques, but does not establish biological accuracy; inspect the image and mask together. Missing outputs, incompatible output grids and unavailable comparisons are saved as blank CSV cells or SQL NULL, rather than zero. Probability and flow magnitude means use finite pixels. Flow error and alignment require finite predicted flows throughout the foreground; a comparison failure leaves them blank. Comparisons run on CPU and do not change the model's segmentation."
+msgstr "Die Flussübereinstimmung kann auf vereinigte oder unzureichend getrennte Plaques hinweisen, belegt aber keine biologische Genauigkeit; prüfen Sie Bild und Maske gemeinsam. Fehlende Ausgaben, inkompatible Ausgaberaster und nicht verfügbare Vergleiche werden als leere CSV-Zellen oder SQL NULL gespeichert, nicht als null. Mittelwerte für Wahrscheinlichkeit und Flussbetrag verwenden endliche Pixel. Flussfehler und Richtungsübereinstimmung benötigen endliche vorhergesagte Flüsse im gesamten Vordergrund; bei einem Vergleichsfehler bleiben die Werte leer. Die Vergleiche laufen auf der CPU und ändern die Segmentierung des Modells nicht."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each generated mask also has a ``<image>.diagnostics.csv`` sidecar carrying the original per-plaque diagnostics and a mask fingerprint. A run with ``masks=False`` reuses it only when the saved mask still matches. Editing a mask invalidates these model diagnostics; regenerate masks to obtain fresh ones. Existing masks without a sidecar retain their measurements and have blank diagnostic columns. Figure workflows with a custom callback returning only labels also leave the diagnostic columns blank."
+msgstr "Jede erzeugte Maske besitzt außerdem eine Begleitdatei ``<image>.diagnostics.csv`` mit der ursprünglichen Diagnostik je Plaque und einem Maskenfingerabdruck. Ein Lauf mit ``masks=False`` verwendet sie nur erneut, wenn die gespeicherte Maske noch übereinstimmt. Das Bearbeiten einer Maske macht diese Modelldiagnostik ungültig; erzeugen Sie die Masken erneut, um neue Werte zu erhalten. Vorhandene Masken ohne Begleitdatei behalten ihre Messungen und erhalten leere Diagnostikspalten. Abbildungsabläufe mit einer eigenen Callback-Funktion, die nur Labels zurückgibt, lassen die Diagnostikspalten ebenfalls leer."
 
 msgid "Contribute training data"
 msgstr "Trainingsdaten beitragen"

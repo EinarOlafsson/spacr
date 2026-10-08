@@ -1372,7 +1372,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # qt.screens.embeddings.EmbeddingsScreen._save_for_similarity.{finished,work},
     # qt.screens.embeddings.EmbeddingsScreen.embed.finished,
     # qt.widgets.ambient.AmbientWidget.{gravity_radius,set_gravity_radius}.
-    expected = 13_199
+    # 2026-10-07: +15/-0 for Apply/Keep/Revert, optional dot blinking,
+    # popup waves and current renderer dimensions. Exactly six Preferences
+    # helpers: _apply, _apply.{_answered,_network_bytes,_restore,_snapshot}
+    # and _blink_value_changed; AmbientEngine.{set_blink_percent,
+    # set_popup_wave_frequency}; AmbientWidget.{blink_percent,
+    # popup_wave_frequency,set_blink_percent,set_popup_wave_frequency};
+    # AuroraEngine.{buffer_scale,buffer_size}; DriftEngine.buffer_size.
+    # The normal all-nine API writer supplies these contracts to each catalog.
+    expected = 13_214
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1421,7 +1429,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 13_199
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 13_214
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

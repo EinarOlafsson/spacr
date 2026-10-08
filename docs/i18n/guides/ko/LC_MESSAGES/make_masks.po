@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 18:04-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -423,8 +423,37 @@ msgstr "레이블, 소스, 진단 규약은 :func:`spacr.qt.mask_engine.secondar
 msgid "Live magnifier, filtering and measurement"
 msgstr "실시간 돋보기, 필터링, 측정"
 
-msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before accepting its objects."
-msgstr "**돋보기** 를 켜거나 **M** 을 누르면 포인터 주변의 제안된 객체를 검사할 수 있습니다. 휠은 상자 배율을, **Shift + wheel** 은 상자 크기를 바꿉니다. **Ctrl+L+오른쪽 클릭** 은 상자를 잠그거나 잠금 해제합니다. 객체를 수락하기 전에 업데이트 중인 미리보기가 끝날 때까지 기다립니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before manually accepting its objects."
+msgstr "**돋보기**를 켜거나 **M**을 눌러 포인터 주변에 제안된 객체를 검사합니다. 마우스 휠은 상자 안의 확대 배율을 바꾸고, **Shift + wheel**은 상자 크기를 바꿉니다. **Ctrl+L+오른쪽 클릭**은 상자를 잠그거나 잠금 해제합니다. 객체를 수동 승인하기 전에 업데이트된 미리보기를 기다리십시오."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Under **Object detection** → **Magnification settings**, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save** or **Save & Next** to write accepted masks."
+msgstr "**객체 검출** → **확대 설정**에서 **제안된 객체 즉시 승인**을 켜면 클릭하지 않고 현재 제안을 승인할 수 있습니다. 기본적으로 꺼져 있습니다. 영역 모드는 **추가할 객체** 설정을 따르며, 전체 이미지 모드는 포인터 아래의 객체만 승인합니다. 이미지 밖으로 이동하거나 돋보기를 끄면 자동 승인이 중단됩니다. 각 승인은 실행 취소할 수 있으며, 취소 직후 같은 제안을 다시 자동 승인하지 않습니다. **저장** 또는 **Save & Next**로 승인된 마스크를 디스크에 저장합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Overlap** chooses what happens when a proposal overlaps an existing mask:"
+msgstr "**겹침**은 제안이 기존 마스크와 겹칠 때의 동작을 선택합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Fuse with existing object** adds the proposal to the existing ID and retains the old object's pixels, including pixels outside the box. A proposal overlapping several objects joins them into the smallest old ID. A proposal on background becomes a new object."
+msgstr "**기존 객체와 병합**은 제안을 기존 ID에 추가하고 상자 밖의 픽셀을 포함한 기존 객체 전체를 보존합니다. 제안이 여러 객체와 겹치면 가장 작은 기존 ID로 모두 병합합니다. 배경에만 있는 제안은 새 객체가 됩니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Add non-overlapping pixels** preserves existing objects and adds the proposal's largest remaining connected piece as a new object."
+msgstr "**겹치지 않는 픽셀 추가**는 기존 객체를 보존하고 제안에서 남은 가장 큰 연결 부분을 새 객체로 추가합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Replace overlapping object** removes overlapping old objects in full before adding the proposal. Rejected small proposals remove nothing."
+msgstr "**겹치는 객체 교체**는 제안을 추가하기 전에 겹치는 기존 객체를 전체적으로 제거합니다. 거부된 작은 제안은 아무것도 제거하지 않습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Skip overlapping objects** ignores proposals that overlap existing masks."
+msgstr "**겹치는 객체 건너뛰기**는 기존 마스크와 겹치는 제안을 무시합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Secondary mode preserves primary IDs and does not allow fusing identities. Explicit click-and-drag editing retains its single undo step."
+msgstr "보조 모드는 기본 객체 ID를 보존하며 서로 다른 식별자의 병합을 허용하지 않습니다. 명시적인 클릭 후 드래그 편집은 한 번의 실행 취소 단계로 유지됩니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Objects added** selects every object in the zoom area or only objects under the mouse. In ordinary modes, including Otsu and Cellpose, click and drag to add encountered detections to the object under the initial click. Starting on background creates one new object. Separate detections share that object's ID without filling the background between them; one undo step reverses the drag, and the shared ID survives Save, Next and reopening. Whole-image preview accepts objects under the pointer; secondary mode preserves primary identities instead of joining them."

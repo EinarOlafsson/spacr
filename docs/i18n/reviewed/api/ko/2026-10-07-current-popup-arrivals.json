@@ -1,0 +1,132 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "Preview the edits and ask separately, keeping this dialog open.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply#0",
+      "source": "Preview the edits and ask separately, keeping this dialog open.",
+      "source_sha256": "d04d414af71b02010b7948e0c109699fe6fe18900ca3730aa78db848011eeb38",
+      "translation": "변경 내용을 미리 보고 이 대화 상자를 열린 상태로 유지하면서 별도로 확인한다."
+    },
+    {
+      "context": "Only keys changed by this application are rolled back. New notification secrets are written only after Keep, so Revert cannot leave a replacement password in an external keyring. Edited controls remain available as a draft after Revert.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply#1",
+      "source": "Only keys changed by this application are rolled back. New notification secrets are written only after Keep, so Revert cannot leave a replacement password in an external keyring. Edited controls remain available as a draft after Revert.",
+      "source_sha256": "8faa3777e4f3b6d97ba22d7919e9f4e64f5236b931b38fe9c04c830f48fbece3",
+      "translation": "이번 적용으로 변경된 설정 키만 되돌린다. 새 알림 비밀 정보는 Keep 후에만 기록하므로 Revert가 외부 키링에 교체 암호를 남길 수 없다. Revert 후에도 편집한 컨트롤은 초안으로 남는다."
+    },
+    {
+      "context": "Keep or revert once, then release the question and enable another Apply.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._answered#0",
+      "source": "Keep or revert once, then release the question and enable another Apply.",
+      "source_sha256": "79631e61ec077a4bef2af9cc1cfbacff11e0561b55a2496e937ec26b6bd681f9",
+      "translation": "변경 내용을 한 번만 유지하거나 되돌린 다음 확인 창을 닫고 다시 Apply를 사용할 수 있게 한다."
+    },
+    {
+      "context": "Read the network configuration bytes, or None when no file exists.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._network_bytes#0",
+      "source": "Read the network configuration bytes, or None when no file exists.",
+      "source_sha256": "9ae21a6e96c1c1d8fcd6ed3ff8009c316def332d423a99f0af0a1c51361e4d24",
+      "translation": "네트워크 구성의 바이트를 읽거나 파일이 없으면 None을 반환한다."
+    },
+    {
+      "context": "Restore this preview's changed structured-data names, network configuration and live appearance.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._restore#0",
+      "source": "Restore this preview's changed keys, network configuration and live appearance.",
+      "source_sha256": "611944a58c77c3bc7f86446cd5a81331aa2af0d7c751270755ca0fbf117fe29a",
+      "translation": "이번 미리 보기에서 변경된 설정 키, 네트워크 구성 및 현재 화면 모양을 복원한다."
+    },
+    {
+      "context": "Copy persisted preference values, bypassing any temporary store shadow.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._snapshot#0",
+      "source": "Copy persisted preference values, bypassing any temporary store shadow.",
+      "source_sha256": "dfb76f68e74cb7ea50c0f5b25b968da4aeee0f435ced2c01005bc6b18180f2eb",
+      "translation": "설정 저장소의 임시 오버레이를 거치지 않고 영구 저장된 환경설정 값을 복사한다."
+    },
+    {
+      "context": "Keep the logarithmic slider aligned with an exact percentage.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._blink_value_changed#0",
+      "source": "Keep the logarithmic slider aligned with an exact percentage.",
+      "source_sha256": "448398b16ec80a05ba19818838b0b3ae55ad63b5a668dd1e5c3c14ac841ce806",
+      "translation": "로그 눈금 슬라이더를 정확한 백분율과 일치시킨다."
+    },
+    {
+      "context": "Set the percentage of dot centres flashing white, without reseeding.",
+      "label": "spacr.qt.widgets.ambient.AmbientEngine.set_blink_percent#0",
+      "source": "Set the percentage of dot centres flashing white, without reseeding.",
+      "source_sha256": "bb08b4ca1797ac8a91ab72ce393c783228bce07be684a9399ba3745492439135",
+      "translation": "점을 다시 생성하지 않고 흰색으로 깜박이는 점 중심의 백분율을 설정한다."
+    },
+    {
+      "context": "Set popup-origin waves per minute; zero disables automatic waves.",
+      "label": "spacr.qt.widgets.ambient.AmbientEngine.set_popup_wave_frequency#0",
+      "source": "Set popup-origin waves per minute; zero disables automatic waves.",
+      "source_sha256": "d7c686fccd3ed08d22446df4fa0ce528c8eb96f25291068c6194d5768711d668",
+      "translation": "팝업에서 시작하는 분당 파동 수를 설정한다. 영은 자동 파동을 끈다."
+    },
+    {
+      "context": "The selected percentage of visible dots that flash white.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.blink_percent#0",
+      "source": "The selected percentage of visible dots that flash white.",
+      "source_sha256": "44823758ce909fbc8166fca584fa2b8b4062b7b8fc6de01e32f662332b5dc559",
+      "translation": "흰색으로 깜박이는 보이는 점의 선택된 백분율."
+    },
+    {
+      "context": "Automatic waves per minute from the centre of an open popup.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.popup_wave_frequency#0",
+      "source": "Automatic waves per minute from the centre of an open popup.",
+      "source_sha256": "52d75e3e9c710f999419908c90b565909759b7bdaf8380ff2b220be0f6c9e616",
+      "translation": "열린 팝업의 중심에서 시작하는 분당 자동 파동 수."
+    },
+    {
+      "context": "Update dot flashes through the normal serialized engine mutation.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_blink_percent#0",
+      "source": "Update dot flashes through the normal serialized engine mutation.",
+      "source_sha256": "2d463ef858679b72b029f252a8ae8bfe0eca815bdf566e0610daddbc66e5f68b",
+      "translation": "엔진의 일반적인 순차 변경 경로를 통해 점의 깜박임을 갱신한다."
+    },
+    {
+      "context": "percentage of visible dots flashing white, clamped to zero through ten; zero disables blinking.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_blink_percent#1",
+      "source": "percentage of visible dots flashing white, clamped to zero through ten; zero disables blinking.",
+      "source_sha256": "e2fd97e8baf2807f996960c866c3297764d5cb50250ea9d9c256bffc3438decd",
+      "translation": "흰색으로 깜박이는 보이는 점의 백분율로, 영에서 십까지 제한된다. 영은 깜박임을 끈다."
+    },
+    {
+      "context": "Change popup waves without changing pointer reach or dot population.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency#0",
+      "source": "Change popup waves without changing pointer reach or dot population.",
+      "source_sha256": "26a044f01b39376310a6f39c590b3d98df1845fb0fe367d0f5bc3f17f34e6cd1",
+      "translation": "포인터의 영향 범위나 점의 개수를 바꾸지 않고 팝업 파동을 변경한다."
+    },
+    {
+      "context": "popup waves per minute, clamped to zero through sixty; zero disables popup waves.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency#1",
+      "source": "popup waves per minute, clamped to zero through sixty; zero disables popup waves.",
+      "source_sha256": "60a4a0ccf971ad5d4b20041e03f6bf2c0504c4bcc0e5eba53e37b80a02a713b3",
+      "translation": "분당 팝업 파동 수로, 영에서 육십까지 제한된다. 영은 팝업 파동을 끈다."
+    },
+    {
+      "context": "Report the aurora sampling ratio for explicit detail controls.",
+      "label": "spacr.qt.widgets.ambient.AuroraEngine.buffer_scale#0",
+      "source": "Report the aurora sampling ratio for explicit detail controls.",
+      "source_sha256": "d42a5c7f00a6d247d74b2a703c1d855bf5eb7336440e28a09f72e2630b03925e",
+      "translation": "명시적인 세부 수준 컨트롤을 위해 오로라의 샘플링 비율을 보고한다."
+    },
+    {
+      "context": "Sample native display pixels within the actual application view budget.",
+      "label": "spacr.qt.widgets.ambient.AuroraEngine.buffer_size#0",
+      "source": "Sample native display pixels within the actual screen budget.",
+      "source_sha256": "03a821840080d7fbc41c911a45759f1fd09e682d71e23bb5e5a5bdbb71d86a62",
+      "translation": "실제 응용 프로그램 뷰의 예산 내에서 화면의 기본 픽셀을 샘플링한다."
+    },
+    {
+      "context": "Sample dots at the chosen Detail within the display pixel ceiling.",
+      "label": "spacr.qt.widgets.ambient.DriftEngine.buffer_size#0",
+      "source": "Sample dots at the chosen Detail within the display pixel ceiling.",
+      "source_sha256": "49bd6c339b9f9c70b74f4ef2098e217daeceb24678734567ed5899e720fb188e",
+      "translation": "화면 픽셀 한도 내에서 선택한 세부 수준으로 점을 샘플링한다."
+    }
+  ],
+  "schema": 1
+}

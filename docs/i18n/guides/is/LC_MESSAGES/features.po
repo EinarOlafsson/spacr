@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 09:12-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -237,12 +237,12 @@ msgid "Data-art themes"
 msgstr "Þemu með gagnalist"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Under **Preferences** → **Appearance** → **Theme**, seven data-art presets each select an interface palette and an animated background. The ten night themes remain available. **Animation** lets you choose a background independently; select **None** for a static background. These backgrounds are decorative and do not display project measurements."
-msgstr "Undir **Kjörstillingar** → **Útlit** → **Þema** velur hver af sjö gagnalistaforstillingum viðmótslitapallettu og hreyfanlegan bakgrunn. Næturþemun tíu eru áfram í boði. **Hreyfimynd** leyfir sjálfstætt val á bakgrunni; veldu **Engin** fyrir kyrrstæðan bakgrunn. Þessir bakgrunnar eru skraut og sýna ekki verkefnismælingar."
+msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
+msgstr "Undir **Kjörstillingar** → **Útlit** velur **Þema** litapallettu viðmótsins; næturpalletturnar tíu eru áfram tiltækar. **Hreyfimynd** velur skreytingarbakgrunn óháð því, eða **Engin** til að stöðva hann. Þessir bakgrunnar sýna ekki mælingar verkefnisins. Aðalglugginn notar **spaCR field** sjálfgefið; bakgrunnur stillinganna er sjálfgefið **Engin**."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The animation menu begins with **spaCR field** (the default), **spaCR advection**, **spaCR growth**, **spaCR Thore**, **spaCR waves**, and **Blobs**, followed by the remaining backgrounds."
-msgstr "Hreyfivalmyndin byrjar á **spaCR field** (sjálfgefið), **spaCR advection**, **spaCR growth**, **spaCR Thore**, **spaCR waves** og **Klessur**, og síðan koma aðrir bakgrunnar."
+msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
+msgstr "Hreyfimyndavalmyndin sýnir **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** og **spaCR spinn**, í þessari röð."
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — Skarpt þyngdarsvið punkta með valfrjálsum staðbundnum músaráhrifum og útvíkkandi gárum."
@@ -250,25 +250,49 @@ msgstr "**spaCR field** — Skarpt þyngdarsvið punkta með valfrjálsum staðb
 msgid "**spaCR advection** — Fine particles form evolving vortices and branching currents, with optional mouse gravity."
 msgstr "**spaCR advection** — Fínar agnir mynda síbreytilegar hvirfilbylgjur og greinótt flæði með valfrjálsu þyngdarsviði músar."
 
-#, python-format
-msgid "**spaCR growth** — A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop."
-msgstr "**spaCR growth** — Einn greinóttur vaxtarfrontur færist stöðugt áfram meðan slóð hans dofnar og þekur í mesta lagi 25% af bakgrunninum."
-
-msgid "**spaCR Thore** — Fine background rain and branching lightning briefly illuminate the scene."
-msgstr "**spaCR Thore** — Fín rigning í bakgrunni og greinóttar eldingar lýsa sviðið upp í stutta stund."
-
-msgid "**spaCR waves** — An edge-free landscape of round points carries wide travelling waves."
-msgstr "**spaCR waves** — Jaðarlaust landslag hringlaga punkta ber breiðar bylgjur á hreyfingu."
-
-msgid "**Tissue facets** — Fine paper facets move gently and respond locally to the mouse."
-msgstr "**Vefjafletir** — Fínir pappírsfletir hreyfast mjúklega og bregðast staðbundið við músinni."
-
-msgid "**Chromatin satin** — Fine chromatin fibres undulate in travelling waves across folded ribbons."
-msgstr "**Litnissatín** — Fínir litnisþræðir bylgjast í ferðandi bylgjum yfir brotna borða."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR growth** — Short mycelial segments grow from one starting point per colony and fork repeatedly. Each fork redirects the continuing tip and starts a daughter tip, so the branched front advances across the screen. Density controls the number of live tips. Older trails fade as new colonies begin; visible ink stays within a quarter of the screen."
+msgstr "**spaCR growth** — Stuttir sveppþráðarhlutar vaxa frá einum upphafspunkti í hverri þyrpingu og greinast sífellt. Við hverja greiningu breytir áframhaldandi vaxtaroddurinn um stefnu og nýr dótturoddur verður til, þannig að greinóttur vaxtarjaðarinn færist yfir skjáinn. Þéttleikinn stjórnar fjölda virkra odda. Eldri slóðir dofna þegar nýjar þyrpingar byrja; sýnilegt mynstur þekur í mesta lagi fjórðung skjásins."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **0**, which disables mouse influence. Use **Animation density** to change the number of elements and **Animation detail** to change drawing resolution. Density and detail share the renderer's work budget. Press **Save** to keep preference changes."
-msgstr "**Radíus þyngdarsviðs músar** stillir áhrifasvæðið sem prósentu af styttri skjájaðrinum. Sjálfgefið gildi er **0**, sem slekkur á músaráhrifum. Notaðu **Animaður þunglyndi** til að breyta fjölda eininga og **Uppgötvun upplýsingar** til að breyta teikniupplausn. Þéttleiki og smáatriði deila vinnsluramma teiknivélarinnar. Ýttu á **Vista** til að varðveita breyttar kjörstillingar."
+msgid "**spaCR waves** — Round points carry travelling waves and move away from the mouse within its enabled radius."
+msgstr "**spaCR waves** — Hringlaga punktar bera bylgjur sem færast áfram og víkja frá músinni innan virks áhrifaradíuss hennar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR blobs** — Soft colour blobs, large and small, drift and slowly change size."
+msgstr "**spaCR blobs** — Mjúkir litaflekkir, stórir og litlir, svífa áfram og breyta hægt um stærð."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR aurora** — Irregular curtains of fine rays rise from luminous folds, fan towards the sky, and change length and brightness independently. The spaCR palette uses green with pink upper light for this theme; other selected palettes remain available."
+msgstr "**spaCR aurora** — Óregluleg tjöld úr fíngerðum geislum rísa frá björtum fellingum, breiðast út í átt að himninum og breyta lengd og birtu óháð hvert öðru. Í þessu þema notar spaCR litapallettan grænan lit með bleiku ljósi efst; aðrar valdar litapallettur eru áfram tiltækar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR stratified** — A slow starfield moves in three depth layers; **spaCR stratified direction** selects up, down or random travel."
+msgstr "**spaCR stratified** — Hægt stjörnusvið færist í þremur dýptarlögum; **Stefna spaCR stratified** velur hreyfingu upp, niður eða í handahófskennda stefnu."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse. Rotation is fastest beside the pointer and fades smoothly to zero at the Mouse gravity radius; changing the radius changes the affected area."
+msgstr "**spaCR spinn** — Fíngerðir pappírsfletir hreyfast mjúklega og snúast staðbundið til að bregðast við músinni. Snúningurinn er hraðastur næst bendlinum og minnkar mjúklega niður í núll við jaðar þyngdarsviðs músarinnar; radíusinn ákvarðar stærð svæðisins sem verður fyrir áhrifum."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
+msgstr "**Radíus þyngdarsviðs músar** skilgreinir áhrifasvæðið sem hlutfall af styttri skjábrúninni. Sjálfgefið gildi er **15%**; veldu **0** til að slökkva á áhrifum músarinnar. **Þéttleiki hreyfimyndar** breytir fjölda eininga óháð **Smáatriði hreyfimyndar**, sem breytir upplausn teikningarinnar. Lágmarksþéttleiki er **1%**; aukin smáatriði fækka ekki þeim einingum sem voru valdar. Teiknarinn takmarkar sýnatökuvinnu sína við mynddílafjölda skjásins. Veldu **Handahófskennt** í **Litapalletta hreyfimyndar** til að fá lit fyrir hverja einingu. Nýjar uppsetningar nota **Dökkt**, **spaCR field** og **spaCR** litapallettuna, með þéttleika **10%**, þyngdarsvið **15%**, smáatriði, hraða og stærð **100%** og ógagnsæi síðu **60%**. **Blikk punkta** stjórnar hlutfalli sýnilegra punkta sem blikka hvítir: **0** slekkur á því (sjálfgefið), og önnur gildi eru frá 0,00001% til 10%. Stillingin á við spaCR field, spaCR advection, spaCR waves og spaCR stratified. Dofnun sviðsins er virk. Blái jaðarinn notar hlutfallslega lengd **17%** af ummáli, eftirfylgni **50%**, miðjaða staðsetningu, haminn **Beat** og lotu **1.5 s**. Vistaðar stillingar haldast þar til þeim er breytt eða þær endurstilltar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Popup wave frequency** sets automatic waves per minute in **spaCR field**. The default is **5 waves/minute**; **0** disables popup waves. When enabled, opening a popup immediately starts the first wave from its centre, followed by waves at the selected rate. Moving the popup moves the origin of new waves; closing it stops new waves while existing waves fade. This control is independent of mouse gravity, dot blinking, density and drawing detail."
+msgstr "**Tíðni bylgna frá sprettigluggum** velur fjölda sjálfvirkra bylgna á mínútu í **spaCR field**. Sjálfgefið gildi er **5 bylgjur/mínútu**; **0** slekkur á bylgjum frá sprettigluggum. Þegar þær eru virkar byrjar fyrsta bylgjan strax frá miðju sprettigluggans þegar hann opnast, og næstu bylgjur fylgja valinni tíðni. Þegar glugginn er færður færist upptökustaður nýrra bylgna; lokun stöðvar nýjar bylgjur en þær sem þegar eru til dofna. Þessi stilling er óháð þyngdarsviði músarinnar, blikki punkta, þéttleika og smáatriðum teikningarinnar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Apply** to preview changes while Preferences stays open. A separate question offers **Keep** or **Revert**. Revert restores the saved and live settings; your edited controls remain available to change or apply again. Closing the question also reverts. **Save** keeps changes and closes Preferences."
+msgstr "Ýttu á **Beita** til að prófa breytingar meðan kjörstillingaglugginn helst opinn. Sérstök spurning býður **Halda** eða **Afturkalla**. Þegar farið er til baka eru vistaðar og virkar stillingar endurheimtar; breyttu stýringarnar eru áfram tiltækar til breytinga eða til að beita aftur. Að loka spurningunni endurheimtir einnig fyrri stillingar. **Vista** heldur breytingunum og lokar kjörstillingaglugganum."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
+msgstr "**Sættuðu Backdrop** helst óháð aðalhreyfimyndinni bæði þegar stillingar eru notaðar og vistaðar. **Engin** slekkur á hreyfingu í sprettigluggum en heldur bláa jaðrinum. **Dökkvun bakgrunns stillinga** stjórnar ógagnsæi stillingaspjaldsins yfir hreyfimyndinni, frá **0%** til **100%** (sjálfgefið **85%**), ásamt **Ógagnsæi síðu**. Ógagnsæi síðu gildir einnig þegar bakgrunnur stillinga er **Engin**. Meiri dökkvun hylur meira af hreyfimyndinni svo auðveldara sé að lesa textann. Sprettigluggar haldast fyrir ofan spaCR gluggann sem þeir tilheyra, án almennrar stillingar sem heldur þeim yfir öllum gluggum; önnur forrit geta því hulið þá."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."
+msgstr "Í **spaCR field** heldurðu vinstri músarhnappnum niðri og dregur á auðu bakgrunnssvæði til að toga í staðbundinn hóp punkta. Þegar hnappnum er sleppt færist hópurinn mjúklega til baka án þess að mynstrið byrji upp á nýtt. Þessi bakgrunnsaðgerð heldur vísindalega teiknisvæðinu og aðgerðum stýrihluta tiltækum."
 
 msgid "Arranging the window"
 msgstr "Uppröðun gluggans"
@@ -282,8 +306,9 @@ msgstr "**Stikan**: á meðan hún er sýnd skaltu draga brún hennar til að ge
 msgid "**A module's right-hand column** (console, actions and the other panels) resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it to make its text larger or smaller; **Ctrl+0** over the column returns to the default size."
 msgstr "**Hægri dálkur einingar** (stjórnborð, aðgerðir og hin spjöldin) breytir stærð sem ein heild þegar vinstri brún hans er dregin. Haltu inni **Ctrl** og skrunaðu yfir hann til að stækka eða minnka texta hans; **Ctrl+0** yfir dálkinum færir hann aftur í sjálfgefna stærð."
 
-msgid "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to setting help, hint strips and other hover help. Turn tooltips off with **Show tooltips** on the same page."
-msgstr "**Skjábendingar** birtast þegar bendillinn hefur hvílt á stýringu í þá **Töf vísbendinga** sem stillt er í **Kjörstillingar → Útlit** (sjálfgefið 2,0 s; 0 sýnir þær strax) og haldast meðan bendillinn er á þeim. Sama töf gildir um hjálp við stillingar, ábendingaborða og aðra hjálp við yfirsveimun. Slökktu á skjábendingum með **Sýna skjábendingar** á sömu síðu."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to popup tooltips. Fixed hint text at the bottom of Home and Preferences appears immediately. Turn popup tooltips off with **Show tooltips** on the same page."
+msgstr "**Skjábendingar** birtast þegar bendillinn hefur hvílt á stýringu í þann **Töf vísbendinga** sem er valinn undir **Kjörstillingar → Útlit** (sjálfgefið 2.0 s; 0 sýnir þær strax), og haldast sýnilegar meðan bendillinn er þar. Sama töf gildir um vísbendingar í sprettigluggum. Fasti hjálpartextinn neðst á upphafsskjánum og í kjörstillingum birtist strax. Slökktu á sprettivísbendingum með **Sýna skjábendingar** á sömu síðu."
 
 msgid "These sizes are remembered between sessions."
 msgstr "Þessar stærðir eru munaðar milli lota."
@@ -301,7 +326,7 @@ msgstr "**Rammi** teiknar sjálfstæða rétthyrninga með flokkamerkingum fyrir
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. **Divide / Merge** splits an object with a left-dragged line: the larger component retains its ID and the smaller receives a new one. Right-drag a line across objects to merge them under the first crossed ID, without painting the background between them. Other objects keep their labels."
-msgstr "Draw dregur frjálsa útlínu sem lokast og fyllist sem einn hlutur -- ólíkt bursta, sem stimplar skífur eftir slóðinni: þegar jaðar er rakinn er jaðarinn merktur en miðjan helst bakgrunnur. **Divide / Merge** skiptir hlut með línu sem er dregin með vinstri músarhnappi: stærri hlutinn heldur auðkenni sínu og sá minni fær nýtt. Dragðu línu yfir hluti með hægri músarhnappi til að sameina þá undir fyrsta auðkenninu sem línan sker, án þess að mála bakgrunninn á milli þeirra. Aðrir hlutir halda merkjum sínum."
+msgstr "Draw dregur frjálsa útlínu sem lokast og fyllist sem einn hlutur -- ólíkt bursta, sem stimplar skífur eftir slóðinni: þegar jaðar er rakinn er jaðarinn merktur en miðjan helst bakgrunnur. **Skipta / Sameina** skiptir hlut með línu sem er dregin með vinstri músarhnappi: stærri hlutinn heldur auðkenni sínu og sá minni fær nýtt. Dragðu línu yfir hluti með hægri músarhnappi til að sameina þá undir fyrsta auðkenninu sem línan sker, án þess að mála bakgrunninn á milli þeirra. Aðrir hlutir halda merkjum sínum."
 
 msgid "Recrop is the only tool that changes which field is on screen rather than what is painted on it. A staged crop holding several cells is not one training example, and curating it as one teaches a network that two objects are one picture -- so a box round an object writes that region of both the image and the mask as a field of its own, queued straight after the current one, and the multi-object original is retired into ``recropped_originals/`` rather than curated. A box smaller than the minimum side, or one repeating a cut already made, is refused; objects the box cuts through are dropped, because an object whose boundary is where the mouse was released is not that object; and the labels that survive are renumbered from one."
 msgstr "Recrop er eina verkfærið sem breytir því hvaða sjónsvið er á skjánum frekar en því sem er málað á það. Sviðsettur myndskurður sem inniheldur nokkrar frumur er ekki eitt þjálfunardæmi, og ef hann er grisjaður sem eitt kennir það neti að tveir hlutir séu ein mynd -- svo rammi utan um hlut skrifar það svæði bæði myndarinnar og grímunnar sem eigið sjónsvið, sett í biðröð strax á eftir því núverandi, og upphaflega fjölhlutamyndin er sett til hliðar í ``recropped_originals/`` frekar en grisjuð. Ramma sem er minni en lágmarkshliðin, eða sem endurtekur skurð sem þegar hefur verið gerður, er hafnað; hlutum sem ramminn sker í gegnum er sleppt, því að hlutur sem hefur mörk þar sem músinni var sleppt er ekki sá hlutur; og merkin sem eftir standa eru endurnúmeruð frá einum."

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 09:12-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -237,12 +237,12 @@ msgid "Data-art themes"
 msgstr "डेटा कला थीम"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Under **Preferences** → **Appearance** → **Theme**, seven data-art presets each select an interface palette and an animated background. The ten night themes remain available. **Animation** lets you choose a background independently; select **None** for a static background. These backgrounds are decorative and do not display project measurements."
-msgstr "**प्राथमिकताएं** → **रूप-रंग** → **थीम** में सात डेटा आर्ट प्रीसेट में से प्रत्येक इंटरफ़ेस का रंग-पैलेट और एनिमेटेड पृष्ठभूमि चुनता है। दस रात्रि थीम उपलब्ध रहती हैं। **एनिमेशन** से पृष्ठभूमि स्वतंत्र रूप से चुनें; स्थिर पृष्ठभूमि के लिए **कोई नहीं** चुनें। ये पृष्ठभूमियाँ सजावटी हैं और परियोजना के मापन नहीं दिखातीं।"
+msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
+msgstr "**प्राथमिकताएं** → **रूप-रंग** में **थीम** इंटरफ़ेस की रंग-पैलेट चुनता है; दस रात्रिकालीन पैलेट उपलब्ध रहती हैं। **एनिमेशन** स्वतंत्र रूप से सजावटी पृष्ठभूमि चुनता है, या **कोई नहीं** से उसे रोका जा सकता है। ये पृष्ठभूमियाँ परियोजना की माप नहीं दिखातीं। मुख्य विंडो का डिफ़ॉल्ट **spaCR field** है; सेटिंग की पृष्ठभूमि का डिफ़ॉल्ट **कोई नहीं** है।"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The animation menu begins with **spaCR field** (the default), **spaCR advection**, **spaCR growth**, **spaCR Thore**, **spaCR waves**, and **Blobs**, followed by the remaining backgrounds."
-msgstr "एनिमेशन मेनू की शुरुआत **spaCR field** (डिफ़ॉल्ट), **spaCR advection**, **spaCR growth**, **spaCR Thore**, **spaCR waves** और **तरल आकृतियाँ** से होती है; शेष पृष्ठभूमियाँ इनके बाद आती हैं।"
+msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
+msgstr "एनिमेशन मेनू में **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** और **spaCR spinn** इसी क्रम में दिखते हैं।"
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — स्पष्ट बिंदुओं वाला गुरुत्व क्षेत्र, जिसमें वैकल्पिक स्थानीय माउस प्रभाव और फैलती लहरें हैं।"
@@ -250,25 +250,49 @@ msgstr "**spaCR field** — स्पष्ट बिंदुओं वाल�
 msgid "**spaCR advection** — Fine particles form evolving vortices and branching currents, with optional mouse gravity."
 msgstr "**spaCR advection** — महीन कण बदलते भंवर और शाखित प्रवाह बनाते हैं, जिनमें माउस का गुरुत्व वैकल्पिक है।"
 
-#, python-format
-msgid "**spaCR growth** — A single branching front advances continuously while its trail fades, occupying at most 25% of the backdrop."
-msgstr "**spaCR growth** — एक ही शाखित वृद्धि अग्रभाग लगातार आगे बढ़ता है और पीछे का निशान फीका पड़ता जाता है; पृष्ठभूमि का अधिकतम 25% भाग घिरता है।"
-
-msgid "**spaCR Thore** — Fine background rain and branching lightning briefly illuminate the scene."
-msgstr "**spaCR Thore** — पृष्ठभूमि की महीन बारिश और शाखित बिजली दृश्य को थोड़ी देर के लिए रोशन करती हैं।"
-
-msgid "**spaCR waves** — An edge-free landscape of round points carries wide travelling waves."
-msgstr "**spaCR waves** — बिना किनारों वाले गोल बिंदुओं के परिदृश्य में चौड़ी लहरें आगे बढ़ती हैं।"
-
-msgid "**Tissue facets** — Fine paper facets move gently and respond locally to the mouse."
-msgstr "**ऊतक फलक** — कागज़ जैसे महीन फलक धीरे चलते हैं और स्थानीय रूप से माउस पर प्रतिक्रिया देते हैं।"
-
-msgid "**Chromatin satin** — Fine chromatin fibres undulate in travelling waves across folded ribbons."
-msgstr "**क्रोमैटिन साटन** — महीन क्रोमैटिन तंतु मुड़ी हुई पट्टियों पर आगे बढ़ती लहरों में लहराते हैं।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR growth** — Short mycelial segments grow from one starting point per colony and fork repeatedly. Each fork redirects the continuing tip and starts a daughter tip, so the branched front advances across the screen. Density controls the number of live tips. Older trails fade as new colonies begin; visible ink stays within a quarter of the screen."
+msgstr "**spaCR growth** — प्रत्येक कॉलोनी में छोटे कवक-तंतु एक शुरुआती बिंदु से बढ़ते हैं और बार-बार शाखाएँ बनाते हैं। हर विभाजन आगे बढ़ रहे सिरे की दिशा बदलता है और एक नया शाखा-सिरा बनाता है, जिससे शाखित अग्रभाग स्क्रीन पर आगे बढ़ता है। घनत्व सक्रिय सिरों की संख्या नियंत्रित करता है। नई कॉलोनियाँ शुरू होने पर पुराने निशान मिटते जाते हैं; दिखाई देने वाला पैटर्न स्क्रीन के एक चौथाई क्षेत्र तक सीमित रहता है।"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **0**, which disables mouse influence. Use **Animation density** to change the number of elements and **Animation detail** to change drawing resolution. Density and detail share the renderer's work budget. Press **Save** to keep preference changes."
-msgstr "**माउस गुरुत्व की त्रिज्या** प्रभावित क्षेत्र को स्क्रीन के छोटे किनारे के प्रतिशत के रूप में सेट करता है। डिफ़ॉल्ट **0** माउस का प्रभाव बंद करता है। तत्वों की संख्या बदलने के लिए **गति घनत्व** और चित्रण का रिज़ॉल्यूशन बदलने के लिए **एनीमेशन विवरण** का उपयोग करें। घनत्व और विस्तार रेंडरर का कार्य बजट साझा करते हैं। प्राथमिकताओं के बदलाव बनाए रखने के लिए **सहेजें** दबाएँ।"
+msgid "**spaCR waves** — Round points carry travelling waves and move away from the mouse within its enabled radius."
+msgstr "**spaCR waves** — गोल बिंदु चलती तरंगें दिखाते हैं और माउस की सक्रिय प्रभाव-त्रिज्या के भीतर उससे दूर हटते हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR blobs** — Soft colour blobs, large and small, drift and slowly change size."
+msgstr "**spaCR blobs** — छोटे और बड़े मुलायम रंगीन आकार धीरे-धीरे खिसकते हैं और आकार बदलते हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR aurora** — Irregular curtains of fine rays rise from luminous folds, fan towards the sky, and change length and brightness independently. The spaCR palette uses green with pink upper light for this theme; other selected palettes remain available."
+msgstr "**spaCR aurora** — महीन प्रकाश-किरणों के अनियमित पर्दे चमकदार सिलवटों से उठते हैं, आकाश की ओर पंखे की तरह फैलते हैं और अपनी लंबाई तथा चमक स्वतंत्र रूप से बदलते हैं। इस थीम के लिए spaCR पैलेट हरे रंग के साथ ऊपरी हिस्से में गुलाबी प्रकाश उपयोग करता है; चुने गए अन्य पैलेट भी उपलब्ध रहते हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR stratified** — A slow starfield moves in three depth layers; **spaCR stratified direction** selects up, down or random travel."
+msgstr "**spaCR stratified** — एक धीमा तारों का क्षेत्र गहराई की तीन परतों में चलता है; **spaCR stratified की दिशा** से ऊपर, नीचे या यादृच्छिक दिशा में गति चुनी जाती है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse. Rotation is fastest beside the pointer and fades smoothly to zero at the Mouse gravity radius; changing the radius changes the affected area."
+msgstr "**spaCR spinn** — पतले कागज़ जैसे छोटे फलक सहजता से चलते हैं और माउस के अनुसार स्थानीय रूप से घूमते हैं। सूचक के निकट घूमने की गति सबसे तेज होती है और माउस की गुरुत्व-त्रिज्या के किनारे पर धीरे-धीरे शून्य हो जाती है; त्रिज्या बदलने से प्रभावित क्षेत्र बदलता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
+msgstr "**माउस गुरुत्व की त्रिज्या** प्रभावित क्षेत्र को स्क्रीन की छोटी भुजा के प्रतिशत के रूप में निर्धारित करती है। इसका डिफ़ॉल्ट **15%** है; माउस का प्रभाव बंद करने के लिए **0** रखें। **एनिमेशन घनत्व** तत्वों की संख्या बदलता है, जबकि उससे स्वतंत्र **एनीमेशन विवरण** चित्रण का रिज़ॉल्यूशन बदलता है। न्यूनतम घनत्व **1%** है; विवरण बढ़ाने से चुने गए तत्वों की संख्या कम नहीं होती। रेंडरर स्क्रीन के पिक्सेल बजट के भीतर अपने सैंपलिंग कार्य को सीमित करता है। हर तत्व के लिए यादृच्छिक रंग पाने हेतु **एनीमेशन पैलेट** में **यादृच्छिक** चुनें। नई स्थापना में **गहरा**, **spaCR field** और **spaCR** एनिमेशन पैलेट उपयोग होते हैं, जिसमें घनत्व **10%**, गुरुत्व **15%**, विवरण, गति और आकार **100%**, तथा पृष्ठ अपारदर्शिता **60%** रहती है। **बिंदुओं का झिलमिलाना** सफ़ेद झिलमिलाने वाले दिखाई देने वाले बिंदुओं का प्रतिशत नियंत्रित करता है: **0** इसे बंद करता है (डिफ़ॉल्ट), और गैर-शून्य मान 0.00001% से 10% तक हैं। यह सेटिंग spaCR field, spaCR advection, spaCR waves और spaCR stratified पर लागू होती है। फ़ील्ड का धीरे-धीरे फीका पड़ना चालू है। नीली परिधि की सापेक्ष लंबाई कुल परिमाप की **17%**, पीछा करने का मान **50%**, संरेखण सूचक के केंद्र पर, मोड **Beat**, और चक्र **1.5 s** है। पहले से सहेजी हुई प्राथमिकताएँ बदलने या रीसेट करने तक बनी रहती हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Popup wave frequency** sets automatic waves per minute in **spaCR field**. The default is **5 waves/minute**; **0** disables popup waves. When enabled, opening a popup immediately starts the first wave from its centre, followed by waves at the selected rate. Moving the popup moves the origin of new waves; closing it stops new waves while existing waves fade. This control is independent of mouse gravity, dot blinking, density and drawing detail."
+msgstr "**पॉपअप तरंग आवृत्ति** **spaCR field** में प्रति मिनट शुरू होने वाली स्वचालित तरंगों की संख्या निर्धारित करती है। डिफ़ॉल्ट **5 तरंगें/मिनट** है; **0** पॉपअप तरंगें बंद करता है। सक्षम होने पर पॉपअप खुलते ही पहली तरंग उसके केंद्र से शुरू होती है, और आगे की तरंगें चुनी गई आवृत्ति पर बनती हैं। पॉपअप को खिसकाने पर नई तरंगों का उद्गम स्थान बदलता है; उसे बंद करने पर नई तरंगें रुकती हैं जबकि मौजूदा तरंगें धीरे-धीरे मिटती हैं। यह नियंत्रण माउस गुरुत्व, बिंदुओं के झिलमिलाने, घनत्व और चित्रण के विवरण से स्वतंत्र है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Press **Apply** to preview changes while Preferences stays open. A separate question offers **Keep** or **Revert**. Revert restores the saved and live settings; your edited controls remain available to change or apply again. Closing the question also reverts. **Save** keeps changes and closes Preferences."
+msgstr "प्राथमिकताओं की विंडो खुली रखते हुए बदलाव आज़माने के लिए **लागू करें** दबाएँ। अलग प्रश्न में **रखें** या **वापस करें** का विकल्प मिलता है। वापस करने पर सहेजी गई और वर्तमान में लागू सेटिंग बहाल होती हैं; संपादित नियंत्रण आगे बदलने या दोबारा लागू करने के लिए उपलब्ध रहते हैं। प्रश्न बंद करने पर भी बदलाव वापस हो जाते हैं। **सहेजें** बदलाव रखता है और प्राथमिकताओं की विंडो बंद करता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
+msgstr "**Backdrop सेटअप** प्राथमिकताएँ लागू करने या सहेजने पर भी मुख्य एनिमेशन से स्वतंत्र रहता है। **कोई नहीं** पॉपअप की गति बंद करता है लेकिन नीली परिधि बनाए रखता है। **सेटिंग्स पृष्ठभूमि का अँधेरापन** एनिमेशन पर सेटिंग्स कार्ड की अपारदर्शिता को **0%** से **100%** तक नियंत्रित करता है (डिफ़ॉल्ट **85%**), और **पृष्ठ अपारदर्शिता** के साथ मिलकर लागू होता है। सेटिंग्स की पृष्ठभूमि **कोई नहीं** होने पर भी पृष्ठ अपारदर्शिता लागू होती है। अधिक अँधेरापन एनिमेशन को अधिक ढकता है ताकि पाठ पढ़ना आसान हो। पॉपअप केवल अपनी spaCR विंडो के सामने रहते हैं; वे सभी विंडो के ऊपर बने रहने वाला वैश्विक फ़्लैग उपयोग नहीं करते, इसलिए दूसरे ऐप उन्हें ढक सकते हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."
+msgstr "**spaCR field** में खाली पृष्ठभूमि पर माउस का बायाँ बटन दबाकर खींचें ताकि बिंदुओं का एक स्थानीय समूह खिंचे। बटन छोड़ने पर वह पैटर्न को दोबारा शुरू किए बिना सहजता से लौटता है। यह पृष्ठभूमि क्रिया वैज्ञानिक कैनवस और नियंत्रणों के संचालन को उपलब्ध रखती है।"
 
 msgid "Arranging the window"
 msgstr "विंडो की व्यवस्था"
@@ -282,8 +306,9 @@ msgstr "**डॉक**: दिखाई देते समय इसकी क�
 msgid "**A module's right-hand column** (console, actions and the other panels) resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it to make its text larger or smaller; **Ctrl+0** over the column returns to the default size."
 msgstr "**किसी मॉड्यूल का दायाँ स्तंभ** (कंसोल, क्रियाएँ और अन्य पैनल) अपनी बाईं किनारी खींचने पर एक इकाई के रूप में आकार बदलता है। पाठ बड़ा या छोटा करने के लिए **Ctrl** दबाए रखकर उस पर स्क्रॉल करें; स्तंभ पर **Ctrl+0** डिफ़ॉल्ट आकार पर लौटाता है।"
 
-msgid "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to setting help, hint strips and other hover help. Turn tooltips off with **Show tooltips** on the same page."
-msgstr "**टूलटिप** तब दिखते हैं जब पॉइंटर किसी नियंत्रण पर **प्राथमिकताएं → रूप-रंग** में सेट किए गए **टूलटिप विलंब** तक टिका रहता है (डिफ़ॉल्ट 2.0 s; 0 पर तुरंत दिखते हैं), और जब तक पॉइंटर उन पर रहता है तब तक बने रहते हैं। यही विलंब सेटिंग सहायता, संकेत पट्टियों और अन्य होवर सहायता पर भी लागू होता है। उसी पृष्ठ पर **टूलटिप दिखाएँ** से टूलटिप बंद करें।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to popup tooltips. Fixed hint text at the bottom of Home and Preferences appears immediately. Turn popup tooltips off with **Show tooltips** on the same page."
+msgstr "जब पॉइंटर किसी नियंत्रण पर **प्राथमिकताएं → रूप-रंग** में निर्धारित **टूलटिप विलंब** तक ठहरता है, तब **टूलटिप** दिखाई देते हैं (डिफ़ॉल्ट 2.0 s; 0 पर तुरंत दिखते हैं), और पॉइंटर वहाँ रहने तक बने रहते हैं। पॉपअप टूलटिप पर भी यही विलंब लागू होता है। होम और प्राथमिकताओं की विंडो के निचले भाग का स्थायी संकेत पाठ तुरंत दिखाई देता है। उसी पृष्ठ पर **टूलटिप दिखाएँ** से पॉपअप टूलटिप बंद करें।"
 
 msgid "These sizes are remembered between sessions."
 msgstr "ये आकार सत्रों के बीच याद रखे जाते हैं।"
@@ -301,7 +326,7 @@ msgstr "**बॉक्स** YOLO एनोटेशन के लिए वर�
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Draw traces a free-form outline that closes and fills as a single object -- the tool a brush is not, because a brush stamps disks along the path, so tracing a rim with it labels the rim and leaves the middle background. **Divide / Merge** splits an object with a left-dragged line: the larger component retains its ID and the smaller receives a new one. Right-drag a line across objects to merge them under the first crossed ID, without painting the background between them. Other objects keep their labels."
-msgstr "Draw एक मुक्त आकार की रूपरेखा बनाता है जो बंद होकर एक वस्तु के रूप में भर जाती है -- ब्रश पथ के साथ गोल चकत्ते बनाता है, इसलिए किनारे पर रेखा खींचने से केवल किनारा लेबल होता है और बीच का भाग पृष्ठभूमि बना रहता है। **Divide / Merge** बाएँ बटन से खींची गई रेखा द्वारा वस्तु को विभाजित करता है: बड़ा भाग अपना ID रखता है और छोटे भाग को नया ID मिलता है। दाएँ बटन से वस्तुओं के ऊपर रेखा खींचकर उन्हें पहले पार किए गए ID के अंतर्गत मिलाएँ; बीच की पृष्ठभूमि पर रंग नहीं भरता। अन्य वस्तुएँ अपने लेबल रखती हैं।"
+msgstr "Draw एक मुक्त आकार की रूपरेखा बनाता है जो बंद होकर एक वस्तु के रूप में भर जाती है -- ब्रश पथ के साथ गोल चकत्ते बनाता है, इसलिए किनारे पर रेखा खींचने से केवल किनारा लेबल होता है और बीच का भाग पृष्ठभूमि बना रहता है। **विभाजित करें / मिलाएँ** बाएँ बटन से खींची गई रेखा द्वारा वस्तु को विभाजित करता है: बड़ा भाग अपना ID रखता है और छोटे भाग को नया ID मिलता है। दाएँ बटन से वस्तुओं के ऊपर रेखा खींचकर उन्हें पहले पार किए गए ID के अंतर्गत मिलाएँ; बीच की पृष्ठभूमि पर रंग नहीं भरता। अन्य वस्तुएँ अपने लेबल रखती हैं।"
 
 msgid "Recrop is the only tool that changes which field is on screen rather than what is painted on it. A staged crop holding several cells is not one training example, and curating it as one teaches a network that two objects are one picture -- so a box round an object writes that region of both the image and the mask as a field of its own, queued straight after the current one, and the multi-object original is retired into ``recropped_originals/`` rather than curated. A box smaller than the minimum side, or one repeating a cut already made, is refused; objects the box cuts through are dropped, because an object whose boundary is where the mouse was released is not that object; and the labels that survive are renumbered from one."
 msgstr "Recrop एकमात्र उपकरण है जो यह बदलता है कि स्क्रीन पर कौन-सा फ़ील्ड है, न कि उस पर क्या रंगा गया है। कई कोशिकाओं वाला तैयार क्रॉप एक प्रशिक्षण उदाहरण नहीं है, और उसे एक मानकर क्यूरेट करने से नेटवर्क यह सीखता है कि दो ऑब्जेक्ट एक चित्र हैं -- इसलिए किसी ऑब्जेक्ट के चारों ओर बना बॉक्स छवि और मास्क दोनों के उस क्षेत्र को एक अलग फ़ील्ड के रूप में लिखता है, जो वर्तमान फ़ील्ड के ठीक बाद कतार में लगता है, और बहु-ऑब्जेक्ट मूल को क्यूरेट करने के बजाय ``recropped_originals/`` में हटा दिया जाता है। न्यूनतम भुजा से छोटा बॉक्स, या पहले से किए गए कट को दोहराने वाला बॉक्स अस्वीकार किया जाता है; बॉक्स जिन ऑब्जेक्ट को काटता है उन्हें हटा दिया जाता है, क्योंकि जिस ऑब्जेक्ट की सीमा वहाँ है जहाँ माउस छोड़ा गया, वह वही ऑब्जेक्ट नहीं है; और बचे हुए लेबल एक से फिर से क्रमांकित होते हैं।"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-06 18:04-0400\n"
+"POT-Creation-Date: 2026-10-07 18:34-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -95,6 +95,64 @@ msgstr "Skoða niðurstöðusýnirnar"
 
 msgid "The view selector above the preview offers **Overlay**, **Masks**, **Flows** and **Cell probability** in both modes. In Figure mode, each segmented well's outputs are placed at its box on the figure. Right-click the image for the overlay options: outlines or filled objects, random colours, **Overlay settings…** and **Save picture…**. The overlay settings include the outline and fill colours, fill opacity and the **Line weight** of the **Well boxes**. **Ruler** measures a distance on the image, in µm when the pixel size is known and in pixels otherwise; right-click clears it."
 msgstr "Sýnarvalið fyrir ofan forskoðunina býður upp á **Yfirlag**, **Grímur**, **Flæði** og **Líkur á frumu** í báðum hömum. Í Figure-ham eru úttök hvers hlutaðs brunns sett á ramma hans á myndinni. Hægrismelltu á myndina fyrir valkosti yfirlags: útlínur eða fylltir hlutir, slembilitir, **Stillingar yfirlags…** og **Vista mynd…**. Stillingar yfirlags innihalda útlínu- og fyllingarliti, ógegnsæi fyllingar og **Línuþykkt** fyrir **Brunnarammar**. **Reglustika** mælir fjarlægð á myndinni, í µm þegar pixlastærð er þekkt og annars í pixlum; hægrismellur hreinsar hana."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Saved segmentation diagnostics"
+msgstr "Vistaðar greiningar á myndskiptingu"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Plaque mode writes these columns for each plaque in ``per_plaque`` and ``details`` in ``<src>/masks/plaques_analysis.db``, and exports ``<src>/masks/per_plaque.csv``. Figure mode writes the same columns in the ``plaques`` table of ``plaque_figures.db``."
+msgstr "Plaque-hamurinn skrifar þessa dálka fyrir hverja skellu í ``per_plaque`` og ``details`` í ``<src>/masks/plaques_analysis.db`` og flytur út ``<src>/masks/per_plaque.csv``. Myndagerðarhamurinn skrifar sömu dálka í töfluna ``plaques`` í ``plaque_figures.db``."
+
+msgid "Column"
+msgstr "Fólkið"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Meaning"
+msgstr "Merking"
+
+msgid "``cell_probability_mean``"
+msgstr "``cell_probability_mean``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mean raw Cellpose cell-probability score across the plaque's pixels. These scores are logits, can be negative and are not calibrated probabilities or confidence percentages."
+msgstr "Meðaltal óunninna Cellpose stiga fyrir líkur á frumu yfir mynddíla skellunnar. Þessi stig eru logits, geta verið neikvæð og eru hvorki kvarðaðar líkur né öryggisprósentur."
+
+msgid "``flow_error``"
+msgstr "``flow_error``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Cellpose's sum of the two component mean squared errors between mask-derived diffusion flows and predicted flows divided by five. Lower values mean better flow agreement with the saved mask."
+msgstr "Cellpose-summa meðalkvaðratvillu beggja þátta milli dreifingarflæðis sem er leitt af grímunni og spáðs flæðis deilt með fimm. Lægri gildi sýna betra samræmi flæðisins við vistuðu grímuna."
+
+msgid "``flow_magnitude_mean``"
+msgstr "``flow_magnitude_mean``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mean predicted flow-vector length within the plaque, divided by five to use Cellpose's mask-flow scale. This describes flow strength; higher values alone do not imply a better segmentation."
+msgstr "Meðallengd spáðra flæðisvigra innan skellunnar, deilt með fimm til að nota grímuflæðiskvarða Cellpose. Þetta lýsir flæðisstyrk; hærri gildi ein og sér merkja ekki betri myndskiptingu."
+
+msgid "``flow_alignment_mean``"
+msgstr "``flow_alignment_mean``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Mean directional cosine between predicted and mask-derived flows, excluding zero-length vectors. Values range from -1 to 1; 1 means matching directions and -1 means opposite directions."
+msgstr "Meðalkósínus stefnu milli spáðra flæðisvigra og flæðisvigra sem eru leiddir af grímunni, að undanskildum vigrum með lengd núll. Gildin eru frá -1 til 1; 1 merkir sömu stefnu og -1 gagnstæða stefnu."
+
+msgid "``cell_probability_pixel_fraction``, ``flow_pixel_fraction``"
+msgstr "``cell_probability_pixel_fraction``, ``flow_pixel_fraction``"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Fraction of plaque pixels with finite probability scores or finite two-component flow vectors. These describe output coverage."
+msgstr "Hlutfall mynddíla í skellunni með endanleg líkindastig eða endanlega tveggja þátta flæðisvigra. Þetta lýsir þekju úttaksins."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Flow agreement can help flag merged or poorly divided plaques, but does not establish biological accuracy; inspect the image and mask together. Missing outputs, incompatible output grids and unavailable comparisons are saved as blank CSV cells or SQL NULL, rather than zero. Probability and flow magnitude means use finite pixels. Flow error and alignment require finite predicted flows throughout the foreground; a comparison failure leaves them blank. Comparisons run on CPU and do not change the model's segmentation."
+msgstr "Samræmi flæðis getur hjálpað til við að finna sameinaðar eða illa aðskildar skellur, en staðfestir ekki líffræðilega nákvæmni; skoðaðu myndina og grímuna saman. Úttak sem vantar, ósamrýmanleg úttaksnet og samanburður sem er ekki tiltækur eru vistuð sem auðir CSV reitir eða SQL NULL, en ekki núll. Meðaltöl líkindastiga og flæðismagns nota mynddíla með endanleg gildi. Flæðisvilla og stefnusamræmi krefjast endanlegs spáðs flæðis yfir allt forgrunnssvæðið; ef samanburður bregst eru þessir reitir auðir. Samanburðurinn keyrir á CPU og breytir ekki myndskiptingu líkansins."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each generated mask also has a ``<image>.diagnostics.csv`` sidecar carrying the original per-plaque diagnostics and a mask fingerprint. A run with ``masks=False`` reuses it only when the saved mask still matches. Editing a mask invalidates these model diagnostics; regenerate masks to obtain fresh ones. Existing masks without a sidecar retain their measurements and have blank diagnostic columns. Figure workflows with a custom callback returning only labels also leave the diagnostic columns blank."
+msgstr "Hver mynduð gríma hefur einnig fylgiskrána ``<image>.diagnostics.csv`` með upphaflegum greiningum fyrir hverja skellu og fingrafari grímunnar. Keyrsla með ``masks=False`` endurnýtir hana aðeins ef vistaða gríman passar enn við fingrafarið. Breyting á grímu ógildir þessar líkangreiningar; myndaðu grímur aftur til að fá nýjar. Fyrirliggjandi grímur án fylgiskrár halda mælingum sínum og hafa auða greiningardálka. Myndagerðarferli með sérsniðnu endurkallsfalli sem skilar aðeins merkjum hafa einnig auða greiningardálka."
 
 msgid "Contribute training data"
 msgstr "Leggja til þjálfunargögn"

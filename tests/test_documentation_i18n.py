@@ -263,7 +263,9 @@ TOOLS = ROOT / "tools"
 # 2026-10-06 560: +1/-0, EmbeddingsScreen._subcell_channels_dialog.accept_mapping.
 # 2026-10-07: the source-reviewed SCN, Cell-DINO, GUI and ambient additions
 # add these 17 symbols without removing any of the prior 13,182.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_199
+# A further 15 Apply, blinking, popup-wave and renderer contracts enter
+# the same dated source-reviewed inventory; none of the prior rows retire.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_214
 SOURCE_REVIEWED_SYMBOLS_2026_10_07 = frozenset({
     "spacr.convert.read_scn",
     "spacr.convert.scn_to_rgb8",
@@ -282,6 +284,21 @@ SOURCE_REVIEWED_SYMBOLS_2026_10_07 = frozenset({
     "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.finished",
     "spacr.qt.widgets.ambient.AmbientWidget.gravity_radius",
     "spacr.qt.widgets.ambient.AmbientWidget.set_gravity_radius",
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply",
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._answered",
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._network_bytes",
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._restore",
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply._snapshot",
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._blink_value_changed",
+    "spacr.qt.widgets.ambient.AmbientEngine.set_blink_percent",
+    "spacr.qt.widgets.ambient.AmbientEngine.set_popup_wave_frequency",
+    "spacr.qt.widgets.ambient.AmbientWidget.blink_percent",
+    "spacr.qt.widgets.ambient.AmbientWidget.popup_wave_frequency",
+    "spacr.qt.widgets.ambient.AmbientWidget.set_blink_percent",
+    "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency",
+    "spacr.qt.widgets.ambient.AuroraEngine.buffer_scale",
+    "spacr.qt.widgets.ambient.AuroraEngine.buffer_size",
+    "spacr.qt.widgets.ambient.DriftEngine.buffer_size",
 })
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
@@ -3248,7 +3265,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     import build_documentation_i18n as builder
 
     docs, source_contracts = current_documentation_api_contracts
-    assert len(SOURCE_REVIEWED_SYMBOLS_2026_10_07) == 17
+    assert len(SOURCE_REVIEWED_SYMBOLS_2026_10_07) == 32
     assert SOURCE_REVIEWED_SYMBOLS_2026_10_07 <= set(docs)
     assert len(docs) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Regenerate every API "
