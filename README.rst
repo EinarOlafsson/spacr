@@ -76,7 +76,7 @@ Languages: `🌐 English ▾ <docs/i18n/readme/README.md>`_
 
 **Spatial phenotype analysis of CRISPR screens.**
 
-spaCR segments and measures single cells in high-content microscopy images,
+spaCR segments and measures single cells in microscopy images,
 integrates per-object phenotypes with sequencing-derived guide abundance, and
 estimates which genes are associated with phenotypic changes. Starting from
 plate images and FASTQ reads, it produces per-object measurements, trained
