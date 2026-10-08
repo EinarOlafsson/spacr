@@ -1,0 +1,50 @@
+{
+  "found": true,
+  "target_pid": 1099997,
+  "application": "n655-gtk-control.py",
+  "visited": 12,
+  "rows": [
+    {
+      "depth": 0,
+      "role": "application",
+      "name": "n655-gtk-control.py",
+      "children": 1
+    },
+    {
+      "depth": 1,
+      "role": "frame",
+      "name": "n655-atspi-positive-control",
+      "children": 2
+    },
+    {
+      "depth": 2,
+      "role": "panel",
+      "name": "",
+      "children": 2
+    },
+    {
+      "depth": 4,
+      "role": "push button",
+      "name": "Minimize",
+      "children": 0
+    },
+    {
+      "depth": 4,
+      "role": "push button",
+      "name": "Maximize",
+      "children": 0
+    },
+    {
+      "depth": 4,
+      "role": "push button",
+      "name": "Close",
+      "children": 0
+    },
+    {
+      "depth": 2,
+      "role": "push button",
+      "name": "Positive control button",
+      "children": 0
+    }
+  ]
+}

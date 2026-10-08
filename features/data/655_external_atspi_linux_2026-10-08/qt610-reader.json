@@ -1,0 +1,14 @@
+{
+  "found": true,
+  "target_pid": 1102001,
+  "application": "python",
+  "visited": 1,
+  "rows": [
+    {
+      "depth": 0,
+      "role": "application",
+      "name": "python",
+      "children": 0
+    }
+  ]
+}
