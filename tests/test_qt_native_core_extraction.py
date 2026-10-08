@@ -617,6 +617,79 @@ def test_original_fault_diagnostic_selects_restored_frame_with_bounded_fallback(
         assert commands[-2:] == ['info registers', 'x/16i $pc']
 
 
+@pytest.mark.parametrize('case,expected', [
+    ('source_worker', 'wrapper_type_diagnostic=_SourceWorker wrapper_ptr=0x10000'),
+    ('wrong_library', 'wrapper_type_diagnostic=unsupported_library_hash'),
+    ('wrong_python', 'wrapper_type_diagnostic=unsupported_python_abi'),
+    ('unreadable_type', 'wrapper_type_diagnostic=unavailable'),
+])
+def test_qthread_fault_reports_only_a_bounded_python_wrapper_class(
+    tmp_path, monkeypatch, case, expected,
+):
+    """A matching 6.12 frame distinguishes workers without uploading core bytes."""
+    from types import SimpleNamespace
+
+    library = tmp_path / 'libshiboken6.abi3.so.6.12'
+    library.write_bytes(b'controlled library')
+    fingerprint = ('different' if case == 'wrong_library' else
+                   '2b3d9767d69da0afabe4a383dc241a110fac4c0bb63cdeb3d01314e9c702241e')
+    monkeypatch.setattr('hashlib.sha256',
+                        lambda _bytes: SimpleNamespace(hexdigest=lambda: fingerprint))
+    messages = []
+    memory = {
+        0x10008: struct.pack('<Q', 0x20000),
+        0x20018: struct.pack('<Q', 0x30000),
+        0x30000: b'_SourceWorker\0'.ljust(96, b'\0'),
+    }
+
+    def read_memory(address, size):
+        if case == 'unreadable_type' and address == 0x20018:
+            raise RuntimeError('unreadable target memory')
+        return memory[address][:size]
+
+    class Frame:
+        def __init__(self, kind, name, older=None):
+            self.kind, self.title, self.next = kind, name, older
+
+        def type(self):
+            return self.kind
+
+        def older(self):
+            return self.next
+
+        def select(self):
+            pass
+
+        def level(self):
+            return 1
+
+        def name(self):
+            return self.title
+
+        def pc(self):
+            return 0x12345
+
+    original = Frame(0, 'Shiboken::BindingManager::unregisterWrapper(SbkObject*)')
+    signal = Frame(1, 'signal_raise', original)
+    gdb = SimpleNamespace(
+        execute=lambda _command: None,
+        write=messages.append,
+        newest_frame=lambda: signal,
+        SIGTRAMP_FRAME=1,
+        solib_name=lambda _pc: str(library),
+        parse_and_eval=lambda expression: (
+            0x30B0DF0 if case == 'wrong_python' else 0x30C0DF0
+        ) if expression == 'Py_Version' else 0x10000,
+        selected_inferior=lambda: SimpleNamespace(read_memory=read_memory),
+    )
+    monkeypatch.setitem(sys.modules, 'gdb', gdb)
+
+    exec(collector._ORDINARY_FAULT_SCRIPT, {})
+
+    assert expected in ''.join(messages)
+    assert 'controlled library' not in ''.join(messages)
+
+
 def test_serial_gdb_command_remains_the_original_bounded_backtrace(tmp_path, monkeypatch):
     import json
 
