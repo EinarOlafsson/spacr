@@ -1,6 +1,50 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
 
+## 2026-10-08 19:38 EDT — Narrow API/runtime/generated-documentation release verified
+
+Root source d4238c0aa integrates hiddenLiveSettingscloseAPI13233, normal
+source-bound nine-language API artifacts, four night-preset descriptions,
+Organism compact-row ownership/runtime10065, Help/settings-flow indexes,
+current54-module/19-tile normal workflow grids and nine native README blocks.
+Latest public body fixes through57fa and alternate measurement reads from
+b087 are preserved. No generated hand merge, raised pin, skipped assertion
+or broader private Gate/volume/training/GPU source is included.
+
+Root complete canonicalAPI+all6runtime maps exactly equal storedEnglish on
+d423. All78runtime proof payloads/658original Git source bindings independently
+verified; all133API/documentation proof payloads independently verified.
+Final current README/Live API-help/hidden-close owning100PASS30.98s.
+Separate source-bound night206PASS/20CPU-heavy deselected, Help32PASS,
+settings-flow18PASS and grid56PASS retained; overlapping scopes not summed.
+Agent final strictEnglish build+increment, all9API audits/12guards, nine
+actual close browser panels/27reviewed blocks, bothOrganism homepages and
+nine native README browser checks allTERMINALPASS. Original negatives and
+actual interrupted-reader exit130 remain retained. No whole GitHub green
+claim until exact newly published source runs finish.
+
+Portable final Root proof:
+ data/43_current_generated_artifact_release_2026-10-08/receipt.json
+API strict/build/browser proof:
+ data/43_hidden_live_preview_close_documentation_acceptance_2026-10-08/receipt.json
+Runtime normal-review/79assertion proof:
+ data/night_preset_runtime_review_2026-10-08/receipt.json
+
+Root native private applicationGPU engine turnR6 finished19:28:51EDT rc0:
+24full-engine cases/192exact moving frames, eight distinct hashes per case,
+thread-owned graphics release. Dense4K field whole-engine medians improve;
+sparse field generally slows, so Automatic stays dense4K only. Actual GUI
+Apply/Keep/Revert/events/resize retirement acceptance is next. Source remains
+PRIVATE, not part of this urgent release. Tutorial C5219files/1481proofmembers
+independently byte-verified; immutable media upload/readback is active with
+serial network pools. Historical56English corrections run in a separate
+worktree with10-second worker starts; frozen accepted C remains unchanged.
+
+All three agents stay active: next coherent API/guide freeze, later10173
+runtime catalogs/four genuine inherited Prev-image fixes, and historical
+English TV-pronunciation tracks. Home retains CI dispatch/serial ownership.
+
+
 ## 2026-10-08 19:35 EDT — Alternate measurement read bridge delivered
 
 Home adds one completed F576 child: io._read_db now routes alternate stores
