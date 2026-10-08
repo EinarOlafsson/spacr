@@ -3,14 +3,16 @@
 import ast
 import hashlib
 import json
+import os
 import re
+import subprocess
 from pathlib import Path
 
 import pytest
 
 REPO = Path(__file__).resolve().parents[1]
 REPLAY_SOURCE = '7a51b6c921ea0d9b51ca3f5e6d28a68904ce2cab'
-DIAGNOSTIC_SOURCE = '59a6daebab5014c3ee4094791de8ed257cd9af8d'
+DIAGNOSTIC_SOURCE = '9e7b35c8abb4cf7d72cf1fa546322472e0c18819'
 ORIGINAL_BATCH_SHA256 = 'd5f347bdb25b692cf207f18526b333d01e58a952a923842881367ad77ff65826'
 ORIGINAL_SERIAL_JOB_SHA256 = '11555f7cf61de802a12797b7a5f7a4aad8facf55668125b5d4c46b8352d0fa8a'
 ORIGINAL_SERIAL_STEPS_SHA256 = '0f6be5d7be8b0a10bd956db94255bf35d6b7587d7e75156170eb0e062f0572d3'
@@ -82,7 +84,7 @@ def test_registered_serial_route_preserves_original_job_and_isolates_replay():
         assert group_suffix == ('-native-batch-replay' if replay else '')
 
 
-def test_native_replay_is_opt_in_source_bound_and_one_original_batch():
+def test_native_replay_is_opt_in_source_bound_and_two_independent_original_batches():
     workflow = _workflow()
     assert set(workflow['on']) == {'workflow_call', 'workflow_dispatch'}
     assert set(workflow['jobs']) == {'replay'}
@@ -109,11 +111,19 @@ def test_native_replay_is_opt_in_source_bound_and_one_original_batch():
     assert embedded is not None
     ast.parse(embedded.group(1))
 
-    replay = steps['Replay exactly one original-order coverage batch']
+    replay = steps['Replay the original-order coverage batch twice independently']
     assert 'continue-on-error' not in replay
     command = replay['run']
     assert f'export GITHUB_SHA={REPLAY_SOURCE}' in command
-    assert 'tools/run_coverage_batches.py "${batch[@]}"' in command
+    assert command.count('tools/run_coverage_batches.py "${batch[@]}"') == 1
+    assert 'set -euo pipefail' in command
+    assert 'for attempt in 1 2; do' in command
+    assert 'attempt_dir="$SPACR_COVERAGE_DATA_DIR/attempt-$attempt"' in command
+    assert '--data-dir "$attempt_dir"' in command
+    assert 'status=started' in command and 'status=success' in command
+    assert command.index('tools/run_coverage_batches.py') < command.index('status=success')
+    assert 'status=failed exit=%s' in command and 'exit "$status"' in command
+    assert '|| true' not in command and 'continue-on-error' not in replay
     for flag, value in (('--marker', '"not gui"'), ('--shard-index', '0'),
                         ('--shard-count', '1'), ('--batch-size', '32'),
                         ('--workers', '2'), ('--per-test-timeout', '600'),
@@ -143,3 +153,55 @@ def test_native_replay_retains_failure_and_bounded_core_capture():
     verdict = steps['State the diagnostic-only verdict']
     assert verdict['if'] == 'always()'
     assert 'failure remains a failure' in verdict['run']
+    assert job['timeout-minutes'] == '90'
+    assert steps['Upload two-attempt coverage integrity data']['with']['path'] == (
+        '${{ runner.temp }}/spacr-coverage-data/')
+
+
+def test_two_attempt_shell_stops_on_either_failure_and_separates_data(tmp_path):
+    """A failed first or second replay keeps its failure and original receipt."""
+    job = _workflow()['jobs']['replay']
+    steps = {step['name']: step for step in job['steps'] if 'name' in step}
+    command = steps['Replay the original-order coverage batch twice independently']['run']
+    assert command.count('for attempt in 1 2; do') == 1
+    loop = 'for attempt in 1 2; do' + command.split('for attempt in 1 2; do', 1)[1]
+    script = '''set -euo pipefail
+python() {
+  local data_dir='' arg
+  for arg in "$@"; do
+    if [ "$data_dir" = next ]; then data_dir="$arg"; break; fi
+    if [ "$arg" = --data-dir ]; then data_dir=next; fi
+  done
+  test "$data_dir" != ''
+  printf '%s\n' "$data_dir" >> "$RUNNER_TEMP/calls.txt"
+  if [ "$data_dir" = "$FAIL_DIR" ]; then return 7; fi
+}
+''' + loop
+    receipt = tmp_path / 'spacr-native-replay'
+    receipt.mkdir()
+    for failing, expected_calls, expected_status in (
+            ('none', 2, 0), ('attempt-1', 1, 7), ('attempt-2', 2, 7)):
+        (tmp_path / 'calls.txt').unlink(missing_ok=True)
+        (receipt / 'attempts.txt').unlink(missing_ok=True)
+        environment = {
+            'RUNNER_TEMP': str(tmp_path),
+            'SPACR_COVERAGE_DATA_DIR': str(tmp_path / 'coverage'),
+            'GITHUB_SHA': REPLAY_SOURCE,
+            'FAIL_DIR': str(tmp_path / 'coverage' / failing),
+        }
+        result = subprocess.run(['bash', '-c', script], cwd=REPO,
+                                env={**os.environ, **environment},
+                                capture_output=True, text=True, timeout=10)
+        assert result.returncode == expected_status, result.stderr
+        calls = (tmp_path / 'calls.txt').read_text().splitlines()
+        assert calls == [str(tmp_path / 'coverage' / f'attempt-{number}')
+                         for number in range(1, expected_calls + 1)]
+        events = (receipt / 'attempts.txt').read_text().splitlines()
+        assert events[0] == f'attempt=1 status=started source={REPLAY_SOURCE}'
+        assert events.count(f'attempt=1 status=success source={REPLAY_SOURCE}') == (
+            0 if failing == 'attempt-1' else 1)
+        assert events.count(f'attempt=2 status=success source={REPLAY_SOURCE}') == (
+            1 if failing == 'none' else 0)
+        failures = [event for event in events if 'status=failed' in event]
+        assert failures == ([] if failing == 'none' else [
+            f'attempt={failing[-1]} status=failed exit=7 source={REPLAY_SOURCE}'])

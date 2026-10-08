@@ -29,7 +29,7 @@ jobs:
       - name: Checkout pinned diagnostic collector
         uses: actions/checkout@v7
         with:
-          ref: 59a6daebab5014c3ee4094791de8ed257cd9af8d
+          ref: 9e7b35c8abb4cf7d72cf1fa546322472e0c18819
           path: diagnostics
           sparse-checkout: tools/collect_qt_native_backtrace.py
           sparse-checkout-cone-mode: false
@@ -37,7 +37,7 @@ jobs:
 
       - name: Preserve the collector outside the test checkout
         run: |
-          test "$(git -C diagnostics rev-parse HEAD)" = "59a6daebab5014c3ee4094791de8ed257cd9af8d"
+          test "$(git -C diagnostics rev-parse HEAD)" = "9e7b35c8abb4cf7d72cf1fa546322472e0c18819"
           cp diagnostics/tools/collect_qt_native_backtrace.py "$RUNNER_TEMP/collect_qt_native_backtrace.py"
           sha256sum "$RUNNER_TEMP/collect_qt_native_backtrace.py" > "$RUNNER_TEMP/collector.sha256"
 
@@ -82,7 +82,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/spacr-native-replay"
           {
             printf 'replay_source_sha=%s\n' "$(git rev-parse HEAD)"
-            printf 'diagnostic_collector_sha=%s\n' "59a6daebab5014c3ee4094791de8ed257cd9af8d"
+            printf 'diagnostic_collector_sha=%s\n' "9e7b35c8abb4cf7d72cf1fa546322472e0c18819"
             printf 'workflow_dispatch_sha=%s\n' "${{ github.sha }}"
             cat "$RUNNER_TEMP/collector.sha256"
             python --version
@@ -119,12 +119,13 @@ jobs:
                 sha256(payload).hexdigest())
           PY
 
-      - name: Replay exactly one original-order coverage batch
+      - name: Replay the original-order coverage batch twice independently
         id: replay_batch
         env:
           SPACR_COVERAGE_DATA_DIR: ${{ runner.temp }}/spacr-coverage-data
           SPACR_QT_NATIVE_EVIDENCE_DIR: ${{ runner.temp }}/spacr-qt-native
         run: |
+          set -euo pipefail
           export GITHUB_SHA=7a51b6c921ea0d9b51ca3f5e6d28a68904ce2cab
           if ! ulimit -S -c 16777216; then
             echo "Native core soft limit could not be enabled; retaining inherited limit"
@@ -134,21 +135,36 @@ jobs:
           export PYTEST_ADDOPTS="${PYTEST_ADDOPTS:-} -p tools.pytest_plugins.qt_serial_rss_journal"
           mapfile -t batch < "$RUNNER_TEMP/spacr-native-replay/batch-3-files.txt"
           test "${#batch[@]}" -eq 32
-          python tools/run_coverage_batches.py "${batch[@]}" \
-            --marker "not gui" \
-            --shard-index 0 \
-            --shard-count 1 \
-            --batch-size 32 \
-            --workers 2 \
-            --per-test-timeout 600 \
-            --batch-timeout 2700 \
-            --data-dir "$SPACR_COVERAGE_DATA_DIR" \
-            --exclude-file tests/test_perf_guard.py \
-            --exclude-file tests/qt/test_641_module_first_open_timing.py \
-            --exclude-file tests/qt/test_gui_responsiveness.py \
-            --exclude-file tests/qt/test_home_stage_and_dock.py \
-            --exclude-file tests/qt/test_figure_queue.py \
-            --exclude-file tests/qt/test_pca.py
+          for attempt in 1 2; do
+            attempt_dir="$SPACR_COVERAGE_DATA_DIR/attempt-$attempt"
+            mkdir -p "$attempt_dir"
+            printf 'attempt=%s status=started source=%s\n' "$attempt" "$GITHUB_SHA" \
+              >> "$RUNNER_TEMP/spacr-native-replay/attempts.txt"
+            if python tools/run_coverage_batches.py "${batch[@]}" \
+              --marker "not gui" \
+              --shard-index 0 \
+              --shard-count 1 \
+              --batch-size 32 \
+              --workers 2 \
+              --per-test-timeout 600 \
+              --batch-timeout 2700 \
+              --data-dir "$attempt_dir" \
+              --exclude-file tests/test_perf_guard.py \
+              --exclude-file tests/qt/test_641_module_first_open_timing.py \
+              --exclude-file tests/qt/test_gui_responsiveness.py \
+              --exclude-file tests/qt/test_home_stage_and_dock.py \
+              --exclude-file tests/qt/test_figure_queue.py \
+              --exclude-file tests/qt/test_pca.py; then
+              printf 'attempt=%s status=success source=%s\n' "$attempt" "$GITHUB_SHA" \
+                >> "$RUNNER_TEMP/spacr-native-replay/attempts.txt"
+            else
+              status=$?
+              printf 'attempt=%s status=failed exit=%s source=%s\n' \
+                "$attempt" "$status" "$GITHUB_SHA" \
+                >> "$RUNNER_TEMP/spacr-native-replay/attempts.txt"
+              exit "$status"
+            fi
+          done
 
       - name: Recover a failed worker's bounded native evidence
         if: failure() || cancelled()
@@ -180,7 +196,7 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
-      - name: Upload one-batch coverage integrity data
+      - name: Upload two-attempt coverage integrity data
         if: always()
         uses: actions/upload-artifact@v7
         with:
@@ -196,7 +212,7 @@ jobs:
           REPLAY_OUTCOME: ${{ steps.replay_batch.outcome }}
         run: |
           if [ "$REPLAY_OUTCOME" = success ]; then
-            echo "Diagnostic replay completed; required full-suite and serial gates remain independent."
+            echo "Both diagnostic attempts completed; required full-suite and serial gates remain independent."
           else
             echo "::error title=Diagnostic replay failed::Original batch failure remains a failure even if lost coverage was recovered."
           fi
