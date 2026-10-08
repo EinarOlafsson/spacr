@@ -1,5 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 14:20 EDT — Workstation residual diagnostic recreation accepted privately
+
+N658 PRIVATE0d1aeac83:199PASS152.52s/135warnings,normal coverage/8G.
+Original3FAIL proves histogram bins/QQ/scatter omissions; first candidate
+1FAIL6PASS native reference-axis typo retained. All three actual standalone
+PNG/SVG CLI processes block spaCR imports. Independent30-bin counts/edges,
+SciPy theoretical quantiles and standardized residuals match native plots;
+scatter sizing/colors/zero line preserved. QQ reuses actual statsmodels,
+honestly included as conditional standalone dependency. Full15-file patch
+CLEAN APPLY supersedes prior658 packets; existing tests unchanged.
+ data/658_private_residual_recipe_2026-10-08/receipt.json
+Exact three-file delta integrated PRIVATE9a35081fc, then required parameter
+docs748/ee adopted as5f86de80e. Public API prose/signatures unchanged from
+accepted Lorenz334 in both touched modules by full AST signature/doc check.
+Runtime39 actual catalog/source deltas also privately integrated. Latest
+HomeHelp/AppScreen source still awaited; API/runtime/tutorial lanes active.
+
+Direct GitHub read18:16UTC: required2e run37819913875 queued,docs
+37819913389 running,compat37819913326 queued; older53ab37807749125
+also queued. No run cancelled/dispatched by workstation, no green inferred.
+Zero open issues on direct query. Firstgreen078 history remains qualified.
+Native Cell-DINO scientific loading still requires an acquired official
+checkpoint; fresh official README retains request/email download route.
+No source/current-CI/publication/native hold release claimed.
+
+
 ## 2026-10-08 14:10 EDT — Workstation Lorenz source-preserving recreation accepted privately
 
 N658 Lorenz PRIVATE334/behavior609:196PASS96.03s,135warnings.

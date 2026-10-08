@@ -368,3 +368,11 @@ PART C — WHAT IS LEFT
   replacement,existing tests untouched. Nine-language outer API parameter
   correction and coherent adoption remain pending. Residual QQ audit next.
   Proof:data/658_private_lorenz_recipe_2026-10-08/receipt.json.
+
+2026-10-08 14:20 EDT — Native residual diagnostics export acceptance
+  PRIVATE0d199PASS152.52s; original3FAIL and firstcandidate1FAIL retained.
+  Exact30-bin histogram, original QQ renderer and scatter/ref styles,
+  independent values and three true no-spaCR standalone CLI processes pass.
+  Full15-file clean replacement; original tests unchanged. Source/docs
+  adoption/current GitHub/publication and further producer audit remain.
+  Proof:data/658_private_residual_recipe_2026-10-08/receipt.json.
