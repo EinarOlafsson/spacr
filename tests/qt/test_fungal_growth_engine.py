@@ -209,6 +209,50 @@ def test_child_filaments_wait_for_their_parent_to_reach_the_fork():
                 assert edge[7] >= arrival[edge[1:3]] - 1e-9
 
 
+@pytest.mark.parametrize("canvas", ((20, 1000), (1000, 20)))
+def test_narrow_canvases_keep_reflected_filaments_connected_and_inside(canvas):
+    """Tips can turn at either nearby wall without leaving a narrow view."""
+    width, height = canvas
+    engine = _engine(density=0.1)
+    for block in range(4):
+        lineage = engine._lineage(block, width, height)
+        endpoints = {edge[5:7] for edge in lineage}
+        for edge in lineage:
+            x0, y0, cx, cy, x1, y1 = edge[1:7]
+            assert all(math.isfinite(value) for value in (x0, y0, cx, cy, x1, y1))
+            assert 0 <= x0 <= width and 0 <= x1 <= width
+            assert 0 <= y0 <= height and 0 <= y1 <= height
+            assert edge[1:3] in endpoints or edge[0] == -1
+        if block == (2 if width < height else 0):
+            assert len(lineage) > 100
+
+
+def test_tiny_canvas_cannot_show_a_disconnected_subpixel_branch():
+    """Below one pixel of travel, the renderer leaves the page clean."""
+    engine = _engine(density=3.0)
+    for block in range(4):
+        assert engine._lineage(block, 12, 12) == ()
+    for second in (0.0, 45.0):
+        engine.set_time(second)
+        assert engine.geometry(12, 12) == ()
+        assert _occupancy(_frame(engine, 12, 12), "#101418") == 0.0
+
+
+def test_compact_canvas_retains_connected_visible_growth_as_tips_get_subpixel():
+    """Tiny daughter steps fade out while their visible parent paths remain."""
+    engine = _engine(density=3.0, size=2.5)
+    lineage = engine._lineage(0, 30, 30)
+    endpoints = {edge[5:7] for edge in lineage}
+    roots = {edge[1:3] for edge in lineage if edge[1:3] not in endpoints}
+    assert len(lineage) > 100
+    assert len(roots) == 1
+    assert all(edge[1:3] in endpoints or edge[1:3] in roots
+               for edge in lineage)
+    engine.set_time(5.0)
+    assert engine.geometry(30, 30)
+    assert 0.0 < _occupancy(_frame(engine, 30, 30), "#101418") <= 0.25
+
+
 def test_visible_front_has_more_connected_forks_later_and_at_higher_density():
     """Density adds live tips while visible daughter paths retain their parents."""
     counts = []
