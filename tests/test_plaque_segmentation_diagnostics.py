@@ -18,10 +18,34 @@ def _prediction():
     labels[4:16, 4:14] = 3
     labels[4:16, 14:24] = 41
     dense = np.where(labels == 41, 2, labels > 0).astype(np.int32)
-    flow, _ = dynamics.masks_to_flows_gpu(dense, device=torch.device('cpu'))
+    result = dynamics.masks_to_flows_gpu(dense, device=torch.device('cpu'))
+    flow = result[0] if isinstance(result, tuple) else result
     flow *= 5
     prob = np.where(labels == 3, 2.0, -1.0).astype(np.float32)
     return labels, [None, flow, prob], None
+
+
+@pytest.mark.parametrize('return_form', ['array', 'tuple'])
+def test_prediction_retains_two_flow_axes_across_cellpose_return_contracts(
+        monkeypatch, return_form):
+    original = dynamics.masks_to_flows_gpu
+
+    def diffusion(*args, **kwargs):
+        result = original(*args, **kwargs)
+        vectors = result[0] if isinstance(result, tuple) else result
+        return vectors if return_form == 'array' else (vectors, None)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(dynamics, 'masks_to_flows_gpu', diffusion)
+        labels, flows, styles = _prediction()
+    assert flows[1].shape == (2, *labels.shape)
+    assert np.isfinite(flows[1]).all()
+    assert np.any(flows[1] != 0)
+    rows = plaque._plaque_segmentation_metrics(labels, (labels, flows, styles))
+    assert set(rows) == {3, 41}
+    for row in rows.values():
+        assert row['flow_error'] == pytest.approx(0, abs=1e-12)
+        assert row['flow_alignment_mean'] == pytest.approx(1)
 
 
 def test_flow_error_detects_a_merge_and_preserves_original_ids():
