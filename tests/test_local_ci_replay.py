@@ -45,7 +45,13 @@ def test_profile_comes_from_the_actual_workflow(suite, count, size, timeout, ign
     _, args, _, actual_count, python = replay._configuration(ROOT, suite, 1, tmp_path)
     assert (actual_count, args.batch_size, args.per_test_timeout) == (count, size, timeout)
     assert (args.workers, args.batch_timeout, python) == (2, 2700, "3.12")
-    assert len(args.exclude_file if suite == "coverage" else args.ignore) == ignored
+    excluded = args.exclude_file if suite == "coverage" else args.ignore
+    if suite in {"qt", "coverage"}:
+        timing = "tests/qt/test_641_module_first_open_timing.py"
+        assert excluded.count(timing) == 1
+        assert len(excluded) - 1 == ignored
+    else:
+        assert len(excluded) == ignored
     assert args.marker == {
         "fast": "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui",
         "qt": "qt and not slow and not heavy and not gpu and not network and not nas and not gui",
