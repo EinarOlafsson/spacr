@@ -23,13 +23,6 @@
       "translation": "Ett skarpt gravitationsfält av punkter med valfri lokal muspåverkan och växande ringvågor."
     },
     {
-      "key": "A lit window in the dark: warm orange on near-black, fine paper facets behind it, and a sound set in G minor at 118 BPM.",
-      "source": "A lit window in the dark: warm orange on near-black, fine paper facets behind it, and a sound set in G minor at 118 BPM.",
-      "source_sha256": "eaa25b12c2e20dc6b718fd3444dc16b84a2131bde0c2a5d52a393fd3fdf2d2fb",
-      "table": "ui",
-      "translation": "Ett upplyst fönster i mörkret: varm orange mot nästan svart, fina pappersfasetter bakom det och en ljuduppsättning i g-moll vid 118 BPM."
-    },
-    {
       "key": "An edge-free landscape of round points carries wide travelling waves.",
       "source": "An edge-free landscape of round points carries wide travelling waves.",
       "source_sha256": "05a626ed88903e9a88b19129497ae559af7b946763ee6d2a400385f8f1664d32",
@@ -86,13 +79,6 @@
       "translation": "Musgravitationens radie"
     },
     {
-      "key": "The long low light of a year's turn: olive and pale gold, fine paper facets through it, and a sound set in G Lydian at 112 BPM.",
-      "source": "The long low light of a year's turn: olive and pale gold, fine paper facets through it, and a sound set in G Lydian at 112 BPM.",
-      "source_sha256": "dad7ee5de0f47c634524d3698a855e4dcd4a3db7aee71697b99628a5984dc52e",
-      "table": "ui",
-      "translation": "Det långa låga ljuset vid årets vändning: olivgrönt och blekt guld, fina pappersfasetter genom det och en ljuduppsättning i G lydisk vid 112 BPM."
-    },
-    {
       "key": "spaCR Thore",
       "source": "spaCR Thore",
       "source_sha256": "1fb83525ce414a51d5bee5b1214c4d17fff4dfba8541856c228b646845234fd3",
@@ -126,6 +112,22 @@
       "source_sha256": "08673cd104d2efcf170c0c0a857afa28cb634eeab907185e97a0334f58fd55a4",
       "table": "ui",
       "translation": "spaCR waves"
+    }
+  ],
+  "retired_records": [
+    {
+      "key": "A lit window in the dark: warm orange on near-black, fine paper facets behind it, and a sound set in G minor at 118 BPM.",
+      "source": "A lit window in the dark: warm orange on near-black, fine paper facets behind it, and a sound set in G minor at 118 BPM.",
+      "source_sha256": "eaa25b12c2e20dc6b718fd3444dc16b84a2131bde0c2a5d52a393fd3fdf2d2fb",
+      "table": "ui",
+      "translation": "Ett upplyst fönster i mörkret: varm orange mot nästan svart, fina pappersfasetter bakom det och en ljuduppsättning i g-moll vid 118 BPM."
+    },
+    {
+      "key": "The long low light of a year's turn: olive and pale gold, fine paper facets through it, and a sound set in G Lydian at 112 BPM.",
+      "source": "The long low light of a year's turn: olive and pale gold, fine paper facets through it, and a sound set in G Lydian at 112 BPM.",
+      "source_sha256": "dad7ee5de0f47c634524d3698a855e4dcd4a3db7aee71697b99628a5984dc52e",
+      "table": "ui",
+      "translation": "Det långa låga ljuset vid årets vändning: olivgrönt och blekt guld, fina pappersfasetter genom det och en ljuduppsättning i G lydisk vid 112 BPM."
     }
   ],
   "review_method": "Direct Codex AI technical translation and review; no native-speaker signoff.",

@@ -11,13 +11,6 @@
       "translation": "棕黑色房间中的金色薄雾，缓缓移动的星云区域，以及 F 多利亚调式、120 BPM 的音效组。"
     },
     {
-      "key": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
-      "source": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
-      "source_sha256": "528943df3a5f1e1d91937a6f745e21c9e9652a96fe9096ef3d3c6feb880393bf",
-      "table": "ui",
-      "translation": "青绿色的地平线，上方折叠的光幕，以及 A 多利亚调式、124 BPM 的音效组。"
-    },
-    {
       "key": "Thin high cloud: pale ice blue, barely coloured, a starfield behind it, and the most open sound set of the ten, in B minor at 126 BPM.",
       "source": "Thin high cloud: pale ice blue, barely coloured, a starfield behind it, and the most open sound set of the ten, in B minor at 126 BPM.",
       "source_sha256": "b26ec35a00d4dd7fc05650a7e69760e24575ba0e6482f39049485ea050581729",
@@ -39,18 +32,27 @@
       "translation": "黑色背景上的品红色，旋转的星云区域，以及十组中节奏最强劲的音效组，采用升 F 小调、128 BPM。"
     },
     {
-      "key": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
-      "source": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
-      "source_sha256": "f32e9d844d2ff92dcfadf473b5bc56f5f91c40bfd708a2b7204428917a2dd3db",
-      "table": "ui",
-      "translation": "天空中最后的颜色：梅紫色和灰玫瑰色，上方折叠的光幕，以及柔和的降 E 小调、114 BPM 音效组。"
-    },
-    {
       "key": "White text and outlines on black with a yellow accent, for low vision and bright rooms.",
       "source": "White text and outlines on black with a yellow accent, for low vision and bright rooms.",
       "source_sha256": "938eb05af4d8d606b38813dca057f662572d04403b6f3a42ae260dc4ebd7c20e",
       "table": "ui",
       "translation": "黑色背景上使用白色文字和轮廓，并以黄色点缀，适用于低视力用户和明亮房间。"
+    }
+  ],
+  "retired_records": [
+    {
+      "key": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
+      "source": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
+      "source_sha256": "528943df3a5f1e1d91937a6f745e21c9e9652a96fe9096ef3d3c6feb880393bf",
+      "table": "ui",
+      "translation": "青绿色的地平线，上方折叠的光幕，以及 A 多利亚调式、124 BPM 的音效组。"
+    },
+    {
+      "key": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
+      "source": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
+      "source_sha256": "f32e9d844d2ff92dcfadf473b5bc56f5f91c40bfd708a2b7204428917a2dd3db",
+      "table": "ui",
+      "translation": "天空中最后的颜色：梅紫色和灰玫瑰色，上方折叠的光幕，以及柔和的降 E 小调、114 BPM 音效组。"
     }
   ],
   "review_kind": "Codex AI technical translation and review; no native-speaker signoff",

@@ -11,13 +11,6 @@
       "translation": "갈색과 검은색의 방을 채우는 황금빛 안개, 천천히 움직이는 성운 영역, F 도리안 모드의 120 BPM 사운드 세트입니다."
     },
     {
-      "key": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
-      "source": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
-      "source_sha256": "528943df3a5f1e1d91937a6f745e21c9e9652a96fe9096ef3d3c6feb880393bf",
-      "table": "ui",
-      "translation": "청록색 수평선 위로 접히는 빛의 커튼과 A 도리안 모드의 124 BPM 사운드 세트입니다."
-    },
-    {
       "key": "Thin high cloud: pale ice blue, barely coloured, a starfield behind it, and the most open sound set of the ten, in B minor at 126 BPM.",
       "source": "Thin high cloud: pale ice blue, barely coloured, a starfield behind it, and the most open sound set of the ten, in B minor at 126 BPM.",
       "source_sha256": "b26ec35a00d4dd7fc05650a7e69760e24575ba0e6482f39049485ea050581729",
@@ -39,18 +32,27 @@
       "translation": "검은 바탕에 자홍색과 회전하는 성운 영역, 열 가지 중 가장 강하게 고동치는 F 샤프 단조의 128 BPM 사운드 세트입니다."
     },
     {
-      "key": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
-      "source": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
-      "source_sha256": "f32e9d844d2ff92dcfadf473b5bc56f5f91c40bfd708a2b7204428917a2dd3db",
-      "table": "ui",
-      "translation": "하늘의 마지막 색: 자두색과 탁한 장미색, 머리 위로 접히는 빛의 커튼, 부드러운 E 플랫 단조의 114 BPM 사운드 세트입니다."
-    },
-    {
       "key": "White text and outlines on black with a yellow accent, for low vision and bright rooms.",
       "source": "White text and outlines on black with a yellow accent, for low vision and bright rooms.",
       "source_sha256": "938eb05af4d8d606b38813dca057f662572d04403b6f3a42ae260dc4ebd7c20e",
       "table": "ui",
       "translation": "저시력 사용자와 밝은 공간을 위해 검은 바탕에 흰색 글자와 윤곽선, 노란색 강조를 사용합니다."
+    }
+  ],
+  "retired_records": [
+    {
+      "key": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
+      "source": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
+      "source_sha256": "528943df3a5f1e1d91937a6f745e21c9e9652a96fe9096ef3d3c6feb880393bf",
+      "table": "ui",
+      "translation": "청록색 수평선 위로 접히는 빛의 커튼과 A 도리안 모드의 124 BPM 사운드 세트입니다."
+    },
+    {
+      "key": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
+      "source": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
+      "source_sha256": "f32e9d844d2ff92dcfadf473b5bc56f5f91c40bfd708a2b7204428917a2dd3db",
+      "table": "ui",
+      "translation": "하늘의 마지막 색: 자두색과 탁한 장미색, 머리 위로 접히는 빛의 커튼, 부드러운 E 플랫 단조의 114 BPM 사운드 세트입니다."
     }
   ],
   "review_kind": "Codex AI technical translation and review; no native-speaker signoff",

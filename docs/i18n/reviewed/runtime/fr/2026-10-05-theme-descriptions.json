@@ -11,13 +11,6 @@
       "translation": "Une brume dorée dans une pièce brun-noir, des champs de nébuleuses qui la traversent lentement et un ensemble de sons en fa dorien à 120 BPM."
     },
     {
-      "key": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
-      "source": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
-      "source_sha256": "528943df3a5f1e1d91937a6f745e21c9e9652a96fe9096ef3d3c6feb880393bf",
-      "table": "ui",
-      "translation": "Une ligne d’horizon turquoise avec des rideaux de lumière qui se replient au-dessus et un ensemble de sons en la dorien à 124 BPM."
-    },
-    {
       "key": "Thin high cloud: pale ice blue, barely coloured, a starfield behind it, and the most open sound set of the ten, in B minor at 126 BPM.",
       "source": "Thin high cloud: pale ice blue, barely coloured, a starfield behind it, and the most open sound set of the ten, in B minor at 126 BPM.",
       "source_sha256": "b26ec35a00d4dd7fc05650a7e69760e24575ba0e6482f39049485ea050581729",
@@ -39,18 +32,27 @@
       "translation": "Magenta sur noir avec des champs de nébuleuses tournants et l’ensemble de sons le plus pulsant des dix, en fa dièse mineur à 128 BPM."
     },
     {
-      "key": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
-      "source": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
-      "source_sha256": "f32e9d844d2ff92dcfadf473b5bc56f5f91c40bfd708a2b7204428917a2dd3db",
-      "table": "ui",
-      "translation": "La dernière couleur du ciel : prune et rose poudré, des rideaux de lumière qui se replient au-dessus et un ensemble de sons doux en mi bémol mineur à 114 BPM."
-    },
-    {
       "key": "White text and outlines on black with a yellow accent, for low vision and bright rooms.",
       "source": "White text and outlines on black with a yellow accent, for low vision and bright rooms.",
       "source_sha256": "938eb05af4d8d606b38813dca057f662572d04403b6f3a42ae260dc4ebd7c20e",
       "table": "ui",
       "translation": "Texte et contours blancs sur fond noir avec une touche de jaune, pour les personnes malvoyantes et les pièces lumineuses."
+    }
+  ],
+  "retired_records": [
+    {
+      "key": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
+      "source": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
+      "source_sha256": "528943df3a5f1e1d91937a6f745e21c9e9652a96fe9096ef3d3c6feb880393bf",
+      "table": "ui",
+      "translation": "Une ligne d’horizon turquoise avec des rideaux de lumière qui se replient au-dessus et un ensemble de sons en la dorien à 124 BPM."
+    },
+    {
+      "key": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
+      "source": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
+      "source_sha256": "f32e9d844d2ff92dcfadf473b5bc56f5f91c40bfd708a2b7204428917a2dd3db",
+      "table": "ui",
+      "translation": "La dernière couleur du ciel : prune et rose poudré, des rideaux de lumière qui se replient au-dessus et un ensemble de sons doux en mi bémol mineur à 114 BPM."
     }
   ],
   "review_kind": "Codex AI technical translation and review; no native-speaker signoff",
