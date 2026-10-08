@@ -24,6 +24,42 @@ while fixing hidden path, report any newAPI record for owner regeneration.
 Other active agents handle clicked ripples regardlessofgravity and remaining
 required diagnostics; Home OPS/dot help guards use fixed footer as requested.
 
+## 2026-10-08 18:09 EDT — Home tutorial accepted privately; source repairs retained
+
+Root adopted tutorial proof 98f0a7de5 and independently checked all 190
+archive members, 788376 bytes and the complete tar hash. Current Home has
+39 scenes, 50 source-bound audio tracks, 50 web voice routes, six additional
+caption routes, fourteen master routes and 96 English sentence cues. Full
+decode/PTS, final reconciliation and actual 1x boundary timing passed.
+This is technical acceptance of Home, not hosted publication or closure of
+all N676 work. The four other voice matrices remain live; their guarded
+continuation waits for terminal source-bound acceptance before adoption.
+Proof: data/676_home_native_acceptance_2026-10-08/receipt.json and root-readback.json.
+
+Home Safe repair proof independently passes all 22 portable payload hashes
+and twelve current source bindings. All 669 application Python paths were
+compared with accepted 4d: exactly 666 unchanged, with only accepted font,
+menu and Safe-guard body repairs changed. Recorded before/after full API
+and runtime inventories are byte-identical. Current required and serial
+checks remain Home-owned and open; the corrected c4 source has new runs.
+Proof: data/43_safe_and_serial_repairs_2026-10-08/root-readback.json.
+
+Root fresh normal private d87 API extraction passes at 13264: 32 arrivals,
+six changed records and zero removals; the extra changed record is exactly
+spacr.qt.shortcuts. Runtime catalog e1c175db9 and exact 22-arrival fixture
+467483fcd are adopted privately; required shortcut checks remain active.
+The larger source integration is not published while owners finish gates.
+
+The framebuffer GPU alternative retained a terminal shader compiler error
+for a reserved identifier. Its corrected scratch test is queued through
+unchanged GPU guards. No application GPU backend or speedup is claimed.
+
+N658 continuation found four actual ZIP recreation failures in existing
+live-training/saved-statistics producers: lost panels and source metrics.
+Root is repairing them in the private line-figure worktree, without changing
+the native scientific calculations. The original four failures and first
+candidate title-argument failure remain retained; owning checks are active.
+All three agents continue their API/docs, translation and tutorial work.
 
 ## 2026-10-08 18:08 EDT — Concrete urgent CI and autosave packets ready
 
