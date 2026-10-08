@@ -1,0 +1,124 @@
+{
+  "id": 113194680317,
+  "run_id": 37741615330,
+  "workflow_name": "tests",
+  "head_branch": "nightly",
+  "run_url": "https://api.github.com/repos/EinarOlafsson/spacr/actions/runs/37741615330",
+  "run_attempt": 1,
+  "node_id": "CR_kwDOLdmlqs8AAAAaWu2__Q",
+  "head_sha": "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3",
+  "url": "https://api.github.com/repos/EinarOlafsson/spacr/actions/jobs/113194680317",
+  "html_url": "https://github.com/EinarOlafsson/spacr/actions/runs/37741615330/job/113194680317",
+  "status": "completed",
+  "conclusion": "success",
+  "created_at": "2026-10-08T07:12:29Z",
+  "started_at": "2026-10-08T07:12:31Z",
+  "completed_at": "2026-10-08T08:51:23Z",
+  "name": "Fast / Full suite control (ubuntu-24.04, py3.12) shard 2 of 3",
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 1,
+      "started_at": "2026-10-08T07:12:31Z",
+      "completed_at": "2026-10-08T07:12:33Z"
+    },
+    {
+      "name": "Run actions/checkout@v7",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 2,
+      "started_at": "2026-10-08T07:12:33Z",
+      "completed_at": "2026-10-08T07:13:40Z"
+    },
+    {
+      "name": "Set up Python 3.12",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 3,
+      "started_at": "2026-10-08T07:13:40Z",
+      "completed_at": "2026-10-08T07:13:53Z"
+    },
+    {
+      "name": "Install system libraries (Qt offscreen + scientific stack)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 4,
+      "started_at": "2026-10-08T07:13:53Z",
+      "completed_at": "2026-10-08T07:14:14Z"
+    },
+    {
+      "name": "Install spacr (full deps, CPU-only torch)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 5,
+      "started_at": "2026-10-08T07:14:14Z",
+      "completed_at": "2026-10-08T07:15:51Z"
+    },
+    {
+      "name": "Show the pins that gate the compatibility matrix",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 6,
+      "started_at": "2026-10-08T07:15:51Z",
+      "completed_at": "2026-10-08T07:15:51Z"
+    },
+    {
+      "name": "Preflight low-core defaults and native integrations",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 7,
+      "started_at": "2026-10-08T07:15:51Z",
+      "completed_at": "2026-10-08T07:16:15Z"
+    },
+    {
+      "name": "Run fast tests",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 8,
+      "started_at": "2026-10-08T07:16:15Z",
+      "completed_at": "2026-10-08T08:51:19Z"
+    },
+    {
+      "name": "Upload translation incompatibilities (report-only)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 9,
+      "started_at": "2026-10-08T08:51:19Z",
+      "completed_at": "2026-10-08T08:51:19Z"
+    },
+    {
+      "name": "Post Set up Python 3.12",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 17,
+      "started_at": "2026-10-08T08:51:19Z",
+      "completed_at": "2026-10-08T08:51:19Z"
+    },
+    {
+      "name": "Post Run actions/checkout@v7",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 18,
+      "started_at": "2026-10-08T08:51:19Z",
+      "completed_at": "2026-10-08T08:51:20Z"
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 19,
+      "started_at": "2026-10-08T08:51:20Z",
+      "completed_at": "2026-10-08T08:51:20Z"
+    }
+  ],
+  "check_run_url": "https://api.github.com/repos/EinarOlafsson/spacr/check-runs/113194680317",
+  "labels": [
+    "ubuntu-24.04"
+  ],
+  "runner_id": 1000141372,
+  "runner_name": "GitHub Actions 1000141372",
+  "runner_group_id": 0,
+  "runner_group_name": "GitHub Actions"
+}

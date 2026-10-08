@@ -3505,3 +3505,15 @@ fails ONLY known Coverage9 replay counts; Fast0/Minimum0 have the same two
 assertions already repaired in queued7a37744767240. Fast1/2,Minimum1,Qt0/2
 andall6small lanes pass. Qt1/Minimum2 and serial37741618120 still run; original
 selected serial code/tests/runner/workflow unchanged. Overall N43/N47 OPEN.
+
+2026-10-08 — Complete original0b Fast/Minimum phase
+Exact0b required37741615330: all6 Fast/Minimum jobs terminal,4SUCCESS
+(Fast1/Fast2/Min1/Min2),2FAILURE (Fast0/Min0). Only2unique blocking nodes
+are the old Qt/coverage exclusion-count pins, already repaired8f28299.
+Full original logs, exactjob/source identities and7unchanged production
+bindings independently verify in20payload proof:
+ data/43_0b8_fast_min_terminal_2026-10-08/receipt.json.
+Raw summary totals are per-phase, not unique/additive across jobs. No native
+fault marker in these logs; historical Qt causation/serial/full N43 still
+OPEN. No new replay, app changes, limit/guard/ceiling waiver or cancelled-job
+pass claim. Later7a acceptance is separate; current0bQt1/serial preserved.
