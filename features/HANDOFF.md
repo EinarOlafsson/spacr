@@ -1,5 +1,34 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 13:35 EDT — Home integrated UI/Spaceout211; fresh CI browser timeout and retry audit
+
+Home PRIVATE7d6649dd9c combines N649 Edit menu, N674 Spaceout field and
+N666-671 transferred UI source. Fourteen selected CPU/Qt files211PASS
+41.57s under4G, CUDAhidden, offscreen, PySide6 6.11.2. Fatal lint PASS.
+N649 separate adjacent Edit/undo19PASS13.35s; N674 integrated Preferences
+4PASS5.48s. Totals overlap. Final theme lane has a real Random palette
+float32 hue-boundary repair pending; root will transfer final exact source
+and inventories rather than label7d the final freeze. Workstation normal
+catalog/API/callable/tutorial owners should include this follow-up; no app
+source publication, whole serial or native aesthetic verdict is claimed.
+
+Protected fresh53ab required37807749125 currently18SUCCESS/1FAIL/8active.
+Coverage2 failed tests/test_guide_i18n.py selector test because Chrome DOM
+subprocess exceeded60s before any DOM assertion. Exact-source isolated
+nodePASS2.59s with unchanged timeout. Test/helper/guide JavaScript bytes
+match first-green078; hosted root cause remains unproved. Other active jobs
+are preserved, including minimum/fast profiles. All three ordinary Qt jobs
+include two confirmed successes so far; Coverage0 native-sensitive pass.
+
+Retry audit found combine downloads only the current run_attempt artifact
+pattern, so failed-only rerun can exclude eleven earlier successful shards.
+CI lane is preparing exact-same-run, per-shard latest-attempt retrieval with
+full twelve-shard checks retained; do not interpret one retried shard as a
+whole green verdict or waive branch gates. First required29/docs4/compat17
+SUCCESS remains exact078, not current private or later source acceptance.
+Three reused Home agents active: CI repair/monitoring, theme final repair,
+normal source inventory preflight. Root integrates, verifies and publishes.
+
 ## 2026-10-08 13:32 EDT — Workstation three-agent completion lanes active
 
 User explicitly requests three agents. Workstation now has three active
