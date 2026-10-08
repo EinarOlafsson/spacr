@@ -29,3 +29,15 @@ deferred attempt must follow its exhaustion rather than replace it. Mask
 workers currently stop peers on failure; transient overloads require a
 separate final queue without concealing invalid model/input errors. No
 implementation or hosted acceptance is claimed by this initial item.
+
+2026-10-07 21:16 local — isolated sweep integration accepted locally
+Root's shared scheduling/retry primitives already pass148 neighboring cases.
+The new bounded sweep owner now deploys through the ten-second start gate,
+finishes all primary futures before one serial overload pass, keeps original
+error/child-result evidence, and replaces the final row instead of appending
+a duplicate. Explicit child overloads are carried as private metadata;
+unexplained native exits are not invented as memory failures. Complete
+sweep/child/containment cohort93pass5.99s. Actual Measure writer-aware
+item60 orchestration29pass6.98s includes one committed field after retry.
+These changes are isolated and unpushed. Simulation idempotency, persistent
+isolated masks and the remaining caller audit still prevent item closure.

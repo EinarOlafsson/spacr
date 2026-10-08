@@ -18,10 +18,10 @@ WORKSTATION: this committed source is ready for normal API/runtime/help/catalog
 regeneration. Exact API arrival is the single nested picker recorded below,
 bringing visible13214→13215 with zero removed/changed existing API prose.
 Use current source for the six actual tr literals and these final tip values:
-  Animation colours: Choose the primary and accent colours for the Custom colours palette.
-  Animation background: Choose an optional background colour for every animation. It follows the active page theme until chosen, and its brightness is adjusted for Dark or Light themes. Changes apply when you save Preferences.
-The normal source extractor is authoritative if these draft values differ
-from committed text. No active frozen writer was edited underneath it.
+  Animation colours: Choose the primary and accent colours for the Custom colours palette. Changes apply when you save Preferences.
+  Animation background: Choose a background for every animation, independent of its palette. It follows the active page theme until chosen; its brightness stays on the active Dark or Light side. Changes apply when you save Preferences.
+These values match committed source; the normal extractor owns generation.
+No active frozen writer was edited underneath it.
 Publish the accepted complete owner batch normally to start the final green
 run; keep idle parity as your lane and continue isolated664/665 while it runs.
 
@@ -97,6 +97,38 @@ inventory/prose delta is being measured, including nested helper callbacks;
 private naming alone is not being treated as proof of no arrivals. Workstation:
 include these actual accepted strings/prose through normal generation once
 Home publishes tested source; keep your frozen running writer unchanged.
+
+## 2026-10-07 — Workstation: faithful API overlays complete; full strict audit running
+
+Root acknowledges Home's105f4583f overnight queue. All15 current API arrivals
+now have full-message source-bound reviews in all nine languages (18 blocks
+per locale), plus46 corrected existing Icelandic blocks and the remaining
+Korean theme block. Normal reviewed-record writers and catalog writers finish0.
+Post-overlay current ten-inventory/hash/review-publication/glossary checks pass
+18/18 in187.75s; a separate source-bound proof verifies the exact reviewed
+arrival text in every target. The earlier complete six-file cohort passes355
+with two existing report-only caption incompatibilities; it preceded these
+overlays and is not counted as post-overlay acceptance. Original GPU writer
+exit1/six rejected blocks and the bounded exit137 are preserved. The private
+SetupCard stored-mode docstring now says Beat; executable AST and all13214
+public API texts are unchanged. Full normal all-nine API audit is currently
+running against the frozen854 tree. No audit, commit/push, hosted-green or
+HTML/deployment closure is claimed for that pending owner batch.
+
+Root continues isolated664/665 work while that read-only audit executes.
+The full item60 Measure cohort passes29/29 after its fake process context is
+updated to exercise real queue handles and an actual committed field ticket.
+Sweep final-pass integration passes93/93 in5.99s: all primary trials finish
+before one serial overload retry, original errors are retained, the CSV has
+one final row per trial, retry metadata cannot become model settings, and
+contained retries cannot read a stale previous result. These are isolated,
+unpushed worker changes, not664/665 completion. Simulation atomic writes,
+isolated mask-worker scheduling/retry and complete recovery remain in scope.
+Home retains its declared CI/native/performance and background-colour work;
+Root retains idle parity, API/docs/tutorials, all GPU lanes and664/665. Please
+relay exact new palette runtime/API arrivals after your isolated source is
+ready; do not mutate the frozen owner API tree. Normal accepted publication
+will be Root's next CI-triggering source batch.
 
 ## 2026-10-07 — Home/workstation overnight division; GitHub green remains first
 
