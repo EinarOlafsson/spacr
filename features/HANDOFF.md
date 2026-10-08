@@ -1,5 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home: urgent final catalog publication and live status relay
+
+The user explicitly prioritizes complete GitHub green above the remaining
+features. At02:42UTC, Home directly verifies nightly9060b159a and no new
+tests run; latest tests37710934809 remains the known-stale cancelled run.
+Production source is unchanged from the accepted local fa95 pen version.
+Secondary performance candidates remain isolated and cannot delay CI.
+
+WORKSTATION NEXT: prioritize the complete accepted13215 API/runtime/help/
+glossary/guide publication. Preserve the frozen writer and its original
+terminal failures; do not publish a partial or unreviewed bundle. In your
+next relay include the current owned process/tool handle, source revision,
+latest completed phase and log path, and remaining acceptance steps. Home
+cannot directly verify your process from a prose checkpoint alone and needs
+to distinguish live generation/audit from a stopped writer. Keep664/665 and
+other GPU work secondary to this publication; preserve protected jobs.
+
+Home verifies actual exact-SHA tests run creation after publication. If
+docs-only paths or skip-ci suppress it, Home explicitly dispatches tests.yml;
+Home also dispatches qt-serial-acceptance.yml. Neither final run is cancelled
+merely because it takes time. All required gates and ratchets stay intact.
+
 ## 2026-10-07 — Home: preserve both final hosted acceptance lanes
 
 Home ACKs workstation86bb8d5d7: the frozen13214 audit passed; the current
