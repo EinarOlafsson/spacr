@@ -1,0 +1,9 @@
+# 683 eleven-module numerical coverage union
+
+The complete protected aggregate for run `37698599898` measured 664 modules and failed the unchanged absolute-count ratchet on eleven modules. This archive combines its exact missing statement and branch coordinates with source-bound, focused branch coverage from the subsequent CPU repairs. It is a local numerical proof, not a new hosted aggregate verdict.
+
+Run `python verify_union.py --revision 11229945a6e803f5fa1d5ed6683d446a2b068132` from this archive's checkout, or omit `--revision` after integration on a source-identical descendant. `--git` reads archived data from Git blobs. The verifier checks all eleven old and current production SHA-256 hashes, the only two production changes relative to 683, all executed coordinates, exclusions, pragmas, and the original per-module allowances. The old deep-spacr alias substitution leaves line coordinates unchanged. The fungal replacement deletes exactly three lines; the old unreachable line 6137 and branch 6136→6137 are removed, and every later ambient coordinate is shifted back by three. No evidence is unioned by raw number across mismatched sources.
+
+Focused inputs: seven own-four tests, thirteen plaque/mask/plate tests, and eighty-three integrated ambient/preferences/Make Masks tests. The root-three integrated run used the final fungal source and includes all eighteen fungal ownership tests. Every one of the eleven combined counts is within its original allowance; the tightest branch ceilings are Make Masks 28/28, preferences 25/25, mask engine 11/11, and plate view 1/1. The complete hosted report and each raw focused JSON remain at the scratch paths and SHA-256 hashes in `receipt.json`; this directory stores the needed eleven-row subsets.
+
+Source-exact GitHub acceptance still requires a new complete protected run. The 683 run remains failed and its aggregate result is not relabeled green.

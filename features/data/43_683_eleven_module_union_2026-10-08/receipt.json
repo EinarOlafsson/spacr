@@ -1,0 +1,533 @@
+{
+  "date": "2026-10-08",
+  "focused_input_sha256": {
+    "own_four": "b1040b050117818ba66f9166b9b3e378e5ce2ee30e0cf279ed448601e564b99b",
+    "root_three": "c69e9ac05f7d37bbed4b1d0fd472d68c4faff55be0c5ae997c2f2f4f5f7ca763",
+    "theme_four": "360fee4131228b0307af905ce09fbd730946fdec5f417fca04d4c573deacd0b0"
+  },
+  "focused_source_sha": "11229945a6e803f5fa1d5ed6683d446a2b068132",
+  "focused_validation": "own-four 7 pass; theme-four 13 pass; root-three integrated 83 pass under CUDA-hidden 4 GiB branch coverage",
+  "hosted_aggregate_job_id": 113085039577,
+  "hosted_full_coverage_sha256": "b7ab0bf6fa2fb39f93f33c28660ae33173fb2a2b1c6d1f2615cfaeaa8cb68320",
+  "hosted_full_ratchet_sha256": "cdf3c2855cbe14668d004c504623453b6241203bb6b75534106602ac59d41cba",
+  "hosted_run_id": 37698599898,
+  "hosted_source_sha": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+  "modules": {
+    "spacr/deep_spacr.py": {
+      "current_source_sha256": "198f08a49ba2bbad93aa411f57924d5d1d7ee5fed196210e350a093452658b53",
+      "hosted_source_sha256": "91ba9c3d5727c8ff29cc837b1974f30259c93de6c120370bc3f36f5316488cb3",
+      "original_allowance": {
+        "excluded_lines": 0,
+        "pragma_no_cover": 0,
+        "uncovered_branches": 0,
+        "uncovered_statements": 0
+      },
+      "remaining_branches": [],
+      "remaining_lines": []
+    },
+    "spacr/model_zoo.py": {
+      "current_source_sha256": "a2b2eed4a2dcfd14ae4e391f4cc3a8d790b6764cfe9cb0ce047abbeda0b48829",
+      "hosted_source_sha256": "a2b2eed4a2dcfd14ae4e391f4cc3a8d790b6764cfe9cb0ce047abbeda0b48829",
+      "original_allowance": {
+        "excluded_lines": 0,
+        "pragma_no_cover": 0,
+        "uncovered_branches": 1,
+        "uncovered_statements": 4
+      },
+      "remaining_branches": [],
+      "remaining_lines": []
+    },
+    "spacr/plaque.py": {
+      "current_source_sha256": "c3988be90964e58429fffeef6d19229e8d4bfbb39a0ab671383f289f7538f8ff",
+      "hosted_source_sha256": "c3988be90964e58429fffeef6d19229e8d4bfbb39a0ab671383f289f7538f8ff",
+      "original_allowance": {
+        "excluded_lines": 0,
+        "pragma_no_cover": 0,
+        "uncovered_branches": 0,
+        "uncovered_statements": 0
+      },
+      "remaining_branches": [],
+      "remaining_lines": []
+    },
+    "spacr/qt/mask_engine.py": {
+      "current_source_sha256": "bc82fd12b84d33a8ace54a9fe3c577fb2b6048073ebe43f9e3dd54ffb7143253",
+      "hosted_source_sha256": "bc82fd12b84d33a8ace54a9fe3c577fb2b6048073ebe43f9e3dd54ffb7143253",
+      "original_allowance": {
+        "excluded_lines": 0,
+        "pragma_no_cover": 0,
+        "uncovered_branches": 11,
+        "uncovered_statements": 11
+      },
+      "remaining_branches": [
+        [
+          650,
+          651
+        ],
+        [
+          1022,
+          1024
+        ],
+        [
+          1025,
+          1032
+        ],
+        [
+          1262,
+          1263
+        ],
+        [
+          1874,
+          1878
+        ],
+        [
+          2133,
+          2134
+        ],
+        [
+          2614,
+          2618
+        ],
+        [
+          3465,
+          3466
+        ],
+        [
+          4031,
+          4034
+        ],
+        [
+          4151,
+          4153
+        ],
+        [
+          4346,
+          4347
+        ]
+      ],
+      "remaining_lines": [
+        651,
+        1263,
+        2134,
+        3072,
+        3073,
+        3075,
+        3466,
+        4347
+      ]
+    },
+    "spacr/qt/preferences.py": {
+      "current_source_sha256": "c4d6b8b7ffdee6c000454bf32579a74ba4c7c9e76af5ddcf007978d89f455f84",
+      "hosted_source_sha256": "c4d6b8b7ffdee6c000454bf32579a74ba4c7c9e76af5ddcf007978d89f455f84",
+      "original_allowance": {
+        "excluded_lines": 0,
+        "pragma_no_cover": 1,
+        "uncovered_branches": 25,
+        "uncovered_statements": 89
+      },
+      "remaining_branches": [
+        [
+          3405,
+          3406
+        ],
+        [
+          3434,
+          3442
+        ],
+        [
+          6205,
+          6207
+        ],
+        [
+          6219,
+          -6216
+        ],
+        [
+          6792,
+          -6790
+        ],
+        [
+          6849,
+          6859
+        ],
+        [
+          6891,
+          6892
+        ],
+        [
+          6894,
+          6895
+        ],
+        [
+          6921,
+          6925
+        ],
+        [
+          6925,
+          6926
+        ],
+        [
+          6925,
+          6932
+        ],
+        [
+          6927,
+          6928
+        ],
+        [
+          6927,
+          6930
+        ],
+        [
+          7500,
+          7501
+        ],
+        [
+          7703,
+          7704
+        ],
+        [
+          7713,
+          7714
+        ],
+        [
+          7743,
+          7745
+        ],
+        [
+          9571,
+          9573
+        ],
+        [
+          9573,
+          -9534
+        ],
+        [
+          9712,
+          9716
+        ],
+        [
+          9735,
+          9737
+        ],
+        [
+          9737,
+          9739
+        ],
+        [
+          10090,
+          10091
+        ],
+        [
+          10133,
+          10134
+        ],
+        [
+          10164,
+          10167
+        ]
+      ],
+      "remaining_lines": [
+        764,
+        765,
+        2414,
+        2415,
+        2439,
+        2440,
+        2450,
+        2451,
+        3403,
+        3404,
+        3406,
+        3427,
+        3428,
+        3440,
+        3441,
+        4013,
+        4014,
+        4181,
+        4182,
+        5091,
+        5092,
+        5350,
+        5351,
+        5906,
+        5907,
+        5999,
+        6000,
+        6002,
+        6207,
+        6301,
+        6303,
+        6304,
+        6305,
+        6306,
+        6333,
+        6335,
+        6340,
+        6342,
+        6892,
+        6895,
+        6896,
+        6902,
+        6903,
+        6925,
+        6926,
+        6927,
+        6928,
+        6930,
+        6931,
+        6932,
+        6933,
+        6937,
+        6938,
+        6939,
+        7272,
+        7273,
+        7294,
+        7295,
+        7501,
+        7704,
+        7714,
+        7736,
+        7737,
+        7769,
+        7770,
+        7775,
+        7776,
+        8498,
+        8499,
+        9926,
+        9927,
+        10027,
+        10028,
+        10091,
+        10094,
+        10095,
+        10096,
+        10097,
+        10134,
+        10141,
+        10142,
+        10167,
+        10758,
+        10759
+      ]
+    },
+    "spacr/qt/screens/make_masks.py": {
+      "current_source_sha256": "e2005ac93e9acc79bfe823cf01decdd7d1dfe637339ad50ab9db807037d7fadc",
+      "hosted_source_sha256": "e2005ac93e9acc79bfe823cf01decdd7d1dfe637339ad50ab9db807037d7fadc",
+      "original_allowance": {
+        "excluded_lines": 0,
+        "pragma_no_cover": 1,
+        "uncovered_branches": 28,
+        "uncovered_statements": 59
+      },
+      "remaining_branches": [
+        [
+          5778,
+          5780
+        ],
+        [
+          5782,
+          5783
+        ],
+        [
+          5790,
+          5791
+        ],
+        [
+          7776,
+          -7773
+        ],
+        [
+          7946,
+          -7944
+        ],
+        [
+          7951,
+          -7949
+        ],
+        [
+          9745,
+          9743
+        ],
+        [
+          9898,
+          9901
+        ],
+        [
+          10096,
+          -10091
+        ],
+        [
+          10148,
+          10147
+        ],
+        [
+          10258,
+          -10242
+        ],
+        [
+          10290,
+          10292
+        ],
+        [
+          10296,
+          -10262
+        ],
+        [
+          12183,
+          12184
+        ],
+        [
+          14397,
+          14399
+        ],
+        [
+          14586,
+          14587
+        ],
+        [
+          14685,
+          14686
+        ],
+        [
+          15403,
+          15412
+        ],
+        [
+          15425,
+          15416
+        ],
+        [
+          15766,
+          15768
+        ],
+        [
+          15769,
+          -15762
+        ],
+        [
+          16000,
+          16001
+        ],
+        [
+          16094,
+          16098
+        ],
+        [
+          16096,
+          16098
+        ],
+        [
+          16377,
+          -16349
+        ],
+        [
+          16482,
+          16478
+        ],
+        [
+          16485,
+          16503
+        ],
+        [
+          17338,
+          -17332
+        ]
+      ],
+      "remaining_lines": [
+        5780,
+        5783,
+        5791,
+        12184,
+        13829,
+        13830,
+        14587,
+        14686,
+        15435,
+        15436,
+        16001
+      ]
+    },
+    "spacr/qt/screens/plate_view.py": {
+      "current_source_sha256": "285b17e87b2a35a6fa6fbe868454c9f76f67444c386992f5af7e6887217cc4a3",
+      "hosted_source_sha256": "285b17e87b2a35a6fa6fbe868454c9f76f67444c386992f5af7e6887217cc4a3",
+      "original_allowance": {
+        "excluded_lines": 0,
+        "pragma_no_cover": 0,
+        "uncovered_branches": 1,
+        "uncovered_statements": 1
+      },
+      "remaining_branches": [
+        [
+          210,
+          211
+        ]
+      ],
+      "remaining_lines": [
+        211
+      ]
+    },
+    "spacr/qt/widgets/ambient.py": {
+      "current_source_sha256": "2f017b232ae9647df99e59f65a1f5b1ec803cf28d1f9a3995cb23da9eceb5d72",
+      "hosted_source_sha256": "829acd05cd6da2c5524ef6ecd4b9286be7988578ec753040ff12abff6daca595",
+      "original_allowance": {
+        "excluded_lines": 0,
+        "pragma_no_cover": 0,
+        "uncovered_branches": 0,
+        "uncovered_statements": 1
+      },
+      "remaining_branches": [],
+      "remaining_lines": []
+    },
+    "spacr/submodules.py": {
+      "current_source_sha256": "aef3ca2a6bb8864850624a2d06e0a73d99f5e7f2b1df038e1f5cd848678e09e6",
+      "hosted_source_sha256": "aef3ca2a6bb8864850624a2d06e0a73d99f5e7f2b1df038e1f5cd848678e09e6",
+      "original_allowance": {
+        "excluded_lines": 0,
+        "pragma_no_cover": 0,
+        "uncovered_branches": 0,
+        "uncovered_statements": 0
+      },
+      "remaining_branches": [],
+      "remaining_lines": []
+    },
+    "spacr/torch_artifacts.py": {
+      "current_source_sha256": "22d33b4ad95ebed539928d1bd7fb33b41d6c5c1402c4a85a9118b24a0a103a50",
+      "hosted_source_sha256": "22d33b4ad95ebed539928d1bd7fb33b41d6c5c1402c4a85a9118b24a0a103a50",
+      "original_allowance": {
+        "excluded_lines": 0,
+        "pragma_no_cover": 0,
+        "uncovered_branches": 0,
+        "uncovered_statements": 0
+      },
+      "remaining_branches": [],
+      "remaining_lines": []
+    },
+    "spacr/validate.py": {
+      "current_source_sha256": "ee876d102f8c18b3c3a00b3500e0493a21216041b9a13282879bde2ccefe4c03",
+      "hosted_source_sha256": "ee876d102f8c18b3c3a00b3500e0493a21216041b9a13282879bde2ccefe4c03",
+      "original_allowance": {
+        "excluded_lines": 0,
+        "pragma_no_cover": 0,
+        "uncovered_branches": 4,
+        "uncovered_statements": 2
+      },
+      "remaining_branches": [
+        [
+          969,
+          971
+        ],
+        [
+          979,
+          954
+        ]
+      ],
+      "remaining_lines": [
+        1250,
+        1251
+      ]
+    }
+  }
+}
