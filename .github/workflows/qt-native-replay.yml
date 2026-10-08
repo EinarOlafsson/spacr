@@ -1,0 +1,200 @@
+name: Qt native Coverage0 batch 3 diagnostic replay
+
+on: workflow_dispatch
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    name: Diagnostic only — exact 7a Coverage0 batch 3
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      QT_QPA_PLATFORM: offscreen
+      CUDA_VISIBLE_DEVICES: ""
+      PYTHONPATH: ${{ github.workspace }}
+      MPLBACKEND: Agg
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      SPACR_TEST_MEMORY_GB: "6"
+      NUMBA_CACHE_DIR: /tmp/spacr-numba-cache
+      XDG_CACHE_HOME: /tmp/spacr-xdg-cache
+      SPACR_HF_E2E_STUB: "1"
+
+    steps:
+      - name: Checkout pinned diagnostic collector
+        uses: actions/checkout@v7
+        with:
+          ref: 59a6daebab5014c3ee4094791de8ed257cd9af8d
+          path: diagnostics
+          sparse-checkout: tools/collect_qt_native_backtrace.py
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Preserve the collector outside the test checkout
+        run: |
+          test "$(git -C diagnostics rev-parse HEAD)" = "59a6daebab5014c3ee4094791de8ed257cd9af8d"
+          cp diagnostics/tools/collect_qt_native_backtrace.py "$RUNNER_TEMP/collect_qt_native_backtrace.py"
+          sha256sum "$RUNNER_TEMP/collect_qt_native_backtrace.py" > "$RUNNER_TEMP/collector.sha256"
+
+      - name: Checkout exact failing test source
+        uses: actions/checkout@v7
+        with:
+          ref: 7a51b6c921ea0d9b51ca3f5e6d28a68904ce2cab
+          persist-credentials: false
+
+      - name: Set up hosted Python 3.12.15
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12.15"
+          cache: pip
+
+      - name: Install original coverage system libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            libegl1 libxkbcommon0 libdbus-1-3 libpulse0 \
+            libx11-xcb1 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
+            libxcb-randr0 libxcb-render-util0 libxcb-shape0 libxcb-sync1 \
+            libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
+            libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
+            libxdamage1 libxi6 libxtst6 libasound2t64 \
+            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg gdb zstd
+
+      - name: Install original coverage CPU dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu \
+            "torch>=2.0" torchvision
+          python -m pip install -e ".[dev,zernike,attribution,btrack,czi,databases,anndata,chem,embeddings]"
+          python -m pip install "pyreadr>=0.5,<1"
+          python -m pip install "pytest-timeout>=2.3,<3"
+          python -m pip install "coverage>=7.10,<8" "pytest-cov>=7,<8"
+          python -m pip check
+
+      - name: Bind source, dependencies and the exact 32-file batch
+        run: |
+          test "$(git rev-parse HEAD)" = "7a51b6c921ea0d9b51ca3f5e6d28a68904ce2cab"
+          mkdir -p "$RUNNER_TEMP/spacr-native-replay"
+          {
+            printf 'replay_source_sha=%s\n' "$(git rev-parse HEAD)"
+            printf 'diagnostic_collector_sha=%s\n' "59a6daebab5014c3ee4094791de8ed257cd9af8d"
+            printf 'workflow_dispatch_sha=%s\n' "${{ github.sha }}"
+            cat "$RUNNER_TEMP/collector.sha256"
+            python --version
+            python -c 'import PySide6; from PySide6.QtCore import qVersion; print("PySide6", PySide6.__version__, "Qt", qVersion())'
+          } > "$RUNNER_TEMP/spacr-native-replay/source-and-runtime.txt"
+          python -m pip freeze --all > "$RUNNER_TEMP/spacr-native-replay/dependencies.txt"
+          python - <<'PY'
+          from hashlib import sha256
+          from pathlib import Path
+          import os
+          from tools.run_coverage_batches import _batches, _shard, _test_files
+
+          root = Path.cwd().resolve()
+          excluded = {
+              'tests/test_perf_guard.py',
+              'tests/qt/test_641_module_first_open_timing.py',
+              'tests/qt/test_gui_responsiveness.py',
+              'tests/qt/test_home_stage_and_dock.py',
+              'tests/qt/test_figure_queue.py',
+              'tests/qt/test_pca.py',
+          }
+          selected = [path for path in _test_files(root, ['tests'])
+                      if path.relative_to(root).as_posix() not in excluded
+                      and _shard(path, root, 12) == 0]
+          batch = _batches(selected, 32)[2]
+          paths = [path.relative_to(root).as_posix() for path in batch]
+          payload = ('\n'.join(paths) + '\n').encode()
+          assert len(paths) == 32
+          assert sha256(payload).hexdigest() == (
+              'd5f347bdb25b692cf207f18526b333d01e58a952a923842881367ad77ff65826')
+          Path(os.environ['RUNNER_TEMP'], 'spacr-native-replay',
+               'batch-3-files.txt').write_bytes(payload)
+          print('exact original 7a Coverage0 batch 3: 32 files, SHA-256',
+                sha256(payload).hexdigest())
+          PY
+
+      - name: Replay exactly one original-order coverage batch
+        id: replay_batch
+        env:
+          SPACR_COVERAGE_DATA_DIR: ${{ runner.temp }}/spacr-coverage-data
+          SPACR_QT_NATIVE_EVIDENCE_DIR: ${{ runner.temp }}/spacr-qt-native
+        run: |
+          export GITHUB_SHA=7a51b6c921ea0d9b51ca3f5e6d28a68904ce2cab
+          if ! ulimit -S -c 16777216; then
+            echo "Native core soft limit could not be enabled; retaining inherited limit"
+          fi
+          python "$RUNNER_TEMP/collect_qt_native_backtrace.py" --record-core-route \
+            --evidence-dir "$SPACR_QT_NATIVE_EVIDENCE_DIR"
+          export PYTEST_ADDOPTS="${PYTEST_ADDOPTS:-} -p tools.pytest_plugins.qt_serial_rss_journal"
+          mapfile -t batch < "$RUNNER_TEMP/spacr-native-replay/batch-3-files.txt"
+          test "${#batch[@]}" -eq 32
+          python tools/run_coverage_batches.py "${batch[@]}" \
+            --marker "not gui" \
+            --shard-index 0 \
+            --shard-count 1 \
+            --batch-size 32 \
+            --workers 2 \
+            --per-test-timeout 600 \
+            --batch-timeout 2700 \
+            --data-dir "$SPACR_COVERAGE_DATA_DIR" \
+            --exclude-file tests/test_perf_guard.py \
+            --exclude-file tests/qt/test_641_module_first_open_timing.py \
+            --exclude-file tests/qt/test_gui_responsiveness.py \
+            --exclude-file tests/qt/test_home_stage_and_dock.py \
+            --exclude-file tests/qt/test_figure_queue.py \
+            --exclude-file tests/qt/test_pca.py
+
+      - name: Recover a failed worker's bounded native evidence
+        if: failure() || cancelled()
+        continue-on-error: true
+        timeout-minutes: 3
+        run: |
+          export GITHUB_SHA=7a51b6c921ea0d9b51ca3f5e6d28a68904ce2cab
+          python "$RUNNER_TEMP/collect_qt_native_backtrace.py" --ordinary \
+            --evidence-dir "$RUNNER_TEMP/spacr-qt-native"
+
+      - name: Upload native failure evidence
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@v7
+        with:
+          name: qt-native-replay-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/spacr-qt-native/process-*.jsonl
+            ${{ runner.temp }}/spacr-qt-native/native-core-backtrace.txt
+            ${{ runner.temp }}/spacr-qt-native/core-route.json
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: Upload diagnostic source and batch receipts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: qt-native-replay-identity-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/spacr-native-replay/
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Upload one-batch coverage integrity data
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: qt-native-replay-coverage-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/spacr-coverage-data/
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 3
+
+      - name: State the diagnostic-only verdict
+        if: always()
+        env:
+          REPLAY_OUTCOME: ${{ steps.replay_batch.outcome }}
+        run: |
+          if [ "$REPLAY_OUTCOME" = success ]; then
+            echo "Diagnostic replay completed; required full-suite and serial gates remain independent."
+          else
+            echo "::error title=Diagnostic replay failed::Original batch failure remains a failure even if lost coverage was recovered."
+          fi
