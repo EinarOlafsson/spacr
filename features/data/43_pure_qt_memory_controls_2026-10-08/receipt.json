@@ -1,0 +1,306 @@
+{
+  "rows": [
+    {
+      "name": "6.11-plain",
+      "memcheck_exit": 0,
+      "errors": 0,
+      "contexts": 0,
+      "application_assertions_passed": true,
+      "checked_controls": 20,
+      "dynamic_meta_classes": 0,
+      "spacr_imported": false
+    },
+    {
+      "name": "6.11-styles",
+      "memcheck_exit": 97,
+      "errors": 1,
+      "contexts": 1,
+      "application_assertions_passed": true,
+      "checked_controls": 20,
+      "dynamic_meta_classes": 0,
+      "spacr_imported": false
+    },
+    {
+      "name": "6.12-plain",
+      "memcheck_exit": 0,
+      "errors": 0,
+      "contexts": 0,
+      "application_assertions_passed": true,
+      "checked_controls": 20,
+      "dynamic_meta_classes": 0,
+      "spacr_imported": false
+    },
+    {
+      "name": "6.12-styles",
+      "memcheck_exit": 97,
+      "errors": 1,
+      "contexts": 1,
+      "application_assertions_passed": true,
+      "checked_controls": 20,
+      "dynamic_meta_classes": 0,
+      "spacr_imported": false
+    },
+    {
+      "name": "6.11-meta-lengths",
+      "memcheck_exit": 97,
+      "errors": 1,
+      "contexts": 1,
+      "application_assertions_passed": true,
+      "checked_controls": 84,
+      "dynamic_meta_classes": 64,
+      "spacr_imported": false
+    },
+    {
+      "name": "6.12-meta-lengths",
+      "memcheck_exit": 97,
+      "errors": 1,
+      "contexts": 1,
+      "application_assertions_passed": true,
+      "checked_controls": 84,
+      "dynamic_meta_classes": 64,
+      "spacr_imported": false
+    }
+  ],
+  "package": {
+    "url": "https://api.anaconda.org/download/conda-forge/valgrind/3.22.0/linux-64/valgrind-3.22.0-hcd5def8_1.conda",
+    "bytes": 54136507,
+    "sha256": "f0effce19e65beb76ccefb8cde8381b2413d5dd07c19c7f7a50c357ab2822d7d",
+    "version": "3.22.0",
+    "build": "hcd5def8_1",
+    "scope": "Scratch-only package extraction; no global or spaCR environment installation/pin change."
+  },
+  "scope": "Six sequential isolated-Python pure Qt controls, two binding versions, normal widget destruction and bounded 64-dynamic-class/signal-name sweep. No spaCR imports, application edits, forced GC, suppressions or dependency pins.",
+  "comparison": "Reported reads are in QApplication initialization through ibus/QtDBus/indexOfMethod; Home reports metadata-builder/MetaStringTable and QCss stacks. This does not reproduce Home eleven contexts or establish the hosted allocator-abort origin. Styles are applied after initialization; style causality is not established.",
+  "limitations": [
+    "Four memcheck exit97 results remain failures despite application assertions passing; launcher exit0 records completed observations only.",
+    "No invalid write/free or SIGABRT observed. No leak analysis performed.",
+    "Conda-forge Valgrind3.22 build differs from Home checker package; exact package/script/argv binding retained.",
+    "Two early shell-wrapper invocation mistakes and initial missing VALGRIND_LIB startup failure occurred before application execution; their tool output was not retained in standalone file logs.",
+    "54MB checker artifact and extracted binaries are not published; exact verified package URL/size/hash and setup script are retained.",
+    "First archival attempt stopped before creating output on a missing optional original-r1 receipt key; corrected archive uses default0 dynamic classes. Original failure was tool output, not standalone file log."
+  ],
+  "payloads": {
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.11-meta-lengths.exit.gz": {
+      "raw_bytes": 3,
+      "raw_sha256": "969eeff1eaac226a228cc61503effa46ea87d872ef3174365befc7c36ffa3c48",
+      "gzip_bytes": 23,
+      "gzip_sha256": "891eef32e0ecbc853318e735bbd38942c2a021392e96587e10918e8e7e6c8104"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.11-meta-lengths.json.gz": {
+      "raw_bytes": 767,
+      "raw_sha256": "c992923b3fb8eddf444a403f7b2fd6114a5eb47cb29886942708b2cf2a12b07e",
+      "gzip_bytes": 487,
+      "gzip_sha256": "3d6e439815bcc8f57b6a594159505589389b246ca8cd5cd306e4948fb5344ac0"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.11-meta-lengths.memcheck.log.gz": {
+      "raw_bytes": 9095,
+      "raw_sha256": "adedcdc2a882f65c3c2e42dbeabca93d256862c2f88fd3a94ee518debf2953d1",
+      "gzip_bytes": 1412,
+      "gzip_sha256": "1ba1c6ba2806a56af518db4bd0ea736a249ce01c6c5dc73d05bfd214853f3d52"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.11-meta-lengths.stdout.log.gz": {
+      "raw_bytes": 775,
+      "raw_sha256": "8360870d52e83f45abdb6243ae0893bedb38c7575cbca61b31dffde5c128de63",
+      "gzip_bytes": 508,
+      "gzip_sha256": "ed424bca68721bc140652e4cdba0803351c88e2f89198622a2305336c9605d13"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.11-plain.exit.gz": {
+      "raw_bytes": 2,
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "gzip_bytes": 22,
+      "gzip_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.11-plain.json.gz": {
+      "raw_bytes": 737,
+      "raw_sha256": "e4c6cde740b0a0e4f81d9a5a70fe90f609a9e7a2eeb3aafcc3dd750aa9d4aee8",
+      "gzip_bytes": 472,
+      "gzip_sha256": "e76de06cd83cf525df9b00241d436b74a41fa0f35b6c5ce7efecb4558c0ae4b4"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.11-plain.memcheck.log.gz": {
+      "raw_bytes": 993,
+      "raw_sha256": "cbbc71c9f10b771adbd8b9370b05ed413de3e59c7840600509d7437bdd81b1e0",
+      "gzip_bytes": 525,
+      "gzip_sha256": "08b7e060835698759fa5f2d72aeee40089b5997022823df6b1868a866fac190f"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.11-plain.stdout.log.gz": {
+      "raw_bytes": 747,
+      "raw_sha256": "d3580c6f1a14801d7f2d6ee4fecb28018c1960326a2d1e6c077cb2c7f9428309",
+      "gzip_bytes": 493,
+      "gzip_sha256": "ac13137a0280abd72bc4e52ee6622e0e9b980d367ccd132d1b89a44586bc9e8e"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.11-styles.exit.gz": {
+      "raw_bytes": 3,
+      "raw_sha256": "969eeff1eaac226a228cc61503effa46ea87d872ef3174365befc7c36ffa3c48",
+      "gzip_bytes": 23,
+      "gzip_sha256": "891eef32e0ecbc853318e735bbd38942c2a021392e96587e10918e8e7e6c8104"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.11-styles.json.gz": {
+      "raw_bytes": 736,
+      "raw_sha256": "3f527ee3fc2ea7941ae8677ae8d5a15fa46dffb984396a99dbc432411893a404",
+      "gzip_bytes": 472,
+      "gzip_sha256": "76bc2b0770c947f7f807c161a810a7304ee05f212d216dc3230446b5c40ecac1"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.11-styles.memcheck.log.gz": {
+      "raw_bytes": 6055,
+      "raw_sha256": "2a2560e114e73644eb32a2fe404cb34f0f2fabeb78648f340b9f4dd26f38a67d",
+      "gzip_bytes": 1248,
+      "gzip_sha256": "8ed1bf987e0cb00906af545dbb812f72a557056227859423f9a716a5376afd18"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.11-styles.stdout.log.gz": {
+      "raw_bytes": 746,
+      "raw_sha256": "c63c961c053ffed55f8ab06c4bb48a4b473804a0dfbabc02142d166cbfb77e99",
+      "gzip_bytes": 493,
+      "gzip_sha256": "7244dde266f1a36246cf89558c2405ed11d182072276ecadac8ce614b53085d6"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.12-meta-lengths.exit.gz": {
+      "raw_bytes": 3,
+      "raw_sha256": "969eeff1eaac226a228cc61503effa46ea87d872ef3174365befc7c36ffa3c48",
+      "gzip_bytes": 23,
+      "gzip_sha256": "891eef32e0ecbc853318e735bbd38942c2a021392e96587e10918e8e7e6c8104"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.12-meta-lengths.json.gz": {
+      "raw_bytes": 788,
+      "raw_sha256": "743015095702f103713a053e13c19bdb4ea0ccb84e8d8d27cd5fb17998dbcdf0",
+      "gzip_bytes": 508,
+      "gzip_sha256": "7f0828d0f963bf9e53ba63fc2bbfda4a5632d57b81b7d7b17ea36149e219c9e7"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.12-meta-lengths.memcheck.log.gz": {
+      "raw_bytes": 10098,
+      "raw_sha256": "73c5188d46460d18f73a2430844ba1a18dfac1c80607fb357a0c01d446193c7b",
+      "gzip_bytes": 1406,
+      "gzip_sha256": "747caeb33785da847ce2eb96371aa5d208d16378dc4f2b9a1ae9b52e5db708be"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.12-meta-lengths.stdout.log.gz": {
+      "raw_bytes": 796,
+      "raw_sha256": "8419c228cb05a90eb43d8061451c2389eab5cc57e2ef842296882f3b64764a8e",
+      "gzip_bytes": 530,
+      "gzip_sha256": "68c7d541bdb536281b08fa9a36e4fba0f79bb900a8b549d92eec699d4d854144"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.12-plain.exit.gz": {
+      "raw_bytes": 2,
+      "raw_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "gzip_bytes": 22,
+      "gzip_sha256": "89ed3b723e0e40d8957a2df55fcb04d57b6d95fa665c5fe67b098df7f29694ae"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.12-plain.json.gz": {
+      "raw_bytes": 758,
+      "raw_sha256": "083fcae363a374610cb7b06b982b42e2a5a210c69deb8b3862ecf5fd2549b89c",
+      "gzip_bytes": 493,
+      "gzip_sha256": "496ad5cd6634be508d3456c141422efe0e239e307831e7802d761d1552cb05be"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.12-plain.memcheck.log.gz": {
+      "raw_bytes": 1093,
+      "raw_sha256": "597bbd2e084f74fe6b9b44adeeeb759f6695758141014041308785a0f3144f95",
+      "gzip_bytes": 546,
+      "gzip_sha256": "097d67a66f4dbf9e2c86c2b5a87869bdae0f17ec5059bfaecac02f64cebbd996"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.12-plain.stdout.log.gz": {
+      "raw_bytes": 768,
+      "raw_sha256": "855d9fa2cdf541bab1c757cd48b1a999bb87435dddac6e4103a2d43353ae8a12",
+      "gzip_bytes": 514,
+      "gzip_sha256": "48b872fd722d1aa2fc894eecd9a32d366671f9525e623bcd69102dfc414b9ef4"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.12-styles.exit.gz": {
+      "raw_bytes": 3,
+      "raw_sha256": "969eeff1eaac226a228cc61503effa46ea87d872ef3174365befc7c36ffa3c48",
+      "gzip_bytes": 23,
+      "gzip_sha256": "891eef32e0ecbc853318e735bbd38942c2a021392e96587e10918e8e7e6c8104"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.12-styles.json.gz": {
+      "raw_bytes": 757,
+      "raw_sha256": "27b15c2b2c409227c02aa8ad169cb62d2ab0248c9423fff7b48302b8b13c2098",
+      "gzip_bytes": 493,
+      "gzip_sha256": "0b75f93bfce1b6e4d90cf829f477662f63fea0cce3b515387b628ffbbcb60d13"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.12-styles.memcheck.log.gz": {
+      "raw_bytes": 10081,
+      "raw_sha256": "f791200a55fc28bde945b065f0ad71bdddc7cddcab693251ec3d51a5b225607a",
+      "gzip_bytes": 1398,
+      "gzip_sha256": "b02bedb403e4a4b8bf2546c21495642de58b04f7405940398822c11547189b22"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/6.12-styles.stdout.log.gz": {
+      "raw_bytes": 767,
+      "raw_sha256": "b86e14efabbd138afdf3d2454f324d31c07aa109bdbb3b3a68d6e1c63fae0d73",
+      "gzip_bytes": 514,
+      "gzip_sha256": "997e4437d98b58f879ea4cc55ebc28d4b2f9fd288923a2161209e0cd18255a3b"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/anaconda-package-metadata.json.gz": {
+      "raw_bytes": 56611,
+      "raw_sha256": "1876f6fc659bc72d0ad92b820d7c417617617b54491994ea8e0b2ec64fff2269",
+      "gzip_bytes": 5952,
+      "gzip_sha256": "b07541d1e00b6840bc00f5ad165c3d772a18a84bc4f06a4cc93ba00ffe208d2c"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/controls-r1.log.gz": {
+      "raw_bytes": 478,
+      "raw_sha256": "a7f58b462ede3092f62acb10e507318a8bd4c4a97315836dfd81b197420c30b3",
+      "gzip_bytes": 275,
+      "gzip_sha256": "d16751f7453bf6087ef0d6d46b9d1bdd983f3e8116574b00b038ea1dd9b09753"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/controls-r2.log.gz": {
+      "raw_bytes": 386,
+      "raw_sha256": "2d387312512cb0dbdcb9be406677a81d3c2c42e82aea5b2ca2791ae738eff2ba",
+      "gzip_bytes": 268,
+      "gzip_sha256": "e53da58d4a909e9cd40f239a543df4739e3f69905207d1d5bd8682cd38184fb7"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/launcher-meta-receipt.json.gz": {
+      "raw_bytes": 2596,
+      "raw_sha256": "dd4a5fd604477287b4b9a42098d34869bb03820b9677c4a23277ee21e0e35176",
+      "gzip_bytes": 716,
+      "gzip_sha256": "86c8a7fefce35350da6f4e2249e1fe0cc378e9dd2e389dc7e95829c6f99e7d37"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/launcher-receipt.json.gz": {
+      "raw_bytes": 4392,
+      "raw_sha256": "d696b8ff7102b8c47555dd12dba7c9d8449924ade69817996b79e5e47aa922d0",
+      "gzip_bytes": 755,
+      "gzip_sha256": "f090ad471a8bb791a7e55db04b442f149c32edeb32d29d26a5069c7e9614b90b"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/package-binding.json.gz": {
+      "raw_bytes": 371,
+      "raw_sha256": "07dc9fdb9f60ff8b686c125820967dcadc5bff007121be79bba9c41d71eba850",
+      "gzip_bytes": 275,
+      "gzip_sha256": "22cd4a1a467bb33de2816a3f29f3f9a7183240e441f192df09b2597a29362efa"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/controls/setup-r1.log.gz": {
+      "raw_bytes": 405,
+      "raw_sha256": "d8edf603725ccda9d92d74b411ff8684a1c02dbb383efdfa4acbd1b51572feeb",
+      "gzip_bytes": 272,
+      "gzip_sha256": "859693714b21d4f6f39c458db3b306fe213da45873f0f9c0235faea0bd173d8e"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/scripts/setup_valgrind_pure_qt_r1.py.gz": {
+      "raw_bytes": 1145,
+      "raw_sha256": "8c75a9d6d0688a0ef7bb5b5796cf413585c97ebac723c2947691c8dbe500ad17",
+      "gzip_bytes": 627,
+      "gzip_sha256": "d42796a9ec5d2ff63d73ef9505ffb462828f23b4d3389e94bf9e15cfbd2b98d0"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/scripts/pure_qt_memory_control_r1.py.gz": {
+      "raw_bytes": 2835,
+      "raw_sha256": "812dcd220c181b2ef99759cdf4bf16a57aa58b20d3f0896bcadde4971a40f82e",
+      "gzip_bytes": 1312,
+      "gzip_sha256": "fc97d63926bb602ce910e7082b41653939ef83e52d09ee26216da832e96972af"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/scripts/pure_qt_memory_control_r2.py.gz": {
+      "raw_bytes": 3322,
+      "raw_sha256": "2af234a4fdd7b1d1086e9000582d61c5102cc24047d3d065471508691fede186",
+      "gzip_bytes": 1477,
+      "gzip_sha256": "b2c59fc081d9ba893ec37b3e3aa1280cf763b1b52fe7c50b1f8f0ba0cbc3f5ec"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/scripts/run_pure_qt_memory_controls_r1.py.gz": {
+      "raw_bytes": 2349,
+      "raw_sha256": "cf35ba6d809a56b76c9f02fc9edd48b1913d4078797aa637e6531b7d666116e5",
+      "gzip_bytes": 1112,
+      "gzip_sha256": "847b347365c8696ac48e45828a25f8dfee349402762ba81d05bddb8916958085"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/scripts/run_pure_qt_memory_controls_r2.py.gz": {
+      "raw_bytes": 2351,
+      "raw_sha256": "f08913d5e7bcad9b2fa70f111149eefecfdfc95781867c115468c8fa513bdc15",
+      "gzip_bytes": 1112,
+      "gzip_sha256": "53a37888648d2c3502b0a9bb4078087c24a4f97c897910988a5559c8a59e60ef"
+    },
+    "features/data/43_pure_qt_memory_controls_2026-10-08/scripts/archive_qt_controls_accessibility_r2.py.gz": {
+      "raw_bytes": 9425,
+      "raw_sha256": "17043d301243486bb22efecb2d5e79fa2b148f612186a17a0ce1a2977806ffd4",
+      "gzip_bytes": 3826,
+      "gzip_sha256": "7ee66b64a336ded38749f50e8f1a9d2abc9863728e678585564af6f971f10cbe"
+    }
+  }
+}

@@ -1,5 +1,29 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 08:34 EDT — Workstation bounded pure Qt controls and accessibility proposal ready
+
+Home: private LiveSettingsDialog822 repair remains ready under your narrow ACK;
+no app source adoption yet. Six pureQt/isolatedPython controls complete on
+6.11.2/6.12.0, including64 dynamicclass/signal-name lengths. Application
+assertions pass, four memory-check exit97 failures retained. Only ibus/DBus
+initialization read observed; NOT your11 metadata/QCss contexts, no invalid
+write/free/SIGABRT origin established. Exact checker package, argv, fulllogs:
+ data/43_pure_qt_memory_controls_2026-10-08/receipt.json
+
+N655 scratch candidate includes concrete list/table/tree naming and three
+object names Objects/Masks/SettingsDiff. Ordinary48screen strict61 tests
+PASS16.91s; all visible checked item views named. Actual30 QAccessible names
+refresh through9 translations andEnglish; explicit application name preserved.
+Original58PASS/3FAIL and unsupported scratchprobe54FAIL retained.
+ data/655_item_view_naming_candidate_2026-10-08/receipt.json
+Proposed next owned paths i18n.py/object_settings_grid.py/foreign.py/
+train_compare.py plus strictlint. No application source edits; await coordinated
+path ACK after current hold. Storage/MainWindow/Preferences strictlint remains
+next independent reproducer; no desktop screen-reader signoff claimed.
+DirectCI12:31UTC: required5636 nowRUNNING; protectedserial0bRUNNING intact.
+No cancellations, retries, ratchet changes or broad publication release.
+
+
 ## 2026-10-08 08:06 EDT — Workstation nine new lifecycle guards pass; captions complete
 
 Home: continued assigned664/665 boundaries rather than idle. Wprivate34e49f47

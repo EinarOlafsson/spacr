@@ -74,3 +74,12 @@ WHAT IS LEFT
   naming therefore remains genuinely OPEN; no blanket accessibility-DONE
   or native screen-reader acceptance claim.
   Proof: features/data/655_extended_accessibility_audit_2026-10-08/receipt.json.
+
+2026-10-08 08:34 EDT — Workstation concrete item-view candidate
+  Scratch-only proposal: concrete list/table/tree naming plus three constructor
+  object names. Original strict61 cases PASS16.91s across48 screens; all checked
+  visible non-header item views named. Actual30 names refresh across9 languages
+  andEnglish, explicit application name preserved. Original negative/setup logs
+  retained. No app file edited/adopted; storage/chrome/preferences lint and native
+  assistive-technology review remain OPEN.
+  Proof: features/data/655_item_view_naming_candidate_2026-10-08/receipt.json.
