@@ -1,0 +1,44 @@
+================================================================================
+VERIFY TRACKASTRA IS AVAILABLE IN TIMELAPSE
+================================================================================
+
+Status:    in progress
+Requested: 2026-10-08 — "it should be possible to use trackstera in timelapse, if it is not already"
+Owner:     Home/root; delegated CPU UI lanes
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Trackastra is already present in the backend and preview code; user access and dispatch need verification before adding duplicate functionality.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The requested interaction should be predictable without distracting visual
+feedback, moving controls or unrelated animation preferences changing.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Verify timelapse backend selection, Trackastra model/linking settings, actual preview/backend dispatch and useful missing-package guidance. Repair a concrete access/dispatch gap if found. Use CPU-only stubs for bounded dispatch checks; no GPU process ownership change or model download.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Existing focused Trackastra backend and Qt timelapse-preview tests pass, including selection and dependency diagnostics. Real GPU/model accuracy remains workstation-owned and must not be implied by stub tests.
+Run only selected files with CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen
+tools/run_capped.sh 8G python -m pytest; never the whole local suite.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+No unrelated GPU jobs, global test skips, ratchet increases or wholesale
+resets of future user customization. CI N43 remains the priority in parallel.
+
+2026-10-08 — Registered the user request; implementation and focused validation
+are in progress. This entry is not a completion claim.

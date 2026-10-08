@@ -1,5 +1,21 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 — New explicit UI implementation request: N666–N669
+
+The user explicitly asks to add and implement new window/theme/help changes.
+That authorization permits these scoped app edits alongside CI; earlier broad
+publication holds do not defer this new request. Root owns preference/ambient
+catalog/motion/ripple API N668, theme agent owns N666 app window and glass
+RESIZER methods/dock handles, coverage agent owns N667 AppScreen action/help
+and HintBar, CI agent keeps native/required acceptance priority and verifies
+existing Trackastra access/dispatch for N669. Root also changes glass dialog
+BACKDROP install for separate motion; no overlap with glass resizer methods.
+All work in isolated worktrees, CPU-capped selected tests, commit/push completed
+items. Workstation retains API/docs/translations/tutorials and all GPU jobs.
+New user strings use tr(); regenerate inventories with tools when needed.
+No completed/green claim from registration. Existing N43/N47 remain open.
+
+
 ## 2026-10-08 09:30 EDT — Required run still red; serial wrapper guards repaired
 
 Required 37763414112: 24 jobs pass, Coverage0 SIGSEGV and its aggregate fail,

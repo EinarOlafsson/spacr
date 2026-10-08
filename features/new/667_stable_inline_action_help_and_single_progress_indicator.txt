@@ -1,0 +1,44 @@
+================================================================================
+FIXED-HEIGHT INLINE HELP AND ONE ACTION PROGRESS INDICATOR
+================================================================================
+
+Status:    in progress
+Requested: 2026-10-08 — "the tooltips for the action buttons should appear in the tooltip section below them, not as popups, and all butons should have tooltips. same goes for live, 3D, Time, OPS, Ai."
+Owner:     Home/root; delegated CPU UI lanes
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Changing tooltip/status text shifts controls and redundant circular action spinner duplicates the progress bar.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The requested interaction should be predictable without distracting visual
+feedback, moving controls or unrelated animation preferences changing.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Reserve four font-scaled rows for the action help footer. Shared changing-text help/status containers keep a stable height across different text lengths. Supply useful translated action and Live/3D/Time/OPS/AI button help, route it to the existing footer, and suppress duplicate popup tooltips for those controls. Remove only the redundant round spinner beside action buttons; retain the progress bar and status feedback.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Bounded Qt tests hover action/mode buttons, observe inline help and no duplicate popup, change multiline help without moving adjacent controls, and exercise progress/status paths after removing the action spinner.
+Run only selected files with CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen
+tools/run_capped.sh 8G python -m pytest; never the whole local suite.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+No unrelated GPU jobs, global test skips, ratchet increases or wholesale
+resets of future user customization. CI N43 remains the priority in parallel.
+
+2026-10-08 — Registered the user request; implementation and focused validation
+are in progress. This entry is not a completion claim.

@@ -1,0 +1,44 @@
+================================================================================
+SEPARATE SETTINGS ANIMATION CONTROLS AND SPACEOUT-ONLY THEMES
+================================================================================
+
+Status:    in progress
+Requested: 2026-10-08 — "there should be a seperate set of controlls for the settings backdrop annimation settings like density, speed, size, detail."
+Owner:     Home/root; delegated CPU UI lanes
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Settings backdrops currently share most main animation controls; growth, aurora and spinn should instead belong to spaceout. Current colors need the standard spaCR palette.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The requested interaction should be predictable without distracting visual
+feedback, moving controls or unrelated animation preferences changing.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Expose independent persisted density, speed, size and detail for settings-window backdrops and apply them live without changing main animation motion. Keep settings default spaCR stratified. Set default/background/animation colors to the standard spaCR palette and migrate old experiment defaults once while preserving future explicit choices. Move spaCR growth, spaCR aurora and spaCR spinn to spaceout-only animation choices; remove them from ordinary spaCR menus and restore their engines only when spaceout is active. Keep no-animation and performance behavior.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Bounded preference and backdrop tests verify independent round-trip/save/live application, default spaCR colors, ordinary versus spaceout catalog visibility, migrated removed choices, hidden timer stopping and unchanged scientific overlays.
+Run only selected files with CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen
+tools/run_capped.sh 8G python -m pytest; never the whole local suite.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+No unrelated GPU jobs, global test skips, ratchet increases or wholesale
+resets of future user customization. CI N43 remains the priority in parallel.
+
+2026-10-08 — Registered the user request; implementation and focused validation
+are in progress. This entry is not a completion claim.

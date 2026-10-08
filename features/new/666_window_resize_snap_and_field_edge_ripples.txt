@@ -1,0 +1,44 @@
+================================================================================
+FULLSCREEN RESIZE LOCK, EASIER EDGE GRABS AND FIELD RIPPLES
+================================================================================
+
+Status:    in progress
+Requested: 2026-10-08 — "in full screen mode the sides of the main window that can be dragged to change the window size should be deactivated and not visible by hovering."
+Owner:     Home/root; delegated CPU UI lanes
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Frameless window edges and dock/panel interactions need consistent fullscreen, snapping and field feedback.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The requested interaction should be predictable without distracting visual
+feedback, moving controls or unrelated animation preferences changing.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Disable resize hit tests and hints in fullscreen/maximized state. Enlarge invisible edge grab regions without thickening blue guides, for main and popup windows. Snap dragged main window to the top (full screen), left/right (half screen) or bottom (bottom half). Use compositor dragging where supported. In spaCR field, emit ripples from the snapped side. Emit boundary ripples when a panel move/resize is released or a panel collapses, using final geometry and the existing bounded field physics.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Bounded Qt tests verify inactive fullscreen edges, unchanged guide paint width with larger hit regions, screen-relative snap geometry and bounded edge/rect ripple publication. Preserve original ordinary window resizing and popup behavior.
+Run only selected files with CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen
+tools/run_capped.sh 8G python -m pytest; never the whole local suite.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+No unrelated GPU jobs, global test skips, ratchet increases or wholesale
+resets of future user customization. CI N43 remains the priority in parallel.
+
+2026-10-08 — Registered the user request; implementation and focused validation
+are in progress. This entry is not a completion claim.
