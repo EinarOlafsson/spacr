@@ -1,0 +1,50 @@
+{
+  "date_utc": "2026-10-08",
+  "source_commit": "f3acaad5715555a09d8e6e583a7a0fffcaa43b8d",
+  "phases": [
+    {
+      "label": "root-runner-54",
+      "source_commit": "713de68d3c9e7c467f3da80ce4e3f1a11962c54a",
+      "passed": 54,
+      "seconds": 9.2,
+      "raw_sha256": "b73f0b728416aecc67172e7efa77a35986daa50921f48a3cf931ffbc5d839f1c",
+      "gzip_sha256": "d9847001a7e4ac3b9c6e7d14d7e25c73d821a4b63c90d89f1f798486f7a2282b",
+      "payload": "root-runner-54.log.gz"
+    },
+    {
+      "label": "agent-runner-56",
+      "source_commit": "495ac4e83d5292eab505fce1f9ee47ea2641bcf9",
+      "passed": 56,
+      "seconds": 8.45,
+      "raw_sha256": "6be016bc6294854de00942788934721298c2dbb3f8f62fb7e342bb015a7d31c5",
+      "gzip_sha256": "ef604645958e7567f55170333ddf6a9393ca20986188d8944083090d0d4c1252",
+      "payload": "agent-runner-56.log.gz"
+    },
+    {
+      "label": "root-workflow-25",
+      "source_commit": "f3acaad5715555a09d8e6e583a7a0fffcaa43b8d",
+      "passed": 25,
+      "seconds": 7.85,
+      "raw_sha256": "10c950348c9abdfed2ea8efd3c4ea985e68d674010c966b728473855429f984d",
+      "gzip_sha256": "f56dabaf3dfb82f64d5ec74313823d97880fe7dce46e86fb4616357d2131a51d",
+      "payload": "root-workflow-25.log.gz"
+    }
+  ],
+  "source_sha256": {
+    "tools/run_pytest_batches.py": "85303bf62f482782818c40e950c7b1a8d11e54fd4351e5c5834a989f48d9488d",
+    "tools/replay_ci_batch.py": "b974bc78cf4be6056cb0166e9a3fdb09d2d2555bec18855a79b63ff008ebf238",
+    "tests/test_ci_pytest_batches.py": "02baf836541a11f18ec0e8a5e142c8665a1b663b2a54aab87850b54ef4c47f04",
+    "tests/test_local_ci_replay.py": "1d2a739c209d332e3df8af28438f550914780da29e1183101144e1322d6b0822",
+    "tests/test_ci_suite_classification.py": "84cc233b9933908b3de5bb19f2b877dc63cca6ecef45ddedcf7ec363137f478f",
+    ".github/workflows/tests.yml": "109e8707a4ef6ef323955bffe5f89cf48adad07207bbc8d8f129ac216548ffa5",
+    "tests/test_optimal_dependency_versions.py": "a23f757db6238427343ab4d46d0dd3d39282643d37d94787aae0a7da63245523",
+    "tests/test_ci_concurrency.py": "f55e3f58fd84b705398d3abe1f03f961a14d56ce2a11f89b9c54bd7f00d739cc",
+    "tests/test_a_hung_ci_suite_says_where.py": "c9eac8ef6a2c3fe9d3ef79c12bddd61ced70ee7f36acdc641152aa906767c622"
+  },
+  "limitations": [
+    "Runner 54 and agent 56 overlap; do not add their counts.",
+    "Workflow 25 is an additional three-file contract cohort.",
+    "This is local CPU acceptance, not a corrected-source hosted green verdict.",
+    "Coverage jobs do not enable the Qt-only batch skip; exclusively Qt-marked paths retain their Qt jobs."
+  ]
+}
