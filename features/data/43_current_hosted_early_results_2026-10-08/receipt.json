@@ -68,5 +68,29 @@
     "remaining_standalone_inline_warnings": 0,
     "catalogs_modified": false,
     "owner_review_and_strict_sphinx_required": true
+  },
+  "compatibility_acceptance": {
+    "run": 37720483878,
+    "source": "55badc57ff25ef6a7e14721561773a412b515318",
+    "conclusion": "success",
+    "jobs_successful": 17,
+    "observed_utc": "2026-10-08 03:24 UTC",
+    "files": [
+      {
+        "file": "compatibility-37720483878.json.gz",
+        "sha256": "8cf9cc830de4148fcd84d517c79b125f490e85e9af20df71af1143e1a4f86c45",
+        "raw_sha256": "eb03edff66a412b62c4a98598e09e05ce3d787505808d01f5a15ea7f69224395"
+      },
+      {
+        "file": "compatibility-py313-113127466727.log.gz",
+        "sha256": "632c8f27dc8f5f2f24efa45ca3880064e456099496217c47b697f1b0b87ed290",
+        "raw_sha256": "b3af526cae1d3f54fa51dd8c49d282788c0f5fe44ebfce3882b4244305c0cafa"
+      },
+      {
+        "file": "compatibility-py314-113127466743.log.gz",
+        "sha256": "c3fe48c3a29945288effb6a634b9d9594008c569a574ea727ed1139fb0513337",
+        "raw_sha256": "8f510752bbb5bf36902035828af10e01bf23f443f326085dabbba164b320c5ef"
+      }
+    ]
   }
 }

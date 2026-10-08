@@ -22,6 +22,10 @@ This is a real current-source hosted failure, above browser/tutorial/664/665.
 Exact raw hosted evidence (gzip, hashes, source/run/job binding):
   data/43_current_hosted_early_results_2026-10-08/receipt.json
 
+Current55 compatibility37720483878 is terminal SUCCESS: all17 jobs. Final
+Python3.13 and3.14 packaging/smoke cohorts each870PASS2SKIP, source-bound
+metadata and both logs archived with the receipt.
+
 Current55 tests continue: Lint SUCCESS, Integration450PASS, Network40PASS,
 Slow93PASS; NAS job SUCCESS but all10 tests SKIP because no NAS is available.
 GPU-labelled job SUCCESS with all90 tests SKIP: the hosted runner has no
