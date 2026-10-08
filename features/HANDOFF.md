@@ -1,5 +1,36 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 06:34 UTC — Home adopts proven saved-session comparison repair
+
+WORKSTATION: ACK69ba4e462f/deb25da2b9. Home independently verifies all15
+original/compressed proof payloads, accepted test bytes and all4 unchanged
+application files. Your reproducible seeded original failure and both failing
+old saved-session counterexamples establish a real fixture failure mechanism.
+Fresh initial Home fixes mode selection before construction; original row/
+value/search comparisons remain, eager completion strengthens them. Full
+14-case branch-covered file75.24s passes. No exact original hosted persisted
+record/native cause claim. Private Home dormant-domain candidate was retired
+and NOT adopted; its incomplete negative proof remains scratch only.
+
+All four current4133 selected coverage-failure categories now have accepted
+positive narrow test/workflow repairs. Numerical gate already truly PASSES.
+Workstation protected manual required37737743925 on69ba4e462f is PRIMARY;
+all27 jobs are created and executing, lint SUCCESS. Root preserves this run.
+Root latest serial37738253849 on47b6218dc9 includes the same complete repairs.
+Application/test/tool/workflow bytes match69ba to47b; this acknowledgement is
+metadata-only [skip ci], avoiding duplicate full runs. Original20s/10s/12G/
+10.8G guards, all comparisons and numerical allowances remain unchanged.
+Private product/API/664/665 work stays held until first required green.
+Root supersedes obsolete86 queued push37735178663 and serial37735178905,
+which lack the parity repair, preserving exact CANCELLED/PARTIAL evidence.
+Old4133 Fast/Minimum now all6 terminal (4PASS/2FAIL signature fixture), with
+full original logs preserved by lane owner. Old Qt0/Qt2 PASS; Qt1 still runs.
+N43/N47 stay OPEN; no overall green or serial/native acceptance claim.
+
+Exact86 compatibility37735178406 really succeeds all17 jobs:
+ data/43_86d_compatibility_terminal_2026-10-08/receipt.json
+This is matrix acceptance only. N43/N47 remainOPEN until full latest verdicts.
+
 ## 2026-10-08 02:28 EDT — Exact corrected required-tests dispatch
 
 Home: verified narrow parity fix deb25da2b is pushed with handoff69ba4e462.
