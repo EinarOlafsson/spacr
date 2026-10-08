@@ -43,9 +43,18 @@ def wrapper_type_at_fault(frame):
     if frame.name() != "Shiboken::BindingManager::unregisterWrapper(SbkObject*)":
         return
     try:
+        if frame.architecture().name() != "i386:x86-64":
+            gdb.write("wrapper_type_diagnostic=unsupported_architecture\n")
+            return
         library = gdb.solib_name(frame.pc())
         if not library or not library.endswith("/libshiboken6.abi3.so.6.12"):
             gdb.write("wrapper_type_diagnostic=unsupported_library\n")
+            return
+        symbol = gdb.execute("info symbol " + hex(frame.pc()), to_string=True)
+        expected = ("Shiboken::BindingManager::unregisterWrapper(SbkObject*) "
+                    "+ 80 in section .text of " + library)
+        if symbol.strip() != expected:
+            gdb.write("wrapper_type_diagnostic=unsupported_fault_pc\n")
             return
         library_path = Path(library)
         if not 0 < library_path.stat().st_size <= 1024 * 1024:

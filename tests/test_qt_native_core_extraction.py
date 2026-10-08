@@ -621,6 +621,8 @@ def test_original_fault_diagnostic_selects_restored_frame_with_bounded_fallback(
     ('source_worker', 'wrapper_type_diagnostic=_SourceWorker wrapper_ptr=0x10000'),
     ('wrong_library', 'wrapper_type_diagnostic=unsupported_library_hash'),
     ('wrong_python', 'wrapper_type_diagnostic=unsupported_python_abi'),
+    ('wrong_pc', 'wrapper_type_diagnostic=unsupported_fault_pc'),
+    ('wrong_architecture', 'wrapper_type_diagnostic=unsupported_architecture'),
     ('unreadable_type', 'wrapper_type_diagnostic=unavailable'),
 ])
 def test_qthread_fault_reports_only_a_bounded_python_wrapper_class(
@@ -669,10 +671,23 @@ def test_qthread_fault_reports_only_a_bounded_python_wrapper_class(
         def pc(self):
             return 0x12345
 
+        def architecture(self):
+            return SimpleNamespace(name=lambda: (
+                'aarch64' if case == 'wrong_architecture' else 'i386:x86-64'
+            ))
+
     original = Frame(0, 'Shiboken::BindingManager::unregisterWrapper(SbkObject*)')
     signal = Frame(1, 'signal_raise', original)
+
+    def execute(command, *, to_string=False):
+        if command.startswith('info symbol '):
+            offset = 64 if case == 'wrong_pc' else 80
+            return ('Shiboken::BindingManager::unregisterWrapper(SbkObject*) '
+                    f'+ {offset} in section .text of {library}\n')
+        assert not to_string
+
     gdb = SimpleNamespace(
-        execute=lambda _command: None,
+        execute=execute,
         write=messages.append,
         newest_frame=lambda: signal,
         SIGTRAMP_FRAME=1,
