@@ -1,0 +1,8 @@
+{
+  "source": "55badc57ff25ef6a7e14721561773a412b515318",
+  "candidate_messages": 27,
+  "checker": "tools.build_guide_i18n.message_problems with each current guide glossary",
+  "problems": [],
+  "production_catalogs_modified": false,
+  "strict_sphinx_acceptance": false
+}

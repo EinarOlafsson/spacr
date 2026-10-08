@@ -92,5 +92,13 @@
         "raw_sha256": "8f510752bbb5bf36902035828af10e01bf23f443f326085dabbba164b320c5ef"
       }
     ]
+  },
+  "normal_spacing_invariants": {
+    "file": "translated-inline-invariants.json",
+    "sha256": "b4d5c0ac509a5a1c31c2fa04943262621e91d8809069f3e8b718c5db1ba3d5a2",
+    "messages": 27,
+    "problems": 0,
+    "catalogs_modified": false,
+    "strict_sphinx_replay_pending": true
   }
 }
