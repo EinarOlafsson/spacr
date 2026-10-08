@@ -1,0 +1,23 @@
+{
+  "artifact_id": 11531049419,
+  "artifact_name": "n47-qt-serial-37728434064-1",
+  "begun_file_records": 209,
+  "completed_file_records": 208,
+  "fatal_python_log_bytes": 0,
+  "job_id": 113161465305,
+  "last_begun_file": "tests/qt/test_ambient_motion.py",
+  "last_completed_file": "tests/qt/test_ambient_home.py",
+  "last_pytest_log_line": "tests/qt/test_ambient_motion.py::test_the_direction_row_is_only_there_for_the_starfield ",
+  "limits": "The partial journal cannot establish subsequent failures, native fault absence, or full serial acceptance.",
+  "maximum_recorded_hwm_bytes": 3420073984,
+  "maximum_recorded_rss_bytes": 3289681920,
+  "recorded_test_failure_events": 0,
+  "replacement_run_id": 37735178905,
+  "replacement_source_revision": "86d98624993ebcc356c70277028a0d3256d3ddcd",
+  "run_id": 37728434064,
+  "scope": "Cancelled original-order Qt serial prefix; not a complete acceptance run",
+  "source_revision": "4133beafcd0ae427795617a4a01e295fd40539b7",
+  "terminal_conclusion": "cancelled",
+  "terminal_status": "completed",
+  "terminal_updated_at": "2026-10-08T06:04:28Z"
+}
