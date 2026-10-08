@@ -1,0 +1,26 @@
+================================================================================
+3D MAKE MASKS WITH SHARED ANCHOR AND SURFACE EDITING
+================================================================================
+
+Status:    open
+Requested: 2026-10-08
+Owner:     Home/root CPU mask editing lane; workstation API/docs/translations/tutorials
+Depends:   N672 validated gate anchor and surface editing logic
+
+WHAT THE STATE IS
+
+After the Gate Editor anchor and surface logic is implemented, the user wants the same interaction model in Make Masks to draw and modify 3D masks.
+
+WHAT TO DO
+
+Add a 3D mode to Make Masks in which users can draw masks, rotate the view and edit their volume using the same validated anchor and surface logic as N672. Provide evenly spaced anchors on every edge and surface, including the depth axis, an Anchor density setting, and a separate anchor visibility toggle.
+
+Allow users to select multiple surfaces and move their associated anchors together using dragging or the mouse wheel. Keep shared anchors connected, distinguish view rotation from editing, and allow nonuniform depth deformation rather than only extruding a 2D outline.
+
+Apply edited geometry to the actual mask voxels and preserve the original image shape, axis order, voxel spacing and object label identity. Define supported volumetric input and output through the existing Make Masks paths. Preserve existing 2D drawing and bounding-box annotation behavior. Save/load, undo/redo and invalid-geometry handling must follow the shared gate editing behavior where applicable. Reuse existing modules and do not add a new module under spacr/.
+
+HOW TO KNOW IT WORKED
+
+Use a small synthetic 3D image with independently known expected voxels. Draw and edit a mask in each axis after rotating the view; verify anchor density and visibility, individual anchors, multi-surface wheel/drag movement, nonuniform depth, voxel membership, object labels, anisotropic spacing, save/load and undo/redo. Run focused capped CPU/Qt checks and the relevant existing 2D mask and bounding-box regressions. Do not require GPU jobs or alter the workstation-owned livecell/cellposeTIME processes.
+
+2026-10-08 — Registered the user's follow-on request. This is open work, not implemented functionality. Complete and validate N672 before porting its editing logic to Make Masks. Workstation retains API/docs/translations/tutorials and GPU ownership.

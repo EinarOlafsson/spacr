@@ -1,0 +1,29 @@
+================================================================================
+EDITABLE GATE ANCHORS AND SELECTABLE 3D SURFACES
+================================================================================
+
+Status:    open
+Requested: 2026-10-08
+Owner:     Home/root CPU gate editing lane; workstation API/docs/translations/tutorials
+Depends:   N671 rounded Gate Editor plot backing
+Follow-on: N673 applies the accepted geometry and interaction logic to 3D masks
+
+WHAT THE STATE IS
+
+The user reports that gate drawing and graph rotation work well. Gates need editable control points, particularly along the depth of a 3D gate that initially resembles an extruded cylinder.
+
+WHAT TO DO
+
+Add movable anchors to drawn gates in 2D and 3D. In 3D, anchors must cover every edge and surface, with even spacing along all gate axes, including the axis that was not used when drawing the initial gate. Anchors must remain selectable and editable after graph rotation, and movement must update the underlying gate geometry in all three data dimensions rather than only its screen projection.
+
+Add an Anchor density setting that controls anchor spacing and number, and a separate setting that toggles anchor visibility. Preserve the existing drawing and graph rotation controls and distinguish rotation from anchor or surface manipulation.
+
+Represent the sides of a 3D gate as selectable surfaces. Allow selection of several surfaces at once. Dragging or scrolling the mouse wheel must move the selected surfaces and their associated anchors together. Shared anchors must move once and keep the gate connected when several selected surfaces meet. Deforming the depth or a side must create a genuinely editable volume rather than leaving a fixed extrusion.
+
+Keep gate membership, selection counts and displayed geometry consistent with edits. Preserve edited geometry and settings across saving/loading and support the editor's undo/redo behavior. Validate invalid or degenerate geometry without silently corrupting the gate. Use existing gate and mask modules rather than adding a new module under spacr/.
+
+HOW TO KNOW IT WORKED
+
+Focused CPU/Qt checks draw a gate, rotate its 3D graph, move anchors along each data axis, and compare membership against independent known inside/outside points. Check even anchor spacing and density changes, visibility, edge and surface picking after rotation, wheel and drag movement, multiple adjacent surfaces, shared-anchor handling, save/load and undo/redo. Include a 2D regression and a gate whose edited depth is no longer a uniform cylinder.
+
+2026-10-08 — Registered the user's new request. This is open work, not a claim of implementation or acceptance. N673 depends on the shared editing logic being validated first. GitHub tests remain the primary priority.
