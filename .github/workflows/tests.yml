@@ -396,6 +396,33 @@ jobs:
             "pytest-cov>=7,<8"
           python -m pip check
 
+      - name: Bind coverage artifact to this run and source
+        env:
+          SPACR_COVERAGE_DATA_DIR: ${{ runner.temp }}/spacr-coverage-data
+          SPACR_COVERAGE_SHARD: ${{ matrix.shard }}
+          SPACR_RUN_ID: ${{ github.run_id }}
+          SPACR_RUN_ATTEMPT: ${{ github.run_attempt }}
+          SPACR_HEAD_SHA: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          shard = int(os.environ["SPACR_COVERAGE_SHARD"])
+          path = Path(os.environ["SPACR_COVERAGE_DATA_DIR"])
+          path.mkdir(parents=True, exist_ok=True)
+          (path / f"spacr-coverage-source.shard-{shard:02d}.json").write_text(
+              json.dumps({
+                  "schema": "spacr.coverage-source/v1",
+                  "run_id": int(os.environ["SPACR_RUN_ID"]),
+                  "run_attempt": int(os.environ["SPACR_RUN_ATTEMPT"]),
+                  "head_sha": os.environ["SPACR_HEAD_SHA"],
+                  "shard_index": shard,
+              }, sort_keys=True) + "\n", encoding="utf-8",
+          )
+          PY
+
       - name: Run coverage shard in bounded batches
         env:
           SPACR_COVERAGE_DATA_DIR: ${{ runner.temp }}/spacr-coverage-data
@@ -491,13 +518,29 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install "coverage>=7.10,<8" "setuptools>=64"
 
-      - name: Download every uniquely named coverage shard
+      - name: Download coverage shards from this run's attempts
         uses: actions/download-artifact@v8
         with:
           pattern: >-
-            spacr-coverage-data-${{ github.run_id }}-${{ github.run_attempt }}-*
-          path: ${{ runner.temp }}/spacr-coverage-input
-          merge-multiple: true
+            spacr-coverage-data-${{ github.run_id }}-*
+          path: ${{ runner.temp }}/spacr-coverage-artifacts
+
+      - name: Select the newest same-run artifact per shard
+        env:
+          SPACR_COVERAGE_ARTIFACTS: ${{ runner.temp }}/spacr-coverage-artifacts
+          SPACR_COVERAGE_INPUT: ${{ runner.temp }}/spacr-coverage-input
+          SPACR_COVERAGE_SHARD_COUNT: "12"
+          SPACR_RUN_ID: ${{ github.run_id }}
+          SPACR_RUN_ATTEMPT: ${{ github.run_attempt }}
+          SPACR_HEAD_SHA: ${{ github.sha }}
+        run: |
+          python tools/select_coverage_artifacts.py \
+            --source "$SPACR_COVERAGE_ARTIFACTS" \
+            --destination "$SPACR_COVERAGE_INPUT" \
+            --run-id "$SPACR_RUN_ID" \
+            --run-attempt "$SPACR_RUN_ATTEMPT" \
+            --shard-count "$SPACR_COVERAGE_SHARD_COUNT" \
+            --head-sha "$SPACR_HEAD_SHA"
 
       - name: Combine process data and write coverage.py JSON
         env:

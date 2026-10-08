@@ -1412,6 +1412,10 @@ def test_the_gate_reads_the_records_where_the_combine_job_downloads_them():
         step for step in combine["steps"]
         if str(step.get("uses", "")).startswith("actions/download-artifact")
     )
+    select = next(
+        step for step in combine["steps"]
+        if "tools/select_coverage_artifacts.py" in step.get("run", "")
+    )
     gate = next(
         step for step in combine["steps"]
         if "tools/verify_module_coverage.py" in step.get("run", "")
@@ -1430,7 +1434,9 @@ def test_the_gate_reads_the_records_where_the_combine_job_downloads_them():
     )
 
     assert '--shard-integrity "$SPACR_COVERAGE_INPUT"' in gate["run"]
-    assert gate["env"]["SPACR_COVERAGE_INPUT"] == download["with"]["path"]
+    assert select["env"]["SPACR_COVERAGE_ARTIFACTS"] == download["with"]["path"]
+    assert gate["env"]["SPACR_COVERAGE_INPUT"] == select["env"]["SPACR_COVERAGE_INPUT"]
+    assert download["with"]["pattern"] == "spacr-coverage-data-${{ github.run_id }}-*"
     # The runner writes its records into --data-dir, which is what is uploaded.
     assert (
         runs["env"]["SPACR_COVERAGE_DATA_DIR"].rstrip("/")
