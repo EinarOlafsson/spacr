@@ -1,0 +1,38 @@
+{
+  "session_date": "2026-10-07",
+  "hosted": {
+    "source": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+    "run_id": 37698599898,
+    "job_id": 113058129513,
+    "conclusion": "failure",
+    "failures": [
+      "tests/qt/test_no_popup_has_square_corners.py::test_translucent_corners_have_alpha_instead_of_a_binary_cut",
+      "tests/qt/test_no_popup_has_square_corners.py::test_alpha_corners_follow_a_resize"
+    ]
+  },
+  "cause": "The corner checks assumed interior alpha above 200, although popup cards follow the existing 60% page opacity (alpha 153).",
+  "repair": "Check exact effective interior alpha at both the unchanged default and explicit fully opaque settings. Retain empty binary mask and transparent outer corner; require edge coverage strictly below min(200, interior alpha).",
+  "source_fix": "cc8a1674360114977810f26cf0bc41c8a4b6d715",
+  "published_integration": "95952c0aefc810107f0b9b8a929ebd814e3b9c3f",
+  "test_file_sha256": {
+    "772b67b4b3": "7a50406d8f10fed350ccb2b38aa4ead9cfe0b6967b7771ac203422ab73567f4b",
+    "cc8a167436": "668e66977b822f46713049dd619494c4e8de2424942707ad91b9d253c352fce4"
+  },
+  "validation": [
+    {
+      "source": "772b67b4b322aa4ec5421630713268b7a6fffe6a",
+      "command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen PYTHONPATH=. tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q tests/qt/test_no_popup_has_square_corners.py",
+      "exit_code": 1,
+      "observed": "2 failed, 3 passed in 3.21s",
+      "log": "current-before.log.gz"
+    },
+    {
+      "source": "cc8a1674360114977810f26cf0bc41c8a4b6d715",
+      "command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen PYTHONPATH=. tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q tests/qt/test_no_popup_has_square_corners.py tests/qt/test_popup_backdrop_apply.py",
+      "exit_code": 0,
+      "observed": "27 passed in 23.09s",
+      "log": "committed-after.log.gz"
+    }
+  ],
+  "limit": "Two complete local files; not full hosted GitHub acceptance, a numerical coverage verdict, or native crash closure. Earlier overlapping validation is not added to this count."
+}

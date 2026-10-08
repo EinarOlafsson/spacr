@@ -3228,3 +3228,16 @@ hosted log, exact source/test hashes and local results are in
 data/43_683_coverage_artifact_contract_cpu_2026-10-07/receipt.json. This
 repairs test selection, not the numerical ratchet result or full GitHub green;
 N43 remains OPEN.
+
+2026-10-07 — POPUP CORNERS FOLLOW CURRENT PAGE OPACITY
+Current683 Coverage9/job113058129513 fails only two popup-corner assertions
+that expected interior alpha>200. Both reproduce on integrated source; the
+existing60% page opacity correctly paints alpha153. Sourcecc8a167436 covers
+the unchanged default and explicit opaque setting, asserts exact effective
+body alpha, transparent outer corners and empty binary mask, and retains
+partial edge coverage below min(200, body alpha). Two complete files pass
+27/27 in23.09s under4GiB on committed source. Published in95952c0aefc;
+original hosted/local negatives and accepted proof are source-bound in
+data/43_683_popup_corner_opacity_cpu_2026-10-07/receipt.json. Workstation now
+owns the unreproduced idle/click/eager parity failure and final API catalogs.
+Complete current-source GitHub green remains OPEN.

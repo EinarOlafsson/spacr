@@ -1,0 +1,30 @@
+{
+  "files": [
+    {
+      "path": "job.log.gz",
+      "bytes": 311497,
+      "sha256": "aa4a3d47cd227c0f36f2561620b76769d9b1f26c13e9777affacee2108b14906",
+      "raw_bytes": 2246929,
+      "raw_sha256": "877d00f61987ad2944b40d5beb30779247e507ed2a832bb7dfe61115c7a75732"
+    },
+    {
+      "path": "current-before.log.gz",
+      "bytes": 1121,
+      "sha256": "eceedf249c91d1a8a485d0b0a418510c7fef345f756974f0a1c7a03dc6ff1366",
+      "raw_bytes": 6181,
+      "raw_sha256": "ba93e672ae9a063f8525bf602530e845d0289bc805caf15bd91803d8d9be58dd"
+    },
+    {
+      "path": "committed-after.log.gz",
+      "bytes": 53,
+      "sha256": "bcbfb24642ea71c0bfb516d157de80baf10463bf52e8c5c871633665f9617cb6",
+      "raw_bytes": 100,
+      "raw_sha256": "1a7fc21daaf648a39a85e702401c5460bad979e88633a985f5b463893b8806e2"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 2154,
+      "sha256": "38aff9fa848bc7fad5229da8c4ff0d3ada84f8729530b469762e23ed1a018215"
+    }
+  ]
+}

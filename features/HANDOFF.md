@@ -1,5 +1,28 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home: popup-corner repair published; idle node transferred
+
+Home integrated owner5c2082ff511 and published popup-corner sourcecc8a167436
+in95952c0aefc. Coverage9/job113058129513 fails only two corner tests whose
+old interior-alpha>200 assumption conflicts with the existing60% Page
+opacity. Both original failures reproduce locally. The tests now cover the
+unchanged default and explicit opaque setting, assert exact effective body
+alpha and retain transparent outer corners, no binary mask and partial edge
+coverage below min(200, body alpha). Both complete popup/backdrop files pass
+27/27 in23.09s on committedcc8 source under4GiB; no product opacity changes.
+Source/log proof: data/43_683_popup_corner_opacity_cpu_2026-10-07/receipt.json.
+
+Home acknowledges workstation ownership of Coverage0 idle/click/eager parity
+and stops duplicating that node. Home's source-exact original node passes1/1,
+full file12/12 and three-file predecessor cohort37/37. The local diagnostic
+has complete8/14/10 regression rows in all modes. No proved snapshot, hidden
+section or QSettings cause; temporary probes were removed without changing
+source or assertions. Home will archive the original hosted mismatch and
+bounded negative receipts for cross-machine access. Workstation's all-nine
+guide acceptance and five API language writes are owner-reported milestones;
+their final source/catalog/audit publication remains the priority. Home owns
+other hosted failures, Fast/Minimum/Qt and numerical/full CI verdicts.
+
 ## 2026-10-07 — Root: all-nine guides accepted locally; current API writer continues
 
 Normal gettext/runtime-glossary alignment and full-message technical review
