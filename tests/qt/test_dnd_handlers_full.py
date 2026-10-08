@@ -1703,8 +1703,8 @@ def _drive(qtbot, dog, done, budget_s=60.0):
     dog.stop()
 
 
-def _drop(widget, paths):
-    """Replay the window system's enter -> move -> drop on ``widget``."""
+def _drop(widget, paths, delivery_times=None):
+    """Replay enter, move, and drop, optionally timing drop delivery only."""
     mime = QMimeData()
     mime.setUrls([QUrl.fromLocalFile(str(p)) for p in paths])
     QApplication.sendEvent(widget, QDragEnterEvent(
@@ -1713,7 +1713,10 @@ def _drop(widget, paths):
         QPoint(4, 4), Qt.CopyAction, mime, Qt.LeftButton, Qt.NoModifier))
     event = QDropEvent(QPointF(4, 4), Qt.CopyAction, mime,
                        Qt.LeftButton, Qt.NoModifier)
+    start = time.perf_counter() if delivery_times is not None else None
     QApplication.sendEvent(widget, event)
+    if start is not None:
+        delivery_times.append(time.perf_counter() - start)
     return event
 
 
@@ -1788,22 +1791,37 @@ def test_the_former_three_inline_walks_are_slow_enough_to_matter(big_folder):
 
 
 def test_dropping_a_big_folder_never_freezes_the_gui_thread(
-        qtbot, big_folder, logged):
+        qtbot, big_folder, logged, monkeypatch):
     """The drop that used to block for a second now blocks for milliseconds."""
+    import threading
+    from spacr.qt import dnd
+
     screen = _mask_screen(qtbot)
+    gui_thread = threading.get_ident()
+    scan_threads = []
+    classify = dnd._classify_drop
+
+    def record_scan(*args, **kwargs):
+        """Record the thread that actually reads the dropped folder."""
+        scan_threads.append(threading.get_ident())
+        return classify(*args, **kwargs)
+
+    monkeypatch.setattr(dnd, "_classify_drop", record_scan)
 
     dog = LoopWatchdog(screen)
     dog.start()
-    dispatch = time.perf_counter()
-    event = _drop(screen, [big_folder])
-    dispatch = time.perf_counter() - dispatch
+    delivery_times = []
+    event = _drop(screen, [big_folder], delivery_times)
+    dispatch = delivery_times[0]
     _drive(qtbot, dog,
            lambda: not dh.scan_is_busy(screen)
            and dh.active_scan_jobs(screen) == 0)
 
     assert event.isAccepted()
-    # The drop event itself must return immediately: it dispatches, it does
-    # not read. This is the part the user is holding the mouse button for.
+    assert scan_threads and all(thread != gui_thread for thread in scan_threads), (
+        "the dropped folder was classified on the GUI thread")
+    # Time only delivery of the drop event: MIME and drag setup are not work
+    # the application performs when the user releases the mouse button.
     assert dispatch < 0.100, (
         f"the drop event took {dispatch * 1000:.0f} ms to return; the folder "
         "is still being read on the GUI thread")
