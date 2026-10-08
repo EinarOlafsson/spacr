@@ -169,19 +169,19 @@ Linux:
 
 .. code-block:: bash
 
-   ~/.local/share/spacr/bootstrap/uv pip install --upgrade --python ~/.local/share/spacr/venv/bin/python "spacr[qt]"
+   ~/.local/share/spacr/bootstrap/uv pip install --upgrade --python ~/.local/share/spacr/venv/bin/python spacr
 
 macOS:
 
 .. code-block:: bash
 
-   "$HOME/Library/Application Support/SpaCR/bootstrap/uv" pip install --upgrade --python "$HOME/Library/Application Support/SpaCR/venv/bin/python" "spacr[qt]"
+   "$HOME/Library/Application Support/SpaCR/bootstrap/uv" pip install --upgrade --python "$HOME/Library/Application Support/SpaCR/venv/bin/python" spacr
 
 Windows PowerShell:
 
 .. code-block:: powershell
 
-   & "$env:LOCALAPPDATA\SpaCR\bootstrap\uv.exe" pip install --upgrade --python "$env:LOCALAPPDATA\SpaCR\venv\Scripts\python.exe" "spacr[qt]"
+   & "$env:LOCALAPPDATA\SpaCR\bootstrap\uv.exe" pip install --upgrade --python "$env:LOCALAPPDATA\SpaCR\venv\Scripts\python.exe" spacr
 
 These are the original installers' default roots. If a different destination
 was selected during installation, replace the root before ``bootstrap`` and
@@ -194,13 +194,11 @@ Update an environment installed from conda-forge with:
 
    conda update conda-forge::spacr
 
-Update a PyPI desktop environment with:
+Update an environment installed from PyPI with:
 
 .. code-block:: bash
 
-   python -m pip install --upgrade "spacr[qt]"
-
-Headless environments can omit the ``qt`` extra in the PyPI commands.
+   python -m pip install --upgrade spacr
 
 For reproducible work, install an exact version instead of following the
 latest release. Use the command for the package source already installed in
@@ -209,7 +207,7 @@ the environment, replacing ``VERSION`` with a release that source publishes:
 .. code-block:: bash
 
    conda install conda-forge::spacr=VERSION
-   python -m pip install "spacr[qt]==VERSION"
+   python -m pip install "spacr==VERSION"
 
 ``python -m pip index versions spacr`` lists the PyPI releases, and
 ``conda search -c conda-forge spacr`` lists the conda-forge builds.
@@ -371,7 +369,7 @@ minor version, replacing ``VERSION`` with the release to install:
 
 .. code-block:: bash
 
-   python -m pip download --dest spacr-wheelhouse "spacr[qt]==VERSION"
+   python -m pip download --dest spacr-wheelhouse "spacr==VERSION"
 
 Copy ``spacr-wheelhouse`` to the offline machine, create and activate a Python
 environment, then install without contacting a package index:
@@ -379,7 +377,7 @@ environment, then install without contacting a package index:
 .. code-block:: bash
 
    python -m pip install --no-index --find-links spacr-wheelhouse \
-       "spacr[qt]==VERSION"
+       "spacr==VERSION"
 
 Repeat the download for the required optional extras. GPU-enabled PyTorch
 builds may require a separate wheel source, so prepare and test the complete
@@ -431,7 +429,7 @@ In the activated environment, install and open spaCR:
 .. code-block:: bash
 
    python -m pip install --upgrade pip
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 To install the same PyPI release and desktop interface inside a Conda
@@ -442,13 +440,12 @@ environment:
    conda create -n spacr python=3.12 -y
    conda activate spacr
    python -m pip install --upgrade pip
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
 
-The base package supplies the command-line pipelines. Install the ``qt``
-extra for the desktop interface, as in the commands above. On a headless
-server, use ``python -m pip install spacr`` and run ``spacr-run`` without
-opening the desktop application. Extras can be combined, for example
-``spacr[qt,czi,nd2,lif]``. Common additions are:
+The standard package includes the Qt desktop interface and command-line
+pipelines. On a headless server, use ``spacr-run`` without opening the desktop
+application. Extras can be combined, for example ``spacr[czi,nd2,lif]``.
+Common additions are:
 
 .. list-table::
    :header-rows: 1
