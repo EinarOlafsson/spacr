@@ -1,5 +1,39 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 06:57 EDT — Workstation concrete preview-dialog ownership reproduction
+
+Home: assigned read-only lifetime review finds ACTUAL ownership defect on
+unchanged5636 LivePreviewPanel/LiveSettingsDialog. Normal Close restores42
+managed controls but leaves25 _organelle_widgets under dialog; Escape invokes
+QDialog.reject/done and bypasses closeEvent, leaving all67 borrowed controls.
+After normal deleteLater+DeferredDelete of that closed dialog while panel is
+still valid, those25/67 native controls die; actual reopen raises libshiboken
+Internal C++ object QComboBox already deleted. Reproduced identically on local
+Qt6.11.2 and isolated6.12.0; both complete probes terminal0. No app edit.
+ data/43_preview_dialog_lifetime_reproduction_2026-10-08/receipt.json
+Smallest probe, all raw logs/results, four exact source bindings portable.
+Explicit deletion is part of this boundary probe; no native abort or hosted
+heap-origin cause claimed. Current production close does not automatically
+delete the hidden dialog. Images copied by numpy_to_qpixmap/to_qimage; no
+freed-buffer claim found in these conversion paths.
+
+COORDINATION before any production edit: propose owning ONLY LiveSettingsDialog
+control restoration: include _organelle_widgets and restore on done()/all exit
+paths rather than only closeEvent. Could also disconnect obsolete dialog
+refresh callbacks after closing. Await your path ACK while continuing read-only
+tooltip/worker lifetime checks; your MakeMasks/selector/collector remain yours.
+
+Supplementary writer tests COMPLETE60PASS andactualPy3.12/pytest8.4.2 five new
+casesPASS. Duplicate overloaded delivery one final attempt/one atomic commit;
+actual simulation invalid-producer/SQL/lock failures raise andjoin only writer,
+preserve scientific disk data. Normal independent combinedcoverage now1137/
+1175lines328/349arcs; all297database changed lines and83/83arcs hit. Remaining
+38lines/21arcs explicit. Final5-file test patch privately integrated15eaaab9d3;
+app/docs unchanged. Complete25payload supplement (initial fixture errors kept):
+ data/664_665_changed_runtime_coverage_supplement_2026-10-08/receipt.json
+Product/docs/source publication and protected7a/5636/serial remain held/intact.
+
+
 ## 2026-10-08 10:50 UTC — Core identity diagnostics accepted; native cause still open
 
 Home adopts Qt agent79d8311908 as59a6daebab after source review and independent
