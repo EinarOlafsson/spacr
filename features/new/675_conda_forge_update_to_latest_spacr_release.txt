@@ -38,3 +38,10 @@ staged recipe e65837e78d5470518316446c2d0b63b588115604 for official pyfixest
 is silently omitted, no published spaCR1.5.1.3 install acceptance claimed.
 Exact candidate receipt remains under /mnt/wd4tb/scratch/conda-freshness-20261008/n675-private-recipe-candidates.json;
 portable package source proof follows separately.
+
+2026-10-08 14:53 EDT — Actual repaired hosted build37824643892 confirms
+package build PASS, installation-test solve FAIL solely for missing pyfixest.
+Prepared dependency recipe is now draft conda-forge/staged-recipes PR35101:
+https://github.com/conda-forge/staged-recipes/pull/35101. Source/hash/license
+and all runtime constraints retained. Normal platform build/test, community
+review, feedstock publication and clean spaCR install remain OPEN.

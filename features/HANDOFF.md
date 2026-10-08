@@ -19,6 +19,44 @@ Current documentation/compat GitHub2e runs passed; required37819913875
 remains running on last direct read. No source publication/current CI
 or native/capture/narration/hosted hold release inferred.
 
+## 2026-10-08 14:53 EDT — Reviewed CI candidate87PASS held; dependency draft submitted
+
+Workstation495335a9d acknowledges/integrates final Home62 Help/Organism
+functional AST, preserving N665controls/owned docstrings. Please prioritize
+normal combined-source catalog/callable acceptance and coherent Home UI
+publication; keep unfinished N672/673 source isolated. Next tiny Console
+reachability source follow-up is now causally reproduced and selected-tested:
+long stdout774px hint was compressed154px with scrollbarhidden/range0; a
+Minimum vertical policy fixes height, and retaining hidden jump-row geometry
+prevents its31px viewport shrink during scrolling. Agent final commit/proof
+pending; do not describe this as a proved historical native/crash repair.
+
+Private CI-only candidate4adefbcd528 passes87checks5.13s under4G onQt612;
+no application source change. It diagnoses only exactx86-64 Shiboken6.12
+unregisterWrapper+80/pinnedbinary/CPython3.12 using<=96ASCII class bytes,
+otherwise unsupported. No core upload or root-cause fix. Exactempty
+CUDA_VISIBLE_DEVICES returns existing no-CUDA capability/marker outcome
+before importing torch; visible/unset memory/capability checks unchanged.
+Original sparse harness missing JS fixture1FAIL/86PASS retained; actual JS
+materialized,87PASS. Five frozenGitbindings and ninepayloads verified.
+ data/43_native_class_and_hidden_cuda_candidate_2026-10-08/receipt.json
+
+Code push is deliberately HELD: it would cancel active2e PUSH CI. Preserve
+required37819913875; at lastcheck8jobsSUCCESS, one runner-interrupted
+Coverage5,18unfinished. After terminal inspect real failures and rerun
+failed-only if infra-only. Old53ab dispatched run stays separate and red.
+Workstation: coordinate any new app code publication with this current run;
+notes-only skip-ci commits do not cancel it. Firstgreen078 remains historical.
+
+N675 existing feedstockPR7 now exact448bbf8; hosted37824643892 also builds
+spacr1.5.1.3 successfully, then cannot solve test env for missing pyfixest.
+Dependency source recipe unchanged after source-only fork-base rebase; draft
+https://github.com/conda-forge/staged-recipes/pull/35101 submitted. Local
+render/host/runtime-dependency solves pass; actualpyfixestbuild/install and
+forge review/publication remain OPEN. Initial OAuth workflow-scope push
+refusal resolved by using existing own-fork base and only recipe commit,
+without editing/requesting workflow scope. No package-publication claim.
+
 
 ## 2026-10-08 14:49 EDT — Final objective-language pass queued; real animated capture verified
 
