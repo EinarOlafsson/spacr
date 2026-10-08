@@ -30,7 +30,7 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QEvent, QPoint, Qt
-from PySide6.QtWidgets import QLabel, QMainWindow, QStackedWidget, QWidget
+from PySide6.QtWidgets import QLabel, QMainWindow, QScrollArea, QStackedWidget, QWidget
 
 
 #: A spread of module screens, not one. The previous round of Qt work
@@ -591,6 +591,24 @@ def test_a_missing_ambient_module_is_not_a_broken_screen(qtbot,
     assert screen._settings_sections
     screen.refresh_ambient_background()          # and the live path too
     assert screen._ambient is None
+
+
+def test_a_scroll_hosted_section_still_toggles_without_ambient(
+        qtbot, qt_theme_applied, monkeypatch):
+    from spacr.qt.widgets.section import Section
+
+    scroll = QScrollArea()
+    qtbot.addWidget(scroll)
+    section = Section("Options")
+    scroll.setWidget(section)
+    monkeypatch.setitem(sys.modules, "spacr.qt.widgets.ambient", None)
+
+    section.set_expanded(True)
+    assert section.is_expanded()
+    assert section._body.isVisibleTo(section)
+    section.set_expanded(False)
+    assert not section.is_expanded()
+    assert not section._body.isVisibleTo(section)
 
 
 def test_broken_preferences_do_not_break_the_screen(qtbot, qt_theme_applied,
