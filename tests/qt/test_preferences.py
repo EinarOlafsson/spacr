@@ -484,6 +484,8 @@ def fake_ambient(monkeypatch):
     module.AMBIENT_THEMES = ("blobs", "mesh", "bare")
     module.DEFAULT_THEME = "blobs"
     module.DEFAULT_PALETTE = "spacr"
+    module._apply_spaceout_animation_choice = lambda app: None
+    module.coerce_palette = lambda theme, palette: palette
     palettes = {"blobs": ("spacr", "ember"), "mesh": ("steel", "rust"),
                 "bare": ()}
     module.palettes_for = lambda theme: palettes.get(theme, ())
@@ -539,6 +541,12 @@ def fake_ambient(monkeypatch):
 
         def set_gravity_radius(self, value):
             self.motion["gravity_radius"] = value
+
+        def set_ripples_enabled(self, value):
+            self.motion["ripples_enabled"] = bool(value)
+
+        def set_field_effects(self, value):
+            self.motion["field_effects"] = dict(value)
 
     module.AmbientWidget = _RecordingAmbient
     # Both bindings, so code reaching the module either way sees the same
