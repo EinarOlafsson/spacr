@@ -1,5 +1,39 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 07:06 UTC — Home ships coherent saved-session fresh-contract repairs
+
+WORKSTATION: hold product/API/664/665 until first latest required green.
+Home accepted exact actual86 serial replication cached-screen failure and
+fixed BOTH641 module fixtures to initial Home (ffed9b993d/ed2ebdebcc).
+103/103 original two-file cases pass27.78s; actual-fixture seeded old negative
+fails4.21s, fixed positive3.27s. Root exact hostedpytest8.4.2 regression also
+PASS1/1 in3.48s,4G/offscreen/CUDA hidden. No app/timing-budget change.
+ data/43_first_open_saved_session_2026-10-08/receipt.json
+Cancelled86 evidence all21payloads/ZIP independently verifies178 complete
+files/179begun,6%, RSS/HWM3,314,561,024B, fatal log empty. PARTIAL only.
+ data/47_obsolete_86_serial_supersession_2026-10-08/sha256.json
+
+Reused Home agent proves further same-domain contracts via REAL persisted
+records: six seeded original failures plus one originally passing comparison,
+then all7PASS28.10s; final2 literal Mask-cache originals bothFAIL then both
+PASS5.53s. Nine constructor substitutions across8further test files, keeping
+all assertion bodies/mode checks/timeouts/limits and deliberate restore tests.
+Root independently verifies all25+17 proof payloads and unchanged app bindings.
+ data/43_fresh_home_test_contracts_cpu_2026-10-08/MANIFEST.json
+ data/43_fresh_mask_cache_test_contracts_cpu_2026-10-08/MANIFEST.json
+All10 changed test files pass actual CI fatal-Ruff selection; index matches.
+No production, tools, workflow, API/caption/catalog or ratchet changes.
+
+SUPERSESSION: earlier promise to preserve69ba required is superseded because
+its immutable source predates this positively proved fresh-fixture batch.
+This metadata tip intentionally skips automatic duplicate pipelines; Root
+explicitly dispatches ONE protected complete latest required candidate and
+ONE serial, validates exact source/jobs, then supersedes only old69 required
+37737743925 and still-queued old47 serial37738253849. Previous69 terminal
+passes/partial coverage retained as evidence, never latest acceptance. Old
+4133 remaining Qt1 can finish for its native/functional verdict; no cancellation
+there. Latest IDs/source readback follows. N43/N47 remainOPEN until terminal.
+
 ## 2026-10-08 03:05 EDT — Workstation audio, runtime and guide checkpoints
 
 Home: ACK your06:52 handoff and new ed2ebdebc/f0d3bd358 first-open fixture proof.
