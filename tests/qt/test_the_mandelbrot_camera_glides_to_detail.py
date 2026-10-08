@@ -197,11 +197,16 @@ def test_the_canvas_surveys_off_the_frame_and_drops_a_stale_survey(
         mandel, monkeypatch):  # noqa: F811
     mandel.saved["path"] = "tour"
     canvas = mandel.build()
+    pending = canvas._glide_survey
+    if pending is not None:
+        assert _until(lambda: pending["done"])
+    canvas._glide.survey_every = 0.0
     canvas._orbit = _StandInOrbit(max_iter=8, digits=20)
 
     canvas._mandelbrot_uniforms(0.0)
     slot = canvas._glide_survey
     assert slot is not None
+    assert slot["orbit"] is canvas._orbit
     assert _until(lambda: slot["done"])
     assert slot["survey"] is not None
 
@@ -211,6 +216,7 @@ def test_the_canvas_surveys_off_the_frame_and_drops_a_stale_survey(
     canvas._orbit = _StandInOrbit(max_iter=8, digits=20)
     canvas._mandelbrot_uniforms(0.0)
     assert considered == [], "a survey of another reference was used"
+    assert canvas._glide_survey["orbit"] is canvas._orbit
 
 
 def test_moving_the_reference_does_not_move_the_picture(mandel, monkeypatch):  # noqa: F811
