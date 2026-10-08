@@ -1,0 +1,43 @@
+================================================================================
+OPTIONAL SAVE ON NAVIGATION IN MAKE MASKS
+================================================================================
+
+Status:    in progress — private implementation validated; integration pending
+Requested: 2026-10-08 — save edited masks before leaving with Keep, Next or Previous
+Owner:     Home CPU Qt lane; workstation owns translated captions and guides
+
+WHAT THE STATE IS
+
+Make Masks normally writes a mask only when Save is pressed. Keep, Discard,
+Next and Previous can therefore leave unsaved brush edits behind. Box edits
+already have a separate save-before-navigation guard. Skip deliberately writes
+no mask.
+
+WHAT TO DO
+
+Place a checkable Save on navigation control immediately after Next. Leave it
+off by default and persist its value with the existing QSettings pattern.
+When enabled, save only mask pixels changed since loading or the last
+successful save before Keep, Discard, Next or Previous. A failed mask save
+must keep the current field and prevent a curation verdict. Preserve Box
+saving and Skip's no-mask behavior.
+
+HOW TO KNOW IT WORKED
+
+Run the focused Make Masks save-on-navigation and Box boundary tests under
+the 4 GiB CPU cap. Check actual TIFF labels, index and verdict on success and
+on an injected write error, default-off manual navigation, the persisted
+toggle, and the absence of a duplicate write after manual Save.
+
+DELIBERATELY NOT DONE
+
+Skip does not auto-save a mask: its existing contract expressly excludes a
+mask write. Loading a different folder and direct private load calls are not
+the requested Keep/Discard/Next/Previous navigation actions.
+
+2026-10-08 — Private source and tests in MakeMasksScreen and
+test_make_masks_save_on_navigation.py passed the focused 25-case cohort in
+24.23 s under 4 GiB/offscreen/CUDA hidden. This is local validation, not a
+published-source or hosted-CI verdict. New visible strings are the button
+"Save on navigation" and its tooltip; literal Qt objectName is
+MakeMasksSaveOnNavigate; QSettings key is make_masks/save_on_navigation.

@@ -1,0 +1,16 @@
+{
+  "scope": "Independent readback and source binding of published Home Safe/native-display repair; no full CI acceptance.",
+  "current_commit": "def0962ce01f237a06ba7c670125f28c64be8484",
+  "home_receipt_sha256": "82a2df3f2df8b8739b6e5f56c696eec472b4304ea1ab819ba38f96a5e088c331",
+  "verified_payloads": 22,
+  "verified_source_files": 12,
+  "before_after_inventory_byte_exact": true,
+  "baseline_application_python_files": 669,
+  "unchanged_application_files": 666,
+  "changed_application_files": [
+    "spacr/qt/preferences.py",
+    "spacr/qt/theme.py",
+    "spacr/qt/widgets/loading_screen.py"
+  ],
+  "limits": "Portable recorded inventory equality and current file binding only; normal extraction is Home-owned, current required/serial CI remains open."
+}
