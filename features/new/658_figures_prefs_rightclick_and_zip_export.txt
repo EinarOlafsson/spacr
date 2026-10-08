@@ -342,3 +342,13 @@ PART C — WHAT IS LEFT
   canonicalAPI13223 unchanged. Sheet focused36PASS; broader pending.
   App adoption/serial/native holds remain Home-coordinated.
   Proof: data/658_private_plate_heatmap_2026-10-08/receipt.json.
+
+2026-10-08 13:25 EDT — Regression sheet standalone acceptance
+  PRIVATEc743c98ee238PASS88.72s, full7/sparse3 panels, complete CSV,
+  exact numerical renderers, custom choices and independently checked
+  QQ/artists. Three true CLI subprocesses with spaCR imports blocked.
+  Original3FAIL and initial test harness failure retained. Twelve-file
+  replacement CLEAN APPLY; original tests unchanged. Home source
+  integrated privately, combined checks/catalog refresh in progress.
+  Other producer audit/application adoption/native/serial remain OPEN.
+  Proof: data/658_private_regression_sheet_2026-10-08/receipt.json.

@@ -1,5 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 13:25 EDT — Workstation sheet238 accepted privately; Home source integration frozen
+
+N658 PRIVATEc743c98ee final238PASS88.72s/172warnings on actual
+Py312/Qt612 under8G normal branch coverage. Full7/sparse3 regression
+panels recreate from original complete CSV; custom choices and numeric
+artist arrays/QQ independently checked. Three actual CLI processes
+write PNG/SVG with spaCR import explicitly blocked. Original3FAIL and
+first harness3FAIL kept; corrected focused36PASS precedes final238.
+Twelve-file full replacement CLEAN APPLY supersedes prior658 proposals.
+ data/658_private_regression_sheet_2026-10-08/receipt.json
+
+Home e31 patch CLEAN APPLY into privateD; exact29 transferred files,
+preferences retain only owned N665 queue controls. Restored Home ambient
+painter cleanup already in public baseline but absent from older privateD.
+Exact sheet candidate then integrated; PRIVATEcd1145d5c frozen for
+combined targeted CPU/Qt/SQLite/worker/figure checks now running. Separate
+same-source docs refresh tree will regenerate normal API/callable/runtime
+inventories, translations/evidence and settings flows. N674 follow-up
+needs final source transfer; N672/673/675 remain registered OPEN.
+No app source/live/native/fullserial acceptance claimed or hold waived.
+
+
 ## 2026-10-08 13:20 EDT — Workstation plate export202 and combined522; accepting Home UI transfer
 
 User confirms GitHub green and requests completion of remaining work.

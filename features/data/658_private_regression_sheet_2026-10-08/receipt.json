@@ -1,0 +1,222 @@
+{
+  "source": "c743c98eeb734f916b53a6b6994856a2972b340c",
+  "base": "9a0e34cfb0eee6f5a438ce07c972b27b16dafc3c",
+  "public_target": "014e234676ab75fa6e10f6774d0e0099b20cf767",
+  "integrated_source": "cd1145d5c709d7eb2cb24861a856b1922c769dfc",
+  "application_source_pushed": false,
+  "patch_cleanly_applies": true,
+  "original_tests_unchanged": true,
+  "original_negative": {
+    "failed": 3,
+    "seconds": 3.79
+  },
+  "first_harness": {
+    "failed": 3,
+    "passed": 33,
+    "seconds": 9.0
+  },
+  "corrected_focused": {
+    "passed": 36,
+    "seconds": 9.2
+  },
+  "final": {
+    "passed": 238,
+    "seconds": 88.72,
+    "warnings": 172
+  },
+  "scope": "Full seven-panel and sparse three-panel regression sheets reconstruct from the original complete CSV using the exact existing numerical renderers copied into standalone code. Custom alpha/effect/highlight choices, axes rectangles and labels, histograms, scatter coordinates/colours and line values preserved. Independent QQ values checked. Three actual standalone CLI subprocesses produce PNG/SVG with all spaCR imports explicitly blocked.",
+  "limitations": [
+    "First exec harness accidentally inherited future annotations from its test module and failed on dataclass module lookup; corrected to actual exported script semantics, then actual CLI process checks added. Original harness failure retained.",
+    "Combined Home UI/source regression is currently running on exact integrated cd1145d5c; no completed verdict claimed.",
+    "Individual build_panel, image and other producers still require broader recipe audit; compartment-specific volcano mode is not a supported sheet option.",
+    "Coherent source-current inventories/translations/docs, application adoption and serial/native acceptance remain Home-coordinated."
+  ],
+  "payloads": {
+    "logs/regression-sheet-negative-r1.log.gz": {
+      "raw_bytes": 2976,
+      "raw_sha256": "c3e5f5ec6cc3ee48132fd99ea5a32638888e70bcd951e54c73c07f158f053450",
+      "gzip_bytes": 708,
+      "gzip_sha256": "246f89b7194a8ba03080eeb22c5d532fed870a80a2dba7db4ec5e53c5beb5ef6"
+    },
+    "logs/regression-sheet-negative-r1-tool.log.gz": {
+      "raw_bytes": 2497,
+      "raw_sha256": "b3fec09ff355a7faa81571b18642146ca8451778d37ae4ced876c5772a1e8183",
+      "gzip_bytes": 524,
+      "gzip_sha256": "57b62591636bfc25021b5c6319dec7de40addf902843882fd446d0a6fdf2cfe3"
+    },
+    "logs/regression-sheet-focused-r1.log.gz": {
+      "raw_bytes": 5244,
+      "raw_sha256": "b10a8f396bf958f1e2c81d345f23bf573880e1a7d2a229a19cbf54836dee36a3",
+      "gzip_bytes": 1054,
+      "gzip_sha256": "c5868a52b77ee1e1af7e640e6fe5fbf960842b5f75c78bd80fffd51dc2571e29"
+    },
+    "logs/regression-sheet-focused-r1-tool.log.gz": {
+      "raw_bytes": 4658,
+      "raw_sha256": "dcd2a126bc82fa907769a9241367f60e0ef9fdc28da7c57e89cd0f73acf2ff6a",
+      "gzip_bytes": 845,
+      "gzip_sha256": "ddb1da23a5443045fdaba7602efe19ff38eea25cf97fe4c65e6d5fc1e19097c1"
+    },
+    "logs/regression-sheet-focused-r2.log.gz": {
+      "raw_bytes": 1631,
+      "raw_sha256": "879c7b884d708c5ba11fa6ad0a48fa0e8fe8a2fee897d7404e90cba7e3494f28",
+      "gzip_bytes": 566,
+      "gzip_sha256": "3800c029338b9041810b7215639e7ed8cd4420530cac5f552c783a90789c25cf"
+    },
+    "logs/regression-sheet-focused-r2-tool.log.gz": {
+      "raw_bytes": 1045,
+      "raw_sha256": "b34891cc603b1d7074da10b0c7c1c5c01d9e30d7c654dccf35e53b73c7325608",
+      "gzip_bytes": 334,
+      "gzip_sha256": "75c55c99fb4c37fea5fd8bd4cb02560343ff5441913b23b33a118c81b84b997c"
+    },
+    "logs/regression-sheet-final-r1.log.gz": {
+      "raw_bytes": 10211,
+      "raw_sha256": "bc4ccbf4a10430ae3d751b4ad7ed0e9b169e937a540f9ebe41bbe59935ae12b7",
+      "gzip_bytes": 1984,
+      "gzip_sha256": "ea6aa2e2cadd6abac1a3ca737c3b22bd2a4d0390693fae22d6936a2b9e6407d9"
+    },
+    "logs/regression-sheet-final-r1-tool.log.gz": {
+      "raw_bytes": 8890,
+      "raw_sha256": "26c80f5774fdff254d14b64a9dbfbd4a3a6ef363ceda19a0aadcb98d30c948d0",
+      "gzip_bytes": 1688,
+      "gzip_sha256": "4e2cd92ef78184edbed62a83f706d53fbb3ce1106d18de5664f2720e56e01bb5"
+    },
+    "coverage/regression-sheet-final-coverage-r1.data.carruthers.pid66997.X6DeklHx.HVTf3x8Ot53h.gz": {
+      "raw_bytes": 2375680,
+      "raw_sha256": "87c1283a1d65f40ed53403b7e8bce574bcd0dbb8711f286eab1c4387a7711c99",
+      "gzip_bytes": 989091,
+      "gzip_sha256": "43ca8fd26ea71ef27ee21ddab0dca52158cd62d8af8af9bac4666f19bc296436"
+    },
+    "coverage/regression-sheet-focused-coverage-r1.data.carruthers.pid65903.X7PQd8kx.HK3O47ihCP5h.gz": {
+      "raw_bytes": 626688,
+      "raw_sha256": "961840fb40fd0eec8a57b6e7670b742568e7c83843c48f7308a3ab98604621ac",
+      "gzip_bytes": 268374,
+      "gzip_sha256": "7b9341f6b2e08cc19b999cde42708304974ed8ed0e734832ed86fe276312708e"
+    },
+    "coverage/regression-sheet-focused-coverage-r2.data.carruthers.pid66276.X0Qdf8yx.HK3O47ihCP5h.gz": {
+      "raw_bytes": 626688,
+      "raw_sha256": "14075bb7164def853c3a494c23a60e17e7d6d68b9abad646d0d649d669d2faad",
+      "gzip_bytes": 268375,
+      "gzip_sha256": "c54f60e8ebdb47ad96209ad83065a8500ee5833999a0b6927b4b07eabe480db0"
+    },
+    "replacement-source-and-tests.patch.gz": {
+      "raw_bytes": 81439,
+      "raw_sha256": "d18ec117b489d5e000071a4adca0c30e346cdc3b9e1a6d77e0bcf44acd9da3d8",
+      "gzip_bytes": 18208,
+      "gzip_sha256": "edcfcae034be4919c07d6f9d3a782a69877cac323dea4c87f81f3b8db6f844fd"
+    },
+    "delta-from-prior-plate-candidate.patch.gz": {
+      "raw_bytes": 12019,
+      "raw_sha256": "53eb4f24c6d786776df33362c34566967bdbcb6a61c22c0e5314e00cb863aab6",
+      "gzip_bytes": 4297,
+      "gzip_sha256": "564e6fc4ad4d42d49c11561822301b45c2a8f212a70e9c7e0d212e96196009fc"
+    },
+    "source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 46209,
+      "raw_sha256": "f063af18fb385b7f60b9a50a4250324e453ad750b60a7e4a2f552d74f7939f7d",
+      "gzip_bytes": 13752,
+      "gzip_sha256": "e9e4db62dfeae2e0c022496944b715a72ea0b446bdcf691835b3f86c6d6a41cd"
+    },
+    "source/spacr/figures/plates.py.gz": {
+      "raw_bytes": 30577,
+      "raw_sha256": "7d9a39e03fa926c7e1d8022e1f09aff18b3b566c4877e606222245df2448a626",
+      "gzip_bytes": 10190,
+      "gzip_sha256": "013b8f54f93fe913a85938f443e883ad60a0ae2f1e344db39ce22425701c6990"
+    },
+    "source/spacr/figures/sheet.py.gz": {
+      "raw_bytes": 9385,
+      "raw_sha256": "6011c2c02f71aa425207dd1136c3ff7543b4724c13c915e4b324fae1b4fbeb4d",
+      "gzip_bytes": 3477,
+      "gzip_sha256": "d5c95a2978fd2ffcbe35cca0d9b7b0824b2183bdb86c691151dea7d35119723b"
+    },
+    "source/spacr/plot.py.gz": {
+      "raw_bytes": 344160,
+      "raw_sha256": "7d55ddf9024cbae865f161dd0530e9d5ee98c14b7b790abbeee54bcc1caac2bf",
+      "gzip_bytes": 86664,
+      "gzip_sha256": "64df1c0d3c9ff4de31c1ce4535ba4ce2c113e37d227663c0d8e9e3ea90e58ceb"
+    },
+    "source/spacr/qt/widgets/figure_settings.py.gz": {
+      "raw_bytes": 119440,
+      "raw_sha256": "fb34dbd8212ff4384255623c4f0c343e441484a9e3d73bb8c6b7cb1f4aa05b78",
+      "gzip_bytes": 32088,
+      "gzip_sha256": "b2534dc6371a0badfbd5f243119d6e30ecf924e9fea39622f0329395a02db87b"
+    },
+    "source/tests/qt/test_panel_statistics_dialog.py.gz": {
+      "raw_bytes": 6153,
+      "raw_sha256": "851e4d0bb1d04c8ecd30c2858fa9b2e8dae04e081c5891b27c68025eb7c13bd3",
+      "gzip_bytes": 1869,
+      "gzip_sha256": "4a2783b34f3cf9e1d718a7ba8e45469a9ba3d13e36f52ee7467cad24150729d9"
+    },
+    "source/tests/qt/test_panel_view_statistics_limits.py.gz": {
+      "raw_bytes": 3519,
+      "raw_sha256": "526c4b92806e93ad57740b989ed858a99cbd254c56f682a87653bd8c8b1b7cd1",
+      "gzip_bytes": 1050,
+      "gzip_sha256": "f694019049a9e30dad2e81a15674ca55b2de090d64cc8789e9742e5cb64bcb7f"
+    },
+    "source/tests/test_comparison_multipanel_recipe.py.gz": {
+      "raw_bytes": 4792,
+      "raw_sha256": "61dadedb4caaf1088d0b75e69207e7da361666378e2505b3c855ba197511f78f",
+      "gzip_bytes": 1651,
+      "gzip_sha256": "6837b27a6451efb868398a61ed0eef86333787a475deb469a214e60a280c2330"
+    },
+    "source/tests/test_controls_multipanel_recipe.py.gz": {
+      "raw_bytes": 8771,
+      "raw_sha256": "8ea542be20fc46f5bf67e1935adf31acd7bc43fa60772763dfec4f7491b4f861",
+      "gzip_bytes": 2301,
+      "gzip_sha256": "42848a92c171f486bcd3deb3b54e91fe1fdd2dadead0a597b4be0f073f9d8e61"
+    },
+    "source/tests/test_plate_heatmap_recipe.py.gz": {
+      "raw_bytes": 5905,
+      "raw_sha256": "a0fcee6c5941088f624d5fba02d1585adee4e0643d62fc4add62c1d6efcdc57f",
+      "gzip_bytes": 1893,
+      "gzip_sha256": "5c2dedc4fad048f3e60f45d8982f20215f7902fb1ee547a01fe735dd385a8234"
+    },
+    "source/tests/test_recruitment_multipanel_recipe.py.gz": {
+      "raw_bytes": 7554,
+      "raw_sha256": "b26cad85db5d9a4e6ab674c4335a75bc4a0b8828f896366ad6100bfe831c18a2",
+      "gzip_bytes": 2089,
+      "gzip_sha256": "a0eb29edf1b09e85b23f1d819df979b42f849cf75b8e79b062da2ae11053ad60"
+    },
+    "source/tests/test_regression_sheet_recipe.py.gz": {
+      "raw_bytes": 5127,
+      "raw_sha256": "6cf8303aa5b151523b359021dd55b44bd4e2c95ba9fe4300b96eda2086df8f9c",
+      "gzip_bytes": 1848,
+      "gzip_sha256": "2db42df8b7f9c21981bc7bf3c40e14eeb39e96ebaac2b51b503c240065abe5af"
+    },
+    "original-source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 43026,
+      "raw_sha256": "fd3122c1265076a62edabefb6dbae0c3cf3e9916bceac435b044eedfe42d53e6",
+      "gzip_bytes": 12564,
+      "gzip_sha256": "cb0cc6c5c5b2906ac1bc7b14882e7d14e747c395fe60c9ab0ad0e28e12a867ef"
+    },
+    "original-source/spacr/figures/sheet.py.gz": {
+      "raw_bytes": 8729,
+      "raw_sha256": "3f7891a8261d801b6e9bf39388ddf3acfded68a5ffc2d5f3311594a3ac29b4c7",
+      "gzip_bytes": 3331,
+      "gzip_sha256": "6ae13cfea64b2c03be930622a05569a43adf759c793fc4f5b4da777e56bac5ce"
+    },
+    "test-revisions/original-sheet-negative-tests.py.gz": {
+      "raw_bytes": 3968,
+      "raw_sha256": "dea46d39ed44a8a7c778dc552a6571b69004ff13ce9b28258734f28762780047",
+      "gzip_bytes": 1391,
+      "gzip_sha256": "6db1418d5489c13f41c0cc3a802099b4c51466591d0dbf38a2c8b09acce2447d"
+    },
+    "test-revisions/corrected-own-annotation-semantics.py.gz": {
+      "raw_bytes": 3987,
+      "raw_sha256": "a943e7006d032f3a24a36433c7dc1162dc43efc8941d9065c3135e87a522de68",
+      "gzip_bytes": 1403,
+      "gzip_sha256": "a3d7993dc4e35ca0ebe2f7c8a42464a181e60c53fb67c8d26325a549d39d00cb"
+    },
+    "scripts/archive_regression_sheet_r1.py.gz": {
+      "raw_bytes": 7633,
+      "raw_sha256": "3d6de60a3184623b217315ce9040519543a15fbec143eb6970da253d7fb45d4a",
+      "gzip_bytes": 3131,
+      "gzip_sha256": "454bfa2ef1d79f301d81eeebf241e57422d2cc87af8672eb14bc6a05fc9ac0d8"
+    },
+    "results/home-ui-private-integration-r1.json.gz": {
+      "raw_bytes": 1709,
+      "raw_sha256": "9c44fb4ec8e33301f2dbb235ed546b887211ef08eb1845484d3e197efbc05d83",
+      "gzip_bytes": 670,
+      "gzip_sha256": "a0920db659b2be381c6925a0b171f546f5f81840d5b346579891a5457e1f86ce"
+    }
+  }
+}
