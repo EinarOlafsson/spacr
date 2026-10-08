@@ -1,0 +1,79 @@
+{
+  "scope": "Six test-only fresh/Home/first-construction contracts; no production changes",
+  "parent": "ffed9b993d868203b45b4bb2e293c53b307c2805",
+  "implementation_commit": "d798ee80fd",
+  "python": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+  "pytest": "8.4.2",
+  "pytest_overlay": "/mnt/wd4tb/scratch/ci-55bad-20261008/pytest842-overlay",
+  "controls": {
+    "RAM_cap": "4G",
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "SPACR_DEVICE": "cpu",
+    "MPLBACKEND": "Agg",
+    "randomly": "disabled",
+    "xdist": "unused",
+    "coverage": "unused"
+  },
+  "before": {
+    "failed": 6,
+    "passed": 1,
+    "seconds": 36.62,
+    "exit_code": 1,
+    "warnings": 6
+  },
+  "after": {
+    "passed": 7,
+    "seconds": 28.1,
+    "exit_code": 0,
+    "constructor_observations": 10
+  },
+  "production_sha256": {
+    "spacr/qt/app.py": "5fc990e6904525432af3e6fb2b419342af2dabd2776cc371e0cd55ed3dc543f7",
+    "spacr/qt/screens/app_screen.py": "5e0563ad3c3929b89edb5f0d8eeb4623537f18230c374b0d4e08511e43b944a1",
+    "spacr/qt/theme.py": "85e4d7ab5dd1853f3d8c1b60b8dba965202cdaa0c61e9bc170c445758b3aadb9",
+    "spacr/qt/preferences.py": "a023ade78f1620f04163288143b541c5262bff611b46d77c1a6e13cd76989cfc",
+    "spacr/restart_state.py": "30c9fe336b729a662104331d5829df8c016768868bcfc2d9e516a6ab5e030bc4"
+  },
+  "test_transition": [
+    {
+      "path": "tests/qt/test_641_screen_prewarm.py",
+      "before_sha256": "bbfeba2c1650bfa5a9e6a25763a12c3b0a8229886e400b95b1ff55a9358d944f",
+      "after_sha256": "5cb2b8325dc51dcc6771f7d2dd562170a11690bf2235cbaa5cd4d00785e5fb06",
+      "replacements": 1
+    },
+    {
+      "path": "tests/qt/test_opening_things_does_not_hang.py",
+      "before_sha256": "c9901db7fa7854238a06598b521d8b273b3d05548983ecdc1c2b3bdd402517cd",
+      "after_sha256": "c5901ac946146734f693a71653476826673daa1c62551cffe3ce28b92e41a6d6",
+      "replacements": 1
+    },
+    {
+      "path": "tests/qt/test_a_module_screen_is_sheeted_once_before_it_is_seen.py",
+      "before_sha256": "6ab56e431f75e49c3b6f7a49654d1729a456b7445d8fe352bc44590cabc81e8f",
+      "after_sha256": "136c0c45a432fca183b2376ccc5505416efa94224cfb09e3e8bdf303fc9a0b45",
+      "replacements": 2
+    },
+    {
+      "path": "tests/qt/test_a_tile_that_cannot_open_says_so.py",
+      "before_sha256": "e60724da87a1e059a619378f6c43b798807a33e4eb07062054dc3ed7b29f4c36",
+      "after_sha256": "fa0b34b3bd6bb40e6b4fd260ef22e534c7e962df7d077e243ac25c4bc9132ba4",
+      "replacements": 1
+    },
+    {
+      "path": "tests/qt/test_home_navigation_acceptance.py",
+      "before_sha256": "b6beac6cce2f6f1eac58d9777b8eb2831eecdf46e1ae769b6f5062f8109d7ebc",
+      "after_sha256": "3eaa14a1ddc44688ef83e43c2a6f6c7c3e2bf00410982dbfbe6996b74d51a794",
+      "replacements": 1
+    },
+    {
+      "path": "tests/qt/test_a_closed_category_builds_nothing_until_opened.py",
+      "before_sha256": "25aebd1eb00dd308ff39c6898605b9e46b89ff7403271a9ded5ccb8fd719a640",
+      "after_sha256": "ae8b987dde88937fb9e8cff9f0f5a5d9b2b820bb01b524fdedffe275f893d37f",
+      "replacements": 1
+    }
+  ],
+  "negative_scope": "The closed-category original comparison already passed before; only the other six assertions demonstrate failure-to-pass. Its explicit-Home fix ensures the mode is applied before target construction.",
+  "harness_note": "Before ran before cone checkout materialized root pytest.ini and emitted six marker warnings; after used the normal strict pytest.ini. Actual original assertion failures and persisted-state constructor records are retained, and no guard changed.",
+  "limits": "These are targeted CPU correctness checks, not full Qt/CI/native-crash/memory acceptance or isolated timing benchmarks. Existing lock cleanup messages and QApplication widget census remain in raw logs. No deliberate session/restart tests changed."
+}

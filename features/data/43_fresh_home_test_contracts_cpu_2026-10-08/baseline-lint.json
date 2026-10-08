@@ -1,0 +1,133 @@
+[
+  {
+    "path": "tests/qt/test_641_screen_prewarm.py",
+    "unchanged_findings": []
+  },
+  {
+    "path": "tests/qt/test_opening_things_does_not_hang.py",
+    "unchanged_findings": []
+  },
+  {
+    "path": "tests/qt/test_a_module_screen_is_sheeted_once_before_it_is_seen.py",
+    "unchanged_findings": [
+      {
+        "cell": null,
+        "code": "I001",
+        "end_location": {
+          "column": 27,
+          "row": 44
+        },
+        "filename": "/mnt/wd4tb/spacr-worktrees/codex-fresh-home-contracts-20261008/tests/qt/test_a_module_screen_is_sheeted_once_before_it_is_seen.py",
+        "fix": {
+          "applicability": "safe",
+          "edits": [
+            {
+              "content": "from PySide6.QtCore import QEvent, QObject  # noqa: E402\nfrom PySide6.QtGui import QPalette  # noqa: E402\nfrom PySide6.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget  # noqa: E402\n\nfrom spacr.qt import theme  # noqa: E402\n\n",
+              "end_location": {
+                "column": 1,
+                "row": 46
+              },
+              "location": {
+                "column": 1,
+                "row": 39
+              }
+            }
+          ],
+          "message": "Organize imports"
+        },
+        "location": {
+          "column": 1,
+          "row": 39
+        },
+        "message": "Import block is un-sorted or un-formatted",
+        "name": "unsorted-imports",
+        "noqa_row": 39,
+        "severity": "error",
+        "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+      }
+    ]
+  },
+  {
+    "path": "tests/qt/test_a_tile_that_cannot_open_says_so.py",
+    "unchanged_findings": []
+  },
+  {
+    "path": "tests/qt/test_home_navigation_acceptance.py",
+    "unchanged_findings": []
+  },
+  {
+    "path": "tests/qt/test_a_closed_category_builds_nothing_until_opened.py",
+    "unchanged_findings": [
+      {
+        "cell": null,
+        "code": "I001",
+        "end_location": {
+          "column": 40,
+          "row": 45
+        },
+        "filename": "/mnt/wd4tb/spacr-worktrees/codex-fresh-home-contracts-20261008/tests/qt/test_a_closed_category_builds_nothing_until_opened.py",
+        "fix": {
+          "applicability": "safe",
+          "edits": [
+            {
+              "content": "from PySide6.QtWidgets import QApplication, QFormLayout, QLabel, QWidget  # noqa: E402\n\n\n",
+              "end_location": {
+                "column": 1,
+                "row": 48
+              },
+              "location": {
+                "column": 1,
+                "row": 44
+              }
+            }
+          ],
+          "message": "Organize imports"
+        },
+        "location": {
+          "column": 1,
+          "row": 44
+        },
+        "message": "Import block is un-sorted or un-formatted",
+        "name": "unsorted-imports",
+        "noqa_row": 44,
+        "severity": "error",
+        "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+      },
+      {
+        "cell": null,
+        "code": "I001",
+        "end_location": {
+          "column": 6,
+          "row": 330
+        },
+        "filename": "/mnt/wd4tb/spacr-worktrees/codex-fresh-home-contracts-20261008/tests/qt/test_a_closed_category_builds_nothing_until_opened.py",
+        "fix": {
+          "applicability": "safe",
+          "edits": [
+            {
+              "content": "    from spacr.qt.screens.settings_model import (\n        categories_for_app,\n        get_categories,\n    )\n",
+              "end_location": {
+                "column": 1,
+                "row": 331
+              },
+              "location": {
+                "column": 1,
+                "row": 328
+              }
+            }
+          ],
+          "message": "Organize imports"
+        },
+        "location": {
+          "column": 5,
+          "row": 328
+        },
+        "message": "Import block is un-sorted or un-formatted",
+        "name": "unsorted-imports",
+        "noqa_row": 328,
+        "severity": "error",
+        "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+      }
+    ]
+  }
+]

@@ -1,0 +1,105 @@
+{
+  "schema": 1,
+  "payloads": {
+    "README.txt": {
+      "bytes": 1422,
+      "sha256": "8e9986ff8e46c6dd9d4b499b43a9aa7dddf4752b5d522cddc3b57e2568b219a1"
+    },
+    "after-test_641_screen_prewarm.py.gz": {
+      "bytes": 2102,
+      "sha256": "91a4b3d13828d259408a01a864be446abff5a42a876190a44271598e97545d69"
+    },
+    "after-test_a_closed_category_builds_nothing_until_opened.py.gz": {
+      "bytes": 5839,
+      "sha256": "ce865b8ea10b90e21869cf486a0e8bdf4763053ee7cb9528b10b61208b3c2713"
+    },
+    "after-test_a_module_screen_is_sheeted_once_before_it_is_seen.py.gz": {
+      "bytes": 3762,
+      "sha256": "ec00de3444536ffb1f31333041286f2274cac492ed459f00c8b545d682288361"
+    },
+    "after-test_a_tile_that_cannot_open_says_so.py.gz": {
+      "bytes": 839,
+      "sha256": "2f061e5e12223402ea68324c0d019c029e5c2b89cb9a4fe5c5ea0e7cf180e972"
+    },
+    "after-test_home_navigation_acceptance.py.gz": {
+      "bytes": 1090,
+      "sha256": "72f9453104e3c15f388f172eb1ef85474229d711ac4dbb4192ac1ffc19254ecb"
+    },
+    "after-test_opening_things_does_not_hang.py.gz": {
+      "bytes": 2650,
+      "sha256": "3888dcdcbd603f94f925f821a1db686982d2df4764736cc3dc00d00b55e275fc"
+    },
+    "after.log.gz": {
+      "bytes": 431,
+      "sha256": "93e09796f4913bc36e7ec7056b18ee496f2b18b97afeac46bea5262ec3107edb"
+    },
+    "archive.py": {
+      "bytes": 9310,
+      "sha256": "5be2b1acd9d19fafe859d053aadc137245fcecf0aaa22158a1fa2ded14d57c0e"
+    },
+    "baseline-lint.json": {
+      "bytes": 4049,
+      "sha256": "ee67e5ca8f24dab99526a716e62c72930e973ee7f6150568353712bf6f3ebe9b"
+    },
+    "before-test_641_screen_prewarm.py.gz": {
+      "bytes": 2085,
+      "sha256": "4ccfa2f55d82b9155109c9518f4946e865cc99cc1d4ad04ccf5d89190b650c6f"
+    },
+    "before-test_a_closed_category_builds_nothing_until_opened.py.gz": {
+      "bytes": 5821,
+      "sha256": "af404411db3d9a5fda9efcfe22038a242c24cbec7f3c8b8da0dbb60ab93fdc05"
+    },
+    "before-test_a_module_screen_is_sheeted_once_before_it_is_seen.py.gz": {
+      "bytes": 3748,
+      "sha256": "d76e6afb206e4845542b2ce74585f90756cf851834a839444c8bcce11a5ca0ad"
+    },
+    "before-test_a_tile_that_cannot_open_says_so.py.gz": {
+      "bytes": 824,
+      "sha256": "1fa88155c8a8bfe4a0c03f0e75e1fdb705dcba0da9fc36a5559edd7490d744ce"
+    },
+    "before-test_home_navigation_acceptance.py.gz": {
+      "bytes": 1076,
+      "sha256": "81d827ecbc69a38a6974af2a3fd22f1daea59d29428d16f8a8e40a2dc4aa598a"
+    },
+    "before-test_opening_things_does_not_hang.py.gz": {
+      "bytes": 2633,
+      "sha256": "7cdc6274092e50444eccc9400df633c62bec8b40c290ed6c38f96dc9fb9e39b3"
+    },
+    "before.log.gz": {
+      "bytes": 1813,
+      "sha256": "194b35bfbe5a72687c9c125a4fe5c210c7b22d31adc9d06ce7c68a076de00937"
+    },
+    "fatal-ruff.log": {
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "receipt.json": {
+      "bytes": 3824,
+      "sha256": "a4c876a66d0efe8e1a9041eeea758ba4be86540d382758e108bb6622cdd41ff1"
+    },
+    "reproduce_after.sh": {
+      "bytes": 1327,
+      "sha256": "3a4bc44be598eb0a158565524e9974ef29a732fccae6830c7c7f429e2a94ff7b"
+    },
+    "seed_saved_targets.py": {
+      "bytes": 1757,
+      "sha256": "6d8d76858670e02a3216da1f28b3ff88eb5ac1db4a0e3172501703358c589496"
+    },
+    "seeded-after.json": {
+      "bytes": 2784,
+      "sha256": "bd7d1fe52ff1125af93a040429c6b5fe8e648714541e1bfbc7d7b27e59d1dc09"
+    },
+    "seeded-before.json": {
+      "bytes": 2985,
+      "sha256": "69738d0c538582798bc69350c41a60fb6b6ba12791999031ac5e3a043f2bb4dc"
+    },
+    "source-transition.json": {
+      "bytes": 1646,
+      "sha256": "28baa4b2a589f5f2924a56a7c05b40470e0c3c1a341a390f347be2b272ae4358"
+    },
+    "verify_manifest.py": {
+      "bytes": 2090,
+      "sha256": "ff90131d03c18563568810edc7a305dc9cc7263caebd84ce836391180efe6b79"
+    }
+  }
+}
