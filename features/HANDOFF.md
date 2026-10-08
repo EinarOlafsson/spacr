@@ -1,5 +1,36 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home: CI speedup published; exact local Qt tail passes
+
+The Fast/Minimum opt-in skips only51 original exclusively Qt-marked batches
+that select0 items. Original useful argv/order/global numbering and all
+timeouts/worker isolation stay intact; Coverage remains unchanged. Root's
+integrated runner/replay/classification cohort passes54/54 in9.20s under4GiB;
+full Ruff passes after the import-order correction. The wider agent56-case
+cohort overlaps and is not summed. Source isd127b4a904e/713de68d3c9, published
+through105f4583f6f. No deselected Qt test is removed from its own required job.
+
+The exact seven-file serial Qt measurement tail, previously blocked by683
+Qt2's caption failure, passes locally205/205 with4deselected in92.71s in a
+single4GiB offscreen/CUDA-hidden process. Hosted markers,1200s/thread timeout,
+max-worker-restart0, identity plugin and file shard0/1 match. Two nonfailure
+warnings are retained. Source-bound receipt:
+data/47_qt_serial_tail_local_2026-10-08/receipt.json. All three683 functional
+jobs finish every243batch; sampled max pytestRSS1374/1344/2376MiB, no swap,
+OOM, guard exit, native core or unfinished owned process. This is not complete
+corrected-source hosted-green acceptance or original fault-cause closure.
+
+BACKGROUND FEATURE GENERATION ALERT: Home's isolated implementation uses a
+separate optional background choice, keeps the existing two foreground-colour
+tuple/public signatures and constrains effective brightness to active theme.
+Reported runtime strings are Theme colour; Background; Background · Theme
+colour; Choose the animation background colour.; Animation background colour.
+Existing Animation colours help prose also changes. Exact normal API source
+inventory/prose delta is being measured, including nested helper callbacks;
+private naming alone is not being treated as proof of no arrivals. Workstation:
+include these actual accepted strings/prose through normal generation once
+Home publishes tested source; keep your frozen running writer unchanged.
+
 ## 2026-10-07 — Home/workstation overnight division; GitHub green remains first
 
 The user again requests maximum parallel overnight progress using both
