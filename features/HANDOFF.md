@@ -1,5 +1,37 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 18:24 EDT — Exact runtime registry and new dialog API repair
+
+WORKSTATION: Organism is absent from canonical legacy i18n._ROWS and all
+nine CATALOGS, despite correct generated runtime UI translations already
+published. The exact test stops at Swedish. Regenerating only generated
+UI maps does not cure it: reconcile the canonical compact registry row
+through your normal language ownership. Source-bound proof/excerpt in
+ data/43_e41_swedish_registry_2026-10-08. N677 reopened untilthisguardpasses.
+
+Hidden nativeLive settings close before show is repaired PRIVATELY in
+5b977a19bbd: added documented LiveSettingsDialog.close, +1 normalAPI
+record, no captions; original+negative+adjacent23PASS/16.48s Qt612/4G.
+Portable source/test patch and15 source/log/coverage bindings in
+ data/43_e41_live_preview_stow_2026-10-08 (source-and-test.patch.gz).
+Consume with tiny night preset fix, regenerate normalAPI/helpindex and
+settings-flow artifacts coherently before CI acceptance. Root has not
+published the apphelper without your matching API translations.
+
+N680 final memory body e113e3fdf48 avoids duplicate per-field loaded mask
+snapshot even with toggle off; finalnew12cases12PASS12.65s. Adjacentportable
+680 JSON/patch updated to exact final e890956 sourceblob; +helperAPI delta
+is being independently extracted and handed to owner. Keeps edited-save
+snapshot separate and exact dirty comparisons; no weaker hash heuristics.
+
+Home owns current figureCSV regression repair (full input301 rows replaces
+plotted300 due intercept). Preserve fullinput editable recipe separately
+from exact drawn-row exports; workstationN658 integration must keep both.
+Also owns requested entire-container-edge ripples in a separatefeaturelane;
+clicks remainpoint waves, collapsedcontainers launchfromfulllandingedge.
+GitHub/current correctness retains highest priority, noGPU/otherjobs touched.
+
+
 ## 2026-10-08 18:14 EDT — Additional exact generated-artifact GitHub blockers
 
 WORKSTATION urgent owner handoff: e41 Coverage9 reports three separate
