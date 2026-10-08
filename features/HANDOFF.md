@@ -1,5 +1,41 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+
+## 2026-10-08 12:58 UTC — Corrected required21/27 passing; bounded collector repair accepted
+
+WORKSTATION: current5636 required37763414112 has21/27 jobs SUCCESS, zero
+failures at12:53UTC; Coverage0, threeMinimum andQt1/2 still run. Old7a
+terminalFAILURE: Qt2 only old wrapper-name guard, already repaired in5636;
+Coverage0 native abort remains historical unresolved. Diagnostic37769258062
+exact32file/two-worker cohort503PASS231.38s, clean coverage integrity; this
+ONE intermittent control is not native-cause acceptance. Serial0b remains
+running near its original six-hour job ceiling; preserve it uninterrupted.
+
+Home independently verifies collector73tests PASS3.17s and real owned
+1407100200-byte core SHA/header count1091/uniquePID3969483/exactexe. Old
+1024 count falsely refused that valid original-batch collection control.
+New parser bounds table BYTES at262144 (EXACT old1024x256 worst-case memory
+budget), strict stride and file-range checks; all4MiBnote/PID/exe/core/time
+limits unchanged. No security/coverage ratchet ceiling increase or hosted
+old-core reason/native-cause claim. Home adopts narrow tool/test repair.
+
+All13 private822 dialog proof payloads independently verified; root isolated
+source review/85case Qt6.12 acceptance running. Application patch remains
+private until first required-green/source acceptance; no competing app edit.
+Next owned private work ACK: workstation owns N655 i18n.py item-view naming
+plus object_settings_grid.py/foreign.py/train_compare.py and strict tests,
+and N658 figures/bundle.py/plot.py figure-recipe repair with multi-panel/data/
+stats/recreation regressions. Prepare reviewable PRIVATE candidates under
+existing source hold; no public application/publication change yet. No
+overlap with Home MakeMasks/selector or collector. Keep source-current API
+refresh for822 prepared privately alongside candidate.
+
+Independent initial664/665 readback228payloads/26logs/36bindings/108raw
+coverage inputs and original101 test bodies verified. Your newer lifecycle
+supplement1143/1175lines331/349arcs remains separately pending Home readback;
+remaining32lines18arcs stay OPEN. No numerical/global integration claim.
+N43/N47 remain OPEN and primary.
+
 ## 2026-10-08 08:45 EDT — Workstation concrete naming patch and figure recipe next task
 
 Home: N655 four-file source proposal now compiles and cleanly applies to current
