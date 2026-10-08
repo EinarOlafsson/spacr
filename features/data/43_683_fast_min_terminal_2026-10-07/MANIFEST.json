@@ -1,0 +1,38 @@
+{
+  "README.md": {
+    "bytes": 784,
+    "sha256": "d6dc83c8a8a2e4e1c31a2320d2299666b166646cb33139d881a3b0af194a0619"
+  },
+  "fast0.log.gz": {
+    "bytes": 876284,
+    "sha256": "0c5cac094cf113fc79f68153b91a46125f4f456fa2948037bd25c5c32e051638"
+  },
+  "fast1.log.gz": {
+    "bytes": 559831,
+    "sha256": "cc8e9b2a6b544007e74f3776da2dc3266c8c733b54aafa3e8a987a8c5853ddcd"
+  },
+  "fast2.log.gz": {
+    "bytes": 653790,
+    "sha256": "f0b5a93f6c6613256f4c84e348c5c8e72edf25fb31de4f15d2ac99a51108a67b"
+  },
+  "min0.log.gz": {
+    "bytes": 900510,
+    "sha256": "f38972cf2b47817f4072f40708ab50a60c1934994bfa67969987b49eea9dc374"
+  },
+  "min1.log.gz": {
+    "bytes": 587117,
+    "sha256": "a42cceb03c4d359e3abad8c08137a7c629ebbda7ce9ebdb40000860fcce84a6c"
+  },
+  "min2.log.gz": {
+    "bytes": 684218,
+    "sha256": "639d6c23cf8438692300b20f27b274f22c6fdf491cdc57b5f76befc404237bfd"
+  },
+  "receipt.json": {
+    "bytes": 8818,
+    "sha256": "c10f9f1e4e77c4e024f2b49b0756637e22cd7807c4c8fc1eda7b0506ecdd1e01"
+  },
+  "verify_manifest.py": {
+    "bytes": 1285,
+    "sha256": "252dc390b78d564b7557f23938d2f7c34bb830c2f93b1fbfd816e8b2f10a5e03"
+  }
+}

@@ -3282,3 +3282,11 @@ Proof: data/43_683_ambient_preferences_masks_cpu_2026-10-07/receipt.json.
 Qt1 is hostedSUCCESS; Qt0 fails only the two already-repaired popup-alpha
 assertions, with no native/memory-limit failure in its full log. Qt2 and
 Fast remain executing. Final required corrected-source green remainsOPEN.
+
+2026-10-07 — Six terminal683 Fast/Min job logs preserved in
+data/43_683_fast_min_terminal_2026-10-07/receipt.json, exact source/run/job
+identity plus SHA-256 for every raw and compressed payload. Remaining failures
+are reviewed-runtime/API/catalog/glossary owner publication or already repaired
+constructor/upload-selector/Cellpose fixture contracts. Known local plaque
+acceptance is not complete Python3.9 matrix acceptance. No native cause or
+current-source hosted green is inferred from these six old-source verdicts.
