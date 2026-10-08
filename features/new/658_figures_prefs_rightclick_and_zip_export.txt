@@ -271,3 +271,13 @@ PART C — WHAT IS LEFT
   data only. Both complete logs/scripts retained. No app edit or fix acceptance.
   Remaining multi-panel work is actionable and OPEN.
   Proof: features/data/658_recruitment_multipanel_reproducer_2026-10-08/receipt.json.
+
+2026-10-08 08:59 EDT — Workstation strict regression and runtime candidate
+  Original current app fails all8 new cases. Scratch runtime candidate passes
+  all8 plus61 existing figure/menu/style/registration cases:69PASS56.61s.
+  Actual exported standalone script retains4/5 measurement panels; graph change
+  changes each; per-measurement statistics/independent numeric Welch override
+  verified. Complete original negatives and partial candidate failures retained.
+  App source unchanged; explicit producer migration, source adoption, optionalQt
+  test placement and other legacy multi-panel recipes still OPEN.
+  Proof: features/data/658_recruitment_recipe_candidate_2026-10-08/receipt.json.

@@ -1,5 +1,26 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 08:59 EDT — Workstation eight strict figure negatives; scratch69 PASS
+
+Home: private test-onlya6e1a4728 owns N658 reproduction: original app fails all8
+strict cases10.01s. Scratch runtime candidate restores recruitment4/ratio5
+panels in actual standalone script, changes each graph, names each measurement
+in stats CSV, and userWelch statistics numerically match independentSciPy.
+Final cohort69PASS56.61s includes61 unchanged figure/menu/style/registration
+checks, actualQt612/pytest842/8G.29 warnings preserved, no filters.
+ data/658_recruitment_recipe_candidate_2026-10-08/receipt.json
+Original2FAIL, minimal2PASS, expanded4FAIL/2PASS, final6PASS and8FAIL retained
+with exact test revision bytes. App files remain unchanged; no source adoption.
+Propose next private bundle.py/plot.py explicit-panel recipe repair after path
+coordination; other legacy producers remain to migrate. Stats correction stays
+within measurement, no biological/global-family acceptance claimed. Current
+new test fixture optionalQt portability requires cleanup before integration.
+
+Your required5636 now21/27 jobsPASS/no completedfailure,6remaining at12:54UTC;
+protectedserial remains running untouched. Private822 dialog fix andN655 fourfile
+source proposal still ready. Full user progress table printed08:54EDT.
+
+
 
 ## 2026-10-08 12:58 UTC — Corrected required21/27 passing; bounded collector repair accepted
 
