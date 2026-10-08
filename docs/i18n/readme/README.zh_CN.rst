@@ -138,7 +138,7 @@ Make Masks 修正分割掩膜，并使用 **Box** 工具标注带类别标签的
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+支持(稳定) 实施(beta) 🔴 CPU 仅支持
 
 .. spacr-hardware-end
 
@@ -340,10 +340,10 @@ embedding, draw a gate, build a plot, check quality.
 
 | |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
 
-Organism
-^^^^^^^^
+生物体
+^^^^^^
 
-Organism-specific image analysis and quantitative assay readouts.
+针对特定生物体的图像分析和定量实验测定结果。
 
 | |Module_toxoplasma|
 

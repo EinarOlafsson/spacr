@@ -138,7 +138,7 @@ Suporte de hardware
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+suportado (estável)  implementado (beta) ? CPU apenas suporte
 
 .. spacr-hardware-end
 
@@ -340,10 +340,10 @@ embedding, draw a gate, build a plot, check quality.
 
 | |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
 
-Organism
-^^^^^^^^
+Organismo
+^^^^^^^^^
 
-Organism-specific image analysis and quantitative assay readouts.
+Análise de imagens específica do organismo e resultados quantitativos de ensaios.
 
 | |Module_toxoplasma|
 

@@ -138,7 +138,7 @@ spaCR आज़माएँ
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+समर्थित (स्थिर)  लागू (बेटा) 🔴 CPU समर्थन केवल
 
 .. spacr-hardware-end
 
@@ -340,10 +340,10 @@ embedding, draw a gate, build a plot, check quality.
 
 | |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
 
-Organism
-^^^^^^^^
+जीव
+^^^
 
-Organism-specific image analysis and quantitative assay readouts.
+जीव-विशिष्ट छवि विश्लेषण और परिमाणात्मक परीक्षण परिणाम।
 
 | |Module_toxoplasma|
 

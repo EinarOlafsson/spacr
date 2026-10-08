@@ -138,7 +138,7 @@ Hardware aðstoð
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+stuðlað (stabil)  framkvæmd (beta) 🔴 CPU stuðning aðeins
 
 .. spacr-hardware-end
 
@@ -340,10 +340,10 @@ embedding, draw a gate, build a plot, check quality.
 
 | |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
 
-Organism
-^^^^^^^^
+Lífvera
+^^^^^^^
 
-Organism-specific image analysis and quantitative assay readouts.
+Myndgreining fyrir tilteknar lífverur og megindlegar niðurstöður líffræðilegra prófana.
 
 | |Module_toxoplasma|
 

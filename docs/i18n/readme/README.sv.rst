@@ -138,7 +138,7 @@ Hårdvarustöd
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only
+Stödda (stabila)  och genomförda (beta) - CPU stöd endast
 
 .. spacr-hardware-end
 
@@ -343,7 +343,7 @@ embedding, draw a gate, build a plot, check quality.
 Organism
 ^^^^^^^^
 
-Organism-specific image analysis and quantitative assay readouts.
+Organismspecifik bildanalys och kvantitativa resultat från biologiska analyser.
 
 | |Module_toxoplasma|
 
