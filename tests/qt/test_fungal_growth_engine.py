@@ -209,6 +209,38 @@ def test_child_filaments_wait_for_their_parent_to_reach_the_fork():
                 assert edge[7] >= arrival[edge[1:3]] - 1e-9
 
 
+def test_empty_colony_can_later_publish_a_connected_front(monkeypatch):
+    """An empty frame must not leave stale ancestry when growth resumes."""
+    engine = _engine(density=3.0)
+    engine.set_time(10.0)
+    lineage = engine._lineage
+    monkeypatch.setattr(engine, "_lineage", lambda *_: ())
+    assert engine.geometry(640, 360) == ()
+    monkeypatch.setattr(engine, "_lineage", lineage)
+    edges = engine.geometry(640, 360)
+    assert edges
+    colony = lineage(0, 640, 360)
+    endpoints = {edge[5:7] for edge in colony}
+    roots = {edge[1:3] for edge in colony if edge[1:3] not in endpoints}
+    visible_ends = {edge[4:6] for edge in edges}
+    assert all(edge[:2] in roots or edge[:2] in visible_ends for edge in edges)
+
+
+@pytest.mark.parametrize("cheap_parent_last", (False, True))
+def test_colliding_endpoints_resolve_to_the_last_parent_before_budgeting(
+        monkeypatch, cheap_parent_last):
+    """The admitted daughter includes the selected parent within the ink budget."""
+    engine = _engine(density=3.0)
+    costly = (0, 0, 0, 20, 20, 5, 5, 0, 1, 0, 0)
+    cheap = (1, 4, 4, 4.5, 4.5, 5, 5, 0, 1, 1, 0)
+    daughter = (2, 5, 5, 5.5, 5.5, 6, 6, 0, 1, 2, 0)
+    parents = (costly, cheap) if cheap_parent_last else (cheap, costly)
+    monkeypatch.setattr(engine, "_lineage", lambda *_: (*parents, daughter))
+    engine.set_time(10.0)
+    admitted = [edge[-1] for edge in engine.geometry(20, 20)]
+    assert admitted == ([1, 2] if cheap_parent_last else [1])
+
+
 @pytest.mark.parametrize("canvas", ((20, 1000), (1000, 20)))
 def test_narrow_canvases_keep_reflected_filaments_connected_and_inside(canvas):
     """Tips can turn at either nearby wall without leaving a narrow view."""

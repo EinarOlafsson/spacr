@@ -6196,6 +6196,7 @@ class _FungalGrowthEngine(_BufferedEngine):
             costs.append(footprint)
             by_endpoint[(x1, y1)] = index
             by_origin.setdefault((x0, y0), []).append(index)
+        parents = [by_endpoint.get(edge[:2]) for edge in candidates]
         selected = set()
         for index in reversed(range(len(candidates))):
             chain = []
@@ -6205,7 +6206,7 @@ class _FungalGrowthEngine(_BufferedEngine):
                 while cursor is not None and cursor not in selected and cursor not in seen:
                     seen.add(cursor)
                     chain.append(cursor)
-                    cursor = by_endpoint.get(candidates[cursor][:2])
+                    cursor = parents[cursor]
             footprint = sum(costs[item] for item in chain)
             if footprint <= budget:
                 selected.update(chain)
