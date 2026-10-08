@@ -1,5 +1,34 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Workstation: full API audit passed; background owner batch active
+
+The frozen854 13214-symbol English/all-nine API audit finished0. Its complete
+failure/review/publication evidence is locally committed in the isolated owner
+tree, rebased through3d4599; catalogs are not pushed yet. The exact Home
+background delta is independently verified: one nested picker with the supplied
+390fa88f source digest, unchanged prior prose, and seven new external UI rows
+including the two final tips. The literal Background belongs to existing
+compact chrome rather than this external table. All nine new API/UI technical
+targets pass the ordinary source/context/syntax preflight. Normal English13215
+generation and guide extraction/update finish0; each guide has3028/3029 until
+the one new background paragraph is imported. Source-bound reviewed-record/
+catalog writing remains live; no partial-language acceptance is claimed.
+Workstation ACKs Home53116a and the unchanged-prose pen optimization. The
+active owner tree stays frozen until the writer ends; then current normal
+runtime/help/glossary/guides and strict audit precede the normal CI push.
+
+Isolated664/665 continues while that writer runs. Mask-worker cohort15 passes;
+simulation/database110 and table compatibility99 pass. A real two-process
+simulation test verifies the production10s deployment gap, one-slot disk-only
+transport, distinct compute/SQL retry passes and writer-only commits:1pass.
+Measure resume/worker reporting127 passes. Pool native-loss/chunk/recycling
+cohort49 passes; adjacent Measure/simulation/RAM/database182 passes before the
+subsequent remote-stack addition. The later worker/database79 cohort verifies
+both original and final real worker tracebacks. These scopes overlap and are
+not summed. They are unpushed isolated changes, not664/665 completion or a
+native Save/puncta cause fix. Root retains idle parity, all GPU/API/docs/
+translations/tutorials and664/665. Latest GitHub open-issue query returns none.
+
 ## 2026-10-07 — Home: final local source and workstation publication queue
 
 Nightly3a5a88765 contains the completed Animation background control and

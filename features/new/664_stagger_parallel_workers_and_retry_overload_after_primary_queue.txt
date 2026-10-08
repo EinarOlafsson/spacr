@@ -41,3 +41,12 @@ sweep/child/containment cohort93pass5.99s. Actual Measure writer-aware
 item60 orchestration29pass6.98s includes one committed field after retry.
 These changes are isolated and unpushed. Simulation idempotency, persistent
 isolated masks and the remaining caller audit still prevent item closure.
+2026-10-07 22:18 EDT — Workstation isolated integration continues
+Real persistent mask-worker retries pass15 CPU cases; shared pool loss,
+chunking/recycling and final queue cases pass49, followed by79 worker/database
+cases preserving actual remote primary/final stacks. Adjacent182 cases passed
+before the remote-stack addition; scopes overlap. The real simulation test
+checks10s initial deployment, disk-only bounded transport and separate compute/
+SQL final passes. Measure resume/worker reporting127 passes. Source remains
+isolated and unpushed while the priority13215 API/runtime owner batch runs.
+No general caller, hosted/native or full664 completion is claimed.
