@@ -818,7 +818,7 @@ def _discard_widget(widget) -> None:
         return
     try:
         widget.setProperty("spacrRetiringBackdrop", True)
-    except Exception:
+    except (RuntimeError, AttributeError):
         pass
     try:
         widget.setParent(None)
