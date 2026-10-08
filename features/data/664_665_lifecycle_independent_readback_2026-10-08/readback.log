@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "payloads": 52,
+  "logs": 11,
+  "source_modules": 29,
+  "newly_hit_lines": 6,
+  "newly_hit_arcs": 3,
+  "final_totals": {
+    "changed_executable_lines": 1175,
+    "hit_lines": 1143,
+    "missed_lines": 32,
+    "new_or_changed_branch_arcs": 349,
+    "hit_arcs": 331,
+    "missed_arcs": 18
+  },
+  "r11_invocation_failure_preserved": true,
+  "original_test_definitions_preserved": 101,
+  "prior_lifecycle_function_bodies_preserved": 11
+}
