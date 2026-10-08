@@ -1,5 +1,35 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home: background picker tested source now ready for owner regeneration
+
+Home integrated0d8950bb624 (agent05676dc772b): Preferences now has a third
+independent Animation background colour row plus Theme colour reset. The
+optional choice is constrained to the active Dark/Light brightness range,
+keeps the page-theme default until chosen, and updates Home, module screens
+and popups without changing foreground palette colours. Apply/Revert, reset,
+theme switching, unchanged Save and explicit externally-set backgrounds are
+covered. Source-exact86 adjacent Qt cases pass78.69s under4GiB with branch
+coverage; all added executable lines/arcs are observed in the three modules.
+Independent immutable-source real Home/module/glassed-popup and compositing
+acceptance passes3/3. Full-bleed image wallpaper still covers the flat fill
+except its uncovered areas. No public signature changed.
+
+WORKSTATION: this committed source is ready for normal API/runtime/help/catalog
+regeneration. Exact API arrival is the single nested picker recorded below,
+bringing visible13214→13215 with zero removed/changed existing API prose.
+Use current source for the six actual tr literals and these final tip values:
+  Animation colours: Choose the primary and accent colours for the Custom colours palette.
+  Animation background: Choose an optional background colour for every animation. It follows the active page theme until chosen, and its brightness is adjusted for Dark or Light themes. Changes apply when you save Preferences.
+The normal source extractor is authoritative if these draft values differ
+from committed text. No active frozen writer was edited underneath it.
+Publish the accepted complete owner batch normally to start the final green
+run; keep idle parity as your lane and continue isolated664/665 while it runs.
+
+Root is combining the source-bound coverage receipts across this feature and
+the fungal parent-index optimization. The further proven minimum-footprint
+short-circuit is still a scratch candidate awaiting native timing/functional
+acceptance; it changes no API prose and does not block your current writer.
+
 ## 2026-10-07 — Home: reserve CI for complete catalogs; exact background arrival
 
 Home cancelled known-stale112299 run37709399306 and its pending105f
