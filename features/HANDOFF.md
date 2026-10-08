@@ -1,5 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 12:09 EDT — Workstation final strict guides/browser/site budget pass privately
+
+Home: private renderfd08bab32 English -W/-E PASS plus all9 strict guide
+buildsPASS. All13223 canonical inventory anchors reached once; new done
+anchor unique/old declaredclose absent. Exact all10 built catalogs; all27
+new reviewed API blocks visible desktop/mobile (54checks),9 installation
+headings visible twice (18checks).
+ data/615_final_private_render_and_publisher_2026-10-08/receipt.json
+
+Fresh normal assembly originally1,166,355,812 bytesFAIL unchanged cap.
+191,171,430 bytes are9 derived guide doctree caches. Narrow PRIVATE
+6ba342ea3 normal publisher cache cleanup plus strict regression: original
+1FAIL; repaired22PASS2.07s. Two-file patch CLEAN APPLY to public source.
+Normal final assembly975,184,382 bytesPASS/20,962,818 headroom; every629
+source extra-media byte equals prior accepted private source,9d93 index
+retained. Render app/docs bytes unchanged; only tool/newtest differ after
+render. Initial dependency/import/oversize failures kept. No source
+adoption/live deployment/native/fullserial acceptance or hold release.
+
+N658 GUI statistics path ACK still requested in prior checkpoint: actual
+controls dialog has only Automatic and none/no-test placeholder despite
+four valid panels. Workstation can prepare recipe-aware classification/
+recompute/per-axis Apply privately once GUI file coordination is confirmed.
+Existing export117/integration272 scopes remain qualified accepted.
+
+
 ## 2026-10-08 11:54 EDT — Workstation integrated272 and strict English docs pass; GUI statistics gap found
 
 Home: private sourcefd08bab32 integrated L/A/finalF repair cohort272PASS

@@ -1,0 +1,227 @@
+{
+  "publisher_source": "6ba342ea3d7de9b69e8877b3cb33c2ecaa428063",
+  "rendered_source": "fd08bab323f0cd48d67c55cefd0a033e27f10e7c",
+  "application_source_pushed": false,
+  "deployed": false,
+  "strict_translated_guide_builds": 9,
+  "canonical_inventory_symbols": 13223,
+  "all_canonical_inventory_entries_unique": true,
+  "reviewed_api_browser_block_checks": 54,
+  "translated_installation_browser_heading_checks": 18,
+  "desktop_and_mobile": true,
+  "source_catalog_bytes_exact_in_built_output": true,
+  "publisher_regression": {
+    "original_failure": 1,
+    "original_seconds": 0.49,
+    "repaired_passed": 22,
+    "repaired_seconds": 2.07
+  },
+  "original_assembly": {
+    "bytes": 1166355812,
+    "rejected": true,
+    "compiler_cache_bytes": 191171430
+  },
+  "final_assembly": {
+    "bytes": 975184382,
+    "limit_bytes": 996147200,
+    "headroom_bytes": 20962818,
+    "unchanged_extra_media_files": 629
+  },
+  "narrow_publisher_patch_cleanly_applies_to_public_source": true,
+  "scope": "Fresh strict English and nine translated guide builds on accepted private repaired app source. All13223 canonical anchors unique;54 exact reviewed API blocks and18 installation headings visible at desktop/mobile. Normal publisher drops only derived guide compiler directories, preserving non-directory prefixed files and branch assets. Actual normal two-channel assembly passes unchanged950MiB ceiling. All629 extra-media bytes equal prior accepted source; immutable9d93 index preserved.",
+  "limitations": [
+    "Application/catalog/publisher source adoption and live deployment remain held for Home coordination and required acceptance.",
+    "Interactive multi-panel Statistics dialog still needs recipe-aware GUI repair; current source probe and path ACK request recorded separately.",
+    "Initial browser invocation lacked Playwright in Py313; rerun uses existing Py312 browser environment with same assertions.",
+    "Initial new regression import used unqualified test package name and collection failed; corrected package import before original-source negative acceptance.",
+    "No new native-cause/full serial/biological/native-speaker acceptance; source holds unchanged."
+  ],
+  "payloads": {
+    "logs/private-final-sphinx-guides-r1.log.gz": {
+      "raw_bytes": 717,
+      "raw_sha256": "2264efca07f4be400598926cbd4f9f81de718fe78b1201d530d4415cb956a0b9",
+      "gzip_bytes": 377,
+      "gzip_sha256": "35de01f8e5f0d721f76f350d3b88e907e3ae6cd5ecb138510a544baf0693cc5f"
+    },
+    "logs/private-final-sphinx-guides-r1-tool.log.gz": {
+      "raw_bytes": 282,
+      "raw_sha256": "22ddbf7b5a8be0e1ef1da9c35903b59db23505f0e391e2688088818d0f874526",
+      "gzip_bytes": 160,
+      "gzip_sha256": "170b8c67c698daecdcba21f4be1ba8156c14745bdec668c0aacd85b8e1136fe1"
+    },
+    "logs/private-final-render-r1.log.gz": {
+      "raw_bytes": 1209,
+      "raw_sha256": "e02aad010f9b06192037ae6bcfc56218b2630b7fa92f70d9619f4b1ea0a1c88d",
+      "gzip_bytes": 514,
+      "gzip_sha256": "8bf2bb9ffb07049a1810f1cc8fc3c501b2f2a29153293a09752905d20e5c5b7d"
+    },
+    "logs/private-final-render-r1-tool.log.gz": {
+      "raw_bytes": 117,
+      "raw_sha256": "7d59fc7510ce7f60d418ca7625ef8b2daa2f967f2e35342b0789c96bd9161ae5",
+      "gzip_bytes": 120,
+      "gzip_sha256": "edc6e2021fd2545027a9403f583673e446f8941ac7519f2a9719988af14f38cb"
+    },
+    "logs/private-final-render-r2.log.gz": {
+      "raw_bytes": 705,
+      "raw_sha256": "ad7453bd44aeafbe25de591e2eeb5bdeb149482e222ecec6f76c1b7be9a42e7b",
+      "gzip_bytes": 373,
+      "gzip_sha256": "d0fe564ef15b37f8a7bf5ddcf56c6bfa0d38dab69d9f1f3ede1e2424757f36f6"
+    },
+    "logs/private-final-render-r2-tool.log.gz": {
+      "raw_bytes": 208,
+      "raw_sha256": "103aadcd074c1c18403e3f54118826fa13dc180b763de695fcb6607ca5f09606",
+      "gzip_bytes": 189,
+      "gzip_sha256": "3a3b47452855c0656504c4860e29df7ed87709a2942badbc145e1515cf2c5408"
+    },
+    "logs/private-final-combined-pages-r1.log.gz": {
+      "raw_bytes": 1488,
+      "raw_sha256": "08a805e7258a6414103437b54a440d1242141d9e6087867a07453395f86063a6",
+      "gzip_bytes": 616,
+      "gzip_sha256": "ce2582263352209fc5738d416899bf531b1ad28c67db77a361a46e4c69d4a668"
+    },
+    "logs/private-final-combined-pages-r1-tool.log.gz": {
+      "raw_bytes": 117,
+      "raw_sha256": "7d59fc7510ce7f60d418ca7625ef8b2daa2f967f2e35342b0789c96bd9161ae5",
+      "gzip_bytes": 120,
+      "gzip_sha256": "edc6e2021fd2545027a9403f583673e446f8941ac7519f2a9719988af14f38cb"
+    },
+    "logs/private-final-combined-pages-r2.log.gz": {
+      "raw_bytes": 663,
+      "raw_sha256": "c19dbf9cb9f22ee4e8efd52c9428decfe11baaf7491a4971e4400fefc1cea73f",
+      "gzip_bytes": 373,
+      "gzip_sha256": "59889028924f16cee37f15d866f8875ef9318caf1da47ddd162c2e138fcbae7d"
+    },
+    "logs/private-final-combined-pages-r2-tool.log.gz": {
+      "raw_bytes": 188,
+      "raw_sha256": "ee138b99da7883c432a6a3ecf8c40a725763b086a9760ef5a7313b8a5f54da0b",
+      "gzip_bytes": 173,
+      "gzip_sha256": "53272aaf9c5eb9656301fb522eca295acdd89412e52306e12f3d17149fa586f8"
+    },
+    "logs/private-guide-cache-negative-r1.log.gz": {
+      "raw_bytes": 1582,
+      "raw_sha256": "c2795c2c7d824da472b9631903133ca2294145739f6dbb04c2bd9ea0e4070892",
+      "gzip_bytes": 656,
+      "gzip_sha256": "10a7f2f0945475df81dd75cc20dace7e242e70cd6369b94de9e30c7e786ad7f5"
+    },
+    "logs/private-guide-cache-negative-r1-tool.log.gz": {
+      "raw_bytes": 1132,
+      "raw_sha256": "cdc38d148fec6223fc3a2a09a33ada80333c03cfd5bc71734cb259dff0fdadab",
+      "gzip_bytes": 477,
+      "gzip_sha256": "21f4626ec6fb5cde8c40739bf4af1f14a5f8180b7554fce1ea2b6500927ffffa"
+    },
+    "logs/private-guide-cache-negative-r2.log.gz": {
+      "raw_bytes": 1453,
+      "raw_sha256": "d26ad6210fa6718ee20e678c5638178554302a17bfe7b59d1e01f4f6c47cbffc",
+      "gzip_bytes": 627,
+      "gzip_sha256": "9a685d248762dc5cc223bd00259c721223f8757fd3e2dbbc2b999d2c9b37faa0"
+    },
+    "logs/private-guide-cache-negative-r2-tool.log.gz": {
+      "raw_bytes": 1003,
+      "raw_sha256": "14c47358c497a1cea676c1b502151122d6845bf605c09d320a6f9547ee56f94f",
+      "gzip_bytes": 430,
+      "gzip_sha256": "d784163b815f4fe13e501ec0a4446d4f7347df62e73ce4518f78678abed80812"
+    },
+    "logs/private-guide-cache-positive-r1.log.gz": {
+      "raw_bytes": 697,
+      "raw_sha256": "882cf50fc9ce01512e05908f273cc86aeac0824364be677484c27805dbc0cae6",
+      "gzip_bytes": 385,
+      "gzip_sha256": "79e628a316e2a643fe3bb3f263e9628f36db78a1b4cb5a939d639d98a17b4911"
+    },
+    "logs/private-guide-cache-positive-r1-tool.log.gz": {
+      "raw_bytes": 216,
+      "raw_sha256": "b3bee74c1d1797f42d15a8c3ca6621328f104cd9c8502e12b012a5e7b1f7db79",
+      "gzip_bytes": 148,
+      "gzip_sha256": "3d369ac10bcce15d7d4169c9c0ad014d03a9353b4aaf6650c2ce7ac468ef2dda"
+    },
+    "scripts/check_final_private_render_r1.py.gz": {
+      "raw_bytes": 6769,
+      "raw_sha256": "300e1038e2ba77363326f29d43fe361f9695afe541038553cf1eaf25fc66a2c5",
+      "gzip_bytes": 2717,
+      "gzip_sha256": "57766781e76b3749f504cf4e8f49b04d83dff5041bb4f21a3edc258a50928a6b"
+    },
+    "scripts/check_final_private_render_r2.py.gz": {
+      "raw_bytes": 6769,
+      "raw_sha256": "9f1902201cf47d20f44df3cfbf56237ed0e4d7a687517f2f57ee4776e57b0140",
+      "gzip_bytes": 2717,
+      "gzip_sha256": "3b0735ee0801dacc2e7b469d64d568dfd7307c12845823430cd685ef175ab209"
+    },
+    "scripts/assemble_final_private_docs_pages_r1.py.gz": {
+      "raw_bytes": 3167,
+      "raw_sha256": "1a80449585307095927ff3af0d6fd71be73544fabacec5942f82d1340c757c18",
+      "gzip_bytes": 1468,
+      "gzip_sha256": "50437310c3e88d1a5b973bcf5e0685166b5b54bd504e6a2665a2b7981146b55e"
+    },
+    "scripts/assemble_final_private_docs_pages_r2.py.gz": {
+      "raw_bytes": 3478,
+      "raw_sha256": "08761528e776699aad629b44874b69c4a3dc505b0c288a6515cbb065c32953dd",
+      "gzip_bytes": 1585,
+      "gzip_sha256": "d8990da40aee116c4a1989dc10305cc0c3e613da436959aeb3415739360a76ad"
+    },
+    "scripts/prepare_final_private_assembly_retry_r2.py.gz": {
+      "raw_bytes": 1613,
+      "raw_sha256": "3526d896d154a0dfe5917a9e0308f3a98c16dedad5649bd9c2770b22495d716c",
+      "gzip_bytes": 656,
+      "gzip_sha256": "09c79ce0f149fa7a1036c01ff436e4c95c11e3ba13376d280a08a30d2c57f43a"
+    },
+    "scripts/archive_final_private_render_publisher_r1.py.gz": {
+      "raw_bytes": 8436,
+      "raw_sha256": "41e8f11b9bb990a985ea99e5d1234293bd547c00a34f0c971c184693433ab9f4",
+      "gzip_bytes": 3390,
+      "gzip_sha256": "f4bfcd9c6f77b4b968535eac10f2f685f5381a53b9236baa037d246c27be0e08"
+    },
+    "results/private-final-render-r2/receipt.json.gz": {
+      "raw_bytes": 7500,
+      "raw_sha256": "013a37d650fd620c98761949ebdc03126688c53e0939dbc2bef7232f6a8083d0",
+      "gzip_bytes": 1267,
+      "gzip_sha256": "989beee373205f33f54433edc7fb737c1e5de1d1fdefce58b6ac575ae2c16c55"
+    },
+    "results/private-final-combined-pages-r1/failed-size-receipt.json.gz": {
+      "raw_bytes": 186,
+      "raw_sha256": "4c21e59871b622bd32e47e13510ebef867638e96ae0076954998a2699ab8370f",
+      "gzip_bytes": 166,
+      "gzip_sha256": "74cc50c92ab574213964ba28dbf9f52805bf2f931beb39d01d15c16fbddcbedf"
+    },
+    "results/private-final-combined-pages-r2/receipt.json.gz": {
+      "raw_bytes": 84123,
+      "raw_sha256": "13d9c7bd421a0ce59a54dc3255df1acfbbb698c3f376da6418fbdcbea9cce131",
+      "gzip_bytes": 29996,
+      "gzip_sha256": "12e79b271e570f1b042627bff6402684e71ffc68ee356f431e3a0101aef205a3"
+    },
+    "results/private-final-combined-pages-r2/combined/channels.json.gz": {
+      "raw_bytes": 539,
+      "raw_sha256": "4e1380cd2eaa32927425156dd662a7ab01caed6284546bbdc303f939e5c7a1b3",
+      "gzip_bytes": 271,
+      "gzip_sha256": "a2b3bc74e6dc5689ecbeb91221fba51791d61642a3db17a0d5e8e1cee4660c9d"
+    },
+    "publisher-cache-source-and-test.patch.gz": {
+      "raw_bytes": 2927,
+      "raw_sha256": "44679fd32f08a52db117f65ae774122a70f16ba0e3160f12abaa029ad255db9f",
+      "gzip_bytes": 1204,
+      "gzip_sha256": "a97c13c94b55634bfe3711be08c06bbbe73ba37a687235e1e25de098bb8f4958"
+    },
+    "source/tools/publish_docs_channels.py.gz": {
+      "raw_bytes": 14736,
+      "raw_sha256": "4c4cbb4bc069418937c273f83565b525a7ce980b2d90f81b988bbc2eb39b089d",
+      "gzip_bytes": 4717,
+      "gzip_sha256": "663289e78d090f1ebb31c9c9efa40d664b80a22b65e85c00be9f9e6273bd92d1"
+    },
+    "source/tests/test_docs_guide_cache_publication.py.gz": {
+      "raw_bytes": 1795,
+      "raw_sha256": "7e028367895e5b307cd29893599672706f5801651704dd855f5297005e2419af",
+      "gzip_bytes": 756,
+      "gzip_sha256": "1a0b5d5fdcfb4111b8466a384c4b2f8c0e0aab5f9b95099930e92c1b484ea617"
+    },
+    "original-source/publish_docs_channels.py.gz": {
+      "raw_bytes": 14641,
+      "raw_sha256": "a81b49c501f2fd6d26f4266ca555900138aa90e3341486baa25c26952c19663e",
+      "gzip_bytes": 4682,
+      "gzip_sha256": "d68d0cd0b010fec17096798d77bd1a88ae2d57fad80e6f38f99e9843f4d5b9cc"
+    },
+    "test-revisions/original-import.py.gz": {
+      "raw_bytes": 1789,
+      "raw_sha256": "6a2b692d24c597f552674bcb1477a0c73da3a27f290e439dd8f5fbda97d45814",
+      "gzip_bytes": 750,
+      "gzip_sha256": "0e7aae8487afc877111d85007bc69005912c91f8b6efe947c41fd206fd554644"
+    }
+  }
+}
