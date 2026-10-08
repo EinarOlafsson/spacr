@@ -24,3 +24,5 @@ HOW TO KNOW IT WORKED
 The item records the upstream release version/hash, feedstock commit and pull request, passing build/test results, published conda-forge artifact/version, and a clean-environment install/import/entry-point check. Any platform or release dependency still requiring external input remains explicitly recorded.
 
 2026-10-08 — Registered the user's request as new work. No feedstock update, package publication or current-version match is claimed. GitHub tests remain the primary priority; the existing N59 completion does not close this new freshness requirement.
+
+2026-10-08 13:40 EDT — Read-only live audit: GitHub latest stable and PyPI both1.5.1.3; PyPI sdist SHA256104c0fcd80702e34c2f6b62fe11792a9eefdb8d2956d255bc297667af2cebc8c. Feedstock main504e949278 recipe and actual conda-forge package are1.5.0.8. Existing bot PRhttps://github.com/conda-forge/spacr-feedstock/pull/7 targets1.5.1.3 but linux build37097780868 failed, automerge refused. No new PR duplication or publication claim; inspect actual build failure before repair.

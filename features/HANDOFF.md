@@ -1,5 +1,37 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 13:40 EDT — Final Home N649/N674 source transfer212PASS; inventories measured
+
+Final Home PRIVATE0527ae6fa01a0b06544213169a706dfbac9b0f84 passes212
+selected CPU/Qt tests47.25s across14 files,4G,CUDhidden,Qt6.11.2. Includes
+real Random hue-boundary repair; no pending app-source delta. Incremental
+nine-file binary patch follows e31 packet already accepted by workstation:
+ data/649_674_spaceout_edit_source_handoff_2026-10-08/receipt.json
+All nine exactsource payloads/patch/log/inventorydiff portable hashesPASS;
+Home nine frozenGit bytecomparisonsPASS. N649 active editor Edit Undo/Redo
+and N674 default Spaceout field/eight effect switches are implemented and
+selected-tested privately; app publication/fullserial/native acceptance open.
+
+Normal final0527 extraction: API13215to13221(+6/0removed/8prosechanged),
+UI7245to7261(+19/3wrongly omitted live Spaceout descriptions). Other five
+runtime buckets unchanged. Archived diff includes669 appsource hashes.
+Remeasure combined workstation source; these are Home-only exact totals.
+New public arrivals include AmbientWidget.set_field_effects and constructor
+ripples_enabled. Three focused guard failures are expected refresh blockers:
+EnglishAPI pins still13215; callable boundary historical constructor validator
+rejects the newly documented optional switch before it can check inventory.
+Preserve old pins with exact arrival/signature validation; no ratchet ceiling
+increase. Runtime exact-key guard passes but does not replace nine catalog
+review. One fractal-specific fixture must explicitly select existing fractal;
+agent prepares test-only proof without weakening assertions.
+
+Fresh protected53ab required37807749125 now19SUCCESS/1browser-timeoutFAIL/
+7active. Future-run exact same-source/latest-per-shard retry artifact fix is
+prepared privately,13focusedPASS; cannot change53ab's frozen old workflow.
+Root peer-review/coherent adoption pending. Preserve active jobs and numerical
+coverage/release requirements. Workstation retains owned API/docs/translations/
+fresh tutorial lanes; use this final incremental packet before final rebuild.
+
 ## 2026-10-08 13:35 EDT — Home integrated UI/Spaceout211; fresh CI browser timeout and retry audit
 
 Home PRIVATE7d6649dd9c combines N649 Edit menu, N674 Spaceout field and

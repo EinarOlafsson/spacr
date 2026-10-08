@@ -37,3 +37,5 @@ DONE 2026-10-04
   Original6 editor tests PASS actualQt6.12/pytest8.4.2/8G. Translation
   follow-up complete; Edit > Undo/Redo integration remains OPEN.
   Proof: features/data/649_undo_redo_translation_followup_2026-10-08/receipt.json.
+
+2026-10-08 13:40 EDT — Home final private0527 source transferred in data/649_674_spaceout_edit_source_handoff_2026-10-08. Fourteen selected CPU/Qt files212PASS47.25s under4G; phases overlap earlier proofs. Exact nine source payloads and normal inventory diff verified. Final catalogs, coherent app publication/current GitHub/fullserial acceptance remain pending; no 100% or native frame-rate claim.
