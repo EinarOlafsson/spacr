@@ -1,0 +1,304 @@
+{
+  "source_commit": "aa2c82593",
+  "before_source_sha256": "7c9dcdcfb032a4f9677fcb45d101f5d5540e887d28145b794c5d91625632c9bc",
+  "after_source_sha256": "fa95c6677bea19f66b4cfb5e4049ae8858269e5b9cc53e337653fe176301fbf4",
+  "after_test_sha256": "22539ae724280e93fd34ec7822b95f904e46f37d2a2797278cd47810a9194299",
+  "production_change": "One QPen local to each original/cached fungal path paint pass. Per-group QColor/width, draw order, all originalQt path values and64entry/8MiB cache guards preserved; no newpersistentcache or helper.",
+  "phases": {
+    "instrumented_profile": "28mature native worker frames, inclusive timings with wrapperoverhead; notFPSacceptance",
+    "pen_setup": "4fixed native frames, timed constructors/setPen/alpha; exactreferencehash",
+    "fixed_shader": "ABBAx3 for3palettes/backgrounds:36rendercalls,18paired comparisons with repeatedstates; do notclaim36uniquepairs",
+    "pen_properties": "15QPen value-equivalence cases",
+    "live_worker": "8fresh native4K Xvfb processes:default+RandomABBA,24requestedFPS; actualnewpublishedclocks used, repaintcountsnotFPS",
+    "focused_tests": "19PASS43.20s:6nativepalette/background cases +2partialfailure +11unsupportedcontext; phasesoverlap, do notsumuniqueacceptancecounts"
+  },
+  "all_changed_statements_executed": [
+    6342,
+    6343,
+    6344,
+    6347,
+    6348,
+    6349,
+    6360,
+    6361,
+    6362,
+    6366,
+    6367,
+    6368
+  ],
+  "signature_and_prose_ast_unchanged": true,
+  "tr_call_ast_unchanged": true,
+  "new_control_flow": false,
+  "hard24FPS": "OPEN; mature maxDensity3/Detail2/Size2.5 after5.18\u20135.55FPS, cold birthphase~24FPS is notmatureacceptance",
+  "renderer_aesthetics": "No newstyle or humanacceptanceclaim; completepairednativepixels unchanged.",
+  "memory": "OnlylocalQPen, no persistentstorage/cachelift; liveprocesspeak351580\u2013385160KiB, all8workersretired immediatelyand200msafterhide.",
+  "limits": "CPUsoftwareXvfb/offscreen CUDAhidden4G; no GPU or whole-suiteacceptance; machinequiescence was coordinated amongCPUagents but not an externalprocess guarantee; callerthreadCPU excludesQt rasterhelpers, wallminusCPU is notsolelyGILwaiting.",
+  "live_results": [
+    {
+      "palette": "spacr",
+      "records": [
+        {
+          "phase": "before-A",
+          "published_fps": 4.784760385063151,
+          "shade_median_ms": 206.6327444917988,
+          "shade_p95_ms": 236.47397899185307,
+          "gui_repaint_fps_not_distinct": 24.322531957404347,
+          "retired": true,
+          "cold": {
+            "current_rss_kib": 238132,
+            "widget_show_ms": 233.3834309829399,
+            "post_show_seconds": 2.0010738059936557,
+            "post_show_published_frames": 48,
+            "post_show_published_fps": 23.98712124271951,
+            "worker_shade": {
+              "median_ms": 5.993967482936569,
+              "p95_ms": 11.995096021564677,
+              "max_ms": 18.583791999844834,
+              "samples": 48
+            },
+            "heartbeat_10ms": {
+              "median_ms": 10.0664549972862,
+              "p95_ms": 15.758838999317959,
+              "max_ms": 39.76292800507508,
+              "samples": 195
+            },
+            "compile_ready": false,
+            "compile_failed": false,
+            "rss_peak_kib": 234424
+          },
+          "peak_rss_kib": 384784
+        },
+        {
+          "phase": "after-B",
+          "published_fps": 5.1797879411662135,
+          "shade_median_ms": 191.66579899319913,
+          "shade_p95_ms": 206.67067199246958,
+          "gui_repaint_fps_not_distinct": 24.504381413978624,
+          "retired": true,
+          "cold": {
+            "current_rss_kib": 238108,
+            "widget_show_ms": 221.13252899725921,
+            "post_show_seconds": 2.002413953014184,
+            "post_show_published_frames": 47,
+            "post_show_published_fps": 23.471670245431557,
+            "worker_shade": {
+              "median_ms": 5.737561994465068,
+              "p95_ms": 9.017639997182414,
+              "max_ms": 20.802645973162726,
+              "samples": 47
+            },
+            "heartbeat_10ms": {
+              "median_ms": 10.07180500891991,
+              "p95_ms": 14.982029009843245,
+              "max_ms": 48.13032198580913,
+              "samples": 193
+            },
+            "compile_ready": false,
+            "compile_failed": false,
+            "rss_peak_kib": 234356
+          },
+          "peak_rss_kib": 384204
+        },
+        {
+          "phase": "after-C",
+          "published_fps": 5.353326128935759,
+          "shade_median_ms": 185.73389301309362,
+          "shade_p95_ms": 204.06998801627196,
+          "gui_repaint_fps_not_distinct": 24.18910324926528,
+          "retired": true,
+          "cold": {
+            "current_rss_kib": 238112,
+            "widget_show_ms": 236.38594400836155,
+            "post_show_seconds": 2.000393296009861,
+            "post_show_published_frames": 48,
+            "post_show_published_fps": 23.995281375789705,
+            "worker_shade": {
+              "median_ms": 5.418167493189685,
+              "p95_ms": 13.589651993243024,
+              "max_ms": 22.295717993984,
+              "samples": 48
+            },
+            "heartbeat_10ms": {
+              "median_ms": 10.067124996567145,
+              "p95_ms": 15.021418017568067,
+              "max_ms": 43.47186500672251,
+              "samples": 193
+            },
+            "compile_ready": false,
+            "compile_failed": false,
+            "rss_peak_kib": 234144
+          },
+          "peak_rss_kib": 352300
+        },
+        {
+          "phase": "before-D",
+          "published_fps": 4.756602805163239,
+          "shade_median_ms": 207.6612050004769,
+          "shade_p95_ms": 228.4928849840071,
+          "gui_repaint_fps_not_distinct": 24.377589376461604,
+          "retired": true,
+          "cold": {
+            "current_rss_kib": 238420,
+            "widget_show_ms": 232.04550001537427,
+            "post_show_seconds": 2.000994772010017,
+            "post_show_published_frames": 48,
+            "post_show_published_fps": 23.98806867035618,
+            "worker_shade": {
+              "median_ms": 6.423190512578003,
+              "p95_ms": 9.853416995611042,
+              "max_ms": 19.231828016927466,
+              "samples": 48
+            },
+            "heartbeat_10ms": {
+              "median_ms": 10.069885000120848,
+              "p95_ms": 15.803097019670531,
+              "max_ms": 41.5661939769052,
+              "samples": 194
+            },
+            "compile_ready": false,
+            "compile_failed": false,
+            "rss_peak_kib": 234996
+          },
+          "peak_rss_kib": 385160
+        }
+      ],
+      "balanced_pair_fps_gains": [
+        0.08255952739791161,
+        0.12545157714761968
+      ]
+    },
+    {
+      "palette": "random",
+      "records": [
+        {
+          "phase": "before-A",
+          "published_fps": 4.777031294048327,
+          "shade_median_ms": 211.2600874970667,
+          "shade_p95_ms": 228.14573301002383,
+          "gui_repaint_fps_not_distinct": 24.28324241141233,
+          "retired": true,
+          "cold": {
+            "current_rss_kib": 236908,
+            "widget_show_ms": 236.69210702064447,
+            "post_show_seconds": 2.0010316889965907,
+            "post_show_published_frames": 48,
+            "post_show_published_fps": 23.98762611504139,
+            "worker_shade": {
+              "median_ms": 5.986167496303096,
+              "p95_ms": 14.118875027634203,
+              "max_ms": 20.982885995181277,
+              "samples": 48
+            },
+            "heartbeat_10ms": {
+              "median_ms": 10.06605000293348,
+              "p95_ms": 15.479003021027893,
+              "max_ms": 44.4118760060519,
+              "samples": 192
+            },
+            "compile_ready": false,
+            "compile_failed": false,
+            "rss_peak_kib": 232412
+          },
+          "peak_rss_kib": 382532
+        },
+        {
+          "phase": "after-B",
+          "published_fps": 5.377142985769836,
+          "shade_median_ms": 182.55476802005433,
+          "shade_p95_ms": 199.76650099852122,
+          "gui_repaint_fps_not_distinct": 24.296720157922962,
+          "retired": true,
+          "cold": {
+            "current_rss_kib": 238200,
+            "widget_show_ms": 236.1386659904383,
+            "post_show_seconds": 2.0009185620001517,
+            "post_show_published_frames": 48,
+            "post_show_published_fps": 23.988982316211008,
+            "worker_shade": {
+              "median_ms": 5.850970002938993,
+              "p95_ms": 16.153759002918378,
+              "max_ms": 18.79731100052595,
+              "samples": 48
+            },
+            "heartbeat_10ms": {
+              "median_ms": 10.069615003885701,
+              "p95_ms": 15.044045983813703,
+              "max_ms": 41.40732198720798,
+              "samples": 193
+            },
+            "compile_ready": false,
+            "compile_failed": false,
+            "rss_peak_kib": 266564
+          },
+          "peak_rss_kib": 353392
+        },
+        {
+          "phase": "after-C",
+          "published_fps": 5.548469041004086,
+          "shade_median_ms": 184.9914859922137,
+          "shade_p95_ms": 195.30387298436835,
+          "gui_repaint_fps_not_distinct": 24.175472250089232,
+          "retired": true,
+          "cold": {
+            "current_rss_kib": 238220,
+            "widget_show_ms": 230.39560500183143,
+            "post_show_seconds": 2.000276043982012,
+            "post_show_published_frames": 48,
+            "post_show_published_fps": 23.99668792935444,
+            "worker_shade": {
+              "median_ms": 5.53116700029932,
+              "p95_ms": 10.810956999193877,
+              "max_ms": 21.190885017858818,
+              "samples": 48
+            },
+            "heartbeat_10ms": {
+              "median_ms": 10.066155024105683,
+              "p95_ms": 14.973059005569667,
+              "max_ms": 42.874454986304045,
+              "samples": 193
+            },
+            "compile_ready": false,
+            "compile_failed": false,
+            "rss_peak_kib": 234304
+          },
+          "peak_rss_kib": 351580
+        },
+        {
+          "phase": "before-D",
+          "published_fps": 4.757952979860482,
+          "shade_median_ms": 207.07479999691714,
+          "shade_p95_ms": 235.71248800726607,
+          "gui_repaint_fps_not_distinct": 24.384509021784968,
+          "retired": true,
+          "cold": {
+            "current_rss_kib": 238192,
+            "widget_show_ms": 233.71949198190123,
+            "post_show_seconds": 2.002060108992737,
+            "post_show_published_frames": 47,
+            "post_show_published_fps": 23.47581862746685,
+            "worker_shade": {
+              "median_ms": 5.510652990778908,
+              "p95_ms": 6.927438982529566,
+              "max_ms": 19.78485900326632,
+              "samples": 47
+            },
+            "heartbeat_10ms": {
+              "median_ms": 10.065676004160196,
+              "p95_ms": 14.725932996952906,
+              "max_ms": 44.09100199700333,
+              "samples": 195
+            },
+            "compile_ready": false,
+            "compile_failed": false,
+            "rss_peak_kib": 234776
+          },
+          "peak_rss_kib": 384748
+        }
+      ],
+      "balanced_pair_fps_gains": [
+        0.12562440034026645,
+        0.16614625333409339
+      ]
+    }
+  ]
+}

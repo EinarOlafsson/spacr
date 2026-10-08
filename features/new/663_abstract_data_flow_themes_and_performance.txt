@@ -1345,3 +1345,22 @@ guarantee. Hard24FPS remains far OPEN. Rejected global-minimum shortcut
 had no reliable live gain and is retained separately, never shipped.
 Portable source/raw/parity/coverage/worker/negative proof:
 data/663_fungal_node_cost_refusal_cpu_2026-10-07/acceptance.json.
+
+2026-10-08 UTC — Exact pass-local QPen reuse aa2c82593 replaces thousands
+of repeated pen constructions with one local value per original/cached
+fungal paint pass. QColor/width still update per group; SolidLine/RoundCap/
+RoundJoin, native pixels, geometry/order/alpha,64entry/8MiB cache bounds
+and fallback remain unchanged. No new persistent cache, public callable,
+prose or tr literal.19focusedtestsPASS43.20s under4GiB; all12 new/replaced
+statements directly observed, no newcontrolflow. Six native default/Random/
+custom × dark/light cases preserve old-QPen pixels and retainedframes;
+partial failure and unsupported painter-context guards remain. Separate
+15pen-value cases and36 fixed native renders(18paired repeated-state
+comparisons, not36unique pairs) pass. Fixed shader and instrumented profile
+are explicitly separate from live acceptance. Fresh native4K D3/Detail2/
+Size2.5 workerABBA default4.785/4.757→5.180/5.353FPS, Random4.777/4.758→
+5.377/5.548; all8workers retire immediately/200msafterhide. GUI24repaint
+counter is NOT distinctframeFPS. Cold birth-phase~24FPS is not maturework
+acceptance; hard24FPS remains OPEN. NoGPU/fullsuite/aesthetic acceptance.
+Compact source/raw/profile/pixel/worker/coverage proof:
+data/663_fungal_local_pen_cpu_2026-10-08/acceptance.json.
