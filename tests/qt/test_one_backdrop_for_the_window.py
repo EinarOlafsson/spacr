@@ -144,9 +144,10 @@ def test_the_screen_stops_deferring_once_the_window_backdrop_goes(
     ``refresh_theme`` -- which is what Preferences calls -- reconciles it
     on every cached screen, not only on the one in front of the user.
     """
+    from PySide6.QtWidgets import QApplication
+
     from spacr.qt import preferences as prefs
     from spacr.qt.app import MainWindow
-    from PySide6.QtWidgets import QApplication
 
     window = MainWindow()
     qtbot.addWidget(window)
@@ -222,6 +223,10 @@ def test_the_home_screen_is_not_black_on_a_real_display(qtbot):
     if not preferences.get_ambient_enabled():
         pytest.skip("the ambient backdrop is off in this configuration")
 
+    # The original 25% pixel floor measured the Blobs field at Density 1.
+    # The user-facing default is now 0.1; retain the measured material
+    # condition so this still detects an opaque Home container.
+    preferences.set_ambient_density(1.0)
     preferences.set_ambient_animation("blobs")
     app = QApplication.instance()
     # THROUGH THE REAL PATH, or this measures an unthemed window. The
