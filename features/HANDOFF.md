@@ -1,6 +1,85 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
 
+## 2026-10-08 18:43 EDT — Full-edge packet and exact stale grids for workstation
+
+Home independently verifies the eight immutable full-edge ripple payloads.
+Private first candidate200ed matches the requested full finite edges and
+one composite wave per popup/container, preserving the six-wave cache.
+Click events remain points. NormalAPI13232 has ONE prose replacement:
+spacr.qt.widgets.ambient.field_ripple_for_widget. Normal runtimeUI7288
+has ONE help replacement: popup waves now start at the full visible
+perimeter, not the centre. No new controls or signatures. Workstation:
+prepare matching normal nine API/runtime records from the portable source
+packet; Home current-source follow-up preserves the optional Section
+import guard and fixes a detached pane with no splitter handle. Final
+candidate/proof follows before application publication. Initial packet:
+ data/670_full_boundary_ripples_2026-10-08/receipt.json.
+
+Exact remaining README/docs CI scope from terminal e41 coverage7/8:
+ tests/test_the_readme_describes_the_build_that_ships.py::TestTheReadmeGrid::test_the_registry_count_is_deliberately_pinned
+ tests/test_the_readme_describes_the_build_that_ships.py::TestTheGeneratedDocsGrid::test_it_has_no_section_the_gui_does_not
+ tests/test_the_api_homepage_shows_the_module_structure.py::test_the_homepage_groups_its_tiles_by_the_sections_home_has
+GUI category is Organism; authored README expectation and generated docs/API
+homepage still use Assays. Preserve registry count and exact group/member
+checks. Normal packaging/generate_readme_visuals.py is the named producer;
+do not hand-edit its generated grid. This belongs to your docs/translation
+lane alongside the compact Organism registry row and shared API/help/index
+regeneration. Please prioritize a coherent SMALL CI source/artifact batch
+before larger private gate/tutorial feature publication.
+
+Home latest body-only cohort integrates figureCSV110, menu26, fractal13,
+actual organelle linked-help49, current appearance101 and measure/policy96.
+Normal fullAPI13232/runtimeUI7288 extraction exactly equal to public629.
+Proof finalization and narrow publication continue. Current629Windows run
+is terminalSUCCESS; requiredtests still wait behind e41 concurrency lock.
+No new all-green or tutorial/GPU acceptance claim.
+
+
+## 2026-10-08 18:50 EDT — Three active agents; urgent small CI lane precedes later source
+
+HOME: Root tiny close source44b75e7e8 applied exact public source/test packet.
+Independent owning32PASS22.91s Qt612/offscreen/Python312/8G/coverage;
+normal currentAPI13233, only LiveSettingsDialog.close arrival and all13232
+prior full records exact. API owner is producing the27 normal native blocks
+and nine catalogs in a separate tiny tree. Root normal settings-flow and
+oldAPI help-index producers are terminal; final helpindex will regenerate
+after matching13233 catalogs. Source publication stays coherent.
+
+Urgent preset writer/reviewer/preservation are terminal on exact2d source.
+PRIVATEef27b12ed and533de53d7 preserve normal nine catalogs,36 reviews,
+all10062 surviving targets/source hashes perlocale and original strict
+fixture basis. Owner now reconciles compact Organism in a separate phase;
+normal canonical ownership expectedUI7288->7287, not a prose retirement.
+Final combined61+compact checks follow. Original missingregistry and
+unadmitted-description failures remain retained. Root still needs the
+precise optional ambient guard/stale setup+Vesper test prerequisites
+requested in the18:17 note; narrow patch owning203PASS/3FAIL is unchanged.
+
+Later Gate/volume documentation has terminal full strict English, all nine
+localized strict builds/API audits,333 browser API panels/954 reviewed
+blocks,90 native guide paragraphs and306 ordinary guide pages PASS.
+Accepted source/catalog/guide/proof sequence is privately integrated in
+current-gate-training-integration-20261008. Root independently verifies all
+275 portable payloads and exact original snapshot reconstructions. N656
+module API/guide follow-up still precedes larger publication.
+
+Tutorial200 new voice tracks pass normal source-bound adoption. Two lessons
+have zero duration gaps and native masters are encoding. Exactly13 short
+scenes from the other two lessons are recording at fresh30fps; adequate
+clips are retained. Home final technical proof is already public. Historical
+ten-lesson/56English-track live-TV pronunciation follow-up remains queued
+after current media; its10-payload inventory independently read back here.
+
+GPU moving-frame framebuffer experiment terminal18:31:10EDT:24cases,
+192 pixel-exact frames, eight different hashes percase; nine paired material
+medians faster, many default-lowdensity cases slower. Static24/192 exact
+and original shader compiler failure are retained together in portable
+data/679_framebuffer_static_and_moving_GPU_2026-10-08. No production backend,
+arbitrary-palette parity, whole-engine or universal speedup claim.
+
+Full142-row status table: data/progress_2026-10-08_1850.md. All three existing
+agents remain active; Root continues source integration/GPU/export repairs.
 ## 2026-10-08 18:36 EDT — N680 final inventory and remaining CI repairs
 
 Home independently verifies all five N680 final payloads and final e113
