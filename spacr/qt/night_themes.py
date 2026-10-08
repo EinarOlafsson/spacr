@@ -336,10 +336,10 @@ NIGHT_THEMES: Dict[str, NightTheme] = {
             key="lantern",
             label="Lantern",
             description=("A lit window in the dark: warm orange on near-"
-                         "black, fine paper facets behind it, "
+                         "black, a field of luminous points behind it, "
                          "and a sound set in G minor at 118 BPM."),
             palette=LANTERN_PALETTE,
-            ambient="data_art_tissue_facets",
+            ambient="data_art_impulse_lens",
             ambient_palette="ember"),
         NightTheme(
             key="halcyon",
@@ -354,10 +354,10 @@ NIGHT_THEMES: Dict[str, NightTheme] = {
             key="solstice",
             label="Solstice",
             description=("The long low light of a year's turn: olive and "
-                         "pale gold, fine paper facets through it, and a "
+                         "pale gold, luminous points through it, and a "
                          "sound set in G Lydian at 112 BPM."),
             palette=SOLSTICE_PALETTE,
-            ambient="data_art_tissue_facets",
+            ambient="data_art_impulse_lens",
             ambient_palette="lowsun"),
         NightTheme(
             key="undertow",
@@ -371,11 +371,11 @@ NIGHT_THEMES: Dict[str, NightTheme] = {
         NightTheme(
             key="meridian",
             label="Meridian",
-            description=("A teal horizon line with curtains of light "
-                         "folding above it, and a sound set in A Dorian at "
+            description=("A teal horizon line with currents of light "
+                         "bending above it, and a sound set in A Dorian at "
                          "124 BPM."),
             palette=MERIDIAN_PALETTE,
-            ambient="aurora",
+            ambient="data_art_genetic_advection",
             ambient_palette="ocean"),
         NightTheme(
             key="cirrus",
@@ -417,10 +417,10 @@ NIGHT_THEMES: Dict[str, NightTheme] = {
             key="vesper",
             label="Vesper",
             description=("The last colour in the sky: plum and dusty rose, "
-                         "curtains of light folding overhead, and a soft "
+                         "currents of light moving overhead, and a soft "
                          "sound set in E flat minor at 114 BPM."),
             palette=VESPER_PALETTE,
-            ambient="aurora",
+            ambient="data_art_genetic_advection",
             ambient_palette="dusk"),
     )
 }
