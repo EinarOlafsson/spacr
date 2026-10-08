@@ -1,0 +1,55 @@
+================================================================================
+GPU ACCELERATION FOR DATA FLOW THEMES WITH CPU FALLBACK
+================================================================================
+
+Status:    open
+Requested: 2026-10-08
+Owner:     Workstation GPU lane; Home integration and CI
+Related:   N663 theme performance; N674 Spaceout field; N43 GitHub checks
+
+WHAT THE STATE IS
+
+The current data-art flow/advection and field themes compute with NumPy and
+render CPU-owned QImages through QPainter. Packed pixel kernels optionally
+use Numba CPU compilation. These themes do not require a CUDA or OpenGL
+compute backend. The separate Spaceout fractal renderer has GPU/CPU backend
+selection and construction fallback; it is not an accelerated flow renderer.
+
+WHAT TO DO
+
+Profile the actual existing flow and field renderers before choosing which
+calculation or drawing stage to accelerate. Add an optional graphics GPU
+backend in the existing modules, preserving the current CPU implementation.
+Use the existing Qt graphics stack where appropriate; avoid requiring CUDA
+or a particular GPU vendor for decorative animation. Provide explicit CPU
+selection and an automatic backend choice that refuses unsupported contexts
+and falls back without changing theme identity or losing its controls.
+
+Preserve density, detail, size, speed, palette/background, gravity, ripples,
+drag/release physics and Spaceout phenomenon controls. An unavailable or
+busy GPU must leave CPU animation usable. Respect existing performance
+preferences, resource caps and running analysis work; decoration must not
+consume the GPU capacity needed by image-analysis jobs. Hidden surfaces
+must release or pause their work; context/widget teardown must be safe.
+
+Compare actual frame timing, CPU load, GPU memory and interaction behavior
+on supported native displays. Validate numerical/visual agreement against
+the existing CPU implementation with fixed inputs. Exercise unavailable
+contexts, explicit CPU mode, constructor failure, hide/show, resizing,
+Preferences opening/closing and shutdown. Do not claim an exception handler
+can recover an in-process native driver crash; isolate risky capability
+probes or disable unsupported routes as justified by actual evidence.
+
+HOW TO KNOW IT WORKED
+
+A supported native GPU run is faster in the measured expensive stage and
+preserves the theme's appearance and interactions. CPU-only and failed GPU
+initialization paths remain usable and pass meaningful checks. Record the
+source, environment, timing and memory evidence; retain CPU as a selectable
+backend. GPU execution belongs to the workstation and uses tools/gpu_turn.sh.
+GitHub acceptance and the urgent Spaceout Preferences crash take priority.
+
+2026-10-08 15:10 EDT — Registered the user's acceleration request after
+reading the actual CPU flow renderer and separate fractal fallback. No GPU
+flow implementation or speedup is claimed. Workstation owns GPU execution;
+Home continues the Preferences crash and required GitHub tests first.

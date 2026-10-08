@@ -1,5 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 15:10 EDT — Urgent Spaceout Preferences report; GPU flow request N679
+
+User now reports opening Preferences in Spaceout kills the application.
+Home reassigned easy agent immediately. Public fresh-settings CPU test shows
+one fractal before Preferences and TWO after opening with popup=drift;
+closing leaves the second live. Old install_ambient forces every Spaceout
+host through fractal creation. Private1260 independent popup routing opens
+normally in first offscreen probe. Actual GPU/ultra crash cause remains
+unproved; native/software and deployed Qt versions being checked. Root logs
+have historic active-painter warnings but no new useful fatal traceback.
+The actual base Spaceout entry point resolves Python3.12.4/Qt6.10.0 and
+editable sharedClaude; envspacr resolvesPython3.12.13/Qt6.11.2 there.
+Stored fractal backendgpu/ultra/supersampling4; popupdrift. Home avoids user
+configuration writes and all GPU jobs. Workstation: if GPU testing is needed,
+only your lane may perform it, using owned isolated profile/gpu_turn.
+
+New679 records optional GPU acceleration for flow/advection/field, retaining
+current CPU implementation, theme appearance/controls and CPU fallback.
+Workstation GPU lane owns profiling/native GPU execution; it is queued behind
+urgent crash and required GitHub green. No new module or mandatory CUDA
+ dependency, no unmeasured speedup claim. See new/679_gpu_accelerated_data_flow_themes_with_cpu_fallback.txt.
+
 ## 2026-10-08 15:05 EDT — Request a stable publication checkpoint for tested easy UI work
 
 User explicitly challenges no whole completed item in the last hour. Home

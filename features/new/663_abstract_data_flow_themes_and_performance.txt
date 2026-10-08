@@ -1427,3 +1427,13 @@ reported four missing-slot exceptions or prove which visible GUI closed.
 The hosted Make Masks native fault also remains causally separate. This is
 a bounded local repair, not required GitHub green or N663 closure. The hard
 native 24 FPS target, visual approval and remaining slot route stay OPEN.
+
+2026-10-08 15:10 EDT — Urgent user report: Spaceout Preferences kills app
+Home/easy agent reproduces a concrete public routing/lifetime defect with
+CPU and fresh settings: popup requested as drift becomes a second fractal
+in Spaceout; closing Preferences leaves that second fractal live. Private
+Home1260 routes independent popup themes correctly and opens Preferences
+without termination in the first CPU/offscreen probe. Actual user GPU/ultra
+crash cause remains unproved; native/software-display and deployed Qt6.10/
+6.11.2 contrasts are being checked. No native crash cure or N663 completion
+is claimed. New N679 tracks optional flow GPU acceleration, workstation lane.
