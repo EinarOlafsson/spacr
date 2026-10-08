@@ -1,0 +1,21 @@
+{
+  "baseline": "4d09944509a331ee8ac0f94a7856c1c980970bc3",
+  "accepted_original_python_files": 669,
+  "changed_application_files": {
+    "spacr/qt/theme.py": {
+      "sha256": "af5bab6c0d44f2a29d0966d5ccc7864153e0db157e7d3429a288c99e95c803fb",
+      "blob": "c3d56330c669975ea642c31b2fc849ba8d586b45"
+    },
+    "spacr/qt/widgets/loading_screen.py": {
+      "sha256": "fa0581808943a2685dacfb7b327614a65a3b5ad9b3ce9de1d71d21e600ca7828",
+      "blob": "4ef43430d243dad3f7823eea4a1b6926823c57ad"
+    }
+  },
+  "unchanged_application_files": 667,
+  "API_and_runtime": "Normal independent full-map extraction proves both body-only repairs preserve all existing API13232 and six runtime maps, including UI7288. No catalog refresh needed.",
+  "validation": {
+    "splash": "29 original startup/colour-scheme cases pass offscreen and Qt612/xcb; original Light glyph baseline fails phrase and arrow ink guards. Native Windows verdict pending.",
+    "hidden_menus": "59 affected owning cases pass; original helper negative control fails two hidden-menu cases; balanced150-menu benchmark225\u2013352ms versus0.15\u20131.10ms. This does not explain the historical1824s field-fade cohort."
+  },
+  "limits": "No correctness, contrast, pixel-count, responsiveness, coverage or timeout guard relaxed. Hosted acceptance remains pending."
+}
