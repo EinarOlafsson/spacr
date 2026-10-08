@@ -3530,3 +3530,14 @@ Corrected7a37744767240 now executes27jobs with all12coverage active. Serial
 2026-10-08 Home: published5636eac609 corrected required37763414112 pending on exact source. Isolated Qt6.12.0 reproduces exact original qualified-class-name failure1FAIL3.99s; same original bytes Qt6.11.2 pass1test4.01s, repaired full16file Qt6.12 passes6.85s.20payload lossless version/source proof verified. Actual7a Coverage9 and Minimum0 SUCCESS confirm previous profile-count repair. Current7a/serial uninterrupted; no app/pin/ratchet/global install change. Overall N43/N47 remain OPEN.
 
 2026-10-08 Home: actual7a Coverage0 gw1 SIGABRT at parent_invalidation_during_magnifier_teardown/_load_parent/imageio read is a NEW required blocker, independent of repaired wrapper spelling.19file coverage recovery PASS does not waive native crash.657MB native core extracted then identity-rejected; Qt agent owns bounded diagnostic-only rejection-reason repair without relaxing gates. Root owns native reproduction, workstation assigned independent preview/tooltip lifetime review after worker audit. Current7a/queued5636/serial0b protected. Overall N43 remains OPEN.
+2026-10-08 — Corrected 7a Fast/Minimum phase genuinely all green
+Protected required 37744767240 on exact 7a51b6c921: all six Fast/Minimum
+jobs complete SUCCESS, including both previously failing profile shards.
+Complete source-bound original logs and independently complete outcome
+summary rows verify in 20 payloads:
+ data/43_7a_fast_min_terminal_2026-10-08/receipt.json.
+Counts are per-phase, not unique/additive across jobs. Seven production
+files remain byte-identical to the later 5636 reference; these logs measure
+7a only. No local replay, app/guard/ceiling change or relabelled acceptance.
+Whole required Qt/coverage, historical native causation and serial remain
+OPEN; newer protected 5636 required 37763414112 is watched separately.
