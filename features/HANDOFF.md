@@ -1,5 +1,24 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 17:06 EDT — Three published small UI items closed
+
+Home's completion audit verifies ALL669 currentPython files against the
+accepted4d publicationbinding, plus GateCanvas.paintEvent source and every
+Organismcaption/hash in all9API/runtime locales. Actualpublication closes
+N667 fixedscrollable/resizablehelp/inlineActions/no duplicate spinner,
+N671roundedsolid2D/3Dgraphbacking, andN677Organism categoryrename. All are now
+100% in dateditemnotes; normalindex regenerated, no extra broadretesting.
+Underlying342combinedHelp/Organism and originalHome280 counts overlap;
+source-specific scopedGatechecks and finalall9docs/browser audits accepted.
+Proof:data/667_671_677_published_completion_2026-10-08.json.
+
+Do not hold these finished narrowUIitems at95% behind globalN43/N47 or new
+GPU investigation. Those retain their own acceptance, as do broaderN666/
+N668nativewindow/popup findings and separateN676tutorialmedia production.
+Earlier sixledgerclosures were previouslyimplemented items; these three
+are newlypublishedUIfunctional completion. User'sgitpullrepair is verified
+andeff ancestry is nowpublicb036; originalGPU-scriptedit stays uncommitted.
+
 ## 2026-10-08 17:00 EDT — Shared pull repaired; current application CI repair delivered
 
 User's sharedcheckout `git pull` failed because accidentallocal15ef diverged
