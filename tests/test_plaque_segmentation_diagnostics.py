@@ -167,8 +167,8 @@ def test_failed_flow_comparison_retains_probability_and_magnitude(monkeypatch, c
 
 
 def test_figure_workflow_saves_metrics_and_upgrades_old_database(tmp_path, monkeypatch):
-    from PIL import Image
     import cellpose.models
+    from PIL import Image
 
     output = _prediction()
     Image.fromarray(np.zeros((*output[0].shape, 3), np.uint8)).save(tmp_path / 'figure.png')
@@ -207,3 +207,57 @@ def test_figure_workflow_saves_metrics_and_upgrades_old_database(tmp_path, monke
     row = db.execute('SELECT area_px, cell_probability_mean, flow_error FROM plaques').fetchone()
     db.close()
     assert row == (100, None, None)
+
+
+@pytest.mark.parametrize('mode', ['nonfinite', 'stationary'])
+def test_unmeasurable_vectors_and_logits_never_invent_alignment(mode, monkeypatch):
+    labels = np.zeros((6, 7), dtype=np.uint16)
+    labels[1:5, 2:6] = 41
+    flow = np.zeros((2, *labels.shape), dtype=np.float32)
+    prob = np.full(labels.shape, np.nan, dtype=np.float32)
+    if mode == 'nonfinite':
+        flow[:, labels > 0] = np.nan
+    else:
+        monkeypatch.setattr(dynamics, 'flow_error', lambda *args, **kwargs:
+                            (np.array([np.nan]), np.ones_like(flow)))
+    row = plaque._plaque_segmentation_metrics(labels, (labels, [None, flow, prob], None))[41]
+    assert row['cell_probability_pixel_fraction'] == 0
+    assert row['cell_probability_mean'] is None
+    assert row['flow_pixel_fraction'] == (0 if mode == 'nonfinite' else 1)
+    assert row['flow_magnitude_mean'] == (None if mode == 'nonfinite' else 0)
+    assert row['flow_error'] is None
+    assert row['flow_alignment_mean'] is None
+
+
+def test_incompatible_flow_and_metric_returns_refuse_before_model_evaluation():
+    class Model:
+        def eval(self, *args, **kwargs):
+            pytest.fail('invalid return contract must not invoke the model')
+
+    with pytest.raises(ValueError, match='not both'):
+        plaque.segment_plaque_image(Model(), np.ones((3, 4)), {},
+                                    return_flows=True, return_metrics=True)
+
+
+@pytest.mark.parametrize('failure', [ValueError, KeyError, OSError])
+def test_unreadable_saved_diagnostics_keep_mask_analysis_but_clear_metrics(
+        tmp_path, monkeypatch, caplog, failure):
+    from spacr import tabular
+
+    settings, calls = _run(tmp_path, monkeypatch)
+    before = tifffile.imread(tmp_path / 'masks' / 'well.tif')
+    original = tabular.read_table
+
+    def read(path, *args, **kwargs):
+        if str(path).endswith('.diagnostics.csv'):
+            raise failure('diagnostics unavailable')
+        return original(path, *args, **kwargs)
+
+    monkeypatch.setattr(tabular, 'read_table', read)
+    submodules.analyze_plaques({**settings, 'masks': False})
+    saved = _saved(tmp_path)
+    assert saved['plaque_id'].tolist() == [3, 41]
+    assert saved[list(plaque._PLAQUE_METRIC_COLUMNS)].isna().all().all()
+    np.testing.assert_array_equal(tifffile.imread(tmp_path / 'masks' / 'well.tif'), before)
+    assert len(calls) == 1
+    assert 'Could not read plaque diagnostics' in caplog.text

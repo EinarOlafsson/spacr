@@ -11,6 +11,15 @@ import tifffile
 from spacr.qt import mask_engine as engine
 
 
+def test_noninteger_hole_fill_is_refused_without_mutating_pixels():
+    labels = np.ones((5, 5), dtype=np.float32)
+    labels[2, 2] = 0
+    before = labels.copy()
+    with pytest.raises(ValueError, match='integer label image'):
+        engine.fill_label_holes(labels)
+    np.testing.assert_array_equal(labels, before)
+
+
 @pytest.mark.parametrize("original", ["corrupt", "wrong_shape", "missing"])
 def test_bundle_falls_back_to_embedded_channel_first_image(tmp_path, original):
     queue = tmp_path / "queue"

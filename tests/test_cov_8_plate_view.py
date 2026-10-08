@@ -22,14 +22,16 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QObject, Signal              # noqa: E402
-from PySide6.QtGui import QColor                        # noqa: E402
-from PySide6.QtWidgets import QFileDialog               # noqa: E402
+from PySide6.QtCore import QObject, Signal  # noqa: E402
+from PySide6.QtGui import QColor  # noqa: E402
+from PySide6.QtWidgets import QFileDialog  # noqa: E402
 
-from spacr import plate_qc as pqc                       # noqa: E402
-from spacr.qt.screens import plate_view as pv           # noqa: E402
-from spacr.qt.screens.plate_view import (               # noqa: E402
-    DEFAULT_CMAP, PlateGridWidget, PlateViewScreen,
+from spacr import plate_qc as pqc  # noqa: E402
+from spacr.qt.screens import plate_view as pv  # noqa: E402
+from spacr.qt.screens.plate_view import (  # noqa: E402
+    DEFAULT_CMAP,
+    PlateGridWidget,
+    PlateViewScreen,
 )
 
 pytestmark = pytest.mark.qt
@@ -44,6 +46,33 @@ def _rows():
             for r in range(1, N_ROWS + 1)
             for c in range(1, N_COLS + 1)
             for _ in range(4)]
+
+
+@pytest.mark.parametrize('fields', [None, [], 'not a field mapping'])
+def test_live_plate_rejects_nonmapping_ledger_without_overwriting_committed_state(
+        qtbot, tmp_path, fields):
+    import json
+
+    card = pv._WatchLivePlate()
+    qtbot.addWidget(card)
+    work = tmp_path / 'spacr_watch'
+    work.mkdir()
+    (work / 'watch_ledger.json').write_text(json.dumps({'fields': fields}))
+    card._source = str(tmp_path)
+    card._wells = {'plate1_A1': 2}
+    card.refresh()
+    assert card._wells == {'plate1_A1': 2}
+    assert not card._timer.isActive()
+
+
+def test_finishing_inactive_live_plate_stops_timer_without_reading_old_source(qtbot, monkeypatch):
+    card = pv._WatchLivePlate()
+    qtbot.addWidget(card)
+    card._timer.start()
+    monkeypatch.setattr(card, 'refresh', lambda: pytest.fail('inactive card must not read disk'))
+    card.finish()
+    assert not card.is_active()
+    assert not card._timer.isActive()
 
 
 @pytest.fixture
