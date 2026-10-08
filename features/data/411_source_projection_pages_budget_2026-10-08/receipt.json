@@ -1,0 +1,51 @@
+{
+  "passed": true,
+  "size_bytes": 995914265,
+  "limit_bytes": 996147200,
+  "headroom_bytes": 232935,
+  "private_source": "893db331701854eb94b05967644ce51fcfb0281c",
+  "main_source": "91ab2b8ae7e9beed617b0c8ec9ec5cb7e9938ca1",
+  "scope": "Actual normal combined publisher assembly for private current projection plus nine strict guides. No deployment. Worker/API additions and new tutorial bytes have NOT been assembled and may exceed current small headroom; no ceiling raised.",
+  "payloads": {
+    "features/data/411_source_projection_pages_budget_2026-10-08/projection-pages-budget-r1.log.gz": {
+      "raw_sha256": "4fee12f3c4d5b26a6fb4081dc7abb015312294a3dcd18ad8dba0c7341bdf25ad",
+      "raw_bytes": 656,
+      "archive_sha256": "2eec8c42db3166f02030d35e5eec6c14eba0b1f048b8a693307deb0ecd431c77"
+    },
+    "features/data/411_source_projection_pages_budget_2026-10-08/projection-publication-compatibility-r1.log.gz": {
+      "raw_sha256": "c311a3a05b27232a27ebdf6e3f8f8ad1699af7f57da3d1bcdc1397d3c308c9d5",
+      "raw_bytes": 863,
+      "archive_sha256": "e7f4c78dbcfaed10e23fa484be9c66a54856dcb34ffeef3332c69e0d12ccfdfe"
+    },
+    "features/data/411_source_projection_pages_budget_2026-10-08/projection-pages-budget-r1-tool.log.gz": {
+      "raw_sha256": "6691a5472cd39810c0c66eac21538bc242f3e698ae1565a6a20f8e582735b063",
+      "raw_bytes": 187,
+      "archive_sha256": "f5bee387685d2ccea7789cfa149c78d51043eec963b0d8c4cfc12fc3576a2f03"
+    },
+    "features/data/411_source_projection_pages_budget_2026-10-08/projection-publication-compatibility-r1-tool.log.gz": {
+      "raw_sha256": "c70b37a646a72ec84c97666aa14c29ca9f5b475cd03fae7bc6c5d571300ac4a4",
+      "raw_bytes": 281,
+      "archive_sha256": "b47a6f104e7e8f97171305753e69846df43704c77aa11f83731af5eead9f05b6"
+    },
+    "features/data/411_source_projection_pages_budget_2026-10-08/projection-publication-compatibility-r1.json.gz": {
+      "raw_sha256": "a6ccbcc4de4c4942063ef952f4db338633054772a7b91aecdfe7f2550c4ffe85",
+      "raw_bytes": 15385,
+      "archive_sha256": "4821bae0b3437961dfe6fe070a3968735f919603e80868e3d4ed878f6109ffdd"
+    },
+    "features/data/411_source_projection_pages_budget_2026-10-08/assemble_projection_pages_budget_r1.py.gz": {
+      "raw_sha256": "2122da900bd76962a14c85b664c1aaddc622d78b02b77eb943b5babbed532c6f",
+      "raw_bytes": 1844,
+      "archive_sha256": "ec21d5d48b8a9d75b05d83c30f424d57a0e60c6b008592e8ebaee39a163ad952"
+    },
+    "features/data/411_source_projection_pages_budget_2026-10-08/projection-pages-budget-r1/receipt.json.gz": {
+      "raw_sha256": "2ba533d33c55d7cca7faf00850abb1c7f3af243934d241838da9abafab4e2ed3",
+      "raw_bytes": 1040,
+      "archive_sha256": "aa6665e2d1e89d949bd28ecf2d08c121469cdcfa17224777614f3a6ed1982c64"
+    },
+    "features/data/411_source_projection_pages_budget_2026-10-08/projection-pages-budget-r1/combined/channels.json.gz": {
+      "raw_sha256": "234bb16d88b8969794b98a46a1514fae4b36340140381d65cbcaecac69ea7eb2",
+      "raw_bytes": 511,
+      "archive_sha256": "1a55dbbffcb800b5f480b49206292e7958657c3e58673e0a6e61295fed820fae"
+    }
+  }
+}

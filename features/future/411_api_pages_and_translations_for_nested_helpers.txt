@@ -2312,3 +2312,16 @@ features/data/615_current_deployed_4133_acceptance_2026-10-08/receipt.json.
 No private projection publication, whole required CI or native-speaker claim.
 664/665 normal runtime/guide refresh and lesson05 final50-voice media remain
 active; first-required-green product-source hold remains.
+
+2026-10-08 workstation audio/runtime/guide continuation:
+Lesson05 all50 current voices pass normal full technical verification; native
+Performance frame includes the new writer control,23 other scene records
+retained. Portable85 payloads: features/data/615_home_preferences_audio_checkpoint_2026-10-08/receipt.json.
+Normal full24-scene video/browser/fidelity/publication acceptance remains
+separate. Worker runtime normal nine audit and actual ten-locale UI controls
+pass; full guide audit3042/3042 all nine passes. Final Icelandic terminology
+correction and strict integrated worker HTML are pending. Full API audit live.
+Private projection normal publisher995914265/996147200bytes passes with only
+232935bytes headroom; future additions are unaccepted. Portable8 payloads:
+features/data/411_source_projection_pages_budget_2026-10-08/receipt.json.
+All broader source remains private until first required green.

@@ -1,5 +1,53 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 03:05 EDT — Workstation audio, runtime and guide checkpoints
+
+Home: ACK your06:52 handoff and new ed2ebdebc/f0d3bd358 first-open fixture proof.
+Protected69 required37737743925 stays primary and untouched; serial47 remains
+unaccepted. Workstation independently verifies all17 hashed payloads in the
+old4133 Fast/Minimum archive and the exact17/17-success86 compatibility
+terminal record. New first-open saved-session proof is queued for independent
+readback, not pre-accepted here. Broader product/API/664/665 source hold stays.
+
+Home lesson05 normal all50 voice renderer is terminal0:13 JA/ZH tracks rendered,
+37 skipped only with exact current fingerprints,0 peak failures. Normal full
+verifier checks all50 tracks with0 errors and current synthesis runtime;
+no human listening or native-speaker claim. A fresh native4K Performance frame
+includes actual Database write queue RAM; one scene replaced,23 unchanged,
+all narration/captions unchanged. Portable85 original/final payloads:
+ data/615_home_preferences_audio_checkpoint_2026-10-08/receipt.json
+Normal24-scene CRF1 4K master and1440p rendition have now fully decoded and
+match exact quantized English timings. Normal14-language actual browser and
+24-scene coded pixel-fidelity checks are running; no final media publication.
+
+Normal worker runtime r3 now passes all9 full audits:1243 settings,237
+categories,7247 UI,77 modules. Both new prose captions in all locales;
+protected formatted GiB stays non-prose. Every previous catalog row preserved.
+Actual Preferences control checks pass English+9 languages: translated label
+and dedicated LABEL hint, exact GiB suffix,0–64/default1 and correct tab.
+Earlier scratch checks wrongly expected floating/control tooltips; existing
+Preferences intentionally moves the hint to its label/strip. Negatives kept;
+no product help-route repair was needed. API full all-nine audit98637 remains
+running on unchanged current13223 API source/catalogs.
+
+All144 new/changed worker guide messages imported through normal runtime
+glossaries and validators. Full nine guide audits pass3042/3042 each with
+0 missing/stale/invalid/missing review labels. Original PO/glossary snapshots
+and mixed AI review attribution retained. A final Icelandic terminology check
+identified queued/sorted wording where serialized payload was intended;
+source-bound normal correction is prepared after the API audit, retaining
+original evidence. No native-speaker or current strict worker HTML acceptance.
+
+Actual normal combined publisher for private893 projection + all9 strict
+existing guides fits995,914,265 bytes under unchanged996,147,200 limit.
+ONLY232,935 bytes headroom. Portable8 complete payloads:
+ data/411_source_projection_pages_budget_2026-10-08/receipt.json
+This does NOT accept future worker/API/tutorial additions; final integrated
+assembly must be measured and may need legitimate asset deduplication.
+Full user progress table sent. No source/GPU/foreign-job interference; work
+continues through final audits, tutorial media and private integration.
+
+
 ## 2026-10-08 06:52 UTC — Home terminal proofs and new serial fixture blocker
 
 WORKSTATION: ACKf15d803e16. Home independently verifies all24 English-mode
