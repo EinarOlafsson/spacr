@@ -1,0 +1,55 @@
+{
+  "source_anchor": "e572b35ed5c92e8fdb339eb0b6dcfafff869f301",
+  "timestamp_utc": "2026-10-08T07:32:21.518010+00:00",
+  "command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen PYTHONPATH=.:/mnt/wd4tb/scratch/ci-55bad-20261008/pytest842-overlay tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q tests/test_local_ci_replay.py tests/test_qt_native_core_extraction.py",
+  "result": "76 passed in 4.92s",
+  "exit_code": 0,
+  "python": "3.12.13 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:38:16) [GCC 14.3.0]",
+  "pytest": "8.4.2 via retained overlay",
+  "memory_cap": "4G",
+  "source": {
+    ".github/workflows/tests.yml": {
+      "before_sha256": "9563dde566fc3a3ea639a457c44a6cf610b937584ed4826bececccd02ea0c4ac",
+      "after_sha256": "ba15957a51dc8e9b0f3adfce3b146fa17f7e3451f1a375ab335072df603c15fe",
+      "before_file": "before-0-tests.yml.gz",
+      "after_file": "after-0-tests.yml.gz"
+    },
+    ".github/workflows/_pytest-suite.yml": {
+      "before_sha256": "7c8a3a3073e1d5caeb6724383945834e7dd895db035682cd6f6ab70bc357883e",
+      "after_sha256": "8124f172a99ec8f91166548019c62eb2623ce6b0e987f2900f219d7b21732627",
+      "before_file": "before-1-_pytest-suite.yml.gz",
+      "after_file": "after-1-_pytest-suite.yml.gz"
+    },
+    "tests/test_local_ci_replay.py": {
+      "before_sha256": "1d2a739c209d332e3df8af28438f550914780da29e1183101144e1322d6b0822",
+      "after_sha256": "82b9106462d4c6c111ceaa7a49f98622e1606d6b904bd7474b0ada32916fa902",
+      "before_file": "before-2-test_local_ci_replay.py.gz",
+      "after_file": "after-2-test_local_ci_replay.py.gz"
+    },
+    "tests/test_qt_native_core_extraction.py": {
+      "before_sha256": "2fc9b76867b937530847046e4e89c287ca2abcf03b80ba63d05d484c1bf14175",
+      "after_sha256": "a558eda866539a606be3010ab1dda1affd43f24044acc7b3bfa028edcb8b9dc1",
+      "before_file": "before-3-test_qt_native_core_extraction.py.gz",
+      "after_file": "after-3-test_qt_native_core_extraction.py.gz"
+    },
+    "tools/collect_qt_native_backtrace.py": {
+      "before_sha256": "a8853e2a229aab9d0f6a6c72cfa0f10fc27ee0ef20e445f425fc24d46fd0797a",
+      "after_sha256": "a8853e2a229aab9d0f6a6c72cfa0f10fc27ee0ef20e445f425fc24d46fd0797a",
+      "before_file": "before-4-collect_qt_native_backtrace.py.gz",
+      "after_file": "after-4-collect_qt_native_backtrace.py.gz"
+    }
+  },
+  "source_failure": "69ba Coverage9 recorded exact stale counts8==7 and6==5; Coverage0 actualSIGSEGV nativecollector/upload skipped after cancellation, proven independently in existing source-bound archives.",
+  "scope": "Local combined profile/diagnostic workflow proof; not a hosted capture or native-crash repair, whole required green or full serial acceptance. Original allother7/5 counts, gates, selection and bounds preserved; serial0b source code/tests/runner unchanged.",
+  "official_cancellation_reference": "https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-cancellation",
+  "diff_payload": {
+    "file": "changes.diff.gz",
+    "original_bytes": 8505,
+    "original_sha256": "78d1a7a5680592047acebec725e83e21c46506d8a89b1c39cee16037c7d7430c"
+  },
+  "test_stdout": {
+    "file": "combined-host-pytest.log.gz",
+    "original_bytes": 180,
+    "original_sha256": "f2bee82df5a51313d710d361905032ee28adb24a07e2178ffdac168772f46eca"
+  }
+}
