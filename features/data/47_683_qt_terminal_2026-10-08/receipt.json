@@ -1,0 +1,248 @@
+{
+  "acceptance_limit": "Batched Qt shard results do not establish uninterrupted one-process Qt serial acceptance. The designated seven-file serial measurement tail was skipped after Qt2 functional failure, so its performance guards remain unverified by this run.",
+  "current_caption_check": {
+    "command": [
+      "tools/run_capped.sh",
+      "4G",
+      "/home/olafsson/anaconda3/envs/spacr/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "-p",
+      "no:randomly",
+      "tests/qt/test_i18n_caption_ratchet.py::test_custom_widgets_and_indirect_registries_enter_one_i18n_layer"
+    ],
+    "correction": "Initial claim that current source still lacked the branded caption fix was incorrect: the test and identity registry were unchanged, but c771b4627ca updated tools/build_i18n_catalogs.py::_indirect_runtime_ui_sources to discover spaCR-branded animation captions. The current exact node passes without a waiver or ratchet change.",
+    "environment": {
+      "CUDA_VISIBLE_DEVICES": "",
+      "MKL_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "QT_QPA_PLATFORM": "offscreen"
+    },
+    "fix_sha": "c771b4627caaeda21ea473452a91a63a30d87828",
+    "interpreter": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+    "passed_nodes": 1,
+    "runtime_sampled_after_run": {
+      "pyside6": "6.11.2",
+      "pytest": "9.1.1",
+      "python": "3.12.13"
+    },
+    "source_sha": "94f9995b896adfc7ff4ec19e5ae689fcf64545a9"
+  },
+  "current_popup_fix_sha": "cc8a1674360114977810f26cf0bc41c8a4b6d715",
+  "date_utc": "2026-10-08",
+  "files": [
+    {
+      "bytes": 905,
+      "path": "artifacts-api.json",
+      "sha256": "25726d139dbb005df471d66ff8d0c2bb71511f75270bdd6f9b3644ee10fd918e"
+    },
+    {
+      "bytes": 50,
+      "path": "current-caption-pass.log.gz",
+      "raw_sha256": "c49186d773b5bd28ba1cfec5a67f3c84be49f86b875fe7f5ae26aca17d96eb3f",
+      "sha256": "d74a185876f7b222f1ebebde0c081e6358147c5a48cddd5226c43e37e4f55253"
+    },
+    {
+      "bytes": 10070,
+      "path": "jobs-api.json",
+      "sha256": "cd6433902239251d51c23e05a3ac0a32d12fa9690d12a886030577dd0905eb64"
+    },
+    {
+      "bytes": 25099,
+      "path": "qt0-memory.zip",
+      "sha256": "cbd86f9868e1417165c7a76998406c0f547f46c58ff9f677d79c288dad2d448e"
+    },
+    {
+      "bytes": 371360,
+      "path": "qt0-native.zip",
+      "sha256": "eb32a28bd95aef8dd19baadde934c674fc48997b06c92767e2f9ac43671df53c"
+    },
+    {
+      "bytes": 533218,
+      "path": "qt0.log.gz",
+      "raw_sha256": "d7f27372b6d433297fcad20e397c2a5f268fc650a9ae4f5f9c76806e6d3fccfd",
+      "sha256": "5c07ae3c83922d3b9b931061c7453d8f7f8a6f524b46183627a8b4ff0b5fa293"
+    },
+    {
+      "bytes": 23602,
+      "path": "qt1-memory.zip",
+      "sha256": "9ba57b244562f1ac1b1588577501dfe617334ada70edc70f8309196d427251b5"
+    },
+    {
+      "bytes": 567490,
+      "path": "qt1.log.gz",
+      "raw_sha256": "1c1247b171e50521dbfb1f65d3b0af11104c3b331ad402dc19ff2060fd650a02",
+      "sha256": "2a3e12632a19c41f6a7611b2e75059cc20901a56fe9353218f8e96411808ab1a"
+    },
+    {
+      "bytes": 31650,
+      "path": "qt2-memory.zip",
+      "sha256": "3708945c590f6476099a942246ddfd6480b0cca6307f2f05c87231f0b242aa17"
+    },
+    {
+      "bytes": 371973,
+      "path": "qt2-native.zip",
+      "sha256": "e88b97d36df5fb96e83b725bcc59489813b117261b4720411d23b8d19010e26f"
+    },
+    {
+      "bytes": 533074,
+      "path": "qt2.log.gz",
+      "raw_sha256": "2572ec42d106723cded2fbf5e75354e752826f88383e0a2becf654e2b371f79b",
+      "sha256": "3281c9107aea2fa4baa1c67fa3121dd644be3981f58114b12f53032b53b9ba70"
+    },
+    {
+      "bytes": 1520,
+      "path": "verify_receipt.py",
+      "sha256": "017306a87d706753e8451503821718c796d96eb3f1362e91f15cf90c2abb76a7"
+    }
+  ],
+  "git_blobs": [
+    {
+      "blob": "8aa60669b624f8a0f4f6bc0eb89b1e74bafcf568",
+      "commit": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+      "path": ".github/workflows/_pytest-suite.yml"
+    },
+    {
+      "blob": "8b59fd00824a28d51c2cbeb69c2453daab28c31d",
+      "commit": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+      "path": "tools/run_pytest_batches.py"
+    },
+    {
+      "blob": "66afa119d7e65c7d46a4252d5a3205c90be484d4",
+      "commit": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+      "path": "tools/build_i18n_catalogs.py"
+    },
+    {
+      "blob": "519f6eb2ca4eb8825f6a9453a7fc1b20cb41601e",
+      "commit": "c771b4627caaeda21ea473452a91a63a30d87828",
+      "path": "tools/build_i18n_catalogs.py"
+    },
+    {
+      "blob": "63cf440f48d36ecbec4d3669adbbfef090ce1d76",
+      "commit": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+      "path": "tests/qt/test_i18n_caption_ratchet.py"
+    },
+    {
+      "blob": "63cf440f48d36ecbec4d3669adbbfef090ce1d76",
+      "commit": "94f9995b896adfc7ff4ec19e5ae689fcf64545a9",
+      "path": "tests/qt/test_i18n_caption_ratchet.py"
+    },
+    {
+      "blob": "2fa1767f244948ba3b65317ccfd10dcc0e7436f3",
+      "commit": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+      "path": "tests/qt/test_no_popup_has_square_corners.py"
+    },
+    {
+      "blob": "76113454a6dcccf348ae87fa6a6df74e7df710a8",
+      "commit": "cc8a1674360114977810f26cf0bc41c8a4b6d715",
+      "path": "tests/qt/test_no_popup_has_square_corners.py"
+    }
+  ],
+  "job_results": {
+    "qt0": {
+      "conclusion": "failure",
+      "failed_nodes": [
+        "tests/qt/test_no_popup_has_square_corners.py::test_translucent_corners_have_alpha_instead_of_a_binary_cut",
+        "tests/qt/test_no_popup_has_square_corners.py::test_alpha_corners_follow_a_resize"
+      ],
+      "id": 113058129594,
+      "pyside6": "6.11.2",
+      "python": "3.12.14"
+    },
+    "qt1": {
+      "conclusion": "success",
+      "failed_nodes": [],
+      "id": 113058129758,
+      "pyside6": "6.11.2",
+      "python": "3.12.15"
+    },
+    "qt2": {
+      "conclusion": "failure",
+      "failed_nodes": [
+        "tests/qt/test_i18n_caption_ratchet.py::test_custom_widgets_and_indirect_registries_enter_one_i18n_layer"
+      ],
+      "id": 113058129240,
+      "pyside6": "6.11.2",
+      "python": "3.12.15"
+    }
+  },
+  "memory_scope": "Values are observed maxima/minima from periodic job log samples, not true process peaks. All three host logs show zero swap used and zero OOM kills in samples; max observed pytest RSS is far below the unchanged 6 GiB worker guard.",
+  "native_scope": "No SIGSEGV/Fatal Python error or memory guard exit appeared in any of the three complete Qt logs. Qt0/Qt2 diagnostic artifacts contain no regular ELF core and all identity journals finished. No native backtrace is available or needed for these assertion failures.",
+  "observations": {
+    "qt0": {
+      "core_route": {
+        "capture_guaranteed": false,
+        "route": "systemd",
+        "route_verified": true,
+        "test_shell_soft_limit_bytes": 17179869184
+      },
+      "failed_batches": [
+        {
+          "batch": 67,
+          "exit_code": 1
+        }
+      ],
+      "finished_identity_journals": 729,
+      "functional_batch_count": 243,
+      "functional_batch_markers": 243,
+      "memory_samples": 170,
+      "observed_max_host_used_mib": 3127,
+      "observed_max_oom_kills": 0,
+      "observed_max_pytest_process_rss_mib": 1374,
+      "observed_max_swap_used_mib": 0,
+      "observed_min_host_available_mib": 12862,
+      "owned_identity_journals": 729,
+      "regular_elf_cores": 0,
+      "serial_tail_test_nodes": 0
+    },
+    "qt1": {
+      "failed_batches": [],
+      "functional_batch_count": 243,
+      "functional_batch_markers": 243,
+      "memory_samples": 156,
+      "observed_max_host_used_mib": 3278,
+      "observed_max_oom_kills": 0,
+      "observed_max_pytest_process_rss_mib": 1344,
+      "observed_max_swap_used_mib": 0,
+      "observed_min_host_available_mib": 12710,
+      "serial_tail_test_nodes": 0
+    },
+    "qt2": {
+      "core_route": {
+        "capture_guaranteed": false,
+        "route": "systemd",
+        "route_verified": true,
+        "test_shell_soft_limit_bytes": 17179869184
+      },
+      "failed_batches": [
+        {
+          "batch": 56,
+          "exit_code": 1
+        }
+      ],
+      "finished_identity_journals": 729,
+      "functional_batch_count": 243,
+      "functional_batch_markers": 243,
+      "memory_samples": 216,
+      "observed_max_host_used_mib": 4552,
+      "observed_max_oom_kills": 0,
+      "observed_max_pytest_process_rss_mib": 2376,
+      "observed_max_swap_used_mib": 0,
+      "observed_min_host_available_mib": 11437,
+      "owned_identity_journals": 729,
+      "regular_elf_cores": 0,
+      "serial_tail_test_nodes": 0
+    }
+  },
+  "run_id": 37698599898,
+  "run_source_sha": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+  "serial_tail": {
+    "designated_shard": "qt2",
+    "functional_batches_completed": 243,
+    "reason": "The functional batch driver returned exit 1 for batch 56; the reusable workflow shell uses -e and places the seven-file serial tail after that driver. No serial-tail test node appears in the complete Qt2 log. This run cannot validate those seven performance files.",
+    "seven_measurement_files_ran": false
+  },
+  "title": "Exact-source ordinary Qt terminal run and current caption correction"
+}
