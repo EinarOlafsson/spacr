@@ -1,0 +1,194 @@
+{
+  "browser_panels": 396,
+  "canonical_api_symbols": 13215,
+  "catalogs": {
+    "de": {
+      "bytes": 17973077,
+      "path": "docs/source/_static/i18n/api/de.json",
+      "sha256": "550da5048f3ac5f9635d99a12a715ec89effc95de9c717ebb87397f112762f57"
+    },
+    "en": {
+      "bytes": 12575491,
+      "path": "docs/source/_static/i18n/api/en.json",
+      "sha256": "cbb4ca8fbce60abc86c7acb9839de504edb5484413e77c86229b71765b95d8ad"
+    },
+    "es": {
+      "bytes": 17908921,
+      "path": "docs/source/_static/i18n/api/es.json",
+      "sha256": "a2671fbbdff196e5a3a765a10d32b5c3aa3395972ff7dd4e0743cc4415c57768"
+    },
+    "fr": {
+      "bytes": 18095802,
+      "path": "docs/source/_static/i18n/api/fr.json",
+      "sha256": "61b2a89a31722e3b3d6d62e08dd6948b4b9456a270eda269975c4302596457d3"
+    },
+    "hi": {
+      "bytes": 24627154,
+      "path": "docs/source/_static/i18n/api/hi.json",
+      "sha256": "7cd7174354f4b0c7074d978dfc8e3d6174396bae29abd7d385d2dca41f5951d3"
+    },
+    "is": {
+      "bytes": 17264208,
+      "path": "docs/source/_static/i18n/api/is.json",
+      "sha256": "61c86bffa897b26abf81f1a6bd6940e0d21f527a42819c99f07380e635270d86"
+    },
+    "ko": {
+      "bytes": 18189996,
+      "path": "docs/source/_static/i18n/api/ko.json",
+      "sha256": "257fb20496e551739817d1ad7595ee0dbfc24510a15fe40c330283a5317d930e"
+    },
+    "pt": {
+      "bytes": 17755213,
+      "path": "docs/source/_static/i18n/api/pt.json",
+      "sha256": "640090c85fa0701ead94c926da49d4b3d7577043792bac41208481cf9e86dcf0"
+    },
+    "sv": {
+      "bytes": 17433647,
+      "path": "docs/source/_static/i18n/api/sv.json",
+      "sha256": "5da6aa7cd1aab4c28b262cf71d1a376d30f35da1de6a6439fd63337da2a16d07"
+    },
+    "zh_CN": {
+      "bytes": 16488673,
+      "path": "docs/source/_static/i18n/api/zh_CN.json",
+      "sha256": "aa3ff216a9cf957d8d71ac3c1f4f1660382f348b6a62fa6d9a09416b94d3b9ab"
+    }
+  },
+  "excluded_proofs": {
+    "projection-current-api-browsers-r2": "Terminal zero but INCOMPLETE: filtering target-language blocks omitted some non-Latin panels. Replaced by canonical-source-bound r4. Its legacy reviewed_api_blocks field counts catalog blocks, not newly authored direct review.",
+    "projection-current-api-browsers-r3": "Terminal one: orchestration helper absent; no browser acceptance.",
+    "source-api-projection-full-sphinx-r3": "Terminal one: seven field-list boundaries and four ambiguous source import references; corrected rendering passes strict r4.",
+    "source-api-projection-inventory-r4": "Terminal one: helper path absent; replaced by r5.",
+    "source-api-projection-source-branches-r6": "Terminal one: signature identity was rendered but test assumed a hyperlink; corrected fixture tests qualified identity in r7."
+  },
+  "newly_reached_objects": 28,
+  "panels_per_language": 44,
+  "passed": true,
+  "payloads": {
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/check_projection_current_api_browsers_r2.py.gz": {
+      "archive_bytes": 2375,
+      "archive_sha256": "4ee8071d3fb26a9bb62f079e3ae9cbe5df717deaf2ddf38de79d9c2cf9865291",
+      "raw_bytes": 5193,
+      "raw_sha256": "769675ad1af95348b264dc18eb5e1df1a8de1aa1682224914f170635d0f528c9"
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/check_projection_current_api_browsers_r4.py.gz": {
+      "archive_bytes": 2472,
+      "archive_sha256": "9b21ebb4eb2c0b5be8b8c4232eaa36cf00d9c50c09feb5c560cf6c40915d7b83",
+      "raw_bytes": 5621,
+      "raw_sha256": "041a1e4ab015ffde615d426e2c39b28ca795c2faf6ea507e3399ff29d624fc3c"
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/inspect_projection_inventory_r4.py.gz": {
+      "archive_bytes": 1309,
+      "archive_sha256": "1c84704bd80f7be03598e7c8d89c2855ceb2579dcb7e6eeb4a6450d10aaef9ac",
+      "raw_bytes": 2702,
+      "raw_sha256": "9fb5a4f8b47c73be34ca3b52f280a8af38b14b9dd76622f266fa4615fe36e0f6"
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/projection-current-api-browsers-r2.log.gz": {
+      "archive_bytes": 730,
+      "archive_sha256": "f242481384cdb09331d3962e78dedac0a5f146b76f00bab97af263fde124792c",
+      "raw_bytes": 5552,
+      "raw_sha256": "7a9ee7a8d2eba15665aa6f04e2a4d88336b452a8ae4c761521c0707e24abd3ba"
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/projection-current-api-browsers-r2/receipt.json.gz": {
+      "archive_bytes": 15959,
+      "archive_sha256": "feb8b740a94a10f8e3a60275fe6c7532b1621ddcef01d6ee2b9615434442a713",
+      "raw_bytes": 98585,
+      "raw_sha256": "60b9654b186a69f354f9c395250d9f4601f1ea2a33d71cf731d5432950a7b90e"
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/projection-current-api-browsers-r3.log.gz": {
+      "archive_bytes": 483,
+      "archive_sha256": "1b7f0e93fa9a266fb5b3020ea35eacd29cde7d35dffef6f057286069c1b0025c",
+      "raw_bytes": 1113,
+      "raw_sha256": "88a6d707eb01e79136f0df7f99a5534fc08d60c97941a3bd9b7de489ebdf6fb9"
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/projection-current-api-browsers-r4-tool.log.gz": {
+      "archive_bytes": 508,
+      "archive_sha256": "dee472be8d63cd1dcfea11bf217df1de4a586be83dc73a2b841907cb0d24f966",
+      "raw_bytes": 5046,
+      "raw_sha256": "637d377b40b76562d83f88ce04fa38aac6a72aeeb379fe96d53bf23d70aaf834"
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/projection-current-api-browsers-r4.log.gz": {
+      "archive_bytes": 716,
+      "archive_sha256": "b7be65d8990ee5a84de0ea645caffa769fbc83cdd01fbe6b7aa57ce61319a507",
+      "raw_bytes": 5565,
+      "raw_sha256": "1d240e7489d8d231cc046acd6f47b430275293822781912bc85d49b8380399cc"
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/projection-current-api-browsers-r4/receipt.json.gz": {
+      "archive_bytes": 18541,
+      "archive_sha256": "87e3a0fb382376a24fd29bda47ee5d4ea3587380ee5acedd3d7cc3bbfc80db39",
+      "raw_bytes": 115433,
+      "raw_sha256": "a6909ba04d9e2e063f02a87622179efa3083de446b53f68dc1de55f7fff880b9"
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/source-api-projection-full-sphinx-r3.log.gz": {
+      "archive_bytes": 32975,
+      "archive_sha256": "973953634572499e3ceed21b0596bb208709aaa22e6926b3967d0ea386709117",
+      "raw_bytes": 345506,
+      "raw_sha256": "805be68bfc708cdb6ed41ce693e893c85b8c17189cea9678e5e808f65bf8f5bf"
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/source-api-projection-full-sphinx-r4-tool.log.gz": {
+      "archive_bytes": 32355,
+      "archive_sha256": "cde7acb985785580dea05c21aad1d1d57ffa7bacdbdf6232fd9007a1115ac8c2",
+      "raw_bytes": 342432,
+      "raw_sha256": "4369f7e5b041371b47d61c633b08792375f370e812f771a451f2c6c6fa8a27bc"
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/source-api-projection-full-sphinx-r4.log.gz": {
+      "archive_bytes": 32596,
+      "archive_sha256": "7dd33437ba7050b50add125b1d0280a60785c91ef0894dbae225cba7d99a8737",
+      "raw_bytes": 342898,
+      "raw_sha256": "234f8b595be108a7a6ae0d74ebfd631c22996ed4024f6df9d13d06000e88a0f1"
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/source-api-projection-inventory-r4.log.gz": {
+      "archive_bytes": 501,
+      "archive_sha256": "45769b5d8376145e739c510e37f10f365c6b482d50d2d39d14d87e8af51e2944",
+      "raw_bytes": 1106,
+      "raw_sha256": "50bb7f9aaebeecf81c4c4a2ab75b917d45b31ad95ac5997a918bbe760ad12d3c"
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/source-api-projection-inventory-r5-tool.log.gz": {
+      "archive_bytes": 553,
+      "archive_sha256": "a17b186b2f3849643e488b279d768449d294405546f5c8b6670946db3e2cb081",
+      "raw_bytes": 1952,
+      "raw_sha256": "c4fa3e1a28ac89352c663121a798eb853e6abbd887cadf8dc5755d529b64efdd"
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/source-api-projection-inventory-r5.log.gz": {
+      "archive_bytes": 734,
+      "archive_sha256": "414be37e7ef343740d46728c03cb5bbf31653c37efd12b4f85a3041fcde2b0ee",
+      "raw_bytes": 2425,
+      "raw_sha256": "519333e1f0a40ea77c061514d4bd6fde3f4615f8d2de5e6703aaac928aa0d325"
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/source-api-projection-rendered-inventory-r4.json.gz": {
+      "archive_bytes": 3169,
+      "archive_sha256": "dc6a28baba762740c64b2530b862e1b6c356ed3ffce96bedb04b8c0a42575906",
+      "raw_bytes": 13723,
+      "raw_sha256": "51dbfa15af8c39ff0ba73d1e6e0b26480399cd64504138b89e3348b9232be940"
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/source-api-projection-source-branches-r6.log.gz": {
+      "archive_bytes": 1334,
+      "archive_sha256": "e3bcbf92913a239b039a3a032b77bd43fa76a542b37ebf88f5e3d25f4c6f6fd4",
+      "raw_bytes": 3249,
+      "raw_sha256": "ac64b8e6a0925f06e67a685f05c7bed745ecbea7ca1730f6dcf204202c5b42db"
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/source-api-projection-source-branches-r7-tool.log.gz": {
+      "archive_bytes": 147,
+      "archive_sha256": "1522276b20d5116ed3db570ef61bd691388c3787dd759ae5b5fbe58a6faadf62",
+      "raw_bytes": 216,
+      "raw_sha256": "0a3ac8d26e49d8802b73c5dd79464935585f42b1d9f1eedea73308b1afb4ce71"
+    },
+    "features/data/411_source_projection_build_browser_checkpoint_2026-10-08/source-api-projection-source-branches-r7.log.gz": {
+      "archive_bytes": 435,
+      "archive_sha256": "b9c2861e8126df11b14af88cb46197d418e33f72c29626aa0cf2a6743fdb098c",
+      "raw_bytes": 786,
+      "raw_sha256": "e870f59c6740cbb42910e037e456488129ac6ce1accb7979935aa83c4fe6ba2e"
+    }
+  },
+  "private_source_sha256": {
+    "docs/source/_autoapi_templates/python/module.rst": "cdae841b354b3ee5d3abd8e8f8bbad0bdadc08e89012651b5e2d7030dabf3a1f",
+    "docs/source/conf.py": "c6068a57b626f952e0a909abdd8216f002a2b0960eab08da49b5c290452ddc13",
+    "tests/test_source_documentation_projection.py": "3b7ffd055dfe35a6e28dcfca8a0d01a865fcd6428a346d6ec49c91bb6e701e5e",
+    "tools/api_visibility.py": "fe3a0b7faadc596799e602d637e40212ac06e355fcf339bc48bedb8b56c566b1"
+  },
+  "reached": 13215,
+  "review_scope": "Existing AI technical catalog review only; no native-speaker signoff.",
+  "schema": 1,
+  "scope": "Local strict Sphinx build, complete source inventory and actual translated browser panels only. Fresh-built cohort remains active; no product push, deployment or whole-CI acceptance.",
+  "script_sha256": "a8274c5d1b2483becfb37ae9c5854fc8a89200f6ae22a7de1cbd7df9bdc3bb3c",
+  "translated_blocks_checked": 1314
+}

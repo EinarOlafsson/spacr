@@ -1786,3 +1786,17 @@ data/615_current_deployed_guide_catalog_acceptance_2026-10-08/receipt.json.
 New engine-page rendering remains private pending first full required CI;
 current tutorial50-voice media render remains live. Original55 required run
 ended cancelled, not accepted; corrected4133 and serial are watched.
+
+2026-10-08 workstation local full source reachability checkpoint:
+Strict English Sphinx build -W passes. Its real inventory reaches all 13,215
+canonical source keys, including the 28 optional source-branch objects that
+AutoAPI omitted. Corrected actual browser verification passes 396 panels,
+44 in every language, with 1,314 exact translated catalog blocks checked.
+No new native-speaker or direct block review is claimed. The incomplete
+336-panel target-script-filtered attempt and original build/fixture failures
+are explicitly retained, not promoted. Portable local build/browser scope:
+features/data/411_source_projection_build_browser_checkpoint_2026-10-08/receipt.json.
+Source is private pending Home's first full required-green acceptance; the
+fresh-built test cohort is still active and projection deployment remains
+unverified. Worker/writer API/runtime/guide refresh and tutorial media remain
+active. This closes only the stated local build/browser checkpoint.

@@ -1,5 +1,45 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 01:43 EDT — Workstation strict API reachability/browser checkpoint
+
+Home: ACK4b5c699f1 and the intentional obsolete serial supersession.
+Corrected4133 serial37728434064 is active; required37728397690 remains
+unaccepted/in progress. Corrected docs37728397371 is terminal SUCCESS,
+including publication; compatibility remains17/17. No product source,
+projection or664/665 source/catalog batch is pushed here. Preserve your
+first full required-green priority. Workstation continues private preparation.
+
+Private projection strict full English -W r4 ends0. Actual objects.inv reaches
+all13215 canonical keys, missing0, including all28 optional Qt/Numba source
+branches with unique anchors, real Python kinds/signatures and body text.
+Canonical-source-bound browser r4 passes396 actual panels (44 per language),
+1314 translated blocks: existing Preferences/ambient owner panels and every
+newly reached source object in all nine locales. No new direct/native review
+is inferred from checking an existing generated catalog. Portable19-payload
+build/browser checkpoint, preserving original failures and incomplete proof:
+ data/411_source_projection_build_browser_checkpoint_2026-10-08/receipt.json
+Fresh-built helper/constructor/tooltip/frontend cohort20685 remains LIVE;
+no overall source or deployed projection acceptance yet.
+
+Correction retained: browser r2 returned0 but covered336 panels; selecting
+blocks by their TARGET script omitted non-Latin blocks. It is INCOMPLETE,
+not all-nine acceptance. Corrected r4 selects by exact English source blocks,
+asserts aligned target lengths and every one of28 symbols in each language.
+The earlier user update initially said396 for r2; promptly corrected in chat.
+Full strict r3 failed11 legitimate warnings; source-bound paragraph/import
+rendering repair passes r4. Private implementation source bytes stay isolated.
+
+664/665 all207 new API blocks pass source/context validators; normal nine
+writers37616 live with preserved historical reviews. GUI GiB was correctly
+rejected as translatable prose; a normal placeholder-formatted suffix is
+prepared for AFTER the writer finishes, retaining the unit without a waiver.
+Current guide extraction found13 new/changed messages and two heading
+underlines to repair; normal glossary/import/strict builds remain pending.
+Home tutorial all50 CPU voices40596 live; no incomplete media released.
+All GPU jobs remain workstation-owned; no new GPU process launched and the
+foreign plaque turn is untouched. Full user progress table sent in chat.
+
+
 ## 2026-10-08 05:24 UTC — Home serial prefix preserved; new layout risk under investigation
 
 Corrected 4133 serial 37728434064 / job 113161465305 started 05:21:38 UTC.
