@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "payloads": {
+    "README.txt": {
+      "bytes": 1314,
+      "sha256": "1acdf9cdfd3a2df24fd303641f6ce33197c6e34a499c3457a92346d2d5f007c0"
+    },
+    "archive_phase.py": {
+      "bytes": 5917,
+      "sha256": "e553f7780a6cf87597c352b2928bb13012aeb20c19dca8aebde723175b5b16a4"
+    },
+    "fast0-job.json": {
+      "bytes": 3004,
+      "sha256": "8866b57eff4fe2cd7fc61cc9657e97d1c5bc8b113f5fb6c6387f377c1c1057bb"
+    },
+    "fast0.log.gz": {
+      "bytes": 762968,
+      "sha256": "3421a6abc40087795e614ce3b2af30e70c5373c54b4bd6fa3b9001026e89ef0c"
+    },
+    "fast1-job.json": {
+      "bytes": 3004,
+      "sha256": "5e951c37e1526c0533d68719100aa1365820170daf161bd34ff06ed19af98412"
+    },
+    "fast1.log.gz": {
+      "bytes": 547084,
+      "sha256": "a5e6462508201fa7425900a53b4d2e0f3cf75c4b2f93f2da6edde8cd5aaf33ed"
+    },
+    "fast2-job.json": {
+      "bytes": 3004,
+      "sha256": "e7605e4b1df00c02865c4821898ce4513b938e2ddb23de733854ae1bcce42eb9"
+    },
+    "fast2.log.gz": {
+      "bytes": 646165,
+      "sha256": "d3ba349569924f60c1e370b7fd22ec64a63a8b99345061284966b813256788e6"
+    },
+    "min0-job.json": {
+      "bytes": 2987,
+      "sha256": "d8cf2a7122a68e224be9a048cebf81df8341ea97dc0919a497ebe5acb9388012"
+    },
+    "min0.log.gz": {
+      "bytes": 788268,
+      "sha256": "87a9b394a9de9e56588ae2db0c6ded3a968915f33d93acbf6513c69aae2eab3b"
+    },
+    "min1-job.json": {
+      "bytes": 2987,
+      "sha256": "62374793d89d39578d193cee95317a1a91e2c4b7ad70165a40b9268924f4a98f"
+    },
+    "min1.log.gz": {
+      "bytes": 581027,
+      "sha256": "6046448631774eebbf14e851a87bfd42fcc6df6d51253dab0ce34edb8fcfba3a"
+    },
+    "min2-job.json": {
+      "bytes": 2987,
+      "sha256": "b96bdc04c92ec3e3190c0e1559c1033e73d8ad2723eeb98e782d43692f1e0b4d"
+    },
+    "min2.log.gz": {
+      "bytes": 673293,
+      "sha256": "5a743aa659e809c23f20c2e92b5ea60211bd1378a1983e2eca0fd7c3b2c88251"
+    },
+    "receipt.json": {
+      "bytes": 85654,
+      "sha256": "afb40d630495f0e8a06458cf2116dc1bfe64622d1e1b02aef5da47592d609331"
+    },
+    "run-snapshot.json": {
+      "bytes": 12588,
+      "sha256": "c07d57a97a576a9e7ebe03a5392e9c1b155a6b345bd0be436c140193c9be8437"
+    },
+    "verify_manifest.py": {
+      "bytes": 2076,
+      "sha256": "293f71c8b276380229e7e10b98bde0548c0080029e66f24a51b280a5d19875df"
+    }
+  }
+}
