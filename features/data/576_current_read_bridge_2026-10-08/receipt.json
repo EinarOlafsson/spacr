@@ -1,0 +1,52 @@
+{
+  "source_revision": "eb5f3ae8cff8e26a6783dcf3183c8df9b9838efa",
+  "source_sha256": {
+    "spacr/io.py": "c819fff913447d7d4396527c32b636b4497c62e6e4b10b1495a27f2966463c32",
+    "tests/test_measurement_backends.py": "064db8803fa4bda049749923645837f6c5d64f78e2c96644363e07d0f4c9f315"
+  },
+  "result": "38 passed, 2 skipped in 12.56s",
+  "limits": "Two existing real-PostgreSQL tests skip because no server is available. First harness requested two nonexistent test filenames and collected no tests; preserved, not a product failure. Parent F576 remains partial; classifier writes, migration UI and full backend acceptance remain.",
+  "normal_inventory": {
+    "source_revision": "eb5f3ae8cff8e26a6783dcf3183c8df9b9838efa",
+    "source_root": "/mnt/wd4tb/spacr-worktrees/codex-readme-opening-20261008",
+    "api_count": 13232,
+    "runtime_counts": {
+      "setting_labels": 1221,
+      "setting_tooltips": 1243,
+      "categories": 237,
+      "ui": 7288,
+      "installer": 65,
+      "module_summaries": 77
+    },
+    "runtime_equal": true,
+    "changed_api": {},
+    "source_sha256": {
+      "spacr/io.py": "c819fff913447d7d4396527c32b636b4497c62e6e4b10b1495a27f2966463c32",
+      "spacr/ml.py": "100def4e79607d8ba5cf0a4022f2c90b6c95c99b0285e540d3c673d0cfc30b9d"
+    },
+    "foreign_imports": {},
+    "loaded_spacr_modules": 193
+  },
+  "payloads": {
+    "owning-38.log.gz": {
+      "sha256": "1bb832494d8d55fe3efe53450d2e98dec8f4af2b1ada62e7f553f36c9c4f0eaf",
+      "uncompressed_sha256": "5a00467cb7cb56dbee0098b56a4fdd16092c0a8ff63888d779da153b1501a5fe"
+    },
+    "inventory-report.json.gz": {
+      "sha256": "9ba80d898b7451858d7d35dfdd5368c69276807debb2405c338e4ad147c63029",
+      "uncompressed_sha256": "3fafe9543ce0fe836db8f78fb18684398c0efa174cc51b469ec53107da8507bd"
+    },
+    "after-inventory.json.gz": {
+      "sha256": "f09eeefaefc7f45b8683f5a71d7e2fc8ab3e9ab452347596f6b119c340578282",
+      "uncompressed_sha256": "ee8e3e5823b40a577e6c5bb14d7ff7769c281917a2cda561a2529292ddd2dd2f"
+    },
+    "inventory-reader.py.gz": {
+      "sha256": "fb31311597fead6a375cd19b19d181a484d72a72165d6c33796ff0b3799024e1",
+      "uncompressed_sha256": "e522fe991a73755bce2b942ad4280de60d78de575c1c340145f0cefbe1b1dbe9"
+    },
+    "harness-missing-fixtures.log.gz": {
+      "sha256": "a880ffff510f3e7470c2cee29accc0e71e98b572060bfe80a4e4e441e43926ca",
+      "uncompressed_sha256": "eae6cba3ee1a4a3cd34e6cc8402b5f3ec394bf69089eec19e119454afab08c69"
+    }
+  }
+}
