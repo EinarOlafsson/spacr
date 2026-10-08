@@ -121,11 +121,20 @@ def test_all_unreadable_fields_leave_the_prior_ranking_file_untouched(
         raise OSError("field unreadable")
 
     monkeypatch.setattr(mm.engine, "load_image_and_mask", unreadable)
+    from PySide6.QtWidgets import QMessageBox
+
+    warnings = []
+    monkeypatch.setattr(mm, "is_headless", lambda: False)
+    monkeypatch.setattr(
+        QMessageBox, "warning",
+        lambda parent, title, text: warnings.append((title, text))
+        or QMessageBox.Ok)
     assert screen._on_rank_uncertainty(segment=_blind_corner, threaded=False)
     assert ranking.read_bytes() == before
     assert screen._field_pairs() == pairs
     assert "uncertainty of calm.tif could not be scored" in caplog.text
     assert "uncertainty of doubtful.tif could not be scored" in caplog.text
+    assert warnings == [("Load failed", "field unreadable")]
 
 
 def test_blind_helpers_without_their_buttons(screen, monkeypatch):  # noqa: F811
