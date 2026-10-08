@@ -44,3 +44,12 @@ resets of future user customization. CI N43 remains the priority in parallel.
 are in progress. This entry is not a completion claim.
 
 2026-10-08 13:10 EDT — Private integrated source e31e19543a passes the final 313-case capped CPU/Qt interaction cohort. Source patch and exact bindings are transferred in data/666_671_ui_source_handoff_2026-10-08 for workstation normal catalog/inventory refresh. App publication and current-source CI are pending; this is not a 100% or native compositor acceptance claim. N674 is a separate follow-up, not included in this checkpoint.
+
+2026-10-08 15:33 EDT — Urgent public Preferences duplicate-renderer repair
+Reviewed public310b604 popup routing retains selected drift/spacr instead of
+creating another Spaceout fractal. Qt61224PASS, Qt611focusedPASS and actual
+software-X clean modal path, actual Qt610focusedPASS. Normal runtime buckets
+identical, API changes only two existing prose records. Immutable source/proof
+at data/668_spaceout_preferences_popup_hotfix_2026-10-08/. Full privateHome
+already has equivalent independent routing. Application publication/matching
+API artifacts remain needed; GPU/ultra user termination cause unproved.

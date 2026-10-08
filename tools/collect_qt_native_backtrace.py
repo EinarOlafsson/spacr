@@ -32,6 +32,56 @@ CORE_DISK_RESERVE_BYTES = 512 * 1024 * 1024
 
 _ORDINARY_FAULT_SCRIPT = r"""
 import gdb
+import hashlib
+import re
+from pathlib import Path
+
+_SHIBOKEN_612_SHA256 = "2b3d9767d69da0afabe4a383dc241a110fac4c0bb63cdeb3d01314e9c702241e"
+
+def wrapper_type_at_fault(frame):
+    '''Read only the class of an exact-version Shiboken faulting wrapper.'''
+    if frame.name() != "Shiboken::BindingManager::unregisterWrapper(SbkObject*)":
+        return
+    try:
+        if frame.architecture().name() != "i386:x86-64":
+            gdb.write("wrapper_type_diagnostic=unsupported_architecture\n")
+            return
+        library = gdb.solib_name(frame.pc())
+        if not library or not library.endswith("/libshiboken6.abi3.so.6.12"):
+            gdb.write("wrapper_type_diagnostic=unsupported_library\n")
+            return
+        symbol = gdb.execute("info symbol " + hex(frame.pc()), to_string=True)
+        expected = ("Shiboken::BindingManager::unregisterWrapper(SbkObject*) "
+                    "+ 80 in section .text of " + library)
+        if symbol.strip() != expected:
+            gdb.write("wrapper_type_diagnostic=unsupported_fault_pc\n")
+            return
+        library_path = Path(library)
+        if not 0 < library_path.stat().st_size <= 1024 * 1024:
+            gdb.write("wrapper_type_diagnostic=unsupported_library_size\n")
+            return
+        if hashlib.sha256(library_path.read_bytes()).hexdigest() != _SHIBOKEN_612_SHA256:
+            gdb.write("wrapper_type_diagnostic=unsupported_library_hash\n")
+            return
+        version = int(gdb.parse_and_eval("Py_Version"))
+        if (version >> 24) != 3 or ((version >> 16) & 255) != 12:
+            gdb.write("wrapper_type_diagnostic=unsupported_python_abi\n")
+            return
+        wrapper = int(gdb.parse_and_eval("$r15"))
+        if wrapper < 4096:
+            gdb.write("wrapper_type_diagnostic=unreadable_wrapper\n")
+            return
+        memory = gdb.selected_inferior().read_memory
+        type_pointer = int.from_bytes(memory(wrapper + 8, 8), "little")
+        name_pointer = int.from_bytes(memory(type_pointer + 24, 8), "little")
+        name = bytes(memory(name_pointer, 96)).split(b"\0", 1)[0]
+        if not re.fullmatch(rb"[A-Za-z_][A-Za-z0-9_.]{0,95}", name):
+            gdb.write("wrapper_type_diagnostic=unreadable_type_name\n")
+            return
+        gdb.write("wrapper_type_diagnostic=" + name.decode("ascii") +
+                  " wrapper_ptr=" + hex(wrapper) + "\n")
+    except Exception:
+        gdb.write("wrapper_type_diagnostic=unavailable\n")
 
 def diagnostic(command):
     try:
@@ -64,6 +114,7 @@ try:
                   + " name=" + str(original.name()) + "\n")
         diagnostic("info registers")
         diagnostic("x/16i $pc")
+        wrapper_type_at_fault(original)
     if newest is not None:
         newest.select()
 except Exception as error:

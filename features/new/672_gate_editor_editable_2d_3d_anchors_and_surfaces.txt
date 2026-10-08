@@ -27,3 +27,15 @@ HOW TO KNOW IT WORKED
 Focused CPU/Qt checks draw a gate, rotate its 3D graph, move anchors along each data axis, and compare membership against independent known inside/outside points. Check even anchor spacing and density changes, visibility, edge and surface picking after rotation, wheel and drag movement, multiple adjacent surfaces, shared-anchor handling, save/load and undo/redo. Include a 2D regression and a gate whose edited depth is no longer a uniform cylinder.
 
 2026-10-08 — Registered the user's new request. This is open work, not a claim of implementation or acceptance. N673 depends on the shared editing logic being validated first. GitHub tests remain the primary priority.
+
+2026-10-08 15:33 EDT — Reviewable source and actual interaction checkpoint
+Agent244PASS107.78s, earlier overlapping454PASS138.79s; actual rotated edits,
+end-on refusal preserving geometry/history, grouped surface wheel selection,
+counts/export/undo, settings/visibility and event-turn drag checked. Root
+integrated onto Home1260:146behaviorPASS, one inherited class-name doc omission
+then fixed with two doc fields; final3docguardsPASS31.63s. Canonical full API
+13245/UI7307, +21/+44 and five changed docs, supersedes scoped17/+45 estimate.
+Sources and historical failures retained in data/672_editable_gate_anchors_cpu_2026-10-08/
+and final data/672_root_integration_2026-10-08/. Numerical coverage gaps,
+matching catalog generation, application publication and hosted acceptance
+remain open. Keep later672 source separate from immediate frozen UI release.

@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "items": [
+    "N672"
+  ],
+  "baseline": "1260c50e38427b65f908be77c27fa5af58747490",
+  "checkpoint": "22f8c0046041cec731344cb5df9505daeaad2c30",
+  "sources": {
+    "spacr/qt/screens/gate_editor.py": {
+      "payload": "source-00.gz",
+      "sha256": "addf51477d999d2baadce2ee9c47fe66b701c49d35618582154309ffad9aab83",
+      "raw_sha256": "de13dde4e69d923ed971b944df7fc184e9b01eb247cd9bbb9f5fff1ca78f541d"
+    },
+    "spacr/qt/widgets/gate_editor.py": {
+      "payload": "source-01.gz",
+      "sha256": "7a808c31116b1b156a313120d30752d951b1789f7d7fc42247dd5d923cd6b76f",
+      "raw_sha256": "1789ce6765e0c62ffc97ae1495e449b7a6e81d4c52e2503f50a007758497eafa"
+    },
+    "spacr/qt/widgets/gate_settings.py": {
+      "payload": "source-02.gz",
+      "sha256": "a2ddfc60fd1f1f78243584f7d4b6d9bfd3da018889806e55b1d57bd0e6161b80",
+      "raw_sha256": "f3d7eb9b2d29c329c23bd339a245f19412a45c5271d051219d9116f04a7aa87b"
+    },
+    "spacr/qt/widgets/gate_spec.py": {
+      "payload": "source-03.gz",
+      "sha256": "4fddfd1fc14778a911be1619ed5ac11b0d3faa3b7b64f304be120dce302bf55d",
+      "raw_sha256": "162e49f365e27954914f09cfa6b45af913921b97b3fc3672aceeb3f987c2c38f"
+    },
+    "tests/qt/test_gate_editable_anchors_and_surfaces.py": {
+      "payload": "source-04.gz",
+      "sha256": "cf4519b902d23dd3a520e8d37b0ccbc942c746edfd4f0dbe9566acba04eb62b9",
+      "raw_sha256": "e740d2552d22bbb9976332b82cc04f1765b219ae62a95ba559fd3e47559994fe"
+    },
+    "tests/test_gate_editable_volume.py": {
+      "payload": "source-05.gz",
+      "sha256": "5619243c9f9fa03b751cd2e8f31af4bb9db208269e763b2b621c185507b86ca1",
+      "raw_sha256": "59c5f2ee5db17cb83d526aa81bf9f3d57a3024e2959e88d669ea4890d17668de"
+    }
+  },
+  "patch": {
+    "payload": "source-and-tests.patch.gz",
+    "sha256": "87adc6d9059018d2f3dbaea0a583a36f26dfca4365e9b842cf2edab90bf7f86f",
+    "raw_sha256": "4d6baae8c506ccbb235d975822a438d1394e8c1748e51d768cf9097b8c68550c"
+  },
+  "inventory_diff": {
+    "payload": "normal-inventory-diff.json.gz",
+    "sha256": "9fc83f401792d77f4f17686cd39deb186e47a5e0e1e881e4f2f77dd0df31fcdc",
+    "raw_sha256": "c401e3f120fdeb92ee8836f61177e6f85189f47ed73ef88c0538d5f371960fd4"
+  },
+  "phases": [
+    {
+      "tested_checkpoint": "38aa5e36611",
+      "terminal_summary": "1 failed, 146 passed",
+      "passing": false,
+      "payload": "root-integrated-38aa-612.log.gz",
+      "sha256": "3ca91a79e6677547e2fa4a6a9f933c8546823b864d41b40134b1baba7fc9f1a0",
+      "raw_sha256": "1b59674dc120dcff6baf4cb6e8c7bf410eec88c1c7c4a4a157ee2edb34ffaa1f"
+    },
+    {
+      "tested_checkpoint": "22f8c0046041cec731344cb5df9505daeaad2c30",
+      "terminal_summary": "3 passed in 31.63s",
+      "passing": true,
+      "payload": "root-required-docs-final-612.log.gz",
+      "sha256": "93c8bdf4f3c411e93baa1944e40e775fa6ecf32139e8f1c3b6412ab7f71e20aa",
+      "raw_sha256": "074b6ce07ec8614efc39c9ab2248b491ea59d7dcb45af3e1b8e2b66104273d3c"
+    }
+  ],
+  "limits": [
+    "Agent244 and root147 selected phases overlap; do not sum.",
+    "Root integration has146 passing behavior checks and one required-parameter documentation failure; only two class-docstring lines then change and all3docguards pass.",
+    "No application publication, numerical ratchet closure, native performance or exact-source hosted acceptance is claimed.",
+    "Keep this separate from the immediately frozen Home UI/Console publication snapshot; do not delay its publication."
+  ]
+}

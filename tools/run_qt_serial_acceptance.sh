@@ -27,6 +27,10 @@ if [[ -z "${SPACR_QT_SERIAL_RSS_JOURNAL:-}" ]]; then
     echo "N47 needs a durable RSS journal path" >&2
     exit 2
 fi
+if [[ "${QT_QPA_PLATFORM:-}" != "xcb" || -z "${DISPLAY:-}" ]]; then
+    echo "N47 needs an X display; offscreen cannot measure the real Home pixels" >&2
+    exit 2
+fi
 
 cd "${GITHUB_WORKSPACE:?}"
 source_sha=$(git rev-parse HEAD)
@@ -45,6 +49,20 @@ fi
 unset SPACR_PYTEST_FILE_SHARD_INDEX SPACR_PYTEST_FILE_SHARD_COUNT PYTEST_ADDOPTS
 echo "N47 serial source=$source_sha host.MemTotal=${host_total_kib}KiB host.MemAvailable=${host_available_kib}KiB cgroup=$cgroup memory.max=$memory_max memory.swap.max=$swap_max guard=${SPACR_TEST_MEMORY_GB}GiB"
 echo "N47 native core_pattern=$(</proc/sys/kernel/core_pattern) core_limit_blocks=$(ulimit -c) python_command=$(command -v python)"
-exec python -m pytest tests/qt -v --tb=short -p no:randomly \
+python tools/can_this_display_be_measured.py
+exec python - tests/qt -v --tb=short -p no:randomly \
     -p tools.pytest_plugins.qt_serial_rss_journal \
-    -o faulthandler_timeout=900 --timeout=1200 --timeout-method=thread
+    -o faulthandler_timeout=900 --timeout=1200 --timeout-method=thread <<'PY'
+import sys
+
+from PySide6.QtWidgets import QApplication
+
+app = QApplication([])
+if app.platformName() != "xcb":
+    raise SystemExit("N47 did not construct a real X-backed QApplication")
+app.setApplicationName("pytest-qt-qapp")
+
+import pytest
+
+raise SystemExit(pytest.main(sys.argv[1:]))
+PY

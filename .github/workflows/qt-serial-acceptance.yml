@@ -27,7 +27,9 @@ jobs:
     timeout-minutes: 360
     env:
       CUDA_VISIBLE_DEVICES: ""
-      QT_QPA_PLATFORM: offscreen
+      QT_QPA_PLATFORM: xcb
+      LIBGL_ALWAYS_SOFTWARE: "1"
+      QT_OPENGL: software
       MPLBACKEND: Agg
       PYTHONPATH: ${{ github.workspace }}
       NUMBA_CACHE_DIR: /tmp/spacr-numba-cache
@@ -55,7 +57,8 @@ jobs:
             libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 \
             libgl1 libglib2.0-0t64 libnss3 libxcomposite1 libxcursor1 \
             libxdamage1 libxi6 libxtst6 libasound2t64 \
-            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg gdb zstd
+            libsm6 libxext6 libxrender1 libopencc1.1 libopencc-data ffmpeg gdb zstd \
+            xvfb xauth libxcb-cursor0 libgl1-mesa-dri
 
       - name: Install the existing hosted Qt test dependencies
         run: |
@@ -121,22 +124,26 @@ jobs:
           bash tools/ci_memory_telemetry.sh 30 "$evidence/host-memory.log" &
           telemetry_pid=$!
           trap 'kill "$telemetry_pid" 2>/dev/null || true; wait "$telemetry_pid" 2>/dev/null || true' EXIT
-          sudo -n systemd-run --scope --quiet \
+          xvfb-run -a -s '-screen 0 1920x1080x24 -nolisten tcp' bash -c '
+            set -euo pipefail
+            exec sudo -n systemd-run --scope --quiet \
             -p MemoryMax=12G -p MemorySwapMax=0 \
             /usr/sbin/runuser -u "$(id -un)" -- /usr/bin/env \
             "PATH=$PATH" "HOME=$HOME" \
             "GITHUB_SHA=$GITHUB_SHA" "GITHUB_WORKSPACE=$GITHUB_WORKSPACE" \
             "PYTHONPATH=$GITHUB_WORKSPACE" \
-            "CUDA_VISIBLE_DEVICES=" "QT_QPA_PLATFORM=offscreen" \
+            "CUDA_VISIBLE_DEVICES=" "QT_QPA_PLATFORM=xcb" \
+            "DISPLAY=$DISPLAY" "XAUTHORITY=$XAUTHORITY" \
+            "LIBGL_ALWAYS_SOFTWARE=1" "QT_OPENGL=software" \
             "MPLBACKEND=Agg" "PYTHONFAULTHANDLER=1" \
             "NUMBA_CACHE_DIR=$NUMBA_CACHE_DIR" \
             "XDG_CACHE_HOME=$XDG_CACHE_HOME" \
             "OMP_NUM_THREADS=1" "MKL_NUM_THREADS=1" \
             "OPENBLAS_NUM_THREADS=1" "SPACR_TEST_MEMORY_GB=10.8" \
-            "SPACR_QT_SERIAL_RSS_JOURNAL=$evidence/file-rss.jsonl" \
-            "SPACR_QT_SERIAL_FAULT_LOG=$evidence/fatal-python.log" \
-            bash "$GITHUB_WORKSPACE/tools/run_qt_serial_acceptance.sh" \
-            2>&1 | tee "$evidence/pytest.log"
+            "SPACR_QT_SERIAL_RSS_JOURNAL=$RUNNER_TEMP/spacr-qt-serial/file-rss.jsonl" \
+            "SPACR_QT_SERIAL_FAULT_LOG=$RUNNER_TEMP/spacr-qt-serial/fatal-python.log" \
+            bash "$GITHUB_WORKSPACE/tools/run_qt_serial_acceptance.sh"
+          ' 2>&1 | tee "$evidence/pytest.log"
 
       - name: Collect a native core backtrace if one exists
         if: failure()
