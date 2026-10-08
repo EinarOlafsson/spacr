@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-08",
+  "focused_argv": [
+    "/mnt/wd4tb/scratch/item47-memory-codex-20261005/ci-near-parity-venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_timelapse_trackastra.py",
+    "tests/qt/test_track_previews.py::test_missing_optional_backend_is_named_not_traced",
+    "tests/qt/test_track_previews.py::test_missing_backend_lands_in_the_status_label",
+    "tests/qt/test_track_previews.py::test_present_optional_backend_is_actually_used",
+    "tests/test_timelapse_ultrack.py::test_trackastra_remains_the_default_timelapse_mode",
+    "tests/test_timelapse_ultrack.py::test_trackastra_remains_the_default_timelapse_mode"
+  ],
+  "focused_log_sha256": "117c610ff484c1ffcedad3b9a6170ef3eae8661248311f99b5bb2684b1742ea9",
+  "focused_result": "19 passed in 10.65s, exit 0",
+  "item": 669,
+  "panel_audit_script_sha256": "e6a620ffdff1776ea8c00fdc6c878f21abda99cfb6479c31522fcdf19bedbea3",
+  "panel_output_sha256": "a798d4bb4025f9b4674d53980d55a71cd021d6025307248999a96ef103067da6",
+  "panel_result": {
+    "preview_track_params": {
+      "displacement": 50.0,
+      "iou_threshold": 0.1,
+      "memory": 3,
+      "mode": "trackastra",
+      "trackastra_linking": "ilp",
+      "trackastra_model": "audit-model"
+    },
+    "ui_linking": [
+      "entry",
+      null,
+      "ilp"
+    ],
+    "ui_mode": [
+      "combo",
+      [
+        "trackastra",
+        "ultrack",
+        "trackpy",
+        "iou",
+        "btrack",
+        "timeflows",
+        "sam2"
+      ],
+      "trackastra"
+    ],
+    "ui_model": [
+      "entry",
+      null,
+      "audit-model"
+    ]
+  },
+  "runtime": "Python 3.12.13; pytest 8.4.2; PySide6/Qt 6.11.2; CPU/offscreen; 4G cgroup; CUDA hidden; OMP/MKL/OPENBLAS 1",
+  "scope": "Existing Trackastra UI/default/model/linking and stub backend/preview dispatch plus missing dependency guidance; no real pretrained weights, download, GPU, model accuracy, or new app implementation.",
+  "target_and_tested_file_sha256": {
+    "spacr/object.py": "5ad3bc52b1da94945ad128495836ea0f76eca044c4b1e7490819c2af4fa9126e",
+    "spacr/qt/widgets/timelapse_preview.py": "0b9dfe50208f8d8b1d3dc7f56fabb6531a8031bab2bd94220d6194368a95bf81",
+    "spacr/settings.py": "60a907dc8e7687a67df633c18a8009596af4e1670f2450f759b80ac29cd2c0f8",
+    "spacr/settings_spec.py": "a46fe17eeb8e4580f96d4657cab4a5b9da7d57a18eb7269a67456ab030554dea",
+    "spacr/timelapse.py": "954c51e8f5903705204d25ccc258070607c488fa4cd30758f4ad041ddf374cc4",
+    "tests/qt/test_track_previews.py": "01c23feb925c9e196855cdb6e304d04c41f8f7c71bfa15d977c2dac07629b9b4",
+    "tests/test_timelapse_trackastra.py": "fce6589cd191dc1ff0a774c7c5ec1b78793cf39ee7c152d23edd426ce3e83ea2",
+    "tests/test_timelapse_ultrack.py": "3496d2654aa4080d996b345eebe764e3279a99c535b9411b317127d6bab91a79"
+  },
+  "target_source": "7289a2594fbfe0703ad3d6685c525a4608c735a7",
+  "tested_source": "5d301faef7e2489aa84e49a46719e8ef7725f0a4"
+}

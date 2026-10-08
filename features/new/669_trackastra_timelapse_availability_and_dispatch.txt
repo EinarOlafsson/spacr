@@ -2,7 +2,7 @@
 VERIFY TRACKASTRA IS AVAILABLE IN TIMELAPSE
 ================================================================================
 
-Status:    in progress
+Status:    complete for requested availability and CPU dispatch
 Requested: 2026-10-08 — "it should be possible to use trackstera in timelapse, if it is not already"
 Owner:     Home/root; delegated CPU UI lanes
 
@@ -42,3 +42,21 @@ resets of future user customization. CI N43 remains the priority in parallel.
 
 2026-10-08 — Registered the user request; implementation and focused validation
 are in progress. This entry is not a completion claim.
+
+2026-10-08 — REQUESTED AVAILABILITY AND CPU DISPATCH VERIFIED
+
+Trackastra is already the default Timelapse backend. The main Timelapse
+settings expose a Trackastra choice plus editable model and linking entries;
+those values reach both the batch tracker and the preview linker. The preview
+has a mode combo and inherits model/linking from the main settings. A missing
+package names `pip install trackastra` in the preview status and raises an
+actionable backend error before running a model.
+
+The source-bound CPU/offscreen 4G audit in
+`features/data/669_trackastra_cpu_audit_2026-10-08/` records 19 passing
+selected backend/Qt stub tests in 10.65 s, exact argv and full log, an actual
+preview panel settings check, and matching SHA-256 bytes for the eight tested
+source/test files at the registered item source. No production code change was
+needed. This completes the user's "if it is not already" availability request.
+Real pretrained weights, model accuracy, download and GPU execution were not
+part of this CPU-only proof.
