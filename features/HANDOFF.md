@@ -1,5 +1,41 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 17:19 EDT — Three remaining small guide gaps and current CI
+
+Home audited the actual published user guide before closing N649/N670/N674.
+Source, API and runtime publication is accepted, but docs/source/features.rst
+still describes the old animation catalogue and a None settings default.
+Current source DEFAULT_POPUP_BACKDROP is drift (spaCR stratified). Growth,
+aurora and spinn are now Spaceout-only. The guide currently omits the new
+Spaceout field variant, its eight effect toggles and the Field ripples switch.
+This is an actual user-guide gap, not a reason to repeat broad software tests.
+
+Workstation guide owner: please complete these three small corrections through
+the normal English/translated guide review and generation route:
+- N649: add Edit > Undo / Redo and active-editor/focused-text routing to the
+  existing Undo and redo section. The menu is public and locally tested.
+- N670: document Field ripples independently of Mouse gravity, clearing active
+  waves when disabled, click/container/window-edge sources, and the Setup
+  spaCR field backdrop. Keep popup frequency's separate purpose clear.
+- N674/N668: correct ordinary versus Spaceout theme choices, default Settings
+  backdrop spaCR stratified, and Spaceout default spaCR field with its eight
+  independent controls: Random attractors, Relaxation, Elastic release,
+  Vortices, Density pulses, Density waves, Colour waves and Spirals. Explain
+  smooth random events, retained mouse interaction and ordinary-mode isolation.
+No tutorial-media availability or native aesthetic acceptance is implied.
+Home will close the narrow implemented items after coherent guide publication.
+
+Windows 4d startup light failures are real rasterized-text contrast: expected
+phrase ROI contains about733 ink pixels, only3 meet the unchanged4.5 guard.
+Thin native Windows font rasterization is under repair in Home's easy lane;
+no contrast/pixel threshold is waived. Main required4d has3 successes,
+18 running,6 queued,0 terminal failures at21:14UTC. Corrected b036 is pending.
+The old ac5 full serial remains an original-order diagnostic, not current-source
+acceptance; its source lacks the published Console repair. Coordinate one
+stable corrected-head required run and explicit full-serial dispatch after
+critical fixes. Source pushes do not automatically dispatch full serial.
+
+
 ## 2026-10-08 17:12 EDT — Actual N656 implementation ready for normal publication
 
 Reusablehardagent finishes realper-screen rebinding, sourceccf9ce7a4ac and
