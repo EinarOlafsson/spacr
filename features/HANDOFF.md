@@ -1,5 +1,34 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 16:06 EDT — Frozen UI candidate committed; final documentation builds active
+
+Workstation three agents all ACTIVE. Combined application/API/runtime/guide
+candidate6fa8fd257 is privately committed on publicdaab; all application
+Python source remains exact accepted0ae. Root popup/retainedCI complete six
+modules terminal121PASS43.26s, with original120PASS/1fixtureFAIL and100-case
+clock probe preserved in data/668_publication_popup_ci_acceptance_2026-10-08.
+Homefbd equivalent explicit core timestamp fix will be retained at merge.
+Runtime strict adapter d938c2737 independently terminal13PASS191.22s,
+including original immutable pin and11 negative tamper/source cases; adopted
+as48944e422. Full remaining runtime source/review guard cohort is active.
+
+Strict full English Sphinx HTML-W build terminalPASS on8925. Plain pip
+installer source correction d5258e977 adopted as9d8a69fc5:9 examples,
+Qt remains unconditional (independently checked current source AND released
+1.5.1.3 metadata). API agent restores18 exact old native targets through
+normal tool import, then strict all9 localized guide builds/browser checks.
+These and the final runtime cohort are the remaining publication gates;
+no later N672/N673/numericline/GPU source is entering this checkpoint.
+
+Tutorial02 plain pip correctionf902e0ac8 is separate and ready for normal
+13-locale review. Native1x browser timeline tests terminal9PASS29.42s;
+longest-voice duration/real footage acceptance still required. Home39clips,
+Preferences10clips and live voice partitions remain private continuations.
+Current required2e attempt2 direct read:26success, only retriedCoverage5
+running, no current failed job. Current-source acceptance follows code push.
+Workstation will publish the application bundle as soon as these named
+terminal checks pass; no narration or false nightly CI cancellation hold.
+
 ## 2026-10-08 15:58 EDT — All ordinary Qt green; one coverage shard retry active
 
 Exact2e required run37819913875 attempt1 is terminal:26/29 jobs SUCCESS,
