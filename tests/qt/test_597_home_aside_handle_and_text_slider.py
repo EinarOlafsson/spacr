@@ -41,8 +41,9 @@ def store(tmp_path, monkeypatch, qapp):
     qapp.setStyleSheet(before)
 
 
-def _home():
+def _home(qtbot):
     page = home_mod.HomePage(APPS, lambda key: None)
+    qtbot.addWidget(page)
     page.resize(1400, 900)
     page.show()
     _pump()
@@ -92,8 +93,8 @@ def _px(label: QLabel) -> int:
     return label.fontInfo().pixelSize()
 
 
-def test_one_slider_sits_right_below_the_lowest_widget(store):
-    page = _home()
+def test_one_slider_sits_right_below_the_lowest_widget(store, qtbot):
+    page = _home(qtbot)
     _text_slider(page)
     controls = page.findChild(QWidget, "HomeAsideScaleControls")
     assert controls.parentWidget() is page._aside_panels
@@ -102,11 +103,11 @@ def test_one_slider_sits_right_below_the_lowest_widget(store):
     page.close()
 
 
-def test_the_column_resizes_by_the_settings_columns_handle(store):
+def test_the_column_resizes_by_the_settings_columns_handle(store, qtbot):
     from spacr.qt.widgets.collapsible_splitter import (EDGE,
                                                        CollapsibleSplitter)
 
-    page = _home()
+    page = _home(qtbot)
     split = page._aside_split
     assert isinstance(split, CollapsibleSplitter)
     assert split.pane("Widgets").mode == EDGE
@@ -117,20 +118,20 @@ def test_the_column_resizes_by_the_settings_columns_handle(store):
     assert wider > before
     page.close()
 
-    again = _home()
+    again = _home(qtbot)
     assert abs(again._aside.width() - wider) <= 2
     again.close()
 
 
-def test_the_handle_arrow_folds_the_column_and_it_stays_folded(store):
-    page = _home()
+def test_the_handle_arrow_folds_the_column_and_it_stays_folded(store, qtbot):
+    page = _home(qtbot)
     assert page._aside.width() > 0
     _click_handle(page)
     assert page._aside_split.is_collapsed("Widgets")
     assert page._aside_split.sizes()[-1] == 0
     page.close()
 
-    again = _home()
+    again = _home(qtbot)
     assert again._aside_split.is_collapsed("Widgets")
     _click_handle(again)
     assert not again._aside_split.is_collapsed("Widgets")
@@ -138,8 +139,8 @@ def test_the_handle_arrow_folds_the_column_and_it_stays_folded(store):
     again.close()
 
 
-def test_text_size_changes_text_persists_and_restores(store):
-    page = _home()
+def test_text_size_changes_text_persists_and_restores(store, qtbot):
+    page = _home(qtbot)
     text = _text_slider(page)
     label = _row_label(page)
     base = _px(label)
@@ -155,14 +156,14 @@ def test_text_size_changes_text_persists_and_restores(store):
     assert float(store._settings().value("prefs/home_aside_text")) == 1.3
     page.close()
 
-    again = _home()
+    again = _home(qtbot)
     assert _text_slider(again).value() == 130
     assert _px(_row_label(again)) > base
     again.close()
 
 
-def test_a_rebuilt_row_takes_the_size_without_compounding(store):
-    page = _home()
+def test_a_rebuilt_row_takes_the_size_without_compounding(store, qtbot):
+    page = _home(qtbot)
     text = _text_slider(page)
     text.setValue(150)
     _pump()
@@ -200,8 +201,8 @@ def _check_no_overlap(page) -> None:
 @pytest.mark.parametrize("drag, text_end", [
     (400, "minimum"), (400, "maximum"),
     (-500, "minimum"), (-500, "maximum")])
-def test_nothing_overlaps_or_clips_at_the_extremes(store, drag, text_end):
-    page = _home()
+def test_nothing_overlaps_or_clips_at_the_extremes(store, qtbot, drag, text_end):
+    page = _home(qtbot)
     text = _text_slider(page)
     text.setValue(getattr(text, text_end)())
     _pump()
@@ -214,8 +215,8 @@ def test_nothing_overlaps_or_clips_at_the_extremes(store, drag, text_end):
     page.close()
 
 
-def test_junk_in_the_store_reads_back_the_default(store):
+def test_junk_in_the_store_reads_back_the_default(store, qtbot):
     store._settings().setValue("prefs/home_aside_text", "nan")
-    page = _home()
+    page = _home(qtbot)
     assert _text_slider(page).value() == 100
     page.close()

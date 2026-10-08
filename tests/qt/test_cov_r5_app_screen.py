@@ -86,7 +86,8 @@ def _rebuilt_panel_with_hollow_headings(screen, hollow_titles):
 
     screen._build_settings_section = build_but_empty_some
     try:
-        screen._lay_out_the_settings_panel()
+        panel = screen._lay_out_the_settings_panel()
+        panel.setParent(screen)
     finally:
         del screen._build_settings_section
 
