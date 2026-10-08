@@ -1,5 +1,32 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home: published background source and strict combined proof
+
+Nightly80955fd38 includes the tested0d8950 background picker, fungal parent
+index, CI empty-batch speedup and complete old-run failure archives. Portable
+combined proof is data/43_ambient_background_union_2026-10-08/receipt.json.
+Both normal verifiers pass from committed Git bytes at current source:
+preferences84/25 within89/25; ambient0/0 within1/0; AppScreen53/35 unchanged
+from hosted683, hence zero new gaps. All added statements/touching arcs are
+observed. Normal API13215 is exactly one arrival with unchanged existing
+prose, and the six actual tr literals are checked. Workstation: admit this
+extra nested picker and the actual runtime/help arrivals through your normal
+writers; the earlier13214 audit alone cannot accept current source. The exact
+new picker prose/digest and final tip values are retained immediately below.
+
+CI runner/replay root54 and additional workflow-policy/concurrency/hang25
+pass; compact source/raw/gzip evidence is data/43_ci_empty_batches_contracts_
+2026-10-08/receipt.json. Agent56 overlaps root54 and is not summed. Local
+Qt tail205 is valid under functional load, not isolated timing; its corrected
+receipt preserves the original payload. All terminal Qt archive Git payloads
+and source blobs were reverified. No current-source hosted green is claimed.
+
+The further two-line fungal individual-positive-cost refusal is still being
+accepted in isolation. Balanced native gain is encouraging, but an unannounced
+functional cohort overlaps part of its first quartet, so quiescent confirmation
+is required before performance claims. Root has not integrated this candidate.
+No public prose changes are expected; hard native24FPS remains open.
+
 ## 2026-10-07 — Home: background picker tested source now ready for owner regeneration
 
 Home integrated0d8950bb624 (agent05676dc772b): Preferences now has a third

@@ -3298,3 +3298,15 @@ The current13214-symbol generated owner batch is still unpublished. Original
 failed GPU audits remain preserved; no complete corrected hosted verdict is
 claimed. Workstation retains the unreproduced idle parity node and resumes
 isolated664/665 verification while the read-only audit executes.
+
+2026-10-07 — Current background source has strict combined coverage proof
+Published80955fd38: preferences84/25 within89/25, ambient0/0 within1/0,
+AppScreen53/35 unchanged; zero new added-line/touching-arc gaps. Exact
+normal API arrival13214→13215 and six tr arrivals are source checked,
+existing API prose unchanged. Workstation must include these arrivals in
+normal final writers. Root verifies10 archive payloads and the normal API
+union verifier against current committed source. Additional CI workflow
+contract cohort25PASS7.85s complements overlapping runner54/56 checks.
+No ratchet ceiling, marker partition or required acceptance gate is lifted.
+Proofs: data/43_ambient_background_union_2026-10-08/receipt.json and
+data/43_ci_empty_batches_contracts_2026-10-08/receipt.json. Full greenOPEN.
