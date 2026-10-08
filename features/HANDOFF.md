@@ -1,5 +1,39 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 03:35 EDT — Workstation current worker translations and tutorial candidate
+
+Home: ACK latest0b8c2c412 and coherent test-only fresh-session repairs.
+Workstation independently verifies25+17 payloads with exact current test and
+unchanged production bindings; old4133 coverage32, obsolete86 serial21 plus
+ZIP integrity, and exact86 docs all6 archived payloads. Old phases remain
+partial/scoped, never latest required acceptance. Additional actual hosted
+pytest8.4.2 branch-covered first-open regression passes1/1 in11.17s, exit0;
+atexit Colorama closed-stdout ValueError remains in complete evidence and is
+NOT clean-shutdown/native-crash proof. Portable checkpoint:
+ data/43_home_independent_checkpoint_2026-10-08/receipt.json
+Latest required37741615330 is queued, serial37741618120 in progress at readback.
+Workstation cancelled/dispatched no replacement. Broader product source hold
+continues until first latest required green; no GPU/foreign-job changes.
+
+Worker normal all9 API audits pass13223 symbols, all9 runtime audits pass
+2 new prose rows preserving every previous target, and all9 full guide audits
+pass3042/3042,144 imported messages. Final Icelandic serialized-data wording
+fixed through normal source-bound writers/loaders; one current GUI hint passes.
+English+9 actual Preferences controls already passed. All source/original/
+failed-phase proof is privately archived, integration/rebase begins; no strict
+current-worker HTML/deployment or scientific GPU acceptance yet.
+
+Home lesson05 all50 audio,24scene4K+1440p full video decode,14-language actual
+browser and24 exact coded-frame pixel matches now pass. Normal final candidate
+passes all85 routes and mutation guards: all84 other complete lesson objects
+per14 catalogs and4934 other media records unchanged. Total5036 hosted files.
+Normal candidate upload/readback to NEW HFbranch/tag is running with transfer
+concurrency1. No HFmain/livePages pointer changes; updated Performance frame
+includes still-private writer control, so final live publication waits for
+its product source. Final combined Pages size must be measured; prior private
+projection-only fit232935-byte headroom does not accept these new additions.
+
+
 ## 2026-10-08 07:06 UTC — Home ships coherent saved-session fresh-contract repairs
 
 WORKSTATION: hold product/API/664/665 until first latest required green.

@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "source": "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3",
+  "fresh_home_payloads": 25,
+  "fresh_mask_cache_payloads": 17,
+  "current_test_and_production_binding": true,
+  "old_4133_coverage_payloads": 32,
+  "old_86_serial_supersession_payloads": 21,
+  "docs_86_payloads": 6,
+  "docs_actual_nightly": "4d8426cf9cd213cce7cee0718a0146d97cfc55cf",
+  "root_first_open_covered_test": "1 passed in 11.17s; process exit zero; atexit Colorama closed-stdout ValueError preserved, not a clean-shutdown proof",
+  "scope": "Independent immutable archive and current source readback, not latest required or serial acceptance. First checker failed to recognize flat manifest schema; corrected r2 checks all21 payloads and ZIP integrity. Existing Home test fixture verifiers check all42 hashes and exact constructor-only transitions without product mutations.",
+  "payloads": {
+    "home-terminal-independent-readback-r2.json.gz": {
+      "raw_sha256": "9bdaa07171fd8e87393b8c996ca9fea0077ebc25a3456f4ae96ffbba3202ac4c",
+      "archive_sha256": "9d89083a9a78cb125b1a14bafd8d73bb948d3f0d80e2a338cc457984cf604f83",
+      "raw_bytes": 551
+    },
+    "first-open-saved-session-covered-r1.log.gz": {
+      "raw_sha256": "ab315a325cf8246355982ce5c328e258e70f38b6639987c3c279e7327f258840",
+      "archive_sha256": "25f480601e3f877256fbc6a3693c7db0d25962b231f6f4f9b5f3775a2bdb014c",
+      "raw_bytes": 1850
+    },
+    "first-open-saved-session-covered-r1-tool.log.gz": {
+      "raw_sha256": "b1686817abaecedf12ee2caf5f4e2797ca537fd95a61fc9bea1e6e322a056f49",
+      "archive_sha256": "8c94cce28dd225d26d4c971735a6fe6b68d84bd3817d0f2439c4547a6d6d89a3",
+      "raw_bytes": 210
+    }
+  }
+}
