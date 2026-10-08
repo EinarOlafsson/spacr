@@ -792,7 +792,8 @@ def test_a_missing_shard_turns_the_combine_step_red(tmp_path):
     combine = _combine_job()["coverage-combine"]
     step = next(
         step for step in combine["steps"]
-        if "SPACR_COVERAGE_SHARD_COUNT" in step.get("env", {})
+        if "python -m coverage combine --keep" in step.get("run", "")
+        and "SPACR_COVERAGE_SHARD_COUNT" in step.get("env", {})
     )
     script = step["run"]
     end_marker = 'test "$missing" -eq 0'
