@@ -87864,6 +87864,16 @@
         "180639b9daa34bbb10cc51c9ff883b20cd7e643c967798e98cfe73ca6b14a198"
       ]
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background": {
+      "source_blocks_sha256": [
+        "390fa88fd7bc98fe2d5f76bb4ee8ce235de32d4db72d7aeeed20217a9a80b710"
+      ],
+      "source_sha256": "390fa88fd7bc98fe2d5f76bb4ee8ce235de32d4db72d7aeeed20217a9a80b710",
+      "text": "Die vorgeschlagene Füllfarbe lokal behalten, bis der Dialog gespeichert wird.",
+      "translation_source_blocks_sha256": [
+        "390fa88fd7bc98fe2d5f76bb4ee8ce235de32d4db72d7aeeed20217a9a80b710"
+      ]
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_color": {
       "source_blocks_sha256": [
         "46d2013e31dda9b983a76b58e64b1bd21edcc18923acfb82b7920bb95c7b5cc9"

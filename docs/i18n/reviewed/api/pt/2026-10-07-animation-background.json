@@ -1,0 +1,13 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "context": "Keep the candidate fill local until the dialog is saved.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background#0",
+      "source": "Keep the candidate fill local until the dialog is saved.",
+      "source_sha256": "390fa88fd7bc98fe2d5f76bb4ee8ce235de32d4db72d7aeeed20217a9a80b710",
+      "translation": "Manter localmente a cor de preenchimento proposta até que a caixa de diálogo seja salva."
+    }
+  ],
+  "schema": 1
+}

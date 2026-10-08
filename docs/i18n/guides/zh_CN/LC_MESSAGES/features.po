@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 18:34-0400\n"
+"POT-Creation-Date: 2026-10-07 21:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -277,6 +277,10 @@ msgstr "**spaCR spinn** — 细薄的纸片状面片轻柔移动，并根据鼠�
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
 msgstr "**鼠标引力半径**以屏幕较短边长的百分比设置影响区域。默认值为 **15%**；设为 **0** 可禁用鼠标影响。**动画密度**控制元素数量，与改变绘制分辨率的 **动画细节**相互独立。密度最低为 **1%**；增加细节不会减少已选定的元素数量。渲染器将采样工作限制在屏幕像素预算内。在 **动画调色板**中选择 **随机**可为每个元素使用随机颜色。新安装默认使用 **深色**、**spaCR field** 和 **spaCR** 动画调色板，密度为 **10%**，引力为 **15%**，细节、速度和大小均为 **100%**，页面不透明度为 **60%**。**点闪烁**控制闪烁为白色的可见点所占的百分比：**0** 禁用闪烁（默认值），非零范围为 0.00001% 至 10%。该设置适用于 spaCR field、spaCR advection、spaCR waves 和 spaCR stratified。场淡出已启用。蓝色边缘光使用周长的 **17%** 作为相对长度，跟随为 **50%**，以指针为中心对齐，模式为 **Beat**，周期为 **1.5 s**。已有的已保存偏好设置会保留，直到用户更改或重置。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Animation background colour** sets the background independently of the animation palette. Until you choose a colour, it follows the page theme; **Theme colour** restores that behaviour. The chosen colour's brightness is kept within the active Dark or Light theme's range. It applies to the main window, module screens and animated settings popups. A full-screen wallpaper can cover the background fill."
+msgstr "**动画背景颜色**可独立于动画调色板设置背景。在您选择颜色之前，背景会跟随页面主题；**主题颜色**可恢复这一行为。所选颜色的亮度始终保持在当前深色或浅色主题的范围内。该颜色应用于主窗口、模块页面和带动画的设置弹窗。全屏壁纸可能遮盖背景填充颜色。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Popup wave frequency** sets automatic waves per minute in **spaCR field**. The default is **5 waves/minute**; **0** disables popup waves. When enabled, opening a popup immediately starts the first wave from its centre, followed by waves at the selected rate. Moving the popup moves the origin of new waves; closing it stops new waves while existing waves fade. This control is independent of mouse gravity, dot blinking, density and drawing detail."

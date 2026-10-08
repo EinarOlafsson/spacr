@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 18:34-0400\n"
+"POT-Creation-Date: 2026-10-07 21:43-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -277,6 +277,10 @@ msgstr "**spaCR spinn** — 얇은 종이 조각 같은 면들이 부드럽게 �
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
 msgstr "**마우스 중력 반경**은 화면의 짧은 변 길이에 대한 백분율로 영향 영역을 설정합니다. 기본값은 **15%**이며, **0**으로 설정하면 마우스 영향을 끕니다. **애니메이션 밀도**는 요소 수를 바꾸며, 그리기 해상도를 바꾸는 **애니메이션 세부 사항**과 독립적입니다. 최소 밀도는 **1%**입니다. 세부 사항을 높여도 선택한 요소 수는 줄어들지 않습니다. 렌더러는 화면의 픽셀 예산 안에서 샘플링 작업을 제한합니다. **애니메이션 팔레트**에서 **무작위**를 선택하면 각 요소에 임의의 색을 사용합니다. 새 설치는 **어두움**, **spaCR field**, **spaCR** 애니메이션 팔레트를 사용하며, 밀도 **10%**, 중력 **15%**, 세부 사항·속도·크기 **100%**, 페이지 불투명도 **60%**가 기본입니다. **점 깜빡임**은 흰색으로 깜빡이는 보이는 점의 비율을 조절합니다. **0**은 깜빡임을 끄는 기본값이며, 0이 아닌 범위는 0.00001%부터 10%까지입니다. 이 설정은 spaCR field, spaCR advection, spaCR waves, spaCR stratified에 적용됩니다. 필드 페이드가 켜져 있습니다. 파란 테두리는 둘레 대비 길이 **17%**, 추적 **50%**, 포인터 중심 정렬, **Beat** 모드, **1.5 s** 주기를 사용합니다. 기존에 저장된 환경설정은 변경하거나 초기화할 때까지 유지됩니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Animation background colour** sets the background independently of the animation palette. Until you choose a colour, it follows the page theme; **Theme colour** restores that behaviour. The chosen colour's brightness is kept within the active Dark or Light theme's range. It applies to the main window, module screens and animated settings popups. A full-screen wallpaper can cover the background fill."
+msgstr "**애니메이션 배경 색상**은 애니메이션 팔레트와 독립적으로 배경을 설정합니다. 색상을 선택하기 전까지 배경은 페이지 테마를 따르며, **테마 색상**을 선택하면 이 동작이 복원됩니다. 선택한 색상의 밝기는 현재 어두운 테마 또는 밝은 테마의 범위 안에 유지됩니다. 이 색상은 기본 창, 모듈 화면 및 애니메이션이 적용된 설정 팝업에 적용됩니다. 전체 화면 배경 이미지는 배경 채우기 색상을 가릴 수 있습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Popup wave frequency** sets automatic waves per minute in **spaCR field**. The default is **5 waves/minute**; **0** disables popup waves. When enabled, opening a popup immediately starts the first wave from its centre, followed by waves at the selected rate. Moving the popup moves the origin of new waves; closing it stops new waves while existing waves fade. This control is independent of mouse gravity, dot blinking, density and drawing detail."

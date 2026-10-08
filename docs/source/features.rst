@@ -288,6 +288,13 @@ spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative
 length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle.
 Existing saved preferences remain in effect until changed or reset.
 
+**Animation background colour** sets the background independently of the
+animation palette. Until you choose a colour, it follows the page theme;
+**Theme colour** restores that behaviour. The chosen colour's brightness is
+kept within the active Dark or Light theme's range. It applies to the main
+window, module screens and animated settings popups. A full-screen wallpaper
+can cover the background fill.
+
 **Popup wave frequency** sets automatic waves per minute in **spaCR field**.
 The default is **5 waves/minute**; **0** disables popup waves. When enabled,
 opening a popup immediately starts the first wave from its centre, followed

@@ -1,0 +1,55 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "key": "Animation background",
+      "source": "Animation background",
+      "source_sha256": "437a56412491e7158d03f6b6bdc902acfcc22aaf3adfcb17c5d65cc58d7b3828",
+      "table": "ui",
+      "translation": "Fondo de la animación"
+    },
+    {
+      "key": "Animation background colour",
+      "source": "Animation background colour",
+      "source_sha256": "10f9af4e16b9be0d5052b786315383e597496e72228596694baf5ae14929c41e",
+      "table": "ui",
+      "translation": "Color de fondo de la animación"
+    },
+    {
+      "key": "Background · Theme colour",
+      "source": "Background · Theme colour",
+      "source_sha256": "cd0df7d7c855ae90da0aea3bcddf73f9180cf9e7a216774804ba2ff4de9e4cfc",
+      "table": "ui",
+      "translation": "Fondo · Color del tema"
+    },
+    {
+      "key": "Choose a background for every animation, independent of its palette. It follows the active page theme until chosen; its brightness stays on the active Dark or Light side. Changes apply when you save Preferences.",
+      "source": "Choose a background for every animation, independent of its palette. It follows the active page theme until chosen; its brightness stays on the active Dark or Light side. Changes apply when you save Preferences.",
+      "source_sha256": "30e34da6ba9d95995b3adb7809e73a15e8221add251515006ec2d41196ffc5b9",
+      "table": "ui",
+      "translation": "Elija un fondo para todas las animaciones, independiente de su paleta. El fondo sigue el tema activo de la página hasta que se elige un color; su brillo se mantiene dentro del intervalo del tema oscuro o claro activo. Los cambios se aplican al guardar las Preferencias."
+    },
+    {
+      "key": "Choose the animation background colour. Brightness is adjusted to fit the active Dark or Light theme.",
+      "source": "Choose the animation background colour. Brightness is adjusted to fit the active Dark or Light theme.",
+      "source_sha256": "80d6002bf644c784c0845b38e29cdcce5274a4bdd339aea3a4458b85d7c3ae96",
+      "table": "ui",
+      "translation": "Elija el color de fondo de la animación. El brillo se ajusta al tema oscuro o claro activo."
+    },
+    {
+      "key": "Choose the primary and accent colours for the Custom colours palette. Changes apply when you save Preferences.",
+      "source": "Choose the primary and accent colours for the Custom colours palette. Changes apply when you save Preferences.",
+      "source_sha256": "06a921b65c8ddf7bcfbe79581ca0653a478a6493d684bfae4eb38ce62d1bcc0d",
+      "table": "ui",
+      "translation": "Elija los colores principal y de acento para la paleta Colores personalizados. Los cambios se aplican al guardar las Preferencias."
+    },
+    {
+      "key": "Theme colour",
+      "source": "Theme colour",
+      "source_sha256": "41988af879a5f2c0f04e77926eb1a53271575d20085c3e80079ac31184e8e0c5",
+      "table": "ui",
+      "translation": "Color del tema"
+    }
+  ],
+  "schema": 1
+}

@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "source_commit": "42a34d17cf45d96669a0d09e8f9424f212f70240",
+  "method": "Codex AI technical translation of the current independent animation background behaviour; exact runtime glossary alignment, no native-speaker signoff.",
+  "records": [
+    {
+      "domain": "features",
+      "source": "**Animation background colour** sets the background independently of the animation palette. Until you choose a colour, it follows the page theme; **Theme colour** restores that behaviour. The chosen colour's brightness is kept within the active Dark or Light theme's range. It applies to the main window, module screens and animated settings popups. A full-screen wallpaper can cover the background fill.",
+      "source_sha256": "e171c3da982f303acc52ccd4b0512431cd446f7c66cb7641f83667de06751bae",
+      "target": "**ऐनिमेशन की पृष्ठभूमि का रंग** ऐनिमेशन पैलेट से स्वतंत्र रूप से पृष्ठभूमि निर्धारित करता है। रंग चुने जाने तक यह पृष्ठ की थीम का अनुसरण करती है; **थीम का रंग** इस व्यवहार को बहाल करता है। चुने गए रंग की चमक सक्रिय गहरी या हल्की थीम की सीमा में रहती है। यह रंग मुख्य विंडो, मॉड्यूल स्क्रीन और ऐनिमेशन वाले सेटिंग पॉपअप पर लागू होता है। पूरे स्क्रीन को भरने वाला वॉलपेपर पृष्ठभूमि के भरण रंग को ढक सकता है।"
+    }
+  ]
+}

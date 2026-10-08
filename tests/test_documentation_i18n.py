@@ -265,8 +265,10 @@ TOOLS = ROOT / "tools"
 # add these 17 symbols without removing any of the prior 13,182.
 # A further 15 Apply, blinking, popup-wave and renderer contracts enter
 # the same dated source-reviewed inventory; none of the prior rows retire.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_214
+# One further nested background picker enters with unchanged existing prose.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_215
 SOURCE_REVIEWED_SYMBOLS_2026_10_07 = frozenset({
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background",
     "spacr.convert.read_scn",
     "spacr.convert.scn_to_rgb8",
     "spacr.embeddings._cell_dino_model.forward",
@@ -3265,7 +3267,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     import build_documentation_i18n as builder
 
     docs, source_contracts = current_documentation_api_contracts
-    assert len(SOURCE_REVIEWED_SYMBOLS_2026_10_07) == 32
+    assert len(SOURCE_REVIEWED_SYMBOLS_2026_10_07) == 33
     assert SOURCE_REVIEWED_SYMBOLS_2026_10_07 <= set(docs)
     assert len(docs) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Regenerate every API "

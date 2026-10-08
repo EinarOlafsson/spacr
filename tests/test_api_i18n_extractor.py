@@ -1380,7 +1380,10 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # popup_wave_frequency,set_blink_percent,set_popup_wave_frequency};
     # AuroraEngine.{buffer_scale,buffer_size}; DriftEngine.buffer_size.
     # The normal all-nine API writer supplies these contracts to each catalog.
-    expected = 13_214
+    # 2026-10-07: +1/-0, the nested Preferences background picker:
+    # _build_the_dialog._pick_ambient_background. Exact source/prose delta
+    # retains every prior contract; all nine normal catalogs carry its review.
+    expected = 13_215
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1429,7 +1432,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 13_214
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 13_215
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

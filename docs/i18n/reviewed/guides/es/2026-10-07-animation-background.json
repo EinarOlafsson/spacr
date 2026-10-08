@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "es",
+  "source_commit": "42a34d17cf45d96669a0d09e8f9424f212f70240",
+  "method": "Codex AI technical translation of the current independent animation background behaviour; exact runtime glossary alignment, no native-speaker signoff.",
+  "records": [
+    {
+      "domain": "features",
+      "source": "**Animation background colour** sets the background independently of the animation palette. Until you choose a colour, it follows the page theme; **Theme colour** restores that behaviour. The chosen colour's brightness is kept within the active Dark or Light theme's range. It applies to the main window, module screens and animated settings popups. A full-screen wallpaper can cover the background fill.",
+      "source_sha256": "e171c3da982f303acc52ccd4b0512431cd446f7c66cb7641f83667de06751bae",
+      "target": "**Color de fondo de la animación** establece el fondo independientemente de la paleta de animación. Hasta que elija un color, sigue el tema de la página; **Color del tema** restaura ese comportamiento. El brillo del color elegido se mantiene dentro del intervalo del tema oscuro o claro activo. Se aplica a la ventana principal, las pantallas de los módulos y los diálogos de ajustes animados. Una imagen de fondo a pantalla completa puede cubrir el color de fondo."
+    }
+  ]
+}

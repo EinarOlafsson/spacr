@@ -5178,6 +5178,7 @@ API_ENTRIES = (
     ('spacr.qt.preferences.PreferencesDialog._build_the_dialog._page', 'Add a tab and return the form to fill it with.'),
     ('spacr.qt.preferences.PreferencesDialog._build_the_dialog._percent_row', 'Build one labelled percentage slider and return its parts.'),
     ('spacr.qt.preferences.PreferencesDialog._build_the_dialog._percent_row._update', 'Show the percentage, saying when it is the designed value.'),
+    ('spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background', 'Keep the candidate fill local until the dialog is saved.'),
     ('spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_color', 'Select a local colour and activate the custom palette on save.'),
     ('spacr.qt.preferences.PreferencesDialog._build_the_dialog._put_the_sliders_back', 'After a Revert, show the values that are in force again.'),
     ('spacr.qt.preferences.PreferencesDialog._build_the_dialog._quit_spacr', 'Ask how, then either stop cooperatively or leave outright.'),
@@ -14015,7 +14016,8 @@ SETTING_CONSUMERS = {
 PREFERENCE_ENTRIES = (
     ('Provider', 'AI', 'PreferencesTabAI', 'Which assistant the AI switch routes through. Automatic picks the first vendor CLI that is installed and logged in.'),
     ('Animation', 'Appearance', 'PreferencesTabAnimation', 'A crisp gravitational dot field with optional local mouse influence and expanding ripples.'),
-    ('Animation colours', 'Appearance', 'PreferencesTabAnimation', 'Choose the primary and accent colours used by the Custom colours animation palette. Colour changes are applied when you save Preferences.'),
+    ('Animation background', 'Appearance', 'PreferencesTabAnimation', 'Choose a background for every animation, independent of its palette. It follows the active page theme until chosen; its brightness stays on the active Dark or Light side. Changes apply when you save Preferences.'),
+    ('Animation colours', 'Appearance', 'PreferencesTabAnimation', 'Choose the primary and accent colours for the Custom colours palette. Changes apply when you save Preferences.'),
     ('Animation density', 'Appearance', 'PreferencesTabAnimation', 'Number of background shapes.'),
     ('Animation detail', 'Appearance', 'PreferencesTabAnimation', 'Backdrop rendering detail. Reduce this value if animation affects interface performance.'),
     ('Animation palette', 'Appearance', 'PreferencesTabAnimation', 'Which colours the animation uses. "spaCR" is built from the app\'s own blue, magenta and green-cyan.'),

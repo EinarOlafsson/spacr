@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "source_commit": "42a34d17cf45d96669a0d09e8f9424f212f70240",
+  "method": "Codex AI technical translation of the current independent animation background behaviour; exact runtime glossary alignment, no native-speaker signoff.",
+  "records": [
+    {
+      "domain": "features",
+      "source": "**Animation background colour** sets the background independently of the animation palette. Until you choose a colour, it follows the page theme; **Theme colour** restores that behaviour. The chosen colour's brightness is kept within the active Dark or Light theme's range. It applies to the main window, module screens and animated settings popups. A full-screen wallpaper can cover the background fill.",
+      "source_sha256": "e171c3da982f303acc52ccd4b0512431cd446f7c66cb7641f83667de06751bae",
+      "target": "**动画背景颜色**可独立于动画调色板设置背景。在您选择颜色之前，背景会跟随页面主题；**主题颜色**可恢复这一行为。所选颜色的亮度始终保持在当前深色或浅色主题的范围内。该颜色应用于主窗口、模块页面和带动画的设置弹窗。全屏壁纸可能遮盖背景填充颜色。"
+    }
+  ]
+}
