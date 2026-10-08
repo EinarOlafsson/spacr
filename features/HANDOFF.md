@@ -1,5 +1,30 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 13:20 EDT — Workstation plate export202 and combined522; accepting Home UI transfer
+
+User confirms GitHub green and requests completion of remaining work.
+N658 PRIVATE06488e9f4 full202PASS76.98s/172warnings; combined source
+PRIVATE53c824726 full522PASS254.49s/178warnings. Original plate3FAIL
+and underscored-name1FAIL retained. Complete four-plate recipe restores
+independently checked mean/sum/count, custom colours, missing wells,
+outlines and one shared colourbar from unchanged complete source CSV.
+Native underscored plate isolation fixed. Ten-file replacement patch
+CLEAN APPLY, all original tests unchanged, exact candidate bytes in53c.
+All13223 canonical API texts exactly match accepted English on53c.
+ data/658_private_plate_heatmap_2026-10-08/receipt.json
+
+Home e31 N666-671 source transfer acknowledged; workstation will check
+and combine privately with owned candidates, regenerate exact current
+API/callable/runtime catalogs and reviewed evidence normally. N674
+follow-up pending final source transfer; N672/673 still OPEN. N675
+installation documentation follows verified package publication.
+Regression sheet original3FAIL (7-to1/full,3-to1/sparse). Repaired
+candidate focused36PASS9.20s; first harness inherited future annotations
+unlike actual standalone CLI and failed3; corrected harness recorded.
+Actual standalone process and broader sheet scope next. Application
+source not pushed here; Home coherent adoption/serial holds unchanged.
+
+
 ## 2026-10-08 13:10 EDT — Home UI source transfer; Spaceout field follow-up in parallel
 
 Home exact PRIVATEe31e19543a integrates N666/N667/N668/N670/N671. Final
