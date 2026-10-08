@@ -1,0 +1,201 @@
+{
+  "status": "Complete/rejected; no application change",
+  "before_source_sha256": "a30979cce98c45a5ce66a7b67b53dafe77bccaebf934dd09727e6186aab3979a",
+  "after_source_sha256": "0f8db4319e14c80a0caf9ac66dfaccb0df3dfc838098fcbf15cb48ac0093c2e5",
+  "workers": [
+    {
+      "file": "data_art_fungal_growth-after-spacr-3.0-after-B.json.gz",
+      "variant": "after",
+      "records": [
+        {
+          "repeat": 1,
+          "steady_seconds": 5.01430820900714,
+          "published_frames": 17,
+          "published_fps": 3.390298181005928,
+          "distinct_published_clocks": 17,
+          "first_clock": 97.22500000000001,
+          "clock_advance": 4.865000000000023,
+          "painted_fps": 24.130945876571605,
+          "repeated_frame_objects": 104,
+          "worker_shade": {
+            "median_ms": 292.80760599067435,
+            "p95_ms": 351.57645601429977,
+            "max_ms": 351.57645601429977,
+            "samples": 17
+          },
+          "gui_paint": {
+            "median_ms": 7.406852004351094,
+            "p95_ms": 20.196708996081725,
+            "max_ms": 30.616339994594455,
+            "samples": 121
+          },
+          "heartbeat_10ms": {
+            "median_ms": 11.33670650597196,
+            "p95_ms": 46.08985097729601,
+            "max_ms": 70.9634099912364,
+            "samples": 274
+          },
+          "publication_intervals": {
+            "median_ms": 295.7645280112047,
+            "p95_ms": 351.6020049864892,
+            "max_ms": 351.6020049864892,
+            "samples": 16
+          },
+          "lightning_worker_shades": null,
+          "load_average": [
+            3.7861328125,
+            3.31396484375,
+            3.18701171875
+          ],
+          "current_rss_kib": 319344
+        }
+      ]
+    },
+    {
+      "file": "data_art_fungal_growth-after-spacr-3.0-after-C.json.gz",
+      "variant": "after",
+      "records": [
+        {
+          "repeat": 1,
+          "steady_seconds": 5.018133795005269,
+          "published_frames": 18,
+          "published_fps": 3.5869908486529503,
+          "distinct_published_clocks": 18,
+          "first_clock": 97.22599999999998,
+          "clock_advance": 4.943999999999988,
+          "painted_fps": 24.311826863092218,
+          "repeated_frame_objects": 104,
+          "worker_shade": {
+            "median_ms": 279.1894974943716,
+            "p95_ms": 338.5732139868196,
+            "max_ms": 338.5732139868196,
+            "samples": 18
+          },
+          "gui_paint": {
+            "median_ms": 7.78035850089509,
+            "p95_ms": 25.97898500971496,
+            "max_ms": 47.16516600456089,
+            "samples": 122
+          },
+          "heartbeat_10ms": {
+            "median_ms": 13.054419483523816,
+            "p95_ms": 41.53544100699946,
+            "max_ms": 86.69653200195171,
+            "samples": 280
+          },
+          "publication_intervals": {
+            "median_ms": 280.1655289949849,
+            "p95_ms": 338.5977529978845,
+            "max_ms": 338.5977529978845,
+            "samples": 17
+          },
+          "lightning_worker_shades": null,
+          "load_average": [
+            3.671875,
+            3.30419921875,
+            3.18505859375
+          ],
+          "current_rss_kib": 318852
+        }
+      ]
+    },
+    {
+      "file": "data_art_fungal_growth-before-spacr-3.0-before-A.json.gz",
+      "variant": "before",
+      "records": [
+        {
+          "repeat": 1,
+          "steady_seconds": 5.062548696005251,
+          "published_frames": 18,
+          "published_fps": 3.5555213551236386,
+          "distinct_published_clocks": 18,
+          "first_clock": 97.271,
+          "clock_advance": 5.062999999999974,
+          "painted_fps": 24.296062593344864,
+          "repeated_frame_objects": 105,
+          "worker_shade": {
+            "median_ms": 281.49404149735346,
+            "p95_ms": 347.86610899027437,
+            "max_ms": 347.86610899027437,
+            "samples": 18
+          },
+          "gui_paint": {
+            "median_ms": 6.780042022000998,
+            "p95_ms": 20.578302996000275,
+            "max_ms": 32.298192993039265,
+            "samples": 123
+          },
+          "heartbeat_10ms": {
+            "median_ms": 12.56314100464806,
+            "p95_ms": 39.71838401048444,
+            "max_ms": 53.07111897855066,
+            "samples": 290
+          },
+          "publication_intervals": {
+            "median_ms": 282.6040299842134,
+            "p95_ms": 347.891128010815,
+            "max_ms": 347.891128010815,
+            "samples": 17
+          },
+          "lightning_worker_shades": null,
+          "load_average": [
+            3.732421875,
+            3.2900390625,
+            3.177734375
+          ],
+          "current_rss_kib": 319424
+        }
+      ]
+    },
+    {
+      "file": "data_art_fungal_growth-before-spacr-3.0-before-D.json.gz",
+      "variant": "before",
+      "records": [
+        {
+          "repeat": 1,
+          "steady_seconds": 5.054416684026364,
+          "published_frames": 18,
+          "published_fps": 3.561241805980496,
+          "distinct_published_clocks": 18,
+          "first_clock": 97.27,
+          "clock_advance": 4.984999999999999,
+          "painted_fps": 24.335152340866724,
+          "repeated_frame_objects": 105,
+          "worker_shade": {
+            "median_ms": 278.8398109987611,
+            "p95_ms": 323.2707680144813,
+            "max_ms": 323.2707680144813,
+            "samples": 18
+          },
+          "gui_paint": {
+            "median_ms": 7.221018022391945,
+            "p95_ms": 20.219843980157748,
+            "max_ms": 29.390020994469523,
+            "samples": 123
+          },
+          "heartbeat_10ms": {
+            "median_ms": 11.337873991578817,
+            "p95_ms": 43.755701975896955,
+            "max_ms": 73.95502302097157,
+            "samples": 283
+          },
+          "publication_intervals": {
+            "median_ms": 281.71728999586776,
+            "p95_ms": 323.3057970064692,
+            "max_ms": 323.3057970064692,
+            "samples": 17
+          },
+          "lightning_worker_shades": null,
+          "load_average": [
+            4.46435546875,
+            3.50146484375,
+            3.251953125
+          ],
+          "current_rss_kib": 327772
+        }
+      ]
+    }
+  ],
+  "reason": "Global-minimum break triggers at96.33 but zero times at actual97.3/99.5/101.9 worker clocks; native ABBA no robust gain, and hour direct geometry55.9\u219266.9ms slower. No production integration or hard24FPS acceptance.",
+  "all_four_workers_retired": true
+}

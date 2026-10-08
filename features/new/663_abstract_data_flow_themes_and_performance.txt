@@ -1327,3 +1327,21 @@ One nested API arrival and six reported tr literals were handed to workstation
 for normal source extraction and all-nine API/runtime/help generation. That
 publication, corrected hosted acceptance, hard24FPS, installed native-crash
 acceptance and human visual approval remain open; no N663 parent closure.
+
+2026-10-07 — Exact individual-cost refusal237f649ad skips an unselected
+sibling group only when its own candidate already exceeds the remaining
+positive ink budget. Selected ancestors still admit fitting sisters in
+original frontier order; accepted sums, topology, alpha, palettes, native
+Detail/Density and64/8MiB raster bounds unchanged.18focusedcasesPASS97.05s
+under4GiB; both inserted statements and both guard arcs directly observed.
+Controlled selected-parent mutation demonstrably changes[0,2,3]→[1,2,3],
+so that ownership/order safeguard remains. Current0d8950-source native4K
+pairs are exact(default/Random/light), as are adjacent floating boundaries
+and empty/cycle/duplicate inputs. Actual requested24FPS/D3/Detail2/Size2.5
+ABBA gain:3.392→4.157 and3.596→4.171 publishedFPS; all4workers retire.
+Filesystem process bounds end01:28:31.702UTC,10.11s before the reported
+86case cohort begins; not absolute thread timestamps or machine-isolation
+guarantee. Hard24FPS remains far OPEN. Rejected global-minimum shortcut
+had no reliable live gain and is retained separately, never shipped.
+Portable source/raw/parity/coverage/worker/negative proof:
+data/663_fungal_node_cost_refusal_cpu_2026-10-07/acceptance.json.
