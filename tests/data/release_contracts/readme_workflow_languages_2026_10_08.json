@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "source_heading": "Organism",
+  "source_note": "Organism-specific image analysis and quantitative assay readouts.",
+  "source_hardware_legend": "🟢 supported (stable)   🟣 implemented (beta)   🔴 CPU support only",
+  "languages": {
+    "sv": {
+      "heading": "Organism",
+      "note": "Organismspecifik bildanalys och kvantitativa resultat från biologiska analyser.",
+      "hardware_legend": "Stödda (stabila)  och genomförda (beta) - CPU stöd endast",
+      "accepted_hardware_block": "\n.. list-table::\n   :header-rows: 1\n   :widths: 32 18 18 22\n\n   * - Hardware\n     - Cellpose 4\n     - Torch\n     - UMAP / clustering\n   * - NVIDIA (CUDA)\n     - 🟢 GPU\n     - 🟢 GPU\n     - 🟢 GPU\n   * - AMD on Linux (ROCm)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - AMD in an Intel Mac (Metal)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - Apple Silicon (Metal)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - Intel Arc/Xe (XPU)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - No GPU\n     - 🟢 CPU\n     - 🟢 CPU\n     - 🟢 CPU\n\nStödda (stabila)  och genomförda (beta) - CPU stöd endast\n\n"
+    },
+    "de": {
+      "heading": "Organismus",
+      "note": "Organismusspezifische Bildanalyse und quantitative Assay-Ergebnisse.",
+      "hardware_legend": "Nur unterstützte (stabile) Unterstützung implementierte (beta) Unterstützung CPU",
+      "accepted_hardware_block": "\n.. list-table::\n   :header-rows: 1\n   :widths: 32 18 18 22\n\n   * - Hardware\n     - Cellpose 4\n     - Torch\n     - UMAP / clustering\n   * - NVIDIA (CUDA)\n     - 🟢 GPU\n     - 🟢 GPU\n     - 🟢 GPU\n   * - AMD on Linux (ROCm)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - AMD in an Intel Mac (Metal)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - Apple Silicon (Metal)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - Intel Arc/Xe (XPU)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - No GPU\n     - 🟢 CPU\n     - 🟢 CPU\n     - 🟢 CPU\n\nNur unterstützte (stabile) Unterstützung implementierte (beta) Unterstützung CPU\n\n"
+    },
+    "es": {
+      "heading": "Organismo",
+      "note": "Análisis de imágenes específico del organismo y resultados cuantitativos de ensayos.",
+      "hardware_legend": "soportado (estable)  implementado (beta) CPU soporte solamente",
+      "accepted_hardware_block": "\n.. list-table::\n   :header-rows: 1\n   :widths: 32 18 18 22\n\n   * - Hardware\n     - Cellpose 4\n     - Torch\n     - UMAP / clustering\n   * - NVIDIA (CUDA)\n     - 🟢 GPU\n     - 🟢 GPU\n     - 🟢 GPU\n   * - AMD on Linux (ROCm)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - AMD in an Intel Mac (Metal)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - Apple Silicon (Metal)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - Intel Arc/Xe (XPU)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - No GPU\n     - 🟢 CPU\n     - 🟢 CPU\n     - 🟢 CPU\n\nsoportado (estable)  implementado (beta) CPU soporte solamente\n\n"
+    },
+    "zh_CN": {
+      "heading": "生物体",
+      "note": "针对特定生物体的图像分析和定量实验测定结果。",
+      "hardware_legend": "支持(稳定) 实施(beta) 🔴 CPU 仅支持",
+      "accepted_hardware_block": "\n.. list-table::\n   :header-rows: 1\n   :widths: 32 18 18 22\n\n   * - Hardware\n     - Cellpose 4\n     - Torch\n     - UMAP / clustering\n   * - NVIDIA (CUDA)\n     - 🟢 GPU\n     - 🟢 GPU\n     - 🟢 GPU\n   * - AMD on Linux (ROCm)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - AMD in an Intel Mac (Metal)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - Apple Silicon (Metal)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - Intel Arc/Xe (XPU)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - No GPU\n     - 🟢 CPU\n     - 🟢 CPU\n     - 🟢 CPU\n\n支持(稳定) 实施(beta) 🔴 CPU 仅支持\n\n"
+    },
+    "pt": {
+      "heading": "Organismo",
+      "note": "Análise de imagens específica do organismo e resultados quantitativos de ensaios.",
+      "hardware_legend": "suportado (estável)  implementado (beta) ? CPU apenas suporte",
+      "accepted_hardware_block": "\n.. list-table::\n   :header-rows: 1\n   :widths: 32 18 18 22\n\n   * - Hardware\n     - Cellpose 4\n     - Torch\n     - UMAP / clustering\n   * - NVIDIA (CUDA)\n     - 🟢 GPU\n     - 🟢 GPU\n     - 🟢 GPU\n   * - AMD on Linux (ROCm)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - AMD in an Intel Mac (Metal)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - Apple Silicon (Metal)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - Intel Arc/Xe (XPU)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - No GPU\n     - 🟢 CPU\n     - 🟢 CPU\n     - 🟢 CPU\n\nsuportado (estável)  implementado (beta) ? CPU apenas suporte\n\n"
+    },
+    "hi": {
+      "heading": "जीव",
+      "note": "जीव-विशिष्ट छवि विश्लेषण और परिमाणात्मक परीक्षण परिणाम।",
+      "hardware_legend": "समर्थित (स्थिर)  लागू (बेटा) 🔴 CPU समर्थन केवल",
+      "accepted_hardware_block": "\n.. list-table::\n   :header-rows: 1\n   :widths: 32 18 18 22\n\n   * - Hardware\n     - Cellpose 4\n     - Torch\n     - UMAP / clustering\n   * - NVIDIA (CUDA)\n     - 🟢 GPU\n     - 🟢 GPU\n     - 🟢 GPU\n   * - AMD on Linux (ROCm)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - AMD in an Intel Mac (Metal)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - Apple Silicon (Metal)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - Intel Arc/Xe (XPU)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - No GPU\n     - 🟢 CPU\n     - 🟢 CPU\n     - 🟢 CPU\n\nसमर्थित (स्थिर)  लागू (बेटा) 🔴 CPU समर्थन केवल\n\n"
+    },
+    "ko": {
+      "heading": "생물체",
+      "note": "생물체별 이미지 분석과 정량적 분석 결과.",
+      "hardware_legend": "지원 (안정)  구현 (베타) 🔴 CPU 지원만",
+      "accepted_hardware_block": "\n.. list-table::\n   :header-rows: 1\n   :widths: 32 18 18 22\n\n   * - Hardware\n     - Cellpose 4\n     - Torch\n     - UMAP / clustering\n   * - NVIDIA (CUDA)\n     - 🟢 GPU\n     - 🟢 GPU\n     - 🟢 GPU\n   * - AMD on Linux (ROCm)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - AMD in an Intel Mac (Metal)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - Apple Silicon (Metal)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - Intel Arc/Xe (XPU)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - No GPU\n     - 🟢 CPU\n     - 🟢 CPU\n     - 🟢 CPU\n\n지원 (안정)  구현 (베타) 🔴 CPU 지원만\n\n"
+    },
+    "is": {
+      "heading": "Lífvera",
+      "note": "Myndgreining fyrir tilteknar lífverur og megindlegar niðurstöður líffræðilegra prófana.",
+      "hardware_legend": "stuðlað (stabil)  framkvæmd (beta) 🔴 CPU stuðning aðeins",
+      "accepted_hardware_block": "\n.. list-table::\n   :header-rows: 1\n   :widths: 32 18 18 22\n\n   * - Hardware\n     - Cellpose 4\n     - Torch\n     - UMAP / clustering\n   * - NVIDIA (CUDA)\n     - 🟢 GPU\n     - 🟢 GPU\n     - 🟢 GPU\n   * - AMD on Linux (ROCm)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - AMD in an Intel Mac (Metal)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - Apple Silicon (Metal)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - Intel Arc/Xe (XPU)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - No GPU\n     - 🟢 CPU\n     - 🟢 CPU\n     - 🟢 CPU\n\nstuðlað (stabil)  framkvæmd (beta) 🔴 CPU stuðning aðeins\n\n"
+    },
+    "fr": {
+      "heading": "Organisme",
+      "note": "Analyse d’images spécifique à l’organisme et résultats quantitatifs des essais.",
+      "hardware_legend": "Soutien (stable) Soutien (bêta) CPU seulement",
+      "accepted_hardware_block": "\n.. list-table::\n   :header-rows: 1\n   :widths: 32 18 18 22\n\n   * - Hardware\n     - Cellpose 4\n     - Torch\n     - UMAP / clustering\n   * - NVIDIA (CUDA)\n     - 🟢 GPU\n     - 🟢 GPU\n     - 🟢 GPU\n   * - AMD on Linux (ROCm)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - AMD in an Intel Mac (Metal)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - Apple Silicon (Metal)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - Intel Arc/Xe (XPU)\n     - 🟣 GPU\n     - 🟣 GPU\n     - 🔴 CPU\n   * - No GPU\n     - 🟢 CPU\n     - 🟢 CPU\n     - 🟢 CPU\n\nSoutien (stable) Soutien (bêta) CPU seulement\n\n"
+    }
+  }
+}
