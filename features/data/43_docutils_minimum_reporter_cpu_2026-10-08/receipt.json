@@ -1,0 +1,78 @@
+{
+  "source_before": "37bdf2a2bde855054b3a6bf6e2060e9b41196576",
+  "source_after_sha256": "668514ab91ba38a66fcda26e1709377806d6191fee4bcb828528b03b973b0877",
+  "scope": "Minimum Docutils memo.reporter compatibility; original warning and rendered-span validation preserved",
+  "interpreter": "3.12.13 | packaged by Anaconda, Inc. | (main, Jul  9 2026, 14:38:16) [GCC 14.3.0]",
+  "whole_python39_profile_accepted": false,
+  "negative": "Original required spaced-markup case FAILS on real Docutils0.20.1: memo.reporter missing, untruncated terminal log retained",
+  "minimum_positive": "Actual declared/pinned Docutils0.20.1:27PASS1SKIP8.74s; Sphinx absent locally",
+  "supported_parser_positive": {
+    "0.21.2": "7PASS21deselect0.61s",
+    "0.23": "7PASS21deselect0.58s"
+  },
+  "initial_broad_probe": "20FAIL7PASS1SKIP:18 parser failures plus2 sparse-worktree missing-script errors; original tool excerpt is explicitly truncated, not raw complete log",
+  "sparse_setup_correction": "Materialized exact committed docs/source/_static/api_i18n.js, no file bytes changed",
+  "gate_or_numerical_allowance_changed": false,
+  "wheels": [
+    {
+      "file": "docutils-0.20.1-py3-none-any.whl",
+      "sha256": "96f387a2c5562db4476f09f13bbab2192e764cac08ebbf3a34a95d9b1e4a59d6",
+      "bytes": 572666
+    },
+    {
+      "file": "docutils-0.21.2-py3-none-any.whl",
+      "sha256": "dafca5b9e384f0e419294eb4d2ff9fa826435bf15f15b7bd45723e8ad76811b2",
+      "bytes": 587408
+    }
+  ],
+  "files": [
+    {
+      "file": "required-spaced-markup-before.log.gz",
+      "sha256": "fa864572d3a0380d7f9d4d7c8574479f219c40371f07621ff33dfc6454882123",
+      "raw_sha256": "6c21aa6176abcfd781d7358bc1f17b5aa3fa2014d06e44476d84cd7b48c91174",
+      "raw_bytes": 1345
+    },
+    {
+      "file": "minimum-guide-after.log.gz",
+      "sha256": "302ea008f959809cfd662a9c53755e659c11cc197146056919f62fe977ff0a91",
+      "raw_sha256": "5ea62d6761b967739e173eb08e438750e04137e9cdd7584d3e2d88971169a8ae",
+      "raw_bytes": 389
+    },
+    {
+      "file": "docutils-0212-parser-after.log.gz",
+      "sha256": "8af59c4dac35369421db7ca640beda30682c5b671daed381eecc0067c6a47df0",
+      "raw_sha256": "5757029a5b96e60291ec2b0873509cf39254d5e07cca66cdbba5783106e73105",
+      "raw_bytes": 222
+    },
+    {
+      "file": "docutils-023-parser-after.log.gz",
+      "sha256": "05cf000e3c8b98bc156eb0f0f16503853bc07094f73f2a4c19172d45726c3de5",
+      "raw_sha256": "c2df71e5453cf55fcb2c3d79e703406cce1163f7eb86be79da4aecc858fe37d4",
+      "raw_bytes": 232
+    },
+    {
+      "file": "original-broad-probe-tool-excerpt.json.gz",
+      "sha256": "ecb88a3e0d2241328f920fff04d8455e8f2c95becdf78466cb97ed469ef305b2",
+      "raw_sha256": "551ebcd1260ecd813682da5c3eef1567320c19e4be0f96848e16beab0eb67fa7",
+      "raw_bytes": 7439
+    },
+    {
+      "file": "before_build_guide_i18n.py.gz",
+      "sha256": "c1bf7a44cfc7e986080190c36cba7dc3616f8f49d3a8d019007a2b31202f12c8",
+      "raw_sha256": "1361eb4ae8b6c28eb1db7b613db88656cba5008b0cc9d919ed5a961651f7e9bc",
+      "raw_bytes": 51001
+    },
+    {
+      "file": "after_build_guide_i18n.py.gz",
+      "sha256": "563c0e2da1b90eb423daf4047619035aa84d917bb55911ef25885e49d53b94b8",
+      "raw_sha256": "668514ab91ba38a66fcda26e1709377806d6191fee4bcb828528b03b973b0877",
+      "raw_bytes": 51056
+    },
+    {
+      "file": "compatibility.patch.gz",
+      "sha256": "5e7758cb18562305053ebe707935fc7548b7cb8d6b46c4e832a28532fa10f01a",
+      "raw_sha256": "dbe4c93f5a4db283b14941d15caff22c9267639275ae197685cf67628771e85d",
+      "raw_bytes": 752
+    }
+  ]
+}

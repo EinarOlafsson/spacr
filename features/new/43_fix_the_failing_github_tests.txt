@@ -3346,3 +3346,23 @@ HTML exit0. Complete50-payload source/failure/success receipt:
 data/615_current_translated_inline_repair_2026-10-08_r2/receipt.json.
 New exact-source hosted docs and deployed browser acceptance remain pending;
 protected55 tests/serial retained. No whole-item or native crash closure.
+
+
+2026-10-08 — Real minimum Docutils validator incompatibility caught locally
+Accepted workstation37 guide spacing/rendered-span repair is source-verified:
+all50 payloads, all9 source hashes and32 actual rendered paragraphs pass.
+Before its queued required tests run, Home probes the actual pinned0.20.1
+Docutils wheel and catches required English fixture failure: Inliner.parse
+needs memo.reporter. Supplying document.reporter preserves the original
+warning/span/literal/role/UI-name checks. Exact old required node fails;
+complete corrected guide file27PASS1SKIP8.74s on0.20.1. Parser cases also
+7PASS on0.21.2 and7PASS oninstalled0.23. The skip is local absent Sphinx,
+not a test/policy change; this is not complete Python3.9 matrix acceptance.
+Initial broad probe included two sparse missing-script errors and its tool
+output is explicitly truncated; exact untruncated negative and all corrected
+logs, source/patch and wheel hashes are retained:
+ data/43_docutils_minimum_reporter_cpu_2026-10-08/receipt.json.
+Separate actual55 MinDeps0 sole blocking node catches archived case-only
+MANIFEST.json/manifest.json path collision; one reused agent fixes archival
+names/provenance under the unchanged existing guard. All55 test/serial runs
+remain preserved, no app/Qt source or ratchet ceiling changes. N43 remainsOPEN.

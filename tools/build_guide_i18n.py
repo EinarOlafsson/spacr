@@ -425,7 +425,8 @@ def inline_markup_problems(text: str) -> tuple[str, ...]:
     document = new_document("<translated-guide>", settings=settings)
     inliner = Inliner()
     inliner.init_customizations(settings)
-    memo = SimpleNamespace(document=document, language=languages.get_language("en"))
+    memo = SimpleNamespace(document=document, reporter=document.reporter,
+                           language=languages.get_language("en"))
     children, messages = inliner.parse(text, 1, memo, nodes.paragraph())
     paragraph = nodes.paragraph()
     paragraph.extend(children)
