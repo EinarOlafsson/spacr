@@ -2693,10 +2693,11 @@ def apply_ambient_preferences(app=None) -> None:
         from PySide6.QtWidgets import QApplication, QDialog
 
         app = app or QApplication.instance()
-        if (app is None or get_popup_backdrop() == "off"
+        if (app is None
                 or not any(isinstance(widget, QDialog)
                            and widget.property("spacrGlassed")
-                           for widget in app.allWidgets())):
+                           for widget in app.allWidgets())
+                or get_popup_backdrop() == "off"):
             return
     try:
         from PySide6.QtWidgets import QApplication

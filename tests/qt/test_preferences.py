@@ -1279,3 +1279,35 @@ def test_preferences_imports_without_touching_the_ambient_widget():
         result = subprocess.run([sys.executable, "-c", code], env=env,
                                 capture_output=True, text=True, timeout=300)
     assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize("dialog_kind", ["none", "ordinary", "glassed"])
+def test_disabled_unloaded_backdrop_reads_popup_catalogue_only_for_glass(
+        qtbot, monkeypatch, dialog_kind):
+    """A catalogue lookup cannot import an unused backdrop during recovery."""
+    import sys
+
+    from PySide6.QtWidgets import QDialog, QWidget
+    from spacr.qt import preferences
+
+    monkeypatch.delitem(sys.modules, "spacr.qt.widgets.ambient", raising=False)
+    monkeypatch.setattr(preferences, "get_ambient_enabled", lambda: False)
+    widget = QWidget() if dialog_kind == "none" else QDialog()
+    qtbot.addWidget(widget)
+    if dialog_kind == "glassed":
+        widget.setProperty("spacrGlassed", True)
+    asked = []
+
+    def popup_choice():
+        asked.append(True)
+        return "off"
+
+    monkeypatch.setattr(preferences, "get_popup_backdrop", popup_choice)
+
+    class ExistingWidgets:
+        def allWidgets(self):
+            return [widget]
+
+    preferences.apply_ambient_preferences(ExistingWidgets())
+    assert asked == ([True] if dialog_kind == "glassed" else [])
+    assert "spacr.qt.widgets.ambient" not in sys.modules
