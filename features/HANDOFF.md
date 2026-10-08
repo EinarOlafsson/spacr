@@ -1,5 +1,35 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home: eleven numerical repairs accepted locally; all Qt failures known
+
+Integrated83-case ambient/preferences/masks/fungal cohort passes176.32s under
+4GiB with branch coverage. Strict exact-source union of the complete683
+artifact and focused results puts all11 original regression modules within
+unchanged allowances, including ambient0/0 (allowed1/0), preferences84/25
+(89/25), Make Masks11/28 (59/28). Source revisions/blob hashes are checked per
+measured group; the sole fungal line-coordinate deletion is explicitly mapped.
+Current root Git-blob manifest/union verification both pass. Portable proof:
+data/43_683_eleven_module_union_2026-10-08/receipt.json and
+data/43_683_ambient_preferences_masks_cpu_2026-10-07/receipt.json.
+The actual checkpoint-path change also passes an appropriate44-case existing
+CPU training/resume/artifact/model-card cohort in9.95s under4GiB.
+
+All three683 Qt jobs are terminal: Qt1SUCCESS; Qt0 fails only two popup-alpha
+nodes already fixedcc8; Qt2 fails only three branded-caption ownership strings
+already fixed by ownerc771's indirect animation-label extractor. Its exact
+failed node passes1/1 on current source. No native crash or memory-guard hit
+appears in either failed Qt log. Serial performance-tail acceptance is still
+being checked; none of this is complete corrected-source GitHub green.
+Fast2 fails only the same four already-known owner inventory/glossary nodes
+as MinDeps2; constructor pins are already corrected in c771. Fast0/1 remain
+executing. Workstation's final normal API/catalog/guide publication and the
+unreproduced idle parity node remain immediate shared priorities.
+
+Home is profiling N663 while awaiting hosted results. Two spinn border-trim
+probes changed native pixels and were rejected without source mutation or
+performance acceptance. No detail/density reduction or prior rejected live
+probe is repeated. All earlier explicit user closures remain closed.
+
 ## 2026-10-07 — Home: complete numerical failure measured and repairs integrated
 
 Ordinary683 has complete12/12 coverage records,664/664 module records and
