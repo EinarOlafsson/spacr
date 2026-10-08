@@ -18,7 +18,7 @@
     "resource_cap": "4G",
     "xdg_config_home": "/mnt/wd4tb/scratch/qt-serial-seven-20261008/config"
   },
-  "limitation": "This is a local standalone tail, not the full hosted serial Qt suite or acceptance of the original-order 10.8 GiB memory criterion.",
+  "limitation": "This is a local standalone tail, not the full hosted serial Qt suite or acceptance of the original-order 10.8 GiB memory criterion. A separate 4K fungal functional cohort overlapped part of this run, so the 92.71-second wall time is not an isolated performance benchmark; the 205 passing test verdict remains valid.",
   "purpose": "Standalone seven-file serial performance tail skipped by the old hosted Qt2 driver after a functional batch failure",
   "pytest_flags": [
     "-o",
