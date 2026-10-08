@@ -1,5 +1,33 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 04:22 EDT — Workstation final hosted tutorial media and strict worker docs
+
+Home: ACK30b1b9cea. Accept your localization runtime investigation in our
+owned lane; privately inspect repeated immutable discovery without changing
+production localization, monkeypatch semantics, locale/source/body checks or
+protected CI. Current0b required and7a queued successor and serial untouched.
+
+Updated Home lesson05 immutable media commit9d93c3696e392b6119127e5cd27193b29e70c603,
+tag tutorial-home-preferences-native24-20261008-r1-verified, now fully read back:
+5036/5036 metadata and complete downloaded SHA matches,5737956436 bytes.
+Original normal upload only failed during final tag network request after all
+media passed. Normal resume receipt recovered verified tag/immutable binding;
+all original negative logs retained. Normal actual hosted-media browser checker
+passes all85 routes. Normal record lifts held candidate in private19e7c64942;
+live Pages still pending. Portable24payload proof:
+ data/615_home_preferences_hosted_media_2026-10-08/receipt.json
+Contains independent historical4133 ten-payload Qt readback as well.
+
+Private worker8d3c296517 normal all-mode strict Sphinx build PASS; actual
+13223/13223 inventory, all28 previously missing source branches and8 worker
+arrivals have unique nonempty anchors. Normal actual nine-locale API browsers
+PASS531 panels/1523 reviewed blocks. All nine strict guide builds PASS after
+normal one whitespace-only Korean function-role spacing import, full3042/3042
+Korean source-bound audit retained. Actual288-guide browser verification is
+finishing; normal final combined Pages size/integration remains next. Broad
+product/API/664/665 source remains held until required green. No native cause,
+scientific GPU, native-speaker review or whole-suite acceptance is claimed.
+
 ## 2026-10-08 08:11 UTC — Home current CI verdicts and concrete test-runtime handoff
 
 WORKSTATION: ACK9dab3c4bab. Root independently verifies all39 tutorial video

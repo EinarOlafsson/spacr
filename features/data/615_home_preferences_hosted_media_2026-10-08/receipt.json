@@ -1,0 +1,140 @@
+{
+  "passed": true,
+  "commit": "9d93c3696e392b6119127e5cd27193b29e70c603",
+  "tag": "tutorial-home-preferences-native24-20261008-r1-verified",
+  "manifest_sha256": "7a6e9ca0e1a48090b3496209d5e91eb3b5689cff15ee1b951529ae318a1b2d9a",
+  "files_expected": 5036,
+  "downloaded_sha256_matched": 5036,
+  "bytes_downloaded": null,
+  "terminal_statuses": {
+    "tutorial-home-current-hf-upload-r1": 1,
+    "tutorial-home-current-hf-receipt-recovery-r1": 0,
+    "tutorial-home-current-private-pages-checkpoint-r1": 1,
+    "tutorial-home-current-published-media-browser-r1": 1,
+    "tutorial-home-current-published-media-browser-r2": 0,
+    "tutorial-home-current-private-pages-record-r1": 0
+  },
+  "payloads": {
+    "features/data/615_home_preferences_hosted_media_2026-10-08/logs/tutorial-home-current-hf-upload-r1.log.gz": {
+      "raw_sha256": "c4fc390310f9ca2f1f327720031be7a21a222ea5ec3f4ccdcbd1bf4061a958d3",
+      "raw_bytes": 65618,
+      "archive_sha256": "0fc7db0e4415b63b6df843904fa613e7e15edad3f36ac31812fac07665799e5d"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/logs/tutorial-home-current-hf-upload-r1-tool.log.gz": {
+      "raw_sha256": "f71d16ccb115b5ecbfc90499b7876e393c67a08f356f728ae7114d4cd932b685",
+      "raw_bytes": 1355,
+      "archive_sha256": "5769b4aa1521b8846b80d864f41d02a0c1a842f2b460393b28b699421a149dd1"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/logs/tutorial-home-current-hf-receipt-recovery-r1.log.gz": {
+      "raw_sha256": "ead262942bf6719664e89e6e92e1aedbba4d9a8746e2252954a753a7a0f477cc",
+      "raw_bytes": 1104,
+      "archive_sha256": "3318798f85ac8b9bfb043450f0b718b256b155f33dd98559d0d02536397b282e"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/logs/tutorial-home-current-hf-receipt-recovery-r1-tool.log.gz": {
+      "raw_sha256": "fbaa8a463d564c1c7f1b4e938aae4fc36a64de6f5f63697fbcd4336edf9aa77e",
+      "raw_bytes": 565,
+      "archive_sha256": "4de3b1ce0f20dc8aff601b6a40a193401af29ed14be5503d5e8faae8ac4f8a09"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/logs/tutorial-home-current-private-pages-checkpoint-r1.log.gz": {
+      "raw_sha256": "358747bd16a08439d8eca8a810fddecb4ee8ee4e99a2661b909e641b4e177bee",
+      "raw_bytes": 2396,
+      "archive_sha256": "524778602431c60dd47500be5f27b97081313dc3b8475849cfd869785714a282"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/logs/tutorial-home-current-private-pages-checkpoint-r1-tool.log.gz": {
+      "raw_sha256": "676f707248727a472ef9a35d4b9b816a3eb6e5525c9bf5816ee61fd3ec7c3c38",
+      "raw_bytes": 1213,
+      "archive_sha256": "76157d12a8ea5532c96e6c17c037830602a674e4ddda742383621acb3447b4fb"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/logs/tutorial-home-current-published-media-browser-r1.log.gz": {
+      "raw_sha256": "e95b0ad7ad603c42ed2b13e7e5dd28006c022c9dd0f261bd279e160d63f99669",
+      "raw_bytes": 1311,
+      "archive_sha256": "4c73282047e6d7787fbaf8f13843643fb761131dfc7c47b1035bd1ec7469d35b"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/logs/tutorial-home-current-published-media-browser-r1-tool.log.gz": {
+      "raw_sha256": "b2c3b64119619eabc46b1869d61deeb91ea765be6f93f53514f24b5090ab7ac1",
+      "raw_bytes": 117,
+      "archive_sha256": "e4c7886ee1aa36cdf6f0c4ad814d2acf9b2bf589f191fca5975e5e9dc7d4cd5e"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/logs/tutorial-home-current-published-media-browser-r2.log.gz": {
+      "raw_sha256": "532444a0aaf5f89cc908fbebfce2edc6e794bbdf85d2f90e5c278b680b5a26ab",
+      "raw_bytes": 4144,
+      "archive_sha256": "f3bc105c5fc4e3df42bc58abd5ba0519a481832f413a1a098c84f9ee9fad98bd"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/logs/tutorial-home-current-published-media-browser-r2-tool.log.gz": {
+      "raw_sha256": "ab8851f63c32ac42c6039ce7704c738bffa337210fbed0ecaec307eb73d116c6",
+      "raw_bytes": 3495,
+      "archive_sha256": "eda899388e76c65f7c12ad1f70cfbf30084a01d3009285781d14b833fd9ee1f2"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/logs/tutorial-home-current-private-pages-record-r1.log.gz": {
+      "raw_sha256": "484a878b5686a2db724ac2b3bfb872b7f677c72d05c5dd63c25f95ec60531ef2",
+      "raw_bytes": 871,
+      "archive_sha256": "e16a51b1dc0a7507db2f68d293423338be03e7016b50627e6d31ee987745fde6"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/logs/tutorial-home-current-private-pages-record-r1-tool.log.gz": {
+      "raw_sha256": "74b3fde3821be44f78792e02c5745464f9c817ebbaac535bdec1222e56b4d108",
+      "raw_bytes": 337,
+      "archive_sha256": "6a43c0ba7b8085a2dd9389ac585127ad3d0d56d29d11613197643facd694dc72"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/scratch/recover_preferences_current_publication_receipt_r1.py.gz": {
+      "raw_sha256": "76fedc4e6488f51ed839c04704e23a0d02b09d835effe13068fde7b713527d36",
+      "raw_bytes": 2315,
+      "archive_sha256": "02f2d34c3382bb23084988b49c12afb7e984c6457c1ec3f5f9cce58e4c94a746"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/scratch/record_preferences_current_verified_pages_r1.py.gz": {
+      "raw_sha256": "3784d1a8f2dffe3cbc90c29c4333c6465e499bd1f015b895116e40887b298af9",
+      "raw_bytes": 1733,
+      "archive_sha256": "b8a1f7f9f25c7618dbe3b10ef750af4764dae048079035f538e744d53f2f58b8"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/scratch/prepare_preferences_current_pages_checkpoint_r1.py.gz": {
+      "raw_sha256": "9253ed2144b628b6c988362dcaf9c20fbbc3b9f528494fdbed92120eac05406d",
+      "raw_bytes": 1452,
+      "archive_sha256": "43889c0a9a2401ffc3e6f61dc8512e8a050f4a94dbece8d8e7b6968a5066e058"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/scratch/upload_preferences_current_candidate_r1.py.gz": {
+      "raw_sha256": "a237b5d8934bcf8688321a2a46956512ce747b5ed5956bcc1278867e2f52a631",
+      "raw_bytes": 1432,
+      "archive_sha256": "6a673f3e0c3209e91c426e91a67d4d4519ae93ef409c08bb4c2462a0ac74f914"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/scratch/archive_preferences_current_hosted_proof_r1.py.gz": {
+      "raw_sha256": "328126d468184c36e887b57e3a1213523ff5ddadca9628134003eb8b26174836",
+      "raw_bytes": 3453,
+      "archive_sha256": "26e327573f222a16e486ff1bb0a279d7bf59ccb1fc6beae36c6433d991a52506"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/scratch/tutorial-home-current-full-media-readback-r1.json.gz": {
+      "raw_sha256": "20e17c86f8036b136dff13e931bccd1a658da1340d5b69bc9b1aee5d84828dc6",
+      "raw_bytes": 276,
+      "archive_sha256": "e841d4e74520437d908cf78ace7dca038f185280cbb33e5bbd4cdaaf59b4fee1"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/scratch/tutorial-home-current-private-pages-checkpoint-r2.json.gz": {
+      "raw_sha256": "ce0d5121eb86e02cd7d799b1574767120a9004ba42cec6eacb17374c8df1208a",
+      "raw_bytes": 725,
+      "archive_sha256": "456868dd64beab62a8798d4b989248f6b2ba3404e75bb62234c4cd57c06edc69"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/scratch/tutorial-home-current-hf-concurrency-r1.json.gz": {
+      "raw_sha256": "d2ebf11768a5ceffaa39240a8bb63cf729d6bd8bb4e1eff21966ddf67b8b783b",
+      "raw_bytes": 453,
+      "archive_sha256": "494b647c5fbb39cea35754016a254687b9001968d43110c3939bbad5974a0330"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/scratch/home-historical-4133-qt-independent-readback-r1.json.gz": {
+      "raw_sha256": "289bd0c354e34736f93916c53dcc66381d2e59f7245de0cbbad802ae2b7a8e69",
+      "raw_bytes": 459,
+      "archive_sha256": "fdb05e8498cbbf57ff9bb89742a972df1dd563b24aaaa6fee4818f782081989f"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/candidate/release-manifest.json.gz": {
+      "raw_sha256": "7a6e9ca0e1a48090b3496209d5e91eb3b5689cff15ee1b951529ae318a1b2d9a",
+      "raw_bytes": 1119760,
+      "archive_sha256": "67cd768e66d791cb4a70ab44fd72eea3d9682426beff92628d2d5d5dee3a6ed8"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/candidate/publication-receipt.json.gz": {
+      "raw_sha256": "4daf38dc1af6753518aa6609d4e7ba3934b330235678b2a4b6bef70c8ed4f4dc",
+      "raw_bytes": 146073,
+      "archive_sha256": "f7e8eccc3cbe12a58480688016525e841adee8e3da969c4823d1abbd4f23d747"
+    },
+    "features/data/615_home_preferences_hosted_media_2026-10-08/candidate/checks/published-media-browser-checks.json.gz": {
+      "raw_sha256": "239a75d4daa951f6f4962bb5a2ffaba35ced92e7c53a71f080145a665b4b358b",
+      "raw_bytes": 131828,
+      "archive_sha256": "e0a63952a9eed8be372f91452ac682c3ab050272dc7ac70d1019b1428045f7ec"
+    }
+  },
+  "scope": "All immutable hosted media verified by normal full download/readback; normal tag receipt recovered after original tag network drop. Normal verifier passes all85 actual hosted-media routes; normal record lifts candidate hold in private source. Complete original negative logs retained. Private tutorial commits56cf5ea763/19e7c64942; combined size, hosted CI and live Pages acceptance remain open."
+}
