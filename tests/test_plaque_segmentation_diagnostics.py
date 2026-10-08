@@ -255,7 +255,8 @@ def test_unmeasurable_vectors_and_logits_never_invent_alignment(mode, monkeypatc
 
 def test_incompatible_flow_and_metric_returns_refuse_before_model_evaluation():
     class Model:
-        def eval(self, *args, **kwargs):
+        def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+            check_cellpose_eval_call(x, channel_axis)
             pytest.fail('invalid return contract must not invoke the model')
 
     with pytest.raises(ValueError, match='not both'):
