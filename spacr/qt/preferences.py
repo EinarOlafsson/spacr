@@ -1729,7 +1729,10 @@ def theme_choices() -> tuple:
     )
     choices.extend((theme.label, key) for key, theme in NIGHT_THEMES.items())
     from .theme import spaceout_enabled
-    from .widgets.ambient import SPACEOUT_ONLY_THEMES
+    try:
+        from .widgets.ambient import SPACEOUT_ONLY_THEMES
+    except ImportError:
+        return tuple(choices)
 
     choices.extend((theme.label, key) for key, theme in DATA_ART_THEMES.items()
                    if spaceout_enabled() or key not in SPACEOUT_ONLY_THEMES)
