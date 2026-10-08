@@ -257,7 +257,7 @@ def test_opening_a_module_repolishes_its_screen_once(sheeted_app, qtbot, key):
     from spacr.qt.app import MainWindow
 
     register_self_registering_modules()
-    window = MainWindow()
+    window = MainWindow(initial_app="__home__")
     qtbot.addWidget(window)
     window.resize(1200, 800)
     window.show()
@@ -288,7 +288,7 @@ def test_classify_controls_exist_before_the_first_screen_sheet(
     from spacr.qt.preferences import apply_preferences_to_app
 
     apply_preferences_to_app(QApplication.instance())
-    window = MainWindow()
+    window = MainWindow(initial_app="__home__")
     qtbot.addWidget(window)
     window._tour_timer.stop()
     window._consent_timer.stop()

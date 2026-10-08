@@ -47,7 +47,7 @@ def window(qapp_module_scope=None):
     from PySide6.QtWidgets import QApplication
 
     application = QApplication.instance() or QApplication([])
-    made = MainWindow()
+    made = MainWindow(initial_app="__home__")
     made.show()
     application.processEvents()
     yield made

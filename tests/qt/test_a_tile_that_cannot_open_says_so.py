@@ -17,7 +17,7 @@ pytestmark = pytest.mark.qt
 def _window(qtbot):
     from spacr.qt.app import MainWindow
 
-    window = MainWindow()
+    window = MainWindow(initial_app="__home__")
     qtbot.addWidget(window)
     return window
 

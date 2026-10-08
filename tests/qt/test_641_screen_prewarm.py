@@ -26,7 +26,7 @@ def window(qapp, monkeypatch):
     monkeypatch.delenv("SPACR_BENCHMARK_JSON", raising=False)
     from spacr.qt.app import MainWindow
 
-    win = MainWindow()
+    win = MainWindow(initial_app="__home__")
     win.resize(1200, 800)
     win.show()
     for _ in range(3):

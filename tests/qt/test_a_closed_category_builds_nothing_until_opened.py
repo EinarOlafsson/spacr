@@ -251,7 +251,7 @@ def _window(qtbot, key, *, eager: bool = False):
     from spacr.qt.screens.app_screen import AppScreen
 
     register_self_registering_modules()
-    window = MainWindow()
+    window = MainWindow(initial_app="__home__")
     qtbot.addWidget(window)
     window.resize(1400, 900)
     window.show()
