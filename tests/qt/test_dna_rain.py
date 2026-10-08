@@ -1454,6 +1454,8 @@ def test_a_broken_theme_lookup_does_not_break_the_switch(qtbot,
     on the sibling test above (28e9662c, 2026-08-04).
     """
     from PySide6.QtCore import QEvent
+
+    from spacr.qt.preferences import _effective_ambient_background
     from spacr.qt.screens import app_screen
     from spacr.qt.screens.app_screen import AppScreen
     from spacr.qt.theme import page_colour
@@ -1468,8 +1470,9 @@ def test_a_broken_theme_lookup_does_not_break_the_switch(qtbot,
     # construction-time palette event painted that fill. A cache holding
     # a colour the rain was never given would already be the poisoning
     # this test is about.
-    cached_fill, cached_wallpaper = screen._backdrop_applied
+    cached_fill, cached_ambient, cached_wallpaper = screen._backdrop_applied
     assert cached_fill == rain.background_color().name()
+    assert cached_ambient == _effective_ambient_background().name()
     assert cached_wallpaper is None
 
     rain.set_color("#ff00ff")
@@ -1497,7 +1500,8 @@ def test_a_broken_theme_lookup_does_not_break_the_switch(qtbot,
     screen.changeEvent(QEvent(QEvent.ApplicationPaletteChange))
     assert rain.background_color().name() == \
         QColor(page_colour("light")).name()
-    assert screen._backdrop_applied == (page_colour("light"), None)
+    assert screen._backdrop_applied == (
+        page_colour("light"), _effective_ambient_background().name(), None)
     assert screen._backdrop_applied != applied_before
 
 
