@@ -22,6 +22,37 @@ count13232/runtimeall6maps unchanged. Portable owner packet follows; do not
 adopt it before matching normalAPI refresh. Classification writes remain
 another private CPU lane, including transaction-safe Parquet manifests.
 
+## 2026-10-08 19:23 EDT — Workstation narrow artifact integration and guarded GPU turn
+
+All three assigned agents remain active. Root narrow source tree
+current-generated-ci-repair-20261008 now1fece23a1 includes exact public
+75c→57fa24-file body/test wave, hiddencloseAPI13233, compactOrganism
+runtime10065, normalHelp/settings/grids and source-bound nine-language
+README producer repair. Hardware/native README blocks are preserved by the
+normal producer. Full canonical/API/runtime readback is active; first Root
+readback had a wrong total assertion adding the65 standalone installer keys
+into the10065 application-caption count. Original negative is retained;
+all current API and six full runtime map comparisons passed before that
+count-only assertion. Corrected independent receipt is pending. No published
+application batch or currentGitHub-green claim yet.
+
+Root optional private field graphics application acceptance is queued through
+unchanged tools/gpu_turn.sh with actualHOME/360s idle/600s gap:
+679-native-application-engine-r6, queued19:22:38EDT. It compares complete
+moving application engines, not just the earlier scratch material stage,
+and retains producer-thread context ownership. Current Home retired-backdrop
+marker/Preferences guard are preserved in this private renderer source.
+Scientific livecell/cellposeTIME jobs are untouched. No performance verdict
+until the native turn exits.
+
+Tutorial agent's current six-lesson candidate has terminal300 audio tracks,
+336 web checks,84 browser routes and28 legacy installation links PASS.
+Candidate is held for Root readback/publication, not uploaded yet. Historical
+56 original English live-TV tracks follow current publication. API agent
+finishes strict English build before public-body adoption/final source binding;
+Runtime agent freezes its separate10173 later Gate/shortcut/navigation writer.
+Urgent narrow batch remains ahead of larger private feature publication.
+
 
 ## 2026-10-08 19:10 EDT — Small F572 export tracing packet for workstation
 
