@@ -1,17 +1,101 @@
 """Real zstd diagnostics preserve process identity and bounded scratch files."""
 
+import json
 import os
 import shutil
 import struct
 import subprocess
 import sys
 import time
+from pathlib import Path
 
 import pytest
 
 pytest.importorskip('resource', reason='systemd core diagnostics require POSIX resource limits')
 
 from tools import collect_qt_native_backtrace as collector
+
+
+@pytest.mark.parametrize('workflow,job,run_name,recover_name,upload_name,condition', [
+    ('.github/workflows/tests.yml', 'coverage-shards',
+     'Run coverage shard in bounded batches',
+     'Recover a coverage worker native backtrace',
+     'Upload coverage native failure evidence',
+     'failure() || cancelled()'),
+    ('.github/workflows/_pytest-suite.yml', 'pytest',
+     'Run ${{ inputs.suite_name }} tests',
+     'Recover an ordinary Qt worker native backtrace',
+     'Upload ordinary Qt native failure evidence',
+     "(failure() || cancelled()) && startsWith(inputs.suite_name, 'Qt')"),
+])
+def test_cancelled_qt_or_coverage_run_preserves_only_bounded_native_evidence(
+    workflow, job, run_name, recover_name, upload_name, condition,
+):
+    yaml = pytest.importorskip('yaml')
+    steps = yaml.safe_load((Path(__file__).resolve().parents[1] / workflow).read_text())[
+        'jobs'][job]['steps']
+    by_name = {step['name']: (index, step) for index, step in enumerate(steps)
+               if 'name' in step}
+    run_index, _ = by_name[run_name]
+    recover_index, recover = by_name[recover_name]
+    upload_index, upload = by_name[upload_name]
+
+    assert run_index < recover_index < upload_index
+    assert recover['if'] == upload['if'] == condition
+    assert recover['continue-on-error'] is True
+    assert recover['timeout-minutes'] == 3
+    assert '--ordinary' in recover['run']
+    assert upload['uses'] == 'actions/upload-artifact@v7'
+    assert upload['with']['if-no-files-found'] == 'ignore'
+    assert upload['with']['retention-days'] == 3
+    assert upload['with']['path'].splitlines() == [
+        '${{ runner.temp }}/spacr-qt-native/process-*.jsonl',
+        '${{ runner.temp }}/spacr-qt-native/native-core-backtrace.txt',
+        '${{ runner.temp }}/spacr-qt-native/core-route.json',
+    ]
+    name = upload['with']['name']
+    assert '${{ github.run_id }}' in name
+    assert '${{ github.run_attempt }}' in name
+    assert ('${{ matrix.shard }}' if job == 'coverage-shards'
+            else '${{ inputs.file_shard_index }}') in name
+    assert collector.GDB_TIMEOUT_SECONDS == 90
+    assert collector.CORE_EXTRACT_TIMEOUT_SECONDS == 60
+    assert collector.MAX_BACKTRACE_BYTES == 4 * 1024 * 1024
+
+
+@pytest.mark.parametrize('blocking_results,expect_success', [
+    ({'coverage-combine': 'success', 'qt': 'success'}, True),
+    ({'coverage-combine': 'failure', 'qt': 'success'}, False),
+    ({'coverage-combine': 'skipped', 'qt': 'success'}, False),
+    ({'coverage-combine': 'success', 'qt': 'cancelled'}, False),
+])
+def test_intentional_cancel_skips_aggregates_without_waiving_real_failures(
+    blocking_results, expect_success,
+):
+    yaml = pytest.importorskip('yaml')
+    jobs = yaml.safe_load((Path(__file__).resolve().parents[1] /
+                           '.github/workflows/tests.yml').read_text())['jobs']
+    combine = jobs['coverage-combine']
+    release = jobs['release-gate']
+    assert combine['if'] == release['if'] == 'always() && !cancelled()'
+    assert combine['needs'] == 'coverage-shards'
+    assert set(blocking_results) <= set(release['needs'])
+
+    shard_gate = next(step for step in combine['steps']
+                      if step.get('name') == 'Require every coverage shard to have passed its tests')
+    for shard_result in ('success', 'failure', 'cancelled'):
+        env = {**os.environ, 'SPACR_COVERAGE_SHARDS_RESULT': shard_result}
+        result = subprocess.run(['bash', '-e', '-o', 'pipefail', '-c', shard_gate['run']],
+                                env=env, capture_output=True, text=True, check=False)
+        assert (result.returncode == 0) is (shard_result == 'success')
+
+    release_gate = next(step for step in release['steps']
+                        if step.get('name') == 'Require every blocking job to succeed')
+    context = {name: {'result': result} for name, result in blocking_results.items()}
+    env = {**os.environ, 'NEEDS_CONTEXT': json.dumps(context)}
+    result = subprocess.run(['bash', '-e', '-o', 'pipefail', '-c', release_gate['run']],
+                            env=env, capture_output=True, text=True, check=False)
+    assert (result.returncode == 0) is expect_success
 
 
 @pytest.fixture

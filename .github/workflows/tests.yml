@@ -425,7 +425,7 @@ jobs:
             --exclude-file tests/qt/test_pca.py
 
       - name: Recover a coverage worker native backtrace
-        if: failure()
+        if: failure() || cancelled()
         continue-on-error: true
         timeout-minutes: 3
         run: |
@@ -433,7 +433,7 @@ jobs:
             --evidence-dir "$RUNNER_TEMP/spacr-qt-native"
 
       - name: Upload coverage native failure evidence
-        if: failure()
+        if: failure() || cancelled()
         uses: actions/upload-artifact@v7
         with:
           name: coverage-native-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.shard }}
@@ -474,7 +474,7 @@ jobs:
     # itself and its reason in tools/coverage_floor_exemptions.txt rather than
     # hiding behind a pragma. CI never rewrites the baseline.
     name: Coverage / every module at 90% and none loses coverage
-    if: always()
+    if: always() && !cancelled()
     needs: coverage-shards
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -764,7 +764,7 @@ jobs:
 
   release-gate:
     name: Release gate / zero unexpected failures
-    if: always()
+    if: always() && !cancelled()
     needs:
       - quality
       - fast

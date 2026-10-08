@@ -294,7 +294,7 @@ jobs:
           fi
 
       - name: Recover an ordinary Qt worker native backtrace
-        if: failure() && startsWith(inputs.suite_name, 'Qt')
+        if: (failure() || cancelled()) && startsWith(inputs.suite_name, 'Qt')
         continue-on-error: true
         timeout-minutes: 3
         run: |
@@ -302,7 +302,7 @@ jobs:
             --evidence-dir "$RUNNER_TEMP/spacr-qt-native"
 
       - name: Upload ordinary Qt native failure evidence
-        if: failure() && startsWith(inputs.suite_name, 'Qt')
+        if: (failure() || cancelled()) && startsWith(inputs.suite_name, 'Qt')
         uses: actions/upload-artifact@v7
         with:
           name: qt-native-${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.file_shard_index }}
