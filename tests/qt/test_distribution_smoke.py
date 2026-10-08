@@ -178,15 +178,20 @@ def test_source_ui_integration_runs_real_measurement(qapp, qtbot, monkeypatch, t
             'error': record.get('error'),
             'layout_status': layout.get('status'),
             'raw_viewport_status': layout.get('raw_viewport_status'),
+            'settled': layout.get('settled'),
+            'elapsed_seconds': layout.get('elapsed_seconds'),
+            'reachability_timeout': layout.get('reachability_timeout'),
+            'scroll_origin_restored': layout.get('scroll_origin_restored'),
+            'document_cursors_restored': layout.get('document_cursors_restored'),
             'violations': [
                 {key: control.get(key) for key in (
                     'pane', 'object_name', 'clipped', 'undersized')}
                 for control in layout.get('violations', [])
             ][:5],
-            'unreachable': [row.get('before') for row in layout.get('reachability', [])
-                            if not row.get('reachable')][:5],
+            'unreachable': [row for row in layout.get('reachability', [])
+                            if not row.get('reachable')],
         }
-        assert completed == [0], failure
+        assert completed == [0], json.dumps(failure, ensure_ascii=False, sort_keys=True)
         assert record['module_constructed'] and record['real_run_clicked']
         assert record['run_status'] == ['complete', 1, 0] and record['cells'] > 0
         assert record['worker_finished']
