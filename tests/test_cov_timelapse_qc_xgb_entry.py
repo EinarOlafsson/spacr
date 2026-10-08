@@ -960,7 +960,7 @@ def test_recompute_from_merged_sequential(tmp_path, panel_calls, monkeypatch, ca
 
 
 def test_recompute_uses_pool_when_n_jobs_gt_one(tmp_path, panel_calls, monkeypatch):
-    import multiprocessing
+    import spacr.resource_log as resource_log
     import spacr.timelapse as tl
 
     src = _make_src(tmp_path, n_files=1)
@@ -980,7 +980,7 @@ def test_recompute_uses_pool_when_n_jobs_gt_one(tmp_path, panel_calls, monkeypat
             created["n_args"] = len(list(iterable))
             return [fn(a) for a in iterable]
 
-    monkeypatch.setattr(multiprocessing, "Pool", _FakePool)
+    monkeypatch.setattr(resource_log, "_parallel_pool", _FakePool)
     monkeypatch.setattr(tl, "_process_merged_group", lambda args: _fake_group_df())
 
     settings = _assay_settings(src, reuse_existing_measurements=False, n_jobs=3)
