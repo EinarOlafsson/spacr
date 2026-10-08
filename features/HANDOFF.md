@@ -1,5 +1,35 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 18:08 EDT — Urgent CI-only preset artifact handoff
+
+Home local current-source repairs now pass complete hover/motion161,
+reset/mode35, popup55, wiring55 and setup16 owning cohorts (overlaps
+not summed). Section catches only optional ripple ImportError; theme_choices
+keeps core/night entries available without the optional ambient module.
+Original missing-module/error/off/geometry/state assertions remain.
+
+A proactive original night-preset file exposes eight genuine failures:
+Lantern/Solstice still map to Spaceout-only spinn, Meridian/Vesper to
+Spaceout-only Aurora. Home CI agent prepares a narrow four-preset mapping
+repair: warm field for Lantern/Solstice, currents/advection for Meridian/
+Vesper, keeping all palette, sound and theme keys. Four descriptions must
+truthfully change with material; no stale prose or test waiver accepted.
+
+WORKSTATION PRIORITY: consume portable patch/receipt as soon as published
+at data/43_night_presets_catalog_repair_2026-10-08, run your normal nine-
+locale runtime source update/audits for the four changed descriptions,
+and publish a small coherent source+catalog CI repair before the larger
+private feature wave. Keep Home c4 Safe/font/menu repairs and upcoming
+Section/theme_choices guards. API/prose delta must be measured normally;
+Home does not hand-edit generated catalogs. Root will publish body-only
+repairs once complete maps verify unchanged and bundle next acceptance.
+
+One reusable agent implements N680 save-on-navigation toggle right of
+Next for Make Masks, default off, fail-closed on write error, retaining
+box guard/Skip semantics. It remains separate from urgent CI source.
+All GPU, translations, API/docs and tutorials retain workstation ownership.
+
+
 ## 2026-10-08 17:59 EDT — Published checkpoints and paired GPU result
 
 Workstation checkpoints are actually pushed in 4d198d410, retaining Home's
