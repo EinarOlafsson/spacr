@@ -26,3 +26,15 @@ The item records the upstream release version/hash, feedstock commit and pull re
 2026-10-08 — Registered the user's request as new work. No feedstock update, package publication or current-version match is claimed. GitHub tests remain the primary priority; the existing N59 completion does not close this new freshness requirement.
 
 2026-10-08 13:40 EDT — Read-only live audit: GitHub latest stable and PyPI both1.5.1.3; PyPI sdist SHA256104c0fcd80702e34c2f6b62fe11792a9eefdb8d2956d255bc297667af2cebc8c. Feedstock main504e949278 recipe and actual conda-forge package are1.5.0.8. Existing bot PRhttps://github.com/conda-forge/spacr-feedstock/pull/7 targets1.5.1.3 but linux build37097780868 failed, automerge refused. No new PR duplication or publication claim; inspect actual build failure before repair.
+
+2026-10-08 14:30 EDT — Reviewed recipe448bbf8e0ae3628abfe59de6ba9342ca55ceea09
+pushed fast-forward to existing bot PR7. Local rattler render/build PASS;
+29.1MiB conda artifact SHA2567c22e2ecb2a569c63859bd3ca361f463e910c302f391b94d3c1d1aeabe97c48f.
+Obsolete TensorBoard patch removed; released entry points, BSD-3-Clause
+license and all official base dependencies retained. Runtime test FAIL at
+solve because conda-forge has no required pyfixest>=0.40.1,<1. Private
+staged recipe e65837e78d5470518316446c2d0b63b588115604 for official pyfixest
+0.60.0 renders/solves; package build/publication unverified. No dependency
+is silently omitted, no published spaCR1.5.1.3 install acceptance claimed.
+Exact candidate receipt remains under /mnt/wd4tb/scratch/conda-freshness-20261008/n675-private-recipe-candidates.json;
+portable package source proof follows separately.

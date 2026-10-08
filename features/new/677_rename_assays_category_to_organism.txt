@@ -1,0 +1,34 @@
+================================================================================
+RENAME THE ASSAYS CATEGORY TO ORGANISM
+================================================================================
+
+Status:    in progress
+Requested: 2026-10-08 — "cahnge the assays category to organism"
+Owner:     Home/root implementation; workstation runtime translations/tutorials
+
+WHAT TO DO
+
+Use Organism for the existing Assays category in Home headings, category tabs,
+the application menu and command-palette filtering. Translate visible labels
+through tr() and give the category an organism-specific description. Preserve
+its module membership, ordering and the Show alpha species visibility rule.
+
+HOW TO KNOW IT WORKED
+
+Selected existing Qt checks verify the category order and module membership,
+the real Organism menu, Home category description, alpha visibility and the
+command palette. Refresh source-bound runtime catalogs through the normal
+workstation tools before publishing the coherent application update.
+
+2026-10-08 14:08 EDT — Private source828307f14e implements the requested
+label and organism-specific note in existing app.py and widgets/home.py.
+Eight focused Qt checks pass9.18s under4G. The existing SECTION_ASSAYS public
+symbol stays available with its updated value; category membership does not
+change. Source-bound translations and application publication remain pending.
+
+2026-10-08 14:30 EDT — Final PRIVATE62a38906063 combined280PASS110.85s
+includes real Organism menu, category order/membership/note and command
+palette checks. Exact13-file incremental source packet follows accepted0527
+in data/667_677_help_organism_source_handoff_2026-10-08. Workstation owns
+normal translations and affected fresh tutorial update; source transfer is
+not a claim that the application update has already been published.

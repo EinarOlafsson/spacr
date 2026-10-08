@@ -44,3 +44,13 @@ resets of future user customization. CI N43 remains the priority in parallel.
 are in progress. This entry is not a completion claim.
 
 2026-10-08 13:10 EDT — Private integrated source e31e19543a passes the final 313-case capped CPU/Qt interaction cohort. Source patch and exact bindings are transferred in data/666_671_ui_source_handoff_2026-10-08 for workstation normal catalog/inventory refresh. App publication and current-source CI are pending; this is not a 100% or native compositor acceptance claim. N674 is a separate follow-up, not included in this checkpoint.
+
+2026-10-08 14:30 EDT — User explicitly requests reachable scrolling and a
+help region that can be made taller. Final PRIVATE62a38906063 implements
+persistent drag resizing, keeps the outer height stable on hover, preserves
+long help while reaching its scroll area, and matches the painted font to
+reserved rows after real stylesheets. Full combined280PASS110.85s on Qt612
+under4G; initial7FAIL and intermediate1FAIL retained. Translated native Action
+hover and late-created controls are covered. Source/inventory packet in
+data/667_677_help_organism_source_handoff_2026-10-08; workstation normal
+catalog refresh and application publication remain pending.

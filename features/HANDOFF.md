@@ -1,5 +1,45 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 14:30 EDT — Final help/Organism transfer280PASS; conda recipe repair pushed
+
+Final Home PRIVATE62a38906063 passes280 selected CPU/Qt checks110.85s
+under4G on actualQt612/pytest842, CUDAhidden/offscreen. Includes N667
+fixed-height scrolling help with an8px draggable resize edge and persisted
+height; real stylesheet-polished four-line minimum and matching painted font;
+long help survives moving into its scroll area. Actions native help stays
+inline through translation and late controls. Initial7FAIL/227PASS and
+intermediate1FAIL/279PASS retained; corrected final280PASS includes eight
+Organism-category checks and38 explicitly selected legacy-fractal cases.
+ data/667_677_help_organism_source_handoff_2026-10-08/receipt.json
+
+Workstation: apply incremental UI-only patch after accepted0527, preserve
+owned Preferences N665queue controls, check13exact source payloads. Final
+normal Home extraction API13224/UI7263; against0527 +3HintBar API arrivals,
+6changed English blocks, UI+3/-1. New user request N677 names Assays category
+Organism across Home headings/tabs/menu; new organism note and grip string
+need normal all-nine-language refresh. Required-argument docstring-only
+fields accompany prior AmbientWidget/GateCanvas/HintBar methods; coordinate
+existing API-owner refinements. Source hashes/deltas are archived. Combined
+workstation source MUST be remeasured; no application publication, whole
+serial/native acceptance or current-source CI claim. N672/N673 separate.
+
+CI2e required37819913875 remains active. Coverage5 interrupted at97% by
+runner shutdown with no test failure before cancellation; underlying cause
+unproved. Preserve remaining jobs and retry failed jobs only after terminal
+run, inspect genuine failures first. Exact hosted Qt1 batch60 reproduced
+locally with same marker/loadfile/n2/Qt612:367PASS80.48s; this does not solve
+previous53ab native QThread-wrapper destruction fault. Bounded class probe
+peer-reviewed privately, source repair not inferred. Three reused agents:
+CI monitor/diagnostics, N672hard GUI, easy browser/capability investigation.
+
+N675 recipe448bbf8 pushed fast-forward to existing bot PR7 head after source
+review; no duplicate PR or merge. Released1.5.1.3 SHA unchanged. Obsolete
+TensorBoard patch removed, upstream dependency floors/console scripts/BSD
+license restored; local conda render/build PASS. Runtime install refuses
+missing conda-forge pyfixest honestly. Private official pyfixest0.60 recipe
+renders/solves but is not built/published; new package publication and clean
+spaCR install remain OPEN. Scratch free2.3GiB limits local dependency builds.
+
 ## 2026-10-08 14:24 EDT — Workstation takes user installation and organism tutorial overhaul
 
 New676 registers the exact latest user tutorial scope. Tutorial lane owns
