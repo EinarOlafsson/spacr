@@ -96,3 +96,20 @@ def test_serial_shell_guards_the_hard_limits_and_display_preflight():
     assert 'python tools/can_this_display_be_measured.py' in script
     assert script.index('python tools/can_this_display_be_measured.py') < script.index("exec python - tests/qt")
     subprocess.run(["bash", "-n", str(RUNNER)], check=True)
+
+
+def test_workflow_starts_measurable_software_x_under_the_same_serial_guard():
+    workflow = (ROOT / ".github/workflows/qt-serial-acceptance.yml").read_text(
+        encoding="utf-8")
+    assert "QT_QPA_PLATFORM: xcb" in workflow
+    assert 'LIBGL_ALWAYS_SOFTWARE: "1"' in workflow
+    assert "QT_OPENGL: software" in workflow
+    assert "xvfb xauth libxcb-cursor0 libgl1-mesa-dri" in workflow
+    assert "xvfb-run -a -s '-screen 0 1920x1080x24 -nolisten tcp'" in workflow
+    assert '"DISPLAY=$DISPLAY" "XAUTHORITY=$XAUTHORITY"' in workflow
+    assert '"LIBGL_ALWAYS_SOFTWARE=1" "QT_OPENGL=software"' in workflow
+    assert '"QT_QPA_PLATFORM=xcb"' in workflow
+    assert '"SPACR_TEST_MEMORY_GB=10.8"' in workflow
+    assert "-p MemoryMax=12G -p MemorySwapMax=0" in workflow
+    assert '"$GITHUB_WORKSPACE/tools/run_qt_serial_acceptance.sh"' in workflow
+    assert "tools/can_this_display_be_measured.py" in RUNNER.read_text()
