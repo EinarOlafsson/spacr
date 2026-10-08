@@ -229,7 +229,7 @@ print({sentinel!r} + json.dumps(
 #: `AMBIENT_THEMES` except the default would do; the default cannot, because
 #: then a store with nothing written in it would die too, and 296 asks for a
 #: start that a WRITTEN value breaks.
-POISONED_ANIMATION = "aurora"
+POISONED_ANIMATION = "blobs"
 
 #: What safe mode saves in its place: the default, a real backdrop, so the
 #: repaired ordinary start is seen to build one rather than to skip it.
@@ -461,6 +461,10 @@ def a_start_that_a_preference_broke(tmp_path_factory):
     from PySide6.QtCore import QSettings
 
     import spacr
+    from spacr.qt.widgets.ambient import AMBIENT_THEMES, DEFAULT_THEME
+
+    assert POISONED_ANIMATION in AMBIENT_THEMES
+    assert POISONED_ANIMATION != DEFAULT_THEME
 
     repo_root = Path(spacr.__file__).resolve().parents[1]
     sandbox = tmp_path_factory.mktemp("safespacr-296")
