@@ -3282,3 +3282,11 @@ Proof: data/43_683_ambient_preferences_masks_cpu_2026-10-07/receipt.json.
 Qt1 is hostedSUCCESS; Qt0 fails only the two already-repaired popup-alpha
 assertions, with no native/memory-limit failure in its full log. Qt2 and
 Fast remain executing. Final required corrected-source green remainsOPEN.
+
+2026-10-07 21:16 local — workstation API final audit running
+All-nine exact reviewed arrival publication and post-overlay18-case current
+inventory/hash/review/glossary cohort pass; full strict API audit is running.
+The current13214-symbol generated owner batch is still unpublished. Original
+failed GPU audits remain preserved; no complete corrected hosted verdict is
+claimed. Workstation retains the unreproduced idle parity node and resumes
+isolated664/665 verification while the read-only audit executes.
