@@ -1767,3 +1767,12 @@ HTML exit0. Complete50-payload source/failure/success receipt:
 data/615_current_translated_inline_repair_2026-10-08_r2/receipt.json.
 New exact-source hosted docs and deployed browser acceptance remain pending;
 protected55 tests/serial retained. No whole-item or native crash closure.
+
+2026-10-08 00:33 EDT — Root current guide browser acceptance.
+All32 repaired paragraphs pass actual desktop/mobile checks64/64, exact
+bold/literal spans and visible text, four screenshots retained. Current
+Home-compatible validator passes3029/3029 in all nine languages, no stale/
+invalid/unlabelled messages. Original complete logs and current source/PO
+hashes: data/615_current_guide_browser_acceptance_2026-10-08/receipt.json.
+Local guide acceptance only; deployment/current engine API panels and new
+Home tutorial media remain unfinished. No whole615/hosted/native closure.

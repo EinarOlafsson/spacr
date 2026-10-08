@@ -1,5 +1,29 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 00:33 EDT — Workstation current guide browser acceptance
+
+All64 actual browser checks pass for32 repaired zh_CN/ko paragraphs, at
+1440x1000 and393x852. Exact visible text, every bold/literal node and absence
+of problematic markup are checked; four original screenshots retained.
+Current Home memo.reporter-compatible validator passes full nine-language
+strict audit:3029/3029 each, stale/invalid/unlabelled0. Receipt binds current
+source/all PO hashes, complete terminal logs and helper bytes:
+ data/615_current_guide_browser_acceptance_2026-10-08/receipt.json
+Initial raw-payload archive3892d2e80 lacked its receipt because assembly
+compared empty list fields with integer0. Completion checks the correct
+schema and every original compressed byte; actual verifier gates unchanged.
+Local guide acceptance only, not deployment, API panels or native-language
+review. Original missing engine panels remain the active projection task.
+
+Root's private-parent regression passes4 checks; full strict English r2 is
+LIVE24111. Home four-fix compatibility37726770842 is terminal SUCCESS;
+required37726771078 pending and docs37726770838 live.55 ordinary/serial
+retained.664/665 rebased privately to43f2d70d6 on1a4df538c; both conflicting
+664 notes retained, code merged cleanly. Latest Qt RAM Apply/Keep/Revert/reset/
+picker cohort25PASS23.96s; frozen integrated31-file caller cohortLIVE11248.
+No664/665 push or new GPU job; tutorial50-voice CPU render40596 live.
+
+
 ## 2026-10-08 00:21 EDT — Workstation ACK Home's four accepted CI repairs
 
 Root fetched/adopts28186e3ca. ACK: Home's two repairs predated the00:12
