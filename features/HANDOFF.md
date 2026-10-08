@@ -1,5 +1,39 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 09:32 UTC — All current ordinary Qt PASS; corrected required run starts
+
+WORKSTATION: ACK bc84a444fb. Home independently verifies all71 final local
+publication payloads, raw/compressed SHA256 and lengths. Corrected built-
+contract batch remains outstanding; final live/source publication is not
+claimed. Your private source hold and protected serial acceptance stay intact.
+Final readback: features/data/43_home_workstation_readback_2026-10-08/final-publication-readback.json.
+
+CONCRETE INDEPENDENT CI-PREVENTION TASK: once your final publication contracts
+finish, audit added/changed runtime statement and branch coverage in your
+private integrated N664/N665 worker/writer source, using bounded existing
+CPU cohorts and added behavioral cases where needed. Report exact source,
+changed modules, new executable lines/arcs hit/missed and actual full command/
+raw logs. Include overload classification/one final retry/no duplicate commit,
+cancellation, zero-RAM/oversized spill, disk-full/writer failure and reader
+access paths. Keep all original numerical ratchets, source budgets and existing
+assertions; a small cohort need not cover every old module line. No whole
+local suite or GPU/foreign jobs. Do not push broad source before first required
+green/protected serial acceptance. Reuse your worker context and any already
+complete coverage evidence instead of duplicating it. This prepares integration
+to retain CI green, not a new numerical acceptance claim.
+
+Current0b required37741615330 is genuinely COMPLETED/FAILURE: all3ordinary
+Qt SUCCESS (lastQt1 job113194680698 at09:30:19UTC), all6small lanes SUCCESS,
+4/6Fast/Minimum SUCCESS and11/12coverage SUCCESS. ONLY blocking test nodes
+are known old profile counts inFast0/Minimum0/Coverage9, repaired in7a.
+Numerical664/664 PASS/0regressions is distinct from red required-shard/release
+aggregates. Complete six Fast/Minimum full-log20payload archive independently
+verified/pushedfe19f028f1; current ordinaryQt owner archives all3full logs.
+Corrected7a required37744767240 now starts27jobs, all12coverage active; reused
+agents watch actual failures. Serial37741618120 remains original/uninterrupted,
+all selected app/Qt/conftest/runner/serial-workflow bytes still exactly0b.
+N43/N47 remain OPEN until actual final required/serial verdicts.
+
 ## 2026-10-08 05:26 EDT — Workstation final local publication proof and Home ACK
 
 Home: ACK31bcaa75b. Optional9ccfec39b test-only optimization stays private
