@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 15:08-0400\n"
+"POT-Creation-Date: 2026-10-08 16:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -135,12 +135,8 @@ msgid "Update an environment installed from conda-forge with:"
 msgstr "使用以下命令更新从 conda-forge 安装的环境："
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Update a PyPI desktop environment with:"
-msgstr "使用以下命令更新 PyPI 桌面环境："
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Headless environments can omit the ``qt`` extra in the PyPI commands."
-msgstr "无图形界面的环境可在 PyPI 命令中省略 ``qt`` 扩展。"
+msgid "Update an environment installed from PyPI with:"
+msgstr "使用以下命令更新从 PyPI 安装的环境："
 
 msgid "For reproducible work, install an exact version instead of following the latest release. Use the command for the package source already installed in the environment, replacing ``VERSION`` with a release that source publishes:"
 msgstr "为了可重复的工作，请安装确切的版本，而不是跟随最新版本。请使用与环境中已安装的软件包来源相对应的命令，并将 ``VERSION`` 替换为该来源发布的某个版本："
@@ -303,8 +299,8 @@ msgid "To install the same PyPI release and desktop interface inside a Conda env
 msgstr "在 Conda 环境中安装相同的 PyPI 版本和桌面界面："
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The base package supplies the command-line pipelines. Install the ``qt`` extra for the desktop interface, as in the commands above. On a headless server, use ``python -m pip install spacr`` and run ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[qt,czi,nd2,lif]``. Common additions are:"
-msgstr "基础软件包提供命令行处理流程。如上面的命令所示，桌面界面需安装 ``qt`` 扩展。在无图形界面的服务器上，使用 ``python -m pip install spacr`` 安装并运行 ``spacr-run``，无需打开桌面应用。扩展可以组合，例如 ``spacr[qt,czi,nd2,lif]``。常见扩展包括："
+msgid "The standard package includes the Qt desktop interface and command-line pipelines. On a headless server, use ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[czi,nd2,lif]``. Common additions are:"
+msgstr "标准包包含 Qt 桌面界面和命令行处理流水线。在无图形界面的服务器上，使用 ``spacr-run``，无需打开桌面应用。扩展可以组合，例如 ``spacr[czi,nd2,lif]``。常用扩展包括："
 
 msgid "Extra"
 msgstr "附加组件"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 15:08-0400\n"
+"POT-Creation-Date: 2026-10-08 16:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -135,12 +135,8 @@ msgid "Update an environment installed from conda-forge with:"
 msgstr "conda-forge로 설치한 환경은 다음과 같이 업데이트합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Update a PyPI desktop environment with:"
-msgstr "다음 명령으로 PyPI 데스크톱 환경을 업데이트하세요:"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Headless environments can omit the ``qt`` extra in the PyPI commands."
-msgstr "그래픽 인터페이스가 없는 환경에서는 PyPI 명령에서 ``qt`` 추가 기능을 생략할 수 있습니다."
+msgid "Update an environment installed from PyPI with:"
+msgstr "PyPI로 설치한 환경은 다음과 같이 업데이트합니다."
 
 msgid "For reproducible work, install an exact version instead of following the latest release. Use the command for the package source already installed in the environment, replacing ``VERSION`` with a release that source publishes:"
 msgstr "재현 가능한 작업을 위해서는 최신 릴리스를 따르지 말고 정확한 버전을 설치합니다. 환경에 이미 설치된 패키지 출처에 맞는 명령을 사용하고, ``VERSION`` 을 해당 출처에서 게시한 릴리스로 바꿉니다."
@@ -303,8 +299,8 @@ msgid "To install the same PyPI release and desktop interface inside a Conda env
 msgstr "Conda 환경에서 동일한 PyPI 버전과 데스크톱 인터페이스를 설치하려면:"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The base package supplies the command-line pipelines. Install the ``qt`` extra for the desktop interface, as in the commands above. On a headless server, use ``python -m pip install spacr`` and run ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[qt,czi,nd2,lif]``. Common additions are:"
-msgstr "기본 패키지는 명령줄 파이프라인을 제공합니다. 위 명령처럼 데스크톱 인터페이스용 ``qt`` 추가 기능을 설치하세요. 그래픽 인터페이스가 없는 서버에서는 ``python -m pip install spacr`` 를 사용하고 데스크톱 앱을 열지 않고 ``spacr-run`` 을 실행하세요. 추가 기능은 ``spacr[qt,czi,nd2,lif]`` 처럼 조합할 수 있습니다. 일반적인 추가 기능은 다음과 같습니다:"
+msgid "The standard package includes the Qt desktop interface and command-line pipelines. On a headless server, use ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[czi,nd2,lif]``. Common additions are:"
+msgstr "표준 패키지에는 Qt 데스크톱 인터페이스와 명령줄 파이프라인이 포함됩니다. 그래픽 인터페이스가 없는 서버에서는 데스크톱 애플리케이션을 열지 않고 ``spacr-run`` 명령을 사용하세요. 추가 기능은 ``spacr[czi,nd2,lif]`` 같은 방식으로 조합할 수 있습니다. 자주 사용하는 추가 기능은 다음과 같습니다:"
 
 msgid "Extra"
 msgstr "추가 구성 요소"

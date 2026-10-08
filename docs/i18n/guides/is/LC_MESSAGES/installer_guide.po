@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 15:08-0400\n"
+"POT-Creation-Date: 2026-10-08 16:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -135,12 +135,8 @@ msgid "Update an environment installed from conda-forge with:"
 msgstr "Uppfærðu umhverfi sem sett var upp úr conda-forge með:"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Update a PyPI desktop environment with:"
-msgstr "Uppfærðu PyPI-umhverfi fyrir skjáborðsviðmótið með:"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Headless environments can omit the ``qt`` extra in the PyPI commands."
-msgstr "Umhverfi án myndræns viðmóts geta sleppt viðbótinni ``qt`` í PyPI-skipununum."
+msgid "Update an environment installed from PyPI with:"
+msgstr "Uppfærðu umhverfi sem sett var upp úr PyPI með:"
 
 msgid "For reproducible work, install an exact version instead of following the latest release. Use the command for the package source already installed in the environment, replacing ``VERSION`` with a release that source publishes:"
 msgstr "Fyrir endurtakanlega vinnu skaltu setja upp nákvæma útgáfu í stað þess að fylgja nýjustu útgáfunni. Notaðu skipunina fyrir pakkauppsprettuna sem þegar er uppsett í umhverfinu og skiptu ``VERSION`` út fyrir útgáfu sem sú uppspretta birtir:"
@@ -303,8 +299,8 @@ msgid "To install the same PyPI release and desktop interface inside a Conda env
 msgstr "Til að setja sömu PyPI-útgáfu og skjáborðsviðmótið upp í Conda-umhverfi:"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The base package supplies the command-line pipelines. Install the ``qt`` extra for the desktop interface, as in the commands above. On a headless server, use ``python -m pip install spacr`` and run ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[qt,czi,nd2,lif]``. Common additions are:"
-msgstr "Grunnpakkinn býður upp á vinnsluferli á skipanalínu. Settu viðbótina ``qt`` upp fyrir skjáborðsviðmótið eins og í skipununum hér að ofan. Á þjóni án myndræns viðmóts skaltu nota ``python -m pip install spacr`` og keyra ``spacr-run`` án þess að opna skjáborðsforritið. Hægt er að sameina viðbætur, til dæmis ``spacr[qt,czi,nd2,lif]``. Algengar viðbætur eru:"
+msgid "The standard package includes the Qt desktop interface and command-line pipelines. On a headless server, use ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[czi,nd2,lif]``. Common additions are:"
+msgstr "Staðalpakkinn inniheldur Qt-skjáborðsviðmótið og vinnslulínur fyrir skipanalínu. Á netþjóni án myndræns viðmóts skaltu nota ``spacr-run`` án þess að opna skjáborðsforritið. Hægt er að sameina viðbætur, til dæmis ``spacr[czi,nd2,lif]``. Algengar viðbætur eru:"
 
 msgid "Extra"
 msgstr "Aukasafn"

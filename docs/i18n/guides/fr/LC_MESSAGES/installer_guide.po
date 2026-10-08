@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 15:08-0400\n"
+"POT-Creation-Date: 2026-10-08 16:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -135,12 +135,8 @@ msgid "Update an environment installed from conda-forge with:"
 msgstr "Mettez à jour un environnement installé depuis conda-forge avec :"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Update a PyPI desktop environment with:"
-msgstr "Mettez à jour un environnement de bureau PyPI avec :"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Headless environments can omit the ``qt`` extra in the PyPI commands."
-msgstr "Les environnements sans interface graphique peuvent omettre le supplément ``qt`` dans les commandes PyPI."
+msgid "Update an environment installed from PyPI with:"
+msgstr "Mettez à jour un environnement installé depuis PyPI avec :"
 
 msgid "For reproducible work, install an exact version instead of following the latest release. Use the command for the package source already installed in the environment, replacing ``VERSION`` with a release that source publishes:"
 msgstr "Pour un travail reproductible, installez une version exacte au lieu de suivre la dernière version. Utilisez la commande correspondant à la source de paquets déjà installée dans l’environnement, en remplaçant ``VERSION`` par une version publiée par cette source :"
@@ -303,8 +299,8 @@ msgid "To install the same PyPI release and desktop interface inside a Conda env
 msgstr "Pour installer la même version PyPI et l’interface de bureau dans un environnement Conda :"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The base package supplies the command-line pipelines. Install the ``qt`` extra for the desktop interface, as in the commands above. On a headless server, use ``python -m pip install spacr`` and run ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[qt,czi,nd2,lif]``. Common additions are:"
-msgstr "Le paquet de base fournit les chaînes de traitement en ligne de commande. Installez le supplément ``qt`` pour l’interface de bureau, comme dans les commandes ci-dessus. Sur un serveur sans interface graphique, utilisez ``python -m pip install spacr`` et lancez ``spacr-run`` sans ouvrir l’application de bureau. Les suppléments peuvent être combinés, par exemple ``spacr[qt,czi,nd2,lif]``. Les ajouts courants sont :"
+msgid "The standard package includes the Qt desktop interface and command-line pipelines. On a headless server, use ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[czi,nd2,lif]``. Common additions are:"
+msgstr "Le paquet standard inclut l’interface de bureau Qt et les pipelines en ligne de commande. Sur un serveur sans interface graphique, utilisez ``spacr-run`` sans ouvrir l’application de bureau. Les extras peuvent être combinés, par exemple ``spacr[czi,nd2,lif]``. Les ajouts courants sont :"
 
 msgid "Extra"
 msgstr "Extra"
