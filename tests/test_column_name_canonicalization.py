@@ -269,6 +269,7 @@ def test_legacy_database_is_migrated_on_read(legacy_db):
     minimum = 3 * 2 * 7 * 2 + 2 * 2
 
     before = _columns(legacy_db)
+    assert before['_spacr_write_queue_commits'] == ['ticket', 'field']
     stale_before = [col for cols in before.values() for col in cols
                     if (col.endswith('_percentile')
                         and ('periphery' in col or 'outside' in col))
@@ -279,11 +280,24 @@ def test_legacy_database_is_migrated_on_read(legacy_db):
     assert len(renamed) == len(stale_before)
 
     after = _columns(legacy_db)
+    assert after['_spacr_write_queue_commits'] == ['ticket', 'field']
     stale_after = [col for cols in after.values() for col in cols
                    if (col.endswith('_percentile')
                        and ('periphery' in col or 'outside' in col))
                    or '_organelle_ch0_' in col or '_organelle_ch1_' in col]
     assert stale_after == []
+
+    from spacr.database_concurrency import _commit_write_packet
+
+    packet = {'ticket': 'after-legacy-migration', 'field': 'plate1_A01_F001',
+              'operations': []}
+    assert _commit_write_packet(legacy_db, packet, lambda _: None)
+    assert not _commit_write_packet(
+        legacy_db, {**packet, 'operations': None}, lambda _: None)
+    with sqlite3.connect(legacy_db) as connection:
+        assert connection.execute(
+            'SELECT field FROM _spacr_write_queue_commits WHERE ticket=?',
+            (packet['ticket'],)).fetchone() == ('plate1_A01_F001',)
 
 
 def test_migration_is_idempotent(legacy_db):
