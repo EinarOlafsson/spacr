@@ -1,0 +1,31 @@
+F.                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_prediction_retains_two_flow_axes_across_cellpose_return_contracts[array] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x72886ba09f70>
+return_form = 'array'
+
+    @pytest.mark.parametrize('return_form', ['array', 'tuple'])
+    def test_prediction_retains_two_flow_axes_across_cellpose_return_contracts(
+            monkeypatch, return_form):
+        original = dynamics.masks_to_flows_gpu
+    
+        def diffusion(*args, **kwargs):
+            result = original(*args, **kwargs)
+            vectors = result[0] if isinstance(result, tuple) else result
+            return vectors if return_form == 'array' else (vectors, None)
+    
+        with monkeypatch.context() as patch:
+            patch.setattr(dynamics, 'masks_to_flows_gpu', diffusion)
+            labels, flows, styles = _prediction()
+>       assert flows[1].shape == (2, *labels.shape)
+E       assert (20, 28) == (2, 20, 28)
+E         
+E         At index 0 diff: 20 != 2
+E         Right contains one more item: 28
+E         Use -v to get more diff
+
+tests/test_plaque_segmentation_diagnostics.py:40: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_plaque_segmentation_diagnostics.py::test_prediction_retains_two_flow_axes_across_cellpose_return_contracts[array]
+1 failed, 1 passed in 6.42s

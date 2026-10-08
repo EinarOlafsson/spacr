@@ -1,0 +1,94 @@
+{
+  "README.txt": {
+    "bytes": 1371,
+    "sha256": "077a456d4101dd3c783ec17f86b4464f111d2860977c01e6f87cf099ddaf94ba"
+  },
+  "actual-minimum-after.log": {
+    "bytes": 1485,
+    "sha256": "a6674d197df050cb2e1445d79078cc2bab82393309b94d7739f4f8a78066a1f8"
+  },
+  "actual-minimum-before.log": {
+    "bytes": 1205,
+    "sha256": "c44c27d775acce4f7ef1c6d60c9e7bdebaff50f9a74ac496408dfb8600322975"
+  },
+  "affected.log": {
+    "bytes": 1565,
+    "sha256": "376424be8131b55f3c19c815e2f0ca106a084026aec92df772149b8c22ba17a6"
+  },
+  "final-focused.log": {
+    "bytes": 998,
+    "sha256": "147e95391bb5a784999ce8b18f77d26d65d15d1676372acea45e6d438beb198c"
+  },
+  "focused.json.gz": {
+    "bytes": 63884,
+    "sha256": "8c16022a58e824d99727e52cde7a40a355dd132be35ee0ccb34d03694bbb198b"
+  },
+  "focused.log": {
+    "bytes": 998,
+    "sha256": "e9069d42296e397480d987746eb46b770bf506e5fefa618f28092cfbba8f7258"
+  },
+  "hosted-four.json.gz": {
+    "bytes": 47778,
+    "sha256": "5df280b71bdc25917befebc113043b0367fda35e61618ceb106681fad6bc3867"
+  },
+  "hosted-min1.log.gz": {
+    "bytes": 587117,
+    "sha256": "a42cceb03c4d359e3abad8c08137a7c629ebbda7ce9ebdb40000860fcce84a6c"
+  },
+  "latest-cellpose-after.log": {
+    "bytes": 1485,
+    "sha256": "d1a04b5d7e186d416217f8c8ff7b81c8cc193356d2804d3f318ecfaa7a7aa2dd"
+  },
+  "minimum-fixture-before-corrected-probe.log": {
+    "bytes": 1499,
+    "sha256": "a46c21775448f609b4a0ee26224d62fd0ca2451fc89fc92c43f3a65cb4c67a86"
+  },
+  "minimum-fixture-before.log": {
+    "bytes": 3832,
+    "sha256": "f7f8522a440206fb152e70f019945cd13fe098dabdd2ef7a166f1abb1773beac"
+  },
+  "receipt.json": {
+    "bytes": 6021,
+    "sha256": "98468f137bcbc0671f55e63e7a86d562801b887e72251665bf15bc6613ff2cbf"
+  },
+  "reproduce.py": {
+    "bytes": 1673,
+    "sha256": "e146053a44d3f179a148ad560fe9b4aed2624eb927a1c54c7e05e8ffbe3b1ac5"
+  },
+  "spacr__plaque.py.gz": {
+    "bytes": 19950,
+    "sha256": "f6631ee36764efb48097a57b36fc672dccb2bd490980173451e30023ea8dccf7"
+  },
+  "spacr__qt__mask_engine.py.gz": {
+    "bytes": 65089,
+    "sha256": "0ec00e2e700e34536e12fec21636f2f56cc547e6290fff9fd8607b7d0d8a7c92"
+  },
+  "spacr__qt__screens__plate_view.py.gz": {
+    "bytes": 17794,
+    "sha256": "7b1cfcf976e22bb17fee567b98cf2bd652283a7773aa1590a34d3615bede43f5"
+  },
+  "spacr__submodules.py.gz": {
+    "bytes": 74229,
+    "sha256": "0fb28914a1c4b57cf1939995f559305375ef9220da4205b9c209cff266495f20"
+  },
+  "test_cov_8_plate_view.py": {
+    "bytes": 14314,
+    "sha256": "7e87019f4ceaa38a1c984b43a02f89c3f008c582142b28752eadbcca65d5fc53"
+  },
+  "test_mask_engine_recovery_contracts.py": {
+    "bytes": 9192,
+    "sha256": "2a37f30f4e68c63bcd2f305a4376123f05bbbc97b34263c9ff099176972c0c4c"
+  },
+  "test_plaque_segmentation_diagnostics.py": {
+    "bytes": 12743,
+    "sha256": "5fa53901ec63d4a466a51976b41c9cfdf806f62cbbd8dd0b93b73929674af484"
+  },
+  "verify.py": {
+    "bytes": 824,
+    "sha256": "eb9ed24ca2e1f9714bc52c6c67ab490b0a9c2db795660cbf54bc8da9355d693d"
+  },
+  "verify_union.py": {
+    "bytes": 1899,
+    "sha256": "c842c2f2fbf12002eb5b03f17c4bc91d0c5b8442a0b56f62ad8dc978fee06af6"
+  }
+}

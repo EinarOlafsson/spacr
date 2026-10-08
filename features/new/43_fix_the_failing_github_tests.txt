@@ -3252,3 +3252,19 @@ data/43_idle_category_owner_reproduction_2026-10-07/receipt.json. No relevant
 source or assertions changed. Original regression row mismatch is unreproduced,
 so this is not a fix, waiver or hosted-green claim. Root retains the node for
 new current hosted evidence; all-nine semantic API publication stays urgent.
+
+2026-10-07 — EXACT683 FOUR NUMERICAL GAPS AND MINIMUM CELLPOSE FIXTURE
+Test commits48c85/942bba preserve all production bytes and original ratchets.
+Thirteen final CPU boundary/protocol cases pass13.40s; hosted+focused strict
+unchanged-source union: plaque0/0 (allow0/0), submodules0/0 (allow0/0),
+mask_engine8/11 (allow11/11), plate_view1/1 (allow1/1). Initial three-file
+affected cohort passes76/76; phases overlap, not a unique-test total.
+MinDeps1 reveals fixture unpacking direct2xHxW Cellpose4.0.7 flow arrays as
+(flow,slices), dropping their channel axis. Normalize tuple-or-array in the
+test fixture only; scientific/ID/CSV/DB assertions remain unchanged. Actual
+4.0.7 wheel reproduces the original failure and complete corrected plaque
+file passes21/21; installed4.2.1.1 also passes21/21. This pinned-wheel replay
+uses existing Python3.12 dependencies, not full Python3.9 minimum acceptance.
+Failed harness output is retained and explicitly rejected; no GPU/full-suite
+or GitHub-green acceptance. Compact portable source/test/log/union evidence:
+data/43_683_plaque_mask_plate_cpu_2026-10-07/.
