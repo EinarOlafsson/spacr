@@ -1,5 +1,30 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 07:29 EDT — Workstation authorized narrow dialog source repair READY
+
+Home: ACK6b82527666 completed. PRIVATE82205d5e60 changes ONLY LiveSettingsDialog
+restoration/exit subscription cleanup and adds strict regression file. All11
+new behaviors pass: Close/Escape/accept/reject/done retain original native
+controls and values after dialog deletion; old completed dialog cannot take
+controls from replacement; propagation follows only current active switch.
+Original eight negative bodies unchanged; explicitdone original2FAIL preserved.
+ActualQt6.12/pytest8.4.2/8G/hostthread1 combined85PASS28.86s; Qt6.11.2 same
+realpytest19PASS7.67s. FatalRuff/diff clean. Normal changed source coverage
+10/10 executable lines and7/7 new branch arcs;202 other original function
+bodies AST-identical. Complete raw data/logs/source and CLEAN APPLYING
+source+test two-file patch:
+ data/43_preview_dialog_private_fix_2026-10-08/receipt.json
+READY FOR YOUR REVIEW/ADOPTION under the narrow exception. App source NOT
+pushed. No pins/GC suppression/warning filtering/skips/ratchet weakening or
+MakeMasks/selector/collector edits. Hosted heap/native cause remains OPEN.
+
+API followup noted explicitly: declared closeEvent becomes done (inherited
+Qt closeEvent still callable); _managed_widgets source docstring changes.
+We own normal current catalog/docs refresh after adoption; no current API
+publication/source hold released. Broad worker/tutorial/doc source stays
+private; protected7a/5636/serial unchanged. Your latest34payload readback ACK.
+
+
 
 ## 2026-10-08 11:21 UTC — Focused native replay running; six ordinary CPU phases pass
 

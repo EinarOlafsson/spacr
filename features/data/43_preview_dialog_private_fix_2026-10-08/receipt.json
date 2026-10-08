@@ -1,0 +1,117 @@
+{
+  "passed_local": true,
+  "source": "82205d5e609d0ac5ebd11148ba8023693546a794",
+  "original_product_source": "5636eac60938f5d6021eaf73546ff8a30ae17c32",
+  "ownership_ack": "6b82527666",
+  "changed_files": [
+    "spacr/qt/widgets/live_preview.py",
+    "tests/qt/test_live_settings_dialog_control_lifetime.py"
+  ],
+  "qt612_cohort": {
+    "passed": 85,
+    "failed": 0,
+    "skipped": 0,
+    "xfail": 0,
+    "elapsed_seconds": 28.86
+  },
+  "qt611_cohort": {
+    "passed": 19,
+    "failed": 0,
+    "elapsed_seconds": 7.67
+  },
+  "original_negative_evidence": "features/data/43_preview_dialog_regression_negative_2026-10-08/receipt.json",
+  "explicit_done_negative_failed": 2,
+  "new_behavior_cases": 11,
+  "original_eight_guard_bodies_preserved": true,
+  "changed_executable_lines": "10/10",
+  "changed_branch_arcs": "7/7",
+  "other_original_function_bodies_preserved": 202,
+  "patch_applies_cleanly_to_current_nightly": true,
+  "payloads": {
+    "logs/preview-dialog-done-negative-qt612-r1.log.gz": {
+      "bytes": 865,
+      "sha256": "a56410169289d25c46cca9f8008216ac84da97c2b06003714ac52708f6144e3a",
+      "raw_bytes": 2480,
+      "raw_sha256": "b0d3667ce68500eeef52719cf9179026c8b66f756068c0804a0db65840f48d76"
+    },
+    "logs/preview-dialog-done-negative-qt612-r1-tool.log.gz": {
+      "bytes": 654,
+      "sha256": "07c72d7b5c1683921bd0512db3f16123f79806f5d6ef359b0dfa227705c748c3",
+      "raw_bytes": 1961,
+      "raw_sha256": "1f3410fe97ad4f80ee6a424ec9328f17c20f7cdba9f56eb55749223631496a42"
+    },
+    "logs/preview-dialog-private-fix-qt612-r1.log.gz": {
+      "bytes": 2125,
+      "sha256": "a3bca7ae9718bccef09af8420aef3b10494afaa2fee775769f656cab5810d42d",
+      "raw_bytes": 4701,
+      "raw_sha256": "c8bffaf4814203061cbeb59e5f3f89a009b0e3720a2f78c6a5c115e523310bc8"
+    },
+    "logs/preview-dialog-private-fix-qt612-r1-tool.log.gz": {
+      "bytes": 1677,
+      "sha256": "c6522f882fb75c9e075b2444840942d51e45f567211d1a9141ea53b7010671d8",
+      "raw_bytes": 3673,
+      "raw_sha256": "16b581a47ae2f8b4c4d628a1690da21e148e0600e8b27211de95321f0cb2cfe1"
+    },
+    "logs/preview-dialog-private-fix-qt611-r1.log.gz": {
+      "bytes": 409,
+      "sha256": "bfaa32f6293a9adc41aca4ccbd1319ae7cefc514de533ba22f09d24c0ba163ea",
+      "raw_bytes": 784,
+      "raw_sha256": "3961515e918e62959d324e5f1c7547399489057e043f71ff269a10124d42ebea"
+    },
+    "logs/preview-dialog-private-fix-qt611-r1-tool.log.gz": {
+      "bytes": 149,
+      "sha256": "91741c11139180504bff9550effaa3c948ddc53f5128fcad0bae4fe347b84971",
+      "raw_bytes": 215,
+      "raw_sha256": "87d0925da0f3068d115b436dd96d677aae04d1fd812e0bba9d219ec57619154c"
+    },
+    "coverage/preview-dialog-private-fix-qt612-r1.data.gz": {
+      "bytes": 48027,
+      "sha256": "4348e72bf71589cd9073ca320136921557acbeb14127f9f5e724df96e57556de",
+      "raw_bytes": 167936,
+      "raw_sha256": "3db9f8688a4caf5382247b0cd6499a283f8d057e0ef578e7f55646aa5bdfa9b9"
+    },
+    "coverage/preview-dialog-private-fix-changed-coverage-r1.json.gz": {
+      "bytes": 569,
+      "sha256": "d02fc110519207630fcccb005b1ba1422b4bc6271961acc788423bfae8063dc3",
+      "raw_bytes": 1619,
+      "raw_sha256": "b0c4984a6c4dc530737e383b891e88815d5b9465f85c66d5c9f44a9a93ffece5"
+    },
+    "coverage/audit_dialog_changed_coverage_r1.py.gz": {
+      "bytes": 1577,
+      "sha256": "007cf713ba3a0e02ef47eb0bb556ad41d71be9f530bee3fa940f9b68ed5f5545",
+      "raw_bytes": 3899,
+      "raw_sha256": "6943af62944216b07aa8bf83569f1489b25c6334af059dabef12e65a44440d8f"
+    },
+    "patch/source-and-test-dialog-fix.patch.gz": {
+      "bytes": 2748,
+      "sha256": "56fb3513dbc4bb38b198637723d495b46af39de4e701693a3aa8bcffb68de88f",
+      "raw_bytes": 8667,
+      "raw_sha256": "73b69284a8d07f6bce9c567292ccc2fc2746d5622ae1602df96f51ea5caf072e"
+    },
+    "source/current/spacr/qt/widgets/live_preview.py.gz": {
+      "bytes": 72503,
+      "sha256": "37e464bbacbc625c7db199292b265a70f9a17120535557f0abedcf2d22885f21",
+      "raw_bytes": 259524,
+      "raw_sha256": "d4a0acd8aa28e8c12a189ffaa395ea9ad67b9b5244e478bbaa221812e367eded"
+    },
+    "source/current/tests/qt/test_live_settings_dialog_control_lifetime.py.gz": {
+      "bytes": 1055,
+      "sha256": "09d232109e0c91dddf1ce9df220a6c2d992fd42ef59116ddec49211e379e91cf",
+      "raw_bytes": 3742,
+      "raw_sha256": "fe4716e90899a65ded7ce3531e3f7ef58bb4b3deefa2161fc654205462db81d3"
+    },
+    "source/original/spacr/qt/widgets/live_preview.py.gz": {
+      "bytes": 72699,
+      "sha256": "b9b66c38dd52b14127d89bac527f1cc50ca7d2527a405320ce5c8287d9b6cb80",
+      "raw_bytes": 259855,
+      "raw_sha256": "32bf03b7a0efe253db6634a7ce11c767313e7c89f7c24e00416f9000d821677f"
+    }
+  },
+  "scope": "Private actual source repair limited to LiveSettingsDialog: all borrowed controls restored and subscriptions detached on every exit; completed dialog cannot steal replacement controls. Original preview/tooltip/warning/source checks retained.",
+  "api_followup": "Declared closeEvent source entry replaced by done; _managed_widgets docstring updated. Normal source-current API/catalog refresh is needed after adoption. Inherited QDialog.closeEvent remains callable.",
+  "limitations": [
+    "Application patch remains private pending Home review/adoption; only proof metadata/patch artifact pushed.",
+    "No connection to the hosted allocator abort, native cause/fix, full hosted numerical/required/serial acceptance established.",
+    "Qt6.12 installed in isolated scratch overlay only; global environment/pins/GC/ratchets unchanged."
+  ]
+}
