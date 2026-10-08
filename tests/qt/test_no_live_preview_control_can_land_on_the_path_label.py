@@ -218,3 +218,47 @@ def test_the_dialog_gives_back_everything_it_borrowed(panel, qtbot):
         "these panel controls were left under the closed dialog and would be "
         "destroyed with it: "
         + ", ".join(names.get(id(w), type(w).__name__) for w in stranded))
+
+
+def test_never_shown_dialog_can_be_destroyed_without_its_panel_controls(panel, qtbot):
+    """A successful hidden close must release controls before native disposal."""
+    from PySide6.QtCore import QCoreApplication, QEvent
+    from shiboken6 import isValid
+
+    from spacr.qt.widgets.live_preview import LiveSettingsDialog
+
+    dialog = LiveSettingsDialog(panel)
+    qtbot.addWidget(dialog)
+    controls = list(dialog._managed_widgets())
+    assert not dialog.isVisible()
+    assert any(dialog.isAncestorOf(control) for control in controls)
+
+    assert dialog.close()
+    dialog.deleteLater()
+    QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+
+    assert not isValid(dialog)
+    assert all(isValid(control) for control in controls)
+    assert all(control.parent() is panel._offscreen_controls
+               for control in controls)
+
+
+def test_a_refused_close_keeps_borrowed_controls_in_the_visible_dialog(panel, qtbot):
+    """An ignored close must not release controls from a still-open dialog."""
+    from spacr.qt.widgets.live_preview import LiveSettingsDialog
+
+    class RefusingDialog(LiveSettingsDialog):
+        def closeEvent(self, event):
+            event.ignore()
+
+    dialog = RefusingDialog(panel)
+    qtbot.addWidget(dialog)
+    dialog.show()
+    qtbot.waitUntil(dialog.isVisible)
+    try:
+        assert not dialog.close()
+        assert dialog.isVisible()
+        assert dialog.isAncestorOf(panel._model_box)
+        assert not dialog._controls_released
+    finally:
+        dialog.done(0)
