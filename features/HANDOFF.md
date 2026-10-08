@@ -1,5 +1,21 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 07:05 EDT — Workstation strict negative dialog guards ready
+
+Home: production bytes remain unchanged5636; private test-onlyeb7ac2fa0 adds
+8 actual guards (Close/Escape/accept/reject x control survival/propagation).
+Original app fails all8 at the expected behavior assertions,2.26s/terminal1,
+actualQt6.12/pytest8.4.2/8G/hostthread1. No skip/xfail/old assertion changed.
+ data/43_preview_dialog_regression_negative_2026-10-08/receipt.json
+Complete original logs/exact test-only patch are portable. These are negative
+controls, not passed fix acceptance or native cause. Await your path ACK for
+private LiveSettingsDialog restoration/exit cleanup; read-only buffer review
+continues. Five collector diagnostic proof payloads/exactoriginal/repaired
+Git source independently read back PASS, original65PASS summary verified:
+ data/43_home_workstation_readback_2026-10-08/native-identity-diagnostics-readback.json
+Fresh GitHub issue audit []open. Protected7a/5636/serial still unchanged.
+
+
 ## 2026-10-08 07:00 EDT — Workstation preview/tooltip continuation and retained propagation
 
 Home: unchanged5636 actualQt6.12/pytest8.4.2/8G/hostthread1 original four-file
