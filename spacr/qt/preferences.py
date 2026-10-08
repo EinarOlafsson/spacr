@@ -2741,6 +2741,8 @@ def apply_ambient_preferences(app=None) -> None:
         try:
             if not isinstance(widget, AmbientWidget):
                 continue
+            if widget.property("spacrRetiringBackdrop"):
+                continue
             widget.set_ripples_enabled(_field_ripples_enabled())
             widget.set_field_effects(field_effects)
             if widget.property("spacrSetupBackdrop"):

@@ -237,6 +237,88 @@ def test_spaceout_defaults_to_the_field_when_no_animation_is_saved(
         widget.stop()
 
 
+@pytest.mark.parametrize("route", ("dock", "screen"))
+def test_preferences_do_not_revive_a_retired_backdrop(
+        qtbot, qapp, dressed, monkeypatch, tmp_path, route):
+    from types import SimpleNamespace
+
+    from spacr.qt import preferences
+    from spacr.qt.app import MainWindow
+
+    settings = QSettings(str(tmp_path / "spaceout.ini"), QSettings.IniFormat)
+    monkeypatch.setattr(preferences, "_settings", lambda: settings)
+    preferences.set_ambient_animation(amb.DEFAULT_SPACEOUT_THEME)
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(400, 240)
+    old = amb.install_ambient(host, theme=preferences.get_ambient_theme(),
+                              palette=preferences.get_ambient_palette(), seed=1)
+    host.show()
+    qtbot.waitExposed(host)
+
+    if route == "dock":
+        owner = SimpleNamespace(_dock_backdrop=old, _screens={}, _startup=None)
+        MainWindow._retire_the_dock_backdrop(owner)
+        assert owner._dock_backdrop is None
+    else:
+        from spacr.qt.screens.app_screen import _discard_widget
+
+        old.set_animating(False)
+        _discard_widget(old)
+    assert old.parentWidget() is None
+    assert old.isHidden()
+    assert not old._timer.isActive()
+    assert old._producer_box[0] is None
+
+    live = amb.install_ambient(host, theme=amb.DEFAULT_SPACEOUT_THEME,
+                               palette=preferences.get_ambient_palette(), seed=2)
+    preferences.set_ambient_animation("data_art_tissue_facets")
+    preferences.apply_ambient_preferences(qapp)
+    assert old.isHidden()
+    assert not old._timer.isActive()
+    assert old._producer_box[0] is None
+    assert live.theme() == "data_art_tissue_facets"
+    assert live.isVisible()
+
+    preferences.set_ambient_animation("none")
+    preferences.apply_ambient_preferences(qapp)
+    assert not live.isVisible()
+    preferences.set_ambient_animation("data_art_tissue_facets")
+    preferences.apply_ambient_preferences(qapp)
+    assert live.isVisible()
+    assert old.isHidden()
+    live.stop()
+
+
+def test_switching_from_field_to_fractal_leaves_old_field_retired(
+        qtbot, qapp, dressed, monkeypatch, tmp_path):
+    from spacr.qt import preferences
+
+    settings = QSettings(str(tmp_path / "spaceout.ini"), QSettings.IniFormat)
+    monkeypatch.setattr(preferences, "_settings", lambda: settings)
+    preferences.set_fractal_settings(backend="cpu")
+    preferences.set_ambient_animation(amb.DEFAULT_SPACEOUT_THEME)
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(400, 240)
+    old = amb.install_ambient(host, theme=preferences.get_ambient_theme(),
+                              palette=preferences.get_ambient_palette(), seed=1)
+    host.show()
+    qtbot.waitExposed(host)
+
+    preferences.set_ambient_animation(amb.SPACEOUT_THEME)
+    preferences.apply_ambient_preferences(qapp)
+    fractals = [widget for widget in host.findChildren(QWidget)
+                if getattr(widget, "backend_name", None) == "cpu"]
+    assert len(fractals) == 1
+    assert old.property("spacrRetiringBackdrop") is True
+    assert old.parentWidget() is None
+    assert old.isHidden()
+    assert not old._timer.isActive()
+    assert old._producer_box[0] is None
+    fractals[0].shutdown()
+
+
 def test_an_ordinary_start_gets_the_animation_the_user_chose(qtbot):
     """The other direction, and the one the request is really about."""
     was = theme.spaceout_enabled()
