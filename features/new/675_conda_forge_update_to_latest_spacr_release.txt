@@ -1,0 +1,26 @@
+================================================================================
+UPDATE CONDA-FORGE TO THE MOST RECENT SPACR RELEASE
+================================================================================
+
+Status:    open
+Requested: 2026-10-08
+Owner:     Home packaging/release lane; workstation documentation follow-up
+Related:   N59 established feedstock; N43 required GitHub tests
+
+WHAT THE STATE IS
+
+The user requests a tracked item to bring conda-forge to the most recent version of spaCR. The existence of the feedstock or an older successful release does not establish that the current conda-forge package is up to date.
+
+WHAT TO DO
+
+Check the newest published spaCR release and its source artifact against conda-forge/spacr-feedstock and the actual conda-forge package version. Record the exact versions and source hashes rather than assuming the bot has updated them. Distinguish the newest released version from unreleased nightly work.
+
+Update the feedstock recipe to the latest released spaCR version, including the correct source URL/hash, supported Python versions, the current single Qt application packaging and dependency changes. Retain required dependency constraints and platform checks. Prepare and validate the recipe through the normal feedstock workflow, resolve build or install failures, and track any bot or maintainer pull request through merge and package publication.
+
+Verify that the published conda-forge package can be installed in a clean supported environment, reports the intended version, imports spaCR and its Qt application, and exposes the spacr and spaceout entry points. Coordinate installation documentation with the workstation owner after publication. Do not report completion merely because a recipe commit or pull request exists, and do not weaken spaCR or feedstock checks to release it.
+
+HOW TO KNOW IT WORKED
+
+The item records the upstream release version/hash, feedstock commit and pull request, passing build/test results, published conda-forge artifact/version, and a clean-environment install/import/entry-point check. Any platform or release dependency still requiring external input remains explicitly recorded.
+
+2026-10-08 — Registered the user's request as new work. No feedstock update, package publication or current-version match is claimed. GitHub tests remain the primary priority; the existing N59 completion does not close this new freshness requirement.

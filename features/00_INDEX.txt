@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-584 in features/new, 75 in features/future. NEITHER LIST BLOCKS A RELEASE.
+585 in features/new, 75 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -855,3 +855,4 @@ NEW FEATURES
   672  EDITABLE GATE ANCHORS AND SELECTABLE 3D SURFACES
   673  3D MAKE MASKS WITH SHARED ANCHOR AND SURFACE EDITING
   674  DEFAULT SPACEOUT FIELD WITH ELEGANT RANDOM PHENOMENA
+  675  UPDATE CONDA-FORGE TO THE MOST RECENT SPACR RELEASE
