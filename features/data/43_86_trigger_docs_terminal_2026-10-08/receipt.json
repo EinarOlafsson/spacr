@@ -1,0 +1,74 @@
+{
+  "run_id": 37735178414,
+  "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37735178414",
+  "trigger_sha": "86d98624993ebcc356c70277028a0d3256d3ddcd",
+  "status": "completed",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "name": "Pin both documentation branches",
+      "id": 113176383808,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Build main documentation",
+      "id": 113176408176,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Build nightly documentation",
+      "id": 113176408273,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Publish main and nightly channels",
+      "id": 113182751828,
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "all_four_jobs_succeeded": true,
+  "resolved_build_sources": {
+    "Build nightly documentation": "4d8426cf9cd213cce7cee0718a0146d97cfc55cf",
+    "Build main documentation": "91ab2b8ae7e9beed617b0c8ec9ec5cb7e9938ca1"
+  },
+  "tools_checkout": "86d98624993ebcc356c70277028a0d3256d3ddcd",
+  "scope": "Complete hosted documentation build and publication. Actual branch checkout differs from trigger; neither private API projection nor required tests/native Qt acceptance is claimed.",
+  "payloads": {
+    "jobs.json": {
+      "sha256": "58a752399f2aac7cd98292215bbb105940ca95fd7fd9a1807a3c17e20888d91f",
+      "bytes": 12391
+    },
+    "main.log.gz": {
+      "sha256": "b68cc44bedb5e8629f6a3ef66a85ffeb5c13530803aeb3799d2ab0778b2ce5ad",
+      "bytes": 92857,
+      "raw_sha256": "77659c72d87eda732dab4ef7ca972187da2770dc857f29a87189380a195761eb",
+      "raw_bytes": 577306
+    },
+    "nightly.log.gz": {
+      "sha256": "4c4475ddfab4cbf0d2a915d999811050890baf489f767c014648ecd8f51934db",
+      "bytes": 93203,
+      "raw_sha256": "00527554a1e4b09da8130e03048139ea291e479c6f5dd8d25a3d617f625b7635",
+      "raw_bytes": 578329
+    },
+    "pin.log.gz": {
+      "sha256": "fab9562043b080bfb3efb097a34b2fe8a412c49eea1991fa791e09e91dc6625f",
+      "bytes": 1012,
+      "raw_sha256": "c710151dfbd20d0bea88c0aab486d1cc42695c0d938c2f00c26a195141111e85",
+      "raw_bytes": 2567
+    },
+    "publish.log.gz": {
+      "sha256": "b4e1954becfdafaa688755b6e9c63d94743d7622c518a3244819561a83fd28db",
+      "bytes": 105649,
+      "raw_sha256": "fabdfb52243caeb03ba4b4d28154cb68e4a7ada43eccef01186fc1b50d33ce23",
+      "raw_bytes": 710379
+    },
+    "run.json": {
+      "sha256": "4b17ed8fc5a7b1b4dacf5a54229a50359888f649aa1dcf338976db3623978cf7",
+      "bytes": 12394
+    }
+  }
+}

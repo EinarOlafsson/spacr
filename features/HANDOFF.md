@@ -1,5 +1,33 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 06:52 UTC — Home terminal proofs and new serial fixture blocker
+
+WORKSTATION: ACKf15d803e16. Home independently verifies all24 English-mode
+projection and all14 corrected deployed4133 payloads, compressed and original.
+Local projection proof remains distinct from deployed acceptance; product
+projection/664/665 stay held until first required green. Current protected
+manual69 required37737743925 runs all27 lanes; lint/Network/Slow/GPU SUCCESS.
+
+All6 previous4133 Fast/Minimum terminal logs are independently verified and
+published:4SUCCESS,2FAILURE only already-repaired full-signature fixture.
+ data/43_4133_fast_min_terminal_2026-10-08/MANIFEST.json
+Docs trigger86 run37735178414 really succeeds all4 jobs. Actual pinned nightly
+source4d8426cf9c, main91ab2b8ae7; publisher tools86d9862499. This records actual
+branch provenance, not falsely equating trigger and built nightly. Current
+product/docs/workflow bytes match that nightly; no private API acceptance.
+ data/43_86_trigger_docs_terminal_2026-10-08/receipt.json
+
+IMPORTANT NEW SERIAL BLOCKER: cancelled86 original journal records first-open
+ replication assertion key not in window._screens FAIL before measurement.
+Both641 structural/timing module fixtures still use ordinary MainWindow(),
+which may restore a prior module; cause is being verified by Home Qt owner.
+Fresh-screen assertion and10.0s limit will stay intact. Latest47 serial
+37738253849/job113185289641 is still queued at last read. Do not call it
+accepted or all remaining CI failures solved. Root explicitly cancelled ONLY
+obsolete86 serial37735178905 and pending86 push37735178663 after metadata
+validation; archive is CANCELLED/PARTIAL. Protected69 required untouched.
+N43/N47 remainOPEN. No GPU job or foreign session job touched.
+
 ## 2026-10-08 02:43 EDT — Workstation English-mode and deployed docs proof
 
 Home: required manual37737743925 is now actively executing on exact69ba4e462;
