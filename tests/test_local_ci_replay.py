@@ -67,6 +67,28 @@ def test_fast_and_qt_do_not_rebucket_files_before_batching(tmp_path, monkeypatch
         assert [path for batch in left for path in batch] == [f"tests/test_{i:03d}.py" for i in range(83)]
 
 
+def test_fast_replay_names_and_refuses_a_batch_ci_skips(tiny_repo, tmp_path, capsys):
+    workflow = tiny_repo / ".github/workflows/tests.yml"
+    source = workflow.read_text()
+    workflow.write_text(source.replace(
+        '--marker "not slow" --batch-size',
+        '--marker "not qt and not slow" --skip-qt-only-batches --batch-size',
+    ))
+    qt = tiny_repo / "tests/qt"
+    qt.mkdir()
+    for name in ("a", "b"):
+        (qt / f"test_{name}.py").write_text("def test_x(): pass\n")
+    base = ["--repo", str(tiny_repo), "--suite", "fast", "--shard", "0"]
+    assert replay.main([*base, "--batch", "1", "--list"]) == 0
+    assert "CI skips this automatically Qt-marked batch" in capsys.readouterr().out
+    output = tmp_path / "evidence"
+    with pytest.raises(SystemExit) as stopped:
+        replay.main([*base, "--batch", "1", "--output", str(output)])
+    assert stopped.value.code == 2
+    assert "CI skips this automatically Qt-marked batch" in capsys.readouterr().err
+    assert not output.exists()
+
+
 def test_coverage_hashes_relative_paths_before_making_batches(tmp_path):
     tests = tmp_path / "tests"
     tests.mkdir()

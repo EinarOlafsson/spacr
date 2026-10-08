@@ -200,7 +200,8 @@ jobs:
         run: |
           python tools/run_pytest_batches.py \
             --marker "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
-            --batch-size 32 --workers 2 --per-test-timeout 300 \
+            --batch-size 32 --workers 2 --skip-qt-only-batches \
+            --per-test-timeout 300 \
             --batch-timeout 2700
 
       - name: Upload translation incompatibilities (report-only)
@@ -747,7 +748,8 @@ jobs:
         run: |
           python tools/run_pytest_batches.py \
             --marker "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
-            --batch-size 32 --workers 2 --per-test-timeout 300 \
+            --batch-size 32 --workers 2 --skip-qt-only-batches \
+            --per-test-timeout 300 \
             --batch-timeout 2700
 
       - name: Upload translation incompatibilities (report-only)

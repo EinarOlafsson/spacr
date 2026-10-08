@@ -104,6 +104,12 @@ def _partition(root, suite, runner, args, shard, count):
     return runner._batches(files, args.batch_size)
 
 
+def _skipped_by_ci(runner, args, files):
+    """Whether Fast's actual runner omits this provably empty Qt batch."""
+    return (getattr(args, "skip_qt_only_batches", False)
+            and runner._only_automatically_qt_files(files))
+
+
 def _git(root, *args):
     return subprocess.check_output(["git", "-C", str(root), *args], text=True).strip()
 
@@ -281,16 +287,21 @@ def main(argv=None):
         print("Functional batches only; the separate Qt serial measurement tail is excluded.", flush=True)
     if cli.list:
         if cli.batch:
+            if _skipped_by_ci(runner, args, batches[cli.batch - 1]):
+                print("CI skips this automatically Qt-marked batch.")
             print("\n".join(batches[cli.batch - 1]))
         else:
             for number, files in enumerate(batches, 1):
-                print(f"batch {number}: {len(files)} files; {files[0]} ... {files[-1]}")
+                skipped = "; skipped by CI" if _skipped_by_ci(runner, args, files) else ""
+                print(f"batch {number}: {len(files)} files; {files[0]} ... {files[-1]}{skipped}")
         return 0
     if cli.batch is None or not output_supplied:
         parser.error("execution requires --batch and --output; use --list to inspect")
     if cli.output == root or root in cli.output.parents:
         parser.error("--output must be outside the repository")
     files = batches[cli.batch - 1]
+    if _skipped_by_ci(runner, args, files):
+        parser.error("CI skips this automatically Qt-marked batch; select a batch that runs tests")
     if cli._execute:
         return _execute(cli, root, runner, args, options, files)
     if cli.suite == "coverage" and importlib.util.find_spec("coverage") is None:

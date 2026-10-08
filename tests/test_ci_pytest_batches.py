@@ -52,6 +52,63 @@ def test_main_recycles_workers_and_accepts_an_empty_marker_batch(
     ] for command in commands)
 
 
+def test_qt_only_skip_preserves_global_batches_and_every_eligible_command(
+    tmp_path, monkeypatch, capsys,
+):
+    tests = tmp_path / "tests"
+    qt = tests / "qt"
+    qt.mkdir(parents=True)
+    for name in ("a", "b", "c"):
+        (qt / f"test_{name}.py").write_text("def test_x(): pass\n")
+    for name in ("d", "e"):
+        (tests / f"test_{name}.py").write_text("def test_x(): pass\n")
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(runner, "_timeout_plugin_available", lambda: True)
+    calls = []
+
+    def run(command, check):
+        assert check is False
+        calls.append(tuple(command))
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(runner.subprocess, "run", run)
+    args = [str(tests), "--marker", "not qt and not slow",
+            "--batch-size", "2", "--workers", "2",
+            "--per-test-timeout", "300"]
+    assert runner.main(args) == 0
+    original = list(calls)
+    calls.clear()
+    assert runner.main([*args, "--skip-qt-only-batches"]) == 0
+    assert calls == original[1:]
+    assert [command[3:command.index("-m", 3)] for command in calls] == [
+        (str(qt / "test_c.py"), str(tests / "test_d.py")),
+        (str(tests / "test_e.py"),),
+    ]
+    assert "pytest batch 1/3: 2 files; all automatically qt-marked" in (
+        capsys.readouterr().out)
+
+
+@pytest.mark.parametrize("marker", ["not slow", "qt or not slow", "not qt or slow"])
+def test_qt_only_skip_refuses_a_marker_that_can_select_qt(
+    tmp_path, monkeypatch, marker,
+):
+    (tmp_path / "test_one.py").write_text("def test_x(): pass\n")
+    monkeypatch.setattr(runner.subprocess, "run", lambda *_a, **_kw: pytest.fail(
+        "a rejected marker must not start pytest"))
+    with pytest.raises(ValueError, match="requires a conjunction"):
+        runner.main([str(tmp_path), "--marker", marker,
+                     "--skip-qt-only-batches"])
+
+
+def test_fast_and_minimum_opt_in_only_for_excluded_qt_batches():
+    from tests.conftest import _automatic_ci_markers
+
+    assert "qt" in _automatic_ci_markers(Path("tests/qt/test_example.py"))
+    workflow = (Path(__file__).resolve().parents[1]
+                / ".github/workflows/tests.yml").read_text(encoding="utf-8")
+    assert workflow.count("--skip-qt-only-batches") == 2
+
+
 def test_ignored_paths_are_removed_before_batching_and_every_file_runs_once(
     tmp_path, monkeypatch,
 ):

@@ -13,6 +13,7 @@ import argparse
 import importlib.util
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 from typing import Sequence
@@ -100,6 +101,28 @@ def _timeout_plugin_available() -> bool:
         return False
 
 
+def _qt_batches_are_excluded(marker: str) -> bool:
+    """Accept only a conjunction that explicitly excludes the Qt marker."""
+    terms = [term.strip() for term in marker.split(" and ")]
+    return "not qt" in terms and all(
+        re.fullmatch(r"not [A-Za-z_][A-Za-z_0-9]*", term)
+        for term in terms
+    )
+
+
+def _only_automatically_qt_files(batch: Sequence[str]) -> bool:
+    """Recognize a batch whose files all get the repository's Qt marker."""
+    root = Path.cwd().resolve()
+    for raw_path in batch:
+        try:
+            relative = Path(raw_path).resolve().relative_to(root)
+        except ValueError:
+            return False
+        if relative.parts[:2] != ("tests", "qt"):
+            return False
+    return bool(batch)
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the command-line parser."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -142,6 +165,11 @@ def build_parser() -> argparse.ArgumentParser:
             "no ceiling)."
         ),
     )
+    parser.add_argument(
+        "--skip-qt-only-batches", action="store_true",
+        help="skip global batches containing only automatically Qt-marked "
+        "files when --marker is a conjunction excluding qt",
+    )
     return parser
 
 
@@ -164,6 +192,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.workers < 1:
         raise ValueError("workers must be at least 1")
+    if args.skip_qt_only_batches and not _qt_batches_are_excluded(args.marker):
+        raise ValueError(
+            "--skip-qt-only-batches requires a conjunction of negative "
+            "markers including 'not qt'"
+        )
 
     ignored = [Path(path).resolve() for path in args.ignore]
     files = [path for path in _test_files(args.paths)
@@ -176,6 +209,13 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     failed: list = []
     for number, batch in enumerate(batches, start=1):
+        if args.skip_qt_only_batches and _only_automatically_qt_files(batch):
+            print(
+                f"pytest batch {number}/{len(batches)}: {len(batch)} files; "
+                "all automatically qt-marked and excluded by --marker",
+                flush=True,
+            )
+            continue
         print(
             f"pytest batch {number}/{len(batches)}: {len(batch)} files",
             flush=True,
