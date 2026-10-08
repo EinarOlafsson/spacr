@@ -246,6 +246,7 @@ def test_qt_measurement_suites_run_after_xdist_workers_exit():
                 "_pytest-suite.yml").read_text(encoding="utf-8")
     for path in (
         "tests/test_perf_guard.py",
+        "tests/qt/test_641_module_first_open_timing.py",
         "tests/qt/test_gui_responsiveness.py",
         "tests/qt/test_home_stage_and_dock.py",
         "tests/qt/test_figure_queue.py",
@@ -259,6 +260,16 @@ def test_qt_measurement_suites_run_after_xdist_workers_exit():
     ):
         assert f"--ignore={path}" in workflow
         assert workflow.count(path) >= 2
+
+    timing = "tests/qt/test_641_module_first_open_timing.py"
+    run = workflow.split('if [ "${{ inputs.run_serial_tail }}" = "true" ]', 1)
+    assert run[0].count(f"--ignore={timing}") == 2
+    assert run[1].count(timing) == 1
+    coverage = WORKFLOW.read_text(encoding="utf-8")
+    assert f"--exclude-file {timing}" in coverage
+    structural = "tests/qt/test_641_module_first_open_budgets.py"
+    assert f"--ignore={structural}" not in workflow
+    assert f"--exclude-file {structural}" not in coverage
 
 
 def test_qt_suite_has_room_for_its_measured_runtime():

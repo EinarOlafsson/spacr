@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "payloads": {
+    "README.txt": {
+      "sha256": "d83df61896f93007db204065756422891bdf7cde519dd2254661ed2538a922d1",
+      "bytes": 1074
+    },
+    "after/_pytest-suite.yml.gz": {
+      "sha256": "73dbe5ce299e76b2e2ecdf255bab58198677ae99b9211afc50f46bef4978e5cb",
+      "bytes": 4909
+    },
+    "after/test_641_module_first_open_budgets.py.gz": {
+      "sha256": "9fe987ce60a9482a26f8bf5c997d4a0ba33e54a375c6ac8721145b188b6cf762",
+      "bytes": 1892
+    },
+    "after/test_641_module_first_open_timing.py.gz": {
+      "sha256": "20de922c9af3b6e5d23a6afd327e64268408a40fc8041d71393e52da04563f0c",
+      "bytes": 729
+    },
+    "after/test_ci_suite_classification.py.gz": {
+      "sha256": "b961fc7ef42c9abbbc2e15d14ea469a847a16685fc8c5fefe5866ef05760afe7",
+      "bytes": 5911
+    },
+    "after/tests.yml.gz": {
+      "sha256": "ce55fd0ad7432c143918206ac38bd0e2f926bf3f4ab79acad23216ec603e38df",
+      "bytes": 10602
+    },
+    "app-source.py.gz": {
+      "sha256": "cb9503874df3eb388ccf5a3043b213f93892b0192e783a79651a3023849b2897",
+      "bytes": 90029
+    },
+    "assemble.py": {
+      "sha256": "fcf760818c519d11c49c64742f1294166056dc93c77e8c448f4be1284b1e9dae",
+      "bytes": 7379
+    },
+    "before/_pytest-suite.yml.gz": {
+      "sha256": "1bbd636b27fb375cedc4785b83ba0e00891f4debf198231c7a349c84eb6bc819",
+      "bytes": 4885
+    },
+    "before/test_641_module_first_open_budgets.py.gz": {
+      "sha256": "c3a6a4a3f3f733854b4ef9ff16ec39d9ec14b7feafc3ba6155e3712c29b7ecfa",
+      "bytes": 2104
+    },
+    "before/test_ci_suite_classification.py.gz": {
+      "sha256": "1bb44c1875f444280dfa31d12e556a77e4c661e67cb2cc1e2713e920697a5760",
+      "bytes": 5792
+    },
+    "before/tests.yml.gz": {
+      "sha256": "80cdc8dc7faffeb6de0ca588435722ec7f0d8dc35ce6aeffa3891e6c35d53834",
+      "bytes": 10580
+    },
+    "receipt.json": {
+      "sha256": "8cd8aecce6e164cbf89df7458d914df4f2bcb294fbbd0b1445458799b10e8183",
+      "bytes": 4109
+    },
+    "reproduce.sh": {
+      "sha256": "e8899a7450bc65500faa6f71e5bb680095d474fdc57c6e1375a6eb5077ce6a97",
+      "bytes": 616
+    },
+    "structural-coverage.json.gz": {
+      "sha256": "caf5d952204d4656a9d02bd98e65b3c66128b4739af8cf1089a146b852d4e00e",
+      "bytes": 45087
+    },
+    "structural.log.gz": {
+      "sha256": "cef7384be767685ab214ae426c5809d43bf2002c20270bfd87ce946cd346cc04",
+      "bytes": 1662
+    },
+    "timing.log.gz": {
+      "sha256": "bbc30215da37db7da1bca47e0b7336ea929d3789bf53d06fc7fc045791222733",
+      "bytes": 2230
+    },
+    "verify.py": {
+      "sha256": "0df8fb11a1ff72a2d8aa123ed1aee48ac15d42dd37e57d9b05a5bfcb9ae32188",
+      "bytes": 1225
+    },
+    "workflow.log.gz": {
+      "sha256": "d79eb32d65d0d3a9e2ae6e05d0fcfda7921af1372e2bb44122cea96067aded57",
+      "bytes": 52
+    }
+  }
+}

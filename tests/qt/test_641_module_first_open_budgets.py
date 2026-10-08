@@ -1,13 +1,8 @@
-"""Item 641, round 3: every module's first open stays inside a budget.
+"""Item 641, round 3: fresh module navigation and structural startup guards.
 
-The budget is per module and generous on purpose (:data:`BUDGET_S`): the
-benchmark (``tools/spacr_startup_benchmark.py --offscreen``) measured every
-first open between 0.1 and 2.0 s on a workstation at load 15-30, and a
-shared CI runner is several times slower. A module that crosses it has
-gained seconds, not milliseconds -- a scan, a heavy import or an eager
-build on the GUI thread.
-
-The other tests pin the round-3 causes by count rather than by clock:
+The separate ``test_641_module_first_open_timing.py`` measures the unchanged
+first-open wall-clock budget in the serial timing tail. These tests retain
+real per-module navigation under coverage and pin the causes by count:
 
 * a module open reads every preference from one ``QSettings`` store;
 * the cursor policy passes over ``Show`` events of widgets with no cursor
@@ -18,16 +13,11 @@ The other tests pin the round-3 causes by count rather than by clock:
 """
 from __future__ import annotations
 
-import time
-
 import pytest
 
 pytest.importorskip("PySide6")
 
 pytestmark = pytest.mark.qt
-
-BUDGET_S = 10.0
-
 
 def _keys():
     from spacr.qt.app import APPS
@@ -52,15 +42,12 @@ def window(qapp):
 
 @pytest.mark.timeout(120)
 @pytest.mark.parametrize("key", _keys())
-def test_a_module_first_open_stays_inside_its_budget(window, qapp, key):
+def test_a_fresh_module_open_selects_its_new_screen(window, qapp, key):
     assert key not in window._screens
-    started = time.perf_counter()
     window._on_nav_selected(key)
     for _ in range(3):
         qapp.processEvents()
-    elapsed = time.perf_counter() - started
     assert window._stack.currentWidget() is window._screens.get(key)
-    assert elapsed < BUDGET_S, f"{key} first open took {elapsed:.2f} s"
 
 
 def test_a_module_open_reads_preferences_from_one_store(qapp, monkeypatch):

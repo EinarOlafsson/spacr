@@ -418,6 +418,7 @@ jobs:
             --batch-timeout 2700 \
             --data-dir "$SPACR_COVERAGE_DATA_DIR" \
             --exclude-file tests/test_perf_guard.py \
+            --exclude-file tests/qt/test_641_module_first_open_timing.py \
             --exclude-file tests/qt/test_gui_responsiveness.py \
             --exclude-file tests/qt/test_home_stage_and_dock.py \
             --exclude-file tests/qt/test_figure_queue.py \

@@ -1,0 +1,193 @@
+{
+  "base_commit": "4b5c699f1e9a2550985c04f48d44d6bcdbb0cd33",
+  "production_changed": false,
+  "budget_seconds": 10.0,
+  "keys_per_navigation_phase": 48,
+  "timing": {
+    "passed": 48,
+    "pytest_seconds": 14.29,
+    "coverage": false,
+    "xdist": false
+  },
+  "structural": {
+    "passed": 54,
+    "pytest_seconds": 25.03,
+    "coverage": "spacr.qt.app branch coverage",
+    "xdist": false
+  },
+  "workflow": {
+    "passed": 21,
+    "pytest_seconds": 2.21
+  },
+  "scope": "Three separate focused phases; no whole-suite, hosted acceptance, or ratchet closure claim.",
+  "routing": {
+    "reusable_parallel_ignores": 2,
+    "serial_tail_mentions": 1,
+    "coverage_exclusions": 1,
+    "original_structural_file_remains_coverage_eligible": true
+  },
+  "contracts": [
+    "fresh screen per key",
+    "actual _on_nav_selected",
+    "three QApplication.processEvents turns",
+    "currentWidget is created screen",
+    "elapsed strictly below unchanged 10.0 seconds"
+  ],
+  "startup_coverage": {
+    "_on_nav_selected": {
+      "start": 5693,
+      "end": 5746,
+      "executed_lines": [
+        5693,
+        5712,
+        5717,
+        5718,
+        5732,
+        5733,
+        5734,
+        5736,
+        5738,
+        5739,
+        5741,
+        5742,
+        5743,
+        5745,
+        5746
+      ],
+      "executed_branches": [
+        [
+          5712,
+          5717
+        ],
+        [
+          5718,
+          5732
+        ]
+      ]
+    },
+    "_open_a_module_screen": {
+      "start": 5748,
+      "end": 5844,
+      "executed_lines": [
+        5748,
+        5766,
+        5767,
+        5769,
+        5770,
+        5771,
+        5772,
+        5773,
+        5774,
+        5775,
+        5776,
+        5781,
+        5782,
+        5783,
+        5784,
+        5787,
+        5788,
+        5789,
+        5790,
+        5791,
+        5792,
+        5793,
+        5794,
+        5795,
+        5796,
+        5797,
+        5798,
+        5801,
+        5802,
+        5804,
+        5805,
+        5808,
+        5810,
+        5811,
+        5812,
+        5813,
+        5817,
+        5818,
+        5819,
+        5820,
+        5821,
+        5822,
+        5823,
+        5825,
+        5826,
+        5827,
+        5828,
+        5829,
+        5834,
+        5835,
+        5837,
+        5839,
+        5841,
+        5842,
+        5843,
+        5844
+      ],
+      "executed_branches": [
+        [
+          5767,
+          5769
+        ],
+        [
+          5772,
+          5773
+        ],
+        [
+          5810,
+          5811
+        ],
+        [
+          5810,
+          5817
+        ],
+        [
+          5817,
+          5818
+        ],
+        [
+          5826,
+          5827
+        ],
+        [
+          5834,
+          5835
+        ],
+        [
+          5834,
+          5839
+        ],
+        [
+          5839,
+          5841
+        ]
+      ]
+    }
+  },
+  "after_bindings": {
+    ".github/workflows/_pytest-suite.yml": "7c8a3a3073e1d5caeb6724383945834e7dd895db035682cd6f6ab70bc357883e",
+    ".github/workflows/tests.yml": "9563dde566fc3a3ea639a457c44a6cf610b937584ed4826bececccd02ea0c4ac",
+    "tests/qt/test_641_module_first_open_budgets.py": "0adb4d7aec6f68a494a3ece616f9d3fcaec8fbde3cce2d7a8dc0d6de4da5bf83",
+    "tests/qt/test_641_module_first_open_timing.py": "c44facac76bff40be985e921570ba24676039b19ac16e6eace3ded983430b5a9",
+    "tests/test_ci_suite_classification.py": "6ffa2daeba6523f46eae375d1d62c0f322032e6dcab32584d66129f880a5e520"
+  },
+  "production_bindings": {
+    "spacr/qt/app.py": "5fc990e6904525432af3e6fb2b419342af2dabd2776cc371e0cd55ed3dc543f7"
+  },
+  "environment": {
+    "python": "3.12.13",
+    "CUDA_VISIBLE_DEVICES": "",
+    "SPACR_DEVICE": "cpu",
+    "QT_QPA_PLATFORM": "offscreen",
+    "MPLBACKEND": "Agg",
+    "memory_cap": "4G",
+    "pytest": "9.1.1"
+  },
+  "observations": [
+    "Both Qt phases exit 0. Each logs a nonfatal already-removed chaining lock message after its passing summary.",
+    "No before timing replay was performed; exact prior test/workflow bytes are retained.",
+    "All six corrected Fast/Minimum jobs remained running during this focused repair."
+  ]
+}

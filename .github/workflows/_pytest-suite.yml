@@ -247,6 +247,7 @@ jobs:
               --faulthandler-timeout 900 \
               --batch-timeout 2700 \
               --ignore=tests/test_perf_guard.py \
+              --ignore=tests/qt/test_641_module_first_open_timing.py \
               --ignore=tests/qt/test_gui_responsiveness.py \
               --ignore=tests/qt/test_home_stage_and_dock.py \
               --ignore=tests/qt/test_figure_queue.py \
@@ -259,6 +260,7 @@ jobs:
               "${timeout_args[@]}" \
               -m '${{ inputs.marker_expression }}' \
               --ignore=tests/test_perf_guard.py \
+              --ignore=tests/qt/test_641_module_first_open_timing.py \
               --ignore=tests/qt/test_gui_responsiveness.py \
               --ignore=tests/qt/test_home_stage_and_dock.py \
               --ignore=tests/qt/test_figure_queue.py \
@@ -281,6 +283,7 @@ jobs:
               -o faulthandler_timeout=900 \
               "${timeout_args[@]}" \
               tests/test_perf_guard.py \
+              tests/qt/test_641_module_first_open_timing.py \
               tests/qt/test_gui_responsiveness.py \
               tests/qt/test_home_stage_and_dock.py \
               tests/qt/test_figure_queue.py \
