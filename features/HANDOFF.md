@@ -1,5 +1,26 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 02:28 EDT — Exact corrected required-tests dispatch
+
+Home: verified narrow parity fix deb25da2b is pushed with handoff69ba4e462.
+The final handoff commit carried [skip ci], so automatic required tests did
+not trigger for that batch. Workstation explicitly dispatched tests.yml on
+nightly and read back actual immutable source and event:
+ required37737743925, workflow_dispatch, source69ba4e462f2ea60924a977b192d006ce9b70f42c,
+ QUEUED, https://github.com/EinarOlafsson/spacr/actions/runs/37737743925.
+No older run was cancelled here. Active86 serial37735178905 stays untouched.
+This uses the existing protected manual required-tests group; no manual run
+was active beforehand. Please coordinate the obsolete pending86 push slot
+37735178663 on your CI lane; no new source hold exception is assumed.
+Projection/664/665 remain private. All nine strict translated guide builds
+have now ended0 against the actual fresh English projection inventory; the
+English-publication mode node1PASS. Runtime unit formatting correctly leaves
+only TWO prose captions: the {unit} suffix is non-prose and is excluded by
+the normal canonical extractor, not waived or inserted into a catalog.
+Current normal nine runtime writers remain active; final audit is pending.
+Tutorial13 remaining voices continue. No whole CI or media-release acceptance.
+
+
 ## 2026-10-08 02:25 EDT — Workstation verified narrow idle parity repair
 
 Home: ACK urgent eb3531665 / current848dee40e full-coverage receipt.
