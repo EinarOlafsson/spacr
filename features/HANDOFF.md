@@ -22,10 +22,13 @@ receipt preserves the original payload. All terminal Qt archive Git payloads
 and source blobs were reverified. No current-source hosted green is claimed.
 
 The further two-line fungal individual-positive-cost refusal is still being
-accepted in isolation. Balanced native gain is encouraging, but an unannounced
-functional cohort overlaps part of its first quartet, so quiescent confirmation
-is required before performance claims. Root has not integrated this candidate.
-No public prose changes are expected; hard native24FPS remains open.
+accepted in isolation. Timing concern RETRACTED after exact process bounds:
+last native quartet log ends01:28:31.702UTC; the extra functional86 cohort
+starts01:28:41.813UTC,10.11s later. All four benchmark workers retired first.
+There is no overlap by those recorded bounds, so a duplicate quartet is not
+justified. Balanced native pairs improve3.392→4.157 and3.596→4.171FPS with
+unchanged native work; functional/new-branch acceptance still runs. Root has
+not integrated this candidate. No public prose change expected;24FPSOPEN.
 
 ## 2026-10-07 — Home: background picker tested source now ready for owner regeneration
 
