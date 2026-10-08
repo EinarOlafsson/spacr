@@ -19,3 +19,5 @@ HOW TO KNOW IT WORKED
 Actual Qt clicks at zero gravity visibly change the rendered field. Toggle/cancel/save/rebuild tests check persistence and live application; bounded queues and off/on tests prohibit stale waves. Existing container/window tests exercise both open and close and state-change origins. Actual Setup engine and palette stay field/spacr after live preference changes.
 
 2026-10-08 — Registered the explicit user request. Implementation is in isolated worktrees; registration is not a completion claim. Workstation retains API/docs/translations/tutorials and GPU ownership.
+
+2026-10-08 13:10 EDT — Private integrated source e31e19543a passes the final 313-case capped CPU/Qt interaction cohort. Source patch and exact bindings are transferred in data/666_671_ui_source_handoff_2026-10-08 for workstation normal catalog/inventory refresh. App publication and current-source CI are pending; this is not a 100% or native compositor acceptance claim. N674 is a separate follow-up, not included in this checkpoint.

@@ -1,5 +1,43 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 13:10 EDT — Home UI source transfer; Spaceout field follow-up in parallel
+
+Home exact PRIVATEe31e19543a integrates N666/N667/N668/N670/N671. Final
+12-file actual CPU/Qt cohort313PASS70.16s under4G, CUDAhidden, offscreen,
+PySide6 6.11.2. Separate Gateinteraction162PASS coversdrawing/3Drotation,
+mouseandmenus. Source fixes include opaque rounded2D/3DGate backing with
+exception-safe painter cleanup; independent ripple toggle/clickgravity0;
+discretepopupopen/close atfrequency0; disabledclick/gravitywaves cannot
+revive onenable; setupactualfield/spacr survivesordinary/Spaceout updates;
+nativemax/fullscreen settledtopfeedback, no duplicate top-snap wave.
+
+Transferable source-and-tests.patch.gz and30 exact finalsource payloads:
+ data/666_671_ui_source_handoff_2026-10-08/receipt.json
+Normal patch basePUBLIC23d939816a; onlyspacr/tests hunks, no generated or
+feature-note overwrites. Archived raw313/162/119/3 logs have exact scopes;
+totals overlap. Root verifier30frozenGitcomparisonsPASS. Workstation should
+apply/check privately alongside owned candidates, then regenerate normally.
+This is NOT app publication/current-source CI/fullserial/native acceptance.
+
+Known source-inventory preflight on earlierb5: API13215to13220,5arrivals and
+6English bodieschanged; UI7245to7258,16added/3Spaceout-description keys
+removed by extractor despite being live in Spaceout. e31 adds popup setter
+prose; remeasure the exact final combined source rather than reuseb5 counts.
+Normal API/callable hashes, all9API/runtime catalogs and evidence, settings
+flow freshness and strictdocs must be refreshed before source publication.
+No ceilings/assertions/timeouts/caps are waived. Preserve firstgreen078 and
+protectedfresh53ab required37807749125 (currently no failed step).
+
+New requests N672 gateanchors/surfaces and N673 shared3DMakeMasks are OPEN
+and registered publicly; no implementation claim. N674 now registered and
+in progress: default Spaceout-only fieldvariant, random bounded smooth
+attractors/relaxation/elasticrelease/vortex/sync+asyncdensity/colourwaves/
+colourspirals. Reused theme lane ownsnewengine, preferenceslane8boolean
+controls; Rootcatalog/default/input integration. N674 is NOT in e31patch;
+final source/inventory follow-up will include it. Ordinaryfield stays intact.
+Workstation retains API/docs/translations/tutorials/GPU ownership.
+
+
 ## 2026-10-08 12:47 EDT — Workstation panel limits/capture passes164; module audit gaps confirmed
 
 N658 PRIVATEabb48e24e replaces prior candidates: full164PASS67.71s,
