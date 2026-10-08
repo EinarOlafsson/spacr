@@ -224,11 +224,16 @@ class TestTheRightColumnResizesAsOne:
                   screen._console_wrap, screen._usage_card,
                   screen._actions_section)
         before = [w.width() for w in panels]
+        viewport = screen._runtime_viewport
+        before_content_width = viewport.viewport().width()
         _drag(body.handle(1), 150)
         after = [w.width() for w in panels]
         shrink = before[0] - after[0]
+        content_shrink = before_content_width - viewport.viewport().width()
         assert shrink >= 100
-        assert all(b - a == shrink for b, a in zip(before, after))
+        assert content_shrink >= shrink
+        assert all(b - a == content_shrink for b, a in
+                   zip(before[1:], after[1:]))
         assert get_pane_extents("measure::body")["Runtime"] == after[0]
 
         again = measure()
