@@ -5591,6 +5591,7 @@ class LiveSettingsDialog(QDialog):
         ] + panel._all_compartment_widgets()
 
         self._show_every_control_on_a_row()
+        self._install_api_tooltips()
         self.refresh_visibility()
 
         try:
@@ -5688,6 +5689,8 @@ class LiveSettingsDialog(QDialog):
         for compartment, fields in p._compartment_widgets.items():
             for suffix, widget in fields.items():
                 widget_keys[widget] = f"{compartment}_{suffix}"
+        for suffix, widget in p._organelle_widgets.items():
+            widget_keys[widget] = f"organelle_{suffix}"
         install_api_tooltips(self, "mask", widget_keys)
 
     def refresh_visibility(self):

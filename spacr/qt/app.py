@@ -6360,6 +6360,10 @@ class MainWindow(QMainWindow):
         except Exception:                                    # noqa: BLE001
             doomed = [own]
         for child in doomed:
+            try:
+                child.setProperty("spacrRetiringBackdrop", True)
+            except (RuntimeError, AttributeError):
+                pass
             for step in ("set_animating", "setParent", "deleteLater"):
                 try:
                     if step == "set_animating":
@@ -6589,6 +6593,10 @@ class MainWindow(QMainWindow):
         doomed = getattr(self, "_dock_backdrop", None)
         self._dock_backdrop = None
         if doomed is not None:
+            try:
+                doomed.setProperty("spacrRetiringBackdrop", True)
+            except (RuntimeError, AttributeError):
+                pass
             for step in ("set_animating", "setParent", "deleteLater"):
                 try:
                     if step == "set_animating":

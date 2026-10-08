@@ -8956,6 +8956,7 @@ def _apply_spaceout_animation_choice(app) -> None:
             new = install_ambient(
                 host, theme=selected, palette=get_ambient_palette())
             if ambient:
+                old.setProperty("spacrRetiringBackdrop", True)
                 old.stop()
                 old.hide()
                 old.setParent(None)

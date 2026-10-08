@@ -20,7 +20,8 @@ FAMILIES = (
     "genetic_advection", "impulse_lens", "fungal_growth", "thore",
 )
 OFFERED_FAMILIES = tuple(family for family in FAMILIES
-                         if family not in ("chromatin_ribbon", "thore"))
+                         if family not in ("chromatin_ribbon", "thore",
+                                           "fungal_growth", "tissue_facets"))
 INTERACTIVE = frozenset(("point_atlas", "tissue_facets", "genetic_advection",
                          "impulse_lens"))
 BACKGROUND = "#101418"
@@ -55,11 +56,13 @@ def _digest(image: QImage) -> str:
     return hashlib.sha256(image.bits().tobytes()).hexdigest()
 
 
-def test_data_art_registry_has_five_distinct_named_materials():
+def test_data_art_registry_has_ordinary_and_spaceout_materials():
     """The catalog exposes retained families without pointer duplicates."""
     keys = {theme for theme in ambient.AMBIENT_THEMES
             if theme.startswith("data_art_")}
     assert keys == {f"data_art_{family}" for family in OFFERED_FAMILIES}
+    assert {"data_art_fungal_growth", "data_art_tissue_facets"} <= set(
+        ambient.SPACEOUT_ONLY_THEMES)
     for family in OFFERED_FAMILIES:
         key = f"data_art_{family}"
         engine = _engine(family)

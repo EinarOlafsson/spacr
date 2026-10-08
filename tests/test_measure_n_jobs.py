@@ -129,7 +129,7 @@ def _one_field(tmp_path):
 def _run(tmp_path, monkeypatch, n_jobs, cpu_count=None):
     src = _one_field(tmp_path)
     _RecordingPool.created = []
-    monkeypatch.setattr(mp, 'Pool', _RecordingPool)
+    monkeypatch.setattr(M, '_parallel_pool', _RecordingPool)
     # These assertions cover resolution of the requested worker count, not
     # the separate spawn/forkserver optimization that caps workers to files.
     # Python 3.14 changed Linux's default away from fork, so pin this seam.

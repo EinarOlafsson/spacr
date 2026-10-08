@@ -397,7 +397,8 @@ class _DatabaseWriteQueue:
         suffix = '.final_error.json' if final else '.error.json'
         Path(path + suffix).write_text(json.dumps({
             'error_type': type(error).__name__, 'error': str(error),
-            'traceback': ''.join(traceback.format_exception(error)),
+            'traceback': ''.join(traceback.format_exception(
+                type(error), error, error.__traceback__)),
         }, indent=2) + '\n')
         seen = set()
         current = error

@@ -54,7 +54,8 @@ def test_processing_error_keeps_its_real_remote_worker_stack():
             gate=_WorkerStartGate(delay=0)) as pool:
         with pytest.raises(ValueError, match='invalid scientific field') as failure:
             pool.map(_invalid_field_in_child, [1])
-    formatted = ''.join(traceback.format_exception(failure.value))
+    formatted = ''.join(traceback.format_exception(
+        type(failure.value), failure.value, failure.value.__traceback__))
     assert 'in _invalid_field_in_child' in formatted
     assert "raise ValueError('invalid scientific field')" in formatted
 
@@ -65,7 +66,8 @@ def test_exhausted_retry_keeps_both_real_remote_calculation_tracebacks(tmp_path)
             gate=_WorkerStartGate(delay=0)) as pool:
         with pytest.raises(ValueError, match='final invalid result') as failure:
             pool.map(_overload_then_invalid_in_child, [str(tmp_path)])
-    formatted = ''.join(traceback.format_exception(failure.value))
+    formatted = ''.join(traceback.format_exception(
+        type(failure.value), failure.value, failure.value.__traceback__))
     assert "raise MemoryError('first overload at original calculation')" in formatted
     assert "raise ValueError('final invalid result at different calculation')" in formatted
 
