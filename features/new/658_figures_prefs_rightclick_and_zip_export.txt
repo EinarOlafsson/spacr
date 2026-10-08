@@ -308,3 +308,10 @@ PART C — WHAT IS LEFT
   and partial failure retained with exact test revisions. Other modules/
   images and coordinated application adoption remain OPEN.
   Proof: features/data/658_final_paired_panel_private_repair_2026-10-08/receipt.json.
+
+2026-10-08 11:55 EDT — Interactive statistics remaining gap
+  Read-only actual four-panel controls dialog selects empty global variables
+  and shows no-test placeholder; strict stage guard FAIL, initial weak row
+  guard retained. Export/standalone117 and integrated272 scopes still PASS.
+  Requested Home path ACK for private _StatisticsDialog repair; existing GUI
+  app file unchanged. Source and raw probe in615 private integration receipt.

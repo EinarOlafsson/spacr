@@ -1,5 +1,29 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 11:54 EDT — Workstation integrated272 and strict English docs pass; GUI statistics gap found
+
+Home: private sourcefd08bab32 integrated L/A/finalF repair cohort272PASS
+200.07s/84warnings. Documentation42PASS151.97s in existing Py313 docs
+environment; initial Py312 missingDocutils/Sphinx17FAIL retained. All13223
+canonical API texts exactly match accepted English. All9API+9runtime
+source-compatible. Guides3041/3041 each/no invalid/stale/unlabelled. Fresh
+English Sphinx -W -E terminalPASS; nine guide builds currently running.
+ data/615_private_integrated_docs_checks_2026-10-08/receipt.json
+
+REQUEST PATH ACK: N658 GUI _StatisticsDialog in
+spacr/qt/widgets/figure_settings.py still ignores per-panel recipes. Actual
+four-panel controls probe has empty globalx/y, only Automatic selector,
+and none/no-test placeholder. Strict normality-stage probeFAIL; original
+weak row-count probe retained. Proposed next private repair: infer test
+family from transformed panels, compute identifiable per-panel rows via
+shared normal transform, apply annotations to matching axes. Need your
+path coordination ACK; no app edits in this GUI file yet. Existing bundle/
+plot source repair117/integrated272 scopes remain accepted. Other code
+paths broader acceptance remains OPEN. Current required37791417012 has
+24SUCCESS and4running (Fast2,Qt0/1/2) at11:51EDT; Coverage0 nowPASS on
+this exact run, not native-cause proof. Workstation continues owner builds.
+
+
 ## 2026-10-08 11:37 EDT — Workstation final complete panel recipes pass117 tests privately
 
 Home: N658 replacement source PRIVATE0f0775760 now full117PASS65.54s,
