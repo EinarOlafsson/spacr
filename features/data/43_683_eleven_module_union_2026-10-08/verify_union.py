@@ -56,7 +56,7 @@ def _verify(git=False, revision="HEAD"):
     old = json.loads(gzip.decompress(_read("hosted-eleven.json.gz", git=git)))
     focused = json.loads(gzip.decompress(_read("focused-eleven.json.gz", git=git)))
     assert receipt["hosted_source_sha"] == old["source_sha"]
-    assert receipt["focused_source_sha"] == focused["source_sha"]
+    assert receipt["target_source_sha"] == focused["target_source_sha"]
     assert set(old["files"]) == set(focused["files"]) == set(receipt["modules"])
     assert len(old["files"]) == 11
 
@@ -89,6 +89,10 @@ def _verify(git=False, revision="HEAD"):
 
         old_row = old["files"][path]
         focused_row = focused["files"][path]
+        focused_revision = receipt["focused_input_source_revisions"][focused_row["group"]]
+        measured_source = _source(focused_revision, path)
+        assert _sha(measured_source) == focused_row["measured_source_sha256"], path
+        assert measured_source == current_source, path
         old_lines = set(old_row["missing_lines"])
         old_arcs = {tuple(arc) for arc in old_row["missing_branches"]}
         if path == "spacr/qt/widgets/ambient.py":

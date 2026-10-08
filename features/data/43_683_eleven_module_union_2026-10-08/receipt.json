@@ -5,7 +5,11 @@
     "root_three": "c69e9ac05f7d37bbed4b1d0fd472d68c4faff55be0c5ae997c2f2f4f5f7ca763",
     "theme_four": "360fee4131228b0307af905ce09fbd730946fdec5f417fca04d4c573deacd0b0"
   },
-  "focused_source_sha": "11229945a6e803f5fa1d5ed6683d446a2b068132",
+  "focused_input_source_revisions": {
+    "own_four": "ebfdb47132b92129213ec24f5b5c98099c2cf1e6",
+    "root_three": "11229945a6e803f5fa1d5ed6683d446a2b068132",
+    "theme_four": "23a3d197c3c34e8cd2d7571965eaa1eaa1b5dbd2"
+  },
   "focused_validation": "own-four 7 pass; theme-four 13 pass; root-three integrated 83 pass under CUDA-hidden 4 GiB branch coverage",
   "hosted_aggregate_job_id": 113085039577,
   "hosted_full_coverage_sha256": "b7ab0bf6fa2fb39f93f33c28660ae33173fb2a2b1c6d1f2615cfaeaa8cb68320",
@@ -529,5 +533,6 @@
         1251
       ]
     }
-  }
+  },
+  "target_source_sha": "11229945a6e803f5fa1d5ed6683d446a2b068132"
 }
