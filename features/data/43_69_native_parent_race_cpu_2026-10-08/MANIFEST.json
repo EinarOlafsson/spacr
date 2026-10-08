@@ -1,0 +1,97 @@
+{
+  "payloads": {
+    "README.txt": {
+      "bytes": 2705,
+      "sha256": "0ac2da37ff7a01b90a884cde55784a1b9f07791d637ce855f8c9e5694993858e"
+    },
+    "archive.py": {
+      "bytes": 5948,
+      "sha256": "cfe00ed9d0e7f60d80379df0d54463d9ab21bfb3ec5428bebe55d68de6ea45f7"
+    },
+    "coverage0-job.json": {
+      "bytes": 3110,
+      "sha256": "5c3ec3f33bb59f2eed75d808c514ef2caa4a51bd6fd02914bc43086522cad2f8"
+    },
+    "coverage0.log.gz": {
+      "bytes": 111628,
+      "sha256": "04baf41f81f421bb37ca3a522379bc0b87354aacad152ab2e0694d03a8ce54fa"
+    },
+    "focused-three-source-coverage.json.gz": {
+      "bytes": 119793,
+      "sha256": "235a617e8dcc264dfc5902e1052b266561464bf536e8dc873219e85dae07f117"
+    },
+    "frozen-0-make_masks.py.gz": {
+      "bytes": 214386,
+      "sha256": "c528571efbe61ac81141d2798f2bb5da34af9a386614d72396a41d5547d0eaaa"
+    },
+    "frozen-1-primary_mask_selector.py.gz": {
+      "bytes": 3111,
+      "sha256": "9b5e85ed75d250ce469de66bd698f280cf8d3e543c89811c295f196e6a46e072"
+    },
+    "frozen-2-bridge.py.gz": {
+      "bytes": 22817,
+      "sha256": "b37c79cb109dbbea724d26004ace87aeeca17e98bf944c2887bbec0b74b2a341"
+    },
+    "frozen-3-test_make_masks_parent_source_race_guards.py.gz": {
+      "bytes": 1857,
+      "sha256": "df0e7e4f22a8f16c220d7222313324e5398de17cca7084a2c8f2f9dca5b117ae"
+    },
+    "frozen-4-test_live_preview_remove_background.py.gz": {
+      "bytes": 4262,
+      "sha256": "894f7fbaf90418c67af71bf6569026dcb9111527e31957149a93c1a1662a4ec3"
+    },
+    "frozen-5-conftest.py.gz": {
+      "bytes": 42555,
+      "sha256": "f5998dac1303f39a30b4c5acca85f5666affc2967585d356a0b5ff61d82f38b6"
+    },
+    "frozen-6-conftest.py.gz": {
+      "bytes": 18142,
+      "sha256": "d1ce3c1c37872e2ee040c360a4b994f7d42682d28ca4b321914477ca2977a2a3"
+    },
+    "frozen-tests-workflow.yml.gz": {
+      "bytes": 10602,
+      "sha256": "ce55fd0ad7432c143918206ac38bd0e2f926bf3f4ab79acad23216ec603e38df"
+    },
+    "gdb.commands": {
+      "bytes": 295,
+      "sha256": "0f91eb0ca7daff0ead2ffbb4a3698b9e719def4c94d824a1cb0459e3399981f8"
+    },
+    "gdb.log.gz": {
+      "bytes": 2251,
+      "sha256": "5ba874293a05e9484162873bbe50bf0934bf3cfbf8e64c29c14048e1e8ead1b5"
+    },
+    "hosted-artifacts.json": {
+      "bytes": 14278,
+      "sha256": "cc8d2af6aa29615ecf9c782bff2691ca06268e2e6b2ecbe3e83dd9f4e1421871"
+    },
+    "hosted-fault-excerpt.txt.gz": {
+      "bytes": 5352,
+      "sha256": "9ca274a7705964a72dd0373b2f65df516c08b7556958c941bf50ddd1815c0b73"
+    },
+    "receipt.json": {
+      "bytes": 4560,
+      "sha256": "bfa86069b1fab139ac9f7dccd5c360ae54b399ef116cae8ace0cf3356437d70d"
+    },
+    "replay-provenance.json": {
+      "bytes": 3386,
+      "sha256": "21abe00c9d27a69750ef402cb882ecf6448346df6c5350db4fb37b1d7bdc90b8"
+    },
+    "replay.py": {
+      "bytes": 3152,
+      "sha256": "f93f6dae17f86a517e456d86ab84caa8f79c7a992b8235e4886b60d0c00165fd"
+    },
+    "run-terminal-cancelled.json": {
+      "bytes": 12545,
+      "sha256": "c7db48eddd4bd6996edae361e13bc3b81ed84a99476c8b6998880efffae8a33b"
+    },
+    "verify_manifest.py": {
+      "bytes": 2981,
+      "sha256": "169e5b9596fdf0612b7a9383bf08c2c03adcbea276a41ba54d42608a02e426f8"
+    },
+    "write_manifest.py": {
+      "bytes": 510,
+      "sha256": "36aac480409d2a63f78bc275a9653146626e6aa347400b9fed7f147653b17cfb"
+    }
+  },
+  "schema": 1
+}

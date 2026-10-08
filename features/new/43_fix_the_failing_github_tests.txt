@@ -3468,3 +3468,14 @@ full acceptance or a diagnosed cause. Corrected serial stays uninterrupted;
 2026-10-08 Home: all6 previous4133 Fast/Minimum complete original terminal logs independently verify (4success/2fail, solely repaired signature guard), proof data/43_4133_fast_min_terminal_2026-10-08/. Docs trigger86 run37735178414 all4SUCCESS, actual pinned nightly4d8426cf9c/main91ab2b8ae7 and tools86; proof data/43_86_trigger_docs_terminal_2026-10-08/. Current69 protected full required runs, not accepted. Cancelled86 serial reveals first-open replication cached-screen fixture assertion; Qt owner verifies narrow repair preserving freshness/time limit. Overall N43/N47 remain OPEN.
 
 2026-10-08 Home: coherent saved-session fresh-contract batch changes only10test files, preserving all prior assertions/budgets/modes. Actual first-open fixture negative fails then fixes pass103two-file tests; root hostedpytest8.4.2 exactregression1PASS3.48s. Further real-session cohort6fail/1pass→7pass, final2literalMask failures→2pass. Complete25+17+7payload source-bound proofs independently verify in data/43_fresh_home_test_contracts_cpu_2026-10-08/, data/43_fresh_mask_cache_test_contracts_cpu_2026-10-08/, data/43_first_open_saved_session_2026-10-08/. No application/tool/workflow/API/ratchet changes. Supersede earlier69/47 candidates with explicit complete latest required/serial; N43 remainsOPEN until actual terminalgreen.
+
+2026-10-08 — Exact69 Coverage0 native failure preserved; local replay negative
+Source69 run37737743925/job113181069132 really records gw1 SIGSEGV during
+parent-source waitUntil at07:04UTC. Cancellation later skips both native
+collector/upload steps; no owned crashed PID or C++ artifact recovered.
+One unchanged-source original-order GDB replay passes actual12nodes77.70s;
+inferior3815218 exits normally. Original planned13count and diagnostic-only
+post-exit GDB1 remain explicit in source-bound23payload proof:
+ data/43_69_native_parent_race_cpu_2026-10-08/receipt.json.
+No app, workflow, test, pin or guard change. N43/native cause stays OPEN;
+current0b hosted acceptance is distinct and retained.

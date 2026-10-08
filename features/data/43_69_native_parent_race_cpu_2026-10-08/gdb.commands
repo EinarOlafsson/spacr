@@ -1,0 +1,15 @@
+set pagination off
+set confirm off
+set auto-load off
+set debuginfod enabled off
+set print elements 32
+set print repeats 3
+set print max-depth 3
+handle SIGPIPE nostop noprint pass
+run
+echo \n=== Original stop signal ===\n
+p $_siginfo
+bt full 24
+info registers
+x/16i $pc-16
+thread apply all bt 30

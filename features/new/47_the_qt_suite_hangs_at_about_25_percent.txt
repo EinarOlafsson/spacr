@@ -2366,3 +2366,13 @@ passes40.74s under4GiB: no repair or demonstrated cause. Corrected4133 serial
 2026-10-08 Home: Source smoke failure diagnostics now use explicit JSON with full failed reachability rows and settle/restore flags. Actual Measure1PASS37.95s; actual pytest8.4.2 controlled formatter probe demonstrates dictionary elision versus complete JSON. Initial insufficient-size probes retained honestly. Proof data/47_explicit_layout_failure_diagnostics_cpu_2026-10-08/. This is diagnostics only, not an identified/fixed original layout cause or full serial/native acceptance; N47 remains OPEN.
 
 2026-10-08 Home: cancelled86 prefix proves replication first-open fixture cached-screen assertion (178complete/179begun,6%,RSS/HWM3,314,561,024B,fatalempty), no full acceptance. All21originalpayloads/ZIP verify data/47_obsolete_86_serial_supersession_2026-10-08/. Both641 freshfixtures nowexplicitHome with actualfixture oldnegative/fixedpositive and103two-file passes; further8fresh-contract files verified with real saved records. Original10s/12G/zero-swap/10.8G limits stay intact. Explicit latestserial supersedes stillqueued47 source lacking these verified fixtures; originalfullorder/native/RAM acceptance remainsOPEN.
+
+2026-10-08 — Parent-source worker native fault remains undiagnosed
+Exact69 Coverage0 records real SIGSEGV at Qt waitUntil while loading parent
+source, before detector mutation. Native artifacts skipped after intentional
+run supersession; no C++ cause/PID is known. Bounded original-order two-file
+GDB replay: actual12PASS77.70s, normal inferior exit, seven relevant files
+byte-identical69/current0b. Full raw fault and negative evidence:
+ data/43_69_native_parent_race_cpu_2026-10-08/receipt.json.
+No speculative fix, forced GC, budget change or native/serial acceptance.
+N47 remains OPEN; current0b serial and Coverage0 stay distinct.
