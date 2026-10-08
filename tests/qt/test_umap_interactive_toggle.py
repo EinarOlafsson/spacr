@@ -28,7 +28,7 @@ def _payload_figure():
 
 
 def test_umap_has_interactive_toggle_immediately_beside_ai(
-        qtbot, qt_theme_applied):
+        qtbot, qt_theme_applied, immediate_hover_help):
     screen = AppScreen("umap")
     qtbot.addWidget(screen)
 
@@ -41,7 +41,12 @@ def test_umap_has_interactive_toggle_immediately_beside_ai(
     # spacr.qt.widgets.preview_contract for the decision.
     assert toggle.text() == "Interactive"
     assert toggle.isChecked() is False
-    assert "select a point" in toggle.toolTip().lower()
+    assert toggle.toolTip() == ""
+    assert "select a point" in toggle.accessibleDescription().lower()
+    screen.show()
+    qtbot.waitExposed(screen)
+    immediate_hover_help(
+        toggle, lambda: "select a point" in screen._hint_strip.text().lower())
 
     row = screen._ai_switch.parentWidget().layout()
     assert row.indexOf(toggle) + 1 == row.indexOf(screen._ai_switch)
