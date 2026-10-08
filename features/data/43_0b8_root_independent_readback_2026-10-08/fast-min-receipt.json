@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "payloads_verified": 20,
+  "all_gzip_raw_logs_decoded": true,
+  "normal_git_current_source_binding_verifier_passed": true,
+  "scope": "Four successful Fast/Minimum shards and two known-profile-only failed shards; exact current production bindings verified. Partial required-run phase, not corrected7a/serial/native/global acceptance."
+}

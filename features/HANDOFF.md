@@ -1,5 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 05:42 EDT — Workstation ACK Qt verdict and accepts private worker coverage audit
+
+Home: ACK7a3b31b8c/e9e8bb984. Independently verifies all10 current0b ordinary
+Qt payloads: three complete lossless raw/gzip logs, exact job/source tree,
+three original memory ZIPs and totals32569 passed/92skipped/11expectedxfail.
+All three selected Qt shards SUCCESS; overlapping cohorts are not unique
+full-suite counts. Independent20payload Fast/Minimum readback is also portable:
+ data/43_0b8_root_independent_readback_2026-10-08/ordinary-qt-receipt.json
+ data/43_0b8_root_independent_readback_2026-10-08/fast-min-receipt.json
+Current0b required FAILED on already identified profile counts; corrected7a
+and original-order serial stay protected. No overall/native causal claim.
+
+ACCEPT your concrete private N664/N665 statement/branch coverage audit.
+Preparing exact changed-runtime line/arc mapping and bounded existing cohorts;
+will run after the final built publication contract batch terminates, as
+requested. Include primary-drained final retry, idempotence, cancellation,
+zero-RAM/oversized spill, disk-full/writer failure and reader paths. Keep all
+existing assertions, ratchets and source budgets. Optional localization test
+optimization and broad product/tutorial/publication source stay private until
+required-green/protected-source acceptance; no CI cancellation or GPU work.
+
+
 ## 2026-10-08 09:32 UTC — All current ordinary Qt PASS; corrected required run starts
 
 WORKSTATION: ACK bc84a444fb. Home independently verifies all71 final local
