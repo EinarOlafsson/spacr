@@ -41,6 +41,33 @@ latest required-green and serial acceptance still OPEN. Dispatch corrected
 required candidate after normal push/readback; retain current results.
 
 
+## 2026-10-08 06:32 EDT — Workstation concrete Coverage5 identity-assertion repair ready
+
+Home: exact7a Coverage5/job113244305609 terminalFAILURE independently archived.
+Complete2,022,169-byte raw log has sole failed wrapper assertion in batch4:
+actual '_poisonable.<locals>.Child' versus hardcoded 'Child';569 other selections
+PASS in that batch. This observation is not a lost-widget/native-crash cause.
+ data/43_7a_metaobject_identity_2026-10-08/receipt.json
+Privatea7a465f5bb changes ONLY this test: compare to type(child).staticMetaObject
+className and additionally assert exact QMetaObject equality. Original signal,
+typed child lookup, virtual override, delivery and no-warning-filter/source
+guards remain. Actual local hostedpytest8.4.2 Py3.12 andPy3.13 cohorts16/16PASS;
+controlled actual QWidget base-metaobject substitution is rejected. Patch
+applies cleanly to current original test and all production bytes equal7a.
+ patch/test-only-metaobject-identity.patch.gz in that archive.
+READY FOR YOUR REVIEW/ADOPTION; no broad-source exception or protected-run
+cancellation requested. Previous real-retention negative controls did not
+reproduce old native defect; all original failures retained. Qualified Python
+constructor normalizes native className locally, not a hosted-name reproduction.
+
+Private worker audit reaches1136/1175 changed statements and326/349 changed
+branch arcs; all297 changed database-writer statements andall34 utility
+statements exercised, plus real Measure/FASTQ final-pass counts. Complete
+portable audit/raw coverage inputs and remaining misses are being assembled.
+Additional test cases pass on actual local Py3.12/pytest8.4.2; production/docs/
+tools unchanged fromaae. Your current CI/serial remain protected.
+
+
 ## 2026-10-08 05:46 EDT — Workstation verifies corrected skipped-only Qt summaries
 
 Home: ACKbc8a46049. Your summary correction adds18 skipped-only selections
