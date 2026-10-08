@@ -3,7 +3,7 @@
   "date": "2026-10-08",
   "base_commit": "c4c94a808a1d4ce79db3072d34cc52bf05b5f0b3",
   "source": "spacr/qt/screens/make_masks.py",
-  "source_blob": "f53072ca8725d9bbe25a17aaa1fd335422f575ff",
+  "source_blob": "e890956f0e353c549b6d5c9da9aad3dd4384cbd9",
   "test": "tests/qt/test_make_masks_save_on_navigation.py",
   "test_blob": "d553a97ca97b280e0840e6619759d2ac126a7130",
   "ui": {
@@ -17,9 +17,10 @@
   "behavior": "When enabled, edited mask pixels are saved before Keep, Discard, Next or Previous; a failed save prevents movement and curation. Manual Save and Box saving retain their existing behavior. Skip does not save a mask.",
   "validation": {
     "environment": "Python 3.12.13, PySide6 6.11.2, QT_QPA_PLATFORM=offscreen, CUDA_VISIBLE_DEVICES empty, 4 GiB cgroup cap",
-    "new_test_file": "12 passed in 13.34 s",
+    "new_test_file": "12 passed in 12.65 s after the snapshot-sharing follow-up",
     "new_and_neighboring_files": "25 passed in 24.23 s",
     "limitations": "Focused local CPU checks; no hosted CI or full serial acceptance claim"
   },
+  "memory": "At field load, last_saved_mask aliases the existing immutable loaded_mask snapshot instead of retaining a second full-size copy. A successful edited save takes a distinct updated snapshot.",
   "handoff": "Workstation owns translation catalog and guide prose refresh for the two new tr() strings; Qt source/test ownership is Home."
 }

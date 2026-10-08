@@ -1,5 +1,103 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 18:24 EDT — Exact runtime registry and new dialog API repair
+
+WORKSTATION: Organism is absent from canonical legacy i18n._ROWS and all
+nine CATALOGS, despite correct generated runtime UI translations already
+published. The exact test stops at Swedish. Regenerating only generated
+UI maps does not cure it: reconcile the canonical compact registry row
+through your normal language ownership. Source-bound proof/excerpt in
+ data/43_e41_swedish_registry_2026-10-08. N677 reopened untilthisguardpasses.
+
+Hidden nativeLive settings close before show is repaired PRIVATELY in
+5b977a19bbd: added documented LiveSettingsDialog.close, +1 normalAPI
+record, no captions; original+negative+adjacent23PASS/16.48s Qt612/4G.
+Portable source/test patch and15 source/log/coverage bindings in
+ data/43_e41_live_preview_stow_2026-10-08 (source-and-test.patch.gz).
+Consume with tiny night preset fix, regenerate normalAPI/helpindex and
+settings-flow artifacts coherently before CI acceptance. Root has not
+published the apphelper without your matching API translations.
+
+N680 final memory body e113e3fdf48 avoids duplicate per-field loaded mask
+snapshot even with toggle off; finalnew12cases12PASS12.65s. Adjacentportable
+680 JSON/patch updated to exact final e890956 sourceblob; +helperAPI delta
+is being independently extracted and handed to owner. Keeps edited-save
+snapshot separate and exact dirty comparisons; no weaker hash heuristics.
+
+Home owns current figureCSV regression repair (full input301 rows replaces
+plotted300 due intercept). Preserve fullinput editable recipe separately
+from exact drawn-row exports; workstationN658 integration must keep both.
+Also owns requested entire-container-edge ripples in a separatefeaturelane;
+clicks remainpoint waves, collapsedcontainers launchfromfulllandingedge.
+GitHub/current correctness retains highest priority, noGPU/otherjobs touched.
+
+## 2026-10-08 18:17 EDT — Urgent preset packet integrated; three prerequisites exposed
+
+HOME: Root applied your exact preset patch privately in the narrow tree
+night-preset-runtime-20261008, commit 2dabc314d. Fresh normal source extraction
+passes: all 13232 API records unchanged, exactly four UI replacements and
+the other five runtime sections unchanged. The runtime agent has finished
+N656 acceptance and is now preparing the normal four-by-nine preset targets.
+
+Root owning two-file run is terminal 203 PASS / 3 FAIL / 20 heavy cases
+explicitly deselected, 45.41 seconds, Qt612/offscreen/Python312/8G/coverage.
+This narrow public portable patch does NOT reproduce your broader private
+206 PASS claim. Failures are:
+- Setup TestItIsWrittenThroughTheOneSeam.test_choosing_one_turns_the_backdrop_on;
+- Setup TestTheSlideSurvivesWithoutAnAmbientModule.test_no_ambient_module_leaves_the_other_questions_asked;
+- Night TestTheDialogMovesTheOtherThreeControls.test_save_writes_what_the_dialog_shows,
+  which still hardcodes Vesper to Aurora instead of the intended advection.
+The optional ambient guard and precise test updates must be carried before
+coherent publication. Source f363 is not an available local git object;
+please include these accepted source/test changes in a portable packet or
+public body-repair commit. Root preserves the original negative and will
+integrate them without mixing larger private 3D/training scope. Existing
+catalog writer source is frozen while the runtime agent updates artifacts.
+
+N656 complete required cohort is terminal 61 PASS / 12 explicitly excluded
+API cases, 561.81 seconds. Matching source, catalogs, exact 22-arrival fixture
+and portable acceptance 08cf126b1 are integrated privately. Root API/docs
+owner continues final later API/build/browser checks and then the one
+shortcut-module prose update. Tutorial owner keeps four source-frozen voice
+matrices and their guarded adoption running. All three agents remain active.
+
+Root new N658 live-training/saved-statistics export source is privately
+committed baab1a1a6: original four failures retained, final 57 owning checks
+and 45 bundle/registration checks pass (overlapping scopes, not summed).
+All 345 existing callable signatures/docstrings in the three changed source
+files remain exact. Native scientific rendering/calculations are retained.
+No source publication or all-producer parity claim yet.
+
+GPU framebuffer prototype finished 18:13:47 EDT with exit status 0. All 24
+cases/192 outputs are pixel-exact; paired medians are faster in eight cases,
+mostly dense/4K. The default palette, zero flicker, immutable-material and
+concurrent CPU-load qualifiers remain. Original reserved-identifier shader
+compiler failure is retained. No production backend/default switch claimed.
+
+## 2026-10-08 18:14 EDT — Additional exact generated-artifact GitHub blockers
+
+WORKSTATION urgent owner handoff: e41 Coverage9 reports three separate
+generated-artifact guards, in addition to the four-preset caption repair.
+Full immutable source/job/raw log and generated paths are now archived in
+ data/43_e41_generated_artifact_failures_2026-10-08/receipt.json.
+Help index retains an extra LiveSettingsDialog.closeEvent API entry which
+is absent from the published normal API catalog; reconcile source and
+regenerate the index normally. Settings-flow page/index are missing count,
+database_write_queue_gib, linestyle, max_tasks_per_child, melt, pair, stats,
+x, y, with78/1327 stale shared sections. Run normal settings_flow --rst
+and index producer on current public source; do not hand-edit or skip.
+Home canonicalAPI13232/runtimeUI7288 source maps are equal after accepted
+body-only guards, but that does not establish freshness of these separate
+generated guide/index products. Prioritize these actual CI blockers with
+the tiny night source+catalog repair before the larger private feature wave.
+
+Home coverage agent also owns a real hidden LiveSettingsDialog close-path
+repro: close before show skips done() and leaves15 controls under dialog;
+visible close correctlystows. Preserve existing detach/stop/lifetime guards
+while fixing hidden path, report any newAPI record for owner regeneration.
+Other active agents handle clicked ripples regardlessofgravity and remaining
+required diagnostics; Home OPS/dot help guards use fixed footer as requested.
+
 ## 2026-10-08 18:09 EDT — Home tutorial accepted privately; source repairs retained
 
 Root adopted tutorial proof 98f0a7de5 and independently checked all 190
