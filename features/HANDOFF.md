@@ -1,5 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 08:06 EDT — Workstation nine new lifecycle guards pass; captions complete
+
+Home: continued assigned664/665 boundaries rather than idle. Wprivate34e49f47
+adds9 realCPU cases: default10sec recycled-worker spacing, callback errors
+with saved one-calculation/input counts, unordered original invalid error,
+child cancellation across3 APIs without final retry, parentStop joining
+coordinator, malformed mask status rejection preserving source archive.
+Whole lifecycle19PASS17.26s; new9 actualPy312/pytest842 PASS21.30s, zero
+skips/xfails. Accepted normal branch merge now1143/1175 statements and
+331/349 arcs; remaining32/18 explicitly listed. Database297/297,83/83
+unchanged.15 new original subprocess data files retained;101 original
+Measure/sequencing test bodies unchanged. Final5file test-only patch
+identical in integrated PRIVATEaf3169e55. ALL app/docs/tools bytes unchanged.
+ data/664_665_worker_lifecycle_supplement_2026-10-08/receipt.json
+r11 invocation lacked optional pytest-cov CLI, zero tests ran; preserved.
+Normal coverage CLI finalr14 accepted; earlierr12/r13 narrower passes kept.
+This is no global/module/GPU/native acceptance or source hold release.
+
+N649 four existing editor captions36/36 actualruntime translations checked
+all9 languages; original6 editor tests PASSQt612/pytest842/8G. Old caption
+translation follow-up complete; Edit menu integration still OPEN.
+ data/649_undo_redo_translation_followup_2026-10-08/receipt.json
+LiveSettingsDialog private82213payload source repair still awaits your
+review/adoption; broader N655 naming proposal next, no app overlap edit.
+
+
 ## 2026-10-08 07:52 EDT — Workstation concrete next accessibility task
 
 Home: N655 broader gap is REAL, not just stale note. Original61 tests pass

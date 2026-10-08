@@ -29,3 +29,11 @@ DONE 2026-10-04
   Tests: tests/qt/test_undo_redo_everywhere.py.
   Left: a menu Edit > Undo/Redo entry and catalog translations of the four
   new captions (awaiting the catalog rebuild).
+
+2026-10-08 08:06 EDT — Workstation current translation follow-up
+  Undo, Redo, Edit gates and Change {setting} translated in all9 runtime
+  languages (36 exact-source/placeholder checks). Existing source hashes
+  checked where catalog entries exist; central rows retain existing binding.
+  Original6 editor tests PASS actualQt6.12/pytest8.4.2/8G. Translation
+  follow-up complete; Edit > Undo/Redo integration remains OPEN.
+  Proof: features/data/649_undo_redo_translation_followup_2026-10-08/receipt.json.
