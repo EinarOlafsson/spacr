@@ -46,7 +46,9 @@ from __future__ import annotations
 
 from typing import Callable, Dict, Iterable, List, Optional, Tuple
 
-from PySide6.QtCore import QEvent, Qt, Signal
+from functools import partial
+
+from PySide6.QtCore import QEvent, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QPainter
 from PySide6.QtWidgets import QFrame, QLabel, QScrollArea, QSizePolicy, QVBoxLayout, QWidget
 
@@ -694,6 +696,10 @@ class DockEdge(QWidget):
         self.retranslate_dynamic_content()
         self.update()
         self.collapsedChanged.emit(collapsed)
+        if self._pressed_x is None:
+            from .ambient import field_ripple_for_widget
+
+            QTimer.singleShot(0, partial(field_ripple_for_widget, self))
 
     def keyPressEvent(self, event) -> None:  # noqa: N802
         """Let a keyboard user activate the same collapse control.
@@ -766,6 +772,9 @@ class DockEdge(QWidget):
         self._pressed_x = None
         if self._dragged:
             self._dock.set_column_width(self._dragged_to(moved))
+            from .ambient import field_ripple_for_widget
+
+            field_ripple_for_widget(self._dock)
         else:
             self.set_collapsed(not self._collapsed)
         self.update()

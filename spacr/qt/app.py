@@ -26,13 +26,16 @@ from PySide6.QtWidgets import (
     QApplication,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QMainWindow,
     QMenu,
     QMessageBox,
     QPushButton,
+    QPlainTextEdit,
     QStackedWidget,
     QStatusBar,
     QToolButton,
+    QTextEdit,
     QVBoxLayout,
     QWidget,
 )
@@ -534,7 +537,7 @@ SECTION_CORE = "Core"
 SECTION_DATA = "Data"
 SECTION_MODELS = "Segmentation models"
 SECTION_RESULTS = "Results & QC"
-SECTION_ASSAYS = "Assays"
+SECTION_ASSAYS = "Organism"
 #: Interactive analysis: build a plot, pivot a table, draw a gate, page
 #: through image layers. Results & QC is what a *finished run* produced —
 #: this is the user asking the numbers a question they did not plan for,
@@ -609,7 +612,7 @@ _SECTION_NOTE_LIBRARY = {
     SECTION_TOOLS: ("Point these at a project: edit masks by hand, stitch "
                     "tiles, read an embedding, draw a gate, build a plot, "
                     "check quality."),
-    SECTION_ASSAYS: "Quantitative readouts for biological assays.",
+    SECTION_ASSAYS: "Organism-specific image analysis and quantitative assay readouts.",
     SECTION_HELP: ("Look something up or administer work that already "
                    "exists: run history, the pipeline graph, the "
                    "database browser, reports and the job runners."),
@@ -2865,6 +2868,8 @@ class MainWindow(QMainWindow):
         self._install_fullscreen_button()
 
         self._stack = QStackedWidget()
+        self._stack.currentChanged.connect(
+            lambda _index: self._refresh_edit_actions())
         central = QWidget()
         central.setObjectName("CentralRow")
         row = QHBoxLayout(central)
@@ -3254,24 +3259,109 @@ class MainWindow(QMainWindow):
             kind = event.type()
             if (kind == QEvent.Type.MouseButtonDblClick
                     and event.button() == Qt.MouseButton.LeftButton):
+                minimum = getattr(self, "_snap_minimum", None)
+                if minimum is not None:
+                    self.setMinimumSize(minimum)
+                    self._snap_minimum = None
                 self.showNormal() if self.isMaximized() else self.showMaximized()
                 return True
             if (kind == QEvent.Type.MouseButtonPress
                     and event.button() == Qt.MouseButton.LeftButton
                     and bar.actionAt(event.position().toPoint()) is None):
+                if QApplication.platformName().lower().startswith("wayland"):
+                    return False
+                minimum = getattr(self, "_snap_minimum", None)
+                if self.isMaximized() or minimum is not None:
+                    fraction = event.position().x() / max(1, self.width())
+                    self.showNormal()
+                    if minimum is not None:
+                        self.setMinimumSize(minimum)
+                        self._snap_minimum = None
+                    self.move(event.globalPosition().toPoint().x()
+                              - int(self.width() * fraction),
+                              event.globalPosition().toPoint().y()
+                              - int(event.position().y()))
                 self._drag_from = (event.globalPosition().toPoint()
                                    - self.frameGeometry().topLeft())
+                self._drag_moved = False
+                return True
             elif kind == QEvent.Type.MouseMove and self._drag_from is not None:
+                if not event.buttons() & Qt.MouseButton.LeftButton:
+                    self._drag_from = None
+                    return False
                 self.move(event.globalPosition().toPoint() - self._drag_from)
-            elif kind == QEvent.Type.MouseButtonRelease:
+                self._drag_moved = True
+                return True
+            elif (kind == QEvent.Type.MouseButtonRelease
+                  and event.button() == Qt.MouseButton.LeftButton
+                  and self._drag_from is not None):
                 self._drag_from = None
+                if getattr(self, "_drag_moved", False):
+                    self._snap_to_screen_edge(event.globalPosition().toPoint())
+                return True
         return super().eventFilter(watched, event)
+
+    def _snap_to_screen_edge(self, point) -> bool:
+        """Snap a completed title drag to the screen containing ``point``.
+
+        The top enters fullscreen; the other three edges use halves of the
+        available desktop. Ordinary releases leave the window where it is.
+
+        :param point: released pointer position in global logical pixels.
+        :returns: whether an edge target was applied.
+        """
+        screen = QApplication.screenAt(point) or self.screen()
+        if screen is None:
+            return False
+        desktop = screen.availableGeometry()
+        if not desktop.adjusted(-12, -12, 12, 12).contains(point):
+            return False
+        edge = None
+        target = desktop.__class__(desktop)
+        if point.y() <= desktop.top() + 12:
+            edge = "top"
+            minimum = getattr(self, "_snap_minimum", None)
+            if minimum is not None:
+                self.setMinimumSize(minimum)
+                self._snap_minimum = None
+            self.showFullScreen()
+        elif point.x() <= desktop.left() + 12:
+            edge = "left"
+            target.setWidth(desktop.width() // 2)
+        elif point.x() >= desktop.right() - 12:
+            edge = "right"
+            target.setLeft(desktop.left() + desktop.width() // 2)
+        elif point.y() >= desktop.bottom() - 12:
+            edge = "bottom"
+            target.setTop(desktop.top() + desktop.height() // 2)
+        if edge is None:
+            from .widgets.ambient import field_ripple_for_widget
+
+            field_ripple_for_widget(self)
+            return False
+        if edge != "top":
+            self.showNormal()
+            if getattr(self, "_snap_minimum", None) is None:
+                self._snap_minimum = self.minimumSize()
+            minimum = self._snap_minimum
+            self.setMinimumSize(min(minimum.width(), target.width()),
+                                min(minimum.height(), target.height()))
+            self.setGeometry(target)
+        if edge != "top":
+            from .widgets.ambient import field_ripple_for_widget
+
+            field_ripple_for_widget(self, edge=edge)
+        return True
 
     def toggle_fullscreen(self, *_args) -> bool:
         """Enter or leave true fullscreen. Returns whether it is now full."""
         if self.isFullScreen():
             self.showNormal()
         else:
+            minimum = getattr(self, "_snap_minimum", None)
+            if minimum is not None:
+                self.setMinimumSize(minimum)
+                self._snap_minimum = None
             self.showFullScreen()
         return self.isFullScreen()
 
@@ -3290,11 +3380,21 @@ class MainWindow(QMainWindow):
         super().changeEvent(event)
         if event.type() != QEvent.Type.WindowStateChange:
             return
+        self._drag_from = None
         self._relay_the_menu_bar()
         try:
             from PySide6.QtCore import QTimer
 
             QTimer.singleShot(0, self._relay_the_menu_bar)
+            current = self.windowState()
+            previous = event.oldState() if hasattr(event, "oldState") else current
+            if current & (Qt.WindowFullScreen | Qt.WindowMaximized) & ~previous:
+                from .widgets.ambient import field_ripple_for_widget
+
+                QTimer.singleShot(0, self, lambda: QTimer.singleShot(
+                    0, self, lambda: field_ripple_for_widget(self, edge="top")
+                    if not self.isMinimized() and (self.isFullScreen() or self.isMaximized())
+                    else None))
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not schedule the menu-bar re-lay", exc_info=True)
 
@@ -3391,7 +3491,8 @@ class MainWindow(QMainWindow):
                               and row[0] not in organism_children), key=tile_sort_key)
             if not members:
                 continue
-            submenu = QMenu(section, self)
+            label = tr("Organism") if section == SECTION_ASSAYS else tr(section)
+            submenu = QMenu(label, self)
             app_menu.addMenu(submenu)
             self._section_menus[section] = submenu
             for key, name, desc, _section in members:
@@ -3514,6 +3615,27 @@ class MainWindow(QMainWindow):
         #: a menu entry that says so.
         self._act_all_apps = act_all
 
+        edit_menu = mb.addMenu(tr("Edit"))
+        self._edit_menu = edit_menu
+        self._edit_focus = None
+        self._act_edit_undo = QAction(tr("Undo"), self)
+        self._act_edit_undo.setObjectName("EditUndoAction")
+        self._act_edit_undo.setStatusTip(tr(
+            "Undo the last change in the active editor."))
+        self._act_edit_undo.setEnabled(False)
+        self._act_edit_undo.triggered.connect(
+            lambda: self._invoke_edit_action(False))
+        edit_menu.addAction(self._act_edit_undo)
+        self._act_edit_redo = QAction(tr("Redo"), self)
+        self._act_edit_redo.setObjectName("EditRedoAction")
+        self._act_edit_redo.setStatusTip(tr(
+            "Redo the last undone change in the active editor."))
+        self._act_edit_redo.setEnabled(False)
+        self._act_edit_redo.triggered.connect(
+            lambda: self._invoke_edit_action(True))
+        edit_menu.addAction(self._act_edit_redo)
+        edit_menu.aboutToShow.connect(self._edit_menu_about_to_show)
+
         help_menu = mb.addMenu("&Help")
         from .widgets.workflow_diagram import show_spacr_flowchart
 
@@ -3583,6 +3705,73 @@ class MainWindow(QMainWindow):
         self._act_quit = act_quit
         self._act_about = act_about
         self.pin_all_menu_roles()
+
+    def _edit_menu_about_to_show(self) -> None:
+        """Capture a focused text editor before its menu takes focus."""
+        self._edit_focus = QApplication.focusWidget()
+        self._refresh_edit_actions()
+
+    def _edit_target(self):
+        """Return the active editor's existing undo and redo operations."""
+        screen = (self._stack.currentWidget()
+                  if hasattr(self, "_stack") else None)
+        if screen is None:
+            return None
+        focus = self._edit_focus
+        if focus is not None:
+            try:
+                inside = focus is screen or screen.isAncestorOf(focus)
+                if inside and isinstance(focus, QLineEdit):
+                    return (focus.undo, focus.redo,
+                            focus.isUndoAvailable, focus.isRedoAvailable)
+                if inside and isinstance(focus, (QTextEdit, QPlainTextEdit)):
+                    document = focus.document()
+                    return (focus.undo, focus.redo,
+                            document.isUndoAvailable, document.isRedoAvailable)
+            except RuntimeError:
+                self._edit_focus = None
+        gates = getattr(screen, "gates", None)
+        stack = getattr(gates, "undo_stack", None)
+        if stack is None:
+            model = getattr(screen, "_settings_model", None)
+            stack = getattr(model, "undo_stack", None)
+        if stack is not None:
+            return stack.undo, stack.redo, stack.canUndo, stack.canRedo
+        if (getattr(screen, "_history", None) is not None
+                and getattr(screen, "_box_history", None) is not None
+                and hasattr(screen, "_on_undo") and hasattr(screen, "_on_redo")):
+            undo = getattr(screen, "_btn_undo", None)
+            redo = getattr(screen, "_btn_redo", None)
+            if undo is not None and redo is not None:
+                return (screen._on_undo, screen._on_redo,
+                        undo.isEnabled, redo.isEnabled)
+        if (getattr(screen, "_undo_stack", None) is not None
+                and getattr(screen, "_redo_stack", None) is not None
+                and hasattr(screen, "_kbd_undo") and hasattr(screen, "_kbd_redo")):
+            return (screen._kbd_undo, screen._kbd_redo,
+                    lambda: bool(screen._undo_stack),
+                    lambda: bool(screen._redo_stack))
+        return None
+
+    def _refresh_edit_actions(self) -> None:
+        """Enable menu entries only for real steps in the active editor."""
+        target = self._edit_target()
+        try:
+            self._act_edit_undo.setEnabled(bool(target and target[2]()))
+            self._act_edit_redo.setEnabled(bool(target and target[3]()))
+        except RuntimeError:
+            self._act_edit_undo.setEnabled(False)
+            self._act_edit_redo.setEnabled(False)
+
+    def _invoke_edit_action(self, redo: bool) -> None:
+        """Use the current editor's history without binding another key."""
+        target = self._edit_target()
+        if target is None:
+            return
+        operation = 1 if redo else 0
+        if target[operation + 2]():
+            target[operation]()
+        self._refresh_edit_actions()
 
     def _lift_the_window_actions_into_the_spacr_menu(self, app_menu) -> None:
         """Put Minimise and Maximise in the spaCR menu, just above Quit.

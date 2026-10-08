@@ -6036,11 +6036,18 @@ def _historical_api_block_translations(
         if not _api_block_requires_translation(source_block):
             continue
         contextual_source = _api_translation_source(source_block)
-        candidate = _contextualize(target_block, language, source_block)
-        if not (
+        candidate = target_block
+        valid = (
             _api_block_valid(source_block, candidate, language)
             and _api_block_valid(contextual_source, candidate, language)
-        ):
+        )
+        if not valid:
+            candidate = _contextualize(target_block, language, source_block)
+            valid = (
+                _api_block_valid(source_block, candidate, language)
+                and _api_block_valid(contextual_source, candidate, language)
+            )
+        if not valid:
             continue
         previous = candidates.setdefault(source_block, candidate)
         if previous != candidate:

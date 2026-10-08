@@ -15,7 +15,8 @@ from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.inspection import PartialDependenceDisplay, permutation_importance
 from sklearn.metrics import roc_curve, auc, confusion_matrix, precision_recall_curve
 import statsmodels.api as sm
-from multiprocessing import cpu_count, Pool, Manager
+from multiprocessing import cpu_count, Manager
+from .resource_log import _parallel_pool as Pool
 from copy import deepcopy
 from io import StringIO
 
@@ -862,15 +863,21 @@ def append_database(src, table, table_name):
     :param table_name: Target table name in the SQLite database.
     :returns: None.
     """
-    conn = None
+    from .database_concurrency import _capture_write_operation, _inside_write_packet
+    if _capture_write_operation('simulation', (src, table, table_name)):
+        return
+    path = os.path.join(src, 'simulations.db')
     try:
-        conn = sqlite3.connect(f'{src}/simulations.db', timeout=3600)
-        table.to_sql(table_name, conn, if_exists='append', index=False)
+        from .tabular import write_database
+
+        if not os.path.isdir(src):
+            raise sqlite3.OperationalError('unable to open database file')
+        write_database(table, path, table_name, if_exists='append',
+                       canonicalise=False, index=False)
     except sqlite3.OperationalError as e:
+        if _inside_write_packet(path):
+            raise
         print("SQLite error:", e)
-    finally:
-        if conn is not None:
-            conn.close()
     return
 
 def save_data(src, output, settings, save_all=False, i=0, variable='all'):
@@ -923,6 +930,9 @@ def save_data(src, output, settings, save_all=False, i=0, variable='all'):
                 append_database(src, df, table_names[i])
             del df
     except Exception as e:
+        from .database_concurrency import _WRITE_PACKET_OPERATIONS
+        if _WRITE_PACKET_OPERATIONS.get() is not None:
+            raise
         print(f"An error occurred while saving data: {e}")
         print(traceback.format_exc())
 
@@ -979,6 +989,53 @@ def run_and_save(i, settings, time_ls, total_sims):
     gc.collect()
     time_ls.append(sim_time)
     return i, sim_time, None
+
+_SIMULATION_WRITE_ENDPOINT = None
+
+
+def _initialize_simulation_writer(endpoint):
+    """Give simulation workers bounded producer handles for one SQL writer."""
+    global _SIMULATION_WRITE_ENDPOINT
+    _SIMULATION_WRITE_ENDPOINT = endpoint
+
+
+def _run_and_save_queued(i, settings, time_ls, total_sims):
+    """Capture one complete simulation before enqueuing its atomic save."""
+    import json
+    from .database_concurrency import _capture_write_packet
+
+    if _SIMULATION_WRITE_ENDPOINT is None:
+        raise RuntimeError('Simulation worker has no database writer endpoint')
+    with _capture_write_packet() as operations:
+        result = run_and_save(i, dict(settings), [], total_sims)
+    path = os.path.abspath(os.path.join(settings['src'], settings['start_time'],
+                                         settings['name'], 'simulations.db'))
+    _SIMULATION_WRITE_ENDPOINT.enqueue(json.dumps([path, i]), operations)
+    time_ls.append(result[1])
+    return result
+
+
+def _commit_simulation_packet(packet):
+    """Save every table and the simulation ticket in the same transaction."""
+    from .database_concurrency import _commit_write_packet
+
+    import json
+    path, index = json.loads(packet['field'])
+    if not isinstance(path, str) or not isinstance(index, int):
+        raise ValueError('Invalid simulation packet identity')
+    paths = set()
+    for name, arguments, keywords in packet['operations'] or ():
+        if name != 'simulation' or keywords:
+            raise ValueError('Unsupported simulation database operation')
+        paths.add(os.path.abspath(os.path.join(arguments[0], 'simulations.db')))
+    if paths != {path} and packet['operations'] is not None:
+        raise ValueError('A simulation packet must target exactly one database')
+
+    def dispatch(operation):
+        """Write one captured simulation frame through the normal table writer."""
+        append_database(*operation[1])
+
+    return _commit_write_packet(path, packet, dispatch)
     
 def validate_and_adjust_beta_params(sim_params):
     """Clamp per-run Beta variances so the requested mean/variance is feasible.
@@ -1086,12 +1143,22 @@ generate_paramiters = generate_parameters
 def run_multiple_simulations(settings):
     """Fan out the sweep from :func:`generate_parameters` across a process pool.
 
-    Uses a ``multiprocessing.Pool`` with ``max_workers`` (or ``cpu_count()-4``)
-    workers, prints a progress line, and drives each worker through
-    :func:`run_and_save`.
+    Processing workers start ten seconds apart and drive :func:`run_and_save`
+    with captured database operations. One parent-owned writer commits each
+    complete simulation and its retry ticket atomically. Explicit resource
+    overloads receive one serial retry after all primary tasks finish; database
+    overloads use the writer's separate final queue. Invalid data and
+    cancellation are not retried. An unsuccessful simulation or final database
+    write raises instead of reporting a successful sweep.
 
     :param settings: Sweep-settings dict. Must include ``max_workers``.
+        ``database_write_queue_gib`` optionally overrides the saved queue RAM
+        allowance, from zero to 64 GiB; zero buffers serialized packets on disk.
+        Pending packets remain below the dated output folder on interruption.
     :returns: None.
+    :raises ValueError: if the queue RAM allowance is invalid.
+    :raises RuntimeError: if a final database write fails. Processing errors
+        propagate with their original exception type.
     """
 
     now = datetime.now()
@@ -1108,25 +1175,53 @@ def run_multiple_simulations(settings):
     with Manager() as manager:
         time_ls = manager.list()
         total_sims = len(sim_ls)
-        with Pool(max_workers) as pool:
-            result = pool.starmap_async(run_and_save, [(index, settings, time_ls, total_sims) for index, settings in enumerate(sim_ls)])
-            while not result.ready():
-                try:
-                    sleep(0.01)
-                    sims_processed = len(time_ls)
-                    average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
-                    time_left = (((total_sims - sims_processed) * average_time) / max_workers) / 60
-                    print(f'Progress: {sims_processed}/{total_sims} Time/simulation {average_time:.3f}sec Time Remaining {time_left:.3f} min.', end='\r', flush=True)
-                    gc.collect()
-                except Exception as e:
-                    print(e)
-                    print(traceback.format_exc())
-            try:
+        from .database_concurrency import _DatabaseWriteQueue
+        budget = settings.get('database_write_queue_gib')
+        if budget is None:
+            from .qt.preferences import get_database_write_queue_gib
+            budget = get_database_write_queue_gib()
+        budget = float(budget)
+        if not 0 <= budget <= 64:
+            raise ValueError('Database write queue RAM must be between 0 and 64 GiB')
+        failures = []
+        writer = _DatabaseWriteQueue(
+            os.path.join(settings['src'], start_time, '.simulation_write_queue'),
+            _commit_simulation_packet,
+            lambda field, ticket, error: failures.append(error) if error else None,
+            ram_gib=budget)
+        try:
+            with Pool(max_workers, initializer=_initialize_simulation_writer,
+                      initargs=(writer.endpoint,)) as pool:
+                writer.start()
+                result = pool.starmap_async(_run_and_save_queued, [
+                    (index, simulation_settings, time_ls, total_sims)
+                    for index, simulation_settings in enumerate(sim_ls)])
+                while not result.ready():
+                    try:
+                        sleep(0.01)
+                        sims_processed = len(time_ls)
+                        average_time = np.mean(time_ls) if len(time_ls) > 0 else 0
+                        time_left = (((total_sims - sims_processed) * average_time) / max_workers) / 60
+                        print(f'Progress: {sims_processed}/{total_sims} Time/simulation {average_time:.3f}sec Time Remaining {time_left:.3f} min.', end='\r', flush=True)
+                        gc.collect()
+                    except Exception as error:
+                        print(error)
+                        print(traceback.format_exc())
                 result.get()
-            except Exception as e:
-                print(e)
-                print(traceback.format_exc())
-            
+                pool.close()
+                pool.join()
+            writer.finish()
+            if failures:
+                raise RuntimeError('; '.join(str(error) for error in failures))
+        except BaseException:
+            if writer._thread is not None:
+                writer.cancel()
+                try:
+                    writer.finish()
+                except BaseException:
+                    pass
+            raise
+
 def generate_integers(start, stop, step):
     """Return ``list(range(start, stop + 1, step))`` (inclusive upper bound).
 
@@ -1533,8 +1628,5 @@ def remove_constant_columns(df):
     :returns: Copy of ``df`` with constant columns dropped.
     """
     return df.loc[:, df.nunique() > 1]
-
-
-
 
 

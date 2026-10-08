@@ -14,6 +14,7 @@ def window(qtbot, qt_theme_applied):
 
 def test_assays_menu_groups_children_under_the_three_organisms(window):
     menu = window._section_menus[app.SECTION_ASSAYS]
+    assert menu.title() == "Organism"
     keys = [action.property('moduleAppKey') or
             (action.menu().property('moduleAppKey') if action.menu() else None)
             for action in menu.actions()]

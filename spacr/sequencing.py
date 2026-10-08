@@ -55,7 +55,8 @@ import logging
 import os, gzip, re, time
 from collections.abc import Mapping
 import pandas as pd
-from multiprocessing import Pool, cpu_count, Queue, Process
+from multiprocessing import cpu_count, Queue, Process
+from .resource_log import _parallel_pool as Pool
 from Bio.Seq import Seq
 import matplotlib.pyplot as plt
 import numpy as np
@@ -776,6 +777,91 @@ def _label_resource_process(process, worker_kind, worker_id):
         pass
 
 
+class _ChunkOverloadRetries:
+    """Spool failed FASTQ chunks for one pass after the primary input ends."""
+
+    def __init__(self, pool, save_queue, save_process, destination):
+        """Keep only small identities in RAM; create a private spool lazily."""
+        from .runctx import _DeferredOverloadRetries
+
+        self._pool = pool
+        self._save_queue = save_queue
+        self._save_process = save_process
+        self._destination = os.path.dirname(os.path.abspath(destination))
+        self._folder = None
+        self._queue = _DeferredOverloadRetries()
+        self._paths = {}
+
+    def _retry(self, path):
+        """Load one original chunk and submit exactly one final attempt."""
+        import pickle
+        from .cancellation import checkpoint
+
+        checkpoint()
+        with open(path, 'rb') as handle:
+            payload = pickle.load(handle)
+        return self._pool.apply_async(process_chunk, (payload,)).get()
+
+    def defer(self, identity, payload, error):
+        """Admit explicit overloads and retain their original chunk on disk."""
+        import pickle
+        import tempfile
+        import traceback
+        from functools import partial
+        from .runctx import _is_overload_failure
+
+        if not _is_overload_failure(error):
+            return False
+        if identity in self._paths:
+            return True
+        try:
+            if self._folder is None:
+                os.makedirs(self._destination, exist_ok=True)
+                self._folder = tempfile.mkdtemp(
+                    prefix='.spacr-read-retries-', dir=self._destination)
+            path = os.path.join(self._folder, f'{identity}.pkl')
+            with open(path, 'xb') as handle:
+                pickle.dump(payload, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                handle.flush()
+                os.fsync(handle.fileno())
+            with open(path + '.error.txt', 'x', encoding='utf-8') as handle:
+                handle.write(''.join(traceback.format_exception(
+                    type(error), error, error.__traceback__)))
+            self._paths[identity] = path
+            return self._queue.defer(identity, error, partial(self._retry, path))
+        except BaseException:
+            _abort_chunk_workers(self._pool, self._save_queue, self._save_process)
+            raise
+
+    def drain(self):
+        """Attempt every deferred chunk once, retaining all final failures."""
+        import traceback
+
+        failure = None
+        try:
+            for identity, result, error in self._queue.drain():
+                if error is not None:
+                    path = self._paths[identity]
+                    with open(path + '.final-error.txt', 'x', encoding='utf-8') as handle:
+                        handle.write(''.join(traceback.format_exception(
+                            type(error), error, error.__traceback__)))
+                    if failure is None:
+                        failure = error
+                    continue
+                self._save_queue.put(result)
+                path = self._paths.pop(identity)
+                os.unlink(path)
+                os.unlink(path + '.error.txt')
+            if self._folder is not None and not self._paths:
+                os.rmdir(self._folder)
+                self._folder = None
+            if failure is not None:
+                raise failure
+        except BaseException:
+            _abort_chunk_workers(self._pool, self._save_queue, self._save_process)
+            raise
+
+
 def _label_chunk_pool(pool):
     """Name the stable worker processes a multiprocessing Pool created."""
     for index, process in enumerate(getattr(pool, "_pool", ()) or (), start=1):
@@ -861,6 +947,8 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
                             int(chunk_size) * 2 * 1024)
     pool = Pool(n_jobs)
     _label_chunk_pool(pool)
+    deferred_chunks = _ChunkOverloadRetries(
+        pool, save_queue, save_process, hdf5_file)
 
     print(f'Chunk size: {chunk_size}')
 
@@ -899,7 +987,12 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
 
             try:
                 df, unique_combinations, qc_df = result.get()
-            except BaseException:
+            except BaseException as error:
+                if deferred_chunks.defer(chunk_count, chunk_data, error):
+                    print(f'Chunk {chunk_count} overloaded; retrying after primary chunks.')
+                    if test:
+                        break
+                    continue
                 _abort_chunk_workers(pool, save_queue, save_process)
                 raise
             save_queue.put((df, unique_combinations, qc_df))
@@ -914,6 +1007,7 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
                 print(df[:100])
                 break
 
+    deferred_chunks.drain()
     pool.close()
     pool.join()
 
@@ -981,6 +1075,8 @@ def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
                             int(chunk_size) * 2 * 1024)
     pool = Pool(n_jobs)
     _label_chunk_pool(pool)
+    deferred_chunks = _ChunkOverloadRetries(
+        pool, save_queue, save_process, hdf5_file)
 
     with gzip.open(r1_file, 'rt') as r1:
         while True:
@@ -1008,7 +1104,12 @@ def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
             
             try:
                 df, unique_combinations, qc_df = result.get()
-            except BaseException:
+            except BaseException as error:
+                if deferred_chunks.defer(chunk_count, chunk_data, error):
+                    print(f'Chunk {chunk_count} overloaded; retrying after primary chunks.')
+                    if test:
+                        break
+                    continue
                 _abort_chunk_workers(pool, save_queue, save_process)
                 raise
 
@@ -1024,6 +1125,7 @@ def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
                 print(df[:100])
                 break
 
+    deferred_chunks.drain()
     pool.close()
     pool.join()
 

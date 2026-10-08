@@ -153,6 +153,7 @@ def test_every_pool_site_calls_the_guard(module_name, function, key):
 
 
 def test_every_pool_site_is_listed():
+    import ast
     import pathlib
     import re
     root = pathlib.Path(resource_log.__file__).parent
@@ -160,7 +161,17 @@ def test_every_pool_site_is_listed():
     sites = {path.stem for path in root.glob('*.py')
              if pattern.search(path.read_text(encoding='utf-8'))}
     listed = {name.split('.')[1] for name, _f, _k in GUARDED}
-    assert sites <= listed | {'example_archives', '_mask_workers'}
+    tree = ast.parse(inspect.getsource(resource_log))
+    factories = {
+        function.name
+        for function in ast.walk(tree) if isinstance(function, ast.FunctionDef)
+        for call in ast.walk(function) if isinstance(call, ast.Call)
+        if (isinstance(call.func, ast.Name) and call.func.id in (
+            'Pool', 'ProcessPoolExecutor')) or (
+                isinstance(call.func, ast.Attribute) and call.func.attr == 'Pool')
+    }
+    assert factories == {'Pool', '_parallel_pool', '_parallel_process_executor'}
+    assert sites <= listed | {'example_archives', '_mask_workers', 'resource_log'}
 
 
 def test_classical_segmentation_starts_only_the_safe_count(monkeypatch):
@@ -219,12 +230,17 @@ def test_augmentation_starts_only_the_safe_count(monkeypatch, tmp_path):
     monkeypatch.setattr(resource_log, '_guard_workers',
                         lambda module, n, unit, **kw: seen.setdefault(
                             'guard', module) and 1)
-    monkeypatch.setattr(utils, '_augment_pool_context',
-                        lambda: type('Ctx', (), {'Pool': FakePool}))
+    context = object()
+    monkeypatch.setattr(utils, '_augment_pool_context', lambda: context)
+    def make_pool(processes, *, context):
+        seen['context'] = context
+        return FakePool(processes)
+    monkeypatch.setattr(utils, 'Pool', make_pool)
     utils.augment_images([str(tmp_path / 'a.png')], str(tmp_path / 'out'))
     assert seen['guard'] == 'augment'
     assert seen['pool'] == 1
     assert seen['joined'] is True
+    assert seen['context'] is context
 
 
 def test_augmentation_never_starts_more_workers_than_images(monkeypatch, tmp_path):
@@ -246,13 +262,18 @@ def test_augmentation_never_starts_more_workers_than_images(monkeypatch, tmp_pat
 
     monkeypatch.setattr(resource_log, '_guard_workers',
                         lambda module, n, unit, **kw: 16)
-    monkeypatch.setattr(utils, '_augment_pool_context',
-                        lambda: type('Ctx', (), {'Pool': FakePool}))
+    context = object()
+    monkeypatch.setattr(utils, '_augment_pool_context', lambda: context)
+    def make_pool(processes, *, context):
+        seen['context'] = context
+        return FakePool(processes)
+    monkeypatch.setattr(utils, 'Pool', make_pool)
     with pytest.raises(RuntimeError, match='worker failed'):
         utils.augment_images([str(tmp_path / 'a.png'), str(tmp_path / 'b.png')],
                              str(tmp_path / 'out'))
     assert seen['pool'] == 2
     assert seen['joined'] is True
+    assert seen['context'] is context
 
 
 def test_augment_pool_context_spawns():

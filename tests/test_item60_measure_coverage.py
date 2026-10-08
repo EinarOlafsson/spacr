@@ -360,11 +360,12 @@ class _Item60Result:
     def __init__(self, value=None, error=None):
         self.value = value
         self.error = error
+        self.complete = None
 
     def get(self):
         if self.error is not None:
             raise self.error
-        return self.value
+        return self.complete(self.value) if self.complete else self.value
 
 
 class _Item60Manager:
@@ -382,8 +383,14 @@ class _Item60Pool:
     def __exit__(self, *_args):
         return False
 
-    def apply_async(self, *_args, **_kwargs):
-        return next(self.results)
+    def apply_async(self, function, args=(), **_kwargs):
+        result = next(self.results)
+        if function is M._measure_crop_queued:
+            def complete(value):
+                ticket = M._MEASURE_WRITE_ENDPOINT.enqueue(args[2], [])
+                return (*value, '', ticket)
+            result.complete = complete
+        return result
 
     def close(self):
         pass
@@ -399,8 +406,62 @@ class _Item60Context:
     def get_start_method(self):
         return "fork"
 
+    def __getattr__(self, name):
+        import multiprocessing
+        return getattr(multiprocessing.get_context(), name)
+
     def Pool(self, _jobs):
         return _Item60Pool(self.results)
+
+
+@pytest.mark.parametrize('final_error', [False, True])
+def test_measure_final_overload_pass_follows_all_fields_and_counts_each_once(
+        tmp_path, monkeypatch, final_error):
+    from spacr.database_concurrency import _WRITE_TICKETS_TABLE
+    import sqlite3
+
+    merged = tmp_path / 'merged'
+    merged.mkdir()
+    names = ['plate_A01_f1.npy', 'plate_A01_f2.npy']
+    for name in names:
+        np.save(merged / name, np.zeros((2, 2, 2), np.uint16))
+    primary = _Item60Result(error=MemoryError('primary overload'))
+    other = _Item60Result(value=(1, .1, np.array([0]), {}))
+    final = (_Item60Result(error=MemoryError('final overload')) if final_error else
+             _Item60Result(value=(0, .1, np.array([0]), {})))
+    consumed = []
+
+    class Results(list):
+        def __iter__(self):
+            for result in list.__iter__(self):
+                consumed.append(result)
+                yield result
+
+    _patch_item60_orchestrator(monkeypatch, Results([primary, other, final]))
+    M.measure_crop(_orchestrator_settings(merged, on_error='stop',
+                                          database_write_queue_gib=0))
+    assert consumed == [primary, other, final]
+    with sqlite3.connect(tmp_path / 'measurements' / 'measurements.db') as connection:
+        assert connection.execute('SELECT n_succeeded, n_failed FROM run_status').fetchone() == (
+            (1, 1) if final_error else (2, 0))
+        committed = {row[0] for row in connection.execute(f'SELECT field FROM {_WRITE_TICKETS_TABLE}')}
+    assert committed == ({names[1]} if final_error else set(names))
+
+
+def test_invalid_measure_worker_result_is_not_admitted_to_the_final_queue(
+        tmp_path, monkeypatch):
+    import sqlite3
+
+    merged = tmp_path / 'merged'
+    merged.mkdir()
+    np.save(merged / 'plate_A01_f1.npy', np.zeros((2, 2, 2), np.uint16))
+    _patch_item60_orchestrator(monkeypatch,
+                              [_Item60Result(error=ValueError('invalid field'))])
+    with pytest.raises(ValueError, match='invalid field'):
+        M.measure_crop(_orchestrator_settings(merged, on_error='stop',
+                                              database_write_queue_gib=0))
+    with sqlite3.connect(tmp_path / 'measurements' / 'measurements.db') as connection:
+        assert connection.execute('SELECT n_succeeded, n_failed FROM run_status').fetchone() == (0, 1)
 
 
 def _orchestrator_settings(src, **over):
@@ -419,6 +480,14 @@ def _orchestrator_settings(src, **over):
 def _patch_item60_orchestrator(monkeypatch, results):
     context = _Item60Context(results)
     monkeypatch.setattr(M, "_pool_context", lambda: context)
+    monkeypatch.setattr(M, "_MEASURE_WRITE_ENDPOINT", None)
+
+    def pool(jobs, *, context, initializer=None, initargs=()):
+        if initializer is not None:
+            initializer(*initargs)
+        return context.Pool(jobs)
+
+    monkeypatch.setattr(M, "_parallel_pool", pool)
 
     @contextmanager
     def manager(_ctx):
@@ -454,6 +523,11 @@ def test_measure_crop_retries_worker_then_succeeds(tmp_path, monkeypatch):
     M.measure_crop(_orchestrator_settings(
         merged, on_error="retry", on_error_attempts=2))
     assert len(consumed) == 2, consumed
+    import sqlite3
+    from spacr.database_concurrency import _WRITE_TICKETS_TABLE
+    with sqlite3.connect(tmp_path / 'measurements' / 'measurements.db') as db:
+        assert db.execute(f'SELECT field FROM {_WRITE_TICKETS_TABLE}').fetchall() == [
+            ('plate_A01_f1.npy',)]
 
 
 def test_measure_crop_reraises_pipeline_cancellation(tmp_path, monkeypatch):

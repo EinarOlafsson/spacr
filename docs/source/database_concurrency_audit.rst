@@ -16,7 +16,11 @@ different processes or threads. The shared
 * an exhausted lock budget raises :class:`spacr.database_concurrency.DatabaseBusy`
   instead of dropping a write or continuing silently.
 
-Measurement writes retain their specialized recovery for concurrent
+Measure workers enqueue SQLite results for one dedicated writer. Object
+tables, crop indices, intensity provenance and confluency for a field commit
+in one transaction. A failed later operation rolls back the earlier rows and
+schema changes for that field. Run status records success only after commit.
+Standalone measurement helpers retain their specialized recovery for
 ``CREATE TABLE`` and schema-widening races. Run-status table creation and row
 insertion are one atomic transaction. Database Browser edit validation and its
 single-row update also share one transaction, so a row address cannot change
@@ -25,6 +29,48 @@ delete-before-remeasure validates and deletes under one retried write
 transaction. Annotate preserves the configured journal mode, rolls back a
 failed coalesced batch, retains an unsaved/error state, and reports that state
 in the module instead of marking a failed commit as saved.
+
+Measure's bounded write queue
+-----------------------------
+
+In **Preferences → Performance**, **Database write queue RAM** controls the
+serialized data waiting for the SQLite writer. The default is 1 GiB; zero
+uses disk-only buffering. A Python or headless call can override the saved
+preference with ``database_write_queue_gib`` in the Measure settings, from
+zero to 64. The allowance accounts for queued payload and transport copies;
+it does not cap worker arrays, the active write, or total process memory.
+
+Overflow is stored in a private run folder beneath
+``measurements/.write_queue``. The transport holds a bounded number of
+entries, and overflow descriptors refer to disk data. Packets also retain a
+durable copy until commit, so cancellation, disk exhaustion or a failed writer
+cannot silently discard accepted data. Successfully committed packets are
+removed. Uncommitted packets and their error reports remain on disk after
+failure; do not delete them before investigating the failed field.
+
+Each field has a commit ticket written atomically with its rows. Replaying
+that ticket does not append the rows again. Exhausted SQL busy/lock failures
+enter a distinct serial retry pass after the primary producers finish. This
+pass gives each affected field one additional attempt. Invalid inputs and
+cancellation do not enter it. Readers retain their ordinary read-only
+connections and the existing filesystem-dependent journal policy.
+
+The queued field path currently applies to the SQLite measurement backend.
+Optional DuckDB, Parquet and PostgreSQL mirrors retain their existing worker
+path; the RAM control does not govern those external stores.
+
+Simulation's bounded write queue
+--------------------------------
+
+Parallel simulations use the same **Database write queue RAM** allowance,
+including a ``database_write_queue_gib`` override and disk-only buffering at
+zero. Pending packets live beneath the dated output directory in
+``.simulation_write_queue``. Workers capture all tables for a simulation;
+one writer commits them with an idempotent ticket in the destination
+``simulations.db``. A failed calculation does not enqueue partial tables.
+An exhausted calculation or database write fails the run and retains its
+pending disk evidence. Direct standalone ``run_and_save`` calls keep their
+ordinary database-writing path.
 
 Journal mode and network storage
 --------------------------------

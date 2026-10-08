@@ -123,14 +123,16 @@ def table_names(path: str) -> List[str]:
     :param path: path to a SQLite measurement database, opened read-only;
         the preferred tables (``object``, ``cell``, ``nucleus``, …) come
         first, then the rest alphabetically. SQLite internals and the private
-        condition-annotation receipt table are left out; ordinary user tables
+        condition-annotation and database-write receipt tables are left out; ordinary user tables
         and named derived results remain available.
     """
     with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
         rows = db.execute(
             "SELECT name FROM sqlite_master WHERE type='table' "
             "AND name NOT LIKE 'sqlite_%' ORDER BY name").fetchall()
-    found = [row[0] for row in rows if row[0].casefold() != PROVENANCE_TABLE.casefold()]
+    from ...database_concurrency import _WRITE_TICKETS_TABLE
+    hidden = {PROVENANCE_TABLE.casefold(), _WRITE_TICKETS_TABLE.casefold()}
+    found = [row[0] for row in rows if row[0].casefold() not in hidden]
     ranked = [name for name in _PREFERRED_TABLES if name in found]
     from ...derived_tables import load_definitions
     return ranked + [name for name in found if name not in ranked] + list(load_definitions(path))

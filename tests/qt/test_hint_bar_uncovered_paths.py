@@ -245,11 +245,11 @@ def test_a_control_with_nothing_to_say_reports_no_registration(qapp):
 
 # -- the strip's own shape ----------------------------------------------------
 
-def test_the_bar_is_bounded_at_three_lines(qapp):
-    """A long sentence elides instead of resizing the whole dialog."""
+def test_the_bar_reserves_four_lines(qapp):
+    """A longer sentence never changes the dialog's reserved help height."""
     bar = HintBar()
     line = max(1, bar.fontMetrics().lineSpacing())
 
-    assert bar.maximumHeight() == line * 3 + 12
+    assert bar.minimumHeight() == bar.maximumHeight() == line * 4 + 12
     assert bar.minimumHeight() >= 28
     assert bar.wordWrap()

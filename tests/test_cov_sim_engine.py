@@ -996,13 +996,21 @@ class _FakeAsyncResult:
 
 
 class _FakePool:
+    def close(self):
+        self.closed = True
+
+    def join(self):
+        assert self.closed
+
     instances = []
 
-    def __init__(self, workers, raise_on_get=None):
+    def __init__(self, workers, raise_on_get=None, initializer=None, initargs=()):
         self.workers = workers
         self.arglist = None
         self.raise_on_get = raise_on_get
         _FakePool.instances.append(self)
+        if initializer is not None:
+            initializer(*initargs)
 
     def __enter__(self):
         return self
@@ -1034,6 +1042,7 @@ def fake_pool(monkeypatch):
     _FakePool.instances = []
     monkeypatch.setattr(S, "Pool", _FakePool)
     monkeypatch.setattr(S, "Manager", _FakeManager)
+    monkeypatch.setattr(S, "_SIMULATION_WRITE_ENDPOINT", None)
     return _FakePool
 
 
@@ -1076,19 +1085,19 @@ def test_run_multiple_simulations_defaults_workers_from_cpu_count(
     assert fake_pool.instances[-1].workers == 8
 
 
-def test_run_multiple_simulations_reports_a_worker_exception(
+def test_run_multiple_simulations_propagates_a_final_worker_exception(
         tmp_path, monkeypatch, capsys):
     boom = RuntimeError("worker exploded")
     monkeypatch.setattr(S, "Manager", _FakeManager)
     monkeypatch.setattr(
-        S, "Pool", lambda workers: _FakePool(workers, raise_on_get=boom))
+        S, "Pool", lambda workers, **options: _FakePool(
+            workers, raise_on_get=boom, **options))
     _seed(22)
     settings = _sweep_settings(src=str(tmp_path), replicates=1,
                                avg_genes_per_well=[4], classifier_accuracy=[0.9])
-    S.run_multiple_simulations(settings)          # must not propagate
-    out = capsys.readouterr().out
-    assert "worker exploded" in out
-    assert "Traceback" in out
+    with pytest.raises(RuntimeError, match="worker exploded") as result:
+        S.run_multiple_simulations(settings)
+    assert result.value is boom
 
 
 class _FlakyList(list):

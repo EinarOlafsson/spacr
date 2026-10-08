@@ -104,7 +104,9 @@
       "label": "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency#1",
       "source": "popup waves per minute, clamped to zero through sixty; zero disables popup waves.",
       "source_sha256": "60a4a0ccf971ad5d4b20041e03f6bf2c0504c4bcc0e5eba53e37b80a02a713b3",
-      "translation": "每分钟弹出窗口波次数，限制在零到六十之间；零禁用弹出窗口波。"
+      "translation": "每分钟弹出窗口波次数，限制在零到六十之间；零禁用弹出窗口波。",
+      "retired": "2026-10-08",
+      "retired_reason": "Superseded by current Home UI API wording for independent animation selections, recurring versus discrete field feedback, and four-line accessible help. Original source-bound evidence retained in place."
     },
     {
       "context": "Report the aurora sampling ratio for explicit detail controls.",

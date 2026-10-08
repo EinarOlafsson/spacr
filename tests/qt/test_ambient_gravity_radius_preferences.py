@@ -40,7 +40,8 @@ def test_gravity_radius_saved_value_is_finite_and_bounded(radius_store, value, e
 
 @pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
 def test_nonfinite_widget_radius_cannot_enable_hover_gravity(qtbot, value):
-    widget = AmbientWidget(theme="data_art_impulse_lens", gravity_radius=value)
+    widget = AmbientWidget(theme="data_art_impulse_lens", gravity_radius=value,
+                           ripples_enabled=False)
     qtbot.addWidget(widget)
     widget.resize(200, 120)
     widget.show()

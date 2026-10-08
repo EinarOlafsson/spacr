@@ -747,6 +747,8 @@ def run_trial_contained(settings: Mapping[str, Any], *, trial_id=None,
     os.makedirs(folder, exist_ok=True)
     settings_path = os.path.join(folder, "_trial_settings.json")
     out_path = os.path.join(folder, "_trial_result.json")
+    if os.path.exists(out_path):
+        os.remove(out_path)
     with open(settings_path, "w") as handle:
         json.dump(payload, handle, default=str)
 
@@ -868,7 +870,10 @@ def _execute_trial(payload):
             if isinstance(results, pd.DataFrame):
                 row.update(_named_control_rows(results, controls))
     except BaseException as error:  # noqa: BLE001 - a failed trial is a result
+        from .runctx import _is_overload_failure
+
         row["status"] = "failed"
+        row["_overload"] = _is_overload_failure(error)
         row["error_type"] = type(error).__name__
         row["error"] = str(error).splitlines()[0][:300] if str(error) else ""
         try:
@@ -966,6 +971,12 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
     The pool uses the ``spawn`` start method because fitted models may import
     torch and OpenMP runtimes. Only a bounded number of jobs are submitted at
     once, allowing new submissions to pause when available memory is low.
+    Initial processing workers start ten seconds apart. After every primary
+    trial finishes, explicit resource-overload failures receive one serial
+    retry in their existing trial directories. Original result/error files are
+    retained separately, and the final table has one row per trial with primary
+    failure details and ``overload_retry`` metadata. Invalid inputs,
+    cancellation and unexplained native worker exits are not retried.
     """
     import multiprocessing
 
@@ -977,6 +988,10 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
             "its own sweep.")
 
     from concurrent.futures import ProcessPoolExecutor, as_completed
+    from .resource_log import _StaggeredContext
+    from .runctx import _is_overload_failure
+    from .cancellation import PipelineCancelled, checkpoint
+    from .tabular import write_table
 
     _pin_threads()
 
@@ -1004,8 +1019,9 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
     rows: list[dict] = []
     started = time.time()
     results_path = os.path.join(destination, "sweep_results.csv")
-    context = multiprocessing.get_context("spawn")
+    context = _StaggeredContext(multiprocessing.get_context("spawn"))
     pending = list(payloads)
+    deferred = []
     done = 0
     paused_for_memory = 0
     last_memory_state: dict[str, Any] = {}
@@ -1027,20 +1043,28 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
                     last_memory_state = dict(_LAST_MEMORY_STATE)
                     return
                 payload = pending.pop(0)
-                futures[pool.submit(_execute_trial, payload)] = \
-                    payload[1]["trial_id"]
+                checkpoint()
+                futures[pool.submit(_execute_trial, payload)] = payload
 
         _fill()
         while futures:
             future = next(as_completed(tuple(futures)))
-            trial_id = futures.pop(future)
+            payload = futures.pop(future)
+            trial_id = payload[1]["trial_id"]
             done += 1
             try:
-                rows.append(_register_resource_workers(future.result()))
+                row = _register_resource_workers(future.result())
+                overloaded = bool(row.pop("_overload", False))
+            except (PipelineCancelled, KeyboardInterrupt, SystemExit):
+                raise
             except BaseException as error:  # noqa: BLE001 - dead worker
-                rows.append({"trial_id": trial_id, "status": "failed",
-                             "error_type": type(error).__name__,
-                             "error": str(error)[:300], "seconds": 0.0})
+                row = {"trial_id": trial_id, "status": "failed",
+                       "error_type": type(error).__name__,
+                       "error": str(error)[:300], "seconds": 0.0}
+                overloaded = _is_overload_failure(error)
+            rows.append(row)
+            if overloaded:
+                deferred.append((len(rows) - 1, payload, dict(row)))
             if progress_every and done % progress_every == 0:
                 elapsed = time.time() - started
                 remaining = elapsed / done * (len(trials) - done)
@@ -1050,9 +1074,36 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
                 print(f"[sweep] {done}/{len(trials)} done, {ok} ok, "
                       f"{elapsed / 60:.1f} min elapsed, "
                       f"~{remaining / 60:.1f} min left{note}", flush=True)
-            pd.DataFrame(rows).sort_values("trial_id").to_csv(
+            write_table(pd.DataFrame(rows).sort_values("trial_id"),
                 results_path, index=False)
             _fill()
+
+        for position, payload, original in deferred:
+            checkpoint()
+            folder = os.path.join(destination, f"trial_{payload[1]['trial_id']:04d}")
+            import shutil
+
+            for filename in ("error.txt", "_trial_result.json"):
+                path = os.path.join(folder, filename)
+                if os.path.isfile(path):
+                    shutil.copy2(path, path + '.primary')
+            try:
+                row = _register_resource_workers(pool.submit(
+                    _execute_trial, payload).result())
+                row.pop("_overload", None)
+            except (PipelineCancelled, KeyboardInterrupt, SystemExit):
+                raise
+            except BaseException as error:
+                row = {"trial_id": payload[1]["trial_id"], "status": "failed",
+                       "error_type": type(error).__name__,
+                       "error": str(error)[:300], "seconds": 0.0}
+            row.update(overload_retry=True,
+                       primary_error_type=original.get("error_type", ''),
+                       primary_error=original.get("error", ''),
+                       primary_seconds=original.get("seconds", 0.0))
+            rows[position] = row
+            write_table(pd.DataFrame(rows).sort_values("trial_id"),
+                results_path, index=False)
 
     if paused_for_memory:
         own = last_memory_state.get("spacr_tree_gib")
@@ -1385,6 +1436,7 @@ def summarise_sweep(results: pd.DataFrame, *,
 _BOOKKEEPING_COLUMNS = frozenset({
     "trial_id", "folder", "preparation_key", "status", "seconds",
     "error", "error_type",
+    "overload_retry", "primary_error_type", "primary_error", "primary_seconds",
 }) | _METRIC_COLUMNS
 
 

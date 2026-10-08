@@ -167,3 +167,65 @@ def test_partition_assigns_every_archive_once_and_keeps_devices_explicit():
         _partition_batches(records + records[:1], [5, 2])
     with pytest.raises(ValueError, match='distinct'):
         _partition_batches(records, [2, 2])
+
+
+def _cpu_overload_segmenter(src, settings, object_type, *, batch_paths,
+                            on_batch_done, run_qc):
+    selected = os.environ['CUDA_VISIBLE_DEVICES']
+    folder = Path(src)
+    marker = folder / f'primary-{selected}'
+    primary = not marker.exists()
+    marker.write_text('primary attempted')
+    retry = not primary
+    if retry:
+        assert all((folder / f'primary-{device}').exists() for device in ('7', '3'))
+        (folder / f'retry-start-{selected}').write_text(str(time.monotonic()))
+    for index, path in enumerate(batch_paths):
+        if primary and index == 1:
+            raise MemoryError(f'primary buffer exhausted on {selected}')
+        if retry and settings.get('exhausted'):
+            raise MemoryError(f'final buffer exhausted on {selected}')
+        target = folder / f'{Path(path).stem}.npy'
+        assert not target.exists(), 'A completed archive was dispatched twice'
+        np.save(target, np.array([[0, 1], [1, 1]], dtype=np.uint16))
+        on_batch_done(path)
+    if retry:
+        (folder / f'retry-end-{selected}').write_text(str(time.monotonic()))
+
+
+def test_overloaded_mask_workers_retry_serially_after_all_primaries_without_repeating_saves(
+        tmp_path):
+    from spacr.resource_log import _WorkerStartGate
+    assignments, environments = _setup(tmp_path)
+    updates = []
+    result = _run_mask_workers(str(tmp_path), {}, 'cell', assignments, environments,
+                              segmenter=_cpu_overload_segmenter,
+                              on_progress=updates.append, gate=_WorkerStartGate(delay=0))
+    assert len(result['completed_batches']) == result['total_batches'] == 4
+    assert len(list(tmp_path.glob('*.npy'))) == len(list(tmp_path.glob('*.npz'))) == 4
+    for row in result['workers'].values():
+        assert row['state'] == 'success' and row['attempts'] == 2
+        assert 'MemoryError' in row['primary_error'] and 'Traceback' in row['primary_error']
+    assert float((tmp_path / 'retry-end-7').read_text()) <= float(
+        (tmp_path / 'retry-start-3').read_text())
+    retry_updates = [row for row in updates if any(
+        worker['attempts'] == 2 for worker in row['workers'].values())]
+    assert retry_updates and len(retry_updates[0]['completed_batches']) == 2
+    assert not [child for child in multiprocessing.active_children()
+                if child.name.startswith('spacr-mask-gpu-')]
+
+
+def test_final_overload_does_not_reenqueue_or_prevent_the_other_final_worker_attempt(tmp_path):
+    from spacr.resource_log import _WorkerStartGate
+    assignments, environments = _setup(tmp_path)
+    updates = []
+    with pytest.raises(RuntimeError, match='final buffer exhausted'):
+        _run_mask_workers(str(tmp_path), {'exhausted': True}, 'cell', assignments,
+                          environments, segmenter=_cpu_overload_segmenter,
+                          on_progress=updates.append, gate=_WorkerStartGate(delay=0))
+    assert len(list(tmp_path.glob('retry-start-*'))) == 2
+    assert all(row['attempts'] == 2 for row in updates[-1]['workers'].values())
+    assert len(list(tmp_path.glob('*.npz'))) == 4
+    assert len(list(tmp_path.glob('*.npy'))) == 2
+    assert not [child for child in multiprocessing.active_children()
+                if child.name.startswith('spacr-mask-gpu-')]

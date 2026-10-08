@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 21:43-0400\n"
+"POT-Creation-Date: 2026-10-08 15:08-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -112,8 +112,9 @@ msgstr "Hver keyrsla getur skráð auðkenni sitt, fræ, útleystar stillingar o
 msgid "How a module is reached"
 msgstr "Hvernig komist er að einingu"
 
-msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Assays** -- and twenty-one modules have a tile in one of them. Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own; Assays are the quantitative readouts. Make Masks is filed under **Tools**."
-msgstr "Heimaskjárinn flokkar einingar í fjóra flokka -- **Kjarni**, **Gögn**, **Verkfæri** og **Prófanir** -- og tuttugu og ein eining hefur reit í einum þeirra. Kjarni er vinnslukeðjan sem þú keyrir í röð; Gögn er það sem fer inn í hana og kemur út úr henni; Verkfæri eru tækin sem þú beinir að verkefni frekar en skref sem vinnslukeðjan tekur sjálf; Prófanir eru megindlegu aflestrarnir. Búa til grímur er undir **Verkfæri**."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and twenty-one modules have a tile in one of them. Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
+msgstr "Heimaskjárinn flokkar einingar í fjóra flokka — **Kjarni**, **Gögn**, **Verkfæri** og **Lífvera** — og tuttugu og ein eining hefur reit í einum þeirra. Kjarni er vinnsluferlið sem er keyrt í röð; undir Gögn eru inntak þess og úttak; Verkfæri eru tæki sem notuð eru á verkefni fremur en sjálfvirk skref vinnsluferlisins. Lífvera opnar Toxoplasma-leiðbeiningarnar og tiltækar prófanir þess. Fyrirhugaðar greiningar eru merktar Væntanlegt. Búa til grímur er undir **Verkfæri**."
 
 msgid "A TILE IS NOT THE ONLY WAY IN, and most modules do not have one. A tile says \"start here\", and a module that answers a question about a run somebody else started is not a place to start. Those open instead from:"
 msgstr "REITUR ER EKKI EINA LEIÐIN INN og flestar einingar hafa engan. Reitur segir „byrjaðu hér“ og eining sem svarar spurningu um keyrslu sem einhver annar hóf er ekki staður til að byrja á. Þær opnast í staðinn frá:"
@@ -237,12 +238,12 @@ msgid "Data-art themes"
 msgstr "Þemu með gagnalist"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
-msgstr "Undir **Kjörstillingar** → **Útlit** velur **Þema** litapallettu viðmótsins; næturpalletturnar tíu eru áfram tiltækar. **Hreyfimynd** velur skreytingarbakgrunn óháð því, eða **Engin** til að stöðva hann. Þessir bakgrunnar sýna ekki mælingar verkefnisins. Aðalglugginn notar **spaCR field** sjálfgefið; bakgrunnur stillinganna er sjálfgefið **Engin**."
+msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **spaCR stratified**."
+msgstr "Undir **Kjörstillingar** → **Útlit** velur **Þema** litapallettu viðmótsins; næturpalletturnar tíu eru áfram tiltækar. **Hreyfimynd** velur skreytingarbakgrunn óháð því, eða **Engin** til að stöðva hann. Þessir bakgrunnar sýna ekki mælingar verkefnisins. Aðalglugginn notar **spaCR field** sjálfgefið; bakgrunnur stillinganna er sjálfgefið **spaCR stratified**."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
-msgstr "Hreyfimyndavalmyndin sýnir **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** og **spaCR spinn**, í þessari röð."
+msgid "The ordinary animation menu lists **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs**, **spaCR stratified**, and **None**, in that order. **spaCR growth**, **spaCR aurora** and **spaCR spinn** are available with **Spaceout** enabled in both the main Animation menu and the Settings backdrop menu."
+msgstr "Venjulega hreyfivalmyndin sýnir **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs**, **spaCR stratified** og **Engin**, í þessari röð. **spaCR growth**, **spaCR aurora** og **spaCR spinn** eru í boði þegar **Spaceout** er virkt, bæði í aðalvalmyndinni Hreyfimynd og valmyndinni Sættuðu Backdrop."
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — Skarpt þyngdarsvið punkta með valfrjálsum staðbundnum músaráhrifum og útvíkkandi gárum."
@@ -287,16 +288,28 @@ msgid "**Popup wave frequency** sets automatic waves per minute in **spaCR field
 msgstr "**Tíðni bylgna frá sprettigluggum** velur fjölda sjálfvirkra bylgna á mínútu í **spaCR field**. Sjálfgefið gildi er **5 bylgjur/mínútu**; **0** slekkur á bylgjum frá sprettigluggum. Þegar þær eru virkar byrjar fyrsta bylgjan strax frá miðju sprettigluggans þegar hann opnast, og næstu bylgjur fylgja valinni tíðni. Þegar glugginn er færður færist upptökustaður nýrra bylgna; lokun stöðvar nýjar bylgjur en þær sem þegar eru til dofna. Þessi stilling er óháð þyngdarsviði músarinnar, blikki punkta, þéttleika og smáatriðum teikningarinnar."
 
 # AI technical review (Codex), no native-speaker signoff.
+msgid "**Field ripples** enables waves caused by clicks, opening or closing containers, and snapping the window, as well as automatic popup waves. Turning Mouse gravity radius down to **0** leaves these ripples available. Turn Field ripples off to stop them while retaining mouse attraction; Popup wave frequency controls the rate of automatic waves when ripples are on."
+msgstr "**Gárur í sviðinu** virkjar bylgjur frá smellum, opnun eða lokun íláta og þegar glugginn smellur að brún, auk sjálfvirkra sprettigluggabylgna. Þessar gárur haldast virkar þegar Radíus þyngdarsviðs músar er lækkaður í **0**. Slökktu á Gárur í sviðinu til að stöðva þær en halda aðdrætti músarinnar; Tíðni bylgna frá sprettigluggum stýrir tíðni sjálfvirkra bylgna þegar gárur eru virkar."
+
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Press **Apply** to preview changes while Preferences stays open. A separate question offers **Keep** or **Revert**. Revert restores the saved and live settings; your edited controls remain available to change or apply again. Closing the question also reverts. **Save** keeps changes and closes Preferences."
 msgstr "Ýttu á **Beita** til að prófa breytingar meðan kjörstillingaglugginn helst opinn. Sérstök spurning býður **Halda** eða **Afturkalla**. Þegar farið er til baka eru vistaðar og virkar stillingar endurheimtar; breyttu stýringarnar eru áfram tiltækar til breytinga eða til að beita aftur. Að loka spurningunni endurheimtir einnig fyrri stillingar. **Vista** heldur breytingunum og lokar kjörstillingaglugganum."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**Sættuðu Backdrop** helst óháð aðalhreyfimyndinni bæði þegar stillingar eru notaðar og vistaðar. **Engin** slekkur á hreyfingu í sprettigluggum en heldur bláa jaðrinum. **Dökkvun bakgrunns stillinga** stjórnar ógagnsæi stillingaspjaldsins yfir hreyfimyndinni, frá **0%** til **100%** (sjálfgefið **85%**), ásamt **Ógagnsæi síðu**. Ógagnsæi síðu gildir einnig þegar bakgrunnur stillinga er **Engin**. Meiri dökkvun hylur meira af hreyfimyndinni svo auðveldara sé að lesa textann. Sprettigluggar haldast fyrir ofan spaCR gluggann sem þeir tilheyra, án almennrar stillingar sem heldur þeim yfir öllum gluggum; önnur forrit geta því hulið þá."
+msgid "**Preferences** keeps four lines of help visible below the settings. Longer help scrolls within the strip without moving the dialog. Drag the strip’s narrow top edge to make it taller or shorter; Preferences remembers the chosen height. Moving from a control into the strip keeps its help available to read and scroll."
+msgstr "**Kjörstillingar** heldur fjórum hjálparlínum sýnilegum undir stillingunum. Lengri hjálp er skrunað innan randarinnar án þess að svarglugginn færist. Dragðu mjóa efri brún randarinnar til að hækka hana eða lækka; stillingaglugginn man valda hæð. Þegar bendillinn færist af stjórnhluta inn á röndina helst hjálpin tiltæk til lesturs og skruns."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings animation speed**, **Settings animation size**, **Settings animation detail** and **Settings animation density** change only the settings-window backdrop. Its sliders retain their values when the backdrop is **None**, while the controls are disabled. Choosing a compatible backdrop enables them again. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
+msgstr "**Sættuðu Backdrop** helst óháð aðalhreyfimyndinni bæði þegar stillingar eru notaðar og vistaðar. **Engin** slekkur á hreyfingu í sprettigluggum en heldur bláa jaðrinum. **Hraði hreyfimyndar stillingagluggans**, **Stærð hreyfimyndar stillingagluggans**, **Nákvæmni hreyfimyndar stillingagluggans** og **Þéttleiki hreyfimyndar stillingagluggans** breyta aðeins bakgrunni stillingagluggans. Rennislárnar halda gildum sínum þegar bakgrunnurinn er **Engin**, en stjórnhlutarnir eru þá óvirkir. Samhæfur bakgrunnur virkjar þá aftur. **Dökkvun bakgrunns stillinga** stjórnar ógagnsæi stillingaspjaldsins yfir hreyfimyndinni, frá **0%** til **100%** (sjálfgefið **85%**), ásamt **Ógagnsæi síðu**. Ógagnsæi síðu gildir einnig þegar bakgrunnur stillinga er **Engin**. Meiri dökkvun hylur meira af hreyfimyndinni svo auðveldara sé að lesa textann. Sprettigluggar haldast fyrir ofan spaCR gluggann sem þeir tilheyra, án almennrar stillingar sem heldur þeim yfir öllum gluggum; önnur forrit geta því hulið þá."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."
 msgstr "Í **spaCR field** heldurðu vinstri músarhnappnum niðri og dregur á auðu bakgrunnssvæði til að toga í staðbundinn hóp punkta. Þegar hnappnum er sleppt færist hópurinn mjúklega til baka án þess að mynstrið byrji upp á nýtt. Þessi bakgrunnsaðgerð heldur vísindalega teiknisvæðinu og aðgerðum stýrihluta tiltækum."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Start ``spaceout --fresh`` for the separate Spaceout mode. Its default **spaCR field phenomena** backdrop adds changing motion to the field. Under **Preferences** → **Appearance** → **spaCR field**, eight independent switches control **Random attractors**, **Relaxation**, **Elastic release**, **Vortices**, **Density pulses**, **Density waves**, **Colour waves** and **Spirals**. All eight start on. **Apply** previews the edited switches; **Revert** restores the previous values, and **Save** keeps them. The ordinary ``spacr`` launcher uses its own background choice and hides this Spaceout-only section. To choose the fractal instead, select it in Spaceout's **Animation** menu."
+msgstr "Ræstu ``spaceout --fresh`` fyrir sérstaka Spaceout-haminn. Sjálfgefinn bakgrunnur hans, **spaCR-sviðsfyrirbæri**, bætir breytilegri hreyfingu við sviðið. Undir **Kjörstillingar** → **Útlit** → **spaCR field** stýra átta sjálfstæðir rofar **Tilviljanakenndir aðdráttarstaðir**, **Slökun**, **Fjaðrandi losun**, **Hvirflar**, **Þéttleikapúlsar**, **Þéttleikabylgjur**, **Litabylgjur** og **Spíralar**. Allir átta eru virkir í upphafi. **Beita** forskoðar breyttu rofana; **Afturkalla** endurheimtir fyrri gildi og **Vista** heldur þeim. Venjulegi ræsirinn ``spacr`` notar eigið bakgrunnsval og felur þennan hluta sem er aðeins fyrir Spaceout. Veldu brotamyndina í valmyndinni **Hreyfimynd** í Spaceout til að nota hana."
 
 msgid "Arranging the window"
 msgstr "Uppröðun gluggans"
@@ -362,7 +375,7 @@ msgstr "Atvikamerkingar í Timelapse og fyrirfram þjálfaðir eiginleikar (alfa
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Enable **Show alpha features** in Preferences to use **Event annotations…** in Timelapse. Choose an existing spaCR tracks CSV and its matching image sequence, open the tracked field and confirm the pairing. Select an observed track and zero-based frame, enter an event name and press **Add or update**. **Save** writes the staged labels to an annotations CSV and selects it for event detection; closing without saving leaves the file unchanged. One track at one frame can have only one event label. Changed tracker or annotation files must be reopened before saving."
-msgstr "Virkjaðu **Sýna alfa-eiginleika** í Preferences til að nota **Upplýsingar um aðgerðir...** í Timelapse. Veldu fyrirliggjandi spaCR-ferlaskrá á CSV-sniði og samsvarandi myndarunu, opnaðu rakta myndsviðið og staðfestu pörunina. Veldu feril sem hefur sést og ramma með númerun frá núlli, sláðu inn atviksheiti og ýttu á **Að bæta eða uppfærja**. **Vista** skrifar undirbúnar merkingar í CSV-merkingarskrá og velur hana fyrir atvikagreiningu; lokun án vistunar skilur skrána óbreytta. Einn ferill í einum ramma getur aðeins haft eina atviksmerkingu. Rakningar- eða merkingarskrár sem hafa breyst þarf að opna aftur áður en vistað er."
+msgstr "Virkjaðu **Sýna alfa-eiginleika** í Preferences til að nota **Atburðamerkingar…** í Timelapse. Veldu fyrirliggjandi spaCR-ferlaskrá á CSV-sniði og samsvarandi myndarunu, opnaðu rakta myndsviðið og staðfestu pörunina. Veldu feril sem hefur sést og ramma með númerun frá núlli, sláðu inn atviksheiti og ýttu á **Bæta við eða uppfæra**. **Vista** skrifar undirbúnar merkingar í CSV-merkingarskrá og velur hana fyrir atvikagreiningu; lokun án vistunar skilur skrána óbreytta. Einn ferill í einum ramma getur aðeins haft eina atviksmerkingu. Rakningar- eða merkingarskrár sem hafa breyst þarf að opna aftur áður en vistað er."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The annotation table names ``field``, ``track_id``, ``frame`` and ``event``; an ``object`` column identifies the tracked object type. Label every event in fields used for training. The event detector evaluates held-out annotated fields, reports precision, recall and timing error, then trains and saves a model for reuse. Event classes come from the experiment's annotations."
@@ -370,7 +383,7 @@ msgstr "Merkingartaflan hefur dálkana ``field``, ``track_id``, ``frame`` og ``e
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The default ``small`` encoder runs on CPU. The optional ``videomae`` encoder uses pretrained video features from **VideoMAE event encoder** in Model Zoo, installed in its own environment. Supply the verified local official checkpoint folder and exactly three ordered source-channel indices; use ``[0,0,0]`` only when deliberately repeating a monochrome channel. The frozen encoder can use CUDA, Metal or CPU; the small event classifier trains on CPU. The checkpoint's Kinetics classes are not microscopy event labels, and pretrained features require held-out evaluation on the intended microscopy experiment. The checkpoint is licensed CC-BY-NC-4.0; inference downloads no weights. These controls remain alpha."
-msgstr "Sjálfgefni kóðarinn ``small`` keyrir á CPU. Valkvæða kóðunin ``videomae`` notar fyrirfram þjálfaða myndskeiðseiginleika frá **VideoMAE aðgerðir encoder** í Model Zoo, uppsett í eigin umhverfi. Gefðu upp staðfesta staðbundna möppu opinbera varðveislupunktsins og nákvæmlega þrjá raðaða vísa upprunarása; notaðu ``[0,0,0]`` aðeins þegar einlit rás er endurtekin af ásetningi. Frysti kóðarinn getur notað CUDA, Metal eða CPU; litli atviksflokkarinn er þjálfaður á CPU. Kinetics-flokkar varðveislupunktsins eru ekki atviksmerkingar smásjármynda og fyrirfram þjálfaðir eiginleikar krefjast mats á fráteknum gögnum úr fyrirhugaðri smásjártilraun. Varðveislupunkturinn er með CC-BY-NC-4.0 leyfi; ályktun sækir engin vægi. Þessar stýringar eru áfram alfa."
+msgstr "Sjálfgefni kóðarinn ``small`` keyrir á CPU. Valkvæða kóðunin ``videomae`` notar fyrirfram þjálfaða myndskeiðseiginleika frá **VideoMAE-kóðari fyrir atburði** í Model Zoo, uppsett í eigin umhverfi. Gefðu upp staðfesta staðbundna möppu opinbera varðveislupunktsins og nákvæmlega þrjá raðaða vísa upprunarása; notaðu ``[0,0,0]`` aðeins þegar einlit rás er endurtekin af ásetningi. Frysti kóðarinn getur notað CUDA, Metal eða CPU; litli atviksflokkarinn er þjálfaður á CPU. Kinetics-flokkar varðveislupunktsins eru ekki atviksmerkingar smásjármynda og fyrirfram þjálfaðir eiginleikar krefjast mats á fráteknum gögnum úr fyrirhugaðri smásjártilraun. Varðveislupunkturinn er með CC-BY-NC-4.0 leyfi; ályktun sækir engin vægi. Þessar stýringar eru áfram alfa."
 
 msgid "Figure settings"
 msgstr "Myndastillingar"
@@ -402,6 +415,10 @@ msgstr "Unnið með myndir"
 
 msgid "Right-click any figure in spaCR, in a module's figure list or in an embedded plot such as Graph Builder, the UMAP explorer or a training comparison, to open its figure menu. The Volcano explorer and the Gate Editor keep their own right-click menus and add these entries to them."
 msgstr "Hægrismelltu á hvaða mynd sem er í spaCR, í myndalista einingar eða í innfelldu línuriti eins og Graph Builder, UMAP-könnuðinum eða samanburði þjálfana, til að opna myndavalmynd hennar. Volcano-könnuðurinn og Gate Editor hafa eigin hægrismellivalmyndir og bæta þessum færslum við þær."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The Gate Editor draws its 2D and 3D plots on an opaque card with rounded corners, so the page animation stays behind the surrounding controls. Right-click inside the plot to open its graph and figure actions; right-click an axis to change that measurement's scale, limits or cutoffs."
+msgstr "Gate Editor teiknar 2D- og 3D-graf sín á ógegnsætt spjald með ávölum hornum, svo hreyfing síðunnar helst á bak við stjórnhlutana í kring. Hægrismelltu inni í grafinu til að opna aðgerðir fyrir gröf og myndir; hægrismelltu á ás til að breyta kvarða, mörkum eða þröskuldum þeirrar mælingar."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them."
@@ -452,6 +469,18 @@ msgstr "Áður en eining ræsir vinnsluferli sín áætlar spaCR hve mikið minn
 
 msgid "Runs started without the GUI lower ``n_jobs`` to the safe number and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
 msgstr "Keyrslur sem ræstar eru án myndræns viðmóts lækka ``n_jobs`` í örugga fjöldann og birta viðvörun. Slökktu á ``ram_guard`` í **Ítarlegt** til að halda ``n_jobs`` óbreyttu; Mæling bíður samt meðan laust minni er undir varaforðanum."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Worker startup and final retries"
+msgstr "Ræsing verkferla og síðustu endurtilraunir"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "spaCR starts the first application worker immediately, then spaces additional process and thread workers by ten seconds. This applies to spaCR's managed pools, executors, independent mask workers and data-loading workers. It staggers worker initialization, not every image or database operation. Numerical libraries may still manage their own internal threads."
+msgstr "spaCR ræsir fyrsta verkferil forritsins strax og lætur síðan tíu sekúndur líða milli ræsingar viðbótarferla og vinnsluþráða. Þetta á við um ferlahópa og framkvæmara sem spaCR stýrir, sjálfstæða grímuverkferla og gagnahleðsluverkferla. Ræsing verkferlanna er dreifð í tíma, ekki hver mynd- eða gagnagrunnsaðgerð. Töluleg söfn geta enn stýrt eigin innri þráðum."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "When a task exhausts its normal attempts because of a recognized resource overload, spaCR keeps it for one final attempt in a separate serial queue. This queue starts only after the primary tasks finish. SQLite busy or locked errors, explicit memory exhaustion and exhausted operating-system resources qualify. Invalid inputs, cancellation and unexplained worker deaths do not. A final failure remains an error with its original evidence; it is not retried again."
+msgstr "Þegar verkefni hefur tæmt venjulegar tilraunir sínar vegna þekkts auðlindaálags geymir spaCR það fyrir eina lokatilraun í sérstakri raðbundinni biðröð. Sú biðröð hefst aðeins eftir að aðalverkefnunum lýkur. Villur vegna upptekins eða læsts SQLite-gagnagrunns, skýrt tilkynntur minnisskortur og tæmdar stýrikerfisauðlindir falla þar undir. Ógild inntök, afturköllun og óútskýrð stöðvun verkferla falla ekki þar undir. Lokabilun er áfram villa með upprunalegum gögnum um hana; hún er ekki reynd aftur."
 
 msgid "Maturity labels"
 msgstr "Þroskamerkingar"

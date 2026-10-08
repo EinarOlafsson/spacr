@@ -7,7 +7,7 @@ decision can be written into ``measurements.db``.
 """
 from __future__ import annotations
 
-from concurrent.futures import ThreadPoolExecutor
+from .resource_log import _parallel_thread_executor as ThreadPoolExecutor
 import os
 from typing import Any, Dict, Iterable, Mapping, Tuple
 
@@ -135,6 +135,10 @@ def build_plate_plan(src: os.PathLike | str, filenames: Iterable[str],
                 "mtime_ns": int(stat.st_mtime_ns),
             }, None
         except Exception as exc:
+            from .runctx import _is_overload_failure
+
+            if _is_overload_failure(exc):
+                raise
             return filename, None, f"{type(exc).__name__}: {exc}"
 
     names = sorted(set(os.fspath(name) for name in filenames))

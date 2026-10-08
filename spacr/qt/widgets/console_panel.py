@@ -544,7 +544,7 @@ class _StdoutBlock(QPlainTextEdit):
         self.setTextInteractionFlags(
             Qt.TextSelectableByMouse | Qt.TextSelectableByKeyboard
         )
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         self._font_pt = 10
         self._font = QFont("Open Sans", self._font_pt, QFont.Light)
         self._font.setStyleName("Light")
@@ -1154,6 +1154,9 @@ class ConsolePanel(QWidget):
         self._jump.setToolTip(
             "Go to the newest line. Ctrl+End does the same from anywhere in "
             "the scrollback.")
+        jump_policy = self._jump.sizePolicy()
+        jump_policy.setRetainSizeWhenHidden(True)
+        self._jump.setSizePolicy(jump_policy)
         self._jump.clicked.connect(self.jump_to_the_end)
         self._jump.setVisible(False)
         box_lay.addWidget(self._jump)

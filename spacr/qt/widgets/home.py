@@ -2430,7 +2430,8 @@ class HomePage(QWidget):
         head_col = QVBoxLayout(head)
         head_col.setContentsMargins(0, 0, 0, 0)
         head_col.setSpacing(2)
-        heading = QLabel(section.upper())
+        from ..i18n import tr
+        heading = QLabel(tr(section).upper())
         heading.setStyleSheet(
             "font-family: 'Open Sans', sans-serif; font-weight: 600;"
             f"font-size: {font_px(11)}px; letter-spacing: 2px;"
@@ -2440,7 +2441,7 @@ class HomePage(QWidget):
 
         note = self._section_notes.get(section)
         if note:
-            caption = QLabel(note)
+            caption = QLabel(tr(note))
             caption.setObjectName("HomeSectionNote")
             caption.setWordWrap(True)
             caption.setStyleSheet(

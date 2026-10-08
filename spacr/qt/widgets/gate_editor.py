@@ -40,7 +40,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QBrush, QColor
+from PySide6.QtGui import QBrush, QColor, QPainter
 from PySide6.QtWidgets import (
     QButtonGroup, QLabel,
     QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
@@ -51,7 +51,8 @@ from PySide6.QtWidgets import (
 )
 
 from ...selection import DataFilter
-from ..theme import SPACING, active_palette, mark_surface
+from ..theme import (SPACING, active_palette, make_transparent,
+                     mark_surface, paint_panel)
 from .graph_builder import GraphCanvas
 from .graph_spec import BAR, HISTOGRAM, GraphSpec
 from .gate_spec import (
@@ -345,6 +346,11 @@ class GateCanvas(GraphCanvas):
         :param source: the table being gated.
         """
         super().__init__(parent, link=link, source=source)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        make_transparent(self)
+        padding = SPACING["md"]
+        self.layout().setContentsMargins(padding, padding, padding, padding)
+        self._canvas._spacr_panel = False
         self._tool = DEFAULT_TOOL
         #: How near the first vertex a click has to land to close a polygon.
         #: Pixels, because "close enough to click" is a screen property.
@@ -428,6 +434,18 @@ class GateCanvas(GraphCanvas):
         self._volume_preview: Optional[Gate] = None
         #: The live highlight of the objects inside a shape being drawn.
         self._live = None
+
+    def paintEvent(self, event) -> None:
+        """Keep the plotted 2D or 3D points over one solid rounded surface.
+
+        :param event: the Qt paint event for this canvas.
+        :returns: None.
+        """
+        painter = QPainter(self)
+        try:
+            paint_panel(painter, self, role="elevated", inset=0.5)
+        finally:
+            painter.end()
 
     @property
     def tool(self) -> str:

@@ -17,7 +17,9 @@ from __future__ import annotations
 import re
 from typing import Optional, Union
 
-from PySide6.QtCore import QCoreApplication, QEvent, QObject, QSize, Qt, Signal
+from functools import partial
+
+from PySide6.QtCore import QCoreApplication, QEvent, QObject, QSize, Qt, QTimer, Signal
 from PySide6.QtWidgets import (
     QApplication,
     QFormLayout,
@@ -887,6 +889,9 @@ class Section(QFrame):
         if scroll is None:
             self._body.setVisible(self._expanded)
             self.toggled.emit(self._expanded)
+            from .ambient import field_ripple_for_widget
+
+            QTimer.singleShot(0, partial(field_ripple_for_widget, self))
             return
 
         depth = int(scroll.property(SETTLING_DEPTH) or 0)
@@ -912,3 +917,6 @@ class Section(QFrame):
                     if saved_policy is not None:
                         scroll.setVerticalScrollBarPolicy(saved_policy)
                     scroll.setUpdatesEnabled(True)
+        from .ambient import field_ripple_for_widget
+
+        QTimer.singleShot(0, partial(field_ripple_for_widget, self))

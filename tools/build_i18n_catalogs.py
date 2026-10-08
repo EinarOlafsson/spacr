@@ -2741,6 +2741,14 @@ MANUAL_TRANSLATIONS: dict[str, dict[str, str]] = {
 }
 
 MANUAL_UI: dict[str, dict[str, str]] = {
+    # The live Organism Home heading uses the same scientific noun in Swedish.
+    # Bind that intentional spelling through the existing reviewed-caption
+    # authority; exact-English fallback gates remain unchanged.
+    "Organism": {
+        "sv": "Organism", "de": "Organismus", "es": "Organismo",
+        "zh_CN": "生物体", "pt": "Organismo", "hi": "जीव",
+        "ko": "생물체", "is": "Lífvera", "fr": "Organisme",
+    },
     # THE HOME GROUPING CAPTION, repaired 2026-09-03 under instruction 316-B,
     # which the maintainer answered "yes, repair to those meanings".
     #
@@ -3833,6 +3841,8 @@ def _indirect_runtime_ui_sources() -> set[str]:
         ANIMATION_CHOICES,
         DRIFT_DIRECTIONS,
         PALETTE_SETS,
+        SPACEOUT_ONLY_THEMES,
+        SPACEOUT_THEME,
         animation_label,
         animation_note,
         drift_direction_label,
@@ -4040,8 +4050,11 @@ def _indirect_runtime_ui_sources() -> set[str]:
             if str(spec.tooltip).strip()
             else "Show a preview of what these settings produce."
         )
-    animation_captions = {animation_label(name) for name in ANIMATION_CHOICES}
-    for name in ANIMATION_CHOICES:
+    animation_choices = tuple(dict.fromkeys(
+        ANIMATION_CHOICES + SPACEOUT_ONLY_THEMES + (SPACEOUT_THEME,)
+    ))
+    animation_captions = {animation_label(name) for name in animation_choices}
+    for name in animation_choices:
         found.update((animation_label(name), animation_note(name)))
     for spec in PALETTE_SETS.values():
         found.update((str(spec.label), str(spec.note)))
@@ -4093,6 +4106,23 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                   and statement.value is not None):
                 constants[statement.target.id] = statement.value
         for node in ast.walk(tree):
+            if (
+                path == ROOT / "spacr" / "qt" / "preferences.py"
+                and isinstance(node, ast.For)
+                and isinstance(node.target, ast.Tuple)
+                and tuple(getattr(item, "id", None) for item in node.target.elts)
+                == ("key", "check", "label", "note")
+                and isinstance(node.iter, (ast.Tuple, ast.List))
+            ):
+                # Spaceout's effect rows keep storage keys and widgets beside
+                # presentation fields. Inventory only the label/note columns;
+                # tr(label) and tr(note) cannot expose those literals alone.
+                for row in node.iter.elts:
+                    if isinstance(row, (ast.Tuple, ast.List)) and len(row.elts) == 4:
+                        for field in row.elts[2:]:
+                            found.update(value.strip() for value in
+                                         _literal_strings(field, constants)
+                                         if _looks_translatable(value))
             if (
                 isinstance(node, (ast.Assign, ast.AnnAssign))
                 and (

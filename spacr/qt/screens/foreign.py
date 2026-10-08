@@ -514,6 +514,7 @@ class ForeignScreen(QWidget):
         outer.addLayout(mask_row)
 
         self._mask_list = QListWidget(self)
+        self._mask_list.setObjectName("Masks")
         self._mask_list.setMaximumHeight(76)
         outer.addWidget(self._mask_list)
 

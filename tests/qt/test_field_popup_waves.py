@@ -18,20 +18,45 @@ def engine(frequency=0):
     return made
 
 
-def test_default_and_disabled_frequency_emit_no_waves(qapp, empty_store):
+def test_zero_frequency_keeps_discrete_waves_without_recurring(qapp, empty_store):
     assert prefs._field_popup_wave_frequency() == 5
     prefs._set_field_popup_wave_frequency(0)
     made = engine()
     made._set_popup_wave_origin((0.3, 0.7))
+    assert made._popup_waves == [(0, (0.3, 0.7))]
+    made.advance(1)
+    assert len(made._popup_waves) == 1
+    made._set_popup_wave_origin(None)
+    assert made._popup_waves[-1] == (made.time, (0.3, 0.7))
     made.advance(120)
     assert made._popup_waves == []
     made.set_popup_wave_frequency(60)
+    made._set_popup_wave_origin((0.3, 0.7))
     made.advance(1)
-    assert len(made._popup_waves) == 1
+    assert len(made._popup_waves) == 2
+    active = list(made._popup_waves)
     made.set_popup_wave_frequency(0)
-    assert made._popup_waves == []
+    assert made._popup_waves == active
+    made.advance(1)
+    assert made._popup_waves == active
     made.advance(120)
     assert made._popup_waves == []
+
+
+def test_frequency_changes_keep_in_flight_click_and_container_feedback(qapp):
+    made = engine(30)
+    made._add_ripple((0.2, 0.3))
+    made._set_popup_wave_origin((0.6, 0.7), popup_id=1)
+    active = list(made._popup_waves)
+    made.advance(0.5)
+    made.set_popup_wave_frequency(0)
+    assert made._popup_waves == active
+    assert made._popup_wave_elapsed == 0
+    made.advance(1)
+    assert made._popup_waves == active
+    made._set_popup_wave_origin(None)
+    assert made._popup_waves[-1][1] == (0.6, 0.7)
+    assert len(made._popup_waves) == 3
 
 
 def test_frequency_tracks_elapsed_time_and_popup_centre_without_mouse_gravity(qapp):
@@ -104,9 +129,55 @@ def test_each_new_popup_emits_once_and_moving_the_same_popup_does_not(qapp):
     assert len(made._popup_waves) == 2
     queue._offer(.04, None, (), popup_origin=None)
     queue._consume(made)
+    assert len(made._popup_waves) == 3
     queue._offer(.04, None, (), popup_origin=(.3, .7), popup_id=2)
     queue._consume(made)
-    assert len(made._popup_waves) == 3
+    assert len(made._popup_waves) == 4
+
+
+@pytest.mark.parametrize("enabled", [False, True])
+def test_real_dialog_open_close_is_discrete_with_gravity_and_frequency_zero(
+        qtbot, monkeypatch, enabled):
+    monkeypatch.setattr(ambient.AmbientWidget, '_start_producer', lambda self: None)
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    owner.resize(400, 300)
+    field = ambient.AmbientWidget(
+        owner, theme='data_art_impulse_lens', palette='spacr',
+        popup_wave_frequency=0, gravity_radius=0, ripples_enabled=enabled)
+    field.setGeometry(owner.rect())
+    owner.show()
+    field.show()
+    field._timer.stop()
+    popup = QDialog(owner)
+    qtbot.addWidget(popup)
+    popup.resize(120, 80)
+    popup.move(owner.mapToGlobal(owner.rect().center()) - popup.rect().center())
+    popup.open()
+    qtbot.waitUntil(lambda: ambient.QApplication.activeModalWidget() is popup)
+    field._on_tick()
+    field._timer.stop()
+    assert len(field.engine._popup_waves) == int(enabled)
+    first = list(field.engine._popup_waves)
+    field.engine.advance(1)
+    field._on_tick()
+    assert field.engine._popup_waves == first
+    popup.move(popup.pos().x() + 10, popup.pos().y() + 10)
+    field._on_tick()
+    assert field.engine._popup_waves == first
+    last_origin = field.engine._popup_wave_origin
+    popup.reject()
+    qtbot.waitUntil(lambda: not popup.isVisible())
+    field._on_tick()
+    assert len(field.engine._popup_waves) == 2 * int(enabled)
+    if enabled:
+        assert field.engine._popup_waves[-1][1] == last_origin
+    assert field.engine.gravity_radius == 0
+    assert field.engine._gravity_impulses == []
+    closed = list(field.engine._popup_waves)
+    field._on_tick()
+    assert field.engine._popup_waves == closed
+    field.stop()
 
 
 def test_origin_resolves_the_visible_popup_in_this_window(qtbot, monkeypatch):

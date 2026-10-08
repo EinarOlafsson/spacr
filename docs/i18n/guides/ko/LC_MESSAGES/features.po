@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 21:43-0400\n"
+"POT-Creation-Date: 2026-10-08 15:08-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -112,8 +112,9 @@ msgstr "모든 실행은 식별자, 시드, 확정된 설정, 출력을 기록�
 msgid "How a module is reached"
 msgstr "모듈에 도달하는 방법"
 
-msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Assays** -- and twenty-one modules have a tile in one of them. Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own; Assays are the quantitative readouts. Make Masks is filed under **Tools**."
-msgstr "홈 화면은 모듈을 **핵심**, **데이터**, **도구**, **어세이** 의 네 범주로 묶으며, 21개 모듈이 이 중 한 범주에 타일을 가지고 있습니다. 핵심은 순서대로 실행하는 파이프라인이고, 데이터는 파이프라인에 들어가고 나오는 것이며, 도구는 파이프라인이 스스로 수행하는 단계가 아니라 프로젝트에 대고 사용하는 도구이고, 어세이는 정량 판독값입니다. 마스크 만들기는 **도구** 아래에 있습니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and twenty-one modules have a tile in one of them. Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
+msgstr "홈 화면은 모듈을 **핵심**, **데이터**, **도구**, **생물체** 의 네 범주로 나누며, 스물한 개 모듈이 이 중 한 범주에 타일을 갖습니다. 핵심은 순서대로 실행하는 처리 파이프라인이고 데이터는 그 입력과 출력을 포함합니다. 도구는 파이프라인의 자동 단계가 아니라 프로젝트에 사용하는 도구입니다. 생물체는 톡소플라스마 안내와 사용 가능한 분석을 엽니다. 예정된 분석은 출시 예정으로 표시됩니다. 마스크 만들기는 **도구** 에 있습니다."
 
 msgid "A TILE IS NOT THE ONLY WAY IN, and most modules do not have one. A tile says \"start here\", and a module that answers a question about a run somebody else started is not a place to start. Those open instead from:"
 msgstr "타일만이 유일한 진입로는 아니며, 대부분의 모듈에는 타일이 없습니다. 타일은 “여기서 시작하세요”라는 뜻이지만, 다른 사람이 시작한 실행에 관한 질문에 답하는 모듈은 출발점이 아닙니다. 이런 모듈은 대신 다음 위치에서 열립니다."
@@ -237,12 +238,12 @@ msgid "Data-art themes"
 msgstr "데이터 아트 테마"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
-msgstr "**환경설정** → **모양** 에서 **테마** 는 인터페이스 팔레트를 선택하며, 열 가지 야간 팔레트도 계속 사용할 수 있습니다. **애니메이션** 은 장식용 배경을 독립적으로 선택하고, **없음** 은 이를 중지합니다. 이 배경은 프로젝트 측정값을 표시하지 않습니다. 기본값은 주 창에서 **spaCR field**, 설정 창 배경에서 **없음** 입니다."
+msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **spaCR stratified**."
+msgstr "**환경설정** → **모양** 에서 **테마** 는 인터페이스 팔레트를 선택하며, 열 가지 야간 팔레트도 계속 사용할 수 있습니다. **애니메이션** 은 장식용 배경을 독립적으로 선택하고, **없음** 은 이를 중지합니다. 이 배경은 프로젝트 측정값을 표시하지 않습니다. 기본값은 주 창에서 **spaCR field**, 설정 창 배경에서 **spaCR stratified** 입니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
-msgstr "애니메이션 메뉴에는 **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, **spaCR spinn** 이 이 순서로 표시됩니다."
+msgid "The ordinary animation menu lists **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs**, **spaCR stratified**, and **None**, in that order. **spaCR growth**, **spaCR aurora** and **spaCR spinn** are available with **Spaceout** enabled in both the main Animation menu and the Settings backdrop menu."
+msgstr "일반 애니메이션 메뉴에는 **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs**, **spaCR stratified**, **없음** 이 순서대로 표시됩니다. **Spaceout** 을 활성화하면 기본 애니메이션 메뉴와 Backdrop 설정 메뉴 모두에서 **spaCR growth**, **spaCR aurora**, **spaCR spinn** 을 사용할 수 있습니다."
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — 선명한 중력 점장으로 선택적인 국소 마우스 영향과 퍼져 나가는 파문을 제공합니다."
@@ -287,16 +288,28 @@ msgid "**Popup wave frequency** sets automatic waves per minute in **spaCR field
 msgstr "**팝업 파동 빈도** 는 **spaCR field** 에서 자동 파동이 시작되는 분당 횟수를 설정합니다. 기본값은 **분당 5회** 이며, **0** 은 팝업 파동을 끕니다. 활성화하면 팝업을 여는 즉시 중심에서 첫 파동이 시작되고, 이후 선택한 빈도로 파동이 발생합니다. 팝업을 이동하면 새 파동의 시작점이 이동합니다. 팝업을 닫으면 새 파동은 중단되고 기존 파동은 사라집니다. 이 제어는 마우스 중력, 점 깜빡임, 밀도, 그리기 세부 사항과 독립적입니다."
 
 # AI technical review (Codex), no native-speaker signoff.
+msgid "**Field ripples** enables waves caused by clicks, opening or closing containers, and snapping the window, as well as automatic popup waves. Turning Mouse gravity radius down to **0** leaves these ripples available. Turn Field ripples off to stop them while retaining mouse attraction; Popup wave frequency controls the rate of automatic waves when ripples are on."
+msgstr "**필드 물결** 는 클릭, 컨테이너 열기와 닫기, 창 스냅으로 발생하는 파동과 자동 팝업 파동을 활성화합니다. 마우스 중력 반경 를 **0** 으로 낮춰도 이러한 파동을 사용할 수 있습니다. 마우스 인력을 유지하면서 파동을 멈추려면 필드 물결 를 끄세요. 파동이 켜져 있을 때 팝업 파동 빈도 가 자동 파동의 빈도를 제어합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Press **Apply** to preview changes while Preferences stays open. A separate question offers **Keep** or **Revert**. Revert restores the saved and live settings; your edited controls remain available to change or apply again. Closing the question also reverts. **Save** keeps changes and closes Preferences."
 msgstr "**적용** 을 눌러 변경사항을 미리 적용해도 환경설정 창은 열린 상태로 유지됩니다. 별도의 질문 창에서 **유지** 또는 **되돌리기** 를 선택합니다. 되돌리면 저장된 설정과 현재 적용된 설정이 복원되며, 편집한 컨트롤 값은 다시 변경하거나 적용할 수 있도록 남아 있습니다. 질문 창을 닫아도 되돌립니다. **저장** 은 변경사항을 유지하고 환경설정 창을 닫습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**Backdrop 설정** 은 환경설정을 적용하거나 저장할 때 모두 주 창의 애니메이션과 독립적으로 유지됩니다. **없음** 은 팝업 움직임을 끄면서 파란 테두리는 유지합니다. **설정 배경 어두움** 은 애니메이션 위 설정 카드의 불투명도를 **0%** 부터 **100%** 까지 조절하며, 기본값은 **85%** 입니다. 이 값은 **페이지 불투명도** 와 함께 적용됩니다. 설정 배경이 **없음** 이어도 페이지 불투명도는 적용됩니다. 어두움 값이 높을수록 애니메이션을 더 많이 가려 텍스트를 읽기 쉽게 합니다. 팝업은 자신이 속한 spaCR 창 앞에만 유지되며, 모든 창 위에 항상 표시하는 전역 플래그를 사용하지 않으므로 다른 앱이 덮을 수 있습니다."
+msgid "**Preferences** keeps four lines of help visible below the settings. Longer help scrolls within the strip without moving the dialog. Drag the strip’s narrow top edge to make it taller or shorter; Preferences remembers the chosen height. Moving from a control into the strip keeps its help available to read and scroll."
+msgstr "**환경설정** 은 설정 아래에 도움말 네 줄을 계속 표시합니다. 긴 도움말은 대화 상자를 움직이지 않고 영역 안에서 스크롤됩니다. 영역의 좁은 위쪽 가장자리를 끌어 높이를 늘리거나 줄이세요. 환경 설정은 선택한 높이를 기억합니다. 포인터를 컨트롤에서 도움말 영역으로 옮겨도 해당 도움말을 계속 읽고 스크롤할 수 있습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings animation speed**, **Settings animation size**, **Settings animation detail** and **Settings animation density** change only the settings-window backdrop. Its sliders retain their values when the backdrop is **None**, while the controls are disabled. Choosing a compatible backdrop enables them again. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
+msgstr "**Backdrop 설정** 은 환경설정을 적용하거나 저장할 때 모두 주 창의 애니메이션과 독립적으로 유지됩니다. **없음** 은 팝업 움직임을 끄면서 파란 테두리는 유지합니다. **설정 창 애니메이션 속도**, **설정 창 애니메이션 크기**, **설정 창 애니메이션 세부 수준**, **설정 창 애니메이션 밀도** 는 설정 창의 배경만 변경합니다. 배경이 **없음** 이면 컨트롤은 비활성화되지만 슬라이더 값은 유지됩니다. 호환되는 배경을 선택하면 다시 활성화됩니다. **설정 배경 어두움** 은 애니메이션 위 설정 카드의 불투명도를 **0%** 부터 **100%** 까지 조절하며, 기본값은 **85%** 입니다. 이 값은 **페이지 불투명도** 와 함께 적용됩니다. 설정 배경이 **없음** 이어도 페이지 불투명도는 적용됩니다. 어두움 값이 높을수록 애니메이션을 더 많이 가려 텍스트를 읽기 쉽게 합니다. 팝업은 자신이 속한 spaCR 창 앞에만 유지되며, 모든 창 위에 항상 표시하는 전역 플래그를 사용하지 않으므로 다른 앱이 덮을 수 있습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."
 msgstr "**spaCR field** 의 비어 있는 배경 영역에서 마우스 왼쪽 버튼을 누른 채 드래그하면 국소적인 점 무리를 당길 수 있습니다. 버튼을 놓으면 전체 패턴을 다시 시작하지 않고 부드럽게 돌아갑니다. 이 배경 제스처는 과학 이미지 캔버스와 컨트롤의 조작 제스처를 계속 사용할 수 있게 합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Start ``spaceout --fresh`` for the separate Spaceout mode. Its default **spaCR field phenomena** backdrop adds changing motion to the field. Under **Preferences** → **Appearance** → **spaCR field**, eight independent switches control **Random attractors**, **Relaxation**, **Elastic release**, **Vortices**, **Density pulses**, **Density waves**, **Colour waves** and **Spirals**. All eight start on. **Apply** previews the edited switches; **Revert** restores the previous values, and **Save** keeps them. The ordinary ``spacr`` launcher uses its own background choice and hides this Spaceout-only section. To choose the fractal instead, select it in Spaceout's **Animation** menu."
+msgstr "별도의 Spaceout 모드를 시작하려면 ``spaceout --fresh`` 를 실행하세요. 기본 배경인 **spaCR 필드 현상** 는 필드에 변화하는 움직임을 추가합니다. **환경설정** → **모양** → **spaCR field** 의 독립적인 스위치 여덟 개가 **무작위 인력점**, **완화**, **탄성 복귀**, **소용돌이**, **밀도 맥동**, **밀도 파동**, **색상 파동**, **나선** 를 제어합니다. 여덟 개 모두 처음에는 켜져 있습니다. **적용** 는 편집한 스위치를 미리 보여 주고, **되돌리기** 는 이전 값을 복원하며, **저장** 는 변경 내용을 유지합니다. 일반 ``spacr`` 실행기는 자체 배경 선택을 사용하고 Spaceout 전용 영역을 숨깁니다. 프랙탈을 선택하려면 Spaceout의 **애니메이션** 메뉴에서 선택하세요."
 
 msgid "Arranging the window"
 msgstr "창 배치"
@@ -362,7 +375,7 @@ msgstr "Timelapse 이벤트 주석과 사전 학습 특징 (알파)"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Enable **Show alpha features** in Preferences to use **Event annotations…** in Timelapse. Choose an existing spaCR tracks CSV and its matching image sequence, open the tracked field and confirm the pairing. Select an observed track and zero-based frame, enter an event name and press **Add or update**. **Save** writes the staged labels to an annotations CSV and selects it for event detection; closing without saving leaves the file unchanged. One track at one frame can have only one event label. Changed tracker or annotation files must be reopened before saving."
-msgstr "Timelapse에서 **이벤트 녹음...** 을 사용하려면 Preferences에서 **알파 기능 표시** 를 활성화하세요. 기존 spaCR 트랙 CSV와 일치하는 이미지 시퀀스를 선택하고, 추적된 시야를 열어 연결을 확인하세요. 관측된 트랙과 0부터 번호를 매기는 프레임을 선택하고 이벤트 이름을 입력한 다음 **추가 또는 업데이트** 를 누르세요. **저장** 는 준비된 라벨을 주석 CSV에 기록하고 이벤트 검출용으로 선택합니다. 저장하지 않고 닫으면 파일은 바뀌지 않습니다. 한 프레임의 한 트랙에는 이벤트 라벨 하나만 지정할 수 있습니다. 변경된 추적 또는 주석 파일은 저장 전에 다시 열어야 합니다."
+msgstr "Timelapse에서 **알파 기능 표시** 을 사용하려면 Preferences에서 **이벤트 주석…** 를 활성화하세요. 기존 spaCR 트랙 CSV와 일치하는 이미지 시퀀스를 선택하고, 추적된 시야를 열어 연결을 확인하세요. 관측된 트랙과 0부터 번호를 매기는 프레임을 선택하고 이벤트 이름을 입력한 다음 **추가 또는 업데이트** 를 누르세요. **저장** 는 준비된 라벨을 주석 CSV에 기록하고 이벤트 검출용으로 선택합니다. 저장하지 않고 닫으면 파일은 바뀌지 않습니다. 한 프레임의 한 트랙에는 이벤트 라벨 하나만 지정할 수 있습니다. 변경된 추적 또는 주석 파일은 저장 전에 다시 열어야 합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The annotation table names ``field``, ``track_id``, ``frame`` and ``event``; an ``object`` column identifies the tracked object type. Label every event in fields used for training. The event detector evaluates held-out annotated fields, reports precision, recall and timing error, then trains and saves a model for reuse. Event classes come from the experiment's annotations."
@@ -370,7 +383,7 @@ msgstr "주석 표에는 ``field``, ``track_id``, ``frame``, ``event`` 가 있�
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The default ``small`` encoder runs on CPU. The optional ``videomae`` encoder uses pretrained video features from **VideoMAE event encoder** in Model Zoo, installed in its own environment. Supply the verified local official checkpoint folder and exactly three ordered source-channel indices; use ``[0,0,0]`` only when deliberately repeating a monochrome channel. The frozen encoder can use CUDA, Metal or CPU; the small event classifier trains on CPU. The checkpoint's Kinetics classes are not microscopy event labels, and pretrained features require held-out evaluation on the intended microscopy experiment. The checkpoint is licensed CC-BY-NC-4.0; inference downloads no weights. These controls remain alpha."
-msgstr "기본 인코더 ``small`` 은 CPU에서 실행됩니다. 선택적 인코더 ``videomae`` 는 자체 환경에 설치된 Model Zoo의 **VideoMAE 이벤트 암호화기** 에서 사전 학습된 비디오 특징을 사용합니다. 검증된 로컬 공식 체크포인트 폴더와 순서가 지정된 원본 채널 인덱스 정확히 세 개를 제공하세요. 단색 채널을 의도적으로 반복할 때만 ``[0,0,0]`` 을 사용하세요. 고정된 인코더는 CUDA, Metal 또는 CPU를 사용할 수 있으며 작은 이벤트 분류기는 CPU에서 학습합니다. 체크포인트의 Kinetics 클래스는 현미경 이벤트 라벨이 아니며, 사전 학습 특징은 대상 현미경 실험의 별도 평가 데이터로 평가해야 합니다. 체크포인트의 라이선스는 CC-BY-NC-4.0이며 추론은 가중치를 다운로드하지 않습니다. 이 컨트롤은 계속 알파입니다."
+msgstr "기본 인코더 ``small`` 은 CPU에서 실행됩니다. 선택적 인코더 ``videomae`` 는 자체 환경에 설치된 Model Zoo의 **VideoMAE 이벤트 인코더** 에서 사전 학습된 비디오 특징을 사용합니다. 검증된 로컬 공식 체크포인트 폴더와 순서가 지정된 원본 채널 인덱스 정확히 세 개를 제공하세요. 단색 채널을 의도적으로 반복할 때만 ``[0,0,0]`` 을 사용하세요. 고정된 인코더는 CUDA, Metal 또는 CPU를 사용할 수 있으며 작은 이벤트 분류기는 CPU에서 학습합니다. 체크포인트의 Kinetics 클래스는 현미경 이벤트 라벨이 아니며, 사전 학습 특징은 대상 현미경 실험의 별도 평가 데이터로 평가해야 합니다. 체크포인트의 라이선스는 CC-BY-NC-4.0이며 추론은 가중치를 다운로드하지 않습니다. 이 컨트롤은 계속 알파입니다."
 
 msgid "Figure settings"
 msgstr "그림 설정"
@@ -402,6 +415,10 @@ msgstr "그림 다루기"
 
 msgid "Right-click any figure in spaCR, in a module's figure list or in an embedded plot such as Graph Builder, the UMAP explorer or a training comparison, to open its figure menu. The Volcano explorer and the Gate Editor keep their own right-click menus and add these entries to them."
 msgstr "spaCR의 아무 그림이나 오른쪽 클릭하면 그림 메뉴가 열립니다. 모듈의 그림 목록이나 Graph Builder, UMAP 탐색기, 학습 비교 같은 내장 그래프에서도 마찬가지입니다. Volcano 탐색기와 Gate Editor는 자체 오른쪽 클릭 메뉴를 유지하며 여기에 이 항목들을 추가합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The Gate Editor draws its 2D and 3D plots on an opaque card with rounded corners, so the page animation stays behind the surrounding controls. Right-click inside the plot to open its graph and figure actions; right-click an axis to change that measurement's scale, limits or cutoffs."
+msgstr "Gate Editor 는 모서리가 둥근 불투명 카드에 2D 및 3D 플롯을 그리므로 페이지 애니메이션이 주변 컨트롤 뒤에 유지됩니다. 플롯 내부를 마우스 오른쪽 버튼으로 클릭하면 그래프와 그림 작업이 열립니다. 축을 마우스 오른쪽 버튼으로 클릭하면 해당 측정의 스케일, 한계 또는 임계값을 변경할 수 있습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them."
@@ -452,6 +469,18 @@ msgstr "모듈이 작업자를 시작하기 전에 spaCR은 시야, 마스크, �
 
 msgid "Runs started without the GUI lower ``n_jobs`` to the safe number and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
 msgstr "GUI 없이 시작한 실행은 ``n_jobs`` 를 안전한 수로 낮추고 경고를 출력합니다. **고급** 에서 ``ram_guard`` 를 끄면 ``n_jobs`` 가 그대로 유지되며, 측정은 여유 메모리가 예비량보다 적은 동안 여전히 기다립니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Worker startup and final retries"
+msgstr "작업자 시작과 마지막 재시도"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "spaCR starts the first application worker immediately, then spaces additional process and thread workers by ten seconds. This applies to spaCR's managed pools, executors, independent mask workers and data-loading workers. It staggers worker initialization, not every image or database operation. Numerical libraries may still manage their own internal threads."
+msgstr "spaCR은 첫 번째 애플리케이션 작업자를 즉시 시작하고, 추가 프로세스 및 스레드 작업자는 10초 간격으로 시작합니다. 이는 spaCR이 관리하는 풀, 실행기, 독립 마스크 작업자 및 데이터 로딩 작업자에 적용됩니다. 간격을 두는 대상은 작업자 초기화이며, 모든 이미지 또는 데이터베이스 작업이 아닙니다. 수치 연산 라이브러리는 자체 내부 스레드를 계속 관리할 수 있습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "When a task exhausts its normal attempts because of a recognized resource overload, spaCR keeps it for one final attempt in a separate serial queue. This queue starts only after the primary tasks finish. SQLite busy or locked errors, explicit memory exhaustion and exhausted operating-system resources qualify. Invalid inputs, cancellation and unexplained worker deaths do not. A final failure remains an error with its original evidence; it is not retried again."
+msgstr "작업이 확인된 자원 과부하로 인해 일반 시도 횟수를 모두 소진하면 spaCR은 별도의 순차 대기열에 보관하여 마지막으로 한 번 더 시도합니다. 이 대기열은 기본 작업이 모두 끝난 뒤에만 시작합니다. SQLite 사용 중 또는 잠김 오류, 명시적인 메모리 소진 및 운영체제 자원 소진이 해당됩니다. 잘못된 입력, 취소 및 원인을 알 수 없는 작업자 종료는 해당되지 않습니다. 마지막 시도가 실패하면 원래 증거를 보존한 오류로 남으며 다시 시도하지 않습니다."
 
 msgid "Maturity labels"
 msgstr "성숙도 레이블"

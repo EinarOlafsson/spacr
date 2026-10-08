@@ -8,7 +8,8 @@ from .mask_io import _as_uint16_mask
 from . import accelerator
 import numpy as np
 import pandas as pd
-from multiprocessing import Pool, cpu_count
+from multiprocessing import cpu_count
+from .resource_log import _parallel_pool as Pool
 try:
     from IPython.display import display
 except Exception:

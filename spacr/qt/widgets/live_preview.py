@@ -5581,6 +5581,7 @@ class LiveSettingsDialog(QDialog):
         panel._object_box.currentTextChanged.connect(self.refresh_visibility)
         panel._model_box.currentTextChanged.connect(self.refresh_visibility)
         panel._normalise_check.toggled.connect(self.refresh_visibility)
+        self._controls_released = False
 
         self._propagate_sources = [
             panel._model_box, panel._object_box, panel._cell_channel,
@@ -5621,7 +5622,7 @@ class LiveSettingsDialog(QDialog):
         """List the panel controls this dialog re-parents.
 
         :returns: the segmentation and normalisation controls followed by every
-            per-compartment one.
+            per-compartment and organelle control.
         """
         p = self._panel
         return [p._model_box, p._object_box, p._cell_channel,
@@ -5629,7 +5630,7 @@ class LiveSettingsDialog(QDialog):
                 p._organelle_channel, p._diameter, p._flow, p._prob,
                 p._normalise_check, p._lo_pct, p._hi_pct,
                 p._outline_colour, p._outline_thickness,
-                ] + p._all_compartment_widgets()
+                ] + p._all_compartment_widgets() + list(p._organelle_widgets.values())
 
     def _show_every_control_on_a_row(self) -> int:
         """Show every widget this dialog has put on a form row.
@@ -5755,36 +5756,28 @@ class LiveSettingsDialog(QDialog):
             w.setEnabled(True)
         self._install_api_tooltips()
 
-    def closeEvent(self, event):
-        """Give back every panel control this dialog borrowed, not just the
-        declared ones.
+    def done(self, result):
+        """Return borrowed controls and detach subscriptions on every exit.
 
         Qt destroys a dialog's children with it, so anything of the panel's
         still parented under this dialog when it goes would go with it. The
-        controls are the PANEL's and outlive the dialog by design -- their
-        values are what the user tuned.
+        controls belong to the panel and retain their values after Close,
+        Escape, accept, reject and explicit completion. Restoring them in
+        ``done`` covers exits that do not deliver a close event. A completed
+        dialog cannot move controls out of a replacement dialog.
 
-        `_managed_widgets()` is the declared list and it was INCOMPLETE:
-        `_pathogen_channel`, `_organelle_channel` and `_model_zoo_btn` are
-        laid out here too and were not in it, so after one open and close
-        they sat parented to a group box belonging to a closed dialog.
-        Nothing failed -- they survived, because the panel still held Python
-        references -- which is exactly why it went unnoticed.
-
-        So the sweep is by IDENTITY rather than by list: any widget still
-        under this dialog that the panel holds an attribute for goes back.
-        Blunt on purpose, like `LivePreviewPanel._stow_free_widgets`, so a
-        control added to a row later is covered without anyone remembering
-        to add it here as well.
-
-        They go to `_offscreen_controls` and not to the panel: parented to
-        the panel with no layout, each sits at (0, 0) over the loaded-path
-        label, held off screen by nothing but the `hide()`.
-
-        :param event: the close event; passed to the base class once every
-            borrowed control has been handed back.
+        :param result: dialog result passed to Qt after controls return to
+            the panel's hidden store.
         """
+        if self._controls_released:
+            return
         panel = self._panel
+        if self._propagate_btn.isChecked():
+            self._propagate_btn.setChecked(False)
+        for signal in (panel._object_box.currentTextChanged,
+                       panel._model_box.currentTextChanged,
+                       panel._normalise_check.toggled):
+            signal.disconnect(self.refresh_visibility)
         stow = getattr(panel, "_offscreen_controls", None) or panel
         owned = {id(value) for value in vars(panel).values()
                  if isinstance(value, QWidget)}
@@ -5803,7 +5796,8 @@ class LiveSettingsDialog(QDialog):
             seen.add(id(w))
             w.hide()
             w.setParent(stow)
-        super().closeEvent(event)
+        self._controls_released = True
+        super().done(result)
 
 
 

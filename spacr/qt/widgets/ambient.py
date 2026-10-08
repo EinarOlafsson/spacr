@@ -232,7 +232,8 @@ __all__ = [
     "animation_label", "animation_note", "is_animation_choice",
     "total_frames_painted",
     "DEFAULT_THEME", "DEFAULT_PALETTE", "PALETTE_SETS",
-    "SPACEOUT_THEME", "SPACEOUT_PALETTE", "dressed",
+    "SPACEOUT_THEME", "SPACEOUT_PALETTE", "DEFAULT_SPACEOUT_THEME",
+    "DEFAULT_SPACEOUT_PALETTE", "dressed",
     "AmbientWidget", "install_ambient", "theme_label", "theme_note",
     "palettes_for", "palette_label", "palette_note", "palette_colors",
     "default_palette_for", "is_valid_theme", "is_valid_palette",
@@ -246,31 +247,24 @@ __all__ = [
 
 
 
-#: Every theme, in the order a menu should list them.
-#:
-#: These are the *paintable* ones — every name here has an engine behind it.
 AMBIENT_THEMES: Tuple[str, ...] = (
     "data_art_impulse_lens",
     "data_art_genetic_advection",
-    "data_art_fungal_growth",
     "data_art_point_atlas",
     "blobs",
-    "aurora",
     "drift",
-    "data_art_tissue_facets",
 )
+
+SPACEOUT_ONLY_THEMES = ("data_art_spaceout_field", "data_art_fungal_growth",
+                       "aurora", "data_art_tissue_facets")
+
+DEFAULT_SPACEOUT_THEME = "data_art_spaceout_field"
+DEFAULT_SPACEOUT_PALETTE = "spacr"
+_FIELD_THEMES = frozenset(("data_art_impulse_lens", DEFAULT_SPACEOUT_THEME))
 
 #: The animation the ``spaceout`` entry point paints, and the palette it
 #: paints it in.
 #:
-#: **Deliberately absent from :data:`AMBIENT_THEMES`**, which is the whole
-#: mechanism by which this cannot be chosen: that tuple is what the
-#: Preferences dropdown is built from, what :func:`is_valid_theme` accepts,
-#: and what ``preferences.get_ambient_theme`` validates a stored value
-#: against — so the name appears in no menu, cannot be persisted, and cannot
-#: come back out of a settings file. It is paintable
-#: (:data:`_PAINTABLE_THEMES`) and reachable only through
-#: :func:`spacr.qt.theme.enable_spaceout`, which only the entry point calls.
 SPACEOUT_THEME = "fractal"
 SPACEOUT_PALETTE = "rainbow"
 
@@ -299,6 +293,7 @@ _THEME_LABELS = {
     "aurora": "spaCR aurora",
     "drift": "spaCR stratified",
     "data_art_impulse_lens": "spaCR field",
+    "data_art_spaceout_field": "spaCR field phenomena",
     "data_art_genetic_advection": "spaCR advection",
     "data_art_fungal_growth": "spaCR growth",
     "data_art_point_atlas": "spaCR waves",
@@ -311,6 +306,7 @@ _THEME_NOTES = {
     "aurora": 'Fine curtains of northern light ripple through softly layered folds.',
     "drift": 'A slow starfield in three layers of depth.',
     "data_art_impulse_lens": 'A crisp gravitational dot field with optional local mouse influence and expanding ripples.',
+    "data_art_spaceout_field": 'A crisp interactive field develops random gravitational landscapes, elastic releases, whirlwinds, density waves and flowing colour, with calm intervals and smooth transitions.',
     "data_art_genetic_advection": 'Fine particles form evolving vortices and branching currents, with optional mouse gravity.',
     "data_art_fungal_growth": 'Connected mycelial filaments grow from common origins, with wandering tips and recursively branching fronts. Older trails fade as new colonies begin.',
     "data_art_point_atlas": 'An edge-free landscape of round points carries wide travelling waves.',
@@ -430,14 +426,15 @@ _THEME_PALETTES: Dict[str, Tuple[str, ...]] = {
               "lowsun", "deepwater"),
     SPACEOUT_THEME: (SPACEOUT_PALETTE,),
 }
-for _data_art_key in (key for key in AMBIENT_THEMES if key.startswith("data_art_")):
+for _data_art_key in (key for key in AMBIENT_THEMES + SPACEOUT_ONLY_THEMES
+                      if key.startswith("data_art_")):
     _THEME_PALETTES[_data_art_key] = tuple(
         palette for palette in PALETTE_SETS
         if palette != SPACEOUT_PALETTE)
 for _classic_key in ("blobs", "aurora", "drift"):
     _THEME_PALETTES[_classic_key] += ("random",)
 
-_PAINTABLE_THEMES: Tuple[str, ...] = AMBIENT_THEMES + (SPACEOUT_THEME,)
+_PAINTABLE_THEMES: Tuple[str, ...] = AMBIENT_THEMES + SPACEOUT_ONLY_THEMES + (SPACEOUT_THEME,)
 
 
 def is_valid_theme(name) -> bool:
@@ -633,15 +630,18 @@ def coerce_palette(theme: str, palette: str) -> str:
 def dressed(theme: str, palette: str) -> Tuple[str, str]:
     """Resolve the ambient theme and palette for the current launch mode.
 
-    Standard launches preserve the requested pair. Spaceout launches return
-    :data:`SPACEOUT_THEME` and :data:`SPACEOUT_PALETTE`.
+    Standard launches preserve the requested pair. A Spaceout launch uses
+    its own stored selection, or defaults to the evolving field before one is saved.
 
-    :param theme: the requested theme name; returned as given unless the
-        spaceout dressing is on. It is not validated here.
+    :param theme: the requested theme name, not validated here.
     :param palette: the requested palette name, treated the same way.
     """
     if spaceout_enabled():
-        return SPACEOUT_THEME, SPACEOUT_PALETTE
+        from ..preferences import _settings, _KEY_SPACEOUT_ANIMATION
+
+        if _settings().contains(_KEY_SPACEOUT_ANIMATION):
+            return theme, coerce_palette(theme, palette)
+        return DEFAULT_SPACEOUT_THEME, DEFAULT_SPACEOUT_PALETTE
     return theme, palette
 
 
@@ -1107,7 +1107,6 @@ class AmbientEngine:
         if value != self.popup_wave_frequency:
             self.popup_wave_frequency = value
             if hasattr(self, "_popup_waves"):
-                self._popup_waves.clear()
                 self._popup_wave_elapsed = 0.0
 
     def _restyle(self) -> None:
@@ -4989,6 +4988,7 @@ class _DataArtEngine(_BufferedEngine):
         self.interactive = family in self._interactive
         self.pointer: Optional[Tuple[float, float]] = None
         self.gravity_radius = 0.0
+        self.ripples_enabled = True
         super().__init__(*args, **kwargs)
 
     def _configure(self, rng: random.Random) -> None:
@@ -4998,6 +4998,7 @@ class _DataArtEngine(_BufferedEngine):
                               for _ in range(192))
         self._material_cache: Dict[tuple, object] = {}
         self._gravity_impulses = []
+        self._gravity_ripple_impulses = {}
         self._popup_waves = []
         self._popup_wave_origin = None
         self._popup_wave_window = None
@@ -5151,7 +5152,13 @@ class _DataArtEngine(_BufferedEngine):
             return
         recent = [event for event in self._gravity_impulses
                   if 0.0 <= self.time - event[0] < 5.0]
-        self._gravity_impulses = (recent + [(self.time, point, strength)])[-24:]
+        impulse = (self.time, point, strength)
+        self._gravity_impulses = (recent + [impulse])[-24:]
+        self._gravity_ripple_impulses = {
+            id(event): event for event in self._gravity_impulses
+            if id(event) in self._gravity_ripple_impulses}
+        if self.ripples_enabled:
+            self._gravity_ripple_impulses[id(impulse)] = impulse
 
     def _set_popup_wave_origin(self, point, *, popup_id=None) -> None:
         """Accept a GUI-resolved popup centre without reading Qt on the worker."""
@@ -5162,11 +5169,14 @@ class _DataArtEngine(_BufferedEngine):
         opened = point is not None and (
             self._popup_wave_origin is None or
             (popup_id is not None and popup_id != self._popup_wave_window))
+        previous = self._popup_wave_origin
         if point is None:
             self._popup_wave_elapsed = 0.0
-        elif opened and self.popup_wave_frequency > 0.0:
+            if previous is not None:
+                self._add_ripple(previous)
+        elif opened:
             self._popup_wave_elapsed = 0.0
-            self._popup_waves = (self._popup_waves + [(self.time, point)])[-6:]
+            self._add_ripple(point)
         self._popup_wave_origin = point
         self._popup_wave_window = popup_id if point is not None else None
 
@@ -5175,7 +5185,7 @@ class _DataArtEngine(_BufferedEngine):
         super().advance(dt)
         self._popup_waves = [wave for wave in self._popup_waves
                              if 0.0 <= self.time - wave[0] < 5.0]
-        if (dt <= 0.0 or self.family != "impulse_lens"
+        if (dt <= 0.0 or not self.ripples_enabled or self.family != "impulse_lens"
                 or self.popup_wave_frequency <= 0.0
                 or self._popup_wave_origin is None):
             return
@@ -5186,6 +5196,27 @@ class _DataArtEngine(_BufferedEngine):
             self._popup_waves = (self._popup_waves + [
                 (self.time, self._popup_wave_origin)])[-6:]
 
+    def _add_ripple(self, point) -> None:
+        """Emit a bounded field wave independently of pointer gravity."""
+        if not self.ripples_enabled or self.family != "impulse_lens" or point is None:
+            return
+        x, y = point
+        if not all(math.isfinite(value) for value in (x, y)):
+            return
+        point = (max(0.0, min(1.0, float(x))), max(0.0, min(1.0, float(y))))
+        self._popup_waves = (self._popup_waves + [(self.time, point)])[-6:]
+
+    def set_ripples_enabled(self, enabled: bool) -> None:
+        """Enable field waves without changing gravity or the held field patch."""
+        self.ripples_enabled = bool(enabled)
+        if not self.ripples_enabled:
+            self._popup_waves.clear()
+            self._gravity_ripple_impulses.clear()
+            self._popup_wave_elapsed = 0.0
+            for key, material in self._material_cache.items():
+                if key[0] == "impulse_lens":
+                    material[3].clear()
+
     def set_gravity_radius(self, radius: float) -> None:
         """Set finite mouse reach in fractions of the shorter screen edge."""
         radius = float(radius)
@@ -5194,6 +5225,7 @@ class _DataArtEngine(_BufferedEngine):
             return
         self.gravity_radius = radius
         self._gravity_impulses.clear()
+        self._gravity_ripple_impulses.clear()
         self._pointer_impulse_time = -math.inf
         self._pointer_impulse_origin = None
         for key, material in tuple(self._material_cache.items()):
@@ -5872,7 +5904,8 @@ class _DataArtEngine(_BufferedEngine):
         for origin in tuple(impulse_fields):
             if origin not in active_origins:
                 del impulse_fields[origin]
-        for started, origin, strength in self._gravity_impulses:
+        for impulse in self._gravity_impulses:
+            started, origin, strength = impulse
             age = self.time - started
             if age < 0.0 or age >= 5.0:
                 continue
@@ -5894,17 +5927,21 @@ class _DataArtEngine(_BufferedEngine):
                      * burst_envelope / burst_softening)
             front = distance - age * 0.26
             packet = np.exp(-(front / 0.075) ** 2) * reach
-            ripple = 0.045 * decay * packet * np.sin(front * 58.0)
+            has_ripple = (self.ripples_enabled
+                          and id(impulse) in self._gravity_ripple_impulses)
+            ripple = (0.045 * decay * packet * np.sin(front * 58.0)
+                      if has_ripple else 0.0)
             displacement = burst + ripple / np.maximum(distance, 0.055)
             px[selected] += ex * displacement
             py[selected] += ey * displacement
-            energy[selected] += decay * packet * 0.40
+            if has_ripple:
+                energy[selected] += decay * packet * 0.40
         active_popups = {origin for started, origin in self._popup_waves
                          if 0.0 <= self.time - started < 5.0}
         for origin in tuple(popup_fields):
             if origin not in active_popups:
                 del popup_fields[origin]
-        for started, origin in self._popup_waves:
+        for started, origin in self._popup_waves if self.ripples_enabled else ():
             age = self.time - started
             if not 0.0 <= age < 5.0:
                 continue
@@ -5970,6 +6007,275 @@ class _DataArtEngine(_BufferedEngine):
             nx, ny = px + dx, py + dy
             inside = (nx >= 0) & (nx < width) & (ny >= 0) & (ny < height)
             np.maximum.at(flat, ny[inside] * width + nx[inside], np.uint32(ink))
+
+
+class _SpaceoutFieldEngine(_DataArtEngine):
+    """Seeded field phenomena share the ordinary field's input and grain renderer.
+
+    Two independent seeded lanes choose durations, gaps and occasional idle
+    windows. Their unsynchronized calm boundaries permit direct clock seeks
+    without replaying a simulation or
+    retaining its history. Compact smooth potentials deform existing grains;
+    no phenomenon changes native resolution or removes population samples.
+    """
+
+    _lane_periods = (73.0, 109.0)
+    _effect_keys = ("attractors", "relaxation", "elastic_release", "vortex",
+                    "density_pulses", "density_waves", "color_waves", "spirals")
+    _event_keys = ("attractors", "vortex", "density_pulses", "density_waves",
+                   "color_waves", "spirals")
+
+    def __init__(self, *args, **kwargs):
+        """Start a separate field with all independently selectable effects on."""
+        self.field_effects = dict.fromkeys(self._effect_keys, True)
+        self._phenomena_schedule = None
+        self._phenomena_kernel_failed = False
+        super().__init__(*args, family="impulse_lens", **kwargs)
+        self.name = "data_art_spaceout_field"
+
+    def set_field_effects(self, mapping) -> None:
+        """Copy recognized effect switches without reading frontend preferences."""
+        self.field_effects.update({key: bool(mapping[key]) for key in self._effect_keys
+                                  if key in mapping})
+
+    def _field_events(self):
+        """Return up to two jittered lane events without retaining clock history."""
+        epochs = tuple(math.floor(self.time / period) for period in self._lane_periods)
+        cached = self._phenomena_schedule
+        if cached is None or cached[0] != epochs:
+            events = []
+            for lane, (epoch, period) in enumerate(zip(epochs, self._lane_periods)):
+                rng = random.Random((self._art_seed << 32) ^ (epoch * 3 + lane))
+                if rng.random() < .18:
+                    continue
+                kind = rng.choice(self._event_keys)
+                started = epoch * period + rng.uniform(.06, .32) * period
+                duration = rng.uniform(.30, .50) * period
+                regions = tuple((rng.uniform(.12, .88), rng.uniform(.12, .88),
+                                 rng.uniform(.16, .33),
+                                 (-1.0 if i % 2 else 1.0) * rng.uniform(.65, 1.0),
+                                 rng.uniform(0.0, math.tau))
+                                for i in range(rng.randint(2, 5)))
+                events.append((kind, started, duration, regions, rng.uniform(0, math.tau)))
+            cached = epochs, tuple(events)
+            self._phenomena_schedule = cached
+        return tuple(event for event in cached[1] if self.field_effects[event[0]]
+                     and 0.0 < self.time - event[1] < event[2])
+
+    def _event_strength(self, event):
+        """Ease in continuously, then relax or release with bounded oscillation."""
+        age = (self.time - event[1]) / event[2]
+        if not 0.0 < age < 1.0:
+            return 0.0
+        if age < .3:
+            return math.sin(age / .3 * math.pi / 2) ** 2
+        tail = (age - .3) / .7
+        strength = (1.0 - tail * tail * (3.0 - 2.0 * tail)
+                    if self.field_effects["relaxation"] else math.cos(tail * math.pi / 2) ** 2)
+        elastic = self.field_effects["elastic_release"] and (
+            not self.field_effects["relaxation"] or math.cos(event[4]) < 0.0)
+        if elastic:
+            strength *= math.cos(tail * math.tau * 1.25) * math.exp(-tail * tail * .65)
+        return strength
+
+    def _bend_pointer(self, x, y, width, height):
+        """Superpose finite potential, vortex and spacing waves before hover gravity."""
+        events = self._field_events()
+        if not events:
+            return super()._bend_pointer(x, y, width, height)
+        np = _numpy()
+        shorter = max(1, min(width, height))
+        ax, ay = width / shorter, height / shorter
+        ux, uy = x * ax, y * ay
+        sx, sy = np.zeros_like(x), np.zeros_like(y)
+        for event in events:
+            kind, started, duration, regions, phase = event
+            strength = self._event_strength(event)
+            elapsed = self.time - started
+            if kind == "density_pulses":
+                pulse = .025 * strength * math.sin(elapsed * .45 + phase)
+                sx += pulse * np.sin(x * math.tau)
+                sy += pulse * np.sin(y * math.tau)
+            elif kind == "density_waves":
+                angle = phase + .12 * math.sin(elapsed * .13)
+                dx, dy = math.cos(angle), math.sin(angle)
+                travel = ux * dx + uy * dy - elapsed * .025
+                wave = .022 * strength * np.sin(travel * 13.0 + phase)
+                sx += dx * wave
+                sy += dy * wave
+            if kind in ("attractors", "vortex", "density_waves"):
+                for cx, cy, radius, polarity, local_phase in regions:
+                    cx += .022 * math.sin(elapsed * .12 + local_phase)
+                    cy += .022 * math.cos(elapsed * .09 + local_phase)
+                    dx, dy = ux - cx * ax, uy - cy * ay
+                    squared = dx * dx + dy * dy
+                    reach = np.maximum(0.0, 1.0 - squared / radius ** 2) ** 3
+                    if kind == "vortex":
+                        twist = strength * polarity * .42 * reach
+                        cosine, sine = np.cos(twist), np.sin(twist)
+                        sx += dx * (cosine - 1.0) - dy * sine
+                        sy += dx * sine + dy * (cosine - 1.0)
+                    else:
+                        amount = -.026 * polarity * strength * reach / np.sqrt(squared + .018)
+                        if kind == "density_waves":
+                            amount *= math.sin(elapsed * (.38 + radius) + local_phase)
+                        sx += dx * amount
+                        sy += dy * amount
+        boundary = (np.sin(np.clip(x, 0, 1) * math.pi) ** 2
+                    * np.sin(np.clip(y, 0, 1) * math.pi) ** 2)
+        return super()._bend_pointer(x + sx * boundary / ax,
+                                    y + sy * boundary / ay, width, height)
+
+    def _step_field_grab(self) -> None:
+        """Keep held physics; optionally give release an exact damped elastic return."""
+        if (not self.field_effects["elastic_release"] or self._field_grab_held
+                or self._field_grab_center is None):
+            return super()._step_field_grab()
+        elapsed = self.time - self._field_grab_time
+        self._field_grab_time = self.time
+        if elapsed <= 0.0:
+            return
+        elapsed = min(120.0, elapsed) if math.isfinite(elapsed) else 120.0
+        damping, frequency = 2.2, math.sqrt(36.0 - 2.2 ** 2)
+        decay = math.exp(-damping * elapsed)
+        cosine, sine = math.cos(frequency * elapsed), math.sin(frequency * elapsed)
+        values, velocities = [], []
+        for value, velocity in zip(self._field_grab_offset, self._field_grab_velocity):
+            tangent = (velocity + damping * value) / frequency
+            values.append(decay * (value * cosine + tangent * sine))
+            velocities.append(decay * (velocity * cosine
+                                      - (damping * tangent + frequency * value) * sine))
+        length = math.hypot(*values)
+        scale = min(1.0, .18 / length) if length else 1.0
+        self._field_grab_offset = tuple(value * scale for value in values)
+        self._field_grab_velocity = tuple(value * scale for value in velocities)
+        self._field_grab_center = tuple(target + (value - target) * math.exp(-6 * elapsed)
+                                       for value, target in zip(self._field_grab_center,
+                                                                self._field_grab_origin))
+        if length < 1e-6 and math.hypot(*velocities) < 1e-6:
+            self._set_field_grab(None, reset=True)
+
+    def _point_material(self, width, height, x, y, light, spread=False):
+        """Travel supplied palette hues over crisp grains with ranked overlap."""
+        active = self._field_events()
+        np = _numpy()
+        shorter = max(1, min(width, height))
+        density_events = tuple(event for event in active
+                               if event[0] in ("density_pulses", "density_waves"))
+        if density_events:
+            count = np.asarray(x).size
+            reservoir = self._material_cache.get("spaceout_population")
+            if reservoir is None or reservoir[0] != count:
+                identities = np.arange(count, dtype=np.uint32)
+                mixed = identities * np.uint32(0x9e3779b1) + np.uint32(self._art_seed)
+                mixed ^= mixed >> 16
+                reservoir = count, mixed.astype(np.float32) / float(2 ** 32)
+                self._material_cache["spaceout_population"] = reservoir
+            gate = np.ones_like(x)
+            for event in density_events:
+                kind, started, duration, regions, phase = event
+                elapsed = self.time - started
+                travel = elapsed * .45 + phase
+                if kind == "density_waves":
+                    travel = ((x * math.cos(phase) + y * math.sin(phase))
+                              / shorter * 9.0 - elapsed * .24 + phase)
+                    for cx, cy, radius, polarity, local_phase in regions:
+                        distance = ((x - cx * width) ** 2 + (y - cy * height) ** 2) / shorter ** 2
+                        reach = np.maximum(0.0, 1.0 - distance / radius ** 2) ** 2
+                        travel += reach * np.sin(elapsed * (.3 + radius) + local_phase)
+                fraction = 1.0 - abs(self._event_strength(event)) * (.28 - .25 * np.sin(travel))
+                fade = np.clip((fraction + .12 - reservoir[1].reshape(np.shape(x))) / .12, 0, 1)
+                gate *= fade * fade * (3 - 2 * fade)
+            light = np.asarray(light) * gate
+        events = tuple(event for event in active if event[0] in ("color_waves", "spirals"))
+        amount = min(1.0, max((abs(self._event_strength(event)) for event in events), default=0.0))
+        blend = int(round(amount * 255))
+        if not events or blend == 0:
+            return super()._point_material(width, height, x, y, light, spread)
+        hue = np.zeros_like(x)
+        for event in events:
+            kind, started, duration, regions, phase = event
+            elapsed = self.time - started
+            strength = self._event_strength(event)
+            if kind == "color_waves":
+                travel = (x * math.cos(phase) + y * math.sin(phase)) / shorter
+                hue += strength * .45 * np.sin(travel * 7.0 - elapsed * .22 + phase)
+            else:
+                cx, cy, radius, polarity, local_phase = regions[0]
+                dx, dy = (x - cx * width) / shorter, (y - cy * height) / shorter
+                distance = np.sqrt(dx * dx + dy * dy)
+                reach = np.maximum(0.0, 1.0 - distance / (radius * 3.0)) ** 2
+                hue += strength * .45 * reach * np.sin(
+                    np.arctan2(dy, dx) * 2.0 + distance * 17.0 - elapsed * .27 + local_phase)
+        tables = self._material_cache.get("spaceout_hues")
+        if tables is None:
+            colors = np.asarray([[c.red(), c.green(), c.blue()] for c in self.paint_colors], np.float32)
+            phase = np.arange(128, dtype=np.float32) * len(colors) / 128
+            first = phase.astype(np.int32)
+            fraction = (phase - first)[:, None]
+            colors = colors[first % len(colors)] * (1 - fraction) + colors[(first + 1) % len(colors)] * fraction
+            levels = np.arange(256, dtype=np.float32) / 255
+            channels = colors[:, None, :] * levels[None, :, None] if self.dark else (
+                255 - (255 - colors[:, None, :]) * levels[None, :, None])
+            channels = channels.astype(np.uint32)
+            table = channels[:, :, 0] << 16 | channels[:, :, 1] << 8 | channels[:, :, 2]
+            ranks = np.arange(256, dtype=np.uint32)
+            table |= (ranks if self.dark else 255 - ranks)[None, :] << 24
+            table = table.ravel()
+            slots = np.arange(128, dtype=np.uint16)[:, None] * 256
+            tables = (table, table[(slots + np.rint(ranks * .68).astype(np.uint16)).ravel()],
+                      table[(slots + np.rint(ranks * .24).astype(np.uint16)).ravel()])
+            self._material_cache["spaceout_hues"] = tables
+        px, py = np.asarray(x, np.int32), np.asarray(y, np.int32)
+        values = np.clip(np.asarray(light, np.float32) * self.alpha_scale(), 0, 1)
+        baseline = np.full(px.shape, .11, dtype=np.float32)
+        if self._random_palette:
+            identity = np.arange(px.size, dtype=np.uint32).reshape(px.shape)
+            mixed = identity * np.uint32(0x9e3779b1) + np.uint32(self._art_seed)
+            mixed ^= mixed >> 16
+            baseline = (mixed % 128).astype(np.float32) / 128
+        hues = (np.mod(baseline + hue, 1.0) * 128).astype(np.uint16) % 128
+        inside = (px >= 0) & (px < width) & (py >= 0) & (py < height)
+        indices = hues[inside] * np.uint16(256) + np.rint(values[inside] * 255).astype(np.uint16)
+        px, py = px[inside], py[inside]
+        image = QImage(width, height, QImage.Format_RGB32)
+        output = np.frombuffer(image.bits(), np.uint32, count=width * height)
+        table, axial, diagonal = tables
+        output.fill(table[0])
+        kernel = None if self._phenomena_kernel_failed else _ready_colored_scatter()
+        if kernel is not None:
+            try:
+                kernel(output, np.empty(0, np.uint8), px, py, indices, table, axial, diagonal,
+                       width, height, self.dark, spread)
+            except Exception:
+                self._phenomena_kernel_failed = True
+                kernel = None
+        if kernel is None:
+            output.fill(table[0])
+            combine = np.maximum.at if self.dark else np.minimum.at
+            combine(output, py * width + px, table[indices])
+            if spread:
+                for dy, dx in ((-1, -1), (-1, 0), (-1, 1), (0, -1),
+                               (0, 1), (1, -1), (1, 0), (1, 1)):
+                    nx, ny = px + dx, py + dy
+                    valid = (nx >= 0) & (nx < width) & (ny >= 0) & (ny < height)
+                    selected = diagonal if dx and dy else axial
+                    combine(output, ny[valid] * width + nx[valid], selected[indices[valid]])
+        np.bitwise_or(output, np.uint32(0xff000000), out=output)
+        self._flicker_field_dots(image, px, py)
+        if blend < 255:
+            ordinary = super()._point_material(width, height, x, y, light, spread)
+            base = np.frombuffer(ordinary.constBits(), np.uint32, count=width * height)
+            for start in range(0, output.size, 65536):
+                stop = min(output.size, start + 65536)
+                previous, colored = base[start:stop], output[start:stop].copy()
+                mixed = np.full(stop - start, np.uint32(0xff000000), dtype=np.uint32)
+                for shift in (16, 8, 0):
+                    channel = ((((previous >> shift) & 255) * (255 - blend)
+                                + ((colored >> shift) & 255) * blend + 127) // 255)
+                    mixed |= channel << shift
+                output[start:stop] = mixed
+        return image
 
 
 class _FungalGrowthEngine(_BufferedEngine):
@@ -6559,6 +6865,7 @@ _ENGINES = {
     "data_art_tissue_facets": partial(_DataArtEngine, family="tissue_facets"),
     "data_art_genetic_advection": partial(_DataArtEngine, family="genetic_advection"),
     "data_art_impulse_lens": partial(_DataArtEngine, family="impulse_lens"),
+    "data_art_spaceout_field": _SpaceoutFieldEngine,
     "data_art_fungal_growth": _FungalGrowthEngine,
     SPACEOUT_THEME: FractalEngine,
 }
@@ -6707,6 +7014,16 @@ class _QueuedArtInput:
         self._grab_snapshot = (0, None)
         self._applied_grab_serial = 0
         self._popup_snapshot = (0, None, None)
+        self._boundary_serial = 0
+        self._boundary_waves = ()
+        self._applied_boundary_serial = 0
+
+    def _offer_boundary_waves(self, points) -> None:
+        """Publish bounded immutable boundary events without a shading lock."""
+        for point in points:
+            self._boundary_serial += 1
+            self._boundary_waves = (self._boundary_waves + (
+                (self._boundary_serial, point),))[-16:]
 
     def _offer(self, step, pointer, clicks, *, grab=None, popup_origin=None,
                popup_id=None) -> None:
@@ -6728,6 +7045,13 @@ class _QueuedArtInput:
         """
         serial, elapsed, pointer, clicks = self._snapshot
         if isinstance(engine, _DataArtEngine) and engine.family == "impulse_lens":
+            if discard_clicks:
+                self._applied_boundary_serial = self._boundary_serial
+            else:
+                for wave_serial, point in self._boundary_waves:
+                    if wave_serial > self._applied_boundary_serial:
+                        engine._add_ripple(point)
+                        self._applied_boundary_serial = wave_serial
             popup_serial, popup_origin, popup_id = self._popup_snapshot
             if discard_clicks and not preserve_grab:
                 engine._set_popup_wave_origin(None)
@@ -6749,8 +7073,9 @@ class _QueuedArtInput:
             engine.advance(delta)
         for click_serial, point in clicks:
             if (click_serial > self._applied_click_serial and not discard_clicks
-                    and engine.name == "data_art_impulse_lens"):
+                    and engine.name in _FIELD_THEMES):
                 engine._add_impulse(point, strength=1.0)
+                engine._add_ripple(point)
         if clicks:
             self._applied_click_serial = clicks[-1][0]
         self._applied_elapsed = elapsed
@@ -6949,6 +7274,7 @@ class AmbientWidget(QWidget):
         theme's own count; ``None`` reads Preferences.
     :param gravity_radius: pointer influence radius, as a fraction of the
         shorter screen edge; zero disables it. ``None`` reads Preferences.
+    :param ripples_enabled: independent field-wave switch; ``None`` reads Preferences.
     :param direction: which way the starfield travels, one of
         :data:`DRIFT_DIRECTIONS`; ``None`` reads Preferences. Meaningless to
         the other themes, and kept anyway so switching away and back does
@@ -6973,6 +7299,7 @@ class AmbientWidget(QWidget):
                  resolution: Optional[float] = None,
                  density: Optional[float] = None,
                  gravity_radius: Optional[float] = None,
+                 ripples_enabled: Optional[bool] = None,
                  blink_percent: Optional[float] = None,
                  popup_wave_frequency: Optional[float] = None,
                  direction: Optional[str] = None,
@@ -7013,10 +7340,13 @@ class AmbientWidget(QWidget):
         self._pending_art_impulses: List[Tuple[float, float]] = []
         self._interaction_app = None
         self._field_grab = None
+        self._separate_theme = bool(
+            parent is not None and parent.property("spacrIndependentBackdrop"))
         box = self._producer_box
         self.destroyed.connect(lambda *_: _retire_producer(box))
 
-        theme, palette = dressed(theme, palette)
+        if not self._separate_theme:
+            theme, palette = dressed(theme, palette)
         self._theme = _require_theme(theme)
         self._palette = coerce_palette(self._theme, palette)
         self._seed = seed
@@ -7035,6 +7365,14 @@ class AmbientWidget(QWidget):
                        if gravity_radius is None else gravity_radius)
         self._gravity_radius = _clamp(
             radius if math.isfinite(radius) else 0.0, 0.0, 1.0)
+        if ripples_enabled is None:
+            from ..preferences import _field_ripples_enabled
+
+            ripples_enabled = _field_ripples_enabled()
+        self._ripples_enabled = bool(ripples_enabled)
+        from ..preferences import _spaceout_field_effects
+
+        self._field_effects = _spaceout_field_effects()
         if blink_percent is None:
             from ..preferences import _ambient_blink_percent
 
@@ -7075,6 +7413,12 @@ class AmbientWidget(QWidget):
         radius_setter = getattr(self._engine, "set_gravity_radius", None)
         if radius_setter is not None:
             radius_setter(self._gravity_radius)
+        ripple_setter = getattr(self._engine, "set_ripples_enabled", None)
+        if ripple_setter is not None:
+            ripple_setter(self._ripples_enabled)
+        effects_setter = getattr(self._engine, "set_field_effects", None)
+        if effects_setter is not None:
+            effects_setter(self._field_effects)
 
         if self._theme.startswith("data_art_"):
             self._art_input = _QueuedArtInput()
@@ -7142,7 +7486,8 @@ class AmbientWidget(QWidget):
 
         :param name: a paintable theme name.
         """
-        name, palette = dressed(name, self._palette)
+        name, palette = ((name, self._palette) if self._separate_theme
+                         else dressed(name, self._palette))
         name = _require_theme(name)
         if name == self._theme and palette == self._palette:
             return
@@ -7161,7 +7506,8 @@ class AmbientWidget(QWidget):
 
         :param name: a palette the current theme offers.
         """
-        name = dressed(self._theme, name)[1]
+        if not self._separate_theme:
+            name = dressed(self._theme, name)[1]
         name = _require_palette(self._theme, name)
         if name == self._palette and name != "custom":
             return
@@ -7246,6 +7592,12 @@ class AmbientWidget(QWidget):
         radius_setter = getattr(engine, "set_gravity_radius", None)
         if radius_setter is not None:
             radius_setter(self._gravity_radius)
+        ripple_setter = getattr(engine, "set_ripples_enabled", None)
+        if ripple_setter is not None:
+            ripple_setter(self._ripples_enabled)
+        effects_setter = getattr(engine, "set_field_effects", None)
+        if effects_setter is not None:
+            effects_setter(self._field_effects)
         with self._engine_lock:
             engine.set_max_pixels(self._engine.max_pixels)
             engine.set_time(self._engine.time)
@@ -7315,7 +7667,8 @@ class AmbientWidget(QWidget):
         """Change popup waves without changing pointer reach or dot population.
 
         :param value: popup waves per minute, clamped to zero through sixty;
-            zero disables popup waves.
+            zero disables recurring waves. The separate ripple switch controls
+            discrete click, container and window feedback.
         """
         value = float(value)
         value = _clamp(value if math.isfinite(value) else 0.0, 0.0, 60.0)
@@ -7336,6 +7689,48 @@ class AmbientWidget(QWidget):
             self._blink_percent = value
             self._mutate_engine(lambda: self._engine.set_blink_percent(value))
 
+    def set_ripples_enabled(self, enabled: bool) -> None:
+        """Switch all field ripples independently of mouse gravity and dragging.
+
+        :param enabled: whether recurring and discrete field waves are enabled.
+        :returns: None.
+        """
+        enabled = bool(enabled)
+        if enabled == self._ripples_enabled:
+            return
+        self._ripples_enabled = enabled
+        with self._engine_lock:
+            if self._art_input is not None:
+                self._art_input._offer(
+                    0.0, self._art_input._snapshot[2],
+                    tuple(self._pending_art_impulses), grab=self._field_grab,
+                    popup_origin=self._art_input._popup_snapshot[1],
+                    popup_id=self._art_input._popup_snapshot[2])
+                self._pending_art_impulses.clear()
+                self._art_input._consume(self._engine)
+            setter = getattr(self._engine, "set_ripples_enabled", None)
+            if setter is not None:
+                setter(enabled)
+            self._republish()
+        self.update()
+
+    def set_field_effects(self, effects: dict) -> None:
+        """Apply saved Spaceout field switches under the renderer's lock.
+
+        :param effects: saved field-effect switches keyed by effect name.
+        :returns: None.
+        """
+        effects = dict(effects)
+        if effects == self._field_effects:
+            return
+        self._field_effects = effects
+        with self._engine_lock:
+            setter = getattr(self._engine, "set_field_effects", None)
+            if setter is not None:
+                setter(effects)
+                self._republish()
+        self.update()
+
     def set_gravity_radius(self, value: float) -> None:
         """Apply local pointer reach while excluding a concurrent shade pass.
 
@@ -7347,12 +7742,9 @@ class AmbientWidget(QWidget):
         if radius == self._gravity_radius:
             return
         self._gravity_radius = radius
-        if radius == 0.0:
-            self._pending_art_impulses.clear()
         with self._engine_lock:
             if self._art_input is not None:
-                self._art_input._consume(self._engine, discard_clicks=radius == 0.0,
-                                         preserve_grab=True)
+                self._art_input._consume(self._engine)
             radius_setter = getattr(self._engine, "set_gravity_radius", None)
             if radius_setter is not None:
                 radius_setter(radius)
@@ -7650,7 +8042,7 @@ class AmbientWidget(QWidget):
                                   size, queued_input=self._art_input or self._legacy_input)
         if size[0] > 0 and size[1] > 0:
             with self._engine_lock:
-                if engine.name == "data_art_impulse_lens" and self._field_grab is None:
+                if engine.name in _FIELD_THEMES and self._field_grab is None:
                     engine._set_field_grab(None, reset=True)
                 first = engine.shade(*size)
             if first is not None:
@@ -7710,7 +8102,7 @@ class AmbientWidget(QWidget):
     def _sync_interaction_filter(self) -> None:
         """Observe unconsumed field input while its visible animation runs."""
         app = QApplication.instance()
-        wanted = (self._theme == "data_art_impulse_lens"
+        wanted = (self._theme in _FIELD_THEMES
                   and self._should_run()
                   and self._timer.isActive())
         if wanted and self._interaction_app is None and app is not None:
@@ -7731,6 +8123,44 @@ class AmbientWidget(QWidget):
         self._art_input._offer(0.0, self._art_input._snapshot[2], (),
                                grab=self._field_grab,
                                popup_origin=self._art_input._popup_snapshot[1])
+        if self._engine_lock.acquire(blocking=False):
+            try:
+                self._art_input._consume(self._engine)
+            finally:
+                self._engine_lock.release()
+        self.update()
+
+    def _ripple_from_edge(self, edge, strength=1.0) -> None:
+        """Send field waves inward from a settled window edge."""
+        points = {
+            "left": ((0.0, 0.2), (0.0, 0.5), (0.0, 0.8)),
+            "right": ((1.0, 0.2), (1.0, 0.5), (1.0, 0.8)),
+            "top": ((0.2, 0.0), (0.5, 0.0), (0.8, 0.0)),
+            "bottom": ((0.2, 1.0), (0.5, 1.0), (0.8, 1.0)),
+        }.get(edge, ())
+        self._publish_boundary_ripples(points, strength)
+
+    def _ripple_from_rect(self, rect, strength=1.0) -> None:
+        """Send field waves from final panel boundaries in local coordinates."""
+        rect = QRectF(rect).intersected(QRectF(self.rect()))
+        if rect.isEmpty():
+            return
+        center = rect.center()
+        width, height = max(1, self.width()), max(1, self.height())
+        points = ((rect.left() / width, center.y() / height),
+                  (rect.right() / width, center.y() / height),
+                  (center.x() / width, rect.top() / height),
+                  (center.x() / width, rect.bottom() / height))
+        self._publish_boundary_ripples(points, strength)
+
+    def _publish_boundary_ripples(self, points, strength) -> None:
+        """Queue release feedback even with mouse gravity disabled."""
+        if (not self._ripples_enabled or self._theme not in _FIELD_THEMES
+                or not self._should_run()
+                or self._art_input is None or not math.isfinite(strength)
+                or strength <= 0.0):
+            return
+        self._art_input._offer_boundary_waves(points)
         if self._engine_lock.acquire(blocking=False):
             try:
                 self._art_input._consume(self._engine)
@@ -7824,7 +8254,8 @@ class AmbientWidget(QWidget):
             if self.rect().contains(local):
                 point = ((local.x() + 0.5) / max(1, self.width()),
                          (local.y() + 0.5) / max(1, self.height()))
-                if (self._gravity_radius > 0.0 and (not self._pending_art_impulses
+                if ((self._ripples_enabled or self._gravity_radius > 0.0)
+                        and (not self._pending_art_impulses
                         or self._pending_art_impulses[-1] != point)):
                     self._pending_art_impulses = (self._pending_art_impulses + [point])[-16:]
                 hit = self.window().childAt(
@@ -7900,8 +8331,8 @@ class AmbientWidget(QWidget):
         from PySide6.QtWidgets import QDialog
 
         self._popup_wave_popup_id = None
-        if (self._theme != "data_art_impulse_lens"
-                or self._popup_wave_frequency <= 0.0 or not self._should_run()):
+        if (self._theme not in _FIELD_THEMES
+                or not self._ripples_enabled or not self._should_run()):
             return None
         popup = QApplication.activePopupWidget() or QApplication.activeModalWidget()
         if popup is None:
@@ -8196,19 +8627,19 @@ def _the_backdrop_wants_a_retry(error: BaseException) -> bool:
     return isinstance(error, _HeavyImportInProgress)
 
 
-def _the_spaceout_fractal(host):
+def _the_spaceout_fractal(host, theme=SPACEOUT_THEME):
     """The spaceout backdrop, or None when this is an ordinary launch.
 
     Returns a widget already parented to ``host`` and lowered behind it, so
     the caller can hand it straight back as though `install_ambient` had
     built it. None means "not spaceout, or it could not be built" -- and the
-    caller then installs the ambient engine it always did, so a machine that
-    cannot draw the fractal still gets an animation.
+    caller then installs the selected ambient engine instead. If fractal
+    construction fails, that engine remains the fallback.
     """
     try:
         from ..theme import spaceout_enabled
 
-        if not spaceout_enabled():
+        if not spaceout_enabled() or theme != SPACEOUT_THEME:
             return None
     except Exception:                                        # noqa: BLE001
         return None
@@ -8457,6 +8888,97 @@ class _FractalTracksItsHost(QObject):
         return False
 
 
+def field_ripple_for_widget(widget, edge=None, rect=None, strength=1.0) -> None:
+    """Publish settled window or panel feedback to its visible field backdrop.
+
+    :param widget: the resized, moved or collapsed widget.
+    :param edge: an optional snapped window side.
+    :param rect: optional final rectangle in widget-local coordinates.
+    :param strength: positive enables release feedback; zero disables it.
+    :returns: None.
+    """
+    try:
+        window = widget.window()
+        backdrops = window.findChildren(AmbientWidget)
+        for backdrop in backdrops:
+            if backdrop.theme() not in _FIELD_THEMES or not backdrop._should_run():
+                continue
+            if edge is not None:
+                backdrop._ripple_from_edge(edge, strength)
+            else:
+                local = QRect(widget.rect() if rect is None else rect)
+                origin = backdrop.mapFromGlobal(widget.mapToGlobal(local.topLeft()))
+                backdrop._ripple_from_rect(QRect(origin, local.size()), strength)
+    except RuntimeError:
+        return
+
+
+def _apply_spaceout_animation_choice(app) -> None:
+    """Replace native fractals when the spaceout animation selection changes."""
+    if not spaceout_enabled():
+        return
+    from ..preferences import get_ambient_theme, get_ambient_palette, get_ambient_enabled
+
+    enabled = get_ambient_enabled()
+    selected = get_ambient_theme()
+    for old in list(app.allWidgets()):
+        try:
+            fractal = getattr(old, "_spaceout_built_from", None) is not None
+            ambient = isinstance(old, AmbientWidget)
+            if (not (fractal or ambient) or old.property("spacrPopupBackdrop")
+                    or old.property("spacrSetupBackdrop")
+                    or old.parentWidget() is None):
+                continue
+            if not enabled:
+                if fractal and not old.property("spacrPreferenceDisabled"):
+                    old.setProperty("spacrPreferenceWasHidden", old.isHidden())
+                    old.setProperty("spacrPreferenceWasPaused", old.is_paused())
+                    old.setProperty("spacrPreferenceDisabled", True)
+                    old.pause()
+                    old.hide()
+                continue
+            if fractal and selected == SPACEOUT_THEME:
+                if old.property("spacrPreferenceDisabled"):
+                    if not old.property("spacrPreferenceWasHidden"):
+                        old.show()
+                    if not old.property("spacrPreferenceWasPaused"):
+                        old.resume()
+                    old.setProperty("spacrPreferenceDisabled", False)
+                continue
+            if ambient and selected != SPACEOUT_THEME:
+                continue
+            host = old.parentWidget()
+            hidden = old.isHidden()
+            paused = (old.is_paused() if fractal else not old.is_animating())
+            if fractal and old.property("spacrPreferenceDisabled"):
+                hidden = bool(old.property("spacrPreferenceWasHidden"))
+                paused = bool(old.property("spacrPreferenceWasPaused"))
+            new = install_ambient(
+                host, theme=selected, palette=get_ambient_palette())
+            if ambient:
+                old.stop()
+                old.hide()
+                old.setParent(None)
+                old.deleteLater()
+            else:
+                _retire_one_fractal(old, host)
+            _point_holders_at(old, new, host)
+            if hidden:
+                new.hide()
+            if paused:
+                if isinstance(new, AmbientWidget):
+                    new.set_animating(False)
+                else:
+                    new.pause()
+        except RuntimeError:
+            continue
+        except Exception as error:
+            if _the_backdrop_wants_a_retry(error):
+                QTimer.singleShot(400, lambda: _apply_spaceout_animation_choice(app))
+            else:
+                LOG.debug("could not switch the spaceout animation", exc_info=True)
+
+
 def install_ambient(host: QWidget, layout=None, *,
                     theme: str = DEFAULT_THEME,
                     palette: str = DEFAULT_PALETTE,
@@ -8496,7 +9018,7 @@ def install_ambient(host: QWidget, layout=None, *,
         should not pass them.
     :returns: the widget, already shown and lowered.
     """
-    replacement = _the_spaceout_fractal(host)
+    replacement = _the_spaceout_fractal(host, theme)
     if replacement is not None:
         return replacement
 

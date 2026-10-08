@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 18:34-0400\n"
+"POT-Creation-Date: 2026-10-08 15:08-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -25,11 +25,9 @@ msgstr "Python API 빠른 시작"
 msgid "Use the Python API when a workflow needs to run from a notebook, a reusable script, a server or a scheduler. The desktop application and the Python API call the same pipeline functions and use the same setting names."
 msgstr "워크플로를 노트북, 재사용 가능한 스크립트, 서버 또는 스케줄러에서 실행해야 할 때 Python API를 사용합니다. 데스크톱 애플리케이션과 Python API는 같은 파이프라인 함수를 호출하고 같은 설정 이름을 사용합니다."
 
-msgid "Install the headless package"
-msgstr "헤드리스 패키지 설치"
-
-msgid "Add ``[qt]`` only when the same environment also needs the desktop interface."
-msgstr "같은 환경에서 데스크톱 인터페이스도 필요할 때만 ``[qt]`` 를 추가합니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Install spaCR"
+msgstr "spaCR 설치"
 
 msgid "Use the typed workflow configuration"
 msgstr "타입이 지정된 워크플로 구성 사용"

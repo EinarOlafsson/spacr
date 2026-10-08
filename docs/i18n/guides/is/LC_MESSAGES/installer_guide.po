@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 18:34-0400\n"
+"POT-Creation-Date: 2026-10-08 15:08-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -25,14 +25,19 @@ msgstr "Leiðbeiningar um uppsetningu"
 msgid "This page covers the current desktop installers, conda-forge, PyPI and container installation, updates, removal, offline preparation and the files to check when installation fails. For older downloadable versions, use the :doc:`installer archive <installers>`."
 msgstr "Þessi síða fjallar um núverandi skjáborðsuppsetningarforrit, uppsetningu með conda-forge, PyPI og gámum, uppfærslur, fjarlægingu, undirbúning fyrir uppsetningu án nettengingar og skrárnar sem á að athuga þegar uppsetning mistekst. Fyrir eldri útgáfur til niðurhals skaltu nota :doc:`safn uppsetningarforrita <installers>`."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The `Install spaCR tutorial <tutorials/#lesson=02_install_spacr>`_ combines the pip and Conda routes. Follow the commands for your chosen installer below. Nightly tutorials may show interface changes that are not yet in a published PyPI or conda-forge release."
+msgstr "Kennsluefnið `Install spaCR <tutorials/#lesson=02_install_spacr>`_ sameinar pip- og Conda-leiðirnar. Fylgdu skipununum hér að neðan fyrir þá uppsetningu sem þú velur. Nightly-kennsluefni getur sýnt breytingar á viðmóti sem eru ekki enn í útgefinni PyPI- eða conda-forge-útgáfu."
+
 msgid "Choose an installation"
 msgstr "Veldu uppsetningu"
 
 msgid "Use a desktop installer when you want an application launcher and a private Python environment. The installer does not modify an existing Python installation. It downloads a managed Python 3.12 runtime and the exact spaCR version named by the installer, then checks the environment before replacing an existing working installation."
 msgstr "Notaðu skjáborðsuppsetningarforrit þegar þú vilt ræsitákn forrits og einkaumhverfi fyrir Python. Uppsetningarforritið breytir ekki fyrirliggjandi Python-uppsetningu. Það sækir stýrt Python 3.12-keyrsluumhverfi og nákvæmlega þá spaCR-útgáfu sem uppsetningarforritið nefnir og athugar síðan umhverfið áður en það kemur í stað fyrirliggjandi virkrar uppsetningar."
 
-msgid "Use the official `conda-forge package <https://anaconda.org/conda-forge/spacr>`_ when Conda should install spaCR and resolve its desktop and dependencies. Use ``pip`` for the PyPI release when spaCR must live in an existing Python environment, notebook, server or cluster, or when you need a PyPI extra that is not part of the conda package. Python 3.12 currently offers the widest selection of optional scientific packages."
-msgstr "Notaðu opinbera `conda-forge-pakkann <https://anaconda.org/conda-forge/spacr>`_ þegar Conda á að setja upp spaCR og leysa skjáborðið og ákvæðin. Notaðu ``pip`` fyrir PyPI-útgáfuna þegar spaCR verður að vera í fyrirliggjandi Python-umhverfi, fartölvu, netþjóni eða klasa, eða þegar þú þarft PyPI-aukasafn sem er ekki hluti af conda-pakkanum. Python 3.12 býður nú upp á mesta úrvalið af valkvæðum vísindapökkum."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use the official `conda-forge package <https://anaconda.org/conda-forge/spacr>`_ when Conda should install spaCR and resolve its desktop and core dependencies. Use ``pip`` for the PyPI release when spaCR must live in an existing Python environment, notebook, server or cluster, or when you need a PyPI extra that is not part of the conda package. Python 3.12 currently offers the widest selection of optional scientific packages."
+msgstr "Notaðu opinbera `conda-forge-pakkann <https://anaconda.org/conda-forge/spacr>`_ þegar Conda á að setja spaCR upp ásamt þeim pökkum sem skjáborðsviðmótið og kjarninn þurfa. Notaðu ``pip`` fyrir PyPI-útgáfuna þegar spaCR þarf að vera í fyrirliggjandi Python-umhverfi, glósubók, þjóni eða tölvuklasa, eða þegar þú þarft PyPI-viðbót sem er ekki hluti af conda-pakkanum. Python 3.12 býður nú upp á fjölbreyttasta úrval valfrjálsra vísindapakka."
 
 msgid "Use a :ref:`container image <container-images>` when the install itself is the problem: a cluster node, a cloud instance, a shared machine you cannot change, or an analysis that has to be re-runnable years from now. The images are for the CLI and the pipelines; the desktop interface in a container is a Linux-only extra and is documented as one. On a cluster without Docker, build the same image as an :ref:`Apptainer or SingularityCE file <apptainer-images>`. For a workstation that has no network access at all, use an :ref:`offline installer bundle <offline-bundle>`."
 msgstr "Notaðu :ref:`gámamynd <container-images>` þegar uppsetningin sjálf er vandamálið: klasahnútur, tilvik í skýi, sameiginleg vél sem þú getur ekki breytt, eða greining sem þarf að vera hægt að keyra aftur eftir mörg ár. Myndirnar eru fyrir CLI og vinnslukeðjurnar; skjáborðsviðmótið í gámi er aukaatriði eingöngu fyrir Linux og er skjalfest sem slíkt. Á klasa án Docker skaltu byggja sömu mynd sem :ref:`Apptainer- eða SingularityCE-skrá <apptainer-images>`. Fyrir vinnustöð sem hefur alls engan netaðgang skaltu nota :ref:`uppsetningarpakka án nettengingar <offline-bundle>`."
@@ -129,8 +134,13 @@ msgstr "Þetta eru sjálfgefnar rætur upphaflegu uppsetningarforritanna. Ef ann
 msgid "Update an environment installed from conda-forge with:"
 msgstr "Uppfærðu umhverfi sem sett var upp úr conda-forge með:"
 
-msgid "Update an environment installed from PyPI with:"
-msgstr "Uppfærðu umhverfi sem sett var upp úr PyPI með:"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Update a PyPI desktop environment with:"
+msgstr "Uppfærðu PyPI-umhverfi fyrir skjáborðsviðmótið með:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Headless environments can omit the ``qt`` extra in the PyPI commands."
+msgstr "Umhverfi án myndræns viðmóts geta sleppt viðbótinni ``qt`` í PyPI-skipununum."
 
 msgid "For reproducible work, install an exact version instead of following the latest release. Use the command for the package source already installed in the environment, replacing ``VERSION`` with a release that source publishes:"
 msgstr "Fyrir endurtakanlega vinnu skaltu setja upp nákvæma útgáfu í stað þess að fylgja nýjustu útgáfunni. Notaðu skipunina fyrir pakkauppsprettuna sem þegar er uppsett í umhverfinu og skiptu ``VERSION`` út fyrir útgáfu sem sú uppspretta birtir:"
@@ -268,12 +278,33 @@ msgstr "Settu opinbera conda-forge-pakkann beint upp í virkjað umhverfi. Hann 
 msgid "PyPI installation and extras"
 msgstr "Uppsetning með PyPI og aukasöfn"
 
-msgid "The PyPI package supports Python 3.9 through 3.14 except Python 3.14.1. To install the PyPI release and desktop interface inside a Conda environment:"
-msgstr "PyPI-pakkinn styður Python 3.9 til 3.14 nema Python 3.14.1. Til að setja upp PyPI-útgáfuna og skjáborðsviðmótið innan Conda-umhverfis:"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The PyPI package supports Python 3.9 through 3.14 except Python 3.14.1. Choose either a Python virtual environment or a Conda environment for the PyPI release. In both cases, pip installs spaCR; the conda-forge route above uses Conda to install spaCR instead."
+msgstr "PyPI-pakkinn styður Python 3.9 til 3.14 nema Python 3.14.1. Veldu sýndarumhverfi fyrir Python eða Conda-umhverfi fyrir PyPI-útgáfuna. Í báðum tilvikum setur pip spaCR upp; conda-forge-leiðin hér að ofan notar Conda til að setja spaCR upp."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The standard package includes the Qt desktop interface and command-line pipelines. On a headless server, use ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[czi,nd2,lif]``. Common additions are:"
-msgstr "Staðalpakkinn inniheldur Qt-skjáborðsviðmótið og vinnslulínur fyrir skipanalínu. Á netþjóni án myndræns viðmóts skaltu nota ``spacr-run`` án þess að opna skjáborðsforritið. Hægt er að sameina viðbætur, til dæmis ``spacr[czi,nd2,lif]``. Algengar viðbætur eru:"
+msgid "For a Python virtual environment, first install Python 3.12, then run:"
+msgstr "Fyrir sýndarumhverfi Python skaltu fyrst setja Python 3.12 upp og keyra síðan:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Activate the environment on Linux or macOS with:"
+msgstr "Virkjaðu umhverfið á Linux eða macOS með:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "On Windows, create it with ``py -3.12 -m venv spacr-venv`` and activate it in PowerShell with:"
+msgstr "Á Windows skaltu búa það til með ``py -3.12 -m venv spacr-venv`` og virkja það í PowerShell með:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In the activated environment, install and open spaCR:"
+msgstr "Í virkjaða umhverfinu skaltu setja spaCR upp og opna það:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "To install the same PyPI release and desktop interface inside a Conda environment:"
+msgstr "Til að setja sömu PyPI-útgáfu og skjáborðsviðmótið upp í Conda-umhverfi:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The base package supplies the command-line pipelines. Install the ``qt`` extra for the desktop interface, as in the commands above. On a headless server, use ``python -m pip install spacr`` and run ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[qt,czi,nd2,lif]``. Common additions are:"
+msgstr "Grunnpakkinn býður upp á vinnsluferli á skipanalínu. Settu viðbótina ``qt`` upp fyrir skjáborðsviðmótið eins og í skipununum hér að ofan. Á þjóni án myndræns viðmóts skaltu nota ``python -m pip install spacr`` og keyra ``spacr-run`` án þess að opna skjáborðsforritið. Hægt er að sameina viðbætur, til dæmis ``spacr[qt,czi,nd2,lif]``. Algengar viðbætur eru:"
 
 msgid "Extra"
 msgstr "Aukasafn"

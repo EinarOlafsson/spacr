@@ -619,7 +619,6 @@ SCREENS = (
     ("Power", _power),
     ("Graph Builder", _graph_builder),
     ("Trellis", _trellis),
-    ("Gate Editor", _gate_editor),
     ("Feature Explorer", _feature_explorer),
     ("Tabulate", _tabulate),
     ("PCA", _pca),
@@ -692,7 +691,7 @@ def test_no_named_region_is_a_bare_dark_area(name, build, qtbot,
         Graph Builder     shelf             0.699 -> 0.699
         Trellis           chart canvas      0.000 -> 0.698
         Trellis           shelf             0.000 -> 0.700
-        Gate Editor       chart canvas      0.000 -> 0.698
+        Gate Editor       chart canvas      now has its own solid gate surface
         Feature Explorer  distributions     0.000 -> 0.698
         Tabulate          chart canvas      0.216 -> 0.763
         PCA               chart canvas      0.114 -> 0.733
@@ -746,6 +745,17 @@ def test_no_named_region_is_a_bare_dark_area(name, build, qtbot,
         f" at {OPACITY:.0%} page opacity — a panel passes about "
         f"{EXPECTED:.2f}. Measured: "
         + ", ".join(f"{k}={v:.3f}" for k, v in measured.items()))
+
+
+def test_gate_editor_graph_is_solid_above_the_animated_page(
+        qtbot, app_theme_restored):
+    _window, screen, regions = _gate_editor(qtbot)
+    measured = _clearest(_transmission(screen),
+                         _region_rect(screen, regions["chart canvas"]))
+    assert measured < OPAQUE, (
+        f"Gate Editor plot passes {measured:.3f} of the backdrop through "
+        "its graph surface, so animated field dots can be mistaken for "
+        "plotted points")
 
 
 def test_the_probe_reports_zero_for_an_opaque_figure_canvas(

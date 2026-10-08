@@ -5,14 +5,12 @@ Use the Python API when a workflow needs to run from a notebook, a reusable
 script, a server or a scheduler. The desktop application and the Python API
 call the same pipeline functions and use the same setting names.
 
-Install the headless package
-----------------------------
+Install spaCR
+-------------
 
 .. code-block:: bash
 
    python -m pip install spacr
-
-Add ``[qt]`` only when the same environment also needs the desktop interface.
 
 Use the typed workflow configuration
 ------------------------------------

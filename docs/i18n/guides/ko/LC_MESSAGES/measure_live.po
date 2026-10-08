@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 18:34-0400\n"
+"POT-Creation-Date: 2026-10-08 15:08-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -46,6 +46,18 @@ msgstr "이미지 목록은 기존의 크기가 제한된 무작위 표본을 �
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form."
 msgstr "이미지 선택은 미리보기만 변경합니다. 측정이 처리할 시야를 선택하거나 저장된 측정값 또는 내보내기 결과를 변경하지 않습니다. **설정 복사**\\ 는 기존과 같이 잘라내기 및 필터 설정을 측정 양식으로 복사하는 용도입니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Save measured fields"
+msgstr "측정된 시야 저장"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measure's SQLite workers send their completed data to one database writer. Object rows, crop indices, rescaling provenance and confluency for a field commit together. The run records a saved field only after its commit."
+msgstr "Measure의 SQLite 작업자는 완료된 데이터를 단일 데이터베이스 쓰기 담당자에게 보냅니다. 한 이미지 시야의 객체 행, 자르기 인덱스, 재조정 출처 및 융합도는 함께 커밋됩니다. 실행은 커밋 후에만 저장된 시야를 기록합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Preferences → Performance → Database write queue RAM** sets the amount of serialized queued data held in RAM. The default is 1 GiB and zero selects disk-only buffering. Overflow lives beneath ``measurements/.write_queue``; failed or interrupted packets remain there with their error reports. An explicit Python setting ``database_write_queue_gib`` overrides the preference for that run. See :doc:`database_concurrency_audit` for the queue, retry, journal and optional-backend boundaries."
+msgstr "**환경설정 → 성능 → 데이터베이스 쓰기 대기열 RAM** 은 RAM에 보관되는 직렬화된 대기 데이터량을 설정합니다. 기본값은 1 GiB이며, 0을 선택하면 디스크 버퍼링만 사용합니다. 초과 데이터는 ``measurements/.write_queue`` 아래에 저장되며, 실패하거나 중단된 패킷과 오류 보고서는 그곳에 남습니다. 명시적 Python 설정 ``database_write_queue_gib`` 는 해당 실행에서 환경 설정을 덮어씁니다. 대기열, 재시도, 저널 및 선택적 백엔드의 적용 범위는 :doc:`database_concurrency_audit` 를 참조하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Resolve a stored plane-layout conflict"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 18:34-0400\n"
+"POT-Creation-Date: 2026-10-08 15:08-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -25,11 +25,9 @@ msgstr "Snabbstart för Python-API:t"
 msgid "Use the Python API when a workflow needs to run from a notebook, a reusable script, a server or a scheduler. The desktop application and the Python API call the same pipeline functions and use the same setting names."
 msgstr "Använd Python-API:t när ett arbetsflöde behöver köras från en notebook, ett återanvändbart skript, en server eller en schemaläggare. Skrivbordsprogrammet och Python-API:t anropar samma pipelinefunktioner och använder samma inställningsnamn."
 
-msgid "Install the headless package"
-msgstr "Installera paketet utan grafiskt gränssnitt"
-
-msgid "Add ``[qt]`` only when the same environment also needs the desktop interface."
-msgstr "Lägg bara till ``[qt]`` när samma miljö även behöver skrivbordsgränssnittet."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Install spaCR"
+msgstr "Installera spaCR"
 
 msgid "Use the typed workflow configuration"
 msgstr "Använd den typade arbetsflödeskonfigurationen"

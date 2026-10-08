@@ -596,6 +596,51 @@ def _run_kwargs(tmp_path, refs):
                 chunk_size=2, n_jobs=1)
 
 
+def _process_chunk_with_primary_overload(payload):
+    """Run real barcode extraction after one explicit first-chunk overload."""
+    from pathlib import Path
+    import json
+
+    reference = payload[5] if len(payload) == 9 else payload[6]
+    folder = Path(reference).parent
+    identity = payload[0][0].splitlines()[0]
+    with (folder / 'attempts.jsonl').open('a') as handle:
+        handle.write(json.dumps(identity) + '\n')
+    marker = folder / 'primary-overload.marker'
+    if identity == '@r0' and not marker.exists():
+        marker.write_text('first primary failed')
+        raise MemoryError('injected first-chunk overload')
+    return SEQ.process_chunk(payload)
+
+
+@pytest.mark.parametrize('paired', [False, True])
+@pytest.mark.parametrize('preview', [False, True])
+def test_reader_final_overload_pass_preserves_every_real_barcode_count(
+        tmp_path, monkeypatch, paired, preview):
+    import json
+    from spacr.resource_log import _parallel_pool, _WorkerStartGate
+
+    refs = _refs(tmp_path)
+    reads = [_read()] * 5
+    r1 = _write_fastq_gz(tmp_path / 'r1.fastq.gz', reads)
+    r2 = (_write_fastq_gz(tmp_path / 'r2.fastq.gz',
+                         [SEQ.reverse_complement(value) for value in reads])
+          if paired else None)
+    monkeypatch.setattr(SEQ, 'process_chunk', _process_chunk_with_primary_overload)
+    monkeypatch.setattr(SEQ, 'Pool', lambda jobs: _parallel_pool(
+        jobs, context=mp.get_context('spawn'), gate=_WorkerStartGate(delay=0)))
+    reader = (SEQ.paired_read_chunked_processing if paired else
+              SEQ.single_read_chunked_processing)
+    reader(r1_file=r1, r2_file=r2, test=preview, **_run_kwargs(tmp_path, refs))
+    attempts = [json.loads(line) for line in
+                (tmp_path / 'attempts.jsonl').read_text().splitlines()]
+    assert attempts == (['@r0', '@r0'] if preview else ['@r0', '@r2', '@r4', '@r0'])
+    expected = 2 if preview else 5
+    assert pd.read_csv(tmp_path / 'uc.csv')['count'].sum() == expected
+    assert pd.read_csv(tmp_path / 'qc.csv')['total_reads'].sum() == expected
+    assert not list(tmp_path.glob('.spacr-read-retries-*'))
+
+
 @pytest.mark.parametrize("missing", ["R1", "R2"])
 def test_paired_reader_names_the_missing_fastq(tmp_path, missing):
     refs = _refs(tmp_path)

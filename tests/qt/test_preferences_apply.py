@@ -7,7 +7,7 @@ import pytest
 from PySide6.QtCore import QSettings, Qt
 from PySide6.QtTest import QSignalSpy
 from PySide6.QtWidgets import (
-    QComboBox, QDialogButtonBox, QLineEdit, QMessageBox, QSlider, QWidget,
+    QComboBox, QDialogButtonBox, QDoubleSpinBox, QLineEdit, QMessageBox, QSlider, QWidget,
 )
 
 from spacr.qt import preferences
@@ -88,6 +88,24 @@ def test_apply_keep_persists_and_keeps_preferences_open(
     assert accepted.count() == 0
     assert owner.refreshes == 1
     assert preferences.get_theme_choice() == "light"
+    dialog.reject()
+    assert preferences.get_theme_choice() == "light"
+
+
+def test_database_queue_budget_apply_revert_and_keep(private_preferences, qtbot):
+    from spacr.measure import _measure_write_queue_budget
+
+    dialog, _owner, _accepted = _dialog(qtbot)
+    control = dialog.findChild(QDoubleSpinBox, 'DatabaseWriteQueueGiB')
+    assert control.value() == 1.0
+    control.setValue(0.0)
+    _answer(_apply(dialog, qtbot), 'Revert', qtbot)
+    assert preferences.get_database_write_queue_gib() == 1.0
+    control.setValue(0.25)
+    _answer(_apply(dialog, qtbot), 'Keep', qtbot)
+    assert preferences.get_database_write_queue_gib() == 0.25
+    assert _measure_write_queue_budget({}) == 0.25
+    assert _measure_write_queue_budget({'database_write_queue_gib': 0}) == 0.0
     dialog.reject()
     assert preferences.get_theme_choice() == "light"
 

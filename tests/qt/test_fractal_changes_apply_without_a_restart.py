@@ -31,6 +31,7 @@ def spaceout(tmp_path, monkeypatch, qapp):
     monkeypatch.setattr(P, "_SAFE_MODE", False, raising=False)
     monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
     monkeypatch.setattr(ft, "_LIVE_CONTROLS", [])
+    P.set_ambient_animation(A.SPACEOUT_THEME)
     P.set_fractal_settings(pattern="orbit", backend="cpu",
                            quality="balanced", scale=1.0)
     made = []
@@ -52,7 +53,9 @@ def _window_with_a_backdrop(made):
     window.resize(800, 600)
     host.resize(800, 600)
     made.append(window)
-    window._dock_backdrop = A.install_ambient(host, None)
+    window._dock_backdrop = A.install_ambient(
+        host, None, theme=P.get_ambient_theme(),
+        palette=P.get_ambient_palette())
     assert window._dock_backdrop is not None
     assert hasattr(window._dock_backdrop, "_spaceout_built_from")
     return window, host
@@ -244,7 +247,9 @@ def test_a_screen_holding_its_own_backdrop_gets_the_new_one(spaceout):
     screen = QWidget()
     screen.resize(640, 480)
     spaceout.append(screen)
-    screen._ambient = A.install_ambient(screen, None)
+    screen._ambient = A.install_ambient(
+        screen, None, theme=P.get_ambient_theme(),
+        palette=P.get_ambient_palette())
     old = screen._ambient
 
     assert _save(pattern="cascade") == 1

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 18:34-0400\n"
+"POT-Creation-Date: 2026-10-08 15:08-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
@@ -25,14 +25,19 @@ msgstr "Installationsanleitung"
 msgid "This page covers the current desktop installers, conda-forge, PyPI and container installation, updates, removal, offline preparation and the files to check when installation fails. For older downloadable versions, use the :doc:`installer archive <installers>`."
 msgstr "Diese Seite behandelt die aktuellen Desktop-Installationsprogramme, die Installation über conda-forge, PyPI und Container, Aktualisierungen, Entfernung, Offline-Vorbereitung und die Dateien, die bei einer fehlgeschlagenen Installation zu prüfen sind. Ältere herunterladbare Versionen finden Sie im :doc:`Archiv der Installationsprogramme <installers>`."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The `Install spaCR tutorial <tutorials/#lesson=02_install_spacr>`_ combines the pip and Conda routes. Follow the commands for your chosen installer below. Nightly tutorials may show interface changes that are not yet in a published PyPI or conda-forge release."
+msgstr "Das Tutorial `Install spaCR <tutorials/#lesson=02_install_spacr>`_ vereint die pip- und Conda-Wege. Folgen Sie unten den Befehlen für die gewählte Installation. Nightly-Tutorials können Änderungen der Oberfläche zeigen, die noch nicht in einer veröffentlichten PyPI- oder conda-forge-Version enthalten sind."
+
 msgid "Choose an installation"
 msgstr "Eine Installationsart wählen"
 
 msgid "Use a desktop installer when you want an application launcher and a private Python environment. The installer does not modify an existing Python installation. It downloads a managed Python 3.12 runtime and the exact spaCR version named by the installer, then checks the environment before replacing an existing working installation."
 msgstr "Verwenden Sie ein Desktop-Installationsprogramm, wenn Sie einen Anwendungsstarter und eine private Python-Umgebung möchten. Das Installationsprogramm verändert keine vorhandene Python-Installation. Es lädt eine verwaltete Python-3.12-Laufzeit und genau die im Installationsprogramm genannte spaCR-Version herunter und prüft die Umgebung, bevor es eine vorhandene funktionierende Installation ersetzt."
 
-msgid "Use the official `conda-forge package <https://anaconda.org/conda-forge/spacr>`_ when Conda should install spaCR and resolve its desktop and dependencies. Use ``pip`` for the PyPI release when spaCR must live in an existing Python environment, notebook, server or cluster, or when you need a PyPI extra that is not part of the conda package. Python 3.12 currently offers the widest selection of optional scientific packages."
-msgstr "Verwenden Sie das offizielle `conda-forge-Paket <https://anaconda.org/conda-forge/spacr>`_, wenn Conda spaCR installieren und seine Desktopoberfläche und Abhängigkeiten auflösen soll. Verwenden Sie ``pip`` für das PyPI-Release, wenn spaCR in einer vorhandenen Python-Umgebung, einem Notebook, auf einem Server oder Cluster laufen muss oder wenn Sie ein PyPI-Extra benötigen, das nicht Teil des Conda-Pakets ist. Python 3.12 bietet derzeit die größte Auswahl an optionalen wissenschaftlichen Paketen."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use the official `conda-forge package <https://anaconda.org/conda-forge/spacr>`_ when Conda should install spaCR and resolve its desktop and core dependencies. Use ``pip`` for the PyPI release when spaCR must live in an existing Python environment, notebook, server or cluster, or when you need a PyPI extra that is not part of the conda package. Python 3.12 currently offers the widest selection of optional scientific packages."
+msgstr "Verwenden Sie das offizielle `conda-forge-Paket <https://anaconda.org/conda-forge/spacr>`_, wenn Conda spaCR installieren und seine Desktop- und Kernabhängigkeiten auflösen soll. Verwenden Sie ``pip`` für die PyPI-Version, wenn spaCR in einer bestehenden Python-Umgebung, einem Notebook, auf einem Server oder Cluster laufen soll oder Sie eine PyPI-Erweiterung benötigen, die nicht im conda-Paket enthalten ist. Python 3.12 bietet derzeit die breiteste Auswahl optionaler wissenschaftlicher Pakete."
 
 msgid "Use a :ref:`container image <container-images>` when the install itself is the problem: a cluster node, a cloud instance, a shared machine you cannot change, or an analysis that has to be re-runnable years from now. The images are for the CLI and the pipelines; the desktop interface in a container is a Linux-only extra and is documented as one. On a cluster without Docker, build the same image as an :ref:`Apptainer or SingularityCE file <apptainer-images>`. For a workstation that has no network access at all, use an :ref:`offline installer bundle <offline-bundle>`."
 msgstr "Verwenden Sie ein :ref:`Container-Image <container-images>`, wenn die Installation selbst das Problem ist: ein Clusterknoten, eine Cloud-Instanz, ein gemeinsam genutzter Rechner, den Sie nicht verändern können, oder eine Analyse, die noch in Jahren erneut ausführbar sein muss. Die Images sind für die CLI und die Pipelines gedacht; die Desktopoberfläche in einem Container ist ein reines Linux-Extra und ist als solches dokumentiert. Bauen Sie auf einem Cluster ohne Docker dasselbe Image als :ref:`Apptainer- oder SingularityCE-Datei <apptainer-images>`. Für eine Workstation ganz ohne Netzwerkzugang verwenden Sie ein :ref:`Offline-Installationspaket <offline-bundle>`."
@@ -129,8 +134,13 @@ msgstr "Dies sind die voreingestellten Stammverzeichnisse der ursprünglichen In
 msgid "Update an environment installed from conda-forge with:"
 msgstr "Aktualisieren Sie eine aus conda-forge installierte Umgebung mit:"
 
-msgid "Update an environment installed from PyPI with:"
-msgstr "Aktualisieren Sie eine aus PyPI installierte Umgebung mit:"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Update a PyPI desktop environment with:"
+msgstr "Aktualisieren Sie eine PyPI-Desktop-Umgebung mit:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Headless environments can omit the ``qt`` extra in the PyPI commands."
+msgstr "Headless-Umgebungen können die Erweiterung ``qt`` in den PyPI-Befehlen weglassen."
 
 msgid "For reproducible work, install an exact version instead of following the latest release. Use the command for the package source already installed in the environment, replacing ``VERSION`` with a release that source publishes:"
 msgstr "Für reproduzierbare Arbeit installieren Sie eine exakte Version, statt dem neuesten Release zu folgen. Verwenden Sie den Befehl für die Paketquelle, die bereits in der Umgebung installiert ist, und ersetzen Sie ``VERSION`` durch ein Release, das diese Quelle veröffentlicht:"
@@ -268,12 +278,33 @@ msgstr "Installieren Sie das offizielle conda-forge-Paket direkt in eine aktivie
 msgid "PyPI installation and extras"
 msgstr "Installation über PyPI und Extras"
 
-msgid "The PyPI package supports Python 3.9 through 3.14 except Python 3.14.1. To install the PyPI release and desktop interface inside a Conda environment:"
-msgstr "Das PyPI-Paket unterstützt Python 3.9 bis 3.14 mit Ausnahme von Python 3.14.1. So installieren Sie das PyPI-Release und die Desktopoberfläche in einer Conda-Umgebung:"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The PyPI package supports Python 3.9 through 3.14 except Python 3.14.1. Choose either a Python virtual environment or a Conda environment for the PyPI release. In both cases, pip installs spaCR; the conda-forge route above uses Conda to install spaCR instead."
+msgstr "Das PyPI-Paket unterstützt Python 3.9 bis 3.14 mit Ausnahme von Python 3.14.1. Wählen Sie für die PyPI-Version eine virtuelle Python-Umgebung oder eine Conda-Umgebung. In beiden Fällen installiert pip spaCR; der obige conda-forge-Weg installiert spaCR stattdessen mit Conda."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The standard package includes the Qt desktop interface and command-line pipelines. On a headless server, use ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[czi,nd2,lif]``. Common additions are:"
-msgstr "Das Standardpaket enthält die Qt-Desktopoberfläche und Kommandozeilen-Pipelines. Verwenden Sie auf einem Server ohne grafische Oberfläche ``spacr-run``, ohne die Desktopanwendung zu öffnen. Extras lassen sich kombinieren, beispielsweise ``spacr[czi,nd2,lif]``. Häufige Ergänzungen sind:"
+msgid "For a Python virtual environment, first install Python 3.12, then run:"
+msgstr "Installieren Sie für eine virtuelle Python-Umgebung zunächst Python 3.12 und führen Sie dann Folgendes aus:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Activate the environment on Linux or macOS with:"
+msgstr "Aktivieren Sie die Umgebung unter Linux oder macOS mit:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "On Windows, create it with ``py -3.12 -m venv spacr-venv`` and activate it in PowerShell with:"
+msgstr "Erstellen Sie sie unter Windows mit ``py -3.12 -m venv spacr-venv`` und aktivieren Sie sie in PowerShell mit:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In the activated environment, install and open spaCR:"
+msgstr "Installieren und öffnen Sie spaCR in der aktivierten Umgebung:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "To install the same PyPI release and desktop interface inside a Conda environment:"
+msgstr "Um dieselbe PyPI-Version und Desktop-Oberfläche in einer Conda-Umgebung zu installieren:"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The base package supplies the command-line pipelines. Install the ``qt`` extra for the desktop interface, as in the commands above. On a headless server, use ``python -m pip install spacr`` and run ``spacr-run`` without opening the desktop application. Extras can be combined, for example ``spacr[qt,czi,nd2,lif]``. Common additions are:"
+msgstr "Das Basispaket stellt die Kommandozeilen-Pipelines bereit. Installieren Sie die Erweiterung ``qt`` für die Desktop-Oberfläche, wie in den obigen Befehlen. Verwenden Sie auf einem Server ohne grafische Oberfläche ``python -m pip install spacr`` und führen Sie ``spacr-run`` aus, ohne die Desktop-Anwendung zu öffnen. Erweiterungen lassen sich kombinieren, etwa ``spacr[qt,czi,nd2,lif]``. Häufige Ergänzungen sind:"
 
 msgid "Extra"
 msgstr "Extra"

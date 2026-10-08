@@ -298,7 +298,7 @@ def _glass_a_part_that_came_later(dialog: QWidget, part: QWidget) -> int:
 #: resize with them. This band is what puts it back, and it is wide enough
 #: to hit without aiming and narrow enough not to swallow a click on a
 #: control sitting near the edge.
-RESIZE_BAND = 6
+RESIZE_BAND = 12
 
 
 def _edges_at(widget, point):
@@ -359,6 +359,8 @@ class _ResizeEdgeHint(QWidget):
 
     def show_edges(self, edges):
         """Match the window bounds and reveal only its currently resizable edges."""
+        if self.parentWidget().isFullScreen() or self.parentWidget().isMaximized():
+            edges = Qt.Edge(0)
         self.edges = edges
         self.setGeometry(self.parentWidget().rect())
         self.setVisible(bool(edges))
@@ -445,6 +447,10 @@ class _ResizeByEdge(QObject):
             if kind in (QEvent.Hide, QEvent.WindowDeactivate, QEvent.WindowStateChange):
                 self._grab = None
                 self._hint.show_edges(Qt.Edge(0))
+            if window.isFullScreen() or window.isMaximized():
+                self._grab = None
+                self._hint.show_edges(Qt.Edge(0))
+                return False
             if kind == QEvent.Type.MouseMove and self._grab is not None:
                 if not event.buttons() & Qt.LeftButton:
                     self._grab = None
@@ -467,8 +473,14 @@ class _ResizeByEdge(QObject):
                 window.setGeometry(QRect(x, y, width, height))
                 return True
             if kind == QEvent.Type.MouseButtonRelease:
+                resized = (self._grab is not None
+                           and window.geometry() != self._grab[2])
                 self._grab = None
                 self._hint.show_edges(_edges_at(window, event.position().toPoint()))
+                if resized:
+                    from .ambient import field_ripple_for_widget
+
+                    field_ripple_for_widget(window)
             if kind == QEvent.Type.MouseMove and not event.buttons():
                 edges = _edges_at(window, event.position().toPoint())
                 self._hint.show_edges(edges)
@@ -477,6 +489,9 @@ class _ResizeByEdge(QObject):
                     and event.button() == Qt.MouseButton.LeftButton):
                 edges = _edges_at(window, event.position().toPoint())
                 if not edges:
+                    return False
+                child = window.childAt(event.position().toPoint())
+                if child is not None and _owns_mouse_gesture(child, window):
                     return False
                 handle = window.windowHandle()
                 if handle is None:
@@ -572,7 +587,13 @@ class _DragByBackground(QObject):
                     dialog.move(position + delta)
                 return True
             if kind in (QEvent.MouseButtonRelease, QEvent.Hide, QEvent.WindowDeactivate):
+                moved = (kind == QEvent.MouseButtonRelease and self._grab is not None
+                         and dialog.pos() != self._grab[1])
                 self._grab = None
+                if moved:
+                    from .ambient import field_ripple_for_widget
+
+                    field_ripple_for_widget(dialog)
         except RuntimeError:
             self._grab = None
         return False
@@ -890,41 +911,57 @@ def _say_how_to_close_it(dialog: QDialog) -> bool:
 
 
 def _install_the_backdrop(dialog: QDialog) -> Optional[QWidget]:
-    """Put the drifting strata behind ``dialog``, or None if unavailable.
-
-    The same engine and theme the setup screen uses, so a popup and the
-    first-run screen are recognisably the same surface rather than two
-    takes on one idea.
-    """
+    """Put the separately selected animation behind ``dialog``."""
     backdrop = getattr(dialog, "_spacr_popup_backdrop", None)
     theme = "off"
     try:
-        from ..preferences import get_ambient_enabled, get_popup_backdrop
+        from ..preferences import get_popup_backdrop, _popup_backdrop_motion
 
-        if get_ambient_enabled():
-            theme = get_popup_backdrop()
+        theme = get_popup_backdrop()
         if theme == "off":
             if backdrop is not None:
-                backdrop.set_animating(False)
+                pause = getattr(backdrop, "set_animating", None)
+                if pause is not None:
+                    pause(False)
+                else:
+                    backdrop.pause()
                 backdrop.hide()
             return None
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not read the ambient preference", exc_info=True)
         return None
     try:
-        from .ambient import install_ambient
-        from .setup_slides import BACKDROP_SPEED
-
-        if backdrop is None:
-            backdrop = install_ambient(dialog, theme=theme,
-                                       speed=BACKDROP_SPEED,
-                                       corner_radius=CARD_RADIUS)
-            backdrop.setProperty("spacrPopupBackdrop", True)
+        from .ambient import (AmbientWidget, SPACEOUT_THEME,
+                              _retire_one_fractal, install_ambient)
+        motion = _popup_backdrop_motion()
+        dialog.setProperty("spacrIndependentBackdrop", True)
+        current = (backdrop.theme() if isinstance(backdrop, AmbientWidget)
+                   else SPACEOUT_THEME if backdrop is not None else None)
+        if current != theme:
+            replacement = install_ambient(
+                dialog, theme=theme, **motion, corner_radius=CARD_RADIUS)
+            replacement.setProperty("spacrPopupBackdrop", True)
+            if backdrop is not None:
+                if isinstance(backdrop, AmbientWidget):
+                    backdrop.stop()
+                    backdrop.hide()
+                    backdrop.setParent(None)
+                    backdrop.deleteLater()
+                else:
+                    _retire_one_fractal(backdrop, dialog)
+            backdrop = replacement
             dialog._spacr_popup_backdrop = backdrop
         else:
-            backdrop.set_theme(theme)
-            backdrop.set_animating(True)
+            if isinstance(backdrop, AmbientWidget):
+                backdrop.set_animating(True)
+            else:
+                backdrop.resume()
             backdrop.show()
+        if isinstance(backdrop, AmbientWidget):
+            backdrop.set_speed(motion["speed"])
+            backdrop.set_size_scale(motion["size"])
+            backdrop.set_resolution(motion["resolution"])
+            backdrop.set_density(motion["density"])
         backdrop.lower()
         return backdrop
     except Exception:                                        # noqa: BLE001

@@ -9169,7 +9169,8 @@ def automated_motility_assay(settings):
     import numpy as np
     import pandas as pd
     import os
-    from multiprocessing import Pool, cpu_count
+    from multiprocessing import cpu_count
+    from .resource_log import _parallel_pool as Pool
     import sqlite3
 
     from .settings import get_automated_motility_assay_default_settings

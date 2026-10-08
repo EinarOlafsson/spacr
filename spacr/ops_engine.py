@@ -20,7 +20,7 @@ import os
 import re
 import time
 from collections import Counter
-from concurrent.futures import ThreadPoolExecutor
+from .resource_log import _parallel_thread_executor as ThreadPoolExecutor
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -395,6 +395,10 @@ def _read_plane(source: Optional[Tuple[str, Optional[int]]],
             array = np.asarray(series.asarray())
     except (OSError, ValueError, IndexError,
             getattr(tifffile, "TiffFileError", ValueError)) as failure:
+        from .runctx import _is_overload_failure
+
+        if _is_overload_failure(failure):
+            raise
         if unreadable is not None:
             unreadable.append((path, f"{type(failure).__name__}: {failure}"[:200]))
         return None
@@ -1368,14 +1372,22 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     gpu = bool(task.get("gpu", False))
     unreadable: list = []
     planes: Dict[int, Optional[list]] = {}
-    with ThreadPoolExecutor(4) as pool:
-        pending = {cycle: [None if source is None else
-                           pool.submit(_read_plane, source, unreadable)
-                           for source in sources]
-                   for cycle, sources in task["planes"].items()}
-        for cycle, futures in pending.items():
-            got = [None if future is None else future.result() for future in futures]
-            planes[cycle] = None if any(one is None for one in got) else got
+    slots = [(cycle, channel, source)
+             for cycle, sources in task['planes'].items()
+             for channel, source in enumerate(sources)]
+    loaded = {cycle: [None] * len(sources)
+              for cycle, sources in task['planes'].items()}
+
+    def load_slot(slot):
+        """Read one original source with the shared deferred overload policy."""
+        cycle, channel, source = slot
+        return cycle, channel, _read_plane(source, unreadable)
+
+    with ThreadPoolExecutor(max(1, min(4, len(slots)))) as pool:
+        for cycle, channel, array in pool.map(load_slot, slots):
+            loaded[cycle][channel] = array
+    for cycle, got in loaded.items():
+        planes[cycle] = None if any(one is None for one in got) else got
     ticks["read"] = time.perf_counter() - tick
     base = {"site": site, "unreadable": unreadable,
             "missing": sorted(c for c in cycles if planes.get(c) is None)}
@@ -1596,7 +1608,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     :raises ValueError: when the objects are not ready.
     """
     import multiprocessing
-    from concurrent.futures import ProcessPoolExecutor
+    from .resource_log import _parallel_process_executor as ProcessPoolExecutor
 
     import pandas as pd
     from scipy.spatial import cKDTree

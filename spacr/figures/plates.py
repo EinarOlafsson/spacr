@@ -199,8 +199,8 @@ def well_matrices(frame, variable: str, *, grouping: str = "mean",
 
     text = work["prc"].astype(str)
     head = None
-    if text.str.count(_schema.KEY_SEPARATOR).eq(2).all():
-        head = text.str.split(_schema.KEY_SEPARATOR, n=1).str[0].to_numpy()
+    if text.str.count(_schema.KEY_SEPARATOR).ge(2).all():
+        head = text.str.rsplit(_schema.KEY_SEPARATOR, n=2).str[0].to_numpy()
 
     readable = None
     if grouping != "count" and variable in work.columns:
@@ -520,7 +520,6 @@ def build_plates(frame, variable: str, *, grouping: str = "mean",
 
         figure = plt.figure(figsize=(width, height))
         from .bundle import _register_figure_data
-        _register_figure_data(figure, frame, y=str(variable), kind="heatmap", plates=[str(n) for n in names])
         ramp = plate_ramp(target) if cmap is None else _named(cmap)
 
         image = None
@@ -541,6 +540,38 @@ def build_plates(frame, variable: str, *, grouping: str = "mean",
                 image = ax.images[0]
 
         _colour_bar(figure, image, variable, ink, width, height)
+        from .. import schema as _schema
+
+        recipes = []
+        for index, (name, ax) in enumerate(zip(names, figure.axes[:-1])):
+            coordinates = {}
+            for key in frame["prc"].astype(str).unique():
+                parts = key.rsplit("_", 2)
+                if len(parts) == 3 and parts[0] == str(name):
+                    row, column = _schema.row_index(parts[1]), _schema.column_index(parts[2])
+                    if row is not None and column is not None:
+                        coordinates[key] = [row, column]
+            recipes.append(dict(slot=index, rect=list(ax.get_position().bounds),
+                y=str(variable), measurement=f"{variable} ({name})", plate=dict(
+                    name=str(name), variable=str(variable), grouping=str(grouping),
+                    min_count=min_count if isinstance(min_count, (int, float)) else 0,
+                    coordinates=coordinates, shape=[n_rows, n_columns],
+                    limits=[vmin, vmax], colors=ramp(np.linspace(0, 1, ramp.N)).tolist(),
+                    bad_color=ramp.get_bad().tolist(), under_color=ramp.get_under().tolist(),
+                    over_color=ramp.get_over().tolist(), ink=ink, wash_alpha=EMPTY_WASH_ALPHA,
+                    linewidth=WEIGHTS["spine"], tick_fontsize=TYPE_SCALE["tick"],
+                    title_fontsize=TYPE_SCALE["annotation"],
+                    xticks=ax.get_xticks().tolist(), yticks=ax.get_yticks().tolist(),
+                    xticklabels=[tick.get_text() for tick in ax.get_xticklabels()],
+                    yticklabels=[tick.get_text() for tick in ax.get_yticklabels()],
+                    outline=str(outline) if outline and outline in frame.columns else "",
+                    outline_linewidth=WEIGHTS["data"] * 0.6)))
+        _register_figure_data(figure, frame, y=str(variable), kind="plate_heatmap",
+            grid=[rows, columns], panels=recipes, plates=[str(name) for name in names],
+            plate_colorbar=dict(rect=list(figure.axes[-1].get_position().bounds),
+                ticks=[vmin, vmax], ink=ink, linewidth=WEIGHTS["spine"],
+                fontsize=TYPE_SCALE["annotation"], text_position=[0.5, (BAR["bottom"] - 0.022) / height],
+                text=str(variable).replace("_", " ").lower()))
         blank = sum(m.size for m in matrices) - sum(measured)
         subject = ("objects per well, counted" if grouping == "count" else
                    f"{variable} per well, "
@@ -614,6 +645,7 @@ def _colour_bar(figure, image, variable: str, ink: str, width: float,
     bar_w = min(BAR["width"], width * 0.42)
     cax = figure.add_axes([(width - bar_w) / 2 / width, BAR["bottom"] / height,
                            bar_w / width, BAR["height"] / height])
+    cax.set_label("<colorbar>")
     bar = figure.colorbar(image, cax=cax, orientation="horizontal")
     bar.outline.set_linewidth(WEIGHTS["spine"])
     bar.outline.set_edgecolor(ink)

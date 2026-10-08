@@ -1915,6 +1915,91 @@ ViaAlias = TupleAlias("ViaAlias", [("value", int)])
     )
 
 
+def _validated_prior_home_ui_callables(callables, *, replay_dialog_signature=False):
+    """Validate independent field feedback and paint arrivals before old pins."""
+    expected = {
+        "spacr.qt.widgets.hint_bar.HintBar.setText": (
+            "method", {"text"}, {"text"}),
+        "spacr.qt.widgets.hint_bar.HintBar.showEvent": (
+            "method", {"event"}, {"event"}),
+        "spacr.qt.widgets.hint_bar.HintBar.text": (
+            "method", set(), set()),
+        "spacr.qt.widgets.ambient.AmbientWidget.set_field_effects": (
+            "method", {"effects"}, {"effects"}),
+        "spacr.qt.widgets.ambient.AmbientWidget.set_ripples_enabled": (
+            "method", {"enabled"}, {"enabled"}),
+        "spacr.qt.widgets.gate_editor.GateCanvas.paintEvent": (
+            "method", {"event"}, {"event"}),
+        "spacr.qt.widgets.hint_bar.HintBar.changeEvent": (
+            "method", {"event"}, {"event"}),
+    }
+    by_symbol = {item.symbol: item for item in callables}
+    for symbol, (category, parameters, required) in expected.items():
+        item = by_symbol[symbol]
+        assert item.category == category and item.exposure == "autoapi"
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.parameters == parameters and item.required_parameters == required
+        assert item.accepted_documented_parameters == parameters
+    field_symbol = "spacr.qt.widgets.ambient.field_ripple_for_widget"
+    assert field_symbol not in by_symbol
+    field_tree = ast.parse((pathlib.Path(__file__).resolve().parent.parent
+                            / "spacr/qt/widgets/ambient.py").read_text())
+    field_node = next(node for node in field_tree.body
+                      if isinstance(node, ast.FunctionDef)
+                      and node.name == "field_ripple_for_widget")
+    field_parameters = {"widget", "edge", "rect", "strength"}
+    assert _node_parameters(field_node) == (field_parameters, {"widget"})
+    assert _documented_parameter_names(_clean_doc(field_node)) == field_parameters
+    widget_symbol = "spacr.qt.widgets.ambient.AmbientWidget"
+    widget = by_symbol[widget_symbol]
+    assert widget.category == "constructor" and widget.exposure == "autoapi"
+    assert "ripples_enabled" in widget.parameters
+    assert "ripples_enabled" in widget.accepted_documented_parameters
+    assert "ripples_enabled" not in widget.required_parameters
+    assert "``None`` reads Preferences" in widget.docstring
+    # 7af8b2c00 replaced closeEvent(event) with done(result) so every exit
+    # releases controls. Validate that replacement before replaying old pins.
+    dialog_symbol = "spacr.qt.widgets.live_preview.LiveSettingsDialog.done"
+    dialog = by_symbol[dialog_symbol]
+    assert dialog.category == "method" and dialog.exposure == "autoapi"
+    assert dialog.variant_count == 1 and dialog.docless_variant_count == 0
+    assert dialog.parameters == dialog.required_parameters == {"result"}
+    assert dialog.accepted_documented_parameters == {"result"}
+    assert "Restoring them in" in dialog.docstring
+    assert "``done`` covers exits that do not deliver a close event." in dialog.docstring
+    assert "spacr.qt.widgets.live_preview.LiveSettingsDialog.closeEvent" not in by_symbol
+    callables = [replace(item,
+                         symbol="spacr.qt.widgets.live_preview.LiveSettingsDialog.closeEvent",
+                         parameters=frozenset({"event"}),
+                         required_parameters=frozenset({"event"}),
+                         accepted_documented_parameters=frozenset({"event"}))
+                 if replay_dialog_signature and item.symbol == dialog_symbol
+                 else item for item in callables]
+    return [replace(item, parameters=item.parameters - {"ripples_enabled"},
+                    accepted_documented_parameters=(
+                        item.accepted_documented_parameters - {"ripples_enabled"}))
+            if item.symbol == widget_symbol else item for item in callables
+            if item.symbol not in expected]
+
+
+def _validated_prior_worker_callables(callables, *, replay_dialog_signature=False):
+    """Check the two queue preference arrivals before reproducing prior pins."""
+    callables = _validated_prior_home_ui_callables(
+        callables, replay_dialog_signature=replay_dialog_signature)
+    expected = {
+        "spacr.qt.preferences.get_database_write_queue_gib": set(),
+        "spacr.qt.preferences.set_database_write_queue_gib": {"gib"},
+    }
+    by_symbol = {item.symbol: item for item in callables}
+    for symbol, parameters in expected.items():
+        item = by_symbol[symbol]
+        assert item.category == "function" and item.exposure == "autoapi"
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.parameters == item.required_parameters == parameters
+        assert item.accepted_documented_parameters == parameters
+    return [item for item in callables if item.symbol not in expected]
+
+
 def _validated_prior_scn_callables(callables):
     """Validate each new reader's full contract before reproducing old pins."""
     expected = {
@@ -1995,7 +2080,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     before_modules = set(sys.modules)
     callables = _validated_prior_scn_callables(
         _validated_prior_plaque_callables(
-            _validated_prior_radius_callables(list(_public_callables()))))
+            _validated_prior_radius_callables(
+                _validated_prior_worker_callables(
+                    list(_public_callables()), replay_dialog_signature=True))))
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")
@@ -3436,7 +3523,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     rendered_documented_callables = {
         item.symbol: item.docstring
         for item in _validated_prior_scn_callables(
-            _validated_prior_radius_callables(actual_callables))
+            _validated_prior_radius_callables(
+                _validated_prior_worker_callables(actual_callables)))
         if item.exposure == "autoapi" and item.docstring
     }
     # The gap between the two is the entries AutoAPI never renders: the
@@ -3680,7 +3768,22 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert not background_additions.keys() & (
         private_additions.keys() | radius_symbols | channel_additions.keys()
         | scn_additions.keys() | popup_additions.keys())
-    assert len(docs.keys() - private_additions.keys() - radius_symbols
+    worker_additions = json.loads((
+        pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json"
+    ).read_text())
+    assert len(worker_additions) == 8
+    assert {key: docs[key] for key in worker_additions} == worker_additions
+    assert not worker_additions.keys() & (
+        private_additions.keys() | radius_symbols | channel_additions.keys()
+        | scn_additions.keys() | popup_additions.keys() | background_additions.keys())
+    home_ui_arrivals = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "615_home_ui_api_arrivals_2026-10-08.json").read_text())
+    assert len(home_ui_arrivals) == 9
+    assert {key: docs[key] for key in home_ui_arrivals} == home_ui_arrivals
+    assert not home_ui_arrivals.keys() & worker_additions.keys()
+    assert len(docs.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()) == 13182
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public

@@ -458,7 +458,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the requested theme name; returned as given unless the spaceout dressing is on. It is not validated here.",
       "source_sha256": "ede5d8236e9f605e8a37aafe251a345b5c38a29fbae7822824448679695087ae",
-      "translation": "अनुरोधित थीम का नाम; जैसा दिया गया वैसा ही लौटाया जाता है, जब तक spaceout सजावट चालू न हो। यहाँ इसका सत्यापन नहीं किया जाता।"
+      "translation": "अनुरोधित थीम का नाम; जैसा दिया गया वैसा ही लौटाया जाता है, जब तक spaceout सजावट चालू न हो। यहाँ इसका सत्यापन नहीं किया जाता।",
+      "retired": "2026-10-08",
+      "retired_reason": "Superseded by current Home UI API wording for independent animation selections, recurring versus discrete field feedback, and four-line accessible help. Original source-bound evidence retained in place."
     },
     {
       "context": "the requested palette name, treated the same way.",

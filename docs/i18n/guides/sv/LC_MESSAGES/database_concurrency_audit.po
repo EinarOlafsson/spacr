@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 18:34-0400\n"
+"POT-Creation-Date: 2026-10-08 15:08-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -43,8 +43,37 @@ msgstr "bara lås- och upptagetfel när en transaktion påbörjas försöks igen
 msgid "an exhausted lock budget raises :class:`spacr.database_concurrency.DatabaseBusy` instead of dropping a write or continuing silently."
 msgstr "en uttömd låsbudget utlöser :class:`spacr.database_concurrency.DatabaseBusy` i stället för att en skrivning tappas eller körningen fortsätter i tysthet."
 
-msgid "Measurement writes retain their specialized recovery for concurrent ``CREATE TABLE`` and schema-widening races. Run-status table creation and row insertion are one atomic transaction. Database Browser edit validation and its single-row update also share one transaction, so a row address cannot change between the check and the write. Resume's multi-table delete-before-remeasure validates and deletes under one retried write transaction. Annotate preserves the configured journal mode, rolls back a failed coalesced batch, retains an unsaved/error state, and reports that state in the module instead of marking a failed commit as saved."
-msgstr "Mätskrivningar behåller sin specialiserade återhämtning vid samtidiga kapplöpningar kring ``CREATE TABLE`` och schemautvidgning. Skapandet av statustabellen för körningar och infogningen av rader är en enda atomisk transaktion. Databasutforskarens validering av redigeringar och dess uppdatering av en rad delar också en transaktion, så att en radadress inte kan ändras mellan kontrollen och skrivningen. Återupptagningens borttagning i flera tabeller före ommätning validerar och tar bort under en enda skrivtransaktion som försöks igen. Annotering behåller det konfigurerade journalläget, rullar tillbaka en misslyckad sammanslagen batch, behåller ett osparat tillstånd eller feltillstånd och rapporterar det tillståndet i modulen i stället för att markera en misslyckad commit som sparad."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measure workers enqueue SQLite results for one dedicated writer. Object tables, crop indices, intensity provenance and confluency for a field commit in one transaction. A failed later operation rolls back the earlier rows and schema changes for that field. Run status records success only after commit. Standalone measurement helpers retain their specialized recovery for ``CREATE TABLE`` and schema-widening races. Run-status table creation and row insertion are one atomic transaction. Database Browser edit validation and its single-row update also share one transaction, so a row address cannot change between the check and the write. Resume's multi-table delete-before-remeasure validates and deletes under one retried write transaction. Annotate preserves the configured journal mode, rolls back a failed coalesced batch, retains an unsaved/error state, and reports that state in the module instead of marking a failed commit as saved."
+msgstr "Measure-arbetare lägger SQLite-resultat i kö för en enda dedikerad skrivare. Objekttabeller, beskärningsindex, intensitetsproveniens och konfluens för ett bildfält bekräftas i en transaktion. Om en senare operation misslyckas återställs tidigare rader och schemaändringar för det bildfältet. Körningens status registrerar framgång först efter bekräftelsen. Fristående hjälpfunktioner för mätning behåller sin specialiserade återhämtning för ``CREATE TABLE`` och kapplöpningar vid schemautvidgning. Skapandet av statustabellen för körningar och infogningen av rader är en enda atomisk transaktion. Databasutforskarens validering av redigeringar och dess uppdatering av en rad delar också en transaktion, så att en radadress inte kan ändras mellan kontrollen och skrivningen. Återupptagningens borttagning i flera tabeller före ommätning validerar och tar bort under en enda skrivtransaktion som försöks igen. Annotering behåller det konfigurerade journalläget, rullar tillbaka en misslyckad sammanslagen batch, behåller ett osparat tillstånd eller feltillstånd och rapporterar det tillståndet i modulen i stället för att markera en misslyckad commit som sparad."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measure's bounded write queue"
+msgstr "Measures begränsade skrivkö"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Preferences → Performance**, **Database write queue RAM** controls the serialized data waiting for the SQLite writer. The default is 1 GiB; zero uses disk-only buffering. A Python or headless call can override the saved preference with ``database_write_queue_gib`` in the Measure settings, from zero to 64. The allowance accounts for queued payload and transport copies; it does not cap worker arrays, the active write, or total process memory."
+msgstr "I **Inställningar → Prestanda** styr **RAM för databasens skrivkö** mängden serialiserade data som väntar på SQLite-skrivaren. Standardvärdet är 1 GiB; noll använder enbart diskbuffring. Ett Python-anrop eller en körning utan GUI kan åsidosätta den sparade inställningen med ``database_write_queue_gib`` i Measure-inställningarna, från noll till 64. Budgeten omfattar köade nyttolaster och transportkopior; den begränsar inte arbetsprocessernas arrayer, den aktiva skrivningen eller processens totala minne."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Overflow is stored in a private run folder beneath ``measurements/.write_queue``. The transport holds a bounded number of entries, and overflow descriptors refer to disk data. Packets also retain a durable copy until commit, so cancellation, disk exhaustion or a failed writer cannot silently discard accepted data. Successfully committed packets are removed. Uncommitted packets and their error reports remain on disk after failure; do not delete them before investigating the failed field."
+msgstr "Överskott lagras i en privat körningsmapp under ``measurements/.write_queue``. Transporten håller ett begränsat antal poster och beskrivningar av överskott hänvisar till data på disk. Paketen behåller även en varaktig kopia tills de har bekräftats, så avbrytande, full disk eller en skrivare som misslyckas kan inte tyst kasta bort mottagna data. Paket som har bekräftats tas bort. Obekräftade paket och deras felrapporter finns kvar på disk efter ett fel; ta inte bort dem innan det misslyckade bildfältet har undersökts."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each field has a commit ticket written atomically with its rows. Replaying that ticket does not append the rows again. Exhausted SQL busy/lock failures enter a distinct serial retry pass after the primary producers finish. This pass gives each affected field one additional attempt. Invalid inputs and cancellation do not enter it. Readers retain their ordinary read-only connections and the existing filesystem-dependent journal policy."
+msgstr "Varje bildfält har en bekräftelsebiljett som skrivs atomiskt tillsammans med dess rader. Om samma biljett behandlas igen läggs raderna inte till på nytt. SQL-fel med upptagen eller låst databas som har förbrukat sina försök går till en separat seriell omförsökspass efter att de primära producenterna har avslutats. Varje berört bildfält får då ett ytterligare försök. Ogiltiga indata och avbrytanden ingår inte. Läsare behåller sina vanliga skrivskyddade anslutningar och den befintliga filsystemsberoende journalpolicyn."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The queued field path currently applies to the SQLite measurement backend. Optional DuckDB, Parquet and PostgreSQL mirrors retain their existing worker path; the RAM control does not govern those external stores."
+msgstr "Den köade bildfältsvägen gäller för närvarande mätningsbackend med SQLite. De valfria speglingarna i DuckDB, Parquet och PostgreSQL behåller sin befintliga arbetsväg; RAM-kontrollen styr inte dessa externa lagringar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Simulation's bounded write queue"
+msgstr "Simuleringens begränsade skrivkö"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Parallel simulations use the same **Database write queue RAM** allowance, including a ``database_write_queue_gib`` override and disk-only buffering at zero. Pending packets live beneath the dated output directory in ``.simulation_write_queue``. Workers capture all tables for a simulation; one writer commits them with an idempotent ticket in the destination ``simulations.db``. A failed calculation does not enqueue partial tables. An exhausted calculation or database write fails the run and retains its pending disk evidence. Direct standalone ``run_and_save`` calls keep their ordinary database-writing path."
+msgstr "Parallella simuleringar använder samma budget för **RAM för databasens skrivkö**, inklusive en åsidosättning med ``database_write_queue_gib`` och enbart diskbuffring vid noll. Väntande paket lagras under den daterade utdatakatalogen i ``.simulation_write_queue``. Arbetsprocesserna samlar alla tabeller för en simulering; en skrivare bekräftar dem med en idempotent biljett i målfilen ``simulations.db``. En misslyckad beräkning köar inte ofullständiga tabeller. En beräkning eller databasskrivning som har förbrukat sina försök gör att körningen misslyckas och bevarar dess väntande bevis på disk. Fristående direkta anrop till ``run_and_save`` behåller sin vanliga databasskrivningsväg."
 
 msgid "Journal mode and network storage"
 msgstr "Journalläge och nätverkslagring"
@@ -253,8 +282,9 @@ msgstr "aktivera SQLite:s kontroll av främmande nycklar på den här anslutning
 msgid "Returns"
 msgstr "Returnerar"
 
-msgid "connection in autocommit mode; use :func:`transaction` for multi-statement writes."
-msgstr "anslutning i autocommit-läge; använd :func:`transaction` för skrivningar med flera satser."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "connection in autocommit mode; use :func:`transaction` for multi-statement writes. Inside an atomic queued write, helpers for this same database reuse the writer thread's active connection; their commits and closes are deferred until the complete field commits."
+msgstr "anslutning i autocommit-läge; använd :func:`transaction` för skrivningar med flera SQL-satser. Inom en atomisk köad skrivning återanvänder hjälpfunktioner för samma databas skrivtrådens aktiva anslutning; deras bekräftelser och stängningar skjuts upp tills hela bildfältet har bekräftats."
 
 msgid "Raises"
 msgstr "Utlöser"
@@ -379,8 +409,9 @@ msgstr "totalt antal sekunder som transaktionen får vänta på lås inne i SQLi
 msgid "when the lock outlives the retry budget."
 msgstr "när låset varar längre än budgeten för nya försök."
 
-msgid "when asked to nest inside an active transaction."
-msgstr "när den ombeds nästlas inuti en aktiv transaktion."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "when asked to nest inside an active transaction outside a writer-owned packet. Queued helper transactions use savepoints within that packet."
+msgstr "när en nästlad transaktion begärs inom en aktiv transaktion utanför ett paket som ägs av skrivaren. Köade hjälpfunktioners transaktioner använder savepoints inom paketet."
 
 msgid "Is ``path`` on a filesystem where WAL is known to behave?"
 msgstr "Ligger ``path`` på ett filsystem där WAL är känt att fungera?"

@@ -1,0 +1,11 @@
+{
+  "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_popup_motion": "Offer these controls only to the compatible Qt paint engines.",
+  "spacr.qt.widgets.ambient.AmbientWidget.set_field_effects": "Apply saved Spaceout field switches under the renderer's lock.\n\n:param effects: saved field-effect switches keyed by effect name.\n:returns: None.",
+  "spacr.qt.widgets.ambient.AmbientWidget.set_ripples_enabled": "Switch all field ripples independently of mouse gravity and dragging.\n\n:param enabled: whether recurring and discrete field waves are enabled.\n:returns: None.",
+  "spacr.qt.widgets.ambient.field_ripple_for_widget": "Publish settled window or panel feedback to its visible field backdrop.\n\n:param widget: the resized, moved or collapsed widget.\n:param edge: an optional snapped window side.\n:param rect: optional final rectangle in widget-local coordinates.\n:param strength: positive enables release feedback; zero disables it.\n:returns: None.",
+  "spacr.qt.widgets.gate_editor.GateCanvas.paintEvent": "Keep the plotted 2D or 3D points over one solid rounded surface.\n\n:param event: the Qt paint event for this canvas.\n:returns: None.",
+  "spacr.qt.widgets.hint_bar.HintBar.changeEvent": "Keep the reserved four lines in sync with the painted font.\n\n:param event: the Qt font or style change event.\n:returns: None.",
+  "spacr.qt.widgets.hint_bar.HintBar.setText": "Show all help in the fixed strip, scrolling when it exceeds four lines.\n\n:param text: the complete translated help sentence.",
+  "spacr.qt.widgets.hint_bar.HintBar.showEvent": "Restore a saved height after the Preferences layout is measured.\n\n:param event: the Qt show event.",
+  "spacr.qt.widgets.hint_bar.HintBar.text": "Return the complete sentence currently shown in the strip."
+}

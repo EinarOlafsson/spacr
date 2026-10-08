@@ -579,6 +579,27 @@ def test_api_repair_reuses_exact_historical_blocks_inside_changed_docstrings(
     }
 
 
+def test_historical_api_reuse_keeps_a_valid_popup_target_verbatim(monkeypatch):
+    """Context repair must not rewrite an already valid source-proven target."""
+    import build_documentation_i18n as builder
+
+    source = "Change popup waves without changing pointer reach or dot population."
+    target = (
+        "Cambia las ondas del popup sin modificar el alcance del puntero "
+        "ni el número de puntos.")
+    english = builder._english_manifest({"spacr.example": source})["symbols"]["spacr.example"]
+    translated = dict(
+        english, text=target,
+        translation_source_blocks_sha256=builder._translation_source_block_hashes(source))
+    assert builder._api_block_valid(source, target, "es")
+    assert builder._api_block_valid(builder._api_translation_source(source), target, "es")
+    monkeypatch.setattr(builder, "_contextualize", lambda text, language, canonical:
+                        text.replace("popup", "ventana emergente"))
+    assert builder._historical_api_block_translations(english, translated, "es") == {
+        source: target,
+    }
+
+
 def test_historical_api_reuse_rejects_unverified_context_hashes():
     import build_documentation_i18n as builder
 
@@ -3269,7 +3290,16 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     docs, source_contracts = current_documentation_api_contracts
     assert len(SOURCE_REVIEWED_SYMBOLS_2026_10_07) == 33
     assert SOURCE_REVIEWED_SYMBOLS_2026_10_07 <= set(docs)
-    assert len(docs) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
+    worker_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "664_665_worker_api_arrivals_2026-10-08.json").read_text())
+    assert len(worker_arrivals) == 8
+    assert {key: docs[key] for key in worker_arrivals} == worker_arrivals
+    home_ui_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "615_home_ui_api_arrivals_2026-10-08.json").read_text())
+    assert len(home_ui_arrivals) == 9
+    assert {key: docs[key] for key in home_ui_arrivals} == home_ui_arrivals
+    assert not home_ui_arrivals.keys() & worker_arrivals.keys()
+    assert len(docs.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Regenerate every API "
         "catalog, review the diff, and update "
         "DOCUMENTATION_API_SYMBOL_COUNT_RATCHET in the same change."

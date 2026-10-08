@@ -374,8 +374,8 @@ def test_ordinary_raw_core_requires_elf_owner_even_when_filename_matches(tmp_pat
     core = evidence / 'core.3456'
     core.write_bytes(_native_note_core(7890 if defect == 'pid' else 3456,
                                       tmp_path / 'other-python' if defect == 'executable' else executable))
-    if defect == 'stale':
-        os.utime(core, ns=(session['time_ns'] - 1, session['time_ns'] - 1))
+    timestamp = session['time_ns'] - 1 if defect == 'stale' else session['time_ns'] + 1
+    os.utime(core, ns=(timestamp, timestamp))
     monkeypatch.setattr(collector, '_extract_systemd_core', lambda *args, **kwargs: None)
     selected, temporary = collector._ordinary_core(tmp_path, evidence, [session], executable, [])
     assert selected == (core if defect == 'none' else None)

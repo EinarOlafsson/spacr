@@ -41,14 +41,45 @@ def private_store(monkeypatch, tmp_path):
 
 def test_retained_data_art_choices_are_separate_from_ten_night_themes():
     expected = tuple(row[0] for row in SPEC)
+    assert set(prefs._SPACEOUT_NIGHT_THEMES) == (
+        set(ambient.SPACEOUT_ONLY_THEMES) & set(catalog.DATA_ART_THEME_KEYS))
     assert catalog.DATA_ART_THEME_KEYS == expected
     assert len(catalog.NIGHT_THEME_KEYS) == 10
     assert set(expected).isdisjoint(catalog.NIGHT_THEME_KEYS)
     assert not any(key.startswith("flow_") for key in theme.THEMES)
     assert tuple(theme.THEMES) == tuple(prefs.PALETTE_THEMES)
-    assert {token for _label, token in prefs.theme_choices()} >= set(expected)
+    ordinary = set(expected) - set(ambient.SPACEOUT_ONLY_THEMES)
+    assert {token for _label, token in prefs.theme_choices()} >= ordinary
+    assert not ({token for _label, token in prefs.theme_choices()}
+                & set(ambient.SPACEOUT_ONLY_THEMES))
+    theme.enable_spaceout()
+    try:
+        assert {token for _label, token in prefs.theme_choices()} >= set(expected)
+    finally:
+        theme.disable_spaceout()
     assert len({theme.palette_for(key)["page"] for key in expected}) == len(expected)
     assert len({theme.palette_for(key)["accent"] for key in expected}) == len(expected)
+
+
+@pytest.mark.parametrize("key", set(ambient.SPACEOUT_ONLY_THEMES) & set(catalog.DATA_ART_THEME_KEYS))
+def test_saved_spaceout_preset_falls_back_in_an_ordinary_launch(private_store, key):
+    settings = private_store._settings()
+    settings.setValue(private_store._KEY_THEME, key)
+    settings.setValue(private_store._KEY_AMBIENT_THEME, key)
+    settings.setValue(private_store._KEY_POPUP_BACKDROP, key)
+    settings.sync()
+    assert private_store.get_theme() == private_store.DEFAULT_THEME
+    assert private_store.get_ambient_theme() == ambient.DEFAULT_THEME
+    assert private_store.get_popup_backdrop() == private_store.DEFAULT_POPUP_BACKDROP
+    with pytest.raises(ValueError):
+        private_store.set_theme(key)
+    theme.enable_spaceout()
+    try:
+        assert private_store.get_theme() == key
+        private_store.set_theme(key)
+        assert private_store.get_theme() == key
+    finally:
+        theme.disable_spaceout()
 
 
 @pytest.mark.parametrize("key", RETIRED)
@@ -85,7 +116,7 @@ def test_catalog_preset_names_exact_renderer_and_colour_resources(key, label, no
     assert record.ambient_palette == palette
     assert ambient.animation_label(key) == label
     assert ambient.animation_note(key) == note
-    assert key in ambient.AMBIENT_THEMES
+    assert key in ambient.AMBIENT_THEMES + ambient.SPACEOUT_ONLY_THEMES
     assert palette in ambient.palettes_for(key)
     assert record.sound in sound_synth.SOUND_THEMES
     assert catalog.sound_for(key) == record.sound
@@ -122,13 +153,18 @@ def test_data_art_palettes_remain_readable_through_spaceout_drift():
 def test_selection_persists_the_matching_backdrop_and_sound_without_enabling_it(
     private_store, key, label, note, palette
 ):
-    private_store.set_theme_choice(key)
-    assert private_store.get_theme_choice() == key
-    assert private_store.resolve_effective_theme() == key
-    assert private_store.get_ambient_animation() == key
-    assert private_store.get_ambient_palette() == palette
-    assert private_store.get_sound_theme() == catalog.sound_for(key)
-    assert private_store.get_sound_enabled() is False
+    if key in ambient.SPACEOUT_ONLY_THEMES:
+        theme.enable_spaceout()
+    try:
+        private_store.set_theme_choice(key)
+        assert private_store.get_theme_choice() == key
+        assert private_store.resolve_effective_theme() == key
+        assert private_store.get_ambient_animation() == key
+        assert private_store.get_ambient_palette() == palette
+        assert private_store.get_sound_theme() == catalog.sound_for(key)
+        assert private_store.get_sound_enabled() is False
+    finally:
+        theme.disable_spaceout()
 
 
 def test_motion_off_and_crash_suppression_do_not_rewrite_one_another(private_store, monkeypatch):
@@ -143,8 +179,8 @@ def test_motion_off_and_crash_suppression_do_not_rewrite_one_another(private_sto
     assert private_store.get_ambient_enabled() is False
     private_store.set_ambient_enabled(True)
     monkeypatch.setenv("SPACR_NO_BACKDROP", "1")
-    private_store.set_theme_choice("data_art_tissue_facets")
-    assert private_store.get_ambient_animation() == "data_art_tissue_facets"
+    private_store.set_theme_choice("data_art_point_atlas")
+    assert private_store.get_ambient_animation() == "data_art_point_atlas"
     assert private_store.get_ambient_enabled() is False
     monkeypatch.delenv("SPACR_NO_BACKDROP")
     assert private_store.get_ambient_enabled() is True
@@ -154,8 +190,8 @@ def test_motion_off_and_crash_suppression_do_not_rewrite_one_another(private_sto
 def test_extra_performance_keeps_a_new_preset_static(private_store):
     private_store.set_spacr_mode("extra_performance")
     assert private_store.get_ambient_animation() == "none"
-    private_store.set_theme_choice("data_art_fungal_growth")
-    assert private_store.get_theme_choice() == "data_art_fungal_growth"
+    private_store.set_theme_choice("data_art_point_atlas")
+    assert private_store.get_theme_choice() == "data_art_point_atlas"
     assert private_store.get_ambient_animation() == "none"
     assert private_store.get_ambient_enabled() is False
     assert private_store.get_sound_enabled() is False
@@ -214,16 +250,16 @@ def test_unknown_data_art_key_is_rejected_without_changing_a_choice(private_stor
 def test_requested_animation_order_and_default_reach_the_actual_dialog(
     private_store, qtbot, qt_theme_applied,
 ):
-    labels = ("spaCR field", "spaCR advection", "spaCR growth", "spaCR waves",
-              "spaCR blobs", "spaCR aurora")
-    assert tuple(ambient.animation_label(key) for key in ambient.AMBIENT_THEMES[:6]) == labels
+    labels = ("spaCR field", "spaCR advection", "spaCR waves",
+              "spaCR blobs", "spaCR stratified")
+    assert tuple(ambient.animation_label(key) for key in ambient.AMBIENT_THEMES) == labels
     assert ambient.DEFAULT_THEME == "data_art_impulse_lens"
     assert not private_store._settings().contains(private_store._KEY_AMBIENT_THEME)
     assert private_store.get_ambient_animation() == "data_art_impulse_lens"
     dialog = private_store.PreferencesDialog()
     qtbot.addWidget(dialog)
     combo = dialog.findChild(QComboBox, "AmbientTheme")
-    assert tuple(combo.itemText(index) for index in range(6)) == labels
+    assert tuple(combo.itemText(index) for index in range(5)) == labels
     assert combo.currentData() == "data_art_impulse_lens"
     assert combo.itemData(combo.count() - 1) == "none"
     assert private_store._ambient_gravity_radius() == pytest.approx(0.15)

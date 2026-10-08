@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 21:43-0400\n"
+"POT-Creation-Date: 2026-10-08 15:08-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
@@ -112,8 +112,9 @@ msgstr "Cada execução pode registrar seu identificador, sua semente, as config
 msgid "How a module is reached"
 msgstr "Como um módulo é acessado"
 
-msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Assays** -- and twenty-one modules have a tile in one of them. Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own; Assays are the quantitative readouts. Make Masks is filed under **Tools**."
-msgstr "A tela inicial agrupa os módulos em quatro categorias -- **Principal**, **Dados**, **Ferramentas** e **Ensaios** --, e vinte e um módulos têm um bloco em uma delas. Principal é o pipeline que você executa em ordem; Dados é o que entra nele e o que sai dele; Ferramentas são os instrumentos que você aplica a um projeto, e não etapas que o pipeline executa por conta própria; Ensaios são as leituras quantitativas. Criar máscaras fica em **Ferramentas**."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and twenty-one modules have a tile in one of them. Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
+msgstr "O ecrã inicial agrupa os módulos em quatro categorias — **Principal**, **Dados**, **Ferramentas** e **Organismo** — e vinte e um módulos têm um mosaico numa delas. Principal é a sequência de processamento executada por ordem; Dados abrange as suas entradas e saídas; Ferramentas são instrumentos aplicados a um projeto, em vez de passos automáticos do processamento. Organismo abre o guia de Toxoplasma e os seus ensaios disponíveis. As análises previstas são marcadas como Em breve. Criar máscaras encontra-se em **Ferramentas**."
 
 msgid "A TILE IS NOT THE ONLY WAY IN, and most modules do not have one. A tile says \"start here\", and a module that answers a question about a run somebody else started is not a place to start. Those open instead from:"
 msgstr "UM BLOCO NÃO É A ÚNICA ENTRADA, e a maioria dos módulos não tem um. Um bloco diz “comece aqui”, e um módulo que responde a uma pergunta sobre uma execução iniciada por outra pessoa não é um ponto de partida. Esses módulos são abertos por:"
@@ -237,12 +238,12 @@ msgid "Data-art themes"
 msgstr "Temas de arte de dados"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
-msgstr "Em **Preferências** → **Aparência**, **Tema** seleciona a paleta da interface; as dez paletas noturnas continuam disponíveis. **Animação** escolhe um fundo decorativo de forma independente, ou **Nenhuma** para interrompê-lo. Esses fundos não mostram medições do projeto. A janela principal usa **spaCR field** por padrão; o fundo das configurações usa **Nenhuma** por padrão."
+msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **spaCR stratified**."
+msgstr "Em **Preferências** → **Aparência**, **Tema** seleciona a paleta da interface; as dez paletas noturnas continuam disponíveis. **Animação** escolhe um fundo decorativo de forma independente, ou **Nenhuma** para interrompê-lo. Esses fundos não mostram medições do projeto. A janela principal usa **spaCR field** por padrão; o fundo das configurações usa **spaCR stratified** por padrão."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
-msgstr "O menu de animação lista **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** e **spaCR spinn**, nessa ordem."
+msgid "The ordinary animation menu lists **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs**, **spaCR stratified**, and **None**, in that order. **spaCR growth**, **spaCR aurora** and **spaCR spinn** are available with **Spaceout** enabled in both the main Animation menu and the Settings backdrop menu."
+msgstr "O menu de animação normal apresenta **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs**, **spaCR stratified** e **Nenhuma**, por esta ordem. **spaCR growth**, **spaCR aurora** e **spaCR spinn** estão disponíveis com **Spaceout** ativado, tanto no menu principal Animação como no menu Fundo das configurações."
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — Um campo gravitacional de pontos nítidos com influência local opcional do mouse e ondas circulares em expansão."
@@ -287,16 +288,28 @@ msgid "**Popup wave frequency** sets automatic waves per minute in **spaCR field
 msgstr "**Frequência das ondas das janelas** define o número de ondas automáticas por minuto em **spaCR field**. O padrão é **5 ondas/minuto**; **0** desativa as ondas dos pop-ups. Quando o efeito está ativado, abrir um pop-up inicia imediatamente a primeira onda a partir do seu centro, seguida de ondas à frequência selecionada. Mover o pop-up desloca a origem das novas ondas; fechá-lo interrompe novas ondas enquanto as existentes desaparecem. Este controlo é independente da gravidade do rato, do piscar dos pontos, da densidade e do detalhe do desenho."
 
 # AI technical review (Codex), no native-speaker signoff.
+msgid "**Field ripples** enables waves caused by clicks, opening or closing containers, and snapping the window, as well as automatic popup waves. Turning Mouse gravity radius down to **0** leaves these ripples available. Turn Field ripples off to stop them while retaining mouse attraction; Popup wave frequency controls the rate of automatic waves when ripples are on."
+msgstr "**Ondulações do campo** ativa ondas causadas por cliques, pela abertura ou pelo fecho de contentores e pelo encaixe da janela, além das ondas automáticas de janelas emergentes. Reduzir Raio da gravidade do mouse a **0** mantém estas ondas disponíveis. Desative Ondulações do campo para as parar, mantendo a atração do rato; Frequência das ondas das janelas controla a frequência das ondas automáticas quando estas estão ativas."
+
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Press **Apply** to preview changes while Preferences stays open. A separate question offers **Keep** or **Revert**. Revert restores the saved and live settings; your edited controls remain available to change or apply again. Closing the question also reverts. **Save** keeps changes and closes Preferences."
 msgstr "Pressione **Aplicar** para experimentar as alterações enquanto Preferências permanece aberta. Uma pergunta separada oferece **Manter** ou **Reverter**. Ao reverter, as configurações salvas e ativas são restauradas; os controles editados continuam disponíveis para alterar ou aplicar novamente. Fechar a pergunta também reverte as alterações. **Salvar** mantém as alterações e fecha Preferências."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**Fundo das configurações** mantém-se independente da animação principal tanto ao aplicar como ao guardar as preferências. **Nenhuma** desativa o movimento do pop-up e mantém a borda azul. **Escurecimento do fundo das definições** controla a opacidade do cartão de definições sobre a animação, de **0%** a **100%** (padrão **85%**), em combinação com **Opacidade da página**. A opacidade da página também se aplica quando o fundo das configurações é **Nenhuma**. Valores mais elevados de escurecimento cobrem mais a animação para facilitar a leitura. Os pop-ups permanecem acima da janela spaCR a que pertencem, sem uma opção global de estar sempre no topo, pelo que outras aplicações podem cobri-los."
+msgid "**Preferences** keeps four lines of help visible below the settings. Longer help scrolls within the strip without moving the dialog. Drag the strip’s narrow top edge to make it taller or shorter; Preferences remembers the chosen height. Moving from a control into the strip keeps its help available to read and scroll."
+msgstr "**Preferências** mantém quatro linhas de ajuda visíveis abaixo das definições. A ajuda mais longa é percorrida dentro da faixa sem mover a caixa de diálogo. Arraste a sua estreita borda superior para a tornar mais alta ou mais baixa; as Preferências recordam a altura escolhida. Ao mover o ponteiro de um controlo para a faixa, a ajuda continua disponível para leitura e deslocamento."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings animation speed**, **Settings animation size**, **Settings animation detail** and **Settings animation density** change only the settings-window backdrop. Its sliders retain their values when the backdrop is **None**, while the controls are disabled. Choosing a compatible backdrop enables them again. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
+msgstr "**Fundo das configurações** mantém-se independente da animação principal tanto ao aplicar como ao guardar as preferências. **Nenhuma** desativa o movimento do pop-up e mantém a borda azul. **Velocidade da animação das definições**, **Tamanho da animação das definições**, **Detalhe da animação das definições** e **Densidade da animação das definições** alteram apenas o fundo da janela de definições. Os deslizadores mantêm os seus valores quando o fundo é **Nenhuma**, embora os controlos estejam desativados. Escolher um fundo compatível volta a ativá-los. **Escurecimento do fundo das definições** controla a opacidade do cartão de definições sobre a animação, de **0%** a **100%** (padrão **85%**), em combinação com **Opacidade da página**. A opacidade da página também se aplica quando o fundo das configurações é **Nenhuma**. Valores mais elevados de escurecimento cobrem mais a animação para facilitar a leitura. Os pop-ups permanecem acima da janela spaCR a que pertencem, sem uma opção global de estar sempre no topo, pelo que outras aplicações podem cobri-los."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."
 msgstr "Em **spaCR field**, mantenha o botão esquerdo do rato premido e arraste numa área de fundo desocupada para puxar um grupo local de pontos. Soltar o botão permite que o grupo regresse suavemente, sem reiniciar o padrão. Este gesto no fundo mantém disponíveis a área de trabalho científica e os gestos dos controlos."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Start ``spaceout --fresh`` for the separate Spaceout mode. Its default **spaCR field phenomena** backdrop adds changing motion to the field. Under **Preferences** → **Appearance** → **spaCR field**, eight independent switches control **Random attractors**, **Relaxation**, **Elastic release**, **Vortices**, **Density pulses**, **Density waves**, **Colour waves** and **Spirals**. All eight start on. **Apply** previews the edited switches; **Revert** restores the previous values, and **Save** keeps them. The ordinary ``spacr`` launcher uses its own background choice and hides this Spaceout-only section. To choose the fractal instead, select it in Spaceout's **Animation** menu."
+msgstr "Execute ``spaceout --fresh`` para o modo Spaceout separado. O seu fundo predefinido **Fenómenos do campo spaCR** acrescenta movimento variável ao campo. Em **Preferências** → **Aparência** → **spaCR field**, oito interruptores independentes controlam **Atratores aleatórios**, **Relaxação**, **Libertação elástica**, **Vórtices**, **Pulsos de densidade**, **Ondas de densidade**, **Ondas de cor** e **Espirais**. Os oito começam ativados. **Aplicar** pré-visualiza os interruptores editados; **Reverter** repõe os valores anteriores e **Salvar** mantém-nos. O iniciador normal ``spacr`` usa a sua própria escolha de fundo e oculta esta secção exclusiva do Spaceout. Para escolher o fractal, selecione-o no menu **Animação** do Spaceout."
 
 msgid "Arranging the window"
 msgstr "Organizar a janela"
@@ -404,6 +417,10 @@ msgid "Right-click any figure in spaCR, in a module's figure list or in an embed
 msgstr "Clique com o botão direito em qualquer figura do spaCR, na lista de figuras de um módulo ou em um gráfico incorporado como o Graph Builder, o explorador de UMAP ou uma comparação de treinamentos, para abrir o menu da figura. O explorador Volcano e o Gate Editor têm seus próprios menus de contexto e acrescentam estas entradas a eles."
 
 # AI technical review (Codex), no native-speaker signoff.
+msgid "The Gate Editor draws its 2D and 3D plots on an opaque card with rounded corners, so the page animation stays behind the surrounding controls. Right-click inside the plot to open its graph and figure actions; right-click an axis to change that measurement's scale, limits or cutoffs."
+msgstr "Gate Editor desenha os seus gráficos 2D e 3D num cartão opaco com cantos arredondados, mantendo a animação da página atrás dos controlos circundantes. Clique com o botão direito dentro do gráfico para abrir as ações de gráficos e figuras; clique com o botão direito num eixo para alterar a escala, os limites ou os limiares dessa medição."
+
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them."
 msgstr "**Editar figura…** altera o título, os rótulos dos eixos, os limites, as escalas, as fontes, as cores, a legenda, o tamanho e a resolução desta figura. As alterações aparecem à medida que você as faz."
 
@@ -452,6 +469,18 @@ msgstr "Antes de um módulo iniciar seus processos de trabalho, o spaCR estima q
 
 msgid "Runs started without the GUI lower ``n_jobs`` to the safe number and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
 msgstr "Execuções iniciadas sem a interface gráfica reduzem ``n_jobs`` ao número seguro e exibem um aviso. Desative ``ram_guard`` em **Avançado** para manter seu ``n_jobs`` inalterado; a Medição continua esperando enquanto a memória livre estiver abaixo da reserva."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Worker startup and final retries"
+msgstr "Inicialização dos trabalhadores e tentativas finais"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "spaCR starts the first application worker immediately, then spaces additional process and thread workers by ten seconds. This applies to spaCR's managed pools, executors, independent mask workers and data-loading workers. It staggers worker initialization, not every image or database operation. Numerical libraries may still manage their own internal threads."
+msgstr "O spaCR inicia o primeiro trabalhador da aplicação imediatamente e depois mantém dez segundos entre as inicializações dos trabalhadores adicionais de processos e linhas de execução. Isso se aplica aos grupos e executores gerenciados pelo spaCR, aos trabalhadores independentes de máscaras e aos trabalhadores de carregamento de dados. A inicialização dos trabalhadores é escalonada, não cada operação de imagem ou banco de dados. Bibliotecas numéricas ainda podem gerenciar suas próprias linhas de execução internas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "When a task exhausts its normal attempts because of a recognized resource overload, spaCR keeps it for one final attempt in a separate serial queue. This queue starts only after the primary tasks finish. SQLite busy or locked errors, explicit memory exhaustion and exhausted operating-system resources qualify. Invalid inputs, cancellation and unexplained worker deaths do not. A final failure remains an error with its original evidence; it is not retried again."
+msgstr "Quando uma tarefa esgota suas tentativas normais devido a uma sobrecarga de recursos reconhecida, o spaCR a mantém para uma tentativa final em uma fila sequencial separada. Essa fila começa somente após o término das tarefas primárias. Erros de banco de dados SQLite ocupado ou bloqueado, esgotamento explícito de memória e recursos esgotados do sistema operacional se qualificam. Entradas inválidas, cancelamentos e encerramentos inexplicados de trabalhadores não se qualificam. Uma falha final permanece um erro com suas evidências originais; não há outra tentativa."
 
 msgid "Maturity labels"
 msgstr "Rótulos de maturidade"

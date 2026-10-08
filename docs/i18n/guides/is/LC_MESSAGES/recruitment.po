@@ -1,5 +1,5 @@
 # spaCR user guide translation (is).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 18:34-0400\n"
+"POT-Creation-Date: 2026-10-08 15:08-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Recruitment: compartment ratios and channel identity"
 msgstr "Söfnunargreining: hólfahlutföll og auðkenni rása"
 
-msgid "From **Home → Assays → Toxoplasma**, open **Recruitment** after segmentation and measurement. Supply the project containing ``measurements/measurements.db`` and verify that its cell, nucleus, pathogen and cytoplasm measurements refer to the intended objects and channels. See :ref:`Recruitment in the module map <workflow-module-recruitment>`, the `Recruitment tutorial <tutorials/#lesson=25_recruitment>`_ and :func:`spacr.submodules.analyze_recruitment` for the surrounding workflow."
-msgstr "Frá **Heim → Prófanir → Toxoplasma** skaltu opna **Söfnunargreining** eftir hlutun og mælingu. Tilgreindu verkefnið sem inniheldur ``measurements/measurements.db`` og staðfestu að mælingar þess á frumum, kjörnum, sýklum og umfrymi vísi til réttra hluta og rása. Sjá :ref:`Söfnunargreiningu í einingakortinu <workflow-module-recruitment>`, `kennsluna um söfnunargreiningu <tutorials/#lesson=25_recruitment>`_ og :func:`spacr.submodules.analyze_recruitment` fyrir verkflæðið í kring."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "From **Home** → **Organism** → **Toxoplasma**, open **Recruitment** after segmentation and measurement. Supply the project containing ``measurements/measurements.db`` and verify that its cell, nucleus, pathogen and cytoplasm measurements refer to the intended objects and channels. See :ref:`Recruitment in the module map <workflow-module-recruitment>`, the `Recruitment tutorial <tutorials/#lesson=25_recruitment>`_ and :func:`spacr.submodules.analyze_recruitment` for the surrounding workflow."
+msgstr "Frá **Heim** → **Lífvera** → **Toxoplasma** skaltu opna **Söfnunargreining** eftir hlutun og mælingu. Tilgreindu verkefnið sem inniheldur ``measurements/measurements.db`` og staðfestu að mælingar þess á frumum, kjörnum, sýklum og umfrymi vísi til réttra hluta og rása. Sjá :ref:`Söfnunargreiningu í einingakortinu <workflow-module-recruitment>`, `kennsluna um söfnunargreiningu <tutorials/#lesson=25_recruitment>`_ og :func:`spacr.submodules.analyze_recruitment` fyrir verkflæðið í kring."
 
 msgid "For whole-vacuole marker states, explicit host infection denominators and optional parasite counts, see :doc:`Host–Pathogen Analysis <host_pathogen>`. The two modules remain separate analysis choices."
 msgstr "Fyrir ástand merkis í heilli bólu (vacuole), skýra nefnara hýsilsýkingar og valkvæða talningu sníkjudýra, sjá :doc:`Greining hýsils og sýkils <host_pathogen>`. Einingarnar tvær eru áfram aðskildir greiningarkostir."

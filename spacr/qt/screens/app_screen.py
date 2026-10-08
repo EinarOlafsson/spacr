@@ -1540,11 +1540,12 @@ class _WrappingButtonStrip(FlowLayout):
     of its own. Both of those choices were forced, and both are worth reading
     twice before anyone "simplifies" this:
 
-    * THE ROW IS NOT A ROW OF BUTTONS. It is eight buttons and an activity
-      spinner, then ``addStretch(1)``, then the progress bar and the 3D /
+    * THE ROW IS NOT A ROW OF BUTTONS. It is eight buttons,
+      then ``addStretch(1)``, then the 3D /
       Time / Live / GPU / sweep / hyperparameter / interactive / AI
       switches, and the stretch is load-bearing -- it is what holds the switches against the
-      right edge while the buttons stay left. ``FlowLayout`` has no
+      right edge while the buttons stay left. Progress has its own reserved
+      status row below, so showing it cannot re-wrap the buttons. ``FlowLayout`` has no
       ``addStretch``, so the row itself cannot become one; an earlier attempt
       swapped the layout wholesale and died immediately on ``AttributeError:
       'FlowLayout' object has no attribute 'addStretch'``.
@@ -2011,6 +2012,7 @@ class AppScreen(QWidget):
         self._hint_map: dict = _CaptionsBuiltWhenTheyAreAskedFor(
             self._caption_every_waiting_row)
         self._html_tip_map: dict = {}
+        self._action_hints: dict = {}
         self._model_explainer = None
         self._heartbeat = None
         self._heartbeat_said = 0.0
@@ -2358,6 +2360,8 @@ class AppScreen(QWidget):
             and ``PaletteChange`` re-theme the backdrops.
         """
         super().changeEvent(event)
+        if event.type() in (QEvent.FontChange, QEvent.ApplicationFontChange):
+            self._sync_action_status_height()
         if event.type() not in (QEvent.ApplicationPaletteChange,
                                 QEvent.PaletteChange):
             return
@@ -6808,7 +6812,8 @@ class AppScreen(QWidget):
         event_type = event.type()
         if event_type == QEvent.ToolTip:
             if hasattr(self, "_hint_strip") and (
-                    obj in self._hint_map or obj.property("settingKey")):
+                    obj in self._action_hints or obj in self._hint_map
+                    or obj.property("settingKey")):
                 return True
         if event_type not in (QEvent.Enter, QEvent.Leave):
             return super().eventFilter(obj, event)
@@ -6829,6 +6834,9 @@ class AppScreen(QWidget):
     def _show_hover_hint(self, obj) -> None:
         """Show setting/category help after uninterrupted global hover delay."""
         from ..widgets.hover_tooltip import HoverTooltip
+        if obj in self._action_hints:
+            self._write_hint(self._action_hint(obj), hold=True)
+            return
         category = obj.property("settingsCategory")
         if category:
             self.show_category_hint(str(category))
@@ -7117,6 +7125,8 @@ class AppScreen(QWidget):
             retranslate_widget_tree(root, only_new=True)
             yield
             retarget_field_tooltips(self)
+            if hasattr(self, "_hint_strip"):
+                self._install_action_hints()
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not translate a late part", exc_info=True)
 
@@ -7721,12 +7731,9 @@ class AppScreen(QWidget):
         self._btn_clear = QPushButton("Clear console")
         self._btn_clear.setObjectName("GhostButton")
         self._btn_clear.setCursor(Qt.PointingHandCursor)
+        self._btn_clear.setProperty("_spacrActivitySpinnerChecked", True)
         self._btn_clear.clicked.connect(lambda: self._console.clear())
         buttons.addWidget(self._btn_clear)
-
-        from ..widgets.activity_spinner import ActivitySpinner
-        self._activity_spinner = ActivitySpinner(actions)
-        buttons.addWidget(self._activity_spinner)
 
         self._btn_copy_console = QPushButton("Copy console")
         self._btn_copy_console.setObjectName("GhostButton")
@@ -7776,20 +7783,28 @@ class AppScreen(QWidget):
 
         row.addStretch(1)
 
+        status = QWidget(actions_body)
+        status.setObjectName("ActionStatusRow")
+        self._action_status = status
+        status_row = QHBoxLayout(status)
+        status_row.setContentsMargins(0, 0, 0, 0)
+        status_row.setSpacing(SPACING["sm"])
+
         self._progress = QProgressBar()
         self._progress.setRange(0, 0)
         self._progress.setTextVisible(False)
         self._progress.setVisible(False)
         self._progress.setFixedWidth(240)
-        row.addWidget(self._progress)
+        status_row.addWidget(self._progress)
         self._gpu_progress = QLabel()
         self._gpu_progress.setObjectName("MaskGpuProgress")
         self._gpu_progress.setVisible(False)
-        row.addWidget(self._gpu_progress)
+        status_row.addWidget(self._gpu_progress)
         self._watch_progress = QLabel()
         self._watch_progress.setObjectName("WatchFolderProgress")
         self._watch_progress.setVisible(False)
-        row.addWidget(self._watch_progress)
+        status_row.addWidget(self._watch_progress)
+        status_row.addStretch(1)
 
         _breathe_while_a_window_opens()
         from .. import timing as _timing
@@ -7934,6 +7949,8 @@ class AppScreen(QWidget):
         self._apply_ai_default()
 
         body_col.addWidget(actions)
+        self._sync_action_status_height()
+        body_col.addWidget(status)
 
         self._category_hint_pinned = ""
         self._category_hint = QLabel(self._default_category_hint())
@@ -7952,6 +7969,7 @@ class AppScreen(QWidget):
         self._hint_strip.setOpenExternalLinks(True)
         self._hint_strip.linkActivated.connect(self._on_hint_link)
         body_col.addWidget(self._hint_strip)
+        self._install_action_hints()
 
         self._actions_folder = make_foldable(
             actions_heading, actions_body, name="Actions",
@@ -8162,6 +8180,82 @@ class AppScreen(QWidget):
 
         splitter.splitterMoved.connect(_save)
 
+    def _action_hint(self, control) -> str:
+        """Translate an action's English help at the time it is displayed."""
+        if control is self._btn_run:
+            return tr("Run this module with the current settings. Progress and errors appear in the console.")
+        if control is self._btn_stop:
+            return tr("Stop the active run without changing its saved inputs.")
+        if control is self._btn_import:
+            return tr("Import settings from a saved file into this form before running.")
+        if control is self._btn_clear:
+            return tr("Clear the visible console output; saved results remain on disk.")
+        if control is self._btn_analysis_lock:
+            return tr(
+                "Preregister the analysis: freeze these settings, your hypotheses "
+                "and thresholds, and the model and gate files they name, with a "
+                "hash and a timestamp, before the results are seen. Every later "
+                "run on the same source is checked against the lock, and a "
+                "change is flagged in its manifest, the report and the methods "
+                "text, as post-hoc once the blinding key has been opened. "
+                "Default no lock.")
+        if control is getattr(getattr(self, "_virtual_stain", None), "button", None):
+            return tr("Apply a saved virtual-staining model to the source folder and write its predicted stains.")
+        return tr(str(self._action_hints.get(control) or ""))
+
+    def _install_action_hints(self) -> None:
+        """Send action and mode help to the fixed footer instead of a popup."""
+        from PySide6.QtWidgets import QToolButton
+
+        from ..tooltip_policy import OPT_OUT_PROPERTY
+
+        sources = [
+            (self._btn_run, None),
+            (self._btn_stop, None),
+            (self._btn_import, None),
+            (self._btn_clear, None),
+            (getattr(getattr(self, "_virtual_stain", None), "button", None), None),
+        ]
+        controls = (
+            self._btn_analysis_lock, self._btn_remote,
+            self._btn_copy_console, self._btn_preferences,
+            self._btn_file_issue, self._btn_cpu_toggle,
+            getattr(self, "_preview_switch", None),
+            getattr(self, "_ops_switch", None),
+            getattr(self, "_gpu_switch", None),
+            getattr(self, "_sweep_switch", None),
+            getattr(self, "_hp_switch", None),
+            getattr(self, "_interactive_switch", None),
+            getattr(self, "_ai_switch", None),
+            *(getattr(self, "_dimension_switches", None) or {}).values(),
+        )
+        controls += tuple(self.findChildren(QPushButton)) + tuple(self.findChildren(QToolButton))
+        for name in ("_live_preview_card", "_measure_preview_card",
+                     "_timelapse_preview_card", "_motility_preview_card"):
+            card = getattr(self, name, None)
+            if card is not None:
+                controls += tuple(card.findChildren(QPushButton))
+                controls += tuple(card.findChildren(QToolButton))
+        for control in controls:
+            if control is None:
+                continue
+            source = control.property("_spacr_i18n_tooltip")
+            sources.append((control, source or self._action_hints.get(control) or control.toolTip()))
+        for control, source in sources:
+            if control is None:
+                continue
+            self._action_hints[control] = source
+            text = self._action_hint(control)
+            if not text:
+                del self._action_hints[control]
+                continue
+            if not control.accessibleDescription():
+                control.setAccessibleDescription(text)
+            control.setProperty("_spacr_i18n_tooltip", "")
+            control.setProperty(OPT_OUT_PROPERTY, True)
+            control.setToolTip("")
+            control.installEventFilter(self)
+
     def _write_hint(self, text: str, url: str = "",
                     hold: bool = False, animated: bool = False) -> None:
         """Put ``text`` in the strip, trimmed to the lines the strip has.
@@ -8278,6 +8372,16 @@ class AppScreen(QWidget):
         hint.ensurePolished()
         hint.setFixedHeight(
             _height_of_lines(hint.fontMetrics(), HINT_STRIP_LINES))
+
+    def _sync_action_status_height(self) -> None:
+        """Reserve one status row even while progress labels are hidden."""
+        status = getattr(self, "_action_status", None)
+        progress = getattr(self, "_progress", None)
+        if status is None or progress is None:
+            return
+        status.setFixedHeight(max(
+            progress.sizeHint().height(),
+            self._btn_run.fontMetrics().lineSpacing() + 8))
 
     def _sync_category_hint_height(self) -> None:
         """Reserve three lines for the category strip, in the painted font."""
@@ -8431,6 +8535,7 @@ class AppScreen(QWidget):
             self._refresh_usage()
         self._sync_hint_strip_height()
         self._sync_category_hint_height()
+        self._sync_action_status_height()
         if not getattr(self, "_surfaces_cleared_on_show", False):
             self._surfaces_cleared_on_show = True
             try:

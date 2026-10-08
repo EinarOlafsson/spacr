@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 18:34-0400\n"
+"POT-Creation-Date: 2026-10-08 15:08-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -46,6 +46,18 @@ msgstr "Myndalistinn notar fyrirliggjandi slembiúrtak af takmarkaðri stærð. 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form."
 msgstr "Merking mynda breytir aðeins forskoðuninni. Hún velur ekki sjónsviðin sem Mæling vinnur úr og breytir hvorki vistuðum mælingum né útflutningi. **Afrita stillingar** heldur fyrra hlutverki sínu: að afrita skurðar- og síustillingar í Mæling-eyðublaðið."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Save measured fields"
+msgstr "Vista mæld myndsvið"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measure's SQLite workers send their completed data to one database writer. Object rows, crop indices, rescaling provenance and confluency for a field commit together. The run records a saved field only after its commit."
+msgstr "SQLite-verkferlar Measure senda fullunnin gögn sín til eins gagnagrunnsskrifara. Hlutaraðir, skurðarvísar, upprunaupplýsingar endurskölunar og samflæði myndsviðs eru staðfest saman. Keyrslan skráir vistað myndsvið aðeins eftir staðfestingu þess."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Preferences → Performance → Database write queue RAM** sets the amount of serialized queued data held in RAM. The default is 1 GiB and zero selects disk-only buffering. Overflow lives beneath ``measurements/.write_queue``; failed or interrupted packets remain there with their error reports. An explicit Python setting ``database_write_queue_gib`` overrides the preference for that run. See :doc:`database_concurrency_audit` for the queue, retry, journal and optional-backend boundaries."
+msgstr "**Kjörstillingar → Afköst → RAM fyrir skrifbiðröð gagnagrunns** stillir magn raðvæddra biðraðargagna sem haldið er í RAM. Sjálfgefið gildi er 1 GiB og núll velur eingöngu diskbiðminni. Umframgögn eru undir ``measurements/.write_queue``; pakkar sem biluðu eða voru rofnir haldast þar með villuskýrslum sínum. Skýr Python-stilling ``database_write_queue_gib`` yfirskrifar kjörstillinguna fyrir þá keyrslu. Sjá :doc:`database_concurrency_audit` um afmörkun biðraðar, endurtilrauna, skráningardagbókar og valfrjálsra bakenda."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Resolve a stored plane-layout conflict"

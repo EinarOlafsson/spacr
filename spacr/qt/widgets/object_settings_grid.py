@@ -667,6 +667,7 @@ class ObjectSettingsGrid(QWidget):
         self._help_api_url = ""
 
         self._table = QTableView(self)
+        self._table.setObjectName("Objects")
         self._table.setModel(self._model)
         install_sorting(self._table)
         self._table.setSelectionBehavior(QAbstractItemView.SelectItems)

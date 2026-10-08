@@ -1833,6 +1833,9 @@
     {
       "context": "path to a SQLite measurement database, opened read-only; the preferred tables (``object``, ``cell``, ``nucleus``, …) come first, then the rest alphabetically. SQLite internals and the private condition-annotation receipt table are left out; ordinary user tables and named derived results remain available.",
       "label": "spacr.qt.screens.graph_builder.table_names#1",
+      "retired": true,
+      "retired_date": "2026-10-08",
+      "retired_reason": "Worker/database queue behavior changed this source block; the original target and review are retained as historical evidence. Current wording is covered by 2026-10-08-worker-database-queue.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "path to a SQLite measurement database, opened read-only; the preferred tables (``object``, ``cell``, ``nucleus``, …) come first, then the rest alphabetically. SQLite internals and the private condition-annotation receipt table are left out; ordinary user tables and named derived results remain available.",
       "source_sha256": "4188c0fb37c43d0905b4cef87b79b194c6e1b3db92143951bce00e495ba8169b",

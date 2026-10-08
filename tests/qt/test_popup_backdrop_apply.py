@@ -4,7 +4,7 @@ import pytest
 import threading
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QComboBox, QDialog, QLabel, QSlider, QVBoxLayout
+from PySide6.QtWidgets import QComboBox, QDialog, QLabel, QSlider, QVBoxLayout, QWidget
 
 from spacr.qt import preferences as prefs
 from spacr.qt.widgets import ambient, glass
@@ -23,7 +23,77 @@ def _popup(qtbot, owner):
     return popup
 
 
-@pytest.mark.parametrize("initial", ["off", "blobs", "aurora"])
+def test_spaceout_preferences_keeps_its_popup_drift_without_another_fractal(
+        private_preferences, qtbot, qapp, monkeypatch):
+    from spacr.qt import theme
+    from spacr.qt.app import MainWindow
+
+    built = []
+
+    class Fractal(QWidget):
+        backend_name = "cpu"
+
+        def __init__(self):
+            super().__init__()
+            self._spaceout_built_from = ("test",)
+            built.append(self)
+
+        def shutdown(self):
+            self.hide()
+
+    monkeypatch.setattr(ambient, "_build_the_spaceout_fractal",
+                        lambda *_args, **_kwargs: Fractal())
+    was_spaceout = theme.spaceout_enabled()
+    window = None
+    dialog = None
+    theme.enable_spaceout()
+    try:
+        prefs.set_ambient_animation(ambient.SPACEOUT_THEME)
+        prefs.set_popup_backdrop("drift")
+        prefs.set_fractal_settings(backend="cpu")
+        window = MainWindow()
+        qtbot.addWidget(window)
+        window.show()
+        qtbot.waitExposed(window)
+        original = tuple(ambient._live_spaceout_fractals())
+        assert len(original) == 1
+        before = len(built)
+        assert before >= 1
+
+        dialog = prefs.PreferencesDialog(window)
+        qtbot.addWidget(dialog)
+        assert glass.glass(dialog)
+        dialog.show()
+        qtbot.waitExposed(dialog)
+        backdrop = dialog._spacr_popup_backdrop
+        assert isinstance(backdrop, ambient.AmbientWidget)
+        assert backdrop.theme() == "drift"
+        assert backdrop.palette_name() == "spacr"
+        assert tuple(ambient._live_spaceout_fractals()) == original
+        assert len(built) == before
+
+        prefs.apply_ambient_preferences(qapp)
+        assert dialog._spacr_popup_backdrop is backdrop
+        assert backdrop.theme() == "drift"
+        assert backdrop.palette_name() == "spacr"
+        assert tuple(ambient._live_spaceout_fractals()) == original
+        assert len(built) == before
+        dialog.reject()
+    finally:
+        if dialog is not None:
+            backdrop = getattr(dialog, "_spacr_popup_backdrop", None)
+            if isinstance(backdrop, ambient.AmbientWidget):
+                backdrop.stop()
+            dialog.reject()
+        if window is not None:
+            ambient._retire_fractals_on(window)
+            window.close()
+        qapp.processEvents()
+        theme.enable_spaceout() if was_spaceout else theme.disable_spaceout()
+
+
+
+@pytest.mark.parametrize("initial", ["off", "blobs", "drift"])
 def test_apply_keeps_none_independent_of_main_animation(private_preferences, qtbot, initial):
     prefs.set_ambient_animation("data_art_impulse_lens")
     prefs.set_popup_backdrop(initial)
@@ -48,14 +118,15 @@ def test_apply_keeps_none_independent_of_main_animation(private_preferences, qtb
 
 def test_apply_creates_and_reuses_popup_theme_separately(private_preferences, qtbot):
     prefs.set_ambient_animation("data_art_impulse_lens")
+    prefs.set_popup_backdrop("off")
     dialog, owner, _ = _dialog(qtbot)
     popup = _popup(qtbot, owner)
     assert not popup.findChildren(ambient.AmbientWidget)
     combo = dialog.findChild(QComboBox, "PopupBackdrop")
-    combo.setCurrentIndex(combo.findData("aurora"))
+    combo.setCurrentIndex(combo.findData("blobs"))
     question = _apply(dialog, qtbot)
     backdrop = popup._spacr_popup_backdrop
-    assert backdrop.theme() == "aurora"
+    assert backdrop.theme() == "blobs"
     assert prefs.get_ambient_theme() == "data_art_impulse_lens"
     _answer(question, "Keep", qtbot)
     question = _apply(dialog, qtbot)

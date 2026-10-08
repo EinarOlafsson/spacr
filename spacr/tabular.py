@@ -537,6 +537,9 @@ def _connect(db: Any, *, migrate: bool, read_only: bool = False):
     if read_only:
         from .database_concurrency import connect
         return connect(path, readonly=True)
+    from .database_concurrency import _inside_write_packet, connect
+    if _inside_write_packet(path):
+        return connect(path)
     return sqlite3.connect(path, timeout=30)
 
 

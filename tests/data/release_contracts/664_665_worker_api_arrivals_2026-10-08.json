@@ -1,0 +1,10 @@
+{
+  "spacr._mask_workers._run_mask_workers.run_group": "Join every member of one primary or serial final worker group.",
+  "spacr.measure._commit_measure_packet.dispatch": "Save one approved operation to the packet's central database.\n\n:param operation: approved helper name, positional arguments and keywords.",
+  "spacr.measure.measure_crop.record_verdict": "Count each field once, after its actual final outcome.",
+  "spacr.measure.measure_crop.write_callback": "Record a field only after its packet's final SQL verdict.",
+  "spacr.ops_engine._decode_field.load_slot": "Read one original source with the shared deferred overload policy.",
+  "spacr.qt.preferences.get_database_write_queue_gib": "Return the serialized database queue RAM budget in GiB.\n\nZero uses disk-only buffering. This is not the total process RAM limit.",
+  "spacr.qt.preferences.set_database_write_queue_gib": "Persist the database queue payload budget for subsequent runs.\n\n:param gib: serialized queued-data RAM allowance in GiB, from zero to 64.\n    Zero stores queued payloads on disk.\n:raises ValueError: if the value is nonfinite or outside the valid range.",
+  "spacr.sim._commit_simulation_packet.dispatch": "Write one captured simulation frame through the normal table writer."
+}

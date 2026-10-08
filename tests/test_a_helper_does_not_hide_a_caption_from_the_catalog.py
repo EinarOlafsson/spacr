@@ -290,3 +290,46 @@ def test_runtime_category_headings_have_source_bound_catalog_entries(builder):
         assert title in english['UI_SOURCES']
         assert english['SOURCE_HASHES'][('UI', title)] == builder._source_hash(title)
     assert 'plaque_growth_reference_um' not in source['ui']
+
+
+@pytest.mark.parametrize("spaceout", (False, True))
+def test_animation_sources_cover_both_launch_modes(builder, monkeypatch, spaceout):
+    """A catalog built in either mode covers every menu's registry prose."""
+    from spacr.qt import preferences, theme
+    from spacr.qt.widgets import ambient
+
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: spaceout)
+    expected_choices = set(ambient.ANIMATION_CHOICES)
+    expected_choices.update(ambient.SPACEOUT_ONLY_THEMES)
+    expected_choices.add(ambient.SPACEOUT_THEME)
+    offered = set(preferences._animation_choices())
+    assert offered == (expected_choices if spaceout else set(ambient.ANIMATION_CHOICES))
+    expected_notes = {ambient.animation_note(name) for name in expected_choices}
+    expected_labels = {ambient.animation_label(name) for name in expected_choices}
+    indirect = builder._indirect_runtime_ui_sources()
+    assert expected_notes - {""} <= indirect
+    assert {label for label in expected_labels if label.startswith("spaCR ")} <= indirect
+    canonical = set(builder.canonical_sources()["ui"])
+    assert expected_notes - {""} <= canonical
+    assert {label for label in expected_labels if label.startswith("spaCR ")} <= canonical
+
+
+def test_spaceout_effect_row_prose_reaches_catalog_without_storage_keys(builder):
+    """All eight live toggles expose their label and help through local rows."""
+    from spacr.qt import preferences
+    from spacr.qt.i18n import _ROWS, _TERM_ROWS
+
+    tree = ast.parse((QT / "preferences.py").read_text())
+    registries = [node for node in ast.walk(tree)
+                  if isinstance(node, ast.For) and isinstance(node.target, ast.Tuple)
+                  and tuple(getattr(item, "id", None) for item in node.target.elts)
+                  == ("key", "check", "label", "note")]
+    assert len(registries) == 1
+    rows = registries[0].iter.elts
+    keys = tuple(ast.literal_eval(row.elts[0]) for row in rows)
+    assert keys == preferences._SPACEOUT_FIELD_EFFECT_KEYS
+    assert len(keys) == 8
+    expected = {ast.literal_eval(field) for row in rows for field in row.elts[2:]}
+    canonical = set(builder.canonical_sources()["ui"])
+    assert expected - set(_ROWS) - set(_TERM_ROWS) <= canonical
+    assert not set(keys) & canonical

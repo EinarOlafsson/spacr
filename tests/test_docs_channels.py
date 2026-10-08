@@ -312,3 +312,58 @@ def test_configure_loads_the_compat_extension_without_shadowing_branch_tools(tmp
     assert namespace['extensions'] == ['docs_publication_compat']
     assert sys.path == before
     assert sys.modules['docs_publication_compat'].__file__ == publisher_tools + '/docs_publication_compat.py'
+
+
+def test_shared_deck_images_keep_branch_content_and_all_downloads(tmp_path):
+    import hashlib
+    import re
+    main, nightly = site(tmp_path, 'main'), site(tmp_path, 'nightly')
+    originals = {}
+    for branch, root in (('main', main), ('nightly', nightly)):
+        deck = root / '_static/deck'
+        (deck / 'slides').mkdir(parents=True)
+        (deck / 'slides/shared.jpg').write_bytes(b'exact shared image')
+        (deck / 'slides/changed.jpg').write_bytes(branch.encode())
+        (deck / 'title_base.jpg').write_bytes(b'unchanged title asset')
+        (deck / 'spacr_deck.pdf').write_bytes(branch.encode() + b' pdf')
+        record = {'version': branch, 'slides': [{'title': branch,
+            'image': 'slides/shared.jpg', 'thumb': 'slides/changed.jpg'}]}
+        (deck / 'index.html').write_text('<body><a href="spacr_deck.pdf">PDF</a>\n'
+            + 'const DECK = ' + json.dumps(record) + ';\n</body>')
+        originals[branch] = {p.relative_to(root).as_posix(): p.read_bytes()
+                             for p in root.rglob('*') if p.is_file()}
+    output = tmp_path / 'pages'
+    receipt = assemble(main, nightly, output)
+    assert receipt['shared_deck_images'] == 1
+    for branch, source, root in (('main', main, output), ('nightly', nightly, output / 'nightly')):
+        deck = root / '_static/deck'
+        record = json.loads(re.search(r'const DECK = (.+);\n', (deck / 'index.html').read_text())[1])
+        assert record['version'] == record['slides'][0]['title'] == branch
+        image = (deck / record['slides'][0]['image']).resolve()
+        assert image.read_bytes() == b'exact shared image'
+        assert image.name == hashlib.sha256(image.read_bytes()).hexdigest() + '.jpg'
+        assert (deck / record['slides'][0]['thumb']).read_bytes() == branch.encode()
+        assert (deck / 'spacr_deck.pdf').read_bytes() == branch.encode() + b' pdf'
+        assert (deck / 'title_base.jpg').read_bytes() == b'unchanged title asset'
+        assert not (deck / 'slides/shared.jpg').exists()
+        assert {p.relative_to(source).as_posix(): p.read_bytes()
+                for p in source.rglob('*') if p.is_file()} == originals[branch]
+
+
+@pytest.mark.parametrize('outside', [True, False])
+def test_deck_sharing_preserves_additional_literal_uses_and_unrecognized_decks(tmp_path, outside):
+    main, nightly = site(tmp_path, 'main'), site(tmp_path, 'nightly')
+    for root in (main, nightly):
+        deck = root / '_static/deck'
+        deck.mkdir(parents=True)
+        (deck / 'image.jpg').write_bytes(b'image')
+        text = 'const OTHER = {};\n'
+        if outside:
+            text = 'const DECK = {"slides": [{"image": "image.jpg"}]};\n'
+            text += 'const SECOND_USE = "image.jpg";\n'
+        (deck / 'index.html').write_text('<body>' + text + '</body>')
+    output = tmp_path / 'pages'
+    receipt = assemble(main, nightly, output)
+    assert receipt['shared_deck_images'] == 0
+    for root in (output, output / 'nightly'):
+        assert (root / '_static/deck/image.jpg').read_bytes() == b'image'

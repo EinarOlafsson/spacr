@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 18:34-0400\n"
+"POT-Creation-Date: 2026-10-08 15:08-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
@@ -43,8 +43,37 @@ msgstr "somente falhas de bloqueio/ocupação ao adquirir uma transação são r
 msgid "an exhausted lock budget raises :class:`spacr.database_concurrency.DatabaseBusy` instead of dropping a write or continuing silently."
 msgstr "um orçamento de bloqueio esgotado lança :class:`spacr.database_concurrency.DatabaseBusy` em vez de descartar uma gravação ou continuar silenciosamente."
 
-msgid "Measurement writes retain their specialized recovery for concurrent ``CREATE TABLE`` and schema-widening races. Run-status table creation and row insertion are one atomic transaction. Database Browser edit validation and its single-row update also share one transaction, so a row address cannot change between the check and the write. Resume's multi-table delete-before-remeasure validates and deletes under one retried write transaction. Annotate preserves the configured journal mode, rolls back a failed coalesced batch, retains an unsaved/error state, and reports that state in the module instead of marking a failed commit as saved."
-msgstr "As gravações de medição mantêm sua recuperação especializada para ``CREATE TABLE`` concorrentes e condições de corrida na ampliação do esquema. A criação da tabela de status de execução e a inserção da linha formam uma única transação atômica. A validação de edições do Navegador de banco de dados e sua atualização de uma única linha também compartilham uma transação, de modo que o endereço de uma linha não pode mudar entre a verificação e a gravação. A exclusão em várias tabelas antes de uma nova medição ao retomar é validada e executada em uma única transação de gravação repetida. Anotação preserva o modo de diário configurado, reverte um lote agrupado com falha, mantém um estado de não salvo/erro e informa esse estado no módulo em vez de marcar como salva uma confirmação com falha."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measure workers enqueue SQLite results for one dedicated writer. Object tables, crop indices, intensity provenance and confluency for a field commit in one transaction. A failed later operation rolls back the earlier rows and schema changes for that field. Run status records success only after commit. Standalone measurement helpers retain their specialized recovery for ``CREATE TABLE`` and schema-widening races. Run-status table creation and row insertion are one atomic transaction. Database Browser edit validation and its single-row update also share one transaction, so a row address cannot change between the check and the write. Resume's multi-table delete-before-remeasure validates and deletes under one retried write transaction. Annotate preserves the configured journal mode, rolls back a failed coalesced batch, retains an unsaved/error state, and reports that state in the module instead of marking a failed commit as saved."
+msgstr "Os trabalhadores do Measure enfileiram resultados SQLite para um único escritor dedicado. Tabelas de objetos, índices de recortes, proveniência de intensidade e confluência de um campo são confirmados em uma transação. Uma operação posterior que falhe reverte as linhas anteriores e as mudanças de esquema desse campo. O status da execução registra o sucesso somente após a confirmação. As funções auxiliares de medição independentes mantêm sua recuperação especializada para ``CREATE TABLE`` e condições de corrida na ampliação do esquema. A criação da tabela de status de execução e a inserção da linha formam uma única transação atômica. A validação de edições do Navegador de banco de dados e sua atualização de uma única linha também compartilham uma transação, de modo que o endereço de uma linha não pode mudar entre a verificação e a gravação. A exclusão em várias tabelas antes de uma nova medição ao retomar é validada e executada em uma única transação de gravação repetida. Anotação preserva o modo de diário configurado, reverte um lote agrupado com falha, mantém um estado de não salvo/erro e informa esse estado no módulo em vez de marcar como salva uma confirmação com falha."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measure's bounded write queue"
+msgstr "Fila de escrita limitada do Measure"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Preferences → Performance**, **Database write queue RAM** controls the serialized data waiting for the SQLite writer. The default is 1 GiB; zero uses disk-only buffering. A Python or headless call can override the saved preference with ``database_write_queue_gib`` in the Measure settings, from zero to 64. The allowance accounts for queued payload and transport copies; it does not cap worker arrays, the active write, or total process memory."
+msgstr "Em **Preferências → Desempenho**, **RAM da fila de escrita da base de dados** controla os dados serializados que aguardam o escritor SQLite. O padrão é 1 GiB; zero usa armazenamento temporário apenas em disco. Uma chamada Python ou sem GUI pode substituir a preferência salva com ``database_write_queue_gib`` nas configurações do Measure, de zero a 64. O orçamento contabiliza os dados enfileirados e as cópias de transporte; não limita os arrays dos trabalhadores, a escrita ativa nem a memória total do processo."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Overflow is stored in a private run folder beneath ``measurements/.write_queue``. The transport holds a bounded number of entries, and overflow descriptors refer to disk data. Packets also retain a durable copy until commit, so cancellation, disk exhaustion or a failed writer cannot silently discard accepted data. Successfully committed packets are removed. Uncommitted packets and their error reports remain on disk after failure; do not delete them before investigating the failed field."
+msgstr "O excesso é armazenado em uma pasta privada da execução sob ``measurements/.write_queue``. O transporte mantém um número limitado de entradas, e os descritores do excesso apontam para dados em disco. Os pacotes também preservam uma cópia durável até a confirmação, de modo que cancelamento, falta de espaço em disco ou falha do escritor não possam descartar silenciosamente os dados aceitos. Pacotes confirmados com sucesso são removidos. Pacotes não confirmados e seus relatórios de erro permanecem em disco após uma falha; não os exclua antes de investigar o campo que falhou."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each field has a commit ticket written atomically with its rows. Replaying that ticket does not append the rows again. Exhausted SQL busy/lock failures enter a distinct serial retry pass after the primary producers finish. This pass gives each affected field one additional attempt. Invalid inputs and cancellation do not enter it. Readers retain their ordinary read-only connections and the existing filesystem-dependent journal policy."
+msgstr "Cada campo tem um comprovante de confirmação escrito atomicamente com suas linhas. Processar esse comprovante novamente não acrescenta as linhas outra vez. Falhas SQL por base ocupada ou bloqueada que esgotam suas tentativas entram em uma etapa separada de novas tentativas em série após o término dos produtores primários. Essa etapa oferece a cada campo afetado uma tentativa adicional. Entradas inválidas e cancelamentos não entram nela. Os leitores mantêm suas conexões habituais apenas para leitura e a política existente de diário, dependente do sistema de arquivos."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The queued field path currently applies to the SQLite measurement backend. Optional DuckDB, Parquet and PostgreSQL mirrors retain their existing worker path; the RAM control does not govern those external stores."
+msgstr "O caminho de campos enfileirados se aplica atualmente ao mecanismo de medição SQLite. Espelhos opcionais DuckDB, Parquet e PostgreSQL mantêm seu caminho existente de trabalhadores; o controle de RAM não gerencia esses armazenamentos externos."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Simulation's bounded write queue"
+msgstr "Fila de escrita limitada de simulações"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Parallel simulations use the same **Database write queue RAM** allowance, including a ``database_write_queue_gib`` override and disk-only buffering at zero. Pending packets live beneath the dated output directory in ``.simulation_write_queue``. Workers capture all tables for a simulation; one writer commits them with an idempotent ticket in the destination ``simulations.db``. A failed calculation does not enqueue partial tables. An exhausted calculation or database write fails the run and retains its pending disk evidence. Direct standalone ``run_and_save`` calls keep their ordinary database-writing path."
+msgstr "Simulações paralelas usam o mesmo orçamento de **RAM da fila de escrita da base de dados**, incluindo substituição por ``database_write_queue_gib`` e armazenamento temporário apenas em disco com zero. Pacotes pendentes ficam sob o diretório de saída datado, em ``.simulation_write_queue``. Os trabalhadores capturam todas as tabelas de uma simulação; um escritor as confirma com um comprovante idempotente no destino ``simulations.db``. Um cálculo malsucedido não enfileira tabelas parciais. Um cálculo ou uma escrita na base de dados que esgota suas tentativas faz a execução falhar e preserva as evidências pendentes em disco. Chamadas diretas e independentes a ``run_and_save`` mantêm seu caminho habitual de escrita na base de dados."
 
 msgid "Journal mode and network storage"
 msgstr "Modo de diário e armazenamento em rede"
@@ -253,8 +282,9 @@ msgstr "ativa a aplicação de chaves estrangeiras do SQLite nesta conexão. O S
 msgid "Returns"
 msgstr "Retorna"
 
-msgid "connection in autocommit mode; use :func:`transaction` for multi-statement writes."
-msgstr "conexão no modo de confirmação automática; use :func:`transaction` para gravações com várias instruções."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "connection in autocommit mode; use :func:`transaction` for multi-statement writes. Inside an atomic queued write, helpers for this same database reuse the writer thread's active connection; their commits and closes are deferred until the complete field commits."
+msgstr "conexão no modo autocommit; use :func:`transaction` para escritas com várias instruções SQL. Dentro de uma escrita atômica enfileirada, as funções auxiliares para esta mesma base de dados reutilizam a conexão ativa da thread de escrita; suas confirmações e fechamentos são adiados até a confirmação de todo o campo de imagem."
 
 msgid "Raises"
 msgstr "Exceções"
@@ -379,8 +409,9 @@ msgstr "total de segundos que esta transação pode passar esperando por bloquei
 msgid "when the lock outlives the retry budget."
 msgstr "quando o bloqueio dura mais que o orçamento de repetições."
 
-msgid "when asked to nest inside an active transaction."
-msgstr "quando se pede o aninhamento dentro de uma transação ativa."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "when asked to nest inside an active transaction outside a writer-owned packet. Queued helper transactions use savepoints within that packet."
+msgstr "quando é solicitado aninhamento dentro de uma transação ativa fora de um pacote gerenciado pelo escritor. As transações de funções auxiliares enfileiradas usam pontos de salvamento dentro desse pacote."
 
 msgid "Is ``path`` on a filesystem where WAL is known to behave?"
 msgstr "``path`` está em um sistema de arquivos no qual se sabe que o WAL se comporta corretamente?"

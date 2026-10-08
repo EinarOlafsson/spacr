@@ -9,7 +9,7 @@ import pandas as pd
 from PIL import Image
 from collections import defaultdict, Counter
 from contextlib import contextmanager
-from concurrent.futures import ThreadPoolExecutor
+from .resource_log import _parallel_thread_executor as ThreadPoolExecutor
 from pathlib import Path
 from matplotlib.animation import FuncAnimation
 try:
@@ -36,8 +36,10 @@ from skimage import exposure
 import imageio.v2 as imageio2
 import matplotlib.pyplot as plt
 from io import BytesIO
-from multiprocessing import Pool, cpu_count
-from torch.utils.data import Dataset, DataLoader, random_split, Subset, WeightedRandomSampler
+from multiprocessing import cpu_count
+from .resource_log import _parallel_pool as Pool
+from torch.utils.data import Dataset, DataLoader as _TorchDataLoader, random_split, Subset, WeightedRandomSampler
+from .resource_log import _parallel_data_loader as DataLoader
 from torchvision.transforms import ToTensor
 import seaborn as sns 
 from nd2reader import ND2Reader
@@ -843,7 +845,7 @@ class spacrDataset(Dataset):
             img = self.transform(img)
         return img, label, filename
     
-class spacrDataLoader(DataLoader):
+class spacrDataLoader(_TorchDataLoader):
     """DataLoader that pre-fetches batches into a queue on a background thread.
 
     Wraps ``torch.utils.data.DataLoader`` and runs a daemon thread that
@@ -857,6 +859,9 @@ class spacrDataLoader(DataLoader):
 
     def __init__(self, *args, preload_batches=1, **kwargs):
         """Initialise the underlying DataLoader and the preload queue."""
+        from .resource_log import _data_loader_arguments
+
+        kwargs = _data_loader_arguments(args, kwargs)
         super().__init__(*args, **kwargs)
         self.preload_batches = preload_batches
         self.batch_queue = queue.Queue(maxsize=max(1, preload_batches))
@@ -6946,7 +6951,8 @@ def generate_dataset(settings=None):
     if settings is None:
         settings = {}
     import os, tarfile, shutil, random, datetime
-    from multiprocessing import Pool, Value, Lock, cpu_count
+    from multiprocessing import Value, Lock, cpu_count
+    from .resource_log import _parallel_pool as Pool
 
     from .utils import (
         initiate_counter, add_images_to_tar, save_settings,

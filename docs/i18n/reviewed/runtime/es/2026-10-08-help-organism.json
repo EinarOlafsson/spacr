@@ -1,0 +1,28 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "key": "Drag this edge to make the help area taller or shorter.",
+      "source": "Drag this edge to make the help area taller or shorter.",
+      "source_sha256": "8b267b7007e23a62037dc48b0da67996ddea78a05394274a6adcd86e8896485f",
+      "table": "ui",
+      "translation": "Arrastre este borde para aumentar o reducir la altura del área de ayuda."
+    },
+    {
+      "key": "Organism",
+      "source": "Organism",
+      "source_sha256": "0046135a92aeca6aefc5042f03294aa8eeac89e6daf26ab3497047cd50212c2e",
+      "table": "ui",
+      "translation": "Organismo"
+    },
+    {
+      "key": "Organism-specific image analysis and quantitative assay readouts.",
+      "source": "Organism-specific image analysis and quantitative assay readouts.",
+      "source_sha256": "65968834aa1d7bcc5de45bd52caf88439555c8c11d3416b4b0aa28227626e600",
+      "table": "ui",
+      "translation": "Análisis de imágenes específico del organismo y resultados cuantitativos de ensayos."
+    }
+  ],
+  "review_scope": "AI technical and contextual review against exact Help/Organism Home source 62a38906063d64f71bf2a4dcf25cca63ccd9f427; no native-speaker signoff. Swedish Organism intentionally uses the same scientific noun through the existing manual reviewed-caption authority. Resize help describes the vertical help-region edge, independent of outer window size.",
+  "schema": 1
+}

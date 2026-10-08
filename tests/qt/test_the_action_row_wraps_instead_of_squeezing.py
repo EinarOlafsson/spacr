@@ -295,7 +295,7 @@ PAIRED = ("_btn_copy_console", "_btn_preferences")
 
 def test_the_split_left_every_reachable_name_where_it_was(qtbot,
                                                           qt_theme_applied):
-    """The buttons moved into a sub-layout, NOT into a widget of their own.
+    """Buttons remain in the action row; progress has its stable status row.
 
     That distinction is the whole reason this shape was chosen over the
     obvious one: a widget added to a sub-layout is parented to the widget
@@ -315,6 +315,10 @@ def test_the_split_left_every_reachable_name_where_it_was(qtbot,
     row = screen._actions_row
     for name in ROW_ATTRIBUTES[1:]:
         widget = getattr(screen, name)
+        if name == "_progress":
+            assert widget.parent() is screen._action_status
+            assert widget in screen._action_status.findChildren(type(widget))
+            continue
         if name in PAIRED:
             # Copy console and the gear are welded into one flow item so a
             # wrap cannot separate them, so their parent is that pair rather
@@ -331,33 +335,17 @@ def test_the_split_left_every_reachable_name_where_it_was(qtbot,
         assert widget in row.findChildren(type(widget))
 
 
-def test_the_activity_spinner_is_still_beside_clear_console(qtbot,
-                                                            qt_theme_applied):
-    """It is built with the row now, and the lazy path must find that one.
-
-    ``attach_activity_spinner`` installs the spinner by asking
-    ``_btn_clear.parentWidget().layout().indexOf(_btn_clear)`` and inserting
-    at ``index + 1``. ``QLayout.indexOf`` does not descend into a sub-layout,
-    so after the split that lookup answers -1 and the helper returns None --
-    silently, and in the application only, because every test of that helper
-    builds its own flat row. The row therefore builds its own spinner and
-    publishes it under the name the helper checks first.
-    """
-    from spacr.qt.widgets.activity_spinner import (ActivitySpinner,
-                                                   attach_activity_spinner)
+def test_the_action_row_has_no_redundant_spinner(qtbot, qt_theme_applied):
+    """The progress bar remains while the adjacent decorative ring is gone."""
+    from spacr.qt.widgets.activity_spinner import ActivitySpinner, attach_activity_spinner
 
     _host, screen = _screen_in_a_window(qtbot, "measure", 1200)
 
-    spinner = getattr(screen, "_activity_spinner", None)
-    assert isinstance(spinner, ActivitySpinner)
-    assert attach_activity_spinner(screen) is spinner, (
-        "the lazy path did not recognise the spinner the row built, so a "
-        "second one would be installed")
-    assert len(screen.findChildren(ActivitySpinner)) == 1
-
-    strip = screen._actions_row.layout().itemAt(0).layout()
-    order = [strip.itemAt(i).widget() for i in range(strip.count())]
-    assert order.index(spinner) == order.index(screen._btn_clear) + 1
+    assert getattr(screen, "_activity_spinner", None) is None
+    assert screen.findChildren(ActivitySpinner) == []
+    assert screen._btn_clear.property("_spacrActivitySpinnerChecked") is True
+    assert attach_activity_spinner(screen) is None
+    assert screen._progress.parentWidget() is screen._action_status
 
 
 @pytest.mark.parametrize('locale', LOCALES)

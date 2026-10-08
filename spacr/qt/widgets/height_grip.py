@@ -285,6 +285,10 @@ class HeightGrip(QWidget):
             return super().mouseReleaseEvent(event)
         self._from_y = None
         self.height_changed.emit(self._target.height())
+        if self._target.height() != self._from_h:
+            from .ambient import field_ripple_for_widget
+
+            field_ripple_for_widget(self._target)
         event.accept()
 
     def keyPressEvent(self, event):             # noqa: N802 - Qt naming

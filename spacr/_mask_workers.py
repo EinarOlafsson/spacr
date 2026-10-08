@@ -550,18 +550,26 @@ def _mask_worker(src, settings, object_type, device, paths, environment,
         except PipelineCancelled:
             messages.put(('finished', device, ('cancelled', '')))
         except BaseException as error:
-            stop.set()
+            import traceback
+            from .runctx import _is_overload_failure
+
+            status = 'overloaded' if _is_overload_failure(error) else 'failed'
+            if status == 'failed':
+                stop.set()
             messages.put(('finished', device,
-                          ('failed', f'{type(error).__name__}: {error}')))
+                          (status, ''.join(traceback.format_exception(error)))))
 
 
 def _run_mask_workers(src, settings, object_type, assignments, environments, *,
-                      on_progress=None, on_figure=None, context=None, segmenter=None):
+                      on_progress=None, on_figure=None, context=None, segmenter=None,
+                      gate=None):
     """Run one persistent model process per nonempty assignment.
 
     Worker events report individual completed archives. Cancellation waits for
-    safe pipeline boundaries; a failed or crashed worker stops its peers.
-    Inputs are never deleted here. Shared QC belongs to the caller after all
+    safe pipeline boundaries; an invalid or crashed worker stops its peers.
+    Explicit overloads receive one serial restart after every primary worker
+    finishes, with already completed archives excluded. Worker deployments
+    are ten seconds apart. Inputs are never deleted here. Shared QC belongs to the caller after all
     workers succeed. ``on_progress`` receives independent state snapshots.
     ``on_figure`` receives detached figures on this calling thread. By default
     figures reach the existing GUI sink or are saved under mask_worker_plots
@@ -575,7 +583,10 @@ def _run_mask_workers(src, settings, object_type, assignments, environments, *,
     """
     from .cancellation import PipelineCancelled, cancellation_requested, checkpoint
 
+    from .resource_log import _WorkerStartGate
+
     checkpoint()
+    gate = gate or _WorkerStartGate()
     assignments = {device: [os.path.abspath(os.fspath(path)) for path in paths]
                    for device, paths in assignments.items() if paths}
     owners = {}
@@ -593,7 +604,7 @@ def _run_mask_workers(src, settings, object_type, assignments, environments, *,
     completed = set()
     state = {'total_batches': len(owners), 'completed_batches': [], 'workers': {
         device: {'state': 'starting', 'pid': None, 'completed': 0,
-                 'total': len(paths), 'error': ''}
+                 'total': len(paths), 'error': '', 'attempts': 0}
         for device, paths in assignments.items()}}
     requested = False
     figures = tempfile.TemporaryDirectory(prefix='spacr-mask-figures-') if settings.get('plot') else None
@@ -637,26 +648,40 @@ def _run_mask_workers(src, settings, object_type, assignments, environments, *,
             worker['completed'] += 1
         elif kind == 'finished':
             status, error = value
+            if status not in ('success', 'failed', 'cancelled', 'overloaded'):
+                raise RuntimeError(f'Invalid worker status: {status}')
+            exhausted = status == 'overloaded' and worker['attempts'] > 1
+            if exhausted:
+                status = 'failed'
             if status == 'success' and worker['completed'] != worker['total']:
                 status, error = 'failed', 'Worker exited without completing its assigned archives'
             worker.update(state=status, error=error)
-            if status == 'failed':
+            if status == 'failed' and not exhausted:
                 stop.set()
         else:
             raise RuntimeError(f'Unknown mask-worker event: {kind}')
         publish()
 
-    try:
-        for device, paths in assignments.items():
+    def run_group(group):
+        """Join every member of one primary or serial final worker group."""
+        nonlocal requested
+
+        for device, paths in group.items():
+            if device in processes:
+                processes[device].close()
+                dead_since.pop(device, None)
+            worker = state['workers'][device]
+            worker['attempts'] += 1
+            worker.update(state='starting', error='')
             process = context.Process(target=_mask_worker, args=(
                 src, settings, object_type, device, paths, environments[device],
                 messages, stop, segmenter, figures.name if figures else None),
                 name=f'spacr-mask-gpu-{device}')
-            process.start()
+            gate.start(process.start)
             processes[device] = process
             state['workers'][device]['pid'] = process.pid
         publish()
-        pending = set(processes)
+        pending = set(group)
         while pending:
             if cancellation_requested():
                 requested = True
@@ -673,7 +698,7 @@ def _run_mask_workers(src, settings, object_type, assignments, environments, *,
                     continue
                 process.join()
                 worker = state['workers'][device]
-                if worker['state'] not in ('success', 'failed', 'cancelled'):
+                if worker['state'] not in ('success', 'failed', 'cancelled', 'overloaded'):
                     since = dead_since.setdefault(device, time.monotonic())
                     if process.exitcode == 0 and time.monotonic() - since < 1.0:
                         continue
@@ -685,6 +710,19 @@ def _run_mask_workers(src, settings, object_type, assignments, environments, *,
                     stop.set()
                     publish()
                 pending.remove(device)
+
+    try:
+        run_group(assignments)
+        failed = any(worker['state'] == 'failed'
+                     for worker in state['workers'].values())
+        if not failed and not requested and not stop.is_set():
+            for device, paths in assignments.items():
+                worker = state['workers'][device]
+                if worker['state'] == 'overloaded':
+                    worker['primary_error'] = worker['error']
+                    run_group({device: [path for path in paths if path not in completed]})
+                    if stop.is_set():
+                        break
         failures = [f'GPU {device}: {worker["error"]}'
                     for device, worker in state['workers'].items()
                     if worker['state'] == 'failed']

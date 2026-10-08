@@ -1,5 +1,5 @@
 # spaCR user guide translation (ko).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 18:34-0400\n"
+"POT-Creation-Date: 2026-10-08 15:08-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Recruitment: compartment ratios and channel identity"
 msgstr "리크루트먼트 분석: 구획 비율과 채널 식별"
 
-msgid "From **Home → Assays → Toxoplasma**, open **Recruitment** after segmentation and measurement. Supply the project containing ``measurements/measurements.db`` and verify that its cell, nucleus, pathogen and cytoplasm measurements refer to the intended objects and channels. See :ref:`Recruitment in the module map <workflow-module-recruitment>`, the `Recruitment tutorial <tutorials/#lesson=25_recruitment>`_ and :func:`spacr.submodules.analyze_recruitment` for the surrounding workflow."
-msgstr "분할과 측정이 끝나면 **홈 → 어세이 → 톡소플라스마** 에서 **리크루트먼트 분석** 을 엽니다. ``measurements/measurements.db`` 가 있는 프로젝트를 지정하고, 그 안의 세포, 핵, 병원체, 세포질 측정값이 의도한 객체와 채널을 가리키는지 확인합니다. 주변 워크플로는 :ref:`모듈 맵의 리크루트먼트 분석 <workflow-module-recruitment>`, `리크루트먼트 튜토리얼 <tutorials/#lesson=25_recruitment>`_, :func:`spacr.submodules.analyze_recruitment` 를 참조합니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "From **Home** → **Organism** → **Toxoplasma**, open **Recruitment** after segmentation and measurement. Supply the project containing ``measurements/measurements.db`` and verify that its cell, nucleus, pathogen and cytoplasm measurements refer to the intended objects and channels. See :ref:`Recruitment in the module map <workflow-module-recruitment>`, the `Recruitment tutorial <tutorials/#lesson=25_recruitment>`_ and :func:`spacr.submodules.analyze_recruitment` for the surrounding workflow."
+msgstr "분할과 측정이 끝나면 **홈** → **생물체** → **톡소플라스마** 에서 **리크루트먼트 분석** 을 엽니다. ``measurements/measurements.db`` 가 있는 프로젝트를 지정하고, 그 안의 세포, 핵, 병원체, 세포질 측정값이 의도한 객체와 채널을 가리키는지 확인합니다. 주변 워크플로는 :ref:`모듈 맵의 리크루트먼트 분석 <workflow-module-recruitment>`, `리크루트먼트 튜토리얼 <tutorials/#lesson=25_recruitment>`_, :func:`spacr.submodules.analyze_recruitment` 를 참조합니다."
 
 msgid "For whole-vacuole marker states, explicit host infection denominators and optional parasite counts, see :doc:`Host–Pathogen Analysis <host_pathogen>`. The two modules remain separate analysis choices."
 msgstr "전체 액포의 마커 상태, 명시적인 숙주 감염 분모, 선택적 기생충 수는 :doc:`숙주–병원체 분석 <host_pathogen>` 을 참조합니다. 두 모듈은 서로 별개의 분석 선택지로 유지됩니다."
