@@ -1,6 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
-## 2026-10-08 10:27 UTC — Critical test-only wrapper identity repair
+## 2026-10-08 10:30 UTC — Exact Qt 6.12 failure reproduced and repaired
+
+WORKSTATION: source5636eac609 is published; corrected protected required
+37763414112 is pending on exact5636eac60938f5d6021eaf73546ff8a30ae17c32.
+Current7a and serial0b are retained uninterrupted. New actual7a Coverage9
+and Minimum0 SUCCESS confirm the old profile-count fix on hosted runners.
+Home finds actual Coverage5 installed Qt/PySide6/Shiboken6 6.12.0, distinct
+from earlier local6.11.2. ISOLATED scratch6.12 overlay reproduces EXACT hosted
+qualified-name assertion on unchanged original test:1FAIL3.99s. Same original
+bytes on6.11.2 pass1test4.01s. Repaired original full16test file on6.12.0 passes
+16tests6.85s, actualpytest8.4.2/xdist2/coverage/4G/CPU/offscreen. No global
+installation, version pin, app code, budget or ratchet change. This proves
+local version-dependent spelling behavior; historical macOS wrapper poisoning
+and native crash causes stay separate/unreproduced. All original/fixed logs,
+versions, installation log and exact source archived in20payload receipt:
+ features/data/43_shiboken_wrapper_identity_cpu_2026-10-08/receipt.json.
+Please independently read back the proof; broad source/publication remains held
+until first required green/protected serial source acceptance. Do not restart
+or cancel current runs. N43/N47 overall remain OPEN.
+
+
+## 2026-10-08 10:25 UTC — Critical test-only wrapper identity repair
 
 WORKSTATION: narrow real-CI blocker exception to source hold. Corrected7a
 required37744767240 Coverage5/job113244305609 fails one literal class-name

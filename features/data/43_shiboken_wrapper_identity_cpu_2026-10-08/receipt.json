@@ -91,6 +91,67 @@
       "bytes": 1939,
       "raw_sha256": "fc4feaf63eb069c5a30dc252f69745bd4c2c935f6293740447b706678204a72c",
       "raw_bytes": 1939
+    },
+    "qt612-original-node.log.gz": {
+      "sha256": "f30f23c286d3f69de1284b816795e9e70c921977bdf7697a96ccd709eed58cd4",
+      "bytes": 840,
+      "raw_sha256": "49d5e2d70495faec8a351a3a64f78a604baaea1e3e0f027fa5a3bd64d7089837",
+      "raw_bytes": 1957
+    },
+    "qt612-repaired-full-file.log.gz": {
+      "sha256": "3e97feb20a9384dce445455618dde9797368c420c313bda0b272a955e251846f",
+      "bytes": 255,
+      "raw_sha256": "3b4c913b6404edb7fbb7b4853ec1a49dcfeb34a15d3ef90196be8aecb0588936",
+      "raw_bytes": 444
+    },
+    "qt611-original-node.log.gz": {
+      "sha256": "17984b29ca6d61f7baf3d09f3f841e9e07d2c23432cf3baebb6c273502f7c059",
+      "bytes": 252,
+      "raw_sha256": "c9f08d2e650a02a4fd9e1c3eb152015dca946a212867ddc27806be86de92cbeb",
+      "raw_bytes": 443
+    },
+    "qt612-overlay-install.log.gz": {
+      "sha256": "5e7c84f4884a5032452898da675ff908b93251c48583663e3779465a73a3743c",
+      "bytes": 348,
+      "raw_sha256": "1cff8a5ff0f25e6d8f4e9134857a1b9d1e826466a9db9c224af022a24b44e90c",
+      "raw_bytes": 1457
+    },
+    "qt612-original-node.exit": {
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2,
+      "raw_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "raw_bytes": 2
+    },
+    "qt612-versions.json": {
+      "sha256": "61175015a276848f0103b8f1a010b3760a3209b44a2a24306548fadcd2c25526",
+      "bytes": 375,
+      "raw_sha256": "61175015a276848f0103b8f1a010b3760a3209b44a2a24306548fadcd2c25526",
+      "raw_bytes": 375
+    },
+    "qt611-versions.json": {
+      "sha256": "33fdf152315d879c111b98629ca4612b6af18f310b386705ad40c7ad440ab4f3",
+      "bytes": 293,
+      "raw_sha256": "33fdf152315d879c111b98629ca4612b6af18f310b386705ad40c7ad440ab4f3",
+      "raw_bytes": 293
+    },
+    "original_wrapper_test.py": {
+      "sha256": "3d2c8e5bfd6bb4651dbd58a9a5fdfd6a50ee51786f9d98c8f3e01a183ec43b24",
+      "bytes": 8418,
+      "raw_sha256": "3d2c8e5bfd6bb4651dbd58a9a5fdfd6a50ee51786f9d98c8f3e01a183ec43b24",
+      "raw_bytes": 8418
     }
-  }
+  },
+  "exact_qt_version_control": {
+    "original_test_bytes_identical": true,
+    "qt611_original": "1 passed in 4.01s, exit 0",
+    "qt612_original": "1 failed in 3.99s, exit 1, exact hosted qualified-name mismatch",
+    "qt612_repaired_full_file": "16 passed in 6.85s, exit 0",
+    "environment": "same Python 3.12.13 and pytest 8.4.2, xdist2/loadfile and coverage, 4G CPU/offscreen; only scratch Qt/PySide6/Shiboken6 6.12.0 overlay changed",
+    "original_command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen PYTHONPATH=.:/mnt/wd4tb/scratch/ci-7a-root-20261008/qt612-overlay:/mnt/wd4tb/scratch/ci-55bad-20261008/pytest842-overlay tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest /mnt/wd4tb/scratch/ci-7a-root-20261008/original_wrapper_test.py::test_a_child_parented_into_a_watched_host_keeps_its_wrapper -n 2 --dist loadfile --cov=spacr.qt.screens.app_screen --cov-report= -q",
+    "repaired_command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen PYTHONPATH=.:/mnt/wd4tb/scratch/ci-7a-root-20261008/qt612-overlay:/mnt/wd4tb/scratch/ci-55bad-20261008/pytest842-overlay tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest tests/qt/test_the_pyside_slot_warning_is_fixed_not_filtered.py -n 2 --dist loadfile --cov=spacr.qt.screens.app_screen --cov-report= -q",
+    "qt611_command": "Same original command without the qt612-overlay PYTHONPATH entry",
+    "remaining_limit": "Exact original test is stored in scratch and uses pytest-qt rather than the repository Qt conftest. Full repaired file uses original repository path/conftest. Historical macOS poisoning remains unreproduced."
+  },
+  "published_source": "5636eac60938f5d6021eaf73546ff8a30ae17c32",
+  "corrected_required_run": 37763414112
 }
