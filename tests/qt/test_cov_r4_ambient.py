@@ -21,7 +21,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QEvent                               # noqa: E402
+from PySide6.QtCore import QEvent, QSize                        # noqa: E402
 from PySide6.QtGui import QColor, QImage, QPainter              # noqa: E402
 from PySide6.QtWidgets import QWidget                           # noqa: E402
 
@@ -70,20 +70,30 @@ def test_a_machine_that_reports_no_screen_gets_the_fallback_ceiling(
     the backdrop would go black on exactly the machines -- headless plugins,
     a widget built before its window exists -- that this ceiling exists for.
     """
-    real = screen_pixels()
-    assert real > 0 and real != BUFFER_MAX_PIXELS, (
-        "this session has no real screen to contrast the fallback with")
+    assert screen_pixels() > 0
+
+    class _Screen:
+        def size(self):
+            return QSize(640, 480)
+
+        def devicePixelRatio(self):
+            return 2.0
 
     class _NoScreens:
+        screen = _Screen()
+
         @staticmethod
         def instance():
             return qapp
 
         @staticmethod
         def primaryScreen():
-            return None
+            return _NoScreens.screen
 
     monkeypatch.setattr("spacr.qt.hidpi.QGuiApplication", _NoScreens)
+    assert screen_pixels() == 1280 * 960
+    assert screen_pixels() != BUFFER_MAX_PIXELS
+    _NoScreens.screen = None
     assert screen_pixels() == BUFFER_MAX_PIXELS
 
 

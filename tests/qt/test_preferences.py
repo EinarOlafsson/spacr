@@ -477,19 +477,29 @@ def fake_ambient(monkeypatch):
     import sys
     import types
     from PySide6.QtWidgets import QWidget
+    from spacr.qt.widgets import ambient as real_ambient
 
     module = types.ModuleType("spacr.qt.widgets.ambient")
     # "bare" is a theme with no palettes at all — the shape a new
     # animation has while its colours are still being written.
     module.AMBIENT_THEMES = ("blobs", "mesh", "bare")
+    module.NO_ANIMATION = real_ambient.NO_ANIMATION
+    module.SPACEOUT_ONLY_THEMES = real_ambient.SPACEOUT_ONLY_THEMES
+    module.SPACEOUT_THEME = real_ambient.SPACEOUT_THEME
+    module.ANIMATION_CHOICES = module.AMBIENT_THEMES + (module.NO_ANIMATION,)
     module.DEFAULT_THEME = "blobs"
     module.DEFAULT_PALETTE = "spacr"
+    module._apply_spaceout_animation_choice = lambda app: None
+    module.coerce_palette = lambda theme, palette: palette
     palettes = {"blobs": ("spacr", "ember"), "mesh": ("steel", "rust"),
                 "bare": ()}
     module.palettes_for = lambda theme: palettes.get(theme, ())
     module.theme_label = lambda name: {"blobs": "Diffuse blobs",
                                        "mesh": "Mesh",
                                        "bare": "Bare"}[name]
+    module.animation_label = lambda name: (
+        real_ambient.animation_label(name) if name == module.NO_ANIMATION
+        else module.theme_label(name))
     module.palette_label = lambda theme, palette: (
         "spaCR" if palette == "spacr" else palette.title())
 
@@ -539,6 +549,12 @@ def fake_ambient(monkeypatch):
 
         def set_gravity_radius(self, value):
             self.motion["gravity_radius"] = value
+
+        def set_ripples_enabled(self, value):
+            self.motion["ripples_enabled"] = bool(value)
+
+        def set_field_effects(self, value):
+            self.motion["field_effects"] = dict(value)
 
     module.AmbientWidget = _RecordingAmbient
     # Both bindings, so code reaching the module either way sees the same
@@ -926,8 +942,9 @@ def test_apply_ambient_preferences_without_the_module(
             raise ImportError("no ambient module in this build")
         return real_import(name, *args, **kwargs)
 
-    monkeypatch.setattr(builtins, "__import__", _blocked)
-    apply_ambient_preferences()
+    with monkeypatch.context() as imports:
+        imports.setattr(builtins, "__import__", _blocked)
+        apply_ambient_preferences()
     # Non-vacuous: the import really was blocked, and the walk really did
     # give up rather than half-apply.
     assert blocked, "the ambient import was never attempted"
@@ -995,7 +1012,8 @@ def test_apply_preferences_to_app_applies_the_ambient_prefs(
         set_ambient_resolution, set_ambient_size, set_ambient_speed,
         set_ambient_theme,
         _set_ambient_blink_percent, _set_ambient_gravity_radius,
-        _set_field_popup_wave_frequency,
+        _set_field_popup_wave_frequency, _set_field_ripples_enabled,
+        _set_spaceout_field_effects,
     )
     widget = fake_ambient.AmbientWidget()
     qtbot.addWidget(widget)
@@ -1012,6 +1030,13 @@ def test_apply_preferences_to_app_applies_the_ambient_prefs(
     _set_ambient_blink_percent(7.0)
     _set_field_popup_wave_frequency(11.0)
     _set_ambient_gravity_radius(0.35)
+    _set_field_ripples_enabled(False)
+    field_effects = {
+        "attractors": True, "relaxation": False, "elastic_release": True,
+        "vortex": True, "density_pulses": True, "density_waves": True,
+        "color_waves": True, "spirals": True,
+    }
+    _set_spaceout_field_effects(field_effects)
 
     apply_preferences_to_app()
     assert widget.themes[-1] == "mesh"
@@ -1027,7 +1052,9 @@ def test_apply_preferences_to_app_applies_the_ambient_prefs(
                              "resolution": 1.75, "density": 2.5,
                              "direction": "random", "blink_percent": 7.0,
                              "popup_wave_frequency": 11.0,
-                             "gravity_radius": 0.35}
+                             "gravity_radius": 0.35,
+                             "ripples_enabled": False,
+                             "field_effects": field_effects}
 
 
 # ---------------------------------------------------------------------------
@@ -1279,3 +1306,35 @@ def test_preferences_imports_without_touching_the_ambient_widget():
         result = subprocess.run([sys.executable, "-c", code], env=env,
                                 capture_output=True, text=True, timeout=300)
     assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize("dialog_kind", ["none", "ordinary", "glassed"])
+def test_disabled_unloaded_backdrop_reads_popup_catalogue_only_for_glass(
+        qtbot, monkeypatch, dialog_kind):
+    """A catalogue lookup cannot import an unused backdrop during recovery."""
+    import sys
+
+    from PySide6.QtWidgets import QDialog, QWidget
+    from spacr.qt import preferences
+
+    monkeypatch.delitem(sys.modules, "spacr.qt.widgets.ambient", raising=False)
+    monkeypatch.setattr(preferences, "get_ambient_enabled", lambda: False)
+    widget = QWidget() if dialog_kind == "none" else QDialog()
+    qtbot.addWidget(widget)
+    if dialog_kind == "glassed":
+        widget.setProperty("spacrGlassed", True)
+    asked = []
+
+    def popup_choice():
+        asked.append(True)
+        return "off"
+
+    monkeypatch.setattr(preferences, "get_popup_backdrop", popup_choice)
+
+    class ExistingWidgets:
+        def allWidgets(self):
+            return [widget]
+
+    preferences.apply_ambient_preferences(ExistingWidgets())
+    assert asked == ([True] if dialog_kind == "glassed" else [])
+    assert "spacr.qt.widgets.ambient" not in sys.modules

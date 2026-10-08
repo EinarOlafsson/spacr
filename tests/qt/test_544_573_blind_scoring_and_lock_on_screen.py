@@ -306,12 +306,22 @@ def test_make_masks_blinds_raw_status_failures_and_actual_folder_confirmation(
     assert 'drugA' not in screen._status_label.toolTip()
     original = path.read_bytes()
     path.write_bytes(b'not a TIFF')
+    load_warnings = []
+    monkeypatch.setattr(module, 'is_headless', lambda: False)
+    monkeypatch.setattr(
+        QMessageBox, 'warning',
+        lambda parent, title, text: load_warnings.append((title, text))
+        or QMessageBox.Ok)
     try:
         screen._load_current()
         assert 'Load failed' in screen._status_label.text()
         assert 'plate7' not in screen._status_label.text()
         assert 'drugA' not in screen._status_label.toolTip()
         assert screen._canvas.image is None
+        assert len(load_warnings) == 1
+        assert code in load_warnings[0][1]
+        assert 'plate7' not in str(load_warnings)
+        assert 'drugA' not in str(load_warnings)
     finally:
         path.write_bytes(original)
     shown = []

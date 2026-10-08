@@ -498,7 +498,9 @@ def test_teach_me_learns_the_channels_and_fills_the_table(dialog, tmp_path):
                                       "organelle_mask_stack"))
 
 
-def test_teach_me_regex_is_reused_by_sort_by_regex(dialog, tmp_path):
+def test_teach_me_regex_is_reused_by_sort_by_regex(dialog, tmp_path,
+                                                  monkeypatch):
+    monkeypatch.setattr(ofm, "_headless", lambda: True)
     folder = _consolidated(tmp_path)
     dialog.source_edit.setText(str(folder))
     dialog.ask_label = _answer_by_original(dialog, [])
@@ -524,7 +526,8 @@ def test_teach_me_can_stop_skip_and_hear_that_a_part_names_the_field(
     assert fresh.ask_label is not None
 
 
-def test_teach_me_with_nothing_to_teach(dialog):
+def test_teach_me_with_nothing_to_teach(dialog, monkeypatch):
+    monkeypatch.setattr(ofm, "_headless", lambda: True)
     assert dialog.teach() is None
     assert "Nothing to sort" in dialog.status.text()
     assert dialog._ask_label("x.tif", []) == "stop"

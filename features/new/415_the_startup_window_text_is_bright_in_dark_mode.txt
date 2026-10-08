@@ -222,3 +222,13 @@ Workers used one actual CPU and a4GiB Windows Job Object committed-memory cap;
 Windows-managed pagefile behavior is explicitly not called zero-swap.
 
 VERIFIED 2026-10-04: 1 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
+
+2026-10-08 17:34 EDT — Native Windows light raster repair accepted
+  Run37846367381 at exacte41df27e0a passes all six actual native Windows
+  OS/application light/dark/system combinations. The original thin light
+  font lost readable cores in both phrase and arrow; LoadingScreen now
+  uses Bold. Original4.5 contrast and8-readable-pixel guards unchanged.
+  Baseline local2FAIL becomes29PASS offscreen and29PASS Qt612/xcb; normal
+  API13232 and runtimeUI7288/all six maps exactly unchanged. This closes
+  the identified native startup contrast regression, not wholeN43/N47.
+  Proof: data/415_native_windows_acceptance_2026-10-08/receipt.json.
