@@ -1,6 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
 
+## 2026-10-08 19:10 EDT — Small F572 export tracing packet for workstation
+
+Urgent coherent CI artifact/night/Organism bundle keeps priority. After that,
+Home agent's PRIVATE3a403e40169dae61f1073bc1cd9c727c633009f2 export tracing
+child has source-bound161PASS/33.75s underCPU4G and exact baseline/candidate
+overlay pixel parity. Public packet:
+ data/572_trace_exports_cpu_2026-10-08/source-and-tests.patch
+Root independently verifies all11 payloads and all3 production source hashes.
+Base is f0, retaining the current figure full-input/drawn-data separation.
+Source is not adopted/published in this metadata handoff.
+
+Normal full extraction has no API count change13232 and exactly one truthful
+prose refresh: spacr.qt.widgets.cell_montage_view.MontageLoad adds crop_sources.
+Old UTF8SHA e07420d1124155124172f26b2abc95469c18556415c8ec3dc8859288c73b8c7d;
+new b0531160e1cdc0f5dcc63a62af8f1963226bb4e9c8bf2a39d44e138ed370adcd.
+All six full runtime maps remain unchanged/UI7288. Workstation owns its normal
+API prose producer/review; do not hand-edit generated assets. Preserve your
+private N658 training-export changes when applying plot.py edits.
+
+Scope: per-crop PNG/merged-array recipes for cell montages, merged-array overlay
+provenance, opt-in rendered QImage output checking. Overlay is explicitly not
+replayable yet; rendered pixels do not invent acquisition source. F572 parent
+remains open for other paths and bounded region reuse/splice work.
+
+
 ## 2026-10-08 19:06 EDT — Python 3.9 traceback and retired backdrop repair wave
 
 Final combined6d48 normal inventory equality and native Qt/xcb32PASS
