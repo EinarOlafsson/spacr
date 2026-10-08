@@ -1,0 +1,12 @@
+{
+  "README.md": "a0fc98a3c14bd9756128845af5000710f8f7350964adb26f9ea4cfbb67992177",
+  "background-86.json.gz": "de8085399a4129c20064dc18a1a687b13cbcaafc0bdb3e8aeb9a7d1b926f0920",
+  "background-measured-ambient.py.gz": "8364b7868758d8101e1feac8684e02dedf3169d32fba961cfa24779e90ef0d47",
+  "hosted-three.json.gz": "b9a17306b85ea66b78988e13ad5d3769985ee26bae63ff070a819108603340e8",
+  "integrated-7.json.gz": "af9ad36028e6823fb6cf39bed23a504e613bae4c1cc4fbfe01b513f0d649fd7f",
+  "integrated-7.log.gz": "da2e99911f359c42073bb5ba2d6188e8a12d1c2a5b64d2f19dfafc2df05f9779",
+  "receipt.json": "1e304aca4c3eb623f5615422ccd829073f4e23fe3eed71a9535714e116658cc0",
+  "root-focused-two.json.gz": "f2ed25f01cf49fe8a643d215a0fbffdd5511456fb53ab2528ac68efdbea33012",
+  "verify_manifest.py": "3ab36f5e75e51e03f064d618b177f82294f24a93ae43f406aa50c85fd180b79f",
+  "verify_union.py": "9630b75c366c6171a85be6e093a2f2b4a7d99015930367d19d926375f68e32d5"
+}

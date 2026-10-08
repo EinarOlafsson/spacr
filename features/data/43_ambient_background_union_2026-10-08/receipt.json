@@ -1,0 +1,106 @@
+{
+  "app_screen_original_missing": [
+    53,
+    35
+  ],
+  "background-86": {
+    "archive_sha256": "de8085399a4129c20064dc18a1a687b13cbcaafc0bdb3e8aeb9a7d1b926f0920",
+    "original_sha256": "d44897beac91ae45634c9f8b4d3ed8f25ef16046d6b5f0d513d6d113f3ca94f2",
+    "source_revision": "05676dc772b14d83ed60f75bff60bc9b740d62b1",
+    "source_sha256": {
+      "spacr/qt/preferences.py": "a023ade78f1620f04163288143b541c5262bff611b46d77c1a6e13cd76989cfc",
+      "spacr/qt/screens/app_screen.py": "5e0563ad3c3929b89edb5f0d8eeb4623537f18230c374b0d4e08511e43b944a1",
+      "spacr/qt/widgets/ambient.py": "538803cffa33cf20ee0bef10eeeef83bf56bb60b626aeb0eed2c57b9dad0f6c9"
+    }
+  },
+  "background_measured_ambient_archive_sha256": "8364b7868758d8101e1feac8684e02dedf3169d32fba961cfa24779e90ef0d47",
+  "background_measured_ambient_source_sha256": "538803cffa33cf20ee0bef10eeeef83bf56bb60b626aeb0eed2c57b9dad0f6c9",
+  "current_test_source_sha256": "717ad816474e4d14ac7e6f35c0ac87582921085382bcbf6212651ae25020bdd0",
+  "expected_remaining": {
+    "spacr/qt/preferences.py": [
+      84,
+      25
+    ],
+    "spacr/qt/screens/app_screen.py": [
+      53,
+      35
+    ],
+    "spacr/qt/widgets/ambient.py": [
+      0,
+      0
+    ]
+  },
+  "fungal_archive": "features/data/663_fungal_parent_index_cpu_2026-10-07",
+  "hosted-three": {
+    "archive_sha256": "b9a17306b85ea66b78988e13ad5d3769985ee26bae63ff070a819108603340e8",
+    "original_sha256": "b7ab0bf6fa2fb39f93f33c28660ae33173fb2a2b1c6d1f2615cfaeaa8cb68320",
+    "source_revision": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+    "source_sha256": {
+      "spacr/qt/preferences.py": "c4d6b8b7ffdee6c000454bf32579a74ba4c7c9e76af5ddcf007978d89f455f84",
+      "spacr/qt/screens/app_screen.py": "3dc8ee9027f39dc76604422a9185620e9c7981a81fffa3f4b46a37acbe6b680d",
+      "spacr/qt/widgets/ambient.py": "829acd05cd6da2c5524ef6ecd4b9286be7988578ec753040ff12abff6daca595"
+    }
+  },
+  "integrated-7": {
+    "archive_sha256": "af9ad36028e6823fb6cf39bed23a504e613bae4c1cc4fbfe01b513f0d649fd7f",
+    "original_sha256": "4499f3bad4820058daa34466800a13aa867ddb27965609aba70c280720e17b5e",
+    "source_revision": "0d8950bb6242cb08fd035056dc8d9ecd35a7180d",
+    "source_sha256": {
+      "spacr/qt/preferences.py": "a023ade78f1620f04163288143b541c5262bff611b46d77c1a6e13cd76989cfc",
+      "spacr/qt/screens/app_screen.py": "5e0563ad3c3929b89edb5f0d8eeb4623537f18230c374b0d4e08511e43b944a1",
+      "spacr/qt/widgets/ambient.py": "867e84aa256ef7b5b6c7abb08351de51d68061bad2d6dcccfd946421851cec8b"
+    }
+  },
+  "integrated_log_gzip_sha256": "da2e99911f359c42073bb5ba2d6188e8a12d1c2a5b64d2f19dfafc2df05f9779",
+  "integrated_log_sha256": "e6c88404ca7f8fbca202170a671c2d4b6f0c9017d7c5b52130eb7b8bd15a898d",
+  "preference_tip_changes": {
+    "Animation background": {
+      "new": "Choose a background for every animation, independent of its palette. It follows the active page theme until chosen; its brightness stays on the active Dark or Light side. Changes apply when you save Preferences.",
+      "old": null
+    },
+    "Animation colours": {
+      "new": "Choose the primary and accent colours for the Custom colours palette. Changes apply when you save Preferences.",
+      "old": "Choose the primary and accent colours used by the Custom colours animation palette. Colour changes are applied when you save Preferences."
+    }
+  },
+  "prior_archive": "features/data/43_683_eleven_module_union_2026-10-08",
+  "root-focused-two": {
+    "archive_sha256": "f2ed25f01cf49fe8a643d215a0fbffdd5511456fb53ab2528ac68efdbea33012",
+    "original_sha256": "c69e9ac05f7d37bbed4b1d0fd472d68c4faff55be0c5ae997c2f2f4f5f7ca763",
+    "source_revision": "11229945a6e803f5fa1d5ed6683d446a2b068132",
+    "source_sha256": {
+      "spacr/qt/preferences.py": "c4d6b8b7ffdee6c000454bf32579a74ba4c7c9e76af5ddcf007978d89f455f84",
+      "spacr/qt/widgets/ambient.py": "2f017b232ae9647df99e59f65a1f5b1ec803cf28d1f9a3995cb23da9eceb5d72"
+    }
+  },
+  "source_bound_api_arrival": {
+    "doc_sha256": "390fa88fd7bc98fe2d5f76bb4ee8ce235de32d4db72d7aeeed20217a9a80b710",
+    "key": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background",
+    "new_count": 13215,
+    "old_count": 13214
+  },
+  "source_bound_runtime_arrivals": [
+    "Animation background",
+    "Animation background colour",
+    "Background",
+    "Background \u00b7 Theme colour",
+    "Choose the animation background colour. Brightness is adjusted to fit the active Dark or Light theme.",
+    "Theme colour"
+  ],
+  "target_revision": "0d8950bb6242cb08fd035056dc8d9ecd35a7180d",
+  "target_source_sha256": {
+    "spacr/qt/preferences.py": "a023ade78f1620f04163288143b541c5262bff611b46d77c1a6e13cd76989cfc",
+    "spacr/qt/screens/app_screen.py": "5e0563ad3c3929b89edb5f0d8eeb4623537f18230c374b0d4e08511e43b944a1",
+    "spacr/qt/widgets/ambient.py": "867e84aa256ef7b5b6c7abb08351de51d68061bad2d6dcccfd946421851cec8b"
+  },
+  "unchanged_original_allowances": {
+    "spacr/qt/preferences.py": [
+      89,
+      25
+    ],
+    "spacr/qt/widgets/ambient.py": [
+      1,
+      0
+    ]
+  }
+}
