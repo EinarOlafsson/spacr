@@ -1,5 +1,39 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Root: original Coverage0 batch remains unreproduced locally
+
+Root reproduced the exact hosted batch3 file arguments through the normal
+coverage batching tool, two loadfile workers, branch coverage and native
+identity journals under8GiB. The first local3.13/Qt6.11.1 batch passes501/501
+in164.69s but had pytest-randomly, absent on the hosted runner. With that
+plugin disabled and CI profile enabled, the same32-file batch passes501/501
+in169.11s. A private plugin installation using existing Python3.12.14 and
+Qt6.11.2 passes the same501/501 in213.66s; hosted Python is3.12.15 and other
+dependency versions still differ. These overlapping counts are not summed.
+All worker ledgers return coverage, with no loss/recovery/crash; all identity
+journals finish. The complete original full-file12/12 log is also retained.
+The earlier missing pytest-cov usage4 failure is preserved as setup failure,
+not a product failure. No installed user environment was modified.
+
+Relevant AppScreen/settings_model/parity-test bytes are unchanged from683.
+Original idle/click/eager row/value/search assertions and timing guards are
+unchanged. No proved root cause, application repair, failure waiver or hosted
+closure follows from these local negatives. Full terminal logs, ledgers,
+journals and exact source hashes are in
+data/43_idle_category_owner_reproduction_2026-10-07/receipt.json. Root retains
+this node for the current hosted rerun; further repetition waits for new
+concrete evidence. Home owns other hosted/native/numerical verdicts.
+
+All-nine guide refresh is complete locally but unpublished. The current API
+writer has written all nine targets and English and is doing its final audit.
+Root's semantic review found new popup API translations with omitted Revert
+draft persistence and wrong network-byte/keyring meanings. Faithful full-message
+targets for all15 arrivals in all nine locales are prepared privately for the
+normal reviewed-record writer after the live audit ends. No current source
+or review records change underneath it. This is still pending owner publication,
+not all-nine semantic acceptance or parent43/47/615 completion.664/665 shipping
+remains paused for the urgent CI priority.
+
 ## 2026-10-07 — Home: popup-corner repair published; idle node transferred
 
 Home integrated owner5c2082ff511 and published popup-corner sourcecc8a167436

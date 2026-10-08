@@ -3242,3 +3242,13 @@ original hosted/local negatives and accepted proof are source-bound in
 data/43_683_popup_corner_opacity_cpu_2026-10-07/receipt.json. Workstation now
 owns the unreproduced idle/click/eager parity failure and final API catalogs.
 Complete current-source GitHub green remains OPEN.
+
+2026-10-07 — ROOT ORIGINAL COVERAGE0 BATCH REPRODUCTION
+The exact32-file/501-case hosted batch passes locally through the normal
+coverage tool in3.13 and3.12 environments, including hosted ordering without
+pytest-randomly. Full logs/ledgers/journals/source hashes and the original
+missing-plugin usage failure are retained in
+data/43_idle_category_owner_reproduction_2026-10-07/receipt.json. No relevant
+source or assertions changed. Original regression row mismatch is unreproduced,
+so this is not a fix, waiver or hosted-green claim. Root retains the node for
+new current hosted evidence; all-nine semantic API publication stays urgent.
