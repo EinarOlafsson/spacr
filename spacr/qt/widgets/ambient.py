@@ -5553,17 +5553,19 @@ class _DataArtEngine(_BufferedEngine):
                                   QImage.Format_RGB32)
                     tile.fill(self.identity)
                     inner = QPainter(tile)
-                    inner.setRenderHint(QPainter.Antialiasing, True)
-                    inner.setCompositionMode(self.mode)
-                    inner.translate(extent_x, extent_y)
-                    inner.setPen(Qt.NoPen)
-                    for triangle, color in triangles:
-                        inner.setBrush(color)
-                        inner.drawPolygon(triangle)
-                    inner.setBrush(Qt.NoBrush)
-                    inner.setPen(QPen(self._ink(0, 0.23), 0.65))
-                    inner.drawPolygon(outline)
-                    inner.end()
+                    try:
+                        inner.setRenderHint(QPainter.Antialiasing, True)
+                        inner.setCompositionMode(self.mode)
+                        inner.translate(extent_x, extent_y)
+                        inner.setPen(Qt.NoPen)
+                        for triangle, color in triangles:
+                            inner.setBrush(color)
+                            inner.drawPolygon(triangle)
+                        inner.setBrush(Qt.NoBrush)
+                        inner.setPen(QPen(self._ink(0, 0.23), 0.65))
+                        inner.drawPolygon(outline)
+                    finally:
+                        inner.end()
                     cells.append((cx, cy, rx, ry, rng.uniform(0, math.tau),
                                   tile, extent_x, extent_y))
             material = tuple(cells)
@@ -8073,35 +8075,38 @@ class AmbientWidget(QWidget):
         self.frames_painted += 1
         _TOTAL_FRAMES += 1
         painter = QPainter(self)
-        rect = self.rect()
-        if self._corner_radius > 0:
-            painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
-            path = QPainterPath()
-            path.addRoundedRect(QRectF(rect), self._corner_radius,
-                                self._corner_radius)
-            painter.setClipPath(path)
-        self._paint_base(painter, rect)
-        width, height = rect.width(), rect.height()
+        try:
+            rect = self.rect()
+            if self._corner_radius > 0:
+                painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+                path = QPainterPath()
+                path.addRoundedRect(QRectF(rect), self._corner_radius,
+                                    self._corner_radius)
+                painter.setClipPath(path)
+            self._paint_base(painter, rect)
+            width, height = rect.width(), rect.height()
 
-        producer = self._producer_box[0]
-        if producer is None:
-            self._engine.paint(painter, width, height)
-            return
-
-        producer.size = self._art_render_size(width, height)
-        whole = event.rect().contains(rect)
-        fresh = producer.latest() if whole else None
-        if fresh is not None and fresh is not self._last_frame:
-            self._last_frame = fresh
-        else:
-            self.repeated_frames += 1
-        if self._last_frame is not None:
-            self._engine.blit(painter, self._last_frame, width, height)
-        elif self._engine_lock.acquire(blocking=False):
-            try:
+            producer = self._producer_box[0]
+            if producer is None:
                 self._engine.paint(painter, width, height)
-            finally:
-                self._engine_lock.release()
+                return
+
+            producer.size = self._art_render_size(width, height)
+            whole = event.rect().contains(rect)
+            fresh = producer.latest() if whole else None
+            if fresh is not None and fresh is not self._last_frame:
+                self._last_frame = fresh
+            else:
+                self.repeated_frames += 1
+            if self._last_frame is not None:
+                self._engine.blit(painter, self._last_frame, width, height)
+            elif self._engine_lock.acquire(blocking=False):
+                try:
+                    self._engine.paint(painter, width, height)
+                finally:
+                    self._engine_lock.release()
+        finally:
+            painter.end()
 
 
 
