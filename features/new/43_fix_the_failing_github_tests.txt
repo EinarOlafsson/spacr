@@ -3454,3 +3454,5 @@ the remainder of a six-hour window. Earlier protected-original retention
 notes are superseded. Any old logs/RSS/native artifacts remain partial, never
 full acceptance or a diagnosed cause. Corrected serial stays uninterrupted;
 12GiB hard cap, zero swap and10.8GiB guard are unchanged. N43/N47 remainOPEN.
+
+2026-10-08 Home: corrected4133 docs37728397371 complete SUCCESS, all four jobs including publication; raw source-bound proof data/43_4133_docs_terminal_2026-10-08/receipt.json. Coverage7 actual Mask first-open10.73/10.0 failure led to unchanged-budget timing separation668b0195ad:48 untraced serial timing,54 traced structural/navigation,21 workflow guards pass. New required37734434019 pending; overall N43 remains OPEN, Fast1 terminal failure being diagnosed. No app changes or ceiling/guard waivers.

@@ -1,0 +1,469 @@
+{
+  "conclusion": "success",
+  "databaseId": 37728397371,
+  "headSha": "4133beafcd0ae427795617a4a01e295fd40539b7",
+  "jobs": [
+    {
+      "completedAt": "2026-10-08T04:45:58Z",
+      "conclusion": "success",
+      "databaseId": 113153737361,
+      "name": "Pin both documentation branches",
+      "startedAt": "2026-10-08T04:45:53Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-08T04:45:53Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-08T04:45:53Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:45:57Z",
+          "conclusion": "success",
+          "name": "Resolve source commits",
+          "number": 2,
+          "startedAt": "2026-10-08T04:45:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:45:57Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 3,
+          "startedAt": "2026-10-08T04:45:57Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37728397371/job/113153737361"
+    },
+    {
+      "completedAt": "2026-10-08T05:05:46Z",
+      "conclusion": "success",
+      "databaseId": 113153769715,
+      "name": "Build nightly documentation",
+      "startedAt": "2026-10-08T04:46:00Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-08T04:46:02Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-08T04:46:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:47:30Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-08T04:46:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:47:40Z",
+          "conclusion": "success",
+          "name": "Check out publication tooling",
+          "number": 3,
+          "startedAt": "2026-10-08T04:47:30Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:47:55Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 4,
+          "startedAt": "2026-10-08T04:47:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:48:09Z",
+          "conclusion": "success",
+          "name": "Install system dependencies",
+          "number": 5,
+          "startedAt": "2026-10-08T04:47:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:49:32Z",
+          "conclusion": "success",
+          "name": "Install spaCR and Sphinx",
+          "number": 6,
+          "startedAt": "2026-10-08T04:48:09Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:49:32Z",
+          "conclusion": "success",
+          "name": "Generate Make Masks parameter reference from the pinned branch",
+          "number": 7,
+          "startedAt": "2026-10-08T04:49:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:50:07Z",
+          "conclusion": "success",
+          "name": "Refresh English manifests from the pinned branch",
+          "number": 8,
+          "startedAt": "2026-10-08T04:49:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:50:50Z",
+          "conclusion": "success",
+          "name": "Verify English and register translation incompatibilities",
+          "number": 9,
+          "startedAt": "2026-10-08T04:50:07Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:50:51Z",
+          "conclusion": "success",
+          "name": "Upload translation compatibility register",
+          "number": 10,
+          "startedAt": "2026-10-08T04:50:50Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:58:55Z",
+          "conclusion": "success",
+          "name": "Build docs",
+          "number": 11,
+          "startedAt": "2026-10-08T04:50:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:02:56Z",
+          "conclusion": "success",
+          "name": "Build translated user guides",
+          "number": 12,
+          "startedAt": "2026-10-08T04:58:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:05:20Z",
+          "conclusion": "success",
+          "name": "Verify generated tooltip API links",
+          "number": 13,
+          "startedAt": "2026-10-08T05:02:56Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:05:20Z",
+          "conclusion": "success",
+          "name": "Prepare branch artifact",
+          "number": 14,
+          "startedAt": "2026-10-08T05:05:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:05:37Z",
+          "conclusion": "success",
+          "name": "Upload branch site",
+          "number": 15,
+          "startedAt": "2026-10-08T05:05:20Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:05:43Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 28,
+          "startedAt": "2026-10-08T05:05:37Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:05:43Z",
+          "conclusion": "success",
+          "name": "Post Check out publication tooling",
+          "number": 29,
+          "startedAt": "2026-10-08T05:05:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:05:44Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 30,
+          "startedAt": "2026-10-08T05:05:43Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:05:44Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 31,
+          "startedAt": "2026-10-08T05:05:44Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37728397371/job/113153769715"
+    },
+    {
+      "completedAt": "2026-10-08T05:05:48Z",
+      "conclusion": "success",
+      "databaseId": 113153769763,
+      "name": "Build main documentation",
+      "startedAt": "2026-10-08T04:46:00Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-08T04:46:02Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-08T04:46:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:46:26Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-08T04:46:02Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:46:33Z",
+          "conclusion": "success",
+          "name": "Check out publication tooling",
+          "number": 3,
+          "startedAt": "2026-10-08T04:46:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:46:42Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 4,
+          "startedAt": "2026-10-08T04:46:33Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:46:55Z",
+          "conclusion": "success",
+          "name": "Install system dependencies",
+          "number": 5,
+          "startedAt": "2026-10-08T04:46:42Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:48:28Z",
+          "conclusion": "success",
+          "name": "Install spaCR and Sphinx",
+          "number": 6,
+          "startedAt": "2026-10-08T04:46:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:48:28Z",
+          "conclusion": "success",
+          "name": "Generate Make Masks parameter reference from the pinned branch",
+          "number": 7,
+          "startedAt": "2026-10-08T04:48:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:49:10Z",
+          "conclusion": "success",
+          "name": "Refresh English manifests from the pinned branch",
+          "number": 8,
+          "startedAt": "2026-10-08T04:48:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:50:01Z",
+          "conclusion": "success",
+          "name": "Verify English and register translation incompatibilities",
+          "number": 9,
+          "startedAt": "2026-10-08T04:49:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:50:01Z",
+          "conclusion": "success",
+          "name": "Upload translation compatibility register",
+          "number": 10,
+          "startedAt": "2026-10-08T04:50:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T04:58:47Z",
+          "conclusion": "success",
+          "name": "Build docs",
+          "number": 11,
+          "startedAt": "2026-10-08T04:50:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:03:08Z",
+          "conclusion": "success",
+          "name": "Build translated user guides",
+          "number": 12,
+          "startedAt": "2026-10-08T04:58:47Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:05:28Z",
+          "conclusion": "success",
+          "name": "Verify generated tooltip API links",
+          "number": 13,
+          "startedAt": "2026-10-08T05:03:08Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:05:29Z",
+          "conclusion": "success",
+          "name": "Prepare branch artifact",
+          "number": 14,
+          "startedAt": "2026-10-08T05:05:28Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:05:40Z",
+          "conclusion": "success",
+          "name": "Upload branch site",
+          "number": 15,
+          "startedAt": "2026-10-08T05:05:29Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:05:46Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 28,
+          "startedAt": "2026-10-08T05:05:40Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:05:46Z",
+          "conclusion": "success",
+          "name": "Post Check out publication tooling",
+          "number": 29,
+          "startedAt": "2026-10-08T05:05:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:05:46Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 30,
+          "startedAt": "2026-10-08T05:05:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:05:46Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 31,
+          "startedAt": "2026-10-08T05:05:46Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37728397371/job/113153769763"
+    },
+    {
+      "completedAt": "2026-10-08T05:34:40Z",
+      "conclusion": "success",
+      "databaseId": 113158789504,
+      "name": "Publish main and nightly channels",
+      "startedAt": "2026-10-08T05:33:14Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-10-08T05:33:17Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-10-08T05:33:15Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:33:32Z",
+          "conclusion": "success",
+          "name": "Run actions/checkout@v7",
+          "number": 2,
+          "startedAt": "2026-10-08T05:33:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:33:32Z",
+          "conclusion": "success",
+          "name": "Run actions/setup-python@v7",
+          "number": 3,
+          "startedAt": "2026-10-08T05:33:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:33:39Z",
+          "conclusion": "success",
+          "name": "Download both branch sites",
+          "number": 4,
+          "startedAt": "2026-10-08T05:33:32Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:33:46Z",
+          "conclusion": "success",
+          "name": "Assemble independent channels",
+          "number": 5,
+          "startedAt": "2026-10-08T05:33:39Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:33:46Z",
+          "conclusion": "success",
+          "name": "Configure Pages",
+          "number": 6,
+          "startedAt": "2026-10-08T05:33:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:34:10Z",
+          "conclusion": "success",
+          "name": "Upload Pages artifact",
+          "number": 7,
+          "startedAt": "2026-10-08T05:33:46Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:34:38Z",
+          "conclusion": "success",
+          "name": "Deploy",
+          "number": 8,
+          "startedAt": "2026-10-08T05:34:10Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:34:38Z",
+          "conclusion": "success",
+          "name": "Post Run actions/setup-python@v7",
+          "number": 15,
+          "startedAt": "2026-10-08T05:34:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:34:38Z",
+          "conclusion": "success",
+          "name": "Post Run actions/checkout@v7",
+          "number": 16,
+          "startedAt": "2026-10-08T05:34:38Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-10-08T05:34:38Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 17,
+          "startedAt": "2026-10-08T05:34:38Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37728397371/job/113158789504"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/EinarOlafsson/spacr/actions/runs/37728397371"
+}

@@ -1,5 +1,33 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 05:55 UTC — Home separates startup clocks; docs published
+
+WORKSTATION: ACK9aab84d249 strict private API/browser checkpoint. Keep product
+projection/664/665 sources isolated until first required green. Current docs
+37728397371 is terminal SUCCESS including publication; resolved nightly
+source is actual4133beafcd and main91ab2b8ae, proven by full original job log:
+ data/43_4133_docs_terminal_2026-10-08/receipt.json
+This closes current docs pipeline only, not private engine projection.
+
+Actual corrected coverage7 fails Mask first-open at10.73157703s against10.0s
+under branch tracing and two workers. Published668b0195ad moves only the
+wall-clock guard into existing untraced serial Qt tail, preserving exact
+fresh navigation, three event turns and10.0s. Original file retains all48
+real navigation keys plus six structural guards under coverage. Local separate
+phases:48 timing PASS14.29s;54 traced structural PASS25.03s;21 workflow PASS2.21s.
+Portable19-payload proof independently verified with current source bindings:
+ data/43_641_first_open_serial_cpu_2026-10-08/MANIFEST.json
+No spacr/ bytes, numeric ceilings, RAM caps or behavioral guards changed.
+
+New exact668 required37734434019 is pending behind retained4133 run;
+compat37734433755 and docs37734433820 queued. Keep current4133 full coverage
+combine and remaining Qt/dependency verdicts: Min0 succeeds, Fast1 now fails
+and owner is extracting exact full log. Current serial37728434064 untouched.
+N43/N47 remain OPEN. Root has a private real-label counterexample where only
+minimum_hint changes with invariant contained fitting rectangles; this is NOT
+a reproduction or identified cause of the original hosted layout failure.
+No speculative app fix has shipped.
+
 ## 2026-10-08 01:43 EDT — Workstation strict API reachability/browser checkpoint
 
 Home: ACK4b5c699f1 and the intentional obsolete serial supersession.
