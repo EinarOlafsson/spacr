@@ -5,8 +5,8 @@ import weakref
 
 import numpy as np
 import pytest
-from PySide6.QtCore import QPointF
-from PySide6.QtGui import QColor, QImage, QPainter, QPainterPath
+from PySide6.QtCore import QPointF, Qt
+from PySide6.QtGui import QColor, QImage, QPainter, QPainterPath, QPen
 
 from spacr.qt import preferences
 from spacr.qt.widgets import ambient
@@ -25,6 +25,43 @@ def _bytes(image):
     pixels = np.frombuffer(image.constBits(), dtype=np.uint32)
     assert np.all(pixels >> 24 == 255)
     return image.constBits().tobytes()
+
+
+@pytest.mark.parametrize('palette', ['spacr', 'random', 'custom'])
+@pytest.mark.parametrize('background', ['#101418', '#f4f4f0'])
+def test_local_pen_reuse_preserves_native_strokes_and_retained_frames(
+        palette, background, qapp, monkeypatch):
+    monkeypatch.setattr(preferences, '_ambient_custom_colors',
+                        lambda: ('#fffe00017777', '#0303fffefefe'))
+    engine = _engine(palette, background)
+    reference = _engine(palette, background)
+    reference._fungal_raster_failed = True
+
+    def original_pen_paths(painter, paths):
+        for (hue, stroke, alpha), path in paths.items():
+            color = ambient._with_alpha(reference.paint_colors[hue], alpha)
+            painter.setPen(QPen(color, stroke, Qt.SolidLine,
+                                Qt.RoundCap, Qt.RoundJoin))
+            painter.drawPath(path)
+
+    monkeypatch.setattr(reference, '_paint_fungal_paths', original_pen_paths)
+    for current in (engine, reference):
+        current.set_time(99.5)
+    first = engine.shade(3840, 2160)
+    retained = _bytes(first)
+    assert retained == _bytes(reference.shade(3840, 2160))
+    for _ in range(3):
+        assert _bytes(engine.shade(3840, 2160)) == retained
+    for current in (engine, reference):
+        current.set_time(100.625)
+    changed = _bytes(engine.shade(3840, 2160))
+    assert changed == _bytes(reference.shade(3840, 2160))
+    assert changed != retained and _bytes(first) == retained
+    assert engine._owned_fungal_image is None
+    assert reference._owned_fungal_image is None
+    assert len(engine._fungal_rasters) <= 64
+    assert sum(entry[1].nbytes + entry[2].nbytes
+               for entry in engine._fungal_rasters.values()) <= 8 * 1024**2
 
 
 @pytest.mark.parametrize('palette', ['spacr', 'random'])

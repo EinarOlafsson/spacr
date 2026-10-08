@@ -6339,10 +6339,14 @@ class _FungalGrowthEngine(_BufferedEngine):
     def _paint_fungal_paths(self, painter: QPainter, paths: dict) -> None:
         """Draw every original group using its unmodified Qt pen and insertion order."""
         colors = self.paint_colors
+        pen = QPen(Qt.SolidLine)
+        pen.setCapStyle(Qt.RoundCap)
+        pen.setJoinStyle(Qt.RoundJoin)
         for (hue, stroke, alpha), path in paths.items():
             color = _with_alpha(colors[hue], alpha)
-            painter.setPen(QPen(color, stroke, Qt.SolidLine,
-                                Qt.RoundCap, Qt.RoundJoin))
+            pen.setColor(color)
+            pen.setWidthF(stroke)
+            painter.setPen(pen)
             painter.drawPath(path)
 
     def _paint_cached_fungal_paths(self, painter: QPainter, width: int, height: int,
@@ -6353,11 +6357,15 @@ class _FungalGrowthEngine(_BufferedEngine):
         target = np.frombuffer(device.bits(), dtype=np.uint32).reshape(height, width).ravel()
         created = 0
         colors = self.paint_colors
+        pen = QPen(Qt.SolidLine)
+        pen.setCapStyle(Qt.RoundCap)
+        pen.setJoinStyle(Qt.RoundJoin)
         for group, path in paths.items():
             hue, stroke, alpha = group
             color = _with_alpha(colors[hue], alpha)
-            painter.setPen(QPen(color, stroke, Qt.SolidLine,
-                                Qt.RoundCap, Qt.RoundJoin))
+            pen.setColor(color)
+            pen.setWidthF(stroke)
+            painter.setPen(pen)
             key = (group, color.getRgbF(), width, height)
             if self._reuse_fungal_raster(key, path, color, target):
                 continue
