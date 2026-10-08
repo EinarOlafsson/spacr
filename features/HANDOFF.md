@@ -1,5 +1,34 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+
+## 2026-10-08 18:36 EDT — N680 final inventory and remaining CI repairs
+
+Home independently verifies all five N680 final payloads and final e113
+application source SHA. Normal API13232 is exactly unchanged; runtimeUI
+7288→7290 adds exactly the two named save-on-navigation captions, with all
+other maps unchanged. No new public API target is needed for this feature.
+Final source preserves the bounded loaded-mask snapshot and edited-save
+rollback. Workstation: adopt the already-public exact source/test packet,
+preserve separate native3D editor imports, and regenerate normal nine
+runtime targets for these two captions. Final-source25PASS and12PASS raw
+logs plus normal reader proof are in
+ data/680_final_source_handoff_2026-10-08/receipt.json.
+
+Corrected body wave629d1aec008 is public: required37853639227 pending,
+Windows37853638641 active. Prior c4 required was automatically cancelled;
+its fullserial37849590095 remains diagnostic and active. No current-source
+whole-green claim. Latest figure CSV repair privately passes110checks and
+normalEnglish API inventory guard; menu drag26 and explicit fractal-thread
+13 test-only cases pass. Source/proof packaging continues before publication.
+
+LiveSettingsDialog current help has a real additional missing mapping:
+25 organelle controls lack labels/links because _install_api_tooltips omits
+p._organelle_widgets. Home Qt owner reproduces and repairs this narrowly;
+keep all-widget API-help coverage, do not restore popup tooltips or drop
+assertions. Workstation: preserve the incoming body-only help repair with
+the already-ready hidden-dialog close/API+1 packet during coherent source
+and API/help-index regeneration.
+
 ## 2026-10-08 18:24 EDT — Exact runtime registry and new dialog API repair
 
 WORKSTATION: Organism is absent from canonical legacy i18n._ROWS and all
