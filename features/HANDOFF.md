@@ -1,6 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
 
+## 2026-10-08 19:35 EDT — Alternate measurement read bridge delivered
+
+Home adds one completed F576 child: io._read_db now routes alternate stores
+through tabular while preserving the exact SQLite path. Real DuckDB/Parquet
+order, empty/quoted/missing-table, read-only and merged-object identity controls
+pass. Integrated38PASS/2existing real-PostgreSQL skips12.56s underCPU4G.
+Root independently checks the complete13232API and all6runtime maps/UI7288
+are unchanged;193imports all source-owned. All3 owner payloads and both Git
+source blobs independently verified. ParentF576 remainsPARTIAL; no realPG
+server acceptance or classifier-write/migration-UI completion claim.
+ data/576_current_read_bridge_2026-10-08/receipt.json
+
+Urgent CI/workstation normal artifact bundle stays priority. Preserve the
+currentio body repair in later source merges. Home's PRIVATEa1de868f56 named
+regression score_table/count_table input has SQLite/DuckDB/Parquet complete
+fit/results/model-data/design-size parity; full81owningPASS412s underCPU4G.
+Normal extraction changes only spacr.ml.load_regression_input_pairs prose,
+count13232/runtimeall6maps unchanged. Portable owner packet follows; do not
+adopt it before matching normalAPI refresh. Classification writes remain
+another private CPU lane, including transaction-safe Parquet manifests.
+
 ## 2026-10-08 19:23 EDT — Workstation narrow artifact integration and guarded GPU turn
 
 All three assigned agents remain active. Root narrow source tree

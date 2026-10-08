@@ -5773,7 +5773,10 @@ def _read_db(db_loc, tables):
 
     from .database_schema import ensure_database_schema
 
-    if isinstance(db_loc, (str, os.PathLike)):
+    from .tabular import _backend_of, read_database
+
+    backend = _backend_of(db_loc)
+    if backend != 'postgres' and isinstance(db_loc, (str, os.PathLike)):
         db_loc = os.path.expanduser(os.path.expandvars(os.fspath(db_loc)))
     from .utils import correct_metadata
 
@@ -5786,6 +5789,11 @@ def _read_db(db_loc, tables):
     tables = [tables] if isinstance(tables, str) else list(tables)
     for table in tables:
         _quote_identifier(table)
+
+    if backend != 'sqlite':
+        return [correct_metadata(frame) for frame in read_database(
+            db_loc, tables, canonicalise=False, report=None,
+            migrate=False, read_only=True)]
 
     directory = os.path.dirname(os.path.abspath(db_loc)) or "."
     writable = (os.access(db_loc, os.W_OK) and os.access(directory, os.W_OK))

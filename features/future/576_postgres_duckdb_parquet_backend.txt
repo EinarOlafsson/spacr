@@ -1,6 +1,6 @@
 A POSTGRES OR DUCKDB/PARQUET MEASUREMENT BACKEND
 
-Status: DONE (alpha) 2026-09-28 (evidence 8a36fb334)
+Status: PARTIAL (alpha) 2026-10-08 — backend-aware reads delivered; classifier writes, migration UI and complete backend acceptance remain.
 VERIFIED 2026-10-04: test_measurement_backends, qt/test_measurement_backend_alpha_gate pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
@@ -74,3 +74,6 @@ LEFT
 
 2026-10-02 — WHAT-IS-LEFT AUDIT
     BLOCKED / open: OPEN code over 1 h: route classification/regression (measurement writer done 2026-10-02) through the store, per-backend suites, Settings migration button; PostgreSQL suite needs a server.
+
+2026-10-08 Home — ALTERNATE MEASUREMENT READ BRIDGE COMPLETE
+The shared io._read_db/_read_and_merge_data route reads DuckDB and Parquet through spacr.tabular with existing metadata correction, table order, quoted-name and empty/missing-table behavior preserved. PostgreSQL locators dispatch without expanding literal password dollar signs; the real server remains unavailable, so its protocol is mocked and two real-server tests skip. SQLite schema migration/read-only URI behavior is unchanged. Owning27PASS plus selected30PASS; integrated four full files38PASS/2existing PostgreSQL skips12.56s underCPU4G. Complete normalAPI13232/runtimeUI7288/all6maps equal before/after; no generated artifacts changed. Portable proof data/576_measurement_stores_read_bridge_2026-10-08/receipt.json and data/576_current_read_bridge_2026-10-08/receipt.json. Only this read bridge is complete: classifier writes, Settings migration UI and complete per-backend suites remain OPEN. Private named-table regression input prototype has exact complete SQLite/DuckDB/Parquet fit parity, but awaits normal API prose and publication.
