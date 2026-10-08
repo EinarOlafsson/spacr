@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-08 16:31-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -24,10 +24,6 @@ msgstr "Leiðbeiningar um uppsetningu"
 
 msgid "This page covers the current desktop installers, conda-forge, PyPI and container installation, updates, removal, offline preparation and the files to check when installation fails. For older downloadable versions, use the :doc:`installer archive <installers>`."
 msgstr "Þessi síða fjallar um núverandi skjáborðsuppsetningarforrit, uppsetningu með conda-forge, PyPI og gámum, uppfærslur, fjarlægingu, undirbúning fyrir uppsetningu án nettengingar og skrárnar sem á að athuga þegar uppsetning mistekst. Fyrir eldri útgáfur til niðurhals skaltu nota :doc:`safn uppsetningarforrita <installers>`."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "The `Install spaCR tutorial <tutorials/#lesson=02_install_spacr>`_ combines the pip and Conda routes. Follow the commands for your chosen installer below. Nightly tutorials may show interface changes that are not yet in a published PyPI or conda-forge release."
-msgstr "Kennsluefnið `Install spaCR <tutorials/#lesson=02_install_spacr>`_ sameinar pip- og Conda-leiðirnar. Fylgdu skipununum hér að neðan fyrir þá uppsetningu sem þú velur. Nightly-kennsluefni getur sýnt breytingar á viðmóti sem eru ekki enn í útgefinni PyPI- eða conda-forge-útgáfu."
 
 msgid "Choose an installation"
 msgstr "Veldu uppsetningu"

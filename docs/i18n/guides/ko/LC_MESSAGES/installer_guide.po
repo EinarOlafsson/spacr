@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-08 16:31-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -24,10 +24,6 @@ msgstr "설치 안내서"
 
 msgid "This page covers the current desktop installers, conda-forge, PyPI and container installation, updates, removal, offline preparation and the files to check when installation fails. For older downloadable versions, use the :doc:`installer archive <installers>`."
 msgstr "이 페이지에서는 현재 데스크톱 설치 프로그램, conda-forge, PyPI, 컨테이너 설치, 업데이트, 제거, 오프라인 준비, 설치 실패 시 확인할 파일을 다룹니다. 이전에 다운로드할 수 있던 버전은 :doc:`설치 프로그램 보관소 <installers>` 를 사용합니다."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "The `Install spaCR tutorial <tutorials/#lesson=02_install_spacr>`_ combines the pip and Conda routes. Follow the commands for your chosen installer below. Nightly tutorials may show interface changes that are not yet in a published PyPI or conda-forge release."
-msgstr "`Install spaCR 튜토리얼 <tutorials/#lesson=02_install_spacr>`_ 은 pip와 Conda 설치 경로를 통합합니다. 아래에서 선택한 설치 방식의 명령을 따르세요. Nightly 튜토리얼에는 게시된 PyPI 또는 conda-forge 버전에 아직 없는 인터페이스 변경이 표시될 수 있습니다."
 
 msgid "Choose an installation"
 msgstr "설치 방법 선택"

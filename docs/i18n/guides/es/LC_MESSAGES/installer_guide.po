@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-08 16:05-0400\n"
+"POT-Creation-Date: 2026-10-08 16:31-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
@@ -24,10 +24,6 @@ msgstr "Guía de instalación"
 
 msgid "This page covers the current desktop installers, conda-forge, PyPI and container installation, updates, removal, offline preparation and the files to check when installation fails. For older downloadable versions, use the :doc:`installer archive <installers>`."
 msgstr "Esta página trata los instaladores de escritorio actuales, la instalación con conda-forge, PyPI y contenedores, las actualizaciones, la desinstalación, la preparación sin conexión y los archivos que conviene revisar cuando falla la instalación. Para versiones descargables anteriores, use el :doc:`archivo de instaladores <installers>`."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "The `Install spaCR tutorial <tutorials/#lesson=02_install_spacr>`_ combines the pip and Conda routes. Follow the commands for your chosen installer below. Nightly tutorials may show interface changes that are not yet in a published PyPI or conda-forge release."
-msgstr "El tutorial `Install spaCR <tutorials/#lesson=02_install_spacr>`_ reúne las rutas de pip y Conda. Siga los comandos de abajo para el instalador elegido. Los tutoriales nightly pueden mostrar cambios de interfaz que aún no están en una versión publicada de PyPI o conda-forge."
 
 msgid "Choose an installation"
 msgstr "Elegir una instalación"
