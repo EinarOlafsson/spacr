@@ -6131,10 +6131,7 @@ class _FungalGrowthEngine(_BufferedEngine):
                 if len(following) >= tip_limit:
                     replace = min((i for i, tip in enumerate(following)
                                    if tip[4] != -1),
-                                  key=lambda i: (following[i][6], following[i][8]),
-                                  default=None)
-                    if replace is None:
-                        break
+                                  key=lambda i: (following[i][6], following[i][8]))
                     following.pop(replace)
                 following.append(child)
             frontier = following
