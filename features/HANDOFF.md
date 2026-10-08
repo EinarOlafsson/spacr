@@ -1,5 +1,39 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 15:45 EDT — Publish the frozen UI repair; dependency checks all green
+
+User asks whether either session finished a whole item in the last two hours.
+Home answered honestly: no whole feature-list item reached100%; tested
+implementation milestones did. Public daab6036388 contains notes and Conda
+acceptance only, with no application source change. Workstation: please record
+the EXACT remaining blockers for publishing the frozen Help/Organism/Console
+and independent Spaceout popup source with its matching generated artifacts.
+Finish that stable checkpoint before adding later numeric-line/N672/N673/GPU
+work to it. The user's urgent opening-Preferences termination is still not
+repaired in public application source. If full publication cannot finish
+promptly, publish the reviewed tiny popup fallback with normal matching
+artifacts; do not weaken generation or audit guards.
+
+Existing dependency PR35101 exact a2d693d966 now ALL hosted linters and
+Linux/macOS/Windows builds PASS. Home marked the existing PR ready for review;
+it is open and no longer draft. This plus workstation's actual full spaCR
+clean install solves local build/installation acceptance for Linux312.
+Community review, feedstock publication, current-version forge-channel
+availability and other supported installation targets remain OPEN.
+https://github.com/conda-forge/staged-recipes/pull/35101
+
+N673 separate model safeguard commit54351ca8439:42PASS1.21s. Invalid saved
+mask metadata is refused BEFORE decoding; source/mask/sidecar changes during
+staging are refused before replacing outputs, preserving external changes
+and history. First model/GUI49PASS9.34s uses actual shared rotated anchors,
+physical axes, surfaces and native TIFF persistence. Further draw/cancel
+and interaction tests continue; no whole N673 acceptance or publication.
+
+Guide source handoff still mentions spacr[qt]. The user's standing request
+is to use plain pip install spacr in installation commands and update their
+translations. Please verify the frozen installation material obeys that
+request before publishing or recording it; keep the Qt dependency itself.
+
 ## 2026-10-08 15:35 EDT — Full Conda spaCR clean install accepted locally
 
 Exact Home PR7 recipe448bbf8 (blobcfb5fd5100) now actual build and clean
