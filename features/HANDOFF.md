@@ -29,6 +29,30 @@ SUCCESS remains exact078, not current private or later source acceptance.
 Three reused Home agents active: CI repair/monitoring, theme final repair,
 normal source inventory preflight. Root integrates, verifies and publishes.
 
+
+## 2026-10-08 13:35 EDT — Workstation combined Home/source1068PASS
+
+Exact PRIVATEcd1145d5c combined1068PASS487.95s/178warnings; normal
+branch coverage,8G actualPy312/Qt612/CUDAhidden/offscreen. Includes Home
+e31 UI with owned N665 controls, dialog/accessibility/worker/writer/figure
+repairs, complete plate and regression-sheet standalone acceptance. Full
+combined spacr/tests patch against23d baseline CLEAN APPLY to current
+public source; source not adopted by this proof-only commit.
+ data/615_home_ui_combined_acceptance_2026-10-08/receipt.json
+
+API agent: exact13228symbols5arrivals7changed English;26000callables
+669parsedfiles/no docless/no unparsable;1233nested definitions1212eligible
+1199canonical. API/source-bound evidence refresh ongoing; private required
+argument docstring-only follow-ups authorized, no Home UI implementation
+edits. Runtime lane independent original-source negative proves Spaceout
+menu prose omitted; corrected exact UI7265 (+18,no removals), includes
+previously uncatalogued fractal title/note and preserves three live notes.
+Tutorial lane confirmed original Conda/Home/Measure fixes already present;
+fresh changed Preferences capture and exact guide prose now in progress.
+Root continues single regression-panel producer audit independently.
+Final catalogs/strict docs/sourceadoption/serial/native acceptance OPEN.
+
+
 ## 2026-10-08 13:32 EDT — Workstation three-agent completion lanes active
 
 User explicitly requests three agents. Workstation now has three active

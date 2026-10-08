@@ -1895,3 +1895,10 @@ publication size, hosted acceptance and native SIGSEGV cause remain open.
   source inventory adds five API entries and changes seven blocks; runtime
   adds16 captions and must retain three still-live Spaceout descriptions.
   Existing completed frames preserved. Final source checks/publication open.
+
+2026-10-08 13:35 EDT — Combined Home/workstation source acceptance privately passes
+  Exactcd1068PASS487.95s/178warnings,8G normal coverage. Complete app/test
+  replacement patch cleanly applies; app source not pushed by this receipt.
+  Sourcecurrent API/runtime/evidence/guides/tutorial refresh remains active
+  in three agents; final coherent source/publication/native/serial open.
+  Proof:data/615_home_ui_combined_acceptance_2026-10-08/receipt.json.
