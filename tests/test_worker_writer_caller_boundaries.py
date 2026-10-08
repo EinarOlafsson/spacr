@@ -125,6 +125,20 @@ def test_single_worker_cloudpickle_calls_finish_primaries_before_one_retry():
     assert result == [4, 5] and seen == [0, 1, 0]
 
 
+def test_parallel_codec_accepts_the_older_joblib_vendor_layout(monkeypatch):
+    """A retained bundled codec can still carry local worker closures."""
+    import cloudpickle
+    import joblib.externals
+
+    with monkeypatch.context() as patch:
+        patch.setattr(joblib.externals, 'cloudpickle', cloudpickle, raising=False)
+        codec = resource_log._cloudpickle_codec()
+        assert codec is cloudpickle
+        offset = 7
+        restored = codec.loads(codec.dumps(lambda value: value + offset))
+        assert restored(3) == 10
+
+
 @pytest.mark.parametrize('delay', [-1, float('nan'), float('inf')])
 def test_invalid_start_gate_delay_is_refused(delay):
     with pytest.raises(ValueError):
