@@ -203,6 +203,7 @@ _KEY_SHOW_ALPHA_SPECIES = "prefs/show_alpha_species"
 _KEY_AMBIENT_ENABLED = "prefs/ambient_enabled"
 _KEY_AMBIENT_THEME   = "prefs/ambient_theme"
 _KEY_AMBIENT_PALETTE = "prefs/ambient_palette"
+_KEY_AMBIENT_BACKGROUND = "prefs/ambient_background"
 _KEY_AMBIENT_BLUR    = "prefs/ambient_blur"
 _KEY_AMBIENT_SPEED   = "prefs/ambient_speed"
 _KEY_AMBIENT_SIZE    = "prefs/ambient_size"
@@ -2195,6 +2196,48 @@ def _set_ambient_custom_colors(colors):
     settings.sync()
 
 
+def _ambient_background_choice():
+    """Read an optional opaque animation fill; None follows the page theme."""
+    from PySide6.QtGui import QColor
+
+    value = _settings().value(_KEY_AMBIENT_BACKGROUND, None)
+    color = QColor(str(value)) if value else QColor()
+    return color.name() if color.isValid() else None
+
+
+def _set_ambient_background_choice(value):
+    """Persist an optional animation fill, rejecting invalid colours."""
+    from PySide6.QtGui import QColor
+
+    settings = _settings()
+    if value is None:
+        settings.remove(_KEY_AMBIENT_BACKGROUND)
+    else:
+        color = QColor(value)
+        if not color.isValid():
+            raise ValueError("invalid animation background colour")
+        settings.setValue(_KEY_AMBIENT_BACKGROUND, color.name())
+    settings.sync()
+
+
+def _effective_ambient_background():
+    """Keep the chosen animation fill on the active page's lightness side."""
+    from PySide6.QtGui import QColor
+    from .theme import active_page_colour
+
+    chosen = _ambient_background_choice()
+    if chosen is None:
+        return QColor(active_page_colour())
+    color = QColor(chosen).toHsl()
+    lightness = color.lightness()
+    if resolve_effective_theme() == "light":
+        lightness = max(lightness, 184)
+    else:
+        lightness = min(lightness, 72)
+    color.setHsl(color.hslHue(), color.hslSaturation(), lightness)
+    return color.toRgb()
+
+
 def _ambient_gravity_radius() -> float:
     """Read a finite viewport-relative mouse radius; zero disables influence."""
     import math
@@ -2583,6 +2626,7 @@ def apply_ambient_preferences(app=None) -> None:
     resolution = get_ambient_resolution() if enabled else None
     density = get_ambient_density() if enabled else None
     direction = get_ambient_drift_direction() if enabled else None
+    background = _effective_ambient_background() if enabled else None
     for widget in widgets:
         try:
             if not isinstance(widget, AmbientWidget):
@@ -2598,6 +2642,14 @@ def apply_ambient_preferences(app=None) -> None:
             try:
                 widget.set_theme(selected_theme)
                 widget.set_palette(palette)
+                if not getattr(widget, "_background_explicit", False):
+                    current = getattr(widget, "background_color", None)
+                    if not callable(current) or current() != background:
+                        apply_background = getattr(widget, "_apply_background", None)
+                        if callable(apply_background):
+                            apply_background(background, explicit=False)
+                        else:
+                            widget.set_background_color(background)
                 widget.set_blur(blur)
                 if not popup:
                     widget.set_speed(speed)
@@ -7421,7 +7473,8 @@ PREFERENCE_TIPS = {
     "Tooltip delay": "Seconds the pointer rests on a control before its tooltip appears. 0 shows tooltips at once. Default 2.0 s.",
     "Page opacity": "Page opacity relative to the animated background.",
     "Animation detail": "Backdrop rendering detail. Reduce this value if animation affects interface performance.",
-    "Animation colours": "Choose the primary and accent colours used by the Custom colours animation palette. Colour changes are applied when you save Preferences.",
+    "Animation colours": "Choose the primary and accent colours for the Custom colours palette. Changes apply when you save Preferences.",
+    "Animation background": "Choose a background for every animation, independent of its palette. It follows the active page theme until chosen; its brightness stays on the active Dark or Light side. Changes apply when you save Preferences.",
     "Mouse gravity radius": "How far mouse gravity reaches, as a percentage of the shorter screen edge. Zero disables mouse influence. Applies to backgrounds that respond to the mouse.",
     "Pattern": "Which fractal spaceout draws. Orbit fold is an orbit-fold map antialiased across four frames; fold-inversion cascade is a Kaliset-like fold and sphere inversion coloured by three orbit traps, travelling through two overlapping scale windows so it never resets. The cascade takes four samples of one instant per pixel, so it costs about four times as much and runs at a lower frame rate by design. Space is forward flight through a dark star field with six parallax layers and three object slots that pass by -- mostly stars, occasionally a lit planet or a bright sun. It is mostly empty sky, so it is the cheapest option and the one that competes least with what you are reading. Mandelbrot is a continuous deep zoom into one point on the set's boundary, rendered by perturbation around a high-precision reference orbit -- which is what lets it keep descending past the depth a float can address, hundreds of decades in, still finding structure. GPU only: it needs a texture of the reference orbit.",
     "Backend": "Which renderer draws the fractal. GPU is a shader and is far cheaper; it needs vispy and a real display, and falls back to the CPU renderer when either is missing. Automatic picks the GPU when it can and says below which one this machine will get.",
@@ -8075,10 +8128,15 @@ class PreferencesDialog:
         from .widgets.colour_picker import pick_colour
 
         custom_colors = list(_ambient_custom_colors())
+        custom_background = [_ambient_background_choice()]
         primary_color_button = QPushButton()
         primary_color_button.setObjectName("AmbientPrimaryColor")
         accent_color_button = QPushButton()
         accent_color_button.setObjectName("AmbientAccentColor")
+        background_color_button = QPushButton()
+        background_color_button.setObjectName("AmbientBackgroundColor")
+        background_reset_button = QPushButton(tr("Theme colour"))
+        background_reset_button.setObjectName("AmbientBackgroundReset")
         color_buttons = (primary_color_button, accent_color_button)
 
         def _refresh_custom_colors():
@@ -8089,6 +8147,15 @@ class PreferencesDialog:
                 button.setToolTip(tr("Choose a crisp data-art animation colour."))
                 if hints is not None:
                     hints.explain(button)
+            background_color_button.setText(
+                f"{tr('Background')} · {custom_background[0]}"
+                if custom_background[0] is not None
+                else tr("Background · Theme colour"))
+            background_color_button.setToolTip(
+                tr("Choose the animation background colour. Brightness is adjusted to fit the active Dark or Light theme."))
+            if hints is not None:
+                hints.explain(background_color_button)
+            background_reset_button.setEnabled(custom_background[0] is not None)
 
         def _pick_ambient_color(index):
             """Select a local colour and activate the custom palette on save."""
@@ -8102,11 +8169,29 @@ class PreferencesDialog:
 
         primary_color_button.clicked.connect(lambda: _pick_ambient_color(0))
         accent_color_button.clicked.connect(lambda: _pick_ambient_color(1))
+        def _pick_ambient_background():
+            """Keep the candidate fill local until the dialog is saved."""
+            from .theme import active_page_colour
+
+            color = pick_colour(dlg, custom_background[0] or active_page_colour(),
+                                tr("Animation background colour"))
+            if color.isValid():
+                custom_background[0] = color.name()
+                _refresh_custom_colors()
+
+        background_color_button.clicked.connect(_pick_ambient_background)
+        background_reset_button.clicked.connect(
+            lambda: (custom_background.__setitem__(0, None),
+                     _refresh_custom_colors()))
         _refresh_custom_colors()
         color_row = QHBoxLayout()
         color_row.addWidget(primary_color_button)
         color_row.addWidget(accent_color_button)
         animation.addRow(tr("Animation colours"), _hbox_wrap(color_row))
+        background_row = QHBoxLayout()
+        background_row.addWidget(background_color_button)
+        background_row.addWidget(background_reset_button)
+        animation.addRow(tr("Animation background"), _hbox_wrap(background_row))
 
         def _sync_custom_colors(*_args):
             """Offer custom colours for the retained procedural data-art scenes."""
@@ -9782,6 +9867,7 @@ class PreferencesDialog:
                 _select(ambient_theme_combo, get_ambient_animation())
                 _select(ambient_palette_combo, get_ambient_palette())
                 custom_colors[:] = _ambient_custom_colors()
+                custom_background[0] = _ambient_background_choice()
                 _refresh_custom_colors()
                 _select(ambient_dir_combo, get_ambient_drift_direction())
                 _select(dock_combo, get_dock_mode())
@@ -9882,6 +9968,7 @@ class PreferencesDialog:
             if palette_choice is not None:
                 set_ambient_palette(palette_choice)
             _set_ambient_custom_colors(custom_colors)
+            _set_ambient_background_choice(custom_background[0])
             set_ambient_speed(speed_slider.value() / 100.0)
             set_ambient_size(size_slider.value() / 100.0)
             set_ambient_resolution(resolution_slider.value() / 100.0)

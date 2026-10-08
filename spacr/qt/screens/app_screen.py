@@ -2429,18 +2429,24 @@ class AppScreen(QWidget):
             return
         try:
             from ..theme import page_colour
-            from ..preferences import resolve_effective_theme
+            from ..preferences import (resolve_effective_theme,
+                                       _effective_ambient_background)
             theme = resolve_effective_theme()
             fill = page_colour(theme)
+            ambient_fill = _effective_ambient_background()
             wallpaper = _theme_wallpaper()
         except Exception:
             return
-        if (fill, wallpaper) == self._backdrop_applied:
+        if (fill, ambient_fill.name(), wallpaper) == self._backdrop_applied:
             return
-        self._backdrop_applied = (fill, wallpaper)
+        self._backdrop_applied = (fill, ambient_fill.name(), wallpaper)
         for widget in backdrops:
             try:
-                widget.set_background_color(fill)
+                if widget is getattr(self, "_ambient", None) \
+                        and hasattr(widget, "_apply_background"):
+                    widget._apply_background(ambient_fill, explicit=False)
+                else:
+                    widget.set_background_color(fill)
             except Exception:
                 pass
             try:

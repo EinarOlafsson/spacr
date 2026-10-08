@@ -964,6 +964,18 @@ def _theme_background() -> QColor:
         return QColor(page_colour("dark"))
 
 
+def _preferred_background() -> QColor:
+    """Use the saved fill when chosen, otherwise the current page colour."""
+    try:
+        from ..preferences import (_ambient_background_choice,
+                                   _effective_ambient_background)
+        if _ambient_background_choice() is None:
+            return _theme_background()
+        return _effective_ambient_background()
+    except Exception:
+        return _theme_background()
+
+
 #: NumPy, once it has been imported. See :func:`_numpy`.
 _NUMPY = None
 
@@ -7031,7 +7043,7 @@ class AmbientWidget(QWidget):
         self._direction = wanted if is_valid_drift_direction(wanted) \
             else DEFAULT_DRIFT_DIRECTION
         self._background_explicit = background is not None
-        self._background = _as_color(background, _theme_background())
+        self._background = _as_color(background, _preferred_background())
         self._backdrop: Optional[QPixmap] = _as_pixmap(backdrop)
 
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
@@ -7479,7 +7491,7 @@ class AmbientWidget(QWidget):
         super().changeEvent(event)
         if event.type() == QEvent.ApplicationPaletteChange \
                 and not self._background_explicit:
-            self._apply_background(_theme_background(), explicit=False)
+            self._apply_background(_preferred_background(), explicit=False)
 
     def fps(self) -> int:
         """The cap on repaints per second.
