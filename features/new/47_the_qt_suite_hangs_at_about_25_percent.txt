@@ -2376,3 +2376,24 @@ byte-identical69/current0b. Full raw fault and negative evidence:
  data/43_69_native_parent_race_cpu_2026-10-08/receipt.json.
 No speculative fix, forced GC, budget change or native/serial acceptance.
 N47 remains OPEN; current0b serial and Coverage0 stay distinct.
+
+2026-10-08 — Original serial terminal verdict and live thread identity repair
+Run 37741618120 on exact 0b source reached 63% (19324 passed, 30 skipped,
+11 xfailed, 4 failed) before the six-hour job limit cancelled it. Recorded
+peak RSS was about 5710 MiB: no OOM or native fatal was recorded. This is
+partial execution, not full acceptance. The durable journal retains all four
+failure tracebacks. Two live-preview failures compare Python QThread wrappers
+by object identity although every callback has the exact GUI Qt pointer,
+native OS ID and Python thread ID; one stored wrapper was already invalid.
+Those two assertions now use live snapshots of all three actual identities.
+Actual worker difference, original handlers/rendering, signal order, token,
+results and 5-second waits remain checked. All original 13 lifecycle tests
+pass on both Qt 6.11.2 (10.42s) and Qt 6.12.0 (10.52s), pytest 8.4.2, CPU,
+offscreen, 4 GiB hard cap. Separate actual QThread controls are rejected on
+all three fields on each Qt version. Source-bound original failure details,
+original source, patch and full local logs are retained in
+ data/47_live_preview_thread_identity_cpu_2026-10-08/receipt.json.
+The real-display Home assertion still needs a validated software display;
+the Console end caret one-pixel reachability failure remains unresolved.
+No application/native crash repair, timeout extension, pixel tolerance or
+full serial acceptance is claimed. N47 remains OPEN.

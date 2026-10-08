@@ -1,0 +1,76 @@
+diff --git a/tests/qt/test_live_preview_coverage.py b/tests/qt/test_live_preview_coverage.py
+index a31a56dced..21ac21d38b 100644
+--- a/tests/qt/test_live_preview_coverage.py
++++ b/tests/qt/test_live_preview_coverage.py
+@@ -1669,21 +1669,21 @@ class TestWorkerLifecycle:
+             lambda req: {"cell": np.ones(req.image.shape[:2], np.int32)})
+         p = _panel(qtbot)
+         p.load_image(gray_tif)
+-        threads = []
+         identities = []
+         gui_identity = _live_thread_identity()
++        assert gui_identity["qt_pointer"] == getCppPointer(p.thread())[0]
+ 
+         def observed(_m):
+             """Retain the live thread identity before Qt can delete its wrapper."""
+-            threads.append(QThread.currentThread())
+             identities.append(_live_thread_identity())
+ 
+         p.preview_ready.connect(
+             observed)
+         p.run_preview()
+-        qtbot.waitUntil(lambda: len(threads) == 1, timeout=5000)
+-        assert threads[0] is p.thread(), (identities[0], gui_identity)
+-        assert threads[0] is QThread.currentThread()
++        qtbot.waitUntil(lambda: len(identities) == 1, timeout=5000)
++        for key in ("qt_pointer", "native_id", "python_ident"):
++            assert identities[0][key] == gui_identity[key], (identities, gui_identity)
++            assert _live_thread_identity()[key] == gui_identity[key]
+ 
+     def test_all_worker_handlers_keep_gui_affinity_with_plain_spies(
+             self, qtbot, monkeypatch, gray_tif):
+@@ -1721,6 +1721,7 @@ class TestWorkerLifecycle:
+         seen = []
+         identities = []
+         gui_identity = _live_thread_identity()
++        assert gui_identity["qt_pointer"] == getCppPointer(p.thread())[0]
+         for name in handlers:
+             handler = getattr(p, name)
+ 
+@@ -1737,7 +1738,7 @@ class TestWorkerLifecycle:
+                 return _handler(*args)
+ 
+             monkeypatch.setattr(p, name, spy)
+-        overlay_threads = []
++        overlay_identities = []
+         overlay = LP.overlay_masks
+ 
+         def render(*args, **kwargs):
+@@ -1747,7 +1748,7 @@ class TestWorkerLifecycle:
+             :param kwargs: overlay display settings.
+             :returns: the rendered RGB overlay.
+             """
+-            overlay_threads.append(QThread.currentThread())
++            overlay_identities.append(_live_thread_identity())
+             return overlay(*args, **kwargs)
+ 
+         monkeypatch.setattr(LP, "overlay_masks", render)
+@@ -1759,11 +1760,14 @@ class TestWorkerLifecycle:
+         assert p._worker is not p.thread()
+         assert compute_identities[0]["qt_pointer"] != gui_identity["qt_pointer"]
+         assert compute_identities[0]["native_id"] != gui_identity["native_id"]
++        assert compute_identities[0]["python_ident"] != gui_identity["python_ident"]
+         assert [name for name, _thread, _args in seen] == list(handlers)
+-        assert all(thread is p.thread() for _name, thread, _args in seen), (
+-            identities, gui_identity)
+-        assert overlay_threads and all(
+-            thread is p.thread() for thread in overlay_threads)
++        for key in ("qt_pointer", "native_id", "python_ident"):
++            assert all(identity[key] == gui_identity[key]
++                       for _name, identity in identities), (identities, gui_identity)
++            assert overlay_identities and all(
++                identity[key] == gui_identity[key] for identity in overlay_identities), (
++                    overlay_identities, gui_identity)
+         assert all(args[-1] == p._run_token for _name, _thread, args in seen[:-1])
+         assert seen[-1][2] == ()
+         assert len(ready) == 1 and ready[0] is p._masks

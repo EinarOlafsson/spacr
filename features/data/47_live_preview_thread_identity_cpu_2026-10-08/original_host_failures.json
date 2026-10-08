@@ -1,0 +1,28 @@
+[
+  {
+    "detail": "tests/qt/test_live_preview_coverage.py:1685: in test_the_completion_handler_runs_on_the_gui_thread\n    assert threads[0] is p.thread(), (identities[0], gui_identity)\nE   AssertionError: ({'native_id': 4001, 'python_ident': 140236519426944, 'qt_name': 'Qt mainThread', 'qt_pointer': 94472648049808}, {'native_id': 4001, 'python_ident': 140236519426944, 'qt_name': 'Qt mainThread', 'qt_pointer': 94472648049808})\nE   assert <[RuntimeError('libshiboken: Internal C++ object (PySide6.QtCore.QThread) already deleted.') raised in repr()] QThread object at 0x7f8a5ec21ec0> is <PySide6.QtCore.QThread(0x55ec20a0c490, name = \"Qt mainThread\") at 0x7f8a8ac4fb00>\nE    +  where <PySide6.QtCore.QThread(0x55ec20a0c490, name = \"Qt mainThread\") at 0x7f8a8ac4fb00> = <built-in method thread of LivePreviewPanel object at 0x7f8a896faf80>()\nE    +    where <built-in method thread of LivePreviewPanel object at 0x7f8a896faf80> = <spacr.qt.widgets.live_preview.LivePreviewPanel(0x55ec9cca89e0) at 0x7f8a896faf80>.thread",
+    "detail_chars": 1001,
+    "detail_truncated": false,
+    "event": "test_failure",
+    "hwm_bytes": 6015594496,
+    "nodeid": "tests/qt/test_live_preview_coverage.py::TestWorkerLifecycle::test_the_completion_handler_runs_on_the_gui_thread",
+    "pid": 4001,
+    "rss_bytes": 5347926016,
+    "threads": 29,
+    "time_ns": 1791457496082267031,
+    "when": "call"
+  },
+  {
+    "detail": "tests/qt/test_live_preview_coverage.py:1763: in test_all_worker_handlers_keep_gui_affinity_with_plain_spies\n    assert all(thread is p.thread() for _name, thread, _args in seen), (\nE   AssertionError: ([('_on_processing_provenance', {'native_id': 4001, 'python_ident': 140236519426944, 'qt_name': 'Qt mainThread', 'qt_pointer': 94472648049808}), ('_on_worker_done', {'native_id': 4001, 'python_ident': 140236519426944, 'qt_name': 'Qt mainThread', 'qt_pointer': 94472648049808}), ('_on_flows_ready', {'native_id': 4001, 'python_ident': 140236519426944, 'qt_name': 'Qt mainThread', 'qt_pointer': 94472648049808}), ('_on_cellprob_ready', {'native_id': 4001, 'python_ident': 140236519426944, 'qt_name': 'Qt mainThread', 'qt_pointer': 94472648049808}), ('_on_worker_finished', {'native_id': 4001, 'python_ident': 140236519426944, 'qt_name': 'Qt mainThread', 'qt_pointer': 94472648049808})], {'native_id': 4001, 'python_ident': 140236519426944, 'qt_name': 'Qt mainThread', 'qt_pointer': 94472648049808})\nE   assert False\nE    +  where False = all(<generator object TestWorkerLifecycle.test_all_worker_handlers_keep_gui_affinity_with_plain_spies.<locals>.<genexpr> at 0x7f8a38448b80>)",
+    "detail_chars": 1177,
+    "detail_truncated": false,
+    "event": "test_failure",
+    "hwm_bytes": 6015594496,
+    "nodeid": "tests/qt/test_live_preview_coverage.py::TestWorkerLifecycle::test_all_worker_handlers_keep_gui_affinity_with_plain_spies",
+    "pid": 4001,
+    "rss_bytes": 5347926016,
+    "threads": 29,
+    "time_ns": 1791457496312336396,
+    "when": "call"
+  }
+]

@@ -3543,3 +3543,17 @@ Whole required Qt/coverage, historical native causation and serial remain
 OPEN; newer protected 5636 required 37763414112 is watched separately.
 
 2026-10-08 Home: focused diagnostic37769258062 dispatches exact original7a Coverage0 batch3 with new bounded ELF refusal diagnostics; original required and serial runs uninterrupted.15 workflow contracts pass; normal serial runtime steps unchanged, diagnostic concurrency isolated. Four workstation dialog-lifetime proof archives independently verified34payloads; narrow source repair assigned, no native cause claimed. Extended GDB23PASS/Valgrind124partial and focused memcheck97 retained honestly in data/43_qt612_extended_native_checks_2026-10-08/receipt.json. N43/N47 remain OPEN.
+
+2026-10-08 — Current required failure separated from passing diagnostics
+At 13:24 UTC, required run 37763414112 on exact 5636 source has 24 successful
+jobs, 2 failed jobs and Qt1/Qt2 still running. All six Fast/Minimum jobs pass.
+Coverage0 records a genuine SIGSEGV in the parent-source Qt wait; the other
+11 coverage shards pass. Numerical coverage passes all 664 modules from 12
+inputs; the aggregate correctly fails its separate all-shards-passed guard.
+New diagnostic run 37782034011 succeeds with two independent original-order
+503-test replays on Qt 6.12.0, each preserving 38 warnings. These are negative
+reproduction controls, not a native crash fix or required-suite acceptance.
+The bounded ELF parser repair and collector diagnostics are published.
+Two serial live-preview wrapper assertions are separately repaired using
+actual Qt/native/Python thread identity snapshots (26 lifecycle checks pass
+across both Qt versions). N43 remains OPEN; native crash cause is unknown.

@@ -1,5 +1,33 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 09:30 EDT — Required run still red; serial wrapper guards repaired
+
+Required 37763414112: 24 jobs pass, Coverage0 SIGSEGV and its aggregate fail,
+Qt1/Qt2 still running at 13:24 UTC. All six Fast/Minimum pass; numerical
+coverage is 664/664 from all 12 inputs. Preserve the native failure verdict.
+Two-attempt diagnostic 37782034011 completed SUCCESS: 503 tests/38 warnings
+per attempt, no native fault. This is not a native fix or full acceptance.
+
+Original serial 37741618120 hit its six-hour limit at 63%, 19324 passed and
+four assertions failed; recorded peak RSS about 5710 MiB, not OOM. Two preview
+failures have identical live GUI Qt/native/Python identities but invalid or
+replaced Python wrappers. Home changes only their test identity assertions,
+retaining real worker, handlers, rendering, ordering, result and timeout
+checks. Original lifecycle class passes 13 tests on each Qt6.11.2/6.12.0;
+actual QThread negatives reject worker delivery on all three identity fields.
+Proof: data/47_live_preview_thread_identity_cpu_2026-10-08/receipt.json.
+
+Coverage agent owns private serial software-display validation/proposal;
+current offscreen runner cannot validate the original real-QScreen Home
+assertion. Console document end-caret one-pixel clipping remains unresolved;
+short original measurement replays pass and no speculative padding is made.
+Theme agent owns read-only serial runtime/RSS analysis. CI agent owns exact
+native replay archives and watches current ordinary Qt jobs. No new full
+run dispatch or cancellation. Private dialog/accessibility/figure/worker
+application repairs remain reviewable and held for coordinated integration.
+N43/N47 remain OPEN and priority. Overnight report posted in user chat.
+
+
 ## 2026-10-08 08:59 EDT — Workstation eight strict figure negatives; scratch69 PASS
 
 Home: private test-onlya6e1a4728 owns N658 reproduction: original app fails all8
