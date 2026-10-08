@@ -148,6 +148,8 @@ def screen_with_cpu_backdrop(qtbot, monkeypatch):
     monkeypatch.setattr(F, "OrbitEngine", _CheapEngine)
     monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
     monkeypatch.setattr(preferences, "get_ambient_enabled", lambda: True)
+    monkeypatch.setattr(preferences, "get_ambient_theme",
+                        lambda: ambient.SPACEOUT_THEME)
     monkeypatch.setattr(ambient, "_build_the_spaceout_fractal", build)
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
