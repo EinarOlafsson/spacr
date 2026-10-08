@@ -1800,3 +1800,16 @@ Source is private pending Home's first full required-green acceptance; the
 fresh-built test cohort is still active and projection deployment remains
 unverified. Worker/writer API/runtime/guide refresh and tutorial media remain
 active. This closes only the stated local build/browser checkpoint.
+
+2026-10-08 02:06 EDT Workstation exact continuation checkpoint:
+Fresh API cohort111PASS,2SKIP,1XFAIL (stale symbol accounting). The actual
+full nine-language selector now passes all13215 symbols using a named33
+source-arrival fixture and unchanged old13182 count. Companion source-bound
+background-picker check remains active. Private projection is not shipped.
+Tutorial37 of50 current voices completed; pronunciation/preflight repair
+passes14 tests/all50 speech plans, preserving37 completed fingerprints.
+Normal remaining13-voice render is active; no partial publication. Worker
+API normal importer failed on extra historical metadata and is resuming
+with original review fields preserved. Final nine API/runtime/guide audits
+remain pending. Home startup timing repair668b0195ad is pushed; first full
+required-green gate remains unaccepted. Workstation source stays isolated.
