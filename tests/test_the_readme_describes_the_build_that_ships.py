@@ -106,7 +106,7 @@ class TestTheReadmeGrid:
         assert len(apps) == 54
         assert any(app[0] == 'host_pathogen' for app in apps)
         assert len(tiled_apps()) == 19
-        assert sections == ["Core", "Data", "Tools", "Assays"]
+        assert sections == ["Core", "Data", "Tools", "Organism"]
 
     def test_no_folded_module_is_offered_as_a_separate_tool(self, folded):
         drawn = tiles(README.read_text(encoding="utf-8"))

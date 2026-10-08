@@ -26,10 +26,10 @@ embedding, draw a gate, build a plot, check quality.
 
 | |DocModule_make_masks|\ |DocModule_align|\ |DocModule_umap|\ |DocModule_gate_editor|\ |DocModule_graph_builder|
 
-Assays
-^^^^^^
+Organism
+^^^^^^^^
 
-Quantitative readouts for biological assays.
+Organism-specific image analysis and quantitative assay readouts.
 
 | |DocModule_toxoplasma|
 
