@@ -1,0 +1,38 @@
+{
+  "scope": "Complete actual hosted parser failure plus corrected-source normal message checker over all nine guide catalogs",
+  "trigger_source": "37bdf2a2bde855054b3a6bf6e2060e9b41196576",
+  "actual_docs_branch_source": "fb691e38f6e7b54bc4e64763de7a32be5cec270d",
+  "failed_run": 37724379102,
+  "failed_job": 113142655842,
+  "failed_step": "Build translated user guides",
+  "failure": "Docutils0.21.2 Inliner.parse missing memo.reporter; English strict Sphinx already exited0",
+  "corrected_source": "28186e3cae8ee4db9662fb910a9b01088f6b4083",
+  "normal_message_check": "Nine languages,3029 current reviewed nonfuzzy messages each,invalid0 on actual hosted Docutils0.21.2;27,261 checked",
+  "limitations": "Not English-POT staleness/coverage, strict Sphinx HTML/deployment, full Python3.10 profile or human/native-language acceptance",
+  "files": [
+    {
+      "file": "nightly.log.gz",
+      "sha256": "f42978b86cadc1d451284f2bb96f64e970eff4ab2e537002c3a1d0c2532eaf1b",
+      "raw_sha256": "0e407c1dcce8d5e0b01c7b6c309f3109ee4acf2e59c8d9cc0a99466f1e4e7ee2",
+      "raw_bytes": 580669
+    },
+    {
+      "file": "nightly-job.json.gz",
+      "sha256": "31c236710240cbf8d66488bfc7786773591a4317c0f3efa738bf5718e5cadd58",
+      "raw_sha256": "c7f2c48b2485c910232fdb99f58841dc54146917c3be0d3039598662af1cf7b6",
+      "raw_bytes": 4154
+    },
+    {
+      "file": "hosted-parser-current-catalogs.log.gz",
+      "sha256": "922c6f621eb17ab2410fc4eb23db85496b14bc9a9a8e10eabc6520d24bfaec5d",
+      "raw_sha256": "141b8c6b1b815a083dec1eb56cf8f31acabe83f1518d71ecca97e620df3d1672",
+      "raw_bytes": 245
+    },
+    {
+      "file": "hosted-parser-current-catalogs.json.gz",
+      "sha256": "650cb097b2f236568c4856d622b7eb9680aad23dddaa7d85b46f5d044a6b8358",
+      "raw_sha256": "4bccd06214e6888079ce3ebbb3eca47ca4fadb78aafb52bc724d2ff05ebd43ca",
+      "raw_bytes": 39607
+    }
+  ]
+}

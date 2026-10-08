@@ -3394,3 +3394,18 @@ Case-only archive rename is integrated with raw payload bytes unchanged.
 Four confirmed narrow repairs publish together; app/Qt bytes, all numerical
 allowances and blocking gates remain unchanged. Preserve55 required/serial
 runs through terminal. Corrected exact-source required green remainsOPEN.
+
+2026-10-08 — Hosted guide failure independently matches already-shipped fix
+Docs trigger37 run37724379102 resolves actual nightly sourcefb691e38f6
+and job113142655842 fails its guide audit on installed Docutils0.21.2:
+Inliner.parse memo.reporter missing. Strict English Sphinx had already exited0.
+Complete raw terminal/job metadata and corrected-source normal message checks
+are hash-bound in data/43_hosted_docutils_catalog_parser_2026-10-08/receipt.json.
+All nine current catalogs each3029 nonempty nonfuzzy reviewed messages pass
+normal message_problems with actual hosted0.21.2, invalid0:27,261 checked.
+This is not POT staleness/coverage, strict translated HTML/deployment, full
+Python3.10 profile or native/human review acceptance. No translated text or
+review labels are changed. Corrected tests37726771078 and docs37726770838
+remain pending; compat37726770842 executes. A later Coverage5 terminal now
+exposes an additional stale Qt cache-tuple assertion; that narrow correction
+is being replayed before replacing the already-known-bad queued candidate.
