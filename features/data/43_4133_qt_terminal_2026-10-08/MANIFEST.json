@@ -24,9 +24,9 @@
         "Upload ordinary Qt native failure evidence": "skipped"
       },
       "passed": 10411,
-      "pytest_summary_rows": 131,
+      "pytest_summary_rows": 136,
       "shard": 0,
-      "skipped": 42,
+      "skipped": 48,
       "started_at": "2026-10-08T04:48:23Z"
     },
     {
@@ -52,9 +52,9 @@
         "Upload ordinary Qt native failure evidence": "skipped"
       },
       "passed": 11704,
-      "pytest_summary_rows": 140,
+      "pytest_summary_rows": 145,
       "shard": 1,
-      "skipped": 28,
+      "skipped": 33,
       "started_at": "2026-10-08T05:28:44Z"
     },
     {
@@ -80,9 +80,9 @@
         "Upload ordinary Qt native failure evidence": "skipped"
       },
       "passed": 10403,
-      "pytest_summary_rows": 140,
+      "pytest_summary_rows": 146,
       "shard": 2,
-      "skipped": 22,
+      "skipped": 29,
       "started_at": "2026-10-08T04:57:26Z"
     }
   ],
@@ -99,5 +99,5 @@
   "source_tree": "064aedef751576824f3dde2c7a3c35d80c00a330",
   "total_expected_xfailed": 11,
   "total_passed": 32518,
-  "total_skipped": 92
+  "total_skipped": 110
 }
