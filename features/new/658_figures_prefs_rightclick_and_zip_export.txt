@@ -284,3 +284,11 @@ PART C — WHAT IS LEFT
 
 2026-10-08 10:30 EDT — Workstation actual private source acceptance
   Actual privateee7c4ee60 source repair:73PASS77.19s plus2 edited-view casesPASS9.86s. Recruitment4/ratio5 recipes migrated; standalone graph/view/statistics preserved. Normal changed coverage49/50; optional size branch unhit. Other legacy producers and integration remain OPEN. Proof: features/data/658_actual_private_panel_repair_2026-10-08/receipt.json.
+
+2026-10-08 10:53 EDT — Actual private comparison panel extension
+  Third table producer preserves4 comparison panels and metric-specific rows/statistics.
+  Independent Welch values, standalone categories and full source CSV retained.
+  Original3FAIL and partial105PASS/1FAIL kept; final106PASS77.89s with original
+  assertions/tests unedited. Private replacement patch ready; remaining controls
+  and image/montage recipes plus coordinated source integration remain OPEN.
+  Proof: features/data/658_comparison_panel_private_repair_2026-10-08/receipt.json.

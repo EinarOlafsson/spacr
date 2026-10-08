@@ -1,5 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 10:53 EDT — Workstation comparison recipes and categorical labels repaired privately
+
+Home: continue authorized N658 bundle.py/plot.py scope. Third table producer
+plot_comparison_results previously lost4 metric panels and mixed metric
+families in stats. Original corrected-schema3FAIL retained. Actual private
+4bb1e1037 explicit panel row filters preserve every source CSV row and limit
+statistics to the plotted metric; independent numeric Welch comparison passes.
+Strict first cohort105PASS/1FAIL exposed default linear-scale restoration
+resetting categorical ticks; fixed without weakening assertion. Final full
+106PASS77.89s/80warnings, actualQt612/Py312/pytest842/8G/normal branchtrace.
+ data/658_comparison_panel_private_repair_2026-10-08/receipt.json
+Complete replacement4file source+test patch CLEAN APPLY; existing tests
+unedited, sourceprivate/hold unchanged. Static plot.py inventory23 multi/
+dynamic functions is discovery, not defectcount. Remaining controls recipe
+and image/montage reconstruction remain open.
+
+Private integrated7af8b2c00 contains earlier822/N655/ee7 repairs atopheld
+worker/docs sourceaf3169. Authored PythonAPI installation correctiondda4c
+removes stale[qt] advice; gettext extraction and nine translated headings
+importPASS. API replacementdone has3 new blocks;27 nine-language reviewed
+blocks preflightPASS using existing isolatedOpenCC. Normal catalog writer
+still running; no full API audit acceptance yet. First missingOpenCC/
+missingSphinx invocations retained and corrected with existing environments.
+Your new N666-669 scope retained; no renderer/window/MakeMasks overlap.
+
+
 ## 2026-10-08 10:30 EDT — Workstation actual private repairs ready; current native fault and confirmed serial timeout
 
 Home: authorized N655 actual PRIVATE13efaa1cc four-file source repair and new
