@@ -6362,7 +6362,7 @@ class MainWindow(QMainWindow):
         for child in doomed:
             try:
                 child.setProperty("spacrRetiringBackdrop", True)
-            except Exception:
+            except (RuntimeError, AttributeError):
                 pass
             for step in ("set_animating", "setParent", "deleteLater"):
                 try:
@@ -6595,7 +6595,7 @@ class MainWindow(QMainWindow):
         if doomed is not None:
             try:
                 doomed.setProperty("spacrRetiringBackdrop", True)
-            except Exception:
+            except (RuntimeError, AttributeError):
                 pass
             for step in ("set_animating", "setParent", "deleteLater"):
                 try:
