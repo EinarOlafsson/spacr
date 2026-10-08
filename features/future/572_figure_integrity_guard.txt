@@ -201,3 +201,12 @@ acceptance.
 2026-10-02 — WHAT-IS-LEFT AUDIT
     Done on nightly: GUI dialog after export: 2964f0a0c (tests/qt/test_figure_integrity_notice_f572.py).
     BLOCKED / open: bit depth without metadata (needs camera metadata); captions wait for the catalog lane. OPEN code over 1 h: cross-figure index, region-reuse/splice detection, tracing other imshow sites, picture_export check.
+
+2026-10-08 19:52 EDT — Latest PRIVATEf8 recipe/overlay/advisory child has167
+owningPASS30.68s underCPU4G. Root independently verifies the consolidated public
+f0 source packet and frozen historical proof archives in
+data/572_current_source_handoff_2026-10-08. Source staysprivate pending normal
+MontageLoad API prose refresh and review/generation of the new plot.py tr literal
+which canonical_sources currently omits. Advisory reports similar displayed
+pixels only; it does not assert acquisition identity or manipulation. Separate
+source-only splice/noise scope remains open; parent not100%.
