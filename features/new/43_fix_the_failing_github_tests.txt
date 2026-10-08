@@ -3337,3 +3337,12 @@ receives27 exact malformed messages and verified diagnostic spacing-only
 suggestions through HANDOFF and the same archive. Actual normal owner import,
 review and strict Sphinx build remain required; no gate is weakened. Overall
 N43 and N47 remain OPEN; successful compatibility is not complete green.
+
+2026-10-07 23:46 EDT — Root current hosted guide repair accepted locally.
+32 unique zh_CN/ko paragraphs repaired by normal reviewed whitespace-only
+imports; exact rendered bold/literal spans now validated.28 tests pass7.72s,
+all-nine strict guides3029/3029, stale/invalid/unlabelled0, final all-nine -W
+HTML exit0. Complete50-payload source/failure/success receipt:
+data/615_current_translated_inline_repair_2026-10-08_r2/receipt.json.
+New exact-source hosted docs and deployed browser acceptance remain pending;
+protected55 tests/serial retained. No whole-item or native crash closure.

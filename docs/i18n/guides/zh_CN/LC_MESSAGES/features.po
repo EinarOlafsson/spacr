@@ -268,7 +268,7 @@ msgstr "**spaCR aurora** — 细光束组成不规则的帘幕，从明亮的褶
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**spaCR stratified** — A slow starfield moves in three depth layers; **spaCR stratified direction** selects up, down or random travel."
-msgstr "**spaCR stratified** — 缓慢的星点场在三个深度层中移动；**spaCR stratified 方向**选择向上、向下或随机方向的运动。"
+msgstr "**spaCR stratified** — 缓慢的星点场在三个深度层中移动；**spaCR stratified 方向** 选择向上、向下或随机方向的运动。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**spaCR spinn** — Fine paper facets move gently and spin locally in response to the mouse. Rotation is fastest beside the pointer and fades smoothly to zero at the Mouse gravity radius; changing the radius changes the affected area."
@@ -276,15 +276,15 @@ msgstr "**spaCR spinn** — 细薄的纸片状面片轻柔移动，并根据鼠�
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
-msgstr "**鼠标引力半径**以屏幕较短边长的百分比设置影响区域。默认值为 **15%**；设为 **0** 可禁用鼠标影响。**动画密度**控制元素数量，与改变绘制分辨率的 **动画细节**相互独立。密度最低为 **1%**；增加细节不会减少已选定的元素数量。渲染器将采样工作限制在屏幕像素预算内。在 **动画调色板**中选择 **随机**可为每个元素使用随机颜色。新安装默认使用 **深色**、**spaCR field** 和 **spaCR** 动画调色板，密度为 **10%**，引力为 **15%**，细节、速度和大小均为 **100%**，页面不透明度为 **60%**。**点闪烁**控制闪烁为白色的可见点所占的百分比：**0** 禁用闪烁（默认值），非零范围为 0.00001% 至 10%。该设置适用于 spaCR field、spaCR advection、spaCR waves 和 spaCR stratified。场淡出已启用。蓝色边缘光使用周长的 **17%** 作为相对长度，跟随为 **50%**，以指针为中心对齐，模式为 **Beat**，周期为 **1.5 s**。已有的已保存偏好设置会保留，直到用户更改或重置。"
+msgstr "**鼠标引力半径** 以屏幕较短边长的百分比设置影响区域。默认值为 **15%** ；设为 **0** 可禁用鼠标影响。**动画密度** 控制元素数量，与改变绘制分辨率的 **动画细节** 相互独立。密度最低为 **1%** ；增加细节不会减少已选定的元素数量。渲染器将采样工作限制在屏幕像素预算内。在 **动画调色板** 中选择 **随机** 可为每个元素使用随机颜色。新安装默认使用 **深色** 、**spaCR field** 和 **spaCR** 动画调色板，密度为 **10%** ，引力为 **15%** ，细节、速度和大小均为 **100%** ，页面不透明度为 **60%** 。**点闪烁** 控制闪烁为白色的可见点所占的百分比：**0** 禁用闪烁（默认值），非零范围为 0.00001% 至 10%。该设置适用于 spaCR field、spaCR advection、spaCR waves 和 spaCR stratified。场淡出已启用。蓝色边缘光使用周长的 **17%** 作为相对长度，跟随为 **50%** ，以指针为中心对齐，模式为 **Beat** ，周期为 **1.5 s** 。已有的已保存偏好设置会保留，直到用户更改或重置。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Animation background colour** sets the background independently of the animation palette. Until you choose a colour, it follows the page theme; **Theme colour** restores that behaviour. The chosen colour's brightness is kept within the active Dark or Light theme's range. It applies to the main window, module screens and animated settings popups. A full-screen wallpaper can cover the background fill."
-msgstr "**动画背景颜色**可独立于动画调色板设置背景。在您选择颜色之前，背景会跟随页面主题；**主题颜色**可恢复这一行为。所选颜色的亮度始终保持在当前深色或浅色主题的范围内。该颜色应用于主窗口、模块页面和带动画的设置弹窗。全屏壁纸可能遮盖背景填充颜色。"
+msgstr "**动画背景颜色** 可独立于动画调色板设置背景。在您选择颜色之前，背景会跟随页面主题；**主题颜色** 可恢复这一行为。所选颜色的亮度始终保持在当前深色或浅色主题的范围内。该颜色应用于主窗口、模块页面和带动画的设置弹窗。全屏壁纸可能遮盖背景填充颜色。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Popup wave frequency** sets automatic waves per minute in **spaCR field**. The default is **5 waves/minute**; **0** disables popup waves. When enabled, opening a popup immediately starts the first wave from its centre, followed by waves at the selected rate. Moving the popup moves the origin of new waves; closing it stops new waves while existing waves fade. This control is independent of mouse gravity, dot blinking, density and drawing detail."
-msgstr "**弹窗波纹频率**设置 **spaCR field** 中每分钟自动生成的波纹数。默认值为 **5 波/分钟**；**0** 禁用弹窗波纹。启用后，打开弹窗会立即从其中心发出第一道波纹，后续波纹按所选频率生成。移动弹窗会移动新波纹的起点；关闭弹窗会停止产生新波纹，已有波纹则逐渐消退。此控制与鼠标引力、点闪烁、密度和绘制细节相互独立。"
+msgstr "**弹窗波纹频率** 设置 **spaCR field** 中每分钟自动生成的波纹数。默认值为 **5 波/分钟** ；**0** 禁用弹窗波纹。启用后，打开弹窗会立即从其中心发出第一道波纹，后续波纹按所选频率生成。移动弹窗会移动新波纹的起点；关闭弹窗会停止产生新波纹，已有波纹则逐渐消退。此控制与鼠标引力、点闪烁、密度和绘制细节相互独立。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Press **Apply** to preview changes while Preferences stays open. A separate question offers **Keep** or **Revert**. Revert restores the saved and live settings; your edited controls remain available to change or apply again. Closing the question also reverts. **Save** keeps changes and closes Preferences."
@@ -292,7 +292,7 @@ msgstr "按 **应用** 预览更改，偏好设置窗口会保持打开。另一
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**设置 Backdrop**在应用或保存偏好设置时均与主窗口动画保持独立。**无**关闭弹窗动画，但保留蓝色边缘光。**设置背景暗度**控制设置卡片覆盖其动画的不透明度，范围为 **0%** 至 **100%**（默认 **85%**），并与 **页面不透明度**共同作用。当设置背景为 **无**时，页面不透明度仍然适用。较高的暗度覆盖更多动画，使文字更易阅读。弹窗只保持在所属 spaCR 窗口前方，不使用全局始终置顶标志，因此其他应用可以覆盖它们。"
+msgstr "**设置 Backdrop** 在应用或保存偏好设置时均与主窗口动画保持独立。**无** 关闭弹窗动画，但保留蓝色边缘光。**设置背景暗度** 控制设置卡片覆盖其动画的不透明度，范围为 **0%** 至 **100%** （默认 **85%** ），并与 **页面不透明度** 共同作用。当设置背景为 **无** 时，页面不透明度仍然适用。较高的暗度覆盖更多动画，使文字更易阅读。弹窗只保持在所属 spaCR 窗口前方，不使用全局始终置顶标志，因此其他应用可以覆盖它们。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."

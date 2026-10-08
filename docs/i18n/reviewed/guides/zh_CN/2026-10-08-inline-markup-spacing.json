@@ -1,0 +1,88 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "source_commit": "486209e28341a5958a19ee9eed61dd14bff331a2",
+  "method": "Codex AI technical source/context review of spacing-only RST repairs to current hosted failure; original qualification retained, no native-speaker signoff.",
+  "records": [
+    {
+      "domain": "features",
+      "source": "**spaCR stratified** — A slow starfield moves in three depth layers; **spaCR stratified direction** selects up, down or random travel.",
+      "source_sha256": "a1f74b899259cb37b049b1c165df96ef8c80b752d47dd238fc787f8ef3949fb6",
+      "original_target": "**spaCR stratified** — 缓慢的星点场在三个深度层中移动；**spaCR stratified 方向**选择向上、向下或随机方向的运动。",
+      "target": "**spaCR stratified** — 缓慢的星点场在三个深度层中移动；**spaCR stratified 方向** 选择向上、向下或随机方向的运动。",
+      "review_scope": "Whitespace-only RST delimiter repair; every original non-whitespace character preserved. UI glossary and literal/role/URL contracts verified; no native-speaker signoff."
+    },
+    {
+      "domain": "features",
+      "source": "**Animation background colour** sets the background independently of the animation palette. Until you choose a colour, it follows the page theme; **Theme colour** restores that behaviour. The chosen colour's brightness is kept within the active Dark or Light theme's range. It applies to the main window, module screens and animated settings popups. A full-screen wallpaper can cover the background fill.",
+      "source_sha256": "e171c3da982f303acc52ccd4b0512431cd446f7c66cb7641f83667de06751bae",
+      "original_target": "**动画背景颜色**可独立于动画调色板设置背景。在您选择颜色之前，背景会跟随页面主题；**主题颜色**可恢复这一行为。所选颜色的亮度始终保持在当前深色或浅色主题的范围内。该颜色应用于主窗口、模块页面和带动画的设置弹窗。全屏壁纸可能遮盖背景填充颜色。",
+      "target": "**动画背景颜色** 可独立于动画调色板设置背景。在您选择颜色之前，背景会跟随页面主题；**主题颜色** 可恢复这一行为。所选颜色的亮度始终保持在当前深色或浅色主题的范围内。该颜色应用于主窗口、模块页面和带动画的设置弹窗。全屏壁纸可能遮盖背景填充颜色。",
+      "review_scope": "Whitespace-only RST delimiter repair; every original non-whitespace character preserved. UI glossary and literal/role/URL contracts verified; no native-speaker signoff."
+    },
+    {
+      "domain": "features",
+      "source": "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them.",
+      "source_sha256": "d9cc029b023c5fe4479ee6c3ae3e01df08b323f2e9898fc2e15314b10b8b8986",
+      "original_target": "**设置 Backdrop**在应用或保存偏好设置时均与主窗口动画保持独立。**无**关闭弹窗动画，但保留蓝色边缘光。**设置背景暗度**控制设置卡片覆盖其动画的不透明度，范围为 **0%** 至 **100%**（默认 **85%**），并与 **页面不透明度**共同作用。当设置背景为 **无**时，页面不透明度仍然适用。较高的暗度覆盖更多动画，使文字更易阅读。弹窗只保持在所属 spaCR 窗口前方，不使用全局始终置顶标志，因此其他应用可以覆盖它们。",
+      "target": "**设置 Backdrop** 在应用或保存偏好设置时均与主窗口动画保持独立。**无** 关闭弹窗动画，但保留蓝色边缘光。**设置背景暗度** 控制设置卡片覆盖其动画的不透明度，范围为 **0%** 至 **100%**（默认 **85%**），并与 **页面不透明度** 共同作用。当设置背景为 **无** 时，页面不透明度仍然适用。较高的暗度覆盖更多动画，使文字更易阅读。弹窗只保持在所属 spaCR 窗口前方，不使用全局始终置顶标志，因此其他应用可以覆盖它们。",
+      "review_scope": "Whitespace-only RST delimiter repair; every original non-whitespace character preserved. UI glossary and literal/role/URL contracts verified; no native-speaker signoff."
+    },
+    {
+      "domain": "make_masks",
+      "source": "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before manually accepting its objects.",
+      "source_sha256": "634a10eb8471b8a67bd4d81639c291ad3362d89ed1ce0990c72f3ea6f05cca7e",
+      "original_target": "启用 **放大镜**或按 **M**，查看指针周围建议的对象。鼠标滚轮改变框内放大倍数；**Shift + wheel**改变框的大小。**Ctrl+L+右键单击**锁定或解锁框。手动接受对象前，请等待预览更新。",
+      "target": "启用 **放大镜** 或按 **M**，查看指针周围建议的对象。鼠标滚轮改变框内放大倍数；**Shift + wheel** 改变框的大小。**Ctrl+L+右键单击** 锁定或解锁框。手动接受对象前，请等待预览更新。",
+      "review_scope": "Whitespace-only RST delimiter repair; every original non-whitespace character preserved. UI glossary and literal/role/URL contracts verified; no native-speaker signoff."
+    },
+    {
+      "domain": "make_masks",
+      "source": "Under **Object detection** → **Magnification settings**, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save** or **Save & Next** to write accepted masks.",
+      "source_sha256": "5a8bdbfe56a759b843b1b9637502650ca5d55525b059bb9540cb565cbacefcbc",
+      "original_target": "在 **对象检测** → **放大设置**中启用 **立即接受建议对象**，即可无需点击而接受当前建议。此选项默认关闭。区域模式遵循 **添加的对象**设置；整幅图像模式仅接受指针下方的对象。移出图像或关闭放大镜会停止自动接受。每次接受都可以撤销，撤销后不会立即重新接受同一建议。使用 **保存**或 **Save & Next**将已接受的掩膜写入磁盘。",
+      "target": "在 **对象检测** → **放大设置** 中启用 **立即接受建议对象**，即可无需点击而接受当前建议。此选项默认关闭。区域模式遵循 **添加的对象** 设置；整幅图像模式仅接受指针下方的对象。移出图像或关闭放大镜会停止自动接受。每次接受都可以撤销，撤销后不会立即重新接受同一建议。使用 **保存** 或 **Save & Next** 将已接受的掩膜写入磁盘。",
+      "review_scope": "Whitespace-only RST delimiter repair; every original non-whitespace character preserved. UI glossary and literal/role/URL contracts verified; no native-speaker signoff."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Overlap** chooses what happens when a proposal overlaps an existing mask:",
+      "source_sha256": "af54d2452c6f782e2b8ed4d97939a0a37a5fb5bf50bb8ec2f089c664967203d9",
+      "original_target": "**重叠**决定建议对象与现有掩膜重叠时的处理方式：",
+      "target": "**重叠** 决定建议对象与现有掩膜重叠时的处理方式：",
+      "review_scope": "Whitespace-only RST delimiter repair; every original non-whitespace character preserved. UI glossary and literal/role/URL contracts verified; no native-speaker signoff."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Fuse with existing object** adds the proposal to the existing ID and retains the old object's pixels, including pixels outside the box. A proposal overlapping several objects joins them into the smallest old ID. A proposal on background becomes a new object.",
+      "source_sha256": "1f85feed35d5327911d4c26e71ad0211c01da0b25dacfeef4587ce720096d064",
+      "original_target": "**与现有对象合并**将建议区域添加到现有 ID，并保留原对象的全部像素，包括框外像素。如果建议区域与多个对象重叠，则将它们合并到最小的原有 ID 下。只位于背景上的建议会成为一个新对象。",
+      "target": "**与现有对象合并** 将建议区域添加到现有 ID，并保留原对象的全部像素，包括框外像素。如果建议区域与多个对象重叠，则将它们合并到最小的原有 ID 下。只位于背景上的建议会成为一个新对象。",
+      "review_scope": "Whitespace-only RST delimiter repair; every original non-whitespace character preserved. UI glossary and literal/role/URL contracts verified; no native-speaker signoff."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Add non-overlapping pixels** preserves existing objects and adds the proposal's largest remaining connected piece as a new object.",
+      "source_sha256": "5c6740518691a9b115fac6f8c56f4f25206f0978e7d2615399ac3b1e426c82a9",
+      "original_target": "**添加不重叠的像素**保留现有对象，并将建议区域中剩余的最大连通部分作为一个新对象添加。",
+      "target": "**添加不重叠的像素** 保留现有对象，并将建议区域中剩余的最大连通部分作为一个新对象添加。",
+      "review_scope": "Whitespace-only RST delimiter repair; every original non-whitespace character preserved. UI glossary and literal/role/URL contracts verified; no native-speaker signoff."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Replace overlapping object** removes overlapping old objects in full before adding the proposal. Rejected small proposals remove nothing.",
+      "source_sha256": "153e787e83bebe08d300e34f410af14ec52096d8c9e8eccc9e6d27ea26dafcd1",
+      "original_target": "**替换重叠对象**先完整移除所有重叠的原对象，再添加建议对象。被拒绝的小建议不会移除任何对象。",
+      "target": "**替换重叠对象** 先完整移除所有重叠的原对象，再添加建议对象。被拒绝的小建议不会移除任何对象。",
+      "review_scope": "Whitespace-only RST delimiter repair; every original non-whitespace character preserved. UI glossary and literal/role/URL contracts verified; no native-speaker signoff."
+    },
+    {
+      "domain": "make_masks",
+      "source": "**Skip overlapping objects** ignores proposals that overlap existing masks.",
+      "source_sha256": "94c92b2fd888685cb2c6bfe40f217d3e9b9997b017e1c6c49cf9d35570618fa1",
+      "original_target": "**跳过重叠对象**忽略与现有掩膜重叠的建议。",
+      "target": "**跳过重叠对象** 忽略与现有掩膜重叠的建议。",
+      "review_scope": "Whitespace-only RST delimiter repair; every original non-whitespace character preserved. UI glossary and literal/role/URL contracts verified; no native-speaker signoff."
+    }
+  ]
+}

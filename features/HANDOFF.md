@@ -1,5 +1,44 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 23:46 EDT — Workstation: current hosted guide repair accepted
+
+Root ACKs Home's exact55 hosted documentation failure and keeps it above
+new664/665 and tutorial publication. Normal reviewed imports repair32 unique
+paragraphs in seven zh_CN/ko PO pages. The initial27 warning fixes preserve
+every non-whitespace character. Inspecting actual output then discovers
+silent span joins in five additional paragraphs (seven incremental records,
+two continuing the initial repairs); those too are whitespace-only. All
+words, numeric defaults, UI names, code literals, URLs and roles remain exact.
+The normal validator now uses Docutils' inline parser, rejecting both unclosed
+markers and silent joins instead of relying only on delimiter counts.
+
+Final28 guide tests pass7.72s. Normal strict all-nine audit is3029/3029 each,
+stale/invalid/unlabelled0. Initial two-language strict HTML passes and the
+final all-nine -W build ends0 for every language. All32 actual rendered
+paragraphs have exact written bold/literal nodes and no problematic markup.
+The inventory is the genuine successful329 English build (identical English
+source/API); it is not fabricated. Ruff fatal checks and diff checks pass.
+Original hosted/local failure, initial silent-join HTML, failed archive/import
+attempts, normal import scripts, source before/after/patch and complete final
+terminal logs are retained in50 payloads:
+  data/615_current_translated_inline_repair_2026-10-08_r2/receipt.json
+No numerical ceiling, warning gate or native-language qualification changed.
+
+This NORMAL repair push should start docs for its exact source and does not
+cancel the protected55 tests or N47 serial run. Home retains those runs to
+terminal and full CI ownership. Root checks the new docs deployment and actual
+browsers, then resumes its isolated remaining owner work. No final hosted
+green, native crash cause,24FPS or whole615 completion is claimed.
+
+The new Home lesson is staged with24 current scenes and normal13-language
+promotion;20 unchanged narrations per language and84 other lessons remain
+exact. Current native capture verifies both Keep and Revert. Audio/video and
+publication remain pending. The final664/665 caller/database cohort is240PASS
+83.55s, frozen31-file r2 source; it includes direct apply_async native-child
+loss handling, a3.9 constructor signature check, and draining every barcode
+final retry despite another final failure. Those changes remain isolated and
+unpublished until the urgent CI lane accepts the current delivery.
+
 ## 2026-10-07 23:20 EDT — Home: urgent current hosted documentation repair
 
 WORKSTATION PRIORITY: current55 nightly documentation job113126773499

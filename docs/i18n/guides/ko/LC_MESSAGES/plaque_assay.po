@@ -102,7 +102,7 @@ msgstr "저장된 분할 진단 지표"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Plaque mode writes these columns for each plaque in ``per_plaque`` and ``details`` in ``<src>/masks/plaques_analysis.db``, and exports ``<src>/masks/per_plaque.csv``. Figure mode writes the same columns in the ``plaques`` table of ``plaque_figures.db``."
-msgstr "플라크 모드는 각 플라크의 이 열들을 ``<src>/masks/plaques_analysis.db``의 ``per_plaque`` 및 ``details`` 테이블에 기록하고 ``<src>/masks/per_plaque.csv``로 내보냅니다. 그림 모드는 같은 열들을 ``plaque_figures.db``의 ``plaques`` 테이블에 기록합니다."
+msgstr "플라크 모드는 각 플라크의 이 열들을 ``<src>/masks/plaques_analysis.db`` 의 ``per_plaque`` 및 ``details`` 테이블에 기록하고 ``<src>/masks/per_plaque.csv`` 로 내보냅니다. 그림 모드는 같은 열들을 ``plaque_figures.db`` 의 ``plaques`` 테이블에 기록합니다."
 
 msgid "Column"
 msgstr "콜롬비아"

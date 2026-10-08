@@ -46,6 +46,34 @@ def test_ui_names_split_menu_paths():
         "Home", "Tools", "Make Masks", "Undo"]
 
 
+@pytest.mark.parametrize("source,target", [
+    ("Press **Save** to keep changes.", "**저장**은 변경을 유지합니다."),
+    ("Press **Save** to write masks.", "**保存**将对象保存。"),
+    ("Use ``custom_model`` for masking.", "마스크 생성에는 ``custom_model``에 지정합니다."),
+])
+def test_rejects_unclosed_inline_markup_even_with_matching_delimiter_counts(source, target):
+    assert source.count("**") == target.count("**")
+    assert source.count("``") == target.count("``")
+    assert any("start-string without end-string" in problem
+               for problem in guide.message_problems(source, target))
+
+
+def test_accepts_spaced_cjk_markup_and_sphinx_roles():
+    source = "Press **Save** and read ``masks/``; see :func:`spacr.io.save`."
+    target = "**保存** 将对象写入 ``masks/``；参见 :func:`spacr.io.save`。"
+    assert guide.message_problems(source, target, {"Save": "保存"}) == []
+
+
+@pytest.mark.parametrize("source,target,problem", [
+    ("From **100%** (default **85%**).", "**100%**（默认 **85%**）。", "bold spans"),
+    ("Use ``list`` (or ``models``).", "``list``（或 ``models``）。", "literal spans"),
+])
+def test_rejects_silently_joined_inline_spans(source, target, problem):
+    problems = guide.message_problems(source, target)
+    assert not any("start-string without end-string" in item for item in problems)
+    assert any(problem in item for item in problems)
+
+
 # -- staleness guard ---------------------------------------------------------
 
 def _write_pot(directory: Path, domain: str, messages):

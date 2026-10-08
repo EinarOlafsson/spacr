@@ -32,7 +32,10 @@ import os
 import re
 import subprocess
 import sys
+from functools import lru_cache
+from io import StringIO
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Iterable, Mapping
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -402,6 +405,41 @@ def ui_names(text: str) -> list[str]:
     return names
 
 
+@lru_cache(maxsize=8192)
+def inline_markup_problems(text: str) -> tuple[str, ...]:
+    """Check translated inline markup with the renderer's actual RST parser.
+
+    Matching delimiter counts do not make closing markers valid beside CJK
+    text or Korean suffixes. Parse only inline content here; Sphinx supplies
+    domain roles and block directives during the separate strict build.
+    """
+    if "**" not in text and "``" not in text:
+        return ()
+    from docutils import frontend, languages, nodes
+    from docutils.parsers.rst import Parser
+    from docutils.parsers.rst.states import Inliner
+    from docutils.utils import new_document
+
+    settings = frontend.get_default_settings(Parser)
+    settings.warning_stream = StringIO()
+    document = new_document("<translated-guide>", settings=settings)
+    inliner = Inliner()
+    inliner.init_customizations(settings)
+    memo = SimpleNamespace(document=document, language=languages.get_language("en"))
+    children, messages = inliner.parse(text, 1, memo, nodes.paragraph())
+    paragraph = nodes.paragraph()
+    paragraph.extend(children)
+    problems = list(dict.fromkeys(
+        message.children[0].astext() for message in messages
+        if message.children[0].astext().startswith((
+            "Inline strong start-string", "Inline literal start-string"))))
+    if [node.astext() for node in paragraph.findall(nodes.strong)] != _BOLD_RE.findall(text):
+        problems.append("bold spans do not render as written")
+    if [node.astext() for node in paragraph.findall(nodes.literal)] != _LITERAL_RE.findall(text):
+        problems.append("literal spans do not render as written")
+    return tuple(problems)
+
+
 def message_problems(msgid: str, msgstr: str,
                      glossary: Mapping[str, str] | None = None) -> list[str]:
     """Reasons a translation is unsafe to publish (empty list: acceptable)."""
@@ -421,6 +459,7 @@ def message_problems(msgid: str, msgstr: str,
                 problems.append(f"UI name {name!r} must read **{expected}**")
     if msgid.count("**") != msgstr.count("**"):
         problems.append("bold markup count differs")
+    problems.extend(inline_markup_problems(msgstr))
     return problems
 
 

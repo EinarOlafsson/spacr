@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "source_commit": "486209e28341a5958a19ee9eed61dd14bff331a2",
+  "method": "Codex AI technical source/context review of silent RST span joins; whitespace-only corrections, original native-speaker qualification retained.",
+  "records": [
+    {
+      "domain": "python_api",
+      "source": "Use ``spacr-run --list-models`` (or ``--models``) to list registered models, including models that have not been downloaded. Supply the registered key or filename in ``custom_model`` for masking or ``model_path`` for classifier inference. Python and notebook entry points use the same resolver. A missing registered checkpoint is downloaded through Model Zoo when the workflow runs, verified against its catalogue checksum, and cached for reuse. Preflight recognizes registered downloadable selections without downloading the weights. Existing local paths take precedence; an unknown missing local path or a model of the wrong kind raises an error rather than selecting another model. Built-in foundation models retain their backend's normal download behavior.",
+      "source_sha256": "974bd624b65dcb23af7ef9374dd0ebdcd9b65c0ddc7c1f3340bbf6f32b1fbb8c",
+      "original_target": "使用 ``spacr-run --list-models``（或 ``--models``）列出已注册的模型，包括尚未下载的模型。生成掩膜时，在 ``custom_model`` 中提供已注册的键或文件名；进行分类器推理时，在 ``model_path`` 中提供。Python 和 notebook 入口使用相同的模型解析器。运行工作流时，缺失的已注册模型文件会通过 Model Zoo 下载，按模型目录中的校验和验证，并缓存以供重复使用。预检会识别可下载的已注册模型选项，但不会下载权重。已有的本地路径优先；未知且缺失的本地路径或类型不匹配的模型会报错，而不会另选一个模型。内置基础模型保留其后端的正常下载行为。",
+      "target": "使用 ``spacr-run --list-models`` （或 ``--models`` ）列出已注册的模型，包括尚未下载的模型。生成掩膜时，在 ``custom_model`` 中提供已注册的键或文件名；进行分类器推理时，在 ``model_path`` 中提供。Python 和 notebook 入口使用相同的模型解析器。运行工作流时，缺失的已注册模型文件会通过 Model Zoo 下载，按模型目录中的校验和验证，并缓存以供重复使用。预检会识别可下载的已注册模型选项，但不会下载权重。已有的本地路径优先；未知且缺失的本地路径或类型不匹配的模型会报错，而不会另选一个模型。内置基础模型保留其后端的正常下载行为。",
+      "review_scope": "Whitespace-only repair of silently combined inline spans; every original non-whitespace character preserved; parsed bold and literal spans match their exact written values. No native-speaker signoff."
+    },
+    {
+      "domain": "features",
+      "source": "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset.",
+      "source_sha256": "f1d600d93414e2c79b01d468668f3b6245b9ebae12d8c49bb9b0d7a19a2aba1d",
+      "original_target": "**鼠标引力半径**以屏幕较短边长的百分比设置影响区域。默认值为 **15%**；设为 **0** 可禁用鼠标影响。**动画密度**控制元素数量，与改变绘制分辨率的 **动画细节**相互独立。密度最低为 **1%**；增加细节不会减少已选定的元素数量。渲染器将采样工作限制在屏幕像素预算内。在 **动画调色板**中选择 **随机**可为每个元素使用随机颜色。新安装默认使用 **深色**、**spaCR field** 和 **spaCR** 动画调色板，密度为 **10%**，引力为 **15%**，细节、速度和大小均为 **100%**，页面不透明度为 **60%**。**点闪烁**控制闪烁为白色的可见点所占的百分比：**0** 禁用闪烁（默认值），非零范围为 0.00001% 至 10%。该设置适用于 spaCR field、spaCR advection、spaCR waves 和 spaCR stratified。场淡出已启用。蓝色边缘光使用周长的 **17%** 作为相对长度，跟随为 **50%**，以指针为中心对齐，模式为 **Beat**，周期为 **1.5 s**。已有的已保存偏好设置会保留，直到用户更改或重置。",
+      "target": "**鼠标引力半径** 以屏幕较短边长的百分比设置影响区域。默认值为 **15%** ；设为 **0** 可禁用鼠标影响。**动画密度** 控制元素数量，与改变绘制分辨率的 **动画细节** 相互独立。密度最低为 **1%** ；增加细节不会减少已选定的元素数量。渲染器将采样工作限制在屏幕像素预算内。在 **动画调色板** 中选择 **随机** 可为每个元素使用随机颜色。新安装默认使用 **深色** 、**spaCR field** 和 **spaCR** 动画调色板，密度为 **10%** ，引力为 **15%** ，细节、速度和大小均为 **100%** ，页面不透明度为 **60%** 。**点闪烁** 控制闪烁为白色的可见点所占的百分比：**0** 禁用闪烁（默认值），非零范围为 0.00001% 至 10%。该设置适用于 spaCR field、spaCR advection、spaCR waves 和 spaCR stratified。场淡出已启用。蓝色边缘光使用周长的 **17%** 作为相对长度，跟随为 **50%** ，以指针为中心对齐，模式为 **Beat** ，周期为 **1.5 s** 。已有的已保存偏好设置会保留，直到用户更改或重置。",
+      "review_scope": "Whitespace-only repair of silently combined inline spans; every original non-whitespace character preserved; parsed bold and literal spans match their exact written values. No native-speaker signoff."
+    },
+    {
+      "domain": "features",
+      "source": "**Popup wave frequency** sets automatic waves per minute in **spaCR field**. The default is **5 waves/minute**; **0** disables popup waves. When enabled, opening a popup immediately starts the first wave from its centre, followed by waves at the selected rate. Moving the popup moves the origin of new waves; closing it stops new waves while existing waves fade. This control is independent of mouse gravity, dot blinking, density and drawing detail.",
+      "source_sha256": "bc4b37e953592d552059f66aac7427eb3308a93996586bfe4b7300ad4e93c80d",
+      "original_target": "**弹窗波纹频率**设置 **spaCR field** 中每分钟自动生成的波纹数。默认值为 **5 波/分钟**；**0** 禁用弹窗波纹。启用后，打开弹窗会立即从其中心发出第一道波纹，后续波纹按所选频率生成。移动弹窗会移动新波纹的起点；关闭弹窗会停止产生新波纹，已有波纹则逐渐消退。此控制与鼠标引力、点闪烁、密度和绘制细节相互独立。",
+      "target": "**弹窗波纹频率** 设置 **spaCR field** 中每分钟自动生成的波纹数。默认值为 **5 波/分钟** ；**0** 禁用弹窗波纹。启用后，打开弹窗会立即从其中心发出第一道波纹，后续波纹按所选频率生成。移动弹窗会移动新波纹的起点；关闭弹窗会停止产生新波纹，已有波纹则逐渐消退。此控制与鼠标引力、点闪烁、密度和绘制细节相互独立。",
+      "review_scope": "Whitespace-only repair of silently combined inline spans; every original non-whitespace character preserved; parsed bold and literal spans match their exact written values. No native-speaker signoff."
+    },
+    {
+      "domain": "features",
+      "source": "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them.",
+      "source_sha256": "d9cc029b023c5fe4479ee6c3ae3e01df08b323f2e9898fc2e15314b10b8b8986",
+      "original_target": "**设置 Backdrop** 在应用或保存偏好设置时均与主窗口动画保持独立。**无** 关闭弹窗动画，但保留蓝色边缘光。**设置背景暗度** 控制设置卡片覆盖其动画的不透明度，范围为 **0%** 至 **100%**（默认 **85%**），并与 **页面不透明度** 共同作用。当设置背景为 **无** 时，页面不透明度仍然适用。较高的暗度覆盖更多动画，使文字更易阅读。弹窗只保持在所属 spaCR 窗口前方，不使用全局始终置顶标志，因此其他应用可以覆盖它们。",
+      "target": "**设置 Backdrop** 在应用或保存偏好设置时均与主窗口动画保持独立。**无** 关闭弹窗动画，但保留蓝色边缘光。**设置背景暗度** 控制设置卡片覆盖其动画的不透明度，范围为 **0%** 至 **100%** （默认 **85%** ），并与 **页面不透明度** 共同作用。当设置背景为 **无** 时，页面不透明度仍然适用。较高的暗度覆盖更多动画，使文字更易阅读。弹窗只保持在所属 spaCR 窗口前方，不使用全局始终置顶标志，因此其他应用可以覆盖它们。",
+      "review_scope": "Whitespace-only repair of silently combined inline spans; every original non-whitespace character preserved; parsed bold and literal spans match their exact written values. No native-speaker signoff."
+    }
+  ]
+}
