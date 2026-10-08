@@ -11,10 +11,17 @@ from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout
 from spacr.qt.widgets import glass
 
 
-@pytest.fixture
-def glassed(qtbot, qt_theme_applied, tmp_path, monkeypatch):
+@pytest.fixture(params=(None, 1.0), ids=("default-opacity", "opaque"))
+def glassed(qtbot, qt_theme_applied, tmp_path, monkeypatch, request):
     """A plain dialog, given the treatment every popup gets."""
+    from spacr.qt import preferences
+
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    preferences.set_popup_backdrop("off")
+    if request.param is None:
+        assert preferences.get_pane_opacity() == 0.6
+    else:
+        preferences.set_pane_opacity(request.param)
     dialog = QDialog()
     qtbot.addWidget(dialog)
     column = QVBoxLayout(dialog)
@@ -29,13 +36,20 @@ def glassed(qtbot, qt_theme_applied, tmp_path, monkeypatch):
 def test_translucent_corners_have_alpha_instead_of_a_binary_cut(glassed):
     """The compositor receives partial coverage instead of a jagged region."""
     from PySide6.QtCore import Qt
+
+    from spacr.qt import preferences
+
     assert glassed.testAttribute(Qt.WA_TranslucentBackground)
     assert glassed.mask().isEmpty()
     image = glassed.grab().toImage()
     assert image.pixelColor(0, 0).alpha() == 0
-    assert any(0 < image.pixelColor(x, y).alpha() < 200
+    expected_alpha = round(preferences.effective_pane_alpha() * 255)
+    assert image.pixelColor(image.width() // 2,
+                            image.height() // 2).alpha() == expected_alpha
+    assert any(0 < image.pixelColor(x, y).alpha() < min(200, expected_alpha)
                for x in range(18) for y in range(18))
-    assert image.pixelColor(image.width() // 2, image.height() // 2).alpha() > 200
+    if preferences.get_pane_opacity() == 1.0:
+        assert expected_alpha > 200
 
 
 def test_alpha_corners_follow_a_resize(glassed, qtbot):
@@ -102,11 +116,11 @@ def test_the_corner_arc_shows_no_more_of_the_backdrop_than_the_middle(qapp,
     that a pixel on the corner arc lets no more through than one in the
     middle.
     """
-    from PySide6.QtCore import QPoint
     from PySide6.QtGui import QColor, QImage
     from PySide6.QtWidgets import QDialog
 
-    from spacr.qt import preferences as prefs, theme
+    from spacr.qt import preferences as prefs
+    from spacr.qt import theme
     from spacr.qt.widgets.glass import CARD_RADIUS, round_the_corners
     from spacr.qt.widgets.setup_card import SetupCard
 
