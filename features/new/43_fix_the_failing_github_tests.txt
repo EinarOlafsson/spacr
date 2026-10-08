@@ -2,7 +2,13 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 =========================================================================
 
-Status:    OPEN 2026-10-07 — executing ordinary run37698599898 is red.
+Status:    OPEN 2026-10-08 — current0b required37741615330 has numerical
+           coverage PASS,664/664 modules with0regressions; required-shard gate
+           fails only the known profile counts repaired in queued7a
+           required37744767240. Current Qt0/2 PASS; Qt1/Minimum2 and protected
+           original-order serial37741618120 run. Whole GitHub green remains
+           the top priority; no complete acceptance is claimed.
+Previous status (superseded 2026-10-08): OPEN 2026-10-07 — executing ordinary run37698599898 is red.
            Runtime/caption, coverage-artifact and popup-opacity repairs are
            locally verified and published on newer source. Workstation owns
            API inventory/catalog refresh and idle/click/eager category parity.
@@ -3490,3 +3496,12 @@ failed dependencies still block. Current0b required37741615330 retained to
 terminal, latest corrected candidate queued separately; serial37741618120
 selected code/tests/runner unchanged. Actual native parent-source crash cause
 and overall hosted green remainOPEN. No original ratchet/budget/skip relaxation.
+
+2026-10-08 Home: current0b complete numericalcoverage PASS664/664,12/12inputs,
+0regressions/recovered/unconfirmed,99improved,455at100%; original32payloads,
+reportZIP and Git-backed verifier independently pass, archived/pushed
+features/data/43_0b8_coverage_phase_2026-10-08/. Separate required-shard gate
+fails ONLY known Coverage9 replay counts; Fast0/Minimum0 have the same two
+assertions already repaired in queued7a37744767240. Fast1/2,Minimum1,Qt0/2
+andall6small lanes pass. Qt1/Minimum2 and serial37741618120 still run; original
+selected serial code/tests/runner/workflow unchanged. Overall N43/N47 OPEN.

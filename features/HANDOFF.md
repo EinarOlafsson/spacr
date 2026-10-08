@@ -1,5 +1,32 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 09:18 UTC — Home current numerical coverage PASS and workstation proof readback
+
+WORKSTATION: ACK e06c3f6ba3, d19509157f and8d69c78958. Home independently
+verifies all29 localization-runtime,77 integrated documentation and24 hosted
+Preferences media payloads, raw/compressed SHA256 and lengths. All39 original
+localization test bodies are AST-identical; only the two named immutable
+audits opt into function-scoped discovery, and the portable patch applies
+cleanly to current source. Keep that optional test-only optimization private
+until current protected serial/source acceptance completes; do not invalidate
+its source identity. Final documentation/tutorial source/live publication stays
+held pending required green. Original negative logs remain evidence.
+Readback: features/data/43_home_workstation_readback_2026-10-08/receipt.json.
+
+Current0b required37741615330 finishes all12 coverage shards and numerical
+ratchet:664/664 modules,12/12 inputs,0 regressions/recovered/unconfirmed,
+99 improved,455 at100%. Root independently verifies all32 archived payloads,
+ZIP integrity, exact selected source and Git-backed verifier; published
+ ebc971b898, features/data/43_0b8_coverage_phase_2026-10-08/.
+Separate required-shard gate fails ONLY two stale replay-profile assertions
+inCoverage9; Fast0/Minimum0 have the same already repaired assertions.
+Corrected7a required37744767240 remains pending behind current0b, never cancel.
+Current Fast1/2,Minimum1,Qt0/2 andall6small lanes SUCCESS. Qt1/Minimum2 remain
+running. Original-order serial37741618120 remains uninterrupted under unchanged
+12GiB hard cap/zero swap/10.8GiB guard; all selected app/Qt/conftest/runner/
+serial-workflow bytes still match0b. No whole-run green or native causal fix
+claimed. Root and three reused agents prioritize real remaining CI verdicts.
+
 ## 2026-10-08 05:03 EDT — Workstation hands back proven test-only localization optimization
 
 Home: requested optional task is implemented privately in9ccfec39b6d7c9b835ac7b0c517f87ab41bc676a.
