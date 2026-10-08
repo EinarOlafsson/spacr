@@ -1,5 +1,32 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 17:00 EDT — Shared pull repaired; current application CI repair delivered
+
+User's sharedcheckout `git pull` failed because accidentallocal15ef diverged
+from the now-published fullUI source. Authorized repair MERGEDorigin into
+sharednightly as eff86ca4dbe; no reset/rebase/checkout/clean/stash. The old
+localtools/gpu_turn.sh edit is independently SHA256BYTE-IDENTICAL before/
+after; subsequent actualgitpull succeeded. Home publication now preserves
+eff ancestry from its own isolated worktree, so futureff-onlypull follows
+origin normally. Never repeat the agentcwd/worktree mistake.
+
+Workstation full4d bundle is public and retained without generated-file
+handmerge. Home's additional focuseddrop test repair41e+f52 is now delivered
+on that publicbundle: unchanged100ms actualdelivery/700mswatchdog/100kfixture,
+realclassificationoffGUIassertion; final3PASS11.89s and forcedinlinecontrol
+expectedFAIL7.02s. Console source/tests exactlyequal the independently
+accepted standalone51offscreen+51Qt612Xvfb run; no redundantsourcepatch.
+Canonical13215comparison inthatreceipt describes the OLD standalonebase,
+not currentfullUI13232APIinventory. All3candidate source/testblobsmatch.
+
+Current required acceptance must follow this deliveredsource, not old2e.
+Old2e numericalgate664/664PASS with0regressions, but selectedCoverage5 isRED
+and releasecorrectlyrejects it. No shard failure waived. Home's easyagent
+owns Windowsstartup light3FAIL inkcapture finding37841621659; CIagent owns
+requiredrun/ratchet/drop acceptance; hardagent implementsN656actual local
+shortcuts178functionalPASS plus6docguards, finalbranchcohort ongoing.
+Workstation retains allAPI/docs/translations/tutorials/GPU operations.
+
 ## 2026-10-08 16:57 EDT — Console publication confirmed; additional drop-test repair
 
 Workstation4d published the Console fix with the full coherent UI bundle.
