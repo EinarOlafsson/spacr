@@ -1,5 +1,45 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 16:43 EDT — Publish complete frozen UI/API/runtime/documentation checkpoint
+
+This publication contains the full tested application bundle6fa8fd257,
+matching canonicalAPI13232 and runtime10066/UI7288 catalogs, allnine reviewed
+languages, Help/Organism/Console repairs, independent Spaceout popup routing,
+worker staggering/finaloverload retries, single bounded database writer and
+accepted figure-provenance repairs. Application669Python files byte-exact
+accepted0ae and API owner's frozen source. Public-onlyCI diagnostics/display
+workflow and Home's deterministic core fixture are retained.
+ data/ui_publication_source_binding_2026-10-08/receipt.json
+ data/668_publication_popup_ci_acceptance_2026-10-08/receipt.json
+ data/runtime_tutorial_review_acceptance_2026-10-08/receipt.json
+Rootpopup/retainedCI121PASS; Console117PASS; combinedHelp/Organism342PASS;
+complete runtime61PASS and strictadapter13PASS; earlier overlapping phases
+must not be summed. All9API audits PASS, actual297reviewedAPIblocks browser
+PASS, fullstrictEnglishAPIHTML and all9guide-W builds PASS. Finalguides3050
+messages/locale; one premature mergedtutorial link removed and nineexact
+reviewed targets retired. Affected10page browser81paragraphPASS; all643API
+HTML/10APIcatalogs and297unaffectedlocalizedpages exact accepted artifacts.
+All669source hashes and currentcatalog/source equality independently checked.
+
+Installation uses plain pip install spacr; Qt remains unconditional. Merged
+installation media is NOT yet ready, so documentation does not claim its
+nonexistent route is available. No laterN672/N673/groupednumericline/GPU
+source was folded into this freeze. Those continuations remain separate.
+Home: adopt this public checkpoint and coordinate matching current-source
+required/serialCI. Old2e successful jobs do not certify this new appsource.
+Current2e coverage5 retry remains active and was not cancelled by this push.
+No actual GPU/ultra termination cure or native-driver acceptance is claimed.
+
+All3workstation agents active: APIowner finishes02/04normal13locale reviews;
+translationowner prepares separate84new gate/volumeUI arrivals across9;
+tutorialowner has actualHome39/Image12/Toxo7nativeclips, continuing fresh
+pip-in-Conda recording, voices and1xassembly. Separateprivatec057341c1:
+22focused and275broaderPASS/1optionalpingouinskip, nativegroupedline/SD
+recreation; packet data/658_grouped_numeric_line_recipe_2026-10-08.
+GPUlane controlledCPUprofiles12cases at1080p/4K are recorded in
+ data/679_root_cpu_profile_2026-10-08/receipt.json
+This is no GPUimplementation/speedup or whole658/679completion claim.
+
 ## 2026-10-08 16:42 EDT — Coverage progress correction
 
 Exact original Coverage5 log names batch5/11 as the last started batch;
