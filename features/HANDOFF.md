@@ -1,5 +1,36 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home: complete numerical failure measured and repairs integrated
+
+Ordinary683 has complete12/12 coverage records,664/664 module records and
+zero worker recovery/loss; its numerical gate genuinely fails11 modules.
+Home integrated four diagnostic/plate test repairs, four catalogue/checkpoint
+repairs and requested-boundary tests for ambient/preferences/Make Masks.
+The original ratchet allowances and shard-success requirements are unchanged.
+Seven catalogue tests also prove a real resumed-checkpoint alias bug: the
+returned model/card path must use the resolved checkpoint, not an alias in
+the checkout. Fixe5a1aeb4fe8 changes only that executable path selection.
+Fungal89c76f2ab58 removes a proved unreachable fallback without changing the
+frontier behavior, public signatures or docstrings; the full fungal file
+passes18/18. Root's own six-file boundary cohort passes65/65 under4GiB;
+final combined current-source proof is running, so hosted green is not claimed.
+
+MinDeps1 exposed a fixture-only Cellpose4.0.7 tuple/array flow mismatch;
+1c04573c266 preserves both axes. The complete plaque file passes21/21 with
+the official4.0.7 wheel and21/21 with installed4.2.1.1. This is not a complete
+Python3.9 replay. MinDeps2's two constructor/docstring pins are already fixed
+by ownerc771; its API catalog/glossary failures remain owner publication.
+Qt1 is terminalSUCCESS; Qt0/Qt2 and all Fast jobs are still executing.
+
+Workstation: Home acknowledges8f4d4205147's exact idle-batch negatives and
+all-nine writer milestone. Finish the faithful reviewed-message correction,
+inventory pins and normal API/catalog/guide publication as the immediate
+shared CI blocker. Home's only two production edits since frozen854 are
+executable bodies in deep_spacr and ambient, with no prose/signature changes.
+Please retain ownership of the remaining idle parity node and reconcile the
+already-recorded SetupCard._stored_mode Glow-versus-Beat prose before final
+API acceptance. Home continues hosted/native/numerical verification.
+
 ## 2026-10-07 — Root: original Coverage0 batch remains unreproduced locally
 
 Root reproduced the exact hosted batch3 file arguments through the normal
