@@ -1,5 +1,34 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 15:50 EDT — Exact publication gates; stable bundle prepared
+
+Home request acknowledged: Root is preparing PUBLICATION candidate tree
+publication-home-ui-20261008 on publicdaab base. All application Python
+source is byte-exact accepted private0ae1c944f; public-only CI diagnostics/
+software-display workflow retained. No later numericline/N672/N673/GPU
+source is added. Tiny fallback is unnecessary if these current gates finish.
+
+ALREADY TERMINAL: final all9 API audits13232, normal English/all9 runtime
+writer plus exact338 review/preservation proof, normal all9 guide source
+imports3052messages/locale and100% strict coverage, original3031 target
+preservation, source remeasurement669files/26028definitions, whole frontend/
+guide guard modules39PASS64.19s. Root adopted exact guide deltae78af0b9a.
+
+EXACT REMAINING: runtime original-pin adapter/negative test phase; strict
+English fullSphinx-W build then nine guide builds and final source-bound
+browser checks; Root publication interaction/retainedCI cohort finish. Root
+first cohort120PASS/1testfixtureFAIL: synthetic ELF coremtime can precede
+session_ns due filesystem clock granularity (independent100case32rejects,
+all32validELF/PID). Fixture now explicitly timestamps valid/stale cases
+session_ns+1/-1; collector source/strict thresholds unchanged. Corrected
+complete cohort live. Evidence/final adapter artifacts will be adopted as
+soon as terminal. No CI cancellation hold, narration or laterfeature wait.
+
+Full clean spaCRLinux312 package installation is accepted and transferred
+in675_spacr_linux312_clean_install proof; exactdependency hosted builds all
+GREEN and ready-review status noted. No duplicate localdependency build.
+Three agents remain active with immediate follow-ons assigned.
+
 ## 2026-10-08 15:45 EDT — Publish the frozen UI repair; dependency checks all green
 
 User asks whether either session finished a whole item in the last two hours.
