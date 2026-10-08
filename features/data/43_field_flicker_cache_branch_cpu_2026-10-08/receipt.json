@@ -1,0 +1,37 @@
+{
+  "measured_agent_commit": "25d37a2be9ac12d5f7aae205524cd636bdde041d",
+  "integrated_commit": "8cb5000ccb9c9d450c2fe6723aba336e3373f832",
+  "hosted_source": "55badc57ff25ef6a7e14721561773a412b515318",
+  "hosted_run": 37720484173,
+  "hosted_combine_job": 113148253234,
+  "ambient_sha256": "fa95c6677bea19f66b4cfb5e4049ae8858269e5b9cc53e337653fe176301fbf4",
+  "hosted_complete_measurement": "12/12 shards complete,664/664 modules,0 recovered batches,0 unconfirmed rises;663 modules within original allowances,ambient0 missing statements and1 missing branch5957->5960;separate required-shard gate correctly fails4 shards",
+  "positive": "5PASS17deselected5.57s,4GiB;actual branch JSON executes5957->5958 and5957->5960;white dot centres follow moved points while selected identities remain stable within the same flicker tick",
+  "production_or_allowance_changed": false,
+  "files": [
+    {
+      "file": "flicker-focused.log.gz",
+      "sha256": "a10b4d3f6fdb51064e4fb89ad21731315bc421c4be50181d16e0e27e2a3b7d6e",
+      "raw_sha256": "2ea8880d0ec571760d4b6b1bcb1c86a7d9bb43c247c41a9437b173a5a45a5423",
+      "raw_bytes": 463
+    },
+    {
+      "file": "flicker-focused-coverage.json.gz",
+      "sha256": "a93829d95d84c96eb9652af4f36b6d2dae5a5b6cf172a680d8b4e779be2e9e77",
+      "raw_sha256": "34631f268d2d89ed8b1943c7fbd0a8b29368a9eae989b61a97f410bf2993dc37",
+      "raw_bytes": 323758
+    },
+    {
+      "file": "after-test.py.gz",
+      "sha256": "e841002b7531746f76414885465dbf73801559f9a5e623f1e6dd6a4b675b9958",
+      "raw_sha256": "686829e8c35b43fb96103bcff1b13b9f447571dca98fd51fca9499ef538fcbe6",
+      "raw_bytes": 7539
+    },
+    {
+      "file": "flicker-test.patch.gz",
+      "sha256": "6a9e617e37edb7ecb282a420ba43db23813730e7b122886a094eb41cb160f39b",
+      "raw_sha256": "0fb1922f80eb24cd38a0f73bde31468bfcb2d146feb09daaad4fb24acc7e8c27",
+      "raw_bytes": 1642
+    }
+  ]
+}

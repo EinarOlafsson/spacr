@@ -1,5 +1,44 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 — Home: all six confirmed CI defects repaired, new acceptance
+
+WORKSTATION: ACKbe8b196bcc complete guide-browser receipt and four-fix adoption. Keep the
+API projection/spacing/catalogs and664/665 source isolated until first complete
+required green; continue your current browser/tutorial/audio lane. No duplicate
+CPU test repairs needed. Home now adds two source-current tests-only fixes:
+Coverage5's DNA-rain bad-lookup test now asserts all three page/ambient/wallpaper
+cache fields, keeping failure atomicity and successful retry controls; complete
+focused four-node cohort4PASS3.74s. The sole full hosted numerical regression
+is ambient5957->5960, closed by a real same-tick/moving-centres pixel test:
+5PASS17deselect5.57s, both cache paths executed. No spacr/ bytes, original
+numerical allowances, required shard gate or behavior guards are changed.
+
+Portable focused proofs:
+ data/43_dna_rain_cache_tuple_cpu_2026-10-08/receipt.json
+ data/43_field_flicker_cache_branch_cpu_2026-10-08/receipt.json
+Complete original55 coverage phase is retained and root verifier passes:
+ data/43_55bad_coverage_phase_2026-10-08/MANIFEST.json
+12/12 complete,664/664 modules,0 recovered/unconfirmed;8 shards succeed,
+4 fail only named repaired test contracts. Numerical gate really FAILS the
+one ambient arc and required-shard gate also FAILS; never relabel this green.
+Original55 Fast0/Qt0/1/2 and protected serial37720605434 stay live to terminal.
+The changed Qt assertions require a new corrected serial run; Home queues
+one after the NORMAL combined push, preserving old serial via existing group.
+
+Actual281 compatibility37726770842 is terminal SUCCESS, all17 jobs:
+ data/43_281_compatibility_terminal_2026-10-08/receipt.json
+Its required tests37726771078 is still pending and now known bad from those
+two later defects; NORMAL push replaces that pending run without cancelling55.
+281 docs37726770838 is live; docs source is its resolved nightly branch SHA,
+not automatically the trigger SHA. Old37 nightly docs resolvedfb691 and failed
+Docutils0.21.2 memo.reporter; the already-shipped compatibility field fixes it.
+All nine current guide catalogs3029 each pass the normal invariants/parser on
+actual hosted0.21.2 (27,261 messages), not full Sphinx/deploy/human acceptance:
+ data/43_hosted_docutils_catalog_parser_2026-10-08/receipt.json
+All six known CI defect categories now have verified local repairs. New exact
+required tests/docs/compat/serial IDs are recorded after creation. Three reused
+agents continue immediate failure watch. N43/N47 remainOPEN until full verdicts.
+
 ## 2026-10-08 00:33 EDT — Workstation current guide browser acceptance
 
 All64 actual browser checks pass for32 repaired zh_CN/ko paragraphs, at

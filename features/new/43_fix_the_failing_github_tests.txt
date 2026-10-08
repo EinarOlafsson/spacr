@@ -3409,3 +3409,26 @@ review labels are changed. Corrected tests37726771078 and docs37726770838
 remain pending; compat37726770842 executes. A later Coverage5 terminal now
 exposes an additional stale Qt cache-tuple assertion; that narrow correction
 is being replayed before replacing the already-known-bad queued candidate.
+
+2026-10-08 — Last coverage phase exposes two further narrow required fixes
+Complete55 hosted coverage measurement is12/12 inputs,664/664 modules,
+0 recovered/unconfirmed,8 successful and4 failed shards. Source-bound full
+32-payload archive and original report verify without changing allowances:
+ data/43_55bad_coverage_phase_2026-10-08/MANIFEST.json.
+The numerical ratchet fails only ambient arc5957->5960; required-shard gate
+separately fails the four real failed shards. A meaningful same-tick cache
+reuse/moving-dot white-pixel test passes5/5 with17 deselected5.57s; both
+5957->5958 and5957->5960 execute on byte-identical ambient source:
+ data/43_field_flicker_cache_branch_cpu_2026-10-08/receipt.json.
+Coverage5's sole test failure is the old two-field DNA-rain cache assertion.
+The existing failure atomicity/retry control now verifies the actual three
+page/ambient/wallpaper fields. Genuine before failure and positive exact node,
+four neighboring controls4PASS3.74s, source/patch are hash-verified:
+ data/43_dna_rain_cache_tuple_cpu_2026-10-08/receipt.json.
+No application source, original ceiling or blocking guard changes. A new
+NORMAL candidate includes both repairs; a corrected serial acceptance is
+queued while preserving the original55 serial and ordinary Qt to terminal.
+281 compatibility37726770842 is actualSUCCESSall17 jobs, retained separately:
+ data/43_281_compatibility_terminal_2026-10-08/receipt.json.
+All six known defect categories have local repairs; full corrected-source
+hosted tests/Qt/coverage/docs/compat acceptance remainsOPEN.
