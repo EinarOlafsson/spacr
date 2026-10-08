@@ -38,7 +38,7 @@ from spacr.qt.widgets import fractal_travel
 @pytest.fixture
 def win(qtbot, qt_theme_applied):
     """A live MainWindow, cleaned up by pytest-qt."""
-    window = MainWindow()
+    window = MainWindow(initial_app="__home__")
     qtbot.addWidget(window)
     return window
 
