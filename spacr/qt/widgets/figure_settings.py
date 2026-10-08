@@ -1945,9 +1945,11 @@ def _retype(figure, kind: str, on_change=None) -> bool:
     if spec.get("panels"):
         spec["panels"] = [{key: value for key, value in panel.items()
                            if key not in view_keys} for panel in spec["panels"]]
+    previous_drawn = getattr(figure, "_spacr_drawn_data", None)
     try:
         _draw(figure, frame, spec)
     except Exception:                                        # noqa: BLE001
+        figure._spacr_drawn_data = previous_drawn
         LOG.debug("could not redraw the figure as %r", kind, exc_info=True)
         return False
     try:
@@ -1956,11 +1958,14 @@ def _retype(figure, kind: str, on_change=None) -> bool:
         _apply_user_style(figure, kind, force=True)
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not apply the figure preferences", exc_info=True)
+    drawn = getattr(figure, "_spacr_drawn_data", None)
     extra = {k: v for k, v in spec.items()
              if k not in ("x", "y", "hue", "kind")}
     _register_figure_data(figure, frame, x=spec.get("x", ""),
                           y=spec.get("y", ""), hue=spec.get("hue", ""),
                           kind=kind, **extra)
+    if kind == "regression_panel":
+        figure._spacr_drawn_data = drawn
     _redraw_after(figure, on_change)
     return True
 
@@ -2510,6 +2515,12 @@ def export_sidecars(figure, path) -> list:
     base = os.path.splitext(os.fspath(path))[0]
 
     frame = getattr(figure, "_spacr_data", None)
+    drawn = getattr(figure, "_spacr_drawn_data", None)
+    if drawn is not None:
+        from pandas import DataFrame
+
+        if isinstance(drawn, DataFrame):
+            frame = drawn
     if frame is not None:
         try:
             target = f"{base}.csv"

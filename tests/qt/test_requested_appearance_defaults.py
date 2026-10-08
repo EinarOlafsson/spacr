@@ -29,7 +29,7 @@ def test_fresh_requested_defaults(empty_store, qapp):
     assert prefs.get_ambient_resolution() == 1.0
     assert prefs.get_ambient_speed() == 1.0
     assert prefs.get_ambient_size() == 1.0
-    assert prefs.get_popup_backdrop() == "off"
+    assert prefs.get_popup_backdrop() == "drift"
     assert prefs.get_pane_opacity() == 0.6
     assert prefs.get_field_fade_enabled()
     assert prefs.get_rim_lag() == 0.5
@@ -52,7 +52,7 @@ def test_reset_restores_requested_controls_without_writing(empty_store, qtbot):
     for name, value in (("AmbientDensity", 10), ("AmbientGravityRadius", 15),
                         ("RimLag", 50), ("RimPeriod", 15)):
         assert dialog.findChild(QSlider, name).value() == value
-    assert dialog.findChild(QComboBox, "PopupBackdrop").currentData() == "off"
+    assert dialog.findChild(QComboBox, "PopupBackdrop").currentData() == "drift"
     assert prefs.get_ambient_density() == 2.0
     assert prefs.get_rim_mode() == "rainbow"
 

@@ -21,7 +21,12 @@ worse than no CSV at all, because the CSV is what a reader believes.
 """
 from __future__ import annotations
 
+import io
+import json
 import os
+import subprocess
+import sys
+import zipfile
 
 import numpy as np
 import pandas as pd
@@ -92,6 +97,106 @@ def test_the_csv_holds_what_was_drawn_not_what_was_handed_in(tmp_path):
         "the intercept was exported; it is not a hypothesis and is not on "
         "the plot")
     assert "Intercept" not in set(exported["feature"])
+
+
+def test_regression_zip_keeps_replay_source_and_separate_drawn_rows(tmp_path):
+    """The publication rows differ from the complete recreation input."""
+    from spacr.figures import build_panel
+    from spacr.figures.bundle import _save_zip
+
+    source = _results()
+    figure, panel = build_panel("volcano", source)
+    archive_path = _save_zip(figure, str(tmp_path / "volcano.zip"),
+                             formats=["png"])
+    plt.close(figure)
+
+    with zipfile.ZipFile(archive_path) as archive:
+        recorded = pd.read_csv(io.BytesIO(archive.read("data.csv")))
+        drawn = pd.read_csv(io.BytesIO(archive.read("drawn_data.csv")))
+        spec = json.loads(archive.read("spec.json"))
+        archive.extractall(tmp_path / "recreated")
+    assert len(recorded) == len(source)
+    assert recorded["feature"].tolist() == source["feature"].tolist()
+    assert drawn["feature"].tolist() == panel.data["feature"].tolist()
+    assert "Intercept" not in set(drawn["feature"])
+    assert (spec["kind"], spec["regression"]) == ("regression_panel", "volcano")
+    result = subprocess.run(
+        [sys.executable, "recreate_figure.py"], cwd=tmp_path / "recreated",
+        capture_output=True, text=True, timeout=30,
+        env=dict(os.environ, MPLBACKEND="Agg"),
+    )
+    assert result.returncode == 0, result.stderr[-1000:]
+    assert (tmp_path / "recreated" / "recreated.png").is_file()
+
+
+def test_retyping_a_regression_panel_replaces_the_published_rows(tmp_path):
+    """A later graph type cannot export the stale volcano selection."""
+    from spacr.figures import build_panel
+    from spacr.qt.widgets.figure_settings import _retype, export_sidecars
+
+    source = _results()
+    figure, _panel = build_panel("volcano", source)
+    assert _retype(figure, "hist") is True
+    assert figure._spacr_drawn_data is None
+    export_sidecars(figure, tmp_path / "hist.png")
+    histogram_rows = pd.read_csv(tmp_path / "hist.csv")
+    assert histogram_rows["feature"].tolist() == source["feature"].tolist()
+
+    assert _retype(figure, "regression_panel") is True
+    export_sidecars(figure, tmp_path / "volcano.png")
+    volcano_rows = pd.read_csv(tmp_path / "volcano.csv")
+    assert "Intercept" not in set(volcano_rows["feature"])
+    assert len(volcano_rows) == len(source) - 1
+    plt.close(figure)
+
+
+def test_multi_panel_recreation_does_not_publish_only_its_last_panel():
+    """A sheet has several drawn subsets but one complete replay source."""
+    from spacr.figures.bundle import _draw
+    from spacr.figures.sheet import build_sheet
+
+    source = _results()
+    sheet = build_sheet(source, order=("volcano", "qq"))
+    figure = sheet.figure
+    assert len(sheet.panels) == 2
+    _draw(figure, source, figure._spacr_spec)
+    assert figure._spacr_drawn_data is None
+    assert len(figure.axes) == len(sheet.panels)
+    plt.close(figure)
+
+
+def test_invalid_drawn_row_metadata_falls_back_to_replay_source(tmp_path):
+    """An unrelated private attribute cannot silently erase the CSV."""
+    from spacr.figures import build_panel
+    from spacr.qt.widgets.figure_settings import export_sidecars
+
+    source = _results()
+    figure, _panel = build_panel("volcano", source)
+    figure._spacr_drawn_data = object()
+    export_sidecars(figure, tmp_path / "fallback.png")
+    exported = pd.read_csv(tmp_path / "fallback.csv")
+    assert exported["feature"].tolist() == source["feature"].tolist()
+    plt.close(figure)
+
+
+def test_failed_retype_keeps_the_last_plotted_rows(tmp_path, monkeypatch):
+    """A refused redraw must not silently switch its CSV to the input."""
+    from spacr.figures import build_panel, bundle
+    from spacr.qt.widgets.figure_settings import _retype, export_sidecars
+
+    figure, panel = build_panel("volcano", _results())
+
+    def unavailable(*_args, **_kwargs):
+        """Simulate a renderer refusing the requested graph type."""
+        figure._spacr_drawn_data = None
+        raise ValueError("renderer unavailable")
+
+    monkeypatch.setattr(bundle, "_draw", unavailable)
+    assert _retype(figure, "hist") is False
+    export_sidecars(figure, tmp_path / "last.png")
+    exported = pd.read_csv(tmp_path / "last.csv")
+    assert exported["feature"].tolist() == panel.data["feature"].tolist()
+    plt.close(figure)
 
 
 def test_a_comparison_panel_exports_its_statistics(tmp_path):

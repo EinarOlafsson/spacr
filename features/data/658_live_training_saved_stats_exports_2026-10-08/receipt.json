@@ -1,0 +1,109 @@
+{
+  "source_commit": "baab1a1a6893f3067857620627368698951ca939",
+  "source_published": false,
+  "scope": "Native live Deep training three-panel and saved-statistics two-panel figure recipe repair. Original four failures and first candidate title failure retained. Final57 owning/45 adjacent checks PASS, overlapping scopes not summed;345 existing callable/docstring contracts unchanged. Full input metadata preserved; native scientific calculations/rendering unchanged. Real standalone reconstruction blocks spaCR imports and reads edited CSV. Unique-epoch tests do not establish duplicate-epoch bootstrap-band parity, all-producer parity, hosted CI or source publication.",
+  "payloads": {
+    "payloads/live-training-bundle-owning-r1-tool.log.gz": {
+      "bytes": 853,
+      "sha256": "eb693850e679f3f165e6019f8202a3fc88283aa91f7cde7441aa6ffb4fa03f40",
+      "raw_bytes": 2493,
+      "raw_sha256": "409937b4ee2a0836f721829053e4446399a40dbc3018bf95c32d900bc4181be3"
+    },
+    "payloads/live-training-bundle-owning-r1.log.gz": {
+      "bytes": 1067,
+      "sha256": "5c2c0f83a8a45b6d15a26ee023f2326a06672b4ffdeab4f161afd4dd52db9550",
+      "raw_bytes": 3175,
+      "raw_sha256": "05c2697d764587cde491ad97a91de162141f74e85a8939ccd1438d55defd4cb9"
+    },
+    "payloads/live-training-native-recipe-negative-r1-tool.log.gz": {
+      "bytes": 1597,
+      "sha256": "f2effdcfecd458e66af558cb75cafc8ba8169cbde70d1abec77d4339e2967a40",
+      "raw_bytes": 8950,
+      "raw_sha256": "40d36dee73b91d2078c3b124e64e5f5d91586234a1851a252be14990e42bf55b"
+    },
+    "payloads/live-training-native-recipe-negative-r1.log.gz": {
+      "bytes": 1787,
+      "sha256": "ea51ce7532ebb7ad3f816f23ffdb5d225fe6b73025f7f47367e1617037a2475d",
+      "raw_bytes": 9447,
+      "raw_sha256": "280978f8cb76693d244a72457f1b697e748d88f9cd809432174db4099ef7e87c"
+    },
+    "payloads/live-training-native-recipe-positive-r1-tool.log.gz": {
+      "bytes": 1245,
+      "sha256": "ee2273001509318078914956fa8e50b7ede20abcf41c5802b4645500ed547935",
+      "raw_bytes": 6755,
+      "raw_sha256": "c97cf8256a2b3fe90bb1b9640c935fdfd3905f666b6465b7c0ef01389ac48278"
+    },
+    "payloads/live-training-native-recipe-positive-r1.log.gz": {
+      "bytes": 1447,
+      "sha256": "d109a037a188d226278ca9db9abbff860a884955ccbba04a919b54b4fcdc56c7",
+      "raw_bytes": 7369,
+      "raw_sha256": "611ea9ab91a091f0ceaf05846baa833461046aaa797303e58662e6f4db7648b9"
+    },
+    "payloads/live-training-native-recipe-positive-r2-tool.log.gz": {
+      "bytes": 513,
+      "sha256": "6b66a5e25ac98e61c6b42728f87e23e64aa984257bdce9a19dceedd60c6cc829",
+      "raw_bytes": 1494,
+      "raw_sha256": "542a59423d9771e63ac58a56bad7374aea0fd14054c9a47ae480a42af7a933fa"
+    },
+    "payloads/live-training-native-recipe-positive-r2.log.gz": {
+      "bytes": 746,
+      "sha256": "a44bb04afefc927180e39b1d3cb6e8cf2a1105c368973a0f4706c4d8fa971d2b",
+      "raw_bytes": 2184,
+      "raw_sha256": "f97e72df18cf2012d629b2f5fb444b55b1e16a5f7ea601168f82fc9dc760e2ae"
+    },
+    "payloads/live-training-source-contracts-r3.json.gz": {
+      "bytes": 388,
+      "sha256": "80b5b7358cf1be98d92ceba1eb2df8e09205df15674ad11fd79a349f2023b795",
+      "raw_bytes": 762,
+      "raw_sha256": "e21510820d99ed81e28d5df67ed1e750bddab8b974f390da1786a41693576a9f"
+    },
+    "payloads/live_training_source_contracts_r3.py.gz": {
+      "bytes": 702,
+      "sha256": "f82842324d5fbff4d06b10d3d3a457be476e3c736ccd2e4d8ef7bbe313e8a6d7",
+      "raw_bytes": 1448,
+      "raw_sha256": "394cf1961fc7a1430cbe3da9e6a4733d684735d95fde3e2fa3bf54ba1fa16f08"
+    },
+    "payloads/accepted/spacr/deep_spacr.py.gz": {
+      "bytes": 57552,
+      "sha256": "a913a31c62dedcf321e2b017cb10f86f9ba23843c8b6df89ea1289f059a091c1",
+      "raw_bytes": 212130,
+      "raw_sha256": "ef945dc2c12dd1973ed96b5238725b36b5f14af9f6adce6bebd57ae0a0b3c487"
+    },
+    "payloads/baseline/spacr/deep_spacr.py.gz": {
+      "bytes": 57097,
+      "sha256": "e920b0d8fb677c77d587871a5c68fd6376efe97341c21ea86caec694006b8e59",
+      "raw_bytes": 210897,
+      "raw_sha256": "530c9345dc7021d32b338df27c7b33729aa86f18403eaaed63a2738257535a5a"
+    },
+    "payloads/accepted/spacr/io.py.gz": {
+      "bytes": 117991,
+      "sha256": "96cff1f3cec9c2b07314dce106aa8eb068fbbde9b20fe248ebfe44c331eae174",
+      "raw_bytes": 439969,
+      "raw_sha256": "2e483c57bc9888b9c710efa4294915f376c4623a23b9aa24c4fd8e93fc16e95a"
+    },
+    "payloads/baseline/spacr/io.py.gz": {
+      "bytes": 117794,
+      "sha256": "36f81cbb338a67d7e18ebb8d2dc8333a81d615ced03af0c9628fa80e2557beba",
+      "raw_bytes": 439424,
+      "raw_sha256": "880139012067c36fc5f2a7ae4bdadd68893d0f29de502f1b61bceedb483c82cc"
+    },
+    "payloads/accepted/spacr/figures/bundle.py.gz": {
+      "bytes": 17805,
+      "sha256": "c7987787aef1ca5d66de389d7973770670d4ebe734abde6d4bcb190227ad9012",
+      "raw_bytes": 63176,
+      "raw_sha256": "9caa0c421e034ab86dbfcbaf2a9d93f7d01a7c896dc811675feaa44615d283aa"
+    },
+    "payloads/baseline/spacr/figures/bundle.py.gz": {
+      "bytes": 17233,
+      "sha256": "82ac4c45af9cdfb02b4da4bd9b64c7dd06aaa076931a3645cef8ddd59d0de62f",
+      "raw_bytes": 59754,
+      "raw_sha256": "8b1e124123fda3ad132cbbb8bae917bafc2c7e7573ab48527e490dfeb26fb43f"
+    },
+    "payloads/accepted/tests/test_live_training_and_saved_stats_figure_recipes.py.gz": {
+      "bytes": 2234,
+      "sha256": "b0c594e1e41c67d3c2139cdc590d9a95655078400059c282d21bf8bafbcfa28e",
+      "raw_bytes": 7221,
+      "raw_sha256": "064d51bce7d5c101a921e539d431a151f52816d42a4dd6dcbe7641ba78f60b7c"
+    }
+  }
+}

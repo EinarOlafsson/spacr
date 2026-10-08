@@ -1,0 +1,57 @@
+{
+  "api": {
+    "added": [],
+    "after": 13232,
+    "before": 13232,
+    "changed": [],
+    "removed": []
+  },
+  "base_commit": "4d198d410a77b87e473d89e3b611e8334b6fdc3f",
+  "base_source_blob": "c9997539acd1df4873e9ddfe11119b35cd1daa6b",
+  "final_commit": "af3ad0ac1aa3ffbc4429fddf65bc50ac89935ed0",
+  "final_source_blob": "b428217e00f3a6aa90347c51a37ae4a4d3b6ae8e",
+  "runtime": {
+    "categories": {
+      "added": [],
+      "after": 237,
+      "before": 237,
+      "changed": [],
+      "removed": []
+    },
+    "installer": {
+      "added": [],
+      "after": 65,
+      "before": 65,
+      "changed": [],
+      "removed": []
+    },
+    "module_summaries": {
+      "added": [],
+      "after": 77,
+      "before": 77,
+      "changed": [],
+      "removed": []
+    },
+    "setting_labels": {
+      "added": [],
+      "after": 1221,
+      "before": 1221,
+      "changed": [],
+      "removed": []
+    },
+    "setting_tooltips": {
+      "added": [],
+      "after": 1243,
+      "before": 1243,
+      "changed": [],
+      "removed": []
+    },
+    "ui": {
+      "added": [],
+      "after": 7288,
+      "before": 7288,
+      "changed": [],
+      "removed": []
+    }
+  }
+}

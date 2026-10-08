@@ -398,3 +398,6 @@ PART C — WHAT IS LEFT
   Proof:data/658_training_and_native_line_exports_2026-10-08/receipt.json.
   App source publication, remaining producer parity and current hosted
   acceptance stay separate. No whole658 continuation closure claimed.
+
+2026-10-08 Home current CI follow-up:
+Drawn-row CSV correctness child repaired and tested: single regression sidecars contain exact renderer panel.data rather than fullinput with unusedIntercept; editable ZIP retains fullsource data.csv and separately exports drawn_data.csv. Retyping clears stale drawnrows and failed retype restores olddrawn data. Included in final395PASS current-source cohort; prior focused source-added25 executablelines and touchingarcs observed. API/runtime allmaps unchanged. Workstation preserve this child with private producer-wide training/source export repair; parentN658 remains OPEN.

@@ -192,6 +192,7 @@ def build_panel(key: str, frame, *, target: Optional[str] = None,
 
             recipe["localisations"] = dict(table())
         _register_figure_data(figure, frame, kind="regression_panel", **recipe)
+        figure._spacr_drawn_data = panel.data
         return figure, panel
 
 

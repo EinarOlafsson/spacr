@@ -283,13 +283,17 @@ def test_a_preferences_tab_chosen_later_is_glassed_like_the_first(glassed):
 
 
 def test_the_backdrop_honours_the_ambient_preference(glassed, monkeypatch):
-    """Somebody who turned the animated background off on the module
-    screens has not asked for it back in every popup. The card and the rim
-    still apply -- the look is the same one, just still."""
+    """A popup set to off stays still even while module backgrounds move.
+
+    The card and rim remain, and the independently enabled main animation
+    must not silently change the popup's choice.
+    """
     from spacr.qt import preferences
     from spacr.qt.widgets.ambient import AmbientWidget
 
-    monkeypatch.setattr(preferences, "get_ambient_enabled", lambda: False)
+    monkeypatch.setattr(preferences, "get_ambient_enabled", lambda: True)
+    monkeypatch.setattr(preferences, "get_popup_backdrop", lambda: "off")
+    assert preferences.get_ambient_enabled()
     dialog = _popup(glassed)
     try:
         assert _card(dialog) is not None, "the card goes on either way"

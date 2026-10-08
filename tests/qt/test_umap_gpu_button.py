@@ -36,10 +36,12 @@ def test_the_shared_toggle_says_gpu_and_sits_left_of_search(screen):
     row = screen._gpu_switch.parentWidget().layout()
     assert screen._gpu_switch.text() == "GPU"
     assert row.indexOf(screen._gpu_switch) < row.indexOf(screen._hp_switch)
-    tip = screen._gpu_switch.toolTip().lower()
+    tip = screen._action_hint(screen._gpu_switch).lower()
     assert "cpu and gpu reducers" in tip
     assert "different embeddings" in tip
     assert "same backend" in tip
+    assert screen._gpu_switch.accessibleDescription().lower() == tip
+    assert not screen._gpu_switch.toolTip()
 
 
 def test_reducer_switch_greys_fields_and_their_visible_labels(screen):

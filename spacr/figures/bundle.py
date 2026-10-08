@@ -370,6 +370,7 @@ def _register_figure_data(figure, data, *, x: str = "", y: str = "",
             record.update(kind=kind or "image")
             figure._spacr_image = [np.asarray(a) for a in arrays]
             figure._spacr_data = None
+            figure._spacr_drawn_data = None
             figure._spacr_spec = record
             return
         if data is None:
@@ -381,6 +382,7 @@ def _register_figure_data(figure, data, *, x: str = "", y: str = "",
                       kind=_HOUSE_KINDS.get(kind, kind))
         figure._spacr_image = None
         figure._spacr_data = frame
+        figure._spacr_drawn_data = None
         figure._spacr_spec = record
     except Exception:
         LOG.debug("could not attach data to the figure", exc_info=True)
@@ -588,6 +590,7 @@ def _draw(figure, frame, spec, *, axes=None):
     y = spec.get("y") or None
     hue = spec.get("hue") or None
     if axes is None:
+        figure._spacr_drawn_data = None
         panels = spec.get("panels")
         if panels:
             rows, columns = spec["grid"]
@@ -760,7 +763,10 @@ def _draw(figure, frame, spec, *, axes=None):
             from .style import panel_letter as letter
 
         globals()["_REGRESSION_LOCALISATIONS"] = dict(spec.get("localisations") or {})
-        renderers[spec["regression"]](ax, frame, **dict(spec.get("regression_options") or {}))
+        panel = renderers[spec["regression"]](
+            ax, frame, **dict(spec.get("regression_options") or {}))
+        if axes is None:
+            figure._spacr_drawn_data = panel.data
         if spec.get("letter"):
             letter(ax, spec["letter"])
     elif kind == "plate_heatmap":
@@ -1049,7 +1055,9 @@ def _panel_statistics(frame, spec, *, choices=None):
 def _save_zip(figure, path: str, *, formats=None, name: str = "") -> str:
     """Write ONE zip holding a figure, its data, statistics and recipe.
 
-    Inside: the image in every default format, ``data.csv`` (the tidy rows),
+    Inside: the image in every default format, ``data.csv`` (the source rows
+    needed to recreate the figure), optional ``drawn_data.csv`` (the plotted
+    rows of a single regression panel),
     ``statistics.csv`` (one table: normality, equal variance, omnibus and
     pairwise tests, each with whether it was chosen automatically or by the
     user) and ``statistics.txt``, ``spec.json`` (the full plotting recipe)
@@ -1105,6 +1113,9 @@ def _save_zip(figure, path: str, *, formats=None, name: str = "") -> str:
                 LOG.debug("could not write %s", fmt, exc_info=True)
         data = frame if isinstance(frame, pd.DataFrame) else pd.DataFrame()
         write_table(data, os.path.join(folder, "data.csv"))
+        drawn = getattr(figure, "_spacr_drawn_data", None)
+        if isinstance(drawn, pd.DataFrame):
+            write_table(drawn, os.path.join(folder, "drawn_data.csv"))
         if spec.get("panels"):
             table, statistics_text = _panel_statistics(frame, spec)
         else:

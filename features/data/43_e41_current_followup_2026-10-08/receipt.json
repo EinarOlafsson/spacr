@@ -1,0 +1,154 @@
+{
+  "source_commit": "eadf7913ff4c57c8fef95843939708f9a97b14cd",
+  "app_and_test_sha256": {
+    "spacr/figures/bundle.py": "7fd537a92a944c745f28d87b0ea705c6be5b6adf1948af24b2ecded0c64db090",
+    "spacr/figures/sheet.py": "dc3afa282a03390aee4d31b2bc2f60ccea1d1c2a218c800159f02755fec1a65d",
+    "spacr/qt/widgets/figure_settings.py": "03d1bd8ef51091bdec05ab547ba8820214d9a56ac4dfa0ef4dc359d73d9cce15",
+    "spacr/qt/widgets/live_preview.py": "f3f9f11730a271c97a13c7ea8f0a9f27bfd6fa8a3d5915546c8a5502505a93c6",
+    "tests/qt/test_cov_r8_fractal_app_hooks.py": "388df5c035d1ae1045326ab0646dedb196cb249cd34a8c595a13aa96adf59d14",
+    "tests/qt/test_cov_wf_qt_app.py": "36776be2e268771c0b7908ba23b3d3a033800f0c862c054b92929d3fba1df879",
+    "tests/qt/test_data_art_renderer.py": "0253777dc3c823422bb2c4607d89962d072100070be4e0358f18bc84292b77dd",
+    "tests/qt/test_every_popup_has_the_card_and_the_rim.py": "2e763c6286c7676ae0f313386cd40e8eb56685434ad06a8bf1a45ceca66193ad",
+    "tests/qt/test_live_preview.py": "ed183ba88412f9bd9d0194be85c352bb9f6b13bf148c069ca35c3406135011fd",
+    "tests/qt/test_requested_appearance_defaults.py": "7716a5463572f64823d27413d82344062e6c766fb0c39e529e82be447d476a8b",
+    "tests/qt/test_the_spaceout_backdrop_survives_its_own_teardown_failing.py": "237c6d6ae2120057bba7479e8193403a7c2227c95335c066787c1caf2fdec543",
+    "tests/qt/test_umap_gpu_button.py": "7a353f9eacad862253644b7ae792f37b6f1da84352da5d6288e196148398e307",
+    "tests/test_a_figure_leaves_with_its_data.py": "5b4a5fb98900cf65d2e74caa4785134da6df0bb85c70c91cc59581fc4049f6f1",
+    "tests/test_errors.py": "f9fd600857e3aded2d986ede7b5d552c5954f3912b998999622c5cf56e8b0282",
+    "tests/test_measure_n_jobs.py": "8de20bde164821c62cf453192d5b486f75dd0a39e597ce15bd5fe39dbd5c2857"
+  },
+  "payloads": {
+    "ci-final-wave-integrated-395-20261008.log.gz": {
+      "bytes": 1002,
+      "sha256": "a003e6da5a89225f395ef60743bec993f2715810831492b666434fccb037be51",
+      "raw_bytes": 2983,
+      "raw_sha256": "6bcfd82f9c53948990191b9f77a159a6f21cdefeb60b53a714c3334a2fd1fda9"
+    },
+    "root-ci-final-wave-current-inventory-20261008.json.gz": {
+      "bytes": 2514063,
+      "sha256": "f09eeefaefc7f45b8683f5a71d7e2fc8ab3e9ab452347596f6b119c340578282",
+      "raw_bytes": 7867037,
+      "raw_sha256": "ee8e3e5823b40a577e6c5bb14d7ff7769c281917a2cda561a2529292ddd2dd2f"
+    },
+    "root-ci-final-wave-inventory-result-20261008.json.gz": {
+      "bytes": 481,
+      "sha256": "734b58f05a5262beb6acb7e61f5d41297fc284b9ea2f7ccffa25032c8cb6f17c",
+      "raw_bytes": 787,
+      "raw_sha256": "ea42f2d43d867217009fab9c91aeac5ac2411c59f08e536f922efac0da3fd6b9"
+    },
+    "verify-root-ci-final-wave-inventory-20261008.py.gz": {
+      "bytes": 754,
+      "sha256": "f0616f9ae24f9307885a1211e752e93f316e4acefea8e409fa531e86234c0f43",
+      "raw_bytes": 1525,
+      "raw_sha256": "03045c3b9f44c7ed5c9249267d0919eb72cb0fa093d865b7bc9c9c57f8b43f95"
+    },
+    "ci-e41-cloudpickle-public629-20261008.log.gz": {
+      "bytes": 444,
+      "sha256": "566d2a9d03912a099e9b74d0a482fb765c003bb933a4fa7a007f147c872d9f27",
+      "raw_bytes": 742,
+      "raw_sha256": "9535f9d89902c9baac2d43922ddf9c8869bcd287a545baaae2a152cee3e802f4"
+    },
+    "ci-e41-pool-stdlib-baseline-20261008.log.gz": {
+      "bytes": 4864,
+      "sha256": "9d9d23428317681d36f5ec2f35b2197bff624ed6bd084ec77cbdb387380ebd81",
+      "raw_bytes": 33787,
+      "raw_sha256": "17e741c186ce2a2d4d794943faacd313ff7e98ae4ff13169bc98a9be885c9cf6"
+    },
+    "ci-e41-pool-stdlib-final-20261008.log.gz": {
+      "bytes": 667,
+      "sha256": "0707cfcc0925ff7bde0acd7276ef68d3ee622286eb113038cafb5d4f3be6cdd6",
+      "raw_bytes": 1789,
+      "raw_sha256": "3992c07540d3db7d018b18d93aa0e133ab18cee4a8ae9a89e515e0e7f9161847"
+    },
+    "ci-e41-pool-stdlib-final2-20261008.log.gz": {
+      "bytes": 1662,
+      "sha256": "b4bd25ea2a9a59a5ad9abfb73ec2e0bd6403b845d0673a3d947a62aef1b21297",
+      "raw_bytes": 5207,
+      "raw_sha256": "56904a1d52dd97b2747354c57d5b495aee64e1bd8b69d2f49815dbff7e8464a6"
+    },
+    "ci-e41-pool-stdlib-final3-20261008.log.gz": {
+      "bytes": 436,
+      "sha256": "7a883f73c312b1e73134699f46ddbaca946bcfe9fc3e1d8a09c9d4f577a174ca",
+      "raw_bytes": 1054,
+      "raw_sha256": "bf1fd36d9be619c490b3adcf8f80f71a60e583f50af8e0ce5dece7eee5bfc76b"
+    },
+    "ci-stdlib-guard-negatives-20261008.py.gz": {
+      "bytes": 635,
+      "sha256": "6996bcf9a8337973a4f0177f0e4c143e940c9a353bdf8d458d7a2df30a968e93",
+      "raw_bytes": 1376,
+      "raw_sha256": "20fe40b0210a0fe64a23c452d6d33f2c20f8dbbaf338d0802c4fa5faaa8be596"
+    },
+    "ci-stdlib-guard-negatives-20261008.log.gz": {
+      "bytes": 302,
+      "sha256": "dcc136dcf19dff9ce3c47c55a2699d2ff494640773496edd766f1f710a028bbf",
+      "raw_bytes": 500,
+      "raw_sha256": "6ab948d2af7ad734e681316d34dd9be51756cc091407057600cb332055cb0a21"
+    },
+    "ci-stdlib-guard-negatives-final-20261008.log.gz": {
+      "bytes": 166,
+      "sha256": "4c568a50a7989de997771b272a4113937107da360ea875d27c2761d78ecafa59",
+      "raw_bytes": 294,
+      "raw_sha256": "a255591d7a3bde16a673243830b2793009157c73257d8e013d395738a0191346"
+    },
+    "ci-e41-coverage0-113548884213-20261008.log.gz": {
+      "bytes": 382105,
+      "sha256": "0efc9fc1bc1257b5e2f43767187f4350de7bb9ba1c61e3c0d039c687cb27dc37",
+      "raw_bytes": 3460903,
+      "raw_sha256": "429bc1cc97312645a706e38f71f09928902ef6d654863cfb33f9833fe4ac4ba1"
+    },
+    "ci-e41-coverage8-113548884391-20261008.log.gz": {
+      "bytes": 318910,
+      "sha256": "6862d1ff8b8d77bfb8f9311e79a5c1f0177f6c12d55bad2d41e9f4289c37d193",
+      "raw_bytes": 2352833,
+      "raw_sha256": "8c7203130da4b71a94017366cb9ce49c443996c60411439cbf3f8ba040f62a32"
+    },
+    "ci-e41-coverage10-113548884451-20261008.log.gz": {
+      "bytes": 314776,
+      "sha256": "f9adbac33a71a0873d5ab69950b752e0401f00a46b88fea05c63b8c3d5dce626",
+      "raw_bytes": 2319798,
+      "raw_sha256": "2f3ea5b81611cab2913874016cfd681ccc28becb586a4382def3514494fadb05"
+    },
+    "night-prerequisite-source-and-tests.patch.gz": {
+      "bytes": 1256,
+      "sha256": "4c03d72ba20c58c8e05edd506535d6ff8879f2d2314471302e0e752ccc4fd9a2",
+      "raw_bytes": 3402,
+      "raw_sha256": "f0ee747d2efa0e415626770b80b97b047574c966229a26f2b2c98e0e3661c8a5"
+    },
+    "dependencies.log.gz": {
+      "bytes": 187,
+      "sha256": "302861e26c9a42154effa7381b1b755683f8e0af613cecfe8ef6411d35dba210",
+      "raw_bytes": 195,
+      "raw_sha256": "9bf8514e29b79c860f1fb371c3cf2b505564fc5d21b75e5d00fd0f117ca569be"
+    }
+  },
+  "integrated_validation": {
+    "result": "395 passed, 14 warnings in 86.33s",
+    "files": 14,
+    "Qt": "6.12.0 overlay",
+    "cap": "8G",
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "selection": "Four figure files; menu drag; fractal host; Live Preview; five appearance files; measurement jobs; errors. Exact argv in neighboring source-bound validation notes.",
+    "selectors": [
+      "tests/test_a_figure_leaves_with_its_data.py",
+      "tests/test_figure_bundle_source_and_style.py",
+      "tests/test_controls_multipanel_recipe.py",
+      "tests/qt/test_figure_settings_uncovered_paths.py",
+      "tests/qt/test_cov_wf_qt_app.py",
+      "tests/qt/test_cov_r8_fractal_app_hooks.py",
+      "tests/qt/test_live_preview.py",
+      "tests/qt/test_the_spaceout_backdrop_survives_its_own_teardown_failing.py",
+      "tests/qt/test_every_popup_has_the_card_and_the_rim.py",
+      "tests/qt/test_data_art_renderer.py",
+      "tests/qt/test_requested_appearance_defaults.py",
+      "tests/qt/test_umap_gpu_button.py",
+      "tests/test_measure_n_jobs.py",
+      "tests/test_errors.py"
+    ]
+  },
+  "normal_inventory": "13232 API and all six runtime maps exactly unchanged including UI7288; every source and mapping value compared after tuple/list normalization. No generated artifact touched.",
+  "historical_negatives": "E41 Coverage0/8/10 terminal original logs retained. Local pool baseline interrupted after 4 FAIL/11 PASS; first incorrect-seam experiment interrupted after 7 PASS, neither complete acceptance. Second complete candidate95 PASS/1 FAIL caught stricter stdlib guard rejecting legitimate lazy psutil; initial simulated Python3.9 fallback then caught extension math omission. Both corrected before final integrated395 PASS.",
+  "stdlib_negative_controls": "Current source guard and simulated Python3.9 fallback pass. Injected eager runctx, eager psutil, concurrency numpy and cancellation numpy all rejected; no production module modified for controls.",
+  "prerequisites_for_workstation": "Exact current629 optional ambient/theme_choices guard and strong Setup/shown-night-persistence tests in portable patch; preserves palette, sound and verdict assertions. Source-bound public prerequisites requested18:17 were already published629.",
+  "limits": "Local focused CPU checks and earlier current629 five-node serialization replay; does not certify whole hostedCI, serial Qt, GPU or native user crash."
+}

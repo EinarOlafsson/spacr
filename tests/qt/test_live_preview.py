@@ -588,6 +588,12 @@ class TestCompartmentSettings:
         dlg.refresh_visibility()
         assert dlg._compartment_groupboxes["organelle"].isVisibleTo(dlg)
         assert not dlg._compartment_groupboxes["cell"].isVisibleTo(dlg)
+        assert dlg._organelle_group.isVisibleTo(dlg)
+        for suffix, widget in p._organelle_widgets.items():
+            label = widget._spacr_setting_label
+            assert label.property("settingKey") == f"organelle_{suffix}"
+            assert "href=" in label.toolTip()
+            assert widget.toolTip() == ""
 
     def test_cell_plus_nucleus_shows_primary_and_secondary(self, qtbot):
         from spacr.qt.widgets.live_preview import LiveSettingsDialog
