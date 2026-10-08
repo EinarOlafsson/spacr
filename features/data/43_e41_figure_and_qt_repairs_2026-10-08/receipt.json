@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-08",
+  "english_api_catalog_guard": "passed on repaired source: 1 passed in 33.79s",
+  "figure_added_source_coverage": {
+    "executable_lines": 25,
+    "missing_lines": 0,
+    "missing_touching_arcs": 0
+  },
+  "files": {
+    "coverage7-original.log.gz": {
+      "bytes": 287504,
+      "sha256": "fc771a9079d75890b9ae39a58fb7c4cfb4d447624afffef963cb21336c915d5a"
+    },
+    "figure-coverage.json": {
+      "bytes": 159945,
+      "sha256": "e828889fac472d9594136152b13936fecddf00d0acd7b1e0cebae964293ad0fc"
+    },
+    "figure-final.log": {
+      "bytes": 1008,
+      "sha256": "9beb07d9963695352f301e6ae2a10b2ddd82f493af032ef5cb844d6cc0484ef6"
+    },
+    "fractal-hooks-final.log": {
+      "bytes": 1368,
+      "sha256": "2f92965dc918510f6e9630188460d273888865e5bdfbe7639e770bfa870236ad"
+    },
+    "menu-drag-final.log": {
+      "bytes": 720,
+      "sha256": "a0ffb6823b4c5a43667e3fd73d600310755d1d200531a1180578ae63a7b9f992"
+    },
+    "source-and-test.patch": {
+      "bytes": 12817,
+      "sha256": "55391c40dcceaf7d243404d2e2cfb4dc0cec5a81962b161f55b5a131af590a95"
+    }
+  },
+  "hosted_failure": {
+    "job_id": 113548884298,
+    "raw_log_bytes": 2082232,
+    "raw_log_sha256": "ad58e176f9b5bd90f99b468703f43003f9aefdc13620f7c50198f392d446be4f",
+    "run_id": 37846367787,
+    "source_sha": "e41df27e0a37303cbbc81687d21f74738cc05e0b"
+  },
+  "local_base_sha": "c4c94a808a1d4ce79db3072d34cc52bf05b5f0b3",
+  "local_receipts": {
+    "figure": "110 passed, 3 Matplotlib warnings, 28.16s, 4 owning/adjacent files, 4G branch coverage",
+    "fractal_fixture": "13 passed, 1 Qt signal warning, 3.49s, Qt 6.12 Xvfb, 4G",
+    "menu_drag": "26 passed, 32.30s, Qt 6.12 Xvfb, 4G"
+  },
+  "normal_inventory_before_after_equal": true,
+  "normal_inventory_counts": {
+    "api": 13232,
+    "runtime": {
+      "categories": 237,
+      "installer": 65,
+      "module_summaries": 77,
+      "setting_labels": 1221,
+      "setting_tooltips": 1243,
+      "ui": 7288
+    }
+  },
+  "normal_inventory_sha256": "810472d3f5809ae7b64a8d2725353886f2434fbf459ee70d55c200db38f89cdf",
+  "remaining_e41_coverage7_failures_outside_this_patch": [
+    "LiveSettingsDialog organelle controls lack label/API link (workstation-owned source)",
+    "three cloudpickle failures repaired in public629d, 5 exact cloudpickle nodes passed there",
+    "README/docs Assays-versus-Organism grid (workstation-owned)"
+  ],
+  "repair_commits": {
+    "figure": "77cf76ecdf25b8960ddd1c601ee73a10fa78e09a",
+    "fractal_fixture": "19449387d64f605fd35fd0e8abe7fbd5ca0eb1d1",
+    "menu_drag": "8b76adb8c84edad4be317a4839999e05a2b499f8"
+  },
+  "same_relevant_source_e41_to_c4": true,
+  "scope": "The historical e41 job remains failed. This local evidence does not certify any later full GitHub run or the N47 serial suite."
+}

@@ -1,0 +1,281 @@
+diff --git a/spacr/figures/bundle.py b/spacr/figures/bundle.py
+index 8ad0f52471b..7b58393fc32 100644
+--- a/spacr/figures/bundle.py
++++ b/spacr/figures/bundle.py
+@@ -370,6 +370,7 @@ def _register_figure_data(figure, data, *, x: str = "", y: str = "",
+             record.update(kind=kind or "image")
+             figure._spacr_image = [np.asarray(a) for a in arrays]
+             figure._spacr_data = None
++            figure._spacr_drawn_data = None
+             figure._spacr_spec = record
+             return
+         if data is None:
+@@ -381,6 +382,7 @@ def _register_figure_data(figure, data, *, x: str = "", y: str = "",
+                       kind=_HOUSE_KINDS.get(kind, kind))
+         figure._spacr_image = None
+         figure._spacr_data = frame
++        figure._spacr_drawn_data = None
+         figure._spacr_spec = record
+     except Exception:
+         LOG.debug("could not attach data to the figure", exc_info=True)
+@@ -588,6 +590,7 @@ def _draw(figure, frame, spec, *, axes=None):
+     y = spec.get("y") or None
+     hue = spec.get("hue") or None
+     if axes is None:
++        figure._spacr_drawn_data = None
+         panels = spec.get("panels")
+         if panels:
+             rows, columns = spec["grid"]
+@@ -760,7 +763,10 @@ def _draw(figure, frame, spec, *, axes=None):
+             from .style import panel_letter as letter
+ 
+         globals()["_REGRESSION_LOCALISATIONS"] = dict(spec.get("localisations") or {})
+-        renderers[spec["regression"]](ax, frame, **dict(spec.get("regression_options") or {}))
++        panel = renderers[spec["regression"]](
++            ax, frame, **dict(spec.get("regression_options") or {}))
++        if axes is None:
++            figure._spacr_drawn_data = panel.data
+         if spec.get("letter"):
+             letter(ax, spec["letter"])
+     elif kind == "plate_heatmap":
+@@ -1049,7 +1055,9 @@ def _panel_statistics(frame, spec, *, choices=None):
+ def _save_zip(figure, path: str, *, formats=None, name: str = "") -> str:
+     """Write ONE zip holding a figure, its data, statistics and recipe.
+ 
+-    Inside: the image in every default format, ``data.csv`` (the tidy rows),
++    Inside: the image in every default format, ``data.csv`` (the source rows
++    needed to recreate the figure), optional ``drawn_data.csv`` (the plotted
++    rows of a single regression panel),
+     ``statistics.csv`` (one table: normality, equal variance, omnibus and
+     pairwise tests, each with whether it was chosen automatically or by the
+     user) and ``statistics.txt``, ``spec.json`` (the full plotting recipe)
+@@ -1105,6 +1113,9 @@ def _save_zip(figure, path: str, *, formats=None, name: str = "") -> str:
+                 LOG.debug("could not write %s", fmt, exc_info=True)
+         data = frame if isinstance(frame, pd.DataFrame) else pd.DataFrame()
+         write_table(data, os.path.join(folder, "data.csv"))
++        drawn = getattr(figure, "_spacr_drawn_data", None)
++        if isinstance(drawn, pd.DataFrame):
++            write_table(drawn, os.path.join(folder, "drawn_data.csv"))
+         if spec.get("panels"):
+             table, statistics_text = _panel_statistics(frame, spec)
+         else:
+diff --git a/spacr/figures/sheet.py b/spacr/figures/sheet.py
+index da4f658c3d8..0c9f0eef8ab 100644
+--- a/spacr/figures/sheet.py
++++ b/spacr/figures/sheet.py
+@@ -192,6 +192,7 @@ def build_panel(key: str, frame, *, target: Optional[str] = None,
+ 
+             recipe["localisations"] = dict(table())
+         _register_figure_data(figure, frame, kind="regression_panel", **recipe)
++        figure._spacr_drawn_data = panel.data
+         return figure, panel
+ 
+ 
+diff --git a/spacr/qt/widgets/figure_settings.py b/spacr/qt/widgets/figure_settings.py
+index 2a33964f938..eb188d4d705 100644
+--- a/spacr/qt/widgets/figure_settings.py
++++ b/spacr/qt/widgets/figure_settings.py
+@@ -1945,9 +1945,11 @@ def _retype(figure, kind: str, on_change=None) -> bool:
+     if spec.get("panels"):
+         spec["panels"] = [{key: value for key, value in panel.items()
+                            if key not in view_keys} for panel in spec["panels"]]
++    previous_drawn = getattr(figure, "_spacr_drawn_data", None)
+     try:
+         _draw(figure, frame, spec)
+     except Exception:                                        # noqa: BLE001
++        figure._spacr_drawn_data = previous_drawn
+         LOG.debug("could not redraw the figure as %r", kind, exc_info=True)
+         return False
+     try:
+@@ -1956,11 +1958,14 @@ def _retype(figure, kind: str, on_change=None) -> bool:
+         _apply_user_style(figure, kind, force=True)
+     except Exception:                                        # noqa: BLE001
+         LOG.debug("could not apply the figure preferences", exc_info=True)
++    drawn = getattr(figure, "_spacr_drawn_data", None)
+     extra = {k: v for k, v in spec.items()
+              if k not in ("x", "y", "hue", "kind")}
+     _register_figure_data(figure, frame, x=spec.get("x", ""),
+                           y=spec.get("y", ""), hue=spec.get("hue", ""),
+                           kind=kind, **extra)
++    if kind == "regression_panel":
++        figure._spacr_drawn_data = drawn
+     _redraw_after(figure, on_change)
+     return True
+ 
+@@ -2510,6 +2515,12 @@ def export_sidecars(figure, path) -> list:
+     base = os.path.splitext(os.fspath(path))[0]
+ 
+     frame = getattr(figure, "_spacr_data", None)
++    drawn = getattr(figure, "_spacr_drawn_data", None)
++    if drawn is not None:
++        from pandas import DataFrame
++
++        if isinstance(drawn, DataFrame):
++            frame = drawn
+     if frame is not None:
+         try:
+             target = f"{base}.csv"
+diff --git a/tests/qt/test_cov_r8_fractal_app_hooks.py b/tests/qt/test_cov_r8_fractal_app_hooks.py
+index adece35e151..cb272a20d3f 100644
+--- a/tests/qt/test_cov_r8_fractal_app_hooks.py
++++ b/tests/qt/test_cov_r8_fractal_app_hooks.py
+@@ -148,6 +148,8 @@ def screen_with_cpu_backdrop(qtbot, monkeypatch):
+     monkeypatch.setattr(F, "OrbitEngine", _CheapEngine)
+     monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
+     monkeypatch.setattr(preferences, "get_ambient_enabled", lambda: True)
++    monkeypatch.setattr(preferences, "get_ambient_theme",
++                        lambda: ambient.SPACEOUT_THEME)
+     monkeypatch.setattr(ambient, "_build_the_spaceout_fractal", build)
+     screen = AppScreen("regression")
+     qtbot.addWidget(screen)
+diff --git a/tests/qt/test_cov_wf_qt_app.py b/tests/qt/test_cov_wf_qt_app.py
+index 33ec7e6a696..fc47c473449 100644
+--- a/tests/qt/test_cov_wf_qt_app.py
++++ b/tests/qt/test_cov_wf_qt_app.py
+@@ -313,9 +313,10 @@ def test_the_window_chrome_survives_missing_grips_and_a_missing_action(
+ 
+ # --- the menu bar is the title bar -----------------------------------------
+ 
+-def _mouse(kind, pos, button=Qt.MouseButton.LeftButton):
++def _mouse(kind, pos, button=Qt.MouseButton.LeftButton, buttons=None):
+     point = QPointF(pos)
+-    return QMouseEvent(kind, point, point, button, button,
++    return QMouseEvent(kind, point, point, button,
++                       button if buttons is None else buttons,
+                        Qt.KeyboardModifier.NoModifier)
+ 
+ 
+@@ -350,7 +351,8 @@ def test_dragging_the_menu_bar_moves_the_window(win):
+     assert win._drag_from is not None
+     start = win.frameGeometry().topLeft()
+     win.eventFilter(bar, _mouse(QEvent.Type.MouseMove, empty + QPoint(40, 25),
+-                                Qt.MouseButton.NoButton))
++                                Qt.MouseButton.NoButton,
++                                Qt.MouseButton.LeftButton))
+     assert win.frameGeometry().topLeft() == start + QPoint(40, 25)
+ 
+     win.eventFilter(bar, _mouse(QEvent.Type.MouseButtonRelease, empty))
+diff --git a/tests/test_a_figure_leaves_with_its_data.py b/tests/test_a_figure_leaves_with_its_data.py
+index 76664328de9..84e1cb2e486 100644
+--- a/tests/test_a_figure_leaves_with_its_data.py
++++ b/tests/test_a_figure_leaves_with_its_data.py
+@@ -21,7 +21,12 @@ worse than no CSV at all, because the CSV is what a reader believes.
+ """
+ from __future__ import annotations
+ 
++import io
++import json
+ import os
++import subprocess
++import sys
++import zipfile
+ 
+ import numpy as np
+ import pandas as pd
+@@ -94,6 +99,106 @@ def test_the_csv_holds_what_was_drawn_not_what_was_handed_in(tmp_path):
+     assert "Intercept" not in set(exported["feature"])
+ 
+ 
++def test_regression_zip_keeps_replay_source_and_separate_drawn_rows(tmp_path):
++    """The publication rows differ from the complete recreation input."""
++    from spacr.figures import build_panel
++    from spacr.figures.bundle import _save_zip
++
++    source = _results()
++    figure, panel = build_panel("volcano", source)
++    archive_path = _save_zip(figure, str(tmp_path / "volcano.zip"),
++                             formats=["png"])
++    plt.close(figure)
++
++    with zipfile.ZipFile(archive_path) as archive:
++        recorded = pd.read_csv(io.BytesIO(archive.read("data.csv")))
++        drawn = pd.read_csv(io.BytesIO(archive.read("drawn_data.csv")))
++        spec = json.loads(archive.read("spec.json"))
++        archive.extractall(tmp_path / "recreated")
++    assert len(recorded) == len(source)
++    assert recorded["feature"].tolist() == source["feature"].tolist()
++    assert drawn["feature"].tolist() == panel.data["feature"].tolist()
++    assert "Intercept" not in set(drawn["feature"])
++    assert (spec["kind"], spec["regression"]) == ("regression_panel", "volcano")
++    result = subprocess.run(
++        [sys.executable, "recreate_figure.py"], cwd=tmp_path / "recreated",
++        capture_output=True, text=True, timeout=30,
++        env=dict(os.environ, MPLBACKEND="Agg"),
++    )
++    assert result.returncode == 0, result.stderr[-1000:]
++    assert (tmp_path / "recreated" / "recreated.png").is_file()
++
++
++def test_retyping_a_regression_panel_replaces_the_published_rows(tmp_path):
++    """A later graph type cannot export the stale volcano selection."""
++    from spacr.figures import build_panel
++    from spacr.qt.widgets.figure_settings import _retype, export_sidecars
++
++    source = _results()
++    figure, _panel = build_panel("volcano", source)
++    assert _retype(figure, "hist") is True
++    assert figure._spacr_drawn_data is None
++    export_sidecars(figure, tmp_path / "hist.png")
++    histogram_rows = pd.read_csv(tmp_path / "hist.csv")
++    assert histogram_rows["feature"].tolist() == source["feature"].tolist()
++
++    assert _retype(figure, "regression_panel") is True
++    export_sidecars(figure, tmp_path / "volcano.png")
++    volcano_rows = pd.read_csv(tmp_path / "volcano.csv")
++    assert "Intercept" not in set(volcano_rows["feature"])
++    assert len(volcano_rows) == len(source) - 1
++    plt.close(figure)
++
++
++def test_multi_panel_recreation_does_not_publish_only_its_last_panel():
++    """A sheet has several drawn subsets but one complete replay source."""
++    from spacr.figures.bundle import _draw
++    from spacr.figures.sheet import build_sheet
++
++    source = _results()
++    sheet = build_sheet(source, order=("volcano", "qq"))
++    figure = sheet.figure
++    assert len(sheet.panels) == 2
++    _draw(figure, source, figure._spacr_spec)
++    assert figure._spacr_drawn_data is None
++    assert len(figure.axes) == len(sheet.panels)
++    plt.close(figure)
++
++
++def test_invalid_drawn_row_metadata_falls_back_to_replay_source(tmp_path):
++    """An unrelated private attribute cannot silently erase the CSV."""
++    from spacr.figures import build_panel
++    from spacr.qt.widgets.figure_settings import export_sidecars
++
++    source = _results()
++    figure, _panel = build_panel("volcano", source)
++    figure._spacr_drawn_data = object()
++    export_sidecars(figure, tmp_path / "fallback.png")
++    exported = pd.read_csv(tmp_path / "fallback.csv")
++    assert exported["feature"].tolist() == source["feature"].tolist()
++    plt.close(figure)
++
++
++def test_failed_retype_keeps_the_last_plotted_rows(tmp_path, monkeypatch):
++    """A refused redraw must not silently switch its CSV to the input."""
++    from spacr.figures import build_panel, bundle
++    from spacr.qt.widgets.figure_settings import _retype, export_sidecars
++
++    figure, panel = build_panel("volcano", _results())
++
++    def unavailable(*_args, **_kwargs):
++        """Simulate a renderer refusing the requested graph type."""
++        figure._spacr_drawn_data = None
++        raise ValueError("renderer unavailable")
++
++    monkeypatch.setattr(bundle, "_draw", unavailable)
++    assert _retype(figure, "hist") is False
++    export_sidecars(figure, tmp_path / "last.png")
++    exported = pd.read_csv(tmp_path / "last.csv")
++    assert exported["feature"].tolist() == panel.data["feature"].tolist()
++    plt.close(figure)
++
++
+ def test_a_comparison_panel_exports_its_statistics(tmp_path):
+     _panel, written = _export("controls", tmp_path)
+ 
