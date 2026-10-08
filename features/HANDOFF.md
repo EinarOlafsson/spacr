@@ -1,5 +1,36 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 — N663 painter exception cleanup; required CI still red
+
+Home's isolated commit 9453044cde closes two concrete active-painter leaks:
+the AmbientWidget backdrop painter and the spinn tissue-facet tile painter now
+end when a paint step raises. On original b6f69d54c source, the same six real
+QPainter failure cases fail under Qt 6.12.0; on the fixed source all six pass
+under Qt 6.12.0 and 6.11.2. The fixed selected seven-file ambient cohort
+passes 479 tests. Exact source/test hashes, four logs and portable verifier:
+features/data/663_spinn_painter_cleanup_cpu_2026-10-08/. The older original
+SIGSEGV probe lacked tile-QImage keepalive and is recorded separately, not
+counted as a same-harness negative. The user-authorized daily spaCR GUI log
+contains 472 active-painter warnings from 09:53:08 to 09:53:34 EDT and a
+paint-device warning at 09:53:35. It lacks a PID, Qt version, initiating
+traceback and the reported four missing-slot messages; the nearby crash log
+has a PID but no shared identity to prove which visible GUI closed. The
+AmbientWidget missing-slot route and any link to the separate Make Masks
+hosted native faults remain unproven. N663 remains OPEN for these concerns,
+native performance and human visual acceptance.
+
+Required run 37763414112 on exact 5636eac60938f5d6021eaf73546ff8a30ae17c32
+is terminal FAILURE: 26 of 29 jobs succeeded, including all three ordinary
+Qt jobs. Coverage0 job 113289789342 had a native SIGSEGV; coverage aggregate
+113324168943 and release gate 113350214068 failed downstream. The local
+painter repair is later source and does not make that required run green.
+
+Workstation docs/API owner: the published nightly python_api.html still says
+"Add [qt] only when ... desktop interface" near line 63 even though the
+nightly landing page uses plain `pip install spacr`. Remove that stale advice
+from authored docs/source/python_api.rst in the final API refresh, then
+regenerate owned docs/catalog artifacts. Do not hand-edit generated output.
+
 ## 2026-10-08 — New explicit UI implementation request: N666–N669
 
 The user explicitly asks to add and implement new window/theme/help changes.

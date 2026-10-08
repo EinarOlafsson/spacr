@@ -1412,3 +1412,18 @@ Current exact measured geometry/native proof remains in the separate frozen
 runs; integration awaits first complete GitHub green plus direct new-source
 coverage under the existing limits. This prepares a modest optimisation,
 not shipped acceptance, native24FPS, or human visual approval.
+
+2026-10-08 — Home's isolated painter-cleanup commit 9453044cde ends both the
+AmbientWidget backdrop QPainter and the spinn tissue-facet tile QPainter on
+paint exceptions. An unchanged six-case real-painter harness fails 6/6 on
+original b6f69d54c at Qt 6.12 and passes 6/6 on the fix at Qt 6.12 and 6.11;
+the fixed selected ambient cohort passes 479. Source/test/log hashes and the
+portable verifier are in
+features/data/663_spinn_painter_cleanup_cpu_2026-10-08/. A prior original
+SIGSEGV used an earlier harness without tile-QImage keepalive, so it is not
+the same-harness negative. The user-authorized GUI log records 472 active
+painter warnings, then a paint-device warning; it does not identify the
+reported four missing-slot exceptions or prove which visible GUI closed.
+The hosted Make Masks native fault also remains causally separate. This is
+a bounded local repair, not required GitHub green or N663 closure. The hard
+native 24 FPS target, visual approval and remaining slot route stay OPEN.

@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-08",
+  "scope": "N663 ambient and spinn tile painter exception cleanup",
+  "original_source_commit": "b6f69d54c31263b3b7eb2ec390fd1b1f7b25716b",
+  "fixed_source_commit": "9453044cde",
+  "source_path": "spacr/qt/widgets/ambient.py",
+  "original_source_sha256": "fa95c6677bea19f66b4cfb5e4049ae8858269e5b9cc53e337653fe176301fbf4",
+  "fixed_source_sha256": "512826ed720ff7c8a417a3f99175f6676db3da4907cf9415c3e68b1d64136806",
+  "test_path": "tests/qt/test_ambient_painter_cleanup.py",
+  "test_sha256": "9694ad882bad024bca54913331f1e1a1931920af1a8ab3a388662581da14aa29",
+  "execution": {
+    "python": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+    "environment": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1",
+    "runner": "tools/run_capped.sh 4G",
+    "six_case_command": "python -m pytest -q tests/qt/test_ambient_painter_cleanup.py",
+    "qt612_pythonpath_suffix": "/mnt/wd4tb/scratch/ci-7a-root-20261008/qt612-overlay:/mnt/wd4tb/scratch/ci-55bad-20261008/pytest842-overlay",
+    "qt611_pythonpath_suffix": "/mnt/wd4tb/scratch/ci-55bad-20261008/pytest842-overlay"
+  },
+  "logs": {
+    "original-safe-six-612.log.gz": {
+      "sha256": "5d380d537934178fd435bbd056dff9083faea5f1fb5e313e2390f2818fd453c6",
+      "raw_sha256": "3171576d7214bea3b5e3f4097333b94d09be572e98e4b4b94427257a6b6f9929",
+      "exit_code": 1,
+      "result": "6 failed in 1.93s"
+    },
+    "fixed-six-612.log.gz": {
+      "sha256": "a7ccc5fe9e5730ade27a7616cb60f35fca5915b05e79e02a5519ef3873bbddcd",
+      "raw_sha256": "7e3ac74221d1b2f996aaaba6bd6dd00e1ec499a0feac6f1768f726a8c9247489",
+      "exit_code": 0,
+      "result": "6 passed in 1.86s"
+    },
+    "fixed-six-611.log.gz": {
+      "sha256": "9d9eda8fd7b731980c93bb23c46914eedca0f454e88b1bfe7109f3296af717f5",
+      "raw_sha256": "d7121af09ce79f45ab008178a104d1d83ac2f777780c22b019e10fa319458872",
+      "exit_code": 0,
+      "result": "6 passed in 1.79s"
+    },
+    "affected-612.log.gz": {
+      "sha256": "5d8130b6cc9db16f9fd0e8cb87a2e0b6e0858f8647051fb8f7551353b6e5f5aa",
+      "raw_sha256": "218daa1e7cbf7a6fde85e631d20ed17b1bf0b571f42a0daa8c44a6b23604c521",
+      "exit_code": 0,
+      "result": "479 passed in 47.56s",
+      "scope": "Selected seven ambient/Qt test files, includes the six new tests"
+    }
+  },
+  "historical_unsafe_harness": {
+    "scratch_log_sha256": "c63a48f0d5d1357c71110782d414af348634f03bc04d503e216dc90134462458",
+    "outcome": "exit 139 on original Qt 6.12 source before the test held the tile QImage alive; not a same-harness negative control and not included among the four archived result logs"
+  },
+  "local_gui_observation": {
+    "daily_log_date": "2026-10-08",
+    "active_painter_warning_count": 472,
+    "first_warning_local": "09:53:08.000 EDT",
+    "last_warning_local": "09:53:34.377 EDT",
+    "paint_device_warning_local": "09:53:35.528 EDT",
+    "crash_log_write_local": "09:53:35.555 EDT",
+    "caveat": "The daily log lacks PID, Qt version, initiating traceback and slot errors. The separate crash log has PID 4111147 but no shared PID/timestamp to prove which visible GUI closed. These scalar observations do not establish the cause of the missing-slot messages or the separate hosted Coverage0 crash."
+  },
+  "required_ci": {
+    "run_id": 37763414112,
+    "source_sha": "5636eac60938f5d6021eaf73546ff8a30ae17c32",
+    "status": "completed failure",
+    "jobs_success": 26,
+    "jobs_total": 29,
+    "failed_jobs": [113289789342, 113324168943, 113350214068],
+    "reason": "Coverage0 native SIGSEGV and downstream coverage aggregate/release failure; all ordinary Qt jobs succeeded. This painter fix is a later local candidate, not proof that required CI is green."
+  }
+}
