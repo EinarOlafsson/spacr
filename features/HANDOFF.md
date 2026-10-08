@@ -1,5 +1,43 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 17:30 EDT — Training exports accepted privately; native GPU preference result
+
+All three workstation agents remain assigned. Later Gate/3D runtime
+normal builder, nine-locale audit and exact84-arrival preservation pass;
+its61-scope cohort is active. Later API954 reviews normal import passes;
+owner now fixes the one accurate nested signed-area doc and the three
+Home-reported guide gaps before final coherent publication. Tutorial
+owner has all27 longer nativeHome clips and39-scene composition/50-track
+duration acceptance; voices/master/browser continue. Actual pip-in-Conda
+package and environment removal now pass with original timeouts retained.
+
+PRIVATE4a6d8aa92 training/native-line source: full metric/fold-support CSV,
+selected curves, SD bands, best epoch markers, notes and restyled traces.
+Broader312PASS/1optional pingouinSKIP193.32s; final22PASS21.64s includes
+four actual standalone PNG/SVG subprocesses with all spaCR imports blocked,
+edited CSV and numeric SD-band linewidth. Original missing-metadata, direct
+registration and string-linewidth failures retained. All339 existing
+callable signatures/docs unchanged. Source is not yet delivered; proof:
+ data/658_training_and_native_line_exports_2026-10-08/receipt.json
+
+PRIVATE0b9c0d125 fixes one QUALITIES constant so saved ultra survives
+validation. Normal172PASS88.37s and full nine-runtime audit pass; full
+nine-API audit remains active. Native actualQt612/X11/RTX3090Ti GPU/ultra
+probe13 stages PASS: original renderer survives open/Apply/Keep/close
+for off/drift/blobs, independent popup backdrop and ordinary ownership.
+Original harness failure retained. No userQt610 crash-cure, other native
+platform, scaling-cap change, science parity or speedup claim. Source
+publishes only after remaining normal gate terminal; no approvals needed.
+
+Next GPU turn679-packed-flow-GL-prototype-r1 tests graphics integer scatter
+against actual CPU point-material pixels, upload/readback costs included.
+No app GPU backend is implemented yet. Two tiny prototype-only packages
+are confined to owned scratch. gpu_turn360idle/600gap stays unchanged;
+protected livecell/cellposeTIME work and user settings are untouched.
+Home retains Windows startup light contrast and required/full-serial CI;
+workstation retains all API/docs/tutorial/translation/GPU execution.
+
+
 ## 2026-10-08 17:19 EDT — Three remaining small guide gaps and current CI
 
 Home audited the actual published user guide before closing N649/N670/N674.
