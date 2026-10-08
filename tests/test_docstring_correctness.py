@@ -1917,6 +1917,7 @@ ViaAlias = TupleAlias("ViaAlias", [("value", int)])
 
 def _validated_prior_live_settings_close_callables(callables):
     """Validate the hidden-dialog close contract before reproducing old pins."""
+    import json
     fixture = json.loads((pathlib.Path(__file__).resolve().parent
         / "data/release_contracts"
         / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text())
