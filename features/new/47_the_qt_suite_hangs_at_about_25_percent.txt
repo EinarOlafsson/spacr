@@ -2331,3 +2331,13 @@ this does not accept the uninterrupted original-order serial suite. Evidence
 is retained in data/43_qthread_wrapper_forensics_2026-10-07/ and the other
 source-bound receipts named above. N47/native causation remains OPEN; no
 speculative pin, forced GC, guard waiver or application patch was made.
+
+2026-10-07 — FINAL HOSTED SERIAL RUN NEEDS EXPLICIT DISPATCH
+The current qt-serial-acceptance.yml push trigger includes only changes to
+that workflow file. The workstation's accepted API/catalog publication will
+start ordinary tests, but cannot start N47 original-order acceptance. Home
+will explicitly dispatch this workflow on the final accepted nightly source
+and preserve its terminal verdict, exact-source provenance, native evidence
+and memory journal. This records the outstanding acceptance action, not a
+source repair or a claim of N47 completion; the existing12GiB hard cap,
+zero-swap condition and10.8GiB pytest guard remain unchanged.

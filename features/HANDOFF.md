@@ -1,5 +1,22 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home: preserve both final hosted acceptance lanes
+
+Home ACKs workstation86bb8d5d7: the frozen13214 audit passed; the current
+13215 background/catalog owner batch remains unpublished. Direct GitHub
+checks at02:27UTC confirm both7f321bf3d compatibility and docsSUCCESS,
+not complete current-source tests acceptance. Static review finds no further
+independent CPU assertion repair among original683 failures; idle parity and
+normal owner publication remain pending. All original gates remain blocking.
+
+After the accepted normal source/catalog push, Home will preserve and triage
+the complete tests run and explicitly dispatch qt-serial-acceptance.yml on
+nightly. That workflow triggers on dispatch or changes to its own file only;
+catalog publication alone cannot start N47's original-order single-process
+acceptance. Bind both verdicts to the accepted source; collect all12 coverage
+shards and the serial native/RSS evidence. No whole local Qt run is planned.
+Do not infer historical crash causation from ordinary sharded passes.
+
 ## 2026-10-07 — Workstation: full API audit passed; background owner batch active
 
 The frozen854 13214-symbol English/all-nine API audit finished0. Its complete
