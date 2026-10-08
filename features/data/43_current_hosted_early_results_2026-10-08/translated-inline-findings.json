@@ -1,0 +1,270 @@
+{
+  "source": "55badc57ff25ef6a7e14721561773a412b515318",
+  "method": "Read-only Babel catalog plus standalone docutils inline parsing; strict Sphinx replay remains owner acceptance",
+  "findings": [
+    {
+      "language": "zh_CN",
+      "domain": "features",
+      "english": "**spaCR stratified** — A slow starfield moves in three depth layers; **spaCR stratified direction** selects up, down or random travel.",
+      "translation": "**spaCR stratified** — 缓慢的星点场在三个深度层中移动；**spaCR stratified 方向**选择向上、向下或随机方向的运动。",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "zh_CN",
+      "domain": "features",
+      "english": "**Animation background colour** sets the background independently of the animation palette. Until you choose a colour, it follows the page theme; **Theme colour** restores that behaviour. The chosen colour's brightness is kept within the active Dark or Light theme's range. It applies to the main window, module screens and animated settings popups. A full-screen wallpaper can cover the background fill.",
+      "translation": "**动画背景颜色**可独立于动画调色板设置背景。在您选择颜色之前，背景会跟随页面主题；**主题颜色**可恢复这一行为。所选颜色的亮度始终保持在当前深色或浅色主题的范围内。该颜色应用于主窗口、模块页面和带动画的设置弹窗。全屏壁纸可能遮盖背景填充颜色。",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "zh_CN",
+      "domain": "features",
+      "english": "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them.",
+      "translation": "**设置 Backdrop**在应用或保存偏好设置时均与主窗口动画保持独立。**无**关闭弹窗动画，但保留蓝色边缘光。**设置背景暗度**控制设置卡片覆盖其动画的不透明度，范围为 **0%** 至 **100%**（默认 **85%**），并与 **页面不透明度**共同作用。当设置背景为 **无**时，页面不透明度仍然适用。较高的暗度覆盖更多动画，使文字更易阅读。弹窗只保持在所属 spaCR 窗口前方，不使用全局始终置顶标志，因此其他应用可以覆盖它们。",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "zh_CN",
+      "domain": "make_masks",
+      "english": "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before manually accepting its objects.",
+      "translation": "启用 **放大镜**或按 **M**，查看指针周围建议的对象。鼠标滚轮改变框内放大倍数；**Shift + wheel**改变框的大小。**Ctrl+L+右键单击**锁定或解锁框。手动接受对象前，请等待预览更新。",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "zh_CN",
+      "domain": "make_masks",
+      "english": "Under **Object detection** → **Magnification settings**, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save** or **Save & Next** to write accepted masks.",
+      "translation": "在 **对象检测** → **放大设置**中启用 **立即接受建议对象**，即可无需点击而接受当前建议。此选项默认关闭。区域模式遵循 **添加的对象**设置；整幅图像模式仅接受指针下方的对象。移出图像或关闭放大镜会停止自动接受。每次接受都可以撤销，撤销后不会立即重新接受同一建议。使用 **保存**或 **Save & Next**将已接受的掩膜写入磁盘。",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "zh_CN",
+      "domain": "make_masks",
+      "english": "**Overlap** chooses what happens when a proposal overlaps an existing mask:",
+      "translation": "**重叠**决定建议对象与现有掩膜重叠时的处理方式：",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "zh_CN",
+      "domain": "make_masks",
+      "english": "**Fuse with existing object** adds the proposal to the existing ID and retains the old object's pixels, including pixels outside the box. A proposal overlapping several objects joins them into the smallest old ID. A proposal on background becomes a new object.",
+      "translation": "**与现有对象合并**将建议区域添加到现有 ID，并保留原对象的全部像素，包括框外像素。如果建议区域与多个对象重叠，则将它们合并到最小的原有 ID 下。只位于背景上的建议会成为一个新对象。",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "zh_CN",
+      "domain": "make_masks",
+      "english": "**Add non-overlapping pixels** preserves existing objects and adds the proposal's largest remaining connected piece as a new object.",
+      "translation": "**添加不重叠的像素**保留现有对象，并将建议区域中剩余的最大连通部分作为一个新对象添加。",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "zh_CN",
+      "domain": "make_masks",
+      "english": "**Replace overlapping object** removes overlapping old objects in full before adding the proposal. Rejected small proposals remove nothing.",
+      "translation": "**替换重叠对象**先完整移除所有重叠的原对象，再添加建议对象。被拒绝的小建议不会移除任何对象。",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "zh_CN",
+      "domain": "make_masks",
+      "english": "**Skip overlapping objects** ignores proposals that overlap existing masks.",
+      "translation": "**跳过重叠对象**忽略与现有掩膜重叠的建议。",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "ko",
+      "domain": "features",
+      "english": "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**.",
+      "translation": "**환경설정** → **모양**에서 **테마**는 인터페이스 팔레트를 선택하며, 열 가지 야간 팔레트도 계속 사용할 수 있습니다. **애니메이션**은 장식용 배경을 독립적으로 선택하고, **없음**은 이를 중지합니다. 이 배경은 프로젝트 측정값을 표시하지 않습니다. 기본값은 주 창에서 **spaCR field**, 설정 창 배경에서 **없음**입니다.",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "ko",
+      "domain": "features",
+      "english": "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order.",
+      "translation": "애니메이션 메뉴에는 **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, **spaCR spinn**이 이 순서로 표시됩니다.",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "ko",
+      "domain": "features",
+      "english": "**spaCR stratified** — A slow starfield moves in three depth layers; **spaCR stratified direction** selects up, down or random travel.",
+      "translation": "**spaCR stratified** — 느린 별 무늬가 세 깊이 층에서 움직입니다. **spaCR stratified 방향**에서 위쪽, 아래쪽 또는 무작위 이동을 선택합니다.",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "ko",
+      "domain": "features",
+      "english": "**Animation background colour** sets the background independently of the animation palette. Until you choose a colour, it follows the page theme; **Theme colour** restores that behaviour. The chosen colour's brightness is kept within the active Dark or Light theme's range. It applies to the main window, module screens and animated settings popups. A full-screen wallpaper can cover the background fill.",
+      "translation": "**애니메이션 배경 색상**은 애니메이션 팔레트와 독립적으로 배경을 설정합니다. 색상을 선택하기 전까지 배경은 페이지 테마를 따르며, **테마 색상**을 선택하면 이 동작이 복원됩니다. 선택한 색상의 밝기는 현재 어두운 테마 또는 밝은 테마의 범위 안에 유지됩니다. 이 색상은 기본 창, 모듈 화면 및 애니메이션이 적용된 설정 팝업에 적용됩니다. 전체 화면 배경 이미지는 배경 채우기 색상을 가릴 수 있습니다.",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "ko",
+      "domain": "features",
+      "english": "**Popup wave frequency** sets automatic waves per minute in **spaCR field**. The default is **5 waves/minute**; **0** disables popup waves. When enabled, opening a popup immediately starts the first wave from its centre, followed by waves at the selected rate. Moving the popup moves the origin of new waves; closing it stops new waves while existing waves fade. This control is independent of mouse gravity, dot blinking, density and drawing detail.",
+      "translation": "**팝업 파동 빈도**는 **spaCR field**에서 자동 파동이 시작되는 분당 횟수를 설정합니다. 기본값은 **분당 5회**이며, **0**은 팝업 파동을 끕니다. 활성화하면 팝업을 여는 즉시 중심에서 첫 파동이 시작되고, 이후 선택한 빈도로 파동이 발생합니다. 팝업을 이동하면 새 파동의 시작점이 이동합니다. 팝업을 닫으면 새 파동은 중단되고 기존 파동은 사라집니다. 이 제어는 마우스 중력, 점 깜빡임, 밀도, 그리기 세부 사항과 독립적입니다.",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "ko",
+      "domain": "features",
+      "english": "Press **Apply** to preview changes while Preferences stays open. A separate question offers **Keep** or **Revert**. Revert restores the saved and live settings; your edited controls remain available to change or apply again. Closing the question also reverts. **Save** keeps changes and closes Preferences.",
+      "translation": "**적용**을 눌러 변경사항을 미리 적용해도 환경설정 창은 열린 상태로 유지됩니다. 별도의 질문 창에서 **유지** 또는 **되돌리기**를 선택합니다. 되돌리면 저장된 설정과 현재 적용된 설정이 복원되며, 편집한 컨트롤 값은 다시 변경하거나 적용할 수 있도록 남아 있습니다. 질문 창을 닫아도 되돌립니다. **저장**은 변경사항을 유지하고 환경설정 창을 닫습니다.",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "ko",
+      "domain": "features",
+      "english": "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them.",
+      "translation": "**Backdrop 설정**은 환경설정을 적용하거나 저장할 때 모두 주 창의 애니메이션과 독립적으로 유지됩니다. **없음**은 팝업 움직임을 끄면서 파란 테두리는 유지합니다. **설정 배경 어두움**은 애니메이션 위 설정 카드의 불투명도를 **0%**부터 **100%**까지 조절하며, 기본값은 **85%**입니다. 이 값은 **페이지 불투명도**와 함께 적용됩니다. 설정 배경이 **없음**이어도 페이지 불투명도는 적용됩니다. 어두움 값이 높을수록 애니메이션을 더 많이 가려 텍스트를 읽기 쉽게 합니다. 팝업은 자신이 속한 spaCR 창 앞에만 유지되며, 모든 창 위에 항상 표시하는 전역 플래그를 사용하지 않으므로 다른 앱이 덮을 수 있습니다.",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "ko",
+      "domain": "features",
+      "english": "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available.",
+      "translation": "**spaCR field**의 비어 있는 배경 영역에서 마우스 왼쪽 버튼을 누른 채 드래그하면 국소적인 점 무리를 당길 수 있습니다. 버튼을 놓으면 전체 패턴을 다시 시작하지 않고 부드럽게 돌아갑니다. 이 배경 제스처는 과학 이미지 캔버스와 컨트롤의 조작 제스처를 계속 사용할 수 있게 합니다.",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "ko",
+      "domain": "features",
+      "english": "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to popup tooltips. Fixed hint text at the bottom of Home and Preferences appears immediately. Turn popup tooltips off with **Show tooltips** on the same page.",
+      "translation": "포인터가 **환경설정 → 모양**에서 설정한 **툴팁 지연** 동안 컨트롤 위에 머물면 **툴팁**이 나타나며(기본값 2.0 s, 0은 즉시 표시), 포인터가 그 위에 있는 동안 유지됩니다. 팝업 툴팁에도 같은 지연이 적용됩니다. 홈 화면과 환경설정 창 하단의 고정 안내문은 즉시 나타납니다. 같은 페이지에서 **툴팁 표시**로 팝업 툴팁을 끌 수 있습니다.",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "ko",
+      "domain": "make_masks",
+      "english": "Toggle **Magnifier** or press **M** to inspect proposed objects around the pointer. Its wheel changes box zoom; **Shift + wheel** changes box size. **Ctrl+L+right click** locks or unlocks the box. Wait for an updating preview before manually accepting its objects.",
+      "translation": "**돋보기**를 켜거나 **M**을 눌러 포인터 주변에 제안된 객체를 검사합니다. 마우스 휠은 상자 안의 확대 배율을 바꾸고, **Shift + wheel**은 상자 크기를 바꿉니다. **Ctrl+L+오른쪽 클릭**은 상자를 잠그거나 잠금 해제합니다. 객체를 수동 승인하기 전에 업데이트된 미리보기를 기다리십시오.",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string.",
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "ko",
+      "domain": "make_masks",
+      "english": "Under **Object detection** → **Magnification settings**, turn on **Instantly accept proposed objects** to accept a current proposal without clicking. This is off by default. Region mode follows **Objects added**; whole-image mode accepts only the object under the pointer. Moving outside the image or disabling the magnifier prevents automatic acceptance. Each acceptance is undoable, and an undo does not immediately accept the same proposal again. Use **Save** or **Save & Next** to write accepted masks.",
+      "translation": "**객체 검출** → **확대 설정**에서 **제안된 객체 즉시 승인**을 켜면 클릭하지 않고 현재 제안을 승인할 수 있습니다. 기본적으로 꺼져 있습니다. 영역 모드는 **추가할 객체** 설정을 따르며, 전체 이미지 모드는 포인터 아래의 객체만 승인합니다. 이미지 밖으로 이동하거나 돋보기를 끄면 자동 승인이 중단됩니다. 각 승인은 실행 취소할 수 있으며, 취소 직후 같은 제안을 다시 자동 승인하지 않습니다. **저장** 또는 **Save & Next**로 승인된 마스크를 디스크에 저장합니다.",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "ko",
+      "domain": "make_masks",
+      "english": "**Overlap** chooses what happens when a proposal overlaps an existing mask:",
+      "translation": "**겹침**은 제안이 기존 마스크와 겹칠 때의 동작을 선택합니다.",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "ko",
+      "domain": "make_masks",
+      "english": "**Fuse with existing object** adds the proposal to the existing ID and retains the old object's pixels, including pixels outside the box. A proposal overlapping several objects joins them into the smallest old ID. A proposal on background becomes a new object.",
+      "translation": "**기존 객체와 병합**은 제안을 기존 ID에 추가하고 상자 밖의 픽셀을 포함한 기존 객체 전체를 보존합니다. 제안이 여러 객체와 겹치면 가장 작은 기존 ID로 모두 병합합니다. 배경에만 있는 제안은 새 객체가 됩니다.",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "ko",
+      "domain": "make_masks",
+      "english": "**Add non-overlapping pixels** preserves existing objects and adds the proposal's largest remaining connected piece as a new object.",
+      "translation": "**겹치지 않는 픽셀 추가**는 기존 객체를 보존하고 제안에서 남은 가장 큰 연결 부분을 새 객체로 추가합니다.",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "ko",
+      "domain": "make_masks",
+      "english": "**Replace overlapping object** removes overlapping old objects in full before adding the proposal. Rejected small proposals remove nothing.",
+      "translation": "**겹치는 객체 교체**는 제안을 추가하기 전에 겹치는 기존 객체를 전체적으로 제거합니다. 거부된 작은 제안은 아무것도 제거하지 않습니다.",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "ko",
+      "domain": "make_masks",
+      "english": "**Skip overlapping objects** ignores proposals that overlap existing masks.",
+      "translation": "**겹치는 객체 건너뛰기**는 기존 마스크와 겹치는 제안을 무시합니다.",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline strong start-string without end-string."
+      ]
+    },
+    {
+      "language": "ko",
+      "domain": "python_api",
+      "english": "Use ``spacr-run --list-models`` (or ``--models``) to list registered models, including models that have not been downloaded. Supply the registered key or filename in ``custom_model`` for masking or ``model_path`` for classifier inference. Python and notebook entry points use the same resolver. A missing registered checkpoint is downloaded through Model Zoo when the workflow runs, verified against its catalogue checksum, and cached for reuse. Preflight recognizes registered downloadable selections without downloading the weights. Existing local paths take precedence; an unknown missing local path or a model of the wrong kind raises an error rather than selecting another model. Built-in foundation models retain their backend's normal download behavior.",
+      "translation": "``spacr-run --list-models``(또는 ``--models``)로 아직 다운로드하지 않은 모델을 포함한 등록 모델 목록을 확인합니다. 마스크 생성에는 ``custom_model``, 분류기 추론에는 ``model_path``에 등록된 키 또는 파일명을 지정합니다. Python과 notebook 진입점은 같은 모델 해석기를 사용합니다. 등록된 모델 파일이 없으면 워크플로 실행 시 Model Zoo를 통해 다운로드하고, 카탈로그의 체크섬으로 검증한 뒤 재사용하도록 캐시합니다. 사전 점검은 가중치를 다운로드하지 않고도 등록된 다운로드 가능 모델 선택을 인식합니다. 기존 로컬 경로가 우선하며, 알 수 없고 존재하지 않는 로컬 경로나 유형이 맞지 않는 모델은 다른 모델을 선택하는 대신 오류를 발생시킵니다. 내장 기반 모델은 해당 백엔드의 일반적인 다운로드 동작을 유지합니다.",
+      "warnings": [
+        "<string>:1: (WARNING/2) Inline literal start-string without end-string."
+      ]
+    }
+  ]
+}

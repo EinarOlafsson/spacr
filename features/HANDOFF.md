@@ -9,6 +9,11 @@ Warnings include unclosed inline strong markers in features.rst and
 make_masks.rst and inline literal markers in python_api.rst:111. Preserve
 -W and normal reviewed catalog writers; repair the actual translated RST,
 run the two-language strict build first, then publish the accepted fix.
+Home read-only Babel/docutils parsing identifies27 actual malformed messages:
+zh_CN features3 / make_masks7; ko features9 / make_masks7 / python_api1.
+Exact English and translated rows: translated-inline-findings.json alongside
+the receipt. Delimiter counts match, but closing markup touches CJK text or
+Korean suffixes. This is diagnostic input, not a catalog edit or Sphinx pass.
 This is a real current-source hosted failure, above browser/tutorial/664/665.
 Exact raw hosted evidence (gzip, hashes, source/run/job binding):
   data/43_current_hosted_early_results_2026-10-08/receipt.json

@@ -54,5 +54,11 @@
       "sha256": "d599576e430dfa38ad7309e09e8478645996789b6e4d57bf2934f999d63aeabe",
       "raw_sha256": "d0d6033a29d41ef9b22befe959205ad80868ad48b586608b2f5a322031b2570d"
     }
-  ]
+  ],
+  "read_only_diagnosis": {
+    "file": "translated-inline-findings.json",
+    "sha256": "f61db8aee1f7f83006af8857d3f5b7b47dc600f901589a618f8a95192409cb03",
+    "messages": 27,
+    "strict_sphinx_replay_pending": true
+  }
 }
