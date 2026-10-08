@@ -67,8 +67,10 @@ def test_the_organize_button_is_on_the_screen(screen):
                                 "MakeMasksSortChannelsButton")
 
 
-def test_a_headless_drop_opens_the_folder_as_it_is(screen, tmp_path):
+def test_a_headless_drop_opens_the_folder_as_it_is(screen, tmp_path,
+                                                  monkeypatch):
     """Nobody can answer the question, so nothing is copied."""
+    monkeypatch.setattr(mm, "is_headless", lambda: True)
     src = _nested(tmp_path)
     assert screen.open_paths([str(src)])
     assert screen._folder == str(src)
@@ -114,8 +116,10 @@ def _drawn(root: Path) -> Path:
     return folder
 
 
-def test_the_sort_dialog_lists_proposes_and_plans(qtbot, qt_theme_applied, tmp_path):
+def test_the_sort_dialog_lists_proposes_and_plans(qtbot, qt_theme_applied,
+                                                  tmp_path, monkeypatch):
     """The regex is proposed on opening; the plan moves six images."""
+    monkeypatch.setattr(csd, "_headless", lambda: True)
     folder = _drawn(tmp_path)
     dialog = csd.ChannelSortDialog(str(folder))
     qtbot.addWidget(dialog)
@@ -130,8 +134,9 @@ def test_the_sort_dialog_lists_proposes_and_plans(qtbot, qt_theme_applied, tmp_p
 
 
 def test_selection_strategy_assigns_channels_and_bad_sets_ask_for_a_regex(
-        qtbot, qt_theme_applied, tmp_path):
+        qtbot, qt_theme_applied, tmp_path, monkeypatch):
     """Channels by hand; with no regex the sets are missing and the window opens."""
+    monkeypatch.setattr(csd, "_headless", lambda: True)
     folder = _drawn(tmp_path)
     dialog = csd.ChannelSortDialog(str(folder))
     qtbot.addWidget(dialog)

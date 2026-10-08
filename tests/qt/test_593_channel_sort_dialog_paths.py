@@ -170,7 +170,8 @@ def test_detect_needs_two_channels_and_reports_when_nothing_pairs(
 
 
 def test_detected_sets_are_kept_only_when_confirmed(qtbot, qt_theme_applied,
-                                                   tmp_path):
+                                                   tmp_path, monkeypatch):
+    monkeypatch.setattr(csd, "_headless", lambda: True)
     folder = _drawn(tmp_path)
     names = _names(folder)
     channels = {n: 1 if n.startswith("nuc") else 2 for n in names}
@@ -209,6 +210,7 @@ def test_use_keeps_the_typed_regex(qtbot, qt_theme_applied, tmp_path):
 
 def test_the_regex_window_hands_back_a_regex_or_detected_sets(
         dialog, monkeypatch):
+    monkeypatch.setattr(csd, "_headless", lambda: True)
     assert dialog._open_regex_window() is False
     monkeypatch.setattr(csd, "_headless", lambda: False)
     typed = r"(?P<chanID>nuc|cell)_img(?P<fieldID>\d+)\.tif"

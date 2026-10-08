@@ -59,8 +59,9 @@ def _tree(root: Path) -> Path:
 
 
 @pytest.fixture
-def screen(qtbot, qt_theme_applied):
-    """A Make Masks screen, closed down afterwards."""
+def screen(qtbot, qt_theme_applied, monkeypatch):
+    """Keep unattended drop decisions headless, even with an Xvfb display."""
+    monkeypatch.setattr(mm, "is_headless", lambda: True)
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     yield made
