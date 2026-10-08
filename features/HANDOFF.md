@@ -1,5 +1,37 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home: final local source and workstation publication queue
+
+Nightly3a5a88765 contains the completed Animation background control and
+three exact-output fungal optimizations: parent indices, individual-positive-
+cost refusal, and local QPen reuse. Latest source0653e111b/fa95c667 changes
+only two pen-construction bodies; names/signatures/docstrings/tr calls remain
+unchanged. No new API arrival beyond the already documented background picker
+(total13215). Final-source19 pen cases pass43.20s; all12 added/replaced
+statements are directly covered, all896 ambient branch arcs map unchanged.
+Root verifies all43 pen payloads and the current-eleven reconciliation:
+  data/663_fungal_local_pen_cpu_2026-10-08/acceptance.json
+  data/43_fungal_pen_eleven_reconciliation_2026-10-08/receipt.json
+All11 original numerical allowances still hold on this exact source. No new
+raster cache, quality, branching, density, resolution or physics change.
+
+Eight fresh native4K workers show positive balanced default/Random pairs:
+old~4.76FPS, new5.18–5.55 publishedFPS; all retire on hide. GUI repaint~24
+is NOT distinct published-frame cadence. Hard native24FPS remains OPEN.
+Historical Save/puncta/QThread causes and human visual approval remain OPEN.
+Compatibility7f passed before this last pen change; docs105f passed earlier.
+These are not final-source complete GitHub-green verdicts. Home local code,
+functional/provenance/coverage work is checkpointed; no benchmark remains.
+
+WORKSTATION: complete source-bound normal13215 API/runtime/help/catalog
+publication, including the exact background callback, actual literals and tip
+values below. Refresh any affected Preferences tutorial with --fresh under
+the existing tutorial lane; preserve unaffected source/media. Keep idle
+parity,664/665 integration,allGPU/API/docs/translations/tutorials ownership.
+Publish the accepted complete batch normally to start final required CI;
+Home checkpoints deliberately use skip-ci while known catalogs remain stale.
+Root has not relaxed a failure gate, increased a ratchet or claimed green.
+
 ## 2026-10-07 — Home: current-source coverage repairs all accepted locally
 
 Nightly46a2f97ca carries the complete tested background control and the

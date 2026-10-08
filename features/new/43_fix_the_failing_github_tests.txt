@@ -3310,3 +3310,14 @@ contract cohort25PASS7.85s complements overlapping runner54/56 checks.
 No ratchet ceiling, marker partition or required acceptance gate is lifted.
 Proofs: data/43_ambient_background_union_2026-10-08/receipt.json and
 data/43_ci_empty_batches_contracts_2026-10-08/receipt.json. Full greenOPEN.
+
+2026-10-07 — Final fungal pen source has current eleven-module proof
+Root3a5a88765 includes0653e111b local QPen reuse.19focused tests pass43.20s;
+all12 added/replaced statements execute and all896 ambient branch arcs map
+unchanged. Existing nine unchanged source modules and source-mapped
+Preferences/ambient preserve all original11 numerical allowances. Both
+frozen strict verifiers, source/payload hashes and pen-stage verifier pass.
+No new API/prose/tr change beyond background13215 arrival. Proofs are
+data/43_fungal_pen_eleven_reconciliation_2026-10-08/receipt.json and
+data/663_fungal_local_pen_cpu_2026-10-08/acceptance.json. Workstation normal
+current catalog publication and complete corrected hosted CI remain OPEN.
