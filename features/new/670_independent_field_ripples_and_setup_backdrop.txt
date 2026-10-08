@@ -1,0 +1,21 @@
+================================================================================
+INDEPENDENT FIELD RIPPLES AND FIELD SETUP BACKDROP
+================================================================================
+
+Status:    in progress
+Requested: 2026-10-08
+Owner:     Home/root and delegated CPU UI lanes
+
+WHAT THE STATE IS
+
+Mouse gravity currently suppresses click ripples. Setup hardcodes Aurora and live preference updates can replace its backdrop.
+
+WHAT TO DO
+
+Provide a persisted Field ripples switch independent of mouse gravity. Enabled clicks create field waves even at zero gravity; the switch gates click, container open/close, resize/move, popup and window-edge waves. Maximize/fullscreen emits from the top; left/right/bottom snapping emits from the corresponding side. Disabling removes active waves and does not replay discarded events when reenabled. Preserve mouse gravity and field drag physics. Setup uses spaCR field with the spaCR palette and remains field through ordinary and Spaceout preference updates.
+
+HOW TO KNOW IT WORKED
+
+Actual Qt clicks at zero gravity visibly change the rendered field. Toggle/cancel/save/rebuild tests check persistence and live application; bounded queues and off/on tests prohibit stale waves. Existing container/window tests exercise both open and close and state-change origins. Actual Setup engine and palette stay field/spacr after live preference changes.
+
+2026-10-08 — Registered the explicit user request. Implementation is in isolated worktrees; registration is not a completion claim. Workstation retains API/docs/translations/tutorials and GPU ownership.

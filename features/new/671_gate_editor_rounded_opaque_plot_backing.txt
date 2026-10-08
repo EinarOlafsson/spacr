@@ -1,0 +1,21 @@
+================================================================================
+ROUNDED PLOT BACKING IN THE GATE EDITOR
+================================================================================
+
+Status:    in progress
+Requested: 2026-10-08
+Owner:     Home/root and delegated CPU UI lanes
+
+WHAT THE STATE IS
+
+The Gate Editor graph is translucent over animated themes, making field dots hard to distinguish from scientific points.
+
+WHAT TO DO
+
+Place a theme-adaptive opaque rounded region behind the complete graph and in front of the ambient theme, in both 2D and 3D. Keep scientific figure styling, interaction, legends and gates intact. Maintain coverage and rounded boundaries when resizing or switching modes.
+
+HOW TO KNOW IT WORKED
+
+Actual rendered 2D and 3D plot interiors remain independent of a contrasting animated-background surrogate; rounded corners, resize/mode switching and existing gate behavior pass focused capped Qt checks.
+
+2026-10-08 — Registered the explicit user request. Implementation is in isolated worktrees; registration is not a completion claim. Workstation retains API/docs/translations/tutorials and GPU ownership.

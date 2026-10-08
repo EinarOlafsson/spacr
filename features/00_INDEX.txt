@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-579 in features/new, 75 in features/future. NEITHER LIST BLOCKS A RELEASE.
+581 in features/new, 75 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -850,3 +850,5 @@ NEW FEATURES
   667  FIXED-HEIGHT INLINE HELP AND ONE ACTION PROGRESS INDICATOR
   668  SEPARATE SETTINGS ANIMATION CONTROLS AND SPACEOUT-ONLY THEMES
   669  VERIFY TRACKASTRA IS AVAILABLE IN TIMELAPSE
+  670  INDEPENDENT FIELD RIPPLES AND FIELD SETUP BACKDROP
+  671  ROUNDED PLOT BACKING IN THE GATE EDITOR
