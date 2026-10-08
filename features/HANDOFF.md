@@ -3,6 +3,10 @@
 
 ## 2026-10-08 19:06 EDT — Python 3.9 traceback and retired backdrop repair wave
 
+Final combined6d48 normal inventory equality and native Qt/xcb32PASS
+are archived in data/663_retiring_backdrop_qt610_qt612_2026-10-08/.
+Final narrowed-catch regression3PASS/2.73s; no generated artifacts changed.
+
 Home integrates the real Python 3.9 traceback compatibility repair and
 filesystem-order-independent Item60 fixture. Four source/test paths are
 independently SHA-bound; all six compressed/uncompressed payloads verified.
