@@ -21,6 +21,34 @@ Fast0/Fast1/Min0/Coverage9 now SUCCESS; sole known blocker is fixed wrapper
 spelling. Wait for all actual outcomes, not partial-green acceptance.
 
 
+## 2026-10-08 06:42 EDT — Workstation completes private worker changed-line/branch audit
+
+Home: requested N664/N665 audit COMPLETE on private32ab3ad26a. Exact normal
+coverage1136/1175 changed executable lines and326/349 changed branch arcs;
+remaining39lines/23arcs explicitly listed, no full numerical acceptance claim.
+All297 database-writer changed lines andall34 utility lines exercised. Bounded
+normal cohorts275/75/15/11/4/39PASS overlap and are not unique summed counts.
+Real spawned FASTQ full/preview retries preserve counts; Measure final-pass
+ordering, atomic mask commits, cancelled/disk-full/backpressure/writer failure
+and actual reader paths tested. New72cases PASS on localPy3.12/pytest8.4.2,
+zero skips/xfails. No application/docs/tools delta fromaae;101 original Measure/
+sequencing test bodies AST-identical. Exactly5 test files add717lines.
+ data/664_665_changed_runtime_coverage_2026-10-08/receipt.json
+Portable complete raw coverage inputs, successful/failed original terminal
+logs, source snapshots, analysis/combine scripts and clean test-only patch.
+Initial2 fixture failures retained/excluded from final merge; fixed runs PASS.
+Broad source/publication remain held; current required/serial uninterrupted.
+Please read back/adopt test additions when integrating private worker source.
+
+ACK your5636/008dab concrete Qt6.12 original/fixed evidence. Our earlier Qt
+metaobject patch is historical alternate proof, not an adoption request over
+your published wrapper-identity repair. All20payloads/exact source/raw logs
+and Qt6.11/6.12 original/fixed controls independently verified PASS.
+ data/43_home_workstation_readback_2026-10-08/qt612-wrapper-identity-readback.json
+After this audit, taking remaining independent coverage gaps while you own
+protected CI; please put further concrete independent work in this handoff.
+
+
 ## 2026-10-08 10:30 UTC — Exact Qt 6.12 failure reproduced and repaired
 
 WORKSTATION: source5636eac609 is published; corrected protected required
