@@ -19,6 +19,7 @@ import pandas as pd
 import pytest
 
 from spacr import tabular
+from spacr.io import _read_and_merge_data, _read_db
 
 pytest.importorskip("pyarrow")
 
@@ -54,6 +55,80 @@ def test_locators_name_their_backend():
     assert tabular._backend_of("x/measurements.parquetdb/") == "parquet"
     assert tabular._backend_of("postgresql://user@host/db") == "postgres"
     assert tabular._backend_of(object()) == "sqlite"
+
+
+@pytest.mark.parametrize("backend", ["parquet", "duckdb"])
+def test_measurement_reader_preserves_store_tables_and_does_not_write(tmp_path, backend):
+    store = _stores(tmp_path).get(backend)
+    if store is None:
+        pytest.skip(f"{backend} store not available here")
+    frame = pd.DataFrame({
+        "plate": ["p1", "p1"], "row": ["r1", "r1"],
+        "col": ["c1", "c1"], "cell_area": [10.0, 20.0],
+    })
+    tabular.write_database(frame, store, 'cell "one"',
+                           if_exists="replace", canonicalise=False)
+    tabular.write_database(frame.head(0), store, "empty",
+                           if_exists="replace", canonicalise=False)
+    files = {str(path): (path.stat().st_mtime_ns, path.stat().st_size)
+             for path in tmp_path.rglob("*") if path.is_file()}
+
+    empty, cells = _read_db(store, ["empty", 'cell "one"'])
+
+    assert empty.empty
+    assert {"plateID", "rowID", "columnID", "cell_area"} <= set(empty.columns)
+    assert cells["cell_area"].tolist() == [10.0, 20.0]
+    assert cells["plateID"].tolist() == ["p1", "p1"]
+    assert cells["columnID"].tolist() == ["c1", "c1"]
+    with pytest.raises(ValueError, match="Table not found in database: absent"):
+        _read_db(store, ["absent"])
+    with pytest.raises(ValueError, match="Invalid table name"):
+        _read_db(store, [""])
+    assert files == {str(path): (path.stat().st_mtime_ns, path.stat().st_size)
+                     for path in tmp_path.rglob("*") if path.is_file()}
+
+
+@pytest.mark.parametrize("backend", ["parquet", "duckdb"])
+def test_measurement_merge_matches_sqlite_for_alternate_store(tmp_path, backend):
+    store = _stores(tmp_path).get(backend)
+    if store is None:
+        pytest.skip(f"{backend} store not available here")
+    sqlite = str(tmp_path / "measurements.db")
+    cells = pd.DataFrame({
+        "plateID": ["p1", "p1"], "rowID": ["r1", "r1"],
+        "columnID": ["c1", "c1"], "fieldID": ["f1", "f1"],
+        "prcf": ["p1_r1_c1_f1", "p1_r1_c1_f1"],
+        "object_label": [1, 2], "cell_area": [12.5, 24.0],
+    })
+    for target in (sqlite, store):
+        tabular.write_database(cells, target, "cell", if_exists="replace",
+                               canonicalise=False)
+
+    expected, expected_objects = _read_and_merge_data([sqlite], ["cell"])
+    actual, actual_objects = _read_and_merge_data([store], ["cell"])
+
+    pd.testing.assert_frame_equal(actual, expected, check_dtype=False)
+    for actual_frame, expected_frame in zip(actual_objects, expected_objects):
+        pd.testing.assert_frame_equal(actual_frame, expected_frame,
+                                      check_dtype=False)
+
+
+def test_postgres_locator_reaches_measurement_reader_unchanged(monkeypatch):
+    locator = "postgresql://reader:$literal@localhost/measurements"
+    calls = []
+
+    def read_store(db, tables, **options):
+        calls.append((db, tables, options))
+        return [pd.DataFrame({"plate": ["p1"], "cell_area": [12.5]})]
+
+    monkeypatch.setattr(tabular, "read_database", read_store)
+    [frame] = _read_db(locator, ["cell"])
+
+    assert calls == [(locator, ["cell"], {
+        "canonicalise": False, "report": None,
+        "migrate": False, "read_only": True,
+    })]
+    assert frame["plateID"].tolist() == ["p1"]
 
 
 def test_importing_the_funnel_does_not_import_the_drivers():
