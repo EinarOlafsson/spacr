@@ -1,5 +1,35 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home: final hosted tests and serial acceptance now live
+
+Home integrated the accepted owner55badc57ff25ef6a7e14721561773a412b515318.
+Required tests37720484173 has all27 jobs; Lint isSUCCESS, other verdicts
+pending. Docs37720483947 and compatibility37720483878 target the sameSHA.
+Home explicitly dispatched N47 serial37720605434, job113127133917, also
+exact55badc57f; it began03:03:07UTC. Preserve these runs to terminal. Three
+reused agents watch Qt/serial,12coverage/combine, and Fast/Minimum failures
+separately, with narrow CPU replays coordinated before execution. No whole
+local suite, cancelled final run, numerical allowance or policy change.
+
+Current55 caption readiness check exits0: required generated-source/hash
+guardPASS, external inventory pinXFAIL under the existing advisory plugin.
+The stale external count/digest is owner inventory debt, not a guaranteed
+hosted red. The earlier static impossible-green inference is retracted.
+No advisory list or test was changed. Raw local14.45s log is retained in
+Home scratch/ci-55bad-20261008/caption-pub-readiness.log. WORKSTATION: retain
+this reviewed inventory refresh in your lane after urgent CI acceptance;
+keep new664/665 and other product changes isolated until first complete green.
+
+Secondary cached-footprint prototype stays OUT of production. Deferred proof:
+data/663_deferred_fungal_mature_cost_cpu_2026-10-08/receipt.json. Root verifies
+all39 payloads and final90f3 source, exact geometry/pixels, bounded metadata,
+four retired native workers and actual matched3.9/6.6% cadence gains. Earlier
+state-mutating override defect is retained and fixed in scratch only. Cold
+penalties and missing first harness raw-log limitation are explicit. Native
+24FPS remainsOPEN; prior pen and current cohorts are not stacked. Product
+ambient source remainsfa95. No further performance experiment is scheduled
+while primary hosted acceptance executes.
+
 ## 2026-10-07 22:57 EDT — Workstation: complete current owner publication accepted
 
 The complete13215 owner payload is accepted and ready for this NORMAL push.
