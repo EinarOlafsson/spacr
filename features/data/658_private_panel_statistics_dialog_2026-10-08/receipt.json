@@ -1,0 +1,195 @@
+{
+  "source": "b13f2513a5d0c0806dd462dc84eb43d4f42da524",
+  "base": "9a0e34cfb0eee6f5a438ce07c972b27b16dafc3c",
+  "public_target": "53abfdc40c85356804fe94c0cb142343d6eac352",
+  "private_integrated_source": "4efdc6bcd01cd032a8aaa60dea8671bbf8ff1c2f",
+  "application_source_pushed": false,
+  "patch_cleanly_applies": true,
+  "original_tests_unchanged": true,
+  "original_negative": {
+    "failed": 5,
+    "seconds": 4.61
+  },
+  "focused": {
+    "passed": 16,
+    "seconds": 9.49
+  },
+  "final": {
+    "passed": 160,
+    "seconds": 70.84,
+    "warnings": 96
+  },
+  "independent_reference": "SciPy Friedman calculated directly from source rows matched by object ID after missing measurements, separately for each condition and channel.",
+  "scope": "Actual Qt statistics selector classifies transformed panel measurements. Shared normal helper recomputes identifiable independent panel results for GUI and ZIP export. Apply saves choices and matching-axis annotations; sparse blank axes remain empty. Source CSV and subject IDs retained; exported standalone recreation preserves annotations. Mixed statistical families offer only shared overrides. Existing dialog recovery and broader 160-case figure/export tests unchanged.",
+  "home_readme": {
+    "accepted_english_commit": "708b06b2e",
+    "accepted_nine_language_commit": "f29cd9f71",
+    "integrated_exact_patch": true,
+    "tests_passed": 16,
+    "seconds": 0.5,
+    "duplicate_workstation_writer": "Owned redundant writer stopped with SIGTERM only after Home completed and explicitly required its exact wording; partial private output retained and not accepted or published."
+  },
+  "limitations": [
+    "Application adoption, live publication and coherent serial acceptance remain coordinated with Home.",
+    "Other figure producers, image reconstruction and loaded per-panel view-limit behaviour remain separate.",
+    "No claim of complete native crash diagnosis, biological reference or human visual acceptance."
+  ],
+  "payloads": {
+    "logs/panel-statistics-negative-r1.log.gz": {
+      "raw_bytes": 12365,
+      "raw_sha256": "cd4a23459e08a50c5a16115a6bb9401f5bef63858560fbba3c185aab9a4799f5",
+      "gzip_bytes": 2734,
+      "gzip_sha256": "6ad69ab016207185729eaeb55539e8666b7a9e88340c0c1c6af0dd60fdcb2488"
+    },
+    "logs/panel-statistics-negative-r1-tool.log.gz": {
+      "raw_bytes": 11897,
+      "raw_sha256": "df01f437e7ff47f536d0ba7705ae8e2564b40d2ce88d36183a80a20d67c3af43",
+      "gzip_bytes": 2558,
+      "gzip_sha256": "7851f0873d6ce2da0672db9938587b53133c5b94b2515aa62ae83d29300cef5e"
+    },
+    "logs/panel-statistics-focused-r1.log.gz": {
+      "raw_bytes": 2177,
+      "raw_sha256": "dfbff6f1715a8c66d6a5639bb1c51af7c9305bdf222863aeb5962bd8a99be786",
+      "gzip_bytes": 828,
+      "gzip_sha256": "f3fc555d8622bc78133f37860fed1e2a78969c1d01d6e078ae3cca182248515c"
+    },
+    "logs/panel-statistics-focused-r1-tool.log.gz": {
+      "raw_bytes": 1601,
+      "raw_sha256": "1c449d96275fdfdd36f6347bf9ab5560815b32fc2a7aa11f9ae55bb2b0bd4861",
+      "gzip_bytes": 614,
+      "gzip_sha256": "6f31fd95321a9e664febf7b203b7503157eda6ab9189b23fccc10d4f12b8a674"
+    },
+    "logs/panel-statistics-final-r1.log.gz": {
+      "raw_bytes": 6825,
+      "raw_sha256": "8cc3534b6c8394b4bafe7f876cc08cd03e1286db68835e50ccaa270a38cff697",
+      "gzip_bytes": 1661,
+      "gzip_sha256": "9f99f6a2a4e03d4cb2632ba5ff32aaabf77dcae387e6b6d18bf58144c08b97ae"
+    },
+    "logs/panel-statistics-final-r1-tool.log.gz": {
+      "raw_bytes": 5720,
+      "raw_sha256": "589d0888f5bce3e5382bd4b7f402f616a1117894bb5c9373d24bf72a4c83998d",
+      "gzip_bytes": 1393,
+      "gzip_sha256": "b606e61412c791dbf899bdee23447be951c0a1c930bc649dd02e546366fea460"
+    },
+    "logs/home-readme-private-validation-r1.log.gz": {
+      "raw_bytes": 708,
+      "raw_sha256": "8829b95dfbbbd2b210466395147514e93541b6b24932a9423e5ca02b49301b0d",
+      "gzip_bytes": 401,
+      "gzip_sha256": "9ac6343f91a84aeeb25618bf675863dda94ffd6d50a16536cec7011b1ed1c858"
+    },
+    "logs/home-readme-private-validation-r1-tool.log.gz": {
+      "raw_bytes": 232,
+      "raw_sha256": "1bf48d09f2e875674f32523bffe30aa102a5e6538c0aa2295943ffb6115e6b75",
+      "gzip_bytes": 159,
+      "gzip_sha256": "e7c61bf664bc257683343a523a461bcdf43d5d28458a5afcc6ea61ff85179584"
+    },
+    "logs/current-readme-summary-normal-writer-r1.log.gz": {
+      "raw_bytes": 1345,
+      "raw_sha256": "fd8c4f03c6a814bf92686b8518cebe10d1e82e9f8cd4dc5218c3c3db15ccb7fd",
+      "gzip_bytes": 546,
+      "gzip_sha256": "509cd6ab88d537e9766218385bea244692a5e666ad1ab09074e8da4519e447ca"
+    },
+    "logs/current-readme-summary-normal-writer-r1-tool.log.gz": {
+      "raw_bytes": 957,
+      "raw_sha256": "21af778fdb274667e09e6da657773101a6dd01fc7518f04ba96c14b0781b461c",
+      "gzip_bytes": 340,
+      "gzip_sha256": "92a9566501c37518b5a222936872c57f2ef4b16080162c2da4c42749310296f2"
+    },
+    "accepted-home/home-readme-English-accepted-r1.patch.gz": {
+      "raw_bytes": 611,
+      "raw_sha256": "9f6e37a1361daf8ec073d652a0f42cf18e3fe76aae09bea8f62c685944989573",
+      "gzip_bytes": 399,
+      "gzip_sha256": "5080dd38891fcb46ee939a55e8e6dcd3c912698583c4fa3b2a03c90c321f0794"
+    },
+    "accepted-home/home-readme-nine-accepted-r1.patch.gz": {
+      "raw_bytes": 22954,
+      "raw_sha256": "ca0c45c284dc4d893337133dc70c668f37f54e96011e08787a9f99ed308b9025",
+      "gzip_bytes": 4581,
+      "gzip_sha256": "8148a87d3e86360a5fb22b0a169b32b6892996fbae58c5c6acbf49280ec2cf63"
+    },
+    "coverage/panel-statistics-focused-coverage-r1.data.carruthers.pid57913.Xjr2eJ6x.H9oPSpuMlvTh.gz": {
+      "raw_bytes": 1658880,
+      "raw_sha256": "5478b39367b1db5787c76482d19af3e3b966c650f3752fe925a934fa9b313467",
+      "gzip_bytes": 696292,
+      "gzip_sha256": "de36922e814e6441eb46321a6e88d4e18cb85e1a1d931b838afe8d4f5fce1ce8"
+    },
+    "coverage/panel-statistics-final-coverage-r1.data.carruthers.pid58534.XvAhQiQx.H1ALr4LVvWTh.gz": {
+      "raw_bytes": 2355200,
+      "raw_sha256": "08d085813bf61182c1fd89d2de10f8de8d4c7fd3d779f5a4b5348ab0b3292a31",
+      "gzip_bytes": 978560,
+      "gzip_sha256": "ef61ab0073d2142105a1835bfca83ef0ad5bbb0a3f0f30f9979c553117690e6b"
+    },
+    "replacement-source-and-tests.patch.gz": {
+      "raw_bytes": 49612,
+      "raw_sha256": "bd0cbb9c570b0693e128f15134946ba2857b124eda242346dde5a02d6fd661af",
+      "gzip_bytes": 10692,
+      "gzip_sha256": "fcdde0e5346483ed9a0700d35f94b9eee7a02897d5109dcae4b593568b7aca69"
+    },
+    "delta-from-prior-accepted-figure.patch.gz": {
+      "raw_bytes": 15546,
+      "raw_sha256": "15cb818e7a7b7e325cff3957d67abe6f1b994b550b2b9862a6b95ccb7bf75f32",
+      "gzip_bytes": 4106,
+      "gzip_sha256": "886fa62a8dd8dbab8663659082879b0a327f21e5b09b43ccde0b03887f2f3580"
+    },
+    "source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 38001,
+      "raw_sha256": "8c88914fb5fe23b09464a71efc8df2bf7261d61d3daa4ecbbafafb6f37448a77",
+      "gzip_bytes": 11240,
+      "gzip_sha256": "c41547d2d1958f92198842698ca26e12ffd8eb7f1db1e5673e33da502f4d688a"
+    },
+    "source/spacr/plot.py.gz": {
+      "raw_bytes": 344160,
+      "raw_sha256": "7d55ddf9024cbae865f161dd0530e9d5ee98c14b7b790abbeee54bcc1caac2bf",
+      "gzip_bytes": 86664,
+      "gzip_sha256": "64df1c0d3c9ff4de31c1ce4535ba4ce2c113e37d227663c0d8e9e3ea90e58ceb"
+    },
+    "source/spacr/qt/widgets/figure_settings.py.gz": {
+      "raw_bytes": 119236,
+      "raw_sha256": "5e170d39021b67cb561132a8ac12236c68a7ca4897db5bfeacbe19621aeea693",
+      "gzip_bytes": 32025,
+      "gzip_sha256": "01e3b4214acf49d5cac52bc8665dd5d643c51bc541dd82558fe8eb78aea97470"
+    },
+    "source/tests/qt/test_panel_statistics_dialog.py.gz": {
+      "raw_bytes": 6153,
+      "raw_sha256": "851e4d0bb1d04c8ecd30c2858fa9b2e8dae04e081c5891b27c68025eb7c13bd3",
+      "gzip_bytes": 1869,
+      "gzip_sha256": "4a2783b34f3cf9e1d718a7ba8e45469a9ba3d13e36f52ee7467cad24150729d9"
+    },
+    "source/tests/test_comparison_multipanel_recipe.py.gz": {
+      "raw_bytes": 4792,
+      "raw_sha256": "61dadedb4caaf1088d0b75e69207e7da361666378e2505b3c855ba197511f78f",
+      "gzip_bytes": 1651,
+      "gzip_sha256": "6837b27a6451efb868398a61ed0eef86333787a475deb469a214e60a280c2330"
+    },
+    "source/tests/test_controls_multipanel_recipe.py.gz": {
+      "raw_bytes": 8771,
+      "raw_sha256": "8ea542be20fc46f5bf67e1935adf31acd7bc43fa60772763dfec4f7491b4f861",
+      "gzip_bytes": 2301,
+      "gzip_sha256": "42848a92c171f486bcd3deb3b54e91fe1fdd2dadead0a597b4be0f073f9d8e61"
+    },
+    "source/tests/test_recruitment_multipanel_recipe.py.gz": {
+      "raw_bytes": 7554,
+      "raw_sha256": "b26cad85db5d9a4e6ab674c4335a75bc4a0b8828f896366ad6100bfe831c18a2",
+      "gzip_bytes": 2089,
+      "gzip_sha256": "a0eb29edf1b09e85b23f1d819df979b42f849cf75b8e79b062da2ae11053ad60"
+    },
+    "original-source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 37680,
+      "raw_sha256": "f1e82afdd74b2d63a6aa1bb5967f80050b307f881900bf1f1552edbbf9956cb5",
+      "gzip_bytes": 11093,
+      "gzip_sha256": "d310bd73f5a337ef745300e6cf182a208ef0ab1db408e252ae2edabc24bbfb29"
+    },
+    "original-source/spacr/qt/widgets/figure_settings.py.gz": {
+      "raw_bytes": 117395,
+      "raw_sha256": "746dc64a2cc7319c70d913add4cf8cfaa949d4a0a65c197e3456a8f04e5f8b34",
+      "gzip_bytes": 31583,
+      "gzip_sha256": "0d3e05f6fdd09d6fd9acd9a13513d6bdf525a46daee553651d28c5fa6426678e"
+    },
+    "scripts/archive_panel_statistics_dialog_r1.py.gz": {
+      "raw_bytes": 8096,
+      "raw_sha256": "985016496e00d321f896b64e4862a22443b60e49c6e6afad54ad27baf6f9f86f",
+      "gzip_bytes": 3265,
+      "gzip_sha256": "f2be793b4589a0989dd0347bc746b5e61fd847616eea3aabbff729d8fc456a8b"
+    }
+  }
+}

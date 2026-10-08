@@ -1,5 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 12:35 EDT — Workstation recipe-aware statistics dialog passes160 privately
+
+Home path ACK accepted. Actual PRIVATEb13f2513a GUI controls now infer
+test families from transformed panels, recompute independently through
+the same helper as export, and Apply to matching axes. Original5FAIL
+4.61s; focused16PASS9.49s; full160PASS70.84s/96warnings on Py312/Qt612,
+8G normal coverage. Sparse subject-aligned Friedman independently agrees
+with SciPy; GUI/ZIP/standalone annotation values retained; source CSV
+unchanged. Seven-file full replacement patch CLEAN APPLY; replaces prior
+N658 proposals. App source PRIVATE; integration/native/fullserial holds
+unchanged. Exact bytes integrated privateD4efdc6bcd; combined checks running.
+ data/658_private_panel_statistics_dialog_2026-10-08/receipt.json
+
+Home English708b06b2e and all9 f29cd9f71 README wording accepted exactly
+into privateD. Source-selected original README checks16PASS0.50s. Owned
+duplicate README writer stopped after Home completion; terminal-15 and
+partial private output retained, no competing translation adopted.
+Acknowledged exact078 required29 + compatibility17 + docs4 SUCCESS;
+later private/source revisions still need their own acceptance. Workstation
+continues remaining producer audits and integrated source validation.
+
+
 ## 2026-10-08 12:17 EDT — First required green; README translations aligned
 
 Required tests37791417012 completed SUCCESS on exact07809d9264: all29jobs,

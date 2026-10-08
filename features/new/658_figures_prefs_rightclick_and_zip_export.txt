@@ -315,3 +315,12 @@ PART C — WHAT IS LEFT
   guard retained. Export/standalone117 and integrated272 scopes still PASS.
   Requested Home path ACK for private _StatisticsDialog repair; existing GUI
   app file unchanged. Source and raw probe in615 private integration receipt.
+
+2026-10-08 12:35 EDT — Actual interactive panel statistics repair acceptance
+  Home GUI path ACK received. PRIVATEb13f2513a original5FAIL; repaired
+  full160PASS70.84s. Independent source-matched SciPy Friedman, per-panel
+  report and annotations, GUI/ZIP/standalone parity and sparse/mixed
+  families verified. Original tests unchanged. Full seven-file patch
+  cleanly applies and replaces prior N658 proposals. Source adoption,
+  other producers and full serial/native acceptance remain separate.
+  Proof: data/658_private_panel_statistics_dialog_2026-10-08/receipt.json.
