@@ -1,0 +1,449 @@
+{
+  "status": "DEFERRED SCRATCH CANDIDATE; no production integration/push before first GitHub-green acceptance",
+  "baseline_source_sha256": "fa95c6677bea19f66b4cfb5e4049ae8858269e5b9cc53e337653fe176301fbf4",
+  "final_candidate_source_sha256": "90f3e96a4f4259bead6624c786622970252dbc4aa34ead1799934206c90e82e7",
+  "initial_candidate_sha256": "965cc95ca854f6a6f768611d7ae959030f9b3b08244ae187f990b3ab3b97367b",
+  "signature_prose_inventory_unchanged": true,
+  "new_public_api_or_tr_literals": false,
+  "new_modules_or_helpers": false,
+  "candidate": "Existing8FIFO lineage entries pair unchanged returned immutable edge tuple with exactfullprogresscosts; per-framecostlist reused, cachedmetadata used onlyfor authenticedgeobject andinitialgeometrycontrolkey. No rasterbudget or quality/work change.",
+  "override_contract": "Transparent wrapper returning authentic cachedtuple mayreuse. Different/reordered/cloned external tuples useoriginalarithmetic. Mutating controls before_lineage refuses mismatchedmetadata via initialsize/densitykey.",
+  "functional": {
+    "original_clock_states": 24,
+    "ulp_budget_cases": 17,
+    "empty_cycle_duplicate_cases": 3,
+    "identity_mutant_detected": true,
+    "mutation_initial_final_counts": [
+      22060,
+      22303,
+      22060
+    ],
+    "fifo_resize_configure_cleanup": true,
+    "max_eight_entry_metadata_bytes": 2671552
+  },
+  "warm_fixed_inclusive_paths": [
+    {
+      "clock": 95.25,
+      "cold_geometry_before_after_ms": [
+        296.7279810109176,
+        297.5710989849176
+      ],
+      "stages": {
+        "geometry": {
+          "before_ms": [
+            40.85032199509442,
+            50.87144998833537,
+            39.946301985764876,
+            48.79799298942089,
+            38.61322702141479,
+            48.72254401561804
+          ],
+          "after_ms": [
+            40.72703400743194,
+            40.59072499512695,
+            40.70838401094079,
+            39.76678499020636,
+            39.75142500712536,
+            40.119201003108174
+          ],
+          "before_median_ms": 44.78643300535623,
+          "after_median_ms": 40.35496299911756,
+          "path_element_bit_sha256": null
+        },
+        "_fungal_paths": {
+          "before_ms": [
+            64.48056799126789,
+            68.69985000230372,
+            65.86058202083223,
+            53.93163501867093,
+            63.66646499373019,
+            63.89214200316928
+          ],
+          "after_ms": [
+            47.34402900794521,
+            57.475345995044336,
+            57.07466998137534,
+            55.85001400322653,
+            55.57544599287212,
+            54.73414500011131
+          ],
+          "before_median_ms": 64.18635499721859,
+          "after_median_ms": 55.712729998049326,
+          "path_element_bit_sha256": "757dd107251f23ecf18d02d8de63325e55b74e79556a9b1cf031eb8bb2821d83"
+        }
+      }
+    },
+    {
+      "clock": 99.5,
+      "cold_geometry_before_after_ms": [
+        288.387741020415,
+        292.19481800100766
+      ],
+      "stages": {
+        "geometry": {
+          "before_ms": [
+            56.941388989798725,
+            47.193759004585445,
+            52.51310998573899,
+            56.705132010392845,
+            56.221896986244246,
+            46.322328998940066
+          ],
+          "after_ms": [
+            47.10026999237016,
+            45.76556498068385,
+            45.87568397982977,
+            45.04432299290784,
+            46.61957500502467,
+            45.21810100413859
+          ],
+          "before_median_ms": 54.36750348599162,
+          "after_median_ms": 45.82062448025681,
+          "path_element_bit_sha256": null
+        },
+        "_fungal_paths": {
+          "before_ms": [
+            68.53086900082417,
+            69.0912930003833,
+            70.00680200872011,
+            72.65733100939542,
+            73.73850897420198,
+            72.07162800477818
+          ],
+          "after_ms": [
+            59.54444999224506,
+            59.213743021246046,
+            60.961323004448786,
+            60.18920100177638,
+            65.86887699086219,
+            61.14195098052733
+          ],
+          "before_median_ms": 71.03921500674915,
+          "after_median_ms": 60.575262003112584,
+          "path_element_bit_sha256": "c8237d4207cb43ca523b4ca7e77be552dda0a0cef1eb3dddf26df5a0eb1dfd27"
+        }
+      }
+    },
+    {
+      "clock": 168.25,
+      "cold_geometry_before_after_ms": [
+        192.92385500739329,
+        194.6381849993486
+      ],
+      "stages": {
+        "geometry": {
+          "before_ms": [
+            30.64215398626402,
+            38.005031005013734,
+            28.399749018717557,
+            36.683585989521816,
+            35.94680401147343,
+            29.420837992802262
+          ],
+          "after_ms": [
+            32.782769994810224,
+            22.483426000690088,
+            32.428023987449706,
+            22.688842989737168,
+            24.164036993170157,
+            31.636972998967394
+          ],
+          "before_median_ms": 33.294478998868726,
+          "after_median_ms": 27.900504996068776,
+          "path_element_bit_sha256": null
+        },
+        "_fungal_paths": {
+          "before_ms": [
+            46.793730987701565,
+            47.490533004747704,
+            38.91044997726567,
+            48.64750101114623,
+            41.617109993239865,
+            39.92588899563998
+          ],
+          "after_ms": [
+            33.829477994004264,
+            41.25717398710549,
+            43.21385201183148,
+            32.67619101097807,
+            43.21220199926756,
+            43.61624701414257
+          ],
+          "before_median_ms": 44.205420490470715,
+          "after_median_ms": 42.234687993186526,
+          "path_element_bit_sha256": "044553766cf28b251eed7e4ebb34495067bd8a4bd2779b43c73ae5bd77e1a119"
+        }
+      }
+    }
+  ],
+  "native_pixel_pairs": [
+    {
+      "palette": "spacr",
+      "background": "#101418",
+      "clock": 99.5,
+      "size": 2.5,
+      "differing_pixels": 0,
+      "sha256": "bd9408b42d3f2bd6ea5b45ba9e8ba4fa0711e2138b3b91875a7c17e830a2aeda"
+    },
+    {
+      "palette": "random",
+      "background": "#101418",
+      "clock": 99.5,
+      "size": 2.5,
+      "differing_pixels": 0,
+      "sha256": "13acf5057c31943285a72c20d47a3abeff46528a73bfdf1d1f7f567e0c04dd61"
+    },
+    {
+      "palette": "custom",
+      "background": "#101418",
+      "clock": 95.25,
+      "size": 1.0,
+      "differing_pixels": 0,
+      "sha256": "1a121ca2675cb442b8ae82a9da489abfab9732b927d2e7e19a9ee84b8ba59461"
+    },
+    {
+      "palette": "spacr",
+      "background": "#f4f4f0",
+      "clock": 168.25,
+      "size": 2.5,
+      "differing_pixels": 0,
+      "sha256": "849c96946c16aa0e94e358485fb95bb9fd13af0b239c0c42db07f6b80f70e76e"
+    }
+  ],
+  "live_ABBA": [
+    {
+      "phase": "before-A",
+      "source_sha256": "fa95c6677bea19f66b4cfb5e4049ae8858269e5b9cc53e337653fe176301fbf4",
+      "clock_start": 97.352,
+      "clock_end": 102.37200000000004,
+      "elapsed_seconds": 5.0341658249963075,
+      "published_frames": 31,
+      "published_fps": 6.157921903580269,
+      "shade_median_ms": 164.18408701429144,
+      "shade_p95_ms": 185.43010801658966,
+      "cold_widget_show_ms": 209.96226600254886,
+      "cold": {
+        "current_rss_kib": 238060,
+        "widget_show_ms": 209.96226600254886,
+        "post_show_seconds": 2.000438977003796,
+        "post_show_published_frames": 48,
+        "post_show_published_fps": 23.99473343190559,
+        "worker_shade": {
+          "median_ms": 5.14808799198363,
+          "p95_ms": 9.057183982804418,
+          "max_ms": 18.62819099915214,
+          "samples": 48
+        },
+        "heartbeat_10ms": {
+          "median_ms": 10.06386500375811,
+          "p95_ms": 14.301695977337658,
+          "max_ms": 44.48623798089102,
+          "samples": 194
+        },
+        "compile_ready": false,
+        "compile_failed": false,
+        "rss_peak_kib": 235272
+      },
+      "controls": {
+        "fps": 24,
+        "active_rate_cap": 24,
+        "resolution": 2.0,
+        "density": 3.0,
+        "size": 2.5,
+        "speed": 1.0,
+        "blur": 0.0,
+        "gravity_radius": 0,
+        "seed": 42,
+        "background": "#101418",
+        "palette": "spacr",
+        "colors": [
+          "#3b82f6",
+          "#ff00ff",
+          "#00cec8"
+        ]
+      },
+      "peak_rss_kib": 385320,
+      "owned_lineage_cost_python_bytes": 0,
+      "lineage_entries": 4,
+      "worker_retired": true
+    },
+    {
+      "phase": "after-B",
+      "source_sha256": "90f3e96a4f4259bead6624c786622970252dbc4aa34ead1799934206c90e82e7",
+      "clock_start": 97.30599999999998,
+      "clock_end": 102.25999999999998,
+      "elapsed_seconds": 5.002165714016883,
+      "published_frames": 32,
+      "published_fps": 6.397229086259736,
+      "shade_median_ms": 156.6524774825666,
+      "shade_p95_ms": 174.3389840121381,
+      "cold_widget_show_ms": 243.27322700992227,
+      "cold": {
+        "current_rss_kib": 238448,
+        "widget_show_ms": 243.27322700992227,
+        "post_show_seconds": 2.000955571013037,
+        "post_show_published_frames": 48,
+        "post_show_published_fps": 23.988538623922928,
+        "worker_shade": {
+          "median_ms": 5.464747999212705,
+          "p95_ms": 9.010701993247494,
+          "max_ms": 17.639419005718082,
+          "samples": 48
+        },
+        "heartbeat_10ms": {
+          "median_ms": 10.064188012620434,
+          "p95_ms": 14.67750800657086,
+          "max_ms": 39.20140702393837,
+          "samples": 195
+        },
+        "compile_ready": false,
+        "compile_failed": false,
+        "rss_peak_kib": 235304
+      },
+      "controls": {
+        "fps": 24,
+        "active_rate_cap": 24,
+        "resolution": 2.0,
+        "density": 3.0,
+        "size": 2.5,
+        "speed": 1.0,
+        "blur": 0.0,
+        "gravity_radius": 0,
+        "seed": 42,
+        "background": "#101418",
+        "palette": "spacr",
+        "colors": [
+          "#3b82f6",
+          "#ff00ff",
+          "#00cec8"
+        ]
+      },
+      "peak_rss_kib": 385200,
+      "owned_lineage_cost_python_bytes": 1338272,
+      "lineage_entries": 4,
+      "worker_retired": true
+    },
+    {
+      "phase": "after-C",
+      "source_sha256": "90f3e96a4f4259bead6624c786622970252dbc4aa34ead1799934206c90e82e7",
+      "clock_start": 97.22500000000001,
+      "clock_end": 102.24800000000006,
+      "elapsed_seconds": 5.036969184002373,
+      "published_frames": 33,
+      "published_fps": 6.551558843125226,
+      "shade_median_ms": 155.01580698764883,
+      "shade_p95_ms": 163.09722201549448,
+      "cold_widget_show_ms": 213.21765799075365,
+      "cold": {
+        "current_rss_kib": 238660,
+        "widget_show_ms": 213.21765799075365,
+        "post_show_seconds": 2.0007547859859187,
+        "post_show_published_frames": 48,
+        "post_show_published_fps": 23.99094598509076,
+        "worker_shade": {
+          "median_ms": 5.364028009353206,
+          "p95_ms": 8.429667999735102,
+          "max_ms": 15.239896980347112,
+          "samples": 48
+        },
+        "heartbeat_10ms": {
+          "median_ms": 10.065215989015996,
+          "p95_ms": 14.571616018656641,
+          "max_ms": 39.64853298384696,
+          "samples": 195
+        },
+        "compile_ready": false,
+        "compile_failed": false,
+        "rss_peak_kib": 236040
+      },
+      "controls": {
+        "fps": 24,
+        "active_rate_cap": 24,
+        "resolution": 2.0,
+        "density": 3.0,
+        "size": 2.5,
+        "speed": 1.0,
+        "blur": 0.0,
+        "gravity_radius": 0,
+        "seed": 42,
+        "background": "#101418",
+        "palette": "spacr",
+        "colors": [
+          "#3b82f6",
+          "#ff00ff",
+          "#00cec8"
+        ]
+      },
+      "peak_rss_kib": 386416,
+      "owned_lineage_cost_python_bytes": 1338272,
+      "lineage_entries": 4,
+      "worker_retired": true
+    },
+    {
+      "phase": "before-D",
+      "source_sha256": "fa95c6677bea19f66b4cfb5e4049ae8858269e5b9cc53e337653fe176301fbf4",
+      "clock_start": 97.31699999999998,
+      "clock_end": 102.33200000000001,
+      "elapsed_seconds": 5.042644232016755,
+      "published_frames": 31,
+      "published_fps": 6.147568333925841,
+      "shade_median_ms": 163.38879699469544,
+      "shade_p95_ms": 188.47487200400792,
+      "cold_widget_show_ms": 225.0715199916158,
+      "cold": {
+        "current_rss_kib": 237976,
+        "widget_show_ms": 225.0715199916158,
+        "post_show_seconds": 2.0001978170184884,
+        "post_show_published_frames": 48,
+        "post_show_published_fps": 23.997626430544354,
+        "worker_shade": {
+          "median_ms": 5.146655486896634,
+          "p95_ms": 15.951945999404415,
+          "max_ms": 18.81552700069733,
+          "samples": 48
+        },
+        "heartbeat_10ms": {
+          "median_ms": 10.06583499838598,
+          "p95_ms": 14.004790980834514,
+          "max_ms": 41.505361994495615,
+          "samples": 193
+        },
+        "compile_ready": false,
+        "compile_failed": false,
+        "rss_peak_kib": 268296
+      },
+      "controls": {
+        "fps": 24,
+        "active_rate_cap": 24,
+        "resolution": 2.0,
+        "density": 3.0,
+        "size": 2.5,
+        "speed": 1.0,
+        "blur": 0.0,
+        "gravity_radius": 0,
+        "seed": 42,
+        "background": "#101418",
+        "palette": "spacr",
+        "colors": [
+          "#3b82f6",
+          "#ff00ff",
+          "#00cec8"
+        ]
+      },
+      "peak_rss_kib": 354312,
+      "owned_lineage_cost_python_bytes": 0,
+      "lineage_entries": 4,
+      "worker_retired": true
+    }
+  ],
+  "matched_live_fps_gains": [
+    0.03886167873293922,
+    0.06571549712915448
+  ],
+  "comparison_limit": "Only THISrunmatched3.9/6.6% gains comparable; baseline~6.15FPS differs from priorpen archive~4.77/5.18 cohorts. Do notstackpercentagesor infercumulativeFPS. GUIrepaint~24notnewframecadence.",
+  "memory": "Observedactual8entry scalar metadata2,671,552B; live4entries1,338,272B. Formal96tipsx144ticksx8 upperfloatpayload3,539,264B plus8pairheaders448B. Existing8FIFO and64entry/8MiB rasterlimits unchanged; geometrymetadata is an explicitadditionalboundedmemorytradeoff.",
+  "cold_limit": "Fullfutureedge cost precompute included. Finalfixed99.5firstgeometry288.39\u2192292.19ms; actualcoldwidgetshow209.96/243.27/213.22/225.07msABBA is mixed. No nostall/startupguarantee.",
+  "known_negative_evidence": "Initialscratch controls mutation produced22303vsbaseline22060selected; finalsnapshotguard22060exact. Identityremovedmutant15420vs15217. Two harness-only mistakes(FIFOassumedempty/nonexistentreset) corrected, no candidatecodefix for those. FirstFIFOoriginalrawfilewasoverwritten; recoveredtooltranscriptexcerpt explicitlylabelled, remainingrawlogsretained.",
+  "scope": "4G CPU/CUDAhidden; geometry24states+17ULPcases overlapinitial/finalphases, countsnotadded. Fourfinalnativepairs andpath-elementbitcomparison at3clocks. No source-current productionpytest/branchratchetacceptance, GPU, aesthetics, hostedCI orhard24acceptance. Allfourfreshliveworkersretire.",
+  "hard24FPS": "OPEN; thisrunactualmaturecandidate6.397/6.552FPS,155msmedian,farabove41.7msbudget."
+}

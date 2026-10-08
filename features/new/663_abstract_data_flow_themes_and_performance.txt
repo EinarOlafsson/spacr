@@ -1375,3 +1375,25 @@ instrumented scope, not newFPSacceptance or proofallbodycostiscontainers.
 No newcachebudget/API/prose/test/gate changes. Native24FPS remains OPEN.
 Compact frozen source/probe/rawlog/timings/parity negative:
 data/663_rejected_fungal_bezier_coefficients_cpu_2026-10-08/rejection.json.
+
+2026-10-08 UTC — Mature-footprint cache remains DEFERRED scratch-only while
+GitHub is the first priority. Published ambientfa95 unchanged; finalscratch
+90f3e96a pairs original immutable lineage tuples with exact full-progress
+costs within8FIFO entries, matching originalscalarfloat/sum order and using
+existing per-frame costlist.24originalstates/17IEEEbudgetcases/empty-cycle-
+duplicate inputs, overridden/reordered/clonedtuple fallback,8FIFO andresize/
+configure release verified. A realinitialscratch mutation defect is retained:
+control-mutating_lineage trustednewsizecosts(22060→22303selected); final
+initialcontrolkey refuses mismatch andrestores22060. Identityremovedmutant
+alsochanges15217→15420. Finalnative4K default/Random/custom/light4pairs and
+bitexactpathelements3clocks match. Warmtotalpaths99.5 71.04→60.58ms; cold
+fullfutureprecompute288.39→292.19ms. Freshnative4K D3/Detail2/Size2.5 ABBA
+before6.158/6.148FPS, after6.397/6.552: ONLYmatched3.9/6.6% gaincomparable,
+notstackedwithpriorpen~4.77/5.18 cohorts. Observationclocks97.225–102.372,
+24requestedcap/speed1/blur0/seed42/defaultpalette; all4workersretire.
+Metadata1,338,272B at4liveentries,2,671,552B at8functionalentries; explicit
+boundedRAMtradeoff, no rasterbudgetlift. Coldshow209.96/243.27/213.22/225.07
+is mixed, no nostallclaim. Hard24FPS still OPEN; no productintegration,
+productionbranch/wholeQt/GPU/aesthetic/hosted-green acceptance. Finalcandidate,
+initialnegatives/failedharnesslogs, rawsource/probes/receipts/portableverifier:
+data/663_deferred_fungal_mature_cost_cpu_2026-10-08/receipt.json.
