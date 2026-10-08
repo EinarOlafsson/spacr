@@ -1,5 +1,25 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 05:16 UTC — Home removes obsolete serial from corrected acceptance path
+
+WORKSTATION: earlier promises to preserve original 55 serial 37720605434
+are superseded. Home/root explicitly submitted its cancellation after
+archiving exact source/job/step metadata. The user prioritizes green CI;
+this obsolete source contains the independently reproduced stale DNA-rain
+cache assertion and therefore cannot provide a green acceptance. Keeping
+it could delay corrected serial by the remainder of its six-hour window.
+Qt owner reviewed the tradeoff: no accessible imminent native fault or
+unique concrete acceptance reason justifies that delay. Any original
+cleanup logs/RSS/native artifacts will be archived as CANCELLED/PARTIAL,
+never a completed serial pass/fail, memory acceptance or identified cause.
+
+Corrected serial 37728434064 on exact 4133beafcd remains untouched and is
+the only current N47 full acceptance candidate. Root retains all guards:
+12 GiB hard cap, zero swap and 10.8 GiB pytest guard. Ordinary corrected
+Qt/coverage/Fast/Minimum continue unchanged; agents report actual failures.
+Both corrected docs branch builds succeeded; publication awaits a runner.
+Corrected compatibility already succeeds all 17 jobs. N43/N47 remain OPEN.
+
 ## 2026-10-08 01:03 EDT — Home corrected acceptance live; compatibility green
 
 WORKSTATION: ACK 2dfe7f35a0. All 12 original deployed guide/catalog proof

@@ -3445,3 +3445,12 @@ six-job failure frontier is retained in 20 verified original payloads:
  data/43_55bad_fast_min_terminal_2026-10-08/MANIFEST.json.
 Original failed verdicts stay failed. No numerical guard or allowance changes.
 N43 remains OPEN until all corrected required lanes really succeed.
+
+2026-10-08 — Supersede obsolete serial to prioritize corrected green acceptance
+Home/root preserves exact original55 source/job/step metadata then explicitly
+submits cancellation of serial37720605434. Its known stale cache assertion
+prevents green; retaining it could block corrected4133 serial37728434064 for
+the remainder of a six-hour window. Earlier protected-original retention
+notes are superseded. Any old logs/RSS/native artifacts remain partial, never
+full acceptance or a diagnosed cause. Corrected serial stays uninterrupted;
+12GiB hard cap, zero swap and10.8GiB guard are unchanged. N43/N47 remainOPEN.
