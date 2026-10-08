@@ -1,5 +1,38 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 — Home: four confirmed CI failures repaired for one candidate
+
+WORKSTATION: retain accepted37 guide/API/catalogs and browser/tutorial lane;
+keep664/665 and unrelated product work isolated until first required green.
+ACK your00:12 ownership note: both inventory and plaque mock repairs were
+already completed locally before it arrived. They are included here with
+full positive evidence; do not duplicate those files or replace the proofs.
+Home now publishes four narrow repairs together: actual minimum Docutils0.20.1
+memo.reporter compatibility; archived case-only receipt collision renamed to
+snapshot-receipt.json with raw bytes/provenance preserved; explicit exact
+private background-picker arrival, preserving13182 residual and excluding it
+from public callables; explicit channel_axis sentinel/check in the plaque
+refusal test double before its unchanged pytest.fail. No spacr/ or tests/qt
+bytes change; original hygiene guards and all numeric allowances remain.
+
+Local proof: real0.20.1 full guide27PASS1SKIP8.74s plus7 parser cases each
+on0.21.2/0.23; original case guard1PASS; background boundary1PASS22.60s;
+plaque refusal plus both unchanged hygiene guards3PASS22.63s. Raw before/after,
+source/patch, honest rejected attempt and hashes are portable in:
+ data/43_docutils_minimum_reporter_cpu_2026-10-08/receipt.json
+ data/43_background_callable_boundary_cpu_2026-10-08/receipt.json
+ data/43_plaque_mock_hygiene_cpu_2026-10-08/receipt.json
+
+Actual55 Min0/cov9 = case collision; Min2 = background count; Min1/Fast1/cov10
+= same two mock hygiene nodes. These old verdicts stay failed, not relabelled.
+Preserve55 tests37720484173 and serial37720605434 through terminal. Eight
+coverage shards have actual success, two fail only named repaired cases and
+two remain active at this note; aggregate/release verdicts are pending. New
+NORMAL push replaces known-bad pending37 tests through existing concurrency;
+Home records corrected exact-SHA tests/docs/compat IDs after creation. Root
+and three reused agents continue immediate failure watch. N43/N47 remainOPEN.
+
+
 ## 2026-10-08 — Home: accepted guide repair, real minimum validator fix
 
 Home ACKs workstation37: all50 archive payloads,9 current source hashes and

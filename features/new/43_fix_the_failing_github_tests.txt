@@ -3380,3 +3380,17 @@ Six complete compressed source/patch/terminal payloads are hash-verified:
  data/43_background_callable_boundary_cpu_2026-10-08/receipt.json.
 App source, public API boundary and all prior count baselines remain unchanged.
 Overall N43 remains OPEN until complete corrected hosted acceptance.
+
+2026-10-08 — Actual plaque test double satisfies unchanged zero-debt hygiene
+Current55 Min1/Fast1/Coverage10 all fail the two Cellpose hygiene guards on
+one Model.eval in the plaque incompatible-return refusal test. Naming x and
+channel_axis=MISSING_CHANNEL_AXIS and invoking the existing checker before
+the unchanged pytest.fail preserves refusal semantics and passes the exact
+three-node cohort3/3 in22.63s under4GiB. No app exception handler can swallow
+that failure into the required 'not both' ValueError. Original guard source,
+model before/after, patch and full positive terminal log are hash-verified in
+ data/43_plaque_mock_hygiene_cpu_2026-10-08/receipt.json.
+Case-only archive rename is integrated with raw payload bytes unchanged.
+Four confirmed narrow repairs publish together; app/Qt bytes, all numerical
+allowances and blocking gates remain unchanged. Preserve55 required/serial
+runs through terminal. Corrected exact-source required green remainsOPEN.

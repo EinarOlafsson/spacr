@@ -1,0 +1,46 @@
+{
+  "source": "78f72e329f5056fb25184b8f9f87fd5765546a79",
+  "hosted_failure_source": "55badc57ff25ef6a7e14721561773a412b515318",
+  "hosted_run": 37720484173,
+  "known_failed_jobs": [
+    113126751737,
+    113126751641,
+    113126751916
+  ],
+  "scope": "Test-only eval double explicitly carries sentinel channel_axis and verifies the existing contract before its unchanged pytest.fail",
+  "positive": "Exact offending plaque refusal node and both original hygiene guards:3PASS22.63s,4GiB,CUDA hidden,offscreen",
+  "failure_semantics": "segment_plaque_image has no catching handler around eval; checker AssertionError and existing pytest.fail cannot satisfy the required exact ValueError not-both match",
+  "guard_or_allowance_changed": false,
+  "files": [
+    {
+      "file": "plaque-mock-after.log.gz",
+      "sha256": "e022da085c98b77e1734346325cf88b9af57d418f65079651b2f5e896622afb6",
+      "raw_sha256": "0180a48718ea427afc67eaad7ec591366ba6506472adaac863593f298fd0912c",
+      "raw_bytes": 689
+    },
+    {
+      "file": "before-plaque.py.gz",
+      "sha256": "c9e97f02525fba89e353185f92be3d4d912e356cd5c5da84a40624ba24416554",
+      "raw_sha256": "5fa53901ec63d4a466a51976b41c9cfdf806f62cbbd8dd0b93b73929674af484",
+      "raw_bytes": 12743
+    },
+    {
+      "file": "after-plaque.py.gz",
+      "sha256": "725035c5a1af7e3e57500694843c6bb991c20e0d0e08634233fec621f005d331",
+      "raw_sha256": "93daffb42b3b384ee73497bcb874cfefb555bfad961f2b46678425a951017c51",
+      "raw_bytes": 12828
+    },
+    {
+      "file": "mock-contract.patch.gz",
+      "sha256": "d0d567ce46eab96ee346f73d0f8f1a7fec3bf55fa3e9c8ab8a86a6213103b0a8",
+      "raw_sha256": "80670c5d75324ffe8b255a8c8902fb5125166ccf7381c3131cf9896dbdee8da1",
+      "raw_bytes": 754
+    },
+    {
+      "file": "unchanged-hygiene-guards.py.gz",
+      "sha256": "8a2fc71452d7d0930208e708d53dade911c4d273d0500efc514da53b6e673561",
+      "raw_sha256": "ed9736f83f069d7c43e965805735a14ce03bed6591356765652d47ab5503871d",
+      "raw_bytes": 58833
+    }
+  ]
+}
