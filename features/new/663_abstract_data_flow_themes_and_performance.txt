@@ -1364,3 +1364,14 @@ counter is NOT distinctframeFPS. Cold birth-phase~24FPS is not maturework
 acceptance; hard24FPS remains OPEN. NoGPU/fullsuite/aesthetic acceptance.
 Compact source/raw/profile/pixel/worker/coverage proof:
 data/663_fungal_local_pen_cpu_2026-10-08/acceptance.json.
+
+2026-10-08 UTC — Scratch scalarBézier coefficient reuse is rejected, no
+production change. Same floatcoefficients reused betweenx/y preserve
+four full native4K pairs(default/Random/custom/light), geometry/pathorder
+and controls. GeometryABBAx5 at95.25/99.5/168.25 improves0.7/6.5/12.4%,
+but inclusive _fungal_paths only0.9/0.2/3.8%;~0.2msat99.5 does not justify
+integration or liveABBA. CProfile55msbody/79msinclusiveat168.25 is an
+instrumented scope, not newFPSacceptance or proofallbodycostiscontainers.
+No newcachebudget/API/prose/test/gate changes. Native24FPS remains OPEN.
+Compact frozen source/probe/rawlog/timings/parity negative:
+data/663_rejected_fungal_bezier_coefficients_cpu_2026-10-08/rejection.json.

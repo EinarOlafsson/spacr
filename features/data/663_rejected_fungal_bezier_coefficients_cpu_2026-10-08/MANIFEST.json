@@ -1,0 +1,38 @@
+{
+  "README.md": {
+    "bytes": 1718,
+    "sha256": "8de158b9bd458642a790b74a32ffddb29a8d6e5bddd4628282f9a26fe8a711b5"
+  },
+  "after.py.gz": {
+    "bytes": 108772,
+    "sha256": "3017995f0f7725b8a9df4226b4c648b79d8013f648c97995ec11b50bc26a8ac6"
+  },
+  "before.py.gz": {
+    "bytes": 108744,
+    "sha256": "8ef67c750f7b16762b349222a700840cee9e4190598d407fdd1187a7b4703f9e"
+  },
+  "geometry-profile.txt.gz": {
+    "bytes": 556,
+    "sha256": "17b633f4e789243e34a4d24b5e74aa8759912bc16decd2a9b935d9b23101e29b"
+  },
+  "probe.log.gz": {
+    "bytes": 2689,
+    "sha256": "62710e2f85e8b1ada5cb486b8be5dc6cab2e41942a4dc8002ac2f526fe5446b0"
+  },
+  "probe.py.gz": {
+    "bytes": 1852,
+    "sha256": "3ad3508d45264204663d7ce46166b400f92a5b14ef381e60a01294bfe4476c02"
+  },
+  "receipt.json.gz": {
+    "bytes": 2299,
+    "sha256": "d51f7d9588951355c517e6add039d42c5fd253890f7cf4e755d46a006b5a0d59"
+  },
+  "rejection.json": {
+    "bytes": 7412,
+    "sha256": "363150277b6c68e29531c2d92835093cfde4b49d70a0fc7abfa9aab0a70eb3fd"
+  },
+  "verify_manifest.py": {
+    "bytes": 922,
+    "sha256": "b5e967d937d6b5179a83d7ea3484d56904453b0bb8e823dfb4c013a89988401f"
+  }
+}

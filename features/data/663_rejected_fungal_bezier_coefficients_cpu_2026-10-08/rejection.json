@@ -1,0 +1,245 @@
+{
+  "status": "COMPLETE/REJECTED, no production change",
+  "baseline_source_sha256": "fa95c6677bea19f66b4cfb5e4049ae8858269e5b9cc53e337653fe176301fbf4",
+  "candidate_source_sha256": "41e33a31dc9e84d6b0a12f3f05e63c4677f5cd262b3b9bd6ac279ccc8c38cfd9",
+  "operation": "ScalarBeziercoefficients reused betweenx/y withoutchanging original left-associative arithmetic; no endpoint simplification/helper/cache/newpersistentstorage",
+  "reason": "Geometrymediansimproved0.7%,6.5%,12.4%, but inclusive pathmediansonly0.9%,0.2%,3.8%;0.2msbenefitatthecurrent99.5hotclock is not convincing end-to-end evidence. No liveABBAorproductionpatch.",
+  "parity": "geometry/path keys,maturity,tipsmatch atthree clocks;4native4Kdefault/Random/custom/light pairs exact",
+  "controls": {
+    "viewport": [
+      3840,
+      2160
+    ],
+    "density": 3,
+    "detail": 2,
+    "size": [
+      2.5,
+      1.0
+    ],
+    "requested_FPS": "No liveFPSmeasurement inthis experiment"
+  },
+  "limits": "One scratchgeometry/path ABBAx5 perstage atthree clocks; cProfile geometrysample includesinstrumentationoverhead. Existing scope/numerical/memoryceilings unchanged. Not24FPS/wholeQt/GPU/aestheticsacceptance.",
+  "geometry_and_inclusive_path_timings": [
+    {
+      "clock": 95.25,
+      "selected_edges": 14361,
+      "stages": {
+        "geometry": {
+          "before_ms": [
+            57.21482401713729,
+            48.40108301141299,
+            54.849894979270175,
+            69.61154399323277,
+            48.7134070135653,
+            56.14970100577921,
+            45.523540989961475,
+            56.41321698203683,
+            48.37364301783964,
+            62.28196699521504
+          ],
+          "after_ms": [
+            55.85025800974108,
+            61.44145299913362,
+            70.37672199658118,
+            52.845727012027055,
+            53.37029800284654,
+            49.722259980626404,
+            55.046249995939434,
+            55.17919798148796,
+            57.758114009629935,
+            53.21427099988796
+          ],
+          "before_median_ms": 55.49979799252469,
+          "after_median_ms": 55.1127239887137
+        },
+        "_fungal_paths": {
+          "before_ms": [
+            77.02963901101612,
+            71.62739799241535,
+            87.13291599997319,
+            68.39098301134072,
+            74.24322399310768,
+            85.30395600246266,
+            86.6022550035268,
+            80.36497799912468,
+            90.46112699434161,
+            75.5612899956759
+          ],
+          "after_ms": [
+            58.341704978374764,
+            74.81341599486768,
+            75.77225798740983,
+            80.17555301194079,
+            84.26995400805026,
+            91.75618801964447,
+            69.46703401627019,
+            72.96950599993579,
+            89.96957499766722,
+            80.21896099671721
+          ],
+          "before_median_ms": 78.6973085050704,
+          "after_median_ms": 77.97390549967531
+        }
+      }
+    },
+    {
+      "clock": 99.5,
+      "selected_edges": 15296,
+      "stages": {
+        "geometry": {
+          "before_ms": [
+            70.68806199822575,
+            63.371883996296674,
+            67.20078000216745,
+            67.99401697935537,
+            73.95799498772249,
+            71.81468099588528,
+            65.20402399473824,
+            66.41045399010181,
+            66.68710801750422,
+            63.67211800534278
+          ],
+          "after_ms": [
+            66.63334101904184,
+            53.88164700707421,
+            61.993568000616506,
+            63.132888986729085,
+            69.79208599659614,
+            50.410784024279565,
+            67.86415801616386,
+            61.2859999819193,
+            65.01694500911981,
+            53.23148498428054
+          ],
+          "before_median_ms": 66.94394400983583,
+          "after_median_ms": 62.563228493672796
+        },
+        "_fungal_paths": {
+          "before_ms": [
+            79.87835200037807,
+            80.14911800273694,
+            85.27737099211663,
+            86.25164499972016,
+            88.43099701334722,
+            89.12941301241517,
+            83.12946601654403,
+            80.45913101523183,
+            79.07127498765476,
+            114.50128100113943
+          ],
+          "after_ms": [
+            78.87413998832926,
+            75.81822198699228,
+            83.22671600035392,
+            85.05301500554197,
+            83.51653898716904,
+            93.59678701730445,
+            84.51165101723745,
+            91.95317499688827,
+            73.96644100663252,
+            101.62364100688137
+          ],
+          "before_median_ms": 84.20341850433033,
+          "after_median_ms": 84.01409500220325
+        }
+      }
+    },
+    {
+      "clock": 168.25,
+      "selected_edges": 10359,
+      "stages": {
+        "geometry": {
+          "before_ms": [
+            48.298787005478516,
+            43.470719014294446,
+            44.880784989800304,
+            34.9405049928464,
+            46.371748991077766,
+            47.68685600720346,
+            41.331635002279654,
+            47.21855401294306,
+            35.1651799865067,
+            46.04339398792945
+          ],
+          "after_ms": [
+            32.1824710117653,
+            40.252234000945464,
+            42.14918098296039,
+            39.44394801510498,
+            42.509855004027486,
+            31.772557995282114,
+            43.004225997719914,
+            30.74535497580655,
+            45.6922699813731,
+            33.24112200061791
+          ],
+          "before_median_ms": 45.462089488864876,
+          "after_median_ms": 39.84809100802522
+        },
+        "_fungal_paths": {
+          "before_ms": [
+            60.05905399797484,
+            44.91120399325155,
+            57.09695600671694,
+            56.449005991453305,
+            42.72271099034697,
+            46.40140701667406,
+            71.77218399010599,
+            54.22179398010485,
+            58.11979700229131,
+            67.13829300133511
+          ],
+          "after_ms": [
+            47.21372399944812,
+            58.05050898925401,
+            58.372703002532944,
+            44.132586976047605,
+            52.173670002957806,
+            57.026814989512786,
+            51.583318010671064,
+            64.46251799934544,
+            61.69570499332622,
+            47.62521598604508
+          ],
+          "before_median_ms": 56.77298099908512,
+          "after_median_ms": 54.600242496235296
+        }
+      }
+    }
+  ],
+  "native_pairs": [
+    {
+      "palette": "spacr",
+      "background": "#101418",
+      "clock": 99.5,
+      "size": 2.5,
+      "differing_pixels": 0,
+      "sha256": "bd9408b42d3f2bd6ea5b45ba9e8ba4fa0711e2138b3b91875a7c17e830a2aeda"
+    },
+    {
+      "palette": "random",
+      "background": "#101418",
+      "clock": 99.5,
+      "size": 2.5,
+      "differing_pixels": 0,
+      "sha256": "13acf5057c31943285a72c20d47a3abeff46528a73bfdf1d1f7f567e0c04dd61"
+    },
+    {
+      "palette": "custom",
+      "background": "#101418",
+      "clock": 95.25,
+      "size": 1.0,
+      "differing_pixels": 0,
+      "sha256": "44e8b72ed0b966ddb9c33161704dba9727ef3fe668c433f6c0b7fd3d098a69a6"
+    },
+    {
+      "palette": "spacr",
+      "background": "#f4f4f0",
+      "clock": 168.25,
+      "size": 2.5,
+      "differing_pixels": 0,
+      "sha256": "849c96946c16aa0e94e358485fb95bb9fd13af0b239c0c42db07f6b80f70e76e"
+    }
+  ],
+  "peak_rss_kib": 307480
+}
