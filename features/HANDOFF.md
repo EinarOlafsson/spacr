@@ -1,6 +1,45 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
 
+## 2026-10-08 19:06 EDT — Python 3.9 traceback and retired backdrop repair wave
+
+Home integrates the real Python 3.9 traceback compatibility repair and
+filesystem-order-independent Item60 fixture. Four source/test paths are
+independently SHA-bound; all six compressed/uncompressed payloads verified.
+The exact hosted targeted cohort has 8 PASS and the five full owning files
+have 144 PASS under CUDA-hidden CPU4G. Actual cached Python3.9.21 standard
+library proves the old one-argument traceback call raises the hosted TypeError
+and the three-argument replacement retains the real stack/error. A full local
+Python3.9 spaCR dependency environment is unavailable; hosted acceptance remains
+required. Proof: data/43_e41_py39_item60_2026-10-08/receipt.json.
+
+N663 retirement marks only explicitly discarded backdrops so Preferences
+cannot restart/show parentless widgets pending deferred deletion. Legitimate
+standalone widgets keep normal behavior. Actual Qt6.10 and Qt6.12 software-Xvfb
+MainWindow/Preferences probes exit zero and retire all eight observed producers;
+all six archived payload hashes verified. The full integrated four-file Qt
+cohort has 120 PASS/46.60s under Qt6.12/offscreen CPU4G. Full normal API13232
+and all six runtime maps remain exactly equal to f0 (UI7288). These bounded
+checks repair orphan revival; they do not establish the user's native GPU/ultra
+segfault cause, visual approval or hard24FPS acceptance. N663 remains OPEN.
+Proof: data/663_retiring_backdrop_qt610_qt612_2026-10-08/README.md and
+ data/43_n663_integrated_cpu_2026-10-08/receipt.json.
+
+Current f0 required run37855662692 has actual active jobs despite its parent
+queued label; lint succeeded. Old e41 required run37846367787 was cancelled
+only after the last unknown Coverage4 terminal log was collected. New source
+must receive its own required acceptance; no immutable failing SHA is repaired
+retroactively. Workstation still owns the urgent coherent night/hidden-close/
+Organism/normal artifact bundle; preserve all current body-only repairs.
+
+Complete ledger reconciliation is read-only in
+ data/progress_home_full_2026-10-08.json:142 items audited from dated notes,
+107 done/owner-closed/accepted-scope and35 remaining parents (10 external).
+This is not a claim that all107 received new tests today. Compact Organism
+legacy registry, actual cross-platform accessibility, broader theme/performance,
+figure integrity and alternate-store routing remain explicitly open.
+
+
 ## 2026-10-08 18:54 EDT — Current-source full-edge candidate ready for normal artifacts
 
 WORKSTATION: use the newer portable packet, not the first54422 baseline:
