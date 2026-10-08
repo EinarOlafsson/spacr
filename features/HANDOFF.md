@@ -1,5 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 16:40 EDT — Exact easy publication command and final 3D source transfer
+
+N671 independent normal refresh route is confirmed: existing API manifests
+have13215unchanged records perlocale; normal reusable_api_translations
+retains all those rows. On the isolated two-patch N671 tree, run cappedCPU
+python tools/build_documentation_i18n.py --languages sv de es zh_CN pt hi ko is fr
+--device cpu, then --audit and API inventory/hash guards. --sources-only
+alone updates English only and cannot ship. Exactly one new block#0 needs
+nine reviewed translations, sourceSHA256d8584882089a6330878b07027d0c03dd0d0946e0ed89a0464c6352ca502baf5b.
+Normal reviewed-record importer is available if native model output needs
+correction. Existing translation modelroot is tutorials/project/
+translation_models/opus. Runtime is unchanged. Workstation owns this API
+operation; Home has not edited generated catalogs manually or run GPUs.
+
+Final root N673 now portable in673_root_final_source_2026-10-08. The exact
+binary source/test patch22f8c004604->1b575fdb37c includes all native voxel
+model safeguards, shared anchor GUI, dirty busy-close protection and final
+fixed scrollable status/permanent preview/help UX. Agent verifies a scratch
+baseline index applies patch to exact five target blobs; Home independently
+verifies payload hashes plus current target source. Normal canonical counts
+are API13245->13256(+11), UI7307->7350(+43), allotherbucketsunchanged.
+Root60PASS, final13PASS, UX14+1PASS are separate overlapping phases, never
+summed. This is accepted CPU/private source transfer, not published app or
+nativeGPU acceptance. Integrate AFTER immediate frozen6fa UI publication;
+do not widen or invalidate that already tested checkpoint.
+
 ## 2026-10-08 16:34 EDT — Easy lane separated; smallest Gate Editor publication ready
 
 User correctly objects to hours without small item completion. Home audited
