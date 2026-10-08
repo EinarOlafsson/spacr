@@ -1,0 +1,166 @@
+{
+  "schema": 1,
+  "item": 658,
+  "accepted_private_source": "c057341c15f087debe2393879989add4c746dcbd",
+  "terminal": 0,
+  "focused": {
+    "passed": 22,
+    "seconds": 16.34
+  },
+  "broader": {
+    "passed": 275,
+    "skipped": 1,
+    "warnings": 137,
+    "seconds": 242.27,
+    "skip": "Optional pingouin comparison unavailable; no native recipe test skipped"
+  },
+  "environment": "Python3.12.14/Qt6.12.0/pytest8.4.2 normal coverage 8G CUDA hidden offscreen",
+  "unchanged_class_function_contracts": 214,
+  "accepted_scope": [
+    "Native grouped numeric lines preserve full source rows, numeric coordinates, group order and mean/CI rendering.",
+    "One-column native lines retain categorical positions, median/mean and SD error bars.",
+    "Native line_std recomputes means and shaded SD from full original CSV.",
+    "Native geometry and path comparisons cover object/well/plate representation, logarithmic plots and edited source CSV; repeated/nonuniform generic numeric lines also pass.",
+    "Filtered rows and unplotted metadata retained."
+  ],
+  "original_failures": [
+    "r1 native filtered-frame SettingWithCopyWarning, corrected with an owned copy.",
+    "r2 test harness used __call__ instead of create_plot; not a product line defect.",
+    "r3 actual export dropped one of17source rows in all three cases."
+  ],
+  "payloads": [
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/native-grouped-line-negative-r1.log",
+      "payload": "native-grouped-line-negative-r1.log.gz",
+      "raw_sha256": "07e57fef4a1aaa3eba105f2f81a8781b304dd04b58e42cfb4d05037bcdd10d51",
+      "payload_sha256": "1a4011dc80d4b6b7ff6650e0ed073c225c3703f80ed27bcc86da8c1625ce9e8f"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/native-grouped-line-negative-r1-tool.log",
+      "payload": "native-grouped-line-negative-r1-tool.log.gz",
+      "raw_sha256": "14e126ae8142256c86e39dd9e9892757ee656dc42ebff089361cf87daf03df80",
+      "payload_sha256": "12062df6c6eca967c4e1a98ac5ec824935cca6b0f93afd92cdfb94f391388f05"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/native-grouped-line-negative-r2.log",
+      "payload": "native-grouped-line-negative-r2.log.gz",
+      "raw_sha256": "5ff211afc97ea23f002d5b760f0cb5166690432a974a8f1fd1496216753eb084",
+      "payload_sha256": "3fe89b9b866fd8f46add38c0a6f1526e04c15029a76907e9387abe497e5f6c7d"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/native-grouped-line-negative-r2-tool.log",
+      "payload": "native-grouped-line-negative-r2-tool.log.gz",
+      "raw_sha256": "944dea260a58780b741a610d1e171225ebf361f4038e899409af7133a452d570",
+      "payload_sha256": "cc1b56730065c376e69aac05a15cc7c2803d33cfbcc4594b5d37526570956819"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/native-grouped-line-negative-r3.log",
+      "payload": "native-grouped-line-negative-r3.log.gz",
+      "raw_sha256": "d43e567543386c594e56af06d4188ad00e7eb42bf5e15642ba74de9457ef1a11",
+      "payload_sha256": "63ea647134983fa278b590c507640291141ff160790c659861f5f9fb7e0e8d72"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/native-grouped-line-negative-r3-tool.log",
+      "payload": "native-grouped-line-negative-r3-tool.log.gz",
+      "raw_sha256": "07548c03ab35b5b2b23dbe4cc8c8a141e0aa708d5d419d1d3ebea259a064b068",
+      "payload_sha256": "c603392ac036ef3a5bfe8f0cf22092d2dbc31f6b2b9d2a6fa76a5af4ca7e17de"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/native-grouped-line-focused-r1.log",
+      "payload": "native-grouped-line-focused-r1.log.gz",
+      "raw_sha256": "d68dae12a4aea750f8614041b4577a2d246b472feaeb93b686ffe55fd4d856a2",
+      "payload_sha256": "ac027395a578d454b6697d26203bc5e7706ee63158b759ff25995f133fdbf0a6"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/native-grouped-line-focused-r1-tool.log",
+      "payload": "native-grouped-line-focused-r1-tool.log.gz",
+      "raw_sha256": "f609d83bdb04fa8231fb391a14683cc467be86534d2e4359e6a8424e79e23f27",
+      "payload_sha256": "1e34aac332a2e444649eef1ab2137b18047ccc8072342f63f59d7fd42731f381"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/native-grouped-line-focused-r2.log",
+      "payload": "native-grouped-line-focused-r2.log.gz",
+      "raw_sha256": "3c406da404f38c5b4acfd686ddb2990ca44e48065f477880b49178356d587afb",
+      "payload_sha256": "cbcad4c3bc27239557e0eef858f9f7d01ee45e4e626ca4d97970f94a27e0ee60"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/native-grouped-line-focused-r2-tool.log",
+      "payload": "native-grouped-line-focused-r2-tool.log.gz",
+      "raw_sha256": "db1dcc8574adca8b3b7126ee76dfe7f54acd2ad78b663b4394bdfef79c2d0e52",
+      "payload_sha256": "5359704a5a05d025055e7eb78c61906ea5f30df9698686705f679a5b7ffaca63"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/native-grouped-line-broad-r1.log",
+      "payload": "native-grouped-line-broad-r1.log.gz",
+      "raw_sha256": "9d6c164c297b64a151780e1427d0c255855755f8ecb897c056448f022ae8c8e7",
+      "payload_sha256": "aac38280732ae131bbfbcd204acfa1aaac1309ceb9733dd3562d10a6fb296c91"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/native-grouped-line-broad-r1-tool.log",
+      "payload": "native-grouped-line-broad-r1-tool.log.gz",
+      "raw_sha256": "7614ce526ecd0872454d3c63fb4ab9f7f498ce0676c1cbf9904eb6255da9d1d8",
+      "payload_sha256": "8f98ee83db14c2d837f550e414785ab271d1e37a7082a67298bb5c61cff0ee90"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/native-grouped-line-contracts-r1.py",
+      "payload": "native-grouped-line-contracts-r1.py.gz",
+      "raw_sha256": "d5423bf7a1813dd574eac7489d40ebc59e424af4b6e7d705286c8da50b9caf8b",
+      "payload_sha256": "49f9565135ad2fb1bb327ae83634afc784d8432ba2b117dbf6d5ab9b357055fa"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/native-grouped-line-contracts-r1.json",
+      "payload": "native-grouped-line-contracts-r1.json.gz",
+      "raw_sha256": "0996844fe4e164f7e10ff07ba2b793befdffb635e743b10307ce20315bdea015",
+      "payload_sha256": "8e74764c46d81051104197ab5f0ed48fc67befad3cf59bd975425831676b5393"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/run_native_grouped_line_broad_r1.py",
+      "payload": "run_native_grouped_line_broad_r1.py.gz",
+      "raw_sha256": "589e49669faa9beba20350952c884ae062ff129b866990bbfb98074a8e78700c",
+      "payload_sha256": "ed879fd9d6b1bfa1e9b664a780e329c2ea1af13092e1f82f4e406f6cc5661fa7"
+    },
+    {
+      "source": "git diff5812 c057341c15f087debe2393879989add4c746dcbd",
+      "payload": "incremental-native-grouped-line.patch.gz",
+      "raw_sha256": "f3c077f7152b0f6fcd21a5a2d26b207d3817ae861d00856d2f48be33e4e5911e",
+      "payload_sha256": "bc4e4d6d0e9c7fec275a19798b4d71cd17401cc239f587f9529642ce1c729b51"
+    },
+    {
+      "source": "git diff 18825bef53ab30774362980943475782e2477c99 c057341c15f087debe2393879989add4c746dcbd",
+      "payload": "full-later-numeric-line.patch.gz",
+      "raw_sha256": "2635433b42eb339b82ab7bb66a2e8ab9693327a5fcc69f167b260c8a7bda14ab",
+      "payload_sha256": "edaac1af25d98a23c679f785b9134ae7200c1279111875c040956a4dbd560230"
+    },
+    {
+      "source": "c057341c15f087debe2393879989add4c746dcbd:spacr/plot.py",
+      "payload": "plot.py.gz",
+      "raw_sha256": "a90b08dda022df6ef3343ee565533e76a5243edfb25623ac63a50338fe878e13",
+      "payload_sha256": "996501f74f30e766b3e098311d32698670ef4528ed245a7ddd2fb4f2a8b66754"
+    },
+    {
+      "source": "c057341c15f087debe2393879989add4c746dcbd:spacr/figures/bundle.py",
+      "payload": "bundle.py.gz",
+      "raw_sha256": "3bffc9f017fc44cfc6efc5f04841b2a8a610695179dac018e5579a8326cbf5db",
+      "payload_sha256": "a1c9214d87d1a434269a7474f77ea94d1e3698bc5a1467d7c921e6b5fa26eab3"
+    },
+    {
+      "source": "c057341c15f087debe2393879989add4c746dcbd:tests/test_numeric_line_figure_recipe.py",
+      "payload": "test_numeric_line_figure_recipe.py.gz",
+      "raw_sha256": "e4a2a1381a62d7d0ae3433374ba0e90287a5b1ab8c5d731d07b00d3479009d9d",
+      "payload_sha256": "5980ce1e2e3ec5801c4821de5cfafb239b040c266a024adef2b3b9d177391230"
+    },
+    {
+      "source": "c057341c15f087debe2393879989add4c746dcbd:tests/test_spacrgraph_line_figure_recipe.py",
+      "payload": "test_spacrgraph_line_figure_recipe.py.gz",
+      "raw_sha256": "d8e46c8d034c7782c1098ddf20dc8347f8817ad7191dee157622cde0291b1987",
+      "payload_sha256": "379aebce80ee0d1517e6d16574355305f5780a4a05890d341346feba14fef835"
+    }
+  ],
+  "limits": [
+    "Later private continuation; not integrated into frozen UI publication.",
+    "Whole658 producer/style fidelity remains open, including training comparisons and other panels.",
+    "Overlapping cohort totals must not be summed.",
+    "Dedicated outlier and current-user restyle acceptance not claimed."
+  ],
+  "archive_preparation": "Initial short base18825b0 did not resolve; no source mutation. Correct full base recorded."
+}
