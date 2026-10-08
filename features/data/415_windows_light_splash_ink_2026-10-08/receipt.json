@@ -1,0 +1,78 @@
+{
+  "baseline_commit": "61b85a9f32190e9176fc638bf1b93029bdd6f5d0",
+  "baseline_loading_screen_blob": "e45d721636b7a97ab1ee16b59120d387e0d955b6",
+  "candidate_commit": "50ca71b4932bef8802b9a6954a6b51ebfa501105",
+  "candidate_loading_screen_blob": "4ef43430d243dad3f7823eea4a1b6926823c57ad",
+  "causal_scope": "The hosted first-phrase ROI contains rendered text, but thin light-scheme glyphs do not yield eight pixels at contrast >=4.5. Local production sampler also fails the arrow with Normal and DemiBold; Bold changes only inherited splash font weight.",
+  "hosted_result": "three light startup cases failed native Windows Qt 6.12.0 first splash readable-ink threshold; three dark cases passed",
+  "hosted_run": 37841621659,
+  "hosted_source": "4d09944509a",
+  "inventory": "Normal public_docstrings and canonical_sources extracts: 13232 API records and 7288 UI records both before and after; zero added, removed, or changed across all API/runtime buckets.",
+  "local_baseline": "4 passed, 2 failed on the original sampler under offscreen Qt",
+  "local_candidate_offscreen": "29 passed in 9.32s under 4 GiB",
+  "local_candidate_xvfb": "29 passed in 9.47s under 4 GiB, Qt 6.12.0 software X display",
+  "native_windows_candidate_status": "OPEN: candidate has not run on a native Windows host",
+  "payloads": {
+    "baseline-inventory.json.gz": {
+      "artifact_sha256": "f56bc294be000251b11a45509713440a55f974e93e9a9fd8a8f4b0f84d412599",
+      "source_bytes": 8015814,
+      "source_sha256": "46488dd45b5b13385dd4164af7413709a0f1ebb02d9f1636510e64247ec86a0e"
+    },
+    "baseline-inventory.log.gz": {
+      "artifact_sha256": "018537fdd9cf60380637a4ecb73ddfb2f8f3738002a4669436f5c88e7b9865c1",
+      "source_bytes": 227,
+      "source_sha256": "e0fd0da7273d4244fc198588887c1b55606f898daaaf35b06c56d92681347d59"
+    },
+    "baseline-test.log.gz": {
+      "artifact_sha256": "36c24d300fa4c5231a84cbb1fcb910e96056c3fc0e6c0229964b9692be8297b2",
+      "source_bytes": 5648,
+      "source_sha256": "da3f7890e894c20f5804edcd710ebde4e264ec530eeab4e205ec1d283d53134e"
+    },
+    "candidate-inventory.json.gz": {
+      "artifact_sha256": "49998c670ee4e9c7117c371fcd5384806a1a4607acf43b774ff536211a6aeee1",
+      "source_bytes": 8015817,
+      "source_sha256": "b75ec11943dce3a04c6386a4575208a5baea7df0cda09946e2edb0522d313392"
+    },
+    "candidate-inventory.log.gz": {
+      "artifact_sha256": "7aeeb8bb2b52b62573cf511871024fb65ee2bde97cefe3f971d551363d8787cd",
+      "source_bytes": 230,
+      "source_sha256": "c2ab004cac2c441d182e90aa51e4a99f509b6248b73bbecaabef2edf0482b825"
+    },
+    "candidate-offscreen.log.gz": {
+      "artifact_sha256": "ee7cf7000386b7ec542c7f04469be67ac0491bb400e5658dc7331023f86f591c",
+      "source_bytes": 99,
+      "source_sha256": "d60a1635d005be4d96b6c0245b0bf3c215c6e7b0213d5feb5a4300b5f9d98ebf"
+    },
+    "candidate-xvfb-qt612.log.gz": {
+      "artifact_sha256": "52ce61e8ccdb55c02aac3ea620468f3f9ad7e5d54403f10d62401c782995a0f7",
+      "source_bytes": 99,
+      "source_sha256": "d0040e94b3a651b651e16d182989f9a3cc05b093a2395d0a4ecb61fd11baee6e"
+    },
+    "hosted-dark-receipt.json.gz": {
+      "artifact_sha256": "893dd190f8fcb56127598174bcf93cb5b18c738eaf7e4707b950cc903e33144d",
+      "source_bytes": 11970,
+      "source_sha256": "e32c880660c227baeb1d4d0831909317a1d6618e7cca5e8adc2af97aceb60a04"
+    },
+    "hosted-light-early.png": {
+      "artifact_sha256": "31f8c5fd59e08535524115484d7757ec180748b63fbd24c507d6ae5534987131",
+      "source_bytes": 9470,
+      "source_sha256": "31f8c5fd59e08535524115484d7757ec180748b63fbd24c507d6ae5534987131"
+    },
+    "hosted-light-receipt.json.gz": {
+      "artifact_sha256": "032d8dae758b7c9ceb2017e84322dd2515acf93aea8880e3ed5febf1c9485c4a",
+      "source_bytes": 1568,
+      "source_sha256": "cc81ab7624b9076043831ec57d13c564d522a4da50ff0eb6083ccbe6ee94ddc1"
+    },
+    "inventory-diff.json.gz": {
+      "artifact_sha256": "d2c1653f3c49658ad8c698c1f0cdc853a86fdad43dbf50d17f38bfab9d04cb01",
+      "source_bytes": 69312,
+      "source_sha256": "33649cbe52f46e7518764f68836c0779df0af816c66abdab1652dbedc4228a19"
+    },
+    "source.patch.gz": {
+      "artifact_sha256": "4ecca0e5a1097f6ed695cad473321cd6cb44963369fd22ce3a51627a7f3057fd",
+      "source_bytes": 1237,
+      "source_sha256": "229cb75791caa3be7e65a0464f7fec7edfb991b6aba83c9ac295ecc076091e57"
+    }
+  },
+  "ratchets": "No startup contrast ratio, minimum pixel count, ROI, test, or timeout changed."
+}
