@@ -3735,7 +3735,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the requested theme name; returned as given unless the spaceout dressing is on. It is not validated here.",
       "source_sha256": "ede5d8236e9f605e8a37aafe251a345b5c38a29fbae7822824448679695087ae",
-      "translation": "请求的主题名称；除非开启了 spaceout 装扮，否则原样返回。这里不做验证。"
+      "translation": "请求的主题名称；除非开启了 spaceout 装扮，否则原样返回。这里不做验证。",
+      "retired": "2026-10-08",
+      "retired_reason": "Superseded by current Home UI API wording for independent animation selections, recurring versus discrete field feedback, and four-line accessible help. Original source-bound evidence retained in place."
     },
     {
       "context": "the requested palette name, treated the same way.",

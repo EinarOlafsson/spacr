@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 18:34-0400\n"
+"POT-Creation-Date: 2026-10-08 16:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -25,11 +25,9 @@ msgstr "Python API 快速入门"
 msgid "Use the Python API when a workflow needs to run from a notebook, a reusable script, a server or a scheduler. The desktop application and the Python API call the same pipeline functions and use the same setting names."
 msgstr "当工作流程需要在 notebook、可复用脚本、服务器或调度器中运行时，请使用 Python API。桌面应用程序与 Python API 调用相同的流程函数，并使用相同的设置名称。"
 
-msgid "Install the headless package"
-msgstr "安装无界面软件包"
-
-msgid "Add ``[qt]`` only when the same environment also needs the desktop interface."
-msgstr "仅当同一环境还需要桌面界面时才添加 ``[qt]``。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Install spaCR"
+msgstr "安装 spaCR"
 
 msgid "Use the typed workflow configuration"
 msgstr "使用类型化的工作流程配置"

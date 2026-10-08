@@ -174,6 +174,9 @@ Functions
       {% endblock %}
       {% endif %}
       {% include "python/nested_helpers.rst" %}
+      {% if obj.jinja_env is defined and "spacr_source_supplements" in obj.jinja_env.filters %}
+{{ obj.app|spacr_source_supplements(obj.id) }}
+      {% endif %}
    {% else %}
 .. py:module:: {{ obj.name }}
 

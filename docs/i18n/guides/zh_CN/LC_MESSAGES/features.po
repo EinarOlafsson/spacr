@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 21:43-0400\n"
+"POT-Creation-Date: 2026-10-08 16:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -112,8 +112,9 @@ msgstr "每次运行都可以记录其标识符、随机种子、解析后的设
 msgid "How a module is reached"
 msgstr "如何进入模块"
 
-msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Assays** -- and twenty-one modules have a tile in one of them. Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own; Assays are the quantitative readouts. Make Masks is filed under **Tools**."
-msgstr "主页将模块分为四个类别——**核心**、**数据**、**工具** 和 **实验分析**——其中二十一个模块在某个类别中有磁贴。核心是按顺序运行的流程；数据是流程的输入和输出；工具是您用于处理项目的工具，而不是流程自行执行的步骤；实验分析是定量读数。创建掩膜归在 **工具** 下。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and twenty-one modules have a tile in one of them. Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
+msgstr "主屏幕将模块分为四类：**核心**、**数据**、**工具** 和 **生物体**，共有二十一个模块在这些分类中设有卡片。核心 是按顺序运行的处理流程；数据 涵盖其输入与输出；工具 是针对项目使用的工具，并非流程自动执行的步骤。生物体 打开弓形虫指南及其可用实验分析。计划中的分析标记为即将推出。创建掩膜 位于 **工具** 中。"
 
 msgid "A TILE IS NOT THE ONLY WAY IN, and most modules do not have one. A tile says \"start here\", and a module that answers a question about a run somebody else started is not a place to start. Those open instead from:"
 msgstr "磁贴并不是唯一的入口，而且大多数模块没有磁贴。磁贴的意思是“从这里开始”，而用于回答别人发起的运行相关问题的模块并不是起点。这些模块改为从以下位置打开："
@@ -237,12 +238,12 @@ msgid "Data-art themes"
 msgstr "数据艺术主题"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
-msgstr "在 **偏好** → **外观** 中，**主题** 选择界面的配色方案；十种夜间配色方案仍可使用。**动画** 独立选择装饰性背景，或选择 **无** 将其停止。这些背景不显示项目测量结果。主窗口默认使用 **spaCR field**；设置窗口的背景默认为 **无**。"
+msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **spaCR stratified**."
+msgstr "在 **偏好** → **外观** 中，**主题** 选择界面的配色方案；十种夜间配色方案仍可使用。**动画** 独立选择装饰性背景，或选择 **无** 将其停止。这些背景不显示项目测量结果。主窗口默认使用 **spaCR field**；设置窗口的背景默认为 **spaCR stratified**。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
-msgstr "动画菜单依次列出 **spaCR field**、**spaCR advection**、**spaCR growth**、**spaCR waves**、**spaCR blobs**、**spaCR aurora**、**spaCR stratified** 和 **spaCR spinn**。"
+msgid "The ordinary animation menu lists **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs**, **spaCR stratified**, and **None**, in that order. **spaCR growth**, **spaCR aurora** and **spaCR spinn** are available with **Spaceout** enabled in both the main Animation menu and the Settings backdrop menu."
+msgstr "普通动画菜单依次列出 **spaCR field**、**spaCR advection**、**spaCR waves**、**spaCR blobs**、**spaCR stratified** 和 **无**。启用 **Spaceout** 后，主窗口的 动画 菜单和 设置 Backdrop 菜单都提供 **spaCR growth**、**spaCR aurora** 和 **spaCR spinn**。"
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — 清晰的引力点阵场，可选局部鼠标影响，并呈现向外扩散的波纹。"
@@ -287,16 +288,28 @@ msgid "**Popup wave frequency** sets automatic waves per minute in **spaCR field
 msgstr "**弹窗波纹频率** 设置 **spaCR field** 中每分钟自动生成的波纹数。默认值为 **5 波/分钟** ；**0** 禁用弹窗波纹。启用后，打开弹窗会立即从其中心发出第一道波纹，后续波纹按所选频率生成。移动弹窗会移动新波纹的起点；关闭弹窗会停止产生新波纹，已有波纹则逐渐消退。此控制与鼠标引力、点闪烁、密度和绘制细节相互独立。"
 
 # AI technical review (Codex), no native-speaker signoff.
+msgid "**Field ripples** enables waves caused by clicks, opening or closing containers, and snapping the window, as well as automatic popup waves. Turning Mouse gravity radius down to **0** leaves these ripples available. Turn Field ripples off to stop them while retaining mouse attraction; Popup wave frequency controls the rate of automatic waves when ripples are on."
+msgstr "**场波纹** 启用点击、打开或关闭容器以及窗口吸附产生的波纹，并启用自动弹窗波纹。将 鼠标引力半径 调至 **0** 后，这些波纹仍可使用。关闭 场波纹 可停止波纹并保留鼠标引力；启用波纹时，弹窗波纹频率 控制自动波纹的频率。"
+
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Press **Apply** to preview changes while Preferences stays open. A separate question offers **Keep** or **Revert**. Revert restores the saved and live settings; your edited controls remain available to change or apply again. Closing the question also reverts. **Save** keeps changes and closes Preferences."
 msgstr "按 **应用** 预览更改，偏好设置窗口会保持打开。另一个对话框提供 **保留** 或 **还原**。还原会恢复已保存和当前生效的设置；您编辑过的控件仍可继续修改或再次应用。关闭该询问对话框也会还原。**保存** 保留更改并关闭偏好设置窗口。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**设置 Backdrop** 在应用或保存偏好设置时均与主窗口动画保持独立。**无** 关闭弹窗动画，但保留蓝色边缘光。**设置背景暗度** 控制设置卡片覆盖其动画的不透明度，范围为 **0%** 至 **100%** （默认 **85%** ），并与 **页面不透明度** 共同作用。当设置背景为 **无** 时，页面不透明度仍然适用。较高的暗度覆盖更多动画，使文字更易阅读。弹窗只保持在所属 spaCR 窗口前方，不使用全局始终置顶标志，因此其他应用可以覆盖它们。"
+msgid "**Preferences** keeps four lines of help visible below the settings. Longer help scrolls within the strip without moving the dialog. Drag the strip’s narrow top edge to make it taller or shorter; Preferences remembers the chosen height. Moving from a control into the strip keeps its help available to read and scroll."
+msgstr "**偏好** 在设置下方保留四行可见帮助。较长的帮助文本在栏内滚动，不会移动对话框。拖动帮助栏狭窄的上边缘可增大或减小其高度；偏好设置会记住所选高度。将指针从控件移入帮助栏后，仍可阅读和滚动其帮助文本。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings animation speed**, **Settings animation size**, **Settings animation detail** and **Settings animation density** change only the settings-window backdrop. Its sliders retain their values when the backdrop is **None**, while the controls are disabled. Choosing a compatible backdrop enables them again. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
+msgstr "**设置 Backdrop** 在应用或保存偏好设置时均与主窗口动画保持独立。**无** 关闭弹窗动画，但保留蓝色边缘光。**设置窗口动画速度**、**设置窗口动画大小**、**设置窗口动画细节** 和 **设置窗口动画密度** 只改变设置窗口的背景。背景设为 **无** 时，滑块保留其数值，但控件被禁用。选择兼容的背景会重新启用这些控件。 **设置背景暗度** 控制设置卡片覆盖其动画的不透明度，范围为 **0%** 至 **100%** （默认 **85%** ），并与 **页面不透明度** 共同作用。当设置背景为 **无** 时，页面不透明度仍然适用。较高的暗度覆盖更多动画，使文字更易阅读。弹窗只保持在所属 spaCR 窗口前方，不使用全局始终置顶标志，因此其他应用可以覆盖它们。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."
 msgstr "在 **spaCR field** 中，按住鼠标左键并在空白背景区域拖动，可拉动一小片局部点阵。松开鼠标后，点阵会平滑回弹，而不会重新启动整个图案。这个背景手势不会占用科学图像画布及控件的操作手势。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Start ``spaceout --fresh`` for the separate Spaceout mode. Its default **spaCR field phenomena** backdrop adds changing motion to the field. Under **Preferences** → **Appearance** → **spaCR field**, eight independent switches control **Random attractors**, **Relaxation**, **Elastic release**, **Vortices**, **Density pulses**, **Density waves**, **Colour waves** and **Spirals**. All eight start on. **Apply** previews the edited switches; **Revert** restores the previous values, and **Save** keeps them. The ordinary ``spacr`` launcher uses its own background choice and hides this Spaceout-only section. To choose the fractal instead, select it in Spaceout's **Animation** menu."
+msgstr "运行 ``spaceout --fresh`` 可启动独立的 Spaceout 模式。其默认 **spaCR 场现象** 背景为场增添变化的运动。在 **偏好** → **外观** → **spaCR field** 中，八个独立开关控制 **随机吸引点**、**松弛**、**弹性释放**、**旋涡**、**密度脉动**、**密度波**、**颜色波** 和 **螺旋**。八项默认全部开启。**应用** 预览修改后的开关；**还原** 恢复之前的值，**保存** 则保留修改。普通 ``spacr`` 启动器使用自己的背景选择，并隐藏此 Spaceout 专用区域。如需分形背景，请在 Spaceout 的 **动画** 菜单中选择它。"
 
 msgid "Arranging the window"
 msgstr "排列窗口"
@@ -362,7 +375,7 @@ msgstr "Timelapse 事件标注与预训练特征（alpha）"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Enable **Show alpha features** in Preferences to use **Event annotations…** in Timelapse. Choose an existing spaCR tracks CSV and its matching image sequence, open the tracked field and confirm the pairing. Select an observed track and zero-based frame, enter an event name and press **Add or update**. **Save** writes the staged labels to an annotations CSV and selects it for event detection; closing without saving leaves the file unchanged. One track at one frame can have only one event label. Changed tracker or annotation files must be reopened before saving."
-msgstr "在 Preferences 中启用 **显示 Alpha 功能**，即可使用 Timelapse 中的 **事件记录...**。选择现有的 spaCR 轨迹 CSV 及其对应图像序列，打开已跟踪的视野并确认配对。选择实际观测到的轨迹和从零开始编号的帧，输入事件名称，然后点击 **添加或更新**。**保存** 将暂存标签写入标注 CSV，并为事件检测选中该文件；关闭而不保存会保持文件不变。同一轨迹在同一帧只能有一个事件标签。轨迹或标注文件发生更改后，必须重新打开才能保存。"
+msgstr "在 Preferences 中启用 **显示 Alpha 功能**，即可使用 Timelapse 中的 **事件标注…**。选择现有的 spaCR 轨迹 CSV 及其对应图像序列，打开已跟踪的视野并确认配对。选择实际观测到的轨迹和从零开始编号的帧，输入事件名称，然后点击 **添加或更新**。**保存** 将暂存标签写入标注 CSV，并为事件检测选中该文件；关闭而不保存会保持文件不变。同一轨迹在同一帧只能有一个事件标签。轨迹或标注文件发生更改后，必须重新打开才能保存。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The annotation table names ``field``, ``track_id``, ``frame`` and ``event``; an ``object`` column identifies the tracked object type. Label every event in fields used for training. The event detector evaluates held-out annotated fields, reports precision, recall and timing error, then trains and saves a model for reuse. Event classes come from the experiment's annotations."
@@ -402,6 +415,10 @@ msgstr "使用图表"
 
 msgid "Right-click any figure in spaCR, in a module's figure list or in an embedded plot such as Graph Builder, the UMAP explorer or a training comparison, to open its figure menu. The Volcano explorer and the Gate Editor keep their own right-click menus and add these entries to them."
 msgstr "在 spaCR 中右键单击任意图表——无论是在模块的图表列表中，还是在 Graph Builder、UMAP 浏览器或训练对比等嵌入式图中——即可打开其图表菜单。Volcano 浏览器和 Gate Editor 保留各自的右键菜单，并在其中添加这些条目。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The Gate Editor draws its 2D and 3D plots on an opaque card with rounded corners, so the page animation stays behind the surrounding controls. Right-click inside the plot to open its graph and figure actions; right-click an axis to change that measurement's scale, limits or cutoffs."
+msgstr "Gate Editor 在带圆角的不透明卡片上绘制 2D 和 3D 图，因此页面动画保留在周围控件的背后。在图内右键单击可打开图表和图形操作；右键单击坐标轴可修改该测量的尺度、范围或阈值。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them."
@@ -452,6 +469,18 @@ msgstr "在模块启动其工作进程之前，spaCR 会估算每个工作进程
 
 msgid "Runs started without the GUI lower ``n_jobs`` to the safe number and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
 msgstr "不通过图形界面启动的运行会将 ``n_jobs`` 降低到安全数量并输出警告。在 **高级** 中关闭 ``ram_guard`` 可保持你的 ``n_jobs`` 不变；当可用内存低于预留值时，测量仍会等待。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Worker startup and final retries"
+msgstr "工作进程启动与最终重试"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "spaCR starts the first application worker immediately, then spaces additional process and thread workers by ten seconds. This applies to spaCR's managed pools, executors, independent mask workers and data-loading workers. It staggers worker initialization, not every image or database operation. Numerical libraries may still manage their own internal threads."
+msgstr "spaCR 立即启动第一个应用工作单元，随后每隔十秒启动额外的进程或线程工作单元。这适用于 spaCR 管理的工作池、执行器、独立掩膜工作进程和数据加载工作进程。错开的是工作单元初始化，而不是每次图像或数据库操作。数值计算库仍可能自行管理内部线程。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "When a task exhausts its normal attempts because of a recognized resource overload, spaCR keeps it for one final attempt in a separate serial queue. This queue starts only after the primary tasks finish. SQLite busy or locked errors, explicit memory exhaustion and exhausted operating-system resources qualify. Invalid inputs, cancellation and unexplained worker deaths do not. A final failure remains an error with its original evidence; it is not retried again."
+msgstr "任务因已识别的资源过载而耗尽正常尝试次数时，spaCR 会将它保留到单独的串行队列中，进行一次最终尝试。该队列仅在主要任务全部结束后启动。符合条件的情况包括 SQLite 忙或锁定错误、明确的内存耗尽和操作系统资源耗尽。无效输入、取消和原因不明的工作进程退出不符合条件。最终尝试失败后仍报告错误并保留原始证据，不会再次重试。"
 
 msgid "Maturity labels"
 msgstr "成熟度标签"

@@ -55,7 +55,7 @@ def test_the_parent_records_what_the_worker_sent():
     source = Path(measure.__file__).read_text(encoding="utf-8")
     assert "result[4] if len(result) > 4 else" in source, (
         "the parent does not read the traceback the worker returns")
-    assert "exc=detail" in source, (
+    assert "record_verdict(item, detail)" in source, (
         "the traceback is read and then not recorded")
     # The old message survives only in the comment explaining why it was
     # wrong. What matters is that no `exc=` argument still carries it.

@@ -1,0 +1,192 @@
+From 0ec1b253a6a63a65e104fcd6262735aef65a233d Mon Sep 17 00:00:00 2001
+From: Einar Olafsson <einar.olafsson@gmail.com>
+Date: Thu, 8 Oct 2026 12:40:52 -0400
+Subject: [PATCH] Give Gate Editor graphs a rounded solid surface
+
+---
+ spacr/qt/widgets/gate_editor.py            | 16 +++-
+ tests/qt/test_gate_editor_rounded_graph.py | 87 ++++++++++++++++++++++
+ tests/qt/test_page_panels_backdrop.py      | 14 +++-
+ 3 files changed, 113 insertions(+), 4 deletions(-)
+ create mode 100644 tests/qt/test_gate_editor_rounded_graph.py
+
+diff --git a/spacr/qt/widgets/gate_editor.py b/spacr/qt/widgets/gate_editor.py
+index 88d79066fe9..c4f71ffc7cb 100644
+--- a/spacr/qt/widgets/gate_editor.py
++++ b/spacr/qt/widgets/gate_editor.py
+@@ -40,7 +40,7 @@ from typing import Any, Dict, List, Optional, Tuple
+ import numpy as np
+ import pandas as pd
+ from PySide6.QtCore import Qt, Signal
+-from PySide6.QtGui import QBrush, QColor
++from PySide6.QtGui import QBrush, QColor, QPainter
+ from PySide6.QtWidgets import (
+     QButtonGroup, QLabel,
+     QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox,
+@@ -51,7 +51,8 @@ from PySide6.QtWidgets import (
+ )
+ 
+ from ...selection import DataFilter
+-from ..theme import SPACING, active_palette, mark_surface
++from ..theme import (SPACING, active_palette, make_transparent,
++                     mark_surface, paint_panel)
+ from .graph_builder import GraphCanvas
+ from .graph_spec import BAR, HISTOGRAM, GraphSpec
+ from .gate_spec import (
+@@ -345,6 +346,11 @@ class GateCanvas(GraphCanvas):
+         :param source: the table being gated.
+         """
+         super().__init__(parent, link=link, source=source)
++        self.setAttribute(Qt.WA_TranslucentBackground, True)
++        make_transparent(self)
++        padding = SPACING["md"]
++        self.layout().setContentsMargins(padding, padding, padding, padding)
++        self._canvas._spacr_panel = False
+         self._tool = DEFAULT_TOOL
+         #: How near the first vertex a click has to land to close a polygon.
+         #: Pixels, because "close enough to click" is a screen property.
+@@ -429,6 +435,12 @@ class GateCanvas(GraphCanvas):
+         #: The live highlight of the objects inside a shape being drawn.
+         self._live = None
+ 
++    def paintEvent(self, event) -> None:
++        """Keep the plotted 2D or 3D points over one solid rounded surface."""
++        painter = QPainter(self)
++        paint_panel(painter, self, role="elevated", inset=0.5)
++        painter.end()
++
+     @property
+     def tool(self) -> str:
+         """Which drawing tool is armed.
+diff --git a/tests/qt/test_gate_editor_rounded_graph.py b/tests/qt/test_gate_editor_rounded_graph.py
+new file mode 100644
+index 00000000000..1aad5963ff6
+--- /dev/null
++++ b/tests/qt/test_gate_editor_rounded_graph.py
+@@ -0,0 +1,87 @@
++"""The Gate Editor graph has one rounded opaque surface in 2D and 3D."""
++
++from __future__ import annotations
++
++import pandas as pd
++import pytest
++
++pytest.importorskip("PySide6")
++
++from PySide6.QtCore import QSettings
++from PySide6.QtGui import QColor, QPainter
++from PySide6.QtWidgets import QVBoxLayout, QWidget
++
++from spacr.qt import preferences, theme
++from spacr.qt.widgets.gate_editor import GateCanvas
++from spacr.qt.widgets.graph_spec import GraphSpec
++
++
++class _ChangingBackdrop(QWidget):
++    def __init__(self):
++        super().__init__()
++        self.ink = QColor("#fa00fa")
++
++    def paintEvent(self, event):
++        painter = QPainter(self)
++        painter.fillRect(self.rect(), self.ink)
++        painter.end()
++
++
++@pytest.mark.parametrize("appearance", ("dark", "light"))
++def test_gate_graph_hides_backdrop_but_keeps_rounded_corners_in_2d_and_3d(
++        appearance, qtbot, qt_theme_applied, monkeypatch, tmp_path):
++    store = QSettings(str(tmp_path / "preferences.ini"), QSettings.IniFormat)
++    monkeypatch.setattr(preferences, "_settings", lambda: store)
++    original_palette = qt_theme_applied.palette()
++    original_sheet = qt_theme_applied.styleSheet()
++    preferences.set_theme(appearance)
++    theme.apply_qpalette(qt_theme_applied)
++    qt_theme_applied.setStyleSheet(theme.stylesheet())
++    try:
++        host = _ChangingBackdrop()
++        qtbot.addWidget(host)
++        layout = QVBoxLayout(host)
++        layout.setContentsMargins(0, 0, 0, 0)
++        canvas = GateCanvas(host)
++        layout.addWidget(canvas)
++        host.resize(800, 560)
++        host.show()
++        qt_theme_applied.processEvents()
++        canvas.set_frame(pd.DataFrame({
++            "a": [1.0, 2.0, 3.0, 4.0],
++            "b": [5.0, 6.0, 7.0, 8.0],
++            "c": [2.0, 3.0, 5.0, 7.0],
++        }))
++        canvas.set_spec(GraphSpec(x="a", y="b"))
++
++        for width, height, mode in ((800, 560, "2D"),
++                                    (1000, 620, "3D"),
++                                    (760, 540, "2D")):
++            host.ink = QColor("#fa00fa")
++            host.resize(width, height)
++            host.update()
++            canvas.set_mode(mode, z_column="c")
++            canvas._canvas.draw()
++            qt_theme_applied.processEvents()
++            assert canvas._axes[(0, 0)].name == (
++                "3d" if mode == "3D" else "rectilinear")
++            assert canvas._figure.patch.get_alpha() == 0.0
++            figure = canvas._canvas.geometry()
++            assert figure.left() >= 8 and figure.top() >= 8
++            assert figure.right() <= width - 9
++
++            first = host.grab().toImage()
++            host.ink = QColor("#00ef00")
++            host.update()
++            qt_theme_applied.processEvents()
++            second = host.grab().toImage()
++            assert first.pixelColor(0, 0) != second.pixelColor(0, 0)
++            for x, y in ((22, 22), (width // 2, height // 2),
++                         (width - 22, height - 22)):
++                assert first.pixelColor(x, y) == second.pixelColor(x, y), (
++                    appearance, mode, width, height, x, y)
++            assert second.pixelColor(22, 22) == QColor(
++                theme.active_palette()["surface_alt"])
++    finally:
++        qt_theme_applied.setPalette(original_palette)
++        qt_theme_applied.setStyleSheet(original_sheet)
+diff --git a/tests/qt/test_page_panels_backdrop.py b/tests/qt/test_page_panels_backdrop.py
+index efe3bd84d66..d0f4e647bc6 100644
+--- a/tests/qt/test_page_panels_backdrop.py
++++ b/tests/qt/test_page_panels_backdrop.py
+@@ -619,7 +619,6 @@ SCREENS = (
+     ("Power", _power),
+     ("Graph Builder", _graph_builder),
+     ("Trellis", _trellis),
+-    ("Gate Editor", _gate_editor),
+     ("Feature Explorer", _feature_explorer),
+     ("Tabulate", _tabulate),
+     ("PCA", _pca),
+@@ -692,7 +691,7 @@ def test_no_named_region_is_a_bare_dark_area(name, build, qtbot,
+         Graph Builder     shelf             0.699 -> 0.699
+         Trellis           chart canvas      0.000 -> 0.698
+         Trellis           shelf             0.000 -> 0.700
+-        Gate Editor       chart canvas      0.000 -> 0.698
++        Gate Editor       chart canvas      now has its own solid gate surface
+         Feature Explorer  distributions     0.000 -> 0.698
+         Tabulate          chart canvas      0.216 -> 0.763
+         PCA               chart canvas      0.114 -> 0.733
+@@ -748,6 +747,17 @@ def test_no_named_region_is_a_bare_dark_area(name, build, qtbot,
+         + ", ".join(f"{k}={v:.3f}" for k, v in measured.items()))
+ 
+ 
++def test_gate_editor_graph_is_solid_above_the_animated_page(
++        qtbot, app_theme_restored):
++    _window, screen, regions = _gate_editor(qtbot)
++    measured = _clearest(_transmission(screen),
++                         _region_rect(screen, regions["chart canvas"]))
++    assert measured < OPAQUE, (
++        f"Gate Editor plot passes {measured:.3f} of the backdrop through "
++        "its graph surface, so animated field dots can be mistaken for "
++        "plotted points")
++
++
+ def test_the_probe_reports_zero_for_an_opaque_figure_canvas(
+         qtbot, app_theme_restored, monkeypatch):
+     """The same guard, for the matplotlib mode.

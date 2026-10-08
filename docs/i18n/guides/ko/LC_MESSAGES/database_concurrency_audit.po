@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 18:34-0400\n"
+"POT-Creation-Date: 2026-10-08 16:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -43,8 +43,37 @@ msgstr "트랜잭션을 획득하는 동안 발생한 잠금/바쁨 실패만 �
 msgid "an exhausted lock budget raises :class:`spacr.database_concurrency.DatabaseBusy` instead of dropping a write or continuing silently."
 msgstr "잠금 예산이 소진되면 쓰기를 버리거나 조용히 계속하지 않고 :class:`spacr.database_concurrency.DatabaseBusy` 를 발생시킵니다."
 
-msgid "Measurement writes retain their specialized recovery for concurrent ``CREATE TABLE`` and schema-widening races. Run-status table creation and row insertion are one atomic transaction. Database Browser edit validation and its single-row update also share one transaction, so a row address cannot change between the check and the write. Resume's multi-table delete-before-remeasure validates and deletes under one retried write transaction. Annotate preserves the configured journal mode, rolls back a failed coalesced batch, retains an unsaved/error state, and reports that state in the module instead of marking a failed commit as saved."
-msgstr "측정 쓰기는 동시 ``CREATE TABLE`` 과 스키마 확장 경쟁에 대한 전용 복구 기능을 유지합니다. 실행 상태 테이블 생성과 행 삽입은 하나의 원자적 트랜잭션입니다. 데이터베이스 브라우저의 편집 검증과 단일 행 업데이트도 하나의 트랜잭션을 공유하므로, 검사와 쓰기 사이에 행 주소가 바뀔 수 없습니다. 재측정 전 여러 테이블을 삭제하는 재개 작업은 재시도되는 하나의 쓰기 트랜잭션 안에서 검증과 삭제를 수행합니다. 어노테이션 모듈은 구성된 저널 모드를 유지하고, 실패한 병합 배치를 롤백하며, 미저장/오류 상태를 유지하고, 실패한 커밋을 저장된 것으로 표시하는 대신 그 상태를 모듈에 보고합니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measure workers enqueue SQLite results for one dedicated writer. Object tables, crop indices, intensity provenance and confluency for a field commit in one transaction. A failed later operation rolls back the earlier rows and schema changes for that field. Run status records success only after commit. Standalone measurement helpers retain their specialized recovery for ``CREATE TABLE`` and schema-widening races. Run-status table creation and row insertion are one atomic transaction. Database Browser edit validation and its single-row update also share one transaction, so a row address cannot change between the check and the write. Resume's multi-table delete-before-remeasure validates and deletes under one retried write transaction. Annotate preserves the configured journal mode, rolls back a failed coalesced batch, retains an unsaved/error state, and reports that state in the module instead of marking a failed commit as saved."
+msgstr "Measure 작업자는 SQLite 결과를 단일 전용 쓰기 담당자의 대기열에 넣습니다. 한 이미지 시야의 객체 테이블, 자르기 인덱스, 강도 출처 및 융합도는 하나의 트랜잭션으로 커밋됩니다. 이후 작업이 실패하면 해당 시야의 앞선 행과 스키마 변경을 롤백합니다. 실행 상태는 커밋 후에만 성공을 기록합니다. 독립 측정 보조 함수는 ``CREATE TABLE`` 과 스키마 확장 경쟁에 대한 전용 복구 기능을 유지합니다. 실행 상태 테이블 생성과 행 삽입은 하나의 원자적 트랜잭션입니다. 데이터베이스 브라우저의 편집 검증과 단일 행 업데이트도 하나의 트랜잭션을 공유하므로, 검사와 쓰기 사이에 행 주소가 바뀔 수 없습니다. 재측정 전 여러 테이블을 삭제하는 재개 작업은 재시도되는 하나의 쓰기 트랜잭션 안에서 검증과 삭제를 수행합니다. 어노테이션 모듈은 구성된 저널 모드를 유지하고, 실패한 병합 배치를 롤백하며, 미저장/오류 상태를 유지하고, 실패한 커밋을 저장된 것으로 표시하는 대신 그 상태를 모듈에 보고합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measure's bounded write queue"
+msgstr "Measure의 제한된 쓰기 대기열"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Preferences → Performance**, **Database write queue RAM** controls the serialized data waiting for the SQLite writer. The default is 1 GiB; zero uses disk-only buffering. A Python or headless call can override the saved preference with ``database_write_queue_gib`` in the Measure settings, from zero to 64. The allowance accounts for queued payload and transport copies; it does not cap worker arrays, the active write, or total process memory."
+msgstr "**환경설정 → 성능** 에서 **데이터베이스 쓰기 대기열 RAM** 은 SQLite 쓰기 담당자를 기다리는 직렬화된 데이터량을 제어합니다. 기본값은 1 GiB이며, 0은 디스크 버퍼링만 사용합니다. Python 또는 GUI 없는 호출은 Measure 설정의 ``database_write_queue_gib`` 값으로 저장된 환경 설정을 덮어쓸 수 있으며 범위는 0부터 64까지입니다. 이 예산은 대기 중 실제 데이터와 전송 복사본을 포함하며, 작업자 배열, 진행 중 쓰기 또는 프로세스 총 메모리를 제한하지 않습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Overflow is stored in a private run folder beneath ``measurements/.write_queue``. The transport holds a bounded number of entries, and overflow descriptors refer to disk data. Packets also retain a durable copy until commit, so cancellation, disk exhaustion or a failed writer cannot silently discard accepted data. Successfully committed packets are removed. Uncommitted packets and their error reports remain on disk after failure; do not delete them before investigating the failed field."
+msgstr "초과 데이터는 ``measurements/.write_queue`` 아래의 비공개 실행 폴더에 저장됩니다. 전송 경로의 항목 수는 제한되며, 초과 항목의 설명 정보는 디스크 데이터를 가리킵니다. 패킷은 커밋 전까지 영속 복사본도 유지하므로 취소, 디스크 공간 부족 또는 쓰기 담당자 실패가 이미 수락된 데이터를 알리지 않고 버릴 수 없습니다. 성공적으로 커밋된 패킷은 삭제됩니다. 실패 후 미커밋 패킷과 오류 보고서는 디스크에 남으며, 실패한 시야를 조사하기 전에 삭제하지 마세요."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each field has a commit ticket written atomically with its rows. Replaying that ticket does not append the rows again. Exhausted SQL busy/lock failures enter a distinct serial retry pass after the primary producers finish. This pass gives each affected field one additional attempt. Invalid inputs and cancellation do not enter it. Readers retain their ordinary read-only connections and the existing filesystem-dependent journal policy."
+msgstr "각 이미지 시야의 커밋 확인표는 해당 행과 함께 원자적으로 기록됩니다. 같은 확인표를 다시 처리해도 행이 중복 추가되지 않습니다. 기존 재시도 횟수를 소진한 SQL 사용 중 또는 잠금 오류는 기본 생산 작업자가 모두 끝난 후 별도의 순차적 재시도 단계로 넘어갑니다. 이 단계에서 영향을 받은 각 시야에 한 번의 추가 시도를 제공합니다. 잘못된 입력과 취소는 포함되지 않습니다. 읽기 담당자는 일반 읽기 전용 연결과 기존 파일시스템별 저널 정책을 유지합니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The queued field path currently applies to the SQLite measurement backend. Optional DuckDB, Parquet and PostgreSQL mirrors retain their existing worker path; the RAM control does not govern those external stores."
+msgstr "대기열을 통한 시야 쓰기 경로는 현재 SQLite 측정 백엔드에 적용됩니다. 선택적 DuckDB, Parquet 및 PostgreSQL 미러는 기존 작업자 경로를 유지하며, 이 RAM 제어는 외부 저장소를 관리하지 않습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Simulation's bounded write queue"
+msgstr "시뮬레이션의 제한된 쓰기 대기열"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Parallel simulations use the same **Database write queue RAM** allowance, including a ``database_write_queue_gib`` override and disk-only buffering at zero. Pending packets live beneath the dated output directory in ``.simulation_write_queue``. Workers capture all tables for a simulation; one writer commits them with an idempotent ticket in the destination ``simulations.db``. A failed calculation does not enqueue partial tables. An exhausted calculation or database write fails the run and retains its pending disk evidence. Direct standalone ``run_and_save`` calls keep their ordinary database-writing path."
+msgstr "병렬 시뮬레이션은 같은 **데이터베이스 쓰기 대기열 RAM** 예산을 사용하며, ``database_write_queue_gib`` 덮어쓰기와 0에서의 디스크 전용 버퍼링도 지원합니다. 대기 중 패킷은 날짜가 포함된 출력 디렉터리 아래의 ``.simulation_write_queue`` 에 저장됩니다. 작업자는 시뮬레이션 하나의 모든 테이블을 수집하며, 쓰기 담당자 하나가 멱등성 확인표와 함께 대상 ``simulations.db`` 에 커밋합니다. 계산이 실패하면 불완전한 테이블을 대기열에 넣지 않습니다. 계산 또는 데이터베이스 쓰기가 재시도 횟수를 소진하면 실행이 실패하고 대기 중 디스크 증거를 보존합니다. 직접 독립적으로 호출한 ``run_and_save`` 는 일반 데이터베이스 쓰기 경로를 유지합니다."
 
 msgid "Journal mode and network storage"
 msgstr "저널 모드와 네트워크 저장소"
@@ -253,8 +282,9 @@ msgstr "이 연결에서 SQLite 외래 키 강제 적용을 켭니다. SQLite는
 msgid "Returns"
 msgstr "반환값"
 
-msgid "connection in autocommit mode; use :func:`transaction` for multi-statement writes."
-msgstr "자동 커밋 모드의 연결입니다. 여러 문장으로 된 쓰기에는 :func:`transaction` 을 사용합니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "connection in autocommit mode; use :func:`transaction` for multi-statement writes. Inside an atomic queued write, helpers for this same database reuse the writer thread's active connection; their commits and closes are deferred until the complete field commits."
+msgstr "자동 커밋 모드의 연결입니다. 여러 SQL 문을 쓰려면 :func:`transaction` 을 사용하세요. 원자적으로 처리되는 대기 중 쓰기에서 같은 데이터베이스의 보조 함수는 쓰기 스레드의 활성 연결을 재사용하며, 전체 이미지 시야의 커밋이 완료될 때까지 각 커밋과 연결 종료를 미룹니다."
 
 msgid "Raises"
 msgstr "예외"
@@ -379,8 +409,9 @@ msgstr "이 트랜잭션이 SQLite 안에서 잠금을 기다리며 보낼 수 �
 msgid "when the lock outlives the retry budget."
 msgstr "잠금이 재시도 예산보다 오래 지속될 때 발생합니다."
 
-msgid "when asked to nest inside an active transaction."
-msgstr "활성 트랜잭션 안에 중첩하도록 요청될 때 발생합니다."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "when asked to nest inside an active transaction outside a writer-owned packet. Queued helper transactions use savepoints within that packet."
+msgstr "쓰기 담당자가 관리하는 패킷 밖의 활성 트랜잭션 안에서 중첩을 요청할 때입니다. 대기 중 보조 함수의 트랜잭션은 해당 패킷 안에서 저장점을 사용합니다."
 
 msgid "Is ``path`` on a filesystem where WAL is known to behave?"
 msgstr "``path`` 가 WAL이 올바르게 동작한다고 알려진 파일 시스템에 있습니까?"

@@ -1,5 +1,5 @@
 # spaCR user guide translation (pt).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 18:34-0400\n"
+"POT-Creation-Date: 2026-10-08 16:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,8 +22,9 @@ msgstr ""
 msgid "Recruitment: compartment ratios and channel identity"
 msgstr "Recrutamento: razões entre compartimentos e identidade do canal"
 
-msgid "From **Home → Assays → Toxoplasma**, open **Recruitment** after segmentation and measurement. Supply the project containing ``measurements/measurements.db`` and verify that its cell, nucleus, pathogen and cytoplasm measurements refer to the intended objects and channels. See :ref:`Recruitment in the module map <workflow-module-recruitment>`, the `Recruitment tutorial <tutorials/#lesson=25_recruitment>`_ and :func:`spacr.submodules.analyze_recruitment` for the surrounding workflow."
-msgstr "Em **Início → Ensaios → Toxoplasma**, abra **Ensaio de recrutamento** após a segmentação e a medição. Informe o projeto que contém ``measurements/measurements.db`` e verifique se as medições de célula, núcleo, patógeno e citoplasma se referem aos objetos e canais pretendidos. Para o fluxo de trabalho em que ele se insere, consulte :ref:`Ensaio de recrutamento no mapa de módulos <workflow-module-recruitment>`, o `tutorial do Ensaio de recrutamento <tutorials/#lesson=25_recruitment>`_ e :func:`spacr.submodules.analyze_recruitment`."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "From **Home** → **Organism** → **Toxoplasma**, open **Recruitment** after segmentation and measurement. Supply the project containing ``measurements/measurements.db`` and verify that its cell, nucleus, pathogen and cytoplasm measurements refer to the intended objects and channels. See :ref:`Recruitment in the module map <workflow-module-recruitment>`, the `Recruitment tutorial <tutorials/#lesson=25_recruitment>`_ and :func:`spacr.submodules.analyze_recruitment` for the surrounding workflow."
+msgstr "Em **Início** → **Organismo** → **Toxoplasma**, abra **Ensaio de recrutamento** após a segmentação e a medição. Informe o projeto que contém ``measurements/measurements.db`` e verifique se as medições de célula, núcleo, patógeno e citoplasma se referem aos objetos e canais pretendidos. Para o fluxo de trabalho em que ele se insere, consulte :ref:`Ensaio de recrutamento no mapa de módulos <workflow-module-recruitment>`, o `tutorial do Ensaio de recrutamento <tutorials/#lesson=25_recruitment>`_ e :func:`spacr.submodules.analyze_recruitment`."
 
 msgid "For whole-vacuole marker states, explicit host infection denominators and optional parasite counts, see :doc:`Host–Pathogen Analysis <host_pathogen>`. The two modules remain separate analysis choices."
 msgstr "Para estados de marcadores do vacúolo inteiro, denominadores explícitos de infecção do hospedeiro e contagens opcionais de parasitas, consulte :doc:`Análise hospedeiro–patógeno <host_pathogen>`. Os dois módulos continuam sendo opções de análise separadas."

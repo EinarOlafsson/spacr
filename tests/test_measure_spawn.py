@@ -221,6 +221,7 @@ def test_measure_crop_completes_in_a_spawn_pool(merged_project, monkeypatch):
             'SELECT status, n_attempted, n_succeeded, n_failed '
             'FROM run_status').fetchone()
         assert (status, attempted, succeeded, failed) == ('complete', 2, 2, 0)
+        assert con.execute('SELECT COUNT(*) FROM _spacr_write_queue_commits').fetchone()[0] == 2
     finally:
         con.close()
 
@@ -236,28 +237,47 @@ def test_a_spawn_pool_is_not_oversized_for_the_work(merged_project, monkeypatch)
     """
     monkeypatch.setenv(M.START_METHOD_ENV_VAR, 'spawn')
     sizes = []
-    real_pool = mp.get_context('spawn').Pool
+    real_pool = M._parallel_pool
 
-    class _CountingContext:
-        """The spawn context, recording the size of every pool it builds."""
+    def counting_pool(processes=None, *args, **keywords):
+        sizes.append(processes)
+        return real_pool(processes, *args, **keywords)
 
-        def __init__(self):
-            self._ctx = mp.get_context('spawn')
-
-        def get_start_method(self):
-            return 'spawn'
-
-        def Manager(self):
-            return self._ctx.Manager()
-
-        def Pool(self, processes=None, *a, **kw):
-            sizes.append(processes)
-            return real_pool(processes, *a, **kw)
-
-    monkeypatch.setattr(M, '_pool_context', _CountingContext)
+    monkeypatch.setattr(M, '_parallel_pool', counting_pool)
     M.measure_crop(_settings(merged_project / 'merged', n_jobs=8))
 
     assert sizes == [2], f'asked for 8 workers to measure 2 fields: {sizes}'
+
+
+@pytest.mark.parametrize('failure', ['once', 'always'])
+def test_writer_failure_is_counted_only_after_its_final_attempt(
+        merged_project, monkeypatch, failure):
+    monkeypatch.setenv(M.START_METHOD_ENV_VAR, 'spawn')
+    commit = M._commit_measure_packet
+    seen = []
+
+    def dispatch(database, packet):
+        field = packet['field']
+        seen.append(field)
+        if field.endswith('F001.npy'):
+            if seen.count(field) == 1 or failure == 'always':
+                raise sqlite3.OperationalError('database is locked')
+            assert seen == ['plate1_A01_F001.npy', 'plate1_A01_F002.npy',
+                            'plate1_A01_F001.npy']
+        return commit(database, packet)
+
+    monkeypatch.setattr(M, '_commit_measure_packet', dispatch)
+    M.measure_crop(_settings(merged_project / 'merged', n_jobs=1,
+                             database_write_queue_gib=0))
+    database = merged_project / 'measurements' / 'measurements.db'
+    with sqlite3.connect(database) as connection:
+        succeeded, failed = connection.execute(
+            'SELECT n_succeeded, n_failed FROM run_status').fetchone()
+        assert (succeeded, failed) == ((2, 0) if failure == 'once' else (1, 1))
+        assert connection.execute('SELECT COUNT(*) FROM cell').fetchone()[0] == (
+            6 if failure == 'once' else 3)
+    spools = list((database.parent / '.write_queue').rglob('*.pkl'))
+    assert len(spools) == (0 if failure == 'once' else 1)
 
 
 # ---------------------------------------------------------------------------

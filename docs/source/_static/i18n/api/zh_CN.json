@@ -217,6 +217,16 @@
         "a68f1d91e3d19e4b7dfe89f0480efd933d7597aa8c5b4730f6060de20da7bc6e"
       ]
     },
+    "spacr._mask_workers._run_mask_workers.run_group": {
+      "source_blocks_sha256": [
+        "4052295c785b7844536496fdb155bce5817616f0b529a8eac4f5fcd47a5681cc"
+      ],
+      "source_sha256": "4052295c785b7844536496fdb155bce5817616f0b529a8eac4f5fcd47a5681cc",
+      "text": "等待主工作组或串行最终工作组的每个成员结束。",
+      "translation_source_blocks_sha256": [
+        "4052295c785b7844536496fdb155bce5817616f0b529a8eac4f5fcd47a5681cc"
+      ]
+    },
     "spacr._mask_workers._worker_figures.publish": {
       "source_blocks_sha256": [
         "d263c266a19ac5be96f3658af0b3f86ad1ee06695b320eb7f6deb87b6fab0743"
@@ -20421,11 +20431,11 @@
         "f1ec315b0ef992a6ab8e0a1766dcc6f2216daea3e42855b815e57285c0f2f3bb",
         "04db7ece52b63c560da2ece2be3ee1cda13e764890743e4124ff84ea4fcebbf3",
         "d731f26ccc25ffad7a39e0bb855284bf3e46ae6245a766e78756dc8eca1a2760",
-        "7451fe517efc51a737a9591a521e006483d674afb04469f516acb417f157caec",
+        "ebe0943c952d3e79635549fcf653b39cfeb6ab33605cb0f0ac92506e65702f9b",
         "16e7c9acda5794a52cb74887d6105259230e33ec114004b776f0b08c4e8935cf"
       ],
-      "source_sha256": "3b3e51c388c01e7bdc1b0fb80197cf9822284e2e28498b1e7fb469074f06e12d",
-      "text": "打开一个由呼叫独立执行路径所拥有的配置连接。\n\n:param path: SQLite 数据库路径。\n:param readonly: 用 URI ``mode=ro`` 和 ``query_only=ON`` 打开。\n:param timeout: SQLite 在锁操作内部等待的秒数。\n:param journal_mode: 可选明确 ``\"WAL\"`` 或 ``\"DELETE\"``. 无法保存数据库的当前模式. WAL 不应在共享/NFS存储上盲目启用; 首先使用 :func:`filesystem_type` 或者竞争对手探测器。\n:param foreign_keys: 点击 SQLite 此连接的外部密钥检查。 SQLite 开始于每个连接中禁用这些检查。\n:returns: 连接在自动接口模式;使用 :func:`transaction` 为多文本写作。\n:raises DatabaseConfigurationError: 对于不安全/未支持的请求日志模式,或者当 SQLite 拒绝使用此时。",
+      "source_sha256": "81ebb05c0fc681c5995f1bc82d6983f2a1ca994e318fa094f2fd75d72acfe4f9",
+      "text": "打开一个由呼叫独立执行路径所拥有的配置连接。\n\n:param path: SQLite 数据库路径。\n:param readonly: 用 URI ``mode=ro`` 和 ``query_only=ON`` 打开。\n:param timeout: SQLite 在锁操作内部等待的秒数。\n:param journal_mode: 可选明确 ``\"WAL\"`` 或 ``\"DELETE\"``. 无法保存数据库的当前模式. WAL 不应在共享/NFS存储上盲目启用; 首先使用 :func:`filesystem_type` 或者竞争对手探测器。\n:param foreign_keys: 点击 SQLite 此连接的外部密钥检查。 SQLite 开始于每个连接中禁用这些检查。\n:returns: 处于自动提交模式的连接；多语句写入请使用 :func:`transaction`。在原子排队写入中，同一数据库的辅助函数复用写入线程的活动连接；其提交和关闭操作延后到整个图像视野提交完成时执行。\n:raises DatabaseConfigurationError: 对于不安全/未支持的请求日志模式,或者当 SQLite 拒绝使用此时。",
       "translation_source_blocks_sha256": [
         "4c70c0f5e25f763c81124cfe0b12cad220fa05e0449bc566ae700d310d0ffcca",
         "ae3ab4df63ffcd920513b692f16b41850977e018504315873076deda5dcc06d1",
@@ -20433,7 +20443,7 @@
         "f1ec315b0ef992a6ab8e0a1766dcc6f2216daea3e42855b815e57285c0f2f3bb",
         "04db7ece52b63c560da2ece2be3ee1cda13e764890743e4124ff84ea4fcebbf3",
         "19616110cd1bd96c631f0c41ce94ddb5e90659ef0d3a8e2d491a45031bde2306",
-        "7451fe517efc51a737a9591a521e006483d674afb04469f516acb417f157caec",
+        "99de905bcc1ba9ab0ec3e3090a230d64604690e6b3da934c9b5ea96be77b227e",
         "16e7c9acda5794a52cb74887d6105259230e33ec114004b776f0b08c4e8935cf"
       ]
     },
@@ -20550,10 +20560,10 @@
         "5e0e3b553903a00524b45754601b9c70d4527846c95f259b2842e40d3a82da87",
         "65fa199a990ef7828fac0cdb761ecfa1930c3823346a578c0c302bf74e7a12a3",
         "1a6c9bf1890d271f4dc8d8f3042beb1eb105cb7b6a2b4e50aeee55dc68e6b2fc",
-        "89414cabc7a1f77766424a334083261b016f26143a1a1fb04a5c50566c944fa1"
+        "e5e036b663d76d2ac4242bd4762a39b992308b7408b639de920edecd760bd72f"
       ],
-      "source_sha256": "9e0a57e656d78b97e0eda00589be7f73f4d54106e5362e3c57e0e5e2d49a51da",
-      "text": "运行一项全或无交易,使用有限锁退款。\n\n只有 ``BEGIN`` 退出,一旦交易开始,退出个人声明可能会重复以前的写作。\n\n:param connection: 呼叫独立执行路径的开放自动接口连接。\n:param mode: ``DEFERRED``、``IMMEDIATE``(默认)或``EXCLUSIVE``。\n:param attempts: 最大努力获得交易。\n:param initial_delay: 首先在锁失败之间。\n:param maximum_delay: 巴克福特\n:param busy_timeout: 这一交易可能花费一秒钟等待 SQLite 内部的锁,共享 ``attempts`` 并每次尝试花在 ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS`` 。 遗弃继承连接的配置 ``busy_timeout``; 通过它,当写的自己的宽容不同于任何 ``timeout`` 连接发生打开。\n:raises DatabaseBusy: 锁会将退休预算存活。\n:raises RuntimeError: 请求在一个活跃的交易中进行内存。",
+      "source_sha256": "36b03bb81f1de991464bdbf6d61edbc1d9ab8ada43b80a9c52c65f24debc2baf",
+      "text": "运行一项全或无交易,使用有限锁退款。\n\n只有 ``BEGIN`` 退出,一旦交易开始,退出个人声明可能会重复以前的写作。\n\n:param connection: 呼叫独立执行路径的开放自动接口连接。\n:param mode: ``DEFERRED``、``IMMEDIATE``(默认)或``EXCLUSIVE``。\n:param attempts: 最大努力获得交易。\n:param initial_delay: 首先在锁失败之间。\n:param maximum_delay: 巴克福特\n:param busy_timeout: 这一交易可能花费一秒钟等待 SQLite 内部的锁,共享 ``attempts`` 并每次尝试花在 ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS`` 。 遗弃继承连接的配置 ``busy_timeout``; 通过它,当写的自己的宽容不同于任何 ``timeout`` 连接发生打开。\n:raises DatabaseBusy: 锁会将退休预算存活。\n:raises RuntimeError: 在写入器所管理的数据包之外，请求嵌套到活动事务中时。排队的辅助函数事务在该数据包内使用保存点。",
       "translation_source_blocks_sha256": [
         "9306dbcc912f01b994274561d09e643554267dc9dd0c5bb628dc18f9a68d51b7",
         "64156d0ab431b4f100e0e71f530a4d2d63b7040c72623049775382c118bcfeaf",
@@ -20564,7 +20574,7 @@
         "5e0e3b553903a00524b45754601b9c70d4527846c95f259b2842e40d3a82da87",
         "65fa199a990ef7828fac0cdb761ecfa1930c3823346a578c0c302bf74e7a12a3",
         "1a6c9bf1890d271f4dc8d8f3042beb1eb105cb7b6a2b4e50aeee55dc68e6b2fc",
-        "89414cabc7a1f77766424a334083261b016f26143a1a1fb04a5c50566c944fa1"
+        "e5e036b663d76d2ac4242bd4762a39b992308b7408b639de920edecd760bd72f"
       ]
     },
     "spacr.database_concurrency.wal_is_safe_here": {
@@ -45005,6 +45015,18 @@
         "beae0390bf53ee34a2347b13ac8b0dceb04fceec38e1503e162642883016d901"
       ]
     },
+    "spacr.measure._commit_measure_packet.dispatch": {
+      "source_blocks_sha256": [
+        "a7f12d2162ba4af15caacea44d9950a67a7c6769ab8b6532dfe6c0d16398e901",
+        "62290849baf7cea7152f2e1b4afdacbb6e6344072c15f1e2dbfff0a497ae83b9"
+      ],
+      "source_sha256": "d9d59e9a858fb747e1b7d449e40b1c3f07263bd3dde3c1569d9d074eade450a5",
+      "text": "将一项获准操作保存到数据包的中央数据库。\n\n:param operation: 获准的辅助函数名称、位置参数和关键字参数。",
+      "translation_source_blocks_sha256": [
+        "a7f12d2162ba4af15caacea44d9950a67a7c6769ab8b6532dfe6c0d16398e901",
+        "62290849baf7cea7152f2e1b4afdacbb6e6344072c15f1e2dbfff0a497ae83b9"
+      ]
+    },
     "spacr.measure._confluency_phase_features.log_sd": {
       "source_blocks_sha256": [
         "946bba1bab987957ae59fef6689a070bc1ec2b2a2d454be73cf9c2592ff71182"
@@ -45488,6 +45510,7 @@
         "b121081764c60347ea02ccfae9ca6358199105596a6b5bd1fb6e389b5081fe79",
         "f8b3da5212c4ca703a46301293e46749996b61a879bff1cf971a17f15db56860",
         "99f5f572aa0963f50b62877ed33efe7ba74659b7ddfdc92ce792e0802360970c",
+        "ab7fd34d9f1a12be5d0f3158b668ff926f03b7a1ebe183e9fdbf2c0065e6ce5e",
         "b58e2b6592e749615f2dc5f10ac9ed23145f5ff898495161775e23d8e88723de",
         "fd9989dfcfe81a26d794d1e77003a454f4b9febca9a4be4b175aea694f22c864",
         "b65ba8c7f8b84a88199c1f4b3cb99daab65430a1383b7753f4da31f899377fe0",
@@ -45495,8 +45518,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "e9fad3ffb2efec6a5b19f4127fb66633a0c096704de7bd7907e7fc3c03c7ad39"
       ],
-      "source_sha256": "84831429cc9a1e4b67232df48c98c7bff72a67dc2be87aeb20896faa1d8bcc01",
-      "text": "提取物分物形态/强度测量和(可选)收获 PNGs 由掩膜粘贴。\n\n读取 ``merged/`` 文件夹；该文件夹由 :func:`spacr.core.preprocess_generate_masks` 生成，其中图像数据通道数组和掩模堆栈均保存为 ``.npy``。随后为每个细胞 / 细胞核 / 病原体 / 细胞质对象计算形状、强度、纹理和空间特征，并写入 SQLite ``measurements.db``。启用 ``save_png`` 时，还会为每个对象提取图像区域并保存为 PNG 缩略图，作为 :func:`spacr.deep_spacr.deep_spacr` 的训练输入。\n\n:param settings: 设置关键值地图,通过 :func:`spacr.settings.get_measure_crop_settings` 进行可通化。 结构数据输入函数阅读:\n\n    - ``src``（str 或列表）— 一个或多个 ``…/merged`` 文件夹。Make Masks 已分析过的云地址，会从 Make Masks 暂存它的本地文件夹进行测量；包含合并堆栈的云文件夹会先镜像到 ``cloud_cache`` 下。``cloud_results`` 会把测量文件夹复制回云存储。\n    - ``psf_measurement_source`` —— original（默认）使用常规的经过重新缩放/预处理的强度；processed 会在定量特征之前加入一个经过显式校准的 PSF。不可变的卷积核会传递到每个工作进程。源图像和导出的裁剪图保持不变。视野的来源信息保存在 ``intensity_rescale`` 中；不兼容的已有 PSF 测量会在追加任何行之前被拒绝。\n    - ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim`` - 每个掩膜板的图像数据渠道指数; ``None`` 阻止此类对象类型。\n    - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size`` / ``cytoplasm_min_size`` - 像素区域切割。\n    - ``channels`` - 图像强度数据渠道的列表来测量。\n    - ``crop_mode`` - 从 ``['cell','nucleus','pathogen', 'cytoplasm']`` 提取的列表;每个输入每对象产生一个 PNG。\n    - ``save_png`` — 写字符为对象 PNG。\n    - ``normalize`` — ``[lower_pct, upper_pct]`` 为 PNG 正常化。\n    - ``normalize_by`` — ``'png'``(每个提取图像区域)或 ``'fov'``(每显微镜视野)。\n    - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.\n    - ``dry_run`` - 验证设置,报告计划和停止;输入文件夹被检查,但没有写下任何内容。\n\n:returns: ``None``在正常运行中,写下``measurements/measurements.db``、``measure_crop_settings.csv``和(如果``save_png``) PNG 到每对象的子字段为 ``src``。当 ``dry_run``设置时,:class:`spacr.validate.Problem`的列表由 :func:`spacr.validate.run_preflight`返回,没有任何内容被写入。\n:raises ValueError: 如果 ``src`` 不是行或行列表。\n:raises spacr.errors.ConfigurationError: 只有在严格模式(``settings['strict_errors']``,或 ``SPACR_STRICT_ERRORS``环境变量)。 ``normalize``、 ``normalize_by``、掩膜尺寸/min尺寸和 ``channels`` 类型检查,否则打印一个警告并返回 ``None`` 没有测量任何东西。\n\n示例：\n    .. code-block:: python\n\n        from spacr.measure import measure_crop\n        settings = {\n            'src': '/data/plate01/merged',\n            'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,\n            'channels': [0, 1, 2, 3],\n            'crop_mode': ['cell'], 'save_png': True,\n            'normalize': [1, 99], 'normalize_by': 'png',\n        }\n        measure_crop(settings)\n\n看也: :func:`spacr.core.preprocess_generate_masks` — 上流掩膜生成 :func:`spacr.io.generate_dataset` — 创建一个训练组从 PNGs. :func:`spacr.deep_spacr.deep_spacr` — 在提取的图像区域上运行 CNN。",
+      "source_sha256": "0a1ab9b650617748efad281aa674c96b90fe137855e9bd3d0a581d03cb3a1f54",
+      "text": "提取物分物形态/强度测量和(可选)收获 PNGs 由掩膜粘贴。\n\n读取 ``merged/`` 文件夹；该文件夹由 :func:`spacr.core.preprocess_generate_masks` 生成，其中图像数据通道数组和掩模堆栈均保存为 ``.npy``。随后为每个细胞 / 细胞核 / 病原体 / 细胞质对象计算形状、强度、纹理和空间特征，并写入 SQLite ``measurements.db``。启用 ``save_png`` 时，还会为每个对象提取图像区域并保存为 PNG 缩略图，作为 :func:`spacr.deep_spacr.deep_spacr` 的训练输入。\n\n:param settings: 设置关键值地图,通过 :func:`spacr.settings.get_measure_crop_settings` 进行可通化。 结构数据输入函数阅读:\n\n    - ``src``（str 或列表）— 一个或多个 ``…/merged`` 文件夹。Make Masks 已分析过的云地址，会从 Make Masks 暂存它的本地文件夹进行测量；包含合并堆栈的云文件夹会先镜像到 ``cloud_cache`` 下。``cloud_results`` 会把测量文件夹复制回云存储。\n    - ``psf_measurement_source`` —— original（默认）使用常规的经过重新缩放/预处理的强度；processed 会在定量特征之前加入一个经过显式校准的 PSF。不可变的卷积核会传递到每个工作进程。源图像和导出的裁剪图保持不变。视野的来源信息保存在 ``intensity_rescale`` 中；不兼容的已有 PSF 测量会在追加任何行之前被拒绝。\n    - ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim`` - 每个掩膜板的图像数据渠道指数; ``None`` 阻止此类对象类型。\n    - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size`` / ``cytoplasm_min_size`` - 像素区域切割。\n    - ``channels`` - 图像强度数据渠道的列表来测量。\n    - ``crop_mode`` - 从 ``['cell','nucleus','pathogen', 'cytoplasm']`` 提取的列表;每个输入每对象产生一个 PNG。\n    - ``save_png`` — 写字符为对象 PNG。\n    - ``normalize`` — ``[lower_pct, upper_pct]`` 为 PNG 正常化。\n    - ``normalize_by`` — ``'png'``(每个提取图像区域)或 ``'fov'``(每显微镜视野)。\n    - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.\n    - ``database_write_queue_gib`` — SQLite 排队数据的可选 RAM 预算，范围为零到 64 GiB。省略时使用偏好设置（默认一 GiB）。零表示仅使用磁盘缓冲；超出预算的数据存放在 ``measurements/.write_queue`` 下。每个图像视野以原子方式提交，写入失败后未完成的数据包仍会保留。\n    - ``dry_run`` - 验证设置,报告计划和停止;输入文件夹被检查,但没有写下任何内容。\n\n:returns: ``None``在正常运行中,写下``measurements/measurements.db``、``measure_crop_settings.csv``和(如果``save_png``) PNG 到每对象的子字段为 ``src``。当 ``dry_run``设置时,:class:`spacr.validate.Problem`的列表由 :func:`spacr.validate.run_preflight`返回,没有任何内容被写入。\n:raises ValueError: 如果 ``src`` 不是行或行列表。\n:raises spacr.errors.ConfigurationError: 只有在严格模式(``settings['strict_errors']``,或 ``SPACR_STRICT_ERRORS``环境变量)。 ``normalize``、 ``normalize_by``、掩膜尺寸/min尺寸和 ``channels`` 类型检查,否则打印一个警告并返回 ``None`` 没有测量任何东西。\n\n示例：\n    .. code-block:: python\n\n        from spacr.measure import measure_crop\n        settings = {\n            'src': '/data/plate01/merged',\n            'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,\n            'channels': [0, 1, 2, 3],\n            'crop_mode': ['cell'], 'save_png': True,\n            'normalize': [1, 99], 'normalize_by': 'png',\n        }\n        measure_crop(settings)\n\n看也: :func:`spacr.core.preprocess_generate_masks` — 上流掩膜生成 :func:`spacr.io.generate_dataset` — 创建一个训练组从 PNGs. :func:`spacr.deep_spacr.deep_spacr` — 在提取的图像区域上运行 CNN。",
       "translation_source_blocks_sha256": [
         "a19d38b7da35680a98438b6c9345ff12e12b71a4a21a0d368c390516d6fd1552",
         "52d723fdb3dd688a258786c9cb0fa01abc3f76a0da6919d495cf2b15dc5e17bf",
@@ -45511,6 +45534,7 @@
         "b121081764c60347ea02ccfae9ca6358199105596a6b5bd1fb6e389b5081fe79",
         "ca1301e7671aeb28f271ddf501c7b0d8b9c2d0d64f68e14c6cba020203b0e00c",
         "99f5f572aa0963f50b62877ed33efe7ba74659b7ddfdc92ce792e0802360970c",
+        "ab7fd34d9f1a12be5d0f3158b668ff926f03b7a1ebe183e9fdbf2c0065e6ce5e",
         "b58e2b6592e749615f2dc5f10ac9ed23145f5ff898495161775e23d8e88723de",
         "fd9989dfcfe81a26d794d1e77003a454f4b9febca9a4be4b175aea694f22c864",
         "b65ba8c7f8b84a88199c1f4b3cb99daab65430a1383b7753f4da31f899377fe0",
@@ -45521,14 +45545,14 @@
     },
     "spacr.measure.measure_crop.job_callback": {
       "source_blocks_sha256": [
-        "4125957ce35fa2732ebe63cc2fab8251c1530f38ec47e9f704ad64049e951e3a",
-        "7c2086c26796b9a25462ef474b70ed5f24e224738f26f5c95d4eb9fceb6cd4b9"
+        "111b7e987c7e4c82013353f2d7e75feaeea02494d840bd7103151203d7a505ef",
+        "971d644efe435f0fa22a8a94464059fd3f0ace226a548062e3be9d79174205af"
       ],
-      "source_sha256": "23b43004a8a076e52456a15fc43a8e4385e79d4501c8136b8f8f84e403e4fbcf",
-      "text": "记录一个已完成的视野，并保存其可选图形。\n\n:param result: 4 元组 ``(index, average_time, cells, figs)`` 由 :func:`_measure_crop_core` 返回，直接取自 ``AsyncResult`` -- 是单个结果，而不是 :func:`process_measure_crop_results` 接收的列表，因此下面会把它重新包装成 ``[result]``。``index`` 是在 ``files`` 中的位置，并通过 ``index_to_file`` 转换回来，使台账条目记录视野名称而不是数字。``cells`` 决定结论：成功路径会在那里留下 ``np.unique(cell_mask)`` 数组，而普通 int ``0`` 是 worker 捕获自身异常时留下的跨进程失败标记，因此只有这个 int 会记录失败。``figs`` 可以是空 dict -- 没有 ``settings['plot']`` 时什么也不绘制。把同一视野传入两次对计数器是安全的（``completed_jobs`` 和 ``reported_files`` 都是集合），但会把其图形保存两次，因此重试循环只对真正返回的那次尝试调用此函数。",
+      "source_sha256": "28866d7f0e95e241d31ebca5700a5da892d69ff48b6df93ddb75cd923be9094f",
+      "text": "保存返回的图表，并报告图像视野的计算进度。\n\n:param result: 索引、平均耗时、剩余标签、图表、错误文本和可选的排队写入凭证。标签值为整数零时，记录该图像视野的原始失败。所有科学数据行提交后，写入器才单独记录 SQLite 写入成功。其他后端保留现有的同步工作进程结果。",
       "translation_source_blocks_sha256": [
-        "4125957ce35fa2732ebe63cc2fab8251c1530f38ec47e9f704ad64049e951e3a",
-        "9de763bc6925a55a39a626efdb10f5b6a12d0fbccb192a66f9a0b6858b39904b"
+        "111b7e987c7e4c82013353f2d7e75feaeea02494d840bd7103151203d7a505ef",
+        "971d644efe435f0fa22a8a94464059fd3f0ace226a548062e3be9d79174205af"
       ]
     },
     "spacr.measure.measure_crop.make_error_callback": {
@@ -45555,6 +45579,26 @@
       "text": "把一个 worker 的失败记录到导致失败的文件名下。",
       "translation_source_blocks_sha256": [
         "b3e7df802817cac8b0aceeaf6d4a80c87c0d757f224ea11855a750c9c51addd9"
+      ]
+    },
+    "spacr.measure.measure_crop.record_verdict": {
+      "source_blocks_sha256": [
+        "a4693e96e54697bc45989be5bea1e6b19c7f81bba5449368f7d2c18478fcd213"
+      ],
+      "source_sha256": "a4693e96e54697bc45989be5bea1e6b19c7f81bba5449368f7d2c18478fcd213",
+      "text": "在每个图像视野的实际最终结果确定后，只计数一次。",
+      "translation_source_blocks_sha256": [
+        "a4693e96e54697bc45989be5bea1e6b19c7f81bba5449368f7d2c18478fcd213"
+      ]
+    },
+    "spacr.measure.measure_crop.write_callback": {
+      "source_blocks_sha256": [
+        "8dfa9d1be7155cd3aabfe2c6c9ac7848527237be903ce63d77dea3d51dfc6e29"
+      ],
+      "source_sha256": "8dfa9d1be7155cd3aabfe2c6c9ac7848527237be903ce63d77dea3d51dfc6e29",
+      "text": "仅在数据包的最终 SQL 结果确定后，记录对应图像视野。",
+      "translation_source_blocks_sha256": [
+        "8dfa9d1be7155cd3aabfe2c6c9ac7848527237be903ce63d77dea3d51dfc6e29"
       ]
     },
     "spacr.measure.measure_from_field_table": {
@@ -56187,6 +56231,16 @@
         "bbfd27c77a3500bad2fba37cb41206f2f12ede8627480ed3aedc7c6d13f2c02f"
       ]
     },
+    "spacr.ops_engine._decode_field.load_slot": {
+      "source_blocks_sha256": [
+        "dd4c91b6166b9a5da2d32efb535b1ec07aa78eb36d322b779a07ce3926607eba"
+      ],
+      "source_sha256": "dd4c91b6166b9a5da2d32efb535b1ec07aa78eb36d322b779a07ce3926607eba",
+      "text": "使用统一的延后过载重试策略读取一个原始数据源。",
+      "translation_source_blocks_sha256": [
+        "dd4c91b6166b9a5da2d32efb535b1ec07aa78eb36d322b779a07ce3926607eba"
+      ]
+    },
     "spacr.ops_engine._largest_component.find": {
       "source_blocks_sha256": [
         "bff7bdea9aa13fb4afefd4803c6d263df0352baf7fd4f745f24eea4c59de3229",
@@ -58761,10 +58815,10 @@
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
         "19cbdf49a62ad738af12f8c662dabc35c39c2610d421929a9f3ce2fa63ff7f48",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "1b49559af04e70a9a6e9bb5b105a691b745af9a063d4ba26c4154c0d19c473fb"
+        "0bef7cc59f1f083366ce89406c2f7a6b47c80b6061efc0b184926364348ed8d5"
       ],
-      "source_sha256": "63d1ccf466b8b5f3d0687fff3e9b26a8dc91c2c045af184a148f923e9cf00c21",
-      "text": "同时在分裂过程中进行参数调试。\n\n参数\n----------\nbase_settings : mapping 每次尝试中共享的回归设置,包括分数和计算输入。 测试文件夹的 destination : path-like 目录, ``sweep_trials.json`` 和 ``sweep_results.csv`` 增加表。 空间: SweepSpace 或 None,可选搜索空间。 ``None`` 使用 :data:`DEFAULT_SWEEP_SPACE` 和内置兼容性过滤器。 mode : {'grid', 'random'}, default='random' 试点列表订单转换为 :func:`build_trials`。 max_trials : int, default=1000 最多可接受的试验数量。 seed : int, default=0 随机命令种子在 ``mode='random'`` 时使用。 controls : mapping or None, optional 从控制联盟到识别器的地图。 控制恢复测量被添加到每个结果行。 n_jobs : int, default=8 所需的游泳池大小。 :func:`recommended_workers` 可以根据记忆和 CPU 容量减少。 contained : bool, default=True 在单独的孩子中执行每个匹配:func:`run_trial_contained`。 硬记忆、交换、任务和 CPU 限制仅适用于可用的系统用户范围; 否则,孩子是无缝的,但使用减少的优先事项和线条限制。 设置为 ``False`` 只有当测试资源使用已知时。 qc : bool, default=False 为每个测试创建完整的 regression 诊断图表套件。 progress_every : int, default=25 印刷进展,经过许多完成的试验。 使用零来禁用定期进展消息。\n\n返回\n-------\npandas.DataFrame 每个试验中的一个状态序列,分为 ``trial_id``. 相同的序列以 ``sweep_results.csv`` 编写。\n\n升高\n------\nRuntimeError 如果从一个工作进程过程中呼叫,脚本必须在 ``if __name__ == '__main__':`` 警卫下呼叫这个函数。\n\n备注\n-----\n游泳池使用 ``spawn`` 启动方法,因为配置模型可以进口 torch 和 OpenMP 运行时间。",
+      "source_sha256": "b8ccc321e365eecf164408ba111f28af533e4e2dedcd61fd9bf687f58e9f9224",
+      "text": "同时在分裂过程中进行参数调试。\n\n参数\n----------\nbase_settings : mapping 每次尝试中共享的回归设置,包括分数和计算输入。 测试文件夹的 destination : path-like 目录, ``sweep_trials.json`` 和 ``sweep_results.csv`` 增加表。 空间: SweepSpace 或 None,可选搜索空间。 ``None`` 使用 :data:`DEFAULT_SWEEP_SPACE` 和内置兼容性过滤器。 mode : {'grid', 'random'}, default='random' 试点列表订单转换为 :func:`build_trials`。 max_trials : int, default=1000 最多可接受的试验数量。 seed : int, default=0 随机命令种子在 ``mode='random'`` 时使用。 controls : mapping or None, optional 从控制联盟到识别器的地图。 控制恢复测量被添加到每个结果行。 n_jobs : int, default=8 所需的游泳池大小。 :func:`recommended_workers` 可以根据记忆和 CPU 容量减少。 contained : bool, default=True 在单独的孩子中执行每个匹配:func:`run_trial_contained`。 硬记忆、交换、任务和 CPU 限制仅适用于可用的系统用户范围; 否则,孩子是无缝的,但使用减少的优先事项和线条限制。 设置为 ``False`` 只有当测试资源使用已知时。 qc : bool, default=False 为每个测试创建完整的 regression 诊断图表套件。 progress_every : int, default=25 印刷进展,经过许多完成的试验。 使用零来禁用定期进展消息。\n\n返回\n-------\npandas.DataFrame 每个试验中的一个状态序列,分为 ``trial_id``. 相同的序列以 ``sweep_results.csv`` 编写。\n\n升高\n------\nRuntimeError 如果从一个工作进程过程中呼叫,脚本必须在 ``if __name__ == '__main__':`` 警卫下呼叫这个函数。\n\n备注\n-----\n进程池使用 ``spawn`` 启动方法，因为拟合后的模型可能导入 torch 和 OpenMP 运行环境。同一时刻只提交有限数量的任务，因此可在可用内存不足时暂停新任务的提交。初始处理工作进程以十秒间隔启动。所有主试验完成后，明确由资源过载引起的失败在原有试验目录中进行一次串行重试。原始结果文件和错误文件单独保留；最终表格每个试验占一行，包含主试验失败详情及 ``overload_retry`` 元数据。无效输入、取消操作和原因不明的原生工作进程退出不重试。",
       "translation_source_blocks_sha256": [
         "ff9029ee74295c4722b59abe0668d90b9c980804895ddd0e6b984b1c2b8dd377",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
@@ -58774,7 +58828,7 @@
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
         "19cbdf49a62ad738af12f8c662dabc35c39c2610d421929a9f3ce2fa63ff7f48",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "1b49559af04e70a9a6e9bb5b105a691b745af9a063d4ba26c4154c0d19c473fb"
+        "0bef7cc59f1f083366ce89406c2f7a6b47c80b6061efc0b184926364348ed8d5"
       ]
     },
     "spacr.parameter_sweep.run_sweep_parallel._fill": {
@@ -63204,12 +63258,12 @@
         "cf278726dd7f39c8fbf18a2ec9822cf01ea172a0b80d4d80255626c9df586d22",
         "5b61106a793f52b85799933a67d8ee198d88f161ec103520b7825f08fec4562a",
         "dea3a1b498dc9f92fca5bc63a04233d4fe3b2e5ec5bc2a07e083b0045a64afd3",
-        "7a65db57257b9f0faf5833d55c8f73945233ccae792b4e61788e9642c9accd07",
+        "8a72d42185932f35114de027f8e78438bf2eab1cca905810bcb48236234953d1",
         "3875bd0f348fe91ee3dc23df65c2f2205c9a487955728f8c7903020db83113ef",
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
       ],
-      "source_sha256": "3354a6f2c31a6a7e324c46427bc13039857a1cf19852ea66caccb02ad147b9c1",
-      "text": "覆盖Lorenz曲线从多个 gRNA 计算 CSVs 与每个实验室微板的 Gini 函数。\n\n:param csv_files: 路径到每个实验室微板 CSVs,每个列有 ``name_column`` 和 ``value_column``。\n:param name_column: 用于外部过滤的识别列. 默认 ``'grna_name'``。\n:param value_column: 分析分布的列 默认 ``'count'``。\n:param remove_keys: 分析前要排除的名称. 默认 ``[]`` (不排除任何东西)。\n:param x_lim: 基于 X 轴的限制 ``[lo, hi]``. 默认 ``[0.0, 1]``。\n:param y_lim: 字符串的边界为 ``[lo, hi]``. 默认 ``[0, 1]``。\n:param remove_outliers: 如果 True,则下载名称,其每微型样品位置计算在 1.5*IQR 窗外。 默认 ``False``。\n:param save: 如果 True,保存与第一个相处的数字 CSV 底下 ``results/lorenz_curve_with_gini.pdf``假设 ``True``.\n:returns: None",
+      "source_sha256": "0a71395f4561f9c7e1adca880d0f08fd7cf50ba9854dde2b9bef198bbe4c160c",
+      "text": "覆盖Lorenz曲线从多个 gRNA 计算 CSVs 与每个实验室微板的 Gini 函数。\n\n:param csv_files: 路径到每个实验室微板 CSVs,每个列有 ``name_column`` 和 ``value_column``。\n:param name_column: 用于外部过滤的识别列. 默认 ``'grna_name'``。\n:param value_column: 分析分布的列 默认 ``'count'``。\n:param remove_keys: 分析前要排除的名称. 默认 ``[]`` (不排除任何东西)。\n:param x_lim: 基于 X 轴的限制 ``[lo, hi]``. 默认 ``[0.0, 1]``。\n:param y_lim: 字符串的边界为 ``[lo, hi]``. 默认 ``[0, 1]``。\n:param remove_outliers: 若为 True，则删除观测数落在围栏之外的名称；该围栏按组大小第 5 至第 95 百分位数之间的跨度向外延伸 1.5 倍。计数值本身不参与此筛选。默认值为 ``False``。\n:param save: 如果 True,保存与第一个相处的数字 CSV 底下 ``results/lorenz_curve_with_gini.pdf``假设 ``True``.\n:returns: None",
       "translation_source_blocks_sha256": [
         "ac348ca61fc69835008b4f1516da60d8472d5219b7896bf97c3aa4169220310d",
         "9554fa094fdf3714c9ba824e7673a67486ab3427d28e0e317be8bf9d8247dcef",
@@ -63218,7 +63272,7 @@
         "cf278726dd7f39c8fbf18a2ec9822cf01ea172a0b80d4d80255626c9df586d22",
         "5b61106a793f52b85799933a67d8ee198d88f161ec103520b7825f08fec4562a",
         "dea3a1b498dc9f92fca5bc63a04233d4fe3b2e5ec5bc2a07e083b0045a64afd3",
-        "f64cb22fa4caa606986b08bab47b92574b71b8abd27ebbca5ea22eabb53290ab",
+        "8a72d42185932f35114de027f8e78438bf2eab1cca905810bcb48236234953d1",
         "3875bd0f348fe91ee3dc23df65c2f2205c9a487955728f8c7903020db83113ef",
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
       ]
@@ -88113,6 +88167,16 @@
         "e540aa3013296c2477595b47e0d602293526754d10ca91a25da4792690a936cf"
       ]
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_popup_motion": {
+      "source_blocks_sha256": [
+        "c64c59be21cba42e365d412b1a87919f65e4dcb48bb3f1cc7b88bac822fb70b1"
+      ],
+      "source_sha256": "c64c59be21cba42e365d412b1a87919f65e4dcb48bb3f1cc7b88bac822fb70b1",
+      "text": "仅为兼容的 Qt 绘制引擎提供这些控件。",
+      "translation_source_blocks_sha256": [
+        "c64c59be21cba42e365d412b1a87919f65e4dcb48bb3f1cc7b88bac822fb70b1"
+      ]
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._tenths": {
       "source_blocks_sha256": [
         "eae2896ec87a742c16bb3dd5c92a6b31354c0653569ff9171e1856e0075b1fc5",
@@ -88411,15 +88475,17 @@
       "source_blocks_sha256": [
         "1e444a24a7ade6fdc19957f95fc0f041c77df9612d96723704bd0126379f37c4",
         "f144063f6ed01466ee3f7eb80a24638ac6d76b29912d6c07651e0fd5911f76d1",
-        "99e6b49a7d1928665fbdc644bd87000b40b3752060aec6c2b0fcdecac20c5380",
+        "e36ea3d396989af25f43164c2cfe5763b71320180f638254b41d107a74e8978e",
+        "644ca8ae58ba41e57c0817ac57d504f756bf94643a54a7137138055885b89fe3",
         "2e139a5167b62efeebb3d9898df4d8d193b6f253cbc48c5e30a6324be4728b5f"
       ],
-      "source_sha256": "11713c561b68b93ff9a12347028a41e5ac65841a2a057a6ce30906b170bb7f08",
-      "text": "将环境偏好按在每个直播环境 widget 上。\n\n用户的明确请求是运行 *now* 的 toggle,所以它走在运行 widget 树上相同的方式 :func:`spacr.qt.button_roles.install_button_roles` 做,并更新现有 widgets 而不是等待应用程序视图重建。 隐藏一个也停止它的时间表( widget 停止动画,每当它是看不见的),所以 \"off\" 实际上是零框架。\n\n将其返回 *on* 只会重新显示实际上应用程序视图上的 widgets。 每个模块应用程序视图保持其环境 widget 活着,而用户在某些其他选项卡上,而不停止这些将花费框架的像素没有人可以看到 - 这是一个事情,这个动画不允许做。 他们自己的 ``showEvent`` 重新启动它们,当选项卡回来时。\n\n一个已经消失了C++的一半的 widget,或者一个无法进口的环境模块,是一种化妆品问题 - 不是一个错误的理由保存偏好。",
+      "source_sha256": "e0c69accd253451de30550cc569c64e9b17423b321135ede09eeb99c5404de6a",
+      "text": "将环境偏好按在每个直播环境 widget 上。\n\n用户的明确请求是运行 *now* 的 toggle,所以它走在运行 widget 树上相同的方式 :func:`spacr.qt.button_roles.install_button_roles` 做,并更新现有 widgets 而不是等待应用程序视图重建。 隐藏一个也停止它的时间表( widget 停止动画,每当它是看不见的),所以 \"off\" 实际上是零框架。\n\n设置窗口的背景有独立的选项；模块动画关闭时，它仍保持活动，除非它自己的选项为 None。\n\n重新*开启*模块动画时，只恢复屏幕上实际可见的控件。用户切换到其他标签页时，各模块界面仍保留其背景控件；恢复这些控件会为无人能看到的像素耗费帧数，而这种动画不允许这样做。标签页重新出现时，它们自己的 ``showEvent`` 会重新启动它们。\n\n一个已经消失了C++的一半的 widget,或者一个无法进口的环境模块,是一种化妆品问题 - 不是一个错误的理由保存偏好。",
       "translation_source_blocks_sha256": [
         "1e444a24a7ade6fdc19957f95fc0f041c77df9612d96723704bd0126379f37c4",
         "e7c12ec94b965c75fe53bd21251c5add6e219d36488bd576d81050f6fada066d",
-        "e6d9b8a483054a66cca31ddf015ac74c91f8bf329a1dbf231d93c822bfb5ee95",
+        "e36ea3d396989af25f43164c2cfe5763b71320180f638254b41d107a74e8978e",
+        "4888761a8c0f64ef6e732115ff0fea743bc1a098b3b5cfe06a5bb8c005dc6652",
         "c304cd78567100b9357621b5a009685b6491e1e2fee4f8c6a69bc69896ac8e08"
       ]
     },
@@ -88821,13 +88887,13 @@
     },
     "spacr.qt.preferences.get_ambient_theme": {
       "source_blocks_sha256": [
-        "3de5b034ba17820b9a95078225e6fe43cd0c788d8c9250a87d34f9c4f74acfa9",
+        "123a1a0cb4bad7540166f96d40cce2c72426d569153e1ed3148d00b385845a48",
         "87630f8bd4b017fa690b4a71c60484730828f112d00a9b7376937695e35a0ed1"
       ],
-      "source_sha256": "e7ab77809a5714d3b0fdf56fbe62409b5d3df5b604f0fc29c7a68350b60161ad",
-      "text": "哪个动画模块应用程序显示绘画 — 见 ``AMBIENT_THEMES``。\n\n阅读时验证:由新编写的值 spaCR (或手动) 这项构建不知道,而不是将一个不可绘制的名称传播到 widget。",
+      "source_sha256": "fd36d72179cd587e926605d28d7f49e56b7afd78d60a753caa71f13603de5e24",
+      "text": "当前启动模式下各界面绘制哪种动画。\n\n阅读时验证:由新编写的值 spaCR (或手动) 这项构建不知道,而不是将一个不可绘制的名称传播到 widget。",
       "translation_source_blocks_sha256": [
-        "c73418896947549079fa522c330a8314cffdd922f56e308f8ddc370dbd2c8a87",
+        "123a1a0cb4bad7540166f96d40cce2c72426d569153e1ed3148d00b385845a48",
         "87630f8bd4b017fa690b4a71c60484730828f112d00a9b7376937695e35a0ed1"
       ]
     },
@@ -88877,6 +88943,18 @@
         "bb10062e8e28cac19db3b6a9293f8f61327e26fb4915ab618fcf8310b1c02e90",
         "49b4223baf4a47f0b030dfd6ea8cc73cf0fe2e67a23b7c1d3a97b1a21961c0f0",
         "7c14e5b5d070d29c2a80be952a232ccac0b1c38f838037670c4aa02a12a54fe9"
+      ]
+    },
+    "spacr.qt.preferences.get_database_write_queue_gib": {
+      "source_blocks_sha256": [
+        "e3ce09c72dccbf803d79782fbdf6d59633b73fc3e593d10604da458ffa2f8eda",
+        "2cba9223e4b15a59736e3e001a31d35961915fcf043eba3efaff729eb80d5942"
+      ],
+      "source_sha256": "5dac1baea9cbfce394f6302c5b3f9fdfa7dd9402ff77c20c416895b56b5315b8",
+      "text": "返回序列化数据库队列的 RAM 预算，单位为 GiB。\n\n零表示仅使用磁盘缓冲。这不是进程总 RAM 的限制。",
+      "translation_source_blocks_sha256": [
+        "165a57f9c6bd48777c1c85d5c191903e3dbbf738ae511f338bf98888f781616d",
+        "2cba9223e4b15a59736e3e001a31d35961915fcf043eba3efaff729eb80d5942"
       ]
     },
     "spacr.qt.preferences.get_db_browser_editable": {
@@ -90105,17 +90183,17 @@
     },
     "spacr.qt.preferences.set_ambient_theme": {
       "source_blocks_sha256": [
-        "290f1c1e66371d1c29862f3b12e9a1d6ee39566ca73f1c1ac4a22ae8ab23b9bd",
+        "dadfe8dc58efd2523bda1c6bda04ca641d1148f687d68099b731bb1714e87087",
         "81b55a2a01b13ff6a7a99b11353d53916a5257f1bc7e044b428df3df3f11964a",
-        "6f5bd3c23d76b643e7ce057fbb7ffcf0b9c03840056bc02f7c411a9f09252c16",
+        "628da8bd1027e51ebf37ce7f8e3d2c32d10e09aa65923d385b48436de8587238",
         "9e572dda862911007b8debb16a701cc969409eeebe2645f0524fed6b9259b95d"
       ],
-      "source_sha256": "a14fb846b4ed65a5d6ca0bda551e2d41e03b72b52c4c0a0d576da8e38c4bf3ab",
-      "text": "只剩下一个:data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`。\n\n插槽属于一个主题,所以更换主题可以打破存储的插槽。 而不是举起 - 用户选择了一个主题,而不是一对折断 - 存储插槽在同一写作中进行修复:如果新主题也提供它,则保留,否则取代该主题的默认(见 :func:`ambient_default_palette`)。\n\n:param name: 来自 ``AMBIENT_THEMES`` 的环境动画主题名称。\n:raises ValueError: 如果 ``name`` 不是一个已知的环境主题。",
+      "source_sha256": "7c0215b8bc4f0b12b9a1a01668caa421a02e4523e429895c1bd9bf8e6314a770",
+      "text": "保存当前启动模式提供的一种动画。\n\n插槽属于一个主题,所以更换主题可以打破存储的插槽。 而不是举起 - 用户选择了一个主题,而不是一对折断 - 存储插槽在同一写作中进行修复:如果新主题也提供它,则保留,否则取代该主题的默认(见 :func:`ambient_default_palette`)。\n\n:param name: 当前启动器菜单提供的一种动画。\n:raises ValueError: 如果 ``name`` 不是一个已知的环境主题。",
       "translation_source_blocks_sha256": [
-        "290f1c1e66371d1c29862f3b12e9a1d6ee39566ca73f1c1ac4a22ae8ab23b9bd",
+        "dadfe8dc58efd2523bda1c6bda04ca641d1148f687d68099b731bb1714e87087",
         "81b55a2a01b13ff6a7a99b11353d53916a5257f1bc7e044b428df3df3f11964a",
-        "6f5bd3c23d76b643e7ce057fbb7ffcf0b9c03840056bc02f7c411a9f09252c16",
+        "628da8bd1027e51ebf37ce7f8e3d2c32d10e09aa65923d385b48436de8587238",
         "9e572dda862911007b8debb16a701cc969409eeebe2645f0524fed6b9259b95d"
       ]
     },
@@ -90169,6 +90247,20 @@
         "8bb4dfc095667fff38b5f3c17044bbba9ed9e0b68171173dee2b277a60669d74",
         "baebc950e2fd8db0bc942ccaa1aa4d53b221f9d54d8beed4053b150921217a38",
         "b2af47a4bbd5d06fb04ebfb1138237d1027586c81742df6549c58abf0d272bc8"
+      ]
+    },
+    "spacr.qt.preferences.set_database_write_queue_gib": {
+      "source_blocks_sha256": [
+        "810c19690a61780e26ef7f561d42083454a3a97b019e0de1bcedf8315dad5848",
+        "5b3bf94ec344acc83e26b3d6d0852c317c779a932217841e93f8bcfd9b5bc47b",
+        "77338723cf931464c569b9229aece892eb1cd3c5e973aa81a389fd3b5c4cde37"
+      ],
+      "source_sha256": "e06cf9f7e45e2e56d66c8f39cb6154e316e446dcab6dcdd6eaa5a353750e7fcb",
+      "text": "保存数据库队列的有效数据预算，供后续运行使用。\n\n:param gib: 序列化排队数据允许使用的 RAM，单位为 GiB，范围为零到 64。零表示将排队数据存储到磁盘。\n:raises ValueError: 值不是有限数值或超出有效范围时。",
+      "translation_source_blocks_sha256": [
+        "30a7d92ddf956a856d8859ecbcdb8fc6f0360b0d8f63b5b1740545adce782109",
+        "5b3bf94ec344acc83e26b3d6d0852c317c779a932217841e93f8bcfd9b5bc47b",
+        "77338723cf931464c569b9229aece892eb1cd3c5e973aa81a389fd3b5c4cde37"
       ]
     },
     "spacr.qt.preferences.set_db_browser_editable": {
@@ -102124,13 +102216,13 @@
     "spacr.qt.screens.graph_builder.table_names": {
       "source_blocks_sha256": [
         "c86051366260a4b1528b43f4de46c331dc65d4dff846267c69b36d2c567eb906",
-        "4188c0fb37c43d0905b4cef87b79b194c6e1b3db92143951bce00e495ba8169b"
+        "8749cf08b3552f952b756d44e2d7b6bae59fe49bcb91c2021efdc130b844f3f7"
       ],
-      "source_sha256": "0d8c3f6e64cad944093e91ce81c70c3f4cf87568906dcfad7a545acd58215c22",
-      "text": "``path`` 处 SQLite 文件中的每个用户表，按实用的顺序排列。\n\n:param path: SQLite 测量数据库的路径，以只读方式打开；首选表（``object``、``cell``、``nucleus``、…）排在前面，其余按字母顺序排列。SQLite 内部表和私有的条件注释回执表会被排除；普通用户表和命名的派生结果仍然可用。",
+      "source_sha256": "2ab3180f1e5eb69dc6db883e430c94111686bfbe786b6e7e8295914ec9dc22c6",
+      "text": "``path`` 处 SQLite 文件中的每个用户表，按实用的顺序排列。\n\n:param path: 以只读方式打开的 SQLite 测量数据库路径；优先表（``object``、``cell``、``nucleus``、…）列在前面，其余按字母顺序排列。SQLite 内部表以及条件注释和数据库写入凭证的私有表不列出；普通用户表和具名派生结果仍可使用。",
       "translation_source_blocks_sha256": [
         "c86051366260a4b1528b43f4de46c331dc65d4dff846267c69b36d2c567eb906",
-        "4188c0fb37c43d0905b4cef87b79b194c6e1b3db92143951bce00e495ba8169b"
+        "8749cf08b3552f952b756d44e2d7b6bae59fe49bcb91c2021efdc130b844f3f7"
       ]
     },
     "spacr.qt.screens.hit_list": {
@@ -116770,13 +116862,13 @@
     "spacr.qt.spaceout": {
       "source_blocks_sha256": [
         "a67e09e2c14b073899fd69460f954e507eb0f9fb187a892a47aff4c59e69212f",
-        "c57e73bc19f127bb71c594a8fbfe041724d9bed07f7331fbc8f2a9dc94532cd3"
+        "63b31e268423b94899009ead0f9c6c4d24f204c7f3195d7cb9cd9d8890a2dc9d"
       ],
-      "source_sha256": "cd19e314fb5401e7fd9059e8d36a0bac4c951217bf3011327b621a54d2a325d9",
-      "text": "替代启动器为 spaCR 的 spaceout 视觉模式。\n\n该命令会启动标准的 :func:`spacr.qt.run` 应用程序，并使用经过对比度检查的光谱调色板和分形环境动画。该模式仅对当前进程有效：它不会存储为首选项，也不会改变之后的标准启动。现有的动画首选项仍然有效，包括关闭环境动画的选项。它也是唯一带声音的模式：“首选项”只在这里显示其 Sound 选项卡（以及 Fractal 选项卡），而普通的 spaCR 无论存储的声音设置如何都不会播放任何声音。",
+      "source_sha256": "9e5936bc5f4df6c4657d337168881ee4f547f935323cd89a60d002f9d0213172",
+      "text": "替代启动器为 spaCR 的 spaceout 视觉模式。\n\n此命令使用经过对比度检查的光谱调色板和不断演变的场动画，启动标准的 :func:`spacr.qt.run` 应用程序。此模式仅作用于当前进程：不会保存为偏好设置，也不会改变后续的标准启动。现有动画偏好设置仍然有效，包括禁用背景动画的选项。这也是唯一带有声音的模式：偏好设置仅在此模式中显示“声音”标签页（以及“分形”标签页）；无论已保存的声音设置如何，普通 spaCR 都不会播放任何声音。",
       "translation_source_blocks_sha256": [
         "a67e09e2c14b073899fd69460f954e507eb0f9fb187a892a47aff4c59e69212f",
-        "c57e73bc19f127bb71c594a8fbfe041724d9bed07f7331fbc8f2a9dc94532cd3"
+        "63b31e268423b94899009ead0f9c6c4d24f204c7f3195d7cb9cd9d8890a2dc9d"
       ]
     },
     "spacr.qt.spaceout.main": {
@@ -121424,13 +121516,14 @@
         "580223628aa3fcd8efc7e5386ac7cf28a96a05cb0f9366f435f21792d9692c1f",
         "d190b022b3395a6814985c8e77b5c4f67f397a9fab1b5955295bcc03e5cc221d",
         "3ed52cc085e01b8552746e1341c3d51eb7c1bfe1bbbfa11d0fb6105f031044b4",
+        "6af39d93481340f8ea0604c75825ca78e1ee087d637badd8338d5e2ac9d52d5c",
         "a0a5d68e444c2333dad8b51f0b06b0b2e9bb775a66e0a9ab9e6403b3a24a1142",
         "ba825fb2ba3ffe475481edde4670e089e625c6292b75cfe805d2cb137cfb3d9d",
         "e3308d2b706272c5c0e7b9d59bb06d7b6cee728a9e6d3ccfd3f9671c539d7b9c",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
       ],
-      "source_sha256": "cb12671d370bdbfdc3889dbd7200b9b466ba0948961f189313c3638ea72d3412",
-      "text": "直播背景:以 capped 率绘制 :class:`AmbientEngine`。\n\n应用程序视图内容坐在前面,所以它从来没有注意到,是透明的鼠标事件,并将自己降到下方的兄弟排序。 它是完全模糊的 - 它绘制页面颜色(或主题壁纸)本身和动画在顶部 - 所以它覆盖的 widget 没有什么可绘制的下方。\n\n:param parent: 父母 widget; :meth:`follow_parent` 将其大小到此。\n:param theme: 是“:data:`AMBIENT_THEMES`”的。\n:param palette: 这个主题的:func:`palettes_for`。 一个存在但不是由主题提供的板块被下载到主题的默认(钢偏好不应该打破筛选); 一个未知的名字升起。\n:param background: 动画下方的平面颜色;默认到当前主题的页面的颜色。\n:param backdrop: 在动画下绘画的图像,而不是平面颜色 - 一个路径,一个 ``QPixmap``/``QImage``,或 ``None``. 给它空间/细胞壁纸和动画组合在图像上而不是取代它。\n:param fps: 格拉姆率CAP。\n:param seed: RNG 种子,为可重复的动画。\n:param blur: 保留给老年召唤者;显示的主题忽略了blur。\n:param speed: 动作加倍器; ``None`` 阅读偏好。\n:param size: 元素尺寸复制器; ``None`` 阅读偏好。\n:param resolution: 有多少细节被阴影,作为主题本身的泡沫上的加倍器; ``None`` 阅读偏好。\n:param density: 有多少元素被拖动,作为主题本身的数数的加倍; ``None`` 阅读偏好。\n:param gravity_radius: 指针影响半径，以屏幕较短边的比例表示；零表示禁用。``None`` 从偏好设置中读取。\n:param direction: 星球行走的方式,其中一个是 :data:`DRIFT_DIRECTIONS`; ``None`` 阅读偏好. 对其他主题毫无意义,并保持在任何情况下,转向和回不失去它。\n:param corner_radius: 周围背部的自己的角落,通过这个很多 px; ``0`` 放下它平面。 CLIPPED,不掩膜 - 掩膜区域给楼梯的角落反对卡的反粘膜 - 并应用在基础填充之前,以便平面页面颜色与动画圆,而不是显示在其背后的角落。\n创建 widget 并启动其发动机。\n\n:param parent: 父控件。",
+      "source_sha256": "56244bd108653b0d6a116800bec3f1463ed22a379c48fc24238396b4484fd5e6",
+      "text": "直播背景:以 capped 率绘制 :class:`AmbientEngine`。\n\n应用程序视图内容坐在前面,所以它从来没有注意到,是透明的鼠标事件,并将自己降到下方的兄弟排序。 它是完全模糊的 - 它绘制页面颜色(或主题壁纸)本身和动画在顶部 - 所以它覆盖的 widget 没有什么可绘制的下方。\n\n:param parent: 父母 widget; :meth:`follow_parent` 将其大小到此。\n:param theme: 是“:data:`AMBIENT_THEMES`”的。\n:param palette: 这个主题的:func:`palettes_for`。 一个存在但不是由主题提供的板块被下载到主题的默认(钢偏好不应该打破筛选); 一个未知的名字升起。\n:param background: 动画下方的平面颜色;默认到当前主题的页面的颜色。\n:param backdrop: 在动画下绘画的图像,而不是平面颜色 - 一个路径,一个 ``QPixmap``/``QImage``,或 ``None``. 给它空间/细胞壁纸和动画组合在图像上而不是取代它。\n:param fps: 格拉姆率CAP。\n:param seed: RNG 种子,为可重复的动画。\n:param blur: 保留给老年召唤者;显示的主题忽略了blur。\n:param speed: 动作加倍器; ``None`` 阅读偏好。\n:param size: 元素尺寸复制器; ``None`` 阅读偏好。\n:param resolution: 有多少细节被阴影,作为主题本身的泡沫上的加倍器; ``None`` 阅读偏好。\n:param density: 有多少元素被拖动,作为主题本身的数数的加倍; ``None`` 阅读偏好。\n:param gravity_radius: 指针影响半径，以屏幕较短边的比例表示；零表示禁用。``None`` 从偏好设置中读取。\n:param ripples_enabled: 独立的场波纹开关；``None`` 表示读取偏好设置。\n:param direction: 星球行走的方式,其中一个是 :data:`DRIFT_DIRECTIONS`; ``None`` 阅读偏好. 对其他主题毫无意义,并保持在任何情况下,转向和回不失去它。\n:param corner_radius: 周围背部的自己的角落,通过这个很多 px; ``0`` 放下它平面。 CLIPPED,不掩膜 - 掩膜区域给楼梯的角落反对卡的反粘膜 - 并应用在基础填充之前,以便平面页面颜色与动画圆,而不是显示在其背后的角落。\n创建 widget 并启动其发动机。\n\n:param parent: 父控件。",
       "translation_source_blocks_sha256": [
         "6b2405a57ba40dda2ade8349d89d37b6808755a8bbd7659f9af91f1aed884b3d",
         "c3db299601a29e434ee8a94f92e7f18e5064a7087ab12773187194126c313e4e",
@@ -121447,6 +121540,7 @@
         "580223628aa3fcd8efc7e5386ac7cf28a96a05cb0f9366f435f21792d9692c1f",
         "d190b022b3395a6814985c8e77b5c4f67f397a9fab1b5955295bcc03e5cc221d",
         "3436310acc80e652bf805eb4117bb4201ad6a428ae8286eb940ba2b4739e07ea",
+        "6af39d93481340f8ea0604c75825ca78e1ee087d637badd8338d5e2ac9d52d5c",
         "a0a5d68e444c2333dad8b51f0b06b0b2e9bb775a66e0a9ab9e6403b3a24a1142",
         "ba825fb2ba3ffe475481edde4670e089e625c6292b75cfe805d2cb137cfb3d9d",
         "e3308d2b706272c5c0e7b9d59bb06d7b6cee728a9e6d3ccfd3f9671c539d7b9c",
@@ -121793,6 +121887,20 @@
         "de54510650fb63e4883010d63e199aacefe5df23d1830958f8869ce87960bebd"
       ]
     },
+    "spacr.qt.widgets.ambient.AmbientWidget.set_field_effects": {
+      "source_blocks_sha256": [
+        "3ab37b52759e1af084429c04c332f7b424786034f971f9ad149c4b113fee8a61",
+        "11d07c2fac01fc405bd2e4329516fdc6d345a162e2fd051a2ba6033af98f6b86",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "7431df8c375b24c9228c8036d85c39b120f2c9cb2987f9f7f50c1a0daaf94c57",
+      "text": "在渲染器锁保护下应用已保存的 Spaceout 场开关。\n\n:param effects: 以效果名称为键的已保存场效果开关。\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "3ab37b52759e1af084429c04c332f7b424786034f971f9ad149c4b113fee8a61",
+        "11d07c2fac01fc405bd2e4329516fdc6d345a162e2fd051a2ba6033af98f6b86",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
     "spacr.qt.widgets.ambient.AmbientWidget.set_fps": {
       "source_blocks_sha256": [
         "880ead64afe1114fbf89f252f04aed307027fd8e0d3455b82f348271e30c3062",
@@ -121834,13 +121942,13 @@
     "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency": {
       "source_blocks_sha256": [
         "26a044f01b39376310a6f39c590b3d98df1845fb0fe367d0f5bc3f17f34e6cd1",
-        "60a4a0ccf971ad5d4b20041e03f6bf2c0504c4bcc0e5eba53e37b80a02a713b3"
+        "54219878d050ab3ec31a42dec020130355d27f5e8dcfe11ec7f121d655855acf"
       ],
-      "source_sha256": "a1423718ae7a109ebd1ad89bae2f3baabfd19c213b2262f8df3b0f7b47ef6882",
-      "text": "改变弹出窗口波，而不改变指针的作用范围或点的数量。\n\n:param value: 每分钟弹出窗口波次数，限制在零到六十之间；零禁用弹出窗口波。",
+      "source_sha256": "d82747df30ec3816c889ba93691bd0e493b39edf72629a1dd1bc234c945e6199",
+      "text": "改变弹出窗口波，而不改变指针的作用范围或点的数量。\n\n:param value: 每分钟的弹出窗口波纹数，限制在零到六十之间；零禁用周期性波纹。独立的波纹开关控制点击、容器及窗口产生的单次反馈。",
       "translation_source_blocks_sha256": [
         "26a044f01b39376310a6f39c590b3d98df1845fb0fe367d0f5bc3f17f34e6cd1",
-        "60a4a0ccf971ad5d4b20041e03f6bf2c0504c4bcc0e5eba53e37b80a02a713b3"
+        "54219878d050ab3ec31a42dec020130355d27f5e8dcfe11ec7f121d655855acf"
       ]
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_resolution": {
@@ -121853,6 +121961,20 @@
       "translation_source_blocks_sha256": [
         "9994daf02be8dd2710aee3ded03b11904bca18c20ecd4589b43d1187089bfe54",
         "73445b2a76651bf859233ff92614faa93d432650be945f228602acf616379c63"
+      ]
+    },
+    "spacr.qt.widgets.ambient.AmbientWidget.set_ripples_enabled": {
+      "source_blocks_sha256": [
+        "470d4aaa74bc3a0de5449af89b95e9bace96b6d4a0ba9b81a5a02411265dc3a4",
+        "1f68631426669ce7c45559f784d277a418ed66b42939978665c24be07e531bab",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "c7a1d7aa32939024f573e885791168f7ad89a8271979daadec1563091256a4cd",
+      "text": "独立于鼠标引力和拖动，开启或关闭所有场波纹。\n\n:param enabled: 是否启用周期性和单次场波纹。\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "470d4aaa74bc3a0de5449af89b95e9bace96b6d4a0ba9b81a5a02411265dc3a4",
+        "1f68631426669ce7c45559f784d277a418ed66b42939978665c24be07e531bab",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_size_scale": {
@@ -122916,16 +123038,16 @@
     "spacr.qt.widgets.ambient.dressed": {
       "source_blocks_sha256": [
         "4222e467d867f4e06db7c9f1164b8134ac26fe65248c88f917af4e3e5320480a",
-        "e259ce181e7f96ad11ae9091626ffaac04a7117f22801b359c1e58d092e88a6b",
-        "ede5d8236e9f605e8a37aafe251a345b5c38a29fbae7822824448679695087ae",
+        "631ee58ba663c571da9ec39e249e4b4d25522b82f1d473fc800e2d06fbca89ce",
+        "77e5fe8fd5efee3b8ec5b3cba5c4e7968eba464b3a96092296b11ae321367503",
         "5743784ed039f5d7e7713ccaf0a8bc728884c64ca2e174dabe906ba2a390e100"
       ],
-      "source_sha256": "2b5534ad0d1340bbb6e74ee00e4c51ca536879f6784315e9a917cecf863207f5",
-      "text": "解决当前启动模式的环境主题和面板。\n\nSpaceout 启动返回 :data:`SPACEOUT_THEME` 和 :data:`SPACEOUT_PALETTE`。\n\n:param theme: 请求的主题名称；除非开启了 spaceout 装扮，否则原样返回。这里不做验证。\n:param palette: 请求的调色板名称，处理方式相同。",
+      "source_sha256": "6285528aa9e5b8699364d200e64130d03a19630993c6f2acf8584c4de614d12b",
+      "text": "解决当前启动模式的环境主题和面板。\n\n标准启动保留请求的配对。Spaceout 启动使用其独立保存的选择；尚未保存选择时，默认使用不断演变的场。\n\n:param theme: 请求的主题名称，此处不进行验证。\n:param palette: 请求的调色板名称，处理方式相同。",
       "translation_source_blocks_sha256": [
         "4222e467d867f4e06db7c9f1164b8134ac26fe65248c88f917af4e3e5320480a",
-        "e259ce181e7f96ad11ae9091626ffaac04a7117f22801b359c1e58d092e88a6b",
-        "ede5d8236e9f605e8a37aafe251a345b5c38a29fbae7822824448679695087ae",
+        "631ee58ba663c571da9ec39e249e4b4d25522b82f1d473fc800e2d06fbca89ce",
+        "77e5fe8fd5efee3b8ec5b3cba5c4e7968eba464b3a96092296b11ae321367503",
         "5743784ed039f5d7e7713ccaf0a8bc728884c64ca2e174dabe906ba2a390e100"
       ]
     },
@@ -122951,6 +123073,26 @@
       "translation_source_blocks_sha256": [
         "a06adba887692559658377c23488b90b345943a1eec2a7d48efa1b2ba32674c2",
         "99444b56c5d77cfab0be041751ccb90b07f5d87c87009ad4d561793277492132"
+      ]
+    },
+    "spacr.qt.widgets.ambient.field_ripple_for_widget": {
+      "source_blocks_sha256": [
+        "24f935a15f7920edf76c6dfe4c6e3de367a2150532e6a6a507f9af7bc7673d4c",
+        "946610545a40a2c64723176bf9e786d78d37a97253e35253aa590b4640aeeebd",
+        "c141181abb8721e0d08d073513c45321584ed365fa406d2aa8398b1556a3c5d7",
+        "a32a95c2343845f7d6b8c8e7431f60cdebc2e0318cd3b71eb2d39c19016778d0",
+        "a2100b3cd319888c0dbc92f4bb1f68d168bd7ece066d14ed213399a159c94147",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "8776bbda38deb7fce21b4db33757332b98e91e363641954706fce61e1e95d46d",
+      "text": "将已完成调整的窗口或面板的反馈传递到其可见的场背景。\n\n:param widget: 已调整大小、移动或折叠的控件。\n:param edge: 可选的已贴边窗口侧边。\n:param rect: 可选的最终矩形，使用控件局部坐标。\n:param strength: 正值启用释放反馈；零禁用该反馈。\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "24f935a15f7920edf76c6dfe4c6e3de367a2150532e6a6a507f9af7bc7673d4c",
+        "946610545a40a2c64723176bf9e786d78d37a97253e35253aa590b4640aeeebd",
+        "c141181abb8721e0d08d073513c45321584ed365fa406d2aa8398b1556a3c5d7",
+        "a32a95c2343845f7d6b8c8e7431f60cdebc2e0318cd3b71eb2d39c19016778d0",
+        "a2100b3cd319888c0dbc92f4bb1f68d168bd7ece066d14ed213399a159c94147",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
     "spacr.qt.widgets.ambient.install_ambient": {
@@ -145243,6 +145385,20 @@
         "4688047fe8880961cf88b47b81b190fe5f4f86610591e2b98f890f41d6a2f99a"
       ]
     },
+    "spacr.qt.widgets.gate_editor.GateCanvas.paintEvent": {
+      "source_blocks_sha256": [
+        "d8584882089a6330878b07027d0c03dd0d0946e0ed89a0464c6352ca502baf5b",
+        "5becae65c722b70a924c0f78511f86f283376c1bf63e07c535dcd323f60a1b9d",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "60b30b1e6c6c4f9a5d2c53d84564c204ce714a872a4379b64919f392eb6e1f94",
+      "text": "让绘制的 2D 或 3D 点保持在一块纯色圆角表面之上。\n\n:param event: 此画布的 Qt 绘制事件。\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "d8584882089a6330878b07027d0c03dd0d0946e0ed89a0464c6352ca502baf5b",
+        "5becae65c722b70a924c0f78511f86f283376c1bf63e07c535dcd323f60a1b9d",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
     "spacr.qt.widgets.gate_editor.GateCanvas.pending_depth": {
       "source_blocks_sha256": [
         "a858e655ea1500af43a014466db03a29d79b94529a742e038952decebdf87fe5"
@@ -151244,39 +151400,53 @@
     "spacr.qt.widgets.hint_bar": {
       "source_blocks_sha256": [
         "25819d6fcdfdfa844af2c46348883cfd4c06f3982cbbc4d510241043a3a1e979",
-        "36b09d49c947029672e0a9eab6998acb480c554d433dc988e40f08f0c0051fab",
+        "2fd5616facc436d3046886b2656e701b73c94e11276f9418a91d1ca70eba8080",
         "367dd2d04896394da9d9fa3168872b05c4f801459f2dedf410885354ec4483f3",
         "13f868630e69e99b2dcc80c7f0c1bc6d268facf936ab196189a05e5028248261"
       ],
-      "source_sha256": "559c95219a4b2f2f5b6ad47b019a28367adc75c9628b8aef6b465585ac240878",
-      "text": "窗口级,非模块转换帮助 Qt 控制。\n\n:class:`HintBar` 是一个集中,用语言包装的标签,显示注册的帮助文本,而指标在一个 widget 上。 在指标离开时,它只恢复默认讯息,当该 widget 的文本仍然显示时,避免中间重新设定,当指标移动在附近的控制器之间。\n\n:meth:`HintBar.explain` 记录明确的文本或 widget 的当前工具提示. 成功的注册清除工具提示,提供与可访问的描述相同的文字,只有当没有可用的描述已经存在时,并安装字符串作为事件过滤器。\n\n使用 :func:`hint_bar_of` 在 widget 的顶级窗口中找到 :class:`HintBar` 或 :func:`explain_through_the_bar` 注册 widget 只有当此类栏目存在时。",
+      "source_sha256": "a8e191b52c8417ad615868bf76962304bdea71b3e3e50445ff63484fc9792324",
+      "text": "窗口级,非模块转换帮助 Qt 控制。\n\n:class:`HintBar` 以固定高度保留四行可见文本。指针停留在控件上时，可在此区域内滚动较长的帮助文本。指针离开后，仅当仍显示该控件的文本时才恢复默认消息，从而避免在相邻控件之间出现中间重置。\n\n:meth:`HintBar.explain` 记录明确的文本或 widget 的当前工具提示. 成功的注册清除工具提示,提供与可访问的描述相同的文字,只有当没有可用的描述已经存在时,并安装字符串作为事件过滤器。\n\n使用 :func:`hint_bar_of` 在 widget 的顶级窗口中找到 :class:`HintBar` 或 :func:`explain_through_the_bar` 注册 widget 只有当此类栏目存在时。",
       "translation_source_blocks_sha256": [
         "25819d6fcdfdfa844af2c46348883cfd4c06f3982cbbc4d510241043a3a1e979",
-        "36b09d49c947029672e0a9eab6998acb480c554d433dc988e40f08f0c0051fab",
+        "2fd5616facc436d3046886b2656e701b73c94e11276f9418a91d1ca70eba8080",
         "367dd2d04896394da9d9fa3168872b05c4f801459f2dedf410885354ec4483f3",
         "13f868630e69e99b2dcc80c7f0c1bc6d268facf936ab196189a05e5028248261"
       ]
     },
     "spacr.qt.widgets.hint_bar.HintBar": {
       "source_blocks_sha256": [
-        "204dafcb45bb93726981f4d4097c74d1097685d5457398c57667eb846fbd97ca",
+        "d5207b94271ba9735c7f1ccb8f7521a14de3892cfb1cdc3be78f5c2d10ecccbe",
         "839345dd4a77136ba01a4b38c0d0ad9327833f652504343994672adeeae0ba0b",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "dfe9256f28062f54608c2e4f676b99a46d840d7275b4b06d557451a14aeec19a",
-        "c2e3f9ec1dd1fd67d6a721ef912db917e138b3158424ca5d80116f971ebbba6e",
+        "7b80294cf3ed8ecda92f8b668766485a9cec41d2c09e71170f9bcb901c11061f",
         "2e828e7021ba2fb5623649c36fc73ed13e3177c3481c845396b1f52ace0f9c0f",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "0a499d38df3b15700992b6cb50e32f054ac4d6e199f9a4599be5f745bd837e5e",
-      "text": "线本身,加上每个 widget 应该说什么的记录。\n\n:param default: 它每当没有注册指标的 widget 采取指标时,都会恢复,所以它应该被阅读为快速而不是白色。\n:param parent: 父控件。\n创建替代 Per-control 工具提示的帮助条。\n\n限于三条线:使用的条纹可以采取任何高度最长的帮助需要,所以移动指标在两个控制器之间的帮助不同长度,使整个对话跳跃。\n\n:param default: 怎样看不见,没有什么可怕的。\n:param parent: 父控件，或 ``None``。",
+      "source_sha256": "19932788020a11f1e9eb3c3aea64913b0bb781cde6accd62ead1ed85e9cfb916",
+      "text": "固定高度的帮助栏，以及每个控件应显示文本的注册表。\n\n:param default: 它每当没有注册指标的 widget 采取指标时,都会恢复,所以它应该被阅读为快速而不是白色。\n:param parent: 父控件。\n创建替代 Per-control 工具提示的帮助条。\n\n始终保留四行可见文本：在控件之间移动不会改变对话框布局。较长或翻译后的帮助文本在栏内滚动，完整文本和无障碍描述均予以保留。\n\n:param default: 怎样看不见,没有什么可怕的。\n:param parent: 父控件，或 ``None``。",
       "translation_source_blocks_sha256": [
-        "204dafcb45bb93726981f4d4097c74d1097685d5457398c57667eb846fbd97ca",
+        "d5207b94271ba9735c7f1ccb8f7521a14de3892cfb1cdc3be78f5c2d10ecccbe",
         "839345dd4a77136ba01a4b38c0d0ad9327833f652504343994672adeeae0ba0b",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "dfe9256f28062f54608c2e4f676b99a46d840d7275b4b06d557451a14aeec19a",
-        "c2e3f9ec1dd1fd67d6a721ef912db917e138b3158424ca5d80116f971ebbba6e",
+        "7b80294cf3ed8ecda92f8b668766485a9cec41d2c09e71170f9bcb901c11061f",
         "2e828e7021ba2fb5623649c36fc73ed13e3177c3481c845396b1f52ace0f9c0f",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+      ]
+    },
+    "spacr.qt.widgets.hint_bar.HintBar.changeEvent": {
+      "source_blocks_sha256": [
+        "220b2ae74fbeea705fcbf83e05850b358d8c20d3db18754b6f15444927b83b04",
+        "da6bc51029733d6b613833eb912947007f71121cc83717a338e79cec8eddb65a",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "c47c03398614574982aaf9798a9148b61243513d34fe9656640767ed59f8fa89",
+      "text": "使预留的四行与绘制时使用的字体保持同步。\n\n:param event: Qt 字体或样式更改事件。\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "220b2ae74fbeea705fcbf83e05850b358d8c20d3db18754b6f15444927b83b04",
+        "da6bc51029733d6b613833eb912947007f71121cc83717a338e79cec8eddb65a",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
     "spacr.qt.widgets.hint_bar.HintBar.count": {
@@ -151341,6 +151511,40 @@
       "text": "再说错误了。",
       "translation_source_blocks_sha256": [
         "309e22344c4a7aac26e4d76f5529c05a7f1d1460af307e8617383ab54c9d8346"
+      ]
+    },
+    "spacr.qt.widgets.hint_bar.HintBar.setText": {
+      "source_blocks_sha256": [
+        "560339e109e15b3be98eae004f0feac35f6d411a141deeb235bc578e3da02221",
+        "d89ffa9b070180e18730babbfd7ec0b896b03a4b08ea2449227b7e7a17e0e66a"
+      ],
+      "source_sha256": "1ac7beb8de695024103426463e8bee445d2d62977f17fdb000768702f7468c6d",
+      "text": "在固定高度的帮助栏中显示全部帮助，超过四行时允许滚动。\n\n:param text: 完整的已翻译帮助语句。",
+      "translation_source_blocks_sha256": [
+        "560339e109e15b3be98eae004f0feac35f6d411a141deeb235bc578e3da02221",
+        "d89ffa9b070180e18730babbfd7ec0b896b03a4b08ea2449227b7e7a17e0e66a"
+      ]
+    },
+    "spacr.qt.widgets.hint_bar.HintBar.showEvent": {
+      "source_blocks_sha256": [
+        "579409fa0cb9c5d51a325c1c37b6a98e58fa3febb229ec990883e7ce22cd1efe",
+        "cfb5f62d44a9ab0f88142bb225ab68ba3158b01cacc7eddbfdd3f1b2a165013c"
+      ],
+      "source_sha256": "a8fd81440a349f5996fb9bdc4ff7929e4f2efd7d0fa3421caf8d4c32ea121715",
+      "text": "测量偏好设置布局后恢复已保存的高度。\n\n:param event: Qt 显示事件。",
+      "translation_source_blocks_sha256": [
+        "579409fa0cb9c5d51a325c1c37b6a98e58fa3febb229ec990883e7ce22cd1efe",
+        "cfb5f62d44a9ab0f88142bb225ab68ba3158b01cacc7eddbfdd3f1b2a165013c"
+      ]
+    },
+    "spacr.qt.widgets.hint_bar.HintBar.text": {
+      "source_blocks_sha256": [
+        "33f46b7895c2a1ad0131bff0a8c1f2d6d733b22126160af5b322fed2e8bdb1a3"
+      ],
+      "source_sha256": "33f46b7895c2a1ad0131bff0a8c1f2d6d733b22126160af5b322fed2e8bdb1a3",
+      "text": "返回帮助栏当前显示的完整语句。",
+      "translation_source_blocks_sha256": [
+        "33f46b7895c2a1ad0131bff0a8c1f2d6d733b22126160af5b322fed2e8bdb1a3"
       ]
     },
     "spacr.qt.widgets.hint_bar.explain_through_the_bar": {
@@ -153775,24 +153979,18 @@
         "bd7d1218443af93a909f7d7eba6af06b973c52a4057cf01e21ca633921c1741f"
       ]
     },
-    "spacr.qt.widgets.live_preview.LiveSettingsDialog.closeEvent": {
+    "spacr.qt.widgets.live_preview.LiveSettingsDialog.done": {
       "source_blocks_sha256": [
-        "cd9be7bce786f998cf3d5113b814b7afad688532c30d7e20fdf522855a8d6fb2",
-        "e1c67d5df5bdb7d0526672141e8e570fcb66f0bb7ee83150d24a65b1773ee2a3",
-        "f6626d38b22ee0222df8785d8a54345c77850bf6bee1d6f68565c4a7feac60a3",
-        "1ff37d6ac2220b6dde71cb1505e76eb631a4ace37b9323f4ec4586f675626632",
-        "a71d83b14bcb68b723ca4caf9c4035319bb772248b144893190e53d9e7794a0c",
-        "bba080af9f117192497888e406a7b09f10fd30e09239fd7b6472cdeb1ee259fc"
+        "3bbefaf5c9d9789956f33c5849fd27224f0d460270dbb0f4ea8be1326e546188",
+        "ba9bb52c4cbe50c139ee4d383784c0977e2703071c4f0ebdddeb3b53159aabf3",
+        "f2f64455b0bf369837ffe612b440a7477648aaf5ff9bd0061b6dc11a6d45dba4"
       ],
-      "source_sha256": "d2fed8db2beca0898fbdaee2c304f3d556160cf02b251e6e1a9e4d3b838b27bd",
-      "text": "返回每一个控制面板,这对话被借用,而不仅仅是被宣布的。\n\nQt 摧毁与它对话的孩子,所以在这个对话中,任何面板的父母,当它发生时,都会与它同行。 控制器是面板的,并通过设计进行对话 - 它们的价值观是用户所倾向的。\n\n`_managed_widgets()` 已列出并未完整的名单: `_pathogen_channel`, `_organelle_channel` 和 `_model_zoo_btn` 他们也在这里被放置,并且不在那里,所以在一个开放和关闭之后,他们坐在一个属于一个关闭对话的团体盒子里。 Python 参考 - 这正是为什么它被忽略了。\n\n因此,插曲是由IDENTITY而不是由列表:任何 widget 仍然在这个对话下,该面板持有一个属性为返回。 按目的,如`LivePreviewPanel._stow_free_widgets`,所以一个控制添加到一个行后被覆盖,没有任何人记得添加它在这里也。\n\n它们转到 `_offscreen_controls` 而不是面板:与没有布局的面板相似,每个座位在(0、0)上载路线标签上,除了`hide()`以外的任何东西都关闭筛选。\n\n:param event: 关闭事件；在归还所有借用的控件之后传递给基类。",
+      "source_sha256": "d494b36a63826565afccd535ac2c634e8b8b008082d9811d1ab27d7578056f5d",
+      "text": "在每条退出路径上归还借用的控件并断开订阅连接。\n\nQt 销毁对话框时也会销毁其子控件，因此，退出时仍以该对话框为父对象的面板控件也会被销毁。控件属于面板，在 Close、Escape、accept、reject 和显式完成后仍保留原有值。在 ``done`` 中归还控件，也能覆盖不发送关闭事件的退出路径。已经结束的对话框不能从替代它的新对话框中移走控件。\n\n:param result: 控件返回面板的隐藏存放容器后传递给 Qt 的对话框结果。",
       "translation_source_blocks_sha256": [
-        "cd9be7bce786f998cf3d5113b814b7afad688532c30d7e20fdf522855a8d6fb2",
-        "e1c67d5df5bdb7d0526672141e8e570fcb66f0bb7ee83150d24a65b1773ee2a3",
-        "f6626d38b22ee0222df8785d8a54345c77850bf6bee1d6f68565c4a7feac60a3",
-        "1ff37d6ac2220b6dde71cb1505e76eb631a4ace37b9323f4ec4586f675626632",
-        "a71d83b14bcb68b723ca4caf9c4035319bb772248b144893190e53d9e7794a0c",
-        "bba080af9f117192497888e406a7b09f10fd30e09239fd7b6472cdeb1ee259fc"
+        "3bbefaf5c9d9789956f33c5849fd27224f0d460270dbb0f4ea8be1326e546188",
+        "ba9bb52c4cbe50c139ee4d383784c0977e2703071c4f0ebdddeb3b53159aabf3",
+        "f2f64455b0bf369837ffe612b440a7477648aaf5ff9bd0061b6dc11a6d45dba4"
       ]
     },
     "spacr.qt.widgets.live_preview.LiveSettingsDialog.refresh_visibility": {
@@ -190951,6 +191149,16 @@
         "dc249d9148915600362b8b17ca063a149dc5f7c318e4c08973dc792065ad8145"
       ]
     },
+    "spacr.sim._commit_simulation_packet.dispatch": {
+      "source_blocks_sha256": [
+        "6f0194324df7e1e7ed7d851b1384648c691264a75f367b8ab7681380a6060bd1"
+      ],
+      "source_sha256": "6f0194324df7e1e7ed7d851b1384648c691264a75f367b8ab7681380a6060bd1",
+      "text": "通过常规表格写入器写入一张已捕获的模拟数据表。",
+      "translation_source_blocks_sha256": [
+        "6f0194324df7e1e7ed7d851b1384648c691264a75f367b8ab7681380a6060bd1"
+      ]
+    },
     "spacr.sim._simulation_unit_bytes._largest": {
       "source_blocks_sha256": [
         "1ab961ccc90ca17a00a0e352b93a9f5242b713a996cfab37fea39875a225064e"
@@ -191630,17 +191838,21 @@
     "spacr.sim.run_multiple_simulations": {
       "source_blocks_sha256": [
         "19302a23981770f4a24a6fce2c6cbdc900c607535f882fde009a8478d388204f",
-        "1570b3dd21b3868aca34917e47c27a88047a89a861a9a4db1db18825d21dac23",
-        "361562dbfc69fc1087b39308d2cada734291452e428270b69f1f23203ae96614",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+        "5def515be7c222af9281dbefe1296d4477789df6254a9f547d25ecbae2eed3f7",
+        "b83a9f6992b769845ad2479f065c8109a5d364ff0c1d321f1927f5abf56aa87a",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+        "0904ecd06f1e572d8913468a6f0e473feb738bbb9670ff29bd5b7fb767327f65",
+        "9c519a8988a8e0fe1a218355d4566670e3e799a81ec4e9213930be3260d086f9"
       ],
-      "source_sha256": "38a776efefe7a669c5e74482be69d5249d59c15b48a69c81ce304b88c3068a0d",
-      "text": "从 :func:`generate_parameters` 通过一个流程池输出喷雾。\n\n使用 ``multiprocessing.Pool`` 与 ``max_workers`` (或 ``cpu_count()-4``) 工作进程,打印进展线,并通过 :func:`run_and_save` 驱动每个工作进程。\n\n:param settings: Sweep-settings 关键值地图。 必须包含``max_workers``。\n:returns: None.",
+      "source_sha256": "3a4ddcb131af2d94e7b64e93dca87ab263ca3e402bb868fb4b16f66273c98a69",
+      "text": "从 :func:`generate_parameters` 通过一个流程池输出喷雾。\n\n处理工作进程以十秒间隔启动，并使用已捕获的数据库操作执行 :func:`run_and_save`。一个由父进程管理的写入器以原子方式提交每个完整模拟及其重试凭证。所有主任务完成后，明确的资源过载进行一次串行重试；数据库过载使用写入器独立的最终队列。无效数据和取消操作不重试。模拟失败或最终数据库写入失败时会引发错误，而不是报告参数扫描成功。\n\n:param settings: 参数扫描设置字典。必须包含 ``max_workers``。``database_write_queue_gib`` 可覆盖已保存的队列 RAM 预算，范围为零到 64 GiB；零表示将序列化数据包缓冲到磁盘。运行中断时，待处理的数据包保留在带日期的输出文件夹下。\n:returns: None.\n:raises ValueError: 队列 RAM 预算无效时。\n:raises RuntimeError: 最终数据库写入失败时。处理错误以其原始异常类型向上传播。",
       "translation_source_blocks_sha256": [
         "19302a23981770f4a24a6fce2c6cbdc900c607535f882fde009a8478d388204f",
-        "1570b3dd21b3868aca34917e47c27a88047a89a861a9a4db1db18825d21dac23",
-        "086999a0f9e3277cc05f0d1f1513d9e23128715e460d797db3452a8f0ae95b2f",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+        "6d716581b0e9fe1eccbf1e1d0e33d2ebc07c97aa8f1bc92f71992e823609829c",
+        "42c177ac9d62d07108ceb9d7e43e4b26bbc8a97fe2cf2362ff2a19e2bd5edf56",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+        "3ced5f7badf61c208de74307a9dc0cd74c728d68b4c45cac465b66524c56edda",
+        "9c519a8988a8e0fe1a218355d4566670e3e799a81ec4e9213930be3260d086f9"
       ]
     },
     "spacr.sim.run_simulation": {

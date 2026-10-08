@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 18:34-0400\n"
+"POT-Creation-Date: 2026-10-08 16:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
@@ -25,11 +25,9 @@ msgstr "Início rápido da API Python"
 msgid "Use the Python API when a workflow needs to run from a notebook, a reusable script, a server or a scheduler. The desktop application and the Python API call the same pipeline functions and use the same setting names."
 msgstr "Use a API Python quando um fluxo de trabalho precisar ser executado a partir de um notebook, de um script reutilizável, de um servidor ou de um agendador. O aplicativo de desktop e a API Python chamam as mesmas funções de pipeline e usam os mesmos nomes de configuração."
 
-msgid "Install the headless package"
-msgstr "Instalar o pacote sem interface gráfica"
-
-msgid "Add ``[qt]`` only when the same environment also needs the desktop interface."
-msgstr "Adicione ``[qt]`` somente quando o mesmo ambiente também precisar da interface de desktop."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Install spaCR"
+msgstr "Instalar spaCR"
 
 msgid "Use the typed workflow configuration"
 msgstr "Usar a configuração tipada do fluxo de trabalho"

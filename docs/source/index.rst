@@ -30,7 +30,7 @@ The GUI groups its applications into four categories: *Core* for the
 segment-measure-classify pipeline, *Data* for getting images and tables in
 and running them at scale, *Tools* for the instruments you point at a
 project — hand mask correction, stitching, embeddings, gates, plots and
-quality control — and *Assays* for the Toxoplasma organism guide, which
+quality control — and *Organism* for the Toxoplasma organism guide, which
 lists its available assays; planned analyses are marked Coming soon. The
 bands under "Applications and workflow" below are those categories, in that
 order, with the tiles each one holds.

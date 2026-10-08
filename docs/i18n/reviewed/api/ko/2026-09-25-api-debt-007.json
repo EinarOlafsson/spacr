@@ -594,7 +594,9 @@
       "source_sha256": "6f5bd3c23d76b643e7ce057fbb7ffcf0b9c03840056bc02f7c411a9f09252c16",
       "context": "an ambient theme name from ``AMBIENT_THEMES``.",
       "translation": "``AMBIENT_THEMES`` 의 주변 테마 이름입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": "2026-10-08",
+      "retired_reason": "Superseded by current Home UI API wording for independent animation selections, recurring versus discrete field feedback, and four-line accessible help. Original source-bound evidence retained in place."
     },
     {
       "label": "spacr.qt.preferences.set_cache_ceiling_mb#1",

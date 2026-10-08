@@ -505,10 +505,16 @@ class _PaneHandle(QSplitterHandle):
         super().mouseReleaseEvent(event)
         clicked = (self._pressed_at is not None and not self._dragged
                    and event.button() == Qt.LeftButton)
+        dragged = (self._pressed_at is not None and self._dragged
+                   and event.button() == Qt.LeftButton)
         self._pressed_at = None
         pane = self.edge_pane() if clicked else None
         if pane is not None:
             self.splitter().toggle_pane(pane.name, by_user=True)
+        elif dragged:
+            from .ambient import field_ripple_for_widget
+
+            field_ripple_for_widget(self.splitter())
 
     def paintEvent(self, _event) -> None:                    # noqa: N802
         """Draw the one-pixel line and, beside an EDGE pane, its arrow."""
@@ -751,6 +757,9 @@ class CollapsibleSplitter(QSplitter):
         self._sync_flags()
         self.rebalance(grow=None if shut else pane)
         self.pane_toggled.emit(pane.name, bool(shut), bool(by_user))
+        from .ambient import field_ripple_for_widget
+
+        field_ripple_for_widget(self)
 
     def _shape(self, pane: Pane, collapsed: bool) -> None:
         """Let a HEADER pane shrink to its heading, or hold its minimum."""
@@ -795,6 +804,10 @@ class CollapsibleSplitter(QSplitter):
         if not from_drag:
             self.rebalance(grow=None if collapsed else pane)
         self.pane_toggled.emit(pane.name, bool(collapsed), bool(by_user))
+        if not from_drag:
+            from .ambient import field_ripple_for_widget
+
+            field_ripple_for_widget(self)
 
     def _collapsed_extent(self, pane: Pane) -> int:
         """How much room a collapsed HEADER pane needs: its heading."""

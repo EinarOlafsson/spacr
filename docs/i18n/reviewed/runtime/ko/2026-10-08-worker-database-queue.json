@@ -1,0 +1,21 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "Database write queue RAM",
+      "source": "Database write queue RAM",
+      "source_sha256": "85b28eaf240f37b4c0967e1c8ffac25102314ca918aae759ad69db6cf073bb44",
+      "table": "ui",
+      "translation": "데이터베이스 쓰기 대기열 RAM"
+    },
+    {
+      "key": "RAM allowed for serialized data waiting for Measure's single database writer. Overflow is stored in a private temporary folder inside measurements. Zero uses disk-only buffering. This limits queued data, not total process memory. Applies to new runs.",
+      "source": "RAM allowed for serialized data waiting for Measure's single database writer. Overflow is stored in a private temporary folder inside measurements. Zero uses disk-only buffering. This limits queued data, not total process memory. Applies to new runs.",
+      "source_sha256": "7dde58b60bacdcf39a33da98e324c139aae2b8d4d3e5942dd0c1fb53e26ca5d5",
+      "table": "ui",
+      "translation": "Measure의 단일 데이터베이스 쓰기 담당자를 기다리는 직렬화된 데이터에 허용되는 RAM입니다. 초과 데이터는 measurements 안의 비공개 임시 폴더에 저장됩니다. 0은 디스크 버퍼링만 사용합니다. 대기 데이터를 제한하며 프로세스의 총 메모리를 제한하지 않습니다. 새 실행에 적용됩니다."
+    }
+  ],
+  "review_scope": "AI technical review; no native-speaker signoff. The unit remains a protected format argument.",
+  "schema": 1
+}

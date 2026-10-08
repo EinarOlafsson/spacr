@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 18:34-0400\n"
+"POT-Creation-Date: 2026-10-08 16:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -43,8 +43,37 @@ msgstr "只有在获取事务时发生的锁定/繁忙失败才会重试，并�
 msgid "an exhausted lock budget raises :class:`spacr.database_concurrency.DatabaseBusy` instead of dropping a write or continuing silently."
 msgstr "锁定预算耗尽时会抛出 :class:`spacr.database_concurrency.DatabaseBusy`，而不是丢弃写入或悄悄继续。"
 
-msgid "Measurement writes retain their specialized recovery for concurrent ``CREATE TABLE`` and schema-widening races. Run-status table creation and row insertion are one atomic transaction. Database Browser edit validation and its single-row update also share one transaction, so a row address cannot change between the check and the write. Resume's multi-table delete-before-remeasure validates and deletes under one retried write transaction. Annotate preserves the configured journal mode, rolls back a failed coalesced batch, retains an unsaved/error state, and reports that state in the module instead of marking a failed commit as saved."
-msgstr "测量写入保留了针对并发 ``CREATE TABLE`` 和模式扩展竞争的专门恢复机制。运行状态表的创建和行插入是一个原子事务。数据库浏览器的编辑验证及其单行更新也共享同一个事务，因此在检查和写入之间行地址不会改变。断点续跑在重新测量前对多张表的删除会在一个带重试的写事务中完成验证和删除。标注模块保留所配置的日志模式，回滚失败的合并批次，保留未保存/错误状态，并在模块中报告该状态，而不是把失败的提交标记为已保存。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measure workers enqueue SQLite results for one dedicated writer. Object tables, crop indices, intensity provenance and confluency for a field commit in one transaction. A failed later operation rolls back the earlier rows and schema changes for that field. Run status records success only after commit. Standalone measurement helpers retain their specialized recovery for ``CREATE TABLE`` and schema-widening races. Run-status table creation and row insertion are one atomic transaction. Database Browser edit validation and its single-row update also share one transaction, so a row address cannot change between the check and the write. Resume's multi-table delete-before-remeasure validates and deletes under one retried write transaction. Annotate preserves the configured journal mode, rolls back a failed coalesced batch, retains an unsaved/error state, and reports that state in the module instead of marking a failed commit as saved."
+msgstr "Measure 工作进程将 SQLite 结果排队交给一个专用写入器。一个图像视野的对象表、裁剪索引、强度溯源和融合度在同一事务中提交。后续操作失败时，该视野此前的行和模式更改会回滚。运行状态仅在提交完成后记录成功。独立测量辅助函数保留针对 ``CREATE TABLE`` 和模式扩展竞争的专门恢复机制。运行状态表的创建和行插入是一个原子事务。数据库浏览器的编辑验证及其单行更新也共享同一个事务，因此在检查和写入之间行地址不会改变。断点续跑在重新测量前对多张表的删除会在一个带重试的写事务中完成验证和删除。标注模块保留所配置的日志模式，回滚失败的合并批次，保留未保存/错误状态，并在模块中报告该状态，而不是把失败的提交标记为已保存。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measure's bounded write queue"
+msgstr "Measure 的有界写入队列"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "In **Preferences → Performance**, **Database write queue RAM** controls the serialized data waiting for the SQLite writer. The default is 1 GiB; zero uses disk-only buffering. A Python or headless call can override the saved preference with ``database_write_queue_gib`` in the Measure settings, from zero to 64. The allowance accounts for queued payload and transport copies; it does not cap worker arrays, the active write, or total process memory."
+msgstr "在 **偏好 → 性能** 中，**数据库写入队列 RAM** 控制等待 SQLite 写入器的序列化数据量。默认值为 1 GiB；零表示仅使用磁盘缓冲。Python 或无界面调用可在 Measure 设置中使用 ``database_write_queue_gib`` 覆盖已保存的偏好，范围为零到 64。该预算计入排队的有效数据及传输副本；不限制工作进程数组、正在执行的写入或进程总内存。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Overflow is stored in a private run folder beneath ``measurements/.write_queue``. The transport holds a bounded number of entries, and overflow descriptors refer to disk data. Packets also retain a durable copy until commit, so cancellation, disk exhaustion or a failed writer cannot silently discard accepted data. Successfully committed packets are removed. Uncommitted packets and their error reports remain on disk after failure; do not delete them before investigating the failed field."
+msgstr "超出预算的数据存储在 ``measurements/.write_queue`` 下的私有运行文件夹中。传输通道容纳的条目数量有界，溢出条目的描述信息指向磁盘数据。数据包在提交前还保留持久副本，因此取消、磁盘空间耗尽或写入器失败都不会悄然丢弃已接收的数据。成功提交的数据包会被删除。写入失败后，未提交的数据包及其错误报告保留在磁盘上；调查失败视野之前不要删除它们。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each field has a commit ticket written atomically with its rows. Replaying that ticket does not append the rows again. Exhausted SQL busy/lock failures enter a distinct serial retry pass after the primary producers finish. This pass gives each affected field one additional attempt. Invalid inputs and cancellation do not enter it. Readers retain their ordinary read-only connections and the existing filesystem-dependent journal policy."
+msgstr "每个图像视野都有与其数据行以原子方式写入的提交凭证。再次处理同一凭证不会重复追加数据行。SQL 忙碌或锁定错误在耗尽原有重试次数后，进入独立的串行重试阶段，该阶段在主生产进程全部结束后开始。每个受影响的视野可再尝试一次。无效输入和取消操作不进入该阶段。读取方保留正常的只读连接和现有的、取决于文件系统的日志策略。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The queued field path currently applies to the SQLite measurement backend. Optional DuckDB, Parquet and PostgreSQL mirrors retain their existing worker path; the RAM control does not govern those external stores."
+msgstr "排队视野写入路径目前适用于 SQLite 测量后端。可选的 DuckDB、Parquet 和 PostgreSQL 镜像保留现有工作进程路径；该 RAM 控件不管理这些外部存储。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Simulation's bounded write queue"
+msgstr "模拟的有界写入队列"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Parallel simulations use the same **Database write queue RAM** allowance, including a ``database_write_queue_gib`` override and disk-only buffering at zero. Pending packets live beneath the dated output directory in ``.simulation_write_queue``. Workers capture all tables for a simulation; one writer commits them with an idempotent ticket in the destination ``simulations.db``. A failed calculation does not enqueue partial tables. An exhausted calculation or database write fails the run and retains its pending disk evidence. Direct standalone ``run_and_save`` calls keep their ordinary database-writing path."
+msgstr "并行模拟使用同一个 **数据库写入队列 RAM** 预算，支持 ``database_write_queue_gib`` 覆盖，设为零时仅使用磁盘缓冲。待处理的数据包存放在带日期的输出目录下的 ``.simulation_write_queue`` 中。工作进程捕获一次模拟的所有表；一个写入器将这些表与幂等凭证一起提交到目标 ``simulations.db``。计算失败时不会将不完整的表放入队列。计算或数据库写入耗尽重试后，运行会失败，并保留待处理的磁盘证据。直接、独立的 ``run_and_save`` 调用保留正常的数据库写入路径。"
 
 msgid "Journal mode and network storage"
 msgstr "日志模式与网络存储"
@@ -253,8 +282,9 @@ msgstr "在此连接上启用 SQLite 外键约束。SQLite 默认对每个连接
 msgid "Returns"
 msgstr "返回"
 
-msgid "connection in autocommit mode; use :func:`transaction` for multi-statement writes."
-msgstr "处于自动提交模式的连接；多语句写入请使用 :func:`transaction`。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "connection in autocommit mode; use :func:`transaction` for multi-statement writes. Inside an atomic queued write, helpers for this same database reuse the writer thread's active connection; their commits and closes are deferred until the complete field commits."
+msgstr "处于自动提交模式的连接；多语句写入请使用 :func:`transaction`。在原子排队写入中，同一数据库的辅助函数复用写入线程的活动连接；其提交和关闭操作延后到整个图像视野提交完成时执行。"
 
 msgid "Raises"
 msgstr "抛出"
@@ -379,8 +409,9 @@ msgstr "此事务在 SQLite 内部等待锁的总秒数，在各次 ``attempts``
 msgid "when the lock outlives the retry budget."
 msgstr "当锁的持续时间超过重试预算时。"
 
-msgid "when asked to nest inside an active transaction."
-msgstr "当被要求嵌套在活动事务中时。"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "when asked to nest inside an active transaction outside a writer-owned packet. Queued helper transactions use savepoints within that packet."
+msgstr "在写入器所管理的数据包之外，请求嵌套到活动事务中时。排队的辅助函数事务在该数据包内使用保存点。"
 
 msgid "Is ``path`` on a filesystem where WAL is known to behave?"
 msgstr "``path`` 是否位于已知 WAL 能正常工作的文件系统上？"

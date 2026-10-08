@@ -902,6 +902,106 @@ class SkipRecord:
         return f"{self.unit}{where}: {self.reason}"
 
 
+def _is_overload_failure(error: BaseException) -> bool:
+    """Identify transient resource exhaustion without retrying invalid inputs.
+
+    SQLite BUSY/LOCKED, OS memory/file-descriptor/resource exhaustion and
+    explicitly reported accelerator out-of-memory errors qualify. Cancellation,
+    invalid data, arbitrary runtime errors and unexplained worker deaths do not.
+    Chained exceptions are inspected with a cycle guard.
+    """
+    import errno
+    from .database_concurrency import is_busy_error
+    from .cancellation import PipelineCancelled
+
+    seen = set()
+    while error is not None and id(error) not in seen:
+        seen.add(id(error))
+        if isinstance(error, (PipelineCancelled, KeyboardInterrupt, SystemExit)):
+            return False
+        if isinstance(error, MemoryError) or is_busy_error(error):
+            return True
+        if isinstance(error, OSError) and error.errno in (
+                errno.ENOMEM, errno.EMFILE, errno.ENFILE, errno.EAGAIN):
+            return True
+        if isinstance(error, RuntimeError):
+            message = str(error).casefold()
+            if any(token in message for token in (
+                    'cuda out of memory', 'cuda error: out of memory',
+                    'mps backend out of memory', 'hip out of memory',
+                    'cannot allocate memory')):
+                return True
+        error = error.__cause__ or error.__context__
+    return False
+
+
+class _DeferredOverloadRetries:
+    """A distinct serial queue for one extra attempt after primary exhaustion.
+
+    Call :meth:`defer` only after a task exhausts its primary retry policy.
+    Calling :meth:`drain` declares that the primary queue has finished; the
+    owner must finish or join every primary task first. Each queued callable
+    runs once. Failures remain inspectable and are never re-enqueued. Fatal
+    cancellation propagates rather than being converted into a retry outcome.
+    """
+
+    def __init__(self):
+        """Start an empty primary-phase queue with no admitted task identities."""
+        self._pending = []
+        self._identities = set()
+        self._draining = False
+        self._finished = False
+
+    def defer(self, identity, error, call):
+        """Retain an exhausted overload once; return whether it was admitted."""
+        if self._draining or self._finished:
+            raise RuntimeError('The final retry queue cannot accept more work')
+        if not _is_overload_failure(error) or identity in self._identities:
+            return False
+        self._identities.add(identity)
+        self._pending.append((identity, error, call))
+        return True
+
+    def drain(self):
+        """Yield identity, result and final error for each serial final attempt.
+
+        The original exception remains attached as the final exception's cause
+        when the callable reports a new error without an explicit cause.
+        Remote worker traceback causes keep both their own stack and the
+        primary exception. Other explicit application causes remain intact.
+        A second drain is empty; neither an error nor partial consumption can
+        admit or run a task again.
+        """
+        from .cancellation import PipelineCancelled, checkpoint
+        from multiprocessing.pool import RemoteTraceback
+
+        if self._draining or self._finished:
+            return
+        self._draining = True
+        pending, self._pending = self._pending, []
+        try:
+            for identity, original, call in pending:
+                checkpoint()
+                try:
+                    result = call()
+                except PipelineCancelled:
+                    raise
+                except Exception as error:
+                    if error is not original and error.__cause__ is None:
+                        error.__cause__ = original
+                    elif (error is not original
+                          and isinstance(error.__cause__, RemoteTraceback)
+                          and error.__cause__.__cause__ is None
+                          and original.__cause__ is not error.__cause__):
+                        error.__cause__.__cause__ = original
+                    yield identity, None, error
+                else:
+                    yield identity, result, None
+        finally:
+            self._draining = False
+            self._finished = True
+
+
 class _Attempt:
     """One try at one unit. Use as ``with attempt:`` inside the loop.
 

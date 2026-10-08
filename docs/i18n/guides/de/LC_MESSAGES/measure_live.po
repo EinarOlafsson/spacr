@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 18:34-0400\n"
+"POT-Creation-Date: 2026-10-08 16:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
@@ -46,6 +46,18 @@ msgstr "Die Bildliste verwendet die bestehende begrenzte Zufallsstichprobe. Bere
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form."
 msgstr "Das Markieren von Bildern ändert nur die Vorschau. Es wählt weder die von Messen verarbeiteten Bildfelder aus noch verändert es gespeicherte Messungen oder Exporte. **Einstellungen übertragen** behält seine bisherige Funktion: Ausschnitt- und Filtereinstellungen in das Messen-Formular zu kopieren."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Save measured fields"
+msgstr "Gemessene Bildfelder speichern"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Measure's SQLite workers send their completed data to one database writer. Object rows, crop indices, rescaling provenance and confluency for a field commit together. The run records a saved field only after its commit."
+msgstr "Die SQLite-Worker von Measure senden ihre fertigen Daten an einen einzelnen Datenbank-Writer. Objektzeilen, Zuschnittindizes, Neuskalierungsprovenienz und Konfluenz eines Bildfelds werden gemeinsam bestätigt. Der Lauf erfasst ein gespeichertes Bildfeld erst nach dessen Commit."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Preferences → Performance → Database write queue RAM** sets the amount of serialized queued data held in RAM. The default is 1 GiB and zero selects disk-only buffering. Overflow lives beneath ``measurements/.write_queue``; failed or interrupted packets remain there with their error reports. An explicit Python setting ``database_write_queue_gib`` overrides the preference for that run. See :doc:`database_concurrency_audit` for the queue, retry, journal and optional-backend boundaries."
+msgstr "**Einstellungen → Leistung → RAM für Datenbankschreibwarteschlange** legt fest, wie viele serialisierte Warteschlangendaten im RAM bleiben. Der Standard beträgt 1 GiB; null wählt reine Festplattenpufferung. Überlaufdaten liegen unter ``measurements/.write_queue``; fehlgeschlagene oder unterbrochene Pakete bleiben dort mit ihren Fehlerberichten. Eine explizite Python-Einstellung ``database_write_queue_gib`` überschreibt die Einstellung für diesen Lauf. Siehe :doc:`database_concurrency_audit` zu den Grenzen von Warteschlange, Wiederholungsversuchen, Journal und optionalen Backends."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Resolve a stored plane-layout conflict"

@@ -185,7 +185,9 @@ def test_every_module_is_still_registered(undressed):
 # It is not a theme menu entry
 # ---------------------------------------------------------------------------
 
-def test_the_fractal_is_in_no_list_a_menu_is_built_from():
+def test_the_fractal_is_only_in_spaceout_menu_choices():
+    from spacr.qt import preferences
+
     assert ambient.SPACEOUT_THEME not in ambient.AMBIENT_THEMES
     assert ambient.SPACEOUT_THEME not in ambient.ANIMATION_CHOICES
     assert not ambient.is_valid_theme(ambient.SPACEOUT_THEME)
@@ -193,31 +195,22 @@ def test_the_fractal_is_in_no_list_a_menu_is_built_from():
     for name in ambient.AMBIENT_THEMES:
         assert ambient.SPACEOUT_PALETTE not in ambient.palettes_for(name)
     assert ambient.SPACEOUT_THEME not in theme.THEMES
+    theme.enable_spaceout()
+    try:
+        assert ambient.SPACEOUT_THEME in preferences._animation_choices()
+    finally:
+        theme.disable_spaceout()
 
 
-def test_no_dropdown_in_the_real_preferences_dialog_offers_it(
+def test_only_spaceout_dropdowns_offer_the_fractal(
         qtbot, qt_theme_applied, undressed):
-    """Driven through the dialog, not through the lists it is built from.
-
-    Every combo box on every page, in both dressings — because a control
-    that only appears once the mode is on would be just as much of a menu
-    entry as one that is always there.
-    """
+    """Fractals are offered only in the launcher that can render them."""
     from PySide6.QtWidgets import QComboBox
 
     from spacr.qt.preferences import PreferencesDialog
 
-    # The animation is never on offer under any name, anywhere in the
-    # dialog. The PALETTE is checked against the two controls that could
-    # actually select it, because "Rainbow" is a word another preference
-    # already uses for something unrelated — the RimMode dropdown offers
-    # Glow / Rainbow / Beat, and banning the string outright would be
-    # asserting about that control instead of this one.
     banned_everywhere = {ambient.SPACEOUT_THEME,
                          ambient.theme_label(ambient.SPACEOUT_THEME)}
-    banned_in_ambient = banned_everywhere | {
-        ambient.SPACEOUT_PALETTE,
-        ambient.PALETTE_SETS[ambient.SPACEOUT_PALETTE].label}
     for dressed in (False, True):
         theme.enable_spaceout() if dressed else theme.disable_spaceout()
         dialog = PreferencesDialog()
@@ -235,27 +228,33 @@ def test_no_dropdown_in_the_real_preferences_dialog_offers_it(
                     | {box.itemText(i) for box in boxes
                        for i in range(box.count())})
 
-        assert not (offered(combos) & banned_everywhere), \
-            f"Preferences offers the fractal (dressed={dressed})"
-        ambient_combos = [box for box in combos
-                          if box.objectName() in ("AmbientTheme",
-                                                  "AmbientPalette")]
-        assert len(ambient_combos) == 2, \
-            "the Animation controls moved; this test is looking at nothing"
-        leaked = offered(ambient_combos) & banned_in_ambient
-        assert not leaked, \
-            f"the Animation controls offer {sorted(leaked)} " \
-            f"(dressed={dressed})"
+        animation = dialog.findChild(QComboBox, "AmbientTheme")
+        popup = dialog.findChild(QComboBox, "PopupBackdrop")
+        assert animation is not None and popup is not None
+        if dressed:
+            assert animation.findData(ambient.SPACEOUT_THEME) >= 0
+            assert popup.findData(ambient.SPACEOUT_THEME) >= 0
+            assert ambient.theme_label(ambient.SPACEOUT_THEME) in offered(
+                (animation, popup))
+        else:
+            assert not (offered(combos) & banned_everywhere)
         dialog.deleteLater()
 
 
-def test_the_preference_writer_refuses_the_fractal():
-    from spacr.qt.preferences import set_ambient_animation, set_ambient_theme
+def test_the_preference_writer_only_allows_fractal_in_spaceout():
+    from spacr.qt.preferences import (get_ambient_animation,
+                                       set_ambient_animation, set_ambient_theme)
 
     with pytest.raises(ValueError):
         set_ambient_theme(ambient.SPACEOUT_THEME)
     with pytest.raises(ValueError):
         set_ambient_animation(ambient.SPACEOUT_THEME)
+    theme.enable_spaceout()
+    try:
+        set_ambient_animation(ambient.SPACEOUT_THEME)
+        assert get_ambient_animation() == ambient.SPACEOUT_THEME
+    finally:
+        theme.disable_spaceout()
 
 
 def test_a_settings_file_that_says_fractal_does_not_dress_an_ordinary_start(

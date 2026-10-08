@@ -3579,7 +3579,13 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize
 
         fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(width, height))
         from .figures.bundle import _register_figure_data
-        _register_figure_data(fig, df, x="condition", y=f"cell_channel_{channel_of_interest}_mean_intensity", hue="pathogen", kind="bar")
+        _register_figure_data(
+            fig, df, x="condition",
+            y=f"cell_channel_{channel_of_interest}_mean_intensity",
+            hue="pathogen", kind="bar", grid=(1, 4),
+            panels=[{"x": "condition", "hue": "pathogen",
+                     "y": f"{name}_channel_{channel_of_interest}_mean_intensity"}
+                    for name in ("cell", "nucleus", "cytoplasm", "pathogen")])
         sns.barplot(ax=axes[0], data=df, x='condition', y=f'cell_channel_{channel_of_interest}_mean_intensity', hue='pathogen', capsize=.1, errorbar='sd', dodge=False)
         axes[0].set_xlabel(f'pathogen {df_type}', fontsize=font)
         axes[0].set_ylabel(f'cell_channel_{channel_of_interest}_mean_intensity', fontsize=font)
@@ -3615,7 +3621,11 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize
 
         fig, axes = plt.subplots(nrows=2, ncols=columns_per_row, figsize=(width, height * 2))
         from .figures.bundle import _register_figure_data
-        _register_figure_data(fig, df, x="condition", y=str(columns[0]) if len(columns) else "", hue="pathogen", kind="bar")
+        _register_figure_data(
+            fig, df, x="condition", y=str(columns[0]) if len(columns) else "",
+            hue="pathogen", kind="bar", grid=(2, columns_per_row),
+            panels=[{"x": "condition", "y": str(column), "hue": "pathogen"}
+                    for column in columns])
         axes = axes.flatten()
 
         print(f'{columns}')
@@ -3680,7 +3690,24 @@ def _plot_controls(df, mask_chans, channel_of_interest, figuresize=5):
     with figure_style(theme_target()):
         fig, axes = plt.subplots(len(unique_conditions), len(mask_chans)+1, figsize=(figuresize*len(mask_chans), figuresize*len(unique_conditions)))
         from .figures.bundle import _register_figure_data
-        _register_figure_data(fig, df, x="condition", y=controls_cols[0][0], kind="bar")
+        _register_figure_data(
+            fig, df, kind="bar", grid=(len(unique_conditions), len(mask_chans) + 1),
+            panels=[{
+                "slot": condition_index * (len(mask_chans) + 1) + channel_index,
+                "x": "component", "y": "mean_intensity",
+                "title": f"Condition: {condition} - Channel {channel_index}",
+                "measurement": f"Condition: {condition} - Channel {channel_index}",
+                "xlabel": "Component", "ylabel": "Mean Intensity",
+                "where": {"condition": [condition]},
+                "melt": {
+                    "id_vars": ["condition"],
+                    "columns": [column for column in channel_columns if column in df.columns],
+                    "var_name": "component", "value_name": "mean_intensity",
+                    "labels": {column: column.split("_channel_")[0]
+                               for column in channel_columns},
+                },
+            } for condition_index, condition in enumerate(unique_conditions)
+              for channel_index, channel_columns in enumerate(controls_cols)])
 
         for idx_condition, condition in enumerate(unique_conditions):
             df_temp = df[df['condition'] == condition]
@@ -3841,7 +3868,9 @@ def _show_residules(model):
     with figure_style(theme_target()):
         fig, ax = plt.subplots()
         from .figures.bundle import _register_figure_data
-        _register_figure_data(fig, lambda: pd.DataFrame({"residual": np.asarray(residuals)}), y="residual", kind="hist")
+        _register_figure_data(fig, lambda: pd.DataFrame({"residual": np.asarray(residuals)}),
+                              y="residual", kind="hist",
+                              histogram=dict(bins=30, color=ROLES['fill'], edgecolor='none'))
         ax.hist(residuals, bins=30, color=ROLES['fill'], edgecolor='none')
         descriptor(ax, 'Histogram of Residuals')
         ax.set_xlabel('Residual Value')
@@ -3850,7 +3879,11 @@ def _show_residules(model):
 
         qq_fig, qq_ax = plt.subplots()
         from .figures.bundle import _register_figure_data
-        _register_figure_data(qq_fig, lambda: pd.DataFrame({"residual": np.asarray(residuals)}), y="residual", kind="hist")
+        _register_figure_data(qq_fig, lambda: pd.DataFrame({"residual": np.asarray(residuals)}),
+                              y="residual", kind="qq",
+                              qq=dict(fit=True, line='45', data_color=ROLES['data'],
+                                      reference_color=ROLES['reference'],
+                                      reference_width=WEIGHTS['reference']))
         sm.qqplot(residuals, fit=True, line='45', ax=qq_ax)
         for line in qq_ax.lines:
             if line.get_linestyle() == 'None':
@@ -3866,7 +3899,11 @@ def _show_residules(model):
 
         resid_fig, resid_ax = plt.subplots()
         from .figures.bundle import _register_figure_data
-        _register_figure_data(resid_fig, lambda: pd.DataFrame({"fitted": np.asarray(model.fittedvalues), "residual": np.asarray(residuals)}), x="fitted", y="residual", kind="scatter")
+        _register_figure_data(resid_fig, lambda: pd.DataFrame({"fitted": np.asarray(model.fittedvalues), "residual": np.asarray(residuals)}),
+                              x="fitted", y="residual", kind="scatter",
+                              scatter=dict(s=8, color=ROLES['data'], edgecolors='none'),
+                              references=[dict(axis='y', value=0, color=ROLES['reference'],
+                                               linewidth=WEIGHTS['reference'], dashes=[4, 3])])
         resid_ax.scatter(model.fittedvalues, residuals, s=8,
                          color=ROLES['data'], edgecolors='none')
         resid_ax.set_xlabel('Fitted values')
@@ -4506,7 +4543,13 @@ def plot_comparison_results(comparison_results):
     with figure_style(theme_target()):
         fig, axs = plt.subplots(1, 4, figsize=(40, 10))
         from .figures.bundle import _register_figure_data
-        _register_figure_data(fig, df_melted, x="metric", y="value", kind="box_strip")
+        _register_figure_data(
+            fig, df_melted, x="metric", y="value", kind="box_strip",
+            grid=(1, 4), panels=[{
+                "title": title, "xlabel": "Comparison", "ylabel": ylabel,
+                "measurement": ylabel,
+                "where": {"metric": frame["metric"].unique().tolist()},
+            } for frame, title, ylabel in panels])
         for index, (frame, title, ylabel) in enumerate(panels):
             ax = axs[index]
             sns.boxplot(data=frame, x='metric', y='value', ax=ax,
@@ -4596,8 +4639,10 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
         (exclude nothing).
     :param x_lim: X-axis limits ``[lo, hi]``. Default ``[0.0, 1]``.
     :param y_lim: Y-axis limits ``[lo, hi]``. Default ``[0, 1]``.
-    :param remove_outliers: If True, drop names whose per-well count
-        falls outside a 1.5*IQR window. Default ``False``.
+    :param remove_outliers: If True, drop names whose number of observations
+        falls outside a fence extending 1.5 times the 5th-to-95th-percentile
+        spread of group sizes. Count values do not enter this filter.
+        Default ``False``.
     :param save: If True, save the figure alongside the first CSV under
         ``results/lorenz_curve_with_gini.pdf``. Default ``True``.
     :returns: None
@@ -4678,6 +4723,8 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
     
     combined_data = []
     gini_values = {}
+    source_frames = []
+    curves = []
 
     entries = []
     with figure_style(theme_target()):
@@ -4685,6 +4732,7 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
 
         for idx, csv_file in enumerate(csv_files):
             df = pd.read_csv(csv_file)
+            source_frames.append(df.copy())
 
             for remove in remove_keys:
                 df = df[df[name_column] != remove]
@@ -4694,6 +4742,9 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
 
             values = df[value_column].values
             combined_data.extend(values)
+            curves.append(dict(input=idx, path=str(csv_file),
+                               rows=df.index.tolist(), label=f"plate {idx+1}",
+                               color=ROLES['data'], linestyle='-'))
 
             lorenz = lorenz_curve(values)
             gini = gini_coefficient(values)
@@ -4714,7 +4765,25 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
                 color=ROLES['highlight'])
         entries.append((combined_label, ROLES['highlight']))
         from .figures.bundle import _register_figure_data
-        _register_figure_data(fig, lambda: pd.DataFrame({"values": np.asarray(combined_data, dtype=float)}), y="values", kind="ecdf", gini=dict(gini_values))
+        source = pd.concat(source_frames, ignore_index=True)
+        identity_columns = []
+        for name in ("_spacr_lorenz_input", "_spacr_lorenz_row"):
+            while name in source.columns:
+                name += "_"
+            identity_columns.append(name)
+        source[identity_columns[0]] = np.concatenate([
+            np.full(len(frame), idx) for idx, frame in enumerate(source_frames)])
+        source[identity_columns[1]] = np.concatenate([
+            np.arange(len(frame)) for frame in source_frames])
+        _register_figure_data(fig, source, y=value_column, kind="lorenz",
+                             keep_limits=True, gini=dict(gini_values),
+                             lorenz=dict(input_column=identity_columns[0],
+                                         row_column=identity_columns[1],
+                                         name_column=name_column,
+                                         remove_keys=list(remove_keys),
+                                         remove_outliers=bool(remove_outliers),
+                                         curves=curves,
+                                         combined_color=ROLES['highlight']))
 
         ax.set_xlim(x_lim)
         ax.set_ylim(y_lim)
@@ -7463,6 +7532,13 @@ def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save
     from .tabular import read_table
     df1 = read_table(file1)
     df2 = read_table(file2)
+    original_frames = (df1.copy(), df2.copy())
+    input_column = "_spacr_venn_input"
+    while any(input_column in frame.columns for frame in original_frames):
+        input_column += "_"
+    source_data = pd.concat([
+        frame.assign(**{input_column: index})
+        for index, frame in enumerate(original_frames)], ignore_index=True)
 
     if filter_coeff is not None:
         df1 = df1[df1['coefficient'] > filter_coeff] if filter_coeff >= 0 else df1[df1['coefficient'] < filter_coeff]
@@ -7478,7 +7554,17 @@ def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(8, 6))
         from .figures.bundle import _register_figure_data
-        _register_figure_data(fig, lambda: pd.DataFrame({"gene": sorted(set(genes1) | set(genes2))}).assign(in_file_1=lambda d: d["gene"].isin(set(genes1)), in_file_2=lambda d: d["gene"].isin(set(genes2))), kind="venn")
+        _register_figure_data(fig, source_data, kind="venn", venn={
+            "input_column": input_column,
+            "gene_column": gene_column,
+            "filter_coeff": filter_coeff,
+            "inputs": [{"input": index, "path": str(path)}
+                       for index, path in enumerate((file1, file2))],
+            "labels": ["File 1 Genes", "File 2 Genes"],
+            "colors": {"10": ROLES["data"], "01": Palette.GREY_DARK,
+                       "11": ROLES["highlight"]},
+            "fontsize": TYPE_SCALE["annotation"],
+            "ink": resolve_ink(theme_target())})
         diagram = venn2([genes1, genes2], ('File 1 Genes', 'File 2 Genes'),
                         ax=ax)
         for region, colour in (('10', ROLES['data']),

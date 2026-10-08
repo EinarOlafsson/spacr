@@ -1,0 +1,21 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "A Julia set that morphs, turns and cycles colour — the backdrop the spaceout launcher dresses the application in.",
+      "source": "A Julia set that morphs, turns and cycles colour — the backdrop the spaceout launcher dresses the application in.",
+      "source_sha256": "af56ec1da172848439a272aaa282178a966217f98f641ca6db176f8060d1d186",
+      "table": "ui",
+      "translation": "형태가 변하고 회전하며 색상이 순환하는 줄리아 집합으로, spaceout 실행기가 애플리케이션에 입히는 배경입니다."
+    },
+    {
+      "key": "spaCR fractals",
+      "source": "spaCR fractals",
+      "source_sha256": "e4f50e171ca5ac55c12b647bf330f795d76653a7bffe869be5b24397744180e7",
+      "table": "ui",
+      "translation": "spaCR 프랙탈"
+    }
+  ],
+  "review_scope": "AI technical review; no native-speaker signoff. Source registry prose recovered by launch-mode-independent extraction; Julia set denotes the mathematical fractal and spaceout remains the launcher name.",
+  "schema": 1
+}

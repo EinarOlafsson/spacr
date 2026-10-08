@@ -4630,6 +4630,8 @@
     {
       "context": "the close event; passed to the base class once every borrowed control has been handed back.",
       "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.closeEvent#5",
+      "retired": "2026-10-08",
+      "retired_reason": "Declared closeEvent replaced by done in private dialog lifetime repair; replacement prose describes every exit path and replacement-dialog ownership. Original evidence retained; inherited Qt closeEvent remains callable.",
       "review_basis": "written from the English (no current MT draft)",
       "source": "the close event; passed to the base class once every borrowed control has been handed back.",
       "source_sha256": "bba080af9f117192497888e406a7b09f10fd30e09239fd7b6472cdeb1ee259fc",

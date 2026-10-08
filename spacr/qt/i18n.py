@@ -4052,11 +4052,15 @@ def _a11y_interactive_types():
         QAbstractSpinBox,
         QComboBox,
         QLineEdit,
+        QListView,
         QPlainTextEdit,
         QTextEdit,
+        QTableView,
+        QTreeView,
     )
     return (QAbstractButton, QComboBox, QLineEdit, QAbstractSpinBox,
-            QAbstractSlider, QTextEdit, QPlainTextEdit)
+            QAbstractSlider, QTextEdit, QPlainTextEdit,
+            QListView, QTableView, QTreeView)
 
 
 def _a11y_layout_holding(layout, child):
@@ -4158,7 +4162,8 @@ def _a11y_source(widget, labels_by_key):
     In order: the tooltip, the placeholder text, the field an embedded editor
     belongs to, the settings row's label, the label a layout puts in front of
     it, the tab it is the page of, and finally its object name read as
-    words.
+    words. Known storage and column views use shared translated labels
+    when their object names are the only available caption.
 
     :returns: ``(name, description)``; either may be ``""``.
     """
@@ -4200,7 +4205,13 @@ def _a11y_source(widget, labels_by_key):
         words = _A11Y_CAMEL.sub(" ", widget.objectName().strip("_"))
         words = words.replace("_", " ").strip()
         if words and not words.startswith("qt "):
-            name = tr(words[:1].upper() + words[1:].lower())
+            caption = words[:1].upper() + words[1:].lower()
+            shared_labels = {
+                "Data manager usage": "Storage",
+                "Graph column list": "Columns",
+                "Storage cache table": "Cache",
+            }
+            name = tr(shared_labels.get(caption, caption))
     description = "" if tip else label_help
     return name, description
 

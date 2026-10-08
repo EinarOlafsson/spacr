@@ -58,7 +58,9 @@ def prepare(build: Path, report_path: Path, branch: str, commit: str,
     """Remove build caches and incompatible locale payloads, retaining a report."""
     if branch not in {"main", "nightly"} or not (build / "index.html").is_file():
         raise ValueError("Expected a complete main or nightly HTML build")
-    shutil.rmtree(build / ".doctrees", ignore_errors=True)
+    for cache in [build / ".doctrees", *build.glob(".doctrees-guide-*")]:
+        if cache.is_dir():
+            shutil.rmtree(cache, ignore_errors=True)
     report = json.loads(report_path.read_text())
     report["source_commit"] = commit
     for language, row in report["api"].items():
@@ -139,6 +141,62 @@ def share_tutorial_media(channel: Path, output: Path, branch: str) -> None:
     (tutorial / "published-media.json").write_text(json.dumps(manifest, indent=2) + "\n")
 
 
+def share_deck_images(output: Path) -> int:
+    """Share exact presentation images while preserving each channel's deck."""
+    decks = {}
+    images = {}
+    for branch, channel in (("main", output), ("nightly", output / "nightly")):
+        root = channel / "_static/deck"
+        index = root / "index.html"
+        if not index.is_file():
+            continue
+        text = index.read_text()
+        match = re.search(r"const DECK = (.+);\n", text)
+        if match is None:
+            continue
+        deck = json.loads(match[1])
+        outside = text[:match.start(1)] + text[match.end(1):]
+        decks[branch] = (index, text, match, deck)
+        for slide in deck["slides"]:
+            for key in ("image", "thumb"):
+                relative = slide.get(key)
+                if not isinstance(relative, str) or json.dumps(relative) in outside:
+                    continue
+                path = root / relative
+                if (not path.is_file() or path.suffix.lower() not in
+                        {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+                        or not path.resolve().is_relative_to(root.resolve())):
+                    continue
+                raw = path.read_bytes()
+                name = hashlib.sha256(raw).hexdigest() + path.suffix.lower()
+                images.setdefault(name, {})[branch] = (path, raw)
+    shared = {name: copies for name, copies in images.items() if len(copies) == 2}
+    if not shared:
+        return 0
+    media = output / "_deck_media"
+    media.mkdir(exist_ok=True)
+    replacements = {branch: {} for branch in decks}
+    for name, copies in shared.items():
+        raw = copies["main"][1]
+        if raw != copies["nightly"][1]:
+            raise ValueError("Presentation image hash collision")
+        (media / name).write_bytes(raw)
+        for branch, (path, _raw) in copies.items():
+            root = decks[branch][0].parent
+            prefix = "../../" if branch == "main" else "../../../"
+            replacements[branch][path.relative_to(root).as_posix()] = prefix + "_deck_media/" + name
+    for branch, (index, text, match, deck) in decks.items():
+        for slide in deck["slides"]:
+            for key in ("image", "thumb"):
+                if slide.get(key) in replacements[branch]:
+                    slide[key] = replacements[branch][slide[key]]
+        index.write_text(text[:match.start(1)] + json.dumps(deck, ensure_ascii=False)
+                         + text[match.end(1):])
+        for relative in replacements[branch]:
+            (index.parent / relative).unlink()
+    return len(shared)
+
+
 def assemble(main: Path, nightly: Path, output: Path, base_path: str = "/spacr",
              limit: int = 950 * 1024 * 1024) -> dict:
     """Require both complete inputs and reject artifacts above the Pages budget."""
@@ -170,12 +228,14 @@ def assemble(main: Path, nightly: Path, output: Path, base_path: str = "/spacr",
                       else r"(<body\b[^>]*>)")
             text = re.sub(target, lambda match: match[0] + banner, text, count=1)
             path.write_text(text)
+    shared_deck_images = share_deck_images(output)
     (output / ".nojekyll").touch()
     size = sum(path.stat().st_size for path in output.rglob("*") if path.is_file())
     if size > limit:
         raise ValueError(f"Combined Pages site is {size:,} bytes; budget is {limit:,}")
     receipt = {"schema": 1, "channels": records, "size_bytes": size,
-               "media_files": len(list((output / "_media").glob("*")))}
+               "media_files": len(list((output / "_media").glob("*"))),
+               "shared_deck_images": shared_deck_images}
     (output / "channels.json").write_text(json.dumps(receipt, indent=2) + "\n")
     return receipt
 

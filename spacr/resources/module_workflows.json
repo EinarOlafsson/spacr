@@ -2924,7 +2924,10 @@
       "literals": [
         "def run_multiple_simulations(settings):",
         "src = os.path.join(f'{src}/{date_string}',settings['name'])",
-        "sqlite3.connect(f'{src}/simulations.db', timeout=3600)",
+        "path = os.path.join(src, 'simulations.db')",
+        "_capture_write_operation('simulation', (src, table, table_name))",
+        "write_database(table, path, table_name, if_exists='append',",
+        "writer = _DatabaseWriteQueue(",
         "append_database(src, df_concat, 'simulations')"
       ]
     }

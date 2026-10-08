@@ -202,6 +202,13 @@ _KEY_SHOW_ALPHA_FEATURES = "prefs/show_alpha_features"
 _KEY_SHOW_ALPHA_SPECIES = "prefs/show_alpha_species"
 _KEY_AMBIENT_ENABLED = "prefs/ambient_enabled"
 _KEY_AMBIENT_THEME   = "prefs/ambient_theme"
+_KEY_SPACEOUT_ENABLED = "spaceout/ambient_enabled"
+_KEY_SPACEOUT_ANIMATION = "spaceout/animation"
+_KEY_SPACEOUT_PALETTE = "spaceout/animation_palette"
+_SPACEOUT_FIELD_EFFECT_KEYS = (
+    "attractors", "relaxation", "elastic_release", "vortex",
+    "density_pulses", "density_waves", "color_waves", "spirals",
+)
 _KEY_AMBIENT_PALETTE = "prefs/ambient_palette"
 _KEY_AMBIENT_BACKGROUND = "prefs/ambient_background"
 _KEY_AMBIENT_BLUR    = "prefs/ambient_blur"
@@ -211,6 +218,7 @@ _KEY_AMBIENT_RESOLUTION = "prefs/ambient_resolution"
 _KEY_AMBIENT_DENSITY = "prefs/ambient_density"
 _KEY_AMBIENT_BLINK_PERCENT = "prefs/ambient_blink_percent"
 _KEY_FIELD_POPUP_WAVES = "prefs/field_popup_wave_frequency"
+_KEY_FIELD_RIPPLES = "prefs/field_ripples"
 _KEY_AMBIENT_GRAVITY_RADIUS = "prefs/ambient_gravity_radius"
 _KEY_AMBIENT_DRIFT_DIR = "prefs/ambient_drift_direction"
 #: Which generation of the motion keys the store was last written by. Only
@@ -231,6 +239,7 @@ _KEY_TOOLTIPS_BOTTOM = "prefs/tooltips_bottom"
 #: answers "do small labels pop up at all".
 _KEY_TOOLTIPS_ENABLED = "prefs/tooltips_enabled"
 _KEY_TOOLTIP_DELAY = "prefs/tooltip_delay"
+_KEY_PREFERENCES_HELP_HEIGHT = "prefs/preferences_help_height"
 _KEY_SPACR_MODE = "prefs/spacr_mode"
 _KEY_LAPTOP_MODE = "prefs/laptop_mode"
 _KEY_FONT_WEIGHT = "prefs/interface_font_weight"
@@ -536,6 +545,7 @@ _KEY_FRACTAL_PATH = "spaceout/fractal_path"
 _KEY_IDLE_MINUTES = "prefs/cache_idle_minutes"
 _KEY_CACHE_CEILING = "prefs/cache_ceiling_mb"
 _KEY_HEADROOM = "prefs/headroom_mb"
+_KEY_DATABASE_WRITE_QUEUE = "prefs/database_write_queue_gib"
 _KEY_FRACTAL_SPEED_PERIOD = "spaceout/fractal_speed_period"
 #: Where the visual settings Extra Performance overrode are kept, so
 #: leaving that mode gives the user back exactly what they had.
@@ -558,6 +568,7 @@ PALETTE_THEMES = ("dark", "light", "cell", "glass",
 #: with more themes) falls back to :data:`DEFAULT_THEME` rather than
 #: raising.
 VALID_THEMES = PALETTE_THEMES + ("system",)
+_SPACEOUT_NIGHT_THEMES = ("data_art_fungal_growth", "data_art_tissue_facets")
 #: Dark on every platform until somebody chooses otherwise (maintainer,
 #: 2026-09-21: start spaCR dark by default, and the setup screen too). The
 #: operating system's own light or dark setting does not override it; only
@@ -1654,6 +1665,11 @@ def get_theme() -> str:
     raw = str(store.value(_KEY_THEME, DEFAULT_THEME))
     if raw == "system" and not _follow_system_was_chosen(store):
         raw = DEFAULT_THEME
+    if raw in _SPACEOUT_NIGHT_THEMES:
+        from .theme import spaceout_enabled
+
+        if not spaceout_enabled():
+            return DEFAULT_THEME
     return raw if raw in VALID_THEMES else DEFAULT_THEME
 
 
@@ -1669,6 +1685,12 @@ def set_theme(theme: str) -> None:
     if theme not in VALID_THEMES:
         raise ValueError(f"unknown theme {theme!r}. "
                           f"Choose from {VALID_THEMES}.")
+    if theme in _SPACEOUT_NIGHT_THEMES:
+        from .theme import spaceout_enabled
+
+        if not spaceout_enabled():
+            raise ValueError(f"theme {theme!r} is available only in spaceout")
+    _restore_brand_palette_once()
     store = _settings()
     store.setValue(_KEY_THEME, theme)
     if theme == "system":
@@ -1706,7 +1728,11 @@ def theme_choices() -> tuple:
         for key in CELL_VARIANTS
     )
     choices.extend((theme.label, key) for key, theme in NIGHT_THEMES.items())
-    choices.extend((theme.label, key) for key, theme in DATA_ART_THEMES.items())
+    from .theme import spaceout_enabled
+    from .widgets.ambient import SPACEOUT_ONLY_THEMES
+
+    choices.extend((theme.label, key) for key, theme in DATA_ART_THEMES.items()
+                   if spaceout_enabled() or key not in SPACEOUT_ONLY_THEMES)
     return tuple(choices)
 
 
@@ -1807,8 +1833,8 @@ def apply_night_theme(name: str) -> None:
     theme = theme_for(name)
     settings = _settings()
     if not backdrop_is_switched_off():
-        settings.setValue(_KEY_AMBIENT_THEME, theme.ambient)
-        settings.setValue(_KEY_AMBIENT_PALETTE, theme.ambient_palette)
+        settings.setValue(_ambient_theme_key(), theme.ambient)
+        settings.setValue(_ambient_palette_key(), theme.ambient_palette)
     settings.setValue(_KEY_SOUND_THEME, theme.sound)
     settings.sync()
 
@@ -1828,7 +1854,7 @@ def backdrop_is_switched_off() -> bool:
     """
     if _raw_ambient_animation() == _no_animation_key():
         return True
-    return not _as_bool(_settings().value(_KEY_AMBIENT_ENABLED,
+    return not _as_bool(_settings().value(_ambient_enabled_key(),
                                           DEFAULT_AMBIENT_ENABLED),
                         DEFAULT_AMBIENT_ENABLED)
 
@@ -1973,7 +1999,7 @@ def get_ambient_enabled() -> bool:
         return False
     if _raw_ambient_animation() == _no_animation_key():
         return False
-    return _as_bool(_settings().value(_KEY_AMBIENT_ENABLED,
+    return _as_bool(_settings().value(_ambient_enabled_key(),
                                       DEFAULT_AMBIENT_ENABLED),
                     DEFAULT_AMBIENT_ENABLED)
 
@@ -1996,7 +2022,11 @@ def _animation_choices() -> tuple:
     it.
     """
     try:
-        from .widgets.ambient import ANIMATION_CHOICES
+        from .widgets.ambient import ANIMATION_CHOICES, SPACEOUT_ONLY_THEMES, SPACEOUT_THEME
+        from .theme import spaceout_enabled
+
+        if spaceout_enabled():
+            return tuple(ANIMATION_CHOICES[:-1]) + SPACEOUT_ONLY_THEMES + (SPACEOUT_THEME, _no_animation_key())
         return tuple(ANIMATION_CHOICES)
     except Exception:
         pass
@@ -2005,6 +2035,25 @@ def _animation_choices() -> tuple:
         return (_no_animation_key(),) + tuple(AMBIENT_THEMES)
     except Exception:
         return (_no_animation_key(),)
+
+
+def _ambient_theme_key() -> str:
+    """Keep spaceout choices separate from the normal launch preference."""
+    from .theme import spaceout_enabled
+
+    return _KEY_SPACEOUT_ANIMATION if spaceout_enabled() else _KEY_AMBIENT_THEME
+
+
+def _ambient_palette_key() -> str:
+    """Keep decorative spaceout colors out of ordinary spaCR launches."""
+    return (_KEY_SPACEOUT_PALETTE if _ambient_theme_key() == _KEY_SPACEOUT_ANIMATION
+            else _KEY_AMBIENT_PALETTE)
+
+
+def _ambient_enabled_key() -> str:
+    """Keep each launcher's animation-off choice in its own settings key."""
+    return (_KEY_SPACEOUT_ENABLED if _ambient_theme_key() == _KEY_SPACEOUT_ANIMATION
+            else _KEY_AMBIENT_ENABLED)
 
 
 def _raw_ambient_animation() -> str:
@@ -2018,7 +2067,13 @@ def _raw_ambient_animation() -> str:
         from .widgets.ambient import DEFAULT_THEME as _default
     except Exception:
         _default = "blobs"
-    raw = str(_settings().value(_KEY_AMBIENT_THEME, _default))
+    key = _ambient_theme_key()
+    if key == _KEY_SPACEOUT_ANIMATION:
+        from .widgets import ambient
+
+        _default = getattr(ambient, "DEFAULT_SPACEOUT_THEME",
+                           "data_art_spaceout_field")
+    raw = str(_settings().value(key, _default))
     return raw if raw in _animation_choices() else _default
 
 
@@ -2051,8 +2106,8 @@ def set_ambient_animation(name: str) -> None:
         raise ValueError(f"unknown animation {name!r}. Choose from {choices}.")
     if name == _no_animation_key():
         settings = _settings()
-        settings.setValue(_KEY_AMBIENT_THEME, name)
-        settings.setValue(_KEY_AMBIENT_ENABLED, False)
+        settings.setValue(_ambient_theme_key(), name)
+        settings.setValue(_ambient_enabled_key(), False)
         settings.sync()
         return
     set_ambient_theme(name)
@@ -2069,26 +2124,30 @@ def set_ambient_enabled(on: bool) -> None:
     :param on: true to turn it on, false to turn it off; stored as a ``bool``.
     """
     settings = _settings()
-    settings.setValue(_KEY_AMBIENT_ENABLED, bool(on))
+    settings.setValue(_ambient_enabled_key(), bool(on))
     settings.sync()
 
 
 def get_ambient_theme() -> str:
-    """Which animation module screens paint — see ``AMBIENT_THEMES``.
+    """Which animation screens paint in the active launch mode.
 
     Validated on read: a value written by a newer spaCR (or by hand)
     that this build does not know about falls back to the default theme
     rather than propagating an unpaintable name into the widget.
     """
-    from .widgets.ambient import (
-        AMBIENT_THEMES, DEFAULT_THEME as DEFAULT_AMBIENT_THEME,
-    )
-    raw = str(_settings().value(_KEY_AMBIENT_THEME, DEFAULT_AMBIENT_THEME))
-    return raw if raw in AMBIENT_THEMES else DEFAULT_AMBIENT_THEME
+    from .widgets.ambient import DEFAULT_THEME as DEFAULT_AMBIENT_THEME
+    raw = _raw_ambient_animation()
+    if raw == _no_animation_key():
+        from .widgets import ambient
+
+        return (getattr(ambient, "DEFAULT_SPACEOUT_THEME", "data_art_spaceout_field")
+                if _ambient_theme_key() == _KEY_SPACEOUT_ANIMATION
+                else DEFAULT_AMBIENT_THEME)
+    return raw
 
 
 def set_ambient_theme(name: str) -> None:
-    """Persist one of :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`.
+    """Persist an animation offered in the active launch mode.
 
     Palettes belong to a theme, so switching themes can strand the
     stored palette. Rather than raise — the user picked a theme, not a
@@ -2096,18 +2155,18 @@ def set_ambient_theme(name: str) -> None:
     is kept if the new theme also offers it, and otherwise replaced with
     that theme's default (see :func:`ambient_default_palette`).
 
-    :param name: an ambient theme name from ``AMBIENT_THEMES``.
+    :param name: an animation offered in the current launcher's menu.
     :raises ValueError: if ``name`` is not a known ambient theme.
     """
-    from .widgets.ambient import AMBIENT_THEMES, palettes_for
-    if name not in AMBIENT_THEMES:
-        raise ValueError(f"unknown ambient theme {name!r}. "
-                         f"Choose from {AMBIENT_THEMES}.")
+    from .widgets.ambient import palettes_for
+    choices = tuple(key for key in _animation_choices() if key != _no_animation_key())
+    if name not in choices:
+        raise ValueError(f"unknown ambient theme {name!r}. Choose from {choices}.")
     settings = _settings()
-    settings.setValue(_KEY_AMBIENT_THEME, name)
-    stored = str(settings.value(_KEY_AMBIENT_PALETTE, ""))
+    settings.setValue(_ambient_theme_key(), name)
+    stored = str(settings.value(_ambient_palette_key(), ""))
     if stored not in palettes_for(name):
-        settings.setValue(_KEY_AMBIENT_PALETTE, ambient_default_palette(name))
+        settings.setValue(_ambient_palette_key(), ambient_default_palette(name))
     settings.sync()
 
 
@@ -2145,7 +2204,7 @@ def get_ambient_palette() -> str:
     theme = get_ambient_theme()
     fallback = ambient_default_palette(theme)
     from .widgets.ambient import palettes_for
-    raw = str(_settings().value(_KEY_AMBIENT_PALETTE, fallback))
+    raw = str(_settings().value(_ambient_palette_key(), fallback))
     return raw if raw in palettes_for(theme) else fallback
 
 
@@ -2162,8 +2221,9 @@ def set_ambient_palette(name: str) -> None:
     if name not in valid:
         raise ValueError(f"unknown ambient palette {name!r} for theme "
                          f"{get_ambient_theme()!r}. Choose from {valid}.")
+    _restore_brand_palette_once()
     settings = _settings()
-    settings.setValue(_KEY_AMBIENT_PALETTE, name)
+    settings.setValue(_ambient_palette_key(), name)
     settings.sync()
 
 
@@ -2190,6 +2250,7 @@ def _set_ambient_custom_colors(colors):
     values = [QColor(color) for color in colors]
     if not all(value.isValid() for value in values):
         raise ValueError("invalid animation colour")
+    _restore_brand_palette_once()
     settings = _settings()
     for key, value in zip(("prefs/ambient_primary", "prefs/ambient_accent"), values):
         settings.setValue(key, value.name())
@@ -2209,13 +2270,16 @@ def _set_ambient_background_choice(value):
     """Persist an optional animation fill, rejecting invalid colours."""
     from PySide6.QtGui import QColor
 
-    settings = _settings()
     if value is None:
+        _restore_brand_palette_once()
+        settings = _settings()
         settings.remove(_KEY_AMBIENT_BACKGROUND)
     else:
         color = QColor(value)
         if not color.isValid():
             raise ValueError("invalid animation background colour")
+        _restore_brand_palette_once()
+        settings = _settings()
         settings.setValue(_KEY_AMBIENT_BACKGROUND, color.name())
     settings.sync()
 
@@ -2473,6 +2537,34 @@ def _set_ambient_blink_percent(value: float) -> None:
                          max(0.0, min(10.0, value)))
 
 
+def _field_ripples_enabled() -> bool:
+    """Whether clicks, containers and window changes send spaCR field ripples."""
+    return _as_bool(_settings().value(_KEY_FIELD_RIPPLES, True), True)
+
+
+def _spaceout_field_effects() -> dict[str, bool]:
+    """Read the eight independent Spaceout field effects, all on by default."""
+    store = _settings()
+    return {key: _as_bool(store.value(f"spaceout/field/{key}", True), True)
+            for key in _SPACEOUT_FIELD_EFFECT_KEYS}
+
+
+def _set_spaceout_field_effects(effects: dict[str, bool]) -> None:
+    """Persist an exact set of Spaceout field effect switches."""
+    if set(effects) != set(_SPACEOUT_FIELD_EFFECT_KEYS):
+        raise ValueError("Spaceout field effects must contain every known key")
+    store = _settings()
+    for key in _SPACEOUT_FIELD_EFFECT_KEYS:
+        store.setValue(f"spaceout/field/{key}", bool(effects[key]))
+    store.sync()
+
+
+def _set_field_ripples_enabled(value: bool) -> None:
+    """Persist the ripple switch independently of mouse gravity."""
+    _settings().setValue(_KEY_FIELD_RIPPLES, bool(value))
+    _settings().sync()
+
+
 def _field_popup_wave_frequency() -> float:
     """Automatic spaCR field waves per minute from an open popup; zero is off."""
     import math
@@ -2580,7 +2672,10 @@ def apply_ambient_preferences(app=None) -> None:
     rebuilt. Hiding one also stops its timer (the widget stops animating
     whenever it is not visible), so "off" really is zero frames.
 
-    Turning it back *on* only resumes the widgets that are actually on
+    The settings-window backdrop has its own choice and remains active when
+    module animation is off unless its own choice is None.
+
+    Turning module animation back *on* only resumes the widgets that are actually on
     screen. Every module screen keeps its ambient widget alive while the
     user is on some other tab, and un-pausing those would spend frames
     on pixels nobody can see — which is the one thing this animation is
@@ -2595,7 +2690,14 @@ def apply_ambient_preferences(app=None) -> None:
 
     if (sys.modules.get(f"{__package__}.widgets.ambient") is None
             and not get_ambient_enabled()):
-        return
+        from PySide6.QtWidgets import QApplication, QDialog
+
+        app = app or QApplication.instance()
+        if (app is None or get_popup_backdrop() == "off"
+                or not any(isinstance(widget, QDialog)
+                           and widget.property("spacrGlassed")
+                           for widget in app.allWidgets())):
+            return
     try:
         from PySide6.QtWidgets import QApplication
         from .widgets.ambient import AmbientWidget
@@ -2604,6 +2706,9 @@ def apply_ambient_preferences(app=None) -> None:
     app = app or QApplication.instance()
     if app is None:
         return
+    from .widgets.ambient import _apply_spaceout_animation_choice
+
+    _apply_spaceout_animation_choice(app)
     try:
         from PySide6.QtWidgets import QDialog
         from .widgets.glass import GLASSED, _install_the_backdrop
@@ -2619,21 +2724,26 @@ def apply_ambient_preferences(app=None) -> None:
         return
     enabled = get_ambient_enabled()
     theme = get_ambient_theme() if enabled else None
-    palette = get_ambient_palette() if enabled else None
-    blur = get_ambient_blur() if enabled else None
-    speed = get_ambient_speed() if enabled else None
-    size = get_ambient_size() if enabled else None
-    resolution = get_ambient_resolution() if enabled else None
-    density = get_ambient_density() if enabled else None
-    direction = get_ambient_drift_direction() if enabled else None
-    background = _effective_ambient_background() if enabled else None
+    palette = get_ambient_palette()
+    blur = get_ambient_blur()
+    speed = get_ambient_speed()
+    size = get_ambient_size()
+    resolution = get_ambient_resolution()
+    density = get_ambient_density()
+    direction = get_ambient_drift_direction()
+    background = _effective_ambient_background()
+    field_effects = _spaceout_field_effects()
     for widget in widgets:
         try:
             if not isinstance(widget, AmbientWidget):
                 continue
+            widget.set_ripples_enabled(_field_ripples_enabled())
+            widget.set_field_effects(field_effects)
+            if widget.property("spacrSetupBackdrop"):
+                continue
             popup = bool(widget.property("spacrPopupBackdrop"))
             selected_theme = get_popup_backdrop() if popup else theme
-            if not enabled or selected_theme == "off":
+            if (not enabled and not popup) or selected_theme == "off":
                 widget.set_animating(False)
                 widget.setVisible(False)
                 continue
@@ -2641,7 +2751,9 @@ def apply_ambient_preferences(app=None) -> None:
             widget.set_animating(True)
             try:
                 widget.set_theme(selected_theme)
-                widget.set_palette(palette)
+                from .widgets.ambient import coerce_palette
+
+                widget.set_palette(coerce_palette(selected_theme, palette))
                 if not getattr(widget, "_background_explicit", False):
                     current = getattr(widget, "background_color", None)
                     if not callable(current) or current() != background:
@@ -2651,11 +2763,12 @@ def apply_ambient_preferences(app=None) -> None:
                         else:
                             widget.set_background_color(background)
                 widget.set_blur(blur)
-                if not popup:
-                    widget.set_speed(speed)
-                widget.set_size_scale(size)
-                widget.set_resolution(resolution)
-                widget.set_density(density)
+                motion = _popup_backdrop_motion() if popup else {
+                    "speed": speed, "size": size, "resolution": resolution, "density": density}
+                widget.set_speed(motion["speed"])
+                widget.set_size_scale(motion["size"])
+                widget.set_resolution(motion["resolution"])
+                widget.set_density(motion["density"])
                 widget.set_blink_percent(_ambient_blink_percent())
                 widget.set_popup_wave_frequency(_field_popup_wave_frequency())
                 widget.set_direction(direction)
@@ -3344,6 +3457,37 @@ def set_headroom_mb(megabytes: int) -> None:
     """
     settings = _settings()
     settings.setValue(_KEY_HEADROOM, int(megabytes))
+    settings.sync()
+
+
+def get_database_write_queue_gib() -> float:
+    """Return the serialized database queue RAM budget in GiB.
+
+    Zero uses disk-only buffering. This is not the total process RAM limit.
+    """
+    import math
+
+    try:
+        value = float(_settings().value(_KEY_DATABASE_WRITE_QUEUE, 1.0))
+    except (TypeError, ValueError):
+        return 1.0
+    return max(0.0, min(64.0, value)) if math.isfinite(value) else 1.0
+
+
+def set_database_write_queue_gib(gib: float) -> None:
+    """Persist the database queue payload budget for subsequent runs.
+
+    :param gib: serialized queued-data RAM allowance in GiB, from zero to 64.
+        Zero stores queued payloads on disk.
+    :raises ValueError: if the value is nonfinite or outside the valid range.
+    """
+    import math
+
+    value = float(gib)
+    if not math.isfinite(value) or not 0 <= value <= 64:
+        raise ValueError('Database write queue RAM must be between 0 and 64 GiB')
+    settings = _settings()
+    settings.setValue(_KEY_DATABASE_WRITE_QUEUE, value)
     settings.sync()
 
 
@@ -7009,6 +7153,20 @@ def color_blind_continuous_cmap() -> str:
 
 
 
+def _restore_brand_palette_once() -> None:
+    """Restore requested standard colors once, then retain later choices."""
+    settings = _settings()
+    key = "prefs/brand_palette_revision"
+    if _as_bool(settings.value(key, False), False):
+        return
+    settings.setValue(_KEY_THEME, DEFAULT_THEME)
+    settings.setValue(_KEY_AMBIENT_PALETTE, "spacr")
+    for color_key in (_KEY_AMBIENT_BACKGROUND, "prefs/ambient_primary", "prefs/ambient_accent"):
+        settings.remove(color_key)
+    settings.setValue(key, True)
+    settings.sync()
+
+
 def apply_preferences_to_app(app=None) -> None:
     """Re-apply language, theme and font scale to ``QApplication``.
 
@@ -7034,6 +7192,7 @@ def apply_preferences_to_app(app=None) -> None:
     app = app or QApplication.instance()
     if app is None:
         return
+    _restore_brand_palette_once()
 
     app.setProperty("spacrLanguage", get_language())
     _apply_network_preferences()
@@ -7476,6 +7635,7 @@ PREFERENCE_TIPS = {
     "Animation colours": "Choose the primary and accent colours for the Custom colours palette. Changes apply when you save Preferences.",
     "Animation background": "Choose a background for every animation, independent of its palette. It follows the active page theme until chosen; its brightness stays on the active Dark or Light side. Changes apply when you save Preferences.",
     "Mouse gravity radius": "How far mouse gravity reaches, as a percentage of the shorter screen edge. Zero disables mouse influence. Applies to backgrounds that respond to the mouse.",
+    "Field ripples": "Ripples from clicks, opening or closing containers, and window snapping. Independent of mouse gravity.",
     "Pattern": "Which fractal spaceout draws. Orbit fold is an orbit-fold map antialiased across four frames; fold-inversion cascade is a Kaliset-like fold and sphere inversion coloured by three orbit traps, travelling through two overlapping scale windows so it never resets. The cascade takes four samples of one instant per pixel, so it costs about four times as much and runs at a lower frame rate by design. Space is forward flight through a dark star field with six parallax layers and three object slots that pass by -- mostly stars, occasionally a lit planet or a bright sun. It is mostly empty sky, so it is the cheapest option and the one that competes least with what you are reading. Mandelbrot is a continuous deep zoom into one point on the set's boundary, rendered by perturbation around a high-precision reference orbit -- which is what lets it keep descending past the depth a float can address, hundreds of decades in, still finding structure. GPU only: it needs a texture of the reference orbit.",
     "Backend": "Which renderer draws the fractal. GPU is a shader and is far cheaper; it needs vispy and a real display, and falls back to the CPU renderer when either is missing. Automatic picks the GPU when it can and says below which one this machine will get.",
     "Quality": "How much detail the fractal is asked for. Balanced costs less per frame; high adds an iteration to the fractal and raises the internal resolution. Automatic chooses from the number of cores on the CPU renderer and uses balanced on the GPU.",
@@ -7489,6 +7649,10 @@ PREFERENCE_TIPS = {
     "Animation density": "Number of background shapes.",
     "Dot blinking": "Percentage of visible dots that flash white. Applies to dot animations; density and movement stay unchanged.",
     "Popup wave frequency": "Waves per minute spreading from the centre of an open popup window into spaCR field. Zero disables automatic waves; mouse gravity is independent.",
+    "Settings animation speed": "Speed of the settings-window animation, independent of the main background.",
+    "Settings animation size": "Element size in the settings-window animation, independent of the main background.",
+    "Settings animation detail": "Rendering detail in the settings-window animation, independent of the main background.",
+    "Settings animation density": "Number of elements in the settings-window animation, independent of the main background.",
     "Settings backdrop darkness": "Opacity of the settings card over its animation. Higher values cover more of the backdrop so text is easier to read. Combined with Page opacity.",
     "Rim length": "Fraction of a card border covered by the moving highlight.",
     "Rim chase": "Responsiveness of the border highlight to pointer movement.",
@@ -8051,11 +8215,8 @@ class PreferencesDialog:
 
         from .widgets.ambient import palette_label, palettes_for, theme_label
         try:
-            from .widgets.ambient import (ANIMATION_CHOICES, NO_ANIMATION,
-                                          animation_label)
+            from .widgets.ambient import NO_ANIMATION, animation_label
         except ImportError:
-            from .widgets.ambient import AMBIENT_THEMES
-            ANIMATION_CHOICES = tuple(AMBIENT_THEMES)
             NO_ANIMATION = _no_animation_key()
             animation_label = theme_label
         try:
@@ -8068,7 +8229,7 @@ class PreferencesDialog:
 
         ambient_theme_combo = QComboBox()
         ambient_theme_combo.setObjectName("AmbientTheme")
-        for key in ANIMATION_CHOICES:
+        for key in _animation_choices():
             ambient_theme_combo.addItem(tr(animation_label(key)), key)
         current_ambient = get_ambient_animation()
         for i in range(ambient_theme_combo.count()):
@@ -8340,6 +8501,14 @@ class PreferencesDialog:
         blink_column.addWidget(blink_value)
         animation.addRow(tr("Dot blinking"), _hbox_wrap(blink_column))
 
+        ripples_check = Toggle(tr("Field ripples"))
+        ripples_check.setObjectName("FieldRipplesEnabled")
+        ripples_check.setChecked(_field_ripples_enabled())
+        ripples_check.setToolTip(tr(
+            "Ripples from clicks, opening or closing containers, and window "
+            "snapping. Independent of mouse gravity."))
+        animation.addRow("", ripples_check)
+
         popup_waves_slider = QSlider(Qt.Horizontal)
         popup_waves_slider.setObjectName("FieldPopupWaveFrequency")
         popup_waves_slider.setRange(0, 600)
@@ -8393,7 +8562,8 @@ class PreferencesDialog:
             density_slider.setEnabled(on)
             blink_slider.setEnabled(on)
             blink_value.setEnabled(on)
-            field = ambient_theme_combo.currentData() == "data_art_impulse_lens"
+            field = ambient_theme_combo.currentData() in (
+                "data_art_impulse_lens", "data_art_spaceout_field")
             popup_waves_slider.setEnabled(field)
             popup_waves_value.setEnabled(field)
             gravity_slider.setEnabled(on)
@@ -8785,7 +8955,7 @@ class PreferencesDialog:
 
         popup_backdrop_combo = QComboBox()
         popup_backdrop_combo.setObjectName("PopupBackdrop")
-        for key in POPUP_BACKDROPS:
+        for key in _popup_backdrop_choices():
             popup_backdrop_combo.addItem(
                 tr("None") if key == "off" else tr(animation_label(key)), key)
         index = popup_backdrop_combo.findData(get_popup_backdrop())
@@ -8797,6 +8967,29 @@ class PreferencesDialog:
             "you are reading. None keeps the card and the rim and drops only "
             "the movement.")
         animation.addRow(tr("Settings backdrop"), popup_backdrop_combo)
+        popup_motion = _popup_backdrop_motion()
+        popup_motion_sliders = {}
+        for key, caption, index in (("speed", "Settings animation speed", 1),
+                                    ("size", "Settings animation size", 2),
+                                    ("resolution", "Settings animation detail", 3),
+                                    ("density", "Settings animation density", 4)):
+            bounds, _default = _ambient_ranges()[index]
+            popup_motion_sliders[key] = _percent_row(
+                "PopupBackdrop" + key.title(), caption,
+                bounds[0], bounds[1], popup_motion[key],
+                tr("Controls only the settings-window animation; the main background stays unchanged."))
+
+        def _sync_popup_motion(_index=0):
+            """Offer these controls only to the compatible Qt paint engines."""
+            from .widgets.ambient import SPACEOUT_THEME
+
+            enabled = popup_backdrop_combo.currentData() not in (
+                "off", SPACEOUT_THEME)
+            for slider in popup_motion_sliders.values():
+                slider.setEnabled(enabled)
+
+        popup_backdrop_combo.currentIndexChanged.connect(_sync_popup_motion)
+        _sync_popup_motion()
 
         popup_darkness_slider = QSlider(Qt.Horizontal)
         popup_darkness_slider.setObjectName("PopupBackdropDarkness")
@@ -9312,6 +9505,20 @@ class PreferencesDialog:
             "Suggested:\n{levels}").format(levels=_suggestions(1)))
         performance.addRow(tr("Cache ceiling"), cache_spin)
 
+        database_queue_spin = QDoubleSpinBox()
+        database_queue_spin.setObjectName("DatabaseWriteQueueGiB")
+        database_queue_spin.setRange(0.0, 64.0)
+        database_queue_spin.setDecimals(2)
+        database_queue_spin.setSingleStep(0.25)
+        database_queue_spin.setSuffix(tr(" {unit}").format(unit="GiB"))
+        database_queue_spin.setValue(get_database_write_queue_gib())
+        database_queue_spin.setToolTip(tr(
+            "RAM allowed for serialized data waiting for Measure's single "
+            "database writer. Overflow is stored in a private temporary folder "
+            "inside measurements. Zero uses disk-only buffering. This limits "
+            "queued data, not total process memory. Applies to new runs."))
+        performance.addRow(tr("Database write queue RAM"), database_queue_spin)
+
         _budget_level = [mode_combo.currentData()]
         _budget_spins = (idle_spin, cache_spin, headroom_spin)
         mode_combo.currentIndexChanged.connect(
@@ -9327,6 +9534,53 @@ class PreferencesDialog:
         appearance.addRow(tr("Interface font"), font_weight)
         appearance.addRow(theme_category)
         appearance.addRow(animation_category)
+
+        spaceout_field_checks = {}
+        if spaceout_enabled():
+            field_category, field_form = _category(
+                "spaCR field", "PreferencesTabSpaceoutField")
+            attractors_check = Toggle()
+            attractors_check.setObjectName("SpaceoutFieldAttractors")
+            relaxation_check = Toggle()
+            relaxation_check.setObjectName("SpaceoutFieldRelaxation")
+            elastic_release_check = Toggle()
+            elastic_release_check.setObjectName("SpaceoutFieldElasticRelease")
+            vortex_check = Toggle()
+            vortex_check.setObjectName("SpaceoutFieldVortex")
+            density_pulses_check = Toggle()
+            density_pulses_check.setObjectName("SpaceoutFieldDensityPulses")
+            density_waves_check = Toggle()
+            density_waves_check.setObjectName("SpaceoutFieldDensityWaves")
+            color_waves_check = Toggle()
+            color_waves_check.setObjectName("SpaceoutFieldColorWaves")
+            spirals_check = Toggle()
+            spirals_check.setObjectName("SpaceoutFieldSpirals")
+            saved_effects = _spaceout_field_effects()
+            for key, check, label, note in (
+                ("attractors", attractors_check, "Random attractors",
+                 "Several moving pull points shape the field."),
+                ("relaxation", relaxation_check, "Relaxation",
+                 "The field settles after a disturbance."),
+                ("elastic_release", elastic_release_check, "Elastic release",
+                 "Released field points spring back smoothly."),
+                ("vortex", vortex_check, "Vortices",
+                 "Rotating motion bends nearby field points."),
+                ("density_pulses", density_pulses_check, "Density pulses",
+                 "Local field density rises and falls in place."),
+                ("density_waves", density_waves_check, "Density waves",
+                 "Density changes travel through the field."),
+                ("color_waves", color_waves_check, "Colour waves",
+                 "Colour changes travel through the field."),
+                ("spirals", spirals_check, "Spirals",
+                 "Spiral motion winds across the field."),
+            ):
+                check.setChecked(saved_effects[key])
+                check.setAccessibleName(tr(label))
+                check.setToolTip(tr(note))
+                check.setAccessibleDescription(tr(note))
+                field_form.addRow(tr(label), check)
+                spaceout_field_checks[key] = check
+            appearance.addRow(field_category)
 
         if spaceout_enabled():
             fractal = _page("Fractal", "PreferencesTabFractal")
@@ -9881,6 +10135,7 @@ class PreferencesDialog:
                 dynamic_check.setChecked(get_figure_dynamic())
                 style_panel.reset()
                 _select(mode_combo, get_spacr_mode())
+                database_queue_spin.setValue(get_database_write_queue_gib())
 
                 resolution_slider.setValue(
                     int(round(get_ambient_resolution() * 100)))
@@ -9889,6 +10144,10 @@ class PreferencesDialog:
                 density_slider.setValue(
                     int(round(get_ambient_density() * 100)))
                 blink_value.setValue(_ambient_blink_percent())
+                ripples_check.setChecked(_field_ripples_enabled())
+                for key, enabled in _spaceout_field_effects().items():
+                    if key in spaceout_field_checks:
+                        spaceout_field_checks[key].setChecked(enabled)
                 popup_waves_value.setValue(_field_popup_wave_frequency())
                 gravity_slider.setValue(
                     int(round(_ambient_gravity_radius() * 100)))
@@ -9899,6 +10158,8 @@ class PreferencesDialog:
                 _select(rim_mode_combo, get_rim_mode())
                 rim_period_slider.setValue(int(round(get_rim_period() * 10)))
                 _select(popup_backdrop_combo, get_popup_backdrop())
+                for key, value in _popup_backdrop_motion().items():
+                    popup_motion_sliders[key].setValue(int(round(value * 100)))
                 popup_darkness_slider.setValue(
                     int(round(_popup_backdrop_darkness() * 100)))
                 spinner_slider.setValue(
@@ -9959,6 +10220,8 @@ class PreferencesDialog:
             set_rim_mode(rim_mode_combo.currentData())
             set_rim_period(rim_period_slider.value() / 10.0)
             set_popup_backdrop(popup_backdrop_combo.currentData())
+            for key, slider in popup_motion_sliders.items():
+                _set_popup_backdrop_motion(key, slider.value() / 100.0)
             _set_popup_backdrop_darkness(popup_darkness_slider.value() / 100.0)
             _tell_the_cards_the_rim_changed()
             set_language(language_combo.currentData())
@@ -9974,6 +10237,12 @@ class PreferencesDialog:
             set_ambient_resolution(resolution_slider.value() / 100.0)
             set_ambient_density(density_slider.value() / 100.0)
             _set_ambient_blink_percent(blink_value.value())
+            _set_field_ripples_enabled(ripples_check.isChecked())
+            if spaceout_field_checks:
+                _set_spaceout_field_effects({
+                    key: check.isChecked()
+                    for key, check in spaceout_field_checks.items()
+                })
             _set_field_popup_wave_frequency(popup_waves_value.value())
             _set_ambient_gravity_radius(gravity_slider.value() / 100.0)
             direction_choice = ambient_dir_combo.currentData()
@@ -10035,6 +10304,7 @@ class PreferencesDialog:
                 set_default_graph_type(shape, combo.currentData() or "")
             set_figure_png_dpi(png_dpi_combo.currentData())
             set_figure_live_cache(live_cache_spin.value())
+            set_database_write_queue_gib(database_queue_spin.value())
             set_montage_columns(montage_columns_spin.value())
             set_figure_dynamic(dynamic_check.isChecked())
             style_general, style_per_graph = style_panel.values()
@@ -10246,12 +10516,24 @@ class PreferencesDialog:
         buttons.rejected.connect(dlg.reject)
         from .widgets.hint_bar import HintBar
         hints = HintBar(parent=dlg)
+        hints.explain(
+            hints._resize_handle,
+            "Drag this edge to make the help area taller or shorter.")
         layout = dlg.layout()
         row_of_buttons = layout.indexOf(buttons)
         if row_of_buttons >= 0:
             layout.insertWidget(row_of_buttons, hints)
         else:
             layout.addWidget(hints)
+        saved_help_height = _settings().value(_KEY_PREFERENCES_HELP_HEIGHT)
+        if saved_help_height is not None:
+            try:
+                hints._manual_height = int(saved_help_height)
+            except (TypeError, ValueError):
+                pass
+        hints.helpHeightCommitted.connect(
+            lambda height: _settings().setValue(
+                _KEY_PREFERENCES_HELP_HEIGHT, height))
         explain_every_row(dlg)
         _everything_explains_itself_in_the_strip(dlg, hints)
         _reload_ambient_palettes(ambient_palette_combo.currentData())
@@ -10827,10 +11109,27 @@ def set_rim_period(seconds) -> float:
 #: the other would be a difference nobody decided on, so a new theme is added
 #: here at the same time as there.
 _KEY_POPUP_BACKDROP = "rim/popup_backdrop"
-POPUP_BACKDROPS = ("off",) + tuple(sorted(
-    ("aurora", "blobs", "drift") + DATA_ART_THEME_KEYS
-))
-DEFAULT_POPUP_BACKDROP = "off"
+POPUP_BACKDROPS = ("off", "blobs", "data_art_genetic_advection",
+                   "data_art_impulse_lens", "data_art_point_atlas", "drift")
+DEFAULT_POPUP_BACKDROP = "drift"
+_POPUP_MOTION_KEYS = {
+    "speed": ("rim/popup_speed", 1),
+    "size": ("rim/popup_size", 2),
+    "resolution": ("rim/popup_resolution", 3),
+    "density": ("rim/popup_density", 4),
+}
+
+
+def _popup_backdrop_motion() -> dict:
+    """Read settings-window motion independently of module backgrounds."""
+    return {name: _ambient_multiplier(key, index)
+            for name, (key, index) in _POPUP_MOTION_KEYS.items()}
+
+
+def _set_popup_backdrop_motion(name, value) -> None:
+    """Store one bounded settings-window motion control."""
+    key, index = _POPUP_MOTION_KEYS[name]
+    _set_ambient_multiplier(key, index, value)
 
 _KEY_POPUP_BACKDROP_DARKNESS = "rim/popup_backdrop_darkness"
 
@@ -10860,11 +11159,17 @@ def _set_popup_backdrop_darkness(value: float) -> None:
     settings.sync()
 
 
+def _popup_backdrop_choices() -> tuple:
+    """Offer the same active-mode materials as the main animation selector."""
+    return ("off",) + tuple(sorted(key for key in _animation_choices()
+                                  if key != _no_animation_key()))
+
+
 def get_popup_backdrop() -> str:
     """Which ambient theme drifts behind a settings popup, or ``'off'``."""
     value = str(_settings().value(_KEY_POPUP_BACKDROP,
                                   DEFAULT_POPUP_BACKDROP) or "").strip().lower()
-    return value if value in POPUP_BACKDROPS else DEFAULT_POPUP_BACKDROP
+    return value if value in _popup_backdrop_choices() else DEFAULT_POPUP_BACKDROP
 
 
 def set_popup_backdrop(name: str) -> str:
@@ -10874,7 +11179,7 @@ def set_popup_backdrop(name: str) -> str:
         lower-casing.
     """
     value = str(name or "").strip().lower()
-    if value not in POPUP_BACKDROPS:
+    if value not in _popup_backdrop_choices():
         value = DEFAULT_POPUP_BACKDROP
     settings = _settings()
     settings.setValue(_KEY_POPUP_BACKDROP, value)

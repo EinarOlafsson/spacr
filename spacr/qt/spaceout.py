@@ -1,7 +1,7 @@
 """Alternative launcher for spaCR's spaceout visual mode.
 
 The command starts the standard :func:`spacr.qt.run` application with a
-contrast-checked spectral palette and fractal ambient animation. The mode is
+contrast-checked spectral palette and evolving field animation. The mode is
 process-local: it is not stored as a preference and does not alter subsequent
 standard launches. Existing animation preferences remain effective, including
 the option to disable ambient animation. It is also the only mode with sound:

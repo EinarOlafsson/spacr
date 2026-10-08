@@ -1,0 +1,119 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "key": "Apply a saved virtual-staining model to the source folder and write its predicted stains.",
+      "source": "Apply a saved virtual-staining model to the source folder and write its predicted stains.",
+      "source_sha256": "fc87ba6c83510236151c753be78e3c2465f0c98e8e3dbd4d2a8f09355b72c250",
+      "table": "ui",
+      "translation": "Aplique um modelo guardado de coloração virtual à pasta de origem e grave as colorações que ele prevê."
+    },
+    {
+      "key": "Clear the visible console output; saved results remain on disk.",
+      "source": "Clear the visible console output; saved results remain on disk.",
+      "source_sha256": "e88c87ad86c06c6382d1c8aed7d567575111ee211cf57b82dcae25f28f38d42d",
+      "table": "ui",
+      "translation": "Limpe a saída visível da consola; os resultados guardados permanecem no disco."
+    },
+    {
+      "key": "Controls only the settings-window animation; the main background stays unchanged.",
+      "source": "Controls only the settings-window animation; the main background stays unchanged.",
+      "source_sha256": "4864c218d687c6605f808187cca429faa9cf776cc5c32675041b8e49ad50da7b",
+      "table": "ui",
+      "translation": "Controla apenas a animação da janela de definições; o fundo principal permanece inalterado."
+    },
+    {
+      "key": "Element size in the settings-window animation, independent of the main background.",
+      "source": "Element size in the settings-window animation, independent of the main background.",
+      "source_sha256": "6e9acd46205ff46c31535b883632e0fdad0dfb5c2b7b4fb69968e0369f490375",
+      "table": "ui",
+      "translation": "Tamanho dos elementos na animação da janela de definições, independente do fundo principal."
+    },
+    {
+      "key": "Field ripples",
+      "source": "Field ripples",
+      "source_sha256": "98d14cc68fe5e11fca33e5927428510a0e92e31bfa0d23a9d782a1ddc5317693",
+      "table": "ui",
+      "translation": "Ondulações do campo"
+    },
+    {
+      "key": "Import settings from a saved file into this form before running.",
+      "source": "Import settings from a saved file into this form before running.",
+      "source_sha256": "b8252ae1d9f1575bc1a889fd9bbce0d29c18f55b78db96f6c00da8513049257d",
+      "table": "ui",
+      "translation": "Importe as definições de um ficheiro guardado para este formulário antes de executar."
+    },
+    {
+      "key": "Number of elements in the settings-window animation, independent of the main background.",
+      "source": "Number of elements in the settings-window animation, independent of the main background.",
+      "source_sha256": "370a99486271ad1e413320ad6be258c0e0a17e672759b29601b6867e832d87f9",
+      "table": "ui",
+      "translation": "Número de elementos na animação da janela de definições, independente do fundo principal."
+    },
+    {
+      "key": "Rendering detail in the settings-window animation, independent of the main background.",
+      "source": "Rendering detail in the settings-window animation, independent of the main background.",
+      "source_sha256": "50ff49df4597b547135670acd00050d638b6acadcf703c2e60ef771e9e8a8097",
+      "table": "ui",
+      "translation": "Detalhe de renderização na animação da janela de definições, independente do fundo principal."
+    },
+    {
+      "key": "Ripples from clicks, opening or closing containers, and window snapping. Independent of mouse gravity.",
+      "source": "Ripples from clicks, opening or closing containers, and window snapping. Independent of mouse gravity.",
+      "source_sha256": "d2b20bf2dcc7a48216308363e63a0ee6c866f9367dd78a8294065320282b019f",
+      "table": "ui",
+      "translation": "Ondulações provocadas por cliques, pela abertura ou fecho de contentores e pelo encaixe de janelas. Independentes da gravidade do rato."
+    },
+    {
+      "key": "Run this module with the current settings. Progress and errors appear in the console.",
+      "source": "Run this module with the current settings. Progress and errors appear in the console.",
+      "source_sha256": "21681882eee604b016faefdde9b2a50bba2b439a4058b02119ed77316a3e2496",
+      "table": "ui",
+      "translation": "Execute este módulo com as definições atuais. O progresso e os erros aparecem na consola."
+    },
+    {
+      "key": "Settings animation density",
+      "source": "Settings animation density",
+      "source_sha256": "e69914071c7715aa93ebb91ecf83bdd7244f918e502de7f2b583d4e4d340604f",
+      "table": "ui",
+      "translation": "Densidade da animação das definições"
+    },
+    {
+      "key": "Settings animation detail",
+      "source": "Settings animation detail",
+      "source_sha256": "8326254222dbf6374f42acd0f728adb99e84042f80a0825a0e7950c381201879",
+      "table": "ui",
+      "translation": "Detalhe da animação das definições"
+    },
+    {
+      "key": "Settings animation size",
+      "source": "Settings animation size",
+      "source_sha256": "245cb9c2f8724a08da67b52980bbe2f8c008dc65ad2b4ed4f5a6ab4d96b98e51",
+      "table": "ui",
+      "translation": "Tamanho da animação das definições"
+    },
+    {
+      "key": "Settings animation speed",
+      "source": "Settings animation speed",
+      "source_sha256": "ca711acd51f0640ba606338d93326dba319b312fb763c29d56ba59da5a93ae97",
+      "table": "ui",
+      "translation": "Velocidade da animação das definições"
+    },
+    {
+      "key": "Speed of the settings-window animation, independent of the main background.",
+      "source": "Speed of the settings-window animation, independent of the main background.",
+      "source_sha256": "5c60184e3d379c3a8dd5814128299403d554ee0d81c60f8b6a2d7fa0602aa1f7",
+      "table": "ui",
+      "translation": "Velocidade da animação da janela de definições, independente do fundo principal."
+    },
+    {
+      "key": "Stop the active run without changing its saved inputs.",
+      "source": "Stop the active run without changing its saved inputs.",
+      "source_sha256": "ac7c8f127132a47af029adb0c7b753c471d8e4821bcf292e5c86eea063f88a99",
+      "table": "ui",
+      "translation": "Pare a execução ativa sem alterar as entradas guardadas."
+    }
+  ],
+  "review_scope": "AI technical review; no native-speaker signoff. Reviewed against combined Home source cd1145d5c; settings-window controls are independent of the main backdrop and field ripples are independent of mouse gravity.",
+  "schema": 1
+}

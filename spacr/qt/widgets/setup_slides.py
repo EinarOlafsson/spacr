@@ -122,11 +122,7 @@ PROVIDERS: Tuple[Tuple[str, str, str], ...] = (
 #: How much faster the backdrop runs than the ambient default.
 BACKDROP_SPEED = 1.5
 
-#: Ambient theme used for the stratified, independently drifting backdrop.
-#:
-#: Reusing the application theme keeps the setup backdrop synchronized with
-#: the active palette.
-BACKDROP_THEME = "aurora"
+BACKDROP_THEME = "data_art_impulse_lens"
 
 #: Milliseconds one slide takes to fade into the next.
 #:
@@ -465,6 +461,7 @@ class SetupSlides(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Set spaCR up")
         self.setModal(True)
+        self.setProperty("spacrIndependentBackdrop", True)
         self._editors: Dict[str, QWidget] = {}
         self._index = 0
 
@@ -2426,7 +2423,7 @@ class SetupSlides(QDialog):
 
 
     def _install_backdrop(self):
-        """Stratified layers drifting at 1.5x, or ``None``.
+        """spaCR's own field at 1.5x, or ``None``.
 
         NONE IS A FINE ANSWER (INVARIANTS 10). With no ambient engine
         available the slides are slides on a plain dialog, and every answer
@@ -2435,9 +2432,11 @@ class SetupSlides(QDialog):
         try:
             from .ambient import install_ambient
 
-            return install_ambient(self, theme=BACKDROP_THEME,
-                                   speed=BACKDROP_SPEED,
-                                   corner_radius=CARD_RADIUS)
+            widget = install_ambient(self, theme=BACKDROP_THEME,
+                                     palette="spacr", speed=BACKDROP_SPEED,
+                                     corner_radius=CARD_RADIUS)
+            widget.setProperty("spacrSetupBackdrop", True)
+            return widget
         except Exception:                                    # noqa: BLE001
             LOG.debug("no ambient backdrop on this platform", exc_info=True)
             return None

@@ -1,0 +1,532 @@
+{
+  "scope": "Bounded real Home/module and Preferences Apply switching, independent popup retirement and shutdown; negative reproduction is not a missing-slot fix or native crash acceptance.",
+  "checkpoint": "64de91a0ff9c3330dc9799125a13b6ad235ecfe1",
+  "source": "/mnt/wd4tb/spacr-worktrees/codex-ambient-slot-610-20261008/spacr/qt/widgets/ambient.py",
+  "ambient_sha256": "272bd75f46bfa35ad56a8dd9f4dd0da75d96cc17f178a6a5d8675a6dd1a8bf6c",
+  "python": "3.12.4 | packaged by Anaconda, Inc. | (main, Jun 18 2024, 15:12:24) [GCC 11.2.0]",
+  "executable": "/home/olafsson/anaconda3/bin/python",
+  "Qt": "6.10.0",
+  "numpy": "1.26.4",
+  "CUDA_VISIBLE_DEVICES": "",
+  "QT_QPA_PLATFORM": "offscreen",
+  "records": [
+    {
+      "stage": "actual_home_spinn",
+      "seconds": 1.7022611310239881,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "timer_active": true,
+          "frames_painted": 9,
+          "frames_shaded": 11,
+          "time": 0.559,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": false,
+          "timer_active": false,
+          "frames_painted": 0,
+          "frames_shaded": 0,
+          "time": 0.0,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "preferences_apply_keep_0",
+      "seconds": 5.149073759035673,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "timer_active": true,
+          "frames_painted": 18,
+          "frames_shaded": 74,
+          "time": 1.141,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": false,
+          "timer_active": false,
+          "frames_painted": 0,
+          "frames_shaded": 0,
+          "time": 0.0,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "timer_active": true,
+          "frames_painted": 5,
+          "frames_shaded": 24,
+          "time": 0.454,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "independent_popup_spinn_0",
+      "seconds": 5.50062293902738,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "timer_active": true,
+          "frames_painted": 26,
+          "frames_shaded": 84,
+          "time": 1.6769999999999998,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "timer_active": true,
+          "frames_painted": 6,
+          "frames_shaded": 5,
+          "time": 0.20500000000000002,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "hidden_0",
+      "seconds": 6.813503323995974,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": false,
+          "timer_active": false,
+          "frames_painted": 36,
+          "frames_shaded": 0,
+          "time": 2.393,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "restarted_0",
+      "seconds": 6.955362376989797,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "timer_active": true,
+          "frames_painted": 40,
+          "frames_shaded": 4,
+          "time": 2.5149999999999997,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "preferences_apply_keep_1",
+      "seconds": 9.088728614035062,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": false,
+          "timer_active": false,
+          "frames_painted": 0,
+          "frames_shaded": 0,
+          "time": 0.0,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "timer_active": true,
+          "frames_painted": 46,
+          "frames_shaded": 43,
+          "time": 3.177,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "independent_popup_spinn_1",
+      "seconds": 9.455777181021404,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "timer_active": true,
+          "frames_painted": 53,
+          "frames_shaded": 52,
+          "time": 3.533,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "timer_active": true,
+          "frames_painted": 6,
+          "frames_shaded": 6,
+          "time": 0.204,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "hidden_1",
+      "seconds": 10.437782430031803,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": false,
+          "timer_active": false,
+          "frames_painted": 63,
+          "frames_shaded": 0,
+          "time": 4.25,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "restarted_1",
+      "seconds": 10.574037696991581,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "timer_active": true,
+          "frames_painted": 67,
+          "frames_shaded": 4,
+          "time": 4.372,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "preferences_apply_keep_2",
+      "seconds": 13.183766301022843,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": false,
+          "timer_active": false,
+          "frames_painted": 0,
+          "frames_shaded": 0,
+          "time": 0.0,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "timer_active": true,
+          "frames_painted": 73,
+          "frames_shaded": 45,
+          "time": 5.0360000000000005,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "independent_popup_spinn_2",
+      "seconds": 13.537626255012583,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "timer_active": true,
+          "frames_painted": 6,
+          "frames_shaded": 6,
+          "time": 0.20299999999999999,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "timer_active": true,
+          "frames_painted": 81,
+          "frames_shaded": 53,
+          "time": 5.373000000000001,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "hidden_2",
+      "seconds": 14.74942387000192,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": false,
+          "timer_active": false,
+          "frames_painted": 92,
+          "frames_shaded": 0,
+          "time": 6.293000000000002,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "restarted_2",
+      "seconds": 14.878245240019169,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "timer_active": true,
+          "frames_painted": 95,
+          "frames_shaded": 4,
+          "time": 6.418000000000002,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "navigate_measure",
+      "seconds": 15.692798400006723,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "timer_active": true,
+          "frames_painted": 108,
+          "frames_shaded": 19,
+          "time": 7.110000000000001,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": false,
+          "timer_active": false,
+          "frames_painted": 0,
+          "frames_shaded": 0,
+          "time": 0.0,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "navigate_make_masks",
+      "seconds": 18.02855838299729,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "timer_active": true,
+          "frames_painted": 118,
+          "frames_shaded": 43,
+          "time": 8.559000000000001,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": false,
+          "timer_active": false,
+          "frames_painted": 0,
+          "frames_shaded": 0,
+          "time": 0.0,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "timer_active": true,
+          "frames_painted": 2,
+          "frames_shaded": 7,
+          "time": 0.25,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "navigate___home__",
+      "seconds": 18.17052235803567,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "timer_active": true,
+          "frames_painted": 122,
+          "frames_shaded": 43,
+          "time": 8.809000000000001,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": false,
+          "timer_active": false,
+          "frames_painted": 0,
+          "frames_shaded": 0,
+          "time": 0.0,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": false,
+          "timer_active": false,
+          "frames_painted": 2,
+          "frames_shaded": 0,
+          "time": 0.25,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "shutdown",
+      "seconds": 18.466923584986944,
+      "ambient": []
+    }
+  ],
+  "messages": [
+    {
+      "type": "1",
+      "message": "This plugin does not support propagateSizeHints()",
+      "thread": "MainThread"
+    },
+    {
+      "type": "4",
+      "message": "OpenType support missing for \"Open Sans\", script 11",
+      "thread": "MainThread"
+    },
+    {
+      "type": "1",
+      "message": "This plugin does not support propagateSizeHints()",
+      "thread": "MainThread"
+    },
+    {
+      "type": "4",
+      "message": "OpenType support missing for \"Open Sans\", script 11",
+      "thread": "MainThread"
+    },
+    {
+      "type": "4",
+      "message": "OpenType support missing for \"Open Sans\", script 11",
+      "thread": "MainThread"
+    },
+    {
+      "type": "1",
+      "message": "This plugin does not support propagateSizeHints()",
+      "thread": "MainThread"
+    },
+    {
+      "type": "1",
+      "message": "This plugin does not support propagateSizeHints()",
+      "thread": "MainThread"
+    },
+    {
+      "type": "1",
+      "message": "This plugin does not support propagateSizeHints()",
+      "thread": "MainThread"
+    },
+    {
+      "type": "4",
+      "message": "OpenType support missing for \"Open Sans\", script 11",
+      "thread": "MainThread"
+    },
+    {
+      "type": "1",
+      "message": "This plugin does not support propagateSizeHints()",
+      "thread": "MainThread"
+    },
+    {
+      "type": "4",
+      "message": "OpenType support missing for \"Open Sans\", script 11",
+      "thread": "MainThread"
+    },
+    {
+      "type": "1",
+      "message": "This plugin does not support propagateSizeHints()",
+      "thread": "MainThread"
+    },
+    {
+      "type": "1",
+      "message": "This plugin does not support propagateSizeHints()",
+      "thread": "MainThread"
+    },
+    {
+      "type": "1",
+      "message": "This plugin does not support propagateSizeHints()",
+      "thread": "MainThread"
+    },
+    {
+      "type": "1",
+      "message": "This plugin does not support propagateSizeHints()",
+      "thread": "MainThread"
+    },
+    {
+      "type": "1",
+      "message": "This plugin does not support propagateSizeHints()",
+      "thread": "MainThread"
+    },
+    {
+      "type": "1",
+      "message": "This plugin does not support propagateSizeHints()",
+      "thread": "MainThread"
+    }
+  ],
+  "exceptions": [],
+  "retired_producers": 9,
+  "alive_producers_after": 0,
+  "remaining_ambient_widgets": 0,
+  "window_native_destroyed": true,
+  "capture_limits": {
+    "max_qt_messages": 256,
+    "captured_qt_messages": 17,
+    "qt_capture_truncated": false,
+    "producer_tracking": "Nine producers sampled at the 17 explicit stage snapshots; intermediate theme-switch producers are not exhaustively enumerated."
+  }
+}

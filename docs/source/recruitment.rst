@@ -1,7 +1,7 @@
 Recruitment: compartment ratios and channel identity
 ========================================================
 
-From **Home → Assays → Toxoplasma**, open **Recruitment** after segmentation
+From **Home** → **Organism** → **Toxoplasma**, open **Recruitment** after segmentation
 and measurement. Supply the project containing
 ``measurements/measurements.db`` and verify that its cell, nucleus, pathogen
 and cytoplasm measurements refer to the intended objects and channels.

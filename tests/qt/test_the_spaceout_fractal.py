@@ -668,13 +668,13 @@ def test_install_ambient_returns_the_fractal_under_spaceout(
     from PySide6.QtWidgets import QWidget
 
     import spacr.qt.theme as theme
-    from spacr.qt.widgets.ambient import AmbientWidget, install_ambient
+    from spacr.qt.widgets.ambient import AmbientWidget, SPACEOUT_THEME, install_ambient
 
     monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
     host = QWidget()
     qtbot.addWidget(host)
     host.resize(480, 320)
-    widget = install_ambient(host, None)
+    widget = install_ambient(host, None, theme=SPACEOUT_THEME)
     assert not isinstance(widget, AmbientWidget)
     assert hasattr(widget, "backend_name")
     widget.shutdown()
@@ -706,7 +706,7 @@ def test_the_old_spaceout_theme_is_no_longer_reached(qtbot, sandbox,
 
     host = QWidget()
     qtbot.addWidget(host)
-    widget = ambient.install_ambient(host, None)
+    widget = ambient.install_ambient(host, None, theme=ambient.SPACEOUT_THEME)
     assert used == [], "the ambient engine was still dressed for spaceout"
     widget.shutdown()
 
@@ -1000,7 +1000,7 @@ def test_only_one_backdrop_survives_repeated_installs(qtbot, sandbox,
 
     import spacr.qt.theme as theme
     from spacr.qt.preferences import set_fractal_settings
-    from spacr.qt.widgets.ambient import install_ambient
+    from spacr.qt.widgets.ambient import SPACEOUT_THEME, install_ambient
 
     monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
     set_fractal_settings(backend="cpu")
@@ -1008,7 +1008,7 @@ def test_only_one_backdrop_survives_repeated_installs(qtbot, sandbox,
     qtbot.addWidget(host)
     host.resize(400, 260)
 
-    made = [install_ambient(host, None) for _ in range(3)]
+    made = [install_ambient(host, None, theme=SPACEOUT_THEME) for _ in range(3)]
     live = [c for c in host.findChildren(QWidget)
             if hasattr(c, "backend_name")]
     assert len(live) == 1
@@ -1020,13 +1020,13 @@ def test_retiring_reports_how_many_it_stopped(qtbot, sandbox, monkeypatch):
     from PySide6.QtWidgets import QWidget
 
     import spacr.qt.theme as theme
-    from spacr.qt.widgets.ambient import _retire_fractals_on, install_ambient
+    from spacr.qt.widgets.ambient import SPACEOUT_THEME, _retire_fractals_on, install_ambient
 
     monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
     host = QWidget()
     qtbot.addWidget(host)
     assert _retire_fractals_on(host) == 0
-    install_ambient(host, None)
+    install_ambient(host, None, theme=SPACEOUT_THEME)
     assert _retire_fractals_on(host) == 1
 
 

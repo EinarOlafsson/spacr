@@ -1,0 +1,27 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "Return borrowed controls and detach subscriptions on every exit.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.done#0",
+      "source": "Return borrowed controls and detach subscriptions on every exit.",
+      "source_sha256": "3bbefaf5c9d9789956f33c5849fd27224f0d460270dbb0f4ea8be1326e546188",
+      "translation": "모든 종료 경로에서 빌려온 컨트롤을 반환하고 구독 연결을 해제합니다."
+    },
+    {
+      "context": "Qt destroys a dialog's children with it, so anything of the panel's still parented under this dialog when it goes would go with it. The controls belong to the panel and retain their values after Close, Escape, accept, reject and explicit completion. Restoring them in ``done`` covers exits that do not deliver a close event. A completed dialog cannot move controls out of a replacement dialog.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.done#1",
+      "source": "Qt destroys a dialog's children with it, so anything of the panel's still parented under this dialog when it goes would go with it. The controls belong to the panel and retain their values after Close, Escape, accept, reject and explicit completion. Restoring them in ``done`` covers exits that do not deliver a close event. A completed dialog cannot move controls out of a replacement dialog.",
+      "source_sha256": "ba9bb52c4cbe50c139ee4d383784c0977e2703071c4f0ebdddeb3b53159aabf3",
+      "translation": "Qt는 대화상자를 파괴할 때 그 자식 위젯도 함께 파괴하므로, 종료 시점까지 이 대화상자 아래에 남아 있는 패널의 컨트롤도 파괴됩니다. 컨트롤은 패널에 속하며 Close, Escape, accept, reject 및 명시적인 완료 이후에도 값을 유지합니다. ``done``에서 컨트롤을 복원하면 닫기 이벤트가 전달되지 않는 종료 경로도 처리됩니다. 이미 완료된 대화상자는 교체된 대화상자에서 컨트롤을 옮길 수 없습니다."
+    },
+    {
+      "context": "dialog result passed to Qt after controls return to the panel's hidden store.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.done#2",
+      "source": "dialog result passed to Qt after controls return to the panel's hidden store.",
+      "source_sha256": "f2f64455b0bf369837ffe612b440a7477648aaf5ff9bd0061b6dc11a6d45dba4",
+      "translation": "컨트롤이 패널의 숨겨진 보관 컨테이너로 돌아간 뒤 Qt에 전달되는 대화상자 결과입니다."
+    }
+  ],
+  "schema": 1
+}

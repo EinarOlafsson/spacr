@@ -100,7 +100,10 @@ def main(argv=None) -> int:
             except Exception:  # noqa: BLE001 - an alias must not sink a trial
                 pass
     except BaseException as error:  # noqa: BLE001 - a failed trial is a result
+        from .runctx import _is_overload_failure
+
         result["status"] = "failed"
+        result["_overload"] = _is_overload_failure(error)
         result["error_type"] = type(error).__name__
         result["error"] = (str(error).splitlines() or [""])[0][:400]
         folder = settings.get("src")

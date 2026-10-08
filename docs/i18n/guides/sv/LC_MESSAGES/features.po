@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 21:43-0400\n"
+"POT-Creation-Date: 2026-10-08 16:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -112,8 +112,9 @@ msgstr "Varje körning kan registrera sin identifierare, sitt slumpfrö, sina up
 msgid "How a module is reached"
 msgstr "Hur en modul nås"
 
-msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Assays** -- and twenty-one modules have a tile in one of them. Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own; Assays are the quantitative readouts. Make Masks is filed under **Tools**."
-msgstr "Startskärmen grupperar modulerna i fyra kategorier -- **Kärna**, **Data**, **Verktyg** och **Analyser** -- och tjugoen moduler har en ruta i någon av dem. Kärna är pipelinen du kör i ordning; Data är det som går in i den och det som kommer ut ur den; Verktyg är instrumenten du riktar mot ett projekt snarare än steg som pipelinen tar på egen hand; Analyser är de kvantitativa avläsningarna. Skapa masker ligger under **Verktyg**."
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and twenty-one modules have a tile in one of them. Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
+msgstr "Hemskärmen grupperar moduler i fyra kategorier — **Kärna**, **Data**, **Verktyg** och **Organism** — och tjugoen moduler har en ruta i någon av dem. Kärna är arbetsflödet som körs i ordning; Data omfattar dess indata och utdata; Verktyg är instrument som används på ett projekt snarare än automatiska steg i arbetsflödet. Organism öppnar Toxoplasma-handledningen och dess tillgängliga analyser. Planerade analyser markeras med Kommer snart. Skapa masker ligger under **Verktyg**."
 
 msgid "A TILE IS NOT THE ONLY WAY IN, and most modules do not have one. A tile says \"start here\", and a module that answers a question about a run somebody else started is not a place to start. Those open instead from:"
 msgstr "EN RUTA ÄR INTE DEN ENDA VÄGEN IN, och de flesta moduler har ingen. En ruta säger \"börja här\", och en modul som besvarar en fråga om en körning som någon annan har startat är inte ett ställe att börja på. De öppnas i stället från:"
@@ -237,12 +238,12 @@ msgid "Data-art themes"
 msgstr "Teman med datakonst"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
-msgstr "Under **Inställningar** → **Utseende** väljer **Tema** gränssnittets palett; de tio nattpaletterna finns kvar. **Animation** väljer en dekorativ bakgrund oberoende av detta, eller **Ingen** för att stoppa den. Bakgrunderna visar inga projektmätningar. Huvudfönstret använder **spaCR field** som standard; inställningsfönstrets bakgrund använder **Ingen** som standard."
+msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **spaCR stratified**."
+msgstr "Under **Inställningar** → **Utseende** väljer **Tema** gränssnittets palett; de tio nattpaletterna finns kvar. **Animation** väljer en dekorativ bakgrund oberoende av detta, eller **Ingen** för att stoppa den. Bakgrunderna visar inga projektmätningar. Huvudfönstret använder **spaCR field** som standard; inställningsfönstrets bakgrund använder **spaCR stratified** som standard."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
-msgstr "Animeringsmenyn listar **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** och **spaCR spinn**, i den ordningen."
+msgid "The ordinary animation menu lists **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs**, **spaCR stratified**, and **None**, in that order. **spaCR growth**, **spaCR aurora** and **spaCR spinn** are available with **Spaceout** enabled in both the main Animation menu and the Settings backdrop menu."
+msgstr "Den vanliga animationsmenyn listar **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs**, **spaCR stratified** och **Ingen**, i den ordningen. **spaCR growth**, **spaCR aurora** och **spaCR spinn** är tillgängliga med **Spaceout** aktiverat, både i huvudmenyn Animation och i menyn Bakgrund för inställningar."
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — Ett skarpt gravitationsfält av punkter med valfri lokal muspåverkan och växande ringvågor."
@@ -287,16 +288,28 @@ msgid "**Popup wave frequency** sets automatic waves per minute in **spaCR field
 msgstr "**Frekvens för popupvågor** anger antalet automatiska vågor per minut i **spaCR field**. Standardvärdet är **5 vågor/minut**; **0** stänger av popupvågor. När funktionen är på startar den första vågen direkt från mitten av ett popupfönster när det öppnas, följd av vågor med vald frekvens. Om fönstret flyttas följer ursprunget för nya vågor med; när fönstret stängs upphör nya vågor medan befintliga vågor tonas bort. Inställningen är oberoende av musgravitation, punktblinkning, täthet och ritdetaljer."
 
 # AI technical review (Codex), no native-speaker signoff.
+msgid "**Field ripples** enables waves caused by clicks, opening or closing containers, and snapping the window, as well as automatic popup waves. Turning Mouse gravity radius down to **0** leaves these ripples available. Turn Field ripples off to stop them while retaining mouse attraction; Popup wave frequency controls the rate of automatic waves when ripples are on."
+msgstr "**Fältkrusningar** aktiverar vågor från klick, öppning och stängning av behållare samt när fönstret fästs, liksom automatiska popupvågor. Dessa krusningar förblir tillgängliga när Musgravitationens radie sänks till **0**. Stäng av Fältkrusningar för att stoppa dem och behålla musens dragningskraft; Frekvens för popupvågor styr de automatiska vågornas takt när krusningar är på."
+
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Press **Apply** to preview changes while Preferences stays open. A separate question offers **Keep** or **Revert**. Revert restores the saved and live settings; your edited controls remain available to change or apply again. Closing the question also reverts. **Save** keeps changes and closes Preferences."
 msgstr "Tryck på **Verkställ** för att förhandsvisa ändringar medan inställningsfönstret förblir öppet. En separat fråga erbjuder **Behåll** eller **Återställ**. Återställning återför både sparade och aktiva inställningar; de redigerade reglagen finns kvar för ändring eller ny tillämpning. Om frågan stängs återställs inställningarna också. **Spara** behåller ändringarna och stänger inställningsfönstret."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**Bakgrund för inställningar** är oberoende av huvudfönstrets animering både när Verkställ och Spara används. **Ingen** stänger av rörelse i popupfönstret men behåller den blå kanten. **Mörker i inställningsbakgrunden** styr inställningskortets opacitet över dess animering, från **0%** till **100%**, med standardvärdet **85%**, i kombination med **Sidopacitet**. Sidopacitet gäller även när inställningsbakgrunden är **Ingen**. Högre mörkervärden täcker mer av animeringen så att texten blir lättare att läsa. Popupfönster ligger över sitt eget spaCR-fönster utan en global inställning som håller dem över alla andra fönster; andra program kan därför täcka dem."
+msgid "**Preferences** keeps four lines of help visible below the settings. Longer help scrolls within the strip without moving the dialog. Drag the strip’s narrow top edge to make it taller or shorter; Preferences remembers the chosen height. Moving from a control into the strip keeps its help available to read and scroll."
+msgstr "**Inställningar** håller fyra hjälprader synliga under inställningarna. Längre hjälp rullas i strippen utan att dialogen flyttas. Dra strippens smala överkant för att göra den högre eller lägre; Inställningar kommer ihåg höjden. Om du flyttar pekaren från en kontroll till strippen finns hjälpen kvar att läsa och rulla."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings animation speed**, **Settings animation size**, **Settings animation detail** and **Settings animation density** change only the settings-window backdrop. Its sliders retain their values when the backdrop is **None**, while the controls are disabled. Choosing a compatible backdrop enables them again. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
+msgstr "**Bakgrund för inställningar** är oberoende av huvudfönstrets animering både när Verkställ och Spara används. **Ingen** stänger av rörelse i popupfönstret men behåller den blå kanten. **Hastighet för inställningsfönstrets animation**, **Storlek för inställningsfönstrets animation**, **Detaljnivå för inställningsfönstrets animation** och **Täthet för inställningsfönstrets animation** ändrar endast inställningsfönstrets bakgrund. Reglagen behåller sina värden när bakgrunden är **Ingen**, medan kontrollerna är inaktiverade. En kompatibel bakgrund aktiverar dem igen. **Mörker i inställningsbakgrunden** styr inställningskortets opacitet över dess animering, från **0%** till **100%**, med standardvärdet **85%**, i kombination med **Sidopacitet**. Sidopacitet gäller även när inställningsbakgrunden är **Ingen**. Högre mörkervärden täcker mer av animeringen så att texten blir lättare att läsa. Popupfönster ligger över sitt eget spaCR-fönster utan en global inställning som håller dem över alla andra fönster; andra program kan därför täcka dem."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."
 msgstr "I **spaCR field** kan du dra med vänster musknapp i ett tomt bakgrundsområde för att dra i en lokal grupp punkter. När du släpper knappen återgår punkterna mjukt utan att mönstret startas om. Bakgrundsgesten hindrar inte gester i den vetenskapliga bildytan eller i kontrollerna."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Start ``spaceout --fresh`` for the separate Spaceout mode. Its default **spaCR field phenomena** backdrop adds changing motion to the field. Under **Preferences** → **Appearance** → **spaCR field**, eight independent switches control **Random attractors**, **Relaxation**, **Elastic release**, **Vortices**, **Density pulses**, **Density waves**, **Colour waves** and **Spirals**. All eight start on. **Apply** previews the edited switches; **Revert** restores the previous values, and **Save** keeps them. The ordinary ``spacr`` launcher uses its own background choice and hides this Spaceout-only section. To choose the fractal instead, select it in Spaceout's **Animation** menu."
+msgstr "Starta ``spaceout --fresh`` för det separata Spaceout-läget. Dess förvalda bakgrund **spaCR-fältfenomen** ger fältet föränderlig rörelse. Under **Inställningar** → **Utseende** → **spaCR field** styr åtta oberoende reglage **Slumpmässiga attraktorer**, **Avslappning**, **Elastiskt släpp**, **Virvlar**, **Täthetspulser**, **Täthetsvågor**, **Färgvågor** och **Spiraler**. Alla åtta är på från början. **Verkställ** förhandsvisar de redigerade reglagen; **Återställ** återställer tidigare värden och **Spara** behåller dem. Den vanliga startaren ``spacr`` använder sitt eget bakgrundsval och döljer denna sektion för Spaceout. Välj fraktalen i Spaceouts meny **Animation** om du vill använda den."
 
 msgid "Arranging the window"
 msgstr "Ordna fönstret"
@@ -370,7 +383,7 @@ msgstr "Annoteringstabellen har kolumnerna ``field``, ``track_id``, ``frame`` oc
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The default ``small`` encoder runs on CPU. The optional ``videomae`` encoder uses pretrained video features from **VideoMAE event encoder** in Model Zoo, installed in its own environment. Supply the verified local official checkpoint folder and exactly three ordered source-channel indices; use ``[0,0,0]`` only when deliberately repeating a monochrome channel. The frozen encoder can use CUDA, Metal or CPU; the small event classifier trains on CPU. The checkpoint's Kinetics classes are not microscopy event labels, and pretrained features require held-out evaluation on the intended microscopy experiment. The checkpoint is licensed CC-BY-NC-4.0; inference downloads no weights. These controls remain alpha."
-msgstr "Standardkodaren ``small`` körs på CPU. Den valfria kodaren ``videomae`` använder förtränade videoegenskaper från **VideoMAE händelse kodare** i Model Zoo, installerad i sin egen miljö. Ange den verifierade lokala mappen med den officiella kontrollpunkten och exakt tre ordnade index för källkanaler; använd ``[0,0,0]`` endast om du avsiktligt upprepar en monokrom kanal. Den frysta kodaren kan använda CUDA, Metal eller CPU; den lilla händelseklassificeraren tränas på CPU. Kontrollpunktens Kinetics-klasser är inte händelseetiketter för mikroskopi, och förtränade egenskaper kräver utvärdering på undanhållna fält från det avsedda mikroskopiexperimentet. Kontrollpunkten har licensen CC-BY-NC-4.0; inferensen laddar inte ner några vikter. Dessa kontroller är fortfarande alfa."
+msgstr "Standardkodaren ``small`` körs på CPU. Den valfria kodaren ``videomae`` använder förtränade videoegenskaper från **VideoMAE-kodare för händelser** i Model Zoo, installerad i sin egen miljö. Ange den verifierade lokala mappen med den officiella kontrollpunkten och exakt tre ordnade index för källkanaler; använd ``[0,0,0]`` endast om du avsiktligt upprepar en monokrom kanal. Den frysta kodaren kan använda CUDA, Metal eller CPU; den lilla händelseklassificeraren tränas på CPU. Kontrollpunktens Kinetics-klasser är inte händelseetiketter för mikroskopi, och förtränade egenskaper kräver utvärdering på undanhållna fält från det avsedda mikroskopiexperimentet. Kontrollpunkten har licensen CC-BY-NC-4.0; inferensen laddar inte ner några vikter. Dessa kontroller är fortfarande alfa."
 
 msgid "Figure settings"
 msgstr "Figurinställningar"
@@ -402,6 +415,10 @@ msgstr "Arbeta med figurer"
 
 msgid "Right-click any figure in spaCR, in a module's figure list or in an embedded plot such as Graph Builder, the UMAP explorer or a training comparison, to open its figure menu. The Volcano explorer and the Gate Editor keep their own right-click menus and add these entries to them."
 msgstr "Högerklicka på valfri figur i spaCR, i en moduls figurlista eller i ett inbäddat diagram som Graph Builder, UMAP-utforskaren eller en träningsjämförelse, för att öppna dess figurmeny. Volcano-utforskaren och Gate Editor har egna högerklicksmenyer och lägger till dessa poster i dem."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The Gate Editor draws its 2D and 3D plots on an opaque card with rounded corners, so the page animation stays behind the surrounding controls. Right-click inside the plot to open its graph and figure actions; right-click an axis to change that measurement's scale, limits or cutoffs."
+msgstr "Gate Editor ritar sina 2D- och 3D-diagram på ett ogenomskinligt kort med rundade hörn, så sidans animation ligger bakom de omgivande kontrollerna. Högerklicka inne i diagrammet för dess graf- och figuråtgärder; högerklicka på en axel för att ändra mätningens skala, gränser eller trösklar."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them."
@@ -452,6 +469,18 @@ msgstr "Innan en modul startar sina arbetsprocesser skattar spaCR hur mycket min
 
 msgid "Runs started without the GUI lower ``n_jobs`` to the safe number and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
 msgstr "Körningar som startas utan GUI sänker ``n_jobs`` till det säkra antalet och skriver ut en varning. Stäng av ``ram_guard`` under **Avancerat** för att behålla ditt ``n_jobs`` oförändrat; Mätning väntar fortfarande medan det lediga minnet ligger under reserven."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Worker startup and final retries"
+msgstr "Start av arbetsprocesser och sista omförsök"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "spaCR starts the first application worker immediately, then spaces additional process and thread workers by ten seconds. This applies to spaCR's managed pools, executors, independent mask workers and data-loading workers. It staggers worker initialization, not every image or database operation. Numerical libraries may still manage their own internal threads."
+msgstr "spaCR startar den första programarbetaren direkt och låter sedan tio sekunder gå mellan starten av ytterligare arbetsprocesser och arbetstrådar. Detta gäller spaCR:s hanterade pooler, exekverare, fristående maskarbetare och datainläsningsarbetare. Det är initieringen av arbetarna som sprids ut, inte varje bild- eller databasoperation. Numeriska bibliotek kan fortfarande hantera sina egna interna trådar."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "When a task exhausts its normal attempts because of a recognized resource overload, spaCR keeps it for one final attempt in a separate serial queue. This queue starts only after the primary tasks finish. SQLite busy or locked errors, explicit memory exhaustion and exhausted operating-system resources qualify. Invalid inputs, cancellation and unexplained worker deaths do not. A final failure remains an error with its original evidence; it is not retried again."
+msgstr "När en uppgift har förbrukat sina vanliga försök på grund av en identifierad resursöverbelastning behåller spaCR den för ett sista försök i en separat seriell kö. Den kön startar först när de primära uppgifterna är klara. Fel med upptagen eller låst SQLite-databas, uttrycklig minnesbrist och förbrukade operativsystemsresurser omfattas. Ogiltiga indata, avbrytande och oförklarade avslut av arbetsprocesser omfattas inte. Ett sista misslyckande förblir ett fel med sina ursprungliga bevis; inget ytterligare försök görs."
 
 msgid "Maturity labels"
 msgstr "Mognadsnivåer"

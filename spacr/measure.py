@@ -93,9 +93,9 @@ settings = _settings_module
 from . import measurement_schema as _measurement_schema
 MEASUREMENT_STAMP_COLUMNS = _measurement_schema.MEASUREMENT_STAMP_COLUMNS
 from .errors import RunLedger, ConfigurationError, raise_if_strict
-from .runctx import run_context
+from .runctx import run_context, _DeferredOverloadRetries, _is_overload_failure
 from .resource_log import (_max_safe_workers, _ram_plan, _ram_reserve_bytes,
-                           _ram_snapshot)
+                           _ram_snapshot, _parallel_pool)
 from .resume import plan_measure_resume
 from .measure_hooks import (
     MeasurementHookError,
@@ -3476,8 +3476,11 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
     :returns: None after the field's provenance is saved.
     """
     from . import schema
-    from .database_concurrency import connect, transaction
+    from .database_concurrency import connect, transaction, _capture_write_operation
 
+    if _capture_write_operation('rescale', (
+            source_folder, file_name, settings, record, psf_record)):
+        return
     field = schema.parse_field_stem(
         file_name, timelapse=bool(settings.get('timelapse', False)))
     values = {
@@ -4148,8 +4151,10 @@ def _write_confluency_record(source_folder, file_name, settings, result):
     :param result: the field's :class:`_ConfluencyResult`.
     """
     from . import schema
-    from .database_concurrency import connect, transaction
+    from .database_concurrency import connect, transaction, _capture_write_operation
 
+    if _capture_write_operation('confluency', (source_folder, file_name, settings, result)):
+        return
     qc_threshold = settings.get('confluency_qc_threshold')
     field = schema.parse_field_stem(
         file_name, timelapse=bool(settings.get('timelapse', False)))
@@ -8787,6 +8792,10 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
     except PipelineCancelled:
         raise
     except Exception as e:
+        from .database_concurrency import _write_capture_active
+
+        if _write_capture_active() and _is_overload_failure(e):
+            raise
         cells = 0
         error_text = "".join(
             traceback.format_exception(type(e), e, e.__traceback__))
@@ -8800,6 +8809,78 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
         fig = img_list_to_grid(grid)
         figs[f'{file_name}__pngs'] = fig
     return index, average_time, cells, figs, error_text
+
+_MEASURE_WRITE_ENDPOINT = None
+
+
+def _initialize_measure_writer(endpoint):
+    """Give a spawned Measure worker only its bounded producer handles."""
+    global _MEASURE_WRITE_ENDPOINT
+    _MEASURE_WRITE_ENDPOINT = endpoint
+
+
+def _measure_crop_queued(index, time_ls, file, settings, psf_plan=None,
+                         psf_cancel=None):
+    """Compute a field without SQL and enqueue its complete write packet."""
+    from .database_concurrency import _capture_write_packet
+
+    if _MEASURE_WRITE_ENDPOINT is None:
+        raise RuntimeError('Measure worker has no database writer endpoint')
+    with _capture_write_packet() as operations:
+        result = _measure_crop_core(index, time_ls, file, settings,
+                                    psf_plan, psf_cancel)
+    if isinstance(result[2], int) and result[2] == 0:
+        return result
+    ticket = _MEASURE_WRITE_ENDPOINT.enqueue(file, operations)
+    return (*result, ticket)
+
+
+def _commit_measure_packet(db_path, packet):
+    """Dispatch existing scientific helpers inside one atomic field commit."""
+    from .database_concurrency import _commit_write_packet
+    from .utils import _append_to_measurements_db, _merge_and_save_to_database
+
+    handlers = {
+        'append': _append_to_measurements_db,
+        'merge': _merge_and_save_to_database,
+        'rescale': _write_intensity_rescale_record,
+        'confluency': _write_confluency_record,
+    }
+
+    def dispatch(operation):
+        """Save one approved operation to the packet's central database.
+
+        :param operation: approved helper name, positional arguments and keywords.
+        """
+        name, arguments, keywords = operation
+        if name not in handlers:
+            raise ValueError('Unsupported Measure database operation')
+        source = (arguments[0] if name == 'append' else
+                  os.path.join(arguments[3] if name == 'merge' else arguments[0],
+                               'measurements', 'measurements.db'))
+        if os.path.abspath(source) != os.path.abspath(db_path):
+            raise ValueError('Measure packet targets a different database')
+        handlers[name](*arguments, **keywords)
+
+    return _commit_write_packet(db_path, packet, dispatch)
+
+
+def _measure_write_queue_budget(settings):
+    """Resolve an explicit headless budget before the saved preference."""
+    import math
+
+    value = settings.get('database_write_queue_gib')
+    if value is None:
+        try:
+            from .qt.preferences import get_database_write_queue_gib
+            value = get_database_write_queue_gib()
+        except ImportError:
+            value = 1.0
+    value = float(value)
+    if not math.isfinite(value) or not 0 <= value <= 64:
+        raise ValueError('Database write queue RAM must be between 0 and 64 GiB')
+    return value
+
 
 def _record_organelle_caveats(settings, run):
     """Put the per-type organelle caveats on the run journal.
@@ -9232,6 +9313,11 @@ def measure_crop(settings):
         - ``normalize`` — ``[lower_pct, upper_pct]`` for PNG normalization.
         - ``normalize_by`` — ``'png'`` (per-crop) or ``'fov'`` (per-field).
         - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.
+        - ``database_write_queue_gib`` — optional SQLite queued-data RAM budget
+          from zero to 64 GiB. Omit to use Preferences (default one GiB).
+          Zero uses disk-only buffering; overflow lives under
+          ``measurements/.write_queue``. Each field commits atomically and
+          unfinished write packets remain available after failure.
         - ``dry_run`` — validate the settings, report the plan and stop;
           the input folders are inspected but nothing is written.
 
@@ -9462,42 +9548,49 @@ def measure_crop(settings):
                 run.adopt(ledger)
                 _record_organelle_caveats(settings, run)
                 policy = run.policy.bind(ledger=ledger, record=False)
+                deferred = _DeferredOverloadRetries()
                 index_to_file = dict(enumerate(files))
                 reported_files = set()
+                verdict_lock = threading.Lock()
+                writer = None
+                writer_started = False
+                queued_sqlite = str(settings.get('measurement_backend') or
+                                    'sqlite').lower() == 'sqlite'
+
+                def record_verdict(item, error=None, stage='measure'):
+                    """Count each field once, after its actual final outcome."""
+                    with verdict_lock:
+                        if item in reported_files:
+                            return
+                        reported_files.add(item)
+                        if error is None:
+                            ledger.record_success(item, stage=stage)
+                        else:
+                            ledger.record_failure(item, stage=stage, exc=error)
+
+                def write_callback(item, ticket, error):
+                    """Record a field only after its packet's final SQL verdict."""
+                    record_verdict(item, error, stage='measure_write')
 
                 def job_callback(result):
-                    """Record one completed field and save its optional figures.
+                    """Save returned figures and report field computation progress.
 
-                    :param result: The 4-tuple ``(index, average_time, cells,
-                        figs)`` that :func:`_measure_crop_core` returns, taken
-                        straight off the ``AsyncResult`` -- one result, not the
-                        list that :func:`process_measure_crop_results` takes,
-                        which is why it is re-wrapped as ``[result]`` below.
-                        ``index`` is the position in ``files`` and is translated
-                        back through ``index_to_file`` so the ledger entry names
-                        the field rather than a number. ``cells`` decides the
-                        verdict: the success path leaves the
-                        ``np.unique(cell_mask)`` array there, while a plain int
-                        ``0`` is the cross-process failure sentinel a worker
-                        leaves when it caught its own exception, so only that
-                        int records a failure. ``figs`` may be an empty dict --
-                        nothing is drawn unless ``settings['plot']``. Passing
-                        the same field twice is safe for the counters
-                        (``completed_jobs`` and ``reported_files`` are sets) but
-                        would save its figures twice, so the retry loop calls
-                        this only for the attempt that actually returned.
+                    :param result: index, average duration, surviving labels,
+                        figures, error text and an optional queued-write ticket.
+                        An integer zero labels value records the original field
+                        failure. SQLite success is recorded separately by the
+                        writer after committing all scientific rows. Other
+                        backends keep their existing synchronous worker verdict.
                     """
                     completed_jobs.add(result[0])
                     item = index_to_file.get(result[0], result[0])
-                    reported_files.add(item)
                     if isinstance(result[2], int) and result[2] == 0:
                         detail = (result[4] if len(result) > 4 else "") or (
                             'field failed inside _measure_crop_core, and the '
                             'worker returned no traceback')
-                        ledger.record_failure(
-                            item, stage='measure', exc=detail)
-                    else:
-                        ledger.record_success(item, stage='measure')
+                        record_verdict(item, detail)
+                    elif not queued_sqlite:
+                        record_verdict(item)
                     process_measure_crop_results([result], settings)
                     files_processed = len(completed_jobs)
                     files_to_process = len(files)
@@ -9530,8 +9623,7 @@ def measure_crop(settings):
                     """
                     def _on_error(exc):
                         """Record one worker's failure against the file that caused it."""
-                        reported_files.add(job_file)
-                        ledger.record_failure(job_file, stage='measure_worker', exc=exc)
+                        record_verdict(job_file, exc, stage='measure_worker')
                     return _on_error
 
                 ctx = _measure_pool_context(settings)
@@ -9543,6 +9635,21 @@ def measure_crop(settings):
                 pool_jobs = _clamp_workers_to_ram(settings, pool_jobs, ram_plan)
                 per_worker = ram_plan['per_worker'] if ram_plan else 0
                 calibrate = ram_plan is not None and pool_jobs > 1 and len(files) > 1
+                db_path = os.path.join(os.path.dirname(settings['src']),
+                                       'measurements', 'measurements.db')
+                worker_function = (_measure_crop_queued if queued_sqlite else
+                                   _measure_crop_core)
+                pool_options = {}
+                if queued_sqlite:
+                    from .database_concurrency import _DatabaseWriteQueue
+
+                    writer = _DatabaseWriteQueue(
+                        os.path.join(os.path.dirname(db_path), '.write_queue'),
+                        lambda packet: _commit_measure_packet(db_path, packet),
+                        write_callback, ram_gib=_measure_write_queue_budget(settings),
+                        context=ctx)
+                    pool_options = {'initializer': _initialize_measure_writer,
+                                    'initargs': (writer.endpoint,)}
 
                 try:
                     with _start_manager(ctx) as manager:
@@ -9550,7 +9657,11 @@ def measure_crop(settings):
                         psf_cancel = manager.Event() if psf_plan is not None else None
                         completed_jobs = set()
 
-                        with ctx.Pool(pool_jobs) as pool:
+                        with _parallel_pool(pool_jobs, context=ctx,
+                                            **pool_options) as pool:
+                            if writer is not None:
+                                writer.start()
+                                writer_started = True
                             wave = pool_jobs
                             offset = 0
                             while offset < len(files):
@@ -9566,7 +9677,7 @@ def measure_crop(settings):
                                             lambda: _any_field_running(pending),
                                             field=file)
                                     result = pool.apply_async(
-                                        _measure_crop_core,
+                                        worker_function,
                                         args=((index, time_ls, file, settings, psf_plan, psf_cancel)
                                               if psf_plan is not None else
                                               (index, time_ls, file, settings)),
@@ -9584,7 +9695,7 @@ def measure_crop(settings):
                                                             async_result, psf_cancel))
                                                     else:
                                                         retried = pool.apply_async(
-                                                            _measure_crop_core,
+                                                            worker_function,
                                                             args=((index, time_ls, file, settings, psf_plan, psf_cancel)
                                                                   if psf_plan is not None else
                                                                   (index, time_ls, file, settings)))
@@ -9593,6 +9704,21 @@ def measure_crop(settings):
                                                     raise
                                                 except Exception as exc:
                                                     if attempt.last:
+                                                        retry_arguments = (
+                                                            index, time_ls, file, settings,
+                                                            psf_plan, psf_cancel)
+                                                        if queued_sqlite and deferred.defer(
+                                                                file, exc,
+                                                                lambda args=retry_arguments:
+                                                                _wait_for_measure_job(
+                                                                    pool.apply_async(
+                                                                        worker_function,
+                                                                        args=args), psf_cancel)):
+                                                            run.log.warning(
+                                                                'Deferring overloaded field %s '
+                                                                'until the primary queue finishes: %s',
+                                                                file, exc)
+                                                            break
                                                         make_error_callback(file)(exc)
                                                     raise
                                 offset += size
@@ -9602,8 +9728,23 @@ def measure_crop(settings):
                                         settings, ram_plan, peak.peak, wave)
                                 cancellation_checkpoint()
 
+                            for file, result, error in deferred.drain():
+                                if error is None:
+                                    job_callback(result)
+                                else:
+                                    make_error_callback(file)(error)
                             pool.close()
                             pool.join()
+                        if writer is not None:
+                            writer.finish()
+                except BaseException:
+                    if writer_started:
+                        writer.cancel()
+                        try:
+                            writer.finish()
+                        except BaseException as cleanup_error:
+                            run.log.warning('Database writer stopped: %s', cleanup_error)
+                    raise
                 finally:
                     for job_file in files:
                         if job_file not in reported_files:

@@ -2726,7 +2726,9 @@
       "review_basis": "written from the English (no current MT draft)",
       "source": "the requested theme name; returned as given unless the spaceout dressing is on. It is not validated here.",
       "source_sha256": "ede5d8236e9f605e8a37aafe251a345b5c38a29fbae7822824448679695087ae",
-      "translation": "요청한 테마 이름입니다. spaceout 장식이 켜져 있지 않으면 그대로 반환됩니다. 여기서는 검증하지 않습니다."
+      "translation": "요청한 테마 이름입니다. spaceout 장식이 켜져 있지 않으면 그대로 반환됩니다. 여기서는 검증하지 않습니다.",
+      "retired": "2026-10-08",
+      "retired_reason": "Superseded by current Home UI API wording for independent animation selections, recurring versus discrete field feedback, and four-line accessible help. Original source-bound evidence retained in place."
     },
     {
       "context": "the requested palette name, treated the same way.",

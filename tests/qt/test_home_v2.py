@@ -677,10 +677,8 @@ def test_the_categories_are_the_ones_that_were_asked_for():
     assert app_mod.SECTION_MODELS == "Segmentation models"
     assert app_mod.SECTION_RESULTS == "Results & QC"
     assert app_mod.SECTION_EXPLORE == "Explore"
-    # RENAMED to Assays on 2026-08-23: nothing in the section is
-    # Toxoplasma-specific except by habit, and Timelapse and the
-    # Motility assay moved into it from Core.
-    assert app_mod.SECTION_ASSAYS == "Assays"
+    # Called Assays after 2026-08-23; the visible category is now Organism.
+    assert app_mod.SECTION_ASSAYS == "Organism"
     assert app_mod.SECTION_DESIGN == "Design"
     assert app_mod.SECTION_TOOLS == "Tools"
     # FOUR CATEGORIES since 2026-08-31, written out tile by tile by the
@@ -689,8 +687,8 @@ def test_the_categories_are_the_ones_that_were_asked_for():
     # why they no longer draw. That is the same property
     # `test_sections_are_the_ones_that_have_apps_not_the_ones_declared`
     # defends, exercised in the direction it never had a subject for.
-    assert app_mod.SECTION_ORDER == ("Core", "Data", "Tools", "Assays")
-    assert app_mod.SECTIONS == ("Core", "Data", "Tools", "Assays")
+    assert app_mod.SECTION_ORDER == ("Core", "Data", "Tools", "Organism")
+    assert app_mod.SECTIONS == ("Core", "Data", "Tools", "Organism")
     for retired in (app_mod.SECTION_MODELS, app_mod.SECTION_RESULTS,
                     app_mod.SECTION_EXPLORE, app_mod.SECTION_DESIGN):
         assert retired not in app_mod.SECTIONS
@@ -742,7 +740,7 @@ def test_the_category_tabs_follow_the_workflow_order(home):
     """One tab per live section, and each label counts its own tab.
 
     FOUR live sections since 2026-08-31, when Home was cut to Core, Data,
-    Tools and Assays. ``section_members`` is what the tab draws, so it is
+    Tools and Organism. ``section_members`` is what the tab draws, so it is
     what the label has to count -- and it excludes folded modules, so a
     tab that draws three tiles cannot be labelled "(7)".
     """
@@ -767,7 +765,7 @@ def test_a_tab_label_draws_its_ampersand_instead_of_eating_it(home):
     labels = [home._tabs.tabText(i) for i in range(home._tabs.count())]
     # NO SECTION NAME CARRIES AN AMPERSAND ANY MORE. "Results & QC" was
     # the only one, and it was retired on 2026-08-31 when Home was cut to
-    # Core / Data / Tools / Assays.
+    # Core / Data / Tools / Organism.
     #
     # The test is KEPT rather than deleted, and split in two. The half
     # that needed a live subject -- "the doubling actually happens" -- is
@@ -980,17 +978,20 @@ def test_every_category_carries_its_one_line_note(window):
     assays staged out of it. There is nothing staged out of anything
     now — all four assays are on the Toxoplasma tab — so the note is
     back to being a description of the subject."""
-    from spacr.qt.app import SECTION_NOTES
+    from spacr.qt.app import SECTION_ASSAYS, SECTION_NOTES
+    from spacr.qt.i18n import tr
 
     assert set(SECTION_NOTES) == set(SECTIONS), (
         "a category has no note — a thin tab would explain nothing")
     assert all(SECTION_NOTES.values())
+    assert SECTION_NOTES[SECTION_ASSAYS] == (
+        "Organism-specific image analysis and quantitative assay readouts.")
 
     tabs = window._startup._tabs
     for index, section in enumerate(SECTIONS, start=1):
         notes = [lbl.text() for lbl in tabs.widget(index).findChildren(QLabel)
                  if lbl.objectName() == "HomeSectionNote"]
-        assert notes == [SECTION_NOTES[section]], (
+        assert notes == [tr(SECTION_NOTES[section])], (
             f"{section} tab drew {notes!r}")
 
 

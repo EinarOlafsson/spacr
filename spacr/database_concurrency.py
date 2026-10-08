@@ -18,6 +18,7 @@ without pulling in pandas, Qt, torch, or Cellpose.
 from __future__ import annotations
 
 import contextlib
+import contextvars
 import logging
 import operator
 import os
@@ -33,6 +34,152 @@ from typing import Any, Dict, Iterator, List, Optional, Sequence
 from urllib.parse import quote
 
 LOG = logging.getLogger(__name__)
+
+_WRITE_PACKET_CONNECTION = contextvars.ContextVar('spacr_write_packet_connection', default=None)
+_WRITE_TICKETS_TABLE = '_spacr_write_queue_commits'
+_WRITE_PACKET_OPERATIONS = contextvars.ContextVar('spacr_write_packet_operations', default=None)
+
+
+@contextlib.contextmanager
+def _capture_write_packet():
+    """Collect one field's scientific writes without opening worker databases."""
+    if _WRITE_PACKET_OPERATIONS.get() is not None:
+        raise RuntimeError('A field write packet is already being captured')
+    operations = []
+    token = _WRITE_PACKET_OPERATIONS.set(operations)
+    try:
+        yield operations
+    finally:
+        _WRITE_PACKET_OPERATIONS.reset(token)
+
+
+def _write_capture_active():
+    """Whether the current field is accumulating writes without touching SQL."""
+    return _WRITE_PACKET_OPERATIONS.get() is not None
+
+
+def _capture_write_operation(name, arguments, keywords=None):
+    """Freeze a supported helper call while a field capture is active.
+
+    :param name: approved database helper operation name.
+    :param arguments: positional helper arguments in their original order.
+    :param keywords: keyword helper arguments, or None.
+    :returns: True when queued, False for an ordinary standalone call.
+    """
+    import copy
+
+    operations = _WRITE_PACKET_OPERATIONS.get()
+    if operations is None:
+        return False
+    if name not in {'merge', 'append', 'rescale', 'confluency', 'simulation'}:
+        raise ValueError('Unsupported queued database operation')
+    if name in {'merge', 'append'} and arguments[-1] is not None:
+        raise ValueError('An atomic SQLite packet cannot contain external-store writes')
+    operations.append((str(name), copy.deepcopy(arguments),
+                       copy.deepcopy(keywords or {})))
+    return True
+
+
+def _inside_write_packet(path):
+    """Whether this thread owns an atomic write for the given database path."""
+    owned = _WRITE_PACKET_CONNECTION.get()
+    return bool(owned is not None and owned[0] == os.path.abspath(
+        os.path.expanduser(os.fspath(path))))
+
+
+class _PacketConnection(sqlite3.Connection):
+    """Keep helper commits and closes inside one writer-owned field transaction."""
+
+    def commit(self):
+        """Commit normally outside an active atomic write packet."""
+        if not getattr(self, '_managed', False):
+            return super().commit()
+
+    def close(self):
+        """Close normally after the writer releases its packet ownership."""
+        if not getattr(self, '_managed', False):
+            return super().close()
+
+    def rollback(self):
+        """Roll back the current helper operation without discarding siblings."""
+        stack = getattr(self, '_savepoints', ())
+        if getattr(self, '_managed', False) and stack:
+            self.execute(f'ROLLBACK TO SAVEPOINT {stack[-1]}')
+        else:
+            super().rollback()
+
+    def __enter__(self):
+        """Keep the same owned connection in legacy helper context blocks."""
+        return self
+
+    def __exit__(self, error_type, error, traceback):
+        """Suppress helper commits only during a writer-owned packet."""
+        if getattr(self, '_managed', False):
+            if error_type is not None:
+                self.rollback()
+            return False
+        return super().__exit__(error_type, error, traceback)
+
+    @contextlib.contextmanager
+    def _operation(self):
+        """Isolate a helper or nested transaction within the complete packet."""
+        self._sequence += 1
+        name = f'spacr_packet_{self._sequence}'
+        self.execute(f'SAVEPOINT {name}')
+        self._savepoints.append(name)
+        try:
+            yield self
+        except BaseException:
+            self.execute(f'ROLLBACK TO SAVEPOINT {name}')
+            raise
+        finally:
+            self.execute(f'RELEASE SAVEPOINT {name}')
+            self._savepoints.pop()
+
+
+def _commit_write_packet(path, packet, dispatch):
+    """Atomically commit all field operations and their idempotency ticket.
+
+    :param path: the central SQLite database path.
+    :param packet: ticket, stable field identity and scientific operations.
+    :param dispatch: execute one operation using normal database helpers.
+    :returns: True for a new commit, False for an already committed ticket.
+    """
+    absolute = os.path.abspath(os.path.expanduser(os.fspath(path)))
+    connection = sqlite3.connect(absolute, isolation_level=None,
+                                 timeout=30.0, factory=_PacketConnection)
+    connection._managed = False
+    connection._savepoints = []
+    connection._sequence = 0
+    connection.execute('PRAGMA foreign_keys = ON')
+    try:
+        with transaction(connection):
+            connection.execute(f'CREATE TABLE IF NOT EXISTS {_WRITE_TICKETS_TABLE} '
+                               '(ticket TEXT PRIMARY KEY, field TEXT NOT NULL)')
+            saved = connection.execute(
+                f'SELECT field FROM {_WRITE_TICKETS_TABLE} WHERE ticket=?',
+                (packet['ticket'],)).fetchone()
+            if saved is not None:
+                if saved[0] != packet['field']:
+                    raise ValueError('Committed database ticket belongs to another field')
+                return False
+            if packet['operations'] is None:
+                raise ValueError('Uncommitted database packet has no scientific payload')
+            connection._managed = True
+            token = _WRITE_PACKET_CONNECTION.set((absolute, connection))
+            try:
+                for operation in packet['operations']:
+                    with connection._operation():
+                        dispatch(operation)
+                connection.execute(
+                    f'INSERT INTO {_WRITE_TICKETS_TABLE} VALUES (?, ?)',
+                    (packet['ticket'], packet['field']))
+            finally:
+                _WRITE_PACKET_CONNECTION.reset(token)
+                connection._managed = False
+        return True
+    finally:
+        connection.close()
 
 __all__ = [
     "ConcurrencyProbeResult",
@@ -94,6 +241,284 @@ def is_busy_error(error: BaseException) -> bool:
     return "locked" in message or "busy" in message
 
 
+@dataclass(frozen=True)
+class _WriteQueueEndpoint:
+    """Spawn-safe producer handles for bounded serialized database writes.
+
+    Every entry has a durable disk copy. Only serialized payload copies count
+    against the shared byte budget; transport metadata has a fixed queue bound.
+    The caller supplies a field identity that is stable across retry attempts.
+    """
+
+    inbox: Any
+    reserved: Any
+    lock: Any
+    failed: Any
+    limit_bytes: int
+    folder: str
+    run_id: str
+
+    def enqueue(self, field, operations):
+        """Persist one field and enqueue bytes or a small disk descriptor.
+
+        :param field: stable field identifier within this run.
+        :param operations: pickle-safe scientific write operations.
+        :returns: deterministic ticket for this run and field.
+        """
+        import hashlib
+        import pickle
+        from .cancellation import checkpoint
+
+        checkpoint()
+        ticket = hashlib.sha256(
+            (self.run_id + '\0' + str(field)).encode()).hexdigest()
+        packet = {'ticket': ticket, 'field': str(field), 'operations': operations}
+        destination = Path(self.folder) / (ticket + '.pkl')
+        descriptor, temporary = tempfile.mkstemp(dir=self.folder, suffix='.partial')
+        try:
+            with os.fdopen(descriptor, 'wb') as handle:
+                pickle.dump(packet, handle, protocol=pickle.HIGHEST_PROTOCOL)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, destination)
+        except BaseException:
+            Path(temporary).unlink(missing_ok=True)
+            raise
+        size = destination.stat().st_size
+        charge = 2 * size + 1024
+        with self.lock:
+            if charge <= self.limit_bytes - self.reserved.value:
+                self.reserved.value += charge
+            else:
+                charge = 0
+        try:
+            payload = destination.read_bytes() if charge else None
+            item = (ticket, str(field), str(destination), payload, charge)
+            while True:
+                checkpoint()
+                if self.failed.is_set():
+                    raise RuntimeError('The database writer stopped; pending disk entries remain')
+                try:
+                    self.inbox.put(item, timeout=0.1)
+                    return ticket
+                except queue.Full:
+                    continue
+        except BaseException:
+            if charge:
+                with self.lock:
+                    self.reserved.value -= charge
+            raise
+
+
+class _DatabaseWriteQueue:
+    """One parent-owned writer with bounded payload RAM and disk overflow.
+
+    The dispatcher must commit every packet atomically and recognize its
+    deterministic ticket inside that same transaction. The result callback
+    receives final outcomes only. Neither callable runs in producer processes.
+    A sentinel is sent only after all primary producers have finished.
+    """
+
+    def __init__(self, folder, dispatch, on_result, *, ram_gib=1.0,
+                 context=None, slots=16):
+        """Build spawn-safe queue handles without starting a writer.
+
+        :param folder: private spool directory beneath the output directory.
+        :param dispatch: commit one deserialized packet in the writer thread.
+        :param on_result: receive ``(field, ticket, error)`` after final verdict.
+        :param ram_gib: serialized queue-copy budget in GiB; zero uses disk.
+        :param context: multiprocessing context shared with processing workers.
+        :param slots: maximum transport entries, including disk descriptors.
+        """
+        import math
+        import multiprocessing
+        import uuid
+
+        ram_gib = float(ram_gib)
+        if not math.isfinite(ram_gib) or ram_gib < 0:
+            raise ValueError('Database queue RAM must be finite and nonnegative')
+        context = context or multiprocessing.get_context()
+        run_id = uuid.uuid4().hex
+        folder = Path(folder) / run_id
+        folder.mkdir(mode=0o700, parents=True, exist_ok=True)
+        self.endpoint = _WriteQueueEndpoint(
+            context.Queue(maxsize=max(1, int(slots))),
+            context.Value('Q', 0), context.Lock(), context.Event(),
+            int(ram_gib * 1024 ** 3), str(folder), run_id)
+        self._dispatch = dispatch
+        self._on_result = on_result
+        self._thread = None
+        self._error = None
+        self._finished = False
+
+    def start(self):
+        """Start the only database writer; repeated starts are refused."""
+        if self._thread is not None:
+            raise RuntimeError('Database writer already started')
+        self._thread = threading.Thread(
+            target=self._run, name='spacr-database-writer', daemon=True)
+        self._thread.start()
+        return self
+
+    def _process(self, ticket, field, path, payload=None):
+        """Commit a packet before removing its durable spool copy."""
+        import json
+        import pickle
+
+        marker = Path(path + '.committed')
+        if payload is not None:
+            packet = pickle.loads(payload)
+        elif Path(path).exists():
+            packet = pickle.loads(Path(path).read_bytes())
+        elif marker.exists():
+            packet = json.loads(marker.read_text())
+        else:
+            raise FileNotFoundError(path)
+        if packet.get('ticket') != ticket or packet.get('field') != field:
+            raise ValueError('Database write packet identity changed')
+        self._dispatch(packet)
+        descriptor, temporary = tempfile.mkstemp(dir=self.endpoint.folder, suffix='.partial')
+        try:
+            with os.fdopen(descriptor, 'w') as handle:
+                json.dump({'ticket': ticket, 'field': field, 'operations': None}, handle)
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, marker)
+        except BaseException:
+            Path(temporary).unlink(missing_ok=True)
+            raise
+        Path(path).unlink(missing_ok=True)
+
+    def _record_error(self, path, error, *, final=False):
+        """Retain complete original traceback while releasing scientific frames."""
+        import json
+        import traceback
+
+        suffix = '.final_error.json' if final else '.error.json'
+        Path(path + suffix).write_text(json.dumps({
+            'error_type': type(error).__name__, 'error': str(error),
+            'traceback': ''.join(traceback.format_exception(error)),
+        }, indent=2) + '\n')
+        seen = set()
+        current = error
+        while current is not None and id(current) not in seen:
+            seen.add(id(current))
+            traceback.clear_frames(current.__traceback__)
+            current.__traceback__ = None
+            current = current.__cause__ or current.__context__
+        return error
+
+    def _run(self):
+        """Consume the primary queue, then one distinct serial overload pass."""
+        from functools import partial
+        import pickle
+        from .runctx import _DeferredOverloadRetries, _is_overload_failure
+        from .cancellation import PipelineCancelled
+
+        deferred_count = 0
+        try:
+            while True:
+                if self.endpoint.failed.is_set():
+                    raise PipelineCancelled('Database writer cancelled; pending disk entries remain')
+                try:
+                    item = self.endpoint.inbox.get(timeout=0.1)
+                except queue.Empty:
+                    continue
+                if item is None:
+                    break
+                ticket, field, path, payload, charge = item
+                try:
+                    self._process(ticket, field, path, payload)
+                except Exception as error:
+                    error = self._record_error(path, error)
+                    if _is_overload_failure(error):
+                        flag = Path(path + '.deferred')
+                        if not flag.exists():
+                            retry_path = Path(self.endpoint.folder) / (
+                                f'{deferred_count:020}.retry')
+                            descriptor, temporary = tempfile.mkstemp(
+                                dir=self.endpoint.folder, suffix='.partial')
+                            try:
+                                with os.fdopen(descriptor, 'wb') as handle:
+                                    pickle.dump((ticket, field, path, error), handle,
+                                                protocol=pickle.HIGHEST_PROTOCOL)
+                                    handle.flush()
+                                    os.fsync(handle.fileno())
+                                os.replace(temporary, retry_path)
+                            except BaseException:
+                                Path(temporary).unlink(missing_ok=True)
+                                raise
+                            flag.write_text(retry_path.name)
+                            deferred_count += 1
+                    else:
+                        self._on_result(field, ticket, error)
+                else:
+                    self._on_result(field, ticket, None)
+                finally:
+                    if charge:
+                        with self.endpoint.lock:
+                            self.endpoint.reserved.value -= charge
+                    payload = None
+                    item = None
+            for ordinal in range(deferred_count):
+                if self.endpoint.failed.is_set():
+                    raise PipelineCancelled('Database writer cancelled before final retry')
+                retry_path = Path(self.endpoint.folder) / f'{ordinal:020}.retry'
+                with retry_path.open('rb') as handle:
+                    ticket, field, path, original = pickle.load(handle)
+                final = _DeferredOverloadRetries()
+                final.defer(ticket, original, partial(self._process, ticket, field, path))
+                for _, _, error in final.drain():
+                    if error is not None:
+                        error = self._record_error(path, error, final=True)
+                    self._on_result(field, ticket, error)
+                if error is None:
+                    retry_path.unlink()
+                    Path(path + '.deferred').unlink(missing_ok=True)
+                else:
+                    retry_path.rename(retry_path.with_suffix('.exhausted'))
+            for marker in Path(self.endpoint.folder).glob('*.committed'):
+                marker.unlink()
+        except BaseException as error:
+            self._error = error
+            self.endpoint.failed.set()
+
+    def cancel(self):
+        """Stop before another packet; retain disk data for unfinished writes.
+
+        An already-running atomic dispatch may finish. Call :meth:`finish`
+        afterwards to join the owned writer and close its transport handles.
+        """
+        self.endpoint.failed.set()
+
+    def finish(self):
+        """Join after all producers finish; retain failed spool entries.
+
+        This boundary must follow primary worker joins, so their queue feeder
+        threads have delivered every entry before the final-pass sentinel.
+        """
+        if self._finished:
+            if self._error is not None:
+                raise self._error
+            return
+        if self._thread is None:
+            raise RuntimeError('Database writer was not started')
+        while self._thread.is_alive():
+            try:
+                self.endpoint.inbox.put(None, timeout=0.1)
+                break
+            except queue.Full:
+                continue
+        self._thread.join()
+        self._finished = True
+        self.endpoint.inbox.close()
+        if self._error is None:
+            self.endpoint.inbox.join_thread()
+        else:
+            self.endpoint.inbox.cancel_join_thread()
+            raise self._error
+
+
 def _read_only_uri(path: os.PathLike | str) -> str:
     """Return a correctly escaped SQLite ``mode=ro`` URI."""
     absolute = os.path.abspath(os.path.expanduser(os.fspath(path)))
@@ -120,10 +545,16 @@ def connect(
     :param foreign_keys: enable SQLite foreign-key enforcement on this
         connection. SQLite defaults it off per connection.
     :returns: connection in autocommit mode; use :func:`transaction` for
-        multi-statement writes.
+        multi-statement writes. Inside an atomic queued write, helpers for
+        this same database reuse the writer thread's active connection;
+        their commits and closes are deferred until the complete field commits.
     :raises DatabaseConfigurationError: for an unsafe/unsupported requested
         journal mode or when SQLite refuses to apply it.
     """
+    absolute = os.path.abspath(os.path.expanduser(os.fspath(path)))
+    owned = _WRITE_PACKET_CONNECTION.get()
+    if owned is not None and owned[0] == absolute:
+        return owned[1]
     timeout = max(0.0, float(timeout))
     if readonly:
         connection = sqlite3.connect(
@@ -230,13 +661,19 @@ def transaction(
         tolerance differs from whatever ``timeout`` the connection happened to
         be opened with.
     :raises DatabaseBusy: when the lock outlives the retry budget.
-    :raises RuntimeError: when asked to nest inside an active transaction.
+    :raises RuntimeError: when asked to nest inside an active transaction
+        outside a writer-owned packet. Queued helper transactions use
+        savepoints within that packet.
     """
     selected = str(mode).strip().upper()
     if selected not in TRANSACTION_MODES:
         raise ValueError(
             f"transaction mode must be one of {sorted(TRANSACTION_MODES)}")
     if connection.in_transaction:
+        if isinstance(connection, _PacketConnection) and connection._managed:
+            with connection._operation():
+                yield connection
+            return
         raise RuntimeError(
             "Nested SQLite transactions are not supported; finish the active "
             "transaction before starting another.")

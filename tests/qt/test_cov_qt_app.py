@@ -258,10 +258,10 @@ def _tiles(page: HomePage) -> dict:
 #: how finished it is lives in :data:`EXPECTED_STAGES` below and is
 #: drawn as the tile's hover colour rather than as a place.
 EXPECTED_SECTIONS = {
-    "toxoplasma": "Assays", "plasmodium": "Assays", "candida": "Assays",
-    # 634 (eb2201537): five alpha organism pages under Assays.
-    "trypanosoma": "Assays", "leishmania": "Assays", "giardia": "Assays",
-    "virus": "Assays", "mammalian": "Assays",
+    "toxoplasma": "Organism", "plasmodium": "Organism", "candida": "Organism",
+    # 634 (eb2201537): five alpha organism pages under Organism.
+    "trypanosoma": "Organism", "leishmania": "Organism", "giardia": "Organism",
+    "virus": "Organism", "mammalian": "Organism",
     # REWRITTEN 2026-08-31, when Home was cut from seven categories to
     # four. The user wrote out the tiles they wanted, in the order they
     # wanted them, and this ledger is the record of where every app
@@ -280,7 +280,7 @@ EXPECTED_SECTIONS = {
     # A folded module keeps a section even with no tile: the section is
     # what says which host it belongs behind.
     'align': 'Tools',
-    'analyze_plaques': 'Assays',
+    'analyze_plaques': 'Organism',
     'annotate': 'Core',
     'batch': 'Data',
     'classify_merged': 'Core',
@@ -302,8 +302,8 @@ EXPECTED_SECTIONS = {
     'foreign': 'Data',
     'gate_editor': 'Tools',
     'graph_builder': 'Tools',
-    'host_pathogen': 'Assays',
-    'invasion': 'Assays',
+    'host_pathogen': 'Organism',
+    'invasion': 'Organism',
     # investigate_hit, profiler and train_compare moved Core -> Tools in
     # 571b6e77c, which split `app_is_visible` from the new `tiled_apps()`
     # so folding a module stopped DELETING its door in the command
@@ -323,9 +323,9 @@ EXPECTED_SECTIONS = {
     'project_browser': 'Data',
     'qc_dashboard': 'Data',
     'queue': 'Data',
-    'recruitment': 'Assays',
+    'recruitment': 'Organism',
     'regression': 'Core',
-    'replication': 'Assays',
+    'replication': 'Organism',
     'report': 'Data',
     'run_compare': 'Data',
     'run_history': 'Data',

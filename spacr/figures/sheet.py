@@ -129,7 +129,6 @@ def build_sheet(frame, *, width: str = "double", target: Optional[str] = None,
                                      max(rows, 1) * CELL_HEIGHT))
         axes = figure.subplots(rows, columns, squeeze=False).ravel()
         from .bundle import _register_figure_data
-        _register_figure_data(figure, frame, kind="sheet")
 
         drawn: List[Panel] = []
         skipped: List[Panel] = []
@@ -155,6 +154,17 @@ def build_sheet(frame, *, width: str = "double", target: Optional[str] = None,
         hide_unused(axes[len(drawn):])
         figure.subplots_adjust(left=.09, right=.98, top=.93, bottom=.09,
                                wspace=.42, hspace=.52)
+        recipes = [dict(slot=index, regression=panel.key,
+                        regression_options=dict(alpha=alpha, effect_threshold=effect_threshold,
+                                                highlight=highlight) if panel.key == "volcano" else {},
+                        measurement=panel.title, letter=string.ascii_uppercase[index],
+                        rect=list(axes[index].get_position().bounds))
+                   for index, panel in enumerate(drawn)]
+        if recipes:
+            _register_figure_data(figure, frame, kind="regression_panel",
+                                  grid=[rows, columns], panels=recipes)
+        else:
+            _register_figure_data(figure, frame, kind="sheet")
         return Sheet(figure=figure, panels=drawn, skipped=skipped)
 
 
@@ -173,9 +183,15 @@ def build_panel(key: str, frame, *, target: Optional[str] = None,
         ax = figure.add_subplot(111)
         panel = REGISTRY[key](ax, frame, **kwargs)
         from .bundle import _register_figure_data
-        _register_figure_data(figure, lambda: panel.data if getattr(panel, "data", None) is not None else frame, kind=str(key), title=str(getattr(panel, "title", "") or key))
         figure.subplots_adjust(left=.16, right=.97, top=.92, bottom=.16)
         attach(figure, panel)
+        recipe = dict(regression=key, regression_options=dict(kwargs),
+                      rect=list(ax.get_position().bounds))
+        if kwargs.get("compartment"):
+            from ..localisation import table
+
+            recipe["localisations"] = dict(table())
+        _register_figure_data(figure, frame, kind="regression_panel", **recipe)
         return figure, panel
 
 

@@ -1,0 +1,134 @@
+{
+  "schema": 1,
+  "item": 668,
+  "tested_source_commit": "6fa8fd257e9e5602b3f37f2acf28666dc283193c",
+  "logged_parent_commit": "daab6036388befc7d6cb8eb3f2e81c8605606a9e",
+  "terminal": 0,
+  "tests": 121,
+  "seconds": 43.26,
+  "environment": "Python3.12.14/Qt6.12.0/pytest8.4.2 normal coverage 8G CUDA hidden offscreen",
+  "modules": [
+    "tests/qt/test_popup_backdrop_apply.py",
+    "tests/qt/test_ambient_painter_cleanup.py",
+    "tests/test_qt_native_core_extraction.py",
+    "tests/test_resource_capabilities.py",
+    "tests/test_qt_serial_display_route.py",
+    "tests/test_qt_native_replay_workflow.py"
+  ],
+  "negative_run": {
+    "failed": 1,
+    "passed": 120,
+    "seconds": 41.85,
+    "reason": "Synthetic fresh-core fixture mtime could predate session on this filesystem"
+  },
+  "independent_probe": {
+    "cases": 100,
+    "rejected": 32,
+    "reason": "All rejected cores have valid ELF owner but strictly older filesystem timestamps"
+  },
+  "fixture_repair": "Explicit os.utime: session timestamp+1ns for fresh fixture and -1ns for stale; collector freshness and ELF/PID/executable guards unchanged",
+  "payloads": [
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/publication-popup-route-r1.log",
+      "payload": "publication-popup-route-r1.log.gz",
+      "raw_sha256": "d3890106eea3c32a62ca007a2702da871c6c8119f4947c4349e251ba7849b583",
+      "payload_sha256": "64824b00f3bbc0843e001660a81ff7b2b886522e26ee4254ff8ecdc1d87a8b41"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/publication-popup-route-r1-tool.log",
+      "payload": "publication-popup-route-r1-tool.log.gz",
+      "raw_sha256": "ecbb9c08d5865f90075d2d652e1e3ddf951e5ae0f2abd6f74cc2252a9374a5d5",
+      "payload_sha256": "d376e9cb9e1d9ceb12e5d1af0943399d9717e064c8588c40284e674c50af0961"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/publication-popup-route-r2.log",
+      "payload": "publication-popup-route-r2.log.gz",
+      "raw_sha256": "5d7a5de74c94217af6c8d71c6605c401bde9b5c3f712e794eb447a7dc37e937a",
+      "payload_sha256": "8fcac51c6a32fecb82ad8466dce79eaba09ad73e9c1100e994186bfcab228c41"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/publication-popup-route-r2-tool.log",
+      "payload": "publication-popup-route-r2-tool.log.gz",
+      "raw_sha256": "8cec7b80d0b28165b7cbc069e66c2b541a406fefd028028a73f2e9ab6df1534a",
+      "payload_sha256": "c63bcf1651c18b7b1f598cbae3c38e0a849faa72cad5947e6300fa34ae394435"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/core-fixture-clock-r1.log",
+      "payload": "core-fixture-clock-r1.log.gz",
+      "raw_sha256": "b99f442e593966cba62495e7571609c76b5091ec342c2012a404082316edb4b6",
+      "payload_sha256": "e42d1ac88eedc7e1a5b9aab1ef2239c0a3298128786378c16c308530fbbc6213"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/core-fixture-clock-r1-tool.log",
+      "payload": "core-fixture-clock-r1-tool.log.gz",
+      "raw_sha256": "6a9ee06af3d4aa316c9dd07da1d44c4ae352d2ea8a4bf0ede12f264e74e014ee",
+      "payload_sha256": "60f908193a49d386f657a90e0422ffabefc5ed8f131772fee5cb3b931ff14749"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/inspect_core_fixture_clock_r1.py",
+      "payload": "inspect_core_fixture_clock_r1.py.gz",
+      "raw_sha256": "ec6f5843bbbe4c9cf2f87145c7a0852baba6d53e2751d8f81fb539f34659795b",
+      "payload_sha256": "461768365f245986910eddcae171e4d4c88f92217ea5d3920541e9aea5ba98dc"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/inspect_core_fixture_clock_r1.json",
+      "payload": "inspect_core_fixture_clock_r1.json.gz",
+      "raw_sha256": "14b33cef2ea5e1bb2c6b7aec880a321750fc42556c2dc17e767d58e2ba229dd8",
+      "payload_sha256": "b8a3d88f30df8d3ef275e273c9fadbb36892f070c15405d100a54f9f3cd705a1"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/private-ui-publication-r2.json",
+      "payload": "private-ui-publication-r2.json.gz",
+      "raw_sha256": "89ed614abaf8299e0766efeb6ac93b597e5fe67032e2db2707da8d99e7f89758",
+      "payload_sha256": "31d43cd8c8ffc7c0c58084831af1fa03f083f80042405bf439171a2b1cfe02ab"
+    },
+    {
+      "source": "git diff daab6036388befc7d6cb8eb3f2e81c8605606a9e 6fa8fd257e9e5602b3f37f2acf28666dc283193c",
+      "payload": "tested-publication-source.patch.gz",
+      "raw_sha256": "23aafeb56bda32916950a47fcddb330702699ce30adc839c79174cbedf6ea98b",
+      "payload_sha256": "eff67741db4e09ecb952bda7128fd71a85789f63b4080151b37ca51be22eb734"
+    },
+    {
+      "source": "6fa8fd257e9e5602b3f37f2acf28666dc283193c:tests/qt/test_popup_backdrop_apply.py",
+      "payload": "test_popup_backdrop_apply.py.gz",
+      "raw_sha256": "4ebf1cf6ad47005c436dbf45953a228ee0c159611ad392732e05ffab60a7324d",
+      "payload_sha256": "5eaa131645d0f3dac81286359f8b9367b1421d56e7c0766b00a1b1f5f50253a7"
+    },
+    {
+      "source": "6fa8fd257e9e5602b3f37f2acf28666dc283193c:tests/qt/test_ambient_painter_cleanup.py",
+      "payload": "test_ambient_painter_cleanup.py.gz",
+      "raw_sha256": "9694ad882bad024bca54913331f1e1a1931920af1a8ab3a388662581da14aa29",
+      "payload_sha256": "301dcf3f49e26baf5cf8bf52a2bb6fcd2864a4a2c1354a2281575d1bd97dd88a"
+    },
+    {
+      "source": "6fa8fd257e9e5602b3f37f2acf28666dc283193c:tests/test_qt_native_core_extraction.py",
+      "payload": "test_qt_native_core_extraction.py.gz",
+      "raw_sha256": "37286738294a746e917309d8540abfc596a9cf247a19700403c4f0e786bf104c",
+      "payload_sha256": "7be39223dee606702d9a8a45f190247f72d8b98f05997e2f19c6f2685dc06795"
+    },
+    {
+      "source": "6fa8fd257e9e5602b3f37f2acf28666dc283193c:tests/test_resource_capabilities.py",
+      "payload": "test_resource_capabilities.py.gz",
+      "raw_sha256": "1a94305f535b320c6611a6a942e18234cf6e6bc96ff19d5d4f88422f9ca9466d",
+      "payload_sha256": "736b100db284eeff8079eb3d9fdaa87a5872481ecf5b6fcbefea2a3a855765db"
+    },
+    {
+      "source": "6fa8fd257e9e5602b3f37f2acf28666dc283193c:tests/test_qt_serial_display_route.py",
+      "payload": "test_qt_serial_display_route.py.gz",
+      "raw_sha256": "1d167a39bd910f0cbf0a65037955f5c8037fd11e8136bfb7678ab68ba6f3513a",
+      "payload_sha256": "d6163ecbe3b62a5cc0590e861752faaaa0beda9876294bccb225244eeb14ad5a"
+    },
+    {
+      "source": "6fa8fd257e9e5602b3f37f2acf28666dc283193c:tests/test_qt_native_replay_workflow.py",
+      "payload": "test_qt_native_replay_workflow.py.gz",
+      "raw_sha256": "8b3dbf529cea57c3e7de1a75b5a5116394393026227fedc8748f4b0fbca7ce92",
+      "payload_sha256": "03b946898eee86a373c004eb81dbf9fd4ec695a42813b02aff89a3e7f498ba8b"
+    }
+  ],
+  "limits": [
+    "Logs identify original parent HEAD with owned staged source; full accepted source patch and fixture/test blobs bind the working tree to tested_source_commit.",
+    "Does not prove actual GPU/ultra termination or historical hosted native crash cured.",
+    "Selected cohorts overlap other recorded phases; do not sum.",
+    "Later runtime-contract helper commit is independently tested and is not included in this cohort."
+  ]
+}

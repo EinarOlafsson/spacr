@@ -669,7 +669,7 @@ setTimeout(() => {
 
 
 def test_every_complete_real_catalog_renders_through_the_browser_selector():
-    """Render the complete pinned symbol union for every real locale."""
+    """Render the full source union, accounting for named reviewed arrivals."""
     assert CHROME, (
         "Chrome/Chromium is required for the exhaustive API-catalog gate; "
         "this required-CI assertion must not be skipped"
@@ -682,29 +682,19 @@ def test_every_complete_real_catalog_renders_through_the_browser_selector():
     # first is `tools/build_documentation_i18n.py`, the second is a
     # regression in the source. Naming the difference costs one set
     # operation against the live surface and saves the reader the reasoning.
-    if len(symbols) != REAL_SYMBOL_COUNT:
-        import sys as _sys
-        _sys.path.insert(0, str(ROOT / "tools"))
-        from build_documentation_i18n import public_docstrings
+    import sys as _sys
+    _sys.path.insert(0, str(ROOT / "tools"))
+    from build_documentation_i18n import public_docstrings
 
-        live = set(public_docstrings())
-        catalog = set(symbols)
-        stale = sorted(live - catalog)[:8]
-        vanished = sorted(catalog - live)[:8]
-        if not stale and not vanished:
-            # THE THIRD CASE, and the one a two-way message would misreport:
-            # the catalog and the source agree with each other symbol for
-            # symbol, so neither is wrong -- REAL_SYMBOL_COUNT above is. That
-            # happens when somebody moves the surface and updates the other
-            # ratchets but not this one, and a message blaming the catalog
-            # would send them to rebuild something that is already correct.
-            raise AssertionError(
-                f"the catalog and the source agree on {len(symbols)} symbols, "
-                f"so REAL_SYMBOL_COUNT ({REAL_SYMBOL_COUNT}) is the stale "
-                f"one. Set it to {len(symbols)}; nothing needs rebuilding.")
+    docs = public_docstrings()
+    live = set(docs)
+    catalog = set(symbols)
+    stale = sorted(live - catalog)[:8]
+    vanished = sorted(catalog - live)[:8]
+    if stale or vanished:
         raise AssertionError(
             f"the English catalog carries {len(symbols)} symbols and the "
-            f"surface is {REAL_SYMBOL_COUNT}.\n"
+            f"source carries {len(live)}.\n"
             f"  in the source but NOT in the catalog ({len(live - catalog)}): "
             f"{stale} -- the catalog is stale; rebuild it with "
             f"tools/build_documentation_i18n.py\n"
@@ -712,11 +702,31 @@ def test_every_complete_real_catalog_renders_through_the_browser_selector():
             f"({len(catalog - live)}): {vanished} -- a documented symbol "
             f"was removed or made private; that is a source change, not a "
             f"build one")
-    assert len(set(symbols)) == REAL_SYMBOL_COUNT
+    arrivals = json.loads((ROOT / "tests/data/release_contracts"
+                          / "615_api_browser_arrivals_2026-10-07.json").read_text())
+    assert len(arrivals) == 33
+    assert {key: docs[key] for key in arrivals} == arrivals
+    assert {key: english["symbols"][key]["text"] for key in arrivals} == arrivals
+    worker_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "664_665_worker_api_arrivals_2026-10-08.json").read_text())
+    assert len(worker_arrivals) == 8
+    assert {key: docs[key] for key in worker_arrivals} == worker_arrivals
+    assert not worker_arrivals.keys() & arrivals.keys()
+    assert {key: english["symbols"][key]["text"] for key in worker_arrivals} == worker_arrivals
+    home_ui_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "615_home_ui_api_arrivals_2026-10-08.json").read_text())
+    assert len(home_ui_arrivals) == 9
+    assert {key: docs[key] for key in home_ui_arrivals} == home_ui_arrivals
+    assert not home_ui_arrivals.keys() & worker_arrivals.keys()
+    assert {key: english["symbols"][key]["text"] for key in home_ui_arrivals} == home_ui_arrivals
+    assert not home_ui_arrivals.keys() & arrivals.keys()
+    assert len(catalog - arrivals.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) == REAL_SYMBOL_COUNT
+    assert len(catalog) == len(symbols)
+    expected_count = len(symbols)
 
     harness = f"""
 const languages = ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'];
-const expectedCount = {REAL_SYMBOL_COUNT};
+const expectedCount = {expected_count};
 const signatures = [...document.querySelectorAll('dl.py dt[id]')];
 const expectedKeys = new Set(signatures.map((signature) => signature.id));
 const seen = [];
@@ -792,7 +802,7 @@ window.addEventListener('unhandledrejection', (event) => {
 
     assert 'data-result="pass"' in dom
     rendered = ",".join(
-        f"{language}:{REAL_SYMBOL_COUNT}" for language in REAL_LANGUAGES
+        f"{language}:{expected_count}" for language in REAL_LANGUAGES
     )
     assert f'data-rendered="{rendered}"' in dom
     requested = {path for path, _query in requests if path.endswith(".json")}

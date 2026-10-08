@@ -1248,7 +1248,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "The command starts the standard :func:`spacr.qt.run` application with a contrast-checked spectral palette and fractal ambient animation. The mode is process-local: it is not stored as a preference and does not alter subsequent standard launches. Existing animation preferences remain effective, including the option to disable ambient animation. It is also the only mode with sound: Preferences shows its Sound tab (and its Fractal tab) only here, and ordinary spaCR plays nothing whatever the stored sound settings say.",
       "source_sha256": "c57e73bc19f127bb71c594a8fbfe041724d9bed07f7331fbc8f2a9dc94532cd3",
-      "translation": "Der Befehl startet die Standardanwendung :func:`spacr.qt.run` mit einer kontrastgeprüften Spektralpalette und fraktaler Ambient-Animation. Der Modus gilt nur für den Prozess: Er wird nicht als Präferenz gespeichert und verändert spätere Standardstarts nicht. Bestehende Animationspräferenzen bleiben wirksam, einschließlich der Option, die Ambient-Animation zu deaktivieren. Es ist auch der einzige Modus mit Ton: Preferences zeigt seine Registerkarte Sound (und seine Registerkarte Fractal) nur hier, und das gewöhnliche spaCR spielt nichts ab, was auch immer die gespeicherten Klangeinstellungen sagen."
+      "translation": "Der Befehl startet die Standardanwendung :func:`spacr.qt.run` mit einer kontrastgeprüften Spektralpalette und fraktaler Ambient-Animation. Der Modus gilt nur für den Prozess: Er wird nicht als Präferenz gespeichert und verändert spätere Standardstarts nicht. Bestehende Animationspräferenzen bleiben wirksam, einschließlich der Option, die Ambient-Animation zu deaktivieren. Es ist auch der einzige Modus mit Ton: Preferences zeigt seine Registerkarte Sound (und seine Registerkarte Fractal) nur hier, und das gewöhnliche spaCR spielt nichts ab, was auch immer die gespeicherten Klangeinstellungen sagen.",
+      "retired": "2026-10-08",
+      "retired_reason": "Superseded by current Spaceout evolving-field defaults or the source-verified Lorenz group-size outlier filter. Original source-bound evidence retained in place."
     },
     {
       "context": "Check PyPI off the main GUI execution path, allowing a cancelled check to open the installed app. Prepare an automatic, read-only update check.",
@@ -2942,7 +2944,9 @@
       "review_basis": "MT draft edited in AI review",
       "source": "the requested theme name; returned as given unless the spaceout dressing is on. It is not validated here.",
       "source_sha256": "ede5d8236e9f605e8a37aafe251a345b5c38a29fbae7822824448679695087ae",
-      "translation": "der angeforderte Themenname; unverändert zurückgegeben, außer die Spaceout-Ausstattung ist eingeschaltet. Er wird hier nicht validiert."
+      "translation": "der angeforderte Themenname; unverändert zurückgegeben, außer die Spaceout-Ausstattung ist eingeschaltet. Er wird hier nicht validiert.",
+      "retired": "2026-10-08",
+      "retired_reason": "Superseded by current Home UI API wording for independent animation selections, recurring versus discrete field feedback, and four-line accessible help. Original source-bound evidence retained in place."
     },
     {
       "context": "the requested palette name, treated the same way.",

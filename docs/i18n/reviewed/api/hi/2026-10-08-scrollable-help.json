@@ -1,0 +1,62 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": ":class:`HintBar` keeps four visible lines at a fixed height. Longer help can be scrolled within that space while the pointer is over a widget. On pointer leave, it restores the default message only when that widget's text is still displayed, avoiding an intermediate reset between adjacent controls.",
+      "label": "spacr.qt.widgets.hint_bar#1",
+      "source": ":class:`HintBar` keeps four visible lines at a fixed height. Longer help can be scrolled within that space while the pointer is over a widget. On pointer leave, it restores the default message only when that widget's text is still displayed, avoiding an intermediate reset between adjacent controls.",
+      "source_sha256": "2fd5616facc436d3046886b2656e701b73c94e11276f9418a91d1ca70eba8080",
+      "translation": ":class:`HintBar` निश्चित ऊँचाई पर चार पंक्तियाँ दिखाता है। पॉइंटर किसी नियंत्रण पर होने के दौरान लंबी सहायता को इसी जगह में स्क्रॉल किया जा सकता है। पॉइंटर हटने पर डिफ़ॉल्ट संदेश तभी वापस आता है जब उसी नियंत्रण का पाठ अभी दिख रहा हो, जिससे आस-पास के नियंत्रणों के बीच अनावश्यक रीसेट नहीं होता।"
+    },
+    {
+      "context": "A fixed help strip and the register of what each widget should say.",
+      "label": "spacr.qt.widgets.hint_bar.HintBar#0",
+      "source": "A fixed help strip and the register of what each widget should say.",
+      "source_sha256": "d5207b94271ba9735c7f1ccb8f7521a14de3892cfb1cdc3be78f5c2d10ecccbe",
+      "translation": "निश्चित ऊँचाई की सहायता पट्टी और हर नियंत्रण के दिखाए जाने वाले पाठ का रजिस्टर।"
+    },
+    {
+      "context": "Four lines stay visible: moving between controls cannot change the dialog's layout. Longer or translated help scrolls inside the strip without losing its full text or accessible description.",
+      "label": "spacr.qt.widgets.hint_bar.HintBar#4",
+      "source": "Four lines stay visible: moving between controls cannot change the dialog's layout. Longer or translated help scrolls inside the strip without losing its full text or accessible description.",
+      "source_sha256": "7b80294cf3ed8ecda92f8b668766485a9cec41d2c09e71170f9bcb901c11061f",
+      "translation": "चार पंक्तियाँ दिखाई देती रहती हैं: नियंत्रणों के बीच जाने से संवाद का लेआउट नहीं बदल सकता। लंबी या अनुवादित सहायता पट्टी के भीतर स्क्रॉल होती है और पूरा पाठ तथा सुलभता विवरण सुरक्षित रहते हैं।"
+    },
+    {
+      "context": "Show all help in the fixed strip, scrolling when it exceeds four lines.",
+      "label": "spacr.qt.widgets.hint_bar.HintBar.setText#0",
+      "source": "Show all help in the fixed strip, scrolling when it exceeds four lines.",
+      "source_sha256": "560339e109e15b3be98eae004f0feac35f6d411a141deeb235bc578e3da02221",
+      "translation": "निश्चित ऊँचाई की पट्टी में पूरी सहायता दिखाएँ; चार पंक्तियों से अधिक होने पर स्क्रॉल करें।"
+    },
+    {
+      "context": "the complete translated help sentence.",
+      "label": "spacr.qt.widgets.hint_bar.HintBar.setText#1",
+      "source": "the complete translated help sentence.",
+      "source_sha256": "d89ffa9b070180e18730babbfd7ec0b896b03a4b08ea2449227b7e7a17e0e66a",
+      "translation": "पूरी अनुवादित सहायता पंक्ति।"
+    },
+    {
+      "context": "Restore a saved height after the Preferences layout is measured.",
+      "label": "spacr.qt.widgets.hint_bar.HintBar.showEvent#0",
+      "source": "Restore a saved height after the Preferences layout is measured.",
+      "source_sha256": "579409fa0cb9c5d51a325c1c37b6a98e58fa3febb229ec990883e7ce22cd1efe",
+      "translation": "वरीयता लेआउट मापने के बाद सहेजी गई ऊँचाई बहाल करें।"
+    },
+    {
+      "context": "the Qt show event.",
+      "label": "spacr.qt.widgets.hint_bar.HintBar.showEvent#1",
+      "source": "the Qt show event.",
+      "source_sha256": "cfb5f62d44a9ab0f88142bb225ab68ba3158b01cacc7eddbfdd3f1b2a165013c",
+      "translation": "Qt show इवेंट।"
+    },
+    {
+      "context": "Return the complete sentence currently shown in the strip.",
+      "label": "spacr.qt.widgets.hint_bar.HintBar.text#0",
+      "source": "Return the complete sentence currently shown in the strip.",
+      "source_sha256": "33f46b7895c2a1ad0131bff0a8c1f2d6d733b22126160af5b322fed2e8bdb1a3",
+      "translation": "पट्टी में अभी दिखाई जा रही पूरी पंक्ति लौटाएँ।"
+    }
+  ],
+  "schema": 1
+}

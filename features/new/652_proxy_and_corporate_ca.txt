@@ -31,3 +31,10 @@ IMPLEMENTATION
   be reached through the configured proxy/CA; credentials in the proxy URL
   are masked.
   Left: the new captions await the next i18n catalogue rebuild.
+
+2026-10-08 — COMPLETION AUDIT: 100% of this item is published.
+  docs/source/installer_guide.rst documents environment, saved Proxy and
+  Certificate bundle settings, inherited download variables and doctor
+  check. All nine runtime catalogs contain source-bound "Proxy" and
+  "Certificate bundle" captions. Existing mocked-network tests remain the
+  bounded behavior proof; live corporate-network acceptance was not claimed.

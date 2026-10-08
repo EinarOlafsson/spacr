@@ -10,7 +10,7 @@
   "spacr.qt.widgets.ambient.AmbientWidget.blink_percent": "The selected percentage of visible dots that flash white.",
   "spacr.qt.widgets.ambient.AmbientWidget.popup_wave_frequency": "Automatic waves per minute from the centre of an open popup.",
   "spacr.qt.widgets.ambient.AmbientWidget.set_blink_percent": "Update dot flashes through the normal serialized engine mutation.\n\n:param value: percentage of visible dots flashing white, clamped to\n    zero through ten; zero disables blinking.",
-  "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency": "Change popup waves without changing pointer reach or dot population.\n\n:param value: popup waves per minute, clamped to zero through sixty;\n    zero disables popup waves.",
+  "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency": "Change popup waves without changing pointer reach or dot population.\n\n:param value: popup waves per minute, clamped to zero through sixty;\n    zero disables recurring waves. The separate ripple switch controls\n    discrete click, container and window feedback.",
   "spacr.qt.widgets.ambient.AuroraEngine.buffer_scale": "Report the aurora sampling ratio for explicit detail controls.",
   "spacr.qt.widgets.ambient.AuroraEngine.buffer_size": "Sample native display pixels within the actual screen budget.",
   "spacr.qt.widgets.ambient.DriftEngine.buffer_size": "Sample dots at the chosen Detail within the display pixel ceiling."

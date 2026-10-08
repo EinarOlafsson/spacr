@@ -1,343 +1,349 @@
 {
-  "schema": 1,
   "language": "pt",
-  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
   "records": [
     {
+      "context": "Calculate the average intensity of a single-image data channel image based on the distance map.",
       "label": "spacr.measure._calculate_radial_distribution._calculate_average_intensity#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Calculate the average intensity of a single-channel image based on the distance map.",
       "source_sha256": "de5f4ed001c16173e25e8f7a0259bab2b3797c551e0faf4dc946584cfc804431",
-      "context": "Calculate the average intensity of a single-image data channel image based on the distance map.",
-      "translation": "Calcula a intensidade média de uma imagem de canal único com base no mapa de distâncias.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Calcula a intensidade média de uma imagem de canal único com base no mapa de distâncias."
     },
     {
+      "context": "Only pixels inside ``region_mask`` (the cell) are binned. The previous version multiplied the distance map by the cell mask instead, which set every pixel outside the cell to distance 0 and dumped the whole microscope field of view background into bin 0 — so ``rad_dist_..._bin_0`` measured background, not the innermost shell, and inverted the meaning of the feature.",
       "label": "spacr.measure._calculate_radial_distribution._calculate_average_intensity#1",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Only pixels inside ``region_mask`` (the cell) are binned. The previous version multiplied the distance map by the cell mask instead, which set every pixel outside the cell to distance 0 and dumped the whole field background into bin 0 — so ``rad_dist_..._bin_0`` measured background, not the innermost shell, and inverted the meaning of the feature.",
       "source_sha256": "757cf42af988150ba76ad9ef9c0ccd05742ac6b6cdd2b17eb8737dcf65b2839a",
-      "context": "Only pixels inside ``region_mask`` (the cell) are binned. The previous version multiplied the distance map by the cell mask instead, which set every pixel outside the cell to distance 0 and dumped the whole microscope field of view background into bin 0 — so ``rad_dist_..._bin_0`` measured background, not the innermost shell, and inverted the meaning of the feature.",
-      "translation": "Somente os pixels dentro de ``region_mask`` (a célula) são agrupados em faixas. A versão anterior multiplicava em vez disso o mapa de distâncias pela máscara da célula, o que colocava cada pixel fora da célula na distância 0 e despejava todo o fundo do campo na faixa 0 — assim ``rad_dist_..._bin_0`` media o fundo, e não a camada mais interna, e invertia o significado da característica.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Somente os pixels dentro de ``region_mask`` (a célula) são agrupados em faixas. A versão anterior multiplicava em vez disso o mapa de distâncias pela máscara da célula, o que colocava cada pixel fora da célula na distância 0 e despejava todo o fundo do campo na faixa 0 — assim ``rad_dist_..._bin_0`` media o fundo, e não a camada mais interna, e invertia o significado da característica."
     },
     {
+      "context": "Args: distance_map (numpy.ndarray): Distance from the object boundary. single_channel_image (numpy.ndarray): The single-image data channel image. num_bins (int): The number of bins for the radial distribution. region_mask (numpy.ndarray): Boolean mask of the parent cell.",
       "label": "spacr.measure._calculate_radial_distribution._calculate_average_intensity#2",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Args: distance_map (numpy.ndarray): Distance from the object boundary. single_channel_image (numpy.ndarray): The single-channel image. num_bins (int): The number of bins for the radial distribution. region_mask (numpy.ndarray): Boolean mask of the parent cell.",
       "source_sha256": "4ea038f1112521657fa7e763ea1a4ff87d281b96b5f4ad8c6d5c8d9190bd1762",
-      "context": "Args: distance_map (numpy.ndarray): Distance from the object boundary. single_channel_image (numpy.ndarray): The single-image data channel image. num_bins (int): The number of bins for the radial distribution. region_mask (numpy.ndarray): Boolean mask of the parent cell.",
-      "translation": "Args: distance_map (numpy.ndarray): Distância a partir da borda do objeto. single_channel_image (numpy.ndarray): A imagem de canal único. num_bins (int): O número de faixas da distribuição radial. region_mask (numpy.ndarray): Máscara booleana da célula-mãe.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Args: distance_map (numpy.ndarray): Distância a partir da borda do objeto. single_channel_image (numpy.ndarray): A imagem de canal único. num_bins (int): O número de faixas da distribuição radial. region_mask (numpy.ndarray): Máscara booleana da célula-mãe."
     },
     {
+      "context": "Returns: numpy.ndarray: The radial distribution of average intensities. Bins with no pixels are NaN rather than a meaningless 0.",
       "label": "spacr.measure._calculate_radial_distribution._calculate_average_intensity#3",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Returns: numpy.ndarray: The radial distribution of average intensities. Bins with no pixels are NaN rather than a meaningless 0.",
       "source_sha256": "7d2cc953d6f4c367bc72a6b45e4d04f51d749b1cfff841ce3bd813d682daf2d2",
-      "context": "Returns: numpy.ndarray: The radial distribution of average intensities. Bins with no pixels are NaN rather than a meaningless 0.",
-      "translation": "Returns: numpy.ndarray: A distribuição radial das intensidades médias. Faixas sem pixels são NaN em vez de um 0 sem sentido.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Returns: numpy.ndarray: A distribuição radial das intensidades médias. Faixas sem pixels são NaN em vez de um 0 sem sentido."
     },
     {
+      "context": "Count and phase fractions of one group of nuclei.",
       "label": "spacr.measure._cell_cycle_by_well._fractions#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Count and phase fractions of one group of nuclei.",
       "source_sha256": "4ad522a42a851dbb68f7f7d5af38226212a5e51357070ea1b493d899765edf1d",
-      "context": "Count and phase fractions of one group of nuclei.",
-      "translation": "Contagem e frações de fase de um grupo de núcleos.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Contagem e frações de fase de um grupo de núcleos."
     },
     {
+      "context": "``{object type: label image}`` of one field, read once.",
       "label": "spacr.measure._cellprofiler_tables.field_masks#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "``{object type: label image}`` of one field, read once.",
       "source_sha256": "c721b5607b1caded4b23af04dbe6e41e34553ba3892a6904364378930dcc8384",
-      "context": "``{object type: label image}`` of one field, read once.",
-      "translation": "``{object type: label image}`` de um campo, lido uma vez.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "``{object type: label image}`` de um campo, lido uma vez."
     },
     {
+      "context": "The spaCR label under each centre in ``role``'s mask.",
       "label": "spacr.measure._cellprofiler_tables.lookup#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "The spaCR label under each centre in ``role``'s mask.",
       "source_sha256": "c97cdf1bc360a1ba3b3d50b18c3f70e0b3e67dcf7ad7404d7d9f92a285079ae1",
-      "context": "The spaCR label under each centre in ``role``'s mask.",
-      "translation": "O rótulo do spaCR sob cada centro na máscara de ``role``.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "O rótulo do spaCR sob cada centro na máscara de ``role``."
     },
     {
+      "context": "Log of the local standard deviation in ``window``, in noise units.",
       "label": "spacr.measure._confluency_phase_features.log_sd#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Log of the local standard deviation in ``window``, in noise units.",
       "source_sha256": "946bba1bab987957ae59fef6689a070bc1ec2b2a2d454be73cf9c2592ff71182",
-      "context": "Log of the local standard deviation in ``window``, in noise units.",
-      "translation": "Logaritmo do desvio padrão local em ``window``, em unidades de ruído.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Logaritmo do desvio padrão local em ``window``, em unidades de ruído."
     },
     {
+      "context": "NaN-safe Gini coefficient of an intensity array.",
       "label": "spacr.measure._extended_regionprops_table._gini#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "NaN-safe Gini coefficient of an intensity array.",
       "source_sha256": "49b049dab3d2a75f445f7e56c6af607ae6f8cbc6289d37c1176dcd76364bf876",
-      "context": "NaN-safe Gini coefficient of an intensity array.",
-      "translation": "Coeficiente de Gini seguro contra NaN de uma matriz de intensidades.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Coeficiente de Gini seguro contra NaN de uma matriz de intensidades."
     },
     {
+      "context": "Pixels inside a region across old and new scikit-image names.",
       "label": "spacr.measure._extended_regionprops_table._masked_intensity#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Pixels inside a region across old and new scikit-image names.",
       "source_sha256": "9721cea781c6c222bba1ecf605f76083795c652b00a8909f487a13293a2dca8f",
-      "context": "Pixels inside a region across old and new scikit-image names.",
-      "translation": "Pixels dentro de uma região, com os nomes antigos e novos do scikit-image.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Pixels dentro de uma região, com os nomes antigos e novos do scikit-image."
     },
     {
+      "context": "Object type -> label image, for the masks this run actually has.",
       "label": "spacr.measure._morphological_measurements._all_masks#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Object type -> label image, for the masks this run actually has.",
       "source_sha256": "6db153ee6184205f533e512e409743fd037194956c86f3a06f7fb522074284ca",
-      "context": "Object type -> label image, for the masks this run actually has.",
-      "translation": "Tipo de objeto -> imagem de rótulos, para as máscaras que esta execução realmente tem.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Tipo de objeto -> imagem de rótulos, para as máscaras que esta execução realmente tem."
     },
     {
+      "context": "regionprops_table + (3-D only) the explicitly-named volume columns.",
       "label": "spacr.measure._morphological_measurements._props#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "regionprops_table + (3-D only) the explicitly-named volume columns.",
       "source_sha256": "82b8b5fc8a38afd8cbe5afbf856be749418f03bbe7936557ea5a86083c49b0f9",
-      "context": "regionprops_table + (3-D only) the explicitly-named volume columns.",
-      "translation": "regionprops_table + (somente 3-D) as colunas de volume nomeadas explicitamente.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "regionprops_table + (somente 3-D) as colunas de volume nomeadas explicitamente."
     },
     {
+      "context": "Merge the bystander block onto the CELL props frame.",
       "label": "spacr.measure._morphological_measurements._with_bystanders#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Merge the bystander block onto the CELL props frame.",
       "source_sha256": "593c89ad5e04a175e6b79d7047d3e39f464335acbf304d731eb11f12aa973231",
-      "context": "Merge the bystander block onto the CELL props frame.",
-      "translation": "Mescla o bloco de bystanders no quadro de props das CÉLULAS.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Mescla o bloco de bystanders no quadro de props das CÉLULAS."
     },
     {
+      "context": "A cell is infected if it holds a pathogen, a bystander if it holds none but sits within the reach of one that does, and distal otherwise. Without the split the last two are the same row, and the uninfected control is a mixture whose variance hides the effect every infection comparison is looking for.",
       "label": "spacr.measure._morphological_measurements._with_bystanders#1",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "A cell is infected if it holds a pathogen, a bystander if it holds none but sits within the reach of one that does, and distal otherwise. Without the split the last two are the same row, and the uninfected control is a mixture whose variance hides the effect every infection comparison is looking for.",
       "source_sha256": "79645da035287a4b4e8f5b986fdb33aed414f1dd1822da4dd309945b4b96a524",
-      "context": "A cell is infected if it holds a pathogen, a bystander if it holds none but sits within the reach of one that does, and distal otherwise. Without the split the last two are the same row, and the uninfected control is a mixture whose variance hides the effect every infection comparison is looking for.",
-      "translation": "Uma célula está infectada se contém um patógeno, é bystander se não contém nenhum mas está ao alcance de uma que contém, e distal caso contrário. Sem a divisão, as duas últimas são a mesma linha, e o controle não infectado é uma mistura cuja variância esconde o efeito que toda comparação de infecção procura.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Uma célula está infectada se contém um patógeno, é bystander se não contém nenhum mas está ao alcance de uma que contém, e distal caso contrário. Sem a divisão, as duas últimas são a mesma linha, e o controle não infectado é uma mistura cuja variância esconde o efeito que toda comparação de infecção procura."
     },
     {
+      "context": "The reach is derived from this field's own cells, as a multiple of their median diameter, so it means the same thing at 20x and 63x.",
       "label": "spacr.measure._morphological_measurements._with_bystanders#2",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "THE REACH IS DERIVED FROM THIS FIELD'S OWN CELLS, as a multiple of their median diameter, so it means the same thing at 20x and 63x.",
       "source_sha256": "876e8703cf70d44a4c3fd773752c5dbe24bf8919c0fcf301fa152733df2d8610",
-      "context": "The reach is derived from this field's own cells, as a multiple of their median diameter, so it means the same thing at 20x and 63x.",
-      "translation": "O ALCANCE É DERIVADO DAS PRÓPRIAS CÉLULAS DESTE CAMPO, como múltiplo do diâmetro mediano delas, então significa o mesmo em 20x e em 63x.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "O ALCANCE É DERIVADO DAS PRÓPRIAS CÉLULAS DESTE CAMPO, como múltiplo do diâmetro mediano delas, então significa o mesmo em 20x e em 63x."
     },
     {
+      "context": "Props on the LEFT, for the reason `_with_spatial` gives.",
       "label": "spacr.measure._morphological_measurements._with_bystanders#3",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Props on the LEFT, for the reason `_with_spatial` gives.",
       "source_sha256": "3e92e45dd5b6c07243d4467e554d72b6d23872aa28b833c1c69180e8b32dbc8a",
-      "context": "Props on the LEFT, for the reason `_with_spatial` gives.",
-      "translation": "Props à ESQUERDA, pelo motivo que `_with_spatial` dá.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Props à ESQUERDA, pelo motivo que `_with_spatial` dá."
     },
     {
+      "context": "Merge the object-distance block onto a props frame.",
       "label": "spacr.measure._morphological_measurements._with_distances#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Merge the object-distance block onto a props frame.",
       "source_sha256": "19a6cbe661e1a0274a73726856b21bb2fabb168022f1904f7f6a75e383ac5e85",
-      "context": "Merge the object-distance block onto a props frame.",
-      "translation": "Mescla o bloco de distâncias entre objetos em um quadro de props.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Mescla o bloco de distâncias entre objetos em um quadro de props."
     },
     {
+      "context": "Props on the LEFT for the reason `_with_spatial` gives: 'label' has to keep column position 0. A non-empty frame means ``name``'s mask holds labels, so `_all_masks` already carries it.",
       "label": "spacr.measure._morphological_measurements._with_distances#1",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Props on the LEFT for the reason `_with_spatial` gives: 'label' has to keep column position 0. A non-empty frame means ``name``'s mask holds labels, so `_all_masks` already carries it.",
       "source_sha256": "d8ade6bb51a5647eef83af5506a30253f7f68a3958ed064f27e707b6b684459f",
-      "context": "Props on the LEFT for the reason `_with_spatial` gives: 'label' has to keep column position 0. A non-empty frame means ``name``'s mask holds labels, so `_all_masks` already carries it.",
-      "translation": "Props à ESQUERDA pelo motivo que `_with_spatial` dá: 'label' precisa manter a posição de coluna 0. Um quadro não vazio significa que a máscara de ``name`` contém rótulos, então `_all_masks` já a carrega.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Props à ESQUERDA pelo motivo que `_with_spatial` dá: 'label' precisa manter a posição de coluna 0. Um quadro não vazio significa que a máscara de ``name`` contém rótulos, então `_all_masks` já a carrega."
     },
     {
+      "context": "Merge the spatial block onto a props frame. Props on the LEFT.",
       "label": "spacr.measure._morphological_measurements._with_spatial#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Merge the spatial block onto a props frame. Props on the LEFT.",
       "source_sha256": "e9438c15ee31bd9911c6348e8209e63efd2313187ea8ae8d59f2e477177b799c",
-      "context": "Merge the spatial block onto a props frame. Props on the LEFT.",
-      "translation": "Mescla o bloco espacial em um quadro de props. Props à ESQUERDA.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Mescla o bloco espacial em um quadro de props. Props à ESQUERDA."
     },
     {
+      "context": "A fresh machine-learning classification model with the fixed phase-calling parameters.",
       "label": "spacr.measure._phases_by_xgboost._model#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "A fresh classifier with the fixed phase-calling parameters.",
       "source_sha256": "de55060650b92a8e1eb79e6cffae105f35b7e5fa5321c5936fd75f119cb4937f",
-      "context": "A fresh machine-learning classification model with the fixed phase-calling parameters.",
-      "translation": "Um classificador novo com os parâmetros fixos de atribuição de fase.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Um classificador novo com os parâmetros fixos de atribuição de fase."
     },
     {
+      "context": "Save one figure under the viability results folder.",
       "label": "spacr.measure._save_viability_figures._keep#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Save one figure under the viability results folder.",
       "source_sha256": "f6f700548a23187d32333b2c028165509562087fa081ceb0d2462cc6cf34c614",
-      "context": "Save one figure under the viability results folder.",
-      "translation": "Salva uma figura na pasta de resultados de viabilidade.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Salva uma figura na pasta de resultados de viabilidade."
     },
     {
+      "context": "Share of the plate's objects above ``threshold``.",
       "label": "spacr.measure._stain_cut._share#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Share of the plate's objects above ``threshold``.",
       "source_sha256": "752fece034fac4bf0d7c1ddbb30c406b5c880eb6369744dc4f0c5136d9716ffb",
-      "context": "Share of the plate's objects above ``threshold``.",
-      "translation": "Proporção dos objetos da placa acima de ``threshold``.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Proporção dos objetos da placa acima de ``threshold``."
     },
     {
+      "context": "Copy a tensor to a NumPy array.",
       "label": "spacr.measure._torch_intensity_table.host#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Copy a tensor to a NumPy array.",
       "source_sha256": "202e41029fe45887981ac6cab6281db406da3471bf0cbb4b4b6cec7c2c707f6b",
-      "context": "Copy a tensor to a NumPy array.",
-      "translation": "Copia um tensor para uma matriz NumPy.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Copia um tensor para uma matriz NumPy."
     },
     {
+      "context": "The fitted two-population density at ``v``.",
       "label": "spacr.measure._two_population_fit._mixture#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "The fitted two-population density at ``v``.",
       "source_sha256": "2e3b50ec7f96a325f1899a7d4f3622a0912576f0dac46bd4c5c460b853fec5eb",
-      "context": "The fitted two-population density at ``v``.",
-      "translation": "A densidade ajustada de duas populações em ``v``.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "A densidade ajustada de duas populações em ``v``."
     },
     {
+      "context": "How many values lie within ``reach`` of ``v``.",
       "label": "spacr.measure._two_population_fit._near#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "How many values lie within ``reach`` of ``v``.",
       "source_sha256": "080d5188e78db935ba8bde8d3f32a6b4510090be50a95f77e3dc85a5fdbc3e0d",
-      "context": "How many values lie within ``reach`` of ``v``.",
-      "translation": "Quantos valores estão a até ``reach`` de ``v``.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Quantos valores estão a até ``reach`` de ``v``."
     },
     {
+      "context": "Mark axis samples inside the image at the given normal offset.",
       "label": "spacr.measure._wound_axis.inside#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Mark axis samples inside the image at the given normal offset.",
       "source_sha256": "b1808e32962edaf79f876cdb1117eadb96fceb447d27cda519d82e6a967954f8",
-      "context": "Mark axis samples inside the image at the given normal offset.",
-      "translation": "Marca amostras do eixo dentro da imagem no deslocamento normal indicado.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Marca amostras do eixo dentro da imagem no deslocamento normal indicado."
     },
     {
+      "context": "Yield this microscope field of view's wound-analysis image layers in time order.",
       "label": "spacr.measure._wound_closure_tables.planes#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Yield this field's wound-analysis planes in time order.",
       "source_sha256": "4f1a95b138e6ca9e8d5dda131f726491b920c247ab86bc0be8ee94c6b036ba75",
-      "context": "Yield this microscope field of view's wound-analysis image layers in time order.",
-      "translation": "Produz os planos de análise de ferida deste campo em ordem temporal.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Produz os planos de análise de ferida deste campo em ordem temporal."
     },
     {
+      "context": "Running median of the good fronts, carried over rows with none.",
       "label": "spacr.measure._wound_fronts.running#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Running median of the good fronts, carried over rows with none.",
       "source_sha256": "01ea6ee50870a5094c9fd19a90437404020d7d7b10eb4c09a5c2b34b29b9b91e",
-      "context": "Running median of the good fronts, carried over rows with none.",
-      "translation": "Mediana móvel das boas frentes, levada adiante nas linhas que não têm nenhuma.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Mediana móvel das boas frentes, levada adiante nas linhas que não têm nenhuma."
     },
     {
+      "context": "The first of ``names`` the pattern actually defines.",
       "label": "spacr.measure.assign_paths_by_regex.first#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "The first of ``names`` the pattern actually defines.",
       "source_sha256": "1530c7ebee048a8d6695f85aa74877a1bcd054e57a746a90b39867d84071e267",
-      "context": "The first of ``names`` the pattern actually defines.",
-      "translation": "O primeiro de ``names`` que o padrão realmente define.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "O primeiro de ``names`` que o padrão realmente define."
     },
     {
+      "context": "An ``IN (...)`` clause and its parameters, built safely.",
       "label": "spacr.measure.generate_object_dataset._in#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "An ``IN (...)`` clause and its parameters, built safely.",
       "source_sha256": "2541b64140f1fcc8b51dc3b4d888630bf553268b95cabe9847daf6c29f06a40d",
-      "context": "An ``IN (...)`` clause and its parameters, built safely.",
-      "translation": "Uma cláusula ``IN (...)`` e seus parâmetros, construídos com segurança.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Uma cláusula ``IN (...)`` e seus parâmetros, construídos com segurança."
     },
     {
+      "context": "Placeholders rather than interpolation: the values come from a settings file, and a formatted list is an injection waiting for a filename with a quote in it.",
       "label": "spacr.measure.generate_object_dataset._in#1",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Placeholders rather than interpolation: the values come from a settings file, and a formatted list is an injection waiting for a filename with a quote in it.",
       "source_sha256": "0ab47d5ec0a0a95a2bad2a876c4dca28df020f65fd5c785ada10450db9888549",
-      "context": "Placeholders rather than interpolation: the values come from a settings file, and a formatted list is an injection waiting for a filename with a quote in it.",
-      "translation": "Marcadores em vez de interpolação: os valores vêm de um arquivo de configurações, e uma lista formatada é uma injeção esperando por um nome de arquivo com aspas.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Marcadores em vez de interpolação: os valores vêm de um arquivo de configurações, e uma lista formatada é uma injeção esperando por um nome de arquivo com aspas."
     },
     {
+      "context": "Record one completed field and save its optional figures.",
       "label": "spacr.measure.measure_crop.job_callback#0",
+      "retired": true,
+      "retired_date": "2026-10-08",
+      "retired_reason": "Worker/database queue behavior changed this source block; the original target and review are retained as historical evidence. Current wording is covered by 2026-10-08-worker-database-queue.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Record one completed field and save its optional figures.",
       "source_sha256": "4125957ce35fa2732ebe63cc2fab8251c1530f38ec47e9f704ad64049e951e3a",
-      "context": "Record one completed field and save its optional figures.",
-      "translation": "Registra um campo concluído e salva suas figuras opcionais.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Registra um campo concluído e salva suas figuras opcionais."
     },
     {
+      "context": "The 4-tuple ``(index, average_time, cells, figs)`` that :func:`_measure_crop_core` returns, taken straight off the ``AsyncResult`` -- one result, not the list that :func:`process_measure_crop_results` takes, which is why it is re-wrapped as ``[result]`` below. ``index`` is the position in ``files`` and is translated back through ``index_to_file`` so the ledger entry names the field rather than a number. ``cells`` decides the verdict: the success path leaves the ``np.unique(cell_mask)`` array there, while a plain int ``0`` is the cross-process failure sentinel a worker leaves when it caught its own exception, so only that int records a failure. ``figs`` may be an empty key-value mapping -- nothing is drawn unless ``settings['plot']``. Passing the same field twice is safe for the counters (``completed_jobs`` and ``reported_files`` are sets) but would save its figures twice, so the retry loop calls this only for the attempt that actually returned.",
       "label": "spacr.measure.measure_crop.job_callback#1",
+      "retired": true,
+      "retired_date": "2026-10-08",
+      "retired_reason": "Worker/database queue behavior changed this source block; the original target and review are retained as historical evidence. Current wording is covered by 2026-10-08-worker-database-queue.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "The 4-tuple ``(index, average_time, cells, figs)`` that :func:`_measure_crop_core` returns, taken straight off the ``AsyncResult`` -- one result, not the list that :func:`process_measure_crop_results` takes, which is why it is re-wrapped as ``[result]`` below. ``index`` is the position in ``files`` and is translated back through ``index_to_file`` so the ledger entry names the field rather than a number. ``cells`` decides the verdict: the success path leaves the ``np.unique(cell_mask)`` array there, while a plain int ``0`` is the cross-process failure sentinel a worker leaves when it caught its own exception, so only that int records a failure. ``figs`` may be an empty dict -- nothing is drawn unless ``settings['plot']``. Passing the same field twice is safe for the counters (``completed_jobs`` and ``reported_files`` are sets) but would save its figures twice, so the retry loop calls this only for the attempt that actually returned.",
       "source_sha256": "7c2086c26796b9a25462ef474b70ed5f24e224738f26f5c95d4eb9fceb6cd4b9",
-      "context": "The 4-tuple ``(index, average_time, cells, figs)`` that :func:`_measure_crop_core` returns, taken straight off the ``AsyncResult`` -- one result, not the list that :func:`process_measure_crop_results` takes, which is why it is re-wrapped as ``[result]`` below. ``index`` is the position in ``files`` and is translated back through ``index_to_file`` so the ledger entry names the field rather than a number. ``cells`` decides the verdict: the success path leaves the ``np.unique(cell_mask)`` array there, while a plain int ``0`` is the cross-process failure sentinel a worker leaves when it caught its own exception, so only that int records a failure. ``figs`` may be an empty key-value mapping -- nothing is drawn unless ``settings['plot']``. Passing the same field twice is safe for the counters (``completed_jobs`` and ``reported_files`` are sets) but would save its figures twice, so the retry loop calls this only for the attempt that actually returned.",
-      "translation": "A tupla de 4 elementos ``(index, average_time, cells, figs)`` que :func:`_measure_crop_core` retorna, tirada diretamente do ``AsyncResult`` -- um resultado, não a lista que :func:`process_measure_crop_results` recebe, por isso é reembrulhada como ``[result]`` abaixo. ``index`` é a posição em ``files`` e é traduzido de volta por ``index_to_file`` para que a entrada do registro nomeie o campo e não um número. ``cells`` decide o veredito: o caminho de sucesso deixa ali a matriz ``np.unique(cell_mask)``, enquanto um int ``0`` simples é o sentinela de falha entre processos que um worker deixa quando capturou sua própria exceção, então só esse int registra uma falha. ``figs`` pode ser um dict vazio -- nada é desenhado sem ``settings['plot']``. Passar o mesmo campo duas vezes é seguro para os contadores (``completed_jobs`` e ``reported_files`` são conjuntos), mas salvaria suas figuras duas vezes, então o laço de nova tentativa chama isto só para a tentativa que realmente retornou.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "A tupla de 4 elementos ``(index, average_time, cells, figs)`` que :func:`_measure_crop_core` retorna, tirada diretamente do ``AsyncResult`` -- um resultado, não a lista que :func:`process_measure_crop_results` recebe, por isso é reembrulhada como ``[result]`` abaixo. ``index`` é a posição em ``files`` e é traduzido de volta por ``index_to_file`` para que a entrada do registro nomeie o campo e não um número. ``cells`` decide o veredito: o caminho de sucesso deixa ali a matriz ``np.unique(cell_mask)``, enquanto um int ``0`` simples é o sentinela de falha entre processos que um worker deixa quando capturou sua própria exceção, então só esse int registra uma falha. ``figs`` pode ser um dict vazio -- nada é desenhado sem ``settings['plot']``. Passar o mesmo campo duas vezes é seguro para os contadores (``completed_jobs`` e ``reported_files`` são conjuntos), mas salvaria suas figuras duas vezes, então o laço de nova tentativa chama isto só para a tentativa que realmente retornou."
     },
     {
+      "context": "Bind the filename into the pool's error callback.",
       "label": "spacr.measure.measure_crop.make_error_callback#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Bind the filename into the pool's error callback.",
       "source_sha256": "821b82d21f2aed27316e1794955739da4613069c3d71fa890c08c2ba3c6a9800",
-      "context": "Bind the filename into the pool's error callback.",
-      "translation": "Vincula o nome do arquivo ao callback de erro do pool.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Vincula o nome do arquivo ao callback de erro do pool."
     },
     {
+      "context": "``apply_async`` hands the error callback only the exception, so the file has to be closed over. Without this hook a worker that died outright vanished entirely: the exception sat on an AsyncResult nobody read, and the processing session still printed \"Successfully completed run\".",
       "label": "spacr.measure.measure_crop.make_error_callback#1",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "``apply_async`` hands the error callback only the exception, so the file has to be closed over. Without this hook a worker that died outright vanished entirely: the exception sat on an AsyncResult nobody read, and the run still printed \"Successfully completed run\".",
       "source_sha256": "35ba5714a146ba2a5f0caea57f3c9a1e2d06b5c2073c6bd36db51507acedd3fc",
-      "context": "``apply_async`` hands the error callback only the exception, so the file has to be closed over. Without this hook a worker that died outright vanished entirely: the exception sat on an AsyncResult nobody read, and the processing session still printed \"Successfully completed run\".",
-      "translation": "``apply_async`` passa ao callback de erro apenas a exceção, então o arquivo precisa ser capturado em um closure. Sem este hook, um worker que morria de vez desaparecia por completo: a exceção ficava em um AsyncResult que ninguém lia, e a execução ainda imprimia \"Successfully completed run\".",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "``apply_async`` passa ao callback de erro apenas a exceção, então o arquivo precisa ser capturado em um closure. Sem este hook, um worker que morria de vez desaparecia por completo: a exceção ficava em um AsyncResult que ninguém lia, e a execução ainda imprimia \"Successfully completed run\"."
     },
     {
+      "context": "The ``.npy`` filename of the field, as it appears in ``files`` -- a bare basename, not a path joined onto ``settings['src']``. It is used unchanged as the ledger structured-data name *and* as the ``reported_files`` entry, so anything else silently loses the match against ``files`` in the ``finally`` sweep and the field is filed a second time as \"field produced no result\".",
       "label": "spacr.measure.measure_crop.make_error_callback#2",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "The ``.npy`` filename of the field, as it appears in ``files`` -- a bare basename, not a path joined onto ``settings['src']``. It is used unchanged as the ledger key *and* as the ``reported_files`` entry, so anything else silently loses the match against ``files`` in the ``finally`` sweep and the field is filed a second time as \"field produced no result\".",
       "source_sha256": "69f2129f3679abddd3426b411f5509e4d16b24ebe38d0f8ce97c8cd2fe3083c0",
-      "context": "The ``.npy`` filename of the field, as it appears in ``files`` -- a bare basename, not a path joined onto ``settings['src']``. It is used unchanged as the ledger structured-data name *and* as the ``reported_files`` entry, so anything else silently loses the match against ``files`` in the ``finally`` sweep and the field is filed a second time as \"field produced no result\".",
-      "translation": "O nome de arquivo ``.npy`` do campo, como aparece em ``files`` -- um nome base simples, não um caminho unido a ``settings['src']``. Ele é usado sem alteração como chave do registro *e* como entrada de ``reported_files``, então qualquer outra coisa perde silenciosamente a correspondência com ``files`` na varredura do ``finally`` e o campo é lançado uma segunda vez como \"field produced no result\".",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "O nome de arquivo ``.npy`` do campo, como aparece em ``files`` -- um nome base simples, não um caminho unido a ``settings['src']``. Ele é usado sem alteração como chave do registro *e* como entrada de ``reported_files``, então qualquer outra coisa perde silenciosamente a correspondência com ``files`` na varredura do ``finally`` e o campo é lançado uma segunda vez como \"field produced no result\"."
     },
     {
+      "context": "A one-argument callable suitable as the ``error_callback`` of ``Pool.apply_async``; it takes the exception and returns ``None``. Call it as ``make_error_callback(file)(exc)`` when raising the exception yourself, which is what the retry loop does on the last attempt -- the ledger counts fields, not tries, so a field that failed twice and then worked must not be reported here at all.",
       "label": "spacr.measure.measure_crop.make_error_callback#3",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "A one-argument callable suitable as the ``error_callback`` of ``Pool.apply_async``; it takes the exception and returns ``None``. Call it as ``make_error_callback(file)(exc)`` when raising the exception yourself, which is what the retry loop does on the last attempt -- the ledger counts fields, not tries, so a field that failed twice and then worked must not be reported here at all.",
       "source_sha256": "b1c74284824deeedfa8857488d838d4a3b528e450c7bd10a2f8b429ef4bb7ef9",
-      "context": "A one-argument callable suitable as the ``error_callback`` of ``Pool.apply_async``; it takes the exception and returns ``None``. Call it as ``make_error_callback(file)(exc)`` when raising the exception yourself, which is what the retry loop does on the last attempt -- the ledger counts fields, not tries, so a field that failed twice and then worked must not be reported here at all.",
-      "translation": "Um chamável de um argumento adequado como ``error_callback`` de ``Pool.apply_async``; recebe a exceção e retorna ``None``. Chame-o como ``make_error_callback(file)(exc)`` quando você mesmo gerar a exceção, que é o que o laço de nova tentativa faz na última tentativa -- o registro conta campos, não tentativas, então um campo que falhou duas vezes e depois funcionou não deve ser relatado aqui de forma alguma.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Um chamável de um argumento adequado como ``error_callback`` de ``Pool.apply_async``; recebe a exceção e retorna ``None``. Chame-o como ``make_error_callback(file)(exc)`` quando você mesmo gerar a exceção, que é o que o laço de nova tentativa faz na última tentativa -- o registro conta campos, não tentativas, então um campo que falhou duas vezes e depois funcionou não deve ser relatado aqui de forma alguma."
     },
     {
+      "context": "Record one worker's failure against the file that caused it.",
       "label": "spacr.measure.measure_crop.make_error_callback._on_error#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Record one worker's failure against the file that caused it.",
       "source_sha256": "b3e7df802817cac8b0aceeaf6d4a80c87c0d757f224ea11855a750c9c51addd9",
-      "context": "Record one worker's failure against the file that caused it.",
-      "translation": "Registra a falha de um worker contra o arquivo que a causou.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Registra a falha de um worker contra o arquivo que a causou."
     },
     {
+      "context": "Report a stage, if anyone asked to hear about them.",
       "label": "spacr.measure.measure_from_field_table.say#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Report a stage, if anyone asked to hear about them.",
       "source_sha256": "c4b6a80bf4ad38ea922c169981c33ec890d46f6cc0994468c70f9aa301854bb9",
-      "context": "Report a stage, if anyone asked to hear about them.",
-      "translation": "Informa uma etapa, se alguém pediu para ser avisado.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Informa uma etapa, se alguém pediu para ser avisado."
     },
     {
+      "context": "Guarded because the caller is a window that may be closed while this is still executing: the FEATURES window's callback emits a Qt signal, and a worker parked past its widget's destruction raises ``RuntimeError`` from the emit. A processing session must not fail because nobody is listening to it any more.",
       "label": "spacr.measure.measure_from_field_table.say#1",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "Guarded because the caller is a window that may be closed while this is still running: the FEATURES window's callback emits a Qt signal, and a worker parked past its widget's destruction raises ``RuntimeError`` from the emit. A run must not fail because nobody is listening to it any more.",
       "source_sha256": "73defc1d2820b723b97162c511a1cdc527a26b43368afddd0c14a3ef4e82b37f",
-      "context": "Guarded because the caller is a window that may be closed while this is still executing: the FEATURES window's callback emits a Qt signal, and a worker parked past its widget's destruction raises ``RuntimeError`` from the emit. A processing session must not fail because nobody is listening to it any more.",
-      "translation": "Protegido porque o chamador é uma janela que pode ser fechada enquanto isto ainda roda: o callback da janela FEATURES emite um sinal do Qt, e um worker que continua esperando após a destruição do seu widget gera ``RuntimeError`` no emit. Uma execução não deve falhar porque ninguém mais a está ouvindo.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Protegido porque o chamador é uma janela que pode ser fechada enquanto isto ainda roda: o callback da janela FEATURES emite um sinal do Qt, e um worker que continua esperando após a destruição do seu widget gera ``RuntimeError`` no emit. Uma execução não deve falhar porque ninguém mais a está ouvindo."
     },
     {
+      "context": "One spacing value, refused unless it is a positive number.",
       "label": "spacr.measure.resolve_measurement_spacing._positive#0",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "One spacing value, refused unless it is a positive number.",
       "source_sha256": "b4ee27c47c2ecb45020133b8b349868e4a5fe2bddc860587ca86295b4d09fa09",
-      "context": "One spacing value, refused unless it is a positive number.",
-      "translation": "Um valor de espaçamento, recusado a menos que seja um número positivo.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Um valor de espaçamento, recusado a menos que seja um número positivo."
     },
     {
+      "context": "A zero or negative spacing makes every physical measurement wrong by a factor nobody can recover afterwards, so it is refused rather than defaulted.",
       "label": "spacr.measure.resolve_measurement_spacing._positive#1",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
       "source": "A zero or negative spacing makes every physical measurement wrong by a factor nobody can recover afterwards, so it is refused rather than defaulted.",
       "source_sha256": "29c509955c2bf776795e6aa1ef89e3d84ee427d163ee5baf686467bc3fbfe322",
-      "context": "A zero or negative spacing makes every physical measurement wrong by a factor nobody can recover afterwards, so it is refused rather than defaulted.",
-      "translation": "Um espaçamento zero ou negativo torna cada medida física errada por um fator que ninguém consegue recuperar depois, então ele é recusado em vez de substituído por um padrão.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "translation": "Um espaçamento zero ou negativo torna cada medida física errada por um fator que ninguém consegue recuperar depois, então ele é recusado em vez de substituído por um padrão."
     }
-  ]
+  ],
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "schema": 1
 }

@@ -216,6 +216,16 @@
         "a68f1d91e3d19e4b7dfe89f0480efd933d7597aa8c5b4730f6060de20da7bc6e"
       ]
     },
+    "spacr._mask_workers._run_mask_workers.run_group": {
+      "source_blocks_sha256": [
+        "4052295c785b7844536496fdb155bce5817616f0b529a8eac4f5fcd47a5681cc"
+      ],
+      "source_sha256": "4052295c785b7844536496fdb155bce5817616f0b529a8eac4f5fcd47a5681cc",
+      "text": "Vänta tills varje medlem i en primär eller seriell slutlig arbetsgrupp har avslutats.",
+      "translation_source_blocks_sha256": [
+        "4052295c785b7844536496fdb155bce5817616f0b529a8eac4f5fcd47a5681cc"
+      ]
+    },
     "spacr._mask_workers._worker_figures.publish": {
       "source_blocks_sha256": [
         "d263c266a19ac5be96f3658af0b3f86ad1ee06695b320eb7f6deb87b6fab0743"
@@ -20420,11 +20430,11 @@
         "f1ec315b0ef992a6ab8e0a1766dcc6f2216daea3e42855b815e57285c0f2f3bb",
         "04db7ece52b63c560da2ece2be3ee1cda13e764890743e4124ff84ea4fcebbf3",
         "d731f26ccc25ffad7a39e0bb855284bf3e46ae6245a766e78756dc8eca1a2760",
-        "7451fe517efc51a737a9591a521e006483d674afb04469f516acb417f157caec",
+        "ebe0943c952d3e79635549fcf653b39cfeb6ab33605cb0f0ac92506e65702f9b",
         "16e7c9acda5794a52cb74887d6105259230e33ec114004b776f0b08c4e8935cf"
       ],
-      "source_sha256": "3b3e51c388c01e7bdc1b0fb80197cf9822284e2e28498b1e7fb469074f06e12d",
-      "text": "Öppna en konfigurerad anslutning som ägs av anropande oberoende utförande sökväg.\n\n:param path: Sökväg till SQLite-databasen.\n:param readonly: öppna med URI ``mode=ro`` och ``query_only=ON``.\n:param timeout: sekunder som SQLite väntar inuti en låsoperation.\n:param journal_mode: valfritt uttryckligt ``\"WAL\"`` eller ``\"DELETE\"``. Utelämna för att bevara databasens nuvarande läge. WAL får inte aktiveras blint vid delad/NFS-lagring. Använd :func:`filesystem_type` eller konvergenssonden först.\n:param foreign_keys: Aktivera SQLite utländska tangentkontroller för denna anslutning. SQLite börjar med dessa kontroller inaktiverade för varje anslutning.\n:returns: Anslutning i autokommitläge; använd :func:`transaction` för att skriva flera rader.\n:raises DatabaseConfigurationError: för ett osäkert/ostödt begärt journalläge eller när SQLite vägrar att tillämpa det.",
+      "source_sha256": "81ebb05c0fc681c5995f1bc82d6983f2a1ca994e318fa094f2fd75d72acfe4f9",
+      "text": "Öppna en konfigurerad anslutning som ägs av anropande oberoende utförande sökväg.\n\n:param path: Sökväg till SQLite-databasen.\n:param readonly: öppna med URI ``mode=ro`` och ``query_only=ON``.\n:param timeout: sekunder som SQLite väntar inuti en låsoperation.\n:param journal_mode: valfritt uttryckligt ``\"WAL\"`` eller ``\"DELETE\"``. Utelämna för att bevara databasens nuvarande läge. WAL får inte aktiveras blint vid delad/NFS-lagring. Använd :func:`filesystem_type` eller konvergenssonden först.\n:param foreign_keys: Aktivera SQLite utländska tangentkontroller för denna anslutning. SQLite börjar med dessa kontroller inaktiverade för varje anslutning.\n:returns: anslutning i autocommit-läge; använd :func:`transaction` för skrivningar med flera SQL-satser. Inom en atomisk köad skrivning återanvänder hjälpfunktioner för samma databas skrivtrådens aktiva anslutning; deras bekräftelser och stängningar skjuts upp tills hela bildfältet har bekräftats.\n:raises DatabaseConfigurationError: för ett osäkert/ostödt begärt journalläge eller när SQLite vägrar att tillämpa det.",
       "translation_source_blocks_sha256": [
         "4c70c0f5e25f763c81124cfe0b12cad220fa05e0449bc566ae700d310d0ffcca",
         "ae3ab4df63ffcd920513b692f16b41850977e018504315873076deda5dcc06d1",
@@ -20432,7 +20442,7 @@
         "f1ec315b0ef992a6ab8e0a1766dcc6f2216daea3e42855b815e57285c0f2f3bb",
         "04db7ece52b63c560da2ece2be3ee1cda13e764890743e4124ff84ea4fcebbf3",
         "19616110cd1bd96c631f0c41ce94ddb5e90659ef0d3a8e2d491a45031bde2306",
-        "7451fe517efc51a737a9591a521e006483d674afb04469f516acb417f157caec",
+        "99de905bcc1ba9ab0ec3e3090a230d64604690e6b3da934c9b5ea96be77b227e",
         "16e7c9acda5794a52cb74887d6105259230e33ec114004b776f0b08c4e8935cf"
       ]
     },
@@ -20549,10 +20559,10 @@
         "5e0e3b553903a00524b45754601b9c70d4527846c95f259b2842e40d3a82da87",
         "65fa199a990ef7828fac0cdb761ecfa1930c3823346a578c0c302bf74e7a12a3",
         "1a6c9bf1890d271f4dc8d8f3042beb1eb105cb7b6a2b4e50aeee55dc68e6b2fc",
-        "89414cabc7a1f77766424a334083261b016f26143a1a1fb04a5c50566c944fa1"
+        "e5e036b663d76d2ac4242bd4762a39b992308b7408b639de920edecd760bd72f"
       ],
-      "source_sha256": "9e0a57e656d78b97e0eda00589be7f73f4d54106e5362e3c57e0e5e2d49a51da",
-      "text": "Kör en transaktion med låst lås.\n\nEndast ``BEGIN`` återberättas. När en transaktion väl har startat, kan en ny försöksuppgift duplicera tidigare skriver. Varje organ eller begå fel rullar tillbaka hela transaktionen och propagerar.\n\n:param connection: anropar oberoende utförande sökväg öppna automatisk commit anslutning.\n:param mode: ``DEFERRED``, ``IMMEDIATE`` (standard) eller ``EXCLUSIVE``\n:param attempts: Maximala försök att förvärva transaktionen.\n:param initial_delay: Första reservoff mellan låsfel.\n:param maximum_delay: Skyddshylsan.\n:param busy_timeout: Totala sekunder denna transaktion kan spendera på att vänta på lås inuti SQLite, delat över ``attempts`` och golvat på ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS`` per försök. Omhänderta att ärva anslutningens inställda ``busy_timeout``; skicka den när skrivtoleransen skiljer sig från vad ``timeout`` anslutningen råkade öppnas med.\n:raises DatabaseBusy: När låset överlever budgeten för försök.\n:raises RuntimeError: ombads att bo i en aktiv transaktion.",
+      "source_sha256": "36b03bb81f1de991464bdbf6d61edbc1d9ab8ada43b80a9c52c65f24debc2baf",
+      "text": "Kör en transaktion med låst lås.\n\nEndast ``BEGIN`` återberättas. När en transaktion väl har startat, kan en ny försöksuppgift duplicera tidigare skriver. Varje organ eller begå fel rullar tillbaka hela transaktionen och propagerar.\n\n:param connection: anropar oberoende utförande sökväg öppna automatisk commit anslutning.\n:param mode: ``DEFERRED``, ``IMMEDIATE`` (standard) eller ``EXCLUSIVE``\n:param attempts: Maximala försök att förvärva transaktionen.\n:param initial_delay: Första reservoff mellan låsfel.\n:param maximum_delay: Skyddshylsan.\n:param busy_timeout: Totala sekunder denna transaktion kan spendera på att vänta på lås inuti SQLite, delat över ``attempts`` och golvat på ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS`` per försök. Omhänderta att ärva anslutningens inställda ``busy_timeout``; skicka den när skrivtoleransen skiljer sig från vad ``timeout`` anslutningen råkade öppnas med.\n:raises DatabaseBusy: När låset överlever budgeten för försök.\n:raises RuntimeError: när en nästlad transaktion begärs inom en aktiv transaktion utanför ett paket som ägs av skrivaren. Köade hjälpfunktioners transaktioner använder savepoints inom paketet.",
       "translation_source_blocks_sha256": [
         "9306dbcc912f01b994274561d09e643554267dc9dd0c5bb628dc18f9a68d51b7",
         "64156d0ab431b4f100e0e71f530a4d2d63b7040c72623049775382c118bcfeaf",
@@ -20563,7 +20573,7 @@
         "5e0e3b553903a00524b45754601b9c70d4527846c95f259b2842e40d3a82da87",
         "65fa199a990ef7828fac0cdb761ecfa1930c3823346a578c0c302bf74e7a12a3",
         "1a6c9bf1890d271f4dc8d8f3042beb1eb105cb7b6a2b4e50aeee55dc68e6b2fc",
-        "89414cabc7a1f77766424a334083261b016f26143a1a1fb04a5c50566c944fa1"
+        "e5e036b663d76d2ac4242bd4762a39b992308b7408b639de920edecd760bd72f"
       ]
     },
     "spacr.database_concurrency.wal_is_safe_here": {
@@ -45004,6 +45014,18 @@
         "beae0390bf53ee34a2347b13ac8b0dceb04fceec38e1503e162642883016d901"
       ]
     },
+    "spacr.measure._commit_measure_packet.dispatch": {
+      "source_blocks_sha256": [
+        "a7f12d2162ba4af15caacea44d9950a67a7c6769ab8b6532dfe6c0d16398e901",
+        "62290849baf7cea7152f2e1b4afdacbb6e6344072c15f1e2dbfff0a497ae83b9"
+      ],
+      "source_sha256": "d9d59e9a858fb747e1b7d449e40b1c3f07263bd3dde3c1569d9d074eade450a5",
+      "text": "Spara en godkänd operation i paketets centrala databas.\n\n:param operation: godkänt hjälpfunktionsnamn, positionsargument och nyckelordsargument.",
+      "translation_source_blocks_sha256": [
+        "a7f12d2162ba4af15caacea44d9950a67a7c6769ab8b6532dfe6c0d16398e901",
+        "62290849baf7cea7152f2e1b4afdacbb6e6344072c15f1e2dbfff0a497ae83b9"
+      ]
+    },
     "spacr.measure._confluency_phase_features.log_sd": {
       "source_blocks_sha256": [
         "946bba1bab987957ae59fef6689a070bc1ec2b2a2d454be73cf9c2592ff71182"
@@ -45487,6 +45509,7 @@
         "b121081764c60347ea02ccfae9ca6358199105596a6b5bd1fb6e389b5081fe79",
         "f8b3da5212c4ca703a46301293e46749996b61a879bff1cf971a17f15db56860",
         "99f5f572aa0963f50b62877ed33efe7ba74659b7ddfdc92ce792e0802360970c",
+        "ab7fd34d9f1a12be5d0f3158b668ff926f03b7a1ebe183e9fdbf2c0065e6ce5e",
         "b58e2b6592e749615f2dc5f10ac9ed23145f5ff898495161775e23d8e88723de",
         "fd9989dfcfe81a26d794d1e77003a454f4b9febca9a4be4b175aea694f22c864",
         "b65ba8c7f8b84a88199c1f4b3cb99daab65430a1383b7753f4da31f899377fe0",
@@ -45494,8 +45517,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "e9fad3ffb2efec6a5b19f4127fb66633a0c096704de7bd7907e7fc3c03c7ad39"
       ],
-      "source_sha256": "84831429cc9a1e4b67232df48c98c7bff72a67dc2be87aeb20896faa1d8bcc01",
-      "text": "Extrahera per-object morfologi / intensitetsmätningar och (valfritt) beskära PNGs från mask stackar.\n\nInnehåller mappen ``merged/`` som produceras av :func:`spacr.core.preprocess_generate_masks` (bilddatakanalmatriser + mask stackar sparade som ``.npy``), beräknar form, intensitet, textur och rumsliga egenskaper per cell/kärna/patogen/cytoplasma objekt, och skriver dem till ett SQLite ``measurements.db``. När ``save_png`` är aktiverat extraherar den också bildregioner per objekt som PNG miniatyrbilder, som är träningsindata för :func:`spacr.deep_spacr.deep_spacr`.\n\n:param settings: Inställningar mappning av nyckelvärde, kanonikaliserad via :func:`spacr.settings.get_measure_crop_settings`. Strukturerad data anger funktionen lyder:\n\n    - ``src`` (str eller lista) — en eller flera mappar ``…/merged``. En molnadress som Make Masks har analyserat mäts från den lokala mapp som Make Masks mellanlagrade den i; en molnmapp med sammanslagna stackar speglas först under ``cloud_cache``. ``cloud_results`` kopierar mätmappen tillbaka till molnlagringen.\n    - ``psf_measurement_source`` — original (standard) använder de vanliga omskalade/förbehandlade intensiteterna; processed lägger till en uttryckligen kalibrerad PSF före de kvantitativa särdragen. Den oföränderliga kärnan når varje arbetsprocess. Källbilder och exporterade utsnitt förblir oförändrade. Synfältens proveniens sparas i ``intensity_rescale``; inkompatibla befintliga PSF-mätningar vägras innan några rader läggs till.\n    - ``cell_mask_dim`` / ``nucleus_mask_dim``/ ``pathogen_mask_dim`` – bilddatakanalindex för varje mask stack; ``None`` inaktiverar den objekttypen.\n    - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size`` / ``cytoplasm_min_size`` – avgränsningar av pixelyta.\n    - ``channels`` – lista över intensitetsdatakanaler som ska mätas.\n    - ``crop_mode`` – förteckning som hämtas från ``['cell','nucleus','pathogen', 'cytoplasm']``; varje post ger en PNG per objekt.\n    - ``save_png`` – skriv miniatyrbilder per föremål PNG\n    - ``normalize`` – ``[lower_pct, upper_pct]`` för PNG normalisering.\n    - ``normalize_by`` — ``'png'`` (per extraherad bildregion) eller ``'fov'`` ( per mikroskopets synfält).\n    - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.\n    - ``dry_run`` – validera inställningarna, rapportera planen och stoppa; inmatningsmapparna kontrolleras men ingenting skrivs.\n\n:returns: ``None`` på en normal körning, som skriver ``measurements/measurements.db``, ``measure_crop_settings.csv`` och (om ``save_png``) PNGs till per-objekt under ``src``. När ``dry_run`` är inställt returneras listan med :class:`spacr.validate.Problem` med :func:`spacr.validate.run_preflight`, och ingenting skrivs.\n:raises ValueError: om ``src`` inte är en sträng eller en lista med strängar.\n:raises spacr.errors.ConfigurationError: Endast i strikt läge (``settings['strict_errors']`` eller ``SPACR_STRICT_ERRORS`` miljövariabeln). Typkontrollerna ``normalize``, ``normalize_by``, maskdimension/minstorlek och ``channels`` skriver ut en VARNING och returnerar ``None`` utan att mäta någonting.\n\nExempel:\n    .. code-block:: python\n\n        from spacr.measure import measure_crop\n        settings = {\n            'src': '/data/plate01/merged',\n            'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,\n            'channels': [0, 1, 2, 3],\n            'crop_mode': ['cell'], 'save_png': True,\n            'normalize': [1, 99], 'normalize_by': 'png',\n        }\n        measure_crop(settings)\n\nSe även: :func:`spacr.core.preprocess_generate_masks` – uppströmsmaskgenerering. :func:`spacr.io.generate_dataset` – bygga ett träningsset från PNGs. :func:`spacr.deep_spacr.deep_spacr` – träna en CNN på de extraherade bildområdena.",
+      "source_sha256": "0a1ab9b650617748efad281aa674c96b90fe137855e9bd3d0a581d03cb3a1f54",
+      "text": "Extrahera per-object morfologi / intensitetsmätningar och (valfritt) beskära PNGs från mask stackar.\n\nInnehåller mappen ``merged/`` som produceras av :func:`spacr.core.preprocess_generate_masks` (bilddatakanalmatriser + mask stackar sparade som ``.npy``), beräknar form, intensitet, textur och rumsliga egenskaper per cell/kärna/patogen/cytoplasma objekt, och skriver dem till ett SQLite ``measurements.db``. När ``save_png`` är aktiverat extraherar den också bildregioner per objekt som PNG miniatyrbilder, som är träningsindata för :func:`spacr.deep_spacr.deep_spacr`.\n\n:param settings: Inställningar mappning av nyckelvärde, kanonikaliserad via :func:`spacr.settings.get_measure_crop_settings`. Strukturerad data anger funktionen lyder:\n\n    - ``src`` (str eller lista) — en eller flera mappar ``…/merged``. En molnadress som Make Masks har analyserat mäts från den lokala mapp som Make Masks mellanlagrade den i; en molnmapp med sammanslagna stackar speglas först under ``cloud_cache``. ``cloud_results`` kopierar mätmappen tillbaka till molnlagringen.\n    - ``psf_measurement_source`` — original (standard) använder de vanliga omskalade/förbehandlade intensiteterna; processed lägger till en uttryckligen kalibrerad PSF före de kvantitativa särdragen. Den oföränderliga kärnan når varje arbetsprocess. Källbilder och exporterade utsnitt förblir oförändrade. Synfältens proveniens sparas i ``intensity_rescale``; inkompatibla befintliga PSF-mätningar vägras innan några rader läggs till.\n    - ``cell_mask_dim`` / ``nucleus_mask_dim``/ ``pathogen_mask_dim`` – bilddatakanalindex för varje mask stack; ``None`` inaktiverar den objekttypen.\n    - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size`` / ``cytoplasm_min_size`` – avgränsningar av pixelyta.\n    - ``channels`` – lista över intensitetsdatakanaler som ska mätas.\n    - ``crop_mode`` – förteckning som hämtas från ``['cell','nucleus','pathogen', 'cytoplasm']``; varje post ger en PNG per objekt.\n    - ``save_png`` – skriv miniatyrbilder per föremål PNG\n    - ``normalize`` – ``[lower_pct, upper_pct]`` för PNG normalisering.\n    - ``normalize_by`` — ``'png'`` (per extraherad bildregion) eller ``'fov'`` ( per mikroskopets synfält).\n    - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.\n    - ``database_write_queue_gib`` — valfri RAM-budget för köade SQLite-data, från noll till 64 GiB. Utelämna värdet för att använda Inställningar (standardvärde en GiB). Noll använder enbart diskbuffring; överskott lagras under ``measurements/.write_queue``. Varje bildfält bekräftas atomiskt och ofärdiga skrivpaket finns kvar efter ett fel.\n    - ``dry_run`` – validera inställningarna, rapportera planen och stoppa; inmatningsmapparna kontrolleras men ingenting skrivs.\n\n:returns: ``None`` på en normal körning, som skriver ``measurements/measurements.db``, ``measure_crop_settings.csv`` och (om ``save_png``) PNGs till per-objekt under ``src``. När ``dry_run`` är inställt returneras listan med :class:`spacr.validate.Problem` med :func:`spacr.validate.run_preflight`, och ingenting skrivs.\n:raises ValueError: om ``src`` inte är en sträng eller en lista med strängar.\n:raises spacr.errors.ConfigurationError: Endast i strikt läge (``settings['strict_errors']`` eller ``SPACR_STRICT_ERRORS`` miljövariabeln). Typkontrollerna ``normalize``, ``normalize_by``, maskdimension/minstorlek och ``channels`` skriver ut en VARNING och returnerar ``None`` utan att mäta någonting.\n\nExempel:\n    .. code-block:: python\n\n        from spacr.measure import measure_crop\n        settings = {\n            'src': '/data/plate01/merged',\n            'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,\n            'channels': [0, 1, 2, 3],\n            'crop_mode': ['cell'], 'save_png': True,\n            'normalize': [1, 99], 'normalize_by': 'png',\n        }\n        measure_crop(settings)\n\nSe även: :func:`spacr.core.preprocess_generate_masks` – uppströmsmaskgenerering. :func:`spacr.io.generate_dataset` – bygga ett träningsset från PNGs. :func:`spacr.deep_spacr.deep_spacr` – träna en CNN på de extraherade bildområdena.",
       "translation_source_blocks_sha256": [
         "a19d38b7da35680a98438b6c9345ff12e12b71a4a21a0d368c390516d6fd1552",
         "52d723fdb3dd688a258786c9cb0fa01abc3f76a0da6919d495cf2b15dc5e17bf",
@@ -45510,6 +45533,7 @@
         "b121081764c60347ea02ccfae9ca6358199105596a6b5bd1fb6e389b5081fe79",
         "ca1301e7671aeb28f271ddf501c7b0d8b9c2d0d64f68e14c6cba020203b0e00c",
         "99f5f572aa0963f50b62877ed33efe7ba74659b7ddfdc92ce792e0802360970c",
+        "ab7fd34d9f1a12be5d0f3158b668ff926f03b7a1ebe183e9fdbf2c0065e6ce5e",
         "b58e2b6592e749615f2dc5f10ac9ed23145f5ff898495161775e23d8e88723de",
         "fd9989dfcfe81a26d794d1e77003a454f4b9febca9a4be4b175aea694f22c864",
         "b65ba8c7f8b84a88199c1f4b3cb99daab65430a1383b7753f4da31f899377fe0",
@@ -45520,14 +45544,14 @@
     },
     "spacr.measure.measure_crop.job_callback": {
       "source_blocks_sha256": [
-        "4125957ce35fa2732ebe63cc2fab8251c1530f38ec47e9f704ad64049e951e3a",
-        "7c2086c26796b9a25462ef474b70ed5f24e224738f26f5c95d4eb9fceb6cd4b9"
+        "111b7e987c7e4c82013353f2d7e75feaeea02494d840bd7103151203d7a505ef",
+        "971d644efe435f0fa22a8a94464059fd3f0ace226a548062e3be9d79174205af"
       ],
-      "source_sha256": "23b43004a8a076e52456a15fc43a8e4385e79d4501c8136b8f8f84e403e4fbcf",
-      "text": "Registrerar ett slutfört fält och sparar dess valfria figurer.\n\n:param result: 4-tupeln ``(index, average_time, cells, figs)`` som :func:`_measure_crop_core` returnerar, tagen direkt från ``AsyncResult`` -- ett resultat, inte listan som :func:`process_measure_crop_results` tar, och därför slås den in igen som ``[result]`` nedan. ``index`` är positionen i ``files`` och översätts tillbaka via ``index_to_file`` så att liggarposten namnger fältet i stället för ett tal. ``cells`` avgör utfallet: framgångsvägen lämnar där arrayen ``np.unique(cell_mask)``, medan ett vanligt int ``0`` är den processöverskridande felmarkör som en worker lämnar när den fångat sitt eget undantag, så bara det int-värdet registrerar ett fel. ``figs`` kan vara en tom dict -- inget ritas om inte ``settings['plot']``. Att skicka samma fält två gånger är säkert för räknarna (``completed_jobs`` och ``reported_files`` är mängder) men skulle spara dess figurer två gånger, så omförsöksloopen anropar detta bara för det försök som faktiskt returnerade.",
+      "source_sha256": "28866d7f0e95e241d31ebca5700a5da892d69ff48b6df93ddb75cd923be9094f",
+      "text": "Spara returnerade figurer och rapportera beräkningsförloppet för bildfälten.\n\n:param result: index, genomsnittlig varaktighet, kvarvarande etiketter, figurer, feltext och en valfri biljett för köad skrivning. Etikettvärdet noll som heltal registrerar det ursprungliga felet för bildfältet. SQLite-framgång registreras separat av skrivaren efter att alla vetenskapliga datarader har bekräftats. Övriga backend-system behåller sitt befintliga synkrona arbetsresultat.",
       "translation_source_blocks_sha256": [
-        "4125957ce35fa2732ebe63cc2fab8251c1530f38ec47e9f704ad64049e951e3a",
-        "9de763bc6925a55a39a626efdb10f5b6a12d0fbccb192a66f9a0b6858b39904b"
+        "111b7e987c7e4c82013353f2d7e75feaeea02494d840bd7103151203d7a505ef",
+        "971d644efe435f0fa22a8a94464059fd3f0ace226a548062e3be9d79174205af"
       ]
     },
     "spacr.measure.measure_crop.make_error_callback": {
@@ -45554,6 +45578,26 @@
       "text": "Registrerar en workers fel mot filen som orsakade det.",
       "translation_source_blocks_sha256": [
         "b3e7df802817cac8b0aceeaf6d4a80c87c0d757f224ea11855a750c9c51addd9"
+      ]
+    },
+    "spacr.measure.measure_crop.record_verdict": {
+      "source_blocks_sha256": [
+        "a4693e96e54697bc45989be5bea1e6b19c7f81bba5449368f7d2c18478fcd213"
+      ],
+      "source_sha256": "a4693e96e54697bc45989be5bea1e6b19c7f81bba5449368f7d2c18478fcd213",
+      "text": "Räkna varje bildfält en gång, efter dess faktiska slutresultat.",
+      "translation_source_blocks_sha256": [
+        "a4693e96e54697bc45989be5bea1e6b19c7f81bba5449368f7d2c18478fcd213"
+      ]
+    },
+    "spacr.measure.measure_crop.write_callback": {
+      "source_blocks_sha256": [
+        "8dfa9d1be7155cd3aabfe2c6c9ac7848527237be903ce63d77dea3d51dfc6e29"
+      ],
+      "source_sha256": "8dfa9d1be7155cd3aabfe2c6c9ac7848527237be903ce63d77dea3d51dfc6e29",
+      "text": "Registrera ett bildfält först efter paketets slutliga SQL-resultat.",
+      "translation_source_blocks_sha256": [
+        "8dfa9d1be7155cd3aabfe2c6c9ac7848527237be903ce63d77dea3d51dfc6e29"
       ]
     },
     "spacr.measure.measure_from_field_table": {
@@ -56186,6 +56230,16 @@
         "bbfd27c77a3500bad2fba37cb41206f2f12ede8627480ed3aedc7c6d13f2c02f"
       ]
     },
+    "spacr.ops_engine._decode_field.load_slot": {
+      "source_blocks_sha256": [
+        "dd4c91b6166b9a5da2d32efb535b1ec07aa78eb36d322b779a07ce3926607eba"
+      ],
+      "source_sha256": "dd4c91b6166b9a5da2d32efb535b1ec07aa78eb36d322b779a07ce3926607eba",
+      "text": "Läs en ursprunglig källa enligt den gemensamma policyn för uppskjutna överbelastningsförsök.",
+      "translation_source_blocks_sha256": [
+        "dd4c91b6166b9a5da2d32efb535b1ec07aa78eb36d322b779a07ce3926607eba"
+      ]
+    },
     "spacr.ops_engine._largest_component.find": {
       "source_blocks_sha256": [
         "bff7bdea9aa13fb4afefd4803c6d263df0352baf7fd4f745f24eea4c59de3229",
@@ -58760,10 +58814,10 @@
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
         "19cbdf49a62ad738af12f8c662dabc35c39c2610d421929a9f3ce2fa63ff7f48",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "1b49559af04e70a9a6e9bb5b105a691b745af9a063d4ba26c4154c0d19c473fb"
+        "0bef7cc59f1f083366ce89406c2f7a6b47c80b6061efc0b184926364348ed8d5"
       ],
-      "source_sha256": "63d1ccf466b8b5f3d0687fff3e9b26a8dc91c2c045af184a148f923e9cf00c21",
-      "text": "Kör parameter-svett-försök samtidigt i lekande processer.\n\nParametrar\n----------\nbase_settings : mapping Regressionsinställningar som delas av varje försök, inklusive poäng och räkna ingångar. destination : path-like Directory för testmappar, ``sweep_trials.json`` och den inkrementella ``sweep_results.csv`` tabellen. utrymme : SweepSpace eller None, valfritt sökutrymme. ``None`` använder :data:`DEFAULT_SWEEP_SPACE` och de inbyggda kompatibilitetsfiltren. mode : {'grid', 'random'}, default='random' Försöksräkningsordning övergick till :func:`build_trials`. max_trials : int, default=1000 Maximalt antal godkända prövningar. seed : int, default=0 Slumpmässigt ordningsutsäde som används vid ``mode='random'``. controls : mapping or None, optional Kartläggning från kontrollalias till identifierare. Kontrollmätningar läggs till i varje resultatrad. n_jobs : int, default=8 Begärd poolstorlek. :func:`recommended_workers` kan minska den baserat på minne och CPU-kapacitet. contained : bool, default=True Kör varje passform i ett separat barn genom :func:`run_trial_contained`. Hårt minne, byte, uppgift och CPU gränser upprätthålls endast när en användbar systemd användarsfär är tillgänglig; annars barnet är ofångad men använder reducerad prioritet och trådbegränsningar. Ställ in till ``False`` endast när försök resursanvändning är känd. qc : bool, default=False Generera den fullständiga regressionsdiagnostik figursviten för varje försök. progress_every : int, default=25 Skriv ut framsteg efter detta många avslutade försök. Använd noll för att inaktivera periodiska förloppsmeddelanden.\n\nReturnerar\n----------\npandas.DataFrame En statusrad per försök, sorterad med ``trial_id``. Samma rader skrivs stegvis till ``sweep_results.csv``.\n\nHöjningar\n---------\nRuntimeError Om anropas från en arbetsprocess. Skript måste kalla denna funktion under ett ``if __name__ == '__main__':`` skydd.\n\nAnteckningar\n------------\nPoolen använder startmetoden ``spawn`` eftersom monterade modeller kan importera torch och OpenMP körtider. Endast ett begränsat antal jobb skickas in samtidigt, vilket gör det möjligt för nya inlagor att pausa när tillgängligt minne är lågt.",
+      "source_sha256": "b8ccc321e365eecf164408ba111f28af533e4e2dedcd61fd9bf687f58e9f9224",
+      "text": "Kör parameter-svett-försök samtidigt i lekande processer.\n\nParametrar\n----------\nbase_settings : mapping Regressionsinställningar som delas av varje försök, inklusive poäng och räkna ingångar. destination : path-like Directory för testmappar, ``sweep_trials.json`` och den inkrementella ``sweep_results.csv`` tabellen. utrymme : SweepSpace eller None, valfritt sökutrymme. ``None`` använder :data:`DEFAULT_SWEEP_SPACE` och de inbyggda kompatibilitetsfiltren. mode : {'grid', 'random'}, default='random' Försöksräkningsordning övergick till :func:`build_trials`. max_trials : int, default=1000 Maximalt antal godkända prövningar. seed : int, default=0 Slumpmässigt ordningsutsäde som används vid ``mode='random'``. controls : mapping or None, optional Kartläggning från kontrollalias till identifierare. Kontrollmätningar läggs till i varje resultatrad. n_jobs : int, default=8 Begärd poolstorlek. :func:`recommended_workers` kan minska den baserat på minne och CPU-kapacitet. contained : bool, default=True Kör varje passform i ett separat barn genom :func:`run_trial_contained`. Hårt minne, byte, uppgift och CPU gränser upprätthålls endast när en användbar systemd användarsfär är tillgänglig; annars barnet är ofångad men använder reducerad prioritet och trådbegränsningar. Ställ in till ``False`` endast när försök resursanvändning är känd. qc : bool, default=False Generera den fullständiga regressionsdiagnostik figursviten för varje försök. progress_every : int, default=25 Skriv ut framsteg efter detta många avslutade försök. Använd noll för att inaktivera periodiska förloppsmeddelanden.\n\nReturnerar\n----------\npandas.DataFrame En statusrad per försök, sorterad med ``trial_id``. Samma rader skrivs stegvis till ``sweep_results.csv``.\n\nHöjningar\n---------\nRuntimeError Om anropas från en arbetsprocess. Skript måste kalla denna funktion under ett ``if __name__ == '__main__':`` skydd.\n\nAnteckningar\n------------\nPoolen använder startmetoden ``spawn`` eftersom anpassade modeller kan importera torch och OpenMP-miljöer. Endast ett begränsat antal jobb skickas in samtidigt, så att nya jobb kan pausas när det tillgängliga minnet är lågt. De första beräkningsarbetarna startar med tio sekunders mellanrum. Efter att alla primära försök har avslutats får fel som uttryckligen beror på resursöverbelastning ett seriellt omförsök i sina befintliga försökskataloger. Ursprungliga resultat- och felfiler bevaras separat, och den slutliga tabellen har en rad per försök med uppgifter om det primära felet och metadata för ``overload_retry``. Ogiltiga indata, avbrytanden och oförklarliga avslut av inbyggda arbetsprocesser försöks inte igen.",
       "translation_source_blocks_sha256": [
         "ff9029ee74295c4722b59abe0668d90b9c980804895ddd0e6b984b1c2b8dd377",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
@@ -58773,7 +58827,7 @@
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
         "19cbdf49a62ad738af12f8c662dabc35c39c2610d421929a9f3ce2fa63ff7f48",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "1b49559af04e70a9a6e9bb5b105a691b745af9a063d4ba26c4154c0d19c473fb"
+        "0bef7cc59f1f083366ce89406c2f7a6b47c80b6061efc0b184926364348ed8d5"
       ]
     },
     "spacr.parameter_sweep.run_sweep_parallel._fill": {
@@ -63203,12 +63257,12 @@
         "cf278726dd7f39c8fbf18a2ec9822cf01ea172a0b80d4d80255626c9df586d22",
         "5b61106a793f52b85799933a67d8ee198d88f161ec103520b7825f08fec4562a",
         "dea3a1b498dc9f92fca5bc63a04233d4fe3b2e5ec5bc2a07e083b0045a64afd3",
-        "7a65db57257b9f0faf5833d55c8f73945233ccae792b4e61788e9642c9accd07",
+        "8a72d42185932f35114de027f8e78438bf2eab1cca905810bcb48236234953d1",
         "3875bd0f348fe91ee3dc23df65c2f2205c9a487955728f8c7903020db83113ef",
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
       ],
-      "source_sha256": "3354a6f2c31a6a7e324c46427bc13039857a1cf19852ea66caccb02ad147b9c1",
-      "text": "Överlägg Lorenz-kurvor från multipel gRNA antal CSVs med Gini-koefficienter per laboratorium.\n\n:param csv_files: Sökvägar till mikroplatta per laboratorium CSVs, var och en med kolumnerna ``name_column`` och ``value_column``.\n:param name_column: Identifier-kolonn som används för utlierfiltrering. Standard ``'grna_name'``.\n:param value_column: Kolumn vars fördelning analyseras. Standardvärde ``'count'``.\n:param remove_keys: Namn att utesluta före analys. Standard ``[]`` (exkludera ingenting).\n:param x_lim: X-axelgränser ``[lo, hi]``. Standardvärde ``[0.0, 1]``.\n:param y_lim: Y-axelgränser ``[lo, hi]``. Standardvärde ``[0, 1]``.\n:param remove_outliers: Om True, släpp namn vars provplats per mikroplatta faller utanför ett fönster med 1,5 * IQR. Standardvärde ``False``.\n:param save: Om True, spara siffran tillsammans med den första CSV under ``results/lorenz_curve_with_gini.pdf``. Förval ``True``.\n:returns: None",
+      "source_sha256": "0a71395f4561f9c7e1adca880d0f08fd7cf50ba9854dde2b9bef198bbe4c160c",
+      "text": "Överlägg Lorenz-kurvor från multipel gRNA antal CSVs med Gini-koefficienter per laboratorium.\n\n:param csv_files: Sökvägar till mikroplatta per laboratorium CSVs, var och en med kolumnerna ``name_column`` och ``value_column``.\n:param name_column: Identifier-kolonn som används för utlierfiltrering. Standard ``'grna_name'``.\n:param value_column: Kolumn vars fördelning analyseras. Standardvärde ``'count'``.\n:param remove_keys: Namn att utesluta före analys. Standard ``[]`` (exkludera ingenting).\n:param x_lim: X-axelgränser ``[lo, hi]``. Standardvärde ``[0.0, 1]``.\n:param y_lim: Y-axelgränser ``[lo, hi]``. Standardvärde ``[0, 1]``.\n:param remove_outliers: Om True tas namn bort vars antal observationer ligger utanför en gräns som sträcker sig 1,5 gånger spridningen mellan den 5:e och 95:e percentilen för gruppstorlekar. Antalsvärdena ingår inte i detta filter. Standardvärde ``False``.\n:param save: Om True, spara siffran tillsammans med den första CSV under ``results/lorenz_curve_with_gini.pdf``. Förval ``True``.\n:returns: None",
       "translation_source_blocks_sha256": [
         "ac348ca61fc69835008b4f1516da60d8472d5219b7896bf97c3aa4169220310d",
         "9554fa094fdf3714c9ba824e7673a67486ab3427d28e0e317be8bf9d8247dcef",
@@ -63217,7 +63271,7 @@
         "cf278726dd7f39c8fbf18a2ec9822cf01ea172a0b80d4d80255626c9df586d22",
         "5b61106a793f52b85799933a67d8ee198d88f161ec103520b7825f08fec4562a",
         "dea3a1b498dc9f92fca5bc63a04233d4fe3b2e5ec5bc2a07e083b0045a64afd3",
-        "f64cb22fa4caa606986b08bab47b92574b71b8abd27ebbca5ea22eabb53290ab",
+        "8a72d42185932f35114de027f8e78438bf2eab1cca905810bcb48236234953d1",
         "3875bd0f348fe91ee3dc23df65c2f2205c9a487955728f8c7903020db83113ef",
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
       ]
@@ -88112,6 +88166,16 @@
         "e540aa3013296c2477595b47e0d602293526754d10ca91a25da4792690a936cf"
       ]
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_popup_motion": {
+      "source_blocks_sha256": [
+        "c64c59be21cba42e365d412b1a87919f65e4dcb48bb3f1cc7b88bac822fb70b1"
+      ],
+      "source_sha256": "c64c59be21cba42e365d412b1a87919f65e4dcb48bb3f1cc7b88bac822fb70b1",
+      "text": "Erbjud dessa kontroller endast för kompatibla Qt-ritmotorer.",
+      "translation_source_blocks_sha256": [
+        "c64c59be21cba42e365d412b1a87919f65e4dcb48bb3f1cc7b88bac822fb70b1"
+      ]
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._tenths": {
       "source_blocks_sha256": [
         "eae2896ec87a742c16bb3dd5c92a6b31354c0653569ff9171e1856e0075b1fc5",
@@ -88410,15 +88474,17 @@
       "source_blocks_sha256": [
         "1e444a24a7ade6fdc19957f95fc0f041c77df9612d96723704bd0126379f37c4",
         "f144063f6ed01466ee3f7eb80a24638ac6d76b29912d6c07651e0fd5911f76d1",
-        "99e6b49a7d1928665fbdc644bd87000b40b3752060aec6c2b0fcdecac20c5380",
+        "e36ea3d396989af25f43164c2cfe5763b71320180f638254b41d107a74e8978e",
+        "644ca8ae58ba41e57c0817ac57d504f756bf94643a54a7137138055885b89fe3",
         "2e139a5167b62efeebb3d9898df4d8d193b6f253cbc48c5e30a6324be4728b5f"
       ],
-      "source_sha256": "11713c561b68b93ff9a12347028a41e5ac65841a2a057a6ce30906b170bb7f08",
-      "text": "Tryck på omgivande inställningar på varje levande omgivande komponent.\n\nAnvändarens uttryckliga fråga var en växel som fungerar *nu*, så det här går det löpande widgetträdet på samma sätt :func:`spacr.qt.button_roles.install_button_roles` gör och uppdaterar widwares på plats istället för att vänta på att programvyerna ska byggas om. Gömmer man också sin timer (komponenten slutar animera när den inte är synlig), så \"off\" är egentligen noll ramar.\n\nAtt vrida tillbaka den *på* återupptar bara de grafiska komponenter som faktiskt finns på programvyn. Varje modulprogramvy håller sin omgivande komponent vid liv medan användaren är på någon annan flik, och att avpausa dessa skulle spendera ramar på pixlar som ingen kan se – vilket är det enda som denna animation inte tillåts göra. Deras egna ``showEvent`` startar om dem när fliken kommer tillbaka.\n\nKastar aldrig. En widget vars C++-halva redan är borta, eller en omgivande modul som inte kunde importeras, är ett kosmetiskt problem — inte en anledning att misslyckas en preferenser spara.",
+      "source_sha256": "e0c69accd253451de30550cc569c64e9b17423b321135ede09eeb99c5404de6a",
+      "text": "Tryck på omgivande inställningar på varje levande omgivande komponent.\n\nAnvändarens uttryckliga fråga var en växel som fungerar *nu*, så det här går det löpande widgetträdet på samma sätt :func:`spacr.qt.button_roles.install_button_roles` gör och uppdaterar widwares på plats istället för att vänta på att programvyerna ska byggas om. Gömmer man också sin timer (komponenten slutar animera när den inte är synlig), så \"off\" är egentligen noll ramar.\n\nInställningsfönstrets bakgrund har ett eget val och förblir aktiv när modulernas animation är avstängd, om inte dess eget val är None.\n\nNär modulernas animation slås *på* igen återupptas bara de widgetar som faktiskt visas på skärmen. Varje modulskärm håller sin bakgrundswidget vid liv medan användaren är på en annan flik; att återuppta dessa skulle rita bildrutor för pixlar som ingen kan se — något som denna animation inte får göra. Deras egen ``showEvent`` startar om dem när fliken visas igen.\n\nKastar aldrig. En widget vars C++-halva redan är borta, eller en omgivande modul som inte kunde importeras, är ett kosmetiskt problem — inte en anledning att misslyckas en preferenser spara.",
       "translation_source_blocks_sha256": [
         "1e444a24a7ade6fdc19957f95fc0f041c77df9612d96723704bd0126379f37c4",
         "e7c12ec94b965c75fe53bd21251c5add6e219d36488bd576d81050f6fada066d",
-        "e6d9b8a483054a66cca31ddf015ac74c91f8bf329a1dbf231d93c822bfb5ee95",
+        "e36ea3d396989af25f43164c2cfe5763b71320180f638254b41d107a74e8978e",
+        "4888761a8c0f64ef6e732115ff0fea743bc1a098b3b5cfe06a5bb8c005dc6652",
         "c304cd78567100b9357621b5a009685b6491e1e2fee4f8c6a69bc69896ac8e08"
       ]
     },
@@ -88820,13 +88886,13 @@
     },
     "spacr.qt.preferences.get_ambient_theme": {
       "source_blocks_sha256": [
-        "3de5b034ba17820b9a95078225e6fe43cd0c788d8c9250a87d34f9c4f74acfa9",
+        "123a1a0cb4bad7540166f96d40cce2c72426d569153e1ed3148d00b385845a48",
         "87630f8bd4b017fa690b4a71c60484730828f112d00a9b7376937695e35a0ed1"
       ],
-      "source_sha256": "e7ab77809a5714d3b0fdf56fbe62409b5d3df5b604f0fc29c7a68350b60161ad",
-      "text": "Vilken animeringsmodul vyer färg – se ``AMBIENT_THEMES``.\n\nValiderad på läsning: ett värde skrivet av en nyare spaCR (eller för hand) som denna byggning inte känner till faller tillbaka till standardtemat snarare än att sprida ett omålbart namn till komponenten.",
+      "source_sha256": "fd36d72179cd587e926605d28d7f49e56b7afd78d60a753caa71f13603de5e24",
+      "text": "Vilken animation skärmarna visar i det aktiva startläget.\n\nValiderad på läsning: ett värde skrivet av en nyare spaCR (eller för hand) som denna byggning inte känner till faller tillbaka till standardtemat snarare än att sprida ett omålbart namn till komponenten.",
       "translation_source_blocks_sha256": [
-        "c73418896947549079fa522c330a8314cffdd922f56e308f8ddc370dbd2c8a87",
+        "123a1a0cb4bad7540166f96d40cce2c72426d569153e1ed3148d00b385845a48",
         "87630f8bd4b017fa690b4a71c60484730828f112d00a9b7376937695e35a0ed1"
       ]
     },
@@ -88876,6 +88942,18 @@
         "bb10062e8e28cac19db3b6a9293f8f61327e26fb4915ab618fcf8310b1c02e90",
         "49b4223baf4a47f0b030dfd6ea8cc73cf0fe2e67a23b7c1d3a97b1a21961c0f0",
         "7c14e5b5d070d29c2a80be952a232ccac0b1c38f838037670c4aa02a12a54fe9"
+      ]
+    },
+    "spacr.qt.preferences.get_database_write_queue_gib": {
+      "source_blocks_sha256": [
+        "e3ce09c72dccbf803d79782fbdf6d59633b73fc3e593d10604da458ffa2f8eda",
+        "2cba9223e4b15a59736e3e001a31d35961915fcf043eba3efaff729eb80d5942"
+      ],
+      "source_sha256": "5dac1baea9cbfce394f6302c5b3f9fdfa7dd9402ff77c20c416895b56b5315b8",
+      "text": "Returnera RAM-budgeten för den serialiserade databaskön i GiB.\n\nNoll använder enbart diskbuffring. Detta är inte gränsen för processens totala RAM.",
+      "translation_source_blocks_sha256": [
+        "165a57f9c6bd48777c1c85d5c191903e3dbbf738ae511f338bf98888f781616d",
+        "2cba9223e4b15a59736e3e001a31d35961915fcf043eba3efaff729eb80d5942"
       ]
     },
     "spacr.qt.preferences.get_db_browser_editable": {
@@ -90104,17 +90182,17 @@
     },
     "spacr.qt.preferences.set_ambient_theme": {
       "source_blocks_sha256": [
-        "290f1c1e66371d1c29862f3b12e9a1d6ee39566ca73f1c1ac4a22ae8ab23b9bd",
+        "dadfe8dc58efd2523bda1c6bda04ca641d1148f687d68099b731bb1714e87087",
         "81b55a2a01b13ff6a7a99b11353d53916a5257f1bc7e044b428df3df3f11964a",
-        "6f5bd3c23d76b643e7ce057fbb7ffcf0b9c03840056bc02f7c411a9f09252c16",
+        "628da8bd1027e51ebf37ce7f8e3d2c32d10e09aa65923d385b48436de8587238",
         "9e572dda862911007b8debb16a701cc969409eeebe2645f0524fed6b9259b95d"
       ],
-      "source_sha256": "a14fb846b4ed65a5d6ca0bda551e2d41e03b72b52c4c0a0d576da8e38c4bf3ab",
-      "text": "Håll kvar en av :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`.\n\nPaletter tillhör ett tema, så att byta teman kan strama den lagrade paletten. Snarare än att höja – användaren valde ett tema, inte ett trasigt par – repareras den lagrade paletten i samma skrift: den behålls om det nya temat också erbjuder den, och i övrigt ersätts med det temats standard (se :func:`ambient_default_palette`).\n\n:param name: ett namn på ett bakgrundstema från ``AMBIENT_THEMES``.\n:raises ValueError: om ``name`` inte är ett känt omgivningstema.",
+      "source_sha256": "7c0215b8bc4f0b12b9a1a01668caa421a02e4523e429895c1bd9bf8e6314a770",
+      "text": "Spara en animation som erbjuds i det aktiva startläget.\n\nPaletter tillhör ett tema, så att byta teman kan strama den lagrade paletten. Snarare än att höja – användaren valde ett tema, inte ett trasigt par – repareras den lagrade paletten i samma skrift: den behålls om det nya temat också erbjuder den, och i övrigt ersätts med det temats standard (se :func:`ambient_default_palette`).\n\n:param name: en animation som erbjuds i den aktuella startmenyn.\n:raises ValueError: om ``name`` inte är ett känt omgivningstema.",
       "translation_source_blocks_sha256": [
-        "290f1c1e66371d1c29862f3b12e9a1d6ee39566ca73f1c1ac4a22ae8ab23b9bd",
+        "dadfe8dc58efd2523bda1c6bda04ca641d1148f687d68099b731bb1714e87087",
         "81b55a2a01b13ff6a7a99b11353d53916a5257f1bc7e044b428df3df3f11964a",
-        "6f5bd3c23d76b643e7ce057fbb7ffcf0b9c03840056bc02f7c411a9f09252c16",
+        "628da8bd1027e51ebf37ce7f8e3d2c32d10e09aa65923d385b48436de8587238",
         "9e572dda862911007b8debb16a701cc969409eeebe2645f0524fed6b9259b95d"
       ]
     },
@@ -90168,6 +90246,20 @@
         "8bb4dfc095667fff38b5f3c17044bbba9ed9e0b68171173dee2b277a60669d74",
         "baebc950e2fd8db0bc942ccaa1aa4d53b221f9d54d8beed4053b150921217a38",
         "b2af47a4bbd5d06fb04ebfb1138237d1027586c81742df6549c58abf0d272bc8"
+      ]
+    },
+    "spacr.qt.preferences.set_database_write_queue_gib": {
+      "source_blocks_sha256": [
+        "810c19690a61780e26ef7f561d42083454a3a97b019e0de1bcedf8315dad5848",
+        "5b3bf94ec344acc83e26b3d6d0852c317c779a932217841e93f8bcfd9b5bc47b",
+        "77338723cf931464c569b9229aece892eb1cd3c5e973aa81a389fd3b5c4cde37"
+      ],
+      "source_sha256": "e06cf9f7e45e2e56d66c8f39cb6154e316e446dcab6dcdd6eaa5a353750e7fcb",
+      "text": "Spara budgeten för databasköns nyttolast för efterföljande körningar.\n\n:param gib: tillåtet RAM för serialiserade ködata i GiB, från noll till 64. Noll lagrar köade nyttolaster på disk.\n:raises ValueError: om värdet inte är ändligt eller ligger utanför det giltiga intervallet.",
+      "translation_source_blocks_sha256": [
+        "30a7d92ddf956a856d8859ecbcdb8fc6f0360b0d8f63b5b1740545adce782109",
+        "5b3bf94ec344acc83e26b3d6d0852c317c779a932217841e93f8bcfd9b5bc47b",
+        "77338723cf931464c569b9229aece892eb1cd3c5e973aa81a389fd3b5c4cde37"
       ]
     },
     "spacr.qt.preferences.set_db_browser_editable": {
@@ -102123,13 +102215,13 @@
     "spacr.qt.screens.graph_builder.table_names": {
       "source_blocks_sha256": [
         "c86051366260a4b1528b43f4de46c331dc65d4dff846267c69b36d2c567eb906",
-        "4188c0fb37c43d0905b4cef87b79b194c6e1b3db92143951bce00e495ba8169b"
+        "8749cf08b3552f952b756d44e2d7b6bae59fe49bcb91c2021efdc130b844f3f7"
       ],
-      "source_sha256": "0d8c3f6e64cad944093e91ce81c70c3f4cf87568906dcfad7a545acd58215c22",
-      "text": "Varje användartabell i SQLite-filen vid ``path``, i en användbar ordning.\n\n:param path: sökväg till en SQLite-mätdatabas som öppnas skrivskyddad; de föredragna tabellerna (``object``, ``cell``, ``nucleus``, …) kommer först, sedan resten i alfabetisk ordning. SQLite:s interna tabeller och den privata kvittotabellen för villkorsannotering utelämnas; vanliga användartabeller och namngivna härledda resultat förblir tillgängliga.",
+      "source_sha256": "2ab3180f1e5eb69dc6db883e430c94111686bfbe786b6e7e8295914ec9dc22c6",
+      "text": "Varje användartabell i SQLite-filen vid ``path``, i en användbar ordning.\n\n:param path: sökväg till en SQLite-mätdatabas som öppnas skrivskyddat; prioriterade tabeller (``object``, ``cell``, ``nucleus``, …) kommer först, sedan övriga i alfabetisk ordning. SQLite-interna tabeller och privata tabeller för villkorsannoteringar och databasskrivkvitton utelämnas; vanliga användartabeller och namngivna härledda resultat finns kvar.",
       "translation_source_blocks_sha256": [
         "c86051366260a4b1528b43f4de46c331dc65d4dff846267c69b36d2c567eb906",
-        "4188c0fb37c43d0905b4cef87b79b194c6e1b3db92143951bce00e495ba8169b"
+        "8749cf08b3552f952b756d44e2d7b6bae59fe49bcb91c2021efdc130b844f3f7"
       ]
     },
     "spacr.qt.screens.hit_list": {
@@ -116769,13 +116861,13 @@
     "spacr.qt.spaceout": {
       "source_blocks_sha256": [
         "a67e09e2c14b073899fd69460f954e507eb0f9fb187a892a47aff4c59e69212f",
-        "c57e73bc19f127bb71c594a8fbfe041724d9bed07f7331fbc8f2a9dc94532cd3"
+        "63b31e268423b94899009ead0f9c6c4d24f204c7f3195d7cb9cd9d8890a2dc9d"
       ],
-      "source_sha256": "cd19e314fb5401e7fd9059e8d36a0bac4c951217bf3011327b621a54d2a325d9",
-      "text": "Alternativ bärraket för spaCR s utrymningsläge.\n\nKommandot startar standardprogrammet :func:`spacr.qt.run` med en kontrastkontrollerad spektral palett och fraktal bakgrundsanimation. Läget gäller bara processen: det lagras inte som en inställning och ändrar inte efterföljande standardstarter. Befintliga animationsinställningar gäller fortfarande, inklusive möjligheten att stänga av bakgrundsanimationen. Det är också det enda läget med ljud: Preferences visar sin Sound-flik (och sin Fractal-flik) bara här, och vanliga spaCR spelar ingenting oavsett vad de lagrade ljudinställningarna säger.",
+      "source_sha256": "9e5936bc5f4df6c4657d337168881ee4f547f935323cd89a60d002f9d0213172",
+      "text": "Alternativ bärraket för spaCR s utrymningsläge.\n\nKommandot startar standardapplikationen :func:`spacr.qt.run` med en spektral palett vars kontrast har kontrollerats och en föränderlig fältanimation. Läget gäller bara den aktuella processen: det sparas inte som en inställning och ändrar inte senare standardstarter. Befintliga animationsinställningar fortsätter att gälla, inklusive möjligheten att stänga av bakgrundsanimationen. Detta är också det enda läget med ljud: Inställningar visar fliken Ljud (och fliken Fraktal) endast här, och vanliga spaCR spelar inget oavsett de sparade ljudinställningarna.",
       "translation_source_blocks_sha256": [
         "a67e09e2c14b073899fd69460f954e507eb0f9fb187a892a47aff4c59e69212f",
-        "c57e73bc19f127bb71c594a8fbfe041724d9bed07f7331fbc8f2a9dc94532cd3"
+        "63b31e268423b94899009ead0f9c6c4d24f204c7f3195d7cb9cd9d8890a2dc9d"
       ]
     },
     "spacr.qt.spaceout.main": {
@@ -121423,13 +121515,14 @@
         "580223628aa3fcd8efc7e5386ac7cf28a96a05cb0f9366f435f21792d9692c1f",
         "d190b022b3395a6814985c8e77b5c4f67f397a9fab1b5955295bcc03e5cc221d",
         "3ed52cc085e01b8552746e1341c3d51eb7c1bfe1bbbfa11d0fb6105f031044b4",
+        "6af39d93481340f8ea0604c75825ca78e1ee087d637badd8338d5e2ac9d52d5c",
         "a0a5d68e444c2333dad8b51f0b06b0b2e9bb775a66e0a9ab9e6403b3a24a1142",
         "ba825fb2ba3ffe475481edde4670e089e625c6292b75cfe805d2cb137cfb3d9d",
         "e3308d2b706272c5c0e7b9d59bb06d7b6cee728a9e6d3ccfd3f9671c539d7b9c",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
       ],
-      "source_sha256": "cb12671d370bdbfdc3889dbd7200b9b466ba0948961f189313c3638ea72d3412",
-      "text": "Den levande bakgrunden: målar en :class:`AmbientEngine` med en övre gräns.\n\nProgrammet visa innehåll sitter framför den, så det tar aldrig fokus, är transparent för mus händelser, och sänker sig till botten av syskon stapla ordning. Det är helt ogenomskinlig - det målar sidan färg (eller temat tapet) sig själv och animation på toppen — så widgeten den täcker har inget att måla om under.\n\n:param parent: överliggande widget; :meth:`follow_parent` storlek den till det.\n:param theme: en av :data:`AMBIENT_THEMES`.\n:param palette: en av :func:`palettes_for` för det temat. En palett som finns men inte erbjuds av temat är nedgraderad till temats standard (stavinställningar får inte bryta en screening); ett okänt namn höjer.\n:param background: den platta färgen under animeringen; standardvärdet är det aktuella temats sidfärg.\n:param backdrop: en bild att måla under animeringen istället för den platta färgen – en väg, en ``QPixmap``/``QImage`` eller ``None``. Ge den till tapeten Space/Cell och animationskompositerna över bilden istället för att ersätta den.\n:param fps: kapsyl med ramsats.\n:param seed: RNG frö, för en reproducerbar animation.\n:param blur: kvar för äldre samtal, visade teman ignorera suddig.\n:param speed: rörelsemultiplikator; ``None`` läser Inställningar.\n:param size: Multiplikator för elementstorlek; ``None`` läser Inställningar.\n:param resolution: hur mycket detaljer är skuggade, som en multiplikator på temats egen buffert; ``None`` läser Inställningar.\n:param density: hur många element som ritas, som en multiplikator på temats egen räkning; ``None`` läser Inställningar.\n:param gravity_radius: pekarens påverkansradie som en andel av skärmens kortare sida; noll stänger av den. ``None`` läser Inställningar.\n:param direction: Vilket sätt stjärnfältet färdas, ett av :data:`DRIFT_DIRECTIONS`; ``None`` läser Inställningar. Meningslöst för de andra temana, och behölls ändå så att byta bort och tillbaka inte förlorar det.\n:param corner_radius: runt bakgrundens egna hörn med så många px; ``0`` lämnar den fyrkantig. CLIPPD, inte maskerad -- en maskregion ger trappade hörn mot kortets anti-aliaserade fälg -- och appliceras innan basen fylls så den platta sidfärgen avrundas med animationen istället för att visas i hörnen bakom den.\nBygg widgeten och starta dess motor.\n\n:param parent: överordnad widget.",
+      "source_sha256": "56244bd108653b0d6a116800bec3f1463ed22a379c48fc24238396b4484fd5e6",
+      "text": "Den levande bakgrunden: målar en :class:`AmbientEngine` med en övre gräns.\n\nProgrammet visa innehåll sitter framför den, så det tar aldrig fokus, är transparent för mus händelser, och sänker sig till botten av syskon stapla ordning. Det är helt ogenomskinlig - det målar sidan färg (eller temat tapet) sig själv och animation på toppen — så widgeten den täcker har inget att måla om under.\n\n:param parent: överliggande widget; :meth:`follow_parent` storlek den till det.\n:param theme: en av :data:`AMBIENT_THEMES`.\n:param palette: en av :func:`palettes_for` för det temat. En palett som finns men inte erbjuds av temat är nedgraderad till temats standard (stavinställningar får inte bryta en screening); ett okänt namn höjer.\n:param background: den platta färgen under animeringen; standardvärdet är det aktuella temats sidfärg.\n:param backdrop: en bild att måla under animeringen istället för den platta färgen – en väg, en ``QPixmap``/``QImage`` eller ``None``. Ge den till tapeten Space/Cell och animationskompositerna över bilden istället för att ersätta den.\n:param fps: kapsyl med ramsats.\n:param seed: RNG frö, för en reproducerbar animation.\n:param blur: kvar för äldre samtal, visade teman ignorera suddig.\n:param speed: rörelsemultiplikator; ``None`` läser Inställningar.\n:param size: Multiplikator för elementstorlek; ``None`` läser Inställningar.\n:param resolution: hur mycket detaljer är skuggade, som en multiplikator på temats egen buffert; ``None`` läser Inställningar.\n:param density: hur många element som ritas, som en multiplikator på temats egen räkning; ``None`` läser Inställningar.\n:param gravity_radius: pekarens påverkansradie som en andel av skärmens kortare sida; noll stänger av den. ``None`` läser Inställningar.\n:param ripples_enabled: oberoende reglage för fältvågor; ``None`` läser Inställningar.\n:param direction: Vilket sätt stjärnfältet färdas, ett av :data:`DRIFT_DIRECTIONS`; ``None`` läser Inställningar. Meningslöst för de andra temana, och behölls ändå så att byta bort och tillbaka inte förlorar det.\n:param corner_radius: runt bakgrundens egna hörn med så många px; ``0`` lämnar den fyrkantig. CLIPPD, inte maskerad -- en maskregion ger trappade hörn mot kortets anti-aliaserade fälg -- och appliceras innan basen fylls så den platta sidfärgen avrundas med animationen istället för att visas i hörnen bakom den.\nBygg widgeten och starta dess motor.\n\n:param parent: överordnad widget.",
       "translation_source_blocks_sha256": [
         "6b2405a57ba40dda2ade8349d89d37b6808755a8bbd7659f9af91f1aed884b3d",
         "c3db299601a29e434ee8a94f92e7f18e5064a7087ab12773187194126c313e4e",
@@ -121446,6 +121539,7 @@
         "580223628aa3fcd8efc7e5386ac7cf28a96a05cb0f9366f435f21792d9692c1f",
         "d190b022b3395a6814985c8e77b5c4f67f397a9fab1b5955295bcc03e5cc221d",
         "3436310acc80e652bf805eb4117bb4201ad6a428ae8286eb940ba2b4739e07ea",
+        "6af39d93481340f8ea0604c75825ca78e1ee087d637badd8338d5e2ac9d52d5c",
         "a0a5d68e444c2333dad8b51f0b06b0b2e9bb775a66e0a9ab9e6403b3a24a1142",
         "ba825fb2ba3ffe475481edde4670e089e625c6292b75cfe805d2cb137cfb3d9d",
         "e3308d2b706272c5c0e7b9d59bb06d7b6cee728a9e6d3ccfd3f9671c539d7b9c",
@@ -121792,6 +121886,20 @@
         "de54510650fb63e4883010d63e199aacefe5df23d1830958f8869ce87960bebd"
       ]
     },
+    "spacr.qt.widgets.ambient.AmbientWidget.set_field_effects": {
+      "source_blocks_sha256": [
+        "3ab37b52759e1af084429c04c332f7b424786034f971f9ad149c4b113fee8a61",
+        "11d07c2fac01fc405bd2e4329516fdc6d345a162e2fd051a2ba6033af98f6b86",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "7431df8c375b24c9228c8036d85c39b120f2c9cb2987f9f7f50c1a0daaf94c57",
+      "text": "Tillämpa sparade Spaceout-fältreglage under renderarens lås.\n\n:param effects: sparade fälteffektreglage med effektnamn som nycklar.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "3ab37b52759e1af084429c04c332f7b424786034f971f9ad149c4b113fee8a61",
+        "11d07c2fac01fc405bd2e4329516fdc6d345a162e2fd051a2ba6033af98f6b86",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
     "spacr.qt.widgets.ambient.AmbientWidget.set_fps": {
       "source_blocks_sha256": [
         "880ead64afe1114fbf89f252f04aed307027fd8e0d3455b82f348271e30c3062",
@@ -121833,13 +121941,13 @@
     "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency": {
       "source_blocks_sha256": [
         "26a044f01b39376310a6f39c590b3d98df1845fb0fe367d0f5bc3f17f34e6cd1",
-        "60a4a0ccf971ad5d4b20041e03f6bf2c0504c4bcc0e5eba53e37b80a02a713b3"
+        "54219878d050ab3ec31a42dec020130355d27f5e8dcfe11ec7f121d655855acf"
       ],
-      "source_sha256": "a1423718ae7a109ebd1ad89bae2f3baabfd19c213b2262f8df3b0f7b47ef6882",
-      "text": "Ändra popupvågorna utan att ändra pekarens räckvidd eller antalet punkter.\n\n:param value: Popupvågor per minut, begränsade till intervallet noll till sextio; noll stänger av popupvågorna.",
+      "source_sha256": "d82747df30ec3816c889ba93691bd0e493b39edf72629a1dd1bc234c945e6199",
+      "text": "Ändra popupvågorna utan att ändra pekarens räckvidd eller antalet punkter.\n\n:param value: popupvågor per minut, begränsat till noll till sextio; noll stänger av återkommande vågor. Det separata rippelreglaget styr enskild återkoppling från klick, behållare och fönster.",
       "translation_source_blocks_sha256": [
         "26a044f01b39376310a6f39c590b3d98df1845fb0fe367d0f5bc3f17f34e6cd1",
-        "60a4a0ccf971ad5d4b20041e03f6bf2c0504c4bcc0e5eba53e37b80a02a713b3"
+        "54219878d050ab3ec31a42dec020130355d27f5e8dcfe11ec7f121d655855acf"
       ]
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_resolution": {
@@ -121852,6 +121960,20 @@
       "translation_source_blocks_sha256": [
         "9994daf02be8dd2710aee3ded03b11904bca18c20ecd4589b43d1187089bfe54",
         "73445b2a76651bf859233ff92614faa93d432650be945f228602acf616379c63"
+      ]
+    },
+    "spacr.qt.widgets.ambient.AmbientWidget.set_ripples_enabled": {
+      "source_blocks_sha256": [
+        "470d4aaa74bc3a0de5449af89b95e9bace96b6d4a0ba9b81a5a02411265dc3a4",
+        "1f68631426669ce7c45559f784d277a418ed66b42939978665c24be07e531bab",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "c7a1d7aa32939024f573e885791168f7ad89a8271979daadec1563091256a4cd",
+      "text": "Slå på eller av alla fältripplar oberoende av musgravitation och dragning.\n\n:param enabled: om återkommande och enskilda fältvågor är aktiverade.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "470d4aaa74bc3a0de5449af89b95e9bace96b6d4a0ba9b81a5a02411265dc3a4",
+        "1f68631426669ce7c45559f784d277a418ed66b42939978665c24be07e531bab",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_size_scale": {
@@ -122915,16 +123037,16 @@
     "spacr.qt.widgets.ambient.dressed": {
       "source_blocks_sha256": [
         "4222e467d867f4e06db7c9f1164b8134ac26fe65248c88f917af4e3e5320480a",
-        "e259ce181e7f96ad11ae9091626ffaac04a7117f22801b359c1e58d092e88a6b",
-        "ede5d8236e9f605e8a37aafe251a345b5c38a29fbae7822824448679695087ae",
+        "631ee58ba663c571da9ec39e249e4b4d25522b82f1d473fc800e2d06fbca89ce",
+        "77e5fe8fd5efee3b8ec5b3cba5c4e7968eba464b3a96092296b11ae321367503",
         "5743784ed039f5d7e7713ccaf0a8bc728884c64ca2e174dabe906ba2a390e100"
       ],
-      "source_sha256": "2b5534ad0d1340bbb6e74ee00e4c51ca536879f6784315e9a917cecf863207f5",
-      "text": "Lös det omgivande temat och paletten för det aktuella startläget.\n\nStandardlanseringar bevarar det önskade paret. Spaceout lanserar retur :data:`SPACEOUT_THEME` och :data:`SPACEOUT_PALETTE`.\n\n:param theme: det begärda temanamnet; returneras som det är om inte spaceout-utsmyckningen är på. Det valideras inte här.\n:param palette: det begärda palettnamnet, som behandlas på samma sätt.",
+      "source_sha256": "6285528aa9e5b8699364d200e64130d03a19630993c6f2acf8584c4de614d12b",
+      "text": "Lös det omgivande temat och paletten för det aktuella startläget.\n\nStandardstarter behåller det begärda paret. En Spaceout-start använder sitt eget sparade val, eller det föränderliga fältet som standard tills ett val har sparats.\n\n:param theme: det begärda temanamnet, som inte valideras här.\n:param palette: det begärda palettnamnet, som behandlas på samma sätt.",
       "translation_source_blocks_sha256": [
         "4222e467d867f4e06db7c9f1164b8134ac26fe65248c88f917af4e3e5320480a",
-        "e259ce181e7f96ad11ae9091626ffaac04a7117f22801b359c1e58d092e88a6b",
-        "ede5d8236e9f605e8a37aafe251a345b5c38a29fbae7822824448679695087ae",
+        "631ee58ba663c571da9ec39e249e4b4d25522b82f1d473fc800e2d06fbca89ce",
+        "77e5fe8fd5efee3b8ec5b3cba5c4e7968eba464b3a96092296b11ae321367503",
         "5743784ed039f5d7e7713ccaf0a8bc728884c64ca2e174dabe906ba2a390e100"
       ]
     },
@@ -122950,6 +123072,26 @@
       "translation_source_blocks_sha256": [
         "a06adba887692559658377c23488b90b345943a1eec2a7d48efa1b2ba32674c2",
         "99444b56c5d77cfab0be041751ccb90b07f5d87c87009ad4d561793277492132"
+      ]
+    },
+    "spacr.qt.widgets.ambient.field_ripple_for_widget": {
+      "source_blocks_sha256": [
+        "24f935a15f7920edf76c6dfe4c6e3de367a2150532e6a6a507f9af7bc7673d4c",
+        "946610545a40a2c64723176bf9e786d78d37a97253e35253aa590b4640aeeebd",
+        "c141181abb8721e0d08d073513c45321584ed365fa406d2aa8398b1556a3c5d7",
+        "a32a95c2343845f7d6b8c8e7431f60cdebc2e0318cd3b71eb2d39c19016778d0",
+        "a2100b3cd319888c0dbc92f4bb1f68d168bd7ece066d14ed213399a159c94147",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "8776bbda38deb7fce21b4db33757332b98e91e363641954706fce61e1e95d46d",
+      "text": "Skicka återkoppling från ett färdigflyttat eller ändrat fönster eller en panel till dess synliga fältbakgrund.\n\n:param widget: widgeten som har ändrat storlek, flyttats eller fällts ihop.\n:param edge: en valfri fönstersida som har fästs vid en kant.\n:param rect: valfri slutlig rektangel i widgetens lokala koordinater.\n:param strength: ett positivt värde aktiverar återkoppling vid släpp; noll stänger av den.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "24f935a15f7920edf76c6dfe4c6e3de367a2150532e6a6a507f9af7bc7673d4c",
+        "946610545a40a2c64723176bf9e786d78d37a97253e35253aa590b4640aeeebd",
+        "c141181abb8721e0d08d073513c45321584ed365fa406d2aa8398b1556a3c5d7",
+        "a32a95c2343845f7d6b8c8e7431f60cdebc2e0318cd3b71eb2d39c19016778d0",
+        "a2100b3cd319888c0dbc92f4bb1f68d168bd7ece066d14ed213399a159c94147",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
     "spacr.qt.widgets.ambient.install_ambient": {
@@ -145242,6 +145384,20 @@
         "4688047fe8880961cf88b47b81b190fe5f4f86610591e2b98f890f41d6a2f99a"
       ]
     },
+    "spacr.qt.widgets.gate_editor.GateCanvas.paintEvent": {
+      "source_blocks_sha256": [
+        "d8584882089a6330878b07027d0c03dd0d0946e0ed89a0464c6352ca502baf5b",
+        "5becae65c722b70a924c0f78511f86f283376c1bf63e07c535dcd323f60a1b9d",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "60b30b1e6c6c4f9a5d2c53d84564c204ce714a872a4379b64919f392eb6e1f94",
+      "text": "Behåll de ritade 2D- eller 3D-punkterna ovanpå en enda enfärgad yta med rundade hörn.\n\n:param event: Qt-ritningshändelsen för denna rityta.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "d8584882089a6330878b07027d0c03dd0d0946e0ed89a0464c6352ca502baf5b",
+        "5becae65c722b70a924c0f78511f86f283376c1bf63e07c535dcd323f60a1b9d",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
     "spacr.qt.widgets.gate_editor.GateCanvas.pending_depth": {
       "source_blocks_sha256": [
         "a858e655ea1500af43a014466db03a29d79b94529a742e038952decebdf87fe5"
@@ -151243,39 +151399,53 @@
     "spacr.qt.widgets.hint_bar": {
       "source_blocks_sha256": [
         "25819d6fcdfdfa844af2c46348883cfd4c06f3982cbbc4d510241043a3a1e979",
-        "36b09d49c947029672e0a9eab6998acb480c554d433dc988e40f08f0c0051fab",
+        "2fd5616facc436d3046886b2656e701b73c94e11276f9418a91d1ca70eba8080",
         "367dd2d04896394da9d9fa3168872b05c4f801459f2dedf410885354ec4483f3",
         "13f868630e69e99b2dcc80c7f0c1bc6d268facf936ab196189a05e5028248261"
       ],
-      "source_sha256": "559c95219a4b2f2f5b6ad47b019a28367adc75c9628b8aef6b465585ac240878",
-      "text": "Fönsternivå, icke-modal svävarhjälp för Qt kontroller.\n\n:class:`HintBar` är en centrerad, ordinsatt etikett som visar registrerad hjälptext medan pekaren är över en grafisk komponent. När pekaren lämnar, återställer den standardmeddelandet bara när den grafiska komponentens text fortfarande visas, och undviker en mellanliggande återställning medan pekare flyttas mellan angränsande kontroller.\n\n:meth:`HintBar.explain` registrerar antingen explicit text eller widgetens nuvarande verktygstips. Framgångsrik registrering rensar verktygsspetsen, tillhandahåller samma text som den tillgängliga beskrivningen endast när ingen tillgänglig beskrivning redan finns, och installerar raden som ett händelsefilter. Källsträngar översätts när de visas. Widgets utan tillgänglig text är inte registrerade.\n\nAnvänd :func:`hint_bar_of` för att lokalisera :class:`HintBar` i en komponents toppnivåfönster, eller :func:`explain_through_the_bar` för registrering av en komponent endast när en sådan bar finns. Baren behåller registreringskartläggningen och händelsefiltret under dess livstid.",
+      "source_sha256": "a8e191b52c8417ad615868bf76962304bdea71b3e3e50445ff63484fc9792324",
+      "text": "Fönsternivå, icke-modal svävarhjälp för Qt kontroller.\n\n:class:`HintBar` håller fyra synliga rader på en fast höjd. Längre hjälp kan rullas inom detta utrymme medan pekaren är över en kontroll. När pekaren lämnar kontrollen återställs standardmeddelandet bara om kontrollens text fortfarande visas, så att inget mellanliggande återställande sker mellan intilliggande kontroller.\n\n:meth:`HintBar.explain` registrerar antingen explicit text eller widgetens nuvarande verktygstips. Framgångsrik registrering rensar verktygsspetsen, tillhandahåller samma text som den tillgängliga beskrivningen endast när ingen tillgänglig beskrivning redan finns, och installerar raden som ett händelsefilter. Källsträngar översätts när de visas. Widgets utan tillgänglig text är inte registrerade.\n\nAnvänd :func:`hint_bar_of` för att lokalisera :class:`HintBar` i en komponents toppnivåfönster, eller :func:`explain_through_the_bar` för registrering av en komponent endast när en sådan bar finns. Baren behåller registreringskartläggningen och händelsefiltret under dess livstid.",
       "translation_source_blocks_sha256": [
         "25819d6fcdfdfa844af2c46348883cfd4c06f3982cbbc4d510241043a3a1e979",
-        "36b09d49c947029672e0a9eab6998acb480c554d433dc988e40f08f0c0051fab",
+        "2fd5616facc436d3046886b2656e701b73c94e11276f9418a91d1ca70eba8080",
         "367dd2d04896394da9d9fa3168872b05c4f801459f2dedf410885354ec4483f3",
         "13f868630e69e99b2dcc80c7f0c1bc6d268facf936ab196189a05e5028248261"
       ]
     },
     "spacr.qt.widgets.hint_bar.HintBar": {
       "source_blocks_sha256": [
-        "204dafcb45bb93726981f4d4097c74d1097685d5457398c57667eb846fbd97ca",
+        "d5207b94271ba9735c7f1ccb8f7521a14de3892cfb1cdc3be78f5c2d10ecccbe",
         "839345dd4a77136ba01a4b38c0d0ad9327833f652504343994672adeeae0ba0b",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "dfe9256f28062f54608c2e4f676b99a46d840d7275b4b06d557451a14aeec19a",
-        "c2e3f9ec1dd1fd67d6a721ef912db917e138b3158424ca5d80116f971ebbba6e",
+        "7b80294cf3ed8ecda92f8b668766485a9cec41d2c09e71170f9bcb901c11061f",
         "2e828e7021ba2fb5623649c36fc73ed13e3177c3481c845396b1f52ace0f9c0f",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "0a499d38df3b15700992b6cb50e32f054ac4d6e199f9a4599be5f745bd837e5e",
-      "text": "Linjen i sig, plus registret över vad varje widget ska säga.\n\n:param default: Vad raden säger när ingenting är hovered. Det återställs när en widget utan registrerat tips tar pekaren, så det bör läsas som en prompt snarare än som en tom.\n:param parent: överordnad widget.\nBygg hjälpremsan som ersätter verktygstips per kontroll.\n\nBundna till tre rader: bandet brukade ta vilken höjd som helst den längsta hjälp som behövdes, så flytta pekaren mellan två kontroller vars hjälp skiljer sig i längd gjorde hela dialogrutan hoppa. Det undviker istället, och hela texten är fortfarande i registret.\n\n:param default: Vad att visa med ingenting svävade.\n:param parent: överordnad widget, eller ``None``.",
+      "source_sha256": "19932788020a11f1e9eb3c3aea64913b0bb781cde6accd62ead1ed85e9cfb916",
+      "text": "En hjälpstrip med fast höjd och registret över vad varje kontroll ska säga.\n\n:param default: Vad raden säger när ingenting är hovered. Det återställs när en widget utan registrerat tips tar pekaren, så det bör läsas som en prompt snarare än som en tom.\n:param parent: överordnad widget.\nBygg hjälpremsan som ersätter verktygstips per kontroll.\n\nFyra rader förblir synliga: dialogens layout kan inte ändras när pekaren flyttas mellan kontroller. Längre eller översatt hjälp rullas inne i strippen utan att hela texten eller tillgänglighetsbeskrivningen går förlorad.\n\n:param default: Vad att visa med ingenting svävade.\n:param parent: överordnad widget, eller ``None``.",
       "translation_source_blocks_sha256": [
-        "204dafcb45bb93726981f4d4097c74d1097685d5457398c57667eb846fbd97ca",
+        "d5207b94271ba9735c7f1ccb8f7521a14de3892cfb1cdc3be78f5c2d10ecccbe",
         "839345dd4a77136ba01a4b38c0d0ad9327833f652504343994672adeeae0ba0b",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "dfe9256f28062f54608c2e4f676b99a46d840d7275b4b06d557451a14aeec19a",
-        "c2e3f9ec1dd1fd67d6a721ef912db917e138b3158424ca5d80116f971ebbba6e",
+        "7b80294cf3ed8ecda92f8b668766485a9cec41d2c09e71170f9bcb901c11061f",
         "2e828e7021ba2fb5623649c36fc73ed13e3177c3481c845396b1f52ace0f9c0f",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+      ]
+    },
+    "spacr.qt.widgets.hint_bar.HintBar.changeEvent": {
+      "source_blocks_sha256": [
+        "220b2ae74fbeea705fcbf83e05850b358d8c20d3db18754b6f15444927b83b04",
+        "da6bc51029733d6b613833eb912947007f71121cc83717a338e79cec8eddb65a",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "c47c03398614574982aaf9798a9148b61243513d34fe9656640767ed59f8fa89",
+      "text": "Håll de fyra reserverade raderna i takt med teckensnittet som används vid ritning.\n\n:param event: Qt-händelsen för ändring av teckensnitt eller stil.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "220b2ae74fbeea705fcbf83e05850b358d8c20d3db18754b6f15444927b83b04",
+        "da6bc51029733d6b613833eb912947007f71121cc83717a338e79cec8eddb65a",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
     "spacr.qt.widgets.hint_bar.HintBar.count": {
@@ -151340,6 +151510,40 @@
       "text": "Säg standard igen.",
       "translation_source_blocks_sha256": [
         "309e22344c4a7aac26e4d76f5529c05a7f1d1460af307e8617383ab54c9d8346"
+      ]
+    },
+    "spacr.qt.widgets.hint_bar.HintBar.setText": {
+      "source_blocks_sha256": [
+        "560339e109e15b3be98eae004f0feac35f6d411a141deeb235bc578e3da02221",
+        "d89ffa9b070180e18730babbfd7ec0b896b03a4b08ea2449227b7e7a17e0e66a"
+      ],
+      "source_sha256": "1ac7beb8de695024103426463e8bee445d2d62977f17fdb000768702f7468c6d",
+      "text": "Visa all hjälp i strippen med fast höjd och rulla när den överstiger fyra rader.\n\n:param text: den fullständiga översatta hjälpmeningen.",
+      "translation_source_blocks_sha256": [
+        "560339e109e15b3be98eae004f0feac35f6d411a141deeb235bc578e3da02221",
+        "d89ffa9b070180e18730babbfd7ec0b896b03a4b08ea2449227b7e7a17e0e66a"
+      ]
+    },
+    "spacr.qt.widgets.hint_bar.HintBar.showEvent": {
+      "source_blocks_sha256": [
+        "579409fa0cb9c5d51a325c1c37b6a98e58fa3febb229ec990883e7ce22cd1efe",
+        "cfb5f62d44a9ab0f88142bb225ab68ba3158b01cacc7eddbfdd3f1b2a165013c"
+      ],
+      "source_sha256": "a8fd81440a349f5996fb9bdc4ff7929e4f2efd7d0fa3421caf8d4c32ea121715",
+      "text": "Återställ en sparad höjd när layouten för Inställningar har mätts.\n\n:param event: Qt-visningshändelsen.",
+      "translation_source_blocks_sha256": [
+        "579409fa0cb9c5d51a325c1c37b6a98e58fa3febb229ec990883e7ce22cd1efe",
+        "cfb5f62d44a9ab0f88142bb225ab68ba3158b01cacc7eddbfdd3f1b2a165013c"
+      ]
+    },
+    "spacr.qt.widgets.hint_bar.HintBar.text": {
+      "source_blocks_sha256": [
+        "33f46b7895c2a1ad0131bff0a8c1f2d6d733b22126160af5b322fed2e8bdb1a3"
+      ],
+      "source_sha256": "33f46b7895c2a1ad0131bff0a8c1f2d6d733b22126160af5b322fed2e8bdb1a3",
+      "text": "Returnera hela meningen som för närvarande visas i strippen.",
+      "translation_source_blocks_sha256": [
+        "33f46b7895c2a1ad0131bff0a8c1f2d6d733b22126160af5b322fed2e8bdb1a3"
       ]
     },
     "spacr.qt.widgets.hint_bar.explain_through_the_bar": {
@@ -153774,24 +153978,18 @@
         "bd7d1218443af93a909f7d7eba6af06b973c52a4057cf01e21ca633921c1741f"
       ]
     },
-    "spacr.qt.widgets.live_preview.LiveSettingsDialog.closeEvent": {
+    "spacr.qt.widgets.live_preview.LiveSettingsDialog.done": {
       "source_blocks_sha256": [
-        "cd9be7bce786f998cf3d5113b814b7afad688532c30d7e20fdf522855a8d6fb2",
-        "e1c67d5df5bdb7d0526672141e8e570fcb66f0bb7ee83150d24a65b1773ee2a3",
-        "f6626d38b22ee0222df8785d8a54345c77850bf6bee1d6f68565c4a7feac60a3",
-        "1ff37d6ac2220b6dde71cb1505e76eb631a4ace37b9323f4ec4586f675626632",
-        "a71d83b14bcb68b723ca4caf9c4035319bb772248b144893190e53d9e7794a0c",
-        "bba080af9f117192497888e406a7b09f10fd30e09239fd7b6472cdeb1ee259fc"
+        "3bbefaf5c9d9789956f33c5849fd27224f0d460270dbb0f4ea8be1326e546188",
+        "ba9bb52c4cbe50c139ee4d383784c0977e2703071c4f0ebdddeb3b53159aabf3",
+        "f2f64455b0bf369837ffe612b440a7477648aaf5ff9bd0061b6dc11a6d45dba4"
       ],
-      "source_sha256": "d2fed8db2beca0898fbdaee2c304f3d556160cf02b251e6e1a9e4d3b838b27bd",
-      "text": "Ge tillbaka varje panelkontroll denna dialogruta lånad, inte bara de deklarerade.\n\nQt förstör en dialogrutas barn med den, så allt av panelen är fortfarande föräldraskapt under dialogrutan när den går skulle gå med den. Kontrollerna är PANEL: s och överleva dialogrutan genom design – deras värden är vad användaren avstämde.\n\n`_managed_widgets()` är den deklarerade listan och det var INKOMPLETE: `_pathogen_channel`, `_organelle_channel` och `_model_zoo_btn` läggs ut här också och var inte med i den, så efter att ha öppnat och stängt satt de föräldraskap till en gruppruta som hör till en stängd dialogruta. Ingenting misslyckades – de överlevde, eftersom panelen fortfarande innehöll Python referenser – vilket är exakt varför det gick obemärkt.\n\nSå svepet är av IDENTITET snarare än av listan: varje komponent som fortfarande finns under dialogrutan som panelen har ett attribut för går tillbaka. Blunt med flit, som `LivePreviewPanel._stow_free_widgets`, så en kontroll som läggs till i en rad senare täcks utan att någon kommer ihåg att lägga till den här också.\n\nDe går till `_offscreen_controls` och inte till panelen: upp till panelen utan layout sitter var och en på (0, 0) över den laddade sökvägens etikett, som hålls utanför skärmen av ingenting annat än `hide()`.\n\n:param event: stängningshändelsen; skickas till basklassen när varje lånad kontroll har lämnats tillbaka.",
+      "source_sha256": "d494b36a63826565afccd535ac2c634e8b8b008082d9811d1ab27d7578056f5d",
+      "text": "Återlämnar lånade kontroller och kopplar bort prenumerationer vid varje avslut.\n\nQt förstör en dialogs underordnade widgetar när dialogen förstörs. Panelens kontroller som fortfarande ligger under den här dialogen när den avslutas skulle därför också förstöras. Kontrollerna tillhör panelen och behåller sina värden efter Close, Escape, accept, reject och ett uttryckligt avslut. Återställning i ``done`` omfattar även avslut som inte skickar någon stängningshändelse. En redan avslutad dialog kan inte flytta kontroller från en ersättningsdialog.\n\n:param result: Dialogresultat som skickas till Qt efter att kontrollerna återvänt till panelens dolda förvaringsbehållare.",
       "translation_source_blocks_sha256": [
-        "cd9be7bce786f998cf3d5113b814b7afad688532c30d7e20fdf522855a8d6fb2",
-        "e1c67d5df5bdb7d0526672141e8e570fcb66f0bb7ee83150d24a65b1773ee2a3",
-        "f6626d38b22ee0222df8785d8a54345c77850bf6bee1d6f68565c4a7feac60a3",
-        "1ff37d6ac2220b6dde71cb1505e76eb631a4ace37b9323f4ec4586f675626632",
-        "a71d83b14bcb68b723ca4caf9c4035319bb772248b144893190e53d9e7794a0c",
-        "bba080af9f117192497888e406a7b09f10fd30e09239fd7b6472cdeb1ee259fc"
+        "3bbefaf5c9d9789956f33c5849fd27224f0d460270dbb0f4ea8be1326e546188",
+        "ba9bb52c4cbe50c139ee4d383784c0977e2703071c4f0ebdddeb3b53159aabf3",
+        "f2f64455b0bf369837ffe612b440a7477648aaf5ff9bd0061b6dc11a6d45dba4"
       ]
     },
     "spacr.qt.widgets.live_preview.LiveSettingsDialog.refresh_visibility": {
@@ -190950,6 +191148,16 @@
         "dc249d9148915600362b8b17ca063a149dc5f7c318e4c08973dc792065ad8145"
       ]
     },
+    "spacr.sim._commit_simulation_packet.dispatch": {
+      "source_blocks_sha256": [
+        "6f0194324df7e1e7ed7d851b1384648c691264a75f367b8ab7681380a6060bd1"
+      ],
+      "source_sha256": "6f0194324df7e1e7ed7d851b1384648c691264a75f367b8ab7681380a6060bd1",
+      "text": "Skriv en insamlad simuleringsdatatabell genom den vanliga tabellskrivaren.",
+      "translation_source_blocks_sha256": [
+        "6f0194324df7e1e7ed7d851b1384648c691264a75f367b8ab7681380a6060bd1"
+      ]
+    },
     "spacr.sim._simulation_unit_bytes._largest": {
       "source_blocks_sha256": [
         "1ab961ccc90ca17a00a0e352b93a9f5242b713a996cfab37fea39875a225064e"
@@ -191629,17 +191837,21 @@
     "spacr.sim.run_multiple_simulations": {
       "source_blocks_sha256": [
         "19302a23981770f4a24a6fce2c6cbdc900c607535f882fde009a8478d388204f",
-        "1570b3dd21b3868aca34917e47c27a88047a89a861a9a4db1db18825d21dac23",
-        "361562dbfc69fc1087b39308d2cada734291452e428270b69f1f23203ae96614",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+        "5def515be7c222af9281dbefe1296d4477789df6254a9f547d25ecbae2eed3f7",
+        "b83a9f6992b769845ad2479f065c8109a5d364ff0c1d321f1927f5abf56aa87a",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+        "0904ecd06f1e572d8913468a6f0e473feb738bbb9670ff29bd5b7fb767327f65",
+        "9c519a8988a8e0fe1a218355d4566670e3e799a81ec4e9213930be3260d086f9"
       ],
-      "source_sha256": "38a776efefe7a669c5e74482be69d5249d59c15b48a69c81ce304b88c3068a0d",
-      "text": "Fläcka ut svepet från :func:`generate_parameters` över en processpool.\n\nAnvänder en ``multiprocessing.Pool`` med ``max_workers`` (eller ``cpu_count()-4``) worker-processer, skriver ut en förloppslinje och driver varje arbetstagare genom :func:`run_and_save`.\n\n:param settings: Sweep-inställningar mappning av nyckelvärde. Måste inkludera ``max_workers``.\n:returns: None.",
+      "source_sha256": "3a4ddcb131af2d94e7b64e93dca87ab263ca3e402bb868fb4b16f66273c98a69",
+      "text": "Fläcka ut svepet från :func:`generate_parameters` över en processpool.\n\nBeräkningsarbetarna startar med tio sekunders mellanrum och kör :func:`run_and_save` med insamlade databasoperationer. En skrivare som ägs av föräldraprocessen bekräftar varje komplett simulering och dess omförsöksbiljett atomiskt. Uttrycklig resursöverbelastning får ett seriellt omförsök efter att alla primära uppgifter har avslutats; databasöverbelastning använder skrivarens separata slutkö. Ogiltiga data och avbrytanden försöks inte igen. En misslyckad simulering eller slutlig databasskrivning ger ett fel i stället för att rapportera en lyckad parametersvepning.\n\n:param settings: Ordbok med svepinställningar. Måste innehålla ``max_workers``. ``database_write_queue_gib`` kan åsidosätta den sparade RAM-budgeten för kön, från noll till 64 GiB; noll buffrar serialiserade paket på disk. Vid avbrott finns väntande paket kvar under den daterade utdatakatalogen.\n:returns: None.\n:raises ValueError: om köns RAM-budget är ogiltig.\n:raises RuntimeError: om en slutlig databasskrivning misslyckas. Beräkningsfel vidarebefordras med sin ursprungliga undantagstyp.",
       "translation_source_blocks_sha256": [
         "19302a23981770f4a24a6fce2c6cbdc900c607535f882fde009a8478d388204f",
-        "1570b3dd21b3868aca34917e47c27a88047a89a861a9a4db1db18825d21dac23",
-        "086999a0f9e3277cc05f0d1f1513d9e23128715e460d797db3452a8f0ae95b2f",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+        "6d716581b0e9fe1eccbf1e1d0e33d2ebc07c97aa8f1bc92f71992e823609829c",
+        "42c177ac9d62d07108ceb9d7e43e4b26bbc8a97fe2cf2362ff2a19e2bd5edf56",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+        "3ced5f7badf61c208de74307a9dc0cd74c728d68b4c45cac465b66524c56edda",
+        "9c519a8988a8e0fe1a218355d4566670e3e799a81ec4e9213930be3260d086f9"
       ]
     },
     "spacr.sim.run_simulation": {

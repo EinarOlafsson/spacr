@@ -22,7 +22,8 @@ from sklearn.metrics import precision_recall_curve, auc, average_precision_score
     
 
 from torchvision import transforms
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import Subset
+from .resource_log import _parallel_data_loader as DataLoader
 
 from .errors import RunLedger
 from .classification_pixels import checkpoint_policy, initialization_policy, training_preprocessing

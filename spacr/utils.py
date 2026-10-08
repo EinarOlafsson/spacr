@@ -128,7 +128,8 @@ from typing import Optional, Any
 from .image_colors import read_image_rgb, write_image_rgb
 from .measurement_schema import MEASUREMENT_STAMP_COLUMNS
 
-from multiprocessing import Pool, cpu_count, set_start_method, get_start_method
+from multiprocessing import cpu_count, set_start_method, get_start_method
+from .resource_log import _parallel_pool as Pool
 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -435,7 +436,6 @@ from functools import wraps
 
 from skimage.segmentation import watershed
 from skimage.feature import peak_local_max
-from joblib import Parallel, delayed
 import tifffile
 
 from . import schema, tabular
@@ -847,21 +847,20 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
         intensity_paths = [None] * len(mask_files)
 
     total = len(mask_paths)
-    from .resource_log import _array_file_nbytes, _guard_workers
+    from .resource_log import (_array_file_nbytes, _guard_workers,
+                               _parallel_cloudpickle_map)
     n_jobs = _guard_workers('merge_split', n_jobs,
                             _array_file_nbytes(mask_paths[0]))
 
-    Parallel(n_jobs=n_jobs)(
-        delayed(_process_single_fov)(
-            mp, ip, intensity_channel,
+    _parallel_cloudpickle_map((
+        (_process_single_fov, (mp, ip, intensity_channel,
             do_perimeter_merge, perimeter_fraction,
             min_area, max_area, remove_border_objects,
-            progress_callback, idx, total, op_name,
-            min_intensity=min_intensity, max_intensity=max_intensity,
-            filters=filters,
-        )
+            progress_callback, idx, total, op_name), {
+                'min_intensity': min_intensity, 'max_intensity': max_intensity,
+                'filters': filters})
         for idx, (mp, ip) in enumerate(zip(mask_paths, intensity_paths))
-    )
+    ), n_jobs)
 
 def _process_single_fov(mask_path, intensity_path, intensity_channel,
                         do_perimeter_merge, perimeter_fraction,
@@ -888,9 +887,34 @@ def _process_single_fov(mask_path, intensity_path, intensity_channel,
         min_intensity=min_intensity, max_intensity=max_intensity,
         filters=filters,
     )
-    _save_image(mask_path, filtered)
+    import tempfile
+    import stat
+
+    descriptor, temporary = tempfile.mkstemp(
+        prefix='.spacr-mask-', suffix=os.path.splitext(mask_path)[1],
+        dir=os.path.dirname(os.path.abspath(mask_path)))
+    os.close(descriptor)
+    try:
+        _save_image(temporary, filtered)
+        with open(temporary, 'rb') as handle:
+            os.fsync(handle.fileno())
+        os.chmod(temporary, stat.S_IMODE(os.stat(mask_path).st_mode))
+        os.replace(temporary, mask_path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
     if progress_callback:
-        progress_callback(fov_index, total_fovs, time.time() - start, op_name)
+        try:
+            progress_callback(fov_index, total_fovs, time.time() - start, op_name)
+        except Exception as error:
+            from .runctx import _is_overload_failure
+
+            if not _is_overload_failure(error):
+                raise
+            import logging
+
+            logging.getLogger(__name__).warning(
+                'Mask saved; progress notification overloaded: %s', error)
 
 def _organelle_diagnostic(img, morphology, method, settings):
     """
@@ -2677,6 +2701,11 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
             nucleus, or pathogen frame violates its canonical identity,
             provenance, feature-namespace, or cardinality contract.
         """
+        from .database_concurrency import _capture_write_operation
+        if _capture_write_operation('merge', (
+                morph_df, intensity_df, table_type, source_folder, file_name,
+                experiment, timelapse, stamp, store)):
+            return
         morph_df = _check_integrity(morph_df)
         intensity_df = _check_integrity(intensity_df)
         if len(morph_df) == 0:
@@ -2952,6 +2981,9 @@ def _append_to_measurements_db(db_path, table, frame, required=True,
         :func:`spacr.tabular.write_database`. ``None`` writes SQLite only.
     :raises sqlite3.OperationalError: when every attempt fails and ``required``.
     """
+    from .database_concurrency import _capture_write_operation, _inside_write_packet
+    if _capture_write_operation('append', (db_path, table, frame, required, store)):
+        return
     delay = 0.2
     attempt = 1
     while True:
@@ -2966,10 +2998,12 @@ def _append_to_measurements_db(db_path, table, frame, required=True,
             break
         except sqlite3.OperationalError as e:
             if 'locked' not in str(e).lower():
+                if _inside_write_packet(db_path):
+                    raise
                 print(f"SQLite error writing {table}: {e}")
                 return
             if attempt == DB_WRITE_ATTEMPTS:
-                if required:
+                if required or _inside_write_packet(db_path):
                     raise
                 print(f"giving up writing {table} after "
                       f"{DB_WRITE_ATTEMPTS} attempts: {e}")
@@ -4656,7 +4690,7 @@ def augment_images(file_paths, dst):
                              _array_file_nbytes(args_list[0][0]))
     workers = max(1, min(int(workers), len(args_list)))
 
-    pool = _augment_pool_context().Pool(workers)
+    pool = Pool(workers, context=_augment_pool_context())
     try:
         pool.map(augment_single_image, args_list)
     finally:

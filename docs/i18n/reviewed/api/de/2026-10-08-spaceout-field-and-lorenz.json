@@ -1,0 +1,41 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "If True, drop names whose number of observations falls outside a fence extending 1.5 times the 5th-to-95th-percentile spread of group sizes. Count values do not enter this filter. Default ``False``.",
+      "label": "spacr.plot.plot_lorenz_curves#7",
+      "source": "If True, drop names whose number of observations falls outside a fence extending 1.5 times the 5th-to-95th-percentile spread of group sizes. Count values do not enter this filter. Default ``False``.",
+      "source_sha256": "8a72d42185932f35114de027f8e78438bf2eab1cca905810bcb48236234953d1",
+      "translation": "Bei True werden Namen entfernt, deren Anzahl an Beobachtungen außerhalb einer Grenze liegt, die sich um das 1,5-Fache der Spanne zwischen dem 5. und 95. Perzentil der Gruppengrößen erstreckt. Die Zählwerte gehen nicht in diesen Filter ein. Standardwert ``False``."
+    },
+    {
+      "context": "The command starts the standard :func:`spacr.qt.run` application with a contrast-checked spectral palette and evolving field animation. The mode is process-local: it is not stored as a preference and does not alter subsequent standard launches. Existing animation preferences remain effective, including the option to disable ambient animation. It is also the only mode with sound: Preferences shows its Sound tab (and its Fractal tab) only here, and ordinary spaCR plays nothing whatever the stored sound settings say.",
+      "label": "spacr.qt.spaceout#1",
+      "source": "The command starts the standard :func:`spacr.qt.run` application with a contrast-checked spectral palette and evolving field animation. The mode is process-local: it is not stored as a preference and does not alter subsequent standard launches. Existing animation preferences remain effective, including the option to disable ambient animation. It is also the only mode with sound: Preferences shows its Sound tab (and its Fractal tab) only here, and ordinary spaCR plays nothing whatever the stored sound settings say.",
+      "source_sha256": "63b31e268423b94899009ead0f9c6c4d24f204c7f3195d7cb9cd9d8890a2dc9d",
+      "translation": "Der Befehl startet die Standardanwendung :func:`spacr.qt.run` mit einer auf Kontrast geprüften Spektralpalette und einer sich entwickelnden Feldanimation. Der Modus gilt nur für diesen Prozess: Er wird nicht als Einstellung gespeichert und verändert spätere Standardstarts nicht. Vorhandene Animationseinstellungen bleiben wirksam, einschließlich der Möglichkeit, die Hintergrundanimation abzuschalten. Dies ist außerdem der einzige Modus mit Ton: Die Einstellungen zeigen ihren Reiter Ton (und ihren Reiter Fraktal) nur hier; normales spaCR spielt unabhängig von den gespeicherten Toneinstellungen nichts ab."
+    },
+    {
+      "context": "Apply saved Spaceout field switches under the renderer's lock.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_field_effects#0",
+      "source": "Apply saved Spaceout field switches under the renderer's lock.",
+      "source_sha256": "3ab37b52759e1af084429c04c332f7b424786034f971f9ad149c4b113fee8a61",
+      "translation": "Gespeicherte Spaceout-Feldschalter unter der Sperre des Renderers anwenden."
+    },
+    {
+      "context": "saved field-effect switches keyed by effect name.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_field_effects#1",
+      "source": "saved field-effect switches keyed by effect name.",
+      "source_sha256": "11d07c2fac01fc405bd2e4329516fdc6d345a162e2fd051a2ba6033af98f6b86",
+      "translation": "gespeicherte Feldeffektschalter mit Effektnamen als Schlüssel."
+    },
+    {
+      "context": "Standard launches preserve the requested pair. A Spaceout launch uses its own stored selection, or defaults to the evolving field before one is saved.",
+      "label": "spacr.qt.widgets.ambient.dressed#1",
+      "source": "Standard launches preserve the requested pair. A Spaceout launch uses its own stored selection, or defaults to the evolving field before one is saved.",
+      "source_sha256": "631ee58ba663c571da9ec39e249e4b4d25522b82f1d473fc800e2d06fbca89ce",
+      "translation": "Standardstarts behalten das angeforderte Paar bei. Ein Spaceout-Start verwendet seine eigene gespeicherte Auswahl oder standardmäßig das sich entwickelnde Feld, solange keine Auswahl gespeichert wurde."
+    }
+  ],
+  "schema": 1
+}

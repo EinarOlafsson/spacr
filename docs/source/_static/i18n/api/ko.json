@@ -216,6 +216,16 @@
         "a68f1d91e3d19e4b7dfe89f0480efd933d7597aa8c5b4730f6060de20da7bc6e"
       ]
     },
+    "spacr._mask_workers._run_mask_workers.run_group": {
+      "source_blocks_sha256": [
+        "4052295c785b7844536496fdb155bce5817616f0b529a8eac4f5fcd47a5681cc"
+      ],
+      "source_sha256": "4052295c785b7844536496fdb155bce5817616f0b529a8eac4f5fcd47a5681cc",
+      "text": "기본 작업 그룹 또는 순차적인 최종 작업 그룹의 모든 구성원이 종료될 때까지 기다립니다.",
+      "translation_source_blocks_sha256": [
+        "4052295c785b7844536496fdb155bce5817616f0b529a8eac4f5fcd47a5681cc"
+      ]
+    },
     "spacr._mask_workers._worker_figures.publish": {
       "source_blocks_sha256": [
         "d263c266a19ac5be96f3658af0b3f86ad1ee06695b320eb7f6deb87b6fab0743"
@@ -20420,11 +20430,11 @@
         "f1ec315b0ef992a6ab8e0a1766dcc6f2216daea3e42855b815e57285c0f2f3bb",
         "04db7ece52b63c560da2ece2be3ee1cda13e764890743e4124ff84ea4fcebbf3",
         "d731f26ccc25ffad7a39e0bb855284bf3e46ae6245a766e78756dc8eca1a2760",
-        "7451fe517efc51a737a9591a521e006483d674afb04469f516acb417f157caec",
+        "ebe0943c952d3e79635549fcf653b39cfeb6ab33605cb0f0ac92506e65702f9b",
         "16e7c9acda5794a52cb74887d6105259230e33ec114004b776f0b08c4e8935cf"
       ],
-      "source_sha256": "3b3e51c388c01e7bdc1b0fb80197cf9822284e2e28498b1e7fb469074f06e12d",
-      "text": "독립적 인 실행 경로를 호출하는 소유 한 하나의 구성 연결을 열어줍니다.\n\n:param path: SQLite 데이터베이스 경로.\n:param readonly: URI ``mode=ro`` 및 ``query_only=ON``로 열립니다.\n:param timeout: SQLite 가 잠금 작업 안에서 대기하는 시간(초)입니다.\n:param journal_mode: 선택적 명시 ``\"WAL\"`` 또는 ``\"DELETE\"``. 데이터베이스의 현재 모드를 유지하지 마십시오. WAL은 공유/NFS 저장소에서 눈이 멀게 활성화되어서는 안됩니다; 먼저 :func:`filesystem_type` 또는 경쟁 탐색기를 사용합니다.\n:param foreign_keys: 회전을 다 SQLite 이 연결을 위한 외국 키 체크. SQLite 이러한 체크는 각 연결에 대해 방해됩니다.\n:returns: 연결은 자동으로 시작하는 모드; :func:`transaction`를 사용하여 여러 문서 작성.\n:raises DatabaseConfigurationError: 불안정한 / 지원되지 않은 요청된 잡지 모드 또는 SQLite 그것을 적용하는 것을 거부합니다.",
+      "source_sha256": "81ebb05c0fc681c5995f1bc82d6983f2a1ca994e318fa094f2fd75d72acfe4f9",
+      "text": "독립적 인 실행 경로를 호출하는 소유 한 하나의 구성 연결을 열어줍니다.\n\n:param path: SQLite 데이터베이스 경로.\n:param readonly: URI ``mode=ro`` 및 ``query_only=ON``로 열립니다.\n:param timeout: SQLite 가 잠금 작업 안에서 대기하는 시간(초)입니다.\n:param journal_mode: 선택적 명시 ``\"WAL\"`` 또는 ``\"DELETE\"``. 데이터베이스의 현재 모드를 유지하지 마십시오. WAL은 공유/NFS 저장소에서 눈이 멀게 활성화되어서는 안됩니다; 먼저 :func:`filesystem_type` 또는 경쟁 탐색기를 사용합니다.\n:param foreign_keys: 회전을 다 SQLite 이 연결을 위한 외국 키 체크. SQLite 이러한 체크는 각 연결에 대해 방해됩니다.\n:returns: 자동 커밋 모드의 연결입니다. 여러 SQL 문을 쓰려면 :func:`transaction`을 사용하세요. 원자적으로 처리되는 대기 중 쓰기에서 같은 데이터베이스의 보조 함수는 쓰기 스레드의 활성 연결을 재사용하며, 전체 이미지 시야의 커밋이 완료될 때까지 각 커밋과 연결 종료를 미룹니다.\n:raises DatabaseConfigurationError: 불안정한 / 지원되지 않은 요청된 잡지 모드 또는 SQLite 그것을 적용하는 것을 거부합니다.",
       "translation_source_blocks_sha256": [
         "4c70c0f5e25f763c81124cfe0b12cad220fa05e0449bc566ae700d310d0ffcca",
         "ae3ab4df63ffcd920513b692f16b41850977e018504315873076deda5dcc06d1",
@@ -20432,7 +20442,7 @@
         "f1ec315b0ef992a6ab8e0a1766dcc6f2216daea3e42855b815e57285c0f2f3bb",
         "04db7ece52b63c560da2ece2be3ee1cda13e764890743e4124ff84ea4fcebbf3",
         "19616110cd1bd96c631f0c41ce94ddb5e90659ef0d3a8e2d491a45031bde2306",
-        "7451fe517efc51a737a9591a521e006483d674afb04469f516acb417f157caec",
+        "99de905bcc1ba9ab0ec3e3090a230d64604690e6b3da934c9b5ea96be77b227e",
         "16e7c9acda5794a52cb74887d6105259230e33ec114004b776f0b08c4e8935cf"
       ]
     },
@@ -20549,10 +20559,10 @@
         "5e0e3b553903a00524b45754601b9c70d4527846c95f259b2842e40d3a82da87",
         "65fa199a990ef7828fac0cdb761ecfa1930c3823346a578c0c302bf74e7a12a3",
         "1a6c9bf1890d271f4dc8d8f3042beb1eb105cb7b6a2b4e50aeee55dc68e6b2fc",
-        "89414cabc7a1f77766424a334083261b016f26143a1a1fb04a5c50566c944fa1"
+        "e5e036b663d76d2ac4242bd4762a39b992308b7408b639de920edecd760bd72f"
       ],
-      "source_sha256": "9e0a57e656d78b97e0eda00589be7f73f4d54106e5362e3c57e0e5e2d49a51da",
-      "text": "모든 또는 아무것도 거래를 제한된 잠금 회수로 실행합니다.\n\n오직 ``BEGIN`` 거래가 시작되면, 개별 진술을 철회하면 이전 글을 복제 할 수 있습니다.모든 신체 또는 실수를 저지르는 것은 전체 거래를 뒤로 돌리고 확산합니다.\n\n:param connection: 독립적 인 실행 경로의 오픈 자율주행 연결을 호출합니다.\n:param mode: ``DEFERRED``, ``IMMEDIATE`` (기본) 또는 ``EXCLUSIVE``.\n:param attempts: 거래를 얻기 위한 최대의 시도.\n:param initial_delay: 첫 번째 닫기 실패 사이의 배경.\n:param maximum_delay: 캡 캡\n:param busy_timeout: 전체 이 거래는 SQLite 내부의 잠금을 기다리고, ``attempts``에 공유하고 시도 당 ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS``로 번성 할 수 있습니다. 연결이 구성된 ``busy_timeout``를 상속하는 것을 잊어 버리십시오; 글자의 자신의 관용이 ``timeout`` 연결이 열렸던 것과 다르면 통과합니다.\n:raises DatabaseBusy: 닫기에서 은퇴 예산을 지불하는 경우.\n:raises RuntimeError: 적극적인 거래를 통해서 망설임을 요구한다.",
+      "source_sha256": "36b03bb81f1de991464bdbf6d61edbc1d9ab8ada43b80a9c52c65f24debc2baf",
+      "text": "모든 또는 아무것도 거래를 제한된 잠금 회수로 실행합니다.\n\n오직 ``BEGIN`` 거래가 시작되면, 개별 진술을 철회하면 이전 글을 복제 할 수 있습니다.모든 신체 또는 실수를 저지르는 것은 전체 거래를 뒤로 돌리고 확산합니다.\n\n:param connection: 독립적 인 실행 경로의 오픈 자율주행 연결을 호출합니다.\n:param mode: ``DEFERRED``, ``IMMEDIATE`` (기본) 또는 ``EXCLUSIVE``.\n:param attempts: 거래를 얻기 위한 최대의 시도.\n:param initial_delay: 첫 번째 닫기 실패 사이의 배경.\n:param maximum_delay: 캡 캡\n:param busy_timeout: 전체 이 거래는 SQLite 내부의 잠금을 기다리고, ``attempts``에 공유하고 시도 당 ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS``로 번성 할 수 있습니다. 연결이 구성된 ``busy_timeout``를 상속하는 것을 잊어 버리십시오; 글자의 자신의 관용이 ``timeout`` 연결이 열렸던 것과 다르면 통과합니다.\n:raises DatabaseBusy: 닫기에서 은퇴 예산을 지불하는 경우.\n:raises RuntimeError: 쓰기 담당자가 관리하는 패킷 밖의 활성 트랜잭션 안에서 중첩을 요청할 때입니다. 대기 중 보조 함수의 트랜잭션은 해당 패킷 안에서 저장점을 사용합니다.",
       "translation_source_blocks_sha256": [
         "9306dbcc912f01b994274561d09e643554267dc9dd0c5bb628dc18f9a68d51b7",
         "64156d0ab431b4f100e0e71f530a4d2d63b7040c72623049775382c118bcfeaf",
@@ -20563,7 +20573,7 @@
         "5e0e3b553903a00524b45754601b9c70d4527846c95f259b2842e40d3a82da87",
         "65fa199a990ef7828fac0cdb761ecfa1930c3823346a578c0c302bf74e7a12a3",
         "1a6c9bf1890d271f4dc8d8f3042beb1eb105cb7b6a2b4e50aeee55dc68e6b2fc",
-        "89414cabc7a1f77766424a334083261b016f26143a1a1fb04a5c50566c944fa1"
+        "e5e036b663d76d2ac4242bd4762a39b992308b7408b639de920edecd760bd72f"
       ]
     },
     "spacr.database_concurrency.wal_is_safe_here": {
@@ -45004,6 +45014,18 @@
         "beae0390bf53ee34a2347b13ac8b0dceb04fceec38e1503e162642883016d901"
       ]
     },
+    "spacr.measure._commit_measure_packet.dispatch": {
+      "source_blocks_sha256": [
+        "a7f12d2162ba4af15caacea44d9950a67a7c6769ab8b6532dfe6c0d16398e901",
+        "62290849baf7cea7152f2e1b4afdacbb6e6344072c15f1e2dbfff0a497ae83b9"
+      ],
+      "source_sha256": "d9d59e9a858fb747e1b7d449e40b1c3f07263bd3dde3c1569d9d074eade450a5",
+      "text": "허용된 작업 하나를 패킷의 중앙 데이터베이스에 저장합니다.\n\n:param operation: 허용된 보조 함수 이름, 위치 인수 및 키워드 인수입니다.",
+      "translation_source_blocks_sha256": [
+        "a7f12d2162ba4af15caacea44d9950a67a7c6769ab8b6532dfe6c0d16398e901",
+        "62290849baf7cea7152f2e1b4afdacbb6e6344072c15f1e2dbfff0a497ae83b9"
+      ]
+    },
     "spacr.measure._confluency_phase_features.log_sd": {
       "source_blocks_sha256": [
         "946bba1bab987957ae59fef6689a070bc1ec2b2a2d454be73cf9c2592ff71182"
@@ -45487,6 +45509,7 @@
         "b121081764c60347ea02ccfae9ca6358199105596a6b5bd1fb6e389b5081fe79",
         "f8b3da5212c4ca703a46301293e46749996b61a879bff1cf971a17f15db56860",
         "99f5f572aa0963f50b62877ed33efe7ba74659b7ddfdc92ce792e0802360970c",
+        "ab7fd34d9f1a12be5d0f3158b668ff926f03b7a1ebe183e9fdbf2c0065e6ce5e",
         "b58e2b6592e749615f2dc5f10ac9ed23145f5ff898495161775e23d8e88723de",
         "fd9989dfcfe81a26d794d1e77003a454f4b9febca9a4be4b175aea694f22c864",
         "b65ba8c7f8b84a88199c1f4b3cb99daab65430a1383b7753f4da31f899377fe0",
@@ -45494,8 +45517,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "e9fad3ffb2efec6a5b19f4127fb66633a0c096704de7bd7907e7fc3c03c7ad39"
       ],
-      "source_sha256": "84831429cc9a1e4b67232df48c98c7bff72a67dc2be87aeb20896faa1d8bcc01",
-      "text": "추출 물질 / 강도 측정 및 (선택적으로) 묘목 PNGs 마스크 스테이크에서\n\n소비하는 것에 대하여 ``merged/`` 폴더에 의해 생성된 :func:`spacr.core.preprocess_generate_masks` (사진 데이터 채널 라이어 + 마스크 스택 저장 ``.npy``), 모양, 강도, 구조 및 공간 특성을 세포 / 핵 / 병원 / 시토 플라스마 개체에 따라 계산하고, 그들을 작성합니다. SQLite ``measurements.db``그리고 언제 ``save_png`` 그것은 또한 개체 이미지 지역을 추출 할 수 있습니다. PNG 트레일러, 그들은 훈련에 대한 도입입니다 :func:`spacr.deep_spacr.deep_spacr`.\n\n:param settings: :func:`spacr.settings.get_measure_crop_settings`을 통해 캐논화된 키 가치 맵링을 설정합니다. 구조화된 데이터는 기능이 읽는 것을 입력합니다.\n\n    - ``src``(str 또는 목록) — 하나 이상의 ``…/merged`` 폴더입니다. Make Masks 가 분석한 클라우드 주소는 Make Masks 가 준비해 둔 로컬 폴더에서 측정하고, 병합된 스택이 든 클라우드 폴더는 먼저 ``cloud_cache`` 아래로 미러링합니다. ``cloud_results`` 는 측정 폴더를 클라우드 저장소로 다시 복사합니다.\n    - ``psf_measurement_source`` — original (기본값)은 일반적인 재조정/전처리된 강도를 사용하고, processed 는 정량 특징 계산 전에 명시적으로 보정된 PSF 를 적용합니다. 변경할 수 없는 커널이 모든 작업자에 전달됩니다. 원본 이미지와 내보낸 추출 이미지 영역은 변경되지 않습니다. 현미경 시야 출처 정보는 ``intensity_rescale`` 에 저장되며, 호환되지 않는 기존 PSF 측정값이 있으면 행을 추가하기 전에 거부됩니다.\n    - ``cell_mask_dim`` / ``nucleus_mask_dim``/ ``pathogen_mask_dim`` - 각 마스크 스택의 이미지 데이터 채널 인덱스; ``None``이 개체 유형을 차단합니다.\n    - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size`` / ``cytoplasm_min_size`` - 픽셀 영역 컷프.\n    - ``channels`` - 측정해야 하는 강도 이미지 데이터 채널의 목록.\n    - ``crop_mode`` - 리스트에서 추출 ``['cell','nucleus','pathogen', 'cytoplasm']``각 포인트는 하나를 생성합니다. PNG 개체에 따라\n    - ``save_png`` - 개체별 PNG 템플릿을 작성합니다.\n    - ``normalize`` - ``[lower_pct, upper_pct]`` PNG 정상화에 대 한.\n    - ``normalize_by`` — ``'png'`` (수출 된 이미지 영역 당) 또는 ``'fov'`` (미크로스코프 당 시각 필드).\n    - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.\n    - ``dry_run`` - 설정을 확인하고, 계획을 보고하고, 중지; 입력 폴더가 검사되지만 아무것도 작성되지 않습니다.\n\n:returns: ``None`` 정상적인 글을 쓰고, 글을 쓴다. ``measurements/measurements.db``, ``measure_crop_settings.csv``그럼에도 불구하고 (If ``save_png``) PNGs 밑에 있는 물체들에 대하여 ``src``그리고 언제 ``dry_run`` 정해져서, 목록은 :class:`spacr.validate.Problem` 돌아오는 것에 대하여 :func:`spacr.validate.run_preflight`그리고 아무것도 쓰지 않는다.\n:raises ValueError: ``src``가 끈이나 끈 목록이 아닌 경우.\n:raises spacr.errors.ConfigurationError: 단지 엄격한 모드(``settings['strict_errors']``, 또는 ``SPACR_STRICT_ERRORS`` 환경 변수)에서만. ``normalize``, ``normalize_by``, 마스크 크기/분 크기 및 ``channels`` 유형은 어떠한 측정도 없이 경고를 인쇄하고 ``None``를 반환합니다.\n\n예시:\n    .. code-block:: python\n\n        from spacr.measure import measure_crop\n        settings = {\n            'src': '/data/plate01/merged',\n            'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,\n            'channels': [0, 1, 2, 3],\n            'crop_mode': ['cell'], 'save_png': True,\n            'normalize': [1, 99], 'normalize_by': 'png',\n        }\n        measure_crop(settings)\n\n또한 참조 : :func:`spacr.core.preprocess_generate_masks` 오프 스트림 마스크 세대 :func:`spacr.io.generate_dataset` - 훈련의 세트를 만들기 위하여 PNGs. :func:`spacr.deep_spacr.deep_spacr` 기차 A CNN 추출된 이미지 지역에 대 한.",
+      "source_sha256": "0a1ab9b650617748efad281aa674c96b90fe137855e9bd3d0a581d03cb3a1f54",
+      "text": "추출 물질 / 강도 측정 및 (선택적으로) 묘목 PNGs 마스크 스테이크에서\n\n소비하는 것에 대하여 ``merged/`` 폴더에 의해 생성된 :func:`spacr.core.preprocess_generate_masks` (사진 데이터 채널 라이어 + 마스크 스택 저장 ``.npy``), 모양, 강도, 구조 및 공간 특성을 세포 / 핵 / 병원 / 시토 플라스마 개체에 따라 계산하고, 그들을 작성합니다. SQLite ``measurements.db``그리고 언제 ``save_png`` 그것은 또한 개체 이미지 지역을 추출 할 수 있습니다. PNG 트레일러, 그들은 훈련에 대한 도입입니다 :func:`spacr.deep_spacr.deep_spacr`.\n\n:param settings: :func:`spacr.settings.get_measure_crop_settings`을 통해 캐논화된 키 가치 맵링을 설정합니다. 구조화된 데이터는 기능이 읽는 것을 입력합니다.\n\n    - ``src``(str 또는 목록) — 하나 이상의 ``…/merged`` 폴더입니다. Make Masks 가 분석한 클라우드 주소는 Make Masks 가 준비해 둔 로컬 폴더에서 측정하고, 병합된 스택이 든 클라우드 폴더는 먼저 ``cloud_cache`` 아래로 미러링합니다. ``cloud_results`` 는 측정 폴더를 클라우드 저장소로 다시 복사합니다.\n    - ``psf_measurement_source`` — original (기본값)은 일반적인 재조정/전처리된 강도를 사용하고, processed 는 정량 특징 계산 전에 명시적으로 보정된 PSF 를 적용합니다. 변경할 수 없는 커널이 모든 작업자에 전달됩니다. 원본 이미지와 내보낸 추출 이미지 영역은 변경되지 않습니다. 현미경 시야 출처 정보는 ``intensity_rescale`` 에 저장되며, 호환되지 않는 기존 PSF 측정값이 있으면 행을 추가하기 전에 거부됩니다.\n    - ``cell_mask_dim`` / ``nucleus_mask_dim``/ ``pathogen_mask_dim`` - 각 마스크 스택의 이미지 데이터 채널 인덱스; ``None``이 개체 유형을 차단합니다.\n    - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size`` / ``cytoplasm_min_size`` - 픽셀 영역 컷프.\n    - ``channels`` - 측정해야 하는 강도 이미지 데이터 채널의 목록.\n    - ``crop_mode`` - 리스트에서 추출 ``['cell','nucleus','pathogen', 'cytoplasm']``각 포인트는 하나를 생성합니다. PNG 개체에 따라\n    - ``save_png`` - 개체별 PNG 템플릿을 작성합니다.\n    - ``normalize`` - ``[lower_pct, upper_pct]`` PNG 정상화에 대 한.\n    - ``normalize_by`` — ``'png'`` (수출 된 이미지 영역 당) 또는 ``'fov'`` (미크로스코프 당 시각 필드).\n    - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.\n    - ``database_write_queue_gib`` — 대기 중 SQLite 데이터의 선택적 RAM 예산으로, 0부터 64 GiB까지입니다. 생략하면 환경 설정의 값을 사용합니다(기본값 1 GiB). 0은 디스크 버퍼링만 사용하며, 예산을 초과한 데이터는 ``measurements/.write_queue`` 아래에 저장됩니다. 각 이미지 시야는 원자적으로 커밋되며 실패 후에도 미완료 쓰기 패킷은 보존됩니다.\n    - ``dry_run`` - 설정을 확인하고, 계획을 보고하고, 중지; 입력 폴더가 검사되지만 아무것도 작성되지 않습니다.\n\n:returns: ``None`` 정상적인 글을 쓰고, 글을 쓴다. ``measurements/measurements.db``, ``measure_crop_settings.csv``그럼에도 불구하고 (If ``save_png``) PNGs 밑에 있는 물체들에 대하여 ``src``그리고 언제 ``dry_run`` 정해져서, 목록은 :class:`spacr.validate.Problem` 돌아오는 것에 대하여 :func:`spacr.validate.run_preflight`그리고 아무것도 쓰지 않는다.\n:raises ValueError: ``src``가 끈이나 끈 목록이 아닌 경우.\n:raises spacr.errors.ConfigurationError: 단지 엄격한 모드(``settings['strict_errors']``, 또는 ``SPACR_STRICT_ERRORS`` 환경 변수)에서만. ``normalize``, ``normalize_by``, 마스크 크기/분 크기 및 ``channels`` 유형은 어떠한 측정도 없이 경고를 인쇄하고 ``None``를 반환합니다.\n\n예시:\n    .. code-block:: python\n\n        from spacr.measure import measure_crop\n        settings = {\n            'src': '/data/plate01/merged',\n            'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,\n            'channels': [0, 1, 2, 3],\n            'crop_mode': ['cell'], 'save_png': True,\n            'normalize': [1, 99], 'normalize_by': 'png',\n        }\n        measure_crop(settings)\n\n또한 참조 : :func:`spacr.core.preprocess_generate_masks` 오프 스트림 마스크 세대 :func:`spacr.io.generate_dataset` - 훈련의 세트를 만들기 위하여 PNGs. :func:`spacr.deep_spacr.deep_spacr` 기차 A CNN 추출된 이미지 지역에 대 한.",
       "translation_source_blocks_sha256": [
         "a19d38b7da35680a98438b6c9345ff12e12b71a4a21a0d368c390516d6fd1552",
         "52d723fdb3dd688a258786c9cb0fa01abc3f76a0da6919d495cf2b15dc5e17bf",
@@ -45510,6 +45533,7 @@
         "b121081764c60347ea02ccfae9ca6358199105596a6b5bd1fb6e389b5081fe79",
         "ca1301e7671aeb28f271ddf501c7b0d8b9c2d0d64f68e14c6cba020203b0e00c",
         "99f5f572aa0963f50b62877ed33efe7ba74659b7ddfdc92ce792e0802360970c",
+        "ab7fd34d9f1a12be5d0f3158b668ff926f03b7a1ebe183e9fdbf2c0065e6ce5e",
         "b58e2b6592e749615f2dc5f10ac9ed23145f5ff898495161775e23d8e88723de",
         "fd9989dfcfe81a26d794d1e77003a454f4b9febca9a4be4b175aea694f22c864",
         "b65ba8c7f8b84a88199c1f4b3cb99daab65430a1383b7753f4da31f899377fe0",
@@ -45520,14 +45544,14 @@
     },
     "spacr.measure.measure_crop.job_callback": {
       "source_blocks_sha256": [
-        "4125957ce35fa2732ebe63cc2fab8251c1530f38ec47e9f704ad64049e951e3a",
-        "7c2086c26796b9a25462ef474b70ed5f24e224738f26f5c95d4eb9fceb6cd4b9"
+        "111b7e987c7e4c82013353f2d7e75feaeea02494d840bd7103151203d7a505ef",
+        "971d644efe435f0fa22a8a94464059fd3f0ace226a548062e3be9d79174205af"
       ],
-      "source_sha256": "23b43004a8a076e52456a15fc43a8e4385e79d4501c8136b8f8f84e403e4fbcf",
-      "text": "완료된 시야 하나를 기록하고 선택적 그림을 저장합니다.\n\n:param result: 4-튜플 ``(index, average_time, cells, figs)``은 :func:`_measure_crop_core`가 반환하는 값으로, ``AsyncResult``에서 바로 가져온 것입니다 -- 결과 하나이며 :func:`process_measure_crop_results`가 받는 목록이 아니므로, 아래에서 ``[result]``로 다시 감쌉니다. ``index``는 ``files`` 안의 위치이며 ``index_to_file``을 통해 다시 변환되어 장부 항목이 숫자가 아니라 시야 이름을 갖게 됩니다. ``cells``가 판정을 결정합니다: 성공 경로는 그 자리에 ``np.unique(cell_mask)`` 배열을 남기고, 단순 int ``0``은 worker가 자신의 예외를 잡았을 때 남기는 프로세스 간 실패 표식이므로 그 int만 실패로 기록됩니다. ``figs``는 빈 dict일 수 있습니다 -- ``settings['plot']``이 없으면 아무것도 그리지 않습니다. 같은 시야를 두 번 넘기는 것은 카운터에는 안전하지만(``completed_jobs``와 ``reported_files``는 집합) 그림을 두 번 저장하게 되므로, 재시도 루프는 실제로 결과를 돌려준 시도에 대해서만 이를 호출합니다.",
+      "source_sha256": "28866d7f0e95e241d31ebca5700a5da892d69ff48b6df93ddb75cd923be9094f",
+      "text": "반환된 그림을 저장하고 이미지 시야의 계산 진행 상황을 보고합니다.\n\n:param result: 인덱스, 평균 소요 시간, 남은 레이블, 그림, 오류 텍스트 및 선택적 대기 중 쓰기 확인표입니다. 레이블 값이 정수 0이면 이미지 시야의 원래 실패를 기록합니다. 모든 과학 데이터 행을 커밋한 후 쓰기 담당자가 SQLite 성공을 별도로 기록합니다. 다른 백엔드는 기존의 동기식 작업자 결과를 유지합니다.",
       "translation_source_blocks_sha256": [
-        "4125957ce35fa2732ebe63cc2fab8251c1530f38ec47e9f704ad64049e951e3a",
-        "9de763bc6925a55a39a626efdb10f5b6a12d0fbccb192a66f9a0b6858b39904b"
+        "111b7e987c7e4c82013353f2d7e75feaeea02494d840bd7103151203d7a505ef",
+        "971d644efe435f0fa22a8a94464059fd3f0ace226a548062e3be9d79174205af"
       ]
     },
     "spacr.measure.measure_crop.make_error_callback": {
@@ -45554,6 +45578,26 @@
       "text": "worker 하나의 실패를 그 원인이 된 파일에 기록합니다.",
       "translation_source_blocks_sha256": [
         "b3e7df802817cac8b0aceeaf6d4a80c87c0d757f224ea11855a750c9c51addd9"
+      ]
+    },
+    "spacr.measure.measure_crop.record_verdict": {
+      "source_blocks_sha256": [
+        "a4693e96e54697bc45989be5bea1e6b19c7f81bba5449368f7d2c18478fcd213"
+      ],
+      "source_sha256": "a4693e96e54697bc45989be5bea1e6b19c7f81bba5449368f7d2c18478fcd213",
+      "text": "실제 최종 결과가 결정된 후 각 이미지 시야를 한 번만 셉니다.",
+      "translation_source_blocks_sha256": [
+        "a4693e96e54697bc45989be5bea1e6b19c7f81bba5449368f7d2c18478fcd213"
+      ]
+    },
+    "spacr.measure.measure_crop.write_callback": {
+      "source_blocks_sha256": [
+        "8dfa9d1be7155cd3aabfe2c6c9ac7848527237be903ce63d77dea3d51dfc6e29"
+      ],
+      "source_sha256": "8dfa9d1be7155cd3aabfe2c6c9ac7848527237be903ce63d77dea3d51dfc6e29",
+      "text": "패킷의 최종 SQL 결과가 결정된 후에만 이미지 시야를 기록합니다.",
+      "translation_source_blocks_sha256": [
+        "8dfa9d1be7155cd3aabfe2c6c9ac7848527237be903ce63d77dea3d51dfc6e29"
       ]
     },
     "spacr.measure.measure_from_field_table": {
@@ -56186,6 +56230,16 @@
         "bbfd27c77a3500bad2fba37cb41206f2f12ede8627480ed3aedc7c6d13f2c02f"
       ]
     },
+    "spacr.ops_engine._decode_field.load_slot": {
+      "source_blocks_sha256": [
+        "dd4c91b6166b9a5da2d32efb535b1ec07aa78eb36d322b779a07ce3926607eba"
+      ],
+      "source_sha256": "dd4c91b6166b9a5da2d32efb535b1ec07aa78eb36d322b779a07ce3926607eba",
+      "text": "공유된 과부하 지연 재시도 정책에 따라 원본 데이터 소스 하나를 읽습니다.",
+      "translation_source_blocks_sha256": [
+        "dd4c91b6166b9a5da2d32efb535b1ec07aa78eb36d322b779a07ce3926607eba"
+      ]
+    },
     "spacr.ops_engine._largest_component.find": {
       "source_blocks_sha256": [
         "bff7bdea9aa13fb4afefd4803c6d263df0352baf7fd4f745f24eea4c59de3229",
@@ -58760,10 +58814,10 @@
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
         "19cbdf49a62ad738af12f8c662dabc35c39c2610d421929a9f3ce2fa63ff7f48",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "1b49559af04e70a9a6e9bb5b105a691b745af9a063d4ba26c4154c0d19c473fb"
+        "0bef7cc59f1f083366ce89406c2f7a6b47c80b6061efc0b184926364348ed8d5"
       ],
-      "source_sha256": "63d1ccf466b8b5f3d0687fff3e9b26a8dc91c2c045af184a148f923e9cf00c21",
-      "text": "Parameters-sweep 테스트를 스파운드 프로세스에서 동시에 실행합니다.\n\n매개변수\n----------\nbase_settings : mapping 각 테스트에 의해 공유되는 리그레이션 설정, 점수 및 계산 입력 포함. destination : path-like 테스트 폴더 디렉토리, ``sweep_trials.json`` 및 ``sweep_results.csv`` 인큐멘터리 테이블. 공간 : SweepSpace 또는 None, 선택 검색 공간. ``None``은 :data:`DEFAULT_SWEEP_SPACE`과 내장된 호환성 필터를 사용합니다. mode : {'grid', 'random'}, default='random' 시험 번호 명령은 :func:`build_trials`로 전달되었습니다. max_trials : int, default=1000 승인된 시험의 최대 수. seed : int, default=0 우연 주문 씨앗은 ``mode='random'``에서 사용됩니다. controls : mapping or None, optional 통제 동맹에서 식별자로의 지도. 컨트롤 복구 메트릭은 각 결과 라인에 추가됩니다. n_jobs : int, default=8 요청된 수영장 크기. :func:`recommended_workers`은 메모리와 CPU 용량에 따라 줄일 수 있습니다. contained : bool, default=True :func:`run_trial_contained`을 통해 별도의 어린이에서 각각의 적합성을 수행합니다. 하드 메모리, 스와프, 작업 및 CPU 제한은 사용 가능한 시스템d 사용자 범위가 사용할 수 있는 경우에만 적용됩니다. 그렇지 않으면 아이가 무시되지만 우선 순위와 끈 제한을 줄입니다. 테스트 리소스 사용이 알려져 있는 경우에만 ``False``으로 설정합니다. qc : bool, default=False 각 테스트에 대한 완전한 회복 진단 숫자 세트를 생성합니다. progress_every : int, default=25 이 많은 완료 테스트 후 인쇄 진행. 정기적 진보 메시지를 비활성화하기 위해 0을 사용합니다.\n\n반환값\n-------\npandas.DataFrame ``trial_id``로 분류된 각 시험에 대한 하나의 상태 라인.이 같은 라인은 ``sweep_results.csv``로 점차적으로 작성됩니다.\n\n상승\n------\nRuntimeError 노동자 프로세스에서 호출을 받으면 스크립트는 ``if __name__ == '__main__':`` 경비대에서 이 기능을 호출해야 합니다.\n\n메모\n-----\n수영장은 ``spawn`` 시작 방법을 사용하기 때문에 고정된 모델은 torch 및 OpenMP 실행 시간을 가져올 수 있습니다.",
+      "source_sha256": "b8ccc321e365eecf164408ba111f28af533e4e2dedcd61fd9bf687f58e9f9224",
+      "text": "Parameters-sweep 테스트를 스파운드 프로세스에서 동시에 실행합니다.\n\n매개변수\n----------\nbase_settings : mapping 각 테스트에 의해 공유되는 리그레이션 설정, 점수 및 계산 입력 포함. destination : path-like 테스트 폴더 디렉토리, ``sweep_trials.json`` 및 ``sweep_results.csv`` 인큐멘터리 테이블. 공간 : SweepSpace 또는 None, 선택 검색 공간. ``None``은 :data:`DEFAULT_SWEEP_SPACE`과 내장된 호환성 필터를 사용합니다. mode : {'grid', 'random'}, default='random' 시험 번호 명령은 :func:`build_trials`로 전달되었습니다. max_trials : int, default=1000 승인된 시험의 최대 수. seed : int, default=0 우연 주문 씨앗은 ``mode='random'``에서 사용됩니다. controls : mapping or None, optional 통제 동맹에서 식별자로의 지도. 컨트롤 복구 메트릭은 각 결과 라인에 추가됩니다. n_jobs : int, default=8 요청된 수영장 크기. :func:`recommended_workers`은 메모리와 CPU 용량에 따라 줄일 수 있습니다. contained : bool, default=True :func:`run_trial_contained`을 통해 별도의 어린이에서 각각의 적합성을 수행합니다. 하드 메모리, 스와프, 작업 및 CPU 제한은 사용 가능한 시스템d 사용자 범위가 사용할 수 있는 경우에만 적용됩니다. 그렇지 않으면 아이가 무시되지만 우선 순위와 끈 제한을 줄입니다. 테스트 리소스 사용이 알려져 있는 경우에만 ``False``으로 설정합니다. qc : bool, default=False 각 테스트에 대한 완전한 회복 진단 숫자 세트를 생성합니다. progress_every : int, default=25 이 많은 완료 테스트 후 인쇄 진행. 정기적 진보 메시지를 비활성화하기 위해 0을 사용합니다.\n\n반환값\n-------\npandas.DataFrame ``trial_id``로 분류된 각 시험에 대한 하나의 상태 라인.이 같은 라인은 ``sweep_results.csv``로 점차적으로 작성됩니다.\n\n상승\n------\nRuntimeError 노동자 프로세스에서 호출을 받으면 스크립트는 ``if __name__ == '__main__':`` 경비대에서 이 기능을 호출해야 합니다.\n\n메모\n-----\n적합된 모델이 torch와 OpenMP 실행 환경을 가져올 수 있으므로 풀은 ``spawn`` 시작 방식을 사용합니다. 동시에 제출되는 작업 수를 제한하여 사용 가능한 메모리가 부족하면 새 작업 제출을 일시 중지할 수 있습니다. 초기 처리 작업자는 10초 간격으로 시작합니다. 모든 기본 시도가 완료된 후, 명확한 자원 과부하 실패는 기존 시도 디렉터리에서 순차적으로 한 번 재시도합니다. 원래 결과 파일과 오류 파일은 별도로 보존하며, 최종 표는 시도마다 기본 실패 세부 사항과 ``overload_retry`` 메타데이터를 담은 행 하나를 포함합니다. 잘못된 입력, 취소 및 원인을 알 수 없는 네이티브 작업자 종료는 재시도하지 않습니다.",
       "translation_source_blocks_sha256": [
         "ff9029ee74295c4722b59abe0668d90b9c980804895ddd0e6b984b1c2b8dd377",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
@@ -58773,7 +58827,7 @@
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
         "19cbdf49a62ad738af12f8c662dabc35c39c2610d421929a9f3ce2fa63ff7f48",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "1b49559af04e70a9a6e9bb5b105a691b745af9a063d4ba26c4154c0d19c473fb"
+        "0bef7cc59f1f083366ce89406c2f7a6b47c80b6061efc0b184926364348ed8d5"
       ]
     },
     "spacr.parameter_sweep.run_sweep_parallel._fill": {
@@ -63203,12 +63257,12 @@
         "cf278726dd7f39c8fbf18a2ec9822cf01ea172a0b80d4d80255626c9df586d22",
         "5b61106a793f52b85799933a67d8ee198d88f161ec103520b7825f08fec4562a",
         "dea3a1b498dc9f92fca5bc63a04233d4fe3b2e5ec5bc2a07e083b0045a64afd3",
-        "7a65db57257b9f0faf5833d55c8f73945233ccae792b4e61788e9642c9accd07",
+        "8a72d42185932f35114de027f8e78438bf2eab1cca905810bcb48236234953d1",
         "3875bd0f348fe91ee3dc23df65c2f2205c9a487955728f8c7903020db83113ef",
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
       ],
-      "source_sha256": "3354a6f2c31a6a7e324c46427bc13039857a1cf19852ea66caccb02ad147b9c1",
-      "text": "오버레이 로렌즈 곡선 멀티 gRNA 숫자 CSVs 각 실험실 마이크로 플레이트 Gini 요소를 사용합니다.\n\n:param csv_files: 실험실용 마이크로 플레이트로 가는 길 CSVs 각각 컬러로 ``name_column`` 그리고 ``value_column``.\n:param name_column: 외부 필터링에 사용되는 식별자 열. 기본 ``'grna_name'``.\n:param value_column: 분산을 분석하는 열. 기본 ``'count'``.\n:param remove_keys: 분석 전에 제외해야 할 이름. 기본 ``[]`` (아무것도 제외하지 않음).\n:param x_lim: X-axis ``[lo, hi]``의 한계를 가리키는 경우 기본 ``[0.0, 1]``입니다.\n:param y_lim: Y-axis의 한계 ``[lo, hi]``. 기본 ``[0, 1]``.\n:param remove_outliers: 만약 True 샘플 위치를 계산하는 각 마이크로 플레이트의 드롭 이름은 1.5 밖으로 떨어집니다.*IQR 윈도우 - 기본 ``False``.\n:param save: 만약 True 첫 번째 숫자와 함께 숫자를 저장합니다. CSV 아래에 ``results/lorenz_curve_with_gini.pdf``가짜 ``True``.\n:returns: None",
+      "source_sha256": "0a71395f4561f9c7e1adca880d0f08fd7cf50ba9854dde2b9bef198bbe4c160c",
+      "text": "오버레이 로렌즈 곡선 멀티 gRNA 숫자 CSVs 각 실험실 마이크로 플레이트 Gini 요소를 사용합니다.\n\n:param csv_files: 실험실용 마이크로 플레이트로 가는 길 CSVs 각각 컬러로 ``name_column`` 그리고 ``value_column``.\n:param name_column: 외부 필터링에 사용되는 식별자 열. 기본 ``'grna_name'``.\n:param value_column: 분산을 분석하는 열. 기본 ``'count'``.\n:param remove_keys: 분석 전에 제외해야 할 이름. 기본 ``[]`` (아무것도 제외하지 않음).\n:param x_lim: X-axis ``[lo, hi]``의 한계를 가리키는 경우 기본 ``[0.0, 1]``입니다.\n:param y_lim: Y-axis의 한계 ``[lo, hi]``. 기본 ``[0, 1]``.\n:param remove_outliers: True이면 그룹 크기의 5~95백분위수 간 범위의 1.5배만큼 확장한 경계 밖에 관측 수가 놓이는 이름을 제거합니다. 계수 값 자체는 이 필터에 사용되지 않습니다. 기본값은 ``False``입니다.\n:param save: 만약 True 첫 번째 숫자와 함께 숫자를 저장합니다. CSV 아래에 ``results/lorenz_curve_with_gini.pdf``가짜 ``True``.\n:returns: None",
       "translation_source_blocks_sha256": [
         "ac348ca61fc69835008b4f1516da60d8472d5219b7896bf97c3aa4169220310d",
         "9554fa094fdf3714c9ba824e7673a67486ab3427d28e0e317be8bf9d8247dcef",
@@ -63217,7 +63271,7 @@
         "cf278726dd7f39c8fbf18a2ec9822cf01ea172a0b80d4d80255626c9df586d22",
         "5b61106a793f52b85799933a67d8ee198d88f161ec103520b7825f08fec4562a",
         "dea3a1b498dc9f92fca5bc63a04233d4fe3b2e5ec5bc2a07e083b0045a64afd3",
-        "f64cb22fa4caa606986b08bab47b92574b71b8abd27ebbca5ea22eabb53290ab",
+        "8a72d42185932f35114de027f8e78438bf2eab1cca905810bcb48236234953d1",
         "3875bd0f348fe91ee3dc23df65c2f2205c9a487955728f8c7903020db83113ef",
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
       ]
@@ -88112,6 +88166,16 @@
         "e540aa3013296c2477595b47e0d602293526754d10ca91a25da4792690a936cf"
       ]
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_popup_motion": {
+      "source_blocks_sha256": [
+        "c64c59be21cba42e365d412b1a87919f65e4dcb48bb3f1cc7b88bac822fb70b1"
+      ],
+      "source_sha256": "c64c59be21cba42e365d412b1a87919f65e4dcb48bb3f1cc7b88bac822fb70b1",
+      "text": "호환되는 Qt 그리기 엔진에만 이 컨트롤을 제공합니다.",
+      "translation_source_blocks_sha256": [
+        "c64c59be21cba42e365d412b1a87919f65e4dcb48bb3f1cc7b88bac822fb70b1"
+      ]
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._tenths": {
       "source_blocks_sha256": [
         "eae2896ec87a742c16bb3dd5c92a6b31354c0653569ff9171e1856e0075b1fc5",
@@ -88410,15 +88474,17 @@
       "source_blocks_sha256": [
         "1e444a24a7ade6fdc19957f95fc0f041c77df9612d96723704bd0126379f37c4",
         "f144063f6ed01466ee3f7eb80a24638ac6d76b29912d6c07651e0fd5911f76d1",
-        "99e6b49a7d1928665fbdc644bd87000b40b3752060aec6c2b0fcdecac20c5380",
+        "e36ea3d396989af25f43164c2cfe5763b71320180f638254b41d107a74e8978e",
+        "644ca8ae58ba41e57c0817ac57d504f756bf94643a54a7137138055885b89fe3",
         "2e139a5167b62efeebb3d9898df4d8d193b6f253cbc48c5e30a6324be4728b5f"
       ],
-      "source_sha256": "11713c561b68b93ff9a12347028a41e5ac65841a2a057a6ce30906b170bb7f08",
-      "text": "환경 선호도를 각 라이브 환경 비즈니스에 밀어 넣으십시오.\n\n사용자의 명시적인 질문은 *현재* 작동하는 타그글이었으므로 :func:`spacr.qt.button_roles.install_button_roles`가 하는 방식으로 실행되는 위젯 나무를 걷고 응용 프로그램 뷰를 재구성하기 위해 기다리는 대신에 위치한 위젯을 업데이트합니다. 숨기는 또한 타이머를 멈추게합니다 (비젯은 볼 수 없을 때마다 애니메이션을 멈춘다), 그래서 \"off\"는 실제로 제로 프레임입니다.\n\n그것을 돌려보내는 *위에* 각 모듈 애플리케이션 보기는 사용자가 다른 탭에있는 동안 환경 위젯을 살아 유지하고, 누군가가 볼 수없는 픽셀에 프레임을 지출 할 것입니다-그것은이 애니메이션이 할 수 없습니다 한 가지입니다. ``showEvent`` 탭이 돌아올 때 다시 시작합니다.\n\nC++ 절반이 이미 사라졌거나 수입 할 수없는 환경 모듈이있는 위젯은 화장품 문제입니다.",
+      "source_sha256": "e0c69accd253451de30550cc569c64e9b17423b321135ede09eeb99c5404de6a",
+      "text": "환경 선호도를 각 라이브 환경 비즈니스에 밀어 넣으십시오.\n\n사용자의 명시적인 질문은 *현재* 작동하는 타그글이었으므로 :func:`spacr.qt.button_roles.install_button_roles`가 하는 방식으로 실행되는 위젯 나무를 걷고 응용 프로그램 뷰를 재구성하기 위해 기다리는 대신에 위치한 위젯을 업데이트합니다. 숨기는 또한 타이머를 멈추게합니다 (비젯은 볼 수 없을 때마다 애니메이션을 멈춘다), 그래서 \"off\"는 실제로 제로 프레임입니다.\n\n설정 창 배경에는 별도의 선택 항목이 있으며, 자체 선택이 None이 아닌 한 모듈 애니메이션이 꺼져 있어도 활성 상태를 유지합니다.\n\n모듈 애니메이션을 다시 *켜면* 실제 화면에 보이는 위젯만 재개됩니다. 사용자가 다른 탭에 있는 동안 각 모듈 화면은 배경 위젯을 유지합니다. 이 위젯들을 재개하면 아무도 볼 수 없는 픽셀에 프레임을 소모하게 되므로 이 애니메이션에서는 허용되지 않습니다. 탭이 다시 나타나면 자체 ``showEvent`` 가 위젯을 다시 시작합니다.\n\nC++ 절반이 이미 사라졌거나 수입 할 수없는 환경 모듈이있는 위젯은 화장품 문제입니다.",
       "translation_source_blocks_sha256": [
         "1e444a24a7ade6fdc19957f95fc0f041c77df9612d96723704bd0126379f37c4",
         "e7c12ec94b965c75fe53bd21251c5add6e219d36488bd576d81050f6fada066d",
-        "e6d9b8a483054a66cca31ddf015ac74c91f8bf329a1dbf231d93c822bfb5ee95",
+        "e36ea3d396989af25f43164c2cfe5763b71320180f638254b41d107a74e8978e",
+        "4888761a8c0f64ef6e732115ff0fea743bc1a098b3b5cfe06a5bb8c005dc6652",
         "c304cd78567100b9357621b5a009685b6491e1e2fee4f8c6a69bc69896ac8e08"
       ]
     },
@@ -88820,13 +88886,13 @@
     },
     "spacr.qt.preferences.get_ambient_theme": {
       "source_blocks_sha256": [
-        "3de5b034ba17820b9a95078225e6fe43cd0c788d8c9250a87d34f9c4f74acfa9",
+        "123a1a0cb4bad7540166f96d40cce2c72426d569153e1ed3148d00b385845a48",
         "87630f8bd4b017fa690b4a71c60484730828f112d00a9b7376937695e35a0ed1"
       ],
-      "source_sha256": "e7ab77809a5714d3b0fdf56fbe62409b5d3df5b604f0fc29c7a68350b60161ad",
-      "text": "어떤 애니메이션 모듈 애플리케이션 보기 페인트 — 참조 ``AMBIENT_THEMES``.\n\n읽기에서 확인: 이 구축이 알고 있지 않은 새 spaCR (또는 수동으로)에 의해 작성된 값은 기본 테마로 돌아가는 대신 비지트에 그림이없는 이름을 전파합니다.",
+      "source_sha256": "fd36d72179cd587e926605d28d7f49e56b7afd78d60a753caa71f13603de5e24",
+      "text": "활성 실행 모드에서 화면이 그리는 애니메이션입니다.\n\n읽기에서 확인: 이 구축이 알고 있지 않은 새 spaCR (또는 수동으로)에 의해 작성된 값은 기본 테마로 돌아가는 대신 비지트에 그림이없는 이름을 전파합니다.",
       "translation_source_blocks_sha256": [
-        "c73418896947549079fa522c330a8314cffdd922f56e308f8ddc370dbd2c8a87",
+        "123a1a0cb4bad7540166f96d40cce2c72426d569153e1ed3148d00b385845a48",
         "87630f8bd4b017fa690b4a71c60484730828f112d00a9b7376937695e35a0ed1"
       ]
     },
@@ -88876,6 +88942,18 @@
         "bb10062e8e28cac19db3b6a9293f8f61327e26fb4915ab618fcf8310b1c02e90",
         "49b4223baf4a47f0b030dfd6ea8cc73cf0fe2e67a23b7c1d3a97b1a21961c0f0",
         "7c14e5b5d070d29c2a80be952a232ccac0b1c38f838037670c4aa02a12a54fe9"
+      ]
+    },
+    "spacr.qt.preferences.get_database_write_queue_gib": {
+      "source_blocks_sha256": [
+        "e3ce09c72dccbf803d79782fbdf6d59633b73fc3e593d10604da458ffa2f8eda",
+        "2cba9223e4b15a59736e3e001a31d35961915fcf043eba3efaff729eb80d5942"
+      ],
+      "source_sha256": "5dac1baea9cbfce394f6302c5b3f9fdfa7dd9402ff77c20c416895b56b5315b8",
+      "text": "직렬화된 데이터베이스 대기열의 RAM 예산을 GiB 단위로 반환합니다.\n\n0은 디스크 버퍼링만 사용합니다. 이 값은 프로세스의 총 RAM 제한이 아닙니다.",
+      "translation_source_blocks_sha256": [
+        "165a57f9c6bd48777c1c85d5c191903e3dbbf738ae511f338bf98888f781616d",
+        "2cba9223e4b15a59736e3e001a31d35961915fcf043eba3efaff729eb80d5942"
       ]
     },
     "spacr.qt.preferences.get_db_browser_editable": {
@@ -90104,17 +90182,17 @@
     },
     "spacr.qt.preferences.set_ambient_theme": {
       "source_blocks_sha256": [
-        "290f1c1e66371d1c29862f3b12e9a1d6ee39566ca73f1c1ac4a22ae8ab23b9bd",
+        "dadfe8dc58efd2523bda1c6bda04ca641d1148f687d68099b731bb1714e87087",
         "81b55a2a01b13ff6a7a99b11353d53916a5257f1bc7e044b428df3df3f11964a",
-        "6f5bd3c23d76b643e7ce057fbb7ffcf0b9c03840056bc02f7c411a9f09252c16",
+        "628da8bd1027e51ebf37ce7f8e3d2c32d10e09aa65923d385b48436de8587238",
         "9e572dda862911007b8debb16a701cc969409eeebe2645f0524fed6b9259b95d"
       ],
-      "source_sha256": "a14fb846b4ed65a5d6ca0bda551e2d41e03b72b52c4c0a0d576da8e38c4bf3ab",
-      "text": ":data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`에 하나의 견고함이 있습니다.\n\n팔레트는 테마에 속하므로 테마를 교환하면 저장된 팔레트를 망칠 수 있습니다. 상승하는 대신 - 사용자가 테마를 선택했고, 깨진 쌍이 아닙니다 - 저장된 팔레트는 같은 글에서 수정됩니다 : 새로운 테마가 제공하는 경우에도 저장되며, 그렇지 않으면 그 테마의 기본으로 대체됩니다 ( :func:`ambient_default_palette` 참조).\n\n:param name: ``AMBIENT_THEMES`` 의 주변 테마 이름입니다.\n:raises ValueError: ``name``는 알려진 환경 테마가 아닌 경우.",
+      "source_sha256": "7c0215b8bc4f0b12b9a1a01668caa421a02e4523e429895c1bd9bf8e6314a770",
+      "text": "활성 실행 모드에서 제공하는 애니메이션을 저장합니다.\n\n팔레트는 테마에 속하므로 테마를 교환하면 저장된 팔레트를 망칠 수 있습니다. 상승하는 대신 - 사용자가 테마를 선택했고, 깨진 쌍이 아닙니다 - 저장된 팔레트는 같은 글에서 수정됩니다 : 새로운 테마가 제공하는 경우에도 저장되며, 그렇지 않으면 그 테마의 기본으로 대체됩니다 ( :func:`ambient_default_palette` 참조).\n\n:param name: 현재 실행기의 메뉴에서 제공하는 애니메이션입니다.\n:raises ValueError: ``name``는 알려진 환경 테마가 아닌 경우.",
       "translation_source_blocks_sha256": [
-        "290f1c1e66371d1c29862f3b12e9a1d6ee39566ca73f1c1ac4a22ae8ab23b9bd",
+        "dadfe8dc58efd2523bda1c6bda04ca641d1148f687d68099b731bb1714e87087",
         "81b55a2a01b13ff6a7a99b11353d53916a5257f1bc7e044b428df3df3f11964a",
-        "6f5bd3c23d76b643e7ce057fbb7ffcf0b9c03840056bc02f7c411a9f09252c16",
+        "628da8bd1027e51ebf37ce7f8e3d2c32d10e09aa65923d385b48436de8587238",
         "9e572dda862911007b8debb16a701cc969409eeebe2645f0524fed6b9259b95d"
       ]
     },
@@ -90168,6 +90246,20 @@
         "8bb4dfc095667fff38b5f3c17044bbba9ed9e0b68171173dee2b277a60669d74",
         "baebc950e2fd8db0bc942ccaa1aa4d53b221f9d54d8beed4053b150921217a38",
         "b2af47a4bbd5d06fb04ebfb1138237d1027586c81742df6549c58abf0d272bc8"
+      ]
+    },
+    "spacr.qt.preferences.set_database_write_queue_gib": {
+      "source_blocks_sha256": [
+        "810c19690a61780e26ef7f561d42083454a3a97b019e0de1bcedf8315dad5848",
+        "5b3bf94ec344acc83e26b3d6d0852c317c779a932217841e93f8bcfd9b5bc47b",
+        "77338723cf931464c569b9229aece892eb1cd3c5e973aa81a389fd3b5c4cde37"
+      ],
+      "source_sha256": "e06cf9f7e45e2e56d66c8f39cb6154e316e446dcab6dcdd6eaa5a353750e7fcb",
+      "text": "이후 실행에 사용할 데이터베이스 대기열의 실제 데이터 예산을 저장합니다.\n\n:param gib: 직렬화된 대기 데이터에 허용되는 RAM으로, GiB 단위이며 0부터 64까지입니다. 0은 대기 데이터를 디스크에 저장합니다.\n:raises ValueError: 값이 유한하지 않거나 유효 범위를 벗어날 때입니다.",
+      "translation_source_blocks_sha256": [
+        "30a7d92ddf956a856d8859ecbcdb8fc6f0360b0d8f63b5b1740545adce782109",
+        "5b3bf94ec344acc83e26b3d6d0852c317c779a932217841e93f8bcfd9b5bc47b",
+        "77338723cf931464c569b9229aece892eb1cd3c5e973aa81a389fd3b5c4cde37"
       ]
     },
     "spacr.qt.preferences.set_db_browser_editable": {
@@ -102123,13 +102215,13 @@
     "spacr.qt.screens.graph_builder.table_names": {
       "source_blocks_sha256": [
         "c86051366260a4b1528b43f4de46c331dc65d4dff846267c69b36d2c567eb906",
-        "4188c0fb37c43d0905b4cef87b79b194c6e1b3db92143951bce00e495ba8169b"
+        "8749cf08b3552f952b756d44e2d7b6bae59fe49bcb91c2021efdc130b844f3f7"
       ],
-      "source_sha256": "0d8c3f6e64cad944093e91ce81c70c3f4cf87568906dcfad7a545acd58215c22",
-      "text": "``path``에 있는 SQLite 파일의 모든 사용자 테이블을 유용한 순서로 나열합니다.\n\n:param path: 읽기 전용으로 여는 SQLite 측정 데이터베이스 경로. 선호 테이블(``object``, ``cell``, ``nucleus``, …)이 먼저 오고 나머지는 알파벳순입니다. SQLite 내부 테이블과 비공개 조건 주석 영수증 테이블은 제외되며, 일반 사용자 테이블과 이름이 붙은 파생 결과는 계속 사용할 수 있습니다.",
+      "source_sha256": "2ab3180f1e5eb69dc6db883e430c94111686bfbe786b6e7e8295914ec9dc22c6",
+      "text": "``path``에 있는 SQLite 파일의 모든 사용자 테이블을 유용한 순서로 나열합니다.\n\n:param path: 읽기 전용으로 여는 SQLite 측정 데이터베이스의 경로입니다. 우선 테이블(``object``, ``cell``, ``nucleus``, …)이 먼저 나오고 나머지는 알파벳순으로 나옵니다. SQLite 내부 테이블과 조건 주석 및 데이터베이스 쓰기 확인 기록의 비공개 테이블은 제외하며, 일반 사용자 테이블과 이름이 지정된 파생 결과는 계속 사용할 수 있습니다.",
       "translation_source_blocks_sha256": [
         "c86051366260a4b1528b43f4de46c331dc65d4dff846267c69b36d2c567eb906",
-        "4188c0fb37c43d0905b4cef87b79b194c6e1b3db92143951bce00e495ba8169b"
+        "8749cf08b3552f952b756d44e2d7b6bae59fe49bcb91c2021efdc130b844f3f7"
       ]
     },
     "spacr.qt.screens.hit_list": {
@@ -116769,13 +116861,13 @@
     "spacr.qt.spaceout": {
       "source_blocks_sha256": [
         "a67e09e2c14b073899fd69460f954e507eb0f9fb187a892a47aff4c59e69212f",
-        "c57e73bc19f127bb71c594a8fbfe041724d9bed07f7331fbc8f2a9dc94532cd3"
+        "63b31e268423b94899009ead0f9c6c4d24f204c7f3195d7cb9cd9d8890a2dc9d"
       ],
-      "source_sha256": "cd19e314fb5401e7fd9059e8d36a0bac4c951217bf3011327b621a54d2a325d9",
-      "text": "옵션 라운더를 위한 spaCR's spaceout 시각 모드.\n\n이 명령은 대비를 확인한 스펙트럼 팔레트와 프랙털 주변 애니메이션으로 표준 :func:`spacr.qt.run` 애플리케이션을 시작합니다. 이 모드는 프로세스 한정입니다. 환경설정으로 저장되지 않으며 이후의 표준 실행을 바꾸지 않습니다. 주변 애니메이션을 끄는 옵션을 포함하여 기존 애니메이션 환경설정은 그대로 적용됩니다. 소리가 있는 유일한 모드이기도 합니다. Preferences 는 여기서만 Sound 탭(과 Fractal 탭)을 보여 주며, 일반 spaCR 은 저장된 소리 설정과 관계없이 아무것도 재생하지 않습니다.",
+      "source_sha256": "9e5936bc5f4df6c4657d337168881ee4f547f935323cd89a60d002f9d0213172",
+      "text": "옵션 라운더를 위한 spaCR's spaceout 시각 모드.\n\n이 명령은 대비가 확인된 스펙트럼 팔레트와 변화하는 필드 애니메이션을 사용해 표준 :func:`spacr.qt.run` 응용 프로그램을 시작합니다. 이 모드는 현재 프로세스에만 적용됩니다. 환경설정으로 저장되지 않으며 이후의 표준 실행을 변경하지 않습니다. 배경 애니메이션을 끄는 옵션을 포함해 기존 애니메이션 환경설정은 계속 적용됩니다. 소리가 있는 유일한 모드이기도 합니다. 환경설정은 여기에서만 소리 탭과 프랙털 탭을 표시하며, 일반 spaCR은 저장된 소리 설정에 관계없이 아무 소리도 재생하지 않습니다.",
       "translation_source_blocks_sha256": [
         "a67e09e2c14b073899fd69460f954e507eb0f9fb187a892a47aff4c59e69212f",
-        "c57e73bc19f127bb71c594a8fbfe041724d9bed07f7331fbc8f2a9dc94532cd3"
+        "63b31e268423b94899009ead0f9c6c4d24f204c7f3195d7cb9cd9d8890a2dc9d"
       ]
     },
     "spacr.qt.spaceout.main": {
@@ -121423,13 +121515,14 @@
         "580223628aa3fcd8efc7e5386ac7cf28a96a05cb0f9366f435f21792d9692c1f",
         "d190b022b3395a6814985c8e77b5c4f67f397a9fab1b5955295bcc03e5cc221d",
         "3ed52cc085e01b8552746e1341c3d51eb7c1bfe1bbbfa11d0fb6105f031044b4",
+        "6af39d93481340f8ea0604c75825ca78e1ee087d637badd8338d5e2ac9d52d5c",
         "a0a5d68e444c2333dad8b51f0b06b0b2e9bb775a66e0a9ab9e6403b3a24a1142",
         "ba825fb2ba3ffe475481edde4670e089e625c6292b75cfe805d2cb137cfb3d9d",
         "e3308d2b706272c5c0e7b9d59bb06d7b6cee728a9e6d3ccfd3f9671c539d7b9c",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
       ],
-      "source_sha256": "cb12671d370bdbfdc3889dbd7200b9b466ba0948961f189313c3638ea72d3412",
-      "text": "라이브 배경: :class:`AmbientEngine`를 캡처된 속도로 그린다.\n\n애플리케이션 보기 콘텐츠는 앞에 앉아 있으므로 결코 초점을 맞추지 않으며, 마우스 이벤트에 투명하며, 자매 스팅 순서의 바닥으로 내려갑니다.그것은 완전히 눈에 띄지 않습니다 - 그것은 페이지 색상 (또는 테마 배경 화면) 자체와 상단에있는 애니메이션을 그립니다 - 그래서 그것을 커버하는 위젯은 아래에 다시 그릴 것이 없습니다.\n\n:param parent: 부모 위젯; :meth:`follow_parent` 그것을 크게 합니다.\n:param theme: :data:`AMBIENT_THEMES`에 해당되는 글 1건\n:param palette: 이 테마를위한 :func:`palettes_for`의 하나.이 테마에 의해 제공되지 않지만 존재하는 팔레트는 테마의 기본으로 내려갑니다 (스틸 선호도는 화면을 깨지 않아야합니다); 알려지지 않은 이름이 올라갑니다.\n:param background: 애니메이션 아래의 평평한 색상; 현재 테마의 페이지 색상에 대한 기본.\n:param backdrop: 깔끔한 색상 대신 애니메이션 아래에서 그림을 그릴 수있는 이미지 - 경로, ``QPixmap``/``QImage`` 또는 ``None``.\n:param fps: 프레임 라이트 캡\n:param seed: RNG 씨앗, 재생 가능한 애니메이션을 위해.\n:param blur: 오래된 호출자를 위해 유지; 표시된 주제는 blur를 무시합니다.\n:param speed: 움직임 복제기; ``None``는 선호도를 읽습니다.\n:param size: 요소 크기 번식기; ``None``는 선호도를 읽습니다.\n:param resolution: 얼마나 많은 세부 사항이 주제의 자체 버퍼에 복제자로 덮여 있는지; ``None``는 선호도를 읽습니다.\n:param density: 얼마나 많은 요소가 끌려 왔는지, 주제의 자체 계산에 대한 복제로; ``None``는 선호도를 읽습니다.\n:param gravity_radius: 화면의 짧은 변에 대한 비율로 나타낸 포인터 영향 반경이며, 0은 비활성화합니다. ``None``은 환경설정에서 읽습니다.\n:param direction: 어떤 방식으로 별 필드가 여행하는지, :data:`DRIFT_DIRECTIONS`; ``None``의 하나는 선호도를 읽습니다. 다른 주제에 의미가 없으며 어쨌든 그것을 잃지 않습니다.\n:param corner_radius: 이 많은 px에 의해 뒷면의 자신의 각도를 회전; ``0``은 평방으로 남아있다. CLIPPED, 마스크되지 않음 - 마스크 지역은 카드의 항 링에 맞서 계단 단계 모퉁이를 제공합니다 - 그리고 기초가 채워지기 전에 적용하여 평평한 페이지 색상이 애니메이션으로 둥글게되기보다는 그 뒤에있는 구석에 표시됩니다.\n위젯을 구축하고 엔진을 시작합니다.\n\n:param parent: 상위 위젯입니다.",
+      "source_sha256": "56244bd108653b0d6a116800bec3f1463ed22a379c48fc24238396b4484fd5e6",
+      "text": "라이브 배경: :class:`AmbientEngine`를 캡처된 속도로 그린다.\n\n애플리케이션 보기 콘텐츠는 앞에 앉아 있으므로 결코 초점을 맞추지 않으며, 마우스 이벤트에 투명하며, 자매 스팅 순서의 바닥으로 내려갑니다.그것은 완전히 눈에 띄지 않습니다 - 그것은 페이지 색상 (또는 테마 배경 화면) 자체와 상단에있는 애니메이션을 그립니다 - 그래서 그것을 커버하는 위젯은 아래에 다시 그릴 것이 없습니다.\n\n:param parent: 부모 위젯; :meth:`follow_parent` 그것을 크게 합니다.\n:param theme: :data:`AMBIENT_THEMES`에 해당되는 글 1건\n:param palette: 이 테마를위한 :func:`palettes_for`의 하나.이 테마에 의해 제공되지 않지만 존재하는 팔레트는 테마의 기본으로 내려갑니다 (스틸 선호도는 화면을 깨지 않아야합니다); 알려지지 않은 이름이 올라갑니다.\n:param background: 애니메이션 아래의 평평한 색상; 현재 테마의 페이지 색상에 대한 기본.\n:param backdrop: 깔끔한 색상 대신 애니메이션 아래에서 그림을 그릴 수있는 이미지 - 경로, ``QPixmap``/``QImage`` 또는 ``None``.\n:param fps: 프레임 라이트 캡\n:param seed: RNG 씨앗, 재생 가능한 애니메이션을 위해.\n:param blur: 오래된 호출자를 위해 유지; 표시된 주제는 blur를 무시합니다.\n:param speed: 움직임 복제기; ``None``는 선호도를 읽습니다.\n:param size: 요소 크기 번식기; ``None``는 선호도를 읽습니다.\n:param resolution: 얼마나 많은 세부 사항이 주제의 자체 버퍼에 복제자로 덮여 있는지; ``None``는 선호도를 읽습니다.\n:param density: 얼마나 많은 요소가 끌려 왔는지, 주제의 자체 계산에 대한 복제로; ``None``는 선호도를 읽습니다.\n:param gravity_radius: 화면의 짧은 변에 대한 비율로 나타낸 포인터 영향 반경이며, 0은 비활성화합니다. ``None``은 환경설정에서 읽습니다.\n:param ripples_enabled: 독립적인 필드 파동 스위치입니다. ``None`` 이면 환경설정을 읽습니다.\n:param direction: 어떤 방식으로 별 필드가 여행하는지, :data:`DRIFT_DIRECTIONS`; ``None``의 하나는 선호도를 읽습니다. 다른 주제에 의미가 없으며 어쨌든 그것을 잃지 않습니다.\n:param corner_radius: 이 많은 px에 의해 뒷면의 자신의 각도를 회전; ``0``은 평방으로 남아있다. CLIPPED, 마스크되지 않음 - 마스크 지역은 카드의 항 링에 맞서 계단 단계 모퉁이를 제공합니다 - 그리고 기초가 채워지기 전에 적용하여 평평한 페이지 색상이 애니메이션으로 둥글게되기보다는 그 뒤에있는 구석에 표시됩니다.\n위젯을 구축하고 엔진을 시작합니다.\n\n:param parent: 상위 위젯입니다.",
       "translation_source_blocks_sha256": [
         "6b2405a57ba40dda2ade8349d89d37b6808755a8bbd7659f9af91f1aed884b3d",
         "c3db299601a29e434ee8a94f92e7f18e5064a7087ab12773187194126c313e4e",
@@ -121446,6 +121539,7 @@
         "580223628aa3fcd8efc7e5386ac7cf28a96a05cb0f9366f435f21792d9692c1f",
         "d190b022b3395a6814985c8e77b5c4f67f397a9fab1b5955295bcc03e5cc221d",
         "3436310acc80e652bf805eb4117bb4201ad6a428ae8286eb940ba2b4739e07ea",
+        "6af39d93481340f8ea0604c75825ca78e1ee087d637badd8338d5e2ac9d52d5c",
         "a0a5d68e444c2333dad8b51f0b06b0b2e9bb775a66e0a9ab9e6403b3a24a1142",
         "ba825fb2ba3ffe475481edde4670e089e625c6292b75cfe805d2cb137cfb3d9d",
         "e3308d2b706272c5c0e7b9d59bb06d7b6cee728a9e6d3ccfd3f9671c539d7b9c",
@@ -121792,6 +121886,20 @@
         "de54510650fb63e4883010d63e199aacefe5df23d1830958f8869ce87960bebd"
       ]
     },
+    "spacr.qt.widgets.ambient.AmbientWidget.set_field_effects": {
+      "source_blocks_sha256": [
+        "3ab37b52759e1af084429c04c332f7b424786034f971f9ad149c4b113fee8a61",
+        "11d07c2fac01fc405bd2e4329516fdc6d345a162e2fd051a2ba6033af98f6b86",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "7431df8c375b24c9228c8036d85c39b120f2c9cb2987f9f7f50c1a0daaf94c57",
+      "text": "렌더러 잠금 상태에서 저장된 Spaceout 필드 스위치를 적용합니다.\n\n:param effects: 효과 이름을 키로 사용하는 저장된 필드 효과 스위치입니다.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "3ab37b52759e1af084429c04c332f7b424786034f971f9ad149c4b113fee8a61",
+        "11d07c2fac01fc405bd2e4329516fdc6d345a162e2fd051a2ba6033af98f6b86",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
     "spacr.qt.widgets.ambient.AmbientWidget.set_fps": {
       "source_blocks_sha256": [
         "880ead64afe1114fbf89f252f04aed307027fd8e0d3455b82f348271e30c3062",
@@ -121833,13 +121941,13 @@
     "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency": {
       "source_blocks_sha256": [
         "26a044f01b39376310a6f39c590b3d98df1845fb0fe367d0f5bc3f17f34e6cd1",
-        "60a4a0ccf971ad5d4b20041e03f6bf2c0504c4bcc0e5eba53e37b80a02a713b3"
+        "54219878d050ab3ec31a42dec020130355d27f5e8dcfe11ec7f121d655855acf"
       ],
-      "source_sha256": "a1423718ae7a109ebd1ad89bae2f3baabfd19c213b2262f8df3b0f7b47ef6882",
-      "text": "포인터의 영향 범위나 점의 개수를 바꾸지 않고 팝업 파동을 변경한다.\n\n:param value: 분당 팝업 파동 수로, 영에서 육십까지 제한된다. 영은 팝업 파동을 끈다.",
+      "source_sha256": "d82747df30ec3816c889ba93691bd0e493b39edf72629a1dd1bc234c945e6199",
+      "text": "포인터의 영향 범위나 점의 개수를 바꾸지 않고 팝업 파동을 변경한다.\n\n:param value: 분당 팝업 파동 수이며, 0에서 60까지로 제한됩니다. 0은 반복 파동을 끕니다. 별도의 물결 스위치는 클릭, 컨테이너 및 창의 개별 피드백을 제어합니다.",
       "translation_source_blocks_sha256": [
         "26a044f01b39376310a6f39c590b3d98df1845fb0fe367d0f5bc3f17f34e6cd1",
-        "60a4a0ccf971ad5d4b20041e03f6bf2c0504c4bcc0e5eba53e37b80a02a713b3"
+        "54219878d050ab3ec31a42dec020130355d27f5e8dcfe11ec7f121d655855acf"
       ]
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_resolution": {
@@ -121852,6 +121960,20 @@
       "translation_source_blocks_sha256": [
         "9994daf02be8dd2710aee3ded03b11904bca18c20ecd4589b43d1187089bfe54",
         "73445b2a76651bf859233ff92614faa93d432650be945f228602acf616379c63"
+      ]
+    },
+    "spacr.qt.widgets.ambient.AmbientWidget.set_ripples_enabled": {
+      "source_blocks_sha256": [
+        "470d4aaa74bc3a0de5449af89b95e9bace96b6d4a0ba9b81a5a02411265dc3a4",
+        "1f68631426669ce7c45559f784d277a418ed66b42939978665c24be07e531bab",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "c7a1d7aa32939024f573e885791168f7ad89a8271979daadec1563091256a4cd",
+      "text": "마우스 중력 및 드래그와 독립적으로 모든 필드 물결을 켜거나 끕니다.\n\n:param enabled: 반복 및 개별 필드 파동의 활성화 여부입니다.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "470d4aaa74bc3a0de5449af89b95e9bace96b6d4a0ba9b81a5a02411265dc3a4",
+        "1f68631426669ce7c45559f784d277a418ed66b42939978665c24be07e531bab",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_size_scale": {
@@ -122915,16 +123037,16 @@
     "spacr.qt.widgets.ambient.dressed": {
       "source_blocks_sha256": [
         "4222e467d867f4e06db7c9f1164b8134ac26fe65248c88f917af4e3e5320480a",
-        "e259ce181e7f96ad11ae9091626ffaac04a7117f22801b359c1e58d092e88a6b",
-        "ede5d8236e9f605e8a37aafe251a345b5c38a29fbae7822824448679695087ae",
+        "631ee58ba663c571da9ec39e249e4b4d25522b82f1d473fc800e2d06fbca89ce",
+        "77e5fe8fd5efee3b8ec5b3cba5c4e7968eba464b3a96092296b11ae321367503",
         "5743784ed039f5d7e7713ccaf0a8bc728884c64ca2e174dabe906ba2a390e100"
       ],
-      "source_sha256": "2b5534ad0d1340bbb6e74ee00e4c51ca536879f6784315e9a917cecf863207f5",
-      "text": "현재 출시 모드에 대한 환경 테마와 팔레트를 해결합니다.\n\n표준 출력은 요청한 쌍을 유지합니다.Spaceout는 :data:`SPACEOUT_THEME` 및 :data:`SPACEOUT_PALETTE`를 반환합니다.\n\n:param theme: 요청한 테마 이름입니다. spaceout 장식이 켜져 있지 않으면 그대로 반환됩니다. 여기서는 검증하지 않습니다.\n:param palette: 요청한 팔레트 이름이며, 같은 방식으로 처리됩니다.",
+      "source_sha256": "6285528aa9e5b8699364d200e64130d03a19630993c6f2acf8584c4de614d12b",
+      "text": "현재 출시 모드에 대한 환경 테마와 팔레트를 해결합니다.\n\n표준 실행은 요청한 쌍을 유지합니다. Spaceout 실행은 자체 저장된 선택을 사용하며, 선택을 저장하기 전에는 기본적으로 변화하는 필드를 사용합니다.\n\n:param theme: 요청한 테마 이름이며, 여기서는 검증하지 않습니다.\n:param palette: 요청한 팔레트 이름이며, 같은 방식으로 처리됩니다.",
       "translation_source_blocks_sha256": [
         "4222e467d867f4e06db7c9f1164b8134ac26fe65248c88f917af4e3e5320480a",
-        "e259ce181e7f96ad11ae9091626ffaac04a7117f22801b359c1e58d092e88a6b",
-        "ede5d8236e9f605e8a37aafe251a345b5c38a29fbae7822824448679695087ae",
+        "631ee58ba663c571da9ec39e249e4b4d25522b82f1d473fc800e2d06fbca89ce",
+        "77e5fe8fd5efee3b8ec5b3cba5c4e7968eba464b3a96092296b11ae321367503",
         "5743784ed039f5d7e7713ccaf0a8bc728884c64ca2e174dabe906ba2a390e100"
       ]
     },
@@ -122950,6 +123072,26 @@
       "translation_source_blocks_sha256": [
         "a06adba887692559658377c23488b90b345943a1eec2a7d48efa1b2ba32674c2",
         "99444b56c5d77cfab0be041751ccb90b07f5d87c87009ad4d561793277492132"
+      ]
+    },
+    "spacr.qt.widgets.ambient.field_ripple_for_widget": {
+      "source_blocks_sha256": [
+        "24f935a15f7920edf76c6dfe4c6e3de367a2150532e6a6a507f9af7bc7673d4c",
+        "946610545a40a2c64723176bf9e786d78d37a97253e35253aa590b4640aeeebd",
+        "c141181abb8721e0d08d073513c45321584ed365fa406d2aa8398b1556a3c5d7",
+        "a32a95c2343845f7d6b8c8e7431f60cdebc2e0318cd3b71eb2d39c19016778d0",
+        "a2100b3cd319888c0dbc92f4bb1f68d168bd7ece066d14ed213399a159c94147",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "8776bbda38deb7fce21b4db33757332b98e91e363641954706fce61e1e95d46d",
+      "text": "조정이 끝난 창이나 패널의 피드백을 해당 창이나 패널의 보이는 필드 배경에 전달합니다.\n\n:param widget: 크기가 조정되거나 이동되거나 접힌 위젯입니다.\n:param edge: 선택적인 가장자리에 맞춰진 창 측면입니다.\n:param rect: 위젯의 로컬 좌표로 표현한 선택적인 최종 사각형입니다.\n:param strength: 양수이면 놓을 때의 피드백을 켜고, 0이면 끕니다.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "24f935a15f7920edf76c6dfe4c6e3de367a2150532e6a6a507f9af7bc7673d4c",
+        "946610545a40a2c64723176bf9e786d78d37a97253e35253aa590b4640aeeebd",
+        "c141181abb8721e0d08d073513c45321584ed365fa406d2aa8398b1556a3c5d7",
+        "a32a95c2343845f7d6b8c8e7431f60cdebc2e0318cd3b71eb2d39c19016778d0",
+        "a2100b3cd319888c0dbc92f4bb1f68d168bd7ece066d14ed213399a159c94147",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
     "spacr.qt.widgets.ambient.install_ambient": {
@@ -145242,6 +145384,20 @@
         "4688047fe8880961cf88b47b81b190fe5f4f86610591e2b98f890f41d6a2f99a"
       ]
     },
+    "spacr.qt.widgets.gate_editor.GateCanvas.paintEvent": {
+      "source_blocks_sha256": [
+        "d8584882089a6330878b07027d0c03dd0d0946e0ed89a0464c6352ca502baf5b",
+        "5becae65c722b70a924c0f78511f86f283376c1bf63e07c535dcd323f60a1b9d",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "60b30b1e6c6c4f9a5d2c53d84564c204ce714a872a4379b64919f392eb6e1f94",
+      "text": "그려진 2D 또는 3D 점을 모서리가 둥근 하나의 단색 표면 위에 유지합니다.\n\n:param event: 이 캔버스의 Qt 그리기 이벤트입니다.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "d8584882089a6330878b07027d0c03dd0d0946e0ed89a0464c6352ca502baf5b",
+        "5becae65c722b70a924c0f78511f86f283376c1bf63e07c535dcd323f60a1b9d",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
     "spacr.qt.widgets.gate_editor.GateCanvas.pending_depth": {
       "source_blocks_sha256": [
         "a858e655ea1500af43a014466db03a29d79b94529a742e038952decebdf87fe5"
@@ -151243,39 +151399,53 @@
     "spacr.qt.widgets.hint_bar": {
       "source_blocks_sha256": [
         "25819d6fcdfdfa844af2c46348883cfd4c06f3982cbbc4d510241043a3a1e979",
-        "36b09d49c947029672e0a9eab6998acb480c554d433dc988e40f08f0c0051fab",
+        "2fd5616facc436d3046886b2656e701b73c94e11276f9418a91d1ca70eba8080",
         "367dd2d04896394da9d9fa3168872b05c4f801459f2dedf410885354ec4483f3",
         "13f868630e69e99b2dcc80c7f0c1bc6d268facf936ab196189a05e5028248261"
       ],
-      "source_sha256": "559c95219a4b2f2f5b6ad47b019a28367adc75c9628b8aef6b465585ac240878",
-      "text": "윈도우 레벨, Qt 컨트롤을 위한 비모델 홀버 지원.\n\n:class:`HintBar`는 지표가 위에 있는 동안 등록된 도움말 텍스트를 표시하는 중앙화된, 단어로 묶여 있는 레이블입니다. 지표 출력에서 지표의 기본 메시지는 아직 표시되는 경우에만 복구하며 지표는 근처 컨트롤 사이에서 이동하는 동안 중간 재설정을 피합니다.\n\n:meth:`HintBar.explain`는 명시적인 텍스트 또는 위젯의 현재 도구 팁을 기록합니다.성공적인 등록은 도구 트립을 청소하고, 접근 가능한 설명과 동일한 문서를 제공하는 경우에만 접근 할 수있는 설명이 이미 존재하지 않으며, 이벤트 필터로 바를 설치합니다.출처 스트립이 표시되면 번역됩니다.\n\n:func:`hint_bar_of`을 사용하여 :class:`HintBar`을 위지트의 상단 레벨 창에 위치하거나 :func:`explain_through_the_bar`은 그러한 바가 존재하는 경우에만 위지를 등록합니다.",
+      "source_sha256": "a8e191b52c8417ad615868bf76962304bdea71b3e3e50445ff63484fc9792324",
+      "text": "윈도우 레벨, Qt 컨트롤을 위한 비모델 홀버 지원.\n\n:class:`HintBar` 는 고정 높이에 네 줄을 표시합니다. 포인터가 컨트롤 위에 있는 동안 긴 도움말을 이 영역 안에서 스크롤할 수 있습니다. 포인터가 떠나면 해당 컨트롤의 텍스트가 여전히 표시되는 경우에만 기본 메시지를 복원하여 인접한 컨트롤 사이에서 중간 초기화가 발생하지 않도록 합니다.\n\n:meth:`HintBar.explain`는 명시적인 텍스트 또는 위젯의 현재 도구 팁을 기록합니다.성공적인 등록은 도구 트립을 청소하고, 접근 가능한 설명과 동일한 문서를 제공하는 경우에만 접근 할 수있는 설명이 이미 존재하지 않으며, 이벤트 필터로 바를 설치합니다.출처 스트립이 표시되면 번역됩니다.\n\n:func:`hint_bar_of`을 사용하여 :class:`HintBar`을 위지트의 상단 레벨 창에 위치하거나 :func:`explain_through_the_bar`은 그러한 바가 존재하는 경우에만 위지를 등록합니다.",
       "translation_source_blocks_sha256": [
         "25819d6fcdfdfa844af2c46348883cfd4c06f3982cbbc4d510241043a3a1e979",
-        "36b09d49c947029672e0a9eab6998acb480c554d433dc988e40f08f0c0051fab",
+        "2fd5616facc436d3046886b2656e701b73c94e11276f9418a91d1ca70eba8080",
         "367dd2d04896394da9d9fa3168872b05c4f801459f2dedf410885354ec4483f3",
         "13f868630e69e99b2dcc80c7f0c1bc6d268facf936ab196189a05e5028248261"
       ]
     },
     "spacr.qt.widgets.hint_bar.HintBar": {
       "source_blocks_sha256": [
-        "204dafcb45bb93726981f4d4097c74d1097685d5457398c57667eb846fbd97ca",
+        "d5207b94271ba9735c7f1ccb8f7521a14de3892cfb1cdc3be78f5c2d10ecccbe",
         "839345dd4a77136ba01a4b38c0d0ad9327833f652504343994672adeeae0ba0b",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "dfe9256f28062f54608c2e4f676b99a46d840d7275b4b06d557451a14aeec19a",
-        "c2e3f9ec1dd1fd67d6a721ef912db917e138b3158424ca5d80116f971ebbba6e",
+        "7b80294cf3ed8ecda92f8b668766485a9cec41d2c09e71170f9bcb901c11061f",
         "2e828e7021ba2fb5623649c36fc73ed13e3177c3481c845396b1f52ace0f9c0f",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "0a499d38df3b15700992b6cb50e32f054ac4d6e199f9a4599be5f745bd837e5e",
-      "text": "라인 자체, 플러스 각 위젯이 말해야하는 것의 기록.\n\n:param default: 그것은 등록 된 힌트가없는 위젯이 지표를 가져올 때마다 복원됩니다, 그래서 그것은 흰색 대신 즉각으로 읽어야합니다.\n:param parent: 상위 위젯입니다.\nPer-control 도구 팁을 대체하는 도움말 스트립을 구축합니다.\n\n3 라인으로 제한 : 스트립은 필요한 가장 긴 도움의 높이를 가져 오기 위해 사용되었으므로 두 개의 컨트롤 사이의 지표를 움직이는 데 도움이 길이에 따라 다르며 전체 대화 점프를 만들었습니다.\n\n:param default: 무엇을 보여주고 아무것도 흔들리지 않는다.\n:param parent: 부모 위젯, 또는 ``None`` 입니다.",
+      "source_sha256": "19932788020a11f1e9eb3c3aea64913b0bb781cde6accd62ead1ed85e9cfb916",
+      "text": "고정 높이의 도움말 영역과 각 컨트롤이 표시해야 할 텍스트의 등록부입니다.\n\n:param default: 그것은 등록 된 힌트가없는 위젯이 지표를 가져올 때마다 복원됩니다, 그래서 그것은 흰색 대신 즉각으로 읽어야합니다.\n:param parent: 상위 위젯입니다.\nPer-control 도구 팁을 대체하는 도움말 스트립을 구축합니다.\n\n네 줄이 계속 표시됩니다. 컨트롤 사이를 이동해도 대화 상자의 레이아웃은 바뀌지 않습니다. 길거나 번역된 도움말은 영역 안에서 스크롤되며 전체 텍스트와 접근성 설명은 유지됩니다.\n\n:param default: 무엇을 보여주고 아무것도 흔들리지 않는다.\n:param parent: 부모 위젯, 또는 ``None`` 입니다.",
       "translation_source_blocks_sha256": [
-        "204dafcb45bb93726981f4d4097c74d1097685d5457398c57667eb846fbd97ca",
+        "d5207b94271ba9735c7f1ccb8f7521a14de3892cfb1cdc3be78f5c2d10ecccbe",
         "839345dd4a77136ba01a4b38c0d0ad9327833f652504343994672adeeae0ba0b",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "dfe9256f28062f54608c2e4f676b99a46d840d7275b4b06d557451a14aeec19a",
-        "c2e3f9ec1dd1fd67d6a721ef912db917e138b3158424ca5d80116f971ebbba6e",
+        "7b80294cf3ed8ecda92f8b668766485a9cec41d2c09e71170f9bcb901c11061f",
         "2e828e7021ba2fb5623649c36fc73ed13e3177c3481c845396b1f52ace0f9c0f",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+      ]
+    },
+    "spacr.qt.widgets.hint_bar.HintBar.changeEvent": {
+      "source_blocks_sha256": [
+        "220b2ae74fbeea705fcbf83e05850b358d8c20d3db18754b6f15444927b83b04",
+        "da6bc51029733d6b613833eb912947007f71121cc83717a338e79cec8eddb65a",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "c47c03398614574982aaf9798a9148b61243513d34fe9656640767ed59f8fa89",
+      "text": "예약된 네 줄을 그리기에 사용하는 글꼴과 동기화합니다.\n\n:param event: Qt 글꼴 또는 스타일 변경 이벤트입니다.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "220b2ae74fbeea705fcbf83e05850b358d8c20d3db18754b6f15444927b83b04",
+        "da6bc51029733d6b613833eb912947007f71121cc83717a338e79cec8eddb65a",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
     "spacr.qt.widgets.hint_bar.HintBar.count": {
@@ -151340,6 +151510,40 @@
       "text": "다시 불필요를 말해주세요.",
       "translation_source_blocks_sha256": [
         "309e22344c4a7aac26e4d76f5529c05a7f1d1460af307e8617383ab54c9d8346"
+      ]
+    },
+    "spacr.qt.widgets.hint_bar.HintBar.setText": {
+      "source_blocks_sha256": [
+        "560339e109e15b3be98eae004f0feac35f6d411a141deeb235bc578e3da02221",
+        "d89ffa9b070180e18730babbfd7ec0b896b03a4b08ea2449227b7e7a17e0e66a"
+      ],
+      "source_sha256": "1ac7beb8de695024103426463e8bee445d2d62977f17fdb000768702f7468c6d",
+      "text": "고정 높이의 영역에 모든 도움말을 표시하고 네 줄을 넘으면 스크롤합니다.\n\n:param text: 번역된 전체 도움말 문장입니다.",
+      "translation_source_blocks_sha256": [
+        "560339e109e15b3be98eae004f0feac35f6d411a141deeb235bc578e3da02221",
+        "d89ffa9b070180e18730babbfd7ec0b896b03a4b08ea2449227b7e7a17e0e66a"
+      ]
+    },
+    "spacr.qt.widgets.hint_bar.HintBar.showEvent": {
+      "source_blocks_sha256": [
+        "579409fa0cb9c5d51a325c1c37b6a98e58fa3febb229ec990883e7ce22cd1efe",
+        "cfb5f62d44a9ab0f88142bb225ab68ba3158b01cacc7eddbfdd3f1b2a165013c"
+      ],
+      "source_sha256": "a8fd81440a349f5996fb9bdc4ff7929e4f2efd7d0fa3421caf8d4c32ea121715",
+      "text": "환경 설정 레이아웃을 측정한 뒤 저장된 높이를 복원합니다.\n\n:param event: Qt 표시 이벤트입니다.",
+      "translation_source_blocks_sha256": [
+        "579409fa0cb9c5d51a325c1c37b6a98e58fa3febb229ec990883e7ce22cd1efe",
+        "cfb5f62d44a9ab0f88142bb225ab68ba3158b01cacc7eddbfdd3f1b2a165013c"
+      ]
+    },
+    "spacr.qt.widgets.hint_bar.HintBar.text": {
+      "source_blocks_sha256": [
+        "33f46b7895c2a1ad0131bff0a8c1f2d6d733b22126160af5b322fed2e8bdb1a3"
+      ],
+      "source_sha256": "33f46b7895c2a1ad0131bff0a8c1f2d6d733b22126160af5b322fed2e8bdb1a3",
+      "text": "현재 도움말 영역에 표시되는 전체 문장을 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "33f46b7895c2a1ad0131bff0a8c1f2d6d733b22126160af5b322fed2e8bdb1a3"
       ]
     },
     "spacr.qt.widgets.hint_bar.explain_through_the_bar": {
@@ -153774,24 +153978,18 @@
         "bd7d1218443af93a909f7d7eba6af06b973c52a4057cf01e21ca633921c1741f"
       ]
     },
-    "spacr.qt.widgets.live_preview.LiveSettingsDialog.closeEvent": {
+    "spacr.qt.widgets.live_preview.LiveSettingsDialog.done": {
       "source_blocks_sha256": [
-        "cd9be7bce786f998cf3d5113b814b7afad688532c30d7e20fdf522855a8d6fb2",
-        "e1c67d5df5bdb7d0526672141e8e570fcb66f0bb7ee83150d24a65b1773ee2a3",
-        "f6626d38b22ee0222df8785d8a54345c77850bf6bee1d6f68565c4a7feac60a3",
-        "1ff37d6ac2220b6dde71cb1505e76eb631a4ace37b9323f4ec4586f675626632",
-        "a71d83b14bcb68b723ca4caf9c4035319bb772248b144893190e53d9e7794a0c",
-        "bba080af9f117192497888e406a7b09f10fd30e09239fd7b6472cdeb1ee259fc"
+        "3bbefaf5c9d9789956f33c5849fd27224f0d460270dbb0f4ea8be1326e546188",
+        "ba9bb52c4cbe50c139ee4d383784c0977e2703071c4f0ebdddeb3b53159aabf3",
+        "f2f64455b0bf369837ffe612b440a7477648aaf5ff9bd0061b6dc11a6d45dba4"
       ],
-      "source_sha256": "d2fed8db2beca0898fbdaee2c304f3d556160cf02b251e6e1a9e4d3b838b27bd",
-      "text": "각 패널 컨트롤이 대출 된 대화, 단지 선언된 대화가 아닙니다.\n\nQt 그것과 함께 대화의 아이들을 파괴하므로, 이 대화가 진행될 때 패널의 아직 고향이 있는 모든 것이 그와 함께 갈 것입니다. 컨트롤은 패널이며 디자인에 따라 대화를 생존합니다. - 그들의 가치는 사용자가 흔들린 것입니다.\n\n`_managed_widgets()`은 선언된 목록이며 그것은 불완전했습니다 : `_pathogen_channel`, `_organelle_channel` 및 `_model_zoo_btn`도 여기에 놓여 있고 그 안에 있지 않았으므로 한 개를 열고 닫은 후에 그들은 닫힌 대화에 속하는 그룹 상자에 앉아있었습니다. 아무것도 실패하지 않았습니다 - 그들은 여전히 Python 참조를 가지고 있기 때문에 살아남았습니다.\n\n그래서 스프링은 목록이 아닌 IDENTITY에 의해 이루어집니다.이 대화의 아래에있는 모든 위젯은 패널에 대한 속성을 유지합니다. `LivePreviewPanel._stow_free_widgets`와 같은 목적에 따라 빛, 그래서 라인에 추가 된 컨트롤은 나중에 누구도 여기에 추가하는 것을 기억하지 않고 덮여 있습니다.\n\n그들은 `_offscreen_controls`로 이동하고 패널이 아닙니다 : 레이아웃이없는 패널과 일관되며, 각각 충전된 경로 표지판 위에 (0, 0)에 앉아 `hide()` 외에 아무것도 스크린을 꺼내지 않습니다.\n\n:param event: 닫기 이벤트입니다. 빌린 모든 컨트롤을 돌려준 뒤 기본 클래스로 전달됩니다.",
+      "source_sha256": "d494b36a63826565afccd535ac2c634e8b8b008082d9811d1ab27d7578056f5d",
+      "text": "모든 종료 경로에서 빌려온 컨트롤을 반환하고 구독 연결을 해제합니다.\n\nQt는 대화상자를 파괴할 때 그 자식 위젯도 함께 파괴하므로, 종료 시점까지 이 대화상자 아래에 남아 있는 패널의 컨트롤도 파괴됩니다. 컨트롤은 패널에 속하며 Close, Escape, accept, reject 및 명시적인 완료 이후에도 값을 유지합니다. ``done``에서 컨트롤을 복원하면 닫기 이벤트가 전달되지 않는 종료 경로도 처리됩니다. 이미 완료된 대화상자는 교체된 대화상자에서 컨트롤을 옮길 수 없습니다.\n\n:param result: 컨트롤이 패널의 숨겨진 보관 컨테이너로 돌아간 뒤 Qt에 전달되는 대화상자 결과입니다.",
       "translation_source_blocks_sha256": [
-        "cd9be7bce786f998cf3d5113b814b7afad688532c30d7e20fdf522855a8d6fb2",
-        "e1c67d5df5bdb7d0526672141e8e570fcb66f0bb7ee83150d24a65b1773ee2a3",
-        "f6626d38b22ee0222df8785d8a54345c77850bf6bee1d6f68565c4a7feac60a3",
-        "1ff37d6ac2220b6dde71cb1505e76eb631a4ace37b9323f4ec4586f675626632",
-        "a71d83b14bcb68b723ca4caf9c4035319bb772248b144893190e53d9e7794a0c",
-        "bba080af9f117192497888e406a7b09f10fd30e09239fd7b6472cdeb1ee259fc"
+        "3bbefaf5c9d9789956f33c5849fd27224f0d460270dbb0f4ea8be1326e546188",
+        "ba9bb52c4cbe50c139ee4d383784c0977e2703071c4f0ebdddeb3b53159aabf3",
+        "f2f64455b0bf369837ffe612b440a7477648aaf5ff9bd0061b6dc11a6d45dba4"
       ]
     },
     "spacr.qt.widgets.live_preview.LiveSettingsDialog.refresh_visibility": {
@@ -190950,6 +191148,16 @@
         "dc249d9148915600362b8b17ca063a149dc5f7c318e4c08973dc792065ad8145"
       ]
     },
+    "spacr.sim._commit_simulation_packet.dispatch": {
+      "source_blocks_sha256": [
+        "6f0194324df7e1e7ed7d851b1384648c691264a75f367b8ab7681380a6060bd1"
+      ],
+      "source_sha256": "6f0194324df7e1e7ed7d851b1384648c691264a75f367b8ab7681380a6060bd1",
+      "text": "수집한 시뮬레이션 데이터 테이블 하나를 일반 테이블 쓰기 기능으로 기록합니다.",
+      "translation_source_blocks_sha256": [
+        "6f0194324df7e1e7ed7d851b1384648c691264a75f367b8ab7681380a6060bd1"
+      ]
+    },
     "spacr.sim._simulation_unit_bytes._largest": {
       "source_blocks_sha256": [
         "1ab961ccc90ca17a00a0e352b93a9f5242b713a996cfab37fea39875a225064e"
@@ -191629,17 +191837,21 @@
     "spacr.sim.run_multiple_simulations": {
       "source_blocks_sha256": [
         "19302a23981770f4a24a6fce2c6cbdc900c607535f882fde009a8478d388204f",
-        "1570b3dd21b3868aca34917e47c27a88047a89a861a9a4db1db18825d21dac23",
-        "361562dbfc69fc1087b39308d2cada734291452e428270b69f1f23203ae96614",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+        "5def515be7c222af9281dbefe1296d4477789df6254a9f547d25ecbae2eed3f7",
+        "b83a9f6992b769845ad2479f065c8109a5d364ff0c1d321f1927f5abf56aa87a",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+        "0904ecd06f1e572d8913468a6f0e473feb738bbb9670ff29bd5b7fb767327f65",
+        "9c519a8988a8e0fe1a218355d4566670e3e799a81ec4e9213930be3260d086f9"
       ],
-      "source_sha256": "38a776efefe7a669c5e74482be69d5249d59c15b48a69c81ce304b88c3068a0d",
-      "text": ":func:`generate_parameters`에서 프로세스 수영장을 통해 스프레이를 꺼내십시오.\n\n``multiprocessing.Pool``을 사용하여 ``max_workers`` (또는 ``cpu_count()-4``) 노동자, 진보 라인을 인쇄하고 각 노동자를 :func:`run_and_save`로 이동합니다.\n\n:param settings: Sweep-settings 키 가치 맵링. ``max_workers``을 포함해야 합니다.\n:returns: None.",
+      "source_sha256": "3a4ddcb131af2d94e7b64e93dca87ab263ca3e402bb868fb4b16f66273c98a69",
+      "text": ":func:`generate_parameters`에서 프로세스 수영장을 통해 스프레이를 꺼내십시오.\n\n처리 작업자는 10초 간격으로 시작하고 수집한 데이터베이스 작업으로 :func:`run_and_save`를 실행합니다. 부모 프로세스가 관리하는 쓰기 담당자 하나가 각 전체 시뮬레이션과 재시도 확인표를 원자적으로 커밋합니다. 명확한 자원 과부하는 모든 기본 작업이 완료된 후 순차적으로 한 번 재시도하며, 데이터베이스 과부하는 쓰기 담당자의 별도 최종 대기열을 사용합니다. 잘못된 데이터와 취소는 재시도하지 않습니다. 시뮬레이션 또는 최종 데이터베이스 쓰기가 실패하면 매개변수 탐색의 성공을 보고하는 대신 오류를 발생시킵니다.\n\n:param settings: 매개변수 탐색 설정 사전입니다. ``max_workers``를 포함해야 합니다. ``database_write_queue_gib``는 저장된 대기열 RAM 예산을 0부터 64 GiB까지의 값으로 덮어쓸 수 있으며, 0은 직렬화된 패킷을 디스크에 버퍼링합니다. 중단 시 대기 중 패킷은 날짜가 포함된 출력 폴더 아래에 남습니다.\n:returns: None.\n:raises ValueError: 대기열 RAM 예산이 잘못되었을 때입니다.\n:raises RuntimeError: 최종 데이터베이스 쓰기가 실패했을 때입니다. 처리 오류는 원래 예외 유형으로 전달됩니다.",
       "translation_source_blocks_sha256": [
         "19302a23981770f4a24a6fce2c6cbdc900c607535f882fde009a8478d388204f",
-        "1570b3dd21b3868aca34917e47c27a88047a89a861a9a4db1db18825d21dac23",
-        "086999a0f9e3277cc05f0d1f1513d9e23128715e460d797db3452a8f0ae95b2f",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+        "6d716581b0e9fe1eccbf1e1d0e33d2ebc07c97aa8f1bc92f71992e823609829c",
+        "42c177ac9d62d07108ceb9d7e43e4b26bbc8a97fe2cf2362ff2a19e2bd5edf56",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+        "3ced5f7badf61c208de74307a9dc0cd74c728d68b4c45cac465b66524c56edda",
+        "9c519a8988a8e0fe1a218355d4566670e3e799a81ec4e9213930be3260d086f9"
       ]
     },
     "spacr.sim.run_simulation": {

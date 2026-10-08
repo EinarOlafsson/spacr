@@ -145,6 +145,13 @@
       "source_sha256": "a68f1d91e3d19e4b7dfe89f0480efd933d7597aa8c5b4730f6060de20da7bc6e",
       "text": "Do not let consumers mutate scheduler bookkeeping."
     },
+    "spacr._mask_workers._run_mask_workers.run_group": {
+      "source_blocks_sha256": [
+        "4052295c785b7844536496fdb155bce5817616f0b529a8eac4f5fcd47a5681cc"
+      ],
+      "source_sha256": "4052295c785b7844536496fdb155bce5817616f0b529a8eac4f5fcd47a5681cc",
+      "text": "Join every member of one primary or serial final worker group."
+    },
     "spacr._mask_workers._worker_figures.publish": {
       "source_blocks_sha256": [
         "d263c266a19ac5be96f3658af0b3f86ad1ee06695b320eb7f6deb87b6fab0743"
@@ -12615,11 +12622,11 @@
         "f1ec315b0ef992a6ab8e0a1766dcc6f2216daea3e42855b815e57285c0f2f3bb",
         "04db7ece52b63c560da2ece2be3ee1cda13e764890743e4124ff84ea4fcebbf3",
         "d731f26ccc25ffad7a39e0bb855284bf3e46ae6245a766e78756dc8eca1a2760",
-        "7451fe517efc51a737a9591a521e006483d674afb04469f516acb417f157caec",
+        "ebe0943c952d3e79635549fcf653b39cfeb6ab33605cb0f0ac92506e65702f9b",
         "16e7c9acda5794a52cb74887d6105259230e33ec114004b776f0b08c4e8935cf"
       ],
-      "source_sha256": "3b3e51c388c01e7bdc1b0fb80197cf9822284e2e28498b1e7fb469074f06e12d",
-      "text": "Open one configured connection owned by the calling thread.\n\n:param path: SQLite database path.\n:param readonly: open with URI ``mode=ro`` and ``query_only=ON``.\n:param timeout: seconds SQLite waits inside a lock operation.\n:param journal_mode: optional explicit ``\"WAL\"`` or ``\"DELETE\"``.\n    Omit to preserve the database's current mode. WAL must not be enabled\n    blindly on shared/NFS storage; use :func:`filesystem_type` or the\n    concurrency probe first.\n:param foreign_keys: enable SQLite foreign-key enforcement on this\n    connection. SQLite defaults it off per connection.\n:returns: connection in autocommit mode; use :func:`transaction` for\n    multi-statement writes.\n:raises DatabaseConfigurationError: for an unsafe/unsupported requested\n    journal mode or when SQLite refuses to apply it."
+      "source_sha256": "81ebb05c0fc681c5995f1bc82d6983f2a1ca994e318fa094f2fd75d72acfe4f9",
+      "text": "Open one configured connection owned by the calling thread.\n\n:param path: SQLite database path.\n:param readonly: open with URI ``mode=ro`` and ``query_only=ON``.\n:param timeout: seconds SQLite waits inside a lock operation.\n:param journal_mode: optional explicit ``\"WAL\"`` or ``\"DELETE\"``.\n    Omit to preserve the database's current mode. WAL must not be enabled\n    blindly on shared/NFS storage; use :func:`filesystem_type` or the\n    concurrency probe first.\n:param foreign_keys: enable SQLite foreign-key enforcement on this\n    connection. SQLite defaults it off per connection.\n:returns: connection in autocommit mode; use :func:`transaction` for\n    multi-statement writes. Inside an atomic queued write, helpers for\n    this same database reuse the writer thread's active connection;\n    their commits and closes are deferred until the complete field commits.\n:raises DatabaseConfigurationError: for an unsafe/unsupported requested\n    journal mode or when SQLite refuses to apply it."
     },
     "spacr.database_concurrency.enable_wal_where_safe": {
       "source_blocks_sha256": [
@@ -12693,10 +12700,10 @@
         "5e0e3b553903a00524b45754601b9c70d4527846c95f259b2842e40d3a82da87",
         "65fa199a990ef7828fac0cdb761ecfa1930c3823346a578c0c302bf74e7a12a3",
         "1a6c9bf1890d271f4dc8d8f3042beb1eb105cb7b6a2b4e50aeee55dc68e6b2fc",
-        "89414cabc7a1f77766424a334083261b016f26143a1a1fb04a5c50566c944fa1"
+        "e5e036b663d76d2ac4242bd4762a39b992308b7408b639de920edecd760bd72f"
       ],
-      "source_sha256": "9e0a57e656d78b97e0eda00589be7f73f4d54106e5362e3c57e0e5e2d49a51da",
-      "text": "Run an all-or-nothing transaction with bounded lock retry.\n\nOnly ``BEGIN`` is retried. Once a transaction starts, retrying individual\nstatements could duplicate earlier writes. Any body or commit error rolls\nthe complete transaction back and propagates.\n\n:param connection: calling thread's open autocommit connection.\n:param mode: ``DEFERRED``, ``IMMEDIATE`` (default), or ``EXCLUSIVE``.\n:param attempts: maximum attempts to acquire the transaction.\n:param initial_delay: first backoff between lock failures.\n:param maximum_delay: backoff cap.\n:param busy_timeout: total seconds this transaction may spend waiting on\n    locks inside SQLite, shared over ``attempts`` and floored at\n    ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS`` per attempt. Omit to inherit the\n    connection's configured ``busy_timeout``; pass it when the write's own\n    tolerance differs from whatever ``timeout`` the connection happened to\n    be opened with.\n:raises DatabaseBusy: when the lock outlives the retry budget.\n:raises RuntimeError: when asked to nest inside an active transaction."
+      "source_sha256": "36b03bb81f1de991464bdbf6d61edbc1d9ab8ada43b80a9c52c65f24debc2baf",
+      "text": "Run an all-or-nothing transaction with bounded lock retry.\n\nOnly ``BEGIN`` is retried. Once a transaction starts, retrying individual\nstatements could duplicate earlier writes. Any body or commit error rolls\nthe complete transaction back and propagates.\n\n:param connection: calling thread's open autocommit connection.\n:param mode: ``DEFERRED``, ``IMMEDIATE`` (default), or ``EXCLUSIVE``.\n:param attempts: maximum attempts to acquire the transaction.\n:param initial_delay: first backoff between lock failures.\n:param maximum_delay: backoff cap.\n:param busy_timeout: total seconds this transaction may spend waiting on\n    locks inside SQLite, shared over ``attempts`` and floored at\n    ``MINIMUM_ATTEMPT_BUSY_TIMEOUT_MS`` per attempt. Omit to inherit the\n    connection's configured ``busy_timeout``; pass it when the write's own\n    tolerance differs from whatever ``timeout`` the connection happened to\n    be opened with.\n:raises DatabaseBusy: when the lock outlives the retry budget.\n:raises RuntimeError: when asked to nest inside an active transaction\n    outside a writer-owned packet. Queued helper transactions use\n    savepoints within that packet."
     },
     "spacr.database_concurrency.wal_is_safe_here": {
       "source_blocks_sha256": [
@@ -27905,6 +27912,14 @@
       "source_sha256": "ba420a71229ecbc5335903ddc3a9b9f0545aa36d1f3c6188a242f9d0d1909123",
       "text": "The spaCR label under each centre in ``role``'s mask.\n\nA centre outside the image cannot identify an edge object; the check\ncomes before rounding so negative subpixel positions stay unmatched."
     },
+    "spacr.measure._commit_measure_packet.dispatch": {
+      "source_blocks_sha256": [
+        "a7f12d2162ba4af15caacea44d9950a67a7c6769ab8b6532dfe6c0d16398e901",
+        "62290849baf7cea7152f2e1b4afdacbb6e6344072c15f1e2dbfff0a497ae83b9"
+      ],
+      "source_sha256": "d9d59e9a858fb747e1b7d449e40b1c3f07263bd3dde3c1569d9d074eade450a5",
+      "text": "Save one approved operation to the packet's central database.\n\n:param operation: approved helper name, positional arguments and keywords."
+    },
     "spacr.measure._confluency_phase_features.log_sd": {
       "source_blocks_sha256": [
         "946bba1bab987957ae59fef6689a070bc1ec2b2a2d454be73cf9c2592ff71182"
@@ -28214,6 +28229,7 @@
         "b121081764c60347ea02ccfae9ca6358199105596a6b5bd1fb6e389b5081fe79",
         "f8b3da5212c4ca703a46301293e46749996b61a879bff1cf971a17f15db56860",
         "99f5f572aa0963f50b62877ed33efe7ba74659b7ddfdc92ce792e0802360970c",
+        "ab7fd34d9f1a12be5d0f3158b668ff926f03b7a1ebe183e9fdbf2c0065e6ce5e",
         "b58e2b6592e749615f2dc5f10ac9ed23145f5ff898495161775e23d8e88723de",
         "fd9989dfcfe81a26d794d1e77003a454f4b9febca9a4be4b175aea694f22c864",
         "b65ba8c7f8b84a88199c1f4b3cb99daab65430a1383b7753f4da31f899377fe0",
@@ -28221,16 +28237,16 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "e9fad3ffb2efec6a5b19f4127fb66633a0c096704de7bd7907e7fc3c03c7ad39"
       ],
-      "source_sha256": "84831429cc9a1e4b67232df48c98c7bff72a67dc2be87aeb20896faa1d8bcc01",
-      "text": "Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.\n\nConsumes the ``merged/`` folder produced by\n:func:`spacr.core.preprocess_generate_masks` (channel arrays + mask stacks\nsaved as ``.npy``), computes shape, intensity, texture and spatial\nfeatures per cell / nucleus / pathogen / cytoplasm object, and writes\nthem to a SQLite ``measurements.db``. When ``save_png`` is enabled it\nalso crops per-object PNG thumbnails, which are the training input for\n:func:`spacr.deep_spacr.deep_spacr`.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.get_measure_crop_settings`. Key entries the\n    function reads:\n\n    - ``src`` (str or list) — one or more ``…/merged`` folders. A\n      cloud address Make Masks has analysed is measured from the local\n      folder Make Masks staged it in; a cloud folder of merged stacks is\n      mirrored under ``cloud_cache`` first. ``cloud_results`` copies the\n      measurements folder back to cloud storage.\n    - ``psf_measurement_source`` — original (default) uses the normal\n      rescaled/preprocessed intensities; processed adds an explicitly\n      calibrated PSF before quantitative features. The immutable kernel\n      reaches every worker. Source images and exported crops stay unchanged.\n      Field provenance is saved in ``intensity_rescale``; incompatible\n      existing PSF measurements are refused before any rows are appended.\n    - ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim``\n      — channel index of each mask stack; ``None`` disables that\n      object type.\n    - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size``\n      / ``cytoplasm_min_size`` — pixel-area cutoffs.\n    - ``channels`` — list of intensity channels to measure.\n    - ``crop_mode`` — list drawn from ``['cell','nucleus','pathogen',\n      'cytoplasm']``; each entry produces one PNG per object.\n    - ``save_png`` — write per-object PNG thumbnails.\n    - ``normalize`` — ``[lower_pct, upper_pct]`` for PNG normalization.\n    - ``normalize_by`` — ``'png'`` (per-crop) or ``'fov'`` (per-field).\n    - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.\n    - ``dry_run`` — validate the settings, report the plan and stop;\n      the input folders are inspected but nothing is written.\n\n:returns: ``None`` on a normal run, which writes\n    ``measurements/measurements.db``, ``measure_crop_settings.csv``, and\n    (if ``save_png``) PNGs into per-object subfolders under ``src``. When\n    ``dry_run`` is set, the list of :class:`spacr.validate.Problem`\n    returned by :func:`spacr.validate.run_preflight`, and nothing is\n    written.\n:raises ValueError: if ``src`` is not a string or a list of strings.\n:raises spacr.errors.ConfigurationError: only in strict mode\n    (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS``\n    environment variable). The ``normalize``, ``normalize_by``,\n    mask-dimension/min-size and ``channels`` type checks otherwise print\n    a WARNING and return ``None`` without measuring anything.\n\nExample:\n    .. code-block:: python\n\n        from spacr.measure import measure_crop\n        settings = {\n            'src': '/data/plate01/merged',\n            'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,\n            'channels': [0, 1, 2, 3],\n            'crop_mode': ['cell'], 'save_png': True,\n            'normalize': [1, 99], 'normalize_by': 'png',\n        }\n        measure_crop(settings)\n\nSee Also:\n    :func:`spacr.core.preprocess_generate_masks` — upstream mask generation.\n    :func:`spacr.io.generate_dataset` — build a training set from the PNGs.\n    :func:`spacr.deep_spacr.deep_spacr` — train a CNN on the crops."
+      "source_sha256": "0a1ab9b650617748efad281aa674c96b90fe137855e9bd3d0a581d03cb3a1f54",
+      "text": "Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.\n\nConsumes the ``merged/`` folder produced by\n:func:`spacr.core.preprocess_generate_masks` (channel arrays + mask stacks\nsaved as ``.npy``), computes shape, intensity, texture and spatial\nfeatures per cell / nucleus / pathogen / cytoplasm object, and writes\nthem to a SQLite ``measurements.db``. When ``save_png`` is enabled it\nalso crops per-object PNG thumbnails, which are the training input for\n:func:`spacr.deep_spacr.deep_spacr`.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.get_measure_crop_settings`. Key entries the\n    function reads:\n\n    - ``src`` (str or list) — one or more ``…/merged`` folders. A\n      cloud address Make Masks has analysed is measured from the local\n      folder Make Masks staged it in; a cloud folder of merged stacks is\n      mirrored under ``cloud_cache`` first. ``cloud_results`` copies the\n      measurements folder back to cloud storage.\n    - ``psf_measurement_source`` — original (default) uses the normal\n      rescaled/preprocessed intensities; processed adds an explicitly\n      calibrated PSF before quantitative features. The immutable kernel\n      reaches every worker. Source images and exported crops stay unchanged.\n      Field provenance is saved in ``intensity_rescale``; incompatible\n      existing PSF measurements are refused before any rows are appended.\n    - ``cell_mask_dim`` / ``nucleus_mask_dim`` / ``pathogen_mask_dim``\n      — channel index of each mask stack; ``None`` disables that\n      object type.\n    - ``cell_min_size`` / ``nucleus_min_size`` / ``pathogen_min_size``\n      / ``cytoplasm_min_size`` — pixel-area cutoffs.\n    - ``channels`` — list of intensity channels to measure.\n    - ``crop_mode`` — list drawn from ``['cell','nucleus','pathogen',\n      'cytoplasm']``; each entry produces one PNG per object.\n    - ``save_png`` — write per-object PNG thumbnails.\n    - ``normalize`` — ``[lower_pct, upper_pct]`` for PNG normalization.\n    - ``normalize_by`` — ``'png'`` (per-crop) or ``'fov'`` (per-field).\n    - ``timelapse``, ``timelapse_objects``, ``n_jobs``, ``test_mode``.\n    - ``database_write_queue_gib`` — optional SQLite queued-data RAM budget\n      from zero to 64 GiB. Omit to use Preferences (default one GiB).\n      Zero uses disk-only buffering; overflow lives under\n      ``measurements/.write_queue``. Each field commits atomically and\n      unfinished write packets remain available after failure.\n    - ``dry_run`` — validate the settings, report the plan and stop;\n      the input folders are inspected but nothing is written.\n\n:returns: ``None`` on a normal run, which writes\n    ``measurements/measurements.db``, ``measure_crop_settings.csv``, and\n    (if ``save_png``) PNGs into per-object subfolders under ``src``. When\n    ``dry_run`` is set, the list of :class:`spacr.validate.Problem`\n    returned by :func:`spacr.validate.run_preflight`, and nothing is\n    written.\n:raises ValueError: if ``src`` is not a string or a list of strings.\n:raises spacr.errors.ConfigurationError: only in strict mode\n    (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS``\n    environment variable). The ``normalize``, ``normalize_by``,\n    mask-dimension/min-size and ``channels`` type checks otherwise print\n    a WARNING and return ``None`` without measuring anything.\n\nExample:\n    .. code-block:: python\n\n        from spacr.measure import measure_crop\n        settings = {\n            'src': '/data/plate01/merged',\n            'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,\n            'channels': [0, 1, 2, 3],\n            'crop_mode': ['cell'], 'save_png': True,\n            'normalize': [1, 99], 'normalize_by': 'png',\n        }\n        measure_crop(settings)\n\nSee Also:\n    :func:`spacr.core.preprocess_generate_masks` — upstream mask generation.\n    :func:`spacr.io.generate_dataset` — build a training set from the PNGs.\n    :func:`spacr.deep_spacr.deep_spacr` — train a CNN on the crops."
     },
     "spacr.measure.measure_crop.job_callback": {
       "source_blocks_sha256": [
-        "4125957ce35fa2732ebe63cc2fab8251c1530f38ec47e9f704ad64049e951e3a",
-        "7c2086c26796b9a25462ef474b70ed5f24e224738f26f5c95d4eb9fceb6cd4b9"
+        "111b7e987c7e4c82013353f2d7e75feaeea02494d840bd7103151203d7a505ef",
+        "971d644efe435f0fa22a8a94464059fd3f0ace226a548062e3be9d79174205af"
       ],
-      "source_sha256": "23b43004a8a076e52456a15fc43a8e4385e79d4501c8136b8f8f84e403e4fbcf",
-      "text": "Record one completed field and save its optional figures.\n\n:param result: The 4-tuple ``(index, average_time, cells,\n    figs)`` that :func:`_measure_crop_core` returns, taken\n    straight off the ``AsyncResult`` -- one result, not the\n    list that :func:`process_measure_crop_results` takes,\n    which is why it is re-wrapped as ``[result]`` below.\n    ``index`` is the position in ``files`` and is translated\n    back through ``index_to_file`` so the ledger entry names\n    the field rather than a number. ``cells`` decides the\n    verdict: the success path leaves the\n    ``np.unique(cell_mask)`` array there, while a plain int\n    ``0`` is the cross-process failure sentinel a worker\n    leaves when it caught its own exception, so only that\n    int records a failure. ``figs`` may be an empty dict --\n    nothing is drawn unless ``settings['plot']``. Passing\n    the same field twice is safe for the counters\n    (``completed_jobs`` and ``reported_files`` are sets) but\n    would save its figures twice, so the retry loop calls\n    this only for the attempt that actually returned."
+      "source_sha256": "28866d7f0e95e241d31ebca5700a5da892d69ff48b6df93ddb75cd923be9094f",
+      "text": "Save returned figures and report field computation progress.\n\n:param result: index, average duration, surviving labels,\n    figures, error text and an optional queued-write ticket.\n    An integer zero labels value records the original field\n    failure. SQLite success is recorded separately by the\n    writer after committing all scientific rows. Other\n    backends keep their existing synchronous worker verdict."
     },
     "spacr.measure.measure_crop.make_error_callback": {
       "source_blocks_sha256": [
@@ -28248,6 +28264,20 @@
       ],
       "source_sha256": "b3e7df802817cac8b0aceeaf6d4a80c87c0d757f224ea11855a750c9c51addd9",
       "text": "Record one worker's failure against the file that caused it."
+    },
+    "spacr.measure.measure_crop.record_verdict": {
+      "source_blocks_sha256": [
+        "a4693e96e54697bc45989be5bea1e6b19c7f81bba5449368f7d2c18478fcd213"
+      ],
+      "source_sha256": "a4693e96e54697bc45989be5bea1e6b19c7f81bba5449368f7d2c18478fcd213",
+      "text": "Count each field once, after its actual final outcome."
+    },
+    "spacr.measure.measure_crop.write_callback": {
+      "source_blocks_sha256": [
+        "8dfa9d1be7155cd3aabfe2c6c9ac7848527237be903ce63d77dea3d51dfc6e29"
+      ],
+      "source_sha256": "8dfa9d1be7155cd3aabfe2c6c9ac7848527237be903ce63d77dea3d51dfc6e29",
+      "text": "Record a field only after its packet's final SQL verdict."
     },
     "spacr.measure.measure_from_field_table": {
       "source_blocks_sha256": [
@@ -34740,6 +34770,13 @@
       "source_sha256": "69916629fefa3b8bc2b69995081fd52ae12ce5ab3f012feffd26f017b9a61bff",
       "text": "Run an optical pooled screen's sequencing acquisition from tiles to tables.\n\nOne call takes each well from its tile files to the tables of\n``measurements.db``: ``ops_geometry``, where each nuclear tile sits in the\nwell frame; ``ops_phenotype``, where each field of the high-magnification\nphenotype acquisition lands on that frame and which tile covers it;\n``ops_objects``, one row per nucleus, segmented on the composed nuclear map\nand numbered once for the well; ``ops_barcodes``, one row per nucleus whose\nattributed reads agree; and, when asked for, ``ops_reads``, one row per read\nper cycle behind those barcodes.\n\nA file that cannot be read costs one cycle of the field it belongs to and is\nlisted in the report; it does not cost the well."
     },
+    "spacr.ops_engine._decode_field.load_slot": {
+      "source_blocks_sha256": [
+        "dd4c91b6166b9a5da2d32efb535b1ec07aa78eb36d322b779a07ce3926607eba"
+      ],
+      "source_sha256": "dd4c91b6166b9a5da2d32efb535b1ec07aa78eb36d322b779a07ce3926607eba",
+      "text": "Read one original source with the shared deferred overload policy."
+    },
     "spacr.ops_engine._largest_component.find": {
       "source_blocks_sha256": [
         "bff7bdea9aa13fb4afefd4803c6d263df0352baf7fd4f745f24eea4c59de3229",
@@ -36322,10 +36359,10 @@
         "e97e76330ffc318c5d276e6c0bbaa184ffe7b94e1c2592eb35b1b49163167311",
         "19cbdf49a62ad738af12f8c662dabc35c39c2610d421929a9f3ce2fa63ff7f48",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
-        "1b49559af04e70a9a6e9bb5b105a691b745af9a063d4ba26c4154c0d19c473fb"
+        "0bef7cc59f1f083366ce89406c2f7a6b47c80b6061efc0b184926364348ed8d5"
       ],
-      "source_sha256": "63d1ccf466b8b5f3d0687fff3e9b26a8dc91c2c045af184a148f923e9cf00c21",
-      "text": "Run parameter-sweep trials concurrently in spawned processes.\n\nParameters\n----------\nbase_settings : mapping\n    Regression settings shared by every trial, including the score and\n    count inputs.\ndestination : path-like\n    Directory for trial folders, ``sweep_trials.json``, and the incremental\n    ``sweep_results.csv`` table.\nspace : SweepSpace or None, optional\n    Search space. ``None`` uses :data:`DEFAULT_SWEEP_SPACE` and the built-in\n    compatibility filters.\nmode : {'grid', 'random'}, default='random'\n    Trial enumeration order passed to :func:`build_trials`.\nmax_trials : int, default=1000\n    Maximum number of accepted trials.\nseed : int, default=0\n    Random-order seed used when ``mode='random'``.\ncontrols : mapping or None, optional\n    Mapping from control aliases to identifiers. Control recovery metrics\n    are added to each result row.\nn_jobs : int, default=8\n    Requested pool size. :func:`recommended_workers` may reduce it based\n    on memory and CPU capacity.\ncontained : bool, default=True\n    Run each fit in a separate child through\n    :func:`run_trial_contained`. Hard memory, swap, task, and CPU limits\n    are enforced only when a usable systemd user scope is available;\n    otherwise the child is uncapped but uses reduced priority and thread\n    limits. Set to ``False`` only when trial resource use is known.\nqc : bool, default=False\n    Generate the full regression diagnostic figure suite for every trial.\nprogress_every : int, default=25\n    Print progress after this many completed trials. Use zero to disable\n    periodic progress messages.\n\nReturns\n-------\npandas.DataFrame\n    One status row per trial, sorted by ``trial_id``. The same rows are\n    written incrementally to ``sweep_results.csv``.\n\nRaises\n------\nRuntimeError\n    If called from a worker process. Scripts must call this function under\n    an ``if __name__ == '__main__':`` guard.\n\nNotes\n-----\nThe pool uses the ``spawn`` start method because fitted models may import\ntorch and OpenMP runtimes. Only a bounded number of jobs are submitted at\nonce, allowing new submissions to pause when available memory is low."
+      "source_sha256": "b8ccc321e365eecf164408ba111f28af533e4e2dedcd61fd9bf687f58e9f9224",
+      "text": "Run parameter-sweep trials concurrently in spawned processes.\n\nParameters\n----------\nbase_settings : mapping\n    Regression settings shared by every trial, including the score and\n    count inputs.\ndestination : path-like\n    Directory for trial folders, ``sweep_trials.json``, and the incremental\n    ``sweep_results.csv`` table.\nspace : SweepSpace or None, optional\n    Search space. ``None`` uses :data:`DEFAULT_SWEEP_SPACE` and the built-in\n    compatibility filters.\nmode : {'grid', 'random'}, default='random'\n    Trial enumeration order passed to :func:`build_trials`.\nmax_trials : int, default=1000\n    Maximum number of accepted trials.\nseed : int, default=0\n    Random-order seed used when ``mode='random'``.\ncontrols : mapping or None, optional\n    Mapping from control aliases to identifiers. Control recovery metrics\n    are added to each result row.\nn_jobs : int, default=8\n    Requested pool size. :func:`recommended_workers` may reduce it based\n    on memory and CPU capacity.\ncontained : bool, default=True\n    Run each fit in a separate child through\n    :func:`run_trial_contained`. Hard memory, swap, task, and CPU limits\n    are enforced only when a usable systemd user scope is available;\n    otherwise the child is uncapped but uses reduced priority and thread\n    limits. Set to ``False`` only when trial resource use is known.\nqc : bool, default=False\n    Generate the full regression diagnostic figure suite for every trial.\nprogress_every : int, default=25\n    Print progress after this many completed trials. Use zero to disable\n    periodic progress messages.\n\nReturns\n-------\npandas.DataFrame\n    One status row per trial, sorted by ``trial_id``. The same rows are\n    written incrementally to ``sweep_results.csv``.\n\nRaises\n------\nRuntimeError\n    If called from a worker process. Scripts must call this function under\n    an ``if __name__ == '__main__':`` guard.\n\nNotes\n-----\nThe pool uses the ``spawn`` start method because fitted models may import\ntorch and OpenMP runtimes. Only a bounded number of jobs are submitted at\nonce, allowing new submissions to pause when available memory is low.\nInitial processing workers start ten seconds apart. After every primary\ntrial finishes, explicit resource-overload failures receive one serial\nretry in their existing trial directories. Original result/error files are\nretained separately, and the final table has one row per trial with primary\nfailure details and ``overload_retry`` metadata. Invalid inputs,\ncancellation and unexplained native worker exits are not retried."
     },
     "spacr.parameter_sweep.run_sweep_parallel._fill": {
       "source_blocks_sha256": [
@@ -39053,12 +39090,12 @@
         "cf278726dd7f39c8fbf18a2ec9822cf01ea172a0b80d4d80255626c9df586d22",
         "5b61106a793f52b85799933a67d8ee198d88f161ec103520b7825f08fec4562a",
         "dea3a1b498dc9f92fca5bc63a04233d4fe3b2e5ec5bc2a07e083b0045a64afd3",
-        "7a65db57257b9f0faf5833d55c8f73945233ccae792b4e61788e9642c9accd07",
+        "8a72d42185932f35114de027f8e78438bf2eab1cca905810bcb48236234953d1",
         "3875bd0f348fe91ee3dc23df65c2f2205c9a487955728f8c7903020db83113ef",
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
       ],
-      "source_sha256": "3354a6f2c31a6a7e324c46427bc13039857a1cf19852ea66caccb02ad147b9c1",
-      "text": "Overlay Lorenz curves from multiple gRNA count CSVs with per-plate Gini coefficients.\n\n:param csv_files: Paths to per-plate CSVs, each with columns\n    ``name_column`` and ``value_column``.\n:param name_column: Identifier column used for outlier filtering.\n    Default ``'grna_name'``.\n:param value_column: Column whose distribution is analysed.\n    Default ``'count'``.\n:param remove_keys: Names to exclude before analysis. Default ``[]``\n    (exclude nothing).\n:param x_lim: X-axis limits ``[lo, hi]``. Default ``[0.0, 1]``.\n:param y_lim: Y-axis limits ``[lo, hi]``. Default ``[0, 1]``.\n:param remove_outliers: If True, drop names whose per-well count\n    falls outside a 1.5*IQR window. Default ``False``.\n:param save: If True, save the figure alongside the first CSV under\n    ``results/lorenz_curve_with_gini.pdf``. Default ``True``.\n:returns: None"
+      "source_sha256": "0a71395f4561f9c7e1adca880d0f08fd7cf50ba9854dde2b9bef198bbe4c160c",
+      "text": "Overlay Lorenz curves from multiple gRNA count CSVs with per-plate Gini coefficients.\n\n:param csv_files: Paths to per-plate CSVs, each with columns\n    ``name_column`` and ``value_column``.\n:param name_column: Identifier column used for outlier filtering.\n    Default ``'grna_name'``.\n:param value_column: Column whose distribution is analysed.\n    Default ``'count'``.\n:param remove_keys: Names to exclude before analysis. Default ``[]``\n    (exclude nothing).\n:param x_lim: X-axis limits ``[lo, hi]``. Default ``[0.0, 1]``.\n:param y_lim: Y-axis limits ``[lo, hi]``. Default ``[0, 1]``.\n:param remove_outliers: If True, drop names whose number of observations\n    falls outside a fence extending 1.5 times the 5th-to-95th-percentile\n    spread of group sizes. Count values do not enter this filter.\n    Default ``False``.\n:param save: If True, save the figure alongside the first CSV under\n    ``results/lorenz_curve_with_gini.pdf``. Default ``True``.\n:returns: None"
     },
     "spacr.plot.plot_lorenz_curves.gini_coefficient": {
       "source_blocks_sha256": [
@@ -54703,6 +54740,13 @@
       "source_sha256": "213723f0a3c6a7d50d6bf8fcc0b6fa8c4f4541f0cd0f9f212d6e01dc45ce4e60",
       "text": "Say which hardware the selected mode is for.\n\nA selector whose levels do not name their hardware makes the user guess\nwhich one their machine is."
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_popup_motion": {
+      "source_blocks_sha256": [
+        "c64c59be21cba42e365d412b1a87919f65e4dcb48bb3f1cc7b88bac822fb70b1"
+      ],
+      "source_sha256": "c64c59be21cba42e365d412b1a87919f65e4dcb48bb3f1cc7b88bac822fb70b1",
+      "text": "Offer these controls only to the compatible Qt paint engines."
+    },
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._tenths": {
       "source_blocks_sha256": [
         "eae2896ec87a742c16bb3dd5c92a6b31354c0653569ff9171e1856e0075b1fc5",
@@ -54904,11 +54948,12 @@
       "source_blocks_sha256": [
         "1e444a24a7ade6fdc19957f95fc0f041c77df9612d96723704bd0126379f37c4",
         "f144063f6ed01466ee3f7eb80a24638ac6d76b29912d6c07651e0fd5911f76d1",
-        "99e6b49a7d1928665fbdc644bd87000b40b3752060aec6c2b0fcdecac20c5380",
+        "e36ea3d396989af25f43164c2cfe5763b71320180f638254b41d107a74e8978e",
+        "644ca8ae58ba41e57c0817ac57d504f756bf94643a54a7137138055885b89fe3",
         "2e139a5167b62efeebb3d9898df4d8d193b6f253cbc48c5e30a6324be4728b5f"
       ],
-      "source_sha256": "11713c561b68b93ff9a12347028a41e5ac65841a2a057a6ce30906b170bb7f08",
-      "text": "Push the ambient preferences onto every live ambient widget.\n\nThe user's explicit ask was a toggle that works *now*, so this walks\nthe running widget tree the same way\n:func:`spacr.qt.button_roles.install_button_roles` does and updates\nthe widgets in place instead of waiting for the screens to be\nrebuilt. Hiding one also stops its timer (the widget stops animating\nwhenever it is not visible), so \"off\" really is zero frames.\n\nTurning it back *on* only resumes the widgets that are actually on\nscreen. Every module screen keeps its ambient widget alive while the\nuser is on some other tab, and un-pausing those would spend frames\non pixels nobody can see — which is the one thing this animation is\nnot allowed to do. Their own ``showEvent`` restarts them when the\ntab comes back.\n\nNever raises. A widget whose C++ half is already gone, or an ambient\nmodule that could not be imported, is a cosmetic problem — not a\nreason to fail a preferences save."
+      "source_sha256": "e0c69accd253451de30550cc569c64e9b17423b321135ede09eeb99c5404de6a",
+      "text": "Push the ambient preferences onto every live ambient widget.\n\nThe user's explicit ask was a toggle that works *now*, so this walks\nthe running widget tree the same way\n:func:`spacr.qt.button_roles.install_button_roles` does and updates\nthe widgets in place instead of waiting for the screens to be\nrebuilt. Hiding one also stops its timer (the widget stops animating\nwhenever it is not visible), so \"off\" really is zero frames.\n\nThe settings-window backdrop has its own choice and remains active when\nmodule animation is off unless its own choice is None.\n\nTurning module animation back *on* only resumes the widgets that are actually on\nscreen. Every module screen keeps its ambient widget alive while the\nuser is on some other tab, and un-pausing those would spend frames\non pixels nobody can see — which is the one thing this animation is\nnot allowed to do. Their own ``showEvent`` restarts them when the\ntab comes back.\n\nNever raises. A widget whose C++ half is already gone, or an ambient\nmodule that could not be imported, is a cosmetic problem — not a\nreason to fail a preferences save."
     },
     "spacr.qt.preferences.apply_figure_style": {
       "source_blocks_sha256": [
@@ -55168,11 +55213,11 @@
     },
     "spacr.qt.preferences.get_ambient_theme": {
       "source_blocks_sha256": [
-        "3de5b034ba17820b9a95078225e6fe43cd0c788d8c9250a87d34f9c4f74acfa9",
+        "123a1a0cb4bad7540166f96d40cce2c72426d569153e1ed3148d00b385845a48",
         "87630f8bd4b017fa690b4a71c60484730828f112d00a9b7376937695e35a0ed1"
       ],
-      "source_sha256": "e7ab77809a5714d3b0fdf56fbe62409b5d3df5b604f0fc29c7a68350b60161ad",
-      "text": "Which animation module screens paint — see ``AMBIENT_THEMES``.\n\nValidated on read: a value written by a newer spaCR (or by hand)\nthat this build does not know about falls back to the default theme\nrather than propagating an unpaintable name into the widget."
+      "source_sha256": "fd36d72179cd587e926605d28d7f49e56b7afd78d60a753caa71f13603de5e24",
+      "text": "Which animation screens paint in the active launch mode.\n\nValidated on read: a value written by a newer spaCR (or by hand)\nthat this build does not know about falls back to the default theme\nrather than propagating an unpaintable name into the widget."
     },
     "spacr.qt.preferences.get_cache_ceiling_mb": {
       "source_blocks_sha256": [
@@ -55205,6 +55250,14 @@
       ],
       "source_sha256": "75b2fe76e27f0b1c6d1aac31340c0a72e54ac401587841cfe9c207b3c6776888",
       "text": "When Home's ``which`` panel was last cleared, as a UTC ISO string.\n\nA WATERMARK, NOT A DELETION, and that is the whole design. **Clear** on\nRecent runs and **Reset** on Totals sit beside the queue's Clear, but\nthe queue holds plates waiting to start while\nthese two read the run journal -- which is the record of what this\ninstallation has actually done, is what the Run History screen searches,\nand is what a run's `manifest.json` is for. Emptying a dashboard panel\nmust not delete that.\n\nSo the panels remember a time instead and show only what happened after\nit. The journal is untouched, Run History still has everything, and a\nuser who clears by accident loses a view rather than a history.\n\n:param which: ``runs`` or ``totals``.\n:returns: the stored ISO string, or ``\"\"`` for never cleared."
+    },
+    "spacr.qt.preferences.get_database_write_queue_gib": {
+      "source_blocks_sha256": [
+        "e3ce09c72dccbf803d79782fbdf6d59633b73fc3e593d10604da458ffa2f8eda",
+        "2cba9223e4b15a59736e3e001a31d35961915fcf043eba3efaff729eb80d5942"
+      ],
+      "source_sha256": "5dac1baea9cbfce394f6302c5b3f9fdfa7dd9402ff77c20c416895b56b5315b8",
+      "text": "Return the serialized database queue RAM budget in GiB.\n\nZero uses disk-only buffering. This is not the total process RAM limit."
     },
     "spacr.qt.preferences.get_db_browser_editable": {
       "source_blocks_sha256": [
@@ -56012,13 +56065,13 @@
     },
     "spacr.qt.preferences.set_ambient_theme": {
       "source_blocks_sha256": [
-        "290f1c1e66371d1c29862f3b12e9a1d6ee39566ca73f1c1ac4a22ae8ab23b9bd",
+        "dadfe8dc58efd2523bda1c6bda04ca641d1148f687d68099b731bb1714e87087",
         "81b55a2a01b13ff6a7a99b11353d53916a5257f1bc7e044b428df3df3f11964a",
-        "6f5bd3c23d76b643e7ce057fbb7ffcf0b9c03840056bc02f7c411a9f09252c16",
+        "628da8bd1027e51ebf37ce7f8e3d2c32d10e09aa65923d385b48436de8587238",
         "9e572dda862911007b8debb16a701cc969409eeebe2645f0524fed6b9259b95d"
       ],
-      "source_sha256": "a14fb846b4ed65a5d6ca0bda551e2d41e03b72b52c4c0a0d576da8e38c4bf3ab",
-      "text": "Persist one of :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES`.\n\nPalettes belong to a theme, so switching themes can strand the\nstored palette. Rather than raise — the user picked a theme, not a\nbroken pair — the stored palette is repaired in the same write: it\nis kept if the new theme also offers it, and otherwise replaced with\nthat theme's default (see :func:`ambient_default_palette`).\n\n:param name: an ambient theme name from ``AMBIENT_THEMES``.\n:raises ValueError: if ``name`` is not a known ambient theme."
+      "source_sha256": "7c0215b8bc4f0b12b9a1a01668caa421a02e4523e429895c1bd9bf8e6314a770",
+      "text": "Persist an animation offered in the active launch mode.\n\nPalettes belong to a theme, so switching themes can strand the\nstored palette. Rather than raise — the user picked a theme, not a\nbroken pair — the stored palette is repaired in the same write: it\nis kept if the new theme also offers it, and otherwise replaced with\nthat theme's default (see :func:`ambient_default_palette`).\n\n:param name: an animation offered in the current launcher's menu.\n:raises ValueError: if ``name`` is not a known ambient theme."
     },
     "spacr.qt.preferences.set_cache_ceiling_mb": {
       "source_blocks_sha256": [
@@ -56053,6 +56106,15 @@
       ],
       "source_sha256": "2591df1a030960c142883842b2cf6d6720ed23cb41fc61d97f084d8f35c2df68",
       "text": "Move ``which``'s watermark to ``when``, or to now when empty.\n\n:param which: ``runs`` or ``totals``. An unknown name is ignored.\n:param when: a UTC ISO-8601 string. Empty means \"now\".\n:returns: what was stored, or ``\"\"`` when nothing was."
+    },
+    "spacr.qt.preferences.set_database_write_queue_gib": {
+      "source_blocks_sha256": [
+        "810c19690a61780e26ef7f561d42083454a3a97b019e0de1bcedf8315dad5848",
+        "5b3bf94ec344acc83e26b3d6d0852c317c779a932217841e93f8bcfd9b5bc47b",
+        "77338723cf931464c569b9229aece892eb1cd3c5e973aa81a389fd3b5c4cde37"
+      ],
+      "source_sha256": "e06cf9f7e45e2e56d66c8f39cb6154e316e446dcab6dcdd6eaa5a353750e7fcb",
+      "text": "Persist the database queue payload budget for subsequent runs.\n\n:param gib: serialized queued-data RAM allowance in GiB, from zero to 64.\n    Zero stores queued payloads on disk.\n:raises ValueError: if the value is nonfinite or outside the valid range."
     },
     "spacr.qt.preferences.set_db_browser_editable": {
       "source_blocks_sha256": [
@@ -63778,10 +63840,10 @@
     "spacr.qt.screens.graph_builder.table_names": {
       "source_blocks_sha256": [
         "c86051366260a4b1528b43f4de46c331dc65d4dff846267c69b36d2c567eb906",
-        "4188c0fb37c43d0905b4cef87b79b194c6e1b3db92143951bce00e495ba8169b"
+        "8749cf08b3552f952b756d44e2d7b6bae59fe49bcb91c2021efdc130b844f3f7"
       ],
-      "source_sha256": "0d8c3f6e64cad944093e91ce81c70c3f4cf87568906dcfad7a545acd58215c22",
-      "text": "Every user table in the SQLite file at ``path``, in a useful order.\n\n:param path: path to a SQLite measurement database, opened read-only;\n    the preferred tables (``object``, ``cell``, ``nucleus``, …) come\n    first, then the rest alphabetically. SQLite internals and the private\n    condition-annotation receipt table are left out; ordinary user tables\n    and named derived results remain available."
+      "source_sha256": "2ab3180f1e5eb69dc6db883e430c94111686bfbe786b6e7e8295914ec9dc22c6",
+      "text": "Every user table in the SQLite file at ``path``, in a useful order.\n\n:param path: path to a SQLite measurement database, opened read-only;\n    the preferred tables (``object``, ``cell``, ``nucleus``, …) come\n    first, then the rest alphabetically. SQLite internals and the private\n    condition-annotation and database-write receipt tables are left out; ordinary user tables\n    and named derived results remain available."
     },
     "spacr.qt.screens.hit_list": {
       "source_blocks_sha256": [
@@ -73173,10 +73235,10 @@
     "spacr.qt.spaceout": {
       "source_blocks_sha256": [
         "a67e09e2c14b073899fd69460f954e507eb0f9fb187a892a47aff4c59e69212f",
-        "c57e73bc19f127bb71c594a8fbfe041724d9bed07f7331fbc8f2a9dc94532cd3"
+        "63b31e268423b94899009ead0f9c6c4d24f204c7f3195d7cb9cd9d8890a2dc9d"
       ],
-      "source_sha256": "cd19e314fb5401e7fd9059e8d36a0bac4c951217bf3011327b621a54d2a325d9",
-      "text": "Alternative launcher for spaCR's spaceout visual mode.\n\nThe command starts the standard :func:`spacr.qt.run` application with a\ncontrast-checked spectral palette and fractal ambient animation. The mode is\nprocess-local: it is not stored as a preference and does not alter subsequent\nstandard launches. Existing animation preferences remain effective, including\nthe option to disable ambient animation. It is also the only mode with sound:\nPreferences shows its Sound tab (and its Fractal tab) only here, and ordinary\nspaCR plays nothing whatever the stored sound settings say."
+      "source_sha256": "9e5936bc5f4df6c4657d337168881ee4f547f935323cd89a60d002f9d0213172",
+      "text": "Alternative launcher for spaCR's spaceout visual mode.\n\nThe command starts the standard :func:`spacr.qt.run` application with a\ncontrast-checked spectral palette and evolving field animation. The mode is\nprocess-local: it is not stored as a preference and does not alter subsequent\nstandard launches. Existing animation preferences remain effective, including\nthe option to disable ambient animation. It is also the only mode with sound:\nPreferences shows its Sound tab (and its Fractal tab) only here, and ordinary\nspaCR plays nothing whatever the stored sound settings say."
     },
     "spacr.qt.spaceout.main": {
       "source_blocks_sha256": [
@@ -76113,13 +76175,14 @@
         "580223628aa3fcd8efc7e5386ac7cf28a96a05cb0f9366f435f21792d9692c1f",
         "d190b022b3395a6814985c8e77b5c4f67f397a9fab1b5955295bcc03e5cc221d",
         "3ed52cc085e01b8552746e1341c3d51eb7c1bfe1bbbfa11d0fb6105f031044b4",
+        "6af39d93481340f8ea0604c75825ca78e1ee087d637badd8338d5e2ac9d52d5c",
         "a0a5d68e444c2333dad8b51f0b06b0b2e9bb775a66e0a9ab9e6403b3a24a1142",
         "ba825fb2ba3ffe475481edde4670e089e625c6292b75cfe805d2cb137cfb3d9d",
         "e3308d2b706272c5c0e7b9d59bb06d7b6cee728a9e6d3ccfd3f9671c539d7b9c",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
       ],
-      "source_sha256": "cb12671d370bdbfdc3889dbd7200b9b466ba0948961f189313c3638ea72d3412",
-      "text": "The live backdrop: paints an :class:`AmbientEngine` at a capped rate.\n\nScreen content sits in front of it, so it never takes focus, is\ntransparent to mouse events, and lowers itself to the bottom of the\nsibling stacking order. It is fully opaque — it paints the page colour (or\nthe theme wallpaper) itself and the animation on top — so the widget it\ncovers has nothing to repaint underneath.\n\n:param parent: parent widget; :meth:`follow_parent` sizes it to that.\n:param theme: one of :data:`AMBIENT_THEMES`.\n:param palette: one of :func:`palettes_for` for that theme. A palette\n    that exists but is not offered by the theme is downgraded to the\n    theme's default (stale preferences must not break a screen); an\n    unknown name raises.\n:param background: the flat colour under the animation; defaults to the\n    current theme's page colour.\n:param backdrop: an image to paint under the animation instead of the\n    flat colour — a path, a ``QPixmap``/``QImage``, or ``None``. Give it\n    the Space/Cell wallpaper and the animation composites over the\n    picture rather than replacing it.\n:param fps: frame-rate cap.\n:param seed: RNG seed, for a reproducible animation.\n:param blur: retained for older callers; displayed themes ignore blur.\n:param speed: motion multiplier; ``None`` reads Preferences.\n:param size: element-size multiplier; ``None`` reads Preferences.\n:param resolution: how much detail is shaded, as a multiplier on the\n    theme's own buffer; ``None`` reads Preferences.\n:param density: how many elements are drawn, as a multiplier on the\n    theme's own count; ``None`` reads Preferences.\n:param gravity_radius: pointer influence radius, as a fraction of the\n    shorter screen edge; zero disables it. ``None`` reads Preferences.\n:param direction: which way the starfield travels, one of\n    :data:`DRIFT_DIRECTIONS`; ``None`` reads Preferences. Meaningless to\n    the other themes, and kept anyway so switching away and back does\n    not lose it.\n:param corner_radius: round the backdrop's own corners by this many px;\n    ``0`` leaves it square. CLIPPED, not masked -- a mask region gives\n    stair-stepped corners against the card's anti-aliased rim -- and\n    applied before the base fill so the flat page colour is rounded with\n    the animation rather than showing at the corners behind it.\nBuild the widget and start its engine.\n\n:param parent: parent widget."
+      "source_sha256": "56244bd108653b0d6a116800bec3f1463ed22a379c48fc24238396b4484fd5e6",
+      "text": "The live backdrop: paints an :class:`AmbientEngine` at a capped rate.\n\nScreen content sits in front of it, so it never takes focus, is\ntransparent to mouse events, and lowers itself to the bottom of the\nsibling stacking order. It is fully opaque — it paints the page colour (or\nthe theme wallpaper) itself and the animation on top — so the widget it\ncovers has nothing to repaint underneath.\n\n:param parent: parent widget; :meth:`follow_parent` sizes it to that.\n:param theme: one of :data:`AMBIENT_THEMES`.\n:param palette: one of :func:`palettes_for` for that theme. A palette\n    that exists but is not offered by the theme is downgraded to the\n    theme's default (stale preferences must not break a screen); an\n    unknown name raises.\n:param background: the flat colour under the animation; defaults to the\n    current theme's page colour.\n:param backdrop: an image to paint under the animation instead of the\n    flat colour — a path, a ``QPixmap``/``QImage``, or ``None``. Give it\n    the Space/Cell wallpaper and the animation composites over the\n    picture rather than replacing it.\n:param fps: frame-rate cap.\n:param seed: RNG seed, for a reproducible animation.\n:param blur: retained for older callers; displayed themes ignore blur.\n:param speed: motion multiplier; ``None`` reads Preferences.\n:param size: element-size multiplier; ``None`` reads Preferences.\n:param resolution: how much detail is shaded, as a multiplier on the\n    theme's own buffer; ``None`` reads Preferences.\n:param density: how many elements are drawn, as a multiplier on the\n    theme's own count; ``None`` reads Preferences.\n:param gravity_radius: pointer influence radius, as a fraction of the\n    shorter screen edge; zero disables it. ``None`` reads Preferences.\n:param ripples_enabled: independent field-wave switch; ``None`` reads Preferences.\n:param direction: which way the starfield travels, one of\n    :data:`DRIFT_DIRECTIONS`; ``None`` reads Preferences. Meaningless to\n    the other themes, and kept anyway so switching away and back does\n    not lose it.\n:param corner_radius: round the backdrop's own corners by this many px;\n    ``0`` leaves it square. CLIPPED, not masked -- a mask region gives\n    stair-stepped corners against the card's anti-aliased rim -- and\n    applied before the base fill so the flat page colour is rounded with\n    the animation rather than showing at the corners behind it.\nBuild the widget and start its engine.\n\n:param parent: parent widget."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.advance_frame": {
       "source_blocks_sha256": [
@@ -76349,6 +76412,15 @@
       "source_sha256": "0e5ed37b3a78dffbb9d7469f19dafcc260787fbc4cca1256db432870ad57d2e4",
       "text": "Set the starfield direction. An unknown name is ignored.\n\n:param name: one of :data:`DRIFT_DIRECTIONS`."
     },
+    "spacr.qt.widgets.ambient.AmbientWidget.set_field_effects": {
+      "source_blocks_sha256": [
+        "3ab37b52759e1af084429c04c332f7b424786034f971f9ad149c4b113fee8a61",
+        "11d07c2fac01fc405bd2e4329516fdc6d345a162e2fd051a2ba6033af98f6b86",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "7431df8c375b24c9228c8036d85c39b120f2c9cb2987f9f7f50c1a0daaf94c57",
+      "text": "Apply saved Spaceout field switches under the renderer's lock.\n\n:param effects: saved field-effect switches keyed by effect name.\n:returns: None."
+    },
     "spacr.qt.widgets.ambient.AmbientWidget.set_fps": {
       "source_blocks_sha256": [
         "880ead64afe1114fbf89f252f04aed307027fd8e0d3455b82f348271e30c3062",
@@ -76377,10 +76449,10 @@
     "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency": {
       "source_blocks_sha256": [
         "26a044f01b39376310a6f39c590b3d98df1845fb0fe367d0f5bc3f17f34e6cd1",
-        "60a4a0ccf971ad5d4b20041e03f6bf2c0504c4bcc0e5eba53e37b80a02a713b3"
+        "54219878d050ab3ec31a42dec020130355d27f5e8dcfe11ec7f121d655855acf"
       ],
-      "source_sha256": "a1423718ae7a109ebd1ad89bae2f3baabfd19c213b2262f8df3b0f7b47ef6882",
-      "text": "Change popup waves without changing pointer reach or dot population.\n\n:param value: popup waves per minute, clamped to zero through sixty;\n    zero disables popup waves."
+      "source_sha256": "d82747df30ec3816c889ba93691bd0e493b39edf72629a1dd1bc234c945e6199",
+      "text": "Change popup waves without changing pointer reach or dot population.\n\n:param value: popup waves per minute, clamped to zero through sixty;\n    zero disables recurring waves. The separate ripple switch controls\n    discrete click, container and window feedback."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_resolution": {
       "source_blocks_sha256": [
@@ -76389,6 +76461,15 @@
       ],
       "source_sha256": "0530dc44c83d2fd3df6959d33b829eb2247f0cb9f764548d72198d956b5a81cd",
       "text": "Set the detail multiplier. Clamped to :data:`RESOLUTION_RANGE`.\n\n:param value: the resolution multiplier, converted with ``float``."
+    },
+    "spacr.qt.widgets.ambient.AmbientWidget.set_ripples_enabled": {
+      "source_blocks_sha256": [
+        "470d4aaa74bc3a0de5449af89b95e9bace96b6d4a0ba9b81a5a02411265dc3a4",
+        "1f68631426669ce7c45559f784d277a418ed66b42939978665c24be07e531bab",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "c7a1d7aa32939024f573e885791168f7ad89a8271979daadec1563091256a4cd",
+      "text": "Switch all field ripples independently of mouse gravity and dragging.\n\n:param enabled: whether recurring and discrete field waves are enabled.\n:returns: None."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.set_size_scale": {
       "source_blocks_sha256": [
@@ -77092,12 +77173,12 @@
     "spacr.qt.widgets.ambient.dressed": {
       "source_blocks_sha256": [
         "4222e467d867f4e06db7c9f1164b8134ac26fe65248c88f917af4e3e5320480a",
-        "e259ce181e7f96ad11ae9091626ffaac04a7117f22801b359c1e58d092e88a6b",
-        "ede5d8236e9f605e8a37aafe251a345b5c38a29fbae7822824448679695087ae",
+        "631ee58ba663c571da9ec39e249e4b4d25522b82f1d473fc800e2d06fbca89ce",
+        "77e5fe8fd5efee3b8ec5b3cba5c4e7968eba464b3a96092296b11ae321367503",
         "5743784ed039f5d7e7713ccaf0a8bc728884c64ca2e174dabe906ba2a390e100"
       ],
-      "source_sha256": "2b5534ad0d1340bbb6e74ee00e4c51ca536879f6784315e9a917cecf863207f5",
-      "text": "Resolve the ambient theme and palette for the current launch mode.\n\nStandard launches preserve the requested pair. Spaceout launches return\n:data:`SPACEOUT_THEME` and :data:`SPACEOUT_PALETTE`.\n\n:param theme: the requested theme name; returned as given unless the\n    spaceout dressing is on. It is not validated here.\n:param palette: the requested palette name, treated the same way."
+      "source_sha256": "6285528aa9e5b8699364d200e64130d03a19630993c6f2acf8584c4de614d12b",
+      "text": "Resolve the ambient theme and palette for the current launch mode.\n\nStandard launches preserve the requested pair. A Spaceout launch uses\nits own stored selection, or defaults to the evolving field before one is saved.\n\n:param theme: the requested theme name, not validated here.\n:param palette: the requested palette name, treated the same way."
     },
     "spacr.qt.widgets.ambient.drift_direction_label": {
       "source_blocks_sha256": [
@@ -77114,6 +77195,18 @@
       ],
       "source_sha256": "c455c887306825295d7bc1f8fd3607147073e74108ccacbb7a0f5033c69b4960",
       "text": "One-line description of a starfield direction, for a tooltip.\n\n:param name: one of :data:`DRIFT_DIRECTIONS`; any other value raises\n    :class:`ValueError`."
+    },
+    "spacr.qt.widgets.ambient.field_ripple_for_widget": {
+      "source_blocks_sha256": [
+        "24f935a15f7920edf76c6dfe4c6e3de367a2150532e6a6a507f9af7bc7673d4c",
+        "946610545a40a2c64723176bf9e786d78d37a97253e35253aa590b4640aeeebd",
+        "c141181abb8721e0d08d073513c45321584ed365fa406d2aa8398b1556a3c5d7",
+        "a32a95c2343845f7d6b8c8e7431f60cdebc2e0318cd3b71eb2d39c19016778d0",
+        "a2100b3cd319888c0dbc92f4bb1f68d168bd7ece066d14ed213399a159c94147",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "8776bbda38deb7fce21b4db33757332b98e91e363641954706fce61e1e95d46d",
+      "text": "Publish settled window or panel feedback to its visible field backdrop.\n\n:param widget: the resized, moved or collapsed widget.\n:param edge: an optional snapped window side.\n:param rect: optional final rectangle in widget-local coordinates.\n:param strength: positive enables release feedback; zero disables it.\n:returns: None."
     },
     "spacr.qt.widgets.ambient.install_ambient": {
       "source_blocks_sha256": [
@@ -91324,6 +91417,15 @@
       "source_sha256": "bd18ff1fd608e3fcac96c6b734cb6efbec7e018723c9f749efaf452399a547a4",
       "text": "Whether ``name`` is drawn. Unknown gates are on: a gate that has\nnever been toggled has never been turned off.\n\n:param name: the gate's name."
     },
+    "spacr.qt.widgets.gate_editor.GateCanvas.paintEvent": {
+      "source_blocks_sha256": [
+        "d8584882089a6330878b07027d0c03dd0d0946e0ed89a0464c6352ca502baf5b",
+        "5becae65c722b70a924c0f78511f86f283376c1bf63e07c535dcd323f60a1b9d",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "60b30b1e6c6c4f9a5d2c53d84564c204ce714a872a4379b64919f392eb6e1f94",
+      "text": "Keep the plotted 2D or 3D points over one solid rounded surface.\n\n:param event: the Qt paint event for this canvas.\n:returns: None."
+    },
     "spacr.qt.widgets.gate_editor.GateCanvas.pending_depth": {
       "source_blocks_sha256": [
         "a858e655ea1500af43a014466db03a29d79b94529a742e038952decebdf87fe5"
@@ -95172,25 +95274,34 @@
     "spacr.qt.widgets.hint_bar": {
       "source_blocks_sha256": [
         "25819d6fcdfdfa844af2c46348883cfd4c06f3982cbbc4d510241043a3a1e979",
-        "36b09d49c947029672e0a9eab6998acb480c554d433dc988e40f08f0c0051fab",
+        "2fd5616facc436d3046886b2656e701b73c94e11276f9418a91d1ca70eba8080",
         "367dd2d04896394da9d9fa3168872b05c4f801459f2dedf410885354ec4483f3",
         "13f868630e69e99b2dcc80c7f0c1bc6d268facf936ab196189a05e5028248261"
       ],
-      "source_sha256": "559c95219a4b2f2f5b6ad47b019a28367adc75c9628b8aef6b465585ac240878",
-      "text": "Window-level, non-modal hover help for Qt controls.\n\n:class:`HintBar` is a centered, word-wrapped label that displays registered\nhelp text while the pointer is over a widget. On pointer leave, it restores\nthe default message only when that widget's text is still displayed, avoiding\nan intermediate reset while the pointer moves between adjacent controls.\n\n:meth:`HintBar.explain` registers either explicit text or the widget's current\ntooltip. Successful registration clears the tooltip, supplies the same text\nas the accessible description only when no accessible description is already\npresent, and installs the bar as an event filter. Source strings are\ntranslated when displayed. Widgets without available text are not registered.\n\nUse :func:`hint_bar_of` to locate the :class:`HintBar` in a widget's top-level\nwindow, or :func:`explain_through_the_bar` to register a widget only when such\na bar exists. The bar retains the registration mapping and event filter for\nits lifetime."
+      "source_sha256": "a8e191b52c8417ad615868bf76962304bdea71b3e3e50445ff63484fc9792324",
+      "text": "Window-level, non-modal hover help for Qt controls.\n\n:class:`HintBar` keeps four visible lines at a fixed height. Longer help can\nbe scrolled within that space while the pointer is over a widget. On pointer\nleave, it restores the default message only when that widget's text is still\ndisplayed, avoiding an intermediate reset between adjacent controls.\n\n:meth:`HintBar.explain` registers either explicit text or the widget's current\ntooltip. Successful registration clears the tooltip, supplies the same text\nas the accessible description only when no accessible description is already\npresent, and installs the bar as an event filter. Source strings are\ntranslated when displayed. Widgets without available text are not registered.\n\nUse :func:`hint_bar_of` to locate the :class:`HintBar` in a widget's top-level\nwindow, or :func:`explain_through_the_bar` to register a widget only when such\na bar exists. The bar retains the registration mapping and event filter for\nits lifetime."
     },
     "spacr.qt.widgets.hint_bar.HintBar": {
       "source_blocks_sha256": [
-        "204dafcb45bb93726981f4d4097c74d1097685d5457398c57667eb846fbd97ca",
+        "d5207b94271ba9735c7f1ccb8f7521a14de3892cfb1cdc3be78f5c2d10ecccbe",
         "839345dd4a77136ba01a4b38c0d0ad9327833f652504343994672adeeae0ba0b",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "dfe9256f28062f54608c2e4f676b99a46d840d7275b4b06d557451a14aeec19a",
-        "c2e3f9ec1dd1fd67d6a721ef912db917e138b3158424ca5d80116f971ebbba6e",
+        "7b80294cf3ed8ecda92f8b668766485a9cec41d2c09e71170f9bcb901c11061f",
         "2e828e7021ba2fb5623649c36fc73ed13e3177c3481c845396b1f52ace0f9c0f",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
-      "source_sha256": "0a499d38df3b15700992b6cb50e32f054ac4d6e199f9a4599be5f745bd837e5e",
-      "text": "The line itself, plus the register of what each widget should say.\n\n:param default: what the line says when nothing is hovered. It is\n    restored whenever a widget with no registered hint takes the pointer,\n    so it should read as a prompt rather than as a blank.\n:param parent: parent widget.\nBuild the help strip that replaces per-control tooltips.\n\nBounded to three lines: the strip used to take whatever height the\nlongest help needed, so moving the pointer between two controls whose\nhelp differs in length made the whole dialog jump. It elides instead,\nand the full text is still in the register.\n\n:param default: what to show with nothing hovered.\n:param parent: parent widget, or ``None``."
+      "source_sha256": "19932788020a11f1e9eb3c3aea64913b0bb781cde6accd62ead1ed85e9cfb916",
+      "text": "A fixed help strip and the register of what each widget should say.\n\n:param default: what the line says when nothing is hovered. It is\n    restored whenever a widget with no registered hint takes the pointer,\n    so it should read as a prompt rather than as a blank.\n:param parent: parent widget.\nBuild the help strip that replaces per-control tooltips.\n\nFour lines stay visible: moving between controls cannot change the\ndialog's layout. Longer or translated help scrolls inside the strip\nwithout losing its full text or accessible description.\n\n:param default: what to show with nothing hovered.\n:param parent: parent widget, or ``None``."
+    },
+    "spacr.qt.widgets.hint_bar.HintBar.changeEvent": {
+      "source_blocks_sha256": [
+        "220b2ae74fbeea705fcbf83e05850b358d8c20d3db18754b6f15444927b83b04",
+        "da6bc51029733d6b613833eb912947007f71121cc83717a338e79cec8eddb65a",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "c47c03398614574982aaf9798a9148b61243513d34fe9656640767ed59f8fa89",
+      "text": "Keep the reserved four lines in sync with the painted font.\n\n:param event: the Qt font or style change event.\n:returns: None."
     },
     "spacr.qt.widgets.hint_bar.HintBar.count": {
       "source_blocks_sha256": [
@@ -95233,6 +95344,29 @@
       ],
       "source_sha256": "309e22344c4a7aac26e4d76f5529c05a7f1d1460af307e8617383ab54c9d8346",
       "text": "Say the default again."
+    },
+    "spacr.qt.widgets.hint_bar.HintBar.setText": {
+      "source_blocks_sha256": [
+        "560339e109e15b3be98eae004f0feac35f6d411a141deeb235bc578e3da02221",
+        "d89ffa9b070180e18730babbfd7ec0b896b03a4b08ea2449227b7e7a17e0e66a"
+      ],
+      "source_sha256": "1ac7beb8de695024103426463e8bee445d2d62977f17fdb000768702f7468c6d",
+      "text": "Show all help in the fixed strip, scrolling when it exceeds four lines.\n\n:param text: the complete translated help sentence."
+    },
+    "spacr.qt.widgets.hint_bar.HintBar.showEvent": {
+      "source_blocks_sha256": [
+        "579409fa0cb9c5d51a325c1c37b6a98e58fa3febb229ec990883e7ce22cd1efe",
+        "cfb5f62d44a9ab0f88142bb225ab68ba3158b01cacc7eddbfdd3f1b2a165013c"
+      ],
+      "source_sha256": "a8fd81440a349f5996fb9bdc4ff7929e4f2efd7d0fa3421caf8d4c32ea121715",
+      "text": "Restore a saved height after the Preferences layout is measured.\n\n:param event: the Qt show event."
+    },
+    "spacr.qt.widgets.hint_bar.HintBar.text": {
+      "source_blocks_sha256": [
+        "33f46b7895c2a1ad0131bff0a8c1f2d6d733b22126160af5b322fed2e8bdb1a3"
+      ],
+      "source_sha256": "33f46b7895c2a1ad0131bff0a8c1f2d6d733b22126160af5b322fed2e8bdb1a3",
+      "text": "Return the complete sentence currently shown in the strip."
     },
     "spacr.qt.widgets.hint_bar.explain_through_the_bar": {
       "source_blocks_sha256": [
@@ -96794,17 +96928,14 @@
       "source_sha256": "046dd0dde2922194589fc9b36d841be6ac06eb90b82be2e17ea8ce23cde2b83b",
       "text": "Modal dialog that surfaces every live-preview setting.\n\nRe-parents the panel's hidden state widgets into a QFormLayout so\nedits go straight into the panel's canonical fields — nothing to\nsync manually. On close, widgets are returned to the panel hidden\nso their values persist across opens.\n\nRows shown (per the user's spec):\n  * Normalisation upper + lower percentile\n  * Outline colour\n  * Outline thickness\n  * Model\n  * Flow threshold\n  * Cell probability\n  * Object type\n  * Object channel (cell / nucleus depending on selection)\n  * Pre  (bool)\n  * Post (bool)\n\n:param panel: the preview panel this dialog edits. It is also the\n    dialog's PARENT, and the widgets the dialog lays out belong to the\n    panel rather than to it -- the dialog only knows which rows they sit\n    on, which is what lets a morphology change re-gate them.\nBuild the dialog around the panel's own controls.\n\nThe controls are the panel's and are re-parented in here for the\nlifetime of the dialog, so their values survive it being closed and\nreopened. The panel is told which dialog is open, so a morphology change\ncan re-gate the rows -- the widgets live on the panel, but it is the\ndialog that knows which row each sits on.\n\n:param panel: the live-preview panel whose controls this edits."
     },
-    "spacr.qt.widgets.live_preview.LiveSettingsDialog.closeEvent": {
+    "spacr.qt.widgets.live_preview.LiveSettingsDialog.done": {
       "source_blocks_sha256": [
-        "cd9be7bce786f998cf3d5113b814b7afad688532c30d7e20fdf522855a8d6fb2",
-        "e1c67d5df5bdb7d0526672141e8e570fcb66f0bb7ee83150d24a65b1773ee2a3",
-        "f6626d38b22ee0222df8785d8a54345c77850bf6bee1d6f68565c4a7feac60a3",
-        "1ff37d6ac2220b6dde71cb1505e76eb631a4ace37b9323f4ec4586f675626632",
-        "a71d83b14bcb68b723ca4caf9c4035319bb772248b144893190e53d9e7794a0c",
-        "bba080af9f117192497888e406a7b09f10fd30e09239fd7b6472cdeb1ee259fc"
+        "3bbefaf5c9d9789956f33c5849fd27224f0d460270dbb0f4ea8be1326e546188",
+        "ba9bb52c4cbe50c139ee4d383784c0977e2703071c4f0ebdddeb3b53159aabf3",
+        "f2f64455b0bf369837ffe612b440a7477648aaf5ff9bd0061b6dc11a6d45dba4"
       ],
-      "source_sha256": "d2fed8db2beca0898fbdaee2c304f3d556160cf02b251e6e1a9e4d3b838b27bd",
-      "text": "Give back every panel control this dialog borrowed, not just the\ndeclared ones.\n\nQt destroys a dialog's children with it, so anything of the panel's\nstill parented under this dialog when it goes would go with it. The\ncontrols are the PANEL's and outlive the dialog by design -- their\nvalues are what the user tuned.\n\n`_managed_widgets()` is the declared list and it was INCOMPLETE:\n`_pathogen_channel`, `_organelle_channel` and `_model_zoo_btn` are\nlaid out here too and were not in it, so after one open and close\nthey sat parented to a group box belonging to a closed dialog.\nNothing failed -- they survived, because the panel still held Python\nreferences -- which is exactly why it went unnoticed.\n\nSo the sweep is by IDENTITY rather than by list: any widget still\nunder this dialog that the panel holds an attribute for goes back.\nBlunt on purpose, like `LivePreviewPanel._stow_free_widgets`, so a\ncontrol added to a row later is covered without anyone remembering\nto add it here as well.\n\nThey go to `_offscreen_controls` and not to the panel: parented to\nthe panel with no layout, each sits at (0, 0) over the loaded-path\nlabel, held off screen by nothing but the `hide()`.\n\n:param event: the close event; passed to the base class once every\n    borrowed control has been handed back."
+      "source_sha256": "d494b36a63826565afccd535ac2c634e8b8b008082d9811d1ab27d7578056f5d",
+      "text": "Return borrowed controls and detach subscriptions on every exit.\n\nQt destroys a dialog's children with it, so anything of the panel's\nstill parented under this dialog when it goes would go with it. The\ncontrols belong to the panel and retain their values after Close,\nEscape, accept, reject and explicit completion. Restoring them in\n``done`` covers exits that do not deliver a close event. A completed\ndialog cannot move controls out of a replacement dialog.\n\n:param result: dialog result passed to Qt after controls return to\n    the panel's hidden store."
     },
     "spacr.qt.widgets.live_preview.LiveSettingsDialog.refresh_visibility": {
       "source_blocks_sha256": [
@@ -120218,6 +120349,13 @@
       "source_sha256": "975ea866da4c20c8640a1869ff66580a6b87da162651fcc64d3551259893ae10",
       "text": "Pooled-screen simulation, evaluation, and visualisation utilities."
     },
+    "spacr.sim._commit_simulation_packet.dispatch": {
+      "source_blocks_sha256": [
+        "6f0194324df7e1e7ed7d851b1384648c691264a75f367b8ab7681380a6060bd1"
+      ],
+      "source_sha256": "6f0194324df7e1e7ed7d851b1384648c691264a75f367b8ab7681380a6060bd1",
+      "text": "Write one captured simulation frame through the normal table writer."
+    },
     "spacr.sim._simulation_unit_bytes._largest": {
       "source_blocks_sha256": [
         "1ab961ccc90ca17a00a0e352b93a9f5242b713a996cfab37fea39875a225064e"
@@ -120637,12 +120775,14 @@
     "spacr.sim.run_multiple_simulations": {
       "source_blocks_sha256": [
         "19302a23981770f4a24a6fce2c6cbdc900c607535f882fde009a8478d388204f",
-        "1570b3dd21b3868aca34917e47c27a88047a89a861a9a4db1db18825d21dac23",
-        "361562dbfc69fc1087b39308d2cada734291452e428270b69f1f23203ae96614",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+        "5def515be7c222af9281dbefe1296d4477789df6254a9f547d25ecbae2eed3f7",
+        "b83a9f6992b769845ad2479f065c8109a5d364ff0c1d321f1927f5abf56aa87a",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+        "0904ecd06f1e572d8913468a6f0e473feb738bbb9670ff29bd5b7fb767327f65",
+        "9c519a8988a8e0fe1a218355d4566670e3e799a81ec4e9213930be3260d086f9"
       ],
-      "source_sha256": "38a776efefe7a669c5e74482be69d5249d59c15b48a69c81ce304b88c3068a0d",
-      "text": "Fan out the sweep from :func:`generate_parameters` across a process pool.\n\nUses a ``multiprocessing.Pool`` with ``max_workers`` (or ``cpu_count()-4``)\nworkers, prints a progress line, and drives each worker through\n:func:`run_and_save`.\n\n:param settings: Sweep-settings dict. Must include ``max_workers``.\n:returns: None."
+      "source_sha256": "3a4ddcb131af2d94e7b64e93dca87ab263ca3e402bb868fb4b16f66273c98a69",
+      "text": "Fan out the sweep from :func:`generate_parameters` across a process pool.\n\nProcessing workers start ten seconds apart and drive :func:`run_and_save`\nwith captured database operations. One parent-owned writer commits each\ncomplete simulation and its retry ticket atomically. Explicit resource\noverloads receive one serial retry after all primary tasks finish; database\noverloads use the writer's separate final queue. Invalid data and\ncancellation are not retried. An unsuccessful simulation or final database\nwrite raises instead of reporting a successful sweep.\n\n:param settings: Sweep-settings dict. Must include ``max_workers``.\n    ``database_write_queue_gib`` optionally overrides the saved queue RAM\n    allowance, from zero to 64 GiB; zero buffers serialized packets on disk.\n    Pending packets remain below the dated output folder on interruption.\n:returns: None.\n:raises ValueError: if the queue RAM allowance is invalid.\n:raises RuntimeError: if a final database write fails. Processing errors\n    propagate with their original exception type."
     },
     "spacr.sim.run_simulation": {
       "source_blocks_sha256": [

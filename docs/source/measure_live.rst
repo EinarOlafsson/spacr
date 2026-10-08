@@ -37,6 +37,21 @@ that Measure processes or change saved measurements or exports.
 **Propagate settings** retains its existing purpose: copying crop and
 filter settings into the Measure form.
 
+Save measured fields
+--------------------
+
+Measure's SQLite workers send their completed data to one database writer.
+Object rows, crop indices, rescaling provenance and confluency for a field
+commit together. The run records a saved field only after its commit.
+
+**Preferences → Performance → Database write queue RAM** sets the amount of
+serialized queued data held in RAM. The default is 1 GiB and zero selects
+disk-only buffering. Overflow lives beneath ``measurements/.write_queue``;
+failed or interrupted packets remain there with their error reports.
+An explicit Python setting ``database_write_queue_gib`` overrides the
+preference for that run. See :doc:`database_concurrency_audit` for the queue,
+retry, journal and optional-backend boundaries.
+
 Resolve a stored plane-layout conflict
 --------------------------------------
 

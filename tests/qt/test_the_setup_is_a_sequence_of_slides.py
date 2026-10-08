@@ -444,6 +444,69 @@ class TestTheRim:
 
 class TestDecorationIsNotLoadBearing:
 
+    def test_setup_paints_its_own_field_under_other_animation_choices(
+            self, app, qtbot, monkeypatch):
+        from spacr.qt import preferences, theme
+        from spacr.qt.widgets import ambient
+
+        preferences.set_ambient_animation("blobs")
+        preferences.set_ambient_palette("ember")
+        monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
+        monkeypatch.setattr(ambient, "spaceout_enabled", lambda: True)
+        preferences.set_ambient_animation("blobs")
+        preferences.set_ambient_palette("ember")
+
+        slides = SetupSlides()
+        qtbot.addWidget(slides)
+        assert slides.animation_choice() == "blobs"
+        assert slides.property("spacrIndependentBackdrop") is True
+        assert slides._backdrop.property("spacrSetupBackdrop") is True
+        assert slides._backdrop.theme() == "data_art_impulse_lens"
+        assert slides._backdrop.engine.name == "data_art_impulse_lens"
+        assert slides._backdrop.palette_name() == "spacr"
+
+    def test_live_ordinary_preference_apply_keeps_the_setup_field(
+            self, app, qtbot):
+        from types import SimpleNamespace
+        from spacr.qt import preferences
+
+        slides = SetupSlides()
+        qtbot.addWidget(slides)
+        preferences.set_ambient_animation("blobs")
+        preferences.set_ambient_palette("ember")
+        preferences.apply_ambient_preferences(
+            SimpleNamespace(allWidgets=lambda: [slides._backdrop]))
+
+        assert slides.animation_choice() == "data_art_impulse_lens"
+        assert slides._backdrop.theme() == "data_art_impulse_lens"
+        assert slides._backdrop.engine.name == "data_art_impulse_lens"
+        assert slides._backdrop.palette_name() == "spacr"
+
+    def test_spaceout_selection_does_not_replace_the_setup_field(
+            self, app, qtbot, monkeypatch):
+        from types import SimpleNamespace
+        from spacr.qt import theme
+        from spacr.qt.widgets import ambient
+
+        slides = SetupSlides()
+        qtbot.addWidget(slides)
+        requested = []
+
+        def replacement(*args, **kwargs):
+            requested.append((args, kwargs))
+            raise RuntimeError("setup backdrop was sent to Spaceout")
+
+        monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
+        monkeypatch.setattr(ambient, "spaceout_enabled", lambda: True)
+        monkeypatch.setattr(ambient, "install_ambient", replacement)
+        ambient._apply_spaceout_animation_choice(
+            SimpleNamespace(allWidgets=lambda: [slides._backdrop]))
+
+        assert requested == []
+        assert slides._backdrop.theme() == "data_art_impulse_lens"
+        assert slides._backdrop.engine.name == "data_art_impulse_lens"
+        assert slides._backdrop.palette_name() == "spacr"
+
     def test_it_builds_with_no_backdrop(self, app, monkeypatch):
 
         def boom(self):

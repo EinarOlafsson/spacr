@@ -52,6 +52,7 @@ import os
 import sys
 import threading
 import time
+from multiprocessing.context import BaseContext
 from collections import deque
 from pathlib import Path
 from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
@@ -1206,6 +1207,651 @@ def _clamp_to_plan(n_jobs: Any, plan: Optional[Mapping[str, Any]],
           f"{plan['max_safe']} workers. Set ram_guard to False to keep "
           f"n_jobs.")
     return plan['max_safe']
+
+
+class _WorkerStartGate:
+    """Space worker start attempts by ten seconds with cooperative stop.
+
+    One gate belongs to one processing pool. Existing workers incur no task
+    delay. Injecting clock and sleep allows deterministic scheduling checks.
+    """
+
+    def __init__(self, delay=10.0, *, clock=None, sleep=None):
+        """Store a nonnegative interval and a parent/thread-owned start lock."""
+        import math
+        from .cancellation import current_token
+
+        self.delay = float(delay)
+        if not math.isfinite(self.delay) or self.delay < 0:
+            raise ValueError('Worker start delay must be finite and nonnegative')
+        self._clock = clock or time.monotonic
+        self._sleep = sleep or time.sleep
+        self._last = None
+        self._lock = threading.Lock()
+        self._token = current_token()
+
+    def start(self, call):
+        """Start immediately once, then wait between deployment attempts."""
+        from .cancellation import checkpoint
+
+        with self._lock:
+            checkpoint()
+            if self._token is not None:
+                self._token.checkpoint()
+            if self._last is not None:
+                deadline = self._last + self.delay
+                while True:
+                    remaining = deadline - self._clock()
+                    if remaining <= 0:
+                        break
+                    self._sleep(min(0.05, remaining))
+                    checkpoint()
+                    if self._token is not None:
+                        self._token.checkpoint()
+            self._last = self._clock()
+            return call()
+
+
+class _StaggeredProcess:
+    """Parent-side process handle that paces start without changing its target.
+
+    The real process, its spawn pickling, exit code and cleanup remain owned
+    by multiprocessing. This wrapper is never sent to a child.
+    """
+
+    def __init__(self, process, gate):
+        """Keep a real process and the shared parent-side pool gate."""
+        object.__setattr__(self, '_process', process)
+        object.__setattr__(self, '_gate', gate)
+
+    def __getattr__(self, name):
+        """Delegate process identity, liveness, joins and cleanup unchanged."""
+        return getattr(self._process, name)
+
+    def __setattr__(self, name, value):
+        """Delegate writable attributes such as daemon to the real process."""
+        setattr(self._process, name, value)
+
+    def start(self):
+        """Deploy this real process after the previous pool start attempt."""
+        return self._gate.start(self._process.start)
+
+
+class _StaggeredContext(BaseContext):
+    """Preserve a multiprocessing context while pacing its worker starts."""
+
+    def __init__(self, context, gate=None):
+        """Store the caller's start method and one gate for this worker group."""
+        self._context = context
+        self._gate = gate or _WorkerStartGate()
+        self._owned_processes = []
+
+    def __getattr__(self, name):
+        """Use the original context's queues, events, locks and start method."""
+        return getattr(self._context, name)
+
+    def get_context(self, method=None):
+        """Use the original context for synchronization and serialization."""
+        return (self._context.get_context(method) if method is not None else
+                self._context)
+
+    def get_start_method(self, allow_none=False):
+        """Report the caller's actual multiprocessing start method."""
+        return self._context.get_start_method(allow_none=allow_none)
+
+    def Process(self, *args, **kwargs):
+        """Wrap a real context process without altering its child arguments."""
+        process = _StaggeredProcess(self._context.Process(*args, **kwargs), self._gate)
+        self._owned_processes.append(process)
+        return process
+
+    def Pool(self, processes=None, initializer=None, initargs=(),
+             maxtasksperchild=None):
+        """Build a normal pool with this context's paced process factory."""
+        from multiprocessing.pool import Pool
+
+        return Pool(processes, initializer, initargs, maxtasksperchild,
+                    context=self)
+
+
+def _invoke_parallel_task(payload):
+    """Return a task's outcome without aborting siblings on ordinary failure."""
+    from .cancellation import PipelineCancelled
+
+    index, function, arguments = payload
+    try:
+        return index, True, function(*arguments), None
+    except PipelineCancelled:
+        raise
+    except Exception as error:
+        import multiprocessing
+        from multiprocessing.pool import ExceptionWithTraceback
+
+        if (threading.current_thread() is threading.main_thread()
+                and multiprocessing.current_process().name != 'MainProcess'):
+            error = ExceptionWithTraceback(error, error.__traceback__)
+        return index, False, error, arguments
+
+
+def _iter_parallel_outcomes(outcomes, function, retry, *, ordered=True):
+    """Stream primary successes, retaining input order when requested.
+
+    An ordered consumer receives its successful prefix immediately. Only
+    results behind an unresolved input are held until the separate final
+    pass. An unordered consumer receives every primary success immediately.
+    """
+    from functools import partial
+    from .runctx import _DeferredOverloadRetries
+
+    pending, failures = {}, {}
+    cursor = 0
+    final = _DeferredOverloadRetries()
+    for index, ok, value, arguments in outcomes:
+        if ok:
+            if ordered:
+                pending[index] = value
+            else:
+                yield value
+        else:
+            failures[index] = value
+            final.defer(index, value, partial(retry, function, arguments))
+        if ordered:
+            while cursor in pending:
+                yield pending.pop(cursor)
+                cursor += 1
+    for index, result, error in final.drain():
+        if error is None:
+            failures.pop(index, None)
+            if ordered:
+                pending[index] = result
+            else:
+                yield result
+        else:
+            failures[index] = error
+    if ordered:
+        while cursor in pending:
+            yield pending.pop(cursor)
+            cursor += 1
+        if cursor in failures:
+            raise failures[cursor]
+    elif failures:
+        raise failures[min(failures)]
+
+
+def _finish_parallel_outcomes(outcomes, function, retry):
+    """Collect an ordered map without changing its list return contract."""
+    return list(_iter_parallel_outcomes(outcomes, function, retry))
+
+
+def _invoke_parallel_chunk(payloads):
+    """Return every item outcome inside an original pool-sized chunk."""
+    return [_invoke_parallel_task(payload) for payload in payloads]
+
+
+def _parallel_chunks(payloads, chunksize):
+    """Keep streaming submissions bounded to the requested chunk size."""
+    from itertools import islice
+
+    if chunksize < 1:
+        raise ValueError('Chunksize must be 1+, not ' + str(chunksize))
+    while True:
+        chunk = tuple(islice(payloads, chunksize))
+        if not chunk:
+            return
+        yield chunk
+
+
+def _check_parallel_workers(pool, workers):
+    """Refuse an unexplained worker loss instead of waiting for a lost result.
+
+    Normal zero-exit worker recycling is permitted. Nonzero native exits do
+    not establish a resource overload and never enter the deferred retry queue.
+    """
+    for worker in getattr(pool, '_pool', ()):
+        if worker not in workers:
+            workers.append(worker)
+    for worker in workers:
+        if worker.exitcode not in (None, 0):
+            raise RuntimeError(
+                f'Processing worker {worker.pid} exited with code {worker.exitcode}; '
+                'no explicit overload result was received')
+
+
+class _ParallelApplyResult:
+    """Observe direct submissions without replacing their owner's retry policy."""
+
+    def __init__(self, primary, pool, workers):
+        """Keep the original asynchronous result and every owned worker handle."""
+        self._primary = primary
+        self._pool = pool
+        self._workers = workers
+
+    def __getattr__(self, name):
+        """Delegate original readiness, callbacks and success reporting."""
+        return getattr(self._primary, name)
+
+    def ready(self):
+        """Report readiness without concealing an unexplained worker loss."""
+        _check_parallel_workers(self._pool, self._workers)
+        return self._primary.ready()
+
+    def get(self, timeout=None):
+        """Return a direct result cooperatively or report its lost worker.
+
+        :param timeout: original overall result timeout, or no time limit.
+        """
+        from multiprocessing import TimeoutError
+        from .cancellation import checkpoint
+
+        deadline = None if timeout is None else time.monotonic() + timeout
+        while True:
+            checkpoint()
+            _check_parallel_workers(self._pool, self._workers)
+            remaining = None if deadline is None else deadline - time.monotonic()
+            interval = 0.1 if remaining is None else max(0.0, min(0.1, remaining))
+            try:
+                return self._primary.get(timeout=interval)
+            except TimeoutError:
+                if remaining is not None and remaining <= 0:
+                    raise
+
+    def wait(self, timeout=None):
+        """Wait for a direct result with cancellation and worker-loss checks.
+
+        :param timeout: original overall wait timeout, or no time limit.
+        """
+        from .cancellation import checkpoint
+
+        deadline = None if timeout is None else time.monotonic() + timeout
+        while not self.ready():
+            checkpoint()
+            remaining = None if deadline is None else deadline - time.monotonic()
+            if remaining is not None and remaining <= 0:
+                return
+            self._primary.wait(0.1 if remaining is None else min(0.1, remaining))
+
+
+class _ParallelAsyncResult:
+    """Keep asynchronous readiness false until its distinct final pass ends."""
+
+    def __init__(self, primary, pool, function, callback, error_callback, *, workers=None):
+        """Collect primary results on an owned coordinator, then retry serially."""
+        from .cancellation import current_token
+
+        self._primary = primary
+        self._pool = pool
+        self._workers = list(getattr(pool, '_pool', ())) if workers is None else workers
+        self._function = function
+        self._callback = callback
+        self._error_callback = error_callback
+        self._token = current_token()
+        self._stop = threading.Event()
+        self._done = threading.Event()
+        self._value = None
+        self._error = None
+        self._thread = threading.Thread(target=self._run,
+                                        name='spacr-final-retry', daemon=True)
+        self._thread.start()
+
+    def _wait_result(self, result):
+        """Wait cooperatively without retaining a stopped pool coordinator."""
+        from multiprocessing import TimeoutError
+        from .cancellation import PipelineCancelled
+
+        while True:
+            self._checkpoint()
+            _check_parallel_workers(self._pool, self._workers)
+            try:
+                return result.get(timeout=0.1)
+            except TimeoutError:
+                continue
+
+    def _checkpoint(self):
+        """Stop before submitting or consuming another processing task."""
+        from .cancellation import PipelineCancelled
+
+        if self._stop.is_set():
+            raise PipelineCancelled('Processing pool stopped')
+        if self._token is not None:
+            self._token.checkpoint()
+
+    def _retry(self, function, arguments):
+        """Check Stop before submitting this final attempt to the real pool."""
+        self._checkpoint()
+        return self._wait_result(self._pool.apply_async(function, arguments))
+
+    def _run(self):
+        """Consume every primary result before starting one serial retry pass."""
+        try:
+            outcomes = self._wait_result(self._primary)
+            self._value = _finish_parallel_outcomes(
+                outcomes, self._function, self._retry)
+        except BaseException as error:
+            self._error = error
+        try:
+            if self._error is None and self._callback is not None:
+                self._callback(self._value)
+            elif self._error is not None and self._error_callback is not None:
+                self._error_callback(self._error)
+        except BaseException as error:
+            self._error = error
+        finally:
+            self._done.set()
+
+    def ready(self):
+        """Whether primary processing and the final pass have both finished."""
+        return self._done.is_set()
+
+    def wait(self, timeout=None):
+        """Wait for the complete asynchronous result, without raising it."""
+        self._done.wait(timeout)
+
+    def successful(self):
+        """Report the final verdict only once the asynchronous job is ready."""
+        if not self.ready():
+            raise ValueError('Result is not ready')
+        return self._error is None
+
+    def get(self, timeout=None):
+        """Return ordered results or raise the original final failure."""
+        from multiprocessing import TimeoutError
+        from .cancellation import checkpoint
+
+        deadline = None if timeout is None else time.monotonic() + timeout
+        while not self.ready():
+            checkpoint()
+            remaining = None if deadline is None else deadline - time.monotonic()
+            if remaining is not None and remaining <= 0:
+                raise TimeoutError
+            self._done.wait(0.1 if remaining is None else min(0.1, remaining))
+        if self._error is not None:
+            raise self._error
+        return self._value
+
+
+class _ParallelPool:
+    """A paced multiprocessing pool with a separate final overload queue.
+
+    Map operations retain input order and original exceptions. Explicit
+    apply_async owners retain their retry policy and use the common deferred
+    queue at the end of their primary scheduler.
+    """
+
+    def __init__(self, pool, *, workers=None):
+        """Wrap an already constructed pool without changing its lifecycle."""
+        self._backend = pool
+        self._workers = list(getattr(pool, '_pool', ())) if workers is None else workers
+        self._async_results = []
+
+    def __getattr__(self, name):
+        """Preserve asynchronous submission, worker inspection and cleanup."""
+        return getattr(self._backend, name)
+
+    def __enter__(self):
+        """Enter the underlying pool and expose the queued map interface."""
+        self._backend.__enter__()
+        return self
+
+    def __exit__(self, *args):
+        """Let the real pool stop and join its workers on context exit."""
+        for result in self._async_results:
+            result._stop.set()
+        try:
+            return self._backend.__exit__(*args)
+        finally:
+            for result in self._async_results:
+                result._thread.join()
+
+    def terminate(self):
+        """Stop both real workers and every owned asynchronous coordinator."""
+        for result in self._async_results:
+            result._stop.set()
+        try:
+            self._backend.terminate()
+        finally:
+            for result in self._async_results:
+                result._thread.join()
+
+    def _map_async(self, function, payloads, chunksize, callback, error_callback):
+        """Own one primary map and one final pass without closing the pool."""
+        _check_parallel_workers(self._backend, self._workers)
+        primary = self._backend.map_async(_invoke_parallel_task, payloads, chunksize)
+        self._async_results[:] = [result for result in self._async_results
+                                 if not result.ready()]
+        result = _ParallelAsyncResult(primary, self._backend, function,
+                                      callback, error_callback, workers=self._workers)
+        self._async_results.append(result)
+        return result
+
+    def apply_async(self, function, args=(), kwds=None, callback=None,
+                    error_callback=None):
+        """Observe direct tasks while keeping the caller's final retry queue.
+
+        :param function: original processing function.
+        :param args: positional arguments for that function.
+        :param kwds: keyword arguments for that function.
+        :param callback: original success callback.
+        :param error_callback: original processing-error callback.
+        """
+        _check_parallel_workers(self._backend, self._workers)
+        primary = self._backend.apply_async(function, args, kwds or {},
+                                             callback, error_callback)
+        return _ParallelApplyResult(primary, self._backend, self._workers)
+
+    def map_async(self, function, iterable, chunksize=None, callback=None,
+                  error_callback=None):
+        """Asynchronously map inputs, including their serial final overload pass."""
+        payloads = ((index, function, (item,))
+                    for index, item in enumerate(iterable))
+        return self._map_async(function, payloads, chunksize, callback, error_callback)
+
+    def starmap_async(self, function, iterable, chunksize=None, callback=None,
+                      error_callback=None):
+        """Asynchronously map argument tuples with one distinct final pass."""
+        payloads = ((index, function, tuple(arguments))
+                    for index, arguments in enumerate(iterable))
+        return self._map_async(function, payloads, chunksize, callback, error_callback)
+
+    def _retry(self, function, arguments):
+        """Run one final task alone after every primary result was consumed."""
+        from .cancellation import checkpoint
+        from multiprocessing import TimeoutError
+
+        checkpoint()
+        result = self._backend.apply_async(function, arguments)
+        while True:
+            checkpoint()
+            _check_parallel_workers(self._backend, self._workers)
+            try:
+                return result.get(timeout=0.1)
+            except TimeoutError:
+                continue
+
+    def _stream(self, payloads, chunksize, *, unordered=False):
+        """Poll chunked primary results without concealing a native worker loss."""
+        from .cancellation import checkpoint
+        from multiprocessing import TimeoutError
+
+        chunks = _parallel_chunks(payloads, chunksize)
+        method = self._backend.imap_unordered if unordered else self._backend.imap
+        iterator = method(_invoke_parallel_chunk, chunks, 1)
+        while True:
+            checkpoint()
+            _check_parallel_workers(self._backend, self._workers)
+            try:
+                chunk = iterator.next(timeout=0.1)
+            except TimeoutError:
+                continue
+            except StopIteration:
+                return
+            yield from chunk
+
+    def map(self, function, iterable, chunksize=None):
+        """Map ordered inputs with paced workers and one final overload pass."""
+        return self.map_async(function, iterable, chunksize).get()
+
+    def starmap(self, function, iterable, chunksize=None):
+        """Map argument tuples while keeping the normal pool chunk sizing."""
+        return self.starmap_async(function, iterable, chunksize).get()
+
+    def imap(self, function, iterable, chunksize=1):
+        """Stream ordered results and finish overloads after the primary queue."""
+        payloads = ((index, function, (item,))
+                    for index, item in enumerate(iterable))
+        outcomes = self._stream(payloads, chunksize)
+        return _iter_parallel_outcomes(outcomes, function, self._retry)
+
+    def imap_unordered(self, function, iterable, chunksize=1):
+        """Stream primary completions, followed by the distinct final queue."""
+        payloads = ((index, function, (item,))
+                    for index, item in enumerate(iterable))
+        outcomes = self._stream(payloads, chunksize, unordered=True)
+        return _iter_parallel_outcomes(outcomes, function, self._retry, ordered=False)
+
+
+def _parallel_pool(processes=None, initializer=None, initargs=(),
+                   maxtasksperchild=None, *, context=None, gate=None):
+    """Create a resource-guarded caller's pool with ten-second worker starts.
+
+    Worker count and start method remain the caller's decision. A gate may
+    be injected for deterministic tests; the production default is ten seconds.
+    """
+    import multiprocessing
+
+    context = context or multiprocessing.get_context()
+    paced = _StaggeredContext(context, gate)
+    return _ParallelPool(paced.Pool(
+        processes, initializer, initargs, maxtasksperchild), workers=paced._owned_processes)
+
+
+def _call_parallel_task(task):
+    """Call one original function with its positional and keyword arguments."""
+    function, arguments, keywords = task
+    return function(*arguments, **keywords)
+
+
+def _cloudpickled_parallel_task(payload):
+    """Preserve closures and keyword arguments across a normal spawn pool."""
+    from joblib.externals import cloudpickle
+
+    return cloudpickle.dumps(_call_parallel_task(cloudpickle.loads(payload)))
+
+
+def _parallel_cloudpickle_map(tasks, workers):
+    """Process cloudpickle-compatible calls with the shared final retry pass.
+
+    :param tasks: iterable of function, positional arguments and keyword dict.
+    :param workers: already resource-guarded processing worker count.
+    :returns: ordered results, decoded in the caller process.
+    """
+    import multiprocessing
+    from joblib.externals import cloudpickle
+
+    if workers == 1:
+        outcomes = (_invoke_parallel_task((index, _call_parallel_task, (task,)))
+                    for index, task in enumerate(tasks))
+        return _finish_parallel_outcomes(
+            outcomes, _call_parallel_task,
+            lambda function, arguments: function(*arguments))
+    payloads = (cloudpickle.dumps(task) for task in tasks)
+    with _parallel_pool(workers, context=multiprocessing.get_context('spawn')) as pool:
+        return [cloudpickle.loads(value) for value in
+                pool.imap(_cloudpickled_parallel_task, payloads)]
+
+
+def _data_loader_arguments(arguments, keywords):
+    """Preserve DataLoader arguments while pacing real worker deployments."""
+    import multiprocessing
+
+    keywords = dict(keywords)
+    workers = keywords.get('num_workers', arguments[5] if len(arguments) > 5 else 0)
+    if workers:
+        context = keywords.get('multiprocessing_context')
+        if context is None or isinstance(context, str):
+            context = multiprocessing.get_context(context)
+        if not isinstance(context, _StaggeredContext):
+            keywords['multiprocessing_context'] = _StaggeredContext(context)
+    return keywords
+
+
+def _parallel_data_loader(*arguments, **keywords):
+    """Construct a standard Torch loader with paced processing workers."""
+    from torch.utils.data import DataLoader
+
+    return DataLoader(*arguments, **_data_loader_arguments(arguments, keywords))
+
+
+def _initialize_staggered_thread(gate, initializer, arguments):
+    """Pace a processing thread before it can initialize or consume tasks."""
+    gate.start(lambda: initializer(*arguments) if initializer else None)
+
+
+class _ParallelExecutor:
+    """Preserve a normal executor and add a final overload pass to its map."""
+
+    def __init__(self, executor):
+        """Keep the executor's futures, shutdown and context ownership intact."""
+        self._executor = executor
+
+    def __getattr__(self, name):
+        """Delegate explicit submit owners and executor lifecycle operations."""
+        return getattr(self._executor, name)
+
+    def __enter__(self):
+        """Enter the real executor and return its queued map wrapper."""
+        self._executor.__enter__()
+        return self
+
+    def __exit__(self, *args):
+        """Join the real executor's workers at the original boundary."""
+        return self._executor.__exit__(*args)
+
+    def map(self, function, *iterables, timeout=None, chunksize=1):
+        """Map each argument tuple, then replay only exhausted overloads."""
+        from .cancellation import checkpoint
+
+        deadline = None if timeout is None else time.monotonic() + timeout
+        payloads = ((index, function, tuple(arguments))
+                    for index, arguments in enumerate(zip(*iterables)))
+        outcomes = self._executor.map(_invoke_parallel_task, payloads,
+                                      timeout=timeout, chunksize=chunksize)
+
+        def retry(call, arguments):
+            """Honor cancellation and the original overall map timeout."""
+            checkpoint()
+            remaining = None if deadline is None else max(
+                0.0, deadline - time.monotonic())
+            return self._executor.submit(call, *arguments).result(remaining)
+
+        return _iter_parallel_outcomes(outcomes, function, retry)
+
+
+def _parallel_thread_executor(max_workers=None, thread_name_prefix='',
+                              initializer=None, initargs=(), *, gate=None):
+    """Start processing threads ten seconds apart, preserving executor limits."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    return _ParallelExecutor(ThreadPoolExecutor(
+        max_workers=max_workers, thread_name_prefix=thread_name_prefix,
+        initializer=_initialize_staggered_thread,
+        initargs=(gate or _WorkerStartGate(), initializer, initargs)))
+
+
+def _parallel_process_executor(max_workers=None, mp_context=None,
+                               initializer=None, initargs=(),
+                               max_tasks_per_child=None, *, gate=None):
+    """Pace real process deployments without changing executor worker limits."""
+    import multiprocessing
+    from concurrent.futures import ProcessPoolExecutor
+
+    context = mp_context or multiprocessing.get_context(
+        'spawn' if max_tasks_per_child is not None else None)
+    options = dict(max_workers=max_workers, mp_context=_StaggeredContext(context, gate),
+                   initializer=initializer, initargs=initargs)
+    if max_tasks_per_child is not None:
+        options['max_tasks_per_child'] = max_tasks_per_child
+    return _ParallelExecutor(ProcessPoolExecutor(
+        **options))
 
 
 def _guard_workers(module: str, n_jobs: Any, unit_bytes: int, *,

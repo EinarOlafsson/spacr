@@ -18,7 +18,7 @@ version named by the installer, then checks the environment before replacing
 an existing working installation.
 
 Use the official `conda-forge package <https://anaconda.org/conda-forge/spacr>`_
-when Conda should install spaCR and resolve its desktop and
+when Conda should install spaCR and resolve its desktop and core
 dependencies. Use ``pip`` for the PyPI release when spaCR must live in an
 existing Python environment, notebook, server or cluster, or when you need a
 PyPI extra that is not part of the conda package. Python 3.12 currently offers
@@ -395,8 +395,40 @@ environment. It includes spaCR's desktop and core dependencies:
 PyPI installation and extras
 ----------------------------
 
-The PyPI package supports Python 3.9 through 3.14 except Python 3.14.1. To
-install the PyPI release and desktop interface inside a Conda environment:
+The PyPI package supports Python 3.9 through 3.14 except Python 3.14.1.
+Choose either a Python virtual environment or a Conda environment for the
+PyPI release. In both cases, pip installs spaCR; the conda-forge route above
+uses Conda to install spaCR instead.
+
+For a Python virtual environment, first install Python 3.12, then run:
+
+.. code-block:: bash
+
+   python3.12 -m venv spacr-venv
+
+Activate the environment on Linux or macOS with:
+
+.. code-block:: bash
+
+   source spacr-venv/bin/activate
+
+On Windows, create it with ``py -3.12 -m venv spacr-venv`` and activate it in
+PowerShell with:
+
+.. code-block:: powershell
+
+   .\spacr-venv\Scripts\Activate.ps1
+
+In the activated environment, install and open spaCR:
+
+.. code-block:: bash
+
+   python -m pip install --upgrade pip
+   python -m pip install spacr
+   spacr
+
+To install the same PyPI release and desktop interface inside a Conda
+environment:
 
 .. code-block:: bash
 

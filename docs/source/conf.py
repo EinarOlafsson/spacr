@@ -23,6 +23,11 @@ import build_guide_i18n as _guide_i18n
 # catalogs: translated trees link to the English API and tutorial player.
 # See tools/build_guide_i18n.py.
 _guides_only = os.environ.get('SPACR_DOCS_GUIDES_ONLY', '') == '1'
+if _guides_only:
+    _source_api_projection = frozenset()
+else:
+    import build_documentation_i18n as _api_i18n
+    _source_api_projection = _api_visibility.documented_tree(_api_i18n.public_docstrings())
 
 sys.path.insert(0, os.path.abspath(
     os.path.join(__file__, '..', '..', 'spacr')
@@ -180,14 +185,23 @@ autoapi_member_order         = 'groupwise'   # attrs → methods, alphabetical i
 # A changed rollout must invalidate AutoAPI's otherwise unchanged source cache.
 spacr_nested_helper_modules = tuple(sorted(_nested_helper_docs.ENABLED_MODULES))
 spacr_explicit_api_modules = tuple(sorted(_api_visibility.EXPLICIT_MODULES))
+spacr_source_api_projection = _source_api_projection
+spacr_source_api_projection_sha256 = hashlib.sha256(
+    '\n'.join(sorted(_source_api_projection)).encode('utf-8'),
+).hexdigest()
 
 
-def autoapi_prepare_jinja_env(env):
+def autoapi_prepare_jinja_env(env, *, app=None):
     import build_module_workflows
     build_module_workflows.prepare_jinja(env, root=_SOURCE_ROOT)
     _nested_helper_docs.prepare_jinja(
         env, root=_SOURCE_ROOT, ignore_patterns=autoapi_ignore,
     )
+    if app is not None and app.config.spacr_source_api_projection:
+        import build_documentation_i18n
+        _api_visibility.prepare_jinja(
+            env, root=_SOURCE_ROOT,
+            documents=build_documentation_i18n.public_docstrings())
 
 # -- HTML output — furo ----------------------------------------------------
 html_theme      = 'furo'
@@ -310,6 +324,10 @@ html_theme_options = {
 
 def _skip_implementation_data(app, what, name, obj, skip, options):
     """Hide mutable module state while retaining documented constants."""
+    source_policy = _api_visibility.source_page_policy(
+        name, obj, getattr(app.config, 'spacr_source_api_projection', frozenset()))
+    if source_policy is not None:
+        return source_policy
     explicit_policy = _api_visibility.explicit_page_policy(name)
     if explicit_policy is not None:
         return explicit_policy
@@ -348,5 +366,11 @@ def setup(app):
     app.connect('doctree-read', _qualify_helper_annotations)
     app.add_config_value('spacr_nested_helper_modules', (), 'env')
     app.add_config_value('spacr_explicit_api_modules', (), 'env')
+    app.add_config_value('spacr_source_api_projection', frozenset(), 'env')
+    app.add_config_value('spacr_source_api_projection_sha256', '', 'env')
+    if app.config.spacr_source_api_projection:
+        from functools import partial
+        app.config.autoapi_prepare_jinja_env = partial(
+            autoapi_prepare_jinja_env, app=app)
     _nested_helper_docs.register_sphinx_directive(app)
     app.connect('autoapi-skip-member', _skip_implementation_data)

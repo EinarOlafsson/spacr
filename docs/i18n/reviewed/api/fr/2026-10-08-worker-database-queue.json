@@ -1,0 +1,178 @@
+{
+  "language": "fr",
+  "records": [
+    {
+      "context": "Join every member of one primary or serial final worker group.",
+      "label": "spacr._mask_workers._run_mask_workers.run_group#0",
+      "source": "Join every member of one primary or serial final worker group.",
+      "source_sha256": "4052295c785b7844536496fdb155bce5817616f0b529a8eac4f5fcd47a5681cc",
+      "translation": "Attendre la fin de chaque membre d'un groupe de travailleurs primaire ou final en série."
+    },
+    {
+      "context": "connection in autocommit mode; use :func:`transaction` for multi-statement writes. Inside an atomic queued write, helpers for this same database reuse the writer independent execution path's active connection; their commits and closes are deferred until the complete field commits.",
+      "label": "spacr.database_concurrency.connect#6",
+      "source": "connection in autocommit mode; use :func:`transaction` for multi-statement writes. Inside an atomic queued write, helpers for this same database reuse the writer thread's active connection; their commits and closes are deferred until the complete field commits.",
+      "source_sha256": "ebe0943c952d3e79635549fcf653b39cfeb6ab33605cb0f0ac92506e65702f9b",
+      "translation": "connexion en mode autocommit ; utilisez :func:`transaction` pour les écritures comportant plusieurs instructions SQL. Lors d'une écriture atomique en attente, les fonctions auxiliaires de cette même base réutilisent la connexion active du fil d'écriture ; leurs validations et fermetures sont différées jusqu'à la validation du champ d'image complet."
+    },
+    {
+      "context": "when asked to nest inside an active transaction outside a writer-owned packet. Queued helper transactions use savepoints within that packet.",
+      "label": "spacr.database_concurrency.transaction#9",
+      "source": "when asked to nest inside an active transaction outside a writer-owned packet. Queued helper transactions use savepoints within that packet.",
+      "source_sha256": "e5e036b663d76d2ac4242bd4762a39b992308b7408b639de920edecd760bd72f",
+      "translation": "lorsqu'une imbrication est demandée dans une transaction active hors d'un paquet géré par le processus d'écriture. Les transactions des fonctions auxiliaires en attente utilisent des points de sauvegarde dans ce paquet."
+    },
+    {
+      "context": "Save one approved operation to the packet's central database.",
+      "label": "spacr.measure._commit_measure_packet.dispatch#0",
+      "source": "Save one approved operation to the packet's central database.",
+      "source_sha256": "a7f12d2162ba4af15caacea44d9950a67a7c6769ab8b6532dfe6c0d16398e901",
+      "translation": "Enregistrer une opération autorisée dans la base centrale du paquet."
+    },
+    {
+      "context": "approved helper name, positional arguments and keywords.",
+      "label": "spacr.measure._commit_measure_packet.dispatch#1",
+      "source": "approved helper name, positional arguments and keywords.",
+      "source_sha256": "62290849baf7cea7152f2e1b4afdacbb6e6344072c15f1e2dbfff0a497ae83b9",
+      "translation": "nom autorisé de la fonction auxiliaire, arguments positionnels et arguments nommés."
+    },
+    {
+      "context": "``database_write_queue_gib`` — optional SQLite queued-data RAM budget from zero to 64 GiB. Omit to use Preferences (default one GiB). Zero uses disk-only buffering; overflow lives under ``measurements/.write_queue``. Each field commits atomically and unfinished write packets remain available after failure.",
+      "label": "spacr.measure.measure_crop#13",
+      "source": "``database_write_queue_gib`` — optional SQLite queued-data RAM budget from zero to 64 GiB. Omit to use Preferences (default one GiB). Zero uses disk-only buffering; overflow lives under ``measurements/.write_queue``. Each field commits atomically and unfinished write packets remain available after failure.",
+      "source_sha256": "ab7fd34d9f1a12be5d0f3158b668ff926f03b7a1ebe183e9fdbf2c0065e6ce5e",
+      "translation": "``database_write_queue_gib`` — budget RAM facultatif pour les données SQLite en attente, de zéro à 64 GiB. Omettez-le pour utiliser Préférences (valeur par défaut : un GiB). Zéro utilise uniquement un tampon sur disque ; les données excédentaires sont stockées sous ``measurements/.write_queue``. Chaque champ d'image est validé de façon atomique et les paquets d'écriture inachevés restent disponibles après un échec."
+    },
+    {
+      "context": "only in strict mode (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS`` environment variable). The ``normalize``, ``normalize_by``, mask-dimension/min-size and ``channels`` type checks otherwise print a WARNING and return ``None`` without measuring anything.",
+      "label": "spacr.measure.measure_crop#17",
+      "previous_labels": [
+        "spacr.measure.measure_crop#15"
+      ],
+      "source": "only in strict mode (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS`` environment variable). The ``normalize``, ``normalize_by``, mask-dimension/min-size and ``channels`` type checks otherwise print a WARNING and return ``None`` without measuring anything.",
+      "source_sha256": "54ce3a0757995f7f3843bcb35d895d61a46b1b54bbf72cc9837d46da152edb4c",
+      "translation": "uniquement en mode strict (``settings['strict_errors']`` ou la variable d’environnement ``SPACR_STRICT_ERRORS``). Sinon, les vérifications de type de ``normalize``, ``normalize_by``, des dimensions et tailles minimales des masques ainsi que de ``channels`` affichent un WARNING et renvoient ``None`` sans effectuer de mesure."
+    },
+    {
+      "context": "Save returned figures and report field computation progress.",
+      "label": "spacr.measure.measure_crop.job_callback#0",
+      "source": "Save returned figures and report field computation progress.",
+      "source_sha256": "111b7e987c7e4c82013353f2d7e75feaeea02494d840bd7103151203d7a505ef",
+      "translation": "Enregistrer les figures renvoyées et signaler la progression du calcul des champs d'image."
+    },
+    {
+      "context": "index, average duration, surviving labels, figures, error text and an optional queued-write ticket. An integer zero labels value records the original field failure. SQLite success is recorded separately by the writer after committing all scientific rows. Other backends keep their existing synchronous worker verdict.",
+      "label": "spacr.measure.measure_crop.job_callback#1",
+      "source": "index, average duration, surviving labels, figures, error text and an optional queued-write ticket. An integer zero labels value records the original field failure. SQLite success is recorded separately by the writer after committing all scientific rows. Other backends keep their existing synchronous worker verdict.",
+      "source_sha256": "971d644efe435f0fa22a8a94464059fd3f0ace226a548062e3be9d79174205af",
+      "translation": "indice, durée moyenne, étiquettes restantes, figures, texte de l'erreur et reçu facultatif d'écriture en attente. La valeur entière zéro pour les étiquettes enregistre l'échec initial du champ. Le processus d'écriture enregistre séparément la réussite SQLite après validation de toutes les lignes de données scientifiques. Les autres moteurs conservent leur résultat synchrone du travailleur."
+    },
+    {
+      "context": "Count each field once, after its actual final outcome.",
+      "label": "spacr.measure.measure_crop.record_verdict#0",
+      "source": "Count each field once, after its actual final outcome.",
+      "source_sha256": "a4693e96e54697bc45989be5bea1e6b19c7f81bba5449368f7d2c18478fcd213",
+      "translation": "Compter chaque champ d'image une seule fois, après son résultat final réel."
+    },
+    {
+      "context": "Record a field only after its packet's final SQL verdict.",
+      "label": "spacr.measure.measure_crop.write_callback#0",
+      "source": "Record a field only after its packet's final SQL verdict.",
+      "source_sha256": "8dfa9d1be7155cd3aabfe2c6c9ac7848527237be903ce63d77dea3d51dfc6e29",
+      "translation": "Enregistrer un champ d'image uniquement après le résultat SQL final de son paquet."
+    },
+    {
+      "context": "Read one original source with the shared deferred overload policy.",
+      "label": "spacr.ops_engine._decode_field.load_slot#0",
+      "source": "Read one original source with the shared deferred overload policy.",
+      "source_sha256": "dd4c91b6166b9a5da2d32efb535b1ec07aa78eb36d322b779a07ce3926607eba",
+      "translation": "Lire une source d'origine selon la politique commune de tentatives différées après surcharge."
+    },
+    {
+      "context": "The pool uses the ``spawn`` start method because fitted models may import torch and OpenMP runtimes. Only a bounded number of jobs are submitted at once, allowing new submissions to pause when available memory is low. Initial processing workers start ten seconds apart. After every primary trial finishes, explicit resource-overload failures receive one serial retry in their existing trial directories. Original result/error files are retained separately, and the final table has one row per trial with primary failure details and ``overload_retry`` metadata. Invalid inputs, cancellation and unexplained native worker exits are not retried.",
+      "label": "spacr.parameter_sweep.run_sweep_parallel#8",
+      "source": "The pool uses the ``spawn`` start method because fitted models may import torch and OpenMP runtimes. Only a bounded number of jobs are submitted at once, allowing new submissions to pause when available memory is low. Initial processing workers start ten seconds apart. After every primary trial finishes, explicit resource-overload failures receive one serial retry in their existing trial directories. Original result/error files are retained separately, and the final table has one row per trial with primary failure details and ``overload_retry`` metadata. Invalid inputs, cancellation and unexplained native worker exits are not retried.",
+      "source_sha256": "0bef7cc59f1f083366ce89406c2f7a6b47c80b6061efc0b184926364348ed8d5",
+      "translation": "Le groupe utilise la méthode de démarrage ``spawn``, car les modèles ajustés peuvent importer torch et les environnements d'exécution OpenMP. Seul un nombre limité de tâches est soumis à la fois, ce qui permet de suspendre les nouvelles soumissions lorsque la mémoire disponible est faible. Les premiers travailleurs de traitement démarrent à dix secondes d'intervalle. Après la fin de tous les essais primaires, les échecs explicitement dus à une surcharge des ressources bénéficient d'une unique nouvelle tentative en série dans leurs répertoires d'essai existants. Les fichiers initiaux de résultats et d'erreurs sont conservés séparément ; la table finale comporte une ligne par essai, avec les détails de l'échec primaire et les métadonnées ``overload_retry``. Les entrées invalides, les annulations et les arrêts inexpliqués des travailleurs natifs ne font pas l'objet d'une nouvelle tentative."
+    },
+    {
+      "context": "Return the serialized database work list RAM budget in GiB.",
+      "label": "spacr.qt.preferences.get_database_write_queue_gib#0",
+      "source": "Return the serialized database queue RAM budget in GiB.",
+      "source_sha256": "e3ce09c72dccbf803d79782fbdf6d59633b73fc3e593d10604da458ffa2f8eda",
+      "translation": "Renvoyer le budget RAM de la file sérialisée de la base de données en GiB."
+    },
+    {
+      "context": "Zero uses disk-only buffering. This is not the total process RAM limit.",
+      "label": "spacr.qt.preferences.get_database_write_queue_gib#1",
+      "source": "Zero uses disk-only buffering. This is not the total process RAM limit.",
+      "source_sha256": "2cba9223e4b15a59736e3e001a31d35961915fcf043eba3efaff729eb80d5942",
+      "translation": "Zéro utilise uniquement un tampon sur disque. Il ne s'agit pas de la limite RAM totale du processus."
+    },
+    {
+      "context": "Persist the database work list payload budget for subsequent runs.",
+      "label": "spacr.qt.preferences.set_database_write_queue_gib#0",
+      "source": "Persist the database queue payload budget for subsequent runs.",
+      "source_sha256": "810c19690a61780e26ef7f561d42083454a3a97b019e0de1bcedf8315dad5848",
+      "translation": "Enregistrer le budget de données de la file de la base pour les exécutions suivantes."
+    },
+    {
+      "context": "serialized queued-data RAM allowance in GiB, from zero to 64. Zero stores queued payloads on disk.",
+      "label": "spacr.qt.preferences.set_database_write_queue_gib#1",
+      "source": "serialized queued-data RAM allowance in GiB, from zero to 64. Zero stores queued payloads on disk.",
+      "source_sha256": "5b3bf94ec344acc83e26b3d6d0852c317c779a932217841e93f8bcfd9b5bc47b",
+      "translation": "allocation RAM des données sérialisées en attente, en GiB, de zéro à 64. Zéro stocke les données en attente sur disque."
+    },
+    {
+      "context": "if the value is nonfinite or outside the valid range.",
+      "label": "spacr.qt.preferences.set_database_write_queue_gib#2",
+      "source": "if the value is nonfinite or outside the valid range.",
+      "source_sha256": "77338723cf931464c569b9229aece892eb1cd3c5e973aa81a389fd3b5c4cde37",
+      "translation": "si la valeur n'est pas finie ou sort de l'intervalle valide."
+    },
+    {
+      "context": "path to a SQLite measurement database, opened read-only; the preferred tables (``object``, ``cell``, ``nucleus``, …) come first, then the rest alphabetically. SQLite internals and the private condition-annotation and database-write receipt tables are left out; ordinary user tables and named derived results remain available.",
+      "label": "spacr.qt.screens.graph_builder.table_names#1",
+      "source": "path to a SQLite measurement database, opened read-only; the preferred tables (``object``, ``cell``, ``nucleus``, …) come first, then the rest alphabetically. SQLite internals and the private condition-annotation and database-write receipt tables are left out; ordinary user tables and named derived results remain available.",
+      "source_sha256": "8749cf08b3552f952b756d44e2d7b6bae59fe49bcb91c2021efdc130b844f3f7",
+      "translation": "chemin vers une base SQLite de mesures ouverte en lecture seule ; les tables préférées (``object``, ``cell``, ``nucleus``, …) apparaissent en premier, puis les autres par ordre alphabétique. Les tables internes SQLite et les tables privées d'annotations de conditions et de reçus d'écriture sont exclues ; les tables utilisateur ordinaires et les résultats dérivés nommés restent disponibles."
+    },
+    {
+      "context": "Write one captured simulation frame through the normal table writer.",
+      "label": "spacr.sim._commit_simulation_packet.dispatch#0",
+      "source": "Write one captured simulation frame through the normal table writer.",
+      "source_sha256": "6f0194324df7e1e7ed7d851b1384648c691264a75f367b8ab7681380a6060bd1",
+      "translation": "Écrire une table de données de simulation capturée via le dispositif habituel d'écriture des tables."
+    },
+    {
+      "context": "Processing workers start ten seconds apart and drive :func:`run_and_save` with captured database operations. One parent-owned writer commits each complete simulation and its retry ticket atomically. Explicit resource overloads receive one serial retry after all primary tasks finish; database overloads use the writer's separate final software job list. Invalid data and cancellation are not retried. An unsuccessful simulation or final database write produces an error instead of reporting a successful sweep.",
+      "label": "spacr.sim.run_multiple_simulations#1",
+      "source": "Processing workers start ten seconds apart and drive :func:`run_and_save` with captured database operations. One parent-owned writer commits each complete simulation and its retry ticket atomically. Explicit resource overloads receive one serial retry after all primary tasks finish; database overloads use the writer's separate final queue. Invalid data and cancellation are not retried. An unsuccessful simulation or final database write raises instead of reporting a successful sweep.",
+      "source_sha256": "5def515be7c222af9281dbefe1296d4477789df6254a9f547d25ecbae2eed3f7",
+      "translation": "Les travailleurs de traitement démarrent à dix secondes d'intervalle et exécutent :func:`run_and_save` avec les opérations de base de données capturées. Un unique processus d'écriture détenu par le parent valide atomiquement chaque simulation complète et son reçu de nouvelle tentative. Les surcharges explicites des ressources bénéficient d'une unique nouvelle tentative en série après la fin de toutes les tâches primaires ; les surcharges de base de données utilisent la file finale distincte du processus d'écriture. Les données invalides et les annulations ne sont pas réessayées. Une simulation échouée ou une écriture finale échouée en base déclenche une erreur au lieu de signaler un balayage réussi."
+    },
+    {
+      "context": "Sweep-settings key-value mapping. Must include ``max_workers``. ``database_write_queue_gib`` optionally overrides the saved work list RAM allowance, from zero to 64 GiB; zero buffers serialized packets on disk. Pending packets remain below the dated output folder on interruption.",
+      "label": "spacr.sim.run_multiple_simulations#2",
+      "source": "Sweep-settings dict. Must include ``max_workers``. ``database_write_queue_gib`` optionally overrides the saved queue RAM allowance, from zero to 64 GiB; zero buffers serialized packets on disk. Pending packets remain below the dated output folder on interruption.",
+      "source_sha256": "b83a9f6992b769845ad2479f065c8109a5d364ff0c1d321f1927f5abf56aa87a",
+      "translation": "Dictionnaire de paramètres du balayage. Doit inclure ``max_workers``. ``database_write_queue_gib`` peut remplacer l'allocation RAM enregistrée pour la file, de zéro à 64 GiB ; zéro met les paquets sérialisés en tampon sur disque. En cas d'interruption, les paquets en attente restent sous le dossier de sortie daté."
+    },
+    {
+      "context": "if the work list RAM allowance is invalid.",
+      "label": "spacr.sim.run_multiple_simulations#4",
+      "source": "if the queue RAM allowance is invalid.",
+      "source_sha256": "0904ecd06f1e572d8913468a6f0e473feb738bbb9670ff29bd5b7fb767327f65",
+      "translation": "si l'allocation RAM de la file est invalide."
+    },
+    {
+      "context": "if a final database write fails. Processing errors propagate with their original exception type.",
+      "label": "spacr.sim.run_multiple_simulations#5",
+      "source": "if a final database write fails. Processing errors propagate with their original exception type.",
+      "source_sha256": "9c519a8988a8e0fe1a218355d4566670e3e799a81ec4e9213930be3260d086f9",
+      "translation": "si une écriture finale en base échoue. Les erreurs de traitement sont propagées avec leur type d'exception d'origine."
+    }
+  ],
+  "review_scope": "AI technical review against source and execution behavior; no native-speaker signoff.",
+  "schema": 1
+}

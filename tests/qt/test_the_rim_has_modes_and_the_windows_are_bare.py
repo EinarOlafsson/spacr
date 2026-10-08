@@ -374,11 +374,11 @@ class TestTheSettingsBackdrop:
 
         store = QSettings(str(tmp_path / "fresh.ini"), QSettings.IniFormat)
         monkeypatch.setattr(own_config, "_settings", lambda: store)
-        assert own_config.get_popup_backdrop() == "off"
+        assert own_config.get_popup_backdrop() == "drift"
         dialog = PreferencesDialog()
         qtbot.addWidget(dialog)
         box = dialog.findChild(QComboBox, "PopupBackdrop")
-        assert box.currentData() == "off"
+        assert box.currentData() == "drift"
         assert tuple(box.itemData(i) for i in range(box.count())) == \
             own_config.POPUP_BACKDROPS
         for index in range(box.count()):

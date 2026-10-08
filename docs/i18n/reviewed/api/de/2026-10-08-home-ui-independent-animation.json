@@ -1,0 +1,164 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "Offer these controls only to the compatible Qt paint engines.",
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_popup_motion#0",
+      "source": "Offer these controls only to the compatible Qt paint engines.",
+      "source_sha256": "c64c59be21cba42e365d412b1a87919f65e4dcb48bb3f1cc7b88bac822fb70b1",
+      "translation": "Diese Bedienelemente nur für kompatible Qt-Zeichenmodule anbieten."
+    },
+    {
+      "context": "The settings-window backdrop has its own choice and remains active when module animation is off unless its own choice is None.",
+      "label": "spacr.qt.preferences.apply_ambient_preferences#2",
+      "source": "The settings-window backdrop has its own choice and remains active when module animation is off unless its own choice is None.",
+      "source_sha256": "e36ea3d396989af25f43164c2cfe5763b71320180f638254b41d107a74e8978e",
+      "translation": "Der Hintergrund des Einstellungsfensters hat eine eigene Auswahl und bleibt bei abgeschalteter Modulanimation aktiv, sofern seine eigene Auswahl nicht None ist."
+    },
+    {
+      "context": "Turning module animation back *on* only resumes the widgets that are actually on application view. Every module application view keeps its ambient widget alive while the user is on some other tab, and un-pausing those would spend frames on pixels nobody can see — which is the one thing this animation is not allowed to do. Their own ``showEvent`` restarts them when the tab comes back.",
+      "label": "spacr.qt.preferences.apply_ambient_preferences#3",
+      "source": "Turning module animation back *on* only resumes the widgets that are actually on screen. Every module screen keeps its ambient widget alive while the user is on some other tab, and un-pausing those would spend frames on pixels nobody can see — which is the one thing this animation is not allowed to do. Their own ``showEvent`` restarts them when the tab comes back.",
+      "source_sha256": "644ca8ae58ba41e57c0817ac57d504f756bf94643a54a7137138055885b89fe3",
+      "translation": "Beim erneuten *Einschalten* der Modulanimation werden nur die tatsächlich sichtbaren Widgets fortgesetzt. Jede Modulansicht hält ihr Hintergrundwidget am Leben, während der Benutzer einen anderen Reiter öffnet; ihr Fortsetzen würde Bilder für unsichtbare Pixel erzeugen — genau das darf diese Animation nicht tun. Ihr eigenes ``showEvent`` startet sie neu, wenn der Reiter wieder angezeigt wird."
+    },
+    {
+      "context": "Which animation screens paint in the active launch mode.",
+      "label": "spacr.qt.preferences.get_ambient_theme#0",
+      "source": "Which animation screens paint in the active launch mode.",
+      "source_sha256": "123a1a0cb4bad7540166f96d40cce2c72426d569153e1ed3148d00b385845a48",
+      "translation": "Welche Animation die Ansichten im aktiven Startmodus zeichnen."
+    },
+    {
+      "context": "Persist an animation offered in the active launch mode.",
+      "label": "spacr.qt.preferences.set_ambient_theme#0",
+      "source": "Persist an animation offered in the active launch mode.",
+      "source_sha256": "dadfe8dc58efd2523bda1c6bda04ca641d1148f687d68099b731bb1714e87087",
+      "translation": "Eine im aktiven Startmodus angebotene Animation speichern."
+    },
+    {
+      "context": "an animation offered in the current launcher's menu.",
+      "label": "spacr.qt.preferences.set_ambient_theme#2",
+      "source": "an animation offered in the current launcher's menu.",
+      "source_sha256": "628da8bd1027e51ebf37ce7f8e3d2c32d10e09aa65923d385b48436de8587238",
+      "translation": "eine Animation aus dem Menü des aktuellen Starters."
+    },
+    {
+      "context": "independent field-wave switch; ``None`` reads Preferences.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget#15",
+      "source": "independent field-wave switch; ``None`` reads Preferences.",
+      "source_sha256": "6af39d93481340f8ea0604c75825ca78e1ee087d637badd8338d5e2ac9d52d5c",
+      "translation": "unabhängiger Schalter für Feldwellen; ``None`` liest die Einstellungen."
+    },
+    {
+      "context": "popup waves per minute, clamped to zero through sixty; zero disables recurring waves. The separate ripple switch controls discrete click, container and window feedback.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_popup_wave_frequency#1",
+      "source": "popup waves per minute, clamped to zero through sixty; zero disables recurring waves. The separate ripple switch controls discrete click, container and window feedback.",
+      "source_sha256": "54219878d050ab3ec31a42dec020130355d27f5e8dcfe11ec7f121d655855acf",
+      "translation": "Popup-Wellen pro Minute, auf null bis sechzig begrenzt; null deaktiviert wiederkehrende Wellen. Der separate Wellenschalter steuert einzelne Rückmeldungen bei Klicks sowie an Containern und Fenstern."
+    },
+    {
+      "context": "Switch all field ripples independently of mouse gravity and dragging.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_ripples_enabled#0",
+      "source": "Switch all field ripples independently of mouse gravity and dragging.",
+      "source_sha256": "470d4aaa74bc3a0de5449af89b95e9bace96b6d4a0ba9b81a5a02411265dc3a4",
+      "translation": "Alle Feldwellen unabhängig von Mausgravitation und Ziehen ein- oder ausschalten."
+    },
+    {
+      "context": "whether recurring and discrete field waves are enabled.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_ripples_enabled#1",
+      "source": "whether recurring and discrete field waves are enabled.",
+      "source_sha256": "1f68631426669ce7c45559f784d277a418ed66b42939978665c24be07e531bab",
+      "translation": "ob wiederkehrende und einzelne Feldwellen aktiviert sind."
+    },
+    {
+      "context": "Standard launches preserve the requested pair. A Spaceout launch uses its own stored selection, or defaults to the fractal before one is saved.",
+      "label": "spacr.qt.widgets.ambient.dressed#1",
+      "source": "Standard launches preserve the requested pair. A Spaceout launch uses its own stored selection, or defaults to the fractal before one is saved.",
+      "source_sha256": "4e96d427acaabad30ee2e45022d744ea9a11d586ae7afd77b3ef375717b774b7",
+      "translation": "Standardstarts behalten das angeforderte Paar bei. Ein Spaceout-Start verwendet seine eigene gespeicherte Auswahl oder standardmäßig das Fraktal, solange keine Auswahl gespeichert wurde.",
+      "retired": "2026-10-08",
+      "retired_reason": "Superseded by current Spaceout evolving-field defaults or the source-verified Lorenz group-size outlier filter. Original source-bound evidence retained in place."
+    },
+    {
+      "context": "the requested theme name, not validated here.",
+      "label": "spacr.qt.widgets.ambient.dressed#2",
+      "source": "the requested theme name, not validated here.",
+      "source_sha256": "77e5fe8fd5efee3b8ec5b3cba5c4e7968eba464b3a96092296b11ae321367503",
+      "translation": "der angeforderte Themenname; hier erfolgt keine Validierung."
+    },
+    {
+      "context": "Publish settled window or panel feedback to its visible field backdrop.",
+      "label": "spacr.qt.widgets.ambient.field_ripple_for_widget#0",
+      "source": "Publish settled window or panel feedback to its visible field backdrop.",
+      "source_sha256": "24f935a15f7920edf76c6dfe4c6e3de367a2150532e6a6a507f9af7bc7673d4c",
+      "translation": "Rückmeldungen eines fertig verschobenen oder angepassten Fensters oder Panels an dessen sichtbaren Feldhintergrund weitergeben."
+    },
+    {
+      "context": "the resized, moved or collapsed widget.",
+      "label": "spacr.qt.widgets.ambient.field_ripple_for_widget#1",
+      "source": "the resized, moved or collapsed widget.",
+      "source_sha256": "946610545a40a2c64723176bf9e786d78d37a97253e35253aa590b4640aeeebd",
+      "translation": "das Widget, dessen Größe geändert wurde, das verschoben oder eingeklappt wurde."
+    },
+    {
+      "context": "an optional snapped window side.",
+      "label": "spacr.qt.widgets.ambient.field_ripple_for_widget#2",
+      "source": "an optional snapped window side.",
+      "source_sha256": "c141181abb8721e0d08d073513c45321584ed365fa406d2aa8398b1556a3c5d7",
+      "translation": "eine optionale eingerastete Fensterseite."
+    },
+    {
+      "context": "optional final rectangle in widget-local coordinates.",
+      "label": "spacr.qt.widgets.ambient.field_ripple_for_widget#3",
+      "source": "optional final rectangle in widget-local coordinates.",
+      "source_sha256": "a32a95c2343845f7d6b8c8e7431f60cdebc2e0318cd3b71eb2d39c19016778d0",
+      "translation": "optionales endgültiges Rechteck in lokalen Widgetkoordinaten."
+    },
+    {
+      "context": "positive enables release feedback; zero disables it.",
+      "label": "spacr.qt.widgets.ambient.field_ripple_for_widget#4",
+      "source": "positive enables release feedback; zero disables it.",
+      "source_sha256": "a2100b3cd319888c0dbc92f4bb1f68d168bd7ece066d14ed213399a159c94147",
+      "translation": "ein positiver Wert aktiviert Rückmeldungen beim Loslassen; null deaktiviert sie."
+    },
+    {
+      "context": "Keep the plotted 2D or 3D points over one solid rounded surface.",
+      "label": "spacr.qt.widgets.gate_editor.GateCanvas.paintEvent#0",
+      "source": "Keep the plotted 2D or 3D points over one solid rounded surface.",
+      "source_sha256": "d8584882089a6330878b07027d0c03dd0d0946e0ed89a0464c6352ca502baf5b",
+      "translation": "Die gezeichneten 2D- oder 3D-Punkte über einer einzigen einfarbigen Fläche mit abgerundeten Ecken halten."
+    },
+    {
+      "context": "the Qt paint event for this canvas.",
+      "label": "spacr.qt.widgets.gate_editor.GateCanvas.paintEvent#1",
+      "source": "the Qt paint event for this canvas.",
+      "source_sha256": "5becae65c722b70a924c0f78511f86f283376c1bf63e07c535dcd323f60a1b9d",
+      "translation": "das Qt-Zeichenereignis für diese Zeichenfläche."
+    },
+    {
+      "context": "Bounded to four lines: the strip used to take whatever height the longest help needed, so moving the pointer between two controls whose help differs in length made the whole dialog jump. The full text is still in the register and accessible description when it runs long.",
+      "label": "spacr.qt.widgets.hint_bar.HintBar#4",
+      "source": "Bounded to four lines: the strip used to take whatever height the longest help needed, so moving the pointer between two controls whose help differs in length made the whole dialog jump. The full text is still in the register and accessible description when it runs long.",
+      "source_sha256": "af43e186fb536f01c6f45296d17289d7baa00d2c59ae548372722ab02f8ee3e6",
+      "translation": "Auf vier Zeilen begrenzt: Früher nahm der Streifen die Höhe der längsten Hilfe an, sodass beim Wechsel des Zeigers zwischen zwei Bedienelementen mit unterschiedlich langer Hilfe der ganze Dialog sprang. Der vollständige Text bleibt bei Überlänge im Register und in der barrierefreien Beschreibung erhalten.",
+      "retired": "2026-10-08",
+      "retired_reason": "Superseded by the current scrollable help strip and its retained full text. Original source-bound evidence retained in place."
+    },
+    {
+      "context": "Keep the reserved four lines in sync with the painted font.",
+      "label": "spacr.qt.widgets.hint_bar.HintBar.changeEvent#0",
+      "source": "Keep the reserved four lines in sync with the painted font.",
+      "source_sha256": "220b2ae74fbeea705fcbf83e05850b358d8c20d3db18754b6f15444927b83b04",
+      "translation": "Die vier reservierten Zeilen mit der beim Zeichnen verwendeten Schrift synchron halten."
+    },
+    {
+      "context": "the Qt font or style change event.",
+      "label": "spacr.qt.widgets.hint_bar.HintBar.changeEvent#1",
+      "source": "the Qt font or style change event.",
+      "source_sha256": "da6bc51029733d6b613833eb912947007f71121cc83717a338e79cec8eddb65a",
+      "translation": "das Qt-Ereignis einer Schrift- oder Stiländerung."
+    }
+  ],
+  "schema": 1
+}

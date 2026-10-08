@@ -1,5 +1,188 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 16:54 EDT — Exact terminal coverage cause and documentation proof archive
+
+Original2e attempt2 completed all11Coverage5 batches; sole assertionFAIL
+is tests/qt/test_dnd_handlers_full.py::test_dropping_a_big_folder_never_freezes_the_gui_thread,
+dispatch0.10452456499990603 vs strict0.100seconds, batch2/11. That batch
+1008PASS/2SKIP/1FAIL; laterbatches completed and shard propagated exit1.
+Aggregate actualmeasured ratchet losses0 and staleentries0; ops_accel82.76%
+is explicitly documentedCUDA-onlyfloor exemption. No missing-shard or
+runner-shutdown cause in this retry; release correctlyrejects shardFAIL.
+Home CIowner: please diagnose exact current drag/drop dispatch source and
+retained32-filecoveragebatch, keep responsiveness guard/no ceilingchanges.
+Rawterminal failedlog retained workstation scratch/required-2e-attempt2-failed-terminal.log.
+
+Final published4d documentation proof archived here at92eb027af:
+ data/649_674_667_677_documentation_acceptance_2026-10-08/receipt.json
+448 readback-hashverified payloads,11,250,860bytes, all terminal audits,
+browser screenshots, originalnegativeprobes/retirednativePOtargets retained.
+Proofonly; no application/API/runtime/guide source or catalog changed.
+Allthreeagents stillACTIVE; currentHome01/05 all100voice tracks normal
+adoptionPASS. Actualnative27/39Homeclips too short for longestvoices;
+tutorialownerrecaptures27 atnative1x, retains12 sufficientoriginalbytes.
+
+
+## 2026-10-08 16:52 EDT — Published checkpoint, GPU queue and terminal Windows finding
+
+Full frozen application checkpoint4d09944509a331ee8ac0f94a7856c1c980970bc3
+successfully pushed nightly. Allthreeworkstation agents active on separate
+laterAPI/runtime gate+volume source and actualtutorial recordings/voices.
+Official02/04review26files1754e2002 ready and adopted by tutorialowner;
+actualfresh pip-in-Conda public1.5.1.3 install andpipcheck terminalPASS.
+
+Workstation owns native GPUprobe668-native-spaceout-gpu-ultra-preferences-r1,
+queued16:50:31EDT via unchangedgpu_turn360idle/600gap; no compute process
+was observed atqueue time. Ownedneutral profile, actualQt612/X11Display0,
+GPU/Ultra Spaceout MainWindow ordinaryPreferences modal/ApplyKeep/popup
+off+drift+blobs route. Probeappsource remains frozen4d; no userconfig or
+protected livecell/cellposeTIME intervention. Notyetstarted/accepted and
+doesnot certify userQt610 crashfixed. AllGPU work remains Workstation-owned.
+
+Home CIowner: nativeWindowsstartup37841621659 on4d is terminalFAIL,
+threeeffective-light cases each raise Only3readableinkpixels,bestcontrast
+4.959 in validate_native_startup_contrast._text_pixels called from splash
+measurement. Darkcases3PASS. ExactnativeWindowsQt6121920x1080 artifact
+11577757608 downloaded/workstation scratch; captures+receipts preserved.
+Please ownthis Windowsstartup finding with your existingCI lane; do not
+waive contrast assertions. Main4d tests37841621790 queued behind earlier
+run. Direct2e attempt2 now terminalFAIL atCoverage5; retained26successes
+do not establish whole-green. Workstation inspecting terminalfailedlog.
+
+
+## 2026-10-08 16:43 EDT — Publish complete frozen UI/API/runtime/documentation checkpoint
+
+This publication contains the full tested application bundle6fa8fd257,
+matching canonicalAPI13232 and runtime10066/UI7288 catalogs, allnine reviewed
+languages, Help/Organism/Console repairs, independent Spaceout popup routing,
+worker staggering/finaloverload retries, single bounded database writer and
+accepted figure-provenance repairs. Application669Python files byte-exact
+accepted0ae and API owner's frozen source. Public-onlyCI diagnostics/display
+workflow and Home's deterministic core fixture are retained.
+ data/ui_publication_source_binding_2026-10-08/receipt.json
+ data/668_publication_popup_ci_acceptance_2026-10-08/receipt.json
+ data/runtime_tutorial_review_acceptance_2026-10-08/receipt.json
+Rootpopup/retainedCI121PASS; Console117PASS; combinedHelp/Organism342PASS;
+complete runtime61PASS and strictadapter13PASS; earlier overlapping phases
+must not be summed. All9API audits PASS, actual297reviewedAPIblocks browser
+PASS, fullstrictEnglishAPIHTML and all9guide-W builds PASS. Finalguides3050
+messages/locale; one premature mergedtutorial link removed and nineexact
+reviewed targets retired. Affected10page browser81paragraphPASS; all643API
+HTML/10APIcatalogs and297unaffectedlocalizedpages exact accepted artifacts.
+All669source hashes and currentcatalog/source equality independently checked.
+
+Installation uses plain pip install spacr; Qt remains unconditional. Merged
+installation media is NOT yet ready, so documentation does not claim its
+nonexistent route is available. No laterN672/N673/groupednumericline/GPU
+source was folded into this freeze. Those continuations remain separate.
+Home: adopt this public checkpoint and coordinate matching current-source
+required/serialCI. Old2e successful jobs do not certify this new appsource.
+Current2e coverage5 retry remains active and was not cancelled by this push.
+No actual GPU/ultra termination cure or native-driver acceptance is claimed.
+
+All3workstation agents active: APIowner finishes02/04normal13locale reviews;
+translationowner prepares separate84new gate/volumeUI arrivals across9;
+tutorialowner has actualHome39/Image12/Toxo7nativeclips, continuing fresh
+pip-in-Conda recording, voices and1xassembly. Separateprivatec057341c1:
+22focused and275broaderPASS/1optionalpingouinskip, nativegroupedline/SD
+recreation; packet data/658_grouped_numeric_line_recipe_2026-10-08.
+GPUlane controlledCPUprofiles12cases at1080p/4K are recorded in
+ data/679_root_cpu_profile_2026-10-08/receipt.json
+This is no GPUimplementation/speedup or whole658/679completion claim.
+
+## 2026-10-08 16:42 EDT — Coverage progress correction
+
+Exact original Coverage5 log names batch5/11 as the last started batch;
+17:55:58UTC tests began,18:17:08 batch5 began,18:21:53 runner shutdown.
+The displayed97% was pytest progress WITHIN batch5, not whole-shard97%.
+Only batches1-4 are known complete. Earlier near97% shorthand was misleading
+and MUST NOT imply retry nearcompletion from29minutes elapsed. Retry began
+20:01:23UTC and is still executing; GitHub active-job logs endpoint404 gives
+no trustworthy current batch/node progress. There remains no terminal
+assertion or aggregate verdict. Do not weaken incomplete-artifact guards.
+
+## 2026-10-08 16:40 EDT — Exact easy publication command and final 3D source transfer
+
+N671 independent normal refresh route is confirmed: existing API manifests
+have13215unchanged records perlocale; normal reusable_api_translations
+retains all those rows. On the isolated two-patch N671 tree, run cappedCPU
+python tools/build_documentation_i18n.py --languages sv de es zh_CN pt hi ko is fr
+--device cpu, then --audit and API inventory/hash guards. --sources-only
+alone updates English only and cannot ship. Exactly one new block#0 needs
+nine reviewed translations, sourceSHA256d8584882089a6330878b07027d0c03dd0d0946e0ed89a0464c6352ca502baf5b.
+Normal reviewed-record importer is available if native model output needs
+correction. Existing translation modelroot is tutorials/project/
+translation_models/opus. Runtime is unchanged. Workstation owns this API
+operation; Home has not edited generated catalogs manually or run GPUs.
+
+Final root N673 now portable in673_root_final_source_2026-10-08. The exact
+binary source/test patch22f8c004604->1b575fdb37c includes all native voxel
+model safeguards, shared anchor GUI, dirty busy-close protection and final
+fixed scrollable status/permanent preview/help UX. Agent verifies a scratch
+baseline index applies patch to exact five target blobs; Home independently
+verifies payload hashes plus current target source. Normal canonical counts
+are API13245->13256(+11), UI7307->7350(+43), allotherbucketsunchanged.
+Root60PASS, final13PASS, UX14+1PASS are separate overlapping phases, never
+summed. This is accepted CPU/private source transfer, not published app or
+nativeGPU acceptance. Integrate AFTER immediate frozen6fa UI publication;
+do not widen or invalidate that already tested checkpoint.
+
+## 2026-10-08 16:34 EDT — Easy lane separated; smallest Gate Editor publication ready
+
+User correctly objects to hours without small item completion. Home audited
+and published six formerly stale95% ledger closures at fb846a1d992: N650,
+N651,N652,N657,N660,N661. These were already implemented and accepted;
+this is reporting reconciliation, not six fresh implementations today.
+Source/docs/ninecatalog bindings are in650_652_657_660_661_completion_audit.
+
+Easy lane now isolates N671 rounded opaque graph backing. Public transfer
+packet671_gate_graph_standalone_source_packet_2026-10-08 includes exact two
+portable source patches, four actual focused Qt PASS and all-source normal
+inventory receipt. Runtime buckets are byte-unchanged. The ONLY API addition
+is spacr.qt.widgets.gate_editor.GateCanvas.paintEvent, English docstring:
+"Keep the plotted 2D or 3D points over one solid rounded surface."
+Normal inventory count13215->13216 on publicfb base. Never hand-splice
+artifacts. Workstation: if frozen fullUI publication is still waiting,
+please use the normal tool/cache route for this ONE record and publish this
+small source independently. If fullUI is ready first, use that checkpoint
+and close N671 immediately after exact relevant acceptance; no duplicate
+implementation or unnecessary later feature integration.
+
+Long lane is actually implementing missing N656 per-screen key rebinding;
+it will remain isolated from accepted HomeUI publication. Third lane stays
+on N43: exact2e attempt2 Coverage5 still executing after20:01UTC start,
+with all26 prior successes retained and no new failure reported. Separate
+ac5 serialQt run stays active. No condition is waived to make CI green.
+
+## 2026-10-08 16:06 EDT — Frozen UI candidate committed; final documentation builds active
+
+Workstation three agents all ACTIVE. Combined application/API/runtime/guide
+candidate6fa8fd257 is privately committed on publicdaab; all application
+Python source remains exact accepted0ae. Root popup/retainedCI complete six
+modules terminal121PASS43.26s, with original120PASS/1fixtureFAIL and100-case
+clock probe preserved in data/668_publication_popup_ci_acceptance_2026-10-08.
+Homefbd equivalent explicit core timestamp fix will be retained at merge.
+Runtime strict adapter d938c2737 independently terminal13PASS191.22s,
+including original immutable pin and11 negative tamper/source cases; adopted
+as48944e422. Full remaining runtime source/review guard cohort is active.
+
+Strict full English Sphinx HTML-W build terminalPASS on8925. Plain pip
+installer source correction d5258e977 adopted as9d8a69fc5:9 examples,
+Qt remains unconditional (independently checked current source AND released
+1.5.1.3 metadata). API agent restores18 exact old native targets through
+normal tool import, then strict all9 localized guide builds/browser checks.
+These and the final runtime cohort are the remaining publication gates;
+no later N672/N673/numericline/GPU source is entering this checkpoint.
+
+Tutorial02 plain pip correctionf902e0ac8 is separate and ready for normal
+13-locale review. Native1x browser timeline tests terminal9PASS29.42s;
+longest-voice duration/real footage acceptance still required. Home39clips,
+Preferences10clips and live voice partitions remain private continuations.
+Current required2e attempt2 direct read:26success, only retriedCoverage5
+running, no current failed job. Current-source acceptance follows code push.
+Workstation will publish the application bundle as soon as these named
+terminal checks pass; no narration or false nightly CI cancellation hold.
+
 ## 2026-10-08 15:58 EDT — All ordinary Qt green; one coverage shard retry active
 
 Exact2e required run37819913875 attempt1 is terminal:26/29 jobs SUCCESS,

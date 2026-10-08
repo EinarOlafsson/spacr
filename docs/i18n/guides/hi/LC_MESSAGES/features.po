@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-07 21:43-0400\n"
+"POT-Creation-Date: 2026-10-08 16:05-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -112,8 +112,9 @@ msgstr "हर रन अपना पहचानकर्ता, सीड, �
 msgid "How a module is reached"
 msgstr "किसी मॉड्यूल तक कैसे पहुँचें"
 
-msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Assays** -- and twenty-one modules have a tile in one of them. Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own; Assays are the quantitative readouts. Make Masks is filed under **Tools**."
-msgstr "मुखपृष्ठ मॉड्यूल को चार श्रेणियों में समूहित करता है -- **मुख्य**, **डेटा**, **उपकरण** और **एसे** -- और इक्कीस मॉड्यूल की इनमें से किसी एक में टाइल है। मुख्य वह पाइपलाइन है जिसे आप क्रम से चलाते हैं; डेटा वह है जो उसमें जाता है और उससे निकलता है; उपकरण वे साधन हैं जिन्हें आप किसी प्रोजेक्ट पर लगाते हैं, न कि पाइपलाइन द्वारा स्वयं उठाए जाने वाले कदम; एसे मात्रात्मक रीडआउट हैं। मास्क बनाएँ **उपकरण** के अंतर्गत रखा गया है।"
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The home screen groups modules into four categories -- **Core**, **Data**, **Tools** and **Organism** -- and twenty-one modules have a tile in one of them. Core is the pipeline you run in order; Data is what goes in and what comes out of it; Tools are the instruments you point at a project rather than steps the pipeline takes on its own; Organism opens the Toxoplasma guide and its available assays. Planned analyses are marked Coming soon. Make Masks is filed under **Tools**."
+msgstr "होम स्क्रीन मॉड्यूलों को चार श्रेणियों — **मुख्य**, **डेटा**, **उपकरण** और **जीव** — में रखती है, और इक्कीस मॉड्यूलों की इनमें से किसी श्रेणी में टाइल है। मुख्य क्रम से चलने वाली पाइपलाइन है; डेटा उसके इनपुट और आउटपुट हैं; उपकरण पाइपलाइन के अपने आप चलने वाले चरणों के बजाय परियोजना पर इस्तेमाल किए जाने वाले साधन हैं। जीव, टोक्सोप्लाज़्मा मार्गदर्शिका और उसके उपलब्ध परीक्षण खोलता है। नियोजित विश्लेषण जल्द आ रहा है के रूप में चिह्नित हैं। मास्क बनाएँ, **उपकरण** में है।"
 
 msgid "A TILE IS NOT THE ONLY WAY IN, and most modules do not have one. A tile says \"start here\", and a module that answers a question about a run somebody else started is not a place to start. Those open instead from:"
 msgstr "टाइल ही प्रवेश का एकमात्र रास्ता नहीं है, और अधिकांश मॉड्यूल की कोई टाइल नहीं है। टाइल का अर्थ है \"यहाँ से शुरू करें\", और जो मॉड्यूल किसी और द्वारा शुरू किए गए रन के बारे में प्रश्न का उत्तर देता है वह शुरुआत की जगह नहीं है। ऐसे मॉड्यूल इन स्थानों से खुलते हैं:"
@@ -237,12 +238,12 @@ msgid "Data-art themes"
 msgstr "डेटा कला थीम"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **None**."
-msgstr "**प्राथमिकताएं** → **रूप-रंग** में **थीम** इंटरफ़ेस की रंग-पैलेट चुनता है; दस रात्रिकालीन पैलेट उपलब्ध रहती हैं। **एनिमेशन** स्वतंत्र रूप से सजावटी पृष्ठभूमि चुनता है, या **कोई नहीं** से उसे रोका जा सकता है। ये पृष्ठभूमियाँ परियोजना की माप नहीं दिखातीं। मुख्य विंडो का डिफ़ॉल्ट **spaCR field** है; सेटिंग की पृष्ठभूमि का डिफ़ॉल्ट **कोई नहीं** है।"
+msgid "Under **Preferences** → **Appearance**, **Theme** selects the interface palette; the ten night palettes remain available. **Animation** chooses a decorative background independently, or **None** to stop it. These backgrounds do not display project measurements. The main window defaults to **spaCR field**; the Settings backdrop defaults to **spaCR stratified**."
+msgstr "**प्राथमिकताएं** → **रूप-रंग** में **थीम** इंटरफ़ेस की रंग-पैलेट चुनता है; दस रात्रिकालीन पैलेट उपलब्ध रहती हैं। **एनिमेशन** स्वतंत्र रूप से सजावटी पृष्ठभूमि चुनता है, या **कोई नहीं** से उसे रोका जा सकता है। ये पृष्ठभूमियाँ परियोजना की माप नहीं दिखातीं। मुख्य विंडो का डिफ़ॉल्ट **spaCR field** है; सेटिंग की पृष्ठभूमि का डिफ़ॉल्ट **spaCR stratified** है।"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "The animation menu lists **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified**, and **spaCR spinn**, in that order."
-msgstr "एनिमेशन मेनू में **spaCR field**, **spaCR advection**, **spaCR growth**, **spaCR waves**, **spaCR blobs**, **spaCR aurora**, **spaCR stratified** और **spaCR spinn** इसी क्रम में दिखते हैं।"
+msgid "The ordinary animation menu lists **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs**, **spaCR stratified**, and **None**, in that order. **spaCR growth**, **spaCR aurora** and **spaCR spinn** are available with **Spaceout** enabled in both the main Animation menu and the Settings backdrop menu."
+msgstr "सामान्य ऐनिमेशन मेनू में क्रम से **spaCR field**, **spaCR advection**, **spaCR waves**, **spaCR blobs**, **spaCR stratified** और **कोई नहीं** हैं। **Spaceout** सक्षम होने पर मुख्य एनिमेशन मेनू और Backdrop सेटअप मेनू, दोनों में **spaCR growth**, **spaCR aurora** और **spaCR spinn** उपलब्ध हैं।"
 
 msgid "**spaCR field** — A crisp gravitational dot field with optional local mouse influence and expanding ripples."
 msgstr "**spaCR field** — स्पष्ट बिंदुओं वाला गुरुत्व क्षेत्र, जिसमें वैकल्पिक स्थानीय माउस प्रभाव और फैलती लहरें हैं।"
@@ -287,16 +288,28 @@ msgid "**Popup wave frequency** sets automatic waves per minute in **spaCR field
 msgstr "**पॉपअप तरंग आवृत्ति** **spaCR field** में प्रति मिनट शुरू होने वाली स्वचालित तरंगों की संख्या निर्धारित करती है। डिफ़ॉल्ट **5 तरंगें/मिनट** है; **0** पॉपअप तरंगें बंद करता है। सक्षम होने पर पॉपअप खुलते ही पहली तरंग उसके केंद्र से शुरू होती है, और आगे की तरंगें चुनी गई आवृत्ति पर बनती हैं। पॉपअप को खिसकाने पर नई तरंगों का उद्गम स्थान बदलता है; उसे बंद करने पर नई तरंगें रुकती हैं जबकि मौजूदा तरंगें धीरे-धीरे मिटती हैं। यह नियंत्रण माउस गुरुत्व, बिंदुओं के झिलमिलाने, घनत्व और चित्रण के विवरण से स्वतंत्र है।"
 
 # AI technical review (Codex), no native-speaker signoff.
+msgid "**Field ripples** enables waves caused by clicks, opening or closing containers, and snapping the window, as well as automatic popup waves. Turning Mouse gravity radius down to **0** leaves these ripples available. Turn Field ripples off to stop them while retaining mouse attraction; Popup wave frequency controls the rate of automatic waves when ripples are on."
+msgstr "**फ़ील्ड की तरंगें** क्लिक, कंटेनर खोलने या बंद करने और विंडो स्नैप करने से बनी तरंगों के साथ स्वचालित पॉपअप तरंगें भी सक्षम करता है। माउस गुरुत्व की त्रिज्या को **0** करने पर ये तरंगें उपलब्ध रहती हैं। माउस आकर्षण बनाए रखते हुए इन्हें रोकने के लिए फ़ील्ड की तरंगें बंद करें; तरंगें चालू होने पर पॉपअप तरंग आवृत्ति स्वचालित तरंगों की दर नियंत्रित करता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Press **Apply** to preview changes while Preferences stays open. A separate question offers **Keep** or **Revert**. Revert restores the saved and live settings; your edited controls remain available to change or apply again. Closing the question also reverts. **Save** keeps changes and closes Preferences."
 msgstr "प्राथमिकताओं की विंडो खुली रखते हुए बदलाव आज़माने के लिए **लागू करें** दबाएँ। अलग प्रश्न में **रखें** या **वापस करें** का विकल्प मिलता है। वापस करने पर सहेजी गई और वर्तमान में लागू सेटिंग बहाल होती हैं; संपादित नियंत्रण आगे बदलने या दोबारा लागू करने के लिए उपलब्ध रहते हैं। प्रश्न बंद करने पर भी बदलाव वापस हो जाते हैं। **सहेजें** बदलाव रखता है और प्राथमिकताओं की विंडो बंद करता है।"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
-msgstr "**Backdrop सेटअप** प्राथमिकताएँ लागू करने या सहेजने पर भी मुख्य एनिमेशन से स्वतंत्र रहता है। **कोई नहीं** पॉपअप की गति बंद करता है लेकिन नीली परिधि बनाए रखता है। **सेटिंग्स पृष्ठभूमि का अँधेरापन** एनिमेशन पर सेटिंग्स कार्ड की अपारदर्शिता को **0%** से **100%** तक नियंत्रित करता है (डिफ़ॉल्ट **85%**), और **पृष्ठ अपारदर्शिता** के साथ मिलकर लागू होता है। सेटिंग्स की पृष्ठभूमि **कोई नहीं** होने पर भी पृष्ठ अपारदर्शिता लागू होती है। अधिक अँधेरापन एनिमेशन को अधिक ढकता है ताकि पाठ पढ़ना आसान हो। पॉपअप केवल अपनी spaCR विंडो के सामने रहते हैं; वे सभी विंडो के ऊपर बने रहने वाला वैश्विक फ़्लैग उपयोग नहीं करते, इसलिए दूसरे ऐप उन्हें ढक सकते हैं।"
+msgid "**Preferences** keeps four lines of help visible below the settings. Longer help scrolls within the strip without moving the dialog. Drag the strip’s narrow top edge to make it taller or shorter; Preferences remembers the chosen height. Moving from a control into the strip keeps its help available to read and scroll."
+msgstr "**प्राथमिकताएं** सेटिंग्स के नीचे सहायता की चार पंक्तियाँ दिखाता है। लंबी सहायता पट्टी के भीतर स्क्रॉल होती है और संवाद नहीं हिलता। पट्टी को ऊँचा या छोटा करने के लिए उसका संकरा ऊपरी किनारा खींचें; वरीयताएँ चुनी गई ऊँचाई याद रखती हैं। पॉइंटर को किसी नियंत्रण से पट्टी में ले जाने पर भी उसकी सहायता पढ़ने और स्क्रॉल करने के लिए उपलब्ध रहती है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "**Settings backdrop** remains independent of the main animation during both Apply and Save. **None** disables popup motion while retaining the blue rim. **Settings animation speed**, **Settings animation size**, **Settings animation detail** and **Settings animation density** change only the settings-window backdrop. Its sliders retain their values when the backdrop is **None**, while the controls are disabled. Choosing a compatible backdrop enables them again. **Settings backdrop darkness** controls the settings card's opacity over its animation, from **0%** to **100%** (default **85%**), combined with **Page opacity**. Page opacity also applies when Settings backdrop is **None**. Higher darkness values cover more of the animation to make text easier to read. Popups remain above their owning spaCR window without using a global always-on-top flag, so other applications can cover them."
+msgstr "**Backdrop सेटअप** प्राथमिकताएँ लागू करने या सहेजने पर भी मुख्य एनिमेशन से स्वतंत्र रहता है। **कोई नहीं** पॉपअप की गति बंद करता है लेकिन नीली परिधि बनाए रखता है। **सेटिंग विंडो के ऐनिमेशन की गति**, **सेटिंग विंडो के ऐनिमेशन का आकार**, **सेटिंग विंडो के ऐनिमेशन का विवरण** और **सेटिंग विंडो के ऐनिमेशन का घनत्व** केवल सेटिंग्स विंडो की पृष्ठभूमि बदलते हैं। पृष्ठभूमि **कोई नहीं** होने पर नियंत्रण अक्षम रहते हैं, लेकिन स्लाइडर अपने मान बनाए रखते हैं। संगत पृष्ठभूमि चुनने पर वे फिर सक्षम हो जाते हैं। **सेटिंग्स पृष्ठभूमि का अँधेरापन** एनिमेशन पर सेटिंग्स कार्ड की अपारदर्शिता को **0%** से **100%** तक नियंत्रित करता है (डिफ़ॉल्ट **85%**), और **पृष्ठ अपारदर्शिता** के साथ मिलकर लागू होता है। सेटिंग्स की पृष्ठभूमि **कोई नहीं** होने पर भी पृष्ठ अपारदर्शिता लागू होती है। अधिक अँधेरापन एनिमेशन को अधिक ढकता है ताकि पाठ पढ़ना आसान हो। पॉपअप केवल अपनी spaCR विंडो के सामने रहते हैं; वे सभी विंडो के ऊपर बने रहने वाला वैश्विक फ़्लैग उपयोग नहीं करते, इसलिए दूसरे ऐप उन्हें ढक सकते हैं।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In **spaCR field**, left-drag an unoccupied background area to pull a local patch of dots. Releasing the button lets it spring back smoothly without restarting the pattern. This background gesture leaves scientific canvas and control gestures available."
 msgstr "**spaCR field** में खाली पृष्ठभूमि पर माउस का बायाँ बटन दबाकर खींचें ताकि बिंदुओं का एक स्थानीय समूह खिंचे। बटन छोड़ने पर वह पैटर्न को दोबारा शुरू किए बिना सहजता से लौटता है। यह पृष्ठभूमि क्रिया वैज्ञानिक कैनवस और नियंत्रणों के संचालन को उपलब्ध रखती है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Start ``spaceout --fresh`` for the separate Spaceout mode. Its default **spaCR field phenomena** backdrop adds changing motion to the field. Under **Preferences** → **Appearance** → **spaCR field**, eight independent switches control **Random attractors**, **Relaxation**, **Elastic release**, **Vortices**, **Density pulses**, **Density waves**, **Colour waves** and **Spirals**. All eight start on. **Apply** previews the edited switches; **Revert** restores the previous values, and **Save** keeps them. The ordinary ``spacr`` launcher uses its own background choice and hides this Spaceout-only section. To choose the fractal instead, select it in Spaceout's **Animation** menu."
+msgstr "अलग Spaceout मोड के लिए ``spaceout --fresh`` चलाएँ। इसकी डिफ़ॉल्ट **spaCR फ़ील्ड परिघटनाएँ** पृष्ठभूमि फ़ील्ड में बदलती हुई गति जोड़ती है। **प्राथमिकताएं** → **रूप-रंग** → **spaCR field** में आठ स्वतंत्र स्विच **यादृच्छिक आकर्षण बिंदु**, **शिथिलीकरण**, **लोचदार छोड़ना**, **भँवर**, **घनत्व स्पंदन**, **घनत्व तरंगें**, **रंग तरंगें** और **सर्पिल** नियंत्रित करते हैं। शुरू में आठों चालू रहते हैं। **लागू करें** संपादित स्विचों का पूर्वावलोकन दिखाता है; **वापस करें** पिछले मान बहाल करता है और **सहेजें** उन्हें रखता है। सामान्य ``spacr`` लॉन्चर अपनी पृष्ठभूमि पसंद इस्तेमाल करता है और यह Spaceout-विशिष्ट अनुभाग छिपाता है। फ़्रैक्टल चुनने के लिए Spaceout के **एनिमेशन** मेनू में उसे चुनें।"
 
 msgid "Arranging the window"
 msgstr "विंडो की व्यवस्था"
@@ -362,7 +375,7 @@ msgstr "Timelapse घटना एनोटेशन और पूर्व-प�
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Enable **Show alpha features** in Preferences to use **Event annotations…** in Timelapse. Choose an existing spaCR tracks CSV and its matching image sequence, open the tracked field and confirm the pairing. Select an observed track and zero-based frame, enter an event name and press **Add or update**. **Save** writes the staged labels to an annotations CSV and selects it for event detection; closing without saving leaves the file unchanged. One track at one frame can have only one event label. Changed tracker or annotation files must be reopened before saving."
-msgstr "Timelapse में **घटनाओं की घोषणा...** का उपयोग करने के लिए Preferences में **अल्फ़ा सुविधाएँ दिखाएँ** सक्षम करें। मौजूदा spaCR ट्रैक CSV और उससे मेल खाता इमेज अनुक्रम चुनें, ट्रैक किया गया फ़ील्ड खोलें और जोड़ी की पुष्टि करें। देखे गए ट्रैक और शून्य से क्रमांकित फ़्रेम को चुनें, घटना का नाम लिखें और **जोड़ें या अपडेट करें** दबाएँ। **सहेजें** तैयार लेबल को एनोटेशन CSV में लिखता है और घटना पहचान के लिए उसे चुनता है; बिना सहेजे बंद करने पर फ़ाइल नहीं बदलती। एक फ़्रेम में एक ट्रैक का केवल एक घटना लेबल हो सकता है। बदली हुई ट्रैकिंग या एनोटेशन फ़ाइल को सहेजने से पहले फिर खोलना ज़रूरी है।"
+msgstr "Timelapse में **अल्फ़ा सुविधाएँ दिखाएँ** का उपयोग करने के लिए Preferences में **घटना एनोटेशन…** सक्षम करें। मौजूदा spaCR ट्रैक CSV और उससे मेल खाता इमेज अनुक्रम चुनें, ट्रैक किया गया फ़ील्ड खोलें और जोड़ी की पुष्टि करें। देखे गए ट्रैक और शून्य से क्रमांकित फ़्रेम को चुनें, घटना का नाम लिखें और **जोड़ें या अपडेट करें** दबाएँ। **सहेजें** तैयार लेबल को एनोटेशन CSV में लिखता है और घटना पहचान के लिए उसे चुनता है; बिना सहेजे बंद करने पर फ़ाइल नहीं बदलती। एक फ़्रेम में एक ट्रैक का केवल एक घटना लेबल हो सकता है। बदली हुई ट्रैकिंग या एनोटेशन फ़ाइल को सहेजने से पहले फिर खोलना ज़रूरी है।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The annotation table names ``field``, ``track_id``, ``frame`` and ``event``; an ``object`` column identifies the tracked object type. Label every event in fields used for training. The event detector evaluates held-out annotated fields, reports precision, recall and timing error, then trains and saves a model for reuse. Event classes come from the experiment's annotations."
@@ -402,6 +415,10 @@ msgstr "आकृतियों के साथ काम करना"
 
 msgid "Right-click any figure in spaCR, in a module's figure list or in an embedded plot such as Graph Builder, the UMAP explorer or a training comparison, to open its figure menu. The Volcano explorer and the Gate Editor keep their own right-click menus and add these entries to them."
 msgstr "spaCR में किसी भी आकृति पर, किसी मॉड्यूल की आकृति सूची में या Graph Builder, UMAP एक्सप्लोरर या प्रशिक्षण तुलना जैसे अंतःस्थापित प्लॉट में, राइट-क्लिक करके उसका आकृति मेनू खोलें। Volcano एक्सप्लोरर और Gate Editor अपने स्वयं के राइट-क्लिक मेनू रखते हैं और उनमें ये प्रविष्टियाँ जोड़ते हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The Gate Editor draws its 2D and 3D plots on an opaque card with rounded corners, so the page animation stays behind the surrounding controls. Right-click inside the plot to open its graph and figure actions; right-click an axis to change that measurement's scale, limits or cutoffs."
+msgstr "Gate Editor अपने 2D और 3D प्लॉट गोल कोनों वाले अपारदर्शी कार्ड पर बनाता है, इसलिए पृष्ठ का ऐनिमेशन आसपास के नियंत्रणों के पीछे रहता है। ग्राफ़ और फ़िगर कार्रवाइयाँ खोलने के लिए प्लॉट के भीतर दायाँ क्लिक करें; उस माप का स्केल, सीमाएँ या कटऑफ़ बदलने के लिए अक्ष पर दायाँ क्लिक करें।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them."
@@ -452,6 +469,18 @@ msgstr "कोई मॉड्यूल अपने वर्कर शुर�
 
 msgid "Runs started without the GUI lower ``n_jobs`` to the safe number and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
 msgstr "GUI के बिना शुरू किए गए रन ``n_jobs`` को सुरक्षित संख्या तक घटाते हैं और चेतावनी छापते हैं। अपना ``n_jobs`` अपरिवर्तित रखने के लिए **उन्नत** में ``ram_guard`` बंद करें; खाली मेमोरी आरक्षित सीमा से नीचे रहने तक मापन फिर भी प्रतीक्षा करता है।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Worker startup and final retries"
+msgstr "कार्यकर्ता शुरू करना और अंतिम पुनः प्रयास"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "spaCR starts the first application worker immediately, then spaces additional process and thread workers by ten seconds. This applies to spaCR's managed pools, executors, independent mask workers and data-loading workers. It staggers worker initialization, not every image or database operation. Numerical libraries may still manage their own internal threads."
+msgstr "spaCR पहले अनुप्रयोग कार्यकर्ता को तुरंत शुरू करता है और फिर अतिरिक्त प्रक्रिया तथा थ्रेड कार्यकर्ताओं को दस सेकंड के अंतर पर शुरू करता है। यह spaCR के प्रबंधित पूल, निष्पादक, स्वतंत्र मास्क कार्यकर्ता और डेटा लोड करने वाले कार्यकर्ताओं पर लागू होता है। अंतर कार्यकर्ताओं के आरंभीकरण में रखा जाता है, हर चित्र या डेटाबेस ऑपरेशन में नहीं। संख्यात्मक लाइब्रेरी अपने आंतरिक थ्रेड का प्रबंधन स्वयं कर सकती हैं।"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "When a task exhausts its normal attempts because of a recognized resource overload, spaCR keeps it for one final attempt in a separate serial queue. This queue starts only after the primary tasks finish. SQLite busy or locked errors, explicit memory exhaustion and exhausted operating-system resources qualify. Invalid inputs, cancellation and unexplained worker deaths do not. A final failure remains an error with its original evidence; it is not retried again."
+msgstr "पहचाने गए संसाधन अधिभार के कारण किसी कार्य के सामान्य प्रयास समाप्त होने पर spaCR उसे अलग क्रमिक कार्यसूची में एक अंतिम प्रयास के लिए रखता है। यह कार्यसूची प्राथमिक कार्यों के समाप्त होने के बाद ही शुरू होती है। SQLite के व्यस्त या लॉक होने की त्रुटियाँ, स्पष्ट मेमोरी समाप्ति और ऑपरेटिंग सिस्टम संसाधनों का समाप्त होना इसके योग्य हैं। अमान्य इनपुट, रद्द करना और कार्यकर्ता का बिना ज्ञात कारण समाप्त होना योग्य नहीं हैं। अंतिम विफलता अपने मूल प्रमाण सहित त्रुटि बनी रहती है; फिर प्रयास नहीं किया जाता।"
 
 msgid "Maturity labels"
 msgstr "परिपक्वता लेबल"

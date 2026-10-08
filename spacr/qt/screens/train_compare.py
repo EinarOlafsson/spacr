@@ -378,6 +378,7 @@ class TrainCompareScreen(QWidget):
         self._diff_summary.setTextInteractionFlags(Qt.TextSelectableByMouse)
         diff_layout.addWidget(self._diff_summary)
         self._diff_table = QTableWidget(0, 0, diff_panel)
+        self._diff_table.setObjectName("SettingsDiff")
         install_sorting(self._diff_table)
         self._diff_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._diff_table.setAlternatingRowColors(True)

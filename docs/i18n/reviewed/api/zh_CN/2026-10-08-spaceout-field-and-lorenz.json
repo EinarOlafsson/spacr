@@ -1,0 +1,41 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "If True, drop names whose number of observations falls outside a fence extending 1.5 times the 5th-to-95th-percentile spread of group sizes. Count values do not enter this filter. Default ``False``.",
+      "label": "spacr.plot.plot_lorenz_curves#7",
+      "source": "If True, drop names whose number of observations falls outside a fence extending 1.5 times the 5th-to-95th-percentile spread of group sizes. Count values do not enter this filter. Default ``False``.",
+      "source_sha256": "8a72d42185932f35114de027f8e78438bf2eab1cca905810bcb48236234953d1",
+      "translation": "若为 True，则删除观测数落在围栏之外的名称；该围栏按组大小第 5 至第 95 百分位数之间的跨度向外延伸 1.5 倍。计数值本身不参与此筛选。默认值为 ``False``。"
+    },
+    {
+      "context": "The command starts the standard :func:`spacr.qt.run` application with a contrast-checked spectral palette and evolving field animation. The mode is process-local: it is not stored as a preference and does not alter subsequent standard launches. Existing animation preferences remain effective, including the option to disable ambient animation. It is also the only mode with sound: Preferences shows its Sound tab (and its Fractal tab) only here, and ordinary spaCR plays nothing whatever the stored sound settings say.",
+      "label": "spacr.qt.spaceout#1",
+      "source": "The command starts the standard :func:`spacr.qt.run` application with a contrast-checked spectral palette and evolving field animation. The mode is process-local: it is not stored as a preference and does not alter subsequent standard launches. Existing animation preferences remain effective, including the option to disable ambient animation. It is also the only mode with sound: Preferences shows its Sound tab (and its Fractal tab) only here, and ordinary spaCR plays nothing whatever the stored sound settings say.",
+      "source_sha256": "63b31e268423b94899009ead0f9c6c4d24f204c7f3195d7cb9cd9d8890a2dc9d",
+      "translation": "此命令使用经过对比度检查的光谱调色板和不断演变的场动画，启动标准的 :func:`spacr.qt.run` 应用程序。此模式仅作用于当前进程：不会保存为偏好设置，也不会改变后续的标准启动。现有动画偏好设置仍然有效，包括禁用背景动画的选项。这也是唯一带有声音的模式：偏好设置仅在此模式中显示“声音”标签页（以及“分形”标签页）；无论已保存的声音设置如何，普通 spaCR 都不会播放任何声音。"
+    },
+    {
+      "context": "Apply saved Spaceout field switches under the renderer's lock.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_field_effects#0",
+      "source": "Apply saved Spaceout field switches under the renderer's lock.",
+      "source_sha256": "3ab37b52759e1af084429c04c332f7b424786034f971f9ad149c4b113fee8a61",
+      "translation": "在渲染器锁保护下应用已保存的 Spaceout 场开关。"
+    },
+    {
+      "context": "saved field-effect switches keyed by effect name.",
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.set_field_effects#1",
+      "source": "saved field-effect switches keyed by effect name.",
+      "source_sha256": "11d07c2fac01fc405bd2e4329516fdc6d345a162e2fd051a2ba6033af98f6b86",
+      "translation": "以效果名称为键的已保存场效果开关。"
+    },
+    {
+      "context": "Standard launches preserve the requested pair. A Spaceout launch uses its own stored selection, or defaults to the evolving field before one is saved.",
+      "label": "spacr.qt.widgets.ambient.dressed#1",
+      "source": "Standard launches preserve the requested pair. A Spaceout launch uses its own stored selection, or defaults to the evolving field before one is saved.",
+      "source_sha256": "631ee58ba663c571da9ec39e249e4b4d25522b82f1d473fc800e2d06fbca89ce",
+      "translation": "标准启动保留请求的配对。Spaceout 启动使用其独立保存的选择；尚未保存选择时，默认使用不断演变的场。"
+    }
+  ],
+  "schema": 1
+}

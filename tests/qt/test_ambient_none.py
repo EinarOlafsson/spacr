@@ -61,8 +61,7 @@ def test_none_is_offered_alongside_every_animation():
     """
     ambient = _ambient()
     offered = ("data_art_impulse_lens", "data_art_genetic_advection",
-               "data_art_fungal_growth", "data_art_point_atlas",
-               "blobs", "aurora", "drift", "data_art_tissue_facets")
+               "data_art_point_atlas", "blobs", "drift")
     assert ambient.NO_ANIMATION == "none"
     assert ambient.ANIMATION_CHOICES == offered + (ambient.NO_ANIMATION,)
     assert ambient.AMBIENT_THEMES == offered, (
@@ -96,8 +95,8 @@ def test_the_preference_round_trips_none():
     from spacr.qt import preferences as prefs
     ambient = _ambient()
 
-    prefs.set_ambient_animation("aurora")
-    assert prefs.get_ambient_animation() == "aurora"
+    prefs.set_ambient_animation("blobs")
+    assert prefs.get_ambient_animation() == "blobs"
     assert prefs.get_ambient_enabled() is True
 
     prefs.set_ambient_animation(ambient.NO_ANIMATION)
@@ -108,17 +107,17 @@ def test_the_preference_round_trips_none():
     # safe rather than raising deep inside a widget constructor.
     assert prefs.get_ambient_theme() in ambient.AMBIENT_THEMES
 
-    prefs.set_ambient_animation("aurora")
+    prefs.set_ambient_animation("blobs")
     assert prefs.get_ambient_enabled() is True
 
 
 def test_choosing_none_does_not_lose_the_animation_you_had():
     from spacr.qt import preferences as prefs
     ambient = _ambient()
-    prefs.set_ambient_animation("aurora")
+    prefs.set_ambient_animation("blobs")
     palette = prefs.get_ambient_palette()
     prefs.set_ambient_animation(ambient.NO_ANIMATION)
-    prefs.set_ambient_animation("aurora")
+    prefs.set_ambient_animation("blobs")
     assert prefs.get_ambient_palette() == palette
 
 
@@ -204,7 +203,7 @@ def test_no_ambient_timer_is_left_running_anywhere_under_none(qtbot):
     from spacr.qt import preferences as prefs
     ambient = _ambient()
 
-    prefs.set_ambient_animation("aurora")
+    prefs.set_ambient_animation("blobs")
     screens = [_screen(qtbot, key) for key in ("measure", "classify")]
     for screen in screens:
         screen.show()

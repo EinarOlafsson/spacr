@@ -1,0 +1,27 @@
+{
+  "language": "sv",
+  "records": [
+    {
+      "context": "Return borrowed controls and detach subscriptions on every exit.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.done#0",
+      "source": "Return borrowed controls and detach subscriptions on every exit.",
+      "source_sha256": "3bbefaf5c9d9789956f33c5849fd27224f0d460270dbb0f4ea8be1326e546188",
+      "translation": "Återlämnar lånade kontroller och kopplar bort prenumerationer vid varje avslut."
+    },
+    {
+      "context": "Qt destroys a dialog's children with it, so anything of the panel's still parented under this dialog when it goes would go with it. The controls belong to the panel and retain their values after Close, Escape, accept, reject and explicit completion. Restoring them in ``done`` covers exits that do not deliver a close event. A completed dialog cannot move controls out of a replacement dialog.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.done#1",
+      "source": "Qt destroys a dialog's children with it, so anything of the panel's still parented under this dialog when it goes would go with it. The controls belong to the panel and retain their values after Close, Escape, accept, reject and explicit completion. Restoring them in ``done`` covers exits that do not deliver a close event. A completed dialog cannot move controls out of a replacement dialog.",
+      "source_sha256": "ba9bb52c4cbe50c139ee4d383784c0977e2703071c4f0ebdddeb3b53159aabf3",
+      "translation": "Qt förstör en dialogs underordnade widgetar när dialogen förstörs. Panelens kontroller som fortfarande ligger under den här dialogen när den avslutas skulle därför också förstöras. Kontrollerna tillhör panelen och behåller sina värden efter Close, Escape, accept, reject och ett uttryckligt avslut. Återställning i ``done`` omfattar även avslut som inte skickar någon stängningshändelse. En redan avslutad dialog kan inte flytta kontroller från en ersättningsdialog."
+    },
+    {
+      "context": "dialog result passed to Qt after controls return to the panel's hidden store.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.done#2",
+      "source": "dialog result passed to Qt after controls return to the panel's hidden store.",
+      "source_sha256": "f2f64455b0bf369837ffe612b440a7477648aaf5ff9bd0061b6dc11a6d45dba4",
+      "translation": "Dialogresultat som skickas till Qt efter att kontrollerna återvänt till panelens dolda förvaringsbehållare."
+    }
+  ],
+  "schema": 1
+}

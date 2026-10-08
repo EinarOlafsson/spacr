@@ -1,0 +1,154 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "key": "A crisp interactive field develops random gravitational landscapes, elastic releases, whirlwinds, density waves and flowing colour, with calm intervals and smooth transitions.",
+      "source": "A crisp interactive field develops random gravitational landscapes, elastic releases, whirlwinds, density waves and flowing colour, with calm intervals and smooth transitions.",
+      "source_sha256": "15fccb32851bdc1a6d019f51b620c2471df4c37d926ef7be4bc4871661bba1ad",
+      "table": "ui",
+      "translation": "선명한 상호작용 필드가 무작위 중력 지형, 탄성 복귀, 회오리, 밀도 파동과 흐르는 색상을 만들며, 차분한 구간과 부드러운 전환이 이어집니다."
+    },
+    {
+      "key": "Colour changes travel through the field.",
+      "source": "Colour changes travel through the field.",
+      "source_sha256": "a8dbd4a95a332c8025563149c6fb7779604d3f3492e2cd197a3c43b29b451bb3",
+      "table": "ui",
+      "translation": "색상 변화가 필드를 따라 전파됩니다."
+    },
+    {
+      "key": "Colour waves",
+      "source": "Colour waves",
+      "source_sha256": "9f7e85cc6ca9165a0b2c6294ed6699cc6aa89e9e7b0e161ad19ed064a6abf3e8",
+      "table": "ui",
+      "translation": "색상 파동"
+    },
+    {
+      "key": "Density changes travel through the field.",
+      "source": "Density changes travel through the field.",
+      "source_sha256": "3b404383a1f6eda7e749b690bb1f3a3028805b72457d8a530d365134b2d69962",
+      "table": "ui",
+      "translation": "밀도 변화가 필드를 따라 전파됩니다."
+    },
+    {
+      "key": "Density pulses",
+      "source": "Density pulses",
+      "source_sha256": "8ba829196d070586af9d35bc57445b186b16c56fbdc3a779b1264decfc843438",
+      "table": "ui",
+      "translation": "밀도 맥동"
+    },
+    {
+      "key": "Density waves",
+      "source": "Density waves",
+      "source_sha256": "18f2a452403aa33843a2961ffab4af03ecab199fb89aabeba2643e1dc47040da",
+      "table": "ui",
+      "translation": "밀도 파동"
+    },
+    {
+      "key": "Edit",
+      "source": "Edit",
+      "source_sha256": "464c4ffd019e1e9691dcf0537c797353ef2b1c1d4833d3d463e5b74ae4547344",
+      "table": "ui",
+      "translation": "편집"
+    },
+    {
+      "key": "Elastic release",
+      "source": "Elastic release",
+      "source_sha256": "cbe5f3fd58f8bae563a36fe93a1c592cbf6b7e6b6b44db5f6140d13ab1e5bb2f",
+      "table": "ui",
+      "translation": "탄성 복귀"
+    },
+    {
+      "key": "Local field density rises and falls in place.",
+      "source": "Local field density rises and falls in place.",
+      "source_sha256": "87b8fcd3a462dd5a612c2d5f01ad236bfbff7267e1f4da5bb432cb9e2a50650a",
+      "table": "ui",
+      "translation": "필드의 국소 밀도가 같은 위치에서 높아졌다 낮아집니다."
+    },
+    {
+      "key": "Random attractors",
+      "source": "Random attractors",
+      "source_sha256": "e6e0aebc2305825c7b11f242e528de008b0580e2f28eb041d1f4daf70a17e085",
+      "table": "ui",
+      "translation": "무작위 인력점"
+    },
+    {
+      "key": "Redo the last undone change in the active editor.",
+      "source": "Redo the last undone change in the active editor.",
+      "source_sha256": "737dbf931413d1472e08b765a791dbf3f876c4328b01b43204cb0e90d7a8c5eb",
+      "table": "ui",
+      "translation": "활성 편집기에서 마지막으로 실행 취소한 변경 사항을 다시 실행합니다."
+    },
+    {
+      "key": "Relaxation",
+      "source": "Relaxation",
+      "source_sha256": "9ddd8858555b7e279f0a99842af236cb41a40d47bdf27920b882598710fd7800",
+      "table": "ui",
+      "translation": "완화"
+    },
+    {
+      "key": "Released field points spring back smoothly.",
+      "source": "Released field points spring back smoothly.",
+      "source_sha256": "42d2efbc7d6cf92e68446a6d71282c88199fa7bb653d52fde66ed1e0c179eef2",
+      "table": "ui",
+      "translation": "놓은 필드 점이 부드럽게 튕겨 돌아옵니다."
+    },
+    {
+      "key": "Rotating motion bends nearby field points.",
+      "source": "Rotating motion bends nearby field points.",
+      "source_sha256": "fab5fab269f6ee8c221e2252144dc9d05af2241326f13e04deeab6e1433b7ada",
+      "table": "ui",
+      "translation": "회전 운동이 주변 필드 점을 휘게 만듭니다."
+    },
+    {
+      "key": "Several moving pull points shape the field.",
+      "source": "Several moving pull points shape the field.",
+      "source_sha256": "e3f7a11e85402c237046e14bc5cd958695c637e73e5a4b8429c15b955501e543",
+      "table": "ui",
+      "translation": "움직이는 여러 인력점이 필드의 형태를 만듭니다."
+    },
+    {
+      "key": "Spiral motion winds across the field.",
+      "source": "Spiral motion winds across the field.",
+      "source_sha256": "7fad7974f7628d0f9fe9988f7d7be1f0177d984b61a0f6a1884424d30c53ed24",
+      "table": "ui",
+      "translation": "나선 운동이 필드를 가로질러 감겨 나갑니다."
+    },
+    {
+      "key": "Spirals",
+      "source": "Spirals",
+      "source_sha256": "5bdebe61fb0d23f8346127ba0cc731585f7c6dabde48d048284791221c5c0911",
+      "table": "ui",
+      "translation": "나선"
+    },
+    {
+      "key": "The field settles after a disturbance.",
+      "source": "The field settles after a disturbance.",
+      "source_sha256": "3fe04137613f9a5f6d090ad256575e7fb2048bb64d4156353bcb6cd2f4ed4654",
+      "table": "ui",
+      "translation": "교란을 받은 필드가 다시 안정됩니다."
+    },
+    {
+      "key": "Undo the last change in the active editor.",
+      "source": "Undo the last change in the active editor.",
+      "source_sha256": "043937d83b718e3fc9b9a1470addc13194231d58bfe30447dea55daeafa9cf0b",
+      "table": "ui",
+      "translation": "활성 편집기의 마지막 변경 사항을 실행 취소합니다."
+    },
+    {
+      "key": "Vortices",
+      "source": "Vortices",
+      "source_sha256": "2e3f7974d367baf5e83c11350741f5f104dacd4ec9e03fd8296ea16defe647ca",
+      "table": "ui",
+      "translation": "소용돌이"
+    },
+    {
+      "key": "spaCR field phenomena",
+      "source": "spaCR field phenomena",
+      "source_sha256": "fe844ff61a5870e6d1803e5bbdcffafaf6af213fb9449b27249635b215a1587d",
+      "table": "ui",
+      "translation": "spaCR 필드 현상"
+    }
+  ],
+  "review_scope": "AI technical review; no native-speaker signoff. Reviewed against exact final Home Spaceout-field/Edit source 0527ae6fa01a0b06544213169a706dfbac9b0f84, merged with existing worker queue controls. Eight field effects use physical field terminology; Undo and Redo act on the active editor.",
+  "schema": 1
+}

@@ -136,11 +136,12 @@ How a module is reached
 -----------------------
 
 The home screen groups modules into four categories -- **Core**, **Data**,
-**Tools** and **Assays** -- and twenty-one modules have a tile in one of
+**Tools** and **Organism** -- and twenty-one modules have a tile in one of
 them. Core is the pipeline you run in order; Data is what goes in and what
 comes out of it; Tools are the instruments you point at a project rather
-than steps the pipeline takes on its own; Assays are the quantitative
-readouts. Make Masks is filed under **Tools**.
+than steps the pipeline takes on its own; Organism opens the Toxoplasma
+guide and its available assays. Planned analyses are marked Coming soon.
+Make Masks is filed under **Tools**.
 
 A TILE IS NOT THE ONLY WAY IN, and most modules do not have one. A tile says
 "start here", and a module that answers a question about a run somebody else
@@ -306,6 +307,12 @@ Press **Apply** to preview changes while Preferences stays open. A separate
 question offers **Keep** or **Revert**. Revert restores the saved and live
 settings; your edited controls remain available to change or apply again.
 Closing the question also reverts. **Save** keeps changes and closes Preferences.
+
+**Preferences** keeps four lines of help visible below the settings. Longer
+help scrolls within the strip without moving the dialog. Drag the strip’s
+narrow top edge to make it taller or shorter; Preferences remembers the
+chosen height. Moving from a control into the strip keeps its help available
+to read and scroll.
 
 **Settings backdrop** remains independent of the main animation during both
 Apply and Save. **None** disables popup motion while retaining the blue rim.
@@ -550,6 +557,23 @@ save first, but unsaved work in them may still be lost.
 Runs started without the GUI lower ``n_jobs`` to the safe number and print a
 warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs``
 unchanged; Measure still waits while free memory is below the reserve.
+
+Worker startup and final retries
+--------------------------------
+
+spaCR starts the first application worker immediately, then spaces additional
+process and thread workers by ten seconds. This applies to spaCR's managed
+pools, executors, independent mask workers and data-loading workers. It
+staggers worker initialization, not every image or database operation.
+Numerical libraries may still manage their own internal threads.
+
+When a task exhausts its normal attempts because of a recognized resource
+overload, spaCR keeps it for one final attempt in a separate serial queue.
+This queue starts only after the primary tasks finish. SQLite busy or locked
+errors, explicit memory exhaustion and exhausted operating-system resources
+qualify. Invalid inputs, cancellation and unexplained worker deaths do not. A
+final failure remains an error with its original evidence; it is not retried
+again.
 
 Maturity labels
 ---------------

@@ -1939,8 +1939,12 @@ def _retype(figure, kind: str, on_change=None) -> bool:
     if frame is None:
         return False
     spec = dict(spec, kind=str(kind))
-    for key in ("xlim", "ylim", "xscale", "yscale"):
+    view_keys = ("xlim", "ylim", "xscale", "yscale")
+    for key in view_keys:
         spec.pop(key, None)
+    if spec.get("panels"):
+        spec["panels"] = [{key: value for key, value in panel.items()
+                           if key not in view_keys} for panel in spec["panels"]]
     try:
         _draw(figure, frame, spec)
     except Exception:                                        # noqa: BLE001
@@ -2004,7 +2008,7 @@ class _StatisticsDialog(QDialog):
         super().__init__(parent)
         from PySide6.QtWidgets import QPlainTextEdit
 
-        from ...figures.bundle import _figure_record
+        from ...figures.bundle import _figure_record, _recipe_frame
         from ...figures.stats import _OVERRIDES, _data_kind
 
         self.setObjectName("FigureStatisticsDialog")
@@ -2015,7 +2019,21 @@ class _StatisticsDialog(QDialog):
         self._frame, self._spec = _figure_record(figure)
         frame = self._frame
         x, y = str(self._spec.get("x") or ""), str(self._spec.get("y") or "")
-        kind = _data_kind(frame, x, y) if frame is not None else "none"
+        panels = self._spec.get("panels") or []
+        available = list(_OVERRIDES.get(
+            _data_kind(frame, x, y) if frame is not None else "none", ()))
+        excluded = {x, y}
+        if panels:
+            families = []
+            for panel in panels:
+                options = dict(self._spec, **panel)
+                data = _recipe_frame(frame, options)
+                px, py = str(options.get("x") or ""), str(options.get("y") or "")
+                families.append(_OVERRIDES.get(_data_kind(data, px, py), ()))
+                excluded.update((px, py))
+                excluded.update((options.get("melt") or {}).get("columns", []))
+            available = [name for name in families[0]
+                         if all(name in family for family in families[1:])]
         saved = dict(self._spec.get("stats") or {})
 
         layout = QVBoxLayout(self)
@@ -2024,7 +2042,7 @@ class _StatisticsDialog(QDialog):
         self.test = QComboBox()
         self.test.setObjectName("FigureStatisticsTest")
         self.test.addItem(tr("Automatic (chosen from the data)"), None)
-        for name in _OVERRIDES.get(kind, ()):
+        for name in available:
             self.test.addItem(name, name)
         index = self.test.findData(saved.get("test"))
         self.test.setCurrentIndex(max(index, 0))
@@ -2034,7 +2052,7 @@ class _StatisticsDialog(QDialog):
         self.pair.setObjectName("FigureStatisticsPair")
         self.pair.addItem(tr("(none)"), "")
         for column in (list(frame.columns) if frame is not None else []):
-            if column not in (x, y):
+            if column not in excluded:
                 self.pair.addItem(str(column), str(column))
         self.pair.setCurrentIndex(max(self.pair.findData(
             saved.get("pair") or self._spec.get("pair") or ""), 0))
@@ -2095,6 +2113,13 @@ class _StatisticsDialog(QDialog):
         from ...figures.stats import _auto_statistics, _statistics_text
 
         chosen = self._choices()
+        if self._spec.get("panels"):
+            from ...figures.bundle import _panel_statistics
+
+            self.table, report = _panel_statistics(
+                self._frame, self._spec, choices=chosen)
+            self.report.setPlainText(report)
+            return self.table
         self.table = _auto_statistics(
             self._frame, str(self._spec.get("x") or ""),
             str(self._spec.get("y") or ""), test=chosen["test"],
@@ -2111,9 +2136,19 @@ class _StatisticsDialog(QDialog):
         chosen = self._choices()
         spec = dict(self._spec)
         spec["stats"] = chosen
-        note, brackets = _annotations_from(self.table)
-        spec["stats_note"] = note if chosen["show"] else ""
-        spec["annotations"] = brackets if chosen["show"] else []
+        if spec.get("panels"):
+            panels = []
+            for index, panel in enumerate(spec["panels"]):
+                part = self.table.loc[self.table["panel"] == index]
+                note, brackets = _annotations_from(part)
+                panels.append(dict(panel, stats=chosen,
+                                   stats_note=note if chosen["show"] else "",
+                                   annotations=brackets if chosen["show"] else []))
+            spec.update(panels=panels, stats_note="", annotations=[])
+        else:
+            note, brackets = _annotations_from(self.table)
+            spec["stats_note"] = note if chosen["show"] else ""
+            spec["annotations"] = brackets if chosen["show"] else []
         self._spec = spec
         try:
             self._figure._spacr_spec = spec
@@ -2121,7 +2156,12 @@ class _StatisticsDialog(QDialog):
                 self._figure._spacr_data = self._frame
             axes = [a for a in self._figure.axes
                     if a.get_label() != "<colorbar>"]
-            if axes:
+            if spec.get("panels"):
+                for index, panel in enumerate(spec["panels"]):
+                    slot = panel.get("slot", index)
+                    if isinstance(slot, int) and 0 <= slot < len(axes):
+                        _annotate(axes[slot], dict(spec, **panel))
+            elif axes:
                 _annotate(axes[0], spec)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not annotate the figure", exc_info=True)
