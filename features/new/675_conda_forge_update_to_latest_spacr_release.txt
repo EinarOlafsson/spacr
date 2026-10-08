@@ -61,3 +61,5 @@ normal new platform CI, community review/publication and clean spaCR install
 remainOPEN. Published spaCR package remains1.5.0.8 until actual release.
 
 2026-10-08 15:28 EDT workstation: exact latest pyfixest PR35101 recipe actual clean Linux64/Python3.12 native build and recipe tests PASS; inspected package2.76MiB/197paths. Immutable proof at data/675_pyfixest_linux312_build_2026-10-08/receipt.json. Full clean spaCR install and forge publication remain OPEN.
+
+2026-10-08 15:35 EDT workstation: exactPR7 recipe448bbf8 actual clean Linux64/Python3.12 spaCR build/install and normal recipe tests PASS with accepted localpyfixestdependency. Independent installed source/version/17entrypoints/Qtsoftware render PASS. Receipt:data/675_spacr_linux312_clean_install_2026-10-08/receipt.json. Minimum3.10, otherplatforms and forge publication remainOPEN.

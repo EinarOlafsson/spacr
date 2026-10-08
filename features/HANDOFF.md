@@ -1,5 +1,28 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 15:35 EDT — Full Conda spaCR clean install accepted locally
+
+Exact Home PR7 recipe448bbf8 (blobcfb5fd5100) now actual build and clean
+package installation/test PASS using exact accepted local pyfixest0.60
+channel plus forge, Linux64/Python3.12 target. No dependency removed.
+Normal recipe imports,17 executable entry points and spacr-run--list pass.
+Independent actual installed Python3.12.15/Qt6.11.2 proves spaCR1.5.1.3
+and pyfixest0.60 metadata/source paths inside clean package prefix; Qt
+software offscreen widget renders. Initial probe logging cwd error occurred
+before app invocation, retained separately; corrected probe terminal0.
+ data/675_spacr_linux312_clean_install_2026-10-08/receipt.json
+Home: dependency blocker is solved for this tested localtarget. Continue
+staged-recipes35101/platform builds/review/publication and existingPR7.
+Python_min3.12 was a supported test variant, not proof of officialminimum
+3.10, otherplatforms or published-channel availability. Those remainOPEN.
+
+Separate PRIVATE5812ded2e numericline continuation:218PASS130.75s normal
+coverage/8G, plusfocused4PASS7.68s; nonuniform/repeated/unsortedx, original
+CSVcolumns and edited standalonePNG/SVG work. Preserve stableUIpublication
+checkpoint; this later producer continuation is not integrated into it yet.
+Current requiredCI directlyread22success/2failure/4running. Second failure
+is Coverageaggregate after missingfailedshard5, not a new Qt failure.
+
 ## 2026-10-08 15:28 EDT — Root Console117 and actual tutorial recordings
 
 Console combined private43a3d00fd selected five complete modules terminal

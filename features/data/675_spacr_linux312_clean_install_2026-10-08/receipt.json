@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "item": 675,
+  "recipe_head": "448bbf8e0ae3628abfe59de6ba9342ca55ceea09",
+  "recipe_blob": "cfb5fd5100d201b356de579ee3c976cd51010912",
+  "recipe_raw_sha256": "a3fb6c679a39f5ee6f45122df393179506f44048e824e9220025f6d4f5aa55b7",
+  "variant": {
+    "target": "linux-64",
+    "python_min": "3.12",
+    "python": "3.12"
+  },
+  "artifact": {
+    "path": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/noarch/spacr-1.5.1.3-pyh8259157_0.conda",
+    "bytes": 30508775,
+    "sha256": "6b1c46c6abe4c0b853be23b72bea7cdd3a0bf5c67a9864942928ffbd82c214e8"
+  },
+  "local_dependency": "exact recipe pyfixest0.60.0 c6faa1e0c28ee44e4d0ed35f02f52d7281fa845aec49a0097b020ab4a75d1609; local channel plus conda-forge; no dependency constraint removed",
+  "normal_recipe_tests": "two python import tests plus cellpose/segment_anything/torch/measure/Qt import, all17 executable entry points, spacr-run --list; terminal0",
+  "independent_installed_acceptance": {
+    "prefix": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env",
+    "python": "3.12.15 (main, Oct  6 2026, 23:50:18) [GCC 15.3.0]",
+    "spacr_version": "1.5.1.3",
+    "spacr_file": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/lib/python3.12/site-packages/spacr/__init__.py",
+    "pyfixest_version": "0.60.0",
+    "pyfixest_file": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/lib/python3.12/site-packages/pyfixest/__init__.py",
+    "Qt": "6.11.2",
+    "entry_points": {
+      "spacr": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/bin/spacr",
+      "spacr-qt": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/bin/spacr-qt",
+      "spacr-nightly": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/bin/spacr-nightly",
+      "spaceout": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/bin/spaceout",
+      "safespacr": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/bin/safespacr",
+      "spacr-server": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/bin/spacr-server",
+      "spacr-tutorial": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/bin/spacr-tutorial",
+      "spacr-repro": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/bin/spacr-repro",
+      "spacr-workspace": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/bin/spacr-workspace",
+      "spacr-make-masks": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/bin/spacr-make-masks",
+      "spacr-run": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/bin/spacr-run",
+      "spacr-download": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/bin/spacr-download",
+      "spacr-remote": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/bin/spacr-remote",
+      "spacr-plugins": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/bin/spacr-plugins",
+      "spacr-leakage": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/bin/spacr-leakage",
+      "spacr-db-audit": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/bin/spacr-db-audit",
+      "spacr-doctor": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/spacr-output-r1/test/test_spacrr5eJxS/test_run_env/bin/spacr-doctor"
+    },
+    "Qt_offscreen_widget_render": true,
+    "scope": "isolated clean package environment; Linux64 Python3.12 and software Qt only; no native driver/theme or forge publication claim"
+  },
+  "independent_probe_r1": "logging helper failed before invoking installed Python because scratch cwd has no Git repo; original partial log and script retained; corrected cwd r2 terminalPASS",
+  "limits": [
+    "Linux64 Python3.12 only; minimum3.10 and other platforms not proved",
+    "Recipe pip_check intentionallyfalse as in exact submitted recipe due existing segment-anything metadata packaging; no full spaCR pipcheck claim",
+    "Qt offscreen widget rendering, not native themes or driver performance",
+    "No conda-forge publication or published-channel installation claimed"
+  ],
+  "payloads": [
+    {
+      "source": "spacr-build-install-r1.log",
+      "payload": "spacr-build-install-r1.log.gz",
+      "raw_sha256": "de3e202e93178fd854f90ab2b1b4774b369916156886976e5f6f72859d1d37cb",
+      "payload_sha256": "caad90c35eb4b65edef51c6aad5db2b9c0d80c7db300e947fb47cabfd7490459"
+    },
+    {
+      "source": "spacr-feedstock-recipe-github-r1.json",
+      "payload": "spacr-feedstock-recipe-github-r1.json.gz",
+      "raw_sha256": "5e89ca6cd732d4e74dc007584da3f653156bb5e03398fa765b3c90d8145c898c",
+      "payload_sha256": "fabc09d01e62d1438b2b7f8854476b874be2677dac5119b0fa1351ad1547d2d6"
+    },
+    {
+      "source": "spacr-recipe-source-r1/recipe.yaml",
+      "payload": "spacr-recipe-source-r1--recipe.yaml.gz",
+      "raw_sha256": "a3fb6c679a39f5ee6f45122df393179506f44048e824e9220025f6d4f5aa55b7",
+      "payload_sha256": "a5a22ed1952b50791fef4c90fdc80fbb29d93e6cd07b30068b05febb09dd715c"
+    },
+    {
+      "source": "installed-spacr-inspection-r1.py",
+      "payload": "installed-spacr-inspection-r1.py.gz",
+      "raw_sha256": "db2dde5edc2fde452250147d58c8838af0ac9bcd982f2c68702013fbca10e24e",
+      "payload_sha256": "eb1acefb479f852b17f8a09747293751f065a1085ae52a22cf8ef3c9f6822833"
+    },
+    {
+      "source": "installed-spacr-inspection-r1.log",
+      "payload": "installed-spacr-inspection-r1.log.gz",
+      "raw_sha256": "495f6786015d210fae4f2a3e4b97140c854a16e7539cc7b3fa2be9ca23392e01",
+      "payload_sha256": "dc24ac3c9b6e6696975b1fab365c6159e47cc929b0e036d37fc1d0197c1cf154"
+    },
+    {
+      "source": "installed-spacr-inspection-r2.log",
+      "payload": "installed-spacr-inspection-r2.log.gz",
+      "raw_sha256": "4cb374df73ee3766e1be977ddd8a5ea7cabccf37b2b1b80c56ff4c4e9da9b222",
+      "payload_sha256": "ae85d870b44a4af2eb0fdfeb63a87d23572f675adb292372e15513320cefa5a1"
+    },
+    {
+      "source": "installed-spacr-inspection-r1.json",
+      "payload": "installed-spacr-inspection-r1.json.gz",
+      "raw_sha256": "0fa7b01a309a43d6cc6219b8ee97d83335fd89fb81a3db0b813b748d288e9bf3",
+      "payload_sha256": "e08d61f635f33a036ef76b63a84bcb6ead4ebd4e5f1a658c7709c6fe73e4d544"
+    }
+  ]
+}
