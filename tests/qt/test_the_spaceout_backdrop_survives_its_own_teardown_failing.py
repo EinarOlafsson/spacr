@@ -43,6 +43,7 @@ def spaceout(tmp_path, monkeypatch, qapp):
     monkeypatch.setattr(ft, "_LIVE_CONTROLS", [])
     P.set_fractal_settings(pattern="orbit", backend="cpu",
                            quality="balanced", scale=1.0)
+    P.set_ambient_animation(A.SPACEOUT_THEME)
     made = []
     yield made
     for host in made:
@@ -57,7 +58,8 @@ def _window_with_a_backdrop(made):
     window.resize(400, 300)
     host.resize(400, 300)
     made.append(window)
-    window._dock_backdrop = A.install_ambient(host, None)
+    window._dock_backdrop = A.install_ambient(
+        host, None, theme=A.SPACEOUT_THEME, palette=A.SPACEOUT_PALETTE)
     assert window._dock_backdrop is not None
     return window, host
 
