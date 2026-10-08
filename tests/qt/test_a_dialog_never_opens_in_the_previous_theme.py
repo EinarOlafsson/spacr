@@ -333,3 +333,54 @@ def test_the_windows_own_rules_are_not_folded_into_the_global_sheet(
     after_two = len(window.styleSheet())
 
     assert after_two == after_one - len(FIRST) + len(SECOND)
+
+
+@pytest.mark.parametrize("open_with", ["popup", "show"])
+def test_existing_hidden_menu_waits_and_opens_in_the_latest_theme(
+        per_window, qtbot, open_with):
+    """Closed menus incur no stylesheet work and resolve current ink on open."""
+    app = QApplication.instance()
+    menu = QMenu()
+    qtbot.addWidget(menu)
+    label = QLabel(menu)
+    menu.addAction("Existing action")
+    menu.ensurePolished()
+    before = menu.styleSheet()
+
+    per_window(app, FIRST)
+    per_window(app, SECOND)
+    assert menu.styleSheet() == before
+    if open_with == "popup":
+        menu.popup(menu.pos())
+    else:
+        menu.show()
+    app.processEvents()
+    assert _resolved(label) == SECOND_HEX
+    assert SECOND in menu.styleSheet()
+
+    menu.hide()
+    before = menu.styleSheet()
+    per_window(app, FIRST)
+    assert menu.styleSheet() == before
+    if open_with == "popup":
+        menu.popup(menu.pos())
+    else:
+        menu.show()
+    app.processEvents()
+    assert _resolved(label) == FIRST_HEX
+    assert FIRST in menu.styleSheet()
+
+
+def test_visible_menu_changes_theme_immediately(per_window, qtbot):
+    """An open menu is visible work and cannot wait for another opening."""
+    app = QApplication.instance()
+    menu = QMenu()
+    qtbot.addWidget(menu)
+    label = QLabel(menu)
+    menu.addAction("Visible action")
+    menu.show()
+    per_window(app, FIRST)
+    assert _resolved(label) == FIRST_HEX
+    per_window(app, SECOND)
+    assert _resolved(label) == SECOND_HEX
+    assert SECOND in menu.styleSheet()

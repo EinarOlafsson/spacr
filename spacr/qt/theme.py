@@ -4089,6 +4089,9 @@ def apply_stylesheet_per_window(app, sheet: str) -> int:
 
     sheeted = 0
     for window in list(app.topLevelWidgets()):
+        if (_sheets_itself_before_it_shows(window)
+                and not window.isVisible()):
+            continue
         if getattr(window, "_spacr_detached_from", None) is not None:
             continue
         for root in _roots_for(window):
