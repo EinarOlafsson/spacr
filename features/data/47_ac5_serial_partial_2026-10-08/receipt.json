@@ -1,0 +1,83 @@
+{
+  "artifact": {
+    "file": "hosted-artifact.zip",
+    "id": 11579338647,
+    "members": {
+      "fatal-python.log": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_bytes": 0
+      },
+      "file-rss.jsonl": {
+        "sha256": "bcb6fa86fc79275e4b2022534ab829298b4a53deb6050d32f9d82ab4906b0f5a",
+        "size_bytes": 520771
+      },
+      "host-memory.log": {
+        "sha256": "9acbb804455d24c5ce455c6645e8225b6b50ddb7414e88b40c45b2f7b680d9db",
+        "size_bytes": 325383
+      },
+      "pytest.log": {
+        "sha256": "e6f9b6c80f600987b71327339ca4e903daae3b4712ddf93673dbb63f1d80094d",
+        "size_bytes": 1786688
+      },
+      "source-provenance.json": {
+        "sha256": "04b29e30c407842b21d9160d28d3d2381f35385713d9387f0b2f853721777ed7",
+        "size_bytes": 273779
+      }
+    },
+    "sha256": "e3b09135aa962734d1870207773ba39d28c47321f7039b5189c89b4bac1ecbe6",
+    "size_bytes": 480131
+  },
+  "github_job_log": {
+    "file": "github-job.log.gz",
+    "gzip_sha256": "86865e84b5d67f52e140c3a1036a3738eb25d5c7153e6ebc5cd78b3295261f1b",
+    "raw_sha256": "6fa50ce6e13b95875a4eefb4d5c8ea5e97cd0532b123b830aff20062e1f6300e",
+    "raw_size_bytes": 2469714
+  },
+  "interpretation": "This cancelled prefix is not a pass, completion, or current-source acceptance.",
+  "job": {
+    "completed_at": "2026-10-08T21:24:27Z",
+    "conclusion": "cancelled",
+    "id": 113500402357,
+    "started_at": "2026-10-08T19:29:06Z",
+    "status": "completed"
+  },
+  "kind": "partial_cancelled_serial_observation",
+  "observed_prefix": {
+    "failed_nodes": 18,
+    "failure_nodeids": [
+      "tests/qt/test_529_the_dock_and_right_column_resize.py::TestTheDockWidth::test_ctrl_0_resets_the_column_text_before_it_goes_home",
+      "tests/qt/test_544_573_blind_scoring_and_lock_on_screen.py::test_make_masks_blinds_raw_status_failures_and_actual_folder_confirmation",
+      "tests/qt/test_593_channel_sort_dialog_paths.py::test_detected_sets_are_kept_only_when_confirmed",
+      "tests/qt/test_593_channel_sort_dialog_paths.py::test_the_regex_window_hands_back_a_regex_or_detected_sets",
+      "tests/qt/test_593_make_masks_consolidate_and_sort.py::test_a_headless_drop_opens_the_folder_as_it_is",
+      "tests/qt/test_593_make_masks_consolidate_and_sort.py::test_the_sort_dialog_lists_proposes_and_plans",
+      "tests/qt/test_593_make_masks_consolidate_and_sort.py::test_selection_strategy_assigns_channels_and_bad_sets_ask_for_a_regex",
+      "tests/qt/test_600_make_masks_drops.py::test_cancelling_the_popup_opens_the_folders_as_a_queue",
+      "tests/qt/test_600_make_masks_drops.py::test_channel_like_subfolders_open_the_popup_prefilled",
+      "tests/qt/test_600_make_masks_drops.py::test_other_nested_folders_still_get_the_consolidation_question",
+      "tests/qt/test_600_make_masks_drops.py::test_merged_arrays_alone_open_nothing_and_say_why",
+      "tests/qt/test_600_make_masks_drops.py::test_unrecognised_items_are_listed_in_the_console",
+      "tests/qt/test_600_organize_for_measure.py::test_teach_me_regex_is_reused_by_sort_by_regex",
+      "tests/qt/test_600_organize_for_measure.py::test_teach_me_with_nothing_to_teach",
+      "tests/qt/test_a_settings_lookup_reveals_what_it_can_and_declines_the_rest.py::test_a_revealed_row_is_shown_even_when_a_category_will_not_shut",
+      "tests/qt/test_cov_g2_make_masks_uncertainty_edges.py::test_all_unreadable_fields_leave_the_prior_ranking_file_untouched",
+      "tests/qt/test_cov_r4_ambient.py::test_a_machine_that_reports_no_screen_gets_the_fallback_ceiling",
+      "tests/qt/test_distribution_smoke.py::test_source_ui_integration_runs_real_measurement"
+    ],
+    "fatal_python_log_empty": true,
+    "last_file_begin": "tests/qt/test_gui_scale_recovery.py",
+    "last_printed_percent": 49,
+    "passed_nodes": 14821,
+    "skipped_nodes": 16
+  },
+  "run": {
+    "attempt": 1,
+    "conclusion": "cancelled",
+    "created_at": "2026-10-08T19:29:04Z",
+    "id": 37832286372,
+    "status": "completed",
+    "updated_at": "2026-10-08T21:24:28Z",
+    "workflow_id": 376342994
+  },
+  "source_sha": "ac5c3031782691b2620d88cfdeb180e275266eab"
+}
