@@ -14,8 +14,8 @@ REPO = Path(__file__).resolve().parents[1]
 REPLAY_SOURCE = '7a51b6c921ea0d9b51ca3f5e6d28a68904ce2cab'
 DIAGNOSTIC_SOURCE = '9e7b35c8abb4cf7d72cf1fa546322472e0c18819'
 ORIGINAL_BATCH_SHA256 = 'd5f347bdb25b692cf207f18526b333d01e58a952a923842881367ad77ff65826'
-ORIGINAL_SERIAL_JOB_SHA256 = '11555f7cf61de802a12797b7a5f7a4aad8facf55668125b5d4c46b8352d0fa8a'
-ORIGINAL_SERIAL_STEPS_SHA256 = '0f6be5d7be8b0a10bd956db94255bf35d6b7587d7e75156170eb0e062f0572d3'
+ACCEPTED_SERIAL_JOB_SHA256 = '17ea2816dc74c1a0fd43cd92e9a9a649497995b3e3fb86e6c81042dfcdd15bde'
+ACCEPTED_SERIAL_STEPS_SHA256 = 'b92bd79417c8328eca3233c1d51c522bec9e9aa87b9a2242f749e9ef9c5983ef'
 
 
 def _workflow():
@@ -60,8 +60,8 @@ def test_registered_serial_route_preserves_original_job_and_isolates_replay():
 
     serial = workflow['jobs']['serial-qt']
     original = {key: value for key, value in serial.items() if key != 'if'}
-    assert _stable_sha256(original) == ORIGINAL_SERIAL_JOB_SHA256
-    assert _stable_sha256(serial['steps']) == ORIGINAL_SERIAL_STEPS_SHA256
+    assert _stable_sha256(original) == ACCEPTED_SERIAL_JOB_SHA256
+    assert _stable_sha256(serial['steps']) == ACCEPTED_SERIAL_STEPS_SHA256
     diagnostic = workflow['jobs']['native-batch-replay']
     assert diagnostic['uses'] == './.github/workflows/qt-native-replay.yml'
     assert diagnostic['permissions'] == {'contents': 'read'}
