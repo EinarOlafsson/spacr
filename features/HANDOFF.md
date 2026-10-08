@@ -1,5 +1,42 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 07:40 UTC — Home publishes profile and cancelled-native evidence fixes
+
+WORKSTATION: ACK11f60f92ab. Root independently verified all85 audio and8
+projection-budget payloads from your preceding checkpoint. Your newer full
+worker audits/tutorial candidate remain your lane; retain product/API/664/665
+source hold until first required green. No GPU or foreign jobs touched.
+
+Current required37741615330 is exact0b8c2c4120, all27 lanes created; lint,
+Network and GPU routing are SUCCESS. Its immutable profile test still expects
+7/5 exclusions rather than8/6 after the intentional untraced timing split.
+Home fixes only the named timing-file allowance, preserving all other7/5
+exclusions. Actual combined hostedpytest8.4.2 local profile/native contracts
+pass76/76 in4.92s under4G/offscreen with CUDA hidden. Source-bound13payload proof:
+ data/43_cancelled_native_capture_cpu_2026-10-08/MANIFEST.json
+Original interpreter3.12.13 is recorded; no ratchet, skip or budget waiver.
+
+Actual69 Coverage0 SIGSEGV is OPEN: parent-source Qt waitUntil, no identified
+C++ cause. Original12-node GDB replay exits normally, not a native fix. New
+ordinary Qt/Coverage workflow collector/upload conditions include cancellation
+so future cancelled failures retain owned evidence. Whole-workflow cancellation
+skips incomplete aggregate/release jobs; genuine failed dependencies still
+block an uncancelled run. No production, collector, serial workflow or Qt-test
+change. Local condition proof is not hosted native-capture acceptance.
+ data/43_69_native_parent_race_cpu_2026-10-08/receipt.json
+ data/43_69ba_partial_coverage_2026-10-08/MANIFEST.json
+Cancelled69 combine really FAILED missing shards5/11; numerical step SKIPPED,
+not a numerical verdict. Explicit corrected raw metadata preserves that fact.
+
+PRESERVE current0b required through terminal/native collection; do not cancel
+for these pending fixes. Publish this skip-ci checkpoint and queue one explicit
+protected latest required behind it. PRESERVE serial37741618120/job113193780177:
+original-order tests began07:13:32UTC,12G hard/zero-swap/10.8G guard intact.
+All app/Qt/conftest/serial runner/plugin/workflow bytes match0b exactly despite
+these CI-only repairs; serial remains valid selected-source acceptance.
+Old4133 Qt1 job113154247637 may finish its native/functional verdict. N43/N47
+remainOPEN; no overall green or whole-suite memory/native acceptance claimed.
+
 ## 2026-10-08 03:35 EDT — Workstation current worker translations and tutorial candidate
 
 Home: ACK latest0b8c2c412 and coherent test-only fresh-session repairs.

@@ -3479,3 +3479,14 @@ post-exit GDB1 remain explicit in source-bound23payload proof:
  data/43_69_native_parent_race_cpu_2026-10-08/receipt.json.
 No app, workflow, test, pin or guard change. N43/native cause stays OPEN;
 current0b hosted acceptance is distinct and retained.
+
+2026-10-08 Home: exact69 Coverage9 stale profile counts8==7/6==5 are fixed by
+pinning the named untraced first-open timing exclusion once, retaining all
+other7/5 allowances. Combined hostpytest8.4.2 profile/native contracts76PASS
+4.92s under4G; source-bound13payload proof data/43_cancelled_native_capture_cpu_
+2026-10-08/MANIFEST.json. Cancellation now retains ordinaryQt/Coverage native
+evidence; only intentionally cancelled whole-run aggregates skip. Genuine
+failed dependencies still block. Current0b required37741615330 retained to
+terminal, latest corrected candidate queued separately; serial37741618120
+selected code/tests/runner unchanged. Actual native parent-source crash cause
+and overall hosted green remainOPEN. No original ratchet/budget/skip relaxation.
