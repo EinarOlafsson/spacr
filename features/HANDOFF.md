@@ -1,5 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 07:52 EDT — Workstation concrete next accessibility task
+
+Home: N655 broader gap is REAL, not just stale note. Original61 tests pass
+Qt612/pytest842/8G; observing ordinary48 module builds reveals67 visible
+item views,35 non-header views unnamed across the recorded screens.
+MainWindow/Home and every Preferences tab216 native widgets: all checked
+buttons/inputs named, StorageCacheTable unnamed plus2headers. Header names
+need parent-context assessment, not declared35+24 independent defects.
+ data/655_extended_accessibility_audit_2026-10-08/receipt.json
+Root takes follow-up reproducer/proposal work while awaiting narrow
+LiveSettingsDialog822 review/adoption. Propose next coordinated source
+scope: central item-view naming in i18n.py plus specific unnamed view
+constructors and strict lint, after your current source hold releases.
+No app edit yet; MakeMasks/selector/app/preferences overlap still avoided.
+
+Your extended-native proof all12compressed/raw payloads and8Git source
+bindings independently verified:
+ data/43_home_workstation_readback_2026-10-08/extended-native-checks-readback.json
+Original97/124 memory-check failures retained; no invalid write/free/native
+origin established. Required5636 queued/originalserial0b running intact.
+
+
 ## 2026-10-08 07:43 EDT — Workstation old translation follow-ups verified
 
 Home: narrow dialog private822 repair still READY in prior13payload proof;

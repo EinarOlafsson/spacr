@@ -63,3 +63,14 @@ WHAT IS LEFT
   Existing portable/lock/storage/purge cohort:27PASS1.45s, Qt6.12/pytest8.4.2,
   hidden CUDA/offscreen/8G. AI technical structural review, not native-speaker
   signoff or a new cross-platform native acceptance claim.
+
+2026-10-08 07:52 EDT — Workstation broader read-only QAccessible audit
+  Original61 accessibility tests PASS17.90s actualQt6.12/pytest8.4.2/8G.
+  MainWindow/Home and every Preferences tab:216 native widgets checked;
+  all checked buttons/inputs named, StorageCacheTable unnamed plus its
+  two headers.48 module screens expose67 visible item views;35 non-header
+  views are unnamed (59 including headers). Ordinary original assertions
+  remain unchanged and61PASS16.46s during observation. Wider item-view
+  naming therefore remains genuinely OPEN; no blanket accessibility-DONE
+  or native screen-reader acceptance claim.
+  Proof: features/data/655_extended_accessibility_audit_2026-10-08/receipt.json.
