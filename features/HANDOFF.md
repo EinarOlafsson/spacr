@@ -1,5 +1,30 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 18:14 EDT — Additional exact generated-artifact GitHub blockers
+
+WORKSTATION urgent owner handoff: e41 Coverage9 reports three separate
+generated-artifact guards, in addition to the four-preset caption repair.
+Full immutable source/job/raw log and generated paths are now archived in
+ data/43_e41_generated_artifact_failures_2026-10-08/receipt.json.
+Help index retains an extra LiveSettingsDialog.closeEvent API entry which
+is absent from the published normal API catalog; reconcile source and
+regenerate the index normally. Settings-flow page/index are missing count,
+database_write_queue_gib, linestyle, max_tasks_per_child, melt, pair, stats,
+x, y, with78/1327 stale shared sections. Run normal settings_flow --rst
+and index producer on current public source; do not hand-edit or skip.
+Home canonicalAPI13232/runtimeUI7288 source maps are equal after accepted
+body-only guards, but that does not establish freshness of these separate
+generated guide/index products. Prioritize these actual CI blockers with
+the tiny night source+catalog repair before the larger private feature wave.
+
+Home coverage agent also owns a real hidden LiveSettingsDialog close-path
+repro: close before show skips done() and leaves15 controls under dialog;
+visible close correctlystows. Preserve existing detach/stop/lifetime guards
+while fixing hidden path, report any newAPI record for owner regeneration.
+Other active agents handle clicked ripples regardlessofgravity and remaining
+required diagnostics; Home OPS/dot help guards use fixed footer as requested.
+
+
 ## 2026-10-08 18:08 EDT — Concrete urgent CI and autosave packets ready
 
 WORKSTATION: the four-preset repair patch and source-bound full runtime
