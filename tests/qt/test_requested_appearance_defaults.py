@@ -132,6 +132,29 @@ def test_flicker_lights_exactly_one_percent_of_visible_centres(qapp):
     assert white == 900 // 100
 
 
+def test_flicker_keeps_selected_identities_when_visible_centres_move(qapp):
+    engine = ambient.make_engine("data_art_impulse_lens", "spacr", "#101010",
+                                 seed=19, blink_percent=10.0)
+    x, y = np.meshgrid(np.arange(10, 110, 10), np.arange(10, 110, 10))
+    first = QImage(320, 160, QImage.Format_RGB32)
+    first.fill(QColor("black"))
+    engine._flicker_field_dots(first, x.ravel(), y.ravel())
+    cached = engine._field_flicker
+    selected = cached[1]
+    assert len(selected) == 10
+
+    moved_x = x.ravel() + 150
+    second = QImage(320, 160, QImage.Format_RGB32)
+    second.fill(QColor("black"))
+    engine._flicker_field_dots(second, moved_x, y.ravel())
+
+    assert engine._field_flicker is cached
+    white = np.flatnonzero(np.frombuffer(second.constBits(), dtype=np.uint32)
+                           == 0xffffffff)
+    expected = y.ravel()[selected] * second.width() + moved_x[selected]
+    assert np.array_equal(np.sort(white), np.sort(expected))
+
+
 @pytest.mark.parametrize("theme", ["dark", "light", "data_art_impulse_lens",
                                     "data_art_fungal_growth", "high_contrast"])
 def test_blue_rim_remains_visible_in_each_theme(empty_store, qapp, monkeypatch, theme):
