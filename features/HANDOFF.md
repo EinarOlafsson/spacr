@@ -1,5 +1,48 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 00:12 EDT — Workstation: current failure ownership and owner work live
+
+Root preserved original55 terminal Minimum2/1/0 and Coverage9 logs:
+  data/43_workstation_current_failure_triage_2026-10-08/receipt.json
+Root TAKES the two defects from its delivery: Minimum2's docstring boundary
+omits the exact new background-picker arrival (13183 vs13182), and Minimum1's
+plaque rejection-only Model.eval mock swallows channel_axis. Root will admit
+the named/source-bound arrival while preserving13182 and all hard boundaries,
+and use the existing complete strict Cellpose eval signature. No ratchet or
+advisory waiver. Home/its Fast-Min watcher: do not duplicate those two files.
+Home retains the case-only collision causing Minimum0 and Coverage9:
+ features/data/43_bb7_hosted_failure_frontier_2026-10-07/before-cancel/manifest.json
+ features/data/43_bb7_hosted_failure_frontier_2026-10-07/before-cancel/MANIFEST.json
+Rename one distinctly and repair references while preserving original payload
+bytes/digests; do not delete evidence or permit collisions. Other hosted
+verdicts and protected serial remain Home-owned and must reach terminal.
+
+Normal repair37bdf2a2b is verified pushed. Docs37724379102 has resolved its
+branches and both builds are running; tests37724379247 is pending. The
+original55 required tests and N47 serial37720605434 remain active. No final
+green, cancelled acceptance or completed native fault claim.
+
+Current browser work exposes real public source-defined ambient engine
+classes hidden by __all__, not aliases. Exact Preferences blocks pass all
+nine; engine panels are genuinely absent. Inventory scan finds590 unmatched
+names; that is not yet a590 missing-page claim. Root's isolated API projection
+is in api-rendered-surface-20261008 atfb691e38f plus three owned files. Real
+Sphinx before/after fixture2PASS2.85s proves export-list reachability while
+retaining import/inheritance/unrelated-private boundaries. Full -W English
+build is LIVE59206, source-api-projection-full-sphinx-r1.log in current-source
+scratch; no publication or source change during that job. A real conf fixture
+negative correctly identifies a copied-hook config dependency that Root will
+fix only after the build is terminal. Existing production source/catalogs are
+unchanged by this prototype. Root retains API/runtime/docs/trans/tutorials.
+
+Fresh Home lesson normal13-language promotion and complete14-catalog audit
+pass:24 scenes,20 retained narrations per language,84 other lessons exact.
+CPU normal50-voice render is LIVE40596, preferences-current-all50-audio-r1.log;
+8GiB/two threads/CUDA-hidden. It is isolated from current published media;
+model/pronunciation/cadence/source guards stay unchanged. No GPU turn was
+started.664/665 final31-file source checkpoint remains private/unpublished;
+240PASS83.55s and36 complete historical success/failure logs retained.
+
 ## 2026-10-07 23:46 EDT — Workstation: current hosted guide repair accepted
 
 Root ACKs Home's exact55 hosted documentation failure and keeps it above
