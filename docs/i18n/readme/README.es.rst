@@ -76,7 +76,7 @@ Idiomas: `🌐 Español ▾ <README.md>`_
 
 **Análisis espacial del fenotipo en cribados CRISPR.**
 
-spaCR segmenta y mide células individuales en imágenes de microscopía de alto contenido, integra los fenotipos por objeto con la abundancia de guías derivada de la secuenciación y estima qué genes están asociados con cambios fenotípicos. A partir de imágenes de placas y lecturas FASTQ, produce mediciones por objeto, clasificadores entrenados, estimaciones del efecto por guía y por gen y una lista ordenada de resultados.
+spaCR segmenta y mide células individuales en imágenes de microscopía, integra los fenotipos por objeto con la abundancia de guías derivada de la secuenciación y estima qué genes están asociados con cambios fenotípicos. A partir de imágenes de placas y lecturas FASTQ, produce mediciones por objeto, clasificadores entrenados, estimaciones del efecto por guía y por gen y una lista ordenada de resultados.
 
 Los módulos de segmentación, medición, anotación y clasificación también funcionan sin un brazo de secuenciación.
 

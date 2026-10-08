@@ -76,7 +76,7 @@ Langues: `🌐 Français ▾ <README.md>`_
 
 **Analyse spatiale des phénotypes de criblages CRISPR.**
 
-spaCR segmente et mesure les cellules individuelles dans des images de microscopie à haut contenu, intègre les phénotypes par objet à l’abondance des guides dérivée du séquençage et estime quels gènes sont associés aux changements phénotypiques. À partir d’images de plaques et de lectures FASTQ, il produit des mesures par objet, des classificateurs entraînés, des estimations d’effet par guide et par gène, ainsi qu’une liste de résultats classée.
+spaCR segmente et mesure les cellules individuelles dans des images de microscopie, intègre les phénotypes par objet à l’abondance des guides dérivée du séquençage et estime quels gènes sont associés aux changements phénotypiques. À partir d’images de plaques et de lectures FASTQ, il produit des mesures par objet, des classificateurs entraînés, des estimations d’effet par guide et par gène, ainsi qu’une liste de résultats classée.
 
 Les modules de segmentation, de mesure, d'annotation et de classification fonctionnent également sans bras de séquençage.
 

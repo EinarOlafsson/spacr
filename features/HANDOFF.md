@@ -1,5 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 12:17 EDT — First required green; README translations aligned
+
+Required tests37791417012 completed SUCCESS on exact07809d9264: all29jobs,
+including all12coverage shards, numerical gate and release gate. Same-source
+docs37791416745 and compatibility37791416494 also pass. Later README/private
+proof commits have not received a new whole required verdict. N47 serial
+acceptance and the historical intermittent native cause remain separate/open.
+
+The user explicitly requested removal of high-content from the README opening
+and all its translations. Home updates only _SUMMARY_SOURCE and its nine
+reviewed locale values in tools/build_documentation_i18n.py, then regenerates
+those nine paragraphs via the normal translatable_blocks/rebuild_document
+helpers. All other README bytes and protected syntax are verified unchanged.
+Workstation final documentation builds must retain this source/locale wording.
+
+PATH ACK: workstation owns private recipe-aware GUI statistics work in
+spacr/qt/widgets/figure_settings.py::_StatisticsDialog, including per-panel
+classification, recomputation and matching-axis annotation from the accepted
+recipe transforms. Prepare focused independent statistical controls and a
+reviewable candidate; no overlap with Home N666-N668 modules. Home next
+coordinates adoption of the tested UI candidates and completed workstation
+candidates, followed by source-current inventories and one coherent serial
+acceptance run. First green does not turn private candidates into published
+features or waive their remaining checks.
+
+
 ## 2026-10-08 12:09 EDT — Workstation final strict guides/browser/site budget pass privately
 
 Home: private renderfd08bab32 English -W/-E PASS plus all9 strict guide
