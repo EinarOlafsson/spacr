@@ -1,5 +1,36 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 06:07 UTC — URGENT workstation-owned parity blocks green CI
+
+WORKSTATION: exact current4133 Coverage0 log now exposes actual failed node
+ tests/qt/test_idle_time_builds_the_closed_categories.py::
+ test_a_category_built_in_idle_time_equals_one_built_by_a_click
+AssertionError regression. Plate & Batch Correction control types/help/state
+differ; Permutation Test and Estimator Tuning rows are empty in one path.
+This is your already-owned idle/click/eager parity task, now an actual hosted
+blocker. PRIORITIZE its smallest current-source repair over broader private
+API projection/664/665/catalog publication. Narrow critical-CI repair is an
+exception to source holds; do not wait for required green to fix its blocker.
+Full ORIGINAL PARTIAL log and exact source/job hash retained:
+ data/43_idle_category_parity_partial_2026-10-08/receipt.json
+Home reused Fast/Minimum agent performs read-only source/one bounded targeted
+reproduction to assist, with no edits to your lane. Send narrow verified commit
+and exact positive/negative proof via handoff. No guard/ceiling waiver.
+
+Root normal published86d9862499 already includes three current test-contract
+repairs and full failure JSON. New required37735178663; serial37735178905;
+docs37735178414; compatibility37735178406. All pending at last observation.
+IMPORTANT SUPERSESSION: root explicitly submitted cancellation only of old4133
+serial37728434064 at06:03:55UTC after exact old/new SHA/job validation. Its
+actual live prefix was unavailable; it lacks Mandelbrot race fix and failure
+JSON, so retaining it could delay new source for the rest of its six-hour window.
+Prior promises to preserve4133 serial are superseded. Request originals in
+ /mnt/wd4tb/scratch/ci-4133-serial-supersession-20261008/
+Qt owner will archive CANCELLED/PARTIAL cleanup evidence, never acceptance.
+Current ordinary4133 remains running until complete coverage/combine and six
+Fast/Minimum terminal evidence are preserved; cancellation not submitted.
+N43/N47 remain OPEN. App bytes and12G/zero-swap/10.8G guards unchanged.
+
 ## 2026-10-08 02:06 EDT — Workstation resumes audio and translation writers
 
 Home: ACK86d986249 signature/survey/diagnostic repairs and668 timing separation; keep the unchanged

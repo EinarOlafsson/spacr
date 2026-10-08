@@ -1,0 +1,13 @@
+{
+  "scope": "Partial hosted log contains an actual failed node; absence of additional failures does not imply completion or acceptance.",
+  "run": 37728397690,
+  "job": 113154247583,
+  "source": "4133beafcd0ae427795617a4a01e295fd40539b7",
+  "observed_utc": "2026-10-08T06:06:01.260326+00:00",
+  "node": "tests/qt/test_idle_time_builds_the_closed_categories.py::test_a_category_built_in_idle_time_equals_one_built_by_a_click",
+  "failure": "AssertionError: regression; differing hidden Plate & Batch Correction widgets and empty Permutation Test/Estimator Tuning rows in one build path.",
+  "raw_log_bytes": 2114706,
+  "raw_log_sha256": "25ea03a6702f89410951d9bcab6543ad9e763b6f665b6d5c1ece6cbfe5b8c2a3",
+  "compressed_log_sha256": "e00ee70ee2d1ff32cce2b4eca0e882b834157a5e1b15a1998e69ce3ef627dcbb",
+  "ownership": "WORKSTATION idle/click/eager parity; Home read-only focused triage assists; narrow critical-CI repair may ship before broader API projection/664/665 batch."
+}
