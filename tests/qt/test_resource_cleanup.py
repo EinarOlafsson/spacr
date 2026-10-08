@@ -459,11 +459,17 @@ def test_hovering_a_button_writes_its_sentence_at_the_foot(action, object_name,
     qtbot.waitExposed(dlg)
     bar = dlg.findChild(HintBar)
     resting = bar.text()
+    bar.setFixedWidth(280)
 
     immediate_hover_help(button, lambda: bar.text() == rc.summary_text(action))
     assert bar.text() == rc.summary_text(action)
+    qtbot.waitUntil(lambda: bar._view.verticalScrollBar().maximum() > 0)
+    assert button.toolTip() == ""
     QApplication.sendEvent(button, QEvent(QEvent.Leave))
-    assert bar.text() == resting, "the bar must go back to resting"
+    assert bar.text() == rc.summary_text(action), (
+        "leaving must not erase long help while it is being read")
+    bar.reset()
+    assert bar.text() == resting
 
 
 @pytest.mark.parametrize("action", rc.ACTIONS)

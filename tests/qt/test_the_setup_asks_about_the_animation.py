@@ -192,9 +192,13 @@ class TestItIsWrittenThroughTheOneSeam:
         qapp.processEvents()
         assert prefs.get_ambient_enabled() is False
 
-        box.setCurrentIndex(box.findData("aurora"))
+        chosen = "blobs"
+        index = box.findData(chosen)
+        assert index >= 0, "the ordinary setup must offer another backdrop"
+        box.setCurrentIndex(index)
         qapp.processEvents()
 
+        assert prefs.get_ambient_animation() == chosen
         assert prefs.get_ambient_enabled() is True
 
     def test_choosing_none_turns_it_off(self, slides, prefs, ambient, qapp):

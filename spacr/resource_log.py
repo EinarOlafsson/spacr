@@ -1730,9 +1730,18 @@ def _call_parallel_task(task):
     return function(*arguments, **keywords)
 
 
+def _cloudpickle_codec():
+    """Use joblib's bundled codec or its separately installed successor."""
+    try:
+        from joblib.externals import cloudpickle
+    except ImportError:
+        import cloudpickle
+    return cloudpickle
+
+
 def _cloudpickled_parallel_task(payload):
     """Preserve closures and keyword arguments across a normal spawn pool."""
-    from joblib.externals import cloudpickle
+    cloudpickle = _cloudpickle_codec()
 
     return cloudpickle.dumps(_call_parallel_task(cloudpickle.loads(payload)))
 
@@ -1745,7 +1754,7 @@ def _parallel_cloudpickle_map(tasks, workers):
     :returns: ordered results, decoded in the caller process.
     """
     import multiprocessing
-    from joblib.externals import cloudpickle
+    cloudpickle = _cloudpickle_codec()
 
     if workers == 1:
         outcomes = (_invoke_parallel_task((index, _call_parallel_task, (task,)))

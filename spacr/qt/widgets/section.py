@@ -889,7 +889,10 @@ class Section(QFrame):
         if scroll is None:
             self._body.setVisible(self._expanded)
             self.toggled.emit(self._expanded)
-            from .ambient import field_ripple_for_widget
+            try:
+                from .ambient import field_ripple_for_widget
+            except ImportError:
+                return
 
             QTimer.singleShot(0, partial(field_ripple_for_widget, self))
             return
@@ -917,6 +920,9 @@ class Section(QFrame):
                     if saved_policy is not None:
                         scroll.setVerticalScrollBarPolicy(saved_policy)
                     scroll.setUpdatesEnabled(True)
-        from .ambient import field_ripple_for_widget
+        try:
+            from .ambient import field_ripple_for_widget
+        except ImportError:
+            return
 
         QTimer.singleShot(0, partial(field_ripple_for_widget, self))

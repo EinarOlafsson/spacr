@@ -1598,8 +1598,7 @@ def test_the_dialog_offers_the_controls_and_saves_them(prefs, qtbot,
 
 def test_the_direction_row_is_only_there_for_the_starfield(prefs, qtbot,
                                                            qt_theme_applied):
-    """It applies to one animation out of six. Showing it greyed out under
-    the other five would be five wrong answers to "what does this do"."""
+    """Only the starfield exposes its directional motion control."""
     from PySide6.QtWidgets import QComboBox
 
     prefs.set_ambient_theme("blobs")
@@ -1618,8 +1617,11 @@ def test_the_direction_row_is_only_there_for_the_starfield(prefs, qtbot,
     keys = [theme_combo.itemData(i) for i in range(theme_combo.count())]
     theme_combo.setCurrentIndex(keys.index("drift"))
     assert combo.isVisible()
-    theme_combo.setCurrentIndex(keys.index("aurora"))
-    assert not combo.isVisible()
+    for key in keys:
+        if key == "drift":
+            continue
+        theme_combo.setCurrentIndex(keys.index(key))
+        assert not combo.isVisible(), key
 
 
 def _show_tab_holding(dialog, widget):

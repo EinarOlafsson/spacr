@@ -437,6 +437,7 @@ def test_the_user_who_turned_the_backdrop_off_keeps_it_off(dialog,
     from spacr.qt import preferences
 
     monkeypatch.setattr(preferences, "get_ambient_enabled", lambda: False)
+    monkeypatch.setattr(preferences, "get_popup_backdrop", lambda: "off")
     assert glass._install_the_backdrop(dialog) is None
 
     monkeypatch.setattr(preferences, "get_ambient_enabled", lambda: True)
@@ -444,11 +445,26 @@ def test_the_user_who_turned_the_backdrop_off_keeps_it_off(dialog,
     assert glass._install_the_backdrop(dialog) is None
 
 
+def test_the_popup_backdrop_is_independent_of_main_animation(dialog,
+                                                             monkeypatch):
+    from spacr.qt import preferences
+
+    monkeypatch.setattr(preferences, "get_ambient_enabled", lambda: False)
+    monkeypatch.setattr(preferences, "get_popup_backdrop", lambda: "drift")
+    installed = []
+    monkeypatch.setattr("spacr.qt.widgets.ambient.install_ambient",
+                        lambda dlg, **kwargs: installed.append(kwargs) or
+                        QWidget(dlg))
+    assert glass._install_the_backdrop(dialog) is not None
+    assert installed[0]["theme"] == "drift"
+    assert installed[0]["corner_radius"] == glass.CARD_RADIUS
+
+
 def test_an_unreadable_preference_does_not_invent_a_backdrop(
         dialog, monkeypatch):
     from spacr.qt import preferences
 
-    monkeypatch.setattr(preferences, "get_ambient_enabled",
+    monkeypatch.setattr(preferences, "get_popup_backdrop",
                         lambda: (_ for _ in ()).throw(RuntimeError("no store")))
     installed = []
     monkeypatch.setattr("spacr.qt.widgets.ambient.install_ambient",
@@ -469,7 +485,7 @@ def test_with_no_ambient_engine_the_card_is_still_a_card(dialog, monkeypatch):
     from spacr.qt import preferences
 
     monkeypatch.setattr(preferences, "get_ambient_enabled", lambda: True)
-    monkeypatch.setattr(preferences, "get_popup_backdrop", lambda: "aurora")
+    monkeypatch.setattr(preferences, "get_popup_backdrop", lambda: "drift")
     monkeypatch.setitem(sys.modules, "spacr.qt.widgets.ambient", None)
     assert glass._install_the_backdrop(dialog) is None
 

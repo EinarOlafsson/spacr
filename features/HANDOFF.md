@@ -28,6 +28,40 @@ keep all-widget API-help coverage, do not restore popup tooltips or drop
 assertions. Workstation: preserve the incoming body-only help repair with
 the already-ready hidden-dialog close/API+1 packet during coherent source
 and API/help-index regeneration.
+## 2026-10-08 18:28 EDT — Home completed current body repair wave published
+
+WORKSTATION prerequisites requested18:17 are now in public source: optional
+Theme import guard, validordinarySetup selector, and nightSave guard captures
+actualshownanimation ratherthanstaleVesper→Aurora. Keep exactpalette/sound/
+verdict assertions; botholdandnewVesper materialcontrol persistence works.
+Consume your alreadyprivatefour-caption nightpatch withthissource.
+
+Currentbodywave has no API/runtime caption delta: full normalAPI13232 and
+runtimeUI7288/all6maps exactlyequal prioracceptedc4, aftertuple/JSON array
+normalization. All669Pythonfiles compared with4d:663 unchanged,6accepted
+body-only repairs differ (font,menu,prefs,Section,DBschema,resourcecodec).
+The private5bLiveSettings.close +1 API and privateN680 +2 captions are
+excluded pending yourcoherent generator ownership. N680 APIcount unchanged
+13232; only2runtimecaptionsarrive, memoryfollowupaccepted.
+
+Realproductfixes: Section missingoptionalripple import no longerbreaks
+settings; coreTheme choices surviveabsentdecorative module; Fieldripples
+now hasaformlabel/accessiblename anditshelp livesonlabel; scientific
+aliasmigration skipsprivatewriterjournals; codec supportsjoblib1.6standalone
+cloudpickle aswellasoldervendorroute. Meaningful testdoubles preserve
+fullstate/SQL/memory/permissions/workerretry/hover/timing/modal assertions.
+
+Owninglocalcohorts (overlapnotadded): hover/motion161, reset/mode35, popup55,
+wiring57, Section/ripple29, setup16, DB/sweep89, montage/help82, OPS8,
+longhelp/UMAP70, timelapse55, workerserialization45, Spaceout24, zeroGravity23,
+Manager12. Originalfailed controls andauthorfixturemispatch retained.
+Proof/currentbindings/fullmaps21payloads:
+ data/43_current_body_repairs_2026-10-08/receipt.json.
+IndependentSection/DB/codec archives verified againstcurrentGit.
+GitHub stillneeds deliveredsource required/serial andgeneratorcorrections;
+noall-green claim. Usernowrequiresentirecontainerlandingedge ripples:
+separateCPUsegmentfeaturelaneactive, clicksremainpointwaves.
+
 
 ## 2026-10-08 18:24 EDT — Exact runtime registry and new dialog API repair
 

@@ -1729,7 +1729,10 @@ def theme_choices() -> tuple:
     )
     choices.extend((theme.label, key) for key, theme in NIGHT_THEMES.items())
     from .theme import spaceout_enabled
-    from .widgets.ambient import SPACEOUT_ONLY_THEMES
+    try:
+        from .widgets.ambient import SPACEOUT_ONLY_THEMES
+    except ImportError:
+        return tuple(choices)
 
     choices.extend((theme.label, key) for key, theme in DATA_ART_THEMES.items()
                    if spaceout_enabled() or key not in SPACEOUT_ONLY_THEMES)
@@ -8502,13 +8505,14 @@ class PreferencesDialog:
         blink_column.addWidget(blink_value)
         animation.addRow(tr("Dot blinking"), _hbox_wrap(blink_column))
 
-        ripples_check = Toggle(tr("Field ripples"))
+        ripples_check = Toggle()
         ripples_check.setObjectName("FieldRipplesEnabled")
+        ripples_check.setAccessibleName(tr("Field ripples"))
         ripples_check.setChecked(_field_ripples_enabled())
         ripples_check.setToolTip(tr(
             "Ripples from clicks, opening or closing containers, and window "
             "snapping. Independent of mouse gravity."))
-        animation.addRow("", ripples_check)
+        animation.addRow(tr("Field ripples"), ripples_check)
 
         popup_waves_slider = QSlider(Qt.Horizontal)
         popup_waves_slider.setObjectName("FieldPopupWaveFrequency")

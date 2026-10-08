@@ -152,6 +152,7 @@ def test_fixed_hint_bar_is_immediate_despite_popup_delay(hovered, qtbot):
     from spacr.qt.widgets.hint_bar import HintBar
     prefs._set_tooltip_delay(4)
     bar = HintBar('Waiting', hovered.parent())
+    bar.setFixedWidth(hovered.parent().width())
     bar.explain(hovered, 'An immediate explanation')
     bar.show()
     QApplication.sendEvent(hovered, QEvent(QEvent.Enter))

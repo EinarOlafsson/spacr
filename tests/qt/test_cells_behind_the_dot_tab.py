@@ -698,7 +698,9 @@ def test_the_tab_is_present_even_when_it_cannot_be_filled(screen):
     assert screen._results_tabs.indexOf(view) >= 0
     assert not view._show.isEnabled()
     assert view.reason()
-    assert view._show.toolTip() == view.reason()
+    assert view._show.toolTip() == ""
+    assert screen._action_hint(view._show) == view.reason()
+    assert view._show.accessibleDescription() == view.reason()
 
 
 def test_the_tab_rides_the_panels_existing_selection(screen, tmp_path):
