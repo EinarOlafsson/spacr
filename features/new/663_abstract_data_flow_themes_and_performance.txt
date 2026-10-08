@@ -1285,3 +1285,18 @@ Focused 52 and 72 overlapping checks pass; fresh private native 4K capture exits
 Receipt data/615_popup_defaults_2026-10-07/receipt.json retains original
 failures, source hashes and sanitized appearance keys. Original native
 faults, hard 24 FPS and human visual acceptance remain Home's open lanes.
+
+2026-10-07 — Exact connected-front ancestry lookup optimization846d92517f0
+reuses one completed ephemeral parent-index list. Duplicate endpoints retain
+the same last-parent selection, paint order and ink budget; no persistent
+cache/quality/Detail/Density/native-resolution change. Owning three-file
+cohort55PASS342.09s plus package docstrings3PASS. Source-bound prior union
+and directly measured new code preserve ambient0/0 within original1/0.
+Twenty-four geometry pairs and four native4K frames match exactly including
+Random/light. Requested24FPS actual native4K Density3/Detail2/Size2.5 ABBA
+shows mixed gains:2.578→3.383 and2.578→2.781 publishedFPS. All four workers
+retire on hide. Added list about160KiB at20.6k candidates is transient,
+separate from processRSS. Hard24FPS remains far OPEN for this maximum-work
+connected-front case; cold birth-phase cadence is not mature-work acceptance.
+Portable raw/source/parity/worker/coverage proof and verifiers:
+data/663_fungal_parent_index_cpu_2026-10-07/acceptance.json.

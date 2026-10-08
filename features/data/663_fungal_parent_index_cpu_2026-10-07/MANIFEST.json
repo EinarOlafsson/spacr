@@ -1,0 +1,118 @@
+{
+  "README.md": {
+    "bytes": 1801,
+    "sha256": "e0f2a7646bb39f76c0c228ec5f73a4e05aae4320a562d6ee694a57b94661cbe5"
+  },
+  "acceptance.json": {
+    "bytes": 9036,
+    "sha256": "972ce168d2d97a7e2a950f19ce4cf2369447507b6afa695390ea330dbfc11b53"
+  },
+  "ambient-after.py.gz": {
+    "bytes": 108583,
+    "sha256": "2dbbd35af1f7f59245d956d388bcb0ba698713f9c7b91985286b40d962f38dfe"
+  },
+  "ambient-before.py.gz": {
+    "bytes": 108561,
+    "sha256": "948d2af6deaaa227a8db16cfb1d5b1609c34316fc545ec173155af54ff314484"
+  },
+  "data_art_fungal_growth-after-spacr-3.0-after-B.json.gz": {
+    "bytes": 1563,
+    "sha256": "1e8aaae5ac9db0a2915ff1fa84d1cfcd659a31b19e7180c02a4461f5ff4f3316"
+  },
+  "data_art_fungal_growth-after-spacr-3.0-after-C.json.gz": {
+    "bytes": 1575,
+    "sha256": "08f4c019199311898a7127ea05c9b51cd08b8be4a5aee3d26a527c39edcfe9dc"
+  },
+  "data_art_fungal_growth-before-spacr-3.0-before-A.json.gz": {
+    "bytes": 1561,
+    "sha256": "2fd59e800d605232c32d8c3bf270f68df99f4f68ab83032e85122f4b430332e3"
+  },
+  "data_art_fungal_growth-before-spacr-3.0-before-D.json.gz": {
+    "bytes": 1557,
+    "sha256": "a23f8ed65df2cc263f93a820b888a80d85b2e39bd6be8dc6461f4380556cd02a"
+  },
+  "doc-guard.log.gz": {
+    "bytes": 51,
+    "sha256": "7623ce36c7cea0353265f5d183b1bab090a0af8a50bccbabcec5cf4d9b1c9eb7"
+  },
+  "enforced-lint.log.gz": {
+    "bytes": 39,
+    "sha256": "47f394a1497b1873bc6e6d6f9bb92aa51b990821f1ddd7770a933ffd29c456cd"
+  },
+  "final-focused-coverage.json.gz": {
+    "bytes": 49102,
+    "sha256": "3679af708a78761df336a1983b7422a0457096109667f514f4e4d519187e0676"
+  },
+  "final-focused.log.gz": {
+    "bytes": 1707,
+    "sha256": "2094cd64429c36af7e27354250fe37dbcd773b6f952e9aa83b533107e0dc8b4a"
+  },
+  "parent-probe.log.gz": {
+    "bytes": 1326,
+    "sha256": "8c030885a265f5333c88d17bf0340529266ca3a73cc3061dcbb2ff624f14cf08"
+  },
+  "parent-probe.py.gz": {
+    "bytes": 1688,
+    "sha256": "775db6bbe046adf6ade98ae98131d5bc200974bebcc47d75c93af742b886f6e6"
+  },
+  "parent-receipt.json.gz": {
+    "bytes": 1393,
+    "sha256": "17fcbe3cb5337365f2bddad47677ec72002678b5531f8b71667838c67a703b74"
+  },
+  "prior-ambient-union.json": {
+    "bytes": 44367,
+    "sha256": "213205befcb14a8a137b141bf5bd90e08b1b721519f3e185a8559b7bbb29f56b"
+  },
+  "profile.log.gz": {
+    "bytes": 1069,
+    "sha256": "53990b329c998ee8df8a90a2574e7fa4dd4e2c00f57f988fdb0a624e67002243"
+  },
+  "quality-targets.txt.gz": {
+    "bytes": 340,
+    "sha256": "b5b5a12048b953a447c62048875ab59da7f9e4c6fe4af68d57afb017bd3d2af6"
+  },
+  "receipt.json.gz": {
+    "bytes": 523,
+    "sha256": "502f1cc7bcf0784a4149ccf6a5ad2fd0f882516c69cddbfab0812c5cc6728ac2"
+  },
+  "reproduce.txt": {
+    "bytes": 1318,
+    "sha256": "43c48781df50b322048721bb0d9b5c3bb6ea160a64a48db6306da848f162a2e4"
+  },
+  "source-contracts.json.gz": {
+    "bytes": 410,
+    "sha256": "5cf576752cdc69a9d89efc5c1cf16df3a58c4bcdbdd0b3c34e9c84b3ab209702"
+  },
+  "test_fungal_growth_engine.py.gz": {
+    "bytes": 4646,
+    "sha256": "fee4e2bfa00389551f32edea1905e2a9f10c17191d87d150be894d7acb211344"
+  },
+  "verify_coverage.py": {
+    "bytes": 4090,
+    "sha256": "5d994de76ba38d9006d5ab5b257d1171954edc172baed81db1839627ec94922f"
+  },
+  "verify_manifest.py": {
+    "bytes": 922,
+    "sha256": "b5e967d937d6b5179a83d7ea3484d56904453b0bb8e823dfb4c013a89988401f"
+  },
+  "worker-after-B.log.gz": {
+    "bytes": 635,
+    "sha256": "9e2b3d0e2e83e820ce2ba5c503e2d7161be45d359786b7962dd59ddd54b707e9"
+  },
+  "worker-after-C.log.gz": {
+    "bytes": 634,
+    "sha256": "8007a713f942824329365165f640bc8d418be3c561cda4f83a97f8b3777441cc"
+  },
+  "worker-before-A.log.gz": {
+    "bytes": 633,
+    "sha256": "eabce483d34a6f4d8ef799dd8532cabc22b7011092b40f6a718b919e4f0ee094"
+  },
+  "worker-before-D.log.gz": {
+    "bytes": 630,
+    "sha256": "9c17e633954a01833779e0098f919b4a44665dc442e7d6fe47b946f559028998"
+  },
+  "worker_probe.py.gz": {
+    "bytes": 3299,
+    "sha256": "a0bdb27ce2890f9975d086e04cb20f60a21b5ccc474e3f4b400c56996f4bec1a"
+  }
+}
