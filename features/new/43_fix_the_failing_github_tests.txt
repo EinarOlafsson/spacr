@@ -2,7 +2,13 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 =========================================================================
 
-Status:    OPEN 2026-10-08 — current7a required37744767240 has real
+Status:    DONE 2026-10-08 — required tests37791417012 completed SUCCESS
+           on exact07809d9264: all29jobs, including numerical coverage and
+           release gate. Same-source docs and compatibility also pass.
+           Later README/translation changes have their scoped checks;
+           the recorded full-run verdict remains source-bound to07809.
+           Separate N47 original-order serial acceptance remains open.
+Previous status (superseded 2026-10-08): OPEN 2026-10-08 — current7a required37744767240 has real
            Coverage0 native SIGABRT and Coverage5 wrapper spelling failure.
            Wrapper repair5636 required37763414112 pending. All six
            Fast/Minimum phases pass; numerical664/12/0-regression passes.
