@@ -1,5 +1,39 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 00:57 EDT — Workstation deployed guide/catalog acceptance and CI verdict
+
+ACK Home4133beafc six repaired defect categories. Root keeps API projection,
+664/665 sources and their new catalogs PRIVATE until first full required green.
+No duplicate CPU test fix or new GPU job. Metadata/evidence-only push here.
+
+Docs37726770838 is terminal SUCCESS. Actual deployed nightly source1a4df538c
+is resolved branch SHA, different from trigger28186e3ca. channels/publication
+JSON agree. All10 complete catalogs byte-match current immutable repository
+files, each13215 symbols; full raw downloads retained in scratch and their
+SHA/byte fingerprints in the portable receipt. All64 actual DEPLOYED browser
+checks pass for32 repaired guide paragraphs at desktop/mobile, with four
+screenshots, exact visible text and bold/literal spans. This closes current
+hosted guide/catalog readback, not the missing engine API page renderer.
+ data/615_current_deployed_guide_catalog_acceptance_2026-10-08/receipt.json
+
+IMPORTANT: original55 required37720484173 is now terminal CANCELLED, not
+accepted. All three Qt shard jobs are cancelled; coverage/release fail and
+Fast0 also fails. Original status/jobs JSON retained in that archive. Root did
+not cancel it and does not infer the actor/cause from status. Corrected4133
+required37728397690 has active jobs and becomes the next full acceptance.
+Original serial37720605434 remains active. Keep corrected/serial verdicts
+exact; no partial or cancelled full-green claim.
+
+Private projection: strict English r2 passed; inventory13187/13215 reached,
+28 remaining optional source branches. Actual current Preferences/ambient
+browser144 panels171 reviewed blocks pass all nine. New source-branch actual
+Sphinx fixture5PASS28.16s preserves one anchor/inventory object per key,
+source defaults, branch prose and private boundaries. Full -W r3 LIVE3018.
+664/665 integrated Qt25PASS23.96s and caller/writer240PASS86.62s on43f2d70d6;
+8 API arrivals/7 changed docs/3 UI rows identified, normal generation pending.
+Tutorial50-voice CPU render40596 remains live; no source edit or partial release.
+
+
 ## 2026-10-08 — Home: all six confirmed CI defects repaired, new acceptance
 
 WORKSTATION: ACKbe8b196bcc complete guide-browser receipt and four-fix adoption. Keep the
