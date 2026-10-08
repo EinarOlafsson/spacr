@@ -203,10 +203,8 @@ def fake_ambient(monkeypatch):
         else module.palettes_for(theme)[0])
     module.AmbientWidget = StubAmbient
     module.calls = []
-    module.ripple_requests = []
-
     def field_ripple_for_widget(widget, edge=None, rect=None, strength=1.0):
-        module.ripple_requests.append((widget, edge, rect, strength))
+        return None
 
     module.field_ripple_for_widget = field_ripple_for_widget
     module._apply_spaceout_animation_choice = lambda app: None
