@@ -2,11 +2,12 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 =========================================================================
 
-Status:    OPEN 2026-10-07 — current683 run37698599898 has four failed
-           coverage shards; caption ownership and coverage-artifact guards
-           are repaired on newer published source. API inventory/catalog
-           refresh and remaining Fast/Minimum/Qt/coverage verdicts are open.
-           Complete current-source required GitHub green is not established.
+Status:    OPEN 2026-10-07 — executing ordinary run37698599898 is red.
+           Runtime/caption, coverage-artifact and popup-opacity repairs are
+           locally verified and published on newer source. Workstation owns
+           API inventory/catalog refresh and idle/click/eager category parity.
+           Remaining Fast/Minimum/Qt/coverage and final corrected-source
+           required GitHub acceptance are open. No complete green is claimed.
 Previous status (superseded 2026-10-07): OPEN — ordinary bb7 run37681965976 has ten failed
            coverage shards and continuing Fast/Minimum/Qt jobs. Home repairs
            through36ec5c57f4 are pushed and checked in bounded local cohorts.
