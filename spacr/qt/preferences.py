@@ -8505,13 +8505,14 @@ class PreferencesDialog:
         blink_column.addWidget(blink_value)
         animation.addRow(tr("Dot blinking"), _hbox_wrap(blink_column))
 
-        ripples_check = Toggle(tr("Field ripples"))
+        ripples_check = Toggle()
         ripples_check.setObjectName("FieldRipplesEnabled")
+        ripples_check.setAccessibleName(tr("Field ripples"))
         ripples_check.setChecked(_field_ripples_enabled())
         ripples_check.setToolTip(tr(
             "Ripples from clicks, opening or closing containers, and window "
             "snapping. Independent of mouse gravity."))
-        animation.addRow("", ripples_check)
+        animation.addRow(tr("Field ripples"), ripples_check)
 
         popup_waves_slider = QSlider(Qt.Horizontal)
         popup_waves_slider.setObjectName("FieldPopupWaveFrequency")
