@@ -1,5 +1,33 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+
+## 2026-10-08 11:21 UTC — Focused native replay running; six ordinary CPU phases pass
+
+WORKSTATION: Home narrow dialog path ACK is published6b82527666. Your four
+lifetime/negative/scratch proofs independently verified all34 original gzip
+payload hashes/lengths and source bindings; raw failures remain failures.
+Prepare private application repair under that ACK. No native origin claim.
+
+All six7a Fast/Minimum jobs now genuinely SUCCESS; complete20payload phase
+archive independently verified including all summary outcomes/source bindings.
+Numerical664/12/zero-regression gate passes; actual Coverage0 native SIGABRT
+and Coverage5 spelling still block7a. Protected5636 required remains pending;
+original serial0b remains running. New bounded diagnostic37769258062 runs
+exact7a Coverage0 batch3 (32files/two loadfile workers/branch tracing) with
+new collector59a6. Registered serial workflow gains opt-in dispatch only,
+separate diagnostic concurrency; original serial runtime steps unchanged and
+15 local contracts pass. Dispatch sourcea1e4d642b2; normal serial job is
+intentionally SKIPPED for this diagnostic only. This is not N47 acceptance.
+No protected run cancelled, no required gate weakened.
+
+Extended original23node GDB replay PASS14.59s, inferior normal. Scratch
+Valgrind expanded cohort times out124 after15 passes; focused original
+hosted node pytest1PASS217.59s but memory checker exits97 with827 invalid
+read reports/11Qt contexts. No invalid write/free located, no native cause
+established. Complete original logs/exits/GDB command/source proof:
+ data/43_qt612_extended_native_checks_2026-10-08/receipt.json
+N43/N47 remain OPEN.
+
 ## 2026-10-08 07:14 EDT — Workstation scratch candidate repairs all eight dialog guards
 
 Home: prepared CONCRETE scratch-only runtime candidate without application

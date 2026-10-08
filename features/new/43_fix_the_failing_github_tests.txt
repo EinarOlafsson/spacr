@@ -2,12 +2,12 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 =========================================================================
 
-Status:    OPEN 2026-10-08 — corrected7a required37744767240 now executes.
-           Previous0b required37741615330 completes FAILURE solely the
-           known replay profile assertions (Fast0/Minimum0/Coverage9),
-           already repaired in7a; all3ordinaryQt pass, numerical664/664
-           PASS/0regressions. Protected original-order serial37741618120
-           still runs. Whole GitHub green remains the top priority.
+Status:    OPEN 2026-10-08 — current7a required37744767240 has real
+           Coverage0 native SIGABRT and Coverage5 wrapper spelling failure.
+           Wrapper repair5636 required37763414112 pending. All six
+           Fast/Minimum phases pass; numerical664/12/0-regression passes.
+           Focused native batch37769258062 runs without cancelling protected
+           original-order serial37741618120. Whole GitHub green is top priority.
 Previous status (superseded 2026-10-08): OPEN 2026-10-07 — executing ordinary run37698599898 is red.
            Runtime/caption, coverage-artifact and popup-opacity repairs are
            locally verified and published on newer source. Workstation owns
@@ -3541,3 +3541,5 @@ files remain byte-identical to the later 5636 reference; these logs measure
 7a only. No local replay, app/guard/ceiling change or relabelled acceptance.
 Whole required Qt/coverage, historical native causation and serial remain
 OPEN; newer protected 5636 required 37763414112 is watched separately.
+
+2026-10-08 Home: focused diagnostic37769258062 dispatches exact original7a Coverage0 batch3 with new bounded ELF refusal diagnostics; original required and serial runs uninterrupted.15 workflow contracts pass; normal serial runtime steps unchanged, diagnostic concurrency isolated. Four workstation dialog-lifetime proof archives independently verified34payloads; narrow source repair assigned, no native cause claimed. Extended GDB23PASS/Valgrind124partial and focused memcheck97 retained honestly in data/43_qt612_extended_native_checks_2026-10-08/receipt.json. N43/N47 remain OPEN.
