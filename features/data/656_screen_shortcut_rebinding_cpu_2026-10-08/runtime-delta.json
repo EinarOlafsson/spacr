@@ -1,0 +1,67 @@
+{
+  "setting_labels": {
+    "before_count": 1221,
+    "after_count": 1221,
+    "added": {},
+    "removed": {},
+    "changed": {}
+  },
+  "setting_tooltips": {
+    "before_count": 1243,
+    "after_count": 1243,
+    "added": {},
+    "removed": {},
+    "changed": {}
+  },
+  "categories": {
+    "before_count": 237,
+    "after_count": 237,
+    "added": [],
+    "removed": [],
+    "changed": {}
+  },
+  "ui": {
+    "before_count": 7245,
+    "after_count": 7267,
+    "added": [
+      "Assign class 1",
+      "Assign class 2",
+      "Assign class 3",
+      "Assign class 4",
+      "Assign class 5",
+      "Assign class 6",
+      "Assign class 7",
+      "Assign class 8",
+      "Assign class 9",
+      "Clear the focused crop",
+      "Close keyboard legend or zoom",
+      "Move focus down",
+      "Move focus left",
+      "Move focus right",
+      "Move focus up",
+      "Move this merged .npy to merged_quarantined so later Measure runs skip it. Press {key} to quarantine or restore.",
+      "Save and load the next batch",
+      "Scope",
+      "Shortcut {key} is not a single key sequence.",
+      "Skip forward one crop",
+      "Step back one crop",
+      "Toggle keyboard legend"
+    ],
+    "removed": [],
+    "changed": {}
+  },
+  "installer": {
+    "before_count": 65,
+    "after_count": 65,
+    "added": {},
+    "removed": {},
+    "changed": {}
+  },
+  "module_summaries": {
+    "before_count": 77,
+    "after_count": 77,
+    "added": {},
+    "removed": {},
+    "changed": {}
+  }
+}
