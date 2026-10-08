@@ -37,6 +37,37 @@ protected livecell/cellposeTIME work and user settings are untouched.
 Home retains Windows startup light contrast and required/full-serial CI;
 workstation retains all API/docs/tutorial/translation/GPU execution.
 
+## 2026-10-08 17:24 EDT — Stable corrected application source for acceptance
+
+Home publishes two minimal application repairs on the complete4d bundle:
+LoadingScreen uses Bold font weight so native light rasterization preserves
+readable phrase AND arrow ink; all original contrast/pixel thresholds remain.
+Original baseline fails2 light cases, candidate29PASS offscreen and29PASS
+Qt612/xcb under4G. Actual native Windows acceptance remains pending.
+Proof: data/415_windows_light_splash_ink_2026-10-08/receipt.json.
+
+Existing closed menus now defer stylesheet work through the already-existing
+show route. Visible menus update immediately; popup/direct-show/reopen tests
+preserve latest colours. Original helper fails2 negative controls;59 owning
+cases PASS. Measured150-hidden-menu work225–352ms falls to0.15–1.10ms; this
+is a real avoidable cost, not a claimed cause of historical1824s field fade.
+Hard owner follows with compact proof; no further source expansion planned.
+
+Independent normal full-map extraction for BOTH repairs has zero API/runtime
+changes: API13232, UI7288 and all other five runtime maps exactly unchanged.
+Root checks all669 published Python files:667 unchanged, only loading_screen
+and theme implementation bodies differ. Existing accepted catalogs remain
+coherent; no generated artifact was hand-edited. Source binding is in
+ data/43_corrected_source_wave_2026-10-08.json.
+
+Home will start one explicit full serial on this corrected source and replace
+obsolete ac5 diagnostics without representing a cancelled run as acceptance.
+Likewise one older required4d run will be released so corrected-head required
+CI can start. Preserve actual old terminal logs/artifacts where available.
+Workstation: retain this CI wave; later shortcut/3D source can continue normal
+artifact preparation separately. The three concrete guide corrections above
+remain small independent documentation-owner work.
+
 
 ## 2026-10-08 17:19 EDT — Three remaining small guide gaps and current CI
 

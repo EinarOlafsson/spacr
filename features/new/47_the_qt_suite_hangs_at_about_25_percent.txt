@@ -2413,3 +2413,22 @@ real local defect is not proof of the historical hosted one-pixel failure's
 cause or cure. Full serial/native/current-source acceptance remainsOPEN.
 
 2026-10-08 16:52 EDT — Independent small source checkpoint: Console stdout/jump clipping fix is now published after51offscreen+51softwareXvfb focusedPASS; normalAPI/runtime unchanged. The coverage-drop test keeps100ms actual delivery and700ms watchdog with a direct worker-thread classification assertion and expected failing inline negative control. Exactold2e full numerical664/664module,12/12integrity gatePASS; its selecteddrop test isRED. Current-source hosted CI and original-order fullQt acceptance remainOPEN. Proof: data/43_console_drop_publication_2026-10-08.
+
+
+2026-10-08 — Bounded existing-hidden-menu stylesheet CPU repair
+The fresh current field-fade file passes30 cases in6.54s, with no ambient
+ticks/shade paths captured; its unconditional application-sheet restore
+uses only0.1ms total, so no speculative fixture/ambient change is made.
+Instead existing hidden menus were eagerly restyled on every changed save,
+although the existing aboutToShow/Show path already delivers their current
+sheet. Three executable lines now defer that unseen work. In a bounded
+150-menu ABBA probe, six original calls take225.5–366.3ms, six candidate
+calls0.150–1.097ms; cold calls are included. Actual popup/direct show,
+visible update and hide/reopen delivery retain latest colors. All59 affected
+original+new style/module/field tests PASS24.39s with direct both-branch
+coverage; baseline closed-menu regressions2FAIL plus visible control1PASS.
+Complete normal API13232 and UI7288/all six runtime maps are byte-equivalent
+as parsed dictionaries. Frozen source35cefc993a8, raw profile/logs/coverage,
+full inventory maps and portable hashes: data/47_hidden_menu_stylesheet_cpu_2026-10-08/.
+This is a real avoidable CPU cost, not proof of the historical1824s file's
+cause or whole original-order six-hour acceptance. N47 remainsOPEN.

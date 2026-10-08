@@ -25,13 +25,13 @@ from __future__ import annotations
 
 from typing import Optional, Sequence
 
-from PySide6.QtCore import Qt, QRectF
-from PySide6.QtGui import QColor, QPainter, QPixmap, QFont
+from PySide6.QtCore import QRectF, Qt
+from PySide6.QtGui import QColor, QFont, QPainter, QPixmap
 from PySide6.QtWidgets import QWidget
 
 from ..hidpi import logical_size, scaled_for
-from ..preferences import scaled_px
 from ..iconset import RESOURCE_DIR
+from ..preferences import scaled_px
 
 #: The one place this sentence lives. The home screen shows it beside the
 #: logo too, so a change here changes both -- and it needs a translation row
@@ -178,6 +178,9 @@ class LoadingScreen(QWidget):
         :param parent: the window to cover; its geometry is adopted.
         """
         super().__init__(parent)
+        font = QFont(self.font())
+        font.setWeight(QFont.Weight.Bold)
+        self.setFont(font)
         self.setObjectName("LoadingScreen")
         self._total = max(0, int(total))
         self._done = 0

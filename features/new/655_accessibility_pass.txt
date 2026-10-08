@@ -86,3 +86,14 @@ WHAT IS LEFT
 
 2026-10-08 10:30 EDT — Workstation actual private source acceptance
   Actual private13efaa1cc repair under HomeACK:70PASS115.03s; changed lines6/6. Source+test patch clean applies; original tests unedited. Nine-language derived-name checks included. Native header context/assistive technology and integration remain open. Proof: features/data/655_actual_private_view_repair_2026-10-08/receipt.json.
+
+2026-10-08 17:22 EDT — Published native header context checked
+  Root exercised actual Preferences Storage table on Qt6.12/xcb/Xvfb under
+  4G with CUDA hidden and software rendering. All nine translated languages
+  plus English expose three correctly translated QAccessible ColumnHeader
+  children (Cache, Size, Folder), matching the real model headers. Empty
+  QHeaderView widget names do not imply unnamed table-header children.
+  Existing wider controls/item-view acceptance remains published. This
+  checks native Linux accessibility semantics, not OS screen-reader speech
+  or Windows/macOS acceptance; broader native review remains open.
+  Proof: data/655_native_header_context_cpu_2026-10-08/receipt.json.
