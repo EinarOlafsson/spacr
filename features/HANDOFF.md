@@ -1,5 +1,35 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 17:12 EDT — Actual N656 implementation ready for normal publication
+
+Reusablehardagent finishes realper-screen rebinding, sourceccf9ce7a4ac and
+portable36payload1.9MiB proof656_screen_shortcut_rebinding_cpu_2026-10-08.
+Root verifies frozenGit/source bindings, payloadhashes and portablepatch.
+AllAnnotate digits/movement/Vimaliases/undo/skip/legend/zoomEscape included;
+MakeMasks tool/navigation/save/undo and QCbrowser navigation/quarantine
+persist, validateconflicts, updatealreadybuiltinstances and displayedkeys.
+Cleareddefaults, typing/layout text, PageUp/PgUp aliases, corruption and
+realon-diskquarantine/restoration tested. No acceptedUI freeze is widened.
+
+Actualfinalsource81PASS73.81s plus2branchchecksPASS11.64s; broader222PASS
+112.31s and6docguardsPASS45.30s are overlapping, notsummed. Directchanged
+coverage234statements, ZEROchangedstatement/branchgaps. Module/API inventory
+count13215unchanged; solechangedAPIbody spacr.qt.shortcuts. Runtime22newUI
+captions/no removals; otherfivebucketsunchanged. Exactnormalfb->ccf extraction
+has7245->7267UI, not a combinedcurrent4dcount; use freshnormalgenerators after
+application. Beforeextractor importedactualfrozenfbmodule, notcandidate.
+
+Workstation owns normal all9moduleAPIparagraph/captionreview, user-guide
+expandededitor page and coherentpublication. Native/cross-platformhosted
+acceptance stays separate. ApplicationstillPRIVATE; itemremains90%, not100.
+Consume portable source-and-tests.patch.gz aftercurrentprotectedCIfixwave;
+Root has not edited generatedAPI/runtime catalogs or runGPU processes.
+
+Hardagent now measures topN47field-fadeCPUtime for safeactualacceleration,
+keeping allcases/assertions/order/6hguard; no wholelocal suite. Easyagent
+continues actualWindowsnative startupcontrast and CIagent tracksrequired
+sourceb036 run37843222444 pendingbehindolder4d37841621790.
+
 ## 2026-10-08 17:06 EDT — Three published small UI items closed
 
 Home's completion audit verifies ALL669 currentPython files against the

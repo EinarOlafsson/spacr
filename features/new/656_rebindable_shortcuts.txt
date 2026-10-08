@@ -2,7 +2,7 @@
 REBINDABLE SHORTCUTS
 ================================================================================
 
-Status:    DONE 2026-10-04 — See the closing section.
+Status:    OPEN 2026-10-08 — per-screen implementation tested; matching publication pending.
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.
@@ -26,3 +26,5 @@ DONE 2026-10-04
   Tests: tests/qt/test_rebindable_shortcuts_and_settings_profiles.py.
   Left: per-screen keys (Annotate, Make Masks, field browser) stay fixed;
   a user-docs page and translations of the 16 new captions (catalog rebuild).
+
+2026-10-08 17:12 EDT — Actual per-screen rebinding implemented in privateccf9ce7a4ac and transferred via data/656_screen_shortcut_rebinding_cpu_2026-10-08. Final81+2checks, broader222 and6documentation guardsPASS in overlapping phases, not summed;234changed statements and changed arcs have zero gaps. Persisted live Annotate/MakeMasks/field-browser keys include aliases, clearing, conflict validation, legends and realQCquarantine. Normalinventory: one changed moduleAPIbody,22newUIcaptions. All9translation/user-guide refresh and coherent app publication remainOPEN; no 100% or nativeOS claim.
