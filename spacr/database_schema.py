@@ -145,6 +145,8 @@ def _rename_legacy_columns(
         )
         tables = [row[0] for row in cursor.fetchall()]
         for table in tables:
+            if table.lower().startswith("_spacr_"):
+                continue
             quoted_table = _quote_identifier(table)
             cursor.execute(f"PRAGMA table_info({quoted_table})")
             columns = [row[1] for row in cursor.fetchall()]
