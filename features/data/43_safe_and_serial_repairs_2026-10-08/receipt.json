@@ -1,0 +1,172 @@
+{
+  "source_commit": "1956d205f445631a9254133493122913b2291338",
+  "prior_CI_source": "e41df27e0a37303cbbc81687d21f74738cc05e0b",
+  "source_SHA256": {
+    "spacr/qt/preferences.py": "ca35cc99039bbf259c872ce49d8e2d7ed390d455b5dbb4c260b0d05ae596147f",
+    "tests/qt/test_529_the_dock_and_right_column_resize.py": "14af8f063bf5d19916bd5e1be5a1f3b26f25ff11a1a0fcbb0519e97e6e3fcd95",
+    "tests/qt/test_544_573_blind_scoring_and_lock_on_screen.py": "f47f2099608b984afd7fc85d559c36ce60a388b0390e514c518ae4b10c5c8a47",
+    "tests/qt/test_593_channel_sort_dialog_paths.py": "3795d76fc6f8498652fbf41c843b243bf06f2033014ddd13e63fc3dd05430c75",
+    "tests/qt/test_593_make_masks_consolidate_and_sort.py": "7c62c4e92c6078907747d51ee5337a50918d914abc663692cfe823ce2071cad8",
+    "tests/qt/test_600_make_masks_drops.py": "bba685ef6d8d1befded70303c317b6edd2048607a093c90fb995100111dce73e",
+    "tests/qt/test_600_organize_for_measure.py": "8cfec78ded87f3699681a6937b2b59224846d24db6998cf681d2755b1eb1db07",
+    "tests/qt/test_a_settings_lookup_reveals_what_it_can_and_declines_the_rest.py": "a857e07d4e540066721ce184fc7ee6f21ab9233c494da39e831e8e1d9e331eaf",
+    "tests/qt/test_cov_g2_make_masks_uncertainty_edges.py": "51120ef60ef0f92e73660a48178233f934737cb48e771ede4ebea368e3ee1e96",
+    "tests/qt/test_cov_r4_ambient.py": "909217535bb15bbc2c18c65c9f6ec540e6e2584c875da699bfaa82b82b7da7a7",
+    "tests/qt/test_preferences.py": "a76e80a9d3483cf4aec6542e0bf086aba26e43cd0eb7d0b5e9a73118b9382336",
+    "tests/qt/test_safespacr_gets_in_when_a_preference_breaks_it.py": "2030140203fa48427720353efb89569b13132b4d090d5e1a2113b3a4d40d2ccc"
+  },
+  "API_runtime_full_maps_equal": true,
+  "API_entries": 13232,
+  "runtime_counts": {
+    "categories": 237,
+    "installer": 65,
+    "module_summaries": 77,
+    "setting_labels": 1221,
+    "setting_tooltips": 1243,
+    "ui": 7288
+  },
+  "accepted_owning_cohorts": {
+    "SafeSpacr": "13 passed19.58s",
+    "Preferences": "66 passed35.45s",
+    "warnings_and_screen_fallback": "48 passed23.06s Xvfb; three-node offscreen3 passed4.27s",
+    "MakeMasks_sort_and_drop": "78 passed24.09s Xvfb;78 passed22.34s offscreen",
+    "dock_and_settings_lookup": "27 passed41.86s Xvfb"
+  },
+  "negative_controls": "Original current-source Safe failures confirmed hosted; root three-node Xvfb baseline3FAIL; exact masks native modal baselineFAIL; original dock/lookup2FAIL and viewport assertionFAIL before precise fixtures. Original modal, contrast, timeout, width and full-state guards retained.",
+  "application_binding": "All669 Python paths checked against4d accepted binding;666 unchanged, only previous LoadingScreen/font and theme/menu repairs plus new Preferences guard differ. No new API prose/runtime caption or catalog edit.",
+  "payloads": [
+    {
+      "payload": "before-inventory.json.gz",
+      "sha256": "f09eeefaefc7f45b8683f5a71d7e2fc8ab3e9ab452347596f6b119c340578282",
+      "raw_sha256": "ee8e3e5823b40a577e6c5bb14d7ff7769c281917a2cda561a2529292ddd2dd2f",
+      "raw_bytes": 7867037
+    },
+    {
+      "payload": "after-inventory.json.gz",
+      "sha256": "f09eeefaefc7f45b8683f5a71d7e2fc8ab3e9ab452347596f6b119c340578282",
+      "raw_sha256": "ee8e3e5823b40a577e6c5bb14d7ff7769c281917a2cda561a2529292ddd2dd2f",
+      "raw_bytes": 7867037
+    },
+    {
+      "payload": "before-report.json.gz",
+      "sha256": "6ad64c773d76728b25776250ac0a801f1084c3e54e72679912e378b90a57ebcb",
+      "raw_sha256": "33043c8892675353b14034f73e04534fbc3f7f9ec2ebc43ffd7f78dd46e1ba8f",
+      "raw_bytes": 478
+    },
+    {
+      "payload": "after-report.json.gz",
+      "sha256": "86b1c0521483898eac4adfbc977edd8df9c090e045e8328871ef5da08e9b554e",
+      "raw_sha256": "1d9e1b4d8e35a9424a78e832723a2901338881ce0f6a8598eb253cec6a96355a",
+      "raw_bytes": 447
+    },
+    {
+      "payload": "inventory_probe.py.gz",
+      "sha256": "98a4d58136f0a55a0018a01ec1a8931d61edf991c3ed6eabc4ac3e7ab7881398",
+      "raw_sha256": "72a77105ee011827617641547f5300cd4b9b2f544e2a968055c0f8473d050bc3",
+      "raw_bytes": 1937
+    },
+    {
+      "payload": "owning-accepted.log.gz",
+      "sha256": "ed1b53011b6bdec49eb3a9406531e3942cc50cb6365f1f6883e6e17187285626",
+      "raw_sha256": "19a172c8b0ad57d24d09fc57913160bd7964492cdcc14b4bc67d8c5856084339",
+      "raw_bytes": 100
+    },
+    {
+      "payload": "owning-accepted-receipt.json.gz",
+      "sha256": "b8e0daaf5a0c133fae2d86be2f55682da69459a6cb8a6bbab395b4530ea1df7e",
+      "raw_sha256": "57ee22a5e47c7ac8026152cee1696dfec21c1e927fc4533c5dfe7e03616139bb",
+      "raw_bytes": 1259
+    },
+    {
+      "payload": "owning.log.gz",
+      "sha256": "11a3420e899e2fdc5be88b65b32b81fbe82a583f623552efeb008a4aba580b2c",
+      "raw_sha256": "ca4882f10def6a8bd8972a05f298a441c43c7fceb8bb17485f2d44fce94d2026",
+      "raw_bytes": 14416
+    },
+    {
+      "payload": "owning-final.log.gz",
+      "sha256": "195a8d76553874842511e3a60a2ce3470f11dcb107073b72b850d9c433dc4f45",
+      "raw_sha256": "073817874307bfa63856e96544c744eb4331c3fced038fdc720b0ad42a07b62b",
+      "raw_bytes": 3555
+    },
+    {
+      "payload": "owning-coverage.json.gz",
+      "sha256": "bb0fcaec26875d83b6198e5b0be6a01310d540ab28abaa86c4252100c164681c",
+      "raw_sha256": "9ebc3c9e924345f36a94b5c5fc92ac95a22e7fb6d362d07fda7896d83b2a27fe",
+      "raw_bytes": 404609
+    },
+    {
+      "payload": "final-guard.log.gz",
+      "sha256": "acb9edce6bd306d84845c20602b317b55482d5b0e70e883674dc939a6b922083",
+      "raw_sha256": "62f88382a59f401f899e661ea75ce95237568c9dce31ae291d491744ef0fa4b3",
+      "raw_bytes": 381
+    },
+    {
+      "payload": "final-guard-coverage.json.gz",
+      "sha256": "147b5cf288628b8c1ba70e996881c8aa69817b1a16f64dc21ac82473ed9bde61",
+      "raw_sha256": "c2e7eca1a0894922f8fdc83580790f9d10f9b342dd6df527ffbb8f38bc053c36",
+      "raw_bytes": 401804
+    },
+    {
+      "payload": "safespacr-full-positive-20261008.log.gz",
+      "sha256": "df2667a4948937aa2f1036ec4f52e7798c56ba4e338c1d74af030232c0bf21cf",
+      "raw_sha256": "e18ab7a635cecbb92cc5e1346f5fe961feeaf57e8d652467730ed0b0f6090cea",
+      "raw_bytes": 100
+    },
+    {
+      "payload": "serial-root-three-negative-20261008.log.gz",
+      "sha256": "a04a5ad0a35cdcc09a11e816a6fb4b2eb70773bbf9f056ee3608b41695eeb241",
+      "raw_sha256": "5314195bebd4b0238e063ae05ac9d560c24a5dc6769314687d15e6989ecf4a43",
+      "raw_bytes": 23012
+    },
+    {
+      "payload": "serial-root-three-files-positive-20261008.log.gz",
+      "sha256": "c7a05184d07b199fe644f3a9984320b98fe1a6097f0ca51268aeb17b4e196a15",
+      "raw_sha256": "4a7b5a3c4bba8a1c7b5a30187c536538e827462897635583b38e071b7d9f391d",
+      "raw_bytes": 100
+    },
+    {
+      "payload": "serial-root-three-offscreen-20261008.log.gz",
+      "sha256": "9d62e7f956dec166fc7a51dcf721046fc898e90e94465e78a4c428239bef9e34",
+      "raw_sha256": "3d933ee535f9d3db9a7e21c4bee7c8e5e14102b31bb1e389f366c0ec61154d0a",
+      "raw_bytes": 98
+    },
+    {
+      "payload": "serial-modal-baseline-593-20261008.log.gz",
+      "sha256": "553de0613add97e0e70a3c4b6d7ad4ca5879ecbdb2a529042391c80495a71bb9",
+      "raw_sha256": "21ba2567eefe44a9a1e26e2036d0f791cb9fba82f42d5d3b531c705a2c342891",
+      "raw_bytes": 2342
+    },
+    {
+      "payload": "serial-modal-593-600-candidate-20261008.log.gz",
+      "sha256": "f48651adabae982970483ae214c1ef83dbc7882bc2fd461bfa846bd3615683ca",
+      "raw_sha256": "296820ca1aa2e578590112eab94fc4b52a586ebabed46585c75698172fb53d9c",
+      "raw_bytes": 3859
+    },
+    {
+      "payload": "serial-modal-593-600-offscreen-20261008.log.gz",
+      "sha256": "444c8a39b98d1993c306524085a56f32108048993c7784e5d248033d4e476f29",
+      "raw_sha256": "1506cc62e185f6bd66a43063cb2a395efb84e5f84b2431a4fbbfd1d3df1ecaab",
+      "raw_bytes": 3859
+    },
+    {
+      "payload": "ac5-two-files-e41-final-20261008.log.gz",
+      "sha256": "8671d484af1ef7490ebb443513e74f824da180f6cb5f82b850ff0a38ac54eabd",
+      "raw_sha256": "c082e9c4010579983d06879c0c1de4bf42c0dcb933848ae669e5652fea97bd1c",
+      "raw_bytes": 100
+    },
+    {
+      "payload": "ac5-two-files-e41-activate-20261008.log.gz",
+      "sha256": "ae700488921deba85f7a21c64ef146463ee2dd3bda70a3319568738f33cfd8b7",
+      "raw_sha256": "fa6cf424c5168c4a058ce81f7f1bd8b592cfa259a59c0a1b384677976987085f",
+      "raw_bytes": 1628
+    },
+    {
+      "payload": "ci-e41-slow-113548884350-20261008.log.gz",
+      "sha256": "c3f0e882ac0da22d00075fbc9a818f0a32c26e1db917bb02ccaae8033adca043",
+      "raw_sha256": "322e2a2c0a3abffcad606c553e1150340e52b2caf5afbf0060d57ef9f8f0ca4b",
+      "raw_bytes": 220801
+    }
+  ],
+  "limits": "Focused cohorts contain overlapping replay phases, not summed. No full required/serial green claim. Old cancelled serial prefix is archived separately; no skipped failure, relaxed coverage floor, test timeout or modal guard."
+}

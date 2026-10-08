@@ -1,5 +1,39 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 17:50 EDT — Current Safe and native-display failures repaired
+
+Home publishes the one-condition Safe startup import repair and precise
+native-display fixture repairs together. Original full Safe file13PASS;
+complete Preferences66PASS after current fields/catalogue test-double
+alignment and a scoped import blocker. Original full-state assertion now
+checks nondefault ripple and eight Spaceout effect values, not fewer keys.
+
+Old serial native-display failures have owning masks78PASS, warning/fallback
+48PASS and dock/settings27PASS. Missing-screen branch uses a deterministic
+screen/DPR instead of assuming host pixels differ from the1080p fallback;
+warning tests explicitly answer and check sanitized/error text; unattended
+sort/drop decisions are explicit per test. GUI keyboard/focus tests activate
+their windows. Inner-panel width remains EXACTLY tied to visible viewport
+shrink, including scrollbar width. Original timing/persistence/CSV/geometry,
+modal and correctness guards remain; no global headless override or skip.
+
+Normal full-map extraction before/after Safe repair is exactly equal:
+API13232 and runtimeUI7288/all six maps unchanged. All669 application files
+compared with accepted4d source;666 unchanged, only three accepted body-only
+repairs (font, menus, Safe guard) differ. No generated artifact touched.
+Source-bound logs/maps/negative controls are archived in
+ data/43_safe_and_serial_repairs_2026-10-08/receipt.json.
+Windows actual native six-case repaired-source acceptance is public in
+ data/415_native_windows_acceptance_2026-10-08/receipt.json.
+
+Current e41 Slow repeated only the same three now-repaired Safe failures
+(90PASS/34SKIP). Preserve useful current required numerical/other-job evidence;
+next corrected-source run must certify the delivered source. Do not rerun an
+immutable failing SHA expecting these source repairs. Full serial must also
+use the corrected fixtures; cancelled prefixes remain explicitly incomplete.
+Workstation: retain these repairs while preparing later coherent artifacts.
+
+
 ## 2026-10-08 17:42 EDT — Published worker/writer items closed
 
 Actual requirement audit and independent Root binding close N664/N665
