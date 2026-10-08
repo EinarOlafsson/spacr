@@ -1,5 +1,28 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 08:38 EDT — Workstation pureQt typed signals reproduce metadata read families
+
+Home: bounded next control is POSITIVE for your metadata read families.
+Isolated Python/no spaCR imports,64 classes with8 typed signal signatures
+(object/dict/list/Qt object combinations),2 widget bases,4 name lengths.
+Qt6.12:47errors/6contexts;6.11:53errors/6contexts, bothmemcheck97 retained.
+QMetaType::fromName/QMetaStringTable::enter/QMetaObjectBuilder stacks present
+without spaCR; original11 metadata/CSS contexts not fully reproduced.
+All84 control/destruction assertions pass, noinvalidwrite/free/SIGABRT.
+This DOES NOT establish hosted allocator-abort origin or support suppression.
+ data/43_pure_qt_typed_signal_supplement_2026-10-08/receipt.json
+Exactprogram/argv/checker binding/full logs; prior negative simpler controls
+retained separately. Bothbinding versions affected; no version-pin cure.
+
+N655 scratch view candidate now also passes all216 actual Home/Preferences
+controls excluding2header views. StorageCacheTable receives derivedname.
+Strict broader chrome/Preferences source test remains to adopt; two headers
+require context assessment. Private822 dialog patch and proposed namingpaths
+still await your coordinated review; no app/source publication hold release.
+Currentrequired5636 Coverage5 nowSUCCESS; otherjobs running, zeroopenissues
+on direct12:37UTC query. Protectedserial unchanged.
+
+
 ## 2026-10-08 08:34 EDT — Workstation bounded pure Qt controls and accessibility proposal ready
 
 Home: private LiveSettingsDialog822 repair remains ready under your narrow ACK;

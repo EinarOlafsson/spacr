@@ -1,0 +1,135 @@
+{
+  "rows": [
+    {
+      "qt": "6.11",
+      "errors": 53,
+      "contexts": 6,
+      "memcheck_exit": 97,
+      "application_assertions_passed": true,
+      "spacr_imported": false,
+      "dynamic_classes": 64
+    },
+    {
+      "qt": "6.12",
+      "errors": 47,
+      "contexts": 6,
+      "memcheck_exit": 97,
+      "application_assertions_passed": true,
+      "spacr_imported": false,
+      "dynamic_classes": 64
+    }
+  ],
+  "home_comparison_raw_sha256": "e40e7ac4e8c974f188b5458f6d0fbe7957f57bd07618d5a6c2d35606991a64fa",
+  "metadata_read_families_reproduced_without_spacr": true,
+  "hosted_allocator_abort_reproduced": false,
+  "payloads": {
+    "scripts/pure_qt_memory_control_r3.py.gz": {
+      "raw_bytes": 3499,
+      "raw_sha256": "9a88ee4c953b91f203526c3fcc94c2fdca61f480f4b1b83d57aa4b62cfb1170d",
+      "gzip_sha256": "d85c6780d07b0e286ed54bae1d6fa39ded7c5de03523fabb5547a5af758d1007"
+    },
+    "scripts/run_pure_qt_memory_controls_r3.py.gz": {
+      "raw_bytes": 2345,
+      "raw_sha256": "0ea762146c327b4e49943e835dfdec3f0ca59cb9d73c4b04802a12a3d6d655ad",
+      "gzip_sha256": "91cb3e08a3daae2c972178a7040b31ccc40e5bb8a2bd030c5c8cf072201c3601"
+    },
+    "scripts/run_pure_qt_memory_controls_r4.py.gz": {
+      "raw_bytes": 2348,
+      "raw_sha256": "37863a3dfc4692ff7b3f85e391466b63726bb1a20956dd3dfebc79b5be91a505",
+      "gzip_sha256": "3ac2923332b7aae3331fe1b09854b7ff2845b38b239881ce12f09c8852eccda8"
+    },
+    "scripts/check_extended_accessibility_candidate_r1.py.gz": {
+      "raw_bytes": 4055,
+      "raw_sha256": "40e89e5760127073f87c5485929bb4056658f29c8e836559b998fd8287913596",
+      "gzip_sha256": "cc95c7d658325f832f0c09128002f5e3438ae40a2d410899f50680e6ed3ccba5"
+    },
+    "controls/controls-r3.log.gz": {
+      "raw_bytes": 327,
+      "raw_sha256": "023f1d70cf5b6a1ce9202b35b23d8ffc1c21f9736f413a0c06b8ad19384e7270",
+      "gzip_sha256": "a36c9a8e5619928b37be12157e96f84d7e8f50ab89918008c20d4b17ee7535df"
+    },
+    "controls/controls-r4.log.gz": {
+      "raw_bytes": 327,
+      "raw_sha256": "cc47277c2edd2729108387855d742b7aba09336243bd5076132f698ca9b9032f",
+      "gzip_sha256": "e928773c7da25c727d0143247858e6a031d674f857ab0ee2819ee73a5e61db68"
+    },
+    "controls/launcher-typed-receipt.json.gz": {
+      "raw_bytes": 1680,
+      "raw_sha256": "01ef0055fb358229a773187d581712ff607fb0b422d094166bb3fdf62416e127",
+      "gzip_sha256": "741b204a8c222626945ec84ae0f63c23c5ae2be472ebc7772a6ec0feb0ba3097"
+    },
+    "controls/launcher-typed611-receipt.json.gz": {
+      "raw_bytes": 1558,
+      "raw_sha256": "b44872bb29854d548cbdd42480c556f08843a41fc3ecdcc4c14fc8a16a9559c2",
+      "gzip_sha256": "b57b834b5c38182243b43597f473ee8e02038b15eeb2cef1f211bfc64c70be40"
+    },
+    "controls/6.11-typed-signals.json.gz": {
+      "raw_bytes": 767,
+      "raw_sha256": "c992923b3fb8eddf444a403f7b2fd6114a5eb47cb29886942708b2cf2a12b07e",
+      "gzip_sha256": "3d6e439815bcc8f57b6a594159505589389b246ca8cd5cd306e4948fb5344ac0"
+    },
+    "controls/6.11-typed-signals.exit.gz": {
+      "raw_bytes": 3,
+      "raw_sha256": "969eeff1eaac226a228cc61503effa46ea87d872ef3174365befc7c36ffa3c48",
+      "gzip_sha256": "891eef32e0ecbc853318e735bbd38942c2a021392e96587e10918e8e7e6c8104"
+    },
+    "controls/6.11-typed-signals.stdout.log.gz": {
+      "raw_bytes": 775,
+      "raw_sha256": "8360870d52e83f45abdb6243ae0893bedb38c7575cbca61b31dffde5c128de63",
+      "gzip_sha256": "ed424bca68721bc140652e4cdba0803351c88e2f89198622a2305336c9605d13"
+    },
+    "controls/6.11-typed-signals.memcheck.log.gz": {
+      "raw_bytes": 31471,
+      "raw_sha256": "223bffacfb0b1e85eb20cb71d112f72af97c119e640ff2a49910f6b3074fa7f0",
+      "gzip_sha256": "dd6864a7198606f5545dd70b75795a7ec9b3bf78b69afd7462627f30dad9cb3d"
+    },
+    "controls/6.12-typed-signals.json.gz": {
+      "raw_bytes": 788,
+      "raw_sha256": "743015095702f103713a053e13c19bdb4ea0ccb84e8d8d27cd5fb17998dbcdf0",
+      "gzip_sha256": "7f0828d0f963bf9e53ba63fc2bbfda4a5632d57b81b7d7b17ea36149e219c9e7"
+    },
+    "controls/6.12-typed-signals.exit.gz": {
+      "raw_bytes": 3,
+      "raw_sha256": "969eeff1eaac226a228cc61503effa46ea87d872ef3174365befc7c36ffa3c48",
+      "gzip_sha256": "891eef32e0ecbc853318e735bbd38942c2a021392e96587e10918e8e7e6c8104"
+    },
+    "controls/6.12-typed-signals.stdout.log.gz": {
+      "raw_bytes": 796,
+      "raw_sha256": "8419c228cb05a90eb43d8061451c2389eab5cc57e2ef842296882f3b64764a8e",
+      "gzip_sha256": "68c7d541bdb536281b08fa9a36e4fba0f79bb900a8b549d92eec699d4d854144"
+    },
+    "controls/6.12-typed-signals.memcheck.log.gz": {
+      "raw_bytes": 34412,
+      "raw_sha256": "1ffb4a2f37125413f8472cd99af4af505ad46cf410afb86bf8eee5580fc91179",
+      "gzip_sha256": "1ea9f5360b241527d5fbc5f33d19eb3ada58a32e54e140a76fbd3b68303936f5"
+    },
+    "accessibility/extended-accessibility-candidate-r1.log.gz": {
+      "raw_bytes": 1347,
+      "raw_sha256": "5954214be50156cd89aee461c13baccf16dd2d93e514187bedfc784cffe24cfe",
+      "gzip_sha256": "77c0140b3afa7397c53e3b7b25f6f83f62fa599520922846457e4a786630f658"
+    },
+    "accessibility/extended-accessibility-candidate-r1-tool.log.gz": {
+      "raw_bytes": 668,
+      "raw_sha256": "395baa88aa796f9f66109be51ddb8bcf905fbd17035ff7c585eef7dc76386b67",
+      "gzip_sha256": "cecfa0d5d8c8bd2b402474e9520f7bcccd5a29b3c54af06c72d1e74de6aea9cb"
+    },
+    "accessibility/extended-accessibility-candidate-r1.json.gz": {
+      "raw_bytes": 58749,
+      "raw_sha256": "c956bce3160ebfec65da455e2a3ead57a9e5904ae199db71857862c00e1056cd",
+      "gzip_sha256": "3a83422548e741bf9cac64088d0ee5ed0bb126f23e3766406e8e95d561df48e3"
+    }
+  },
+  "preferences_candidate": {
+    "checked_widgets": 216,
+    "unnamed_non_header_controls": 0,
+    "unnamed_headers": 2
+  },
+  "limitations": [
+    "Eight typed signal signatures across two widget bases and four name lengths reproduce metadata read families on BOTH6.11.2/6.12.0; no full-context or exact-allocation identity claim.",
+    "Both memory-check exit97 results remain failures; no suppression, forcedGC, application/dependency/gate edits.",
+    "Five metadata plus one Qt initialization context in each new control; Home original eleven metadata/CSS contexts not all reproduced. No invalid write/free, heap abort or cure established.",
+    "Original six simpler pureQt controls are preserved separately; these new signatures change the diagnostic question.",
+    "MainWindow and eight Preferences tabs strict non-header names pass under scratch candidate only; two headers need parent-context assessment, no native screen-reader signoff.",
+    "Complete commands/package binding from original pureQt proof retained; broad app/publication source hold unchanged."
+  ]
+}
