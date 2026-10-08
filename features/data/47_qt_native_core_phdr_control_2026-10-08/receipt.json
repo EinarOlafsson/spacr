@@ -12,9 +12,14 @@
   "elf_program_header_stride": 56,
   "collector_identity": {
     "reason": "accepted",
-    "process_pids": [3952166],
+    "process_pids": [
+      3952166
+    ],
     "executable_path_present": true
   },
   "limits": "CPU/offscreen, 4 GiB cgroup, 90-second wall timeout, 2 GiB file-size limit, OMP/MKL/OPENBLAS=1",
-  "inference_limit": "This representative local core does not trigger the unchanged 1024-header ceiling; it does not determine why the already deleted hosted core was rejected."
+  "inference_limit": "This representative local core does not trigger the unchanged 1024-header ceiling; it does not determine why the already deleted hosted core was rejected.",
+  "published_equivalent_collector_source": "59a6daebab5014c3ee4094791de8ed257cd9af8d",
+  "collector_blob": "1421eded00525328002f9cc6582bd2210b757a90",
+  "root_readback": "Full scratch-only core bytes/sha independently verified; current published collector accepts exact controlled owned PID/executable with 599 headers. Full core memory remains excluded from Git."
 }
