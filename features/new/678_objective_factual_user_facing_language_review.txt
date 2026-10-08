@@ -1,0 +1,72 @@
+================================================================================
+OBJECTIVE, FACTUAL LANGUAGE THROUGHOUT SPACR
+================================================================================
+
+Status:    queued; start after the existing completion tasks
+Requested: 2026-10-08
+Owner:     Workstation root; API/docs, runtime translation and tutorial lanes
+           support their surfaces. Home receives this item through the repo.
+Related:   N615 publication, N676 revised installation/navigation tutorials,
+           N677 Organism category and current source-bound translations.
+
+WHAT THE USER REQUESTED
+
+After the other work is complete, review all user-facing text in the app,
+API, documentation and tutorials. Replace wording that is vague, promotional,
+formulaic or nonsensical with objective descriptions of actual functionality.
+Use the language of the official NumPy, pandas, Numba, scikit-image,
+scikit-learn and SciPy APIs and documentation as style references. The user's
+"sypy" is interpreted as SciPy in this scientific Python library list.
+
+The user specifically rejected:
+"Image analysis in spaCR follows your pictures from pixels to answers."
+This wording currently occurs in the module-workflow introduction and
+derived tutorial material. Describe the operations, inputs and outputs
+instead of using metaphors or claiming that the software supplies answers.
+
+The user requested a ChatGPT AI Humanizer Tool. No such callable tool is
+available in this session. Perform direct editorial review; do not claim
+that an unavailable tool was used or that an AI detector establishes quality.
+
+WHAT TO DO
+
+Inventory the canonical sources of visible labels, tooltips, help, errors,
+dialogs, API docstrings, documentation, tutorial narration and captions.
+Review all of them in context, including existing localized text. Record
+coverage by surface and retain the original text for review and provenance.
+Use a short factual summary followed by concrete behavior. State relevant
+input types, parameter meanings, defaults, units, outputs and limitations
+where they help users. Use consistent module names and scientific terms.
+Remove filler, unsupported claims and slogans without deleting necessary
+instructions or technical distinctions. Preserve accessibility information,
+translation placeholders, literal commands, signatures and data contracts.
+
+Edit canonical sources first. Regenerate derived API catalogs, help/search
+indexes, documentation, translations, captions and narration with their
+normal tools. Review changed translations against the revised meaning.
+Render changed speech and verify that narration matches the demonstrated UI.
+Do not rewrite every sentence solely to make it different, imitate library
+text verbatim, hand-edit generated artifacts or raise an existing ratchet.
+
+Official style references inspected on 2026-10-08:
+https://numpy.org/doc/stable/reference/generated/numpy.mean.html
+https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html
+https://numba.readthedocs.io/en/stable/reference/jit-compilation.html
+https://scikit-image.org/docs/stable/api/skimage.measure.html#skimage.measure.regionprops
+https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html
+https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.label.html
+
+HOW TO KNOW IT WORKED
+
+A review inventory covers each canonical user-facing surface and records
+which text was retained or revised. Revisions describe behavior verified
+against the implementation, with no change to scientific behavior, public
+signatures or commands. Normal translation, documentation and tutorial
+checks pass. Published text, captions and speech agree with the reviewed
+sources, and hosted readback verifies the updated artifacts.
+
+2026-10-08 workstation ownership:
+Queued as the final task, as explicitly requested. The three existing agents
+continue their current completion work. Newly authored material should
+already follow this factual style, avoiding a second narration rewrite.
+This is a recorded plan, not a claim that the full text review is complete.

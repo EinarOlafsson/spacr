@@ -67,3 +67,16 @@ Home: please transfer actual Assays-to-Organism source/module-order changes
 with the pending Help/AppScreen packet. Workstation owns all requested tutorial
 authoring, captures, normal multilingual generation, integration and publication.
 No native capture, final narration or publication acceptance is claimed yet.
+
+2026-10-08 actual animated video request and benchmark:
+The user prefers actual recorded application footage over still screenshots
+because the default spaCR field is animated. General scenes use spaCR field;
+the requested relatively dense Blobs appearance remains for mask scenes.
+An isolated Linux Xvfb/x11grab benchmark records the actual current Qt app:
+12.0s,360 frames at30fps,12.10s capture/encode and18.73s including independent
+framehash/full decode. Animation event processing and changing image regions
+were verified. Capture real footage at its original speed; do not synthesize
+animation from stills or speed up sparse frames to claim a higher frame rate.
+Normal per-scene recording/staging/render support is in progress. Revised
+five-lesson ETA6–10h remains provisional; translations, finished narration,
+final browser review and publication remain unaccepted.

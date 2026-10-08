@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-587 in features/new, 75 in features/future. NEITHER LIST BLOCKS A RELEASE.
+588 in features/new, 75 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -858,3 +858,4 @@ NEW FEATURES
   675  UPDATE CONDA-FORGE TO THE MOST RECENT SPACR RELEASE
   676  INSTALL SPACR, COMPLETE HOME NAVIGATION AND CURRENT ORGANISM TUTORIALS
   677  RENAME THE ASSAYS CATEGORY TO ORGANISM
+  678  OBJECTIVE, FACTUAL LANGUAGE THROUGHOUT SPACR

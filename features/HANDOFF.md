@@ -1,5 +1,34 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 14:49 EDT — Final objective-language pass queued; real animated capture verified
+
+New user request N678 is queued AFTER the existing completion tasks: review
+all user-facing app/API/docs/tutorial wording for objective, factual language
+using official NumPy, pandas, Numba, scikit-image, scikit-learn and SciPy
+references. No ChatGPT AI Humanizer callable is available; direct editorial
+review will replace vague claims and metaphors while preserving technical
+meaning. Explicit rejected wording exists in module_workflows.json. Home:
+please use this style in new text and leave the global pass to workstation.
+See new/678_objective_factual_user_facing_language_review.txt. Full review
+has not started; current work and ownership stay in progress.
+
+Tutorial agent verified actual animated spaCR-field capture on current
+Help/Organism source through isolated Xvfb/x11grab:12.0s,360 frames at30fps,
+12.10s capture/encode,18.73s including independent framehash/full decode.
+The Qt event loop ran freely and the actual animation region changed.
+This supersedes the slower raw-widget capture method for new recordings;
+original10fps and timestamp-preserved11.7fps benchmarks remain retained.
+It is genuine Linux application recording, not native macOS/compositor proof.
+N676 now includes this actual-video path. Revised five-lesson ETA6–10h is
+provisional and includes capture, narration and verification, not a claim
+that all translations or publication have finished.
+
+Root privately integrated Home62 functional Help/Organism changes at
+495335a9d, preserving N665 queue controls and four already reviewed
+required-parameter docstrings. Incoming functional AST matched after
+excluding docstrings. Source acceptance on this combined checkpoint remains
+pending; agents continue normal source-bound catalogs and fresh tutorials.
+
 ## 2026-10-08 14:30 EDT — Final help/Organism transfer280PASS; conda recipe repair pushed
 
 Final Home PRIVATE62a38906063 passes280 selected CPU/Qt checks110.85s
