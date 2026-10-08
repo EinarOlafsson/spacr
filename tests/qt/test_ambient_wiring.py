@@ -203,8 +203,10 @@ def fake_ambient(monkeypatch):
         else module.palettes_for(theme)[0])
     module.AmbientWidget = StubAmbient
     module.calls = []
+    module.ripple_count = 0
+
     def field_ripple_for_widget(widget, edge=None, rect=None, strength=1.0):
-        return None
+        module.ripple_count += 1
 
     module.field_ripple_for_widget = field_ripple_for_widget
     module._apply_spaceout_animation_choice = lambda app: None
@@ -609,6 +611,24 @@ def test_a_scroll_hosted_section_still_toggles_without_ambient(
     section.set_expanded(False)
     assert not section.is_expanded()
     assert not section._body.isVisibleTo(section)
+
+
+@pytest.mark.parametrize("scroll_hosted", [False, True])
+def test_section_toggle_schedules_field_feedback_when_available(
+        qtbot, qt_theme_applied, fake_ambient, scroll_hosted):
+    from spacr.qt.widgets.section import Section
+
+    section = Section("Options")
+    if scroll_hosted:
+        scroll = QScrollArea()
+        qtbot.addWidget(scroll)
+        scroll.setWidget(section)
+    else:
+        qtbot.addWidget(section)
+
+    section.set_expanded(True)
+    qtbot.waitUntil(lambda: fake_ambient.ripple_count == 1)
+    assert section.is_expanded()
 
 
 def test_broken_preferences_do_not_break_the_screen(qtbot, qt_theme_applied,
