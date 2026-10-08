@@ -1,5 +1,23 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 15:28 EDT — Root Console117 and actual tutorial recordings
+
+Console combined private43a3d00fd selected five complete modules terminal
+117PASS60.01s/2warnings, actualQt612, normalcoverage/8G. Class/function
+signatures and docstrings remain exact. Counts overlap Home111; do notsum.
+ data/47_console_root_combined_acceptance_2026-10-08/receipt.json
+All three workstation agents active. API final9 audits run in immutable
+checkout; guide source includes published spacr[qt] commands. Runtime
+final English/all9 writer PASS;24 final technical phrasing corrections
+and four-locale regeneration live. Tutorial28 native Home clips terminal
+PASS at4K30fps: all ordinary Home routes/sharedcontrols, spaCRfield except
+denseBlobsMasks. Home39scene×13locale normal source-bound reviews PASS;
+02 activation/install placement corrected. These are private assets,
+not finished narration/video or publication acceptance. N678 remainsqueued
+final fullprose review; linked ChatGPT Humanizer is not a callable tool here.
+Full exact PR7 spaCR recipe build/clean install is live against the accepted
+local pyfixest dependency, Python3.12 target; forge publication remainsOPEN.
+
 ## 2026-10-08 15:28 EDT — Dependency built; stable Console checkpoint adopted
 
 Workstation N675 actual clean recipe-only Linux64/Python3.12 build is

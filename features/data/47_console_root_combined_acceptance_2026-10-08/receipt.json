@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "item": 47,
+  "tested_source": "43a3d00fd44cf33dba5a3a681fbfab2dc7d89a76",
+  "console_delta_commit": "45aa99ca3",
+  "terminal": 0,
+  "tests": 117,
+  "seconds": 60.01,
+  "warnings": 2,
+  "environment": "Python3.12.14/Qt6.12.0/pytest8.4.2 normal coverage 8G CUDA hidden offscreen",
+  "class_function_contracts_unchanged": 130,
+  "payloads": [
+    {
+      "source": "/media/carruthers/mnt3/codex/spacr-worktrees/docs-private-repairs-20261008/spacr/qt/widgets/console_panel.py",
+      "payload": "console_panel.py.gz",
+      "raw_sha256": "ecc7ef588ecb486b7bd064a1d4a532eeb861c6737bbb321ccfdb5a9b9fd8224d",
+      "payload_sha256": "edc0caca22ea5bc4e04b2321375bda0183f1d58c1774df6b01f54f565055520d"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/spacr-worktrees/docs-private-repairs-20261008/tests/qt/test_cov_w3_7_console_panel.py",
+      "payload": "test_cov_w3_7_console_panel.py.gz",
+      "raw_sha256": "ca84e62a43351959b3d9a4af66cf805e1a096911139f903cd848727367dbf1ee",
+      "payload_sha256": "fa9235de4479425df4af9c8c759cd059046fc6a5ac658a794dc699249ac4b639"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/console-root-combined-r1.log",
+      "payload": "console-root-combined-r1.log.gz",
+      "raw_sha256": "3e0fec3e66424dc7615c9505b1e7cd731c661613ec38e3b8b0213c07ba704116",
+      "payload_sha256": "97f791f753dd9b602bd6b0cc53bcfec6b0912a2013630ee912cd1810beaee729"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/console-root-combined-r1-tool.log",
+      "payload": "console-root-combined-r1-tool.log.gz",
+      "raw_sha256": "1734dbd7a361820673bba957a0443ae40bcaefd3a79f166b50b9f28326a423f3",
+      "payload_sha256": "bda15d12a5f9f61905a64bc6903ad41f9f53acb5460461002b9aabe459868846"
+    },
+    {
+      "source": "git show45aa99ca3",
+      "payload": "source-and-tests.patch.gz",
+      "raw_sha256": "f12e0013aedfb3627459d544dc9d9e3f5c895e06775a83a804356c913ec84d0f",
+      "payload_sha256": "71d1ccbbbb3fa9d79a0e7653446e5a4f987f4e493e25da72bde45ced32878f16"
+    }
+  ],
+  "limits": [
+    "Selected five complete test modules; overlap Home111 and Root342, do not sum",
+    "No historical hosted one-pixel failure/native crash/full serial cure claimed",
+    "Application source staged privately; normal source inventories/translation final checks pending"
+  ]
+}
