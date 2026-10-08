@@ -1,0 +1,146 @@
+{
+  "combine_conclusion": "failure",
+  "combine_job_id": 113233290232,
+  "combine_step_results": {
+    "Combine process data and write coverage.py JSON": "success",
+    "Gate on the per-module coverage ratchet baseline": "success",
+    "Require every coverage shard to have passed its tests": "failure"
+  },
+  "coverage_failure": 1,
+  "coverage_shards": [
+    {
+      "completed_at": "2026-10-08T07:46:07Z",
+      "conclusion": "success",
+      "job_id": 113194680499,
+      "number": 0,
+      "raw_log_sha256": "0abf02cb5cb230a1ad24890e6721e9fb20b5397a61dc1383933c19892729891d"
+    },
+    {
+      "completed_at": "2026-10-08T08:17:18Z",
+      "conclusion": "success",
+      "job_id": 113194680464,
+      "number": 1,
+      "raw_log_sha256": "acf20e27c1e45d1338a90f0851142f4c18e992adbc8c0672b475a0896fd2010c"
+    },
+    {
+      "completed_at": "2026-10-08T08:17:54Z",
+      "conclusion": "success",
+      "job_id": 113194680555,
+      "number": 2,
+      "raw_log_sha256": "c5f1e752b8d816ed89bb71f27fa37baeef6d1f2d383e5245d0c69f9eb3aa3945"
+    },
+    {
+      "completed_at": "2026-10-08T08:35:41Z",
+      "conclusion": "success",
+      "job_id": 113194680697,
+      "number": 3,
+      "raw_log_sha256": "09d1981a264f9e19634fa27c6d0b68114533082e6f4c909dee3f0ffc1350b892"
+    },
+    {
+      "completed_at": "2026-10-08T08:36:52Z",
+      "conclusion": "success",
+      "job_id": 113194680519,
+      "number": 4,
+      "raw_log_sha256": "816c26d9d5bbdda121b072b130ad8467be59694b46a1b9bae41f347bce54df54"
+    },
+    {
+      "completed_at": "2026-10-08T08:03:13Z",
+      "conclusion": "success",
+      "job_id": 113194680514,
+      "number": 5,
+      "raw_log_sha256": "d3966ac53950d5edd8c5a954c0502c8cbc1bd25a1b402a27482d5baecebb82eb"
+    },
+    {
+      "completed_at": "2026-10-08T07:56:16Z",
+      "conclusion": "success",
+      "job_id": 113194680568,
+      "number": 6,
+      "raw_log_sha256": "512e456e2b6322e7affbbe854da1a18f9425973816674cab232bed2bb78d3340"
+    },
+    {
+      "completed_at": "2026-10-08T08:01:03Z",
+      "conclusion": "success",
+      "job_id": 113194680531,
+      "number": 7,
+      "raw_log_sha256": "dcb5f627f3291b300de64d08fcb84d9572ac32db51075d8acbae34abfe139dc2"
+    },
+    {
+      "completed_at": "2026-10-08T09:01:47Z",
+      "conclusion": "success",
+      "job_id": 113194680862,
+      "number": 8,
+      "raw_log_sha256": "8869a5df40a5b67c748b17c7c811441efd9c143b8ffa1f9e11573962290ca27d"
+    },
+    {
+      "completed_at": "2026-10-08T08:10:10Z",
+      "conclusion": "failure",
+      "job_id": 113194680912,
+      "number": 9,
+      "raw_log_sha256": "731a9d7407565e17732f4685c49b5647f8d026042c2385784113b12a6afc613a"
+    },
+    {
+      "completed_at": "2026-10-08T07:56:40Z",
+      "conclusion": "success",
+      "job_id": 113194680611,
+      "number": 10,
+      "raw_log_sha256": "07598aeeaa5898907ed3e88b1fd778aca8fe5562795f269c131cde24673cc094"
+    },
+    {
+      "completed_at": "2026-10-08T07:47:05Z",
+      "conclusion": "success",
+      "job_id": 113194680685,
+      "number": 11,
+      "raw_log_sha256": "67189882903b686a5221e50357acbe56d8c154a8f6901008f4bc90d570a5095e"
+    }
+  ],
+  "coverage_success": 11,
+  "guard_blobs": {
+    "tests/test_local_ci_replay.py": "aad6accbe05917f71ecc551012a6a02771135a10",
+    "tools/coverage_baseline.json": "6ae23a5bed2640d131125dff45cafa0baeeda0fb",
+    "tools/verify_module_coverage.py": "7ac55a31327c11d8a78bd954c10ec07d44594d8f"
+  },
+  "interpretation": "The numerical ratchet passes on complete 12-shard data. The combine job and required run are not green because shard 9 selected tests failed at the old replay-profile count pins; those pins are repaired in a newer source revision.",
+  "known_failure_tests": [
+    "tests/test_local_ci_replay.py::test_profile_comes_from_the_actual_workflow[qt-3-16-1200-7]",
+    "tests/test_local_ci_replay.py::test_profile_comes_from_the_actual_workflow[coverage-12-32-600-5]"
+  ],
+  "measurement_integrity": {
+    "issues": [],
+    "recovered": [],
+    "shard_count": 12,
+    "shards_with_records": 12,
+    "status": "complete"
+  },
+  "numerical_status": "pass",
+  "numerical_summary": {
+    "failed_modules": 0,
+    "global_issue_count": 0,
+    "improved_modules": 99,
+    "integrity_issue_count": 0,
+    "modules_at_100_percent": 455,
+    "modules_below_100_percent": 209,
+    "modules_below_floor": 1,
+    "modules_checked": 664,
+    "modules_exempt_from_floor": 1,
+    "shipped_modules": 664,
+    "stale_baseline_entries": 0,
+    "stale_exemptions": 0,
+    "unconfirmed_modules": 0
+  },
+  "report_artifact": {
+    "id": 11539995050,
+    "ratchet_json_sha256": "5961f1d6d6abab3541582594827ef0630ceecf58fa275059a06fa0b4a58c1fb1",
+    "zip_sha256": "56857a9408306303a866dd85fc49c5954fe6e6ee9c7089e160dcdad81f3595ab"
+  },
+  "run_attempt": 1,
+  "run_id": 37741615330,
+  "run_snapshot_status": "in_progress",
+  "schema": 1,
+  "scope": "complete twelve-shard numerical phase; parent required workflow not claimed green",
+  "source_sha": "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3",
+  "source_tree": "63139d681affb7eae89a264ed8a7f74d0604f253",
+  "workflow_blobs": {
+    ".github/workflows/_pytest-suite.yml": "08e20bc7aa7c0d085ce50e53559611e03ddcc5a8",
+    ".github/workflows/tests.yml": "c13badf3d2737abda23ebcdd40b254d1a0b32a14"
+  }
+}
