@@ -1,0 +1,212 @@
+{
+  "source": "0f077576079a3d4f2f1247dd6f4cfcfe2af8188a",
+  "base": "9a0e34cfb0eee6f5a438ce07c972b27b16dafc3c",
+  "public_target": "01c48a0ec5692b9ad0b1abc48928066bc0ea2671",
+  "patch_cleanly_applies": true,
+  "application_source_pushed": false,
+  "source_sha256": {
+    "spacr/figures/bundle.py": "f1e82afdd74b2d63a6aa1bb5967f80050b307f881900bf1f1552edbbf9956cb5",
+    "spacr/plot.py": "7d55ddf9024cbae865f161dd0530e9d5ee98c14b7b790abbeee54bcc1caac2bf",
+    "tests/test_recruitment_multipanel_recipe.py": "b26cad85db5d9a4e6ab674c4335a75bc4a0b8828f896366ad6100bfe831c18a2",
+    "tests/test_comparison_multipanel_recipe.py": "61dadedb4caaf1088d0b75e69207e7da361666378e2505b3c855ba197511f78f",
+    "tests/test_controls_multipanel_recipe.py": "8ea542be20fc46f5bf67e1935adf31acd7bc43fa60772763dfec4f7491b4f861"
+  },
+  "final_cohort": {
+    "passed": 117,
+    "failed": 0,
+    "seconds": 65.54,
+    "warnings": 84
+  },
+  "partial_cohort": {
+    "passed": 116,
+    "failed": 1,
+    "seconds": 87.22,
+    "warnings": 84,
+    "reason": "New test expected user when forced Friedman already equals automatic paired choice; documented contract labels only changes user. Corrected new assertion; numeric independent SciPy assertions unchanged."
+  },
+  "negatives": {
+    "original_paired": {
+      "failed": 1,
+      "deselected": 10,
+      "seconds": 3.49,
+      "reason": "Lost pairing column yields NaN rather than independent SciPy statistic18."
+    },
+    "corrected_paired": {
+      "failed": 1,
+      "deselected": 10,
+      "seconds": 3.2,
+      "reason": "Same final test bytes fail earlier source: losing pairing changes documented automatic selection provenance."
+    }
+  },
+  "scope": "Complete PRIVATE five-file N658 replacement patch. All four discovered plot.py table multi-panel registrations preserved. Selected non-measurement hue/pair/count columns survive panel melt; sparse paired controls numerically match independent source-object-aligned SciPy Friedman calculation. Exact accepted application and tests integrated into private documentation source.",
+  "limitations": [
+    "Other producer modules, image/montage recipes and loaded per-panel limits remain unverified.",
+    "No coordinated application adoption, native-cause/full serial/required-green acceptance or biological/global-family statistics claim.",
+    "Normal branch data preserved with original already-imported package-init/version warnings; no global ratchet or added-line coverage acceptance claim.",
+    "Original controls-negative test bytes omitted by earlier receipt now preserved here; all earlier negative logs remain in prior archives."
+  ],
+  "payloads": {
+    "logs/controls-paired-negative-r1.log.gz": {
+      "raw_bytes": 1774,
+      "raw_sha256": "b2b668462dcc023479efc3dbe0aefa0da4cccc4e6cb6c762fde18f7fcb37c77e",
+      "gzip_bytes": 771,
+      "gzip_sha256": "f75556c60a6bc968f3a351d8ab297daeb56799b9ffe3195b991b135a4dd7d23e"
+    },
+    "logs/controls-paired-negative-r1-tool.log.gz": {
+      "raw_bytes": 1266,
+      "raw_sha256": "72426019bfc8551d53ff75f644ef291f7ecd81e1e662599514ddc90d64d434b5",
+      "gzip_bytes": 569,
+      "gzip_sha256": "9de9016317a2c92e394b99ccaaf09690c6349b20ae9253ae314df1a9b0c77fe9"
+    },
+    "logs/controls-paired-negative-r2.log.gz": {
+      "raw_bytes": 1697,
+      "raw_sha256": "f19deed6c5030ba367adaecd36da4109024c2c31c92ba106acc06abe863ba589",
+      "gzip_bytes": 723,
+      "gzip_sha256": "23846d8ee00b261fa3aae39d9a5afc9833c6014041ea2ddaedc4b8dbcb7e683b"
+    },
+    "logs/controls-paired-negative-r2-tool.log.gz": {
+      "raw_bytes": 1189,
+      "raw_sha256": "14a8b9d2bd54cfebf81019ac8d184e4bf40796698d41a09e110a1e2ca30924ef",
+      "gzip_bytes": 528,
+      "gzip_sha256": "bef8e4e95b33eec813f9b112b1d5cc47da3992221a129081689ef1b4c001d60c"
+    },
+    "logs/controls-final-positive-r3.log.gz": {
+      "raw_bytes": 7410,
+      "raw_sha256": "b080fccbdcb936ab4f859156f11738a08045d084f13fc761761c79e34ba2674f",
+      "gzip_bytes": 1957,
+      "gzip_sha256": "1a772b81189297e351fbbc834a7d94cb4572daecabe9f4d8be1c599c1f3caf0a"
+    },
+    "logs/controls-final-positive-r3-tool.log.gz": {
+      "raw_bytes": 6442,
+      "raw_sha256": "277b4eafe9861762381f44e31e6f9e7a9038ecd2ffc0a07058dd6157301bc1a8",
+      "gzip_bytes": 1703,
+      "gzip_sha256": "55000c899f0ddd92533da45eeddd4ca44280d2d773d7b87d182b18d357a85e08"
+    },
+    "logs/controls-final-positive-r4.log.gz": {
+      "raw_bytes": 6443,
+      "raw_sha256": "354399d07bdf0cfe15104ec2e802eec2c6fbf18040fe42235e41a51792d535b1",
+      "gzip_bytes": 1611,
+      "gzip_sha256": "4d113c52a4d7532d61456ae1b14ad464f8a902ae832b59230d70c7ef0d4a9d07"
+    },
+    "logs/controls-final-positive-r4-tool.log.gz": {
+      "raw_bytes": 5475,
+      "raw_sha256": "1d567819c5267e902a9b104d4e1096b167a920b7dcf7c599264230f8877bc077",
+      "gzip_bytes": 1357,
+      "gzip_sha256": "112bd16302abebdd68608f1f463187c39e04574cf0a3bf8c83f6a7a8435bb1ec"
+    },
+    "coverage/original/controls-final-coverage-r3.data.carruthers.pid19238.XCmGxDOx.HLNyis29YY7h.gz": {
+      "raw_bytes": 2318336,
+      "raw_sha256": "636423a2768123418be47e25f218fe5bd0c5a8864f5f0c1f42c64fa129401e79",
+      "gzip_bytes": 969110,
+      "gzip_sha256": "ab61dd4b128fb31d32282a378d52b2416eb6e88f2d8f50a1366afa07fbcfef4a"
+    },
+    "coverage/original/controls-final-coverage-r4.data.carruthers.pid19733.XuqM0F3x.Hjv6V0CcFBjh.gz": {
+      "raw_bytes": 2318336,
+      "raw_sha256": "c3898582c6095b90592ffe210fc1ec2d629b9d87e54dd23999bdc66b329cb98c",
+      "gzip_bytes": 969107,
+      "gzip_sha256": "b84708953585d0227d93749f51a4cf7f4f0822bfaad849f1005c4403d34fc1d0"
+    },
+    "source-and-tests.patch.gz": {
+      "raw_bytes": 37287,
+      "raw_sha256": "c094d76aa8fc4388ac936408abc6aaee55894fc6a603118f588827c5a933011b",
+      "gzip_bytes": 8225,
+      "gzip_sha256": "41b00798e84e850c0541c22927d2f0d6ac33a0f3da0c29dc0af300ab163a85ae"
+    },
+    "source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 37680,
+      "raw_sha256": "f1e82afdd74b2d63a6aa1bb5967f80050b307f881900bf1f1552edbbf9956cb5",
+      "gzip_bytes": 11093,
+      "gzip_sha256": "d310bd73f5a337ef745300e6cf182a208ef0ab1db408e252ae2edabc24bbfb29"
+    },
+    "original-source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 31880,
+      "raw_sha256": "d255333e75a576cb69f6803d5b1add13ddac30585891893936b7a09e947edbc7",
+      "gzip_bytes": 9594,
+      "gzip_sha256": "a5fae0d8be6cb4c21068428b205e0884105c8f627d6328c5bace8f31a2b117e5"
+    },
+    "source/spacr/plot.py.gz": {
+      "raw_bytes": 344160,
+      "raw_sha256": "7d55ddf9024cbae865f161dd0530e9d5ee98c14b7b790abbeee54bcc1caac2bf",
+      "gzip_bytes": 86664,
+      "gzip_sha256": "64df1c0d3c9ff4de31c1ce4535ba4ce2c113e37d227663c0d8e9e3ea90e58ceb"
+    },
+    "original-source/spacr/plot.py.gz": {
+      "raw_bytes": 342416,
+      "raw_sha256": "122ee3ee75ea5616d03547a9e7cce3e599d549db9a4b8181f5d2280fb8b59ce7",
+      "gzip_bytes": 86247,
+      "gzip_sha256": "70b3f587ca77998e643f5a522fb8d10f4608a6d39ad17b74f7ee033c338ef914"
+    },
+    "source/tests/test_recruitment_multipanel_recipe.py.gz": {
+      "raw_bytes": 7554,
+      "raw_sha256": "b26cad85db5d9a4e6ab674c4335a75bc4a0b8828f896366ad6100bfe831c18a2",
+      "gzip_bytes": 2089,
+      "gzip_sha256": "a0eb29edf1b09e85b23f1d819df979b42f849cf75b8e79b062da2ae11053ad60"
+    },
+    "source/tests/test_comparison_multipanel_recipe.py.gz": {
+      "raw_bytes": 4792,
+      "raw_sha256": "61dadedb4caaf1088d0b75e69207e7da361666378e2505b3c855ba197511f78f",
+      "gzip_bytes": 1651,
+      "gzip_sha256": "6837b27a6451efb868398a61ed0eef86333787a475deb469a214e60a280c2330"
+    },
+    "source/tests/test_controls_multipanel_recipe.py.gz": {
+      "raw_bytes": 8771,
+      "raw_sha256": "8ea542be20fc46f5bf67e1935adf31acd7bc43fa60772763dfec4f7491b4f861",
+      "gzip_bytes": 2301,
+      "gzip_sha256": "42848a92c171f486bcd3deb3b54e91fe1fdd2dadead0a597b4be0f073f9d8e61"
+    },
+    "test-revisions/original-controls-negative.py.gz": {
+      "raw_bytes": 4302,
+      "raw_sha256": "9cd3876397e39e356c68efb652a3d079fc40745803be5210d2fc55ef857815ae",
+      "gzip_bytes": 1447,
+      "gzip_sha256": "19a85aa1d073e8f77058e8d989f6504c541017820d2611ee810eaa638031b85d"
+    },
+    "test-revisions/original-paired-negative.py.gz": {
+      "raw_bytes": 8771,
+      "raw_sha256": "f21035729a662a6b74456fb74ea00ce134b748c6428f3b7e7a58320a6ce8585b",
+      "gzip_bytes": 2301,
+      "gzip_sha256": "14a2a0f9b2a2a3b30d976042a3f2a557fd0d6efdeb67cb546223ab8877f2b978"
+    },
+    "test-revisions/original-paired-negative-bundle.py.gz": {
+      "raw_bytes": 37196,
+      "raw_sha256": "fb240ef855aea5cba0e0461236107601f58816181002d2f0681a256f809a3dc5",
+      "gzip_bytes": 10965,
+      "gzip_sha256": "29969e402fbed65e03ac3785e6b0fa30cf08fba0e803bd48a99f1327b9564f3a"
+    },
+    "test-revisions/corrected-paired-negative.py.gz": {
+      "raw_bytes": 8771,
+      "raw_sha256": "8ea542be20fc46f5bf67e1935adf31acd7bc43fa60772763dfec4f7491b4f861",
+      "gzip_bytes": 2301,
+      "gzip_sha256": "42848a92c171f486bcd3deb3b54e91fe1fdd2dadead0a597b4be0f073f9d8e61"
+    },
+    "test-revisions/partial-final-cohort.py.gz": {
+      "raw_bytes": 8771,
+      "raw_sha256": "f21035729a662a6b74456fb74ea00ce134b748c6428f3b7e7a58320a6ce8585b",
+      "gzip_bytes": 2301,
+      "gzip_sha256": "14a2a0f9b2a2a3b30d976042a3f2a557fd0d6efdeb67cb546223ab8877f2b978"
+    },
+    "test-revisions/partial-final-cohort-bundle.py.gz": {
+      "raw_bytes": 37660,
+      "raw_sha256": "fffa32cf5b272c8003a8d75112ec8c6e498c97a3242ba0832729de42587f775c",
+      "gzip_bytes": 11088,
+      "gzip_sha256": "4c1ddf75964f8981b9e5189a709a95f5aa21c48a637411ec5cfc9d42a83c2a59"
+    },
+    "coverage/config.coveragerc.gz": {
+      "raw_bytes": 460,
+      "raw_sha256": "33658d54d5be648114cb350c6363ca2a46fc03d318b5424b902404b429efcd79",
+      "gzip_bytes": 306,
+      "gzip_sha256": "a5db457b70fb70766f84295c3ad5e3ec6e43d90340cace9c09ea6b74dae308bb"
+    },
+    "scripts/archive_final_paired_panel_repair_r1.py.gz": {
+      "raw_bytes": 7797,
+      "raw_sha256": "56edbb71090bda18c19995c3305b52f018b259a30c7880c852f380f5b49cf6e5",
+      "gzip_bytes": 3185,
+      "gzip_sha256": "743c50bbcc7097c74144ca573ded03d415158bc523c7a5d4b5f70b84fc19d3ba"
+    },
+    "integration/final-figure-docs-integration-r1.json.gz": {
+      "raw_bytes": 286,
+      "raw_sha256": "768f06bfa97ab18d57491af91c5d63ae0b65792672346c86b6916240073ce917",
+      "gzip_bytes": 218,
+      "gzip_sha256": "17743842ac107b879e62f55c593768d079f4fa88a182b1a5d089892cac698d82"
+    }
+  }
+}

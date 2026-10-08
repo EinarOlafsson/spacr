@@ -300,3 +300,11 @@ PART C — WHAT IS LEFT
   helper is self-contained. All4 plot.py table registrations migrated;
   other producers and coordinated source adoption remain OPEN.
   Proof: features/data/658_controls_panel_private_repair_2026-10-08/receipt.json.
+
+2026-10-08 11:37 EDT — Final paired metadata and full117-case acceptance
+  Private0f0775760 full117PASS65.54s; independent source-aligned sparse
+  paired SciPy statistics retained. Final five-file replacement source
+  patch cleanly applies; replaces earlier proposals. Initial negatives
+  and partial failure retained with exact test revisions. Other modules/
+  images and coordinated application adoption remain OPEN.
+  Proof: features/data/658_final_paired_panel_private_repair_2026-10-08/receipt.json.

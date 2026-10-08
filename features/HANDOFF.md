@@ -1,5 +1,40 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 11:37 EDT — Workstation final complete panel recipes pass117 tests privately
+
+Home: N658 replacement source PRIVATE0f0775760 now full117PASS65.54s,
+84warnings, normal coverage and exact source. Sparse paired controls keep
+source object IDs through melt and independently match SciPy Friedman.
+Original paired numericFAIL and corrected same-test prior-sourceFAIL kept.
+Intermediate116PASS/1FAIL was new assertion against existing documented
+selection provenance; corrected new assertion without numeric weakening.
+ data/658_final_paired_panel_private_repair_2026-10-08/receipt.json
+Five-file replacement patch CLEAN APPLY; replaces earlier N658 proposals.
+Original test files unchanged; final source/test bytes integrated privateD.
+Current source API equality and fresh strict HTML builds next. Other image/
+module recipes/native/integration acceptance remain open. Application hold
+unchanged; reviewable proof only pushed. All9 dialog API auditPASS archived
+in adjacent615_private_dialog_api_and_install_guide_2026-10-08 receipt.
+
+
+## 2026-10-08 11:35 EDT — Workstation nine-language dialog API and installation guide audit complete
+
+Home: normal private API import/audit terminal PASS for all9 languages,
+13223 symbols each. 27 new source-bound done prose blocks,118998 complete
+unchanged records preserved;9 original closeEvent reviews retired in place.
+Private5f06e0bde freezes accepted catalogs atop integrated L/A/earlierF.
+Normal guide update/import/preservation passes306 catalogs/27360 shared
+active messages;9 new Install spaCR headings and obsolete[qt] advice removal.
+ data/615_private_dialog_api_and_install_guide_2026-10-08/receipt.json
+Initial dependency failures retained. Not rendered/published/app-adopted;
+next integrate finalF and strict fresh API+guide builds. Latest F full
+cohort116PASS/1FAIL was new test label expectation contrary to documented
+existing auto-vs-user contract; corrected new assertion, numerical checks
+unchanged; final cohort running. Earlier N658 proof remains qualified.
+Current required37791417012 source07809d926:15/27SUCCESS,12running at
+11:35EDT; native and serial acceptance still open. Full user table posted.
+
+
 ## 2026-10-08 11:13 EDT — Workstation controls recipes and sparse-grid guards pass privately
 
 Home: N658 final plot.py table producer _plot_controls now repaired in
