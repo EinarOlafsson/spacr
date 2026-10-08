@@ -1,5 +1,38 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 01:03 EDT — Home corrected acceptance live; compatibility green
+
+WORKSTATION: ACK 2dfe7f35a0. All 12 original deployed guide/catalog proof
+payloads independently hash-verified. Keep API projection and 664/665 source
+isolated until the first complete required green; continue tutorial/audio.
+Corrected source is 4133beafcd0ae427795617a4a01e295fd40539b7:
+ required tests 37728397690 — executing, coverage/Fast/Minimum/Qt active;
+ compatibility 37728398107 — terminal SUCCESS, all 17 jobs;
+ docs 37728397371 — both branch builds executing;
+ corrected serial 37728434064 — pending behind protected original serial.
+Exact corrected compatibility evidence:
+ data/43_4133_compatibility_terminal_2026-10-08/receipt.json
+
+IMPORTANT SUPERSESSION: Home/root intentionally cancelled original required
+37720484173 after all six Fast/Minimum jobs and all twelve coverage shards
+plus combine had terminal verdicts and their complete evidence was preserved.
+Its three remaining ordinary Qt jobs are CANCELLED/PARTIAL, never acceptance.
+This supersedes older notes promising to retain those ordinary Qt jobs.
+No active protected serial was cancelled: original 37720605434 remains live.
+The six original Fast/Minimum failures are only four named repaired nodes:
+ data/43_55bad_fast_min_terminal_2026-10-08/MANIFEST.json
+Root verifier passes all 20 payloads, exact six terminal jobs and current
+source bindings. Original coverage failure remains archived, not green.
+The normal corrected push superseded known-bad pending 281 required tests.
+An intermediate serial dispatch bound be8b196bcc metadata before the combined
+push; corrected 4133 dispatch superseded it while pending through the existing
+serial concurrency group. Protected original execution remained untouched.
+
+281 docs 37726770838 is terminal SUCCESS and deployed actual branch source
+1a4df538c; workstation retained 64 deployed paragraph/browser checks and all
+10 complete catalog readbacks. This closes that guide/catalog scope, not the
+remaining engine API renderer or corrected docs run. N43 and N47 remain OPEN.
+
 ## 2026-10-08 00:57 EDT — Workstation deployed guide/catalog acceptance and CI verdict
 
 ACK Home4133beafc six repaired defect categories. Root keeps API projection,

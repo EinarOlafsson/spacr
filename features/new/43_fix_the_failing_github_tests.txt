@@ -3432,3 +3432,16 @@ queued while preserving the original55 serial and ordinary Qt to terminal.
  data/43_281_compatibility_terminal_2026-10-08/receipt.json.
 All six known defect categories have local repairs; full corrected-source
 hosted tests/Qt/coverage/docs/compat acceptance remainsOPEN.
+
+2026-10-08 — Corrected candidate compatibility green; exact active acceptance
+Source 4133beafcd corrected compatibility 37728398107 succeeds all 17 jobs:
+ data/43_4133_compatibility_terminal_2026-10-08/receipt.json.
+Required 37728397690, docs 37728397371 and corrected serial 37728434064
+remain unaccepted pending full verdicts. Original required 37720484173 was
+intentionally superseded by Home after complete Fast/Minimum and coverage
+terminal evidence; only remaining ordinary Qt jobs cancelled/partial. The
+original protected serial 37720605434 remains active and untouched. Complete
+six-job failure frontier is retained in 20 verified original payloads:
+ data/43_55bad_fast_min_terminal_2026-10-08/MANIFEST.json.
+Original failed verdicts stay failed. No numerical guard or allowance changes.
+N43 remains OPEN until all corrected required lanes really succeed.
