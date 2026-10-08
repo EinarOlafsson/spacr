@@ -52,7 +52,25 @@ def main():
     assert after["status"] == "completed" and after["conclusion"] == "cancelled"
     assert receipt["coverage_success"] == 1
     assert receipt["coverage_cancelled"] == 11
-    assert receipt["combine"] == "not run"
+    assert receipt["combine"] == "failed on missing shard 5 and 11 inputs"
+    final_jobs = json.loads(_read("jobs-final.json", from_git))["jobs"]
+    by_id = {job["id"]: job for job in final_jobs}
+    combine_job = json.loads(_read("combine-job.json", from_git))
+    release_job = json.loads(_read("release-job.json", from_git))
+    for job in (combine_job, release_job):
+        assert job["run_id"] == RUN and job["head_sha"] == SOURCE
+        assert job["conclusion"] == "failure"
+        assert by_id[job["id"]]["conclusion"] == "failure"
+    assert combine_job["id"] == receipt["combine_job_id"]
+    assert release_job["id"] == receipt["release_job_id"]
+    assert next(step for step in combine_job["steps"] if step["name"] == "Gate on the per-module coverage ratchet baseline")["conclusion"] == "skipped"
+    combine_log = gzip.decompress(_read("combine.log.gz", from_git))
+    assert b"coverage shard 5 produced no coverage data" in combine_log
+    assert b"coverage shard 11 produced no coverage data" in combine_log
+    assert b"coverage shards finished with cancelled" in combine_log
+    release_log = gzip.decompress(_read("release.log.gz", from_git))
+    assert b"coverage-combine finished with failure" in release_log
+    assert b"qt finished with cancelled" in release_log
     for row in receipt["coverage_shards"]:
         number = row["number"]
         job = json.loads(_read(f"coverage{number}-job.json", from_git))
@@ -72,7 +90,7 @@ def main():
     assert b"test_native_sources_changed_during_detection_cannot_publish_a_result[parent]" in native
     replay = gzip.decompress(_read("coverage9.log.gz", from_git))
     assert b"assert 8 == 7" in replay and b"assert 6 == 5" in replay
-    print("69ba coverage: one passed shard, eleven cancelled, no numerical combine")
+    print("69ba coverage: one passed shard, eleven cancelled, combine failed on missing data, no numerical verdict")
 
 
 if __name__ == "__main__":

@@ -11,8 +11,10 @@ batches, 6,875 passed and 30 skipped. Its process-data artifact is GitHub
 artifact `11534155250`; the verified ZIP SHA is in `receipt.json`. The other
 eleven coverage jobs concluded cancelled. Their available logs retain only the
 work completed before cancellation. Shard 5 was cancelled before GitHub made
-a job log available; no log is invented here. No all-shard combine ran, so no
-664-module numerical verdict exists for this source revision.
+a job log available; no log is invented here. GitHub then started the combine
+job, which failed because shards 5 and 11 had no coverage data. Its numerical
+ratchet step was skipped, so no 664-module numerical verdict exists for this
+source revision. The release gate failed on the cancelled blocking jobs.
 
 The available partial logs record a native SIGSEGV during a Make Masks
 parent-source test in shard 0 and two CI replay-profile assertions in shard 9.
@@ -21,8 +23,9 @@ claiming a terminal shard verdict or cause. A later focused test-only repair
 handles the two stale replay-profile counts in a separate source revision.
 
 The `*.log.gz` files are deterministic compressed copies of the 11 available
-job logs. Each job has its exact API JSON. The before/after run and jobs
-snapshots show how GitHub reported the supersession. Run `python verify.py`
+shard logs and the combine and release logs. Each job has its exact API JSON.
+The before/after/final run and jobs snapshots show how GitHub reported the
+supersession and its dependent jobs. Run `python verify.py`
 or `python verify.py --git` after commit to check every archived payload,
 source identity, and the distinction between the one passed shard and the
 cancelled partial work.

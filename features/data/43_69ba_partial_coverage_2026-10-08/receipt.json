@@ -12,7 +12,8 @@
     10,
     11
   ],
-  "combine": "not run",
+  "combine": "failed on missing shard 5 and 11 inputs",
+  "combine_job_id": 113194225762,
   "coverage6": {
     "artifact_archived_here": false,
     "artifact_id": 11534155250,
@@ -98,15 +99,16 @@
     }
   ],
   "coverage_success": 1,
-  "interpretation": "One source-bound shard passed; eleven were cancelled. Partial test failures do not establish a numerical verdict or a full required-run conclusion other than cancelled.",
-  "numerical_verdict": "not measured because all required shard inputs were not completed",
+  "interpretation": "One source-bound shard passed; eleven were cancelled. The dependent combine and release jobs failed because required data/jobs were incomplete. No numerical or required-run acceptance verdict exists.",
+  "numerical_verdict": "not evaluated; combine failed before the numerical ratchet step because cancelled shards 5 and 11 had no data",
   "pre_cancel_observations": {
     "coverage0": "A worker died by SIGSEGV while running the Make Masks parent-source race guard; recovery was still in progress when cancellation arrived.",
     "coverage9": "Two CI replay-profile tests asserted old Qt and coverage exclusion counts (8 versus 7; 6 versus 5). Their job conclusion was cancelled, not failed."
   },
+  "release_job_id": 113194646994,
   "run_id": 37737743925,
   "schema": 1,
-  "snapshot_scope": "parent run terminal cancelled; direct API coverage shard jobs terminal",
+  "snapshot_scope": "parent run terminal cancelled; direct API coverage, combine and release jobs terminal",
   "source_sha": "69ba4e462f2ea60924a977b192d006ce9b70f42c",
   "superseding_required_run_id": 37741615330,
   "superseding_source_sha": "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3",
