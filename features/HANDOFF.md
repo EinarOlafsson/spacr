@@ -15,8 +15,8 @@ Exact raw hosted evidence (gzip, hashes, source/run/job binding):
 
 Current55 tests continue: Lint SUCCESS, Integration450PASS, Network40PASS,
 Slow93PASS; NAS job SUCCESS but all10 tests SKIP because no NAS is available.
-GPU-labelled job SUCCESS; hardware qualification stays explicit in its raw
-log and is not an inference of scientific GPU acceptance. Fast/Min, all12
+GPU-labelled job SUCCESS with all90 tests SKIP: the hosted runner has no
+CUDA device. This is routing success, not scientific GPU acceptance. Fast/Min, all12
 coverage plus combine/release, ordinary Qt and protected serial remain live
 or queued. Preserve all current runs through terminal; no final green claim.
 The protected serial run37720605434 still targets exact55 source. Root and

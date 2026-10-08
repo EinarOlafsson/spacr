@@ -1,0 +1,58 @@
+{
+  "source": "55badc57ff25ef6a7e14721561773a412b515318",
+  "tests_run": 37720484173,
+  "docs_run": 37720483947,
+  "observed_utc": "2026-10-08 03:20 UTC",
+  "partial_only": true,
+  "jobs": [
+    {
+      "job": 113126751444,
+      "result": "success",
+      "file": "lint-113126751444.log.gz",
+      "sha256": "0c32e134b3f64c78a67bb7c2443ef4995a82f4eb58ab86f6c2dabbe610a635b4",
+      "raw_sha256": "260e784acf46ed6cd5f434a8b10119cc7e029378f7cba99e9045505a7e2caea9"
+    },
+    {
+      "job": 113126751642,
+      "result": "450 passed, 7 skipped",
+      "file": "integration-113126751642.log.gz",
+      "sha256": "7071b8bac34fdf0dcbfe03c099d3f5f83947b84971195960d6aae32ae256c898",
+      "raw_sha256": "e3a17333f3d72804a07df0a88ef817c3a8d73fca1c9d5fb85f66a4acee3adeb8"
+    },
+    {
+      "job": 113126751694,
+      "result": "40 passed, 7 skipped",
+      "file": "network-113126751694.log.gz",
+      "sha256": "8b59cde0c28300dbb25786fe1966e6d58ea93a3b265c01e51c2955d8d78c1b89",
+      "raw_sha256": "8908832e8d5645874883ba9cb8298b1ff4a88d4eea6ce5f8a072122b8e1d8170"
+    },
+    {
+      "job": 113126751690,
+      "result": "10 skipped; NAS unavailable",
+      "file": "nas-113126751690.log.gz",
+      "sha256": "5e93e0687d6c59431c7507ac0dae2563ce36071914866016c25de230dd5d41a4",
+      "raw_sha256": "d731dc49edc06513d023ee9d4a3fd6bcfa24df849e23378b424cf845688aaf9b"
+    },
+    {
+      "job": 113126751878,
+      "result": "93 passed, 34 skipped",
+      "file": "slow-113126751878.log.gz",
+      "sha256": "dd123b10c8e17e55e9d44fd4a7bf6f808b1bf537149c1defba698271fb14d917",
+      "raw_sha256": "a41b4def032153446a1f57dce2f35f508933fbbaf5bd5b5b39f67514171efb19"
+    },
+    {
+      "job": 113126751790,
+      "result": "90 skipped; no CUDA device on hosted runner; job routing succeeded",
+      "file": "gpu-113126751790.log.gz",
+      "sha256": "96000f3eb4133b9b410ffacc69436c5af27b50ea1097e3838b7e8b4f9d0efeda",
+      "raw_sha256": "9fe13592db891baf48e37aefc764034ec2cc9be16985d63176cccfb6d889c10c"
+    },
+    {
+      "job": 113126773499,
+      "result": "failure: zh_CN and ko strict translated Sphinx exit 1",
+      "file": "docs-nightly-113126773499.log.gz",
+      "sha256": "d599576e430dfa38ad7309e09e8478645996789b6e4d57bf2934f999d63aeabe",
+      "raw_sha256": "d0d6033a29d41ef9b22befe959205ad80868ad48b586608b2f5a322031b2570d"
+    }
+  ]
+}
