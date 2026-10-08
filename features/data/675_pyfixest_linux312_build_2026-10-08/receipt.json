@@ -1,0 +1,118 @@
+{
+  "schema": 1,
+  "item": 675,
+  "phase": "actual clean Linux64 Python3.12 dependency build",
+  "recipe_head": "a2d693d96633940fa80c3f91e857647336ca2f35",
+  "artifact": {
+    "artifact": "/media/carruthers/mnt3/codex/scratch/pyfixest-build-20261008/output-r4/linux-64/pyfixest-0.60.0-py312he5e4fa8_0.conda",
+    "artifact_size": 2898077,
+    "artifact_sha256": "c6faa1e0c28ee44e4d0ed35f02f52d7281fa845aec49a0097b020ab4a75d1609",
+    "index": {
+      "arch": "x86_64",
+      "build": "py312he5e4fa8_0",
+      "build_number": 0,
+      "constrains": [
+        "__glibc >=2.17"
+      ],
+      "depends": [
+        "python",
+        "formulaic >=1.1.0",
+        "joblib >=1.4.2",
+        "maketables >=0.1.0",
+        "narwhals >=1.13.3",
+        "numpy >=1.25.2",
+        "pandas >=1.1.0",
+        "scipy >=1.6",
+        "seaborn >=0.13.2",
+        "tabulate >=0.9.0",
+        "tqdm >=4.0.0",
+        "__glibc >=2.17,<3.0.a0",
+        "libgcc >=15",
+        "python_abi 3.12.* *_cp312"
+      ],
+      "license": "MIT",
+      "name": "pyfixest",
+      "platform": "linux",
+      "subdir": "linux-64",
+      "timestamp": 1791486639172,
+      "version": "0.60.0"
+    },
+    "path_count": 197,
+    "native_extension": [
+      "lib/python3.12/site-packages/pyfixest/core/_core_impl.cpython-312-x86_64-linux-gnu.so"
+    ],
+    "recipe_entries": [
+      "info/recipe/variant_config.yaml",
+      "info/recipe/recipe.yaml",
+      "info/recipe/rendered_recipe.yaml"
+    ],
+    "recipe_head": "a2d693d96633940fa80c3f91e857647336ca2f35",
+    "recipe_blob": "40dab51295a6f612e61c5b6916f993d54e7f1d73",
+    "recipe_byte_exact_completed_build": true,
+    "recipe_tests": "imports pyfixest and core; pip check; version==0.60.0 and callable feols; terminal0",
+    "scope": "Linux64 Python3.12 only; no conda-forge publication or full spaCR installation claim"
+  },
+  "terminal": 0,
+  "negative_phases": [
+    "r1 missing required c_stdlib forge variant",
+    "r2 global variant zip_keys mismatch"
+  ],
+  "superseded_phase": "r3 compiled/tests passed but shared recipe context archived scratch cache; retained and excluded from acceptance",
+  "accepted_phase": "r4 clean recipe-only directory; native extension, imports, pipcheck, exact version and callable feols; 197 package paths, only three recipe files",
+  "limits": [
+    "Linux64 Python3.12 only",
+    "No full spaCR clean install yet",
+    "No staged-recipes review or conda-forge publication claim",
+    "Package artifact retained in owned scratch; sha256 and inspected manifest archived"
+  ],
+  "payloads": [
+    {
+      "source": "pyfixest-build-r1.log",
+      "payload": "pyfixest-build-r1.log.gz",
+      "raw_sha256": "07b77d5ccddec8c3bae14c2092154809ddcce613452ef478527799f2da81fd37",
+      "payload_sha256": "a691972b7cb41e54050ffae60aebea0dc64799eaae4d0d75556e152a3f4bff23"
+    },
+    {
+      "source": "pyfixest-build-r2.log",
+      "payload": "pyfixest-build-r2.log.gz",
+      "raw_sha256": "eccc027b990fb40ca10a4928dd00d9fdce4f215309e76b1df6281bcda57d8cd7",
+      "payload_sha256": "42b26a04f4ca7904c1dbb4b2b9f43584d90b906caaf7753fde65b910014adbfc"
+    },
+    {
+      "source": "pyfixest-build-r3.log",
+      "payload": "pyfixest-build-r3.log.gz",
+      "raw_sha256": "78b1cd99bd31011e86247a92210bfd3ebfeeb71faee6ebc195ef82807093e2a6",
+      "payload_sha256": "faeb8f8e1f955b87baa1805f520e8eaf15c89e0e79000e580eee0479429ea724"
+    },
+    {
+      "source": "pyfixest-build-r4.log",
+      "payload": "pyfixest-build-r4.log.gz",
+      "raw_sha256": "2ff23b2d21fe4826a8529d754909ee05a42d1fa3c1fabe9ace00105dd23aac08",
+      "payload_sha256": "7a4dcaef0b7c9e98d82be838f1b76f15ecead26f4f23fb02d3cbb5291fc4b48e"
+    },
+    {
+      "source": "package-inspection-r4.json",
+      "payload": "package-inspection-r4.json.gz",
+      "raw_sha256": "b1e0e6f1a7aeb1cd25f70b62507aaa1f257e2aabf44152fcfcf18938a83fa6d1",
+      "payload_sha256": "35247f8235bb74559a71621bcf13173f24eae2faff762876bc63ef7f131db52e"
+    },
+    {
+      "source": "recipe-github-response-exact-a2-r1.json",
+      "payload": "recipe-github-response-exact-a2-r1.json.gz",
+      "raw_sha256": "7eadbe3198de94c5d67c0be19b069eafe96e5772257bf89e7ebc0e49c64cb7ea",
+      "payload_sha256": "f14ce3161886f6fe92ec00d050467fddd738d871e5f78c1b2f61bd48a0215b3b"
+    },
+    {
+      "source": "recipe-source-r4/recipe.yaml",
+      "payload": "recipe-source-r4--recipe.yaml.gz",
+      "raw_sha256": "f4d84482ee457e0a01aa96f4dadfbe3a655ca57afd6d6c686f70f21169b8f8f1",
+      "payload_sha256": "94b9b0a57d4a1023519c380967d32056abfb2607f52b2491a7b1a46e76bea8bd"
+    },
+    {
+      "source": "official-conda-build-config-r1.yaml",
+      "payload": "official-conda-build-config-r1.yaml.gz",
+      "raw_sha256": "7582bcf09f229760a75c7412ddbcd40c2ae36e2c3b6ff64539b8310578b3bd27",
+      "payload_sha256": "43bdd95037c7ae00d221037b8f160f80d1e4dab2beb486b551dc9312ec8323a6"
+    }
+  ]
+}

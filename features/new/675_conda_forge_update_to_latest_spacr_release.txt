@@ -59,3 +59,5 @@ variant skipped,3.10eligible,3.11render/host solve retains CPython3.11 ABI
 runtime export. No dependency or package test removed. Only recipe changed;
 normal new platform CI, community review/publication and clean spaCR install
 remainOPEN. Published spaCR package remains1.5.0.8 until actual release.
+
+2026-10-08 15:28 EDT workstation: exact latest pyfixest PR35101 recipe actual clean Linux64/Python3.12 native build and recipe tests PASS; inspected package2.76MiB/197paths. Immutable proof at data/675_pyfixest_linux312_build_2026-10-08/receipt.json. Full clean spaCR install and forge publication remain OPEN.

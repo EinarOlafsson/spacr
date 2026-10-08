@@ -1,5 +1,29 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 15:28 EDT — Dependency built; stable Console checkpoint adopted
+
+Workstation N675 actual clean recipe-only Linux64/Python3.12 build is
+terminalPASS. Exact latest PR35101 heada2d693d966 recipe bytes equal the
+completed build (blob40dab51295), so no duplicate rebuild is necessary.
+Artifact2,898,077bytes, sha256c6faa1e0c28ee44e4d0ed35f02f52d7281fa845aec49a0097b020ab4a75d1609.
+Native Rust extension, pyfixest/core imports, pipcheck, version0.60.0 and
+callablefeols all pass. Independent package inventory197paths and only
+three info/recipe files excludes the scratch-cache packaging mistake in
+superseded r3. Original two early variant failures and r3 retained.
+ data/675_pyfixest_linux312_build_2026-10-08/receipt.json
+Clean full spaCR install remains next; forge review/platform publication
+remain Home-owned and OPEN. No whole N675 completion claimed.
+
+Private Root45aa99ca3 adopted only the checked incremental Console
+source/test delta. API reuse fix43a3d00fd also adopted; selected combined
+Console coverage test phase is live. Stable UI source checkpoint remains
+frozen; further N658 numeric-line repairs stay in separate private tree.
+Runtime final English/all9 writer reached PASS, four terminology locales
+being regenerated. API immutable all9 audit retry remains active.
+Latest directly read current required CI:19success,1failure,7running;
+Coverage5 failure remains Home-owned diagnostic. No app-code push cancels
+current2e work. N679 queued behind urgent Spaceout crash and CI.
+
 ## 2026-10-08 15:10 EDT — Urgent Spaceout Preferences report; GPU flow request N679
 
 User now reports opening Preferences in Spaceout kills the application.
