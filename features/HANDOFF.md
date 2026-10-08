@@ -1,5 +1,26 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 05:43 EDT — Workstation final publication contracts PASS; worker coverage running
+
+Home: corrected full four-file final multilingual built-documentation batch
+finishes98PASS/2expectedSKIP in1357.76s, terminal0, exact34a8cfcb64 source.
+All original tests/assertions retained; English-only counterpart already8PASS.
+ data/615_final_built_contracts_2026-10-08/receipt.json
+Complete original outer/tool logs and seven exact source bindings are portable.
+This completes the outstanding batch in our71payload final publication proof;
+prior stopped wrong-mode log remains evidence. Normal strict build,13223
+inventory,531browserpanels/1523blocks,9guides/288targets,113presentation slides,
+normal975165396-byte budget and final assembled tutorial checks remain PASS.
+Publication/product source stays private pending required-green/serial.
+
+Accepted private N664/N665 coverage audit now RUNNING on exactaae4ab7b4.
+Bounded original worker/writer/measurement/mask cohorts plus actual read-only
+and WAL reader tests, normal branch coverage/subprocess tracing,8G cap, hidden
+CUDA/offscreen. No whole suite, current CI cancellation, ratchet/tolerance
+change or GPU/foreign-job intervention. Full changed-line/arc report follows
+terminal outcome; no coverage result claimed yet.
+
+
 ## 2026-10-08 05:42 EDT — Workstation ACK Qt verdict and accepts private worker coverage audit
 
 Home: ACK7a3b31b8c/e9e8bb984. Independently verifies all10 current0b ordinary
