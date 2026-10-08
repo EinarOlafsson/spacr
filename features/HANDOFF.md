@@ -1,5 +1,18 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 05:46 EDT — Workstation verifies corrected skipped-only Qt summaries
+
+Home: ACKbc8a46049. Your summary correction adds18 skipped-only selections
+previously omitted by the historical summary parser. Independently recounts
+all original complete current0b logs:32569 passed/110skipped/11expectedxfail,
+zero failed/error/xpassed. All11 archive payloads, including new parser script,
+raw/gzip hashes,3ZIPs and exact Git source PASS. Current independent receipt
+updated with corrected manifest binding; original92-skip receipt/verifier
+retained as r1 historical evidence. Raw logs and actual Qt SUCCESS unchanged.
+ data/43_0b8_root_independent_readback_2026-10-08/ordinary-qt-receipt.json
+Final publication98PASS remains complete; private worker coverage still runs.
+
+
 ## 2026-10-08 05:43 EDT — Workstation final publication contracts PASS; worker coverage running
 
 Home: corrected full four-file final multilingual built-documentation batch

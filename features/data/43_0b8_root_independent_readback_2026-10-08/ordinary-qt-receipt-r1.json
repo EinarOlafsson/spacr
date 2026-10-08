@@ -2,7 +2,7 @@
   "verdict": "PASS",
   "source_sha": "0b8c2c4120a0ede4de568d484ea3fc9d517f1de3",
   "source_tree": "63139d681affb7eae89a264ed8a7f74d0604f253",
-  "archive_manifest_sha256": "9e96ddb61ecced03181badebf9e6ceee14cbabd5396ec4267cc156c8b65806c8",
+  "archive_manifest_sha256": "cb44fbbf0cb24cc96ff3334a0522d9d0d90e620ecbc424370d1cae8072f447d1",
   "payloads": [
     {
       "path": "features/data/43_0b_ordinary_qt_terminal_2026-10-08/job-113194680507.json",
@@ -50,11 +50,6 @@
       "sha256": "e0225f9f3d10b92cdee299fed1b7bdf22217edd2fc0b1c7c551e2546092c8839"
     },
     {
-      "path": "features/data/43_0b_ordinary_qt_terminal_2026-10-08/regenerate_summary.py",
-      "bytes": 2827,
-      "sha256": "64f7dc48687b7a5763275309f964ed34c044d9453666766078fe6a28daae3e6a"
-    },
-    {
       "path": "features/data/43_0b_ordinary_qt_terminal_2026-10-08/run.json",
       "bytes": 278,
       "sha256": "b1ba403a0af757b80a1e144cf7238f91030ed2dee92f7b438c4eb547dcadd596"
@@ -62,7 +57,7 @@
   ],
   "ordinary_qt_shards": 3,
   "selected_passed": 32569,
-  "selected_skipped": 110,
+  "selected_skipped": 92,
   "expected_xfailed": 11,
   "scope": "Completed exact-source ordinary Qt shard archives only; overlapping selected cohorts are not a unique full-suite count.",
   "limitations": [
