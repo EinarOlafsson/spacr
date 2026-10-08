@@ -1,0 +1,43 @@
+{
+  "scope": "Diagnostic test-only change; not a repair or reproduction of the unidentified hosted distribution layout failure.",
+  "real_measure_test": {
+    "passed": 1,
+    "seconds": 37.95,
+    "cap": "4G",
+    "pytest": "9.1.1"
+  },
+  "formatting_probe": {
+    "pytest": "8.4.2 scratch overlay",
+    "expected_deliberate_failures": 2,
+    "dictionary_full_identifier_retained": false,
+    "explicit_json_full_identifier_retained": true,
+    "initial_probes": "Both representations retain 2000-character identifier; those probes do not reproduce elision."
+  },
+  "guards": "Success still requires [0], actual measurement/database/worker completion, exact window size, passed visual layout and restored scroll origin. No app witness, timeout, budget or numerical gate changed.",
+  "source_bindings": {
+    "tests/qt/test_distribution_smoke.py": "60853436325eadd0490b8054926eb36167f01b1e5791ebde5e3f846dad3965ce"
+  },
+  "application_changed": false,
+  "payloads": {
+    "real-measure-positive.log.gz": {
+      "bytes": 470,
+      "sha256": "92fdcef54973fc43286dd2a63db8cd82909fc5092f8c52c81ac5c4794e7bc840"
+    },
+    "initial-insufficient-size-probe.log.gz": {
+      "bytes": 789,
+      "sha256": "e32e2cc6fe3f739b4962673875fe74698a2cb6a38b2bece673322bc4aae2b21c"
+    },
+    "hosted-format-probe.py.gz": {
+      "bytes": 279,
+      "sha256": "51813dc5a4003c391b0152fbfcf93a67a64d8780b26685ed912a2d3884f5d672"
+    },
+    "hosted-elision-negative-positive.log.gz": {
+      "bytes": 808,
+      "sha256": "81acf14ac1ebc7a58a4b321d7027a23831500ae2a919d7537d39b7231276d82d"
+    },
+    "hosted-insufficient-size-probe.log.gz": {
+      "bytes": 783,
+      "sha256": "eed2bdf93a7367337082fe70268504843f50365bdf620d597bd96d36f24f474e"
+    }
+  }
+}

@@ -1,5 +1,36 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 06:03 UTC — Home fixes two newly exposed CI test contracts
+
+WORKSTATION: retain private product work until required green. Fast1 exact4133
+fails only the plaque fail-fast double's incomplete installed Cellpose signature.
+The repaired double declares the literal full4.2 signature and real defaults,
+preserving channel_axis sentinel and refusal before model evaluation. Exact
+installed4.2.1.1 sweep, both original hygiene guards and refusal node:4PASS30.84s.
+All13 immutable payloads independently verified with current source bindings:
+ data/43_plaque_fail_fast_signature_cpu_2026-10-08/MANIFEST.json
+
+Coverage2 sole Mandelbrot failure is an invalid immediate-survey assumption:
+build's initial completed survey is consumed; zero elapsed legitimately defers
+another. Test now finishes any initial worker, intentionally requests a due
+survey and additionally asserts reference identities before/after stale-result
+rejection. Actual hosted-pytest8.4.2 focused node1PASS and full file9PASS under4G.
+ data/43_mandelbrot_survey_request_cpu_2026-10-08/receipt.json
+
+Root also improves only distribution smoke assertion diagnostics: explicit
+JSON prevents pytest-v safe-repr dictionary elision; failed reachability rows
+and settle/restore flags are retained. Actual source-level Measure1PASS37.95s.
+Actual8.4.2 controlled output probe proves dictionary elision versus full JSON;
+two deliberate probe failures are expected, not product failures. No app layout
+witness/timeout/behavior guard changed and original hosted layout cause remains
+unidentified. Initial smaller probes did NOT reproduce elision and are retained.
+ data/47_explicit_layout_failure_diagnostics_cpu_2026-10-08/receipt.json
+
+This is another NORMAL combined CI-source push; unchanged10s timing separation
+already included. Retain current4133 coverage/combine and Qt/serial verdicts.
+668 required candidate is now known bad and its pending slot is superseded
+by normal concurrency. New source/run IDs follow. N43/N47 remain OPEN.
+
 ## 2026-10-08 05:55 UTC — Home separates startup clocks; docs published
 
 WORKSTATION: ACK9aab84d249 strict private API/browser checkpoint. Keep product
