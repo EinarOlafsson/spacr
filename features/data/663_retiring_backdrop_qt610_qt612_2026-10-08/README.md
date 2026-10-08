@@ -24,3 +24,19 @@ e956ec395b62d99f3442e2005344c60efb7274dee65387012287b5d1a0e4b287  after-qt610.lo
 0de4309566b35061f2c030520ebbd3382e9fc2d07c25ee91b4c15ac568e2705d  before-qt610.json
 35d0b5edd9d1326b4cc8898e8af2cacc3e597e84012d83a87959408155780c7d  probe.py
 ```
+
+Final combined-source inventory and nearby native check, 2026-10-08:
+
+`compare-full-inventory.py` read the complete `public_docstrings()` and all six `canonical_sources()` tables at root source `6d48a0ae837ff77c23f14746916db3c1111a12d6`, after the narrowed retirement exceptions and independent Python 3.9/Item 60 changes were integrated. It compared every key and value against the frozen pre-N663 f0 snapshot at `/mnt/wd4tb/scratch/root-ci-final-wave-current-inventory-20261008.json` (SHA-256 `ee8e3e5823b40a577e6c5bb14d7ff7769c281917a2cda561a2529292ddd2dd2f`). The entire 13,232-entry API map and all six runtime maps are equal, with no changed entries. All 193 imported spaCR modules resolved inside that source tree. The compressed complete after-map, report, and raw log are attached; this reads inventories only and does not write generated catalogs.
+
+The adjacent N666 Qt/xcb/Xvfb test file passed 32/32 under the same 4 GiB CPU/CUDA-hidden bounds in 2.47 seconds. Its input events are test-driven on a real Xvfb-backed Qt window, not a compositor or hardware-platform snap acceptance. Native Windows/macOS behavior remains outside this check.
+
+SHA-256 of these added payloads:
+
+```text
+dc7c5fa981f3464307f78f5a653109d6ffd7776ef69bce91bbb3ced94606332b  compare-full-inventory.py
+6846250584c8fe6005861e964606053ce112bf7bdf77e1a17db0c7ed3a2fd1c9  final-full-inventory.json.gz
+d913686f8427803e425da30976f00aedf30258057f2cac302a910c31be0d357e  final-full-inventory-report.json
+76cf39735b08184d78034094cbd7fcc4b00d147b0f77c499365eb872074c260b  final-full-inventory.log.gz
+206bccf5c8d7bbfc4a85a107b5243340f20c680c472ef52b67b9bbfd0f845163  n666-xcb-focused.log.gz
+```
