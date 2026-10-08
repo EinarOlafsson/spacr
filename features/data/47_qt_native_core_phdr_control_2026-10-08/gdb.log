@@ -1,0 +1,16 @@
+
+This GDB supports auto-downloading debuginfo from the following URLs:
+  <https://debuginfod.ubuntu.com>
+Debuginfod has been disabled.
+To make this setting permanent, add 'set debuginfod enabled off' to .gdbinit.
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[New Thread 0x7fffec1ff6c0 (LWP 3952169)]
+[New Thread 0x7fffdbdee6c0 (LWP 3952182)]
+{"pid": 3952166, "executable": "/home/olafsson/anaconda3/envs/spacr/bin/python3.12", "maps": 934, "imports": ["imageio", "numpy", "pandas", "scipy", "skimage", "tifffile", "spacr.qt.screens.make_masks"]}
+
+Thread 1 "python" received signal SIGUSR1, User defined signal 1.
+0x00007ffff7c4553b in __GI_kill () at ../sysdeps/unix/syscall-template.S:120
+warning: 120	../sysdeps/unix/syscall-template.S: No such file or directory
+warning: Memory read failed for corefile section, 4096 bytes at 0xffffffffff600000.
+Saved corefile /mnt/wd4tb/scratch/native-core-phdr-probe-20261008/core.qt-science.elf

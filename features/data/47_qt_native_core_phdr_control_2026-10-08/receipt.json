@@ -1,0 +1,20 @@
+{
+  "scope": "One controlled Qt 6.12/scientific import process under GDB; no app tests or production changes",
+  "source_sha": "79d8311908fe1081a0aceeefca9bd52eb668644b",
+  "core_path": "/mnt/wd4tb/scratch/native-core-phdr-probe-20261008/core.qt-science.elf",
+  "core_bytes": 399765008,
+  "core_sha256": "260fe07f4174587c4d0679711adb2e939054ac2b0fa07fb8d2a28ecf74105b5a",
+  "qt_runtime": "6.12.0",
+  "python_executable": "/home/olafsson/anaconda3/envs/spacr/bin/python3.12",
+  "owned_pid": 3952166,
+  "mapped_regions": 934,
+  "elf_program_headers": 599,
+  "elf_program_header_stride": 56,
+  "collector_identity": {
+    "reason": "accepted",
+    "process_pids": [3952166],
+    "executable_path_present": true
+  },
+  "limits": "CPU/offscreen, 4 GiB cgroup, 90-second wall timeout, 2 GiB file-size limit, OMP/MKL/OPENBLAS=1",
+  "inference_limit": "This representative local core does not trigger the unchanged 1024-header ceiling; it does not determine why the already deleted hosted core was rejected."
+}
