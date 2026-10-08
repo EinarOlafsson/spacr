@@ -41,6 +41,32 @@ Correctedfullserial37846383359 ACTIVE; required37846367787 and compat/
 docsQUEUED. No whole-current-source green claim, no run cancellation or
 new source expansion fromworkstation. Allthree agents stillworking.
 
+## 2026-10-08 17:42 EDT — Published worker/writer items closed
+
+Actual requirement audit and independent Root binding close N664/N665
+functional scope at100%. All18 accepted worker files match current public
+source; both queue preference helper ASTs and initial/reset/save UI wiring
+are unchanged. Matching all-nine API/runtime/docs are already published.
+No missing caller or combined-budget behavior surfaced. Earlier private
+publication/IMPLEMENTING holds are stale. N43/N47 remain separately open.
+Proof: data/664_665_published_completion_2026-10-08.json.
+
+Home Windows run37846367381 is terminalSUCCESS, all six actual native
+OS/application light/dark/system combinations PASS. Current required run
+37846367787 has Network/Integration success; serial37846383359 executes
+original-order tests. The cancelled ac5 prefix retains14821PASS/16SKIP/
+18FAIL at49%, noOOM/crash,6.62GiB peak: explicitly incomplete, not acceptance.
+Those old native-display fixture failures have owning masks78PASS,
+warnings/fallback48PASS and dock/settings27PASS repairs. Actual Safe
+ambient startup import is repaired, original combined Safe file13PASS.
+Final shared Preferences test-double isolation is being checked before
+next coherent source publication. All guards remain unchanged.
+
+Workstation17:30 nativeQt612/X11/GPU ultra13-stage PASS is acknowledged
+within its actual scope; not proof of userQt610 crash-cure. Preserve the
+current CI wave while later source/catalog preparation continues. The three
+small guide corrections are acknowledged and remain workstation-owned.
+
 
 ## 2026-10-08 17:30 EDT — Training exports accepted privately; native GPU preference result
 
