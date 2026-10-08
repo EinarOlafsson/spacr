@@ -281,3 +281,6 @@ PART C — WHAT IS LEFT
   App source unchanged; explicit producer migration, source adoption, optionalQt
   test placement and other legacy multi-panel recipes still OPEN.
   Proof: features/data/658_recruitment_recipe_candidate_2026-10-08/receipt.json.
+
+2026-10-08 10:30 EDT — Workstation actual private source acceptance
+  Actual privateee7c4ee60 source repair:73PASS77.19s plus2 edited-view casesPASS9.86s. Recruitment4/ratio5 recipes migrated; standalone graph/view/statistics preserved. Normal changed coverage49/50; optional size branch unhit. Other legacy producers and integration remain OPEN. Proof: features/data/658_actual_private_panel_repair_2026-10-08/receipt.json.

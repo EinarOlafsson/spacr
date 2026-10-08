@@ -1,0 +1,340 @@
+{
+  "source": "ee7c4ee60a50e94d654286338df189a60645dc8d",
+  "base": "9a0e34cfb0eee6f5a438ce07c972b27b16dafc3c",
+  "public_target": "1d7da13f6aa9d0c14333eb7d1ab5331fd70d1e5c",
+  "patch_cleanly_applies": true,
+  "changed_paths": [
+    "spacr/figures/bundle.py",
+    "spacr/plot.py",
+    "tests/test_recruitment_multipanel_recipe.py"
+  ],
+  "source_sha256": {
+    "spacr/figures/bundle.py": "e72c75c4993e66b4907ddb0eb70bcbb87e2eb294774a2c007a283be9b094ca37",
+    "spacr/plot.py": "636c402ac357412d34531b8f153922031cdea8e7a4712ee2f04d30d9294e4283",
+    "tests/test_recruitment_multipanel_recipe.py": "b26cad85db5d9a4e6ab674c4335a75bc4a0b8828f896366ad6100bfe831c18a2"
+  },
+  "existing_tests_changed": [],
+  "cohorts": [
+    {
+      "source": "5dfe17686dfdea5da8468eb7fbcc0c23d018eb77",
+      "passed": 73,
+      "seconds": 77.19,
+      "warnings": 29,
+      "includes_unchanged_original": 61
+    },
+    {
+      "source": "ee7c4ee60a50e94d654286338df189a60645dc8d",
+      "passed": 2,
+      "deselected": 12,
+      "seconds": 9.86,
+      "scope": "Two additional edited-panel cases only"
+    },
+    {
+      "source": "5dfe17686dfdea5da8468eb7fbcc0c23d018eb77",
+      "passed": 10,
+      "skipped": 2,
+      "seconds": 11.33,
+      "scope": "Explicit optional-Qt-unavailable diagnostic; only two GUI graph-change cases skipped"
+    }
+  ],
+  "coverage": {
+    "source": "ee7c4ee60a50e94d654286338df189a60645dc8d",
+    "base": "9a0e34cfb0eee6f5a438ce07c972b27b16dafc3c",
+    "original_inputs_kept": [
+      "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/figure-private-coverage-r1.data.carruthers.pid4175630.XHIWem8x.HMvZF9ovofqh",
+      "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/figure-private-edited-coverage-r2.data.carruthers.pid4180506.XgRu7mTx.H5cudwuUXAQh"
+    ],
+    "combined": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/figure-actual-private-combined-r1.data",
+    "coverage_json": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/figure-actual-private-coverage-r1.json",
+    "rows": [
+      {
+        "path": "spacr/figures/bundle.py",
+        "source_sha256": "e72c75c4993e66b4907ddb0eb70bcbb87e2eb294774a2c007a283be9b094ca37",
+        "changed_executable_lines": 48,
+        "changed_lines_exercised": 47,
+        "changed_lines_unhit": [
+          523
+        ],
+        "executed_branch_arcs_touching_added_lines": [
+          [
+            428,
+            435
+          ],
+          [
+            433,
+            435
+          ],
+          [
+            435,
+            436
+          ],
+          [
+            435,
+            445
+          ],
+          [
+            437,
+            438
+          ],
+          [
+            437,
+            445
+          ],
+          [
+            442,
+            443
+          ],
+          [
+            442,
+            444
+          ],
+          [
+            512,
+            513
+          ],
+          [
+            512,
+            537
+          ],
+          [
+            514,
+            515
+          ],
+          [
+            514,
+            521
+          ],
+          [
+            516,
+            520
+          ],
+          [
+            516,
+            521
+          ],
+          [
+            522,
+            524
+          ],
+          [
+            524,
+            525
+          ],
+          [
+            524,
+            535
+          ],
+          [
+            527,
+            528
+          ],
+          [
+            527,
+            532
+          ],
+          [
+            532,
+            533
+          ],
+          [
+            532,
+            534
+          ],
+          [
+            756,
+            757
+          ],
+          [
+            756,
+            780
+          ],
+          [
+            759,
+            760
+          ],
+          [
+            759,
+            777
+          ]
+        ],
+        "unhit_branch_arcs_touching_added_lines": [
+          [
+            522,
+            523
+          ]
+        ]
+      },
+      {
+        "path": "spacr/plot.py",
+        "source_sha256": "636c402ac357412d34531b8f153922031cdea8e7a4712ee2f04d30d9294e4283",
+        "changed_executable_lines": 2,
+        "changed_lines_exercised": 2,
+        "changed_lines_unhit": [],
+        "executed_branch_arcs_touching_added_lines": [],
+        "unhit_branch_arcs_touching_added_lines": []
+      }
+    ],
+    "scope": "Normal branch tracing; source-bound changed executable lines and reported arcs touching additions only. No module/global ratchet acceptance. Package init/version already-imported warnings retained; changed modules loaded after tracing began."
+  },
+  "scope": "Actual PRIVATE source repair under Home path ACK110920c70. Explicit recipes migrate ONLY two recruitment producers: four mean-intensity panels and five default ratio panels. Standalone recreation, all-panel graph changes, edited panel view, bounded layouts, measurement-labelled statistics and independent numeric Welch comparison covered. Corrections remain within each measurement. Other legacy producers, global family/biological statistics acceptance and loaded per-panel retype limits remain separate open work.",
+  "application_source_pushed": false,
+  "limitations": [
+    "No full-suite/native allocator-cause acceptance or release of source/publication hold.",
+    "Normal branch tracing; package init/version already-imported warnings retained. No module/global ratchet acceptance.",
+    "Fatal Ruff and diff checks passed earlier; their terminal output was not retained in standalone files.",
+    "Actual source test cohorts use isolated Qt6.12/Python3.12/pytest8.4.2 and8G; no dependency pins, GC, warning filtering or original assertion changes."
+  ],
+  "payloads": {
+    "source-and-tests.patch.gz": {
+      "raw_bytes": 17224,
+      "raw_sha256": "fad3c4f235cb5c0e7cc72bffaf3c4c3d3f3a8a08a52f9952266f732230a0db08",
+      "gzip_bytes": 4824,
+      "gzip_sha256": "4bd4d5dbe65e1f34862ac75ebce03c9d292cc8fb42a758cf82a651bfa1d090de"
+    },
+    "source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 35188,
+      "raw_sha256": "e72c75c4993e66b4907ddb0eb70bcbb87e2eb294774a2c007a283be9b094ca37",
+      "gzip_bytes": 10379,
+      "gzip_sha256": "6480136c35afeb7fa60b18f6ed14ce68e9a69eb8bc0b185bb86155269f248c4b"
+    },
+    "original-source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 31880,
+      "raw_sha256": "d255333e75a576cb69f6803d5b1add13ddac30585891893936b7a09e947edbc7",
+      "gzip_bytes": 9594,
+      "gzip_sha256": "a5fae0d8be6cb4c21068428b205e0884105c8f627d6328c5bace8f31a2b117e5"
+    },
+    "source/spacr/plot.py.gz": {
+      "raw_bytes": 342857,
+      "raw_sha256": "636c402ac357412d34531b8f153922031cdea8e7a4712ee2f04d30d9294e4283",
+      "gzip_bytes": 86363,
+      "gzip_sha256": "e435733c0fca7972fe63d890ca640bdc34e471401e2a0b8eff33cde4769ca116"
+    },
+    "original-source/spacr/plot.py.gz": {
+      "raw_bytes": 342416,
+      "raw_sha256": "122ee3ee75ea5616d03547a9e7cce3e599d549db9a4b8181f5d2280fb8b59ce7",
+      "gzip_bytes": 86247,
+      "gzip_sha256": "70b3f587ca77998e643f5a522fb8d10f4608a6d39ad17b74f7ee033c338ef914"
+    },
+    "source/tests/test_recruitment_multipanel_recipe.py.gz": {
+      "raw_bytes": 7554,
+      "raw_sha256": "b26cad85db5d9a4e6ab674c4335a75bc4a0b8828f896366ad6100bfe831c18a2",
+      "gzip_bytes": 2089,
+      "gzip_sha256": "a0eb29edf1b09e85b23f1d819df979b42f849cf75b8e79b062da2ae11053ad60"
+    },
+    "logs/figure-actual-private-r1.log.gz": {
+      "raw_bytes": 3485,
+      "raw_sha256": "74d33a0deab98c73bf7723711ac61cb8fb73d3e5440d57b61ba39802290ef7e2",
+      "gzip_bytes": 1155,
+      "gzip_sha256": "80d9472adaedc1695878daa230bbec6504b5601e313d25b5dfe50bad9edf95ff"
+    },
+    "logs/figure-actual-private-r1-tool.log.gz": {
+      "raw_bytes": 2647,
+      "raw_sha256": "f9ce1bdd2a9765f7497ca425315b4e7f9cde32dd374245c1aa1cb4a68a6c370b",
+      "gzip_bytes": 919,
+      "gzip_sha256": "06b6754a1423c930a496aabe655286e1eca851d3ff47ad6f9834d93176c58b20"
+    },
+    "logs/figure-edited-private-r2.log.gz": {
+      "raw_bytes": 1618,
+      "raw_sha256": "5a1b23c3fc8f047e38ab1537ecf4eadb57a975a0822be7ebdbdad15539556805",
+      "gzip_bytes": 573,
+      "gzip_sha256": "8cddadd0dcc7a408c8112ad29e81b6c8862dc07531919731e95f9d8478eaa0a6"
+    },
+    "logs/figure-edited-private-r2-tool.log.gz": {
+      "raw_bytes": 1047,
+      "raw_sha256": "eac28c370b04af03362f08ad1580aeaf74034e85c2fc84c2aec28934f8e81158",
+      "gzip_bytes": 339,
+      "gzip_sha256": "feee037523bdf843d3785fa508637e172e07e8e3ceacae48c7912913ea97d204"
+    },
+    "logs/recruitment-without-qt-r1.log.gz": {
+      "raw_bytes": 1106,
+      "raw_sha256": "a6a6b5997b7a26b69632fe958c7a1aa8abd19b9f83561b202c12aba1cf4925b5",
+      "gzip_bytes": 563,
+      "gzip_sha256": "4d4c70f862569015cfff8292657999508c263a4279c6b86284fd0e3d3aab4a49"
+    },
+    "logs/recruitment-without-qt-r1-tool.log.gz": {
+      "raw_bytes": 605,
+      "raw_sha256": "89a2f3cc80de23f12827164b146a6e76601b550cd30e1d87b974d73254464613",
+      "gzip_bytes": 382,
+      "gzip_sha256": "6b8097059b693dac4179d11b76ef3e831d3ea37d2a149a3d3d3989c701314086"
+    },
+    "coverage/original/figure-private-coverage-r1.data.carruthers.pid4175630.XHIWem8x.HMvZF9ovofqh.gz": {
+      "raw_bytes": 2293760,
+      "raw_sha256": "ddd6e69b278088288b1a33661ce3eb7f4a6ce7e6a3df9ab4601044bc97726c02",
+      "gzip_bytes": 958609,
+      "gzip_sha256": "9d8c69d1089c5aace54444bf6b3c53bcb4b9eb694e8a22f677f200dc648e3b77"
+    },
+    "coverage/original/figure-private-edited-coverage-r2.data.carruthers.pid4180506.XgRu7mTx.H5cudwuUXAQh.gz": {
+      "raw_bytes": 606208,
+      "raw_sha256": "232190a4575dd5d0b87dd8e9d9bff02188fc1af8a2b27ac5b6ef8fb19a71e57d",
+      "gzip_bytes": 258514,
+      "gzip_sha256": "60b4d2492cd958581b2dbcd33f081aa8c5172e46ec592114a26df8a6c0ca1ad3"
+    },
+    "coverage/figure-actual-private-combined-r1.data.gz": {
+      "raw_bytes": 2297856,
+      "raw_sha256": "4bab57d4059a628f9898952fa1b093d9a346ec51e6fff59b7c1878c1fb27f41c",
+      "gzip_bytes": 896503,
+      "gzip_sha256": "a1e0727692cbcbcb1f6dd028355dbe771262daf3e95f8f0a75100fc2f271e281"
+    },
+    "coverage/figure-actual-private-coverage-r1.json.gz": {
+      "raw_bytes": 263607,
+      "raw_sha256": "fe9a293a787b982316e93e4723a3a8607dcdc8fb17f786fcf684cd8730af044f",
+      "gzip_bytes": 51780,
+      "gzip_sha256": "b17fa3bf78214bfe790af9873dfc405699be91ece479336ca7162354c2fb4bf2"
+    },
+    "coverage/figure-actual-private-delta-r1.json.gz": {
+      "raw_bytes": 3000,
+      "raw_sha256": "a3d1538fa371fa71a5b7e12b0b46de7bf8859880c66b1f22c3444c1b1bfc4f7b",
+      "gzip_bytes": 849,
+      "gzip_sha256": "2bdf7c4b804dec8d00e1e943cc4011d2a674c072668ad6ee54ef59095f071bd0"
+    },
+    "scripts/check_recruitment_without_qt_r1.py.gz": {
+      "raw_bytes": 816,
+      "raw_sha256": "3b3993a7d4964be1edbe7a3ea51a0049c8d26d46217b3c4b591488f20be01a6a",
+      "gzip_bytes": 534,
+      "gzip_sha256": "3acddbe6e8a0d74f1ec5e19c3b861296429a59d39af1ac1e63c645f5b9071439"
+    },
+    "scripts/report_private_repair_coverage_r1.py.gz": {
+      "raw_bytes": 3308,
+      "raw_sha256": "fc19811dc27d4e77d573f5949b96c91f97ccc5646d25bfd5a4d55f82373d37b9",
+      "gzip_bytes": 1417,
+      "gzip_sha256": "8437599b33050ce46c2dd9668aaece042da9f019579ae1e11662311547f32ef1"
+    },
+    "scripts/archive_actual_repairs_and_terminal_ci_r1.py.gz": {
+      "raw_bytes": 15680,
+      "raw_sha256": "b7a6ce3b8cc3a62702d1638e87d2ef539b37eb7be702763734125ecc83171d38",
+      "gzip_bytes": 5778,
+      "gzip_sha256": "9c437ce05bdf3359d9e74431c3906fff3dea8e4df57d49b00f6b4dae4a4779d2"
+    },
+    "scripts/run_logged.py.gz": {
+      "raw_bytes": 614,
+      "raw_sha256": "789aa8a9a554341943ecc0b6f3c345d6748635ab5edaecef2491da21f780111a",
+      "gzip_bytes": 342,
+      "gzip_sha256": "d95a09407fcb56caae2a43f8a0846a98c1a6df33eb50012c391a033008ca81e7"
+    },
+    "scripts/run_current_source_tool_r4.py.gz": {
+      "raw_bytes": 1751,
+      "raw_sha256": "ac6f97bcefa37b97c34c58d7afef0a667860d163f1df90f439e6c19f2a10f8a2",
+      "gzip_bytes": 663,
+      "gzip_sha256": "f72d7385dca9da574f43bfd387e0b64e6163a1ad68a339e4a179f3353539806b"
+    },
+    "coverage/config.coveragerc.gz": {
+      "raw_bytes": 460,
+      "raw_sha256": "33658d54d5be648114cb350c6363ca2a46fc03d318b5424b902404b429efcd79",
+      "gzip_bytes": 306,
+      "gzip_sha256": "a5db457b70fb70766f84295c3ad5e3ec6e43d90340cace9c09ea6b74dae308bb"
+    },
+    "logs/private-repair-coverage-r1.log.gz": {
+      "raw_bytes": 622,
+      "raw_sha256": "47cc51818fe505732c74f535731e85c4c853ab4a331cf5e90d9de1fdd1347777",
+      "gzip_bytes": 367,
+      "gzip_sha256": "24a0219818bc428f590d5d46b72c30730740a09653ab7d9be7ab23b0faec8804"
+    },
+    "source/test-at-73-case-cohort.py.gz": {
+      "raw_bytes": 6135,
+      "raw_sha256": "3ec8b6ea4bf7faeb4b1303f67433b85d1155492426eb95ded9174349c5bdebdf",
+      "gzip_bytes": 1867,
+      "gzip_sha256": "1b072dede7efb555597c315e87308b50c7f1c1007733de91ed45eff0920b9a8d"
+    }
+  },
+  "clean_apply_revalidated_against_home_target": "b7d4f381af75f79d8e4cc8df24d92c52906d46fe"
+}

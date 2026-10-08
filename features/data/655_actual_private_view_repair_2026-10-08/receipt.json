@@ -1,0 +1,253 @@
+{
+  "source": "13efaa1cc87851897c4caa7340ed7d56af1123f8",
+  "base": "82205d5e609d0ac5ebd11148ba8023693546a794",
+  "public_target": "1d7da13f6aa9d0c14333eb7d1ab5331fd70d1e5c",
+  "patch_cleanly_applies": true,
+  "changed_paths": [
+    "spacr/qt/i18n.py",
+    "spacr/qt/screens/foreign.py",
+    "spacr/qt/screens/train_compare.py",
+    "spacr/qt/widgets/object_settings_grid.py",
+    "tests/qt/test_accessibility_item_views.py"
+  ],
+  "source_sha256": {
+    "spacr/qt/i18n.py": "b505989ecd543b9857049ae48f21fe9f007007daf7226a50daf85b3e8582fa26",
+    "spacr/qt/screens/foreign.py": "aeae51977d736ed245e5bbee8ffbf52617ad080d67328cb3a28fced1ab47b2ff",
+    "spacr/qt/screens/train_compare.py": "4230a80a7c7ad548a88505c6b151fad926d040a8f6f5bd2429c35940f3bc903c",
+    "spacr/qt/widgets/object_settings_grid.py": "391f0a7a319c3a042a644d3530ab31db75fc64356506ac6e08648edc41be9423",
+    "tests/qt/test_accessibility_item_views.py": "c22eaece5c278729ae851cd1c260b973cc9be93d7703645f45ea20a20608fecb"
+  },
+  "existing_tests_changed": [],
+  "cohorts": [
+    {
+      "source": "40a7d4dd",
+      "passed": 67,
+      "seconds": 30.27
+    },
+    {
+      "source": "13efaa1cc87851897c4caa7340ed7d56af1123f8",
+      "passed": 70,
+      "seconds": 115.03
+    }
+  ],
+  "coverage": {
+    "source": "13efaa1cc87851897c4caa7340ed7d56af1123f8",
+    "base": "82205d5e609d0ac5ebd11148ba8023693546a794",
+    "original_inputs_kept": [
+      "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/accessibility-private-coverage-r2.data.carruthers.pid4178357.XfKySKcx.HkLe5ug1uXoh"
+    ],
+    "combined": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/accessibility-actual-private-combined-r1.data",
+    "coverage_json": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/accessibility-actual-private-coverage-r1.json",
+    "rows": [
+      {
+        "path": "spacr/qt/i18n.py",
+        "source_sha256": "b505989ecd543b9857049ae48f21fe9f007007daf7226a50daf85b3e8582fa26",
+        "changed_executable_lines": 3,
+        "changed_lines_exercised": 3,
+        "changed_lines_unhit": [],
+        "executed_branch_arcs_touching_added_lines": [
+          [
+            4207,
+            4208
+          ]
+        ],
+        "unhit_branch_arcs_touching_added_lines": []
+      },
+      {
+        "path": "spacr/qt/widgets/object_settings_grid.py",
+        "source_sha256": "391f0a7a319c3a042a644d3530ab31db75fc64356506ac6e08648edc41be9423",
+        "changed_executable_lines": 1,
+        "changed_lines_exercised": 1,
+        "changed_lines_unhit": [],
+        "executed_branch_arcs_touching_added_lines": [],
+        "unhit_branch_arcs_touching_added_lines": []
+      },
+      {
+        "path": "spacr/qt/screens/foreign.py",
+        "source_sha256": "aeae51977d736ed245e5bbee8ffbf52617ad080d67328cb3a28fced1ab47b2ff",
+        "changed_executable_lines": 1,
+        "changed_lines_exercised": 1,
+        "changed_lines_unhit": [],
+        "executed_branch_arcs_touching_added_lines": [],
+        "unhit_branch_arcs_touching_added_lines": []
+      },
+      {
+        "path": "spacr/qt/screens/train_compare.py",
+        "source_sha256": "4230a80a7c7ad548a88505c6b151fad926d040a8f6f5bd2429c35940f3bc903c",
+        "changed_executable_lines": 1,
+        "changed_lines_exercised": 1,
+        "changed_lines_unhit": [],
+        "executed_branch_arcs_touching_added_lines": [],
+        "unhit_branch_arcs_touching_added_lines": []
+      }
+    ],
+    "scope": "Normal branch tracing; source-bound changed executable lines and reported arcs touching additions only. No module/global ratchet acceptance. Package init/version already-imported warnings retained; changed modules loaded after tracing began."
+  },
+  "scope": "Actual PRIVATE source repair under Home path ACK110920c70. Concrete list/table/tree naming excludes native headers; Objects/Masks/SettingsDiff names and existing translated Storage/Columns/Cache fallback labels. All original tests unedited; full70-case cohort passes. Desktop assistive-technology/header-context acceptance remains open.",
+  "application_source_pushed": false,
+  "limitations": [
+    "No full-suite/native allocator-cause acceptance or release of source/publication hold.",
+    "Normal branch tracing; package init/version already-imported warnings retained. No module/global ratchet acceptance.",
+    "Fatal Ruff and diff checks passed earlier; their terminal output was not retained in standalone files.",
+    "Actual source test cohorts use isolated Qt6.12/Python3.12/pytest8.4.2 and8G; no dependency pins, GC, warning filtering or original assertion changes."
+  ],
+  "payloads": {
+    "source-and-tests.patch.gz": {
+      "raw_bytes": 7840,
+      "raw_sha256": "d33ecc1c4a55cdd5c4cc9a236b97786cfcbc68fc3d500544e5331d274d024f05",
+      "gzip_bytes": 2750,
+      "gzip_sha256": "b0648692a6a282dc3b231f387cc39140b5979df1dc97b5600480e85a2cd477c3"
+    },
+    "source/spacr/qt/i18n.py.gz": {
+      "raw_bytes": 354545,
+      "raw_sha256": "b505989ecd543b9857049ae48f21fe9f007007daf7226a50daf85b3e8582fa26",
+      "gzip_bytes": 124401,
+      "gzip_sha256": "b7aebac36ad04d2c929a55916c0a67848b5469a04c08d61452d1dc334ce0b82c"
+    },
+    "original-source/spacr/qt/i18n.py.gz": {
+      "raw_bytes": 354074,
+      "raw_sha256": "0b03d5d8b90c4182640a7030ebcdc41863aedcd5e771feae439b118e1c110058",
+      "gzip_bytes": 124248,
+      "gzip_sha256": "5df2ca7121cf16ae773bb8df606eba006dc6d232ed182aa4eb8b1bea16425726"
+    },
+    "source/spacr/qt/screens/foreign.py.gz": {
+      "raw_bytes": 60051,
+      "raw_sha256": "aeae51977d736ed245e5bbee8ffbf52617ad080d67328cb3a28fced1ab47b2ff",
+      "gzip_bytes": 16768,
+      "gzip_sha256": "dd19693913221ab4d84297b1d576583c54ac567522965cf29072d1afcddb28f3"
+    },
+    "original-source/spacr/qt/screens/foreign.py.gz": {
+      "raw_bytes": 60004,
+      "raw_sha256": "f54479adfb1dab60c4fc2a00a26c9b46fa52b24a4dc5e90e74fb36f00fbd9d1e",
+      "gzip_bytes": 16758,
+      "gzip_sha256": "088546e9fd369fa524c80ecadf19f5cb1940402ec27d89434b7bc8467a5b0966"
+    },
+    "source/spacr/qt/screens/train_compare.py.gz": {
+      "raw_bytes": 44352,
+      "raw_sha256": "4230a80a7c7ad548a88505c6b151fad926d040a8f6f5bd2429c35940f3bc903c",
+      "gzip_bytes": 13059,
+      "gzip_sha256": "12f7e3676de7165e1b788adc6618939b769f0ea1e53bb0c2f01a476aadb59bf2"
+    },
+    "original-source/spacr/qt/screens/train_compare.py.gz": {
+      "raw_bytes": 44297,
+      "raw_sha256": "4a1c35a534a412b90aef7320cdc7f499fbd4abfb55aa748baedbe21eb23e24ef",
+      "gzip_bytes": 13051,
+      "gzip_sha256": "27a880c318d15b1a011f94922e0be848ffca65e851b0b33a4cf2303584333e97"
+    },
+    "source/spacr/qt/widgets/object_settings_grid.py.gz": {
+      "raw_bytes": 63695,
+      "raw_sha256": "391f0a7a319c3a042a644d3530ab31db75fc64356506ac6e08648edc41be9423",
+      "gzip_bytes": 18759,
+      "gzip_sha256": "a380223512df71c5925a7c09bc36c638e88335455766a9b0cd954e7683aa791b"
+    },
+    "original-source/spacr/qt/widgets/object_settings_grid.py.gz": {
+      "raw_bytes": 63650,
+      "raw_sha256": "2327d39f7f7619669b380a3867a576be768b2511949cc2e913dbff0ed59a22a7",
+      "gzip_bytes": 18752,
+      "gzip_sha256": "6c40cd6a937cae1e429201bf6ad0ff88a4c79b8e2eb495fbd7a8875d3dfb842e"
+    },
+    "source/tests/qt/test_accessibility_item_views.py.gz": {
+      "raw_bytes": 3994,
+      "raw_sha256": "c22eaece5c278729ae851cd1c260b973cc9be93d7703645f45ea20a20608fecb",
+      "gzip_bytes": 1488,
+      "gzip_sha256": "1c725f5496e55f7871f9da37b17637b029aa10108043fb6396bb3a8541f15646"
+    },
+    "logs/accessibility-actual-private-r1.log.gz": {
+      "raw_bytes": 741,
+      "raw_sha256": "62317bcc0337590f730fcf0b5b0e6d9064876d3ad38cb569904d46db701a3ffb",
+      "gzip_bytes": 368,
+      "gzip_sha256": "9f6910ab01d4ef9701619ec8319c2e563abebcbf107a6ee0392375dfd155e143"
+    },
+    "logs/accessibility-actual-private-r1-tool.log.gz": {
+      "raw_bytes": 216,
+      "raw_sha256": "1814e467480b7bd2c958053e59e8f09eb7fac0f553a4c65723e25d6ce34ac9a3",
+      "gzip_bytes": 149,
+      "gzip_sha256": "e490b107c8f6b2d34c05e33b9400d9fd3a45b5e665e253303d3a031849c0f36c"
+    },
+    "logs/accessibility-actual-private-r2.log.gz": {
+      "raw_bytes": 1638,
+      "raw_sha256": "483613dbc2efe1ff1c695b03eda62c816b0158348da8323fad4ab59865b9ebe8",
+      "gzip_bytes": 568,
+      "gzip_sha256": "d5e5c064f674a33e5f3ea15a88d05696ee07796bd4a80a19b5fb007e8e6e072b"
+    },
+    "logs/accessibility-actual-private-r2-tool.log.gz": {
+      "raw_bytes": 1045,
+      "raw_sha256": "835d4d877eb71e0a6ddea918d7c48f7eb3159339af908be48414f8473e199f95",
+      "gzip_bytes": 342,
+      "gzip_sha256": "bfa51c6521a4bae97613c8ea0424682ca69b521107aa60848ac3e96eb01cb0f3"
+    },
+    "coverage/original/accessibility-private-coverage-r2.data.carruthers.pid4178357.XfKySKcx.HkLe5ug1uXoh.gz": {
+      "raw_bytes": 18165760,
+      "raw_sha256": "22d218fe3a61a2557c8718c97f72ffd12784d0d6dfa9ebd8e9fda91c879ace22",
+      "gzip_bytes": 6789755,
+      "gzip_sha256": "898bee5ed7bec9da163a4be047e743012ce923e3d41ed581c143148d50d50833"
+    },
+    "coverage/accessibility-actual-private-combined-r1.data.gz": {
+      "raw_bytes": 18407424,
+      "raw_sha256": "932c15c771b6c6fcc1bb7eaa6c1c023de892619d49a7d63b04d940a347102898",
+      "gzip_bytes": 5690665,
+      "gzip_sha256": "d164bbdf55620176507d27ac7f65db5db541adaf409574c6650ee3a3f8758610"
+    },
+    "coverage/accessibility-actual-private-coverage-r1.json.gz": {
+      "raw_bytes": 231020,
+      "raw_sha256": "0d7187906fab54146df8c2ac1a8f20a5c5d8fbd36ccf47c7403423a33d143d8c",
+      "gzip_bytes": 25313,
+      "gzip_sha256": "a079a95e2be9c19b8a52abff8fb1232e03493d10f6e3234fa15b5b4cad16bf3b"
+    },
+    "coverage/accessibility-actual-private-delta-r1.json.gz": {
+      "raw_bytes": 2340,
+      "raw_sha256": "ed06079929044146bccd8f650da69f52097b2a430c18bfd234d5fe20cfae88e3",
+      "gzip_bytes": 815,
+      "gzip_sha256": "8305904034d253fa89dc0b4023cf209475ab1de897750ebb920dbf6d877286e3"
+    },
+    "scripts/check_view_name_alias_terms_r1.py.gz": {
+      "raw_bytes": 362,
+      "raw_sha256": "6531ff92c6f30db89b3c95bb2c0ef539394e5e0d76b0a0529ceb919a5d1e0455",
+      "gzip_bytes": 230,
+      "gzip_sha256": "f74d7cffd5aedea6ded9570fd51e20d0e9e018eba31673aee6604687dee617e0"
+    },
+    "scripts/report_private_repair_coverage_r1.py.gz": {
+      "raw_bytes": 3308,
+      "raw_sha256": "fc19811dc27d4e77d573f5949b96c91f97ccc5646d25bfd5a4d55f82373d37b9",
+      "gzip_bytes": 1417,
+      "gzip_sha256": "8437599b33050ce46c2dd9668aaece042da9f019579ae1e11662311547f32ef1"
+    },
+    "scripts/archive_actual_repairs_and_terminal_ci_r1.py.gz": {
+      "raw_bytes": 15680,
+      "raw_sha256": "b7a6ce3b8cc3a62702d1638e87d2ef539b37eb7be702763734125ecc83171d38",
+      "gzip_bytes": 5778,
+      "gzip_sha256": "9c437ce05bdf3359d9e74431c3906fff3dea8e4df57d49b00f6b4dae4a4779d2"
+    },
+    "scripts/run_logged.py.gz": {
+      "raw_bytes": 614,
+      "raw_sha256": "789aa8a9a554341943ecc0b6f3c345d6748635ab5edaecef2491da21f780111a",
+      "gzip_bytes": 342,
+      "gzip_sha256": "d95a09407fcb56caae2a43f8a0846a98c1a6df33eb50012c391a033008ca81e7"
+    },
+    "scripts/run_current_source_tool_r4.py.gz": {
+      "raw_bytes": 1751,
+      "raw_sha256": "ac6f97bcefa37b97c34c58d7afef0a667860d163f1df90f439e6c19f2a10f8a2",
+      "gzip_bytes": 663,
+      "gzip_sha256": "f72d7385dca9da574f43bfd387e0b64e6163a1ad68a339e4a179f3353539806b"
+    },
+    "coverage/config.coveragerc.gz": {
+      "raw_bytes": 460,
+      "raw_sha256": "33658d54d5be648114cb350c6363ca2a46fc03d318b5424b902404b429efcd79",
+      "gzip_bytes": 306,
+      "gzip_sha256": "a5db457b70fb70766f84295c3ad5e3ec6e43d90340cace9c09ea6b74dae308bb"
+    },
+    "logs/private-repair-coverage-r1.log.gz": {
+      "raw_bytes": 622,
+      "raw_sha256": "47cc51818fe505732c74f535731e85c4c853ab4a331cf5e90d9de1fdd1347777",
+      "gzip_bytes": 367,
+      "gzip_sha256": "24a0219818bc428f590d5d46b72c30730740a09653ab7d9be7ab23b0faec8804"
+    },
+    "logs/view-name-alias-terms-r1-tool.log.gz": {
+      "raw_bytes": 671,
+      "raw_sha256": "8bb574aafe9c314c10c99d42dcf2180aa0b2036e7240194e80d34eb47a21429b",
+      "gzip_bytes": 242,
+      "gzip_sha256": "f414e440d3ae99bfed3ec34b303f81a3f0525a15148c54c20b1e8691c459fe4b"
+    }
+  },
+  "clean_apply_revalidated_against_home_target": "b7d4f381af75f79d8e4cc8df24d92c52906d46fe"
+}

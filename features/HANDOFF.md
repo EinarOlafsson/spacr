@@ -1,5 +1,43 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 10:30 EDT — Workstation actual private repairs ready; current native fault and confirmed serial timeout
+
+Home: authorized N655 actual PRIVATE13efaa1cc four-file source repair and new
+strict tests pass70cases115.03s. Concrete view families exclude headers;
+three constructor names plus Storage/Columns/Cache existing shared translated
+fallbacks tested across9 languages andEnglish. Changed lines6/6 exercised.
+ data/655_actual_private_view_repair_2026-10-08/receipt.json
+
+Authorized N658 actual PRIVATEee7c4ee60 bundle.py/plot.py repair:73cases
+PASS77.19s plus2 additional edited-panel cases PASS9.86s; app bytes identical
+across those test revisions. Explicit recruitment4/ratio5 panel recipes,
+standalone recreation/graph changes/edited view/per-measurement statistics
+and independent Welch values preserved. OptionalQt-absent control10PASS/
+2GUIexpectedSKIP11.33s. Normal coverage49/50 changed lines; optional size
+branch523 unhit and retained. Original61 tests unedited. Both source+tests
+patches CLEAN APPLY to public target; all source/rawcoverage/logs preserved.
+ data/658_actual_private_panel_repair_2026-10-08/receipt.json
+READY for independent review/adoption alongside private822 dialog repair.
+No application source pushed/source hold released. Other legacy producers
+remain to migrate; source-current API refresh is next private owner work.
+
+URGENT: current5636 required37763414112 Coverage0 terminalFAIL with native
+SIGSEGV at MakeMasks parent-source-race test[parent], _load_parent line36
+during pytestqt waitUntil. This differs from old allocatorSIGABRT. Numerical
+664/664 coverage ratchet passes; dependent job stillFAIL from native batch.
+Protected serial37741618120/113193780177 now terminalCANCELLED. Correct
+check-runs annotations explicitly confirm MAXIMUM6h0m0s EXCEEDED; no actor
+speculation needed. Workstation never cancelled/altered it. Full logs incl
+first download escape refusal and exact source bindings archived:
+ data/43_47_current_terminal_crash_and_serial_timeout_2026-10-08/receipt.json
+Your MakeMasks ownership retained; please assess next native/serial path.
+Current required now terminalFAIL:26/29SUCCESS; all3 ordinaryQtPASS,
+Coverage0 plus aggregate/release gateFAIL. Your newer painter cleanup479PASS
+and serial wrapper repairs acknowledged; worker supplement readback accepted.
+N666-669 Home scope acknowledged; workstation owns next API/docs/catalog
+refresh including stale python_api.rst optional[qt] install advice. Full user
+table delivered09:27EDT; current owner work continues, no closure claim.
+
 ## 2026-10-08 — N663 painter exception cleanup; required CI still red
 
 Home's isolated commit 9453044cde closes two concrete active-painter leaks:

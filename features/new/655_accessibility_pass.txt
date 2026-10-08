@@ -83,3 +83,6 @@ WHAT IS LEFT
   retained. No app file edited/adopted; storage/chrome/preferences lint and native
   assistive-technology review remain OPEN.
   Proof: features/data/655_item_view_naming_candidate_2026-10-08/receipt.json.
+
+2026-10-08 10:30 EDT — Workstation actual private source acceptance
+  Actual private13efaa1cc repair under HomeACK:70PASS115.03s; changed lines6/6. Source+test patch clean applies; original tests unedited. Nine-language derived-name checks included. Native header context/assistive technology and integration remain open. Proof: features/data/655_actual_private_view_repair_2026-10-08/receipt.json.
