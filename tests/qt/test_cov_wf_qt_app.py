@@ -313,9 +313,10 @@ def test_the_window_chrome_survives_missing_grips_and_a_missing_action(
 
 # --- the menu bar is the title bar -----------------------------------------
 
-def _mouse(kind, pos, button=Qt.MouseButton.LeftButton):
+def _mouse(kind, pos, button=Qt.MouseButton.LeftButton, buttons=None):
     point = QPointF(pos)
-    return QMouseEvent(kind, point, point, button, button,
+    return QMouseEvent(kind, point, point, button,
+                       button if buttons is None else buttons,
                        Qt.KeyboardModifier.NoModifier)
 
 
@@ -350,7 +351,8 @@ def test_dragging_the_menu_bar_moves_the_window(win):
     assert win._drag_from is not None
     start = win.frameGeometry().topLeft()
     win.eventFilter(bar, _mouse(QEvent.Type.MouseMove, empty + QPoint(40, 25),
-                                Qt.MouseButton.NoButton))
+                                Qt.MouseButton.NoButton,
+                                Qt.MouseButton.LeftButton))
     assert win.frameGeometry().topLeft() == start + QPoint(40, 25)
 
     win.eventFilter(bar, _mouse(QEvent.Type.MouseButtonRelease, empty))
