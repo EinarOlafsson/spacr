@@ -352,3 +352,11 @@ PART C — WHAT IS LEFT
   integrated privately, combined checks/catalog refresh in progress.
   Other producer audit/application adoption/native/serial remain OPEN.
   Proof: data/658_private_regression_sheet_2026-10-08/receipt.json.
+
+2026-10-08 13:50 EDT — Individual regression-panel export acceptance
+  PRIVATE581250PASS102.20s; original12FAIL and alias1FAIL retained.
+  Complete CSV/options/known baseline/compartment/trueCLI preserved.
+  Thirteen-file replacement cleanly applies; original tests unchanged.
+  FinalHomefollow-up214PASS; integration/catalog/native/serial open.
+  Lorenz/other producer audit continues.
+  Proof:data/658_private_regression_panel_2026-10-08/receipt.json.

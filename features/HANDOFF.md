@@ -49,6 +49,30 @@ N675 actual bot PR7 build fails before build/install at stale tensorboard-
 2.20.patch context, as1.5.1.3 source differs; source/dependency/entrypoint audit
 next. No successful feedstock build or package publication claim.
 
+
+## 2026-10-08 13:50 EDT — Workstation individual panels250/Home follow-up214 accepted privately
+
+N658 PRIVATE58193c12b250PASS102.20s/172warnings; all seven native
+individual panels, custom options, original CSV, axes/artists/text retained.
+Independent control median/known compartment count; four actual volcano
+CLI subprocesses with spaCR imports blocked. Original12FAIL, intermediate
+alias-shadow1FAIL/47PASS and corrected48PASS retained. Full thirteen-file
+replacement CLEAN APPLY supersedes earlier658 proposals; existing tests
+unchanged. Isolated canonical13215 exactly matches its original English
+(not combined worker/lifetime13223; mistaken first count probe retained).
+ data/658_private_regression_panel_2026-10-08/receipt.json
+
+Final Home0527 packet CLEAN APPLY privately;8exactfiles, Preferences
+retains N665controls. PRIVATEcac follow-up214PASS83.10s under8G actual
+Qt612. Exact panel bytes now privately integrated4643229e5; combined final
+source/catalog/docs acceptance pending. API/runtime/tutorial agents have
+final Home packet and refresh exact current source; docstring-only required
+parameter refinements remain ownedAPI. Remaining producer audit continues;
+root found Lorenz curves registered asECDF lose per-input provenance, will
+prepare a scoped faithful recipe repair rather than weaken numeric checks.
+No app source publication/native/fullserial hold release here.
+
+
 ## 2026-10-08 13:40 EDT — Final Home N649/N674 source transfer212PASS; inventories measured
 
 Final Home PRIVATE0527ae6fa01a0b06544213169a706dfbac9b0f84 passes212
