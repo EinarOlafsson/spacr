@@ -2,7 +2,7 @@
 
 Requested: 2026-10-07 by the maintainer
 Owner: Root workstation session
-Status: IMPLEMENTING
+Status: DONE 2026-10-08 — 100% functional scope complete
 
 General processing rule: start the first worker immediately, then stagger
 initial worker deployment by 10 seconds between workers. Apply to parallel
@@ -56,3 +56,14 @@ No general caller, hosted/native or full664 completion is claimed.
 2026-10-08 06:42 EDT: requested private changed-line/branch audit complete on32ab3ad26a. Normal1136/1175 changed executable lines and326/349 changed branch arcs; remaining39lines/23arcs explicitly listed. Full297 database-writer statements and34 utility statements hit. Real FASTQ final retries preserve counts, Measure final ordering, atomic masks, cancellation/disk-full/backpressure/writer-failure/reader paths tested. Additional72cases PASS localPy3.12/pytest8.4.2, zero skips/xfails. Original101 Measure/sequencing test bodies AST-identical; application/docs/tools bytes unchanged fromaae. Complete203payload portable proof (108 original coverage data inputs, all original terminal logs including failed fixture run, exact source, clean5-file test-only patch): features/data/664_665_changed_runtime_coverage_2026-10-08/receipt.json. Overlapping cohort counts not summed, no global numerical/native/required-green claim. Source/publication held while Home owns protected required/serial acceptance.
 
 2026-10-08 16:43 EDT — Frozen checkpoint publication: accepted application source6fa8fd257 and matching API13232/runtime10066/UI7288/all9guide3050 catalogs are integrated into nightly with terminal local source/review/browser checks. See HANDOFF publication note and data/ui_publication_source_binding_2026-10-08/receipt.json. Later producer/3D/GPU continuations and matching hosted/native acceptance remain separate; this note does not close broader scope.
+
+2026-10-08 17:42 EDT — Published functional scope complete (100%)
+  Actual requirements/source audit finds no distinct missing caller,
+  combined-budget or functional behavior. All18 accepted worker files
+  match published source exactly; queue getter/setter ASTs and actual
+  initial/reset/save controls are verified. Normal all-nine API13232 and
+  runtime10066/UI7288 artifacts are published with the application.
+  Earlier IMPLEMENTING/private-publication holds are superseded.
+  N43 required green and N47 full serial remain independently open; no
+  full coverage, GPU science or large-volume performance claim is added.
+  Proof: data/664_665_published_completion_2026-10-08.json.
