@@ -1,0 +1,156 @@
+{
+  "combine_conclusion": "failure",
+  "combine_job_id": 113324168943,
+  "combine_step_results": {
+    "Combine process data and write coverage.py JSON": "success",
+    "Gate on the per-module coverage ratchet baseline": "success",
+    "Require every coverage shard to have passed its tests": "failure"
+  },
+  "coverage_failure": 1,
+  "coverage_shards": [
+    {
+      "completed_at": "2026-10-08T13:01:19Z",
+      "conclusion": "failure",
+      "job_id": 113289789342,
+      "number": 0,
+      "raw_log_sha256": "eedd4620069de48f1fc652286b140f1ea43dd465dd4af0f0e857cb40a368d2bb"
+    },
+    {
+      "completed_at": "2026-10-08T12:52:41Z",
+      "conclusion": "success",
+      "job_id": 113289789544,
+      "number": 1,
+      "raw_log_sha256": "02ab77f6c736cd4a8f73733a27441ad97c8901306fe5c5a4705623c091311cc0"
+    },
+    {
+      "completed_at": "2026-10-08T12:20:08Z",
+      "conclusion": "success",
+      "job_id": 113289789450,
+      "number": 2,
+      "raw_log_sha256": "8d65091b436437264065aead5cd6c5cb9c2af23aa7f45ac76048a439a85d115c"
+    },
+    {
+      "completed_at": "2026-10-08T12:17:30Z",
+      "conclusion": "success",
+      "job_id": 113289789204,
+      "number": 3,
+      "raw_log_sha256": "70f85ebb5f5eec60666a7a1b15dd32be3fb983903e07f927ae11a40eed012aa9"
+    },
+    {
+      "completed_at": "2026-10-08T12:52:33Z",
+      "conclusion": "success",
+      "job_id": 113289789214,
+      "number": 4,
+      "raw_log_sha256": "f4590c0fda76e17ac6b0ed5a6b8bd45906a10c9630e2fe0eaf44102e6b8a18c5"
+    },
+    {
+      "completed_at": "2026-10-08T12:24:37Z",
+      "conclusion": "success",
+      "job_id": 113289788899,
+      "number": 5,
+      "raw_log_sha256": "575f24ca8b97302d7036993af11b351c8cc72f85edacb0a4343f48e99853a6ce"
+    },
+    {
+      "completed_at": "2026-10-08T11:58:05Z",
+      "conclusion": "success",
+      "job_id": 113289789299,
+      "number": 6,
+      "raw_log_sha256": "efc6bbed43e07cb60d2d2352f314d6e0bb47a2d723c5841abb76bf36d9c2414c"
+    },
+    {
+      "completed_at": "2026-10-08T12:21:49Z",
+      "conclusion": "success",
+      "job_id": 113289789201,
+      "number": 7,
+      "raw_log_sha256": "a81ee16e1512a50513f429aa8dc0af760bea0e1bd9d6bce6c392ec25b53c8b31"
+    },
+    {
+      "completed_at": "2026-10-08T12:37:58Z",
+      "conclusion": "success",
+      "job_id": 113289789206,
+      "number": 8,
+      "raw_log_sha256": "2198daf298a1c7136b6d2fba2aabee8e3d124a9874eda9cf599d967459fb3782"
+    },
+    {
+      "completed_at": "2026-10-08T12:30:07Z",
+      "conclusion": "success",
+      "job_id": 113289789283,
+      "number": 9,
+      "raw_log_sha256": "e59b72c08a88778012b9df32c26b92f9236680ccf3a2289f8dd01a81383bfe82"
+    },
+    {
+      "completed_at": "2026-10-08T12:15:29Z",
+      "conclusion": "success",
+      "job_id": 113289789266,
+      "number": 10,
+      "raw_log_sha256": "5a2b0b1e9d80b976b2b8786a2a73c458bcb2ca6139e1b995fc8cb8f8619d5bbd"
+    },
+    {
+      "completed_at": "2026-10-08T12:07:00Z",
+      "conclusion": "success",
+      "job_id": 113289789406,
+      "number": 11,
+      "raw_log_sha256": "3cfc27491d3cc83faea4645b999d7b79a273786fa21511fa76acef9e4ea99522"
+    }
+  ],
+  "coverage_success": 11,
+  "failure_kind": "xdist gw1 SIGSEGV; recovery passes but selected test failed",
+  "failure_node": "tests/qt/test_make_masks_parent_source_race_guards.py::test_native_sources_changed_during_detection_cannot_publish_a_result[parent]",
+  "guard_blobs": {
+    "tools/coverage_baseline.json": "6ae23a5bed2640d131125dff45cafa0baeeda0fb",
+    "tools/run_coverage_batches.py": "cbfe0d5149165a38dd6c106c3059f46f20fb9a4a",
+    "tools/verify_module_coverage.py": "7ac55a31327c11d8a78bd954c10ec07d44594d8f"
+  },
+  "interpretation": "All 664 modules pass unchanged numerical limits with complete recovered measurement; one real selected-test SIGSEGV makes the required-shard gate and run red.",
+  "measurement_integrity": {
+    "checked": true,
+    "issues": [],
+    "loss_kinds": {
+      "segfault": 1
+    },
+    "recovered": [
+      "coverage shard 0 batch 3: the batch: collected tests that no worker ever reported; worker gw1 was killed by SIGSEGV (a segfault: the crash family of item 43) [Not properly terminated] while running tests/qt/test_make_masks_parent_source_race_guards.py::test_native_sources_changed_during_detection_cannot_publish_a_result[parent]; 19 test file(s) re-run serially and their coverage recovered: tests/qt/test_detection_cleanup_empty_fields.py, tests/qt/test_dose_response_fits_an_asymmetric_curve.py, tests/qt/test_e2e_umap_search.py, tests/qt/test_embedding_use_for_alpha_gate.py, tests/qt/test_graph_spec_uncovered_paths.py, tests/qt/test_image_qc_classifier_alpha_gate.py, tests/qt/test_intensity_calibration_alpha_gate.py, tests/qt/test_linux_launch_identity.py, tests/qt/test_live_preview_remove_background.py, tests/qt/test_loaded_schema_rules_do_not_overlap_n637.py, tests/qt/test_lock_levels_installer_translations.py, tests/qt/test_magnifier_lock.py, tests/qt/test_make_masks_parent_source_race_guards.py, tests/qt/test_make_masks_psf_infers_and_folds.py, tests/qt/test_menu_roles.py, tests/qt/test_multi_instance_lock_and_jobs_dock.py, tests/qt/test_pca_model_uncovered_paths.py, tests/qt/test_pca_view_uncovered_paths.py, tests/qt/test_plaque_calibration_controls.py"
+    ],
+    "shard_count": 12,
+    "shards_with_records": 12,
+    "status": "complete"
+  },
+  "native_artifact": {
+    "crashed_process_journal": "process-7463-1791461350537255186.jsonl",
+    "diagnostic": "systemd core extracted but old collector rejects ELF PID/executable; no C++ backtrace",
+    "id": 11552052325,
+    "zip_sha256": "ef6af7a26b03b5af437d1b33bfface729de57fee75a875a1606b5c43d0cfe3d5"
+  },
+  "numerical_status": "pass",
+  "numerical_summary": {
+    "failed_modules": 0,
+    "global_issue_count": 0,
+    "improved_modules": 99,
+    "integrity_issue_count": 0,
+    "modules_at_100_percent": 455,
+    "modules_below_100_percent": 209,
+    "modules_below_floor": 1,
+    "modules_checked": 664,
+    "modules_exempt_from_floor": 1,
+    "shipped_modules": 664,
+    "stale_baseline_entries": 0,
+    "stale_exemptions": 0,
+    "unconfirmed_modules": 0
+  },
+  "report_artifact": {
+    "id": 11551698279,
+    "ratchet_json_sha256": "074859743e030e900b8d8737483accfe64579352be1e059d7312e386d89084f7",
+    "zip_sha256": "9092505c42442ed3a950a1e80aedd788cead95e178968670036aa3cae8b49f42"
+  },
+  "run_attempt": 1,
+  "run_id": 37763414112,
+  "run_snapshot_status": "in_progress",
+  "schema": 1,
+  "scope": "complete 12-shard numerical coverage phase; required test gate failed",
+  "source_sha": "5636eac60938f5d6021eaf73546ff8a30ae17c32",
+  "source_tree": "0c4e4f01526f31796e2c87eb5c2c8f728dd81803",
+  "workflow_blobs": {
+    ".github/workflows/_pytest-suite.yml": "ca2f82eb9d4819a59227fec558dc4c3578f9c8ca",
+    ".github/workflows/tests.yml": "3d0d2574e1124e37d7d94755662c8b5a515c1d67"
+  }
+}
