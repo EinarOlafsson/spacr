@@ -228,30 +228,47 @@ def _extract_systemd_core(directory: Path, scratch: Path, pid: int | None,
     return None
 
 
-def _core_process_ids(path: Path, executable: Path) -> set[int]:
+def _core_process_ids(path: Path, executable: Path,
+                      diagnostics: list[str] | None = None) -> set[int]:
     """Read the unique Linux x86 process leader, never an LWP, for this executable."""
+    observed: dict[str, object] = {}
+
+    def result(reason: str, process_ids: set[int] | None = None) -> set[int]:
+        """Record bounded ELF identity facts while retaining strict refusal."""
+        if diagnostics is not None:
+            details = {**observed, "reason": reason}
+            diagnostics.append("elf_identity=" + json.dumps(details, sort_keys=True))
+        return process_ids or set()
+
     try:
         with path.open("rb") as source:
             header = source.read(64)
             if len(header) != 64 or header[:4] != b"\x7fELF" or header[4] not in (1, 2):
-                return set()
+                return result("invalid_elf_header")
+            observed["elf_class"] = 64 if header[4] == 2 else 32
             order = "<" if header[5] == 1 else ">" if header[5] == 2 else None
-            if order is None or struct.unpack_from(order + "H", header, 16)[0] != 4:
-                return set()
+            if order is None:
+                return result("invalid_byte_order")
+            if struct.unpack_from(order + "H", header, 16)[0] != 4:
+                return result("not_core_elf")
             wide = header[4] == 2
             machine = struct.unpack_from(order + "H", header, 18)[0]
+            observed["machine"] = machine
             if machine != (62 if wide else 3):
-                return set()
+                return result("unsupported_machine")
             word = "Q" if wide else "I"
             offset = struct.unpack_from(order + word, header, 32 if wide else 28)[0]
             stride, count = struct.unpack_from(order + "HH", header, 54 if wide else 42)
+            observed.update(program_headers=count, program_header_stride=stride)
             minimum = 56 if wide else 32
-            if stride < minimum or stride > 256 or count > 1024:
-                return set()
+            if count > 1024:
+                return result("program_header_ceiling")
+            if stride < minimum or stride > 256:
+                return result("invalid_program_header_stride")
             source.seek(offset)
             entries = source.read(stride * count)
             if len(entries) != stride * count:
-                return set()
+                return result("truncated_program_headers")
             process_ids = set()
             found_executable = False
             remaining = 4 * 1024 * 1024
@@ -262,12 +279,13 @@ def _core_process_ids(path: Path, executable: Path) -> set[int]:
                 position = struct.unpack_from(order + word, entry, 8 if wide else 4)[0]
                 size = struct.unpack_from(order + word, entry, 32 if wide else 16)[0]
                 if size > remaining:
-                    return set()
+                    observed.update(note_bytes=size, note_bytes_remaining=remaining)
+                    return result("note_byte_ceiling")
                 remaining -= size
                 source.seek(position)
                 notes = source.read(size)
                 if len(notes) != size:
-                    return set()
+                    return result("truncated_notes")
                 cursor = 0
                 while cursor + 12 <= len(notes):
                     names, length, kind = struct.unpack_from(order + "III", notes, cursor)
@@ -276,7 +294,7 @@ def _core_process_ids(path: Path, executable: Path) -> set[int]:
                     end = begin + length
                     cursor = begin + ((length + 3) & ~3)
                     if name_end > len(notes) or end > len(notes) or cursor > len(notes):
-                        return set()
+                        return result("malformed_note")
                     if notes[name_end - names:name_end].rstrip(b"\0") != b"CORE":
                         continue
                     payload = notes[begin:end]
@@ -287,12 +305,21 @@ def _core_process_ids(path: Path, executable: Path) -> set[int]:
                         maps = struct.unpack_from(order + word, payload)[0]
                         start = (2 + 3 * maps) * (8 if wide else 4)
                         if start > len(payload):
-                            return set()
+                            return result("malformed_nt_file")
                         names = payload[start:].split(b"\0")
                         found_executable |= os.fsencode(executable) in names[:maps]
-            return process_ids if found_executable and len(process_ids) == 1 else set()
+            observed.update(process_pid_count=len(process_ids),
+                            process_pids=sorted(process_ids)[:8],
+                            executable_path_present=found_executable)
+            if not process_ids:
+                return result("missing_process_pid")
+            if len(process_ids) != 1:
+                return result("conflicting_process_pids")
+            if not found_executable:
+                return result("absent_executable_path")
+            return result("accepted", process_ids)
     except (OSError, ValueError, struct.error, OverflowError):
-        return set()
+        return result("unreadable_or_invalid_elf")
 
 
 def _ordinary_sessions(evidence: Path, workspace: Path, source_sha: str,
@@ -375,7 +402,11 @@ def _ordinary_core(workspace: Path, evidence: Path, sessions: list[dict],
     )
     if extracted is None:
         return None, None
-    if int(session["pid"]) in _core_process_ids(extracted, executable):
+    diagnostics: list[str] = []
+    identities = _core_process_ids(extracted, executable, diagnostics)
+    lines.extend(diagnostics)
+    lines.append(f"elf_identity_expected_pid={int(session['pid'])}")
+    if int(session["pid"]) in identities:
         lines.append(f"matched_process={json.dumps(session, sort_keys=True)}")
         return extracted, extracted
     extracted.unlink(missing_ok=True)

@@ -227,6 +227,62 @@ def test_malformed_native_notes_never_bind_a_worker(tmp_path, defect):
     assert not collector._core_process_ids(core, executable)
 
 
+@pytest.mark.parametrize('defect,reason', [
+    ('program_headers', 'program_header_ceiling'),
+    ('note_bytes', 'note_byte_ceiling'),
+    ('missing_pid', 'missing_process_pid'),
+    ('conflicting_pid', 'conflicting_process_pids'),
+    ('executable', 'absent_executable_path'),
+])
+def test_rejected_native_identity_reports_the_bounded_reason_without_accepting_it(
+    tmp_path, defect, reason,
+):
+    executable = tmp_path / 'python'
+    raw = bytearray(_native_note_core(3456, executable))
+    notes_start = 64 + 56
+    if defect == 'program_headers':
+        struct.pack_into('<H', raw, 56, 1025)
+    elif defect == 'note_bytes':
+        struct.pack_into('<Q', raw, 64 + 32, 5 * 1024 * 1024)
+    elif defect in ('missing_pid', 'conflicting_pid'):
+        cursor = notes_start
+        while cursor < len(raw):
+            names, length, kind = struct.unpack_from('<III', raw, cursor)
+            payload = cursor + 12 + ((names + 3) & ~3)
+            following = payload + ((length + 3) & ~3)
+            if kind == 3:
+                if defect == 'missing_pid':
+                    struct.pack_into('<I', raw, cursor + 8, 77)
+                else:
+                    second = bytearray(raw[cursor:following])
+                    struct.pack_into('<i', second, payload - cursor + 24, 7890)
+                    raw.extend(second)
+                    struct.pack_into('<Q', raw, 64 + 32, len(raw) - notes_start)
+                break
+            cursor = following
+        else:
+            pytest.fail('synthetic ELF lacks PRPSINFO')
+    core = tmp_path / 'core'
+    core.write_bytes(raw)
+    diagnostics = []
+    expected = tmp_path / 'other-python' if defect == 'executable' else executable
+    assert collector._core_process_ids(core, expected, diagnostics) == set()
+    assert len(diagnostics) == 1
+    assert len(diagnostics[0]) < 512
+    detail = json.loads(diagnostics[0].removeprefix('elf_identity='))
+    assert detail['reason'] == reason
+    assert detail['elf_class'] == 64
+    assert detail['program_headers'] == (1025 if defect == 'program_headers' else 1)
+    if defect == 'conflicting_pid':
+        assert detail['process_pids'] == [3456, 7890]
+        assert detail['executable_path_present'] is True
+    elif defect == 'executable':
+        assert detail['process_pids'] == [3456]
+        assert detail['executable_path_present'] is False
+    elif defect == 'missing_pid':
+        assert detail['process_pid_count'] == 0
+
+
 def _identity(tmp_path):
     if sys.platform != 'linux':
         pytest.skip('ordinary worker provenance uses Linux process identity')
@@ -413,7 +469,8 @@ def test_ordinary_systemd_core_requires_current_session_and_native_identity(
     monkeypatch.setattr(collector, 'Path', lambda value: reports if str(value) == (
         '/var/lib/systemd/coredump') else path_type(value))
     monkeypatch.setattr(collector, '_candidate_files', lambda *args: iter(()))
-    selected, temporary = collector._ordinary_core(tmp_path, evidence, [session], executable, [])
+    lines = []
+    selected, temporary = collector._ordinary_core(tmp_path, evidence, [session], executable, lines)
     try:
         assert bool(selected) is (defect == 'none')
         if selected:
@@ -424,6 +481,17 @@ def test_ordinary_systemd_core_requires_current_session_and_native_identity(
         if temporary is not None:
             temporary.unlink()
     assert not list(evidence.parent.glob('qt-native-*.elf'))
+    if defect in ('none', 'pid_note', 'executable_note'):
+        assert f"elf_identity_expected_pid={session['pid']}" in lines
+        diagnostic = next(line for line in lines if line.startswith('elf_identity='))
+        details = json.loads(diagnostic.removeprefix('elf_identity='))
+        assert details['reason'] == ('absent_executable_path' if defect == 'executable_note'
+                                     else 'accepted')
+        assert details['process_pids'] == ([7890] if defect == 'pid_note' else [3456])
+        if defect != 'none':
+            assert 'ordinary extraction rejected: ELF PID or executable differs' in lines
+    else:
+        assert not any(line.startswith('elf_identity=') for line in lines)
 
 
 def test_foreign_process_leader_cannot_match_a_reused_thread_identifier(tmp_path, monkeypatch):
