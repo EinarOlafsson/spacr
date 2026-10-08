@@ -2,7 +2,7 @@
 FIXED-HEIGHT INLINE HELP AND ONE ACTION PROGRESS INDICATOR
 ================================================================================
 
-Status:    in progress
+Status:    DONE 2026-10-08 — published and locally accepted.
 Requested: 2026-10-08 — "the tooltips for the action buttons should appear in the tooltip section below them, not as popups, and all butons should have tooltips. same goes for live, 3D, Time, OPS, Ai."
 Owner:     Home/root; delegated CPU UI lanes
 
@@ -62,3 +62,5 @@ catalog refresh and application publication remain pending.
   publication/current CI remain pending. Totals overlap Home280.
 
 2026-10-08 16:43 EDT — Frozen checkpoint publication: accepted application source6fa8fd257 and matching API13232/runtime10066/UI7288/all9guide3050 catalogs are integrated into nightly with terminal local source/review/browser checks. See HANDOFF publication note and data/ui_publication_source_binding_2026-10-08/receipt.json. Later producer/3D/GPU continuations and matching hosted/native acceptance remain separate; this note does not close broader scope.
+
+2026-10-08 17:06 EDT — COMPLETION AUDIT: 100%. Fixed scrollable/resizable Preferences help and stable inline Action/mode-button help are published; the duplicate Action spinner is removed. Source-bound342-case combined Qt acceptance, existing Home280 phase and all-nine documentation/runtime acceptance cover this scope. These phases overlap and are not summed. Current public application matches all669 frozen accepted Python hashes. Proof: data/667_671_677_published_completion_2026-10-08.json and the original source/documentation archives. Hosted CI N43, original-order N47, native/GPU termination N663/N668 and tutorial-media N676 remain independently open; their broader acceptance is not claimed by this closure.
