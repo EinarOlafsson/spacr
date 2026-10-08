@@ -166,6 +166,18 @@ receipt as soon as it is ready. Home retains hosted ordinary/original-order
 Qt acceptance and native attribution. Please continue recording new concrete
 owner work in this handoff; Root will take available work after this batch.
 
+## 2026-10-07 — Coverage 0 idle parity transfer to Workstation
+
+The source-exact 683 Coverage 0 hosted failure in
+`test_a_category_built_in_idle_time_equals_one_built_by_a_click` is not yet
+reproduced or repaired locally. The full job log, bounded 37-case predecessor
+run, temporary diagnostic output, source hashes and precise limits are in
+`data/43_683_idle_parity_handoff_2026-10-07/`. Focused 1/1 and 12/12 runs
+also passed, but their raw logs were not retained. Idle/click/eager row,
+value and search equality remains unchanged. Workstation now owns further
+reproduction; Home stops duplicating this node and continues current coverage
+shards, numerical aggregate and non-owner failures. The 683 run is not green.
+
 ## 2026-10-07 — Home: urgent owner CI corrections, exact remaining contracts
 
 Home source repairs through b7891d23dd and the Coverage5 follow-up are ready.

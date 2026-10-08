@@ -1,0 +1,36 @@
+{
+  "source_sha": "6836512a98bea77e946dd941a9b4f8a0e38068b5",
+  "files": [
+    {
+      "path": "coverage0-113058129287.log.gz",
+      "raw_bytes": 4218388,
+      "raw_sha256": "3324fa12d3f10b3b6db2e8c4c8b69dc9fecf52c4ac69e675197074fbd4281034",
+      "gzip_bytes": 538081,
+      "gzip_sha256": "7b4002adfb3e64c3afbc25f92d85a741d76789f7d7545cd9f74557fffa83b93e"
+    },
+    {
+      "path": "bounded-37.log.gz",
+      "raw_bytes": 451,
+      "raw_sha256": "2e3f0cc59a9f71542ab34afefa0f8d40d79a86fc7b641254af1329214f137b09",
+      "gzip_bytes": 271,
+      "gzip_sha256": "a2ae65129cd8ccf85710bde4e302316bbc78514aed07469b922ec9c5d152d423"
+    },
+    {
+      "path": "discarded-probe.log.gz",
+      "raw_bytes": 1684,
+      "raw_sha256": "661e7467349cd78035bcf86983c09e8fb147cccfef12f8fb10d220c50583f874",
+      "gzip_bytes": 284,
+      "gzip_sha256": "4f3d8b0e4e255e6d136702f42771639ceb55eaa1d18b1b1da199e94ebf75938d"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2452,
+      "sha256": "49ca4f434311ad577202bcc1d4c3bfd1dd42350cf5cf22648d100e18b17a9150"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 2213,
+      "sha256": "2e9e1d3496e2e1d88c079011c59a0b2a057f8fee8c19b6a9a3e8361e1864e2ea"
+    }
+  ]
+}
