@@ -1,0 +1,69 @@
+================================================================================
+INSTALL SPACR, COMPLETE HOME NAVIGATION AND CURRENT ORGANISM TUTORIALS
+================================================================================
+
+Status:    in progress
+Requested: 2026-10-08
+Owner:     Workstation tutorial agent; workstation root integration and publication;
+           API/docs/runtime agents supporting current source and translations;
+           Home owns the actual Home Organism category and module layout.
+Related:   N615 tutorial publication, N649 Edit menu, N667 inline help,
+           N674 current Home/Spaceout controls, N675 conda-forge package update.
+
+WHAT THE USER REQUESTED
+
+Replace Install spaCR with Pip and Install spaCR with Conda with one tutorial
+called Install spaCR. Show pip in a Python venv, pip in a Conda environment,
+and conda-forge in a Conda environment. A conda-forge package requires a Conda
+environment; do not imply Conda installs packages into a plain Python venv.
+Keep concrete environment creation, activation, installation, launch, version
+checking, updating and uninstall commands clear for each route.
+
+Add uninstall instructions to every installation tutorial. Remove all
+user-facing sha256sum/hash instructions from the desktop-installer tutorial.
+Internal artifact integrity records remain available for reproducibility.
+Preserve accepted old material as archived evidence; remove the two superseded
+standalone lessons from the current picker and update links/redirects through
+the normal catalog and publication tools.
+
+Remake Home screen and navigation with every current ordinary module described
+left to right, without skipping modules. Use the current Organism category
+instead of Assays. Use a brief generic Make Masks walkthrough to explain the
+shared module interface elements; do not make that walkthrough primarily a
+specialized mask-generation workflow. Do not place the Classify explanation
+after the organism overview in a way that misrepresents the module order.
+
+Replace Image analysis modules and how they relate for the changed modules.
+Add a Toxoplasma organism tutorial and skip other organisms. Capture the actual
+current UI, preserving the alpha-species visibility rules.
+
+Use the Blobs animation at relatively high density in mask scenes. Pronounce
+live as in live television, not as the verb to live, wherever that is the
+intended UI meaning. Apply this through the normal speech-plan renderer.
+
+HOW TO KNOW IT WORKED
+
+Current source, lesson index, player, redirects, related-lesson references and
+all supported language catalogs agree on the merged installation identity.
+Each route uses genuine commands and clearly reports installed versus current
+nightly version boundaries. Uninstall instructions are present for every
+installer route; desktop-installer user-facing content has no hash commands.
+All current ordinary Home modules appear once in the actual left-to-right
+order and the current Organism label matches captured source. Image-analysis
+relationships and Toxoplasma content reflect the current module inventory.
+
+Normal fresh native captures, reviewed translations, pinned narration, full
+video decode, source/frame fidelity, desktop/mobile player checks and immutable
+hosted readback cover the changed lessons. Retain unaffected accepted lessons
+and original retired content/evidence. Do not accept partial narration or
+reading-time-only reviews as final published video acceptance.
+
+2026-10-08 workstation ownership handoff:
+All three completion agents remain active. Tutorial agent switches from the
+older Home-only refresh to this explicit user scope; only its four obsolete
+owned renderers are stopped, with complete terminal logs and atomic completed
+tracks retained. Shared pinned model assets and reusable speech segments stay.
+Home: please transfer actual Assays-to-Organism source/module-order changes
+with the pending Help/AppScreen packet. Workstation owns all requested tutorial
+authoring, captures, normal multilingual generation, integration and publication.
+No native capture, final narration or publication acceptance is claimed yet.

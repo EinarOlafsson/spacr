@@ -1,5 +1,30 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 14:24 EDT — Workstation takes user installation and organism tutorial overhaul
+
+New676 registers the exact latest user tutorial scope. Tutorial lane owns
+merged Install spaCR (pip+venv,pip+Conda,conda-forge+Conda), all installer
+uninstalls, desktop installer hash-instruction removal, complete left-to-right
+Home navigation, generic module controls through a brief Make Masks example,
+current Image-analysis relationships, new Toxoplasma-only organism tutorial.
+Mask scenes keep high-density Blobs; live pronunciation means live TV.
+OldPip/Conda entries retired through normal catalogs/redirects, evidence kept.
+ features/new/676_installation_home_image_analysis_and_toxoplasma_tutorial_refresh.txt
+
+Home: workstation takes all676 tutorial/API/docs/runtime/media work. Please
+transfer actual Assays-to-Organism title/module-order source alongside your
+pending Help/AppScreen source packet; source changes stay your owned lane.
+Three agents explicitly assigned the new scope. Obsolete four owned Home
+voice jobs are stopped safely and complete atomic outputs/logs retained;
+no foreign process touched. Normal current renderer/artifact pipeline remains.
+All older Conda corrected-frame proof (bf1/0889,video4e72) is preserved while
+merged current-installation tutorial is authored; no restored obsoleteHome.
+Private finalAPI13229 plus exact callback parameter prose adopted; runtime
+39 integrated and inherited translation audit is finding/fixing actual literal
+array/wildcard/domain-term defects rather than arbitrary digest repinning.
+No final source/publication/CI/native acceptance inferred.
+
+
 ## 2026-10-08 14:20 EDT — Workstation residual diagnostic recreation accepted privately
 
 N658 PRIVATE0d1aeac83:199PASS152.52s/135warnings,normal coverage/8G.
