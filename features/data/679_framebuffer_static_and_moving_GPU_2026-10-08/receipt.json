@@ -1,0 +1,56 @@
+{
+  "scope": "Scratch-only native RTX3090Ti/OpenGL4.3/Qt612 experiments. Original reserved-name shader failure retained. Static and moving cohorts each have24 cases/192 exact outputs. Moving cohort has eight different frame hashes per case and nine faster paired material medians; default low density often slower. Material-stage timing only, concurrent CPU load, default monotonic palette and zero flicker; arbitrary palettes/Spaceout events/full engine/widget/production speedup not accepted. Application source and backend unchanged.",
+  "application_backend_implemented": false,
+  "archive": {
+    "name": "evidence.tar.gz",
+    "bytes": 38616,
+    "sha256": "30240bd47d7f3e705752c8c5af502d9862dd4989b3e1539032b2cf40d75ad0b3",
+    "members": {
+      "prepare_framebuffer_GL_prototype_r3.py": {
+        "bytes": 3699,
+        "sha256": "149d73156f9bca596d4bc819949b6ca9e4e28f5e81e3ba8023994ce190d8ae7d"
+      },
+      "prototype_framebuffer_flow_GL_r3.py": {
+        "bytes": 9164,
+        "sha256": "4b3d3fab8c5165d2c3dcbd91dae335a7b1768ba3146047aa685d7b37ffc122c4"
+      },
+      "framebuffer-flow-GL-prototype-r3.log": {
+        "bytes": 1205,
+        "sha256": "b4dc0b30075656ddf49978a7cc8916becd32933c503d299901bab52831c356c2"
+      },
+      "prepare_framebuffer_GL_prototype_r4.py": {
+        "bytes": 531,
+        "sha256": "5dc92a87b4fe90eba4f5273bd7e1c11c8aa4417707ddbdcfcf3c2d5a9f93473a"
+      },
+      "prototype_framebuffer_flow_GL_r4.py": {
+        "bytes": 9189,
+        "sha256": "c7bf612da386f3d5ec3b4e8d55038471f358ddc001f4f161b5d1f7fbefe135cb"
+      },
+      "framebuffer-flow-GL-prototype-r4.log": {
+        "bytes": 18682,
+        "sha256": "1ab0eadc540f54eec015cc71c4edac7d2c8ffb5f159d6b61c52bc575eb34854a"
+      },
+      "framebuffer-flow-GL-prototype-r4/receipt.json": {
+        "bytes": 25407,
+        "sha256": "b87564df5f0ea87206bd1a34378387c608c0d492649fcbf8843a2b53c78d3ce6"
+      },
+      "prepare_moving_framebuffer_GL_prototype_r5.py": {
+        "bytes": 1972,
+        "sha256": "879537958e3896b1f92046143c0cdc933fc6d9b6047c43e6e8801a4308012b8f"
+      },
+      "prototype_moving_framebuffer_flow_GL_r5.py": {
+        "bytes": 9904,
+        "sha256": "b927a6ef7fb46fb70e61252171b8cf5f76b6aa5ebb32e69f110b48cbabc26076"
+      },
+      "framebuffer-moving-flow-GL-prototype-r5.log": {
+        "bytes": 32386,
+        "sha256": "3c5a63a59a3040d39ba42d50c19068b2e31b6b43365f777a8ef7f2c0a2168a6a"
+      },
+      "framebuffer-moving-flow-GL-prototype-r5/receipt.json": {
+        "bytes": 41058,
+        "sha256": "e40e4b36d490f667da88d2e290a261e3424ed3e803786dfeb2980f9e4a4baf65"
+      }
+    }
+  },
+  "independent_archive_readback": true
+}

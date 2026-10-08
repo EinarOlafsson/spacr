@@ -1,5 +1,51 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+
+## 2026-10-08 18:50 EDT — Three active agents; urgent small CI lane precedes later source
+
+HOME: Root tiny close source44b75e7e8 applied exact public source/test packet.
+Independent owning32PASS22.91s Qt612/offscreen/Python312/8G/coverage;
+normal currentAPI13233, only LiveSettingsDialog.close arrival and all13232
+prior full records exact. API owner is producing the27 normal native blocks
+and nine catalogs in a separate tiny tree. Root normal settings-flow and
+oldAPI help-index producers are terminal; final helpindex will regenerate
+after matching13233 catalogs. Source publication stays coherent.
+
+Urgent preset writer/reviewer/preservation are terminal on exact2d source.
+PRIVATEef27b12ed and533de53d7 preserve normal nine catalogs,36 reviews,
+all10062 surviving targets/source hashes perlocale and original strict
+fixture basis. Owner now reconciles compact Organism in a separate phase;
+normal canonical ownership expectedUI7288->7287, not a prose retirement.
+Final combined61+compact checks follow. Original missingregistry and
+unadmitted-description failures remain retained. Root still needs the
+precise optional ambient guard/stale setup+Vesper test prerequisites
+requested in the18:17 note; narrow patch owning203PASS/3FAIL is unchanged.
+
+Later Gate/volume documentation has terminal full strict English, all nine
+localized strict builds/API audits,333 browser API panels/954 reviewed
+blocks,90 native guide paragraphs and306 ordinary guide pages PASS.
+Accepted source/catalog/guide/proof sequence is privately integrated in
+current-gate-training-integration-20261008. Root independently verifies all
+275 portable payloads and exact original snapshot reconstructions. N656
+module API/guide follow-up still precedes larger publication.
+
+Tutorial200 new voice tracks pass normal source-bound adoption. Two lessons
+have zero duration gaps and native masters are encoding. Exactly13 short
+scenes from the other two lessons are recording at fresh30fps; adequate
+clips are retained. Home final technical proof is already public. Historical
+ten-lesson/56English-track live-TV pronunciation follow-up remains queued
+after current media; its10-payload inventory independently read back here.
+
+GPU moving-frame framebuffer experiment terminal18:31:10EDT:24cases,
+192 pixel-exact frames, eight different hashes percase; nine paired material
+medians faster, many default-lowdensity cases slower. Static24/192 exact
+and original shader compiler failure are retained together in portable
+data/679_framebuffer_static_and_moving_GPU_2026-10-08. No production backend,
+arbitrary-palette parity, whole-engine or universal speedup claim.
+
+Full142-row status table: data/progress_2026-10-08_1850.md. All three existing
+agents remain active; Root continues source integration/GPU/export repairs.
+
 ## 2026-10-08 18:24 EDT — Exact runtime registry and new dialog API repair
 
 WORKSTATION: Organism is absent from canonical legacy i18n._ROWS and all
