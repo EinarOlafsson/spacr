@@ -1,0 +1,81 @@
+{
+  "feature": "N663",
+  "scope": "Missing AmbientWidget slot route; bounded negative reproduction, no production repair.",
+  "checkpoint": "64de91a0ff9c3330dc9799125a13b6ad235ecfe1",
+  "current_bindings": {
+    "spacr/qt/widgets/ambient.py": "272bd75f46bfa35ad56a8dd9f4dd0da75d96cc17f178a6a5d8675a6dd1a8bf6c",
+    "spacr/qt/preferences.py": "c2b9f79011f0eff4c1a2af98142d00d402940a1770bf67be7a56980a62c71db8",
+    "spacr/qt/app.py": "2018ed9bf74352b39d26bdf1623b84f26ed5e17485c910ea951a8b48dd79f4bc",
+    "spacr/qt/widgets/glass.py": "f30b606c702bce792d9c1ad3673d6cc7d5c97a9cf7e9908b2eb6d4c987f2ddd0",
+    "spacr/qt/screens/app_screen.py": "92515a44aafdbab5551cf41867f052535c0ba88f72843d33f6047fc4402adaa4"
+  },
+  "command": "CUDA_VISIBLE_DEVICES='' SPACR_DEVICE=cpu QT_QPA_PLATFORM=offscreen MPLBACKEND=Agg PYTHONPATH=. tools/run_capped.sh 4G /home/olafsson/anaconda3/bin/python /mnt/wd4tb/scratch/ambient-slot-610-20261008/probe.py > /mnt/wd4tb/scratch/ambient-slot-610-20261008/probe-accepted.log 2>&1",
+  "environment": {
+    "python": "3.12.4 | packaged by Anaconda, Inc. | (main, Jun 18 2024, 15:12:24) [GCC 11.2.0]",
+    "executable": "/home/olafsson/anaconda3/bin/python",
+    "Qt": "6.10.0",
+    "numpy": "1.26.4",
+    "cap": "4G",
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "preferences": "Temporary INI file; private home/network/log directories; Spaceout explicitly enabled for the offered spinn theme."
+  },
+  "accepted_probe": {
+    "exit_code": 0,
+    "stage_snapshots": 17,
+    "seconds_after_setup_to_shutdown": 18.466923584986944,
+    "preferences_apply_keep_cycles": 3,
+    "independent_popup_open_close_cycles": 3,
+    "hide_restart_cycles": 3,
+    "density": [
+      1,
+      2,
+      3
+    ],
+    "detail": [
+      1,
+      2,
+      1
+    ],
+    "navigation": [
+      "measure",
+      "make_masks",
+      "__home__"
+    ],
+    "python_exceptions": 0,
+    "missing_slot_or_wrapper_messages": 0,
+    "qt_message_count": 17,
+    "qt_capture_truncated": false,
+    "slot_index_at_each_sample": 33,
+    "native_window_destroyed": true,
+    "remaining_ambient_widgets": 0,
+    "sampled_producers": 9,
+    "sampled_producers_still_alive": 0
+  },
+  "static_review": [
+    "AmbientWidget binds QTimer.timeout to the ordinary bound _on_tick method; all sampled real Qt6.10 wrappers/metaobjects retain AmbientWidget and a valid dynamic slot.",
+    "Destroyed retirement captures only the producer box, not the widget. Stop retires workers and timer; independent popup replacement stops and deletes the old backdrop.",
+    "The existing late-caption ChildAdded observer defers the watched host and does not retain event.child() during child construction, preserving the earlier wrapper-poisoning repair.",
+    "No evidence warrants a speculative @Slot decorator, timer disconnect, event-filter or lifetime change."
+  ],
+  "historical_probe_harnesses": [
+    {
+      "log": "logs/probe-setup.log.gz",
+      "exit_code": 1,
+      "outcome": "Initial setup selected Spaceout-only spinn in ordinary mode and was correctly refused before GUI creation; not an application failure or accepted lifecycle run."
+    },
+    {
+      "log": "logs/probe-final.log.gz",
+      "exit_code": 1,
+      "outcome": "The first full lifecycle run reached native shutdown without missing-slot warnings, then the diagnostic called nonexistent _FrameProducer.join. Final harness removes that artificial join and observes natural retirement; not a product defect."
+    }
+  ],
+  "limits": [
+    "Historical AttributeError: Slot AmbientWidget:: not found was not reproduced; its original exact PID/event sequence/source was unavailable. Cause remains unresolved.",
+    "No causal relationship to historical painter warnings or hosted Make Masks native faults is established.",
+    "This is one bounded source/version-specific CPU offscreen run, not broad stress, user native-display, whole Qt, native4K FPS or GPU acceptance.",
+    "Nine sampled producer references retired; intermediate replacement workers were not exhaustively tracked. Zero ambient widgets remained after natural GUI deletion.",
+    "Qt messages were captured without application suppression; 17 messages were only the known offscreen size-hint/font notes, below the 256-message bound.",
+    "Accepted Home64 source is frozen here. This packet does not change or claim acceptance of the separately frozen workstation publication bundle."
+  ]
+}

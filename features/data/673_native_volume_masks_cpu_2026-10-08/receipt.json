@@ -1,0 +1,303 @@
+{
+  "feature": "N673",
+  "before_checkpoint": "ec50d0bbb1e",
+  "checkpoint_phase_source": "ecf6125a077",
+  "source_checkpoint": "2720b462e8a",
+  "source_commits": [
+    "3dc450de27b",
+    "54351ca8439",
+    "ecf6125a077",
+    "2720b462e8a"
+  ],
+  "current_bindings": {
+    "spacr/qt/mask_engine.py": "556526b3893916ae3c8862cf84759c41342117c18eec44528da60930e70709f6",
+    "spacr/qt/screens/make_masks.py": "a18125bc8ef7f668e45aee46e09968ee8e7c7b0b91c2a807adabb779ab38b0a7",
+    "tests/test_make_masks_native_volume.py": "63296a10b78c237da2770000d8cc06a44853d49b2c5dd818d969675bfc2230f1",
+    "tests/qt/test_make_masks_native_volume_editor.py": "fa35f4323b4687809fa14f9cf232d045637e1df4513be29fbdfada3643b7f46a"
+  },
+  "dependency": {
+    "feature": "N672",
+    "source_commits": [
+      "6b89b49b80c",
+      "1ad258e625f"
+    ],
+    "inherited_doc_correction": "22f8c0046041cec731344cb5df9505daeaad2c30",
+    "local_doc_cherry": "ec50d0bbb1e"
+  },
+  "phases": [
+    {
+      "source": "ecf6125a077",
+      "passed": 116,
+      "seconds": 48.75,
+      "log": "logs/volume-checkpoint.log.gz",
+      "coverage": "coverage/volume-checkpoint-coverage.json.gz",
+      "scope": "Six selected owning model/GUI, legacy 2D/YOLO and callable-documentation test files; exact command in commands.json."
+    },
+    {
+      "source": "2720b462e8a",
+      "passed": 13,
+      "seconds": 10.88,
+      "log": "logs/volume-dirty-close.log.gz",
+      "scope": "Full final native volume editor GUI file, after dirty/busy close guard."
+    },
+    {
+      "source": "2720b462e8a",
+      "passed": 3,
+      "seconds": 8.23,
+      "log": "logs/volume-close-traced.log.gz",
+      "coverage": "coverage/volume-close-coverage.json.gz",
+      "scope": "Direct branch-traced dirty busy Cancel/Discard, fresh busy native teardown and unsaved idle Cancel tests."
+    }
+  ],
+  "phase_count_policy": "Phases overlap. Do not add counts or relabel the 116-case run as the final changed-close source.",
+  "independent_root_phases": [
+    {
+      "source": "ecd38110b55",
+      "passed": 42,
+      "seconds": 1.25,
+      "log": "logs/root-model-ecd381-612.log.gz",
+      "scope": "Root model checkpoint before GUI integration."
+    },
+    {
+      "source": "ecd38110b55",
+      "passed": 3,
+      "seconds": 28.24,
+      "log": "logs/root-model-docs-ecd381-612.log.gz",
+      "scope": "Root required/doc/ghost guards before GUI integration."
+    },
+    {
+      "source": "14e4bbcb2a9",
+      "passed": 60,
+      "seconds": 30.54,
+      "log": "logs/root-volume-14e4-612.log.gz",
+      "scope": "Root GUI/model selected integration before final dirty/busy close follow-up."
+    }
+  ],
+  "environment": {
+    "python": "3.12.13",
+    "pytest": "8.4.2 overlay",
+    "Qt": "6.12.0 overlay",
+    "cap": "4G",
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen"
+  },
+  "changed_source_gap_audit": {
+    "spacr/qt/mask_engine.py": {
+      "changed_missing_lines": [
+        4411,
+        4412,
+        4453,
+        4478,
+        4502,
+        4523,
+        4562,
+        4572,
+        4580,
+        4581,
+        4588,
+        4618,
+        4665,
+        4666,
+        4675,
+        4681,
+        4688,
+        4698,
+        4713,
+        4719,
+        4759,
+        4769,
+        4770,
+        4801
+      ],
+      "changed_missing_incident_arcs": [
+        [
+          4450,
+          4453
+        ],
+        [
+          4451,
+          4450
+        ],
+        [
+          4477,
+          4478
+        ],
+        [
+          4501,
+          4502
+        ],
+        [
+          4522,
+          4523
+        ],
+        [
+          4561,
+          4562
+        ],
+        [
+          4571,
+          4572
+        ],
+        [
+          4579,
+          4580
+        ],
+        [
+          4587,
+          4588
+        ],
+        [
+          4613,
+          4618
+        ],
+        [
+          4660,
+          4678
+        ],
+        [
+          4674,
+          4675
+        ],
+        [
+          4680,
+          4681
+        ],
+        [
+          4687,
+          4688
+        ],
+        [
+          4697,
+          4698
+        ],
+        [
+          4710,
+          4713
+        ],
+        [
+          4716,
+          4719
+        ],
+        [
+          4758,
+          4759
+        ],
+        [
+          4798,
+          4801
+        ]
+      ],
+      "policy": "Checkpoint executions mapped only across byte-identical lines, plus direct final close-case executions; no replaced-line inheritance. Not a whole-package ratchet acceptance."
+    },
+    "spacr/qt/screens/make_masks.py": {
+      "changed_missing_lines": [
+        8756,
+        8757,
+        8758,
+        8783,
+        8788,
+        8791,
+        8794,
+        8795,
+        8796,
+        8797,
+        8798,
+        8809,
+        8864,
+        8874,
+        8877,
+        8878,
+        8879,
+        9029,
+        9032,
+        9034,
+        9039,
+        9040,
+        9041,
+        17063,
+        17064
+      ],
+      "changed_missing_incident_arcs": [
+        [
+          8782,
+          8783
+        ],
+        [
+          8787,
+          8788
+        ],
+        [
+          8790,
+          8791
+        ],
+        [
+          8793,
+          8794
+        ],
+        [
+          8808,
+          8809
+        ],
+        [
+          8863,
+          8864
+        ],
+        [
+          8865,
+          -8861
+        ],
+        [
+          8873,
+          8874
+        ],
+        [
+          9028,
+          9029
+        ],
+        [
+          9031,
+          9032
+        ],
+        [
+          9033,
+          9034
+        ],
+        [
+          17062,
+          17063
+        ]
+      ],
+      "policy": "Checkpoint executions mapped only across byte-identical lines, plus direct final close-case executions; no replaced-line inheritance. Not a whole-package ratchet acceptance."
+    }
+  },
+  "bounded_work": {
+    "max_source_voxels": 16777216,
+    "max_source_decoded_bytes": 268435456,
+    "membership_chunk_points": 4096,
+    "max_history_bytes": 67108864,
+    "max_history_steps": 25,
+    "display_preview_points": 4000,
+    "max_boundary_vertices": 8192,
+    "max_boundary_triangles": 16384
+  },
+  "demonstrated": [
+    "Independent original-pixel voxel oracle over all six XYZ storage permutations and anisotropic physical spacing.",
+    "Native rotated x/y/z anchor edits and shared multi-surface wheel edits change the full mask; exact undo/redo.",
+    "Actual rotated rectangle-through-view drawing and native dialog source-bound save/reopen.",
+    "Original source bytes, integer label IDs, dtype, array shape/storage axes and spacing are preserved.",
+    "Wrong mask header shape/dtype is refused before decoded allocation; external source/mask/sidecar changes during staging refuse publication.",
+    "Boundary/voxel disagreement, overlapping labels, invalid/nonfinite geometry, end-on dragging and unsupported existing-label topology refuse without scientific mutation.",
+    "Pending-worker cancellation and dirty busy Cancel/Discard preserve completed voxels and prevent late GUI publication.",
+    "Actual offscreen screenshots leave zero top-level widgets, native dialog destroyed and worker idle."
+  ],
+  "limits": [
+    "No GPU, native-display aesthetics, native4K animation/FPS, whole Qt suite, whole numerical-ratchet or absolute RSS/runtime performance acceptance.",
+    "Memory/work budgets are structural limits, not measured end-to-end RAM savings; no RSS benchmark was run.",
+    "Supported input is one real numeric 3D TIFF series with explicit spatial axes XYZ permutation; T/C/RGB, guessed axes and oversized inputs are refused.",
+    "Existing labels need a bounded connected manifold editable boundary; unrepresentable/disconnected/overdetailed shapes are refused, never replaced with a bounding box.",
+    "The point cloud is a deterministic bounded display preview only. Actual scientific counts/export use every original voxel centre and the same edited mesh.",
+    "Two-filename TIFF/JSON publication is guarded against staged file changes and rolls back owned publication failures; it is not universally atomic against arbitrary uncooperative concurrent writers.",
+    "Normal API/UI delta is scoped to two changed files. Full canonical catalogs/tutorials and hosted acceptance remain workstation/root responsibilities.",
+    "Historical failed harness logs are preserved: missing QMessageBox stub, too-small voxel-motion witness and already-deleted fixture teardown. Earlier unrelated required-doc omissions were fixed by root; not waived."
+  ]
+}

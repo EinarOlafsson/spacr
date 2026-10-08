@@ -1,0 +1,269 @@
+{
+  "base_commit": "096690fa18cb79347927b9534459975ec359d6d9",
+  "date": "2026-10-08",
+  "documentation": {
+    "N650": {
+      "path": "docs/source/features.rst",
+      "sha256": "6dff85bb5b34a4a1fe8b8b2f6305a8f136ad898f76495596a26a039abf2db9db"
+    },
+    "N651": {
+      "path": "docs/source/installer_guide.rst",
+      "sha256": "a6c88a4dc0799676d0741c988a9932b4430f11ad5328e66114275bfd66fe0483"
+    },
+    "N652": {
+      "path": "docs/source/installer_guide.rst",
+      "sha256": "a6c88a4dc0799676d0741c988a9932b4430f11ad5328e66114275bfd66fe0483"
+    },
+    "N657": {
+      "path": "docs/source/shortcuts_and_templates.rst",
+      "sha256": "abcb44ba96e2426914b71cf172bd86f186fe90517e7341aeebf0addf5393c710"
+    },
+    "N660": {
+      "path": "docs/source/run_history.rst",
+      "sha256": "ee5951065a9f30883b450aaad9f3f57931c4efe7899e47ca8e4f70a01abe01fc"
+    },
+    "N661": {
+      "path": "docs/source/make_masks.rst",
+      "sha256": "a4d8d611fe0f7c0b0eac43595ca5ef6c5ec35b410d1a0dd757b891e2b0bd2062"
+    }
+  },
+  "index": {
+    "path": "features/00_INDEX.txt",
+    "regenerator": "python tools/build_instruction_index.py --check: pass, no generated diff",
+    "sha256": "ec333c20427cf2a441dd04a8e22d266ffbcd627f466866e4d34f295492fa24f3"
+  },
+  "item_paths": {
+    "N650": {
+      "path": "features/new/650_jobs_window.txt",
+      "sha256": "d64cc20b7ca746c8c06b7204ee12707c8eeb72ddd47e9b2d2e7169579166b154"
+    },
+    "N651": {
+      "path": "features/new/651_update_channel_and_whats_new.txt",
+      "sha256": "5913448e04b2c94e36e146f0246f0bc56b50eea130952517bcb902953861cf40"
+    },
+    "N652": {
+      "path": "features/new/652_proxy_and_corporate_ca.txt",
+      "sha256": "5e438b304f97478dfaf3d60ae3956b25dc50dd79de4ac6787a6902a4bb49f9d2"
+    },
+    "N657": {
+      "path": "features/new/657_settings_profiles.txt",
+      "sha256": "3eae43dc213d8ae9f5014ca009c9fd468dd4b7137c420d3f756b34f4ec00191c"
+    },
+    "N660": {
+      "path": "features/new/660_clear_all_logs_button.txt",
+      "sha256": "bbd7c51c39f24c780917f3a7a6b360bade238ff2313ec2b24f92e03d5d9e8d63"
+    },
+    "N661": {
+      "path": "features/new/661_center_pixel_puncta_masks_inside_parent_objects.txt",
+      "sha256": "97d5a74a7df0b4d23fe4d9d0e1c0fa6254b230825e068bfd132d3a795190ae4e"
+    }
+  },
+  "item_scope": {
+    "N650": "Jobs dock",
+    "N651": "update channel and release news",
+    "N652": "proxy and corporate CA",
+    "N657": "named settings profiles",
+    "N660": "clear all logs",
+    "N661": "centre-pixel detector and methods; downstream statistics and finished tutorial video separate"
+  },
+  "qt_shards_terminal_success": {
+    "Qt0": 113512612863,
+    "Qt1": 113512556044,
+    "Qt2": 113512623475
+  },
+  "required_qt_attempt": 2,
+  "required_qt_run": 37819913875,
+  "required_qt_source_commit": "2e6238c481b7668e58828b37c4a2e8fc6cc29355",
+  "runtime_catalogs": {
+    "de": {
+      "path": "spacr/qt/i18n_catalogs/de.py",
+      "sha256": "2beb302a09e5f14218143408856da759fd740466bfd8c3d035a15d5c04915831",
+      "source_bound_keys": {
+        "Centre-pixel puncta within parent masks": true,
+        "Certificate bundle": true,
+        "Clear all logs…": true,
+        "Jobs": true,
+        "Proxy": true,
+        "Rename template": true,
+        "Saved to: {path}": true,
+        "Update channel": true,
+        "What's new…": true
+      }
+    },
+    "es": {
+      "path": "spacr/qt/i18n_catalogs/es.py",
+      "sha256": "e7b4b4ce21d1273a420285e86e2d5188166e709521317c26a34007ac28702298",
+      "source_bound_keys": {
+        "Centre-pixel puncta within parent masks": true,
+        "Certificate bundle": true,
+        "Clear all logs…": true,
+        "Jobs": true,
+        "Proxy": true,
+        "Rename template": true,
+        "Saved to: {path}": true,
+        "Update channel": true,
+        "What's new…": true
+      }
+    },
+    "fr": {
+      "path": "spacr/qt/i18n_catalogs/fr.py",
+      "sha256": "8c16dfa9736048cab2a26302b056697f32392d8eb35071b8192fb548e399a5f9",
+      "source_bound_keys": {
+        "Centre-pixel puncta within parent masks": true,
+        "Certificate bundle": true,
+        "Clear all logs…": true,
+        "Jobs": true,
+        "Proxy": true,
+        "Rename template": true,
+        "Saved to: {path}": true,
+        "Update channel": true,
+        "What's new…": true
+      }
+    },
+    "hi": {
+      "path": "spacr/qt/i18n_catalogs/hi.py",
+      "sha256": "bb815aedc5e7596594533632564e5e5d768f291626d9122ada69cd2677559b41",
+      "source_bound_keys": {
+        "Centre-pixel puncta within parent masks": true,
+        "Certificate bundle": true,
+        "Clear all logs…": true,
+        "Jobs": true,
+        "Proxy": true,
+        "Rename template": true,
+        "Saved to: {path}": true,
+        "Update channel": true,
+        "What's new…": true
+      }
+    },
+    "is": {
+      "path": "spacr/qt/i18n_catalogs/is.py",
+      "sha256": "d34686637dfc76e9242bbe4566a35dc64f5f6b52e98839513fbcdc41e5e6890f",
+      "source_bound_keys": {
+        "Centre-pixel puncta within parent masks": true,
+        "Certificate bundle": true,
+        "Clear all logs…": true,
+        "Jobs": true,
+        "Proxy": true,
+        "Rename template": true,
+        "Saved to: {path}": true,
+        "Update channel": true,
+        "What's new…": true
+      }
+    },
+    "ko": {
+      "path": "spacr/qt/i18n_catalogs/ko.py",
+      "sha256": "0d5247cf30f22cd1526a1e5e245842d96cc7e7f671c523d837976c0acb0e1a05",
+      "source_bound_keys": {
+        "Centre-pixel puncta within parent masks": true,
+        "Certificate bundle": true,
+        "Clear all logs…": true,
+        "Jobs": true,
+        "Proxy": true,
+        "Rename template": true,
+        "Saved to: {path}": true,
+        "Update channel": true,
+        "What's new…": true
+      }
+    },
+    "pt": {
+      "path": "spacr/qt/i18n_catalogs/pt.py",
+      "sha256": "465cc12d63eef12207a89509763de8c3c486d6b83f6a870d2b5b62ec68498d7d",
+      "source_bound_keys": {
+        "Centre-pixel puncta within parent masks": true,
+        "Certificate bundle": true,
+        "Clear all logs…": true,
+        "Jobs": true,
+        "Proxy": true,
+        "Rename template": true,
+        "Saved to: {path}": true,
+        "Update channel": true,
+        "What's new…": true
+      }
+    },
+    "sv": {
+      "path": "spacr/qt/i18n_catalogs/sv.py",
+      "sha256": "312d7949203a750ddab98031076818f3ec29598bf902441a56e3eb213b1c5256",
+      "source_bound_keys": {
+        "Centre-pixel puncta within parent masks": true,
+        "Certificate bundle": true,
+        "Clear all logs…": true,
+        "Jobs": true,
+        "Proxy": true,
+        "Rename template": true,
+        "Saved to: {path}": true,
+        "Update channel": true,
+        "What's new…": true
+      }
+    },
+    "zh_CN": {
+      "path": "spacr/qt/i18n_catalogs/zh_CN.py",
+      "sha256": "d940e1a5757147e86809474d3a0b2c8bd980edc74964dca802651ca6c07e5a65",
+      "source_bound_keys": {
+        "Centre-pixel puncta within parent masks": true,
+        "Certificate bundle": true,
+        "Clear all logs…": true,
+        "Jobs": true,
+        "Proxy": true,
+        "Rename template": true,
+        "Saved to: {path}": true,
+        "Update channel": true,
+        "What's new…": true
+      }
+    }
+  },
+  "scope": "Existing implementations and translated documentation verified; metadata completion only. Whole required run was still in progress at audit time.",
+  "source_equivalence_to_successful_qt_shards": {
+    "spacr/doctor.py": {
+      "git_blob": "86f165a3bd0ca2ffe783f2a0369a06c208eafa50",
+      "sha256": "1d4a0984c233433b0c7bd05d146d9fc4c0cdc2523b4052c9d844aadd467d52ca"
+    },
+    "spacr/qt/app.py": {
+      "git_blob": "fdd746cc509bb7475679b9fbfe63c7cc88af847b",
+      "sha256": "5fc990e6904525432af3e6fb2b419342af2dabd2776cc371e0cd55ed3dc543f7"
+    },
+    "spacr/qt/bridge.py": {
+      "git_blob": "96ccd405a0d2d6326baf0fd0af915bb309c606a6",
+      "sha256": "8e6b210ff34086fb45ff0d5445af39d14a3ca228bd98de3c899531dd5da9987a"
+    },
+    "spacr/qt/preferences.py": {
+      "git_blob": "b1a7438fd00019fd042bf4eb9af36ebdcafa2637",
+      "sha256": "a023ade78f1620f04163288143b541c5262bff611b46d77c1a6e13cd76989cfc"
+    },
+    "spacr/qt/recipes.py": {
+      "git_blob": "a1b3894a3bb999d1cedd94cdeec0ba4711503181",
+      "sha256": "67b8c5e6a1fa0c313498c155e11c8afe2208979b1f80324066a66f6b83af661e"
+    },
+    "spacr/qt/widgets/activity_spinner.py": {
+      "git_blob": "db139bbc5e3e59f698a24cfe04cc7d8dd63af274",
+      "sha256": "c1c7adfe8539f5afd353f5bee2f61e21dd78c6f90fc40cd913fe128d9d016829"
+    },
+    "spacr/run_journal.py": {
+      "git_blob": "1fac7306b63f3b11f05f3992f50b779e4337924b",
+      "sha256": "a95cf337dd993d5c8123bbcaf0b197b5e47da169afcb5401f0f85bd7283bf95b"
+    },
+    "spacr/updater.py": {
+      "git_blob": "3886851fc5e8dc2c84d63a2b90f57e550fa136c4",
+      "sha256": "74b32b741820946c45318e9feac17ce20d20ca7683a01592563e8f5a9503ae00"
+    },
+    "tests/qt/test_multi_instance_lock_and_jobs_dock.py": {
+      "git_blob": "bfad3cb405261754edbe423daca81b02814b02fa",
+      "sha256": "8aa5e0278a8d460b51bc3f577854348e01b790e01d113b04b4b7dd891a945e24"
+    },
+    "tests/qt/test_rebindable_shortcuts_and_settings_profiles.py": {
+      "git_blob": "4202ec136ab4bbc08213ee7fdf0076aa279a169f",
+      "sha256": "2f429f8497d4815ceef5b51b5b3ab4ee46a0aebd130bda96ef8b9c3a2ede68a4"
+    },
+    "tests/qt/test_storage_preferences.py": {
+      "git_blob": "923c515f959cb4fdff751bfa9ac2a5481b527cb1",
+      "sha256": "bf0e905e0776317df43804f1455ff8f1c98a07de7f247f5e765db54368d77e24"
+    },
+    "tests/qt/test_update_channel_whats_new_and_proxy_prefs.py": {
+      "git_blob": "2ecbfc9372886208f935d0b14c1b2b07dd40dbfa",
+      "sha256": "5b581fbc609098c6bc5645505642b22902a10d13729a6fa82d7f292cf1621df5"
+    },
+    "tests/test_update_channel_and_proxy.py": {
+      "git_blob": "7968ace2e87a94bfe826ab67919115f0a022af0d",
+      "sha256": "be136e5c56ed61eb4ffac24a15bfbf9f240fdcd1bdc2aa64463f46871ae1e453"
+    }
+  }
+}

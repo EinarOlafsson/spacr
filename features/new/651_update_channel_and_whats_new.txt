@@ -28,3 +28,10 @@ IMPLEMENTATION
   Tests: tests/test_update_channel_and_proxy.py,
   tests/qt/test_update_channel_whats_new_and_proxy_prefs.py (mocked network).
   Left: the new captions await the next i18n catalogue rebuild.
+
+2026-10-08 — COMPLETION AUDIT: 100% of this item is published.
+  docs/source/installer_guide.rst documents Stable/Nightly choice and the
+  post-update/reopenable What's new dialog. All nine runtime catalogs contain
+  source-bound "Update channel" and "What's new…" captions. Existing
+  mocked-network Python and Qt tests verify channel and release-note logic;
+  this note makes no claim of a new native cross-platform recording.

@@ -102,3 +102,13 @@ equal the actual 39-field replay receipt; English API remains 13,177 entries.
 Strict runtime source, ownership, count and identity contract also passes
 as a direct assertion call, independent of advisory translation reporting.
 The verified methods message is features/data/661_claude_methods_message.txt.
+
+2026-10-08 — COMPLETION AUDIT: 100% of the requested Make Masks detector and
+paste-ready methods message is published. The 39-field reference replay,
+all-candidate tables, unchanged parent/image checksums and actual GUI
+Detect/Replace/Save proof above are the scientific acceptance for N661.
+docs/source/make_masks.rst describes the mode; all nine runtime catalogs
+contain its source-bound caption. A tutorial storyboard names this mode,
+but finished video production remains the separate tutorial lane. External
+noise-null/statistics/Figure-final analysis remains separately scoped; N47
+native Qt lifetime diagnosis is not a detector result.
