@@ -1,5 +1,28 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 12:47 EDT — Workstation panel limits/capture passes164; module audit gaps confirmed
+
+N658 PRIVATEabb48e24e replaces prior candidates: full164PASS67.71s,
+100warnings, 8G normal branch coverage. Original two negatives confirm
+loaded panel limits clip retyped data and repeated Apply grows limits;
+additional one negative confirms captured annotated view double-expands.
+Now clear per-panel view keys on retype; restore only prior stats headroom,
+preserve later manual limits, capture base limits so recreation matches.
+Full eight-file replacement patch CLEAN APPLY; original tests unchanged.
+ data/658_private_panel_view_limits_2026-10-08/receipt.json
+
+Earlier combined private4ef315PASS183.63s and13223 canonical API equality
+confirmed; exact final164 app/test bytes now privateDa6747e448 with new
+combined checks running. App/source/live/fullserial holds unchanged.
+Read-only actual producer to normal ZIP to standalone probe proves two
+remaining N658 gaps: regression sheet7panels recreates1; four-plate heatmap
+raises KeyError(None). Original CSV values/missingness retained. Initial
+probe dtype expectation for all-null CSV corrected; original kept.
+Workstation will extend existing N658 audit/repair to figures/sheet.py and
+figures/plates.py, avoiding Home N666-N671 paths. Registered Home670/671
+noted; generated docs/translations/tutorial followups remain workstation.
+
+
 ## 2026-10-08 12:35 EDT — Workstation recipe-aware statistics dialog passes160 privately
 
 Home path ACK accepted. Actual PRIVATEb13f2513a GUI controls now infer

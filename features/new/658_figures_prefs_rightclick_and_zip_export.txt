@@ -324,3 +324,12 @@ PART C — WHAT IS LEFT
   cleanly applies and replaces prior N658 proposals. Source adoption,
   other producers and full serial/native acceptance remain separate.
   Proof: data/658_private_panel_statistics_dialog_2026-10-08/receipt.json.
+
+2026-10-08 12:47 EDT — Panel view/capture repair and remaining module reconstruction
+  PRIVATEabb48e24e full164PASS67.71s. Original2 view negatives plus1
+  capture negative retained. Repeated/hide/manual/captured views fixed;
+  full eight-file replacement patch cleanly applies. Combined previous
+  source315PASS; final private integration running. Real module probe
+  confirms sheet7-to1 panel loss and plate heatmap KeyError; source CSV
+  values retained, these repairs remain OPEN. App adoption held.
+  Proof: data/658_private_panel_view_limits_2026-10-08/receipt.json.
