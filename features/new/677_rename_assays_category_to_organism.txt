@@ -32,3 +32,9 @@ palette checks. Exact13-file incremental source packet follows accepted0527
 in data/667_677_help_organism_source_handoff_2026-10-08. Workstation owns
 normal translations and affected fresh tutorial update; source transfer is
 not a claim that the application update has already been published.
+
+2026-10-08 14:54 EDT — Combined workstation source acceptance
+  PRIVATE495335a9d passes342 selected Qt checks270.92s under8G,
+  actualQt612.0. Proof:data/667_677_root_combined_acceptance_2026-10-08.
+  Source-bound catalogs/guides/tutorials and coherent application
+  publication/current CI remain pending. Totals overlap Home280.

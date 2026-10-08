@@ -54,3 +54,9 @@ under4G; initial7FAIL and intermediate1FAIL retained. Translated native Action
 hover and late-created controls are covered. Source/inventory packet in
 data/667_677_help_organism_source_handoff_2026-10-08; workstation normal
 catalog refresh and application publication remain pending.
+
+2026-10-08 14:54 EDT — Combined workstation source acceptance
+  PRIVATE495335a9d passes342 selected Qt checks270.92s under8G,
+  actualQt612.0. Proof:data/667_677_root_combined_acceptance_2026-10-08.
+  Source-bound catalogs/guides/tutorials and coherent application
+  publication/current CI remain pending. Totals overlap Home280.

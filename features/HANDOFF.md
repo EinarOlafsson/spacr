@@ -1,5 +1,25 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 14:54 EDT — Workstation combined Help/Organism342 accepted privately
+
+Actual PRIVATE495335a9d:342PASS270.92s across six complete selected Qt
+modules, normal coverage/8G, Py312.14/Qt612.0/pytest842, CUDAhidden and
+offscreen. Real app/Home membership/order, Organism menu, translated
+late Action help, Preferences scrolling/manual grip/persistence and
+stylesheet-painted minimum height pass. Home280 and this342 overlap.
+ data/667_677_root_combined_acceptance_2026-10-08/receipt.json
+Nine Home payloads byte-exact, twelve functional AST-exact; four owned
+method docstrings retained and Preferences N665 queue controls retained.
+All10,066 runtime identities/source hashes independently match the
+runtime agent. Normal final runtime/API/guide generation is active.
+N676 five English drafts89 scenes now authored; real X11 30fps capture
+accepted as recording method. API lane next owns install02/desktop04
+13-locale review, runtime lane image80/Toxo82, tutorial lane Home05.
+Current documentation/compat GitHub2e runs passed; required37819913875
+remains running on last direct read. No source publication/current CI
+or native/capture/narration/hosted hold release inferred.
+
+
 ## 2026-10-08 14:49 EDT — Final objective-language pass queued; real animated capture verified
 
 New user request N678 is queued AFTER the existing completion tasks: review

@@ -1,0 +1,232 @@
+{
+  "source": "495335a9de8ad4cdd9543273f22b4bd80e93861c",
+  "home_packet_checkpoint": "62a38906063d64f71bf2a4dcf25cca63ccd9f427",
+  "home_receipt_sha256": "f14b97afea84261046c178d722b5db4e21560958379d4735361e3206d55cd4b2",
+  "application_source_pushed": false,
+  "passing": true,
+  "passed": 342,
+  "seconds": 270.92,
+  "normal_coverage": true,
+  "memory_cap": "8G",
+  "CUDA_VISIBLE_DEVICES": "",
+  "QT_QPA_PLATFORM": "offscreen",
+  "actual_environment": {
+    "python": "3.12.14 | packaged by conda-forge | (main, Aug 21 2026, 22:48:28) [GCC 14.4.0]",
+    "executable": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/render-py312/bin/python",
+    "PySide6": "6.12.0",
+    "PySide6_file": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/qt612-lifetime-overlay-r1/PySide6/__init__.py",
+    "Qt": "6.12.0",
+    "pytest": "8.4.2",
+    "coverage": "7.16.2"
+  },
+  "source_comparison": {
+    "spacr/qt/app.py": {
+      "raw_sha256": "2018ed9bf74352b39d26bdf1623b84f26ed5e17485c910ea951a8b48dd79f4bc",
+      "home_raw_sha256": "2018ed9bf74352b39d26bdf1623b84f26ed5e17485c910ea951a8b48dd79f4bc",
+      "byte_exact": true,
+      "functional_AST_exact": true
+    },
+    "spacr/qt/preferences.py": {
+      "raw_sha256": "f1e6661461a2b735cf00aebccfcad025dd03e3cc82b9717d3f5c48433d5ca7c3",
+      "home_raw_sha256": "c2b9f79011f0eff4c1a2af98142d00d402940a1770bf67be7a56980a62c71db8",
+      "byte_exact": false,
+      "functional_AST_exact": false,
+      "owned_difference": "N665 dedicated database writer queue preference/RAM limit, preserved from root source"
+    },
+    "spacr/qt/screens/app_screen.py": {
+      "raw_sha256": "92515a44aafdbab5551cf41867f052535c0ba88f72843d33f6047fc4402adaa4",
+      "home_raw_sha256": "92515a44aafdbab5551cf41867f052535c0ba88f72843d33f6047fc4402adaa4",
+      "byte_exact": true,
+      "functional_AST_exact": true
+    },
+    "spacr/qt/widgets/ambient.py": {
+      "raw_sha256": "068e32e8e9bf088b830be898ced108b9fb1a2ccad97e3c8f31292786b4d34619",
+      "home_raw_sha256": "272bd75f46bfa35ad56a8dd9f4dd0da75d96cc17f178a6a5d8675a6dd1a8bf6c",
+      "byte_exact": false,
+      "functional_AST_exact": true
+    },
+    "spacr/qt/widgets/gate_editor.py": {
+      "raw_sha256": "29732f8891ca0a624dd4e1b74bc51fec80fa2b92abe8280d55689423c6a0663a",
+      "home_raw_sha256": "cd6e971a656a576a197538af2b7ba7f24b150aef60edbcbe64db7f4919535716",
+      "byte_exact": false,
+      "functional_AST_exact": true
+    },
+    "spacr/qt/widgets/hint_bar.py": {
+      "raw_sha256": "f6145c586d947d343cad27dc00187c25f60f8259a110275ce530ff45648eab05",
+      "home_raw_sha256": "b408a3f128a3fdb6fe4716dfb651d17c19acdbdb82c719be5351dfbe334b4e3b",
+      "byte_exact": false,
+      "functional_AST_exact": true
+    },
+    "spacr/qt/widgets/home.py": {
+      "raw_sha256": "4450ce3e8365e37ef64163c91de18eb604d0c2ef2ed203af09ca33a2741d578f",
+      "home_raw_sha256": "4450ce3e8365e37ef64163c91de18eb604d0c2ef2ed203af09ca33a2741d578f",
+      "byte_exact": true,
+      "functional_AST_exact": true
+    },
+    "tests/qt/test_cov_qt_app.py": {
+      "raw_sha256": "0e0aaec00b1ba4b2184188920c0107bb50926dcb96373e390ffb1c75b5a5f00d",
+      "home_raw_sha256": "0e0aaec00b1ba4b2184188920c0107bb50926dcb96373e390ffb1c75b5a5f00d",
+      "byte_exact": true,
+      "functional_AST_exact": true
+    },
+    "tests/qt/test_fractal_changes_apply_without_a_restart.py": {
+      "raw_sha256": "14a0b5c796d7ff7c2dd95af96e3039b3a4e0f2b99ce56a1d99347f0a895e2aa7",
+      "home_raw_sha256": "14a0b5c796d7ff7c2dd95af96e3039b3a4e0f2b99ce56a1d99347f0a895e2aa7",
+      "byte_exact": true,
+      "functional_AST_exact": true
+    },
+    "tests/qt/test_home_v2.py": {
+      "raw_sha256": "58621b3d74cb457c3e726be2c387eb1619a0f8651a627633c04819ef863ceebc",
+      "home_raw_sha256": "58621b3d74cb457c3e726be2c387eb1619a0f8651a627633c04819ef863ceebc",
+      "byte_exact": true,
+      "functional_AST_exact": true
+    },
+    "tests/qt/test_n667_stable_action_help.py": {
+      "raw_sha256": "3d43052c3ad79c819d9210e5393439c9b1aba5caa103455898a9e7c27fac910d",
+      "home_raw_sha256": "3d43052c3ad79c819d9210e5393439c9b1aba5caa103455898a9e7c27fac910d",
+      "byte_exact": true,
+      "functional_AST_exact": true
+    },
+    "tests/qt/test_organism_dropdown.py": {
+      "raw_sha256": "c8a310c948158e492e43ba67a7530953abdc9d20bf9492df0074ba64f632de61",
+      "home_raw_sha256": "c8a310c948158e492e43ba67a7530953abdc9d20bf9492df0074ba64f632de61",
+      "byte_exact": true,
+      "functional_AST_exact": true
+    },
+    "tests/qt/test_preferences_explains_in_its_own_strip.py": {
+      "raw_sha256": "0f0b8656f9a43c97f31dbb85d28751f51c1c320e971c643a06a80fe1a432d393",
+      "home_raw_sha256": "0f0b8656f9a43c97f31dbb85d28751f51c1c320e971c643a06a80fe1a432d393",
+      "byte_exact": true,
+      "functional_AST_exact": true
+    }
+  },
+  "scope": "Combined actual source runs six complete selected Qt modules: app coverage, explicit legacy-fractal behavior, Home order and membership, stable inline Action help, Organism dropdown and Preferences scrolling/resizing/font/persistence.",
+  "limits": [
+    "Home private Git checkpoint is unavailable locally; gzip/raw hashes and functional AST comparison verify the transferred payloads, not its private Git object.",
+    "Nine of thirteen Home payloads are byte-exact; ambient, gate and hint preserve four already reviewed parameter docstrings; Preferences preserves owned N665 queue budget controls.",
+    "This is private combined source acceptance, not a claim of current public application CI, native compositor/macOS/GPU acceptance, or finished narration/publication.",
+    "Home and workstation test totals overlap and must not be added."
+  ],
+  "payloads": {
+    "source/spacr/qt/app.py.gz": {
+      "raw_bytes": 326951,
+      "raw_sha256": "2018ed9bf74352b39d26bdf1623b84f26ed5e17485c910ea951a8b48dd79f4bc",
+      "gzip_bytes": 91808,
+      "gzip_sha256": "db300efe97e8f1f2772357957d3fe645703880a93dc4bf111c0f8013a9d13532"
+    },
+    "source/spacr/qt/preferences.py.gz": {
+      "raw_bytes": 492116,
+      "raw_sha256": "f1e6661461a2b735cf00aebccfcad025dd03e3cc82b9717d3f5c48433d5ca7c3",
+      "gzip_bytes": 133058,
+      "gzip_sha256": "189551f362718b59b5c2ee5b7a91d52ce0b8e18b80ff80e23f3864db2f2df748"
+    },
+    "source/spacr/qt/screens/app_screen.py.gz": {
+      "raw_bytes": 574511,
+      "raw_sha256": "92515a44aafdbab5551cf41867f052535c0ba88f72843d33f6047fc4402adaa4",
+      "gzip_bytes": 151801,
+      "gzip_sha256": "137507db3f14e5cbba8099937d3e9b4e76c27b3d094195e07dde87722b752b12"
+    },
+    "source/spacr/qt/widgets/ambient.py.gz": {
+      "raw_bytes": 416593,
+      "raw_sha256": "068e32e8e9bf088b830be898ced108b9fb1a2ccad97e3c8f31292786b4d34619",
+      "gzip_bytes": 114603,
+      "gzip_sha256": "c112a3f26ae804475822ccafc83f95676ca3977df5a7078eb169e8e34d8bcd62"
+    },
+    "source/spacr/qt/widgets/gate_editor.py.gz": {
+      "raw_bytes": 187826,
+      "raw_sha256": "29732f8891ca0a624dd4e1b74bc51fec80fa2b92abe8280d55689423c6a0663a",
+      "gzip_bytes": 49509,
+      "gzip_sha256": "223707cf5ee44183b7eebefa290934658318990949dbed7f1c8eecf73029d956"
+    },
+    "source/spacr/qt/widgets/hint_bar.py.gz": {
+      "raw_bytes": 13139,
+      "raw_sha256": "f6145c586d947d343cad27dc00187c25f60f8259a110275ce530ff45648eab05",
+      "gzip_bytes": 4195,
+      "gzip_sha256": "6f0a04f0c4e9a24b348f4971d53c41e4d7740154f8648a9e37862756c621774d"
+    },
+    "source/spacr/qt/widgets/home.py.gz": {
+      "raw_bytes": 124061,
+      "raw_sha256": "4450ce3e8365e37ef64163c91de18eb604d0c2ef2ed203af09ca33a2741d578f",
+      "gzip_bytes": 35983,
+      "gzip_sha256": "cb414b8de2bd9c8897a75ebc20c06e059b20876bdb1346e53dbf96b234424c6e"
+    },
+    "source/tests/qt/test_cov_qt_app.py.gz": {
+      "raw_bytes": 109936,
+      "raw_sha256": "0e0aaec00b1ba4b2184188920c0107bb50926dcb96373e390ffb1c75b5a5f00d",
+      "gzip_bytes": 33306,
+      "gzip_sha256": "bffa39e12a0e2911d01f066ddeba1854ed89d26940c889f81d71583bdadf1d3e"
+    },
+    "source/tests/qt/test_fractal_changes_apply_without_a_restart.py.gz": {
+      "raw_bytes": 11099,
+      "raw_sha256": "14a0b5c796d7ff7c2dd95af96e3039b3a4e0f2b99ce56a1d99347f0a895e2aa7",
+      "gzip_bytes": 3316,
+      "gzip_sha256": "6b5bc32d75b891b1d4bf1cd914c526301a65017f5425980b27bf8aa7060755a8"
+    },
+    "source/tests/qt/test_home_v2.py.gz": {
+      "raw_bytes": 72269,
+      "raw_sha256": "58621b3d74cb457c3e726be2c387eb1619a0f8651a627633c04819ef863ceebc",
+      "gzip_bytes": 23845,
+      "gzip_sha256": "b06feb6992df8ef8a96ce2d5b19fee3d9304eef9a7ec736286170cc9c94fa02d"
+    },
+    "source/tests/qt/test_n667_stable_action_help.py.gz": {
+      "raw_bytes": 9915,
+      "raw_sha256": "3d43052c3ad79c819d9210e5393439c9b1aba5caa103455898a9e7c27fac910d",
+      "gzip_bytes": 2497,
+      "gzip_sha256": "3b59f9fc2c4592e30e15dfa5a902df9746ba5507ffc213f14b835dc8683f1601"
+    },
+    "source/tests/qt/test_organism_dropdown.py.gz": {
+      "raw_bytes": 3839,
+      "raw_sha256": "c8a310c948158e492e43ba67a7530953abdc9d20bf9492df0074ba64f632de61",
+      "gzip_bytes": 1364,
+      "gzip_sha256": "1cffecfc470b29e3ac3075ad02b31abe423e70575a5ec5eb3ba43098a7b6fefa"
+    },
+    "source/tests/qt/test_preferences_explains_in_its_own_strip.py.gz": {
+      "raw_bytes": 11093,
+      "raw_sha256": "0f0b8656f9a43c97f31dbb85d28751f51c1c320e971c643a06a80fe1a432d393",
+      "gzip_bytes": 2955,
+      "gzip_sha256": "13e96401aed92611ed893bda0def4d427bf286b0946917d7500bebbbc66410c5"
+    },
+    "logs/home-help-organism-root-r1.log.gz": {
+      "raw_bytes": 2132,
+      "raw_sha256": "59e14c06a86b69c49743ede112e5560ccf7875c288e82ce3fb062ea7af669aac",
+      "gzip_bytes": 675,
+      "gzip_sha256": "e6934d072916c2f6d41b5410ab3c2d0acadd21be370acc87f469863d45e28cf6"
+    },
+    "logs/home-help-organism-root-r1-tool.log.gz": {
+      "raw_bytes": 1369,
+      "raw_sha256": "571ed217e3f1ce3058c322eab595b9d2e710c8b3876a21388628a33f9b5943a0",
+      "gzip_bytes": 362,
+      "gzip_sha256": "9be555ea3ef8d151b5484718372a1a555c6fab0df6c7fa3cc399548561117287"
+    },
+    "coverage/home-help-organism-root-r1.data.carruthers.pid111234.XX5wMSQx.HK23OfAjabuh.gz": {
+      "raw_bytes": 8425472,
+      "raw_sha256": "ed641c52fe9f67b9be9d9332c65e9693ca39d9130183626e169d2a10fe89f957",
+      "gzip_bytes": 3257361,
+      "gzip_sha256": "77ad4986cd251c3052fb7db0675207ea31c0206a1b9bd640fb412d64ca965351"
+    },
+    "home-help-organism-source-comparison-r1.json.gz": {
+      "raw_bytes": 3745,
+      "raw_sha256": "549bd15823d187bb5d8f41b39300996cca9a7ee16a09dbae62d66bef6eef584c",
+      "gzip_bytes": 1122,
+      "gzip_sha256": "9cb7c3b25081b267d249ff0f7b5ad929ad9d9aeef6e4e1fd7c485a4b60e1d2f2"
+    },
+    "home-help-organism-root-environment-r1.json.gz": {
+      "raw_bytes": 419,
+      "raw_sha256": "2e108e22cca066aecc3d68c117e7de5327afc8f0ad9047ffa6248ba901bec70f",
+      "gzip_bytes": 284,
+      "gzip_sha256": "c49c63e825223488efe42069777fd2d74b59d385aa165ebabbb637982b6afce5"
+    },
+    "home-help-organism-integration-r2.patch.gz": {
+      "raw_bytes": 41319,
+      "raw_sha256": "9ceb3e84d3e9a3ae5203c1a296972902e80fba7d133a3048a10f95941c7c0469",
+      "gzip_bytes": 11608,
+      "gzip_sha256": "49ab4a4bf5133b53483dac6fd22a1eba190248da0216b2d14cfea3796453a046"
+    },
+    "scripts/archive_home_help_organism_root_r1.py.gz": {
+      "raw_bytes": 6464,
+      "raw_sha256": "91731ace57b9765e79f07c404c752bf7c3417e3ce21fe7e57cff0bbbf80a9771",
+      "gzip_bytes": 2757,
+      "gzip_sha256": "64214581bd2a425e8907e47c87c4b3ffae2080ea1cfb95eecd962951f7becd04"
+    }
+  }
+}
