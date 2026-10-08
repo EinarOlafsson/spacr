@@ -1,0 +1,68 @@
+From 2a7c8b30d492075dd5a323b9ba858ec2756a4085 Mon Sep 17 00:00:00 2001
+From: Einar Olafsson <einar.olafsson@gmail.com>
+Date: Thu, 8 Oct 2026 12:50:58 -0400
+Subject: [PATCH] Close gate graph painter after panel paint failures
+
+---
+ spacr/qt/widgets/gate_editor.py            |  6 ++++--
+ tests/qt/test_gate_editor_rounded_graph.py | 23 ++++++++++++++++++++++
+ 2 files changed, 27 insertions(+), 2 deletions(-)
+
+diff --git a/spacr/qt/widgets/gate_editor.py b/spacr/qt/widgets/gate_editor.py
+index c4f71ffc7cb..2a055b65451 100644
+--- a/spacr/qt/widgets/gate_editor.py
++++ b/spacr/qt/widgets/gate_editor.py
+@@ -438,8 +438,10 @@ class GateCanvas(GraphCanvas):
+     def paintEvent(self, event) -> None:
+         """Keep the plotted 2D or 3D points over one solid rounded surface."""
+         painter = QPainter(self)
+-        paint_panel(painter, self, role="elevated", inset=0.5)
+-        painter.end()
++        try:
++            paint_panel(painter, self, role="elevated", inset=0.5)
++        finally:
++            painter.end()
+ 
+     @property
+     def tool(self) -> str:
+diff --git a/tests/qt/test_gate_editor_rounded_graph.py b/tests/qt/test_gate_editor_rounded_graph.py
+index 1aad5963ff6..0479e664c50 100644
+--- a/tests/qt/test_gate_editor_rounded_graph.py
++++ b/tests/qt/test_gate_editor_rounded_graph.py
+@@ -13,6 +13,7 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget
+ 
+ from spacr.qt import preferences, theme
+ from spacr.qt.widgets.gate_editor import GateCanvas
++from spacr.qt.widgets import gate_editor
+ from spacr.qt.widgets.graph_spec import GraphSpec
+ 
+ 
+@@ -27,6 +28,28 @@ class _ChangingBackdrop(QWidget):
+         painter.end()
+ 
+ 
++def test_gate_graph_ends_painter_when_panel_paint_fails(qtbot, monkeypatch):
++    canvas = GateCanvas()
++    qtbot.addWidget(canvas)
++    ended = []
++
++    class Painter:
++        def __init__(self, widget):
++            assert widget is canvas
++
++        def end(self):
++            ended.append(True)
++
++    def fail(*args, **kwargs):
++        raise RuntimeError("panel paint failed")
++
++    monkeypatch.setattr(gate_editor, "QPainter", Painter)
++    monkeypatch.setattr(gate_editor, "paint_panel", fail)
++    with pytest.raises(RuntimeError, match="panel paint failed"):
++        canvas.paintEvent(None)
++    assert ended == [True]
++
++
+ @pytest.mark.parametrize("appearance", ("dark", "light"))
+ def test_gate_graph_hides_backdrop_but_keeps_rounded_corners_in_2d_and_3d(
+         appearance, qtbot, qt_theme_applied, monkeypatch, tmp_path):
