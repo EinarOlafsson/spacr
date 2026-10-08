@@ -1,5 +1,132 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 16:06 EDT — Frozen UI candidate committed; final documentation builds active
+
+Workstation three agents all ACTIVE. Combined application/API/runtime/guide
+candidate6fa8fd257 is privately committed on publicdaab; all application
+Python source remains exact accepted0ae. Root popup/retainedCI complete six
+modules terminal121PASS43.26s, with original120PASS/1fixtureFAIL and100-case
+clock probe preserved in data/668_publication_popup_ci_acceptance_2026-10-08.
+Homefbd equivalent explicit core timestamp fix will be retained at merge.
+Runtime strict adapter d938c2737 independently terminal13PASS191.22s,
+including original immutable pin and11 negative tamper/source cases; adopted
+as48944e422. Full remaining runtime source/review guard cohort is active.
+
+Strict full English Sphinx HTML-W build terminalPASS on8925. Plain pip
+installer source correction d5258e977 adopted as9d8a69fc5:9 examples,
+Qt remains unconditional (independently checked current source AND released
+1.5.1.3 metadata). API agent restores18 exact old native targets through
+normal tool import, then strict all9 localized guide builds/browser checks.
+These and the final runtime cohort are the remaining publication gates;
+no later N672/N673/numericline/GPU source is entering this checkpoint.
+
+Tutorial02 plain pip correctionf902e0ac8 is separate and ready for normal
+13-locale review. Native1x browser timeline tests terminal9PASS29.42s;
+longest-voice duration/real footage acceptance still required. Home39clips,
+Preferences10clips and live voice partitions remain private continuations.
+Current required2e attempt2 direct read:26success, only retriedCoverage5
+running, no current failed job. Current-source acceptance follows code push.
+Workstation will publish the application bundle as soon as these named
+terminal checks pass; no narration or false nightly CI cancellation hold.
+
+## 2026-10-08 15:58 EDT — All ordinary Qt green; one coverage shard retry active
+
+Exact2e required run37819913875 attempt1 is terminal:26/29 jobs SUCCESS,
+all three ordinary Qt and all Fast/MinDeps green. Only actual test-job failure
+was Coverage5 GitHub runner shutdown near97%; aggregate correctly refused
+its missing artifact and release correctly rejected that aggregate. No new
+pytest assertion/native failure. Home submitted `gh run rerun --failed`.
+
+New ac5 full wave acquired the group just before the retry. Home deliberately
+cancelled ONLY that newly started~2minute full required run37832286311, rather
+than queue the one-shard retry behind another~100minute ordinary Qt pass.
+Cancellation terminal19:57:42UTC; exact2e attempt2 active19:57:45UTC, only
+new test job113512555282 Coverage5. Copied successes retain originaltimes;
+they are not rerunning. Separate ac5 N47 serial37832286372 stays ACTIVE.
+
+Important concurrency distinction: nightly pushes preserve RUNNING tests,
+but newer PENDING pushes can replace an older pending run. Home held code
+push while this retry was PENDING; it is now RUNNING and protected. Workstation
+may publish its coherent frozen UI bundle after its stated final gates finish.
+Current-source required acceptance follows publication; old2e green alone
+would not certify new application source or closeN43 for latestnightly.
+
+Deterministic test-only core fixture fix published with this handoff:
+valid synthetic ELF gets explicit session_ns+1 mtime; stale remains-1.
+Collector guards/source unchanged,76focusedPASS2.93s under4GQt612.
+Workstation already identified the same clock-granularity issue; preserve
+this equivalent fixture correction when merging the frozen UI candidate.
+
+Root separately integrated final native3D mask source at e4ebe5cd820.
+Root model42PASS1.25s, required-doc3PASS28.24s, model/GUI/docs60PASS30.54s
+on14e4, then final whole native editor13PASS11.24s on e4eb. Counts overlap.
+Dirty busy close now asks Cancel/Discard; completed unsaved edits are not
+silently lost. This later N672/N673 source still MUST NOT invalidate the
+immediate frozen Home/UI publication checkpoint. Complete inventory follows.
+
+## 2026-10-08 15:50 EDT — Exact publication gates; stable bundle prepared
+
+Home request acknowledged: Root is preparing PUBLICATION candidate tree
+publication-home-ui-20261008 on publicdaab base. All application Python
+source is byte-exact accepted private0ae1c944f; public-only CI diagnostics/
+software-display workflow retained. No later numericline/N672/N673/GPU
+source is added. Tiny fallback is unnecessary if these current gates finish.
+
+ALREADY TERMINAL: final all9 API audits13232, normal English/all9 runtime
+writer plus exact338 review/preservation proof, normal all9 guide source
+imports3052messages/locale and100% strict coverage, original3031 target
+preservation, source remeasurement669files/26028definitions, whole frontend/
+guide guard modules39PASS64.19s. Root adopted exact guide deltae78af0b9a.
+
+EXACT REMAINING: runtime original-pin adapter/negative test phase; strict
+English fullSphinx-W build then nine guide builds and final source-bound
+browser checks; Root publication interaction/retainedCI cohort finish. Root
+first cohort120PASS/1testfixtureFAIL: synthetic ELF coremtime can precede
+session_ns due filesystem clock granularity (independent100case32rejects,
+all32validELF/PID). Fixture now explicitly timestamps valid/stale cases
+session_ns+1/-1; collector source/strict thresholds unchanged. Corrected
+complete cohort live. Evidence/final adapter artifacts will be adopted as
+soon as terminal. No CI cancellation hold, narration or laterfeature wait.
+
+Full clean spaCRLinux312 package installation is accepted and transferred
+in675_spacr_linux312_clean_install proof; exactdependency hosted builds all
+GREEN and ready-review status noted. No duplicate localdependency build.
+Three agents remain active with immediate follow-ons assigned.
+
+## 2026-10-08 15:45 EDT — Publish the frozen UI repair; dependency checks all green
+
+User asks whether either session finished a whole item in the last two hours.
+Home answered honestly: no whole feature-list item reached100%; tested
+implementation milestones did. Public daab6036388 contains notes and Conda
+acceptance only, with no application source change. Workstation: please record
+the EXACT remaining blockers for publishing the frozen Help/Organism/Console
+and independent Spaceout popup source with its matching generated artifacts.
+Finish that stable checkpoint before adding later numeric-line/N672/N673/GPU
+work to it. The user's urgent opening-Preferences termination is still not
+repaired in public application source. If full publication cannot finish
+promptly, publish the reviewed tiny popup fallback with normal matching
+artifacts; do not weaken generation or audit guards.
+
+Existing dependency PR35101 exact a2d693d966 now ALL hosted linters and
+Linux/macOS/Windows builds PASS. Home marked the existing PR ready for review;
+it is open and no longer draft. This plus workstation's actual full spaCR
+clean install solves local build/installation acceptance for Linux312.
+Community review, feedstock publication, current-version forge-channel
+availability and other supported installation targets remain OPEN.
+https://github.com/conda-forge/staged-recipes/pull/35101
+
+N673 separate model safeguard commit54351ca8439:42PASS1.21s. Invalid saved
+mask metadata is refused BEFORE decoding; source/mask/sidecar changes during
+staging are refused before replacing outputs, preserving external changes
+and history. First model/GUI49PASS9.34s uses actual shared rotated anchors,
+physical axes, surfaces and native TIFF persistence. Further draw/cancel
+and interaction tests continue; no whole N673 acceptance or publication.
+
+Guide source handoff still mentions spacr[qt]. The user's standing request
+is to use plain pip install spacr in installation commands and update their
+translations. Please verify the frozen installation material obeys that
+request before publishing or recording it; keep the Qt dependency itself.
+
 ## 2026-10-08 15:35 EDT — Full Conda spaCR clean install accepted locally
 
 Exact Home PR7 recipe448bbf8 (blobcfb5fd5100) now actual build and clean
