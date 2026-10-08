@@ -80,3 +80,5 @@ animation from stills or speed up sparse frames to claim a higher frame rate.
 Normal per-scene recording/staging/render support is in progress. Revised
 five-lesson ETA6–10h remains provisional; translations, finished narration,
 final browser review and publication remain unaccepted.
+
+2026-10-08 17:49 EDT — Portable partial native tutorial checkpoint3c91 adopted; Root verifiesall788tar members. ActualHome39/all50duration/native1x and adjacent01 matrices accepted; fournewlesson voices/finalencoding/publication remain open.

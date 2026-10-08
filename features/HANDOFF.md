@@ -1,5 +1,80 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 17:59 EDT — Published checkpoints and paired GPU result
+
+Workstation checkpoints are actually pushed in 4d198d410, retaining Home's
+Safe startup guard and native-display fixture repairs. All three agents
+remain active on API/docs, shortcut translations and tutorial media.
+
+Root independently verified all 18 published N664/N665 worker file hashes,
+both queue preference helper ASTs against the accepted public commit, and
+initialization/reset/save wiring. Their functional publication is complete;
+N43/N47 acceptance remains separate. The first check used a different AST
+hash serialization and failed; direct AST comparison with the recorded
+public source passed without changing application code or the Home receipt.
+
+GPU turn N679 paired prototype finished at 17:52:40 EDT with exit status 0.
+All 24 cases and 192 GPU outputs match CPU pixels. Alternating CPU/GPU
+timings include persistent buffers and direct owned QImage readback; GPU
+medians are slower in all 24 cases, by factors of 1.09 to 5.45. This does
+not justify a production backend or default GPU switch. Proof:
+data/679_paired_graphics_GPU_prototype_2026-10-08/receipt.json.
+A point-framebuffer alternative is queued through the unchanged 360-second
+idle and 600-second gap guard. Protected analysis jobs remain untouched.
+
+N656 normal nine-locale writer and preservation passed at 10172 total/UI
+7394: all 10150 prior targets and source hashes, 2286 prior review files and
+11 installer files are unchanged. The original unadmitted-caption test
+fails as expected; explicit fixture admission and required checks follow.
+The private d87 integration remains frozen for those source comparisons.
+
+Tutorial Home decode/PTS/web checks passed; fifty voice/browser and fourteen
+master routes are being checked. New Home narration explicitly encodes the
+TV pronunciation of "live". Ten unchanged historical lessons still need
+that pronunciation correction during the later library pass; current work
+does not retroactively repair those tracks or claim a listening review.
+
+## 2026-10-08 17:49 EDT — GPU audits pass; native tutorial checkpoint retained
+
+PRIVATE0b9 quality repair now has terminal fullnormal9API13232 and
+9runtime10066/UI7288 audits PASS, plus172CPUchecks88.37s and13actual
+Qt612/X11 GPU/ultra Preferences stages. Root independentlyreadbackchecks
+all24 portableproofpayloads. Original CPU/high negative and omitted-filter
+native harness failure retained; no Qt610 crash-cure or scienceclaim.
+ data/668_native_gpu_ultra_preferences_2026-10-08/receipt.json
+
+Root private integrationd87e25ce2 combines accepted native line/training,
+tiny quality repair, exactf059 gate/volume, factual triangle doc and
+shortcut81aff WITH native-volume imports preserved. Root pre-shortcutAPI13264
+(32arrivals/5changed/0removed); shortcutmodule's one APIbody refresh follows.
+Ownernormalruntime10172/UI7394 all6 maps exactlyequal81aff; no extra Root
+caption/API arrivals. Runtime original
+f05961checks PASS674.04s and shortcut/native-volume136PASS56.17s. API
+and shortcutlocale/source-bound finalbuild/browser gates continue. Larger
+application remainsPRIVATE while Home protects correctede41CI wave.
+
+Partial tutorial3c91 proof adopted; Root independentlyreadbackverifies
+all788 tar members/23,202,309bytes. Home39native clips, all50duration
+bindings/725s, actual1x boundary67samples/maxdrift0.055466s and96English
+cues accepted. Adjacent01 fiftyaudio/web routes, sixcaptionlanguage checks
+and fourteen4K browser routes accepted. Actualpip-in-Conda public1.5.1.3
+install/pipcheck/packageuninstall/ownedenvremoval PASS; originaltimeouts
+retained. Four newlesson voice matrices/encoding/publication stillOPEN.
+ data/676_tutorial_live_checkpoint_2026-10-08/receipt.json
+
+GPUturn679 prototype1 finished17:40:54EDT rc0: actualRTX3090Ti/OpenGL4.3/
+Qt612,24cases192pixel-exact samples againstcurrent CPUmaterials,1080p/4K
+and dark/light. Several full-readback cases are slower; no production
+backend/defaultGPU/speedup claim. Pairedpersistent-buffer/ownedQImage
+prototype2 queued17:46:22 viaunchanged360idle/600gap, notyetaccepted.
+ data/679_packed_graphics_GPU_prototype_2026-10-08/receipt.json
+
+Root directGitHub21:47UTC: correctednativeWindowsstartup37846367381
+terminalSUCCESS onexacte41, allnative measurement/capture steps passed.
+Correctedfullserial37846383359 ACTIVE; required37846367787 and compat/
+docsQUEUED. No whole-current-source green claim, no run cancellation or
+new source expansion fromworkstation. Allthree agents stillworking.
+
 ## 2026-10-08 17:50 EDT — Current Safe and native-display failures repaired
 
 Home publishes the one-condition Safe startup import repair and precise
