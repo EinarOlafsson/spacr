@@ -244,7 +244,7 @@ def test_installing_the_hook_twice_connects_it_once(monkeypatch):
 # ---------------------------------------------------------------------------
 
 def test_balanced_leaves_every_visual_setting_alone():
-    prefs.set_ambient_animation("aurora")
+    prefs.set_ambient_animation("drift")
     prefs.set_setting_animations_enabled(True)
     prefs.set_field_fade_enabled(True)
     before = prefs._visual_snapshot()
@@ -253,7 +253,7 @@ def test_balanced_leaves_every_visual_setting_alone():
 
 
 def test_performance_leaves_every_visual_setting_alone():
-    prefs.set_ambient_animation("aurora")
+    prefs.set_ambient_animation("drift")
     prefs.set_setting_animations_enabled(True)
     prefs.set_field_fade_enabled(True)
     before = prefs._visual_snapshot()
@@ -264,7 +264,7 @@ def test_performance_leaves_every_visual_setting_alone():
 def test_extra_performance_drops_every_visual_setting_to_its_minimum():
     from spacr.qt.widgets import ambient
 
-    prefs.set_ambient_animation("aurora")
+    prefs.set_ambient_animation("drift")
     prefs.set_ambient_resolution(2.0)
     prefs.set_ambient_density(2.0)
     prefs.set_setting_animations_enabled(True)
@@ -281,7 +281,7 @@ def test_extra_performance_drops_every_visual_setting_to_its_minimum():
 
 
 def test_leaving_extra_performance_gives_back_what_it_took():
-    prefs.set_ambient_animation("aurora")
+    prefs.set_ambient_animation("drift")
     prefs.set_ambient_resolution(1.75)
     prefs.set_ambient_density(1.5)
     prefs.set_setting_animations_enabled(True)
@@ -296,7 +296,7 @@ def test_leaving_extra_performance_gives_back_what_it_took():
 
 def test_re_entering_extra_performance_does_not_stash_the_minimums():
     """Otherwise leaving it would "restore" the minimums it just wrote."""
-    prefs.set_ambient_animation("aurora")
+    prefs.set_ambient_animation("drift")
     wanted = prefs._visual_snapshot()
     prefs.set_spacr_mode("extra_performance")
     prefs.set_spacr_mode("extra_performance")
@@ -369,7 +369,7 @@ def test_saving_applies_the_mode_after_the_visual_settings(qtbot,
     from PySide6.QtWidgets import QComboBox, QDialogButtonBox
     from spacr.qt.preferences import PreferencesDialog
 
-    prefs.set_ambient_animation("aurora")
+    prefs.set_ambient_animation("drift")
     prefs.set_field_fade_enabled(True)
 
     dlg = PreferencesDialog()
