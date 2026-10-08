@@ -50,3 +50,12 @@ review, feedstock publication and clean spaCR install remain OPEN.
   Root prepares isolated8G rattler-build environment with sufficient
   scratch disk, then builds the exact pyfixest0.60 PR35101 recipe.
   Home owns forge review/publication. Build/install not accepted yet.
+
+2026-10-08 15:02 EDT — Dependency recipe lint corrected and pushed
+Existing draftPR35101 now exacta2d693d96633940fa80c3f91e857647336ca2f35.
+Conda-forge requested unbounded run-python for this compiled package. The
+actual upstream>=3.10 floor is preserved by build.skip; normal rattler3.9
+variant skipped,3.10eligible,3.11render/host solve retains CPython3.11 ABI
+runtime export. No dependency or package test removed. Only recipe changed;
+normal new platform CI, community review/publication and clean spaCR install
+remainOPEN. Published spaCR package remains1.5.0.8 until actual release.

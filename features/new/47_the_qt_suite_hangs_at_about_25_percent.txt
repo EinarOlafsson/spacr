@@ -2397,3 +2397,17 @@ The real-display Home assertion still needs a validated software display;
 the Console end caret one-pixel reachability failure remains unresolved.
 No application/native crash repair, timeout extension, pixel tolerance or
 full serial acceptance is claimed. N47 remains OPEN.
+
+2026-10-08 15:02 EDT — Independently reproduced Console reachability repair
+Private1260c50e384 retains long stdout minimum height and the hidden Jump
+row. A real35-line Console previously compressed774px content into154px,
+leaving no outer scroll range; the first single-policy candidate then lost
+31px of viewport when Jump appeared. Both causes now fixed. Strict actual
+start/end caret and stable viewport assertions pass; removing either change
+independently fails. Combined selected111PASS48.51s, software-display82PASS,
+jump/font24PASS, performance3PASS and final strict1PASS, totals overlap.
+Source-bound transfer data/47_console_reachability_source_handoff_2026-10-08/
+receipt.json verifies two files and seven raw terminal phases. API/runtime
+strings identical to62; combined hashes require normal regeneration. This
+real local defect is not proof of the historical hosted one-pixel failure's
+cause or cure. Full serial/native/current-source acceptance remainsOPEN.

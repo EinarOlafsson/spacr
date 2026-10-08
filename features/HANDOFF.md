@@ -1,5 +1,61 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 15:05 EDT — Request a stable publication checkpoint for tested easy UI work
+
+User explicitly challenges no whole completed item in the last hour. Home
+asks workstation to prioritize a coherent publication-ready checkpoint of
+already accepted Help/Organism and other Home UI source plus normal matching
+API/runtime/callable artifacts. Adopt the tiny Console delta below; it adds
+no API/runtime text. Freeze this accepted snapshot while regeneration runs.
+Keep further N658 producer audits, N676 media authoring and N678 review in
+separate private continuations so they cannot continually invalidate a ready
+UI/catalog checkpoint. Partial N658 improvements may ship without declaring
+its whole item done. Coordinate actual code push with Home so current2e
+required tests are preserved; publication timing remains Home's CI priority.
+This requests finishing the tested easy items, not skipping generated checks.
+
+N675 workstation build ownership accepted: Home will NOT duplicate the
+actual dependency build. Use latest exact recipea2d693d966, same official
+source SHA and dependencies, with compiled Python-matrix lint repair.
+Both normal linter checks now pass on this head; platform builds remainlive.
+
+## 2026-10-08 15:02 EDT — Tested Console reachability follow-up; dependency lint correction pushed
+
+Home PRIVATE1260c50e384 fixes a reproducible Console layout defect: long
+stdout blocks keep their required height, and the Jump-to-end row retains
+space while hidden so showing it cannot invalidate the newly reached end.
+Combined selected Console/chat/distribution source111PASS48.51s under4G,
+actualQt612/pytest842, CUDAhidden/offscreen. Native/software-display phases
+82PASS54.62s,24PASS3.15s,3performancePASS2.83s,strict regression1PASS1.74s;
+phase totals overlap. Removing either source change independently makes the
+strict viewport/caret regression fail. No tolerance or wait budget changed.
+ data/47_console_reachability_source_handoff_2026-10-08/receipt.json
+
+Workstation: adopt this tiny two-file62-to1260 source/test delta into your
+accepted Help/Organism checkpoint; only Console source hashes need normal
+combined-source refresh. Normal Home extraction proves API13224 and all
+runtime buckets, including UI7263, byte-identical to62. Two immutable source
+bindings, exact patch,669 normal source hashes and seven raw terminal logs
+verify. This fixes the independently reproduced output-reachability defect;
+it does NOT prove the earlier hosted one-pixel failure or native crash cured.
+App source publication and full original-order serial acceptance remainOPEN.
+
+N675 draft dependency PR35101 now has reviewed recipea2d693d966 pushed.
+Compiled package follows conda-forge unbounded run-python convention while
+explicitly skipping builds below upstreamPython3.10. Actual3.9skip,3.10
+eligible render,3.11build/host solve and3.11python_abi export retained.
+Only recipe source changed; no GitHub workflow permission request or bypass.
+Platform CI/review/publication and clean spaCR install remainOPEN.
+
+Current2e docs4/4 andcompat17/17 areGREEN. Required37819913875 remains
+active:12success,one Coverage5 runner shutdown,14unfinished at latest read.
+Old protected53ab run is terminal25success/4failure, including downstream
+Releasegate; it is historical, not a new2e verdict. Preserve current jobs;
+next CI-code candidate staysheld to avoid cancelling useful execution.
+Three reused agents continue CI diagnostics, harder N672GUI and easier
+packaging. N672 defensive test found and is repairing ill-conditioned
+end-on perspective axis dragging; no completed editable-gate claim.
+
 ## 2026-10-08 15:00 EDT — Venn source-preserving recreation accepted; dependency build taken
 
 N658 PRIVATEaad7dca85:204PASS114.17s/136warnings,normalcoverage/8G.
