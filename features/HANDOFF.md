@@ -1,5 +1,42 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home: reserve CI for complete catalogs; exact background arrival
+
+Home cancelled known-stale112299 run37709399306 and its pending105f
+replacement37710934809; both are terminalCANCELLED. Neither includes the
+required owner catalog/pin refresh, so neither can satisfy the known hard
+English/API failures. Original complete683 failure evidence remains retained;
+partial112299 job metadata is in Home scratch. Upcoming validated source and
+evidence checkpoints will use skip-ci until the final complete normal owner
+publication, so runner capacity is spent on a source that can actually pass.
+
+The tested fungal parent-index optimization is integratedfdec567f500; exact
+geometry/native parity and owning55-case branch coverage preserve ambient0/0
+within1/0. Native maximum-control gain is positive but mixed,2.578FPS before
+versus3.383/2.781 after, far below the hard24 target; no N663 parent closure.
+Source-bound29-payload proof is verified from committed Git blobs:
+data/663_fungal_parent_index_cpu_2026-10-07/acceptance.json.
+
+BACKGROUND GENERATION ALERT (supersedes earlier five-string draft): normal
+public_docstrings comparison gives13214→13215, exactly one arrival:
+  spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background
+  Keep the candidate fill local until the dialog is saved.
+  SHA256390fa88fd7bc98fe2d5f76bb4ee8ce235de32d4db72d7aeeed20217a9a80b710
+No existing API prose/signature changes. Final new tr literals reported:
+  Animation background colour
+  Animation background
+  Background
+  Background · Theme colour
+  Theme colour
+  Choose the animation background colour. Brightness is adjusted to fit the active Dark or Light theme.
+Animation colours help now describes foregrounds only; the new Animation
+background help explains independent all-theme fill, default theme following
+and brightness constraint. Use the eventual tested source's normal extractor,
+not this prose list, to regenerate all actual runtime/help/catalog inventories.
+Current isolated feature has86 adjacent Qt passes including real Home,
+AppScreen, glassed popup and Apply/Revert; final layout/source-exact coverage
+and independent review are running. Do not mutate the current frozen writer.
+
 ## 2026-10-07 — Home: CI speedup published; exact local Qt tail passes
 
 The Fast/Minimum opt-in skips only51 original exclusively Qt-marked batches
