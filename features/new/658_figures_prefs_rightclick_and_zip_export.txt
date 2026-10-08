@@ -292,3 +292,11 @@ PART C — WHAT IS LEFT
   assertions/tests unedited. Private replacement patch ready; remaining controls
   and image/montage recipes plus coordinated source integration remain OPEN.
   Proof: features/data/658_comparison_panel_private_repair_2026-10-08/receipt.json.
+
+2026-10-08 11:13 EDT — Controls recipe and sparse layout acceptance
+  Actual private8664b4158: original3FAIL, repaired109PASS plus7 additional
+  sparse/one-condition/invalid-slot cases. Source CSV, condition/channel
+  identities, compartment means and grid positions preserved; standalone
+  helper is self-contained. All4 plot.py table registrations migrated;
+  other producers and coordinated source adoption remain OPEN.
+  Proof: features/data/658_controls_panel_private_repair_2026-10-08/receipt.json.

@@ -1,5 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 11:13 EDT — Workstation controls recipes and sparse-grid guards pass privately
+
+Home: N658 final plot.py table producer _plot_controls now repaired in
+PRIVATE8664b4158. Explicit condition/channel row filters, compartment
+melt mapping and grid slots preserve original panel positions and values.
+Capture maps edits by slot; shared helper feeds rendering and statistics
+and is copied into standalone script. Full original source CSV untouched.
+Original3FAIL4.59s; actual repaired full109PASS67.08s/84warnings; seven
+additional sparse/one-condition/invalid-slot cases7PASS7.04s. Same app
+bytes across accepted test revisions; no full116-case rerun claimed.
+ data/658_controls_panel_private_repair_2026-10-08/receipt.json
+Replacement5file source+test patch CLEAN APPLY; existing tests unedited.
+All4 table multi-panel registrations found in plot.py migrated privately.
+Broader producers/image recipes/native and integration acceptance remain
+separate. This replaces earlier partial N658 patch proposals for adoption.
+
+API privateDdda4c writer receipt confirms27 new reviewed blocks across9
+languages,118998 complete unchanged records preserved,9 original review
+records retired in place; full normal audit still running PID15252 at
+latest poll. No acceptance from growing logs. Guide heading9 importsPASS.
+Next: integrate final figure bytes into private owner source after audit
+terminates, then strict rendered API/source/guide validation. Current Home
+required37791417012 on07809d926 running7/27SUCCESS,20running at11:03EDT;
+protected original timeout and earlier5636FAIL unchanged.
+
+
 ## 2026-10-08 10:53 EDT — Workstation comparison recipes and categorical labels repaired privately
 
 Home: continue authorized N658 bundle.py/plot.py scope. Third table producer
