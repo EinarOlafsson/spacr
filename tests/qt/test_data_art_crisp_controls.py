@@ -216,19 +216,26 @@ def test_gravity_click_passes_through_to_real_controls_and_stops_when_hidden(qtb
     assert not backdrop.shading_thread_alive()
 
 
-def test_zero_gravity_keeps_clicks_out_and_rebuild_preserves_user_radius(qtbot):
+def test_zero_gravity_keeps_click_ripples_but_not_gravity_through_rebuild(qtbot):
     host = QWidget()
     qtbot.addWidget(host)
     host.resize(320, 200)
     backdrop = ambient.install_ambient(host, theme="data_art_impulse_lens", seed=7,
-                                       gravity_radius=0.0)
+                                       gravity_radius=0.0, ripples_enabled=True,
+                                       popup_wave_frequency=0)
     host.show()
     qtbot.waitExposed(host)
     assert backdrop.gravity_radius() == 0.0
     assert backdrop._interaction_app is not None
+    qtbot.mouseClick(host, Qt.RightButton)
+    backdrop._on_tick()
+    assert not backdrop.engine._popup_waves
     qtbot.mouseClick(host, Qt.LeftButton)
-    assert not backdrop._pending_art_impulses
+    backdrop._on_tick()
+    qtbot.waitUntil(lambda: bool(backdrop.engine._popup_waves))
     assert not backdrop.engine._gravity_impulses
+    x, y = backdrop.engine._popup_waves[-1][1]
+    assert 0.45 < x < 0.55 and 0.45 < y < 0.55
 
     backdrop.set_gravity_radius(0.4)
     assert backdrop._interaction_app is not None
@@ -237,10 +244,21 @@ def test_zero_gravity_keeps_clicks_out_and_rebuild_preserves_user_radius(qtbot):
     assert backdrop._interaction_app is None
     backdrop.set_theme("data_art_impulse_lens")
     assert backdrop._interaction_app is not None
+    assert not backdrop.engine._popup_waves
 
     backdrop.set_gravity_radius(0.0)
     assert backdrop._interaction_app is not None
     assert not backdrop._pending_art_impulses
+    qtbot.mouseClick(host, Qt.LeftButton)
+    backdrop._on_tick()
+    qtbot.waitUntil(lambda: bool(backdrop.engine._popup_waves))
+    assert not backdrop.engine._gravity_impulses
+    backdrop.set_ripples_enabled(False)
+    assert not backdrop.engine._popup_waves
+    qtbot.mouseClick(host, Qt.LeftButton)
+    backdrop._on_tick()
+    assert not backdrop.engine._popup_waves
+    assert not backdrop.engine._gravity_impulses
     host.close()
     assert not backdrop.shading_thread_alive()
 

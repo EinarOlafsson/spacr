@@ -30,7 +30,7 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QEvent, QPoint, Qt
-from PySide6.QtWidgets import QLabel, QMainWindow, QStackedWidget, QWidget
+from PySide6.QtWidgets import QLabel, QMainWindow, QScrollArea, QStackedWidget, QWidget
 
 
 #: A spread of module screens, not one. The previous round of Qt work
@@ -127,6 +127,9 @@ class StubAmbient(QWidget):
         self.themes_set = []
         self.palettes_set = []
         self.backgrounds_set = []
+        self.ripples_set = []
+        self.effects_set = []
+        self.motion = {}
         self.animating = True
         self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
         self.setFocusPolicy(Qt.NoFocus)
@@ -145,6 +148,39 @@ class StubAmbient(QWidget):
     def set_animating(self, on):
         self.animating = bool(on)
 
+    def set_ripples_enabled(self, on):
+        self.ripples_set.append(bool(on))
+
+    def set_field_effects(self, effects):
+        self.effects_set.append(dict(effects))
+
+    def set_blur(self, value):
+        self.motion["blur"] = value
+
+    def set_speed(self, value):
+        self.motion["speed"] = value
+
+    def set_size_scale(self, value):
+        self.motion["size"] = value
+
+    def set_resolution(self, value):
+        self.motion["resolution"] = value
+
+    def set_density(self, value):
+        self.motion["density"] = value
+
+    def set_blink_percent(self, value):
+        self.motion["blink_percent"] = value
+
+    def set_popup_wave_frequency(self, value):
+        self.motion["popup_wave_frequency"] = value
+
+    def set_direction(self, value):
+        self.motion["direction"] = value
+
+    def set_gravity_radius(self, value):
+        self.motion["gravity_radius"] = value
+
 
 @pytest.fixture
 def fake_ambient(monkeypatch):
@@ -162,8 +198,18 @@ def fake_ambient(monkeypatch):
     module.palettes_for = lambda theme: palettes.get(theme, ())
     module.theme_label = lambda name: name.title()
     module.palette_label = lambda theme, palette: palette.title()
+    module.coerce_palette = lambda theme, palette: (
+        palette if palette in module.palettes_for(theme)
+        else module.palettes_for(theme)[0])
     module.AmbientWidget = StubAmbient
     module.calls = []
+    module.ripple_count = 0
+
+    def field_ripple_for_widget(widget, edge=None, rect=None, strength=1.0):
+        module.ripple_count += 1
+
+    module.field_ripple_for_widget = field_ripple_for_widget
+    module._apply_spaceout_animation_choice = lambda app: None
 
     def install_ambient(host, layout=None, *, theme, palette, backdrop=None):
         module.calls.append({"host": host, "layout": layout, "theme": theme,
@@ -547,6 +593,42 @@ def test_a_missing_ambient_module_is_not_a_broken_screen(qtbot,
     assert screen._settings_sections
     screen.refresh_ambient_background()          # and the live path too
     assert screen._ambient is None
+
+
+def test_a_scroll_hosted_section_still_toggles_without_ambient(
+        qtbot, qt_theme_applied, monkeypatch):
+    from spacr.qt.widgets.section import Section
+
+    scroll = QScrollArea()
+    qtbot.addWidget(scroll)
+    section = Section("Options")
+    scroll.setWidget(section)
+    monkeypatch.setitem(sys.modules, "spacr.qt.widgets.ambient", None)
+
+    section.set_expanded(True)
+    assert section.is_expanded()
+    assert section._body.isVisibleTo(section)
+    section.set_expanded(False)
+    assert not section.is_expanded()
+    assert not section._body.isVisibleTo(section)
+
+
+@pytest.mark.parametrize("scroll_hosted", [False, True])
+def test_section_toggle_schedules_field_feedback_when_available(
+        qtbot, qt_theme_applied, fake_ambient, scroll_hosted):
+    from spacr.qt.widgets.section import Section
+
+    section = Section("Options")
+    if scroll_hosted:
+        scroll = QScrollArea()
+        qtbot.addWidget(scroll)
+        scroll.setWidget(section)
+    else:
+        qtbot.addWidget(section)
+
+    section.set_expanded(True)
+    qtbot.waitUntil(lambda: fake_ambient.ripple_count == 1)
+    assert section.is_expanded()
 
 
 def test_broken_preferences_do_not_break_the_screen(qtbot, qt_theme_applied,
