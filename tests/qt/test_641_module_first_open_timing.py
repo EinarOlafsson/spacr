@@ -28,7 +28,7 @@ def _keys():
 def window(qapp):
     from spacr.qt.app import MainWindow
 
-    win = MainWindow()
+    win = MainWindow(initial_app="__home__")
     win.resize(1400, 900)
     win.show()
     for _ in range(5):

@@ -29,7 +29,7 @@ def _keys():
 def window(qapp):
     from spacr.qt.app import MainWindow
 
-    win = MainWindow()
+    win = MainWindow(initial_app="__home__")
     win.resize(1400, 900)
     win.show()
     for _ in range(5):
@@ -48,6 +48,28 @@ def test_a_fresh_module_open_selects_its_new_screen(window, qapp, key):
     for _ in range(3):
         qapp.processEvents()
     assert window._stack.currentWidget() is window._screens.get(key)
+
+
+def test_a_benchmark_window_does_not_resume_another_modules_saved_session(qapp, qtbot, monkeypatch):
+    from spacr import restart_state
+    from spacr.qt import preferences
+    from spacr.qt.app import MainWindow
+
+    monkeypatch.setattr(preferences, "_get_restore_session", lambda: True)
+    monkeypatch.setattr(restart_state, "_last_session", lambda: {
+        "module": "replication", "settings": {},
+    })
+    monkeypatch.setattr(restart_state, "_save_session", lambda *_a, **_kw: None)
+
+    restoring = MainWindow()
+    qtbot.addWidget(restoring)
+    assert "replication" in restoring._screens
+
+    fresh = MainWindow(initial_app="__home__")
+    qtbot.addWidget(fresh)
+    assert "replication" not in fresh._screens
+    fresh._on_nav_selected("replication")
+    assert fresh._stack.currentWidget() is fresh._screens["replication"]
 
 
 def test_a_module_open_reads_preferences_from_one_store(qapp, monkeypatch):
