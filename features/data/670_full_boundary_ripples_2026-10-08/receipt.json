@@ -1,0 +1,89 @@
+{
+  "base_commit": "54422e14169e2a372c14910931ec653e15af65ad",
+  "source_commit": "200ed070e37730fe32a3468556f367bb207b5acc",
+  "source_paths": {
+    "spacr/qt/preferences.py": {
+      "before_sha256": "ca35cc99039bbf259c872ce49d8e2d7ed390d455b5dbb4c260b0d05ae596147f",
+      "after_sha256": "dc12241c4deb2e8ae887b707a26029a81a9d89796a768d66f196dcd5e0c1d0ce"
+    },
+    "spacr/qt/widgets/ambient.py": {
+      "before_sha256": "068e32e8e9bf088b830be898ced108b9fb1a2ccad97e3c8f31292786b4d34619",
+      "after_sha256": "9a46ae64db84f384f0318117eedf23cc75a3057b1951c0f3183528334a87d9a6",
+      "focused_changed_missing_lines": [],
+      "focused_changed_missing_arcs": []
+    },
+    "spacr/qt/widgets/collapsible_splitter.py": {
+      "before_sha256": "b873a4b999a0965cc69fba4cf574106113a93b73eda69c5c3eeb8c4cbb858a07",
+      "after_sha256": "80002057cbcf502ff2396811e9ff8381376e9fe587cce6f74412190f85a7c23b",
+      "focused_changed_missing_lines": [],
+      "focused_changed_missing_arcs": []
+    },
+    "spacr/qt/widgets/dock.py": {
+      "before_sha256": "a0f741ff435378243ce2c0ab079ce92ba113c225ba57e3983de7d9c53c9fe995",
+      "after_sha256": "1a241d134fccf3c1f5a7371cadd62765dba8624b42e67d9aa89597064b01f939"
+    },
+    "spacr/qt/widgets/section.py": {
+      "before_sha256": "310b62daa9428842fc1baef8ba47885a800f2b8df5685655155a1753aa6714a5",
+      "after_sha256": "0689bd4e96b318b4069469f977eb3994717af54f704b9bdd8ba242934c6296e2"
+    },
+    "tests/qt/test_field_popup_waves.py": {
+      "before_sha256": "f3a1084f7a4205c228fbb56ef1eab9253d3f6657f374798c5fc9672f52a94d0d",
+      "after_sha256": "48c6c4899308df43211fd15a2880efbca53ecbc25f23d408450eb0ceb2e82525"
+    },
+    "tests/qt/test_field_ripple_controls.py": {
+      "before_sha256": "0f3158f01ecb35a201ff15c62915feb49d8e05604b6f1c8dfbf5ecbd64783e6b",
+      "after_sha256": "f6dde8642421d593294f4dc058e82739a2d9f7d1a3d3fa475273238fcc4cddba"
+    },
+    "tests/qt/test_n668_spaceout_and_popup_motion.py": {
+      "before_sha256": "97ef5fbc8168841dd802193d31b183a768f7dd560d8410e2c65c026c0e163ff9",
+      "after_sha256": "30cf5115a764a5f6ce1f054e296d287e2264e8323139148caa82e728658a1148"
+    },
+    "tests/qt/test_window_snap_and_field_edges_n666.py": {
+      "before_sha256": "c73a6c568730bf0caf04641b4821902ce8ce5ea776d1b4451a37bab10bb6d864",
+      "after_sha256": "a768b054fcbb09bbf1e3368ff7431271866d98cc0ab26f9f83a08b73a6a01a8c"
+    }
+  },
+  "focused_result": "74 passed in 17.54s; Qt6.12 offscreen; 4G cap",
+  "focused_command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen PYTHONPATH=.:<Qt6.12 overlay>:<pytest8.4.2 overlay> tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q tests/qt/test_field_ripple_controls.py tests/qt/test_field_popup_waves.py tests/qt/test_n668_spaceout_and_popup_motion.py tests/qt/test_window_snap_and_field_edges_n666.py --cov=spacr.qt.widgets.ambient --cov=spacr.qt.widgets.collapsible_splitter --cov-branch --cov-report=json:<scratch>/focused-coverage-final.json",
+  "negative_scope": "Initial focused run used a partial candidate and exposed six outdated point/centre expectations; it is retained as a negative, not source-baseline acceptance.",
+  "acceptance_scope": "CPU Qt offscreen geometry/material routing only; no native display or 24 FPS acceptance; no GPU.",
+  "inventory_probe": "/mnt/wd4tb/scratch/ui-integration-20261008/inventory_probe.py; normal public_docstrings() and canonical_sources() on frozen base/final source",
+  "inventory": {
+    "api_count": 13232,
+    "api_changed": [
+      "spacr.qt.widgets.ambient.field_ripple_for_widget"
+    ],
+    "runtime_counts": {
+      "setting_labels": {
+        "before": 1221,
+        "after": 1221
+      },
+      "setting_tooltips": {
+        "before": 1243,
+        "after": 1243
+      },
+      "categories": {
+        "before": 237,
+        "after": 237
+      },
+      "ui": {
+        "before": 7288,
+        "after": 7288
+      },
+      "installer": {
+        "before": 65,
+        "after": 65
+      },
+      "module_summaries": {
+        "before": 77,
+        "after": 77
+      }
+    },
+    "ui_added": [
+      "Waves per minute spreading from the full visible perimeter of an open popup window into spaCR field. Zero disables automatic waves; mouse gravity is independent."
+    ],
+    "ui_removed": [
+      "Waves per minute spreading from the centre of an open popup window into spaCR field. Zero disables automatic waves; mouse gravity is independent."
+    ]
+  }
+}
