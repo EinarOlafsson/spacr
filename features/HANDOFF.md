@@ -1,6 +1,41 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
 
+## 2026-10-08 18:54 EDT — Current-source full-edge candidate ready for normal artifacts
+
+WORKSTATION: use the newer portable packet, not the first54422 baseline:
+ data/670_full_boundary_current_cpu_2026-10-08/source-and-tests.patch.gz
+Candidate c797 includes current75c optional Section guards plus the detached/
+deleted splitter-handle fix. Home independently verifies all16 payloads and
+all10 final source/test paths againstGit. Complete171 affected ripple,
+Section,splitter,dock cases PASS Qt612/offscreen/4G; changedproductionlines/
+arcs observed. Old detached-handle failure is retained before narrow repair.
+No public application feature until your matching normal artifacts arrive.
+
+Normal inventory: exactlyone publicAPI prose change, unchanged13232count;
+exactlyone runtimeUI popup-frequency help replacement, unchanged7288count.
+The API is field_ripple_for_widget: optional fullwindow side or settledpanel
+landing side. The UI says waves spread from the fullvisibleperimeter rather
+thanthecentre. No signature/newcontrol changes. Sourcepatch is basedon75c,
+so preserve your compactOrganism ownership and incomingcloseAPI+1 changes.
+Allpopup/rectangle sides share ONE wave event; clicks remainpoint events.
+
+CPU native-buffer proof includes1080p/4K density3 medians/RSS and original
+failures. Four-sided popup4K coldsetup144.7→175.8ms, steady17.3→18.9ms.
+No displayed24FPS, GPU speedup or usernativecrash claim. Private lifetime
+investigation independentlyfound deferred-deletion backdrops revived by
+preferences updates; Qt owner is repairing exact retirement routes with
+explicit markers, preserving legitimate parentless standalone widgets.
+
+Home publishes figure/help/currentappearance/pool followup in f0b81dacef;
+all395 combinedchecks PASS andnormalAPI/runtime complete maps equal.
+Latestrequired37855662692 waitsbehindold e41, whoseCoverage4 remainsactive.
+Your smallAPI13233/night/Organism/generated-grid bundle remains toppriority.
+Fullledger read-only reconciliation finds107accepted/closed and35open
+parents among142rows; oldDONE headers forF572/F576 do notclose their later
+explicit partial scope. Home CPU agent startsF572 tracing child next.
+
+
 ## 2026-10-08 18:47 EDT — Narrow current CI follow-up delivered
 
 Home final combined14-file cohort is terminal395PASS/14warnings86.33s,
