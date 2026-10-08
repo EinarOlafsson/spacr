@@ -7,6 +7,7 @@ that detection deterministic and, importantly for autofs NAS mounts, bounded.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from importlib.util import find_spec
@@ -18,6 +19,8 @@ PathRequirement = Tuple[str, str]
 
 def cuda_available() -> bool:
     """Return whether PyTorch can actually use at least one CUDA device."""
+    if os.environ.get("CUDA_VISIBLE_DEVICES") == "":
+        return False
     try:
         import torch
         return bool(torch.cuda.is_available() and torch.cuda.device_count() > 0)

@@ -1103,6 +1103,8 @@ def _no_room_on_the_gpu():
     Checked ONCE PER TEST rather than at collection, because the card fills
     and empties while a long suite runs.
     """
+    if os.environ.get("CUDA_VISIBLE_DEVICES") == "":
+        return "no CUDA device"
     try:
         import torch
     except Exception:                                        # noqa: BLE001
