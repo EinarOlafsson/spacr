@@ -1,0 +1,590 @@
+{
+  "scope": "Bounded real Home/module and Preferences Apply switching, independent popup retirement and shutdown; negative reproduction is not a missing-slot fix or native crash acceptance.",
+  "checkpoint": "75c72e858a15c67768b503470773cb5db19e2e51",
+  "source": "/mnt/wd4tb/spacr-worktrees/codex-spaceout-prefs-current-20261008/spacr/qt/widgets/ambient.py",
+  "ambient_sha256": "068e32e8e9bf088b830be898ced108b9fb1a2ccad97e3c8f31292786b4d34619",
+  "imported_sources": {
+    "spacr": {
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-spaceout-prefs-current-20261008/spacr/__init__.py",
+      "sha256": "0f4b75967673d73116765c393c354247e340045a4960f85f4ce256583bb47e51"
+    },
+    "spacr.qt.app": {
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-spaceout-prefs-current-20261008/spacr/qt/app.py",
+      "sha256": "2018ed9bf74352b39d26bdf1623b84f26ed5e17485c910ea951a8b48dd79f4bc"
+    },
+    "spacr.qt.preferences": {
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-spaceout-prefs-current-20261008/spacr/qt/preferences.py",
+      "sha256": "4dd82cf78e562952a4f3e04328dd63bf5640db0ee1eb9d4b532071580dd0e852"
+    },
+    "spacr.qt.screens.app_screen": {
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-spaceout-prefs-current-20261008/spacr/qt/screens/app_screen.py",
+      "sha256": "92515a44aafdbab5551cf41867f052535c0ba88f72843d33f6047fc4402adaa4"
+    },
+    "spacr.qt.widgets.ambient": {
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-spaceout-prefs-current-20261008/spacr/qt/widgets/ambient.py",
+      "sha256": "068e32e8e9bf088b830be898ced108b9fb1a2ccad97e3c8f31292786b4d34619"
+    },
+    "spacr.qt.widgets.glass": {
+      "path": "/mnt/wd4tb/spacr-worktrees/codex-spaceout-prefs-current-20261008/spacr/qt/widgets/glass.py",
+      "sha256": "f30b606c702bce792d9c1ad3673d6cc7d5c97a9cf7e9908b2eb6d4c987f2ddd0"
+    }
+  },
+  "pyside_module": "/home/olafsson/anaconda3/lib/python3.12/site-packages/PySide6/__init__.py",
+  "python": "3.12.4 | packaged by Anaconda, Inc. | (main, Jun 18 2024, 15:12:24) [GCC 11.2.0]",
+  "executable": "/home/olafsson/anaconda3/bin/python",
+  "Qt": "6.10.0",
+  "numpy": "1.26.4",
+  "CUDA_VISIBLE_DEVICES": "",
+  "QT_QPA_PLATFORM": "xcb",
+  "records": [
+    {
+      "stage": "actual_home_field",
+      "seconds": 2.7157582200015895,
+      "ambient": [
+        {
+          "theme": "data_art_spaceout_field",
+          "visible": true,
+          "popup": false,
+          "parent_class": "QWidget",
+          "window_title": "spaCR",
+          "timer_active": true,
+          "frames_painted": 3,
+          "frames_shaded": 8,
+          "time": 0.321,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_spaceout_field",
+          "visible": false,
+          "popup": false,
+          "parent_class": null,
+          "window_title": "",
+          "timer_active": false,
+          "frames_painted": 0,
+          "frames_shaded": 0,
+          "time": 0.0,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "preferences_apply_keep_0",
+      "seconds": 5.343146233004518,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": false,
+          "popup": false,
+          "parent_class": null,
+          "window_title": "",
+          "timer_active": false,
+          "frames_painted": 0,
+          "frames_shaded": 0,
+          "time": 0.0,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "popup": false,
+          "parent_class": "QWidget",
+          "window_title": "spaCR",
+          "timer_active": true,
+          "frames_painted": 13,
+          "frames_shaded": 18,
+          "time": 1.11,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "popup": false,
+          "parent_class": null,
+          "window_title": "",
+          "timer_active": true,
+          "frames_painted": 5,
+          "frames_shaded": 17,
+          "time": 0.413,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "independent_popup_drift_0",
+      "seconds": 5.592860495031346,
+      "ambient": [
+        {
+          "theme": "drift",
+          "visible": true,
+          "popup": true,
+          "parent_class": "QDialog",
+          "window_title": "",
+          "timer_active": true,
+          "frames_painted": 3,
+          "frames_shaded": 0,
+          "time": 0.084,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "popup": false,
+          "parent_class": "QWidget",
+          "window_title": "spaCR",
+          "timer_active": true,
+          "frames_painted": 19,
+          "frames_shaded": 24,
+          "time": 1.3530000000000004,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "hidden_0",
+      "seconds": 6.216338430007454,
+      "ambient": [
+        {
+          "theme": "data_art_spaceout_field",
+          "visible": false,
+          "popup": false,
+          "parent_class": "QWidget",
+          "window_title": "spaCR",
+          "timer_active": false,
+          "frames_painted": 28,
+          "frames_shaded": 0,
+          "time": 1.8990000000000007,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "restarted_0",
+      "seconds": 6.353067971009295,
+      "ambient": [
+        {
+          "theme": "data_art_spaceout_field",
+          "visible": true,
+          "popup": false,
+          "parent_class": "QWidget",
+          "window_title": "spaCR",
+          "timer_active": true,
+          "frames_painted": 33,
+          "frames_shaded": 4,
+          "time": 2.0220000000000007,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "preferences_apply_keep_1",
+      "seconds": 8.266320815018844,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": false,
+          "popup": false,
+          "parent_class": null,
+          "window_title": "",
+          "timer_active": false,
+          "frames_painted": 0,
+          "frames_shaded": 0,
+          "time": 0.0,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "popup": false,
+          "parent_class": "QWidget",
+          "window_title": "spaCR",
+          "timer_active": true,
+          "frames_painted": 40,
+          "frames_shaded": 19,
+          "time": 2.6850000000000005,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "independent_popup_drift_1",
+      "seconds": 8.511210567026865,
+      "ambient": [
+        {
+          "theme": "drift",
+          "visible": true,
+          "popup": true,
+          "parent_class": "QDialog",
+          "window_title": "",
+          "timer_active": true,
+          "frames_painted": 3,
+          "frames_shaded": 0,
+          "time": 0.083,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "popup": false,
+          "parent_class": "QWidget",
+          "window_title": "spaCR",
+          "timer_active": true,
+          "frames_painted": 46,
+          "frames_shaded": 25,
+          "time": 2.9450000000000007,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "hidden_1",
+      "seconds": 9.264200904988684,
+      "ambient": [
+        {
+          "theme": "data_art_spaceout_field",
+          "visible": false,
+          "popup": false,
+          "parent_class": "QWidget",
+          "window_title": "spaCR",
+          "timer_active": false,
+          "frames_painted": 55,
+          "frames_shaded": 0,
+          "time": 3.6010000000000004,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "restarted_1",
+      "seconds": 9.399304938036948,
+      "ambient": [
+        {
+          "theme": "data_art_spaceout_field",
+          "visible": true,
+          "popup": false,
+          "parent_class": "QWidget",
+          "window_title": "spaCR",
+          "timer_active": true,
+          "frames_painted": 60,
+          "frames_shaded": 4,
+          "time": 3.7230000000000003,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "preferences_apply_keep_2",
+      "seconds": 11.827408672019374,
+      "ambient": [
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": false,
+          "popup": false,
+          "parent_class": null,
+          "window_title": "",
+          "timer_active": false,
+          "frames_painted": 0,
+          "frames_shaded": 0,
+          "time": 0.0,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "popup": false,
+          "parent_class": "QWidget",
+          "window_title": "spaCR",
+          "timer_active": true,
+          "frames_painted": 68,
+          "frames_shaded": 19,
+          "time": 4.386,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "independent_popup_drift_2",
+      "seconds": 12.0692052100203,
+      "ambient": [
+        {
+          "theme": "drift",
+          "visible": true,
+          "popup": true,
+          "parent_class": "QDialog",
+          "window_title": "",
+          "timer_active": true,
+          "frames_painted": 3,
+          "frames_shaded": 0,
+          "time": 0.083,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_tissue_facets",
+          "visible": true,
+          "popup": false,
+          "parent_class": "QWidget",
+          "window_title": "spaCR",
+          "timer_active": true,
+          "frames_painted": 74,
+          "frames_shaded": 25,
+          "time": 4.639,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "hidden_2",
+      "seconds": 13.10621296899626,
+      "ambient": [
+        {
+          "theme": "data_art_spaceout_field",
+          "visible": false,
+          "popup": false,
+          "parent_class": "QWidget",
+          "window_title": "spaCR",
+          "timer_active": false,
+          "frames_painted": 84,
+          "frames_shaded": 0,
+          "time": 5.495,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "restarted_2",
+      "seconds": 13.242265027016401,
+      "ambient": [
+        {
+          "theme": "data_art_spaceout_field",
+          "visible": true,
+          "popup": false,
+          "parent_class": "QWidget",
+          "window_title": "spaCR",
+          "timer_active": true,
+          "frames_painted": 89,
+          "frames_shaded": 4,
+          "time": 5.619000000000001,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "navigate_measure",
+      "seconds": 14.07891917298548,
+      "ambient": [
+        {
+          "theme": "data_art_spaceout_field",
+          "visible": false,
+          "popup": false,
+          "parent_class": null,
+          "window_title": "",
+          "timer_active": false,
+          "frames_painted": 0,
+          "frames_shaded": 0,
+          "time": 0.0,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_spaceout_field",
+          "visible": true,
+          "popup": false,
+          "parent_class": "QWidget",
+          "window_title": "spaCR",
+          "timer_active": true,
+          "frames_painted": 100,
+          "frames_shaded": 19,
+          "time": 6.303000000000001,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "navigate_make_masks",
+      "seconds": 15.814008649031166,
+      "ambient": [
+        {
+          "theme": "data_art_spaceout_field",
+          "visible": true,
+          "popup": false,
+          "parent_class": "MakeMasksScreen",
+          "window_title": "spaCR",
+          "timer_active": true,
+          "frames_painted": 3,
+          "frames_shaded": 5,
+          "time": 0.0,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_spaceout_field",
+          "visible": false,
+          "popup": false,
+          "parent_class": null,
+          "window_title": "",
+          "timer_active": false,
+          "frames_painted": 0,
+          "frames_shaded": 0,
+          "time": 0.0,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_spaceout_field",
+          "visible": true,
+          "popup": false,
+          "parent_class": "QWidget",
+          "window_title": "spaCR",
+          "timer_active": true,
+          "frames_painted": 110,
+          "frames_shaded": 33,
+          "time": 7.864000000000001,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "navigate___home__",
+      "seconds": 15.957021859008819,
+      "ambient": [
+        {
+          "theme": "data_art_spaceout_field",
+          "visible": false,
+          "popup": false,
+          "parent_class": "MakeMasksScreen",
+          "window_title": "spaCR",
+          "timer_active": false,
+          "frames_painted": 3,
+          "frames_shaded": 0,
+          "time": 0.25,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_spaceout_field",
+          "visible": false,
+          "popup": false,
+          "parent_class": null,
+          "window_title": "",
+          "timer_active": false,
+          "frames_painted": 0,
+          "frames_shaded": 0,
+          "time": 0.0,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        },
+        {
+          "theme": "data_art_spaceout_field",
+          "visible": true,
+          "popup": false,
+          "parent_class": "QWidget",
+          "window_title": "spaCR",
+          "timer_active": true,
+          "frames_painted": 113,
+          "frames_shaded": 33,
+          "time": 7.864000000000001,
+          "wrapper_class": "AmbientWidget",
+          "meta_class": "AmbientWidget",
+          "tick_index": 33
+        }
+      ]
+    },
+    {
+      "stage": "shutdown",
+      "seconds": 16.249406016024295,
+      "ambient": []
+    }
+  ],
+  "messages": [
+    {
+      "type": "4",
+      "message": "OpenType support missing for \"Ubuntu Sans\", script 11",
+      "thread": "MainThread"
+    },
+    {
+      "type": "4",
+      "message": "OpenType support missing for \"Ubuntu Sans\", script 11",
+      "thread": "MainThread"
+    },
+    {
+      "type": "4",
+      "message": "OpenType support missing for \"Open Sans\", script 11",
+      "thread": "MainThread"
+    },
+    {
+      "type": "4",
+      "message": "OpenType support missing for \"Open Sans\", script 11",
+      "thread": "MainThread"
+    },
+    {
+      "type": "4",
+      "message": "OpenType support missing for \"Open Sans\", script 11",
+      "thread": "MainThread"
+    },
+    {
+      "type": "4",
+      "message": "OpenType support missing for \"Open Sans\", script 11",
+      "thread": "MainThread"
+    },
+    {
+      "type": "4",
+      "message": "OpenType support missing for \"Open Sans\", script 11",
+      "thread": "MainThread"
+    }
+  ],
+  "exceptions": [],
+  "retired_producers": 9,
+  "alive_producers_after": 0,
+  "remaining_ambient_widgets": 0,
+  "window_native_destroyed": true
+}
