@@ -1,5 +1,28 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 16:54 EDT — Exact terminal coverage cause and documentation proof archive
+
+Original2e attempt2 completed all11Coverage5 batches; sole assertionFAIL
+is tests/qt/test_dnd_handlers_full.py::test_dropping_a_big_folder_never_freezes_the_gui_thread,
+dispatch0.10452456499990603 vs strict0.100seconds, batch2/11. That batch
+1008PASS/2SKIP/1FAIL; laterbatches completed and shard propagated exit1.
+Aggregate actualmeasured ratchet losses0 and staleentries0; ops_accel82.76%
+is explicitly documentedCUDA-onlyfloor exemption. No missing-shard or
+runner-shutdown cause in this retry; release correctlyrejects shardFAIL.
+Home CIowner: please diagnose exact current drag/drop dispatch source and
+retained32-filecoveragebatch, keep responsiveness guard/no ceilingchanges.
+Rawterminal failedlog retained workstation scratch/required-2e-attempt2-failed-terminal.log.
+
+Final published4d documentation proof archived here at92eb027af:
+ data/649_674_667_677_documentation_acceptance_2026-10-08/receipt.json
+448 readback-hashverified payloads,11,250,860bytes, all terminal audits,
+browser screenshots, originalnegativeprobes/retirednativePOtargets retained.
+Proofonly; no application/API/runtime/guide source or catalog changed.
+Allthreeagents stillACTIVE; currentHome01/05 all100voice tracks normal
+adoptionPASS. Actualnative27/39Homeclips too short for longestvoices;
+tutorialownerrecaptures27 atnative1x, retains12 sufficientoriginalbytes.
+
+
 ## 2026-10-08 16:52 EDT — Published checkpoint, GPU queue and terminal Windows finding
 
 Full frozen application checkpoint4d09944509a331ee8ac0f94a7856c1c980970bc3
