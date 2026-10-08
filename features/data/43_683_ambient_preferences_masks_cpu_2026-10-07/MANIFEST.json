@@ -1,0 +1,109 @@
+{
+  "files": [
+    {
+      "path": "root-three-final.log.gz",
+      "raw_bytes": 1121,
+      "raw_sha256": "bba0aca8b3ca9bc26540b7a7ec13cdb121099d46ff4749e7a4027d01969eab7b",
+      "gzip_bytes": 635,
+      "gzip_sha256": "1e77779b30767527d6be6ab222818bd63e9c596ccd59462cde53350ff6fabadd"
+    },
+    {
+      "path": "root-three-final.json.gz",
+      "raw_bytes": 1376964,
+      "raw_sha256": "98dea9e26b4e34ece9dc1d9503520ae7a19ad29781e812c12db01d95a9910685",
+      "gzip_bytes": 226823,
+      "gzip_sha256": "b5f3c1d4e71cc79772e1b15a724916a0656de27825dbf85e11f1a069560db266"
+    },
+    {
+      "path": "root-three-integrated.log.gz",
+      "raw_bytes": 1217,
+      "raw_sha256": "6314a80db86db6010439603f4aa8d2597bfc06a0bb405ada15a6c13002a9384c",
+      "gzip_bytes": 659,
+      "gzip_sha256": "dbba3a59927ac482d63bb13621b2ade0fdf643186050e2c8ef082e93a06051ff"
+    },
+    {
+      "path": "root-three-integrated.json.gz",
+      "raw_bytes": 1377193,
+      "raw_sha256": "c69e9ac05f7d37bbed4b1d0fd472d68c4faff55be0c5ae997c2f2f4f5f7ca763",
+      "gzip_bytes": 226968,
+      "gzip_sha256": "b446ab350efa72222d5be1645b5c1ebc4bcf805358561d92ffb777822ba0f6d1"
+    },
+    {
+      "path": "root-three-integrated-missing-test-file.log.gz",
+      "raw_bytes": 172,
+      "raw_sha256": "584fbf7514a6d03a7d8c388c32c2ef46406c4ab834a31cc5e4a7773f265edd89",
+      "gzip_bytes": 156,
+      "gzip_sha256": "1def3faac2ce7dc9acc72aaa0cda2d0f372b87e4fe9fcc80f3e38db7d2936910"
+    },
+    {
+      "path": "tests__qt__test_ambient_cache_and_cleanup_refusals.py.gz",
+      "raw_bytes": 5457,
+      "raw_sha256": "5785d507dfebf5848d5c95b2fe314a20ff0b4fe6486197ddaee2933cb84d619e",
+      "gzip_bytes": 1604,
+      "gzip_sha256": "ea78672e3f7e0b2228ff8c033964e44e7356155e253d989bbd3998b3b546a35f"
+    },
+    {
+      "path": "tests__qt__test_ambient_motion.py.gz",
+      "raw_bytes": 71645,
+      "raw_sha256": "7b6b1bafe3b2abc451aef9697d6d40ab9f47e5e5cbbb85135f0efce8a259e169",
+      "gzip_bytes": 21747,
+      "gzip_sha256": "97da2276063f95b35595539ca5d389f7642b1af6b6244a76ef6759ce3af7c249"
+    },
+    {
+      "path": "tests__qt__test_aurora_rays.py.gz",
+      "raw_bytes": 7079,
+      "raw_sha256": "7f8a209b8bb21bf535a41cb08de30ca7c5749bac5d383c88d534507d51a2de2b",
+      "gzip_bytes": 2519,
+      "gzip_sha256": "3b2d9f5431c9acc5fe0f621f145d5ae3466d42f5845e9e4db2d42a7245b5639e"
+    },
+    {
+      "path": "tests__qt__test_field_popup_waves.py.gz",
+      "raw_bytes": 8673,
+      "raw_sha256": "c04cc8e0373424d6fa8cd59477a6311b178f5f3c25961401d1e840cb844c2fe4",
+      "gzip_bytes": 2191,
+      "gzip_sha256": "d2ba7ae1c0b941fb6096306d2f2c56e0aa53213c0b1036cd2d87d52fa8246145"
+    },
+    {
+      "path": "tests__qt__test_make_masks_center_pixel_puncta.py.gz",
+      "raw_bytes": 9446,
+      "raw_sha256": "afb6ac1b7507606c919d6650b8774af65c64252f7415ac5c2997e2b62cd159cb",
+      "gzip_bytes": 2789,
+      "gzip_sha256": "43875ad6de374c4f3c18860dcca14ab01cd546f488e007dd0e205aa566cbdbdc"
+    },
+    {
+      "path": "tests__qt__test_requested_appearance_defaults.py.gz",
+      "raw_bytes": 6546,
+      "raw_sha256": "c4a0b8ad01bae2c4e236fc739efae26d5a39e16933ca608b3bb174cd7b0ce48d",
+      "gzip_bytes": 2278,
+      "gzip_sha256": "881a0ecb430a28836325a081798ada8f0e603b588e8cbd823b57835bcdbdd46d"
+    },
+    {
+      "path": "tests__qt__test_fungal_growth_engine.py.gz",
+      "raw_bytes": 14636,
+      "raw_sha256": "6a6a446dd5502e17d3b1e7a85838ec1db126ba4fb40dddde8fffe78bba25b8ce",
+      "gzip_bytes": 4257,
+      "gzip_sha256": "1683b81738fc111fd6756f14d298f7d8dc0d2862a63c397acdb074e6df30001f"
+    },
+    {
+      "path": "spacr__qt__widgets__ambient.py.gz",
+      "raw_bytes": 388705,
+      "raw_sha256": "2f017b232ae9647df99e59f65a1f5b1ec803cf28d1f9a3995cb23da9eceb5d72",
+      "gzip_bytes": 108561,
+      "gzip_sha256": "948d2af6deaaa227a8db16cfb1d5b1609c34316fc545ec173155af54ff314484"
+    },
+    {
+      "path": "spacr__qt__preferences.py.gz",
+      "raw_bytes": 473678,
+      "raw_sha256": "c4d6b8b7ffdee6c000454bf32579a74ba4c7c9e76af5ddcf007978d89f455f84",
+      "gzip_bytes": 128592,
+      "gzip_sha256": "cbd974f0b6fbea32cd499dfeabc736aec0bc690935b1ce810847ff384d83d35e"
+    },
+    {
+      "path": "spacr__qt__screens__make_masks.py.gz",
+      "raw_bytes": 806550,
+      "raw_sha256": "e2005ac93e9acc79bfe823cf01decdd7d1dfe637339ad50ab9db807037d7fadc",
+      "gzip_bytes": 214386,
+      "gzip_sha256": "c528571efbe61ac81141d2798f2bb5da34af9a386614d72396a41d5547d0eaaa"
+    }
+  ]
+}

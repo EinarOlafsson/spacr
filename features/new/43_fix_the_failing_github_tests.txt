@@ -3268,3 +3268,17 @@ uses existing Python3.12 dependencies, not full Python3.9 minimum acceptance.
 Failed harness output is retained and explicitly rejected; no GPU/full-suite
 or GitHub-green acceptance. Compact portable source/test/log/union evidence:
 data/43_683_plaque_mask_plate_cpu_2026-10-07/.
+
+2026-10-07 — CURRENT AMBIENT/PREFERENCES/MASK BOUNDARIES VERIFIED
+The integrated current-source seven-file selector cohort passes83/83 in
+176.32s under4GiB with branch coverage. It covers real popup publication
+races/expiry/rewind, texture ownership at tiny sizes, nonfinite saved
+appearance, busy legacy stop, native puncta provenance refusal and exact
+secondary-ID preservation, plus narrow/tiny fungal geometry. The earlier
+65-case phase overlaps and is not summed. The initial wrong test filename
+ran zero tests and is retained as rejected setup. Public prose/signatures,
+coverage ratchets and all original behavior assertions remain unchanged.
+Proof: data/43_683_ambient_preferences_masks_cpu_2026-10-07/receipt.json.
+Qt1 is hostedSUCCESS; Qt0 fails only the two already-repaired popup-alpha
+assertions, with no native/memory-limit failure in its full log. Qt2 and
+Fast remain executing. Final required corrected-source green remainsOPEN.
