@@ -45,3 +45,8 @@ Prepared dependency recipe is now draft conda-forge/staged-recipes PR35101:
 https://github.com/conda-forge/staged-recipes/pull/35101. Source/hash/license
 and all runtime constraints retained. Normal platform build/test, community
 review, feedstock publication and clean spaCR install remain OPEN.
+
+2026-10-08 15:00 EDT — Workstation takes actual dependency build
+  Root prepares isolated8G rattler-build environment with sufficient
+  scratch disk, then builds the exact pyfixest0.60 PR35101 recipe.
+  Home owns forge review/publication. Build/install not accepted yet.

@@ -376,3 +376,12 @@ PART C — WHAT IS LEFT
   Full15-file clean replacement; original tests unchanged. Source/docs
   adoption/current GitHub/publication and further producer audit remain.
   Proof:data/658_private_residual_recipe_2026-10-08/receipt.json.
+
+2026-10-08 15:00 EDT — Native Venn input/standalone acceptance
+  PRIVATEaad204PASS114.17s; original3FAIL retained. Full16-file
+  replacement CLEAN APPLY, existing tests unchanged. All original
+  metadata/rows plus coefficient filter, true native Venn geometry
+  and edited CSV standalone outputs pass for three filter cases.
+  All214 touched-module callables/signatures/prose unchanged.
+  Proof:data/658_private_venn_recipe_2026-10-08/receipt.json.
+  Further line/panel producers, coherent publication/current CI open.

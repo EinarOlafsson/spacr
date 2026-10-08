@@ -1,5 +1,30 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 15:00 EDT — Venn source-preserving recreation accepted; dependency build taken
+
+N658 PRIVATEaad7dca85:204PASS114.17s/136warnings,normalcoverage/8G.
+Original3FAIL proves all input metadata/excluded rows lost; corrected
+focused5PASS includes existing producer tests. Full16-file replacement
+patch CLEAN APPLY supersedes prior private658 packets. Original tests
+unchanged. Three real standalone PNG/SVG CLI processes reject spaCR
+imports; positive/negative/no filtering, duplicate/null genes, full
+original rows, collision-safe provenance, recorded native geometry/
+colors/labels and edited CSV recomputation pass. Conditional native
+matplotlib-venn dependency is listed honestly. All214 callables/classes
+in touched modules retain exact495 signatures/docstrings. Root18825
+integrates exact delta. Further native line/panel recipes under audit.
+ data/658_private_venn_recipe_2026-10-08/receipt.json
+
+N675: workstation root now owns an actual isolated local build of the
+exact pyfixest0.60 dependency recipe submitted in staged-recipesPR35101.
+An8G tool environment install is live; scratch disk has966GiB free.
+Home please avoid duplicate localbuild; retain ownership of forge review
+and publication/existing spacr-feedstockPR7. This is build preparation,
+not completed package installation or conda-forge publication.
+Current GitHub2e required run remains protected; notes-only publication
+does not cancel it. Console reachability follow-up awaited separately.
+
+
 ## 2026-10-08 14:54 EDT — Workstation combined Help/Organism342 accepted privately
 
 Actual PRIVATE495335a9d:342PASS270.92s across six complete selected Qt

@@ -1,0 +1,230 @@
+{
+  "source": "aad7dca8578f43e90f6853d1081816cd627358ab",
+  "base": "9a0e34cfb0eee6f5a438ce07c972b27b16dafc3c",
+  "integrated_source": "18825bef53ab30774362980943475782e2477c99",
+  "application_source_pushed": false,
+  "replacement_patch_cleanly_applies": true,
+  "replacement_files": [
+    "spacr/figures/bundle.py",
+    "spacr/figures/plates.py",
+    "spacr/figures/sheet.py",
+    "spacr/plot.py",
+    "spacr/qt/widgets/figure_settings.py",
+    "tests/qt/test_panel_statistics_dialog.py",
+    "tests/qt/test_panel_view_statistics_limits.py",
+    "tests/test_comparison_multipanel_recipe.py",
+    "tests/test_controls_multipanel_recipe.py",
+    "tests/test_lorenz_curve_recipe.py",
+    "tests/test_plate_heatmap_recipe.py",
+    "tests/test_recruitment_multipanel_recipe.py",
+    "tests/test_regression_panel_recipe.py",
+    "tests/test_regression_sheet_recipe.py",
+    "tests/test_residual_diagnostic_recipe.py",
+    "tests/test_venn_figure_recipe.py"
+  ],
+  "original_tests_unchanged": true,
+  "negative": {
+    "failed": 3,
+    "seconds": 3.37
+  },
+  "focused": {
+    "passed": 5,
+    "seconds": 6.94,
+    "warnings": 1
+  },
+  "final": {
+    "passed": 204,
+    "seconds": 114.17,
+    "warnings": 136
+  },
+  "normal_coverage": true,
+  "cap": "8G",
+  "CUDA_VISIBLE_DEVICES": "",
+  "QT_QPA_PLATFORM": "offscreen",
+  "callable_prose_and_signature_preservation": {
+    "spacr/plot.py": {
+      "callables": 188,
+      "signatures_and_docstrings_exact": true
+    },
+    "spacr/figures/bundle.py": {
+      "callables": 26,
+      "signatures_and_docstrings_exact": true
+    }
+  },
+  "scope": "Venn exports retain every row and metadata column of both original input tables, with collision-safe input identity and recorded coefficient filter. Standalone redraw uses native matplotlib-venn with the recorded colors and labels, correct deduplicated gene sets and dropped missing identifiers. Three threshold cases verify native/recreated geometry/text and edited CSV recomputation; all three PNG/SVG CLI processes refuse spaCR imports.",
+  "limits": [
+    "The sixteen-file replacement supersedes earlier private N658 source packets only; separate worker/accessibility/lifetime/Home packets still need coherent adoption.",
+    "Further native line and multi-panel producers remain under audit; this acceptance does not establish every legacy producer is faithful.",
+    "Normal final API/runtime/guide/tutorial regeneration and coherent app publication/current CI remain in progress; no native/macOS/GPU acceptance is claimed."
+  ],
+  "payloads": {
+    "logs/venn-negative-r1.log.gz": {
+      "raw_bytes": 4304,
+      "raw_sha256": "e38d4ea1dff07ccc3f9e3d0ff2e765654b60c945d09e20826d55cc11f817d75d",
+      "gzip_bytes": 826,
+      "gzip_sha256": "a0113d3472f0dabfcbc1869feb194a3bec56de7aea3e05754d865ebc0f22caf0"
+    },
+    "logs/venn-negative-r1-tool.log.gz": {
+      "raw_bytes": 3842,
+      "raw_sha256": "6433b9701ad36a3e7feb1c120ef40b29a86ca8c56cbd64ab3ad04a2bd5d7846e",
+      "gzip_bytes": 640,
+      "gzip_sha256": "d10756cc6356d8db8072c3d92249c9fa051e690931f9be6afc4349a6c1eef685"
+    },
+    "logs/venn-focused-r1.log.gz": {
+      "raw_bytes": 1272,
+      "raw_sha256": "0aa194f6a70538f662930f34f3f0dfc43907485b431a63a0dd65f419cd00aca7",
+      "gzip_bytes": 550,
+      "gzip_sha256": "d7158c5a6f3dcbcb0a46cf4806f041308b80b9ff89125719fca0b92bbe22d2d5"
+    },
+    "logs/venn-focused-r1-tool.log.gz": {
+      "raw_bytes": 652,
+      "raw_sha256": "d248ebcdbc64f01330c0e4d1b1de15cda96437412d521d2490de4bc7556436c7",
+      "gzip_bytes": 343,
+      "gzip_sha256": "db2c7ac3a5c9bc7dd1050c88ded3b67b5e0a3c0e6214b71ab16ca7fc9a3c182e"
+    },
+    "logs/venn-final-r1.log.gz": {
+      "raw_bytes": 13671,
+      "raw_sha256": "02697fccd54b8c90de491d370b2032494eb6b09709e4ba550f0bf98b26925c6c",
+      "gzip_bytes": 2217,
+      "gzip_sha256": "398514bb879336193ca65ff94dc394357db2dc452c225e23cf278d85dd824218"
+    },
+    "logs/venn-final-r1-tool.log.gz": {
+      "raw_bytes": 12092,
+      "raw_sha256": "f7efd2141b7ee5a3eae3f7e58b73448f6a383d89ce20928b8decc1cacf523a61",
+      "gzip_bytes": 1888,
+      "gzip_sha256": "824fcf6fd96693b56ea85fd855e191cb97acc3059e23d462e47adb879872b874"
+    },
+    "coverage/venn-final-coverage-r1.data.carruthers.pid113304.XyUAAiCx.Hoz4v9YFPJzh.gz": {
+      "raw_bytes": 2453504,
+      "raw_sha256": "de1e34958c8d817f52a9405f303c108c47ea63764e28c78dcb0b8f7860608757",
+      "gzip_bytes": 1021047,
+      "gzip_sha256": "3880d6343f52ce4276c22cc4115e33a127f60bf09520c717cb9ccb93fb595cd5"
+    },
+    "replacement-source-and-tests.patch.gz": {
+      "raw_bytes": 122282,
+      "raw_sha256": "d9591a66a7f0dcb09e515b5ae3067e521fa5b496f6bca91a3b49dce02eaf5670",
+      "gzip_bytes": 25769,
+      "gzip_sha256": "bdc0f5964a4f2824a1f53465977685b21bf901f87f3ac2cc0fb3fa9286512a6a"
+    },
+    "delta-from-combined-help-source.patch.gz": {
+      "raw_bytes": 10659,
+      "raw_sha256": "328c5c856140a6211aeb9dd1fa7563f4c39b599adff4775817ed2b7b4440ce80",
+      "gzip_bytes": 3581,
+      "gzip_sha256": "1df98f51cea66ace8cec87bf247acc79758fe07809f02fb6ec4b742279936cd5"
+    },
+    "source/spacr/figures/bundle.py.gz": {
+      "raw_bytes": 51736,
+      "raw_sha256": "bd84e1527dfe32c001c8d80bc5878ca2a4ffef1b0320b2feb47e99e531c325e0",
+      "gzip_bytes": 15265,
+      "gzip_sha256": "a875dfa402dd2d613eae022157bc9da23f0377ee65fa9a866b2d1ef38b83b75a"
+    },
+    "source/spacr/figures/plates.py.gz": {
+      "raw_bytes": 30577,
+      "raw_sha256": "7d9a39e03fa926c7e1d8022e1f09aff18b3b566c4877e606222245df2448a626",
+      "gzip_bytes": 10190,
+      "gzip_sha256": "013b8f54f93fe913a85938f443e883ad60a0ae2f1e344db39ce22425701c6990"
+    },
+    "source/spacr/figures/sheet.py.gz": {
+      "raw_bytes": 9556,
+      "raw_sha256": "200ba4b523cf13f784743a574205a56cbb47d3f44d8c6859959f81665338de25",
+      "gzip_bytes": 3517,
+      "gzip_sha256": "2f80b3656591109954116473c3d6a62458e6c787e7bcf4a7006aee6e3c56f6d0"
+    },
+    "source/spacr/plot.py.gz": {
+      "raw_bytes": 346996,
+      "raw_sha256": "8128ec1aa6fd5e13fb9eb3c6ba531f4d6fffd6568afd3db6930b669f4bf32410",
+      "gzip_bytes": 87312,
+      "gzip_sha256": "aaabb936befa81037b740f7581b8c546bc3220ba172427f215fbe4f40523429e"
+    },
+    "source/spacr/qt/widgets/figure_settings.py.gz": {
+      "raw_bytes": 119440,
+      "raw_sha256": "fb34dbd8212ff4384255623c4f0c343e441484a9e3d73bb8c6b7cb1f4aa05b78",
+      "gzip_bytes": 32088,
+      "gzip_sha256": "b2534dc6371a0badfbd5f243119d6e30ecf924e9fea39622f0329395a02db87b"
+    },
+    "source/tests/qt/test_panel_statistics_dialog.py.gz": {
+      "raw_bytes": 6153,
+      "raw_sha256": "851e4d0bb1d04c8ecd30c2858fa9b2e8dae04e081c5891b27c68025eb7c13bd3",
+      "gzip_bytes": 1869,
+      "gzip_sha256": "4a2783b34f3cf9e1d718a7ba8e45469a9ba3d13e36f52ee7467cad24150729d9"
+    },
+    "source/tests/qt/test_panel_view_statistics_limits.py.gz": {
+      "raw_bytes": 3519,
+      "raw_sha256": "526c4b92806e93ad57740b989ed858a99cbd254c56f682a87653bd8c8b1b7cd1",
+      "gzip_bytes": 1050,
+      "gzip_sha256": "f694019049a9e30dad2e81a15674ca55b2de090d64cc8789e9742e5cb64bcb7f"
+    },
+    "source/tests/test_comparison_multipanel_recipe.py.gz": {
+      "raw_bytes": 4792,
+      "raw_sha256": "61dadedb4caaf1088d0b75e69207e7da361666378e2505b3c855ba197511f78f",
+      "gzip_bytes": 1651,
+      "gzip_sha256": "6837b27a6451efb868398a61ed0eef86333787a475deb469a214e60a280c2330"
+    },
+    "source/tests/test_controls_multipanel_recipe.py.gz": {
+      "raw_bytes": 8771,
+      "raw_sha256": "8ea542be20fc46f5bf67e1935adf31acd7bc43fa60772763dfec4f7491b4f861",
+      "gzip_bytes": 2301,
+      "gzip_sha256": "42848a92c171f486bcd3deb3b54e91fe1fdd2dadead0a597b4be0f073f9d8e61"
+    },
+    "source/tests/test_lorenz_curve_recipe.py.gz": {
+      "raw_bytes": 7191,
+      "raw_sha256": "25aa104bf293f3143f486008f6e56c2b05afb7699b8459b04d78241008b1d492",
+      "gzip_bytes": 2380,
+      "gzip_sha256": "82d17ae4e709998ea5464b5d519841ae3bbf34b5bc282b7d28699bbe75e18475"
+    },
+    "source/tests/test_plate_heatmap_recipe.py.gz": {
+      "raw_bytes": 5905,
+      "raw_sha256": "a0fcee6c5941088f624d5fba02d1585adee4e0643d62fc4add62c1d6efcdc57f",
+      "gzip_bytes": 1893,
+      "gzip_sha256": "5c2dedc4fad048f3e60f45d8982f20215f7902fb1ee547a01fe735dd385a8234"
+    },
+    "source/tests/test_recruitment_multipanel_recipe.py.gz": {
+      "raw_bytes": 7554,
+      "raw_sha256": "b26cad85db5d9a4e6ab674c4335a75bc4a0b8828f896366ad6100bfe831c18a2",
+      "gzip_bytes": 2089,
+      "gzip_sha256": "a0eb29edf1b09e85b23f1d819df979b42f849cf75b8e79b062da2ae11053ad60"
+    },
+    "source/tests/test_regression_panel_recipe.py.gz": {
+      "raw_bytes": 5374,
+      "raw_sha256": "bf22afefe09c961d242b4dc420643dbfc6740625a8c0ffd145b224a7ba630795",
+      "gzip_bytes": 1923,
+      "gzip_sha256": "ae2904a3da4a6c666a422af2e669c72ca5e8d1086fea11dbb2d653da8a5185b8"
+    },
+    "source/tests/test_regression_sheet_recipe.py.gz": {
+      "raw_bytes": 5127,
+      "raw_sha256": "6cf8303aa5b151523b359021dd55b44bd4e2c95ba9fe4300b96eda2086df8f9c",
+      "gzip_bytes": 1848,
+      "gzip_sha256": "2db42df8b7f9c21981bc7bf3c40e14eeb39e96ebaac2b51b503c240065abe5af"
+    },
+    "source/tests/test_residual_diagnostic_recipe.py.gz": {
+      "raw_bytes": 5112,
+      "raw_sha256": "2e82825299cdf143562e9619a045cb64b3d708c19dd0755268584aa1fab48616",
+      "gzip_bytes": 1789,
+      "gzip_sha256": "9d1e8266c555ba1a5fdb311c4b712c949430ceb55606544b51c2016187bbb848"
+    },
+    "source/tests/test_venn_figure_recipe.py.gz": {
+      "raw_bytes": 6153,
+      "raw_sha256": "cbf9a23821204f29cca8ca6df3e738fe30d3ee46a4e6db17f5098194a5bd94e2",
+      "gzip_bytes": 2094,
+      "gzip_sha256": "9fc97fe1fde1fcc70eb47ac342d4a45369bab71c2da25e8f94101f79db6018c9"
+    },
+    "venn-api-prose-preservation-r1.json.gz": {
+      "raw_bytes": 196,
+      "raw_sha256": "2eaa746178ac8649d6047925aa20502ebc065198a5854bd6a824677f778f5059",
+      "gzip_bytes": 127,
+      "gzip_sha256": "5ca626f7b974a2a77f8f03dd74fc3504a06f10d56b842d069823fe7a3c7a65ef"
+    },
+    "test-revisions/original-negative.py.gz": {
+      "raw_bytes": 6153,
+      "raw_sha256": "cbf9a23821204f29cca8ca6df3e738fe30d3ee46a4e6db17f5098194a5bd94e2",
+      "gzip_bytes": 2094,
+      "gzip_sha256": "9fc97fe1fde1fcc70eb47ac342d4a45369bab71c2da25e8f94101f79db6018c9"
+    },
+    "scripts/archive_venn_recipe_r1.py.gz": {
+      "raw_bytes": 7768,
+      "raw_sha256": "23cfe858eaad2f13035ac4f084bbe8cee580ec8d5618582dcdc31a517105bfa0",
+      "gzip_bytes": 3310,
+      "gzip_sha256": "62459ba8eba98ba246ebc1b592de796a1a0e8528c220d8e3706d7a695ca79779"
+    }
+  }
+}
