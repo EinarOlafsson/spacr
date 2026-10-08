@@ -93,21 +93,22 @@ def test_reset_restores_the_three_the_user_named(private_store, qtbot):
     from spacr.qt import preferences
 
     preferences.set_theme_choice("light")
-    preferences.set_ambient_animation("aurora")
+    preferences.set_ambient_animation("drift")
     preferences.set_ambient_palette("ocean")
 
     dialog = _dialog(qtbot)
     dialog.findChild(QPushButton, "PreferencesReset").click()
 
-    chosen = [combo.currentData() for combo in dialog.findChildren(QComboBox)]
     theme_combo = next(combo for combo in dialog.findChildren(QComboBox)
                        if combo.findData("glass") >= 0)
+    animation_combo = dialog.findChild(QComboBox, "AmbientTheme")
+    palette_combo = dialog.findChild(QComboBox, "AmbientPalette")
     assert theme_combo.currentData() == "dark", (
         "the theme did not go back to Dark")
-    assert "data_art_impulse_lens" in chosen, (
+    assert animation_combo.currentData() == "data_art_impulse_lens", (
         "the animation did not go back to Impulse Lens")
-    assert "spacr" in chosen, "the palette did not go back to spaCR"
-    assert "aurora" not in chosen and "ocean" not in chosen
+    assert palette_combo.currentData() == "spacr", (
+        "the palette did not go back to spaCR")
 
 
 def test_reset_writes_nothing_until_save(private_store, qtbot):
@@ -120,14 +121,14 @@ def test_reset_writes_nothing_until_save(private_store, qtbot):
     from spacr.qt import preferences
 
     preferences.set_theme_choice("dark")
-    preferences.set_ambient_animation("aurora")
+    preferences.set_ambient_animation("drift")
     preferences.set_pane_opacity(1.0)
 
     dialog = _dialog(qtbot)
     dialog.findChild(QPushButton, "PreferencesReset").click()
 
     assert preferences.get_theme_choice() == "dark"
-    assert preferences.get_ambient_animation() == "aurora"
+    assert preferences.get_ambient_animation() == "drift"
     assert preferences.get_pane_opacity() == 1.0
 
 

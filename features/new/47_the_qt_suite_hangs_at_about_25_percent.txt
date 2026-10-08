@@ -2432,3 +2432,5 @@ as parsed dictionaries. Frozen source35cefc993a8, raw profile/logs/coverage,
 full inventory maps and portable hashes: data/47_hidden_menu_stylesheet_cpu_2026-10-08/.
 This is a real avoidable CPU cost, not proof of the historical1824s file's
 cause or whole original-order six-hour acceptance. N47 remainsOPEN.
+
+2026-10-08 18:28 EDT — Published completed body/test repair wave; source-bound21payloads/fullmaps in data/43_current_body_repairs_2026-10-08. Source/API captions stable; independent Section57/29, DB/sweep89, codec45 plus original owning UI/resource cohorts pass. Full current required/serial and generated artifact gates remain OPEN; no skip/ratchet/timing/contrast weakening.

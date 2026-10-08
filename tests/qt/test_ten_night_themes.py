@@ -436,10 +436,12 @@ class TestTheDialogMovesTheOtherThreeControls:
     def test_save_writes_what_the_dialog_shows(self, dialog, store):
         theme = _theme_combo(dialog)
         theme.setCurrentIndex(theme.findData("vesper"))
+        shown_animation = dialog.findChild(QComboBox, "AmbientTheme").currentData()
+        assert shown_animation not in (None, "none")
         buttons = dialog.findChild(QDialogButtonBox)
         buttons.button(QDialogButtonBox.Save).click()
         assert store.get_theme() == "vesper"
-        assert store.get_ambient_animation() == "aurora"
+        assert store.get_ambient_animation() == shown_animation
         assert store.get_ambient_palette() == "dusk"
         assert store.get_sound_theme() == "vesper"
         assert store.get_sound_enabled() is False

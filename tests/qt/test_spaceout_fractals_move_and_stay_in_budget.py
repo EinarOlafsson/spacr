@@ -1,4 +1,4 @@
-"""The backdrop the ``spaceout`` launcher dresses spaCR in.
+"""The fractal backdrop when it is explicitly selected in Spaceout.
 
 The two things the request made non-negotiable are the two the bottom half of
 this file is about:
@@ -19,8 +19,8 @@ this file is about:
   palette's own check lives in
   ``tests/qt/test_spaceout_palette_stays_readable.py``; what is measured
   here is the rendered pixels — text over the worst text-line-sized region
-  of a real fractal frame reads at least as well as over the shipped default
-  animation's.
+  of a real fractal frame reads at least as well as over the established
+  Blobs reference.
 
 Everything is deterministic: engines are seeded and the clock is set, so no
 test waits on a real timer.
@@ -34,7 +34,7 @@ import time
 
 import numpy as np
 import pytest
-
+from PySide6.QtCore import QSettings
 from PySide6.QtGui import QColor, QImage, QPainter
 from PySide6.QtWidgets import QWidget
 
@@ -56,6 +56,18 @@ def dressed():
     yield
     if not was:
         theme.disable_spaceout()
+
+
+@pytest.fixture
+def selected_fractal(dressed, monkeypatch, tmp_path):
+    """Select the optional fractal without changing the user's saved choice."""
+    from spacr.qt import preferences
+
+    settings = QSettings(str(tmp_path / "spaceout.ini"), QSettings.IniFormat)
+    monkeypatch.setattr(preferences, "_settings", lambda: settings)
+    preferences.set_ambient_animation(amb.SPACEOUT_THEME)
+    assert preferences.get_ambient_theme() == amb.SPACEOUT_THEME
+    yield
 
 
 def paint(engine, background, width=W, height=H) -> QImage:
@@ -119,8 +131,8 @@ def legibility_margin(theme_name: str, array: np.ndarray) -> float:
     A pure number rather than a pass/fail, because every ambient animation
     spaCR ships is under 1.0 here and always has been — text mostly sits on
     opaque panels, not on the backdrop. What is worth asserting is therefore
-    *comparative*: a new backdrop must not be harder to read over than the
-    one it replaces.
+    *comparative*: a fractal backdrop must not be harder to read over than
+    the established Blobs reference.
     """
     palette = theme.palette_for(theme_name)
     low, high = _window_luminance(array)
@@ -138,8 +150,11 @@ def legibility_margin(theme_name: str, array: np.ndarray) -> float:
 # The dressing chooses the engine, wherever the backdrop is built
 # ---------------------------------------------------------------------------
 
-def test_the_launcher_is_what_selects_the_fractal(dressed):
-    engine = amb.make_engine(amb.SPACEOUT_THEME, amb.SPACEOUT_PALETTE,
+def test_the_selected_fractal_has_its_palette(selected_fractal):
+    from spacr.qt import preferences
+
+    engine = amb.make_engine(preferences.get_ambient_theme(),
+                             preferences.get_ambient_palette(),
                              theme.page_colour("dark"), seed=1)
     assert isinstance(engine, amb.FractalEngine)
     assert [c.name().upper() for c in engine.colors] == \
@@ -147,15 +162,17 @@ def test_the_launcher_is_what_selects_the_fractal(dressed):
                                                amb.SPACEOUT_PALETTE)]
 
 
-def test_a_screen_that_asks_for_blobs_gets_fractals(qtbot, dressed):
-    """The install sites do not know the mode exists — Home, the module
-    screens and the setup dialog all ask for whatever is in Preferences.
-    Driven through ``install_ambient``, which is the call all of them make.
-    """
+def test_an_explicitly_selected_fractal_reaches_install_sites(qtbot,
+                                                               selected_fractal):
+    """The selected animation reaches the same installer every screen uses."""
+    from spacr.qt import preferences
+
     host = QWidget()
     qtbot.addWidget(host)
     host.resize(600, 400)
-    widget = amb.install_ambient(host, theme="blobs", palette="spacr", seed=1)
+    widget = amb.install_ambient(
+        host, theme=preferences.get_ambient_theme(),
+        palette=preferences.get_ambient_palette(), seed=1)
     try:
         # Instruction 260 replaced the old AmbientWidget Julia engine with
         # the renderer from fractal_travel. Its public integration contract
@@ -168,38 +185,56 @@ def test_a_screen_that_asks_for_blobs_gets_fractals(qtbot, dressed):
         widget.shutdown()
 
 
-def test_saving_preferences_does_not_undress_a_live_backdrop(qtbot, qapp,
-                                                             dressed):
+def test_saving_preferences_does_not_undress_a_live_backdrop(
+        qtbot, qapp, selected_fractal):
     """The case that would have broken it.
 
-    :func:`spacr.qt.preferences.apply_ambient_preferences` walks every live
-    widget in the application on every Preferences save and pushes the
-    *stored* animation into it. If the override lived at the install sites
-    instead of in the widget, saving a settings page would put the blobs
-    back — silently, and only for users who opened Preferences.
+    Saving an unrelated motion setting keeps the selected fractal live.
     """
-    from spacr.qt.preferences import (apply_ambient_preferences,
-                                      set_ambient_animation)
+    from spacr.qt.preferences import (
+        apply_ambient_preferences,
+        get_ambient_palette,
+        get_ambient_theme,
+        set_ambient_size,
+    )
     host = QWidget()
     qtbot.addWidget(host)
     host.resize(400, 300)
-    widget = amb.install_ambient(host, seed=1)
-    from spacr.qt.preferences import get_ambient_animation
+    widget = amb.install_ambient(
+        host, theme=get_ambient_theme(), palette=get_ambient_palette(), seed=1)
 
-    before = get_ambient_animation()
     try:
-        set_ambient_animation("aurora")
+        set_ambient_size(1.25)
         apply_ambient_preferences(qapp)
 
         # Ambient preferences only retheme AmbientWidget instances. The
-        # launcher renderer stays the same live replacement and continues to
-        # answer the shared pause/resume contract.
+        # selected fractal remains live and answers the shared pause/resume
+        # contract.
         assert widget.backend_name in {"cpu", "gpu"}
         assert widget.parentWidget() is host
         assert not isinstance(widget, amb.AmbientWidget)
     finally:
-        set_ambient_animation(before)
         widget.shutdown()
+
+
+def test_spaceout_defaults_to_the_field_when_no_animation_is_saved(
+        qtbot, dressed, monkeypatch, tmp_path):
+    """The default stays a field; fractal-specific checks select fractal."""
+    from spacr.qt import preferences
+
+    settings = QSettings(str(tmp_path / "spaceout.ini"), QSettings.IniFormat)
+    monkeypatch.setattr(preferences, "_settings", lambda: settings)
+    assert preferences.get_ambient_animation() == amb.DEFAULT_SPACEOUT_THEME
+    host = QWidget()
+    qtbot.addWidget(host)
+    widget = amb.install_ambient(
+        host, theme=preferences.get_ambient_theme(),
+        palette=preferences.get_ambient_palette(), seed=1)
+    try:
+        assert isinstance(widget, amb.AmbientWidget)
+        assert widget.theme() == amb.DEFAULT_SPACEOUT_THEME
+    finally:
+        widget.stop()
 
 
 def test_an_ordinary_start_gets_the_animation_the_user_chose(qtbot):
@@ -322,9 +357,8 @@ def test_text_reads_over_the_fractal_at_least_as_well_as_over_the_blobs(
     """The bar is the animation this one replaces, and it is measured in the
     same process on the same frames so no machine or Qt version can move it.
 
-    Both are judged against their OWN dressing's palette, because that is
-    what a user of each actually sees: a plain start has the blobs and the
-    shipped colours, a ``spaceout`` start has the fractal and the rainbow.
+    Both are judged against their own palette: the historical Blobs
+    reference uses spaCR colours, and selected fractals use rainbow.
     """
     was = theme.spaceout_enabled()
     clocks = (0.0, 13.0, 37.0, 71.0)
@@ -495,7 +529,7 @@ def test_no_setting_can_ask_for_more_than_half_a_frame(resolution, density,
 
 
 def test_the_backdrop_still_costs_nothing_while_it_is_off_screen(
-        qtbot, dressed, monkeypatch):
+        qtbot, selected_fractal, monkeypatch):
     """The CPU guarantee the whole ambient feature rests on, asserted for
     the fractal because it is the most expensive engine in the module and
     because a launcher that kept shading behind a hidden tab would be the
@@ -510,7 +544,9 @@ def test_the_backdrop_still_costs_nothing_while_it_is_off_screen(
     host = QWidget()
     qtbot.addWidget(host)
     host.resize(600, 400)
-    widget = amb.install_ambient(host, seed=1)
+    widget = amb.install_ambient(
+        host, theme=preferences.get_ambient_theme(),
+        palette=preferences.get_ambient_palette(), seed=1)
     try:
         assert widget.backend_name == "cpu"
         assert widget._frames == 0, "shading before it is on screen"

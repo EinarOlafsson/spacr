@@ -31,12 +31,18 @@ def test_contained_trial_result_is_registered_only_by_the_main_process(
 
     result_path = tmp_path / "_trial_result.json"
     result = {"status": "ok", "_resource_worker": {"pid": 123}}
-    result_path.write_text(json.dumps(result), encoding="utf-8")
+    result_path.write_text(json.dumps({"status": "stale"}), encoding="utf-8")
     monkeypatch.setattr(sweep, "containment_available", lambda: False)
+
+    def finished_child(*args, **kwargs):
+        assert not result_path.exists(), "the previous trial result was reused"
+        result_path.write_text(json.dumps(result), encoding="utf-8")
+        return types.SimpleNamespace(returncode=0, stderr="")
+
     monkeypatch.setattr(
         subprocess,
         "run",
-        lambda *args, **kwargs: types.SimpleNamespace(returncode=0, stderr=""),
+        finished_child,
     )
 
     registered = []
@@ -75,6 +81,7 @@ def test_parallel_sweep_refills_after_each_completed_future(tmp_path,
     from concurrent import futures as futures_module
 
     from spacr import parameter_sweep as sweep
+    from spacr.resource_log import _StaggeredContext
 
     trials = [{"trial_id": trial_id} for trial_id in (1, 2, 3)]
     monkeypatch.setattr(sweep, "build_trials", lambda *args, **kwargs: trials)
@@ -82,9 +89,6 @@ def test_parallel_sweep_refills_after_each_completed_future(tmp_path,
         sweep, "recommended_workers", lambda **kwargs: (2, "test budget"))
     monkeypatch.setattr(sweep, "memory_is_low", lambda: False)
     monkeypatch.setattr(sweep, "_pin_threads", lambda: None)
-    monkeypatch.setattr(
-        multiprocessing, "get_context", lambda method: f"{method}-context")
-
     submitted = []
 
     class FakeFuture:
@@ -97,7 +101,8 @@ def test_parallel_sweep_refills_after_each_completed_future(tmp_path,
     class FakeExecutor:
         def __init__(self, max_workers, mp_context):
             assert max_workers == 2
-            assert mp_context == "spawn-context"
+            assert isinstance(mp_context, _StaggeredContext)
+            assert mp_context.get_context().get_start_method() == "spawn"
 
         def __enter__(self):
             return self

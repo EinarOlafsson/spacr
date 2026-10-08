@@ -42,6 +42,8 @@ def test_hovering_writes_it_and_leaving_puts_the_default_back(qtbot, monkeypatch
     monkeypatch.setattr("spacr.qt.tooltip_policy._preferred_delay_ms", lambda: 0)
     bar = HintBar()
     qtbot.addWidget(bar)
+    bar.setFixedWidth(360)
+    bar.show()
     button = QPushButton("Go")
     qtbot.addWidget(button)
     bar.explain(button, "Starts the run and cannot be undone.")
@@ -50,6 +52,7 @@ def test_hovering_writes_it_and_leaving_puts_the_default_back(qtbot, monkeypatch
     QApplication.sendEvent(button, QEvent(QEvent.Enter))
     qtbot.waitUntil(lambda: bar.text() == "Starts the run and cannot be undone.")
     assert bar.text() == "Starts the run and cannot be undone."
+    assert bar._view.verticalScrollBar().maximum() == 0
     QApplication.sendEvent(button, QEvent(QEvent.Leave))
     assert bar.text() == DEFAULT_HINT
 

@@ -1,0 +1,212 @@
+{
+  "source_commit": "4ebbd5c828be848482e6e8f1d86e35fc9406067f",
+  "prior_public_source": "c4c94a808a1d4ce79db3072d34cc52bf05b5f0b3",
+  "code_and_test_sha256": {
+    "spacr/database_schema.py": "ff304a2c9468129b99ec7ad8205468a3b0ce2f867024ffcabcfc53f107164f28",
+    "spacr/qt/preferences.py": "4dd82cf78e562952a4f3e04328dd63bf5640db0ee1eb9d4b532071580dd0e852",
+    "spacr/qt/widgets/section.py": "30240e9ec5e1f4fd6f94e2f5dc1a64d521a83bd51eb07c6dce8a7cf75dedd25f",
+    "spacr/resource_log.py": "427d38911ceba4f9d45b591cc670ed1317a1cf8d575564e17a7b9123193711c3",
+    "tests/qt/test_603_all_hover_surfaces_wait.py": "6781c469807ef9b760d4bb515314d2196b7d48907bcbcddb537c8ebd1bdc742f",
+    "tests/qt/test_ambient_motion.py": "e1ed6db5407a69c0fd3198008fbecea1a30e4e8be28e323fd550cfc668944f63",
+    "tests/qt/test_ambient_wiring.py": "adede457234ef48b6d645518f85d2bc0060ced5484cbd87e3b3945cf3839c99f",
+    "tests/qt/test_cells_behind_the_dot_tab.py": "c7b05b1de395d2d43beff587f0ee941a0ab8c647df5b990293ca40f8c7840c80",
+    "tests/qt/test_cov_w3_7_glass.py": "da505df0cf1dae43fe5096238d3f4f97efc373bafedad0c2e950ce11920716af",
+    "tests/qt/test_data_art_crisp_controls.py": "49bf9fcbcf2dffdcd435496b76c63aaf332dbc6976234b033c19e3f7f164f939",
+    "tests/qt/test_preferences_reset.py": "6789c13acf879f9d771730a587b50e23c6c24fe8e181a0895a54610f6665bb17",
+    "tests/qt/test_resource_cleanup.py": "feffefcd127294fddf03be8b84c79a7c304a1d64c57f6d56fc773a112b840b60",
+    "tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py": "86dbaeff919bdd87951e145618e0cea559379576860cd2cd9c71bcf518ba6379",
+    "tests/qt/test_spacr_mode.py": "1388781bfedfafe4d09a35acfb5d1901bc35325c96371529a32e12140868bb52",
+    "tests/qt/test_ten_night_themes.py": "ca583a04a15fe72e257f2c1748e10b400932f6a396352b2bd1bc1b52efc05819",
+    "tests/qt/test_the_ops_button_is_on_mask.py": "6f6ef5289d5238bb67d9eaf6cf3b5fde0d43777e8c2f6ec5869744a6774f8ab6",
+    "tests/qt/test_the_setup_asks_about_the_animation.py": "2fb4c49952e6950b904ff460b7f57fb7b30f1f6599bbae91d970dc5c7015a350",
+    "tests/qt/test_umap_interactive_toggle.py": "f254c27b1bbd4e88b7144d269f79636d60e9f52bd194a59feeceb5bf21be8d3c",
+    "tests/test_a_button_says_what_it_does_at_the_foot.py": "c1a39d9c240dce1ed91e2b7f556ad4896d4f6040c004db43786684728fde2099",
+    "tests/test_column_name_canonicalization.py": "97c1fba1cdd290b7ffee1b35320dd6642231fb15395ed78ce45442e35ca5109a",
+    "tests/test_cov_stable_a_live_residuals.py": "06d32dd6b96fb7b64bed439b8445cfc0019a2abddb671d42f3db5faaa2c3400a",
+    "tests/test_cov_timelapse_qc_xgb_entry.py": "4f9fc56c1f20d98c560b316986354c20d33083374f28bd649f8d7a67f8fdc118",
+    "tests/test_measure_manager_guard.py": "679a31d135b01f659dce21680808df8872e3b5b1d723ff3187b801cb2082cea2",
+    "tests/test_worker_writer_caller_boundaries.py": "04a34a0aee7a3f89682450a56307ba8c5c06bf5b91054868ef31bdf5ba6bf614"
+  },
+  "API_and_all_runtime_maps_equal": {
+    "full_API_and_runtime_equal": true,
+    "normalization": "Sort unique unordered UI/category source sets; compare every source and map value.",
+    "api_entries": 13232,
+    "runtime_counts": {
+      "setting_labels": 1221,
+      "setting_tooltips": 1243,
+      "categories": 237,
+      "ui": 7288,
+      "installer": 65,
+      "module_summaries": 77
+    },
+    "production_sha256": {
+      "spacr/database_schema.py": "ff304a2c9468129b99ec7ad8205468a3b0ce2f867024ffcabcfc53f107164f28",
+      "spacr/qt/preferences.py": "4dd82cf78e562952a4f3e04328dd63bf5640db0ee1eb9d4b532071580dd0e852",
+      "spacr/qt/widgets/section.py": "30240e9ec5e1f4fd6f94e2f5dc1a64d521a83bd51eb07c6dce8a7cf75dedd25f"
+    }
+  },
+  "accepted_4d_application_binding": {
+    "paths": 669,
+    "unchanged": 663,
+    "body_only_changed": [
+      "spacr/database_schema.py",
+      "spacr/qt/preferences.py",
+      "spacr/qt/theme.py",
+      "spacr/qt/widgets/loading_screen.py",
+      "spacr/qt/widgets/section.py",
+      "spacr/resource_log.py"
+    ]
+  },
+  "owning_cohorts": {
+    "hover_and_motion": "161 passed39.40s Qt6.12 Xvfb4G",
+    "reset_and_mode": "35 passed5.85s Qt6.11.2 offscreen4G",
+    "popup_backdrop": "55 passed2.96s Qt6.12 offscreen4G",
+    "ambient_wiring": "57 passed79.94s Qt6.12 offscreen4G; separate current Section/ripple29 passed22.64s",
+    "setup": "16 passed6.17s Qt6.12 Xvfb4G",
+    "migration_and_sweep": "89 passed27.47s 4G; source-bound independent archive",
+    "montage_and_preferences_help": "82 passed32.43s Qt6.12 offscreen4G",
+    "OPS": "8 passed9.68s Qt6.12 offscreen4G",
+    "long_help_and_UMAP": "70 passed14.79s Qt6.12 Xvfb4G",
+    "timelapse_pool": "55 passed20.13s CPU4G",
+    "worker_serialization": "45 passed with hosted joblib1.6/cloudpickle3.1.2; old-vendored two adjacent checks passed",
+    "Spaceout_default_and_fractal": "24 passed offscreen4G on exact b4d source",
+    "zero_gravity_ripple_contract": "23 passed offscreen4G on exact7a91 source",
+    "manager_guard": "12 passed CPU4G on exact73e source",
+    "night_shown_value": "1 passed3.33s; ordinary night mapping failures require separate workstation caption repair"
+  },
+  "independent_archives": [
+    "43_optional_ambient_section_2026-10-08",
+    "43_e41_coverage2_db_sweep_2026-10-08",
+    "43_e41_cloudpickle_worker_writer_2026-10-08"
+  ],
+  "negative_controls": "Original hosted/local failures retained. The first montage fixture edit matched a standalone control rather than its AppScreen host, failed2/80, and was corrected; standalone tooltip checks remain unchanged.",
+  "limits": "Focused/cohort phases overlap; do not sum. No full current-source GitHub or uninterrupted Qt acceptance. Original timing, contrast, memory, modal, SQL, data and lifecycle guards retained. Private caption/API features excluded pending workstation generation.",
+  "payloads": [
+    {
+      "file": "qt-c4-two-baseline-20261008.log.gz",
+      "sha256": "e2bfbd712e2d120931f20df0d9d0f2210b4dfc1d75bc792cdad24671e3a70446",
+      "raw_sha256": "765b0d7fac78ed6430ccb13acc6b4d01743320a7245c83cf22e706a49019cc6e",
+      "raw_bytes": 3311
+    },
+    {
+      "file": "qt-c4-two-files-fixed-20261008.log.gz",
+      "sha256": "858ea53038404e2f108ef4e54504b8ebbca88d3fe120910ba537698685cd8587",
+      "raw_sha256": "db12eb2909278f6cca7f3fcdd16b4b80fa0b40e508560c5aa1fe2e03a9b3b5c9",
+      "raw_bytes": 261
+    },
+    {
+      "file": "qt-registry-fixtures-20261008-before.log.gz",
+      "sha256": "b3cd970a884b763dc8050948f01c482363c63cb0e3613b35862017d182cb8582",
+      "raw_sha256": "bfcfe28200dfd6d0d0b8a194245638294422cde1fa595b5d31c04a8deb00393e",
+      "raw_bytes": 14182
+    },
+    {
+      "file": "qt-registry-fixtures-20261008-final.log.gz",
+      "sha256": "f4d122617a9d5ade9ccb65ff43ca3f6923ad3f8fdd6098138d64b3f217f873a8",
+      "raw_sha256": "2f6aae3ddc508a2fb7e8f332351d1fa4bafba6fe864aace0f69d094ebaacd440",
+      "raw_bytes": 99
+    },
+    {
+      "file": "qt-glass-c4-baseline-20261008.log.gz",
+      "sha256": "82f0f8ff232d23b6738c3133779662895069f49c8f0c91a854fab4089b1efd44",
+      "raw_sha256": "5c4cfb3f0c45687d96b3329b1b2d9bafca95203c2c2617d24131ebdb539db51c",
+      "raw_bytes": 2671
+    },
+    {
+      "file": "qt-glass-c4-final-20261008.log.gz",
+      "sha256": "2669e368236d040bb99cc569559fefc6efaee09e3e91ec176dd1949a870693eb",
+      "raw_sha256": "08cffb4fc3b1ca30a807f52487e45ade33826ec71703a863919858597959af51",
+      "raw_bytes": 99
+    },
+    {
+      "file": "qt-c4-setup-source-fixed-20261008.log.gz",
+      "sha256": "e923343bc0cc23c5db12b57da4660d2eae1d52fa6c38bb91b9115f39526d61f8",
+      "raw_sha256": "0cd2a7cda294f4b2dc6839baa00bee4bb7e4acc660feedd056c799c13683fb5a",
+      "raw_bytes": 99
+    },
+    {
+      "file": "qt-dot-and-ripples-baseline-20261008.log.gz",
+      "sha256": "ae6750358a3eea4cadcfa2377383b1cda2facd365cd3e154aa02f19024566e3e",
+      "raw_sha256": "a82c83807147c8485760a11f33f8f155406f10d825519f744afa96d768331327",
+      "raw_bytes": 2768
+    },
+    {
+      "file": "qt-dot-and-ripples-final-20261008.log.gz",
+      "sha256": "1189efb75609afd3ff00da7708b9b820d859a328bcc4ef37435a1c064d6ce6d4",
+      "raw_sha256": "65a2ec9ec36480387c1952d500f531e18cab7a98ede921eb8a32a93510bba02d",
+      "raw_bytes": 3151
+    },
+    {
+      "file": "qt-dot-and-ripples-accepted-20261008.log.gz",
+      "sha256": "35b95462ec0c399bd3422d860ceef7ffee5bb6bd6262c5fb934dcaae7955f224",
+      "raw_sha256": "7cc586c21083c5a85837898e4be9a5db853c8b3374cc59b03badf20402f0314e",
+      "raw_bytes": 788
+    },
+    {
+      "file": "qt-ops-hint-baseline-20261008.log.gz",
+      "sha256": "d125b992e5bc67afc4d4fdfd937f8c2302b1a0d919cee3c98678b333bcf28793",
+      "raw_sha256": "6b6ed479de0b822370a7dbef80c6caa071872b19e6adf279c3b10b581534282a",
+      "raw_bytes": 1929
+    },
+    {
+      "file": "qt-ops-hint-accepted-20261008.log.gz",
+      "sha256": "86eef857a6888dee5203f88a12c1c7569015d25b4f032399a72614c6a39736ff",
+      "raw_sha256": "5cd7cc9d28dfe77c2c91d15bae292a4417fe2f8842466db9b7c288ef84f78323",
+      "raw_bytes": 98
+    },
+    {
+      "file": "qt-night-save-shown-current-20261008.log.gz",
+      "sha256": "21c6e5b36f53b66e3a028a5dff5a630d2e9e5ed54362f32a9be65daebed77c46",
+      "raw_sha256": "4a2f3faefe766f99f8755d58158ac85443fea2c36ec28d6b2f45991d72e2e299",
+      "raw_bytes": 98
+    },
+    {
+      "file": "ci-e41-coverage3-timelapse-final-20261008.log.gz",
+      "sha256": "44a66248d56a77eac4950a248a629ffec2f6d10377aff7b54c13fcba146aa897",
+      "raw_sha256": "940884c34cec742349af466fb0b349f53316c499d4571d9379ef54c2c1170c2f",
+      "raw_bytes": 817
+    },
+    {
+      "file": "root-ci-wave-inventory-final-20261008.log.gz",
+      "sha256": "104bada848050f6317a965e883128954b87d6a4645dbf31be67a48fb9be50558",
+      "raw_sha256": "ffa93d2bf64006d33672968bab2722c07dbf050c79109a41e47f0d722a3cc835",
+      "raw_bytes": 673
+    },
+    {
+      "file": "root-ci-wave-current-inventory-20261008.json.gz",
+      "sha256": "f09eeefaefc7f45b8683f5a71d7e2fc8ab3e9ab452347596f6b119c340578282",
+      "raw_sha256": "ee8e3e5823b40a577e6c5bb14d7ff7769c281917a2cda561a2529292ddd2dd2f",
+      "raw_bytes": 7867037
+    },
+    {
+      "file": "root-ci-wave-inventory-result-20261008.json.gz",
+      "sha256": "104bada848050f6317a965e883128954b87d6a4645dbf31be67a48fb9be50558",
+      "raw_sha256": "ffa93d2bf64006d33672968bab2722c07dbf050c79109a41e47f0d722a3cc835",
+      "raw_bytes": 673
+    },
+    {
+      "file": "verify-root-ci-wave-inventory-20261008.py.gz",
+      "sha256": "af4cdd7a46594cafc7b2513477e5b3ca6599bf1241594ec0d46cdab91eb8ab80",
+      "raw_sha256": "bce22706930b72aef1542e43dff7d1c6707a8af4450539943430f157ee8cf01e",
+      "raw_bytes": 1471
+    },
+    {
+      "file": "spaceout24.log.gz",
+      "sha256": "b7e2e57ef1ff1d62044367868c6bf4f1ba294f32008f60a4f9898b57202b3b32",
+      "raw_sha256": "4706e5198b5c13ac97a199294dcafb0e74bb0bd88943bb616eec91a7685c8a3e",
+      "raw_bytes": 99
+    },
+    {
+      "file": "zero_gravity23.log.gz",
+      "sha256": "d24fb85ceab168c10f9dd152ee779bb273b55b033495f76e1a44fe958407a8f6",
+      "raw_sha256": "49097e1dd4a794739c108f6811540778deb3365574fb0ea5a67c2631721b68ee",
+      "raw_bytes": 99
+    },
+    {
+      "file": "manager12.log.gz",
+      "sha256": "7629c9f10f343734a54cdac865e06216e16fdcefe240f2eaa6ecc6ff134f905e",
+      "raw_sha256": "cc98346fb078d49f8e21d3db25dbf40044d42751a17d8d137fdbec7ad276ac2e",
+      "raw_bytes": 787
+    }
+  ]
+}

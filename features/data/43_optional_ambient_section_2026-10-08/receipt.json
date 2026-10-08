@@ -1,0 +1,86 @@
+{
+  "current_focused": "29 passed, 1 warning in 22.64s after optional Preferences theme guard",
+  "full_wiring_after_new_normal_helper_tests": "57 passed, 1 warning in 79.94s; source before optional Preferences theme guard",
+  "full_wiring_after_section": "55 passed, 1 warning in 72.25s",
+  "full_wiring_before": "52 passed, 2 failed; missing ambient helper and missing Spaceout apply helper; fake fixture partially updated",
+  "hosted_section_sha256": "310b62daa9428842fc1baef8ba47885a800f2b8df5685655155a1753aa6714a5",
+  "hosted_source_revision": "e41df27e0a37303cbbc81687d21f74738cc05e0b",
+  "local_current_revision": "0b1863816f673084c76bf0e7d6253c14af0129bf",
+  "manifest": {
+    "data/current-focused-coverage.json.gz": {
+      "bytes": 3886,
+      "original_bytes": 34952,
+      "original_sha256": "f5e0668dcf9d8db4b1bd282cc3033b06bcd5749325cb9e250acdcdbbd04e7ee1",
+      "sha256": "5e9687124d6459f95f5613986b513522c94666761b18fef0c649ddf4afc44d2e"
+    },
+    "logs/current-focused-29pass.log.gz": {
+      "bytes": 550,
+      "original_bytes": 1034,
+      "original_sha256": "4878cd34042124a4cfedc01a01804669771b50c8b3218907e62fde736b6a869f",
+      "sha256": "03640cc8bfa8a5def64e1026209632bb367e89630d46894e499791028a35cb34"
+    },
+    "logs/hosted-e41-cancelled-serial.zip": {
+      "bytes": 200531,
+      "original_bytes": 200531,
+      "original_sha256": "6f82e9689ce9784492693b99a72a7c620a070d9e8aa1716e68fb7f3c1035134e",
+      "sha256": "6f82e9689ce9784492693b99a72a7c620a070d9e8aa1716e68fb7f3c1035134e"
+    },
+    "logs/local-after-source-55pass.log.gz": {
+      "bytes": 539,
+      "original_bytes": 982,
+      "original_sha256": "557a1c932a90b490f5d5085b2926e907c479fd00a1924d74ddf900471410cfda",
+      "sha256": "82b0908a5c514029872643b17849447b01f93ffb0ecb56870e040ce9fcb0dea6"
+    },
+    "logs/local-before-source-52pass-2fail.log.gz": {
+      "bytes": 3391,
+      "original_bytes": 9803,
+      "original_sha256": "d2e1db963df278c1b74ebf76e1848ad1b7880812c8721551a659e594cab9b770",
+      "sha256": "0ea09debfadf92410e3a2e27024035835e56865cba1a3d927a9962f6d769cb80"
+    },
+    "logs/local-final-57pass.log.gz": {
+      "bytes": 411,
+      "original_bytes": 714,
+      "original_sha256": "696f341c221be74d44ed03a21a9277af10d2e245ffea98d7516ec071c6c777fc",
+      "sha256": "4b64c56c669c2e36d89a7864b4ea6fd35757597287793d6ba7e2060e4910b86b"
+    },
+    "logs/local-xvfb-qapp-sigsegv.log.gz": {
+      "bytes": 1385,
+      "original_bytes": 6838,
+      "original_sha256": "76b452ae982749dd9710b9500a3a73d1658ff61f9aeeb4081f8908dfd69afb85",
+      "sha256": "c3adf80895a1c246b81299163e4156fb9b15ff1b1dfa47bc089224f123fdb66c"
+    },
+    "sources/preferences-current.py.gz": {
+      "bytes": 133080,
+      "original_bytes": 492199,
+      "original_sha256": "8df3360f760db975b2ebd258ebf6d900cf80962de9afd09ec6d058257d4f6b36",
+      "sha256": "e624144398033ead1ab78673e08825f469057751a9c4f365c9aff142fc7e5dca"
+    },
+    "sources/section-current.py.gz": {
+      "bytes": 12693,
+      "original_bytes": 39601,
+      "original_sha256": "30240e9ec5e1f4fd6f94e2f5dc1a64d521a83bd51eb07c6dce8a7cf75dedd25f",
+      "sha256": "e0c0d08ab7e9ae3658692993dfa7504778b4a85dd57e1b00fda9123f2f6d32ed"
+    },
+    "sources/section-hosted-e41.py.gz": {
+      "bytes": 12670,
+      "original_bytes": 39461,
+      "original_sha256": "310b62daa9428842fc1baef8ba47885a800f2b8df5685655155a1753aa6714a5",
+      "sha256": "c7713a451427ede9b2e3d957c9cc2229a881621b88c4a6d50a1e05b608fd0b3c"
+    },
+    "sources/test-ambient-wiring-current.py.gz": {
+      "bytes": 10703,
+      "original_bytes": 40821,
+      "original_sha256": "adede457234ef48b6d645518f85d2bc0060ced5484cbd87e3b3945cf3839c99f",
+      "sha256": "2036f338c48e12468236593e65c1054eaf2e885321e7350ea98e84092d314937"
+    },
+    "sources/test-ambient-wiring-hosted-e41.py.gz": {
+      "bytes": 10130,
+      "original_bytes": 38276,
+      "original_sha256": "7bc5b4ca015fbe69faab6120f783ae0a4714ecacb616e260e499146056d75131",
+      "sha256": "ffeb7ec5d4acaa32a8e9109d3733c342f7f7696a27e30bb0e9beb4891a1e8e61"
+    }
+  },
+  "qt": "PySide6 6.12.0 via isolated overlay; pytest 8.4.2; CUDA hidden; Qt offscreen; 4G cap",
+  "source_contract": "Section catches only ImportError around optional field ripple helper after layout/toggled work; absent module retains AppScreen and direct scroll-host toggle; normal helper schedules for both host modes",
+  "xvfb_negative": "SIGSEGV in pytest-qt qapp fixture before first test; no app result or native acceptance"
+}

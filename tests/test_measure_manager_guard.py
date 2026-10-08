@@ -32,7 +32,6 @@ import pytest
 from spacr import measure as M
 from spacr.errors import ConfigurationError
 
-
 # ---------------------------------------------------------------------------
 # the diagnosis itself
 # ---------------------------------------------------------------------------
@@ -117,12 +116,25 @@ class _FailingContext:
     def __init__(self, exc=None, start_method='fork'):
         self._exc = exc or EOFError()
         self._start_method = start_method
+        self._transport = mp.get_context()
 
     def get_start_method(self):
         return self._start_method
 
     def Manager(self):
         raise self._exc
+
+    def Queue(self, *args, **kwargs):
+        return self._transport.Queue(*args, **kwargs)
+
+    def Value(self, *args, **kwargs):
+        return self._transport.Value(*args, **kwargs)
+
+    def Lock(self):
+        return self._transport.Lock()
+
+    def Event(self):
+        return self._transport.Event()
 
     def Pool(self, *a, **kw):  # pragma: no cover - never reached
         raise AssertionError('the pool must not be built after Manager failed')

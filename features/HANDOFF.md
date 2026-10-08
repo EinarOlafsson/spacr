@@ -45,6 +45,67 @@ arbitrary-palette parity, whole-engine or universal speedup claim.
 
 Full142-row status table: data/progress_2026-10-08_1850.md. All three existing
 agents remain active; Root continues source integration/GPU/export repairs.
+## 2026-10-08 18:36 EDT — N680 final inventory and remaining CI repairs
+
+Home independently verifies all five N680 final payloads and final e113
+application source SHA. Normal API13232 is exactly unchanged; runtimeUI
+7288→7290 adds exactly the two named save-on-navigation captions, with all
+other maps unchanged. No new public API target is needed for this feature.
+Final source preserves the bounded loaded-mask snapshot and edited-save
+rollback. Workstation: adopt the already-public exact source/test packet,
+preserve separate native3D editor imports, and regenerate normal nine
+runtime targets for these two captions. Final-source25PASS and12PASS raw
+logs plus normal reader proof are in
+ data/680_final_source_handoff_2026-10-08/receipt.json.
+
+Corrected body wave629d1aec008 is public: required37853639227 pending,
+Windows37853638641 active. Prior c4 required was automatically cancelled;
+its fullserial37849590095 remains diagnostic and active. No current-source
+whole-green claim. Latest figure CSV repair privately passes110checks and
+normalEnglish API inventory guard; menu drag26 and explicit fractal-thread
+13 test-only cases pass. Source/proof packaging continues before publication.
+
+LiveSettingsDialog current help has a real additional missing mapping:
+25 organelle controls lack labels/links because _install_api_tooltips omits
+p._organelle_widgets. Home Qt owner reproduces and repairs this narrowly;
+keep all-widget API-help coverage, do not restore popup tooltips or drop
+assertions. Workstation: preserve the incoming body-only help repair with
+the already-ready hidden-dialog close/API+1 packet during coherent source
+and API/help-index regeneration.
+## 2026-10-08 18:28 EDT — Home completed current body repair wave published
+
+WORKSTATION prerequisites requested18:17 are now in public source: optional
+Theme import guard, validordinarySetup selector, and nightSave guard captures
+actualshownanimation ratherthanstaleVesper→Aurora. Keep exactpalette/sound/
+verdict assertions; botholdandnewVesper materialcontrol persistence works.
+Consume your alreadyprivatefour-caption nightpatch withthissource.
+
+Currentbodywave has no API/runtime caption delta: full normalAPI13232 and
+runtimeUI7288/all6maps exactlyequal prioracceptedc4, aftertuple/JSON array
+normalization. All669Pythonfiles compared with4d:663 unchanged,6accepted
+body-only repairs differ (font,menu,prefs,Section,DBschema,resourcecodec).
+The private5bLiveSettings.close +1 API and privateN680 +2 captions are
+excluded pending yourcoherent generator ownership. N680 APIcount unchanged
+13232; only2runtimecaptionsarrive, memoryfollowupaccepted.
+
+Realproductfixes: Section missingoptionalripple import no longerbreaks
+settings; coreTheme choices surviveabsentdecorative module; Fieldripples
+now hasaformlabel/accessiblename anditshelp livesonlabel; scientific
+aliasmigration skipsprivatewriterjournals; codec supportsjoblib1.6standalone
+cloudpickle aswellasoldervendorroute. Meaningful testdoubles preserve
+fullstate/SQL/memory/permissions/workerretry/hover/timing/modal assertions.
+
+Owninglocalcohorts (overlapnotadded): hover/motion161, reset/mode35, popup55,
+wiring57, Section/ripple29, setup16, DB/sweep89, montage/help82, OPS8,
+longhelp/UMAP70, timelapse55, workerserialization45, Spaceout24, zeroGravity23,
+Manager12. Originalfailed controls andauthorfixturemispatch retained.
+Proof/currentbindings/fullmaps21payloads:
+ data/43_current_body_repairs_2026-10-08/receipt.json.
+IndependentSection/DB/codec archives verified againstcurrentGit.
+GitHub stillneeds deliveredsource required/serial andgeneratorcorrections;
+noall-green claim. Usernowrequiresentirecontainerlandingedge ripples:
+separateCPUsegmentfeaturelaneactive, clicksremainpointwaves.
+
 
 ## 2026-10-08 18:24 EDT — Exact runtime registry and new dialog API repair
 
