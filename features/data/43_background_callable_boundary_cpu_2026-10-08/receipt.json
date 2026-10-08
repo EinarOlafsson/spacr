@@ -1,0 +1,51 @@
+{
+  "source_before": "f8f41c21601a0c81e74e63c09d3d4d84453ac354",
+  "hosted_failure_source": "55badc57ff25ef6a7e14721561773a412b515318",
+  "hosted_run": 37720484173,
+  "hosted_job": 113126751583,
+  "scope": "Explicit private background picker arrival; unchanged 13182 residual and public callable boundary",
+  "symbol": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background",
+  "exact_prose": "Keep the candidate fill local until the dialog is saved.",
+  "negative": "Original required node fails 13183 != 13182, 21.96s",
+  "rejected_attempt": "Checking the private nested helper as a public callable fails KeyError, 21.97s; complete raw log retained",
+  "positive": "Existing complete node passes 1/1, 22.60s; exact source-extracted prose, absence from public callable boundary, disjoint arrival and old 13182 residual enforced",
+  "gate_or_numerical_allowance_changed": false,
+  "files": [
+    {
+      "file": "boundary-before.log.gz",
+      "sha256": "c6c6e29c161e5234cbe4f78ec29b4cd4cc8b0e7301fdc7f8f44be34a447b0ac4",
+      "raw_sha256": "346a56e248b2bad0f8ab94169196c6a8430ae7d21d10612a9942e1c056d35179",
+      "raw_bytes": 4469
+    },
+    {
+      "file": "wrong-public-boundary-attempt.log.gz",
+      "sha256": "f3e6a972975a36d378ebaa9b017c9a53299a50d5f5df84b029b740206d05ff24",
+      "raw_sha256": "1b464a9727b69a8b3434719e693b4096d438b9465e535c77b63ebf568ecbe5fd",
+      "raw_bytes": 18522
+    },
+    {
+      "file": "boundary-after.log.gz",
+      "sha256": "70e35c0c301abe7166e2155234ecfe2b367504ff5cdfa08ca771e100d5697992",
+      "raw_sha256": "d01d1439895464a411ee71b756e791a120028b7c135fcadf95c6e335abc3bc2a",
+      "raw_bytes": 99
+    },
+    {
+      "file": "boundary-before.py.gz",
+      "sha256": "c36ad5a9b2d229de1062137415ebd7439f39368bfff895d92a2cffc789ba9d3a",
+      "raw_sha256": "8dd5fed8d597411d36991d99dbd29d8eb50b5f4a4dc8c8f53e88a50c5ae29eb0",
+      "raw_bytes": 223211
+    },
+    {
+      "file": "boundary-after.py.gz",
+      "sha256": "840e4403c3894bd90be23401fc808b3d172d7cb88b2c541592711ee88bb0b74d",
+      "raw_sha256": "ef2e5dae0e0b73ea0020a412b5a8450b1fee58798ea255522fb83ffa2e0294b3",
+      "raw_bytes": 223776
+    },
+    {
+      "file": "boundary.patch.gz",
+      "sha256": "5433e3768cfaf30aff596bd68a5e9cd25990a859307380e95a8b7a5ddaa68707",
+      "raw_sha256": "fd00d3ba8396db3a2ae6abdc2c7cb0cf5e8a036ade5bece46d47364e38c3ddde",
+      "raw_bytes": 1482
+    }
+  ]
+}

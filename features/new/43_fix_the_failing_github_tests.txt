@@ -3366,3 +3366,17 @@ Separate actual55 MinDeps0 sole blocking node catches archived case-only
 MANIFEST.json/manifest.json path collision; one reused agent fixes archival
 names/provenance under the unchanged existing guard. All55 test/serial runs
 remain preserved, no app/Qt source or ratchet ceiling changes. N43 remainsOPEN.
+
+2026-10-08 — Current hosted background callable inventory failure repaired
+Actual55 MinDeps2 job113126751583 fails the callable/documentation boundary:
+source-extracted inventory residual13183 versus frozen13182. The accepted
+background picker is the sole private nested arrival. Explicitly pinning its
+qualified name and exact source-extracted prose, asserting it remains outside
+the public callable set and disjoint from prior arrivals, restores the original
+13182 residual without raising any allowance. Existing complete node first
+fails locally21.96s and then passes22.60s. An initial wrong attempt to place
+the private helper in the public set fails KeyError and is retained honestly.
+Six complete compressed source/patch/terminal payloads are hash-verified:
+ data/43_background_callable_boundary_cpu_2026-10-08/receipt.json.
+App source, public API boundary and all prior count baselines remain unchanged.
+Overall N43 remains OPEN until complete corrected hosted acceptance.

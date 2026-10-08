@@ -3671,9 +3671,18 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert not popup_additions.keys() & (
         private_additions.keys() | radius_symbols | channel_additions.keys()
         | scn_additions.keys())
+    background_additions = {
+        "spacr.qt.preferences.PreferencesDialog._build_the_dialog."
+        "_pick_ambient_background":
+        "Keep the candidate fill local until the dialog is saved."}
+    assert {key: docs[key] for key in background_additions} == background_additions
+    assert not background_additions.keys() & actual_by_symbol.keys()
+    assert not background_additions.keys() & (
+        private_additions.keys() | radius_symbols | channel_additions.keys()
+        | scn_additions.keys() | popup_additions.keys())
     assert len(docs.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
-               - popup_additions.keys()) == 13182
+               - popup_additions.keys() - background_additions.keys()) == 13182
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
