@@ -1,0 +1,31 @@
+{
+  "status": "acknowledgment and original evidence; no new product fix",
+  "adopted_home_source": "28186e3cae8ee4db9662fb910a9b01088f6b4083",
+  "superseded_local_cohort": "24 passed, 10 warnings in 69.20s; applies only to retained private local patch, not Home exact source",
+  "docs_job": 113142655842,
+  "docs_run": 37724379102,
+  "docs_actual_source": "fb691e38f6e7b54bc4e64763de7a32be5cec270d",
+  "docs_failure": "Docutils Inliner requires memo.reporter; Home published compatibility repair already",
+  "files": [
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/github-37-nightly-docs-terminal-r1.log",
+      "payload": "github-37-nightly-docs-terminal-r1.log.gz",
+      "sha256": "0e407c1dcce8d5e0b01c7b6c309f3109ee4acf2e59c8d9cc0a99466f1e4e7ee2"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/current-hosted-owner-tests-r1.log",
+      "payload": "current-hosted-owner-tests-r1.log.gz",
+      "sha256": "41d5ec3c3121866adc6ef54f73bebad92a3110b0471e0ebcf426f0fce77ed894"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/superseded-owner-test-fixes-r1/receipt.json",
+      "payload": "receipt.json.gz",
+      "sha256": "892681ff4bf112017c715cf4818870873c480cbfa4eed954230388495c800df5"
+    },
+    {
+      "source": "/media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/superseded-owner-test-fixes-r1/owned.patch",
+      "payload": "owned.patch.gz",
+      "sha256": "816c6241b8dd9e8b2dab0c89faf8bab9a01d861c5a7410c68934cdac6df0cf95"
+    }
+  ]
+}
