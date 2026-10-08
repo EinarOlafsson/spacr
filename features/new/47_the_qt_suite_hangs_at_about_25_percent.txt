@@ -2315,3 +2315,19 @@ This negative pair neither tests the13,590-widget original context nor rules
 out transient native corruption between hooks. Protectedb688 cause stays OPEN.
 Raw gdb,108 identities, observer and exact argv/env/source receipt are retained
 in data/47_b688_gui_thread_predecessor_2026-10-07/. No app patch is inferred.
+
+2026-10-08 — NATIVE CAUSE REMAINS UNIDENTIFIED AFTER ARCHIVE REVIEW
+The installed Preferences Save Python trace, local parent-source GDB stop,
+hosted puncta waitUntil faults and protected b688 QEventLoop core are distinct
+observations, not one proven cause. The GDB stop identifies a QThreadWrapper
+destructor but no worker instance; the actual small primary-source reader's
+twelve normal deferred deletions passed under the GUI GC timer. The official
+PySide/Shiboken6.11.2 weakref-resurrection mechanism reproduces at the same
+Shiboken function offset in a minimal script, but no original spaCR crash
+captured resurrection or a matching wrapper pointer. The protected b688
+QEventLoop C frame has no matching app-object identity. Exact683 ordinary Qt
+jobs completed all243 functional batches per shard without a native fault;
+this does not accept the uninterrupted original-order serial suite. Evidence
+is retained in data/43_qthread_wrapper_forensics_2026-10-07/ and the other
+source-bound receipts named above. N47/native causation remains OPEN; no
+speculative pin, forced GC, guard waiver or application patch was made.

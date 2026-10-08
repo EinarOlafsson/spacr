@@ -1,5 +1,25 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 — N47/N663 native stability: causal identity still missing
+
+Read-only review of the installed Preferences Save trace, the local deferred
+`QThreadWrapper` GDB stop, hosted puncta faults and protected b688 core found
+no source-level defect that is established across them. The installed trace is
+from an unidentified older Python 3.13 app revision and has no native stack or
+proved Detail/Save trigger. The local GDB stop identifies a QThread wrapper
+destructor but not its instance; twelve real primary-source worker deletions
+under the normal GUI GC timer completed without a fault. Protected b688 faults
+in `QEventLoop::exec`; its stack does not identify a Shiboken worker. The
+upstream PySide 6.11.2 weakref-resurrection reproducer demonstrates a binding
+defect at a matching Shiboken function offset, not spaCR causation. Evidence:
+`data/43_qthread_wrapper_forensics_2026-10-07/`,
+`data/663_local_native_crash_trace_2026-10-06/`, and
+`data/47_puncta_predecessor_native_cpu_2026-10-07/`. Current 683 Qt shards
+finished all 243 functional batches per shard with no native crash; this is
+not original-order serial acceptance or a historical-cause fix. N47 and the
+N663 installed Save-crash condition remain OPEN. No GC, dependency, test guard
+or application source change follows from this review.
+
 ## 2026-10-07 — Home: published background source and strict combined proof
 
 Nightly80955fd38 includes the tested0d8950 background picker, fungal parent

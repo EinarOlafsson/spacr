@@ -1286,6 +1286,20 @@ Receipt data/615_popup_defaults_2026-10-07/receipt.json retains original
 failures, source hashes and sanitized appearance keys. Original native
 faults, hard 24 FPS and human visual acceptance remain Home's open lanes.
 
+2026-10-08 — INSTALLED PREFERENCES SAVE CRASH NOT CAUSALLY ATTRIBUTED
+The archived installed Python 3.13 faulthandler block places the main thread
+in gc_policy.collect_once from app.launch and the ambient worker waiting, but
+has no native C stack, exact app source revision, timestamp or recorded
+Detail/Save relationship. Current-source modal Save/Detail/GC/close diagnostics
+and the separate native-display Save diagnostic completed without this crash;
+their negative scope is not an installed-user reproduction. The upstream
+PySide6/Shiboken6.11.2 weakref-resurrection minimal crash and local QThread
+destructor stop are separate evidence, not proof of this Save path's cause.
+See data/663_local_native_crash_trace_2026-10-06/,
+data/663_workstation_native_Save_diagnostic_2026-10-07.json and
+data/43_qthread_wrapper_forensics_2026-10-07/. The installed Save-crash and
+hard native 24 FPS targets remain OPEN; no application or GC change is inferred.
+
 2026-10-07 — Exact connected-front ancestry lookup optimization846d92517f0
 reuses one completed ephemeral parent-index list. Duplicate endpoints retain
 the same last-parent selection, paint order and ink budget; no persistent
