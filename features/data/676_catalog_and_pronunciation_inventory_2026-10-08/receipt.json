@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "source_commit": "98f0a7de521fd2d91d842467b532429c54375ac0",
+  "published": false,
+  "scope": "Read-only normal catalog/source preservation and historical correction inventory; no synthesis, media mutation, historical pronunciation approval or listening review.",
+  "active_lesson_count": 84,
+  "catalog_count": 14,
+  "unaffected_lesson_objects_preserved": 1092,
+  "current_revised_review_bindings": 78,
+  "normal_installation_identity": "02_install_spacr",
+  "legacy_aliases": {
+    "02_conda_install": "02_install_spacr",
+    "03_pip_install": "02_install_spacr"
+  },
+  "baseline_media_commit": "9d93c3696e392b6119127e5cd27193b29e70c603",
+  "historical_live_tv_correction_after_current_frozen_media": {
+    "lesson_count": 10,
+    "english_track_count": 56,
+    "lesson_ids": [
+      "07_mask",
+      "08_measure",
+      "14_make_masks",
+      "18_motility",
+      "19_train_cellpose",
+      "20_cellpose_masks",
+      "24_plaque",
+      "74_import_images",
+      "85_host_pathogen",
+      "87_alpha_features"
+    ],
+    "original_audio_and_footage_retained": true,
+    "actual_pronunciation_claimed": false
+  },
+  "archive": {
+    "name": "catalog-and-historical-pronunciation.tar.gz",
+    "bytes": 25959,
+    "sha256": "8c3430a4bfc4256d2267542bc00726acb7c04028ba68d199cb02f487c4f4c3ce",
+    "members": 10,
+    "member_sha256": {
+      "check_native_catalog_source_preservation_r1.py": "3a0a63f9221d2d16cec624e0dc1e5c40408e347a84016e8e7ddc55dea230ab17",
+      "historical-live-tv-followup-inventory-r1.json": "a4a96cb66933baead98961766e0e562f969597880c21b585772e8e4ccc44330d",
+      "historical-live-tv-followup-inventory-r1.log": "ff3bad4be9271d2ec2133aed0199e439bdf579b136ef31fcb7da1d3593c099dd",
+      "historical-live-tv-followup-inventory-r2.log": "046ee96250f5859b091825055d7b418df32a11aefe1f167071097e4b42a12051",
+      "historical-live-tv-followup-inventory-r3.log": "00b3bd19d4eb839fb5a5782a6ceb73d705e4e2d809bcd0fb501478d8ed47b1a1",
+      "inventory_historical_live_tv_r1.py": "78e3c5b34e1e6d419d1ea742e7aa4e736597d0cebb4afa02e2c1e5e8f7c98c83",
+      "native-catalog-source-preservation-r1-tool.log": "05c5cbabeb4bf9f3f6ed6055ec59dd3d23547592a1c7bf404eb6d2729696cca0",
+      "native-catalog-source-preservation-r1.json": "7546c1a0e0c0cef0d1134ded2e191528ccd02ed6aa39ac4b679f7123fa897922",
+      "native-catalog-source-preservation-r1.log": "f0314504b07760f6fb9cf82ffedea9014e4ae2e29fa6826eb4f2dbedd0b06023",
+      "native-current-source-navigation-r1.json": "5e28eb18aa1141de14f7ee9cc3dd4f6c3bfbc6277657e5ad0499724e30fe7de9"
+    },
+    "full_readback_verified": true
+  }
+}

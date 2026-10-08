@@ -2,7 +2,7 @@
 RENAME THE ASSAYS CATEGORY TO ORGANISM
 ================================================================================
 
-Status:    DONE 2026-10-08 — published and locally accepted.
+Status:    REOPENED 2026-10-08 — compact canonical registry repair pending.
 Requested: 2026-10-08 — "cahnge the assays category to organism"
 Owner:     Home/root implementation; workstation runtime translations/tutorials
 
@@ -42,3 +42,5 @@ not a claim that the application update has already been published.
 2026-10-08 16:43 EDT — Frozen checkpoint publication: accepted application source6fa8fd257 and matching API13232/runtime10066/UI7288/all9guide3050 catalogs are integrated into nightly with terminal local source/review/browser checks. See HANDOFF publication note and data/ui_publication_source_binding_2026-10-08/receipt.json. Later producer/3D/GPU continuations and matching hosted/native acceptance remain separate; this note does not close broader scope.
 
 2026-10-08 17:06 EDT — COMPLETION AUDIT: 100%. Organism is published in Home/menu/category/command-palette paths with the organism-specific note, unchanged membership/order and alpha-species visibility. Original8 focused checks and combined342-case Qt acceptance pass; both exact captions and source hashes are verified in all nine runtime catalogs. Current public application matches all669 frozen accepted Python hashes. Proof: data/667_671_677_published_completion_2026-10-08.json and the original source/documentation archives. Hosted CI N43, original-order N47, native/GPU termination N663/N668 and tutorial-media N676 remain independently open; their broader acceptance is not claimed by this closure.
+
+2026-10-08 18:50 EDT — REOPENED: current CI finds Organism missing from compact spacr.qt.i18n._ROWS/all nine CATALOGS. Earlier generated UI/Home/menu acceptance remains valid but does not establish compact registry coverage. Workstation runtime owner is performing normal source ownership transfer and exact preservation; final owning/required checks and coherent publication remain pending. No catalog assertion or source count is waived.
