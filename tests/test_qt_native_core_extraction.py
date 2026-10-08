@@ -376,6 +376,8 @@ def test_ordinary_raw_core_requires_elf_owner_even_when_filename_matches(tmp_pat
                                       tmp_path / 'other-python' if defect == 'executable' else executable))
     if defect == 'stale':
         os.utime(core, ns=(session['time_ns'] - 1, session['time_ns'] - 1))
+    else:
+        os.utime(core, ns=(session['time_ns'] + 1, session['time_ns'] + 1))
     monkeypatch.setattr(collector, '_extract_systemd_core', lambda *args, **kwargs: None)
     selected, temporary = collector._ordinary_core(tmp_path, evidence, [session], executable, [])
     assert selected == (core if defect == 'none' else None)
