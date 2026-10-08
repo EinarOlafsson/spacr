@@ -14,6 +14,10 @@ zh_CN features3 / make_masks7; ko features9 / make_masks7 / python_api1.
 Exact English and translated rows: translated-inline-findings.json alongside
 the receipt. Delimiter counts match, but closing markup touches CJK text or
 Korean suffixes. This is diagnostic input, not a catalog edit or Sphinx pass.
+Spacing-only suggestions are also archived in translated-inline-spacing-
+candidates.json: all27 parse without those inline warnings, literal contents
+and bold counts preserved. Not imported or accepted; owner reviews and uses
+normal catalog import/write tools, then proves actual strict Sphinx output.
 This is a real current-source hosted failure, above browser/tutorial/664/665.
 Exact raw hosted evidence (gzip, hashes, source/run/job binding):
   data/43_current_hosted_early_results_2026-10-08/receipt.json

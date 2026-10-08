@@ -60,5 +60,13 @@
     "sha256": "f61db8aee1f7f83006af8857d3f5b7b47dc600f901589a618f8a95192409cb03",
     "messages": 27,
     "strict_sphinx_replay_pending": true
+  },
+  "read_only_spacing_candidate": {
+    "file": "translated-inline-spacing-candidates.json",
+    "sha256": "62d1bb367602cf98c31abb4b6f092a19360a00dd48ee12cd56c3c205a3537651",
+    "original_malformed_messages": 27,
+    "remaining_standalone_inline_warnings": 0,
+    "catalogs_modified": false,
+    "owner_review_and_strict_sphinx_required": true
   }
 }
