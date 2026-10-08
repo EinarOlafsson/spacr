@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "baseline": "fb846a1d992",
+  "checkpoint": "ccf9ce7a4ac8f11456b4245eeb35295eb70cf7ff",
+  "implementation_only": true,
+  "source_bindings": {
+    "spacr/qt/shortcuts.py": {
+      "before_sha256": "8726212191b0363ec1f4b52a0a97410659a78d74ee08fb45395dc7d9d203b548",
+      "after_sha256": "f22987c566376a3e321aeca86fbecf7404bb2dcf0707765b571728b179bfb5a9",
+      "before_payload": "shortcuts.before.py.gz",
+      "after_payload": "shortcuts.after.py.gz"
+    },
+    "spacr/qt/screens/annotate.py": {
+      "before_sha256": "b482da8a4e9201c373e0d570975bb8f50701308b4a1a7deff9fa3e4ca54b5644",
+      "after_sha256": "8a472ad0b77fad7d1e547091026ba9ec644a6350a7aa5597bcd637671a5f1d60",
+      "before_payload": "annotate.before.py.gz",
+      "after_payload": "annotate.after.py.gz"
+    },
+    "spacr/qt/screens/make_masks.py": {
+      "before_sha256": "e2005ac93e9acc79bfe823cf01decdd7d1dfe637339ad50ab9db807037d7fadc",
+      "after_sha256": "a5ff69df10224d3b9121b1b26b2836c37fa75b885a2755749f684041308508a6",
+      "before_payload": "make_masks.before.py.gz",
+      "after_payload": "make_masks.after.py.gz"
+    },
+    "spacr/qt/widgets/qc_field_browser.py": {
+      "before_sha256": "695f1feaaa0c423f312f3a0624c9a0753ceda944793440e2caf8c6e60a9f1c4d",
+      "after_sha256": "bdfc62de05362c2c4320192dd560c010da3ee1ba2a880cd54c9dcc0648092674",
+      "before_payload": "qc_field_browser.before.py.gz",
+      "after_payload": "qc_field_browser.after.py.gz"
+    },
+    "tests/qt/test_screen_shortcut_rebinding.py": {
+      "after_sha256": "256a0178142d324841e64c680fb98bca048d334cdbcc988c52fae3951dd75d43",
+      "after_payload": "test_screen_shortcut_rebinding.py.gz"
+    },
+    "tests/qt/test_rebindable_shortcuts_and_settings_profiles.py": {
+      "after_sha256": "66669f0402ecb4f084c41a0df294855e923b2818a24a19d0efc618140bd64a0e",
+      "after_payload": "test_rebindable_shortcuts_and_settings_profiles.py.gz"
+    }
+  },
+  "phases": [
+    {
+      "log": "final-focused.log.gz",
+      "passed": 222,
+      "seconds": 112.31,
+      "scope": "interim six-file owning cohort; caption helper finalized afterward; not final-source coverage"
+    },
+    {
+      "log": "source-final.log.gz",
+      "passed": 81,
+      "seconds": 73.81,
+      "scope": "final-source three shortcut files plus all-callable guards"
+    },
+    {
+      "log": "remaining-branches.log.gz",
+      "passed": 2,
+      "seconds": 11.64,
+      "scope": "final-source real zoom dismissal and browser direct/unknown event paths; two existing nodes strengthened"
+    },
+    {
+      "log": "docs-guards.log.gz",
+      "passed": 6,
+      "seconds": 45.3,
+      "scope": "selected required-doc/ghost/all-callable guards before final caption-only helper"
+    }
+  ],
+  "counts_overlap": true,
+  "current_coverage": "source-final-coverage.json.gz",
+  "changed_statements": 234,
+  "changed_statement_gaps": 0,
+  "changed_arc_gaps": 0,
+  "coverage_limit": "Only changed statements and arcs are acceptance here; no claim of full four-module numerical coverage or full Qt suite.",
+  "normal_inventory": "inventory.json",
+  "runtime_delta": "runtime-delta.json",
+  "api_changes": "api-changed-records.json",
+  "pending": [
+    "workstation normal API and runtime translations regeneration",
+    "user documentation for expanded shortcut editor",
+    "cross-platform hosted acceptance"
+  ],
+  "no_gpu": true,
+  "memory_cap": "4G",
+  "platform": "Linux CPU, Python3.12.13, Qt6.12 overlay, pytest8.4.2 overlay",
+  "iteration_logs": "initial/second/third/fourth logs are uncommitted implementation iterations, not source-current failures or acceptance."
+}

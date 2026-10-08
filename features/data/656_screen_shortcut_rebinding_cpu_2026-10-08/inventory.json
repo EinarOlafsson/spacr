@@ -1,0 +1,72 @@
+{
+  "baseline": "fb846a1d992",
+  "source_sha256": {
+    "spacr/qt/shortcuts.py": "f22987c566376a3e321aeca86fbecf7404bb2dcf0707765b571728b179bfb5a9",
+    "spacr/qt/screens/annotate.py": "8a472ad0b77fad7d1e547091026ba9ec644a6350a7aa5597bcd637671a5f1d60",
+    "spacr/qt/screens/make_masks.py": "a5ff69df10224d3b9121b1b26b2836c37fa75b885a2755749f684041308508a6",
+    "spacr/qt/widgets/qc_field_browser.py": "bdfc62de05362c2c4320192dd560c010da3ee1ba2a880cd54c9dcc0648092674"
+  },
+  "full_before_api_count": 13215,
+  "full_after_api_count": 13215,
+  "full_after_runtime_counts": {
+    "setting_labels": 1221,
+    "setting_tooltips": 1243,
+    "categories": 237,
+    "ui": 7267,
+    "installer": 65,
+    "module_summaries": 77
+  },
+  "scoped_api_added": [],
+  "scoped_api_removed": [],
+  "scoped_api_changed": [
+    "spacr.qt.shortcuts"
+  ],
+  "new_literal_tr_captions": [
+    "Assign class 1",
+    "Assign class 2",
+    "Assign class 3",
+    "Assign class 4",
+    "Assign class 5",
+    "Assign class 6",
+    "Assign class 7",
+    "Assign class 8",
+    "Assign class 9",
+    "Clear the focused crop",
+    "Close keyboard legend or zoom",
+    "Move focus down",
+    "Move focus left",
+    "Move focus right",
+    "Move focus up",
+    "Move this merged .npy to merged_quarantined so later Measure runs skip it. Press {key} to quarantine or restore.",
+    "Save and load the next batch",
+    "Scope",
+    "Shortcut {key} is not a single key sequence.",
+    "Skip forward one crop",
+    "Step back one crop",
+    "Toggle keyboard legend"
+  ],
+  "new_caption_membership": {
+    "Assign class 1": true,
+    "Assign class 2": true,
+    "Assign class 3": true,
+    "Assign class 4": true,
+    "Assign class 5": true,
+    "Assign class 6": true,
+    "Assign class 7": true,
+    "Assign class 8": true,
+    "Assign class 9": true,
+    "Clear the focused crop": true,
+    "Close keyboard legend or zoom": true,
+    "Move focus down": true,
+    "Move focus left": true,
+    "Move focus right": true,
+    "Move focus up": true,
+    "Move this merged .npy to merged_quarantined so later Measure runs skip it. Press {key} to quarantine or restore.": true,
+    "Save and load the next batch": true,
+    "Scope": true,
+    "Shortcut {key} is not a single key sequence.": true,
+    "Skip forward one crop": true,
+    "Step back one crop": true,
+    "Toggle keyboard legend": true
+  }
+}
