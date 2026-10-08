@@ -1,0 +1,30 @@
+{
+  "checkpoint": "248b634ba71a4f8b95e66cc3327148627b804da6",
+  "scope": "Focused source-bound software acceptance for the CI retry-artifact repair; not a hosted full-run verdict.",
+  "passed": 84,
+  "seconds": 17.94,
+  "limits": {
+    "cap": "4G",
+    "CUDA_VISIBLE_DEVICES": "",
+    "QT_QPA_PLATFORM": "offscreen",
+    "xdist": false
+  },
+  "source_sha256": {
+    ".github/workflows/tests.yml": "fb026c331aae069208b222da9062515e0b21f72d8e041099d2bdff697104e54d",
+    "tools/select_coverage_artifacts.py": "3e59064d4340c8facf6a32f295d5d439baad51864c8b027970dae4c1a1c34631",
+    "tests/test_coverage_retry_artifact_selection.py": "2901d8685b396fe596894b7b196d5011cf03a05014f4e62096fa169ea9196f60",
+    "tests/test_coverage_ratchet_rules.py": "316e75bef80f814d6ee489818da4c6920dbce38dfce30f8c4c339abb5f1134a5"
+  },
+  "log_sha256": "faf3c3474c248cba7ce0645796d05d0c7ed1400da12c03c38499026ac558a429",
+  "raw_log_sha256": "f7ad2224e2892d6738711894209b70307b9a07725164bf1cd8fa96981275453c",
+  "tests": [
+    "tests/test_coverage_retry_artifact_selection.py",
+    "tests/test_coverage_ratchet_rules.py",
+    "tests/test_module_coverage_ratchet.py"
+  ],
+  "original_failures": [
+    "Initial cohort collected no tests because a guessed test path did not exist.",
+    "Next publication-source attempt lacked sparse setup.py and .coveragerc fixtures; 3 fixture failures/81 passes. Materializing exact committed files yielded the recorded 84 passes.",
+    "Prior broad candidate had an existing test selecting the new selector rather than actual combine step; that lookup was corrected without weakening missing-shard assertions."
+  ]
+}
