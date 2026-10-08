@@ -1,0 +1,194 @@
+{
+  "payloads": [
+    {
+      "path": "README.txt",
+      "bytes": 1576,
+      "sha256": "d56f11bd73731b8879fba77866fa737595e58b946a7dd531202eecbcef008169"
+    },
+    {
+      "path": "commands.json",
+      "bytes": 1951,
+      "sha256": "d78691e9b3a18b713011120b40d8104370daa38569770ca6a2132698085187a1"
+    },
+    {
+      "path": "coverage/volume-checkpoint-coverage.json.gz",
+      "bytes": 148690,
+      "sha256": "d22f0069d743b96fad2fadfa630dd103276bb89647abdb0e0900620c1b113b90"
+    },
+    {
+      "path": "coverage/volume-close-coverage.json.gz",
+      "bytes": 114577,
+      "sha256": "220c477d7a7191e1e14a6c1409609d042bbccd2bb495980c843d580a0f67feab"
+    },
+    {
+      "path": "coverage/volume-model-coverage.json.gz",
+      "bytes": 26936,
+      "sha256": "36948d8d6049a308cb287a385ee96256043df05c15ac85c28f0edc42f2b53e1d"
+    },
+    {
+      "path": "logs/extract-volume-delta.log.gz",
+      "bytes": 80,
+      "sha256": "bc9380e281ac793250b46bf84bfbe6e9e204b48b57eafd75de383cf927e97c18"
+    },
+    {
+      "path": "logs/root-model-docs-ecd381-612.log.gz",
+      "bytes": 52,
+      "sha256": "02c0a1e93233db8d31a32111cc5f92f1f84a2cee2bd79f03fde6340a6f5f57ff"
+    },
+    {
+      "path": "logs/root-model-ecd381-612.log.gz",
+      "bytes": 52,
+      "sha256": "cd7fe330da695248610663f02505e07923fae397bd507dd75d2f622254927832"
+    },
+    {
+      "path": "logs/root-volume-14e4-612.log.gz",
+      "bytes": 53,
+      "sha256": "9d88e9e968e2eab79c31ff847ec9ca6cc55281b25c3eda87a52b3cf718e33953"
+    },
+    {
+      "path": "logs/volume-checkpoint.log.gz",
+      "bytes": 208,
+      "sha256": "6e8b48dc3244855bfe134087c8ec9bff970c2bb28d3d240da60ac9ff202064dd"
+    },
+    {
+      "path": "logs/volume-close-traced.log.gz",
+      "bytes": 192,
+      "sha256": "c9b0801298907ce6ef48e5969029c01ac1087ccb293e5e9f960871b468207026"
+    },
+    {
+      "path": "logs/volume-dirty-close.log.gz",
+      "bytes": 53,
+      "sha256": "1a1f07425bbcdeabdbedcdc951066f7945e411dce3ec6d623c26f372d182ad67"
+    },
+    {
+      "path": "logs/volume-gui-first.log.gz",
+      "bytes": 2221,
+      "sha256": "d31bb1a7ad7410e078460f8fc600fa52e817b901f372ffc277ab9416662fb6b5"
+    },
+    {
+      "path": "logs/volume-gui-second.log.gz",
+      "bytes": 1062,
+      "sha256": "101b198215823fce6e143629340927ce5c2a7e036357137609ba872659ba89f2"
+    },
+    {
+      "path": "logs/volume-model-doc-guard.log.gz",
+      "bytes": 866,
+      "sha256": "d8e96819f91587c5fc8165bfbaaa048a92a059359b4c8716fc8638e3a99f6d8d"
+    },
+    {
+      "path": "logs/volume-model-final.log.gz",
+      "bytes": 190,
+      "sha256": "23cb45d0c978f8f44b640fc522a4daa2a0135d4c5c0a9a35f44c27edbdc5f7ab"
+    },
+    {
+      "path": "logs/volume-model-first.log.gz",
+      "bytes": 52,
+      "sha256": "6a7a8e1b3396696d6c0d0bbbbc0c782320cd4460882d609bca04f5e242c7f371"
+    },
+    {
+      "path": "logs/volume-model-guards.log.gz",
+      "bytes": 52,
+      "sha256": "b1bc619c03890a14d6c497ca26a88895e552cbf5331d6a049a7ed8193339e7a2"
+    },
+    {
+      "path": "logs/volume-model-gui-followup.log.gz",
+      "bytes": 52,
+      "sha256": "4a0c43f42dad86aac755a31710722d0000c5965a66cda2b3ff0bbd6002e5e975"
+    },
+    {
+      "path": "logs/volume-real-interaction.log.gz",
+      "bytes": 724,
+      "sha256": "97012e8e977c1ff519805340b579d8f2653c028136cc6c7552a059621e4372ea"
+    },
+    {
+      "path": "logs/volume-visual.log.gz",
+      "bytes": 423,
+      "sha256": "53f058c69899d8eb509dd2cc16f9f66cd09ce9f71197d2b710ff8be15baf6e5d"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 8521,
+      "sha256": "e883b17e4c25c875a298c98d5f13febbad0e06db511c6a72418a9689fb4d7425"
+    },
+    {
+      "path": "repro/archive_volume_checkpoint.py",
+      "bytes": 15142,
+      "sha256": "3fc8fb12d63e367db3bb0cb106234c3c256b8c7633819dff77572f4b1a686b6c"
+    },
+    {
+      "path": "repro/extract_volume_delta.py",
+      "bytes": 2665,
+      "sha256": "8a05e2529242817f5035e6686aa4356c1c8610a6eaa6725d74e83a7add9e601f"
+    },
+    {
+      "path": "repro/volume_visual.py",
+      "bytes": 3377,
+      "sha256": "fb0b84d96c5fd576230f77648e316c897b975bf4240c920842ef8b460b3ef1e6"
+    },
+    {
+      "path": "source/after/spacr/qt/mask_engine.py.gz",
+      "bytes": 71402,
+      "sha256": "8d181ad33a2afe7115a5ace49a23da8d3f5970aa7f0198e2ef690822a4880c06"
+    },
+    {
+      "path": "source/after/spacr/qt/screens/make_masks.py.gz",
+      "bytes": 219074,
+      "sha256": "90122f97a3780fa4ebe73218057c331c348110f3ec9596ced985e2ae1037df3c"
+    },
+    {
+      "path": "source/after/tests/qt/test_make_masks_native_volume_editor.py.gz",
+      "bytes": 3267,
+      "sha256": "cf342369e1d53c485aca344f680c922add5ff466eb1d3bb4769bd71eaacc8e17"
+    },
+    {
+      "path": "source/after/tests/test_make_masks_native_volume.py.gz",
+      "bytes": 3892,
+      "sha256": "d97c2ce74da369dc65e62f36690a61bdd8e0b35e53a77af276f3159da18faa06"
+    },
+    {
+      "path": "source/before/spacr/qt/mask_engine.py.gz",
+      "bytes": 65089,
+      "sha256": "0ec00e2e700e34536e12fec21636f2f56cc547e6290fff9fd8607b7d0d8a7c92"
+    },
+    {
+      "path": "source/before/spacr/qt/screens/make_masks.py.gz",
+      "bytes": 214386,
+      "sha256": "c528571efbe61ac81141d2798f2bb5da34af9a386614d72396a41d5547d0eaaa"
+    },
+    {
+      "path": "source/checkpoint/spacr/qt/mask_engine.py.gz",
+      "bytes": 71402,
+      "sha256": "8d181ad33a2afe7115a5ace49a23da8d3f5970aa7f0198e2ef690822a4880c06"
+    },
+    {
+      "path": "source/checkpoint/spacr/qt/screens/make_masks.py.gz",
+      "bytes": 218993,
+      "sha256": "b36c474c3fd570eb2843208651f8b026d59d675b1d56d4bbec00ba14fe43e5e9"
+    },
+    {
+      "path": "stills/volume-native-anchors.png",
+      "bytes": 171500,
+      "sha256": "9fea0f8f411a6c32c471243d3f8fdb03dd976f2a2585f1a414b5da018ea4e845"
+    },
+    {
+      "path": "stills/volume-selected-surfaces.png",
+      "bytes": 171352,
+      "sha256": "3147afca9f17f5ae2860d409df16ba8b6849b21a5b65148dc8d6fdc6510cb616"
+    },
+    {
+      "path": "verify.py",
+      "bytes": 1688,
+      "sha256": "93250e03107577b36453d25d5ea86569fd1786bfad325865a51f265da36e778f"
+    },
+    {
+      "path": "volume-api-ui-delta.json",
+      "bytes": 7748,
+      "sha256": "50a4348dcc7705ceac15bb33c1cc125f8f1c6eab46ad743fcdd6ff1730686ca5"
+    },
+    {
+      "path": "volume-visual-receipt.json",
+      "bytes": 774,
+      "sha256": "45042cb21ddc6df10a0f4c8d0416471dcd2f1078a806af574d9aa74ffe4e625b"
+    }
+  ]
+}
