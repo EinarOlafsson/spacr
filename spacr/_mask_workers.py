@@ -557,7 +557,8 @@ def _mask_worker(src, settings, object_type, device, paths, environment,
             if status == 'failed':
                 stop.set()
             messages.put(('finished', device,
-                          (status, ''.join(traceback.format_exception(error)))))
+                          (status, ''.join(traceback.format_exception(
+                              type(error), error, error.__traceback__)))))
 
 
 def _run_mask_workers(src, settings, object_type, assignments, environments, *,
