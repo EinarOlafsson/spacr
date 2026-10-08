@@ -1823,8 +1823,8 @@ def test_dropping_a_big_folder_never_freezes_the_gui_thread(
     # Time only delivery of the drop event: MIME and drag setup are not work
     # the application performs when the user releases the mouse button.
     assert dispatch < 0.100, (
-        f"the drop event took {dispatch * 1000:.0f} ms to return; the folder "
-        "is still being read on the GUI thread")
+        f"the drop event took {dispatch * 1000:.0f} ms to return, exceeding "
+        "the 100 ms delivery budget")
     assert dog.ticks > 10, "the watchdog never ran; the measurement is void"
     assert dog.worst < DROP_STALL_BUDGET_S, (
         f"dropping a big folder stalled the GUI thread for "
