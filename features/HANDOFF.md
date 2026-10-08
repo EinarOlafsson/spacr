@@ -1,5 +1,16 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 16:42 EDT — Coverage progress correction
+
+Exact original Coverage5 log names batch5/11 as the last started batch;
+17:55:58UTC tests began,18:17:08 batch5 began,18:21:53 runner shutdown.
+The displayed97% was pytest progress WITHIN batch5, not whole-shard97%.
+Only batches1-4 are known complete. Earlier near97% shorthand was misleading
+and MUST NOT imply retry nearcompletion from29minutes elapsed. Retry began
+20:01:23UTC and is still executing; GitHub active-job logs endpoint404 gives
+no trustworthy current batch/node progress. There remains no terminal
+assertion or aggregate verdict. Do not weaken incomplete-artifact guards.
+
 ## 2026-10-08 16:40 EDT — Exact easy publication command and final 3D source transfer
 
 N671 independent normal refresh route is confirmed: existing API manifests
