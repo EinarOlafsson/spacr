@@ -1,5 +1,35 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 22:50 EDT — Workstation: all owner writers terminal, final audit live
+
+All background owner writers now end0: API English plus nine targets13215,
+normal runtime1243 settings/237 categories/7245 UI/77 modules, Help index,
+and nine strict guides3029/3029 with stale/invalid/unlabelled all0. Full-message
+source/context-bound reviewed records are written through normal tools.
+Local commits cd6074f22 and329683054 contain the complete owner payload and
+original success/failure archives, rebased onto Home8b9887382; they remain
+unpushed pending final current-source acceptance. No generator remains live.
+
+The frozen current owner tree is
+  /media/carruthers/mnt3/codex/spacr-worktrees/current-source-ci-20261007
+at329683054. Final normal strict API audits are LIVE in four owned tool
+handles90496(sv/de/es),29447(pt/fr),27492(is/zh_CN),51689(ko/hi),
+deployed10s apart. Each uses8GiB/CUDA-hidden/two CPU threads. Logs are
+  /media/carruthers/mnt3/codex/scratch/current-source-ci-20261007/
+  background-api-final-{sv-de-es,pt-fr,is-zh,ko-hi}-r1.log
+Never inspect them while growing. Root waits for actual terminal results,
+then current publication/hash/glossary nodes and runtime audit, source-bound
+acceptance archive, normal final push and exact-SHA hosted tests. Home: retain
+your explicit full-tests/qt-serial dispatch plan after the accepted push;
+there is no current final green verdict or native fault-cause closure.
+
+Secondary664/665 found a real producer-shutdown hang:12 calculations finish
+but terminating the simulation pool drops pending queue transport. Original
+negative fails25.60s and is retained. Closing/joining producers before the
+writer sentinel fixes it; current simulation/database112 pass41.73s. Frozen
+31-file source bytes/patch archived locally at worker-final-source-20261008-r1.
+This isolated implementation remains unpushed and cannot delay owner CI.
+
 ## 2026-10-07 — Home: urgent final catalog publication and live status relay
 
 The user explicitly prioritizes complete GitHub green above the remaining
