@@ -1,0 +1,124 @@
+{
+  "passed_scratch_candidate": true,
+  "source": "eb7ac2fa046556b98cb1252f1eb7f30f57dd64a9",
+  "original_product_source": "5636eac60938f5d6021eaf73546ff8a30ae17c32",
+  "production_files_unchanged": true,
+  "candidate_mechanism": "Runtime replacements in isolated scratch process only: include organelle controls, restore on done, disconnect propagation and old visibility subscriptions. No application file edit.",
+  "new_regressions": {
+    "original_failed": 8,
+    "candidate_passed": 8,
+    "elapsed_seconds": 2.09
+  },
+  "compatibility_cohort": {
+    "passed": 82,
+    "elapsed_seconds": 18.52
+  },
+  "image_buffer_checks": {
+    "passed": true,
+    "qt": "6.12.0",
+    "rows": [
+      {
+        "layout": "contiguous",
+        "checked_pixels": 70,
+        "source_mutated_and_released": true,
+        "gc_and_allocation_churn": true
+      },
+      {
+        "layout": "reversed_view",
+        "checked_pixels": 70,
+        "source_mutated_and_released": true,
+        "gc_and_allocation_churn": true
+      },
+      {
+        "layout": "fortran",
+        "checked_pixels": 70,
+        "source_mutated_and_released": true,
+        "gc_and_allocation_churn": true
+      }
+    ],
+    "scope": "Actual preview QPixmap and animation QImage factories preserve every pixel after mutation/release of contiguous/noncontiguous input arrays, normal collection and allocation churn. Limited conversion-lifetime checks; no native cause/cure claim."
+  },
+  "original_image_helper_cohort": {
+    "passed": 13,
+    "elapsed_seconds": 5.24
+  },
+  "payloads": {
+    "preview_dialog_candidate_r1.py.gz": {
+      "bytes": 693,
+      "sha256": "b5a29ad2713b9ec80e1eb9112c5dc9f6aeb26836915dc2091b5d1243f58d01aa",
+      "raw_bytes": 1488,
+      "raw_sha256": "a5352f69eeff29f37c04e2da34c884a5928506496b0b6230a14a47f8988391f2"
+    },
+    "preview_dialog_candidate_r2.py.gz": {
+      "bytes": 709,
+      "sha256": "f70dbb4e85a380ab95c5ad7439770e6d7346ceefa67fdfa390975b0149ef8aec",
+      "raw_bytes": 1515,
+      "raw_sha256": "c73e20b1cc00a26c2b0823cb4fb12e501b82d5e2a4a5e275dcaeeec31bb825ac"
+    },
+    "preview-dialog-scratch-candidate-qt612-r1.log.gz": {
+      "bytes": 412,
+      "sha256": "dbeeb2f38b9f9e5775e2a8827b4866e2ea89df34e69833edb084c7514c9853f1",
+      "raw_bytes": 812,
+      "raw_sha256": "8e9ecc600e98d823aed39edca36b54ba14e0d83ad91a10251c248f197e13f598"
+    },
+    "preview-dialog-scratch-candidate-qt612-r1-tool.log.gz": {
+      "bytes": 216,
+      "sha256": "623c4f07ab0dacd0f26e5c118d4d1d49146c89e40ce10a4676c3de015844197e",
+      "raw_bytes": 299,
+      "raw_sha256": "de4343df3821aa223ef6e5a5633e97ed9a52fa9f4a5265c593c83dc54ec90615"
+    },
+    "preview-dialog-scratch-compatibility-qt612-r1.log.gz": {
+      "bytes": 568,
+      "sha256": "e48f59cb5adff8f1a547a47cd94348137d64727e9efbf363dce9086162e4aae2",
+      "raw_bytes": 1263,
+      "raw_sha256": "1dca89376860ce767a77d072bc4026256b9895ec141bae14aada8beeed730144"
+    },
+    "preview-dialog-scratch-compatibility-qt612-r1-tool.log.gz": {
+      "bytes": 226,
+      "sha256": "7410ebe2828ac9147e5dc684eaf3bc36a8c1022694e4d927045f75da5e8a1d87",
+      "raw_bytes": 381,
+      "raw_sha256": "5c8dab0f467e750bb302f67ce31f28c1ef5abd6902bac3be49841461828390e4"
+    },
+    "check_preview_owned_image_buffers_r1.py.gz": {
+      "bytes": 819,
+      "sha256": "b666874d2228bc8363faec799ac8c4373ed3d905ec926969e50a0abea38a605b",
+      "raw_bytes": 1662,
+      "raw_sha256": "351d2e689ecbe8af72e474cc9a5be64db4eaab1b9795d5a9494e332d1ee05e08"
+    },
+    "preview-owned-buffers-qt612-r1.log.gz": {
+      "bytes": 584,
+      "sha256": "de555292266b47de6c93df0f12cc277b2f898b5cd99ec766bd1b061cd51931ed",
+      "raw_bytes": 1383,
+      "raw_sha256": "5e7dc06f68f54180b7a367df1fcdffc2e83bb5b8a6c3aa6527dc766afe96a347"
+    },
+    "preview-owned-buffers-qt612-r1-tool.log.gz": {
+      "bytes": 378,
+      "sha256": "39c14a28785812d6b46b74d1225918ca6a463ed21cf64ab783a28b6a8af4445b",
+      "raw_bytes": 769,
+      "raw_sha256": "d9b1ae0feea71abb40dca7191f06a6777359fa3e98dd95c168c9dda262346018"
+    },
+    "preview-owned-buffers-qt612-r1.json.gz": {
+      "bytes": 323,
+      "sha256": "ef37bdd499578ef37c068d0ab0a59f60c0fc37a255c595a17a1f10e6c5739ccb",
+      "raw_bytes": 769,
+      "raw_sha256": "d1b417d62d8b1bb46bd6eeae75cbb73ebadce8885257fbbe608711b7b1790161"
+    },
+    "preview-original-buffer-cohort-qt612-r1.log.gz": {
+      "bytes": 412,
+      "sha256": "6b1bd8e9de9d322ddd71cff56d9e0a4640d4b42f8beb197bdac5934315dab718",
+      "raw_bytes": 764,
+      "raw_sha256": "023f376677ead6dedb8f02ceb398e8866dd928feb1ede6f77af8f0bfcad280df"
+    },
+    "preview-original-buffer-cohort-qt612-r1-tool.log.gz": {
+      "bytes": 149,
+      "sha256": "d51e23870a2b3122c7b2fff08962502c60f3138a9a197bb4ec7e0b590cae3da4",
+      "raw_bytes": 215,
+      "raw_sha256": "d078d78f55b63bb95fd68829dbfb41b47f07a2a7954d298224cf6475521f40d4"
+    }
+  },
+  "limitations": [
+    "Scratch/runtime candidate acceptance is not an applied or pushed application repair. Home path coordination remains pending.",
+    "No native segmentation fault or allocator corruption cause reproduced or resolved.",
+    "Small cohorts do not establish numerical/full hosted/native acceptance."
+  ]
+}

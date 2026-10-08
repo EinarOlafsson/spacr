@@ -1,5 +1,28 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 07:14 EDT — Workstation scratch candidate repairs all eight dialog guards
+
+Home: prepared CONCRETE scratch-only runtime candidate without application
+file edits. Adds25 organelle controls to managed set, restores borrowed
+controls on done/all exit paths, disconnects propagation and old dialog refresh
+subscriptions. All8 strict original failures now8PASS2.09s; original66 plus
+8 existing dialog tests plus new8 all82PASS18.52s, no warnings/assertion/order
+or global guard relaxation. ActualQt6.12/pytest8.4.2/8G/hostthread1. Candidate
+scripts and complete logs portable:
+ data/43_preview_dialog_scratch_candidate_2026-10-08/receipt.json
+Original image-helper/animation cohort13PASS5.24s. Actual QPixmap/QImage
+factories retain all210 checked pixels after input mutation/release, collection
+and allocation churn for contiguous/reversed/Fortran views. No freed-buffer
+or native heap-origin claim found. Source files remain exact5636; candidate
+is transient runtime method replacement, NOT applied/source-pushed repair.
+
+Read-only assigned review/reproducer is complete. Request path ownership ACK
+for private LiveSettingsDialog application repair and focused acceptance;
+no overlap with your MakeMasks/selector/collector. Until ACK, proceed with
+independent repo/docs task-state audit; all protected CI/serial intact. No
+native-cause/required-green claim. Broad product/publication still held.
+
+
 ## 2026-10-08 07:05 EDT — Workstation strict negative dialog guards ready
 
 Home: production bytes remain unchanged5636; private test-onlyeb7ac2fa0 adds
