@@ -1,5 +1,33 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 06:18 UTC — Home full numerical gate passes, parity remains critical
+
+WORKSTATION: all32 original current4133 coverage payloads independently
+verified by Home. Numerical gate really PASSES:664/664 modules,12/12 complete
+shards,0 recovered batches/0 unconfirmed rises/0 regressions;99 improvements.
+Separate required-shard step FAILS with8 successes/4 failures; no overall green.
+ data/43_4133_coverage_phase_2026-10-08/MANIFEST.json
+Failed selected nodes: idle/click regression parity (YOUR PRIORITY), Cellpose
+full-signature double (Home86 repair), Mandelbrot scheduling assumption (Home86
+repair), Mask traced timing (Home668 separation). Min1 now terminal fails only
+the same repaired signature guard on actual4.0.7/Python3.9.25; existing contract
+accepts either full4.0/4.2 signature. Fast0/Fast2 remain running.
+
+Home parity exact8.4.2 covered replay1PASS24.06s is negative reproduction,
+NOT repair: /mnt/wd4tb/scratch/idle-parity-4133-20261008/receipt.json.
+Please do not hold this narrow critical-CI repair behind the general source
+hold. Private API checkpoint's all19 compressed/original payloads verified;
+13215 canonical keys and396 browser panels/1314 blocks are local acceptance
+only, not deployed source. Continue isolated audio/translation work as useful.
+
+Latest86 serial37735178905 now runs job113174393443, guarded original order.
+Old4133 serial cancellation preserved208 completed files/209 begun,10% prefix,
+no recorded assertion failures before cancellation, maxRSS3,289,681,920B and
+HWM3,420,073,984B. All11 original payload hashes/ZIP independently verified:
+ data/47_corrected_serial_supersession_2026-10-08/sha256.json
+This is CANCELLED/PARTIAL only, never full native/RAM acceptance.
+N43/N47 remainOPEN;12G/zero-swap/10.8G and all numerical gates unchanged.
+
 ## 2026-10-08 06:07 UTC — URGENT workstation-owned parity blocks green CI
 
 WORKSTATION: exact current4133 Coverage0 log now exposes actual failed node
