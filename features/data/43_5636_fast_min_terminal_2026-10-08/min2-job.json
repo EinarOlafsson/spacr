@@ -1,0 +1,124 @@
+{
+  "id": 113289789258,
+  "run_id": 37763414112,
+  "workflow_name": "tests",
+  "head_branch": "nightly",
+  "run_url": "https://api.github.com/repos/EinarOlafsson/spacr/actions/runs/37763414112",
+  "run_attempt": 1,
+  "node_id": "CR_kwDOLdmlqs8AAAAaYJj_Sg",
+  "head_sha": "5636eac60938f5d6021eaf73546ff8a30ae17c32",
+  "url": "https://api.github.com/repos/EinarOlafsson/spacr/actions/jobs/113289789258",
+  "html_url": "https://github.com/EinarOlafsson/spacr/actions/runs/37763414112/job/113289789258",
+  "status": "completed",
+  "conclusion": "success",
+  "created_at": "2026-10-08T11:33:40Z",
+  "started_at": "2026-10-08T11:33:42Z",
+  "completed_at": "2026-10-08T13:05:44Z",
+  "name": "Minimum dependencies (ubuntu-24.04, py3.9) shard 2 of 3",
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 1,
+      "started_at": "2026-10-08T11:33:43Z",
+      "completed_at": "2026-10-08T11:33:44Z"
+    },
+    {
+      "name": "Run actions/checkout@v7",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 2,
+      "started_at": "2026-10-08T11:33:44Z",
+      "completed_at": "2026-10-08T11:34:54Z"
+    },
+    {
+      "name": "Set up Python 3.9",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 3,
+      "started_at": "2026-10-08T11:34:54Z",
+      "completed_at": "2026-10-08T11:35:14Z"
+    },
+    {
+      "name": "Install system libraries (Qt offscreen + scientific stack)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 4,
+      "started_at": "2026-10-08T11:35:14Z",
+      "completed_at": "2026-10-08T11:35:42Z"
+    },
+    {
+      "name": "Install spacr at minimum direct versions",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 5,
+      "started_at": "2026-10-08T11:35:42Z",
+      "completed_at": "2026-10-08T11:37:04Z"
+    },
+    {
+      "name": "Verify installed minimum profile",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 6,
+      "started_at": "2026-10-08T11:37:04Z",
+      "completed_at": "2026-10-08T11:37:05Z"
+    },
+    {
+      "name": "Preflight minimum native integrations",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 7,
+      "started_at": "2026-10-08T11:37:05Z",
+      "completed_at": "2026-10-08T11:37:27Z"
+    },
+    {
+      "name": "Run tests at minimum direct versions",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 8,
+      "started_at": "2026-10-08T11:37:27Z",
+      "completed_at": "2026-10-08T13:05:41Z"
+    },
+    {
+      "name": "Upload translation incompatibilities (report-only)",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 9,
+      "started_at": "2026-10-08T13:05:41Z",
+      "completed_at": "2026-10-08T13:05:41Z"
+    },
+    {
+      "name": "Post Set up Python 3.9",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 17,
+      "started_at": "2026-10-08T13:05:41Z",
+      "completed_at": "2026-10-08T13:05:42Z"
+    },
+    {
+      "name": "Post Run actions/checkout@v7",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 18,
+      "started_at": "2026-10-08T13:05:42Z",
+      "completed_at": "2026-10-08T13:05:42Z"
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 19,
+      "started_at": "2026-10-08T13:05:42Z",
+      "completed_at": "2026-10-08T13:05:42Z"
+    }
+  ],
+  "check_run_url": "https://api.github.com/repos/EinarOlafsson/spacr/check-runs/113289789258",
+  "labels": [
+    "ubuntu-24.04"
+  ],
+  "runner_id": 1000141442,
+  "runner_name": "GitHub Actions 1000141442",
+  "runner_group_id": 0,
+  "runner_group_name": "GitHub Actions"
+}
