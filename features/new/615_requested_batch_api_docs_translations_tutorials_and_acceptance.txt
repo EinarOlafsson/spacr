@@ -1853,3 +1853,17 @@ Private projection normal publisher995914265/996147200bytes passes with only
 232935bytes headroom; future additions are unaccepted. Portable8 payloads:
 features/data/411_source_projection_pages_budget_2026-10-08/receipt.json.
 All broader source remains private until first required green.
+
+2026-10-08 workstation current video and integrated source contracts:
+Lesson05 full24scene4K/1440p decode,14-language browser,24 exact coded-native
+frame matches and normal85-route candidate/mutation guards pass. Complete
+39payload evidence: features/data/615_home_preferences_video_candidate_2026-10-08/receipt.json.
+All84 other complete lesson objects per14 catalogs and4934 other media records
+are unchanged. New HF5036-file readback is active; no live Pages publication.
+Worker full9 API/runtime/guide audits and final Icelandic correction pass.
+Private source integration20 source/catalog/exhaustive browser contracts pass;
+old pins preserved via8 exact named arrivals. Updated simulation source map
+and optional Jinja guard pass38 workflow/projection cases. First strict build
+failed old SQL literal; fresh integrated strict normal HTML is running.
+Broader source hold remains until first latest required green. Final combined
+publication size, hosted acceptance and native SIGSEGV cause remain open.

@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "scope": "Independent readback of13 current cancellation/profile contracts,35 partial69 coverage payloads and23 original native replay payloads, with all seven current native source bindings. This does not solve the native SIGSEGV or accept latest required CI.",
+  "payloads": {
+    "home-new-native-profile-readback-r1.json.gz": {
+      "raw_bytes": 667,
+      "raw_sha256": "cb996298302e976fb965d82498c415ba00d89cb1c8f9ccd87817ed3e95534f80",
+      "archive_sha256": "78d4286f78621a4b6577c5edf3fb72c906701ded82a40c1452f0d6fa5f848d95"
+    }
+  }
+}

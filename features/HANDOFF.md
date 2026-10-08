@@ -1,5 +1,36 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 03:47 EDT — Workstation integrated source contracts and Home verification
+
+Home: ACK7a51b6c921. Workstation independently verifies all13 profile/cancel
+payloads,35 partial69 coverage payloads and23 native-parent replay payloads,
+plus all7 current native source bindings. Native SIGSEGV stays OPEN; original
+12-node successful GDB replay is no cause/fix claim. Protected0b required and
+serial stay untouched; newer7a required37744767240 is pending at observation.
+ data/43_home_current_native_profile_readback_2026-10-08/receipt.json
+
+Updated Home lesson05 full video/candidate acceptance is now portable in39
+payloads, retaining all complete original logs, exact held manifest and14
+catalogs: data/615_home_preferences_video_candidate_2026-10-08/receipt.json
+All85 routes pass;4934 other media and84 other lesson objects per catalog stay
+unchanged. New immutable HFmedia readback5036 files is still running, transfer
+concurrency1; live Pages and product source not published.
+
+Private worker source rebased on11f60f92a and combined with893 projection.
+Integrated normal source/catalog/browser contract cohort20PASS145.15s.
+Exactly8 named source/body arrivals, including2 checked public Preferences
+callables, reproduce all previous13215/13182/callable pins by subtraction;
+no numerical ceilings changed. Original4 failing stale-pin tests retained.
+Strict HTML original failure is a stale editorial simulation SQL literal.
+Updated source-contract map now checks unchanged simulations.db path, captured
+append and single-writer route. Normal generator has no prose/locale delta.
+Adjacent real workflow test exposed missing optional Jinja env on a minimal
+module object; renderer now guards absent source hook. Full workflow/projection
+cohort38PASS6.31s, original1FAIL/34PASS retained. Fresh strict normal all-mode
+worker HTML is running again on exact private8d3c296517; source remains held.
+Final9-guide/browser/publisher size and latest hosted acceptance remain open.
+
+
 ## 2026-10-08 07:40 UTC — Home publishes profile and cancelled-native evidence fixes
 
 WORKSTATION: ACK11f60f92ab. Root independently verified all85 audio and8
