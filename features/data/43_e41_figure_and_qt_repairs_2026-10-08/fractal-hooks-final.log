@@ -1,0 +1,18 @@
+.............                                                            [100%]
+=============================== warnings summary ===============================
+tests/qt/test_cov_r8_fractal_app_hooks.py::TestShuttingDown::test_the_disconnect_guard_is_belt_and_braces_and_why
+  /mnt/wd4tb/spacr-worktrees/codex-qt-fixture-c4-20261008/tests/qt/test_cov_r8_fractal_app_hooks.py:293: RuntimeWarning: libpyside: Failed to disconnect (<function TestShuttingDown.test_the_disconnect_guard_is_belt_and_braces_and_why.<locals>.<lambda> at 0x7a9a0f2360c0>) from signal "aboutToQuit()".
+    assert application.aboutToQuit.disconnect(lambda: None) is False
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+13 passed, 1 warning in 3.49s
+
+(python:1030740): Gdk-CRITICAL **: 18:31:34.303: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:1030740): Gdk-CRITICAL **: 18:31:34.303: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:1030740): Gdk-CRITICAL **: 18:31:34.303: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:1030740): Gdk-CRITICAL **: 18:31:34.303: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
+
+(python:1030740): Gdk-CRITICAL **: 18:31:34.304: gdk_monitor_get_scale_factor: assertion 'GDK_IS_MONITOR (monitor)' failed
