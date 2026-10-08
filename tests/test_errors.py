@@ -761,8 +761,23 @@ def test_errors_module_only_imports_the_stdlib_database_sibling():
     docstring are not mistaken for real imports. ``database_concurrency`` is
     deliberately standard-library-only and is the one approved sibling: it
     makes run-status writes transactional without importing an analysis stack.
+    Its cooperative cancellation dependency must also remain standard-library-only.
+    The queued writer may import its retry policy lazily inside its worker;
+    importing errors must never load that analysis dependency.
     """
     import ast
+    import pkgutil
+    import sysconfig
+
+    stdlib_names = getattr(sys, 'stdlib_module_names', None)
+    if stdlib_names is None:
+        stdlib_paths = {sysconfig.get_path('stdlib'),
+                        sysconfig.get_path('platstdlib')}
+        stdlib_paths.update(os.path.join(path, 'lib-dynload')
+                            for path in tuple(stdlib_paths))
+        stdlib_paths.add(os.path.join(sys.base_prefix, 'DLLs'))
+        stdlib_names = set(sys.builtin_module_names) | {
+            module.name for module in pkgutil.iter_modules(sorted(stdlib_paths))}
 
     import spacr.errors as errors_module
     import spacr.database_concurrency as concurrency_module
@@ -786,21 +801,49 @@ def test_errors_module_only_imports_the_stdlib_database_sibling():
     assert imported.isdisjoint({'torch', 'cellpose', 'pandas', 'numpy',
                                 'tensorflow', 'skimage', 'cv2'})
 
-    with open(concurrency_module.__file__, encoding='utf-8') as handle:
-        concurrency_tree = ast.parse(handle.read())
-    concurrency_imports = set()
-    for node in ast.walk(concurrency_tree):
-        if isinstance(node, ast.Import):
-            concurrency_imports.update(
-                alias.name.split('.')[0] for alias in node.names)
-        elif isinstance(node, ast.ImportFrom):
-            assert node.level == 0, (
-                f'database_concurrency imports sibling {node.module!r}')
-            concurrency_imports.add((node.module or '').split('.')[0])
-    assert concurrency_imports.isdisjoint({
-        'spacr', 'torch', 'cellpose', 'pandas', 'numpy', 'tensorflow',
-        'skimage', 'cv2',
-    })
+    import spacr.cancellation as cancellation_module
+
+    for module, allowed_siblings in (
+        (concurrency_module, {'cancellation', 'runctx'}),
+        (cancellation_module, set()),
+    ):
+        with open(module.__file__, encoding='utf-8') as handle:
+            module_tree = ast.parse(handle.read())
+        module_imports = set()
+        siblings = set()
+        parents = {child: parent for parent in ast.walk(module_tree)
+                   for child in ast.iter_child_nodes(parent)}
+        for node in ast.walk(module_tree):
+            if isinstance(node, ast.Import):
+                module_imports.update(
+                    alias.name.split('.')[0] for alias in node.names)
+                if any(alias.name == 'psutil' for alias in node.names):
+                    assert module is concurrency_module
+                    enclosing = parents[node]
+                    while not isinstance(enclosing, ast.FunctionDef):
+                        assert enclosing in parents, 'dependency must stay lazy'
+                        enclosing = parents[enclosing]
+                    assert enclosing.name == '_filesystem_type_via_psutil'
+            elif isinstance(node, ast.ImportFrom):
+                if node.level:
+                    assert node.level == 1
+                    siblings.add(node.module)
+                    if node.module == 'runctx':
+                        enclosing = parents[node]
+                        while not isinstance(enclosing, ast.FunctionDef):
+                            assert enclosing in parents, 'dependency must stay lazy'
+                            enclosing = parents[enclosing]
+                        assert enclosing.name == '_run'
+                        assert isinstance(parents[enclosing], ast.ClassDef)
+                        assert parents[enclosing].name == '_DatabaseWriteQueue'
+                else:
+                    module_imports.add((node.module or '').split('.')[0])
+        assert siblings <= allowed_siblings, (
+            f'{module.__name__} imports unexpected siblings {siblings - allowed_siblings}')
+        allowed_external = {'psutil'} if module is concurrency_module else set()
+        assert module_imports <= stdlib_names | allowed_external, (
+            f'{module.__name__} imports non-stdlib modules '
+            f'{module_imports - stdlib_names - allowed_external}')
 
 
 # ---------------------------------------------------------------------------
