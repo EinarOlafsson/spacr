@@ -153978,6 +153978,20 @@
         "bd7d1218443af93a909f7d7eba6af06b973c52a4057cf01e21ca633921c1741f"
       ]
     },
+    "spacr.qt.widgets.live_preview.LiveSettingsDialog.close": {
+      "source_blocks_sha256": [
+        "49bee6042b10aaaa3673d1c5a5098fafdd639687d8625b06f458bcbd3402dcc5",
+        "003d17abd6d14cc084f31af9b46e276509e9a8ba4dd317ee3ed6d984ab9cb5e1",
+        "f31397551b0631e1dc8a9e74536511b120e495915dfceaccc6e8a8f5578ddbc7"
+      ],
+      "source_sha256": "c8f3c56c75dad855d5b335b32ca4e88cf76470546f3d8c519c51002c1e2d4039",
+      "text": "Lämna tillbaka panelens kontroller även när en dialog som aldrig har visats stängs.\n\nQt anropar inte :meth:`done` när en dold dialog stängs utan att stängningen avvisas, trots att dialogen fortfarande kan förstöras efteråt. En synlig dialog når ``done`` genom sin vanliga stängningshändelse; skyddet för att lämna tillbaka kontrollerna gör denna väg idempotent.\n\n:returns: om Qt godkände begäran om stängning.",
+      "translation_source_blocks_sha256": [
+        "49bee6042b10aaaa3673d1c5a5098fafdd639687d8625b06f458bcbd3402dcc5",
+        "003d17abd6d14cc084f31af9b46e276509e9a8ba4dd317ee3ed6d984ab9cb5e1",
+        "f31397551b0631e1dc8a9e74536511b120e495915dfceaccc6e8a8f5578ddbc7"
+      ]
+    },
     "spacr.qt.widgets.live_preview.LiveSettingsDialog.done": {
       "source_blocks_sha256": [
         "3bbefaf5c9d9789956f33c5849fd27224f0d460270dbb0f4ea8be1326e546188",

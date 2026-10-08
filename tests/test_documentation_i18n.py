@@ -3299,7 +3299,12 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert len(home_ui_arrivals) == 9
     assert {key: docs[key] for key in home_ui_arrivals} == home_ui_arrivals
     assert not home_ui_arrivals.keys() & worker_arrivals.keys()
-    assert len(docs.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
+    hidden_close = json.loads((ROOT / "tests/data/release_contracts"
+        / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text())["API_arrivals"]
+    assert set(hidden_close) == {"spacr.qt.widgets.live_preview.LiveSettingsDialog.close"}
+    assert {key: docs[key] for key in hidden_close} == hidden_close
+    assert not hidden_close.keys() & (worker_arrivals.keys() | home_ui_arrivals.keys())
+    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Regenerate every API "
         "catalog, review the diff, and update "
         "DOCUMENTATION_API_SYMBOL_COUNT_RATCHET in the same change."

@@ -153978,6 +153978,20 @@
         "bd7d1218443af93a909f7d7eba6af06b973c52a4057cf01e21ca633921c1741f"
       ]
     },
+    "spacr.qt.widgets.live_preview.LiveSettingsDialog.close": {
+      "source_blocks_sha256": [
+        "49bee6042b10aaaa3673d1c5a5098fafdd639687d8625b06f458bcbd3402dcc5",
+        "003d17abd6d14cc084f31af9b46e276509e9a8ba4dd317ee3ed6d984ab9cb5e1",
+        "f31397551b0631e1dc8a9e74536511b120e495915dfceaccc6e8a8f5578ddbc7"
+      ],
+      "source_sha256": "c8f3c56c75dad855d5b335b32ca4e88cf76470546f3d8c519c51002c1e2d4039",
+      "text": "한 번도 표시되지 않은 대화상자를 닫을 때도 패널의 컨트롤을 반환합니다.\n\n숨겨진 대화상자가 정상적으로 닫히면 Qt는 :meth:`done` 호출을 생략하지만, 이후에도 대화상자가 소멸될 수 있습니다. 표시 중인 대화상자는 일반적인 닫기 이벤트를 통해 ``done``에 도달하며, 컨트롤 반환을 보호하는 검사 덕분에 이 경로를 반복 실행해도 결과가 같습니다.\n\n:returns: Qt가 닫기 요청을 수락했는지 여부.",
+      "translation_source_blocks_sha256": [
+        "49bee6042b10aaaa3673d1c5a5098fafdd639687d8625b06f458bcbd3402dcc5",
+        "003d17abd6d14cc084f31af9b46e276509e9a8ba4dd317ee3ed6d984ab9cb5e1",
+        "f31397551b0631e1dc8a9e74536511b120e495915dfceaccc6e8a8f5578ddbc7"
+      ]
+    },
     "spacr.qt.widgets.live_preview.LiveSettingsDialog.done": {
       "source_blocks_sha256": [
         "3bbefaf5c9d9789956f33c5849fd27224f0d460270dbb0f4ea8be1326e546188",

@@ -1,0 +1,27 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "Return panel controls even when a never-shown dialog is closed.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.close#0",
+      "source": "Return panel controls even when a never-shown dialog is closed.",
+      "source_sha256": "49bee6042b10aaaa3673d1c5a5098fafdd639687d8625b06f458bcbd3402dcc5",
+      "translation": "한 번도 표시되지 않은 대화상자를 닫을 때도 패널의 컨트롤을 반환합니다."
+    },
+    {
+      "context": "Qt skips :meth:`done` for a hidden dialog's successful close, though the dialog can still be destroyed afterward. A visible dialog reaches ``done`` through its normal close event; its release guard keeps this path idempotent.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.close#1",
+      "source": "Qt skips :meth:`done` for a hidden dialog's successful close, though the dialog can still be destroyed afterward. A visible dialog reaches ``done`` through its normal close event; its release guard keeps this path idempotent.",
+      "source_sha256": "003d17abd6d14cc084f31af9b46e276509e9a8ba4dd317ee3ed6d984ab9cb5e1",
+      "translation": "숨겨진 대화상자가 정상적으로 닫히면 Qt는 :meth:`done` 호출을 생략하지만, 이후에도 대화상자가 소멸될 수 있습니다. 표시 중인 대화상자는 일반적인 닫기 이벤트를 통해 ``done``에 도달하며, 컨트롤 반환을 보호하는 검사 덕분에 이 경로를 반복 실행해도 결과가 같습니다."
+    },
+    {
+      "context": "whether Qt accepted the close request.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.close#2",
+      "source": "whether Qt accepted the close request.",
+      "source_sha256": "f31397551b0631e1dc8a9e74536511b120e495915dfceaccc6e8a8f5578ddbc7",
+      "translation": "Qt가 닫기 요청을 수락했는지 여부."
+    }
+  ],
+  "schema": 1
+}

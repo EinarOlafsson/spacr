@@ -1,0 +1,27 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "Return panel controls even when a never-shown dialog is closed.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.close#0",
+      "source": "Return panel controls even when a never-shown dialog is closed.",
+      "source_sha256": "49bee6042b10aaaa3673d1c5a5098fafdd639687d8625b06f458bcbd3402dcc5",
+      "translation": "Geben Sie die Bedienelemente des Panels auch dann zurück, wenn ein nie angezeigter Dialog geschlossen wird."
+    },
+    {
+      "context": "Qt skips :meth:`done` for a hidden dialog's successful close, though the dialog can still be destroyed afterward. A visible dialog reaches ``done`` through its normal close event; its release guard keeps this path idempotent.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.close#1",
+      "source": "Qt skips :meth:`done` for a hidden dialog's successful close, though the dialog can still be destroyed afterward. A visible dialog reaches ``done`` through its normal close event; its release guard keeps this path idempotent.",
+      "source_sha256": "003d17abd6d14cc084f31af9b46e276509e9a8ba4dd317ee3ed6d984ab9cb5e1",
+      "translation": "Qt ruft :meth:`done` beim erfolgreichen Schließen eines ausgeblendeten Dialogs nicht auf, obwohl der Dialog anschließend weiterhin zerstört werden kann. Ein sichtbarer Dialog erreicht ``done`` über sein normales Schließereignis; die Schutzprüfung bei der Rückgabe der Bedienelemente macht diesen Pfad idempotent."
+    },
+    {
+      "context": "whether Qt accepted the close request.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.close#2",
+      "source": "whether Qt accepted the close request.",
+      "source_sha256": "f31397551b0631e1dc8a9e74536511b120e495915dfceaccc6e8a8f5578ddbc7",
+      "translation": "ob Qt die Anforderung zum Schließen angenommen hat."
+    }
+  ],
+  "schema": 1
+}
