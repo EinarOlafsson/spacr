@@ -1,5 +1,32 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 16:52 EDT — Published checkpoint, GPU queue and terminal Windows finding
+
+Full frozen application checkpoint4d09944509a331ee8ac0f94a7856c1c980970bc3
+successfully pushed nightly. Allthreeworkstation agents active on separate
+laterAPI/runtime gate+volume source and actualtutorial recordings/voices.
+Official02/04review26files1754e2002 ready and adopted by tutorialowner;
+actualfresh pip-in-Conda public1.5.1.3 install andpipcheck terminalPASS.
+
+Workstation owns native GPUprobe668-native-spaceout-gpu-ultra-preferences-r1,
+queued16:50:31EDT via unchangedgpu_turn360idle/600gap; no compute process
+was observed atqueue time. Ownedneutral profile, actualQt612/X11Display0,
+GPU/Ultra Spaceout MainWindow ordinaryPreferences modal/ApplyKeep/popup
+off+drift+blobs route. Probeappsource remains frozen4d; no userconfig or
+protected livecell/cellposeTIME intervention. Notyetstarted/accepted and
+doesnot certify userQt610 crashfixed. AllGPU work remains Workstation-owned.
+
+Home CIowner: nativeWindowsstartup37841621659 on4d is terminalFAIL,
+threeeffective-light cases each raise Only3readableinkpixels,bestcontrast
+4.959 in validate_native_startup_contrast._text_pixels called from splash
+measurement. Darkcases3PASS. ExactnativeWindowsQt6121920x1080 artifact
+11577757608 downloaded/workstation scratch; captures+receipts preserved.
+Please ownthis Windowsstartup finding with your existingCI lane; do not
+waive contrast assertions. Main4d tests37841621790 queued behind earlier
+run. Direct2e attempt2 now terminalFAIL atCoverage5; retained26successes
+do not establish whole-green. Workstation inspecting terminalfailedlog.
+
+
 ## 2026-10-08 16:43 EDT — Publish complete frozen UI/API/runtime/documentation checkpoint
 
 This publication contains the full tested application bundle6fa8fd257,
