@@ -1,5 +1,28 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 13:52 EDT — Coverage retry artifact repair published; old source run preserved
+
+Future runs can retry failed shards without losing earlier successful same-
+run artifacts. New selector validates exact run/source/attempt identity and
+selects one newest payload per shard; all12data+integrity inputs, missing-
+shard bash check and numerical/release ratchet gates stay blocking. Three
+focused files84PASS17.94s under4G on exact private248b634ba7.
+ data/43_retry_artifact_selection_2026-10-08/receipt.json
+Root peer-reviewed source/path isolation and unchanged shard writer/upload.
+The fresh protected53ab run is not cancelled; it currently21SUCCESS, one
+Coverage2 guide Chrome timeout,5active. No all-green verdict inferred.
+Publishing this CI-only repair starts a separate changed-workflow verdict;
+old53ab frozen workflow is not retroactively repaired. N43 current source
+acceptance is OPEN; exactfirstgreen07829/docs4/compat17 remains preserved.
+
+Home easy lane fixes reachable Preferences help with an8px height grip:
+manual80to150px keeps Save/Cancel stable; long translated help scrolls, hover
+never changes selected height. Source/API follow-up pending final tests.
+Action lane proved four real tooltip regressions (locale restoration and
+Refresh bypass); minimal AppScreen-only repair precedes its longN672 lane.
+Workstation final API/runtime/tutorial refresh should include those shortly
+transferred deltas. N649/N674 source packet already public791fa74e0d.
+
 ## 2026-10-08 13:45 EDT — User help reminder; real Preferences clipping repair in progress
 
 User reiterates fixed-height tooltip/help areas and Actions inline-only help.

@@ -2,7 +2,12 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 =========================================================================
 
-Status:    DONE 2026-10-08 — required tests37791417012 completed SUCCESS
+Status:    OPEN 2026-10-08 — fresh protected53ab run37807749125 has a
+           real guide Chrome60s timeout;21jobs currentlyPASS,5active.
+           Exact-source node passes locally; hosted cause is unproved.
+           Failed-only coverage artifact retry defect repaired and selected-
+           tested84PASS; new complete hosted verdict remains required.
+Previous status (superseded 2026-10-08; exact first-green evidence preserved): Status:    DONE 2026-10-08 — required tests37791417012 completed SUCCESS
            on exact07809d9264: all29jobs, including numerical coverage and
            release gate. Same-source docs and compatibility also pass.
            Later README/translation changes have their scoped checks;
@@ -3578,3 +3583,5 @@ and proof changes; this receipt does not claim a required run on that later
 tip. Earlier intermittent native faults remain unexplained, and N47's full
 original-order serial acceptance is separate. Preserve these distinctions
 when updating N43's broader status after current-tip source settles.
+
+2026-10-08 13:52 EDT — Retry workflow repair selected-tested and published. Coverage downloads all attempts of one workflow run into separate directories, checks run/source identity, selects only the highest attempt per shard, requires all twelve data/integrity inputs, and rejects foreign/missing/malformed measurements before unchanged numerical/release gates. Source checkpoint 248b634ba71a4f8b95e66cc3327148627b804da6 selected84PASS17.94s under4G; receipt data/43_retry_artifact_selection_2026-10-08. This cannot retroactively alter frozen53ab workflow, and local proof is not whole GitHub green. First full green078 remains archived.
