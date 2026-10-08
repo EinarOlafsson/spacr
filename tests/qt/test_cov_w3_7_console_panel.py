@@ -20,8 +20,8 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QEvent, QMimeData, QPoint, QPointF, Qt, QUrl
-from PySide6.QtGui import QKeyEvent, QMouseEvent
+from PySide6.QtCore import QEvent, QMimeData, QPoint, QPointF, QRect, Qt, QUrl
+from PySide6.QtGui import QKeyEvent, QMouseEvent, QTextCursor
 from PySide6.QtWidgets import QApplication, QLabel, QWidget
 
 from spacr.qt.widgets import console_panel as cp
@@ -165,6 +165,58 @@ def test_an_empty_append_costs_nothing(qtbot):
     before = block.toPlainText()
     block.append("")
     assert block.toPlainText() == before
+
+
+def test_long_output_uses_outer_scroll_and_reaches_both_document_ends(qtbot):
+    """The read-only editor grows to its text so the outer console scrolls."""
+    panel = ConsolePanel(follow_log=False, chat=False)
+    qtbot.addWidget(panel)
+    panel.resize(754, 200)
+    panel.show()
+    qtbot.waitUntil(panel.isVisible)
+    for _ in range(5):
+        QApplication.processEvents()
+    panel.append_stdout("A measured line from spaCR output\n" * 35)
+    qtbot.waitUntil(lambda: panel._current_stdout is not None)
+    for _ in range(5):
+        QApplication.processEvents()
+
+    block = panel._current_stdout
+    outer = panel._scroll
+    assert block.isReadOnly()
+    assert block.sizeHint().height() > outer.viewport().height()
+    assert block.height() >= block.sizeHint().height()
+    bar = outer.verticalScrollBar()
+    assert bar.maximum() > 0
+    bar.setValue(bar.maximum())
+    QApplication.processEvents()
+    assert not panel._jump.isVisible()
+    viewport_height = outer.viewport().height()
+    bar.setValue(0)
+    QApplication.processEvents()
+    assert panel._jump.isVisible()
+    assert outer.viewport().height() == viewport_height
+
+    for edge in (QTextCursor.Start, QTextCursor.End):
+        cursor = block.textCursor()
+        cursor.movePosition(edge)
+        block.setTextCursor(cursor)
+        block.ensureCursorVisible()
+        caret = block.cursorRect(cursor)
+        point = block.viewport().mapTo(outer.widget(), caret.center())
+        outer.ensureVisible(point.x(), point.y(),
+                            (caret.width() + 1) // 2 + 2,
+                            (caret.height() + 1) // 2 + 2)
+        QApplication.processEvents()
+        caret = block.cursorRect(cursor)
+        caret_in_panel = QRect(
+            block.viewport().mapTo(panel, caret.topLeft()), caret.size())
+        clip = QRect(block.viewport().mapTo(panel, QPoint()),
+                     block.viewport().size()).intersected(QRect(
+                         outer.viewport().mapTo(panel, QPoint()),
+                         outer.viewport().size()))
+        assert outer.viewport().height() == viewport_height
+        assert clip.contains(caret_in_panel), (edge, clip, caret_in_panel)
 
 
 def test_a_pinned_height_wins_over_the_document(qtbot):
