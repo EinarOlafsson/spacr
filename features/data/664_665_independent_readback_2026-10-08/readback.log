@@ -1,0 +1,58 @@
+{
+  "passed": true,
+  "payloads_verified": 228,
+  "gzip_logs_verified": 26,
+  "source_bindings": 36,
+  "coverage_inputs": 108,
+  "final_tests": 5,
+  "changed_modules": 29,
+  "original_tests_preserved": [
+    {
+      "path": "tests/test_item60_measure_coverage.py",
+      "original_test_definitions_unchanged": 25
+    },
+    {
+      "path": "tests/test_sequencing_full_coverage.py",
+      "original_test_definitions_unchanged": 76
+    }
+  ],
+  "final_totals": {
+    "changed_executable_lines": 1175,
+    "hit_lines": 1137,
+    "missed_lines": 38,
+    "new_or_changed_branch_arcs": 349,
+    "hit_arcs": 328,
+    "missed_arcs": 21
+  },
+  "public_production_differences": [
+    "spacr/_mask_workers.py",
+    "spacr/database_concurrency.py",
+    "spacr/deep_spacr.py",
+    "spacr/intensity_rescale.py",
+    "spacr/io.py",
+    "spacr/measure.py",
+    "spacr/object.py",
+    "spacr/ops_engine.py",
+    "spacr/parameter_sweep.py",
+    "spacr/qt/i18n_catalogs/de.py",
+    "spacr/qt/i18n_catalogs/en.py",
+    "spacr/qt/i18n_catalogs/es.py",
+    "spacr/qt/i18n_catalogs/fr.py",
+    "spacr/qt/i18n_catalogs/hi.py",
+    "spacr/qt/i18n_catalogs/is.py",
+    "spacr/qt/i18n_catalogs/ko.py",
+    "spacr/qt/i18n_catalogs/pt.py",
+    "spacr/qt/i18n_catalogs/sv.py",
+    "spacr/qt/i18n_catalogs/zh_CN.py",
+    "spacr/qt/preferences.py",
+    "spacr/qt/screens/graph_builder.py",
+    "spacr/resource_log.py",
+    "spacr/runctx.py",
+    "spacr/sequencing.py",
+    "spacr/sim.py",
+    "spacr/sweep_child.py",
+    "spacr/tabular.py",
+    "spacr/timelapse.py",
+    "spacr/utils.py"
+  ]
+}

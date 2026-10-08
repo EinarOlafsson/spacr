@@ -1,0 +1,19 @@
+{
+  "review_commit": "389ce5376d3f55c8b4f370cde62cd69b7ef793f8",
+  "python": "3.12",
+  "coverage": "7.16.0",
+  "coverage_wheel_name": "coverage-7.16.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+  "coverage_wheel_sha256": "719a3feb6220dd32ed932d4c3676d17fb8739e2643b29c0e7c3af400ff80ac44",
+  "command": "PYTHONPATH=/path/to/scratch/coverage716-overlay CUDA_VISIBLE_DEVICES= QT_QPA_PLATFORM=offscreen tools/run_capped.sh 2G /path/to/python3.12 features/data/664_665_independent_readback_2026-10-08/verify_readback.py --repo /path/to/repo --git 389ce5376d3f55c8b4f370cde62cd69b7ef793f8 --output /path/to/scratch/readback.json",
+  "no_tests_run": true,
+  "no_spacr_imports": true,
+  "no_product_changes": true,
+  "limitations": [
+    "The two original receipts are outside their own payload maps; this review binds their full bytes and Git blob IDs separately.",
+    "The supplement has no source_bindings or coverage_inputs map. Its merged data, all reported production hashes and final five test files are verified from frozen assets.",
+    "Private integrated candidate whole-tree equality, documentation/tool byte equality between private commits and final patch identity within that private candidate are declared claims, not independently reconstructed whole private Git-tree comparisons.",
+    "The current public source differs from all 29 archived production source snapshots. This is a held candidate, not current-source acceptance.",
+    "Cohorts overlap; counts are not unique totals. r2, r8 and r9 failing fixtures remain preserved; their runs are not final accepted coverage.",
+    "38 changed lines and 21 changed arcs remain unhit. No whole-module numerical ratchet, GPU, native-display, full hosted/serial or aesthetics acceptance."
+  ]
+}

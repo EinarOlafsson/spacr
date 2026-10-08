@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "payloads": {
+    "README.txt": {
+      "sha256": "0e009a1c47498888fbb463ad33d554bfbd1a93e384be4e3d7e38fe87d929617e",
+      "bytes": 2763
+    },
+    "readback.json": {
+      "sha256": "02bcc3b5953afbc403131f4b54eb96040366887f89483ee8240364f6090482d4",
+      "bytes": 138578
+    },
+    "readback.log": {
+      "sha256": "66b00ea72e556c79527c98331b829d44cf95e9f32d292797f6f78eeaa660aba4",
+      "bytes": 1562
+    },
+    "reproduction.json": {
+      "sha256": "79b5a4aab91649fdc71cfa477b79cd9a10dfd88420d99d2eeb9483b20caf5063",
+      "bytes": 1788
+    },
+    "verify_manifest.py": {
+      "sha256": "7c24832491de11bae96b580af1a650b760c7eda7433207acec038a0be15d3f63",
+      "bytes": 1681
+    },
+    "verify_readback.py": {
+      "sha256": "8fcd01d7cdb61fac6d267e0699a162a8a5618b15d010f942fbf9241add607d02",
+      "bytes": 14015
+    },
+    "write_manifest.py": {
+      "sha256": "aa4b01f7d461476b163f9f95880d667ea8ff707ac6fdbf5f383c7ef37461cad4",
+      "bytes": 482
+    }
+  }
+}
