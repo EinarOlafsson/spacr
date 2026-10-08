@@ -1,0 +1,34 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____ TestCompartmentSettings.test_dialog_shows_only_primary_object_panel ______
+
+self = <tests.qt.test_live_preview.TestCompartmentSettings object at 0x77fa14051010>
+qtbot = <pytestqt.qtbot.QtBot object at 0x77f9fc7c2d20>
+
+    def test_dialog_shows_only_primary_object_panel(self, qtbot):
+        from spacr.qt.widgets.live_preview import LiveSettingsDialog
+        p = self._panel(qtbot)
+        dlg = LiveSettingsDialog(p)
+        qtbot.addWidget(dlg); dlg.show()
+        for widget in dlg._managed_widgets():
+            label = getattr(widget, "_spacr_setting_label", None)
+            # No `_spacr_api_dot` assertions: this dialog passes
+            # `api_dots=False`. What they were guarding -- that every
+            # managed widget got decorated, with the help on the label and
+            # the field left quiet -- is exactly what the tooltip
+            # assertions here check, and they are the half that matters.
+            if label is not None:
+                assert widget.toolTip() == ""
+                assert "href=" in label.toolTip()
+            else:
+>               assert "href=" in widget.toolTip()
+E               AssertionError: assert 'href=' in ''
+E                +  where '' = <built-in method toolTip of PySide6.QtWidgets.QComboBox object at 0x77f9fc5ad600>()
+E                +    where <built-in method toolTip of PySide6.QtWidgets.QComboBox object at 0x77f9fc5ad600> = <PySide6.QtWidgets.QComboBox(0x56b0d6ed1c40) at 0x77f9fc5ad600>.toolTip
+
+tests/qt/test_live_preview.py:578: AssertionError
+----------------------------- Captured Qt messages -----------------------------
+QtWarningMsg: This plugin does not support propagateSizeHints()
+=========================== short test summary info ============================
+FAILED tests/qt/test_live_preview.py::TestCompartmentSettings::test_dialog_shows_only_primary_object_panel
+1 failed in 1.94s
