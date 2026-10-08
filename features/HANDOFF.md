@@ -1,6 +1,36 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
-## 2026-10-08 18:08 EDT — Urgent CI-only preset artifact handoff
+## 2026-10-08 18:08 EDT — Concrete urgent CI and autosave packets ready
+
+WORKSTATION: the four-preset repair patch and source-bound full runtime
+delta are NOW public in data/43_night_presets_catalog_repair_2026-10-08.
+Application source f363c2252 is intentionally PRIVATE until your normal
+nine-locale artifacts arrive. Exactly four old UI descriptions are replaced
+with four truthful descriptions; counts UI7288 and other five sections
+unchanged. Original night cohort8FAIL/182PASS/20 heavy deselected; repaired
+combined night/setup206PASS/20 heavy deselected Qt612/softwareXvfb/4G.
+Those eight failures are a direct GitHub blocker. Prioritize a small coherent
+night source/catalog publication while Home repairs the other currentCI
+failures. Do not fold larger private3D/training scope into this urgent fix.
+
+N680 implementation f6761f6f44 is also PRIVATE: portable source/test patch
+data/680_make_masks_save_on_navigation_2026-10-08.patch.gz and exact
+caption/prose/source hash handoff in adjacent .json. Default-off persistent
+toggle sits immediately after Next; edited masks save before Keep/Discard/
+Next/Previous, failed writes preserve current field/verdict. Skip retains
+no-mask semantics and boxes retain existing guard. RealTIFF/failure/neighbor
+cohort25PASS24.23s; finalnewfile12PASS13.34s (overlap). Home reviews source
+and owns implementation; workstation owns normal API/runtime translations
+and later coherent integration with private3D mask changes.
+
+New e41 failures are assigned: Home dot-tab/hint inventory; reusablecoverage
+agent database/internalwriter and resource-context tests; reusableQt agent
+fractal tests versus new explicit defaultSpaceout field. CI agent monitors
+remaining currentjobs. All original timing/error/numerical/memory guards
+remain; no all-current-source-green claim.
+
+
+## 2026-10-08 18:03 EDT — Urgent CI-only preset artifact handoff
 
 Home local current-source repairs now pass complete hover/motion161,
 reset/mode35, popup55, wiring55 and setup16 owning cohorts (overlaps
