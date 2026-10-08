@@ -34,3 +34,10 @@ DONE 2026-10-04
   Qt acceptance, not a native cross-platform recording. Saved to: {path}
   and the two changed RecipeDialog docstrings await the normal source-current
   multilingual/API refresh. This receipt does not close that remaining work.
+
+2026-10-08 — COMPLETION AUDIT: 100% of this item is published.
+  docs/source/shortcuts_and_templates.rst covers Save, Apply, Share, Import,
+  Rename and Delete, including the selectable full saved path. All nine
+  runtime catalogs contain source-bound "Saved to: {path}" and "Rename
+  template" captions. The 2026-10-06 Qt receipt retains its Linux/offscreen
+  scope; this note does not invent native other-OS recordings.

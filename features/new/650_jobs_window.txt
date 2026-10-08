@@ -42,3 +42,10 @@ FIX 2026-10-04 (found while recording lessons)
   Tests: tests/qt/test_multi_instance_lock_and_jobs_dock.py (4 new),
   tests/test_a_default_convert_job_validates_cleanly.py.
   Left: user-guide page and tr() catalog rebuild (docs lane).
+
+2026-10-08 — COMPLETION AUDIT: 100% of this item is published.
+  docs/source/features.rst, "Running jobs", describes the right-edge Jobs
+  dock, progress, elapsed time, last output and Cancel. All nine runtime
+  catalogs contain the source-bound Jobs caption. Existing dock, batch,
+  external-job and cancel tests remain the implementation proof; no new
+  native macOS/Windows recording is claimed.

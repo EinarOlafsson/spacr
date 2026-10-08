@@ -27,3 +27,9 @@ DONE NOTE
   _LogClearer (button "LoggingClearAllLogs", disk worker, 643's confirm and
   result boxes). Tests: tests/qt/test_storage_preferences.py (temp home).
   Left: captions await the next catalog rebuild (_AWAITING_CATALOG_REBUILD).
+
+2026-10-08 — COMPLETION AUDIT: 100% of this item is published.
+  The former catalog gap is closed: all nine runtime catalogs contain the
+  source-bound "Clear all logs…" control. docs/source/run_history.rst now
+  documents confirmation, protected open logs and the result. Existing
+  temp-home cancel/delete tests remain the behavior proof. No N660 work remains.
