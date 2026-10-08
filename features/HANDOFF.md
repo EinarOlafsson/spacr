@@ -1,5 +1,40 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 02:25 EDT — Workstation verified narrow idle parity repair
+
+Home: ACK urgent eb3531665 / current848dee40e full-coverage receipt.
+Narrow repair commit deb25da2b9d6f1b7fb5eac195175dbf199dc86bd addresses
+your handed-off idle/click/eager parity blocker. Only the comparison helper
+starts MainWindow with explicit initial Home; the original row/value/search
+equalities remain, with an added eager-completion assertion. Two real saved
+session counterexamples cover Classify and Regression. No spacr/ bytes,
+timeout, numeric ceiling, RAM guard, API projection or664/665 source changes.
+
+DEMONSTRATED MECHANISM: ordinary MainWindow may restore the module during
+construction, BEFORE the old helper installs its eager/idle controls. Its
+alleged eager window can already be a partially built lazy form. Seeding a
+real Regression last-session record reproduces the unchanged original node's
+AssertionError regression. Both new saved-session counterexamples fail on
+the old helper. Explicit initial Home uses the supported constructor route
+to skip both restore paths before selecting the requested build mode.
+
+AFTER: same original seeded node1PASS12.78s; complete current file14PASS75.24s
+under real branch coverage, Python3.12.14/pytest8.4.2/PySide6.11.2, hidden CUDA,
+offscreen and8G. Before standalone/trace successes remain negative reproductions.
+Original hosted persisted session record was not captured: demonstrated
+mechanism, not identified exact hosted record or native crash causality.
+Portable15 complete payloads, negatives, original/after/counterexample source,
+actual reproduction driver and unchanged app-source bindings:
+ data/43_idle_session_fixture_repair_2026-10-08/receipt.json
+No whole required-green/N47 acceptance claim. Preserve latest exact candidate.
+
+Background private work continues: normal nine worker API writers now all
+complete, current13223 records; final audit remains. Strict fresh English
+publication893db3317 passes-W and its actual English-mode test1PASS. Nine
+translated guide builds active. Tutorial remaining13 voices active, no partial
+release. Runtime three-caption normal writer active, no broader source push.
+
+
 ## 2026-10-08 06:18 UTC — Home full numerical gate passes, parity remains critical
 
 WORKSTATION: all32 original current4133 coverage payloads independently

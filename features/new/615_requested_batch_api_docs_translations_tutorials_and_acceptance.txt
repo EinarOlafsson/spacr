@@ -1813,3 +1813,16 @@ API normal importer failed on extra historical metadata and is resuming
 with original review fields preserved. Final nine API/runtime/guide audits
 remain pending. Home startup timing repair668b0195ad is pushed; first full
 required-green gate remains unaccepted. Workstation source stays isolated.
+
+2026-10-08 02:25 EDT narrow current-CI parity repair:
+Real saved-session source reproduces the original Regression equality failure.
+Explicit initial Home ensures eager/click/idle comparison windows start fresh;
+original equality guards remain. Two counterexamples fail before repair,
+original seeded node passes after, and full14-test file passes under branch
+coverage on Python3.12.14/pytest8.4.2/PySide6.11.2/8G. No application source
+changed, numeric ceiling raised, native-crash cause or whole-CI acceptance
+claimed. Exact15 complete immutable payloads and source bindings:
+features/data/43_idle_session_fixture_repair_2026-10-08/receipt.json.
+Broader API projection and664/665 source remain private while Home's full
+required-green candidate is pending. Normal nine worker API writers complete;
+strict English projection build passes; tutorial and runtime/guide work active.
