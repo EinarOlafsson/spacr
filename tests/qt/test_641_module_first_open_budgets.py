@@ -65,11 +65,17 @@ def test_a_benchmark_window_does_not_resume_another_modules_saved_session(qapp, 
     qtbot.addWidget(restoring)
     assert "replication" in restoring._screens
 
-    fresh = MainWindow(initial_app="__home__")
-    qtbot.addWidget(fresh)
-    assert "replication" not in fresh._screens
-    fresh._on_nav_selected("replication")
-    assert fresh._stack.currentWidget() is fresh._screens["replication"]
+    fixture = window.__wrapped__(qapp)
+    fresh = next(fixture)
+    try:
+        assert "replication" not in fresh._screens
+        fresh._on_nav_selected("replication")
+        assert fresh._stack.currentWidget() is fresh._screens["replication"]
+    finally:
+        try:
+            next(fixture)
+        except StopIteration:
+            pass
 
 
 def test_a_module_open_reads_preferences_from_one_store(qapp, monkeypatch):
