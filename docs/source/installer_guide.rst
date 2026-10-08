@@ -8,11 +8,6 @@ container installation, updates, removal, offline preparation and the files
 to check when installation fails. For older downloadable versions, use the
 :doc:`installer archive <installers>`.
 
-The `Install spaCR tutorial <tutorials/#lesson=02_install_spacr>`_ combines
-the pip and Conda routes. Follow the commands for your chosen installer
-below. Nightly tutorials may show interface changes that are not yet in a
-published PyPI or conda-forge release.
-
 Choose an installation
 ----------------------
 
