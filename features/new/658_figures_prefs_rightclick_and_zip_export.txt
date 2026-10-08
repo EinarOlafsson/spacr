@@ -360,3 +360,11 @@ PART C — WHAT IS LEFT
   FinalHomefollow-up214PASS; integration/catalog/native/serial open.
   Lorenz/other producer audit continues.
   Proof:data/658_private_regression_panel_2026-10-08/receipt.json.
+
+2026-10-08 14:10 EDT — Lorenz source-preserving export accepted privately
+  PRIVATE334/behavior609196PASS96.03s; original4FAIL preserved.
+  Full per-file metadata/excluded rows/IDs/native calculations retained.
+  Independent shares/Gini and true standalone CLI match;14-file clean
+  replacement,existing tests untouched. Nine-language outer API parameter
+  correction and coherent adoption remain pending. Residual QQ audit next.
+  Proof:data/658_private_lorenz_recipe_2026-10-08/receipt.json.

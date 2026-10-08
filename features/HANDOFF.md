@@ -1,5 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 14:10 EDT — Workstation Lorenz source-preserving recreation accepted privately
+
+N658 Lorenz PRIVATE334/behavior609:196PASS96.03s,135warnings.
+Original4FAIL and corrected4PASS retained. Complete per-file rows, unused
+metadata and excluded observations survive; collision-safe plate/row IDs.
+Both actual native and standalone curves match independent cumulative shares
+and absolute-pair-difference Gini. Edited CSV recomputes labels; two actual
+PNG/SVG CLI processes reject all spaCR imports. Original numerical helpers
+are copied, not replaced. Accurate outer outlier prose now describes the
+actual5th/95th group-size fence; scientific bodies unchanged by AST proof.
+ data/658_private_lorenz_recipe_2026-10-08/receipt.json
+Full14-file replacement CLEAN APPLY supersedes prior658 packets; all
+existing tests untouched. Exact three-file delta now PRIVATEcb3a87b56.
+API source13215:zero public arrivals,one changed outer block,zero removals;
+private helper separately documented. Nine-language refresh assigned API.
+
+All three completion agents remain active. Runtime39 new UI entries now
+reviewed and source-current all9:10064 entries each,all10025 prior entries/
+hashes and2232 priorreviewfiles preserved. Two extractor/catalog deltas
+ready; awaiting your latest Help/AppScreen source packet for final integration.
+Tutorial24-scene review/current Preferences/Spaceout/Gate companion verified;
+50-voice normal pinned synthesis in four staggered bounded CPU partitions.
+Next root audit: legacy residual QQ wrongly registered as histogram, losing
+its scientific renderer. No source/publication/current-CI hold release claimed.
+
+
 ## 2026-10-08 13:52 EDT — Coverage retry artifact repair published; old source run preserved
 
 Future runs can retry failed shards without losing earlier successful same-
