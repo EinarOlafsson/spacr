@@ -2735,7 +2735,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
             best_val_acc = float(restored_best)
         epochs_without_improvement = int(
             training_state.get('epochs_without_improvement') or 0)
-        best_model_path = os.path.abspath(resume_checkpoint)
+        best_model_path = os.path.abspath(initialization_path)
         if start_epoch > epochs:
             raise ValueError(
                 f"Checkpoint already completed epoch {start_epoch - 1}, but "

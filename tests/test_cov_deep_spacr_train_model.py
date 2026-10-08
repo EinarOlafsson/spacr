@@ -711,9 +711,10 @@ def test_validation_improvement_resets_patience_counter(tmp_path, monkeypatch, c
     assert os.path.exists(path)
 
 
+@pytest.mark.parametrize("catalogue_key", [None, "published-training-checkpoint"])
 def test_train_model_resumes_after_saved_epoch_with_optimizer_state(
-        tmp_path, monkeypatch):
-    """A resumable artifact continues at epoch+1 instead of restarting."""
+        tmp_path, monkeypatch, catalogue_key):
+    """A local file or catalogue key resumes at epoch+1 with optimizer state."""
     from spacr.deep_spacr import train_model
     from spacr.torch_artifacts import load_model_artifact, save_model_artifact
 
@@ -727,6 +728,13 @@ def test_train_model_resumes_after_saved_epoch_with_optimizer_state(
     save_model_artifact(
         original, resume, optimizer=optimizer, epoch=1, best_metric=0.9,
         epochs_without_improvement=0, artifact_role="best")
+    resolved = []
+    if catalogue_key is not None:
+        def _resolve(requested, *, kinds=()):
+            resolved.append((requested, kinds))
+            return resume
+
+        monkeypatch.setattr("spacr.model_zoo._ensure_model_file", _resolve)
 
     fresh = nn.Sequential(nn.Linear(4, 2))
     _use_model(monkeypatch, fresh)
@@ -739,11 +747,15 @@ def test_train_model_resumes_after_saved_epoch_with_optimizer_state(
     trained, selected = train_model(
         str(tmp_path), str(dst), "resnet18", _loaders(1), epochs=2,
         learning_rate=2e-4, optimizer_type="adam", num_classes=2,
-        schedule=None, resume_checkpoint=str(resume),
+        schedule=None, resume_checkpoint=catalogue_key or str(resume),
         intermedeate_save=False)
 
     assert {epoch for epoch, _ in calls} == {2}
+    assert resolved == ([(catalogue_key, ("classifier",))]
+                        if catalogue_key is not None else [])
     assert selected == str(resume)
+    assert (tmp_path / "resume.card.json").is_file()
+    assert not (tmp_path / "published-training-checkpoint.card.json").exists()
     last = dst / "resnet18_last_channels_rgb.pth"
     _, payload = load_model_artifact(
         last, model=nn.Sequential(nn.Linear(4, 2)))
