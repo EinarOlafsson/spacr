@@ -1,6 +1,7 @@
 """The actual Make Masks mode detects, saves and binds native centre values."""
 import hashlib
 import json
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -10,6 +11,81 @@ from spacr import tabular
 from spacr.qt import cpu_modes, detect_chain
 from spacr.qt.screens import make_masks as mm
 from tests.test_center_pixel_puncta import field
+
+
+@pytest.mark.parametrize("failure", ["bundle", "channels", "nonfinite", "changed"])
+def test_native_puncta_refuses_invalid_or_changing_sources_without_caching(qapp, tmp_path, monkeypatch, failure):
+    path = tmp_path / 'source.tif'
+    image = np.ones((12, 16), dtype=np.float32)
+    if failure == 'channels':
+        image = np.ones((12, 16, 3), dtype=np.float32)
+    elif failure == 'nonfinite':
+        image[2, 3] = np.nan
+    tifffile.imwrite(path, image)
+    display = np.full((12, 16), 25, dtype=np.uint16)
+    screen = SimpleNamespace(_image_files=[path.name], _current_index=0,
+                             _folder=str(tmp_path), _canvas=SimpleNamespace(image=display))
+    message = {'bundle': 'original single-channel', 'channels': 'two-dimensional',
+               'nonfinite': 'non-finite', 'changed': 'changed while being read'}[failure]
+    if failure == 'bundle':
+        monkeypatch.setattr(mm.engine, 'is_seg_bundle', lambda _: True)
+    elif failure == 'changed':
+        read = mm.engine.read_image
+
+        def changing_read(filename):
+            result = read(filename)
+            with path.open('ab') as output:
+                output.write(b'changed source revision')
+            return result
+
+        monkeypatch.setattr(mm.engine, 'read_image', changing_read)
+    with pytest.raises(ValueError, match=message):
+        mm.MakeMasksScreen._puncta_native_image(screen)
+    assert not hasattr(screen, '_puncta_native_cache')
+    np.testing.assert_array_equal(display, np.full((12, 16), 25, dtype=np.uint16))
+
+
+def test_accepting_stale_secondary_preview_preserves_mask_and_reports_changed_parent(qapp):
+    mask = np.zeros((12, 16), dtype=np.uint16)
+    statuses = []
+    screen = SimpleNamespace(_canvas=SimpleNamespace(mask=mask),
+                             _require_primary_source=lambda: SimpleNamespace(identity=('new',)),
+                             _status_label=SimpleNamespace(setText=statuses.append))
+    result = SimpleNamespace(request=SimpleNamespace(shape=mask.shape, primary_token=('old',)),
+                             mode=cpu_modes.SECONDARY)
+    assert mm.MakeMasksScreen._commit_magnifier_result(screen, result) == []
+    assert statuses and 'primary mask changed' in statuses[0].lower()
+    assert not np.any(mask)
+
+
+def test_native_singleton_channel_is_read_only_and_cached_by_revision(qapp, tmp_path):
+    image = np.arange(192, dtype=np.float32).reshape(12, 16, 1)
+    path = tmp_path / 'source.tif'
+    tifffile.imwrite(path, image, photometric='minisblack')
+    screen = SimpleNamespace(_image_files=[path.name], _current_index=0,
+                             _folder=str(tmp_path), _canvas=SimpleNamespace(image=image[..., 0]))
+    native = mm.MakeMasksScreen._puncta_native_image(screen)
+    np.testing.assert_array_equal(native, image[..., 0])
+    assert native.shape == (12, 16) and not native.flags.writeable
+    assert mm.MakeMasksScreen._puncta_native_image(screen) is native
+    assert screen._puncta_native_cache[2] == hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def test_secondary_fuse_refusal_preserves_ids_even_with_current_primary(qapp):
+    mask = np.zeros((12, 16), dtype=np.uint16)
+    mask[3:7, 4:8] = 52
+    before = mask.copy()
+    statuses = []
+    screen = SimpleNamespace(_canvas=SimpleNamespace(mask=mask),
+                             _require_primary_source=lambda: SimpleNamespace(identity=('current',)),
+                             _require_secondary_merge=lambda source: None,
+                             _mag_overlap=SimpleNamespace(currentData=lambda: 'merge'),
+                             _status_label=SimpleNamespace(setText=statuses.append))
+    result = SimpleNamespace(request=SimpleNamespace(shape=mask.shape, primary_token=('current',)),
+                             mode=cpu_modes.SECONDARY)
+    assert mm.MakeMasksScreen._commit_magnifier_result(screen, result) == []
+    assert statuses and 'Fuse is unavailable' in statuses[0]
+    np.testing.assert_array_equal(mask, before)
 
 
 def test_region_requires_parents_and_bypasses_display_enhancement():

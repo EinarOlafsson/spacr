@@ -37,21 +37,35 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QSettings, QRectF, Qt                # noqa: E402
-from PySide6.QtGui import (QColor, QImage, QPainter,
-                           QPainterPath)                         # noqa: E402
+from PySide6.QtCore import QRectF, QSettings, Qt  # noqa: E402
+from PySide6.QtGui import (
+    QColor,
+    QImage,
+    QPainter,
+    QPainterPath,  # noqa: E402
+)
 
-from spacr.qt.widgets import ambient as amb                     # noqa: E402
-from spacr.qt.widgets.ambient import (AMBIENT_THEMES,           # noqa: E402
-                                      BLUR_RANGE, BUFFER_MAX_EDGE,
-                                      DEFAULT_BLUR, DEFAULT_DENSITY,
-                                      DEFAULT_DRIFT_DIRECTION,
-                                      DEFAULT_RESOLUTION, DEFAULT_SIZE,
-                                      DEFAULT_SPEED, DENSITY_RANGE,
-                                      DRIFT_DIRECTIONS, RESOLUTION_RANGE,
-                                      SIZE_RANGE, SPEED_RANGE, AmbientWidget,
-                                      make_engine as _make_engine, palette_colors,
-                                      palettes_for)
+from spacr.qt.widgets import ambient as amb  # noqa: E402
+from spacr.qt.widgets.ambient import (  # noqa: E402
+    AMBIENT_THEMES,
+    BLUR_RANGE,
+    BUFFER_MAX_EDGE,
+    DEFAULT_BLUR,
+    DEFAULT_DENSITY,
+    DEFAULT_DRIFT_DIRECTION,
+    DEFAULT_RESOLUTION,
+    DEFAULT_SIZE,
+    DEFAULT_SPEED,
+    DENSITY_RANGE,
+    DRIFT_DIRECTIONS,
+    RESOLUTION_RANGE,
+    SIZE_RANGE,
+    SPEED_RANGE,
+    AmbientWidget,
+    palette_colors,
+    palettes_for,
+)
+from spacr.qt.widgets.ambient import make_engine as _make_engine
 
 DARK = "#101418"
 LIGHT = "#f6f7f9"
@@ -854,6 +868,11 @@ def test_density_moves_the_starfield_too():
     assert len(sparse.geometry(W, H)) < len(normal.geometry(W, H)) \
         < len(dense.geometry(W, H))
     assert lit_pixels(render(sparse)) < lit_pixels(render(dense))
+    before = dense.geometry(W, H)
+    assert dense.work == dense.density == 3.0
+    dense.set_resolution(0.5)
+    assert dense.work == 3.0
+    assert dense.geometry(W, H) == before
 
 
 @pytest.mark.parametrize("theme,noun,count,shipped", ELEMENT_COUNTS)
@@ -1608,6 +1627,7 @@ def _show_tab_holding(dialog, widget):
     open the folded category it sits in (Animation is a category of
     Appearance since 2026-09-30)."""
     from PySide6.QtWidgets import QTabWidget
+
     from spacr.qt.preferences_navigation import _unfold_around
     tabs = dialog.findChild(QTabWidget, "PreferencesTabs")
     assert tabs is not None, "Preferences is not tabbed"

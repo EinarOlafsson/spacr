@@ -148,11 +148,46 @@ def test_the_tile_cache_can_hold_the_working_set():
     The file already carries that lesson in a comment; the breathing
     multiplies the working set by the number of length steps.
     """
-    from spacr.qt.widgets.ambient import (AURORA_HUE_STEPS,
-                                          AURORA_LENGTH_STEPS,
-                                          AURORA_TILE_CACHE)
+    from spacr.qt.widgets.ambient import AURORA_HUE_STEPS, AURORA_LENGTH_STEPS, AURORA_TILE_CACHE
 
     busiest = 9 * AURORA_HUE_STEPS * AURORA_LENGTH_STEPS
     assert AURORA_TILE_CACHE >= busiest, (
         f"cache holds {AURORA_TILE_CACHE}, the densest aurora needs "
         f"{busiest}")
+
+
+@pytest.mark.parametrize("width,height", [(1, 32), (64, 1), (64, 32)])
+def test_texture_cache_retains_owned_pixels_at_small_canvas_edges(engine, width, height):
+    curtain = engine.curtains[0]
+    tile = engine._tile(curtain, 0.8, width, height)
+    saved = bytes(tile.constBits())
+    assert tile.width() == width and tile.height() == height
+    assert engine._tile(curtain, 0.8, width, height) is tile
+    engine.set_time(15)
+    engine._tile(curtain, 0.4, width, height)
+    assert bytes(tile.constBits()) == saved
+
+
+def test_surge_reuses_profile_without_mutating_published_texture(engine):
+    curtain = engine.curtains[0]
+    image = engine._surge(curtain, 0.8)
+    saved = bytes(image.constBits())
+    mask = engine._mask()
+    assert engine._mask() is mask
+    assert engine._surge(curtain, 0.8) is image
+    engine.set_time(15)
+    assert engine._surge(curtain, 0.4) is not image
+    assert bytes(image.constBits()) == saved
+    assert mask.pixelColor(0, 0).alpha() < mask.pixelColor(0, mask.height() - 1).alpha()
+
+
+def test_folded_sheet_closes_along_its_top_and_handles_one_column(engine):
+    from PySide6.QtCore import QPointF
+
+    sheet = engine._sheet([(0, 20, 1, 1), (10, 30, 1, 1)], 0)
+    assert sheet.contains(QPointF(5, 10))
+    assert not sheet.contains(QPointF(5, 35))
+    assert sheet.boundingRect().width() == 10
+    single = engine._sheet([(4, 20, 1, 1)], 0)
+    assert single.boundingRect().width() == 0
+    assert not single.contains(QPointF(4, 10))

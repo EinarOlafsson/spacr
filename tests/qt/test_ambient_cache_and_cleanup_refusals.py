@@ -118,3 +118,36 @@ def test_dead_application_reference_cleanup_discards_unconsumed_clicks(qtbot):
     widget._sync_interaction_filter()
     assert widget._interaction_app is None and not widget._pending_art_impulses
     assert not widget.is_running()
+
+
+def test_stopping_legacy_animation_discards_pending_input_while_worker_is_busy(qtbot):
+    import threading
+
+    widget = ambient.AmbientWidget(theme="blobs", seed=7, gravity_radius=0)
+    qtbot.addWidget(widget)
+    widget.stop()
+    owned = _pixels(widget.engine)
+    locked, release = threading.Event(), threading.Event()
+
+    def shade_in_progress():
+        with widget._engine_lock:
+            locked.set()
+            release.wait(5)
+
+    worker = threading.Thread(target=shade_in_progress)
+    worker.start()
+    try:
+        assert locked.wait(2)
+        widget._legacy_input._offer(0.5, None, ())
+        widget._pending_dt = 0.5
+        widget.stop()
+        assert not release.is_set()
+        assert widget.engine.time == 0
+        assert widget._pending_dt == 0
+        assert widget._legacy_input._snapshot[1] == 0
+        assert widget._last_frame is None and not widget.is_running()
+    finally:
+        release.set()
+        worker.join(2)
+    assert not worker.is_alive()
+    assert _pixels(widget.engine) == owned

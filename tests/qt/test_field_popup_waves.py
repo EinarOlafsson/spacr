@@ -6,8 +6,9 @@ from PySide6.QtWidgets import QDialog, QDoubleSpinBox, QWidget
 
 from spacr.qt import preferences as prefs
 from spacr.qt.widgets import ambient
-from tests.qt.test_requested_appearance_defaults import empty_store
-from tests.qt.test_preferences_apply import private_preferences, _dialog, _apply, _answer
+from tests.qt.test_preferences_apply import _answer, _apply, _dialog
+from tests.qt.test_preferences_apply import private_preferences as private_preferences
+from tests.qt.test_requested_appearance_defaults import empty_store as empty_store
 
 
 def engine(frequency=0):
@@ -129,6 +130,8 @@ def test_origin_resolves_the_visible_popup_in_this_window(qtbot, monkeypatch):
     assert point is not None
     assert point[0] == pytest.approx(0.5, abs=0.01)
     assert point[1] == pytest.approx(0.5, abs=0.01)
+    popup.move(owner.mapToGlobal(owner.rect().bottomRight()) + popup.rect().bottomRight())
+    assert widget._popup_wave_origin_for_tick() is None
     popup.hide()
     assert widget._popup_wave_origin_for_tick() is None
     other = QDialog()
@@ -137,6 +140,73 @@ def test_origin_resolves_the_visible_popup_in_this_window(qtbot, monkeypatch):
     monkeypatch.setattr(ambient.QApplication, 'activeModalWidget', lambda: other)
     assert widget._popup_wave_origin_for_tick() is None
     widget.set_animating(False)
+
+
+def test_widget_wave_controls_keep_other_controls_and_skip_equal_mutations(qtbot, monkeypatch):
+    widget = ambient.AmbientWidget(theme='data_art_impulse_lens', blink_percent=2,
+                                  popup_wave_frequency=20, density=0.5, gravity_radius=0)
+    qtbot.addWidget(widget)
+    widget.stop()
+    calls = []
+    original = widget._mutate_engine
+
+    def mutate(change):
+        calls.append(True)
+        original(change)
+
+    monkeypatch.setattr(widget, '_mutate_engine', mutate)
+    widget.set_popup_wave_frequency(20)
+    assert not calls and widget.popup_wave_frequency() == 20
+    widget.set_popup_wave_frequency(120)
+    assert calls == [True] and widget.popup_wave_frequency() == 60
+    assert widget.engine.popup_wave_frequency == 60
+    widget.set_popup_wave_frequency(math.nan)
+    assert len(calls) == 2 and widget.popup_wave_frequency() == 0
+    assert widget.engine.popup_wave_frequency == 0
+    assert widget.blink_percent() == 2 and widget.density() == 0.5
+    assert widget.gravity_radius() == 0
+
+
+def test_popup_publication_race_never_applies_future_origin_to_old_tick(qapp):
+    class InterleavedQueue(ambient._QueuedArtInput):
+        armed = False
+
+        def __getattribute__(self, name):
+            value = super().__getattribute__(name)
+            if name == '_snapshot' and self.armed:
+                self.armed = False
+                self._offer(1, None, (), popup_origin=(0.7, 0.3), popup_id=2)
+            return value
+
+    made = engine(5)
+    queue = InterleavedQueue()
+    queue._offer(1, None, (), popup_origin=(0.2, 0.8), popup_id=1)
+    queue.armed = True
+    queue._consume(made)
+    assert made._popup_wave_origin is None and made._popup_waves == []
+    assert made.time == 1
+    queue._consume(made)
+    assert made.time == 2 and made._popup_wave_origin == (0.7, 0.3)
+    assert made._popup_waves == [(1, (0.7, 0.3))]
+
+
+def test_rewinding_and_expiring_popup_waves_clear_material_without_changing_owned_pixels(qapp):
+    made = engine(5)
+    made.set_time(10)
+    made._set_popup_wave_origin((0.4, 0.6))
+    made.advance(0.5)
+    published = made.shade(320, 240)
+    saved = bytes(published.constBits())
+    made.set_time(0)
+    reference = engine(5)
+    assert bytes(made.shade(320, 240).constBits()) == bytes(reference.shade(320, 240).constBits())
+    material = next(value for key, value in made._material_cache.items() if key[0] == 'impulse_lens')
+    assert material[3] == {}
+    made._set_popup_wave_origin(None)
+    made.set_time(20)
+    reference.set_time(20)
+    assert bytes(made.shade(320, 240).constBits()) == bytes(reference.shade(320, 240).constBits())
+    assert bytes(published.constBits()) == saved
 
 
 def test_frequency_apply_revert_keeps_preferences_open(private_preferences, qtbot):

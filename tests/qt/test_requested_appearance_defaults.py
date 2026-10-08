@@ -1,11 +1,10 @@
 """Requested defaults, relative blue rims and configurable dot flicker."""
 
-import pytest
 import numpy as np
-
-from PySide6.QtCore import QSettings, QRectF, QEvent
-from PySide6.QtWidgets import QComboBox, QSlider, QPushButton, QWidget
-from PySide6.QtGui import QImage, QColor
+import pytest
+from PySide6.QtCore import QEvent, QRectF, QSettings
+from PySide6.QtGui import QColor, QImage
+from PySide6.QtWidgets import QComboBox, QPushButton, QSlider, QWidget
 
 from spacr.qt import preferences as prefs
 from spacr.qt.widgets import ambient
@@ -66,6 +65,28 @@ def test_relative_rim_fraction_is_identical_across_sizes(empty_store, qapp):
     prefs._set_rim_length_fraction(0.12)
     card.reread_the_preferences()
     assert card.accent_span(QRectF(0, 0, 3840, 2160)) == 0.12
+
+
+@pytest.mark.parametrize("raw", ["broken", "nan", "inf", "-inf"])
+def test_invalid_saved_rim_length_uses_safe_default(empty_store, qapp, raw):
+    prefs._settings().setValue(prefs._KEY_RIM_LENGTH_FRACTION, raw)
+    assert prefs._rim_length_fraction() == 0.17
+    card = SetupCard()
+    assert card.accent_span(QRectF(0, 0, 640, 480)) == 0.17
+
+
+@pytest.mark.parametrize("raw", [float("nan"), float("inf"), -float("inf")])
+def test_nonfinite_appearance_controls_persist_safe_values(empty_store, raw):
+    prefs._set_rim_length_fraction(raw)
+    prefs._set_field_popup_wave_frequency(raw)
+    assert prefs._rim_length_fraction() == 0.17
+    assert prefs._field_popup_wave_frequency() == 0
+
+
+def test_safe_mode_refuses_idle_prewarm_even_when_requested(empty_store, monkeypatch):
+    monkeypatch.setenv("SPACR_PREWARM", "1")
+    monkeypatch.setattr(prefs, "_SAFE_MODE", True)
+    assert prefs._screen_prewarm_allowed() == (False, "safe mode")
 
 
 @pytest.mark.parametrize("palette", ["spacr", "ocean", "random"])
