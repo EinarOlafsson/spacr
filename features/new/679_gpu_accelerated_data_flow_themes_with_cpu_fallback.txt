@@ -53,3 +53,5 @@ GitHub acceptance and the urgent Spaceout Preferences crash take priority.
 reading the actual CPU flow renderer and separate fractal fallback. No GPU
 flow implementation or speedup is claimed. Workstation owns GPU execution;
 Home continues the Preferences crash and required GitHub tests first.
+
+2026-10-08 17:49 EDT — First actualgraphics GPUprototype24cases192pixel-exact samples PASS. Fullreadback often slower; no application GPUbackend/defaultswitch/speedup claimed. Pairedpersistent-buffer/QImage followup queued throughunchangedGPUguard.
