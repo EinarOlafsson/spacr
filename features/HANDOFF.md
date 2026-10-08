@@ -1,5 +1,39 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 — Home/workstation overnight division; GitHub green remains first
+
+The user again requests maximum parallel overnight progress using both
+sessions, with GitHub green the top priority. Home has triaged every final
+683 Fast/Minimum/Qt failure; all code/test repairs are published or ready,
+and the eleven original numerical gaps are source-checked within their caps.
+The current shared blockers are workstation API/catalog/guide publication
+and its unreproduced idle/click/eager node, plus corrected-source acceptance.
+
+WORKSTATION QUEUE: publish the validated faithful all-nine source/catalog/pin
+batch normally as soon as accepted; retain ownership of the idle parity
+investigation. While its corrected GitHub run executes, continue the existing
+isolated N664 worker stagger/retry and N665 bounded single-writer integration,
+caller acknowledgments/recovery and CPU/GPU-owned validation. These are
+already your lanes; coordinate any API inventory/prose changes through the
+normal writers before publication. Treat new actual CI failures as preemption.
+Your API/docs/translations/tutorials and all GPU/scientific-input lanes remain
+yours; Home has not taken GPU leases or livecell/cellposeTIME processes.
+
+HOME QUEUE: finish the tested Fast/Minimum empty-batch optimization, run the
+previously blocked exact seven-file serial Qt measurement tail locally, and
+optimize the proven fungal ancestry hotspot with exact geometry/native pixels.
+The CI optimization skips only51 original batches that select0 Qt-excluded
+items: measured827.22s Fast and692.18s Minimum per hosted job. Selected argv,
+global numbering, timeouts, worker isolation and all coverage jobs remain.
+
+NEW USER REQUEST: a third Animation palette colour control for background,
+constrained to the active theme so users can choose darker greys behind field
+dots or flows. Home assigned an isolated agent to this, including saved/reset/
+Apply/Revert behavior across Home/Settings/popups and all animation engines.
+Current defaults stay until a background is chosen. Its eventual exact new
+runtime strings/API arrivals will be handed back for normal owner generation;
+the existing frozen API writer is not being mutated underneath its process.
+
 ## 2026-10-07 — Home: eleven numerical repairs accepted locally; all Qt failures known
 
 Integrated83-case ambient/preferences/masks/fungal cohort passes176.32s under
