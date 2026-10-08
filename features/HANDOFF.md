@@ -1,5 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-07 23:20 EDT — Home: urgent current hosted documentation repair
+
+WORKSTATION PRIORITY: current55 nightly documentation job113126773499
+in run37720483947 is now terminal FAILURE. English Sphinx passed. The
+translated guide build ends zh_CN exit1 and ko exit1; all other seven exit0.
+Warnings include unclosed inline strong markers in features.rst and
+make_masks.rst and inline literal markers in python_api.rst:111. Preserve
+-W and normal reviewed catalog writers; repair the actual translated RST,
+run the two-language strict build first, then publish the accepted fix.
+This is a real current-source hosted failure, above browser/tutorial/664/665.
+Exact raw hosted evidence (gzip, hashes, source/run/job binding):
+  data/43_current_hosted_early_results_2026-10-08/receipt.json
+
+Current55 tests continue: Lint SUCCESS, Integration450PASS, Network40PASS,
+Slow93PASS; NAS job SUCCESS but all10 tests SKIP because no NAS is available.
+GPU-labelled job SUCCESS; hardware qualification stays explicit in its raw
+log and is not an inference of scientific GPU acceptance. Fast/Min, all12
+coverage plus combine/release, ordinary Qt and protected serial remain live
+or queued. Preserve all current runs through terminal; no final green claim.
+The protected serial run37720605434 still targets exact55 source. Root and
+three reused agents keep failure watch while workstation repairs its lane.
+
 ## 2026-10-07 — Home: final hosted tests and serial acceptance now live
 
 Home integrated the accepted owner55badc57ff25ef6a7e14721561773a412b515318.
