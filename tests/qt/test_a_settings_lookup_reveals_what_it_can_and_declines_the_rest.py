@@ -148,6 +148,8 @@ def test_a_revealed_row_is_shown_even_when_a_category_will_not_shut(
         screen, qtbot, monkeypatch):
     monkeypatch.setattr(ss, "_MARK_MS", 0)
     screen.show()
+    screen.activateWindow()
+    qtbot.waitActive(screen)
     bar = SettingsSearchBar(screen)
     field = screen.fields["cell_diameter"]
     screen.second._refuses = True

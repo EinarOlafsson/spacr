@@ -176,6 +176,9 @@ class TestTheDockWidth:
         from PySide6.QtTest import QTest
 
         target = screen._console._input
+        window.activateWindow()
+        _pump()
+        assert window.isActiveWindow()
         target.setFocus()
         QTest.keyClick(target, Qt.Key_0, Qt.ControlModifier)
         _pump()
