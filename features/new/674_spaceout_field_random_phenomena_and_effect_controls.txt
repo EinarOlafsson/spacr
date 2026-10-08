@@ -1,0 +1,27 @@
+================================================================================
+DEFAULT SPACEOUT FIELD WITH ELEGANT RANDOM PHENOMENA
+================================================================================
+
+Status:    in progress
+Requested: 2026-10-08
+Owner:     Home/root and reused CPU theme/preferences lanes; workstation API/docs/translations/tutorials
+
+WHAT THE STATE IS
+
+The user wants a Spaceout-only version of spaCR field as the default Spaceout theme. It should remain crisp and interactive while developing elegant, unpredictable visual phenomena.
+
+WHAT TO DO
+
+Add a separate Spaceout field variant and make it the default for Spaceout. Keep ordinary spaCR field intact and retain explicit selection of other Spaceout themes.
+
+Allow several simultaneously active points to push and pull the field into mountains and valleys. Let these disturbances either release gradually to a calm layer or release with damped elastic oscillation before settling. Add randomly placed whirlwinds. Support both synchronized increases/decreases in dot density and asynchronous density waves across the screen. Add travelling waves of dot colour and spirals of colour.
+
+Do not run every effect at once. Use bounded, randomized timing, varied durations, calm intervals and smooth transitions; avoid a visibly repeating scripted sequence. Mouse gravity, clicking and the existing held-field spring must continue to work during all effects. Detail, size, density, speed and background/palette controls still apply, and CPU/memory use must stay bounded with no GPU requirement.
+
+In Spaceout-mode Preferences, add a spaCR field dropdown or collapsible section with independent persisted boolean settings for attractors, gradual relaxation, elastic release, whirlwinds, synchronized density pulses, asynchronous density waves, colour waves and colour spirals. These controls belong to Spaceout and must not alter ordinary field animation. Save, Cancel and live application must follow existing Preferences behavior.
+
+HOW TO KNOW IT WORKED
+
+Focused capped CPU/Qt checks cover fresh Spaceout defaults and ordinary-mode exclusion, all eight saved toggles, Save/Cancel, live effect changes, each effect's visible geometry or colour/density behavior, calm recovery, damped elastic release, bounded overlapping events and memory, deterministic seeded reproduction without frame-rate-dependent scheduling, mouse interaction during effects, resize/detail/density controls and hidden animation stopping. Existing field, popup, gravity and grab regressions must pass. Record software checks separately from human aesthetic or native-display acceptance.
+
+2026-10-08 — Registered the explicit implementation request. Reused theme and preferences agents are implementing isolated lanes; source inventory and translation regeneration follow the final combined source freeze. GitHub tests remain the primary priority, and no test ceiling or correctness assertion is waived.
