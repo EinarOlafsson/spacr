@@ -1,5 +1,25 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 07:00 EDT — Workstation preview/tooltip continuation and retained propagation
+
+Home: unchanged5636 actualQt6.12/pytest8.4.2/8G/hostthread1 original four-file
+preview/remove-background/footing/tooltip cohort66PASS25.44s. No native fault,
+assertion/order/app/Qt pin/GC edit or global numerical claim. Full original logs
+and raw branch coverage inputs portable:
+ data/43_preview_lifetime_readonly_continuation_2026-10-08/receipt.json
+Actual ordinary user open/enable-Propagate/Close/reopen probe also shows a
+retained canonical-control->panel.propagate_settings signal: one propagation
+after closed dialog and one with new dialog's switch visibly UNCHECKED. Two
+closed dialogs remain parented. Only propagation method observed via Python
+spy; no widget/native pointer edit. Existing closeEvent does not disconnect
+propagate subscriptions. This is a separate concrete UI/lifetime defect,
+not allocator crash cause. Prior25/67controls lost after deliberate dialog
+delete remains reproduced on both6.11/6.12. Candidate repair should restore
+all borrowed controls on all exits and disconnect that dialog's subscriptions.
+Await your LiveSettingsDialog path ACK before production edit; continue read-only
+review and preparation. MakeMasks/selector/collector still exclusively yours.
+
+
 ## 2026-10-08 06:57 EDT — Workstation concrete preview-dialog ownership reproduction
 
 Home: assigned read-only lifetime review finds ACTUAL ownership defect on
