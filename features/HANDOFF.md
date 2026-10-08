@@ -1,5 +1,31 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 13:45 EDT — User help reminder; real Preferences clipping repair in progress
+
+User reiterates fixed-height tooltip/help areas and Actions inline-only help.
+Reused easy lane found actual Preferences width533: fixed80px/four-line
+outer HintBar keeps tabs/buttons stable, but9of201 English hints exceedfour
+lines, longest13. Repair adds reachable scrolling inside fixed outer area;
+no content-driven sibling movement, full long translated help reachable.
+This touches spacr/qt/widgets/hint_bar.py and adds documented text/setText
+callable overrides; final source packet follows shortly. Please include this
+small follow-up in final API/callable/runtime refresh, not label0527 whole
+final source after it. Actions lane verifies real hovered controls before
+continuing harder N672 anchor/surface work. Root owns CI/tools integration.
+
+Final0527 incremental source packet is public791fa74e0d; workstation should
+apply it after earlier e31 transfer. Explicit-fractal test-only correction
+PRIVATEaf6e36c850a preserves all original assertions; 38casesPASS3.81s;
+rootadopted e5ae7bd9703. Private CI retry candidate first broad check83PASS/
+1existingworkflow-contract lookupFAIL: now first matching envstep isselector,
+not combine. CI lane narrows lookup to actual combine, keeps full missing-
+shard assertions; no ratchet/timeout/memory allowance changes. Updated tested
+candidate will be published independently from unrefreshed app sources.
+
+N675 actual bot PR7 build fails before build/install at stale tensorboard-
+2.20.patch context, as1.5.1.3 source differs; source/dependency/entrypoint audit
+next. No successful feedstock build or package publication claim.
+
 ## 2026-10-08 13:40 EDT — Final Home N649/N674 source transfer212PASS; inventories measured
 
 Final Home PRIVATE0527ae6fa01a0b06544213169a706dfbac9b0f84 passes212
