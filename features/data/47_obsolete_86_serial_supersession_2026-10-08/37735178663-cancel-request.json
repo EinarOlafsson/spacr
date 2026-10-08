@@ -1,0 +1,7 @@
+{
+  "run_id": 37735178663,
+  "source": "86d98624993ebcc356c70277028a0d3256d3ddcd",
+  "observed_status": "pending",
+  "requested_at": "2026-10-08T06:41:41.706655+00:00",
+  "reason": "Superseded by complete-repair protected full required69 and serial47; old86 lacks saved-session parity fix."
+}
