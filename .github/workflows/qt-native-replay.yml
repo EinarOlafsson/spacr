@@ -1,6 +1,8 @@
 name: Qt native Coverage0 batch 3 diagnostic replay
 
-on: workflow_dispatch
+on:
+  workflow_call:
+  workflow_dispatch:
 
 permissions:
   contents: read

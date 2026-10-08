@@ -1,6 +1,8 @@
 """The opt-in native replay stays source-bound and cannot replace required CI."""
 
 import ast
+import hashlib
+import json
 import re
 from pathlib import Path
 
@@ -10,6 +12,8 @@ REPO = Path(__file__).resolve().parents[1]
 REPLAY_SOURCE = '7a51b6c921ea0d9b51ca3f5e6d28a68904ce2cab'
 DIAGNOSTIC_SOURCE = '59a6daebab5014c3ee4094791de8ed257cd9af8d'
 ORIGINAL_BATCH_SHA256 = 'd5f347bdb25b692cf207f18526b333d01e58a952a923842881367ad77ff65826'
+ORIGINAL_SERIAL_JOB_SHA256 = '11555f7cf61de802a12797b7a5f7a4aad8facf55668125b5d4c46b8352d0fa8a'
+ORIGINAL_SERIAL_STEPS_SHA256 = '0f6be5d7be8b0a10bd956db94255bf35d6b7587d7e75156170eb0e062f0572d3'
 
 
 def _workflow():
@@ -19,9 +23,68 @@ def _workflow():
                      Loader=yaml.BaseLoader)
 
 
+def _serial_workflow():
+    """Read the registered serial workflow using the same YAML key policy."""
+    yaml = pytest.importorskip('yaml')
+    return yaml.load((REPO / '.github/workflows/qt-serial-acceptance.yml').read_text(),
+                     Loader=yaml.BaseLoader)
+
+
+def _stable_sha256(value):
+    """Hash a parsed job or step list without depending on YAML formatting."""
+    payload = json.dumps(value, sort_keys=True, separators=(',', ':')).encode()
+    return hashlib.sha256(payload).hexdigest()
+
+
+def _evaluate_condition(expression, *, event, replay):
+    """Evaluate the narrow Boolean routing vocabulary used by these jobs."""
+    body = expression.replace('github.event_name', repr(event))
+    body = body.replace('inputs.native_batch_replay', repr(replay))
+    body = body.replace('&&', ' and ').replace('||', ' or ')
+    body = re.sub(r'(?<![!=])!(?!=)', ' not ', body)
+    assert re.fullmatch(r"[\w\s'\"!=()\-]+", body)
+    return eval(body, {'__builtins__': {}}, {})  # noqa: S307
+
+
+def test_registered_serial_route_preserves_original_job_and_isolates_replay():
+    """A diagnostic dispatch cannot start or queue behind the serial lane."""
+    workflow = _serial_workflow()
+    trigger = workflow['on']
+    assert set(trigger) == {'workflow_dispatch', 'push'}
+    option = trigger['workflow_dispatch']['inputs']['native_batch_replay']
+    assert option['type'] == 'boolean'
+    assert option['required'] == option['default'] == 'false'
+    assert trigger['push']['branches'] == ['nightly']
+
+    serial = workflow['jobs']['serial-qt']
+    original = {key: value for key, value in serial.items() if key != 'if'}
+    assert _stable_sha256(original) == ORIGINAL_SERIAL_JOB_SHA256
+    assert _stable_sha256(serial['steps']) == ORIGINAL_SERIAL_STEPS_SHA256
+    diagnostic = workflow['jobs']['native-batch-replay']
+    assert diagnostic['uses'] == './.github/workflows/qt-native-replay.yml'
+    assert diagnostic['permissions'] == {'contents': 'read'}
+
+    concurrency = workflow['concurrency']
+    assert concurrency['cancel-in-progress'] == 'false'
+    prior_group = 'n47-serial-${{ github.ref }}'
+    assert concurrency['group'].startswith(prior_group)
+    suffix = concurrency['group'][len(prior_group):]
+    match = re.fullmatch(r'\$\{\{ (.+) \}\}', suffix)
+    assert match is not None
+    for event, replay, serial_expected, diagnostic_expected in (
+            ('push', False, True, False),
+            ('workflow_dispatch', False, True, False),
+            ('workflow_dispatch', True, False, True)):
+        assert _evaluate_condition(serial['if'], event=event, replay=replay) is serial_expected
+        assert _evaluate_condition(diagnostic['if'], event=event,
+                                   replay=replay) is diagnostic_expected
+        group_suffix = _evaluate_condition(match.group(1), event=event, replay=replay)
+        assert group_suffix == ('-native-batch-replay' if replay else '')
+
+
 def test_native_replay_is_opt_in_source_bound_and_one_original_batch():
     workflow = _workflow()
-    assert workflow['on'] == 'workflow_dispatch'
+    assert set(workflow['on']) == {'workflow_call', 'workflow_dispatch'}
     assert set(workflow['jobs']) == {'replay'}
     job = workflow['jobs']['replay']
     assert job['runs-on'] == 'ubuntu-24.04'

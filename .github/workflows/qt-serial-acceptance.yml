@@ -2,6 +2,12 @@ name: N47 serial Qt acceptance
 
 on:
   workflow_dispatch:
+    inputs:
+      native_batch_replay:
+        description: Replay the pinned Coverage0 batch 3 for native diagnostics only
+        required: false
+        type: boolean
+        default: false
   push:
     branches: [nightly]
     paths: [.github/workflows/qt-serial-acceptance.yml]
@@ -10,11 +16,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: n47-serial-${{ github.ref }}
+  group: n47-serial-${{ github.ref }}${{ github.event_name == 'workflow_dispatch' && inputs.native_batch_replay && '-native-batch-replay' || '' }}
   cancel-in-progress: false
 
 jobs:
   serial-qt:
+    if: github.event_name != 'workflow_dispatch' || !inputs.native_batch_replay
     name: Uninterrupted serial tests/qt (10.8 GiB guard)
     runs-on: ubuntu-24.04
     timeout-minutes: 360
@@ -151,3 +158,9 @@ jobs:
             ${{ runner.temp }}/spacr-qt-serial/source-provenance.json
           if-no-files-found: warn
           retention-days: 7
+
+  native-batch-replay:
+    if: github.event_name == 'workflow_dispatch' && inputs.native_batch_replay
+    uses: ./.github/workflows/qt-native-replay.yml
+    permissions:
+      contents: read
