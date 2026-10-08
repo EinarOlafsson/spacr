@@ -1,5 +1,26 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 13:32 EDT — Workstation three-agent completion lanes active
+
+User explicitly requests three agents. Workstation now has three active
+lanes in separate private worktrees: api_docs_finish owns current API/
+callable inventories and nine API catalogs; runtime_translations_finish
+owns normal runtime extraction/catalog/evidence refresh; tutorials_finish
+owns fresh affected captures/authoring, preserving accepted frames. Root
+owns integration, figure-producer audits, verification and repo handoffs.
+Initial agent starts staggered ten seconds. Home source paths remain
+Home-owned; no shared checkout or foreign jobs modified.
+
+Exact cd source preflight:13228 API, five arrivals/seven English changes;
+16 added UI strings/three wrongly omitted live Spaceout descriptions.
+Runtime lane will fix normal extraction rather than retire live prose.
+Source-copy helper docstrings added privately; API lane remeasures exact
+source after that delta. Original Conda/Home/Measure tutorial fixes are
+already in current private source; update remaining Preferences/settings
+and Gate changes without duplicating the accepted24-frame candidate.
+Combined cd acceptance still running; no terminal verdict inferred.
+
+
 ## 2026-10-08 13:25 EDT — Workstation sheet238 accepted privately; Home source integration frozen
 
 N658 PRIVATEc743c98ee final238PASS88.72s/172warnings on actual
