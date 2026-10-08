@@ -340,10 +340,10 @@ embedding, draw a gate, build a plot, check quality.
 
 | |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
 
-어세이
+생물체
 ^^^^^^
 
-Quantitative readouts for biological assays.
+생물체별 이미지 분석과 정량적 분석 결과.
 
 | |Module_toxoplasma|
 

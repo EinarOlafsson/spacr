@@ -111,6 +111,38 @@ WORKFLOW_SECTION_LABELS = {
 }
 
 
+WORKFLOW_ORGANISM_NOTE = "Organism-specific image analysis and quantitative assay readouts."
+WORKFLOW_ORGANISM_NOTES = {'sv': 'Organismspecifik bildanalys och kvantitativa resultat från biologiska '
+       'analyser.',
+ 'de': 'Organismusspezifische Bildanalyse und quantitative Assay-Ergebnisse.',
+ 'es': 'Análisis de imágenes específico del organismo y resultados cuantitativos de '
+       'ensayos.',
+ 'zh_CN': '针对特定生物体的图像分析和定量实验测定结果。',
+ 'pt': 'Análise de imagens específica do organismo e resultados quantitativos de '
+       'ensaios.',
+ 'hi': 'जीव-विशिष्ट छवि विश्लेषण और परिमाणात्मक परीक्षण परिणाम।',
+ 'ko': '생물체별 이미지 분석과 정량적 분석 결과.',
+ 'is': 'Myndgreining fyrir tilteknar lífverur og megindlegar niðurstöður líffræðilegra '
+       'prófana.',
+ 'fr': 'Analyse d’images spécifique à l’organisme et résultats quantitatifs des '
+       'essais.'}
+
+HARDWARE_LEGEND_SOURCE = "🟢 supported (stable) \u2003 🟣 implemented (beta) \u2003 🔴 CPU support only"
+HARDWARE_LEGEND_TARGETS = {'sv': 'Stödda (stabila)  och genomförda (beta) - CPU stöd endast',
+ 'de': 'Nur unterstützte (stabile) Unterstützung implementierte (beta) Unterstützung '
+       'CPU',
+ 'es': 'soportado (estable)  implementado (beta) CPU soporte solamente',
+ 'zh_CN': '支持(稳定) 实施(beta) 🔴 CPU 仅支持',
+ 'pt': 'suportado (estável)  implementado (beta) ? CPU apenas suporte',
+ 'hi': 'समर्थित (स्थिर)  लागू (बेटा) 🔴 CPU समर्थन केवल',
+ 'ko': '지원 (안정)  구현 (베타) 🔴 CPU 지원만',
+ 'is': 'stuðlað (stabil)  framkvæmd (beta) 🔴 CPU stuðning aðeins',
+ 'fr': 'Soutien (stable) Soutien (bêta) CPU seulement'}
+
+for _language, _label in {'sv': 'Organism', 'de': 'Organismus', 'es': 'Organismo', 'zh_CN': '生物体', 'pt': 'Organismo', 'hi': 'जीव', 'ko': '생물체', 'is': 'Lífvera', 'fr': 'Organisme'}.items():
+    WORKFLOW_SECTION_LABELS[_language]["Organism"] = _label
+
+
 def localize_workflow_markup(text: str, language: str) -> str:
     """Localize generated workflow headings/actions, retaining module names."""
     template = WORKFLOW_MODULE_ALT_TEMPLATES[language]
@@ -160,7 +192,21 @@ def localize_workflow_markup(text: str, language: str) -> str:
             ),
             localized,
         )
+    localized = re.sub(
+        rf"(?m)^{re.escape(WORKFLOW_ORGANISM_NOTE)}$",
+        lambda _match: WORKFLOW_ORGANISM_NOTES[language],
+        localized,
+    )
     return localized
+
+
+def localize_hardware_markup(text: str, language: str) -> str:
+    """Retain the accepted native hardware legend during normal regeneration."""
+    return re.sub(
+        rf"(?m)^{re.escape(HARDWARE_LEGEND_SOURCE)}$",
+        lambda _match: HARDWARE_LEGEND_TARGETS[language],
+        str(text),
+    )
 
 
 def _underline_width(value: str) -> int:

@@ -1,0 +1,27 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "Return panel controls even when a never-shown dialog is closed.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.close#0",
+      "source": "Return panel controls even when a never-shown dialog is closed.",
+      "source_sha256": "49bee6042b10aaaa3673d1c5a5098fafdd639687d8625b06f458bcbd3402dcc5",
+      "translation": "Skila stýringum spjaldsins til baka jafnvel þegar glugga sem aldrei hefur verið sýndur er lokað."
+    },
+    {
+      "context": "Qt skips :meth:`done` for a hidden dialog's successful close, though the dialog can still be destroyed afterward. A visible dialog reaches ``done`` through its normal close event; its release guard keeps this path idempotent.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.close#1",
+      "source": "Qt skips :meth:`done` for a hidden dialog's successful close, though the dialog can still be destroyed afterward. A visible dialog reaches ``done`` through its normal close event; its release guard keeps this path idempotent.",
+      "source_sha256": "003d17abd6d14cc084f31af9b46e276509e9a8ba4dd317ee3ed6d984ab9cb5e1",
+      "translation": "Qt kallar ekki á :meth:`done` þegar földum glugga er lokað með árangri, þótt enn sé hægt að eyða glugganum eftir það. Sýnilegur gluggi nær ``done`` í gegnum venjulega lokunaratvikið; varnarprófunin við skil stýringanna tryggir að endurtekin keyrsla þessarar leiðar hafi sömu áhrif."
+    },
+    {
+      "context": "whether Qt accepted the close request.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.close#2",
+      "source": "whether Qt accepted the close request.",
+      "source_sha256": "f31397551b0631e1dc8a9e74536511b120e495915dfceaccc6e8a8f5578ddbc7",
+      "translation": "hvort Qt samþykkti lokunarbeiðnina."
+    }
+  ],
+  "schema": 1
+}

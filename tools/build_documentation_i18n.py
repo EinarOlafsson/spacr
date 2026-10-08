@@ -70,6 +70,7 @@ from build_i18n_catalogs import (
 )
 from readme_i18n import (
     WORKFLOW_MODULE_ALT_TEMPLATES,
+    localize_hardware_markup,
     localize_internal_references,
     localize_workflow_markup,
 )
@@ -3841,7 +3842,9 @@ def _is_rst_substitution_row(line: str) -> bool:
 
 def _localize_workflow_alt_text(text: str, language: str) -> str:
     """Localize generated workflow headings and linked-tile actions."""
-    return localize_workflow_markup(text, language)
+    return localize_hardware_markup(
+        localize_workflow_markup(text, language), language,
+    )
 
 REVIEWED_README_LANGUAGE_OVERRIDES = {
     "es": {

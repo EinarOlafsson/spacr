@@ -340,10 +340,10 @@ embedding, draw a gate, build a plot, check quality.
 
 | |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
 
-Ensayos
-^^^^^^^
+Organismo
+^^^^^^^^^
 
-Quantitative readouts for biological assays.
+Análisis de imágenes específico del organismo y resultados cuantitativos de ensayos.
 
 | |Module_toxoplasma|
 

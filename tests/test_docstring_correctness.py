@@ -1915,8 +1915,32 @@ ViaAlias = TupleAlias("ViaAlias", [("value", int)])
     )
 
 
+def _validated_prior_live_settings_close_callables(callables):
+    """Validate the hidden-dialog close contract before reproducing old pins."""
+    import json
+    fixture = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text())
+    assert fixture["schema"] == 1
+    row = fixture["public_callable"]
+    symbol = "spacr.qt.widgets.live_preview.LiveSettingsDialog.close"
+    assert row["symbol"] == symbol
+    assert fixture["API_arrivals"] == {symbol: row["docstring"]}
+    expected = _PublicCallable(**dict(row,
+        parameters=frozenset(row["parameters"]),
+        required_parameters=frozenset(row["required_parameters"]),
+        accepted_documented_parameters=frozenset(row["accepted_documented_parameters"])))
+    actual = [item for item in callables if item.symbol == symbol]
+    assert actual == [expected]
+    assert expected.category == "method" and expected.exposure == "autoapi"
+    assert not expected.parameters and not expected.required_parameters
+    assert not expected.accepts_arbitrary_keywords
+    return [item for item in callables if item.symbol != symbol]
+
+
 def _validated_prior_home_ui_callables(callables, *, replay_dialog_signature=False):
     """Validate independent field feedback and paint arrivals before old pins."""
+    callables = _validated_prior_live_settings_close_callables(callables)
     expected = {
         "spacr.qt.widgets.hint_bar.HintBar.setText": (
             "method", {"text"}, {"text"}),
@@ -3783,7 +3807,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert len(home_ui_arrivals) == 9
     assert {key: docs[key] for key in home_ui_arrivals} == home_ui_arrivals
     assert not home_ui_arrivals.keys() & worker_additions.keys()
-    assert len(docs.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
+    hidden_close = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text())["API_arrivals"]
+    assert set(hidden_close) == {"spacr.qt.widgets.live_preview.LiveSettingsDialog.close"}
+    assert {key: docs[key] for key in hidden_close} == hidden_close
+    assert not hidden_close.keys() & (home_ui_arrivals.keys() | worker_additions.keys())
+    assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()) == 13182
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public

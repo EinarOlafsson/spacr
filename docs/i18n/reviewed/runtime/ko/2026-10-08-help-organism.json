@@ -1,5 +1,15 @@
 {
   "language": "ko",
+  "moved_record_destination": "spacr.qt.i18n._ROWS / CATALOGS: Organism remains live with the exact same nine targets; external source ownership only is removed.",
+  "moved_records": [
+    {
+      "key": "Organism",
+      "source": "Organism",
+      "source_sha256": "0046135a92aeca6aefc5042f03294aa8eeac89e6daf26ab3497047cd50212c2e",
+      "table": "ui",
+      "translation": "생물체"
+    }
+  ],
   "records": [
     {
       "key": "Drag this edge to make the help area taller or shorter.",
@@ -7,13 +17,6 @@
       "source_sha256": "8b267b7007e23a62037dc48b0da67996ddea78a05394274a6adcd86e8896485f",
       "table": "ui",
       "translation": "이 가장자리를 드래그하여 도움말 영역의 높이를 늘리거나 줄이세요."
-    },
-    {
-      "key": "Organism",
-      "source": "Organism",
-      "source_sha256": "0046135a92aeca6aefc5042f03294aa8eeac89e6daf26ab3497047cd50212c2e",
-      "table": "ui",
-      "translation": "생물체"
     },
     {
       "key": "Organism-specific image analysis and quantitative assay readouts.",

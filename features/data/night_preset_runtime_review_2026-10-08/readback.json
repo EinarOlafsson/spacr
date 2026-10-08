@@ -1,0 +1,9 @@
+{
+  "scope": "Independent portable readback after all jobs terminal. Source commit remains de941; proof-only added files do not change app/generated/evidence/helper/fixture bytes.",
+  "payloads": 78,
+  "frozen_source_bindings": 658,
+  "artifact_bindings": 84,
+  "all_compressed_raw_hashes_and_lengths": "PASS",
+  "all_source_artifact_current_file_bindings": "PASS",
+  "full_required_and_compact_assertion_scope": "79PASS12APIexcluded478.85s"
+}

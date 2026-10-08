@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "source_revision": "44b75e7e88f94a922a9233548ac840ee24629887",
+  "API_arrivals": {
+    "spacr.qt.widgets.live_preview.LiveSettingsDialog.close": "Return panel controls even when a never-shown dialog is closed.\n\nQt skips :meth:`done` for a hidden dialog's successful close, though\nthe dialog can still be destroyed afterward. A visible dialog reaches\n``done`` through its normal close event; its release guard keeps this\npath idempotent.\n\n:returns: whether Qt accepted the close request."
+  },
+  "public_callable": {
+    "symbol": "spacr.qt.widgets.live_preview.LiveSettingsDialog.close",
+    "category": "method",
+    "parameters": [],
+    "required_parameters": [],
+    "docstring": "Return panel controls even when a never-shown dialog is closed.\n\nQt skips :meth:`done` for a hidden dialog's successful close, though\nthe dialog can still be destroyed afterward. A visible dialog reaches\n``done`` through its normal close event; its release guard keeps this\npath idempotent.\n\n:returns: whether Qt accepted the close request.",
+    "accepted_documented_parameters": [],
+    "variant_count": 1,
+    "docless_variant_count": 0,
+    "constructor_prose_variant_count": 0,
+    "exposure": "autoapi",
+    "accepts_arbitrary_keywords": false
+  }
+}

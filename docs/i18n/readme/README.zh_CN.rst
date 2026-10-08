@@ -340,10 +340,10 @@ embedding, draw a gate, build a plot, check quality.
 
 | |Module_make_masks|\ |Module_align|\ |Module_umap|\ |Module_gate_editor|\ |Module_graph_builder|
 
-实验分析
-^^^^^^^^
+生物体
+^^^^^^
 
-Quantitative readouts for biological assays.
+针对特定生物体的图像分析和定量实验测定结果。
 
 | |Module_toxoplasma|
 

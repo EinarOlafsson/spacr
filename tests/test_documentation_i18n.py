@@ -3299,7 +3299,12 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert len(home_ui_arrivals) == 9
     assert {key: docs[key] for key in home_ui_arrivals} == home_ui_arrivals
     assert not home_ui_arrivals.keys() & worker_arrivals.keys()
-    assert len(docs.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
+    hidden_close = json.loads((ROOT / "tests/data/release_contracts"
+        / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text())["API_arrivals"]
+    assert set(hidden_close) == {"spacr.qt.widgets.live_preview.LiveSettingsDialog.close"}
+    assert {key: docs[key] for key in hidden_close} == hidden_close
+    assert not hidden_close.keys() & (worker_arrivals.keys() | home_ui_arrivals.keys())
+    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Regenerate every API "
         "catalog, review the diff, and update "
         "DOCUMENTATION_API_SYMBOL_COUNT_RATCHET in the same change."
@@ -4363,6 +4368,66 @@ def test_visual_regeneration_preserves_localized_workflow_markup(monkeypatch):
             module="Align & Stitch"
         ) in unescape(localized)
         assert 'src="icons/align.png" align="middle"' in localized
+
+
+@pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
+def test_visual_regeneration_keeps_reviewed_organism_heading_and_note(language):
+    """The actual workflow producer uses the accepted live navigation text."""
+    import importlib.util
+    fixture = json.loads((ROOT / "tests/data/release_contracts"
+        / "readme_workflow_languages_2026_10_08.json").read_text())
+    spec = importlib.util.spec_from_file_location(
+        "readme_organism_visuals", ROOT / "packaging/generate_readme_visuals.py")
+    assert spec is not None and spec.loader is not None
+    generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generator)
+    text = generator._workflow_markup_for_readme(
+        ROOT / "docs/i18n/readme" / f"README.{language}.rst", "icons")
+    expected = fixture["languages"][language]
+    assert re.search(rf"(?m)^{re.escape(expected['heading'])}\n\^{{2,}}$", text)
+    assert expected["note"] in text
+    assert fixture["source_note"] not in text
+    assert text.count("|Module_toxoplasma|") == 2
+
+
+@pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
+def test_visual_regeneration_preserves_complete_native_hardware_block(language, monkeypatch, tmp_path):
+    """Regeneration retains every accepted native byte outside changed workflow prose."""
+    import importlib.util
+    fixture = json.loads((ROOT / "tests/data/release_contracts"
+        / "readme_workflow_languages_2026_10_08.json").read_text())
+    expected = fixture["languages"][language]
+    native_block = expected["accepted_hardware_block"]
+    canonical = native_block.replace(expected["hardware_legend"], fixture["source_hardware_legend"])
+    spec = importlib.util.spec_from_file_location(
+        "readme_hardware_visuals", ROOT / "packaging/generate_readme_visuals.py")
+    assert spec is not None and spec.loader is not None
+    generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generator)
+    monkeypatch.setattr(generator, "_hardware_table", lambda: canonical.strip("\n") + "\n")
+    path = tmp_path / f"README.{language}.rst"
+    before = "Before\n.. spacr-hardware-begin\n" + native_block + ".. spacr-hardware-end\nAfter\n"
+    path.write_text(before)
+    assert generator._write_the_hardware_table(path)
+    assert path.read_text() == before
+    assert generator._write_the_hardware_table(path)
+    assert path.read_text() == before
+
+
+def test_readme_builder_reuses_the_same_source_bound_visual_targets():
+    """The translation builder and visual producer share accepted target authority."""
+    import build_documentation_i18n as builder
+    fixture = json.loads((ROOT / "tests/data/release_contracts"
+        / "readme_workflow_languages_2026_10_08.json").read_text())
+    sample = fixture["source_heading"] + "\n^^^^^^^^\n\n" + fixture["source_note"] + "\n\n" + fixture["source_hardware_legend"] + "\n"
+    for language, expected in fixture["languages"].items():
+        translated = builder._localize_workflow_alt_text(sample, language)
+        assert expected["heading"] in translated
+        assert expected["note"] in translated
+        assert expected["hardware_legend"] in translated
+        assert builder.REVIEWED_README_BLOCKS[fixture["source_heading"]][language] == expected["heading"]
+        assert builder.REVIEWED_README_BLOCKS[fixture["source_note"]][language] == expected["note"]
+        assert builder.REVIEWED_README_BLOCKS[re.sub(r"\s+", " ", fixture["source_hardware_legend"])][language] == expected["hardware_legend"]
 
 
 def test_localized_readme_inline_markup_is_balanced_and_tight():

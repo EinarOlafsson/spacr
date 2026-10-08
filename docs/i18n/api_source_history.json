@@ -1,28 +1,4 @@
 {
   "schema": 1,
-  "sources": {
-    "559c95219a4b2f2f5b6ad47b019a28367adc75c9628b8aef6b465585ac240878": {
-      "source_blocks_sha256": [
-        "25819d6fcdfdfa844af2c46348883cfd4c06f3982cbbc4d510241043a3a1e979",
-        "36b09d49c947029672e0a9eab6998acb480c554d433dc988e40f08f0c0051fab",
-        "367dd2d04896394da9d9fa3168872b05c4f801459f2dedf410885354ec4483f3",
-        "13f868630e69e99b2dcc80c7f0c1bc6d268facf936ab196189a05e5028248261"
-      ],
-      "source_sha256": "559c95219a4b2f2f5b6ad47b019a28367adc75c9628b8aef6b465585ac240878",
-      "text": "Window-level, non-modal hover help for Qt controls.\n\n:class:`HintBar` is a centered, word-wrapped label that displays registered\nhelp text while the pointer is over a widget. On pointer leave, it restores\nthe default message only when that widget's text is still displayed, avoiding\nan intermediate reset while the pointer moves between adjacent controls.\n\n:meth:`HintBar.explain` registers either explicit text or the widget's current\ntooltip. Successful registration clears the tooltip, supplies the same text\nas the accessible description only when no accessible description is already\npresent, and installs the bar as an event filter. Source strings are\ntranslated when displayed. Widgets without available text are not registered.\n\nUse :func:`hint_bar_of` to locate the :class:`HintBar` in a widget's top-level\nwindow, or :func:`explain_through_the_bar` to register a widget only when such\na bar exists. The bar retains the registration mapping and event filter for\nits lifetime."
-    },
-    "9541c6d8a9a72b022e13c7bee8ac3512b4e326ab56dcb6c654dc08d1e697d088": {
-      "source_blocks_sha256": [
-        "204dafcb45bb93726981f4d4097c74d1097685d5457398c57667eb846fbd97ca",
-        "839345dd4a77136ba01a4b38c0d0ad9327833f652504343994672adeeae0ba0b",
-        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
-        "dfe9256f28062f54608c2e4f676b99a46d840d7275b4b06d557451a14aeec19a",
-        "af43e186fb536f01c6f45296d17289d7baa00d2c59ae548372722ab02f8ee3e6",
-        "2e828e7021ba2fb5623649c36fc73ed13e3177c3481c845396b1f52ace0f9c0f",
-        "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
-      ],
-      "source_sha256": "9541c6d8a9a72b022e13c7bee8ac3512b4e326ab56dcb6c654dc08d1e697d088",
-      "text": "The line itself, plus the register of what each widget should say.\n\n:param default: what the line says when nothing is hovered. It is\n    restored whenever a widget with no registered hint takes the pointer,\n    so it should read as a prompt rather than as a blank.\n:param parent: parent widget.\nBuild the help strip that replaces per-control tooltips.\n\nBounded to four lines: the strip used to take whatever height the\nlongest help needed, so moving the pointer between two controls whose\nhelp differs in length made the whole dialog jump. The full text is\nstill in the register and accessible description when it runs long.\n\n:param default: what to show with nothing hovered.\n:param parent: parent widget, or ``None``."
-    }
-  }
+  "sources": {}
 }

@@ -1,0 +1,27 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "context": "Return panel controls even when a never-shown dialog is closed.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.close#0",
+      "source": "Return panel controls even when a never-shown dialog is closed.",
+      "source_sha256": "49bee6042b10aaaa3673d1c5a5098fafdd639687d8625b06f458bcbd3402dcc5",
+      "translation": "कभी न दिखाए गए संवाद को बंद करने पर भी पैनल के नियंत्रण वापस लौटाएँ।"
+    },
+    {
+      "context": "Qt skips :meth:`done` for a hidden dialog's successful close, though the dialog can still be destroyed afterward. A visible dialog reaches ``done`` through its normal close event; its release guard keeps this path idempotent.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.close#1",
+      "source": "Qt skips :meth:`done` for a hidden dialog's successful close, though the dialog can still be destroyed afterward. A visible dialog reaches ``done`` through its normal close event; its release guard keeps this path idempotent.",
+      "source_sha256": "003d17abd6d14cc084f31af9b46e276509e9a8ba4dd317ee3ed6d984ab9cb5e1",
+      "translation": "छिपे हुए संवाद के सफलतापूर्वक बंद होने पर Qt :meth:`done` को नहीं बुलाता, हालाँकि उसके बाद भी संवाद नष्ट किया जा सकता है। दिखाई दे रहा संवाद अपनी सामान्य बंद होने की घटना से ``done`` तक पहुँचता है; नियंत्रण वापस लौटाने की सुरक्षा जाँच इस पथ को बार-बार चलाने पर भी वही परिणाम देती है।"
+    },
+    {
+      "context": "whether Qt accepted the close request.",
+      "label": "spacr.qt.widgets.live_preview.LiveSettingsDialog.close#2",
+      "source": "whether Qt accepted the close request.",
+      "source_sha256": "f31397551b0631e1dc8a9e74536511b120e495915dfceaccc6e8a8f5578ddbc7",
+      "translation": "क्या Qt ने बंद करने का अनुरोध स्वीकार किया।"
+    }
+  ],
+  "schema": 1
+}

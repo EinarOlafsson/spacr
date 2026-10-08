@@ -28,7 +28,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from tools.readme_i18n import localize_workflow_markup  # noqa: E402
+from tools.readme_i18n import (  # noqa: E402
+    localize_hardware_markup, localize_workflow_markup,
+)
 
 ICON_DIR = ROOT / "spacr" / "resources" / "icons"
 DATABANK_DIR = ICON_DIR / "databanks"
@@ -1062,7 +1064,11 @@ def _write_the_hardware_table(path) -> bool:
     if start < 0 or end < 0:
         return False
     end += len(HARDWARE_END)
-    block = f"{HARDWARE_BEGIN}\n\n{_hardware_table()}\n{HARDWARE_END}"
+    markup = _hardware_table()
+    match = re.fullmatch(r"README\.(?P<language>[^.]+)\.rst", path.name)
+    if match:
+        markup = localize_hardware_markup(markup, match.group("language"))
+    block = f"{HARDWARE_BEGIN}\n\n{markup}\n{HARDWARE_END}"
     updated = text[:start] + block + text[end:]
     if updated != text:
         path.write_text(updated, encoding="utf-8")

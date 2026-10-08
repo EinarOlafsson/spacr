@@ -11,13 +11,6 @@
       "translation": "Gullin móða í brúnsvörtu herbergi, þokusvæði sem hreyfast hægt og hljóðasett í F-dórískum tóntegundarhætti á 120 BPM."
     },
     {
-      "key": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
-      "source": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
-      "source_sha256": "528943df3a5f1e1d91937a6f745e21c9e9652a96fe9096ef3d3c6feb880393bf",
-      "table": "ui",
-      "translation": "Blágræn sjóndeildarhringslína með ljósatjöldum sem falla saman yfir henni og hljóðasett í A-dórískum tóntegundarhætti á 124 BPM."
-    },
-    {
       "key": "Thin high cloud: pale ice blue, barely coloured, a starfield behind it, and the most open sound set of the ten, in B minor at 126 BPM.",
       "source": "Thin high cloud: pale ice blue, barely coloured, a starfield behind it, and the most open sound set of the ten, in B minor at 126 BPM.",
       "source_sha256": "b26ec35a00d4dd7fc05650a7e69760e24575ba0e6482f39049485ea050581729",
@@ -39,18 +32,27 @@
       "translation": "Magenta á svörtu með þokusvæðum sem snúast og kröftugasta takti settanna tíu, í fís-moll á 128 BPM."
     },
     {
-      "key": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
-      "source": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
-      "source_sha256": "f32e9d844d2ff92dcfadf473b5bc56f5f91c40bfd708a2b7204428917a2dd3db",
-      "table": "ui",
-      "translation": "Síðasti litur himinsins: plómufjólublár og daufur rósalitur, ljósatjöld sem falla saman yfir höfði og mjúkt hljóðasett í es-moll á 114 BPM."
-    },
-    {
       "key": "White text and outlines on black with a yellow accent, for low vision and bright rooms.",
       "source": "White text and outlines on black with a yellow accent, for low vision and bright rooms.",
       "source_sha256": "938eb05af4d8d606b38813dca057f662572d04403b6f3a42ae260dc4ebd7c20e",
       "table": "ui",
       "translation": "Hvítur texti og hvítar útlínur á svörtum grunni með gulum áherslum, fyrir fólk með skerta sjón og björt herbergi."
+    }
+  ],
+  "retired_records": [
+    {
+      "key": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
+      "source": "A teal horizon line with curtains of light folding above it, and a sound set in A Dorian at 124 BPM.",
+      "source_sha256": "528943df3a5f1e1d91937a6f745e21c9e9652a96fe9096ef3d3c6feb880393bf",
+      "table": "ui",
+      "translation": "Blágræn sjóndeildarhringslína með ljósatjöldum sem falla saman yfir henni og hljóðasett í A-dórískum tóntegundarhætti á 124 BPM."
+    },
+    {
+      "key": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
+      "source": "The last colour in the sky: plum and dusty rose, curtains of light folding overhead, and a soft sound set in E flat minor at 114 BPM.",
+      "source_sha256": "f32e9d844d2ff92dcfadf473b5bc56f5f91c40bfd708a2b7204428917a2dd3db",
+      "table": "ui",
+      "translation": "Síðasti litur himinsins: plómufjólublár og daufur rósalitur, ljósatjöld sem falla saman yfir höfði og mjúkt hljóðasett í es-moll á 114 BPM."
     }
   ],
   "review_kind": "Codex AI technical translation and review; no native-speaker signoff",

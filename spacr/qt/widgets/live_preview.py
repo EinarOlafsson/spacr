@@ -5759,6 +5759,21 @@ class LiveSettingsDialog(QDialog):
             w.setEnabled(True)
         self._install_api_tooltips()
 
+    def close(self):
+        """Return panel controls even when a never-shown dialog is closed.
+
+        Qt skips :meth:`done` for a hidden dialog's successful close, though
+        the dialog can still be destroyed afterward. A visible dialog reaches
+        ``done`` through its normal close event; its release guard keeps this
+        path idempotent.
+
+        :returns: whether Qt accepted the close request.
+        """
+        closed = super().close()
+        if closed and not self._controls_released:
+            self.done(self.result())
+        return closed
+
     def done(self, result):
         """Return borrowed controls and detach subscriptions on every exit.
 
