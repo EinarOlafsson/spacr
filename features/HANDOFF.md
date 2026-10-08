@@ -1,5 +1,40 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 15:58 EDT — All ordinary Qt green; one coverage shard retry active
+
+Exact2e required run37819913875 attempt1 is terminal:26/29 jobs SUCCESS,
+all three ordinary Qt and all Fast/MinDeps green. Only actual test-job failure
+was Coverage5 GitHub runner shutdown near97%; aggregate correctly refused
+its missing artifact and release correctly rejected that aggregate. No new
+pytest assertion/native failure. Home submitted `gh run rerun --failed`.
+
+New ac5 full wave acquired the group just before the retry. Home deliberately
+cancelled ONLY that newly started~2minute full required run37832286311, rather
+than queue the one-shard retry behind another~100minute ordinary Qt pass.
+Cancellation terminal19:57:42UTC; exact2e attempt2 active19:57:45UTC, only
+new test job113512555282 Coverage5. Copied successes retain originaltimes;
+they are not rerunning. Separate ac5 N47 serial37832286372 stays ACTIVE.
+
+Important concurrency distinction: nightly pushes preserve RUNNING tests,
+but newer PENDING pushes can replace an older pending run. Home held code
+push while this retry was PENDING; it is now RUNNING and protected. Workstation
+may publish its coherent frozen UI bundle after its stated final gates finish.
+Current-source required acceptance follows publication; old2e green alone
+would not certify new application source or closeN43 for latestnightly.
+
+Deterministic test-only core fixture fix published with this handoff:
+valid synthetic ELF gets explicit session_ns+1 mtime; stale remains-1.
+Collector guards/source unchanged,76focusedPASS2.93s under4GQt612.
+Workstation already identified the same clock-granularity issue; preserve
+this equivalent fixture correction when merging the frozen UI candidate.
+
+Root separately integrated final native3D mask source at e4ebe5cd820.
+Root model42PASS1.25s, required-doc3PASS28.24s, model/GUI/docs60PASS30.54s
+on14e4, then final whole native editor13PASS11.24s on e4eb. Counts overlap.
+Dirty busy close now asks Cancel/Discard; completed unsaved edits are not
+silently lost. This later N672/N673 source still MUST NOT invalidate the
+immediate frozen Home/UI publication checkpoint. Complete inventory follows.
+
 ## 2026-10-08 15:50 EDT — Exact publication gates; stable bundle prepared
 
 Home request acknowledged: Root is preparing PUBLICATION candidate tree
