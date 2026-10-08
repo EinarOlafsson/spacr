@@ -1,0 +1,143 @@
+{
+  "scope": "Read-only preparation only; no tests, benchmark, product edits or commit. Integration deferred until first GitHub green.",
+  "before_sha256": "fa95c6677bea19f66b4cfb5e4049ae8858269e5b9cc53e337653fe176301fbf4",
+  "candidate_sha256": "90f3e96a4f4259bead6624c786622970252dbc4aa34ead1799934206c90e82e7",
+  "patch_sha256": "c4f281377b2c78a3b20f238a391ea80c370725e1587e1a12bcfc1e3f07dc78fe",
+  "affected_methods": [
+    "_lineage",
+    "geometry"
+  ],
+  "signatures_and_docstrings_unchanged": true,
+  "changed_ranges": [
+    {
+      "kind": "replace",
+      "old_start": 6037,
+      "old_stop": 6037,
+      "new_start": 6037,
+      "new_stop": 6037
+    },
+    {
+      "kind": "replace",
+      "old_start": 6151,
+      "old_stop": 6151,
+      "new_start": 6151,
+      "new_stop": 6170
+    },
+    {
+      "kind": "replace",
+      "old_start": 6164,
+      "old_stop": 6164,
+      "new_start": 6183,
+      "new_stop": 6184
+    },
+    {
+      "kind": "insert",
+      "old_start": 6169,
+      "old_stop": 6168,
+      "new_start": 6189,
+      "new_stop": 6189
+    },
+    {
+      "kind": "replace",
+      "old_start": 6174,
+      "old_stop": 6175,
+      "new_start": 6195,
+      "new_stop": 6199
+    },
+    {
+      "kind": "insert",
+      "old_start": 6187,
+      "old_stop": 6186,
+      "new_start": 6211,
+      "new_stop": 6212
+    },
+    {
+      "kind": "delete",
+      "old_start": 6189,
+      "old_stop": 6189,
+      "new_start": 6215,
+      "new_stop": 6214
+    },
+    {
+      "kind": "replace",
+      "old_start": 6194,
+      "old_stop": 6208,
+      "new_start": 6219,
+      "new_stop": 6234
+    }
+  ],
+  "direct_statement_lines_required": [
+    6037,
+    6151,
+    6152,
+    6153,
+    6155,
+    6156,
+    6157,
+    6158,
+    6159,
+    6160,
+    6163,
+    6166,
+    6168,
+    6169,
+    6170,
+    6183,
+    6184,
+    6189,
+    6195,
+    6196,
+    6197,
+    6198,
+    6211,
+    6219,
+    6220,
+    6221,
+    6222,
+    6225,
+    6228,
+    6230,
+    6231,
+    6232,
+    6233,
+    6234
+  ],
+  "conditions_to_review_and_cover": [
+    {
+      "line": 6036,
+      "kind": "If",
+      "test": "cached is not None"
+    },
+    {
+      "line": 6152,
+      "kind": "If",
+      "test": "width > 0 and height > 0"
+    },
+    {
+      "line": 6219,
+      "kind": "If",
+      "test": "costs[index] is None"
+    },
+    {
+      "line": 6197,
+      "kind": "IfExp",
+      "test": "cached and cached[0] is lineage"
+    },
+    {
+      "line": 6208,
+      "kind": "If",
+      "test": "alpha >= 0.006"
+    },
+    {
+      "line": 6232,
+      "kind": "If",
+      "test": "progress < 1.0"
+    },
+    {
+      "line": 6211,
+      "kind": "IfExp",
+      "test": "progress == 1.0 and full_costs is not None"
+    }
+  ],
+  "new_helper_or_module": false
+}

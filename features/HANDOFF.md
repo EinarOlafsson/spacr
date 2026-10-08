@@ -77,6 +77,13 @@ or queued. Preserve all current runs through terminal; no final green claim.
 The protected serial run37720605434 still targets exact55 source. Root and
 three reused agents keep failure watch while workstation repairs its lane.
 
+Home secondary read-only preparation (no product changes or benchmarks):
+ data/663_deferred_fungal_mature_cost_readiness_2026-10-08/receipt.json
+contains exact fa95-to-measured90f3 patch and new-source coverage obligations.
+Dry apply check passes; two existing methods only, API/prose unchanged.
+Integration remains deferred until first complete GitHub green. Production
+ambient is stillfa95 and all current acceptance runs are preserved.
+
 ## 2026-10-07 — Home: final hosted tests and serial acceptance now live
 
 Home integrated the accepted owner55badc57ff25ef6a7e14721561773a412b515318.

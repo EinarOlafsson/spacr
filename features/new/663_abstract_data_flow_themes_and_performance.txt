@@ -1397,3 +1397,18 @@ is mixed, no nostallclaim. Hard24FPS still OPEN; no productintegration,
 productionbranch/wholeQt/GPU/aesthetic/hosted-green acceptance. Finalcandidate,
 initialnegatives/failedharnesslogs, rawsource/probes/receipts/portableverifier:
 data/663_deferred_fungal_mature_cost_cpu_2026-10-08/receipt.json.
+
+
+2026-10-07 23:48 EDT — Deferred mature-cost integration readiness prepared
+One reused agent prepares the exact fa95-to-final90f3 patch in scratch while
+continuing current55 Fast/Minimum failure watch. Root reviews the two existing
+method changes, confirms unchanged signatures/docstrings and runs a read-only
+git apply --check against production fa95. No source patch or benchmark is
+executed. Portable readiness patch, hashes, 34 changed/reindented statement
+obligations, cache/refusal/boundary cases and bounded acceptance commands:
+ data/663_deferred_fungal_mature_cost_readiness_2026-10-08/receipt.json.
+Current exact measured geometry/native proof remains in the separate frozen
+39-payload candidate archive. Production stays unchanged while required CI
+runs; integration awaits first complete GitHub green plus direct new-source
+coverage under the existing limits. This prepares a modest optimisation,
+not shipped acceptance, native24FPS, or human visual approval.
