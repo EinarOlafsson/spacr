@@ -1,5 +1,23 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 23:30 EDT — Passive CI logging uses no model tokens
+
+Final-source fullrun37879275309 queued; held original-orderQt37868900922 running.
+One READ-ONLY background watcher PID1626437 records both every5minutes for up to
+12hours and downloads terminal failed logs. It makes no code changes, dispatches,
+cancellations, scientific/GPU calls or external messages. No active subagent.
+ /mnt/wd4tb/scratch/ci-final-handoff-20261009/watch_final_ci.py
+ /mnt/wd4tb/scratch/ci-final-handoff-20261009/current-37879275309.json
+ /mnt/wd4tb/scratch/ci-final-handoff-20261009/current-37868900922.json
+ /mnt/wd4tb/scratch/ci-final-handoff-20261009/watcher.log
+Next session reads these snapshots first, then GH final source/job state. Avoid
+starting a duplicate watcher. If logger exits/errors, verify actual GH status;
+a local file is diagnostic evidence, not automatically hosted acceptance.
+All app/guard code and prior handoff3148ff97be are pushed. This last metadata
+note records the only remaining local background process; no local Qt/PG/test
+or GPU job is left. Completed follow-up scopes are documented below; broader
+current CI/native/external/private publication parents remain open.
+
 ## 2026-10-08 23:27 EDT — Final Home source PUBLIC; exact hosted acceptance queued
 
 PUBLISHEDf8a3a560632aac4095fdac8addb9c5f764e467d9 includes final container-edge
