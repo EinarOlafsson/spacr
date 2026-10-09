@@ -33,6 +33,54 @@ separate Home serialQt and current hosted runs retain their own verdicts.
 No full GitHub green or parent43/615 completion claim. One Root agent.
 Historical audio verification remains the existing handle65256 on frozen8c;
 no replacement upload, new media generation or broad feature work started.
+## 2026-10-08 23:30 EDT — Passive CI logging uses no model tokens
+
+Final-source fullrun37879275309 queued; held original-orderQt37868900922 running.
+One READ-ONLY background watcher PID1626437 records both every5minutes for up to
+12hours and downloads terminal failed logs. It makes no code changes, dispatches,
+cancellations, scientific/GPU calls or external messages. No active subagent.
+ /mnt/wd4tb/scratch/ci-final-handoff-20261009/watch_final_ci.py
+ /mnt/wd4tb/scratch/ci-final-handoff-20261009/current-37879275309.json
+ /mnt/wd4tb/scratch/ci-final-handoff-20261009/current-37868900922.json
+ /mnt/wd4tb/scratch/ci-final-handoff-20261009/watcher.log
+Next session reads these snapshots first, then GH final source/job state. Avoid
+starting a duplicate watcher. If logger exits/errors, verify actual GH status;
+a local file is diagnostic evidence, not automatically hosted acceptance.
+All app/guard code and prior handoff3148ff97be are pushed. This last metadata
+note records the only remaining local background process; no local Qt/PG/test
+or GPU job is left. Completed follow-up scopes are documented below; broader
+current CI/native/external/private publication parents remain open.
+
+## 2026-10-08 23:27 EDT — Final Home source PUBLIC; exact hosted acceptance queued
+
+PUBLISHEDf8a3a560632aac4095fdac8addb9c5f764e467d9 includes final container-edge
+ripples,0–200% intensity, projected3D Spaceout relief/stronger motion and final
+API/README/help source guards. Push verified successful after normal remote
+merge; prior stalled client was terminated, no force/reset/stash. Source test
+hashes in43_final_guard_fixes receipt are explicitly bound to39bfe8e19f;
+root verifies all15 compressed/raw payloads and7 actual Git source bindings.
+Merged Help test wraps same assertion across two lines; workstation207PASS
+owning evidence remains preserved. No broader current hosted-green claim.
+
+NEWmanual required37879275309 and normalpush37879145675 target EXACTf8a3 source.
+Manual queued, normal push pending at dispatch. Old stale841manual37877663418
+cancelled while queued; old already-red4944manual37868897849 cancelled after all
+14 failure logs preserved. KEEP original-orderQt37868900922 on4944: stilllive,
+source-bound historical full serial acceptance, not exact currentf8a acceptance.
+No local test/PG/GPU/background command or active subagent remains after wrap-up.
+
+NEXTSESSION: first check37879275309, numeric badge publication job/endpoint and
+heldQt37868900922. Map any genuinely new terminal errors against current source
+using the archived old failure modes; do not replay all old diagnostics. If
+normalpush runs first, use its exactf8a verdict without duplicate manual restart.
+Then integrate remaining private source/doc/translation/GPU packets coherently
+as owned in earlier notes. Preserve workstation historical upload65256 ownership
+and source; no GPU/protected livecell/cellposeTIME work or broad rescope here.
+User specifically asks minimal tokens and a handoff ready for Codex/Claude.
+Completed follow-ups: container waves101 owning checks; Spaceout47 final checks;
+new guard fixes final4 checks with real collector. Other parents/external-input
+items below stay open; global CI is pending, not green. Worktrees/commits retain
+all actual accepted source. This metadata note changes no application source.
 
 ## 2026-10-08 23:24 EDT — Shared latest source merged; final guard patch remains Home owner
 
