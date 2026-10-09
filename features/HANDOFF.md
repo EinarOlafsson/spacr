@@ -1,8 +1,26 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 23:24 EDT — Shared latest source merged; final guard patch remains Home owner
+
+Workstation796428c8a3 independently fixed the same conditional help-page issue
+and re-generated the same ripple intensity help row. Its actual merged source
+207PASS eight-owner proof is preserved, along with audio-transfer65256 ownership.
+Merge retains both authored handoff/item notes and equivalent two-line Help
+assertion formatting. No generated hand-merge or stronger source change.
+Home39bfe8e19f contains two additional accepted guard repairs: exact reviewed
+API close arrival and exact18 active README-domain source set. All current
+ripple/Spaceout changes are already public841; final guard patch push was slow
+and interrupted after remote advanced, without force/reset/stash. Normal private
+merge/push follows; do not mistakenly treat an interrupted upload as acceptance.
+Home841 manual37877663418 cancelled while queued because these remaining guards
+would fail. Old4944 manual also cancelled after preserving all14 failed logs.
+Keep4944 original-order serial37868900922 (stilllive). Latest full CI dispatch
+on final merged source follows the successful push; record exact ID below.
+No children/new broad work. Source-body copies and original proofs remain frozen.
+
 ## 2026-10-08 23:16 EDT — Final small CI gaps repaired; current-source dispatch next
 
-PUBLIC841816a2d9 includes ripple final-edge/intensityf632 and Spaceout relie faef
+PUBLIC841816a2d9 includes ripple final-edge/intensityf632 and Spaceout relief aef80706ef
 plus preserved workstation updates. Final Spaceout rerun47PASS4.96s. Exact full
 normal API13233 equals current English manifest; six runtime source maps unchanged.
 New ripple control caption lives in compact tr rows for nine locales. No local
@@ -39,6 +57,44 @@ and workstation historical audio transfer65256; no duplication/rescope. Other
 private/API/docs/GPU/native/external parents remain as recorded below; this
 bounded patch does not mean all tasks, current hosted green or native visuals
 are accepted. User requests minimum tokens and current handoff for next session.
+## 2026-10-08 23:11 EDT — Home source and Root help fix jointly accepted
+
+2026-10-08 23:11 EDT — Merged actual Home841816a2d normally after rejected push.
+Both complete handoff sections retained; no force/reset/stash. Home's tested
+final-edge/container waves,0–200% ripple intensity and signed Spaceout
+relief/stronger vortex/colour schedule retained with Root conditional help
+fix. Normal help index regeneration adds exactly one existing compact
+nine-locale Ripple intensity row. Exactmergeddeebb0749 eight complete
+owner files207PASS83.89s/no skips; full13233 API/10065 runtime/65 installer
+normal source maps equal stored English. Receipt
+data/43_spaceout_help_targets_cpu_2026-10-09/receipt.json now retains
+19 verified payloads and16 merged actual Git source bindings.
+Earlier81PASS and original negative stay bound to their own14f source.
+Frozen8c historical audio upload/readback handle65256 remainslive, unaffected
+by this merge; no mutable source or candidate replacement. Current source
+push triggers normalCI. Home4944 serial/full diagnostics remain intact;
+no current full-green/native-user approval or parent completion claim. OneRoot.
+
+
+## 2026-10-08 23:02 EDT — Current Spaceout preference search targets repaired
+
+2026-10-08 23:02 EDT — Small current help-search visibility fixsource14f054696.
+Actual completed4944 Qt1/coverage1 logs expose8 Spaceout-only field rows
+offered in ordinary spaCR, where their preferences page is absent. Added
+PreferencesTabSpaceoutField to existing spaceout_enabled conditions; no
+user text or generated index edited. Enhanced original actual-dialog contract
+checks Fractal,Sound and field targets in both modes. Beforefix1FAIL/1PASS;
+three complete help/index files81PASS76.97s afterfix. Independent full normal
+13233 API/10065 runtime/65 installer maps equal stored English. Full original
+4 terminal job logs, original local negative, final logs and4 actual Git
+source bindings indata/43_spaceout_help_targets_cpu_2026-10-09/receipt.json
+(12 verified payloads). Other completed failures retain known collector
+errors already repaired; no acceptance of remaining ignored atexit/parked
+thread diagnostics, full hosted coverage or GitHub green. Historical56 audio
+upload/readback handle65256 stilllive in frozen8c worktree; do not mutate it
+or duplicate upload. One Root agent; this source uses normal CI-trigger push.
+
+
 
 ## 2026-10-08 23:01 EDT — Bounded Spaceout relief accepted; final push follows remote merge
 
