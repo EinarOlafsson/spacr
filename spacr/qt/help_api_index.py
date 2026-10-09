@@ -14059,6 +14059,7 @@ PREFERENCE_ENTRIES = (
     ('Rim cycle', 'Appearance', 'PreferencesTabTheme', 'Duration of one border-highlight cycle.'),
     ('Rim length', 'Appearance', 'PreferencesTabTheme', 'Fraction of a card border covered by the moving highlight.'),
     ('Rim mode', 'Appearance', 'PreferencesTabTheme', "Glow is the theme's accent with a fading tail. Rainbow walks the hue along the light and turns it over time. Beat keeps the accent and pulses it. Rainbow and Beat repaint every frame; Glow only repaints when the light moves."),
+    ('Ripple intensity', 'Appearance', 'PreferencesTabAnimation', 'Ripples from clicks, opening or closing containers, and window snapping. Independent of mouse gravity.'),
     ('Settings animation density', 'Appearance', 'PreferencesTabAnimation', 'Number of elements in the settings-window animation, independent of the main background.'),
     ('Settings animation detail', 'Appearance', 'PreferencesTabAnimation', 'Rendering detail in the settings-window animation, independent of the main background.'),
     ('Settings animation size', 'Appearance', 'PreferencesTabAnimation', 'Element size in the settings-window animation, independent of the main background.'),
