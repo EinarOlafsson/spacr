@@ -274,7 +274,7 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 ``--filter=blob:none`` 无助于缩小检出文件的大小：其 Git 对象存储仍占用 2032 MB。静默按需获取对象使完整下载总量无法测得。nightly 的版本控制文件检出后占用 2839 MB（2026-10-07 测得），不含 Git 历史。下载大小和耗时随分支而变化。
+nightly 的完整克隆下载了 9.25 GiB。向浅克隆添加 ``--filter=blob:none`` 无助于缩小检出文件的大小：其 Git 对象存储仍占用 2032 MB。静默按需获取对象使完整下载总量无法测得。nightly 的版本控制文件检出后占用 3416 MB（2026-10-08 测得），不含 Git 历史。下载大小和耗时随分支而变化。
 
 
 命令行入口

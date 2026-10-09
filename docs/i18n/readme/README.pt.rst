@@ -274,7 +274,7 @@ Colaboradores precisam do histórico de versões; para executar o spaCR, escolha
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-O clone completo de nightly baixou 9.25 GiB. Adicionar ``--filter=blob:none`` ao clone superficial não reduz o tamanho da cópia de trabalho: seu armazenamento de objetos Git ainda ocupa 2032 MB. As transferências silenciosas sob demanda impedem medir todo o volume baixado. Os arquivos versionados de nightly ocupam 2839 MB na cópia de trabalho (medidos em 2026-10-07), sem o histórico do Git. O tamanho e a duração da transferência variam conforme o ramo.
+O clone completo de nightly baixou 9.25 GiB. Adicionar ``--filter=blob:none`` ao clone superficial não reduz o tamanho da cópia de trabalho: seu armazenamento de objetos Git ainda ocupa 2032 MB. As transferências silenciosas sob demanda impedem medir todo o volume baixado. Os arquivos versionados de nightly ocupam 3416 MB na cópia de trabalho (medidos em 2026-10-08), sem o histórico do Git. O tamanho e a duração da transferência variam conforme o ramo.
 
 
 Comandos de linha de comando

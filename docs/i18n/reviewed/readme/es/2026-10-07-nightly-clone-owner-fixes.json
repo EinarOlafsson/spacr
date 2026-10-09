@@ -19,7 +19,9 @@
       "label": "measured-clone-and-checkout-costs",
       "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not help shrink the checkout: its object store still weighs 2032 MB. Quiet lazy fetches prevent a complete measured download total. The nightly tracked tree is a 2839 MB checkout (measured 2026-10-07), excluding Git history. Download sizes and times vary with the branch.",
       "source_sha256": "2dc2723f4c4ee58e6621032faec477c88d8b666860a43b68442b7e343f069c20",
-      "translation": "El clon completo de nightly descargó 9.25 GiB. Añadir ``--filter=blob:none`` al clon superficial no reduce el tamaño de la copia de trabajo: su almacén de objetos Git aún ocupa 2032 MB. Las descargas silenciosas bajo demanda impiden medir todo el volumen transferido. Los archivos versionados de nightly ocupan 2839 MB en la copia de trabajo (medidos el 2026-10-07), sin el historial de Git. El tamaño y la duración de la descarga varían según la rama."
+      "translation": "El clon completo de nightly descargó 9.25 GiB. Añadir ``--filter=blob:none`` al clon superficial no reduce el tamaño de la copia de trabajo: su almacén de objetos Git aún ocupa 2032 MB. Las descargas silenciosas bajo demanda impiden medir todo el volumen transferido. Los archivos versionados de nightly ocupan 2839 MB en la copia de trabajo (medidos el 2026-10-07), sin el historial de Git. El tamaño y la duración de la descarga varían según la rama.",
+      "retired": true,
+      "retired_reason": "The current tracked checkout was independently remeasured on 2026-10-08; original source and target retained."
     }
   ]
 }

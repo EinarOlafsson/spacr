@@ -274,7 +274,7 @@ Bidragsgivare behöver versionshistoriken; välj ett alternativ nedan om du bara
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till ``--filter=blob:none`` till den grunda klonen hjälper inte till att minska utcheckningens storlek: dess Git-objektlager väger fortfarande 2032 MB. Tysta hämtningar vid behov gör att den totala nedladdningen inte kan mätas fullständigt. De versionshanterade filerna i nightly ger en utcheckning på 2839 MB (uppmätt 2026-10-07), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen.
+Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till ``--filter=blob:none`` till den grunda klonen hjälper inte till att minska utcheckningens storlek: dess Git-objektlager väger fortfarande 2032 MB. Tysta hämtningar vid behov gör att den totala nedladdningen inte kan mätas fullständigt. De versionshanterade filerna i nightly ger en utcheckning på 3416 MB (uppmätt 2026-10-08), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen.
 
 
 Kommandoradskommandon
