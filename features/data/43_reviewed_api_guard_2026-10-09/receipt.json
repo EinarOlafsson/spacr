@@ -61,6 +61,30 @@
       "raw_bytes": 214,
       "raw_sha256": "9b026b9f1d38ac1ac939cf066a2235329d08549fca7367d125150e61f5138641",
       "gzip_sha256": "81ccbe6403e455f2c9907b952a181f15bb7ba6bf1089cce29a0644548eaf1326"
+    },
+    {
+      "path": "payload/remaining-4944-merged-guards-r1-tool.log.gz",
+      "raw_bytes": 2529,
+      "raw_sha256": "614dd6c9a08b1c54214bd539d1935c0023c11dbd16115084e3f16022572db1f2",
+      "gzip_sha256": "9005396dbdfb0395b1ab96357f735a0c8e82ebc1fa187c839ea1eb650b441793"
+    },
+    {
+      "path": "payload/remaining-4944-merged-guards-r1.log.gz",
+      "raw_bytes": 1812,
+      "raw_sha256": "6a94e782721d67bd4550f1d022784c333d072803b01b96123df8ec95f2912319",
+      "gzip_sha256": "c71b1d965ac0b8812d1c449aa11db04994ea51fc6c1bf98beb7f99f65e219eb4"
+    },
+    {
+      "path": "payload/remaining-4944-readme-fixture-fixed-r1-tool.log.gz",
+      "raw_bytes": 751,
+      "raw_sha256": "9a0b9e2d94223a5a9fd3d754600ef72e7cbd987779d203a7e124fa3248ae0526",
+      "gzip_sha256": "ed47f8ef8bb7974f5bcac00fef1421d4090a76600b963e1759d5fe35115dd121"
+    },
+    {
+      "path": "payload/remaining-4944-readme-fixture-fixed-r1.log.gz",
+      "raw_bytes": 230,
+      "raw_sha256": "319e66987f94d3d11e5d358744bd1b822dff9cb539ef1daf1a6e73628fdb52f7",
+      "gzip_sha256": "e1e0326d624e11260e7db9a8d191a87c839b244ab8db41d09b0282c4c706b40e"
     }
   ],
   "original_source": "796428c8a33fb1fae47cb957ae257d6ae373edc8",
@@ -82,5 +106,34 @@
   "current_API_entries": 13233,
   "reviewed_close_contract": "spacr.qt.widgets.live_preview.LiveSettingsDialog.close",
   "Swedish_spelling_source": "https://svenska.se/saol/?pz=4&sok=fibrernas",
-  "scope_note": "Only test guards changed; product text and generated catalogs unchanged. Original full Home run cancelled; no current full hosted acceptance claimed."
+  "scope_note": "Only test guards changed; product text and generated catalogs unchanged. Original full Home run cancelled; no current full hosted acceptance claimed.",
+  "merged_source_commit": "347aed651be9c5e69c01c8a2e43efc7a65ad889a",
+  "merged_source_sha256": {
+    "tests/test_api_i18n_extractor.py": "06d70d029a12cf04914b4bfe97af346cb25f0decb5f16f83773428138bce6834",
+    "tests/test_translation_correctness.py": "e7ef80f649a778c5ae5d77508e4a8b13f78e8447492b98fa0c61a43bbc84504a",
+    "tests/test_documentation_i18n.py": "4f59c373b12735e861a67313bf8df86a130b2fa0959899ff51bed7a655ccc2c1",
+    "tests/data/release_contracts/readme_domain_review_sources_2026_10_09.json": "349c24f2119c51b7a2958c7b07742413ca07f3127b3d800ad5c9cd0e7027926b",
+    "tests/data/release_contracts/615_home_ui_api_arrivals_2026-10-08.json": "256847af6389ea373e6129f30f26a04f4da6e14c8935c4a664243b40ebf23689"
+  },
+  "merged_validation": {
+    "source_commit": "b4a4cf96c83236060afa79351332b09eb7d97cd5",
+    "passed": 24,
+    "failed": 1,
+    "deselected": 183,
+    "seconds": 165.64,
+    "failure": "Home authored fixture pinned only 18 of 56 existing reviewed README sources."
+  },
+  "README_fixture_fixed": {
+    "source_commit": "347aed651be9c5e69c01c8a2e43efc7a65ad889a",
+    "terminal": 0,
+    "reviewed_source_count": 56,
+    "original_18_preserved": true,
+    "scope": "Single original README domain review guard; all-nine visible text checks unchanged."
+  },
+  "translation_fixed": {
+    "passed": 6,
+    "seconds": 0.47,
+    "skipped": 0,
+    "xfailed": 0
+  }
 }

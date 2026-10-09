@@ -1,5 +1,22 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 23:33 EDT — Current Home guards merged and exact README fixture corrected
+
+Root merged Homef8a3a5606 normally. Existing close arrival now appears in Home's
+10-entry authored contract and retains an independent exact one-method close
+fixture. Both extractor13215 ceilings stay unchanged. Whole extractor/all10
+English+localized inventories/full translation checker24PASS165.64s; only
+Home's new README source fixture failed because it listed18 of56 existing
+reviewed blocks. Source347aed651 pins all56 previously reviewed sources and
+preserves the18 original entries. Original whole README review guard passes;
+all-nine target/visible-text assertions unchanged. Full evidence and merged
+Git bindings extend data/43_reviewed_api_guard_2026-10-09/receipt.json.
+No app/catalog/generated wording changed. No full hosted green claim.
+Historical audio upload65256 now terminal0: immutable1b5880b95c72c49fd0085b800323e2254ff89727,
+all5087 hosted files/6125467781bytes stream-hash verified. Normal pages and
+all84 actual hosted playback cases passed; normalrecord terminal0. Root owns
+final source/site size publication, with no new synthesis/capture or agents.
+
 ## 2026-10-08 23:24 EDT — Reviewed API guard and Swedish identity check repaired
 
 Root found the remaining exact completed4944 coverage7 failure on public796:
