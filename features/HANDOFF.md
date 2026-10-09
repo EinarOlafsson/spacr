@@ -1,5 +1,25 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 20:35 EDT — Current README size guard repaired in all nine locales
+
+Workstation remeasures all24683 tracked public6fd files as3,582,359,908bytes
+(3416.4MiB), updates README3416MB/date2026-10-08, and regenerates allnine
+native READMEs through normal producer. Independent full-byte comparison
+proves only that one numeric/date paragraph changes perlocale; native hardware
+and every other byte remainexact. Originalclone download measurements remain
+datedhistorical values. Full light-install guard17PASS89.14s,15 unrelated
+presentationcases explicitly deselected; checkout-size assertion included and
+existing15percent tolerance untouched. No application/API/runtime changes.
+ data/43_current_checkout_size_remeasurement_2026-10-08/receipt.json
+
+Home retains compound Copy-console width fix andCI dispatch/serial ownership.
+Tutorial native pages privately pass all84 routes after archival retirement;
+Root normalrecord and strictbuild/publication remain before sourcepush. Native
+GPU R8 passes84palette/backgroundcases672exactframes plus actualMainWindow
+ApplyRevertKeep/resize/shutdown onQt6.12/xcb; source remainsprivate, performance
+and Automatic verificationR9 queued throughunchangedguard20:33:41EDT.
+
+
 ## 2026-10-08 20:22 EDT — Native tutorial media published; GPU and combined source acceptance continue
 
 Immutable tutorial media5abf35929844697a46ffb3a7802c24f6774dc07f is uploaded
