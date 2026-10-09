@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "label": "tests",
-  "message": "pending",
-  "color": "lightgrey",
-  "passed": 0,
-  "total": 0,
-  "run_id": "",
-  "source_sha": ""
+  "message": "82519/83724",
+  "color": "green",
+  "passed": 82519,
+  "total": 83724,
+  "run_id": "37880234630",
+  "source_sha": "b80b3c8019dd7efd8362d656f41c8bfd548dc06f"
 }
