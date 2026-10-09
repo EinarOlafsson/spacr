@@ -1,0 +1,25 @@
+{
+  "hosted_job_id": 113582650451,
+  "hosted_result": "worker gw1 died on the two-well resume test; 800 passed, 1 skipped",
+  "hosted_source": "f0b81dacefe089c54b1d22a4aebd363a29d53cfb",
+  "limits": "No worker exit signal or native stack in hosted job log; timeout is inferred from 300-second gap and measured pacing.",
+  "local_original_file": "10 passed in 849.99s; separate original-source run",
+  "payloads": [
+    "README.md",
+    "candidate-A1-report.json.gz",
+    "candidate-A2-report.json.gz",
+    "fixture-five-site-report.json.gz",
+    "generate.py",
+    "hosted-fast0.log.gz",
+    "ops-engine.py.gz",
+    "receipt.json",
+    "resource-log.py.gz",
+    "targeted-pass.log.gz",
+    "test-after.py.gz",
+    "test-before.py.gz",
+    "verify.py"
+  ],
+  "targeted_result": "1 passed in 275.32s with original 300s limit and 4 GiB cap",
+  "test_after_sha256": "d2bfeffccb696c4e364a4c68de339eb70c63e16e8bb5d6df2bf2d01b9e86da23",
+  "test_before_sha256": "b7f8dfa99c3c6591037c495cba93f088e8b585ddd554a1f99ec47ca0368959e8"
+}
