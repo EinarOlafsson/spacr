@@ -134,3 +134,12 @@ log. Not yet uploaded/tagged/published acceptance. No fresh voice generation
 or video recording. Proofdata/676_historical_publication_preflight_2026-10-09
 retains7 payloads and8 actual Git source bindings. Root is the sole local agent.
 Current728 fulltests/docs await runners; Home4944 serialQt stilllive.
+
+2026-10-08 23:39 EDT — Existing56 historical English TV-pronunciation tracks
+normalpublication completed: immutable1b5880b95,5087 hosted files fully
+readback-hashed,84 actual hosted playback cases,35 complete owner tests and
+normalrecord pass. Current6 native lessons unchanged. Normalcombinedsite
+fits unchanged950MiB limit after normalmedia staging; first scratchoverage
+retained. Source/API/runtime exactchecks pass. Evidence:
+data/676_historical_media_publication_2026-10-09/receipt.json
+Deployment/currentGitHub and otherlegacy/native scope remainOPEN.

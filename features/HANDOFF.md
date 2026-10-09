@@ -1,5 +1,27 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 23:39 EDT — Historical television-pronunciation tutorial publication ready
+
+Root completed existing56 English corrected tracks without new synthesis or
+capture. Normal upload/readback terminal0; all5087 files/6125467781bytes verified
+at immutable1b5880b95c72c49fd0085b800323e2254ff89727 and verified tag. Normalpages,
+all84 actual hosted playback cases and normalrecord pass. Whole4 owner files
+35PASS40.59s on237d05dd2; current69c89ed87 product/player/source bytes unchanged.
+Fresh normal API/runtime canonical equality and all9 source compatibility pass.
+Normal combined publisher passes unchanged950MiB budget. Prior strict-built
+English/all9 guides reused only after exact tracked documentation-input check:
+just3 tutorial assets changed; normaldocs media staging used. First scratch
+assembly copied all local voices and exceeded budget; retained originalfailure,
+corrected normalstage passes without policy/threshold changes. Proof:
+ data/676_historical_media_publication_2026-10-09/receipt.json
+Six current lessons/59 native moving clips and allother visuals preserved;
+old visual timing remains explicit for10 historical lessons. No new native
+capture or native-speaker review claim. Source goes through normalnightlypush;
+actual current GitHub green/deployedwebsite and broader676/615 remainpending.
+Home: preserve serial37868900922 and read-only watcher; current final source
+also carries full56 README review fixture correction and exactAPI close checks.
+All3 subagents completed; onlyRoot active. No broadwave or newGPU work begun.
+
 ## 2026-10-08 23:33 EDT — Current Home guards merged and exact README fixture corrected
 
 Root merged Homef8a3a5606 normally. Existing close arrival now appears in Home's
