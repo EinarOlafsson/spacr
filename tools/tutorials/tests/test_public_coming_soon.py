@@ -65,7 +65,10 @@ def test_public_player_pins_the_verified_media_revision_and_exposes_coming_soon(
     assert index.count(f'data-video4k-root="{root}"') == 1
     assert 'resolve/main' not in index and '../media_host' not in index
     # The build must not ship a second copy of what the page fetches from the host.
-    assert docs_media_budget.NARRATION_HOST == root
+    assert f'narration:        served from {root}' in docs_media_budget.report(PUBLIC.parent)
+    published, dropped, _voices = docs_media_budget.plan(PUBLIC.parent)
+    local_audio = set((PUBLIC / 'production').rglob('*.m4a'))
+    assert local_audio <= set(dropped) and not local_audio & set(published)
     assert 'data-production-root="production"' in index
     assert '<h3 id="planned-title">Coming soon</h3>' in index
     assert digest(PUBLIC / 'index.html') == receipt['pages']['index_sha256']
