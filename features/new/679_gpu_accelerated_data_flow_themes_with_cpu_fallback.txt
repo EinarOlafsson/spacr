@@ -61,3 +61,5 @@ passes 24 cases/192 exact GPU outputs. GPU medians are slower in every
 case (1.09–5.45 times CPU). No production backend or default GPU switch
 is justified. Point-framebuffer followup queued through unchanged guards;
 portable evidence is data/679_paired_graphics_GPU_prototype_2026-10-08.
+
+2026-10-08 20:22 EDT — Native fullengine R6 192 moving frames exact; portable proof published. R7 negative random-advection blinking crash retained; sourcefix e91593c76/42 complete CPU checks PASS. Native R8 GUI/events acceptance queued through unchanged guard. Renderer source remains private, parent PARTIAL.

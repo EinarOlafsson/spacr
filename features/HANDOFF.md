@@ -1,5 +1,40 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 20:22 EDT — Native tutorial media published; GPU and combined source acceptance continue
+
+Immutable tutorial media5abf35929844697a46ffb3a7802c24f6774dc07f is uploaded
+and full-stream SHA verified:5077files/6,125,100,132bytes. Normalpages, all84
+actual published-media routes and normalrecord PASS. Root private bounded
+source0fbbd1e47 retains3FAIL104PASS owning diagnostic; tutorial agent fixes
+stale02/03 installer directories and unconditional manifest identity, and
+proves the native scene-boundary observation race without relaxing assertions.
+No repositoryPages/nightly deployment completion claim yet.
+ data/676_native_six_lesson_media_publication_2026-10-08/receipt.json
+
+Root independently verifies all154 navigation runtime payloads plus658actual
+Git app sources/25artifact-helper-test bindings. Current frozen8cc normal
+API13265 and runtime10173/UI7395 source/review producers are in final owning,
+strict build and browser acceptance; no wider source publication claim yet.
+ data/navigation_runtime_independent_root_2026-10-08/receipt.json
+
+Native privateGPU R6 fullengine24cases/192exact moving frames and owner-thread
+release proof is byte verified and portable. R7 retains real random-advection
+blinking matrix-index crash, now reproduced in a CPU regression. Root fix
+e91593c76 passes42 complete blinking/flowfallback/Preferences checks52.75s.
+Fresh R8 actualnative palette/events/MainWindow ApplyKeepRevert/resize/shutdown
+turn queued20:20:53EDT through unchanged360idle/600gap guard. GPU source stays
+PRIVATE; no production renderer or original user crash completion claim.
+ data/679_native_application_engine_GPU_2026-10-08/receipt.json
+
+Root separately owns normal dated README tracked-size remeasurement3416MB
+against public6fdced907; nine native source reviews prepared, normal writer
+active. Home owns compound Copy-console geometry repair/CI dispatch. N677
+reopening is preserved; three compact caption owners follow frozen acceptance.
+All three workstation agents stay active; historical56 English TV tracks
+continue separately, originals retained. New Home backend/figure packets are
+queued after the current coherent freeze rather than mutating its readers.
+
+
 
 ## 2026-10-08 19:52 EDT — Current CI failures and portable backend/figure packets
 
