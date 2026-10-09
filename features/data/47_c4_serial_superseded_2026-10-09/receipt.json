@@ -1,0 +1,72 @@
+{
+  "repo": "EinarOlafsson/spacr",
+  "superseded_run": {
+    "run_id": 37849590095,
+    "job_id": 113559445460,
+    "artifact_id": 11588452950,
+    "source_sha": "c4c94a808a1d4ce79db3072d34cc52bf05b5f0b3",
+    "status": "completed",
+    "conclusion": "cancelled",
+    "cancelled_at_utc": "2026-10-09T00:50:51Z",
+    "reason": "Parent directed replacement of superseded, already-failing source to release exact-current serial."
+  },
+  "replacement_run": {
+    "run_id": 37865976724,
+    "job_id": 113615432132,
+    "source_sha": "e6004557024ec29a25d8a378beef05bd91ab9be2",
+    "status_at_receipt": "in_progress",
+    "started_at_utc": "2026-10-09T00:50:52Z",
+    "verdict": "pending"
+  },
+  "files": {
+    "live_prefix": {
+      "sha256": "0dfe05bd5dcdb362d1cf79eeb46368a5def661f344b3b265c1f6e62b9949d104",
+      "bytes": 2112071
+    },
+    "terminal_job": {
+      "sha256": "072e7561d0320d344f286576e9d01e563ffce86a447a41a19766311e1d354d33",
+      "bytes": 2744673
+    },
+    "uploaded_zip": {
+      "sha256": "be53e04c15d877eea2e6cd63a6e27c362f1699c89940fe6f417ed58e9bc795d0",
+      "bytes": 523994
+    },
+    "journal": {
+      "sha256": "fb1df755bcfb953a7682271120c14ed6b05bf1ec11a687282e366f22657a3b68",
+      "bytes": 621723
+    },
+    "edit_undo_before": {
+      "sha256": "3936b52a517dc794d4ae6e06ee41fbb07e55b4025e708730c21aaa3c4b2bd1d3",
+      "bytes": 1457
+    },
+    "edit_undo_after": {
+      "sha256": "b9cf02e516db316073be9734c4b597ec5f0fcfebdd11ec64446e34163dc5cb3a",
+      "bytes": 98
+    }
+  },
+  "journal_test_failures": 61,
+  "progress_limit": "Live API log prefix stayed byte-identical through 42%; terminal API log after cancellation reached 55% but has no test summary. A cancelled run is not an acceptance verdict.",
+  "mapped_repairs_c4_to_e600": [
+    {
+      "nodeid": "tests/qt/test_cells_behind_the_dot_tab.py::test_the_tab_is_present_even_when_it_cannot_be_filled",
+      "repair": "The current assertion checks inline hint and accessible description, matching no-popup UI."
+    },
+    {
+      "nodeid": "tests/qt/test_cov_wf_qt_app.py::test_dragging_the_menu_bar_moves_the_window",
+      "repair": "The move event retains LeftButton in buttons while button is NoButton."
+    },
+    {
+      "nodeid": "tests/qt/test_data_art_renderer.py::test_data_art_registry_has_five_distinct_named_materials",
+      "repair": "The current inventory distinguishes ordinary themes from Spaceout-only fungal and tissue materials."
+    }
+  ],
+  "additional_current_test_repair": {
+    "nodeid": "tests/qt/test_edit_menu_undo_redo.py::test_focused_text_owns_undo_before_a_parent_settings_stack",
+    "cause": "Under Xvfb without a window manager, show() left QApplication.activeWindow() unset, so line.setFocus() could not focus the editor.",
+    "change": "Activate the window before focusing the child; undo and settings-stack assertions stay intact.",
+    "baseline": "1 failed in 8.83s on exact e600, Qt 6.12/Xvfb/4G.",
+    "fixed": "Full owning file: 6 passed in 7.59s, Qt 6.12/Xvfb/4G.",
+    "repair_commit": "9d981e8fbb"
+  },
+  "limits": "All c4 failure entries are historical source diagnostics; neither the cancellation nor the local focus repair certifies the pending e600 serial run."
+}
