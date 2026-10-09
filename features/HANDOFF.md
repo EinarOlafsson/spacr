@@ -1,5 +1,32 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-09 — Automatic full progress table, without model calls
+
+Home added tools/watch_progress_table.py. It reads the latest committed shared
+progress ledger and explicit item Status: COMPLETE 100% / DONE 100% records.
+Never mark a parent complete because a subset of tests passed. Future owners:
+after real full-scope acceptance, update the item status/datestamped evidence
+and push nightly; the watcher then emits the ENTIRE tracked table automatically.
+Current verified output:36 rows,35 unfinished,N681 green tick. Older descriptions
+are explicitly attributed to their dated ledger; percentages/ETAs not invented.
+Every new completion writes a full-table snapshot and appends the full table to
+events.log. Markdown and HTML views refresh; HTML reloads every20 seconds.
+ /mnt/wd4tb/scratch/spacr-live-progress/progress.md
+ /mnt/wd4tb/scratch/spacr-live-progress/progress.html
+ /mnt/wd4tb/scratch/spacr-live-progress/events.log
+Observer polls nightly every5 minutes,256M memory cap,one user service:
+ spacr-progress-table-20261009
+No model/API agent/chat-message call and no automatic commits/cancellations.
+Chat completion updates still require the root response and should contain
+the full table. Stop with: systemctl --user stop spacr-progress-table-20261009
+If absent after reboot, resume exactly once from the private worktree using:
+ systemd-run --user --unit=spacr-progress-table-20261009 --collect -p MemoryMax=256M -p MemorySwapMax=0 /home/olafsson/anaconda3/bin/python tools/watch_progress_table.py --watch --hours 0 --output /mnt/wd4tb/scratch/spacr-live-progress
+CI collector recovered run/job state, but log download returned1 and extracted
+zero failure lines; do not claim exact terminal failure logs are archived.
+Next CI work needs successful actual log download. Latest6fb tests red; docs
+and compatibility green. Scoped378PASS1SKIP and N681 closure keep exact receipts.
+
+
 ## 2026-10-09 09:08 EDT — Crash recovery: six bounded checks accepted; numeric badge complete
 
 Home fresh private worktree: /mnt/wd4tb/spacr-worktrees/codex-low-token-recovery-20261009
