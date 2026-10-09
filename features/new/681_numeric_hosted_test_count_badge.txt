@@ -1,0 +1,22 @@
+NUMERIC HOSTED TEST COUNT BADGE
+
+Status: IMPLEMENTED 2026-10-08; first hosted count publication pending.
+Owner: Home CI tooling; workstation preserves badges in README producers.
+Requested: Show tests passed/total; >90% green,80–90% yellow,70–80% orange,
+           below70% red.
+
+2026-10-08 — Lightweight pytest plugin records selected nodes and actual call,
+setup/teardown outcomes. xdist duplicates are merged within each session;
+failures, skips and unrun tests remain non-passing; repeated profiles require
+all observed outcomes to pass. Counts are unique node IDs, not inflated repeats.
+CI uploads reports even after failed jobs; after the unchanged release gate,
+nightly publishes a Shields JSON endpoint with run/source identity. The old
+workflow status badge is retired, as requested in the follow-up. Zero results display pending in grey.
+The generator adds the badge to English and nine translated READMEs without
+changing prose; generated endpoint is pending until a real completed hosted run.
+Local threshold/dedup/failure/empty/README tests and real two-worker plugin
+acceptance are recorded in HANDOFF. No fabricated hosted counts or green claim.
+
+2026-10-08 21:15 EDT — Old badge retired in all10 READMEs. Normal producer substitution updated; existing reviewed native badge alt text reused by generator. Owning12badge+2README checks14PASS0.99s. First real hosted count publication remains pending.
+
+2026-10-08 21:16 EDT — Final source4944c63dc7 pushed. Requiredfull37868897849 and original-orderQtserial37868900922 dispatched on exactsource; results/first numeric endpoint remain pending. No current hosted-green claim.

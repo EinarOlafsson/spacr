@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "label": "tests",
+  "message": "pending",
+  "color": "lightgrey",
+  "passed": 0,
+  "total": 0,
+  "run_id": "",
+  "source_sha": ""
+}

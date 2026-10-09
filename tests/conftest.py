@@ -35,7 +35,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-pytest_plugins = ["tools.pytest_translation_compatibility"]
+pytest_plugins = ["tools.pytest_translation_compatibility", "tools.test_count_badge"]
 
 # ---------------------------------------------------------------------------
 # The suite is not allowed to take the machine down

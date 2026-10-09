@@ -3777,7 +3777,7 @@ REVIEWED_README_BADGE_ALT_TEXT = {
 REVIEWED_README_MODULE_ALT_TEMPLATES = WORKFLOW_MODULE_ALT_TEMPLATES
 
 README_BADGE_SUBSTITUTIONS = (
-    "Docs", "Tutorials", "PyPI", "Python", "Tests", "Qt", "Source",
+    "Docs", "Tutorials", "PyPI", "Python", "Test counts", "Qt", "Source",
     "Issues", "License", "Preprint", "DOI", "Release", "Conda",
     "Conda Downloads", "Release date", "PyPI Downloads", "Platforms",
     "Cite", "PyPI rank",

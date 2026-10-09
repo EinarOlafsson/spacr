@@ -657,6 +657,41 @@ def test_every_bundled_catalogue_entry_is_provenanced_and_verifiable():
         assert not any("no published checksum" in note for note in entry.notes)
 
 
+def test_native_scorecard_tooltip_renders_scores_and_missing_stock():
+    entry = zoo._entry_from_mapping({
+        "key": "native_scorecard",
+        "name": "native_scorecard",
+        "metrics": {
+            "f1": {"finetuned": 0.64187035, "vanilla": None},
+            "dice": {"finetuned": 0.8905, "vanilla": 0.6431},
+        },
+    })
+    rendered = zoo.scorecard_html(entry)
+    assert "<b>0.6419</b>" in rendered
+    assert "<b>0.8905</b>" in rendered
+    assert "0.6431" in rendered
+    assert "not recorded" in rendered
+    assert "finetuned" not in rendered
+    assert "None" not in rendered
+
+
+def test_geldoc_candidates_have_distinct_lineages_and_detector_scores():
+    entries = {item["key"]: zoo._entry_from_mapping(item)
+               for item in zoo.BUNDLED_REMOTE_MODELS}
+    plaque = entries["toxoplasma_plaque_v3"]
+    detector = entries["toxoplasma_well_detector_v3"]
+    assert plaque.uri != entries["toxoplasma_plaque_v2"].uri
+    assert detector.uri != entries["toxoplasma_well_detector_v2"].uri
+    assert plaque.scorecard_known and detector.scorecard_known
+    assert entries["toxoplasma_pv_v4"].scorecard_known
+    assert plaque.metrics["f1"]["vanilla"] is None
+    assert detector.metrics["mAP50_95"]["vanilla"] is None
+    rendered = zoo.scorecard_html(detector)
+    assert "mAP50–95" in rendered
+    assert "<b>0.8842</b>" in rendered
+    assert "finetuned" not in rendered
+
+
 def test_a_catalogue_file_is_read_and_its_hashes_are_what_make_it_useful(tmp_path):
     path = tmp_path / "zoo.json"
     path.write_text(json.dumps({"models": [{

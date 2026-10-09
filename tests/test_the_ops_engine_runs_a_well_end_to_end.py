@@ -445,9 +445,14 @@ def test_two_wells_with_stored_reads_resume_without_rerunning(engine_run,
 
     settings, library = engine_run[5], engine_run[6]
     raw = tmp_path / "raw"
-    shutil.copytree(settings["genotype_source"], raw)
-    for path in sorted(raw.rglob("*_A1_*")):
-        shutil.copyfile(path, path.with_name(path.name.replace("_A1_", "_A2_")))
+    source = Path(settings["genotype_source"])
+    for path in sorted(source.rglob("*_A1_*")):
+        if not path.name.endswith(("_Site-2.tif", "_Site-4.tif")):
+            continue
+        folder = raw / path.parent.relative_to(source)
+        folder.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(path, folder / path.name)
+        shutil.copyfile(path, folder / path.name.replace("_A1_", "_A2_"))
     out = tmp_path / "out"
     result = ops_engine.run_ops(
         {**settings, "genotype_source": str(raw), "dst_root": str(out),
@@ -455,6 +460,8 @@ def test_two_wells_with_stored_reads_resume_without_rerunning(engine_run,
         wells=["A1", "A2"], phases=("stitch", "objects", "decode"),
         library=library)
     assert result["db"] == str(out / "measurements.db")
+    assert all(result["wells"][well]["stitch"]["placed"] == 2
+               for well in ("A1", "A2"))
 
     spec = importlib.util.spec_from_file_location(
         "ops_plate_driver",
