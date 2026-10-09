@@ -16,3 +16,5 @@ The generator adds the badge to English and nine translated READMEs without
 changing prose; generated endpoint is pending until a real completed hosted run.
 Local threshold/dedup/failure/empty/README tests and real two-worker plugin
 acceptance are recorded in HANDOFF. No fabricated hosted counts or green claim.
+
+2026-10-08 21:15 EDT — Old badge retired in all10 READMEs. Normal producer substitution updated; existing reviewed native badge alt text reused by generator. Owning12badge+2README checks14PASS0.99s. First real hosted count publication remains pending.

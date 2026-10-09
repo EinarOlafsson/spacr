@@ -14,7 +14,7 @@
    :alt: Python 3.9 till 3.14
 .. |Test counts| image:: https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FEinarOlafsson%2Fspacr%2Fnightly%2Fdocs%2Fsource%2F_static%2Ftest-counts.json&cacheSeconds=300
    :target: https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml
-   :alt: tests passed/total
+   :alt: Testsvit
 .. |Qt| image:: https://img.shields.io/badge/GUI-Qt%20%28PySide6%29-41CD52
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/index.html#module-spacr.qt
    :alt: Qt-gränssnitt

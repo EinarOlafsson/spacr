@@ -1,5 +1,18 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 21:15 EDT — N681 normal README producer and reviewed alt text checked
+
+Follow-up replaces README_BADGE_SUBSTITUTIONS Tests with Test counts in the
+normal documentation producer. Badge installer reuses each locale's existing
+reviewed test-suite accessibility label instead of introducing untranslated alt
+text. English and nine locales contain only the numeric test badge. Owning
+badge12 + README row/accessibility2 =14PASS0.99s; guards unchanged.
+Source72e295c4b8 is published. Initial required37868726393 and serial37868731002
+are still queued, with no verdict. Replace both queued acceptance dispatches on
+final corrected producer source, rather than knowingly run the missing-name
+README guard. Older known-failing e600serial37865976724 cancellation requested.
+No current green, active children or duplicate source dispatch claim.
+
 ## 2026-10-08 21:13 EDT — Reduced-token handoff; numeric badge replaces old test badge
 
 Only Home/root is active; all three useful subagents are finished and their

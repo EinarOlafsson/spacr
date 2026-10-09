@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import os
 from pathlib import Path
@@ -78,6 +79,16 @@ def endpoint(directory, *, run_id="", source_sha=""):
 
 def install_readme_badges(root):
     root = Path(root)
+    reviewed = {}
+    producer = root / "tools/build_documentation_i18n.py"
+    if producer.exists():
+        for node in ast.parse(producer.read_text(encoding="utf-8")).body:
+            if isinstance(node, ast.Assign) and any(
+                    isinstance(target, ast.Name) and
+                    target.id == "REVIEWED_README_BADGE_ALT_TEXT"
+                    for target in node.targets):
+                reviewed = ast.literal_eval(node.value)
+                break
     url = ("https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com"
            "%2FEinarOlafsson%2Fspacr%2Fnightly%2Fdocs%2Fsource%2F_static"
            "%2Ftest-counts.json&cacheSeconds=300")
@@ -92,6 +103,10 @@ def install_readme_badges(root):
         text = text.replace("|Tests|", "|Test counts|")
         if ".. |Test counts| image::" not in text:
             text = text.replace(".. |Qt| image::", block + ".. |Qt| image::", 1)
+        locale = path.name[7:-4] if path.name.startswith("README.") else ""
+        if locale in reviewed:
+            text = text.replace("   :alt: tests passed/total",
+                                f"   :alt: {reviewed[locale][4]}", 1)
         path.write_text(text, encoding="utf-8")
 
 def main():
