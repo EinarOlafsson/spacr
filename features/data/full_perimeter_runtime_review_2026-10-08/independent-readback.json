@@ -1,0 +1,7 @@
+{
+  "independent_complete_raw_gzip_payloads": 112,
+  "independent_frozen_file_bindings": 3491,
+  "actual_immutable_Git_source_python_bindings": 658,
+  "actual_immutable_Git_owning_test_bindings": 4,
+  "receipt_sha256": "488bfa8891aba7b85c45d552c6bd1a2e5186f8a8468b5d013f2e959bbf579c75"
+}
