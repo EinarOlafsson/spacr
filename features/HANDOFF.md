@@ -1,5 +1,35 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 22:56 EDT — Container-edge ripple and intensity repair ready for publication
+
+Backported only tested finite-segment waves from316ce/c797 into current7281178,
+preserving public advection blinking and retirement repairs. Open/closed Sections
+emit from final bottom edge; splitter HEADERs from final pane edge; EDGE panes
+from their own final pane/landing handle, never whole splitter bounds. Dock open
+feedback uses final dock edge. Clipping retains real edges without fabricating
+viewport sides. Background clicks remain circular; interactive controls no
+longer enqueue point waves when opening/closing containers.
+
+Preferences now has Ripple intensity0–200%, default100. It scales circular,
+container and recurring ripple displacement/lighting independently of gravity,
+saves/reloads/cancels normally and survives theme replacement. One new compact
+tr caption owns nine locales; no new public API or generated hand-merge.
+Owning four-file cohort84PASS12.91s; field-grab owning17PASS2.54s. Includes actual
+header clicks, final-edge geometry, straight distance fields, settings lifecycle,
+zero-amplitude pixel equality, stronger pixels and rebuild preservation.
+Six complete normal runtime source maps remain unchanged. API count13233;
+final normal exact API digest comparison follows with next bounded Spaceout work.
+No hosted/native-user visual acceptance claimed. Old expected all-side opening
+assertion failed initially1/74 and was updated to requested bottom-edge behavior,
+without dropping final geometry/visibility assertions.
+
+NEXT: user requests conspicuous3D Spaceout mountains/valleys/vortex and stronger
+trippy colour/effects. Current schedule can remain quiet for over a minute,
+vortex rotation only0.42rad and attractors have no depth/lighting. Keep changes
+private/helpers, respect toggles and mouse physics, test finite/bounded/no-history
+and visual snapshots. No GPU work or new agents; minimize tokens. Existing
+Home4944 hosted acceptance remains useful; do not cancel it for cosmetic changes.
+
 ## 2026-10-08 22:37 EDT — Hosted badge collector, recipe and README guard repairs
 
 2026-10-08 22:37 EDT — Root owns bounded repairs from actual hosted4944 failures.

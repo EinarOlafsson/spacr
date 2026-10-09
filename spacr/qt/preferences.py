@@ -219,6 +219,7 @@ _KEY_AMBIENT_DENSITY = "prefs/ambient_density"
 _KEY_AMBIENT_BLINK_PERCENT = "prefs/ambient_blink_percent"
 _KEY_FIELD_POPUP_WAVES = "prefs/field_popup_wave_frequency"
 _KEY_FIELD_RIPPLES = "prefs/field_ripples"
+_KEY_FIELD_RIPPLE_INTENSITY = "prefs/field_ripple_intensity"
 _KEY_AMBIENT_GRAVITY_RADIUS = "prefs/ambient_gravity_radius"
 _KEY_AMBIENT_DRIFT_DIR = "prefs/ambient_drift_direction"
 #: Which generation of the motion keys the store was last written by. Only
@@ -2545,6 +2546,23 @@ def _field_ripples_enabled() -> bool:
     return _as_bool(_settings().value(_KEY_FIELD_RIPPLES, True), True)
 
 
+def _field_ripple_intensity() -> float:
+    """Read finite ripple amplitude independently of mouse gravity."""
+    import math
+
+    try:
+        value = float(_settings().value(_KEY_FIELD_RIPPLE_INTENSITY, 1.0))
+    except (TypeError, ValueError):
+        value = 1.0
+    return max(0.0, min(2.0, value)) if math.isfinite(value) else 1.0
+
+
+def _set_field_ripple_intensity(value: float) -> None:
+    """Persist ripple amplitude; zero is calm and one is the default."""
+    _settings().setValue(_KEY_FIELD_RIPPLE_INTENSITY, float(value))
+    _settings().sync()
+
+
 def _spaceout_field_effects() -> dict[str, bool]:
     """Read the eight independent Spaceout field effects, all on by default."""
     store = _settings()
@@ -2744,6 +2762,7 @@ def apply_ambient_preferences(app=None) -> None:
             if widget.property("spacrRetiringBackdrop"):
                 continue
             widget.set_ripples_enabled(_field_ripples_enabled())
+            widget._set_ripple_intensity(_field_ripple_intensity())
             widget.set_field_effects(field_effects)
             if widget.property("spacrSetupBackdrop"):
                 continue
@@ -8516,6 +8535,17 @@ class PreferencesDialog:
             "snapping. Independent of mouse gravity."))
         animation.addRow(tr("Field ripples"), ripples_check)
 
+        ripple_intensity_value = QDoubleSpinBox()
+        ripple_intensity_value.setObjectName("FieldRippleIntensity")
+        ripple_intensity_value.setAccessibleName(tr("Ripple intensity"))
+        ripple_intensity_value.setRange(0.0, 200.0)
+        ripple_intensity_value.setDecimals(0)
+        ripple_intensity_value.setSingleStep(10.0)
+        ripple_intensity_value.setSuffix("%")
+        ripple_intensity_value.setValue(_field_ripple_intensity() * 100.0)
+        ripple_intensity_value.setToolTip(ripples_check.toolTip())
+        animation.addRow(tr("Ripple intensity"), ripple_intensity_value)
+
         popup_waves_slider = QSlider(Qt.Horizontal)
         popup_waves_slider.setObjectName("FieldPopupWaveFrequency")
         popup_waves_slider.setRange(0, 600)
@@ -8571,6 +8601,7 @@ class PreferencesDialog:
             blink_value.setEnabled(on)
             field = ambient_theme_combo.currentData() in (
                 "data_art_impulse_lens", "data_art_spaceout_field")
+            ripple_intensity_value.setEnabled(field)
             popup_waves_slider.setEnabled(field)
             popup_waves_value.setEnabled(field)
             gravity_slider.setEnabled(on)
@@ -10152,6 +10183,7 @@ class PreferencesDialog:
                     int(round(get_ambient_density() * 100)))
                 blink_value.setValue(_ambient_blink_percent())
                 ripples_check.setChecked(_field_ripples_enabled())
+                ripple_intensity_value.setValue(_field_ripple_intensity() * 100.0)
                 for key, enabled in _spaceout_field_effects().items():
                     if key in spaceout_field_checks:
                         spaceout_field_checks[key].setChecked(enabled)
@@ -10245,6 +10277,7 @@ class PreferencesDialog:
             set_ambient_density(density_slider.value() / 100.0)
             _set_ambient_blink_percent(blink_value.value())
             _set_field_ripples_enabled(ripples_check.isChecked())
+            _set_field_ripple_intensity(ripple_intensity_value.value() / 100.0)
             if spaceout_field_checks:
                 _set_spaceout_field_effects({
                     key: check.isChecked()
