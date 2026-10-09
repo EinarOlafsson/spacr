@@ -1,5 +1,22 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 21:17 EDT — One workstation agent; small tutorial reporting fix
+
+User now explicitly requires one agent. Only Root is active. Root continues
+finishing the already-committed six-lesson source build, with no new media
+synthesis/upload or broad feature wave. Exact mergedfd79 source strict Sphinx
+rerun is live; do not mutate its source or claim terminal acceptance yet.
+
+Small source14eade3fd fixes build report using actual player data-audio-root
+rather than oldd8 fallback revision. Whole owning media-budget file32PASS0.83s.
+Actual immutable5ab candidate report now names5ab; published142/dropped270files
+and complete staging plan remain byte-for-byte equivalent in both versions.
+Source policy/ceiling/media/API/captions unchanged. Full payload/Git hash receipt:
+ data/615_selected_tutorial_media_revision_2026-10-08/receipt.json
+
+Home CI dispatch/serial acceptance ownership is unchanged; normal source push
+has no skipCI marker. No complete GitHub/all-task acceptance claim is made.
+
 ## 2026-10-08 21:07 EDT — Final bounded workstation translation checks saved; agents finished
 
 All three workstation agents are finished, clean and have no running jobs.

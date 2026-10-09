@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "source_commit": "14eade3fd45b3570a23a7876197d3215d2d6861d",
+  "source_sha256": {
+    "tools/docs_media_budget.py": "29a964f0e87c7771c6d428d49d207e0676734124e246da3a27be28e1e98f87c5",
+    "tests/test_docs_media_budget.py": "cd9ed45ea53744890eeac4749b5342c4ce41669b9333e7ce7c3c4242dcf8835d"
+  },
+  "payloads": [
+    {
+      "path": "docs-media-selected-revision-owning-r1.log.gz",
+      "raw_bytes": 222,
+      "raw_sha256": "86caf0176671190063e297c6a0b443844462e4058dcb202279406e217fe0b194",
+      "gzip_sha256": "2246664015a45678ecdcd41973cedc50afe3074df63fd0c2cc7895edac07445f"
+    },
+    {
+      "path": "docs-media-selected-revision-owning-r1-tool.log.gz",
+      "raw_bytes": 686,
+      "raw_sha256": "3392887f6a7eadf120bf110a7f44fa50f43a8d37c2509eb2fb87889e76d37ea7",
+      "gzip_sha256": "e5b4c0eea2c19f91c013ea9eb4d88fd6a5e595cc0a7101c2e0caf9de31704d86"
+    },
+    {
+      "path": "docs-media-selected-revision-real-plan-r1.json.gz",
+      "raw_bytes": 846,
+      "raw_sha256": "eddc0150f7662eff8561a22de06768d10d8ef964f548173dcf6b5c829b2a4495",
+      "gzip_sha256": "a849d2040afc54cf3aa286f59370402b2f4aa7eeb6ce3736893ac3992e2e393a"
+    }
+  ],
+  "owning_tests": {
+    "passed": 32,
+    "seconds": 0.83
+  },
+  "actual_refreshed_candidate": "5abf35929844697a46ffb3a7802c24f6774dc07f",
+  "unchanged_staging_plan": {
+    "published_files": 142,
+    "dropped_files": 270,
+    "exact": true
+  },
+  "scope": "Report selected player audio root instead of old configured fallback. No tutorial media, staging policy, ceiling, app API or captions changed. Broader tutorial/site publication remains pending."
+}
