@@ -1,0 +1,108 @@
+{
+  "source_revision": "a37e64a7db268d1a195206b8d69a16af507d275d",
+  "source_sha256": {
+    "spacr/qt/screens/app_screen.py": "6a174d58239f8b75b3819e2c30c163a505e11b04e58cd400fa4c0d0be9b60cad",
+    "setup.py": "b58ee465b64deb1966641b44f332ea23b895f017185cc5c8d876f478a988e8a6",
+    ".github/constraints/minimum-py39.txt": "0cc157e6ea27d982f81e4b90e504b8df0bd768bd7fda495d8c5f64270686386d",
+    "tests/qt/test_the_text_fits_sweep.py": "d789104026946a4e1a2e55d850aee43eea8b0f2e22f34a4a79ad69ab1ffae548",
+    "tests/qt/test_idle_time_builds_the_closed_categories.py": "c11df02e241a2b89503841205a34afd364920023899c5241d354393de37ba594",
+    "spacr/resource_log.py": "427d38911ceba4f9d45b591cc670ed1317a1cf8d575564e17a7b9123193711c3"
+  },
+  "results": {
+    "baseline_original_nodes": "1 dependency FAIL, 1 isolated idle PASS in 14.86s",
+    "controlled_slow_setup_negative": "Old idle snapshot reports0>=5 FAIL after700ms setup delay",
+    "controlled_fixed_subset": "3PASS19.13s, keeps>=5 and original completion/slice guards",
+    "four_full_owning_files": "102PASS143.79s before final comparison-window cleanup; busy-worker report preserved",
+    "final_idle_full_file": "15PASS53.66s on actualQt6.12/pytest8.4.2, no busy-worker report",
+    "standalone_cloudpickle_floor": "Actual3.1.2 standalone fallback, original closure/keyword/returned-closure test1PASS12.41s",
+    "native_python39_codec_floor": "ActualPython3.9.21 executes standalone3.1.2 codec closure/keyword/returned-closure round trips [20,33]"
+  },
+  "normal_inventory": {
+    "source_revision": "d5a438576699f5fa6cd3127aff5e98e9aebae7c8",
+    "normal_api_count": 13233,
+    "normal_runtime_counts": {
+      "setting_labels": 1221,
+      "setting_tooltips": 1243,
+      "categories": 237,
+      "ui": 7287,
+      "installer": 65,
+      "module_summaries": 77
+    },
+    "all_source_maps_equal_stored_english": true,
+    "foreign_imports": {},
+    "loaded_spacr_modules": 193,
+    "source_sha256": {
+      "spacr/qt/screens/app_screen.py": "6a174d58239f8b75b3819e2c30c163a505e11b04e58cd400fa4c0d0be9b60cad",
+      "setup.py": "b58ee465b64deb1966641b44f332ea23b895f017185cc5c8d876f478a988e8a6",
+      ".github/constraints/minimum-py39.txt": "0cc157e6ea27d982f81e4b90e504b8df0bd768bd7fda495d8c5f64270686386d",
+      "tests/qt/test_idle_time_builds_the_closed_categories.py": "5fcb1a927b22e2bf87690d8a76108be36e1cf3edb7198ba4a71c1a428632e3fe"
+    }
+  },
+  "inventory_binding": "Final comparison-window cleanup only changes a test file. Application/packaging hashes match the working-tree full normal inventory exactly.",
+  "copy_console_proof": "features/data/43_copy_console_first_layout_2026-10-08/receipt.json",
+  "idle_worker_proof": "features/data/47_idle_category_runner_lifecycle_2026-10-09/receipt.json",
+  "limits": [
+    "Named cohorts overlap; totals are not summed.",
+    "Pure codec Python3.9 probe is not a complete spaCR Python3.9 environment.",
+    "Current hosted required/compatibility/docs and full original-order serial acceptance remain pending.",
+    "All local tests CUDA-hidden/offscreen with4GiB cap; no full local suite/GPU/protected jobs."
+  ],
+  "payloads": {
+    "root-ci-idle-dependency-before-20261008.log.gz": {
+      "gzip_sha256": "8fd4cdbd05101684b61f1f78797d9c536806586ff060debec254b0b4a0a65214",
+      "raw_sha256": "954face6e94118b6c4bdea3c4f2f9962c0a48cbbd62c321416bba35516f9f113"
+    },
+    "root-ci-idle-delayed-before-20261008.log.gz": {
+      "gzip_sha256": "dfcdf5799225a6bfe5f17d87441a82c7dfaafd5af120a140062711776db1ce73",
+      "raw_sha256": "82008c8ee085479718f4a8084b9e414d61dbbd8ab1bb20ed2cda580774e6f21f"
+    },
+    "root-ci-idle-dependency-targeted-after-20261008.log.gz": {
+      "gzip_sha256": "d23b66b6885ec088d9349ed62e5ab8e11c4db3933a9f85a1e26938cf464c7a77",
+      "raw_sha256": "5f2881cd499aecf7efd5c7bb5817d1542a09723131fda0a26d976f96a578a23d"
+    },
+    "root-ci-idle-dependency-owning-after-20261008.log.gz": {
+      "gzip_sha256": "fbc755c2ee9110a4d5e9176c4bfe3000c594bd69c148ae2012ab9b3523b82127",
+      "raw_sha256": "ef59df7e5e17f2fa660b0b9491bb1d4c9d70873ecf1aaa03d426cb7769bb9f89"
+    },
+    "root-ci-idle-integrated-final-20261008.log.gz": {
+      "gzip_sha256": "557b4eca1752ed9322a4d618bcef1208337e0fbd5c7d96586bfb951dd41cb12f",
+      "raw_sha256": "27a12c8abb6ec802abbbed1cf45686297dbbf4a2e68250f66ce5ce48852da1e7"
+    },
+    "root-ci-cloudpickle-floor-20261008.log.gz": {
+      "gzip_sha256": "97a029754a7adadbbc1513299db8dc5d75f25073243d65fc3f14c81a516993a3",
+      "raw_sha256": "590acc65e5c5c256231494070c93ffee03c815c8f5c4d941041b336daefc292d"
+    },
+    "root-ci-cloudpickle-native39-20261008.log.gz": {
+      "gzip_sha256": "f812e27ab684a02dbb6a2c1f0f3f708eced9ffe4750e5feb01196f9b202279ab",
+      "raw_sha256": "02c95c6970fb6248b09a684345892fc79ceef0f51978e1ce02d10710e71c309b"
+    },
+    "root-ci-idle-dependency-inventory-20261008.log.gz": {
+      "gzip_sha256": "3d96f9ed215b07b0383441006a2ab145b95d49ee044027568548c385cd425742",
+      "raw_sha256": "ac2d130c8e786fb86bef4a8072d9a3e47b43752826ac7b3f5f2dfde8d93b1c17"
+    },
+    "root-ci-current-normal-inventory-20261008.py.gz": {
+      "gzip_sha256": "15abb474e72ce24f9bd3cf39d8d28f483e2cf2de018a2ae58f0a75862e08d0e9",
+      "raw_sha256": "142e92131942e5750b0f2a5131d1a115f41212a53cfd938511c50cb360e13ead"
+    },
+    "spacr_idle_snapshot_delay_20261008.py.gz": {
+      "gzip_sha256": "86e0630e7ef6b5f15f566205edf89c331e8e8db75c091fd4a110dda3a56db939",
+      "raw_sha256": "0baa4deadd6543af9ec472eddc436337082bf0f649150273a8edd74220186552"
+    },
+    "spacr_standalone_cloudpickle_20261008.py.gz": {
+      "gzip_sha256": "be4e13651dd80382eb668bc40f5cd9578e2bba5d992987460f8552ef686d2fe9",
+      "raw_sha256": "6c698b44463b2b2c5ee87edd758eb7304c62f2d9c431325069c86e8cef467a82"
+    },
+    "root-cloudpickle-native39-20261008.py.gz": {
+      "gzip_sha256": "a67db8d137b74748475729927ac1a6fe5e43ac0b2633d60a48406513a58e8572",
+      "raw_sha256": "aa4d7737b9900c50e1123089829fa77fb654769ea04e1e024be2514473b57c51"
+    },
+    "full-normal-inventory.json.gz": {
+      "gzip_sha256": "ab9133d533be4b925a6a8f3bb8d20e652751e8da734b7066a15e1b25ff74297f",
+      "raw_sha256": "ba34e026f500a6d30d8624e76d6592481f48a665e8d3858a1bbf6f501ec5ece6"
+    },
+    "normal-inventory-receipt.json.gz": {
+      "gzip_sha256": "3d96f9ed215b07b0383441006a2ab145b95d49ee044027568548c385cd425742",
+      "raw_sha256": "ac2d130c8e786fb86bef4a8072d9a3e47b43752826ac7b3f5f2dfde8d93b1c17"
+    }
+  }
+}
