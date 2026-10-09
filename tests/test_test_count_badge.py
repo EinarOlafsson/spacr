@@ -1,9 +1,9 @@
 """Hosted numeric badges preserve failures and count unique selected tests."""
+import importlib.util
 import json
 from pathlib import Path
 from types import SimpleNamespace
 import pytest
-from tools import test_count_badge as collector
 from tools.test_count_badge import endpoint
 
 
@@ -42,9 +42,16 @@ def test_no_results_are_pending(tmp_path):
     assert endpoint(tmp_path)["color"] == "lightgrey"
 
 
-def configure_collector(tmp_path, monkeypatch):
-    monkeypatch.setattr(collector, "_RECORD", collector._RECORD)
-    monkeypatch.setattr(collector, "_SESSION", collector._SESSION)
+@pytest.fixture
+def collector():
+    path = Path(__file__).resolve().parents[1] / "tools/test_count_badge.py"
+    spec = importlib.util.spec_from_file_location("isolated_count_collector", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def configure_collector(collector, tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("SPACR_TEST_COUNT_DIR", "counts")
     monkeypatch.setenv("SPACR_TEST_COUNT_SESSION", "previous-session")
@@ -52,8 +59,8 @@ def configure_collector(tmp_path, monkeypatch):
     return collector._RECORD
 
 
-def test_outcomes_stay_in_original_folder_when_a_test_changes_directory(tmp_path, monkeypatch):
-    record = configure_collector(tmp_path, monkeypatch)
+def test_outcomes_stay_in_original_folder_when_a_test_changes_directory(collector, tmp_path, monkeypatch):
+    record = configure_collector(collector, tmp_path, monkeypatch)
     other = tmp_path / "other"
     other.mkdir()
     monkeypatch.chdir(other)
@@ -64,8 +71,8 @@ def test_outcomes_stay_in_original_folder_when_a_test_changes_directory(tmp_path
     assert not (other / "counts").exists()
 
 
-def test_outcome_writes_survive_mocked_application_file_access(tmp_path, monkeypatch):
-    configure_collector(tmp_path, monkeypatch)
+def test_outcome_writes_survive_mocked_application_file_access(collector, tmp_path, monkeypatch):
+    configure_collector(collector, tmp_path, monkeypatch)
 
     def locked(*args, **kwargs):
         raise OSError("locked")
