@@ -7,12 +7,13 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QEvent, QPoint, QPointF, QRect, Qt
 from PySide6.QtGui import QMouseEvent
-from PySide6.QtWidgets import QDialog, QMainWindow, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QDialog, QLabel, QMainWindow, QPushButton, QVBoxLayout, QWidget
 
 from spacr.qt.app import MainWindow
 from spacr.qt.widgets import ambient, glass
 from spacr.qt.widgets.collapsible_splitter import EDGE, CollapsibleSplitter
 from spacr.qt.widgets.dock import Dock, DockEdge
+from spacr.qt.widgets.foldable import make_foldable
 from spacr.qt.widgets.height_grip import HeightGrip
 from spacr.qt.widgets.section import Section
 
@@ -202,6 +203,30 @@ def test_splitter_reports_completed_collapse_and_drag_only(qtbot, feedback):
     assert feedback[-1][0] is splitter
 
 
+def test_header_fold_wave_uses_the_final_landing_edge(qtbot, feedback):
+    splitter = CollapsibleSplitter(Qt.Horizontal)
+    qtbot.addWidget(splitter)
+    splitter.resize(600, 260)
+    pane = QWidget()
+    column = QVBoxLayout(pane)
+    heading, body = QLabel("Pane"), QWidget()
+    column.addWidget(heading)
+    column.addWidget(body)
+    folder = make_foldable(heading, body, name="Pane")
+    splitter.add_pane(pane, "Pane", folder=folder)
+    splitter.add_pane(QWidget(), "Rest")
+    splitter.show()
+    folder.toggle()
+    assert feedback[-1][0] is splitter
+    assert feedback[-1][1] == "right"
+    assert feedback[-1][3] == pane.geometry()
+    feedback.clear()
+    folder.toggle()
+    assert len(feedback) == 1
+    assert feedback[-1][1] == "right"
+    assert feedback[-1][3] == pane.geometry()
+
+
 def test_dock_and_height_grips_publish_final_geometry(qtbot, feedback):
     host = QWidget()
     qtbot.addWidget(host)
@@ -223,7 +248,8 @@ def test_dock_and_height_grips_publish_final_geometry(qtbot, feedback):
     edge.set_collapsed(False)
     qtbot.waitUntil(lambda: bool(feedback))
     assert len(feedback) == 1
-    assert feedback[-1][0] is edge
+    assert feedback[-1][0] is dock
+    assert feedback[-1][1] == "right"
     feedback.clear()
     point = edge.rect().center()
     origin = edge.mapToGlobal(point)
@@ -255,12 +281,15 @@ def test_section_collapse_feedback_observes_hidden_body(qtbot, feedback):
     assert section._body.isHidden()
     qtbot.waitUntil(lambda: bool(feedback))
     assert feedback[-1][0] is section
+    assert feedback[-1][1] == "bottom"
+    assert feedback[-1][2] == section.geometry()
     feedback.clear()
     section._on_toggle(True)
     assert not section._body.isHidden()
     qtbot.waitUntil(lambda: bool(feedback))
     assert len(feedback) == 1
     assert feedback[-1][0] is section
+    assert feedback[-1][1] == "bottom"
 
 
 @pytest.mark.parametrize("state", [Qt.WindowFullScreen, Qt.WindowMaximized])

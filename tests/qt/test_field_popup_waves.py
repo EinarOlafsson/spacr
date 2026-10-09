@@ -158,6 +158,8 @@ def test_real_dialog_open_close_is_discrete_with_gravity_and_frequency_zero(
     field._on_tick()
     field._timer.stop()
     assert len(field.engine._popup_waves) == int(enabled)
+    if enabled:
+        assert len(field.engine._popup_waves[0][1]) == 4
     first = list(field.engine._popup_waves)
     field.engine.advance(1)
     field._on_tick()
@@ -172,6 +174,7 @@ def test_real_dialog_open_close_is_discrete_with_gravity_and_frequency_zero(
     assert len(field.engine._popup_waves) == 2 * int(enabled)
     if enabled:
         assert field.engine._popup_waves[-1][1] == last_origin
+        assert len(last_origin) == 4
     assert field.engine.gravity_radius == 0
     assert field.engine._gravity_impulses == []
     closed = list(field.engine._popup_waves)
@@ -197,10 +200,14 @@ def test_origin_resolves_the_visible_popup_in_this_window(qtbot, monkeypatch):
     popup.show()
     monkeypatch.setattr(ambient.QApplication, 'activeModalWidget', lambda: popup)
     monkeypatch.setattr(ambient.QApplication, 'activePopupWidget', lambda: None)
-    point = widget._popup_wave_origin_for_tick()
-    assert point is not None
-    assert point[0] == pytest.approx(0.5, abs=0.01)
-    assert point[1] == pytest.approx(0.5, abs=0.01)
+    perimeter = widget._popup_wave_origin_for_tick()
+    assert perimeter is not None and len(perimeter) == 4
+    assert perimeter[0][0] == perimeter[1][0] == perimeter[2][0]
+    assert perimeter[0][2] == perimeter[1][2] == perimeter[3][0]
+    assert perimeter[0][1] == perimeter[2][1] == perimeter[3][1]
+    assert perimeter[1][1] == perimeter[2][3] == perimeter[3][3]
+    assert (perimeter[0][0] + perimeter[0][2]) / 2 == pytest.approx(0.5, abs=0.02)
+    assert (perimeter[0][1] + perimeter[1][1]) / 2 == pytest.approx(0.5, abs=0.02)
     popup.move(owner.mapToGlobal(owner.rect().bottomRight()) + popup.rect().bottomRight())
     assert widget._popup_wave_origin_for_tick() is None
     popup.hide()

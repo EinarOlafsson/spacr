@@ -4989,6 +4989,7 @@ class _DataArtEngine(_BufferedEngine):
         self.pointer: Optional[Tuple[float, float]] = None
         self.gravity_radius = 0.0
         self.ripples_enabled = True
+        self._ripple_intensity = 1.0
         super().__init__(*args, **kwargs)
 
     def _configure(self, rng: random.Random) -> None:
@@ -5160,12 +5161,34 @@ class _DataArtEngine(_BufferedEngine):
         if self.ripples_enabled:
             self._gravity_ripple_impulses[id(impulse)] = impulse
 
+    def _normalise_wave_origin(self, point):
+        """Keep finite point origins or complete axis-aligned boundaries."""
+        if point is None:
+            return None
+        try:
+            if len(point) == 2 and not isinstance(point[0], (tuple, list)):
+                pair = tuple(float(value) for value in point)
+                if all(math.isfinite(value) and 0.0 <= value <= 1.0
+                       for value in pair):
+                    return pair
+                return None
+            if not 1 <= len(point) <= 4:
+                return None
+            segments = tuple(tuple(float(value) for value in part)
+                             for part in point)
+            if not all(len(part) == 4 and all(
+                    math.isfinite(value) and 0.0 <= value <= 1.0
+                    for value in part) and
+                    ((part[0] == part[2]) != (part[1] == part[3]))
+                    for part in segments):
+                return None
+            return segments
+        except (TypeError, ValueError, IndexError):
+            return None
+
     def _set_popup_wave_origin(self, point, *, popup_id=None) -> None:
-        """Accept a GUI-resolved popup centre without reading Qt on the worker."""
-        if point is not None:
-            x, y = point
-            point = ((float(x), float(y)) if all(
-                math.isfinite(value) and 0.0 <= value <= 1.0 for value in (x, y)) else None)
+        """Accept GUI-resolved popup edges or a legacy point without Qt access."""
+        point = self._normalise_wave_origin(point)
         opened = point is not None and (
             self._popup_wave_origin is None or
             (popup_id is not None and popup_id != self._popup_wave_window))
@@ -5200,11 +5223,17 @@ class _DataArtEngine(_BufferedEngine):
         """Emit a bounded field wave independently of pointer gravity."""
         if not self.ripples_enabled or self.family != "impulse_lens" or point is None:
             return
-        x, y = point
-        if not all(math.isfinite(value) for value in (x, y)):
+        if len(point) == 2 and not isinstance(point[0], (tuple, list)):
+            x, y = point
+            if not all(math.isfinite(value) for value in (x, y)):
+                return
+            origin = (max(0.0, min(1.0, float(x))),
+                      max(0.0, min(1.0, float(y))))
+        else:
+            origin = self._normalise_wave_origin(point)
+        if origin is None:
             return
-        point = (max(0.0, min(1.0, float(x))), max(0.0, min(1.0, float(y))))
-        self._popup_waves = (self._popup_waves + [(self.time, point)])[-6:]
+        self._popup_waves = (self._popup_waves + [(self.time, origin)])[-6:]
 
     def set_ripples_enabled(self, enabled: bool) -> None:
         """Enable field waves without changing gravity or the held field patch."""
@@ -5929,13 +5958,13 @@ class _DataArtEngine(_BufferedEngine):
             packet = np.exp(-(front / 0.075) ** 2) * reach
             has_ripple = (self.ripples_enabled
                           and id(impulse) in self._gravity_ripple_impulses)
-            ripple = (0.045 * decay * packet * np.sin(front * 58.0)
+            ripple = (0.045 * self._ripple_intensity * decay * packet * np.sin(front * 58.0)
                       if has_ripple else 0.0)
             displacement = burst + ripple / np.maximum(distance, 0.055)
             px[selected] += ex * displacement
             py[selected] += ey * displacement
             if has_ripple:
-                energy[selected] += decay * packet * 0.40
+                energy[selected] += self._ripple_intensity * decay * packet * 0.40
         active_popups = {origin for started, origin in self._popup_waves
                          if 0.0 <= self.time - started < 5.0}
         for origin in tuple(popup_fields):
@@ -5947,20 +5976,41 @@ class _DataArtEngine(_BufferedEngine):
                 continue
             field = popup_fields.get(origin)
             if field is None:
-                ex = (x - origin[0]) * aspect_x
-                ey = (y - origin[1]) * aspect_y
-                distance = np.sqrt(ex * ex + ey * ey + 1e-6)
+                if isinstance(origin[0], tuple):
+                    nearest = None
+                    for x0, y0, x1, y1 in origin:
+                        if x0 == x1:
+                            ex = (x - x0) * aspect_x
+                            ey = (y - np.clip(y, min(y0, y1), max(y0, y1))) * aspect_y
+                        else:
+                            ex = (x - np.clip(x, min(x0, x1), max(x0, x1))) * aspect_x
+                            ey = (y - y0) * aspect_y
+                        squared = ex * ex + ey * ey
+                        if nearest is None:
+                            nearest = (squared, ex, ey)
+                        else:
+                            old_squared, old_ex, old_ey = nearest
+                            chosen = squared < old_squared
+                            nearest = (np.minimum(old_squared, squared),
+                                       np.where(chosen, ex, old_ex),
+                                       np.where(chosen, ey, old_ey))
+                    squared, ex, ey = nearest
+                    distance = np.sqrt(squared + 1e-6)
+                else:
+                    ex = (x - origin[0]) * aspect_x
+                    ey = (y - origin[1]) * aspect_y
+                    distance = np.sqrt(ex * ex + ey * ey + 1e-6)
                 field = (ex / aspect_x, ey / aspect_y, distance)
                 popup_fields[origin] = field
             ex, ey, distance = field
             front = distance - age * 0.26
             packet = np.exp(-(front / 0.06) ** 2)
             decay = math.exp(-age * 0.65)
-            displacement = (0.025 * decay * packet * np.sin(front * 58.0)
+            displacement = (0.025 * self._ripple_intensity * decay * packet * np.sin(front * 58.0)
                             / np.maximum(distance, 0.055))
             px += ex * displacement
             py += ey * displacement
-            energy += decay * packet * 0.30
+            energy += self._ripple_intensity * decay * packet * 0.30
         if self._field_grab_offset != (0.0, 0.0):
             center_x, center_y = self._field_grab_center
             gx, gy = (x - center_x) * aspect_x, (y - center_y) * aspect_y
@@ -6020,7 +6070,7 @@ class _SpaceoutFieldEngine(_DataArtEngine):
     no phenomenon changes native resolution or removes population samples.
     """
 
-    _lane_periods = (73.0, 109.0)
+    _lane_periods = (29.0, 43.0)
     _effect_keys = ("attractors", "relaxation", "elastic_release", "vortex",
                     "density_pulses", "density_waves", "color_waves", "spirals")
     _event_keys = ("attractors", "vortex", "density_pulses", "density_waves",
@@ -6047,11 +6097,16 @@ class _SpaceoutFieldEngine(_DataArtEngine):
             events = []
             for lane, (epoch, period) in enumerate(zip(epochs, self._lane_periods)):
                 rng = random.Random((self._art_seed << 32) ^ (epoch * 3 + lane))
-                if rng.random() < .18:
+                if lane == 1 and rng.random() < .08:
                     continue
-                kind = rng.choice(self._event_keys)
-                started = epoch * period + rng.uniform(.06, .32) * period
-                duration = rng.uniform(.30, .50) * period
+                if lane == 0:
+                    kinds = ["attractors", "vortex"]
+                    random.Random((self._art_seed << 32) ^ (epoch // 2)).shuffle(kinds)
+                    kind = kinds[epoch % 2]
+                else:
+                    kind = rng.choice(("density_pulses", "density_waves", "color_waves", "spirals"))
+                started = epoch * period + rng.uniform(.04, .18) * period
+                duration = rng.uniform(.40, .68) * period
                 regions = tuple((rng.uniform(.12, .88), rng.uniform(.12, .88),
                                  rng.uniform(.16, .33),
                                  (-1.0 if i % 2 else 1.0) * rng.uniform(.65, 1.0),
@@ -6112,7 +6167,7 @@ class _SpaceoutFieldEngine(_DataArtEngine):
                     squared = dx * dx + dy * dy
                     reach = np.maximum(0.0, 1.0 - squared / radius ** 2) ** 3
                     if kind == "vortex":
-                        twist = strength * polarity * .42 * reach
+                        twist = strength * polarity * 2.4 * reach
                         cosine, sine = np.cos(twist), np.sin(twist)
                         sx += dx * (cosine - 1.0) - dy * sine
                         sy += dx * sine + dy * (cosine - 1.0)
@@ -6122,10 +6177,43 @@ class _SpaceoutFieldEngine(_DataArtEngine):
                             amount *= math.sin(elapsed * (.38 + radius) + local_phase)
                         sx += dx * amount
                         sy += dy * amount
+        depth, _gx, _gy = self._field_depth(x, y, width, height)
+        sx -= depth * .18
+        sy -= depth * .65
+        length = np.hypot(sx, sy)
+        scale = np.minimum(1.0, .14 / np.maximum(length, 1e-9))
         boundary = (np.sin(np.clip(x, 0, 1) * math.pi) ** 2
                     * np.sin(np.clip(y, 0, 1) * math.pi) ** 2)
-        return super()._bend_pointer(x + sx * boundary / ax,
-                                    y + sy * boundary / ay, width, height)
+        return super()._bend_pointer(x + sx * scale * boundary / ax,
+                                    y + sy * scale * boundary / ay, width, height)
+
+    def _field_depth(self, x, y, width, height):
+        """Sample signed relief and surface slopes for projection and lighting."""
+        np = _numpy()
+        depth, gx, gy = np.zeros_like(x), np.zeros_like(x), np.zeros_like(x)
+        ax, ay = width / min(width, height), height / min(width, height)
+        for event in self._field_events():
+            kind, started, _duration, regions, _phase = event
+            if kind not in ("attractors", "vortex", "density_waves", "spirals"):
+                continue
+            strength = self._event_strength(event)
+            elapsed = self.time - started
+            for cx, cy, radius, polarity, phase in regions:
+                cx += .022 * math.sin(elapsed * .12 + phase)
+                cy += .022 * math.cos(elapsed * .09 + phase)
+                dx, dy = (x - cx) * ax, (y - cy) * ay
+                squared = dx * dx + dy * dy
+                reach = np.maximum(0.0, 1.0 - squared / radius ** 2)
+                amplitude = .14 * polarity * strength
+                if kind != "attractors":
+                    amplitude *= math.sin(elapsed * .42 + phase)
+                depth += amplitude * reach ** 3
+                slope = -6.0 * amplitude * reach ** 2 / radius ** 2
+                gx += slope * dx
+                gy += slope * dy
+        boundary = (np.sin(np.clip(x, 0, 1) * math.pi) ** 2
+                    * np.sin(np.clip(y, 0, 1) * math.pi) ** 2)
+        return depth * boundary, gx * boundary, gy * boundary
 
     def _step_field_grab(self) -> None:
         """Keep held physics; optionally give release an exact damped elastic return."""
@@ -6161,6 +6249,13 @@ class _SpaceoutFieldEngine(_DataArtEngine):
         active = self._field_events()
         np = _numpy()
         shorter = max(1, min(width, height))
+        if any(event[0] in ("attractors", "vortex", "density_waves", "spirals")
+               for event in active):
+            depth, gx, gy = self._field_depth(np.asarray(x) / width,
+                                             np.asarray(y) / height, width, height)
+            diffuse = (.8 - .50 * gx - .65 * gy) / np.sqrt(1 + gx * gx + gy * gy)
+            lighting = np.clip(.45 + diffuse * .6875 + depth * 1.2, .20, 1.5)
+            light = np.asarray(light) * lighting
         density_events = tuple(event for event in active
                                if event[0] in ("density_pulses", "density_waves"))
         if density_events:
@@ -6200,14 +6295,14 @@ class _SpaceoutFieldEngine(_DataArtEngine):
             strength = self._event_strength(event)
             if kind == "color_waves":
                 travel = (x * math.cos(phase) + y * math.sin(phase)) / shorter
-                hue += strength * .45 * np.sin(travel * 7.0 - elapsed * .22 + phase)
+                hue += strength * .75 * np.sin(travel * 9.0 - elapsed * .35 + phase)
             else:
                 cx, cy, radius, polarity, local_phase = regions[0]
                 dx, dy = (x - cx * width) / shorter, (y - cy * height) / shorter
                 distance = np.sqrt(dx * dx + dy * dy)
                 reach = np.maximum(0.0, 1.0 - distance / (radius * 3.0)) ** 2
-                hue += strength * .45 * reach * np.sin(
-                    np.arctan2(dy, dx) * 2.0 + distance * 17.0 - elapsed * .27 + local_phase)
+                hue += strength * .75 * reach * np.sin(
+                    np.arctan2(dy, dx) * 3.0 + distance * 23.0 - elapsed * .42 + local_phase)
         tables = self._material_cache.get("spaceout_hues")
         if tables is None:
             colors = np.asarray([[c.red(), c.green(), c.blue()] for c in self.paint_colors], np.float32)
@@ -7371,6 +7466,9 @@ class AmbientWidget(QWidget):
 
             ripples_enabled = _field_ripples_enabled()
         self._ripples_enabled = bool(ripples_enabled)
+        from ..preferences import _field_ripple_intensity
+
+        self._ripple_intensity = _field_ripple_intensity()
         from ..preferences import _spaceout_field_effects
 
         self._field_effects = _spaceout_field_effects()
@@ -7417,6 +7515,7 @@ class AmbientWidget(QWidget):
         ripple_setter = getattr(self._engine, "set_ripples_enabled", None)
         if ripple_setter is not None:
             ripple_setter(self._ripples_enabled)
+        self._engine._ripple_intensity = self._ripple_intensity
         effects_setter = getattr(self._engine, "set_field_effects", None)
         if effects_setter is not None:
             effects_setter(self._field_effects)
@@ -7596,6 +7695,7 @@ class AmbientWidget(QWidget):
         ripple_setter = getattr(engine, "set_ripples_enabled", None)
         if ripple_setter is not None:
             ripple_setter(self._ripples_enabled)
+        engine._ripple_intensity = self._ripple_intensity
         effects_setter = getattr(engine, "set_field_effects", None)
         if effects_setter is not None:
             effects_setter(self._field_effects)
@@ -7689,6 +7789,13 @@ class AmbientWidget(QWidget):
         if value != self._blink_percent:
             self._blink_percent = value
             self._mutate_engine(lambda: self._engine.set_blink_percent(value))
+
+    def _set_ripple_intensity(self, value) -> None:
+        """Apply finite wave amplitude without changing gravity or reach."""
+        value = float(value)
+        value = max(0.0, min(2.0, value)) if math.isfinite(value) else 1.0
+        self._ripple_intensity = value
+        self._mutate_engine(lambda: setattr(self._engine, "_ripple_intensity", value))
 
     def set_ripples_enabled(self, enabled: bool) -> None:
         """Switch all field ripples independently of mouse gravity and dragging.
@@ -8133,35 +8240,50 @@ class AmbientWidget(QWidget):
 
     def _ripple_from_edge(self, edge, strength=1.0) -> None:
         """Send field waves inward from a settled window edge."""
-        points = {
-            "left": ((0.0, 0.2), (0.0, 0.5), (0.0, 0.8)),
-            "right": ((1.0, 0.2), (1.0, 0.5), (1.0, 0.8)),
-            "top": ((0.2, 0.0), (0.5, 0.0), (0.8, 0.0)),
-            "bottom": ((0.2, 1.0), (0.5, 1.0), (0.8, 1.0)),
+        segments = {
+            "left": ((0.0, 0.0, 0.0, 1.0),),
+            "right": ((1.0, 0.0, 1.0, 1.0),),
+            "top": ((0.0, 0.0, 1.0, 0.0),),
+            "bottom": ((0.0, 1.0, 1.0, 1.0),),
         }.get(edge, ())
-        self._publish_boundary_ripples(points, strength)
+        self._publish_boundary_ripples(segments, strength)
 
-    def _ripple_from_rect(self, rect, strength=1.0) -> None:
-        """Send field waves from final panel boundaries in local coordinates."""
-        rect = QRectF(rect).intersected(QRectF(self.rect()))
-        if rect.isEmpty():
-            return
-        center = rect.center()
+    def _visible_boundary_segments(self, rect, edge=None):
+        """Clip each real edge without inventing a line at the clip boundary."""
+        rect, bounds = QRectF(rect), QRectF(self.rect())
+        if rect.isEmpty() or not rect.intersects(bounds):
+            return ()
         width, height = max(1, self.width()), max(1, self.height())
-        points = ((rect.left() / width, center.y() / height),
-                  (rect.right() / width, center.y() / height),
-                  (center.x() / width, rect.top() / height),
-                  (center.x() / width, rect.bottom() / height))
-        self._publish_boundary_ripples(points, strength)
+        x0, x1 = max(rect.left(), bounds.left()), min(rect.right(), bounds.right())
+        y0, y1 = max(rect.top(), bounds.top()), min(rect.bottom(), bounds.bottom())
+        segments = []
+        if edge in (None, "top") and bounds.top() <= rect.top() <= bounds.bottom():
+            segments.append((x0 / width, rect.top() / height,
+                             x1 / width, rect.top() / height))
+        if edge in (None, "bottom") and bounds.top() <= rect.bottom() <= bounds.bottom():
+            segments.append((x0 / width, rect.bottom() / height,
+                             x1 / width, rect.bottom() / height))
+        if edge in (None, "left") and bounds.left() <= rect.left() <= bounds.right():
+            segments.append((rect.left() / width, y0 / height,
+                             rect.left() / width, y1 / height))
+        if edge in (None, "right") and bounds.left() <= rect.right() <= bounds.right():
+            segments.append((rect.right() / width, y0 / height,
+                             rect.right() / width, y1 / height))
+        return tuple(segments)
 
-    def _publish_boundary_ripples(self, points, strength) -> None:
+    def _ripple_from_rect(self, rect, strength=1.0, *, edge=None) -> None:
+        """Send one wave from the final visible panel boundary."""
+        self._publish_boundary_ripples(
+            self._visible_boundary_segments(rect, edge=edge), strength)
+
+    def _publish_boundary_ripples(self, segments, strength) -> None:
         """Queue release feedback even with mouse gravity disabled."""
         if (not self._ripples_enabled or self._theme not in _FIELD_THEMES
                 or not self._should_run()
                 or self._art_input is None or not math.isfinite(strength)
-                or strength <= 0.0):
+                or strength <= 0.0 or not segments):
             return
-        self._art_input._offer_boundary_waves(points)
+        self._art_input._offer_boundary_waves((segments,))
         if self._engine_lock.acquire(blocking=False):
             try:
                 self._art_input._consume(self._engine)
@@ -8255,14 +8377,15 @@ class AmbientWidget(QWidget):
             if self.rect().contains(local):
                 point = ((local.x() + 0.5) / max(1, self.width()),
                          (local.y() + 0.5) / max(1, self.height()))
-                if ((self._ripples_enabled or self._gravity_radius > 0.0)
+                hit = self.window().childAt(
+                    self.window().mapFromGlobal(event.globalPosition().toPoint()))
+                background = (self._field_grab_background(obj) and
+                              self._field_grab_background(hit if hit is not None else obj))
+                if (background and (self._ripples_enabled or self._gravity_radius > 0.0)
                         and (not self._pending_art_impulses
                         or self._pending_art_impulses[-1] != point)):
                     self._pending_art_impulses = (self._pending_art_impulses + [point])[-16:]
-                hit = self.window().childAt(
-                    self.window().mapFromGlobal(event.globalPosition().toPoint()))
-                if (self._field_grab_background(obj)
-                        and self._field_grab_background(hit if hit is not None else obj)):
+                if background:
                     self._field_grab = (point, (0.0, 0.0))
                     self._offer_field_grab()
         elif etype == QEvent.MouseMove and grab is not None:
@@ -8328,7 +8451,7 @@ class AmbientWidget(QWidget):
             return None
 
     def _popup_wave_origin_for_tick(self):
-        """Resolve this window's active popup centre on the GUI thread only."""
+        """Resolve this window's active popup perimeter on the GUI thread."""
         from PySide6.QtWidgets import QDialog
 
         self._popup_wave_popup_id = None
@@ -8346,12 +8469,12 @@ class AmbientWidget(QWidget):
             parent = parent.parentWidget()
         if parent is None:
             return None
-        centre = self.mapFromGlobal(popup.mapToGlobal(popup.rect().center()))
-        if not self.rect().contains(centre):
+        origin = self.mapFromGlobal(popup.mapToGlobal(popup.rect().topLeft()))
+        segments = self._visible_boundary_segments(QRect(origin, popup.size()))
+        if not segments:
             return None
         self._popup_wave_popup_id = id(popup)
-        return ((centre.x() + 0.5) / max(1, self.width()),
-                (centre.y() + 0.5) / max(1, self.height()))
+        return segments
 
     def _on_tick(self) -> None:
         """One beat: step the clock, ask for a repaint. Never waits.
@@ -8904,12 +9027,13 @@ def field_ripple_for_widget(widget, edge=None, rect=None, strength=1.0) -> None:
         for backdrop in backdrops:
             if backdrop.theme() not in _FIELD_THEMES or not backdrop._should_run():
                 continue
-            if edge is not None:
+            if edge is not None and widget is window:
                 backdrop._ripple_from_edge(edge, strength)
             else:
                 local = QRect(widget.rect() if rect is None else rect)
                 origin = backdrop.mapFromGlobal(widget.mapToGlobal(local.topLeft()))
-                backdrop._ripple_from_rect(QRect(origin, local.size()), strength)
+                backdrop._ripple_from_rect(QRect(origin, local.size()), strength,
+                                           edge=edge)
     except RuntimeError:
         return
 
