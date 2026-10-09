@@ -795,6 +795,29 @@ def _model_zoo_sections() -> str:
         if versus:
             lines += [f"**Measured.** {versus}", ""]
 
+        metrics = entry.get("metrics") or {}
+        score_rows = [(metric, value) for metric, value in metrics.items()
+                      if isinstance(value, dict) and
+                      value.get("finetuned") is not None]
+        if score_rows:
+            def score_value(value):
+                return ("not measured" if value is None else
+                        f"{value:.4f}" if isinstance(value, float) else
+                        str(value))
+            lines += [".. list-table:: Published scorecard",
+                      "   :header-rows: 1", "",
+                      "   * - Metric", "     - This model",
+                      "     - Stock", "     - Difference"]
+            for metric, value in score_rows:
+                lines += [f"   * - {metric}",
+                          f"     - {score_value(value['finetuned'])}",
+                          f"     - {score_value(value.get('vanilla'))}",
+                          f"     - {score_value(value.get('delta'))}"]
+            lines += ["", f"Evaluation set: ``{metrics.get('holdout', '')}``; "
+                      f"version ``{metrics.get('holdout_version', '')}``; "
+                      f"{metrics.get('n_fields', '')} scored fields and "
+                      f"{metrics.get('n_objects', '')} annotated objects.", ""]
+
         for note in entry.get("notes") or ():
             note = str(note).strip()
             if note:
@@ -812,6 +835,11 @@ def _model_zoo_sections() -> str:
                 f"``{entry.get('name')}``.",
                 "",
             ]
+            if score_rows:
+                lines += [f".. image:: https://huggingface.co/{where}{repo}/resolve/main/scorecard.png",
+                          f"   :alt: Published scorecard for {title}",
+                          f"   :target: https://huggingface.co/{where}{repo}/blob/main/scorecard.csv",
+                          ""]
 
         digest = str(entry.get("sha256") or "").strip()
         if digest:

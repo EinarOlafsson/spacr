@@ -1,0 +1,115 @@
+{
+  "scope": "bounded read-only findings and drafts; all84 offered English texts inventoried/screened; selected claims inspected",
+  "full_semantic_review": false,
+  "native_language_review": false,
+  "new_audio": false,
+  "offered_source_edits": false,
+  "findings": [
+    {
+      "id": "N678-T01",
+      "kind": "verified navigation drift",
+      "pointers": [
+        "/lessons/82/scenes/0/narration",
+        "/lessons/82/scenes/4/narration"
+      ],
+      "before": "Assays tab",
+      "draft": "Organism tab",
+      "evidence": "spacr/qt/app.py:540 SECTION_ASSAYS = \"Organism\"; line3494 selects the same visible label.",
+      "qualification": "Lesson86 is explicitly alpha. This is a proposed later text/capture correction, not a change to the accepted historical pronunciation-only candidate."
+    },
+    {
+      "id": "N678-T02",
+      "kind": "verified statistical terminology imprecision",
+      "pointers": [
+        "/lessons/22/scenes/13/narration"
+      ],
+      "before": "The standard deviation describes the range of plaque sizes within that image.",
+      "draft": "The standard deviation summarizes variation in plaque area within that image.",
+      "evidence": "https://numpy.org/doc/stable/reference/generated/numpy.std.html describes standard deviation as distribution spread; range is a different statistic.",
+      "qualification": "No incorrect numerical result has been established. Replace only the description after later source-bound review; retain experimental-replicate guidance."
+    },
+    {
+      "id": "N678-T03",
+      "kind": "verified workflow writer ownership conflict; repaired separately",
+      "pointers": [
+        "spacr/resources/module_workflows.json:/tutorials/80_image_analysis_pathways",
+        "tools/build_module_workflows.py:outputs"
+      ],
+      "before": "The generator unconditionally targets an old19-scene map story while the accepted source80 has12 scenes.",
+      "draft": "Explicit authored ownership; validate/read the accepted script and never regenerate its scene structure from the old map.",
+      "evidence": "Source-only2c5042b99174c73f79391c582bd8c5e1f4d90450; normal regeneration/check and54 workflow/translation tests pass. Accepted80 bytes unchanged.",
+      "qualification": "No narration or media rewrite; the old map story remains historical editorial material for a future factual-prose pass."
+    },
+    {
+      "id": "N678-T04",
+      "kind": "verified alpha scope discrepancy; deferred ownership decision",
+      "pointers": [
+        "/lessons/24/scenes/0/narration",
+        "/lessons/77/scenes/44/narration",
+        "/lessons/77/scenes/45/narration",
+        "/lessons/77/scenes/73/narration",
+        "/lessons/81/scenes/0/narration"
+      ],
+      "before": "Ordinary tutorial routes teach Host–Pathogen and Invasion without an alpha prerequisite.",
+      "draft": null,
+      "evidence": "spacr/qt/app.py:1208 sets invasion STAGE_ALPHA; lines1221–1223 register host_pathogen STAGE_ALPHA. AGENTS.md permits alpha tutorial content only86/87.",
+      "qualification": "Root explicitly authorized existing85 pronunciation-only preservation; accepted historical media is not a new alpha teaching claim. Do not hide UI or relabel alpha teaching. A later catalog/source retirement or scope decision is required; no unlisting or media changes here."
+    },
+    {
+      "id": "N678-T05",
+      "kind": "optional style/precision draft",
+      "pointers": [
+        "/lessons/79/scenes/9/narration"
+      ],
+      "before": "What comes out is planning evidence, not data, and it cannot stand in for measurements or barcode counts in Regression.",
+      "draft": "The output contains synthetic planning summaries. It cannot replace experimental measurements or barcode counts in Regression.",
+      "evidence": "The current sentence already states that the run writes synthetic summary rows; synthetic data are distinct from experimental observations.",
+      "qualification": "This is a clarity recommendation, not an identified simulation or scientific calculation error."
+    },
+    {
+      "id": "N678-T06",
+      "kind": "optional style; archival/editorial source only",
+      "pointers": [
+        "spacr/resources/module_workflows.json:/tutorials/80_image_analysis_pathways/introduction"
+      ],
+      "before": "Image analysis in spaCR follows your pictures from pixels to answers.",
+      "draft": "Image-analysis workflows combine object segmentation, measurement, and downstream analysis selected for the input data.",
+      "evidence": "Exact user example persists in the old map introduction and old local generated catalog; it is absent from acceptedCNEW lesson80.",
+      "qualification": "Do not change or resynthesize accepted80 for this archival phrase. Source ownership repair stops it overwriting the accepted narration."
+    }
+  ],
+  "official_reference_access_date": "2026-10-08",
+  "references": [
+    {
+      "project": "NumPy/numpydoc",
+      "url": "https://numpydoc.readthedocs.io/en/latest/format.html",
+      "guidance": "Concise functional summary; clarify behavior; precise inputs and outputs; separate implementation/background notes. Tutorial adaptation is judgment, not a mandated docstring template."
+    },
+    {
+      "project": "pandas",
+      "url": "https://pandas.pydata.org/docs/development/contributing_docstring.html",
+      "guidance": "Summarize behavior concisely and explain use cases separately from parameter and implementation details."
+    },
+    {
+      "project": "Numba",
+      "url": "https://numba.readthedocs.io/en/stable/developer/contributing.html#documentation",
+      "guidance": "Uses Sphinx and numpydoc. This reference does not establish a separate narration style mandate."
+    },
+    {
+      "project": "scikit-image",
+      "url": "https://scikit-image.org/docs/stable/development/contribute.html#stylistic-guidelines",
+      "guidance": "Describe array shapes and coordinate conventions explicitly. Library conventions are not automatically spaCR GUI axis-label requirements."
+    },
+    {
+      "project": "scikit-learn",
+      "url": "https://scikit-learn.org/stable/developers/contributing.html#documentation",
+      "guidance": "Explain what methods do to data and their practical application; keep runnable examples brief; qualify scalability/performance statements."
+    },
+    {
+      "project": "SciPy",
+      "url": "https://docs.scipy.org/doc/scipy/dev/contributor/contributor_toc.html#documentation",
+      "guidance": "Directs documentation authors to common NumPy docstring conventions and local rendered documentation checks."
+    }
+  ],
+  "remaining": "Do not implement prose/catalog/audio changes until remaining accepted media publication is terminal and Root assigns the later source-bound review."
+}

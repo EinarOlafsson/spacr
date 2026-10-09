@@ -151,12 +151,55 @@ Toxoplasma PV v4 (round 7)
 
 **Measured.** F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505
 
+.. list-table:: Published scorecard
+   :header-rows: 1
+
+   * - Metric
+     - This model
+     - Stock
+     - Difference
+   * - f1
+     - 0.8536
+     - 0.7648
+     - 0.0888
+   * - aji
+     - 0.7755
+     - 0.5050
+     - 0.2705
+   * - dice
+     - 0.8905
+     - 0.6431
+     - 0.2474
+   * - precision
+     - 0.8493
+     - 0.7539
+     - 0.0954
+   * - recall
+     - 0.8580
+     - 0.7760
+     - 0.0820
+   * - pixel_iou
+     - 0.8055
+     - 0.5239
+     - 0.2816
+   * - mAP
+     - 0.4921
+     - 0.3620
+     - 0.1301
+
+Evaluation set: ``pv_r7_test``; version ``r7-published-truth``; 10 scored fields and 683 annotated objects.
+
+* Scorecard metrics are means over nonempty fields, not pooled object counts; see aggregation.json.
 * NEWEST IS NOT BEST HERE: on 20 held-out fields of the new plate it was trained on, round 7 scores F1 0.748 against 0.899 for round 6 (recall 0.636 against 0.829) -- prefer toxoplasma_pv_v3 on that plate
 * on the 11 anchor wells it ties round 6 (0.8536 against 0.8602); 5-fold cross-validation F1 0.8142 +/- 0.015 against round 6's 0.8168
 * it traces the vacuoles it finds more tightly than round 6 (AJI 0.827 against 0.786 on the new plate) but finds fewer of them
 * the drop on the new plate is under investigation: round 7 also under-fits that plate's own training fields, which points at how those fields entered training rather than at generalisation
 
 Published as `einarolafsson/toxoplasma-pv-segmentation-cpsam-r7 <https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7>`_, as ``cpsam_v2_toxo_r7``.
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7/resolve/main/scorecard.png
+   :alt: Published scorecard for Toxoplasma PV v4 (round 7)
+   :target: https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r7/blob/main/scorecard.csv
 
 SHA-256 ``621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2``.
 
@@ -230,3 +273,111 @@ Toxoplasma from Hoechst (cross-channel)
 Published as `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_, as ``toxoplasma_from_hoechst_pv``.
 
 SHA-256 ``8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96``.
+
+Toxoplasma Plaque v3 (Gel Doc r5 candidate)
+-------------------------------------------
+
+**Architecture.** Cellpose-SAM (cpsam, Cellpose 4.0.9)
+
+**Trained on.** 496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc wells; 100 epochs; fixed physical-plate/source groups
+
+**Measured.** Stock was not evaluated in this run; see the named incumbent comparison on the model card.
+
+.. list-table:: Published scorecard
+   :header-rows: 1
+
+   * - Metric
+     - This model
+     - Stock
+     - Difference
+   * - f1
+     - 0.6419
+     - not measured
+     - not measured
+   * - precision
+     - 0.6943
+     - not measured
+     - not measured
+   * - recall
+     - 0.5968
+     - not measured
+     - not measured
+   * - ap
+     - 0.4726
+     - not measured
+     - not measured
+   * - true_positives
+     - 302
+     - not measured
+     - not measured
+   * - false_positives
+     - 133
+     - not measured
+     - not measured
+   * - false_negatives
+     - 204
+     - not measured
+     - not measured
+
+Evaluation set: ``geldoc_heldout_min_size_0``; version ``20261007T205603``; 18 scored fields and 506 annotated objects.
+
+* Candidate, not promoted; independent literature uncertainty gate did not pass.
+* Gel Doc score requires min_size=0; min_size=150 gives F1 0.1041.
+* Stock not measured; comparison baseline is incumbent r3.
+* Distinct from the cpsam_v2 round-5 model already registered as toxoplasma_plaque_v2.
+
+Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc>`_, as ``cpsam_plaque_r5_geldoc``.
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc/resolve/main/scorecard.png
+   :alt: Published scorecard for Toxoplasma Plaque v3 (Gel Doc r5 candidate)
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc/blob/main/scorecard.csv
+
+SHA-256 ``8f59850dbe09c3a252728b0a7ca38ae5b52a28f2dbaa7a068174b4b7bfac768c``.
+
+Toxoplasma Well Detector v3 (YOLO11 Gel Doc candidate)
+------------------------------------------------------
+
+**Architecture.** YOLO11n (fine-tuned from detector v3)
+
+**Trained on.** 452 reviewed training images; 124 validation images; physical plate and figure groups; 150 epochs; YOLO11n v3 initialization
+
+**Measured.** Stock was not evaluated in this run; see the named incumbent comparison on the model card.
+
+.. list-table:: Published scorecard
+   :header-rows: 1
+
+   * - Metric
+     - This model
+     - Stock
+     - Difference
+   * - mAP50
+     - 0.9940
+     - not measured
+     - not measured
+   * - mAP50_95
+     - 0.8842
+     - not measured
+     - not measured
+   * - precision
+     - 0.9698
+     - not measured
+     - not measured
+   * - recall
+     - 0.9979
+     - not measured
+     - not measured
+
+Evaluation set: ``detector_v3_validation_figure_clean``; version ``20261007T205603``; 73 scored fields and 191 annotated objects.
+
+* Candidate, not promoted: clean incumbent-validation mAP50-95 regresses.
+* Gel Doc plates selected best.pt, so their scores are validation rather than independent test.
+* Distinct from the YOLO26 checkpoint also historically called detector v4.
+* Locates wells, not plaques; one class plaque_well (0).
+
+Published as `einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc <https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc>`_, as ``yolo_welldetect_v4_geldoc.pt``.
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc/resolve/main/scorecard.png
+   :alt: Published scorecard for Toxoplasma Well Detector v3 (YOLO11 Gel Doc candidate)
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc/blob/main/scorecard.csv
+
+SHA-256 ``046861021594256957292cfe9488a84e758077a12dac31fe66b8b4083f8dfa18``.

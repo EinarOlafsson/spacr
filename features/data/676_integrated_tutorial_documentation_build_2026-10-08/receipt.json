@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "source_commit": "26de36bf07c9d9c747c41b0e4b76b163b3841ec0",
+  "result": "FAIL",
+  "exit_code": 2,
+  "reason": "Normal workflow generator still owns the old tutorial80 lesson while accepted refreshed lesson80 is independently authored. Minimal explicit ownership repair pending. Full documentation publication is not accepted.",
+  "payloads": [
+    {
+      "path": "tutorial-integrated-strict-english-r1.log.gz",
+      "raw_sha256": "16b1477c5be830e9c636bc6168977453af2206fb279c6086a71d6e58d532a633",
+      "gzip_sha256": "a5eb29b790811a716734b881d98e24991e89df6a46fc580271d728b539d50b17",
+      "raw_bytes": 2492
+    },
+    {
+      "path": "tutorial-integrated-strict-english-r1-tool.log.gz",
+      "raw_sha256": "67d284e716ffb033cdb3eeff1eff59c2ab61d70ccb506203070cb450023c5fda",
+      "gzip_sha256": "fde463ab590932a6ee69f30644833b00d11ffbf463def67346f4f85ed7e1719a",
+      "raw_bytes": 2954
+    }
+  ],
+  "bounded_fix_validation": {
+    "source_commit": "226f0aa05e62485268a14af6f0dd47d6435fcf88",
+    "normal_workflow_check": "PASS",
+    "full_Sphinx_rerun": "Not started under narrowed scope",
+    "payload": {
+      "path": "tutorial-authored-workflow-current-check-r1.log.gz",
+      "raw_sha256": "89738803fa8713d9fef63350f89294c8ba51593d50e7805a46eeced92e1091d9",
+      "gzip_sha256": "e4161c678963433805aa121980a48ab63e3b2889874699f551057e26af7d6e0f",
+      "raw_bytes": 162
+    }
+  }
+}

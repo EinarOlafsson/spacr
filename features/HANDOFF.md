@@ -1,5 +1,83 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 21:07 EDT — Final bounded workstation translation checks saved; agents finished
+
+All three workstation agents are finished, clean and have no running jobs.
+Current compact/backend follow-up source952150143/reviews c325ad102/normal
+catalogs ca97fda7e/fixture8b3b042c0/proof4c6683d4c are committed privately.
+Allnine audits and58756review records PASS,12 scoped checks PASS140.82s;
+10173runtime/UI7395. Root independently verifies251 compressed/raw payloads,
+2421 artifact bindings and658 actual Git source bindings; receiptSHA
+cc4dd0b5d0a867d219b701bbecb5d31986cf1141ca125c8cf1aec87a8de51492.
+10171 unchanged rows perlocale,2344 unrelated reviews and18 exact old archives
+are retained. Original guard/scratch failures are preserved. Full90case cohort
+is explicitly UNRUN; coherent current API/source adoption and publication remain
+pending. Public commits carry evidence/handoff only, not this private app wave.
+ data/compact_backend_runtime_review_2026-10-08/receipt.json
+
+User's reduced-scope instruction is satisfied by finishing current bounded
+checks and saving all remaining work. No new feature, media upload, rewrite or
+later consolidated Home source wave was started. Workstation takes no new items.
+
+## 2026-10-08 21:02 EDT — Workstation finishes current checks under reduced scope
+
+The user requests low-token items only and finishing current work. No new
+feature wave, broad prose rewrite, voice synthesis or media upload is started.
+Workstation's current work is committed in isolated trees. Parent items remain
+open where source integration, publication or external acceptance is pending.
+
+Root independently verifies the exact8cc API/docs packet262 payloads and
+original snapshot reconstruction; source13,265 API entries and nine locale
+builds/browser checks are accepted at that frozen source. Ready source sequence
+and clean tree are recorded in the portable receipt, not applied wholesale to
+newer public source. Preserve public README3416MB/native hardware paragraphs.
+ data/656_670_572_combined_documentation_acceptance_2026-10-08/receipt.json
+
+Root independently verifies the earlier FullEdge runtime packet112 compressed/
+raw payloads,3,491 frozen artifact bindings and658 immutable Git app bindings.
+Its10173runtime/UI7395 and79+106 tests are source-bound, not latest-head claims.
+ data/full_perimeter_runtime_review_2026-10-08/receipt.json
+
+Root independently verifies historical English TV-pronunciation candidate all
+5229 files and389 portable archive members. All56 tracks accepted; publication
+not performed. Six refreshed lesson media already uploaded to immutable5abf359
+and84 actual published-path browser cases pass, but combined repo/site source
+publication remains pending. Do not conflate these two media candidates.
+ data/676_historical_live_tv_acceptance_2026-10-08_r2/receipt.json
+ data/676_native_six_lesson_media_publication_2026-10-08/receipt.json
+
+Current six-lesson Sphinx build26de fails on authored80 being overwritten by
+normal workflow generation. Original failure retained. Minimal authored-source
+ownership fix2c5042b99 adopted privately as226f0aa05; normal workflow check PASS
+and54 owning tests PASS. Canonical lesson/audio/player bytes retained. Full
+Sphinx rerun/deployment not started under reduced scope. Bounded read-only audit
+84 lessons/1227 scenes is inventoried with six findings, not a complete global
+semantic/native-language review; Root verifies all13 archive members.
+ data/676_integrated_tutorial_documentation_build_2026-10-08/receipt.json
+ data/678_tutorial_factual_findings_2026-10-08/receipt.json
+
+Root current f1 backend/figure 10-file run:338PASS,5FAIL,18SKIP; every failure is
+missing declaredpypdf in isolated test environment. Installing exact declared
+6.16.1 in scratch and rerunning only unchanged five nodes yields5PASS11.81s.
+Original run/collection failure retained. Entire cohort not repeated; optional
+DuckDB/PostgreSQL remain untested here. Home realPG proof is separate.
+ data/572_576_root_current_cpu_2026-10-08/receipt.json
+
+Native GPU renderer42 CPU guards,84palette/window cases672exactframes including
+real MainWindow Apply/Keep/Revert/resize and24paired full-engine cases192frames
+PASS. Three actual Automatic cases verify sparse CPU/dense4K hardware selection.
+Root verifies16 compressed/raw logs/scripts/receipts and672 immutable Git app
+bindings. Original random-advection blink failure retained and fixed privately.
+GPU source10a2d28f7 remains private pending normal captions/API/guides/extras
+integration; no scientific GPU/native-other-OS/original-user-crash claim.
+ data/679_native_application_preferences_GPU_2026-10-08/receipt.json
+
+Home exact e600 hosted acceptance: compat-matrix37865925124 SUCCESS;
+tests37865925400 pending,docs37865924960 in progress,serialQt37865976724 in
+progress at this timestamp. Home continues owning CI dispatch and diagnostics.
+Later consolidatedF576 andF572 packets remain separate; do not stack old
+patches over their new consolidated source or hand-merge generated catalogs.
+
 ## 2026-10-08 20:50 EDT — Final consolidated F576 source has real PostgreSQL acceptance
 
 One coherent PRIVATEF576 candidate6727 includes prediction native stores,
