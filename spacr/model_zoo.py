@@ -641,7 +641,28 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                "weights/cpsam_v2_toxo_r7",
         "sha256":
             "621a475c9bfb6865be7de12c5c4638f4509d734e0c4d39adb15ea541e48961d2",
-        "metrics": {'n_train': '502 fields', 'train_objects': '23,340', 'n_test': '11 anchor wells', 'test_objects': '683', 'cv': '5-fold, grouped by source', 'f1': '0.8536', 'aji': '0.7755', 'dice': '0.8905', 'stock_f1': '0.7648', 'stock_aji': '0.5050', 'stock_dice': '0.6431', 'train_loss': '0.0424', 'val_loss': '0.0796', 'best_epoch': '55 / 100'},
+        "metrics": {'n_train': '502 fields',
+         'train_objects': '23,340',
+         'n_test': '11 anchor wells; 10 nonempty scored',
+         'test_objects': '683',
+         'cv': '5-fold, grouped by source',
+         'f1': {'finetuned': 0.8536, 'vanilla': 0.7648, 'delta': 0.08879999999999999},
+         'aji': {'finetuned': 0.7755, 'vanilla': 0.505, 'delta': 0.27049999999999996},
+         'dice': {'finetuned': 0.8905, 'vanilla': 0.6431, 'delta': 0.24739999999999995},
+         'stock_f1': '0.7648',
+         'stock_aji': '0.5050',
+         'stock_dice': '0.6431',
+         'train_loss': '0.0424',
+         'val_loss': '0.0796',
+         'best_epoch': '55 / 100',
+         'precision': {'finetuned': 0.8493, 'vanilla': 0.7539, 'delta': 0.09540000000000004},
+         'recall': {'finetuned': 0.858, 'vanilla': 0.776, 'delta': 0.08199999999999996},
+         'pixel_iou': {'finetuned': 0.8055, 'vanilla': 0.5239, 'delta': 0.28159999999999996},
+         'mAP': {'finetuned': 0.4921, 'vanilla': 0.362, 'delta': 0.1301},
+         'holdout': 'pv_r7_test',
+         'holdout_version': 'r7-published-truth',
+         'n_fields': 10,
+         'n_objects': 683},
         "display_name": "Toxoplasma PV v4 (round 7)",
         "architecture": "Cellpose-SAM (cpsam_v2)",
         "dataset": "round 6's 556 curated fields plus 80 hand-curated fields of "
@@ -657,6 +678,8 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         ),
         "trained_by": "einarolafsson",
         "notes": (
+            "Scorecard metrics are means over nonempty fields, not pooled "
+            "object counts; see aggregation.json.",
             "NEWEST IS NOT BEST HERE: on 20 held-out fields of the new plate it "
             "was trained on, round 7 scores F1 0.748 against 0.899 for round 6 "
             "(recall 0.636 against 0.829) -- prefer toxoplasma_pv_v3 on that plate",
@@ -857,6 +880,98 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "colony_detector/v1/",
         ),
     },
+    {'key': 'toxoplasma_plaque_v3',
+     'name': 'cpsam_plaque_r5_geldoc',
+     'remote_name': 'cpsam_plaque_r5_geldoc',
+     'kind': 'cellpose',
+     'repo_id': 'einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc',
+     'repo_type': 'model',
+     'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5-geldoc/resolve/main/weights/cpsam_plaque_r5_geldoc',
+     'sha256': '8f59850dbe09c3a252728b0a7ca38ae5b52a28f2dbaa7a068174b4b7bfac768c',
+     'size_bytes': 1218645663,
+     'metrics': {'f1': {'finetuned': 0.6418703506907545, 'vanilla': None, 'delta': None},
+                 'precision': {'finetuned': 0.6942528735632184, 'vanilla': None, 'delta': None},
+                 'recall': {'finetuned': 0.5968379446640316, 'vanilla': None, 'delta': None},
+                 'ap': {'finetuned': 0.4726134585289515, 'vanilla': None, 'delta': None},
+                 'true_positives': {'finetuned': 302, 'vanilla': None, 'delta': None},
+                 'false_positives': {'finetuned': 133, 'vanilla': None, 'delta': None},
+                 'false_negatives': {'finetuned': 204, 'vanilla': None, 'delta': None},
+                 'holdout': 'geldoc_heldout_min_size_0',
+                 'holdout_version': '20261007T205603',
+                 'n_fields': 18,
+                 'n_objects': 506,
+                 'n_train': '496 fields; 34 reviewed empty',
+                 'train_objects': '25794',
+                 'n_test': '18 Gel Doc wells, 3 plate groups',
+                 'test_objects': '506',
+                 'cv': 'no',
+                 'aji': 'not recorded',
+                 'dice': 'not recorded',
+                 'stock_f1': 'not measured',
+                 'stock_aji': 'not measured',
+                 'stock_dice': 'not measured',
+                 'train_loss': '0.18370248939254452',
+                 'val_loss': 'see monitored NAS history; final epoch not measured',
+                 'best_epoch': 'final checkpoint, 100 epochs; no best-epoch selection'},
+     'display_name': 'Toxoplasma Plaque v3 (Gel Doc r5 candidate)',
+     'architecture': 'Cellpose-SAM (cpsam, Cellpose 4.0.9)',
+     'dataset': '496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc '
+                'wells; 100 epochs; fixed physical-plate/source groups',
+     'versus_stock': 'Stock was not evaluated in this run; see the named incumbent comparison on the '
+                     'model card.',
+     'trained_on': '496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc '
+                   'wells; 100 epochs; fixed physical-plate/source groups',
+     'trained_by': 'einarolafsson',
+     'notes': ['Candidate, not promoted; independent literature uncertainty gate did not pass.',
+               'Gel Doc score requires min_size=0; min_size=150 gives F1 0.1041.',
+               'Stock not measured; comparison baseline is incumbent r3.',
+               'Distinct from the cpsam_v2 round-5 model already registered as toxoplasma_plaque_v2.']},
+    {'key': 'toxoplasma_well_detector_v3',
+     'name': 'yolo_welldetect_v4_geldoc.pt',
+     'remote_name': 'yolo_welldetect_v4_geldoc.pt',
+     'kind': 'detector',
+     'repo_id': 'einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc',
+     'repo_type': 'model',
+     'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-well-detector-yolo11-v4-geldoc/resolve/main/weights/yolo_welldetect_v4_geldoc.pt',
+     'sha256': '046861021594256957292cfe9488a84e758077a12dac31fe66b8b4083f8dfa18',
+     'size_bytes': 5478042,
+     'metrics': {'mAP50': {'finetuned': 0.9940094439993655, 'vanilla': None, 'delta': None},
+                 'mAP50_95': {'finetuned': 0.884212663807534, 'vanilla': None, 'delta': None},
+                 'precision': {'finetuned': 0.96981851739557, 'vanilla': None, 'delta': None},
+                 'recall': {'finetuned': 0.9979244614467876, 'vanilla': None, 'delta': None},
+                 'holdout': 'detector_v3_validation_figure_clean',
+                 'holdout_version': '20261007T205603',
+                 'n_fields': 73,
+                 'n_objects': 191,
+                 'n_train': '452 images',
+                 'train_objects': '1679',
+                 'n_test': '73 clean incumbent-validation images; 3 Gel Doc validation plates '
+                           'separately',
+                 'test_objects': 'see training/fields.csv',
+                 'cv': 'no',
+                 'f1': 'not an object-F1 score; mAP50 0.9940',
+                 'aji': 'not applicable to box detection',
+                 'dice': 'not applicable to box detection',
+                 'stock_f1': 'no stock YOLO plaque_well class; incumbent v3 baseline',
+                 'stock_aji': 'not applicable',
+                 'stock_dice': 'not applicable',
+                 'train_loss': 'box/class/DFL losses in epoch_history.csv',
+                 'val_loss': 'box/class/DFL losses in epoch_history.csv',
+                 'best_epoch': 'validation-selected best.pt; see training checkpoint metadata'},
+     'display_name': 'Toxoplasma Well Detector v3 (YOLO11 Gel Doc candidate)',
+     'architecture': 'YOLO11n (fine-tuned from detector v3)',
+     'dataset': '452 reviewed training images; 124 validation images; physical plate and figure '
+                'groups; 150 epochs; YOLO11n v3 initialization',
+     'versus_stock': 'Stock was not evaluated in this run; see the named incumbent comparison on the '
+                     'model card.',
+     'trained_on': '452 reviewed training images; 124 validation images; physical plate and figure '
+                   'groups; 150 epochs; YOLO11n v3 initialization',
+     'trained_by': 'einarolafsson',
+     'notes': ['Candidate, not promoted: clean incumbent-validation mAP50-95 regresses.',
+               'Gel Doc plates selected best.pt, so their scores are validation rather than '
+               'independent test.',
+               'Distinct from the YOLO26 checkpoint also historically called detector v4.',
+               'Locates wells, not plaques; one class plaque_well (0).']},
 )
 
 #: Models that are no longer OFFERED, by filename.
@@ -3988,13 +4103,26 @@ def scorecard_html(entry) -> str:
             or getattr(entry, "key", ""))
     def cell(value):
         """A scorecard value as shown, or "not recorded" when blank."""
+        if value is None:
+            return "not recorded"
         return value if str(value).strip() else "not recorded"
     rows = []
-    for label, key in SCORECARD_ROWS:
+    detector_rows = tuple((label, key) for label, key in
+                          (("mAP50", "mAP50"), ("mAP50–95", "mAP50_95"))
+                          if key in metrics)
+    for label, key in SCORECARD_ROWS + detector_rows:
         stock = metrics.get(f"stock_{key}", "") if key in ("f1", "aji", "dice") else ""
+        value = metrics.get(key, "")
+        if isinstance(value, Mapping):
+            stock = value.get("vanilla")
+            value = value.get("finetuned")
+            if isinstance(value, float):
+                value = f"{value:.4f}"
+            if isinstance(stock, float):
+                stock = f"{stock:.4f}"
         rows.append(
             f"<tr><td>{label}</td>"
-            f"<td align='right'><b>{cell(metrics.get(key, ''))}</b></td>"
+            f"<td align='right'><b>{cell(value)}</b></td>"
             f"<td align='right'>{cell(stock) if stock or key in ('f1','aji','dice') else ''}</td></tr>")
     trained = getattr(entry, "trained_on", "") or ""
     card = getattr(entry, "model_card_url", "")
