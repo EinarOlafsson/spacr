@@ -160,7 +160,85 @@
       "raw_bytes": 7783,
       "raw_sha256": "3d4e1ec86434af37c98928268415fc8c14d8f65d4092788d5903dee7b08b986e",
       "gzip_sha256": "21bf1baccfacce8ca880ea6f134d154ab9d59264c64aa40e246f730597ccd359"
+    },
+    {
+      "path": "payload/home-4944-job-113622486792-terminal-r1.log.gz",
+      "raw_bytes": 4002690,
+      "raw_sha256": "70b3cea70b7091118d2821aab3d382a721db9c0ae64ec786cba1a8f798dd4e8d",
+      "gzip_sha256": "0bda835a008e5457f5805a0e2e117c279a1b9a036b48eee76aaa72f929bb99d0"
+    },
+    {
+      "path": "payload/home-4944-job-113622487182-terminal-r1.log.gz",
+      "raw_bytes": 2278114,
+      "raw_sha256": "c394a9ef6ed530e037d8f206b762f1ef87a8ffa8dfff7eded33ff3c0bdde2072",
+      "gzip_sha256": "c0bfc3086a07407ea69e78b0e6c99ac26a354a5fab83051a85f78b647332fae7"
+    },
+    {
+      "path": "payload/home-4944-job-113622487248-terminal-r1.log.gz",
+      "raw_bytes": 3763631,
+      "raw_sha256": "8885079cdb9b81cdb04e858cd54803f3b2cb5eb507112dcf3a488933d11cc7e4",
+      "gzip_sha256": "bf6e6776b794278f98625b492d3e2715ecd02c44486a8c4b1f10f2b3ec907e19"
+    },
+    {
+      "path": "payload/count-collector-more-owners-r1-tool.log.gz",
+      "raw_bytes": 1931,
+      "raw_sha256": "46e563605e038af4e72ba79a183de62456418af905f681c71ce86841a2d5336e",
+      "gzip_sha256": "8dd4089431b0bcac9e593a21592d835f62d88795963e4809b3a144aba64ecc03"
+    },
+    {
+      "path": "payload/count-collector-more-owners-r1.log.gz",
+      "raw_bytes": 1229,
+      "raw_sha256": "4d42a6220437a07dc2328c7e0d3e1124fc4fb17a0395a1240f6a37b930a5f319",
+      "gzip_sha256": "7c24efaaf141e52dead106c76f08242c9cfa67ed003d84f5472d587cce212eeb"
+    },
+    {
+      "path": "payload/count-collector-more-owners-r1-endpoint.json.gz",
+      "raw_bytes": 198,
+      "raw_sha256": "8a9f02bfb8038d660214020e5277800b747ac85f4058cc813a2cfa860b7fad4c",
+      "gzip_sha256": "8b1805bc3c54db08ef7f7cdd204778ad8aa60cf7878f5d9b6b2247d0fdc93d79"
+    },
+    {
+      "path": "payload/home-4944-terminal-job-state-r2.json.gz",
+      "raw_bytes": 94851,
+      "raw_sha256": "a628b8bfb5c7ca11c103e858946787e4f487443ea13bfb1feee147df11e8673c",
+      "gzip_sha256": "8f94bfae7f98951d3aec98d82ea2d34b8fb541559eb145b1fc8f0983fa75fe02"
+    },
+    {
+      "path": "payload/count-collector-more-owners-r1/f343df0506b14d0e8a9678cb607784e4-523642.jsonl.gz",
+      "raw_bytes": 89258,
+      "raw_sha256": "2785cad1e71aebf0cf8127e71d65cf7bb001de2ea88a112317d10088ea459d6c",
+      "gzip_sha256": "c9fc32764e7ddd46c6d1d27402db0661f2c2574ec9de86f6c5def39d2cb11b30"
     }
   ],
-  "qualification": "Only completed job logs used for diagnosis; overall hosted run and Home serial Qt still live. Full current GitHub green, exact coverage recovery and published Conda channel remain unverified. App/API/runtime/README generated files unchanged in this batch."
+  "qualification": "Only completed job logs used for diagnosis; overall hosted run and Home serial Qt still live. Full current GitHub green, exact coverage recovery and published Conda channel remain unverified. App/API/runtime/README generated files unchanged in this batch.",
+  "additional_terminal_hosted_jobs": [
+    113622486792,
+    113622487182,
+    113622487248
+  ],
+  "additional_collector_owners": {
+    "source_commit": "7281178acf7fccf157371c6fa83974170963e440",
+    "passed": 260,
+    "seconds": 7.6,
+    "skipped": 0,
+    "recorded": {
+      "schemaVersion": 1,
+      "label": "tests",
+      "message": "260/260",
+      "color": "green",
+      "passed": 260,
+      "total": 260,
+      "run_id": "",
+      "source_sha": "7281178acf7fccf157371c6fa83974170963e440"
+    },
+    "files_sha256": {
+      "tests/test_doctor.py": "657ce5eed25f0655c006f5bd5983391ef86fe6fc7511bc005fdd4f0c35e1c9db",
+      "tests/test_cellprofiler_python_provision_f546.py": "4628d40b9943df727af84f1d995c88e32a906f9ad1dff7a3e1c2a9572e17381f",
+      "tests/test_a_parent_directory_is_always_there_to_make.py": "fea14312a6fa0619de705c85cbaeecb30c45b3c8de4be41f485b68b432effdb7",
+      "tests/test_a_tilde_path_opens_its_database.py": "bfa146fae6e6a6b3d5453f91b4c27eac0c9b59f8ad5c32bc05eb2ab828fdfa72",
+      "tests/test_starplast_environment.py": "8fadbb3a71d8cf75e4a8987a573e839938774bf58fea7453fc8b0402121f625a",
+      "tests/test_the_messages_that_name_the_real_problem.py": "bd3641ec5142f2592239fb097294f2d3724c3117aa681462ad40103638b8ff74"
+    },
+    "scope": "Six complete affected test files; original hosted relative-directory collector failure is retained. Exact hosted coverage measurement and full-run acceptance remain pending."
+  }
 }
