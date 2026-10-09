@@ -88,3 +88,13 @@ Parquet writes use cooperative-writer manifest snapshots, retaining old parts
 for readers; no garbage collection/external-writer guarantee. Classification
 selected-store routing and alpha migration UI are now active in reused CPU
 agents. Parent remainsPARTIAL, not100%.
+
+2026-10-08 20:38 EDT — Home independently verified the private migration UI
+packet (12payloads/3source bindings) and classifier routing packet (5payloads/
+2bindings). Exact patches reproduce recorded Git source SHAs in alternate
+indexes. Migration owning12PASS and realPG round-trip/source preservation;
+classifier native SQLite/DuckDB/Parquet/PG9PASS, neighboring11PASS preceded the
+last dedup change. App source remains private pending normal22UI migration
+captions and backend API prose refresh. Paired-table GUI/output-root work is
+separate. Parent remainsPARTIAL, no universal store-routing or external atomicity
+claim. See data/backend_figure_packet_root_readback_2026-10-09/receipt.json.

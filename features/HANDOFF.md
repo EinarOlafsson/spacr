@@ -1,5 +1,47 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 20:38 EDT — Three new private CPU packets, independently verified
+
+Copy-console/codec/idle CI source repairs are PUBLICf800cca399; exact required
+GitHub run37865024733 is pending. Workstation dated README3416MB normal writer
+is active. Preserve that source wave and source-bound run results.
+
+Home independently verifies12 migration payloads/3 Git source bindings,5
+classifier payloads/2bindings,6 merged-region payloads/2bindings. Each source
+patch applied to its frozen baseline in an alternate index and reproduced every
+recorded source SHA exactly. Portable readback:
+ data/backend_figure_packet_root_readback_2026-10-09/receipt.json
+
+PRIVATEF576 migration212:12 final owningPASS; realPG UI source-preserving
+SQLite→PG→SQLite/empty table/occupied destination refusal verified. APIunchanged,
+22 newUI literals require normal workstation caption ownership before appship.
+ data/576_measurement_migration_ui_cpu_2026-10-08/receipt.json
+PRIVATEF576 classifierfbb:9 final native backend matrixPASS15.31s,11neighbor
+PASS before dedup follow-up; regression/prediction/classifier total5API prose
+replacements, runtimezero. Two-plate samePGDSN reads only once. Portable delta
+base338 requires earlier regression/writer source packets; paired GUI later
+arrivals are separate and source-private.
+ data/576_classifier_store_routing_2026-10-08/receipt.json
+
+PRIVATEF572b33 real merged_crop producer now yields advisory notes for bounded
+replay-verified overlap of fully hashed shared sources. Actual96/128montage
+exports positive; changed source/tampered replay/cap/malformed recipe abstain.
+Figure+montage115PASS31.63s. API/runtime same as predecessor; earlier plot tr
+extractor gap still needs normal ownership. No arbitrary splice/heavy-noise
+completion claim: existing shared-label controls false-match and noise recall
+is inadequate. New CONSOLIDATEDpublic-f0 six-file source patch includes all
+prior exact replay and current reachable source-region code. PreserveN658.
+ data/572_verified_merged_source_regions_cpu_2026-10-08/receipt.json
+ data/572_current_merged_source_handoff_2026-10-09/receipt.json
+
+F576 paired-table GUI includes13 newUI captions and total7backend API prose
+changes; output-root DSN fix continues privately. PostgreSQL count inputs with
+blank local src must not produce DSN-shaped folders. WORKSTATION normal tooltip
+owner: regression src prose currently promises auto-output beside count table;
+remote count stores instead need an explicit local output directory. General
+settings backend help still needs its earlier SQLite-working-copy correction.
+
+
 ## 2026-10-08 20:26 EDT — Home publishes three narrow CI source repairs
 
 Home integrates immediate Copy console translation (de/pt initial-layout width),
