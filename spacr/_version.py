@@ -10,4 +10,4 @@ when a caller explicitly asks it to inspect the installed distribution.
 
 from __future__ import annotations
 
-__version__ = "1.5.1.3"
+__version__ = "1.5.1.4"

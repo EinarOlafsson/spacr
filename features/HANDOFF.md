@@ -1,5 +1,23 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-09 — Explicit user release request: nightly 1.5.1.4 promoted to main
+
+User explicitly requested bumping nightly to1.5.1.4 and merging nightly into
+main immediately to trigger release. This authorizes the main push exception
+to the usual nightly-only lane rule. Main91ab2b8ae7 is an ancestor of nightly;
+promotion uses a normal fast-forward, no force and no shared checkout change.
+Normal packaging/release.py bump1.5.1.4 updates setup.py/CITATION.cff/_version.py
+and restamps the existing information-deck artifacts with their generator.
+Metadata verify1.5.1.4; owning packaging/release-metadata/forge cohort69PASS
+2SKIP (new release DOI/sdist cannot exist before publication). Existing DOI
+and forge source hash are preserved for normal post-release synchronization.
+Main setup.py version change triggers .github/workflows/release.yml on push;
+no manual duplicate release/tag or fabricated publication claim. Next session
+checks actual release run/jobs/tag/PyPI rather than inferring success from push.
+Original GitHub full tests remain red; version publication is not CI acceptance.
+Prepared-job automatic checks/commit/push setup remains the next active task.
+
+
 ## 2026-10-09 — Automatic full progress table, without model calls
 
 Home added tools/watch_progress_table.py. It reads the latest committed shared
