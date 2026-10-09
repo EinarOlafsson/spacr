@@ -1,5 +1,25 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-09 00:03 EDT — Tutorial publication and browser navigation guards accepted
+
+Root found additional current publication guards expecting85 lessons, Assays
+and old fixed cache versions. Baseline19FAIL12PASS. Sourcecb9dea899 validates
+84 ready routes, all14 public catalogs against the held checkpoint, reviewed
+Organism category, current full readback/hold-lift evidence and all5 exact
+cache versions from normal verified publication receipt. Index SHA stays bound;
+normal staging report names actual1b media root and every localaudio file is
+proven dropped, without changing budget policy or sourceassets. Whole3 owning
+files31PASS1.46s/no skips. Normal desktop/mobile navigation tool passed all7
+cases: new install order, Next/Previous, parent breadcrumb, parentsearch,
+Spanish labels,390px collapsible menu and no JS errors. Both screenshots and
+complete normal browser report retained; remote_media_tested=false is explicit.
+Expanded proof:data/43_current_tutorial_guard_repair_2026-10-09/receipt.json.
+Source/player/catalog/media bytes unchanged from acceptedb80. Existing prior
+15 normal release/catalog tests and84 hosted playback cases keep their own
+source bindings; no full current CI/deployedwebsite claim. Home serialQt and
+passive watcher untouched. Current normalpush includes these guard repairs.
+One Root; no children/new productionaudio/capture/GPU/broadtranslation wave.
+
 ## 2026-10-08 23:53 EDT — Stale tutorial release guards repaired; obsolete Root CI retired
 
 Root archived5 terminal failed jobs from own611 run37874032049 before cancelling

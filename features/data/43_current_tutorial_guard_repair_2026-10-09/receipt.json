@@ -122,6 +122,72 @@
       "raw_bytes": 1123,
       "raw_sha256": "42ad328b752a85989c79c0e4bcc7185cab0e48e0458a2a20c048b75e2024ddc3",
       "gzip_sha256": "d928b1e2fdd252cb23e042ad1ddf5fdc96ff78a0f9fcb11605ef7586a344926c"
+    },
+    {
+      "path": "payload/19-tutorial-publication-inventory-baseline-r1-tool.log.gz",
+      "raw_bytes": 26151,
+      "raw_sha256": "6bfaab9c0073f893c272e7de519853fe4a590f251f8c57cf1bfbaff5c8fccfde",
+      "gzip_sha256": "165a05cc32fed8e5ce15ea2e81c716f19a1ffd5e6fa9991b53d4aa22d4599666"
+    },
+    {
+      "path": "payload/20-tutorial-publication-inventory-baseline-r1.log.gz",
+      "raw_bytes": 25553,
+      "raw_sha256": "a7acafb8aa6a8ab5f8a1204e61e097602d8d5c01a999e03a7951d5686ac5605a",
+      "gzip_sha256": "28f4ec355ecfa8ebf954b06e3552efe555213d3c29838f1b7a59c19689da54ff"
+    },
+    {
+      "path": "payload/21-tutorial-publication-inventory-fixed-r1-tool.log.gz",
+      "raw_bytes": 2456,
+      "raw_sha256": "896a4f48fcbda285ce1f963af697d3536a6e335b2116a51db02b82293684a91e",
+      "gzip_sha256": "4dafa26f8e564471fd72a8125bfed58e08afa1e561cf5253a0eb3797a2776c19"
+    },
+    {
+      "path": "payload/22-tutorial-publication-inventory-fixed-r1.log.gz",
+      "raw_bytes": 1861,
+      "raw_sha256": "4e9de449adf64cdba28d153e2a2e06006cf180eefbdd46ac885a7d8f7ab55429",
+      "gzip_sha256": "2e774302a2b583ef4d5c40bbce0937a3eddce3c7f035535d4fb916eb855afa7e"
+    },
+    {
+      "path": "payload/23-tutorial-publication-inventory-fixed-r2-tool.log.gz",
+      "raw_bytes": 819,
+      "raw_sha256": "2f4b05b0d0dff83473f63dfbea1f280abb23f4279a8d7fe0e3672952d11942d0",
+      "gzip_sha256": "ea24a50b876fdef80f49602333dbd719b11e8c7a1393ab8795ed52cc0a623bb2"
+    },
+    {
+      "path": "payload/24-tutorial-publication-inventory-fixed-r2.log.gz",
+      "raw_bytes": 224,
+      "raw_sha256": "146857141e2490cb8bf83fae8ca32e56dac71bb3a27f87130355175ffabd2fa6",
+      "gzip_sha256": "258608082e7235f77341a5478de7b4b3bdc6947fa5138c8beed75bbeb2421c9c"
+    },
+    {
+      "path": "payload/25-tutorial-navigation-current-browser-r1-tool.log.gz",
+      "raw_bytes": 1564,
+      "raw_sha256": "57295b435e859d7b7c29472bb8dea8e01ac28c1109484a146d056a85e9826968",
+      "gzip_sha256": "fa0a605b329836f9de325f126fe662be57923faf79a5dadce57c6581c6d57d1b"
+    },
+    {
+      "path": "payload/26-tutorial-navigation-current-browser-r1.log.gz",
+      "raw_bytes": 747,
+      "raw_sha256": "de2b43532ccd281ebfc3b2f7186a4f64700ef05e405f918c86ecdc94eaaf485d",
+      "gzip_sha256": "089ef8cafc2d8b08ad0e9818c61fc945457f804489affd33bd90dcd91537dc8c"
+    },
+    {
+      "path": "payload/27-desktop.png.gz",
+      "raw_bytes": 282590,
+      "raw_sha256": "241df7ae967f4a153c9eda46e366a7d0711c3882b31d9c99c41935259417cab6",
+      "gzip_sha256": "7b8cf624e40c4c7394ed25f7a10434b51efca3b68c574af279a236ed01aa6fe7"
+    },
+    {
+      "path": "payload/28-mobile.png.gz",
+      "raw_bytes": 72344,
+      "raw_sha256": "13a71c2eb74291f4207878116e26f269af510b952804b18ae37e197258e8e4c4",
+      "gzip_sha256": "1e4e9d277cef2cd3f9361843e5573b64307de8e934c23d63ff9a9c90496f1c09"
+    },
+    {
+      "path": "payload/29-navigation-checks.json.gz",
+      "raw_bytes": 622,
+      "raw_sha256": "d53251e017f45f1bbaa6aabda9459c82e5fb8a4629c68f149a3c6869ea608d9a",
+      "gzip_sha256": "7782ecb4550eadc57b03fd77a1eb95628105ba274a60f1cb422da033a54624d2"
     }
   ],
   "baseline": {
@@ -155,5 +221,46 @@
     "failed_terminal_jobs_archived": 5,
     "final_status": "cancelled"
   },
-  "qualification": "Existing authored/native publication unchanged. Fixed stale guards for merged install, current speech version, and exact 15 visual-reference paths bound to media manifest. Node is the existing Playwright driver runtime. Static local HTTP audit passed; no new full Selenium/mobile/live website acceptance claim. Home serial Qt untouched; latest required CI remains pending."
+  "qualification": "Existing authored/native publication unchanged. Fixed stale guards for merged install, current speech version, and exact 15 visual-reference paths bound to media manifest. Node is the existing Playwright driver runtime. Static local HTTP audit passed; no new full Selenium/mobile/live website acceptance claim. Home serial Qt untouched; latest required CI remains pending.",
+  "publication_followup": {
+    "source_commit": "cb9dea8993045dbe27eed330f48ddfd49aef219e",
+    "source_sha256": {
+      "tools/tutorials/tests/test_release_candidate_routes.py": "316b5eddd71b245de16a777f213d0dc7b6ee170fcf8dc28dbb9048619ab6aef5",
+      "tools/tutorials/tests/test_public_coming_soon.py": "f0e43450c47ded73721bb65a5dae9b46e4de5d9fbdb9a7cdfb4dbcd7aa50369e",
+      "tools/tutorials/tests/test_navigation_category_reviews.py": "5c5e79d5e7bce7a232519efb2411c72f8cc85e1a440fc69c09587d0033518cdb",
+      "tools/tutorials/verify_navigation_browser.py": "b113407f896e3137779222bfcfa6efaeaf6d651d876857ea7d78c82b956f6140",
+      "tools/docs_media_budget.py": "29a964f0e87c7771c6d428d49d207e0676734124e246da3a27be28e1e98f87c5"
+    },
+    "baseline": {
+      "failed": 19,
+      "passed": 12,
+      "seconds": 1.52
+    },
+    "intermediate": {
+      "failed": 1,
+      "passed": 30
+    },
+    "fixed": {
+      "passed": 31,
+      "seconds": 1.46,
+      "skipped": 0
+    },
+    "navigation_browser": {
+      "checks": [
+        "Setup, Home and pipelines precede modules; every lesson appears once",
+        "Next and Previous follow the visible learning order",
+        "Moved lesson retains URL and shows current parent breadcrumb",
+        "Searching a parent finds its submodules",
+        "Spanish navigation switches with the narration language",
+        "390-pixel mobile layout fits and both sections collapse accessibly",
+        "No JavaScript runtime errors"
+      ],
+      "remote_media_tested": false,
+      "catalog_lesson_count": 84,
+      "runtime_source_commit": "cb9dea8993045dbe27eed330f48ddfd49aef219e",
+      "missing_tutorials": [],
+      "passed": true
+    },
+    "qualification": "Unchanged authored catalogs/player/media. Current expected publication counts, reviewed Organism label and exact verified cache versions checked; actual local audio staging proves no duplication. Desktop/mobile navigation check uses existing local media and does not claim remote playback or deployment."
+  }
 }
