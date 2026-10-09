@@ -1,5 +1,18 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-09 11:55 EDT — New animation/window request registered for next session
+
+N684: features/new/684_animation_defaults_ripples_cross_platform_snap_and_dynamic_gpu.txt.
+Requested scope: flow density25%, theme RGB25/25/25, four-direction snapping
+and fullscreen on Windows/Linux/macOS, ripple slider with zerooff, click-ripple
+boolean and duplicate-click suppression for container-generated ripples,
+performance audit and GPU backend for every animation, defaultGPU with offslider,
+and Performance "Dynamic animation" boolean defaulton. CPU-heavy tasks pause
+themes; GPU tasks disable decorative GPU; restore saved choices after all jobs.
+The user's mouse-gravity default sentence has no value: leave unspecified.
+Coordinate N666/N670/N679 rather than duplicating existing partial work.
+Registration only, not implementation or acceptance. One Root; no subagents.
+
 ## 2026-10-09 — Prepared-item automatic check/commit/push worker active
 
 Explicitly authorized local manifests only; no model calls. Queue:

@@ -1,0 +1,121 @@
+================================================================================
+ANIMATION DEFAULTS, CLICK RIPPLES, WINDOW SNAPPING AND DYNAMIC GPU USE
+================================================================================
+
+Status:    not started
+Requested: 2026-10-09 — "make all of this into a new feature item for the next session to implement."
+Owner:     Next session; coordinate Home window/theme changes and workstation GPU work
+Related:   N666 snapping; N670 ripples; N679 GPU renderers; N663 performance
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+This entry records the latest user request. Registration is complete;
+implementation, animation profiling and platform acceptance are not done.
+Existing related items contain partial implementations and private GPU
+experiments. Inspect their current source and evidence before extending them.
+Do not interpret this entry as acceptance of those broader scopes.
+
+The user wrote "the mouse gravity default should be" without a value.
+The requested mouse-gravity default remains unspecified. Preserve the current
+default until the user supplies the value; do not guess zero, ten or 25 percent.
+Confirm which existing renderer the user calls "spaCR flow" before changing
+its default; do not silently apply its density to every animation.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The user wants consistent dark backgrounds, predictable ripple feedback and
+window placement on all three desktop platforms. Decorative animation must
+yield resources to image analysis instead of delaying scientific workloads.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Defaults and background
+   - Set the spaCR flow default animation density to 25%.
+   - Set the spaCR theme background to RGB (25, 25, 25), or #191919.
+   - Leave the unspecified mouse-gravity default pending clarification.
+   - Change defaults without overwriting existing saved user choices. Preserve
+     page opacity and the distinction between main and settings backdrops.
+
+2. Cross-platform window placement
+   - Allow the spaCR window to snap right, left, down and up, and enter/leave
+     full screen on Windows, Linux and macOS. Top snapping and full screen
+     must both be available; do not satisfy both solely with one top action.
+   - Extend N666's existing frameless-window implementation where appropriate.
+     Respect each platform's compositor/window-manager behavior, monitor work
+     areas, display scaling and restore geometry. Keep ordinary resizing usable.
+
+3. Ripple settings and event handling
+   - Provide a Field ripple slider; zero means off. Keep ripple control
+     independent of mouse gravity and animation density. Reuse or migrate the
+     existing ripple-intensity preference instead of adding competing controls.
+   - Add a separate boolean preference for mouse-click ripples. Its default
+     was not specified by the user; record any implementation choice explicitly.
+   - When enabled and ripple intensity is nonzero, a click produces a ripple
+     at the click position. A click that also triggers another ripple, such
+     as closing a container, produces the container ripple only. Suppress the
+     redundant click ripple for that interaction, not unrelated later clicks.
+   - Preserve existing container geometry, opening/closing and edge ripples,
+     including user-requested popup-origin behavior and saved settings.
+
+4. Animation performance audit and GPU implementations
+   - Audit every available animation, especially spaCR flow. Record exact
+     source, hardware, display resolution/scaling, density, detail, palette,
+     frame-time distribution, CPU use, GPU use and memory for CPU and GPU paths.
+   - Implement a GPU-accelerated rendering path for each animation, retaining
+     a usable CPU path. Build on N679 where suitable; do not assume its partial
+     flow prototype covers all themes or demonstrates a speedup.
+   - Request GPU acceleration by default on supported hardware. Provide the
+     requested slider with an explicit off/CPU position. Define remaining
+     slider semantics clearly; retain safe CPU fallback when the graphics
+     context/backend is unsupported or initialization fails.
+   - Measure native performance and visual/interaction agreement. Do not
+     claim that enabling GPU necessarily improves every theme or resolution.
+
+5. Dynamic animation resource policy
+   - Add a boolean setting named "Dynamic animation" in Performance, on by
+     default. Use translation and normal Preferences persistence/Apply/Revert.
+   - When on, a CPU-heavy analysis task such as Measure pauses the animation
+     entirely. A GPU analysis task such as mask generation disables decorative
+     GPU acceleration and permits the CPU animation path when appropriate.
+   - CPU-heavy work takes precedence when CPU and GPU tasks overlap. Track
+     task start, completion, cancellation and failure, including concurrent
+     jobs; one finished job must not release another job's resource guard.
+   - Restore the user's selected theme/backend when blocking work finishes.
+     Temporary policy overrides must not overwrite saved choices. When the
+     boolean is off, disable this automatic workload policy while retaining
+     hardware-capability fallback. Document how external/headless processes
+     are detected and which task signals are covered.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Defaults, saved-setting migration, Apply/Keep/Revert and reopening are checked
+against the values above. Ripple checks cover zero/off, plain clicks, disabled
+clicks, container-close clicks without duplicate ripples and subsequent clicks.
+Resource-policy checks cover CPU-only, GPU-only, overlapping jobs, failures,
+cancellation, policy disabled and restoring user-selected settings.
+
+Record native snapping/fullscreen/restore evidence on Windows, Linux and macOS;
+offscreen Qt checks alone do not establish compositor support. Record a bounded
+CPU/GPU performance comparison for each theme, plus resize/hide/show and safe
+context teardown. Preserve slower/unsupported results rather than claiming a
+universal speedup. Use focused capped checks, never the whole local suite; GPU
+execution uses tools/gpu_turn.sh and never touches protected analysis jobs.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+No application defaults, renderers, Preferences controls or window behavior
+are changed by this registration. No missing gravity value is invented.
+No existing parent is closed, and no native/GPU acceptance is claimed.
+
+2026-10-09 — Registered as N684 for the next session. The latest 25% flow
+density request supersedes an earlier 10% request for that theme only.
