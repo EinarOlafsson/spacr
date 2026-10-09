@@ -1,0 +1,93 @@
+{
+  "source_sha": "129db9eeee2c7535064ab2f6428d39e7326dc89f",
+  "utc": "2026-10-09T13:08:58.276204+00:00",
+  "passed": 378,
+  "skipped": 1,
+  "failed": 0,
+  "payloads": [
+    {
+      "path": "manifest.json",
+      "sha256": "4570e925aef8405ada46f0c1031824606d0ff03798acbefd701eb795e14f744a"
+    },
+    {
+      "path": "badge.json",
+      "sha256": "8ce2fcbcd966605728a65df337a5e1537ec5fbf142d80e28f8f753d4c81f3bab"
+    },
+    {
+      "path": "hosted-badge.json",
+      "sha256": "a91daf4dfab331782a8028324d3d676bcc740531e1655fa746eaf1ac18fd411b"
+    },
+    {
+      "path": "ripples-window.json",
+      "sha256": "9bda23a2866daf5e6bf37e34e525384a0caa08ebb6abe9fd43ed41ca6b0ea48c"
+    },
+    {
+      "path": "spaceout-preferences.json",
+      "sha256": "4b17298f913480d48cf40e2f1b653915a5b5c01f75c8c073d896332bf704d81b"
+    },
+    {
+      "path": "fixed-help.json",
+      "sha256": "deb0afc151136e2899f7690807132f26ebb692f04a1605730a777f6800d8784a"
+    },
+    {
+      "path": "undo-shortcuts.json",
+      "sha256": "aaba89a84eb24fba0bf65573943e9b0747bb130aa0d7d9f3a924e4b5f7b59e7b"
+    },
+    {
+      "path": "gate-mask-regressions.json",
+      "sha256": "a6a54097e3311a2da8254e80b5146e18526c7d5af96ad947c40a17da85d82f45"
+    },
+    {
+      "path": "badge.log.gz",
+      "sha256": "bb091cfcf697d00c74946ddfd9e19998cb441f041f13c2a906e3475e9798129f"
+    },
+    {
+      "path": "badge.xml.gz",
+      "sha256": "20e6383b10fec27976110b832af5080c6011df003165769aa075458893203fb4"
+    },
+    {
+      "path": "ripples-window.log.gz",
+      "sha256": "a0f05a0f0a9953fce08e753604d8456fb1d91e6b6d104475af099f64b6616329"
+    },
+    {
+      "path": "ripples-window.xml.gz",
+      "sha256": "ee01d18831af7554f2c1ad824a642b90842627add236856002b63fd308d8ac11"
+    },
+    {
+      "path": "spaceout-preferences.log.gz",
+      "sha256": "6478e0268495ba1cd0e910a49c99aeff660a13c0871d3b3e38e0062d5c63feb8"
+    },
+    {
+      "path": "spaceout-preferences.xml.gz",
+      "sha256": "b787de6aa5a41f84c7ab89f2a980a8e96bcdbd95b999431c485e5c6ff0288ce8"
+    },
+    {
+      "path": "fixed-help.log.gz",
+      "sha256": "a340193025d2d8d0a44b3e4ea7459b37996ef6a5e24c77bfe8abe71af2c51130"
+    },
+    {
+      "path": "fixed-help.xml.gz",
+      "sha256": "39384d909c1d0d6da7072f21dc0503fd96da2574c4082901437ff7133f7340e4"
+    },
+    {
+      "path": "undo-shortcuts.log.gz",
+      "sha256": "f3f46036746ba9aceab79644e114f0b9f5752fdd0db058fcc1bccdcd68c10dff"
+    },
+    {
+      "path": "undo-shortcuts.xml.gz",
+      "sha256": "cc2651e1dcab997caf117f96529f54eb20a3eeee8f89d4cfa790b4e70cab955a"
+    },
+    {
+      "path": "gate-mask-regressions.log.gz",
+      "sha256": "1cb2a56ccf0d34b864e61f9dcaba1d5bc2eacd742795b74ea0ac176e2198da69"
+    },
+    {
+      "path": "gate-mask-regressions.xml.gz",
+      "sha256": "51453218a996c6d9276a73cefde062ca6fe2565c3ab49321d564950f9a448c35"
+    }
+  ],
+  "readme_count": 10,
+  "background_collector": "/mnt/wd4tb/scratch/low-token-recovery-20261009/retry_github.py",
+  "background_collector_pid": 11277,
+  "global_ci_green": false
+}

@@ -1,0 +1,40 @@
+{
+  "source_sha": "129db9eeee2c7535064ab2f6428d39e7326dc89f",
+  "root": "/mnt/wd4tb/spacr-worktrees/codex-low-token-recovery-20261009",
+  "groups": {
+    "badge": [
+      "tests/test_test_count_badge.py"
+    ],
+    "ripples-window": [
+      "tests/qt/test_field_ripple_controls.py",
+      "tests/qt/test_field_grab_physics_and_input.py",
+      "tests/qt/test_window_snap_and_field_edges_n666.py"
+    ],
+    "spaceout-preferences": [
+      "tests/qt/test_spaceout_field_effect_preferences.py",
+      "tests/qt/test_spaceout_field_phenomena.py",
+      "tests/qt/test_spaceout_field_launch_and_input.py",
+      "tests/qt/test_n668_spaceout_and_popup_motion.py",
+      "tests/qt/test_the_spaceout_backdrop_survives_its_own_teardown_failing.py"
+    ],
+    "fixed-help": [
+      "tests/qt/test_n667_stable_action_help.py",
+      "tests/qt/test_setting_tooltip_layout.py",
+      "tests/qt/test_setting_tooltip_footer.py",
+      "tests/qt/test_setting_help_goes_to_the_bottom_only.py",
+      "tests/qt/test_the_two_help_surfaces.py"
+    ],
+    "undo-shortcuts": [
+      "tests/qt/test_edit_menu_undo_redo.py",
+      "tests/qt/test_undo_redo_everywhere.py",
+      "tests/qt/test_rebindable_shortcuts_and_settings_profiles.py"
+    ],
+    "gate-mask-regressions": [
+      "tests/qt/test_anchor_plane.py",
+      "tests/qt/test_volume_gate_controls.py",
+      "tests/qt/test_gate_editor_volume_edges_make_no_gate_and_keep_the_view.py",
+      "tests/qt/test_make_masks_yolo_boxes_save_boundaries.py"
+    ]
+  },
+  "started_utc": "2026-10-09T13:04:47Z"
+}

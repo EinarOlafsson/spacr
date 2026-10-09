@@ -1,0 +1,19 @@
+{
+  "status": "completed",
+  "exit_code": 0,
+  "seconds": 16.04,
+  "files": [
+    "tests/qt/test_anchor_plane.py",
+    "tests/qt/test_volume_gate_controls.py",
+    "tests/qt/test_gate_editor_volume_edges_make_no_gate_and_keep_the_view.py",
+    "tests/qt/test_make_masks_yolo_boxes_save_boundaries.py"
+  ],
+  "counts": {
+    "tests": 73,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "source_sha": "129db9eeee2c7535064ab2f6428d39e7326dc89f",
+  "updated_utc": "2026-10-09T13:05:03Z"
+}

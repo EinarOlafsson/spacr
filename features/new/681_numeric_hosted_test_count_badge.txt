@@ -1,6 +1,6 @@
 NUMERIC HOSTED TEST COUNT BADGE
 
-Status: IMPLEMENTED 2026-10-08; first hosted count publication pending.
+Status: COMPLETE 100% 2026-10-09; actual hosted endpoint verified.
 Owner: Home CI tooling; workstation preserves badges in README producers.
 Requested: Show tests passed/total; >90% green,80–90% yellow,70–80% orange,
            below70% red.
@@ -54,3 +54,13 @@ Current728 tests/docs/compat await hosted runners; Home4944 serialQt remains
 live. This is owning CPU correctness/counting evidence, not recovered full
 hosted coverage, current GitHub green, deployed docs or parent43/681 closure.
 One Root agent; low-token finish-up scope preserved.
+
+2026-10-09 09:08 EDT — COMPLETE 100% for requested numeric-badge scope.
+Actual public raw nightly endpoint read back as 82587/83724, green under
+the requested >90% rule, run37881951815/source6fb0115f807c. All10 README
+numeric images are present and retired workflow images absent. Current
+collector-enabled owning14 tests PASS, no skips; threshold/dedup/teardown/
+mocked-open/chdir/idempotent-retirement checks retained. Exact endpoint,
+source, logs, JUnit and hashes: data/low_token_recovery_2026-10-09/receipt.json.
+This badge reports a passing fraction; required GitHub CI remains RED.
+N43/N47/F288 are independent and are not closed by the green numeric badge.

@@ -1,5 +1,32 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-09 09:08 EDT — Crash recovery: six bounded checks accepted; numeric badge complete
+
+Home fresh private worktree: /mnt/wd4tb/spacr-worktrees/codex-low-token-recovery-20261009
+Exact nightly source129db9eeee2c, one Root agent, no subagents/GPU/native jobs.
+Six independent CPU/offscreen 4G-capped processes completed378PASS1SKIP:
+badge14; ripples/window80; Spaceout/preferences72; fixed-help117; undo/shortcuts23;
+public gate/mask regressions72PASS1SKIP. These validate current public scopes;
+they do not publish private gate/mask/save-navigation/backend/GPU integrations
+or establish native compositor, platform accessibility or original-order Qt acceptance.
+N681 COMPLETE100: actual hosted82587/83724 endpoint for run37881951815/6fb source,
+all10 numeric README images verified and old workflow images retired.
+Latest full tests remain FAILURE; docs and compatibility SUCCESS. Other35
+broader unfinished ledger parents remain open; no invented percentages/ETAs.
+Evidence: data/low_token_recovery_2026-10-09/receipt.json, allsix whole-file
+logs/JUnit, exact public endpoint and source bindings.
+No previous local watcher survived reboot. Existing terminal CI is not duplicated.
+One bounded read-only failed-log collector retries the actual6fb run up to3 times
+after an API connection error,512M cap. PID/path/status:
+ /mnt/wd4tb/scratch/low-token-recovery-20261009/github-retry.pid
+ /mnt/wd4tb/scratch/low-token-recovery-20261009/github-failures.json
+ /mnt/wd4tb/scratch/low-token-recovery-20261009/github-failure-summary.txt
+ /mnt/wd4tb/scratch/low-token-recovery-20261009/github-retry.log
+Next: read this same result/log, then repair exact actionable hosted failures;
+never restart duplicate tests/loggers or transfer these scoped proofs to full CI.
+WS keeps API/docs/translations/tutorials/GPU; livecell/cellposeTIME untouched.
+
+
 ## 2026-10-09 00:15 EDT — Low-token wrap-up awaits external current CI state
 
 Across three consecutive goal continuations current6fb tests37881951815,

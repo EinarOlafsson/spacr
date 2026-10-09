@@ -1,0 +1,18 @@
+{
+  "status": "completed",
+  "exit_code": 0,
+  "seconds": 22.1,
+  "files": [
+    "tests/qt/test_edit_menu_undo_redo.py",
+    "tests/qt/test_undo_redo_everywhere.py",
+    "tests/qt/test_rebindable_shortcuts_and_settings_profiles.py"
+  ],
+  "counts": {
+    "tests": 23,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_sha": "129db9eeee2c7535064ab2f6428d39e7326dc89f",
+  "updated_utc": "2026-10-09T13:05:09Z"
+}

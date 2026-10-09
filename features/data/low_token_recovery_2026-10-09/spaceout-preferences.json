@@ -1,0 +1,20 @@
+{
+  "status": "completed",
+  "exit_code": 0,
+  "seconds": 16.44,
+  "files": [
+    "tests/qt/test_spaceout_field_effect_preferences.py",
+    "tests/qt/test_spaceout_field_phenomena.py",
+    "tests/qt/test_spaceout_field_launch_and_input.py",
+    "tests/qt/test_n668_spaceout_and_popup_motion.py",
+    "tests/qt/test_the_spaceout_backdrop_survives_its_own_teardown_failing.py"
+  ],
+  "counts": {
+    "tests": 72,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_sha": "129db9eeee2c7535064ab2f6428d39e7326dc89f",
+  "updated_utc": "2026-10-09T13:05:03Z"
+}
