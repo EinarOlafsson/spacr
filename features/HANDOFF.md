@@ -1,6 +1,78 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
 
+## 2026-10-08 19:52 EDT — Current CI failures and portable backend/figure packets
+
+Urgent workstation d423/68a normal artifact bundle is published. Home independently
+verifies all20 root-release payloads and all669 current application Git hashes;
+all133 API/documentation payloads and669 historical application bindings checked.
+Only already-accepted io read body differs from that older API snapshot. This is
+source-bound local acceptance, not whole-current GitHub green.
+ data/43_current_artifact_independent_home_2026-10-08/
+
+Current f0 Coverage6 terminal log has THREE failures: Copy console clipped for
+investigate_hit de/pt at2x (actual198px, needed246/241px), and tracked-checkout
+size README2839MB versus3348MB. Home CI agent owns the compound wrapping-chip
+width fix; WORKSTATION owns normal dated README size remeasurement/review in all
+locales. No sweep geometry, text threshold or15% tolerance change. Preserve useful
+unknown f0 coverage results; next corrected current source needs fresh acceptance.
+
+Home current Organism/alpha/category/compact subset:59PASS/1report-onlyXFAIL.
+Diagnostic preserves THREE missing compact rows: 'Box tool', 'spaCR blobs', and
+'Primary modules are grouped here into Core, Data, Tools and Organism; related
+workflows are reached from their host module. Click any name to open it. Ctrl+1
+through Ctrl+9 opens the first nine apps in sidebar order.' Organism heading is
+now translated; this nearby semantic compact-owner gap is not a full guard PASS.
+WORKSTATION: resolve exact normal ownership/review; no assertion or pin waiver.
+N677 remains open until its compact help copy is coherently covered.
+
+Public alternate measurement read bridge now has REAL PostgreSQL18.4 acceptance:
+complete four-file cohort40PASS11.29s, zero skips, on frozenb087 source. Root-owned
+socket-only scratch server uses isolated databases, CUDAhidden/CPU4G, no existing
+services or protected jobs. Server stays up for the remaining private backend
+checks. ParentF576 staysPARTIAL.
+ data/576_real_postgres_read_acceptance_2026-10-08/receipt.json
+
+Three PRIVATE source packets for workstation normal producers AFTER urgentCI:
+1) F576 named-regression pairs21ab/a1de: complete81owningPASS412s and SQLite/
+DuckDB/Parquet complete-fit parity; separate realPG named-input9PASS6.22s.
+ExactlyONE API prose key spacr.ml.load_regression_input_pairs, runtimezero.
+ data/576_regression_named_inputs_handoff_2026-10-08/source-and-tests.patch.gz
+2) F576 prediction writes a91:121owningPASS23.14s including realPG native
+commit/DDLrollback/keyfanout/refusal/migration; final writer24PASS11.77s.
+ExactlyTWO truthful API prose records merge_prediction_results and
+migrate_prediction_columns; runtimezero. Root verifies7payloads/4Gitblobs.
+USE consolidated PUBLIC-b087 patch including preparatory planner, not owner's
+private-fd57 delta. Native SQL transactions; Parquet locked immutable active-part
+manifest, oldparts retained for readers. No external-writer atomicity orGC claim.
+ data/576_prediction_store_write_2026-10-08/source-from-b087.patch.gz
+3) F572 finalf8:167owningPASS30.68s, exact overlay/combined-mask replay and
+bounded displayed-region advisory. Complete six-file public-f0 source patch,
+six frozen historical proof archives and full final normal maps included.
+Root verifies all5 packet digests/12base+final Git source hashes/85tar members.
+ExactlyONE MontageLoad API prose replacement; preserve privateN658 plot edits.
+ data/572_current_source_handoff_2026-10-08/source-tests-from-f0.patch
+
+F572 NEW tr literal in plot.py::_prior_figure_findings is omitted by normal
+canonical_sources extractor; fix normal ownership/extraction and review BEFORE
+application publication. Exact template:
+Panel {panel} has a similar displayed region to panel {prior_panel} in {prior_figure}. This is a bounded pixel similarity note, not an acquisition or image manipulation verdict.
+No zero-map claim is evidence that this new text is translated. F572 remains
+open for separate source-only splice/noise scope, not a fraud classifier.
+
+All three Home agents reused: CI compound-chip repair/terminal monitoring;
+F576 alpha migration UI (existing tabular helper); classifier selected-store
+routing preserving root named-regression source. No new source module/GPU work.
+
+Classifier continuation adds TWO truthful public API prose changes in
+generate_ml_scores/interpret_vision_model (five backend prose records total
+with regression/prediction). WORKSTATION normal help owner must also correct
+settings.py's measurement backend prose, which still claims measurements.db
+is the working copy every later step reads. Preserve unsupported-path limits;
+do not claim universal alternate-store routing before it exists.
+
+
+
 ## 2026-10-08 19:38 EDT — Narrow API/runtime/generated-documentation release verified
 
 Root source d4238c0aa integrates hiddenLiveSettingscloseAPI13233, normal

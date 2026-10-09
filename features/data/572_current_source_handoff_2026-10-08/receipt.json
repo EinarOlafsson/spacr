@@ -1,0 +1,43 @@
+{
+  "extractor_gap": "normal canonical_sources omits plot.py tr calls; WS must add or bridge via normal review/generation before publication",
+  "final_inventory": "final-inventory.json.gz",
+  "frozen_child_proofs": "frozen-child-proofs.tar.gz",
+  "integration_instruction": "Apply patch on a public-f0-derived isolated tree; reconcile against concurrent N658 plot.py edits without overwriting either. No generated artifact may be hand-merged. Source SHA must be checked before using proof.",
+  "new_tr_literal": "Panel {panel} has a similar displayed region to panel {prior_panel} in {prior_figure}. This is a bounded pixel similarity note, not an acquisition or image manipulation verdict.",
+  "normal_api_changed_from_public": [
+    "spacr.qt.widgets.cell_montage_view.MontageLoad"
+  ],
+  "normal_api_count": 13232,
+  "normal_runtime_equal_to_public": true,
+  "normal_runtime_ui_count": 7288,
+  "private_final_source": "f8d6014a3dacffe7e2e9379693b2a60b41b372f5",
+  "public_base": "f0b81dacefe089c54b1d22a4aebd363a29d53cfb",
+  "source_and_test_files": {
+    "spacr/plot.py": {
+      "base_sha256": "8128ec1aa6fd5e13fb9eb3c6ba531f4d6fffd6568afd3db6930b669f4bf32410",
+      "final_sha256": "c0db070b6c0912ff9d08d6d113ade0e56ab4e267121f45c5af2e8ef42943a70a"
+    },
+    "spacr/qt/widgets/cell_montage_view.py": {
+      "base_sha256": "2d9b31f0577d335f71ab395cad8fc9866865b7d2628d097d237ffdbc6e11a632",
+      "final_sha256": "073c83b823f4808f4c4516ccd240c6220658b878830b6b11583a9aa456a5254e"
+    },
+    "spacr/qt/widgets/picture_export.py": {
+      "base_sha256": "8f9104cbedd6e85747803e1358c1b2427c0e6b9285ca78e6a2811e9fd7b6a0fe",
+      "final_sha256": "a07c04b77f9398d6d90a12f756ad3efa13cacbdf4aa3b76cc9743feae939c7c9"
+    },
+    "tests/qt/test_cells_behind_the_dot_tab.py": {
+      "base_sha256": "c7b05b1de395d2d43beff587f0ee941a0ab8c647df5b990293ca40f8c7840c80",
+      "final_sha256": "cc79f321e1d0d326b8f18c5949ede0972af9deecdae948b993d8c06c18c6b870"
+    },
+    "tests/qt/test_right_click_saves_the_picture.py": {
+      "base_sha256": "1f9d487eaac6fc05cbb1f68da35fbedcf5b2a5519c6a5eea37f6e4738b713cb1",
+      "final_sha256": "10848637f28e94720cb7be5cc323302f1439951a4c9b4b309df54165e42a9b50"
+    },
+    "tests/test_figure_integrity_guard.py": {
+      "base_sha256": "d9763ec19837e020fa6ed7add1563d9049d3ecb7513bcda2690f66ed749db549",
+      "final_sha256": "6a911473978c652197ede0eefb5bf53cda1f50cb5951f5710563c04572a51f97"
+    }
+  },
+  "source_diff": "source-tests-from-f0.patch",
+  "test_log": "focused-167.log.gz"
+}

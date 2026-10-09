@@ -1,0 +1,12 @@
+{
+  "public_base": "b0879b0fa57f42adaccd9c17619643c46d380d32",
+  "private_source": "a91de300f4e0aceec57e305043221eb19accddc0",
+  "public_current_apply_check": "68a73a0aad1e63bed5b0f2aad4946681b83cdd22",
+  "source_patch": "source-from-b087.patch.gz",
+  "patch_sha256": "1d6f1307c261a2ae23729b29cc0792a09673f861af20c4b8e1e29637dabca49b",
+  "raw_patch_sha256": "df58c44c88ddcf15d45b24a2b623869246e45702ec1f2879d2e303ffb83157f7",
+  "owner_payloads_independently_verified": 7,
+  "owner_source_git_blobs_verified": 4,
+  "instruction": "Use this consolidated public-base patch. The original owner source.patch.gz starts at private fd57 and omits its preparatory merge planner.",
+  "source_private": true
+}

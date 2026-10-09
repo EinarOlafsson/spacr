@@ -1,8 +1,6 @@
-================================================================================
-RENAME THE ASSAYS CATEGORY TO ORGANISM
-================================================================================
-
-Status:    DONE 2026-10-08 — compact canonical registry and reviewed artifacts published.
+=========================================================================RENAME THE ASSAYS CATEGORY TO ORGANISM
+=========================================================================
+Status:    REOPENED 2026-10-08 — heading done; first-run navigation help translation still missing.
 Requested: 2026-10-08 — "cahnge the assays category to organism"
 Owner:     Home/root implementation; workstation runtime translations/tutorials
 
@@ -45,6 +43,12 @@ not a claim that the application update has already been published.
 
 2026-10-08 18:44 EDT — REOPENED: current CI finds Organism missing from compact spacr.qt.i18n._ROWS/all nine CATALOGS. Earlier generated UI/Home/menu acceptance remains valid but does not establish compact registry coverage. Workstation runtime owner is performing normal source ownership transfer and exact preservation; final owning/required checks and coherent publication remain pending. No catalog assertion or source count is waived.
 
+2026-10-08 19:52 EDT — CompactOrganism heading/normal runtime artifacts delivered
+in d423/68a. Home current bounded subset59PASS/1report-onlyXFAIL: the strong
+semantic compact guard still lacks the reworded Organism navigation-help
+paragraph (plus independent Box tool/spaCR blobs rows). Exact diagnostic retained
+in data/43_current_artifact_independent_home_2026-10-08. This is not a full compact
+guardPASS or closure; workstation normal owner transfer/review remains required.
 2026-10-08 19:40 EDT — COMPLETION after reopening: normal compact Organism
 row with all nine exact established targets is published in nightly68a73a0aa.
 The external generated duplicate is removed through the unchanged normal
@@ -60,3 +64,12 @@ normally, with all previous hardware blocks retained. Proof:
  data/43_current_generated_artifact_release_2026-10-08/receipt.json
 Publication confirmed by actual remote refs/heads/nightly68a73a0aa. Broader
 currentGitHub N43, native serial N47 and tutorial publication N676 stay open.
+
+2026-10-08 19:57 EDT — Concurrent owner closure correctly proves the Organism
+heading and its nine compact targets. Independent Home diagnostic additionally
+checks the semantic discovery surface: new first-run Organism navigation-help
+paragraph is absent from both _ROWS and generated UI_SOURCES. The old Assays
+paragraph still owns nine compact targets in i18n.py:140. This is a real remaining
+rename translation, not a failure of the already-fixed heading. Preserve both
+historical receipts; normal owner must review/replace the exact help source and
+retain all other compact ownership guards before final item closure.

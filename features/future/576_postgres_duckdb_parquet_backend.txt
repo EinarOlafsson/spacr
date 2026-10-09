@@ -77,3 +77,14 @@ LEFT
 
 2026-10-08 Home — ALTERNATE MEASUREMENT READ BRIDGE COMPLETE
 The shared io._read_db/_read_and_merge_data route reads DuckDB and Parquet through spacr.tabular with existing metadata correction, table order, quoted-name and empty/missing-table behavior preserved. PostgreSQL locators dispatch without expanding literal password dollar signs; the real server remains unavailable, so its protocol is mocked and two real-server tests skip. SQLite schema migration/read-only URI behavior is unchanged. Owning27PASS plus selected30PASS; integrated four full files38PASS/2existing PostgreSQL skips12.56s underCPU4G. Complete normalAPI13232/runtimeUI7288/all6maps equal before/after; no generated artifacts changed. Portable proof data/576_measurement_stores_read_bridge_2026-10-08/receipt.json and data/576_current_read_bridge_2026-10-08/receipt.json. Only this read bridge is complete: classifier writes, Settings migration UI and complete per-backend suites remain OPEN. Private named-table regression input prototype has exact complete SQLite/DuckDB/Parquet fit parity, but awaits normal API prose and publication.
+
+2026-10-08 19:52 EDT — Alternate public read bridge REAL PostgreSQL acceptance:
+40 owning checks PASS11.29s, zero skips on b087 source. Proof is source-bound in
+data/576_real_postgres_read_acceptance_2026-10-08. Named-regression21ab private
+81owningPASS plus9realPG checks; predictiona91 private121PASS plus24final-writer
+checks have self-contained workstation normal API handoffs. App source remains
+private until its three exact API prose replacements are normally refreshed.
+Parquet writes use cooperative-writer manifest snapshots, retaining old parts
+for readers; no garbage collection/external-writer guarantee. Classification
+selected-store routing and alpha migration UI are now active in reused CPU
+agents. Parent remainsPARTIAL, not100%.

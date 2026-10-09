@@ -1,0 +1,44 @@
+{
+  "api_after": 13232,
+  "api_before": 13232,
+  "api_changed": [
+    "spacr.predictions.merge_prediction_results",
+    "spacr.predictions.migrate_prediction_columns"
+  ],
+  "api_delta": {
+    "spacr.predictions.merge_prediction_results": {
+      "after": "Write a classifier's per-object results onto the rows of ``table``.\n\nShared by Classify (CV) and Classify (ML) --- see the module docstring for\nwhy the key is ``prcfo``, why an ambiguous key is refused rather than\nguessed at, and why the whole thing is one transaction.\n\n:param results: DataFrame of per-object results. Must carry the source\n    columns named in ``columns``, plus something to key on: a ``prcfo``\n    column, an index named ``prcfo``, or a ``path``/``png_path``/\n    ``file_name`` column holding spaCR crop names.\n:param db_path: SQLite or DuckDB file, Parquet store directory, or\n    PostgreSQL connection string. A missing local store is reported and\n    skipped.\n:param columns: mapping of *database* column name to\n    ``(results column, 'REAL' | 'INTEGER')``.\n:param table: target table. Default ``'png_list'``.\n:param key: ``'auto'`` (measure every candidate and use the best) or one of\n    :data:`KEY_PRIORITY` to force it.\n:param timelapse: whether crop names carry a timepoint. ``None`` detects it\n    from the presence of a time column on the table.\n:param verbose: print the report.\n:returns: a :class:`MergeReport`, or ``None`` if a local store is missing.\n:raises KeyError: if ``results`` lacks one of the source columns.\n:raises ValueError: if a Parquet table is missing or prediction output\n    would replace a join-key column in an alternate store.",
+      "before": "Write a classifier's per-object results onto the rows of ``table``.\n\nShared by Classify (CV) and Classify (ML) --- see the module docstring for\nwhy the key is ``prcfo``, why an ambiguous key is refused rather than\nguessed at, and why the whole thing is one transaction.\n\n:param results: DataFrame of per-object results. Must carry the source\n    columns named in ``columns``, plus something to key on: a ``prcfo``\n    column, an index named ``prcfo``, or a ``path``/``png_path``/\n    ``file_name`` column holding spaCR crop names.\n:param db_path: SQLite database. A missing file is reported and skipped.\n:param columns: mapping of *database* column name to\n    ``(results column, 'REAL' | 'INTEGER')``.\n:param table: target table. Default ``'png_list'``.\n:param key: ``'auto'`` (measure every candidate and use the best) or one of\n    :data:`KEY_PRIORITY` to force it.\n:param timelapse: whether crop names carry a timepoint. ``None`` detects it\n    from the presence of a time column on the table.\n:param verbose: print the report.\n:returns: a :class:`MergeReport`, or ``None`` if the database is missing.\n:raises KeyError: if ``results`` lacks one of the source columns.\n:raises sqlite3.OperationalError: if ``table`` does not exist."
+    },
+    "spacr.predictions.migrate_prediction_columns": {
+      "after": "Put a legacy prediction column back into the encoding it claims to be in.\n\n:func:`spacr.utils.add_column_to_database` --- the ML stage's old write\npath --- replaced every ``0`` with a ``2`` on the way into the database,\nbecause the Annotate app labels classes 1 and 2. Nothing else did that, so\n``png_list.predictions`` said ``2`` where ``results.csv`` from the very same\nrun said ``0``: one number, two meanings, depending on which file you\nopened. This repairs it, so a database written before the change reads\ncorrectly with no manual action --- the same repair-on-read contract\n:func:`spacr.utils.rename_columns_in_db` has, and the same properties:\n\n* **Idempotent.** After the repair the column holds 0s and 1s, which is not\n  the encoding this looks for, so a second pass does nothing.\n* **Never destructive.** The substitution is only reversed when the column\n  holds nothing but 1s and 2s. A three-class model's genuine class 2 is\n  indistinguishable from a mangled 0, and guessing would be worse than\n  leaving it exactly as it is.\n* **All or nothing.** SQLite, DuckDB and PostgreSQL repair in a\n  transaction; Parquet publishes a complete replacement part snapshot.\n  A half-repaired column would be a column in two encodings at once.\n\n:param db_path: SQLite or DuckDB file, Parquet store directory, or\n    PostgreSQL connection string. A missing local store is a no-op.\n:param table: table to migrate. Default ``'png_list'``.\n:param verbose: print each repair.\n:returns: list of ``(table, column, rows_repaired)``.",
+      "before": "Put a legacy prediction column back into the encoding it claims to be in.\n\n:func:`spacr.utils.add_column_to_database` --- the ML stage's old write\npath --- replaced every ``0`` with a ``2`` on the way into the database,\nbecause the Annotate app labels classes 1 and 2. Nothing else did that, so\n``png_list.predictions`` said ``2`` where ``results.csv`` from the very same\nrun said ``0``: one number, two meanings, depending on which file you\nopened. This repairs it, so a database written before the change reads\ncorrectly with no manual action --- the same repair-on-read contract\n:func:`spacr.utils.rename_columns_in_db` has, and the same properties:\n\n* **Idempotent.** After the repair the column holds 0s and 1s, which is not\n  the encoding this looks for, so a second pass does nothing.\n* **Never destructive.** The substitution is only reversed when the column\n  holds nothing but 1s and 2s. A three-class model's genuine class 2 is\n  indistinguishable from a mangled 0, and guessing would be worse than\n  leaving it exactly as it is.\n* **All or nothing.** One explicit transaction, rolled back on any error.\n  The driver opens one for DML by itself, but not for the ``PRAGMA``/DDL\n  this shares a connection with, and a half-repaired column would be a\n  column in two encodings at once.\n\n:param db_path: SQLite file. A missing file is a no-op.\n:param table: table to migrate. Default ``'png_list'``.\n:param verbose: print each repair.\n:returns: list of ``(table, column, rows_repaired)``."
+    }
+  },
+  "foreign_imports": {},
+  "revision": "1be34a17e7362cff82466237aa08a6ce9b027293",
+  "runtime_changed": [],
+  "runtime_counts_after": {
+    "categories": 237,
+    "installer": 65,
+    "module_summaries": 77,
+    "setting_labels": 1221,
+    "setting_tooltips": 1243,
+    "ui": 7288
+  },
+  "runtime_counts_before": {
+    "categories": 237,
+    "installer": 65,
+    "module_summaries": 77,
+    "setting_labels": 1221,
+    "setting_tooltips": 1243,
+    "ui": 7288
+  },
+  "source_root": "/mnt/wd4tb/spacr-worktrees/codex-f576-read-db-20261008",
+  "source_sha256": {
+    "spacr/predictions.py": "dbc3c6039bcfa9c0c4ca0b41c0546b220d4bec83605e56d27702bfc85b9f72df",
+    "spacr/tabular.py": "6e284e78b1546cb8633fe3f88c5b33554d7147a2207964f23a327eae777898df",
+    "tests/test_measurement_backends.py": "726c1fce9292aa9178544502cb8080160bcab56a044d62b3acbc2e78a3eada23",
+    "tests/test_predictions_merge.py": "77f9bf47c99f75f16f7ddea7006f541e87cecafe33a3fdf4b78210133d4cc3e0"
+  }
+}
