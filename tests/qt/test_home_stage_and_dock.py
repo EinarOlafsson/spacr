@@ -39,12 +39,6 @@ from spacr.qt.widgets.home import AppTile, Panel, StageLegend
 
 THEMES = ("dark", "light")
 
-#: Where a page that is about to be hovered is parked. Far enough from
-#: the origin that no window another test left behind can be sitting on
-#: the same global coordinates — see ``_themed_page``.
-_LONELY_CORNER = QPoint(4000, 2400)
-
-
 def _themed_page(qtbot, monkeypatch, theme_name: str):
     """A real Home page rendered under ``theme_name``.
 
@@ -65,15 +59,13 @@ def _themed_page(qtbot, monkeypatch, theme_name: str):
     qtbot.addWidget(page)
     page.setStyleSheet(theme.stylesheet(theme_name))
     page.resize(1400, 900)
-    # Parked well away from the origin, and that is not cosmetic.
-    # `QApplicationPrivate::dispatchEnterLeave` decides who is under the
-    # pointer with `QApplication::widgetAt(globalPos)` — a *global*
-    # lookup. A full test run leaves other top-level windows behind at
-    # (0, 0), so a synthetic move onto a tile at the same global
-    # coordinates finds one of those instead and this page never gets
-    # `WA_UnderMouse` at all. The symptom is a hover test that passes
-    # alone and fails in the suite.
-    page.move(_LONELY_CORNER)
+    # Keep the pointer target inside the actual screen. An offscreen Qt
+    # platform accepts far-away windows, but Xvfb clips the cursor there.
+    # The lower-right position also avoids windows left at the origin.
+    from PySide6.QtWidgets import QApplication
+    screen = QApplication.primaryScreen().availableGeometry()
+    page.move(max(screen.left(), screen.right() - page.width() - 8),
+              max(screen.top(), screen.bottom() - page.height() - 8))
     page.show()
     qtbot.waitExposed(page)
     return page
