@@ -1,0 +1,108 @@
+{
+  "authored_sources": {
+    "spacr/qt/help_api_index.py": "0470fc930440f8b16e027905c100f95560b39fab52766b87ff2a14905126df05",
+    "spacr/qt/help_index.py": "bf7040f35d76c778e3ae21b25b3d82905fac3e1e1677e4e5f983f24b4b660b1e",
+    "tests/data/release_contracts/615_home_ui_api_arrivals_2026-10-08.json": "256847af6389ea373e6129f30f26a04f4da6e14c8935c4a664243b40ebf23689",
+    "tests/data/release_contracts/readme_domain_review_sources_2026_10_09.json": "858287217c6e11a0146455961a7bedcdd02476d328d2fa63e69da9613283218a",
+    "tests/qt/test_the_help_search_field_lands_where_it_says.py": "1085c135ff7becd34e82cceaca971ba076abc971b6cfe7114427ab51444d138d",
+    "tests/test_api_i18n_extractor.py": "0447dfd815698060291f0dba5426a77e58ae3a7551ee1fcd169fb58227551c4e",
+    "tests/test_documentation_i18n.py": "13d9741a490a5b1bf28851a80ede73d1cdeaeb6b63fe923de9512b91fcae917f"
+  },
+  "observed_checks": [
+    {
+      "failed": 1,
+      "failure": "retired fixed minimum23 but active source review contains18",
+      "passed": 50,
+      "scope": "API arrival + README domain + whole help search",
+      "seconds": 85.59
+    },
+    {
+      "collector_enabled": true,
+      "failed": 0,
+      "passed": 4,
+      "scope": "final API arrival + exact README review set + normal/Spaceout actual preference rows",
+      "seconds": 31.48
+    }
+  ],
+  "old_run": 37868897849,
+  "old_source": "4944c63dc74b7eb83db9280ea51e0cb3d4a6cfec",
+  "payloads": {
+    "4944-job-113622486792.log.gz": {
+      "bytes": 555626,
+      "raw_sha256": "70b3cea70b7091118d2821aab3d382a721db9c0ae64ec786cba1a8f798dd4e8d",
+      "sha256": "c40c747a44feff44a8565978eef2a905d8396db22686c4f3674f1220dfb1a115"
+    },
+    "4944-job-113622486970.log.gz": {
+      "bytes": 621647,
+      "raw_sha256": "7f8d818a22dfaacf2df3211994190a2299a7ee7085d023711cbf6a0f8c557f98",
+      "sha256": "5afd217707315131df4f017369752f8246e37e9a705a4a230c5597832eb223d0"
+    },
+    "4944-job-113622486979.log.gz": {
+      "bytes": 330487,
+      "raw_sha256": "e30571f8ea0ec56ee7f4ae349133fbc5663a755f17db1f75a69b7fedbbfeade6",
+      "sha256": "116238ad96c6a8384758d4c10d314a11c949025c067094ff77ecbc104c7381c7"
+    },
+    "4944-job-113622486985.log.gz": {
+      "bytes": 587262,
+      "raw_sha256": "061fe92755d9fe33fa2aa4fb3c3df959698c20b145f026afa141f53f775149eb",
+      "sha256": "a5e01be215740ed92523fefc40bddaa3966f0ef6248da3697ae96838018cba9d"
+    },
+    "4944-job-113622487010.log.gz": {
+      "bytes": 572357,
+      "raw_sha256": "c46310edc4cc7b149597ab7f0fede540adf044d5b66b20266e056c95361cbd7e",
+      "sha256": "ff045ba80c3893ede513b63d52cbb7df7c6ce0eadae520b0757d17455c48c237"
+    },
+    "4944-job-113622487039.log.gz": {
+      "bytes": 638446,
+      "raw_sha256": "cb21c339b965220306810f058176291b84e411ae0b920d0770c4129291246525",
+      "sha256": "99ab171befe7ace18788d208f06992396959ce80fdfa122c24446b58fba1e8ac"
+    },
+    "4944-job-113622487099.log.gz": {
+      "bytes": 765093,
+      "raw_sha256": "24289da6dc617da41a748effbe9f842cd747087b58f98858367a611b6211527d",
+      "sha256": "0a94e4a4e2ef09bcb3666c469f99abdc4a2cc3392b1ec2f84c843308598cd537"
+    },
+    "4944-job-113622487182.log.gz": {
+      "bytes": 327022,
+      "raw_sha256": "c394a9ef6ed530e037d8f206b762f1ef87a8ffa8dfff7eded33ff3c0bdde2072",
+      "sha256": "e9415ba2ecd82dbbe8c7c6b661180d97fbed930f8b8f8d9c875ac3146cfd63f3"
+    },
+    "4944-job-113622487202.log.gz": {
+      "bytes": 372728,
+      "raw_sha256": "92074f220f7c8e79e1845678d1dffe588dfa6807737120038487fe827040ceab",
+      "sha256": "f8894febaf3693fa477b7402cd6bd72f8957e037f808e1564d8dd6769c5b9961"
+    },
+    "4944-job-113622487248.log.gz": {
+      "bytes": 425367,
+      "raw_sha256": "8885079cdb9b81cdb04e858cd54803f3b2cb5eb507112dcf3a488933d11cc7e4",
+      "sha256": "0526286cb9ed0c396bec06f75f84b080458afdc4618781bf68b4a4b30999c9f9"
+    },
+    "4944-job-113622487249.log.gz": {
+      "bytes": 329167,
+      "raw_sha256": "c11ad3c6c216c1587f661ccf4727be7337093d2f2cac1c20dab697e664d73790",
+      "sha256": "c3c22fa7b67e91c214feacf956dfaa6570ddb4900de08dcb9f158bf29b32b6ed"
+    },
+    "4944-job-113622487279.log.gz": {
+      "bytes": 305318,
+      "raw_sha256": "e33f40dc54961a15c6ebc9e5e256b45555277cec835940cccc6e7e732f271721",
+      "sha256": "b1451189026b6962dcb27377bcbd5418d56f9c423d6b3015ec2cde883aa77427"
+    },
+    "4944-job-113622487300.log.gz": {
+      "bytes": 322069,
+      "raw_sha256": "111ab0db7f71d6539a733fa6062b860e25f9c8461c937a7544e91d67a4e41975",
+      "sha256": "c33d8e44e06b03a2e6a727af7000b2b725af98f2d52c5e76cf0e7ce61322ff62"
+    },
+    "4944-job-113622487319.log.gz": {
+      "bytes": 360016,
+      "raw_sha256": "d59dd881114824f5ef89dbc309bfbbcd7c241b5f8377b434bd3e245b75926344",
+      "sha256": "e0d295bec644f28d7c9c9ba49167d80f97024f3fc3f96add277d32538298d701"
+    },
+    "4944-run-state.json": {
+      "bytes": 81911,
+      "sha256": "cf3f9edfad440769c7990952a7a239f960a109f3140bd232a536040565dc2ace"
+    }
+  },
+  "retained_baseline_api_pin": 13215,
+  "reviewed_live_settings_close_arrival_commit": "9a2f897401",
+  "source_base": "841816a2d92fd5b84ef8e32354358fd01ab67228"
+}

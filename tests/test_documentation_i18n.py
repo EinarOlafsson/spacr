@@ -2209,7 +2209,9 @@ def test_github_summary_has_reviewed_domain_translations():
         translatable_blocks,
     )
 
-    assert len(REVIEWED_README_BLOCKS) >= 23
+    reviewed_sources = json.loads((ROOT / "tests/data/release_contracts"
+        / "readme_domain_review_sources_2026_10_09.json").read_text())
+    assert set(REVIEWED_README_BLOCKS) == set(reviewed_sources)
     all_languages = {
         "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr",
     }

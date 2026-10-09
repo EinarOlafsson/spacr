@@ -676,6 +676,7 @@ def api_entries() -> List[HelpEntry]:
 _CONDITIONAL_TABS = {
     "PreferencesTabFractal": "spaceout_enabled",
     "PreferencesTabSound": "spaceout_enabled",
+    "PreferencesTabSpaceoutField": "spaceout_enabled",
 }
 
 
