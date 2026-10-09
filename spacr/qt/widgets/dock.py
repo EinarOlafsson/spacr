@@ -699,7 +699,9 @@ class DockEdge(QWidget):
         if self._pressed_x is None:
             from .ambient import field_ripple_for_widget
 
-            QTimer.singleShot(0, partial(field_ripple_for_widget, self))
+            QTimer.singleShot(0, partial(
+                field_ripple_for_widget, self if collapsed else self._dock,
+                edge="right"))
 
     def keyPressEvent(self, event) -> None:  # noqa: N802
         """Let a keyboard user activate the same collapse control.

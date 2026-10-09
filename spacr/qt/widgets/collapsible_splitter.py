@@ -759,7 +759,10 @@ class CollapsibleSplitter(QSplitter):
         self.pane_toggled.emit(pane.name, bool(shut), bool(by_user))
         from .ambient import field_ripple_for_widget
 
-        field_ripple_for_widget(self)
+        field_ripple_for_widget(
+            self,
+            edge="bottom" if self.orientation() == Qt.Vertical else "right",
+            rect=pane.widget.geometry())
 
     def _shape(self, pane: Pane, collapsed: bool) -> None:
         """Let a HEADER pane shrink to its heading, or hold its minimum."""
@@ -807,7 +810,22 @@ class CollapsibleSplitter(QSplitter):
         if not from_drag:
             from .ambient import field_ripple_for_widget
 
-            field_ripple_for_widget(self)
+            landing = None
+            if collapsed and index >= 0:
+                handle_index = index + 1 if index < self.count() - 1 else index
+                landing = self.handle(handle_index)
+            if collapsed and landing is None:
+                return
+            try:
+                landing_rect = landing.geometry() if collapsed else pane.widget.geometry()
+            except RuntimeError:
+                return
+            field_ripple_for_widget(
+                self,
+                edge=("right" if index < self.count() - 1 else "left")
+                if self.orientation() == Qt.Horizontal else
+                ("bottom" if index < self.count() - 1 else "top"),
+                rect=landing_rect)
 
     def _collapsed_extent(self, pane: Pane) -> int:
         """How much room a collapsed HEADER pane needs: its heading."""

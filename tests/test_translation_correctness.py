@@ -63,6 +63,9 @@ DELIBERATELY_UNTRANSLATED = {
     "Cirrus": {"fr"},
     "Meridian": {"de", "sv"},
     "Nocturne": {"de", "fr"},
+    # The Swedish biological noun has the same spelling as English; SAOL
+    # uses "organism" in https://svenska.se/saol/?pz=4&sok=fibrernas.
+    "Organism": {"sv"},
     "Pulsar": {"de", "fr", "pt", "sv"},
     "Solstice": {"fr"},
     "Console": {"fr", "pt"},

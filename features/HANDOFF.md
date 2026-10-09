@@ -1,5 +1,195 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 23:24 EDT — Reviewed API guard and Swedish identity check repaired
+
+Root found the remaining exact completed4944 coverage7 failure on public796:
+extractor count omitted the already reviewed LiveSettingsDialog.close contract.
+Sourceccf5f431b consumes the existing exact arrival fixture, checks its sole
+symbol/text and disjointness, and retains both original13215 ceilings. Whole
+extractor plus all10 English/nine-language inventory/hash cases18PASS138.32s;
+184 unrelated deselected. Source7dfd7c5d8 documents Swedish Organism as the
+same valid biological noun, using SAOL; product/catalog wording unchanged.
+Whole translation checker terminal0; original1FAIL12PASS1XFAIL retained.
+Proof:data/43_reviewed_api_guard_2026-10-09/receipt.json contains9 complete
+payloads and5 exact Git bindings. Original4944 full run is now cancelled;
+separate Home serialQt and current hosted runs retain their own verdicts.
+No full GitHub green or parent43/615 completion claim. One Root agent.
+Historical audio verification remains the existing handle65256 on frozen8c;
+no replacement upload, new media generation or broad feature work started.
+
+## 2026-10-08 23:24 EDT — Shared latest source merged; final guard patch remains Home owner
+
+Workstation796428c8a3 independently fixed the same conditional help-page issue
+and re-generated the same ripple intensity help row. Its actual merged source
+207PASS eight-owner proof is preserved, along with audio-transfer65256 ownership.
+Merge retains both authored handoff/item notes and equivalent two-line Help
+assertion formatting. No generated hand-merge or stronger source change.
+Home39bfe8e19f contains two additional accepted guard repairs: exact reviewed
+API close arrival and exact18 active README-domain source set. All current
+ripple/Spaceout changes are already public841; final guard patch push was slow
+and interrupted after remote advanced, without force/reset/stash. Normal private
+merge/push follows; do not mistakenly treat an interrupted upload as acceptance.
+Home841 manual37877663418 cancelled while queued because these remaining guards
+would fail. Old4944 manual also cancelled after preserving all14 failed logs.
+Keep4944 original-order serial37868900922 (stilllive). Latest full CI dispatch
+on final merged source follows the successful push; record exact ID below.
+No children/new broad work. Source-body copies and original proofs remain frozen.
+
+## 2026-10-08 23:16 EDT — Final small CI gaps repaired; current-source dispatch next
+
+PUBLIC841816a2d9 includes ripple final-edge/intensityf632 and Spaceout relief aef80706ef
+plus preserved workstation updates. Final Spaceout rerun47PASS4.96s. Exact full
+normal API13233 equals current English manifest; six runtime source maps unchanged.
+New ripple control caption lives in compact tr rows for nine locales. No local
+GPU/protected job or active subagent. Scratch3 preview images remain available.
+
+Archived every14 completed failing job from old Home4944manual37868897849,
+plus exact job/source state and compressed/raw SHA digests. First aggregate log
+request was unavailable while run live (zero-byte scratch output, not evidence);
+per-job API captures succeed. Cancellation requested for this already-red run
+because its old collector/API/README/help failures are repaired in current source.
+Fresh841 manual37877663418 is still queued; replace it after this final fix push,
+so a known-stale guard does not consume another full hosted run. KEEP original
+4944Qtserial37868900922, which remainslive and has no demonstrated failure here.
+
+Three bounded current guard repairs: accepted LiveSettingsDialog.close already
+reviewed in all9 API catalogs by9a2f is added to authored Home arrival fixture;
+base13,215 stays unchanged, source-bound arrivals9→10. Help preference mode gate
+now includes PreferencesTabSpaceoutField, verified against real dialogs in both
+modes. Normal help-index generator rerun adds new ripple intensity row. Current
+README domain review has18 active source blocks, with retired blocks archived;
+historical minimum23 was false. Guard binds exact authored current-source set
+instead of arbitrary count, retains all-nine target/actual visible text checks,
+and fails any dropped/extra domain key. No coverage/timing/skip/ratchet waiver.
+
+Initial scoped API+README+whole Help51cases:50PASS,1FAIL85.59s (README23minimum).
+Final exact4 API/README/normal+Spaceout actual-row guards:4PASS31.48s with REAL
+numeric collector enabled. No unrelated full rerun. Portable receipt includes
+15 old-run payloads + actual hashes of seven current repair/contract files:
+ data/43_final_guard_fixes_2026-10-09/receipt.json
+
+NEXT agent: final-source full hosted CI and first numeric endpoint publication
+remain main priority. Check new run IDs in following note. Retain live Qt serial
+and workstation historical audio transfer65256; no duplication/rescope. Other
+private/API/docs/GPU/native/external parents remain as recorded below; this
+bounded patch does not mean all tasks, current hosted green or native visuals
+are accepted. User requests minimum tokens and current handoff for next session.
+## 2026-10-08 23:11 EDT — Home source and Root help fix jointly accepted
+
+2026-10-08 23:11 EDT — Merged actual Home841816a2d normally after rejected push.
+Both complete handoff sections retained; no force/reset/stash. Home's tested
+final-edge/container waves,0–200% ripple intensity and signed Spaceout
+relief/stronger vortex/colour schedule retained with Root conditional help
+fix. Normal help index regeneration adds exactly one existing compact
+nine-locale Ripple intensity row. Exactmergeddeebb0749 eight complete
+owner files207PASS83.89s/no skips; full13233 API/10065 runtime/65 installer
+normal source maps equal stored English. Receipt
+data/43_spaceout_help_targets_cpu_2026-10-09/receipt.json now retains
+19 verified payloads and16 merged actual Git source bindings.
+Earlier81PASS and original negative stay bound to their own14f source.
+Frozen8c historical audio upload/readback handle65256 remainslive, unaffected
+by this merge; no mutable source or candidate replacement. Current source
+push triggers normalCI. Home4944 serial/full diagnostics remain intact;
+no current full-green/native-user approval or parent completion claim. OneRoot.
+
+
+## 2026-10-08 23:02 EDT — Current Spaceout preference search targets repaired
+
+2026-10-08 23:02 EDT — Small current help-search visibility fixsource14f054696.
+Actual completed4944 Qt1/coverage1 logs expose8 Spaceout-only field rows
+offered in ordinary spaCR, where their preferences page is absent. Added
+PreferencesTabSpaceoutField to existing spaceout_enabled conditions; no
+user text or generated index edited. Enhanced original actual-dialog contract
+checks Fractal,Sound and field targets in both modes. Beforefix1FAIL/1PASS;
+three complete help/index files81PASS76.97s afterfix. Independent full normal
+13233 API/10065 runtime/65 installer maps equal stored English. Full original
+4 terminal job logs, original local negative, final logs and4 actual Git
+source bindings indata/43_spaceout_help_targets_cpu_2026-10-09/receipt.json
+(12 verified payloads). Other completed failures retain known collector
+errors already repaired; no acceptance of remaining ignored atexit/parked
+thread diagnostics, full hosted coverage or GitHub green. Historical56 audio
+upload/readback handle65256 stilllive in frozen8c worktree; do not mutate it
+or duplicate upload. One Root agent; this source uses normal CI-trigger push.
+
+
+
+## 2026-10-08 23:01 EDT — Bounded Spaceout relief accepted; final push follows remote merge
+
+N674 now projects signed field height and uses surface normals for lighting:
+positive/negative attractors make raised peaks and depressions; vortices rotate
+up to2.4rad with moving signed relief; spirals also carry relief. Colour waves
+and three-arm spirals traverse the user's palette more strongly. Two bounded
+29/43-second lanes have jittered starts/durations/positions and calm gaps. A
+seed-shuffled geometry bag ensures both mountains and vortex events in the first
+minute, rather than long chance-based silence; colour/density lane stays random.
+All existing switches, hover/grab physics, native grain count, viewport boundaries,
+clock-seek determinism and calm/disabled exact equivalence are retained. Normal
+calm/color-only frames avoid allocating depth-light arrays. No extra GPU process.
+
+Owning Spaceout + launch47PASS4.73s, zero skips; four real scheduler seeds show
+both geometry effects within60s. New signed height/slope and disabled-zero guard
+passes. Full normal API13233 equals committed English manifest exactly; earlier
+six complete normal runtime maps equal current sources. No regenerated artifact
+or API ratchet edit. Actual1280x720 engine PNGs were inspected: peaks/valleys,
+vortex, colour spiral. Scratch: /mnt/wd4tb/scratch/spaceout-relief-20261009/.
+Preview-only first attempt used unsupported blink_percent constructor argument;
+corrected to real engine API and all3 previews saved. No application error.
+
+Ripple/intensity commitf6323d56d4 is locally committed; first push was rejected
+because concurrent workstation advanced origin. Never force push. Save Spaceout
+source then merge origin/nightly in this PRIVATE tree and push both finished
+changes with git push origin HEAD:nightly. Existing held4944 hosted runs remain
+live diagnostics; current normal push covers newer source. Parents remain open
+where hosted/native/user visual acceptance is required. Zero active subagents.
+User wants minimum tokens and a current handoff for the next Codex/Claude session;
+do not start another broad feature or replay whole local suite.
+
+## 2026-10-08 22:56 EDT — Container-edge ripple and intensity repair ready for publication
+
+Backported only tested finite-segment waves from316ce/c797 into current7281178,
+preserving public advection blinking and retirement repairs. Open/closed Sections
+emit from final bottom edge; splitter HEADERs from final pane edge; EDGE panes
+from their own final pane/landing handle, never whole splitter bounds. Dock open
+feedback uses final dock edge. Clipping retains real edges without fabricating
+viewport sides. Background clicks remain circular; interactive controls no
+longer enqueue point waves when opening/closing containers.
+
+Preferences now has Ripple intensity0–200%, default100. It scales circular,
+container and recurring ripple displacement/lighting independently of gravity,
+saves/reloads/cancels normally and survives theme replacement. One new compact
+tr caption owns nine locales; no new public API or generated hand-merge.
+Owning four-file cohort84PASS12.91s; field-grab owning17PASS2.54s. Includes actual
+header clicks, final-edge geometry, straight distance fields, settings lifecycle,
+zero-amplitude pixel equality, stronger pixels and rebuild preservation.
+Six complete normal runtime source maps remain unchanged. API count13233;
+final normal exact API digest comparison follows with next bounded Spaceout work.
+No hosted/native-user visual acceptance claimed. Old expected all-side opening
+assertion failed initially1/74 and was updated to requested bottom-edge behavior,
+without dropping final geometry/visibility assertions.
+
+NEXT: user requests conspicuous3D Spaceout mountains/valleys/vortex and stronger
+trippy colour/effects. Current schedule can remain quiet for over a minute,
+vortex rotation only0.42rad and attractors have no depth/lighting. Keep changes
+private/helpers, respect toggles and mouse physics, test finite/bounded/no-history
+and visual snapshots. No GPU work or new agents; minimize tokens. Existing
+Home4944 hosted acceptance remains useful; do not cancel it for cosmetic changes.
+## 2026-10-08 22:54 EDT — Existing historical narration publication in progress
+
+2026-10-08 22:54 EDT — Root continues existing historical56 English live-TV packet.
+Private current-source worktreehistorical-voice-publication-20261009 has
+accepted checkpoint8c372c8bf; normal complete5229-file validation passes,
+4 owning files35PASS40.31s. Exact manifest comparison preserves14 catalogs
+and5105 original records. Only112 corrected English files,2 required player
+index files and10 explicit original visual clocks change; six refreshed
+current lessons retain all their media. Public5ab media remains in use.
+Normal existing single-transfer uploader/readback is LIVE (owned handle65256)
+on branch tutorial-live-tv-20261008-r1; do not duplicate/restart from a stale
+log. Not yet uploaded/tagged/published acceptance. No fresh voice generation
+or video recording. Proofdata/676_historical_publication_preflight_2026-10-09
+retains7 payloads and8 actual Git source bindings. Root is the sole local agent.
+Current728 fulltests/docs await runners; Home4944 serialQt stilllive.
+
+
 ## 2026-10-08 22:41 EDT — Additional affected collector owners accepted
 
 2026-10-08 22:41 EDT — Three additional completed4944 jobs (113622486792,

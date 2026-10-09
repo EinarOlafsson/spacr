@@ -258,17 +258,16 @@ def test_field_boundary_feedback_is_bounded_and_independent_of_gravity(
     widget.show()
     qtbot.wait(10)
     widget._ripple_from_edge("right")
-    assert len(widget._art_input._boundary_waves) == 3
-    assert widget._art_input._applied_boundary_serial == 3
-    assert [point for _when, point in widget._engine._popup_waves] == [
-        (1.0, 0.2), (1.0, 0.5), (1.0, 0.8)]
-    assert [point for _serial, point in widget._art_input._boundary_waves] == [
-        (1.0, 0.2), (1.0, 0.5), (1.0, 0.8)]
+    assert len(widget._art_input._boundary_waves) == 1
+    assert widget._art_input._applied_boundary_serial == 1
+    right = ((1.0, 0.0, 1.0, 1.0),)
+    assert [origin for _when, origin in widget._engine._popup_waves] == [right]
+    assert [origin for _serial, origin in widget._art_input._boundary_waves] == [right]
     for _ in range(20):
         widget._ripple_from_edge("top")
     assert len(widget._art_input._boundary_waves) == 16
     assert len(widget._engine._popup_waves) == 6
-    assert widget._engine._popup_waves[-1][1] == (0.8, 0.0)
+    assert widget._engine._popup_waves[-1][1] == ((0.0, 0.0, 1.0, 0.0),)
     widget.hide()
     assert widget._art_input._boundary_serial == 0
     widget._ripple_from_edge("left")

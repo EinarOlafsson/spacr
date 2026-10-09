@@ -3657,3 +3657,44 @@ Current728 tests/docs/compat await hosted runners; Home4944 serialQt remains
 live. This is owning CPU correctness/counting evidence, not recovered full
 hosted coverage, current GitHub green, deployed docs or parent43/681 closure.
 One Root agent; low-token finish-up scope preserved.
+
+2026-10-08 23:16 EDT — All14 terminal old4944 failed-job logs archived. Final bounded API arrival/actual-mode preference help/exact active README domain guards4PASS31.48s with real collector. Numeric base13,215, coverage, skip and timeout ceilings retained. Current-source full hosted acceptance remains pending. See43_final_guard_fixes_2026-10-09/receipt.json.
+2026-10-08 23:02 EDT — Small current help-search visibility fixsource14f054696.
+Actual completed4944 Qt1/coverage1 logs expose8 Spaceout-only field rows
+offered in ordinary spaCR, where their preferences page is absent. Added
+PreferencesTabSpaceoutField to existing spaceout_enabled conditions; no
+user text or generated index edited. Enhanced original actual-dialog contract
+checks Fractal,Sound and field targets in both modes. Beforefix1FAIL/1PASS;
+three complete help/index files81PASS76.97s afterfix. Independent full normal
+13233 API/10065 runtime/65 installer maps equal stored English. Full original
+4 terminal job logs, original local negative, final logs and4 actual Git
+source bindings indata/43_spaceout_help_targets_cpu_2026-10-09/receipt.json
+(12 verified payloads). Other completed failures retain known collector
+errors already repaired; no acceptance of remaining ignored atexit/parked
+thread diagnostics, full hosted coverage or GitHub green. Historical56 audio
+upload/readback handle65256 stilllive in frozen8c worktree; do not mutate it
+or duplicate upload. One Root agent; this source uses normal CI-trigger push.
+
+2026-10-08 23:11 EDT — Merged actual Home841816a2d normally after rejected push.
+Both complete handoff sections retained; no force/reset/stash. Home's tested
+final-edge/container waves,0–200% ripple intensity and signed Spaceout
+relief/stronger vortex/colour schedule retained with Root conditional help
+fix. Normal help index regeneration adds exactly one existing compact
+nine-locale Ripple intensity row. Exactmergeddeebb0749 eight complete
+owner files207PASS83.89s/no skips; full13233 API/10065 runtime/65 installer
+normal source maps equal stored English. Receipt
+data/43_spaceout_help_targets_cpu_2026-10-09/receipt.json now retains
+19 verified payloads and16 merged actual Git source bindings.
+Earlier81PASS and original negative stay bound to their own14f source.
+Frozen8c historical audio upload/readback handle65256 remainslive, unaffected
+by this merge; no mutable source or candidate replacement. Current source
+push triggers normalCI. Home4944 serial/full diagnostics remain intact;
+no current full-green/native-user approval or parent completion claim. OneRoot.
+
+2026-10-08 23:24 EDT — Root exact API guard repair: existing reviewed hidden
+settings close fixture now participates in both unchanged13215 extractor
+counts. Entire extractor + English/all9 inventory/hash cases18PASS138.32s.
+Swedish Organism intentional spelling documented; full checker terminal0.
+Original failed/cancelled hosted evidence retained in
+data/43_reviewed_api_guard_2026-10-09/receipt.json. Full current hosted
+acceptance remains pending; do not transfer cancelled4944 acceptance.

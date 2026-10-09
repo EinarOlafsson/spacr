@@ -1,0 +1,86 @@
+{
+  "source_commit": "7dfd7c5d88b45796f89302887d07b2a4a6a62193",
+  "source_sha256": {
+    "tests/test_api_i18n_extractor.py": "2489939e2d62b8e09a604d741a68294dae9a61853dd6f1b9099f0e2142218ea3",
+    "tests/test_translation_correctness.py": "e7ef80f649a778c5ae5d77508e4a8b13f78e8447492b98fa0c61a43bbc84504a",
+    "tests/test_documentation_i18n.py": "c058e5a982f2becaedc6fd167c725e5e2464c9f6d5e33f5f821f9f287e508513",
+    "tests/data/release_contracts/43_hidden_live_preview_close_API_arrival_2026-10-08.json": "9abb8a19f634b3d5bb73299f658b6f410d563de3217985a959f51799553c2924",
+    "tools/build_documentation_i18n.py": "152ad2d69d2c5714c1747e07771a180bec0d6ec44eb108f53442e17096926fff"
+  },
+  "payloads": [
+    {
+      "path": "payload/home-4944-terminal-run-state-r4.json.gz",
+      "raw_bytes": 12529,
+      "raw_sha256": "6983875ab369ef356b54a1a9d1de0352a3ac09b4795f0a666d1fcfb47db776ae",
+      "gzip_sha256": "3576390afa9c18460780120085c19eaf4bb7f7b7485409aea3fb41173c97d677"
+    },
+    {
+      "path": "payload/home-4944-job-113622487401-terminal-r1.log.gz",
+      "raw_bytes": 2192622,
+      "raw_sha256": "67de68b1eac5e04b9c731c8cdd2c15816d12c868896fcda7a79580bf06039a65",
+      "gzip_sha256": "48b7eb7489ecbd10a66ef98f163e1e574dc65f561131d7b3d1038f82fa34dd18"
+    },
+    {
+      "path": "payload/home-4944-job-113622487099-terminal-r1.log.gz",
+      "raw_bytes": 6469364,
+      "raw_sha256": "24289da6dc617da41a748effbe9f842cd747087b58f98858367a611b6211527d",
+      "gzip_sha256": "aa3e544c4149b270c0ec4fbc62f66d5927565c41e8fb06360c80d6e1cfe3d86e"
+    },
+    {
+      "path": "payload/remaining-4944-api-translation-current-r1-tool.log.gz",
+      "raw_bytes": 85360,
+      "raw_sha256": "cd5bd23327964e65c08d031ac39a233d4ef70203efb0bcae7a6cdfa09e8755cc",
+      "gzip_sha256": "e55f045182592a5d297226c32f41e5ff46b61308e971887247bce099b6c5ef32"
+    },
+    {
+      "path": "payload/remaining-4944-api-translation-current-r1.log.gz",
+      "raw_bytes": 84857,
+      "raw_sha256": "0cd34cbc0a90c99dd3f7e4f56b1457af57d2c642e0782f7dceb822ca7c85d12e",
+      "gzip_sha256": "f9f366baa4bf9860f846c45dc8e584ffde42a028b05999fc87eaed66d79788bb"
+    },
+    {
+      "path": "payload/remaining-4944-api-current-fixed-r1-tool.log.gz",
+      "raw_bytes": 835,
+      "raw_sha256": "7bb2aed2074f25a366d8e175ed2064b217019778c468eef08175ec09af83bafc",
+      "gzip_sha256": "2aa1d19fccc9947272f742fdfce68983c5450ee0829b2d077ff415415e414750"
+    },
+    {
+      "path": "payload/remaining-4944-api-current-fixed-r1.log.gz",
+      "raw_bytes": 243,
+      "raw_sha256": "dc60f488762061fbeb9771ec71a4aed574ca82f79f686aaebcec1eae6d5412ee",
+      "gzip_sha256": "cf4fd275d498e39cb8f08351da5c8bf141c6cb018a11df95979250a73857bd3a"
+    },
+    {
+      "path": "payload/remaining-4944-translation-fixed-r1-tool.log.gz",
+      "raw_bytes": 675,
+      "raw_sha256": "8c9b42eaa4a40da18e6fe83844e3c8964654a95f5244c9431ef2ca3be8be067f",
+      "gzip_sha256": "31b0770afa623b7e66cae09f4278fd499b70858b93ebcd01040acf0a5fa0d062"
+    },
+    {
+      "path": "payload/remaining-4944-translation-fixed-r1.log.gz",
+      "raw_bytes": 214,
+      "raw_sha256": "9b026b9f1d38ac1ac939cf066a2235329d08549fca7367d125150e61f5138641",
+      "gzip_sha256": "81ccbe6403e455f2c9907b952a181f15bb7ba6bf1089cce29a0644548eaf1326"
+    }
+  ],
+  "original_source": "796428c8a33fb1fae47cb957ae257d6ae373edc8",
+  "original_result": {
+    "failed": 1,
+    "passed": 12,
+    "xfailed": 1
+  },
+  "API_fixed_source": "ccf5f431b81e109c58c24388c312c8935775f9e8",
+  "API_fixed": {
+    "passed": 18,
+    "deselected": 184,
+    "seconds": 138.32,
+    "scope": "Entire extractor file and all ten English/localized inventory/hash cases."
+  },
+  "translation_fixed_source": "7dfd7c5d88b45796f89302887d07b2a4a6a62193",
+  "translation_fixed_terminal": 0,
+  "unchanged_baseline_ceiling": 13215,
+  "current_API_entries": 13233,
+  "reviewed_close_contract": "spacr.qt.widgets.live_preview.LiveSettingsDialog.close",
+  "Swedish_spelling_source": "https://svenska.se/saol/?pz=4&sok=fibrernas",
+  "scope_note": "Only test guards changed; product text and generated catalogs unchanged. Original full Home run cancelled; no current full hosted acceptance claimed."
+}

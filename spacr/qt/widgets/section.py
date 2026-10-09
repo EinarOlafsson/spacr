@@ -894,7 +894,9 @@ class Section(QFrame):
             except ImportError:
                 return
 
-            QTimer.singleShot(0, partial(field_ripple_for_widget, self))
+            QTimer.singleShot(0, partial(
+                field_ripple_for_widget, self,
+                edge="bottom"))
             return
 
         depth = int(scroll.property(SETTLING_DEPTH) or 0)
@@ -925,4 +927,6 @@ class Section(QFrame):
         except ImportError:
             return
 
-        QTimer.singleShot(0, partial(field_ripple_for_widget, self))
+        QTimer.singleShot(0, partial(
+            field_ripple_for_widget, self,
+            edge="bottom"))

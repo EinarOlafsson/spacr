@@ -2086,6 +2086,10 @@ _ROWS: Dict[str, tuple[str, ...]] = {
     "‹ Back": _row(
         "‹ Tillbaka", "‹ Zurück", "‹ Atrás", "‹ 返回", "‹ Voltar",
         "‹ वापस", "‹ 뒤로", "‹ Til baka", "‹ Retour"),
+    "Ripple intensity": _row(
+        "Krusningarnas intensitet", "Wellenintensität", "Intensidad de las ondas",
+        "涟漪强度", "Intensidade das ondulações", "लहरों की तीव्रता",
+        "물결 강도", "Styrkur gára", "Intensité des ondulations"),
     "Ripples": _row(
         "Krusningar", "Wellen", "Ondas", "涟漪", "Ondulações",
         "लहरें", "물결", "Gárur", "Ondulations"),
