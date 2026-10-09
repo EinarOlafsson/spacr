@@ -1,5 +1,25 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-09 00:15 EDT — Low-token wrap-up awaits external current CI state
+
+Across three consecutive goal continuations current6fb tests37881951815,
+docs37881951511 andcompat37881951526 remain pending/queued. All authorized
+small local repairs/publications are committed/pushed; no new small failure
+or Home source handoff is actionable. Remaining larger private/API/GPU/native
+integrations remain queued under user's only-low-token/one-agent restriction;
+external curate/review/data parents remain unfulfilled, not silently closed.
+Root goal is being markedBLOCKED on current external verification, not complete.
+Read-only observer42740 verified live; no duplicate/restart or Home cancellation.
+It continues its existing bounded snapshot/terminal-failure capture independently.
+Completed older796 nightly docs job113652641313 is SUCCESS (26PASS2SKIP72deselected),
+main build alsoSUCCESS; publishjob queued. Its exact checkout is796428c8a, before
+latest1b audio publication. Do not transfer it to6fb acceptance. Full terminal
+older build/source/artifact metadata is preserved:
+ data/615_older_hosted_documentation_build_2026-10-09/receipt.json
+Next continuation polls current exact IDs and same observerhandle, then repairs
+actual terminal errors within allowed scope. Full143-row ledger stillrecords
+107 earlier accepted scopes and36 broader unfinished items; no globaldone claim.
+
 ## 2026-10-09 00:10 EDT — Current Root CI read-only observer started
 
 Latest low-token local wrap-up is pushed73f751b0b; tested code6fb0115f8.
