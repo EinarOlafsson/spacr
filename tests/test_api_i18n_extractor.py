@@ -1395,7 +1395,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert len(home_ui_arrivals) == 9
     assert {key: docs[key] for key in home_ui_arrivals} == home_ui_arrivals
     assert not home_ui_arrivals.keys() & worker_arrivals.keys()
-    actual = len(docs.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) - len(builder.API_DOC_ALIASES)
+    hidden_close = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "43_hidden_live_preview_close_API_arrival_2026-10-08.json").read_text())["API_arrivals"]
+    assert set(hidden_close) == {"spacr.qt.widgets.live_preview.LiveSettingsDialog.close"}
+    assert {key: docs[key] for key in hidden_close} == hidden_close
+    assert not hidden_close.keys() & (worker_arrivals.keys() | home_ui_arrivals.keys())
+    actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
         f"({actual - expected:+d}). A public docstring addition must bump this "
@@ -1443,7 +1449,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    assert len(docs.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_215
+    assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_215
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
