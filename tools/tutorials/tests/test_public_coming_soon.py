@@ -10,6 +10,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from audit_staged_catalogs import CATALOGS
 from coming_soon import COPY, EMBEDDINGS, HELD, OPS, PLACEHOLDERS, release_catalog
+from check_completed_matrix import digest
 from integrate_public_coming_soon import check_preserved
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -20,8 +21,6 @@ CHECKPOINT = Path(__file__).resolve().parents[1] / 'release_candidate'
 PROMOTED = {'12_map_barcodes', '21_model_compare', '22_model_zoo', OPS, EMBEDDINGS}
 REMAINING = [identity for identity in PLACEHOLDERS if identity not in PROMOTED]
 HOST = 'https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/'
-# Changed with the four current lesson catalogs, 2026-10-05 (candidate co2wgfyt).
-CATALOG_KEY = 'final-wave-20261005-co2wgfyt'
 
 
 @pytest.mark.parametrize('filename', CATALOGS)
@@ -31,7 +30,7 @@ def test_public_catalog_has_playable_lessons_and_translated_unavailable_screens(
     held = [lesson for lesson in catalog['lessons'] if lesson.get('status') == 'coming_soon']
     ready = [lesson for lesson in catalog['lessons'] if lesson.get('status') != 'coming_soon']
     assert [lesson['id'] for lesson in held] == REMAINING == []
-    assert len(ready) == 85 and all(lesson['scenes'] for lesson in ready)
+    assert len(ready) == 84 and all(lesson['scenes'] for lesson in ready)
     for lesson in held:
         assert (lesson['availability_title'], lesson['description']) == COPY[language]
         assert lesson['scenes'] == []
@@ -69,9 +68,11 @@ def test_public_player_pins_the_verified_media_revision_and_exposes_coming_soon(
     assert docs_media_budget.NARRATION_HOST == root
     assert 'data-production-root="production"' in index
     assert '<h3 id="planned-title">Coming soon</h3>' in index
-    assert 'app_v2.js?v=20261002-home-landscape' in index
-    assert 'styles.css?v=20261002-home-landscape' in index
-    for name in ('lesson_catalog.js', 'module_navigation.js'):
-        assert name + '?v=' + CATALOG_KEY in index
+    assert digest(PUBLIC / 'index.html') == receipt['pages']['index_sha256']
+    versions = receipt['pages']['versioned_assets']
+    assert set(versions) == {'app_v2.js', 'styles.css', 'lesson_catalog.js',
+                             'module_navigation.js', 'voice_catalog.js'}
+    for name, version in versions.items():
+        assert index.count(name + '?v=' + version) == 1
     for name in ('lesson_catalog.js', 'module_navigation.js', 'app_v2.js', 'styles.css'):
         assert (PUBLIC / name).read_bytes() == (CHECKPOINT / 'web' / name).read_bytes()

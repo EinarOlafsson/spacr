@@ -107,8 +107,8 @@ def main():
             ids = page.locator('.lesson-link').evaluate_all('(nodes) => nodes.map(n => n.dataset.lesson)')
             assert ids == display_order and sorted(ids) == sorted(expected)
             assert len(ids) == len(set(ids))
-            assert ids[:5] == ['01_pypi_github', '03_pip_install', '02_conda_install',
-                               '04_platform_installers', '05_home']
+            assert ids[:5] == ['01_pypi_github', '02_install_spacr',
+                               '04_platform_installers', '05_home', '78_spacr_screens']
             assert page.locator('.lesson-number').all_text_contents() == [
                 str(index).zfill(2) for index in range(1, len(ids) + 1)]
             headings = page.locator('.series-toggle strong').all_text_contents()

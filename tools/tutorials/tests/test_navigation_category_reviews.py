@@ -18,14 +18,14 @@ def test_actual_hierarchy_routes_have_reviewed_labels_without_changing_lessons()
     main = next(section for section in navigation['sections'] if section['id'] == 'main')
     categories = [group['title'] for group in main['groups']]
     reviewed = category_labels(categories)
-    assert categories == ['Core', 'Data', 'Tools', 'Assays']
+    assert categories == ['Core', 'Data', 'Tools', 'Organism']
     assert set(navigation['labels']) == set(LABELS)
     for language in LABELS:
         actual = [navigation['labels'][language][group['label_index']]
                   for group in main['groups']]
         assert actual == reviewed[language]
     assert catalog == original
-    assert len(navigation['preserved_lesson_ids']) == 85
+    assert len(navigation['preserved_lesson_ids']) == 84
 
 
 @pytest.mark.parametrize('failure', ['new_category', 'reordered_source', 'stale_hash',
