@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "source_base": "fb3262325bb9233571c227590db9a4c0138bd3d5",
+  "source_fix_commit": "2c5042b99174c73f79391c582bd8c5e1f4d90450",
+  "candidate": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-historical-live-tv-r1/release-candidate-audio-buhh9wb_",
+  "candidate_manifest_sha256": "2b6079acab3d58759e1abf49e248431c4b3e7e7ea7a9dfbbc3ebf6c5124ac423",
+  "historical_accepted_proof_commit": "fb3262325bb9233571c227590db9a4c0138bd3d5",
+  "historical_proof_entrypoint": "features/data/676_historical_live_tv_acceptance_2026-10-08_r2/verify_evidence.py",
+  "english_catalog_sha256": "2a5a099f9b7e71c81cd2db253dd40355cef3c02d62a1edcd0eebd839e81aa40f",
+  "offered_lessons": 84,
+  "narrated_scenes": 1227,
+  "user_text_fields": 1824,
+  "full_semantic_review": false,
+  "offered_sources_media_player_changed": false,
+  "normal_workflow_regeneration": "PASS",
+  "normal_workflow_check": "PASS",
+  "workflow_and_translation_cohort": "54PASS2.82s on exact2c5042b99; prior54PASS2.09s retained",
+  "archive": "bounded-audit-and-ownership-proof.tar.gz",
+  "archive_sha256": "5bf99b7e1b2c787fd29bae6d9d2708c6e1680f136954f8b14869239eab213b7e",
+  "archive_bytes": 271187,
+  "payloads": {
+    "english-catalog.json.gz": {
+      "bytes": 134685,
+      "sha256": "775b803bd460fa3023cb8a1560359dadcb76da75f4b1abff2bb6959a12012eeb"
+    },
+    "findings.json": {
+      "bytes": 6774,
+      "sha256": "98ea2b9fd45ff3acfbca0fa7d46835b3e015329a0cd59c3cd3b74d4bdb617551"
+    },
+    "logs/workflow-authored-check-r1.log": {
+      "bytes": 294,
+      "sha256": "8a0d1797ef1d2d179482ecd42486943be75c5131fe89237700a95090c1fa108a"
+    },
+    "logs/workflow-authored-final-check-r1.log": {
+      "bytes": 294,
+      "sha256": "a53749ee11e72ecb6aff86fab2abb8523434fcbdd47c18aca3e98b5b45124054"
+    },
+    "logs/workflow-authored-final-owning-r1.log": {
+      "bytes": 422,
+      "sha256": "8f421e60d0d2ade3614989b7243332d77d10d11ff029e9b06738a5a4f7078695"
+    },
+    "logs/workflow-authored-owning-r1.log": {
+      "bytes": 422,
+      "sha256": "62d1b6a21f32cd77de2c5b0baa8132daf06ae6385e43c3185ef1f81d33a81122"
+    },
+    "logs/workflow-authored-regenerate-r1.log": {
+      "bytes": 283,
+      "sha256": "63c9b24e71bdc757b8f2b219cbd6e16758be00c5d52e1f8b3bba2a3289c87e49"
+    },
+    "provenance.json": {
+      "bytes": 217620,
+      "sha256": "6e222a86cde54e99bc3d76c96d1edac273eca7c89b1336d03696940d92ddce41"
+    },
+    "source/spacr/resources/module_workflows.json": {
+      "bytes": 133436,
+      "sha256": "cf0089ee333e65d4e4de5e8c162f78d5fa907231db0c99b12e60cb7e7b76a2ba"
+    },
+    "source/tests/test_module_workflow_map.py": {
+      "bytes": 18113,
+      "sha256": "7e5d82e94a734411ef35d83d76c7d667d0dd5035032d1072e9f22612637d0171"
+    },
+    "source/tools/build_module_workflows.py": {
+      "bytes": 28519,
+      "sha256": "0d8fbf3503799e78564192ae59c9eae440070740ad20322d9551eca58521174e"
+    },
+    "source/tools/tutorials/tests/test_workflow_translation_reviews.py": {
+      "bytes": 4759,
+      "sha256": "a0ef3854027448bba2a247107c8ba989319c376aead9db2b91ce47f0441e454c"
+    },
+    "source/tools/tutorials/workflows/80_image_analysis_pathways.json": {
+      "bytes": 53698,
+      "sha256": "2c7a06f654ceb04a671aff2c079f9b434cf799975c932ae6840dcd3bb35d5211"
+    }
+  },
+  "publication": "No upload/pages/record from this audit lane. Root retains historical checkpoint\u2192upload\u2192pages\u2192published browser\u2192record sequence after current six-lesson publication."
+}
