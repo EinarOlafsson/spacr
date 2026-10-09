@@ -1,0 +1,24 @@
+{
+  "baseline_commit": "1daf2782e63ab3fb348e034417b9a0cba32aedc0",
+  "bounds": {
+    "bbox_and_window_pixels": 1048576,
+    "candidate_pairs": 8,
+    "merged_source_bytes": 8388608,
+    "seconds": 0.5
+  },
+  "date": "2026-10-08",
+  "full_log_sha256": "40c9febd6dd3409740b10ee98158a52fb2a3e38149d305a1d097e568733e8381",
+  "normal_inventory": "API 13232 equal to predecessor; all six runtime buckets equal; tr literal extractor gap remains for workstation.",
+  "scope": "Actual cell montage merged_crop producer with recorded bbox, two export sizes, exact replay and source hash; advisory note only. Does not establish source-only splice/noise or whole F572 acceptance.",
+  "source_git_blob": {
+    "spacr/plot.py": "eae7b0b28e8a8866b12b2d8b2a3416b13c619c06",
+    "tests/qt/test_cells_behind_the_dot_tab.py": "8c497d1b9560ee70b033046660e5189b6c5b4b0b"
+  },
+  "source_sha256": {
+    "spacr/plot.py": "00b89f3a320965e77ce1ad95c12153e9b3443f4126abf42714d3de8b9c41cf11",
+    "tests/qt/test_cells_behind_the_dot_tab.py": "0385b17f9ee954a858cac0006c20e84a32eec4b390bd6b97b5b73024d0399558"
+  },
+  "source_test_commit": "b33f4b1c5ebdd3ed8e9fe7ddcb66341de3a763e8",
+  "test_command": "CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q tests/test_figure_integrity_guard.py tests/qt/test_cells_behind_the_dot_tab.py",
+  "test_result": "115 passed in 31.63s"
+}

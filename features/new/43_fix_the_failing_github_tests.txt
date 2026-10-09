@@ -3601,3 +3601,13 @@ Coverage6 has two translatedCopyconsole clipping failures(de/pt2x) and outdated
 READMEtracked-checkout-size figure. CIagent owns chipminimum/wrapping repair;
 workstation normalREADME producer owns dated size correction. Original thresholds
 and assertions remain. Current hosted/source whole-green acceptance stillOPEN.
+
+2026-10-08 20:26 EDT — Home narrow CI repair wave: immediate Copy console
+localization passes233 owning layout and79 language/hosted cases. Existing worker
+codec cloudpickle is now declared with minimum3.1.2; standalone fallback closure
+test and nativePython3.9.21 codec round-trips pass. Deterministic idle snapshot
+preserves original guards. Final idle file15PASS, no retained busy-worker report.
+Normal API13233/all6 runtime maps unchanged; portable source-bound receipts in
+features/data/43_copy_idle_dependency_current_cpu_2026-10-09/. Parent remains
+PARTIAL: current hosted GitHub green is not yet established; workstation owns
+known README tracked-size and compact-caption gaps. No guard waived.

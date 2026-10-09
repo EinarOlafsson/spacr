@@ -1,0 +1,59 @@
+{
+  "base_revision": "338c48b7a9",
+  "classifier_source_commits": [
+    "4873c3e0fe9da62b871b675b8ee2b96d8661fe94",
+    "c6dfe1c42463cf2205ae8e1cc438e429b5a11885",
+    "fbb65db4a449a4c8e2c7c38d92591ce7458a8b83"
+  ],
+  "commands": {
+    "inventory": "PYTHONPATH=tools:. CUDA_VISIBLE_DEVICES= QT_QPA_PLATFORM=offscreen OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python features/data/576_classifier_store_routing_2026-10-08/check_inventory.py",
+    "owning": "SPACR_TEST_POSTGRES_DSN=postgresql:///spacr_f576_prediction_20261008?host=/mnt/wd4tb/scratch/f576-owned-postgres-20261008-root/socket&port=65476 PYTHONPATH=/mnt/wd4tb/scratch/ci/ext/lib/python3.12/site-packages CUDA_VISIBLE_DEVICES= QT_QPA_PLATFORM=offscreen OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 tools/run_capped.sh 4G /home/olafsson/anaconda3/envs/spacr/bin/python -m pytest -q -p no:randomly tests/test_classifier_measurement_stores.py"
+  },
+  "limits": [
+    "The named-regression neighbor run preceded the shared-PostgreSQL deduplication follow-up; final-source owning matrix covers the new branch.",
+    "PostgreSQL used a root-owned temporary Unix-socket server and skips without SPACR_TEST_POSTGRES_DSN.",
+    "No GPU, full suite, or scientific-data acceptance was exercised."
+  ],
+  "owner_postgres_database": "spacr_f576_prediction_20261008",
+  "payload_sha256": {
+    "check_inventory.py": "24ca3163cbb97468858e4a829a018b701289fd6bdbf9be8fdf63aa57b0712925",
+    "classifier-neighbors.log.gz": "b7a431599dca935dec9dd87b9624136921ec65870a4348c26b84ccd1159820d6",
+    "inventory-report.json": "482b7de669fb151565c88a44e583b8fd179d164007f01ddef07184717cf3d84e",
+    "owning-final.log.gz": "d63a1cb1bec904cb5347ba6b59d04a5773fa760d265096ef87bce222efa238ff",
+    "source.patch.gz": "1acc1acd93d71da341d2de5989508de349b437132708a9b9898de6f616d0fa34"
+  },
+  "results": {
+    "neighboring_classifier_guards": "11 passed, 111 deselected, 6 warnings in 28.26 s",
+    "normal_api_changed": [
+      "spacr.ml.generate_ml_scores",
+      "spacr.ml.interpret_vision_model",
+      "spacr.ml.load_regression_input_pairs",
+      "spacr.predictions.merge_prediction_results",
+      "spacr.predictions.migrate_prediction_columns"
+    ],
+    "owning_backend_matrix": "9 passed in 15.31 s",
+    "runtime_changed": []
+  },
+  "root_regression_origins": [
+    "a1de868f569aa2a4355d25b5d06d82bfd22be030",
+    "21abcc764d"
+  ],
+  "runtime": {
+    "cuda": "hidden",
+    "duckdb": "1.5.6",
+    "memory_limit": "4 GiB",
+    "numpy": "2.5.2",
+    "pandas": "2.3.3",
+    "postgresql_server": "18.4",
+    "psycopg": "3.3.6",
+    "pyarrow": "25.0.1",
+    "python": "3.12.13",
+    "qt": "6.11.2"
+  },
+  "source_blobs": {
+    "spacr/ml.py": "4b04f8003413be5943b76f9a8aaecb5285968fe8",
+    "tests/test_classifier_measurement_stores.py": "c6151b1f725491a0c6232211eb400e32129b2298"
+  },
+  "source_bound_scope": "Final fbb source changes only two already-declared public docstrings after the nine-case behavioral cohort; exact final source inventory was rerun and the five API deltas remain confined to the same keys.",
+  "source_revision": "fbb65db4a449a4c8e2c7c38d92591ce7458a8b83"
+}

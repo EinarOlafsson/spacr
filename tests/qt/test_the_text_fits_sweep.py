@@ -418,6 +418,28 @@ def screen_in_a_container(qtbot, app_key, width=1200, height=850):
     return host, screen
 
 
+@pytest.mark.parametrize("locale", ("de", "pt"))
+def test_copy_console_pair_is_sized_for_its_translation_before_first_layout(
+        locale, qtbot, at_font_scale, monkeypatch):
+    """The first layout must reserve space for the active-language caption."""
+    monkeypatch.setenv(I.ENV_LANGUAGE, locale)
+    at_font_scale(2.0)
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen(app_key="investigate_hit")
+    qtbot.addWidget(screen)
+    copy = screen._btn_copy_console
+    gear = screen._btn_preferences
+    pair = copy.parentWidget()
+
+    assert copy.text() == I.tr("Copy console")
+    assert pair.sizeHint().width() >= (
+        copy.sizeHint().width() + gear.sizeHint().width()
+        + pair.layout().spacing())
+    I.retranslate_widget_tree(screen, "en")
+    assert copy.text() == "Copy console"
+
+
 def _offenders(screen):
     """Every clipped caption on ``screen``, as sentences a reader can check."""
     found = []

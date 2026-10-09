@@ -1,0 +1,32 @@
+{
+  "api_count": 13232,
+  "api_sha256": "e56e3908fc7f0d0dcf0fc7f00055ee348f94658e6aaeffe58feeea6bfe45afdd",
+  "extractor_gap": "The new spacr.plot.py tr() source-region note is not among normal canonical runtime UI sources; workstation owner must review extractor/catalog inclusion.",
+  "runtime": {
+    "categories": {
+      "count": 237,
+      "sha256": "f2996c10339e094fa22f8c7b70bddcdd78a86b4454db05b3c8ff29d307dbeecd"
+    },
+    "installer": {
+      "count": 65,
+      "sha256": "f54495ba5fd6a396033144d3db0385323c368adf8511e7fd2c26d96862ddcc1a"
+    },
+    "module_summaries": {
+      "count": 77,
+      "sha256": "a9ced956ddcf46a450552460607b996c3d250c39d1e4b4775b9e0c578cc49f7f"
+    },
+    "setting_labels": {
+      "count": 1221,
+      "sha256": "fc02f6a82015488dd2bdbc13eaefdb4ea79ae861629b80a462f3848237167452"
+    },
+    "setting_tooltips": {
+      "count": 1243,
+      "sha256": "3cfc842a98eb321cef3f9b9405845f21cf3bd17f227f8a8bfda929298d5224b3"
+    },
+    "ui": {
+      "count": 7288,
+      "sha256": "5acd4f843f3eff007558f23a5dea780910994956108eac55b10779a91f2b54e9"
+    }
+  },
+  "unchanged_from": "1daf2782e63ab3fb348e034417b9a0cba32aedc0"
+}

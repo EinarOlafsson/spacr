@@ -1,0 +1,22 @@
+{
+  "after": "14 passed in 49.43s; no busy JobRunner session report",
+  "base_commit": "6fdced907cef879e753ae369525818d5dd4ef1b4",
+  "before": "14 passed in 52.24s; session reports one busy JobRunner from the parity test",
+  "environment": "Qt/PySide 6.12.0, pytest 8.4.2, CUDA hidden, QT_QPA_PLATFORM=offscreen, run_capped.sh 4G",
+  "logs": {
+    "after": {
+      "file": "after.log.gz",
+      "gzip_sha256": "97b18057b2d2e96c89155bf1c67ac8533571bbde3f084edc2cb6fcf652b5c506",
+      "raw_sha256": "92703eba8030160fa01fe4a978b37c53b6008d8e082ddfb0b5232b6326e5efa8"
+    },
+    "before": {
+      "file": "before.log.gz",
+      "gzip_sha256": "080a034cbbdd0c2db04584b3143dd38b4d7303d0c5d05de769ee64d81585d081",
+      "raw_sha256": "e257feacaad5ffa3820af1e3334ff19595a638ab255bdcb90a19317b8b4a1789"
+    }
+  },
+  "repair_commit": "0e373784e93d97345bc7876fb703af0d17e83fc3",
+  "retained_contract": "idle/click/eager rows, collected values and search index remain equal; each comparison MainWindow close must be accepted",
+  "selector": "tests/qt/test_idle_time_builds_the_closed_categories.py",
+  "test_file_sha256": "b9137d2d33b972cf3b147a0c746527fa44c917de0c3ee55dea8cd5da90ccaf2c"
+}

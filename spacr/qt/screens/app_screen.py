@@ -7739,7 +7739,9 @@ class AppScreen(QWidget):
         self._btn_clear.clicked.connect(lambda: self._console.clear())
         buttons.addWidget(self._btn_clear)
 
-        self._btn_copy_console = QPushButton("Copy console")
+        self._btn_copy_console = QPushButton()
+        from ..i18n import set_translatable_text
+        set_translatable_text(self._btn_copy_console, "Copy console")
         self._btn_copy_console.setObjectName("GhostButton")
         self._btn_copy_console.setCursor(Qt.PointingHandCursor)
         self._btn_copy_console.setToolTip(

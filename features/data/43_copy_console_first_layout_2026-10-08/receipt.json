@@ -1,0 +1,61 @@
+{
+  "base_commit": "b0879b0fa57f42adaccd9c17619643c46d380d32",
+  "files_sha256": {
+    "spacr/qt/screens/app_screen.py": "6a174d58239f8b75b3819e2c30c163a505e11b04e58cd400fa4c0d0be9b60cad",
+    "tests/qt/test_the_text_fits_sweep.py": "d789104026946a4e1a2e55d850aee43eea8b0f2e22f34a4a79ad69ab1ffae548"
+  },
+  "hosted_failure": {
+    "job_id": 113582650726,
+    "nodes": [
+      "tests/qt/test_the_text_fits_sweep.py::test_no_caption_is_cut_off[investigate_hit-de-2.0]",
+      "tests/qt/test_the_text_fits_sweep.py::test_no_caption_is_cut_off[investigate_hit-pt-2.0]"
+    ],
+    "observed_width_px": 198,
+    "required_width_px": {
+      "de": 246,
+      "pt": 241
+    },
+    "run_id": 37855662692,
+    "source": "f0b81dacefe089c54b1d22a4aebd363a29d53cfb"
+  },
+  "inventory": {
+    "api_count": 13232,
+    "api_sha256_base_and_changed": "423cc12f9ac4904c9b3fa4e311616a85e1e847e569a15bfff2c68f5224ecc228",
+    "runtime_map_count": 6,
+    "runtime_sha256_base_and_changed": "595435f8132809337168d531766ecce6b2831c8488bb6b6d2004f1832bd0708b"
+  },
+  "local_test_environment": {
+    "cap": "tools/run_capped.sh 4G",
+    "cuda_visible_devices": "",
+    "pytest_overlay": "/mnt/wd4tb/scratch/ci-55bad-20261008/pytest842-overlay",
+    "python": "/home/olafsson/anaconda3/envs/spacr/bin/python",
+    "qt_overlay": "/mnt/wd4tb/scratch/ci-7a-root-20261008/qt612-overlay",
+    "qt_qpa_platform": "offscreen"
+  },
+  "logs": {
+    "baseline_negative": {
+      "file": "baseline_negative.log.gz",
+      "gzip_sha256": "43dd96f835c0a258b7185de3032a1e29b6ca687b9c920187bbd42eb4669d4b6c",
+      "raw_bytes": 2866,
+      "raw_sha256": "7ad4ee717056b8d7ae615b6bbf604805e4cb36304806ee632d93851f998497a4"
+    },
+    "focused_positive": {
+      "file": "focused_positive.log.gz",
+      "gzip_sha256": "700ad168d0d730b06297e8eb34f5d5d1e0aaf78afacc754f7492a00ad4e967a5",
+      "raw_bytes": 180,
+      "raw_sha256": "c6cd710c67652f4b1658cb5d31e099dd7d1eaf2149e96944edb9c8556ad5e789"
+    },
+    "owning_cohort": {
+      "file": "owning_cohort.log.gz",
+      "gzip_sha256": "4b3c83c444072604b1e363294febfafde58382eb4369def70a8242d2bd163feb",
+      "raw_bytes": 352,
+      "raw_sha256": "ccacf4e6115ccc25120e280193bcfdfd41f9facba5e40b9d9a7c5b64304a459d"
+    }
+  },
+  "source_commit": "17f60255dff89ab2c5842f5262c1fb0b37970ca5",
+  "tests": {
+    "baseline_negative": "new de/pt initial-layout regression: 2 expected failures against base app_screen.py",
+    "focused_positive": "79 passed in 11.47s: language handler file + new de/pt regression + two hosted selectors",
+    "owning_cohort": "233 passed in 138.26s: text-fit sweep, action-row wrapping, preferences gear"
+  }
+}

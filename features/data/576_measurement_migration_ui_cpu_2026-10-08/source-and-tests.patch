@@ -1,0 +1,595 @@
+diff --git a/spacr/qt/screens/settings_model.py b/spacr/qt/screens/settings_model.py
+index b85bb32a3a..e8997f96ba 100644
+--- a/spacr/qt/screens/settings_model.py
++++ b/spacr/qt/screens/settings_model.py
+@@ -24,7 +24,7 @@ from typing import (Any, Callable, Dict, List, NamedTuple, Optional, Sequence,
+                     Tuple)
+ 
+ from PySide6.QtCore import (QEvent, QObject, QPoint, QRect, QSize, Qt,
+-                            QThread, QTimer, Signal)
++                            QThread, QTimer, Signal, Slot)
+ from PySide6.QtWidgets import (
+     QBoxLayout,
+     QCheckBox,
+@@ -7043,6 +7043,292 @@ def _add_cellprofiler_example_action(edit: QLineEdit) -> Any:
+     return action
+ 
+ 
++def _measurement_migration_inputs(source: str, target: str) -> tuple:
++    """Validate two explicit store locators without opening or writing either."""
++    from ...tabular import _backend_of
++    from ..i18n import tr
++
++    source, target = str(source or "").strip(), str(target or "").strip()
++    if not source or not target:
++        raise ValueError(tr("Both source and destination are required."))
++    source_kind, target_kind = _backend_of(source), _backend_of(target)
++    allowed = {".db", ".sqlite", ".sqlite3", ".duckdb", ".ddb",
++               ".parquetdb"}
++    for locator, kind, original in ((source, source_kind, True),
++                                    (target, target_kind, False)):
++        if kind == "postgres":
++            continue
++        if os.path.splitext(locator)[1].lower() not in allowed:
++            raise ValueError(tr("Use a database file, a .parquetdb folder, or a PostgreSQL URL."))
++        path = os.path.abspath(os.path.expanduser(locator))
++        if original:
++            if not (os.path.isdir(path) if kind == "parquet"
++                    else os.path.isfile(path)):
++                raise ValueError(tr("The source measurement store does not exist."))
++        elif os.path.lexists(path):
++            raise ValueError(tr("The destination already exists. Choose a new store."))
++        elif not os.path.isdir(os.path.dirname(path)):
++            raise ValueError(tr("The destination parent folder does not exist."))
++        if original:
++            source = os.path.realpath(path)
++        else:
++            target = path
++    if source == target or (source_kind != "postgres" and target_kind != "postgres"
++                            and os.path.realpath(source) == os.path.realpath(target)):
++        raise ValueError(tr("Source and destination must be different stores."))
++    return source, target, target_kind
++
++
++def _copy_measurement_store(source: str, target: str, report) -> tuple:
++    """Copy an existing store into a new target through the tabular API.
++
++    Local targets are built beside their destination and published only after
++    every requested table is present. The original store is only read.
++    """
++    import shutil
++    import tempfile
++
++    from ...tabular import _migrate_database, database_tables
++
++    source, target, target_kind = _measurement_migration_inputs(source, target)
++    names = tuple(name for name in database_tables(source)
++                  if not name.startswith("sqlite_"))
++    if not names:
++        raise ValueError("The source has no measurement tables to copy.")
++    if target_kind == "parquet" and any(
++            name in (".", "..") or "/" in name or "\\" in name for name in names):
++        raise ValueError("A source table cannot be named as a Parquet folder.")
++    if target_kind == "postgres":
++        if database_tables(target):
++            raise ValueError("The PostgreSQL destination already has tables.")
++        return _migrate_database(source, target, tables=names, report=report)
++    if os.path.lexists(target):
++        raise ValueError("The destination already exists. Choose a new store.")
++    folder = tempfile.mkdtemp(prefix=".spacr-migration-",
++                              dir=os.path.dirname(target))
++    staged = os.path.join(folder, "copy" + os.path.splitext(target)[1])
++    try:
++        copied = _migrate_database(source, staged, tables=names, report=report)
++        if set(database_tables(staged)) != set(names):
++            raise ValueError("The copied store is missing a source table.")
++        if os.path.lexists(target):
++            raise ValueError("The destination appeared during the copy.")
++        if target_kind == "parquet":
++            os.mkdir(target)
++            placed = []
++            created = []
++            try:
++                for root, dirs, files in os.walk(staged):
++                    relative = os.path.relpath(root, staged)
++                    destination = target if relative == "." else os.path.join(target, relative)
++                    for name in dirs:
++                        directory = os.path.join(destination, name)
++                        os.mkdir(directory)
++                        created.append(directory)
++                    for name in files:
++                        output = os.path.join(destination, name)
++                        os.link(os.path.join(root, name), output)
++                        placed.append(output)
++            except Exception:
++                for path in reversed(placed):
++                    os.unlink(path)
++                for path in reversed(created):
++                    os.rmdir(path)
++                try:
++                    os.rmdir(target)
++                except OSError:
++                    pass
++                raise
++        else:
++            os.link(staged, target)
++        return copied
++    finally:
++        shutil.rmtree(folder)
++
++
++def _run_measurement_migration(source, target, kind, signals) -> None:
++    """Copy on a Python worker, reporting only bounded table summaries."""
++    try:
++        copied = _copy_measurement_store(source, target,
++                                          lambda _message: signals.progress.emit("table"))
++    except Exception:
++        signals.failed.emit(kind)
++    else:
++        signals.copied.emit(tuple(copied))
++
++
++class _MeasurementMigrationSignals(QObject):
++    """GUI-thread delivery of progress and the terminal copy result."""
++
++    progress = Signal(str)
++    copied = Signal(tuple)
++    failed = Signal(str)
++
++
++_LIVE_MEASUREMENT_MIGRATIONS: set = set()
++
++
++class _MeasurementMigrationDialog(QDialog):
++    """Explicit, nonblocking copy between already supported measurement stores."""
++
++    def __init__(self, target: str = "") -> None:
++        super().__init__()
++        from ..i18n import tr
++
++        self.setObjectName("MeasurementMigrationDialog")
++        self.setWindowTitle(tr("Migrate measurement store"))
++        self._running = False
++        self._signals = _MeasurementMigrationSignals(self)
++        self._signals.progress.connect(self._on_progress)
++        self._signals.copied.connect(self._on_copied)
++        self._signals.failed.connect(self._on_failed)
++        layout = QVBoxLayout(self)
++        form = QFormLayout()
++        self.source = QLineEdit(self)
++        self.source.setObjectName("MeasurementMigrationSource")
++        self.source.setPlaceholderText(tr("Existing .db, .duckdb, .parquetdb, or PostgreSQL URL"))
++        self.target = QLineEdit(str(target or ""), self)
++        self.target.setObjectName("MeasurementMigrationTarget")
++        self.target.setPlaceholderText(tr("New destination store"))
++        form.addRow(tr("Read from"), self.source)
++        form.addRow(tr("Copy to"), self.target)
++        layout.addLayout(form)
++        explanation = QLabel(tr(
++            "Copies tables into a new destination. The original is not changed; "
++            "this does not switch the active measurement backend."), self)
++        explanation.setWordWrap(True)
++        layout.addWidget(explanation)
++        self.log = QPlainTextEdit(self)
++        self.log.setObjectName("MeasurementMigrationProgress")
++        self.log.setReadOnly(True)
++        self.log.setMinimumHeight(90)
++        layout.addWidget(self.log)
++        controls = QHBoxLayout()
++        self.start_button = QPushButton(tr("Copy tables"), self)
++        self.start_button.setObjectName("MeasurementMigrationStart")
++        self.start_button.clicked.connect(self._start)
++        controls.addWidget(self.start_button)
++        self.close_button = QPushButton(tr("Close"), self)
++        self.close_button.clicked.connect(self.reject)
++        controls.addWidget(self.close_button)
++        layout.addLayout(controls)
++
++    def _start(self) -> None:
++        """Confirm the explicit locators, then copy on a Python worker thread."""
++        import threading
++        from PySide6.QtWidgets import QMessageBox
++        from ..i18n import tr
++
++        if self._running:
++            return
++        try:
++            source, target, kind = _measurement_migration_inputs(
++                self.source.text(), self.target.text())
++        except ValueError as error:
++            self.log.setPlainText(str(error))
++            return
++        answer = QMessageBox.question(
++            self, tr("Confirm measurement copy"),
++            tr("Copy every table from the selected source into a new destination? "
++               "Existing local destinations are refused. A PostgreSQL destination "
++               "must have no tables."),
++            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
++        if answer != QMessageBox.Yes:
++            return
++        self._running = True
++        self.source.setEnabled(False)
++        self.target.setEnabled(False)
++        self.start_button.setEnabled(False)
++        self.close_button.setEnabled(False)
++        self.log.setPlainText(tr("Copying tables…"))
++        self._worker = threading.Thread(target=_run_measurement_migration,
++                                        args=(source, target, kind, self._signals),
++                                        daemon=False,
++                                        name="spacr-measurement-migration")
++        self._worker.start()
++
++    @Slot(str)
++    def _on_progress(self, message: str) -> None:
++        """Append one table's completion without changing dialog geometry."""
++        from ..i18n import tr
++
++        if message == "table":
++            self.log.appendPlainText(tr("A table finished copying."))
++
++    @Slot(tuple)
++    def _on_copied(self, names: tuple) -> None:
++        """Report a complete destination and permit closing the dialog."""
++        from ..i18n import tr
++
++        self.log.appendPlainText(tr("Copied {count} table(s). The original remains unchanged.",
++                                    count=len(names)))
++        self._finish()
++
++    @Slot(str)
++    def _on_failed(self, message: str) -> None:
++        """Report failure without echoing a password-bearing connection URL."""
++        from ..i18n import tr
++
++        if message == "postgres":
++            self.log.appendPlainText(tr(
++                "Migration stopped. The source is unchanged. The empty "
++                "PostgreSQL destination may contain partial new tables."))
++        else:
++            self.log.appendPlainText(tr(
++                "Migration stopped. The source is unchanged and no local "
++                "destination was published."))
++        self._finish()
++
++    def _finish(self) -> None:
++        """Restore the controls after the worker's terminal signal."""
++        self._running = False
++        self._worker = None
++        self.source.setEnabled(True)
++        self.target.setEnabled(True)
++        self.start_button.setEnabled(True)
++        self.close_button.setEnabled(True)
++
++    def reject(self) -> None:
++        """Keep the progress receiver alive until a running copy finishes."""
++        if not self._running:
++            super().reject()
++
++    def closeEvent(self, event) -> None:
++        """Retain a live progress receiver until the source copy completes.
++
++        :param event: the window close request.
++        """
++        if self._running:
++            event.ignore()
++        else:
++            super().closeEvent(event)
++
++
++def _open_measurement_migration(edit: QLineEdit) -> _MeasurementMigrationDialog:
++    """Show a separately owned migration dialog from Measure's alpha row."""
++    dialog = _MeasurementMigrationDialog(edit.text())
++    _LIVE_MEASUREMENT_MIGRATIONS.add(dialog)
++    dialog.finished.connect(lambda: _LIVE_MEASUREMENT_MIGRATIONS.discard(dialog))
++    dialog.show()
++    return dialog
++
++
++def _add_measurement_migration_action(edit: QLineEdit) -> Any:
++    """Attach the registered alpha copy action to the target locator."""
++    from PySide6.QtWidgets import QStyle
++    from ..i18n import tr
++    from ..preferences import _apply_alpha_widgets
++
++    action = edit.addAction(edit.style().standardIcon(QStyle.SP_ArrowRight),
++                            QLineEdit.TrailingPosition)
++    action.setObjectName("MeasurementMigrationAction")
++    action.setText(tr("Migrate measurement store…"))
++    action.setToolTip(tr("Copy tables between SQLite, DuckDB, Parquet and PostgreSQL stores."))
++    action.triggered.connect(lambda: _open_measurement_migration(edit))
++    _apply_alpha_widgets(edit)
++    return action
++
++
+ class _CsvColumnField(QWidget):
+     """A column-name box with a CSV button that offers the columns that exist.
+ 
+@@ -9855,6 +10141,9 @@ class SettingsWidgets:
+         if (key == "cellprofiler_pipeline" and self.app_key == "measure"
+                 and isinstance(widget, QLineEdit)):
+             _add_cellprofiler_example_action(widget)
++        if (key == "measurement_backend_target" and self.app_key == "measure"
++                and isinstance(widget, QLineEdit)):
++            _add_measurement_migration_action(widget)
+ 
+     @staticmethod
+     def _build_plain(plan) -> QWidget:
+diff --git a/spacr/settings.py b/spacr/settings.py
+index 361afd389c..fac1ea1dd7 100644
+--- a/spacr/settings.py
++++ b/spacr/settings.py
+@@ -7368,6 +7368,7 @@ ALPHA_FEATURES = {
+     },
+     576: {
+         'settings': ('measurement_backend', 'measurement_backend_target'),
++        'widgets': ('MeasurementMigrationAction',),
+     },
+     540: {
+         'settings': ('viability', 'viability_dead_channel',
+diff --git a/tests/qt/test_measurement_backend_alpha_gate.py b/tests/qt/test_measurement_backend_alpha_gate.py
+index b0a10c9ba1..1c3bc872a3 100644
+--- a/tests/qt/test_measurement_backend_alpha_gate.py
++++ b/tests/qt/test_measurement_backend_alpha_gate.py
+@@ -8,6 +8,7 @@ heading; a value saved while hidden still reaches the run.
+ from __future__ import annotations
+ 
+ import os
++import hashlib
+ 
+ import pytest
+ 
+@@ -36,7 +37,8 @@ def prefs(tmp_path, monkeypatch):
+ def test_the_setting_is_registered_under_its_item():
+     from spacr.settings import ALPHA_FEATURES, _is_alpha, categories
+ 
+-    assert ALPHA_FEATURES[576] == {"settings": KEYS}
++    assert ALPHA_FEATURES[576] == {
++        "settings": KEYS, "widgets": ("MeasurementMigrationAction",)}
+     assert tuple(categories["Measurement Backend α"]) == KEYS
+     assert all(_is_alpha("settings", key) for key in KEYS)
+ 
+@@ -71,3 +73,244 @@ def test_the_measure_row_follows_the_switch(qtbot, prefs):
+         retire_pyqtgraph_menus(screen)
+         screen.close()
+         screen.deleteLater()
++
++
++def test_migration_action_is_alpha_and_opens_an_explicit_copy_dialog(
++        qtbot, prefs):
++    from PySide6.QtWidgets import QWidget
++    from spacr.qt.screens.settings_model import SettingsWidgets
++
++    owner = QWidget()
++    qtbot.addWidget(owner)
++    model = SettingsWidgets("measure", parent=owner)
++    model.build_sections()
++    edit = model._widgets.get("measurement_backend_target")
++    assert edit is not None
++    action = next(item for item in edit.actions()
++                  if item.objectName() == "MeasurementMigrationAction")
++    assert not action.isVisible()
++    prefs._set_show_alpha_features(True)
++    prefs._apply_alpha_widgets(owner)
++    assert action.isVisible()
++    action.trigger()
++    from spacr.qt.screens.settings_model import _LIVE_MEASUREMENT_MIGRATIONS
++    assert len(_LIVE_MEASUREMENT_MIGRATIONS) == 1
++    dialog = next(iter(_LIVE_MEASUREMENT_MIGRATIONS))
++    assert dialog.objectName() == "MeasurementMigrationDialog"
++    assert dialog.source.text() == ""
++    dialog.close()
++    assert not _LIVE_MEASUREMENT_MIGRATIONS
++
++
++def test_migration_copies_to_a_new_store_without_changing_the_source(tmp_path):
++    import pandas as pd
++    from spacr import tabular
++    from spacr.qt.screens.settings_model import _copy_measurement_store
++
++    source, target = tmp_path / "measurements.db", tmp_path / "copy.db"
++    frame = pd.DataFrame({"plate": ["P1", "P2"], "cell_area": [7.5, 9.5]})
++    tabular.write_database(frame, source, "cell", if_exists="replace",
++                           canonicalise=False)
++    original = hashlib.sha256(source.read_bytes()).hexdigest()
++    progress = []
++    assert _copy_measurement_store(str(source), str(target), progress.append) == ("cell",)
++    assert hashlib.sha256(source.read_bytes()).hexdigest() == original
++    assert tabular.database_tables(target) == ("cell",)
++    pd.testing.assert_frame_equal(
++        tabular.read_database(target, "cell", canonicalise=False,
++                              migrate=False, report=None)[0], frame,
++        check_dtype=False)
++    assert len(progress) == 1 and "Copied cell: 2 row(s)" in progress[0]
++    assert not list(tmp_path.glob(".spacr-migration-*"))
++
++
++def test_migration_dialog_keeps_qt_responsive_and_reports_completion(
++        qtbot, tmp_path, monkeypatch):
++    import pandas as pd
++    from PySide6.QtWidgets import QMessageBox
++    from spacr import tabular
++    from spacr.qt.screens.settings_model import _MeasurementMigrationDialog
++
++    source, target = tmp_path / "source.db", tmp_path / "copied.db"
++    tabular.write_database(pd.DataFrame({"id": [1, 2]}), source, "cell",
++                           if_exists="replace", canonicalise=False)
++    monkeypatch.setattr(QMessageBox, "question", lambda *_args: QMessageBox.Yes)
++    dialog = _MeasurementMigrationDialog(str(target))
++    qtbot.addWidget(dialog)
++    dialog.source.setText(str(source))
++    dialog.show()
++    dialog.start_button.click()
++    qtbot.waitUntil(lambda: "Copied 1 table(s)" in dialog.log.toPlainText(),
++                    timeout=10000)
++    assert dialog.close_button.isEnabled()
++    assert tabular.database_tables(target) == ("cell",)
++    dialog.close()
++
++
++def test_migration_dialog_cannot_discard_a_running_copy_receiver(
++        qtbot, tmp_path, monkeypatch):
++    import threading
++    import pandas as pd
++    from PySide6.QtWidgets import QMessageBox
++    from spacr import tabular
++    from spacr.qt.screens import settings_model
++
++    source, target = tmp_path / "source.db", tmp_path / "target.db"
++    tabular.write_database(pd.DataFrame({"id": [1]}), source, "cell",
++                           if_exists="replace", canonicalise=False)
++    entered, release = threading.Event(), threading.Event()
++
++    def waiting_copy(_source, _target, _report):
++        entered.set()
++        assert release.wait(3)
++        return ("cell",)
++
++    monkeypatch.setattr(settings_model, "_copy_measurement_store", waiting_copy)
++    monkeypatch.setattr(QMessageBox, "question", lambda *_args: QMessageBox.Yes)
++    dialog = settings_model._MeasurementMigrationDialog(str(target))
++    qtbot.addWidget(dialog)
++    dialog.source.setText(str(source))
++    dialog.show()
++    dialog.start_button.click()
++    assert entered.wait(3)
++    dialog.close()
++    assert dialog.isVisible()
++    assert not dialog.close_button.isEnabled()
++    release.set()
++    qtbot.waitUntil(lambda: dialog.close_button.isEnabled(), timeout=5000)
++    assert "Copied 1 table(s)" in dialog.log.toPlainText()
++    dialog.close()
++
++
++def test_migration_supports_a_parquet_destination_and_the_reverse_copy(tmp_path):
++    pytest.importorskip("pyarrow")
++    import pandas as pd
++    from spacr import tabular
++    from spacr.qt.screens.settings_model import _copy_measurement_store
++
++    source = tmp_path / "source.db"
++    parquet = tmp_path / "columns.parquetdb"
++    restored = tmp_path / "restored.db"
++    frame = pd.DataFrame({"plate": ["P1", "P2"], "area": [5.5, 7.5]})
++    tabular.write_database(frame, source, "cell", if_exists="replace",
++                           canonicalise=False)
++    original = hashlib.sha256(source.read_bytes()).hexdigest()
++    assert _copy_measurement_store(str(source), str(parquet), None) == ("cell",)
++    assert _copy_measurement_store(str(parquet), str(restored), None) == ("cell",)
++    assert hashlib.sha256(source.read_bytes()).hexdigest() == original
++    pd.testing.assert_frame_equal(
++        tabular.read_database(restored, "cell", canonicalise=False,
++                              migrate=False, report=None)[0], frame,
++        check_dtype=False)
++
++
++def test_migration_supports_a_duckdb_destination_and_the_reverse_copy(tmp_path):
++    pytest.importorskip("duckdb")
++    import pandas as pd
++    from spacr import tabular
++    from spacr.qt.screens.settings_model import _copy_measurement_store
++
++    source, duck, restored = (tmp_path / "source.db", tmp_path / "copy.duckdb",
++                              tmp_path / "restored.db")
++    frame = pd.DataFrame({"plate": ["P1", "P2"], "area": [5.5, 7.5]})
++    tabular.write_database(frame, source, "cell", if_exists="replace",
++                           canonicalise=False)
++    original = hashlib.sha256(source.read_bytes()).hexdigest()
++    assert _copy_measurement_store(str(source), str(duck), None) == ("cell",)
++    assert _copy_measurement_store(str(duck), str(restored), None) == ("cell",)
++    assert hashlib.sha256(source.read_bytes()).hexdigest() == original
++    pd.testing.assert_frame_equal(
++        tabular.read_database(restored, "cell", canonicalise=False,
++                              migrate=False, report=None)[0], frame,
++        check_dtype=False)
++
++
++def test_migration_refuses_missing_same_or_existing_store_and_cleans_failed_stage(
++        tmp_path, monkeypatch):
++    import pandas as pd
++    from spacr import tabular
++    from spacr.qt.screens import settings_model
++
++    source, target = tmp_path / "source.db", tmp_path / "target.db"
++    tabular.write_database(pd.DataFrame({"id": [1]}), source, "cell",
++                           if_exists="replace", canonicalise=False)
++    original = hashlib.sha256(source.read_bytes()).hexdigest()
++    for bad_source, bad_target in (("", str(target)),
++                                   (str(tmp_path / "missing.db"), str(target)),
++                                   (str(source), str(source)),
++                                   (str(source), str(tmp_path / "target.csv"))):
++        with pytest.raises(ValueError):
++            settings_model._measurement_migration_inputs(bad_source,
++                                                         bad_target)
++    target.write_bytes(b"existing target")
++    with pytest.raises(ValueError, match="already exists"):
++        settings_model._copy_measurement_store(str(source), str(target), None)
++    target.unlink()
++
++    def partial_copy(_source, staged, *, tables, report):
++        tabular.write_database(pd.DataFrame({"id": [2]}), staged, "cell",
++                               if_exists="replace", canonicalise=False)
++        raise RuntimeError("interrupted copy")
++
++    monkeypatch.setattr(tabular, "_migrate_database", partial_copy)
++    with pytest.raises(RuntimeError, match="interrupted"):
++        settings_model._copy_measurement_store(str(source), str(target), None)
++    assert not target.exists()
++    assert not list(tmp_path.glob(".spacr-migration-*"))
++    assert hashlib.sha256(source.read_bytes()).hexdigest() == original
++
++    def concurrent_destination(_source, staged, *, tables, report):
++        tabular.write_database(pd.DataFrame({"id": [2]}), staged, "cell",
++                               if_exists="replace", canonicalise=False)
++        target.write_bytes(b"another writer's target")
++        return ("cell",)
++
++    monkeypatch.setattr(tabular, "_migrate_database", concurrent_destination)
++    with pytest.raises(ValueError, match="appeared during the copy"):
++        settings_model._copy_measurement_store(str(source), str(target), None)
++    assert target.read_bytes() == b"another writer's target"
++    assert not list(tmp_path.glob(".spacr-migration-*"))
++    assert hashlib.sha256(source.read_bytes()).hexdigest() == original
++
++
++def test_parquet_publication_keeps_a_concurrent_destination(tmp_path, monkeypatch):
++    pytest.importorskip("pyarrow")
++    import pandas as pd
++    from spacr import tabular
++    from spacr.qt.screens.settings_model import _copy_measurement_store
++
++    source, target = tmp_path / "source.db", tmp_path / "target.parquetdb"
++    tabular.write_database(pd.DataFrame({"id": [1]}), source, "cell",
++                           if_exists="replace", canonicalise=False)
++    original = hashlib.sha256(source.read_bytes()).hexdigest()
++    native_mkdir = os.mkdir
++
++    def competing_mkdir(path, *args, **kwargs):
++        if os.fspath(path) == str(target):
++            native_mkdir(path, *args, **kwargs)
++            (target / "another-writer.txt").write_text("keep this")
++            raise FileExistsError(path)
++        return native_mkdir(path, *args, **kwargs)
++
++    monkeypatch.setattr(os, "mkdir", competing_mkdir)
++    with pytest.raises(FileExistsError):
++        _copy_measurement_store(str(source), str(target), None)
++    assert (target / "another-writer.txt").read_text() == "keep this"
++    assert hashlib.sha256(source.read_bytes()).hexdigest() == original
++    assert not list(tmp_path.glob(".spacr-migration-*"))
++
++
++def test_parquet_migration_refuses_a_table_that_escapes_its_folder(tmp_path):
++    import sqlite3
++    from spacr.qt.screens.settings_model import _copy_measurement_store
++
++    source, target = tmp_path / "source.db", tmp_path / "target.parquetdb"
++    with sqlite3.connect(source) as connection:
++        connection.execute('CREATE TABLE "../outside" (id INTEGER)')
++        connection.execute('INSERT INTO "../outside" VALUES (1)')
++    original = hashlib.sha256(source.read_bytes()).hexdigest()
++    with pytest.raises(ValueError, match="Parquet folder"):
++        _copy_measurement_store(str(source), str(target), None)
++    assert not target.exists()
++    assert not (tmp_path / "outside").exists()
++    assert hashlib.sha256(source.read_bytes()).hexdigest() == original

@@ -1,5 +1,77 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 20:38 EDT — Three new private CPU packets, independently verified
+
+Copy-console/codec/idle CI source repairs are PUBLICf800cca399; exact required
+GitHub run37865024733 is pending. Workstation dated README3416MB normal writer
+is active. Preserve that source wave and source-bound run results.
+
+Home independently verifies12 migration payloads/3 Git source bindings,5
+classifier payloads/2bindings,6 merged-region payloads/2bindings. Each source
+patch applied to its frozen baseline in an alternate index and reproduced every
+recorded source SHA exactly. Portable readback:
+ data/backend_figure_packet_root_readback_2026-10-09/receipt.json
+
+PRIVATEF576 migration212:12 final owningPASS; realPG UI source-preserving
+SQLite→PG→SQLite/empty table/occupied destination refusal verified. APIunchanged,
+22 newUI literals require normal workstation caption ownership before appship.
+ data/576_measurement_migration_ui_cpu_2026-10-08/receipt.json
+PRIVATEF576 classifierfbb:9 final native backend matrixPASS15.31s,11neighbor
+PASS before dedup follow-up; regression/prediction/classifier total5API prose
+replacements, runtimezero. Two-plate samePGDSN reads only once. Portable delta
+base338 requires earlier regression/writer source packets; paired GUI later
+arrivals are separate and source-private.
+ data/576_classifier_store_routing_2026-10-08/receipt.json
+
+PRIVATEF572b33 real merged_crop producer now yields advisory notes for bounded
+replay-verified overlap of fully hashed shared sources. Actual96/128montage
+exports positive; changed source/tampered replay/cap/malformed recipe abstain.
+Figure+montage115PASS31.63s. API/runtime same as predecessor; earlier plot tr
+extractor gap still needs normal ownership. No arbitrary splice/heavy-noise
+completion claim: existing shared-label controls false-match and noise recall
+is inadequate. New CONSOLIDATEDpublic-f0 six-file source patch includes all
+prior exact replay and current reachable source-region code. PreserveN658.
+ data/572_verified_merged_source_regions_cpu_2026-10-08/receipt.json
+ data/572_current_merged_source_handoff_2026-10-09/receipt.json
+
+F576 paired-table GUI includes13 newUI captions and total7backend API prose
+changes; output-root DSN fix continues privately. PostgreSQL count inputs with
+blank local src must not produce DSN-shaped folders. WORKSTATION normal tooltip
+owner: regression src prose currently promises auto-output beside count table;
+remote count stores instead need an explicit local output directory. General
+settings backend help still needs its earlier SQLite-working-copy correction.
+
+
+## 2026-10-08 20:26 EDT — Home publishes three narrow CI source repairs
+
+Home integrates immediate Copy console translation (de/pt initial-layout width),
+declares the existing fallback worker codec cloudpickle>=3.1.2,<4 with the minimum
+constraint at3.1.2, and makes the idle-build fixture snapshot deterministic.
+The original closed>=5 and completion/slice guards remain unchanged. Comparison
+windows close normally after parity assertions, fixing the retained worker race.
+
+Owning Copy console/layout cohort233PASS and language/hosted selectors79PASS.
+Integrated idle/dependency/worker cohort102PASS had one retained busy-worker
+report; after normal comparison-window cleanup the complete final idle file
+15PASS53.66s has no busy-worker report. Standalone codec fallback passes the
+existing closure test; cached nativePython3.9.21 round-trips closures/keywords/
+returned closures with cloudpickle3.1.2. This is not a full Python3.9 app run.
+
+Root complete normal API13233 and all6 runtime maps exactly equal current stored
+English (UI7287, application total10065);193 imports are source-owned. Source
+and compressed/raw acceptance hashes are verified. No generated hand edit,
+raised ratchet, ignored failure or wider private application source is included.
+ data/43_copy_idle_dependency_current_cpu_2026-10-09/receipt.json
+ data/43_copy_console_first_layout_2026-10-08/receipt.json
+ data/47_idle_category_runner_lifecycle_2026-10-09/receipt.json
+
+ParentN43/N47 remain open until exact current hosted runs finish successfully.
+WORKSTATION still owns the known README tracked-size mismatch and the three
+compact caption ownership gaps listed below. Do not dispatch another full serial
+acceptance on a source already known to fail those guards. Later private F576
+paired-store GUI and F572 verified-source-region changes require normal caption/
+API ownership before publication; preserve these narrow CI source fixes.
+
 ## 2026-10-08 20:35 EDT — Current README size guard repaired in all nine locales
 
 Workstation remeasures all24683 tracked public6fd files as3,582,359,908bytes

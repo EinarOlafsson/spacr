@@ -2434,3 +2434,12 @@ This is a real avoidable CPU cost, not proof of the historical1824s file's
 cause or whole original-order six-hour acceptance. N47 remainsOPEN.
 
 2026-10-08 18:28 EDT — Published completed body/test repair wave; source-bound21payloads/fullmaps in data/43_current_body_repairs_2026-10-08. Source/API captions stable; independent Section57/29, DB/sweep89, codec45 plus original owning UI/resource cohorts pass. Full current required/serial and generated artifact gates remain OPEN; no skip/ratchet/timing/contrast weakening.
+
+2026-10-08 20:26 EDT — Home closes the idle category parity fixture's windows
+normally after each comparison. The prior102-case mixed cohort passed but logged
+one busy worker; final integrated whole idle file15PASS53.66s underCPU4G reports
+none. Deterministic initial snapshot retains closed>=5 and all completion/slice
+assertions. See data/47_idle_category_runner_lifecycle_2026-10-09/receipt.json
+and data/43_copy_idle_dependency_current_cpu_2026-10-09/receipt.json. Parent stays
+PARTIAL pending coherent current hosted serial acceptance, not a local full-suite
+run or a hard native performance claim.

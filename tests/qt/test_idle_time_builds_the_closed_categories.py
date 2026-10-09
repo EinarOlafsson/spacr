@@ -148,15 +148,19 @@ def _move_the_mouse(screen, state) -> None:
 
 # -- it is the same build -------------------------------------------------------
 
-def test_idle_time_builds_every_closed_category(qtbot):
-    _w, screen, saved = _window(qtbot, "classify_merged")
+@pytest.mark.parametrize("setup_pause", (0.0, 0.7))
+def test_idle_time_builds_every_closed_category(qtbot, setup_pause):
+    _w, screen, saved = _window(qtbot, "classify_merged", idle=False)
     try:
+        _pump(setup_pause)
         closed = len(_waiting(screen))
         assert closed >= 5
+        _restore_idle(saved)
+        builder = screen.__dict__["_idle_prebuild"]
+        builder.resume()
         _until_built(screen)
         assert _waiting(screen) == []
         assert not screen._settings_model._widgets.keys_to_come()
-        builder = screen.__dict__["_idle_prebuild"]
         # Slices are bounded in time, not count, so a faster machine needs
         # fewer of them; "sliced" means several slices per closed category.
         assert len(builder.slices_ms) > 3 * closed, "the build was not sliced"
@@ -165,21 +169,33 @@ def test_idle_time_builds_every_closed_category(qtbot):
 
 
 def test_a_category_built_in_idle_time_equals_one_built_by_a_click(qtbot):
+    """Compare each path, then close its windows and owned usage workers."""
     for key in ("classify_merged", "regression"):
-        _w1, idle_built, saved = _window(qtbot, key)
-        _until_built(idle_built)
-        _w2, clicked, _ = _window(qtbot, key, idle=False)
-        _restore_idle(saved)
-        clicked._open_every_waiting_heading()
-        _w3, eager, _ = _window(qtbot, key, eager=True, idle=False)
-        _restore_idle(saved)
-        _pump(0.2)
-        assert not _waiting(eager), key
-        assert _rows(idle_built) == _rows(clicked) == _rows(eager), key
-        assert (idle_built._settings_model.collect()
-                == clicked._settings_model.collect()
-                == eager._settings_model.collect()), key
-        assert _search(idle_built) == _search(clicked) == _search(eager), key
+        windows = []
+        saved = None
+        try:
+            w1, idle_built, saved = _window(qtbot, key)
+            windows.append(w1)
+            _until_built(idle_built)
+            w2, clicked, _ = _window(qtbot, key, idle=False)
+            windows.append(w2)
+            _restore_idle(saved)
+            clicked._open_every_waiting_heading()
+            w3, eager, _ = _window(qtbot, key, eager=True, idle=False)
+            windows.append(w3)
+            _restore_idle(saved)
+            _pump(0.2)
+            assert not _waiting(eager), key
+            assert _rows(idle_built) == _rows(clicked) == _rows(eager), key
+            assert (idle_built._settings_model.collect()
+                    == clicked._settings_model.collect()
+                    == eager._settings_model.collect()), key
+            assert _search(idle_built) == _search(clicked) == _search(eager), key
+        finally:
+            if saved is not None:
+                _restore_idle(saved)
+            for window in reversed(windows):
+                assert window.close()
 
 
 @pytest.mark.parametrize('saved_module', ('classify_merged', 'regression'))
