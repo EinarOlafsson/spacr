@@ -3621,3 +3621,5 @@ resume worker300s death is separately under reproduction. See portable
 43_dbqueue_pandas3_rollback_2026-10-09 and43_288_current_cpu_root_readback_2026-10-09.
 
 2026-10-08 21:13 EDT — Edit focus6PASS; Xvfb Home219PASS/final5PASS; OPS adjacent-site two-well resume1PASS275.32s under unchanged300s. Narrow test repairs and actual raw proofs integrated. N681 numeric badge21PASS plus actual2worker11/11, old badge removed in all10 READMEs. Fresh hosted acceptance still pending; no failure guard waived.
+
+2026-10-08 21:16 EDT — Final source4944c63dc7 pushed. Requiredfull37868897849 and original-orderQtserial37868900922 dispatched on exactsource; results/first numeric endpoint remain pending. No current hosted-green claim.

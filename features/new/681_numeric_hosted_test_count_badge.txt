@@ -18,3 +18,5 @@ Local threshold/dedup/failure/empty/README tests and real two-worker plugin
 acceptance are recorded in HANDOFF. No fabricated hosted counts or green claim.
 
 2026-10-08 21:15 EDT — Old badge retired in all10 READMEs. Normal producer substitution updated; existing reviewed native badge alt text reused by generator. Owning12badge+2README checks14PASS0.99s. First real hosted count publication remains pending.
+
+2026-10-08 21:16 EDT — Final source4944c63dc7 pushed. Requiredfull37868897849 and original-orderQtserial37868900922 dispatched on exactsource; results/first numeric endpoint remain pending. No current hosted-green claim.

@@ -1,5 +1,44 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 21:16 EDT — Final source dispatched; no active subagents or local jobs
+
+PUBLISHED final tested-source4944c63dc74b7eb83db9280ea51e0cb3d4a6cfec.
+Requiredfull37868897849 (workflow_dispatch) and original-orderQtserial37868900922
+(native_batch_replay=false) both targetexact4944. Codepush37868881670 is the
+normal pending push-group run; manualgroup avoids waiting for oldf0push verdict.
+No duplicate manual final-source dispatch. Counts will publish after required
+workflow terminates; initial endpoint remains honest pending. Cancellation was
+requested for queued72 provisionalrequired37868726393 andQt37868731002; the
+former began while the correction was prepared, so cancellation is asynchronous.
+Old e600Qt37865976724 now completed/cancelled. No acceptance is transferred from
+cancelled runs. Source4944 has final normal README producer/locale alt correction.
+
+All CI repairs/proofs, current item notes and workstation handoffs are saved.
+Only root is active during this wrap-up; no subagent/local test/PG/GPU job remains.
+Hosted runs continue independently. Goal tool had been blocked earlier, so do
+not claim an active unattended local goal loop. Next agent checks these two runs
+and first actual endpoint publication, then fixes remaining exact hosted errors.
+Do not restart whole local suite or re-scope archived finished agent contexts.
+
+Remaining parents (percentage estimates, not acceptance claims; time unknown):
+N43 GitHub green; N47 full Qt; F288 literal90/CuPy; N681 first hosted counts;
+N615 coherent API/docs/translations; N677 compact navigation help; N680 mask
+save-navigation; N670 independent/full-edge ripples; N666 window edges/snap;
+N668 preferences/background/help layout; N649 undo/redo; N656 rebindable keys;
+N658 figure recipe/export; N674 random Spaceout field; N672 gate anchors/surfaces;
+N673 3D masks; F572 bounded crop provenance; N663 native smoothness/crash;
+N655 accessibility platform bridge; N676 current tutorials/site; N675 conda-forge;
+N679 GPU renderer publication; F576 backend/migration; F548 incoming-image watch;
+F560 foundation embeddings; N678 factual-language review. Workstation21:07 note
+and consolidatedF572/F576 receipts distinguish accepted private bodies from
+unpublished coherent source. No API/docs/translations/GPU ownership is reassigned.
+
+External-input parents remain F370 curated scorecards; F404 DINO acceptance;
+F470 cross-channel labels; F534 infected spatial paired reference; F537 tracked
+lineages; F543 vendor flat-field reference; F557 second low-light benchmark;
+F559 QC labels/weights; F574 repository curator acceptance; F586 cluster/registry.
+User-accepted F493,F490,N627scene,N633,N53/native review are not reopened.
+
 ## 2026-10-08 21:15 EDT — N681 normal README producer and reviewed alt text checked
 
 Follow-up replaces README_BADGE_SUBSTITUTIONS Tests with Test counts in the
