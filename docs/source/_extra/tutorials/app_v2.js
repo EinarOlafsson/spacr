@@ -1461,11 +1461,17 @@ async function loadLessonDetail(isCurrent = () => true) {
       if (referenceResponse.ok) referenceTimings = await referenceResponse.json();
       else if (activeLesson.visual_timings) throw new Error("native visual timings unavailable");
     }
-    if (activeLesson.visual_timings &&
-        (referenceTimings.kind !== "native_visual_timing" ||
-         !referenceTimings.coverage?.accepted ||
-         referenceTimings.scenes?.length !== timings.scenes?.length)) {
-      throw new Error("native visual timings are incomplete");
+    if (activeLesson.visual_timings) {
+      const native = referenceTimings.kind === "native_visual_timing" ||
+        referenceTimings.native_live_video;
+      const accepted = native
+        ? referenceTimings.kind === "native_visual_timing" &&
+          referenceTimings.native_live_video === true && referenceTimings.coverage?.accepted
+        : referenceTimings.schema === 1 && !referenceTimings.kind &&
+          !referenceTimings.scenes?.some(scene => scene.native_live_video);
+      if (!accepted || referenceTimings.scenes?.length !== timings.scenes?.length) {
+        throw new Error("visual timings are incomplete");
+      }
     }
     if (!isCurrent()) return;
     audioTimings = timings;
