@@ -616,6 +616,14 @@ because a truncated or substituted checkpoint cannot be told from the real one.
        (Cellpose-SAM (cpsam_v2))
      - Toxoplasma PV masks predicted from the HOECHST channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1
      - F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
+   * - ``toxoplasma_plaque_v3``
+       (Cellpose-SAM (cpsam, Cellpose 4.0.9))
+     - 496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc wells; 100 epochs; fixed physical-plate/source groups
+     - Stock was not evaluated in this run; see the named incumbent comparison on the model card
+   * - ``toxoplasma_well_detector_v3``
+       (YOLO11n (fine-tuned from detector v3))
+     - 452 reviewed training images; 124 validation images; physical plate and figure groups; 150 epochs; YOLO11n v3 initialization
+     - Stock was not evaluated in this run; see the named incumbent comparison on the model card
 
 .. spacr-model-zoo-end
 

@@ -174,6 +174,28 @@ def test_gpu_false_takes_the_cpu_device_rather_than_no_device(harness_accel):
     assert harness_accel._cupy(gpu=False) is None
 
 
+def test_torch_is_offered_only_when_the_resolver_names_a_non_cpu_device(
+        harness_accel, monkeypatch):
+    """The backend list follows a resolved device, not the torch import.
+
+    This tests dispatch metadata without claiming that a CUDA kernel ran.
+    """
+    torch = pytest.importorskip("torch")
+    from spacr import accelerator
+
+    monkeypatch.setattr(harness_accel, "_cupy", lambda gpu=True: None)
+    monkeypatch.setattr(accelerator, "is_gpu", lambda: True)
+    monkeypatch.setattr(accelerator, "torch_device",
+                        lambda: torch.device("cuda"))
+    assert harness_accel._torch(gpu=True) == (torch, torch.device("cuda"))
+    assert harness_accel.accelerated_backends(gpu=True) == ("torch", "numpy")
+
+    monkeypatch.setattr(accelerator, "torch_device",
+                        lambda: torch.device("cpu"))
+    assert harness_accel._torch(gpu=True) == (torch, torch.device("cpu"))
+    assert harness_accel.accelerated_backends(gpu=True) == ("numpy",)
+
+
 def test_a_missing_accelerator_module_is_not_an_error(harness_accel,
                                                       monkeypatch):
     """A resolver that raises leaves the CPU path, not a traceback."""

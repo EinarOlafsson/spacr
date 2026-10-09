@@ -1,0 +1,37 @@
+{
+  "base_commit": "f800cca399344bca0e3c7d11ad28786d871384b6",
+  "baseline": "Pandas 3.0.6 reproduces DatabaseError wrapping sqlite3.OperationalError; 1 expected FAIL",
+  "environment": {
+    "cap": "4G",
+    "cuda_visible_devices": "",
+    "pandas2": "2.3.3 in spaCR env",
+    "pandas3": "3.0.6 from scratch symlink overlay; source package from spacrpip env",
+    "python": "3.12"
+  },
+  "fixed": "29/29 owning-file cases pass under each Pandas 2.3.3 and 3.0.6; exact SQLite cause and rollback assertion retained",
+  "hosted_failure": {
+    "job_id": 113582650451,
+    "node": "tests/test_database_write_queue.py::test_simulation_packet_rolls_back_all_prior_tables_when_a_later_append_fails",
+    "run_id": 37855662692,
+    "source_sha": "f0b81dacefe089c54b1d22a4aebd363a29d53cfb"
+  },
+  "logs": {
+    "baseline_pandas3": {
+      "file": "baseline_pandas3.log.gz",
+      "gzip_sha256": "3168717bcc8bdef8ff7fe924ca4723351c2aa45b9208578860923418d0cb9598",
+      "raw_sha256": "1c4be9fb6f7014acff9700ee9245afadc1037946be4c99fbfb640f0d812ced2d"
+    },
+    "owning_pandas2": {
+      "file": "owning_pandas2.log.gz",
+      "gzip_sha256": "d2226059dbde4fb655ecbdf5a19237dc26eb168253f37768cd38ad2e150a0c9b",
+      "raw_sha256": "798b146537bdc49da76b78f68b06011bc0205546e2907bd3f92546db6b321db0"
+    },
+    "owning_pandas3": {
+      "file": "owning_pandas3.log.gz",
+      "gzip_sha256": "8438dc10ff902c41a3f2bbc85131d357bb4d09434dc325bd4c0b63998689c8ec",
+      "raw_sha256": "1bdcb67b93f7448d4ec6d71636bbca31aa518f4c145a6159b67ef336e0face40"
+    }
+  },
+  "repair_commit": "f49449651b40a5b321d126f4238d8d252b7839d5",
+  "test_file_sha256": "b04eb71a394d70f764a166355a0c4131dbab1251cdca5be60f5c8b762967d3cb"
+}

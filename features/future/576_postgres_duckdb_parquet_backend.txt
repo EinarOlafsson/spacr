@@ -98,3 +98,15 @@ last dedup change. App source remains private pending normal22UI migration
 captions and backend API prose refresh. Paired-table GUI/output-root work is
 separate. Parent remainsPARTIAL, no universal store-routing or external atomicity
 claim. See data/backend_figure_packet_root_readback_2026-10-09/receipt.json.
+
+2026-10-08 20:50 EDT — One coherent private6727 candidate combines alternate
+prediction/classifier reads+writes, named regression inputs/GUI, alpha visibility,
+explicit local PostgreSQL output roots and migration controls. Final combined
+8-file140PASS20.00s with real ownedPG, zero skips, source unchanged after earlier
+136/4 receipt. Root verifies5payloads/10Gitbindings/exactpublice600 patch plus
+8addendumsourcehashes and gzip/raw log. NormalAPI13233eightprose changes and
+UI40new/5retiredcaptions; additional coretr refusal missing fromnormalextractor
+mustbeowned, plus backend/src tooltip corrections. Sourceprivatepending matching
+artifacts; no global/GPU/externalatomicity completion. SessionSpawnProcess1
+non-failing note preserved and being traced. See consolidated_backend_gui_
+migration_2026-10-08 and576_consolidated_home_readback_2026-10-09 receipts.

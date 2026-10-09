@@ -518,8 +518,13 @@ def test_simulation_packet_rolls_back_all_prior_tables_when_a_later_append_fails
               'operations': [('simulation', (str(tmp_path), frame, 'simulations'), {})
                              for frame in (pd.DataFrame({'value': [4]}),
                                            pd.DataFrame({'unknown_column': [5]}))]}
-    with pytest.raises(sqlite3.OperationalError):
+    with pytest.raises((sqlite3.OperationalError, pd.errors.DatabaseError)) as raised:
         sim._commit_simulation_packet(packet)
+    cause = (raised.value.__cause__
+             if isinstance(raised.value, pd.errors.DatabaseError)
+             else raised.value)
+    assert isinstance(cause, sqlite3.OperationalError)
+    assert 'unknown_column' in str(cause)
     with connect(path, readonly=True) as db:
         assert db.execute("SELECT name FROM sqlite_master WHERE name='simulations'").fetchall() == []
 

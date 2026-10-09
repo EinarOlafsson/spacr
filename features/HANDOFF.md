@@ -1,5 +1,192 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 21:07 EDT — Final bounded workstation translation checks saved; agents finished
+
+All three workstation agents are finished, clean and have no running jobs.
+Current compact/backend follow-up source952150143/reviews c325ad102/normal
+catalogs ca97fda7e/fixture8b3b042c0/proof4c6683d4c are committed privately.
+Allnine audits and58756review records PASS,12 scoped checks PASS140.82s;
+10173runtime/UI7395. Root independently verifies251 compressed/raw payloads,
+2421 artifact bindings and658 actual Git source bindings; receiptSHA
+cc4dd0b5d0a867d219b701bbecb5d31986cf1141ca125c8cf1aec87a8de51492.
+10171 unchanged rows perlocale,2344 unrelated reviews and18 exact old archives
+are retained. Original guard/scratch failures are preserved. Full90case cohort
+is explicitly UNRUN; coherent current API/source adoption and publication remain
+pending. Public commits carry evidence/handoff only, not this private app wave.
+ data/compact_backend_runtime_review_2026-10-08/receipt.json
+
+User's reduced-scope instruction is satisfied by finishing current bounded
+checks and saving all remaining work. No new feature, media upload, rewrite or
+later consolidated Home source wave was started. Workstation takes no new items.
+
+## 2026-10-08 21:02 EDT — Workstation finishes current checks under reduced scope
+
+The user requests low-token items only and finishing current work. No new
+feature wave, broad prose rewrite, voice synthesis or media upload is started.
+Workstation's current work is committed in isolated trees. Parent items remain
+open where source integration, publication or external acceptance is pending.
+
+Root independently verifies the exact8cc API/docs packet262 payloads and
+original snapshot reconstruction; source13,265 API entries and nine locale
+builds/browser checks are accepted at that frozen source. Ready source sequence
+and clean tree are recorded in the portable receipt, not applied wholesale to
+newer public source. Preserve public README3416MB/native hardware paragraphs.
+ data/656_670_572_combined_documentation_acceptance_2026-10-08/receipt.json
+
+Root independently verifies the earlier FullEdge runtime packet112 compressed/
+raw payloads,3,491 frozen artifact bindings and658 immutable Git app bindings.
+Its10173runtime/UI7395 and79+106 tests are source-bound, not latest-head claims.
+ data/full_perimeter_runtime_review_2026-10-08/receipt.json
+
+Root independently verifies historical English TV-pronunciation candidate all
+5229 files and389 portable archive members. All56 tracks accepted; publication
+not performed. Six refreshed lesson media already uploaded to immutable5abf359
+and84 actual published-path browser cases pass, but combined repo/site source
+publication remains pending. Do not conflate these two media candidates.
+ data/676_historical_live_tv_acceptance_2026-10-08_r2/receipt.json
+ data/676_native_six_lesson_media_publication_2026-10-08/receipt.json
+
+Current six-lesson Sphinx build26de fails on authored80 being overwritten by
+normal workflow generation. Original failure retained. Minimal authored-source
+ownership fix2c5042b99 adopted privately as226f0aa05; normal workflow check PASS
+and54 owning tests PASS. Canonical lesson/audio/player bytes retained. Full
+Sphinx rerun/deployment not started under reduced scope. Bounded read-only audit
+84 lessons/1227 scenes is inventoried with six findings, not a complete global
+semantic/native-language review; Root verifies all13 archive members.
+ data/676_integrated_tutorial_documentation_build_2026-10-08/receipt.json
+ data/678_tutorial_factual_findings_2026-10-08/receipt.json
+
+Root current f1 backend/figure 10-file run:338PASS,5FAIL,18SKIP; every failure is
+missing declaredpypdf in isolated test environment. Installing exact declared
+6.16.1 in scratch and rerunning only unchanged five nodes yields5PASS11.81s.
+Original run/collection failure retained. Entire cohort not repeated; optional
+DuckDB/PostgreSQL remain untested here. Home realPG proof is separate.
+ data/572_576_root_current_cpu_2026-10-08/receipt.json
+
+Native GPU renderer42 CPU guards,84palette/window cases672exactframes including
+real MainWindow Apply/Keep/Revert/resize and24paired full-engine cases192frames
+PASS. Three actual Automatic cases verify sparse CPU/dense4K hardware selection.
+Root verifies16 compressed/raw logs/scripts/receipts and672 immutable Git app
+bindings. Original random-advection blink failure retained and fixed privately.
+GPU source10a2d28f7 remains private pending normal captions/API/guides/extras
+integration; no scientific GPU/native-other-OS/original-user-crash claim.
+ data/679_native_application_preferences_GPU_2026-10-08/receipt.json
+
+Home exact e600 hosted acceptance: compat-matrix37865925124 SUCCESS;
+tests37865925400 pending,docs37865924960 in progress,serialQt37865976724 in
+progress at this timestamp. Home continues owning CI dispatch and diagnostics.
+Later consolidatedF576 andF572 packets remain separate; do not stack old
+patches over their new consolidated source or hand-merge generated catalogs.
+
+## 2026-10-08 20:50 EDT — Final consolidated F576 source has real PostgreSQL acceptance
+
+One coherent PRIVATEF576 candidate6727 includes prediction native stores,
+regression named tables/qualifiers, classifier routing, paired-table controls,
+alpha hide/restore, explicit localPG output roots and migration UI. Publice600
+scoped consolidatedpatch applies exactly and preserves all narrow CI repairs.
+Root verifies all5payloads/10Git source bindings/completeAPI13233eightprosekeys/
+all6runtime maps40added5retiredUI/foreign0 and exact patch reconstruction.
+ data/576_consolidated_backend_gui_migration_2026-10-08/receipt.json
+
+Final same-source8-file cohort with realroot-ownedPG18.4:140PASS20.00s, zero
+skips. Earlier136PASS/4PGskips receipt is retained, not rewritten. Root verifies
+addendum8exactsourcehashes and compressed/raw log digests. Session hygiene
+reported one non-failing SpawnProcess-1 at exit; parentexited0 with no hang,
+agent traces pool ownership next. No global/native/GPU acceptance claimed.
+Only root-owned socket-onlyPG was restarted for this gap and cleanly stopped.
+ data/576_consolidated_backend_gui_migration_2026-10-08/real-postgres-addendum.json
+ data/576_consolidated_home_readback_2026-10-09/receipt.json
+
+WORKSTATION: use ONEe600-to-private-F576.patch.gz instead of old layered packets,
+reconcile against concurrent current source without replacing whole files.
+EightAPIprose records listed in20:43 note require normal refresh. UI40new/5old
+sources require normal review/generation. ADDITIONAL newcore tr error is omitted
+by canonical_sources because ml.py is not scanned; register/own normally:
+A local regression output directory is required for PostgreSQL counts.
+Current normal capturedUI7322 excludes that error, so it is not translated yet.
+Correct normal regression src tooltip for remote-store local output requirement
+and backend tooltip's stale universal SQLite working-copy claim. No generated
+handmerge, pin waiver or body-only product publication. ParentF576 staysPARTIAL.
+
+Root CI decision after source mapping: preserve oldc4 serial prefix/hash and
+known failures, cancel superseded already-failing serial37849590095 to release
+current original-order e600serial37865976724. Fresh full current suite covers
+same unknown later cases with corrected source. Exact focused undo node is
+unchanged and being reproduced locally; no failure suppressed. Ordinaryf0
+unknown terminal jobs continue to yield useful remaining failure evidence.
+
+
+## 2026-10-08 20:43 EDT — Coherent hosted acceptance dispatched; final paired-store UI proof
+
+PUBLICe600455702 includes Home narrow CI/test repairs and workstation normal
+nine-language README3416MB refresh. Root independently checks all7README gzip/
+raw payload hashes and all10 current README measurement strings. Requiredtests
+37865925400 and original-order hostedQtserial37865976724 targetexacte600;
+native_batch_replay=false. Both pending, not accepted. Old c4 serial remains a
+diagnostic, no duplicate dispatch or blanket waiver. Product body isf800.
+
+PRIVATEF576 final66ab/676 source: paired regression table inputs preserve table
+qualifiers/proposals/labels during reorder/remove, read-only schema pickers,
+no per-keystroke backend query, actual Show alpha features off/on/off hides
+registered controls ANDcolumns without dropping saved names. PostgreSQL count
+DSNs fail closed for automatic filesystem results; explicit local src works
+in GUI/core/refit. Complete10-file cohort376PASS38.31s with realroot-ownedPG.
+Scratchserver cleanly stopped once all owning/migration checks completed;
+existingservices/protectedjobs untouched.
+ data/576_regression_gui_output_2026-10-08/receipt.json
+
+Root independently verifies all5payloads/10frozen Git source hashes and exact
+publicf800patch reconstruction. Full normal API13233 exacteight prose changes:
+ml.generate_ml_scores, ml.interpret_vision_model, ml.load_regression_input_pairs,
+predictions.merge_prediction_results, predictions.migrate_prediction_columns,
+qt.screens.settings_model.regression_design_scan,
+qt.widgets.file_list.PairedFileTableWidget, refit.destination.
+RuntimeUI7287→7300:18newcaptions/5CSV-onlycaptionsremoved; other5maps identical,
+foreignimports0. Application source remainsPRIVATEpendingnormal matching API/
+caption ownership. Migration22UI packet is separate, not included in that count.
+
+Workstation can use finalf800-to-private-f576.patch.gz rather than assembling
+old regression/writer/classifier packet layers. Home agent now combines separate
+migration212 with this final GUI to deliver one coherent candidate and normal
+maps; preserve both alpha identifiers and current public CI repairs. Normal
+backend help/src tooltip corrections remain workstation owner responsibility.
+
+
+## 2026-10-08 20:39 EDT — Pandas3 rollback guard repaired; exact coverage deficit exposed
+
+Home publishes a narrow test compatibility repair for f0Fast0 terminal failure:
+Pandas3 wraps sqlite3.OperationalError in pandas.errors.DatabaseError. Guard
+accepts only either form, requires exact SQLite cause naming unknown_column,
+and still verifies the first table rolled back. ActualPandas3 baselineFAIL
+retained; complete owning29PASS each onPandas2.3.3 and3.0.6 underCPU4G.
+ data/43_dbqueue_pandas3_rollback_2026-10-09/receipt.json
+
+Meaningful OPS backend selector test covers actual missing non-kernel dispatch
+lines/branches without executing fakeGPU kernels. Owning22PASS/3existingCuPy
+SKIP. Root integrated both full files51PASS/3CuPySKIP20.61s. Root verifies all7
+coverage payloads/current source/test/old hosted report hashes, all3 rollback
+compressed/raw logs and exact final test hash. No product/generated edit.
+ data/43_288_current_cpu_root_readback_2026-10-09/receipt.json
+
+F288 latest COMPLETE preserved hosted report5636 inventories664/664modules,
+zero failed/unconfirmed/stale numeric modules and ratchetPASS; literal90 remains
+unmet only for ops_accel82.7586% (125/147statements,43/56branches). CPU selector
+source-exact union estimate84.729 is NOT current hosted acceptance; remaining
+20lines/11arcs need genuine CuPy. Existing CPU exemption remains unchanged.
+WORKSTATION GPU lane: after urgent native theme acceptance, run real CuPy owning
+OPS primitives coverage on exact current ops_accel source and archive source-
+bound coverage for normal aggregate. No fabricatedNumPy kernel coverage or
+ratchet waiver. GitHub open issue query currentlyreturns[]; current tests still
+need actual terminalgreen. Old report11/12shardsPASS is not globalgreen.
+ data/288_current_floor_deficit_cpu_2026-10-08/deficit-table.json
+
+Old f0Fast0 OPS two-well resume worker died exactly300.06s after scheduling,
+with no reported native/Python fatal stack. Home coverage agent reproduces the
+actual owning file capped4G without altering timeout or resume assertions;
+redundant five-site fixture cost is under investigation, OOM not yet ruled out.
+Home CI agent continues monitoring unknown terminal f0/latestrequired results.
+
+
 ## 2026-10-08 20:38 EDT — Three new private CPU packets, independently verified
 
 Copy-console/codec/idle CI source repairs are PUBLICf800cca399; exact required

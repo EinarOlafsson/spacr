@@ -1418,3 +1418,35 @@ Decided: 2026-09-19, the maintainer, through the question tool -- "I'll
 curate; prep it". He curates both hold-out sets; this session prepared them
 and drew no truth. These four corrections change nothing he has to do: the two
 commands, the gate and both queues are as they were.
+
+--------------------------------------------------------------------------------
+2026-10-08 -- GEL DOC CANDIDATES PUBLISHED; PV R7 STANDARD SCORECARDS ADDED
+--------------------------------------------------------------------------------
+
+At the maintainer's explicit request, published the completed Gel Doc plaque
+segmentation r5 and YOLO11 well detector v4 in distinct Hugging Face model
+repositories. They are registered as toxoplasma_plaque_v3 and
+toxoplasma_well_detector_v3, preserving the separate existing cpsam_v2 r5 and
+YOLO26 v4 lineages. PV round 7 already existed; added standard scorecards to
+it and preserved its exact checkpoint bytes. No newer PV checkpoint was found.
+
+CSV/JSON scorecards, web charts, training provenance and reports accompany
+the new models. The tooltip handles native scorecard dictionaries and missing
+stock measurements; the generated model API sections include the numerical
+tables and published charts. The shared DATASET catalogue was merged without
+removing existing metadata. Remote artifacts were checked against source
+hashes, including every new weight's LFS digest and downloaded small files.
+Receipt: features/data/model_publication_geldoc_2026-10-08.json.
+
+These are candidates, not newly promoted defaults. Segmentation's primary
+Gel Doc F1 0.6419 uses min_size=0; the incumbent r3 comparison uses identical
+refreshed masks and settings. NAS fields were monitored for validation loss.
+The detector's clean-validation mAP50-95 is 0.8842; its three Gel Doc plates
+selected best.pt and therefore are validation rather than an independent
+test. Neither candidate passed its promotion rule. No stock model was run
+for either candidate, so stock and delta cells remain explicitly unmeasured.
+PV anchor scores average 10 nonempty fields from the 11-field split.
+
+This publication does not complete the older maintainer-held curation queues
+or the full matched-stock acceptance required by this item. Their gate and
+human decisions are unchanged. No new training or protected jobs were started.

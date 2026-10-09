@@ -5749,3 +5749,14 @@ Protected serial 37503577012 on b779 remains live and untouched.
     tests still fail native Qt and owner README/guide/sv-fr review modes. See
     item43 exact terminal proofs. No aggregate/shard failure is waived and this
     is not a whole-CI or uninterrupted-serial success.
+
+2026-10-08 20:39 EDT — Exact complete hosted5636 report has664modules,663>=90;
+only ops_accel82.7586% remains under literal90. ExistingCuPy exemption makes
+numeric ratchetPASS, not literal-target completion. New CPU selector test covers
+two genuine missing routing lines/arcs:22PASS/3existingCuPySKIP; source-exact
+union estimate84.729% is not current hosted aggregate. Remaining20lines/11arcs
+require actualCuPy coverage from workstationGPU lane. No denominator/exemption/
+ratchet changed. CurrentGitHub open issues[]; currentrequired/fullserial still
+pending. Root verifies7payloads/2sourcebindings/oldreporthash, integrated owning
+51PASS/3CuPySKIP. See data/288_current_floor_deficit_cpu_2026-10-08/deficit-table.json
+and data/43_288_current_cpu_root_readback_2026-10-09/receipt.json.
