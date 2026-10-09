@@ -254,7 +254,7 @@ def mobile_browser_audit(url: str, *, timeout: int, screenshot: Path) -> dict:
 
     result = {"initial": initial, "playing": playing, "paused": paused,
               "ended": ended, "replay": replay, "screenshot": str(screenshot)}
-    assert initial["lessonPosition"] == "Lesson 1 of 77", result
+    assert initial["lessonPosition"] == "Lesson 1 of 84", result
     assert initial["voices"] == 50 and initial["languages"] == 8, result
     assert initial["captionsEnabled"] and initial["captionSrc"].startswith("blob:"), result
     assert initial["audioSrc"].startswith("blob:"), result
