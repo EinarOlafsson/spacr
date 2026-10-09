@@ -45,6 +45,7 @@ Run it directly for the measurement::
 from __future__ import annotations
 
 import argparse
+from html import unescape
 import os
 import re
 import shutil
@@ -57,9 +58,9 @@ from typing import Dict, List, Sequence, Tuple
 #: its timing sidecars are served from this host instead, so none of them are
 #: published and the voice catalog is left listing every voice.
 #:
-#: This is the same string as ``data-audio-root`` on ``index.html``; the page
-#: is what actually points the player at it, and this constant is what stops
-#: the build shipping a second copy nothing would request.
+#: The player uses ``data-audio-root`` on ``index.html``. This default controls
+#: the external-audio staging policy and is the report fallback for libraries
+#: without an explicit player audio root.
 NARRATION_HOST = (
     "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/d8d275cc932a01d78185ba5cb6e41d586876aa75")
 
@@ -303,6 +304,13 @@ def report(extra: Path | None = None,
                     else per_language)
     published, dropped, keep = plan(extra, per_language)
     before, after = _total(published) + _total(dropped), _total(published)
+    narration_host = NARRATION_HOST
+    index = (extra or extra_root()) / "tutorials" / "index.html"
+    if index.is_file():
+        match = re.search(r'''\bdata-audio-root\s*=\s*(["'])(.*?)\1''',
+                          index.read_text(encoding="utf-8"), re.DOTALL)
+        if match is not None:
+            narration_host = unescape(match.group(2))
     mib = 1024 * 1024
     lines = [
         f"tutorial library: {before / mib:.1f} MiB in {len(published) + len(dropped)} files",
@@ -312,8 +320,8 @@ def report(extra: Path | None = None,
         f"ceiling:          {PUBLISHED_MEDIA_CEILING / mib:.0f} MiB"
         f"  ({'ok' if after <= PUBLISHED_MEDIA_CEILING else 'OVER'})",
     ]
-    if NARRATION_HOST:
-        lines.append(f"narration:        served from {NARRATION_HOST}")
+    if narration_host:
+        lines.append(f"narration:        served from {narration_host}")
         lines.append("                  every hosted voice remains offered")
     if per_language < 0:
         lines.append("                  nothing published, no fallback")
