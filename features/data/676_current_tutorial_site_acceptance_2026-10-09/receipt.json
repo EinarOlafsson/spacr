@@ -138,6 +138,18 @@
       "raw_bytes": 8304,
       "raw_sha256": "d075e584b5a8f513a1034583b2350c916477be2be7a6feb9bbf6733c405514f3",
       "gzip_sha256": "a7f0e2394ced142ab28bbbf9dbf82aa36e4f35a15cdaa11a3e3cdd02c5226b6a"
+    },
+    {
+      "path": "payload/tutorial-current-additional-owners-r1-tool.log.gz",
+      "raw_bytes": 929,
+      "raw_sha256": "0b2d386e9852bba3fda16a3fa93c787b81390dccd3a522d4e102d580637304a9",
+      "gzip_sha256": "e33d431185f633f069bbaa091494ee8a469ec72e6b7d09e4ea78cdc4fed9edb7"
+    },
+    {
+      "path": "payload/tutorial-current-additional-owners-r1.log.gz",
+      "raw_bytes": 215,
+      "raw_sha256": "db48cc2dfd18d23ac880c9d6fa58057d2d8e06a315e99398a360b3475a63eccd",
+      "gzip_sha256": "14fb550bbd946981ccf8086aa0626c94f00059d40a6182cc21e8ec49f10e2f9e"
     }
   ],
   "strict_english": "PASS",
@@ -165,7 +177,11 @@
     "failed_lesson": "82_toxoplasma_pathways",
     "reason": "Scratch R4 and R5 requested the nonexistent 82_toxoplasma_pathways ID; player correctly fell back to lesson01. Original timeouts retained. R6 reads actual lesson IDs from catalog and all six pass without product changes."
   },
-  "source_publication": "Prepared for normal nightly source push; verify remote publication separately.",
+  "source_publication": {
+    "status": "pushed_and_remote_verified",
+    "branch": "nightly",
+    "commit": "611feca5b31bf13d2c8fa8ac0e2ed7560889221b"
+  },
   "deployed": false,
   "qualified_scope": "Fresh six-lesson source and normal combined publication artifact. Does not close historical56-track publication, all global prose review, or larger private app integration.",
   "actual_combined_mobile_final": {
@@ -187,5 +203,26 @@
     },
     "evidence": "payload/tutorial-current-combined-mobile-r6.json.gz",
     "original_verifier_unchanged": true
+  },
+  "additional_owning_tests": {
+    "passed": 50,
+    "seconds": 0.49,
+    "source_commit": "611feca5b31bf13d2c8fa8ac0e2ed7560889221b",
+    "scope": "player links, reviewed translation promotion, archived retired Pages, Home speech and verified sentence cache"
+  },
+  "hosted_checks_at_2026_10_09_0224_UTC": {
+    "current_tests": {
+      "run": 37874032049,
+      "status": "queued"
+    },
+    "current_docs": {
+      "run": 37874031783,
+      "status": "pending"
+    },
+    "home_serial_qt": {
+      "run": 37868900922,
+      "source": "4944c63dc74b7eb83db9280ea51e0cb3d4a6cfec",
+      "status": "in_progress"
+    }
   }
 }

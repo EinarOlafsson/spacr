@@ -1,5 +1,17 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 22:24 EDT — Published source; additional tutorial guards accepted
+
+2026-10-08 22:24 EDT — Source611feca5b actually pushed to nightly and remote
+HEAD verified. Additional5 owning files50PASS0.49s on exact611: player links,
+translation promotion, withdrawn-page preservation, current Home speech and
+verified sentence cache. Exact command/source/terminal logs are in current
+676 receipt (23 fully hash-verified payloads). Current fulltests37874032049
+is queued; docs37874031783 pending. Home original-orderQt37868900922 on4944
+is still live in its guarded test step. No green/deployed acceptance or
+duplicate hosted dispatch. Only Root works locally; user low-token scope kept.
+
+
 ## 2026-10-08 22:20 EDT — One agent; refreshed tutorial publication ready
 
 2026-10-08 22:20 EDT — Six refreshed lessons accepted for normal source publication.
