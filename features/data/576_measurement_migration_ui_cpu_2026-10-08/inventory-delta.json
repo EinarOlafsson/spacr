@@ -1,0 +1,72 @@
+{
+  "api_count_before": 13232,
+  "api_count_after": 13232,
+  "api_changed": [],
+  "runtime": {
+    "setting_labels": {
+      "count_before": 1221,
+      "count_after": 1221,
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "setting_tooltips": {
+      "count_before": 1243,
+      "count_after": 1243,
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "categories": {
+      "count_before": 237,
+      "count_after": 237,
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "ui": {
+      "count_before": 7288,
+      "count_after": 7310,
+      "added": [
+        "A table finished copying.",
+        "Both source and destination are required.",
+        "Confirm measurement copy",
+        "Copied {count} table(s). The original remains unchanged.",
+        "Copies tables into a new destination. The original is not changed; this does not switch the active measurement backend.",
+        "Copy every table from the selected source into a new destination? Existing local destinations are refused. A PostgreSQL destination must have no tables.",
+        "Copy tables",
+        "Copy tables between SQLite, DuckDB, Parquet and PostgreSQL stores.",
+        "Copy to",
+        "Copying tables…",
+        "Existing .db, .duckdb, .parquetdb, or PostgreSQL URL",
+        "Migrate measurement store",
+        "Migrate measurement store…",
+        "Migration stopped. The source is unchanged and no local destination was published.",
+        "Migration stopped. The source is unchanged. The empty PostgreSQL destination may contain partial new tables.",
+        "New destination store",
+        "Read from",
+        "Source and destination must be different stores.",
+        "The destination already exists. Choose a new store.",
+        "The destination parent folder does not exist.",
+        "The source measurement store does not exist.",
+        "Use a database file, a .parquetdb folder, or a PostgreSQL URL."
+      ],
+      "removed": [],
+      "changed": []
+    },
+    "installer": {
+      "count_before": 65,
+      "count_after": 65,
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "module_summaries": {
+      "count_before": 77,
+      "count_after": 77,
+      "added": [],
+      "removed": [],
+      "changed": []
+    }
+  }
+}
