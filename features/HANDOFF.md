@@ -1,5 +1,18 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 23:41 EDT — Full shared progress refreshed; code published
+
+PUBLISHED b80b3c8019dd7efd8362d656f41c8bfd548dc06f and remote HEAD verified.
+Current tests37880234630/docs37880234474 pending; compatibility37880234477
+queued. Home original-order37868900922 stilllive on4944. No green/deployment
+claim. Full143-row table: data/progress_2026-10-08_2341.md and matching JSON.
+107 earlier recorded accepted scopes carried forward, not falsely re-audited;
+36 broader/private/native/external items remain. Today's exact verified source,
+media, guard and Home changes highlighted. No invented percentages or ETAs.
+Generated instruction index re-run, unchanged. One Root; no active local
+upload/render/test/GPU process or children. Home passive watcher untouched.
+Low-token wrap-up remains in force; no new broad feature/translation wave.
+
 ## 2026-10-08 23:39 EDT — Historical television-pronunciation tutorial publication ready
 
 Root completed existing56 English corrected tracks without new synthesis or
