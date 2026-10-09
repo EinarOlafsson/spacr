@@ -1,5 +1,24 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 23:02 EDT — Current Spaceout preference search targets repaired
+
+2026-10-08 23:02 EDT — Small current help-search visibility fixsource14f054696.
+Actual completed4944 Qt1/coverage1 logs expose8 Spaceout-only field rows
+offered in ordinary spaCR, where their preferences page is absent. Added
+PreferencesTabSpaceoutField to existing spaceout_enabled conditions; no
+user text or generated index edited. Enhanced original actual-dialog contract
+checks Fractal,Sound and field targets in both modes. Beforefix1FAIL/1PASS;
+three complete help/index files81PASS76.97s afterfix. Independent full normal
+13233 API/10065 runtime/65 installer maps equal stored English. Full original
+4 terminal job logs, original local negative, final logs and4 actual Git
+source bindings indata/43_spaceout_help_targets_cpu_2026-10-09/receipt.json
+(12 verified payloads). Other completed failures retain known collector
+errors already repaired; no acceptance of remaining ignored atexit/parked
+thread diagnostics, full hosted coverage or GitHub green. Historical56 audio
+upload/readback handle65256 stilllive in frozen8c worktree; do not mutate it
+or duplicate upload. One Root agent; this source uses normal CI-trigger push.
+
+
 ## 2026-10-08 22:54 EDT — Existing historical narration publication in progress
 
 2026-10-08 22:54 EDT — Root continues existing historical56 English live-TV packet.
