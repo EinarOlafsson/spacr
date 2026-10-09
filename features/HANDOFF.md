@@ -1,5 +1,20 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 22:27 EDT — Bounded advection blinking fix ready for source push
+
+2026-10-08 22:27 EDT — Small public random-palette advection blinking repair.
+Backported only e91593c76 coordinate flattening and original regression into
+sourceb3e92e569; no optional GPU renderer code adopted. Public baseline
+reproduces IndexError at visible trail coordinate70045 versus12 trail rows.
+Fixed original regression and full blinking/evolution/gravity cohort25PASS
+7.32s, no skips. Default blinking0 is unchanged. Independent normal complete
+13233 API/10065 runtime/65 installer maps equal their committed English data.
+Original negative, fixed logs and actual source hashes are preserved in
+data/663_random_advection_blinking_cpu_2026-10-09/receipt.json. This does not
+close original reported segmentation fault, native24FPS or all-theme review.
+One Root agent; existing Home serial/full CI dispatches left intact.
+
+
 ## 2026-10-08 22:23 EDT — Current built documentation publication guards accepted
 
 2026-10-08 22:23 EDT — Current docs publication workflow cohort terminal0:

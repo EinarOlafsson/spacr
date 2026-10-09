@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "source_commit": "b3e92e569013125951c9fabe26a1181dc4ba0f55",
+  "backported_source": "e91593c76707c5fda35d26c3644fb627357c2e62",
+  "scope": "CPU-safe random-palette advection blinking coordinate indexing; optional GPU backend remains private",
+  "source_sha256": {
+    "spacr/qt/widgets/ambient.py": "89d735bb7f36488a48292b2949e7925599df95b1fef8c25627b576696343cfa6",
+    "tests/qt/test_dot_blinking_preference.py": "59b1657562b4c75c0b6d5bae5d0b5411b632da2ec8e0e82ca12dc5b6ece5953e",
+    "tests/qt/test_data_art_advection_evolution.py": "d7b8c2d840a8d5dce599d82739d63a7f289e6fdc0694c86945dd10634d60dca6",
+    "tests/qt/test_data_art_advection_gravity.py": "9a3895321d1e681e5e236b654384b876e33df298577fc49381f43af2d4566135"
+  },
+  "baseline": {
+    "commit": "45e793c6b78c76926d73f989bc99a5bf21edd878",
+    "added_regression_test_uncommitted": true,
+    "failed": 1,
+    "exception": "IndexError: index 70045 is out of bounds for axis 0 with size 12",
+    "test_matches_committed_fixed_source": true
+  },
+  "fixed": {
+    "passed": 25,
+    "seconds": 7.32,
+    "skipped": 0
+  },
+  "normal_source": {
+    "api_symbols": 13233,
+    "runtime_total": 10065,
+    "installer_keys": 65,
+    "all_current_canonical_maps_equal_stored_english": true
+  },
+  "payloads": [
+    {
+      "path": "payload/random-advection-public-baseline-r1-tool.log.gz",
+      "raw_bytes": 4181,
+      "raw_sha256": "facb299ce88fe880027a0139534c67fdd6bcb4a75bcd9be73828d852a0796553",
+      "gzip_sha256": "f86992487b715bcb2b5841d0880b251dca5c8e162f1dc7b893e554bef6148f96"
+    },
+    {
+      "path": "payload/random-advection-public-baseline-r1.log.gz",
+      "raw_bytes": 3652,
+      "raw_sha256": "08c0608a400544b797dbc08e065098ea2b31c75836004c59cfc827c69ef6f25a",
+      "gzip_sha256": "429d8ba69769fa8185e12387e1c547381300e7d34d012e2393824a96438e7e54"
+    },
+    {
+      "path": "payload/random-advection-public-fixed-r1-tool.log.gz",
+      "raw_bytes": 778,
+      "raw_sha256": "cafbcd737d39ae1dae63bf9e2a601347aaa56fe7c0eb1463adf850659157b760",
+      "gzip_sha256": "b29c0b28314d008b78448809e4b6a93a0b272a136b090d0edae0e968a90c4e04"
+    },
+    {
+      "path": "payload/random-advection-public-fixed-r1.log.gz",
+      "raw_bytes": 215,
+      "raw_sha256": "38147b909142a486cc579559a99c5155bfcaa657218a2d3dcaee7cbb81900c7c",
+      "gzip_sha256": "83d19e26e62a405f7811b42f093a58febc2584491829dc480114b8d6860c6437"
+    },
+    {
+      "path": "payload/random-advection-current-source-r1-tool.log.gz",
+      "raw_bytes": 1947,
+      "raw_sha256": "f47b39e08bfa2f3b25094b58cdc3b189e789ec39783aeeb93e3d8df3e7c98fa6",
+      "gzip_sha256": "ab2cc8f5ad107bb3c26daa1cf3ca870696b8d9b3122048b3f8b7747644401b23"
+    },
+    {
+      "path": "payload/random-advection-current-source-r1.log.gz",
+      "raw_bytes": 1371,
+      "raw_sha256": "b7885534883b0fb1f52f15d4f337064b8e7fb2f2d8bbcd8715553c08a3654921",
+      "gzip_sha256": "778e89ab549f2994a0213b3321076aba654038b722d00194c3898718232d1ff6"
+    },
+    {
+      "path": "payload/random-advection-current-source-r1.json.gz",
+      "raw_bytes": 1255,
+      "raw_sha256": "5e298a80730fce10716c6b075062634dabf68cd29502b33f8c68b2e19e27a7e5",
+      "gzip_sha256": "19bd9078c15b567ced8189b8b9a39e9332edaa22c29707faa16f925ba0b6bd08"
+    },
+    {
+      "path": "payload/check_urgent_published_source_r4.py.gz",
+      "raw_bytes": 3122,
+      "raw_sha256": "92bcdd8568b4cb144012eebf095aebecda22e6056b05a017bcb88be87637ac9a",
+      "gzip_sha256": "1056806874c8097b300929b99bcac3c27ee9f5710fc6c6896007550356584212"
+    }
+  ],
+  "limits": "CPU only, CUDA hidden, Qt6.12 overlay/Python3.12, 8G cap. No original native SIGSEGV cure, 24FPS, GPU backend publication or complete N663 acceptance claim."
+}
