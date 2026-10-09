@@ -1,0 +1,159 @@
+{
+  "source_commit": "549a5dbe3125c82ede808f786c5ee74b542df83a",
+  "source_sha256": {
+    "tests/test_tutorial_release_audit.py": "b701358dfda0dd8b3398745f7e41e9d7a1766dd2c5b3e3ae683ce9c7d37d8331",
+    "tests/test_tutorial_catalog_i18n.py": "de4f1a120f1cec28219baa4f470376c0c99b3d2edded48f1ed93ff881c4d0b79",
+    "tools/verify_tutorial_live.py": "1110c330b6a02c709fa898fda9c96d8227faaf172619f4ceadea93bb8e008841",
+    "tools/tutorials/release_candidate/release-manifest.json": "2b6079acab3d58759e1abf49e248431c4b3e7e7ea7a9dfbbc3ebf6c5124ac423",
+    "docs/source/_extra/tutorials/lesson_catalog.js": "10b0952ec0e8f9a1c2c793289c7bd8083b0186366863f70c629b68b8267a86c0",
+    "tools/tutorials/authoring/tools/pronunciation.py": "02aa4ec36da9af845c908788388fa61b4b3c99c4492b90a2e5c225e6f83cb87b"
+  },
+  "payloads": [
+    {
+      "path": "payload/00-after.json.gz",
+      "raw_bytes": 127132,
+      "raw_sha256": "5fdc7f058eb31be109b6a97a18373482008e1392514e6a542a40eeb9f3c82a6b",
+      "gzip_sha256": "a6086c7fef97572ab2889f60b173394f5d9735c1f0f49a08c93a93811b3a3be1"
+    },
+    {
+      "path": "payload/01-before.json.gz",
+      "raw_bytes": 120876,
+      "raw_sha256": "d350e423460b73390b8e3ae99c50c3586bd9ac47ed5ea1bc18cadade1d087091",
+      "gzip_sha256": "9ea60b929d7e2f14bc69de5eb3e6e438cba96aa0082cec469d5a941f0692388a"
+    },
+    {
+      "path": "payload/02-job-113638620375.log.gz",
+      "raw_bytes": 4001279,
+      "raw_sha256": "e93a12d193a603c90218d2d1aee1417a605488631939e6092fe9160a1fc3512a",
+      "gzip_sha256": "ccf32df08f25f7cd8ea2818df61100b4d7ff3aab0e472b3e8209cabe0efeb1b8"
+    },
+    {
+      "path": "payload/03-job-113638620426.log.gz",
+      "raw_bytes": 2204040,
+      "raw_sha256": "85c7496d299a9c72f1a088be90bfc5595a4028e037129d9d3da51d60b2013281",
+      "gzip_sha256": "c0e05a0839eaccee4ce36812d01a1eaebcf84933cd785fa3af03856e0c3ff3a8"
+    },
+    {
+      "path": "payload/04-job-113638620430.log.gz",
+      "raw_bytes": 2458361,
+      "raw_sha256": "8c541e53e715d093984101891175467119b8809193fd115c40fce80d9fce884a",
+      "gzip_sha256": "af02e5d4bb7afc9d838491d7e2b4b18a774bbc4ab4315dacdb1baa4f1e1bda84"
+    },
+    {
+      "path": "payload/05-job-113638620442.log.gz",
+      "raw_bytes": 2195312,
+      "raw_sha256": "dfc8ae30b3852602a4d715d433ba1f91e1e2837a3fa745022f07747a0b00c174",
+      "gzip_sha256": "8d5121f0af533205431223e94083ee4ca8c22a2cfae67edf03f065cf21b462a1"
+    },
+    {
+      "path": "payload/06-job-113638620450.log.gz",
+      "raw_bytes": 2200327,
+      "raw_sha256": "dba808d8689cab07c2a3b0251e3f2d3c8f3feaa1dcf0918d91361886ef01cebf",
+      "gzip_sha256": "32955e1e1ba7af3ef0a816fac2c49bd09da841278d7fd7fba792f11b2f3fc386"
+    },
+    {
+      "path": "payload/07-tutorial-current-inventory-baseline-r1-tool.log.gz",
+      "raw_bytes": 8218,
+      "raw_sha256": "a6bc8a16af15f078d96f8017af1cb76c941e3532495529272e2186507f8ad075",
+      "gzip_sha256": "d4c0663cf390bc606df3830a7cca8fecf00d7e16d5de72ef6371dd81376b518b"
+    },
+    {
+      "path": "payload/08-tutorial-current-inventory-baseline-r1.log.gz",
+      "raw_bytes": 7716,
+      "raw_sha256": "16df156d5e2ddaece5e57b5afa1fad996a67073640abc9aa70a0080843c98412",
+      "gzip_sha256": "42027836fedbcc18355abf614b35d738057fa664fa4e1b2037d5a408d0042337"
+    },
+    {
+      "path": "payload/09-tutorial-current-inventory-fixed-r1-tool.log.gz",
+      "raw_bytes": 7151,
+      "raw_sha256": "cd472e66cf3cb63d039fae4ae9a79f38ef5ddae65c3b17b17928a35f8bc59e7a",
+      "gzip_sha256": "6441b10fd15806bc88c45dbc4ada000b7849b708feeca00747205e5a9aef9d30"
+    },
+    {
+      "path": "payload/10-tutorial-current-inventory-fixed-r1.log.gz",
+      "raw_bytes": 6652,
+      "raw_sha256": "4c6172f4cddfa6d31c181772c40b305f7f6b10de9b5516fc4464ca9bfb1e45d6",
+      "gzip_sha256": "f5650936d1fbd1ad79081b27ceb14b237e238a8576f2a59e7e620e14555519fd"
+    },
+    {
+      "path": "payload/11-tutorial-current-inventory-fixed-r2-tool.log.gz",
+      "raw_bytes": 926,
+      "raw_sha256": "c36215cc3bcc29f4c5a8231170ab3056e47692eda2e602a50c3e7a2006513016",
+      "gzip_sha256": "183cdea01b13872f4ce1614e70731f46146cb1641a2392e76855419dbe2e13b0"
+    },
+    {
+      "path": "payload/12-tutorial-current-inventory-fixed-r2.log.gz",
+      "raw_bytes": 427,
+      "raw_sha256": "69d440a5c2d16121bd339ebe0bdb677e5040b33239a933e5aa222e358289437f",
+      "gzip_sha256": "e86b64724a75390c1ed79db9f3f4d68b24ae1bfb3a978e7d48290fe537e08305"
+    },
+    {
+      "path": "payload/13-tutorial-current-inventory-node-r1-tool.log.gz",
+      "raw_bytes": 722,
+      "raw_sha256": "2a9af90ab1994464e12117050ec3b51c81788e2655cd69e0503e0ef73ca7e301",
+      "gzip_sha256": "e73d73db676785f52e64077e0e5891362f9a121eec0b5e44027baf3c94f757a5"
+    },
+    {
+      "path": "payload/14-tutorial-current-inventory-node-r1.log.gz",
+      "raw_bytes": 224,
+      "raw_sha256": "839df3945c5617b32b7c799cdd40ace894716c0d9c25881ba63183f3e7f92ede",
+      "gzip_sha256": "11e6d9a5e4749ad532ee94decc019915c6ee0b58ce56d64be8b5b61ed527f56d"
+    },
+    {
+      "path": "payload/15-tutorial-current-static-audit-r1-tool.log.gz",
+      "raw_bytes": 2467,
+      "raw_sha256": "c7cd1c5b0e5591aad75e0b0dd6cee8b8ac6c140a6484ba3e3040d8e0dc236995",
+      "gzip_sha256": "c6f442ce2c3a5da501922abe1f1eb58e0bbfc63d9b661f35203eabfe51546ce4"
+    },
+    {
+      "path": "payload/16-tutorial-current-static-audit-r1.log.gz",
+      "raw_bytes": 1994,
+      "raw_sha256": "c68ba54c85970c48d76d7fa27f132ffccf065f1aa0a5b63d1322f4f554a4eb9f",
+      "gzip_sha256": "3e9de03c36abf6a0c98041dbfa38e378aa4d4a0345c646f1873dd2f3c32ee71f"
+    },
+    {
+      "path": "payload/17-tutorial-current-static-audit-r1.json.gz",
+      "raw_bytes": 1473,
+      "raw_sha256": "63ec1a7e22266066be7dd4092b5c1f8bb43622ac4666c6b0d05b073578f98945",
+      "gzip_sha256": "1de2ad11f333242e30e0aec4e92f939301316eb3cbe3648a2dd09735901cc9d3"
+    },
+    {
+      "path": "payload/18-check_current_tutorial_static_audit_r1.py.gz",
+      "raw_bytes": 1123,
+      "raw_sha256": "42ad328b752a85989c79c0e4bcc7185cab0e48e0458a2a20c048b75e2024ddc3",
+      "gzip_sha256": "d928b1e2fdd252cb23e042ad1ddf5fdc96ff78a0f9fcb11605ef7586a344926c"
+    }
+  ],
+  "baseline": {
+    "failed": 4,
+    "passed": 8,
+    "skipped": 1,
+    "xfailed": 2,
+    "seconds": 2.05
+  },
+  "intermediate": {
+    "failed": 1,
+    "passed": 13,
+    "skipped": 1
+  },
+  "fixed_with_existing_Node": {
+    "passed": 15,
+    "skipped": 0,
+    "xfailed": 0
+  },
+  "static_HTTP_audit": {
+    "passed": true,
+    "lessons": 84,
+    "scenes": 1227,
+    "languages": 8,
+    "voices": 50,
+    "source_hashes_match": true
+  },
+  "obsolete_Root_run": {
+    "id": 37874032049,
+    "source": "611feca5b31bf13d2c8fa8ac0e2ed7560889221b",
+    "failed_terminal_jobs_archived": 5,
+    "final_status": "cancelled"
+  },
+  "qualification": "Existing authored/native publication unchanged. Fixed stale guards for merged install, current speech version, and exact 15 visual-reference paths bound to media manifest. Node is the existing Playwright driver runtime. Static local HTTP audit passed; no new full Selenium/mobile/live website acceptance claim. Home serial Qt untouched; latest required CI remains pending."
+}

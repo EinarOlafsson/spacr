@@ -3698,3 +3698,12 @@ Swedish Organism intentional spelling documented; full checker terminal0.
 Original failed/cancelled hosted evidence retained in
 data/43_reviewed_api_guard_2026-10-09/receipt.json. Full current hosted
 acceptance remains pending; do not transfer cancelled4944 acceptance.
+
+2026-10-08 23:53 EDT — Root cancelled obsolete own611 fullrun only after
+archiving5 completedfailedjoblogs; Home serialQt untouched. Stale current
+tutorial guards repaired for mergedinstall,84lessons/1227scenes andv12 speech.
+Exact15 visualclockreferences bound to hostmanifest; narration equality
+retained. Whole2file cohort15PASS with existingNode, no skips/xfails. Normal
+localHTTP staticaudit/sourcehashes pass. Evidence:
+data/43_current_tutorial_guard_repair_2026-10-09/receipt.json
+Latest currentfullGitHub acceptance remainspending.

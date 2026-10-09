@@ -1,5 +1,28 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-08 23:53 EDT — Stale tutorial release guards repaired; obsolete Root CI retired
+
+Root archived5 terminal failed jobs from own611 run37874032049 before cancelling
+that already-red obsolete run; actual GH now completed/cancelled. Home serial
+37868900922 untouched. This releases old Root push-group work for currentsource.
+Completed logs expose stale tutorial counts/navigation/pronunciation. Current
+9c baseline4FAIL8PASS1SKIP2XFAIL. Source549a5dbe3 pins84 lessons/1227 scenes,
+merged02_install_spacr, both retired-ID redirects, six current scene counts,
+currentv12 speech with unchanged exact PyPI phoneme gates, and all15 exact
+native/original visual-reference paths present in hosted manifest. English
+narration equality remains exact after checked publication-only metadata.
+Existing Playwright bundledNode used, no dependency install. Whole release/
+catalog files15PASS/no skips/no xfails; local normalHTTP static verifier passes
+84lessons/1227scenes/8languages/50voices and exact source hashes. Browser count
+caption corrected77→84; full older Selenium audit not rerun/claimed. Product,
+authored player/media/API/source docs equal publishedb80 bytes exactly.
+Original/intermediate failures and full terminal files preserved:
+ data/43_current_tutorial_guard_repair_2026-10-09/receipt.json
+Current normalpush CI required; no currentfullgreen/deployedsite/parentclosure.
+OnlyRoot active. No new synthesis/capture, GPU or broad translation work begun.
+Latest full143-row progress table remainsdata/progress_2026-10-08_2341.md;
+107 earlier accepted scopes/36 broader unfinished entries remain qualified.
+
 ## 2026-10-08 23:41 EDT — Full shared progress refreshed; code published
 
 PUBLISHED b80b3c8019dd7efd8362d656f41c8bfd548dc06f and remote HEAD verified.
