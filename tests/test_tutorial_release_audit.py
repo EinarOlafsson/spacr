@@ -464,6 +464,10 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
     assert not failures, f"PyPI speech is not the reviewed 'pype' form: {failures}"
 
     published = _tutorial_catalog()
+    manifest = json.loads((ROOT / "tools/tutorials/release_candidate"
+                           / "release-manifest.json").read_text())
+    media_records = {row["path"]: row for row in manifest["files"]}
+    visual_references = {}
     for lesson in published["lessons"]:
         lesson.pop("poster", None)
         lesson.pop("silent", None)
@@ -471,6 +475,20 @@ def test_every_spoken_pypi_is_the_reviewed_single_syllable_pype():
         # (build_appended_candidate --host-web): a publication field like
         # poster/silent, not narration, so lessons_en.json does not carry it.
         lesson.pop("web", None)
+        visual = lesson.pop("visual_timings", None)
+        if visual is not None:
+            visual_references[lesson["id"]] = visual
+            record = media_records["media_host/" + visual]
+            assert record["bytes"] > 0 and re.fullmatch(r"[0-9a-f]{64}", record["sha256"])
+    native_ids = {"02_install_spacr", "04_platform_installers", "05_home",
+                  "80_image_analysis_pathways", "82_toxoplasma"}
+    original_ids = {"07_mask", "08_measure", "14_make_masks", "18_motility",
+                    "19_train_cellpose", "20_cellpose_masks", "24_plaque",
+                    "74_import_images", "85_host_pathogen", "87_alpha_features"}
+    assert visual_references == {
+        **{identity: identity + "/video/native-live-timings.json" for identity in native_ids},
+        **{identity: identity + "/video/original-visual-timings.json" for identity in original_ids},
+    }
     assert published == english, (
         "the public lesson_catalog.js does not match lessons_en.json")
 
