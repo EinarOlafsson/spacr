@@ -3269,6 +3269,9 @@
     "candidate_index_sha256": "12a609a87a057048fdcbc4b7baa6dc9c888990f1488c0ee4c328efd4cb92664d",
     "cache_key": "tutorial-native-install-home-toxo-20261008-r1",
     "unchanged_versioned_assets": [
+      "app_v2.js",
+      "lesson_catalog.js",
+      "module_navigation.js",
       "styles.css",
       "voice_catalog.js"
     ],
@@ -3281,6 +3284,1101 @@
     },
     "hosted_web_copies": 84,
     "removed_local_web_copies": [],
+    "withdrawn_pages_archive": {
+      "directory": "/media/carruthers/mnt3/codex/scratch/tutorials-agent-20261008/tutorials-requested-live-r1/release-candidate-append-9t0mo_lu/retired-pages",
+      "files": [
+        {
+          "path": "02_conda_install/audio/en/af_alloy.json",
+          "sha256": "9b0503bb10ee02aa1d5a8e01ef10fde4922bec777d4d027ca13fb882ee29a751",
+          "bytes": 5419
+        },
+        {
+          "path": "02_conda_install/audio/en/af_alloy.m4a",
+          "sha256": "88d0f650600d8c332773751b9c6287827f50c2048423dff8f6a54dde43f3470f",
+          "bytes": 418485
+        },
+        {
+          "path": "02_conda_install/audio/en/af_aoede.json",
+          "sha256": "800803552794515f8584be365570b29a9ce0dd30dc6dac99009727dd81cba9a4",
+          "bytes": 5429
+        },
+        {
+          "path": "02_conda_install/audio/en/af_aoede.m4a",
+          "sha256": "9714bab958257fe972c794f1d4ee127afc860896a6572595f72e9db7b73a7dc0",
+          "bytes": 443537
+        },
+        {
+          "path": "02_conda_install/audio/en/af_bella.json",
+          "sha256": "f7eca596699a6956de3a5a3d546e5be08f7e530a7570e978815db06dc934576f",
+          "bytes": 5416
+        },
+        {
+          "path": "02_conda_install/audio/en/af_bella.m4a",
+          "sha256": "e40865e970e192b1924cb8047fb98cbeeb144eb56e6171d490d36984cb51b2b2",
+          "bytes": 463151
+        },
+        {
+          "path": "02_conda_install/audio/en/af_heart.json",
+          "sha256": "6d938053d2e610020eb55443b13918b30f5d7cf4ad2bea0a7e6e89513530b308",
+          "bytes": 5424
+        },
+        {
+          "path": "02_conda_install/audio/en/af_heart.m4a",
+          "sha256": "43d2fedf5ada81731e447217237309ae5214ac47cae35a0fa53c3265e0e44e20",
+          "bytes": 438459
+        },
+        {
+          "path": "02_conda_install/audio/en/af_jessica.json",
+          "sha256": "95d0b194866e8dcb22c845ba8bea8804e1866776243cdc37dd9924fa4163b3fc",
+          "bytes": 5433
+        },
+        {
+          "path": "02_conda_install/audio/en/af_jessica.m4a",
+          "sha256": "961f4dd4c6fe000d283b04fa608335c7a37772b440dc7577580c5f90ad17d585",
+          "bytes": 391106
+        },
+        {
+          "path": "02_conda_install/audio/en/af_kore.json",
+          "sha256": "b984c539b10396622d7cd581daf0822a007badbcfcfff0cf63a526daba6e7657",
+          "bytes": 5466
+        },
+        {
+          "path": "02_conda_install/audio/en/af_kore.m4a",
+          "sha256": "49dac56296006daeb4a1b10cd65803cff9624ac18e275744badcea9891bdac7b",
+          "bytes": 456313
+        },
+        {
+          "path": "02_conda_install/audio/en/af_nicole.json",
+          "sha256": "b8b662cb759d78c2b6ecde0f0aa74e4511050e3451bd69a106b49815647e6817",
+          "bytes": 5413
+        },
+        {
+          "path": "02_conda_install/audio/en/af_nicole.m4a",
+          "sha256": "89d11b945a6dc820b5f2575abef9d0c7eebbcd12531920aa7ceb8e47b3ab95b9",
+          "bytes": 667506
+        },
+        {
+          "path": "02_conda_install/audio/en/af_nova.json",
+          "sha256": "623066d3abfb24e4e26840a5d4600c4ae2a6a0323113f65402c167286d68760d",
+          "bytes": 5385
+        },
+        {
+          "path": "02_conda_install/audio/en/af_nova.m4a",
+          "sha256": "07962f9238fad737504ff44d8e2080b8836a51aa4b5bd45839bde1be96b9cbd4",
+          "bytes": 407660
+        },
+        {
+          "path": "02_conda_install/audio/en/af_river.json",
+          "sha256": "ccbec2f5147bf414614f30d4e3c81d839ee9a98f6451fc0113893494a97553bc",
+          "bytes": 5526
+        },
+        {
+          "path": "02_conda_install/audio/en/af_river.m4a",
+          "sha256": "18935efe986cef8f0836027d23a11829dee6e7860d3c9e9ea91a90d48daa6889",
+          "bytes": 387690
+        },
+        {
+          "path": "02_conda_install/audio/en/af_sarah.json",
+          "sha256": "a2ee1fbfe1f0ba72149bfc3152b85dfb760bc983c0ebbbf31ba31f34bcad5152",
+          "bytes": 5375
+        },
+        {
+          "path": "02_conda_install/audio/en/af_sarah.m4a",
+          "sha256": "4c873a8a63df7487608088e09bc263d399e9bee506fead42a6c4987ca915e693",
+          "bytes": 445240
+        },
+        {
+          "path": "02_conda_install/audio/en/af_sky.json",
+          "sha256": "2078a88b4dff233d24074693c1535fd8056cd4422820e4223ae3090b57aa72a0",
+          "bytes": 5517
+        },
+        {
+          "path": "02_conda_install/audio/en/af_sky.m4a",
+          "sha256": "3d65155230b33899381914714147edff7fd2fd74a586e869ee69f728dd0868e0",
+          "bytes": 427420
+        },
+        {
+          "path": "02_conda_install/audio/en/am_adam.json",
+          "sha256": "f389fdc16dff9808a2370ec41d73d3e3db5fd49b6d6fe20837e4041a4f366774",
+          "bytes": 5411
+        },
+        {
+          "path": "02_conda_install/audio/en/am_adam.m4a",
+          "sha256": "e92531298b7fc5fdb535eda2cf78690f52a4c3fbde5d4f3abfb231c6db3376ec",
+          "bytes": 431885
+        },
+        {
+          "path": "02_conda_install/audio/en/am_echo.json",
+          "sha256": "549433f8dd9ecf1e09c65c523e392abf7f76ffb9edec00ec95a2e8e9a3499b8a",
+          "bytes": 5391
+        },
+        {
+          "path": "02_conda_install/audio/en/am_echo.m4a",
+          "sha256": "7490e919079f5f5f124d2bd88d1764f7668f157d9cb3a132bba1e78803e8fde6",
+          "bytes": 414640
+        },
+        {
+          "path": "02_conda_install/audio/en/am_eric.json",
+          "sha256": "827dd8812ffa7c74a0e1b2e6908e58498c637f5bdc7b2cd411b537c4af1c9a9e",
+          "bytes": 5494
+        },
+        {
+          "path": "02_conda_install/audio/en/am_eric.m4a",
+          "sha256": "73f250e628d5b46d83de3cb8066270b36430713dc93dcd45ad89b33e4f1e66b4",
+          "bytes": 388701
+        },
+        {
+          "path": "02_conda_install/audio/en/am_fenrir.json",
+          "sha256": "eb3e7af19d072d3b348f46d8665dc496269d01cfa991a4f013ee0174cb2a1485",
+          "bytes": 5461
+        },
+        {
+          "path": "02_conda_install/audio/en/am_fenrir.m4a",
+          "sha256": "b2b7672ef156c0ce34dea8cadd541930641ffde44d06440e83285b722afcff28",
+          "bytes": 446094
+        },
+        {
+          "path": "02_conda_install/audio/en/am_liam.json",
+          "sha256": "30566decce431bf72d13bfad600dcf4deb71b561f298193b8a79413f94f9138e",
+          "bytes": 5394
+        },
+        {
+          "path": "02_conda_install/audio/en/am_liam.m4a",
+          "sha256": "81d6e1064cc1d7d84883af7e1c1f89f08efdec8350d340578c068f549dc40224",
+          "bytes": 400985
+        },
+        {
+          "path": "02_conda_install/audio/en/am_michael.json",
+          "sha256": "edef0d68558b75a8c21245ef4c44cf95d762e1a6e820ceb65b681521e4d5c2c2",
+          "bytes": 5433
+        },
+        {
+          "path": "02_conda_install/audio/en/am_michael.m4a",
+          "sha256": "ac115fc2c29bc556334b4c7965aa772d7a01359a1981e09a7c9b33c8dd86fb9d",
+          "bytes": 484990
+        },
+        {
+          "path": "02_conda_install/audio/en/am_onyx.json",
+          "sha256": "ab00bbcfd905dbeb6a8a63949b7f1bf2f4fdc23632d8ae96585d46519da34ff9",
+          "bytes": 5414
+        },
+        {
+          "path": "02_conda_install/audio/en/am_onyx.m4a",
+          "sha256": "cd583974112473054114d3c039fb0a646ee7b6beced0fd548f515087cca966a4",
+          "bytes": 413293
+        },
+        {
+          "path": "02_conda_install/audio/en/am_puck.json",
+          "sha256": "2f3ee3cbfe80f4b1fed0989463bfdad2b479933d97488a8477666ee20d908f07",
+          "bytes": 5319
+        },
+        {
+          "path": "02_conda_install/audio/en/am_puck.m4a",
+          "sha256": "d80321d8f0631de0474d46d0d8280d33a07bbd776420aa0e95c1dd48806ae7df",
+          "bytes": 439467
+        },
+        {
+          "path": "02_conda_install/audio/en/am_santa.json",
+          "sha256": "515fe04d85ca2a98ba4bb862d7a4f26811041c51c6328752bb326dc41931373e",
+          "bytes": 5403
+        },
+        {
+          "path": "02_conda_install/audio/en/am_santa.m4a",
+          "sha256": "7518d8fc8540ea4f5f8cb06cc48a7c005badd93d8cebd3fc89d30e82d08c7360",
+          "bytes": 448274
+        },
+        {
+          "path": "02_conda_install/audio/en/bf_alice.json",
+          "sha256": "7e2b2a2beb3df848941e29347631c91233d96044103c5e95408e3dce544e2707",
+          "bytes": 5307
+        },
+        {
+          "path": "02_conda_install/audio/en/bf_alice.m4a",
+          "sha256": "77d324cfcdb38245e21416a59dfd6581168da019672bb2de3306588814a8b6e6",
+          "bytes": 433086
+        },
+        {
+          "path": "02_conda_install/audio/en/bf_emma.json",
+          "sha256": "28400d22c15a2de2742952696cb8f63d53bf86f5870e711bedc2fa8ac492cf99",
+          "bytes": 5412
+        },
+        {
+          "path": "02_conda_install/audio/en/bf_emma.m4a",
+          "sha256": "9ab50ab9aa08ab4b09d90ed350005d1bac2314f51f9f18c4bda47d87d8234089",
+          "bytes": 423960
+        },
+        {
+          "path": "02_conda_install/audio/en/bf_isabella.json",
+          "sha256": "73521816fe1f8af52c9ead1fd32f8e5864659bc40a356060691b082833d38a10",
+          "bytes": 5369
+        },
+        {
+          "path": "02_conda_install/audio/en/bf_isabella.m4a",
+          "sha256": "482a8487d1f9b214e8cb6b81afb9bfb6a96518b0caac6ac39186955471b48f9e",
+          "bytes": 427352
+        },
+        {
+          "path": "02_conda_install/audio/en/bf_lily.json",
+          "sha256": "b605919bcd58a4a49a5e67c997664dd8a697b96b465854fa8aae52928683ca07",
+          "bytes": 5448
+        },
+        {
+          "path": "02_conda_install/audio/en/bf_lily.m4a",
+          "sha256": "47b662ac457e2f2e8f74559c608db3368f9a56243c70aa4455749046b3807e00",
+          "bytes": 419291
+        },
+        {
+          "path": "02_conda_install/audio/en/bm_daniel.json",
+          "sha256": "ac40a5b3e178dfcbb325b0942a2fdf594d0d21e81e0b19e751577c9445c3d909",
+          "bytes": 5463
+        },
+        {
+          "path": "02_conda_install/audio/en/bm_daniel.m4a",
+          "sha256": "7f7978e94b670894bed142bb72cf0a14474ee79e3be90c22306c6d0a25322468",
+          "bytes": 413731
+        },
+        {
+          "path": "02_conda_install/audio/en/bm_fable.json",
+          "sha256": "73a66ba9f2a328f882b854b7f8a8cd6ca97a66238cefb62c462a631a1bd324d8",
+          "bytes": 5462
+        },
+        {
+          "path": "02_conda_install/audio/en/bm_fable.m4a",
+          "sha256": "329ac34964b55961a9177e86ea1a616aa68d967036416c8e54fcf39229137924",
+          "bytes": 410439
+        },
+        {
+          "path": "02_conda_install/audio/en/bm_george.json",
+          "sha256": "acdff58eca9df431b133c2ce02414cbcbfe1a08a2552aa496d797795666c22ec",
+          "bytes": 5344
+        },
+        {
+          "path": "02_conda_install/audio/en/bm_george.m4a",
+          "sha256": "4c4dbca69bb354b6c73939ea2fb63fb8170d6e44920bc97877a523751e09107a",
+          "bytes": 474201
+        },
+        {
+          "path": "02_conda_install/audio/en/bm_lewis.json",
+          "sha256": "311c6dfccec6b5244450dfc842a1f6dd8f1e36d43cecaa50f03cd4e3c28e2f80",
+          "bytes": 5398
+        },
+        {
+          "path": "02_conda_install/audio/en/bm_lewis.m4a",
+          "sha256": "3639a129506eb321ab4e419aa9c692f8a27fe7bd641e47deb9998139e7482fb7",
+          "bytes": 467691
+        },
+        {
+          "path": "02_conda_install/audio/es/ef_dora.json",
+          "sha256": "bedc7a4d0d9a829682b99b8e51568266482eb52669ea9e7f49f5e329ecfac8fb",
+          "bytes": 5537
+        },
+        {
+          "path": "02_conda_install/audio/es/ef_dora.m4a",
+          "sha256": "fb81cec2609c6fe24b8985efcec80c2355648d56f02da08399749d75ab2b22fa",
+          "bytes": 429356
+        },
+        {
+          "path": "02_conda_install/audio/es/em_alex.json",
+          "sha256": "7ee7ca147a4465b512de4834eebe6eb88790c074cb7ce7722ea4943c19d8745d",
+          "bytes": 5710
+        },
+        {
+          "path": "02_conda_install/audio/es/em_alex.m4a",
+          "sha256": "dd934a1929ee5fe9bd4122deebc4b3041959a9f3dc4d8b485ffb6eca7d7f6d76",
+          "bytes": 432278
+        },
+        {
+          "path": "02_conda_install/audio/es/em_santa.json",
+          "sha256": "b7ddd6ce88b0d623e186ebdec24792b63cb6e5db72f62e31ffb54d9c7e7a11bd",
+          "bytes": 5657
+        },
+        {
+          "path": "02_conda_install/audio/es/em_santa.m4a",
+          "sha256": "e07d3bb98f12b8146235a3a2aa445e8b010a2d689c5d130b67efe6be9ef0ca6a",
+          "bytes": 433875
+        },
+        {
+          "path": "02_conda_install/audio/fr/ff_siwis.json",
+          "sha256": "af5600c8518c6fa4b0f547a65e123fee1ec176e3ed3cd50f536c6b530c803d19",
+          "bytes": 5526
+        },
+        {
+          "path": "02_conda_install/audio/fr/ff_siwis.m4a",
+          "sha256": "03f887c220bb1d8c6b0a85c180c7ff0ff8996125941bd50ce28a4d088185ef9f",
+          "bytes": 442109
+        },
+        {
+          "path": "02_conda_install/audio/hi/hf_alpha.json",
+          "sha256": "451b792f6bf87d265b8c0751e1277ebf0f4c50bc0b1d1fefaaa8a139ce8a6c4e",
+          "bytes": 9073
+        },
+        {
+          "path": "02_conda_install/audio/hi/hf_alpha.m4a",
+          "sha256": "83588cd71d623dc7cda177c08eb94188128c8b24f68fad7228508f56d127bb50",
+          "bytes": 559148
+        },
+        {
+          "path": "02_conda_install/audio/hi/hf_beta.json",
+          "sha256": "1a484fb48762ad30627528b9c397834a8238cbf41c2e501474956837c0680f6d",
+          "bytes": 9177
+        },
+        {
+          "path": "02_conda_install/audio/hi/hf_beta.m4a",
+          "sha256": "ae721644245768f73f56d29985899477786a1d5fcdbe02a8e8c02a84b6aed7c9",
+          "bytes": 500652
+        },
+        {
+          "path": "02_conda_install/audio/hi/hm_omega.json",
+          "sha256": "0a585115ba66743c9685148a99af6512f05d2e38ef4488882120cf5a64720c71",
+          "bytes": 9113
+        },
+        {
+          "path": "02_conda_install/audio/hi/hm_omega.m4a",
+          "sha256": "bde7af6d23530fef604b9dd140bfe881f050a218fe5ef934f49bbda8b334126b",
+          "bytes": 579813
+        },
+        {
+          "path": "02_conda_install/audio/hi/hm_psi.json",
+          "sha256": "6fb22bd7e49aa1552a89d3ce397561eda37f1a0505334d2355cdb4da7c722809",
+          "bytes": 9146
+        },
+        {
+          "path": "02_conda_install/audio/hi/hm_psi.m4a",
+          "sha256": "2f0b065cb9953ddd097849e31bd70c01f0c3bdf549aa2c7bc852ec6c9d7ea6a8",
+          "bytes": 587840
+        },
+        {
+          "path": "02_conda_install/audio/it/if_sara.json",
+          "sha256": "1084b9c85ab2544b9dea05b97470866003568c94baf38124d1d90e52f6f70144",
+          "bytes": 5566
+        },
+        {
+          "path": "02_conda_install/audio/it/if_sara.m4a",
+          "sha256": "1568f46bfc903339ed07908af73e16cab32686dda4d850c8be1b1adc964f576d",
+          "bytes": 447802
+        },
+        {
+          "path": "02_conda_install/audio/it/im_nicola.json",
+          "sha256": "a1ab5dfc7f7efc433bb61cc9dc0cafb4ab8d87a0bc7564cee2c36f8cadad0b2e",
+          "bytes": 5597
+        },
+        {
+          "path": "02_conda_install/audio/it/im_nicola.m4a",
+          "sha256": "5c01dcf45fe2605ffcbffde9f5987febfa3f84512915f7bcdd26830a2029c4b2",
+          "bytes": 488659
+        },
+        {
+          "path": "02_conda_install/audio/ja/jf_alpha.json",
+          "sha256": "b1b317bbf37771ecb7a670828dcda9a37cff0a0ace99dac0f41ba6c3abe8faa2",
+          "bytes": 5893
+        },
+        {
+          "path": "02_conda_install/audio/ja/jf_alpha.m4a",
+          "sha256": "3875d6e7e7cf97956ac6dad026477acaf11c49039a52619a8959e5155701dbc5",
+          "bytes": 503673
+        },
+        {
+          "path": "02_conda_install/audio/ja/jf_gongitsune.json",
+          "sha256": "1a7777e58ff3641873aa28b7ccae69859fa661f9ab1e66df37c5e88fc9793ac1",
+          "bytes": 5917
+        },
+        {
+          "path": "02_conda_install/audio/ja/jf_gongitsune.m4a",
+          "sha256": "b4bc2eff3356dc3411f421e5b69b0d725ad8f84786bb6cbf268e8b7a8c2a75f1",
+          "bytes": 627252
+        },
+        {
+          "path": "02_conda_install/audio/ja/jf_nezumi.json",
+          "sha256": "95ba18f966342905e09fbf47ce5c7152faedd1d545f2ae529291a3dff864527b",
+          "bytes": 5931
+        },
+        {
+          "path": "02_conda_install/audio/ja/jf_nezumi.m4a",
+          "sha256": "04dc83ca16475c80b6102d759ecd482eccb2b0c5d731f9d41e813bf8d33966e1",
+          "bytes": 666268
+        },
+        {
+          "path": "02_conda_install/audio/ja/jf_tebukuro.json",
+          "sha256": "a43c739ad0097b064459428fa96a7b363dba5eac1691c720cc67674a422ed37e",
+          "bytes": 5928
+        },
+        {
+          "path": "02_conda_install/audio/ja/jf_tebukuro.m4a",
+          "sha256": "72cc70fe4f62ca7a1f735f2471c22ad284cfaf317274f135abd47b5473eedb22",
+          "bytes": 624469
+        },
+        {
+          "path": "02_conda_install/audio/ja/jm_kumo.json",
+          "sha256": "1b5afb2fee8f1a9775fad6ed5cae6932b6ff6f751b2f037f193d3e3ee6b51401",
+          "bytes": 6046
+        },
+        {
+          "path": "02_conda_install/audio/ja/jm_kumo.m4a",
+          "sha256": "17a297a4063bf02bf8f59696be8b3a18f8b78fd86e66dfa1dfe2449d631615c7",
+          "bytes": 554734
+        },
+        {
+          "path": "02_conda_install/audio/pt-BR/pf_dora.json",
+          "sha256": "5a75c2bb6739c2ef95ff9fa7e50cfe28f54a5378095729142cb6106fe5ca8ddc",
+          "bytes": 5883
+        },
+        {
+          "path": "02_conda_install/audio/pt-BR/pf_dora.m4a",
+          "sha256": "2fbfb29187dee124a459a7827df4a324415833d5beabe27af817670121489dfb",
+          "bytes": 434871
+        },
+        {
+          "path": "02_conda_install/audio/pt-BR/pm_alex.json",
+          "sha256": "2dd1dcc9430167f7cb06a7eb119dc9628fb6ef48ff08b09d712f781acfe75f27",
+          "bytes": 5978
+        },
+        {
+          "path": "02_conda_install/audio/pt-BR/pm_alex.m4a",
+          "sha256": "f226530d4295659ce4fefa6cab40848471b0c0dffb24f8ec45fb8e74281f0388",
+          "bytes": 439397
+        },
+        {
+          "path": "02_conda_install/audio/pt-BR/pm_santa.json",
+          "sha256": "eda45253b6127e4d875923e711fbc60a2b2e37beb621531f68174a592f943093",
+          "bytes": 6016
+        },
+        {
+          "path": "02_conda_install/audio/pt-BR/pm_santa.m4a",
+          "sha256": "c57b7a839ba0b62877ef75ef7bb0abc15f3e2b0be7898491b357a5079060afe9",
+          "bytes": 448204
+        },
+        {
+          "path": "02_conda_install/audio/zh-CN/zf_xiaobei.json",
+          "sha256": "97a6bc8d266566723d2cf4f227fafbffe87c9de2d5754ad9022a894844e56938",
+          "bytes": 5322
+        },
+        {
+          "path": "02_conda_install/audio/zh-CN/zf_xiaobei.m4a",
+          "sha256": "1f1a8d68fb632954d35aedeb02eb422fe2aa4dda719f55851db11449ae86f514",
+          "bytes": 448735
+        },
+        {
+          "path": "02_conda_install/audio/zh-CN/zf_xiaoni.json",
+          "sha256": "8d517169722bc71eb362d47b298a5c6d9f47905d6a4600dd086316396b2dcec0",
+          "bytes": 5286
+        },
+        {
+          "path": "02_conda_install/audio/zh-CN/zf_xiaoni.m4a",
+          "sha256": "e21df09a9c95c49f79cb7f5bf518ad57b07d659c559eff146fc274b73cab01a1",
+          "bytes": 402990
+        },
+        {
+          "path": "02_conda_install/audio/zh-CN/zf_xiaoxiao.json",
+          "sha256": "d7ac54dea86d531d37441d7b058171490d1d38d3c8a97ba3fc65aad0e229030a",
+          "bytes": 5371
+        },
+        {
+          "path": "02_conda_install/audio/zh-CN/zf_xiaoxiao.m4a",
+          "sha256": "a04bb508244b3bc42af893ff396ecc4cce6d4ddfab564316aed5ffb04c090406",
+          "bytes": 386525
+        },
+        {
+          "path": "02_conda_install/audio/zh-CN/zf_xiaoyi.json",
+          "sha256": "f8a2556cb87e2c655ea47b728645ec7e64e39bc28d80d4a4896f40f21b741bc3",
+          "bytes": 5510
+        },
+        {
+          "path": "02_conda_install/audio/zh-CN/zf_xiaoyi.m4a",
+          "sha256": "6f9718fb35ea269326ec31e5726b06d949af96f9806b2dc2a79af52a23229eef",
+          "bytes": 380775
+        },
+        {
+          "path": "02_conda_install/audio/zh-CN/zm_yunjian.json",
+          "sha256": "43cf8ef6f56b9561a2b8a6959deaa67fb116bbcd4add2e080c6bfa1a4414fed3",
+          "bytes": 5378
+        },
+        {
+          "path": "02_conda_install/audio/zh-CN/zm_yunjian.m4a",
+          "sha256": "12513b09b0f578ec5cf2ffac46164d95d09a11ac4838ab5e3b0de5a610ef9af7",
+          "bytes": 375570
+        },
+        {
+          "path": "02_conda_install/audio/zh-CN/zm_yunxi.json",
+          "sha256": "5039e6095a96fc823c94768006d8c51becca8601b139f947e94c10e5ec4c988b",
+          "bytes": 5451
+        },
+        {
+          "path": "02_conda_install/audio/zh-CN/zm_yunxi.m4a",
+          "sha256": "c840ccf4f55112687023933aa68c9f077a95657be2b835033c0cb3c54eba76e2",
+          "bytes": 366884
+        },
+        {
+          "path": "02_conda_install/audio/zh-CN/zm_yunxia.json",
+          "sha256": "33656dd2b6333a7c009fcd4da27e1efefe64dd38e8784bb70b0fb677cd8662b9",
+          "bytes": 5410
+        },
+        {
+          "path": "02_conda_install/audio/zh-CN/zm_yunxia.m4a",
+          "sha256": "7e77af8f73d28ec75f9c4cb4fdc2fa6267c06b95f89791092b6b1bd8f555c4db",
+          "bytes": 403679
+        },
+        {
+          "path": "02_conda_install/audio/zh-CN/zm_yunyang.json",
+          "sha256": "36c5b70366bc9034163c79ba058993a201413cc7e077de5a4712c0483435135b",
+          "bytes": 5368
+        },
+        {
+          "path": "02_conda_install/audio/zh-CN/zm_yunyang.m4a",
+          "sha256": "4ba4e454ac649dc5c3b7e5109d283d83f73cd0e578e1ffb696b0e8f324bd4f07",
+          "bytes": 350097
+        },
+        {
+          "path": "02_conda_install/poster.jpg",
+          "sha256": "340f04e4cf50b5c4efe6d0bdd4f2a8dcaa45400e5b7d4403ad176e4baec705ec",
+          "bytes": 81723
+        },
+        {
+          "path": "03_pip_install/audio/en/af_alloy.json",
+          "sha256": "388b21cfaa70ab378eef5515f7e512dd4762d1c513a8abe1cf868b8395af8a1a",
+          "bytes": 4781
+        },
+        {
+          "path": "03_pip_install/audio/en/af_alloy.m4a",
+          "sha256": "514c50552b6fda9e68a801bc836834ba004a82ddfff1a4dd9c6c8341f538bc8a",
+          "bytes": 363195
+        },
+        {
+          "path": "03_pip_install/audio/en/af_aoede.json",
+          "sha256": "cf2642cb72abaa303ade64e08d41a46197eb7104573772b254fccad7db569068",
+          "bytes": 4822
+        },
+        {
+          "path": "03_pip_install/audio/en/af_aoede.m4a",
+          "sha256": "a618d88a489b698ff6958070f9e12a04367e550e396ffbbe657b85b06b155a9b",
+          "bytes": 387432
+        },
+        {
+          "path": "03_pip_install/audio/en/af_bella.json",
+          "sha256": "d073d5e21af05116ef3d44672e559e09b544e1cecefa8d41117c8c305b906ba9",
+          "bytes": 4869
+        },
+        {
+          "path": "03_pip_install/audio/en/af_bella.m4a",
+          "sha256": "7ec10faa88d108211a536c4ece32c33c73b131968ec72e8d9147f95759878976",
+          "bytes": 399615
+        },
+        {
+          "path": "03_pip_install/audio/en/af_heart.json",
+          "sha256": "9da2f1567f4d279bfef09e8d33b331f54a785cb0f8e1df569a43db6ab451489a",
+          "bytes": 4774
+        },
+        {
+          "path": "03_pip_install/audio/en/af_heart.m4a",
+          "sha256": "6fb556d91f19dab2c426cb54f0a98563b919504f658fd181b0c26064b2355ebd",
+          "bytes": 382264
+        },
+        {
+          "path": "03_pip_install/audio/en/af_jessica.json",
+          "sha256": "21f0368094f6996cf4911adc6774668838f30d74d6a760a4b63e32bc685126d6",
+          "bytes": 4917
+        },
+        {
+          "path": "03_pip_install/audio/en/af_jessica.m4a",
+          "sha256": "17cfba163e311d162425b5b593c599b40d3ae688ddedb83c14e255d85e44b579",
+          "bytes": 337474
+        },
+        {
+          "path": "03_pip_install/audio/en/af_kore.json",
+          "sha256": "d09586608e04b7862f93a92ea77892b2fa2f7ea58a47039ac8a77a0a698c9b50",
+          "bytes": 4794
+        },
+        {
+          "path": "03_pip_install/audio/en/af_kore.m4a",
+          "sha256": "a88114e60c3c3f0dd66cabb8b35722926b1d3a3078b3951f9520cd900ede12b9",
+          "bytes": 397967
+        },
+        {
+          "path": "03_pip_install/audio/en/af_nicole.json",
+          "sha256": "0757ffe920f24be86c927f679c17ce1345ff599c507daed9352190b6da38c3b3",
+          "bytes": 4784
+        },
+        {
+          "path": "03_pip_install/audio/en/af_nicole.m4a",
+          "sha256": "fd4526b04a06f293cb1b1f3ec09b55fc02ea568cc62e20f6022c1ba4b4eedeef",
+          "bytes": 567055
+        },
+        {
+          "path": "03_pip_install/audio/en/af_nova.json",
+          "sha256": "12be3b4367304d7ce7b816c1ea609867e73584202dde8b66db3796c2e5d0ef22",
+          "bytes": 4844
+        },
+        {
+          "path": "03_pip_install/audio/en/af_nova.m4a",
+          "sha256": "813428b6780a42cc72dcdc85785ef32f9663fc66f2e2f89713b59b7d35209268",
+          "bytes": 354014
+        },
+        {
+          "path": "03_pip_install/audio/en/af_river.json",
+          "sha256": "42cead53d373604aded7e046bb146657aa0b54438fa7901b405a825bc96fea28",
+          "bytes": 4858
+        },
+        {
+          "path": "03_pip_install/audio/en/af_river.m4a",
+          "sha256": "a02f2de5b41e16fc13231e85ab1b62eed359e5cfc57b11d8629db31c8babd01a",
+          "bytes": 334854
+        },
+        {
+          "path": "03_pip_install/audio/en/af_sarah.json",
+          "sha256": "ec4d066aaaa6345752f48e75d14ad54e06731cf2180d0d0095000fe7afcab273",
+          "bytes": 4818
+        },
+        {
+          "path": "03_pip_install/audio/en/af_sarah.m4a",
+          "sha256": "4dad57c493dcd7079434e23fcd90ce839b89e2038539ae1471ae3f8b724b6c0d",
+          "bytes": 388805
+        },
+        {
+          "path": "03_pip_install/audio/en/af_sky.json",
+          "sha256": "27a936cb190eb1fa6c9946b64880ae0386d7d0d06facaa0060ecc9c6545ba940",
+          "bytes": 4840
+        },
+        {
+          "path": "03_pip_install/audio/en/af_sky.m4a",
+          "sha256": "81592ce8a5d12a2f627432f0786cd426d8ce2294e686dfc0ad8f09861a167ccd",
+          "bytes": 373875
+        },
+        {
+          "path": "03_pip_install/audio/en/am_adam.json",
+          "sha256": "ea8bf132b1c9fbef6e09fd6fabd40cff7f2cfc6bd685b76fa637c963a032059b",
+          "bytes": 4809
+        },
+        {
+          "path": "03_pip_install/audio/en/am_adam.m4a",
+          "sha256": "1f2d82e85ecd54cdc8f5fa0fb51bfa098d2c1741c7a4a7f1e480424b77f02da6",
+          "bytes": 369402
+        },
+        {
+          "path": "03_pip_install/audio/en/am_echo.json",
+          "sha256": "9a8c5e45de1b520c98138c081c1cc24ea588c16f794cde0af0edc700dffe2ff3",
+          "bytes": 4807
+        },
+        {
+          "path": "03_pip_install/audio/en/am_echo.m4a",
+          "sha256": "36ef182ee3c920dcf8d7f12e5d4252b6a9553ac1acc2b1541b0c8c78e8d76647",
+          "bytes": 361883
+        },
+        {
+          "path": "03_pip_install/audio/en/am_eric.json",
+          "sha256": "64a277c0f67474829d2779503a6b944bf56956555abbc4262e76af8921894b94",
+          "bytes": 4795
+        },
+        {
+          "path": "03_pip_install/audio/en/am_eric.m4a",
+          "sha256": "47e9421b53cc229d7bd51dd28ddd6b40195d49bd6ad114eb0f436f141e3a0a9f",
+          "bytes": 335613
+        },
+        {
+          "path": "03_pip_install/audio/en/am_fenrir.json",
+          "sha256": "0d2b2a4d4b6c59aa4b084d1cf83267e30257a61befce56a282963cbf2d407d02",
+          "bytes": 4974
+        },
+        {
+          "path": "03_pip_install/audio/en/am_fenrir.m4a",
+          "sha256": "5f7e87e05c2b731743903fc1f6f1c6960192587f7a4a761a9cd510b3596ddf02",
+          "bytes": 389145
+        },
+        {
+          "path": "03_pip_install/audio/en/am_liam.json",
+          "sha256": "48d986212c5cdc7ab07b85cfd1c6d6781bf40e342bdae0ed2bb09be61097ee5a",
+          "bytes": 4934
+        },
+        {
+          "path": "03_pip_install/audio/en/am_liam.m4a",
+          "sha256": "e5145870222b1eb996a48d2949f7f3be1601c33f240032a6da2fc5af11fe793b",
+          "bytes": 339950
+        },
+        {
+          "path": "03_pip_install/audio/en/am_michael.json",
+          "sha256": "6356dfe68bc6623975b17270bc8d547f30addeeb50f99d509e7215ef8b5570f9",
+          "bytes": 4869
+        },
+        {
+          "path": "03_pip_install/audio/en/am_michael.m4a",
+          "sha256": "2a50333a4787a2bccaca0baebecc4789ac34ae0a13d20bd034187879c9ac9486",
+          "bytes": 421023
+        },
+        {
+          "path": "03_pip_install/audio/en/am_onyx.json",
+          "sha256": "cdcf97ff1279bbe1c695e1f5ac7e3f67e7f56558860cc8097162e59d05fd0344",
+          "bytes": 4739
+        },
+        {
+          "path": "03_pip_install/audio/en/am_onyx.m4a",
+          "sha256": "c56da52995fca682b42c33d8564135658f9f7a8332f0137c20297c418b10eb59",
+          "bytes": 360447
+        },
+        {
+          "path": "03_pip_install/audio/en/am_puck.json",
+          "sha256": "b66705d796992963f6a4b5c64db53e8791ecb6520aaee20fde2388520fddca38",
+          "bytes": 4852
+        },
+        {
+          "path": "03_pip_install/audio/en/am_puck.m4a",
+          "sha256": "bc85fb4eeeb5ee54bcad3ef9842e4b6f6509183860e33ebe38900d625b3de504",
+          "bytes": 381457
+        },
+        {
+          "path": "03_pip_install/audio/en/am_santa.json",
+          "sha256": "013348d4baa4bf49c8eb602f49f3251fc68279bba8cf8b55c7989188d5888a42",
+          "bytes": 4738
+        },
+        {
+          "path": "03_pip_install/audio/en/am_santa.m4a",
+          "sha256": "0e9e06f5fdbdc242b6762440e29df66cf03255c67eeda43a10c0b3517c2d35ef",
+          "bytes": 390272
+        },
+        {
+          "path": "03_pip_install/audio/en/bf_alice.json",
+          "sha256": "ae0dec200cff70f1e65eddea4d6b0b6943f05b8e486fda53a26aedec57bc065d",
+          "bytes": 4778
+        },
+        {
+          "path": "03_pip_install/audio/en/bf_alice.m4a",
+          "sha256": "70b536bfa330c72abc1e5c79aa70ff389cc61f83c745c940fe9bff34618199f3",
+          "bytes": 376902
+        },
+        {
+          "path": "03_pip_install/audio/en/bf_emma.json",
+          "sha256": "7b4ff271348468352409fdee701a05d029a64b9c237dfa06480ece85551ae1e3",
+          "bytes": 4782
+        },
+        {
+          "path": "03_pip_install/audio/en/bf_emma.m4a",
+          "sha256": "a7d66239236762034eb1f72cd45a84aeff53d707f0bd462c6bd744ac6e5c7d2b",
+          "bytes": 365894
+        },
+        {
+          "path": "03_pip_install/audio/en/bf_isabella.json",
+          "sha256": "2b0d8c644537ae36f97e582a07ca3484ec2821460d786836279fc86fbf9b6832",
+          "bytes": 4796
+        },
+        {
+          "path": "03_pip_install/audio/en/bf_isabella.m4a",
+          "sha256": "4e72573e6a18feb61b9cfcc34cf9673f08b52d0dd698ac3735242981cf0afb67",
+          "bytes": 371079
+        },
+        {
+          "path": "03_pip_install/audio/en/bf_lily.json",
+          "sha256": "6ecb1e06701a4a70a41ffe4634aa6e0f3788e808b7c7c4b567cd59d9348e56a9",
+          "bytes": 4899
+        },
+        {
+          "path": "03_pip_install/audio/en/bf_lily.m4a",
+          "sha256": "1887331cae2a5e00ad1286d117cbc5120b7d7d3123d601112afefe7bde9f4b05",
+          "bytes": 360666
+        },
+        {
+          "path": "03_pip_install/audio/en/bm_daniel.json",
+          "sha256": "1cea158591b1c2e74d54f283b158076f661b89b3ca3e2f04679afdc88f47a1fb",
+          "bytes": 4858
+        },
+        {
+          "path": "03_pip_install/audio/en/bm_daniel.m4a",
+          "sha256": "ac4b8c9b0d96e95565431220cc3d2e3dfbb0afbbac6e7ed19b7f4293dac74ba0",
+          "bytes": 362090
+        },
+        {
+          "path": "03_pip_install/audio/en/bm_fable.json",
+          "sha256": "5bda60588897413c324320405cedb98093cbb34c4b48d6af785c9b9a6571a664",
+          "bytes": 4707
+        },
+        {
+          "path": "03_pip_install/audio/en/bm_fable.m4a",
+          "sha256": "2100e864a296d6fd2ca4ac7c4d6646ebc0137bc487eafa5fca3acabb8d8b5b09",
+          "bytes": 356359
+        },
+        {
+          "path": "03_pip_install/audio/en/bm_george.json",
+          "sha256": "85ead5f8ce28ec40de0024278bac6173d4e67e0a0ceeb636c64636c6f94d70ce",
+          "bytes": 4769
+        },
+        {
+          "path": "03_pip_install/audio/en/bm_george.m4a",
+          "sha256": "beacd4da40387e8624b82f771f9415617761852bfbcb98156980246f6be45987",
+          "bytes": 413374
+        },
+        {
+          "path": "03_pip_install/audio/en/bm_lewis.json",
+          "sha256": "47c1f8fd34c0eba4a66cb9cfa0d0c4cb5ab6305a1100e9358f87ef3a8b854adc",
+          "bytes": 4729
+        },
+        {
+          "path": "03_pip_install/audio/en/bm_lewis.m4a",
+          "sha256": "36df16d111bb5aafef5de983d7fc314ce6f39b001f7b979640f787e5d50731c3",
+          "bytes": 402594
+        },
+        {
+          "path": "03_pip_install/audio/es/ef_dora.json",
+          "sha256": "a603d063a5bce7ef8421c4558216a9502ac885ecb8100893ca22ab448fdeb19a",
+          "bytes": 4857
+        },
+        {
+          "path": "03_pip_install/audio/es/ef_dora.m4a",
+          "sha256": "13046112aa95c8e962ec46a44ba6a2312dac1b96fb7f282bf5da4cf226d3678b",
+          "bytes": 352345
+        },
+        {
+          "path": "03_pip_install/audio/es/em_alex.json",
+          "sha256": "e7cdfc37be8643ce3600a41f427bba9ef2680479132ebe83b18c5e19fc3c65b5",
+          "bytes": 4811
+        },
+        {
+          "path": "03_pip_install/audio/es/em_alex.m4a",
+          "sha256": "049e537d29b6f5924f8d5f6c99e57405c225532dde245d07a47c5259ed3c7d13",
+          "bytes": 353054
+        },
+        {
+          "path": "03_pip_install/audio/es/em_santa.json",
+          "sha256": "0dd8659632a959a2976c982dbc6b7101b53669f00c1e361489673a5940b0e1bb",
+          "bytes": 4932
+        },
+        {
+          "path": "03_pip_install/audio/es/em_santa.m4a",
+          "sha256": "d238c7914d24ec1c9b0744bea45955a5fbddee0d55029e8f11e1d33ea53024b8",
+          "bytes": 352596
+        },
+        {
+          "path": "03_pip_install/audio/fr/ff_siwis.json",
+          "sha256": "bff49dd42cca6782efcd90fa7f64fcb668a14ae74c1b1d3088d429c1893493e6",
+          "bytes": 5028
+        },
+        {
+          "path": "03_pip_install/audio/fr/ff_siwis.m4a",
+          "sha256": "348f6feeb06ccd8e7e8e6a95d9ed5ab4de22154cd4456969fc5500248a1ffd47",
+          "bytes": 388961
+        },
+        {
+          "path": "03_pip_install/audio/hi/hf_alpha.json",
+          "sha256": "3ac84a2401a5368735d52de2af4139058b08c654b8a059230a3d9cd331c9ea98",
+          "bytes": 7948
+        },
+        {
+          "path": "03_pip_install/audio/hi/hf_alpha.m4a",
+          "sha256": "2972a78369d466ea2e5a78df44a06ba2e8367cad1b8593c167b632a4411d824c",
+          "bytes": 477139
+        },
+        {
+          "path": "03_pip_install/audio/hi/hf_beta.json",
+          "sha256": "f60c5013b0a09d441b7df0315f598e1e3aa915242aca6d7ce96cdb4409401e36",
+          "bytes": 7955
+        },
+        {
+          "path": "03_pip_install/audio/hi/hf_beta.m4a",
+          "sha256": "a23f934c49759f5a1a2be536832e62c1fe2a81e064f666f1a0c7df05bcf9637e",
+          "bytes": 428587
+        },
+        {
+          "path": "03_pip_install/audio/hi/hm_omega.json",
+          "sha256": "74b385e20dd27390231abd412a66f82a08df3510a369a16c4669e1e7196978ec",
+          "bytes": 7876
+        },
+        {
+          "path": "03_pip_install/audio/hi/hm_omega.m4a",
+          "sha256": "ad7b6a262b9e2bf6552461307b1362e11b6fbfeb27fde5b1911787af11ea8700",
+          "bytes": 491892
+        },
+        {
+          "path": "03_pip_install/audio/hi/hm_psi.json",
+          "sha256": "453bcd3b189e8284005eed79507f9c140a1455ffc8ba12ff5928718ad8d7b73e",
+          "bytes": 7849
+        },
+        {
+          "path": "03_pip_install/audio/hi/hm_psi.m4a",
+          "sha256": "9ae5e50882136a565f96ac93e61283bbf19e09b24f47be46dfb80fe733c22714",
+          "bytes": 492748
+        },
+        {
+          "path": "03_pip_install/audio/it/if_sara.json",
+          "sha256": "bbc6e2d56ef2e2d87c3e8a2b467076ff7e3289c38c8a2eee5275fe1c8847993b",
+          "bytes": 4635
+        },
+        {
+          "path": "03_pip_install/audio/it/if_sara.m4a",
+          "sha256": "9e6a1b8b4927bc3b6399ccc9f156854adc5b6c93d8949cad404b5ecae411e167",
+          "bytes": 362829
+        },
+        {
+          "path": "03_pip_install/audio/it/im_nicola.json",
+          "sha256": "4129f8afb599b8c8d558aa95fec0a9e85ca1d6af2dd08eb1e37681de2433dd60",
+          "bytes": 4719
+        },
+        {
+          "path": "03_pip_install/audio/it/im_nicola.m4a",
+          "sha256": "9f00d135f805701f583486d86cae3ff05920a47a91e3f3d0996c4531a0679960",
+          "bytes": 391313
+        },
+        {
+          "path": "03_pip_install/audio/ja/jf_alpha.json",
+          "sha256": "b87c43c1121fccd8623de595e6885e56cf7c10e53a68d13fcf60b2adb0020258",
+          "bytes": 5347
+        },
+        {
+          "path": "03_pip_install/audio/ja/jf_alpha.m4a",
+          "sha256": "780c04d9ee2461fb94828429aa1720d82d76a90fec16cff6018072693ed895bb",
+          "bytes": 427044
+        },
+        {
+          "path": "03_pip_install/audio/ja/jf_gongitsune.json",
+          "sha256": "7591a8cb5350aa725fb129fa4bd18ce5ce9c73a51832ad1023d62415d0cd1cb0",
+          "bytes": 5411
+        },
+        {
+          "path": "03_pip_install/audio/ja/jf_gongitsune.m4a",
+          "sha256": "2ab44d4d9c0223401d4408496dba4b4f284e9ef0504291cc419d6233fa993877",
+          "bytes": 544310
+        },
+        {
+          "path": "03_pip_install/audio/ja/jf_nezumi.json",
+          "sha256": "9e6af4f7b1291a8264b26a4dde9af3003ff20c7b2e782c67b89e61b00d790d24",
+          "bytes": 5356
+        },
+        {
+          "path": "03_pip_install/audio/ja/jf_nezumi.m4a",
+          "sha256": "1433e7a67a3ce2cd257b3e667dc920f834f2f2b4ad3449d0cdacaa1ef8bcf705",
+          "bytes": 555475
+        },
+        {
+          "path": "03_pip_install/audio/ja/jf_tebukuro.json",
+          "sha256": "8746395ce3b8d5b888764a618c4f28a36381d7b3e6271cd81b2537d2beec8784",
+          "bytes": 5394
+        },
+        {
+          "path": "03_pip_install/audio/ja/jf_tebukuro.m4a",
+          "sha256": "56e50d6b95d3e06801212494bfa6dec3894cbddd13b914dfb1cbfd0729113615",
+          "bytes": 520178
+        },
+        {
+          "path": "03_pip_install/audio/ja/jm_kumo.json",
+          "sha256": "41e283ab7e0711303e7db0c885075d373b69b4f09d71098ee37189517e79e93d",
+          "bytes": 5225
+        },
+        {
+          "path": "03_pip_install/audio/ja/jm_kumo.m4a",
+          "sha256": "881c41da327b1a4536350c17491f9c363575367a3d68000aa9e2503b6cef9922",
+          "bytes": 482443
+        },
+        {
+          "path": "03_pip_install/audio/pt-BR/pf_dora.json",
+          "sha256": "ce06055a77355fd38b9d24f38d5b26ec9608cb669312e62f27c869fd502617ea",
+          "bytes": 4928
+        },
+        {
+          "path": "03_pip_install/audio/pt-BR/pf_dora.m4a",
+          "sha256": "4ebe28eba0a9f14d0fe0df8d0819a3edfa8c430208b01ec453c715a29e936082",
+          "bytes": 342574
+        },
+        {
+          "path": "03_pip_install/audio/pt-BR/pm_alex.json",
+          "sha256": "9fe381d48eae70e1c12ea0808218fa986cba0d28ecc4217d58b1df22fd5d308f",
+          "bytes": 4955
+        },
+        {
+          "path": "03_pip_install/audio/pt-BR/pm_alex.m4a",
+          "sha256": "f8738b22d4857d4486bf169b63b7af0a9ea6215a4e719d6d8b90312ad2a760a7",
+          "bytes": 345700
+        },
+        {
+          "path": "03_pip_install/audio/pt-BR/pm_santa.json",
+          "sha256": "c768abea23d1ae2a1a14917f340d1a4fa09ee6407125cb38e9e8243df11a7a8b",
+          "bytes": 4901
+        },
+        {
+          "path": "03_pip_install/audio/pt-BR/pm_santa.m4a",
+          "sha256": "d60d2d4bbfb17ae65901551722de9617199a90002f3f70ba9cf143155d3b46aa",
+          "bytes": 348712
+        },
+        {
+          "path": "03_pip_install/audio/zh-CN/zf_xiaobei.json",
+          "sha256": "00788469b36c24c37eb1aa1e654dcb7dca2e3c45b6541bc46f4f34c48f321b23",
+          "bytes": 4793
+        },
+        {
+          "path": "03_pip_install/audio/zh-CN/zf_xiaobei.m4a",
+          "sha256": "7a29fbe0056096fef992a5a79ad98c7af495a3d3363de32c6b7ead76c324ddcb",
+          "bytes": 397887
+        },
+        {
+          "path": "03_pip_install/audio/zh-CN/zf_xiaoni.json",
+          "sha256": "f7f3ec1ef4a0eab2745039cc8cecee980c3e2a42e817adf41362229783c2e9eb",
+          "bytes": 4713
+        },
+        {
+          "path": "03_pip_install/audio/zh-CN/zf_xiaoni.m4a",
+          "sha256": "2401c23a867c50883816d8234d0c927095e10ef390010fd39de5397360f4403a",
+          "bytes": 352524
+        },
+        {
+          "path": "03_pip_install/audio/zh-CN/zf_xiaoxiao.json",
+          "sha256": "10cc235b8f36571f21f1be94a629c6486e62cbc685ac1475aa3a0700508a339c",
+          "bytes": 4793
+        },
+        {
+          "path": "03_pip_install/audio/zh-CN/zf_xiaoxiao.m4a",
+          "sha256": "751e3213563769a3071f90d0bb8f2ec41ddfdef4e948155296818d73604ffdc9",
+          "bytes": 343519
+        },
+        {
+          "path": "03_pip_install/audio/zh-CN/zf_xiaoyi.json",
+          "sha256": "561a85ea3346b6e841ce206e463de16d482ce73e5b6308fdc6ab02f8aac71329",
+          "bytes": 4808
+        },
+        {
+          "path": "03_pip_install/audio/zh-CN/zf_xiaoyi.m4a",
+          "sha256": "fed3623a5151a201c5f1f0fd38b1459e878dbf5a70425bc86263bdf4477df502",
+          "bytes": 338592
+        },
+        {
+          "path": "03_pip_install/audio/zh-CN/zm_yunjian.json",
+          "sha256": "064195bbfe0dcac459c70a33c3ac48af4e59050dc622d675e68ba71fce1f024e",
+          "bytes": 4916
+        },
+        {
+          "path": "03_pip_install/audio/zh-CN/zm_yunjian.m4a",
+          "sha256": "f3fe9a5baa1065cae4531533318e9be1a5c4f98abb50d6548e087c177d355e13",
+          "bytes": 344522
+        },
+        {
+          "path": "03_pip_install/audio/zh-CN/zm_yunxi.json",
+          "sha256": "c9aceb870bddf60cbeafe96691d1213a8b873d6547c3d4eb846a60e79d5ceabc",
+          "bytes": 4779
+        },
+        {
+          "path": "03_pip_install/audio/zh-CN/zm_yunxi.m4a",
+          "sha256": "f5d6f7fc39052af8ed0c4d3e5916872f94e93b2c2e3f90f1fe9e4949c673a7e9",
+          "bytes": 326676
+        },
+        {
+          "path": "03_pip_install/audio/zh-CN/zm_yunxia.json",
+          "sha256": "9d1932a7575d7a42baff9008f16b431ba995aeb5dca970623e5b5b862dfafb62",
+          "bytes": 4892
+        },
+        {
+          "path": "03_pip_install/audio/zh-CN/zm_yunxia.m4a",
+          "sha256": "a5b2377d4c30afef6b06ea7fcc6092a07f6a1e8530c8a14d3b134c9966fcb875",
+          "bytes": 356465
+        },
+        {
+          "path": "03_pip_install/audio/zh-CN/zm_yunyang.json",
+          "sha256": "3dc4af5b4c94e52d575e902d342a214efdfa3bd5129a4ec90fcb41bd3714cd45",
+          "bytes": 4871
+        },
+        {
+          "path": "03_pip_install/audio/zh-CN/zm_yunyang.m4a",
+          "sha256": "9a04fbda336d0430929e72dec400d82e20da32bce0cb01c35c3e11d29b05bcf8",
+          "bytes": 312346
+        },
+        {
+          "path": "03_pip_install/poster.jpg",
+          "sha256": "64667a8dd17622637ba81f485c6303ce48f0cfcc1720c82cae0d39c702298117",
+          "bytes": 100472
+        }
+      ]
+    },
     "ready": 84,
     "routes": 84
   }
