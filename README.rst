@@ -315,7 +315,7 @@ Contributors need history; to run spaCR, choose below. Measurements:
 The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none``
 to the shallow clone does not help shrink the checkout: its object store
 still weighs 2032 MB. Quiet lazy fetches prevent a complete measured download
-total. The nightly tracked tree is a 2839 MB checkout (measured 2026-10-07),
+total. The nightly tracked tree is a 3416 MB checkout (measured 2026-10-08),
 excluding Git history. Download sizes and times vary with the branch.
 
 

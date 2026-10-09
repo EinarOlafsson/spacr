@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_method": "Direct Codex technical review of the measured checkout size and date. All other accepted native wording, original historical download measurements and Git literals are preserved. No native-speaker signoff.",
+  "records": [
+    {
+      "label": "current-tracked-checkout-size",
+      "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not help shrink the checkout: its object store still weighs 2032 MB. Quiet lazy fetches prevent a complete measured download total. The nightly tracked tree is a 3416 MB checkout (measured 2026-10-08), excluding Git history. Download sizes and times vary with the branch.",
+      "source_sha256": "b0d9d45385c4ca0d039692b5cf28072de63efe8226ea8bf97a8de5660048f71a",
+      "translation": "Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till ``--filter=blob:none`` till den grunda klonen hjälper inte till att minska utcheckningens storlek: dess Git-objektlager väger fortfarande 2032 MB. Tysta hämtningar vid behov gör att den totala nedladdningen inte kan mätas fullständigt. De versionshanterade filerna i nightly ger en utcheckning på 3416 MB (uppmätt 2026-10-08), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen."
+    }
+  ]
+}

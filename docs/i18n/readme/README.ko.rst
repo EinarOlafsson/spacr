@@ -274,7 +274,7 @@ Docker로 설치
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-nightly 전체 클론은 9.25 GiB를 다운로드했습니다. 얕은 클론에 ``--filter=blob:none`` 을 추가해도 체크아웃한 파일의 크기는 줄어들지 않습니다. Git 객체 저장소는 여전히 2032 MB입니다. 출력 없이 필요할 때 객체를 가져오므로 전체 다운로드 총량을 측정할 수 없습니다. nightly의 버전 관리 파일을 체크아웃하면 Git 이력을 제외하고 2839 MB를 차지합니다(2026-10-07 측정). 다운로드 크기와 시간은 브랜치에 따라 달라집니다.
+nightly 전체 클론은 9.25 GiB를 다운로드했습니다. 얕은 클론에 ``--filter=blob:none`` 을 추가해도 체크아웃한 파일의 크기는 줄어들지 않습니다. Git 객체 저장소는 여전히 2032 MB입니다. 출력 없이 필요할 때 객체를 가져오므로 전체 다운로드 총량을 측정할 수 없습니다. nightly의 버전 관리 파일을 체크아웃하면 Git 이력을 제외하고 3416 MB를 차지합니다(2026-10-08 측정). 다운로드 크기와 시간은 브랜치에 따라 달라집니다.
 
 
 명령줄 진입점

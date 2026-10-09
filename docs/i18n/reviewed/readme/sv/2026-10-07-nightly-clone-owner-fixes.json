@@ -19,7 +19,9 @@
       "label": "measured-clone-and-checkout-costs",
       "source": "The full nightly clone downloaded 9.25 GiB. Adding ``--filter=blob:none`` to the shallow clone does not help shrink the checkout: its object store still weighs 2032 MB. Quiet lazy fetches prevent a complete measured download total. The nightly tracked tree is a 2839 MB checkout (measured 2026-10-07), excluding Git history. Download sizes and times vary with the branch.",
       "source_sha256": "2dc2723f4c4ee58e6621032faec477c88d8b666860a43b68442b7e343f069c20",
-      "translation": "Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till ``--filter=blob:none`` till den grunda klonen hjälper inte till att minska utcheckningens storlek: dess Git-objektlager väger fortfarande 2032 MB. Tysta hämtningar vid behov gör att den totala nedladdningen inte kan mätas fullständigt. De versionshanterade filerna i nightly ger en utcheckning på 2839 MB (uppmätt 2026-10-07), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen."
+      "translation": "Den fullständiga nightly-klonen laddade ner 9.25 GiB. Att lägga till ``--filter=blob:none`` till den grunda klonen hjälper inte till att minska utcheckningens storlek: dess Git-objektlager väger fortfarande 2032 MB. Tysta hämtningar vid behov gör att den totala nedladdningen inte kan mätas fullständigt. De versionshanterade filerna i nightly ger en utcheckning på 2839 MB (uppmätt 2026-10-07), utan Git-historiken. Nedladdningens storlek och tid varierar med grenen.",
+      "retired": true,
+      "retired_reason": "The current tracked checkout was independently remeasured on 2026-10-08; original source and target retained."
     }
   ]
 }
